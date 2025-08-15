@@ -508,7 +508,7 @@ static void add_timestamp_sample(tvbuff_t *tvb, packet_info *pinfo, int *tvb_off
 	struct tm *sample_time_split = gmtime(&sample_time);
 
 	/* Construct the readable sync status */
-	const char *sync_status_buf = val_to_str(sync_status, samples_timestamps_sample_sync_status, "Unknown (%u)");
+	const char *sync_status_buf = val_to_str_wmem(pinfo->pool, sync_status, samples_timestamps_sample_sync_status, "Unknown (%u)");
 
 	/* Construct the readable timestamp */
 	char timestamp_buf[ITEM_LABEL_LENGTH];

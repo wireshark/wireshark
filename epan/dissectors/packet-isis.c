@@ -111,7 +111,7 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     isis_type = tvb_get_uint8(tvb, offset) & ISIS_TYPE_MASK;
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str ( isis_type, isis_vals, "Unknown (0x%x)" ) );
+                val_to_str_wmem(pinfo->pool, isis_type, isis_vals, "Unknown (0x%x)" ) );
     proto_tree_add_item(isis_tree, hf_isis_type, tvb, offset, 1, ENC_BIG_ENDIAN );
     offset += 1;
 

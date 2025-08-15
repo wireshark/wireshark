@@ -3509,7 +3509,7 @@ static const value_string RT_VALS[] =  {
 	{0, NULL}
 };
 
-static int parse_rType(tvbuff_t *tvb, int offset, proto_tree *tree, enum rType *rtype, const char **str)
+static int parse_rType(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree, enum rType *rtype, const char **str)
 {
 	const char *txt = NULL;
 	uint32_t type = tvb_get_letohl(tvb, offset);
@@ -3572,7 +3572,7 @@ static int parse_rType(tvbuff_t *tvb, int offset, proto_tree *tree, enum rType *
 			DISSECTOR_ASSERT(false);
 			break;
 	}
-	txt = val_to_str(*rtype, RT_VALS, "0x%.8x");
+	txt = val_to_str_wmem(pinfo->pool, *rtype, RT_VALS, "0x%.8x");
 	proto_tree_add_string_format_value(tree, hf_mswsp_crestrict_ultype, tvb, offset, 4, txt, "%s (0x%.8x)",  txt[0] == '0' ? "" : txt, *rtype);
 	if (str) {
 		*str = txt;
@@ -3589,7 +3589,7 @@ static int parse_CRestriction(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CRestriction, &item, txt);
 
-	offset = parse_rType(tvb, offset, tree, &v->ulType, &str);
+	offset = parse_rType(tvb, pinfo, offset, tree, &v->ulType, &str);
 	proto_item_append_text(item, " Type: %s", str);
 
 	v->Weight = tvb_get_letohl(tvb, offset);

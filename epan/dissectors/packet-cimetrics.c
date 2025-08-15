@@ -57,7 +57,7 @@ dissect_cimetrics_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		proto_cimetrics_mstp, tvb, offset, 9,
 		"BACnet MS/TP, Src (%u), Dst (%u), %s",
 		mstp_frame_source, mstp_frame_destination,
-		mstp_frame_type_text(mstp_frame_type));
+		mstp_frame_type_text(pinfo->pool, mstp_frame_type));
 #else
 	ti = proto_tree_add_item(tree, proto_cimetrics_mstp, tvb, offset, 9, ENC_NA);
 #endif

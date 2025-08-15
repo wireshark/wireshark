@@ -135,9 +135,9 @@ CRC_Calc_Data(
 
 /* Common frame type text */
 const char *
-mstp_frame_type_text(uint32_t val)
+mstp_frame_type_text(wmem_allocator_t* scope, uint32_t val)
 {
-	return val_to_str(val,
+	return val_to_str_wmem(scope, val,
 		bacnet_mstp_frame_type_name,
 		"Unknown Frame Type (%u)");
 }
@@ -325,7 +325,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	mstp_frame_type = tvb_get_uint8(tvb, offset);
 	mstp_frame_pdu_len = tvb_get_ntohs(tvb, offset+3);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-			mstp_frame_type_text(mstp_frame_type));
+			mstp_frame_type_text(pinfo->pool, mstp_frame_type));
 
 	/* Add the items to the tree */
 	proto_tree_add_item(subtree, hf_mstp_frame_type, tvb,
@@ -461,7 +461,7 @@ dissect_mstp_wtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	ti = proto_tree_add_protocol_format(tree, proto_mstp, tvb, offset, 8,
 		"BACnet MS/TP, Src (%u), Dst (%u), %s",
 		mstp_frame_source, mstp_frame_destination,
-		mstp_frame_type_text(mstp_frame_type));
+		mstp_frame_type_text(pinfo->pool, mstp_frame_type));
 #else
 	ti = proto_tree_add_item(tree, proto_mstp, tvb, offset, 8, ENC_NA);
 #endif

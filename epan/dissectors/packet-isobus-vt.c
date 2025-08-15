@@ -867,7 +867,7 @@ enum vt_direction
     ecu_to_vt
 };
 
-static const char* get_object_id_string(uint16_t object_id)
+static const char* get_object_id_string(wmem_allocator_t* scope, uint16_t object_id)
 {
     const char* translated_string;
     if(object_id == 0xFFFF)
@@ -875,7 +875,7 @@ static const char* get_object_id_string(uint16_t object_id)
         return "NULL Object ID";
     }
 
-    translated_string = val_to_str(object_id, object_id_strings, "Object ID 0x%04X");
+    translated_string = val_to_str_wmem(scope, object_id, object_id_strings, "Object ID 0x%04X");
     return translated_string;
 }
 
@@ -922,7 +922,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_softkey_keynumber, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "Key %s of parent %s %s",
-            get_object_id_string(object_id), get_object_id_string(parent_object_id),
+            get_object_id_string(pinfo->pool, object_id), get_object_id_string(pinfo->pool, parent_object_id),
             val_to_str_const(key_activation_code, key_activation_codes_info_postfix, "unknown action"));
     }
         break;
@@ -952,7 +952,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_button_keynumber, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "Button %s of parent %s %s",
-            get_object_id_string(object_id), get_object_id_string(parent_object_id),
+            get_object_id_string(pinfo->pool, object_id), get_object_id_string(pinfo->pool, parent_object_id),
             val_to_str_const(key_activation_code, key_activation_codes_info_postfix, "unknown action"));
     }
         break;
@@ -1004,7 +1004,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_vtselectinputobject_openforinput, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         }
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s was selected by VT", get_object_id_string(object_id));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s was selected by VT", get_object_id_string(pinfo->pool, object_id));
     }
         break;
     case VT_VT_ESC_MESSAGE:
@@ -1031,7 +1031,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             if (error_codes & 0x10)
                 proto_item_append_text(ti, "Any other error ");
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "ESC button was pressed while %s was selected", get_object_id_string(object_id));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "ESC button was pressed while %s was selected", get_object_id_string(pinfo->pool, object_id));
         }
         else
         {
@@ -1058,12 +1058,12 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         if(direction == ecu_to_vt)
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "VT Numeric value of %s has changed to 0x%X",
-                get_object_id_string(object_id), value);
+                get_object_id_string(pinfo->pool, object_id), value);
         }
         else
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "VT Numeric value of %s should change to 0x%X",
-                get_object_id_string(object_id), value);
+                get_object_id_string(pinfo->pool, object_id), value);
         }
     }
         break;
@@ -1111,18 +1111,18 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             if(error_codes)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "VT Active mask changed to %s",
-                    get_object_id_string(mask_object_id));
+                    get_object_id_string(pinfo->pool, mask_object_id));
             }
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "VT Active mask changed to %s because of error in %s",
-                    get_object_id_string(mask_object_id), get_object_id_string(error_object_id));
+                    get_object_id_string(pinfo->pool, mask_object_id), get_object_id_string(pinfo->pool, error_object_id));
             }
         }
         else
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "VT Active mask change to %s acknowledged",
-                get_object_id_string(mask_object_id));
+                get_object_id_string(pinfo->pool, mask_object_id));
         }
     }
         break;
@@ -1159,7 +1159,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 pinfo->pool, &value);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "VT String value of %s should change to %s",
-                get_object_id_string(object_id), value);
+                get_object_id_string(pinfo->pool, object_id), value);
         }
         else
         {
@@ -1174,7 +1174,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             proto_item_set_hidden(ti);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "VT String value change of %s acknowledged",
-                get_object_id_string(object_id));
+                get_object_id_string(pinfo->pool, object_id));
         }
     }
         break;
@@ -1204,8 +1204,8 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_vtonuserlayouthideshow_status_2, tvb, offset, 1, ENC_LITTLE_ENDIAN, &status[1]);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "VT On User-Layout Hide/Show. %s is %s, %s is %s",
-            get_object_id_string(object_id[0]), val_to_str_const(status[0], vt_hide_show_action_info, "unknown"),
-            get_object_id_string(object_id[1]), val_to_str_const(status[1], vt_hide_show_action_info, "unknown"));
+            get_object_id_string(pinfo->pool, object_id[0]), val_to_str_const(status[0], vt_hide_show_action_info, "unknown"),
+            get_object_id_string(pinfo->pool, object_id[1]), val_to_str_const(status[1], vt_hide_show_action_info, "unknown"));
     }
         break;
     case VT_VT_CONTROL_AUDIO_SIGNAL_TERMINATION:
@@ -1306,12 +1306,12 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         if(direction == ecu_to_vt)
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Assign auxiliary input type 1 number %u of device %u to %s",
-                aux_input_number, source_address, get_object_id_string(object_id));
+                aux_input_number, source_address, get_object_id_string(pinfo->pool, object_id));
         }
         else
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Auxiliary input type 1 number %u of device %u has been assigned to %s",
-                aux_input_number, source_address, get_object_id_string(object_id));
+                aux_input_number, source_address, get_object_id_string(pinfo->pool, object_id));
         }
     }
         break;
@@ -1397,7 +1397,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     offset += 2;
 
                     proto_item_set_text(preferred_function_item, "Auxiliary Function %s connects to Auxiliary Input %s",
-                        get_object_id_string(auxiliary_function_object_id), get_object_id_string(auxiliary_input_object_id));
+                        get_object_id_string(pinfo->pool, auxiliary_function_object_id), get_object_id_string(pinfo->pool, auxiliary_input_object_id));
                 }
             }
             col_append_str(pinfo->cinfo, COL_INFO, "Create preferred assignment");
@@ -1429,7 +1429,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while creating preferred assignment because of %s", get_object_id_string(faulty_auxiliary_function_object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while creating preferred assignment because of %s", get_object_id_string(pinfo->pool, faulty_auxiliary_function_object_id));
             }
             else
             {
@@ -1517,19 +1517,19 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         if(direction == ecu_to_vt)
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Assign %s of name 0x%" PRIX64 " to function %s",
-                get_object_id_string(auxiliary_input_object_id), name, get_object_id_string(auxiliary_function_object_id));
+                get_object_id_string(pinfo->pool, auxiliary_input_object_id), name, get_object_id_string(pinfo->pool, auxiliary_function_object_id));
         }
         else if(direction == vt_to_ecu)
         {
             if(error_codes)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Error while assigning function %s",
-                    get_object_id_string(auxiliary_function_object_id));
+                    get_object_id_string(pinfo->pool, auxiliary_function_object_id));
             }
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Successfully assigned function %s",
-                    get_object_id_string(auxiliary_function_object_id));
+                    get_object_id_string(pinfo->pool, auxiliary_function_object_id));
             }
         }
     }
@@ -1570,12 +1570,12 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             if(enable == 0)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Auxiliary Input %s should be disabled",
-                    get_object_id_string(auxiliary_input_object_id));
+                    get_object_id_string(pinfo->pool, auxiliary_input_object_id));
             }
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Auxiliary Input %s should be enabled",
-                    get_object_id_string(auxiliary_input_object_id));
+                    get_object_id_string(pinfo->pool, auxiliary_input_object_id));
             }
         }
         else
@@ -1583,19 +1583,19 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             if(error_codes)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing status for Auxiliary Input %s",
-                    get_object_id_string(auxiliary_input_object_id));
+                    get_object_id_string(pinfo->pool, auxiliary_input_object_id));
             }
             else
             {
                 if (status == 0)
                 {
                     col_append_fstr(pinfo->cinfo, COL_INFO, "Status of Auxiliary Input %s was successfully changed to disabled",
-                        get_object_id_string(auxiliary_input_object_id));
+                        get_object_id_string(pinfo->pool, auxiliary_input_object_id));
                 }
                 else if (status == 1)
                 {
                     col_append_fstr(pinfo->cinfo, COL_INFO, "Status of Auxiliary Input %s was successfully changed to enabled",
-                        get_object_id_string(auxiliary_input_object_id));
+                        get_object_id_string(pinfo->pool, auxiliary_input_object_id));
                 }
             }
         }
@@ -1632,7 +1632,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         proto_item_set_generated(ti);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "State of input %s value 1 = 0x%X value 2 = 0x%X.",
-            get_object_id_string(auxiliary_input_object_id), value_1, value_2);
+            get_object_id_string(pinfo->pool, auxiliary_input_object_id), value_1, value_2);
     }
         break;
     case VT_AUXILIARY_CAPABILITIES:
@@ -1725,7 +1725,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "ESC successful, %s", get_object_id_string(object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "ESC successful, %s", get_object_id_string(pinfo->pool, object_id));
             }
             else
             {
@@ -1778,11 +1778,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 {
                 case 0:
                     col_append_fstr(pinfo->cinfo, COL_INFO, "%s is now hidden",
-                        get_object_id_string(object_id));
+                        get_object_id_string(pinfo->pool, object_id));
                     break;
                 case 1:
                     col_append_fstr(pinfo->cinfo, COL_INFO, "%s is now shown",
-                        get_object_id_string(object_id));
+                        get_object_id_string(pinfo->pool, object_id));
                     break;
                 }
             }
@@ -1793,11 +1793,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             {
             case 0:
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s should hide",
-                    get_object_id_string(object_id));
+                    get_object_id_string(pinfo->pool, object_id));
                 break;
             case 1:
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s should show",
-                    get_object_id_string(object_id));
+                    get_object_id_string(pinfo->pool, object_id));
                 break;
             }
         }
@@ -1824,11 +1824,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             {
             case 0:
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s should disable",
-                    get_object_id_string(object_id));
+                    get_object_id_string(pinfo->pool, object_id));
                 break;
             case 1:
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s should enable",
-                    get_object_id_string(object_id));
+                    get_object_id_string(pinfo->pool, object_id));
                 break;
             }
         }
@@ -1859,11 +1859,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 {
                 case 0:
                     col_append_fstr(pinfo->cinfo, COL_INFO, "%s is now disabled",
-                        get_object_id_string(object_id));
+                        get_object_id_string(pinfo->pool, object_id));
                     break;
                 case 1:
                     col_append_fstr(pinfo->cinfo, COL_INFO, "%s is now enabled",
-                        get_object_id_string(object_id));
+                        get_object_id_string(pinfo->pool, object_id));
                     break;
                 }
 
@@ -1888,7 +1888,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_selectinputobject_option, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s should be selected for input",
-                get_object_id_string(object_id));
+                get_object_id_string(pinfo->pool, object_id));
         }
         else
         {
@@ -1924,15 +1924,15 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 {
                     case 0:
                         col_append_fstr(pinfo->cinfo, COL_INFO, "%s is not selected",
-                            get_object_id_string(object_id));
+                            get_object_id_string(pinfo->pool, object_id));
                         break;
                     case 1:
                         col_append_fstr(pinfo->cinfo, COL_INFO, "%s is selected",
-                            get_object_id_string(object_id));
+                            get_object_id_string(pinfo->pool, object_id));
                         break;
                     case 2:
                         col_append_fstr(pinfo->cinfo, COL_INFO, "%s is opened for edit",
-                            get_object_id_string(object_id));
+                            get_object_id_string(pinfo->pool, object_id));
                         break;
                 }
             }
@@ -2051,7 +2051,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_changechildlocation_relativeypos, tvb, offset, 1, ENC_LITTLE_ENDIAN, &rel_y_location);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Change child location of %s in %s to [%u;%u]",
-                            get_object_id_string(object_id), get_object_id_string(parent_object_id), rel_x_location, rel_y_location);
+                            get_object_id_string(pinfo->pool, object_id), get_object_id_string(pinfo->pool, parent_object_id), rel_x_location, rel_y_location);
         }
         else
         {
@@ -2074,7 +2074,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Change child location of %s in %s succeeded",
-                    get_object_id_string(object_id), get_object_id_string(parent_object_id));
+                    get_object_id_string(pinfo->pool, object_id), get_object_id_string(pinfo->pool, parent_object_id));
             }
         }
     }
@@ -2102,7 +2102,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_changesize_newheight, tvb, offset, 2, ENC_LITTLE_ENDIAN, &new_height);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Change size of %s to %u x %u",
-                get_object_id_string(object_id), new_width, new_height);
+                get_object_id_string(pinfo->pool, object_id), new_width, new_height);
         }
         else
         {
@@ -2123,7 +2123,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Change size of %s succeeded",
-                    get_object_id_string(object_id));
+                    get_object_id_string(pinfo->pool, object_id));
             }
         }
     }
@@ -2166,13 +2166,13 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Background colour of %s has changed to %s",
-                    get_object_id_string(object_id), rval_to_str_const(colour, vt_colours, "Unknown"));
+                    get_object_id_string(pinfo->pool, object_id), rval_to_str_const(colour, vt_colours, "Unknown"));
             }
         }
         else
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Background colour of %s should change to %s",
-                get_object_id_string(object_id), rval_to_str_const(colour, vt_colours, "Unknown"));
+                get_object_id_string(pinfo->pool, object_id), rval_to_str_const(colour, vt_colours, "Unknown"));
         }
     }
         break;
@@ -2215,13 +2215,13 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Numeric value of %s has changed to 0x%X",
-                    get_object_id_string(object_id), value);
+                    get_object_id_string(pinfo->pool, object_id), value);
             }
         }
         else
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Numeric value of %s should change to 0x%X",
-                get_object_id_string(object_id), value);
+                get_object_id_string(pinfo->pool, object_id), value);
         }
     }
         break;
@@ -2252,7 +2252,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_changeendpoint_linedirection, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Change end point of line %s to width %d and height %d",
-                get_object_id_string(object_id), width, height);
+                get_object_id_string(pinfo->pool, object_id), width, height);
         }
     }
         break;
@@ -2284,7 +2284,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             proto_tree_add_item(tree,
                 hf_isobus_vt_changefontattributes_fontstyle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Change font attributes of %s", get_object_id_string(object_id));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Change font attributes of %s", get_object_id_string(pinfo->pool, object_id));
         }
         else
         {
@@ -2308,11 +2308,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes == 0)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Font attributes of %s successfully changed", get_object_id_string(object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Font attributes of %s successfully changed", get_object_id_string(pinfo->pool, object_id));
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing font attributes of %s", get_object_id_string(object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing font attributes of %s", get_object_id_string(pinfo->pool, object_id));
             }
         }
     }
@@ -2341,7 +2341,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             proto_tree_add_item(tree,
                 hf_isobus_vt_changelineattributes_lineart, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Change line attributes of %s", get_object_id_string(object_id));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Change line attributes of %s", get_object_id_string(pinfo->pool, object_id));
         }
         else
         {
@@ -2361,11 +2361,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes == 0)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Line attributes of %s successfully changed", get_object_id_string(object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Line attributes of %s successfully changed", get_object_id_string(pinfo->pool, object_id));
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing line attributes of %s", get_object_id_string(object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing line attributes of %s", get_object_id_string(pinfo->pool, object_id));
             }
         }
     }
@@ -2397,7 +2397,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_objectid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_set_hidden(ti);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Change fill attributes of %s", get_object_id_string(object_id));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Change fill attributes of %s", get_object_id_string(pinfo->pool, object_id));
         }
         else
         {
@@ -2419,11 +2419,11 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes == 0)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Fill attributes of %s successfully changed", get_object_id_string(object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Fill attributes of %s successfully changed", get_object_id_string(pinfo->pool, object_id));
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing fill attributes of %s", get_object_id_string(object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing fill attributes of %s", get_object_id_string(pinfo->pool, object_id));
             }
         }
     }
@@ -2468,17 +2468,17 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Change active mask of working set %s to %s", get_object_id_string(working_set_object_id), get_object_id_string(new_active_mask_object_id));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Change active mask of working set %s to %s", get_object_id_string(pinfo->pool, working_set_object_id), get_object_id_string(pinfo->pool, new_active_mask_object_id));
         }
         else if(direction == vt_to_ecu)
         {
             if(error_codes == 0)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Active mask successfully changed to %s", get_object_id_string(new_active_mask_object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Active mask successfully changed to %s", get_object_id_string(pinfo->pool, new_active_mask_object_id));
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing active mask to %s", get_object_id_string(new_active_mask_object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing active mask to %s", get_object_id_string(pinfo->pool, new_active_mask_object_id));
             }
         }
     }
@@ -2527,17 +2527,17 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Soft key mask of %s should change to %s", get_object_id_string(data_mask_object_id), get_object_id_string(new_soft_key_mask_object_id));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Soft key mask of %s should change to %s", get_object_id_string(pinfo->pool, data_mask_object_id), get_object_id_string(pinfo->pool, new_soft_key_mask_object_id));
         }
         else if(direction == vt_to_ecu)
         {
             if(error_codes == 0)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Soft key mask of %s successfully changed to %s", get_object_id_string(data_mask_object_id), get_object_id_string(new_soft_key_mask_object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Soft key mask of %s successfully changed to %s", get_object_id_string(pinfo->pool, data_mask_object_id), get_object_id_string(pinfo->pool, new_soft_key_mask_object_id));
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing soft key mask of %s to %s", get_object_id_string(data_mask_object_id), get_object_id_string(new_soft_key_mask_object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing soft key mask of %s to %s", get_object_id_string(pinfo->pool, data_mask_object_id), get_object_id_string(pinfo->pool, new_soft_key_mask_object_id));
             }
         }
     }
@@ -2581,17 +2581,17 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Attribute ID %u of %s should change to 0x%X", attribute_id, get_object_id_string(object_id), new_value);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Attribute ID %u of %s should change to 0x%X", attribute_id, get_object_id_string(pinfo->pool, object_id), new_value);
         }
         else if(direction == vt_to_ecu)
         {
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing Attribute ID %u of %s", attribute_id, get_object_id_string(object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing Attribute ID %u of %s", attribute_id, get_object_id_string(pinfo->pool, object_id));
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Attribute ID %u of %s has successfully changed", attribute_id, get_object_id_string(object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Attribute ID %u of %s has successfully changed", attribute_id, get_object_id_string(pinfo->pool, object_id));
             }
         }
     }
@@ -2626,17 +2626,17 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Priority of alarm mask with %s should change to %u", get_object_id_string(object_id), new_priority);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Priority of alarm mask with %s should change to %u", get_object_id_string(pinfo->pool, object_id), new_priority);
         }
         else if(direction == vt_to_ecu)
         {
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing priority of alarm mask with %s to %u", get_object_id_string(object_id), new_priority);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing priority of alarm mask with %s to %u", get_object_id_string(pinfo->pool, object_id), new_priority);
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Priority of alarm mask with %s has successfully changed to %u", get_object_id_string(object_id), new_priority);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Priority of alarm mask with %s has successfully changed to %u", get_object_id_string(pinfo->pool, object_id), new_priority);
             }
         }
     }
@@ -2682,17 +2682,17 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s should be added to list %s at index %u", get_object_id_string(new_object_id), get_object_id_string(list_object_id), list_index);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s should be added to list %s at index %u", get_object_id_string(pinfo->pool, new_object_id), get_object_id_string(pinfo->pool, list_object_id), list_index);
         }
         else if(direction == vt_to_ecu)
         {
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while adding %s to list %s at index %u", get_object_id_string(new_object_id), get_object_id_string(list_object_id), list_index);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while adding %s to list %s at index %u", get_object_id_string(pinfo->pool, new_object_id), get_object_id_string(pinfo->pool, list_object_id), list_index);
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s was successfully added to %s at index %u", get_object_id_string(new_object_id), get_object_id_string(list_object_id), list_index);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s was successfully added to %s at index %u", get_object_id_string(pinfo->pool, new_object_id), get_object_id_string(pinfo->pool, list_object_id), list_index);
             }
         }
     }
@@ -2758,7 +2758,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_chgstrval_value, tvb, offset + bomOffset, str_length - bomOffset, encoding, pinfo->pool, &value);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "String value of %s should change to %s",
-                get_object_id_string(object_id), value);
+                get_object_id_string(pinfo->pool, object_id), value);
         }
         else
         {
@@ -2793,7 +2793,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "String value of %s has changed",
-                    get_object_id_string(object_id));
+                    get_object_id_string(pinfo->pool, object_id));
             }
         }
     }
@@ -2829,7 +2829,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_changechildposition_ypos, tvb, offset, 2, ENC_LITTLE_ENDIAN, &rel_y_position);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Change child position of %s in %s to [%u:%u]",
-                get_object_id_string(object_id), get_object_id_string(parent_object_id), rel_x_position, rel_y_position);
+                get_object_id_string(pinfo->pool, object_id), get_object_id_string(pinfo->pool, parent_object_id), rel_x_position, rel_y_position);
         }
         else
         {
@@ -2847,12 +2847,12 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
             if(error_codes)
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing child position of %s", get_object_id_string(object_id));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing child position of %s", get_object_id_string(pinfo->pool, object_id));
             }
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Change child position of %s in %s succeeded",
-                    get_object_id_string(object_id), get_object_id_string(parent_object_id));
+                    get_object_id_string(pinfo->pool, object_id), get_object_id_string(pinfo->pool, parent_object_id));
             }
         }
     }
@@ -2888,7 +2888,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             proto_item_set_hidden(ti);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Change object label of %s to string %s",
-                            get_object_id_string(object_id), get_object_id_string(string_object_id));
+                            get_object_id_string(pinfo->pool, object_id), get_object_id_string(pinfo->pool, string_object_id));
         }
         else
         {
@@ -2948,7 +2948,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 hf_isobus_vt_changepolygonpoint_yvalue, tvb, offset, 2, ENC_LITTLE_ENDIAN, &y_value);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "Change point %u of polygon %s to location [%u:%u] ",
-                point_index, get_object_id_string(object_id), x_value, y_value);
+                point_index, get_object_id_string(pinfo->pool, object_id), x_value, y_value);
         }
         else
         {
@@ -3007,19 +3007,19 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         if(direction == ecu_to_vt)
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Change scale of polygon %s to width %u and height %u ",
-                get_object_id_string(object_id), new_width, new_height);
+                get_object_id_string(pinfo->pool, object_id), new_width, new_height);
         }
         else if(direction == vt_to_ecu)
         {
             if(error_codes)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Error while changing scale of polygon %s to width %u and height %u ",
-                    get_object_id_string(object_id), new_width, new_height);
+                    get_object_id_string(pinfo->pool, object_id), new_width, new_height);
             }
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Scale of polygon %s scale successfully changed to width %u and height %u ",
-                    get_object_id_string(object_id), new_width, new_height);
+                    get_object_id_string(pinfo->pool, object_id), new_width, new_height);
             }
         }
     }
@@ -3039,7 +3039,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_graphicscontext_subcommandid, tvb, offset, 1, ENC_LITTLE_ENDIAN, &sub_command_id);
         offset += 1;
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Graphic Context of %s: ", get_object_id_string(object_id));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Graphic Context of %s: ", get_object_id_string(pinfo->pool, object_id));
 
         switch(sub_command_id)
         {
@@ -3106,7 +3106,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 proto_item_set_hidden(ti);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Set Line Attributes to %s",
-                    get_object_id_string(line_attr_object_id));
+                    get_object_id_string(pinfo->pool, line_attr_object_id));
             }
                 break;
             case SET_FILL_ATTRIBUTES_OBJECT_ID:
@@ -3120,7 +3120,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 proto_item_set_hidden(ti);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Set Fill Attributes to %s",
-                    get_object_id_string(fill_attr_object_id));
+                    get_object_id_string(pinfo->pool, fill_attr_object_id));
             }
                 break;
             case SET_FONT_ATTRIBUTES_OBJECT_ID:
@@ -3134,7 +3134,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 proto_item_set_hidden(ti);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Set Font Attributes to %s",
-                    get_object_id_string(font_attr_object_id));
+                    get_object_id_string(pinfo->pool, font_attr_object_id));
             }
                 break;
             case ERASE_RECTANGLE:
@@ -3348,7 +3348,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 proto_item_set_hidden(ti);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Draw VT %s at graphics cursor",
-                    get_object_id_string(draw_object_id));
+                    get_object_id_string(pinfo->pool, draw_object_id));
             }
                 break;
             case COPY_CANVAS_TO_PICTURE_GRAPHIC:
@@ -3362,7 +3362,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 proto_item_set_hidden(ti);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Copy canvas to picture graphics %s",
-                    get_object_id_string(object_id_picture_graphic));
+                    get_object_id_string(pinfo->pool, object_id_picture_graphic));
             }
                 break;
             case COPY_VIEWPORT_TO_PICTURE_GRAPHIC:
@@ -3376,7 +3376,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 proto_item_set_hidden(ti);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Copy viewport to picture graphics %s",
-                    get_object_id_string(object_id_picture_graphic));
+                    get_object_id_string(pinfo->pool, object_id_picture_graphic));
             }
                 break;
         }
@@ -3416,7 +3416,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     hf_isobus_vt_getattributevalue_value, tvb, offset, 4, ENC_LITTLE_ENDIAN, &value);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Return value of attribute %u from %s, value is 0x%X ",
-                    attribute_id, get_object_id_string(object_id), value);
+                    attribute_id, get_object_id_string(pinfo->pool, object_id), value);
             }
             else
             {
@@ -3440,13 +3440,13 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     proto_item_append_text(ti, "Any other error ");
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Error while requesting value of attribute %u from %s ",
-                    attribute_id, get_object_id_string(object_id));
+                    attribute_id, get_object_id_string(pinfo->pool, object_id));
             }
         }
         else
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Get value of attribute %u from %s ",
-                attribute_id, get_object_id_string(object_id));
+                attribute_id, get_object_id_string(pinfo->pool, object_id));
         }
     }
         break;
@@ -3477,19 +3477,19 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         if(direction == ecu_to_vt)
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Select colour map %s ",
-                get_object_id_string(object_id));
+                get_object_id_string(pinfo->pool, object_id));
         }
         else if(direction == vt_to_ecu)
         {
             if(error_codes)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Error while selecting colour map %s ",
-                    get_object_id_string(object_id));
+                    get_object_id_string(pinfo->pool, object_id));
             }
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Colour map %s successfully selected ",
-                    get_object_id_string(object_id));
+                    get_object_id_string(pinfo->pool, object_id));
             }
         }
     }
@@ -3533,19 +3533,19 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         if(direction == ecu_to_vt)
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Execute extended macro %s ",
-                get_object_id_string(object_id));
+                get_object_id_string(pinfo->pool, object_id));
         }
         else if(direction == vt_to_ecu)
         {
             if(error_codes)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Error while executing extended macro %s ",
-                    get_object_id_string(object_id));
+                    get_object_id_string(pinfo->pool, object_id));
             }
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Extended macro %s successfully executed ",
-                    get_object_id_string(object_id));
+                    get_object_id_string(pinfo->pool, object_id));
             }
         }
     }
@@ -3601,12 +3601,12 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             if(command == MASK_LOCK)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Lock data mask %s for %ums ",
-                    get_object_id_string(object_id), lock_timeout);
+                    get_object_id_string(pinfo->pool, object_id), lock_timeout);
             }
             else if(command == MASK_UNLOCK)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Unlock data mask %s ",
-                    get_object_id_string(object_id));
+                    get_object_id_string(pinfo->pool, object_id));
             }
         }
         else if(direction == vt_to_ecu)
@@ -3665,19 +3665,19 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
         if(direction == ecu_to_vt)
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Execute macro %s ",
-                get_object_id_string(object_id));
+                get_object_id_string(pinfo->pool, object_id));
         }
         else if(direction == vt_to_ecu)
         {
             if(error_codes)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Error while executing macro %s ",
-                    get_object_id_string(object_id));
+                    get_object_id_string(pinfo->pool, object_id));
             }
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Macro %s successfully executed ",
-                    get_object_id_string(object_id));
+                    get_object_id_string(pinfo->pool, object_id));
             }
         }
     }
@@ -4327,7 +4327,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             hf_isobus_vt_vtstatus_vtfunctioncodes, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "Status: Current master is %d data mask is %s soft key mask is %s",
-        working_set_master, get_object_id_string(object_id_data_mask), get_object_id_string(object_id_soft_key_mask));
+        working_set_master, get_object_id_string(pinfo->pool, object_id_data_mask), get_object_id_string(pinfo->pool, object_id_soft_key_mask));
     }
         break;
     case VT_WORKING_SET_MAINTENANCE:

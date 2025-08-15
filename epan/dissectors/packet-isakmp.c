@@ -6515,8 +6515,9 @@ static bool ikev2_uat_data_update_cb(void* p, char** err) {
   }
 
   if (ud->encr_spec->icv_len && ud->auth_spec->number != IKEV2_AUTH_NONE) {
-    *err = ws_strdup_printf("Selected encryption_algorithm %s requires selecting NONE integrity algorithm.",
-             val_to_str(ud->encr_spec->number, vs_ikev2_encr_algs, "other-%d"));
+    char* auth_str = val_to_str_wmem(NULL, ud->auth_spec->number, vs_ikev2_auth_algs, "other-%d");
+    *err = ws_strdup_printf("Selected encryption_algorithm %s requires selecting NONE integrity algorithm.", auth_str);
+    wmem_free(NULL, auth_str);
     return false;
   }
 

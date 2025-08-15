@@ -18,7 +18,7 @@
  * @return constant C String with MS/TP Frame Type
  */
 const char *
-mstp_frame_type_text(uint32_t val);
+mstp_frame_type_text(wmem_allocator_t* scope, uint32_t val);
 
 /**
  * Dissects the BACnet MS/TP packet after the preamble,

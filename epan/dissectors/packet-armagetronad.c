@@ -155,7 +155,7 @@ add_message_data(tvbuff_t * tvb, int offset, int data_len, proto_tree * tree)
 }
 
 static int
-add_message(tvbuff_t * tvb, int offset, proto_tree * tree, wmem_strbuf_t * info)
+add_message(tvbuff_t * tvb, packet_info* pinfo, int offset, proto_tree * tree, wmem_strbuf_t * info)
 {
 	uint16_t     descriptor_id, message_id;
 	int          data_len;
@@ -168,7 +168,7 @@ add_message(tvbuff_t * tvb, int offset, proto_tree * tree, wmem_strbuf_t * info)
 	data_len = tvb_get_ntohs(tvb, offset + 4) * 2;
 
 	/* Message subtree */
-	descriptor = val_to_str(descriptor_id, descriptors, "Unknown (%u)");
+	descriptor = val_to_str_wmem(pinfo->pool, descriptor_id, descriptors, "Unknown (%u)");
 	if (descriptor_id == ACK)
 		msg = proto_tree_add_none_format(tree,
 						 hf_armagetronad_msg_subtree,
@@ -229,7 +229,7 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 
 	/* For each message in the frame */
 	while (tvb_reported_length_remaining(tvb, offset) > 2)
-		offset += add_message(tvb, offset, armagetronad_tree, info);
+		offset += add_message(tvb, pinfo, offset, armagetronad_tree, info);
 
 	/* After the messages, comes the SenderID */
 	sender = tvb_get_ntohs(tvb, offset);

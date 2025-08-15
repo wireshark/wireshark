@@ -2789,8 +2789,8 @@ static void ncp1711_reply_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, con
         ptvcursor_advance(ptvc, 1);
 
         expert_add_info_format(pinfo, NULL, &ei_ncp_server, "Server %s, version %d.%d, support pack %d, language %d, server type %s, kernel %s", fsname,
-                                maj_ver, min_ver, prod_rev, os_lang, val_to_str(serv_type & 0x01, serv_type_vals, "Unknown: %d"),
-                                val_to_str(kernel & 0x01, kernel_type_vals, "Unknown: %d") );
+                                maj_ver, min_ver, prod_rev, os_lang, val_to_str_wmem(pinfo->pool,serv_type & 0x01, serv_type_vals, "Unknown: %d"),
+                                val_to_str_wmem(pinfo->pool,kernel & 0x01, kernel_type_vals, "Unknown: %d") );
     }
 }
 
@@ -2870,9 +2870,9 @@ static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const
 
             expert_add_info_format(pinfo, NULL, &ei_ncp_file_rights,
                                 "Op-lock open, mode %s for filename %s with rights %s",
-                                val_to_str(oaction & 0xeb, open_create_mode_vals, "Unknown: %d"),
+                                val_to_str_wmem(pinfo->pool,oaction & 0xeb, open_create_mode_vals, "Unknown: %d"),
                                 filename,
-                                val_to_str(rights & 0x5f, ncp_rights_vals, "Unknown: %d"));
+                                val_to_str_wmem(pinfo->pool,rights & 0x5f, ncp_rights_vals, "Unknown: %d"));
         } else {
             if ((ncp_rec->func == 89 || ncp_rec->func == 87) && (ncp_rec->subfunc == 32 || ncp_rec->subfunc == 1)) {
                 uint8_t oaction, oplockflg;
@@ -2885,7 +2885,7 @@ static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const
 
                 if (ncp_rec->subfunc == 1) {
                     expert_add_info_format(pinfo, NULL, &ei_ncp_file_handle, "%s - File handle %s",
-                                           val_to_str(oaction & 0x8f, open_create_action_vals, "Unknown: %d"),
+                                           val_to_str_wmem(pinfo->pool,oaction & 0x8f, open_create_action_vals, "Unknown: %d"),
                                            filehandle);
                 }
                 else
@@ -2893,9 +2893,9 @@ static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const
                     ptvcursor_advance(ptvc, 1);
                     oplockflg = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
                     expert_add_info_format(pinfo, NULL, &ei_ncp_file_handle, "%s - File handle %s, %s",
-                                           val_to_str(oaction & 0x8f, open_create_action_vals, "Unknown: %d"),
+                                           val_to_str_wmem(pinfo->pool,oaction & 0x8f, open_create_action_vals, "Unknown: %d"),
                                            filehandle,
-                                           val_to_str(oplockflg, ncp_o_c_ret_flags_vals, "Unknown: %d"));
+                                           val_to_str_wmem(pinfo->pool,oplockflg, ncp_o_c_ret_flags_vals, "Unknown: %d"));
                 }
             }
         }
@@ -2914,7 +2914,7 @@ static void ncp5722_request_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, c
         cc_function = tvb_get_uint8(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc));
 
         expert_add_info_format(pinfo, NULL, &ei_ncp_op_lock_handle, "Op-lock on handle %08x - %s", filehandle,
-                                val_to_str(cc_function, ncp_cc_function_vals, "Unknown: %d"));
+                                val_to_str_wmem(pinfo->pool,cc_function, ncp_cc_function_vals, "Unknown: %d"));
     }
 }
 
@@ -2936,8 +2936,8 @@ static void ncp572c_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp
 
             expert_add_info_format(pinfo, NULL, &ei_ncp_file_rights_change, "Change handle %s rights from:(%s) to:(%s)",
                                    filehandle,
-                                   val_to_str(access_rights & 0x1ff, access_rights_vals, "Unknown: %d"),
-                                   val_to_str(new_rights & 0x1ff, access_rights_vals, "Unknown: %d"));
+                                   val_to_str_wmem(pinfo->pool,access_rights & 0x1ff, access_rights_vals, "Unknown: %d"),
+                                   val_to_str_wmem(pinfo->pool,new_rights & 0x1ff, access_rights_vals, "Unknown: %d"));
 
         } else {
             uint32_t rights;
@@ -2948,7 +2948,7 @@ static void ncp572c_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp
             rights = tvb_get_ntohl(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc)+8);
 
             expert_add_info_format(pinfo, NULL, &ei_ncp_effective_rights, "Handle %s effective rights:(%s)", filehandle,
-                                    val_to_str(rights & 0x1ff, access_rights_vals, "Unknown: %d"));
+                                    val_to_str_wmem(pinfo->pool,rights & 0x1ff, access_rights_vals, "Unknown: %d"));
         }
     }
 }
@@ -3094,7 +3094,7 @@ print_nds_values(proto_tree *vtree, packet_info* pinfo, tvbuff_t *tvb, uint32_t 
                 proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
                                            value1, value2,
                                            "Value (%d) = %s", value2,
-                                           val_to_str(value2, zensearchenum, "Unknown: %d"));
+                                           val_to_str_wmem(pinfo->pool,value2, zensearchenum, "Unknown: %d"));
             }
             else
             {
@@ -7878,7 +7878,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
 
         if (temp_value.vvalue != 0 && ncp_echo_err) {
             expert_add_info_format(pinfo, expert_item, &ei_nds_iteration, "NDS Iteration Error: 0x%08x %s",
-                                    temp_value.vvalue, val_to_str(temp_value.vvalue, nds_reply_errors, "Unknown: %d"));
+                                    temp_value.vvalue, val_to_str_wmem(pinfo->pool,temp_value.vvalue, nds_reply_errors, "Unknown: %d"));
         }
         temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
         temp_value.vtype = VTYPE_ITEM;

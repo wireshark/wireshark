@@ -925,15 +925,15 @@ static uint32_t XXH32(const void* input, size_t len, uint32_t seed)
 #endif /* defined(HAVE_LZ4FRAME_H) && !defined(HAVE_XXHASH) */
 
 static const char *
-kafka_error_to_str(kafka_error_t error)
+kafka_error_to_str(wmem_allocator_t* scope, kafka_error_t error)
 {
-    return val_to_str(error, kafka_errors, "Unknown %d");
+    return val_to_str_wmem(scope, error, kafka_errors, "Unknown %d");
 }
 
 static const char *
-kafka_api_key_to_str(kafka_api_key_t api_key)
+kafka_api_key_to_str(wmem_allocator_t* scope, kafka_api_key_t api_key)
 {
-    return val_to_str(api_key, kafka_api_names, "Unknown %d");
+    return val_to_str_wmem(scope, api_key, kafka_api_names, "Unknown %d");
 }
 
 static const kafka_api_info_t *
@@ -989,7 +989,7 @@ kafka_check_supported_api_key(packet_info *pinfo, proto_item *ti, kafka_query_re
     if (kafka_get_api_info(matcher->api_key) == NULL) {
         col_append_str(pinfo->cinfo, COL_INFO, " [Unknown API key]");
         expert_add_info_format(pinfo, ti, &ei_kafka_unknown_api_key,
-                               "%s API key", kafka_api_key_to_str(matcher->api_key));
+                               "%s API key", kafka_api_key_to_str(pinfo->pool, matcher->api_key));
     }
 }
 
@@ -1005,13 +1005,13 @@ kafka_check_supported_api_version(packet_info *pinfo, proto_item *ti, kafka_quer
         if (api_info->min_version == -1) {
             expert_add_info_format(pinfo, ti, &ei_kafka_unsupported_api_version,
                                    "Unsupported %s version.",
-                                   kafka_api_key_to_str(matcher->api_key));
+                                   kafka_api_key_to_str(pinfo->pool, matcher->api_key));
             dissect_version = api_info->min_version;
         }
         else if (api_info->min_version == api_info->max_version) {
             expert_add_info_format(pinfo, ti, &ei_kafka_unsupported_api_version,
                                    "Unsupported %s version. Supports v%d.",
-                                   kafka_api_key_to_str(matcher->api_key), api_info->min_version);
+                                   kafka_api_key_to_str(pinfo->pool, matcher->api_key), api_info->min_version);
             dissect_version = api_info->min_version;
             expert_add_info_format(pinfo, ti, &ei_kafka_assumed_api_version,
                                    "Dissecting assuming v%d.",
@@ -1019,7 +1019,7 @@ kafka_check_supported_api_version(packet_info *pinfo, proto_item *ti, kafka_quer
         } else {
             expert_add_info_format(pinfo, ti, &ei_kafka_unsupported_api_version,
                                    "Unsupported %s version. Supports v%d-%d.",
-                                   kafka_api_key_to_str(matcher->api_key),
+                                   kafka_api_key_to_str(pinfo->pool, matcher->api_key),
                                    api_info->min_version, api_info->max_version);
             if (matcher->api_version < 0 || matcher->api_version > api_info->max_version) {
                 dissect_version = api_info->max_version;
@@ -2586,7 +2586,7 @@ dissect_kafka_error_ret(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     /* Show error in Info column */
     if (error != 0) {
         col_append_fstr(pinfo->cinfo, COL_INFO,
-                        " [%s] ", kafka_error_to_str(error));
+                        " [%s] ", kafka_error_to_str(pinfo->pool, error));
     }
 
     if (ret) {
@@ -3291,7 +3291,7 @@ dissect_kafka_leader_and_isr_response_partition(tvbuff_t *tvb, packet_info *pinf
                                tvb_get_string_enc(pinfo->pool, tvb,
                                                   topic_start, topic_len, ENC_UTF_8),
                                partition,
-                               kafka_error_to_str(error));
+                               kafka_error_to_str(pinfo->pool, error));
     }
 
     return offset;
@@ -3594,7 +3594,7 @@ dissect_kafka_stop_replica_response_partition(tvbuff_t *tvb, packet_info *pinfo,
                            tvb_get_string_enc(pinfo->pool, tvb,
                                               topic_start, topic_len, ENC_UTF_8),
                            partition,
-                           kafka_error_to_str(error));
+                           kafka_error_to_str(pinfo->pool, error));
 
     return offset;
 }
@@ -4355,13 +4355,13 @@ dissect_kafka_api_versions_response_api_version(tvbuff_t *tvb, packet_info *pinf
     if (max_version != min_version) {
         /* Range of versions supported. */
         proto_item_append_text(subtree, " %s (v%d-%d)",
-                               kafka_api_key_to_str(api_key),
+                               kafka_api_key_to_str(pinfo->pool, api_key),
                                min_version, max_version);
     }
     else {
         /* Only one version. */
         proto_item_append_text(subtree, " %s (v%d)",
-                               kafka_api_key_to_str(api_key),
+                               kafka_api_key_to_str(pinfo->pool, api_key),
                                min_version);
     }
 
@@ -4369,7 +4369,7 @@ dissect_kafka_api_versions_response_api_version(tvbuff_t *tvb, packet_info *pinf
     if (api_info == NULL) {
         proto_item_append_text(subtree, " [Unknown API key]");
         expert_add_info_format(pinfo, ti, &ei_kafka_unknown_api_key,
-                               "%s API key", kafka_api_key_to_str(api_key));
+                               "%s API key", kafka_api_key_to_str(pinfo->pool, api_key));
     }
     else if (!kafka_is_api_version_supported(api_info, min_version) ||
              !kafka_is_api_version_supported(api_info, max_version)) {
@@ -4377,20 +4377,20 @@ dissect_kafka_api_versions_response_api_version(tvbuff_t *tvb, packet_info *pinf
             proto_item_append_text(subtree, " [Unsupported API version]");
             expert_add_info_format(pinfo, ti, &ei_kafka_unsupported_api_version,
                                    "Unsupported %s version.",
-                                   kafka_api_key_to_str(api_key));
+                                   kafka_api_key_to_str(pinfo->pool, api_key));
         }
         else if (api_info->min_version == api_info->max_version) {
             proto_item_append_text(subtree, " [Unsupported API version. Supports v%d]",
                                    api_info->min_version);
             expert_add_info_format(pinfo, ti, &ei_kafka_unsupported_api_version,
                                    "Unsupported %s version. Supports v%d.",
-                                   kafka_api_key_to_str(api_key), api_info->min_version);
+                                   kafka_api_key_to_str(pinfo->pool, api_key), api_info->min_version);
         } else {
             proto_item_append_text(subtree, " [Unsupported API version. Supports v%d-%d]",
                                    api_info->min_version, api_info->max_version);
             expert_add_info_format(pinfo, ti, &ei_kafka_unsupported_api_version,
                                    "Unsupported %s version. Supports v%d-%d.",
-                                   kafka_api_key_to_str(api_key),
+                                   kafka_api_key_to_str(pinfo->pool, api_key),
                                    api_info->min_version, api_info->max_version);
         }
     }
@@ -4928,7 +4928,7 @@ dissect_kafka_offset_commit_response_partition_response(tvbuff_t *tvb, packet_in
 
     proto_item_set_end(subti, tvb, offset);
     proto_item_append_text(subti, " (Partition-ID=%d, Error=%s)",
-                           partition, kafka_error_to_str(error));
+                           partition, kafka_error_to_str(pinfo->pool, error));
 
     return offset;
 }
@@ -6229,7 +6229,7 @@ dissect_kafka_create_topics_response_topic(tvbuff_t *tvb, packet_info *pinfo, pr
     proto_item_set_end(subti, tvb, offset);
     proto_item_append_text(subti, " (Topic=%s, Error=%s)",
                            kafka_tvb_get_string(pinfo->pool, tvb, topic_start, topic_len),
-                           kafka_error_to_str(error));
+                           kafka_error_to_str(pinfo->pool, error));
 
     return offset;
 }
@@ -6379,7 +6379,7 @@ dissect_kafka_delete_topics_response_topic_error_code(tvbuff_t *tvb, packet_info
     proto_item_append_text(subti, " (Topic=%s, Error=%s)",
                            tvb_get_string_enc(pinfo->pool, tvb,
                                               topic_start, topic_len, ENC_UTF_8),
-                           kafka_error_to_str(error));
+                           kafka_error_to_str(pinfo->pool, error));
 
     return offset;
 }
@@ -6519,7 +6519,7 @@ dissect_kafka_delete_records_response_topic_partition(tvbuff_t *tvb, packet_info
     if (partition_error_code == 0) {
         proto_item_append_text(subti, " (ID=%u, Offset=%" PRIi64 ")", partition_id, partition_offset);
     } else {
-        proto_item_append_text(subti, " (ID=%u, Error=%s)", partition_id, kafka_error_to_str(partition_error_code));
+        proto_item_append_text(subti, " (ID=%u, Error=%s)", partition_id, kafka_error_to_str(pinfo->pool, partition_error_code));
     }
 
     return offset;
@@ -6742,7 +6742,7 @@ dissect_kafka_offset_for_leader_epoch_response_topic_partition(tvbuff_t *tvb, pa
     if (partition_error_code == 0) {
         proto_item_append_text(subti, " (ID=%u)", partition_id);
     } else {
-        proto_item_append_text(subti, " (ID=%u, Error=%s)", partition_id, kafka_error_to_str(partition_error_code));
+        proto_item_append_text(subti, " (ID=%u, Error=%s)", partition_id, kafka_error_to_str(pinfo->pool, partition_error_code));
     }
 
     return offset;
@@ -6883,7 +6883,7 @@ dissect_kafka_add_partitions_to_txn_response_topic_partition(tvbuff_t *tvb, pack
     if (partition_error_code == 0) {
         proto_item_append_text(subti, " (ID=%u)", partition_id);
     } else {
-        proto_item_append_text(subti, " (ID=%u, Error=%s)", partition_id, kafka_error_to_str(partition_error_code));
+        proto_item_append_text(subti, " (ID=%u, Error=%s)", partition_id, kafka_error_to_str(pinfo->pool, partition_error_code));
     }
 
     return offset;
@@ -7116,7 +7116,7 @@ dissect_kafka_write_txn_markers_response_partition(tvbuff_t *tvb, packet_info *p
     if (partition_error_code == 0) {
         proto_item_append_text(subti, " (ID=%u", partition_id);
     } else {
-        proto_item_append_text(subti, " (ID=%u, Error=%s)", partition_id, kafka_error_to_str(partition_error_code));
+        proto_item_append_text(subti, " (ID=%u, Error=%s)", partition_id, kafka_error_to_str(pinfo->pool, partition_error_code));
     }
 
     return offset;
@@ -7334,7 +7334,7 @@ dissect_kafka_txn_offset_commit_response_partition(tvbuff_t *tvb, packet_info *p
     if (partition_error_code == 0) {
         proto_item_append_text(subti, " (ID=%u)", partition_id);
     } else {
-        proto_item_append_text(subti, " (ID=%u, Error=%s)", partition_id, kafka_error_to_str(partition_error_code));
+        proto_item_append_text(subti, " (ID=%u, Error=%s)", partition_id, kafka_error_to_str(pinfo->pool, partition_error_code));
     }
 
     return offset;
@@ -9793,12 +9793,12 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         matcher->flexible_api   = kafka_is_api_version_flexible(matcher->api_key, matcher->api_version);
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Kafka %s v%d Request",
-                     kafka_api_key_to_str(matcher->api_key),
+                     kafka_api_key_to_str(pinfo->pool, matcher->api_key),
                      matcher->api_version);
 
         /* Also add to protocol root */
         proto_item_append_text(root_ti, " (%s v%d Request)",
-                               kafka_api_key_to_str(matcher->api_key),
+                               kafka_api_key_to_str(pinfo->pool, matcher->api_key),
                                matcher->api_version);
 
         /* for the header implementation check RequestHeaderData class */
@@ -10020,11 +10020,11 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         }
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Kafka %s v%d Response",
-                     kafka_api_key_to_str(matcher->api_key),
+                     kafka_api_key_to_str(pinfo->pool, matcher->api_key),
                      matcher->api_version);
         /* Also add to protocol root */
         proto_item_append_text(root_ti, " (%s v%d Response)",
-                               kafka_api_key_to_str(matcher->api_key),
+                               kafka_api_key_to_str(pinfo->pool, matcher->api_key),
                                matcher->api_version);
 
 
