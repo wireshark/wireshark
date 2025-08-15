@@ -251,7 +251,7 @@ ph_stats_new(capture_file *cf)
     /* Progress so far. */
     progbar_val = 0.0f;
 
-    wtap_rec_init(&rec, 1514);
+    wtap_rec_init(&rec, DEFAULT_INIT_BUFFER_SIZE_2048);
 
     for (framenum = 1; framenum <= cf->count; framenum++) {
         frame = frame_data_sequence_find(cf->provider.frames, framenum);

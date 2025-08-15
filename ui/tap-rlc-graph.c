@@ -123,7 +123,7 @@ rlc_3gpp_tap_info* select_rlc_lte_session(capture_file *cf,
     fdata = cf->current_frame;
 
     /* Dissect the data from the current frame. */
-    wtap_rec_init(&rec, 1514);
+    wtap_rec_init(&rec, DEFAULT_INIT_BUFFER_SIZE_2048);
     if (!cf_read_current_record(cf)) {
         dfilter_free(sfcode);
         wtap_rec_cleanup(&rec);

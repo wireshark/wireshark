@@ -1230,7 +1230,7 @@ process_file(capture_file *cf)
     /* Get the union of the flags for all tap listeners. */
     tap_flags = union_of_tap_listener_flags();
 
-    wtap_rec_init(&file_rec, 1514);
+    wtap_rec_init(&file_rec, DEFAULT_INIT_BUFFER_SIZE_2048);
 
     /* XXX - TEMPORARY HACK TO ELF DISSECTOR */
     file_rec.rec_header.packet_header.pkt_encap = 1234;

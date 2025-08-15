@@ -122,7 +122,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
         cinfo = &cap_file->cinfo;
     }
 
-    wtap_rec_init(&rec, 1514);
+    wtap_rec_init(&rec, DEFAULT_INIT_BUFFER_SIZE_2048);
     if (read_failed_) {
         read_failed_ = !cf_read_record_no_alert(cap_file, fdata_, &rec);
     } else {

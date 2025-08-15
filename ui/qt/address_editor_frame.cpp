@@ -109,7 +109,7 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
         return;
     }
 
-    wtap_rec_init(&rec, 1514);
+    wtap_rec_init(&rec, DEFAULT_INIT_BUFFER_SIZE_2048);
     if (!cf_read_record(cap_file_, cap_file_->current_frame, &rec)) {
         wtap_rec_cleanup(&rec);
         on_buttonBox_rejected();

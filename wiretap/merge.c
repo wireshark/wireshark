@@ -236,7 +236,7 @@ merge_open_in_files(unsigned in_file_count, const char *const *in_file_names,
             *err_fileno = i;
             return 0;
         }
-        wtap_rec_init(&files[i].rec, 1514);
+        wtap_rec_init(&files[i].rec, DEFAULT_INIT_BUFFER_SIZE_2048);
         files[i].size = size;
         files[i].idb_index_map = g_array_new(false, false, sizeof(unsigned));
 

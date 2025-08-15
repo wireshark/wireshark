@@ -927,7 +927,7 @@ load_cap_file(capture_file *cf)
     wtap_rec     rec;
     epan_dissect_t edt;
 
-    wtap_rec_init(&rec, 1514);
+    wtap_rec_init(&rec, DEFAULT_INIT_BUFFER_SIZE_2048);
 
     epan_dissect_init(&edt, cf->epan, true, false);
 

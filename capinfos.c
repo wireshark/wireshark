@@ -1156,7 +1156,7 @@ process_cap_file(const char *filename, bool need_separator)
     wtap_set_cb_new_secrets(cf_info.wth, count_decryption_secret);
 
     /* Tally up data that we need to parse through the file to find */
-    wtap_rec_init(&rec, 1514);
+    wtap_rec_init(&rec, DEFAULT_INIT_BUFFER_SIZE_2048);
     while (wtap_read(cf_info.wth, &rec, &err, &err_info, &data_offset))  {
         if (rec.presence_flags & WTAP_HAS_TS) {
             prev_time = cur_time;

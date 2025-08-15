@@ -3240,7 +3240,7 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
         bool visible = print_packet_info && print_details && output_fields_num_fields(output_fields) == 0;
         edt = epan_dissect_new(cf->epan, create_proto_tree, visible);
 
-        wtap_rec_init(&rec, 1514);
+        wtap_rec_init(&rec, DEFAULT_INIT_BUFFER_SIZE_2048);
 
         while (to_read-- && cf->provider.wth) {
             wtap_cleareof(cf->provider.wth);
@@ -3591,7 +3591,7 @@ process_cap_file_first_pass(capture_file *cf, int max_packet_count,
     pass_status_t   status = PASS_SUCCEEDED;
     int             framenum = 0;
 
-    wtap_rec_init(&rec, 1514);
+    wtap_rec_init(&rec, DEFAULT_INIT_BUFFER_SIZE_2048);
 
     /* Allocate a frame_data_sequence for all the frames. */
     cf->provider.frames = new_frame_data_sequence();
@@ -3820,7 +3820,7 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
         return PASS_WRITE_ERROR;
     }
 
-    wtap_rec_init(&rec, 1514);
+    wtap_rec_init(&rec, DEFAULT_INIT_BUFFER_SIZE_2048);
 
     /* Do we have any tap listeners with filters? */
     filtering_tap_listeners = have_filtering_tap_listeners();
@@ -3929,7 +3929,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
     pass_status_t   status = PASS_SUCCEEDED;
     bool            visible = false;
 
-    wtap_rec_init(&rec, 1514);
+    wtap_rec_init(&rec, DEFAULT_INIT_BUFFER_SIZE_2048);
 
     /* Do we have any tap listeners with filters? */
     filtering_tap_listeners = have_filtering_tap_listeners();

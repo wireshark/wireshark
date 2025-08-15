@@ -93,7 +93,7 @@ void ProfileSwitcher::checkPacket(capture_file *cap_file, frame_data *fdata, qsi
 
     QString new_profile;
     wtap_rec rec;
-    wtap_rec_init(&rec, 1514);
+    wtap_rec_init(&rec, DEFAULT_INIT_BUFFER_SIZE_2048);
     epan_dissect_t edt;
 
     for (auto &cur_filter : profile_filters_) {

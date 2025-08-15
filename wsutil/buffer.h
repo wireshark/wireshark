@@ -19,6 +19,8 @@ extern "C" {
 
 #define SOME_FUNCTIONS_ARE_INLINE
 
+#define DEFAULT_INIT_BUFFER_SIZE_2048 (2 * 1024) /* Everyone still uses 1500 byte frames, right? */
+
 /**
  * @brief A dynamic byte buffer with adjustable start and end positions.
  *
