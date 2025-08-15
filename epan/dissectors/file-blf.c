@@ -451,15 +451,6 @@ static const value_string blf_eth_phystate_eventstate_vals[] = {
     { 0, NULL }
 };
 
-#define BLF_BUSTYPE_CAN 1
-#define BLF_BUSTYPE_LIN 5
-#define BLF_BUSTYPE_MOST 6
-#define BLF_BUSTYPE_FLEXRAY 7
-#define BLF_BUSTYPE_J1708 9
-#define BLF_BUSTYPE_ETHERNET 11
-#define BLF_BUSTYPE_WLAN 13
-#define BLF_BUSTYPE_AFDX 14
-
 void proto_register_file_blf(void);
 void proto_reg_handoff_file_blf(void);
 static int dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
@@ -470,7 +461,8 @@ static const uint8_t blf_lobj_magic[MAGIC_NUMBER_SIZE] = { 'L', 'O', 'B', 'J' };
 
 
 static proto_item *
-dissect_blf_header_date(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length) {
+dissect_blf_header_date(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offset, int length) {
+
     static const value_string weekday_names[] = {
     { 0,    "Sunday"},
     { 1,    "Monday"},
@@ -482,43 +474,46 @@ dissect_blf_header_date(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int
     { 0, NULL }
     };
 
-    uint16_t year        = tvb_get_uint16(tvb, offset +  0, ENC_LITTLE_ENDIAN);
-    uint16_t month       = tvb_get_uint16(tvb, offset +  2, ENC_LITTLE_ENDIAN);
-    uint16_t day_of_week = tvb_get_uint16(tvb, offset +  4, ENC_LITTLE_ENDIAN);
-    uint16_t day         = tvb_get_uint16(tvb, offset +  6, ENC_LITTLE_ENDIAN);
-    uint16_t hour        = tvb_get_uint16(tvb, offset +  8, ENC_LITTLE_ENDIAN);
-    uint16_t minute      = tvb_get_uint16(tvb, offset + 10, ENC_LITTLE_ENDIAN);
-    uint16_t sec         = tvb_get_uint16(tvb, offset + 12, ENC_LITTLE_ENDIAN);
-    uint16_t ms          = tvb_get_uint16(tvb, offset + 14, ENC_LITTLE_ENDIAN);
+    nstime_t ns_ts;
+    struct tm tm = { 0 };
 
-    header_field_info *hfinfo = proto_registrar_get_nth(hf);
+    uint16_t year        = tvb_get_letohs(tvb, offset +  0);
+    tm.tm_year = year;
+    if (tm.tm_year != 0)
+        tm.tm_year -= 1900;
+    tm.tm_mon            = tvb_get_letohs(tvb, offset +  2);
+    tm.tm_wday           = tvb_get_letohs(tvb, offset +  4);
+    tm.tm_mday           = tvb_get_letohs(tvb, offset +  6);
+    tm.tm_hour           = tvb_get_letohs(tvb, offset +  8);
+    tm.tm_min            = tvb_get_letohs(tvb, offset + 10);
+    tm.tm_sec            = tvb_get_letohs(tvb, offset + 12);
+    tm.tm_isdst          = -1; // Let mktime() determine if DST is in effect
+    uint16_t ms = tvb_get_letohs(tvb, offset + 14);
 
-    return proto_tree_add_bytes_format(tree, hf, tvb, offset, length, NULL,
-                                       "%s: %s %d-%02d-%02d %02d:%02d:%02d.%03d",
-                                       hfinfo->name,
-                                       val_to_str(day_of_week, weekday_names, "%d"),
-                                       year, month, day, hour, minute, sec, ms);
+    ns_ts.secs = mktime(&tm);
+    ns_ts.nsecs = ms * 1000000;
+
+    return proto_tree_add_time_format_value(tree, hf, tvb, offset, length, &ns_ts,
+                                            "%s %d-%02d-%02d %02d:%02d:%02d.%03d",
+                                            val_to_str_wmem(pinfo->pool, tm.tm_mday, weekday_names, "%d"),
+                                            year, tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ms);
 }
 
-static proto_item *
-dissect_blf_api_version(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length) {
-    uint32_t api = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+static void
+version_format(char* string, uint32_t value)
+{
+    uint8_t patch = value % 100;
+    value /= 100;
 
-    uint8_t patch = api % 100;
-    api /= 100;
+    uint8_t build = value % 100;
+    value /= 100;
 
-    uint8_t build = api % 100;
-    api /= 100;
+    uint8_t minor = value % 100;
+    value /= 100;
 
-    uint8_t minor = api % 100;
-    api /= 100;
+    uint8_t major = value % 100;
 
-    uint8_t major = api % 100;
-
-    header_field_info *hfinfo = proto_registrar_get_nth(hf);
-
-    return proto_tree_add_bytes_format(tree, hf, tvb, offset, length, NULL, "%s: %d.%d.%d.%d",
-                                       hfinfo->name, major, minor, build, patch);
+    snprintf(string, ITEM_LABEL_LENGTH, "%d.%d.%d.%d", major, minor, build, patch);
 }
 
 static int
@@ -614,7 +609,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
     }
 
     proto_item_set_end(ti_root, tvb, offset_orig + obj_length);
-    proto_item_append_text(ti_root, " (%s)", val_to_str(obj_type, blf_object_names, "%d"));
+    proto_item_append_text(ti_root, " (%s)", val_to_str_wmem(pinfo->pool, obj_type, blf_object_names, "%d"));
 
     switch (obj_type) {
         case BLF_OBJTYPE_LOG_CONTAINER:
@@ -1005,7 +1000,7 @@ dissect_blf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     ti = proto_tree_add_item(tree, proto_blf, tvb, offset, -1, ENC_NA);
     blf_tree = proto_item_add_subtree(ti, ett_blf);
-    length = tvb_get_uint32(tvb, 4, ENC_LITTLE_ENDIAN);
+    length = tvb_get_letohl(tvb, 4);
 
     ti = proto_tree_add_item(blf_tree, hf_blf_file_header, tvb, offset, length, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_blf_header);
@@ -1017,7 +1012,7 @@ dissect_blf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         expert_add_info(pinfo, ti, &ei_blf_file_header_length_too_short);
     }
     offset += 4;
-    dissect_blf_api_version(subtree, hf_blf_file_header_api, tvb, offset, 4);
+    proto_tree_add_item(subtree, hf_blf_file_header_api, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(subtree, hf_blf_file_header_app, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -1035,9 +1030,9 @@ dissect_blf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     offset += 4;
     proto_tree_add_item(subtree, hf_blf_file_header_app_build, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    dissect_blf_header_date(subtree, hf_blf_file_header_start_date, tvb, offset, 16);
+    dissect_blf_header_date(subtree, pinfo, hf_blf_file_header_start_date, tvb, offset, 16);
     offset += 16;
-    dissect_blf_header_date(subtree, hf_blf_file_header_end_date, tvb, offset, 16);
+    dissect_blf_header_date(subtree, pinfo, hf_blf_file_header_end_date, tvb, offset, 16);
     offset += 16;
     proto_tree_add_item(subtree, hf_blf_file_header_restore_point_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 8;
@@ -1259,7 +1254,7 @@ proto_register_file_blf(void) {
         { &hf_blf_file_header_length,
             { "Header Length", "blf.file_header.length", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
         { &hf_blf_file_header_api,
-            { "API Version", "blf.file_header.api", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+            { "API Version", "blf.file_header.api", FT_UINT32, BASE_CUSTOM, CF_FUNC(version_format), 0x00, NULL, HFILL }},
         { &hf_blf_file_header_app,
             { "Application", "blf.file_header.application", FT_UINT8, BASE_DEC, VALS(application_names), 0x00, NULL, HFILL }},
         { &hf_blf_file_header_comp_level,
@@ -1277,9 +1272,9 @@ proto_register_file_blf(void) {
         { &hf_blf_file_header_app_build,
             { "Application Build", "blf.file_header.application_build", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
         { &hf_blf_file_header_start_date,
-            { "Start Date", "blf.file_header.start_date", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+            { "Start Date", "blf.file_header.start_date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x00, NULL, HFILL }},
         { &hf_blf_file_header_end_date,
-            { "End Date", "blf.file_header.end_date", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+            { "End Date", "blf.file_header.end_date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x00, NULL, HFILL }},
         { &hf_blf_file_header_restore_point_offset,
             { "Restore Point Offset", "blf.file_header.restore_point_offset", FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }},
 
