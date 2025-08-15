@@ -885,22 +885,22 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
 
             /* uint16_t channel {}; */
-            proto_tree_add_item(subtree, hf_blf_eth_phystate_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_blf_eth_phystate_channel, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             /* uint16_t flags; */
-            proto_tree_add_bitmask_list(subtree, tvb, offset, 2, flags1, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask_list(subtree, tvb, offset, 2, flags1, ENC_LITTLE_ENDIAN);
             offset += 2;
             /* uint8_t phyState {}; */
-            proto_tree_add_item(subtree, hf_blf_eth_phy_state_phystate, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_blf_eth_phy_state_phystate, tvb, offset, 1, ENC_NA);
             offset += 1;
             /* uint8_t eventState {}; */
-            proto_tree_add_item(subtree, hf_blf_eth_phy_state_eventstate, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_blf_eth_phy_state_eventstate, tvb, offset, 1, ENC_NA);
             offset += 1;
             /* uint8_t hardwareChannel {}; */
-            proto_tree_add_item(subtree, hf_blf_eth_phy_state_hardwarechannel, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_blf_eth_phy_state_hardwarechannel, tvb, offset, 1, ENC_NA);
             offset += 1;
             /* uint8_t res1 {}; */
-            proto_tree_add_item(subtree, hf_blf_eth_phy_state_res1, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_blf_eth_phy_state_res1, tvb, offset, 1, ENC_NA);
             offset += 1;
         }
         break;
