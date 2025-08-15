@@ -16,7 +16,8 @@
           "frame.cap_len": "314",
           "frame.marked": "0",
           "frame.ignored": "0",
-          "frame.protocols": "eth:ethertype:ip:udp:dhcp"
+          "frame.protocols": "eth:ethertype:ip:udp:dhcp",
+          "frame.encoding": "0"
         },
         "eth": {
           "eth.dst": "ff:ff:ff:ff:ff:ff",
@@ -172,7 +173,8 @@
           "frame.cap_len": "342",
           "frame.marked": "0",
           "frame.ignored": "0",
-          "frame.protocols": "eth:ethertype:ip:udp:dhcp"
+          "frame.protocols": "eth:ethertype:ip:udp:dhcp",
+          "frame.encoding": "0"
         },
         "eth": {
           "eth.dst": "00:0b:82:01:fc:42",
@@ -338,7 +340,8 @@
           "frame.cap_len": "314",
           "frame.marked": "0",
           "frame.ignored": "0",
-          "frame.protocols": "eth:ethertype:ip:udp:dhcp"
+          "frame.protocols": "eth:ethertype:ip:udp:dhcp",
+          "frame.encoding": "0"
         },
         "eth": {
           "eth.dst": "ff:ff:ff:ff:ff:ff",
@@ -500,7 +503,8 @@
           "frame.cap_len": "342",
           "frame.marked": "0",
           "frame.ignored": "0",
-          "frame.protocols": "eth:ethertype:ip:udp:dhcp"
+          "frame.protocols": "eth:ethertype:ip:udp:dhcp",
+          "frame.encoding": "0"
         },
         "eth": {
           "eth.dst": "00:0b:82:01:fc:42",
