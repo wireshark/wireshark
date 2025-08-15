@@ -293,9 +293,6 @@ QVariant ProfileModel::dataDisplay(const QModelIndex &index) const
             return tr("Personal");
     case COL_AUTO_SWITCH_FILTER:
     {
-        if (prof->is_global) {
-            return QString(UTF8_EM_DASH);
-        }
         return (QString(prof->auto_switch_filter));
     }
 

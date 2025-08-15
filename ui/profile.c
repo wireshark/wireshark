@@ -394,7 +394,8 @@ init_profile_list(void)
     global_profiles = g_list_sort(global_profiles, (GCompareFunc)g_ascii_strcasecmp);
     for (iter = g_list_first(global_profiles); iter; iter = g_list_next(iter)) {
         name = (char *)iter->data;
-        add_to_profile_list(name, name, PROF_STAT_EXISTS, true, true, false);
+        item = add_to_profile_list(name, name, PROF_STAT_EXISTS, true, true, false);
+        load_profile_settings((profile_def *)item->data);
     }
     g_list_free_full(global_profiles, g_free);
 
@@ -466,9 +467,9 @@ bool delete_current_profile(void) {
 #define PROFILE_SETTINGS_FILENAME "profile_settings"
 #define AUTO_SWITCH_FILTER_KEY "auto_switch_filter"
 
-static char *get_profile_settings_path(const char *profile_name) {
+static char *get_profile_settings_path(const char *profile_name, bool is_global) {
     char *profile_settings_path;
-    char *profile_dir = get_profile_dir(profile_name, false);
+    char *profile_dir = get_profile_dir(profile_name, is_global);
     profile_settings_path = g_build_filename(profile_dir, PROFILE_SETTINGS_FILENAME, NULL);
     g_free(profile_dir);
 
@@ -490,7 +491,7 @@ set_profile_setting(char *key, const char *value, void *profile_ptr, bool return
 
 static void load_profile_settings(profile_def *profile)
 {
-    char *profile_settings_path = get_profile_settings_path(profile->name);
+    char *profile_settings_path = get_profile_settings_path(profile->name, profile->is_global);
     FILE *fp;
 
     if ((fp = ws_fopen(profile_settings_path, "r")) != NULL) {
@@ -502,7 +503,7 @@ static void load_profile_settings(profile_def *profile)
 
 void save_profile_settings(profile_def *profile)
 {
-    char *profile_settings_path = get_profile_settings_path(profile->name);
+    char *profile_settings_path = get_profile_settings_path(profile->name, false);
     FILE *fp;
 
     if ((fp = ws_fopen(profile_settings_path, "w")) == NULL) {
