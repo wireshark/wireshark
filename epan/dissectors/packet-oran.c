@@ -2179,6 +2179,14 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     ext11_settings_t ext11_settings;
     memset(&ext11_settings, 0, sizeof(ext11_settings));
 
+    /* Section Type 10 needs to keep track of PRB range that should be reported
+       for msgTypeId=5 (Interference plus Noise for unallocated PRBs) */
+    /* All PRBs start as false */
+#define MAX_PRBS 273
+    bool prbs_for_st10_type5[MAX_PRBS];
+    memset(&prbs_for_st10_type5, 0, sizeof(prbs_for_st10_type5));
+
+
 #define MAX_UEIDS 16
     uint32_t ueids[MAX_UEIDS];
     uint32_t number_of_ueids = 0;
@@ -2243,7 +2251,14 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             offset += 1;
         }
 
-        if (sectionType != SEC_C_SINR_REPORTING) {
+        /* Start with range from section.  May get changed by SE6, SE12, SE20 */
+        for (unsigned n=startPrbc; n < startPrbc+numPrbc; n++) {
+            if (n < MAX_PRBS) {
+                prbs_for_st10_type5[n] = true;
+            }
+        }
+
+        if (sectionType != SEC_C_SINR_REPORTING) {  /* Section Type 9 */
             static int * const  remask_flags[] = {
                 &hf_oran_reMask_re1,
                 &hf_oran_reMask_re2,
@@ -2920,6 +2935,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* Update ext6 recorded info */
                 ext11_settings.ext6_set = true;
 
+                /* TODO: also update prbs_for_st10_type5[] */
+
                 /* repetition */
                 proto_tree_add_bits_item(extension_tree, hf_oran_se6_repetition, tvb, offset*8, 1, ENC_BIG_ENDIAN);
                 /* rbgSize (PRBs per bit set in rbgMask) */
@@ -3319,6 +3336,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 uint32_t extlen_remaining_bytes = (extlen*4) - 4;
                 uint8_t prb_index;
 
+                /* Will replace PRBs to be covered by ST10 MsgType=5 */
+                memset(&prbs_for_st10_type5, 0, sizeof(prbs_for_st10_type5));
+
                 for (prb_index = 1; extlen_remaining_bytes > 0; prb_index++)
                 {
                     /* Create a subtree for each pair */
@@ -3344,11 +3364,18 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     }
                     /* Add summary to pair root item, and configure details in ext11_settings */
                     else {
-                        proto_item_append_text(pair_ti, "(%u) offStartPrb=%3u, numPrb=%u",
-                                              prb_index, off_start_prb, num_prb);
+                        proto_item_append_text(pair_ti, "(%u) [%u->%u]",
+                                              prb_index, off_start_prb, off_start_prb+num_prb-1);
                         if (ext11_settings.ext12_num_pairs < MAX_BFW_EXT12_PAIRS) {
                             ext11_settings.ext12_pairs[ext11_settings.ext12_num_pairs].off_start_prb = off_start_prb;
                             ext11_settings.ext12_pairs[ext11_settings.ext12_num_pairs++].num_prb = num_prb;
+                        }
+
+                        /* Also update PRBs to be covered for ST10 type 5 */
+                        for (unsigned prb=off_start_prb; prb < off_start_prb+num_prb; prb++) {
+                            if (prb < MAX_PRBS) {
+                                prbs_for_st10_type5[prb] = true;
+                            }
                         }
                     }
                 }
@@ -3635,18 +3662,31 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Subtree for this puncturing pattern */
                     proto_item *pattern_ti = proto_tree_add_string_format(extension_tree, hf_oran_puncPattern,
                                                                          tvb, offset, 0,
-                                                                         "", "Puncturing Pattern: %u/%u", n+1, hf_oran_numPuncPatterns);
+                                                                         "", "Puncturing Pattern: %u/%u", n+1, numPuncPatterns);
                     proto_tree *pattern_tree = proto_item_add_subtree(pattern_ti, ett_oran_punc_pattern);
 
                     /* SymbolMask (14 bits) */
                     proto_tree_add_item(pattern_tree, hf_oran_symbolMask_ext20, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 1;
+
+                    uint32_t startPuncPrb, numPuncPrb;
+
                     /* startPuncPrb (10 bits) */
-                    proto_tree_add_item(pattern_tree, hf_oran_startPuncPrb, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint(pattern_tree, hf_oran_startPuncPrb, tvb, offset, 2, ENC_BIG_ENDIAN, &startPuncPrb);
                     offset += 2;
                     /* numPuncPrb (8 bits) */
-                    proto_tree_add_item(pattern_tree, hf_oran_numPuncPrb, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint(pattern_tree, hf_oran_numPuncPrb, tvb, offset, 1, ENC_BIG_ENDIAN, &numPuncPrb);
                     offset += 1;
+
+                    proto_item_append_text(pattern_ti, " [%u->%u]", startPuncPrb, startPuncPrb+numPuncPrb-1);
+
+                    /* Make a hole in range of PRBs to report */
+                    for (unsigned p=startPuncPrb; p < startPuncPrb+numPuncPrb; p++) {
+                        if (p < MAX_PRBS) {
+                            prbs_for_st10_type5[p] = false;
+                        }
+                    }
+
                     /* puncReMask (12 bits) */
                     proto_tree_add_item(pattern_tree, hf_oran_puncReMask, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 1;
@@ -4289,12 +4329,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     offset = dissect_symbolmask(tvb, mr_tree, offset, NULL, NULL);
 
                     /* 2 bytes for each PRB ipnPower */
-                    for (unsigned n=0; n < numPrbc; n++) {
+                    for (unsigned prb=0; prb<MAX_PRBS; prb++) {
+                        /* Skip if should not be reported */
+                        if (!prbs_for_st10_type5[prb]) {
+                            continue;
+                        }
                         unsigned ipn_power;
                         proto_item *ipn_power_ti;
                         /* ipnPower (2 bytes) */
                         ipn_power_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_ipn_power, tvb, offset, 2, ENC_BIG_ENDIAN, &ipn_power);
-                        proto_item_append_text(ipn_power_ti, " (PRB %3d)", startPrbc+n);
+                        proto_item_append_text(ipn_power_ti, " (PRB %3d)", prb);
                         /* Show if maps onto a -ve number */
                         if ((ipn_power >= 0x8ad0) && (ipn_power <= 0xffff)) {
                             proto_item_append_text(ipn_power_ti, " (value %d)", -1 - (0xffff-ipn_power));
@@ -4331,6 +4375,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             /* Pad out to next 4 bytes */
             offset += WS_PADDING_TO_4(offset-report_start_offset);
+
+            /* TODO: verify dissected size of report vs meas_data_size? */
 
             /* End of measurement report tree */
             proto_item_set_end(mr_ti, tvb, offset);
