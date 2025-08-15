@@ -238,18 +238,18 @@ static int dissect_u_order_replaced(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static int dissect_bist_ouch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
-    uint8_t type = tvb_get_uint8(tvb, 0);
+    uint32_t type;
+    char* str_type;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PSHORT);
-    col_set_str(pinfo->cinfo, COL_INFO, try_val_to_str(type, ouch_msg_types));
 
-    const char *desc = try_val_to_str(type, ouch_msg_types);
-    proto_item *ti = desc
-        ? proto_tree_add_protocol_format(tree, proto_bist_ouch, tvb, 0, -1, "%s, %s", PNAME, desc)
-        : proto_tree_add_protocol_format(tree, proto_bist_ouch, tvb, 0, -1, "%s, Unknown (0x%02x)", PNAME, type);
+    proto_item* ti = proto_tree_add_item(tree, proto_bist_ouch, tvb, 0, -1, ENC_NA);
     proto_tree *pt = proto_item_add_subtree(ti, ett_bist_ouch);
 
-    proto_tree_add_uint(pt, hf_ouch_msg_type, tvb, 0, 1, type);
+    proto_tree_add_item_ret_uint(pt, hf_ouch_msg_type, tvb, 0, 1, ENC_NA, &type);
+    str_type = val_to_str_wmem(pinfo->pool, type, ouch_msg_types, "Unknown (0x%02x)");
+    proto_item_append_text(ti, ", %s", str_type);
+    col_set_str(pinfo->cinfo, COL_INFO, str_type);
     offset = 1;
 
     switch (type) {
