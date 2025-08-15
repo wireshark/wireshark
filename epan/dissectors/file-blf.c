@@ -154,6 +154,7 @@ static int ett_blf_header;
 static int ett_blf_obj;
 static int ett_blf_obj_header;
 static int ett_blf_obj_header_flags;
+static int ett_blf_obj_payload;
 static int ett_blf_logcontainer_payload;
 static int ett_blf_app_text_payload;
 
@@ -542,7 +543,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
     objtree = proto_item_add_subtree(ti_root, ett_blf_obj);
 
     ti_lobj_hdr = proto_tree_add_item(objtree, hf_blf_lobj_hdr, tvb, offset, -1, ENC_NA);
-    subtree = proto_item_add_subtree(ti_lobj_hdr, ett_blf_obj);
+    subtree = proto_item_add_subtree(ti_lobj_hdr, ett_blf_obj_header);
 
     proto_tree_add_item(subtree, hf_blf_lobj_magic, tvb, offset, 4, ENC_NA);
     offset += 4;
@@ -727,7 +728,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             uint32_t datalength;
 
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
-            subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
+            subtree = proto_item_add_subtree(ti, ett_blf_obj_payload);
 
             /* uint32_t type {}; */
             proto_tree_add_item(subtree, hf_blf_sys_var_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -770,7 +771,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             };
 
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
-            subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
+            subtree = proto_item_add_subtree(ti, ett_blf_obj_payload);
 
             /* uint16_t channel {}; */
             proto_tree_add_item(subtree, hf_blf_eth_status_channel, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -813,7 +814,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
         case BLF_OBJTYPE_ETHERNET_FRAME_EX:
         {
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
-            subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
+            subtree = proto_item_add_subtree(ti, ett_blf_obj_payload);
 
             /* uint16_t structLength {}; */
             proto_tree_add_item(subtree, hf_blf_eth_frame_ext_structlength, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -853,7 +854,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             uint32_t triggerconditionlength;
 
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
-            subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
+            subtree = proto_item_add_subtree(ti, ett_blf_obj_payload);
 
             /* uint32_t state {}; */
             proto_tree_add_item(subtree, hf_blf_trigg_cond_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -882,7 +883,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             };
 
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
-            subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
+            subtree = proto_item_add_subtree(ti, ett_blf_obj_payload);
 
             /* uint16_t channel {}; */
             proto_tree_add_item(subtree, hf_blf_eth_phystate_channel, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -906,7 +907,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
         break;
         default:
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
-            subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
+            subtree = proto_item_add_subtree(ti, ett_blf_obj_payload);
 
             /* lets add at least the channels for the formats not being parsed */
             if ((BLF_OBJTYPE_CAN_MESSAGE <= obj_type && obj_type <= BLF_OBJTYPE_CAN_STATISTIC) ||
@@ -1487,6 +1488,7 @@ proto_register_file_blf(void) {
         &ett_blf_obj,
         &ett_blf_obj_header,
         &ett_blf_obj_header_flags,
+        &ett_blf_obj_payload,
         &ett_blf_logcontainer_payload,
         &ett_blf_app_text_payload,
     };
