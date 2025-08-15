@@ -243,6 +243,7 @@ Navitrol messaging
 SICK CoLA Ascii and CoLA Binary protocols
 Identifier-Locator Network Protocol (ILNP)
 BIST TotalView-ITCH protocol (BIST-ITCH)
+BIST TotalView-OUCH protocol (BIST-OUCH)
 --
 
 === Updated Protocol Support
