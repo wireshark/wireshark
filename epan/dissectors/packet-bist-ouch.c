@@ -241,7 +241,7 @@ static int dissect_bist_ouch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     uint8_t type = tvb_get_uint8(tvb, 0);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PSHORT);
-    col_set_str(pinfo->cinfo, COL_INFO, try_val_to_str(type, ouch_msg_types) ?: "Unknown");
+    col_set_str(pinfo->cinfo, COL_INFO, try_val_to_str(type, ouch_msg_types));
 
     const char *desc = try_val_to_str(type, ouch_msg_types);
     proto_item *ti = desc
