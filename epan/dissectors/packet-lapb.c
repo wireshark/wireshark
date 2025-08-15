@@ -13,9 +13,9 @@
 
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
-#include <epan/xdlc.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include "packet-xdlc.h"
 
 void proto_register_lapb(void);
 void proto_reg_handoff_lapb(void);

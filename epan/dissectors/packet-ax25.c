@@ -35,11 +35,11 @@
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
 #include <epan/to_str.h>
-#include <epan/xdlc.h>
 #include <epan/ax25_pids.h>
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
 #include <epan/tfs.h>
+#include "packet-xdlc.h"
 
 #define STRLEN	80
 

@@ -30,12 +30,12 @@
 #include <epan/arptypes.h>
 #include <epan/tfs.h>
 
+#include "packet-xdlc.h"
 #include "packet-llc.h"
 #include "packet-chdlc.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"
 #include "packet-l2tp.h"
-#include <epan/xdlc.h>
 #include <epan/etypes.h>
 #include <epan/nlpid.h>
 

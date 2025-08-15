@@ -18,7 +18,7 @@
 #include <epan/packet.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
-#include <epan/xdlc.h>
+#include "packet-xdlc.h"
 
 static dissector_table_t x75_subdissector_table;
 

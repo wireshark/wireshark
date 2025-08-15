@@ -152,7 +152,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	wmem_scopes.h
 	wscbor.h
 	wscbor_enc.h
-	xdlc.h
 )
 
 set(LIBWIRESHARK_HEADER_FILES
@@ -261,7 +260,6 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	wscbor_enc.c
 	unit_strings.c
 	wmem_scopes.c
-	xdlc.c
 	protobuf-helper.c
 	protobuf_lang_tree.c
 	${CMAKE_CURRENT_BINARY_DIR}/ps.c

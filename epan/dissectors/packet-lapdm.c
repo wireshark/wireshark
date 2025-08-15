@@ -42,9 +42,9 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/xdlc.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
+#include "packet-xdlc.h"
 
 void proto_register_lapdm(void);
 

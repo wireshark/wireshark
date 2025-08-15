@@ -1,4 +1,4 @@
-/* xdlc.c
+/* packet-xdlc.c
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
@@ -11,13 +11,9 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <string.h>
-
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/xdlc.h>
 #include <wsutil/pint.h>
+#include "packet-xdlc.h"
 
 const value_string ftype_vals[] = {
     { XDLC_I, "Information frame" },
@@ -172,7 +168,6 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     const char *frame_type = NULL;
     const char *modifier;
 
-    info=(char *)wmem_alloc(pinfo->pool, 80);
     switch (tvb_get_uint8(tvb, offset) & 0x03) {
 
     case XDLC_S:
@@ -209,7 +204,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if (is_extended) {
             poll_final = (control & XDLC_P_F_EXT);
-            snprintf(info, 80, "S%s, func=%s, N(R)=%u",
+            info = wmem_strdup_printf(pinfo->pool, "S%s, func=%s, N(R)=%u",
                         (poll_final ?
                             (is_response ? " F" : " P") :
                             ""),
@@ -217,7 +212,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
                         (control & XDLC_N_R_EXT_MASK) >> XDLC_N_R_EXT_SHIFT);
         } else {
             poll_final = (control & XDLC_P_F);
-            snprintf(info, 80, "S%s, func=%s, N(R)=%u",
+            info = wmem_strdup_printf(pinfo->pool, "S%s, func=%s, N(R)=%u",
                         (poll_final ?
                             (is_response ? " F" : " P") :
                             ""),
@@ -270,14 +265,14 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         cf_items = cf_items_nonext;
         control_format = "Control field: %s (0x%02X)";
         if (is_response) {
-                modifier = val_to_str(control & XDLC_U_MODIFIER_MASK,
+                modifier = val_to_str_wmem(pinfo->pool, control & XDLC_U_MODIFIER_MASK,
                         u_modifier_short_vals_resp, "Unknown");
         } else {
-                modifier = val_to_str(control & XDLC_U_MODIFIER_MASK,
+                modifier = val_to_str_wmem(pinfo->pool, control & XDLC_U_MODIFIER_MASK,
                         u_modifier_short_vals_cmd, "Unknown");
         }
         poll_final = (control & XDLC_P_F);
-        snprintf(info, 80, "U%s, func=%s",
+        info = wmem_strdup_printf(pinfo->pool, "U%s, func=%s",
                 (poll_final ?
                     (is_response ? " F" : " P") :
                     ""),
@@ -318,7 +313,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
             cf_items = cf_items_ext;
             control_format = "Control field: %s (0x%04X)";
             poll_final = (control & XDLC_P_F_EXT);
-            snprintf(info, 80, "I%s, N(R)=%u, N(S)=%u",
+            info = wmem_strdup_printf(pinfo->pool, "I%s, N(R)=%u, N(S)=%u",
                         ((control & XDLC_P_F_EXT) ? " P" : ""),
                         (control & XDLC_N_R_EXT_MASK) >> XDLC_N_R_EXT_SHIFT,
                         (control & XDLC_N_S_EXT_MASK) >> XDLC_N_S_EXT_SHIFT);
@@ -328,14 +323,14 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
             cf_items = cf_items_nonext;
             control_format = "Control field: %s (0x%02X)";
             poll_final = (control & XDLC_P_F);
-            snprintf(info, 80, "I%s, N(R)=%u, N(S)=%u",
+            info = wmem_strdup_printf(pinfo->pool, "I%s, N(R)=%u, N(S)=%u",
                         ((control & XDLC_P_F) ? " P" : ""),
                         (control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT,
                         (control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT);
         }
         if (append_info) {
             col_append_str(pinfo->cinfo, COL_INFO, ", ");
-        col_append_str(pinfo->cinfo, COL_INFO, info);
+            col_append_str(pinfo->cinfo, COL_INFO, info);
         } else {
             col_add_str(pinfo->cinfo, COL_INFO, info);
         }

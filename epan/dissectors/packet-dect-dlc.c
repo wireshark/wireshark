@@ -20,7 +20,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/xdlc.h>
+#include "packet-xdlc.h"
 
 void proto_register_dect_dlc(void);
 

@@ -17,8 +17,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/xdlc.h>
 #include <epan/tfs.h>
+#include "packet-xdlc.h"
 
 void proto_register_ehdlc(void);
 void proto_reg_handoff_ehdlc(void);

@@ -15,7 +15,6 @@
 #include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include <epan/oui.h>
-#include <epan/xdlc.h>
 #include <epan/llcsaps.h>
 #include <epan/bridged_pids.h>
 #include <epan/ppptypes.h>
@@ -27,6 +26,7 @@
 #include "packet-fc.h"
 #include "packet-sll.h"
 #include "packet-juniper.h"
+#include "packet-xdlc.h"
 
 #include "packet-llc.h"
 

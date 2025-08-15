@@ -22,9 +22,9 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/xdlc.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include "packet-xdlc.h"
 
 void proto_register_v5dl(void);
 
