@@ -12,6 +12,9 @@
 #include "visual.h"
 
 #include <string.h>
+
+#include <wsutil/pint.h>
+
 #include "wtap-int.h"
 #include "file_wrappers.h"
 

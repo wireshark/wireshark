@@ -23,6 +23,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/glib-compat.h>
 #include <wsutil/ws_roundup.h>
+#include <wsutil/pint.h>
 
 /*
  * See

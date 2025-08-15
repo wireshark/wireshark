@@ -37,6 +37,7 @@
 #include <glib.h>
 
 #include <wsutil/crc32.h>
+#include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/glib-compat.h>
 #include <wsutil/ws_padding_to.h>
@@ -931,12 +932,12 @@ static bool erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_
   switch(encap){
     case WTAP_ENCAP_ERF:
       memset(&erf_hdr, 0, sizeof(erf_hdr));
-      phtolell(&erf_hdr[0], pseudo_header->erf.phdr.ts);
+      phtole64(&erf_hdr[0], pseudo_header->erf.phdr.ts);
       erf_hdr[8] = pseudo_header->erf.phdr.type;
       erf_hdr[9] = pseudo_header->erf.phdr.flags;
-      phtons(&erf_hdr[10], pseudo_header->erf.phdr.rlen);
-      phtons(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
-      phtons(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
+      phton16(&erf_hdr[10], pseudo_header->erf.phdr.rlen);
+      phton16(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
+      phton16(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
       size = sizeof(struct erf_phdr);
 
       switch(pseudo_header->erf.phdr.type & 0x7F) {
@@ -947,11 +948,11 @@ static bool erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_
         case ERF_TYPE_MC_AAL5:
         case ERF_TYPE_MC_AAL2:
         case ERF_TYPE_COLOR_MC_HDLC_POS:
-          phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
+          phton32(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
           subhdr_size += (int)sizeof(struct erf_mc_hdr);
           break;
         case ERF_TYPE_AAL2:
-          phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.aal2_hdr);
+          phton32(&erf_subhdr[0], pseudo_header->erf.subhdr.aal2_hdr);
           subhdr_size += (int)sizeof(struct erf_aal2_hdr);
           break;
         case ERF_TYPE_ETH:
@@ -976,7 +977,7 @@ static bool erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_
   has_more = pseudo_header->erf.phdr.type & 0x80;
   if(has_more){  /*we have extension headers*/
     do{
-      phtonll(ehdr+(i*8), pseudo_header->erf.ehdr_list[i].ehdr);
+      phton64(ehdr+(i*8), pseudo_header->erf.ehdr_list[i].ehdr);
       if(i == MAX_ERF_EHDR-1) ehdr[i*8] = ehdr[i*8] & 0x7F;
       has_more = ehdr[i*8] & 0x80;
       i++;
@@ -1106,13 +1107,13 @@ static bool erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
       tag_ptr->length = 8;
       tag_ptr->value = (uint8_t*)g_malloc(sizeof(optval->uint64val));
       /* convert to relative ERF timestamp */
-      phtolell(tag_ptr->value, optval->uint64val << 32);
+      phtole64(tag_ptr->value, optval->uint64val << 32);
       break;
     case OPT_IDB_SPEED:
       tag_ptr->type = ERF_META_TAG_if_speed;
       tag_ptr->length = 8;
       tag_ptr->value = (uint8_t*)g_malloc(sizeof(optval->uint64val));
-      phtonll(tag_ptr->value, optval->uint64val);
+      phton64(tag_ptr->value, optval->uint64val);
       break;
     case OPT_IDB_IP4ADDR:
       tag_ptr->type = ERF_META_TAG_if_ipv4;
@@ -1142,7 +1143,7 @@ static bool erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
       tag_ptr->type = ERF_META_TAG_fcs_len;
       tag_ptr->length = 4;
       tag_ptr->value = (uint8_t*)g_malloc(tag_ptr->length);
-      phtonl(tag_ptr->value, (uint32_t)optval->uint8val);
+      phton32(tag_ptr->value, (uint32_t)optval->uint8val);
       break;
     /* TODO: Don't know what to do with these yet */
     case OPT_IDB_EUIADDR:

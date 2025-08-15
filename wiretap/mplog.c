@@ -38,6 +38,9 @@
 #include "mplog.h"
 
 #include <string.h>
+
+#include <wsutil/pint.h>
+
 #include <wtap-int.h>
 #include <file_wrappers.h>
 
@@ -170,8 +173,7 @@ static bool mplog_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     else
         start_p[1] = ISO14443_PSEUDO_HDR_PICC_TO_PCD;
 
-    start_p[2] = pkt_bytes >> 8;
-    start_p[3] = pkt_bytes & 0xFF;
+    phton16(&start_p[2], pkt_bytes);
 
     wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);

@@ -47,6 +47,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include <wsutil/ws_assert.h>
+#include <wsutil/pint.h>
 
 /* Magic number in Sniffer files. */
 static const char ngsniffer_magic[] = {

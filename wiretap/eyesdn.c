@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <wsutil/pint.h>
+
 static int eyesdn_file_type_subtype = -1;
 
 void register_eyesdn(void);
@@ -193,15 +195,7 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 
 	/* extract information from header */
 	usecs = pntoh24(&hdr[0]);
-#ifdef TV64BITS
-	secs = hdr[3];
-#else
-	secs = 0;
-#endif
-	secs = (secs << 8) | hdr[4];
-	secs = (secs << 8) | hdr[5];
-	secs = (secs << 8) | hdr[6];
-	secs = (secs << 8) | hdr[7];
+	secs = pntoh40(&hdr[3]);
 
 	channel = hdr[8];
 	direction = hdr[9];
@@ -452,17 +446,11 @@ static bool eyesdn_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		return false;
 	}
 
-	phton24(&buf[0], usecs);
-
-	buf[3] = (uint8_t)0;
-	buf[4] = (uint8_t)(0xff & (secs >> 24));
-	buf[5] = (uint8_t)(0xff & (secs >> 16));
-	buf[6] = (uint8_t)(0xff & (secs >> 8));
-	buf[7] = (uint8_t)(0xff & (secs >> 0));
-
-	buf[8] = (uint8_t) channel;
-	buf[9] = (uint8_t) (origin?1:0) + (protocol << 1);
-	phtons(&buf[10], size);
+	phton24(&buf[0], usecs);				/* 0-2 */
+	phton40(&buf[3], secs);					/* 3-7 */
+	phton8(&buf[8], channel);				/* 8 */
+	phton8(&buf[9], (origin?1:0) + (protocol << 1));	/* 9 */
+	phton16(&buf[10], size);				/* 10-11 */
 
 	/* start flag */
 	if (!wtap_dump_file_write(wdh, &start_flag, sizeof start_flag, err))

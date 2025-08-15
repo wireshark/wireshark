@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <wsutil/pint.h>
+
 /*
  * This module reads the output from the Cisco Secure Intrusion Detection
  * System iplogging facility. The term iplogging is misleading since this

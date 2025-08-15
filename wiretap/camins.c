@@ -56,6 +56,7 @@
 
 #include <glib.h>
 #include <string.h>
+#include <wsutil/pint.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
 
@@ -339,8 +340,7 @@ create_pseudo_hdr(uint8_t *buf, uint8_t dat_trans_type, uint16_t dat_len,
         return -1;
     }
 
-    buf[2] = (dat_len>>8) & 0xFF;
-    buf[3] = dat_len & 0xFF;
+    phton16(&buf[2], dat_len);
 
     return DVB_CI_PSEUDO_HDR_LEN;
 }

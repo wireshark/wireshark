@@ -26,6 +26,7 @@
 
 #include <wsutil/exported_pdu_tlvs.h>
 #include <wsutil/buffer.h>
+#include <wsutil/pint.h>
 #include "wsutil/tempfile.h"
 #include "wsutil/os_version_info.h"
 #include "wsutil/str_util.h"

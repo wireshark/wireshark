@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <string.h>
 #include <wsutil/unicode-utils.h>
+#include <wsutil/pint.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "atm.h"
@@ -1719,7 +1720,7 @@ static bool netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		/*
 		 * Fill in the trailer with the network type.
 		 */
-		phtoles(rec_2_x_trlr.network, wtap_encap[rec->rec_header.packet_header.pkt_encap]);
+		phtole16(rec_2_x_trlr.network, wtap_encap[rec->rec_header.packet_header.pkt_encap]);
 	}
 
 	/*

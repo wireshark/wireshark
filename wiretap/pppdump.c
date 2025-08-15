@@ -16,6 +16,7 @@
 
 #include <wsutil/array.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/pint.h>
 
 /*
 pppdump records

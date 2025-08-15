@@ -29,6 +29,7 @@
 #include <wsutil/epochs.h>
 #include <wsutil/802_11-utils.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/pint.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"

@@ -24,6 +24,7 @@
 #include <wsutil/buffer.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/exported_pdu_tlvs.h>
+#include <wsutil/pint.h>
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif

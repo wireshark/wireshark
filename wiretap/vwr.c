@@ -16,6 +16,7 @@
 #include "file_wrappers.h"
 
 #include <wsutil/ws_assert.h>
+#include <wsutil/pint.h>
 
 /* platform-specific definitions for portability */
 
@@ -1314,29 +1315,29 @@ static bool vwr_read_s1_W_rec(wtap *wth, wtap_rec *record,
     phtole8(&data_ptr[bytes_written], 0);
     bytes_written += 1;
 
-    phtoles(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN); /* it_len */
+    phtole16(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN); /* it_len */
     bytes_written += 2;
-    phtoles(&data_ptr[bytes_written], msdu_length);
+    phtole16(&data_ptr[bytes_written], msdu_length);
     bytes_written += 2;
-    phtolel(&data_ptr[bytes_written], flow_id);
+    phtole32(&data_ptr[bytes_written], flow_id);
     bytes_written += 4;
-    phtoles(&data_ptr[bytes_written], vc_id);
+    phtole16(&data_ptr[bytes_written], vc_id);
     bytes_written += 2;
-    phtoles(&data_ptr[bytes_written], flow_seq);
+    phtole16(&data_ptr[bytes_written], flow_seq);
     bytes_written += 2;
     if (!f_tx && sig_ts != 0) {
-        phtolel(&data_ptr[bytes_written], latency);
+        phtole32(&data_ptr[bytes_written], latency);
     } else {
-        phtolel(&data_ptr[bytes_written], 0);
+        phtole32(&data_ptr[bytes_written], 0);
     }
     bytes_written += 4;
-    phtolel(&data_ptr[bytes_written], sig_ts); /* 32 LSBs of signature timestamp (nsec) */
+    phtole32(&data_ptr[bytes_written], sig_ts & 0xFFFFFFFF); /* 32 LSBs of signature timestamp (nsec) */
     bytes_written += 4;
-    phtolell(&data_ptr[bytes_written], start_time); /* record start & end times of frame */
+    phtole64(&data_ptr[bytes_written], start_time); /* record start & end times of frame */
     bytes_written += 8;
-    phtolell(&data_ptr[bytes_written], end_time);
+    phtole64(&data_ptr[bytes_written], end_time);
     bytes_written += 8;
-    phtolel(&data_ptr[bytes_written], d_time);
+    phtole32(&data_ptr[bytes_written], d_time);
     bytes_written += 4;
 
     /*
@@ -1344,18 +1345,18 @@ static bool vwr_read_s1_W_rec(wtap *wth, wtap_rec *record,
      *
      * All values are copied out in little-endian byte order.
      */
-    phtoles(&data_ptr[bytes_written], EXT_WLAN_FIELDS_LEN);
+    phtole16(&data_ptr[bytes_written], EXT_WLAN_FIELDS_LEN);
     bytes_written += 2;
-    phtoles(&data_ptr[bytes_written], rflags);
+    phtole16(&data_ptr[bytes_written], rflags);
     bytes_written += 2;
     if (m_type == vwr->MT_OFDM) {
-        phtoles(&data_ptr[bytes_written], CHAN_OFDM);
+        phtole16(&data_ptr[bytes_written], CHAN_OFDM);
     } else {
-        phtoles(&data_ptr[bytes_written], CHAN_CCK);
+        phtole16(&data_ptr[bytes_written], CHAN_CCK);
     }
     bytes_written += 2;
     phyRate = (uint16_t)(get_legacy_rate(rate_index) * 10);
-    phtoles(&data_ptr[bytes_written], phyRate);
+    phtole16(&data_ptr[bytes_written], phyRate);
     bytes_written += 2;
     data_ptr[bytes_written] = vVW510021_W_PLCP_LEGACY; /* pre-HT */
     bytes_written += 1;
@@ -1392,14 +1393,14 @@ static bool vwr_read_s1_W_rec(wtap *wth, wtap_rec *record,
         vw_flags |= VW_FLAGS_IS_TKIP;
     else if (info & vwr->CCMPTYPE)
         vw_flags |= VW_FLAGS_IS_CCMP;
-    phtoles(&data_ptr[bytes_written], vw_flags);
+    phtole16(&data_ptr[bytes_written], vw_flags);
     bytes_written += 2;
 
-    phtoles(&data_ptr[bytes_written], ht_len);
+    phtole16(&data_ptr[bytes_written], ht_len);
     bytes_written += 2;
-    phtoles(&data_ptr[bytes_written], info);
+    phtole16(&data_ptr[bytes_written], info);
     bytes_written += 2;
-    phtolel(&data_ptr[bytes_written], errors);
+    phtole32(&data_ptr[bytes_written], errors);
     bytes_written += 4;
 
     /*
@@ -1733,29 +1734,29 @@ static bool vwr_read_s2_W_rec(wtap *wth, wtap_rec *record,
     phtole8(&data_ptr[bytes_written], 0);
     bytes_written += 1;
 
-    phtoles(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN); /* it_len */
+    phtole16(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN); /* it_len */
     bytes_written += 2;
-    phtoles(&data_ptr[bytes_written], msdu_length);
+    phtole16(&data_ptr[bytes_written], msdu_length);
     bytes_written += 2;
-    phtolel(&data_ptr[bytes_written], flow_id);
+    phtole32(&data_ptr[bytes_written], flow_id);
     bytes_written += 4;
-    phtoles(&data_ptr[bytes_written], vc_id);
+    phtole16(&data_ptr[bytes_written], vc_id);
     bytes_written += 2;
-    phtoles(&data_ptr[bytes_written], flow_seq);
+    phtole16(&data_ptr[bytes_written], flow_seq);
     bytes_written += 2;
     if (!f_tx && sig_ts != 0) {
-        phtolel(&data_ptr[bytes_written], latency);
+        phtole32(&data_ptr[bytes_written], latency & 0xFFFFFFFF);	/* 32 LSBs of latency */
     } else {
-        phtolel(&data_ptr[bytes_written], 0);
+        phtole32(&data_ptr[bytes_written], 0);
     }
     bytes_written += 4;
-    phtolel(&data_ptr[bytes_written], sig_ts); /* 32 LSBs of signature timestamp (nsec) */
+    phtole32(&data_ptr[bytes_written], sig_ts & 0xFFFFFFFF); /* 32 LSBs of signature timestamp (nsec) */
     bytes_written += 4;
-    phtolell(&data_ptr[bytes_written], start_time); /* record start & end times of frame */
+    phtole64(&data_ptr[bytes_written], start_time); /* record start & end times of frame */
     bytes_written += 8;
-    phtolell(&data_ptr[bytes_written], end_time);
+    phtole64(&data_ptr[bytes_written], end_time);
     bytes_written += 8;
-    phtolel(&data_ptr[bytes_written], d_time);
+    phtole32(&data_ptr[bytes_written], d_time);
     bytes_written += 4;
 
     /*
@@ -1763,18 +1764,18 @@ static bool vwr_read_s2_W_rec(wtap *wth, wtap_rec *record,
      *
      * All values are copied out in little-endian byte order.
      */
-    phtoles(&data_ptr[bytes_written], EXT_WLAN_FIELDS_LEN);
+    phtole16(&data_ptr[bytes_written], EXT_WLAN_FIELDS_LEN);
     bytes_written += 2;
     if (info & vVW510021_W_IS_WEP)
         radioflags |= FLAGS_WEP;
     if (!(l1p_1 & vVW510021_W_IS_LONGPREAMBLE) && (plcp_type == vVW510021_W_PLCP_LEGACY))
         radioflags |= FLAGS_SHORTPRE;
-    phtoles(&data_ptr[bytes_written], radioflags);
+    phtole16(&data_ptr[bytes_written], radioflags);
     bytes_written += 2;
-    phtoles(&data_ptr[bytes_written], chanflags);
+    phtole16(&data_ptr[bytes_written], chanflags);
     bytes_written += 2;
     phyRate = (uint16_t)(rate * 10);
-    phtoles(&data_ptr[bytes_written], phyRate);
+    phtole16(&data_ptr[bytes_written], phyRate);
     bytes_written += 2;
 
     data_ptr[bytes_written] = plcp_type;
@@ -1813,14 +1814,14 @@ static bool vwr_read_s2_W_rec(wtap *wth, wtap_rec *record,
         vw_flags |= VW_FLAGS_IS_TKIP;
     else if (info & vwr->CCMPTYPE)
         vw_flags |= VW_FLAGS_IS_CCMP;
-    phtoles(&data_ptr[bytes_written], vw_flags);
+    phtole16(&data_ptr[bytes_written], vw_flags);
     bytes_written += 2;
 
-    phtoles(&data_ptr[bytes_written], ht_len);
+    phtole16(&data_ptr[bytes_written], ht_len);
     bytes_written += 2;
-    phtoles(&data_ptr[bytes_written], info);
+    phtole16(&data_ptr[bytes_written], info);
     bytes_written += 2;
-    phtolel(&data_ptr[bytes_written], errors);
+    phtole32(&data_ptr[bytes_written], errors);
     bytes_written += 4;
 
     /* Finally, copy the whole MAC frame to the packet buffer as-is.
@@ -2253,23 +2254,23 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         phtole8(&data_ptr[bytes_written], ver_fpga); /* 2nd octet of record for FPGA version*/
         bytes_written += 1;
 
-        phtoles(&data_ptr[bytes_written], OCTO_TIMESTAMP_FIELDS_LEN); /* it_len */
+        phtole16(&data_ptr[bytes_written], OCTO_TIMESTAMP_FIELDS_LEN); /* it_len */
         bytes_written += 2;
 
     /*** Time Collapsible header started***/
         if (IS_TX == 1 && sig_ts != 0) {
-            phtolel(&data_ptr[bytes_written], latency);
+            phtole32(&data_ptr[bytes_written], latency & 0xFFFFFFFF);	/* 32 LSBs of latency */
         } else {
-            phtolel(&data_ptr[bytes_written], 0);
+            phtole32(&data_ptr[bytes_written], 0);
         }
         bytes_written += 4;
-        phtolel(&data_ptr[bytes_written], sig_ts); /* 32 LSBs of signature timestamp (nsec) */
+        phtole32(&data_ptr[bytes_written], sig_ts & 0xFFFFFFFF); /* 32 LSBs of signature timestamp (nsec) */
         bytes_written += 4;
-        phtolell(&data_ptr[bytes_written], start_time); /* record start & end times of frame */
+        phtole64(&data_ptr[bytes_written], start_time); /* record start & end times of frame */
         bytes_written += 8;
-        phtolell(&data_ptr[bytes_written], end_time);
+        phtole64(&data_ptr[bytes_written], end_time);
         bytes_written += 8;
-        phtolel(&data_ptr[bytes_written], d_time);
+        phtole32(&data_ptr[bytes_written], d_time);
         bytes_written += 4;
     /*** Time Collapsible header ends ***/
     }
@@ -2289,7 +2290,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         for (i = 0; i < RF_NUMBER_OF_PORTS; i++)
         {
             if (pntoh16(&rf_ptr[RF_PORT_1_NOISE_OFF+i*RF_INTER_PORT_GAP_OFF]) == 0) {
-                phtoles(&data_ptr[bytes_written], 0);
+                phtole16(&data_ptr[bytes_written], 0);
                 bytes_written += 2;
             } else {
                 data_ptr[bytes_written] = rf_ptr[RF_PORT_1_NOISE_OFF+i*RF_INTER_PORT_GAP_OFF];
@@ -2303,7 +2304,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         for (i = 0; i < RF_NUMBER_OF_PORTS; i++)
         {
             if (pntoh16(&rf_ptr[RF_PORT_1_SNR_OFF+i*RF_INTER_PORT_GAP_OFF]) == 0) {
-                phtoles(&data_ptr[bytes_written], 0);
+                phtole16(&data_ptr[bytes_written], 0);
                 bytes_written += 2;
             } else {
                 data_ptr[bytes_written] = rf_ptr[RF_PORT_1_SNR_OFF+i*RF_INTER_PORT_GAP_OFF];
@@ -2317,7 +2318,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         for (i = 0; i < RF_NUMBER_OF_PORTS; i++)
         {
             if (pntoh16(&rf_ptr[RF_PORT_1_PFE_OFF+i*RF_INTER_PORT_GAP_OFF]) == 0) {
-                phtoles(&data_ptr[bytes_written], 0);
+                phtole16(&data_ptr[bytes_written], 0);
                 bytes_written += 2;
             } else {
                 data_ptr[bytes_written] = rf_ptr[RF_PORT_1_PFE_OFF+i*RF_INTER_PORT_GAP_OFF];
@@ -2331,7 +2332,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         for (i = 0; i < RF_NUMBER_OF_PORTS; i++)
         {
             if (pntoh16(&rf_ptr[RF_PORT_1_EVM_SD_SIG_OFF+i*RF_INTER_PORT_GAP_OFF]) == 0) {
-                phtoles(&data_ptr[bytes_written], 0);
+                phtole16(&data_ptr[bytes_written], 0);
                 bytes_written += 2;
             } else {
                 data_ptr[bytes_written] = rf_ptr[RF_PORT_1_EVM_SD_SIG_OFF+i*RF_INTER_PORT_GAP_OFF];
@@ -2345,7 +2346,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         for (i = 0; i < RF_NUMBER_OF_PORTS; i++)
         {
             if (pntoh16(&rf_ptr[RF_PORT_1_EVM_SP_SIG_OFF+i*RF_INTER_PORT_GAP_OFF]) == 0) {
-                phtoles(&data_ptr[bytes_written], 0);
+                phtole16(&data_ptr[bytes_written], 0);
                 bytes_written += 2;
             } else {
                 data_ptr[bytes_written] = rf_ptr[RF_PORT_1_EVM_SP_SIG_OFF+i*RF_INTER_PORT_GAP_OFF];
@@ -2359,7 +2360,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         for (i = 0; i < RF_NUMBER_OF_PORTS; i++)
         {
             if (pntoh16(&rf_ptr[RF_PORT_1_EVM_SD_DATA_OFF+i*RF_INTER_PORT_GAP_OFF]) == 0) {
-                phtoles(&data_ptr[bytes_written], 0);
+                phtole16(&data_ptr[bytes_written], 0);
                 bytes_written += 2;
             } else {
                 data_ptr[bytes_written] = rf_ptr[RF_PORT_1_EVM_SD_DATA_OFF+i*RF_INTER_PORT_GAP_OFF];
@@ -2373,7 +2374,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         for (i = 0; i < RF_NUMBER_OF_PORTS; i++)
         {
             if (pntoh16(&rf_ptr[RF_PORT_1_EVM_SP_DATA_OFF+i*RF_INTER_PORT_GAP_OFF]) == 0) {
-                phtoles(&data_ptr[bytes_written], 0);
+                phtole16(&data_ptr[bytes_written], 0);
                 bytes_written += 2;
             } else {
                 data_ptr[bytes_written] = rf_ptr[RF_PORT_1_EVM_SP_DATA_OFF+i*RF_INTER_PORT_GAP_OFF];
@@ -2387,7 +2388,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         for (i = 0; i < RF_NUMBER_OF_PORTS; i++)
         {
             if (pntoh16(&rf_ptr[RF_PORT_1_DSYMBOL_IDX_OFF+i*RF_INTER_PORT_GAP_OFF]) == 0) {
-                phtoles(&data_ptr[bytes_written], 0);
+                phtole16(&data_ptr[bytes_written], 0);
                 bytes_written += 2;
             } else {
                 data_ptr[bytes_written] = rf_ptr[RF_PORT_1_DSYMBOL_IDX_OFF+i*RF_INTER_PORT_GAP_OFF];
@@ -2401,7 +2402,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         for (i = 0; i < RF_NUMBER_OF_PORTS; i++)
         {
             if (pntoh16(&rf_ptr[RF_PORT_1_CONTEXT_OFF+i*RF_INTER_PORT_GAP_OFF]) == 0) {
-                phtoles(&data_ptr[bytes_written], 0);
+                phtole16(&data_ptr[bytes_written], 0);
                 bytes_written += 2;
             } else {
                 data_ptr[bytes_written] = rf_ptr[RF_PORT_1_CONTEXT_OFF+i*RF_INTER_PORT_GAP_OFF];
@@ -2416,7 +2417,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         for (i = 0; i < RF_NUMBER_OF_PORTS; i++)
         {
             if (pntoh16(&rf_ptr[20+i*RF_INTER_PORT_GAP_OFF]) == 0) {
-                phtoles(&data_ptr[bytes_written], 0);
+                phtole16(&data_ptr[bytes_written], 0);
                 bytes_written += 2;
             } else {
                 data_ptr[bytes_written] = rf_ptr[20+i*RF_INTER_PORT_GAP_OFF];
@@ -2428,7 +2429,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         for (i = 0; i < RF_NUMBER_OF_PORTS; i++)
         {
             if (pntoh16(&rf_ptr[24+i*RF_INTER_PORT_GAP_OFF]) == 0) {
-                phtoles(&data_ptr[bytes_written], 0);
+                phtole16(&data_ptr[bytes_written], 0);
                 bytes_written += 2;
             } else {
                 data_ptr[bytes_written] = rf_ptr[24+i*RF_INTER_PORT_GAP_OFF];
@@ -2440,7 +2441,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         for (i = 0; i < RF_NUMBER_OF_PORTS; i++)
         {
             if (pntoh16(&rf_ptr[26+i*RF_INTER_PORT_GAP_OFF]) == 0) {
-                phtoles(&data_ptr[bytes_written], 0);
+                phtole16(&data_ptr[bytes_written], 0);
                 bytes_written += 2;
             } else {
                 data_ptr[bytes_written] = rf_ptr[26+i*RF_INTER_PORT_GAP_OFF];
@@ -2459,7 +2460,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
          *
          * All values are copied out in little-endian byte order.
          */
-        phtoles(&data_ptr[bytes_written], OCTO_LAYER1TO4_LEN);
+        phtole16(&data_ptr[bytes_written], OCTO_LAYER1TO4_LEN);
         bytes_written += 2;
 
         /*** Layer-1 Collapsible header started***/
@@ -2469,7 +2470,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         data_ptr[bytes_written] = (nss << 4) | IS_TX;
         bytes_written += 1;
 
-        phtoles(&data_ptr[bytes_written], phyRate);     /* To dosplay Data rate based on the PLCP type & MCS*/
+        phtole16(&data_ptr[bytes_written], phyRate);     /* To dosplay Data rate based on the PLCP type & MCS*/
         bytes_written += 2;
 
         data_ptr[bytes_written] = l1p_2;
@@ -2498,7 +2499,7 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
         }
         bytes_written += 1;
 
-        phtoles(&data_ptr[bytes_written], msdu_length);
+        phtole16(&data_ptr[bytes_written], msdu_length);
         bytes_written += 2;
         /*** Layer-1 Collapsible header Ends ***/
 
@@ -2509,34 +2510,34 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
 
         /*** Layer 2-4 Collapsible header Starts ***/
 
-        phtolel(&data_ptr[bytes_written], pntoh32(&s_start_ptr[12]));   /*** This 4 bytes includes BM,BV,CV,BSSID and ClientID ***/
+        phtole32(&data_ptr[bytes_written], pntoh32(&s_start_ptr[12]));   /*** This 4 bytes includes BM,BV,CV,BSSID and ClientID ***/
         bytes_written += 4;
-        phtoles(&data_ptr[bytes_written], pntoh16(&s_trail_ptr[20]));   /*** 2 bytes includes FV,QT,HT,L4V,TID and WLAN type ***/
+        phtole16(&data_ptr[bytes_written], pntoh16(&s_trail_ptr[20]));   /*** 2 bytes includes FV,QT,HT,L4V,TID and WLAN type ***/
         bytes_written += 2;
         data_ptr[bytes_written] = flow_seq;
         bytes_written += 1;
         phtole24(&data_ptr[bytes_written], flow_id);
         bytes_written += 3;
-        phtoles(&data_ptr[bytes_written], pntoh16(&s_trail_ptr[28]));   /*** 2 bytes for Layer 4 ID ***/
+        phtole16(&data_ptr[bytes_written], pntoh16(&s_trail_ptr[28]));   /*** 2 bytes for Layer 4 ID ***/
         bytes_written += 2;
-        phtolel(&data_ptr[bytes_written], pntoh32(&s_trail_ptr[24]));   /*** 4 bytes for Payload Decode ***/
+        phtole32(&data_ptr[bytes_written], pntoh32(&s_trail_ptr[24]));   /*** 4 bytes for Payload Decode ***/
         bytes_written += 4;
 
         /*** In case of RX, Info has 3 bytes of data, whereas for TX, 2 bytes ***/
         if (IS_TX == 0 || IS_TX == 4) {
-            phtoles(&data_ptr[bytes_written], info);
+            phtole16(&data_ptr[bytes_written], info);
             bytes_written += 2;
             data_ptr[bytes_written] = info_2nd;
             bytes_written += 1;
         }
         else {
-            phtoles(&data_ptr[bytes_written], info);
+            phtole16(&data_ptr[bytes_written], info);
             bytes_written += 2;
             data_ptr[bytes_written] = 0;
             bytes_written += 1;
         }
 
-        phtolel(&data_ptr[bytes_written], errors);
+        phtole32(&data_ptr[bytes_written], errors);
         bytes_written += 4;
         /*** Layer 2-4 Collapsible header Ends ***/
 
@@ -2763,29 +2764,29 @@ static bool vwr_read_rec_data_ethernet(wtap *wth, wtap_rec *record,
     phtole8(&data_ptr[bytes_written], 0);
     bytes_written += 1;
 
-    phtoles(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN);
+    phtole16(&data_ptr[bytes_written], STATS_COMMON_FIELDS_LEN);
     bytes_written += 2;
-    phtoles(&data_ptr[bytes_written], msdu_length);
+    phtole16(&data_ptr[bytes_written], msdu_length);
     bytes_written += 2;
-    phtolel(&data_ptr[bytes_written], flow_id);
+    phtole32(&data_ptr[bytes_written], flow_id);
     bytes_written += 4;
-    phtoles(&data_ptr[bytes_written], vc_id);
+    phtole16(&data_ptr[bytes_written], vc_id);
     bytes_written += 2;
-    phtoles(&data_ptr[bytes_written], flow_seq);
+    phtole16(&data_ptr[bytes_written], flow_seq);
     bytes_written += 2;
     if (!IS_TX && (sig_ts != 0)) {
-        phtolel(&data_ptr[bytes_written], latency);
+        phtole32(&data_ptr[bytes_written], latency);
     } else {
-        phtolel(&data_ptr[bytes_written], 0);
+        phtole32(&data_ptr[bytes_written], 0);
     }
     bytes_written += 4;
-    phtolel(&data_ptr[bytes_written], sig_ts);
+    phtole32(&data_ptr[bytes_written], sig_ts & 0xFFFFFFFF); /* 32 LSBs of signature timestamp (nsec) */
     bytes_written += 4;
-    phtolell(&data_ptr[bytes_written], start_time)                  /* record start & end times of frame */
+    phtole64(&data_ptr[bytes_written], start_time);  /* record start & end times of frame */
     bytes_written += 8;
-    phtolell(&data_ptr[bytes_written], end_time);
+    phtole64(&data_ptr[bytes_written], end_time);
     bytes_written += 8;
-    phtolel(&data_ptr[bytes_written], d_time);
+    phtole32(&data_ptr[bytes_written], d_time);
     bytes_written += 4;
 
     /*
@@ -2793,24 +2794,24 @@ static bool vwr_read_rec_data_ethernet(wtap *wth, wtap_rec *record,
      *
      * All values are copied out in little-endian byte order.
      */
-    phtoles(&data_ptr[bytes_written], EXT_ETHERNET_FIELDS_LEN);
+    phtole16(&data_ptr[bytes_written], EXT_ETHERNET_FIELDS_LEN);
     bytes_written += 2;
     vw_flags = 0;
     if (IS_TX)
         vw_flags |= VW_FLAGS_TXF;
     if (errors & vwr->FCS_ERROR)
         vw_flags |= VW_FLAGS_FCSERR;
-    phtoles(&data_ptr[bytes_written], vw_flags);
+    phtole16(&data_ptr[bytes_written], vw_flags);
     bytes_written += 2;
-    phtoles(&data_ptr[bytes_written], info);
+    phtole16(&data_ptr[bytes_written], info);
     bytes_written += 2;
-    phtolel(&data_ptr[bytes_written], errors);
+    phtole32(&data_ptr[bytes_written], errors);
     bytes_written += 4;
-    phtolel(&data_ptr[bytes_written], l4id);
+    phtole32(&data_ptr[bytes_written], l4id);
     bytes_written += 4;
 
     /* Add in pad */
-    phtolel(&data_ptr[bytes_written], 0);
+    phtole32(&data_ptr[bytes_written], 0);
     bytes_written += 4;
 
     /*

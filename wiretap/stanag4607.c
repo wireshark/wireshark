@@ -19,6 +19,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include <wsutil/buffer.h>
+#include <wsutil/pint.h>
 
 typedef struct {
   time_t base_secs;

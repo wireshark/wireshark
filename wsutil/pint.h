@@ -175,6 +175,14 @@ static inline void phton64(uint8_t *p, uint64_t v) {
     memcpy(p, &v, sizeof(v));
 }
 
+static inline void phtole16(uint8_t *p, uint32_t v)
+{
+#if G_BYTE_ORDER == G_BIG_ENDIAN
+    v = pint_bswap16(v);
+#endif
+    memcpy(p, &v, sizeof(v));
+}
+
 static inline void phtole32(uint8_t *p, uint32_t v)
 {
 #if G_BYTE_ORDER == G_BIG_ENDIAN
@@ -273,6 +281,12 @@ static inline void phton64(uint8_t *p, uint64_t v) {
     p[7] = (uint8_t)(v >> 0);
 }
 
+static inline void phtole16(uint8_t *p, uint16_t v)
+{
+    p[0] = (uint8_t)(v >> 0);
+    p[1] = (uint8_t)(v >> 8);
+}
+
 static inline void phtole32(uint8_t *p, uint32_t v) {
     p[0] = (uint8_t)(v >> 0);
     p[1] = (uint8_t)(v >> 8);
@@ -292,6 +306,34 @@ static inline void phtole64(uint8_t *p, uint64_t v) {
 }
 #endif
 
+/*
+ * Single-byte versions, for completeness.
+ */
+static inline uint8_t pntoh8(const void *p)
+{
+    return *((const uint8_t *)(p)+0)<<0;
+}
+
+static inline uint8_t pletoh8(const void *p)
+{
+    return *((const uint8_t *)(p)+0)<<0;
+}
+
+static inline void phton8(uint8_t *p, uint8_t v)
+{
+    p[0] = (uint8_t)((v) >> 0);
+}
+
+static inline void phtole8(uint8_t *p, uint8_t v)
+{
+    p[0] = (uint8_t)((v) >> 0);
+}
+
+/*
+ * Non-power-of-2 field sizes; do these a byte at a time, and let the
+ * compiler optimize them to combinations of power-of-2 operations if
+ * possible.
+ */
 static inline uint32_t pntoh24(const void *p)
 {
     return (uint32_t)*((const uint8_t *)(p)+0)<<16|
@@ -364,6 +406,80 @@ static inline uint64_t pletoh56(const void *p)
            (uint64_t)*((const uint8_t *)(p)+2)<<16|
            (uint64_t)*((const uint8_t *)(p)+1)<<8|
            (uint64_t)*((const uint8_t *)(p)+0)<<0;
+}
+
+static inline void phton24(uint8_t *p, uint32_t v)
+{
+    p[0] = (uint8_t)((v) >> 16);
+    p[1] = (uint8_t)((v) >> 8);
+    p[2] = (uint8_t)((v) >> 0);
+}
+
+static inline void phton40(uint8_t *p, uint64_t v)
+{
+    p[0] = (uint8_t)((v) >> 32);
+    p[1] = (uint8_t)((v) >> 24);
+    p[2] = (uint8_t)((v) >> 16);
+    p[3] = (uint8_t)((v) >> 8);
+    p[4] = (uint8_t)((v) >> 0);
+}
+
+static inline void phton48(uint8_t *p, uint64_t v)
+{
+    p[0] = (uint8_t)((v) >> 40);
+    p[1] = (uint8_t)((v) >> 32);
+    p[2] = (uint8_t)((v) >> 24);
+    p[3] = (uint8_t)((v) >> 16);
+    p[4] = (uint8_t)((v) >> 8);
+    p[5] = (uint8_t)((v) >> 0);
+}
+
+static inline void phton56(uint8_t *p, uint64_t v)
+{
+    p[0] = (uint8_t)((v) >> 48);
+    p[1] = (uint8_t)((v) >> 40);
+    p[2] = (uint8_t)((v) >> 32);
+    p[3] = (uint8_t)((v) >> 24);
+    p[4] = (uint8_t)((v) >> 16);
+    p[5] = (uint8_t)((v) >> 8);
+    p[6] = (uint8_t)((v) >> 0);
+}
+
+static inline void phtole24(uint8_t *p, uint32_t v)
+{
+    p[0] = (uint8_t)((v) >> 0);
+    p[1] = (uint8_t)((v) >> 8);
+    p[2] = (uint8_t)((v) >> 16);
+}
+
+static inline void phtole40(uint8_t *p, uint64_t v)
+{
+    p[0] = (uint8_t)((v) >> 0);
+    p[1] = (uint8_t)((v) >> 8);
+    p[2] = (uint8_t)((v) >> 16);
+    p[3] = (uint8_t)((v) >> 24);
+    p[4] = (uint8_t)((v) >> 32);
+}
+
+static inline void phtole48(uint8_t *p, uint64_t v)
+{
+    p[0] = (uint8_t)((v) >> 0);
+    p[1] = (uint8_t)((v) >> 8);
+    p[2] = (uint8_t)((v) >> 16);
+    p[3] = (uint8_t)((v) >> 24);
+    p[4] = (uint8_t)((v) >> 32);
+    p[5] = (uint8_t)((v) >> 40);
+}
+
+static inline void phtole56(uint8_t *p, uint64_t v)
+{
+    p[0] = (uint8_t)((v) >> 0);
+    p[1] = (uint8_t)((v) >> 8);
+    p[2] = (uint8_t)((v) >> 16);
+    p[3] = (uint8_t)((v) >> 24);
+    p[4] = (uint8_t)((v) >> 32);
+    p[5] = (uint8_t)((v) >> 40);
+    p[6] = (uint8_t)((v) >> 48);
 }
 
 #endif /* PINT_H */

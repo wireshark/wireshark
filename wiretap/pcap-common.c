@@ -22,6 +22,7 @@
 #include "pcap-encap.h"
 
 #include <wsutil/ws_roundup.h>
+#include <wsutil/pint.h>
 
 /*
  * On some systems, the FDDI MAC addresses are bit-swapped.
@@ -998,7 +999,7 @@ pcap_write_sunatm_pseudoheader(wtap_dumper *wdh,
 		break;
 	}
 	atm_hdr[SUNATM_VPI] = (uint8_t)pseudo_header->atm.vpi;
-	phtons(&atm_hdr[SUNATM_VCI], pseudo_header->atm.vci);
+	phton16(&atm_hdr[SUNATM_VCI], pseudo_header->atm.vci);
 	if (!wtap_dump_file_write(wdh, atm_hdr, sizeof(atm_hdr), err))
 		return false;
 	return true;
@@ -1054,8 +1055,8 @@ pcap_write_irda_pseudoheader(wtap_dumper *wdh,
 	 * Write the IrDA header.
 	 */
 	memset(irda_hdr, 0, sizeof(irda_hdr));
-	phtons(&irda_hdr[IRDA_SLL_PKTTYPE_OFFSET], pseudo_header->irda.pkttype);
-	phtons(&irda_hdr[IRDA_SLL_PROTOCOL_OFFSET], 0x0017);
+	phton16(&irda_hdr[IRDA_SLL_PKTTYPE_OFFSET], pseudo_header->irda.pkttype);
+	phton16(&irda_hdr[IRDA_SLL_PROTOCOL_OFFSET], 0x0017);
 	if (!wtap_dump_file_write(wdh, irda_hdr, sizeof(irda_hdr), err))
 		return false;
 	return true;
@@ -1107,7 +1108,7 @@ pcap_write_mtp2_pseudoheader(wtap_dumper *wdh,
 	memset(&mtp2_hdr, 0, sizeof(mtp2_hdr));
 	mtp2_hdr[MTP2_SENT_OFFSET] = pseudo_header->mtp2.sent;
 	mtp2_hdr[MTP2_ANNEX_A_USED_OFFSET] = pseudo_header->mtp2.annex_a_used;
-	phtons(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET],
+	phton16(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET],
 	    pseudo_header->mtp2.link_number);
 	if (!wtap_dump_file_write(wdh, mtp2_hdr, sizeof(mtp2_hdr), err))
 		return false;
@@ -1170,8 +1171,8 @@ pcap_write_lapd_pseudoheader(wtap_dumper *wdh,
 	 * Write the LAPD header.
 	 */
 	memset(&lapd_hdr, 0, sizeof(lapd_hdr));
-	phtons(&lapd_hdr[LAPD_SLL_PKTTYPE_OFFSET], pseudo_header->lapd.pkttype);
-	phtons(&lapd_hdr[LAPD_SLL_PROTOCOL_OFFSET], ETH_P_LAPD);
+	phton16(&lapd_hdr[LAPD_SLL_PKTTYPE_OFFSET], pseudo_header->lapd.pkttype);
+	phton16(&lapd_hdr[LAPD_SLL_PROTOCOL_OFFSET], ETH_P_LAPD);
 	lapd_hdr[LAPD_SLL_ADDR_OFFSET + 0] =
 	    pseudo_header->lapd.we_network?0x01:0x00;
 	if (!wtap_dump_file_write(wdh, lapd_hdr, sizeof(lapd_hdr), err))
@@ -1597,7 +1598,7 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 	 * Write the ERF header.
 	 */
 	memset(&erf_hdr, 0, sizeof(erf_hdr));
-	phtolell(&erf_hdr[0], pseudo_header->erf.phdr.ts);
+	phtole64(&erf_hdr[0], pseudo_header->erf.phdr.ts);
 	erf_hdr[8] = pseudo_header->erf.phdr.type;
 	erf_hdr[9] = pseudo_header->erf.phdr.flags;
 
@@ -1609,11 +1610,11 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 	 * here, assume caplen was calculated correctly and
 	 * recalculate from wlen.
 	 */
-	phtons(&erf_hdr[10],
+	phton16(&erf_hdr[10],
 	    MIN(pseudo_header->erf.phdr.rlen, pseudo_header->erf.phdr.wlen + pcap_get_phdr_size(WTAP_ENCAP_ERF, pseudo_header)));
 
-	phtons(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
-	phtons(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
+	phton16(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
+	phton16(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
 	if (!wtap_dump_file_write(wdh, erf_hdr,  sizeof(struct erf_phdr), err))
 		return false;
 
@@ -1626,7 +1627,7 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 		uint8_t type;
 
 		do {
-			phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
+			phton64(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
 			type = erf_exhdr[0];
 			/* Clear more extension headers bit if > 8 */
 			if(i == max-1)
@@ -1648,13 +1649,13 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 	case ERF_TYPE_MC_AAL5:
 	case ERF_TYPE_MC_AAL2:
 	case ERF_TYPE_COLOR_MC_HDLC_POS:
-		phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
+		phton32(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
 		if (!wtap_dump_file_write(wdh, erf_subhdr,
 		    sizeof(struct erf_mc_hdr), err))
 			return false;
 		break;
 	case ERF_TYPE_AAL2:
-		phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.aal2_hdr);
+		phton32(&erf_subhdr[0], pseudo_header->erf.subhdr.aal2_hdr);
 		if (!wtap_dump_file_write(wdh, erf_subhdr,
 		    sizeof(struct erf_aal2_hdr), err))
 			return false;
@@ -1721,7 +1722,7 @@ pcap_write_i2c_linux_pseudoheader(wtap_dumper *wdh,
 	memset(&i2c_linux_hdr, 0, sizeof(i2c_linux_hdr));
 	i2c_linux_hdr.bus = pseudo_header->i2c.bus |
 			(pseudo_header->i2c.is_event ? 0x80 : 0x00);
-	phtonl((uint8_t *)&i2c_linux_hdr.flags, pseudo_header->i2c.flags);
+	phton32((uint8_t *)&i2c_linux_hdr.flags, pseudo_header->i2c.flags);
 	if (!wtap_dump_file_write(wdh, &i2c_linux_hdr, sizeof(i2c_linux_hdr), err))
 		return false;
 	return true;
@@ -2780,7 +2781,7 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 			uint8_t type;
 
 			do {
-				phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
+				phton64(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
 				type = erf_exhdr[0];
 				hdrsize += 8;
 				i++;

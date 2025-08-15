@@ -15,6 +15,7 @@
 #include "atm.h"
 #include <wsutil/802_11-utils.h>
 #include <wsutil/ws_roundup.h>
+#include <wsutil/pint.h>
 
 /* See RFC 1761 for a description of the "snoop" file format. */
 

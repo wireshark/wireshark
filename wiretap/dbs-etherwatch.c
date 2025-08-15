@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <wsutil/pint.h>
+
 /* This module reads the text output of the 'DBS-ETHERTRACE' command in VMS
  * It was initially based on vms.c.
  */
@@ -271,13 +273,14 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     uint8_t *pd;
     char    line[DBS_ETHERWATCH_LINE_LENGTH];
     int num_items_scanned;
-    int eth_hdr_len, pkt_len, csec;
-    int length_pos, length_from, length;
+    int pkt_len_signed, csec_signed;
+    unsigned eth_hdr_len, pkt_len, csec;
+    unsigned length_pos, length_from, length;
     struct tm tm;
     char mon[4] = "xxx";
     char *p;
     static const char months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
-    int count, line_count;
+    unsigned count, line_count;
 
     /* Make sure we have enough room for a regular Ethernet packet */
     ws_buffer_assure_space(&rec->data, DBS_ETHERWATCH_MAX_ETHERNET_PACKET_LEN);
@@ -347,12 +350,19 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         return false;
     }
 
+    /*
+     * %u doesn't fail if the value has a sign; it works like the
+     * strto*() routines.
+     *
+     * Use %d, scan into signed values, and then check whether they're
+     * < 0.
+     */
     num_items_scanned = sscanf(line + LENGTH_POS,
                 "%9d byte buffer at %2d-%3s-%4d %2d:%2d:%2d.%9d",
-                &pkt_len,
+                &pkt_len_signed,
                 &tm.tm_mday, mon,
                 &tm.tm_year, &tm.tm_hour, &tm.tm_min,
-                &tm.tm_sec, &csec);
+                &tm.tm_sec, &csec_signed);
 
     if (num_items_scanned != 8) {
         *err = WTAP_ERR_BAD_FILE;
@@ -360,11 +370,20 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         return false;
     }
 
-    if (pkt_len < 0) {
+    if (pkt_len_signed < 0) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup("dbs_etherwatch: packet header has a negative packet length");
         return false;
     }
+
+    if (csec_signed < 0) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("dbs_etherwatch: packet header has a negative microseconds time stamp");
+        return false;
+    }
+
+    pkt_len = (unsigned) pkt_len_signed;
+    csec = (unsigned) csec_signed;
 
     /* Determine whether it is Ethernet II or IEEE 802 */
     if(strncmp(&line[ETH_II_CHECK_POS], ETH_II_CHECK_STR,
@@ -428,9 +447,8 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
             eth_hdr_len += PID_LENGTH;
         }
         /* Write the length in the header */
-        length = eth_hdr_len - length_from + pkt_len;
-        pd[length_pos] = (length) >> 8;
-        pd[length_pos+1] = (length) & 0xFF;
+        length = (eth_hdr_len - length_from) + pkt_len;
+        phton16(&pd[length_pos], length);
     }
 
     wtap_setup_packet_rec(rec, wth->file_encap);

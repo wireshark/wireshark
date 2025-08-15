@@ -13,6 +13,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include <wsutil/ws_assert.h>
+#include <wsutil/pint.h>
 
 /* Defines imported from netscaler code: nsperfrc.h */
 

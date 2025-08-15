@@ -27,6 +27,7 @@
 #include "file_wrappers.h"
 #include <wsutil/802_11-utils.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/pint.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>

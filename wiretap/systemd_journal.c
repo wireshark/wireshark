@@ -12,6 +12,9 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include <wsutil/pint.h>
+
 #include "wtap-int.h"
 #include "pcapng_module.h"
 #include "file_wrappers.h"

@@ -24,6 +24,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/pint.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
@@ -1824,14 +1825,11 @@ ttl_read_can_data_entry(wtap_rec* rec, int* err, char** err_info, ttl_read_t* in
         if (status & TTL_CAN_STATUS_ESI_BIT_MASK) canfd_flags |= CANFD_ESI;
     }
 
-    can_header[0] = (can_id & 0xff000000) >> 24;
-    can_header[1] = (can_id & 0x00ff0000) >> 16;
-    can_header[2] = (can_id & 0x0000ff00) >> 8;
-    can_header[3] = (can_id & 0x000000ff);
-    can_header[4] = len;
-    can_header[5] = canfd_flags;
-    can_header[6] = 0;
-    can_header[7] = 0;
+    phton32(&can_header[0], can_id);
+    phton8(&can_header[4], len);
+    phton8(&can_header[5], canfd_flags);
+    phton8(&can_header[6], 0);
+    phton8(&can_header[7], 0);
 
     ws_buffer_append(&rec->data, can_header, sizeof(can_header));
 

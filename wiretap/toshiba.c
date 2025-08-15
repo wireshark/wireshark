@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <wsutil/pint.h>
+
 /* This module reads the output of the 'snoop' command in the Toshiba
  * TR-600 and TR-650 "Compact" ISDN Routers. You can telnet to the
  * router and run 'snoop' on the different channels, and at different
@@ -420,8 +422,7 @@ parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset) {
 		rec[pos+4] = '\0';
 
 		word_value = (uint16_t) strtoul(&rec[pos], NULL, 16);
-		buf[byte_offset + i * 2 + 0] = (uint8_t) (word_value >> 8);
-		buf[byte_offset + i * 2 + 1] = (uint8_t) (word_value & 0x00ff);
+		phton16(&buf[byte_offset + i * 2], word_value);
 		pos += 5;
 	}
 
