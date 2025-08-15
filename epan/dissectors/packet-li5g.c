@@ -12,6 +12,7 @@
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/unit_strings.h>
+#include "packet-e212.h"
 #include "packet-tls.h"
 
 void proto_reg_handoff_li5g(void);
@@ -151,7 +152,37 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             proto_tree_add_item(attr_tree, hf_li5g_attrType, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(attr_tree, hf_li5g_attrLen, tvb, offset+2, 2, ENC_BIG_ENDIAN);
             if (attrType == 17 || attrType == 18) {
-                proto_tree_add_item(attr_tree, hf_attr, tvb, offset+4, attrLen, ENC_UTF_8 | ENC_NA);
+                const uint8_t* supi_str;
+                proto_tree_add_item_ret_string(attr_tree, hf_attr, tvb, offset+4, attrLen, ENC_UTF_8 | ENC_NA, pinfo->pool, &supi_str);
+
+                /* 3GPP Supi look up */
+                GMatchInfo *match_info_imsi;
+                static GRegex *regex_imsi = NULL;
+                char *matched_imsi = NULL;
+
+                /*
+                * String identifying a Supi that shall contain either an IMSI, a network specific identifier,
+                * a Global Cable Identifier (GCI) or a Global Line Identifier (GLI) as specified in clause 2.2A of 3GPP TS 23.003.
+                *
+                * We are interested in IMSI and will be formatted as follows:
+                *   Pattern: '<supiimsi>[0-9]{5,15}</supiimsi>'
+                */
+                if (regex_imsi == NULL) {
+                    regex_imsi = g_regex_new (
+                        ".*<supiimsi>([0-9]{5,15})</supiimsi>",
+                        G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
+                }
+
+                g_regex_match(regex_imsi, supi_str, 0, &match_info_imsi);
+
+                if (g_match_info_matches(match_info_imsi)) {
+                    matched_imsi = g_match_info_fetch(match_info_imsi, 1); //will be empty string if imsi is not in supi
+                    if (matched_imsi && (strcmp(matched_imsi, "") != 0)) {
+                        add_assoc_imsi_item(tvb, attr_tree, matched_imsi);
+                    }
+                }
+                g_regex_unref(regex_imsi);
+
             } else {
                 proto_tree_add_item(attr_tree, hf_attr, tvb, offset+4, attrLen, ENC_BIG_ENDIAN);
             }
