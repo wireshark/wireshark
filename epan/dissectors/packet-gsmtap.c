@@ -73,6 +73,8 @@ static int hf_gsmtap_rrc_sub_type;
 static int hf_gsmtap_e1t1_sub_type;
 static int hf_gsmtap_sim_sub_type;
 static int hf_gsmtap_antenna;
+static int hf_gsmtap_radio_fields;
+static int hf_gsmtap_res;
 
 static int hf_sacch_l1h_power_lev;
 static int hf_sacch_l1h_fpc;
@@ -943,8 +945,12 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	if (tree) {
 		if (type == GSMTAP_TYPE_SIM) {
 			/* Skip parsing radio fields for SIM type. */
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_radio_fields,
+					tvb, offset+3, 9, ENC_NA);
 			proto_tree_add_item(gsmtap_tree, hf_gsmtap_sim_sub_type,
 					tvb, offset+12, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_radio_fields,
+					tvb, offset+13, 2, ENC_NA);
 		} else {
 			uint8_t channel;
 			const char *channel_str;
@@ -1007,6 +1013,7 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			proto_tree_add_item(gsmtap_tree, hf_gsmtap_subslot,
 					tvb, offset+14, 1, ENC_BIG_ENDIAN);
 		}
+		proto_tree_add_item(gsmtap_tree, hf_gsmtap_res, tvb, offset+15, 1, ENC_BIG_ENDIAN);
 	}
 
 	switch (type) {
@@ -1328,6 +1335,10 @@ proto_register_gsmtap(void)
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_gsmtap_subslot, { "Sub-Slot", "gsmtap.sub_slot",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_gsmtap_radio_fields, { "Radio Fields", "gsmtap.radio_fields",
+		  FT_NONE, BASE_NONE, NULL, 0, "Radio Fields are not used for this payload type", HFILL }},
+		{ &hf_gsmtap_res, { "Reserved", "gsmtap.res",
+		  FT_UINT8, BASE_DEC, NULL, 0, "Reserved for future use (RFU)", HFILL }},
 
 		{ &hf_sacch_l1h_power_lev, { "MS power level", "gsmtap.sacch_l1.power_lev",
 		  FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL } },
