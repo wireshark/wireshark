@@ -5145,7 +5145,7 @@ set_80211_channel(const char *iface, const char *opt)
     ret = ws80211_set_freq(iface, freq, type, center_freq1, center_freq2);
 
     if (ret) {
-        cmdarg_err("%d: Failed to set channel: %s\n", abs(ret), g_strerror(abs(ret)));
+        cmdarg_err("Failed to set channel: %s", g_strerror(abs(ret)));
         ret = 2;
         goto out;
     }
