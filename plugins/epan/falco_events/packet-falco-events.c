@@ -218,6 +218,22 @@ falco_events_cleanup(void) {
     close_sinsp_capture(sinsp_span);
 }
 
+// Returns true if the field should be used for conversation filters.
+// XXX This should probably be a preference.
+static bool
+is_conversation_field(enum ftenum ftype, const char *abbrev) {
+    if (ftype != FT_STRINGZ) {
+        return false;
+    }
+
+    if (strcmp(abbrev, "ct.shortsrc") == 0) {
+        return true;
+    } else if (strstr(abbrev, "ct.user.accountid")) {
+        return true;
+    }
+    return false;
+}
+
 // Returns true if the field might contain an IPv4 or IPv6 address.
 // XXX This should probably be a preference.
 static bool
@@ -434,7 +450,7 @@ create_source_hfids(bridge_info* bi)
         }
         bi->visible_fields++;
 
-        if (sfi.is_conversation) {
+        if (sfi.is_conversation || is_conversation_field(sfi.type, sfi.abbrev)) {
             bi->num_conversation_filters++;
         }
     }
@@ -540,7 +556,7 @@ create_source_hfids(bridge_info* bi)
             };
             bi->hf[fld_cnt] = finfo;
 
-            if (sfi.is_conversation) {
+            if (sfi.is_conversation || is_conversation_field(sfi.type, sfi.abbrev)) {
                 ws_assert(conv_fld_cnt < bi->num_conversation_filters);
                 bi->field_flags[fld_cnt] |= BFF_CONVERSATION;
                 bi->conversation_filters[conv_fld_cnt].field_info = &bi->hf[fld_cnt];
