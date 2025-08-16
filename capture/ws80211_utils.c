@@ -277,10 +277,15 @@ static void parse_band_he_cap_phy(struct ws80211_band *band,
 	 * already parsed. (Would anything support a particular bandwidth for
 	 * HE but not for VHT?) It is here as a useful POC that the EHT code
 	 * below should work if you have 802.11ax but not 802.11be gear. */
-	uint32_t chan_cap_phy;
+	/* The HE PHY capabilities are 11 bytes long, so unlike the HT
+	 * and VHT PHY capabilities (which are sent as native byte-order
+	 * uint16_t and uint32_t, respectively), they're in the IE's original
+	 * Little Endian order. We only care about entries in the LSB.
+	 */
+	uint8_t chan_cap_phy;
 	if (!tb) return;
 
-	chan_cap_phy = (nla_get_u32(tb) >> 1) & 0xf;
+	chan_cap_phy = (nla_get_u8(tb) >> 1) & 0xf;
 	band->channel_types |= 1 << WS80211_CHAN_HT20;
 	if (chan_cap_phy & 1) {
 		/* 40 MHz in 2.4 GHz band */
@@ -308,10 +313,17 @@ static void parse_band_he_cap_phy(struct ws80211_band *band,
 static void parse_band_eht_cap_phy(struct ws80211_band *band,
 				   struct nlattr *tb)
 {
-	uint32_t chan_cap_phy;
+	/* The EHT PHY capabilities are 9 bytes long, so unlike the HT
+	 * and VHT PHY capabilities (which are sent as native byte-order
+	 * uint16_t and uint32_t, respectively), they're in the IE's original
+	 * Little Endian order. We only care about entries in the LSB.
+	 * uint16_t or uint32_t, but in the IE's original Little Endian order.
+	 * We only care about entries in the first byte, which makes it simple.
+	 */
+	uint8_t chan_cap_phy;
 	if (!tb) return;
 
-	chan_cap_phy = (nla_get_u32(tb) >> 1) & 1;
+	chan_cap_phy = (nla_get_u8(tb) >> 1) & 1;
 	if (chan_cap_phy == 1) {
 		band->channel_types |= 1 << WS80211_CHAN_EHT320;
 	}
