@@ -1548,6 +1548,7 @@ static const value_string acknack_type_vals[] = {
 #define ORAN_C_PLANE 0
 #define ORAN_U_PLANE 1
 
+/* TODO: should ideally have (say) dst MAC address also in key, so don't confuse UL messages with DL messages configuring UL.. */
 static uint32_t make_flow_key(uint16_t eaxc_id, uint8_t plane)
 {
     return eaxc_id | (plane << 16);
@@ -2247,6 +2248,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             numprbc_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numPrbc, tvb, offset, 1, ENC_NA, &numPrbc);
             if (numPrbc == 0) {
                 proto_item_append_text(numprbc_ti, " (all PRBs - configured as %u)", pref_data_plane_section_total_rbs);
+                /* TODO: should probably set to pref_data_plane_section_total_rbs, and define MAX_PRBS to > 273 ? */
+                numPrbc = MAX_PRBS;
             }
             offset += 1;
         }
@@ -2932,10 +2935,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     numsymbol_ignored = true;
                 }
 
-                /* Update ext6 recorded info */
+                /* Will update ext6 recorded info */
                 ext11_settings.ext6_set = true;
-
-                /* TODO: also update prbs_for_st10_type5[] */
 
                 /* repetition */
                 proto_tree_add_bits_item(extension_tree, hf_oran_se6_repetition, tvb, offset*8, 1, ENC_BIG_ENDIAN);
@@ -3029,6 +3030,29 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                rbgMask, last_seen_pos, lastRbgid);
                     }
                 }
+
+                /* Also update prbs_for_st10_type5[] */
+                if (sectionType == 10) {
+                    /* Unset all entries */
+                    memset(&prbs_for_st10_type5, 0, sizeof(prbs_for_st10_type5));
+
+                    /* Work out which PRB first bit corresponds to */
+                    unsigned firstPrbStart = (startPrbc/rbgSize) * rbgSize;
+
+                    /* Add PRBs corresponding to each bit set */
+                    for (unsigned n=0; n < 28 ; n++) {
+                        if ((rbgMask >> n) & 0x01) {
+                            /* Lazy way to clip any values that lie outside of range for section */
+                            for (unsigned p=0; p < rbgSize; p++) {
+                                unsigned start = firstPrbStart + (n*rbgSize);
+                                if ((start+p >= startPrbc) && (start+p <= startPrbc+numPrbc-1)) {
+                                    prbs_for_st10_type5[start+p] = true;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 break;
             }
 
@@ -3336,8 +3360,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 uint32_t extlen_remaining_bytes = (extlen*4) - 4;
                 uint8_t prb_index;
 
-                /* Will replace PRBs to be covered by ST10 MsgType=5 */
-                memset(&prbs_for_st10_type5, 0, sizeof(prbs_for_st10_type5));
+                /* This is for ST10/ST11.  First pair starts after frames signalled there */
+                uint16_t st10_st11_offset = startPrbc + numPrbc;
 
                 for (prb_index = 1; extlen_remaining_bytes > 0; prb_index++)
                 {
@@ -3364,19 +3388,26 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     }
                     /* Add summary to pair root item, and configure details in ext11_settings */
                     else {
-                        proto_item_append_text(pair_ti, "(%u) [%u->%u]",
-                                              prb_index, off_start_prb, off_start_prb+num_prb-1);
+                        proto_item_append_text(pair_ti, "(%u) [%u : %u]",
+                                              prb_index, off_start_prb, num_prb);
+                        proto_item_append_text(extension_ti, "[%u : %u]",
+                                              off_start_prb, num_prb);
                         if (ext11_settings.ext12_num_pairs < MAX_BFW_EXT12_PAIRS) {
                             ext11_settings.ext12_pairs[ext11_settings.ext12_num_pairs].off_start_prb = off_start_prb;
                             ext11_settings.ext12_pairs[ext11_settings.ext12_num_pairs++].num_prb = num_prb;
                         }
 
                         /* Also update PRBs to be covered for ST10 type 5 */
-                        for (unsigned prb=off_start_prb; prb < off_start_prb+num_prb; prb++) {
+                        /* Original range from section is added to.. */
+                        /* TODO: I don't think this is quite right.. */
+                        for (unsigned prb=st10_st11_offset+off_start_prb; prb < st10_st11_offset+off_start_prb+num_prb; prb++) {
                             if (prb < MAX_PRBS) {
                                 prbs_for_st10_type5[prb] = true;
                             }
                         }
+
+                        /* Any next pair will begin after this one */
+                        st10_st11_offset += (off_start_prb + num_prb);
                     }
                 }
                 break;
