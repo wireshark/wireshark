@@ -468,7 +468,7 @@ tls_follow_index_filter(unsigned stream, unsigned sub_stream _U_)
     return ws_strdup_printf("tls.stream eq %u", stream);
 }
 
-static tap_packet_status
+tap_packet_status
 ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ssl, tap_flags_t flags _U_)
 {
     follow_info_t *      follow_info = (follow_info_t*) tapdata;
@@ -507,6 +507,16 @@ ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
            follow_info->bytes_written[] values as the next expected
            appl_data->seq. Any appl_data instances that fall below that have
            already been processed and must be skipped. */
+        /* XXX - If instead of tapping at the end of the entire frame,
+         * the TLS (and DTLS) dissector tapped after each SSL_ID_APP_DATA
+         * record (i.e., in dissect_dtls_appdata and process_ssl_payload,
+         * as is done for the export PDU tap), we could skip the for loop
+         * and these checks.
+         *
+         * Alternatively, instead of using the byte sequence here, we could
+         * track record number instead, which might allow performing record
+         * replay detection on DTLS and should still work on TLS.
+         */
         if (appl_data->seq < follow_info->bytes_written[from]) continue;
 
         /* Allocate a follow_record_t to hold the current appl_data

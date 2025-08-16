@@ -1475,9 +1475,9 @@ Example: *-z flow,tcp,network* will show data flow for all TCP frames
 *-z* follow,__prot__,__mode__,__filter__[,__range__]::
 +
 --
-Displays the contents of a TCP or UDP stream between two nodes. The data
-sent by the second node is prefixed with a tab to differentiate it from the
-data sent by the first node.
+Displays the contents of a stream between two nodes. The data sent by the
+second node is prefixed with a tab to differentiate it from the data sent
+by the first node.
 
 __prot__ specifies the transport protocol.  It can be one of:
 
@@ -1485,6 +1485,7 @@ __prot__ specifies the transport protocol.  It can be one of:
   udp   UDP
   dccp  DCCP
   tls   TLS or SSL
+  dtls  DTLS
   http  HTTP streams
   http2 HTTP/2 streams
   quic  QUIC streams
@@ -1517,7 +1518,7 @@ __filter__ specifies the stream to be displayed. There are three formats:
   stream-index,substream-index
 
 The first format specifies IP addresses and TCP, UDP, or DCCP port pairs.
-(TCP ports are used for TLS, HTTP, and HTTP2; UDP ports are used for QUIC,
+(TCP ports are used for TLS, HTTP, and HTTP2; UDP ports are used for DTLS, QUIC,
 MP2T, and MPEG-PS.) Note that this format will include all streams multiplexed
 on the same address and port 5-tuple for transports with substreams such
 as HTTP/2, QUIC, and MP2T. In addition, for QUIC this format will include
@@ -1525,7 +1526,7 @@ all connections sharing the same 5-tuple, and will not follow connection
 migration.
 
 The second format specifies stream indices, and is used for TCP, UDP, DCCP,
-TLS, and HTTP. (HTTP uses TCP stream indices.)
+TLS, DTLS, and HTTP. (HTTP uses TCP stream indices.)
 
 The third format, specifying streams and substreams, is used for HTTP/2,
 QUIC, MP2T, and MPEG-PES due to their use of multiplexing. (TCP stream and

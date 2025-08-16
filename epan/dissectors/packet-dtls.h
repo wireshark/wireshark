@@ -17,6 +17,8 @@
 WS_DLL_PUBLIC void dtls_dissector_add(unsigned port, dissector_handle_t handle);
 WS_DLL_PUBLIC void dtls_dissector_delete(unsigned port, dissector_handle_t handle);
 
+extern uint32_t
+dtls_increment_stream_count(void);
 
 /* Shared with packet-tls-utils.c */
 

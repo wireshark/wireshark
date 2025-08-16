@@ -5988,11 +5988,13 @@ end:
 void proto_reg_handoff_tls_utils(void);
 
 static dissector_handle_t base_tls_handle;
+static dissector_handle_t dtls_handle;
 
 void
 proto_reg_handoff_tls_utils(void)
 {
     base_tls_handle = find_dissector("tls");
+    dtls_handle = find_dissector("dtls");
 }
 
 /* get ssl data for this session. if no ssl data is found allocate a new one*/
@@ -6058,6 +6060,8 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle)
      */
     if (tls_handle == base_tls_handle) {
         ssl_session->session.stream = tls_increment_stream_count();
+    } else if (tls_handle == dtls_handle) {
+        ssl_session->session.stream = dtls_increment_stream_count();
     }
 
     conversation_add_proto_data(conversation, proto_ssl, ssl_session);

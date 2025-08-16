@@ -42,6 +42,8 @@
 #include <epan/tap.h>
 #include <epan/reassemble.h>
 #include <epan/uat.h>
+#include <epan/addr_resolv.h>
+#include <epan/follow.h>
 #include <epan/sctpppids.h>
 #include <epan/exported_pdu.h>
 #include <epan/decode_as.h>
@@ -57,6 +59,7 @@
 #include "packet-dtls.h"
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
+#include "packet-udp.h"
 
 void proto_register_dtls(void);
 
@@ -109,9 +112,11 @@ static const true_false_string dtls_uni_hdr_seq_tfs = {
 };
 
 /* Initialize the protocol and registered fields */
-static int dtls_tap                            = -1;
-static int exported_pdu_tap                    = -1;
+static int dtls_tap;
+static int dtls_follow_tap;
+static int exported_pdu_tap;
 static int proto_dtls;
+static int hf_dtls_stream;
 static int hf_dtls_record;
 static int hf_dtls_record_content_type;
 static int hf_dtls_record_special_type;
@@ -217,6 +222,8 @@ static uint32_t dtls_default_server_cid_length;
 
 static heur_dissector_list_t heur_subdissector_list;
 
+static uint32_t dtls_stream_count;
+
 static const fragment_items dtls_frag_items = {
   /* Fragment subtrees */
   &ett_dtls_fragment,
@@ -242,6 +249,16 @@ static const fragment_items dtls_frag_items = {
 
 static SSL_COMMON_LIST_T(dissect_dtls_hf);
 
+uint32_t get_dtls_stream_count(void)
+{
+  return dtls_stream_count;
+}
+
+uint32_t dtls_increment_stream_count(void)
+{
+  return dtls_stream_count++;
+}
+
 /* initialize/reset per capture state data (dtls sessions cache) */
 static void
 dtls_init(void)
@@ -250,6 +267,8 @@ dtls_init(void)
   ssl_data_alloc(&dtls_compressed_data, 32);
 
   ssl_init_cid_list();
+
+  dtls_stream_count = 0;
 }
 
 static void
@@ -373,6 +392,37 @@ static int   looks_like_dtls(tvbuff_t *tvb, uint32_t offset);
 
 /*********************************************************************
  *
+ * Follow Stream support
+ *
+ *********************************************************************/
+
+static char *
+dtls_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream _U_)
+{
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (!conv) {
+        return NULL;
+    }
+    void *conv_data = conversation_get_proto_data(conv, proto_dtls);
+    if (conv_data == NULL) {
+        return NULL;
+    }
+
+    SslDecryptSession *ssl_session = (SslDecryptSession *)conv_data;
+    SslSession *session = &ssl_session->session;
+
+    *stream = session->stream;
+    return ws_strdup_printf("dtls.stream eq %u", session->stream);
+}
+
+static char *
+dtls_follow_index_filter(unsigned stream, unsigned sub_stream _U_)
+{
+    return ws_strdup_printf("dtls.stream eq %u", stream);
+}
+
+/*********************************************************************
+ *
  * Main dissector
  *
  *********************************************************************/
@@ -465,6 +515,9 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   ti = proto_tree_add_item(tree, proto_dtls, tvb, 0, -1, ENC_NA);
   dtls_tree = proto_item_add_subtree(ti, ett_dtls);
 
+  ti = proto_tree_add_uint(dtls_tree, hf_dtls_stream, tvb, 0, 0, session->stream);
+  proto_item_set_generated(ti);
+
   /* iterate through the records in this tvbuff */
   while (tvb_reported_length_remaining(tvb, offset) != 0)
     {
@@ -495,8 +548,9 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       }
     }
 
-  // XXX there is no Follow DTLS Stream, is this tap needed?
+  // XXX Is this tap needed?
   tap_queue_packet(dtls_tap, pinfo, NULL);
+  tap_queue_packet(dtls_follow_tap, pinfo, p_get_proto_data(wmem_file_scope(), pinfo, proto_dtls, curr_layer_num_ssl));
   return tvb_captured_length(tvb);
 }
 
@@ -663,7 +717,8 @@ dtls_save_decrypted_record(packet_info *pinfo, int record_id, uint8_t content_ty
     // For DTLS 1.3, the record sequence number was encrypted, so store it.
     // tls_decrypt_aead_record does not increment decoder->seq after
     // successful authentication for DTLS 1.3 (unlike for TLS.)
-    ssl_add_record_info(proto_dtls, pinfo, data, datalen, record_id, NULL, (ContentType)content_type, curr_layer_num_ssl, decoder->seq);
+    // XXX - The flow is only passed in here in order to support Follow Stream.
+    ssl_add_record_info(proto_dtls, pinfo, data, datalen, record_id, decoder->flow, (ContentType)content_type, curr_layer_num_ssl, decoder->seq);
 }
 
 static bool
@@ -763,6 +818,7 @@ dissect_dtls_appdata(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
     if (handle) session->app_handle = handle;
   }
 
+  /* XXX - Add some kind of record replay detection preference? */
   proto_item_set_text(dtls_record_tree,
                       "%s Record Layer: %s Protocol: %s",
                       val_to_str_const(session->version, ssl_version_short_names, "DTLS"),
@@ -2714,6 +2770,11 @@ proto_register_dtls(void)
 
   /* Setup list of header fields See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
+    { &hf_dtls_stream,
+      { "Stream index", "dtls.stream",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_dtls_record,
       { "Record Layer", "dtls.record",
         FT_NONE, BASE_NONE, NULL, 0x0,
@@ -3084,6 +3145,11 @@ proto_register_dtls(void)
                    "dtls", dtls_tap);
 
   heur_subdissector_list = register_heur_dissector_list_with_description("dtls", "DTLS payload fallback", proto_dtls);
+
+  register_follow_stream(proto_dtls, "dtls_follow", dtls_follow_conv_filter, dtls_follow_index_filter,
+      udp_follow_address_filter, udp_port_to_display, ssl_follow_tap_listener, get_dtls_stream_count, NULL);
+
+  dtls_follow_tap = register_tap("dtls_follow");
 }
 
 

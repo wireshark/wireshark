@@ -20,6 +20,7 @@
 #include <epan/wmem_scopes.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <epan/tap.h>
 #include <epan/unit_strings.h>
 #include <wsutil/wsgcrypt.h>
 
@@ -1413,6 +1414,10 @@ ssl_dissect_hnd_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, pr
                                      uint32_t offset, uint32_t offset_end, packet_info *pinfo,
                                      SslSession *session _U_, SslDecryptSession *ssl _U_,
                                      bool is_from_server _U_, bool is_dtls _U_);
+
+extern tap_packet_status
+ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ssl, tap_flags_t flags _U_);
+
 /* {{{ */
 #define SSL_COMMON_LIST_T(name) \
 ssl_common_dissect_t name
