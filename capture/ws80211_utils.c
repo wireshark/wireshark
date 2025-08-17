@@ -54,12 +54,15 @@ static inline void nl_socket_free(struct nl_sock *h)
 {
 	nl_handle_destroy(h);
 }
+
+#define nl_send_auto nl_send_auto_complete
 #endif /* HAVE_LIBNL1 */
 
 struct nl80211_state {
 	struct nl_sock *nl_sock;
 	int nl80211_id;
 	int have_split_wiphy;
+	const char* errmsg;
 };
 
 static struct nl80211_state nl_state;
@@ -75,20 +78,20 @@ int ws80211_init(void)
 
 	state->nl_sock = nl_socket_alloc();
 	if (!state->nl_sock) {
-		fprintf(stderr, "Failed to allocate netlink socket.\n");
-		return -ENOMEM;
+		state->errmsg = "Failed to allocate netlink socket";
+		return WS80211_ERROR;
 	}
 
 	if (genl_connect(state->nl_sock)) {
-		fprintf(stderr, "Failed to connect to generic netlink.\n");
-		err = -ENOLINK;
+		state->errmsg = "Failed to connect to generic netlink";
+		err = WS80211_ERROR;
 		goto out_handle_destroy;
 	}
 
 	state->nl80211_id = genl_ctrl_resolve(state->nl_sock, "nl80211");
 	if (state->nl80211_id < 0) {
-		fprintf(stderr, "nl80211 not found.\n");
-		err = -ENOENT;
+		state->errmsg = "nl80211 not found";
+		err = WS80211_ERROR;
 		goto out_handle_destroy;
 	}
 #ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP
@@ -97,12 +100,34 @@ int ws80211_init(void)
 		state->have_split_wiphy = true;
 #endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
 
-	return WS80211_INIT_OK;
+	return WS80211_OK;
 
  out_handle_destroy:
 	nl_socket_free(state->nl_sock);
 	state->nl_sock = 0;
 	return err;
+}
+
+const char* ws80211_geterror(int error)
+{
+	if (error < 0) {
+		// Eventually, when this is libnl-3 only, this should use
+		// nl_geterror instead. Right now we might have a mix of
+		// libnl3 errors and errnos in the code, due to trying to
+		// support libnl1.x
+		return g_strerror(abs(error));
+	}
+	switch (error) {
+	case WS80211_OK:
+		return "Success";
+		break;
+	case WS80211_ERROR_NOT_SUPPORTED:
+		return "Setting 802.11 channels is not supported on this platform";
+		break;
+	case WS80211_ERROR:
+	default:
+		return nl_state.errmsg ? nl_state.errmsg : "Unknown error";
+	}
 }
 
 static int error_handler(struct sockaddr_nl *nla _U_, struct nlmsgerr *err,
@@ -153,7 +178,7 @@ static int nl80211_do_cmd(struct nl_msg *msg, struct nl_cb *cb)
 	if (!nl_state.nl_sock)
 		return -ENOLINK;
 
-	err = nl_send_auto_complete(nl_state.nl_sock, msg);
+	err = nl_send_auto(nl_state.nl_sock, msg);
 	if (err < 0)
 		goto out;
 
@@ -216,8 +241,8 @@ static int ws80211_get_protocol_features(int* features)
 
 	msg = nlmsg_alloc();
 	if (!msg) {
-		fprintf(stderr, "failed to allocate netlink message\n");
-		return 2;
+		nl_state.errmsg = "failed to allocate netlink message";
+		return WS80211_ERROR;
 	}
 
 	cb = nl_cb_alloc(NL_CB_DEFAULT);
@@ -541,8 +566,8 @@ static int ws80211_get_phys(GArray *interfaces)
 	int ret;
 	msg = nlmsg_alloc();
 	if (!msg) {
-		fprintf(stderr, "failed to allocate netlink message\n");
-		return 2;
+		nl_state.errmsg = "failed to allocate netlink message";
+		return WS80211_ERROR;
 	}
 
 	cb = nl_cb_alloc(NL_CB_DEFAULT);
@@ -566,8 +591,8 @@ static int ws80211_get_phys(GArray *interfaces)
 #ifdef HAVE_NL80211_SPLIT_WIPHY_DUMP
 nla_put_failure:
 	nlmsg_free(msg);
-	fprintf(stderr, "building message failed\n");
-	return -1;
+	nl_state.errmsg = "building message failed";
+	return WS80211_ERROR;
 #endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
 }
 
@@ -688,10 +713,11 @@ static int __ws80211_get_iface_info(const char *name, struct __iface_info *iface
 	int devidx;
 	struct nl_msg *msg;
 	struct nl_cb *cb;
+	int err;
 	msg = nlmsg_alloc();
 	if (!msg) {
-		fprintf(stderr, "failed to allocate netlink message\n");
-		return 2;
+		nl_state.errmsg = "failed to allocate netlink message";
+		return WS80211_ERROR;
 	}
 
 	cb = nl_cb_alloc(NL_CB_DEFAULT);
@@ -704,9 +730,10 @@ static int __ws80211_get_iface_info(const char *name, struct __iface_info *iface
 
 	nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, get_iface_info_handler, iface_info);
 
-	if (nl80211_do_cmd(msg, cb)) {
+	err = nl80211_do_cmd(msg, cb);
+	if (err) {
 		nlmsg_free(msg);
-		return -1;
+		return err;
 	}
 
 	/* Old kernels can't get the current freq via netlink. Try WEXT too :( */
@@ -717,8 +744,8 @@ static int __ws80211_get_iface_info(const char *name, struct __iface_info *iface
 
 nla_put_failure:
 	nlmsg_free(msg);
-	fprintf(stderr, "building message failed\n");
-	return -1;
+	nl_state.errmsg = "building message failed";
+	return WS80211_ERROR;
 }
 
 int ws80211_get_iface_info(const char *name, struct ws80211_iface_info *iface_info)
@@ -781,17 +808,17 @@ static int ws80211_populate_devices(GArray *interfaces)
 
 	fh = g_fopen("/proc/net/dev", "r");
 	if(!fh) {
-		fprintf(stderr, "Cannot open /proc/net/dev");
-		return -ENOENT;
+		nl_state.errmsg = "Cannot open /proc/net/dev";
+		return WS80211_ERROR;
 	}
 
 	/* Skip the first two lines */
 	for (i = 0; i < 2; i++) {
 		ret = fgets(line, sizeof(line), fh);
 		if (ret == NULL) {
-			fprintf(stderr, "Error parsing /proc/net/dev");
+			nl_state.errmsg = "Error parsing /proc/net/dev";
 			fclose(fh);
-			return -1;
+			return WS80211_ERROR;
 		}
 	}
 
@@ -829,7 +856,7 @@ static int ws80211_populate_devices(GArray *interfaces)
 		}
 	}
 	fclose(fh);
-	return 0;
+	return WS80211_OK;
 }
 
 static int ws80211_iface_up(const char *ifname)
@@ -877,8 +904,8 @@ static int ws80211_create_on_demand_interface(const char *name)
 	cb = nl_cb_alloc(NL_CB_DEFAULT);
 	msg = nlmsg_alloc();
 	if (!msg) {
-		fprintf(stderr, "failed to allocate netlink message\n");
-		return 2;
+		nl_state.errmsg = "failed to allocate netlink message";
+		return WS80211_ERROR;
 	}
 
 	genlmsg_put(msg, 0, 0, nl_state.nl80211_id, 0,
@@ -896,8 +923,8 @@ static int ws80211_create_on_demand_interface(const char *name)
 
 nla_put_failure:
 	nlmsg_free(msg);
-	fprintf(stderr, "building message failed\n");
-	return 2;
+	nl_state.errmsg = "building message failed";
+	return WS80211_ERROR;
 }
 DIAG_ON_CLANG(shorten-64-to-32)
 
@@ -913,8 +940,8 @@ int ws80211_set_freq(const char *name, uint32_t freq, int chan_type, uint32_t _U
 
 	msg = nlmsg_alloc();
 	if (!msg) {
-		fprintf(stderr, "failed to allocate netlink message\n");
-		return 2;
+		nl_state.errmsg = "failed to allocate netlink message";
+		return WS80211_ERROR;
 	}
 
 	cb = nl_cb_alloc(NL_CB_DEFAULT);
@@ -983,9 +1010,8 @@ int ws80211_set_freq(const char *name, uint32_t freq, int chan_type, uint32_t _U
 
 nla_put_failure:
 	nlmsg_free(msg);
-	fprintf(stderr, "building message failed\n");
-	return 2;
-
+	nl_state.errmsg = "building message failed";
+	return WS80211_ERROR;
 }
 
 GArray* ws80211_find_interfaces(void)
@@ -1083,7 +1109,7 @@ bool ws80211_has_fcs_filter(void)
 
 int ws80211_set_fcs_validation(const char *name _U_, enum ws80211_fcs_validation fcs_validation _U_)
 {
-	return -1;
+	return WS80211_ERROR_NOT_SUPPORTED;
 }
 
 const char *network_manager_path = "/usr/sbin/NetworkManager"; /* Is this correct? */
@@ -1097,7 +1123,12 @@ const char *ws80211_get_helper_path(void) {
 #else /* Everyone else. */
 int ws80211_init(void)
 {
-	return WS80211_INIT_NOT_SUPPORTED;
+	return WS80211_ERROR_NOT_SUPPORTED;
+}
+
+const char* ws80211_geterror(int error _U_)
+{
+	return "Setting 802.11 channels is not supported on this platform";
 }
 
 GArray* ws80211_find_interfaces(void)
@@ -1107,12 +1138,12 @@ GArray* ws80211_find_interfaces(void)
 
 int ws80211_get_iface_info(const char *name _U_, struct ws80211_iface_info *iface_info _U_)
 {
-	return -1;
+	return WS80211_ERROR_NOT_SUPPORTED;
 }
 
 int ws80211_set_freq(const char *name _U_, uint32_t freq _U_, int _U_ chan_type, uint32_t _U_ center_freq, uint32_t _U_ center_freq2)
 {
-	return -1;
+	return WS80211_ERROR_NOT_SUPPORTED;
 }
 
 int ws80211_str_to_chan_type(const char *s _U_)
@@ -1137,7 +1168,7 @@ bool ws80211_has_fcs_filter(void)
 
 int ws80211_set_fcs_validation(const char *name _U_, enum ws80211_fcs_validation fcs_validation _U_)
 {
-	return -1;
+	return WS80211_ERROR_NOT_SUPPORTED;
 }
 
 const char *ws80211_get_helper_path(void) {

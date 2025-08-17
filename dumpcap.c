@@ -5106,11 +5106,11 @@ set_80211_channel(const char *iface, const char *opt)
         ;
 
     ret = ws80211_init();
-    if (ret != WS80211_INIT_OK) {
-        if (ret == WS80211_INIT_NOT_SUPPORTED)
+    if (ret != WS80211_OK) {
+        if (ret == WS80211_ERROR_NOT_SUPPORTED)
             cmdarg_err("Setting 802.11 channels is not supported on this platform");
-        else
-            cmdarg_err("Failed to init ws80211: %s", g_strerror(abs(ret)));
+        else if (ret == WS80211_ERROR)
+            cmdarg_err("Failed to init ws80211: %s", ws80211_geterror(ret));
         ret = WS_EXIT_INIT_FAILED;
         goto out;
     }
@@ -5145,7 +5145,7 @@ set_80211_channel(const char *iface, const char *opt)
     ret = ws80211_set_freq(iface, freq, type, center_freq1, center_freq2);
 
     if (ret) {
-        cmdarg_err("Failed to set channel: %s", g_strerror(abs(ret)));
+        cmdarg_err("Failed to set channel: %s", ws80211_geterror(ret));
         ret = WS_EXIT_INVALID_OPTION;
         goto out;
     }
