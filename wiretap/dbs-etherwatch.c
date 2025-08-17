@@ -16,6 +16,13 @@
 
 #include <wsutil/pint.h>
 
+/*
+ * DBS Etherwatch (text format)
+ *
+ * Text output from DBS Etherwatch is supported.  DBS Etherwatch is available
+ * from: https://web.archive.org/web/20070612033348/http://www.users.bigpond.com/dbsneddon/software.htm.
+*/
+
 /* This module reads the text output of the 'DBS-ETHERTRACE' command in VMS
  * It was initially based on vms.c.
  */

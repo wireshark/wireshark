@@ -20,6 +20,32 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 
+
+/*
+ * HP-UX nettl
+ *
+ * nettl is used on HP-UX to trace various streams based subsystems.  Wiretap
+ * can read nettl files containing IP frames (NS_LS_IP subsystem) and LAPB
+ * frames (SX25L2 subsystem). It has been tested with files generated on
+ * HP-UX 9.04 and 10.20.
+ * Use the following commands to generate a trace :
+ * # IP capture. 0x30000000 means PDU in and PDU out :
+ * nettl -tn 0x30000000 -e NS_LS_IP -f tracefile
+ * # X25 capture. You must specify an interface :
+ * nettl -tn 0x30000000 -e SX25l2 -d /dev/x25_0 -f tracefile
+ * # stop capture. subsystem is NS_LS_IP or SX25L2 :
+ * nettl -tf -e subsystem
+ *
+ * One may be able to specify "-tn pduin pduout" rather than
+ * "-tn 0x30000000"; the nettl man page for HP-UX 10.30 implies that it
+ * should work.
+ *
+ * There is also basic support for nettl files containing NS_LS_DRIVER,
+ * NS_LS_TCP, NS_LS_UDP, NS_LS_LOOPBACK, unknown type 0xb9, and NS_LS_ICMP.
+ * However, NS_LS_ICMP will not be decoded since WTAP lacks a raw ICMP
+ * encapsulation type.
+*/
+
 /* HP nettl file header */
 
 /* Magic number size */

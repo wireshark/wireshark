@@ -17,6 +17,15 @@
 #include "file_wrappers.h"
 #include "atm.h"
 
+/*
+ * Sniffer Basic (NetXRay)/Windows Sniffer Pro
+ *
+ * Network Associates' Sniffer Basic (formerly NetXRay from Cinco Networks)
+ * file format is now supported, at least for Ethernet and token-ring.
+ * Network Associates' Windows Sniffer Pro appears to use a variant of that
+ * format; it's supported to the same extent.
+*/
+
 /* Capture file header, *including* magic number, is padded to 128 bytes. */
 #define	CAPTUREFILE_HEADER_SIZE	128
 

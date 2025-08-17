@@ -16,6 +16,13 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 
+/*
+ * RADCOM WAN/LAN Analyzers
+ *
+ * Olivier Abad has added code to read Ethernet and LAPB captures from
+ * RADCOM WAN/LAN Analyzers (see https://web.archive.org/web/20031231213434/http://www.radcom-inc.com/).
+*/
+
 struct frame_date {
 	uint16_t	year;
 	uint8_t	month;

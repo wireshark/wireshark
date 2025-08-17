@@ -16,6 +16,20 @@
 
 #include <wsutil/pint.h>
 
+/*
+ * Toshiba ISDN Router
+ *
+ * An under-documented command that the router supports in a telnet session
+ * is "snoop" (not related to the Solaris "snoop" command). If you give
+ * it the "dump" option (either by letting "snoop" query you for its next
+ * argument, or typing "snoop dump" on the command line), you'll get a hex
+ * dump of all packets across the router (except of your own telnet session
+ * -- good thinking Toshiba!). You can select a certain channel to sniff
+ * (LAN, B1, B2, D), but the default is all channels.  You save this hex
+ * dump to disk with 'script' or by 'telnet | tee'. Wiretap will read the
+ * ASCII hex dump and convert it to binary data.
+*/
+
 /* This module reads the output of the 'snoop' command in the Toshiba
  * TR-600 and TR-650 "Compact" ISDN Routers. You can telnet to the
  * router and run 'snoop' on the different channels, and at different

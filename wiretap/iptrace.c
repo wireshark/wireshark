@@ -19,6 +19,14 @@
 #include "atm.h"
 
 /*
+ * iptrace is the capture program that comes with AIX 3.x and 4.x.  AIX 3 uses
+ * the iptrace 1.0 file format, while AIX4 uses iptrace 2.0.  iptrace has
+ * an undocumented, yet very simple, file format.  The interesting thing
+ * about iptrace is that it will record packets coming in from all network
+ * interfaces; a single iptrace file can contain multiple datalink types.
+*/
+
+/*
  * Private per-wtap_t data needed to read a file.
  */
 typedef struct {

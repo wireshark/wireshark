@@ -19,8 +19,13 @@
 #include "erf-common.h"
 #include <wsutil/ws_assert.h>
 
-/* See source to the "libpcap" library for information on the "libpcap"
-   file format. */
+/*
+ * The "libpcap" file format was determined by reading the "libpcap" code;
+ * wiretap reads the "libpcap" file format with its own code, rather than
+ * using the "libpcap" library's code to read it.
+ * See source to the "libpcap" library for information on the "libpcap"
+ *  file format.
+ */
 
 /*
  * Private per-wtap_t data needed to read a file.

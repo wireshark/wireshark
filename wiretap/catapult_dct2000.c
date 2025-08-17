@@ -18,6 +18,19 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 
+/*
+ * Catapult DCT2000 (.out files)
+ *
+ * DCT2000 test systems produce ascii text-based .out files for ports
+ * that have logging enabled. When being read, the data part of the message is
+ * prefixed with a short header that provides some context (context+port,
+ * direction, original timestamp, etc).
+ *
+ * You can choose to suppress the reading of non-standard protocols
+ * (i.e. messages between layers rather than the well-known link-level protocols
+ * usually found on board ports).
+ */
+
 #define MAX_FIRST_LINE_LENGTH      150
 #define MAX_TIMESTAMP_LINE_LENGTH  50
 #define MAX_LINE_LENGTH            131072

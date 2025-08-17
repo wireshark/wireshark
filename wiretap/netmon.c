@@ -18,6 +18,13 @@
 #include "atm.h"
 #include "pcap-encap.h"
 
+
+/*
+ * Microsoft's Network Monitor file format is supported, at least under
+ * Ethernet and token-ring. If you have capture files of other datalink
+ * types, please send them to Guy.
+*/
+
 /* The file at
  *
  *	ftp://ftp.microsoft.com/developr/drg/cifs/cifs/Bhfile.zip
