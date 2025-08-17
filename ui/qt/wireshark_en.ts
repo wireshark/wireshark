@@ -3401,6 +3401,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Save %1 rules as…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Text file (*.txt);;All Files (</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6985,6 +6989,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>…as %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The Wireshark Network Analyzer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8179,6 +8187,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show Markers DataPoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto Scroll</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13760,6 +13772,14 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 band.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Band</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15818,6 +15838,10 @@ a:hover {
     </message>
     <message>
         <source>Unknown file type returned by export dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unsaved packets…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

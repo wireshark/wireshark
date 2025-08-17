@@ -199,6 +199,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x1859,   "Mesh Proxy Solicitation" },
     { 0x185A,   "Industrial Measurement Device" },
     { 0x185B,   "Ranging" },
+    { 0x185C,   "HID ISO" },
     /* Units - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/units.yaml */
     { 0x2700,   "unitless" },
     { 0x2701,   "length (metre)" },
@@ -860,6 +861,8 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C20,   "Door/Window Status" },
     { 0x2C21,   "Pushbutton Status 8" },
     { 0x2C22,   "Contact Status 8" },
+    { 0x2C23,   "HID ISO Properties" },
+    { 0x2C24,   "LE HID Operation Mode" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
     { 0xFC4E,   "Lodestar Technology Inc." },
     { 0xFC4F,   "WaveRF, Corp." },
@@ -5487,6 +5490,15 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0F47,   "Lodestar Technology Inc." },
     { 0x0F48,   "Shenzhen Xinfeiyi Technology Co., Ltd." },
     { 0x0F49,   "IYO INC." },
+    { 0x0F4A,   "Mitsubishi Motors Corporation" },
+    { 0x0F4B,   "desamisCo.,Ltd." },
+    { 0x0F4C,   "JL WORLD CORPORATION LIMITED" },
+    { 0x0F4D,   "Qulinda AB" },
+    { 0x0F4E,   "Ningbo Dooya Mechanic & Electronic Technology Co., Ltd" },
+    { 0x0F4F,   "G-Vision GmbH" },
+    { 0x0F50,   "Lantern Innovations Incorporated" },
+    { 0x0F51,   "ebm-papst Mulfingen GmbH & Co. KGaA & Co. KG" },
+    { 0x0F52,   "Shenzhen Yunke Intelligent Co.Ltd" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -5565,6 +5577,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x1859,   "Bluetooth GATT Attribute Mesh Proxy Solicitation (UUID 0x1859)", "BT GATT Mesh Proxy Solicitation (UUID 0x1859)", "btgatt.uuid0x1859" },
     { 0x185a,   "Bluetooth GATT Attribute Industrial Measurement Device (UUID 0x185a)", "BT GATT Industrial Measurement Device (UUID 0x185a)", "btgatt.uuid0x185a" },
     { 0x185b,   "Bluetooth GATT Attribute Ranging (UUID 0x185b)", "BT GATT Ranging (UUID 0x185b)", "btgatt.uuid0x185b" },
+    { 0x185c,   "Bluetooth GATT Attribute HID ISO (UUID 0x185c)", "BT GATT HID ISO (UUID 0x185c)", "btgatt.uuid0x185c" },
     /* Units - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/units.yaml */
     { 0x2700,   "Bluetooth GATT Attribute unitless (UUID 0x2700)", "BT GATT unitless (UUID 0x2700)", "btgatt.uuid0x2700" },
     { 0x2701,   "Bluetooth GATT Attribute length (metre) (UUID 0x2701)", "BT GATT length (metre) (UUID 0x2701)", "btgatt.uuid0x2701" },
@@ -6226,6 +6239,8 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c20,   "Bluetooth GATT Attribute Door/Window Status (UUID 0x2c20)", "BT GATT Door/Window Status (UUID 0x2c20)", "btgatt.uuid0x2c20" },
     { 0x2c21,   "Bluetooth GATT Attribute Pushbutton Status 8 (UUID 0x2c21)", "BT GATT Pushbutton Status 8 (UUID 0x2c21)", "btgatt.uuid0x2c21" },
     { 0x2c22,   "Bluetooth GATT Attribute Contact Status 8 (UUID 0x2c22)", "BT GATT Contact Status 8 (UUID 0x2c22)", "btgatt.uuid0x2c22" },
+    { 0x2c23,   "Bluetooth GATT Attribute HID ISO Properties (UUID 0x2c23)", "BT GATT HID ISO Properties (UUID 0x2c23)", "btgatt.uuid0x2c23" },
+    { 0x2c24,   "Bluetooth GATT Attribute LE HID Operation Mode (UUID 0x2c24)", "BT GATT LE HID Operation Mode (UUID 0x2c24)", "btgatt.uuid0x2c24" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
     { 0xfc4e,   "Bluetooth GATT Attribute Lodestar Technology Inc. (UUID 0xfc4e)", "BT GATT Lodestar Technology Inc. (UUID 0xfc4e)", "btgatt.uuid0xfc4e" },
     { 0xfc4f,   "Bluetooth GATT Attribute WaveRF, Corp. (UUID 0xfc4f)", "BT GATT WaveRF, Corp. (UUID 0xfc4f)", "btgatt.uuid0xfc4f" },

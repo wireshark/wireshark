@@ -2394,8 +2394,9 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Kelola Filter Tampilan</translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Preferensi Tombol Filter...</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Preferensi Tombol Filter...</translation>
     </message>
 </context>
 <context>
@@ -3295,8 +3296,9 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
 <context>
     <name>FilterExpressionToolBar</name>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Preferensi Tombol Filter...</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Preferensi Tombol Filter...</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -3394,6 +3396,10 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>MAC destination address.</source>
         <translation>Alamat tujuan MAC.</translation>
+    </message>
+    <message>
+        <source>Save %1 rules as…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Text file (*.txt);;All Files (</source>
@@ -5258,8 +5264,9 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Ruas yang didukung adalah data, dir, time, seqno</translation>
     </message>
     <message>
-        <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <translation>Kehilangan data grup penangkapan (gunakan (?&lt;data&gt;(...)) )</translation>
+        <source>Missing capturing group data (use (?&lt;data&gt;(…)) )</source>
+        <oldsource>Missing capturing group data (use (?&lt;data&gt;(...)) )</oldsource>
+        <translation type="unfinished">Kehilangan data grup penangkapan (gunakan (?&lt;data&gt;(...)) )</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -6978,20 +6985,24 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Tidak Ada Kejadian</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <translation>Dari Berkas Zip...</translation>
+        <source>From Zip File…</source>
+        <oldsource>From Zip File...</oldsource>
+        <translation type="unfinished">Dari Berkas Zip...</translation>
     </message>
     <message>
-        <source>From Directory...</source>
-        <translation>Dari Direktori...</translation>
+        <source>From Directory…</source>
+        <oldsource>From Directory...</oldsource>
+        <translation type="unfinished">Dari Direktori...</translation>
     </message>
     <message>
-        <source>Selected Personal Profile...</source>
-        <translation>Profil Pribadi yang Dipilih...</translation>
+        <source>Selected Personal Profile…</source>
+        <oldsource>Selected Personal Profile...</oldsource>
+        <translation type="unfinished">Profil Pribadi yang Dipilih...</translation>
     </message>
     <message>
-        <source>All Personal Profiles...</source>
-        <translation>Semua Profil Pribadi...</translation>
+        <source>All Personal Profiles…</source>
+        <oldsource>All Personal Profiles...</oldsource>
+        <translation type="unfinished">Semua Profil Pribadi...</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7013,6 +7024,10 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Display filter as %1</source>
         <translation>Tampilkan filter sebagai %1</translation>
+    </message>
+    <message>
+        <source>…as %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
@@ -8212,6 +8227,10 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Auto Scroll</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Plots</source>
         <translation>Plot</translation>
     </message>
@@ -8605,22 +8624,26 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Ekspor</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <translation>Dari Berkas Zip...</translation>
+        <source>From Zip File…</source>
+        <oldsource>From Zip File...</oldsource>
+        <translation type="unfinished">Dari Berkas Zip...</translation>
     </message>
     <message>
-        <source>From Directory...</source>
-        <translation>Dari Direktori...</translation>
+        <source>From Directory…</source>
+        <oldsource>From Directory...</oldsource>
+        <translation type="unfinished">Dari Direktori...</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)...</source>
-        <translation>
+        <source>%Ln Selected Personal Profile(s)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln Profil Pribadi yang Dipilih...</numerusform>
         </translation>
     </message>
     <message>
-        <source>All Personal Profiles...</source>
-        <translation>Semua Profil Pribadi...</translation>
+        <source>All Personal Profiles…</source>
+        <oldsource>All Personal Profiles...</oldsource>
+        <translation type="unfinished">Semua Profil Pribadi...</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -10786,8 +10809,9 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Tidak Ada Audio</translation>
     </message>
     <message>
-        <source>Decoding streams...</source>
-        <translation>Mendekode stream...</translation>
+        <source>Decoding streams…</source>
+        <oldsource>Decoding streams...</oldsource>
+        <translation type="unfinished">Mendekode stream...</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10838,7 +10862,8 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Otomatis</translation>
     </message>
     <message>
-        <source>Resampling waveform...</source>
+        <source>Resampling waveform…</source>
+        <oldsource>Resampling waveform...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10902,8 +10927,9 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Klik ganda untuk mengubah routing audio</translation>
     </message>
     <message>
-        <source>Preparing to play...</source>
-        <translation>Mempersiapkan memutar...</translation>
+        <source>Preparing to play…</source>
+        <oldsource>Preparing to play...</oldsource>
+        <translation type="unfinished">Mempersiapkan memutar...</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -13838,6 +13864,14 @@ a:hover {
         <translation>Antar muka</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 band.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Band</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Atur kanal 802.11.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -15888,6 +15922,10 @@ a:hover {
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Tipe berkas yang tidak dikenal dikembalikan oleh dialog ekspor.</translation>
+    </message>
+    <message>
+        <source>Unsaved packets…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
