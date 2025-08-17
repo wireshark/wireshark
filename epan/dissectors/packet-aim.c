@@ -689,7 +689,7 @@ dissect_aim_ssi_result(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aim_tree)
 	proto_tree_add_item_ret_uint(aim_tree, hf_aim_ssi_result_code, tvb, 0, 2, ENC_BIG_ENDIAN, &code);
 
 	col_add_str(pinfo->cinfo, COL_INFO,
-		val_to_str_wmem(pinfo->pool, code, aim_ssi_result_codes, "Unknown SSI result code 0x%02x"));
+		val_to_str(pinfo->pool, code, aim_ssi_result_codes, "Unknown SSI result code 0x%02x"));
 
 	return 2;
 }
@@ -1547,7 +1547,7 @@ dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aim_tree)
 	proto_tree_add_item_ret_uint(aim_tree, hf_aim_snac_error, tvb, 0, 2, ENC_BIG_ENDIAN, &error);
 
 	col_add_str(pinfo->cinfo, COL_INFO,
-		val_to_str_wmem(pinfo->pool, error, aim_snac_errors, "Unknown SNAC error 0x%02x"));
+		val_to_str(pinfo->pool, error, aim_snac_errors, "Unknown SNAC error 0x%02x"));
 
 	return dissect_aim_tlv_sequence(tvb, pinfo, 2, aim_tree, aim_client_tlvs);
 }

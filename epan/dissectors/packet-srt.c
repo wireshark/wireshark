@@ -695,7 +695,7 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
     {
     case UMSG_EXT:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Control/ext: %s socket: %d",
-                        val_to_str_wmem(pinfo->pool, exttype, srt_ctrlmsg_exttypes,
+                        val_to_str(pinfo->pool, exttype, srt_ctrlmsg_exttypes,
                                    "Unknown EXT Control Type (%d)"),
                         tvb_get_ntohl(tvb, 12));
         break;
@@ -712,7 +712,7 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
         break;
     default:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Control: %s socket: %d",
-                        val_to_str_wmem(pinfo->pool, type, srt_ctrlmsg_types,
+                        val_to_str(pinfo->pool, type, srt_ctrlmsg_types,
                                    "Unknown Control Type (%d)"),
                         tvb_get_ntohl(tvb, 12));
         break;

@@ -117,7 +117,7 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, APPLEMIDI_DISSECTOR_SHORTNAME );
 
-	col_add_str( pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, command, applemidi_commands, applemidi_unknown_command ) );
+	col_add_str( pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, command, applemidi_commands, applemidi_unknown_command ) );
 
 	ti = proto_tree_add_item( tree, proto_applemidi, tvb, 0, -1, ENC_NA  );
 	applemidi_tree = proto_item_add_subtree( ti, ett_applemidi );

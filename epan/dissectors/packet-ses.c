@@ -915,7 +915,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	}
 	else if (tokens) {
 		col_add_str(pinfo->cinfo, COL_INFO,
-			    val_to_str_wmem(pinfo->pool, type, ses_category0_vals, "Unknown SPDU type (0x%02x)"));
+			    val_to_str(pinfo->pool, type, ses_category0_vals, "Unknown SPDU type (0x%02x)"));
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_ses, tvb, offset,
 			    -1, ENC_NA);

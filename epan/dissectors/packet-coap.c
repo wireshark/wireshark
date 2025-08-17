@@ -759,7 +759,7 @@ dissect_coap_opt_ctype(tvbuff_t *tvb, packet_info* pinfo, proto_item *head_item,
 		coinfo->ctype_value = coap_get_opt_uint(tvb, offset, opt_length);
 	}
 
-	coinfo->ctype_str = val_to_str_wmem(pinfo->pool, coinfo->ctype_value, vals_ctype, "Unknown Type %u");
+	coinfo->ctype_str = val_to_str(pinfo->pool, coinfo->ctype_value, vals_ctype, "Unknown Type %u");
 
 	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, coinfo->ctype_str);
 
@@ -776,7 +776,7 @@ dissect_coap_opt_accept(tvbuff_t *tvb, packet_info* pinfo, proto_item *head_item
 		str = nullstr;
 	} else {
 		unsigned value = coap_get_opt_uint(tvb, offset, opt_length);
-		str = val_to_str_wmem(pinfo->pool, value, vals_ctype, "Unknown Type %u");
+		str = val_to_str(pinfo->pool, value, vals_ctype, "Unknown Type %u");
 	}
 
 	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, str);
@@ -968,7 +968,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		return -1;
 	}
 
-	strbuf2 = wmem_strdup_printf(pinfo->pool, "#%u: %s", opt_count, val_to_str_wmem(pinfo->pool, *opt_num, vals_opt_type,
+	strbuf2 = wmem_strdup_printf(pinfo->pool, "#%u: %s", opt_count, val_to_str(pinfo->pool, *opt_num, vals_opt_type,
 	    *opt_num % 14 == 0 ? "No-Op" : "Unknown Option (%d)"));
 	item = proto_tree_add_string(coap_tree, dissect_hf->hf.opt_name,
 	    tvb, orig_offset, offset - orig_offset + opt_length, strbuf2);
@@ -1398,14 +1398,14 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 			     "%s, MID:%u, %s",
-			     val_to_str_wmem(pinfo->pool, ttype, vals_ttype_short, "Unknown %u"),
+			     val_to_str(pinfo->pool, ttype, vals_ttype_short, "Unknown %u"),
 			     mid,
 			     val_to_str_ext(pinfo->pool, code, &coap_vals_code_ext, "Unknown %u"));
 
 		/* append the header information */
 		proto_item_append_text(coap_root,
 				       ", %s, %s, MID:%u",
-				       val_to_str_wmem(pinfo->pool, ttype, vals_ttype, "Unknown %u"),
+				       val_to_str(pinfo->pool, ttype, vals_ttype, "Unknown %u"),
 				       val_to_str_ext(pinfo->pool, code, &coap_vals_code_ext, "Unknown %u"),
 				       mid);
 	} else {

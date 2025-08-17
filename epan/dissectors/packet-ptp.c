@@ -3880,7 +3880,7 @@ disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti
                     offset += 2;
 
                     col_append_str(pinfo->cinfo, COL_INFO, " WR ");
-                    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, wr_message_id, ptp_v2_org_cern_wrMessageID_vals, "Unknown PTP WR Message (%u)"));
+                    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, wr_message_id, ptp_v2_org_cern_wrMessageID_vals, "Unknown PTP WR Message (%u)"));
 
                     switch (wr_message_id) {
                     case PTP_V2_OE_ORG_CERN_WRMESSAGEID_ANN_SUFIX:
@@ -4453,7 +4453,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 ptp_v2_management_action = 0x0F & tvb_get_uint8(tvb, PTP_V2_MM_ACTION_OFFSET);
                 col_add_fstr(pinfo->cinfo, COL_INFO, "Management (%s) %s",
                     val_to_str_ext(pinfo->pool, ptp_v2_mm_managementId, &ptp_v2_managementID_infocolumn_vals_ext, "Unknown management Id %u"),
-                    val_to_str_wmem(pinfo->pool, ptp_v2_management_action, ptp_v2_mm_action_vals, "Unknown Action %u"));
+                    val_to_str(pinfo->pool, ptp_v2_management_action, ptp_v2_mm_action_vals, "Unknown Action %u"));
                 break;
             }
             case PTP_V2_TLV_TYPE_MANAGEMENT_ERROR_STATUS:

@@ -2962,12 +2962,12 @@ dissect_epl_pres(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	if (pinfo->srcport != EPL_MN_NODEID)   /* check if the sender is CN or MN */
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, "  %s",
-						val_to_str_wmem(pinfo->pool, state, epl_nmt_cs_vals, "Unknown(%d)"));
+						val_to_str(pinfo->pool, state, epl_nmt_cs_vals, "Unknown(%d)"));
 	}
 	else /* MN */
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, "  %s",
-						val_to_str_wmem(pinfo->pool, state, epl_nmt_ms_vals, "Unknown(%d)"));
+						val_to_str(pinfo->pool, state, epl_nmt_ms_vals, "Unknown(%d)"));
 	}
 
 
@@ -3026,12 +3026,12 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, int off
 	if (pinfo->srcport != EPL_MN_NODEID)   /* check if CN or MN */
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, "  %s",
-						val_to_str_wmem(pinfo->pool, state, epl_nmt_cs_vals, "Unknown(%d)"));
+						val_to_str(pinfo->pool, state, epl_nmt_cs_vals, "Unknown(%d)"));
 	}
 	else /* MN */
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, "  %s",
-						val_to_str_wmem(pinfo->pool, state, epl_nmt_ms_vals, "Unknown(%d)"));
+						val_to_str(pinfo->pool, state, epl_nmt_ms_vals, "Unknown(%d)"));
 	}
 
 	proto_tree_add_item(epl_tree, hf_epl_soa_eplv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -3352,7 +3352,7 @@ dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 			errorcode = tvb_get_letohs(tvb, offset);
 			if (errorcode != 0)
 			{
-				col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str_wmem(pinfo->pool, errorcode, errorcode_vals, "Unknown Error(0x%04x"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(pinfo->pool, errorcode, errorcode_vals, "Unknown Error(0x%04x"));
 				proto_tree_add_item(epl_tree, hf_epl_asnd_nmtcommand_resetnode_reason, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			}
 			else
@@ -3517,7 +3517,7 @@ dissect_epl_asnd_ires(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *t
 	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vex2, tvb, offset, 48, ENC_NA);
 	offset += 48;
 
-	col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, convo->device_type, epl_device_profiles, "Device Profile %d"));
+	col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, convo->device_type, epl_device_profiles, "Device Profile %d"));
 
 	return offset;
 }
@@ -3594,7 +3594,7 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, i
 	offset += 1;
 
 	nmt_state = tvb_get_uint8(tvb, offset);
-	col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ", val_to_str_wmem(pinfo->pool, nmt_state, epl_nmt_cs_vals, "Unknown (%d)"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ", val_to_str(pinfo->pool, nmt_state, epl_nmt_cs_vals, "Unknown (%d)"));
 
 	if (pinfo->srcport != EPL_MN_NODEID)   /* check if CN or MN */
 	{
@@ -3857,7 +3857,7 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 		segment_size = tvb_get_letohs(tvb, offset + 3);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Cmd:%s,TID=%02d ",
-						val_to_str_wmem(pinfo->pool, segmented, epl_sdo_asnd_cmd_segmentation_abbr, " Inv(%d)"), transaction_id);
+						val_to_str(pinfo->pool, segmented, epl_sdo_asnd_cmd_segmentation_abbr, " Inv(%d)"), transaction_id);
 
 		proto_tree_add_item(sdo_cmd_tree, hf_epl_asnd_sdo_cmd_transaction_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;

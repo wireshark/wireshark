@@ -2975,7 +2975,7 @@ static tap_packet_status lbmr_topic_queries_pattern_stats_tree_packet(stats_tree
     tick_stat_node(tree, lbmr_stat_tree_name_topic_queries_pattern, 0, false);
     pattern_str = wmem_strdup_printf(pinfo->pool, "%s (%s)",
         info->pattern,
-        val_to_str_wmem(pinfo->pool, info->type, lbm_wildcard_pattern_type_short, "UNKN[0x%02x]"));
+        val_to_str(pinfo->pool, info->type, lbm_wildcard_pattern_type_short, "UNKN[0x%02x]"));
     pattern_node = tick_stat_node(tree, pattern_str, lbmr_stats_tree_handle_topic_queries_pattern, true);
     tick_stat_node(tree, address_to_str(pinfo->pool, &pinfo->net_src), pattern_node, true);
     return (TAP_PACKET_REDRAW);
@@ -3002,7 +3002,7 @@ static tap_packet_status lbmr_topic_queries_pattern_receiver_stats_tree_packet(s
     receiver_node = tick_stat_node(tree, address_to_str(pinfo->pool, &pinfo->net_src), lbmr_stats_tree_handle_topic_queries_pattern_receiver, true);
     pattern_str = wmem_strdup_printf(pinfo->pool, "%s (%s)",
         info->pattern,
-        val_to_str_wmem(pinfo->pool, info->type, lbm_wildcard_pattern_type_short, "UNKN[0x%02x]"));
+        val_to_str(pinfo->pool, info->type, lbm_wildcard_pattern_type_short, "UNKN[0x%02x]"));
     tick_stat_node(tree, pattern_str, receiver_node, true);
     return (TAP_PACKET_REDRAW);
 }
@@ -3463,7 +3463,7 @@ static int dissect_lbmr_tmr(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
             break;
     }
     ti = proto_tree_add_none_format(tree, hf_lbmr_tmr, tvb, offset, tmr_len, "%s: %s%s, Length %" PRIu16,
-        name, val_to_str_wmem(pinfo->pool, tmr_type, lbmr_tmr_type, "Unknown (0x%02x)"), info_string, tmr_len);
+        name, val_to_str(pinfo->pool, tmr_type, lbmr_tmr_type, "Unknown (0x%02x)"), info_string, tmr_len);
     tinfo_tree = proto_item_add_subtree(ti, ett_lbmr_tmr);
     proto_tree_add_item(tinfo_tree, hf_lbmr_tmr_len, tvb, offset + O_LBMR_TMR_T_LEN, L_LBMR_TMR_T_LEN, ENC_BIG_ENDIAN);
     proto_tree_add_item(tinfo_tree, hf_lbmr_tmr_type, tvb, offset + O_LBMR_TMR_T_TYPE, L_LBMR_TMR_T_TYPE, ENC_BIG_ENDIAN);
@@ -4119,7 +4119,7 @@ static int dissect_lbmr_tir_entry(tvbuff_t * tvb, int offset, packet_info * pinf
     curr_offset += L_LBMR_TIR_T;
 
     ti = proto_tree_add_none_format(tree, hf_lbmr_tir, tvb, offset, reclen, "%s: %s, Length %u, Index %" PRIu32 ", TTL %" PRIu16,
-        name, val_to_str_wmem(pinfo->pool, (transport & LBMR_TIR_TRANSPORT), lbmr_transport_type, "Unknown (0x%02x)"), tlen, idx, ttl);
+        name, val_to_str(pinfo->pool, (transport & LBMR_TIR_TRANSPORT), lbmr_transport_type, "Unknown (0x%02x)"), tlen, idx, ttl);
     tinfo_tree = proto_item_add_subtree(ti, ett_lbmr_tir);
     proto_tree_add_item(tinfo_tree, hf_lbmr_tir_name, tvb, offset, namelen, ENC_ASCII);
     proto_tree_add_item(tinfo_tree, hf_lbmr_tir_transport_opts, tvb, tinfo_offset + O_LBMR_TIR_T_TRANSPORT, L_LBMR_TIR_T_TRANSPORT, ENC_BIG_ENDIAN);
@@ -5182,17 +5182,17 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         proto_item * ext_type_item = NULL;
 
         ext_type = tvb_get_uint8(tvb, O_LBMR_HDR_EXT_TYPE_T_EXT_TYPE);
-        ext_string = val_to_str_wmem(pinfo->pool, ext_type, lbmr_ext_packet_type, "Unknown(0x%02x)");
+        ext_string = val_to_str(pinfo->pool, ext_type, lbmr_ext_packet_type, "Unknown(0x%02x)");
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "ExtType %s", ext_string);
         if (tag_name != NULL)
         {
             ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_EXT_TYPE_T_VER_TYPE, -1, "LBM Topic Resolution Protocol (Tag: %s): Version %u, Type 0x%x (%s), ExtType %s",
-                tag_name, ver, type, val_to_str_wmem(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"), ext_string);
+                tag_name, ver, type, val_to_str(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"), ext_string);
         }
         else
         {
             ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_EXT_TYPE_T_VER_TYPE, -1, "LBM Topic Resolution Protocol: Version %u, Type 0x%x (%s), ExtType %s",
-                ver, type, val_to_str_wmem(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"), ext_string);
+                ver, type, val_to_str(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"), ext_string);
         }
         lbmr_tree = proto_item_add_subtree(ti, ett_lbmr);
         if (tag_name != NULL)
@@ -5307,12 +5307,12 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                 if (tag_name != NULL)
                 {
                     ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol (Tag: %s): Version %u, Type 0x%x (%s) QQRs %u, QIRs %" PRIu16,
-                        tag_name, ver, type, val_to_str_wmem(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"), tqrs, tirs);
+                        tag_name, ver, type, val_to_str(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"), tqrs, tirs);
                 }
                 else
                 {
                     ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol: Version %u, Type 0x%x (%s) QQRs %u, QIRs %" PRIu16,
-                        ver, type, val_to_str_wmem(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"), tqrs, tirs);
+                        ver, type, val_to_str(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"), tqrs, tirs);
                 }
                 break;
             default:
@@ -5321,17 +5321,17 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                     if (rd_keepalive)
                     {
                         ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol (Tag: %s): Version %u, Type 0x%x (%s) Unicast Resolver Keepalive",
-                            tag_name, ver, type, val_to_str_wmem(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"));
+                            tag_name, ver, type, val_to_str(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"));
                     }
                     else if (topic_mgmt)
                     {
                         ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol (Tag: %s): Version %u, Type 0x%x (%s) Topic Management",
-                            tag_name, ver, type, val_to_str_wmem(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"));
+                            tag_name, ver, type, val_to_str(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"));
                     }
                     else
                     {
                         ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol (Tag: %s): Version %u, Type 0x%x (%s) TQRs %u, TIRs %" PRIu16,
-                            tag_name, ver, type, val_to_str_wmem(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"), tqrs, tirs);
+                            tag_name, ver, type, val_to_str(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"), tqrs, tirs);
                     }
                 }
                 else
@@ -5339,17 +5339,17 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                     if (rd_keepalive)
                     {
                         ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol: Version %u, Type 0x%x (%s) Unicast Resolver Keepalive",
-                            ver, type, val_to_str_wmem(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"));
+                            ver, type, val_to_str(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"));
                     }
                     else if (topic_mgmt)
                     {
                         ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol: Version %u, Type 0x%x (%s) Topic Management",
-                            ver, type, val_to_str_wmem(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"));
+                            ver, type, val_to_str(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"));
                     }
                     else
                     {
                         ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol: Version %u, Type 0x%x (%s) TQRs %u, TIRs %" PRIu16,
-                            ver, type, val_to_str_wmem(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"), tqrs, tirs);
+                            ver, type, val_to_str(pinfo->pool, type, lbmr_packet_type, "Unknown(0x%02x)"), tqrs, tirs);
                     }
                 }
                 break;

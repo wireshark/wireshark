@@ -141,7 +141,7 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     proto_tree_add_item_ret_uint(lmi_tree, hf_lmi_msg_type, tvb, 1, 1, ENC_BIG_ENDIAN, &msg_type);
     col_add_str(pinfo->cinfo, COL_INFO,
-        val_to_str_wmem(pinfo->pool, msg_type, msg_type_str, "Unknown message type (0x%02x)"));
+        val_to_str(pinfo->pool, msg_type, msg_type_str, "Unknown message type (0x%02x)"));
 
     /* Display the LMI elements */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -150,7 +150,7 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         lmi_subtree = proto_tree_add_subtree_format(lmi_tree, tvb, offset, len + 2,
                 ett_lmi_ele, NULL, "Information Element: %s",
-                val_to_str_wmem(pinfo->pool, ele_id, element_type_str, "Unknown (%u)"));
+                val_to_str(pinfo->pool, ele_id, element_type_str, "Unknown (%u)"));
 
         proto_tree_add_uint(lmi_subtree, hf_lmi_inf_ele, tvb, offset, 1, ele_id);
         ++offset;

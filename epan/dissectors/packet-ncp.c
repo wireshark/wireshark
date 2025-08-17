@@ -495,7 +495,7 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
     }
 
     /* By Group */
-    tmp_str = val_to_str_wmem(NULL, request_val->ncp_rec->group, ncp_group_vals, "Unknown(%u)");
+    tmp_str = val_to_str(NULL, request_val->ncp_rec->group, ncp_group_vals, "Unknown(%u)");
     i = NCP_NCP_SRT_TABLE_INDEX;
     ncp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
     init_srt_table_row(ncp_srt_table, request_val->ncp_rec->group, tmp_str);
@@ -627,7 +627,7 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
     }
     /* By NDS verb */
     if (request_val->ncp_rec->func==0x68) {
-        tmp_str = val_to_str_wmem(NULL, request_val->nds_request_verb, ncp_nds_verb_vals, "Unknown(%u)");
+        tmp_str = val_to_str(NULL, request_val->nds_request_verb, ncp_nds_verb_vals, "Unknown(%u)");
         i = NCP_NDS_SRT_TABLE_INDEX;
         ncp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
         init_srt_table_row(ncp_srt_table, (request_val->nds_request_verb), tmp_str);
@@ -635,7 +635,7 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         wmem_free(NULL, tmp_str);
     }
     if (request_val->ncp_rec->func==0x5c) {
-        tmp_str = val_to_str_wmem(NULL, request_val->req_nds_flags, sss_verb_enum, "Unknown(%u)");
+        tmp_str = val_to_str(NULL, request_val->req_nds_flags, sss_verb_enum, "Unknown(%u)");
         i = NCP_SSS_SRT_TABLE_INDEX;
         ncp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
         init_srt_table_row(ncp_srt_table, (request_val->req_nds_flags), tmp_str);
@@ -643,7 +643,7 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         wmem_free(NULL, tmp_str);
     }
     if (request_val->ncp_rec->func==0x5e) {
-        tmp_str = val_to_str_wmem(NULL, request_val->req_nds_flags, nmas_subverb_enum, "Unknown(%u)");
+        tmp_str = val_to_str(NULL, request_val->req_nds_flags, nmas_subverb_enum, "Unknown(%u)");
         i = NCP_NMAS_SRT_TABLE_INDEX;
         ncp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
         init_srt_table_row(ncp_srt_table, (request_val->req_nds_flags), tmp_str);
@@ -973,7 +973,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tap_queue_packet(ncp_tap.hdr, pinfo, ncp_hdr);
 
     col_add_str(pinfo->cinfo, COL_INFO,
-        val_to_str_wmem(pinfo->pool, header.type, ncp_type_vals, "Unknown type (0x%04x)"));
+        val_to_str(pinfo->pool, header.type, ncp_type_vals, "Unknown type (0x%04x)"));
 
     /*
      * Process the packet-type-specific header.
@@ -1158,7 +1158,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             col_add_fstr(pinfo->cinfo, COL_INFO,
                 "%s %d bytes starting at offset %d in file 0x%08x",
-                val_to_str_wmem(pinfo->pool, ncp_burst_command,
+                val_to_str(pinfo->pool, ncp_burst_command,
                     burst_command, "Unknown (0x%08x)"),
                     burst_len, burst_off, burst_file);
             break;
@@ -1331,7 +1331,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     default:
         proto_tree_add_expert_format(ncp_tree, pinfo, &ei_ncp_type, tvb, commhdr + 6, -1,
             "%s packets not supported yet",
-            val_to_str_wmem(pinfo->pool, header.type, ncp_type_vals,
+            val_to_str(pinfo->pool, header.type, ncp_type_vals,
                 "Unknown type (0x%04x)"));
         break;
     }

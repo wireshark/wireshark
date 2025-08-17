@@ -6631,7 +6631,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                         offset, 1, ENC_BIG_ENDIAN);
 
     subtype = tvb_get_uint8(tvb, offset) >> 4;
-    proto_item_append_text(main_item, ": %s", val_to_str_wmem(pinfo->pool, subtype, mptcp_subtype_vs, "Unknown (%d)"));
+    proto_item_append_text(main_item, ": %s", val_to_str(pinfo->pool, subtype, mptcp_subtype_vs, "Unknown (%d)"));
 
     /** preemptively allocate mptcpd when subtype won't allow to find a meta */
     if(!mptcpd && (subtype > TCPOPT_MPTCP_MP_JOIN)) {

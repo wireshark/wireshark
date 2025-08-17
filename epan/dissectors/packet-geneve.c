@@ -393,7 +393,7 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
     proto_type = tvb_get_ntohs(tvb, offset);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Encapsulated %s",
-                 val_to_str_wmem(pinfo->pool, proto_type, etype_vals, "0x%04x (unknown)"));
+                 val_to_str(pinfo->pool, proto_type, etype_vals, "0x%04x (unknown)"));
 
     offset += 2;
 

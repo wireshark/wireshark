@@ -1775,7 +1775,7 @@ dissect_uds_subfunction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_tree,
     proto_tree_add_item_ret_uint(subfunction_tree, hf, tvb, offset, 1, ENC_NA, subfunc_value);
 
     if (vs != NULL) {
-        char* str = val_to_str_wmem(pinfo->pool, *subfunc_value, vs, "Unknown (0x%02x)");
+        char* str = val_to_str(pinfo->pool, *subfunc_value, vs, "Unknown (0x%02x)");
         proto_item_append_text(ti, " (%s)", str);
         col_append_fstr(pinfo->cinfo, COL_INFO, "   SubFunction: %s", str);
     } else {
@@ -1829,7 +1829,7 @@ dissect_uds_rdtci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *uds_tree, uint3
 
             uint32_t dtc_format;
             proto_tree_add_item_ret_uint(uds_tree, hf_uds_rdtci_dtc_format_id, tvb, offset, 1, ENC_NA, &dtc_format);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", val_to_str_wmem(pinfo->pool, dtc_format, uds_rdtci_format_id_types, "Unknown Format (0x%02x)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", val_to_str(pinfo->pool, dtc_format, uds_rdtci_format_id_types, "Unknown Format (0x%02x)"));
             offset += 1;
 
             uint32_t dtc_count;
@@ -2386,7 +2386,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
             bool suppress;
             proto_tree_add_item_ret_boolean(uds_tree, hf_uds_dsc_suppress_pos_rsp_msg_ind, tvb, offset, 1, ENC_NA, &suppress);
             proto_tree_add_item_ret_uint(uds_tree, hf_uds_dsc_subfunction, tvb, offset, 1, ENC_NA, &enum_val);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str_wmem(pinfo->pool, enum_val, uds_dsc_types, "Unknown (0x%02x)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(pinfo->pool, enum_val, uds_dsc_types, "Unknown (0x%02x)"));
             if (suppress) {
                 col_append_str(pinfo->cinfo, COL_INFO, "   (Reply suppressed)");
             }
@@ -2411,7 +2411,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
 
         case UDS_SERVICES_ER:
             proto_tree_add_item_ret_uint(uds_tree, hf_uds_er_subfunction, tvb, offset, 1, ENC_NA, &enum_val);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str_wmem(pinfo->pool, enum_val, uds_er_types, "Unknown (0x%02x)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(pinfo->pool, enum_val, uds_er_types, "Unknown (0x%02x)"));
             offset += 1;
 
             if ((sid & UDS_REPLY_MASK) && (enum_val == UDS_ER_TYPES_ENABLE_RAPID_POWER_SHUTDOWN)) {
@@ -2506,7 +2506,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                     unsigned data_type, num_of_bytes;
                     proto_tree_add_item_ret_uint(tmp_tree, hf_uds_rsdbi_scaling_byte_data_type, tvb, offset, 1, ENC_NA, &data_type);
                     proto_tree_add_item_ret_uint(tmp_tree, hf_uds_rsdbi_scaling_byte_num_of_bytes, tvb, offset, 1, ENC_NA, &num_of_bytes);
-                    proto_item_append_text(ti, ", %s, %d", val_to_str_wmem(pinfo->pool, data_type, uds_rsdbi_data_types, "Unknown (0x%x)"), num_of_bytes);
+                    proto_item_append_text(ti, ", %s, %d", val_to_str(pinfo->pool, data_type, uds_rsdbi_data_types, "Unknown (0x%x)"), num_of_bytes);
                     offset += 1;
 
                     /* lets parse the extension, if needed... */
@@ -2978,7 +2978,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
             offset += 2;
 
             proto_tree_add_item_ret_uint(uds_tree, hf_uds_iocbi_parameter, tvb, offset, 1, ENC_NA, &enum_val);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", val_to_str_wmem(pinfo->pool, enum_val, uds_iocbi_parameters, "Unknown (0x%02x)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "  %s", val_to_str(pinfo->pool, enum_val, uds_iocbi_parameters, "Unknown (0x%02x)"));
             offset += 1;
 
             /* The exact format depends on vehicle manufacturer and config. Not much we can do here. */
@@ -2992,7 +2992,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
 
         case UDS_SERVICES_RC: {
             proto_tree_add_item_ret_uint(uds_tree, hf_uds_rc_subfunction, tvb, offset, 1, ENC_NA, &enum_val);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str_wmem(pinfo->pool, enum_val, uds_rc_types, "Unknown (0x%02x)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(pinfo->pool, enum_val, uds_rc_types, "Unknown (0x%02x)"));
             offset += 1;
 
             uint32_t identifier;
@@ -3218,14 +3218,14 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
         case UDS_SERVICES_CDTCS:
             if ((sid & UDS_REPLY_MASK)) {
                 proto_tree_add_item_ret_uint(uds_tree, hf_uds_cdtcs_type, tvb, offset, 1, ENC_NA, &enum_val);
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str_wmem(pinfo->pool, enum_val, uds_cdtcs_types, "Unknown (0x%02x)"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(pinfo->pool, enum_val, uds_cdtcs_types, "Unknown (0x%02x)"));
                 offset += 1;
             } else {
                 ti = proto_tree_add_item(uds_tree, hf_uds_cdtcs_subfunction, tvb, offset, 1, ENC_NA);
                 subfunction_tree = proto_item_add_subtree(ti, ett_uds_subfunction);
                 proto_tree_add_item_ret_uint(subfunction_tree, hf_uds_cdtcs_subfunction_no_suppress, tvb, offset, 1, ENC_NA, &enum_val);
                 proto_tree_add_item(subfunction_tree, hf_uds_cdtcs_subfunction_pos_rsp_msg_ind, tvb, offset, 1, ENC_NA);
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str_wmem(pinfo->pool, enum_val, uds_cdtcs_types, "Unknown (0x%02x)"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(pinfo->pool, enum_val, uds_cdtcs_types, "Unknown (0x%02x)"));
                 offset += 1;
 
                 if (data_length - offset > 0) {
@@ -3344,7 +3344,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
             subfunction_tree = proto_item_add_subtree(ti, ett_uds_subfunction);
             proto_tree_add_item_ret_uint(subfunction_tree, hf_uds_lc_subfunction_no_suppress, tvb, offset, 1, ENC_NA, &enum_val);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str_wmem(pinfo->pool, enum_val, uds_lc_types, "Unknown (0x%02x)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", val_to_str(pinfo->pool, enum_val, uds_lc_types, "Unknown (0x%02x)"));
 
             if (sid & UDS_REPLY_MASK) {
                 offset += 1;
@@ -3356,7 +3356,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                 case UDS_LC_TYPES_VMTWFP: {
                     unsigned control_mode_id;
                     proto_tree_add_item_ret_uint(uds_tree, hf_uds_lc_control_mode_id, tvb, offset, 1, ENC_NA, &control_mode_id);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_wmem(pinfo->pool, control_mode_id, uds_lc_lcmi_types, "Unknown (0x%02x)"));
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(pinfo->pool, control_mode_id, uds_lc_lcmi_types, "Unknown (0x%02x)"));
                     offset += 1;
                 }
                     break;

@@ -231,15 +231,15 @@ RejectProblem
   uint32_t value;
 
   %(DEFAULT_BODY)s
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " AbortSource:%%s", val_to_str_wmem(actx->pinfo->pool, value, cmip_CMIPAbortSource_vals, " Unknown AbortSource:%%d"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " AbortSource:%%s", val_to_str(actx->pinfo->pool, value, cmip_CMIPAbortSource_vals, " Unknown AbortSource:%%d"));
 #.END
 
 #.FN_BODY Code/local  VAL_PTR = &opcode
   %(DEFAULT_BODY)s
   if(opcode_type== OPCODE_RETURN_ERROR){
-	col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_wmem(actx->pinfo->pool, opcode, cmip_error_code_vals, " Unknown Opcode:%%d"));
+	col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(actx->pinfo->pool, opcode, cmip_error_code_vals, " Unknown Opcode:%%d"));
   }else{
-	col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_wmem(actx->pinfo->pool, opcode, cmip_Opcode_vals, " Unknown Opcode:%%d"));
+	col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(actx->pinfo->pool, opcode, cmip_Opcode_vals, " Unknown Opcode:%%d"));
   }
 #.END
 

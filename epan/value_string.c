@@ -49,22 +49,8 @@ value_str_value_compare(const void* a, const void* b)
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-const char *
-val_to_str(const uint32_t val, const value_string *vs, const char *fmt)
-{
-    const char *ret;
-
-    DISSECTOR_ASSERT(fmt != NULL);
-
-    ret = try_val_to_str(val, vs);
-    if (ret != NULL)
-        return ret;
-
-    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
-}
-
 char *
-val_to_str_wmem(wmem_allocator_t *scope, const uint32_t val, const value_string *vs, const char *fmt)
+val_to_str(wmem_allocator_t *scope, const uint32_t val, const value_string *vs, const char *fmt)
 {
     const char *ret;
 

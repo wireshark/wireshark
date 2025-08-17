@@ -6982,8 +6982,8 @@ dissect_nbap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                    ett_nbap_ProcedureID, ProcedureID_sequence);
 
   ProcedureID = wmem_strdup_printf(actx->pinfo->pool, "%s/%s",
-                                 val_to_str_wmem(actx->pinfo->pool, nbap_private_data->procedure_code, VALS(nbap_ProcedureCode_vals), "unknown(%u)"),
-                                 val_to_str_wmem(actx->pinfo->pool, nbap_private_data->dd_mode, VALS(nbap_DdMode_vals), "unknown(%u)"));
+                                 val_to_str(actx->pinfo->pool, nbap_private_data->procedure_code, VALS(nbap_ProcedureCode_vals), "unknown(%u)"),
+                                 val_to_str(actx->pinfo->pool, nbap_private_data->dd_mode, VALS(nbap_DdMode_vals), "unknown(%u)"));
   nbap_private_data->crnc_context_present = false; /*Reset CRNC Com context present flag.*/
 
 

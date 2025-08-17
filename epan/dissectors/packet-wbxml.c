@@ -5838,7 +5838,7 @@ static char *
 ext_t_0_wv_cspc_12(wmem_allocator_t* allocator, tvbuff_t *tvb _U_, uint32_t value, uint32_t str_tbl _U_)
 {
 	char *str = wmem_strdup_printf(allocator, "Common Value: '%s'",
-				    val_to_str_wmem(allocator, value, vals_wv_csp_12_element_value_tokens,
+				    val_to_str(allocator, value, vals_wv_csp_12_element_value_tokens,
 					       "<Unknown WV-CSP 1.2 Common Value token 0x%X>"));
 	return str;
 }
@@ -6678,7 +6678,7 @@ static char *
 ext_t_0_wv_cspc_13(wmem_allocator_t* allocator, tvbuff_t *tvb _U_, uint32_t value, uint32_t str_tbl _U_)
 {
 	char *str = wmem_strdup_printf(allocator, "Common Value: '%s'",
-				    val_to_str_wmem(allocator, value, vals_wv_csp_13_element_value_tokens,
+				    val_to_str(allocator, value, vals_wv_csp_13_element_value_tokens,
 					       "<Unknown WV-CSP 1.3 Common Value token 0x%X>"));
 	return str;
 }

@@ -875,7 +875,7 @@ static const char* get_object_id_string(wmem_allocator_t* scope, uint16_t object
         return "NULL Object ID";
     }
 
-    translated_string = val_to_str_wmem(scope, object_id, object_id_strings, "Object ID 0x%04X");
+    translated_string = val_to_str(scope, object_id, object_id_strings, "Object ID 0x%04X");
     return translated_string;
 }
 

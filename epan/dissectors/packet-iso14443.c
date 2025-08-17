@@ -1025,7 +1025,7 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_item(pcb_tree, hf_iso14443_s_blk_cmd,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-                    val_to_str_wmem(pinfo->pool, s_cmd, iso14443_s_block_cmd,
+                    val_to_str(pinfo->pool, s_cmd, iso14443_s_block_cmd,
                         "Unknown (0x%02x)"));
             proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
                     tvb, offset, 1, ENC_BIG_ENDIAN);

@@ -356,7 +356,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* add a nice name to the property */
     tag = tvb_get_letohl(tvb, offset);
-    proto_item_append_text(prop_item, " %s", val_to_str_wmem(pinfo->pool, tag, nspi_MAPITAGS_vals, "Unknown tag (0x%08lx)"));
+    proto_item_append_text(prop_item, " %s", val_to_str(pinfo->pool, tag, nspi_MAPITAGS_vals, "Unknown tag (0x%08lx)"));
 
     proto_tree_add_item(tag_tree, hf_tnef_property_tag_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
@@ -527,7 +527,7 @@ static int dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     /* add a nice name to the property */
     tag = tvb_get_letohl(tvb, offset);
-    proto_item_append_text(attr_item, " %s", val_to_str_wmem(pinfo->pool, tag, tnef_Attribute_vals, "Unknown tag (0x%08lx)"));
+    proto_item_append_text(attr_item, " %s", val_to_str(pinfo->pool, tag, tnef_Attribute_vals, "Unknown tag (0x%08lx)"));
 
     proto_tree_add_item(tag_tree, hf_tnef_attribute_tag_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;

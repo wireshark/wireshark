@@ -268,7 +268,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             "Holding Time : %u (%u.%u secs)",
             cnf_ttl, cnf_ttl / 2, (cnf_ttl % 2) * 5);
     cnf_type = tvb_get_uint8(tvb, P_CLNP_TYPE);
-    pdu_type_string = val_to_str_wmem(pinfo->pool, cnf_type & CNF_TYPE, npdu_type_abbrev_vals,
+    pdu_type_string = val_to_str(pinfo->pool, cnf_type & CNF_TYPE, npdu_type_abbrev_vals,
             "Unknown (0x%02x)");
     flag_string[0] = '\0';
     if (cnf_type & CNF_SEG_OK)

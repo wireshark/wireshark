@@ -427,7 +427,7 @@ static int dissect_parameter_transport_rtps_type(
             {
                 proto_tree *rtpsvt_tree_information_class;
                 int32_t classId = tvb_get_int32(tvb, OFFSET_TO_VAL, ENC_BIG_ENDIAN);
-                const char *className = val_to_str_wmem(pinfo->pool,
+                const char *className = val_to_str(pinfo->pool,
                         classId,
                         ndds_transport_class_id_vals,
                         "%d");

@@ -1489,15 +1489,15 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
     }
     else {
         proto_item_append_text(sub_item, ": Error: \"%s\", \"%s\", \"%s\", \"%s\"",
-            val_to_str_wmem(pinfo->pool, u8ErrorCode, pn_io_error_code, "(0x%x)"),
-            val_to_str_wmem(pinfo->pool, u8ErrorDecode, pn_io_error_decode, "(0x%x)"),
-            val_to_str_wmem(pinfo->pool, u8ErrorCode1, error_code1_vals, "(0x%x)"),
-            val_to_str_wmem(pinfo->pool, u8ErrorCode2, error_code2_vals, "(0x%x)"));
+            val_to_str(pinfo->pool, u8ErrorCode, pn_io_error_code, "(0x%x)"),
+            val_to_str(pinfo->pool, u8ErrorDecode, pn_io_error_decode, "(0x%x)"),
+            val_to_str(pinfo->pool, u8ErrorCode1, error_code1_vals, "(0x%x)"),
+            val_to_str(pinfo->pool, u8ErrorCode2, error_code2_vals, "(0x%x)"));
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: \"%s\", \"%s\", \"%s\", \"%s\"",
-            val_to_str_wmem(pinfo->pool, u8ErrorCode, pn_io_error_code, "(0x%x)"),
-            val_to_str_wmem(pinfo->pool, u8ErrorDecode, pn_io_error_decode, "(0x%x)"),
-            val_to_str_wmem(pinfo->pool, u8ErrorCode1, error_code1_vals, "(0x%x)"),
-            val_to_str_wmem(pinfo->pool, u8ErrorCode2, error_code2_vals, "(0x%x)"));
+            val_to_str(pinfo->pool, u8ErrorCode, pn_io_error_code, "(0x%x)"),
+            val_to_str(pinfo->pool, u8ErrorDecode, pn_io_error_decode, "(0x%x)"),
+            val_to_str(pinfo->pool, u8ErrorCode1, error_code1_vals, "(0x%x)"),
+            val_to_str(pinfo->pool, u8ErrorCode2, error_code2_vals, "(0x%x)"));
     }
     proto_item_set_len(sub_item, offset - u32SubStart);
 

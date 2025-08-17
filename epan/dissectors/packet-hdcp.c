@@ -106,7 +106,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     ptvcursor_current_offset(cursor)) == 0) {
             /* transmitter requests the content of a register */
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "request %s",
-                    val_to_str_wmem(pinfo->pool, reg, hdcp_reg, "unknown (0x%x)"));
+                    val_to_str(pinfo->pool, reg, hdcp_reg, "unknown (0x%x)"));
 
             if (PINFO_FD_VISITED(pinfo)) {
                 /* we've already dissected the receiver's response */
@@ -138,7 +138,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         else {
             /* transmitter actually sends protocol data */
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "send %s",
-                    val_to_str_wmem(pinfo->pool, reg, hdcp_reg, "unknown (0x%x)"));
+                    val_to_str(pinfo->pool, reg, hdcp_reg, "unknown (0x%x)"));
             switch (reg) {
                 case REG_AKSV:
                     a_ksv = tvb_get_letoh40(tvb,

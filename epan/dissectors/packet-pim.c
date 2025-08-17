@@ -508,7 +508,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     offset += 1;
 
     proto_tree_add_item_ret_uint(pim_tree, hf_pim_code, tvb, offset, 1, ENC_NA, &pim_type);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, pim_type, pim_type1_vals, "Unknown (%u)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, pim_type, pim_type1_vals, "Unknown (%u)"));
     offset += 1;
 
     pim_ver = PIM_VER(tvb_get_uint8(tvb, offset + 2));
@@ -1107,12 +1107,12 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     switch (PIM_VER(pim_typever)) {
     case 2:
         if (PIM_TYPE(pim_typever) < 12) {
-            typestr = val_to_str_wmem(pinfo->pool, PIM_TYPE(pim_typever), pimtypevals, "Unknown (%u)");
+            typestr = val_to_str(pinfo->pool, PIM_TYPE(pim_typever), pimtypevals, "Unknown (%u)");
         } else if ((PIM_TYPE(pim_typever) == PIM_TYPE_PACKED_REGISTER)) {
             /*
              * Need only the first 4 bits for subtype as per the new PIM Common header.
              */
-            typestr = val_to_str_wmem(pinfo->pool, pim_subtype, pimtype13subtypevals, "Unknown (%u)");
+            typestr = val_to_str(pinfo->pool, pim_subtype, pimtype13subtypevals, "Unknown (%u)");
         } else {
             typestr = "Unknown";
         }
@@ -1248,7 +1248,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             opt_len = tvb_get_ntohs(tvb, offset + 2);
             opt_tree = proto_tree_add_subtree_format(pimopt_tree, tvb, offset, 4 + opt_len,
                                            ett_pim_opt, &opt_item, "Option %u: %s", hello_opt,
-                                           val_to_str_wmem(pinfo->pool, hello_opt, pim_opt_vals, "Unknown: %u"));
+                                           val_to_str(pinfo->pool, hello_opt, pim_opt_vals, "Unknown: %u"));
             proto_tree_add_item(opt_tree, hf_pim_optiontype, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_tree, hf_pim_optionlength, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
@@ -1697,7 +1697,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             pfm_opt = pfm & 0x7FFF;
             opt_tree = proto_tree_add_subtree_format(pimopt_tree, tvb, offset, 4 + opt_len,
                                            ett_pim_opt, &opt_item, "Option %u: %s", pfm_opt,
-                                           val_to_str_wmem(pinfo->pool, pfm_opt, pim_opt_vals1, "Unknown: %u"));
+                                           val_to_str(pinfo->pool, pfm_opt, pim_opt_vals1, "Unknown: %u"));
             proto_tree_add_item(opt_tree, hf_pim_transitivetype, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_tree, hf_pim_optiontype1, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_tree, hf_pim_optionlength, tvb, offset + 2, 2, ENC_BIG_ENDIAN);

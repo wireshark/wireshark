@@ -1707,7 +1707,7 @@ static void dispatch_$header(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pr
     length = REQUEST_LENGTH();
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-%s",
-                          val_to_str_wmem(pinfo->pool, minor, $lookup_name,
+                          val_to_str(pinfo->pool, minor, $lookup_name,
                                      "<Unknown opcode %d>"));
     switch (minor) {
 eot

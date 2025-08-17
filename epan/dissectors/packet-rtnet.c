@@ -397,7 +397,7 @@ dissect_rtnet_tdma_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
                         offset, 4, ENC_BIG_ENDIAN, &msg);
     offset += 4;
 
-    str_msg = val_to_str_wmem(pinfo->pool, msg, tdma_v1_msg_vals, "Unknown (0x%04x)");
+    str_msg = val_to_str(pinfo->pool, msg, tdma_v1_msg_vals, "Unknown (0x%04x)");
     proto_item_append_text(ti, ", Version 1, %s", str_msg);
 
     /* set the info column */
@@ -508,7 +508,7 @@ dissect_rtnet_tdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
   offset += 2;
 
   proto_tree_add_item_ret_uint(tree, hf_tdma_id, tvb, offset, 2, ENC_BIG_ENDIAN, &msg);
-  str_msg = val_to_str_wmem(pinfo->pool, msg, tdma_msg_vals, "Unknown (0x%04x)");
+  str_msg = val_to_str(pinfo->pool, msg, tdma_msg_vals, "Unknown (0x%04x)");
   offset += 2;
 
   proto_item_append_text(ti, ", %s", str_msg);
@@ -672,7 +672,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_tree_add_item(vers_id_tree, hf_rtcfg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    str_vers_id = val_to_str_wmem(pinfo->pool, vers_id, rtcfg_msg_vals, "Unknown (0x%04x)");
+    str_vers_id = val_to_str(pinfo->pool, vers_id, rtcfg_msg_vals, "Unknown (0x%04x)");
     proto_item_append_text(ti, ", Version %d, %s", (vers_id >> 5), str_vers_id);
 
     col_add_str(pinfo->cinfo, COL_INFO, str_vers_id);

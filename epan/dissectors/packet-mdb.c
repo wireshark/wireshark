@@ -256,7 +256,7 @@ static void dissect_mdb_ack(tvbuff_t *tvb, int offset,
 
 static void mdb_set_addrs(uint8_t event, uint8_t addr, packet_info *pinfo)
 {
-    const char *periph = val_to_str_wmem(pinfo->pool, addr, mdb_addr, "Unknown (0x%02x)");
+    const char *periph = val_to_str(pinfo->pool, addr, mdb_addr, "Unknown (0x%02x)");
 
     /* pinfo->p2p_dir is from the perspective of the master (VMC) */
 

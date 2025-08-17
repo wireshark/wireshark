@@ -637,7 +637,7 @@ dissect_tpm20_platform_command(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item_ret_uint(tree, hf_tpm20_platform_cmd, tvb, 0,
 				4, ENC_BIG_ENDIAN, &command);
 
-	str_command = val_to_str_wmem(pinfo->pool, command, platform_commands, "Unknown (0x%02x)");
+	str_command = val_to_str(pinfo->pool, command, platform_commands, "Unknown (0x%02x)");
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Platform Command %s", str_command);
 	proto_item_append_text(tree, ", %s", str_command);
 	response_size = false;
@@ -834,7 +834,7 @@ dissect_tpm20_tpm_command(tvbuff_t *tvb, packet_info *pinfo,
 	uint16_t tag = tvb_get_uint16(tvb, 0, ENC_BIG_ENDIAN);
 	struct num_handles handl_map;
 	unsigned int i;
-	char* str_command = val_to_str_wmem(pinfo->pool, command, commands, "Unknown (0x%02x)");
+	char* str_command = val_to_str(pinfo->pool, command, commands, "Unknown (0x%02x)");
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Command %s", str_command);
 
@@ -911,7 +911,7 @@ dissect_tpm20_platform_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 	} else {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Response code %d", rc);
 		proto_item_append_text(tree, ", Response code %s",
-				       val_to_str_wmem(pinfo->pool, rc, responses, "Unknown (0x%02x)"));
+				       val_to_str(pinfo->pool, rc, responses, "Unknown (0x%02x)"));
 		proto_tree_add_item(tree, hf_tpm20_platform_resp_code, tvb, 0, 4, ENC_BIG_ENDIAN);
 	}
 }
@@ -1026,7 +1026,7 @@ dissect_tpm20_tpm_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	uint32_t rc = tvb_get_uint32(tvb, 6, ENC_BIG_ENDIAN);
 	uint32_t param_size;
 	unsigned int i;
-	char* str_rc = val_to_str_wmem(pinfo->pool, rc, responses, "Unknown (0x%02x)");
+	char* str_rc = val_to_str(pinfo->pool, rc, responses, "Unknown (0x%02x)");
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Response Code %s", str_rc);
 

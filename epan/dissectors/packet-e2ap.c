@@ -2278,7 +2278,7 @@ dissect_e2ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &e2ap_data->procedure_code, false);
 
-  //col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s", val_to_str_wmem(actx->pinfo->pool, e2ap_data->procedure_code, e2ap_ProcedureCode_vals, "Unknown"));
+  //col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s", val_to_str(actx->pinfo->pool, e2ap_data->procedure_code, e2ap_ProcedureCode_vals, "Unknown"));
 
   return offset;
 }
@@ -14633,7 +14633,7 @@ e2ap_stats_tree_packet(stats_tree* st, packet_info* pinfo,
 
     tick_stat_node(st, st_str_packets, 0, false);
     stats_tree_tick_pivot(st, st_node_packet_types,
-                          val_to_str_wmem(pinfo->pool, pi->e2ap_mtype, mtype_names,
+                          val_to_str(pinfo->pool, pi->e2ap_mtype, mtype_names,
                                      "Unknown packet type (%d)"));
     return TAP_PACKET_REDRAW;
 }

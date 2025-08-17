@@ -2947,10 +2947,10 @@ someip_messages_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_disse
     char *method_name = someip_lookup_method_name(data->service_id, data->method_id);
     if (method_name == NULL) {
         tmp_meth_str = wmem_strdup_printf(pinfo->pool, "Method 0x%04x %s", data->method_id,
-            val_to_str_wmem(pinfo->pool, data->message_type, someip_msg_type, "Message-Type: 0x%02x"));
+            val_to_str(pinfo->pool, data->message_type, someip_msg_type, "Message-Type: 0x%02x"));
     } else {
         tmp_meth_str = wmem_strdup_printf(pinfo->pool, "Method 0x%04x (%s) %s", data->method_id, method_name,
-            val_to_str_wmem(pinfo->pool, data->message_type, someip_msg_type, "Message-Type: 0x%02x"));
+            val_to_str(pinfo->pool, data->message_type, someip_msg_type, "Message-Type: 0x%02x"));
     }
 
     tmp = tick_stat_node(st, tmp_srv_str, src_id, true);

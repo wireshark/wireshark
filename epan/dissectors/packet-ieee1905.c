@@ -1875,7 +1875,7 @@ dissect_media_type(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     case 2:
         proto_item_append_text(pi, ", %s",
-                        val_to_str_wmem(pinfo->pool, bits_7_to_0,
+                        val_to_str(pinfo->pool, bits_7_to_0,
                             ieee1905_media_type_2_vals,
                             "Reserved"));
         break;
@@ -2819,7 +2819,7 @@ dissect_interface_power_change_info(tvbuff_t *tvb, packet_info *pinfo _U_,
         pi = proto_tree_add_item(tree, hf_ieee1905_power_change_state, tvb,
                         offset, 1, ENC_NA);
         proto_item_append_text(pi, ", %s",
-                        val_to_str_wmem(pinfo->pool, power_state,
+                        val_to_str(pinfo->pool, power_state,
                                    ieee1905_power_state_vals,
                                    "Reserved"));
         offset++;
@@ -2866,7 +2866,7 @@ dissect_interface_power_change_status(tvbuff_t *tvb, packet_info *pinfo _U_,
         pi = proto_tree_add_item(tree, hf_ieee1905_power_status_state, tvb,
                         offset, 1, ENC_NA);
         proto_item_append_text(pi, ", %s",
-                        val_to_str_wmem(pinfo->pool, power_state,
+                        val_to_str(pinfo->pool, power_state,
                                    ieee1905_power_status_vals,
                                    "Reserved"));
         offset++;
@@ -2998,7 +2998,7 @@ dissect_supported_service(tvbuff_t *tvb, packet_info *pinfo _U_,
                                 tvb, offset, 1, ENC_NA);
 
         proto_item_append_text(pi, ", %s",
-                        val_to_str_wmem(pinfo->pool, service,
+                        val_to_str(pinfo->pool, service,
                                    ieee1905_supported_service_vals,
                                    "Reserved"));
         offset++;
@@ -3040,7 +3040,7 @@ dissect_searched_service(tvbuff_t *tvb, packet_info *pinfo _U_,
          * an error in 17.2.2.
          */
         proto_item_append_text(pi, ", %s",
-                        val_to_str_wmem(pinfo->pool, service,
+                        val_to_str(pinfo->pool, service,
                                    ieee1905_supported_service_vals,
                                    "Reserved"));
         offset++;
@@ -3718,7 +3718,7 @@ dissect_steering_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
             pi = proto_tree_add_item(policy_tree, hf_ieee1905_steering_policy_policy,
                                 tvb, offset, 1, ENC_NA);
             proto_item_append_text(pi, ", %s",
-                                val_to_str_wmem(pinfo->pool, policy,
+                                val_to_str(pinfo->pool, policy,
                                         ieee1905_steering_policy_vals,
                                         "Reserved"));
             offset++;
@@ -4075,7 +4075,7 @@ dissect_channel_selection_response(tvbuff_t *tvb, packet_info *pinfo _U_,
     pi = proto_tree_add_item(tree, hf_ieee1905_channel_select_resp_code, tvb,
                         offset, 1, ENC_NA);
     proto_item_append_text(pi, ", %s",
-                        val_to_str_wmem(pinfo->pool, response_code,
+                        val_to_str(pinfo->pool, response_code,
                             ieee1905_channel_select_resp_code_vals,
                             "Reserved"));
     offset++;
@@ -4146,7 +4146,7 @@ dissect_higher_layer_data(tvbuff_t *tvb, packet_info *pinfo _U_,
                              tvb, offset, 1, ENC_NA);
 
     proto_item_append_text(pi, ", %s",
-                    val_to_str_wmem(pinfo->pool, protocol,
+                    val_to_str(pinfo->pool, protocol,
                                ieee1905_higher_layer_protocol_vals,
                                "Reserved"));
     offset++;
@@ -4373,7 +4373,7 @@ dissect_client_association_control_request(tvbuff_t *tvb, packet_info *pinfo _U_
     pi = proto_tree_add_item(tree, hf_ieee1905_association_control, tvb,
                              offset, 1, ENC_NA);
     proto_item_append_text(pi, ", %s",
-                        val_to_str_wmem(pinfo->pool, control,
+                        val_to_str(pinfo->pool, control,
                            ieee1905_association_control_vals,
                            "Reserved"));
     offset++;
@@ -4634,7 +4634,7 @@ dissect_backhaul_steering_response(tvbuff_t *tvb, packet_info *pinfo _U_,
     pi = proto_tree_add_item(tree, hf_ieee1905_backhaul_steering_status,
                         tvb, offset, 1, ENC_NA);
     proto_item_append_text(pi, ", %s",
-                        val_to_str_wmem(pinfo->pool, status,
+                        val_to_str(pinfo->pool, status,
                                    ieee1905_backhaul_status_vals,
                                    "Reserved"));
     offset++;
@@ -4686,7 +4686,7 @@ dissect_client_capability_report(tvbuff_t *tvb, packet_info *pinfo _U_,
     pi = proto_tree_add_item(tree, hf_ieee1905_client_capability_result, tvb,
                         offset, 1, ENC_NA);
     proto_item_append_text(pi, ", %s",
-                        val_to_str_wmem(pinfo->pool, result,
+                        val_to_str(pinfo->pool, result,
                                    ieee1905_client_capability_result_vals,
                                    "Reserved"));
     offset++;
@@ -5319,7 +5319,7 @@ dissect_error_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     pi = proto_tree_add_item(tree, hf_ieee1905_error_code_value, tvb,
                         offset, 1, ENC_NA);
     proto_item_append_text(pi, ", %s",
-                        val_to_str_wmem(pinfo->pool, error_code,
+                        val_to_str(pinfo->pool, error_code,
                                    ieee1905_error_code_vals,
                                    "Reserved"));
     offset++;

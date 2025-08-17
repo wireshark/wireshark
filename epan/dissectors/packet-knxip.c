@@ -1174,7 +1174,7 @@ static uint8_t dissect_cnhdr( tvbuff_t* tvb, packet_info* pinfo, proto_item* ite
         {
           if( response )
           {
-            wmem_strbuf_append_printf(info, "%s", val_to_str_wmem(pinfo->pool, tvb_get_uint8( tvb, offset ), error_vals, "Error 0x%02x" ) );
+            wmem_strbuf_append_printf(info, "%s", val_to_str(pinfo->pool, tvb_get_uint8( tvb, offset ), error_vals, "Error 0x%02x" ) );
             knxip_tree_add_status( cnhdr_tree, tvb, offset );
           }
           else
@@ -3314,7 +3314,7 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
               }
               else
               {
-                const char* status_info = val_to_str_wmem(pinfo->pool, status, error_vals, "Error 0x%02x" );
+                const char* status_info = val_to_str(pinfo->pool, status, error_vals, "Error 0x%02x" );
                 col_append_fstr(pinfo->cinfo, COL_INFO, " %s", status_info );
                 proto_item_append_text( kip_item, ": %s", status_info );
               }
@@ -3394,7 +3394,7 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
             else
             {
               uint8_t status = tvb_get_uint8( tvb, offset );
-              const char* status_info = val_to_str_wmem(pinfo->pool, status, error_vals, "Error 0x%02x" );
+              const char* status_info = val_to_str(pinfo->pool, status, error_vals, "Error 0x%02x" );
               col_append_str(pinfo->cinfo, COL_INFO, status_info );
               proto_item_append_text( kip_item, "%s", status_info );
               knxip_tree_add_status( kip_tree, tvb, offset );
@@ -3475,7 +3475,7 @@ static void dissect_knxip_data( uint8_t header_length, uint8_t protocol_version 
             else
             {
               uint8_t status = tvb_get_uint8( tvb, offset );
-              const char* status_info = val_to_str_wmem(pinfo->pool, status, error_vals, "Error 0x%02x" );
+              const char* status_info = val_to_str(pinfo->pool, status, error_vals, "Error 0x%02x" );
               col_append_str(pinfo->cinfo, COL_INFO, status_info );
               proto_item_append_text( kip_item, "%s", status_info );
               knxip_tree_add_status( kip_tree, tvb, offset );

@@ -1350,7 +1350,7 @@ dissect_eap_pax(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int off
   offset++;
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                  val_to_str_wmem(pinfo->pool, opcode, eap_pax_opcode_vals, "Unknown opcode (0x%02X)"));
+                  val_to_str(pinfo->pool, opcode, eap_pax_opcode_vals, "Unknown opcode (0x%02X)"));
 
   proto_tree_add_bitmask_ret_uint64(eap_tree, tvb, offset, hf_eap_pax_flags, ett_eap_pax_flags,
                                     pax_flags, ENC_BIG_ENDIAN, &flags);
@@ -1554,7 +1554,7 @@ dissect_eap_sake_attribute(proto_tree *eap_tree, packet_info* pinfo, tvbuff_t *t
   }
   attr_tree = proto_tree_add_subtree_format(eap_tree, tvb, offset, len, ett_eap_sake_attr, NULL,
                                             "EAP-SAKE Attribute: %s",
-                                            val_to_str_wmem(pinfo->pool, type, eap_sake_attr_type_vals,
+                                            val_to_str(pinfo->pool, type, eap_sake_attr_type_vals,
                                                        "Unknown (%d)"));
 
   proto_tree_add_item(attr_tree, hf_eap_sake_attr_type, tvb, offset, 1, ENC_NA);
@@ -1645,7 +1645,7 @@ dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int of
   proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_opcode, tvb, offset, 1, ENC_NA, &opcode);
   offset++;
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                  val_to_str_wmem(pinfo->pool, opcode, eap_gpsk_opcode_vals, "Unknown opcode (0x%02X)"));
+                  val_to_str(pinfo->pool, opcode, eap_gpsk_opcode_vals, "Unknown opcode (0x%02X)"));
 
   switch (opcode) {
     case GPSK_GPSK_1:
@@ -1821,7 +1821,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   eap_identifier = tvb_get_uint8(tvb, 1);
 
   col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str_wmem(pinfo->pool, eap_code, eap_code_vals, "Unknown code (0x%02X)"));
+                val_to_str(pinfo->pool, eap_code, eap_code_vals, "Unknown code (0x%02X)"));
 
   /*
    * Find a conversation to which we belong; create one if we don't find it.

@@ -217,7 +217,7 @@ dissect_nwp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	col_clear(pinfo->cinfo, COL_INFO);
 	type = tvb_get_uint8(tvb, NWPH_TYPE);
-	type_str = val_to_str_wmem(pinfo->pool, type, nwp_type_vals,
+	type_str = val_to_str(pinfo->pool, type, nwp_type_vals,
 		"Unknown NWP packet type (0x%02x)");
 	col_add_str(pinfo->cinfo, COL_INFO, type_str);
 

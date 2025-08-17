@@ -763,7 +763,7 @@ e2ap_stats_tree_packet(stats_tree* st, packet_info* pinfo,
 
     tick_stat_node(st, st_str_packets, 0, false);
     stats_tree_tick_pivot(st, st_node_packet_types,
-                          val_to_str_wmem(pinfo->pool, pi->e2ap_mtype, mtype_names,
+                          val_to_str(pinfo->pool, pi->e2ap_mtype, mtype_names,
                                      "Unknown packet type (%d)"));
     return TAP_PACKET_REDRAW;
 }

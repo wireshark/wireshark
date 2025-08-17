@@ -3163,7 +3163,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	switch (response_code) {
 	case 0xff:
 		proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
-		proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, RESPONSE_ERROR, state_vals, "Unknown (%u)"));
+		proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, RESPONSE_ERROR, state_vals, "Unknown (%u)"));
 		offset = mysql_dissect_error_packet(tvb, pinfo, offset+1, tree, my_frame_data);
 		mysql_set_conn_state(pinfo, conn_data, REQUEST);
 		break;
@@ -3178,35 +3178,35 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 			if (current_state == PREPARED_PARAMETERS) {
 				if (stmt_data != NULL && stmt_data->field_metas.count > 0) {
-					proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, INTERMEDIATE_EOF, state_vals, "Unknown (%u)"));
+					proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, INTERMEDIATE_EOF, state_vals, "Unknown (%u)"));
 					mysql_set_remaining_field_packet_count(pinfo, conn_data, stmt_data->field_metas.count);
 					mysql_set_conn_state(pinfo, conn_data, PREPARED_FIELDS);
 				} else {
-					proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, RESPONSE_EOF, state_vals, "Unknown (%u)"));
+					proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, RESPONSE_EOF, state_vals, "Unknown (%u)"));
 					mysql_set_conn_state(pinfo, conn_data, REQUEST);
 				}
 			} else if (current_state == FIELD_PACKET) {
 				// intermediate EOF packet
-				proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, INTERMEDIATE_EOF, state_vals, "Unknown (%u)"));
+				proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, INTERMEDIATE_EOF, state_vals, "Unknown (%u)"));
 				mysql_set_conn_state(pinfo, conn_data, ROW_PACKET);
 			} else {
 				// ending EOF packet
-				proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, RESPONSE_EOF, state_vals, "Unknown (%u)"));
+				proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, RESPONSE_EOF, state_vals, "Unknown (%u)"));
 				mysql_set_conn_state(pinfo, conn_data, REQUEST);
 			}
 		} else if (tvb_reported_length_remaining(tvb, offset) < 0xffffff) {
 			// not an EOF
 			if (current_state == AUTH_SWITCH_REQUEST) {
-				proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, AUTH_SWITCH_REQUEST, state_vals, "Unknown (%u)"));
+				proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, AUTH_SWITCH_REQUEST, state_vals, "Unknown (%u)"));
 				offset = mysql_dissect_auth_switch_request(tvb, pinfo, offset, tree, conn_data);
 			} else {
-				proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, RESPONSE_OK, state_vals, "Unknown (%u)"));
+				proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, RESPONSE_OK, state_vals, "Unknown (%u)"));
 				offset = mysql_dissect_ok_packet(tvb, pinfo, offset, tree, conn_data);
 				mysql_set_conn_state(pinfo, conn_data, REQUEST);
 			}
 		} else {
 			// text row packet
-			proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, ROW_PACKET, state_vals, "Unknown (%u)"));
+			proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, ROW_PACKET, state_vals, "Unknown (%u)"));
 			mysql_set_conn_state(pinfo, conn_data, ROW_PACKET);
 			offset = mysql_dissect_text_row_packet(tvb, offset, tree, my_frame_data);
 		}
@@ -3217,11 +3217,11 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		case RESPONSE_PREPARE:
 			proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
 			offset+=1;
-			proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, RESPONSE_PREPARE, state_vals, "Unknown (%u)"));
+			proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, RESPONSE_PREPARE, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_response_prepare(tvb, pinfo, offset, tree, conn_data);
 			break;
 		case ROW_PACKET:
-			proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, ROW_PACKET, state_vals, "Unknown (%u)"));
+			proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, ROW_PACKET, state_vals, "Unknown (%u)"));
 			if (my_frame_data->resultset_fmt == BINARY) {
 				proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
 				offset+=1;
@@ -3233,13 +3233,13 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		case BINLOG_DUMP:
 			proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
 			offset+=1;
-			proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, BINLOG_DUMP, state_vals, "Unknown (%u)"));
+			proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, BINLOG_DUMP, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_binlog_event_packet(tvb, pinfo, offset, tree, pi);
 			break;
 		default:
 			proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
 			offset+=1;
-			proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, RESPONSE_OK, state_vals, "Unknown (%u)"));
+			proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, RESPONSE_OK, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_ok_packet(tvb, pinfo, offset, tree, conn_data);
 			if (conn_data->compressed_state == MYSQL_COMPRESS_INIT) {
 				/* This is the OK packet which follows the compressed protocol setup */
@@ -3266,7 +3266,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				/* https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_com_query_response_local_infile_request.html */
 				col_append_str(pinfo->cinfo, COL_INFO, " LOCAL INFILE");
 				proto_tree_add_item(tree, hf_mysql_response_code, tvb, offset, 1, ENC_NA);
-				proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, RESPONSE_LOCALINFILE, state_vals, "Unknown (%u)"));
+				proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, RESPONSE_LOCALINFILE, state_vals, "Unknown (%u)"));
 
 				lenstr = tvb_reported_length_remaining(tvb, ++offset);
 				proto_tree_add_item(tree, hf_mysql_loaddata_filename, tvb, offset, lenstr, ENC_ASCII);
@@ -3274,11 +3274,11 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				mysql_set_conn_state(pinfo, conn_data, INFILE_DATA);
 				break;
 			}
-			proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, COLUMN_COUNT, state_vals, "Unknown (%u)"));
+			proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, COLUMN_COUNT, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_result_header(tvb, pinfo, offset, tree, conn_data, my_frame_data);
 			break;
 		case PREPARED_PARAMETERS:
-			proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, current_state, state_vals, "Unknown (%u)"));
+			proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, current_state, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_field_packet(tvb, pi, offset, tree, pinfo, conn_data, my_frame_data);
 			if (mysql_dec_remaining_field_packet_count(pinfo, conn_data)) {
 				if (conn_data->clnt_caps_ext & MYSQL_CAPS_DE) {
@@ -3294,7 +3294,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 		case FIELD_PACKET:
 		case RESPONSE_SHOW_FIELDS:
-			proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, current_state, state_vals, "Unknown (%u)"));
+			proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, current_state, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_field_packet(tvb, pi, offset, tree, pinfo, conn_data, my_frame_data);
 			if (mysql_dec_remaining_field_packet_count(pinfo, conn_data) && (conn_data->clnt_caps_ext & MYSQL_CAPS_DE)) {
 				mysql_set_conn_state(pinfo, conn_data, ROW_PACKET);
@@ -3302,12 +3302,12 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			break;
 
 		case ROW_PACKET:
-			proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, current_state, state_vals, "Unknown (%u)"));
+			proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, current_state, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_text_row_packet(tvb, offset, tree, my_frame_data);
 			break;
 
 		case PREPARED_FIELDS:
-			proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, current_state, state_vals, "Unknown (%u)"));
+			proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, current_state, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_field_packet(tvb, pi, offset, tree, pinfo, conn_data, my_frame_data);
 			if (mysql_dec_remaining_field_packet_count(pinfo, conn_data) && (conn_data->clnt_caps_ext & MYSQL_CAPS_DE)) {
 				mysql_set_conn_state(pinfo, conn_data, REQUEST);
@@ -3316,16 +3316,16 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 		case AUTH_SWITCH_REQUEST:
 			if (tvb_reported_length_remaining(tvb,offset) == 2) {
-				proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, AUTH_SHA2, state_vals, "Unknown (%u)"));
+				proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, AUTH_SHA2, state_vals, "Unknown (%u)"));
 				offset = mysql_dissect_auth_sha2(tvb, pinfo, offset, tree, conn_data);
 			} else {
-				proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, AUTH_SWITCH_REQUEST, state_vals, "Unknown (%u)"));
+				proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, AUTH_SWITCH_REQUEST, state_vals, "Unknown (%u)"));
 				offset = mysql_dissect_auth_switch_request(tvb, pinfo, offset, tree, conn_data);
 			}
 			break;
 
 		case AUTH_SHA2:
-			proto_item_append_text(pi, " - %s", val_to_str_wmem(pinfo->pool, AUTH_SHA2, state_vals, "Unknown (%u)"));
+			proto_item_append_text(pi, " - %s", val_to_str(pinfo->pool, AUTH_SHA2, state_vals, "Unknown (%u)"));
 			offset = mysql_dissect_auth_sha2(tvb, pinfo, offset, tree, conn_data);
 			break;
 
@@ -4259,7 +4259,7 @@ mysql_dissect_binlog_event_header(tvbuff_t *tvb, packet_info* pinfo, int offset,
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_mysql_binlog_event_header_event_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	proto_item_append_text(pi, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), mysql_binlog_event_type_vals, "Unknown event type: %d"));
+	proto_item_append_text(pi, ": %s", val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset), mysql_binlog_event_type_vals, "Unknown event type: %d"));
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_mysql_binlog_event_header_server_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -4473,11 +4473,11 @@ mysql_dissect_clone_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, int offse
 		case MYSQL_CLONE_COM_REINIT:
 		case MYSQL_CLONE_COM_EXECUTE:
 		case MYSQL_CLONE_COM_ACK:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(pinfo->pool, req_code, mysql_clone_command_vals, "Unknown clone request: %d"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(pinfo->pool, req_code, mysql_clone_command_vals, "Unknown clone request: %d"));
 			proto_tree_add_item(tree, hf_mysql_clone_command_code, tvb, offset, 1, ENC_NA);
 			break;
 		case MYSQL_CLONE_COM_EXIT:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(pinfo->pool, req_code, mysql_clone_command_vals, "Unknown clone request: %d"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(pinfo->pool, req_code, mysql_clone_command_vals, "Unknown clone request: %d"));
 			proto_tree_add_item(tree, hf_mysql_clone_command_code, tvb, offset, 1, ENC_NA);
 			mysql_set_conn_state(pinfo, conn_data, CLONE_EXIT);
 			break;
@@ -4509,7 +4509,7 @@ mysql_dissect_clone_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				mysql_set_conn_state(pinfo, conn_data, REQUEST);
 			/* fall through */
 		case MYSQL_CLONE_COM_RES_ERROR:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(pinfo->pool, resp_code, mysql_clone_response_vals, "unknown clone request: %d"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(pinfo->pool, resp_code, mysql_clone_response_vals, "unknown clone request: %d"));
 			proto_tree_add_item(tree, hf_mysql_clone_response_code, tvb, offset, 1, ENC_NA);
 			break;
 		default:
@@ -4720,11 +4720,11 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		pi = proto_tree_add_debug_text(mysql_tree, "generation: %" PRId64, generation);
 		proto_item_set_generated(pi);
 		pi = proto_tree_add_debug_text(mysql_tree, "conn state: %s (%u)",
-				    val_to_str_wmem(pinfo->pool, conn_state_in, state_vals, "Unknown (%u)"),
+				    val_to_str(pinfo->pool, conn_state_in, state_vals, "Unknown (%u)"),
 				    conn_state_in);
 		proto_item_set_generated(pi);
 		pi = proto_tree_add_debug_text(mysql_tree, "frame state: %s (%u)",
-				    val_to_str_wmem(pinfo->pool, frame_state, state_vals, "Unknown (%u)"),
+				    val_to_str(pinfo->pool, frame_state, state_vals, "Unknown (%u)"),
 				    frame_state);
 		proto_item_set_generated(pi);
 	}
@@ -4777,7 +4777,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	conn_state_out= conn_data->state;
 	++(conn_data->generation);
 	pi = proto_tree_add_debug_text(mysql_tree, "next proto state: %s (%u)",
-			    val_to_str_wmem(pinfo->pool, conn_state_out, state_vals, "Unknown (%u)"),
+			    val_to_str(pinfo->pool, conn_state_out, state_vals, "Unknown (%u)"),
 			    conn_state_out);
 	proto_item_set_generated(pi);
 #endif

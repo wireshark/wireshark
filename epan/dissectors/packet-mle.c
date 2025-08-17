@@ -825,7 +825,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree_add_item(mle_tree, hf_mle_command, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
 
     cmd = tvb_get_uint8(payload_tvb, offset);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, cmd, mle_command_vals, "Unknown (%x)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, cmd, mle_command_vals, "Unknown (%x)"));
 
     offset++;
 
@@ -845,7 +845,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         offset++;
 
         /* Add value name to value root label */
-        proto_item_append_text(ti, " (%s", val_to_str_wmem(pinfo->pool, tlv_type, mle_tlv_vals, "Unknown (%d)"));
+        proto_item_append_text(ti, " (%s", val_to_str(pinfo->pool, tlv_type, mle_tlv_vals, "Unknown (%d)"));
 
         /* Length */
         proto_tree_add_item(tlv_tree, hf_mle_tlv_length, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1013,7 +1013,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 {
                     uint8_t param_id = tvb_get_uint8(payload_tvb, offset);
 
-                    proto_item_append_text(ti, " = %s)", val_to_str_wmem(pinfo->pool, param_id, mle_tlv_nwk_param_vals, "Unknown (%d)"));
+                    proto_item_append_text(ti, " = %s)", val_to_str(pinfo->pool, param_id, mle_tlv_nwk_param_vals, "Unknown (%d)"));
 
                     proto_tree_add_item(tlv_tree, hf_mle_tlv_network_param_id, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;

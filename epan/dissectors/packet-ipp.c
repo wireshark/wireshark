@@ -434,15 +434,15 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     if (proto_is_frame_protocol(pinfo->layers, "ippusb")) {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPPUSB");
         if (is_request)
-            col_add_fstr(pinfo->cinfo, COL_INFO, "IPPUSB Request (%s)", val_to_str_wmem(pinfo->pool, operation_status, operation_vals, "0x%04x"));
+            col_add_fstr(pinfo->cinfo, COL_INFO, "IPPUSB Request (%s)", val_to_str(pinfo->pool, operation_status, operation_vals, "0x%04x"));
         else
-            col_add_fstr(pinfo->cinfo, COL_INFO, "IPPUSB Response (%s)", val_to_str_wmem(pinfo->pool, operation_status, status_vals, "0x%04x"));
+            col_add_fstr(pinfo->cinfo, COL_INFO, "IPPUSB Response (%s)", val_to_str(pinfo->pool, operation_status, status_vals, "0x%04x"));
     } else {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPP");
         if (is_request)
-            col_add_fstr(pinfo->cinfo, COL_INFO, "IPP Request (%s)", val_to_str_wmem(pinfo->pool, operation_status, operation_vals, "0x%04x"));
+            col_add_fstr(pinfo->cinfo, COL_INFO, "IPP Request (%s)", val_to_str(pinfo->pool, operation_status, operation_vals, "0x%04x"));
         else
-            col_add_fstr(pinfo->cinfo, COL_INFO, "IPP Response (%s)", val_to_str_wmem(pinfo->pool, operation_status, status_vals, "0x%04x"));
+            col_add_fstr(pinfo->cinfo, COL_INFO, "IPP Response (%s)", val_to_str(pinfo->pool, operation_status, status_vals, "0x%04x"));
     }
 
     ti = proto_tree_add_item(tree, proto_ipp, tvb, offset, -1, ENC_NA);
@@ -539,7 +539,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             status_type = "Unknown";
             break;
         }
-        proto_tree_add_uint_format_value(ipp_tree, hf_ipp_status_code, tvb, offset, 2, operation_status, "%s (%s)", status_type, val_to_str_wmem(pinfo->pool, operation_status, status_vals, "0x%04x"));
+        proto_tree_add_uint_format_value(ipp_tree, hf_ipp_status_code, tvb, offset, 2, operation_status, "%s (%s)", status_type, val_to_str(pinfo->pool, operation_status, status_vals, "0x%04x"));
     }
     offset += 2;
 
@@ -644,7 +644,7 @@ parse_attributes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree
 
     while (tvb_offset_exists(tvb, offset)) {
         tag = tvb_get_uint8(tvb, offset);
-        tag_desc = val_to_str_wmem(pinfo->pool, tag, tag_vals, "unknown-%02x");
+        tag_desc = val_to_str(pinfo->pool, tag, tag_vals, "unknown-%02x");
         if (TAG_TYPE(tag) == TAG_TYPE_DELIMITER) {
             /*
              * If we had an attribute sequence we were
@@ -790,7 +790,7 @@ add_integer_tree(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset
                  int name_length, const char *name, int value_length, uint8_t tag)
 {
     int count = 0;
-    const char *type = val_to_str_wmem(pinfo->pool, tag, tag_vals, "unknown-%02x");
+    const char *type = val_to_str(pinfo->pool, tag, tag_vals, "unknown-%02x");
     char *value = NULL;
     int valoffset = offset;
 
@@ -877,28 +877,28 @@ add_integer_tree(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset
                     temp = "???";
                 } else {
                     if (!strncmp(name, "printer-state", 13)) {
-                        temp = val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, valoffset), printer_state_vals, "unknown-%d");
+                        temp = val_to_str(pinfo->pool, tvb_get_ntohl(tvb, valoffset), printer_state_vals, "unknown-%d");
                     }
                     else if (!strncmp(name, "job-state", 9)) {
-                        temp = val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, valoffset), job_state_vals, "unknown-%d");
+                        temp = val_to_str(pinfo->pool, tvb_get_ntohl(tvb, valoffset), job_state_vals, "unknown-%d");
                     }
                     else if (!strncmp(name, "document-state", 14)) {
-                        temp = val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, valoffset), document_state_vals, "unknown-%d");
+                        temp = val_to_str(pinfo->pool, tvb_get_ntohl(tvb, valoffset), document_state_vals, "unknown-%d");
                     }
                     else if (!strncmp(name, "operations-supported", 20)) {
-                        temp = val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, valoffset), operation_vals, "unknown-%04x");
+                        temp = val_to_str(pinfo->pool, tvb_get_ntohl(tvb, valoffset), operation_vals, "unknown-%04x");
                     }
                     else if (!strncmp(name, "finishings", 10)) {
-                        temp = val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, valoffset), finishings_vals, "unknown-%d");
+                        temp = val_to_str(pinfo->pool, tvb_get_ntohl(tvb, valoffset), finishings_vals, "unknown-%d");
                     }
                     else if (!strncmp(name, "orientation-requested", 21) || !strncmp(name, "media-feed-orientation", 22)) {
-                        temp = val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, valoffset), orientation_vals, "unknown-%d");
+                        temp = val_to_str(pinfo->pool, tvb_get_ntohl(tvb, valoffset), orientation_vals, "unknown-%d");
                     }
                     else if (!strncmp(name, "print-quality", 13)) {
-                        temp = val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, valoffset), quality_vals, "unknown-%d");
+                        temp = val_to_str(pinfo->pool, tvb_get_ntohl(tvb, valoffset), quality_vals, "unknown-%d");
                     }
                     else if (!strncmp(name, "transmission-status", 19)) {
-                        temp = val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, valoffset), transmission_status_vals, "unknown-%d");
+                        temp = val_to_str(pinfo->pool, tvb_get_ntohl(tvb, valoffset), transmission_status_vals, "unknown-%d");
                     }
                     else {
                         temp = wmem_strdup_printf(pinfo->pool, "%d", tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2));
@@ -1010,7 +1010,7 @@ static proto_tree *
 add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int name_length, const char *name, int value_length, uint8_t tag)
 {
     int count = 0;
-    const char *type = val_to_str_wmem(pinfo->pool, tag, tag_vals, "unknown-%02x");
+    const char *type = val_to_str(pinfo->pool, tag, tag_vals, "unknown-%02x");
     char *value = NULL;
     int valoffset = offset;
 
@@ -1376,7 +1376,7 @@ add_charstring_tree(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int off
                     uint8_t tag, int name_length, const char *name, int value_length)
 {
     int count = 0, valoffset = offset;
-    const char *type = val_to_str_wmem(pinfo->pool, tag, tag_vals, "unknown-%02x");
+    const char *type = val_to_str(pinfo->pool, tag, tag_vals, "unknown-%02x");
     char *value = NULL;
 
     do {

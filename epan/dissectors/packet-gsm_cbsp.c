@@ -682,7 +682,7 @@ dissect_cbsp_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 
 		att_tree = proto_tree_add_subtree_format(tree, tvb, offset-1, 1+len_len+len,
 						ett_cbsp_ie, &ti, "IE: %s",
-						val_to_str_wmem(pinfo->pool, tag, cbsp_iei_names, "Unknown 0x%02x"));
+						val_to_str(pinfo->pool, tag, cbsp_iei_names, "Unknown 0x%02x"));
 		proto_tree_add_item(att_tree, hf_cbsp_iei, tvb, offset-1, 1, ENC_NA);
 		if (len_len)
 			proto_tree_add_uint(att_tree, hf_cbsp_ie_len, tvb, offset, len_len, len);
@@ -818,7 +818,7 @@ dissect_cbsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CBSP");
 
 	col_clear(pinfo->cinfo, COL_INFO);
-	str = val_to_str_wmem(pinfo->pool, msg_type, cbsp_msg_type_names, "Unknown CBSP Message Type 0x%02x");
+	str = val_to_str(pinfo->pool, msg_type, cbsp_msg_type_names, "Unknown CBSP Message Type 0x%02x");
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
 
 	if (tree) {

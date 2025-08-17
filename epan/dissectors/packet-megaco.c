@@ -988,7 +988,7 @@ nextcontext:
         }
 
         my_proto_tree_add_uint(megaco_tree, hf_megaco_Context, tvb, context_offset, context_length, ctx_id);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " |=%s", val_to_str_wmem(pinfo->pool, ctx_id, megaco_context_vals, "%d"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " |=%s", val_to_str(pinfo->pool, ctx_id, megaco_context_vals, "%d"));
 
         ctx = gcp_ctx(msg,trx,ctx_id,pinfo,keep_persistent_data);
 
@@ -2536,7 +2536,7 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_
 
             tvb_get_raw_bytes_as_stringz(tvb,tvb_current_offset,4,ServiceChangeReason_str);
             reason_valid = ws_strtoi32(ServiceChangeReason_str, NULL, &reason);
-            proto_item_append_text(item,"[ %s ]", val_to_str_wmem(pinfo->pool, reason, MEGACO_ServiceChangeReasons_vals,"Unknown (%u)"));
+            proto_item_append_text(item,"[ %s ]", val_to_str(pinfo->pool, reason, MEGACO_ServiceChangeReasons_vals,"Unknown (%u)"));
             if (!reason_valid)
                 expert_add_info(pinfo, item, &ei_megaco_reason_invalid);
             break;

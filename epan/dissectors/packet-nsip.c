@@ -302,7 +302,7 @@ decode_iei_cause(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_tree_add_uint(bi->nsip_tree, hf_nsip_cause,
       bi->tvb, ie_start_offset, ie->total_length,
       cause);
-  str_cause = val_to_str_wmem(bi->pinfo->pool, cause, tab_nsip_cause_values, "Unknown (0x%02x)");
+  str_cause = val_to_str(bi->pinfo->pool, cause, tab_nsip_cause_values, "Unknown (0x%02x)");
   col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
       "Cause: %s", str_cause);
 

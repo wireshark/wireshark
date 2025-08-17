@@ -117,7 +117,7 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     else {
         /* Non-ambiguous control field value */
         col_add_str(pinfo->cinfo, COL_INFO,
-                    val_to_str_wmem(pinfo->pool, ctrl, qllc_control_vals,
+                    val_to_str(pinfo->pool, ctrl, qllc_control_vals,
                         "Control Field: 0x%02x (unknown)"));
 
         proto_tree_add_uint(qllc_tree, hf_qllc_control, tvb,

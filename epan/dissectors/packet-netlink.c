@@ -347,7 +347,7 @@ dissect_netlink_header(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int 
 	if (hfi_type->strings && hfi_type->display & BASE_EXT_STRING) {
 		proto_item_append_text(fh_hdr, " (type: %s)", val_to_str_ext(pinfo->pool, hdr_type, (value_string_ext *)hfi_type->strings, "0x%04x"));
 	} else if (hfi_type->strings) {
-		proto_item_append_text(fh_hdr, " (type: %s)", val_to_str_wmem(pinfo->pool, hdr_type, (const value_string *)hfi_type->strings, "0x%04x"));
+		proto_item_append_text(fh_hdr, " (type: %s)", val_to_str(pinfo->pool, hdr_type, (const value_string *)hfi_type->strings, "0x%04x"));
 	} else {
 		proto_item_append_text(fh_hdr, " (type: 0x%04x)", hdr_type);
 	}

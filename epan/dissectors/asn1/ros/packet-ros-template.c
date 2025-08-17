@@ -176,7 +176,7 @@ ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 		if(opdissector) {
 
-			opname = val_to_str_wmem(pinfo->pool, opcode_lcl, lookup, "Unknown opcode (%d)");
+			opname = val_to_str(pinfo->pool, opcode_lcl, lookup, "Unknown opcode (%d)");
 
 			col_set_str(pinfo->cinfo, COL_INFO, opname);
 			if(suffix)

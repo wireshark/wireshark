@@ -918,13 +918,13 @@ static unsigned dissect_dect_mitel_eth_rfpc(tvbuff_t *tvb, packet_info *pinfo, p
 	proto_tree_add_item(tree, hf_dect_mitel_eth_rfpc_message_type, tvb, offset, 1, ENC_NA);
 	message_type = tvb_get_uint8(tvb, offset);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "RFPc: %s ",
-				val_to_str_wmem(pinfo->pool, message_type, dect_mitel_eth_rfpc_message_type_val, "Unknown 0x%02x"));
+				val_to_str(pinfo->pool, message_type, dect_mitel_eth_rfpc_message_type_val, "Unknown 0x%02x"));
 	offset++;
 
 	while ( tvb_reported_length_remaining(tvb, offset) ) {
 		item_type = tvb_get_uint8(tvb, offset);
 		rfpc_item_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_dect_mitel_eth_rfpc_item, &rfpc_item_tree_item,
-			"Item: %s", val_to_str_wmem(pinfo->pool, item_type, dect_mitel_eth_rfpc_item_type_val, "Unknown: 0x%0x"));
+			"Item: %s", val_to_str(pinfo->pool, item_type, dect_mitel_eth_rfpc_item_type_val, "Unknown: 0x%0x"));
 		proto_tree_add_item(rfpc_item_tree, hf_dect_mitel_eth_rfpc_item_type, tvb, offset, 1, ENC_NA);
 		offset++;
 
@@ -1200,7 +1200,7 @@ static int dissect_dect_mitel_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		proto_tree_add_item(dect_mitel_eth_tree, hf_dect_mitel_eth_prim_type, tvb, offset, 1, ENC_NA);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str_wmem(pinfo->pool, prim_type, dect_mitel_eth_prim_coding_val, "Unknown 0x%02x"));
+				val_to_str(pinfo->pool, prim_type, dect_mitel_eth_prim_coding_val, "Unknown 0x%02x"));
 		offset++;
 	}
 

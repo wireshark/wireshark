@@ -154,7 +154,7 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	len = tvb_get_uint8(tvb, 7);
 
 	col_add_str(pinfo->cinfo, COL_INFO,
-		val_to_str_wmem(pinfo->pool, type, asf_type_vals, "Unknown (0x%02x)"));
+		val_to_str(pinfo->pool, type, asf_type_vals, "Unknown (0x%02x)"));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_asf, tvb, 0, 8,ENC_NA);
@@ -223,7 +223,7 @@ dissect_asf_payloads(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		ti = proto_tree_add_none_format(tree, hf_asf_payload, tvb, offset,
 			plen, "%s: %u bytes",
-			val_to_str_wmem(pinfo->pool, ptype, asf_payload_type_vals, "Unknown (%u)"), plen);
+			val_to_str(pinfo->pool, ptype, asf_payload_type_vals, "Unknown (%u)"), plen);
 		ptree = proto_item_add_subtree(ti, ett_asf_payload);
 		proto_tree_add_item(ptree, hf_asf_payload_type, tvb, offset, 1,ENC_BIG_ENDIAN);
 		ti = proto_tree_add_item(ptree, hf_asf_payload_len, tvb, offset + 2, 2,ENC_BIG_ENDIAN);
@@ -266,7 +266,7 @@ dissect_asf_payload_authentication(tvbuff_t *tvb, packet_info* pinfo, proto_tree
 	alg = tvb_get_uint8(tvb, offset);
 	ti = proto_tree_add_none_format(tree, hf_asf_payload_data, tvb, offset,
 		len, "Authentication Algorithm: %s",
-		val_to_str_wmem(pinfo->pool, alg, asf_authentication_type_vals, "Unknown (%u)"));
+		val_to_str(pinfo->pool, alg, asf_authentication_type_vals, "Unknown (%u)"));
 	atree = proto_item_add_subtree(ti, ett_asf_alg_payload);
 	proto_tree_add_item(atree, hf_asf_auth_alg, tvb, offset, 1,ENC_BIG_ENDIAN);
 	proto_tree_add_item(atree, hf_asf_reserved, tvb, offset + 1, len - 1,ENC_NA);
@@ -283,7 +283,7 @@ dissect_asf_payload_integrity(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tre
 	alg = tvb_get_uint8(tvb, offset);
 	ti = proto_tree_add_none_format(tree, hf_asf_payload_data, tvb, offset,
 		len, "Integrity Algorithm: %s",
-		val_to_str_wmem(pinfo->pool, alg, asf_integrity_type_vals, "Unknown (%u)"));
+		val_to_str(pinfo->pool, alg, asf_integrity_type_vals, "Unknown (%u)"));
 	atree = proto_item_add_subtree(ti, ett_asf_alg_payload);
 	proto_tree_add_item(atree, hf_asf_integrity_alg, tvb, offset, 1,ENC_BIG_ENDIAN);
 	proto_tree_add_item(atree, hf_asf_reserved, tvb, offset + 1, len - 1,ENC_NA);

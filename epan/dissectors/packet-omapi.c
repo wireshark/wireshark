@@ -142,7 +142,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   authlength = tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_omapi_auth_len, 4, ENC_BIG_ENDIAN);
 
-  str_opcode = val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor)), omapi_opcode_vals, "Unknown opcode (0x%04x)");
+  str_opcode = val_to_str(pinfo->pool, tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor)), omapi_opcode_vals, "Unknown opcode (0x%04x)");
   col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, str_opcode);
   proto_item_append_text(ti, ", Opcode: %s", str_opcode);
 

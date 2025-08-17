@@ -2874,7 +2874,7 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, uint32_t hdr_start, packet_in
                         peek = tvb_get_uint8(tvb, off);
                         if (peek & 0x80) { /* Well-known-field-name */
                             wmem_strbuf_append(cache_str,
-                                    val_to_str_wmem(pinfo->pool, peek, vals_field_names,
+                                    val_to_str(pinfo->pool, peek, vals_field_names,
                                         "<Unknown WSP header field 0x%02X>"));
                             off++;
                         } else { /* Token-text */

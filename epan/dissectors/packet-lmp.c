@@ -705,7 +705,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     message_type = tvb_get_uint8(tvb, offset+3);
     col_add_str(pinfo->cinfo, COL_INFO,
-         val_to_str_wmem(pinfo->pool, message_type, message_type_vals, "Unknown (%u). "));
+         val_to_str(pinfo->pool, message_type, message_type_vals, "Unknown (%u). "));
 
 
         static int * const header_flags[] = {
@@ -720,7 +720,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         lmp_header_tree = proto_tree_add_subtree_format(
             lmp_tree, tvb, offset, 12,
             lmp_subtree[LMP_TREE_HEADER], NULL, "LMP Header. %s",
-            val_to_str_wmem(pinfo->pool, message_type, message_type_vals, "Unknown Message (%u). "));
+            val_to_str(pinfo->pool, message_type, message_type_vals, "Unknown Message (%u). "));
         proto_tree_add_item(lmp_header_tree, hf_lmp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_bitmask(lmp_header_tree, tvb, offset+2, hf_lmp_header_flags, lmp_subtree[LMP_TREE_HEADER_FLAGS], header_flags, ENC_NA);
@@ -1301,12 +1301,12 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 if (j < 4)
                     proto_item_append_text(ti, "-%s,%s], ",
                                            tvb_get_uint8(tvb, offset2+l) & 0x80 ? "Act" : "NA",
-                                           val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, offset2+l) & 0x7fffffff,
+                                           val_to_str(pinfo->pool, tvb_get_ntohl(tvb, offset2+l) & 0x7fffffff,
                                                       channel_status_short_str, "UNK (%u)."));
                 proto_item_append_text(ti2, ": %s, ",
                                        tvb_get_uint8(tvb, offset2+l) & 0x80 ? "Active" : "Not Active");
                 proto_tree_add_item(lmp_subobj_tree, hf_lmp_channel_status, tvb, offset2+l, 4, ENC_BIG_ENDIAN);
-                proto_item_append_text(ti2, "%s", val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, offset2+l) & 0x7fffffff,
+                proto_item_append_text(ti2, "%s", val_to_str(pinfo->pool, tvb_get_ntohl(tvb, offset2+l) & 0x7fffffff,
                                                              channel_status_str, "Unknown (%u). "));
                 j++;
                 l += 4;
@@ -1450,7 +1450,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                     hf_lmp_filter[LMPF_VAL_TRACE_LOCAL_TYPE],
                                     tvb, offset2, 2, l);
                 proto_item_append_text(lmp_object_tree, ": %s",
-                                       val_to_str_wmem(pinfo->pool, l, lmp_trace_type_str, "Unknown (%d)"));
+                                       val_to_str(pinfo->pool, l, lmp_trace_type_str, "Unknown (%d)"));
 
                 l = tvb_get_ntohs(tvb, offset2+2);
                 trace_item = proto_tree_add_uint(lmp_object_tree,
@@ -1474,7 +1474,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                     hf_lmp_filter[LMPF_VAL_TRACE_REMOTE_TYPE],
                                     tvb, offset2, 2, l);
                 proto_item_append_text(lmp_object_tree, ": %s",
-                                       val_to_str_wmem(pinfo->pool, l, lmp_trace_type_str, "Unknown (%d)"));
+                                       val_to_str(pinfo->pool, l, lmp_trace_type_str, "Unknown (%d)"));
 
                 l = tvb_get_ntohs(tvb, offset2+2);
                 proto_tree_add_uint(lmp_object_tree,
@@ -1502,7 +1502,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                     hf_lmp_filter[LMPF_VAL_TRACE_REQ_TYPE],
                                     tvb, offset2, 2, l);
                 proto_item_append_text(lmp_object_tree, ": %s",
-                                       val_to_str_wmem(pinfo->pool, l, lmp_trace_type_str, "Unknown (%d)"));
+                                       val_to_str(pinfo->pool, l, lmp_trace_type_str, "Unknown (%d)"));
                 break;
 
             default:
@@ -1561,7 +1561,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 proto_tree_add_item(lmp_object_tree, hf_lmp_link_type, tvb, offset2, 1, ENC_BIG_ENDIAN);
 
                 proto_item_append_text(lmp_object_tree, "%s",
-                                       val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset2),
+                                       val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset2),
                                                   service_attribute_link_type_str,
                                                   "Unknown (%u). "));
 
@@ -1572,7 +1572,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     proto_tree_add_item(lmp_object_tree, hf_lmp_signal_types_sdh, tvb, offset2+1, 1, ENC_BIG_ENDIAN);
 
                     proto_item_append_text(lmp_object_tree, "%s",
-                                           val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset2+1),
+                                           val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset2+1),
                                                       service_attribute_signal_types_sdh_str,
                                                       "Unknown (%u).   "));
                 }
@@ -1582,7 +1582,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     proto_tree_add_item(lmp_object_tree, hf_lmp_signal_types_sonet, tvb, offset2+1, 1, ENC_BIG_ENDIAN);
 
                     proto_item_append_text(lmp_object_tree, "%s",
-                                           val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset2+1),
+                                           val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset2+1),
                                                       service_attribute_signal_types_sonet_str,
                                                       "Unknown (%u).   "));
                 }

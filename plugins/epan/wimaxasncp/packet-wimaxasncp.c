@@ -1581,7 +1581,7 @@ static void wimaxasncp_dissect_tlv_value(
         /* Add code and type to info column */
         col_append_str(pinfo->cinfo, COL_INFO, " [");
         col_append_str(pinfo->cinfo, COL_INFO,
-                        val_to_str_wmem(pinfo->pool, eap_code, eap_code_vals, "Unknown code (0x%02X)"));
+                        val_to_str(pinfo->pool, eap_code, eap_code_vals, "Unknown code (0x%02X)"));
 
         if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE)
         {
@@ -1607,7 +1607,7 @@ static void wimaxasncp_dissect_tlv_value(
 
             /* Also show high-level details in this root item */
             proto_item_append_text(item, " (%s",
-                                   val_to_str_wmem(pinfo->pool, eap_code, eap_code_vals,
+                                   val_to_str(pinfo->pool, eap_code, eap_code_vals,
                                               "Unknown code (0x%02X)"));
             if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE)
             {
@@ -2708,7 +2708,7 @@ wimaxasncp_dict_print_tlv(void* data, void* user_data)
     wimaxasncp_dict_tlv_t* tlv = (wimaxasncp_dict_tlv_t*)data;
     FILE* fh = (FILE*)user_data;
 
-    char* str_decoder = val_to_str_wmem(NULL, tlv->decoder, wimaxasncp_decode_type_vals, "Unknown");
+    char* str_decoder = val_to_str(NULL, tlv->decoder, wimaxasncp_decode_type_vals, "Unknown");
     fprintf(fh, "TLV: %s[%u] %s[%d] %s (since %u)\n",
         tlv->name ? (char*)tlv->name : "-",
         tlv->type,
@@ -2733,7 +2733,7 @@ wimaxasncp_print_tlv(void* data, void* user_data)
     wimaxasncp_tlv_new_t* tlv = (wimaxasncp_tlv_new_t*)data;
     FILE* fh = (FILE*)user_data;
 
-    char* str_decoder = val_to_str_wmem(NULL, tlv->decoder, wimaxasncp_decode_type_vals, "Unknown");
+    char* str_decoder = val_to_str(NULL, tlv->decoder, wimaxasncp_decode_type_vals, "Unknown");
     fprintf(fh,
         "%s\n"
         "  type                   = %u\n"

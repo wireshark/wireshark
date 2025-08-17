@@ -247,7 +247,7 @@ static int dissect_bist_ouch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree *pt = proto_item_add_subtree(ti, ett_bist_ouch);
 
     proto_tree_add_item_ret_uint(pt, hf_ouch_msg_type, tvb, 0, 1, ENC_NA, &type);
-    str_type = val_to_str_wmem(pinfo->pool, type, ouch_msg_types, "Unknown (0x%02x)");
+    str_type = val_to_str(pinfo->pool, type, ouch_msg_types, "Unknown (0x%02x)");
     proto_item_append_text(ti, ", %s", str_type);
     col_set_str(pinfo->cinfo, COL_INFO, str_type);
     offset = 1;

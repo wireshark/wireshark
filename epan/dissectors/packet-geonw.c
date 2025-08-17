@@ -2300,7 +2300,7 @@ dissect_geonw_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         // HT
         proto_tree_add_item_ret_uint(geonw_ch_tree, hf_geonw_ch_header_type, tvb, offset, 1, ENC_BIG_ENDIAN, &header_type);
         geonwh->gnw_htype = header_type;
-        col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, header_type, ch_header_type_names, "Unknown (%u)"));
+        col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, header_type, ch_header_type_names, "Unknown (%u)"));
         offset += 1;
 
         if (!skip_bh) {

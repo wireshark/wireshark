@@ -128,7 +128,7 @@ const QString address_to_display_qstring(const _address *address)
 const QString val_to_qstring(const uint32_t val, const value_string *vs, const char *fmt)
 {
     QString val_qstr;
-    char* gchar_p = val_to_str_wmem(NULL, val, vs, fmt);
+    char* gchar_p = val_to_str(NULL, val, vs, fmt);
     val_qstr = gchar_p;
     wmem_free(NULL, gchar_p);
 

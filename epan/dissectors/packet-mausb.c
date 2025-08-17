@@ -1420,7 +1420,7 @@ dissect_mausb_pkt_common(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* Packet Type */
     header->type = tvb_get_uint8(tvb, offset);
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, header->type, mausb_type_string, "%d"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, header->type, mausb_type_string, "%d"));
     proto_tree_add_item(mausb_tree, hf_mausb_type, tvb,
             offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;

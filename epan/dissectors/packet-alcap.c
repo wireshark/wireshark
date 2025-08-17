@@ -445,7 +445,7 @@ static const char* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_t
         if ( msg_info->release_cause && msg_info->release_cause != 31 )
             expert_add_info(pinfo, pi, &ei_alcap_abnormal_release);
 
-        ret_str = val_to_str_wmem(pinfo->pool, msg_info->release_cause, cause_values_itu, "Unknown(%u)");
+        ret_str = val_to_str(pinfo->pool, msg_info->release_cause, cause_values_itu, "Unknown(%u)");
     } else {
         proto_tree_add_item(tree, hf_alcap_cau_value_non_itu, tvb, offset+1 , 1, ENC_BIG_ENDIAN);
         ret_str = wmem_strdup_printf(pinfo->pool, "%u", msg_info->release_cause);

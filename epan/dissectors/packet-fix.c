@@ -310,12 +310,12 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                         break;
                     case 2: /* char */
                         proto_tree_add_string_format_value(fix_tree, hf, tvb, field_offset, tag->field_len, value,
-                            "%s (%s)", value, val_to_str_wmem(pinfo->pool, *value, (const value_string *)field->table, "unknown %d"));
+                            "%s (%s)", value, val_to_str(pinfo->pool, *value, (const value_string *)field->table, "unknown %d"));
                         break;
                     default:
                         if (ivalue_valid)
                             proto_tree_add_string_format_value(fix_tree, hf, tvb, field_offset, tag->field_len, value,
-                                "%s (%s)", value, val_to_str_wmem(pinfo->pool, ivalue, (const value_string *)field->table, "unknown %d"));
+                                "%s (%s)", value, val_to_str(pinfo->pool, ivalue, (const value_string *)field->table, "unknown %d"));
                         else {
                             pi = proto_tree_add_string(fix_tree, hf, tvb, field_offset, tag->field_len, value);
                             expert_add_info_format(pinfo, pi, &ei_fix_field_invalid, "Invalid string %s for fix field tag %i", value, field->tag);

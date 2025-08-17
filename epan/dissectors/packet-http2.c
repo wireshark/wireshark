@@ -3939,7 +3939,7 @@ dissect_http2_settings(tvbuff_t* tvb, packet_info* pinfo _U_, http2_session_t* h
         proto_tree_add_item(settings_tree, hf_http2_settings_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
         settingsid = tvb_get_ntohs(tvb, offset);
         proto_item_append_text(ti_settings, " - %s",
-                               val_to_str_wmem(pinfo->pool, settingsid, http2_settings_vals, "Unknown (%u)") );
+                               val_to_str(pinfo->pool, settingsid, http2_settings_vals, "Unknown (%u)") );
         offset += 2;
 
 
@@ -5349,7 +5349,7 @@ static tap_packet_status http2_stats_tree_packet(stats_tree* st, packet_info* pi
     const struct HTTP2Tap *pi = (const struct HTTP2Tap *)p;
     tick_stat_node(st, st_str_http2, 0, false);
     stats_tree_tick_pivot(st, st_node_http2_type,
-            val_to_str_wmem(pinfo->pool, pi->type, http2_type_vals, "Unknown type (%d)"));
+            val_to_str(pinfo->pool, pi->type, http2_type_vals, "Unknown type (%d)"));
 
     return TAP_PACKET_REDRAW;
 }

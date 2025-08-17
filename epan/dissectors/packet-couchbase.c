@@ -3381,7 +3381,7 @@ static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     expert_add_info_format(pinfo, ti, &ei_warn_unknown_opcode, "Unknown opcode: 0x%x", opcode);
     opcode_name = "Unknown opcode";
   }
-  str_magic = val_to_str_wmem(pinfo->pool, magic, magic_vals, "Unknown magic (0x%x)");
+  str_magic = val_to_str(pinfo->pool, magic, magic_vals, "Unknown magic (0x%x)");
   proto_item_append_text(couchbase_item, ", %s %s, Opcode: 0x%x",
                          opcode_name,
                          str_magic,

@@ -212,7 +212,7 @@ dissect_pcomtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if ( pcom_mode != PCOM_ASCII && pcom_mode != PCOM_BINARY )
         return 0;
 
-    pcom_mode_str = val_to_str_wmem(pinfo->pool, pcom_mode, pcomp_protocol_vals, "Unknown mode (%d)");
+    pcom_mode_str = val_to_str(pinfo->pool, pcom_mode, pcomp_protocol_vals, "Unknown mode (%d)");
 
     if (value_is_in_range(global_pcomtcp_tcp_ports, pinfo->srcport))
         pkt_type = "Reply";

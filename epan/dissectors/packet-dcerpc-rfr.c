@@ -330,7 +330,7 @@ rfr_dissect_RfrGetNewDSA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rfr_MAPISTATUS_status, &status);
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str_wmem(pinfo->pool, status, rfr_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(pinfo->pool, status, rfr_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;
 }
@@ -430,7 +430,7 @@ rfr_dissect_RfrGetFQDNFromLegacyDN_response(tvbuff_t *tvb _U_, int offset _U_, p
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_rfr_MAPISTATUS_status, &status);
 	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str_wmem(pinfo->pool, status, rfr_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Status: %s", val_to_str(pinfo->pool, status, rfr_MAPISTATUS_vals, "Unknown MAPISTATUS error 0x%08x"));
 
 	return offset;
 }

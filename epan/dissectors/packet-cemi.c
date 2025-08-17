@@ -2585,7 +2585,7 @@ static void dissect_simple_app_service( tvbuff_t* tvb, packet_info* pinfo, proto
   uint8_t c;
   uint16_t cc;
 
-  const char* name = val_to_str_wmem(pinfo->pool, ac, ac_vals, "AC=%u" );
+  const char* name = val_to_str(pinfo->pool, ac, ac_vals, "AC=%u" );
   col_append_fstr( cinfo, COL_INFO, " %s", name );
   if( tree )
   {

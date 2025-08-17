@@ -333,7 +333,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_item (tzsp_tree, hf_tzsp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item_ret_uint(tzsp_tree, hf_tzsp_type, tvb, 1, 1, ENC_BIG_ENDIAN, &type);
     proto_tree_add_item_ret_uint(tzsp_tree, hf_tzsp_encap, tvb, 2, 2, ENC_BIG_ENDIAN, &encapsulation);
-    info = val_to_str_wmem(pinfo->pool, encapsulation, tzsp_encapsulation, "Unknown (%u)");
+    info = val_to_str(pinfo->pool, encapsulation, tzsp_encapsulation, "Unknown (%u)");
     proto_item_append_text(ti, ": %s", info);
 
     col_add_str(pinfo->cinfo, COL_INFO, info);

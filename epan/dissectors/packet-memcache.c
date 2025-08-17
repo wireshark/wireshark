@@ -356,12 +356,12 @@ dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (illegal) {
     ti = proto_tree_add_item (extras_tree, hf_extras_unknown, tvb, offset, extras_len, ENC_NA);
     expert_add_info_format(pinfo, ti, &ei_extras_unknown, "%s %s shall not have Extras",
-                    val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Opcode %d"),
+                    val_to_str(pinfo->pool, opcode, opcode_vals, "Opcode %d"),
                     request ? "Request" : "Response");
     offset += extras_len;
   } else if (missing) {
     proto_tree_add_expert_format(tree, pinfo, &ei_extras_missing, tvb, offset, 0, "%s %s must have Extras",
-                            val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Opcode %d"),
+                            val_to_str(pinfo->pool, opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
   }
 
@@ -411,11 +411,11 @@ dissect_key (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (illegal) {
     expert_add_info_format(pinfo, ti, &ei_key_unknown, "%s %s shall not have Key",
-            val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Opcode %d"),
+            val_to_str(pinfo->pool, opcode, opcode_vals, "Opcode %d"),
             request ? "Request" : "Response");
   } else if (missing) {
     proto_tree_add_expert_format(tree, pinfo, &ei_key_missing, tvb, offset, 0, "%s Request must have Key",
-                            val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Opcode %d"));
+                            val_to_str(pinfo->pool, opcode, opcode_vals, "Opcode %d"));
   }
 }
 
@@ -479,11 +479,11 @@ dissect_value (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (illegal) {
     expert_add_info_format(pinfo, ti, &ei_value_unknown, "%s %s shall not have Value",
-            val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Opcode %d"),
+            val_to_str(pinfo->pool, opcode, opcode_vals, "Opcode %d"),
             request ? "Request" : "Response");
   } else if (missing) {
     proto_tree_add_expert_format(tree, pinfo, &ei_value_missing, tvb, offset, 0, "%s %s must have Value",
-                            val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Opcode %d"),
+                            val_to_str(pinfo->pool, opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
   }
 }
@@ -521,12 +521,12 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     expert_add_info_format(pinfo, ti, &ei_opcode_unknown, "Unknown opcode: %d", opcode);
   }
 
-  proto_item_append_text (memcache_item, ", %s %s", val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Unknown opcode (%d)"),
-                          val_to_str_wmem(pinfo->pool, magic, magic_vals, "Unknown magic (%d)"));
+  proto_item_append_text (memcache_item, ", %s %s", val_to_str(pinfo->pool, opcode, opcode_vals, "Unknown opcode (%d)"),
+                          val_to_str(pinfo->pool, magic, magic_vals, "Unknown magic (%d)"));
 
   col_append_fstr (pinfo->cinfo, COL_INFO, "%s %s",
-                   val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Unknown opcode (%d)"),
-                   val_to_str_wmem(pinfo->pool, magic, magic_vals, "Unknown magic (%d)"));
+                   val_to_str(pinfo->pool, opcode, opcode_vals, "Unknown opcode (%d)"),
+                   val_to_str(pinfo->pool, magic, magic_vals, "Unknown magic (%d)"));
 
   key_len = tvb_get_ntohs (tvb, offset);
   proto_tree_add_item (memcache_tree, hf_key_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -545,8 +545,8 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     ti = proto_tree_add_item (memcache_tree, hf_status, tvb, offset, 2, ENC_BIG_ENDIAN);
     if (status != 0) {
       expert_add_info_format(pinfo, ti, &ei_status_response, "%s: %s",
-                              val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Unknown opcode (%d)"),
-                              val_to_str_wmem(pinfo->pool, status, status_vals, "Status: %d"));
+                              val_to_str(pinfo->pool, opcode, opcode_vals, "Unknown opcode (%d)"),
+                              val_to_str(pinfo->pool, status, status_vals, "Status: %d"));
     }
   } else {
     request = true;
@@ -585,10 +585,10 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     /*offset += body_len;*/
 
     col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
-                     val_to_str_wmem(pinfo->pool, status, status_vals, "Unknown status: %d"));
+                     val_to_str(pinfo->pool, status, status_vals, "Unknown status: %d"));
   } else {
     proto_tree_add_expert_format(memcache_tree, pinfo, &ei_value_missing, tvb, offset, 0, "%s with status %s (%d) must have Value",
-                            val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Opcode %d"),
+                            val_to_str(pinfo->pool, opcode, opcode_vals, "Opcode %d"),
                             val_to_str_const (status, status_vals, "Unknown"), status);
   }
 

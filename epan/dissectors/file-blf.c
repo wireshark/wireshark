@@ -496,7 +496,7 @@ dissect_blf_header_date(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *
 
     return proto_tree_add_time_format_value(tree, hf, tvb, offset, length, &ns_ts,
                                             "%s %d-%02d-%02d %02d:%02d:%02d.%03d",
-                                            val_to_str_wmem(pinfo->pool, tm.tm_mday, weekday_names, "%d"),
+                                            val_to_str(pinfo->pool, tm.tm_mday, weekday_names, "%d"),
                                             year, tm.tm_mon, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, ms);
 }
 
@@ -610,7 +610,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
     }
 
     proto_item_set_end(ti_root, tvb, offset_orig + obj_length);
-    proto_item_append_text(ti_root, " (%s)", val_to_str_wmem(pinfo->pool, obj_type, blf_object_names, "%d"));
+    proto_item_append_text(ti_root, " (%s)", val_to_str(pinfo->pool, obj_type, blf_object_names, "%d"));
 
     switch (obj_type) {
         case BLF_OBJTYPE_LOG_CONTAINER:

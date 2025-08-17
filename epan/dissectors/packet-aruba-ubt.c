@@ -306,7 +306,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
     offset += PACKET_LENGTH_SIZE;
     ubt_msg_type = proto_tree_add_item_ret_uint(message_tree, hf_ubt_msg_type, tvb, offset, MESSAGE_TYPE_SIZE, ENC_BIG_ENDIAN, &msgtype);
 
-    str_msgtype = val_to_str_wmem(pinfo->pool, msgtype, ubt_msgtype_vals, "Unknown Type (%02d)");
+    str_msgtype = val_to_str(pinfo->pool, msgtype, ubt_msgtype_vals, "Unknown Type (%02d)");
     proto_item_append_text(ubt_msg_type, "(%s)", str_msgtype);
     col_append_str(pinfo->cinfo, COL_INFO, str_msgtype);
 
@@ -354,7 +354,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
         /* Adding TLV items to the tree */
         tlv = proto_tree_add_item(message_subtree, hf_ubt_tlv, tvb, offset, optlen + TYPE_SIZE + LENGTH_SIZE, ENC_NA);
-        proto_item_append_text(tlv, ": t=%d, l=%d, %s", type, optlen, val_to_str_wmem(pinfo->pool, type, ubt_dttype_vals, "Unknown Type (%02d)"));
+        proto_item_append_text(tlv, ": t=%d, l=%d, %s", type, optlen, val_to_str(pinfo->pool, type, ubt_dttype_vals, "Unknown Type (%02d)"));
         message_subtree2 = proto_item_add_subtree(tlv, ett_ubt_tlv);
 
         /* adding type & length to TLV subtree */
@@ -800,8 +800,8 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
             /* adding User Authentication method as proto_item to the tree */
             tlv_item = proto_tree_add_item_ret_uint(message_subtree2, hf_ubt_dt_userauthmethod, tvb, offset, optlen, ENC_BIG_ENDIAN, &val);
-            proto_item_append_text(tlv, ": %u(%s)", val, val_to_str_wmem(pinfo->pool, val, ubt_authmethod_vals, "Unknown Type (%02d)"));
-            proto_item_append_text(tlv_item, "(%s)", val_to_str_wmem(pinfo->pool, val, ubt_authmethod_vals, "Unknown Type (%02d)"));
+            proto_item_append_text(tlv, ": %u(%s)", val, val_to_str(pinfo->pool, val, ubt_authmethod_vals, "Unknown Type (%02d)"));
+            proto_item_append_text(tlv_item, "(%s)", val_to_str(pinfo->pool, val, ubt_authmethod_vals, "Unknown Type (%02d)"));
             offset += optlen;
             break;
 

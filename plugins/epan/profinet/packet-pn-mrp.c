@@ -628,7 +628,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
         } else {
             proto_item_append_text(item, " ");
         }
-        str_type = val_to_str_wmem(pinfo->pool, type, pn_mrp_block_type_vals, "Unknown TLVType 0x%x");
+        str_type = val_to_str(pinfo->pool, type, pn_mrp_block_type_vals, "Unknown TLVType 0x%x");
         col_append_str(pinfo->cinfo, COL_INFO, str_type);
         proto_item_append_text(item, "%s", str_type);
 

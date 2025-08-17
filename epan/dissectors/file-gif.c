@@ -294,7 +294,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
             peek = tvb_get_uint8(tvb, offset);
             proto_item_append_text(ti, ": %s",
-                    val_to_str_wmem(pinfo->pool, peek, vals_extensions,
+                    val_to_str(pinfo->pool, peek, vals_extensions,
                         "<Warning: Unknown extension 0x%02X>"));
             offset++;
             ret = dissect_gif_data_block_seq(tvb, offset, subtree);

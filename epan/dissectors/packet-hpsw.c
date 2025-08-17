@@ -248,7 +248,7 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             break;
 
         tlv_tree = proto_tree_add_subtree(hp_tree, tvb, offset, length+2, ett_hpsw_tlv, NULL,
-                                 val_to_str_wmem(pinfo->pool, type, hpsw_tlv_type_vals, "Unknown TLV type: 0x%02x"));
+                                 val_to_str(pinfo->pool, type, hpsw_tlv_type_vals, "Unknown TLV type: 0x%02x"));
 
         /* type */
         proto_tree_add_uint(tlv_tree, hf_hpsw_tlvtype, tvb, offset, 1, type);

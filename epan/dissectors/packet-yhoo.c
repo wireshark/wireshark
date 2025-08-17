@@ -189,7 +189,7 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
 			     ( tvb_memeql(tvb, offset + 0, (const uint8_t*)"YPNS", 4) == 0 ) ? "Request" : "Response",
-			     val_to_str_wmem(pinfo->pool, tvb_get_letohl(tvb, offset + 12),
+			     val_to_str(pinfo->pool, tvb_get_letohl(tvb, offset + 12),
 					yhoo_service_vals, "Unknown Service: %u"));
 
 	if (tree) {

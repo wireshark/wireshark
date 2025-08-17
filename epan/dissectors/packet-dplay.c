@@ -925,13 +925,13 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(message_type == 0x0015)
         col_add_fstr(pinfo->cinfo,COL_INFO, "%s: %s, holding a %s",
-            val_to_str_wmem(pinfo->pool, proto_version, dplay_proto_dialect_val, "Unknown (0x%04x)"),
-            val_to_str_wmem(pinfo->pool, message_type, dplay_command_val, "Unknown (0x%04x)"),
-            val_to_str_wmem(pinfo->pool, second_message_type, dplay_command_val, "Unknown (0x%04x)"));
+            val_to_str(pinfo->pool, proto_version, dplay_proto_dialect_val, "Unknown (0x%04x)"),
+            val_to_str(pinfo->pool, message_type, dplay_command_val, "Unknown (0x%04x)"),
+            val_to_str(pinfo->pool, second_message_type, dplay_command_val, "Unknown (0x%04x)"));
     else
         col_add_fstr(pinfo->cinfo,COL_INFO, "%s: %s",
-            val_to_str_wmem(pinfo->pool, proto_version, dplay_proto_dialect_val, "Unknown (0x%04x)"),
-            val_to_str_wmem(pinfo->pool, message_type, dplay_command_val, "Unknown (0x%04x)"));
+            val_to_str(pinfo->pool, proto_version, dplay_proto_dialect_val, "Unknown (0x%04x)"),
+            val_to_str(pinfo->pool, message_type, dplay_command_val, "Unknown (0x%04x)"));
 
     if(tree)
     {

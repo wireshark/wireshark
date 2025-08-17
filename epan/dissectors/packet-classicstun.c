@@ -366,7 +366,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             att_tree = proto_tree_add_subtree_format(att_type_tree, tvb, offset,
                          ATTR_HDR_LEN+att_length, ett_classicstun_att, NULL,
                          "Attribute: %s",
-                         val_to_str_wmem(pinfo->pool, att_type, attributes, "Unknown (0x%04x)"));
+                         val_to_str(pinfo->pool, att_type, attributes, "Unknown (0x%04x)"));
 
             proto_tree_add_uint(att_tree, hf_classicstun_att_type, tvb,
                         offset, 2, att_type);

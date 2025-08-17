@@ -593,7 +593,7 @@ dissect_quakeworld_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	if (game_tree) {
 		proto_tree *seq1_tree = proto_tree_add_subtree_format(game_tree,
 							    tvb, offset, 4, ett_quakeworld_game_seq1, NULL, "Current Sequence: %u (%s)",
-							    seq1, val_to_str_wmem(pinfo->pool, rel1,names_reliable,"%u"));
+							    seq1, val_to_str(pinfo->pool, rel1,names_reliable,"%u"));
 		proto_tree_add_uint(seq1_tree, hf_quakeworld_game_seq1,
 				    tvb, offset, 4, seq1);
 		proto_tree_add_boolean(seq1_tree, hf_quakeworld_game_rel1,
@@ -607,7 +607,7 @@ dissect_quakeworld_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 	if (game_tree) {
 		proto_tree *seq2_tree = proto_tree_add_subtree_format(game_tree,
 							    tvb, offset, 4, ett_quakeworld_game_seq2, NULL, "Acknowledge Sequence: %u (%s)",
-							    seq2, val_to_str_wmem(pinfo->pool, rel2,names_reliable,"%u"));
+							    seq2, val_to_str(pinfo->pool, rel2,names_reliable,"%u"));
 		proto_tree_add_uint(seq2_tree, hf_quakeworld_game_seq2, tvb, offset, 4, seq2);
 		proto_tree_add_boolean(seq2_tree, hf_quakeworld_game_rel2, tvb, offset+3, 1, rel2);
 	}
@@ -653,7 +653,7 @@ dissect_quakeworld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			DIR_C2S : DIR_S2C;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKEWORLD");
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, direction,
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, direction,
 			names_direction, "%u"));
 
 	if (tree) {
@@ -666,7 +666,7 @@ dissect_quakeworld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 					   hf_quakeworld_s2c :
 					   hf_quakeworld_c2s,
 					   tvb, 0, 0, 1,
-					   "Direction: %s", val_to_str_wmem(pinfo->pool, direction, names_direction, "%u"));
+					   "Direction: %s", val_to_str(pinfo->pool, direction, names_direction, "%u"));
 	}
 
 	if (tvb_get_ntohl(tvb, 0) == 0xffffffff) {

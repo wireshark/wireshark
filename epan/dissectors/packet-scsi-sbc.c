@@ -1255,7 +1255,7 @@ dissect_sbc_sanitize (tvbuff_t *tvb, packet_info *pinfo _U_,
 
         service_action = tvb_get_uint8 (tvb, offset) & 0x1F;
         col_append_str(pinfo->cinfo, COL_INFO,
-                       val_to_str_wmem(pinfo->pool, service_action, sanitize_val, "Unknown (0x%02x) "));
+                       val_to_str(pinfo->pool, service_action, sanitize_val, "Unknown (0x%02x) "));
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_sanitize_flags,
                 ett_scsi_sanitize, sanitize_fields, ENC_BIG_ENDIAN);
@@ -1544,7 +1544,7 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb_a, packet_info *pinfo _U_,
                         proto_item_append_text (it, "%" PRIu64 "-%" PRIu64 "  %s",
                                 lba,
                                 lba + num_blocks - 1,
-                                val_to_str_wmem(pinfo->pool, type, scsi_provisioning_type_val, "Unknown (0x%02x) ")
+                                val_to_str(pinfo->pool, type, scsi_provisioning_type_val, "Unknown (0x%02x) ")
                                 );
                     }
                     break;

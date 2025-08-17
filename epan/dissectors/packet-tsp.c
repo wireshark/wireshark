@@ -108,7 +108,7 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	tsp_type = tvb_get_uint8(tvb, 0);
 	col_add_str(pinfo->cinfo, COL_INFO,
-		    val_to_str_wmem(pinfo->pool, tsp_type, names_tsp_type, "Unknown message type (%u)"));
+		    val_to_str(pinfo->pool, tsp_type, names_tsp_type, "Unknown message type (%u)"));
 
 	tsp_item = proto_tree_add_item(tree, proto_tsp,
 				tvb, 0, -1, ENC_NA);

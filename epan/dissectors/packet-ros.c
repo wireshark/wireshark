@@ -215,7 +215,7 @@ ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 		if(opdissector) {
 
-			opname = val_to_str_wmem(pinfo->pool, opcode_lcl, lookup, "Unknown opcode (%d)");
+			opname = val_to_str(pinfo->pool, opcode_lcl, lookup, "Unknown opcode (%d)");
 
 			col_set_str(pinfo->cinfo, COL_INFO, opname);
 			if(suffix)
@@ -625,7 +625,7 @@ dissect_ros_GeneralProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
                                                 &problem);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(actx->pinfo->pool, problem, ros_GeneralProblem_vals, "GeneralProblem(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, problem, ros_GeneralProblem_vals, "GeneralProblem(%d)"));
 
 
   return offset;
@@ -653,7 +653,7 @@ dissect_ros_InvokeProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
                                                 &problem);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(actx->pinfo->pool, problem, ros_InvokeProblem_vals, "InvokeProblem(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, problem, ros_InvokeProblem_vals, "InvokeProblem(%d)"));
 
 
   return offset;
@@ -676,7 +676,7 @@ dissect_ros_ReturnResultProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
                                                 &problem);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(actx->pinfo->pool, problem, ros_ReturnResultProblem_vals, "ReturnResultProblem(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, problem, ros_ReturnResultProblem_vals, "ReturnResultProblem(%d)"));
 
 
   return offset;
@@ -701,7 +701,7 @@ dissect_ros_ReturnErrorProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
                                                 &problem);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(actx->pinfo->pool, problem, ros_ReturnErrorProblem_vals, "ReturnErrorProblem(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, problem, ros_ReturnErrorProblem_vals, "ReturnErrorProblem(%d)"));
 
 
   return offset;

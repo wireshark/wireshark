@@ -1590,7 +1590,7 @@ static const char *get_sw_string(wmem_allocator_t *scope, uint16_t sw)
 	case 0x6f:
 		return "Technical problem with no diagnostic";
 	}
-	return val_to_str_wmem(scope, sw, sw_vals, "Unknown status word: %04x");
+	return val_to_str(scope, sw, sw_vals, "Unknown status word: %04x");
 }
 
 static int
@@ -1609,7 +1609,7 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		/* FIXME: properly follow BER coding rules */
 		tag = tvb_get_uint8(tvb, pos++);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str_wmem(pinfo->pool, tag, ber_tlv_cat_tag_vals, "%02x "));
+				val_to_str(pinfo->pool, tag, ber_tlv_cat_tag_vals, "%02x "));
 		len = tvb_get_uint8(tvb, pos++);
 		switch (len) {
 		case 0x81:
@@ -1855,7 +1855,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 	const int data_offs = DATA_OFFS + (extended_len ? 2 : 0);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str_wmem(pinfo->pool, ins, apdu_ins_vals, "%02x"));
+			val_to_str(pinfo->pool, ins, apdu_ins_vals, "%02x"));
 
 	switch (ins) {
 	case 0xA4: /* SELECT */
@@ -1911,7 +1911,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 		break;
 	case 0x70: /* MANAGE CHANNEL */
 		proto_tree_add_item(sim_tree, hf_chan_op, tvb, offset+P1_OFFS, 1, ENC_BIG_ENDIAN);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Operation=%s ", val_to_str_wmem(pinfo->pool, p1, chan_op_vals, "%02x"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Operation=%s ", val_to_str(pinfo->pool, p1, chan_op_vals, "%02x"));
 		proto_tree_add_item(sim_tree, hf_chan_nr, tvb, offset+P2_OFFS, 1, ENC_BIG_ENDIAN);
 		if (p1 == 0 && p2 == 0) {
 			/* Logical channels are assigned by the card when P2 is 0. */
@@ -1966,7 +1966,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 			for (i = 0; i < p3; i += 2) {
 				g16 = tvb_get_ntohs(tvb, offset+data_offs+i);
 				col_append_fstr(pinfo->cinfo, COL_INFO, "/%s",
-						val_to_str_wmem(pinfo->pool, g16, mf_dfs, "%04x"));
+						val_to_str(pinfo->pool, g16, mf_dfs, "%04x"));
 				proto_tree_add_item(sim_tree, hf_file_id, tvb, offset+data_offs+i, 2, ENC_BIG_ENDIAN);
 			}
 			col_append_str(pinfo->cinfo, COL_INFO, " ");
@@ -1974,7 +1974,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 		default:
 			g16 = tvb_get_ntohs(tvb, offset+data_offs);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "File %s ",
-					val_to_str_wmem(pinfo->pool, g16, mf_dfs, "%04x"));
+					val_to_str(pinfo->pool, g16, mf_dfs, "%04x"));
 			proto_tree_add_item(sim_tree, hf_file_id, tvb, offset+data_offs, p3, ENC_BIG_ENDIAN);
 			break;
 		}
@@ -2279,7 +2279,7 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		/* Always show status in info column when response only */
 		if (response_only && ins) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Response, %s, %s",
-				     val_to_str_wmem(pinfo->pool, ins, apdu_ins_vals, "%02x"), get_sw_string(pinfo->pool, sw));
+				     val_to_str(pinfo->pool, ins, apdu_ins_vals, "%02x"), get_sw_string(pinfo->pool, sw));
 		} else if (response_only) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Response, %s ", get_sw_string(pinfo->pool, sw));
 		}
@@ -2418,10 +2418,10 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 	if ((cla & 0x50) == 0x40) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str_wmem(pinfo->pool, cla>>6, apdu_cla_coding_ext_vals, "%01x"));
+				val_to_str(pinfo->pool, cla>>6, apdu_cla_coding_ext_vals, "%01x"));
 	} else {
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-				val_to_str_wmem(pinfo->pool, cla>>4, apdu_cla_coding_vals, "%01x"));
+				val_to_str(pinfo->pool, cla>>4, apdu_cla_coding_vals, "%01x"));
 	}
 
 	rc = dissect_gsm_apdu(ins, p1, p2, p3, extended_len, next_tvb, offset, pinfo, tree, sim_tree);

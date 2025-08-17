@@ -162,11 +162,11 @@ dissect_mcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 		if (strict_mode) {
 			tlv_tree = proto_tree_add_subtree_format(mcp_tree, tvb, offset, tlv_length + 2,
-				ett_mcp_tlv_header, NULL, "%s", val_to_str_wmem(pinfo->pool, tlv_type, mcp_strict_type_vals, "Unknown (0x%02x)"));
+				ett_mcp_tlv_header, NULL, "%s", val_to_str(pinfo->pool, tlv_type, mcp_strict_type_vals, "Unknown (0x%02x)"));
 			proto_tree_add_uint(tlv_tree, hf_mcp_strict_tlv_type, tvb, offset, 1, tlv_type);
 		} else {
 			tlv_tree = proto_tree_add_subtree_format(mcp_tree, tvb, offset, tlv_length + 2,
-				ett_mcp_tlv_header, NULL, "%s", val_to_str_wmem(pinfo->pool, tlv_type, mcp_type_vals, "Unknown (0x%02x)"));
+				ett_mcp_tlv_header, NULL, "%s", val_to_str(pinfo->pool, tlv_type, mcp_type_vals, "Unknown (0x%02x)"));
 		proto_tree_add_uint(tlv_tree, hf_mcp_tlv_type, tvb, offset, 1, tlv_type);
 		}
 		offset += 1;

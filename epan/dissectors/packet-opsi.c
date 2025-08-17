@@ -551,7 +551,7 @@ dissect_opsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
-		val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, CODE_OFFSET), opsi_opcode,
+		val_to_str(pinfo->pool, tvb_get_uint8(tvb, CODE_OFFSET), opsi_opcode,
 			"<Unknown opcode %d>"));
 	col_set_fence(pinfo->cinfo, COL_INFO);
 

@@ -333,15 +333,15 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
 
                 single_avp_tree = proto_tree_add_subtree_format(avp_tree, tvb, offset, avp_length + padding,
                                                                 ett_pana_avp_info, NULL, "%s (%s) length: %d bytes (%d padded bytes)",
-                                                                val_to_str_wmem(pinfo->pool, avp_code, avp_code_names, "Unknown (%d)"),
-                                                                val_to_str_wmem(pinfo->pool, avp_type, avp_type_names, "Unknown (%d)"),
+                                                                val_to_str(pinfo->pool, avp_code, avp_code_names, "Unknown (%d)"),
+                                                                val_to_str(pinfo->pool, avp_type, avp_type_names, "Unknown (%d)"),
                                                                 avp_length,
                                                                 avp_length + padding);
 
                 /* AVP Code */
                 proto_tree_add_uint_format_value(single_avp_tree, hf_pana_avp_code, tvb,
                                                  offset, 2, avp_code, "%s (%u)",
-                                                 val_to_str_wmem(pinfo->pool, avp_code, avp_code_names, "Unknown (%d)"),
+                                                 val_to_str(pinfo->pool, avp_code, avp_code_names, "Unknown (%d)"),
                                                  avp_code);
                 offset += 2;
 
@@ -417,7 +417,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                         proto_tree_add_uint_format(single_avp_tree, hf_pana_avp_code, tvb, offset, avp_data_length,
                                                                    result_code, "Value: %d (%s)",
                                                                    result_code,
-                                                                   val_to_str_wmem(pinfo->pool, result_code, avp_code_names, "Unknown (%d)"));
+                                                                   val_to_str(pinfo->pool, result_code, avp_code_names, "Unknown (%d)"));
                                         break;
                                 }
                                 case PANA_EAP: {
@@ -479,8 +479,8 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         avp_length = msg_length - 16;
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s-%s",
-                     val_to_str_wmem(pinfo->pool, msg_type, msg_type_names, "Unknown (%d)"),
-                     val_to_str_wmem(pinfo->pool, flags & PANA_FLAG_R, msg_subtype_names, "Unknown (%d)"));
+                     val_to_str(pinfo->pool, msg_type, msg_type_names, "Unknown (%d)"),
+                     val_to_str(pinfo->pool, flags & PANA_FLAG_R, msg_subtype_names, "Unknown (%d)"));
 
         /* Make the protocol tree */
         if (tree) {
@@ -575,8 +575,8 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Message Type */
         proto_tree_add_uint_format_value(pana_tree, hf_pana_msg_type, tvb,
                                          offset, 2, msg_type, "%s-%s (%d)",
-                                         val_to_str_wmem(pinfo->pool, msg_type, msg_type_names, "Unknown (%d)"),
-                                         val_to_str_wmem(pinfo->pool, flags & PANA_FLAG_R, msg_subtype_names, "Unknown (%d)"),
+                                         val_to_str(pinfo->pool, msg_type, msg_type_names, "Unknown (%d)"),
+                                         val_to_str(pinfo->pool, flags & PANA_FLAG_R, msg_subtype_names, "Unknown (%d)"),
                                          msg_type);
         offset += 2;
 

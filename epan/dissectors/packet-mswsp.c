@@ -3177,7 +3177,7 @@ static int parse_CTableColumn(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 	if (used) {
 		col->aggregatetype = tvb_get_uint8(tvb, offset);
-		proto_tree_add_string(tree, hf_mswsp_ctablecolumn_aggtype, tvb, offset, 1, val_to_str_wmem(pinfo->pool, col->aggregatetype, DBAGGTTYPE, "(Unknown: 0x%x)"));
+		proto_tree_add_string(tree, hf_mswsp_ctablecolumn_aggtype, tvb, offset, 1, val_to_str(pinfo->pool, col->aggregatetype, DBAGGTTYPE, "(Unknown: 0x%x)"));
 		offset += 1;
 	}
 	col->valueused = tvb_get_uint8(tvb, offset);
@@ -3342,7 +3342,7 @@ static int parse_relop(tvbuff_t *tvb, packet_info* pinfo, int offset,  proto_tre
 			break;
 	}
 
-	str2 = val_to_str_wmem(pinfo->pool, *relop, PR_VALS, "0x%04x");
+	str2 = val_to_str(pinfo->pool, *relop, PR_VALS, "0x%04x");
 
 	if (modifier) {
 		switch (modifier) {
@@ -3572,7 +3572,7 @@ static int parse_rType(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree
 			DISSECTOR_ASSERT(false);
 			break;
 	}
-	txt = val_to_str_wmem(pinfo->pool, *rtype, RT_VALS, "0x%.8x");
+	txt = val_to_str(pinfo->pool, *rtype, RT_VALS, "0x%.8x");
 	proto_tree_add_string_format_value(tree, hf_mswsp_crestrict_ultype, tvb, offset, 4, txt, "%s (0x%.8x)",  txt[0] == '0' ? "" : txt, *rtype);
 	if (str) {
 		*str = txt;
@@ -4196,7 +4196,7 @@ static int parse_CDbProp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tr
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_CDbProp, &item, txt);
 
 	id = tvb_get_letohl(tvb, offset);
-	str = val_to_str_wmem(pinfo->pool, id, vs, "0x%08x");
+	str = val_to_str(pinfo->pool, id, vs, "0x%08x");
 	proto_tree_add_string_format_value(tree, hf_mswsp_cdbprop_id, tvb, offset, 4, str, "%s (0x%08x)", (str[0] == '0' ? "" : str), id);
 	offset += 4;
 	proto_item_append_text(item, " Id: %s", str);
@@ -5901,14 +5901,14 @@ dissect_mswsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool in, void
 
 	proto_tree_add_item_ret_uint(hdr_tree, hf_mswsp_hdr_msg, tvb,
 						0, 4, ENC_LITTLE_ENDIAN, &msg);
-	proto_item_append_text(hti, " %s", val_to_str_wmem(pinfo->pool, msg, VALS(msg_ids),
+	proto_item_append_text(hti, " %s", val_to_str(pinfo->pool, msg, VALS(msg_ids),
 						   "(Unknown: 0x%x)"));
 
 	proto_tree_add_item_ret_uint(hdr_tree, hf_mswsp_hdr_status, tvb,
 						4, 4, ENC_LITTLE_ENDIAN, &status);
 	if (!in || status != 0) {
 		proto_item_append_text(hti, " %s",
-							   val_to_str_wmem(pinfo->pool, status, VALS(dcom_hresult_vals),
+							   val_to_str(pinfo->pool, status, VALS(dcom_hresult_vals),
 										  "(Unknown: 0x%x)"));
 	}
 
