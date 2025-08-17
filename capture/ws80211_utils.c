@@ -762,13 +762,21 @@ static int ws80211_populate_devices(GArray *interfaces)
 	char *ret;
 	int i;
 	unsigned int j;
+	int err;
 
 	struct ws80211_iface_info pub = {-1, WS80211_CHAN_NO_HT, -1, -1, WS80211_FCS_ALL};
 	struct __iface_info iface_info;
 	struct ws80211_interface *iface;
 
-	/* Get a list of phy's that can handle monitor mode */
-	ws80211_get_phys(interfaces);
+	/* Get a list of PHYs that can handle monitor mode. For each PHY,
+	 * populates the list with a tentative name ("{wiphy_name}.mon")
+	 * of a monitor mode device. If no monitor mode device exists for
+	 * the PHY, we'll try to create one on demand later. */
+	err = ws80211_get_phys(interfaces);
+	if (err != 0) {
+		return err;
+	}
+	/* Remove the PHYs that don't support IFTYPE_MONITOR at all. */
 	ws80211_keep_only_monitor(interfaces);
 
 	fh = g_fopen("/proc/net/dev", "r");
@@ -787,7 +795,8 @@ static int ws80211_populate_devices(GArray *interfaces)
 		}
 	}
 
-	/* Update names of user created monitor interfaces */
+	/* For each PHY, if it has already [user created] monitor interfaces
+	 * use the first one we find instead of creating one. */
 	while(fgets(line, sizeof(line), fh)) {
 		t = index(line, ':');
 		if (!t)
@@ -798,11 +807,16 @@ static int ws80211_populate_devices(GArray *interfaces)
 			t++;
 		memset(&iface_info, 0, sizeof(iface_info));
 		iface_info.pub = &pub;
+		/* Look at each interface - is it a mac8021 interface?
+		 * Skip devices that aren't (so ignore errors.) */
 		__ws80211_get_iface_info(t, &iface_info);
 
+		// If so, is it a monitor interface?
 		if (iface_info.type == NL80211_IFTYPE_MONITOR) {
 			for (j = 0; j < interfaces->len; j++) {
 				iface = g_array_index(interfaces, struct ws80211_interface *, j);
+				/* Replace any tentative interface for the same
+				 * PHY with this existing monitor interface. */
 				t2 = ws_strdup_printf("phy%d.mon", iface_info.phyidx);
 				if (t2) {
 					if (!strcmp(t2, iface->ifname)) {
