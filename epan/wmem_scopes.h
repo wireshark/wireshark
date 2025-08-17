@@ -28,25 +28,6 @@ wmem_allocator_t *
 wmem_epan_scope(void);
 
 /**
- * @brief Fetch the current packet scope.
- *
- * Allocated memory is freed when wmem_leave_packet_scope() is called, which is normally at the end of packet dissection.
- * N.B. Please use pinfo->pool in new code when possible. See
- * <https://lists.wireshark.org/archives/wireshark-dev/202107/msg00052.html>
- */
-WS_DLL_PUBLIC
-wmem_allocator_t *
-wmem_packet_scope(void);
-
-WS_DLL_LOCAL
-void
-wmem_enter_packet_scope(void);
-
-WS_DLL_LOCAL
-void
-wmem_leave_packet_scope(void);
-
-/**
  * @brief Fetch the current file scope.
  *
  * Allocated memory is freed when wmem_leave_file_scope() is called, which is normally when a capture file is closed.

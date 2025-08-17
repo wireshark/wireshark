@@ -171,9 +171,6 @@ WS_DLL_PUBLIC void col_clear(column_info *cinfo, const int col);
  *
  * Usually used to set const strings!
  *
- * @warning Do *NOT* use with strings allocated with wmem_packet_scope(), as it
- * is freed slightly too early; use the pinfo->pool scope instead.
- *
  * @param cinfo the current packet row
  * @param col the column to use, e.g. COL_INFO
  * @param str the string to set
