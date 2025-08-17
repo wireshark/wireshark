@@ -274,7 +274,7 @@ pbl_field_descriptor_is_packed(const pbl_field_descriptor_t* field);
 
 /* like FieldDescriptor::TypeName() */
 const char*
-pbl_field_descriptor_TypeName(int field_type);
+pbl_field_descriptor_TypeName(wmem_allocator_t* scope, int field_type);
 
 /* like FieldDescriptor::message_type() */
 const pbl_message_descriptor_t*
