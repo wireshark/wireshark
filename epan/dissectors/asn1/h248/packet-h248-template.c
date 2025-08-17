@@ -863,7 +863,7 @@ static const value_string context_id_type[] = {
 };
 #endif
 
-/* the following value_strings are used to build defalut packages.
+/* the following value_strings are used to build default packages.
    To add additional detail to a package, build a register a h248_package_t structure
  */
 

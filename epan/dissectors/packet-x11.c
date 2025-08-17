@@ -1705,7 +1705,7 @@ keycode2keysymString(wmem_allocator_t* allocator, int *keycodemap[256], int firs
       if (modifiermap[array_length(modifiers) - 1] == NULL) /* all or none */
             return "<Unknown>";
 
-      /* find out what the numlockmodifer and groupmodifier is. */
+      /* find out what the numlockmodifier and groupmodifier is. */
       for (modifier = 0, numlockmod = groupmod = -1;
            modifier < (int)array_length(modifiers) && numlockmod == -1;
            ++modifier)

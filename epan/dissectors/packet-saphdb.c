@@ -555,7 +555,7 @@ static expert_field ei_saphdb_segments_number_incorrect;
 static expert_field ei_saphdb_segment_length;
 static expert_field ei_saphdb_buffer_length;
 static expert_field ei_saphdb_parts_number_incorrect;
-static expert_field ei_saphdb_varpartlenght_incorrect;
+static expert_field ei_saphdb_varpartlength_incorrect;
 
 
 /* Global highlight preference */
@@ -1204,7 +1204,7 @@ dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 			/* Check the length of the variable part against the remaining packet */
 			if ((uint32_t)tvb_reported_length_remaining(tvb, offset) != varpartlength) {
-				expert_add_info_format(pinfo, varpartlength_item, &ei_saphdb_varpartlenght_incorrect, "Length of variable part %d is invalid", varpartlength);
+				expert_add_info_format(pinfo, varpartlength_item, &ei_saphdb_varpartlength_incorrect, "Length of variable part %d is invalid", varpartlength);
 				varpartlength = tvb_reported_length_remaining(tvb, offset);
 			}
 
@@ -1439,7 +1439,7 @@ proto_register_saphdb(void)
 		{ &ei_saphdb_segment_length, { "saphdb.segment.segmentlength.invalid", PI_MALFORMED, PI_ERROR, "The segment length is incorrect", EXPFILL }},
 		{ &ei_saphdb_buffer_length, { "saphdb.segment.part.bufferlength.invalid", PI_MALFORMED, PI_ERROR, "The part buffer length is incorrect", EXPFILL }},
 		{ &ei_saphdb_parts_number_incorrect, { "saphdb.segment.noofparts.invalid", PI_MALFORMED, PI_ERROR, "The number of parts is incorrect", EXPFILL }},
-		{ &ei_saphdb_varpartlenght_incorrect, { "saphdb.varpartlength.invalid", PI_MALFORMED, PI_ERROR, "The length is incorrect", EXPFILL }},
+		{ &ei_saphdb_varpartlength_incorrect, { "saphdb.varpartlength.invalid", PI_MALFORMED, PI_ERROR, "The length is incorrect", EXPFILL }},
 	};
 
 	module_t *saphdb_module;

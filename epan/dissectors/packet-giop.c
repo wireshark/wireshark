@@ -1424,7 +1424,7 @@ static uint32_t giop_hash_objkey_hash(const void *v) {
 
 /*
  * Routine to take an object key octet sequence, and length, and ptr to
- * a (null terminated )repository ID string, and store them in the obect key hash.
+ * a (null terminated) repository ID string, and store them in the object key hash.
  *
  * Blindly Inserts even if it does exist, See TODO at top for reason.
  */

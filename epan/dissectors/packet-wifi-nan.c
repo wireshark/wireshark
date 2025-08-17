@@ -1796,7 +1796,7 @@ dissect_attr_availability(proto_tree* attr_tree, tvbuff_t* tvb, int offset, uint
                 else
                 {
                     /* This is the new and standard rules for mapping channels for 6G channels introduced in NAN R4.
-                     * Some vendors may have already implemetned a different approach to support NAN 6G before
+                     * Some vendors may have already implemented a different approach to support NAN 6G before
                      * the introduction of standard 6G NAN operation. And hence, in this case, the availability
                      * may not be correct. */
                     uint8_t start_ch_number = bitmap & 0xff;

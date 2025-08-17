@@ -1632,7 +1632,7 @@ render_f5_legacy_hdr(tvbuff_t *tvb, proto_tree *tree, int offset)
  * @param trailer_length    Length of the trailer data to process
  * @param trailer_ver       Version of the trailer detected
  * @param tdata             Pointer to tap data structure
- * @return                  Number of btyes consumed
+ * @return                  Number of bytes consumed
  */
 static unsigned
 dissect_high_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
@@ -1745,7 +1745,7 @@ dissect_high_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
  * @param trailer_length    Length of the trailer data to process
  * @param trailer_ver       Version of the trailer detected
  * @param tdata             Pointer to tap data structure
- * @return                  Number of btyes consumed
+ * @return                  Number of bytes consumed
  */
 static unsigned
 dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
@@ -1952,7 +1952,7 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
  * @param trailer_length    Length of the trailer data to process
  * @param trailer_ver       Version of the trailer detected
  * @param tdata             Pointer to tap data structure
- * @return                  Number of btyes consumed
+ * @return                  Number of bytes consumed
  */
 static unsigned
 dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
