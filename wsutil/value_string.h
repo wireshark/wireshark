@@ -14,7 +14,6 @@
 #include <stdint.h>
 
 #include "ws_symbol_export.h"
-#include <epan/wmem_scopes.h>
 
 #include <wsutil/nstime.h>
 
@@ -166,6 +165,7 @@ struct _value_string_ext {
                                             /*  (excluding final {0, NULL})                */
     const value_string    *_vs_p;           /* the value string array address              */
     const char            *_vs_name;        /* vse "Name" (for error messages)             */
+    wmem_allocator_t      *_scope;          /* Saved scope of the value_string_ext for use when freeing   */
 };
 
 #define VALUE_STRING_EXT_VS_P(x)           (x)->_vs_p
@@ -175,11 +175,11 @@ struct _value_string_ext {
 WS_DLL_PUBLIC
 const value_string *
 _try_val_to_str_ext_init(const uint32_t val, value_string_ext *vse);
-#define VALUE_STRING_EXT_INIT(x) { _try_val_to_str_ext_init, 0, G_N_ELEMENTS(x)-1, x, #x }
+#define VALUE_STRING_EXT_INIT(x) { _try_val_to_str_ext_init, 0, G_N_ELEMENTS(x)-1, x, #x, NULL }
 
 WS_DLL_PUBLIC
 value_string_ext *
-value_string_ext_new(const value_string *vs, unsigned vs_tot_num_entries, const char *vs_name);
+value_string_ext_new(wmem_allocator_t* scope, const value_string *vs, unsigned vs_tot_num_entries, const char *vs_name);
 
 WS_DLL_PUBLIC
 void
@@ -214,6 +214,7 @@ struct _val64_string_ext {
                                             /*  (excluding final {0, NULL})                */
     const val64_string    *_vs_p;           /* the value string array address              */
     const char            *_vs_name;        /* vse "Name" (for error messages)             */
+    wmem_allocator_t      *_scope;          /* Saved scope of the value_string_ext for use when freeing   */
 };
 
 #define VAL64_STRING_EXT_VS_P(x)           (x)->_vs_p
@@ -227,11 +228,11 @@ value_str_value_compare(const void* a, const void* b);
 WS_DLL_PUBLIC
 const val64_string *
 _try_val64_to_str_ext_init(const uint64_t val, val64_string_ext *vse);
-#define VAL64_STRING_EXT_INIT(x) { _try_val64_to_str_ext_init, 0, G_N_ELEMENTS(x)-1, x, #x }
+#define VAL64_STRING_EXT_INIT(x) { _try_val64_to_str_ext_init, 0, G_N_ELEMENTS(x)-1, x, #x, NULL }
 
 WS_DLL_PUBLIC
 val64_string_ext *
-val64_string_ext_new(const val64_string *vs, unsigned vs_tot_num_entries, const char *vs_name);
+val64_string_ext_new(wmem_allocator_t* scope, const val64_string *vs, unsigned vs_tot_num_entries, const char *vs_name);
 
 WS_DLL_PUBLIC
 void
@@ -348,7 +349,7 @@ WS_DLL_PUBLIC
 void register_external_value_string(const char* name, const value_string* vs);
 
 WS_DLL_PUBLIC
-value_string* vs_get_external_value_string(const char* name);
+value_string* get_external_value_string(const char* name);
 
 WS_DLL_PUBLIC
 void register_external_value_string_ext(const char* name, const value_string_ext* vse);
@@ -358,25 +359,25 @@ value_string_ext* get_external_value_string_ext(const char* name);
 
 /* MISC (generally do not use) */
 
-WS_DLL_LOCAL
+WS_DLL_PUBLIC
 void value_string_externals_init(void);
 
-WS_DLL_LOCAL
+WS_DLL_PUBLIC
 void value_string_externals_cleanup(void);
 
-WS_DLL_LOCAL
+WS_DLL_PUBLIC
 bool
 value_string_ext_validate(const value_string_ext *vse);
 
-WS_DLL_LOCAL
+WS_DLL_PUBLIC
 const char *
 value_string_ext_match_type_str(const value_string_ext *vse);
 
-WS_DLL_LOCAL
+WS_DLL_PUBLIC
 bool
 val64_string_ext_validate(const val64_string_ext *vse);
 
-WS_DLL_LOCAL
+WS_DLL_PUBLIC
 const char *
 val64_string_ext_match_type_str(const val64_string_ext *vse);
 

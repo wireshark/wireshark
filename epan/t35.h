@@ -13,7 +13,7 @@
 #ifndef __T35_H__
 #define __T35_H__
 
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 
 extern const value_string T35CountryCode_vals[];
 extern const value_string T35Extension_vals[];

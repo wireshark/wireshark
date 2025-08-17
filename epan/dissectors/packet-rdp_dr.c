@@ -19,7 +19,6 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-#include <epan/value_string.h>
 
 #include "packet-rdp.h"
 #include "packet-rdpudp.h"
@@ -274,7 +273,7 @@ dissect_rdpdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _U_
 				offset += 4;
 				proto_tree_add_item_ret_uint(dev_tree, hf_rdpdr_deviceId, tvb, offset, 4, ENC_LITTLE_ENDIAN, &deviceId);
 				offset += 4;
-				proto_tree_add_item(dev_tree, hf_rdpdr_dosName, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(dev_tree, hf_rdpdr_dosName, tvb, offset, 8, ENC_ASCII);
 				offset += 8;
 				proto_tree_add_item(dev_tree, hf_rdpdr_deviceDataLen, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;

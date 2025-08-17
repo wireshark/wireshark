@@ -13,7 +13,7 @@
 #define __EAP_H__
 
 #include "ws_symbol_export.h"
-#include "value_string.h"
+#include <wsutil/value_string.h>
 
 /* http://www.iana.org/assignments/eap-numbers */
 #define EAP_REQUEST     1

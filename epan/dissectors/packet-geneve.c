@@ -23,7 +23,6 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
-#include <epan/value_string.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
 

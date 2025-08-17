@@ -14,7 +14,7 @@
 
 #include "tap.h"
 #include "timestats.h"
-#include "value_string.h"
+#include <wsutil/value_string.h>
 #include <epan/wmem_scopes.h>
 
 #ifdef __cplusplus

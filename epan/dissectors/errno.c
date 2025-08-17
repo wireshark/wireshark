@@ -10,7 +10,7 @@
 
 #include "config.h"
 
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 
 /* Note: sorted in (unsigned) ascending order with no gaps to enable direct,
  * array-indexed access. */

@@ -25,7 +25,7 @@
 #ifndef __PROTOBUF_HELPER_H__
 #define __PROTOBUF_HELPER_H__
 
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 
 #ifdef __cplusplus
 extern "C" {

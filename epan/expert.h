@@ -16,7 +16,7 @@
 
 #include <epan/proto.h>
 #include <epan/packet_info.h>
-#include "value_string.h"
+#include <wsutil/value_string.h>
 #include "ws_symbol_export.h"
 
 #ifdef __cplusplus

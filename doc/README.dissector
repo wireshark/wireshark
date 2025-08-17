@@ -1143,7 +1143,8 @@ Use this macro to initialize the extended value_string at compile time:
 static value_string_ext valstringname_ext = VALUE_STRING_EXT_INIT(valstringname);
 
 Extended value strings can be created at run time by calling
-   value_string_ext_new(<ptr to value_string array>,
+   value_string_ext_new(<wmem scope for the value_string, most likely wmem_epan_scope()>
+                        <ptr to value_string array>,
                         <total number of entries in the value_string_array>, /* include {0, NULL} entry */
                         <value_string_name>);
 
@@ -1170,7 +1171,8 @@ Use this macro to initialize the extended val64_string at compile time:
 static val64_string_ext val64stringname_ext = VAL64_STRING_EXT_INIT(val64stringname);
 
 Extended val64 strings can be created at run time by calling
-   val64_string_ext_new(<ptr to val64_string array>,
+   val64_string_ext_new(<wmem scope for the value_string, most likely wmem_epan_scope()>
+                        <ptr to val64_string array>,
                         <total number of entries in the val64_string_array>, /* include {0, NULL} entry */
                         <val64_string_name>);
 

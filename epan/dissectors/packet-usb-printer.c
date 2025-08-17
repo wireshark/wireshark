@@ -23,7 +23,6 @@
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include "packet-usb.h"
-#include <epan/value_string.h>
 
 static dissector_handle_t usb_printer_ctl_handle;
 

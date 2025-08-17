@@ -140,6 +140,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	type_util.h
 	unicode-utils.h
 	utf8_entities.h
+	value_string.h
 	version_info.h
 	ws_assert.h
 	ws_cpuid.h
@@ -212,6 +213,7 @@ set(WSUTIL_COMMON_FILES
 	to_str.c
 	type_util.c
 	unicode-utils.c
+	value_string.c
 	version_info.c
 	ws_getopt.c
 	ws_mempbrk.c

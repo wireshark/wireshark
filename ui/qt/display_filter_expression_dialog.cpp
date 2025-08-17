@@ -15,7 +15,7 @@
 #include <epan/proto.h>
 #include <epan/range.h>
 #include <epan/tfs.h>
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 
 #include <wsutil/utf8_entities.h>
 

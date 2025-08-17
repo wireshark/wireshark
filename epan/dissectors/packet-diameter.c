@@ -916,7 +916,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 
 	if (vendor->vs_avps_ext == NULL) {
 		wmem_array_sort(vendor->vs_avps, compare_avps);
-		vendor->vs_avps_ext = value_string_ext_new(VND_AVP_VS(vendor),
+		vendor->vs_avps_ext = value_string_ext_new(wmem_epan_scope(), VND_AVP_VS(vendor),
 							   VND_AVP_VS_LEN(vendor)+1,
 							   wmem_strdup_printf(wmem_epan_scope(), "diameter_vendor_%s",
 									   enterprises_lookup(vendorid, "Unknown")));
@@ -2052,7 +2052,7 @@ build_simple_avp(avp_constructor_data_t* constructor_data)
 		while (constructor_data->vs[i].strptr) {
 		  i++;
 		}
-		vs_ext = value_string_ext_new(constructor_data->vs, i+1, wmem_strconcat(wmem_epan_scope(), constructor_data->name, "_vals_ext", NULL));
+		vs_ext = value_string_ext_new(wmem_epan_scope(), constructor_data->vs, i+1, wmem_strconcat(wmem_epan_scope(), constructor_data->name, "_vals_ext", NULL));
 		base = (field_display_e)(base|BASE_EXT_STRING);
 	}
 
@@ -2944,7 +2944,7 @@ ddictionary_load(wmem_array_t* hf_array, GPtrArray* ett_array)
 
 		/* TODO: Remove duplicates */
 
-		dictionary.applications = value_string_ext_new((value_string*)wmem_array_get_raw(arr),
+		dictionary.applications = value_string_ext_new(wmem_epan_scope(), (value_string*)wmem_array_get_raw(arr),
 			wmem_array_get_count(arr),
 			wmem_strdup(wmem_epan_scope(), "applications_vals_ext"));
 	}

@@ -15,7 +15,6 @@
 #include <epan/proto.h>
 #include <epan/to_str.h>
 #include <epan/tvbuff.h>
-#include <epan/value_string.h>
 
 #ifdef __cplusplus
 extern "C" {

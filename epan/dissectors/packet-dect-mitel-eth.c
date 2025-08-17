@@ -21,7 +21,6 @@
 #include <epan/conversation.h>
 #include <epan/packet.h>
 #include <epan/packet_info.h>
-#include <epan/value_string.h>
 #include <ftypes/ftypes.h>
 #include <epan/proto.h>
 #include <epan/tfs.h>

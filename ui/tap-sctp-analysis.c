@@ -17,7 +17,7 @@
 
 #include "epan/packet_info.h"
 #include "epan/tap.h"
-#include "epan/value_string.h"
+#include <wsutil/value_string.h>
 
 #include "ui/tap-sctp-analysis.h"
 
@@ -740,7 +740,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 error = g_new(sctp_error_info_t, 1);
                 error->frame_number = pinfo->num;
                 error->chunk_info[0] = '\0';
-                value_string* chunk_vals = vs_get_external_value_string("chunk_type_values");
+                value_string* chunk_vals = get_external_value_string("chunk_type_values");
                 if ((tvb_get_uint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID)
                 {
                     tmp_str = val_to_str(NULL, tvb_get_uint8(sctp_info->tvb[0],0), chunk_vals,"Reserved (%d)");

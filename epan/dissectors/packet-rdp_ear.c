@@ -19,7 +19,6 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-#include <epan/value_string.h>
 #include <epan/asn1.h>
 
 #include "packet-rdpudp.h"

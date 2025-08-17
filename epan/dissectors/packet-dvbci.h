@@ -13,7 +13,7 @@
 #define __PACKET_DVBCI_H__
 
 #include <epan/packet_info.h>
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 
 /* event byte in the PCAP DVB-CI pseudo-header */
 #define DVBCI_EVT_DATA_CAM_TO_HOST  0xFF
