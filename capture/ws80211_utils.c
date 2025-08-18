@@ -42,22 +42,6 @@ SPDX-License-Identifier: ISC
 static int ws80211_get_protocol_features(int* features);
 #endif /* HAVE_NL80211_SPLIT_WIPHY_DUMP */
 
-/* libnl 1.x compatibility code */
-#ifdef HAVE_LIBNL1
-#define nl_sock nl_handle
-static inline struct nl_handle *nl_socket_alloc(void)
-{
-	return nl_handle_alloc();
-}
-
-static inline void nl_socket_free(struct nl_sock *h)
-{
-	nl_handle_destroy(h);
-}
-
-#define nl_send_auto nl_send_auto_complete
-#endif /* HAVE_LIBNL1 */
-
 struct nl80211_state {
 	struct nl_sock *nl_sock;
 	int nl80211_id;
