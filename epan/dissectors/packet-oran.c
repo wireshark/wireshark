@@ -3032,7 +3032,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
 
                 /* Also update prbs_for_st10_type5[] */
-                if (sectionType == 10) {
+                if (sectionType == 10 && rbgSize != 0) {
                     /* Unset all entries */
                     memset(&prbs_for_st10_type5, 0, sizeof(prbs_for_st10_type5));
 
@@ -3045,7 +3045,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             /* Lazy way to clip any values that lie outside of range for section */
                             for (unsigned p=0; p < rbgSize; p++) {
                                 unsigned start = firstPrbStart + (n*rbgSize);
-                                if ((start+p >= startPrbc) && (start+p <= startPrbc+numPrbc-1)) {
+                                if ((start+p < MAX_PRBS) && (start+p >= startPrbc) && (start+p <= startPrbc+numPrbc-1)) {
                                     prbs_for_st10_type5[start+p] = true;
                                 }
                             }
