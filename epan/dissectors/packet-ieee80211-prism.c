@@ -258,7 +258,7 @@ prism_rate_return(wmem_allocator_t *scope, uint32_t rate)
 
 
 /* HT20 Rate table MAX NSS = 4 */
-static unsigned int ht_20_tbl[32][2] =
+static const unsigned int ht_20_tbl[32][2] =
 {
     { 65,   72   },   /* MCS 0 */
     { 130,  144  },   /* MCS 1 */
@@ -295,7 +295,7 @@ static unsigned int ht_20_tbl[32][2] =
 };
 
 /* HT40 Rate table MAX NSS = 4 */
-static unsigned int ht_40_tbl[32][2] =
+static const unsigned int ht_40_tbl[32][2] =
 {
     { 135,  150  },    /* MCS 0 */
     { 270,  300  },    /* MCS 1 */
@@ -331,7 +331,7 @@ static unsigned int ht_40_tbl[32][2] =
     { 5400, 6000 }};   /* MCS 31 */
 
 /* VHT20 Rate Table MAX NSS = 4 */
-static unsigned int vht_20_tbl[10][8] =
+static const unsigned int vht_20_tbl[10][8] =
 {
     { 65,  72,  130,  144,  195,  217,   260,   289},    /* MCS 0 */
     { 130, 144, 260,  289,  390,  433,   520,   578},    /* MCS 1 */
@@ -346,7 +346,7 @@ static unsigned int vht_20_tbl[10][8] =
 };
 
 /* VHT40 Rate Table MAX NSS = 4 */
-static unsigned int vht_40_tbl[10][8] =
+static const unsigned int vht_40_tbl[10][8] =
 {
     { 135,  150,  270,   300,  405,  450,   540,   600},    /* MCS 0 */
     { 270,  300,  540,   600,  810,  900,  1080,  1200},    /* MCS 1 */
@@ -361,7 +361,7 @@ static unsigned int vht_40_tbl[10][8] =
 };
 
 /* VHT80 Rate Table MAX NSS = 4 */
-static unsigned int vht_80_tbl[10][8] =
+static const unsigned int vht_80_tbl[10][8] =
 {
     {  293,  325,  585,  650,   878,   975,   1170,   1300},   /* MCS 0 */
     {  585,  650, 1170, 1300,  1755,  1950,   2340,   2600},   /* MCS 1 */
@@ -376,7 +376,7 @@ static unsigned int vht_80_tbl[10][8] =
 };
 
 /* VHT160 Rate Table MAX NSS = 4 */
-static unsigned int vht_160_tbl[10][8] =
+static const unsigned int vht_160_tbl[10][8] =
 {
     {  585,  650,  1170,  1300,  1755,  1950,  2340,  2600},   /* MCS 0 */
     { 1170, 1300,  2340,  2600,  3510,  3900,  4680,  5200},   /* MCS 1 */

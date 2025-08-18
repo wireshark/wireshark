@@ -1410,14 +1410,15 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
   proto_tree *extras_tree = NULL;
   proto_item *extras_item = NULL;
-  int         save_offset = offset, ii;
+  int         save_offset = offset;
+  unsigned    ii;
   unsigned    bpos;
   bool        illegal = false;  /* Set when extras shall not be present */
   bool        missing = false;  /* Set when extras is missing */
   bool        first_flag;
   uint32_t    flags;
   proto_item *tf;
-  const char    *tap_connect_flags[] = {
+  static const char * const tap_connect_flags[] = {
     "BACKFILL", "DUMP", "LIST_VBUCKETS", "TAKEOVER_VBUCKETS",
     "SUPPORT_ACK", "REQUEST_KEYS_ONLY", "CHECKPOINT", "REGISTERED_CLIENT"
   };
@@ -1573,7 +1574,7 @@ dissect_client_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     flags = tvb_get_ntohl(tvb, offset);
     first_flag = true;
-    for (ii = 0; ii < 8; ii++) {
+    for (ii = 0; ii < array_length(tap_connect_flags); ii++) {
       bpos = 1 << ii;
       if (flags & bpos) {
         if (first_flag) {

@@ -139,7 +139,7 @@ struct num_handles {
 	int *resp_pd[MAX_HNDL];
 };
 
-static struct num_handles tpm_handles_map[] = {
+static const struct num_handles tpm_handles_map[] = {
 	{ 0x11f, 2, { &hf_tpmi_rh_provision, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0}}, /* CC_NV_UndefineSpaceSpecial */
 	{ 0x120, 2, { &hf_tpmi_rh_provision, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0}}, /* CC_EvictControl */
 	{ 0x121, 1, { &hf_tpmi_rh_hierarchy, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_HierarchyControl */

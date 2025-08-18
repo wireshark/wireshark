@@ -3473,7 +3473,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 	tvbuff_t  *ven_data_tvb;
 
 	/* our non-standard overrides */
-	static struct radiotap_override overrides[] = {
+	static const struct radiotap_override overrides[] = {
 		{IEEE80211_RADIOTAP_XCHANNEL, 4, 8},	/* xchannel */
 
 		/* keep last */

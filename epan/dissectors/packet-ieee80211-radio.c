@@ -417,7 +417,7 @@ static float ieee80211_vhtrate(int mcs_index, unsigned bandwidth_index, bool sho
 #define HE_MAX_MCS  12
 #define HE_SU_MAX_BW   4
 #define HE_MAX_GI   3
-static float he_ofdm_tab[HE_MAX_NSTS][HE_MAX_MCS][HE_SU_MAX_BW][HE_MAX_GI] = {
+static const float he_ofdm_tab[HE_MAX_NSTS][HE_MAX_MCS][HE_SU_MAX_BW][HE_MAX_GI] = {
   {
       {{     8.6f,     8.1f,    7.3f},{     17.2f,    16.3f,    14.6f},{     36.0f,    34.0f,    30.6f},{     72.1f,    68.1f,    61.3f}},
       {{    17.2f,    16.3f,   14.6f},{     34.4f,    32.5f,    29.3f},{     72.1f,    68.1f,    61.3f},{    144.1f,   136.1f,   122.5f}},
@@ -544,7 +544,7 @@ static float ieee80211_he_ofdm_rate(unsigned nsts, unsigned mcs, unsigned bw, un
  * indexed by (NSTS,MCS,RU,GI)
  */
 #define HE_MU_MAX_RU 6
-static float he_mu_ofdma_tab[HE_MAX_NSTS][HE_MAX_MCS][HE_MU_MAX_RU][HE_MAX_GI] = {
+static const float he_mu_ofdma_tab[HE_MAX_NSTS][HE_MAX_MCS][HE_MU_MAX_RU][HE_MAX_GI] = {
   {
       {{    0.9f,    0.8f,    0.8f},{     1.8f,    1.7f,    1.5f},{     3.8f,    3.5f,    3.2f},{      8.6f,     8.1f,    7.3f},{     17.2f,    16.3f,    14.6f},{     36.0f,    34.0f,    30.6f}},
       {{    1.8f,    1.7f,    1.5f},{     3.5f,    3.3f,    3.0f},{     7.5f,    7.1f,    6.4f},{     17.2f,    16.3f,   14.6f},{     34.4f,    32.5f,    29.3f},{     72.1f,    68.1f,    61.3f}},
@@ -676,7 +676,7 @@ static float ieee80211_he_mu_ofdma_rate(unsigned nsts, unsigned mcs, unsigned ru
 #define EHT_MAX_NSTS  8
 #define EHT_MAX_BW    IEEE80211_RADIOTAP_EHT_RU_4_TIMES_994 + 1
 #define EHT_MAX_GI    3
-static float eht_mcs_tab[EHT_MAX_MCS][EHT_MAX_BW][EHT_MAX_GI] = {
+static const float eht_mcs_tab[EHT_MAX_MCS][EHT_MAX_BW][EHT_MAX_GI] = {
       /*    ru-26                  |     ru-52                  |     ru-106                 |     ru-242 / 20 MHz        |    ru-484 / 40 MHz         |    ru-996 / 80 MHz         |     2 * ru-996 / 160 MHz      |    4 * ru-996 / 320 MHz  */
       {{    0.9f,    0.8f,    0.8f},{    1.8f,    1.7f,    1.5f},{    3.8f,    3.5f,    3.2f},{    8.6f,    8.1f,    7.3f},{   17.2f,   16.3f,   14.6f},{   36.0f,   34.0f,   30.6f},{    72.1f,    68.1f,    61.3f},{   144.1f,   136.1f,   122.5f}},
       {{    1.8f,    1.7f,    1.5f},{    3.5f,    3.3f,    3.0f},{    7.5f,    7.1f,    6.4f},{   17.2f,   16.3f,   14.6f},{   34.4f,   32.5f,   29.3f},{   72.1f,   68.1f,   61.3f},{   144.1f,   136.1f,   122.5f},{   288.2f,   272.2f,   245.0f}},

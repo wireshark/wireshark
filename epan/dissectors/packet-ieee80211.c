@@ -17516,13 +17516,13 @@ struct scidx_part {
 
 struct scidx_ctx {
   uint8_t ru_index;
-  struct scidx_part *scidx_array;
+  const struct scidx_part *scidx_array;
   uint8_t ng;
   bool just_inited;
   unsigned last_val;
 };
 
-static struct scidx_part ru_242_tone_1_20MHz_ng4[] = {
+static const struct scidx_part ru_242_tone_1_20MHz_ng4[] = {
   { -122, false, 2, -120, false },
   { -120, true,  0,   -4, false },
   {   -2, false, 4,    2, false },
@@ -17530,7 +17530,7 @@ static struct scidx_part ru_242_tone_1_20MHz_ng4[] = {
   {  120, false, 2,  122, true  }
 };
 
-static struct scidx_part ru_242_tone_1_20MHz_ng16[] = {
+static const struct scidx_part ru_242_tone_1_20MHz_ng16[] = {
   { -122, false,  6, -116, false },
   { -116, true,   0,   -4, false },
   {   -2, false,  4,    2, false },
@@ -17540,19 +17540,19 @@ static struct scidx_part ru_242_tone_1_20MHz_ng16[] = {
 
 /* Here, there is one per RU index */
 /*Start, UseNg, Inc,End, last */
-static struct scidx_part ru_242_tone_40MHz[] = {
+static const struct scidx_part ru_242_tone_40MHz[] = {
   { -244, true, 0,   -4, true },
   {    4, true, 0,  244, true }
 };
 
-static struct scidx_part ru_242_tone_80MHz[] = {
+static const struct scidx_part ru_242_tone_80MHz[] = {
   { -500, true, 0, -260, true },
   { -252, true, 0,  -12, true },
   {   12, true, 0,  252, true },
   {  260, true, 0,  500, true }
 };
 
-static struct scidx_part ru_242_tone_160MHz[] = {
+static const struct scidx_part ru_242_tone_160MHz[] = {
   { -1012, true, 0, -772, true },
   {  -764, true, 0, -524, true },
   {  -500, true, 0, -260, true },
@@ -17563,7 +17563,7 @@ static struct scidx_part ru_242_tone_160MHz[] = {
   {   772, true, 0, 1012, true }
 };
 
-static struct scidx_part ru_242_tone_320MHz[] = {
+static const struct scidx_part ru_242_tone_320MHz[] = {
   { -2036, true, 0, -1796, true },
   { -1788, true, 0, -1548, true },
   { -1524, true, 0, -1284, true },
@@ -17583,12 +17583,12 @@ static struct scidx_part ru_242_tone_320MHz[] = {
 };
 
 /* All these ru_96 tone sets for NG=4 go in pairs. */
-static struct scidx_part ru_996_tone_80MHz_ng4[] = {
+static const struct scidx_part ru_996_tone_80MHz_ng4[] = {
   { -500, false, 4,  -4, false },
   {    4, false, 4, 500, true }
 };
 
-static struct scidx_part ru_996_tone_80MHz_ng16[] = {
+static const struct scidx_part ru_996_tone_80MHz_ng16[] = {
   { -500,  true, 0, -260, false },
   { -252,  true, 0,  -12, false },
   {   -4, false, 8,    4, false },
@@ -17596,7 +17596,7 @@ static struct scidx_part ru_996_tone_80MHz_ng16[] = {
   {  260,  true, 0,  500,  true }
 };
 
-static struct scidx_part ru_996_tone_160MHz_ng4[] = {
+static const struct scidx_part ru_996_tone_160MHz_ng4[] = {
   { -1012, true, 0, -516, false },
   {  -508, true, 0,  -12,  true },
 
@@ -17604,7 +17604,7 @@ static struct scidx_part ru_996_tone_160MHz_ng4[] = {
   {   516, true, 0, 1012,  true }
 };
 
-static struct scidx_part ru_996_tone_160MHz_ng16[] = {
+static const struct scidx_part ru_996_tone_160MHz_ng16[] = {
   { -1012,  true, 0, -772, false },
   {  -764,  true, 0, -524, false },
   {  -516, false, 8, -508, false },
@@ -17618,7 +17618,7 @@ static struct scidx_part ru_996_tone_160MHz_ng16[] = {
   {   772,  true, 0, 1012,  true }
 };
 
-static struct scidx_part ru_996_tone_320MHz_ng4[] = {
+static const struct scidx_part ru_996_tone_320MHz_ng4[] = {
   { -2036,  true, 0, -1540, false },
   { -1532,  true, 0, -1036,  true },
 
@@ -17632,7 +17632,7 @@ static struct scidx_part ru_996_tone_320MHz_ng4[] = {
   {  1540,  true, 0,  2036,  true }
 };
 
-static struct scidx_part ru_996_tone_320MHz_ng16[] = {
+static const struct scidx_part ru_996_tone_320MHz_ng16[] = {
   { -2036,  true, 0, -1796, false },
   { -1788,  true, 0, -1548, false },
   { -1540, false, 8, -1532, false },
@@ -17661,7 +17661,7 @@ static struct scidx_part ru_996_tone_320MHz_ng16[] = {
 
 static void
 init_eht_scidx(struct scidx_ctx *ctx, uint8_t ru_index,
-               struct scidx_part *scidx_array, uint8_t ng)
+               const struct scidx_part *scidx_array, uint8_t ng)
 {
   ctx->ru_index = ru_index;
   ctx->scidx_array = scidx_array;
@@ -38157,7 +38157,7 @@ static const val64_string pre_fec_padding_factor_vals[] = {
   { 0, NULL }
 };
 
-static true_false_string pe_disambiguity_tfs = {
+static const true_false_string pe_disambiguity_tfs = {
   "PE Disambiguity ",
   "no PE Disambiguity"
  };
@@ -38222,7 +38222,7 @@ add_trigger_common_info(proto_tree *tree, tvbuff_t *tvb, int offset,
   return length;
 }
 
-static const char * he_trigger_ru_allocation_region_values[] = {
+static const char * const he_trigger_ru_allocation_region_values[] = {
   "primary 80MHz channel for 80+80 and 160MHz",
   "secondary 80MHz channel for 80+80 and 160MHz",
 };
