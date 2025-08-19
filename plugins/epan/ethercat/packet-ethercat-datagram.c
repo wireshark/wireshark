@@ -1490,7 +1490,7 @@ static int dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
          /* Create a subtree placeholder for the Header */
          ecat_header_tree = proto_tree_add_subtree(ecat_datagram_tree, tvb, offset, EcParserHDR_Len, ett_ecat_header, NULL, "Header");
 
-         aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_cmd, tvb, suboffset, 1, ENC_LITTLE_ENDIAN);
+         proto_tree_add_item(ecat_header_tree, hf_ecat_cmd, tvb, suboffset, 1, ENC_LITTLE_ENDIAN);
          if( subCount < 10 ){
             aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_sub_cmd[subCount], tvb, suboffset, 1, ENC_LITTLE_ENDIAN);
             proto_item_set_hidden(aitem);
