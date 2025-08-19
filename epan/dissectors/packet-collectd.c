@@ -1142,9 +1142,6 @@ dissect_collectd_parts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *collectd_t
 	tap_data_t *tap_data = p_get_proto_data(pinfo->pool, pinfo, proto_collectd, TAP_DATA_KEY);
 	column_data_t *col_data = p_get_proto_data(pinfo->pool, pinfo, proto_collectd, COL_DATA_KEY);
 
-	offset = 0;
-	size = tvb_reported_length(tvb);
-
 	status = 0;
 	offset = 0;
 	size = tvb_reported_length(tvb);
