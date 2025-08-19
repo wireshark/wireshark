@@ -448,18 +448,19 @@ dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 
    while (offset < tvb_reported_length(tvb)) {
       tag_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
-            ett_daap_sub, &tag_ti, "Tag: ");
+            ett_daap_sub, &tag_ti, "Tag:");
 
       proto_tree_add_item_ret_uint(tag_tree, hf_daap_name,
             tvb, offset, 4, ENC_BIG_ENDIAN, &tagname);
-      offset += 4;
-      proto_tree_add_item_ret_uint(tag_tree, hf_daap_size,
-            tvb, offset, 4, ENC_BIG_ENDIAN, &tagsize);
+      proto_item_append_text(tag_ti, " %s",
+            val_to_str_ext(pinfo->pool, tagname, &vals_tag_code_ext, "Unknown tag (0x%0x)"));
       offset += 4;
 
-      proto_item_append_text(tag_ti, "%s, %u byte%c",
-            val_to_str_ext(pinfo->pool, tagname, &vals_tag_code_ext, "Unknown tag (0x%0x)"),
+      proto_tree_add_item_ret_uint(tag_tree, hf_daap_size,
+            tvb, offset, 4, ENC_BIG_ENDIAN, &tagsize);
+      proto_item_append_text(tag_ti, ", %u byte%c",
             tagsize, plurality(tagsize, ' ', 's'));
+      offset += 4;
       proto_item_set_len(tag_ti, 8+tagsize);
 
       if (tagsize > INT_MAX)
