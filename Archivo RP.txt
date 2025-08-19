@@ -1,1 +1,12 @@
 Esta archivo pertenece a la rama de Ricardo Penafiel
+
+Wireshark es una herramienta muy útil en el útil en el área de TI y ciberseguridad. 
+Es una herramienta que permite capturar y analizar paquetes de red. 
+Contribuye a identificar la causa raíz de los problemas de red y nos ayuda en el análisis 
+y la seguridad de la red. Wireshark sirve para capturar, interpretar, filtrar e 
+inspeccionar paquetes de datos para solucionar eficazmente los problemas de red.
+ La conectividad de Wireshark consiste en una interfaz gráfica de usuario (GUI). Además, implementa una amplia gama de filtros que facilitan la definición de criterios de
+búsqueda para más de 1100 protocolos soportados. Wireshark es muy importante en GitHub 
+ya que permite a los desarrolladores colaborar en el código de Wireshark y contribuir a su
+desarrollo. Por otro lado, GitHub es una plataforma para la gestión de versiones, 
+lo que facilita el trabajo en equipo y la mejora del software.
