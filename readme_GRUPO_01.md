@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Wireshark
 
 ## 1. Resumen
@@ -13,6 +12,7 @@ En ciberseguridad, Wireshark resulta fundamental porque:
 - **Formación y capacitación:** es utilizado en universidades, laboratorios y entrenamientos para comprender cómo funcionan los protocolos y cómo se explotan vulnerabilidades.  
 
 Gracias a su robustez y comunidad activa, Wireshark es considerado una herramienta esencial para administradores de red y profesionales de ciberseguridad, apoyando la detección temprana de amenazas y el fortalecimiento de la seguridad informática.
+
 =======
 ## 3. Justificación técnica de la elección 
 
@@ -54,4 +54,5 @@ Wireshark es considerado un estándar de facto para el análisis de tráfico de 
 3. [Scarfone & Mell, 2007] Guide to Intrusion Detection and Prevention Systems (IDPS). NIST Special Publication 800-94.
 
 4. [Wireshark GitHub, 2025] Wireshark Network Protocol Analyzer (Repositorio de GitHub). https://github.com/wireshark/wireshark
->>>>>>> NILSON_ROMERO
+
+
