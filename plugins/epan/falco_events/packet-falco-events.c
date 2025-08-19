@@ -1472,11 +1472,10 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
                     strcmp(hfinfo->abbrev, "ct.additionaleventdata") == 0 ||
                     strcmp(hfinfo->abbrev, "ct.resources") == 0 ) &&
                     strcmp(sfe->res.str, "null") != 0) {
-               tvbuff_t *json_tvb = tvb_new_child_real_data(tvb, sfe->res.str, (unsigned)strlen(sfe->res.str), (unsigned)strlen(sfe->res.str));
-               add_new_data_source(pinfo, json_tvb, "JSON Object");
-               proto_tree *json_tree = proto_item_add_subtree(sf_ti, ett_json);
-               char *col_info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
-               call_dissector(json_handle, json_tvb, pinfo, json_tree);
+                tvbuff_t *json_tvb = tvb_new_subset_length(tvb, sfe->data_start, sfe->data_length);
+                proto_tree *json_tree = proto_item_add_subtree(sf_ti, ett_json);
+                char *col_info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
+                call_dissector(json_handle, json_tvb, pinfo, json_tree);
 
                 /* Restore Protocol and Info columns */
                 col_set_str(pinfo->cinfo, COL_INFO, col_info_text);
