@@ -13246,7 +13246,6 @@ dissect_zigbee_direct_adv_data(proto_tree *tree, tvbuff_t *tvb, const gint start
 
     /* Zigbee NWK address. */
     proto_tree_add_item(tree, hf_btcommon_eir_ad_zd_zigbee_nwkaddr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
 }
 
 
