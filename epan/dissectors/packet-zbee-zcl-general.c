@@ -15983,7 +15983,7 @@ zcl_touchlink_comissioning_equal (gconstpointer v, gconstpointer v2)
 }
 
 static unsigned
-zcl_touchlink_comissioning_hash  (gconstpointer v)
+zcl_touchlink_comissioning_hash (gconstpointer v)
 {
     unsigned hash;
     const unsigned * id;
@@ -15992,7 +15992,6 @@ zcl_touchlink_comissioning_hash  (gconstpointer v)
         return 0;
     }
 
-    hash = 0;
     id = (const unsigned*) v;
     hash = *id;
 
