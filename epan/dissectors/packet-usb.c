@@ -4541,7 +4541,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     transfer_type_and_direction = (transfer_type & 0x7F) | (endpoint_byte & 0x80);
     col_append_str(pinfo->cinfo, COL_INFO,
-                    val_to_str_wmem(pinfo->pool, transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
+                    val_to_str(pinfo->pool, transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
 
     proto_tree_add_bitmask(tree, tvb, 10, hf_usb_endpoint_address, ett_usb_endpoint, usb_endpoint_fields, ENC_NA);
     proto_tree_add_item(tree, hf_usb_device_address, tvb, 11, 1, ENC_LITTLE_ENDIAN);
@@ -4629,7 +4629,7 @@ dissect_usbpcap_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     if (transfer_type != USBPCAP_URB_IRP_INFO) {
         transfer_type_and_direction = (transfer_type & 0x7F) | (endpoint_byte & 0x80);
         col_append_str(pinfo->cinfo, COL_INFO,
-            val_to_str_wmem(pinfo->pool, transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
+            val_to_str(pinfo->pool, transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
     } else {
         col_append_str(pinfo->cinfo, COL_INFO,
             val_to_str_ext(pinfo->pool, function_code, &win32_urb_function_vals_ext, "Unknown function %x"));
@@ -4701,7 +4701,7 @@ dissect_darwin_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     transfer_type_and_direction = (darwin_endpoint_to_linux[transfer_type] & 0x7F) | (endpoint_byte & 0x80);
     col_append_str(pinfo->cinfo, COL_INFO,
-                   val_to_str_wmem(pinfo->pool, transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
+                   val_to_str(pinfo->pool, transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
     col_append_str(pinfo->cinfo, COL_INFO, urb->is_request == true ? " (submitted)" : " (completed)");
 
     urb->is_setup = false;

@@ -518,7 +518,7 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
 
 		proto_item_append_text(netsync_tree, " V%d, Cmd: %s (%d), Size: %d",
-					version, val_to_str_wmem(pinfo->pool, cmd, netsync_cmd_vals, "(0x%x)"), cmd, size );
+					version, val_to_str(pinfo->pool, cmd, netsync_cmd_vals, "(0x%x)"), cmd, size );
 
 		proto_item_set_len(netsync_tree, 1+1+size_bytes+size+4);
 	}

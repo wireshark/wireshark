@@ -74,7 +74,7 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	col_append_str(pinfo->cinfo, COL_INFO, " (DTAP) ");
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
-		val_to_str_wmem(pinfo->pool, pd, gmr1_pd_short_vals, "Unknown (%u)"));
+		val_to_str(pinfo->pool, pd, gmr1_pd_short_vals, "Unknown (%u)"));
 
 	/* Get message parameters */
 	oct[1] = tvb_get_uint8(tvb, offset);

@@ -1035,7 +1035,7 @@ dissect_pres_Abort_reason(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
                                                 &reason);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str_wmem(actx->pinfo->pool, reason, pres_Abort_reason_vals, "unknown: %d"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, reason, pres_Abort_reason_vals, "unknown: %d"));
 
 
   return offset;

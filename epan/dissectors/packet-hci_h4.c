@@ -91,7 +91,7 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree_add_item(main_tree, hf_hci_h4_type,
         tvb, 0, 1, ENC_LITTLE_ENDIAN);
     col_append_str(pinfo->cinfo, COL_INFO,
-            val_to_str_wmem(pinfo->pool, type, hci_h4_type_vals, "Unknown HCI packet type 0x%02x"));
+            val_to_str(pinfo->pool, type, hci_h4_type_vals, "Unknown HCI packet type 0x%02x"));
 
     next_tvb = tvb_new_subset_remaining(tvb, 1);
     if (!dissector_try_uint_with_data(hci_h4_table, type, next_tvb, pinfo, tree, true, bluetooth_data)) {

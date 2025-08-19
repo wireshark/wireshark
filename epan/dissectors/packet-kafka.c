@@ -927,13 +927,13 @@ static uint32_t XXH32(const void* input, size_t len, uint32_t seed)
 static const char *
 kafka_error_to_str(wmem_allocator_t* scope, kafka_error_t error)
 {
-    return val_to_str_wmem(scope, error, kafka_errors, "Unknown %d");
+    return val_to_str(scope, error, kafka_errors, "Unknown %d");
 }
 
 static const char *
 kafka_api_key_to_str(wmem_allocator_t* scope, kafka_api_key_t api_key)
 {
-    return val_to_str_wmem(scope, api_key, kafka_api_names, "Unknown %d");
+    return val_to_str(scope, api_key, kafka_api_names, "Unknown %d");
 }
 
 static const kafka_api_info_t *

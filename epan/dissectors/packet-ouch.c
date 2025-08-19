@@ -443,7 +443,7 @@ dissect_ouch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
 
     /* Since we use the packet name a few times, get and save that value */
-    pkt_name = val_to_str_wmem(pinfo->pool, pkt_type, pkt_type_val, "Unknown (%u)");
+    pkt_name = val_to_str(pinfo->pool, pkt_type, pkt_type_val, "Unknown (%u)");
 
     /* Set the protocol name in the summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OUCH");

@@ -1528,7 +1528,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (!first) {
         col_append_str(pinfo->cinfo, COL_INFO, ", ");
     }
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, data_type, tecmp_data_type_names, "Unknown (%d)"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, data_type, tecmp_data_type_names, "Unknown (%d)"));
 
     ti = proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_interface_id, tvb, offset, 4, ENC_BIG_ENDIAN, &tmp);
     add_interface_id_text_and_name(ti, tmp, tvb, offset);
@@ -1665,7 +1665,7 @@ dissect_tecmp_status_config_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
     int offset = 0;
     unsigned data_length = 0;
 
-    proto_item_append_text(ti_root, " (%s)", val_to_str_wmem(pinfo->pool, vendor_id, tecmp_vendor_ids, "(Unknown Vendor: %d)"));
+    proto_item_append_text(ti_root, " (%s)", val_to_str(pinfo->pool, vendor_id, tecmp_vendor_ids, "(Unknown Vendor: %d)"));
     tree = proto_item_add_subtree(ti_root, ett_tecmp_status_bus_vendor_data);
 
     switch (vendor_id) {
@@ -1711,7 +1711,7 @@ dissect_tecmp_status_bus_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         NULL
     };
 
-    proto_item_append_text(ti_root, " (%s)", val_to_str_wmem(pinfo->pool, vendor_id, tecmp_vendor_ids, "(Unknown Vendor: %d)"));
+    proto_item_append_text(ti_root, " (%s)", val_to_str(pinfo->pool, vendor_id, tecmp_vendor_ids, "(Unknown Vendor: %d)"));
     tree = proto_item_add_subtree(ti_root, ett_tecmp_status_bus_vendor_data);
 
     switch (vendor_id) {
@@ -1853,7 +1853,7 @@ dissect_tecmp_status_device_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
     nstime_t timestamp;
     int temperature = 0;
 
-    proto_item_append_text(ti_root, " (%s)", val_to_str_wmem(pinfo->pool, vendor_id, tecmp_vendor_ids, "(Unknown Vendor: %d)"));
+    proto_item_append_text(ti_root, " (%s)", val_to_str(pinfo->pool, vendor_id, tecmp_vendor_ids, "(Unknown Vendor: %d)"));
     tree = proto_item_add_subtree(ti_root, ett_tecmp_status_dev_vendor_data);
 
     switch (vendor_id) {
@@ -2344,7 +2344,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         length = tvb_get_uint16(tvb, offset + 12, ENC_BIG_ENDIAN);
         ti_tecmp = proto_tree_add_item(tree, proto_tecmp_payload, tvb, offset, (int)length + 16, ENC_NA);
-        proto_item_append_text(ti_tecmp, " (%s)", val_to_str_wmem(pinfo->pool, data_type, tecmp_data_type_names, "Unknown (%d)"));
+        proto_item_append_text(ti_tecmp, " (%s)", val_to_str(pinfo->pool, data_type, tecmp_data_type_names, "Unknown (%d)"));
         tecmp_tree = proto_item_add_subtree(ti_tecmp, ett_tecmp_payload);
 
         offset += dissect_tecmp_entry_header(tvb, pinfo, tecmp_tree, offset, tecmp_msg_type, data_type, first, &dataflags, &interface_id, &timestamp_ns);

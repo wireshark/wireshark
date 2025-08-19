@@ -2318,7 +2318,7 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     /* Clear other columns */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand Link");
     col_add_str(pinfo->cinfo, COL_INFO,
-             val_to_str_wmem(pinfo->pool, operand, Operand_Description, "Unknown (0x%1x)"));
+             val_to_str(pinfo->pool, operand, Operand_Description, "Unknown (0x%1x)"));
 
     /* Assigns column values */
     dissect_general_info(tvb, offset, pinfo, IB_PACKET_STARTS_WITH_LRH);
@@ -2620,7 +2620,7 @@ parse_AETH(proto_tree * parentTree, tvbuff_t *tvb, int *offset, packet_info *pin
             break;
         case AETH_SYNDROME_OPCODE_NAK:
             proto_tree_add_item_ret_uint(AETH_syndrome_tree, hf_infiniband_syndrome_error_code, tvb, local_offset, 1, ENC_BIG_ENDIAN, &nak_error);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] ", val_to_str_wmem(pinfo->pool, nak_error, aeth_syndrome_nak_error_code_vals, "Unknown (%d)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] ", val_to_str(pinfo->pool, nak_error, aeth_syndrome_nak_error_code_vals, "Unknown (%d)"));
             break;
     }
 
@@ -4322,7 +4322,7 @@ static bool parse_RMPP(proto_tree *parentTree, packet_info* pinfo, tvbuff_t *tvb
     proto_tree *RMPP_header_tree;
 
     RMPP_header_item = proto_tree_add_item(parentTree, hf_infiniband_RMPP, tvb, local_offset, 12, ENC_NA);
-    proto_item_set_text(RMPP_header_item, "%s", val_to_str_wmem(pinfo->pool, RMPP_Type, RMPP_Packet_Types, "Reserved RMPP Type! (0x%02x)"));
+    proto_item_set_text(RMPP_header_item, "%s", val_to_str(pinfo->pool, RMPP_Type, RMPP_Packet_Types, "Reserved RMPP Type! (0x%02x)"));
     RMPP_header_tree = proto_item_add_subtree(RMPP_header_item, ett_rmpp);
 
     proto_tree_add_item(RMPP_header_tree, hf_infiniband_rmpp_version, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -4434,7 +4434,7 @@ static bool parse_SUBM_Attribute(proto_tree *parentTree, packet_info* pinfo, tvb
     proto_tree *SUBM_Attribute_header_tree;
 
     SUBM_Attribute_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, *offset, 64, ENC_NA);
-    proto_item_set_text(SUBM_Attribute_header_item, "%s", val_to_str_wmem(pinfo->pool, attributeID, SUBM_Attributes, "Unknown Attribute Type! (0x%02x)"));
+    proto_item_set_text(SUBM_Attribute_header_item, "%s", val_to_str(pinfo->pool, attributeID, SUBM_Attributes, "Unknown Attribute Type! (0x%02x)"));
     SUBM_Attribute_header_tree = proto_item_add_subtree(SUBM_Attribute_header_item, ett_subm_attribute);
 
 
@@ -4508,7 +4508,7 @@ static bool parse_SUBA_Attribute(proto_tree *parentTree, packet_info* pinfo, tvb
     proto_tree *SUBA_Attribute_header_tree;
 
     SUBA_Attribute_header_item = proto_tree_add_item(parentTree, hf_infiniband_SA, tvb, *offset, 200, ENC_NA);
-    proto_item_set_text(SUBA_Attribute_header_item, "%s", val_to_str_wmem(pinfo->pool, attributeID, SUBA_Attributes, "Unknown Attribute Type! (0x%02x)"));
+    proto_item_set_text(SUBA_Attribute_header_item, "%s", val_to_str(pinfo->pool, attributeID, SUBA_Attributes, "Unknown Attribute Type! (0x%02x)"));
     SUBA_Attribute_header_tree = proto_item_add_subtree(SUBA_Attribute_header_item, ett_suba_attribute);
 
     /* Skim off the RID fields should they be present */
@@ -4892,7 +4892,7 @@ static void parse_NoticesAndTraps(proto_tree* parentTree, packet_info* pinfo, tv
         return;
 
     NoticesAndTraps_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 64, ENC_NA);
-    proto_item_set_text(NoticesAndTraps_header_item, "%s", val_to_str_wmem(pinfo->pool, trapNumber, Trap_Description, "Unknown or Vendor Specific Trap Number! (0x%02x)"));
+    proto_item_set_text(NoticesAndTraps_header_item, "%s", val_to_str(pinfo->pool, trapNumber, Trap_Description, "Unknown or Vendor Specific Trap Number! (0x%02x)"));
     NoticesAndTraps_header_tree = proto_item_add_subtree(NoticesAndTraps_header_item, ett_noticestraps);
 
     proto_tree_add_item(NoticesAndTraps_header_tree, hf_infiniband_Notice_IsGeneric, tvb, local_offset, 1, ENC_BIG_ENDIAN);

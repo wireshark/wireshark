@@ -7462,9 +7462,9 @@ val_to_split_str(wmem_allocator_t* scope, uint32_t val, uint32_t split_val, cons
     const char *fmt, const char *split_fmt)
 {
     if (val < split_val)
-        return val_to_str_wmem(scope, val, vs, fmt);
+        return val_to_str(scope, val, vs, fmt);
     else
-        return val_to_str_wmem(scope, val, vs, split_fmt);
+        return val_to_str(scope, val, vs, split_fmt);
 }
 
 /* from clause 20.2.1.3.2 Constructed Data */
@@ -7653,7 +7653,7 @@ fTagHeaderTree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             subtree = proto_tree_add_subtree_format(tree, tvb, offset, tag_len,
                     ett_bacapp_tag, &ti,
                     "Application Tag: %s, Length/Value/Type: %u",
-                    val_to_str_wmem(pinfo->pool, *tag_no, BACnetApplicationTagNumber,
+                    val_to_str(pinfo->pool, *tag_no, BACnetApplicationTagNumber,
                         ASHRAE_Reserved_Fmt),
                     *lvt);
         }
@@ -8181,9 +8181,9 @@ fWeekNDay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
     dayOfWeek = tvb_get_uint8(tvb, offset+tag_len+2);
     subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
                  ett_bacapp_tag, NULL, "%s %s, %s",
-                 val_to_str_wmem(pinfo->pool, month, months, "month (%d) not found"),
-                 val_to_str_wmem(pinfo->pool, weekOfMonth, weekofmonth, "week of month (%d) not found"),
-                 val_to_str_wmem(pinfo->pool, dayOfWeek, day_of_week, "day of week (%d) not found"));
+                 val_to_str(pinfo->pool, month, months, "month (%d) not found"),
+                 val_to_str(pinfo->pool, weekOfMonth, weekofmonth, "week of month (%d) not found"),
+                 val_to_str(pinfo->pool, dayOfWeek, day_of_week, "day of week (%d) not found"));
     fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
 
     return offset+tag_len+lvt;
@@ -8213,18 +8213,18 @@ fDate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, cons
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
             ett_bacapp_tag, NULL,
             "%s%s %d, %d, (Day of Week = %s)",
-            label, val_to_str_wmem(pinfo->pool, month,
+            label, val_to_str(pinfo->pool, month,
                 months,
                 "month (%d) not found"),
-            day, year, val_to_str_wmem(pinfo->pool, weekday,
+            day, year, val_to_str(pinfo->pool, weekday,
                 day_of_week,
                 "(%d) not found"));
     } else {
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
             ett_bacapp_tag, NULL,
             "%s%s %d, any year, (Day of Week = %s)",
-            label, val_to_str_wmem(pinfo->pool, month, months, "month (%d) not found"),
-            day, val_to_str_wmem(pinfo->pool, weekday, day_of_week, "(%d) not found"));
+            label, val_to_str(pinfo->pool, month, months, "month (%d) not found"),
+            day, val_to_str(pinfo->pool, weekday, day_of_week, "(%d) not found"));
     }
     fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
 
@@ -8484,8 +8484,6 @@ fSessionKey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset
 static void
 format_object_identifier(char *s, uint32_t object_id)
 {
-    // This can be called when wmem_packet_scope is not in scope, so
-    // we can't use the non const val_to_str.
     uint32_t type = object_id_type(object_id);
     const char* abbrev = try_val_to_str(type, BACnetObjectTypeAbbrev);
     if (abbrev) {
@@ -9124,7 +9122,7 @@ fBitStringTagVSBase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
             if (src != NULL) {
                 proto_tree_add_boolean_format(subtree, hf_bacapp_bit, tvb, offset+i+1, 1,
                                             (tmp & (1 << (7 - j))), "%s = %s",
-                                            val_to_str_wmem(pinfo->pool, (unsigned) (i*8 +j), src, ASHRAE_Reserved_Fmt),
+                                            val_to_str(pinfo->pool, (unsigned) (i*8 +j), src, ASHRAE_Reserved_Fmt),
                                             (tmp & (1 << (7 - j))) ? "TRUE" : "FALSE");
             } else {
                 bf_arr[MIN(255, (i*8)+j)] = tmp & (1 << (7 - j)) ? '1' : '0';
@@ -10968,7 +10966,7 @@ fWeeklySchedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned of
             return offset; /* outer encoding will print out closing tag */
         }
         subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_bacapp_value, NULL,
-                                val_to_str_wmem(pinfo->pool, i++, day_of_week, "day of week (%d) not found"));
+                                val_to_str(pinfo->pool, i++, day_of_week, "day of week (%d) not found"));
         offset = fDailySchedule(tvb, pinfo, subtree, offset);
         if (offset <= lastoffset) break;     /* nothing happened, exit loop */
     }

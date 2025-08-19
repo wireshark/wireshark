@@ -2143,7 +2143,7 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
 
    /* Add connection format and update number to the info column */
    col_add_fstr( pinfo->cinfo, COL_INFO, "%s, Update Id: %d",
-                 val_to_str_wmem(pinfo->pool, con_format, cip_con_format_vals, "Unknown connection format (%x)"), update_id );
+                 val_to_str(pinfo->pool, con_format, cip_con_format_vals, "Unknown connection format (%x)"), update_id );
 
    /* Attempt to classify the incoming header */
    if (( con_format == FORMAT_VAR_CONTROL_TO_DEVICE ) ||

@@ -78,16 +78,26 @@ struct ws80211_iface_info {
 	enum ws80211_fcs_validation current_fcs_validation;
 };
 
+/*
+ * List of error types.
+ * WS80211_ERROR is a generic error that might have a platform-specific
+ * error mssage that depends on the last failed operation.
+ */
+#define WS80211_OK                  0
+#define WS80211_ERROR_NOT_SUPPORTED 1
+#define WS80211_ERROR               2
+
+/** Retrieve an 802.11 error message based on the most recent returned
+ * error.
+ */
+const char *ws80211_geterror(int error);
+
 /** Initialize the 802.11 environment.
  * On Linux this initializes an nl80211_state struct.
  *
- * @return WS80211_INIT_OK on success, WS80211_INIT_NOT_SUPPORTED if the
- * 802.11 environment isn't supported, or the negative of an errno value
- * on failure.
+ * @return WS80211_OK on success, WS80211_ERROR_NOT_SUPPORTED if the
+ * 802.11 environment isn't supported, or WS80211_ERROR for other errors.
  */
-#define WS80211_INIT_OK            0
-#define WS80211_INIT_NOT_SUPPORTED 1
-
 int ws80211_init(void);
 
 /** Build a list of 802.11 interfaces.
@@ -115,7 +125,7 @@ void ws80211_clear_band(struct ws80211_band *band);
  * @param chan_type The HT channel type (no, 20Mhz, 40Mhz...).
  * @param center_freq The center frequency in MHz (if 80MHz, 80+80MHz or 160MHz).
  * @param center_freq2 The 2nd center frequency in MHz (if 80+80MHz).
- * @return Zero on success, nonzero on failure.
+ * @return WS80211_OK on success, other values on failure.
  */
 int ws80211_set_freq(const char *name, uint32_t freq, int chan_type, uint32_t _U_ center_freq, uint32_t _U_ center_freq2);
 
@@ -134,7 +144,7 @@ bool ws80211_has_fcs_filter(void);
  *
  * @param name The interface name.
  * @param fcs_validation The desired validation behavior.
- * @return Zero on success, nonzero on failure.
+ * @return WS80211_OK on success, other values on failure.
  */
 int ws80211_set_fcs_validation(const char *name, enum ws80211_fcs_validation fcs_validation);
 

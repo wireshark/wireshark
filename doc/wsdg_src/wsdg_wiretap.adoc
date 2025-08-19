@@ -45,7 +45,7 @@ filtering mechanism than that provided by BPF.
 
 === Creating a new wiretap module
 
-As a demonstrative example, let's create a new wiretap module for a new "Data Undergoing Mysterious Breakage" (DUMB) format. The DUMB format starts with the magic text "DUMB" and is a series of single-digit data lengths and then the associated strings.
+As a demonstrative example, let's create a new wiretap module for the fictional "Data Undergoing Mysterious Breakage" (DUMB) format. The DUMB format starts with the magic text "DUMB" and is a series of single-digit data lengths and then the associated strings.
 
 To add support for the new DUMB capture format, our first step will be to create two new files, `dumb.h` and `dumb.c` in the wiretap directory. These will contain the code for handling the new format.
 

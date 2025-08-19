@@ -3540,7 +3540,7 @@ dissect_pmip6_opt_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         sub_opt_len = tvb_get_uint8(tvb,offset);
         offset++;
 
-        proto_item_append_text(ti, ": %s (t=%d,l=%d)", val_to_str_wmem(pinfo->pool, sub_opt, mmip6_opt_acc_net_id_sub_opt_vals, "Unknown ANI Type (%02d)"), sub_opt, sub_opt_len);
+        proto_item_append_text(ti, ": %s (t=%d,l=%d)", val_to_str(pinfo->pool, sub_opt, mmip6_opt_acc_net_id_sub_opt_vals, "Unknown ANI Type (%02d)"), sub_opt, sub_opt_len);
         proto_item_set_len(ti, sub_opt_len+2);
 
         switch(sub_opt){

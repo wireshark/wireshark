@@ -5936,7 +5936,7 @@ info_column_filler_initial(uint8_t homeplug_av_mmver,
     /* if packet is vendor specific - display vendor OUI */
     if (homeplug_av_oui) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
-                           val_to_str_wmem(pinfo->pool, homeplug_av_oui, homeplug_av_vendors_oui_vals, "OUI:0x%x"));
+                           val_to_str(pinfo->pool, homeplug_av_oui, homeplug_av_vendors_oui_vals, "OUI:0x%x"));
     }
 
     /* Info depends on type and oui */

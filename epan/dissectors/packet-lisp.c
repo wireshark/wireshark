@@ -539,7 +539,7 @@ get_addr_str(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16_t afi, uint16
             return addr_str;
         case AFNUM_LCAF:
             get_lcaf_data(tvb, offset, &lcaf_type, addr_len);
-            addr_str = val_to_str_wmem(pinfo->pool, lcaf_type, lcaf_typevals, "Unknown LCAF Type (%d)");
+            addr_str = val_to_str(pinfo->pool, lcaf_type, lcaf_typevals, "Unknown LCAF Type (%d)");
             if (lcaf_type == LCAF_IID) {
                 iid = tvb_get_ntohl(tvb, offset + LCAF_HEADER_LEN);
                 afi = tvb_get_ntohs(tvb, offset + LCAF_HEADER_LEN + 4);
@@ -1869,7 +1869,7 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, pr
     /* Type (8 bits) */
     proto_tree_add_item(lcaf_header_tree, hf_lisp_lcaf_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     lcaf_type = tvb_get_uint8(tvb, offset);
-    proto_item_append_text(tir, ": %s", val_to_str_wmem(pinfo->pool, lcaf_type, lcaf_typevals, "Unknown (%d)"));
+    proto_item_append_text(tir, ": %s", val_to_str(pinfo->pool, lcaf_type, lcaf_typevals, "Unknown (%d)"));
     offset += 1;
 
     if (lcaf_type == LCAF_MCAST_INFO) {
@@ -2120,7 +2120,7 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
     proto_tree_add_item(lisp_mapping_tree, hf_lisp_mapping_act, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_item_append_text(tir, ", %s%s%s",
             (referral) ? "" : "Action: ",
-            val_to_str_wmem(pinfo->pool, act, (referral) ? referral_actions : mapping_actions, "Invalid action code (%d)"),
+            val_to_str(pinfo->pool, act, (referral) ? referral_actions : mapping_actions, "Invalid action code (%d)"),
             (referral&&(flags&REFERRAL_INCOMPLETE)) ? " (Incomplete)" : "");
 
     /* Authoritative bit */
@@ -3017,10 +3017,10 @@ dissect_lisp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LISP");
 
     if (encapsulated) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Encapsulated %s", val_to_str_wmem(pinfo->pool, type, lisp_typevals,
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Encapsulated %s", val_to_str(pinfo->pool, type, lisp_typevals,
                     "Unknown LISP Control Packet (%d)"));
     } else {
-        col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, type, lisp_typevals,
+        col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, type, lisp_typevals,
                     "Unknown LISP Control Packet (%d)"));
     }
 

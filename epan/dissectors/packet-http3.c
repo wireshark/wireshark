@@ -65,6 +65,7 @@ static int hf_http3_stream_uni_type;
 static int hf_http3_stream_bidi;
 static int hf_http3_push_id;
 static int hf_http3_frame;
+static int hf_http3_frame_streamid;
 static int hf_http3_frame_type;
 static int hf_http3_frame_length;
 static int hf_http3_frame_payload;
@@ -1560,12 +1561,15 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 {
     uint64_t    frame_type, frame_length;
     int         type_length_size, lenvar, payload_length;
-    proto_item  *ti_ft, *ti_ft_type;
+    proto_item  *ti_ft, *ti_ft_type, *ti_streamid;
     proto_tree  *ft_tree;
     const char *ft_display_name;
 
     ti_ft = proto_tree_add_item(tree, hf_http3_frame, tvb, offset, -1, ENC_NA);
     ft_tree = proto_item_add_subtree(ti_ft, ett_http3_frame);
+
+    ti_streamid = proto_tree_add_uint64(ft_tree, hf_http3_frame_streamid, tvb, offset, 0, http3_stream->id);
+    proto_item_set_generated(ti_streamid);
 
     ti_ft_type = proto_tree_add_item_ret_varint(ft_tree, hf_http3_frame_type, tvb, offset, -1, ENC_VARINT_QUIC, &frame_type,
                                         &lenvar);
@@ -2776,6 +2780,11 @@ proto_register_http3(void)
           { "Type", "http3.frame_type",
             FT_UINT64, BASE_HEX|BASE_VAL64_STRING, VALS64(http3_frame_types), 0x0,
             "Frame Type", HFILL }
+        },
+        { &hf_http3_frame_streamid,
+          { "Stream ID", "http3.frame_streamid",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            "QUIC Stream id that this frame came in on", HFILL }
         },
         { &hf_http3_frame_length,
           { "Length", "http3.frame_length",

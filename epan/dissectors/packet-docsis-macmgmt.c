@@ -3280,7 +3280,7 @@ dissect_ucd_burst_descr(tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, p
     tlvtype = tvb_get_uint8 (tvb, tlvpos);
     burst_tree = proto_tree_add_subtree (tree, tvb, tlvpos, -1,
                                                         ett_docsis_burst_tlv, &burst_item,
-                                                        val_to_str_wmem(pinfo->pool, tlvtype, burst_tlv_vals,
+                                                        val_to_str(pinfo->pool, tlvtype, burst_tlv_vals,
                                                         "Unknown TLV (%u)"));
     proto_tree_add_uint (burst_tree, hf_docsis_ucd_burst_type, tvb, tlvpos++, 1, tlvtype);
     burst_len_item = proto_tree_add_item_ret_uint (burst_tree, hf_docsis_ucd_burst_length, tvb, tlvpos++, 1, ENC_NA, &tlvlen);
@@ -3552,7 +3552,7 @@ dissect_any_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int pro
     type = tvb_get_uint8 (tvb, pos);
     tlv_tree = proto_tree_add_subtree(ucd_tree, tvb, pos, -1,
                                             ett_docsis_tlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, channel_tlv_vals,
+                                            val_to_str(pinfo->pool, type, channel_tlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (tlv_tree, hf_docsis_ucd_type, tvb, pos, 1, type);
     pos++;
@@ -4143,7 +4143,7 @@ dissect_rngrsp_commanded_power(tvbuff_t * tvb, packet_info* pinfo, proto_tree * 
     tlvtype = tvb_get_uint8 (tvb, pos);
     commanded_power_subtlv_tree = proto_tree_add_subtree(commanded_power_tree, tvb, pos, -1,
                                   ett_docsis_rngrsp_tlv_commanded_power_subtlv, &rngrsptlv_commanded_power_subtlv,
-                                  val_to_str_wmem(pinfo->pool, tlvtype, rngrsp_tlv_commanded_power_subtlv_vals,
+                                  val_to_str(pinfo->pool, tlvtype, rngrsp_tlv_commanded_power_subtlv_vals,
                                   "Unknown TLV (%u)"));
     pos++;
     tlvlen = tvb_get_uint8 (tvb, pos);
@@ -4193,7 +4193,7 @@ dissect_rngrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * rngrsp_tre
     tlvtype = tvb_get_uint8 (tvb, pos);
     rngrsptlv_tree = proto_tree_add_subtree(rngrsp_tree, tvb, pos, -1,
                                   ett_docsis_rngrsptlv, &rngrsptlv_item,
-                                  val_to_str_wmem(pinfo->pool, tlvtype, rngrsp_tlv_vals,
+                                  val_to_str(pinfo->pool, tlvtype, rngrsp_tlv_vals,
                                   "Unknown TLV (%u)"));
     proto_tree_add_uint (rngrsptlv_tree, hf_docsis_rngrsp_type, tvb, pos, 1, tlvtype);
     pos++;
@@ -4426,7 +4426,7 @@ dissect_attrs(tvbuff_t * tvb, packet_info * pinfo, proto_item *item _U_, proto_t
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_ntohs(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_bpkmattr_tlv, tvb, pos, tlv_length + 3, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, bpkmattr_tlv_vals, "Unknown TLV: %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, bpkmattr_tlv_vals, "Unknown TLV: %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_bpkmattr_tlv);
     proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_bpkmattr_tlv_length, tvb, pos + 1, 2, ENC_BIG_ENDIAN);
@@ -4738,7 +4738,7 @@ dissect_bpkmreq(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint(bpkmreq_tree, hf_docsis_bpkm_length, tvb, 2, 2, ENC_BIG_ENDIAN, &length);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "BPKM Request (BPKM-REQ): %s, ID %u",
-               val_to_str_wmem(pinfo->pool, code, code_field_vals, "Unknown Code (%u)"), id);
+               val_to_str(pinfo->pool, code, code_field_vals, "Unknown Code (%u)"), id);
 
   id += code << 8;
   tlv_tvb = dissect_multipart(tvb, pinfo, bpkmreq_tree, data, MGT_BPKM_REQ, id, 4);
@@ -4768,7 +4768,7 @@ dissect_bpkmrsp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint(bpkmrsp_tree, hf_docsis_bpkm_length, tvb, 2, 2, ENC_BIG_ENDIAN, &length);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "BPKM Response (BPKM-RSP): %s, ID %u",
-               val_to_str_wmem(pinfo->pool, code, code_field_vals, "Unknown Code (%u)"), id);
+               val_to_str(pinfo->pool, code, code_field_vals, "Unknown Code (%u)"), id);
 
   id += code << 8;
   tlv_tvb = dissect_multipart(tvb, pinfo, bpkmrsp_tree, data, MGT_BPKM_RSP, id, 4);
@@ -5007,7 +5007,7 @@ dissect_dccreq_ds_params (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree,
     type = tvb_get_uint8 (tvb, pos);
     dcc_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dccreq_ds_params, &dcc_item,
-                                            val_to_str_wmem(pinfo->pool, type, ds_param_subtlv_vals,
+                                            val_to_str(pinfo->pool, type, ds_param_subtlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (dcc_tree, hf_docsis_dcc_ds_params_subtype, tvb, pos, 1, type);
     pos++;
@@ -5109,7 +5109,7 @@ dissect_dccreq_sf_sub (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, in
     type = tvb_get_uint8 (tvb, pos);
     dcc_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dccreq_sf_sub, &dcc_item,
-                                            val_to_str_wmem(pinfo->pool, type, sf_sub_subtlv_vals,
+                                            val_to_str(pinfo->pool, type, sf_sub_subtlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (dcc_tree, hf_docsis_dcc_sf_sub_subtype, tvb, pos, 1, type);
     pos++;
@@ -5179,7 +5179,7 @@ dissect_dccreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
     type = tvb_get_uint8 (tvb, pos);
     tlv_tree = proto_tree_add_subtree(dcc_tree, tvb, pos, -1,
                                             ett_docsis_dccreq_tlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, dcc_tlv_vals,
+                                            val_to_str(pinfo->pool, type, dcc_tlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (tlv_tree, hf_docsis_dccreq_type, tvb, pos, 1, type);
     pos++;
@@ -5280,7 +5280,7 @@ dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tr
     type = tvb_get_uint8 (tvb, pos);
     dcc_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dccrsp_cm_jump_time, &dcc_item,
-                                            val_to_str_wmem(pinfo->pool, type, cm_jump_subtlv_vals,
+                                            val_to_str(pinfo->pool, type, cm_jump_subtlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (dcc_tree, hf_docsis_dcc_cm_jump_subtype, tvb, pos, 1, type);
     pos++;
@@ -5338,7 +5338,7 @@ dissect_dccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
     type = tvb_get_uint8 (tvb, pos);
     tlv_tree = proto_tree_add_subtree(dcc_tree, tvb, pos, -1,
                                             ett_docsis_dccrsp_tlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, dccrsp_tlv_vals,
+                                            val_to_str(pinfo->pool, type, dccrsp_tlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (tlv_tree, hf_docsis_dccrsp_type, tvb, pos, 1, type);
     pos++;
@@ -5400,7 +5400,7 @@ dissect_dccack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
     type = tvb_get_uint8 (tvb, pos);
     tlv_tree = proto_tree_add_subtree(dcc_tree, tvb, pos, -1,
                                             ett_docsis_dccack_tlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, dccack_tlv_vals,
+                                            val_to_str(pinfo->pool, type, dccack_tlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (tlv_tree, hf_docsis_dccack_type, tvb, pos, 1, type);
     pos++;
@@ -5478,7 +5478,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int 
     type = tvb_get_uint8 (tvb, pos);
     dcd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dcd_cfg, &dcd_item,
-                                            val_to_str_wmem(pinfo->pool, type, dcd_cfg_vals,
+                                            val_to_str(pinfo->pool, type, dcd_cfg_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (dcd_tree, hf_docsis_dcd_cfg_subtype, tvb, pos, 1, type);
     pos++;
@@ -5563,7 +5563,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, packet_info* pinfo, proto_tree *
     type = tvb_get_uint8 (tvb, pos);
     dcd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dcd_cfr_ip, &dcd_item,
-                                            val_to_str_wmem(pinfo->pool, type, dcd_cfr_ip_vals,
+                                            val_to_str(pinfo->pool, type, dcd_cfr_ip_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (dcd_tree, hf_docsis_dcd_cfr_ip_subtype, tvb, pos, 1, type);
     pos++;
@@ -5674,7 +5674,7 @@ dissect_dcd_clid (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int sta
     type = tvb_get_uint8 (tvb, pos);
     dcd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dcd_clid, &dcd_item,
-                                            val_to_str_wmem(pinfo->pool, type, dcd_clid_vals,
+                                            val_to_str(pinfo->pool, type, dcd_clid_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (dcd_tree, hf_docsis_dcd_clid_subtype, tvb, pos, 1, type);
     pos++;
@@ -5745,7 +5745,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int
     type = tvb_get_uint8 (tvb, pos);
     dcd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dcd_rule, &dcd_item,
-                                            val_to_str_wmem(pinfo->pool, type, dcd_dsg_rule_vals,
+                                            val_to_str(pinfo->pool, type, dcd_dsg_rule_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (dcd_tree, hf_docsis_dcd_dsg_rule_subtype, tvb, pos, 1, type);
     pos++;
@@ -5826,7 +5826,7 @@ dissect_dcd_down_classifier (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tr
     type = tvb_get_uint8 (tvb, pos);
     dcd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_dcd_cfr, &dcd_item,
-                                            val_to_str_wmem(pinfo->pool, type, dcd_down_classifier_vals,
+                                            val_to_str(pinfo->pool, type, dcd_down_classifier_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (dcd_tree, hf_docsis_dcd_down_classifier_subtype, tvb, pos, 1, type);
     pos++;
@@ -5888,7 +5888,7 @@ dissect_dcd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
     type = tvb_get_uint8 (tvb, pos);
     tlv_tree = proto_tree_add_subtree(dcd_tree, tvb, pos, -1,
                                             ett_docsis_dcd_tlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, dcd_tlv_vals,
+                                            val_to_str(pinfo->pool, type, dcd_tlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (tlv_tree, hf_docsis_dcd_type, tvb, pos, 1, type);
     pos++;
@@ -5948,7 +5948,7 @@ dissect_mdd_ds_active_channel_list(tvbuff_t * tvb, packet_info* pinfo _U_, proto
     type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_ds_active_channel_list, &mdd_item,
-                                            val_to_str_wmem(pinfo->pool, type, mdd_ds_active_channel_list_vals,
+                                            val_to_str(pinfo->pool, type, mdd_ds_active_channel_list_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (mdd_tree, hf_docsis_mdd_ds_active_channel_list_subtype, tvb, pos, 1, type);
     pos++;
@@ -6006,7 +6006,7 @@ dissect_mdd_ds_service_group(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tree 
     type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_ds_service_group, &mdd_item,
-                                            val_to_str_wmem(pinfo->pool, type, mdd_ds_service_group_vals,
+                                            val_to_str(pinfo->pool, type, mdd_ds_service_group_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (mdd_tree, hf_docsis_mdd_ds_service_group_subtype, tvb, pos, 1, type);
     pos++;
@@ -6045,7 +6045,7 @@ dissect_mdd_channel_profile_reporting_control(tvbuff_t * tvb, packet_info* pinfo
     type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_channel_profile_reporting_control, &mdd_item,
-                                            val_to_str_wmem(pinfo->pool, type, mdd_channel_profile_reporting_control_vals,
+                                            val_to_str(pinfo->pool, type, mdd_channel_profile_reporting_control_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (mdd_tree, hf_docsis_mdd_channel_profile_reporting_control_subtype, tvb, pos, 1, type);
     pos++;
@@ -6085,7 +6085,7 @@ dissect_mdd_ip_init_param(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tree * t
     type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_ip_init_param, &mdd_item,
-                                            val_to_str_wmem(pinfo->pool, type, mdd_ip_init_param_vals,
+                                            val_to_str(pinfo->pool, type, mdd_ip_init_param_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (mdd_tree, hf_docsis_mdd_ip_init_param_subtype, tvb, pos, 1, type);
     pos++;
@@ -6144,7 +6144,7 @@ dissect_mdd_upstream_active_channel_list(tvbuff_t * tvb, packet_info* pinfo _U_,
     type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_up_active_channel_list, &mdd_item,
-                                            val_to_str_wmem(pinfo->pool, type, mdd_up_active_channel_list_vals,
+                                            val_to_str(pinfo->pool, type, mdd_up_active_channel_list_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (mdd_tree, hf_docsis_mdd_up_active_channel_list_subtype, tvb, pos, 1, type);
     pos++;
@@ -6193,7 +6193,7 @@ dissect_mdd_cm_status_event_control(tvbuff_t * tvb, packet_info* pinfo _U_, prot
     type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_cm_status_event_control, &mdd_item,
-                                            val_to_str_wmem(pinfo->pool, type, mdd_cm_status_event_control_vals,
+                                            val_to_str(pinfo->pool, type, mdd_cm_status_event_control_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (mdd_tree, hf_docsis_mdd_cm_status_event_control_subtype, tvb, pos, 1, type);
     pos++;
@@ -6234,7 +6234,7 @@ dissect_mdd_dsg_da_to_dsid(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tree * 
     type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_mdd_dsg_da_to_dsid, &mdd_item,
-                                            val_to_str_wmem(pinfo->pool, type, mdd_cm_dsg_da_to_dsid_vals,
+                                            val_to_str(pinfo->pool, type, mdd_cm_dsg_da_to_dsid_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (mdd_tree, hf_docsis_mdd_dsg_da_to_dsid_subtype, tvb, pos, 1, type);
     pos++;
@@ -6280,7 +6280,7 @@ dissect_mdd_docsis_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *it
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_mdd_docsis_version_tlv, tvb, pos, tlv_length + 2, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, mdd_docsis_version_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, mdd_docsis_version_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_mdd_docsis_version);
     proto_tree_add_item(tlv_tree, hf_docsis_mdd_docsis_version_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_mdd_docsis_version_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
@@ -6371,7 +6371,7 @@ dissect_mdd_diplexer_band_edge(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tre
     type = tvb_get_uint8 (tvb, pos);
     mdd_tree = proto_tree_add_subtree(tree, tvb, pos, 1,
                                             ett_docsis_mdd_diplexer_band_edge, &mdd_item,
-                                            val_to_str_wmem(pinfo->pool, type, mdd_diplexer_band_edge_vals,
+                                            val_to_str(pinfo->pool, type, mdd_diplexer_band_edge_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (mdd_tree, hf_docsis_mdd_diplexer_band_edge, tvb, pos, 1, type);
     pos++;
@@ -6442,7 +6442,7 @@ dissect_mdd_advanced_band_plan(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_mdd_abp_tlv, tvb, pos, tlv_length + 2, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, mdd_abp_vals, "Unknown TLV: %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, mdd_abp_vals, "Unknown TLV: %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_mdd_advanced_band_plan);
     proto_tree_add_item(tlv_tree, hf_docsis_mdd_abp_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_mdd_abp_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
@@ -6490,7 +6490,7 @@ dissect_mdd_bpi_plus(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *item, pr
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_mdd_bpi_plus_tlv, tvb, pos, tlv_length + 2, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, mdd_bpi_plus_vals, "Unknown TLV: %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, mdd_bpi_plus_vals, "Unknown TLV: %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_mdd_bpi_plus);
     proto_tree_add_item(tlv_tree, hf_docsis_mdd_bpi_plus_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_mdd_bpi_plus_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
@@ -6556,7 +6556,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
     type = tvb_get_uint8(tvb, pos);
     length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(mdd_tree, hf_docsis_mdd_tlv, tvb, pos, length + 2, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, type, mdd_tlv_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, type, mdd_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_tlv);
     proto_tree_add_item(tlv_tree, hf_docsis_mdd_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_mdd_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
@@ -6872,7 +6872,7 @@ dissect_cmstatus_status_event_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tre
     type = tvb_get_uint8 (tvb, pos);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
                                             ett_docsis_cmstatus_status_event_tlvtlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, cmstatus_status_event_tlv_vals,
+                                            val_to_str(pinfo->pool, type, cmstatus_status_event_tlv_vals,
                                                        "Unknown Status Event TLV (%u)"));
     proto_tree_add_uint (tlvtlv_tree, hf_docsis_cmstatus_status_event_type, tvb, pos, 1, type);
     pos++;
@@ -6981,7 +6981,7 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
     type = tvb_get_uint8 (tvb, pos);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
                                             ett_docsis_cmstatus_tlvtlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, cmstatus_tlv_vals,
+                                            val_to_str(pinfo->pool, type, cmstatus_tlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (tlvtlv_tree, hf_docsis_cmstatus_type, tvb, pos, 1, type);
     pos++;
@@ -7158,7 +7158,7 @@ dissect_ds_event(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start
     type = tvb_get_uint8 (tvb, pos);
     event_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_cmctrl_tlv_ds_event, &event_item,
-                                            val_to_str_wmem(pinfo->pool, type, cmctrlreq_ds_tlv_vals,
+                                            val_to_str(pinfo->pool, type, cmctrlreq_ds_tlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (event_tree, hf_docsis_cmctrl_ds_type, tvb, pos, 1, type);
     pos++;
@@ -7208,7 +7208,7 @@ dissect_us_event(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start
     type = tvb_get_uint8 (tvb, pos);
     event_tree = proto_tree_add_subtree(tree, tvb, pos, -1,
                                             ett_docsis_cmctrl_tlv_us_event, &event_item,
-                                            val_to_str_wmem(pinfo->pool, type, cmctrlreq_us_tlv_vals,
+                                            val_to_str(pinfo->pool, type, cmctrlreq_us_tlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (event_tree, hf_docsis_cmctrlreq_us_type, tvb, pos, 1, type);
     pos++;
@@ -7261,7 +7261,7 @@ dissect_cmctrlreq_tlv(tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
     length = tvb_get_uint8 (tvb, pos + 1);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_cmctrlreq_tlvtlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, cmctrlreq_tlv_vals,
+                                            val_to_str(pinfo->pool, type, cmctrlreq_tlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (tlvtlv_tree, hf_docsis_cmctrlreq_type, tvb, pos, 1, type);
     pos++;
@@ -7490,7 +7490,7 @@ dissect_emrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     length = tvb_get_uint8 (tvb, pos + 1);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_emrsp_tlvtlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, emrsp_tlv_vals,
+                                            val_to_str(pinfo->pool, type, emrsp_tlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_item (tlvtlv_tree, hf_docsis_emrsp_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     pos++;
@@ -7527,7 +7527,7 @@ dissect_emreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* dat
   proto_tree_add_item (em_tree, hf_docsis_emreq_reserved, tvb, 3, 1, ENC_BIG_ENDIAN);
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "EM-REQ: Transaction ID: %u, Requested Power Mode: %s (%u)", trans_id,
-                              val_to_str_wmem(pinfo->pool, req_power_mode, emreq_req_power_mode_vals, "Unknown Requested Power Mode (%u)"), req_power_mode);
+                              val_to_str(pinfo->pool, req_power_mode, emreq_req_power_mode_vals, "Unknown Requested Power Mode (%u)"), req_power_mode);
 
   return tvb_captured_length(tvb);
 }
@@ -7548,7 +7548,7 @@ dissect_emrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* dat
   proto_tree_add_item (em_tree, hf_docsis_emrsp_reserved, tvb, 3, 1, ENC_BIG_ENDIAN);
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "EM-RSP: Transaction ID: %u, Response Code: %s (%u)", trans_id,
-                              val_to_str_wmem(pinfo->pool, rsp_code, emrsp_rsp_code_vals, "Unknown Response Code (%u)"), rsp_code);
+                              val_to_str(pinfo->pool, rsp_code, emrsp_rsp_code_vals, "Unknown Response Code (%u)"), rsp_code);
 
   /* Call Dissector TLVs */
   if(tvb_reported_length_remaining(tvb, 4) > 0 )
@@ -7605,7 +7605,7 @@ dissect_ocd_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree)
     type = tvb_get_uint8 (tvb, pos);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
                                             ett_docsis_ocd_tlvtlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, ocd_tlv_vals,
+                                            val_to_str(pinfo->pool, type, ocd_tlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (tlvtlv_tree, hf_docsis_ocd_type, tvb, pos, 1, type);
     pos++;
@@ -7737,7 +7737,7 @@ dissect_dpd_subcarrier_assignment_range_list(tvbuff_t * tvb, packet_info * pinfo
   proto_tree_add_item (tree, hf_docsis_dpd_tlv_subc_assign_value, tvb, pos, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item (tree, hf_docsis_dpd_tlv_subc_assign_reserved, tvb, pos, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item_ret_uint (tree, hf_docsis_dpd_tlv_subc_assign_modulation, tvb, pos, 1, ENC_BIG_ENDIAN, &modulation);
-  col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, modulation, docsis_dpd_subc_assign_modulation_str, "unknown(%u)"));
+  col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, modulation, docsis_dpd_subc_assign_modulation_str, "unknown(%u)"));
   pos++;
 
   switch (subcarrier_assignment_type)
@@ -7805,7 +7805,7 @@ dissect_dpd_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_dpd_tlvtlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, dpd_tlv_vals,
+                                            val_to_str(pinfo->pool, type, dpd_tlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (tlvtlv_tree, hf_docsis_dpd_type, tvb, pos, 1, type);
     pos++;
@@ -7904,7 +7904,7 @@ dissect_optreq_tlv_rxmer_thresholding_parameters (tvbuff_t * tvb, packet_info * 
     length = tvb_get_uint8 (tvb, pos + 1);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_optreq_tlv_rxmer_thresh_params_tlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, optreq_tlv_rxmer_thresh_params_vals,
+                                            val_to_str(pinfo->pool, type, optreq_tlv_rxmer_thresh_params_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (tlvtlv_tree, hf_docsis_optreq_xmer_thresh_params_type, tvb, pos, 1, type);
     pos++;
@@ -7951,7 +7951,7 @@ dissect_optreq_tlv_trigger_definition (tvbuff_t * tvb, packet_info * pinfo, prot
     length = tvb_get_uint8 (tvb, pos + 1);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_optreq_tlv_trigger_definition_params_tlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, optreq_tlv_trigger_definition_vals,
+                                            val_to_str(pinfo->pool, type, optreq_tlv_trigger_definition_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (tlvtlv_tree, hf_docsis_optreq_tlv_trigger_definition_data_type,
                          tvb, pos, 1, type);
@@ -8074,7 +8074,7 @@ dissect_optreq_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     length = tvb_get_uint8 (tvb, pos + 1);
     tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_optreq_tlvtlv, &tlv_item,
-                                            val_to_str_wmem(pinfo->pool, type, optreq_tlv_vals,
+                                            val_to_str(pinfo->pool, type, optreq_tlv_vals,
                                                        "Unknown TLV (%u)"));
     proto_tree_add_uint (tlvtlv_tree, hf_docsis_optreq_type, tvb, pos, 1, type);
     pos++;
@@ -8141,8 +8141,8 @@ dissect_optreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (opt_tree, hf_docsis_optreq_opcode, tvb, 4, 1, ENC_BIG_ENDIAN, &opcode);
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "OPT-REQ: DS CH ID: %u, Profile ID: %s (%u), Opcode: %s (%u)", downstream_channel_id,
-                              val_to_str_wmem(pinfo->pool, profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier,
-                              val_to_str_wmem(pinfo->pool, opcode, opt_opcode_vals, "Unknown Opcode (%u)"), opcode);
+                              val_to_str(pinfo->pool, profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier,
+                              val_to_str(pinfo->pool, opcode, opt_opcode_vals, "Unknown Opcode (%u)"), opcode);
 
   id = (downstream_channel_id << 16) + profile_identifier;
   tlv_tvb = dissect_multipart(tvb, pinfo, opt_tree, data, MGT_OPT_REQ, id, 5);
@@ -8170,7 +8170,7 @@ dissect_optrsp_tlv_rxmer(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, pr
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_ntohs(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_optrsp_rxmer_tlv, tvb, pos, tlv_length + 3, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, optrsp_rxmer_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, optrsp_rxmer_vals, "Unknown TLV %u"));
     if (tlv_type == OPT_RSP_RXMER_SUBCARRIER) // huge list
       tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_optrsp_rxmer_subcarrier_tlv);
     else
@@ -8237,7 +8237,7 @@ dissect_optrsp_tlv_data_cw(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, 
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_ntohs(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_optrsp_data_cw_tlv, tvb, pos, tlv_length + 3, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, optrsp_data_cw_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, optrsp_data_cw_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_optrsp_data_cw_tlv);
     proto_tree_add_item(tlv_tree, hf_docsis_optrsp_data_cw_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_optrsp_data_cw_tlv_length, tvb, pos + 1, 2, ENC_BIG_ENDIAN);
@@ -8292,7 +8292,7 @@ dissect_optrsp_tlv_ncp_fields(tvbuff_t *tvb, packet_info *pinfo, proto_item *ite
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_ntohs(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_optrsp_ncp_fields_tlv, tvb, pos, tlv_length + 3, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, optrsp_ncp_fields_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, optrsp_ncp_fields_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_optrsp_ncp_fields_tlv);
     proto_tree_add_item(tlv_tree, hf_docsis_optrsp_ncp_fields_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_optrsp_ncp_fields_tlv_length, tvb, pos + 1, 2, ENC_BIG_ENDIAN);
@@ -8341,7 +8341,7 @@ dissect_optrsp_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tr
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_ntohs(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_optrsp_tlv, tvb, pos, tlv_length + 3, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, optrsp_tlv_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, optrsp_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_optrsp_tlv);
     proto_tree_add_item(tlv_tree, hf_docsis_optrsp_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_optrsp_tlv_length, tvb, pos + 1, 2, ENC_BIG_ENDIAN);
@@ -8385,8 +8385,8 @@ dissect_optrsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   proto_tree_add_item_ret_uint(opt_tree, hf_docsis_optrsp_status, tvb, 4, 1, ENC_BIG_ENDIAN, &status);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "OPT-RSP: DS CH ID: %u, Profile ID: %s (%u), Status: %s (%u)", downstream_channel_id,
-               val_to_str_wmem(pinfo->pool, profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier,
-               val_to_str_wmem(pinfo->pool, status, opt_status_vals, "Unknown status (%u)"), status);
+               val_to_str(pinfo->pool, profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier,
+               val_to_str(pinfo->pool, status, opt_status_vals, "Unknown status (%u)"), status);
 
   id = (downstream_channel_id << 16) + profile_identifier;
   tlv_tvb = dissect_multipart(tvb, pinfo, opt_tree, data, MGT_OPT_RSP, id, 5);
@@ -8410,7 +8410,7 @@ dissect_optack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (opt_tree, hf_docsis_optack_prof_id, tvb, 3, 1, ENC_BIG_ENDIAN, &profile_identifier);
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "OPT-ACK: DS CH ID: %u, Profile ID: %s (%u)", downstream_channel_id,
-                              val_to_str_wmem(pinfo->pool, profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier);
+                              val_to_str(pinfo->pool, profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier);
 
   return tvb_captured_length(tvb);
 }
@@ -8463,7 +8463,7 @@ dissect_cwt_us_encodings_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_cwt_us_encodings_tlv, tvb, pos, tlv_length + 2, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, cwt_us_encodings_tlv_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, cwt_us_encodings_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_cwt_tlv);
     proto_tree_add_item(tlv_tree, hf_docsis_cwt_us_encodings_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_cwt_us_encodings_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
@@ -8516,7 +8516,7 @@ dissect_cwt_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree 
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_cwt_tlv, tvb, pos, tlv_length + 2, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, cwt_tlv_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, cwt_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_cwt_tlv);
     proto_tree_add_item(tlv_tree, hf_docsis_cwt_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_cwt_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
@@ -8567,7 +8567,7 @@ dissect_cwt_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
   proto_tree_add_item_ret_uint(cwt_req_tree, hf_docsis_cwt_op_code, tvb, 2, 1, ENC_BIG_ENDIAN, &op_code);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "CWT-REQ %s ID %u on sub-band %u",
-               val_to_str_wmem(pinfo->pool, op_code, cwt_op_code_vals, "Unknown Op Code (%u)"),
+               val_to_str(pinfo->pool, op_code, cwt_op_code_vals, "Unknown Op Code (%u)"),
                transaction_id, sub_band_id);
 
   id = (transaction_id << 8) + sub_band_id;
@@ -8594,9 +8594,9 @@ dissect_cwt_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
   proto_tree_add_item_ret_uint(cwt_rsp_tree, hf_docsis_cwt_status, tvb, 3, 1, ENC_BIG_ENDIAN, &status);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "CWT-RSP %s ID %u on sub-band %u: %s",
-               val_to_str_wmem(pinfo->pool, op_code, cwt_op_code_vals, "Unknown Op Code (%u)"),
+               val_to_str(pinfo->pool, op_code, cwt_op_code_vals, "Unknown Op Code (%u)"),
                transaction_id, sub_band_id,
-               val_to_str_wmem(pinfo->pool, op_code, cwt_status_vals, "Unknown Status (%u)"));
+               val_to_str(pinfo->pool, op_code, cwt_status_vals, "Unknown Status (%u)"));
 
   id = (transaction_id << 8) + sub_band_id;
   tlv_tvb = dissect_multipart(tvb, pinfo, cwt_rsp_tree, data, MGT_CWT_RSP, id, 4);
@@ -8618,7 +8618,7 @@ dissect_ect_control_partial_service_tlv(tvbuff_t *tvb, packet_info *pinfo, proto
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_partial_service_tlv, tvb, pos, tlv_length + 2, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, ect_control_partial_service_tlv_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, ect_control_partial_service_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
     proto_tree_add_item(tlv_tree, hf_docsis_ect_control_partial_service_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_ect_control_partial_service_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
@@ -8659,7 +8659,7 @@ dissect_ect_control_method_bg_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item 
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_method_bg_tlv, tvb, pos, tlv_length + 2, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, ect_control_method_bg_tlv_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, ect_control_method_bg_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
     proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_bg_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_bg_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
@@ -8725,7 +8725,7 @@ dissect_ect_control_method_fg_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item 
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_method_fg_tlv, tvb, pos, tlv_length + 2, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, ect_control_method_fg_tlv_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, ect_control_method_fg_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
     proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_fg_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_fg_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
@@ -8789,7 +8789,7 @@ dissect_ect_control_method_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *it
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_method_tlv, tvb, pos, tlv_length + 2, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, ect_control_method_tlv_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, ect_control_method_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
     proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_ect_control_method_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
@@ -8828,7 +8828,7 @@ dissect_ect_control_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, pro
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_ect_control_tlv, tvb, pos, tlv_length + 2, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, ect_control_tlv_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, ect_control_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
     proto_tree_add_item(tlv_tree, hf_docsis_ect_control_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_ect_control_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
@@ -8890,7 +8890,7 @@ dissect_ect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree 
     tlv_type = tvb_get_uint8(tvb, pos);
     tlv_length = tvb_get_uint8(tvb, pos + 1);
     tlv_item = proto_tree_add_item(tree, hf_docsis_ect_tlv, tvb, pos, tlv_length + 2, ENC_NA);
-    proto_item_set_text(tlv_item, "%s", val_to_str_wmem(pinfo->pool, tlv_type, ect_tlv_vals, "Unknown TLV %u"));
+    proto_item_set_text(tlv_item, "%s", val_to_str(pinfo->pool, tlv_type, ect_tlv_vals, "Unknown TLV %u"));
     tlv_tree = proto_item_add_subtree(tlv_item, ett_docsis_ect_tlv);
     proto_tree_add_item(tlv_tree, hf_docsis_ect_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_docsis_ect_tlv_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
@@ -8948,7 +8948,7 @@ dissect_ect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "ECT-RSP ID %u: %s",
                transaction_id,
-               val_to_str_wmem(pinfo->pool, rsp_code, ect_rsp_code_vals, "Unknown Response Code (%u)"));
+               val_to_str(pinfo->pool, rsp_code, ect_rsp_code_vals, "Unknown Response Code (%u)"));
 
   tlv_tvb = dissect_multipart(tvb, pinfo, ect_rsp_tree, data, MGT_ECT_RSP, transaction_id, 3);
   if (tlv_tvb != NULL && tvb_captured_length(tlv_tvb))

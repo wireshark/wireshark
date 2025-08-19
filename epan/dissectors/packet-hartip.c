@@ -389,7 +389,7 @@ hartip_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
     return TAP_PACKET_DONT_REDRAW;  /* Don't want to track invalid messages for now. */
   }
 
-  message_id_node_str = val_to_str_wmem(pinfo->pool, tapinfo->message_id,
+  message_id_node_str = val_to_str(pinfo->pool, tapinfo->message_id,
                                    hartip_message_id_values,
                                    "Unknown message %d");
 
@@ -1341,12 +1341,12 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   offset += 1;
 
   message_type = tvb_get_uint8(tvb, offset);
-  msg_type_str = val_to_str_wmem(pinfo->pool, message_type, hartip_message_type_values, "Unknown message type %d");
+  msg_type_str = val_to_str(pinfo->pool, message_type, hartip_message_type_values, "Unknown message type %d");
   proto_tree_add_item(hdr_tree, hf_hartip_hdr_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   message_id = tvb_get_uint8(tvb, offset);
-  msg_id_str = val_to_str_wmem(pinfo->pool, message_id, hartip_message_id_values, "Unknown message %d");
+  msg_id_str = val_to_str(pinfo->pool, message_id, hartip_message_id_values, "Unknown message %d");
   proto_tree_add_item(hdr_tree, hf_hartip_hdr_message_id, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 

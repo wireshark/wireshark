@@ -208,7 +208,7 @@ dissect_vdp_org_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	switch(oui) {
 	case OUI_IEEE_802_1QBG:
-		subTypeStr = val_to_str_wmem(pinfo->pool, subType, ieee_802_1qbg_subtypes, "Unknown subtype 0x%x");
+		subTypeStr = val_to_str(pinfo->pool, subType, ieee_802_1qbg_subtypes, "Unknown subtype 0x%x");
 		break;
 	default:
 		subTypeStr = "Unknown";

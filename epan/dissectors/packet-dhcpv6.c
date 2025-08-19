@@ -2265,7 +2265,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                 break;
             }
             subtree_2 = proto_tree_add_subtree(subtree, tvb, off+temp_optlen, 4 + subopt_len, ett_dhcpv6_netserver_option, &ti,
-                                     val_to_str_wmem(pinfo->pool, subopt_type, ntp_server_opttype_vals, "NTP Server suboption %u"));
+                                     val_to_str(pinfo->pool, subopt_type, ntp_server_opttype_vals, "NTP Server suboption %u"));
             proto_tree_add_item(subtree_2, hf_option_ntpserver_type,   tvb, off + temp_optlen,     2, ENC_BIG_ENDIAN);
             proto_tree_add_item(subtree_2, hf_option_ntpserver_length, tvb, off + temp_optlen + 2, 2, ENC_BIG_ENDIAN);
             temp_optlen += 4;
@@ -3469,7 +3469,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             proto_tree_add_item_ret_uint(svcparams_tree, hf_dnr_svcparams_length, tvb, off + offset, 2, ENC_BIG_ENDIAN, &svcparams_length);
             offset += 2;
 
-            proto_item_append_text(svcparams_ti, ": %s", val_to_str_wmem(pinfo->pool, svcparams_key, dnr_svcparams_key_vals, "key%u"));
+            proto_item_append_text(svcparams_ti, ": %s", val_to_str(pinfo->pool, svcparams_key, dnr_svcparams_key_vals, "key%u"));
             proto_item_set_len(svcparams_ti, svcparams_length + 4);
 
             switch(svcparams_key) {

@@ -88,7 +88,7 @@ ConnectMCSPDU
 #		/* Do nothing */
 #		break;
 #	default:
-#		col_append_sep_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, " ", "MCS: %%s ", val_to_str_wmem(%(ACTX)s->pinfo->pool, domainmcs_value, t125_DomainMCSPDU_vals, "Unknown"));
+#		col_append_sep_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, " ", "MCS: %%s ", val_to_str(%(ACTX)s->pinfo->pool, domainmcs_value, t125_DomainMCSPDU_vals, "Unknown"));
 #		break;
 #	}
 # END

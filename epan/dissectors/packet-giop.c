@@ -1424,7 +1424,7 @@ static uint32_t giop_hash_objkey_hash(const void *v) {
 
 /*
  * Routine to take an object key octet sequence, and length, and ptr to
- * a (null terminated )repository ID string, and store them in the obect key hash.
+ * a (null terminated) repository ID string, and store them in the object key hash.
  *
  * Blindly Inserts even if it does exist, See TODO at top for reason.
  */
@@ -4445,7 +4445,7 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
   reply_status = get_CDR_ulong(tvb, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
   col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-                    val_to_str_wmem(pinfo->pool, reply_status, reply_status_types, "Unknown (%u)"));
+                    val_to_str(pinfo->pool, reply_status, reply_status_types, "Unknown (%u)"));
   proto_tree_add_uint(reply_tree, hf_giop_reply_status, tvb,
                          offset-4, 4, reply_status);
 
@@ -4499,7 +4499,7 @@ static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
 
   reply_status = get_CDR_ulong(tvb, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
   col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-                  val_to_str_wmem(pinfo->pool, reply_status, reply_status_types, "Unknown (%u)"));
+                  val_to_str(pinfo->pool, reply_status, reply_status_types, "Unknown (%u)"));
   proto_tree_add_uint(reply_tree, hf_giop_reply_status, tvb,
                          offset-4, 4, reply_status);
 
@@ -5041,7 +5041,7 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "GIOP %u.%u %s, s=%u",
                 header.GIOP_version.major, header.GIOP_version.minor,
-                val_to_str_wmem(pinfo->pool, header.message_type, giop_message_types, "Unknown message type (0x%02x)"),
+                val_to_str(pinfo->pool, header.message_type, giop_message_types, "Unknown message type (0x%02x)"),
                 message_size);
 
   ti = proto_tree_add_uint(header_tree, hf_giop_message_size, tvb, 8, 4, message_size);

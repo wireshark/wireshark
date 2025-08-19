@@ -125,7 +125,7 @@ const QString address_to_qstring(const struct _address *address, bool enclose = 
  */
 const QString address_to_display_qstring(const struct _address *address);
 
-/** Convert a value_string to a QString using val_to_str_wmem().
+/** Convert a value_string to a QString using val_to_str().
  *
  * @param val The value to convert to string.
  * @param vs value_string array.

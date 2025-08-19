@@ -420,9 +420,9 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ti = proto_tree_add_protocol_format (tree, proto_fcip, tvb, 0,
                                                      FCIP_ENCAP_HEADER_LEN,
                                                      "FCIP (%s/%s)",
-                                                     val_to_str_wmem(pinfo->pool, sof, fcip_sof_vals,
+                                                     val_to_str(pinfo->pool, sof, fcip_sof_vals,
                                                                  "0x%x"),
-                                                     val_to_str_wmem(pinfo->pool, eof, fcip_eof_vals,
+                                                     val_to_str(pinfo->pool, eof, fcip_eof_vals,
                                                                  "0x%x"));
             }
             else {
@@ -431,7 +431,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ti = proto_tree_add_protocol_format (tree, proto_fcip, tvb, 0,
                                                      FCIP_ENCAP_HEADER_LEN,
                                                      "FCIP (%s/%s)",
-                                                     val_to_str_wmem(pinfo->pool, sof, fcip_sof_vals,
+                                                     val_to_str(pinfo->pool, sof, fcip_sof_vals,
                                                                  "0x%x"),
                                                      "NA");
             }

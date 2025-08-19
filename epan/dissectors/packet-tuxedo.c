@@ -103,7 +103,7 @@ dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		{
 			opcode = tvb_get_ntohl(tvb, 4);
 
-			col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, opcode, tuxedo_opcode_vals, "Unknown (0x%02x)"));
+			col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, opcode, tuxedo_opcode_vals, "Unknown (0x%02x)"));
 
 			if (tree)
 			{

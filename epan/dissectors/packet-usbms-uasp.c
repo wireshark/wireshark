@@ -311,7 +311,7 @@ dissect_uasp_iu(tvbuff_t *tvb, packet_info *pinfo,
     tag = tvb_get_ntohs(tvb, 2);
 
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str_wmem(pinfo->pool, iu_id, uasp_iu_id_vals, "Unknown IU [0x%02x]"));
+                val_to_str(pinfo->pool, iu_id, uasp_iu_id_vals, "Unknown IU [0x%02x]"));
 
     proto_tree_add_item(uasp_tree, hf_uas_iu_id, tvb, 0, 1, ENC_NA);
     proto_tree_add_item(uasp_tree, hf_uas_tag, tvb, 2, 2, ENC_BIG_ENDIAN);

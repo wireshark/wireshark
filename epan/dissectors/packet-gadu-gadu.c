@@ -512,7 +512,7 @@ dissect_gadu_gadu_login_protocol(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
 
 	protocol = tvb_get_letohl(tvb, offset) & 0xff;
 	proto_tree_add_item(tree, hf_gadu_gadu_login_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	ti = proto_tree_add_string(tree, hf_gadu_gadu_login_version, tvb, offset, 4, val_to_str_wmem(pinfo->pool, protocol, gadu_gadu_version_vals, "Unknown (0x%x)"));
+	ti = proto_tree_add_string(tree, hf_gadu_gadu_login_version, tvb, offset, 4, val_to_str(pinfo->pool, protocol, gadu_gadu_version_vals, "Unknown (0x%x)"));
 	proto_item_set_generated(ti);
 	offset += 4;
 

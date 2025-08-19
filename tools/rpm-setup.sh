@@ -320,7 +320,7 @@ echo "Optional package docbook-style-xsl|docbook-xsl-stylesheets is unavailable"
 add_package ADDITIONAL_LIST brotli-devel || add_packages ADDITIONAL_LIST libbrotli-devel libbrotlidec1 ||
 echo "Optional packages brotli-devel|libbrotli-devel is unavailable" >&2
 
-add_package ADDITIONAL_LIST libnl3-devel || add_package ADDITIONAL_LIST libnl-devel ||
+add_package ADDITIONAL_LIST libnl3-devel ||
 echo "Optional package libnl3-devel|libnl-devel are unavailable" >&2
 
 add_package ADDITIONAL_LIST ilbc-devel ||

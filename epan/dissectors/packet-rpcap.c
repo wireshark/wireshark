@@ -1073,7 +1073,7 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, void* da
   proto_tree_add_item_ret_uint(tree, hf_type, tvb, offset, 1, ENC_BIG_ENDIAN, &msg_type);
   offset++;
 
-  str_message_type = val_to_str_wmem(pinfo->pool, msg_type, message_type, "Unknown: 0x%02x");
+  str_message_type = val_to_str(pinfo->pool, msg_type, message_type, "Unknown: 0x%02x");
   col_append_str (pinfo->cinfo, COL_INFO, str_message_type);
 
   proto_item_append_text (ti, ", %s", str_message_type);

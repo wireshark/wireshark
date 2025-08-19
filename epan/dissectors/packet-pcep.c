@@ -1857,7 +1857,7 @@ dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, packet_info*
         sub_tlv_type = tvb_get_ntohs(tvb, offset+j);
         sub_tlv_length = tvb_get_ntohs(tvb, offset + j + 2);
         sub_tlv = proto_tree_add_subtree(pcep_tlv, tvb, offset + j, sub_tlv_length+4,
-                    ett_pcep_obj, NULL, val_to_str_wmem(pinfo->pool, sub_tlv_type, pcep_path_setup_type_capability_sub_tlv_vals, "Unknown SubTLV (%u). "));
+                    ett_pcep_obj, NULL, val_to_str(pinfo->pool, sub_tlv_type, pcep_path_setup_type_capability_sub_tlv_vals, "Unknown SubTLV (%u). "));
         proto_tree_add_item(sub_tlv, hf_pcep_path_setup_type_capability_sub_tlv_type, tvb, offset + j, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_tlv, hf_pcep_path_setup_type_capability_sub_tlv_length, tvb, offset + 2 + j, 2, ENC_BIG_ENDIAN);
         switch (sub_tlv_type)
@@ -1934,7 +1934,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, packet_info* pinfo, tvbuff_t 
         tlv_type = tvb_get_ntohs(tvb, offset+j);
         tlv_length = tvb_get_ntohs(tvb, offset + j + 2);
         tlv = proto_tree_add_subtree(pcep_obj, tvb, offset + j, tlv_length+4,
-                    ett_pcep_obj, NULL, val_to_str_wmem(pinfo->pool, tlv_type, pcep_tlvs_vals, "Unknown TLV (%u). "));
+                    ett_pcep_obj, NULL, val_to_str(pinfo->pool, tlv_type, pcep_tlvs_vals, "Unknown TLV (%u). "));
         proto_tree_add_item(tlv, hf_pcep_tlv_type, tvb, offset + j, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tlv, hf_pcep_tlv_length, tvb, offset + 2 + j, 2, ENC_BIG_ENDIAN);
         switch (tlv_type)
@@ -4428,13 +4428,13 @@ dissect_pcep_msg_tree(tvbuff_t *tvb, proto_tree *tree, unsigned tree_mode, packe
     message_type = tvb_get_uint8(tvb, 1);
     msg_length = tvb_get_ntohs(tvb, 2);
 
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, message_type, message_type_vals, "Unknown Message (%u). "));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, message_type, message_type_vals, "Unknown Message (%u). "));
 
     ti = proto_tree_add_item(tree, proto_pcep, tvb, offset, msg_length, ENC_NA);
     pcep_tree = proto_item_add_subtree(ti, tree_mode);
 
     pcep_header_tree = proto_tree_add_subtree_format(pcep_tree, tvb, offset, 4, ett_pcep_hdr, NULL,
-                    "%s Header", val_to_str_wmem(pinfo->pool, message_type, message_type_vals, "Unknown Message (%u). "));
+                    "%s Header", val_to_str(pinfo->pool, message_type, message_type_vals, "Unknown Message (%u). "));
 
     proto_tree_add_item(pcep_header_tree, hf_pcep_version, tvb, offset, 1, ENC_NA);
 

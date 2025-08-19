@@ -211,7 +211,7 @@ dissect_hsfz_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     uint32_t hsfz_length = tvb_get_ntohl(tvb, 0);
     uint16_t hsfz_ctrlword = tvb_get_ntohs(tvb, 4);
-    const char *ctrlword_description = val_to_str_wmem(pinfo->pool, hsfz_ctrlword, hsfz_ctrlwords, "Unknown 0x%04x");
+    const char *ctrlword_description = val_to_str(pinfo->pool, hsfz_ctrlword, hsfz_ctrlwords, "Unknown 0x%04x");
 
     const char *col_string = col_get_text(pinfo->cinfo, COL_INFO);
     if (col_string!=NULL && g_str_has_prefix(col_string, (char *)&"HSFZ\0")) {

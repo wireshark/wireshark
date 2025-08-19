@@ -734,7 +734,7 @@ static unsigned dissect_dect_mitel_rfp_sys_led(tvbuff_t *tvb, packet_info *pinfo
 	led_color = tvb_get_uint8(tvb, offset);
 	offset++;
 	col_append_fstr(pinfo->cinfo, COL_INFO, "LED %d:%s", led_id,
-		val_to_str_wmem(pinfo->pool, led_color, dect_mitel_rfp_sys_led_color_val, "Unknown: %02x"));
+		val_to_str(pinfo->pool, led_color, dect_mitel_rfp_sys_led_color_val, "Unknown: %02x"));
 	return offset;
 }
 
@@ -1550,7 +1550,7 @@ static unsigned dissect_dect_mitel_rfp_sync(tvbuff_t *tvb, packet_info *pinfo, p
 	proto_tree_add_item(tree, hf_dect_mitel_rfp_sync_payload_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	message_type = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str_wmem(pinfo->pool, message_type, dect_mitel_rfp_sync_payload_type_val, " Unknown 0x%04x"));
+			val_to_str(pinfo->pool, message_type, dect_mitel_rfp_sync_payload_type_val, " Unknown 0x%04x"));
 	offset += 2;
 
 	proto_tree_add_item(tree, hf_dect_mitel_rfp_sync_payload_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1608,7 +1608,7 @@ static int dissect_dect_mitel_rfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_tree_add_item_ret_uint(dect_mitel_rfp_tree, hf_dect_mitel_rfp_message_type, tvb,
 			offset, 2, ENC_BIG_ENDIAN, &message_type);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str_wmem(pinfo->pool, message_type, dect_mitel_rfp_message_type_val, "Unknown 0x%04x"));
+			val_to_str(pinfo->pool, message_type, dect_mitel_rfp_message_type_val, "Unknown 0x%04x"));
 	offset += 2;
 
 	proto_tree_add_item_ret_uint(dect_mitel_rfp_tree, hf_dect_mitel_rfp_message_length, tvb,

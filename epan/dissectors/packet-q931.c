@@ -1274,7 +1274,7 @@ static const value_string q931_rejection_reason_vals[] = {
 
 static const char *get_message_name(wmem_allocator_t* scope, uint8_t prot_discr, uint8_t message_type) {
     if (prot_discr == NLPID_DMS)
-        return val_to_str_wmem(scope, message_type, dms_message_type_vals, "Unknown (0x%02X)");
+        return val_to_str(scope, message_type, dms_message_type_vals, "Unknown (0x%02X)");
     else
         return val_to_str_ext(scope, message_type, &q931_message_type_vals_ext, "Unknown (0x%02X)");
 }
@@ -1363,13 +1363,13 @@ dissect_q931_cause_ie_with_info(tvbuff_t *tvb, packet_info* pinfo, int offset, i
 
         case Q931_REJ_IE_MISSING:
             proto_tree_add_uint_format_value(tree, hf_q931_missing_info_element, tvb, offset, 1,
-                 tvb_get_uint8(tvb, offset), "%s", val_to_str_wmem(pinfo->pool,tvb_get_uint8(tvb, offset), ie_vals,
+                 tvb_get_uint8(tvb, offset), "%s", val_to_str(pinfo->pool,tvb_get_uint8(tvb, offset), ie_vals,
                   "Unknown (0x%02X)"));
             break;
 
         case Q931_REJ_IE_INSUFFICIENT:
             proto_tree_add_uint_format_value(tree, hf_q931_insufficient_info_element, tvb, offset, 1,
-                tvb_get_uint8(tvb, offset), "%s", val_to_str_wmem(pinfo->pool,tvb_get_uint8(tvb, offset), ie_vals,
+                tvb_get_uint8(tvb, offset), "%s", val_to_str(pinfo->pool,tvb_get_uint8(tvb, offset), ie_vals,
                   "Unknown (0x%02X)"));
             break;
 
@@ -1386,7 +1386,7 @@ dissect_q931_cause_ie_with_info(tvbuff_t *tvb, packet_info* pinfo, int offset, i
     case Q931_CAUSE_INVALID_IE_CONTENTS:
         do {
             proto_tree_add_uint_format_value(tree, hf_q931_information_element, tvb, offset, 1,
-                tvb_get_uint8(tvb, offset), "%s", val_to_str_wmem(pinfo->pool,tvb_get_uint8(tvb, offset), ie_vals,
+                tvb_get_uint8(tvb, offset), "%s", val_to_str(pinfo->pool,tvb_get_uint8(tvb, offset), ie_vals,
                   "Unknown (0x%02X)"));
             offset += 1;
             len -= 1;
@@ -2546,9 +2546,9 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     /* Segmented message IE */
     ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset, 1+1+info_element_len, ett_q931_ie[info_element], NULL,
-                    val_to_str_wmem(pinfo->pool,info_element, q931_info_element_vals[0], "Unknown information element (0x%02X)"));
+                    val_to_str(pinfo->pool,info_element, q931_info_element_vals[0], "Unknown information element (0x%02X)"));
     proto_tree_add_uint_format_value(ie_tree, hf_q931_information_element, tvb, offset, 1, info_element,
-                            "%s", val_to_str_wmem(pinfo->pool,info_element, q931_info_element_vals[0], "Unknown (0x%02X)"));
+                            "%s", val_to_str(pinfo->pool,info_element, q931_info_element_vals[0], "Unknown (0x%02X)"));
     proto_tree_add_item(ie_tree, hf_q931_information_element_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
     dissect_q931_segmented_message_ie(tvb, pinfo, offset + 2, info_element_len, ie_tree, ti);
     first_frag = (tvb_get_uint8(tvb, offset + 2) & 0x80) != 0;
@@ -2636,7 +2636,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
                 proto_tree_add_uint_format(q931_tree, hf_q931_locking_codeset, tvb, offset, 1,
                     codeset, "%s shift to codeset %u: %s",
                     (non_locking_shift ? "Non-locking" : "Locking"),
-                    codeset, val_to_str_wmem(pinfo->pool,codeset, q931_codeset_vals,
+                    codeset, val_to_str(pinfo->pool,codeset, q931_codeset_vals,
                       "Unknown (0x%02X)"));
             }
             offset += 1;
@@ -2718,10 +2718,10 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
             if (q931_tree != NULL) {
                 ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset,
                     1+2+info_element_len, ett_q931_ie[info_element], NULL,
-                    val_to_str_wmem(pinfo->pool,info_element,
+                    val_to_str(pinfo->pool,info_element,
                       q931_info_element_vals[codeset],
                       "Unknown information element (0x%02X)"));
-                proto_tree_add_uint_format_value(ie_tree, hf_q931_information_element, tvb, offset, 1, info_element, "%s", val_to_str_wmem(pinfo->pool,info_element,
+                proto_tree_add_uint_format_value(ie_tree, hf_q931_information_element, tvb, offset, 1, info_element, "%s", val_to_str(pinfo->pool,info_element,
                       q931_info_element_vals[codeset], "Unknown (0x%02X)"));
                 proto_tree_add_item(ie_tree, hf_q931_information_element_len, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(ie_tree, hf_q931_user_protocol_discriminator, tvb, offset + 3, 1, ENC_NA);
@@ -2783,9 +2783,9 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
             }
 
             ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset, 1+1+info_element_len, ett_q931_ie[info_element], &ti,
-                    val_to_str_wmem(pinfo->pool,info_element, q931_info_element_vals[codeset], "Unknown information element (0x%02X)"));
+                    val_to_str(pinfo->pool,info_element, q931_info_element_vals[codeset], "Unknown information element (0x%02X)"));
             proto_tree_add_uint_format_value(ie_tree, hf_q931_information_element, tvb, offset, 1, info_element, "%s",
-                    val_to_str_wmem(pinfo->pool,info_element, q931_info_element_vals[codeset], "Unknown (0x%02X)"));
+                    val_to_str(pinfo->pool,info_element, q931_info_element_vals[codeset], "Unknown (0x%02X)"));
             proto_tree_add_uint(ie_tree, hf_q931_information_element_len, tvb, offset + 1, 1, info_element_len);
 
             if (((codeset << 8) | info_element) == (CS0 | Q931_IE_SEGMENTED_MESSAGE)) {

@@ -470,7 +470,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
     status = tvb_get_uint8(tvb, offset+11);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ":%s",
-                         val_to_str_wmem(pinfo->pool, status, scsi_status_val, "0x%x"));
+                         val_to_str(pinfo->pool, status, scsi_status_val, "0x%x"));
 
     /* Save the response frame */
     if (request_data != NULL) {
@@ -643,12 +643,12 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     r_ctl &= 0xF;
 
     col_add_str(pinfo->cinfo, COL_INFO,
-                     val_to_str_wmem(pinfo->pool, r_ctl, els ? fcp_els_iu_val : fcp_iu_val,
+                     val_to_str(pinfo->pool, r_ctl, els ? fcp_els_iu_val : fcp_iu_val,
                                  "0x%x"));
 
     ti = proto_tree_add_protocol_format(tree, proto_fcp, tvb, 0, -1,
                                             "FCP: %s",
-                                            val_to_str_wmem(pinfo->pool, r_ctl,
+                                            val_to_str(pinfo->pool, r_ctl,
                                             els ? fcp_els_iu_val :
                                             fcp_iu_val, "Unknown 0x%02x"));
     fcp_tree = proto_item_add_subtree(ti, ett_fcp);

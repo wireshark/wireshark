@@ -1497,7 +1497,7 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     l2tp_avp_tree =  proto_tree_add_subtree_format(tree, tvb, offset,
                               avp_len, ett_l2tp_avp, NULL, "Vendor %s (%u): %s AVP",
                               enterprises_lookup(avp_vendor_id, "Unknown"), avp_vendor_id,
-                              val_to_str_wmem(pinfo->pool, avp_type, cisco_avp_type_vals, "Unknown (%u)"));
+                              val_to_str(pinfo->pool, avp_type, cisco_avp_type_vals, "Unknown (%u)"));
 
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1609,7 +1609,7 @@ static int dissect_l2tp_broadband_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     l2tp_avp_tree =  proto_tree_add_subtree_format(tree, tvb, offset,
                               avp_len, ett_l2tp_avp, NULL, "Vendor %s (%u): %s AVP",
                               enterprises_lookup(avp_vendor_id, "Unknown"), avp_vendor_id,
-                              val_to_str_wmem(pinfo->pool, avp_type, broadband_avp_type_vals, "Unknown (%u)"));
+                              val_to_str(pinfo->pool, avp_type, broadband_avp_type_vals, "Unknown (%u)"));
 
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1791,7 +1791,7 @@ static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     l2tp_avp_tree =  proto_tree_add_subtree_format(tree, tvb, offset,
                               avp_len, ett_l2tp_avp, NULL, "Vendor %s (%u): %s AVP",
                               enterprises_lookup(avp_vendor_id, "Unknown"), avp_vendor_id,
-                              val_to_str_wmem(pinfo->pool, avp_type, ericsson_avp_type_vals, "Unknown (%u)"));
+                              val_to_str(pinfo->pool, avp_type, ericsson_avp_type_vals, "Unknown (%u)"));
 
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1816,7 +1816,7 @@ static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     switch (avp_type) {
     case ERICSSON_MSG_TYPE:
         proto_tree_add_item_ret_uint(l2tp_avp_tree, hf_l2tp_ericsson_msg_type, tvb, offset, 2, ENC_BIG_ENDIAN, &msg_type);
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s - %s", control_msg, val_to_str_wmem(pinfo->pool, msg_type, ericsson_short_msg_type_vals, "Unknown (0x%x)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s - %s", control_msg, val_to_str(pinfo->pool, msg_type, ericsson_short_msg_type_vals, "Unknown (0x%x)"));
         break;
     case ERICSSON_PROTO_VERSION:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_ver_pref, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1878,7 +1878,7 @@ dissect_l2tp_vnd_cablelabs_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     l2tp_avp_tree =  proto_tree_add_subtree_format(tree, tvb, offset,
                               avp_len, ett_l2tp_avp, NULL, "Vendor %s (%u): %s AVP",
                               enterprises_lookup(avp_vendor_id, "Unknown"), avp_vendor_id,
-                              val_to_str_wmem(pinfo->pool, avp_type, cablelabs_avp_type_vals, "Unknown (%u)"));
+                              val_to_str(pinfo->pool, avp_type, cablelabs_avp_type_vals, "Unknown (%u)"));
 
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_hidden, tvb, offset, 2, ENC_BIG_ENDIAN);

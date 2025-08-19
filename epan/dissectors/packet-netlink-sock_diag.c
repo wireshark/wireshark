@@ -336,7 +336,7 @@ sock_diag_proto_tree_add_shutdown(proto_tree *tree, packet_info* pinfo, tvbuff_t
 
 	proto_tree_add_item_ret_uint(tree, hf_netlink_sock_diag_shutdown, tvb, offset, 1, ENC_NA, &how);
 
-	proto_item_append_text(tree, ": %s", val_to_str_wmem(pinfo->pool, how, netlink_sock_diag_shutdown_flags_vals, "Invalid how value (%x)"));
+	proto_item_append_text(tree, ": %s", val_to_str(pinfo->pool, how, netlink_sock_diag_shutdown_flags_vals, "Invalid how value (%x)"));
 }
 
 /* AF_UNIX attributes */

@@ -1238,7 +1238,7 @@ dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	packet_type_flags = tvb_get_uint8(tvb, offset);
 	packet_type = packet_type_flags & PACKET_TYPE_MASK;
 	col_add_str(pinfo->cinfo, COL_INFO,
-		    val_to_str_wmem(pinfo->pool, packet_type, nlsp_packet_type_vals, "Unknown (%u)"));
+		    val_to_str(pinfo->pool, packet_type, nlsp_packet_type_vals, "Unknown (%u)"));
 	if (packet_type == NLSP_TYPE_L1_LSP) {
 		proto_tree_add_boolean(nlsp_tree, hf_nlsp_nr, tvb, offset, 1, packet_type_flags );
 	}

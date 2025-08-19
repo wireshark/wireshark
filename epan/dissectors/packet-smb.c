@@ -11895,7 +11895,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (mult_cmds == false) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-				val_to_str_wmem(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+				val_to_str(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 			if (mult_cmds == false) {
 				if (strlen(fn) <= 40) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, ", Pattern: %s",
@@ -11928,7 +11928,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(2);
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-			val_to_str_wmem(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+			val_to_str(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 
 		/* resume key */
 		CHECK_BYTE_COUNT_TRANS(4);
@@ -11987,7 +11987,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (mult_cmds == false)
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-						val_to_str_wmem(pinfo->pool, si->info_level, sfsi_vals,
+						val_to_str(pinfo->pool, si->info_level, sfsi_vals,
 							   "Unknown (0x%02x)"));
 		break;
 	case 0x0005:	/*TRANS2_QUERY_PATH_INFORMATION*/
@@ -15309,7 +15309,7 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	}
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
-		    val_to_str_wmem(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 
 	/*
 	 * Figure out of there are enough bytes to display the whole entry.
@@ -15412,7 +15412,7 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	}
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
-		    val_to_str_wmem(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 
 	/*
 	 * Figure out of there are enough bytes to display the whole entry.
@@ -15539,7 +15539,7 @@ dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	}
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
-		    val_to_str_wmem(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 
 	if (resume_keys) {
 		/* resume key */
@@ -15639,7 +15639,7 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
-		    val_to_str_wmem(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 
 	/*
 	 * We assume that the presence of a next entry offset implies the
@@ -15737,7 +15737,7 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
-		    val_to_str_wmem(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 
 	/*
 	 * We assume that the presence of a next entry offset implies the
@@ -15841,7 +15841,7 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
-		    val_to_str_wmem(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 
 	/*
 	 * XXX - I have not seen any of these that contain a resume
@@ -15971,7 +15971,7 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
-		    val_to_str_wmem(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 
 	/*
 	 * XXX - I have not seen any of these that contain a resume
@@ -16091,7 +16091,7 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
-		    val_to_str_wmem(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 
 	/*
 	 * XXX - I have not seen any of these that contain a resume
@@ -16231,7 +16231,7 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	tvb_ensure_bytes_exist(tvb, offset, neo ? neo : *bcp);
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, *bcp, ett_smb_ff2_data, &item,
-		    val_to_str_wmem(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 
 	/*
 	 * We assume that the presence of a next entry offset implies the

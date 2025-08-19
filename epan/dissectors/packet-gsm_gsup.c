@@ -727,7 +727,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 
 		att_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, len+2, ett_gsup_ie, &ti,
 						"IE: %s",
-						val_to_str_wmem(pinfo->pool, tag, gsup_iei_types, "Unknown 0x%02x"));
+						val_to_str(pinfo->pool, tag, gsup_iei_types, "Unknown 0x%02x"));
 		proto_tree_add_item(att_tree, hf_gsup_iei, tvb, offset-2, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_uint(att_tree, hf_gsup_ie_len, tvb, offset-1, 1, len);
 
@@ -953,7 +953,7 @@ dissect_gsup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSUP");
 
 	col_clear(pinfo->cinfo, COL_INFO);
-	str = val_to_str_wmem(pinfo->pool, msg_type, gsup_msg_types, "Unknown GSUP Message Type 0x%02x");
+	str = val_to_str(pinfo->pool, msg_type, gsup_msg_types, "Unknown GSUP Message Type 0x%02x");
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
 
 	ti = proto_tree_add_protocol_format(tree, proto_gsup, tvb, 0, len, "GSUP %s", str);

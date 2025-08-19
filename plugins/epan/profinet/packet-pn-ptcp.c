@@ -313,23 +313,23 @@ dissect_PNPTCP_Master(tvbuff_t *tvb, int offset,
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Prio1=\"%s\"",
-        val_to_str_wmem(pinfo->pool, MasterPriority1 & 0x7, pn_ptcp_master_prio1_vals, "(Reserved: 0x%x)"));
+        val_to_str(pinfo->pool, MasterPriority1 & 0x7, pn_ptcp_master_prio1_vals, "(Reserved: 0x%x)"));
 
     if ((MasterPriority1 & 0x80) == 0) {
         proto_item_append_text(item, ": Prio1=\"%s\", Prio2=%s, Clock: Class=\"%s\", Accuracy=%s, Variance=%d",
-            val_to_str_wmem(pinfo->pool, MasterPriority1 & 0x7, pn_ptcp_master_prio1_vals, "(Reserved: 0x%x)"),
-            val_to_str_wmem(pinfo->pool, MasterPriority2, pn_ptcp_master_prio2_vals, "(Reserved: 0x%x)"),
-            val_to_str_wmem(pinfo->pool, ClockClass, pn_ptcp_clock_class_vals, "(Reserved: 0x%x)"),
-            val_to_str_wmem(pinfo->pool, ClockAccuracy, pn_ptcp_clock_accuracy_vals, "(Reserved: 0x%x)"),
+            val_to_str(pinfo->pool, MasterPriority1 & 0x7, pn_ptcp_master_prio1_vals, "(Reserved: 0x%x)"),
+            val_to_str(pinfo->pool, MasterPriority2, pn_ptcp_master_prio2_vals, "(Reserved: 0x%x)"),
+            val_to_str(pinfo->pool, ClockClass, pn_ptcp_clock_class_vals, "(Reserved: 0x%x)"),
+            val_to_str(pinfo->pool, ClockAccuracy, pn_ptcp_clock_accuracy_vals, "(Reserved: 0x%x)"),
             ClockVariance);
     }
     else {
         col_append_str(pinfo->cinfo, COL_INFO, " active");
         proto_item_append_text(item, ": Prio1=\"%s\" is active, Prio2=%s, Clock: Class=\"%s\", Accuracy=%s, Variance=%d",
-            val_to_str_wmem(pinfo->pool, MasterPriority1 & 0x7, pn_ptcp_master_prio1_vals, "(Reserved: 0x%x)"),
-            val_to_str_wmem(pinfo->pool, MasterPriority2, pn_ptcp_master_prio2_vals, "(Reserved: 0x%x)"),
-            val_to_str_wmem(pinfo->pool, ClockClass, pn_ptcp_clock_class_vals, "(Reserved: 0x%x)"),
-            val_to_str_wmem(pinfo->pool, ClockAccuracy, pn_ptcp_clock_accuracy_vals, "(Reserved: 0x%x)"),
+            val_to_str(pinfo->pool, MasterPriority1 & 0x7, pn_ptcp_master_prio1_vals, "(Reserved: 0x%x)"),
+            val_to_str(pinfo->pool, MasterPriority2, pn_ptcp_master_prio2_vals, "(Reserved: 0x%x)"),
+            val_to_str(pinfo->pool, ClockClass, pn_ptcp_clock_class_vals, "(Reserved: 0x%x)"),
+            val_to_str(pinfo->pool, ClockAccuracy, pn_ptcp_clock_accuracy_vals, "(Reserved: 0x%x)"),
             ClockVariance);
     }
 

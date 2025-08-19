@@ -1817,7 +1817,7 @@ dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	}
 	message_type = tvb_get_uint8(tvb, offset);
 	col_add_str(pinfo->cinfo, COL_INFO,
-		    val_to_str_wmem(pinfo->pool, message_type, q933_message_type_vals,
+		    val_to_str(pinfo->pool, message_type, q933_message_type_vals,
 		      "Unknown message type (0x%02X)"));
 
 	proto_tree_add_uint(q933_tree, hf_q933_message_type, tvb, offset, 1, message_type);
@@ -1869,10 +1869,10 @@ dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		if (q933_tree != NULL) {
 			ie_tree = proto_tree_add_subtree(q933_tree, tvb, offset,
 			    1+1+info_element_len, ett_q933_ie, NULL,
-			    val_to_str_wmem(pinfo->pool, info_element, q933_info_element_vals[codeset],
+			    val_to_str(pinfo->pool, info_element, q933_info_element_vals[codeset],
 			      "Unknown information element (0x%02X)"));
 			proto_tree_add_uint_format_value(ie_tree, hf_q933_information_element, tvb, offset, 1, info_element,
-								"%s", val_to_str_wmem(pinfo->pool, info_element, q933_info_element_vals[codeset], "Unknown (0x%02X)"));
+								"%s", val_to_str(pinfo->pool, info_element, q933_info_element_vals[codeset], "Unknown (0x%02X)"));
 			proto_tree_add_item(ie_tree, hf_q933_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 
 			switch ((codeset << 8) | info_element) {

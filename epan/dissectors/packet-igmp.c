@@ -316,7 +316,7 @@ dissect_igmp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int* of
 	igmp_tree = proto_item_add_subtree(ti, ett_igmp);
 
 	*type = tvb_get_uint8(tvb, 0);
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, *type, commands, "Unknown Type:0x%02x"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, *type, commands, "Unknown Type:0x%02x"));
 
 	/* version of IGMP protocol */
 	ti = proto_tree_add_uint(igmp_tree, hf_version, tvb, 0, 0, version);
@@ -349,7 +349,7 @@ dissect_igmp_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* type of command */
 	proto_tree_add_item_ret_uint(tree, hf_type, tvb, offset, 1, ENC_NA, &type);
 	col_add_str(pinfo->cinfo, COL_INFO,
-		val_to_str_wmem(pinfo->pool, type, commands, "Unknown Type:0x%02x"));
+		val_to_str(pinfo->pool, type, commands, "Unknown Type:0x%02x"));
 	offset += 1;
 
 	/* Just call the rest of it "data" */

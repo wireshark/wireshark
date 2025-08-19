@@ -1265,7 +1265,7 @@ ipmi_fmt_channel(char *s, uint32_t v)
 	};
 	char* tmp_str;
 
-	tmp_str = val_to_str_wmem(NULL, v, chan_vals, "Channel #%d");
+	tmp_str = val_to_str(NULL, v, chan_vals, "Channel #%d");
 	snprintf(s, ITEM_LABEL_LENGTH, "%s (0x%02x)", tmp_str, v);
 	wmem_free(NULL, tmp_str);
 }

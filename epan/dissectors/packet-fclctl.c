@@ -100,7 +100,7 @@ fclctl_get_typestr (wmem_allocator_t* pool, uint8_t linkctl_type, uint8_t type)
 {
     if ((linkctl_type == FC_LCTL_FBSYB) ||
         (linkctl_type == FC_LCTL_FBSYL)) {
-        return (val_to_str_wmem(pool, (type & 0xF0), fc_lctl_fbsy_val, "0x%x"));
+        return (val_to_str(pool, (type & 0xF0), fc_lctl_fbsy_val, "0x%x"));
     }
     return "";
 }
@@ -110,13 +110,13 @@ fclctl_get_paramstr (wmem_allocator_t *pool, uint32_t linkctl_type, uint32_t par
 {
     if (linkctl_type == FC_LCTL_PBSY) {
       return wmem_strdup_printf(pool, "%s, %s",
-                 val_to_str_wmem(pool, ((param & 0xFF000000) >> 24), fc_lctl_pbsy_acode_val, "0x%x"),
-                 val_to_str_wmem(pool, ((param & 0x00FF0000) >> 16), fc_lctl_pbsy_rjt_val, "0x%x"));
+                 val_to_str(pool, ((param & 0xFF000000) >> 24), fc_lctl_pbsy_acode_val, "0x%x"),
+                 val_to_str(pool, ((param & 0x00FF0000) >> 16), fc_lctl_pbsy_rjt_val, "0x%x"));
     }
     if ((linkctl_type == FC_LCTL_FRJT) ||
              (linkctl_type == FC_LCTL_PRJT)) {
       return wmem_strdup_printf(pool, "%s, %s",
-                 val_to_str_wmem(pool, ((param & 0xFF000000) >> 24), fc_lctl_rjt_acode_val, "0x%x"),
+                 val_to_str(pool, ((param & 0xFF000000) >> 24), fc_lctl_rjt_acode_val, "0x%x"),
                  val_to_str_ext(pool, ((param & 0x00FF0000) >> 16), &fc_lctl_rjt_val_ext, "%x"));
     }
     return "";

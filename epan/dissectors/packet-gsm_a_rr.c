@@ -12168,7 +12168,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     ett_tree = -1;
     hf_idx = -1;
     msg_fcn_p = NULL;
-    col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",val_to_str_wmem(pinfo->pool, pd,gsm_a_pd_short_str_vals,"Unknown (%u)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",val_to_str(pinfo->pool, pd,gsm_a_pd_short_str_vals,"Unknown (%u)"));
 
     /*
      * octet 1

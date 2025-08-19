@@ -242,7 +242,7 @@ fcstat_init(struct register_srt* srt _U_, GArray* srt_array)
     fc_srt_table = init_srt_table("Fibre Channel Types", NULL, srt_array, FC_NUM_PROCEDURES, NULL, "fc.type", NULL);
     for (i = 0; i < FC_NUM_PROCEDURES; i++)
     {
-        char* tmp_str = val_to_str_wmem(NULL, i, fc_fc4_val, "Unknown(0x%02x)");
+        char* tmp_str = val_to_str(NULL, i, fc_fc4_val, "Unknown(0x%02x)");
         init_srt_table_row(fc_srt_table, i, tmp_str);
         wmem_free(NULL, tmp_str);
     }
@@ -779,12 +779,12 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
 
     ftype = fc_get_ftype (fchdr->r_ctl, fchdr->type);
 
-    col_add_str (pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, ftype, fc_ftype_vals,
+    col_add_str (pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, ftype, fc_ftype_vals,
                                                         "Unknown Type (0x%x)"));
 
     if (ftype == FC_FTYPE_LINKCTL)
         col_append_fstr (pinfo->cinfo, COL_INFO, ", %s",
-                            val_to_str_wmem(pinfo->pool, (fchdr->r_ctl & 0x0F),
+                            val_to_str(pinfo->pool, (fchdr->r_ctl & 0x0F),
                                         fc_lctl_proto_val,
                                         "LCTL 0x%x"));
 
@@ -801,9 +801,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
                                     FC_RCTL_SIZE, fchdr->r_ctl,
                                     "0x%x(%s/%s)",
                                     fchdr->r_ctl,
-                                    val_to_str_wmem(pinfo->pool, (fchdr->r_ctl & 0xF0),
+                                    val_to_str(pinfo->pool, (fchdr->r_ctl & 0xF0),
                                                 fc_routing_val, "0x%x"),
-                                    val_to_str_wmem(pinfo->pool, (fchdr->r_ctl & 0x0F),
+                                    val_to_str(pinfo->pool, (fchdr->r_ctl & 0x0F),
                                                 fc_iu_val, "0x%x"));
         break;
 
@@ -813,9 +813,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
                                     FC_RCTL_SIZE, fchdr->r_ctl,
                                     "0x%x(%s/%s)",
                                     fchdr->r_ctl,
-                                    val_to_str_wmem(pinfo->pool, (fchdr->r_ctl & 0xF0),
+                                    val_to_str(pinfo->pool, (fchdr->r_ctl & 0xF0),
                                                 fc_routing_val, "0x%x"),
-                                    val_to_str_wmem(pinfo->pool, (fchdr->r_ctl & 0x0F),
+                                    val_to_str(pinfo->pool, (fchdr->r_ctl & 0x0F),
                                                 fc_lctl_proto_val, "0x%x"));
         break;
 
@@ -828,9 +828,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
                                         FC_RCTL_SIZE, fchdr->r_ctl,
                                         "0x%x(%s/%s)",
                                         fchdr->r_ctl,
-                                        val_to_str_wmem(pinfo->pool, (fchdr->r_ctl & 0xF0),
+                                        val_to_str(pinfo->pool, (fchdr->r_ctl & 0xF0),
                                                     fc_routing_val, "0x%x"),
-                                        val_to_str_wmem(pinfo->pool, (fchdr->r_ctl & 0x0F),
+                                        val_to_str(pinfo->pool, (fchdr->r_ctl & 0x0F),
                                                     fc_bls_proto_val, "0x%x"));
             break;
 
@@ -839,7 +839,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
                                         FC_RCTL_SIZE, fchdr->r_ctl,
                                         "0x%x(%s/0x%x)",
                                         fchdr->r_ctl,
-                                        val_to_str_wmem(pinfo->pool, (fchdr->r_ctl & 0xF0),
+                                        val_to_str(pinfo->pool, (fchdr->r_ctl & 0xF0),
                                                     fc_routing_val, "0x%x"),
                                         fchdr->r_ctl & 0x0F);
             break;
@@ -855,9 +855,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
                                         FC_RCTL_SIZE, fchdr->r_ctl,
                                         "0x%x(%s/%s)",
                                         fchdr->r_ctl,
-                                        val_to_str_wmem(pinfo->pool, (fchdr->r_ctl & 0xF0),
+                                        val_to_str(pinfo->pool, (fchdr->r_ctl & 0xF0),
                                                     fc_routing_val, "0x%x"),
-                                        val_to_str_wmem(pinfo->pool, (fchdr->r_ctl & 0x0F),
+                                        val_to_str(pinfo->pool, (fchdr->r_ctl & 0x0F),
                                                     fc_els_proto_val, "0x%x"));
             break;
 
@@ -866,7 +866,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
                                         FC_RCTL_SIZE, fchdr->r_ctl,
                                         "0x%x(%s/0x%x)",
                                         fchdr->r_ctl,
-                                        val_to_str_wmem(pinfo->pool, (fchdr->r_ctl & 0xF0),
+                                        val_to_str(pinfo->pool, (fchdr->r_ctl & 0xF0),
                                                     fc_routing_val, "0x%x"),
                                         fchdr->r_ctl & 0x0F);
             break;
@@ -878,7 +878,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
                                     FC_RCTL_SIZE, fchdr->r_ctl,
                                     "0x%x(%s/0x%x)",
                                     fchdr->r_ctl,
-                                    val_to_str_wmem(pinfo->pool, (fchdr->r_ctl & 0xF0),
+                                    val_to_str(pinfo->pool, (fchdr->r_ctl & 0xF0),
                                                 fc_routing_val, "0x%x"),
                                     fchdr->r_ctl & 0x0F);
         break;
@@ -1277,8 +1277,8 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     it = proto_tree_add_protocol_format(tree, proto_fcsof, tvb, 0,
                                         4, "Fibre Channel Delimiter: SOF: %s EOF: %s",
-                                        val_to_str_wmem(pinfo->pool, sof, fc_sof_vals, "0x%x"),
-                                        val_to_str_wmem(pinfo->pool, eof, fc_eof_vals, "0x%x"));
+                                        val_to_str(pinfo->pool, sof, fc_sof_vals, "0x%x"),
+                                        val_to_str(pinfo->pool, eof, fc_eof_vals, "0x%x"));
 
     fcsof_tree = proto_item_add_subtree(it, ett_fcsof);
 

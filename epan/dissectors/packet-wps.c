@@ -833,7 +833,7 @@ add_wps_wfa_ext(uint8_t id, proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
   };
 
   elem = proto_tree_add_subtree(tree, tvb, offset - 2, 2 + size, ett_wps_wfa_ext, &item,
-                             val_to_str_wmem(pinfo->pool, id, eapwps_wfa_ext_types, "Unknown (%u)"));
+                             val_to_str(pinfo->pool, id, eapwps_wfa_ext_types, "Unknown (%u)"));
   proto_tree_add_item(elem, hf_eapwps_wfa_ext_id,  tvb, offset - 2, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(elem, hf_eapwps_wfa_ext_len, tvb, offset - 1, 1, ENC_BIG_ENDIAN);
 
@@ -1201,7 +1201,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_message_type, tvb, offset+4, 1, ENC_BIG_ENDIAN);
       hfindex = hf_eapwps_tlv_message_type;
       if (add_details)
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset+4),
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset+4),
                                                                    eapwps_tlv_message_type_vals,
                                                                    "Unknown (0x%02x)"));
       break;
@@ -1652,7 +1652,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       const char        *fmt     = NULL;
 
       proto_item_set_text(tlv_item, "%s",
-                          val_to_str_wmem(pinfo->pool, tlv_type, eapwps_tlv_types, "Unknown (0x%04x)"));
+                          val_to_str(pinfo->pool, tlv_type, eapwps_tlv_types, "Unknown (0x%04x)"));
 
       /* Rendered strings for value. Thanks to Stig Bjorlykke */
       hf_info = proto_registrar_get_nth(hfindex);
@@ -1682,7 +1682,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
       if ((hf_info != NULL) && hf_info->strings) {
         /* item has value_string */
-        proto_item_append_text(tlv_item, fmt, val_to_str_wmem(pinfo->pool, value,
+        proto_item_append_text(tlv_item, fmt, val_to_str(pinfo->pool, value,
                                                          (const value_string *)hf_info->strings,
                                                          "Unknown: %d"), value);
       } else if (valuep != NULL) {

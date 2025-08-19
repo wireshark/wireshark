@@ -347,7 +347,7 @@ dissect_basicxid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	proto_tree_add_item_ret_uint(xid_tree, hf_llc_xid_wsize, tvb, 2, 1, ENC_NA, &wsize);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Basic Format; %s; Window Size %d",
-		val_to_str_wmem(pinfo->pool, types, type_vals, "0x%02x"), wsize);
+		val_to_str(pinfo->pool, types, type_vals, "0x%02x"), wsize);
 	return tvb_captured_length(tvb);
 }
 
@@ -411,10 +411,10 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	else {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 			    "; DSAP %s %s, SSAP %s %s",
-			    val_to_str_wmem(pinfo->pool, dsap & SAP_MASK, sap_vals, "0x%02x"),
+			    val_to_str(pinfo->pool, dsap & SAP_MASK, sap_vals, "0x%02x"),
 			    dsap & DSAP_GI_BIT ?
 			      "Group" : "Individual",
-			    val_to_str_wmem(pinfo->pool, ssap & SAP_MASK, sap_vals, "0x%02x"),
+			    val_to_str(pinfo->pool, ssap & SAP_MASK, sap_vals, "0x%02x"),
 			    ssap & SSAP_CR_BIT ?
 			      "Response" : "Command"
 			);

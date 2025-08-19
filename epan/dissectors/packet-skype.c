@@ -127,7 +127,7 @@ dissect_skype_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	packet_length = tvb_captured_length(tvb);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, packet_type,
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, packet_type,
 		skype_type_vals, "Type 0x%1x"));
 
 	if (tree) {
@@ -182,7 +182,7 @@ dissect_skype_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	packet_length = tvb_captured_length(tvb);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, packet_type,
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, packet_type,
 		skype_type_vals, "Type 0x%1x"));
 	if (packet_unk) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Unk: %1x", packet_unk);

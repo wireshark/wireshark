@@ -403,19 +403,19 @@ dissect_ancp_tlv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tlv_tree, int of
                         switch (stlvtype) {
                             case TLV_DSL_LINE_STATE:
                                 proto_item_append_text(tti, " (%s)",
-                                        val_to_str_wmem(pinfo->pool, val, dsl_line_state_names,
+                                        val_to_str(pinfo->pool, val, dsl_line_state_names,
                                             "Unknown (0x%02x)"));
                                 break;
                             case TLV_DSL_TYPE:
                                 proto_item_append_text(tti, " (%s)",
-                                        val_to_str_wmem(pinfo->pool, val, dsl_line_type_names,
+                                        val_to_str(pinfo->pool, val, dsl_line_type_names,
                                             "Unknown (0x%02x)"));
                                 break;
 
                             default:
                                 /* Add Unit */
                                 proto_item_append_text(tti, " %s",
-                                        val_to_str_wmem(pinfo->pool, stlvtype,
+                                        val_to_str(pinfo->pool, stlvtype,
                                             dsl_line_attr_units,
                                             "Unknown (0x%02x)"));
                                 break;
@@ -538,10 +538,10 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
     adjcode = byte & ADJ_CODE_MASK;
     ancp_info->ancp_adjcode = adjcode; /* stats */
     proto_item_append_text(sti, " (%s, M Flag %s)",
-            val_to_str_wmem(pinfo->pool, adjcode, adj_code_names, "Unknown (0x%02x)"),
+            val_to_str(pinfo->pool, adjcode, adj_code_names, "Unknown (0x%02x)"),
             (byte >> 7) ? "Set" : "Unset");
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-            val_to_str_wmem(pinfo->pool, adjcode, adj_code_names, "Unknown (0x%02x)"));
+            val_to_str(pinfo->pool, adjcode, adj_code_names, "Unknown (0x%02x)"));
 
     proto_tree_add_item(ancp_tree, hf_ancp_sender_name, tvb, offset, 6, ENC_NA);
     offset += 6;
@@ -613,11 +613,11 @@ ancp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
 
     tick_stat_node(st, st_str_packets, 0, false);
     stats_tree_tick_pivot(st, st_node_packet_types,
-            val_to_str_wmem(pinfo->pool, pi->ancp_mtype, mtype_names,
+            val_to_str(pinfo->pool, pi->ancp_mtype, mtype_names,
                 "Unknown packet type (%d)"));
     if (pi->ancp_mtype == ANCP_MTYPE_ADJ)
         stats_tree_tick_pivot(st, st_node_adj_pack_types,
-                val_to_str_wmem(pinfo->pool, pi->ancp_adjcode, adj_code_names,
+                val_to_str(pinfo->pool, pi->ancp_adjcode, adj_code_names,
                     "Unknown Adjacency packet (%d)"));
     return TAP_PACKET_REDRAW;
 }
@@ -670,7 +670,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     offset += 1;
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s Message",
-                 val_to_str_wmem(pinfo->pool, mtype, mtype_names, "Unknown (0x%02x)"));
+                 val_to_str(pinfo->pool, mtype, mtype_names, "Unknown (0x%02x)"));
 
     if (mtype != ANCP_MTYPE_ADJ) {
         /* Dissect common header */

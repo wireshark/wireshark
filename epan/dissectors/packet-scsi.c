@@ -2798,7 +2798,7 @@ dissect_naa_designator(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsi
 
         naa_tree = proto_tree_add_subtree_format(tree, tvb, offset, len,
                         ett_scsi_naa, NULL, "NAA Designator: %s",
-                        val_to_str_wmem(pinfo->pool, naa_type,
+                        val_to_str(pinfo->pool, naa_type,
                                    scsi_naa_designator_type_val,
                                    "Unknown (0x%08x)"));
 
@@ -2843,7 +2843,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         plen = tvb_get_uint8(tvb, offset+3);
         evpd_tree = proto_tree_add_subtree_format(tree, tvb, offset, plen+4,
                                  ett_scsi_page, NULL, "Page Code: %s",
-                                 val_to_str_wmem(pinfo->pool, pcode, scsi_evpd_pagecode_val,
+                                 val_to_str(pinfo->pool, pcode, scsi_evpd_pagecode_val,
                                             "Unknown (0x%08x)"));
 
         proto_tree_add_item(evpd_tree, hf_scsi_inq_qualifier, tvb, offset,
@@ -3284,7 +3284,7 @@ dissect_spc_inquiry(tvbuff_t *tvb_a, packet_info *pinfo,
                                 1, ENC_BIG_ENDIAN);
 
         col_add_fstr(pinfo->cinfo, COL_INFO, " %s ",
-             val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb_a, offset_a+1),
+             val_to_str(pinfo->pool, tvb_get_uint8(tvb_a, offset_a+1),
                     scsi_evpd_pagecode_val,
                     "Unknown VPD 0x%02x"));
         } else if (flags & 0x2) {
@@ -3759,7 +3759,7 @@ dissect_scsi_log_page(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     pagecode = tvb_get_uint8(tvb, offset) & 0x3f;
 
     log_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_scsi_log, &ti,
-                                "Log Page: %s", val_to_str_wmem(pinfo->pool, pagecode, scsi_log_page_val, "Unknown (0x%04x)"));
+                                "Log Page: %s", val_to_str(pinfo->pool, pagecode, scsi_log_page_val, "Unknown (0x%04x)"));
 
     /* page code */
     proto_tree_add_bitmask(log_tree, tvb, offset, hf_scsi_log_pc_flags, ett_scsi_log_pc, pcflags_fields, ENC_BIG_ENDIAN);
@@ -4510,7 +4510,7 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
 
         default:
             /*
-             * The "val_to_str_wmem(pinfo->pool, )" lookup will fail in this table
+             * The "val_to_str(pinfo->pool, )" lookup will fail in this table
              * (it failed in "try_val_to_str()"), so it'll return
              * "Unknown (XXX)", which is what we want.
              */
@@ -4527,7 +4527,7 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
 
     tree = proto_tree_add_subtree_format(scsi_tree, tvb, offset, plen + (spf ? 4 : 2),
                              ett_scsi_page, NULL, "%s Mode Page",
-                             val_to_str_wmem(pinfo->pool, pcode & SCSI_MS_PCODE_BITS,
+                             val_to_str(pinfo->pool, pcode & SCSI_MS_PCODE_BITS,
                                         modepage_val, "Unknown (0x%08x)"));
     proto_tree_add_item(tree, hf_scsi_modepage_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_scsi_modepage_spf, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5552,7 +5552,7 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, packet_info* pinfo, proto_tree *s
        desc_length = tvb_get_uint8(tvb, offset+1);
        desc_end    = offset+desc_length+2;
        desc_tree = proto_tree_add_subtree(sns_tree, tvb, offset, desc_length+2, ett_sense_descriptor, NULL,
-                  val_to_str_wmem(pinfo->pool, desc_type, scsi_sense_desc_type_val, "Unknown (0x%02x)"));
+                  val_to_str(pinfo->pool, desc_type, scsi_sense_desc_type_val, "Unknown (0x%02x)"));
        proto_tree_add_item(desc_tree, hf_scsi_sns_desc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
        proto_tree_add_item(desc_tree, hf_scsi_sns_desc_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
        switch (desc_type) {
@@ -5790,7 +5790,7 @@ dissect_scsi_rsp(tvbuff_t *tvb, packet_info *pinfo,
             val_to_str_ext(pinfo->pool, itlq->scsi_opcode, csdata->cdb_vals_ext, "CDB:0x%02x"),
             itlq->data_length,
             itlq->data_length/512,
-            val_to_str_wmem(pinfo->pool, scsi_status, scsi_status_val, "Unknown (0x%08x) ")
+            val_to_str(pinfo->pool, scsi_status, scsi_status_val, "Unknown (0x%08x) ")
         );
         col_set_fence(pinfo->cinfo, COL_INFO);
     }
@@ -5807,7 +5807,7 @@ dissect_scsi_rsp(tvbuff_t *tvb, packet_info *pinfo,
 
 
     if (itl) {
-        ti = proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK, "Command Set:%s (0x%02x) %s", val_to_str_wmem(pinfo->pool, itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown (%d)"), itl->cmdset&SCSI_CMDSET_MASK,itl->cmdset&SCSI_CMDSET_DEFAULT?"(Using default commandset)":"");
+        ti = proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK, "Command Set:%s (0x%02x) %s", val_to_str(pinfo->pool, itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown (%d)"), itl->cmdset&SCSI_CMDSET_MASK,itl->cmdset&SCSI_CMDSET_DEFAULT?"(Using default commandset)":"");
         proto_item_set_generated(ti);
 
         if (itlq->scsi_opcode != 0xffff) {
@@ -6203,7 +6203,7 @@ dissect_scsi_cdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item_set_generated(ti);
 
     if (itl) {
-        ti = proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK, "Command Set:%s (0x%02x) %s", val_to_str_wmem(pinfo->pool, itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown (%d)"), itl->cmdset&SCSI_CMDSET_MASK,itl->cmdset&SCSI_CMDSET_DEFAULT?"(Using default commandset)":"");
+        ti = proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK, "Command Set:%s (0x%02x) %s", val_to_str(pinfo->pool, itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown (%d)"), itl->cmdset&SCSI_CMDSET_MASK,itl->cmdset&SCSI_CMDSET_DEFAULT?"(Using default commandset)":"");
         proto_item_set_generated(ti);
     }
 
@@ -6294,7 +6294,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (itl) {
         ti = proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK,
                                         "Command Set:%s (0x%02x) %s",
-                                        val_to_str_wmem(pinfo->pool, itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown (%d)"),
+                                        val_to_str(pinfo->pool, itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown (%d)"),
                                         itl->cmdset&SCSI_CMDSET_MASK,
                                         itl->cmdset&SCSI_CMDSET_DEFAULT ? "(Using default commandset)" : "");
         proto_item_set_generated(ti);

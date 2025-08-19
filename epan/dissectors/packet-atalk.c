@@ -545,7 +545,7 @@ dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   function = tvb_get_uint8(tvb, 0);
 
   col_add_str(pinfo->cinfo, COL_INFO,
-              val_to_str_wmem(pinfo->pool, function, rtmp_function_vals, "Unknown function (%02x)"));
+              val_to_str(pinfo->pool, function, rtmp_function_vals, "Unknown function (%02x)"));
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_rtmp, tvb, 0, 1, ENC_NA);
@@ -686,7 +686,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   count = info & 0x0F;
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "Op: %s  Count: %u",
-    val_to_str_wmem(pinfo->pool, op, nbp_op_vals, "Unknown (0x%01x)"), count);
+    val_to_str(pinfo->pool, op, nbp_op_vals, "Unknown (0x%01x)"), count);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_nbp, tvb, offset, -1, ENC_NA);
@@ -695,7 +695,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     info_item = proto_tree_add_uint_format(nbp_tree, hf_nbp_info, tvb, offset, 1,
                 info,
                 "Info: 0x%01X  Operation: %s  Count: %u", info,
-                val_to_str_wmem(pinfo->pool, op, nbp_op_vals, "Unknown (0x%01X)"),
+                val_to_str(pinfo->pool, op, nbp_op_vals, "Unknown (0x%01X)"),
                 count);
     nbp_info_tree = proto_item_add_subtree(info_item, ett_nbp_info);
     proto_tree_add_uint(nbp_info_tree, hf_nbp_op, tvb, offset, 1, info);
@@ -826,7 +826,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   col_clear(pinfo->cinfo, COL_INFO);
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s transaction %u",
-               val_to_str_wmem(pinfo->pool, op, atp_function_vals, "Unknown (0x%01x)"),tid);
+               val_to_str(pinfo->pool, op, atp_function_vals, "Unknown (0x%01x)"),tid);
   if (more_fragment)
     col_append_str(pinfo->cinfo, COL_INFO, " [fragment]");
 
@@ -1275,7 +1275,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",atp_asp_dsi_info->tid);
   else
     col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
-                 val_to_str_wmem(pinfo->pool, fn, zip_atp_function_vals, "Unknown (0x%01x)"), atp_asp_dsi_info->tid);
+                 val_to_str(pinfo->pool, fn, zip_atp_function_vals, "Unknown (0x%01x)"), atp_asp_dsi_info->tid);
 
   if (!tree)
     return tvb_reported_length(tvb);

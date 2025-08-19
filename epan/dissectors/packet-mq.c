@@ -2988,7 +2988,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
         p_mq_parm->iOfsFmt = offset + 20;
 
         iSpiVerb = tvb_get_uint32(tvb, offset, p_mq_parm->mq_int_enc);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str_wmem(pinfo->pool, iSpiVerb, mq_spi_verbs_vals, "Unknown (0x%08x)"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(pinfo->pool, iSpiVerb, mq_spi_verbs_vals, "Unknown (0x%08x)"));
 
         mq_tree = proto_tree_add_subtree(mqroot_tree, tvb, offset, 12, ett_mq_spi, NULL, MQ_TEXT_SPI);
 

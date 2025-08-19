@@ -1128,9 +1128,9 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     col_add_fstr(pinfo->cinfo, COL_INFO,
             "%s (status=%s)   ",
-            val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset + 10),
+            val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset + 10),
                  ymsg_command_vals, "Unknown Command: %u"),
-            val_to_str_wmem(pinfo->pool, tvb_get_ntohl(tvb, offset + 12),
+            val_to_str(pinfo->pool, tvb_get_ntohl(tvb, offset + 12),
                  ymsg_status_vals, "Unknown Status: %u")
         );
 
@@ -1209,13 +1209,13 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
                 /* If the key is a field with field values, convert the value to an int and get its field name */
                 if (is_field_with_field_value(key) && ws_strtoi32(val_buf, NULL, &val_key)) {
-                    val_buf = val_to_str_wmem(pinfo->pool, val_key, ymsg_field_vals, "Unknown(%u)");
+                    val_buf = val_to_str(pinfo->pool, val_key, ymsg_field_vals, "Unknown(%u)");
                 }
 
                 /* Add a text item with the key... */
                 ti_2 =  proto_tree_add_string_format(content_tree, hf_ymsg_content_line, tvb,
                                                      offset, key_len + 2 + val_len + 2,
-                                                     "", "%s: %s", val_to_str_wmem(pinfo->pool, key, ymsg_field_vals, "Unknown(%u)"),
+                                                     "", "%s: %s", val_to_str(pinfo->pool, key, ymsg_field_vals, "Unknown(%u)"),
                                                      val_buf);
                 content_line_tree = proto_item_add_subtree(ti_2, ett_ymsg_content_line);
 

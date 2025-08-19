@@ -1541,7 +1541,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     msgtype = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(tree_msg, hf_tcpclv4_mhdr_type, tvb, offset, 1, msgtype);
     offset += 1;
-    msgtype_name = val_to_str_wmem(pinfo->pool, msgtype, v4_message_type_vals, "type 0x%02" PRIx32);
+    msgtype_name = val_to_str(pinfo->pool, msgtype, v4_message_type_vals, "type 0x%02" PRIx32);
     wmem_strbuf_t *suffix_text = wmem_strbuf_new(pinfo->pool, NULL);
 
     switch(msgtype) {

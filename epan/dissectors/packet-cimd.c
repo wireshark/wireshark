@@ -747,7 +747,7 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   /* Make entries in Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIMD");
 
-  str_OC = val_to_str_wmem(pinfo->pool, OC, vals_hdr_OC, "Unknown (%d)");
+  str_OC = val_to_str(pinfo->pool, OC, vals_hdr_OC, "Unknown (%d)");
   if (checksumIsValid)
     col_add_str(pinfo->cinfo, COL_INFO, str_OC);
   else

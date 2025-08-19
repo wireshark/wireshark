@@ -909,7 +909,7 @@ static const uint8_t *C_BANNER = (const uint8_t*)"ceph v";
 	VALUE_STRING_ENUM(base##_strings); \
 	VALUE_STRING_ARRAY(base##_strings); \
 	static const char *base##_string(base val, wmem_allocator_t* scope) { \
-		return val_to_str_wmem(scope, val, base##_strings, "Unknown (0x0"#chars"X)"); \
+		return val_to_str(scope, val, base##_strings, "Unknown (0x0"#chars"X)"); \
 	}
 
 #define C_MAKE_STRINGS_EXT(base, chars) \
@@ -1983,7 +1983,7 @@ unsigned c_dissect_entityname(proto_tree *root, int hf, c_entityname *out,
 	tree = proto_item_add_subtree(ti, ett_entityname);
 
 	d.type	   = (c_node_type)tvb_get_uint8(tvb, off);
-	d.type_str = val_to_str_wmem(data->pinfo->pool, d.type, c_node_type_abbr_strings, "Unknown (0x%02x)");
+	d.type_str = val_to_str(data->pinfo->pool, d.type, c_node_type_abbr_strings, "Unknown (0x%02x)");
 	proto_tree_add_item(tree, hf_node_type,
 			    tvb, off, 1, ENC_LITTLE_ENDIAN);
 	off += 1;
@@ -2068,7 +2068,7 @@ unsigned c_dissect_EntityName(proto_tree *root,
 
 	off = c_dissect_str(tree, hf_EntityName_id, &name, tvb, data->pinfo, off);
 
-	proto_item_append_text(ti, ": %s.%s", val_to_str_wmem(data->pinfo->pool, type, c_node_type_abbr_strings, "Unknown (0x%02x)"), name.str);
+	proto_item_append_text(ti, ": %s.%s", val_to_str(data->pinfo->pool, type, c_node_type_abbr_strings, "Unknown (0x%02x)"), name.str);
 
 	proto_item_set_end(ti, tvb, off);
 	return off;

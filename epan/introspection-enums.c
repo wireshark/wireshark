@@ -183,6 +183,7 @@ static ws_enum_t const all_enums[] = {
     ENUM(FI_VARINT),
     ENUM(FTREPR_DFILTER),
     ENUM(FTREPR_DISPLAY),
+    ENUM(FTREPR_EK),
     ENUM(FTREPR_JSON),
     ENUM(FTREPR_RAW),
     ENUM(FT_ABSOLUTE_TIME),

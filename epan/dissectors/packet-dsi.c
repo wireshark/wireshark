@@ -238,7 +238,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	dsi_length = tvb_get_ntohl(tvb, 8);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s (%u)",
-			val_to_str_wmem(pinfo->pool, dsi_flags, flag_vals,
+			val_to_str(pinfo->pool, dsi_flags, flag_vals,
 				   "Unknown flag (0x%02x)"),
 			val_to_str_ext(pinfo->pool, dsi_command, &func_vals_ext,
 				   "Unknown function (0x%02x)"),

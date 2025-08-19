@@ -1345,7 +1345,7 @@ dissect_cfdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         proto_tree_add_uint(cfdp_file_directive_header_tree, hf_cfdp_file_directive_type, tvb, offset, 1, directive_code);
         offset += 1;
 
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s PDU",  val_to_str_wmem(pinfo->pool, directive_code, cfdp_directive_codes, "Reserved (%d)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s PDU",  val_to_str(pinfo->pool, directive_code, cfdp_directive_codes, "Reserved (%d)"));
 
         switch(directive_code)
         {
@@ -1485,7 +1485,7 @@ dissect_cfdp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, in
         proto_tree_add_uint(cfdp_file_directive_header_tree, hf_cfdp_file_directive_type, tvb, offset, 1, directive_code);
         offset += 1;
 
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s PDU",  val_to_str_wmem(pinfo->pool, directive_code, cfdp_directive_codes, "Reserved (%d)"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s PDU",  val_to_str(pinfo->pool, directive_code, cfdp_directive_codes, "Reserved (%d)"));
 
         switch(directive_code)
         {

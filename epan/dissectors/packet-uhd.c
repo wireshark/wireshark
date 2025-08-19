@@ -156,7 +156,7 @@ dissect_uhd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	id = tvb_get_ntohl(tvb, 4);
 
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, id, uhd_ids, "Unknown UHD message type '%c'"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, id, uhd_ids, "Unknown UHD message type '%c'"));
 
 	if (tree == NULL)
 		return tvb_captured_length(tvb);

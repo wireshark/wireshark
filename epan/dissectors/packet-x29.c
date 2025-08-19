@@ -109,7 +109,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		 */
 		msg_code = tvb_get_uint8(tvb, offset);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s PAD message",
-			    val_to_str_wmem(pinfo->pool, msg_code, message_code_vals,
+			    val_to_str(pinfo->pool, msg_code, message_code_vals,
 			        "Unknown (0x%02x)"));
 
 		proto_tree_add_uint(x29_tree, hf_msg_code, tvb,

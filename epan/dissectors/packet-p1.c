@@ -1441,7 +1441,7 @@ dissect_p1_MTABindError(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
                                                             0U, ub_integer_options, hf_index, &error);
 
   if((error != -1))
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str_wmem(actx->pinfo->pool, error, p1_MTABindError_vals, "error(%d)"));
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, error, p1_MTABindError_vals, "error(%d)"));
 
 
   return offset;
@@ -2163,7 +2163,7 @@ dissect_p1_ExtensionAttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_p1_T_extension_attribute_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-	proto_item_append_text(tree, " (%s)", val_to_str_wmem(actx->pinfo->pool, actx->external.indirect_reference, p1_ExtensionAttributeType_vals, "extension-attribute-type %d"));
+	proto_item_append_text(tree, " (%s)", val_to_str(actx->pinfo->pool, actx->external.indirect_reference, p1_ExtensionAttributeType_vals, "extension-attribute-type %d"));
 	p_add_proto_data(actx->pinfo->pool, actx->pinfo, proto_p1, 0, actx->subtree.tree_ctx);
 	if (dissector_try_uint(p1_extension_attribute_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
 		offset =tvb_reported_length(tvb);
@@ -2802,7 +2802,7 @@ dissect_p1_RoutingAction(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
                                   &action);
 
 
-	proto_item_append_text(actx->subtree.tree, " %s", val_to_str_wmem(actx->pinfo->pool, action, p1_RoutingAction_vals, "action(%d)"));
+	proto_item_append_text(actx->subtree.tree, " %s", val_to_str(actx->pinfo->pool, action, p1_RoutingAction_vals, "action(%d)"));
 
 
   return offset;
@@ -3037,7 +3037,7 @@ dissect_p1_ExtensionValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 	const char *name;
 
 	if(actx->external.indirect_ref_present) {
-		proto_item_append_text(tree, " (%s)", val_to_str_wmem(actx->pinfo->pool, actx->external.indirect_reference, p1_StandardExtension_vals, "standard-extension %d"));
+		proto_item_append_text(tree, " (%s)", val_to_str(actx->pinfo->pool, actx->external.indirect_reference, p1_StandardExtension_vals, "standard-extension %d"));
 		if (dissector_try_uint(p1_extension_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
 			offset = tvb_reported_length(tvb);
 		} else {
@@ -7082,7 +7082,7 @@ dissect_p1_TokenDataType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 static int
 dissect_p1_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-	proto_item_append_text(tree, " (%s)", val_to_str_wmem(actx->pinfo->pool, actx->external.indirect_reference, p1_TokenDataType_vals, "tokendata-type %d"));
+	proto_item_append_text(tree, " (%s)", val_to_str(actx->pinfo->pool, actx->external.indirect_reference, p1_TokenDataType_vals, "tokendata-type %d"));
 	if (dissector_try_uint(p1_tokendata_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
 		offset = tvb_reported_length(tvb);
 	} else {

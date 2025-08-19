@@ -2412,8 +2412,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Управлять фильтрами отображения</translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Параметры кнопок фильтра…</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Параметры кнопок фильтра…</translation>
     </message>
 </context>
 <context>
@@ -3315,8 +3316,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>FilterExpressionToolBar</name>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Параметры кнопки фильтра…</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Параметры кнопки фильтра…</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -3414,6 +3416,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>MAC destination address.</source>
         <translation>MAC-адрес назначения.</translation>
+    </message>
+    <message>
+        <source>Save %1 rules as…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Text file (*.txt);;All Files (</source>
@@ -5296,8 +5302,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Поддерживаемые поля: data, dir, time, seqno</translation>
     </message>
     <message>
-        <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <translation>Отсутствующие данные о группе захвата (используйте (?&lt;data&gt;(...)))</translation>
+        <source>Missing capturing group data (use (?&lt;data&gt;(…)) )</source>
+        <oldsource>Missing capturing group data (use (?&lt;data&gt;(...)) )</oldsource>
+        <translation type="unfinished">Отсутствующие данные о группе захвата (используйте (?&lt;data&gt;(...)))</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -7024,20 +7031,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Нет событий</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <translation>Из zip-фйла…</translation>
+        <source>From Zip File…</source>
+        <oldsource>From Zip File...</oldsource>
+        <translation type="unfinished">Из zip-фйла…</translation>
     </message>
     <message>
-        <source>From Directory...</source>
-        <translation>Из каталога…</translation>
+        <source>From Directory…</source>
+        <oldsource>From Directory...</oldsource>
+        <translation type="unfinished">Из каталога…</translation>
     </message>
     <message>
-        <source>Selected Personal Profile...</source>
-        <translation>Выбранный личный профиль…</translation>
+        <source>Selected Personal Profile…</source>
+        <oldsource>Selected Personal Profile...</oldsource>
+        <translation type="unfinished">Выбранный личный профиль…</translation>
     </message>
     <message>
-        <source>All Personal Profiles...</source>
-        <translation>Все личные профили…</translation>
+        <source>All Personal Profiles…</source>
+        <oldsource>All Personal Profiles...</oldsource>
+        <translation type="unfinished">Все личные профили…</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7061,6 +7072,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Display filter as %1</source>
         <translation>Отображение фильтра в виде %1</translation>
+    </message>
+    <message>
+        <source>…as %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
@@ -8264,6 +8279,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Auto Scroll</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Plots</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8659,15 +8678,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Экспорт</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <translation>Из zip-файла...</translation>
+        <source>From Zip File…</source>
+        <oldsource>From Zip File...</oldsource>
+        <translation type="unfinished">Из zip-файла...</translation>
     </message>
     <message>
-        <source>From Directory...</source>
-        <translation>Из каталога…</translation>
+        <source>From Directory…</source>
+        <oldsource>From Directory...</oldsource>
+        <translation type="unfinished">Из каталога…</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)...</source>
+        <source>%Ln Selected Personal Profile(s)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
@@ -8675,8 +8697,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message>
-        <source>All Personal Profiles...</source>
-        <translation>Все личные профили…</translation>
+        <source>All Personal Profiles…</source>
+        <oldsource>All Personal Profiles...</oldsource>
+        <translation type="unfinished">Все личные профили…</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -10858,8 +10881,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Без звука</translation>
     </message>
     <message>
-        <source>Decoding streams...</source>
-        <translation>Декодирование потоков…</translation>
+        <source>Decoding streams…</source>
+        <oldsource>Decoding streams...</oldsource>
+        <translation type="unfinished">Декодирование потоков…</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10910,7 +10934,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Автоматическая</translation>
     </message>
     <message>
-        <source>Resampling waveform...</source>
+        <source>Resampling waveform…</source>
+        <oldsource>Resampling waveform...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10974,8 +10999,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Щелкните дважды для изменения маршрутизации звука</translation>
     </message>
     <message>
-        <source>Preparing to play...</source>
-        <translation>Подготовка к воспроизведению…</translation>
+        <source>Preparing to play…</source>
+        <oldsource>Preparing to play...</oldsource>
+        <translation type="unfinished">Подготовка к воспроизведению…</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -13959,6 +13985,14 @@ a:hover {
         <translation>Интерфейс</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 band.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Band</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Задать канал 802.11.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -16009,6 +16043,10 @@ a:hover {
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Диалог экспорта вернул неизвестный тип файла.</translation>
+    </message>
+    <message>
+        <source>Unsaved packets…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>

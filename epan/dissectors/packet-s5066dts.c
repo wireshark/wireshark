@@ -780,7 +780,7 @@ static int dissect_s5066dts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Add DPDU type and name */
     col_add_fstr(pinfo->cinfo, COL_INFO, "DpduType=%d (%s)", pdu_type,
-            val_to_str_wmem(pinfo->pool, pdu_type, s5066dts_dpdu_type, "Unknown (0x%02x)"));
+            val_to_str(pinfo->pool, pdu_type, s5066dts_dpdu_type, "Unknown (0x%02x)"));
 
     address_size = (tvb_get_uint8(tvb, S5066_DPDU_SIZE_OF_ADDRESS_INDEX) & 0xE0) >> 5;
     eow_type = tvb_get_uint8(tvb, S5066_DPDU_EOW_TYPE_INDEX) & 0x0F;

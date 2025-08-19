@@ -4600,7 +4600,7 @@ dissect_rsvp_label_request(proto_item *ti, proto_tree *rsvp_object_tree,
                             rval_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb,offset2+1),
                                        gmpls_switching_type_rvals, "Unknown (%d)"),
                             rval_to_str_const(l3pid, gmpls_gpid_rvals,
-                                              val_to_str_wmem(pinfo->pool, l3pid, etype_vals,
+                                              val_to_str(pinfo->pool, l3pid, etype_vals,
                                                          "Unknown (0x%04x)")));
         break;
     }
@@ -4901,7 +4901,7 @@ dissect_rsvp_label_set(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_obje
     proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_label_set, tvb, offset+3, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(rsvp_object_tree, hf_rsvp_label_set_action, tvb, offset+4, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(ti, ": %s",
-                           val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset+4),
+                           val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset+4),
                            action_type_vals, "Unknown (%u)"));
     label_type = tvb_get_uint8 (tvb, offset+7);
     proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_label_set_type, tvb, offset+7, 1, label_type,
@@ -5855,7 +5855,7 @@ dissect_rsvp_association(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
         proto_item_append_text(ti, "(IPv4): ");
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_association_type, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, "%s. ",
-                               val_to_str_wmem(pinfo->pool, association_type, association_type_vals, "Unknown (%u)"));
+                               val_to_str(pinfo->pool, association_type, association_type_vals, "Unknown (%u)"));
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_association_id, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, "ID: %u. ", association_id);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_association_source_ipv4, tvb, offset+8, 4, ENC_BIG_ENDIAN);
@@ -5867,7 +5867,7 @@ dissect_rsvp_association(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
         proto_item_append_text(ti, "(IPv6): ");
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_association_type, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, "%s. ",
-                               val_to_str_wmem(pinfo->pool, association_type, association_type_vals, "Unknown (%u)"));
+                               val_to_str(pinfo->pool, association_type, association_type_vals, "Unknown (%u)"));
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_association_id, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, "ID: %u. ", association_id);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_association_source_ipv6, tvb, offset+8, 16, ENC_NA);
@@ -5879,7 +5879,7 @@ dissect_rsvp_association(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
         proto_item_append_text(ti, "(Routing Area): ");
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_association_type, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, "%s. ",
-                               val_to_str_wmem(pinfo->pool, association_type, association_type_vals, "Unknown (%u)"));
+                               val_to_str(pinfo->pool, association_type, association_type_vals, "Unknown (%u)"));
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_association_id, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, "Association ID: %u, ", association_id);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_association_routing_area_id, tvb, offset+8, 4, ENC_BIG_ENDIAN);
@@ -6401,7 +6401,7 @@ dissect_rsvp_call_id(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
             ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_address_type, tvb, offset2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_reserved, tvb, offset2+1, 3, ENC_BIG_ENDIAN);
             proto_item_append_text(ti, "Operator-Specific. Addr Type: %s. ",
-                                   val_to_str_wmem(pinfo->pool, type, address_type_vals, "Unknown (%u)"));
+                                   val_to_str(pinfo->pool, type, address_type_vals, "Unknown (%u)"));
         }
         else {
             offset3 = offset2 + 16;
@@ -6410,7 +6410,7 @@ dissect_rsvp_call_id(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
             ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_address_type, tvb, offset2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item_ret_string(rsvp_object_tree, hf_rsvp_call_id_international_segment, tvb, offset2 + 1, 3, ENC_NA|ENC_ASCII, pinfo->pool, &str);
             proto_item_append_text(ti, "Globally-Unique. Addr Type: %s. Intl Segment: %s. ",
-                                   val_to_str_wmem(pinfo->pool, type, address_type_vals, "Unknown (%u)"), str);
+                                   val_to_str(pinfo->pool, type, address_type_vals, "Unknown (%u)"), str);
             proto_tree_add_item_ret_string(rsvp_object_tree, hf_rsvp_call_id_national_segment, tvb, offset2 + 4, 12, ENC_NA|ENC_ASCII, pinfo->pool, &str);
             proto_item_append_text(ti, "Natl Segment: %s. ", str);
         }

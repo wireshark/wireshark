@@ -570,7 +570,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
 
     ext_tree = proto_tree_add_subtree_format(exts_tree, tvb, offset, ext_len + hdrLen,
                  ett_mip_ext, NULL, "Extension: %s",
-                 val_to_str_wmem(pinfo->pool, ext_type, mip_ext_types, "Unknown Extension %u"));
+                 val_to_str(pinfo->pool, ext_type, mip_ext_types, "Unknown Extension %u"));
 
     proto_tree_add_uint(ext_tree, hf_mip_ext_type, tvb, offset, 1, ext_type);
     offset++;
@@ -701,7 +701,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
       ext_subtype = tvb_get_uint8(tvb, offset);
       pmipv4_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, ext_len,
                    ett_mip_pmipv4_ext, NULL, "PMIPv4 Sub-Type: %s",
-                   val_to_str_wmem(pinfo->pool, ext_subtype, mip_pmipv4skipext_stypes, "Unknown Sub-Type %u"));
+                   val_to_str(pinfo->pool, ext_subtype, mip_pmipv4skipext_stypes, "Unknown Sub-Type %u"));
       proto_tree_add_uint(pmipv4_tree, hf_mip_pmipv4skipext_stype, tvb, offset, 1, ext_subtype);
 
       if (ext_subtype == PMIPv4_SKIPEXT_STYPE_INTERFACE_ID) {

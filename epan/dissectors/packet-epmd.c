@@ -118,7 +118,7 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *
     type = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_epmd_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, type, VALS(message_types), "unknown (0x%02X)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, type, VALS(message_types), "unknown (0x%02X)"));
 
     switch (type) {
         case EPMD_ALIVE2_REQ:
@@ -194,7 +194,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree 
     type = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_epmd_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, type, VALS(message_types), "unknown (0x%02X)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, type, VALS(message_types), "unknown (0x%02X)"));
 
     switch (type) {
         case EPMD_ALIVE_OK_RESP:

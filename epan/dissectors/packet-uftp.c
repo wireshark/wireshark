@@ -1411,7 +1411,7 @@ static int dissect_uftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo,COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%-10s",
-                 val_to_str_wmem(pinfo->pool, mes_type, messages, "Unknown (%d)"));
+                 val_to_str(pinfo->pool, mes_type, messages, "Unknown (%d)"));
     if ((mes_type != HB_REQ) && (mes_type != HB_RESP)) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " ID=%08X", group_id);
     }

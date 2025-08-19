@@ -674,7 +674,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s",
-             val_to_str(packet_type, packettypenames, "Unknown (0x%02x)"));
+             val_to_str(pinfo->pool, packet_type, packettypenames, "Unknown (0x%02x)"));
 
     proto_item *ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, ENC_NA);
     proto_item_append_text(ti, ", Type %s",
@@ -1384,7 +1384,7 @@ static tap_packet_status foo_stats_tree_packet(stats_tree* st, packet_info* pinf
     struct FooTap *pi = (struct FooTap *)p;
     tick_stat_node(st, st_str_packets, 0, false);
     stats_tree_tick_pivot(st, st_node_packet_types,
-            val_to_str(pi->packet_type, packettypenames, "Unknown packet type (%d)"));
+            val_to_str(pinfo->pool, pi->packet_type, packettypenames, "Unknown packet type (%d)"));
     return TAP_PACKET_REDRAW;
 }
 ----

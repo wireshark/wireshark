@@ -276,7 +276,7 @@ static int dissect_teklink_vtc_outen(tvbuff_t *tvb, packet_info *pinfo,
 	offset = dissect_rpc_uint32(tvb, tree, hf_teklink_vtc_sigen, offset);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO," %s, %s ",
-			val_to_str_wmem(pinfo->pool, sig, teklink_vtc_dstnames, "Unknown destination %d"),
+			val_to_str(pinfo->pool, sig, teklink_vtc_dstnames, "Unknown destination %d"),
 			sigon ? "VTC_OUT_FORCE_ON" : "VTC_OUT_FORCE_OFF");
 	return offset;
 }
@@ -294,8 +294,8 @@ static int dissect_teklink_vtc_map(tvbuff_t *tvb, packet_info *pinfo,
 	offset = dissect_rpc_uint32(tvb, tree, hf_teklink_vtc_dstnames, offset);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO," %s, %s ",
-			val_to_str_wmem(pinfo->pool, src, teklink_vtc_srcnames, "Unknown source %d"),
-			val_to_str_wmem(pinfo->pool, dst, teklink_vtc_dstnames, "Unknown destination %d"));
+			val_to_str(pinfo->pool, src, teklink_vtc_srcnames, "Unknown source %d"),
+			val_to_str(pinfo->pool, dst, teklink_vtc_dstnames, "Unknown destination %d"));
 	return offset;
 }
 
@@ -316,10 +316,10 @@ static int dissect_teklink_vtc_clk(tvbuff_t *tvb, packet_info *pinfo,
 	offset = dissect_rpc_uint32(tvb, tree, hf_teklink_vtc_clkmode, offset);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO,"  %s, %s, %s, %s",
-			val_to_str_wmem(pinfo->pool, sig, teklink_vtc_dstnames, "Unknown destination %d"),
-			val_to_str_wmem(pinfo->pool, clksource, teklink_vtc_clksource, "Unknown clocksource %d"),
-			val_to_str_wmem(pinfo->pool, clkedge, teklink_vtc_clkedge, "Unknown edge setting %d"),
-			val_to_str_wmem(pinfo->pool, clkmode, teklink_vtc_clkmode, "Unknown mode setting %d"));
+			val_to_str(pinfo->pool, sig, teklink_vtc_dstnames, "Unknown destination %d"),
+			val_to_str(pinfo->pool, clksource, teklink_vtc_clksource, "Unknown clocksource %d"),
+			val_to_str(pinfo->pool, clkedge, teklink_vtc_clkedge, "Unknown edge setting %d"),
+			val_to_str(pinfo->pool, clkmode, teklink_vtc_clkmode, "Unknown mode setting %d"));
 	return offset;
 }
 
@@ -339,9 +339,9 @@ static int dissect_teklink_vtc_mode(tvbuff_t *tvb, packet_info *pinfo,
 	offset = dissect_rpc_uint32(tvb, tree, hf_teklink_vtc_mode, offset);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO," %s, %s, %s",
-			val_to_str_wmem(pinfo->pool, sig, teklink_vtc_dstnames, "Unknown destination %d"),
-			val_to_str_wmem(pinfo->pool, edge, teklink_vtc_edge, "Unknown edge setting %d"),
-			val_to_str_wmem(pinfo->pool, mode, teklink_vtc_modes, "Unknown mode setting %d"));
+			val_to_str(pinfo->pool, sig, teklink_vtc_dstnames, "Unknown destination %d"),
+			val_to_str(pinfo->pool, edge, teklink_vtc_edge, "Unknown edge setting %d"),
+			val_to_str(pinfo->pool, mode, teklink_vtc_modes, "Unknown mode setting %d"));
 	return offset;
 }
 
@@ -362,10 +362,10 @@ static int dissect_teklink_vtc_outsetup(tvbuff_t *tvb, packet_info *pinfo,
 	offset = dissect_rpc_uint32(tvb, tree, hf_teklink_vtc_sigfeedback, offset);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO," %s, %s, %s, %s",
-			val_to_str_wmem(pinfo->pool, sig, teklink_vtc_dstnames, "Unknown destination %d"),
-			val_to_str_wmem(pinfo->pool, pol, teklink_vtc_sigpol, "Unknown signal polarity %d"),
-			val_to_str_wmem(pinfo->pool, en, teklink_vtc_sigen, "Unknown signal enable %d"),
-			val_to_str_wmem(pinfo->pool, feedback, teklink_vtc_sigfeedback, "Unknown signal feedback setting %d"));
+			val_to_str(pinfo->pool, sig, teklink_vtc_dstnames, "Unknown destination %d"),
+			val_to_str(pinfo->pool, pol, teklink_vtc_sigpol, "Unknown signal polarity %d"),
+			val_to_str(pinfo->pool, en, teklink_vtc_sigen, "Unknown signal enable %d"),
+			val_to_str(pinfo->pool, feedback, teklink_vtc_sigfeedback, "Unknown signal feedback setting %d"));
 	return offset;
 }
 
@@ -378,7 +378,7 @@ static int dissect_teklink_vtc_res(tvbuff_t *tvb, packet_info *pinfo,
 	offset = dissect_rpc_uint32(tvb, tree, hf_teklink_vtc_dstnames, offset);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO," %s",
-			val_to_str_wmem(pinfo->pool, sig, teklink_vtc_dstnames, "Unknown destination %d"));
+			val_to_str(pinfo->pool, sig, teklink_vtc_dstnames, "Unknown destination %d"));
 	return offset;
 }
 

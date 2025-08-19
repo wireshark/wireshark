@@ -594,7 +594,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         event_code = tvb_get_uint8(tvb, offset);
 
         if (try_val_to_str(event_code, intel_event_code_vals))
-            description = val_to_str_wmem(pinfo->pool, event_code, intel_event_code_vals, "Unknown 0x%08x");
+            description = val_to_str(pinfo->pool, event_code, intel_event_code_vals, "Unknown 0x%08x");
         else
             description = val_to_str_ext(pinfo->pool, event_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%08x");
         col_append_str(pinfo->cinfo, COL_INFO, description);

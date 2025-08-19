@@ -536,7 +536,7 @@ static const true_false_string tfs_esc_reg_watchdog =
 
 static const char* convertEcCmdToShortText(wmem_allocator_t* scope, int cmd)
 {
-   return val_to_str_wmem(scope, cmd, EcCmdShort, "<UNKNOWN: %d>");
+   return val_to_str(scope, cmd, EcCmdShort, "<UNKNOWN: %d>");
 }
 
 typedef enum

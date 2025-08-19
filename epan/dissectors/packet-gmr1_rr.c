@@ -1878,7 +1878,7 @@ dissect_gmr1_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		pd = oct[1] & 0x0f;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
-		val_to_str_wmem(pinfo->pool, pd, gmr1_pd_short_vals, "Unknown (%u)"));
+		val_to_str(pinfo->pool, pd, gmr1_pd_short_vals, "Unknown (%u)"));
 
 	if (pd != GMR1_PD_RR)
 		goto err;	/* CCCH is only RR */

@@ -96,7 +96,7 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 	/* Read header */
 	header_offset = tvb_find_uint8(tvb, current_offset, -1, INDIGOCARE_ICALL_STX);
 	ws_strtoi32(tvb_get_string_enc(pinfo->pool, tvb, current_offset, header_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &header);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s:", val_to_str_wmem(pinfo->pool, header, icall_headertypenames, "Unknown (%d)"));
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s:", val_to_str(pinfo->pool, header, icall_headertypenames, "Unknown (%d)"));
 	switch(header) {
 		case INDIGOCARE_ICALL_CALL:
 			ett = ett_icall_call;
@@ -106,7 +106,7 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 			return 0;
 		break;
 	}
-	header_item = proto_tree_add_uint_format(icall_tree, hf_icall_header_type, tvb, current_offset, header_offset - current_offset, header, "%s", val_to_str_wmem(pinfo->pool, header, icall_headertypenames, "Unknown (%d)"));
+	header_item = proto_tree_add_uint_format(icall_tree, hf_icall_header_type, tvb, current_offset, header_offset - current_offset, header, "%s", val_to_str(pinfo->pool, header, icall_headertypenames, "Unknown (%d)"));
 	icall_header_tree = proto_item_add_subtree(header_item, ett);
 	current_offset = header_offset + 1;
 
