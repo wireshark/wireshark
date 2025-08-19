@@ -1324,13 +1324,6 @@ sync_interface_set_80211_chan(const char *iface, const char *freq, const char *t
     else
         opt = g_strdup(freq);
 
-    if (!opt) {
-        *primary_msg = g_strdup("Out of mem.");
-        *secondary_msg = NULL;
-        *data = NULL;
-        return -1;
-    }
-
     argv = sync_pipe_add_arg(argv, &argc, "-k");
     argv = sync_pipe_add_arg(argv, &argc, opt);
 
