@@ -3685,6 +3685,7 @@ static bool rtps_psk_generate_master_sender(
 static gcry_error_t rtps_util_generate_hmac_sha256(
     void *output,
     const void *key,
+    size_t key_length,
     const void *data,
     size_t datalen);
 
@@ -3695,11 +3696,13 @@ static gcry_error_t rtps_util_generate_hmac_sha256(
  * wire.
  */
 static bool rtps_psk_generate_session_key(
-    uint8_t *buffer, /* output. */
+    uint8_t *session_key, /* output. */
+    size_t *session_key_length, /* output. */
     packet_info *pinfo,
     const char *preshared_secret_key,
     uint32_t sender_key_id,
-    uint32_t session_id)
+    uint32_t session_id,
+    rtps_encryption_algorithm_t algorithm)
 {
   const char *sessionKeyString = "SessionKey";
   rtps_tvb_field* rtps_root = NULL;
@@ -3711,12 +3714,20 @@ static bool rtps_psk_generate_session_key(
   uint8_t input[50];
   size_t offset = 0;
 
+  if (algorithm == CRYPTO_ALGORITHM_AES256_GCM
+      || algorithm == CRYPTO_ALGORITHM_AES256_GMAC) {
+    *session_key_length = RTPS_HMAC_256_BUFFER_SIZE_BYTES;
+  } else {
+    /* 128 bits for AES128. */
+    *session_key_length = RTPS_HMAC_256_BUFFER_SIZE_BYTES / 2;
+  }
+
   rtps_root = (rtps_tvb_field*) p_get_proto_data(
       pinfo->pool,
       pinfo,
       proto_rtps,
       RTPS_ROOT_MESSAGE_KEY);
-  if (rtps_root == NULL || buffer == NULL) {
+  if (rtps_root == NULL || session_key == NULL) {
     return false;
   }
 
@@ -3732,7 +3743,7 @@ static bool rtps_psk_generate_session_key(
         rtps_root->tvb_offset)) {
     return false;
   }
-  offset += RTPS_HMAC_256_BUFFER_SIZE_BYTES;
+  offset += *session_key_length;
 
   memcpy(
       input + offset,
@@ -3751,8 +3762,9 @@ static bool rtps_psk_generate_session_key(
   }
 
   return rtps_util_generate_hmac_sha256(
-      buffer,
+      session_key,
       sender_key,
+      *session_key_length,
       input,
       offset) == GPG_ERR_NO_ERROR;
 }
@@ -3801,6 +3813,7 @@ static bool rtps_psk_generate_master_sender(
   return rtps_util_generate_hmac_sha256(
       output,
       prk_key,
+      RTPS_HMAC_256_BUFFER_SIZE_BYTES,
       input,
       strlen(suffix) + 1) == GPG_ERR_NO_ERROR;
 }
@@ -3840,6 +3853,7 @@ static bool rtps_psk_generate_prk_key(
   error = rtps_util_generate_hmac_sha256(
       output,
       public_salt,
+      RTPS_HMAC_256_BUFFER_SIZE_BYTES,
       preshared_secret_key,
       strlen(preshared_secret_key));
   return error == GPG_ERR_NO_ERROR;
@@ -3890,6 +3904,7 @@ static void rtps_generate_public_salt(
 static gcry_error_t rtps_util_generate_hmac_sha256(
     void *output,
     const void *key,
+    size_t key_length,
     const void *data,
     size_t datalen)
 {
@@ -3903,7 +3918,7 @@ static gcry_error_t rtps_util_generate_hmac_sha256(
       return error;
   }
 
-  error = gcry_mac_setkey(hmac, key, RTPS_HMAC_256_BUFFER_SIZE_BYTES);
+  error = gcry_mac_setkey(hmac, key, key_length);
   if (error != GPG_ERR_NO_ERROR) {
     gcry_mac_close(hmac);
     return error;
@@ -3963,6 +3978,7 @@ static gcry_error_t rtps_util_decrypt_data(
     uint8_t *encrypted_data,
     size_t encrypted_data_size,
     uint8_t *key,
+    size_t key_length,
     uint8_t *init_vector,
     uint8_t *tag,
     const uint8_t *aad,
@@ -3991,7 +4007,7 @@ static gcry_error_t rtps_util_decrypt_data(
       return err;
   }
 
-  err = gcry_cipher_setkey(cipher_hd, key, RTPS_HMAC_256_BUFFER_SIZE_BYTES);
+  err = gcry_cipher_setkey(cipher_hd, key, key_length);
   if (err != GPG_ERR_NO_ERROR) {
       ws_warning(
           "GCRY: setkey %s/%s\n",
@@ -4064,6 +4080,7 @@ static gcry_error_t rtps_util_decrypt_data(
  */
 static uint8_t *rtps_decrypt_secure_payload(
     uint8_t *session_key, /* output. */
+    size_t *session_key_length, /* output. */
     tvbuff_t *tvb,
     packet_info *pinfo,
     int offset,
@@ -4081,10 +4098,12 @@ static uint8_t *rtps_decrypt_secure_payload(
 
   if (!rtps_psk_generate_session_key(
       session_key, /* output. */
+      session_key_length, /* output. */
       pinfo,
       preshared_secret_key,
       decryption_info->transformation_key,
-      decryption_info->session_id)) {
+      decryption_info->session_id,
+      decryption_info->algorithm)) {
     return NULL;
   }
 
@@ -4099,6 +4118,7 @@ static uint8_t *rtps_decrypt_secure_payload(
       secure_body_ptr,
       secure_payload_len,
       session_key,
+      *session_key_length,
       decryption_info->init_vector,
       tag,
       aad,
@@ -16699,6 +16719,7 @@ static void dissect_SECURE(
   for (unsigned entry_idx = 0; entry_idx < rtps_psk_options.size; entry_idx++) {
     uint8_t *decrypted_data = NULL;
     uint8_t session_key[RTPS_HMAC_256_BUFFER_SIZE_BYTES];
+    size_t session_key_len = RTPS_HMAC_256_BUFFER_SIZE_BYTES;
     uint8_t *tag = NULL;
     int tag_offset = 0;
     gcry_error_t error = GPG_ERR_NO_ERROR;
@@ -16745,6 +16766,7 @@ static void dissect_SECURE(
     /* Decrypt the payload */
     decrypted_data = rtps_decrypt_secure_payload(
         session_key, /* output*/
+        &session_key_len, /* output */
         tvb,
         pinfo,
         offset,
@@ -16776,7 +16798,7 @@ static void dissect_SECURE(
       session_key_nul_terminator_ptr = bytes_to_hexstr(
           session_key_hexadecimal_representation,
           session_key,
-          RTPS_HMAC_256_BUFFER_SIZE_BYTES);
+          session_key_len);
       *session_key_nul_terminator_ptr = '\0';
 
       proto_tree* decrypted_subtree = NULL;
