@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Wireshark
 
 ## 1. Resumen
@@ -56,3 +57,16 @@ Wireshark es considerado un estándar de facto para el análisis de tráfico de 
 4. [Wireshark GitHub, 2025] Wireshark Network Protocol Analyzer (Repositorio de GitHub). https://github.com/wireshark/wireshark
 
 
+=======
+## 5. Buenas prácticas éticas y legales --> Emilio
+- Uso responsable y normativas.  
+  - Utilizar Wireshark únicamente con fines educativos, de investigación o diagnóstico autorizado.  
+  - Respetar la privacidad y la confidencialidad de la información capturada.  
+  - Cumplir con las leyes y normativas vigentes relacionadas con la ciberseguridad y el análisis de redes.  
+  - Evitar el uso de la herramienta en redes o sistemas sin el consentimiento explícito del propietario.  
+
+---
+
+## 6. Contribuciones del equipo --> Emilio
+- Emilio Córdova – Desarrollo del apartado de buenas prácticas éticas y legales.
+>>>>>>> EMILIO_CORDOVA
