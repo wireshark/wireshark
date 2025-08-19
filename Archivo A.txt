@@ -1,5 +1,8 @@
-Hola este archivo pertenece a la rama de Daniel Quinonez.
-Cambio 2
-prueba 3 ciber
-prueba 4 ciber
-prueba 5 ciber
+Se determina que la utilidad del repositorio permitió llevar y mantener un control apropiado 
+para trabajar en la tarea asignada en el control de versiones permitiendo tener un historial
+completo de todas las modificaciones realizadas en los archivos, así mismo la colaboración de los 
+integrantes, el registro de los cambios efectuados, una gestión centralizada del código fuente y 
+la documentación actualizada. Se eligió un repositorio relacionado a la Ciberseguridad en Github
+sobre la herramienta Wireshark el cual permite capturar el flujo de datos entre procesos de cliente
+y servidor.
+
