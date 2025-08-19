@@ -1717,11 +1717,15 @@ pipe_read_bytes(GIOChannel *pipe_io, char *bytes, size_t required, char **msg)
     size_t offset = 0;
 
     while(required) {
-        g_io_channel_read_chars(pipe_io, &bytes[offset], required, &newly, &err);
-        if (err != NULL) {
-            ws_debug("read from pipe %p: error(%u): %s", pipe_io, err->code, err->message);
-            *msg = ws_strdup_printf("Error reading from sync pipe: %s", err->message);
-            g_clear_error(&err);
+        if (g_io_channel_read_chars(pipe_io, &bytes[offset], required, &newly, &err) == G_IO_STATUS_ERROR) {
+            if (err != NULL) {
+                ws_debug("read from pipe %p: error(%u): %s", pipe_io, err->code, err->message);
+                *msg = ws_strdup_printf("Error reading from sync pipe: %s", err->message);
+                g_clear_error(&err);
+            } else {
+                ws_debug("read from pipe %p: unknown error", pipe_io);
+                *msg = ws_strdup_printf("Error reading from sync pipe: unknown error");
+            }
             return -1;
         }
         if (newly == 0) {
@@ -1835,10 +1839,13 @@ pipe_read_block(GIOChannel *pipe_io, char *indicator, unsigned len, char *msg,
               header[0], header[1], header[2], header[3]);
 
         /* we have a problem here, try to read some more bytes from the pipe to debug where the problem really is */
-        g_io_channel_read_chars(pipe_io, msg, len, &bytes_read, &err);
-        if (err != NULL) { /* error */
-            ws_debug("read from pipe %p: error(%u): %s", pipe_io, err->code, err->message);
-            g_clear_error(&err);
+        if (g_io_channel_read_chars(pipe_io, msg, len, &bytes_read, &err) == G_IO_STATUS_ERROR) {
+            if (err != NULL) { /* error */
+                ws_debug("read from pipe %p: error(%u): %s", pipe_io, err->code, err->message);
+                g_clear_error(&err);
+            } else {
+                ws_debug("read from pipe %p: unknown error", pipe_io);
+            }
         }
         *err_msg = ws_strdup_printf("Message %c from dumpcap with length %d > buffer size %d! Partial message: %s",
                                     *indicator, required, len, msg);
