@@ -12,3 +12,15 @@ Wireshark es una herramienta muy útil en el útil en el área de TI y cibersegu
 Wireshark es muy importante en GitHub ya que permite a los desarrolladores colaborar en el código de Wireshark y contribuir a su desarrollo. Por otro lado, GitHub es  una plataforma para la gestión de versiones, lo que facilita el trabajo en equipo y la mejora del software. 
 
 >>>>>>> b092ce745e2261560bad6e8e5f753c335e78a475
+
+Wireshark es una herramienta gratuita y de código abierto que permite capturar y analizar el tráfico de red en tiempo real. En ciberseguridad se utiliza principalmente para:
+Detección de intrusiones y ataques
+Permite identificar patrones sospechosos, como intentos de acceso no autorizado, ataques DDoS o tráfico anómalo.
+Análisis forense digital
+Se emplea para revisar capturas de tráfico después de un incidente y determinar cómo ocurrió la intrusión.
+Monitoreo de comunicaciones
+Ayuda a verificar qué protocolos y servicios están en uso en la red, detectando posibles fugas de información o tráfico malicioso.
+Auditorías y pruebas de seguridad
+Los analistas pueden comprobar si la información sensible viaja cifrada o en texto plano, lo que revela vulnerabilidades en la configuración de la red.
+Capacitación y aprendizaje
+Es una herramienta ideal para enseñar y aprender sobre el funcionamiento de los protocolos de red, lo que refuerza las competencias en ciberseguridad.
