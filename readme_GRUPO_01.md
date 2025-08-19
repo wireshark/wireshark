@@ -1,5 +1,4 @@
 # Wireshark
-
 ## 1. Resumen  
 **Wireshark** es un analizador de protocolos de red *open-source* utilizado para:  
 - Capturar y examinar tráfico en tiempo real o desde archivos (`*.pcap`).  
