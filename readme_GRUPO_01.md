@@ -1,6 +1,6 @@
 ## 3. Jstificación técnica de la elección 
 
-* Criterios 
+**Criterios** 
 
 Wireshark es un proyecto altamente activo. Cuenta con un historial constante de commits y actualizaciones, lo que indica mantenimiento continuo y evolución del software. Además, es una de las herramientas de análisis de red más conocidas y utilizadas en ciberseguridad y redes. Tiene una comunidad amplia y activa tanto en GitHub como en foros especializados, listas de correo y conferencias.
 
@@ -8,7 +8,7 @@ Wireshark utiliza la GNU General Public License (GPL), lo que permite su uso, es
 
 Wireshark es considerado un estándar de facto para el análisis de tráfico de red, ampliamente referenciado en libros, cursos y certificaciones de ciberseguridad (como CEH, OSCP, etc.).
 
-* Métricas 
+**Métricas** 
 
 - Estrellas (stars): Más de 6.000, lo que indica un alto interés por parte de la comunidad.
 
@@ -18,7 +18,7 @@ Wireshark es considerado un estándar de facto para el análisis de tráfico de 
 
 - Issues: Se mantiene una gestión activa de errores y sugerencias, con cientos de issues cerrados y discusiones colaborativas.
 
-* Comparación con alternativas 
+**Comparación con alternativas** 
 
 | Herramienta       | Interfaz gráfica | Actividad reciente | Licencia | Notas relevantes                                      |
 |-------------------|------------------|---------------------|----------|-------------------------------------------------------|
