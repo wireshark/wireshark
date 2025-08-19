@@ -522,7 +522,7 @@ dissect_FiveCoLegacy_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 // Read number of bytes to read
                 proto_tree_add_item_ret_uint(fiveco_data_tree, hf_fiveco_i2c2read, request_tvb, request_offset++, 1, ENC_NA, &ucBytesToRead);
 
-                fiveco_data_item = proto_tree_add_item(fiveco_data_tree, hf_fiveco_i2canswer, tvb, offset, ucBytesToRead, ENC_NA);
+                proto_tree_add_item(fiveco_data_tree, hf_fiveco_i2canswer, tvb, offset, ucBytesToRead, ENC_NA);
                 offset += ucBytesToRead;
 
                 if (header_type == I2C_READ_WRITE_ACK_ANSWER)
