@@ -8,7 +8,7 @@ Wireshark utiliza la GNU General Public License (GPL), lo que permite su uso, es
 
 Wireshark es considerado un estándar de facto para el análisis de tráfico de red, ampliamente referenciado en libros, cursos y certificaciones de ciberseguridad (como CEH, OSCP, etc.).
 
-Métricas
+* Métricas
 
 - Estrellas (stars): Más de 6.000, lo que indica un alto interés por parte de la comunidad.
 
@@ -29,10 +29,11 @@ Métricas
 
 
 ## 4. Fundamentos y referencias
-[Sanders, 2017] Practical Packet Analysis: Using Wireshark to Solve Real-World Network Problems. No Starch Press.
 
-[Combs, 2024] Wireshark Documentation. Wireshark Foundation. Disponible en: https://www.wireshark.org/docs/
+1. [Sanders, 2017] Practical Packet Analysis: Using Wireshark to Solve Real-World Network Problems. No Starch Press.
 
-[Scarfone & Mell, 2007] Guide to Intrusion Detection and Prevention Systems (IDPS). NIST Special Publication 800-94.
+2. [Combs, 2024] Wireshark Documentation. Wireshark Foundation. Disponible en: https://www.wireshark.org/docs/
 
-[Wireshark GitHub, 2025] Wireshark Network Protocol Analyzer (Repositorio de GitHub). https://github.com/wireshark/wireshark
+3. [Scarfone & Mell, 2007] Guide to Intrusion Detection and Prevention Systems (IDPS). NIST Special Publication 800-94.
+
+4. [Wireshark GitHub, 2025] Wireshark Network Protocol Analyzer (Repositorio de GitHub). https://github.com/wireshark/wireshark
