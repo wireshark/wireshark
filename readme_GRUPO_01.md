@@ -1,3 +1,45 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<<<<<<< HEAD
 ## 1. Resumen (en castellano) --> Joel
 (3–6 líneas sobre qué hace y qué problema resuelve)
 
@@ -27,3 +69,5 @@
 
 ## 6. Contribuciones del equipo  --> Emilio
 - Nombre Apellido – aporte
+=======
+>>>>>>> 52f1aea20ceb36e32678142a556bd6097e81e0ba
