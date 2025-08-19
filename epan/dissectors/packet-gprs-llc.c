@@ -553,7 +553,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 		epm = ctrl_fld_ui_s & 0x3;
 
-		col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, epm, cr_formats_ipluss, "Unknown (%d)"));
+		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, epm, cr_formats_ipluss, "Unknown (%d)"));
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", N(S) = %u", ns);
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", N(R) = %u", nr);
 
@@ -563,7 +563,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 			ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset,
 							      3, ett_llcgprs_sframe, NULL, "Information format: %s: N(S) = %u,  N(R) = %u",
-							      val_to_str_wmem(pinfo->pool, epm, cr_formats_ipluss, "Unknown (%d)"), ns, nr);
+							      val_to_str(pinfo->pool, epm, cr_formats_ipluss, "Unknown (%d)"), ns, nr);
 
 			/* retrieve the second octet */
 			tmpx = tvb_get_ntohs(tvb, offset)  << 16;
@@ -634,7 +634,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		epm = ctrl_fld_ui_s & 0x3;
 		nu = (nu >>2)&0x01FF;
 
-		col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, epm, cr_formats_ipluss, "Unknown (%d)"));
+		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, epm, cr_formats_ipluss, "Unknown (%d)"));
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", N(R) = %u", nu);
 
 		if (tree)
@@ -705,7 +705,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			crc_length = llc_data_length;
 		}
 
-		col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, epm, pme, "Unknown (%d)"));
+		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, epm, pme, "Unknown (%d)"));
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", N(U) = %u", nu);
 
 		if (tree)
@@ -731,11 +731,11 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		tmp =  ctrl_fld_fb & 0xf;
 
 		col_append_str(pinfo->cinfo, COL_INFO,
-			       val_to_str_wmem(pinfo->pool, tmp, cr_formats_unnumb, "Unknown/invalid code:%X"));
+			       val_to_str(pinfo->pool, tmp, cr_formats_unnumb, "Unknown/invalid code:%X"));
 
 		ui_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset, (llc_data_length-1),
 						    ett_llcgprs_ui, NULL, "Unnumbered frame: %s",
-						    val_to_str_wmem(pinfo->pool, tmp, cr_formats_unnumb, "Unknown/invalid code:%X"));
+						    val_to_str(pinfo->pool, tmp, cr_formats_unnumb, "Unknown/invalid code:%X"));
 
 		proto_tree_add_uint(ui_tree, hf_llcgprs_Un, tvb, offset, 1, ctrl_fld_fb);
 		proto_tree_add_boolean(ui_tree, hf_llcgprs_PF, tvb, offset, 1, ctrl_fld_fb);
@@ -812,7 +812,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset,
 								      (llc_data_length-offset), ett_llcgprs_sframe, NULL,
 								      "TOM Envelope - Protocol: %s",
-								      val_to_str_wmem(pinfo->pool, tom_pd, tompd_formats, "Unknown (%d)"));
+								      val_to_str(pinfo->pool, tom_pd, tompd_formats, "Unknown (%d)"));
 
 				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_rl, tvb, offset, 1, tom_byte);
 				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_pd, tvb, offset, 1, tom_byte);
@@ -882,7 +882,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset,
 								      (llc_data_length-offset), ett_llcgprs_sframe, NULL,
 								      "TOM Envelope - Protocol: %s",
-								      val_to_str_wmem(pinfo->pool, tom_pd, tompd_formats, "Unknown (%d)"));
+								      val_to_str(pinfo->pool, tom_pd, tompd_formats, "Unknown (%d)"));
 
 				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_rl, tvb, offset, 1, tom_byte);
 				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_pd, tvb, offset, 1, tom_byte);
@@ -961,7 +961,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 					ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset,
 									      (llc_data_length-offset), ett_llcgprs_sframe, NULL,
 									      "TOM Envelope - Protocol: %s",
-									      val_to_str_wmem(pinfo->pool, tom_pd, tompd_formats, "Unknown (%d)"));
+									      val_to_str(pinfo->pool, tom_pd, tompd_formats, "Unknown (%d)"));
 
 					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_rl, tvb, offset, 1, tom_byte);
 					proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_tom_pd, tvb, offset, 1, tom_byte);

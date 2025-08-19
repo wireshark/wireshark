@@ -675,7 +675,7 @@ rcg_dissect_struct_KerbCredIsoRemoteOutput(tvbuff_t *tvb _U_, int offset _U_, pa
 		tree = proto_item_add_subtree(item, ett_rcg_KerbCredIsoRemoteOutput);
 	}
 	offset = rcg_dissect_element_KerbCredIsoRemoteOutput_CallId(tvb, offset, pinfo, tree, di, drep, &CallId);
-	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, CallId, rcg_RemoteGuardCallId_vals, "unknown operation (%u)"));
+	col_set_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, CallId, rcg_RemoteGuardCallId_vals, "unknown operation (%u)"));
 	offset = rcg_dissect_element_KerbCredIsoRemoteOutput_Status(tvb, offset, pinfo, tree, di, drep);
 	offset = rcg_dissect_element_KerbCredIsoRemoteOutput_callUnion(tvb, offset, pinfo, tree, di, drep, &CallId);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
@@ -699,7 +699,7 @@ rcg_dissect_struct_KerbCredIsoRemoteInput(tvbuff_t *tvb _U_, int offset _U_, pac
 		tree = proto_item_add_subtree(item, ett_rcg_KerbCredIsoRemoteInput);
 	}
 	offset = rcg_dissect_element_KerbCredIsoRemoteInput_CallId(tvb, offset, pinfo, tree, di, drep, &CallId);
-	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, CallId, rcg_RemoteGuardCallId_vals, "unknown operation (%u)"));
+	col_set_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, CallId, rcg_RemoteGuardCallId_vals, "unknown operation (%u)"));
 	offset = rcg_dissect_element_KerbCredIsoRemoteInput_callUnion(tvb, offset, pinfo, tree, di, drep, &CallId);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	proto_item_set_len(item, offset-old_offset);
@@ -723,7 +723,7 @@ rcg_dissect_struct_NtlmCredIsoRemoteOutput(tvbuff_t *tvb _U_, int offset _U_, pa
 		tree = proto_item_add_subtree(item, ett_rcg_NtlmCredIsoRemoteOutput);
 	}
 	offset = rcg_dissect_element_NtlmCredIsoRemoteOutput_CallId(tvb, offset, pinfo, tree, di, drep, &CallId);
-	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, CallId, rcg_RemoteGuardCallId_vals, "unknown operation (%u)"));
+	col_set_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, CallId, rcg_RemoteGuardCallId_vals, "unknown operation (%u)"));
 	offset = rcg_dissect_element_NtlmCredIsoRemoteOutput_Status(tvb, offset, pinfo, tree, di, drep);
 	offset = rcg_dissect_element_NtlmCredIsoRemoteOutput_callUnion(tvb, offset, pinfo, tree, di, drep, &CallId);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
@@ -748,7 +748,7 @@ rcg_dissect_struct_NtlmCredIsoRemoteInput(tvbuff_t *tvb _U_, int offset _U_, pac
 		tree = proto_item_add_subtree(item, ett_rcg_NtlmCredIsoRemoteInput);
 	}
 	offset = rcg_dissect_element_NtlmCredIsoRemoteInput_CallId(tvb, offset, pinfo, tree, di, drep, &CallId);
-	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, CallId, rcg_RemoteGuardCallId_vals, "unknown operation (%u)"));
+	col_set_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, CallId, rcg_RemoteGuardCallId_vals, "unknown operation (%u)"));
 	offset = rcg_dissect_element_NtlmCredIsoRemoteInput_callUnion(tvb, offset, pinfo, tree, di, drep, &CallId);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	proto_item_set_len(item, offset-old_offset);

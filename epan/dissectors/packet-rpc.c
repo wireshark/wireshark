@@ -2328,7 +2328,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(rpc_tree,hf_rpc_xid, tvb,
 			offset, 4, ENC_BIG_ENDIAN);
 
-	msg_type_name = val_to_str_wmem(pinfo->pool, msg_type,rpc_msg_type,"%u");
+	msg_type_name = val_to_str(pinfo->pool, msg_type,rpc_msg_type,"%u");
 	if (rpc_tree) {
 		proto_tree_add_uint(rpc_tree, hf_rpc_msgtype, tvb,
 			offset+4, 4, msg_type);
@@ -2422,7 +2422,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					if (tvb_get_ntohl(tvb, offset+28)) {
 						flavor = FLAVOR_AUTHGSSAPI_MSG;
 						gss_proc = proc;
-						procname = val_to_str_wmem(pinfo->pool, gss_proc,
+						procname = val_to_str(pinfo->pool, gss_proc,
 						    rpc_authgssapi_proc, "Unknown (%d)");
 					} else {
 						flavor = FLAVOR_AUTHGSSAPI;
@@ -2966,7 +2966,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 				"%s %s XID 0x%x",
-				val_to_str_wmem(pinfo->pool, gss_proc, rpc_authgssapi_proc, "Unknown (%d)"),
+				val_to_str(pinfo->pool, gss_proc, rpc_authgssapi_proc, "Unknown (%d)"),
 				msg_type_name, xid);
 
 		switch (gss_proc) {

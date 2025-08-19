@@ -521,7 +521,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         /*                                                                      */
         /*----------------------------------------------------------------------*/
         lwm_cmd = tvb_get_uint8(new_tvb, 0);
-        str_cmd = val_to_str_wmem(pinfo->pool, lwm_cmd, lwm_cmd_names, LWM_CMD_UNKNOWN_VAL_STRING);
+        str_cmd = val_to_str(pinfo->pool, lwm_cmd, lwm_cmd_names, LWM_CMD_UNKNOWN_VAL_STRING);
 
         col_clear(pinfo->cinfo, COL_INFO);  /*XXX: why ?*/
         col_add_str(pinfo->cinfo, COL_INFO, str_cmd);

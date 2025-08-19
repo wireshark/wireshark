@@ -149,8 +149,8 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   offset += 4;
 
   ti = proto_tree_add_item(msnlb_tree, hf_msnlb_signature_data, tvb, offset, -1, ENC_NA);
-  proto_item_append_text(ti, " - %s", val_to_str_wmem(pinfo->pool, signature, nlb_signature_vals, "Unknown (%u)"));
-  col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_wmem(pinfo->pool, signature, nlb_signature_vals, "Unknown (%u)"));
+  proto_item_append_text(ti, " - %s", val_to_str(pinfo->pool, signature, nlb_signature_vals, "Unknown (%u)"));
+  col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str(pinfo->pool, signature, nlb_signature_vals, "Unknown (%u)"));
   msnlb_subtree = proto_item_add_subtree(ti, ett_msnlb_signature);
 
   switch(signature){
@@ -262,7 +262,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
         proto_tree_add_item(hb_tree, hf_msnlb_extended_hb_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         hb_type = tvb_get_uint8(tvb, offset);
-        proto_item_append_text(ti, " - %s", val_to_str_wmem(pinfo->pool, hb_type, nlb_extended_hb_type_vals, "Unknown (%u)"));
+        proto_item_append_text(ti, " - %s", val_to_str(pinfo->pool, hb_type, nlb_extended_hb_type_vals, "Unknown (%u)"));
         offset += 1;
 
         switch(hb_type){

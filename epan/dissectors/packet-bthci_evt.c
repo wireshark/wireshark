@@ -3090,7 +3090,7 @@ dissect_bthci_evt_cs_result_steps(tvbuff_t *tvb, int offset, packet_info *pinfo 
         pq_tree = proto_item_add_subtree(pq_item, ett_packet_quality);
         proto_tree_add_item(pq_tree, hf_bthci_evt_packet_quality_aa_check, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(pq_tree, hf_bthci_evt_packet_quality_bit_errors, tvb, offset, 1, ENC_NA);
-        proto_item_append_text(step_item, ", AA %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset) & 0xf, access_address_check_vals, "Unknown 0x%x"));
+        proto_item_append_text(step_item, ", AA %s", val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset) & 0xf, access_address_check_vals, "Unknown 0x%x"));
         offset += 1;
     }
 
@@ -3143,13 +3143,13 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
         tap_hci_summary->event = 0x3E; /* LE Meta */
         tap_hci_summary->subevent = subevent_code;
         if (try_val_to_str(subevent_code, evt_le_meta_subevent))
-            tap_hci_summary->name = val_to_str_wmem(pinfo->pool, subevent_code, evt_le_meta_subevent, "Unknown 0x%04x");
+            tap_hci_summary->name = val_to_str(pinfo->pool, subevent_code, evt_le_meta_subevent, "Unknown 0x%04x");
         else
             tap_hci_summary->name = NULL;
         tap_queue_packet(bluetooth_hci_summary_tap, pinfo, tap_hci_summary);
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str_wmem(pinfo->pool, subevent_code, evt_le_meta_subevent, "Unknown 0x%02x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(pinfo->pool, subevent_code, evt_le_meta_subevent, "Unknown 0x%02x"));
 
     offset += 1;
 
@@ -4060,7 +4060,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     report_item = proto_tree_add_none_format(tree, hf_bthci_evt_subevent_responses, tvb, offset, length,
                                                       "Sub-event Response Slot: %u, Data Status: %s",
                                                       tvb_get_uint8(tvb, offset+3),
-                                                      val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset+4), ext_adv_data_status_vals, "0x%02x"));
+                                                      val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset+4), ext_adv_data_status_vals, "0x%02x"));
                     report_tree = proto_item_add_subtree(report_item, ett_adv_subevent_responses);
 
                     proto_tree_add_item(report_tree, hf_bthci_evt_tx_power, tvb, offset, 1, ENC_NA);

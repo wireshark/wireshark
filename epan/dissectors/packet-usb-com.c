@@ -858,7 +858,7 @@ dissect_usb_com_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     offset++;
     proto_tree_add_item_ret_uint(subtree, hf_usb_com_interrupt_notif_code, tvb, offset, 1, ENC_LITTLE_ENDIAN, &notif_code);
     offset++;
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, notif_code, usb_com_interrupt_notif_code_vals, "Unknown type %x"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, notif_code, usb_com_interrupt_notif_code_vals, "Unknown type %x"));
     switch (notif_code) {
         case NETWORK_CONNECTION:
             proto_tree_add_item(subtree, hf_usb_com_interrupt_value_nw_conn, tvb, offset, 2, ENC_LITTLE_ENDIAN);

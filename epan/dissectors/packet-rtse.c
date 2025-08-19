@@ -476,7 +476,7 @@ dissect_rtse_RefuseReason(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
   if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str_wmem(actx->pinfo->pool, reason, rtse_RefuseReason_vals, "reason(%d)"));
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, reason, rtse_RefuseReason_vals, "reason(%d)"));
 
 
   return offset;
@@ -602,7 +602,7 @@ dissect_rtse_AbortReason(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
   if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str_wmem(actx->pinfo->pool, reason, rtse_AbortReason_vals, "reason(%d)"));
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, reason, rtse_AbortReason_vals, "reason(%d)"));
 
 
   return offset;

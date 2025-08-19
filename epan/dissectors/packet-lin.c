@@ -442,7 +442,7 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
     proto_tree_add_bitmask_ret_uint64(lin_tree, tvb, 7, hf_lin_err_errors, ett_errors, error_fields, ENC_BIG_ENDIAN, &errors);
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "LIN %s", val_to_str_wmem(pinfo->pool, msg_type, lin_msg_type_names, "(0x%02x)"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "LIN %s", val_to_str(pinfo->pool, msg_type, lin_msg_type_names, "(0x%02x)"));
 
     if (errors != 0) {
         col_append_str(pinfo->cinfo, COL_INFO, " - ERR");
@@ -454,7 +454,7 @@ dissect_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     case LIN_MSG_TYPE_EVENT: {
         unsigned event_id;
         proto_tree_add_item_ret_uint(lin_tree, hf_lin_event_id, tvb, 8, 4, ENC_BIG_ENDIAN, &event_id);
-        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_wmem(pinfo->pool, event_id, lin_event_type_names, "0x%08x"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str(pinfo->pool, event_id, lin_event_type_names, "0x%08x"));
         proto_item_set_end(ti_root, tvb, 12);
         }
         break;

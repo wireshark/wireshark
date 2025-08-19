@@ -5084,9 +5084,9 @@ static int dissect_c15ch_ntwk_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     path_type_val = tvb_get_uint8(tvb, 0);
     conn_type_val = tvb_get_uint8(tvb, 1);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Path Type: %s",
-        val_to_str_wmem(pinfo->pool, path_type_val, ett_c15ch_ntwk_conn_path_types, "Unknown %d") );
+        val_to_str(pinfo->pool, path_type_val, ett_c15ch_ntwk_conn_path_types, "Unknown %d") );
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Conn Type: %s",
-        val_to_str_wmem(pinfo->pool, conn_type_val, ett_c15ch_ntwk_conn_conn_types, "Unknown %d") );
+        val_to_str(pinfo->pool, conn_type_val, ett_c15ch_ntwk_conn_conn_types, "Unknown %d") );
     if (tree)
     {
         int str_start;
@@ -5522,7 +5522,7 @@ static int dissect_c15ch_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     col_set_str(pinfo->cinfo, COL_PROTOCOL, C15_LABEL);
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: Q931, Direction: %s",
-                val_to_str_wmem(pinfo->pool, direction, c15ch_q931_direction_types, "Unknown Direction Subtype: %d")  );
+                val_to_str(pinfo->pool, direction, c15ch_q931_direction_types, "Unknown Direction Subtype: %d")  );
 
     return tvb_reported_length(tvb);
 }
@@ -5709,7 +5709,7 @@ static int dissect_c15ch_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     col_set_str(pinfo->cinfo, COL_PROTOCOL, C15_LABEL);
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: SCCP, Direction: %s",
-                val_to_str_wmem(pinfo->pool, direction, c15ch_sccp_direction_types, "Unknown Direction Subtype: %d")  );
+                val_to_str(pinfo->pool, direction, c15ch_sccp_direction_types, "Unknown Direction Subtype: %d")  );
     return tvb_reported_length(tvb);
 }
 
@@ -5742,7 +5742,7 @@ static int dissect_c15ch_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     local_ssn_val = tvb_get_uint8(tvb, 4);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Local SSN: %s",
-        val_to_str_wmem(pinfo->pool, local_ssn_val, c15ch_tcap_local_ssn_types, "Unknown %d"));
+        val_to_str(pinfo->pool, local_ssn_val, c15ch_tcap_local_ssn_types, "Unknown %d"));
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_c15ch_tcap, tvb, 0, 20, ENC_NA);
@@ -5840,14 +5840,14 @@ static int dissect_c15ch_cp_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     if ( ( pm_value <= MAX_PM_VAL ) && ( pm_value != DIG_CKT_TEST_PM_VALUE ) )
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Sub PM: %s",
-                val_to_str_wmem(pinfo->pool, subpm_value, subpm_name_tables[ pm_value ], "%d"));
+                val_to_str(pinfo->pool, subpm_value, subpm_name_tables[ pm_value ], "%d"));
     }
     else
     {
         if ( pm_value == DIG_CKT_TEST_PM_VALUE )
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Trk PM: %s",
-                    val_to_str_wmem(pinfo->pool, trkpm_value, trkpm_dig_ckt_test_types, "%d"));
+                    val_to_str(pinfo->pool, trkpm_value, trkpm_dig_ckt_test_types, "%d"));
             if ( trkpm_value > MAX_DIG_CKT_TEST_TRKPM_VAL  )
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Sub PM: %d", subpm_value);
@@ -5855,7 +5855,7 @@ static int dissect_c15ch_cp_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             else
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Sub PM: %s",
-                    val_to_str_wmem(pinfo->pool, subpm_value, dig_ckt_test_subpm_name_tables[ trkpm_value ], "%d"));
+                    val_to_str(pinfo->pool, subpm_value, dig_ckt_test_subpm_name_tables[ trkpm_value ], "%d"));
             }
         }
         else    /* (pm_value < MIN_PM_VAL) || (pm_value > MAX_PM_VAL) */
@@ -5976,13 +5976,13 @@ static int dissect_c15ch_inc_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     if (fiat_index_in_range)
     {
         col_add_fstr(pinfo->cinfo, COL_INFO, "Type: INC_GWE, Task: %s, Fiat: %s",
-                val_to_str_wmem(pinfo->pool,  task_num, c15inc_gwe_task_types, "Unknown Task Type: %d" ),
-                val_to_str_wmem(pinfo->pool,  fiat_num, fiat_name_tables[ task_num ], "Unknown Fiat Type: %d") );
+                val_to_str(pinfo->pool,  task_num, c15inc_gwe_task_types, "Unknown Task Type: %d" ),
+                val_to_str(pinfo->pool,  fiat_num, fiat_name_tables[ task_num ], "Unknown Fiat Type: %d") );
     }
     else /* either (task_num == INVALID_TASK_TYPE_VAL) or we have an unknown task */
     {
             col_add_fstr(pinfo->cinfo, COL_INFO, "Type: INC_GWE, Task: %s",
-                val_to_str_wmem(pinfo->pool,  task_num, c15inc_gwe_task_types, "Unknown Task Type: %d" ));
+                val_to_str(pinfo->pool,  task_num, c15inc_gwe_task_types, "Unknown Task Type: %d" ));
     }
 
     if (tree)
@@ -5991,13 +5991,13 @@ static int dissect_c15ch_inc_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         /* note that defined INVALID_TASK_TYPE will be labeled as such, but task types that are out
         of range will be labeled as an Unknown Task Type */
         proto_item_append_text(ti, ", Task: %s",
-                val_to_str_wmem(pinfo->pool,  task_num, c15inc_gwe_task_types, "Unknown Task Type: %d" ) );
+                val_to_str(pinfo->pool,  task_num, c15inc_gwe_task_types, "Unknown Task Type: %d" ) );
 
 
         if ( fiat_index_in_range) /* we can find a fiat name table: not defined Invalid task type and not unknown task */
         {
             proto_item_append_text( ti, ", Fiat: %s",
-                val_to_str_wmem(pinfo->pool,  fiat_num, fiat_name_tables[ task_num ], "Unknown Fiat Type: %d" ) );
+                val_to_str(pinfo->pool,  fiat_num, fiat_name_tables[ task_num ], "Unknown Fiat Type: %d" ) );
         }
         c15ch_inc_gwe_tree = proto_item_add_subtree(ti, ett_c15ch_second_level);
 
@@ -7240,12 +7240,12 @@ static int dissect_c15ch_tone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     msg_type = tvb_get_uint8(tvb, 0);
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: TONE, Msg Subtype: %s",
-        val_to_str_wmem(pinfo->pool, msg_type, c15_tone_msg_types, "Unknown Msg Subtype: %d") );
+        val_to_str(pinfo->pool, msg_type, c15_tone_msg_types, "Unknown Msg Subtype: %d") );
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_c15ch_tone, tvb, 0, 1, ENC_NA);
         proto_item_append_text(ti, ", Msg Subtype: %s",
-            val_to_str_wmem(pinfo->pool, msg_type, c15_tone_msg_types, "Unknown Msg Subtype: %d"));
+            val_to_str(pinfo->pool, msg_type, c15_tone_msg_types, "Unknown Msg Subtype: %d"));
         c15ch_tone_tree = proto_item_add_subtree(ti, ett_c15ch_second_level);
         proto_tree_add_item(c15ch_tone_tree, hf_c15ch_tone_msg_type,
                             tvb, 0, 1, ENC_BIG_ENDIAN);

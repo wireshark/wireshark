@@ -1818,7 +1818,7 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         /* decode CCD ( DCI/DCE command data layout) */
         if ((prefix == U3V_CONTROL_PREFIX || prefix == U3V_EVENT_PREFIX) && ((command_id % 2) == 0)) {
-            command_string = val_to_str_wmem(pinfo->pool, command_id,command_names,"Unknown Command (0x%x)");
+            command_string = val_to_str(pinfo->pool, command_id,command_names,"Unknown Command (0x%x)");
             item = proto_tree_add_item(u3v_tree, hf_u3v_ccd_cmd, tvb, offset, 8, ENC_NA);
             proto_item_append_text(item, ": %s", command_string);
             ccd_tree = proto_item_add_subtree(item, ett_u3v_cmd);
@@ -1835,7 +1835,7 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             offset += 2;
             col_append_fstr(pinfo->cinfo, COL_INFO, "> %s ", command_string);
         } else if (prefix == U3V_CONTROL_PREFIX && ((command_id % 2) == 1)) {
-            command_string = val_to_str_wmem(pinfo->pool, command_id,command_names,"Unknown Acknowledge (0x%x)");
+            command_string = val_to_str(pinfo->pool, command_id,command_names,"Unknown Acknowledge (0x%x)");
             item = proto_tree_add_item(u3v_tree, hf_u3v_ccd_ack, tvb, offset, 8, ENC_NA);
             proto_item_append_text(item, ": %s", command_string);
             ccd_tree = proto_item_add_subtree(item, ett_u3v_ack);
@@ -1850,7 +1850,7 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             offset += 2;
             col_append_fstr(pinfo->cinfo, COL_INFO, "< %s %s",
                     command_string,
-                    val_to_str_wmem(pinfo->pool, status, status_names_short, "Unknown status (0x%04X)"));
+                    val_to_str(pinfo->pool, status, status_names_short, "Unknown status (0x%04X)"));
         } else {
             return 0;
         }

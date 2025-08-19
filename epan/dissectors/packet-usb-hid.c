@@ -4429,7 +4429,7 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
                 break;
         }
 
-        subtree = proto_tree_add_subtree_format(parent_tree, tvb, offset, bSize + 1, ett_usb_hid_item_header, &subitem, "%s", val_to_str_wmem(pinfo->pool, bTag, usb_hid_cur_bTag_vals, "Unknown/%u tag"));
+        subtree = proto_tree_add_subtree_format(parent_tree, tvb, offset, bSize + 1, ett_usb_hid_item_header, &subitem, "%s", val_to_str(pinfo->pool, bTag, usb_hid_cur_bTag_vals, "Unknown/%u tag"));
 
         tree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_usb_hid_item_header, NULL, "Header");
         proto_tree_add_item(tree, hf_usb_hid_item_bSize, tvb, offset,   1, ENC_LITTLE_ENDIAN);
@@ -5072,7 +5072,7 @@ dissect_usb_hid_control_class_intf(tvbuff_t *tvb, packet_info *pinfo,
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBHID");
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-                 val_to_str_wmem(pinfo->pool, usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"),
+                 val_to_str(pinfo->pool, usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"),
                  is_request ? "Request" : "Response");
 
     if (is_request) {

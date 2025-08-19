@@ -341,7 +341,7 @@ camelstat_init(struct register_srt* srt _U_, GArray* srt_array)
   camel_srt_table = init_srt_table("CAMEL Commands", NULL, srt_array, NB_CAMELSRT_CATEGORY, NULL, NULL, NULL);
   for (i = 0; i < NB_CAMELSRT_CATEGORY; i++)
   {
-    tmp_str = val_to_str_wmem(NULL,i,camelSRTtype_naming,"Unknown (%d)");
+    tmp_str = val_to_str(NULL,i,camelSRTtype_naming,"Unknown (%d)");
     init_srt_table_row(camel_srt_table, i, tmp_str);
     wmem_free(NULL, tmp_str);
   }
@@ -1075,7 +1075,7 @@ dissect_camel_camelPDU(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ct
     camel_pdu_size = tvb_get_uint8(tvb, offset+1)+2;
 
     /* Populate the info column with PDU type*/
-    col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str_wmem(actx->pinfo->pool, camel_pdu_type, camel_Component_vals, "Unknown Camel (%u)"));
+    col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str(actx->pinfo->pool, camel_pdu_type, camel_Component_vals, "Unknown Camel (%u)"));
     col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
 
     is_ExtensionField =false;

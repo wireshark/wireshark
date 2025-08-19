@@ -1151,7 +1151,7 @@ awdl_tag_ht_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     offset += 1;
   }
 
-  proto_item_append_text(ti, ": %s", val_to_str_wmem(pinfo->pool, streams - 1, mcsset_tx_max_spatial_streams_flags, "Reserved: %d" ) );
+  proto_item_append_text(ti, ": %s", val_to_str(pinfo->pool, streams - 1, mcsset_tx_max_spatial_streams_flags, "Reserved: %d" ) );
 
   // Some padding at the end
   proto_tree_add_item(tree, hf_awdl_ht_unknown, tvb, offset, 2, ENC_LITTLE_ENDIAN);

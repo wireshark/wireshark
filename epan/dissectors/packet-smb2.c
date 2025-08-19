@@ -4970,7 +4970,7 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, Pattern: %s",
-			val_to_str_wmem(pinfo->pool, il, smb2_find_info_levels, "(Level:0x%02x)"),
+			val_to_str(pinfo->pool, il, smb2_find_info_levels, "(Level:0x%02x)"),
 			buf);
 
 	return offset;
@@ -5766,7 +5766,7 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 	if (si->saved && si->saved->extra_info_type == SMB2_EI_FINDPATTERN) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, Pattern: %s",
-				val_to_str_wmem(pinfo->pool, si->saved->infolevel, smb2_find_info_levels, "(Level:0x%02x)"),
+				val_to_str(pinfo->pool, si->saved->infolevel, smb2_find_info_levels, "(Level:0x%02x)"),
 				(const char *)si->saved->extra_info);
 	}
 
@@ -5816,7 +5816,7 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	/* type */
 	type = tvb_get_letohl(tvb, offset);
-	type_str = val_to_str_wmem(pinfo->pool, type, smb2_negotiate_context_types, "Unknown Type: (0x%0x)");
+	type_str = val_to_str(pinfo->pool, type, smb2_negotiate_context_types, "Unknown Type: (0x%0x)");
 	proto_item_append_text(sub_item, ": %s ", type_str);
 	proto_tree_add_item(sub_tree, hf_smb2_negotiate_context_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
@@ -6435,7 +6435,7 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 		 * as well.
 		 */
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s/%s",
-				val_to_str_wmem(pinfo->pool, cl, smb2_class_vals, "(Class:0x%02x)"),
+				val_to_str(pinfo->pool, cl, smb2_class_vals, "(Class:0x%02x)"),
 				val_to_str_ext(pinfo->pool, il, vsx, "(Level:0x%02x)"));
 	}
 

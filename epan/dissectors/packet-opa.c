@@ -653,7 +653,7 @@ static void parse_opa_bth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     proto_tree_add_item(base_transport_header_tree, hf_opa_bth_opcode, tvb, local_offset, 1, ENC_LITTLE_ENDIAN);
     *opCode = tvb_get_uint8(tvb, local_offset);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_wmem(pinfo->pool, (uint32_t)(*opCode), vals_opa_bth_opcode, "Unknown OpCode (0x%0x)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(pinfo->pool, (uint32_t)(*opCode), vals_opa_bth_opcode, "Unknown OpCode (0x%0x)"));
     local_offset += 1;
 
     proto_tree_add_item(base_transport_header_tree, hf_opa_bth_solicited_event, tvb, local_offset, 1, ENC_BIG_ENDIAN);

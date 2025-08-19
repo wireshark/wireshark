@@ -363,7 +363,7 @@ dissect_q2931_shift_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 	proto_tree_add_uint_format(tree, hf_q2931_locking_codeset, tvb, offset, 1, codeset,
 		"%s shift to codeset %u: %s",
 		(non_locking_shift ? "Non-locking" : "Locking"),
-		codeset, val_to_str_wmem(pinfo->pool, codeset, q2931_codeset_vals, "Unknown (0x%02X)"));
+		codeset, val_to_str(pinfo->pool, codeset, q2931_codeset_vals, "Unknown (0x%02X)"));
 }
 
 /*

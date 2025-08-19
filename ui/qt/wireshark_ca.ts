@@ -2403,8 +2403,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Gestiona els filtres de visualització</translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Preferències del botó de filtre...</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Preferències del botó de filtre...</translation>
     </message>
 </context>
 <context>
@@ -3305,8 +3306,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
 <context>
     <name>FilterExpressionToolBar</name>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Preferències del botó de filtre...</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Preferències del botó de filtre...</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -3404,6 +3406,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>MAC destination address.</source>
         <translation>Adreça MAC de destí.</translation>
+    </message>
+    <message>
+        <source>Save %1 rules as…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Text file (*.txt);;All Files (</source>
@@ -5277,8 +5283,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Els camps suportats són data, dir, time, seqno.</translation>
     </message>
     <message>
-        <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <translation>Fan falta dades de grups de captura (fes servir (?&lt;data&gt;(...)) )</translation>
+        <source>Missing capturing group data (use (?&lt;data&gt;(…)) )</source>
+        <oldsource>Missing capturing group data (use (?&lt;data&gt;(...)) )</oldsource>
+        <translation type="unfinished">Fan falta dades de grups de captura (fes servir (?&lt;data&gt;(...)) )</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -7001,20 +7008,24 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Sense esdeveniments</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <translation>Del fitxer zip...</translation>
+        <source>From Zip File…</source>
+        <oldsource>From Zip File...</oldsource>
+        <translation type="unfinished">Del fitxer zip...</translation>
     </message>
     <message>
-        <source>From Directory...</source>
-        <translation>Des de la carpeta...</translation>
+        <source>From Directory…</source>
+        <oldsource>From Directory...</oldsource>
+        <translation type="unfinished">Des de la carpeta...</translation>
     </message>
     <message>
-        <source>Selected Personal Profile...</source>
-        <translation>Perfil personal seleccionat...</translation>
+        <source>Selected Personal Profile…</source>
+        <oldsource>Selected Personal Profile...</oldsource>
+        <translation type="unfinished">Perfil personal seleccionat...</translation>
     </message>
     <message>
-        <source>All Personal Profiles...</source>
-        <translation>Tots els perfils personals...</translation>
+        <source>All Personal Profiles…</source>
+        <oldsource>All Personal Profiles...</oldsource>
+        <translation type="unfinished">Tots els perfils personals...</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7037,6 +7048,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Display filter as %1</source>
         <translation>Mostra el filtre com a %1</translation>
+    </message>
+    <message>
+        <source>…as %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
@@ -8267,6 +8282,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Mostra els punts de dades dels marcadors</translation>
     </message>
     <message>
+        <source>Auto Scroll</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Plots</source>
         <translation>Gràfics</translation>
     </message>
@@ -8661,23 +8680,27 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Exporta</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <translation>Del fitxer zip...</translation>
+        <source>From Zip File…</source>
+        <oldsource>From Zip File...</oldsource>
+        <translation type="unfinished">Del fitxer zip...</translation>
     </message>
     <message>
-        <source>From Directory...</source>
-        <translation>Des de la carpeta...</translation>
+        <source>From Directory…</source>
+        <oldsource>From Directory...</oldsource>
+        <translation type="unfinished">Des de la carpeta...</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)...</source>
-        <translation>
+        <source>%Ln Selected Personal Profile(s)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
+        <translation type="unfinished">
             <numerusform>%Ln perfil personal seleccionat...</numerusform>
             <numerusform>%Ln perfils personals seleccionats...</numerusform>
         </translation>
     </message>
     <message>
-        <source>All Personal Profiles...</source>
-        <translation>Tots els perfils personals...</translation>
+        <source>All Personal Profiles…</source>
+        <oldsource>All Personal Profiles...</oldsource>
+        <translation type="unfinished">Tots els perfils personals...</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -10853,8 +10876,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Sense so</translation>
     </message>
     <message>
-        <source>Decoding streams...</source>
-        <translation>Es descodifiquen els fluxos...</translation>
+        <source>Decoding streams…</source>
+        <oldsource>Decoding streams...</oldsource>
+        <translation type="unfinished">Es descodifiquen els fluxos...</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10905,8 +10929,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Automàtic</translation>
     </message>
     <message>
-        <source>Resampling waveform...</source>
-        <translation>Es remostreja l&apos;ona...</translation>
+        <source>Resampling waveform…</source>
+        <oldsource>Resampling waveform...</oldsource>
+        <translation type="unfinished">Es remostreja l&apos;ona...</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
@@ -10969,8 +10994,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Doble clic per a canviar l&apos;encaminador d&apos;àudio</translation>
     </message>
     <message>
-        <source>Preparing to play...</source>
-        <translation>Es prepara per a reproduir...</translation>
+        <source>Preparing to play…</source>
+        <oldsource>Preparing to play...</oldsource>
+        <translation type="unfinished">Es prepara per a reproduir...</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -13951,6 +13977,14 @@ a:hover {
         <translation>Interfície</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 band.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Band</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Estableix el canal 802.11.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -16001,6 +16035,10 @@ a:hover {
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Tipus de fitxer desconegut retornat per un diàleg d&apos;exportació.</translation>
+    </message>
+    <message>
+        <source>Unsaved packets…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>

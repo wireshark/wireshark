@@ -879,7 +879,7 @@ dissect_dcom_simple_resp(tvbuff_t *tvb, int offset,
 				      &u32HResult);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-			val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+			val_to_str(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 
 	return offset;
@@ -1069,7 +1069,7 @@ dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 	/* XXX - move this to the callers of this function, to provide a more detailed error output */
 	if(u32HResult & 0x80000000) {
 		expert_add_info_format(pinfo, item, &ei_dcom_hresult_expert, "Hresult: %s",
-			val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
+			val_to_str(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
 	}
 	if (pu32HResult)
 		*pu32HResult = u32HResult;
@@ -1103,7 +1103,7 @@ dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 	/* XXX - move this to the callers of this function, to provide a more detailed error output */
 	if(u32HResult & 0x80000000) {
 		expert_add_info_format(pinfo, item, &ei_dcom_hresult_expert, "Hresult: %s",
-			val_to_str_wmem(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
+			val_to_str(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
 	}
 	if (pu32HResult)
 		*pu32HResult = u32HResult;
@@ -1267,7 +1267,7 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* update subtree header */
 	proto_item_append_text(sub_item, ": Elements: %u/%u VarType: %s",
 			       u32Elements, u32BoundElements,
-			       val_to_str_wmem(pinfo->pool, u32VarType, dcom_variant_type_vals, "Unknown (0x%08x)") );
+			       val_to_str(pinfo->pool, u32VarType, dcom_variant_type_vals, "Unknown (0x%08x)") );
 
 	proto_item_set_len(sub_item, u32VariableOffset - u32SubStart);
 
@@ -1450,7 +1450,7 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* update subtree header */
 	proto_item_append_text(sub_item, ": %s",
-		val_to_str_wmem(pinfo->pool, u16VarType, dcom_variant_type_vals, "Unknown (0x%08x)") );
+		val_to_str(pinfo->pool, u16VarType, dcom_variant_type_vals, "Unknown (0x%08x)") );
 
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -1836,7 +1836,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		proto_item_append_text(subsub_item, "[%u]: TowerId=%s, NetworkAddr=\"%s\"",
 			u32StringBindings,
-			val_to_str_wmem(pinfo->pool, u16TowerId, dcom_protseq_vals, "Unknown (0x%04x"),
+			val_to_str(pinfo->pool, u16TowerId, dcom_protseq_vals, "Unknown (0x%04x"),
 			szStr);
 		proto_item_set_len(subsub_item, offset - u32SubSubStart);
 	}

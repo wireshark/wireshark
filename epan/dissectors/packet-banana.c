@@ -225,7 +225,7 @@ dissect_banana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         offset++;
     }
     col_add_fstr(pinfo->cinfo, COL_INFO, "First element: %s",
-        val_to_str_wmem(pinfo->pool, byte, type_vals, "Unknown type: %u"));
+        val_to_str(pinfo->pool, byte, type_vals, "Unknown type: %u"));
 
     /* Create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_banana, tvb, 0, -1, ENC_NA);

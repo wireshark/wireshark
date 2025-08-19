@@ -6401,14 +6401,14 @@ dissect_kerberos_MESSAGE_TYPE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   if (gbl_do_col_info) {
     col_add_str(actx->pinfo->cinfo, COL_INFO,
-      val_to_str_wmem(actx->pinfo->pool, msgtype, krb5_msg_types,
+      val_to_str(actx->pinfo->pool, msgtype, krb5_msg_types,
       "Unknown msg type %#x"));
   }
   gbl_do_col_info=false;
 
 #if 0
   /* append the application type to the tree */
-  proto_item_append_text(tree, " %s", val_to_str_wmem(actx->pinfo->pool, msgtype, krb5_msg_types, "Unknown:0x%x"));
+  proto_item_append_text(tree, " %s", val_to_str(actx->pinfo->pool, msgtype, krb5_msg_types, "Unknown:0x%x"));
 #endif
   if (private_data->msg_type == 0) {
     private_data->msg_type = msgtype;
@@ -6503,7 +6503,7 @@ dissect_kerberos_PADATA_TYPE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   if(tree){
     proto_item_append_text(tree, " %s",
-      val_to_str_wmem(actx->pinfo->pool, private_data->padata_type, kerberos_PADATA_TYPE_vals,
+      val_to_str(actx->pinfo->pool, private_data->padata_type, kerberos_PADATA_TYPE_vals,
       "Unknown:%d"));
   }
 
@@ -7687,7 +7687,7 @@ dissect_kerberos_ERROR_CODE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   if (private_data->errorcode) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO,
       "KRB Error: %s",
-      val_to_str_wmem(actx->pinfo->pool, private_data->errorcode, krb5_error_codes,
+      val_to_str(actx->pinfo->pool, private_data->errorcode, krb5_error_codes,
       "Unknown error code %#x"));
   }
 
@@ -8748,7 +8748,7 @@ dissect_kerberos_PA_SPAKE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   if(tree){
     proto_item_append_text(tree, " %s",
-      val_to_str_wmem(actx->pinfo->pool, private_data->padata_type, kerberos_PA_SPAKE_vals,
+      val_to_str(actx->pinfo->pool, private_data->padata_type, kerberos_PA_SPAKE_vals,
       "Unknown:%d"));
   }
   return offset;

@@ -2530,7 +2530,7 @@ dissect_meta_tag_ext_hdrs(proto_item *section_tree, packet_info* pinfo, tvbuff_t
     /* Add all set bits to the header, including the ones we don't understand */
     for (bit_offset = 0; bit_offset < 32; bit_offset++) {
       if (ext_hdrs[int_offset] & (1U << bit_offset)) {
-        char* str = val_to_str_wmem(pinfo->pool, ext_hdr_num, ehdr_type_vals, "%d");
+        char* str = val_to_str(pinfo->pool, ext_hdr_num, ehdr_type_vals, "%d");
         proto_item_append_text(subtree_pi, ", %s", str);
 
         /* Also add to the top level */
@@ -2775,7 +2775,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       }
       DISSECTOR_ASSERT(tag_info->extra);
 
-      tagvalstring = val_to_str_wmem(pinfo->pool, tagtype, erf_to_value_string(erf_meta_index.vs_list), "Unknown Section (0x%x)");
+      tagvalstring = val_to_str(pinfo->pool, tagtype, erf_to_value_string(erf_meta_index.vs_list), "Unknown Section (0x%x)");
       col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", tagvalstring);
       section_tree = proto_tree_add_subtree(tree, tvb, offset, 0, tag_info->extra->ett_value, &section_pi, tagvalstring);
       tag_tree = proto_tree_add_subtree_format(section_tree, tvb, offset, MIN(taglength + 4, remaining_len), tag_info->ett, &tag_pi, "Provenance %s Header", tagvalstring);
@@ -2876,7 +2876,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          * populated at registration time.
          */
         tag_tree = proto_tree_add_subtree_format(section_tree, tvb, offset + 4, taglength, tag_info->ett, &tag_pi, "%s: %s %u", tag_info->tag_template->hfinfo.name,
-            val_to_str_wmem(pinfo->pool, value32, erf_to_value_string(erf_meta_index.vs_list), "Unknown Section (%u)"), tvb_get_ntohs(tvb, offset + 4 + 2));
+            val_to_str(pinfo->pool, value32, erf_to_value_string(erf_meta_index.vs_list), "Unknown Section (%u)"), tvb_get_ntohs(tvb, offset + 4 + 2));
 
         proto_tree_add_uint_format_value(tag_tree, tag_info->extra->hf_values[0], tvb, offset + 4, MIN(2, taglength), value32, "%s (%u)",
             val_to_str_const(value32, erf_to_value_string(erf_meta_index.vs_abbrev_list), "Unknown"), value32);
@@ -3062,7 +3062,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ERF");
 
   col_add_str(pinfo->cinfo, COL_INFO,
-       val_to_str_wmem(pinfo->pool, erf_type, erf_type_vals, "Unknown type %u"));
+       val_to_str(pinfo->pool, erf_type, erf_type_vals, "Unknown type %u"));
 
   erf_item = proto_tree_add_item(tree, proto_erf, tvb, 0, -1, ENC_NA);
   erf_tree = proto_item_add_subtree(erf_item, ett_erf);

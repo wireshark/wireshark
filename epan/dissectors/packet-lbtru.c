@@ -926,7 +926,7 @@ static int dissect_lbtru_ncf_list(tvbuff_t * tvb, int offset, packet_info * pinf
         sep_ncf_item = proto_tree_add_item(ncf_tree, hf_lbtru_ncf_list_ncf, tvb, offset + len, sizeof(lbm_uint32_t), ENC_BIG_ENDIAN);
         if (lbtru_expert_separate_ncfs)
         {
-            expert_add_info_format(pinfo, sep_ncf_item, &ei_lbtru_analysis_ncf_ncf, "NCF 0x%08x %s", ncf, val_to_str_wmem(pinfo->pool, reason, lbtru_ncf_reason, "Unknown (0x%02x)"));
+            expert_add_info_format(pinfo, sep_ncf_item, &ei_lbtru_analysis_ncf_ncf, "NCF 0x%08x %s", ncf, val_to_str(pinfo->pool, reason, lbtru_ncf_reason, "Unknown (0x%02x)"));
         }
         tap_info->sqns[idx] = ncf;
         len += (int)sizeof(lbm_uint32_t);
@@ -955,7 +955,7 @@ static int dissect_lbtru_ncf(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     len_dissected = L_LBTRU_NCF_HDR_T;
     if (!lbtru_expert_separate_ncfs)
     {
-        expert_add_info_format(pinfo, ncf_item, &ei_lbtru_analysis_ncf, "NCF %s", val_to_str_wmem(pinfo->pool, LBTRU_NCF_HDR_REASON(reason_format), lbtru_ncf_reason, "Unknown (0x%02x)"));
+        expert_add_info_format(pinfo, ncf_item, &ei_lbtru_analysis_ncf, "NCF %s", val_to_str(pinfo->pool, LBTRU_NCF_HDR_REASON(reason_format), lbtru_ncf_reason, "Unknown (0x%02x)"));
     }
     tap_info->ncf_reason = LBTRU_NCF_HDR_REASON(reason_format);
     tap_info->num_sqns = num_ncfs;
@@ -1159,12 +1159,12 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     if (tag_name != NULL)
     {
         lbtru_item = proto_tree_add_protocol_format(tree, proto_lbtru, tvb, ofs, -1, "LBT-RU Protocol (Tag: %s): Version %u, Type %s", tag_name,
-            LBTRU_HDR_VER(ver_type), val_to_str_wmem(pinfo->pool, LBTRU_HDR_TYPE(ver_type), lbtru_packet_type, "Unknown (0x%02x)"));
+            LBTRU_HDR_VER(ver_type), val_to_str(pinfo->pool, LBTRU_HDR_TYPE(ver_type), lbtru_packet_type, "Unknown (0x%02x)"));
     }
     else
     {
         lbtru_item = proto_tree_add_protocol_format(tree, proto_lbtru, tvb, ofs, -1, "LBT-RU Protocol: Version %u, Type %s", LBTRU_HDR_VER(ver_type),
-            val_to_str_wmem(pinfo->pool, LBTRU_HDR_TYPE(ver_type), lbtru_packet_type, "Unknown (0x%02x)"));
+            val_to_str(pinfo->pool, LBTRU_HDR_TYPE(ver_type), lbtru_packet_type, "Unknown (0x%02x)"));
     }
     lbtru_tree = proto_item_add_subtree(lbtru_item, ett_lbtru);
     if (tag_name != NULL)
@@ -1235,11 +1235,11 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
             from_source = false;
             break;
         case LBTRU_PACKET_TYPE_CREQ:
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "CREQ %s", val_to_str_wmem(pinfo->pool, flags_or_res, lbtru_creq_request, "Unknown (0x%02x)"));
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "CREQ %s", val_to_str(pinfo->pool, flags_or_res, lbtru_creq_request, "Unknown (0x%02x)"));
             from_source = false;
             break;
         case LBTRU_PACKET_TYPE_RST:
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "RST %s", val_to_str_wmem(pinfo->pool, flags_or_res, lbtru_rst_reason, "Unknown (0x%02x)"));
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "RST %s", val_to_str(pinfo->pool, flags_or_res, lbtru_rst_reason, "Unknown (0x%02x)"));
             from_source = true;
             break;
         default:
@@ -1270,13 +1270,13 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
             break;
         case LBTRU_PACKET_TYPE_CREQ:
             ei_item = proto_tree_add_item(header_tree, hf_lbtru_hdr_request, tvb, O_LBTRU_HDR_T_FLAGS_OR_RES, L_LBTRU_HDR_T_FLAGS_OR_RES, ENC_BIG_ENDIAN);
-            expert_add_info_format(pinfo, ei_item, &ei_lbtru_analysis_creq, "CREQ %s", val_to_str_wmem(pinfo->pool, flags_or_res, lbtru_creq_request, "Unknown (0x%04x)"));
+            expert_add_info_format(pinfo, ei_item, &ei_lbtru_analysis_creq, "CREQ %s", val_to_str(pinfo->pool, flags_or_res, lbtru_creq_request, "Unknown (0x%04x)"));
             total_dissected_len += L_LBTRU_HDR_T_FLAGS_OR_RES;
             ofs += L_LBTRU_HDR_T_FLAGS_OR_RES;
             break;
         case LBTRU_PACKET_TYPE_RST:
             ei_item = proto_tree_add_item(header_tree, hf_lbtru_hdr_reason, tvb, O_LBTRU_HDR_T_FLAGS_OR_RES, L_LBTRU_HDR_T_FLAGS_OR_RES, ENC_BIG_ENDIAN);
-            expert_add_info_format(pinfo, ei_item, &ei_lbtru_analysis_rst, "RST %s", val_to_str_wmem(pinfo->pool, flags_or_res, lbtru_rst_reason, "Unknown (0x%04x)"));
+            expert_add_info_format(pinfo, ei_item, &ei_lbtru_analysis_rst, "RST %s", val_to_str(pinfo->pool, flags_or_res, lbtru_rst_reason, "Unknown (0x%04x)"));
             break;
         default:
             break;

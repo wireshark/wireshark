@@ -162,7 +162,7 @@ CallingSSuserReference/t61String DISPLAY = BASE_NONE
   %(DEFAULT_BODY)s
 
   if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str_wmem(actx->pinfo->pool, reason, rtse_RefuseReason_vals, "reason(%%d)"));
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, reason, rtse_RefuseReason_vals, "reason(%%d)"));
 
 #.FN_BODY RTABapdu
   col_append_str(actx->pinfo->cinfo, COL_INFO, "Abort");
@@ -178,7 +178,7 @@ CallingSSuserReference/t61String DISPLAY = BASE_NONE
   %(DEFAULT_BODY)s
 
   if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str_wmem(actx->pinfo->pool, reason, rtse_AbortReason_vals, "reason(%%d)"));
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, reason, rtse_AbortReason_vals, "reason(%%d)"));
 
 #.TYPE_ATTR
 AdditionalReferenceInformation DISPLAY = BASE_NONE

@@ -6575,7 +6575,7 @@ static expert_field ei_ncp_value_too_large;
 
     # Print the errors table
     print("/* Error strings. */")
-    print("static const char *ncp_errors[] = {")
+    print("static const char * const ncp_errors[] = {")
     for code in errors_used_list:
         print('    /* %02d (0x%04x) */ "%s",' % (errors_used_hash[code], code, errors[code]))
     print("};\n")
@@ -6601,7 +6601,7 @@ static expert_field ei_ncp_value_too_large;
 
     # Print the groups table
     print("/* Group strings. */")
-    print("static const char *ncp_groups[] = {")
+    print("static const char * const ncp_groups[] = {")
     for group in groups_used_list:
         print('    /* %02d (%s) */ "%s",' % (groups_used_hash[group], group, groups[group]))
     print("};\n")

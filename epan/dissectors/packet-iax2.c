@@ -1926,7 +1926,7 @@ dissect_fullpacket(tvbuff_t *tvb, uint32_t offset,
     offset += 10;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                      val_to_str_wmem(pinfo->pool, csub, iax_modem_subclasses, "unknown (0x%02x)"));
+                      val_to_str(pinfo->pool, csub, iax_modem_subclasses, "unknown (0x%02x)"));
     break;
 
   case AST_FRAME_TEXT:
@@ -2529,7 +2529,7 @@ static void dissect_payload(tvbuff_t *tvb, uint32_t offset,
 
   if (!video && iax_call && iax_call -> dataformat != 0) {
       col_append_fstr(pinfo->cinfo, COL_INFO, ", data, format %s",
-                      val_to_str_wmem(pinfo->pool, iax_call -> dataformat,
+                      val_to_str(pinfo->pool, iax_call -> dataformat,
                                  iax_dataformats, "unknown (0x%02x)"));
 #if 0
       if (out_of_order)

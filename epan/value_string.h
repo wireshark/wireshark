@@ -104,13 +104,8 @@ enum { \
 /* ----- ----- */
 
 WS_DLL_PUBLIC
-const char *
-val_to_str(const uint32_t val, const value_string *vs, const char *fmt)
-G_GNUC_PRINTF(3, 0);
-
-WS_DLL_PUBLIC
 char *
-val_to_str_wmem(wmem_allocator_t *scope, const uint32_t val, const value_string *vs, const char *fmt)
+val_to_str(wmem_allocator_t *scope, const uint32_t val, const value_string *vs, const char *fmt)
 G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC

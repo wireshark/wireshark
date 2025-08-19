@@ -438,7 +438,7 @@ mpa_packetlist(packet_info *pinfo, int message_type)
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 				"%d > %d %s", pinfo->srcport, pinfo->destport,
-				val_to_str_wmem(pinfo->pool, message_type, mpa_messages,
+				val_to_str(pinfo->pool, message_type, mpa_messages,
 						"Unknown %d"));
 }
 

@@ -167,8 +167,8 @@ dissect_vsock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     payload_offset = offset + t_len;
 
-    op_name = val_to_str_wmem(pinfo->pool, op, af_vsockmon_op_names, "Unknown (%d)");
-    t_name = val_to_str_wmem(pinfo->pool, type, af_vsockmon_t_names, "Unknown (%d)");
+    op_name = val_to_str(pinfo->pool, op, af_vsockmon_op_names, "Unknown (%d)");
+    t_name = val_to_str(pinfo->pool, type, af_vsockmon_t_names, "Unknown (%d)");
     /* Append summary information to top tree */
     proto_item_append_text(ti, ", Op: %s, Transport: %s", op_name, t_name);
 
@@ -212,8 +212,8 @@ dissect_vsock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             /* Append virtio information */
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s, Op: %s, Buf alloc: %u, Fwd cnt: %u",
-                    val_to_str_wmem(pinfo->pool, virtio_type, virtio_vsock_type_names, "Unknown (%d)"),
-                    val_to_str_wmem(pinfo->pool, virtio_op, virtio_vsock_op_names, "Unknown (%d)"),
+                    val_to_str(pinfo->pool, virtio_type, virtio_vsock_type_names, "Unknown (%d)"),
+                    val_to_str(pinfo->pool, virtio_op, virtio_vsock_op_names, "Unknown (%d)"),
                     virtio_buf_alloc, virtio_fwd_cnt);
             break;
     }

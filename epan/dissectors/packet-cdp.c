@@ -517,7 +517,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             if (tree) {
                 tlv_tree = proto_tree_add_subtree_format(cdp_tree, tvb,
                                            offset,length, ett_cdp_tlv, NULL, "Protocol Hello: %s",
-                                           val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset+7), type_hello_vals, "Unknown (0x%04x)"));
+                                           val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset+7), type_hello_vals, "Unknown (0x%04x)"));
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_oui, tvb, offset+4, 3, ENC_BIG_ENDIAN);
@@ -1026,7 +1026,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             if (tree) {
                 tlv_tree = proto_tree_add_subtree_format(cdp_tree, tvb, offset,
                                            length, ett_cdp_tlv, NULL, "Type: %s, length: %u",
-                                           val_to_str_wmem(pinfo->pool, type, type_vals, "Unknown (0x%04x)"),
+                                           val_to_str(pinfo->pool, type, type_vals, "Unknown (0x%04x)"),
                                            length);
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
@@ -1090,11 +1090,11 @@ dissect_address_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, int length, p
     if ((protocol_type == PROTO_TYPE_NLPID) && (protocol_length == 1)) {
         nlpid = tvb_get_uint8(tvb, offset);
         proto_tree_add_bytes_format_value(address_tree, hf_cdp_protocol, tvb, offset, protocol_length, NULL, "%s",
-                            val_to_str_wmem(pinfo->pool, nlpid, nlpid_vals, "Unknown (0x%02x)"));
+                            val_to_str(pinfo->pool, nlpid, nlpid_vals, "Unknown (0x%02x)"));
     } else if ((protocol_type == PROTO_TYPE_IEEE_802_2) && (protocol_length == 8) && (tvb_get_ntoh48(tvb, offset) == 0xAAAA03000000)) {
         etypeid = tvb_get_ntohs(tvb, offset + 6);
         proto_tree_add_bytes_format_value(address_tree, hf_cdp_protocol, tvb, offset, protocol_length, NULL, "%s",
-                            val_to_str_wmem(pinfo->pool, etypeid, etype_vals, "Unknown (0x%04x)"));
+                            val_to_str(pinfo->pool, etypeid, etype_vals, "Unknown (0x%04x)"));
     } else {
         nlpid = -1;
         proto_tree_add_item(address_tree, hf_cdp_protocol, tvb, offset, protocol_length, ENC_NA);
@@ -1212,7 +1212,7 @@ dissect_nrgyz_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, uint16_t length
             break;
         }
         else {
-            ttext = val_to_str_wmem(pinfo->pool, tlvt, type_nrgyz_vals, "Unknown (0x%04x)");
+            ttext = val_to_str(pinfo->pool, tlvt, type_nrgyz_vals, "Unknown (0x%04x)");
             switch (tlvt) {
             case TYPE_NRGYZ_ROLE:
             case TYPE_NRGYZ_DOMAIN:

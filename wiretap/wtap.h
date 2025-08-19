@@ -325,7 +325,7 @@ extern "C" {
 #define WTAP_TSPREC_PER_PACKET -1  /* as a per-file value, means per-packet */
 /*
  * These values are the number of digits of precision after the integral part.
- * Thry're the same as WS_TSPREC values; we define them here so that
+ * They're the same as WS_TSPREC values; we define them here so that
  * tools/make-enums.py sees them.
  */
 #define WTAP_TSPREC_SEC         0

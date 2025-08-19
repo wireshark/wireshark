@@ -200,7 +200,7 @@ dissect_cattp_rstpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, 
     const char *rc_str;
 
     rc = tvb_get_uint8(tvb, offset); /* reason code of RST */
-    rc_str = val_to_str_wmem(pinfo->pool, rc, cattp_reset_reason, "Unknown reason code: 0x%02x");
+    rc_str = val_to_str(pinfo->pool, rc, cattp_reset_reason, "Unknown reason code: 0x%02x");
     col_append_fstr(pinfo->cinfo, COL_INFO, " Reason=\"%s\" ", rc_str);
 
     proto_tree_add_item(cattp_tree, hf_cattp_rc, tvb, offset, 1, ENC_BIG_ENDIAN);

@@ -372,7 +372,7 @@ static int dissect_fcsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     opcode = tvb_get_uint8(tvb, 2);
 
     col_add_str(pinfo->cinfo, COL_INFO,
-                     val_to_str_wmem(pinfo->pool, opcode, fcauth_msgcode_vals, "0x%x"));
+                     val_to_str(pinfo->pool, opcode, fcauth_msgcode_vals, "0x%x"));
 
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_fcsp, tvb, 0,

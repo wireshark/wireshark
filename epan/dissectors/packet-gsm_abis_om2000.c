@@ -642,10 +642,10 @@ dissect_tss_mo_state(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *
 		tmp = tvb_get_uint8(tvb, offset);
 		proto_tree_add_uint_format(tree, hf_om2k_tsn_state, tvb, offset, 1, tmp & 0xf,
 					   "Timeslot %u MO State: %s", i,
-					   val_to_str_wmem(pinfo->pool, tmp & 0xf, om2k_mo_state_vals, "unknown (%02d)"));
+					   val_to_str(pinfo->pool, tmp & 0xf, om2k_mo_state_vals, "unknown (%02d)"));
 		proto_tree_add_uint_format(tree, hf_om2k_tsn_state, tvb, offset, 1, tmp >> 4,
 					   "Timeslot %u MO State: %s", i+1,
-					   val_to_str_wmem(pinfo->pool, tmp >> 4, om2k_mo_state_vals, "unknown (%02d)"));
+					   val_to_str(pinfo->pool, tmp >> 4, om2k_mo_state_vals, "unknown (%02d)"));
 		offset++;
 	}
 
@@ -1198,7 +1198,7 @@ dissect_om2k_mo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	uint8_t     inst  = tvb_get_uint8(tvb, offset+3);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", (%-4s %u)",
-				val_to_str_wmem(pinfo->pool, mo_class, om2k_mo_class_short_vals,
+				val_to_str(pinfo->pool, mo_class, om2k_mo_class_short_vals,
 					   "0x%02x"), inst);
 	if (tree) {
 		proto_item *ti;
@@ -1218,7 +1218,7 @@ dissect_om2k_mo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(mo_tree, hf_om2k_mo_instance, tvb, offset+3,
 				    1, ENC_BIG_ENDIAN);
 		proto_item_append_text(ti, ", Class: %s, Sub: %02x/%02x, Instance: %u",
-				       val_to_str_wmem(pinfo->pool, mo_class, om2k_mo_class_vals, "0x%02x"),
+				       val_to_str(pinfo->pool, mo_class, om2k_mo_class_vals, "0x%02x"),
 				       sub1, sub2, inst);
 	}
 	return 4;
@@ -1265,7 +1265,7 @@ dissect_abis_om2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	case 0x74: /* Operational Info */
 		tmp = tvb_get_uint8(tvb, offset+1);
 		proto_item_append_text(ti, ": %s",
-				       val_to_str_wmem(pinfo->pool, tmp, om2k_oip_vals,
+				       val_to_str(pinfo->pool, tmp, om2k_oip_vals,
 						  "unknown 0x%02x"));
 		break;
 	case 0x1A: /* CON Configuration Result */
@@ -1278,7 +1278,7 @@ dissect_abis_om2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	case 0xF6: /* DP Configuration Result */
 		tmp = tvb_get_uint8(tvb, offset+1);
 		proto_item_append_text(ti, ": %s",
-				       val_to_str_wmem(pinfo->pool, tmp, om2k_aip_vals,
+				       val_to_str(pinfo->pool, tmp, om2k_aip_vals,
 						  "unknown 0x%02x"));
 		break;
 	default:

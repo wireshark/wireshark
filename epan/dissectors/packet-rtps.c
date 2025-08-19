@@ -5240,7 +5240,7 @@ static int rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_
       if (port == 0)
         expert_add_info(pinfo, ti, &ei_rtps_locator_port);
       proto_item_append_text(tree, " (%s, %s:%u)",
-                 val_to_str_wmem(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
+                 val_to_str(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
                  tvb_ip_to_str(pinfo->pool, tvb, offset + 20), port);
       proto_tree_add_item(locator_tree, hf_rtps_locator_ipv4, tvb, offset + 20, 4, ENC_BIG_ENDIAN);
       break;
@@ -5268,13 +5268,13 @@ static int rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_
         proto_tree_add_item(locator_tree, hf_rtps_locator_ipv4, tvb, offset+20,
                 4, ENC_BIG_ENDIAN);
         proto_item_append_text(tree, " (%s, %s:%d, Logical Port = %u)",
-                   val_to_str_wmem(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
+                   val_to_str(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
                    tvb_ip_to_str(pinfo->pool, tvb, offset + 20), public_address_port, port);
         } else { /* IPv6 format */
           proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8,
                   16, ENC_NA);
           proto_item_append_text(tree, " (%s, %s, Logical Port = %u)",
-                  val_to_str_wmem(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
+                  val_to_str(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
                   tvb_ip6_to_str(pinfo->pool, tvb, offset + 8), port);
         }
       break;
@@ -5293,7 +5293,7 @@ static int rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_
       if (port == 0)
         expert_add_info(pinfo, ti, &ei_rtps_locator_port);
       proto_item_append_text(tree, " (%s, HostId = 0x%08x, Port = %u)",
-              val_to_str_wmem(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
+              val_to_str(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
               hostId, port);
       break;
     }
@@ -5310,7 +5310,7 @@ static int rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_
         expert_add_info(pinfo, ti, &ei_rtps_locator_port);
       proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8, 16, ENC_NA);
       proto_item_append_text(tree, " (%s, %s:%u)",
-              val_to_str_wmem(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
+              val_to_str(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
               tvb_ip6_to_str(pinfo->pool, tvb, offset + 8), port);
       break;
     }
@@ -5325,7 +5325,7 @@ static int rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_
               &port);
       proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8, 16, ENC_NA);
       proto_item_append_text(tree, " (%s, %s:%u)",
-              val_to_str_wmem(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
+              val_to_str(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
               tvb_ip6_to_str(pinfo->pool, tvb, offset + 8), port);
       break;
     }
@@ -5417,11 +5417,11 @@ static int rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff_
         if (ip_str != NULL && locator_ip != 0) {
             if (is_public) {
                 proto_item_append_text(tree, " (%s, public: %s:%u, rtps port:%u)",
-                    val_to_str_wmem(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
+                    val_to_str(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
                     ip_str, public_port, port);
             } else {
                 proto_item_append_text(tree, " (%s, local: %s:%u)",
-                    val_to_str_wmem(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
+                    val_to_str(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
                     ip_str, port);
             }
         }
@@ -5549,7 +5549,7 @@ static int rtps_util_add_multichannel_locator_list(proto_tree *tree, packet_info
                 proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset + 4, 16, ENC_NA);
                 channel_address = tvb_ip6_to_str(pinfo->pool, tvb, offset + 4);
                 proto_item_append_text(tree, " (%s, %s)",
-                    val_to_str_wmem(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
+                    val_to_str(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
                     tvb_ip6_to_str(pinfo->pool, tvb, offset + 4));
                 break;
             }
@@ -5565,7 +5565,7 @@ static int rtps_util_add_multichannel_locator_list(proto_tree *tree, packet_info
             if (port == 0)
                 expert_add_info(pinfo, ti, &ei_rtps_locator_port);
             proto_item_append_text(tree, " (%s, %s:%u)",
-                val_to_str_wmem(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
+                val_to_str(pinfo->pool, kind, rtps_locator_kind_vals, "%02x"),
                 channel_address, port);
             offset += 24;
         }
@@ -5645,7 +5645,7 @@ static void rtps_util_add_guid_prefix_v1(proto_tree *tree, packet_info* pinfo, t
     ti = proto_tree_add_uint64_format(tree, hf_prefix, tvb, offset, 8, prefix,
                         "%s=%08x %08x { hostId=%08x, appId=%08x (%s: %06x) }",
                         safe_label, host_id, app_id, host_id, app_id,
-                        val_to_str_wmem(pinfo->pool, app_kind, app_kind_vals, "%02x"),
+                        val_to_str(pinfo->pool, app_kind, app_kind_vals, "%02x"),
                         instance_id);
 
     guid_tree = proto_item_add_subtree(ti, ett_rtps_guid_prefix);
@@ -5736,7 +5736,7 @@ static bool rtps_util_add_entity_id(proto_tree *tree, packet_info* pinfo, tvbuff
       ti = proto_tree_add_uint_format(tree, hf_item, tvb, offset, 4, entity_id,
                         "%s: 0x%08x (%s: 0x%06x)",
                         label, entity_id,
-                        val_to_str_wmem(pinfo->pool, entity_kind, entity_kind_vals, "unknown kind (%02x)"),
+                        val_to_str(pinfo->pool, entity_kind, entity_kind_vals, "unknown kind (%02x)"),
                         entity_key);
     } else {
       /* entityId is a predefined value */
@@ -5778,7 +5778,7 @@ static void rtps_util_add_generic_entity_id(proto_tree *tree, packet_info* pinfo
     /* entityId is not a predefined value, format it */
     ti = proto_tree_add_uint_format(tree, hf_item, tvb, offset, 4, entity_id,
                         "%s: 0x%08x (%s: 0x%06x)", label, entity_id,
-                        val_to_str_wmem(pinfo->pool, entity_kind, entity_kind_vals, "unknown kind (%02x)"),
+                        val_to_str(pinfo->pool, entity_kind, entity_kind_vals, "unknown kind (%02x)"),
                         entity_key);
   } else {
     /* entityId is a predefined value */
@@ -6914,7 +6914,7 @@ static int rtps_util_add_type_id(proto_tree *tree, packet_info* pinfo,
     proto_tree_add_item(tree, hf_type, tvb, offset, 2, encoding);
     if (append_info_item) {
       proto_item_append_text(append_info_item, "(%s)",
-                val_to_str_wmem(pinfo->pool, short_number, type_object_kind, "(0x%016x)"));
+                val_to_str(pinfo->pool, short_number, type_object_kind, "(0x%016x)"));
     }
     offset += 2;
   } else {
@@ -12307,7 +12307,7 @@ static bool dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, packe
         value = tvb_get_uint16(tvb, item_offset, encoding);
         proto_tree_add_uint_format(data_representation_seq_subtree, hf_rtps_param_data_representation,
           tvb, item_offset, 2, value, "[%d]: %s (0x%X)", counter,
-          val_to_str_wmem(pinfo->pool, value, data_representation_kind_vals, "Unknown data representation value: %u"),
+          val_to_str(pinfo->pool, value, data_representation_kind_vals, "Unknown data representation value: %u"),
           value);
         item_offset += 2;
       }
@@ -12540,7 +12540,7 @@ static int dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvbu
     }
     if (version < 0x0200) {
       rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
-                        ett_rtps_parameter, &param_item, val_to_str_wmem(pinfo->pool, parameter, parameter_id_vals, "Unknown (0x%04x)"));
+                        ett_rtps_parameter, &param_item, val_to_str(pinfo->pool, parameter, parameter_id_vals, "Unknown (0x%04x)"));
 
       proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id, tvb, offset, 2, parameter);
     } else {
@@ -12552,7 +12552,7 @@ static int dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvbu
             param_name = try_val_to_str(parameter, parameter_id_inline_qos_rti);
             if (param_name != NULL) {
               rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
-                ett_rtps_parameter, &param_item, val_to_str_wmem(pinfo->pool, parameter, parameter_id_inline_qos_rti, "Unknown (0x%04x)"));
+                ett_rtps_parameter, &param_item, val_to_str(pinfo->pool, parameter, parameter_id_inline_qos_rti, "Unknown (0x%04x)"));
               proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_inline_rti, tvb, offset,
                       param_length_length, parameter);
               goto_default = false;
@@ -12561,7 +12561,7 @@ static int dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvbu
             param_name = try_val_to_str(parameter, parameter_id_rti_vals);
             if (param_name != NULL) {
               rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
-                        ett_rtps_parameter, &param_item, val_to_str_wmem(pinfo->pool, parameter, parameter_id_rti_vals, "Unknown (0x%04x)"));
+                        ett_rtps_parameter, &param_item, val_to_str(pinfo->pool, parameter, parameter_id_rti_vals, "Unknown (0x%04x)"));
               proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_rti, tvb, offset,
                       param_length_length, parameter);
               goto_default = false;
@@ -12573,7 +12573,7 @@ static int dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvbu
           param_name = try_val_to_str(parameter, parameter_id_toc_vals);
           if (param_name != NULL) {
             rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
-                  ett_rtps_parameter, &param_item, val_to_str_wmem(pinfo->pool, parameter, parameter_id_toc_vals, "Unknown (0x%04x)"));
+                  ett_rtps_parameter, &param_item, val_to_str(pinfo->pool, parameter, parameter_id_toc_vals, "Unknown (0x%04x)"));
 
             proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_toc, tvb, offset,
                     param_length_length, parameter);
@@ -12585,7 +12585,7 @@ static int dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvbu
           param_name = try_val_to_str(parameter, parameter_id_adl_vals);
           if (param_name != NULL) {
             rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
-                  ett_rtps_parameter, &param_item, val_to_str_wmem(pinfo->pool, parameter, parameter_id_adl_vals, "Unknown (0x%04x)"));
+                  ett_rtps_parameter, &param_item, val_to_str(pinfo->pool, parameter, parameter_id_adl_vals, "Unknown (0x%04x)"));
 
             proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_adl, tvb, offset,
                     param_length_length, parameter);
@@ -12596,7 +12596,7 @@ static int dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvbu
       }
       if (goto_default) {
         rtps_parameter_tree = proto_tree_add_subtree(rtps_parameter_sequence_tree, tvb, offset, -1,
-            ett_rtps_parameter, &param_item, val_to_str_wmem(pinfo->pool, parameter, parameter_id_v2_vals, "Unknown (0x%04x)"));
+            ett_rtps_parameter, &param_item, val_to_str(pinfo->pool, parameter, parameter_id_v2_vals, "Unknown (0x%04x)"));
         proto_tree_add_uint(rtps_parameter_tree, hf_rtps_parameter_id_v2, tvb, offset,
                 param_length_length, parameter);
       }
@@ -16826,7 +16826,7 @@ static void dissect_SECURE(
           octets_to_next_header,
           "Bad %s tag check. " \
           "Possibly wrong passphrase secret (\"%s\") or malformed packet",
-          val_to_str_wmem(pinfo->pool,
+          val_to_str(pinfo->pool,
             decryption_info->algorithm,
             secure_transformation_kind,
             "Unknown algorithm"),
@@ -17613,12 +17613,12 @@ static bool dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
                         not_accuracy_str,
                         domain_id_str,
                         participant_idx,
-                        val_to_str_wmem(pinfo->pool, nature, nature_type_vals, "%02x"));
+                        val_to_str(pinfo->pool, nature, nature_type_vals, "%02x"));
     } else {
       mapping_tree = proto_tree_add_subtree_format(rtps_tree, tvb, 0, 0,
                         ett_rtps_default_mapping, NULL, "Default port mapping%s: %s, domainId=%s",
                         not_accuracy_str,
-                        val_to_str_wmem(pinfo->pool, nature, nature_type_vals, "%02x"),
+                        val_to_str(pinfo->pool, nature, nature_type_vals, "%02x"),
                         domain_id_str);
     }
 
@@ -17715,13 +17715,13 @@ void dissect_rtps_submessages(
       }
     }
 
-    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_wmem(pinfo->pool, submessageId, sub_vals, "Unknown[%02x]"));
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str(pinfo->pool, submessageId, sub_vals, "Unknown[%02x]"));
 
     /* Creates the subtree 'Submessage: XXXX' */
     if (submessageId & 0x80) {
       if (vendor_id == RTPS_VENDOR_RTI_DDS) {
         ti = proto_tree_add_uint_format_value(rtps_tree, sub_hf, tvb, offset, 1, submessageId, "%s",
-                val_to_str_wmem(pinfo->pool, submessageId, submessage_id_rti, "Vendor-specific (0x%02x)"));
+                val_to_str(pinfo->pool, submessageId, submessage_id_rti, "Vendor-specific (0x%02x)"));
       } else {
         ti = proto_tree_add_uint_format_value(rtps_tree, sub_hf, tvb, offset, 1,
                 submessageId, "Vendor-specific (0x%02x)", submessageId);

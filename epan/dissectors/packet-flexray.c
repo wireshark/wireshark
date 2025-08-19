@@ -319,7 +319,7 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
     uint32_t frame_type;
     proto_tree_add_item_ret_uint(measurement_tree, hf_flexray_ti, tvb, 0, 1, ENC_BIG_ENDIAN, &frame_type);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s:", val_to_str_wmem(pinfo->pool, frame_type, flexray_type_names, "Unknown (0x%02x)"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s:", val_to_str(pinfo->pool, frame_type, flexray_type_names, "Unknown (0x%02x)"));
 
     if (frame_type == FLEXRAY_FRAME) {
         proto_tree *error_flags_tree, *flexray_frame_tree;

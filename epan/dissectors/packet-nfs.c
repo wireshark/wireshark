@@ -5103,7 +5103,7 @@ dissect_nfs3_write_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	stable = tvb_get_ntohl(tvb, offset);
 	offset = dissect_stable_how(tvb, offset, tree, hf_nfs3_write_stable);
 
-	str_stable = val_to_str_wmem(pinfo->pool, stable, names_stable_how, "Stable: %u");
+	str_stable = val_to_str(pinfo->pool, stable, names_stable_how, "Stable: %u");
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", FH: 0x%08x Offset: %" PRIu64 " Len: %u %s",
 		hash, off, len, str_stable);
 	proto_item_append_text(tree, ", WRITE Call FH: 0x%08x Offset: %" PRIu64 " Len: %u %s",
@@ -5138,7 +5138,7 @@ dissect_nfs3_write_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 				hf_nfs3_write_committed);
 			offset = dissect_nfs3_write_verf(tvb, offset, tree);
 
-			str_stable = val_to_str_wmem(pinfo->pool, stable, names_stable_how, "Stable: %u");
+			str_stable = val_to_str(pinfo->pool, stable, names_stable_how, "Stable: %u");
 			col_append_fstr(pinfo->cinfo, COL_INFO, " Len: %d %s", len, str_stable);
 			proto_item_append_text(tree, ", WRITE Reply Len: %d %s", len, str_stable);
 		break;
@@ -5201,7 +5201,7 @@ dissect_nfs3_create_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 		break;
 	}
 
-	str_mode = val_to_str_wmem(pinfo->pool, mode, names_createmode3, "Unknown Mode: %u");
+	str_mode = val_to_str(pinfo->pool, mode, names_createmode3, "Unknown Mode: %u");
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", DH: 0x%08x/%s Mode: %s", hash, name, str_mode);
 	proto_item_append_text(tree, ", CREATE Call DH: 0x%08x/%s Mode: %s", hash, name, str_mode);
 
@@ -6859,22 +6859,22 @@ dissect_nfs4_acemask(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *
 			if (acemask_bit <= 0x4) {
 				if (obj_type) {
 					if  (obj_type == NF4REG) {
-						type = val_to_str_wmem(pinfo->pool, acemask_bit, acemask4_perms_file, "Unknown: %u");
-						atype = val_to_str_wmem(pinfo->pool, acemask_bit, acemask4_abbrev_perms_file, "Unknown: %u");
+						type = val_to_str(pinfo->pool, acemask_bit, acemask4_perms_file, "Unknown: %u");
+						atype = val_to_str(pinfo->pool, acemask_bit, acemask4_abbrev_perms_file, "Unknown: %u");
 					} else if (obj_type == NF4DIR) {
-						type = val_to_str_wmem(pinfo->pool, acemask_bit, acemask4_perms_dir, "Unknown: %u");
-						atype = val_to_str_wmem(pinfo->pool, acemask_bit, acemask4_abbrev_perms_dir, "Unknown: %u");
+						type = val_to_str(pinfo->pool, acemask_bit, acemask4_perms_dir, "Unknown: %u");
+						atype = val_to_str(pinfo->pool, acemask_bit, acemask4_abbrev_perms_dir, "Unknown: %u");
 					}
 				} else {
-					type = val_to_str_wmem(pinfo->pool, acemask_bit, acemask4_perms_unkwn, "Unknown: %u");
-					atype = val_to_str_wmem(pinfo->pool, acemask_bit, acemask4_abbrev_perms_unkwn, "Unknown: %u");
+					type = val_to_str(pinfo->pool, acemask_bit, acemask4_perms_unkwn, "Unknown: %u");
+					atype = val_to_str(pinfo->pool, acemask_bit, acemask4_abbrev_perms_unkwn, "Unknown: %u");
 				}
 			} else {
 				type = val_to_str_ext(pinfo->pool, acemask_bit, &acemask4_perms_8_and_above_ext, "Unknown: %u");
 				atype = val_to_str_ext(pinfo->pool, acemask_bit, &acemask4_abbrev_perms_8_and_above_ext, "Unknown: %u");
 			}
 			proto_tree_add_uint_format(acemask_tree, hf_nfs4_ace_permission, tvb, offset, 4,
-				acemask_bit, "%s: %s (0x%08x)", val_to_str_wmem(pinfo->pool, acetype4, names_acetype4, "Unknown: %u"), type, acemask_bit);
+				acemask_bit, "%s: %s (0x%08x)", val_to_str(pinfo->pool, acetype4, names_acetype4, "Unknown: %u"), type, acemask_bit);
 			proto_item_append_text(acemask_item, first_perm ? "%s" : ", %s", atype);
 			first_perm = false;
 		}
@@ -6900,7 +6900,7 @@ dissect_nfs4_ace(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 		proto_item *ace_item = NULL;
 
 		acetype4 = tvb_get_ntohl(tvb, offset);
-		acetype4_str = val_to_str_wmem(pinfo->pool, acetype4, names_acetype4, "Unknown: %u");
+		acetype4_str = val_to_str(pinfo->pool, acetype4, names_acetype4, "Unknown: %u");
 
 		/* Display the ACE type and create a subtree for this ACE */
 		if (ace_number == 0) {
@@ -7925,7 +7925,7 @@ dissect_nfs4_stable_how(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tre
 	stable_how4 = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_uint_format(tree, hf_nfs4_stable_how, tvb,
 			offset+0, 4, stable_how4, "%s: %s (%u)", name,
-			val_to_str_wmem(pinfo->pool, stable_how4, names_stable_how4, "%u"), stable_how4);
+			val_to_str(pinfo->pool, stable_how4, names_stable_how4, "%u"), stable_how4);
 	offset += 4;
 
 	return offset;

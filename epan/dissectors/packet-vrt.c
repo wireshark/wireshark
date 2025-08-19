@@ -507,7 +507,7 @@ static int dissect_vrt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /* get packet type */
     type = tvb_get_uint8(tvb, offset) >> 4;
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, type, packet_types, "Reserved packet type (0x%02x)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, type, packet_types, "Reserved packet type (0x%02x)"));
 
     if (tree) { /* we're being asked for details */
         uint8_t sidflag;

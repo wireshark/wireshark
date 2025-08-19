@@ -1082,7 +1082,7 @@ static const char *msg_type_to_str (wmem_allocator_t* allocator)
     have_msg = (dmp.id_val &&
                 (dmp.id_val->msg_time.secs>0 || dmp.id_val->msg_time.nsecs>0));
     msg_type = wmem_strdup_printf (allocator, "Acknowledgement%s%s",
-                have_msg ? val_to_str_wmem(allocator, dmp.id_val->msg_type, ack_msg_type,
+                have_msg ? val_to_str(allocator, dmp.id_val->msg_type, ack_msg_type,
                                        " (unknown:%d)") : "",
                 dmp.ack_reason ? " [negative]" : "");
     break;
@@ -3655,7 +3655,7 @@ static int dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
   tf = proto_tree_add_uint_format (message_tree, hf_message_sec_pol,
                                    tvb, offset, 1, message,
                                    "Security Policy: %s (%d)",
-                                   val_to_str_wmem(pinfo->pool, dmp_sec_pol, sec_pol, "%d"),
+                                   val_to_str(pinfo->pool, dmp_sec_pol, sec_pol, "%d"),
                                    dmp_sec_pol);
   field_tree = proto_item_add_subtree (tf, ett_message_sec_pol);
   proto_tree_add_item (field_tree, hf_message_sec_pol, tvb, offset, 1, ENC_BIG_ENDIAN);

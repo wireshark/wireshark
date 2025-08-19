@@ -239,7 +239,7 @@ dissect_krb4_auth_msg_type(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
 	item = proto_tree_add_item_ret_uint(parent_tree, hf_krb4_auth_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN, &auth_msg_type);
 	tree = proto_item_add_subtree(item, ett_krb4_auth_msg_type);
 
-	str_type = val_to_str_wmem(pinfo->pool, auth_msg_type >> 1, m_type_vals, "Unknown (0x%04x)");
+	str_type = val_to_str(pinfo->pool, auth_msg_type >> 1, m_type_vals, "Unknown (0x%04x)");
 
 	/* m_type */
 	proto_tree_add_item(tree, hf_krb4_m_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -250,7 +250,7 @@ dissect_krb4_auth_msg_type(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
 
 	/* byte order */
 	proto_tree_add_item(tree, hf_krb4_byte_order, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_item_append_text(item, " (%s)", val_to_str_wmem(pinfo->pool, auth_msg_type&0x01, byte_order_vals, "Unknown (0x%04x)"));
+	proto_item_append_text(item, " (%s)", val_to_str(pinfo->pool, auth_msg_type&0x01, byte_order_vals, "Unknown (0x%04x)"));
 
 	offset++;
 	return offset;

@@ -113,7 +113,7 @@ dissect_kpasswd_user_data_reply(packet_info *pinfo, tvbuff_t *tvb, proto_tree *t
     proto_tree_add_uint(tree, hf_kpasswd_result, tvb, offset, 2, result);
     offset+=2;
     col_add_str(pinfo->cinfo, COL_INFO,
-        val_to_str_wmem(pinfo->pool, result, kpasswd_result_types, "Result: %u"));
+        val_to_str(pinfo->pool, result, kpasswd_result_types, "Result: %u"));
 
 
     /* optional result string */

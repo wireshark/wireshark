@@ -485,7 +485,7 @@ dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         subfunction_code = 1;
     }
     else {
-        func_string = val_to_str_wmem(pinfo->pool, function_code, function_code_vals, "Unknown function (%d)");
+        func_string = val_to_str(pinfo->pool, function_code, function_code_vals, "Unknown function (%d)");
         subfunction_code = 0;
     }
 
@@ -614,7 +614,7 @@ dissect_mbrtu_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ra
         subfunction_code = 1;
     }
     else {
-        func_string = val_to_str_wmem(pinfo->pool, function_code, function_code_vals, "Unknown function (%d)");
+        func_string = val_to_str(pinfo->pool, function_code, function_code_vals, "Unknown function (%d)");
         subfunction_code = 0;
     }
 
@@ -1693,7 +1693,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_item_set_text(mi, "Function %u:  %s.  Exception: %s",
                             function_code,
                             val_to_str_const(function_code, function_code_vals, "Unknown Function"),
-                            val_to_str_wmem(pinfo->pool, exception_code,
+                            val_to_str(pinfo->pool, exception_code,
                                        exception_code_vals,
                                        "Unknown Exception Code (%u)"));
         proto_tree_add_uint(modbus_tree, hf_modbus_exceptioncode, tvb, payload_start, 1,

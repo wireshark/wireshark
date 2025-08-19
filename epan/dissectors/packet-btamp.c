@@ -474,7 +474,7 @@ dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         break;
     }
 
-    str_cmd_code = val_to_str_wmem(pinfo->pool, cmd_code, command_code_vals, "Unknown PDU (%u)");
+    str_cmd_code = val_to_str(pinfo->pool, cmd_code, command_code_vals, "Unknown PDU (%u)");
     proto_item_append_text(ti_command, "%s", str_cmd_code);
     col_append_str(pinfo->cinfo, COL_INFO, str_cmd_code);
 

@@ -437,7 +437,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     offset= 0;
     /* Get the message Information beforehand */
     message_type = tvb_get_uint8(tvb,7);
-    str_message_type = val_to_str_wmem(pinfo->pool, message_type, messageType, "Unknown (0x%02x)");
+    str_message_type = val_to_str(pinfo->pool, message_type, messageType, "Unknown (0x%02x)");
 
 
     /* Simply Display the Protocol Name in the INFO column */
@@ -858,7 +858,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 if (tree) {
                     pnrp_message_tree = proto_tree_add_subtree_format(pnrp_tree, tvb, offset,
                                                             data_length, ett_pnrp_message, NULL, "Type: %s, length: %u",
-                                                            val_to_str_wmem(pinfo->pool, field_type, fieldID, "Unknown (0x%04x)"), data_length);
+                                                            val_to_str(pinfo->pool, field_type, fieldID, "Unknown (0x%04x)"), data_length);
                     proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                     if(data_length > 4)

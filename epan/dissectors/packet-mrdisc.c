@@ -117,7 +117,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 		switch (type) {
 		case MRDISC_QI:
 			proto_item_set_text(item,"Option: %s == %d",
-					val_to_str_wmem(pinfo->pool, type, mrdisc_options, "unknown %x"),
+					val_to_str(pinfo->pool, type, mrdisc_options, "unknown %x"),
 					tvb_get_ntohs(tvb, offset));
 			proto_tree_add_item(tree, hf_qi, tvb, offset, len,
 				ENC_BIG_ENDIAN);
@@ -125,7 +125,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 			break;
 		case MRDISC_RV:
 			proto_item_set_text(item,"Option: %s == %d",
-					val_to_str_wmem(pinfo->pool, type, mrdisc_options, "unknown %x"),
+					val_to_str(pinfo->pool, type, mrdisc_options, "unknown %x"),
 					tvb_get_ntohs(tvb, offset));
 			proto_tree_add_item(tree, hf_rv, tvb, offset, len,
 				ENC_BIG_ENDIAN);
@@ -181,7 +181,7 @@ dissect_mrdisc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
 
 	type = tvb_get_uint8(tvb, offset);
 	col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str_wmem(pinfo->pool, type, mrdisc_types,
+			val_to_str(pinfo->pool, type, mrdisc_types,
 				"Unknown Type:0x%02x"));
 
 	/* type of command */

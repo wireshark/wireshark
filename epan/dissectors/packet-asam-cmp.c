@@ -1956,9 +1956,9 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
             offset += 1;
 
             if (descr != NULL) {
-                proto_item_append_text(ti_interface, " %s, Type: %s", descr, val_to_str_wmem(pinfo->pool, ifacetype, data_msg_type_names, "Unknown (0x%x)"));
+                proto_item_append_text(ti_interface, " %s, Type: %s", descr, val_to_str(pinfo->pool, ifacetype, data_msg_type_names, "Unknown (0x%x)"));
             } else {
-                proto_item_append_text(ti_interface, " 0x%x, Type: %s", ifaceid, val_to_str_wmem(pinfo->pool, ifacetype, data_msg_type_names, "Unknown (0x%x)"));
+                proto_item_append_text(ti_interface, " 0x%x, Type: %s", ifaceid, val_to_str(pinfo->pool, ifacetype, data_msg_type_names, "Unknown (0x%x)"));
             }
 
             proto_tree_add_item(subtree, hf_cmp_iface_iface_status, tvb, offset, 1, ENC_NA);
@@ -2169,7 +2169,7 @@ dissect_asam_cmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_tree_add_item(asam_cmp_header_tree, hf_cmp_stream_seq_ctr, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_item_append_text(ti_root, ", Device: 0x%04x, Type: %s", device_id, val_to_str_wmem(pinfo->pool, msg_type, msg_type_names, "Unknown (0x%x)"));
+    proto_item_append_text(ti_root, ", Device: 0x%04x, Type: %s", device_id, val_to_str(pinfo->pool, msg_type, msg_type_names, "Unknown (0x%x)"));
 
     while (tvb_reported_length_remaining(tvb, offset) >= 16) {
         switch (msg_type) {

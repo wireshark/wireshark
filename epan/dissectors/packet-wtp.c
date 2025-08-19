@@ -378,12 +378,12 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     ws_debug("WTP packet %u: tree = %p, pdu = %s (%u) length: %u\n",
             pinfo->num, tree,
-            val_to_str_wmem(pinfo->pool,pdut, vals_wtp_pdu_type, "Unknown PDU type 0x%x"),
+            val_to_str(pinfo->pool,pdut, vals_wtp_pdu_type, "Unknown PDU type 0x%x"),
             pdut, tvb_captured_length(tvb));
 
     /* Develop the string to put in the Info column */
     returned_length =  snprintf(szInfo, SZINFO_SIZE, "WTP %s",
-            val_to_str_wmem(pinfo->pool,pdut, vals_wtp_pdu_type, "Unknown PDU type 0x%x"));
+            val_to_str(pinfo->pool,pdut, vals_wtp_pdu_type, "Unknown PDU type 0x%x"));
     str_index += MIN(returned_length, SZINFO_SIZE-str_index);
 
     switch (pdut) {

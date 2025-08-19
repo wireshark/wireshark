@@ -575,7 +575,7 @@ static void dissect_core_get_caps_info_rsp(tvbuff_t *tvb, int offset, packet_inf
         proto_tree *parameter_tree =
             proto_tree_add_subtree(capability_parameters_tree, tvb, offset, 2 + parameter_len,
                 ett_uci_capability_parameter, NULL,
-                val_to_str_wmem(pinfo->pool, parameter_type, capability_parameter_type_vals, "Unknown (0x%02x)"));
+                val_to_str(pinfo->pool, parameter_type, capability_parameter_type_vals, "Unknown (0x%02x)"));
 
         proto_tree_add_item(parameter_tree, hf_uci_capability_parameter_type, tvb, offset, 1, ENC_NA);
         offset += 1;
@@ -609,7 +609,7 @@ static void dissect_core_get_config_cmd(tvbuff_t *tvb, int offset, packet_info *
         proto_tree *parameter_tree =
             proto_tree_add_subtree(parameters_tree, tvb, offset, 1,
                 ett_uci_parameter, NULL,
-                val_to_str_wmem(pinfo->pool, parameter_id, parameter_type_vals, "Unknown (0x%02x)"));
+                val_to_str(pinfo->pool, parameter_id, parameter_type_vals, "Unknown (0x%02x)"));
 
         proto_tree_add_item(parameter_tree, hf_uci_parameter_type,
             tvb, offset, 1, ENC_NA);
@@ -639,7 +639,7 @@ static void dissect_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
         proto_tree *parameter_tree =
             proto_tree_add_subtree(parameters_tree, tvb, offset, 2 + parameter_len,
                 ett_uci_parameter, NULL,
-                val_to_str_wmem(pinfo->pool, parameter_id, parameter_type_vals, "Unknown (0x%02x)"));
+                val_to_str(pinfo->pool, parameter_id, parameter_type_vals, "Unknown (0x%02x)"));
 
         proto_tree_add_item(parameter_tree, hf_uci_parameter_type, tvb, offset, 1, ENC_NA);
         offset += 1;
@@ -693,7 +693,7 @@ static void dissect_core_set_config_rsp(tvbuff_t *tvb, int offset, packet_info *
         proto_tree *parameter_tree =
             proto_tree_add_subtree(parameters_tree, tvb, offset, 2,
                 ett_uci_parameter, NULL,
-                val_to_str_wmem(pinfo->pool, parameter_type, parameter_type_vals, "Unknown (0x%02x)"));
+                val_to_str(pinfo->pool, parameter_type, parameter_type_vals, "Unknown (0x%02x)"));
 
         proto_tree_add_item(parameter_tree, hf_uci_parameter_type, tvb, offset, 1, ENC_NA);
         offset += 1;
@@ -832,7 +832,7 @@ static void dissect_app_config_parameters(tvbuff_t *tvb, int offset, packet_info
         proto_tree *app_config_parameter_tree =
             proto_tree_add_subtree(app_config_parameters_tree, tvb, offset,
                 2 + app_config_parameter_len, ett_uci_app_config_parameter, NULL,
-                val_to_str_wmem(pinfo->pool, app_config_parameter_id, app_config_parameter_type_vals, "Unknown (0x%02x)"));
+                val_to_str(pinfo->pool, app_config_parameter_id, app_config_parameter_type_vals, "Unknown (0x%02x)"));
 
         proto_tree_add_item(app_config_parameter_tree,
             hf_uci_app_config_parameter_type, tvb, offset, 1, ENC_NA);
@@ -882,7 +882,7 @@ static void dissect_session_set_app_config_rsp(tvbuff_t *tvb, int offset, packet
         proto_tree *app_config_parameter_tree =
             proto_tree_add_subtree(app_config_parameters_tree, tvb, offset, 2,
                 ett_uci_app_config_parameter, NULL,
-                val_to_str_wmem(pinfo->pool, app_config_parameter_type, app_config_parameter_type_vals, "Unknown (0x%02x)"));
+                val_to_str(pinfo->pool, app_config_parameter_type, app_config_parameter_type_vals, "Unknown (0x%02x)"));
 
         proto_tree_add_item(app_config_parameter_tree, hf_uci_app_config_parameter_type, tvb, offset, 1, ENC_NA);
         offset += 1;
@@ -916,7 +916,7 @@ static void dissect_session_get_app_config_cmd(tvbuff_t *tvb, int offset, packet
         proto_tree *app_config_parameter_tree =
             proto_tree_add_subtree(app_config_parameters_tree, tvb, offset, 1,
                 ett_uci_app_config_parameter, NULL,
-                val_to_str_wmem(pinfo->pool, app_config_parameter_id, app_config_parameter_type_vals, "Unknown (0x%02x)"));
+                val_to_str(pinfo->pool, app_config_parameter_id, app_config_parameter_type_vals, "Unknown (0x%02x)"));
 
         proto_tree_add_item(app_config_parameter_tree, hf_uci_app_config_parameter_type,
             tvb, offset, 1, ENC_NA);

@@ -101,7 +101,7 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
    *
    * VSS Monitoring has apparently never released a product with 2 byte
    * port stamps, and it seems going forward that port stamping is going
-   * to be deprecrated in favor of VLAN tagging.
+   * to be deprecated in favor of VLAN tagging.
    *
    * So by default we'll assume port stamps are 1 byte, with 2 bytes
    * port stamps supported via preference (disabled by default.)

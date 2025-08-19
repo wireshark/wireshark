@@ -158,7 +158,7 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
     else if (cthdr.opcode == FCCT_MSG_RJT) {
         col_append_fstr (pinfo->cinfo, COL_INFO, " Reject (%s)",
-                            val_to_str_wmem(pinfo->pool, cthdr.rjt_code, fc_ct_rjt_code_vals, "0x%x"));
+                            val_to_str(pinfo->pool, cthdr.rjt_code, fc_ct_rjt_code_vals, "0x%x"));
     }
     else {
         col_append_str (pinfo->cinfo, COL_INFO, " Reserved");

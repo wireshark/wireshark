@@ -313,7 +313,7 @@ dissect_pgsl_access_burst(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	/* Update the 'master' item */
 	if (abi) {
 		proto_item_append_text(ti, " Valid, RxLev %u, Delay %u bits, Type %s", rxlev, acc_delay,
-					val_to_str_wmem(pinfo->pool, abtype, pgsl_ab_type_vals, "0x%x"));
+					val_to_str(pinfo->pool, abtype, pgsl_ab_type_vals, "0x%x"));
 		/* decode actual access burst */
 		data_tvb = tvb_new_subset_length(tvb, offset, 2);
 		call_dissector_with_data(sub_handles[SUB_RLCMAC_UL], data_tvb, pinfo, pacch_tree,
@@ -403,7 +403,7 @@ dissect_abis_pgsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	proto_tree_add_item_ret_uint(pgsl_tree, hf_pgsl_msg_disc, tvb, offset, 1, ENC_NA, &msg_disc);
 	offset++;
 
-	col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, msg_disc, pgsl_msg_disc_vals, "Unknown (%u)"));
+	col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, msg_disc, pgsl_msg_disc_vals, "Unknown (%u)"));
 
 	rlcmac_data.magic = GSM_RLC_MAC_MAGIC_NUMBER;
 

@@ -133,11 +133,7 @@ gather_caplibs_compile_info(feature_list l)
 #ifdef __linux__
 	/* This is a Linux-specific library. */
 	/* LIBNL */
-#if defined(HAVE_LIBNL1)
-	with_feature(l, "libnl 1");
-#elif defined(HAVE_LIBNL2)
-	with_feature(l, "libnl 2");
-#elif defined(HAVE_LIBNL3)
+#if defined(HAVE_LIBNL3)
 	with_feature(l, "libnl 3");
 #else /* no libnl */
 	without_feature(l, "libnl");

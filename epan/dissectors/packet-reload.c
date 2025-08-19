@@ -3373,8 +3373,8 @@ static int dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pro
       ti_message_code = proto_tree_add_item(message_contents_tree, hf_reload_message_code, tvb,
                                             offset, 2, ENC_BIG_ENDIAN);
       proto_item_append_text(ti_message_code, " (%s_%s)",
-                             val_to_str_wmem(pinfo->pool, MSGCODE_TO_METHOD(message_code), methods_short, "Unknown %d"),
-                             val_to_str_wmem(pinfo->pool, MSGCODE_TO_CLASS(message_code), classes_short, "Unknown %d"));
+                             val_to_str(pinfo->pool, MSGCODE_TO_METHOD(message_code), methods_short, "Unknown %d"),
+                             val_to_str(pinfo->pool, MSGCODE_TO_CLASS(message_code), classes_short, "Unknown %d"));
     }
     offset += 2;
     /* Message body */
@@ -4192,8 +4192,8 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_item_append_text(ti, ": %s %s", msg_class_str, val_to_str_const(error_code, errorcodes, "Unknown"));
   }
   else {
-    msg_class_str = val_to_str_wmem(pinfo->pool, MSGCODE_TO_CLASS(message_code), classes, "Unknown %d");
-    msg_method_str = val_to_str_wmem(pinfo->pool, MSGCODE_TO_METHOD(message_code), methods, "Unknown %d");
+    msg_class_str = val_to_str(pinfo->pool, MSGCODE_TO_CLASS(message_code), classes, "Unknown %d");
+    msg_method_str = val_to_str(pinfo->pool, MSGCODE_TO_METHOD(message_code), methods, "Unknown %d");
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
                  msg_method_str, msg_class_str);

@@ -523,7 +523,7 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
 
     if (tlv_item) {
-      proto_item_append_text(tlv_item, " (t=%d,l=%d): %s", tlvType, length, val_to_str_wmem(pinfo->pool, tlvType, tlv_type_vals, "Unknown Type (%d)") );
+      proto_item_append_text(tlv_item, " (t=%d,l=%d): %s", tlvType, length, val_to_str(pinfo->pool, tlvType, tlv_type_vals, "Unknown Type (%d)") );
     }
     tlvCount++;
   }

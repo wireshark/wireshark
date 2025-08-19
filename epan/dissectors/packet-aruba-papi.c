@@ -442,7 +442,7 @@ dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         optlen = tvb_get_ntohs(tvb, offset+2);
         tlv_item = proto_tree_add_item(licmgr_tree, hf_papi_licmgr_tlv, tvb, offset, 2+2+optlen, ENC_NA );
 
-        proto_item_append_text(tlv_item, ": (t=%d,l=%d) %s", type, optlen, val_to_str_wmem(pinfo->pool, type, licmgr_type_vals, "Unknown Type (%02d)") );
+        proto_item_append_text(tlv_item, ": (t=%d,l=%d) %s", type, optlen, val_to_str(pinfo->pool, type, licmgr_type_vals, "Unknown Type (%02d)") );
 
         licmgr_subtree = proto_item_add_subtree(tlv_item, ett_papi_licmgr_tlv);
 

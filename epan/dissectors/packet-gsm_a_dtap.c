@@ -3540,7 +3540,7 @@ de_tp_tested_device(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_
 
     oct = tvb_get_uint8(tvb, curr_offset);
     proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_tp_tested_device, tvb, curr_offset, 1,
-        oct, "%s", val_to_str_wmem(pinfo->pool, oct, gsm_tp_tested_device_vals, "Reserved (%d)"));
+        oct, "%s", val_to_str(pinfo->pool, oct, gsm_tp_tested_device_vals, "Reserved (%d)"));
     curr_offset+= 1;
 
     return (curr_offset - offset);
@@ -3620,7 +3620,7 @@ de_tp_ms_positioning_technology(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
     oct = tvb_get_uint8(tvb, curr_offset);
     proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_ms_positioning_technology, tvb, curr_offset, 1,
-        oct, "%s", val_to_str_wmem(pinfo->pool, oct, gsm_positioning_technology_vals, "Reserved (%d)"));
+        oct, "%s", val_to_str(pinfo->pool, oct, gsm_positioning_technology_vals, "Reserved (%d)"));
     curr_offset+= 1;
 
     return (curr_offset - offset);
@@ -3685,7 +3685,7 @@ de_tp_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     oct = tvb_get_uint8(tvb, curr_offset);
 
     proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_ue_positioning_technology, tvb, curr_offset, 1,
-        oct, "%s", val_to_str_wmem(pinfo->pool, oct, gsm_positioning_technology_vals, "Reserved (%d)"));
+        oct, "%s", val_to_str(pinfo->pool, oct, gsm_positioning_technology_vals, "Reserved (%d)"));
     curr_offset+= 1;
 
     return (curr_offset - offset);

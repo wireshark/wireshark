@@ -135,9 +135,9 @@ static const char *
 csm_fc(wmem_allocator_t* scope, uint16_t fc, uint16_t ct)
 {
     if (fc == 0x0000) {
-        return val_to_str_wmem(scope, ct, class_type_vals, "0x%04x");
+        return val_to_str(scope, ct, class_type_vals, "0x%04x");
     } else {
-        return val_to_str_wmem(scope, fc, function_code_vals, "0x%04x");
+        return val_to_str(scope, fc, function_code_vals, "0x%04x");
     }
 }
 

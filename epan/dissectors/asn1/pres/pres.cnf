@@ -91,7 +91,7 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str_wmem(actx->pinfo->pool, reason, pres_Abort_reason_vals, "unknown: %%d"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, reason, pres_Abort_reason_vals, "unknown: %%d"));
 
 #.FN_HDR Context-list/_item
 	abstract_syntax_name_oid=NULL;

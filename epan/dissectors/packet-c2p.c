@@ -2563,7 +2563,7 @@ static int dissect_c2p(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
     /* Version & type */
     proto_tree_add_item_ret_uint(c2p_tree, hf_c2p_version_desc, tvb, offset, 1, ENC_BIG_ENDIAN, &version);
     proto_tree_add_item_ret_uint(c2p_tree, hf_c2p_type_desc, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
-    str_type = val_to_str_wmem(pinfo->pool, type, c2p_types, "Unknown (%d)");
+    str_type = val_to_str(pinfo->pool, type, c2p_types, "Unknown (%d)");
     proto_item_append_text(ti, ", Type: %s", str_type);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: %s", str_type);
     offset += 1;

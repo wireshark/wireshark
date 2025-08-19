@@ -2954,7 +2954,7 @@ dissect_h265(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	type = h265_nalu_hextet >> 9 & 0x3F;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		val_to_str_wmem(pinfo->pool, type, h265_type_summary_values, "Unknown Type (%u)"));
+		val_to_str(pinfo->pool, type, h265_type_summary_values, "Unknown Type (%u)"));
 
 	/* if (tree) */ {
 		item = proto_tree_add_item(tree, proto_h265, tvb, 0, -1, ENC_NA);
@@ -2996,7 +2996,7 @@ dissect_h265(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			if ((tvb_get_uint8(tvb, offset) & 0x80) == 0x80) {
 				type = tvb_get_uint8(tvb, offset) & 0x1f;
 				col_append_fstr(pinfo->cinfo, COL_INFO, " Start:%s",
-					val_to_str_wmem(pinfo->pool, type, h265_type_summary_values, "Unknown Type (%u)"));
+					val_to_str(pinfo->pool, type, h265_type_summary_values, "Unknown Type (%u)"));
 				offset++;
 			}
 			else

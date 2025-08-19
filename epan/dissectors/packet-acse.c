@@ -1177,7 +1177,7 @@ dissect_acse_Release_request_reason(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
   if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str_wmem(actx->pinfo->pool, reason, acse_Release_request_reason_vals, "reason(%d)"));
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, reason, acse_Release_request_reason_vals, "reason(%d)"));
 
 
   return offset;
@@ -1232,7 +1232,7 @@ dissect_acse_Release_response_reason(bool implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 
   if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str_wmem(actx->pinfo->pool, reason, acse_Release_response_reason_vals, "reason(%d)"));
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, reason, acse_Release_response_reason_vals, "reason(%d)"));
 
 
   return offset;
@@ -1286,7 +1286,7 @@ dissect_acse_ABRT_source(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
   if(source != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str_wmem(actx->pinfo->pool, source, acse_ABRT_source_vals, "source(%d)"));
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, source, acse_ABRT_source_vals, "source(%d)"));
 
 
   return offset;

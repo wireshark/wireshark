@@ -372,7 +372,7 @@ dissect_xra(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
   proto_item_append_text(it, " (Excentis XRA header: %d bytes). DOCSIS frame is %d bytes.", xra_length, tvb_reported_length_remaining(tvb, xra_length));
   proto_item_set_len(it, xra_length);
 
-  col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, packet_type, packettype, "Unknown XRA Packet Type: %u"));
+  col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, packet_type, packettype, "Unknown XRA Packet Type: %u"));
 
   /* Dissecting TLVs */
   unsigned segment_header_present = 0;

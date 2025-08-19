@@ -49,13 +49,13 @@ static int hf_tpm20_resp_tag;
 static int hf_tpm20_resp_size;
 static int hf_tpm20_resp_code;
 static int hf_tpm20_startup_type;
-static int hf_tpmi_rh_hierarhy;
+static int hf_tpmi_rh_hierarchy;
 static int hf_tpmi_rh_provision;
 static int hf_tpmi_rh_platform;
-static int hf_tpmi_rh_endorsment;
+static int hf_tpmi_rh_endorsement;
 static int hf_tpmi_rh_nv_index;
 static int hf_tpmi_rh_nv_auth;
-static int hf_tpmi_rh_hierarhy_auth;
+static int hf_tpmi_rh_hierarchy_auth;
 static int hf_tpmi_rh_clear;
 static int hf_tpmi_rh_lockout;
 static int hf_tpmi_dh_object;
@@ -92,8 +92,8 @@ static int hf_tpm_pub_size;
 static int hf_tpm_pub;
 static int hf_tpm_name_size;
 static int hf_tpm_name;
-static int hf_tpm_sensitive_crate_size;
-static int hf_tpm_sensitive_crate;
+static int hf_tpm_sensitive_create_size;
+static int hf_tpm_sensitive_create;
 static int hf_tpm_template_size;
 static int hf_tpm_template;
 static int hf_tpm_data_size;
@@ -139,27 +139,27 @@ struct num_handles {
 	int *resp_pd[MAX_HNDL];
 };
 
-static struct num_handles tpm_handles_map[] = {
+static const struct num_handles tpm_handles_map[] = {
 	{ 0x11f, 2, { &hf_tpmi_rh_provision, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0}}, /* CC_NV_UndefineSpaceSpecial */
 	{ 0x120, 2, { &hf_tpmi_rh_provision, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0}}, /* CC_EvictControl */
-	{ 0x121, 1, { &hf_tpmi_rh_hierarhy, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_HierarchyControl */
+	{ 0x121, 1, { &hf_tpmi_rh_hierarchy, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_HierarchyControl */
 	{ 0x122, 2, { &hf_tpmi_rh_provision, &hf_tpmi_rh_nv_index, 0 }, 0, { 0, 0, 0 }}, /* CC_NV_UndefineSpace */
 	{ 0x124, 1, { &hf_tpmi_rh_platform, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_ChangeEPS */
 	{ 0x125, 1, { &hf_tpmi_rh_platform, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_ChangePPS */
 	{ 0x126, 1, { &hf_tpmi_rh_clear, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_Clear */
 	{ 0x127, 1, { &hf_tpmi_rh_clear, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_ClearControl */
 	{ 0x128, 1, { &hf_tpmi_rh_provision, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_ClockSet */
-	{ 0x129, 1, { &hf_tpmi_rh_hierarhy_auth, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_HierarchyChangeAuth */
+	{ 0x129, 1, { &hf_tpmi_rh_hierarchy_auth, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_HierarchyChangeAuth */
 	{ 0x12a, 1, { &hf_tpmi_rh_provision, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_NV_DefineSpace */
 	{ 0x12b, 1, { &hf_tpmi_rh_platform, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_PCR_Allocate */
 	{ 0x12c, 1, { &hf_tpmi_rh_platform, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_PCR_SetAuthPolicy */
 	{ 0x12d, 1, { &hf_tpmi_rh_platform, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_PP_Commands */
-	{ 0x12e, 1, { &hf_tpmi_rh_hierarhy_auth, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_SetPrimaryPolicy */
+	{ 0x12e, 1, { &hf_tpmi_rh_hierarchy_auth, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_SetPrimaryPolicy */
 	{ 0x12f, 2, { &hf_tpmi_rh_platform, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0 }}, /* CC_FieldUpgradeStart */
 	{ 0x130, 1, { &hf_tpmi_rh_platform, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_ClockRateAdjust */
-	{ 0x131, 1, { &hf_tpmi_rh_hierarhy, 0, 0 }, 1, { &hf_tpmi_ht_handle, 0, 0 }}, /* CC_CreatePrimary */
+	{ 0x131, 1, { &hf_tpmi_rh_hierarchy, 0, 0 }, 1, { &hf_tpmi_ht_handle, 0, 0 }}, /* CC_CreatePrimary */
 	{ 0x132, 1, { &hf_tpmi_rh_provision, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_NV_GlobalWriteLock */
-	{ 0x133, 2, { &hf_tpmi_rh_endorsment, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0 }}, /* CC_GetCommandAuditDigest */
+	{ 0x133, 2, { &hf_tpmi_rh_endorsement, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0 }}, /* CC_GetCommandAuditDigest */
 	{ 0x134, 2, { &hf_tpmi_rh_nv_auth, &hf_tpmi_rh_nv_index, 0 }, 0, { 0, 0, 0 }}, /* CC_NV_Increment */
 	{ 0x135, 2, { &hf_tpmi_rh_nv_auth, &hf_tpmi_rh_nv_index, 0 }, 0, { 0, 0, 0 }}, /* CC_NV_SetBits */
 	{ 0x136, 2, { &hf_tpmi_rh_nv_auth, &hf_tpmi_rh_nv_index, 0 }, 0, { 0, 0, 0 }}, /* CC_NV_Extend */
@@ -184,8 +184,8 @@ static struct num_handles tpm_handles_map[] = {
 	{ 0x149, 3, { &hf_tpmi_rh_nv_auth, &hf_tpmi_rh_nv_index, &hf_tpmi_sh_auth_session}, 0, { 0, 0, 0 }}, /* CC_PolicyNV */
 	{ 0x14a, 2, { &hf_tpmi_dh_object, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0 }}, /* CC_CertifyCreation */
 	{ 0x14b, 2, { &hf_tpmi_dh_object, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0 }}, /* CC_Duplicate */
-	{ 0x14c, 2, { &hf_tpmi_rh_endorsment, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0 }}, /* CC_GetTime */
-	{ 0x14d, 3, { &hf_tpmi_rh_endorsment, &hf_tpmi_dh_object, &hf_tpmi_sh_auth_session }, 0, { 0, 0, 0 }}, /* CC_GetSessionAuditDigest */
+	{ 0x14c, 2, { &hf_tpmi_rh_endorsement, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0 }}, /* CC_GetTime */
+	{ 0x14d, 3, { &hf_tpmi_rh_endorsement, &hf_tpmi_dh_object, &hf_tpmi_sh_auth_session }, 0, { 0, 0, 0 }}, /* CC_GetSessionAuditDigest */
 	{ 0x14e, 1, { &hf_tpmi_rh_nv_index, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_NV_Read */
 	{ 0x14f, 2, { &hf_tpmi_rh_nv_auth, &hf_tpmi_rh_nv_index, 0 }, 0, { 0, 0, 0 }}, /* CC_NV_ReadLock */
 	{ 0x150, 2, { &hf_tpmi_dh_object, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0 }}, /* CC_ObjectChangeAuth */
@@ -249,7 +249,7 @@ static struct num_handles tpm_handles_map[] = {
 	{ 0x18e, 0, { 0, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_EC_Ephemeral */
 	{ 0x18f, 1, { &hf_tpmi_sh_auth_session, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_PolicyNvWritten */
 	{ 0x190, 1, { &hf_tpmi_sh_auth_session, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_PolicyTemplate */
-	{ 0x191, 1, { &hf_tpmi_rh_hierarhy, 0, 0 }, 1, { &hf_tpmi_dh_parent, 0, 0 }}, /* CC_CreateLoaded */
+	{ 0x191, 1, { &hf_tpmi_rh_hierarchy, 0, 0 }, 1, { &hf_tpmi_dh_parent, 0, 0 }}, /* CC_CreateLoaded */
 	{ 0x192, 3, { &hf_tpmi_rh_nv_auth, &hf_tpmi_rh_nv_index, &hf_tpmi_sh_auth_session }, 0, { 0, 0, 0 }}, /* CC_PolicyAuthorizeNV */
 	{ 0x193, 1, { &hf_tpmi_dh_object, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_EncryptDecrypt2 */
 	{ 0x194, 1, { &hf_tpmi_ht_handle, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_AC_GetCapability */
@@ -637,7 +637,7 @@ dissect_tpm20_platform_command(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item_ret_uint(tree, hf_tpm20_platform_cmd, tvb, 0,
 				4, ENC_BIG_ENDIAN, &command);
 
-	str_command = val_to_str_wmem(pinfo->pool, command, platform_commands, "Unknown (0x%02x)");
+	str_command = val_to_str(pinfo->pool, command, platform_commands, "Unknown (0x%02x)");
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Platform Command %s", str_command);
 	proto_item_append_text(tree, ", %s", str_command);
 	response_size = false;
@@ -765,10 +765,10 @@ dissect_create_primary(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
 	uint32_t sensitive_size, pub_size, data_size;
 
-	proto_tree_add_item_ret_uint(tree, hf_tpm_sensitive_crate_size, tvb, *offset, 2,
+	proto_tree_add_item_ret_uint(tree, hf_tpm_sensitive_create_size, tvb, *offset, 2,
 			ENC_BIG_ENDIAN, &sensitive_size);
 	*offset += 2;
-	proto_tree_add_item(tree, hf_tpm_sensitive_crate, tvb, *offset, sensitive_size, ENC_NA);
+	proto_tree_add_item(tree, hf_tpm_sensitive_create, tvb, *offset, sensitive_size, ENC_NA);
 	*offset += sensitive_size;
 
 	proto_tree_add_item_ret_uint(tree, hf_tpm_pub_size, tvb, *offset, 2,
@@ -790,10 +790,10 @@ dissect_create_loaded(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
 	uint32_t sensitive_size, template_size;
 
-	proto_tree_add_item_ret_uint(tree, hf_tpm_sensitive_crate_size, tvb, *offset, 2,
+	proto_tree_add_item_ret_uint(tree, hf_tpm_sensitive_create_size, tvb, *offset, 2,
 			ENC_BIG_ENDIAN, &sensitive_size);
 	*offset += 2;
-	proto_tree_add_item(tree, hf_tpm_sensitive_crate, tvb, *offset, sensitive_size, ENC_NA);
+	proto_tree_add_item(tree, hf_tpm_sensitive_create, tvb, *offset, sensitive_size, ENC_NA);
 	*offset += sensitive_size;
 
 	proto_tree_add_item_ret_uint(tree, hf_tpm_template_size, tvb, *offset, 2,
@@ -834,7 +834,7 @@ dissect_tpm20_tpm_command(tvbuff_t *tvb, packet_info *pinfo,
 	uint16_t tag = tvb_get_uint16(tvb, 0, ENC_BIG_ENDIAN);
 	struct num_handles handl_map;
 	unsigned int i;
-	char* str_command = val_to_str_wmem(pinfo->pool, command, commands, "Unknown (0x%02x)");
+	char* str_command = val_to_str(pinfo->pool, command, commands, "Unknown (0x%02x)");
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Command %s", str_command);
 
@@ -911,7 +911,7 @@ dissect_tpm20_platform_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 	} else {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Response code %d", rc);
 		proto_item_append_text(tree, ", Response code %s",
-				       val_to_str_wmem(pinfo->pool, rc, responses, "Unknown (0x%02x)"));
+				       val_to_str(pinfo->pool, rc, responses, "Unknown (0x%02x)"));
 		proto_tree_add_item(tree, hf_tpm20_platform_resp_code, tvb, 0, 4, ENC_BIG_ENDIAN);
 	}
 }
@@ -1026,7 +1026,7 @@ dissect_tpm20_tpm_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	uint32_t rc = tvb_get_uint32(tvb, 6, ENC_BIG_ENDIAN);
 	uint32_t param_size;
 	unsigned int i;
-	char* str_rc = val_to_str_wmem(pinfo->pool, rc, responses, "Unknown (0x%02x)");
+	char* str_rc = val_to_str(pinfo->pool, rc, responses, "Unknown (0x%02x)");
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Response Code %s", str_rc);
 
@@ -1211,7 +1211,7 @@ static hf_register_info hf[] = {
 	{ &hf_tpmi_rh_act,
 	{ "TPMI_RH_ACT", "tpm.handle.TPMI_RH_ACT", FT_UINT32, BASE_HEX, VALS(handles),
 	   0x0, NULL, HFILL }},
-	{ &hf_tpmi_rh_hierarhy,
+	{ &hf_tpmi_rh_hierarchy,
 	{ "TPMI_RH_HIERARCHY", "tpm.handle.TPMI_RH_HIERARCHY", FT_UINT32, BASE_HEX, VALS(hierarhies),
 	   0x0, NULL, HFILL }},
 	{ &hf_tpmi_rh_provision,
@@ -1223,7 +1223,7 @@ static hf_register_info hf[] = {
 	{ &hf_tpmi_rh_clear,
 	{ "TPMI_RH_CLEAR", "tpm.handle.TPMI_RH_CLEAR", FT_UINT32, BASE_HEX, VALS(handles),
 	   0x0, NULL, HFILL }},
-	{ &hf_tpmi_rh_hierarhy_auth,
+	{ &hf_tpmi_rh_hierarchy_auth,
 	{ "TPMI_RH_HIERARCHY_AUTH", "tpm.handle.TPMI_RH_HIERARCHY_AUTH", FT_UINT32, BASE_HEX, VALS(handles),
 	   0x0, NULL, HFILL }},
 	{ &hf_tpmi_rh_nv_auth,
@@ -1238,7 +1238,7 @@ static hf_register_info hf[] = {
 	{ &hf_tpmi_ht_handle,
 	{ "TPM_HANDLE", "tpm.handle.TPM_HANDLE", FT_UINT32, BASE_HEX, NULL,
 	   0x0, NULL, HFILL }},
-	{ &hf_tpmi_rh_endorsment,
+	{ &hf_tpmi_rh_endorsement,
 	{ "TPMI_RH_ENDORSEMENT", "tpm.handle.TPMI_RH_ENDORSEMENT", FT_UINT32, BASE_HEX, NULL,
 	   0x0, NULL, HFILL }},
 	{ &hf_auth_area_size,
@@ -1319,10 +1319,10 @@ static hf_register_info hf[] = {
 	{ &hf_tpm_name,
 	{ "TPM NAME", "tpm.name", FT_BYTES, BASE_ALLOW_ZERO | BASE_NONE, NULL,
 	   0x0, NULL, HFILL }},
-	{ &hf_tpm_sensitive_crate_size,
+	{ &hf_tpm_sensitive_create_size,
 	{ "TPM SENSITIVE CREATE SIZE", "tpm.sensitive_create_size", FT_UINT16, BASE_DEC, NULL,
 	   0x0, NULL, HFILL }},
-	{ &hf_tpm_sensitive_crate,
+	{ &hf_tpm_sensitive_create,
 	{ "TPM SENSITIVE CREATE", "tpm.sensitive_create", FT_BYTES, BASE_ALLOW_ZERO | BASE_NONE, NULL,
 	   0x0, NULL, HFILL }},
 	{ &hf_tpm_template_size,

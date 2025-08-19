@@ -546,7 +546,7 @@ dissect_dcc_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
 		is_response ? "Response" : "Request",
-		val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset+3),
+		val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset+3),
 			 dcc_op_vals, "Unknown Op: %u"));
 
 	ti = proto_tree_add_item(tree, proto_dcc, tvb, offset, -1, ENC_NA);
@@ -590,7 +590,7 @@ dissect_dcc_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 	offset += 4;
 
 	dcc_optree = proto_tree_add_subtree_format(dcc_tree, tvb, offset, -1, ett_dcc_op, NULL,
-		"Operation: %s", val_to_str_wmem(pinfo->pool, op, dcc_op_vals, "Unknown Op: %u"));
+		"Operation: %s", val_to_str(pinfo->pool, op, dcc_op_vals, "Unknown Op: %u"));
 
 	switch(op) {
 		case DCC_OP_NOP:
@@ -606,7 +606,7 @@ dissect_dcc_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 				proto_tree* cktree;
 				cktree = proto_tree_add_subtree_format(dcc_optree, tvb, offset, (int)sizeof(DCC_CK),
 					ett_dcc_ck, NULL, "Checksum - %s",
-					val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), dcc_cktype_vals, "Unknown Type: %u"));
+					val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset), dcc_cktype_vals, "Unknown Type: %u"));
 				proto_tree_add_item(cktree, hf_dcc_ck_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
 				proto_tree_add_item(cktree, hf_dcc_ck_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -663,7 +663,7 @@ dissect_dcc_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 
 				proto_tree_add_item_ret_uint(dcc_optree, hf_dcc_adminop, tvb, offset+4, 1, ENC_BIG_ENDIAN, &aop);
 				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-					val_to_str_wmem(pinfo->pool, aop, dcc_adminop_vals, "Unknown (%u)"));
+					val_to_str(pinfo->pool, aop, dcc_adminop_vals, "Unknown (%u)"));
 
 				if (aop == DCC_AOP_TRACE_ON || aop == DCC_AOP_TRACE_OFF )
 				{
@@ -674,7 +674,7 @@ dissect_dcc_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 					uint32_t floodop;
 					proto_tree_add_item_ret_uint(dcc_optree, hf_dcc_floodop, tvb, offset, 4, ENC_BIG_ENDIAN, &floodop);
 					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-						val_to_str_wmem(pinfo->pool, floodop, dcc_floodop_vals, "Unknown (%u)"));
+						val_to_str(pinfo->pool, floodop, dcc_floodop_vals, "Unknown (%u)"));
 				}
 				else
 				{

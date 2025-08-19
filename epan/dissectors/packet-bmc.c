@@ -97,7 +97,7 @@ dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     message_type = tvb_get_uint8(bit_reversed_tvb, offset);
     proto_tree_add_item(bmc_tree, hf_bmc_message_type, bit_reversed_tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, message_type, message_type_vals,"Reserved 0x%02x"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, message_type, message_type_vals,"Reserved 0x%02x"));
 
     switch (message_type) {
         case MESSAGE_TYPE_CBS_MESSAGE:

@@ -3041,7 +3041,7 @@ dissect_magic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* PDU Type */
   pdu_subtype = tvb_get_uint8(tvb, offset);
-  pdu_subtype_string = val_to_str_wmem(pinfo->pool, pdu_subtype, magic_pdu_subtypes, "Unknown (0x%02x)");
+  pdu_subtype_string = val_to_str(pinfo->pool, pdu_subtype, magic_pdu_subtypes, "Unknown (0x%02x)");
 
   /* Adjust info column */
   col_clear(pinfo->cinfo, COL_INFO);
@@ -3567,7 +3567,7 @@ acn_add_dmp_address_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   adt->flags = tvb_get_uint8(tvb, offset);
 
   D = ACN_DMP_ADT_EXTRACT_D(adt->flags);
-  name = val_to_str_wmem(pinfo->pool, D, acn_dmp_adt_d_vals, "not valid (%d)");
+  name = val_to_str(pinfo->pool, D, acn_dmp_adt_d_vals, "not valid (%d)");
   this_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1, ett_acn_address_type,
                                 NULL, "Address and Data Type: %s", name);
 
@@ -4033,7 +4033,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
       /* Get reason */
       data_value  = tvb_get_uint8(tvb, offset);
-      name        = val_to_str_wmem(pinfo->pool, data_value, acn_dmp_reason_code_vals, "reason not valid (%d)");
+      name        = val_to_str(pinfo->pool, data_value, acn_dmp_reason_code_vals, "reason not valid (%d)");
       proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %s", buffer, name);
       offset     += 1;
       break;
@@ -4057,7 +4057,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
         /* Get reason */
         data_value = tvb_get_uint8(tvb, offset);
-        name       = val_to_str_wmem(pinfo->pool, data_value, acn_dmp_reason_code_vals, "reason not valid (%d)");
+        name       = val_to_str(pinfo->pool, data_value, acn_dmp_reason_code_vals, "reason not valid (%d)");
         proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %s", buffer, name);
 
         data_address += adt->increment;
@@ -4084,7 +4084,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         }
         /* Get reason */
         data_value    = tvb_get_uint8(tvb, offset);
-        name          = val_to_str_wmem(pinfo->pool, data_value, acn_dmp_reason_code_vals, "reason not valid (%d)");
+        name          = val_to_str(pinfo->pool, data_value, acn_dmp_reason_code_vals, "reason not valid (%d)");
         proto_tree_add_uint_format(tree, hf_acn_data8, tvb, offset, 1, data_value, "%s %s", buffer, name);
         data_address += adt->increment;
         offset       += 1;
@@ -4184,25 +4184,25 @@ get_field_name(wmem_allocator_t* scope, uint8_t blob_type, uint16_t field_number
   switch (blob_type) {
     case ACN_BLOB_IPV4:
     case ACN_BLOB_IPV6:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_ip_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_ip_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_ERROR1:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_error1_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_error1_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_ERROR2:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_error2_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_error2_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_METADATA:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_metadata_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_metadata_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_METADATA_DEVICES:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_metadata_devices_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_metadata_devices_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_METADATA_TYPES:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_metadata_types_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_metadata_types_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_TIME1:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_time1_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_time1_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_PROPERTIES:
       field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_properties1_field_name_ext, "not valid (%d)");
@@ -4220,22 +4220,22 @@ get_field_name(wmem_allocator_t* scope, uint8_t blob_type, uint16_t field_number
       field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_status_properties1_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_SET_LEVELS_OPERATION:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_set_levels_operation_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_set_levels_operation_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_PRESET_OPERATION:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_preset_operation_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_preset_operation_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_ADVANCED_FEATURES_OPERATION:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_advanced_features_operation_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_advanced_features_operation_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_DIRECT_CONTROL_OPERATION:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_direct_control_operation_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_direct_control_operation_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_GENERATE_CONFIG_OPERATION:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_generate_config_operation_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_generate_config_operation_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_ERROR3:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_error3_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_error3_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_DIMMER_PROPERTIES2:
       field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_properties2_field_name_ext, "not valid (%d)");
@@ -4253,7 +4253,7 @@ get_field_name(wmem_allocator_t* scope, uint8_t blob_type, uint16_t field_number
       field_name = val_to_str_ext(scope, field_number, &acn_blob_dimmer_status_properties2_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_TIME2:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_time2_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_time2_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_RPC:
       {
@@ -4261,14 +4261,14 @@ get_field_name(wmem_allocator_t* scope, uint8_t blob_type, uint16_t field_number
         /* field names 4 repeats: 1, 2, 3, 4, 4, 4, ... */
         if (temp_field_number > 3)
           temp_field_number = 4;
-        field_name = val_to_str_wmem(scope, temp_field_number, acn_blob_rpc_field_name, "not valid (%d)");
+        field_name = val_to_str(scope, temp_field_number, acn_blob_rpc_field_name, "not valid (%d)");
       }
       break;
     case ACN_BLOB_DHCP_CONFIG_SUBNET:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_dhcp_config_subnet_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_dhcp_config_subnet_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_DHCP_CONFIG_STATIC_ROUTE:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_dhcp_config_static_route_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_dhcp_config_static_route_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_ENERGY_MANAGEMENT:
       {
@@ -4276,20 +4276,20 @@ get_field_name(wmem_allocator_t* scope, uint8_t blob_type, uint16_t field_number
         /* field names 4 through 7 repeat: 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7, ... */
         if (temp_field_number > 3)
           temp_field_number = (field_number % 4) + 4;
-        field_name = val_to_str_wmem(scope, temp_field_number, acn_blob_energy_management_field_name, "not valid (%d)");
+        field_name = val_to_str(scope, temp_field_number, acn_blob_energy_management_field_name, "not valid (%d)");
       }
       break;
     case ACN_BLOB_PRESET_PROPERTIES:
       field_name = val_to_str_ext(scope, field_number, &acn_blob_preset_properties_field_name_ext, "not valid (%d)");
       break;
     case ACN_BLOB_TIME3:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_time3_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_time3_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_ENERGY_COST:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_energy_cost_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_energy_cost_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_SEQUENCE_OPERATIONS:
-      field_name = val_to_str_wmem(scope, field_number, acn_blob_sequence_operation_field_name, "not valid (%d)");
+      field_name = val_to_str(scope, field_number, acn_blob_sequence_operation_field_name, "not valid (%d)");
       break;
     case ACN_BLOB_SEQUENCE_STEP_PROPERTIES:
       field_name = val_to_str_ext(scope, field_number, &acn_blob_sequence_step_properties_field_name_ext, "not valid (%d)");
@@ -4330,62 +4330,62 @@ display_blob_field_value(tvbuff_t *tvb, packet_info* pinfo, proto_tree *field_tr
       field_string = "Field Value: Custom";
     }
     else {
-      field_string = val_to_str_wmem(pinfo->pool, field_value32, acn_blob_time3_time_zone_vals, "not valid (%d)");
+      field_string = val_to_str(pinfo->pool, field_value32, acn_blob_time3_time_zone_vals, "not valid (%d)");
     }
     proto_tree_add_int_format(field_tree, hf_acn_blob_time_zone, tvb, blob_offset, 4, field_value32, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 10)) {
     /* DST type */
     field_value8 = tvb_get_uint8(tvb, blob_offset);
-    field_string = val_to_str_wmem(pinfo->pool, field_value8, acn_blob_time3_dst_vals, "not valid (%d)");
+    field_string = val_to_str(pinfo->pool, field_value8, acn_blob_time3_dst_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 11)) {
     /* DST on month */
     field_value8 = tvb_get_uint8(tvb, blob_offset);
-    field_string = val_to_str_wmem(pinfo->pool, field_value8, acn_blob_time3_month_vals, "not valid (%d)");
+    field_string = val_to_str(pinfo->pool, field_value8, acn_blob_time3_month_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 12)) {
     /* DST on week */
     field_value8 = tvb_get_uint8(tvb, blob_offset);
-    field_string = val_to_str_wmem(pinfo->pool, field_value8, acn_blob_time3_week_vals, "not valid (%d)");
+    field_string = val_to_str(pinfo->pool, field_value8, acn_blob_time3_week_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 13)) {
     /* DST start day */
     field_value8 = tvb_get_uint8(tvb, blob_offset);
-    field_string = val_to_str_wmem(pinfo->pool, field_value8, acn_blob_time3_day_vals, "not valid (%d)");
+    field_string = val_to_str(pinfo->pool, field_value8, acn_blob_time3_day_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_start_day, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 16)) {
     /* DST start locality */
     field_value8 = tvb_get_uint8(tvb, blob_offset);
-    field_string = val_to_str_wmem(pinfo->pool, field_value8, acn_blob_time3_locality_vals, "not valid (%d)");
+    field_string = val_to_str(pinfo->pool, field_value8, acn_blob_time3_locality_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_start_locality, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 17)) {
     /* DST off month */
     field_value8 = tvb_get_uint8(tvb, blob_offset);
-    field_string = val_to_str_wmem(pinfo->pool, field_value8, acn_blob_time3_month_vals, "not valid (%d)");
+    field_string = val_to_str(pinfo->pool, field_value8, acn_blob_time3_month_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 18)) {
     /* DST off week */
     field_value8 = tvb_get_uint8(tvb, blob_offset);
-    field_string = val_to_str_wmem(pinfo->pool, field_value8, acn_blob_time3_week_vals, "not valid (%d)");
+    field_string = val_to_str(pinfo->pool, field_value8, acn_blob_time3_week_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_type, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 19)) {
     /* DST stop day */
     field_value8 = tvb_get_uint8(tvb, blob_offset);
-    field_string = val_to_str_wmem(pinfo->pool, field_value8, acn_blob_time3_day_vals, "not valid (%d)");
+    field_string = val_to_str(pinfo->pool, field_value8, acn_blob_time3_day_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_stop_day, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else if ((blob_type == ACN_BLOB_TIME3) && (field_number == 22)) {
     /* DST stop locality */
     field_value8 = tvb_get_uint8(tvb, blob_offset);
-    field_string = val_to_str_wmem(pinfo->pool, field_value8, acn_blob_time3_locality_vals, "not valid (%d)");
+    field_string = val_to_str(pinfo->pool, field_value8, acn_blob_time3_locality_vals, "not valid (%d)");
     proto_tree_add_uint_format(field_tree, hf_acn_blob_dst_stop_locality, tvb, blob_offset, 1, field_value8, "%s", field_string);
   }
   else {
@@ -4748,7 +4748,7 @@ dissect_acn_blob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdu_tree, int bl
 
   /* Add Blob Start and End Range Info */
   proto_tree_add_item(blob_tree, hf_acn_blob_range_type, tvb, blob_offset, 1, ENC_BIG_ENDIAN);
-  /* range_type = val_to_str_wmem(pinfo->pool, range, acn_blob_range_type_vals, "not valid (%d)"); */
+  /* range_type = val_to_str(pinfo->pool, range, acn_blob_range_type_vals, "not valid (%d)"); */
   blob_offset += 1;
 
   /* Add Blob Range Number */
@@ -4764,7 +4764,7 @@ dissect_acn_blob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdu_tree, int bl
 
   proto_tree_add_uint(blob_tree, hf_acn_blob_type, tvb, blob_offset, 1, blob_type);
 
-  blob_name = val_to_str_wmem(pinfo->pool, blob_type, acn_blob_type_vals, "not valid (%d)");
+  blob_name = val_to_str(pinfo->pool, blob_type, acn_blob_type_vals, "not valid (%d)");
   proto_item_append_text(bi, ": %s", blob_name);
   blob_offset += 1;
 
@@ -4959,7 +4959,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   proto_tree_add_uint(pdu_tree, hf_acn_dmp_vector, tvb, vector_offset, 1, vector);
 
   /* Add Vector item to tree*/
-  name = val_to_str_wmem(pinfo->pool, vector, acn_dmp_vector_vals, "not valid (%d)");
+  name = val_to_str(pinfo->pool, vector, acn_dmp_vector_vals, "not valid (%d)");
   proto_item_append_text(ti, ": ");
   proto_item_append_text(ti, "%s", name);
 
@@ -5220,7 +5220,7 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree_add_uint(pdu_tree, hf_acn_sdt_vector, tvb, vector_offset, 1, vector);
 
   /* Add Vector item to tree*/
-  name = val_to_str_wmem(pinfo->pool, vector, acn_sdt_vector_vals, "not valid (%d)");
+  name = val_to_str(pinfo->pool, vector, acn_sdt_vector_vals, "not valid (%d)");
   proto_item_append_text(ti, ": ");
   proto_item_append_text(ti, "%s", name);
 
@@ -5325,7 +5325,7 @@ dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   header_offset += 4;
 
   /* Add protocol to tree*/
-  name = val_to_str_wmem(pinfo->pool, protocol_id, acn_protocol_id_vals, "id not valid (%d)");
+  name = val_to_str(pinfo->pool, protocol_id, acn_protocol_id_vals, "id not valid (%d)");
   proto_item_append_text(ti, ": ");
   proto_item_append_text(ti, "%s", name);
 
@@ -5466,7 +5466,7 @@ dissect_acn_dmx_data_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *pinfo
   proto_tree_add_uint(pdu_tree, hf_acn_dmp_vector, tvb, vector_offset, 1, vector);
 
   /* Add Vector item to tree*/
-  name = val_to_str_wmem(pinfo->pool, vector, acn_dmp_vector_vals, "not valid (%d)");
+  name = val_to_str(pinfo->pool, vector, acn_dmp_vector_vals, "not valid (%d)");
   proto_item_append_text(ti, ": ");
   proto_item_append_text(ti, "%s", name);
 
@@ -5684,7 +5684,7 @@ dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *
   proto_tree_add_item(ti, hf_acn_dmx_discovery_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree*/
-  name = val_to_str_wmem(pinfo->pool, vector, acn_dmx_discovery_vector_vals, "not valid (%d)");
+  name = val_to_str(pinfo->pool, vector, acn_dmx_discovery_vector_vals, "not valid (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   page = tvb_get_uint8(tvb, data_offset);
@@ -5778,7 +5778,7 @@ dissect_acn_dmx_extension_base_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_i
   proto_tree_add_item(pdu_tree, hf_acn_dmx_extension_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree*/
-  name = val_to_str_wmem(pinfo->pool, vector, acn_dmx_extension_vector_vals, "not valid (%d)");
+  name = val_to_str(pinfo->pool, vector, acn_dmx_extension_vector_vals, "not valid (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   ///* NO HEADER DATA ON THESE* (at least so far) */
@@ -5851,7 +5851,7 @@ dissect_acn_dmx_base_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *pinfo
   /* vector_offset +=4; */
 
   /* Add Vector item to tree*/
-  name = val_to_str_wmem(pinfo->pool, vector, acn_dmx_vector_vals, "not valid (%d)");
+  name = val_to_str(pinfo->pool, vector, acn_dmx_vector_vals, "not valid (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   /* NO HEADER DATA ON THESE* (at least so far) */
@@ -5944,7 +5944,7 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   proto_tree_add_uint(pdu_tree, hf_acn_sdt_vector, tvb, vector_offset, 1, vector);
 
   /* Add Vector item to tree*/
-  name = val_to_str_wmem(pinfo->pool, vector, acn_sdt_vector_vals, "not valid (%d)");
+  name = val_to_str(pinfo->pool, vector, acn_sdt_vector_vals, "not valid (%d)");
   proto_item_append_text(ti, ": %s", name);
   /* proto_item_append_text(ti, "%s", name); */
 
@@ -6257,7 +6257,7 @@ dissect_llrp_rdm_command_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   proto_tree_add_uint(pdu_tree, hf_rdmnet_llrp_rdm_command_start_code, tvb, data_offset, 1, vector);
 
   /* Add Vector item to tree */
-  name = val_to_str_wmem(pinfo->pool, vector, rdmnet_llrp_rdm_command_start_code_vals, "unknown (%d)");
+  name = val_to_str(pinfo->pool, vector, rdmnet_llrp_rdm_command_start_code_vals, "unknown (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   dissect_pdu_bit_flag_h(&offset, pdu_flags, &data_offset, last_pdu_offsets, &pdu_flvh_length, 6);
@@ -6300,7 +6300,7 @@ dissect_acn_llrp_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
   proto_tree_add_item(pdu_tree, hf_rdmnet_llrp_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree */
-  name = val_to_str_wmem(pinfo->pool, vector, rdmnet_llrp_vector_vals, "unknown (%d)");
+  name = val_to_str(pinfo->pool, vector, rdmnet_llrp_vector_vals, "unknown (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   /* NO HEADER DATA ON THESE* (at least so far) */
@@ -6366,7 +6366,7 @@ dissect_broker_client_entry_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
   proto_tree_add_item(pdu_tree, hf_rdmnet_broker_client_protocol_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree */
-  name = val_to_str_wmem(pinfo->pool, vector, broker_client_protocol_vals, "unknown (%d)");
+  name = val_to_str(pinfo->pool, vector, broker_client_protocol_vals, "unknown (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   /* NO HEADER DATA ON THESE* (at least so far) */
@@ -6634,7 +6634,7 @@ dissect_acn_broker_base_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
   proto_tree_add_item(pdu_tree, hf_rdmnet_broker_vector, tvb, vector_offset, 2, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree */
-  name = val_to_str_wmem(pinfo->pool, vector, rdmnet_broker_vector_vals, "unknown (%d)");
+  name = val_to_str(pinfo->pool, vector, rdmnet_broker_vector_vals, "unknown (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   /* NO HEADER DATA ON THESE* (at least so far) */
@@ -6720,7 +6720,7 @@ dissect_rpt_request_rdm_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_request_rdm_command, tvb, vector_offset, 1, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree */
-  name = val_to_str_wmem(pinfo->pool, vector, rdmnet_rpt_request_rdm_command_start_code_vals, "unknown (%d)");
+  name = val_to_str(pinfo->pool, vector, rdmnet_rpt_request_rdm_command_start_code_vals, "unknown (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   /* NO HEADER DATA ON THESE* (at least so far) */
@@ -6763,7 +6763,7 @@ dissect_rpt_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_request_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree */
-  name = val_to_str_wmem(pinfo->pool, vector, rdmnet_rpt_request_vals, "unknown (%d)");
+  name = val_to_str(pinfo->pool, vector, rdmnet_rpt_request_vals, "unknown (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   /* NO HEADER DATA ON THESE* (at least so far) */
@@ -6807,7 +6807,7 @@ dissect_rpt_status(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offs
   proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_vector, tvb, vector_offset, 2, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree */
-  name = val_to_str_wmem(pinfo->pool, vector, rdmnet_rpt_status_vector_vals, "unknown (%d)");
+  name = val_to_str(pinfo->pool, vector, rdmnet_rpt_status_vector_vals, "unknown (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   /* NO HEADER DATA ON THESE* (at least so far) */
@@ -6890,7 +6890,7 @@ dissect_rpt_notification_rdm_command(tvbuff_t *tvb, packet_info *pinfo, proto_tr
   proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_notification_rdm_command, tvb, vector_offset, 1, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree */
-  name = val_to_str_wmem(pinfo->pool, vector, rdmnet_rpt_request_rdm_command_start_code_vals, "unknown (%d)");
+  name = val_to_str(pinfo->pool, vector, rdmnet_rpt_request_rdm_command_start_code_vals, "unknown (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   /* NO HEADER DATA ON THESE* (at least so far) */
@@ -6935,7 +6935,7 @@ dissect_rpt_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_notification_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree  "RDM Command" */
-  name = val_to_str_wmem(pinfo->pool, vector, rdmnet_rpt_notification_vals, "unknown (%d)");
+  name = val_to_str(pinfo->pool, vector, rdmnet_rpt_notification_vals, "unknown (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   /* NO HEADER DATA ON THESE* (at least so far) */
@@ -6983,7 +6983,7 @@ dissect_acn_rpt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree */
-  name = val_to_str_wmem(pinfo->pool, vector, rdmnet_rpt_vector_vals, "unknown (%d)");
+  name = val_to_str(pinfo->pool, vector, rdmnet_rpt_vector_vals, "unknown (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   /* NO HEADER DATA ON THESE* (at least so far) */
@@ -7156,7 +7156,7 @@ dissect_acn_ept_base_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, in
   proto_tree_add_item(pdu_tree, hf_rdmnet_ept_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
 
   /* Add Vector item to tree */
-  name = val_to_str_wmem(pinfo->pool, vector, rdmnet_ept_vector_vals, "unknown (%d)");
+  name = val_to_str(pinfo->pool, vector, rdmnet_ept_vector_vals, "unknown (%d)");
   proto_item_append_text(ti, ": %s", name);
 
   /* NO HEADER DATA ON THESE* (at least so far) */

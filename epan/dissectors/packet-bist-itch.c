@@ -168,7 +168,7 @@ dissect_bist_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "bist‑ITCH");
-    const char *type_desc = val_to_str_wmem(pinfo->pool, type, message_types_val, "Unknown (0x%02x)");
+    const char *type_desc = val_to_str(pinfo->pool, type, message_types_val, "Unknown (0x%02x)");
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO, type_desc);
 

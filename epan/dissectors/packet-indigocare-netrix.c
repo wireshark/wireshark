@@ -240,7 +240,7 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 				proto_tree_add_expert_format(netrix_tree, pinfo, &ei_netrix_unexpected_header, tvb, current_offset, header_offset -  current_offset, "Unexpected header %d", header);
 				ett = ett_netrix_unknown;
 				header_item = proto_tree_add_uint_format_value(netrix_tree, hf_netrix_header_type, tvb, current_offset, header_offset - current_offset, header, "%d", header);
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s:", val_to_str_wmem(pinfo->pool, header, netrix_headertypenames, "Unknown (%d)"));
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s:", val_to_str(pinfo->pool, header, netrix_headertypenames, "Unknown (%d)"));
 			}
 		break;
 	}

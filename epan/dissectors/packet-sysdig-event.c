@@ -2916,7 +2916,7 @@ dissect_event_params(tvbuff_t *tvb, packet_info *pinfo, const char **event_name,
 
         if (hf_index == hf_param_ID_uint16) {
             uint16_t id = tvb_get_uint16(tvb, param_offset, encoding);
-            *event_name = val_to_str_wmem(pinfo->pool, id, ID_uint16_vals, "Unknown ID %u");
+            *event_name = val_to_str(pinfo->pool, id, ID_uint16_vals, "Unknown ID %u");
             col_add_str(pinfo->cinfo, COL_INFO, *event_name);
         }
         param_offset += param_len;
@@ -2945,7 +2945,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return call_dissector(sinsp_dissector_handle, tvb, pinfo, tree);
     }
 
-    const char *event_name = val_to_str_wmem(pinfo->pool, event_type, event_type_vals, "Unknown syscall %u");
+    const char *event_name = val_to_str(pinfo->pool, event_type, event_type_vals, "Unknown syscall %u");
     sysdig_event_param_data event_param_data = {0};
 
     /*

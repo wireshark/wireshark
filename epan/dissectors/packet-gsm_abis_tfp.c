@@ -122,12 +122,12 @@ dissect_abis_tfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	if (slot_rate == 0)
 		ftype |= 0x80;
 	proto_tree_add_uint_format_value(tfp_tree, hf_tfp_hdr_frame_type, tvb, offset+2, 1, ftype, "%s",
-					 val_to_str_wmem(pinfo->pool, ftype, tfp_frame_type_vals, "Unknown (%u)"));
+					 val_to_str(pinfo->pool, ftype, tfp_frame_type_vals, "Unknown (%u)"));
 	offset += 2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "TS=%u, Seq=%u, %s, %s ", atsr, seq_nr,
-			val_to_str_wmem(pinfo->pool, slot_rate, tfp_slot_rate_vals, "Unknown (%u)"),
-			val_to_str_wmem(pinfo->pool, ftype, tfp_frame_type_vals, "Unknown (%u)"));
+			val_to_str(pinfo->pool, slot_rate, tfp_slot_rate_vals, "Unknown (%u)"),
+			val_to_str(pinfo->pool, ftype, tfp_frame_type_vals, "Unknown (%u)"));
 
 	/* check for Tail bit == 1, iterate over further octests */
 	while ((tvb_get_uint8(tvb, offset) & 0x01) == 0)

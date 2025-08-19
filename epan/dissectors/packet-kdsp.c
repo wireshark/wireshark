@@ -265,7 +265,7 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   offset += 4;
   command_item = proto_tree_add_item_ret_uint(kdsp_tree, hf_kdsp_cmdnum, tvb, offset, 4, ENC_BIG_ENDIAN, &command);
   offset += 4;
-  str_command = val_to_str_wmem(pinfo->pool, command, packettypenames, "Unknown (0x%02x)");
+  str_command = val_to_str(pinfo->pool, command, packettypenames, "Unknown (0x%02x)");
   proto_item_append_text(kdsp_item, ", Command %s", str_command);
   col_add_fstr(pinfo->cinfo, COL_INFO, "Command %s; ", str_command);
   col_set_fence(pinfo->cinfo, COL_INFO);

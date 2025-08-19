@@ -1877,7 +1877,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str_wmem(pinfo->pool, msgtype, mpls_echo_msgtype, "Unknown Message Type (0x%02X)"));
+                val_to_str(pinfo->pool, msgtype, mpls_echo_msgtype, "Unknown Message Type (0x%02X)"));
 
 
     if (tree) {

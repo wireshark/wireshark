@@ -256,7 +256,7 @@ rsip_parameter(tvbuff_t *tvb, packet_info* pinfo, proto_tree *rsip_tree, int off
 
 	p_tree = proto_tree_add_subtree(rsip_tree, tvb, off, 3 + paramlen,
 	    ett_rsip_param, &pti,
-	    val_to_str_wmem(pinfo->pool, paramtype, param_type_vals, "Unknown (%d)"));
+	    val_to_str(pinfo->pool, paramtype, param_type_vals, "Unknown (%d)"));
 
 	proto_tree_add_item(p_tree, hf_rsip_parameter_type, tvb,
 	    off, 1, ENC_BIG_ENDIAN);
@@ -403,7 +403,7 @@ rsip_parameter(tvbuff_t *tvb, packet_info* pinfo, proto_tree *rsip_tree, int off
 		    tvb, off + 3, paramlen, ENC_BIG_ENDIAN);
 		tuntype = tvb_get_uint8(tvb, off + 3);
 		proto_item_append_text(pti, ": %s",
-		    val_to_str_wmem(pinfo->pool, tuntype, tunnel_type_vals,
+		    val_to_str(pinfo->pool, tuntype, tunnel_type_vals,
 		        "Unknown Tunnel Type (%d)"));
 		break;
 	case 7:		/* RSIP Method */
@@ -412,7 +412,7 @@ rsip_parameter(tvbuff_t *tvb, packet_info* pinfo, proto_tree *rsip_tree, int off
 		    tvb, off + 3, paramlen, ENC_BIG_ENDIAN);
 		method = tvb_get_uint8(tvb, off + 3);
 		proto_item_append_text(pti, ": %s",
-		    val_to_str_wmem(pinfo->pool, method, method_vals,
+		    val_to_str(pinfo->pool, method, method_vals,
 		    "Unknown RSIP Method (%d)"));
 		break;
 	case 8:		/* Error */
@@ -421,7 +421,7 @@ rsip_parameter(tvbuff_t *tvb, packet_info* pinfo, proto_tree *rsip_tree, int off
 		    tvb, off + 3, paramlen, ENC_BIG_ENDIAN);
 		error = tvb_get_ntohs(tvb, off + 3);
 		proto_item_append_text(pti, ": %s",
-		    val_to_str_wmem(pinfo->pool, error, error_number_vals, "Undefined Error (%d)"));
+		    val_to_str(pinfo->pool, error, error_number_vals, "Undefined Error (%d)"));
 		break;
 	case 9:		/* Flow Policy */
 		/* XXX if paramlen != 2 we've got a protocol violation */
@@ -429,14 +429,14 @@ rsip_parameter(tvbuff_t *tvb, packet_info* pinfo, proto_tree *rsip_tree, int off
 		    hf_rsip_parameter_flow_policy_local, tvb, off + 3, 1, ENC_BIG_ENDIAN);
 		flowpolicy = tvb_get_uint8(tvb, off + 3);
 		proto_item_append_text(pti, ": %s",
-		    val_to_str_wmem(pinfo->pool, flowpolicy, lcl_flow_policy_vals,
+		    val_to_str(pinfo->pool, flowpolicy, lcl_flow_policy_vals,
 		    "Undefined Local Flow Policy (%d)"));
 		proto_tree_add_item(v_tree,
 		    hf_rsip_parameter_flow_policy_remote, tvb, off + 4, 1,
 		    ENC_BIG_ENDIAN);
 		flowpolicy = tvb_get_uint8(tvb, off + 4);
 		proto_item_append_text(pti, "/%s",
-		    val_to_str_wmem(pinfo->pool, flowpolicy, rmt_flow_policy_vals,
+		    val_to_str(pinfo->pool, flowpolicy, rmt_flow_policy_vals,
 		    "Undefined Remote Flow Policy (%d)"));
 		break;
 	case 10:	/* Indicator */
@@ -973,7 +973,7 @@ dissect_rsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSIP");
 
 	col_add_str(pinfo->cinfo, COL_INFO,
-	    val_to_str_wmem(pinfo->pool, msgtype, msg_type_vals,
+	    val_to_str(pinfo->pool, msgtype, msg_type_vals,
 	        "Unknown Message Type (0x%0x)"));
 
 	if (tree) {

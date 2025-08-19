@@ -425,7 +425,7 @@ static int dissect_control_get_recmode_reply(packet_info *pinfo, proto_tree *tre
 	proto_tree_add_uint(tree, hf_ctdb_recmode, tvb, 0, 0, status);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " RecMode:%s",
-		val_to_str_wmem(pinfo->pool, status, recmode_vals, "Unknown:%d"));
+		val_to_str(pinfo->pool, status, recmode_vals, "Unknown:%d"));
 
 	return offset;
 }
@@ -866,7 +866,7 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	offset+=4;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request %d->%d",
-		val_to_str_wmem(pinfo->pool, opcode, ctrl_opcode_vals, "Unknown:%d"),
+		val_to_str(pinfo->pool, opcode, ctrl_opcode_vals, "Unknown:%d"),
 		src, dst);
 
 	/* srvid */
@@ -972,7 +972,7 @@ dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 	proto_item_set_generated(item);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reply %d->%d",
-		val_to_str_wmem(pinfo->pool, ctdb_control->opcode, ctrl_opcode_vals, "Unknown:%d"),
+		val_to_str(pinfo->pool, ctdb_control->opcode, ctrl_opcode_vals, "Unknown:%d"),
 		src, dst);
 
 
@@ -1210,7 +1210,7 @@ dissect_ctdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 	offset+=4;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s %d->%d",
-		val_to_str_wmem(pinfo->pool, opcode, ctdb_opcodes, "Unknown:%d"),
+		val_to_str(pinfo->pool, opcode, ctdb_opcodes, "Unknown:%d"),
 		src, dst);
 
 	switch(opcode){

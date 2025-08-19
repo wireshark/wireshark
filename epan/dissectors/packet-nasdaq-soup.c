@@ -169,7 +169,7 @@ dissect_nasdaq_soup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         col_append_str(pinfo->cinfo, COL_INFO, "; ");
         col_set_fence(pinfo->cinfo, COL_INFO);
       }
-      col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, nasdaq_soup_type, message_types_val, "Unknown packet type (0x%02x)"));
+      col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, nasdaq_soup_type, message_types_val, "Unknown packet type (0x%02x)"));
 
       counter++;
       ti = proto_tree_add_item(tree, proto_nasdaq_soup, tvb, offset, linelen +1, ENC_NA);

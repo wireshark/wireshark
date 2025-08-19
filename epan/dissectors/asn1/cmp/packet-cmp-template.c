@@ -133,7 +133,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 	}
 
-	col_add_str (pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, pdu_type, cmp_pdu_types, "0x%x"));
+	col_add_str (pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, pdu_type, cmp_pdu_types, "0x%x"));
 
 	switch(pdu_type){
 		case CMP_TYPE_PKIMSG:

@@ -265,10 +265,10 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         cf_items = cf_items_nonext;
         control_format = "Control field: %s (0x%02X)";
         if (is_response) {
-                modifier = val_to_str_wmem(pinfo->pool, control & XDLC_U_MODIFIER_MASK,
+                modifier = val_to_str(pinfo->pool, control & XDLC_U_MODIFIER_MASK,
                         u_modifier_short_vals_resp, "Unknown");
         } else {
-                modifier = val_to_str_wmem(pinfo->pool, control & XDLC_U_MODIFIER_MASK,
+                modifier = val_to_str(pinfo->pool, control & XDLC_U_MODIFIER_MASK,
                         u_modifier_short_vals_cmd, "Unknown");
         }
         poll_final = (control & XDLC_P_F);

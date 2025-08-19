@@ -2762,7 +2762,7 @@ s7comm_syntaxid_s7any(tvbuff_t *tvb, packet_info* pinfo, uint32_t offset, proto_
         bytepos = a_address / 8;
         bitpos = a_address % 8;
         /* build a full address to show item data directly beside the item */
-        proto_item_append_text(tree, " (%s", val_to_str_wmem(pinfo->pool, area, item_areanames_short, "unknown area 0x%02x"));
+        proto_item_append_text(tree, " (%s", val_to_str(pinfo->pool, area, item_areanames_short, "unknown area 0x%02x"));
         if (area == S7COMM_AREA_TIMER || area == S7COMM_AREA_COUNTER) {
             proto_item_append_text(tree, " %d)", a_address);
             proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_nr, tvb, offset, 3, a_address);
@@ -2775,7 +2775,7 @@ s7comm_syntaxid_s7any(tvbuff_t *tvb, packet_info* pinfo, uint32_t offset, proto_
                 proto_item_append_text(tree, " %d.DIX", db);
             }
             proto_item_append_text(tree, " %d.%d %s %d)",
-                bytepos, bitpos, val_to_str_wmem(pinfo->pool, t_size, item_transportsizenames, "Unknown transport size: 0x%02x"), len);
+                bytepos, bitpos, val_to_str(pinfo->pool, t_size, item_transportsizenames, "Unknown transport size: 0x%02x"), len);
         }
         offset += 3;
     }
@@ -2846,7 +2846,7 @@ s7comm_syntaxid_1200sym(tvbuff_t *tvb, packet_info* pinfo, uint32_t offset, prot
     tia_var_area2 = tvb_get_ntohs(tvb, offset);
     if (tia_var_area1 == S7COMM_TIA1200_VAR_ITEM_AREA1_IQMCT) {
         proto_tree_add_uint(tree, hf_s7comm_tia1200_item_area2, tvb, offset, 2, tia_var_area2);
-        proto_item_append_text(tree, " - Accessing %s", val_to_str_wmem(pinfo->pool, tia_var_area2, tia1200_var_item_area2_names, "Unknown IQMCT Area: 0x%04x"));
+        proto_item_append_text(tree, " - Accessing %s", val_to_str(pinfo->pool, tia_var_area2, tia1200_var_item_area2_names, "Unknown IQMCT Area: 0x%04x"));
         offset += 2;
     } else if (tia_var_area1 == S7COMM_TIA1200_VAR_ITEM_AREA1_DB) {
         proto_tree_add_uint(tree, hf_s7comm_tia1200_item_dbnumber, tvb, offset, 2, tia_var_area2);
@@ -2868,7 +2868,7 @@ s7comm_syntaxid_1200sym(tvbuff_t *tvb, packet_info* pinfo, uint32_t offset, prot
         proto_tree_add_item(sub_item_tree, hf_s7comm_tia1200_var_lid_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
         tia_value = tvb_get_ntohl(tvb, offset) & 0x0fffffff;
         proto_item_append_text(sub_item, " [%d]: %s, Value: %u", i + 1,
-            val_to_str_wmem(pinfo->pool, tia_lid_flags, tia1200_var_lid_flag_names, "Unknown flags: 0x%02x"),
+            val_to_str(pinfo->pool, tia_lid_flags, tia1200_var_lid_flag_names, "Unknown flags: 0x%02x"),
             tia_value
         );
         proto_tree_add_item(sub_item_tree, hf_s7comm_tia1200_item_value, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -3064,7 +3064,7 @@ s7comm_decode_response_write_data(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
         /* Insert a new tree for every item */
         item = proto_tree_add_item(tree, hf_s7comm_data_item, tvb, offset, 1, ENC_NA);
         item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
-        proto_item_append_text(item, " [%d]: (%s)", i+1, val_to_str_wmem(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
+        proto_item_append_text(item, " [%d]: (%s)", i+1, val_to_str(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
         proto_tree_add_uint(item_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
         offset += 1;
     }
@@ -3132,7 +3132,7 @@ s7comm_decode_response_read_data(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
             /* Insert a new tree for every item */
             item = proto_tree_add_item(tree, hf_s7comm_data_item, tvb, offset, len + head_len, ENC_NA);
             item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
-            proto_item_append_text(item, " [%d]: (%s)", i+1, val_to_str_wmem(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
+            proto_item_append_text(item, " [%d]: (%s)", i+1, val_to_str(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
 
             proto_tree_add_uint(item_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
             proto_tree_add_uint(item_tree, hf_s7comm_data_transport_size, tvb, offset + 1, 1, tsize);
@@ -3304,15 +3304,15 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
                 file_tree = proto_item_add_subtree(item, ett_s7comm_plcfilename);
                 blocktype = tvb_get_ntohs(tvb, paramoffset);
                 itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_block_type, tvb, paramoffset, 2, ENC_ASCII);
-                proto_item_append_text(itemadd, " (%s)", val_to_str_wmem(pinfo->pool, blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
+                proto_item_append_text(itemadd, " (%s)", val_to_str(pinfo->pool, blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
                 paramoffset += 2;
                 proto_tree_add_item_ret_string(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, paramoffset, 5, ENC_ASCII|ENC_NA, pinfo->pool, &str);
                 paramoffset += 5;
                 num_valid = ws_strtoi32((const char*)str, NULL, &num);
                 proto_item_append_text(file_tree, " [%s ",
-                    val_to_str_wmem(pinfo->pool, blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
+                    val_to_str(pinfo->pool, blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
                 col_append_str(pinfo->cinfo, COL_INFO,
-                    val_to_str_wmem(pinfo->pool, blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
+                    val_to_str(pinfo->pool, blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
                 if (num_valid) {
                     proto_item_append_text(file_tree, "%d]", num);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "%d", num);
@@ -3663,18 +3663,18 @@ s7comm_decode_plc_controls_filename(tvbuff_t *tvb,
             is_plcfilename = true;
             file_tree = proto_item_add_subtree(item, ett_s7comm_plcfilename);
             itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_file_ident, tvb, offset, 1, ENC_ASCII);
-            proto_item_append_text(itemadd, " (%s)", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), blocktype_attribute1_names, "Unknown identifier: %c"));
+            proto_item_append_text(itemadd, " (%s)", val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset), blocktype_attribute1_names, "Unknown identifier: %c"));
             offset += 1;
             itemadd = proto_tree_add_item(file_tree, hf_s7comm_data_blockcontrol_block_type, tvb, offset, 2, ENC_ASCII);
-            proto_item_append_text(itemadd, " (%s)", val_to_str_wmem(pinfo->pool, blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
+            proto_item_append_text(itemadd, " (%s)", val_to_str(pinfo->pool, blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
             offset += 2;
             proto_tree_add_item_ret_string(file_tree, hf_s7comm_data_blockcontrol_block_num, tvb, offset, 5, ENC_ASCII|ENC_NA, pinfo->pool, &str);
             offset += 5;
             num_valid = ws_strtoi32((const char*)str, NULL, &num);
             proto_item_append_text(file_tree, " [%s",
-                val_to_str_wmem(pinfo->pool, blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
+                val_to_str(pinfo->pool, blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
             col_append_fstr(pinfo->cinfo, COL_INFO, " -> Block:[%s",
-                val_to_str_wmem(pinfo->pool, blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
+                val_to_str(pinfo->pool, blocktype, blocktype_names, "Unknown Block type: 0x%04x"));
             if (num_valid) {
                 proto_item_append_text(file_tree, "%d]", num);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%d]", num);
@@ -4110,7 +4110,7 @@ s7comm_decode_ud_tis_item_value(tvbuff_t *tvb, packet_info* pinfo,
     item = proto_tree_add_item(sub_tree, hf_s7comm_data_item, tvb, offset, len + head_len, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
 
-    proto_item_append_text(item, " [%d]%s: (%s)", item_no + 1, add_text, val_to_str_wmem(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
+    proto_item_append_text(item, " [%d]%s: (%s)", item_no + 1, add_text, val_to_str(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
 
     proto_tree_add_uint(sub_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
     proto_tree_add_uint(sub_tree, hf_s7comm_data_transport_size, tvb, offset + 1, 1, tsize);
@@ -4166,7 +4166,7 @@ s7comm_decode_ud_tis_force(tvbuff_t *tvb, packet_info* pinfo,
                 item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
                 ret_val = tvb_get_uint8(tvb, offset);
                 proto_tree_add_uint(item_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
-                proto_item_append_text(item, " [%d]: (%s)", i + 1, val_to_str_wmem(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
+                proto_item_append_text(item, " [%d]: (%s)", i + 1, val_to_str(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
                 offset += 1;
             }
             if (item_count % 2) {
@@ -4458,7 +4458,7 @@ s7comm_decode_ud_tis_modvar(tvbuff_t *tvb, packet_info* pinfo,
                 item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
                 ret_val = tvb_get_uint8(tvb, offset);
                 proto_tree_add_uint(item_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
-                proto_item_append_text(item, " [%d]: (%s)", i + 1, val_to_str_wmem(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
+                proto_item_append_text(item, " [%d]: (%s)", i + 1, val_to_str(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
                 offset += 1;
             }
             if (item_count % 2) {
@@ -4994,7 +4994,7 @@ s7comm_decode_ud_tis_bstack(tvbuff_t *tvb, packet_info* pinfo,
                 proto_tree_add_item(item_tree, hf_s7comm_tis_bstack_reserved, tvb, offset, 4, ENC_NA);
                 offset += 4;
                 proto_item_append_text(item, " [%d] BSTACK entry for: %s %d", i++,
-                    val_to_str_wmem(pinfo->pool, blocktype, subblktype_names, "Unknown Subblk type: 0x%02x"), blocknumber);
+                    val_to_str(pinfo->pool, blocktype, subblktype_names, "Unknown Subblk type: 0x%02x"), blocknumber);
                 rem -= 16;
                 if (blocktype == S7COMM_SUBBLKTYPE_OB) {
                     proto_tree_add_item(item_tree, hf_s7comm_tis_interrupted_prioclass, tvb, offset, 1, ENC_NA);
@@ -5623,7 +5623,7 @@ s7comm_decode_message_service(tvbuff_t *tvb,
             if ((events & 0x80) && (dlength > 10)) {
                 almtype = tvb_get_uint8(tvb, offset);
                 proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_almtype, tvb, offset, 1, ENC_BIG_ENDIAN);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " AlmType=%s", val_to_str_wmem(pinfo->pool, almtype, cpu_msgservice_almtype_names, "Unknown type: 0x%02x"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " AlmType=%s", val_to_str(pinfo->pool, almtype, cpu_msgservice_almtype_names, "Unknown type: 0x%02x"));
                 offset += 1;
                 if (almtype == S7COMM_CPU_MSG_ALMTYPE_AR_SEND_INITIATE || almtype == S7COMM_CPU_MSG_ALMTYPE_AR_SEND_ABORT) {
                     offset = s7comm_decode_message_service_ar_send_args(tvb, pinfo, data_tree, type, offset);
@@ -5641,7 +5641,7 @@ s7comm_decode_message_service(tvbuff_t *tvb,
             if (dlength > 2) {
                 almtype = tvb_get_uint8(tvb, offset);
                 proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_almtype, tvb, offset, 1, ENC_BIG_ENDIAN);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " AlmType=%s", val_to_str_wmem(pinfo->pool, almtype, cpu_msgservice_almtype_names, "Unknown type: 0x%02x"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " AlmType=%s", val_to_str(pinfo->pool, almtype, cpu_msgservice_almtype_names, "Unknown type: 0x%02x"));
                 offset += 1;
                 if (almtype == S7COMM_CPU_MSG_ALMTYPE_AR_SEND_INITIATE || almtype == S7COMM_CPU_MSG_ALMTYPE_AR_SEND_ABORT) {
                     offset = s7comm_decode_message_service_ar_send_args(tvb, pinfo, data_tree, type, offset);
@@ -5873,7 +5873,7 @@ s7comm_decode_ud_cpu_alarm_main(tvbuff_t *tvb,
                         case S7COMM_ALARM_MESSAGE_QUERYTYPE_BYALARMTYPE:
                             proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_query_alarmtype, tvb, offset, 4, ENC_BIG_ENDIAN);
                             col_append_fstr(pinfo->cinfo, COL_INFO, " ByAlarmtype=%s",
-                                val_to_str_wmem(pinfo->pool, ev_id, alarm_message_query_alarmtype_names, "Unknown Alarmtype: %u"));
+                                val_to_str(pinfo->pool, ev_id, alarm_message_query_alarmtype_names, "Unknown Alarmtype: %u"));
                             break;
                         case S7COMM_ALARM_MESSAGE_QUERYTYPE_BYEVENTID:
                             proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_message_eventid, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5893,7 +5893,7 @@ s7comm_decode_ud_cpu_alarm_main(tvbuff_t *tvb,
             }
         } else if (type == S7COMM_UD_TYPE_RES) {
             ret_val = tvb_get_uint8(tvb, offset);
-            proto_item_append_text(msg_obj_item_tree, ": (%s)", val_to_str_wmem(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
+            proto_item_append_text(msg_obj_item_tree, ": (%s)", val_to_str(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
             proto_tree_add_uint(msg_obj_item_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
             offset += 1;
         }
@@ -5961,7 +5961,7 @@ s7comm_decode_ud_cpu_alarm_query_response(tvbuff_t *tvb, packet_info* pinfo,
             /* begin of count dataset length */
             alarmtype = tvb_get_uint8(tvb, offset);
             proto_tree_add_uint(msg_obj_item_tree, hf_s7comm_cpu_alarm_query_alarmtype, tvb, offset, 1, alarmtype);
-            proto_item_append_text(msg_obj_item_tree, " (Alarmtype=%s)", val_to_str_wmem(pinfo->pool, alarmtype, alarm_message_query_alarmtype_names, "Unknown Alarmtype: %u"));
+            proto_item_append_text(msg_obj_item_tree, " (Alarmtype=%s)", val_to_str(pinfo->pool, alarmtype, alarm_message_query_alarmtype_names, "Unknown Alarmtype: %u"));
             offset += 1;
             ev_id = tvb_get_ntohl(tvb, offset);
             proto_tree_add_uint(msg_obj_item_tree, hf_s7comm_cpu_alarm_message_eventid, tvb, offset, 4, ev_id);
@@ -6183,9 +6183,9 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     item = proto_tree_add_item(data_tree, hf_s7comm_data_item, tvb, offset, 4, ENC_NA);
                     item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
                     blocktype16 = tvb_get_ntohs(tvb, offset);
-                    proto_item_append_text(item, " [%d]: (Block type %s)", i+1, val_to_str_wmem(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
+                    proto_item_append_text(item, " [%d]: (Block type %s)", i+1, val_to_str(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     itemadd = proto_tree_add_item(item_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, ENC_ASCII);
-                    proto_item_append_text(itemadd, " (%s)", val_to_str_wmem(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
+                    proto_item_append_text(itemadd, " (%s)", val_to_str(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     offset += 2;
                     proto_tree_add_item(item_tree, hf_s7comm_ud_blockinfo_block_cnt, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
@@ -6201,11 +6201,11 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                 if (tsize != S7COMM_DATA_TRANSPORT_SIZE_NULL) {
                     blocktype16 = tvb_get_ntohs(tvb, offset);
                     itemadd = proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, ENC_ASCII);
-                    proto_item_append_text(itemadd, " (%s)", val_to_str_wmem(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
+                    proto_item_append_text(itemadd, " (%s)", val_to_str(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     col_append_fstr(pinfo->cinfo, COL_INFO, " Type:[%s]",
-                        val_to_str_wmem(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
+                        val_to_str(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     proto_item_append_text(data_tree, ": (%s)",
-                        val_to_str_wmem(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
+                        val_to_str(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     offset += 2;
                 }
                 know_data = true;
@@ -6243,14 +6243,14 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     /* 8 Bytes of Data follow, 1./ 2. type, 3-7 blocknumber as ascii number */
                     blocktype16 = tvb_get_ntohs(tvb, offset);
                     itemadd = proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, ENC_ASCII);
-                    proto_item_append_text(itemadd, " (%s)", val_to_str_wmem(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
+                    proto_item_append_text(itemadd, " (%s)", val_to_str(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     offset += 2;
                     proto_tree_add_item_ret_string(data_tree, hf_s7comm_ud_blockinfo_block_num_ascii, tvb, offset, 5, ENC_ASCII|ENC_NA, pinfo->pool, &pBlocknumber);
                     num_valid = ws_strtoi32((const char*)pBlocknumber, NULL, &num);
                     proto_item_append_text(data_tree, " [%s ",
-                        val_to_str_wmem(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
+                        val_to_str(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     col_append_fstr(pinfo->cinfo, COL_INFO, " -> Block:[%s ",
-                        val_to_str_wmem(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
+                        val_to_str(pinfo->pool, blocktype16, blocktype_names, "Unknown Block type: 0x%04x"));
                     if (num_valid) {
                         proto_item_append_text(data_tree, "%d]", num);
                         col_append_fstr(pinfo->cinfo, COL_INFO, "%d]", num);
@@ -6270,7 +6270,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                 /* 78 Bytes */
                 if (ret_val == S7COMM_ITEM_RETVAL_DATA_OK) {
                     itemadd = proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, ENC_ASCII);
-                    proto_item_append_text(itemadd, " (%s)", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), blocktype_names, "Unknown Block type: 0x%04x"));
+                    proto_item_append_text(itemadd, " (%s)", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), blocktype_names, "Unknown Block type: 0x%04x"));
                     offset += 2;
                     proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_res_infolength, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
@@ -6292,10 +6292,10 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     proto_tree_add_uint(data_tree, hf_s7comm_ud_blockinfo_block_num, tvb, offset, 2, blocknumber);
                     /* Add block type and number to info column */
                     col_append_fstr(pinfo->cinfo, COL_INFO, " -> Block:[%s %d]",
-                        val_to_str_wmem(pinfo->pool, blocktype, subblktype_names, "Unknown Subblk type: 0x%02x"),
+                        val_to_str(pinfo->pool, blocktype, subblktype_names, "Unknown Subblk type: 0x%02x"),
                         blocknumber);
                     proto_item_append_text(data_tree, ": (Block:[%s %d])",
-                        val_to_str_wmem(pinfo->pool, blocktype, subblktype_names, "Unknown Subblk type: 0x%02x"),
+                        val_to_str(pinfo->pool, blocktype, subblktype_names, "Unknown Subblk type: 0x%02x"),
                         blocknumber);
                     offset += 2;
                     /* "Length Load mem" -> the length in Step7 Manager seems to be this length +6 bytes */
@@ -6752,8 +6752,8 @@ s7comm_decode_ud(tvbuff_t *tvb,
         proto_tree_add_uint(param_tree, hf_s7comm_modetrans_param_mode, tvb, offset_temp, 1, mode);
         offset_temp += 1;
         col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
-            val_to_str_wmem(pinfo->pool, mode, modetrans_param_mode_names, "Unknown mode: 0x%02x"));
-        proto_item_append_text(param_tree, " ->(%s)", val_to_str_wmem(pinfo->pool, mode, modetrans_param_mode_names, "Unknown mode: 0x%02x"));
+            val_to_str(pinfo->pool, mode, modetrans_param_mode_names, "Unknown mode: 0x%02x"));
+        proto_item_append_text(param_tree, " ->(%s)", val_to_str(pinfo->pool, mode, modetrans_param_mode_names, "Unknown mode: 0x%02x"));
         proto_tree_add_item(param_tree, hf_s7comm_modetrans_param_unknown2, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
         offset_temp += 1;
         /* No data part here */
@@ -6793,11 +6793,11 @@ s7comm_decode_ud(tvbuff_t *tvb,
     offset_temp += 1;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " Function:[%s] -> [%s]",
-        val_to_str_wmem(pinfo->pool, type, userdata_type_names, "Unknown type: 0x%02x"),
-        val_to_str_wmem(pinfo->pool, funcgroup, userdata_functiongroup_names, "Unknown function group: 0x%02x")
+        val_to_str(pinfo->pool, type, userdata_type_names, "Unknown type: 0x%02x"),
+        val_to_str(pinfo->pool, funcgroup, userdata_functiongroup_names, "Unknown function group: 0x%02x")
         );
-    proto_item_append_text(param_tree, ": (%s)", val_to_str_wmem(pinfo->pool, type, userdata_type_names, "Unknown type: 0x%02x"));
-    proto_item_append_text(param_tree, " ->(%s)", val_to_str_wmem(pinfo->pool, funcgroup, userdata_functiongroup_names, "Unknown function group: 0x%02x"));
+    proto_item_append_text(param_tree, ": (%s)", val_to_str(pinfo->pool, type, userdata_type_names, "Unknown type: 0x%02x"));
+    proto_item_append_text(param_tree, " ->(%s)", val_to_str(pinfo->pool, funcgroup, userdata_functiongroup_names, "Unknown function group: 0x%02x"));
 
     /* 1 Byte subfunction */
     subfunc = tvb_get_uint8(tvb, offset_temp);
@@ -6805,50 +6805,50 @@ s7comm_decode_ud(tvbuff_t *tvb,
         case S7COMM_UD_FUNCGROUP_TIS:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc_prog, tvb, offset_temp, 1, subfunc);
             col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
-                val_to_str_wmem(pinfo->pool, subfunc, userdata_tis_subfunc_names, "Unknown subfunc: 0x%02x"));
-            proto_item_append_text(param_tree, " ->(%s)", val_to_str_wmem(pinfo->pool, subfunc, userdata_tis_subfunc_names, "Unknown subfunc: 0x%02x"));
+                val_to_str(pinfo->pool, subfunc, userdata_tis_subfunc_names, "Unknown subfunc: 0x%02x"));
+            proto_item_append_text(param_tree, " ->(%s)", val_to_str(pinfo->pool, subfunc, userdata_tis_subfunc_names, "Unknown subfunc: 0x%02x"));
             break;
         case S7COMM_UD_FUNCGROUP_CYCLIC:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc_cyclic, tvb, offset_temp, 1, subfunc);
             col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
-                val_to_str_wmem(pinfo->pool, subfunc, userdata_cyclic_subfunc_names, "Unknown subfunc: 0x%02x"));
-            proto_item_append_text(param_tree, " ->(%s)", val_to_str_wmem(pinfo->pool, subfunc, userdata_cyclic_subfunc_names, "Unknown subfunc: 0x%02x"));
+                val_to_str(pinfo->pool, subfunc, userdata_cyclic_subfunc_names, "Unknown subfunc: 0x%02x"));
+            proto_item_append_text(param_tree, " ->(%s)", val_to_str(pinfo->pool, subfunc, userdata_cyclic_subfunc_names, "Unknown subfunc: 0x%02x"));
             break;
         case S7COMM_UD_FUNCGROUP_BLOCK:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc_block, tvb, offset_temp, 1, subfunc);
             col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
-                val_to_str_wmem(pinfo->pool, subfunc, userdata_block_subfunc_names, "Unknown subfunc: 0x%02x"));
-            proto_item_append_text(param_tree, " ->(%s)", val_to_str_wmem(pinfo->pool, subfunc, userdata_block_subfunc_names, "Unknown subfunc: 0x%02x"));
+                val_to_str(pinfo->pool, subfunc, userdata_block_subfunc_names, "Unknown subfunc: 0x%02x"));
+            proto_item_append_text(param_tree, " ->(%s)", val_to_str(pinfo->pool, subfunc, userdata_block_subfunc_names, "Unknown subfunc: 0x%02x"));
             break;
         case S7COMM_UD_FUNCGROUP_CPU:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc_cpu, tvb, offset_temp, 1, subfunc);
             col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
-                val_to_str_wmem(pinfo->pool, subfunc, userdata_cpu_subfunc_names, "Unknown subfunc: 0x%02x"));
-            proto_item_append_text(param_tree, " ->(%s)", val_to_str_wmem(pinfo->pool, subfunc, userdata_cpu_subfunc_names, "Unknown subfunc: 0x%02x"));
+                val_to_str(pinfo->pool, subfunc, userdata_cpu_subfunc_names, "Unknown subfunc: 0x%02x"));
+            proto_item_append_text(param_tree, " ->(%s)", val_to_str(pinfo->pool, subfunc, userdata_cpu_subfunc_names, "Unknown subfunc: 0x%02x"));
             break;
         case S7COMM_UD_FUNCGROUP_SEC:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc_sec, tvb, offset_temp, 1, subfunc);
             col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
-                val_to_str_wmem(pinfo->pool, subfunc, userdata_sec_subfunc_names, "Unknown subfunc: 0x%02x"));
-            proto_item_append_text(param_tree, " ->(%s)", val_to_str_wmem(pinfo->pool, subfunc, userdata_sec_subfunc_names, "Unknown subfunc: 0x%02x"));
+                val_to_str(pinfo->pool, subfunc, userdata_sec_subfunc_names, "Unknown subfunc: 0x%02x"));
+            proto_item_append_text(param_tree, " ->(%s)", val_to_str(pinfo->pool, subfunc, userdata_sec_subfunc_names, "Unknown subfunc: 0x%02x"));
             break;
         case S7COMM_UD_FUNCGROUP_TIME:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc_time, tvb, offset_temp, 1, subfunc);
             col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
-                val_to_str_wmem(pinfo->pool, subfunc, userdata_time_subfunc_names, "Unknown subfunc: 0x%02x"));
-            proto_item_append_text(param_tree, " ->(%s)", val_to_str_wmem(pinfo->pool, subfunc, userdata_time_subfunc_names, "Unknown subfunc: 0x%02x"));
+                val_to_str(pinfo->pool, subfunc, userdata_time_subfunc_names, "Unknown subfunc: 0x%02x"));
+            proto_item_append_text(param_tree, " ->(%s)", val_to_str(pinfo->pool, subfunc, userdata_time_subfunc_names, "Unknown subfunc: 0x%02x"));
             break;
         case S7COMM_UD_FUNCGROUP_DRR:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc_drr, tvb, offset_temp, 1, subfunc);
             col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
-                val_to_str_wmem(pinfo->pool, subfunc, userdata_drr_subfunc_names, "Unknown subfunc: 0x%02x"));
-            proto_item_append_text(param_tree, " ->(%s)", val_to_str_wmem(pinfo->pool, subfunc, userdata_drr_subfunc_names, "Unknown subfunc: 0x%02x"));
+                val_to_str(pinfo->pool, subfunc, userdata_drr_subfunc_names, "Unknown subfunc: 0x%02x"));
+            proto_item_append_text(param_tree, " ->(%s)", val_to_str(pinfo->pool, subfunc, userdata_drr_subfunc_names, "Unknown subfunc: 0x%02x"));
             break;
         case S7COMM_UD_FUNCGROUP_NCPRG:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc_ncprg, tvb, offset_temp, 1, subfunc);
             col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
-                val_to_str_wmem(pinfo->pool, subfunc, userdata_ncprg_subfunc_names, "Unknown subfunc: 0x%02x"));
-            proto_item_append_text(param_tree, " ->(%s)", val_to_str_wmem(pinfo->pool, subfunc, userdata_ncprg_subfunc_names, "Unknown subfunc: 0x%02x"));
+                val_to_str(pinfo->pool, subfunc, userdata_ncprg_subfunc_names, "Unknown subfunc: 0x%02x"));
+            proto_item_append_text(param_tree, " ->(%s)", val_to_str(pinfo->pool, subfunc, userdata_ncprg_subfunc_names, "Unknown subfunc: 0x%02x"));
             break;
         default:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc, tvb, offset_temp, 1, subfunc);
@@ -6912,10 +6912,10 @@ s7comm_decode_req_resp(tvbuff_t *tvb,
         /* Analyze function */
         function = tvb_get_uint8(tvb, offset);
         /* add param.function to info column */
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Function:[%s]", val_to_str_wmem(pinfo->pool, function, param_functionnames, "Unknown function: 0x%02x"));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " Function:[%s]", val_to_str(pinfo->pool, function, param_functionnames, "Unknown function: 0x%02x"));
         proto_tree_add_uint(param_tree, hf_s7comm_param_service, tvb, offset, 1, function);
         /* show param.function code at the tree */
-        proto_item_append_text(param_tree, ": (%s)", val_to_str_wmem(pinfo->pool, function, param_functionnames, "Unknown function: 0x%02x"));
+        proto_item_append_text(param_tree, ": (%s)", val_to_str(pinfo->pool, function, param_functionnames, "Unknown function: 0x%02x"));
         offset += 1;
 
         if (rosctr == S7COMM_ROSCTR_JOB) {
@@ -7085,7 +7085,7 @@ dissect_s7comm(tvbuff_t *tvb,
     if (rosctr == 2 || rosctr == 3) hlength = 12;               /* Header 10 Bytes, when type 2 or 3 (response) -> 12 Bytes */
 
     /* display some infos in info-column of wireshark */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "ROSCTR:[%-8s]", val_to_str_wmem(pinfo->pool, rosctr, rosctr_names, "Unknown: 0x%02x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "ROSCTR:[%-8s]", val_to_str(pinfo->pool, rosctr, rosctr_names, "Unknown: 0x%02x"));
 
     s7comm_item = proto_tree_add_item(tree, proto_s7comm, tvb, 0, -1, ENC_NA);
     s7comm_tree = proto_item_add_subtree(s7comm_item, ett_s7comm);
@@ -7104,7 +7104,7 @@ dissect_s7comm(tvbuff_t *tvb,
     /* ROSCTR (Remote Operating Service Control) - PDU Type */
     proto_tree_add_uint(s7comm_header_tree, hf_s7comm_header_rosctr, tvb, offset, 1, rosctr);
     /* Show pdu type beside the header tree */
-    proto_item_append_text(s7comm_header_tree, ": (%s)", val_to_str_wmem(pinfo->pool, rosctr, rosctr_names, "Unknown ROSCTR: 0x%02x"));
+    proto_item_append_text(s7comm_header_tree, ": (%s)", val_to_str(pinfo->pool, rosctr, rosctr_names, "Unknown ROSCTR: 0x%02x"));
     offset += 1;
     /* Redundancy ID, reserved */
     proto_tree_add_item(s7comm_header_tree, hf_s7comm_header_redid, tvb, offset, 2, ENC_BIG_ENDIAN);

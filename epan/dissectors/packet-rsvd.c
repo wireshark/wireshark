@@ -937,7 +937,7 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
 
     /* RequestId */
     proto_tree_add_item_ret_uint64(sub_tree, hf_svhdx_request_id, tvb, offset, 8, ENC_LITTLE_ENDIAN, &request_id);
-    str_operation_code = val_to_str_wmem(pinfo->pool, operation_code, rsvd_operation_code_vals, "Unknown Operation Code (0x%08X)");
+    str_operation_code = val_to_str(pinfo->pool, operation_code, rsvd_operation_code_vals, "Unknown Operation Code (0x%08X)");
     offset += 8;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", str_operation_code, request ? "Request" : "Response");

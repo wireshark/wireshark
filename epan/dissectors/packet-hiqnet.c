@@ -650,7 +650,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     dstob2addr = tvb_get_uint8(tvb, 17);
     messageid = tvb_get_ntohs(tvb, 18);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Msg: %s, Src: %u.%u.%u.%u.%u, Dst: %u.%u.%u.%u.%u",
-        val_to_str_wmem(pinfo->pool, messageid, messageidnames, "Unknown (0x%04x)"),
+        val_to_str(pinfo->pool, messageid, messageidnames, "Unknown (0x%04x)"),
         srcdev, srcvdaddr, srcob0addr, srcob1addr, srcob2addr,
         dstdev, dstvdaddr, dstob0addr, dstob1addr, dstob2addr);
 
@@ -675,7 +675,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         messagelen = tvb_get_ntohl(tvb, 2);
         ti = proto_tree_add_item(tree, proto_hiqnet, tvb, 0, messagelen, ENC_NA);
         proto_item_append_text(ti, ", Msg: %s",
-            val_to_str_wmem(pinfo->pool, messageid, messageidnames, "Unknown (0x%04x)"));
+            val_to_str(pinfo->pool, messageid, messageidnames, "Unknown (0x%04x)"));
         proto_item_append_text(ti, ", Src %u.%u.%u.%u.%u",
             srcdev, srcvdaddr, srcob0addr, srcob1addr, srcob2addr);
         proto_item_append_text(ti, ", Dst: %u.%u.%u.%u.%u",

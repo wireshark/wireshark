@@ -1559,7 +1559,7 @@ dissect_ipopt_qs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * dat
   uint8_t ttl_diff;
 
   field_tree = ip_fixed_option_header(tree, pinfo, tvb, proto_ip_option_qs, ett_ip_option_qs, &tf, IPOLEN_QS, tvb_reported_length(tvb));
-  proto_item_append_text(tf, ": %s (%u)", val_to_str_wmem(pinfo->pool, function, qs_func_vals, "Unknown (%u)"), function);
+  proto_item_append_text(tf, ": %s (%u)", val_to_str(pinfo->pool, function, qs_func_vals, "Unknown (%u)"), function);
 
   proto_tree_add_item(field_tree, hf_ip_opt_qs_func, tvb, offset, 1, ENC_NA);
 

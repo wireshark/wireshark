@@ -524,16 +524,16 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 			break;
 		case CHANGE_COLLECT_TYPE:
 			proto_tree_add_int_format_value(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4,
-				par0, "%s", val_to_str_wmem(pinfo->pool, par0, actrace_cas_collect_type_vals, "Unknown (%d)"));
+				par0, "%s", val_to_str(pinfo->pool, par0, actrace_cas_collect_type_vals, "Unknown (%d)"));
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
-					val_to_str_wmem(pinfo->pool, par0, actrace_cas_collect_type_vals, "%d"));
+					val_to_str(pinfo->pool, par0, actrace_cas_collect_type_vals, "%d"));
 			break;
 		case SEND_MF:
 		case SEND_DEST_NUM:
 			proto_tree_add_int_format_value(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4,
-				par0, "%s", val_to_str_wmem(pinfo->pool, par0, actrace_cas_send_type_vals, "Unknown (%d)"));
+				par0, "%s", val_to_str(pinfo->pool, par0, actrace_cas_send_type_vals, "Unknown (%d)"));
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|",
-					val_to_str_wmem(pinfo->pool, par0, actrace_cas_send_type_vals, "%d"));
+					val_to_str(pinfo->pool, par0, actrace_cas_send_type_vals, "%d"));
 			break;
 		default:
 			proto_tree_add_int(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4, par0);

@@ -270,7 +270,7 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   opcode  = tvb_get_ntohs(tvb, 6);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "CPHAv%d: %s",
-      ha_version, val_to_str_wmem(pinfo->pool, opcode, opcode_type_vals, "Unknown %d"));
+      ha_version, val_to_str(pinfo->pool, opcode, opcode_type_vals, "Unknown %d"));
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cphap, tvb, offset, -1, ENC_NA);
@@ -307,7 +307,7 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         offset += 2;
     }
     nti = proto_tree_add_item(cpha_tree, hf_payload, tvb, offset, -1, ENC_NA);
-    proto_item_append_text(nti, " - %s", val_to_str_wmem(pinfo->pool, opcode, opcode_type_vals, "Unknown %d"));
+    proto_item_append_text(nti, " - %s", val_to_str(pinfo->pool, opcode, opcode_type_vals, "Unknown %d"));
     ntree = proto_item_add_subtree(nti, ett_cphap);
 
     switch(opcode) {

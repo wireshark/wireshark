@@ -55,8 +55,7 @@ changed without warning.
 
 Dissectors that include the wmem_scopes.h header file will have three pools available
 to them automatically: pinfo->pool, wmem_file_scope() and
-wmem_epan_scope(); there is also a wmem_packet_scope() for cases when the
-`pinfo` argument is not accessible, but pinfo->pool should be preferred.
+wmem_epan_scope().
 
 The pinfo pool is scoped to the dissection of each packet, meaning that any
 memory allocated in it will be automatically freed at the end of the current

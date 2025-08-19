@@ -331,17 +331,17 @@ static void dissect_otrxd_mts(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tre
 	uint8_t mts = tvb_get_uint8(tvb, offset);
 	if ((mts >> 5) == 0x00 || (mts >> 5) == 0x03) { /* 2 bit: GMSK (0) or AQPSK (3) */
 		pi->mod = (enum otrxd_mod_type) (mts >> 5);
-		pi->mod_str = val_to_str_wmem(pinfo->pool, mts >> 5, otrxd_mod_2b_vals, "Unknown 0x%02x");
+		pi->mod_str = val_to_str(pinfo->pool, mts >> 5, otrxd_mod_2b_vals, "Unknown 0x%02x");
 		proto_tree_add_item(tree, hf_otrxd_mod_2b, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item(tree, hf_otrxd_tsc_set_x4, tvb, offset, 1, ENC_NA);
 	} else if ((mts >> 4) != 0x03) { /* 3 bit: 8-PSK, 16QAM, or 32QAM */
 		pi->mod = (enum otrxd_mod_type) (mts >> 4);
-		pi->mod_str = val_to_str_wmem(pinfo->pool, mts >> 4, otrxd_mod_3b_vals, "Unknown 0x%02x");
+		pi->mod_str = val_to_str(pinfo->pool, mts >> 4, otrxd_mod_3b_vals, "Unknown 0x%02x");
 		proto_tree_add_item(tree, hf_otrxd_mod_3b, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item(tree, hf_otrxd_tsc_set_x2, tvb, offset, 1, ENC_NA);
 	} else { /* 4 bit (without TSC set): GMSK (Packet Access Burst) or RFU */
 		pi->mod = (enum otrxd_mod_type) (mts >> 3);
-		pi->mod_str = val_to_str_wmem(pinfo->pool, mts >> 3, otrxd_mod_4b_vals, "Unknown 0x%02x");
+		pi->mod_str = val_to_str(pinfo->pool, mts >> 3, otrxd_mod_4b_vals, "Unknown 0x%02x");
 		proto_tree_add_item(tree, hf_otrxd_mod_4b, tvb, offset, 1, ENC_NA);
 	}
 

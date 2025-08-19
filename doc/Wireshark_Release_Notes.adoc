@@ -212,6 +212,7 @@ for Arm64 and Intel. wsbuglink:17294[]
 === Removed Features and Support
 
 Wireshark no longer supports AirPcap and WinPcap.
+Wireshark no longer supports libnl versions 1 or 2.
 Cmake option ENABLE_STATIC deprecated in favor of BUILD_SHARED_LIBS
 
 // === Removed Dissectors

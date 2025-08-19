@@ -4328,7 +4328,7 @@ decode_flowspec_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t afi, 
         filter_item = proto_tree_add_item(nlri_tree, hf_bgp_flowspec_nlri_filter, tvb, offset+cursor_fspec, 1, ENC_NA);
         filter_tree = proto_item_add_subtree(filter_item, ett_bgp_flow_spec_nlri_filter);
         proto_tree_add_item(filter_tree, hf_bgp_flowspec_nlri_filter_type, tvb, offset+cursor_fspec, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(filter_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb,offset+cursor_fspec), flowspec_nlri_opvaluepair_type, "Unknown filter %d"));
+        proto_item_append_text(filter_item, ": %s", val_to_str(pinfo->pool, tvb_get_uint8(tvb,offset+cursor_fspec), flowspec_nlri_opvaluepair_type, "Unknown filter %d"));
         switch (tvb_get_uint8(tvb,offset+cursor_fspec)) {
         case BGPNLRI_FSPEC_DST_PFIX:
             cursor_fspec++;
@@ -6948,7 +6948,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, packet_
 
     proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rt, tvb, reader_offset,
                         1, ENC_BIG_ENDIAN);
-    proto_item_append_text(ti, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), evpnrtypevals, "Unknown capability %d"));
+    proto_item_append_text(ti, ": %s", val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset), evpnrtypevals, "Unknown capability %d"));
     /* moving to next field */
     reader_offset++;
 
@@ -7728,12 +7728,12 @@ static int decode_bgp_mup_nlri(proto_tree *tree, tvbuff_t *tvb, int offset, pack
     prefix_tree = proto_item_add_subtree(nlri_pi, ett_bgp_mup_nlri);
 
     proto_tree_add_item(prefix_tree, hf_bgp_mup_nlri_at, tvb, reader_offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(nlri_pi, ": %s", val_to_str_wmem(pinfo->pool, architecture_type, bgp_mup_architecture_types,
+    proto_item_append_text(nlri_pi, ": %s", val_to_str(pinfo->pool, architecture_type, bgp_mup_architecture_types,
                            "Unknown architecture type %d"));
     reader_offset++;
 
     proto_tree_add_item(prefix_tree, hf_bgp_mup_nlri_rt, tvb, reader_offset, 2, ENC_BIG_ENDIAN);
-    proto_item_append_text(nlri_pi, ": %s", val_to_str_wmem(pinfo->pool, route_type, bgp_mup_route_types,
+    proto_item_append_text(nlri_pi, ": %s", val_to_str(pinfo->pool, route_type, bgp_mup_route_types,
                            "Unknown route type %d"));
     reader_offset += 2;
 
@@ -8597,7 +8597,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     proto_tree_add_item(cap_tree, hf_bgp_cap_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     ctype = tvb_get_uint8(tvb, offset);
-    proto_item_append_text(ti, ": %s", val_to_str_wmem(pinfo->pool, ctype, capability_vals, "Unknown capability %d"));
+    proto_item_append_text(ti, ": %s", val_to_str(pinfo->pool, ctype, capability_vals, "Unknown capability %d"));
     offset += 1;
 
     ti_len = proto_tree_add_item(cap_tree, hf_bgp_cap_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -8973,7 +8973,7 @@ dissect_bgp_open(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
             /* display and grab the type ... */
             proto_tree_add_item(par_tree, hf_bgp_open_opt_param_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             ptype = tvb_get_uint8(tvb, offset);
-            proto_item_append_text(ti, ": %s", val_to_str_wmem(pinfo->pool, ptype, bgp_open_opt_vals, "Unknown Parameter %d"));
+            proto_item_append_text(ti, ": %s", val_to_str(pinfo->pool, ptype, bgp_open_opt_vals, "Unknown Parameter %d"));
             offset += 1;
 
             /* ... and length */
@@ -9219,7 +9219,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 }
 
                 proto_item_set_text(community_item, "%s: %u:%u",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_as2, "Unknown subtype 0x%02x"),
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_as2, "Unknown subtype 0x%02x"),
                         tvb_get_ntohs(tvb,offset+2), tvb_get_ntohl(tvb, offset+4));
                 break;
 
@@ -9228,7 +9228,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_as2, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s:",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_ntr_as2, "Unknown subtype 0x%02x"));
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_ntr_as2, "Unknown subtype 0x%02x"));
 
                 switch (com_stype_low_byte) {
                     case BGP_EXT_COM_STYPE_AS2_LBW:
@@ -9252,7 +9252,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_IP4, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s: %s:%u",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_IP4, "Unknown subtype 0x%02x"),
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_IP4, "Unknown subtype 0x%02x"),
                         tvb_ip_to_str(pinfo->pool, tvb, offset+2), tvb_get_ntohs(tvb,offset+6));
 
                 switch(com_stype_low_byte) {
@@ -9273,7 +9273,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s: %s:%u",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_ntr_IP4, "Unknown subtype 0x%02x"),
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_ntr_IP4, "Unknown subtype 0x%02x"),
                         tvb_ip_to_str(pinfo->pool, tvb, offset+2), tvb_get_ntohs(tvb,offset+6));
                 break;
 
@@ -9283,7 +9283,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s: %u.%u(%u):%u",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_as4, "Unknown subtype 0x%02x"),
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_as4, "Unknown subtype 0x%02x"),
                         tvb_get_ntohs(tvb,offset+2), tvb_get_ntohs(tvb,offset+4), tvb_get_ntohl(tvb,offset+2),
                         tvb_get_ntohs(tvb,offset+6));
                 break;
@@ -9294,7 +9294,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an2, tvb, offset+6, 2, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s: %u.%u(%u):%u",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_ntr_as4, "Unknown subtype 0x%02x"),
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_ntr_as4, "Unknown subtype 0x%02x"),
                         tvb_get_ntohs(tvb,offset+2), tvb_get_ntohs(tvb,offset+4), tvb_get_ntohl(tvb,offset+2),
                         tvb_get_ntohs(tvb,offset+6));
                 break;
@@ -9303,7 +9303,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_opaque, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s:",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_opaque, "Unknown subtype 0x%02x"));
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_opaque, "Unknown subtype 0x%02x"));
 
                 switch(com_stype_low_byte) {
                     case BGP_EXT_COM_STYPE_OPA_COST:
@@ -9322,7 +9322,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
 
                         proto_item_append_text(community_item, " %u, POI: %s (%s)",
                                 tvb_get_ntohl(tvb, offset+4),
-                                val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset+2), bgpext_com_cost_poi_type, "Unknown subtype 0x%02x"),
+                                val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset+2), bgpext_com_cost_poi_type, "Unknown subtype 0x%02x"),
                                 (tvb_get_uint8(tvb, offset+3) & BGP_EXT_COM_COST_CID_REP) ? "Replaces attribute value" : "Evaluated after");
                         }
                         break;
@@ -9380,7 +9380,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_ntr_opaque, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s:",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_ntr_opaque, "Unknown subtype 0x%02x"));
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_ntr_opaque, "Unknown subtype 0x%02x"));
 
                 switch(com_stype_low_byte) {
                     case BGP_EXT_COM_STYPE_OPA_COST:
@@ -9399,7 +9399,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
 
                         proto_item_append_text(community_item, " %u, POI: %s (%s)",
                                 tvb_get_ntohl(tvb, offset+4),
-                                val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset+2), bgpext_com_cost_poi_type, "Unknown subtype 0x%02x"),
+                                val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset+2), bgpext_com_cost_poi_type, "Unknown subtype 0x%02x"),
                                 (tvb_get_uint8(tvb, offset+3) & BGP_EXT_COM_COST_CID_REP) ? "Replaces attribute value" : "Evaluated after");
                         }
                         break;
@@ -9469,7 +9469,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_evpn, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s:",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_evpn, "Unknown subtype 0x%02x"));
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_evpn, "Unknown subtype 0x%02x"));
 
                 switch (com_stype_low_byte) {
                     case BGP_EXT_COM_STYPE_EVPN_MMAC:
@@ -9580,7 +9580,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_mup, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s:",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_mup, "Unknown subtype 0x%02x"));
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_mup, "Unknown subtype 0x%02x"));
                 switch (com_stype_low_byte) {
                     case BGP_EXT_COM_STYPE_MUP_DIRECT_SEG:
                         /* format of this community is open, then display it in 2-byte:4-byte decimal format like route target */
@@ -9604,7 +9604,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_exp, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s:",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_exp, "Unknown subtype 0x%02x"));
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_exp, "Unknown subtype 0x%02x"));
 
                 switch (com_stype_low_byte) {
                     case BGP_EXT_COM_STYPE_EXP_OSPF_RT:
@@ -9640,7 +9640,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_value_an4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
                         proto_item_set_text(community_item, "%s: %u:%u",
-                                val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_exp, "Unknown subtype 0x%02x"),
+                                val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_exp, "Unknown subtype 0x%02x"),
                                 tvb_get_ntohs(tvb,offset+2), tvb_get_ntohl(tvb, offset+4));
                         break;
 
@@ -9735,7 +9735,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_exp_2, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s:",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_exp_2, "Unknown subtype 0x%02x"));
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_exp_2, "Unknown subtype 0x%02x"));
 
                 switch (com_stype_low_byte) {
                     case BGP_EXT_COM_STYPE_EXP_2_FLOW_RED:
@@ -9766,7 +9766,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_exp_3, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s:",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_exp_3, "Unknown subtype 0x%02x"));
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_exp_3, "Unknown subtype 0x%02x"));
 
                 switch (com_stype_low_byte) {
                     case BGP_EXT_COM_STYPE_EXP_3_FLOW_RED:
@@ -9797,7 +9797,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_exp_eigrp, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
                 proto_item_set_text(community_item, "%s:",
-                        val_to_str_wmem(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_eigrp, "Unknown subtype 0x%02x"));
+                        val_to_str(pinfo->pool, com_stype_low_byte, bgpext_com_stype_tr_eigrp, "Unknown subtype 0x%02x"));
 
                 switch(com_stype_low_byte) {
                     case BGP_EXT_COM_STYPE_EXP_EIGRP_FT:
@@ -9880,7 +9880,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, uint16_t tlen
                         proto_tree_add_item(community_tree, hf_bgp_ext_com_eigrp_e_m, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
                         proto_item_append_text(community_tree, " %s, Metric: %u",
-                          val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset+2), eigrp_proto2string, "Unknown protocol %u"),
+                          val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset+2), eigrp_proto2string, "Unknown protocol %u"),
                           tvb_get_ntohl(tvb, offset+4));
                         break;
 
@@ -10133,7 +10133,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
         tlen = alen;
 
         ti_pa = proto_tree_add_item(subtree, hf_bgp_update_path_attribute, tvb, o + i, tlen + aoff, ENC_NA);
-        proto_item_append_text(ti_pa, " - %s", val_to_str_wmem(pinfo->pool, bgpa_type, bgpattr_type, "Unknown (%u)"));
+        proto_item_append_text(ti_pa, " - %s", val_to_str(pinfo->pool, bgpa_type, bgpattr_type, "Unknown (%u)"));
 
         subtree2 = proto_item_add_subtree(ti_pa, ett_bgp_attr);
 
@@ -11075,7 +11075,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                                                                         hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv,
                                                                         tvb, sub_pnt , srv6_service_subtlv_len + 3, ENC_NA);
                                         proto_item_append_text(stlv_item, " - %s",
-                                                               val_to_str_wmem(pinfo->pool, srv6_service_subtlv_type, srv6_service_sub_tlv_type, "Unknown (%u)"));
+                                                               val_to_str(pinfo->pool, srv6_service_subtlv_type, srv6_service_sub_tlv_type, "Unknown (%u)"));
                                         stlv_tree = proto_item_add_subtree(stlv_item, ett_bgp_prefix_sid_srv6_l3vpn_sid_information);
 
                                         proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv_type, tvb, sub_pnt, 1, ENC_BIG_ENDIAN);
@@ -11103,7 +11103,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                                                                                      hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlv,
                                                                                      tvb, sub_sub_pnt , srv6_service_data_subsubtlv_len + 3, ENC_NA);
                                                     proto_item_append_text(sstlv_item, " - %s",
-                                                                           val_to_str_wmem(pinfo->pool, srv6_service_data_subsubtlv_type, srv6_service_data_sub_sub_tlv_type, "Unknown (%u)"));
+                                                                           val_to_str(pinfo->pool, srv6_service_data_subsubtlv_type, srv6_service_data_sub_sub_tlv_type, "Unknown (%u)"));
                                                     sstlv_tree = proto_item_add_subtree(sstlv_item, ett_bgp_prefix_sid_srv6_l3vpn_sid_structure);
 
                                                     proto_tree_add_item(sstlv_tree, hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlv_type, tvb, sub_sub_pnt, 1, ENC_BIG_ENDIAN);
@@ -11120,7 +11120,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                                                                                      hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlv,
                                                                                      tvb, sub_sub_pnt , srv6_service_data_subsubtlv_len + 3, ENC_NA);
                                                     proto_item_append_text(sstlv_item, " - %s",
-                                                                           val_to_str_wmem(pinfo->pool, srv6_service_data_subsubtlv_type, srv6_service_data_sub_sub_tlv_type, "Unknown (%u)"));
+                                                                           val_to_str(pinfo->pool, srv6_service_data_subsubtlv_type, srv6_service_data_sub_sub_tlv_type, "Unknown (%u)"));
                                                     sstlv_tree = proto_item_add_subtree(sstlv_item, ett_bgp_prefix_sid_srv6_l3vpn_sid_unknown);
 
                                                     proto_tree_add_item(sstlv_tree, hf_bgp_prefix_sid_srv6_l3vpn_sub_sub_tlv_type, tvb, sub_sub_pnt, 1, ENC_BIG_ENDIAN);
@@ -11135,7 +11135,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                                         stlv_item = proto_tree_add_item(srv6_stlv_tree,
                                                                         hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv,
                                                                         tvb, sub_pnt , srv6_service_subtlv_len + 3, ENC_NA);
-                                        proto_item_append_text(stlv_item, " - %s", val_to_str_wmem(pinfo->pool, srv6_service_subtlv_type, srv6_service_sub_tlv_type, "Unknown (%u)"));
+                                        proto_item_append_text(stlv_item, " - %s", val_to_str(pinfo->pool, srv6_service_subtlv_type, srv6_service_sub_tlv_type, "Unknown (%u)"));
                                         stlv_tree = proto_item_add_subtree(stlv_item, ett_bgp_prefix_sid_srv6_l3vpn_unknown);
 
                                         proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l3vpn_sub_tlv_type, tvb, sub_pnt, 1, ENC_BIG_ENDIAN);
@@ -11169,7 +11169,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                                                                         hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv,
                                                                         tvb, sub_pnt , srv6_service_subtlv_len + 3, ENC_NA);
                                         proto_item_append_text(stlv_item, " - %s",
-                                                               val_to_str_wmem(pinfo->pool, srv6_service_subtlv_type, srv6_service_sub_tlv_type, "Unknown (%u)"));
+                                                               val_to_str(pinfo->pool, srv6_service_subtlv_type, srv6_service_sub_tlv_type, "Unknown (%u)"));
                                         stlv_tree = proto_item_add_subtree(stlv_item, ett_bgp_prefix_sid_srv6_l2vpn_sid_information);
 
                                         proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv_type, tvb, sub_pnt, 1, ENC_BIG_ENDIAN);
@@ -11197,7 +11197,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                                                                                      hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlv,
                                                                                      tvb, sub_sub_pnt , srv6_service_data_subsubtlv_len + 3, ENC_NA);
                                                     proto_item_append_text(sstlv_item, " - %s",
-                                                                           val_to_str_wmem(pinfo->pool, srv6_service_data_subsubtlv_type, srv6_service_data_sub_sub_tlv_type, "Unknown (%u)"));
+                                                                           val_to_str(pinfo->pool, srv6_service_data_subsubtlv_type, srv6_service_data_sub_sub_tlv_type, "Unknown (%u)"));
                                                     sstlv_tree = proto_item_add_subtree(sstlv_item, ett_bgp_prefix_sid_srv6_l2vpn_sid_structure);
 
                                                     proto_tree_add_item(sstlv_tree, hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlv_type, tvb, sub_sub_pnt, 1, ENC_BIG_ENDIAN);
@@ -11214,7 +11214,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                                                                                      hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlv,
                                                                                      tvb, sub_sub_pnt , srv6_service_data_subsubtlv_len + 3, ENC_NA);
                                                     proto_item_append_text(sstlv_item, " - %s",
-                                                                           val_to_str_wmem(pinfo->pool, srv6_service_data_subsubtlv_type, srv6_service_data_sub_sub_tlv_type, "Unknown (%u)"));
+                                                                           val_to_str(pinfo->pool, srv6_service_data_subsubtlv_type, srv6_service_data_sub_sub_tlv_type, "Unknown (%u)"));
                                                     sstlv_tree = proto_item_add_subtree(sstlv_item, ett_bgp_prefix_sid_srv6_l2vpn_sid_unknown);
 
                                                     proto_tree_add_item(sstlv_tree, hf_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlv_type, tvb, sub_sub_pnt, 1, ENC_BIG_ENDIAN);
@@ -11229,7 +11229,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                                         stlv_item = proto_tree_add_item(srv6_stlv_tree,
                                                                         hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv,
                                                                         tvb, sub_pnt , srv6_service_subtlv_len + 3, ENC_NA);
-                                        proto_item_append_text(stlv_item, " - %s", val_to_str_wmem(pinfo->pool, srv6_service_subtlv_type, srv6_service_sub_tlv_type, "Unknown (%u)"));
+                                        proto_item_append_text(stlv_item, " - %s", val_to_str(pinfo->pool, srv6_service_subtlv_type, srv6_service_sub_tlv_type, "Unknown (%u)"));
                                         stlv_tree = proto_item_add_subtree(stlv_item, ett_bgp_prefix_sid_srv6_l2vpn_unknown);
 
                                         proto_tree_add_item(stlv_tree, hf_bgp_prefix_sid_srv6_l2vpn_sub_tlv_type, tvb, sub_pnt, 1, ENC_BIG_ENDIAN);
@@ -11243,7 +11243,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                             break;
                         default:
                             tlv_item = proto_tree_add_item(subtree2, hf_bgp_prefix_sid_unknown, tvb, q, prefix_sid_sublen + 3, ENC_NA);
-                            proto_item_append_text(tlv_item, " (%s)", val_to_str_wmem(pinfo->pool, prefix_sid_subtype, bgp_prefix_sid_type, "%u"));
+                            proto_item_append_text(tlv_item, " (%s)", val_to_str(pinfo->pool, prefix_sid_subtype, bgp_prefix_sid_type, "%u"));
                             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_prefix_sid_unknown);
                             proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_type, tvb, q, 1, ENC_BIG_ENDIAN);
                             proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_length, tvb, q + 1, 2, ENC_BIG_ENDIAN);
@@ -11698,7 +11698,7 @@ dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     bgp_len = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     bgp_type = tvb_get_uint8(tvb, BGP_MARKER_SIZE + 2);
-    typ = val_to_str_wmem(pinfo->pool, bgp_type, bgptypevals, "Unknown message type (0x%02x)");
+    typ = val_to_str(pinfo->pool, bgp_type, bgptypevals, "Unknown message type (0x%02x)");
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BGP");
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, typ);

@@ -404,14 +404,14 @@ dissect_bblog_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     case TCP_LOG_PRU:
         pru = (flex1 & BBLOG_TCP_PRU_MASK) >> BBLOG_TCP_PRU_SHIFT;
         col_append_fstr(pinfo->cinfo, COL_INFO, "PRU: %s",
-                        val_to_str_wmem(pinfo->pool, pru, tcp_pru_values, "UNKNOWN (0x%02x)"));
+                        val_to_str(pinfo->pool, pru, tcp_pru_values, "UNKNOWN (0x%02x)"));
         break;
     case BBLOG_TCP_LOG_TIMER:
         timer_type = (flex1 & BBLOG_TCP_TIMER_TYPE_MASK) >> BBLOG_TCP_TIMER_TYPE_SHIFT;
         timer_event = (flex1 & BBLOG_TCP_TIMER_EVENT_MASK) >> BBLOG_TCP_TIMER_EVENT_SHIFT;
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s timer",
-                        val_to_str_wmem(pinfo->pool, timer_event, tcp_timer_event_values, "Unknown operation (0x%02x) for"),
-                        val_to_str_wmem(pinfo->pool, timer_type, tcp_timer_type_values, "Unknown (0x%02x)"));
+                        val_to_str(pinfo->pool, timer_event, tcp_timer_event_values, "Unknown operation (0x%02x) for"),
+                        val_to_str(pinfo->pool, timer_type, tcp_timer_type_values, "Unknown (0x%02x)"));
         if (timer_event == BBLOG_TCP_TIMER_EVENT_STARTING) {
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %u ms", flex2);
         }

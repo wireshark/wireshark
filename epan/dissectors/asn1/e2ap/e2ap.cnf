@@ -114,7 +114,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 # #.FN_BODY E2AP-PDU VAL_PTR=&value
 #   uint32_t value;
 # %(DEFAULT_BODY)s
-#   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str_wmem(actx->pinfo->pool, value, e2ap_E2AP_PDU_vals, "Unknown"));
+#   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, value, e2ap_E2AP_PDU_vals, "Unknown"));
 
 
 
@@ -127,7 +127,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 #.FN_BODY ProcedureCode  VAL_PTR = &e2ap_data->procedure_code
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
-  //col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", val_to_str_wmem(actx->pinfo->pool, e2ap_data->procedure_code, e2ap_ProcedureCode_vals, "Unknown"));
+  //col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", val_to_str(actx->pinfo->pool, e2ap_data->procedure_code, e2ap_ProcedureCode_vals, "Unknown"));
 #.END
 
 

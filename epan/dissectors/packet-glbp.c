@@ -215,7 +215,7 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset,
   offset += addrlen;
 
   col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-    val_to_str_wmem(pinfo->pool, addrtype, glbp_addr_type_vals, "%d"));
+    val_to_str(pinfo->pool, addrtype, glbp_addr_type_vals, "%d"));
 
   return offset;
 }
@@ -334,14 +334,14 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(glbp_tree, hf_glbp_tlv, tvb, offset, length+2, ENC_BIG_ENDIAN);
     tlv_tree = proto_item_add_subtree(ti, ett_glbp_tlv);
     proto_item_append_text(ti, " l=%d, t=%s", length+2,
-                           val_to_str_wmem(pinfo->pool, type, glbp_type_vals, "%d"));
+                           val_to_str(pinfo->pool, type, glbp_type_vals, "%d"));
 
     proto_tree_add_item(tlv_tree, hf_glbp_type, tvb, offset, 1,  ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(tlv_tree, hf_glbp_length, tvb, offset, 1,  ENC_BIG_ENDIAN);
     offset++;
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                    val_to_str_wmem(pinfo->pool, type, glbp_type_vals, "%d"));
+                    val_to_str(pinfo->pool, type, glbp_type_vals, "%d"));
 
     lastoffset = offset;
     switch(type) {
