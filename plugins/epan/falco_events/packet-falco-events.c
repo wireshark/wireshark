@@ -241,10 +241,16 @@ is_source_address_field(enum ftenum ftype, const char *abbrev) {
     if (ftype != FT_STRINGZ) {
         return false;
     }
-    if (strstr(abbrev, ".srcip")) { // ct.srcip
-        return true;
-    } else if (strstr(abbrev, ".client.ip")) { // okta.client.ip
-        return true;
+
+    const char *addr_suffixes[] = {
+        ".srcip",       // ct.srcip
+        ".callerIP",    // gcp.callerIP
+        ".client.ip",   // okta.client.ip
+    };
+    for (size_t idx = 0; idx < array_length(addr_suffixes); idx++) {
+        if (g_str_has_suffix(abbrev, addr_suffixes[idx])) {
+            return true;
+        }
     }
     return false;
 }
