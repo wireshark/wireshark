@@ -463,6 +463,7 @@ format_units(wmem_allocator_t *allocator, double size,
         prefix = iec_prefix;
         max_exp = (int)G_N_ELEMENTS(iec_prefix) - 1;
         power = 1024.0;
+        pfx_off = 0;
     }
 
     if (isfinite(size) && size != 0.0) {

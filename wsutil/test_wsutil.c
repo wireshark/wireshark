@@ -9,6 +9,7 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <math.h>
 #include <glib.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/time_util.h>
@@ -105,6 +106,38 @@ static void test_format_size(void)
     str = format_size(20971520, FORMAT_SIZE_UNIT_BITS, FORMAT_SIZE_PREFIX_IEC);
     g_assert_cmpstr(str, ==, "20 Mib");
     g_free(str);
+}
+
+static void test_format_units_case(int base, int exponent, uint16_t flags, const char *expect)
+{
+    char *result = format_units(NULL, pow(base, exponent), FORMAT_SIZE_UNIT_NONE, flags, 10);
+    g_assert_cmpstr(result, ==, expect);
+    g_free(result);
+}
+
+static void test_format_units(void)
+{
+    test_format_units_case(10, -21, FORMAT_SIZE_PREFIX_SI, "1e-21");
+    test_format_units_case(10, -21, FORMAT_SIZE_PREFIX_IEC, "1e-21");
+    test_format_units_case(10, -18, FORMAT_SIZE_PREFIX_SI, "1 a");
+    test_format_units_case(10, -18, FORMAT_SIZE_PREFIX_IEC, "1e-18");
+    test_format_units_case(10, -3, FORMAT_SIZE_PREFIX_SI, "1 m");
+    test_format_units_case(10, -3, FORMAT_SIZE_PREFIX_IEC, "0.001");
+    test_format_units_case(10, 0, FORMAT_SIZE_PREFIX_SI, "1");
+    test_format_units_case(10, 0, FORMAT_SIZE_PREFIX_IEC, "1");
+    test_format_units_case(10, 3, FORMAT_SIZE_PREFIX_SI, "1 k");
+    test_format_units_case(10, 3, FORMAT_SIZE_PREFIX_IEC, "1000");
+    test_format_units_case(2, 10, FORMAT_SIZE_PREFIX_SI, "1.024 k");
+    test_format_units_case(2, 10, FORMAT_SIZE_PREFIX_IEC, "1 Ki");
+    test_format_units_case(10, 6, FORMAT_SIZE_PREFIX_SI, "1 M");
+    test_format_units_case(2, 20, FORMAT_SIZE_PREFIX_SI, "1.048576 M");
+    test_format_units_case(2, 20, FORMAT_SIZE_PREFIX_IEC, "1 Mi");
+    test_format_units_case(10, 18, FORMAT_SIZE_PREFIX_SI, "1 E");
+    test_format_units_case(2, 60, FORMAT_SIZE_PREFIX_IEC, "1 Ei");
+    test_format_units_case(10, 20, FORMAT_SIZE_PREFIX_SI, "100 E");
+    test_format_units_case(10, 21, FORMAT_SIZE_PREFIX_SI, "1e+21");
+    test_format_units_case(2, 69, FORMAT_SIZE_PREFIX_IEC, "512 Ei");
+    test_format_units_case(10, 22, FORMAT_SIZE_PREFIX_IEC, "1e+22");
 }
 
 static void test_escape_string(void)
@@ -869,6 +902,7 @@ int main(int argc, char **argv)
     g_test_add_func("/inet_addr/inet_ntop6", test_inet_ntop6_test1);
 
     g_test_add_func("/str_util/format_size", test_format_size);
+    g_test_add_func("/str_util/format_units", test_format_units);
     g_test_add_func("/str_util/escape_string", test_escape_string);
     g_test_add_func("/str_util/strconcat", test_strconcat);
     g_test_add_func("/str_util/strsplit", test_strsplit);

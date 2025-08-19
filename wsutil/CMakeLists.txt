@@ -487,7 +487,7 @@ add_executable(test_wsutil EXCLUDE_FROM_ALL
 	test_wsutil.c
 )
 
-target_link_libraries(test_wsutil ${GLIB2_LIBRARIES} wsutil)
+target_link_libraries(test_wsutil ${M_LIBRARIES} ${GLIB2_LIBRARIES} wsutil)
 
 set_target_properties(test_wsutil PROPERTIES
 	FOLDER "Tests"
