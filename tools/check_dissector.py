@@ -96,7 +96,7 @@ if args.open:
              for f in subprocess.check_output(command).splitlines()]
     # Filter files.
     # TODO: should filter here (and below) with a better check for dissectors
-    dissectors = list(filter(lambda f : is_dissector_file))
+    dissectors = list(filter(lambda f : is_dissector_file, files))
 
     # Staged changes.
     command = ['git', 'diff', '--staged', '--name-only']

@@ -443,6 +443,11 @@ static int hf_oran_c_section_common;
 static int hf_oran_c_section;
 static int hf_oran_u_section;
 
+static int hf_oran_u_section_ul_symbol_time;
+static int hf_oran_u_section_ul_symbol_frames;
+static int hf_oran_u_section_ul_symbol_first_frame;
+static int hf_oran_u_section_ul_symbol_last_frame;
+
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
 static int hf_oran_refa;
@@ -551,6 +556,7 @@ static expert_field ei_oran_num_sinr_per_prb_unknown;
 static expert_field ei_oran_start_symbol_id_bits_ignored;
 static expert_field ei_oran_user_group_id_reserved_value;
 static expert_field ei_oran_port_list_index_zero;
+static expert_field ei_oran_ul_uplane_symbol_too_long;
 
 
 /* These are the message types handled by this dissector */
@@ -604,7 +610,11 @@ static bool udcomplen_heuristic_result = false;
 /* st6-4byte-alignment-required */
 static bool st6_4byte_alignment = false;
 
+/* Requested, allows I/Q to be stored as integers.. */
 static bool show_unscaled_values = false;
+
+/* Initialized off */
+static unsigned us_allowed_for_ul_in_symbol = 0;
 
 static const enum_val_t dl_compression_options[] = {
     { "COMP_NONE",                             "No Compression",                                                             COMP_NONE },
@@ -1567,6 +1577,26 @@ typedef struct {
     uint8_t  expected_sequence_number;
     uint32_t previous_frame;
 } flow_result_t;
+
+
+/* Uplink timing */
+/* For a given symbol, track first to last UL frame to find out first-last time */
+/* frameId (8) + subframeId (4) + slotId (6) + symbolId (6) = 24 bits */
+static uint32_t get_timing_key(uint8_t frameId, uint8_t subframeId, uint8_t slotId, uint8_t symbolId)
+{
+    return symbolId + (slotId<<8) + (subframeId<<14) + (frameId<<18);
+}
+
+typedef struct {
+    uint32_t first_frame;
+    nstime_t first_frame_time;
+    uint32_t frames_seen_in_symbol;
+    uint32_t last_frame_in_symbol;
+} ul_timing_for_slot;
+
+/* Set during first pass.  timing_key -> ul_timing_for_slot*  */
+static wmem_tree_t *ul_symbol_timing;
+
 
 static void show_link_to_acknack_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                                           ack_nack_request_t *response);
@@ -6025,6 +6055,79 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
+    /* Checking UL timing within current slot.  Disabled if limit set to 0. */
+    /* N.B., timing is relative to first seen frame,
+       not some notion of the beginning of the slot from sync, offset by some timing.. */
+    if (direction == DIR_UPLINK && us_allowed_for_ul_in_symbol > 0) {
+        uint32_t timing_key = get_timing_key(frameId, subframeId, slotId, symbolId);
+        if (!PINFO_FD_VISITED(pinfo)) {
+            /* Set state on first pass */
+            ul_timing_for_slot* timing = (ul_timing_for_slot*)wmem_tree_lookup32(ul_symbol_timing, timing_key);
+            if (!timing) {
+                /* Allocate new state */
+                timing = wmem_new0(wmem_file_scope(), ul_timing_for_slot);
+                timing->first_frame = pinfo->num;
+                timing->first_frame_time = pinfo->abs_ts;
+                timing->frames_seen_in_symbol = 1;
+                timing->last_frame_in_symbol = pinfo->num;
+                wmem_tree_insert32(ul_symbol_timing, timing_key, timing);
+            }
+            else {
+                /* Update existing state */
+                timing->frames_seen_in_symbol++;
+                timing->last_frame_in_symbol = pinfo->num;
+            }
+        }
+        else {
+            /* Subsequent passes - look up result */
+            ul_timing_for_slot* timing = (ul_timing_for_slot*)wmem_tree_lookup32(ul_symbol_timing, timing_key);
+            if (timing) {  /* Really shouldn't fail! */
+                if (timing->frames_seen_in_symbol > 1) {
+                    /* Work out gap between frames (in microseconds) back to frame carrying first seen symbol */
+                    int seconds_between_packets = (int)
+                          (pinfo->abs_ts.secs - timing->first_frame_time.secs);
+                    int nseconds_between_packets =
+                          pinfo->abs_ts.nsecs - timing->first_frame_time.nsecs;
+
+                    /* Round to nearest microsecond. */
+                    uint32_t total_gap = (seconds_between_packets*1000000) +
+                                         ((nseconds_between_packets+500) / 1000);
+
+                    proto_item *ti = NULL;
+
+                    /* Show how long it has been */
+                    if (pinfo->num != timing->first_frame) {
+                        ti = proto_tree_add_uint(timingHeader, hf_oran_u_section_ul_symbol_time, tvb, 0, 0, total_gap);
+                        proto_item_set_generated(ti);
+                    }
+
+                    if (total_gap > us_allowed_for_ul_in_symbol) {
+                        expert_add_info_format(pinfo, ti, &ei_oran_ul_uplane_symbol_too_long,
+                                               "UL U-Plane Tx took longer (%u us) than limit set in preferences (%u us)",
+                                               total_gap, us_allowed_for_ul_in_symbol);
+                    }
+
+                    /* Show how many frames were received */
+                    ti = proto_tree_add_uint(timingHeader, hf_oran_u_section_ul_symbol_frames, tvb, 0, 0, timing->frames_seen_in_symbol);
+                    proto_item_set_generated(ti);
+
+                    /* Link to first frame for this symbol */
+                    if (pinfo->num != timing->first_frame) {
+                        ti = proto_tree_add_uint(timingHeader, hf_oran_u_section_ul_symbol_first_frame, tvb, 0, 0, timing->first_frame);
+                        proto_item_set_generated(ti);
+                    }
+
+                    /* And also last frame */
+                    if (pinfo->num != timing->last_frame_in_symbol) {
+                        ti = proto_tree_add_uint(timingHeader, hf_oran_u_section_ul_symbol_last_frame, tvb, 0, 0, timing->last_frame_in_symbol);
+                        proto_item_set_generated(ti);
+                    }
+                }
+            }
+        }
+    }
+
+
     /* Look up preferences for samples */
     if (direction == DIR_UPLINK) {
         sample_bit_width = pref_sample_bit_width_uplink;
@@ -7564,6 +7667,32 @@ proto_register_oran(void)
             "Used for the In-phase and Quadrature sample mantissa", HFILL }
         },
 
+
+        { &hf_oran_u_section_ul_symbol_time,
+          { "Microseconds since first UL U-plane frame for this symbol", "oran_fh_cus.us-since-first-ul-frame",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_oran_u_section_ul_symbol_frames,
+          { "Number of UL frames sent for this symbol", "oran_fh_cus.number-ul-frames-in-symbol",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_oran_u_section_ul_symbol_first_frame,
+          { "First UL frame for this symbol", "oran_fh_cus.first-ul-frame-in-symbol",
+            FT_FRAMENUM, BASE_NONE,
+            FRAMENUM_TYPE(FT_FRAMENUM_NONE), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_oran_u_section_ul_symbol_last_frame,
+          { "Last UL frame for this symbol", "oran_fh_cus.last-ul-frame-in-symbol",
+            FT_FRAMENUM, BASE_NONE,
+            FRAMENUM_TYPE(FT_FRAMENUM_NONE), 0x0,
+            NULL, HFILL }
+        },
+
         { &hf_oran_c_eAxC_ID,
           { "c_eAxC_ID", "oran_fh_cus.c_eaxc_id",
             FT_STRING, BASE_NONE,
@@ -8860,7 +8989,8 @@ proto_register_oran(void)
         { &ei_oran_num_sinr_per_prb_unknown, { "oran_fh_cus.unexpected_num_sinr_per_prb", PI_MALFORMED, PI_WARN, "invalid numSinrPerPrb value", EXPFILL }},
         { &ei_oran_start_symbol_id_bits_ignored, { "oran_fh_cus.start_symbol_id_bits_ignored", PI_MALFORMED, PI_WARN, "some startSymbolId lower bits ignored", EXPFILL }},
         { &ei_oran_user_group_id_reserved_value, { "oran_fh_cus.user_group_id.reserved_value", PI_MALFORMED, PI_WARN, "userGroupId value 255 is reserved", EXPFILL }},
-        { &ei_oran_port_list_index_zero, { "oran_fh_cus.port_list_index.zero", PI_MALFORMED, PI_WARN, "portListIndex should not be zero", EXPFILL }}
+        { &ei_oran_port_list_index_zero, { "oran_fh_cus.port_list_index.zero", PI_MALFORMED, PI_WARN, "portListIndex should not be zero", EXPFILL }},
+        { &ei_oran_ul_uplane_symbol_too_long, { "oran_fh_cus.ul_uplane_symbol_tx_too_slow", PI_RECEIVE, PI_WARN, "UL U-Plane Tx took too long for symbol (limit set in preference)", EXPFILL }},
     };
 
     /* Register the protocol name and description */
@@ -8945,8 +9075,13 @@ proto_register_oran(void)
     prefs_register_bool_preference(oran_module, "oran.unscaled_iq", "Show unscaled I/Q values",
         "", &show_unscaled_values);
 
+    prefs_register_uint_preference(oran_module, "oran.ul_slot_us_limit", "Microseconds allowed for UL tx in symbol",
+        "Maximum number of microseconds allowed for UL slot transmission before expert warning (zero to disable).  N.B. timing relative to first frame seen for same symbol",
+        10, &us_allowed_for_ul_in_symbol);
+
     flow_states_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     flow_results_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    ul_symbol_timing = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     register_init_routine(&oran_init_protocol);
 }
