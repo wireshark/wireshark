@@ -1,4 +1,4 @@
-## 3. Jstificación técnica de la elección 
+## 3. Justificación técnica de la elección 
 
 **Criterios** 
 
