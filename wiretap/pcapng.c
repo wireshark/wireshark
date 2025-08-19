@@ -2933,8 +2933,15 @@ pcapng_read_custom_block(wtap *wth _U_, FILE_T fh, uint32_t block_type,
 
     if (pen_handler != NULL)
     {
-        if (!pen_handler->parser(fh, section_info, wblock, err, err_info))
-            return false;
+        if (!pen_handler->parser(fh, section_info, wblock, err, err_info)) {
+            if (*err == WTAP_ERR_REC_MALFORMED) {
+                /* Allow the packet to be kept */
+                wblock->rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_NULL;
+            }
+            else {
+                return false;
+            }
+         }
     }
     else
     {

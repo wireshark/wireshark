@@ -392,6 +392,14 @@ cf_open_error_message(int err, char *err_info)
             errmsg = errmsg_errno;
             break;
 
+        case WTAP_ERR_REC_MALFORMED:
+            snprintf(errmsg_errno, sizeof(errmsg_errno), "%%s contains a malformed record.\n"
+                "(%s)",
+                err_info != NULL ? err_info : "no information supplied");
+            g_free(err_info);
+            errmsg = errmsg_errno;
+            break;
+
         default:
             snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" could not be opened: %s.",

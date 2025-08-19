@@ -68,7 +68,7 @@ pcapng_read_nflx_custom_block(FILE_T fh, section_info_t *section_info,
      */
     wblock->rec->rec_type_name = "Black Box Log Block";
     if (wblock->rec->rec_header.custom_block_header.length < MIN_NFLX_CB_SIZE) {
-        *err = WTAP_ERR_BAD_FILE;
+        *err = WTAP_ERR_REC_MALFORMED;
         *err_info = ws_strdup_printf("pcapng: payload length %u of a Netflix CB is too small (< %u)",
                                      wblock->rec->rec_header.custom_block_header.length,
                                      MIN_NFLX_CB_SIZE);
@@ -106,7 +106,7 @@ pcapng_read_nflx_custom_block(FILE_T fh, section_info_t *section_info,
              * Make sure we have that much data in the block.
              */
             if (wblock->rec->rec_header.custom_block_header.length < MIN_NFLX_CB_SIZE + (uint32_t)sizeof(uint32_t)) {
-                *err = WTAP_ERR_BAD_FILE;
+                *err = WTAP_ERR_REC_MALFORMED;
                 *err_info = ws_strdup_printf("pcapng: payload length %u of a Netflix skip CB is too small (< %u)",
                                              wblock->rec->rec_header.custom_block_header.length,
                                              MIN_NFLX_CB_SIZE + (uint32_t)sizeof(uint32_t));

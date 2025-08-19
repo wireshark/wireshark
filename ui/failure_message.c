@@ -202,6 +202,14 @@ cfile_open_failure_message(const char *filename, int err, char *err_info)
             g_free(err_info);
             break;
 
+        case WTAP_ERR_REC_MALFORMED:
+            cmdarg_err("%s contains a malformed record.\n"
+                "(%s)",
+                file_description,
+                err_info != NULL ? err_info : "no information supplied");
+            g_free(err_info);
+            break;
+
         default:
             cmdarg_err("The %s could not be opened: %s.",
                        file_description,
@@ -350,6 +358,14 @@ cfile_read_failure_message(const char *filename, int err, char *err_info)
                    "(%s)",
                    file_string,
                    err_info != NULL ? err_info : "no information supplied");
+        g_free(err_info);
+        break;
+
+    case WTAP_ERR_REC_MALFORMED:
+        cmdarg_err("%s contains a malformed record.\n"
+            "(%s)",
+            file_string,
+            err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
         break;
 

@@ -149,6 +149,14 @@ cfile_open_failure_alert_box(const char *filename, int err, char *err_info)
             g_free(err_info);
             break;
 
+        case WTAP_ERR_REC_MALFORMED:
+            simple_error_message_box("%s contains a malformed record.\n"
+                "(%s)",
+                display_basename,
+                err_info != NULL ? err_info : "no information supplied");
+            g_free(err_info);
+            break;
+
         default:
             simple_error_message_box(
                         "The file \"%s\" could not be opened: %s.",
@@ -325,6 +333,14 @@ cfile_read_failure_alert_box(const char *filename, int err, char *err_info)
                     "(%s)",
                     display_name,
                     err_info != NULL ? err_info : "no information supplied");
+        g_free(err_info);
+        break;
+
+    case WTAP_ERR_REC_MALFORMED:
+        simple_error_message_box("%s contains a malformed record.\n"
+            "(%s)",
+            display_name,
+            err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
         break;
 

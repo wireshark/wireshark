@@ -2780,6 +2780,10 @@ void wtap_cleanup(void);
     /**< We don't support writing that record's time stamp to that
          file type  */
 
+#define WTAP_ERR_REC_MALFORMED		      -28
+	 /**< Packet being read is of a known type, but is malformed so it will be skipped.
+	     This can be used instead of WTAP_ERR_BAD_FILE to not stop reading of a file */
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
