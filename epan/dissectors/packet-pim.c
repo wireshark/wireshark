@@ -71,7 +71,7 @@ void proto_reg_handoff_pim(void);
 #define PIM_HELLO_VAR_POP_COUNT 29  /* variable Pop-Count [RFC6807] */
 #define PIM_HELLO_MT_ID 30          /* PIM MT-ID [RFC6420] */
 #define PIM_HELLO_INT_ID 31         /* Interface ID [RFC6395] */
-#define PIM_HELLO_ECMP_REDIR  32    /* PIM ECMP Redirect Hello Option [RFC6754] */
+#define PIM_HELLO_ECMP_REDIR 32     /* PIM ECMP Redirect Hello Option [RFC6754] */
 #define PIM_HELLO_VPC_PEER_ID 33    /* 2 vPC Peer ID */
 #define PIM_HELLO_DR_LB_CAPA 34     /* variable DR Load Balancing Capability [RFC8775] */
 #define PIM_HELLO_DR_LB_LIST 35     /* variable DR Load Balancing List [RFC8775] */
@@ -342,6 +342,7 @@ static int ett_pim_opt;
 static int ett_pim_addr_flags;
 
 static expert_field ei_pim_cksum;
+static expert_field ei_pim_unknown_src_type;
 
 static dissector_handle_t pim_handle;
 static dissector_handle_t pimv1_handle;
@@ -1215,7 +1216,9 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             break;
         default:
             /* PIM is available for IPv4 and IPv6 right now */
-            DISSECTOR_ASSERT_NOT_REACHED();
+            expert_add_info_format(pinfo, ti, &ei_pim_unknown_src_type,
+                                   "Unknown/unsupported source type (%u)",
+                                   pinfo->src.type);
             break;
         }
     } else {
@@ -2384,7 +2387,8 @@ proto_register_pim(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_pim_cksum, { "pim.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+        { &ei_pim_cksum,            { "pim.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+        { &ei_pim_unknown_src_type, { "pim.unsupported_address_family", PI_UNDECODED, PI_ERROR, "Unsupported address family type", EXPFILL }}
     };
 
     expert_module_t* expert_pim;
