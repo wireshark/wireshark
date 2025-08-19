@@ -109,8 +109,8 @@ ProtocolIE-ContainerPairList
   nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
   ProcedureID = wmem_strdup_printf(actx->pinfo->pool, "%%s/%%s",
-                                 val_to_str_wmem(actx->pinfo->pool, nbap_private_data->procedure_code, VALS(nbap_ProcedureCode_vals), "unknown(%%u)"),
-                                 val_to_str_wmem(actx->pinfo->pool, nbap_private_data->dd_mode, VALS(nbap_DdMode_vals), "unknown(%%u)"));
+                                 val_to_str(actx->pinfo->pool, nbap_private_data->procedure_code, VALS(nbap_ProcedureCode_vals), "unknown(%%u)"),
+                                 val_to_str(actx->pinfo->pool, nbap_private_data->dd_mode, VALS(nbap_DdMode_vals), "unknown(%%u)"));
   nbap_private_data->crnc_context_present = false; /*Reset CRNC Com context present flag.*/
 
 #.FN_PARS TransactionID/shortTransActionId VAL_PTR = &nbap_get_private_data(actx->pinfo)->transaction_id

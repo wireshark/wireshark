@@ -253,7 +253,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Not extended PTYPE */
 		/* Bit 9: Picture Coding Type, "0" INTRA (I-picture), "1" INTER (P-picture). */
 		proto_tree_add_bits_ret_val( tree, hf_h263_payload_picture_coding_type, tvb, offset_in_bits, 1, &picture_coding_type, ENC_BIG_ENDIAN);
-		col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, (uint32_t)picture_coding_type, picture_coding_type_vals, "Unknown (%u)"));
+		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, (uint32_t)picture_coding_type, picture_coding_type_vals, "Unknown (%u)"));
 		offset_in_bits++;
 		/* Bit 10: Optional Unrestricted Motion Vector mode (see Annex D), "0" off, "1" on. */
 		proto_tree_add_bits_item( tree, hf_h263_opt_unres_motion_vector_mode, tvb, offset_in_bits, 1, ENC_BIG_ENDIAN);

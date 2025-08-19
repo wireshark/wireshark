@@ -2218,7 +2218,7 @@ to generate a COL_INFO line for a frame.
 val_to_str() handles the most common case:
 
     const char *
-    val_to_str(uint32_t val, const value_string *vs, const char *fmt)
+    val_to_str(wmem_allocator_t* scope, uint32_t val, const value_string *vs, const char *fmt)
 
 If the value 'val' is found in the 'value_string' table pointed to by
 'vs', 'val_to_str' will return the corresponding string; otherwise, it
@@ -2226,7 +2226,7 @@ will use 'fmt' as an 'sprintf'-style format, with 'val' as an argument,
 to generate a string, and will return a pointer to that string.
 You can use it in a call to generate a COL_INFO line for a frame such as
 
-    col_add_fstr(COL_INFO, ", %s", val_to_str(val, table, "Unknown %d"));
+    col_add_fstr(COL_INFO, ", %s", val_to_str(pinfo->pool, val, table, "Unknown %d"));
 
 If you don't need to display 'val' in your fmt string, you can use
 val_to_str_const() which just takes a string constant instead and returns it

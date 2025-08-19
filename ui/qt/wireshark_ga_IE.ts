@@ -2413,8 +2413,9 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Bainistigh Scagairí Taispeána</translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Roghanna Cnaipe Scagaire...</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Roghanna Cnaipe Scagaire...</translation>
     </message>
 </context>
 <context>
@@ -3316,8 +3317,9 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
 <context>
     <name>FilterExpressionToolBar</name>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Scag Sainroghanna na gCnaipe...</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Scag Sainroghanna na gCnaipe...</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -3415,6 +3417,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>MAC destination address.</source>
         <translation>seoladh ceann scríbe MAC.</translation>
+    </message>
+    <message>
+        <source>Save %1 rules as…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Text file (*.txt);;All Files (</source>
@@ -5297,8 +5303,9 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Is iad na réimsí tacaithe sonraí, dir, am, seqno</translation>
     </message>
     <message>
-        <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <translation>Sonraí grúpa a ghabháil ar iarraidh (úsáid (?&lt;data&gt;(...)) )</translation>
+        <source>Missing capturing group data (use (?&lt;data&gt;(…)) )</source>
+        <oldsource>Missing capturing group data (use (?&lt;data&gt;(...)) )</oldsource>
+        <translation type="unfinished">Sonraí grúpa a ghabháil ar iarraidh (úsáid (?&lt;data&gt;(...)) )</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -7025,20 +7032,24 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Gan Imeachtaí</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <translation>Ó Chomhad Zip...</translation>
+        <source>From Zip File…</source>
+        <oldsource>From Zip File...</oldsource>
+        <translation type="unfinished">Ó Chomhad Zip...</translation>
     </message>
     <message>
-        <source>From Directory...</source>
-        <translation>Ón Eolaire...</translation>
+        <source>From Directory…</source>
+        <oldsource>From Directory...</oldsource>
+        <translation type="unfinished">Ón Eolaire...</translation>
     </message>
     <message>
-        <source>Selected Personal Profile...</source>
-        <translation>Próifíl Phearsanta Roghnaithe...</translation>
+        <source>Selected Personal Profile…</source>
+        <oldsource>Selected Personal Profile...</oldsource>
+        <translation type="unfinished">Próifíl Phearsanta Roghnaithe...</translation>
     </message>
     <message>
-        <source>All Personal Profiles...</source>
-        <translation>Gach próifíl phearsanta...</translation>
+        <source>All Personal Profiles…</source>
+        <oldsource>All Personal Profiles...</oldsource>
+        <translation type="unfinished">Gach próifíl phearsanta...</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7062,6 +7073,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Display filter as %1</source>
         <translation>Taispeáin scagaire mar %1</translation>
+    </message>
+    <message>
+        <source>…as %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
@@ -8294,6 +8309,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Taispeáin marcóirí pointí sonraí</translation>
     </message>
     <message>
+        <source>Auto Scroll</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Plots</source>
         <translation>Plotaí</translation>
     </message>
@@ -8689,24 +8708,28 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Easpórtáil</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <translation>Ó Chomhad Zip...</translation>
+        <source>From Zip File…</source>
+        <oldsource>From Zip File...</oldsource>
+        <translation type="unfinished">Ó Chomhad Zip...</translation>
     </message>
     <message>
-        <source>From Directory...</source>
-        <translation>Ón Eolaire...</translation>
+        <source>From Directory…</source>
+        <oldsource>From Directory...</oldsource>
+        <translation type="unfinished">Ón Eolaire...</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)...</source>
-        <translation>
+        <source>%Ln Selected Personal Profile(s)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
+        <translation type="unfinished">
             <numerusform>Próifíl Phearsanta Roghnaithe %Ln...</numerusform>
             <numerusform>%Ln Próifílí Pearsanta Roghnaithe...</numerusform>
             <numerusform>%Ln Próifílí Pearsanta Roghnaithe...</numerusform>
         </translation>
     </message>
     <message>
-        <source>All Personal Profiles...</source>
-        <translation>Gach próifíl phearsanta...</translation>
+        <source>All Personal Profiles…</source>
+        <oldsource>All Personal Profiles...</oldsource>
+        <translation type="unfinished">Gach próifíl phearsanta...</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -10888,8 +10911,9 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Gan Fuaim</translation>
     </message>
     <message>
-        <source>Decoding streams...</source>
-        <translation>Sruthanna díchódaithe...</translation>
+        <source>Decoding streams…</source>
+        <oldsource>Decoding streams...</oldsource>
+        <translation type="unfinished">Sruthanna díchódaithe...</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10940,8 +10964,9 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Uathoibríoch</translation>
     </message>
     <message>
-        <source>Resampling waveform...</source>
-        <translation>Tonnfhoirm athshamplála...</translation>
+        <source>Resampling waveform…</source>
+        <oldsource>Resampling waveform...</oldsource>
+        <translation type="unfinished">Tonnfhoirm athshamplála...</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
@@ -11004,8 +11029,9 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Cliceáil faoi dhó chun ródú fuaime a athrú</translation>
     </message>
     <message>
-        <source>Preparing to play...</source>
-        <translation>Ag ullmhú le himirt...</translation>
+        <source>Preparing to play…</source>
+        <oldsource>Preparing to play...</oldsource>
+        <translation type="unfinished">Ag ullmhú le himirt...</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -13989,6 +14015,14 @@ a:hover {
         <translation>Comhéadan</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 band.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Band</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Socraigh an cainéal 802.11.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -16039,6 +16073,10 @@ a:hover {
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Cineál anaithnid comhaid curtha ar ais ag dialóg easpórtála.</translation>
+    </message>
+    <message>
+        <source>Unsaved packets…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>

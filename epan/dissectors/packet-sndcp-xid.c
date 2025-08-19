@@ -583,7 +583,7 @@ static void parse_compression_parameters(tvbuff_t *tvb, packet_info* pinfo, prot
 
             comp_entity_tree = proto_tree_add_subtree_format(tree, tvb, offset, len + 3,
                 ett_sndcp_comp_field, NULL, "Entity %d, Algorithm %s",
-                entity & 0x1F, val_to_str_wmem(pinfo->pool, algo_id & 0x1F, comp_algo_str,"Undefined Algorithm Identifier:%X"));
+                entity & 0x1F, val_to_str(pinfo->pool, algo_id & 0x1F, comp_algo_str,"Undefined Algorithm Identifier:%X"));
 
             proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp_pbit, tvb, offset, 1, p_bit_set << 7);
             proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp_spare_byte1, tvb, offset, 1, entity);
@@ -647,7 +647,7 @@ static void parse_compression_parameters(tvbuff_t *tvb, packet_info* pinfo, prot
             }
             comp_entity_tree = proto_tree_add_subtree_format(tree, tvb, offset, len + 2,
                 ett_sndcp_comp_field, NULL, "Entity %d decoded as Algorithm %s",
-                entity & 0x1F, val_to_str_wmem(pinfo->pool, algo_id & 0x1F, comp_algo_str,"Undefined Algorithm Identifier:%X"));
+                entity & 0x1F, val_to_str(pinfo->pool, algo_id & 0x1F, comp_algo_str,"Undefined Algorithm Identifier:%X"));
 
             proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp_pbit, tvb, offset, 1, p_bit_set << 7);
             proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp_spare_byte1, tvb, offset, 1, entity);

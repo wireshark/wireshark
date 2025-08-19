@@ -166,7 +166,7 @@ dissect_usb_hub_clear_hub_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t
 	proto_tree *subtree = NULL;
 	const char* feature_name;
 
-	feature_name = val_to_str_wmem(pinfo->pool, usb_trans_info->setup.wValue,
+	feature_name = val_to_str(pinfo->pool, usb_trans_info->setup.wValue,
 								hub_class_feature_selectors_recipient_hub_vals,
 								"UNKNOWN (0x%x)");
 	col_append_fstr(pinfo->cinfo, COL_INFO, " [Hub: %s]", feature_name);
@@ -198,7 +198,7 @@ dissect_usb_hub_clear_port_feature(packet_info *pinfo, proto_tree *tree, tvbuff_
 	proto_tree *subtree = NULL;
 	const char* feature_name;
 
-	feature_name = val_to_str_wmem(pinfo->pool, usb_trans_info->setup.wValue,
+	feature_name = val_to_str(pinfo->pool, usb_trans_info->setup.wValue,
 								hub_class_feature_selectors_recipient_port_vals,
 								"UNKNOWN (0x%x)");
 	col_append_fstr(pinfo->cinfo, COL_INFO, " [Port %u: %s]", usb_trans_info->setup.wIndex, feature_name);
@@ -476,7 +476,7 @@ dissect_usb_hub_set_hub_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
 	const char* feature_name;
-	feature_name = val_to_str_wmem(pinfo->pool, usb_trans_info->setup.wValue,
+	feature_name = val_to_str(pinfo->pool, usb_trans_info->setup.wValue,
 								hub_class_feature_selectors_recipient_hub_vals,
 								"UNKNOWN (0x%x)");
 	col_append_fstr(pinfo->cinfo, COL_INFO, "   [Hub: %s]", feature_name);
@@ -508,7 +508,7 @@ dissect_usb_hub_set_port_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 	proto_tree *subtree = NULL;
 	const char* feature_name;
 
-	feature_name = val_to_str_wmem(pinfo->pool, usb_trans_info->setup.wValue,
+	feature_name = val_to_str(pinfo->pool, usb_trans_info->setup.wValue,
 								hub_class_feature_selectors_recipient_port_vals,
 								"UNKNOWN (0x%x)");
 	col_append_fstr(pinfo->cinfo, COL_INFO, "   [Port %u: %s]", usb_trans_info->setup.wIndex,
@@ -654,7 +654,7 @@ dissect_usb_hub_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBHUB");
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-	val_to_str_wmem(pinfo->pool, usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"),
+	val_to_str(pinfo->pool, usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"),
 		is_request ? "Request " : "Response");
 
 	if (is_request) {

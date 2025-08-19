@@ -776,7 +776,7 @@ dissect_PNIO_RSI(tvbuff_t *tvb, int offset,
         hf_pn_rsi_pdu_type_version, &u8PDUVersion);
     u8PDUVersion >>= 4;
     //proto_item_append_text(sub_item, ", Type: %s, Version: %u",
-    //    val_to_str_wmem(pinfo->pool, u8PDUType, pn_rsi_pdu_type_type, "Unknown"),
+    //    val_to_str(pinfo->pool, u8PDUType, pn_rsi_pdu_type_type, "Unknown"),
     //    u8PDUVersion);
     offset = dissect_RSIAdditionalFlags(tvb, offset, pinfo, rta_tree, drep, &u8AddFlags);
     u8MoreFrag = (u8AddFlags >> 5) & 0x1;
@@ -917,7 +917,7 @@ dissect_PNIO_RSI_with_security(tvbuff_t* tvb, int offset,
             hf_pn_rsi_pdu_type_version, &u8PDUVersion);
         u8PDUVersion >>= 4;
         //proto_item_append_text(sub_item, ", Type: %s, Version: %u",
-        //    val_to_str_wmem(pinfo->pool, u8PDUType, pn_rsi_pdu_type_type, "Unknown"),
+        //    val_to_str(pinfo->pool, u8PDUType, pn_rsi_pdu_type_type, "Unknown"),
         //    u8PDUVersion);
         offset = dissect_RSIAdditionalFlags(tvb, offset, pinfo, rta_tree, drep, &u8AddFlags);
         u8MoreFrag = (u8AddFlags >> 5) & 0x1;

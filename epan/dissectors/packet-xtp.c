@@ -953,7 +953,7 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	}
 
 	col_add_str(pinfo->cinfo, COL_INFO,
-			    val_to_str_wmem(pinfo->pool, xtph->cmd_ptype_pformat,
+			    val_to_str(pinfo->pool, xtph->cmd_ptype_pformat,
 					pformat_vals, "Unknown pformat (%u)"));
 	col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", options);
 	col_append_fstr(pinfo->cinfo, COL_INFO,

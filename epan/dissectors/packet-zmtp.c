@@ -589,7 +589,7 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                                           ett_zmtp_flags, flags_fields, ENC_BIG_ENDIAN);
     }
     offset += 1;
-    str_flags = val_to_str_wmem(pinfo->pool, flags, flags_vals, "Unknown(%u)");
+    str_flags = val_to_str(pinfo->pool, flags, flags_vals, "Unknown(%u)");
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str_flags);
     proto_item_append_text(root_ti, " (%s)", str_flags);
 

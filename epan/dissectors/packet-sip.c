@@ -5699,11 +5699,6 @@ static bool sip_validate_authorization(sip_authorization_t *authorization_info, 
 
 /* TAP STAT INFO */
 
-/*
- * Much of this is from ui/gtk/sip_stat.c:
- * sip_stat   2004 Martin Mathieson
- */
-
 /* TODO: extra codes to be added from SIP extensions?
  * https://www.iana.org/assignments/sip-parameters/sip-parameters.xhtml#sip-parameters-6
  */

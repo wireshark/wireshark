@@ -6023,7 +6023,7 @@ dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   pdata->ProcedureID = wmem_strdup_printf(actx->pinfo->pool, "%s/%s",
                                  val_to_str_ext(actx->pinfo->pool, pdata->ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
-                                 val_to_str_wmem(actx->pinfo->pool, pdata->ddMode, rnsap_DdMode_vals, "unknown(%u)"));
+                                 val_to_str(actx->pinfo->pool, pdata->ddMode, rnsap_DdMode_vals, "unknown(%u)"));
   return offset;
 }
 

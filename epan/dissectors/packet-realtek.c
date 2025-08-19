@@ -180,7 +180,7 @@ dissect_rrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                offset, RRCP_OPCODE_FIELD_LENGTH,
                                ENC_NA, &opcode);
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-               val_to_str_wmem(pinfo->pool, opcode, rrcp_opcode_names, "Unknown (%u)"),
+               val_to_str(pinfo->pool, opcode, rrcp_opcode_names, "Unknown (%u)"),
                (reply) ? "Reply" : "Request");
   offset += RRCP_OPCODE_FIELD_LENGTH;
 

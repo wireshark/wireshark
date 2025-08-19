@@ -372,7 +372,7 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
   if (top) {
     col_add_str(pinfo->cinfo, COL_INFO,
-        val_to_str_wmem(pinfo->pool, type, teap_tlv_type_vals, "Unknown TLV (0x%02X)"));
+        val_to_str(pinfo->pool, type, teap_tlv_type_vals, "Unknown TLV (0x%02X)"));
   }
   switch (type) {
     case TEAP_AUTHORITY_ID:

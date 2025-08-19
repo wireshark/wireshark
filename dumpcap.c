@@ -5106,18 +5106,18 @@ set_80211_channel(const char *iface, const char *opt)
         ;
 
     ret = ws80211_init();
-    if (ret != WS80211_INIT_OK) {
-        if (ret == WS80211_INIT_NOT_SUPPORTED)
+    if (ret != WS80211_OK) {
+        if (ret == WS80211_ERROR_NOT_SUPPORTED)
             cmdarg_err("Setting 802.11 channels is not supported on this platform");
-        else
-            cmdarg_err("Failed to init ws80211: %s", g_strerror(abs(ret)));
-        ret = 2;
+        else if (ret == WS80211_ERROR)
+            cmdarg_err("Failed to init ws80211: %s", ws80211_geterror(ret));
+        ret = WS_EXIT_INIT_FAILED;
         goto out;
     }
 
     if (options[0])
         if (!get_nonzero_uint32(options[0], "802.11 channel frequency", &freq)) {
-            ret = EINVAL;
+            ret = WS_EXIT_INVALID_OPTION;
             goto out;
         }
 
@@ -5125,28 +5125,28 @@ set_80211_channel(const char *iface, const char *opt)
         type = ws80211_str_to_chan_type(options[1]);
         if (type == -1) {
             cmdarg_err("\"%s\" is not a valid 802.11 channel type", options[1]);
-            ret = EINVAL;
+            ret = WS_EXIT_INVALID_OPTION;
             goto out;
         }
     }
 
     if (args >= 2 && options[2])
         if (!get_nonzero_uint32(options[2], "VHT center frequency", &center_freq1)) {
-            ret = EINVAL;
+            ret = WS_EXIT_INVALID_OPTION;
             goto out;
         }
 
     if (args >= 3 && options[3])
         if (!get_nonzero_uint32(options[3], "VHT center frequency 2", &center_freq2)) {
-            ret = EINVAL;
+            ret = WS_EXIT_INVALID_OPTION;
             goto out;
         }
 
     ret = ws80211_set_freq(iface, freq, type, center_freq1, center_freq2);
 
     if (ret) {
-        cmdarg_err("Failed to set channel: %s", g_strerror(abs(ret)));
-        ret = 2;
+        cmdarg_err("Failed to set channel: %s", ws80211_geterror(ret));
+        ret = WS_EXIT_INVALID_OPTION;
         goto out;
     }
 

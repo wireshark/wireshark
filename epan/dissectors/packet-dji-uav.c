@@ -175,7 +175,7 @@ dissect_djiuav_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	col_add_str(pinfo->cinfo, COL_INFO, is_cmd?"C: ":"R: ");
-	col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, packet_type,
+	col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, packet_type,
 			djiuav_pdu_type, "Type 0x%02x"));
 
 	ti = proto_tree_add_item(tree, proto_djiuav, tvb, offset, -1, ENC_NA);

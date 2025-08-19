@@ -453,7 +453,7 @@ dissect_one_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned of
     unsigned len;
 
     unsigned type = tvb_get_ntohs(tvb, offset);
-    const char *name = val_to_str_wmem(pinfo->pool, type, pp_pdu_vals, TYPE_UNKNOWN);
+    const char *name = val_to_str(pinfo->pool, type, pp_pdu_vals, TYPE_UNKNOWN);
 
     proto_item_append_text(ti, " : %s", name);
 
@@ -560,14 +560,14 @@ static int dissect_pathport_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     {
         dstid = tvb_get_ntohl(tvb, PATHPORT_HEADER_DSTID_OFFSET);
         col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s? Tell %s",
-                    val_to_str_wmem(pinfo->pool, dstid, ednet_id_vals, "%X"), val_to_str_wmem(pinfo->pool, srcid, ednet_id_vals, "%X"));
+                    val_to_str(pinfo->pool, dstid, ednet_id_vals, "%X"), val_to_str(pinfo->pool, srcid, ednet_id_vals, "%X"));
     }
     else
     {
         if((type == PP_ARP_REPLY) && (len >= 36))
         {
             uint32_t id = tvb_get_ntohl(tvb, 24);
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", val_to_str_wmem(pinfo->pool, id, ednet_id_vals, "%X"), tvb_ip_to_str(pinfo->pool, tvb, 28));
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", val_to_str(pinfo->pool, id, ednet_id_vals, "%X"), tvb_ip_to_str(pinfo->pool, tvb, 28));
         }
         else if((type == PP_DATA) && (len >= 32))
         {
@@ -578,7 +578,7 @@ static int dissect_pathport_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
         else /* default */
         {
-            col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, type, pp_pdu_vals, TYPE_UNKNOWN));
+            col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, type, pp_pdu_vals, TYPE_UNKNOWN));
         }
     }
     if(tree == NULL)

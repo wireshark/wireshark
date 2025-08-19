@@ -418,7 +418,7 @@ static int dissect_nano(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             nano_block_type = (unsigned)((extensions >> 8) & 0xF);
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
                     val_to_str_const(nano_packet_type, VALS(nano_packet_type_strings), " "),
-                    val_to_str_wmem(pinfo->pool, nano_block_type, VALS(nano_block_type_strings), "Unknown (%d)"));
+                    val_to_str(pinfo->pool, nano_block_type, VALS(nano_block_type_strings), "Unknown (%d)"));
 
             // if it's a Confirm Ack packet, we first have a vote
             if (nano_packet_type == NANO_PACKET_TYPE_CONFIRM_ACK) {
@@ -447,7 +447,7 @@ static int dissect_nano(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         default:
             col_add_str(pinfo->cinfo, COL_INFO,
-                    val_to_str_wmem(pinfo->pool, nano_packet_type, VALS(nano_packet_type_strings), "Unknown (%d)"));
+                    val_to_str(pinfo->pool, nano_packet_type, VALS(nano_packet_type_strings), "Unknown (%d)"));
     }
 
     return tvb_captured_length(tvb);

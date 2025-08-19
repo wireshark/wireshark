@@ -1124,7 +1124,7 @@ static const value_string zero_is_none_vals[] = {
                                0, -1, ett_x11_event, NULL,            \
                                "event: %d (%s)",                      \
                                eventcode,                             \
-                               val_to_str_wmem(pinfo->pool, eventcode & 0x7F,           \
+                               val_to_str(pinfo->pool, eventcode & 0x7F,           \
                                           state->eventcode_vals,      \
                                           "<Unknown eventcode %u>")); \
       decode_x11_event(next_tvb, pinfo, eventcode, sent, event_proto_tree,   \
@@ -1199,7 +1199,7 @@ static const value_string zero_is_none_vals[] = {
       *offsetp, 2, seqno,                                                     \
       "sequencenumber: %d (%s)",                                              \
       (int)seqno,                                                             \
-      val_to_str_wmem(pinfo->pool, opcode & 0xFF, state->opcode_vals, "<Unknown opcode %d>"));  \
+      val_to_str(pinfo->pool, opcode & 0xFF, state->opcode_vals, "<Unknown opcode %d>"));  \
       *offsetp += 2;                                                          \
 } while (0)
 
@@ -1705,7 +1705,7 @@ keycode2keysymString(wmem_allocator_t* allocator, int *keycodemap[256], int firs
       if (modifiermap[array_length(modifiers) - 1] == NULL) /* all or none */
             return "<Unknown>";
 
-      /* find out what the numlockmodifer and groupmodifier is. */
+      /* find out what the numlockmodifier and groupmodifier is. */
       for (modifier = 0, numlockmod = groupmod = -1;
            modifier < (int)array_length(modifiers) && numlockmod == -1;
            ++modifier)
@@ -3524,7 +3524,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       OPCODE();
 
-      str_opcode = val_to_str_wmem(pinfo->pool, opcode, state->opcode_vals, "<Unknown opcode %d>");
+      str_opcode = val_to_str(pinfo->pool, opcode, state->opcode_vals, "<Unknown opcode %d>");
       col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", sep, str_opcode);
 
       proto_item_append_text(ti, ", Request, opcode: %d (%s)", opcode, str_opcode);
@@ -5374,17 +5374,17 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       } else {
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
                             sep,
-                            val_to_str_wmem(pinfo->pool, opcode & 0xFF, state->opcode_vals,
+                            val_to_str(pinfo->pool, opcode & 0xFF, state->opcode_vals,
                                         "<Unknown opcode %d>"));
 
             if (opcode > 0xFF)
                   proto_item_append_text(ti, ", Reply, opcode: %d.%d (%s)",
-                                         opcode & 0xFF, opcode >> 8, val_to_str_wmem(pinfo->pool, opcode & 0xFF,
+                                         opcode & 0xFF, opcode >> 8, val_to_str(pinfo->pool, opcode & 0xFF,
                                                                                 state->opcode_vals,
                                                                                 "<Unknown opcode %d>"));
             else
                   proto_item_append_text(ti, ", Reply, opcode: %d (%s)",
-                                         opcode, val_to_str_wmem(pinfo->pool, opcode,
+                                         opcode, val_to_str(pinfo->pool, opcode,
                                                             state->opcode_vals,
                                                             "<Unknown opcode %d>"));
       }
@@ -5759,7 +5759,7 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       eventcode = tvb_get_uint8(tvb, 0);
       sent = (eventcode & 0x80) ? "Sent-" : "";
 
-      str_eventcode = val_to_str_wmem(pinfo->pool, eventcode & 0x7F, state->eventcode_vals, "<Unknown eventcode %u>");
+      str_eventcode = val_to_str(pinfo->pool, eventcode & 0x7F, state->eventcode_vals, "<Unknown eventcode %u>");
       col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s%s",
                         sep, sent, str_eventcode);
 
@@ -5785,7 +5785,7 @@ decode_x11_event(tvbuff_t *tvb, packet_info* pinfo, unsigned char eventcode, con
                                  eventcode,
                                  "eventcode: %d (%s%s)",
                                  eventcode, sent,
-                                 val_to_str_wmem(pinfo->pool, eventcode & 0x7F, state->eventcode_vals,
+                                 val_to_str(pinfo->pool, eventcode & 0x7F, state->eventcode_vals,
                                             "<Unknown eventcode %u>"));
       ++offset;
 
@@ -6151,18 +6151,18 @@ dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       errorcode = tvb_get_uint8(tvb, offset);
       col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-                    sep, val_to_str_wmem(pinfo->pool, errorcode, state->errorcode_vals, "<Unknown errorcode %u>"));
+                    sep, val_to_str(pinfo->pool, errorcode, state->errorcode_vals, "<Unknown errorcode %u>"));
 
       proto_tree_add_uint_format(t, hf_x11_errorcode, tvb, offset, 1,
                                  errorcode,
                                  "errorcode: %d (%s)",
                                  errorcode,
-                                 val_to_str_wmem(pinfo->pool, errorcode, state->errorcode_vals,
+                                 val_to_str(pinfo->pool, errorcode, state->errorcode_vals,
                                             "<Unknown errorcode %u>"));
       ++offset;
 
       proto_item_append_text(ti, ", Error, errorcode: %d (%s)",
-                             errorcode, val_to_str_wmem(pinfo->pool, errorcode, state->errorcode_vals,
+                             errorcode, val_to_str(pinfo->pool, errorcode, state->errorcode_vals,
                                                    "<Unknown errorcode %u>"));
 
       if (tree == NULL)

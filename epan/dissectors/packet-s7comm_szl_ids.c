@@ -7818,7 +7818,7 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                 } /* ...for */
             }
         } else {
-            col_append_fstr(pinfo->cinfo, COL_INFO, " Return value:[%s]", val_to_str_wmem(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown return value:0x%02x"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " Return value:[%s]", val_to_str(pinfo->pool, ret_val, s7comm_item_return_valuenames, "Unknown return value:0x%02x"));
         }
     }
     return offset;

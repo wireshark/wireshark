@@ -2927,7 +2927,7 @@ static bool parse_RMPP(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb
         proto_item_set_text(RMPP_header_item, "%s%s", "RMPP (Empty)", " - Reliable Multi-Packet Transaction Protocol");
         proto_item_append_text(RMPP_type_item, " %s", "RMPP (Empty)");
     } else {
-        char* str = val_to_str_wmem(pinfo->pool, RMPP->Type, RMPP_Packet_Types, "RMPP (Reserved 0x%02x)");
+        char* str = val_to_str(pinfo->pool, RMPP->Type, RMPP_Packet_Types, "RMPP (Reserved 0x%02x)");
         proto_item_set_text(RMPP_header_item, "%s%s", str, " - Reliable Multi-Packet Transaction Protocol");
         proto_item_append_text(RMPP_type_item, " %s", str);
     }
@@ -3125,7 +3125,7 @@ static int parse_NoticesAndTraps(proto_tree *parentTree, packet_info* pinfo, tvb
         return *offset;
 
     NoticesAndTraps_header_item = proto_tree_add_item(parentTree, hf_opa_Notice, tvb, local_offset, 96, ENC_NA);
-    proto_item_set_text(NoticesAndTraps_header_item, "%s", val_to_str_wmem(pinfo->pool, trapNumber, Trap_Description, "Unknown or Vendor Specific Trap Number! (0x%02x)"));
+    proto_item_set_text(NoticesAndTraps_header_item, "%s", val_to_str(pinfo->pool, trapNumber, Trap_Description, "Unknown or Vendor Specific Trap Number! (0x%02x)"));
     NoticesAndTraps_header_tree = proto_item_add_subtree(NoticesAndTraps_header_item, ett_noticestraps);
 
     proto_tree_add_item(NoticesAndTraps_header_tree, hf_opa_Notice_IsGeneric, tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -4776,7 +4776,7 @@ static int parse_Aggregate(proto_tree *parentTree, packet_info* pinfo, tvbuff_t 
         proto_tree_add_item(Aggregate_header_tree, hf_opa_Aggregate_AttributeID, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         LocalAttributeID = tvb_get_ntohs(tvb, local_offset);
         local_offset += 2;
-        proto_item_set_text(Aggregate_header_item, "Aggregate %u: %s", i + 1, val_to_str_wmem(pinfo->pool, LocalAttributeID, SUBM_Attributes, "Unknown Attribute Type! (0x%02x)"));
+        proto_item_set_text(Aggregate_header_item, "Aggregate %u: %s", i + 1, val_to_str(pinfo->pool, LocalAttributeID, SUBM_Attributes, "Unknown Attribute Type! (0x%02x)"));
 
         AggregatError = (bool)tvb_get_bits8(tvb, local_offset * 8, 1);
         Aggregate_Error_item = proto_tree_add_item(Aggregate_header_tree, hf_opa_Aggregate_Error, tvb, local_offset, 2, ENC_BIG_ENDIAN);

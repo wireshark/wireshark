@@ -421,7 +421,7 @@ dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_tree_add_uint(cast_tree, hf_cast_reserved, tvb, offset+4, 4, hdr_marker);
   }
 
-  messageid_str = val_to_str_wmem(pinfo->pool, data_messageid, message_id, "0x%08X (Unknown)");
+  messageid_str = val_to_str(pinfo->pool, data_messageid, message_id, "0x%08X (Unknown)");
 
   col_add_str(pinfo->cinfo, COL_INFO, messageid_str);
 

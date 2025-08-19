@@ -1493,7 +1493,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(db0, opensafety_message_service_type, "Unknown"));
             }
 
-            str_error = val_to_str_wmem(pinfo->pool, byte, opensafety_sn_fail_error_group, "Reserved [%d]");
+            str_error = val_to_str(pinfo->pool, byte, opensafety_sn_fail_error_group, "Reserved [%d]");
             proto_tree_add_uint_format_value(snmt_tree, hf_oss_snmt_error_group, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1, 1,
                     byte, "%s", ( byte == 0 ? "Device" : str_error) );
 
@@ -1864,7 +1864,7 @@ dissect_opensafety_message(opensafety_packet_info *packet,
     if ( packet->msg_type != OPENSAFETY_SPDO_MESSAGE_TYPE )
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, (u_nrInPackage > 1 ? " | %s" : "%s" ),
-            val_to_str_wmem(pinfo->pool, packet->msg_id, opensafety_message_type_values, "Unknown Message (0x%02X) "));
+            val_to_str(pinfo->pool, packet->msg_id, opensafety_message_type_values, "Unknown Message (0x%02X) "));
     }
 
     item = proto_tree_add_uint(opensafety_tree, hf_oss_byte_offset, packet->frame.frame_tvb, 0, 1, packet->frame.byte_offset);
@@ -1912,7 +1912,7 @@ dissect_opensafety_message(opensafety_packet_info *packet,
             if ( previous_msg_id != packet->msg_id )
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, (u_nrInPackage > 1 ? " | %s - 0x%03X" : "%s - 0x%03X" ),
-                            val_to_str_wmem(pinfo->pool, packet->msg_id, opensafety_message_type_values, "Unknown Message (0x%02X) "),
+                            val_to_str(pinfo->pool, packet->msg_id, opensafety_message_type_values, "Unknown Message (0x%02X) "),
                             packet->sender );
             } else {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", 0x%03X", packet->sender );

@@ -124,7 +124,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
                     val_to_str_const(version, version_vals, "RIP"));
     col_add_str(pinfo->cinfo, COL_INFO,
-                    val_to_str_wmem(pinfo->pool, command, command_vals, "Unknown command (%u)"));
+                    val_to_str(pinfo->pool, command, command_vals, "Unknown command (%u)"));
 
     ti = proto_tree_add_item(tree, proto_rip, tvb, 0, -1, ENC_NA);
     rip_tree = proto_item_add_subtree(ti, ett_rip);
@@ -238,7 +238,7 @@ dissect_rip_authentication(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_
     authtype = tvb_get_ntohs(tvb, offset + 2);
 
     rip_authentication_tree = proto_tree_add_subtree_format(tree, tvb, offset, RIP_ENTRY_LENGTH,
-                        ett_rip_vec, NULL, "Authentication: %s", val_to_str_wmem(pinfo->pool, authtype, rip_auth_type, "Unknown (%u)" ) );
+                        ett_rip_vec, NULL, "Authentication: %s", val_to_str(pinfo->pool, authtype, rip_auth_type, "Unknown (%u)" ) );
 
     proto_tree_add_uint(rip_authentication_tree, hf_rip_auth, tvb, offset+2, 2,
                 authtype);

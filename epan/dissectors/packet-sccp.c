@@ -1777,12 +1777,12 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
     even_signal = tvb_get_uint8(tvb, offset) & GT_EVEN_SIGNAL_MASK;
     even_signal >>= GT_EVEN_SIGNAL_SHIFT;
 
-    (void) g_strlcat(gt_digits, val_to_str_wmem(pinfo->pool, odd_signal, sccp_address_signal_values,
+    (void) g_strlcat(gt_digits, val_to_str(pinfo->pool, odd_signal, sccp_address_signal_values,
                                     "Unknown: %d"), GT_MAX_SIGNALS+1);
 
     /* If the last signal is NOT filler */
     if (offset != (length - 1) || even_length == true)
-      (void) g_strlcat(gt_digits, val_to_str_wmem(pinfo->pool, even_signal, sccp_address_signal_values,
+      (void) g_strlcat(gt_digits, val_to_str(pinfo->pool, even_signal, sccp_address_signal_values,
                                       "Unknown: %d"), GT_MAX_SIGNALS+1);
 
     offset += GT_SIGNAL_LENGTH;
@@ -2318,7 +2318,7 @@ dissect_sccp_sequencing_segmenting_param(tvbuff_t *tvb, packet_info* pinfo, prot
   proto_tree *param_tree;
 
   param_tree = proto_tree_add_subtree(tree, tvb, 0, length, ett_sccp_sequencing_segmenting, NULL,
-                                   val_to_str_wmem(pinfo->pool, PARAMETER_SEQUENCING_SEGMENTING,
+                                   val_to_str(pinfo->pool, PARAMETER_SEQUENCING_SEGMENTING,
                                               sccp_parameter_values, "Unknown: %d"));
 
   proto_tree_add_item(param_tree, hf_sccp_sequencing_segmenting_ssn, tvb, 0,
@@ -2523,7 +2523,7 @@ dissect_sccp_segmentation_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   proto_tree *param_tree;
 
   param_tree = proto_tree_add_subtree(tree, tvb, 0, length, ett_sccp_segmentation, NULL,
-                                   val_to_str_wmem(pinfo->pool, PARAMETER_SEGMENTATION,
+                                   val_to_str(pinfo->pool, PARAMETER_SEGMENTATION,
                                               sccp_parameter_values, "Unknown: %d"));
 
   proto_tree_add_item(param_tree, hf_sccp_segmentation_first, tvb, 0, 1, ENC_NA);
@@ -2781,7 +2781,7 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
 
   pi = proto_tree_add_uint_format(sccp_tree, hf_sccp_param_length, tvb, offset,
                                   length_length, parameter_length, "%s length: %d",
-                                  val_to_str_wmem(pinfo->pool, parameter_type, sccp_parameter_values,
+                                  val_to_str(pinfo->pool, parameter_type, sccp_parameter_values,
                                              "Unknown: %d"),
                                   parameter_length);
   remaining_length = tvb_reported_length_remaining(tvb, offset + length_length);
@@ -2857,7 +2857,7 @@ static void build_assoc_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp
         pi = proto_tree_add_uint(pt, hf_sccp_assoc_msg, tvb, 0, 0, m->framenum);
 
         if (sccp_info->assoc->payload != SCCP_PLOAD_NONE)
-          proto_item_append_text(pi," %s", val_to_str_wmem(pinfo->pool, sccp_info->assoc->payload, assoc_protos, "Unknown: %d"));
+          proto_item_append_text(pi," %s", val_to_str(pinfo->pool, sccp_info->assoc->payload, assoc_protos, "Unknown: %d"));
 
         if (m->data.co.label)
           proto_item_append_text(pi," %s", m->data.co.label);
@@ -3011,7 +3011,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
    *  put that info there should call col_set_fence() to protect it.
    */
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-               val_to_str_wmem(pinfo->pool, sccp_info.message_type, sccp_message_type_acro_values, "Unknown: %d"));
+               val_to_str(pinfo->pool, sccp_info.message_type, sccp_message_type_acro_values, "Unknown: %d"));
 
   if (sccp_tree) {
     /* add the message type to the protocol tree */

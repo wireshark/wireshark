@@ -133,12 +133,6 @@
 /* Enable libnl support */
 #cmakedefine HAVE_LIBNL 1
 
-/* libnl version 1 */
-#cmakedefine HAVE_LIBNL1 1
-
-/* libnl version 2 */
-#cmakedefine HAVE_LIBNL2 1
-
 /* libnl version 3 */
 #cmakedefine HAVE_LIBNL3 1
 

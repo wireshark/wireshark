@@ -521,7 +521,7 @@ dissect_sane_request(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree) {
     unsigned opcode = SANE_NET_UNKNOWN;
     char* str_opcode;
     dissect_sane_word(r, tree, hf_sane_opcode, &opcode);
-    str_opcode = val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Unknown opcode (%u)");
+    str_opcode = val_to_str(pinfo->pool, opcode, opcode_vals, "Unknown opcode (%u)");
     proto_item_append_text(tree, ": %s request", str_opcode);
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s request", str_opcode);
 
@@ -563,7 +563,7 @@ dissect_sane_status(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree, un
     // read a word.
     (void)tvb_read_sane_word(r, &status);
 
-    str_status = val_to_str_wmem(pinfo->pool, status, status_values, "Unknown status (%u)");
+    str_status = val_to_str(pinfo->pool, status, status_values, "Unknown status (%u)");
     proto_item_append_text(tree, " (%s)", str_status);
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", str_status);
 
@@ -674,7 +674,7 @@ dissect_sane_net_get_option_descriptors_response(tvb_sane_reader *r, packet_info
         int constraint_type = SANE_NO_CONSTRAINT;
         dissect_sane_word(r, constraint_tree, hf_sane_option_constraint_type, &constraint_type);
         proto_item_set_text(constraint_item, "Constraint type: %s",
-                            val_to_str_wmem(pinfo->pool, constraint_type, sane_constraint_type_names, "Unknown (%u)"));
+                            val_to_str(pinfo->pool, constraint_type, sane_constraint_type_names, "Unknown (%u)"));
 
         int array_length = 0;
         int min = 0;
@@ -776,7 +776,7 @@ dissect_sane_net_get_devices_response(tvb_sane_reader *r, packet_info *pinfo, pr
 static void
 dissect_sane_response(tvb_sane_reader *r, sane_session *sess, packet_info *pinfo, proto_tree *tree) {
     sane_rpc_code opcode = get_sane_expected_response_type(sess, pinfo);
-    char* str_opcode = val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Unknown opcode (%u)");
+    char* str_opcode = val_to_str(pinfo->pool, opcode, opcode_vals, "Unknown opcode (%u)");
 
     proto_item_append_text(tree, ": %s response", str_opcode);
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s response", str_opcode);

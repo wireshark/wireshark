@@ -2332,7 +2332,7 @@ dissect_h264_nalu_extension (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
     proto_tree_add_item(tree, hf_h264_nal_extension_k, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_h264_nal_extension_l, tvb, offset, 1, ENC_NA);
     col_append_fstr(pinfo->cinfo, COL_INFO, "  %s",
-                    val_to_str_wmem(pinfo->pool, subtype, h264_subtype_summary_values, "Unknown Subtype (%u)"));
+                    val_to_str(pinfo->pool, subtype, h264_subtype_summary_values, "Unknown Subtype (%u)"));
     offset++;
 
     if (subtype == 2)
@@ -2569,7 +2569,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     type = tvb_get_uint8(tvb, offset)&0x1f;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-                    val_to_str_wmem(pinfo->pool, type, h264_type_summary_values, "Unknown Type (%u)"));
+                    val_to_str(pinfo->pool, type, h264_type_summary_values, "Unknown Type (%u)"));
 
     /* if (tree) */ {
         item = proto_tree_add_item(tree, proto_h264, tvb, 0, -1, ENC_NA);
@@ -2608,7 +2608,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             if ((tvb_get_uint8(tvb, offset)&0x80) == 0x80) {
                 type = tvb_get_uint8(tvb, offset)&0x1f;
                 col_append_fstr(pinfo->cinfo, COL_INFO, " Start:%s",
-                                val_to_str_wmem(pinfo->pool, type, h264_type_summary_values, "Unknown Type (%u)"));
+                                val_to_str(pinfo->pool, type, h264_type_summary_values, "Unknown Type (%u)"));
                 offset++;
             }
             else

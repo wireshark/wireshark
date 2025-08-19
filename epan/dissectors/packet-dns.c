@@ -3375,7 +3375,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         rropt_len -= 2;
 
         rropt = proto_tree_add_item(rr_tree, hf_dns_opt, tvb, cur_offset, 4 + optlen, ENC_NA);
-        proto_item_append_text(rropt, ": %s", val_to_str_wmem(pinfo->pool, optcode, edns0_opt_code_vals, "Unknown (%d)"));
+        proto_item_append_text(rropt, ": %s", val_to_str(pinfo->pool, optcode, edns0_opt_code_vals, "Unknown (%d)"));
         rropt_tree = proto_item_add_subtree(rropt, ett_dns_opts);
         rropt = proto_tree_add_item(rropt_tree, hf_dns_opt_code, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
         cur_offset += 2;
@@ -4060,7 +4060,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           proto_tree_add_item_ret_uint(svcb_param_tree, hf_dns_svcb_param_length, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &svc_param_length);
           cur_offset += 2;
 
-          proto_item_append_text(svcb_param_ti, ": %s", val_to_str_wmem(pinfo->pool, svc_param_key, dns_svcb_param_key_vals, "key%u"));
+          proto_item_append_text(svcb_param_ti, ": %s", val_to_str(pinfo->pool, svc_param_key, dns_svcb_param_key_vals, "key%u"));
           proto_item_set_len(svcb_param_ti, svc_param_length + 4);
 
           switch(svc_param_key) {
@@ -4068,7 +4068,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
               for (svc_param_offset = 0; svc_param_offset < svc_param_length; svc_param_offset += 2) {
                 uint32_t key;
                 proto_tree_add_item_ret_uint(svcb_param_tree, hf_dns_svcb_param_mandatory_key, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &key);
-                proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), val_to_str_wmem(pinfo->pool, key, dns_svcb_param_key_vals, "key%u"));
+                proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), val_to_str(pinfo->pool, key, dns_svcb_param_key_vals, "key%u"));
                 cur_offset += 2;
               }
               break;
@@ -4689,13 +4689,13 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   rcode  = (uint16_t)  (flags & F_RCODE);
 
   col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s%s 0x%04x",
-                      val_to_str_wmem(pinfo->pool, opcode, opcode_vals, "Unknown operation (%u)"),
+                      val_to_str(pinfo->pool, opcode, opcode_vals, "Unknown operation (%u)"),
                       (flags&F_RESPONSE)?" response":"", id);
 
   if (flags & F_RESPONSE) {
     if (rcode != RCODE_NOERROR) {
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-              val_to_str_wmem(pinfo->pool, rcode, rcode_vals, "Unknown error (%u)"));
+              val_to_str(pinfo->pool, rcode, rcode_vals, "Unknown error (%u)"));
     }
   }
 
@@ -5302,18 +5302,18 @@ static tap_packet_status dns_stats_tree_packet(stats_tree* st, packet_info* pinf
   const struct DnsTap *pi = (const struct DnsTap *)p;
   tick_stat_node(st, st_str_packets, 0, false);
   stats_tree_tick_pivot(st, st_node_packet_qr,
-          val_to_str_wmem(pinfo->pool, pi->packet_qr, dns_qr_vals, "Unknown qr (%d)"));
+          val_to_str(pinfo->pool, pi->packet_qr, dns_qr_vals, "Unknown qr (%d)"));
   stats_tree_tick_pivot(st, st_node_packet_qtypes,
-          val_to_str_wmem(pinfo->pool, pi->packet_qtype, dns_types_vals, "Unknown packet type (%d)"));
+          val_to_str(pinfo->pool, pi->packet_qtype, dns_types_vals, "Unknown packet type (%d)"));
   if (dns_qname_stats && pi->qname_len > 0) {
         stats_tree_tick_pivot(st, st_node_packet_qnames, pi->qname);
   }
   stats_tree_tick_pivot(st, st_node_packet_qclasses,
-          val_to_str_wmem(pinfo->pool, pi->packet_qclass, dns_classes, "Unknown class (%d)"));
+          val_to_str(pinfo->pool, pi->packet_qclass, dns_classes, "Unknown class (%d)"));
   stats_tree_tick_pivot(st, st_node_packet_rcodes,
-          val_to_str_wmem(pinfo->pool, pi->packet_rcode, rcode_vals, "Unknown rcode (%d)"));
+          val_to_str(pinfo->pool, pi->packet_rcode, rcode_vals, "Unknown rcode (%d)"));
   stats_tree_tick_pivot(st, st_node_packet_opcodes,
-          val_to_str_wmem(pinfo->pool, pi->packet_opcode, opcode_vals, "Unknown opcode (%d)"));
+          val_to_str(pinfo->pool, pi->packet_opcode, opcode_vals, "Unknown opcode (%d)"));
   avg_stat_node_add_value_int(st, st_str_packets_avg_size, 0, false,
           pi->payload_size);
 
@@ -5344,7 +5344,7 @@ static tap_packet_status dns_stats_tree_packet(stats_tree* st, packet_info* pinf
     for (wmem_list_frame_t *type_entry = wmem_list_head(pi->rr_types); type_entry != NULL; type_entry = wmem_list_frame_next(type_entry)) {
       int qtype_val = GPOINTER_TO_INT(wmem_list_frame_data(type_entry));
       stats_tree_tick_pivot(st, st_node_rr_types,
-                            val_to_str_wmem(pinfo->pool, qtype_val, dns_types_vals, "Unknown packet type (%d)"));
+                            val_to_str(pinfo->pool, qtype_val, dns_types_vals, "Unknown packet type (%d)"));
     }
 
     if (pi->unsolicited) {
@@ -5535,7 +5535,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
   // t  = Total
   if (dns_qr_t_statistics_enabled) {
     ws_debug(" t  = Total\n");
-    stats_tree_tick_pivot(st, st_node_qr_t_packets, val_to_str_wmem(pinfo->pool, pi->packet_qr, dns_qr_vals, "Unknown qr (%d)"));
+    stats_tree_tick_pivot(st, st_node_qr_t_packets, val_to_str(pinfo->pool, pi->packet_qr, dns_qr_vals, "Unknown qr (%d)"));
   }
 
   // query
@@ -5568,7 +5568,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
     if (dns_qr_qo_statistics_enabled) {
       ws_debug("qo = Query-Opcode\n");
       tick_stat_node(st, st_str_qr_qo_packets, st_node_qr_q_packets, true);
-      st_node = tick_stat_node(st, val_to_str_wmem(pinfo->pool, pi->packet_opcode, opcode_vals, "Unknown opcode (%d)"), st_node_qr_qo_packets, true);
+      st_node = tick_stat_node(st, val_to_str(pinfo->pool, pi->packet_opcode, opcode_vals, "Unknown opcode (%d)"), st_node_qr_qo_packets, true);
       if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
         tick_stat_node(st, pi->qname, st_node, false);
       }
@@ -5593,7 +5593,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
     if (dns_qr_qt_statistics_enabled) {
       ws_debug("qt = Query-Type\n");
       tick_stat_node(st, st_str_qr_qt_packets, st_node_qr_q_packets, true);
-      st_node = tick_stat_node(st, val_to_str_wmem(pinfo->pool, pi->packet_qtype, dns_types_vals, "Unknown packet type (%d)"), st_node_qr_qt_packets, true);
+      st_node = tick_stat_node(st, val_to_str(pinfo->pool, pi->packet_qtype, dns_types_vals, "Unknown packet type (%d)"), st_node_qr_qt_packets, true);
       if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
         tick_stat_node(st, pi->qname, st_node, false);
       }
@@ -5775,7 +5775,7 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
     if (dns_qr_rc_statistics_enabled) {
       ws_debug("rc = Response-Code\n");
       tick_stat_node(st, st_str_qr_rc_packets, st_node_qr_r_packets, true);
-      st_node = tick_stat_node(st, val_to_str_wmem(pinfo->pool, pi->packet_rcode, rcode_vals, "Unknown rcode (%d)"), st_node_qr_rc_packets, true);
+      st_node = tick_stat_node(st, val_to_str(pinfo->pool, pi->packet_rcode, rcode_vals, "Unknown rcode (%d)"), st_node_qr_rc_packets, true);
       if (dns_qr_qrn_statistics_enabled && pi->qname_len > 0) {
         tick_stat_node(st, pi->qname, st_node, false);
       }

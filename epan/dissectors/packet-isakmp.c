@@ -3448,10 +3448,10 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     if(isakmp_version == 1) {
         proto_tree_add_item(isakmp_tree,  hf_isakmp_exchangetype_v1, tvb, offset, 1, ENC_BIG_ENDIAN);
-        col_add_str(pinfo->cinfo, COL_INFO,val_to_str_wmem(pinfo->pool, hdr.exch_type, exchange_v1_type, "Unknown %d"));
+        col_add_str(pinfo->cinfo, COL_INFO,val_to_str(pinfo->pool, hdr.exch_type, exchange_v1_type, "Unknown %d"));
     } else if (isakmp_version == 2){
         proto_tree_add_item(isakmp_tree,  hf_isakmp_exchangetype_v2, tvb, offset, 1, ENC_BIG_ENDIAN);
-        col_add_str(pinfo->cinfo, COL_INFO,val_to_str_wmem(pinfo->pool, hdr.exch_type, exchange_v2_type, "Unknown %d"));
+        col_add_str(pinfo->cinfo, COL_INFO,val_to_str(pinfo->pool, hdr.exch_type, exchange_v2_type, "Unknown %d"));
     }
     offset += 1;
 
@@ -3940,22 +3940,22 @@ dissect_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
   switch(attr_type) {
     case IPSEC_ATTR_LIFE_TYPE:
       proto_tree_add_item(attr_tree, hf_isakmp_ipsec_attr_life_type, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), attr_life_type, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), attr_life_type, "Unknown %d"));
       break;
     case IPSEC_ATTR_LIFE_DURATION:
       dissect_life_duration(tvb, attr_tree, attr_item, hf_isakmp_ipsec_attr_life_duration_uint32, hf_isakmp_ipsec_attr_life_duration_uint64, hf_isakmp_ipsec_attr_life_duration_bytes, offset, value_len);
       break;
     case IPSEC_ATTR_GROUP_DESC:
       proto_tree_add_item(attr_tree, hf_isakmp_ipsec_attr_group_description, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), dh_group, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), dh_group, "Unknown %d"));
       break;
     case IPSEC_ATTR_ENCAP_MODE:
       proto_tree_add_item(attr_tree, hf_isakmp_ipsec_attr_encap_mode, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), ipsec_attr_encap_mode, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), ipsec_attr_encap_mode, "Unknown %d"));
       break;
     case IPSEC_ATTR_AUTH_ALGORITHM:
       proto_tree_add_item(attr_tree, hf_isakmp_ipsec_attr_auth_algorithm, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), ipsec_attr_auth_algo, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), ipsec_attr_auth_algo, "Unknown %d"));
       break;
     case IPSEC_ATTR_KEY_LENGTH:
       proto_tree_add_item(attr_tree, hf_isakmp_ipsec_attr_key_length, tvb, offset, value_len, ENC_BIG_ENDIAN);
@@ -3973,11 +3973,11 @@ dissect_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
       break;
     case IPSEC_ATTR_ECN_TUNNEL:
       proto_tree_add_item(attr_tree, hf_isakmp_ipsec_attr_ecn_tunnel, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), ipsec_attr_ecn_tunnel, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), ipsec_attr_ecn_tunnel, "Unknown %d"));
       break;
     case IPSEC_ATTR_EXT_SEQ_NBR:
       proto_tree_add_item(attr_tree, hf_isakmp_ipsec_attr_ext_seq_nbr, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), ipsec_attr_ext_seq_nbr, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), ipsec_attr_ext_seq_nbr, "Unknown %d"));
       break;
     case IPSEC_ATTR_AUTH_KEY_LENGTH:
       proto_tree_add_item(attr_tree, hf_isakmp_ipsec_attr_auth_key_length, tvb, offset, value_len, ENC_BIG_ENDIAN);
@@ -3989,12 +3989,12 @@ dissect_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
     case IPSEC_ATTR_ADDR_PRESERVATION:
       proto_tree_add_item(attr_tree, hf_isakmp_ipsec_attr_addr_preservation, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), ipsec_attr_addr_preservation, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), ipsec_attr_addr_preservation, "Unknown %d"));
       break;
 
     case IPSEC_ATTR_SA_DIRECTION:
       proto_tree_add_item(attr_tree, hf_isakmp_ipsec_attr_sa_direction, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), ipsec_attr_sa_direction, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), ipsec_attr_sa_direction, "Unknown %d"));
     default:
       /* No Default Action */
       break;
@@ -4027,7 +4027,7 @@ dissect_resp_lifetime_ipsec_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_t
   switch(attr_type) {
     case IPSEC_ATTR_LIFE_TYPE:
       proto_tree_add_item(attr_tree, hf_isakmp_resp_lifetime_ipsec_attr_life_type, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), attr_life_type, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), attr_life_type, "Unknown %d"));
       break;
     case IPSEC_ATTR_LIFE_DURATION:
       dissect_life_duration(tvb, attr_tree, attr_item, hf_isakmp_resp_lifetime_ipsec_attr_life_duration_uint32, hf_isakmp_resp_lifetime_ipsec_attr_life_duration_uint64, hf_isakmp_resp_lifetime_ipsec_attr_life_duration_bytes, offset, value_len);
@@ -4064,12 +4064,12 @@ dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
   switch(attr_type) {
     case IKE_ATTR_ENCRYPTION_ALGORITHM:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_encryption_algorithm, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), ike_attr_enc_algo, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), ike_attr_enc_algo, "Unknown %d"));
       if (decr) decr->ike_encr_alg = tvb_get_ntohs(tvb, offset);
       break;
     case IKE_ATTR_HASH_ALGORITHM:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_hash_algorithm, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), ike_attr_hash_algo, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), ike_attr_hash_algo, "Unknown %d"));
       if (decr) decr->ike_hash_alg = tvb_get_ntohs(tvb, offset);
       break;
     case IKE_ATTR_AUTHENTICATION_METHOD:
@@ -4077,24 +4077,24 @@ dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
       if(decr && (decr->ike_hash_alg == HMAC_SM3 || decr->ike_encr_alg == ENC_SM1_CBC || decr->ike_encr_alg == ENC_SM4_CBC))
       {
         proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_authentication_method_china, tvb, offset, value_len, ENC_BIG_ENDIAN);
-        proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), ike_attr_authmeth_china, "Unknown %d"));
+        proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), ike_attr_authmeth_china, "Unknown %d"));
 
       }
       else
       {
         proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_authentication_method, tvb, offset, value_len, ENC_BIG_ENDIAN);
-        proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), ike_attr_authmeth, "Unknown %d"));
+        proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), ike_attr_authmeth, "Unknown %d"));
       }
       if (decr) decr->is_psk = tvb_get_ntohs(tvb, offset) == 0x01 ? true : false;
       break;
     case IKE_ATTR_GROUP_DESCRIPTION:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_group_description, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), dh_group, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), dh_group, "Unknown %d"));
       if (decr) decr->group = tvb_get_ntohs(tvb, offset);
       break;
     case IKE_ATTR_GROUP_TYPE:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_group_type, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), ike_attr_grp_type, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), ike_attr_grp_type, "Unknown %d"));
       break;
     case IKE_ATTR_GROUP_PRIME:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_group_prime, tvb, offset, value_len, ENC_NA);
@@ -4113,7 +4113,7 @@ dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
       break;
     case IKE_ATTR_LIFE_TYPE:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_life_type, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), attr_life_type, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), attr_life_type, "Unknown %d"));
       break;
     case IKE_ATTR_LIFE_DURATION:
       dissect_life_duration(tvb, attr_tree, attr_item, hf_isakmp_ike_attr_life_duration_uint32, hf_isakmp_ike_attr_life_duration_uint64, hf_isakmp_ike_attr_life_duration_bytes, offset, value_len);
@@ -4137,7 +4137,7 @@ dissect_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
       break;
     case IKE_ATTR_ACAT:
       proto_tree_add_item(attr_tree, hf_isakmp_ike_attr_asymmetric_cryptographic_algorithm_type, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), ike_attr_asym_algo, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), ike_attr_asym_algo, "Unknown %d"));
       break;
     default:
       /* No Default Action */
@@ -4171,7 +4171,7 @@ dissect_resp_lifetime_ike_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   switch(attr_type) {
     case IKE_ATTR_LIFE_TYPE:
       proto_tree_add_item(attr_tree, hf_isakmp_resp_lifetime_ike_attr_life_type, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), attr_life_type, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), attr_life_type, "Unknown %d"));
       break;
     case IKE_ATTR_LIFE_DURATION:
       dissect_life_duration(tvb, attr_tree, attr_item, hf_isakmp_resp_lifetime_ike_attr_life_duration_uint32, hf_isakmp_resp_lifetime_ike_attr_life_duration_uint64, hf_isakmp_resp_lifetime_ike_attr_life_duration_bytes, offset, value_len);
@@ -5494,7 +5494,7 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       break;
     case XAUTH_STATUS: /* 16527 */
       proto_tree_add_item(attr_tree, hf_isakmp_cfg_attr_xauth_status, tvb, offset, value_len, ENC_BIG_ENDIAN);
-      proto_item_append_text(attr_item, ": %s", val_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), cfgattr_xauth_status, "Unknown %d"));
+      proto_item_append_text(attr_item, ": %s", val_to_str(pinfo->pool, tvb_get_ntohs(tvb, offset), cfgattr_xauth_status, "Unknown %d"));
       break;
     case XAUTH_NEXT_PIN: /* 16528 */
       proto_tree_add_item_ret_string(attr_tree, hf_isakmp_cfg_attr_xauth_next_pin, tvb, offset, value_len, ENC_ASCII|ENC_NA, pinfo->pool, &str);
@@ -6005,7 +6005,7 @@ dissect_enc(tvbuff_t *tvb,
     if (dissect_payload_now) {
       encr_data_item = proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset, encr_data_len, ENC_NA);
       proto_item_append_text(encr_data_item, " (%d bytes)",encr_data_len);
-      proto_item_append_text(encr_data_item, " <%s>", val_to_str_wmem(pinfo->pool, key_info->encr_spec->number, vs_ikev2_encr_algs, "Unknown cipher: %d"));
+      proto_item_append_text(encr_data_item, " <%s>", val_to_str(pinfo->pool, key_info->encr_spec->number, vs_ikev2_encr_algs, "Unknown cipher: %d"));
     }
     encr_data = (unsigned char *)tvb_memdup(pinfo->pool, tvb, offset, encr_data_len);
     offset += encr_data_len;
@@ -6030,7 +6030,7 @@ dissect_enc(tvbuff_t *tvb,
         icv_data = (unsigned char *)tvb_memdup(pinfo->pool, tvb, offset, icv_len);
       } else
       if (key_info->auth_spec->gcry_alg) {
-        proto_item_append_text(icd_item, " <%s>", val_to_str_wmem(pinfo->pool, key_info->auth_spec->number, vs_ikev2_auth_algs, "Unknown mac algo: %d"));
+        proto_item_append_text(icd_item, " <%s>", val_to_str(pinfo->pool, key_info->auth_spec->number, vs_ikev2_auth_algs, "Unknown mac algo: %d"));
         err = gcry_md_open(&md_hd, key_info->auth_spec->gcry_alg, key_info->auth_spec->gcry_flag);
         if (err) {
           REPORT_DISSECTOR_BUG("IKEv2 hashing error: algorithm %d: gcry_md_open failed: %s",
@@ -6515,7 +6515,7 @@ static bool ikev2_uat_data_update_cb(void* p, char** err) {
   }
 
   if (ud->encr_spec->icv_len && ud->auth_spec->number != IKEV2_AUTH_NONE) {
-    char* auth_str = val_to_str_wmem(NULL, ud->auth_spec->number, vs_ikev2_auth_algs, "other-%d");
+    char* auth_str = val_to_str(NULL, ud->auth_spec->number, vs_ikev2_auth_algs, "other-%d");
     *err = ws_strdup_printf("Selected encryption_algorithm %s requires selecting NONE integrity algorithm.", auth_str);
     wmem_free(NULL, auth_str);
     return false;

@@ -137,7 +137,7 @@ CRC_Calc_Data(
 const char *
 mstp_frame_type_text(wmem_allocator_t* scope, uint32_t val)
 {
-	return val_to_str_wmem(scope, val,
+	return val_to_str(scope, val,
 		bacnet_mstp_frame_type_name,
 		"Unknown Frame Type (%u)");
 }

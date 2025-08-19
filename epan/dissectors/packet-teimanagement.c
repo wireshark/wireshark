@@ -76,7 +76,7 @@ dissect_teimanagement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     message = tvb_get_uint8(tvb, 3);
         col_add_str(pinfo->cinfo, COL_INFO,
-            val_to_str_wmem(pinfo->pool, message, tei_msg_vals, "Unknown message type (0x%04x)"));
+            val_to_str(pinfo->pool, message, tei_msg_vals, "Unknown message type (0x%04x)"));
     if (tree) {
         proto_tree_add_uint(tei_tree, hf_tei_management_message, tvb, 3, 1, message);
         proto_tree_add_item(tei_tree, hf_tei_management_action, tvb, 4, 1, ENC_BIG_ENDIAN);

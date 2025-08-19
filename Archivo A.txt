@@ -11,4 +11,3 @@ recolección de datos relevantes para un análisis posterior. El uso de filtros 
 para diferenciar el tráfico cuando existen múltiples servicios operando en la misma red. 
 También la herramienta permite el análisis de un servicio que esté funcionando en un puerto específico, 
 lo que permite validar el tráfico asociado a dicho servicio.
-

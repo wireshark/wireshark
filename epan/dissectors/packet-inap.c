@@ -1445,11 +1445,11 @@ dissect_inap_T_code_local(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
   if (is_ExtensionField == false){
     if (inap_opcode_type == INAP_OPCODE_RETURN_ERROR){
       errorCode = opcode;
-      col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_wmem(actx->pinfo->pool, errorCode, inap_err_code_string_vals, "Unknown INAP error (%u)"));
+      col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(actx->pinfo->pool, errorCode, inap_err_code_string_vals, "Unknown INAP error (%u)"));
       col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
       col_set_fence(actx->pinfo->cinfo, COL_INFO);
     }else{
-      col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_wmem(actx->pinfo->pool, opcode, inap_opr_code_strings, "Unknown INAP (%u)"));
+      col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str(actx->pinfo->pool, opcode, inap_opr_code_strings, "Unknown INAP (%u)"));
       col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
       col_set_fence(actx->pinfo->cinfo, COL_INFO);
     }

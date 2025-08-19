@@ -378,7 +378,7 @@ dissect_ipdr_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     offset++;
 
     type_item = proto_tree_add_item_ret_uint(ipdr_tree, hf_ipdr_message_id, tvb, offset, 1, ENC_NA, &message_type);
-    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_wmem(pinfo->pool, message_type, ipdr_message_type_vals, "Unknown (0x%02x)"));
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str(pinfo->pool, message_type, ipdr_message_type_vals, "Unknown (0x%02x)"));
     offset++;
 
     proto_tree_add_item_ret_uint(ipdr_tree, hf_ipdr_session_id, tvb, offset, 1, ENC_BIG_ENDIAN, &session_id);

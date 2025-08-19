@@ -234,13 +234,13 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t f
     offset = 4;
 
     ti_type = proto_tree_add_item_ret_uint(iso10681_tree, hf_iso10681_type, tvb, offset, 1, ENC_BIG_ENDIAN, &type);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, type, iso10681_message_types, "Unknown (0x%02x)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, type, iso10681_message_types, "Unknown (0x%02x)"));
 
     switch (type) {
         case ISO10681_TYPE_START_FRAME: {
             uint32_t type2_value;
             proto_tree_add_item_ret_uint(iso10681_tree, hf_iso10681_type2, tvb, offset, 1, ENC_BIG_ENDIAN, &type2_value);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_wmem(pinfo->pool, type2_value, iso10681_start_type2_values, "Unknown (0x%x)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(pinfo->pool, type2_value, iso10681_start_type2_values, "Unknown (0x%x)"));
 
             proto_tree_add_item_ret_uint(iso10681_tree, hf_iso10681_frame_payload_length, tvb, offset + 1, 1, ENC_BIG_ENDIAN, &data_length);
             proto_tree_add_item_ret_uint(iso10681_tree, hf_iso10681_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &full_len);
@@ -314,7 +314,7 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t f
                 break;
             }
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (Flow Status: %s)", val_to_str_wmem(pinfo->pool, flow_status, iso10681_flow_status_values, "unknown (0x%x)"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (Flow Status: %s)", val_to_str(pinfo->pool, flow_status, iso10681_flow_status_values, "unknown (0x%x)"));
             break;
         }
         default:

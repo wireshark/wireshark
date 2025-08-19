@@ -111,7 +111,7 @@ dissect_tlv_header(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length
 	tlv_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
 		ett_fdp_tlv_header, NULL, "Length %d, type %d = %s",
 		tlv_length, tlv_type,
-		val_to_str_wmem(pinfo->pool, tlv_type, fdp_type_vals, "Unknown (%d)"));
+		val_to_str(pinfo->pool, tlv_type, fdp_type_vals, "Unknown (%d)"));
 
 	proto_tree_add_uint(tlv_tree, hf_fdp_tlv_type, tvb, offset, 2, tlv_type);
 	offset += 2;
@@ -292,7 +292,7 @@ dissect_fdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 					"TLV with invalid length: %u", tlv_length);
 				break;
 			}
-			type_string = val_to_str_wmem(pinfo->pool, tlv_type, fdp_type_vals, "[%u]");
+			type_string = val_to_str(pinfo->pool, tlv_type, fdp_type_vals, "[%u]");
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", type_string);
 
 			switch (tlv_type) {

@@ -1303,7 +1303,7 @@ dissect_thread_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         offset++;
 
         /* Add value name to value root label */
-        proto_item_append_text(ti, " (%s)", val_to_str_wmem(pinfo->pool, tlv_type, thread_address_tlv_vals, "Unknown (%d)"));
+        proto_item_append_text(ti, " (%s)", val_to_str(pinfo->pool, tlv_type, thread_address_tlv_vals, "Unknown (%d)"));
 
         /* Length */
         proto_tree_add_item(tlv_tree, hf_thread_address_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1521,7 +1521,7 @@ dissect_thread_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         offset++;
 
         /* Add value name to value root label */
-        proto_item_append_text(ti, " (%s)", val_to_str_wmem(pinfo->pool, tlv_type, thread_nm_tlv_vals, "Unknown (%d)"));
+        proto_item_append_text(ti, " (%s)", val_to_str(pinfo->pool, tlv_type, thread_nm_tlv_vals, "Unknown (%d)"));
 
         /* Length */
                 proto_tree_add_item(tlv_tree, hf_thread_nm_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1757,7 +1757,7 @@ dissect_thread_bl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         offset++;
 
         /* Add value name to value root label */
-        proto_item_append_text(ti, " (%s)", val_to_str_wmem(pinfo->pool, tlv_type, thread_bl_tlv_vals, "Unknown (%d)"));
+        proto_item_append_text(ti, " (%s)", val_to_str(pinfo->pool, tlv_type, thread_bl_tlv_vals, "Unknown (%d)"));
 
         /* Length */
         proto_tree_add_item(tlv_tree, hf_thread_bl_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1990,7 +1990,7 @@ dissect_thread_dg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
         offset++;
 
         /* Add value name to value root label */
-        proto_item_append_text(ti, " (%s)", val_to_str_wmem(pinfo->pool, tlv_type, thread_dg_tlv_vals, "Unknown (%d)"));
+        proto_item_append_text(ti, " (%s)", val_to_str(pinfo->pool, tlv_type, thread_dg_tlv_vals, "Unknown (%d)"));
 
         /* Length */
         switch (tlv_len_len) {
@@ -2107,7 +2107,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         offset++;
 
         /* Add value name to value root label */
-        proto_item_append_text(ti, " (%s)", val_to_str_wmem(pinfo->pool, tlv_type, thread_mc_tlv_vals, "Unknown (%d)"));
+        proto_item_append_text(ti, " (%s)", val_to_str(pinfo->pool, tlv_type, thread_mc_tlv_vals, "Unknown (%d)"));
 
         /* Length */
         switch (tlv_len_len) {
@@ -2879,7 +2879,7 @@ dissect_thread_nwd_with_server_decode(tvbuff_t *tvb, packet_info *pinfo, proto_t
         offset++;
 
         /* Add value name to value root label */
-        proto_item_append_text(ti, " (%s)", val_to_str_wmem(pinfo->pool, tlv_type, thread_nwd_tlv_vals, "Unknown (%d)"));
+        proto_item_append_text(ti, " (%s)", val_to_str(pinfo->pool, tlv_type, thread_nwd_tlv_vals, "Unknown (%d)"));
 
         /* Length */
         proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3298,7 +3298,7 @@ static int dissect_thread_bcn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset++;
 
     /* Add value name to value root label */
-    proto_item_append_text(ti, " (%s)", val_to_str_wmem(pinfo->pool, tlv_type, thread_bcn_tlv_vals, "Unknown (%d)"));
+    proto_item_append_text(ti, " (%s)", val_to_str(pinfo->pool, tlv_type, thread_bcn_tlv_vals, "Unknown (%d)"));
 
     /* Length */
     proto_tree_add_item(tlv_tree, hf_thread_bcn_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN);

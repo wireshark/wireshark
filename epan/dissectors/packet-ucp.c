@@ -1868,7 +1868,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
      /* Make entries in  Info column on summary display */
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
                     val_to_str_ext_const(OT,  &vals_hdr_OT_ext,  "unknown operation"),
-                    val_to_str_wmem(pinfo->pool, O_R, vals_hdr_O_R, "Unknown (%d)"));
+                    val_to_str(pinfo->pool, O_R, vals_hdr_O_R, "Unknown (%d)"));
     if (result == UCP_INV_CHK)
         col_append_str(pinfo->cinfo, COL_INFO, " [checksum invalid]");
 

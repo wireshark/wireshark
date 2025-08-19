@@ -57,7 +57,7 @@ dissect_l2rcop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		uint8_t addr = oct & 0x1f;
 		proto_tree *l2rcop_tree;
 		proto_item *ti;
-		const char *addr_str = val_to_str_wmem(pinfo->pool, addr, addr_vals, "%u characters");
+		const char *addr_str = val_to_str(pinfo->pool, addr, addr_vals, "%u characters");
 
 		ti = proto_tree_add_protocol_format(tree, proto_l2rcop, tvb, 0, reported_len,
 						    "GSM L2RCOP Chunk Status=0x%02x (Addr: %s)", oct, addr_str);

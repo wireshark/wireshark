@@ -9482,7 +9482,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 							ftype_name(hfinfo->type));
 					break;
 				default:
-					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
+					tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
 					REPORT_DISSECTOR_BUG("Field '%s' (%s) is a character value (%s)"
 						" but is being displayed as %s",
 						hfinfo->name, hfinfo->abbrev,
@@ -9513,7 +9513,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				case BASE_OCT:
 				case BASE_DEC_HEX:
 				case BASE_HEX_DEC:
-					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
+					tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 					REPORT_DISSECTOR_BUG("Field '%s' (%s) is signed (%s) but is being displayed unsigned (%s)",
 						hfinfo->name, hfinfo->abbrev,
 						ftype_name(hfinfo->type), tmp_str);
@@ -9529,7 +9529,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		case FT_UINT56:
 		case FT_UINT64:
 			if (IS_BASE_PORT(hfinfo->display)) {
-				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
+				tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
 				if (hfinfo->type != FT_UINT16) {
 					REPORT_DISSECTOR_BUG("Field '%s' (%s) has 'display' value %s but it can only be used with FT_UINT16, not %s",
 						hfinfo->name, hfinfo->abbrev,
@@ -9550,7 +9550,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			}
 
 			if (hfinfo->display == BASE_OUI) {
-				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
+				tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
 				if (hfinfo->type != FT_UINT24) {
 					REPORT_DISSECTOR_BUG("Field '%s' (%s) has 'display' value %s but it can only be used with FT_UINT24, not %s",
 						hfinfo->name, hfinfo->abbrev,
@@ -9606,7 +9606,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					break;
 
 				default:
-					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
+					tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
 					REPORT_DISSECTOR_BUG("Field '%s' (%s) is an integral value (%s)"
 						" but is being displayed as %s",
 						hfinfo->name, hfinfo->abbrev,
@@ -9627,7 +9627,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				case SEP_SPACE:
 					break;
 				default:
-					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
+					tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 					REPORT_DISSECTOR_BUG("Field '%s' (%s) is an byte array but is being displayed as %s instead of BASE_NONE, SEP_DOT, SEP_DASH, SEP_COLON, or SEP_SPACE",
 						hfinfo->name, hfinfo->abbrev, tmp_str);
 					//wmem_free(NULL, tmp_str);
@@ -9646,7 +9646,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		case FT_PROTOCOL:
 		case FT_FRAMENUM:
 			if (hfinfo->display != BASE_NONE) {
-				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
+				tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE",
 					hfinfo->name, hfinfo->abbrev,
 					ftype_name(hfinfo->type), tmp_str);
@@ -9663,7 +9663,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 
 		case FT_ABSOLUTE_TIME:
 			if (!FIELD_DISPLAY_IS_ABSOLUTE_TIME(hfinfo->display)) {
-				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
+				tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is a %s but is being displayed as %s instead of as a time",
 					hfinfo->name, hfinfo->abbrev, ftype_name(hfinfo->type), tmp_str);
 				//wmem_free(NULL, tmp_str);
@@ -9685,7 +9685,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					break;
 
 				default:
-					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
+					tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
 					REPORT_DISSECTOR_BUG("Field '%s' (%s) is an string value (%s)"
 						" but is being displayed as %s",
 						hfinfo->name, hfinfo->abbrev,
@@ -9710,7 +9710,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					break;
 
 				default:
-					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
+					tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
 					REPORT_DISSECTOR_BUG("Field '%s' (%s) is an IPv4 value (%s)"
 						" but is being displayed as %s",
 						hfinfo->name, hfinfo->abbrev,
@@ -9729,7 +9729,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				case BASE_CUSTOM:
 					break;
 				default:
-					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
+					tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
 					REPORT_DISSECTOR_BUG("Field '%s' (%s) is a float value (%s)"
 						" but is being displayed as %s",
 						hfinfo->name, hfinfo->abbrev,
@@ -9748,7 +9748,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		case FT_IEEE_11073_SFLOAT:
 		case FT_IEEE_11073_FLOAT:
 			if (FIELD_DISPLAY(hfinfo->display) != BASE_NONE) {
-				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
+				tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE",
 					hfinfo->name, hfinfo->abbrev,
 					ftype_name(hfinfo->type),
@@ -9766,7 +9766,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			break;
 		default:
 			if (hfinfo->display != BASE_NONE) {
-				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
+				tmp_str = val_to_str(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE",
 					hfinfo->name, hfinfo->abbrev,
 					ftype_name(hfinfo->type),

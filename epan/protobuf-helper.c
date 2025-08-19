@@ -155,8 +155,8 @@ pbw_FieldDescriptor_is_packed(const PbwFieldDescriptor* field) {
 
 /* like FieldDescriptor::typeName() */
 const char*
-pbw_FieldDescriptor_typeName(int field_type) {
-    return pbl_field_descriptor_TypeName(field_type);
+pbw_FieldDescriptor_typeName(wmem_allocator_t* scope, int field_type) {
+    return pbl_field_descriptor_TypeName(scope, field_type);
 }
 
 /* like FieldDescriptor::message_type() */

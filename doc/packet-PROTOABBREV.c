@@ -136,8 +136,7 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      *
      * If
      * - you may be appending to the column later OR
-     * - you have constructed the string locally OR
-     * - the string was returned from a call to val_to_str()
+     * - you have constructed the string locally
      * then use "col_add_str()" instead, as that takes a copy of the string.
      *
      * The function "col_add_fstr()" can be used instead of "col_add_str()"; it

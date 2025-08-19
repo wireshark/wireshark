@@ -128,7 +128,7 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /* We add some snazzy bizness to the info field to quickly ascertain
         what type of message was sent to/from the BRS/BRC. */
     col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type - %s",
-            val_to_str_wmem(pinfo->pool, packet_type, brp_packettype_names, "Unknown (0x%02x)"));
+            val_to_str(pinfo->pool, packet_type, brp_packettype_names, "Unknown (0x%02x)"));
 
     /* This call adds our tree to the main dissection tree. */
 

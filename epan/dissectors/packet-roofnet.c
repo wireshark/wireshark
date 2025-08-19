@@ -223,7 +223,7 @@ static int dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   roofnet_msg_type = tvb_get_uint8(tvb, ROOFNET_OFFSET_TYPE);
   /* Clear out stuff in the info column */
   col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %s",
-               val_to_str_wmem(pinfo->pool, roofnet_msg_type, roofnet_pt_vals, "Unknown (%d)"));
+               val_to_str(pinfo->pool, roofnet_msg_type, roofnet_pt_vals, "Unknown (%d)"));
 
   it = proto_tree_add_item(tree, proto_roofnet, tvb, offset, -1, ENC_NA);
   roofnet_tree = proto_item_add_subtree(it, ett_roofnet);

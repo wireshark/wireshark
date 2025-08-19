@@ -646,7 +646,7 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         return 0;
     }
 
-    str_type = val_to_str_wmem(pinfo->pool, type, type_vals, "Unknown AODV Packet Type (%u)");
+    str_type = val_to_str(pinfo->pool, type, type_vals, "Unknown AODV Packet Type (%u)");
     col_add_str(pinfo->cinfo, COL_INFO, str_type);
         ti = proto_tree_add_protocol_format(tree, proto_aodv, tvb, 0, -1,
             "Ad hoc On-demand Distance Vector Routing Protocol, %s", str_type);

@@ -2384,7 +2384,7 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     info.format &= 0x7F;
 
     /* Add packet format to info string */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_wmem(pinfo->pool, info.format, formatnames, "Unknown Format (0x%x)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(pinfo->pool, info.format, formatnames, "Unknown Format (0x%x)"));
 
     /* Dissect status */
     info.status = tvb_get_ntohs(tvb, offset);

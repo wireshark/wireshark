@@ -2074,7 +2074,7 @@ dissect_struct_llog_rec_hdr(tvbuff_t *tvb, packet_info* pinfo, int offset, proto
     proto_tree_add_item(tree, hf_lustre_llog_rec_hdr_lrh_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_item_append_text(parent_tree, " [%02d]: %s", ind, val_to_str_wmem(pinfo->pool, type, llog_op_types, "Unknown(%x)"));
+    proto_item_append_text(parent_tree, " [%02d]: %s", ind, val_to_str(pinfo->pool, type, llog_op_types, "Unknown(%x)"));
 
     return offset;
 }
@@ -2424,7 +2424,7 @@ dissect_struct_lustre_cfg(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_t
         offset += 4;
     }
     offset = add_extra_padding(tvb, offset, NULL, tree);
-    proto_item_append_text(item, ": %s", val_to_str_wmem(pinfo->pool, cmd, lcfg_command_type_vals, "Unknown(%x)"));
+    proto_item_append_text(item, ": %s", val_to_str(pinfo->pool, cmd, lcfg_command_type_vals, "Unknown(%x)"));
     switch (cmd) {
     case LCFG_MARKER:
         offset = dissect_struct_cfg_marker(tvb, offset, tree);
@@ -3086,7 +3086,7 @@ dissect_struct_mdt_rec_reint(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
                                "Buffer Length mismatch: expected:136 !== length:%u", data_len);
 
     proto_tree_add_item_ret_uint(tree, hf_lustre_mdt_rec_reint_opcode, tvb, offset, 4, ENC_LITTLE_ENDIAN, &opcode);
-    proto_item_append_text(tree, " %s", val_to_str_wmem(pinfo->pool, opcode, mds_reint_vals, "BAD(%d)"));
+    proto_item_append_text(tree, " %s", val_to_str(pinfo->pool, opcode, mds_reint_vals, "BAD(%d)"));
     offset += 4;
     proto_tree_add_item(tree, hf_lustre_mdt_rec_reint_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -4376,8 +4376,8 @@ dissect_struct_ptlrpc_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
         trans->opcode = opcode;
     else if (trans->opcode != opcode) {
         expert_add_info_format(pinfo, tree, &ei_lustre_badopc, "Mismatched: PTLRPC:%s != Conversation:%s (match_bits:%" PRIx64 ")",
-                               val_to_str_wmem(pinfo->pool, opcode, lustre_op_codes, "Unknown(%d)"),
-                               val_to_str_wmem(pinfo->pool, trans->opcode, lustre_op_codes, "Unknown(%d)"), trans->match_bits);
+                               val_to_str(pinfo->pool, opcode, lustre_op_codes, "Unknown(%d)"),
+                               val_to_str(pinfo->pool, trans->opcode, lustre_op_codes, "Unknown(%d)"), trans->match_bits);
         trans->opcode = opcode;
     }
 
@@ -4439,10 +4439,10 @@ dissect_struct_ptlrpc_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
     proto_item_set_len(item, offset-old_offset);
 
     /* Add Opcode and PB Type to info lines */
-    proto_item_append_text(parent_tree, "%s %s ", val_to_str_wmem(pinfo->pool, opcode, lustre_op_codes, "Unknown(%d)"),
-                      val_to_str_wmem(pinfo->pool, *pb_type, lustre_LMTypes, "Unknown(%d)"));
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s ", val_to_str_wmem(pinfo->pool, opcode, lustre_op_codes, "Unknown(%d)"),
-                      val_to_str_wmem(pinfo->pool, *pb_type, lustre_LMTypes, "Unknown(%d)"));
+    proto_item_append_text(parent_tree, "%s %s ", val_to_str(pinfo->pool, opcode, lustre_op_codes, "Unknown(%d)"),
+                      val_to_str(pinfo->pool, *pb_type, lustre_LMTypes, "Unknown(%d)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s ", val_to_str(pinfo->pool, opcode, lustre_op_codes, "Unknown(%d)"),
+                      val_to_str(pinfo->pool, *pb_type, lustre_LMTypes, "Unknown(%d)"));
 
     //sanity_check(tvb, pinfo, offset-old_offset);
     return offset;

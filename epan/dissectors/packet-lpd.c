@@ -80,7 +80,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	}
 
 	if (lpr_packet_type == request && code !=0) {
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, code, lpd_client_code, "Unknown client code: %u"));
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, code, lpd_client_code, "Unknown client code: %u"));
 	}
 	else if (lpr_packet_type == response) {
 		col_set_str(pinfo->cinfo, COL_INFO, "LPD response");
@@ -106,7 +106,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 			if (code <= 9 && printer_len != -1) {
 				proto_tree_add_uint_format(lpd_tree, hf_lpd_client_code, tvb, 0, 1, code,
-					"%s", val_to_str_wmem(pinfo->pool, code, lpd_client_code, "Unknown client code: %u"));
+					"%s", val_to_str(pinfo->pool, code, lpd_client_code, "Unknown client code: %u"));
 				proto_tree_add_item(lpd_tree, hf_lpd_printer_option, tvb, 1, printer_len, ENC_ASCII);
 			}
 			else {

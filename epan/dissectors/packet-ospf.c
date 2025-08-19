@@ -1508,7 +1508,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     packet_type = tvb_get_uint8(tvb, 1);
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str_wmem(pinfo->pool, packet_type, pt_vals, "Unknown (%u)"));
+                val_to_str(pinfo->pool, packet_type, pt_vals, "Unknown (%u)"));
 
     ospflen = tvb_get_ntohs(tvb, 2);
 

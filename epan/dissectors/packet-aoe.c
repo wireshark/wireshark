@@ -284,14 +284,14 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
   /* ata command/status */
   if(!response){
     proto_tree_add_item(tree, hf_aoe_acmd, tvb, offset, 1, ENC_BIG_ENDIAN);
-    col_append_fstr(pinfo->cinfo, COL_INFO, " ATA:%s", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, offset), ata_cmd_vals, " Unknown ATA<0x%02x>"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " ATA:%s", val_to_str(pinfo->pool, tvb_get_uint8(tvb, offset), ata_cmd_vals, " Unknown ATA<0x%02x>"));
   } else {
     proto_tree_add_item(tree, hf_aoe_astatus, tvb, offset, 1, ENC_BIG_ENDIAN);
     if(ata_info != NULL && ata_info->request_frame){
       /* we don't know what command it was unless we saw the request_frame */
       tmp_item=proto_tree_add_uint(tree, hf_aoe_acmd, tvb, 0, 0, ata_info->cmd);
       proto_item_set_generated(tmp_item);
-      col_append_fstr(pinfo->cinfo, COL_INFO, " ATA:%s", val_to_str_wmem(pinfo->pool, ata_info->cmd, ata_cmd_vals, " Unknown ATA<0x%02x>"));
+      col_append_fstr(pinfo->cinfo, COL_INFO, " ATA:%s", val_to_str(pinfo->pool, ata_info->cmd, ata_cmd_vals, " Unknown ATA<0x%02x>"));
     }
   }
   offset++;
@@ -326,7 +326,7 @@ dissect_aoe_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if(flags&AOE_FLAGS_ERROR){
     proto_item_append_text(flags_item, " Error");
     proto_tree_add_item(tree, hf_aoe_error, tvb, 1, 1, ENC_BIG_ENDIAN);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Error:%s ", val_to_str_wmem(pinfo->pool, tvb_get_uint8(tvb, 1), error_vals, "Unknown error<%d>"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Error:%s ", val_to_str(pinfo->pool, tvb_get_uint8(tvb, 1), error_vals, "Unknown error<%d>"));
   }
 
   /* major/minor address */
@@ -336,7 +336,7 @@ dissect_aoe_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* command */
   cmd=tvb_get_uint8(tvb, 5);
   proto_tree_add_item(tree, hf_aoe_cmd, tvb, 5, 1, ENC_BIG_ENDIAN);
-  col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", val_to_str_wmem(pinfo->pool, cmd, cmd_vals, "Unknown command<%d>"), (flags&AOE_FLAGS_RESPONSE)?"Response":"Request");
+  col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", val_to_str(pinfo->pool, cmd, cmd_vals, "Unknown command<%d>"), (flags&AOE_FLAGS_RESPONSE)?"Response":"Request");
 
 
   /* tag */

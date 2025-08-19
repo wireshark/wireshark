@@ -159,7 +159,7 @@ dissect_hdcp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     cursor = ptvcursor_new(pinfo->pool, hdcp_tree, tvb, 0);
 
     col_append_str(pinfo->cinfo, COL_INFO,
-                    val_to_str_wmem(pinfo->pool, msg_id, hdcp2_msg_id, "unknown (0x%x)"));
+                    val_to_str(pinfo->pool, msg_id, hdcp2_msg_id, "unknown (0x%x)"));
     ptvcursor_add(cursor, hf_hdcp2_msg_id, 1, ENC_BIG_ENDIAN);
 
     switch (msg_id) {

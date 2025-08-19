@@ -339,7 +339,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
   /* MESSAGE TYPE CODE
    */
   proto_tree_add_item_ret_uint(ajp13_tree, hf_ajp13_code, tvb, pos, 1, ENC_BIG_ENDIAN, &mcode);
-  col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, mcode, mtype_codes, "Unknown message code %u"));
+  col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, mcode, mtype_codes, "Unknown message code %u"));
   pos+=1;
 
   switch (mcode) {
@@ -564,7 +564,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   /* HTTP METHOD (ENCODED AS INTEGER)
    */
   proto_tree_add_item_ret_uint(ajp13_tree, hf_ajp13_method, tvb, pos, 1, ENC_BIG_ENDIAN, &meth);
-  col_append_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, meth, http_method_codes, "Unknown method %u"));
+  col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, meth, http_method_codes, "Unknown method %u"));
   pos+=1;
 
   /* HTTP VERSION STRING

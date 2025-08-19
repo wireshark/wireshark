@@ -395,7 +395,7 @@ ldap_conv_info_t *ldap_info;
 
   ldap_do_protocolop(actx->pinfo);
 
-  valstr = val_to_str_wmem(actx->pinfo->pool, scope, ldap_T_scope_vals, "Unknown scope(%%u)");
+  valstr = val_to_str(actx->pinfo->pool, scope, ldap_T_scope_vals, "Unknown scope(%%u)");
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", valstr);
 
@@ -410,7 +410,7 @@ ldap_conv_info_t *ldap_info;
 
   ldap_do_protocolop(actx->pinfo);
 
-  valstr = val_to_str_wmem(actx->pinfo->pool, result, ldap_T_resultCode_vals, "Unknown result(%%u)");
+  valstr = val_to_str(actx->pinfo->pool, result, ldap_T_resultCode_vals, "Unknown result(%%u)");
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", valstr);
 
@@ -426,7 +426,7 @@ ldap_conv_info_t *ldap_info;
 
   ldap_do_protocolop(actx->pinfo);
 
-  valstr = val_to_str_wmem(actx->pinfo->pool, result, ldap_BindResponse_resultCode_vals, "Unknown result(%%u)");
+  valstr = val_to_str(actx->pinfo->pool, result, ldap_BindResponse_resultCode_vals, "Unknown result(%%u)");
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", valstr);
 
@@ -489,7 +489,7 @@ ldap_conv_info_t *ldap_info;
   if((branch > -1) && (branch < (int)array_length(AuthenticationChoice_choice)))
     auth = AuthenticationChoice_choice[branch].value;
 
-  valstr = val_to_str_wmem(actx->pinfo->pool, auth, ldap_AuthenticationChoice_vals, "Unknown auth(%%u)");
+  valstr = val_to_str(actx->pinfo->pool, auth, ldap_AuthenticationChoice_vals, "Unknown auth(%%u)");
 
   /* If auth is NTLM (10 or 11) don't add to column as the NTLM dissection will do this */
   if ((auth !=  10) && (auth != 11))

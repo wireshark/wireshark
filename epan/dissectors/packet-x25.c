@@ -675,7 +675,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
         case X25_FAC_CLASS_A:
             proto_item_set_len(ti, 2);
             proto_item_append_text(ti, ": %s",
-                                   val_to_str_wmem(pinfo->pool, fac, x25_facilities_classA_vals, "Unknown (0x%02X)"));
+                                   val_to_str(pinfo->pool, fac, x25_facilities_classA_vals, "Unknown (0x%02X)"));
             facility_tree = proto_item_add_subtree(ti, ett_x25_facility);
             proto_tree_add_item(facility_tree, hf_x25_facility_class, tvb, *offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(facility_tree, hf_x25_facility_classA, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -724,7 +724,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
         case X25_FAC_CLASS_B:
             proto_item_set_len(ti, 3);
             proto_item_append_text(ti, ": %s",
-                                   val_to_str_wmem(pinfo->pool, fac, x25_facilities_classB_vals, "Unknown (0x%02X)"));
+                                   val_to_str(pinfo->pool, fac, x25_facilities_classB_vals, "Unknown (0x%02X)"));
             facility_tree = proto_item_add_subtree(ti, ett_x25_facility);
             proto_tree_add_item(facility_tree, hf_x25_facility_class, tvb, *offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(facility_tree, hf_x25_facility_classB, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -764,7 +764,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
         case X25_FAC_CLASS_C:
             proto_item_set_len(ti, 4);
             proto_item_append_text(ti, ": %s",
-                                   val_to_str_wmem(pinfo->pool, fac, x25_facilities_classC_vals, "Unknown (0x%02X)"));
+                                   val_to_str(pinfo->pool, fac, x25_facilities_classC_vals, "Unknown (0x%02X)"));
             facility_tree = proto_item_add_subtree(ti, ett_x25_facility);
             proto_tree_add_item(facility_tree, hf_x25_facility_class, tvb, *offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(facility_tree, hf_x25_facility_classC, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -776,7 +776,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
             break;
         case X25_FAC_CLASS_D:
             proto_item_append_text(ti, ": %s",
-                                   val_to_str_wmem(pinfo->pool, fac, x25_facilities_classD_vals, "Unknown (0x%02X)"));
+                                   val_to_str(pinfo->pool, fac, x25_facilities_classD_vals, "Unknown (0x%02X)"));
             facility_tree = proto_item_add_subtree(ti, ett_x25_facility);
             proto_tree_add_item(facility_tree, hf_x25_facility_class, tvb, *offset, 1, ENC_BIG_ENDIAN);
             byte1 = tvb_get_uint8(tvb, *offset+1);
@@ -1902,7 +1902,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         localoffset, 1, ENC_BIG_ENDIAN);
                 }
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d P(R):%d",
-                             val_to_str_wmem(pinfo->pool, PACKET_TYPE_FC(pkt_type), vals_x25_type, "Unknown (0x%02X)"),
+                             val_to_str(pinfo->pool, PACKET_TYPE_FC(pkt_type), vals_x25_type, "Unknown (0x%02X)"),
                              vc, (pkt_type >> 5) & 0x07);
                 localoffset += 1;
             } else {
@@ -1913,7 +1913,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         localoffset+1, 1, ENC_BIG_ENDIAN);
                 }
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d P(R):%d",
-                             val_to_str_wmem(pinfo->pool, PACKET_TYPE_FC(pkt_type), vals_x25_type, "Unknown (0x%02X)"),
+                             val_to_str(pinfo->pool, PACKET_TYPE_FC(pkt_type), vals_x25_type, "Unknown (0x%02X)"),
                              vc, tvb_get_uint8(tvb, localoffset+1) >> 1);
                 localoffset += 2;
             }

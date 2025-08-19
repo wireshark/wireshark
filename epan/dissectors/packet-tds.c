@@ -5947,7 +5947,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, packet_info* pinfo, struct _netlib
         /* TYPE_INFO */
         type  = tvb_get_uint8(tvb, cur);
         type_item = proto_tree_add_item(col_tree, hf_tds_colmetadata_results_token_type, tvb, cur, 1, ENC_NA);
-        proto_item_append_text(type_item, " (%s)", val_to_str_wmem(pinfo->pool, type, tds_data_type_names, "Invalid data type: %02X"));
+        proto_item_append_text(type_item, " (%s)", val_to_str(pinfo->pool, type, tds_data_type_names, "Invalid data type: %02X"));
         nl_data->columns[i]->ctype = type;
         cur++;
 
@@ -6375,7 +6375,7 @@ dissect_tds_type_info(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree
     *plp = false; /* most types are not Partially Length-Prefixed */
     item = proto_tree_add_item(tree, hf_tds_type_info, tvb, *offset, 0, ENC_NA);
     data_type = tvb_get_uint8(tvb, *offset);
-    proto_item_append_text(item, " (%s)", val_to_str_wmem(pinfo->pool, data_type, tds_data_type_names, "Invalid data type: %02X"));
+    proto_item_append_text(item, " (%s)", val_to_str(pinfo->pool, data_type, tds_data_type_names, "Invalid data type: %02X"));
     sub_tree = proto_item_add_subtree(item, ett_tds_type_info);
     data_type_item = proto_tree_add_item(sub_tree, hf_tds_type_info_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
@@ -7193,7 +7193,7 @@ dissect_tds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         call_dissector(smp_handle, tvb, pinfo, tree);
         return tvb_captured_length(tvb);
     }
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s", val_to_str_wmem(pinfo->pool, type, packet_type_names, "Unknown Packet Type: %u"));
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "%s", val_to_str(pinfo->pool, type, packet_type_names, "Unknown Packet Type: %u"));
 
     dissect_netlib_buffer(tvb, pinfo, tree);
 

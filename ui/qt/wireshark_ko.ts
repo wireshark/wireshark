@@ -2394,8 +2394,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>표시 필터 관리</translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>필터 버튼 속성...</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">필터 버튼 속성...</translation>
     </message>
 </context>
 <context>
@@ -3295,8 +3296,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>FilterExpressionToolBar</name>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>필터 버튼 속성...</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">필터 버튼 속성...</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -3394,6 +3396,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>MAC destination address.</source>
         <translation>MAC 목적지 주소.</translation>
+    </message>
+    <message>
+        <source>Save %1 rules as…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Text file (*.txt);;All Files (</source>
@@ -5258,8 +5264,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>지원되는 필드는 data, dir, time, seqno</translation>
     </message>
     <message>
-        <source>Missing capturing group data (use (?&lt;data&gt;(...)) )</source>
-        <translation>그룹 데이터를 캡처하는 표현식 없음(사용: (?&lt;data&gt;(...)) )</translation>
+        <source>Missing capturing group data (use (?&lt;data&gt;(…)) )</source>
+        <oldsource>Missing capturing group data (use (?&lt;data&gt;(...)) )</oldsource>
+        <translation type="unfinished">그룹 데이터를 캡처하는 표현식 없음(사용: (?&lt;data&gt;(...)) )</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -6978,20 +6985,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>이벤트 없음</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <translation>ZIP 파일에서...</translation>
+        <source>From Zip File…</source>
+        <oldsource>From Zip File...</oldsource>
+        <translation type="unfinished">ZIP 파일에서...</translation>
     </message>
     <message>
-        <source>From Directory...</source>
-        <translation>디렉터리에서...</translation>
+        <source>From Directory…</source>
+        <oldsource>From Directory...</oldsource>
+        <translation type="unfinished">디렉터리에서...</translation>
     </message>
     <message>
-        <source>Selected Personal Profile...</source>
-        <translation>선택한 개인 프로필...</translation>
+        <source>Selected Personal Profile…</source>
+        <oldsource>Selected Personal Profile...</oldsource>
+        <translation type="unfinished">선택한 개인 프로필...</translation>
     </message>
     <message>
-        <source>All Personal Profiles...</source>
-        <translation>모든 개인 프로필...</translation>
+        <source>All Personal Profiles…</source>
+        <oldsource>All Personal Profiles...</oldsource>
+        <translation type="unfinished">모든 개인 프로필...</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7013,6 +7024,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Display filter as %1</source>
         <translation>%1(으)로 표시 필터</translation>
+    </message>
+    <message>
+        <source>…as %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
@@ -8212,6 +8227,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Auto Scroll</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Plots</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8605,22 +8624,26 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>내보내기</translation>
     </message>
     <message>
-        <source>From Zip File...</source>
-        <translation>ZIP 파일에서...</translation>
+        <source>From Zip File…</source>
+        <oldsource>From Zip File...</oldsource>
+        <translation type="unfinished">ZIP 파일에서...</translation>
     </message>
     <message>
-        <source>From Directory...</source>
-        <translation>디렉터리에서...</translation>
+        <source>From Directory…</source>
+        <oldsource>From Directory...</oldsource>
+        <translation type="unfinished">디렉터리에서...</translation>
     </message>
     <message numerus="yes">
-        <source>%Ln Selected Personal Profile(s)...</source>
-        <translation>
+        <source>%Ln Selected Personal Profile(s)…</source>
+        <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
+        <translation type="unfinished">
             <numerusform>선택한 개인 프로필 %Ln개...</numerusform>
         </translation>
     </message>
     <message>
-        <source>All Personal Profiles...</source>
-        <translation>모든 개인 프로필...</translation>
+        <source>All Personal Profiles…</source>
+        <oldsource>All Personal Profiles...</oldsource>
+        <translation type="unfinished">모든 개인 프로필...</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -10789,8 +10812,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>오디오 없음</translation>
     </message>
     <message>
-        <source>Decoding streams...</source>
-        <translation>스트림 디코드 중...</translation>
+        <source>Decoding streams…</source>
+        <oldsource>Decoding streams...</oldsource>
+        <translation type="unfinished">스트림 디코드 중...</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10841,7 +10865,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>자동</translation>
     </message>
     <message>
-        <source>Resampling waveform...</source>
+        <source>Resampling waveform…</source>
+        <oldsource>Resampling waveform...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10905,8 +10930,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>오디오 라우팅을 변경하려면 두 번 클릭하십시오</translation>
     </message>
     <message>
-        <source>Preparing to play...</source>
-        <translation>재생 준비 중...</translation>
+        <source>Preparing to play…</source>
+        <oldsource>Preparing to play...</oldsource>
+        <translation type="unfinished">재생 준비 중...</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -13880,6 +13906,14 @@ a:hover {
         <translation>인터페이스</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 band.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Band</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;802.11 채널을 설정합니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -15929,6 +15963,10 @@ a:hover {
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>내보내기 대화 상자에서 알 수 없는 파일 형식을 반환했습니다.</translation>
+    </message>
+    <message>
+        <source>Unsaved packets…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>

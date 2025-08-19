@@ -308,7 +308,7 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Osmux ");
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-                        val_to_str_wmem(pinfo->pool, osmuxh->ft, osmux_ft_vals,
+                        val_to_str(pinfo->pool, osmuxh->ft, osmux_ft_vals,
                                    "unknown 0x%02x"));
 
         if (osmuxh->rtp_m)
@@ -316,7 +316,7 @@ dissect_osmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
         ti = proto_tree_add_protocol_format(tree, proto_osmux, tvb, offset, -1,
                 "Osmux type %s frame",
-                val_to_str_wmem(pinfo->pool, osmuxh->ft, osmux_ft_vals, "unknown 0x%02x"));
+                val_to_str(pinfo->pool, osmuxh->ft, osmux_ft_vals, "unknown 0x%02x"));
 
         osmux_tree = proto_item_add_subtree(ti, ett_osmux);
 

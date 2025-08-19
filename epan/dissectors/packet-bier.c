@@ -121,7 +121,7 @@ dissect_bier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data
     offset += 1;
 
     proto_tree_add_item_ret_uint(bier_tree, hf_bier_proto, tvb, offset, 1, ENC_NA, &proto);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_wmem(pinfo->pool, proto, bier_proto_vals, "Unknown (0x%02x)"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, proto, bier_proto_vals, "Unknown (0x%02x)"));
     offset += 1;
 
     proto_tree_add_item(bier_tree, hf_bier_bfir_id, tvb, offset, 2, ENC_BIG_ENDIAN);

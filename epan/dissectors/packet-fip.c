@@ -360,22 +360,22 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     switch (op) {
     case FIP_OP_DISC:
-        info = val_to_str_wmem(pinfo->pool, sub, fip_disc_subcodes, "Discovery 0x%x");
+        info = val_to_str(pinfo->pool, sub, fip_disc_subcodes, "Discovery 0x%x");
         break;
     case FIP_OP_LS:
-        info = val_to_str_wmem(pinfo->pool, sub, fip_ls_subcodes, "Link Service 0x%x");
+        info = val_to_str(pinfo->pool, sub, fip_ls_subcodes, "Link Service 0x%x");
         break;
     case FIP_OP_CTRL:
-        info = val_to_str_wmem(pinfo->pool, sub, fip_ctrl_subcodes, "Control 0x%x");
+        info = val_to_str(pinfo->pool, sub, fip_ctrl_subcodes, "Control 0x%x");
         break;
     case FIP_OP_VLAN:
-        info = val_to_str_wmem(pinfo->pool, sub, fip_vlan_subcodes, "VLAN 0x%x");
+        info = val_to_str(pinfo->pool, sub, fip_vlan_subcodes, "VLAN 0x%x");
         break;
     case FIP_OP_VN2VN:
-        info = val_to_str_wmem(pinfo->pool, sub, fip_vn2vn_subcodes, "VN2VN 0x%x");
+        info = val_to_str(pinfo->pool, sub, fip_vn2vn_subcodes, "VN2VN 0x%x");
         break;
     default:
-        info = val_to_str_wmem(pinfo->pool, op, fip_opcodes, "Unknown op 0x%x");
+        info = val_to_str(pinfo->pool, op, fip_opcodes, "Unknown op 0x%x");
         break;
     }
 

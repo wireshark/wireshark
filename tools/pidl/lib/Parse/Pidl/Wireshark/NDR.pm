@@ -670,7 +670,7 @@ sub Function($$$)
 
 			$self->pidl_code("offset = $return_dissect(tvb, offset, pinfo, tree, di, drep, hf\_$ifname\_$fn->{RETURN_TYPE}_status, &status);");
 			$self->pidl_code("if (status != 0)");
-			$self->pidl_code("\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Status: %s\", val_to_str_wmem(pinfo->pool, status, $ifname\_$fn->{RETURN_TYPE}\_vals, \"Unknown " . $fn->{RETURN_TYPE} . " error 0x%08x\"));\n");
+			$self->pidl_code("\tcol_append_fstr(pinfo->cinfo, COL_INFO, \", Status: %s\", val_to_str(pinfo->pool, status, $ifname\_$fn->{RETURN_TYPE}\_vals, \"Unknown " . $fn->{RETURN_TYPE} . " error 0x%08x\"));\n");
 			$return_types{$ifname}->{$fn->{RETURN_TYPE}."_status"} = [$fn->{RETURN_TYPE}, $fn->{RETURN_TYPE}];
 		} elsif ($type->{DATA}->{TYPE} eq "SCALAR") {
 			$self->pidl_code("offset = dissect_ndr_$fn->{RETURN_TYPE}(tvb, offset, pinfo, tree, di, drep, hf\_$ifname\_$fn->{RETURN_TYPE}_status, &status);");

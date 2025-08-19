@@ -293,9 +293,9 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
                 ti = proto_tree_add_protocol_format (parent_tree, proto_ifcp, tvb, offset,
                                                      iFCP_ENCAP_HEADER_LEN,
                                                      "iFCP (%s/%s)",
-                                                     val_to_str_wmem(pinfo->pool, sof, ifcp_sof_vals,
+                                                     val_to_str(pinfo->pool, sof, ifcp_sof_vals,
                                                                  "0x%x"),
-                                                     val_to_str_wmem(pinfo->pool, eof, ifcp_eof_vals,
+                                                     val_to_str(pinfo->pool, eof, ifcp_eof_vals,
                                                                  "0x%x"));
             } else {
                 sof = tvb_get_uint8 (tvb, offset+iFCP_ENCAP_HEADER_LEN);
@@ -303,7 +303,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
                 ti = proto_tree_add_protocol_format (parent_tree, proto_ifcp, tvb, offset,
                                                      iFCP_ENCAP_HEADER_LEN,
                                                      "iFCP (%s/%s)",
-                                                     val_to_str_wmem(pinfo->pool, sof, ifcp_sof_vals,
+                                                     val_to_str(pinfo->pool, sof, ifcp_sof_vals,
                                                                  "0x%x"),
                                                      "NA");
             }

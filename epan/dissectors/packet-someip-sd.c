@@ -376,7 +376,7 @@ dissect_someip_sd_pdu_option_ipv4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_item         *ti_top = NULL;
 
     type = tvb_get_uint8(tvb, offset + 2);
-    description = val_to_str_wmem(pinfo->pool, type, sd_option_type, "(Unknown Option: %d)");
+    description = val_to_str(pinfo->pool, type, sd_option_type, "(Unknown Option: %d)");
     tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_someip_sd_option, &ti_top, "%d: %s Option", optionnum, description);
 
     if (length != SD_OPTION_IPV4_LENGTH) {
@@ -402,7 +402,7 @@ dissect_someip_sd_pdu_option_ipv4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset += 1;
 
     ti = proto_tree_add_item_ret_uint(tree, hf_someip_sd_option_proto, tvb, offset, 1, ENC_NA, &l4proto);
-    l4protoname = val_to_str_wmem(pinfo->pool, l4proto, sd_option_l4protos, "Unknown Transport Protocol: %d");
+    l4protoname = val_to_str(pinfo->pool, l4proto, sd_option_l4protos, "Unknown Transport Protocol: %d");
     proto_item_append_text(ti, " (%s)", l4protoname);
 
     if (type != SD_OPTION_IPV4_ENDPOINT && l4proto == SD_OPTION_L4PROTO_TCP) {
@@ -429,7 +429,7 @@ dissect_someip_sd_pdu_option_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_item         *ti_top = NULL;
 
     type = tvb_get_uint8(tvb, offset + 2);
-    description = val_to_str_wmem(pinfo->pool, type, sd_option_type, "(Unknown Option: %d)");
+    description = val_to_str(pinfo->pool, type, sd_option_type, "(Unknown Option: %d)");
 
     tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_someip_sd_option, &ti_top, "%d: %s Option", optionnum, description);
 
@@ -455,7 +455,7 @@ dissect_someip_sd_pdu_option_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset += 1;
 
     ti = proto_tree_add_item_ret_uint(tree, hf_someip_sd_option_proto, tvb, offset, 1, ENC_NA, &l4proto);
-    l4protoname = val_to_str_wmem(pinfo->pool, l4proto, sd_option_l4protos, "(Unknown Transport Protocol: %d)");
+    l4protoname = val_to_str(pinfo->pool, l4proto, sd_option_l4protos, "(Unknown Transport Protocol: %d)");
     proto_item_append_text(ti, " (%s)", l4protoname);
 
     if (type != SD_OPTION_IPV6_ENDPOINT && l4proto == SD_OPTION_L4PROTO_TCP) {

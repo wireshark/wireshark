@@ -168,7 +168,7 @@ add_message(tvbuff_t * tvb, packet_info* pinfo, int offset, proto_tree * tree, w
 	data_len = tvb_get_ntohs(tvb, offset + 4) * 2;
 
 	/* Message subtree */
-	descriptor = val_to_str_wmem(pinfo->pool, descriptor_id, descriptors, "Unknown (%u)");
+	descriptor = val_to_str(pinfo->pool, descriptor_id, descriptors, "Unknown (%u)");
 	if (descriptor_id == ACK)
 		msg = proto_tree_add_none_format(tree,
 						 hf_armagetronad_msg_subtree,

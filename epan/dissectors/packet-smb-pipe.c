@@ -3511,7 +3511,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		    offset, 2, function);
 		offset += 2;
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-			    val_to_str_wmem(pinfo->pool, function, functions, "Unknown function (0x%04x)"),
+			    val_to_str(pinfo->pool, function, functions, "Unknown function (0x%04x)"),
 			    smb_info->request ? "Request" : "Response");
 
 		if (tri != NULL)
@@ -3569,7 +3569,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			proto_tree_add_uint(pipe_tree, hf_smb_pipe_function, NULL,
 			    0, 0, function);
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-				    val_to_str_wmem(pinfo->pool, function, functions, "Unknown function (0x%04x)"),
+				    val_to_str(pinfo->pool, function, functions, "Unknown function (0x%04x)"),
 				    smb_info->request ? "Request" : "Response");
 
 			fid = tri->fid;

@@ -4041,7 +4041,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
   dl_func = dl_ctl & DNP3_CTL_FUNC;
   dl_prm = dl_ctl & DNP3_CTL_PRM;
-  func_code_str = val_to_str_wmem(pinfo->pool, dl_func, dl_prm ? dnp3_ctl_func_pri_vals : dnp3_ctl_func_sec_vals,
+  func_code_str = val_to_str(pinfo->pool, dl_func, dl_prm ? dnp3_ctl_func_pri_vals : dnp3_ctl_func_sec_vals,
            "Unknown function (0x%02x)");
 
   /* Make sure source and dest are always in the info column. This might not

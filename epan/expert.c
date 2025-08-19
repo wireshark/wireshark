@@ -526,8 +526,8 @@ expert_create_tree(proto_item *pi, packet_info* pinfo, int group, int severity, 
 
 	tree = proto_item_add_subtree(pi, ett_expert);
 	ti = proto_tree_add_protocol_format(tree, proto_expert, NULL, 0, 0, "Expert Info (%s/%s): %s",
-					    val_to_str_wmem(pinfo->pool, severity, expert_severity_vals, "Unknown (%u)"),
-					    val_to_str_wmem(pinfo->pool, group, expert_group_vals, "Unknown (%u)"),
+					    val_to_str(pinfo->pool, severity, expert_severity_vals, "Unknown (%u)"),
+					    val_to_str(pinfo->pool, group, expert_group_vals, "Unknown (%u)"),
 					    msg);
 	proto_item_set_generated(ti);
 
@@ -583,7 +583,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 
 	if ((unsigned)severity > pinfo->expert_severity) {
 		pinfo->expert_severity = (unsigned)severity;
-		col_add_str(pinfo->cinfo, COL_EXPERT, val_to_str_wmem(pinfo->pool, severity, expert_severity_vals, "Unknown (%u)"));
+		col_add_str(pinfo->cinfo, COL_EXPERT, val_to_str(pinfo->pool, severity, expert_severity_vals, "Unknown (%u)"));
 	}
 
 	if (use_vaformat) {

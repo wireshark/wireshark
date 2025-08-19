@@ -356,7 +356,7 @@ static const value_string opx_vals[] = {
 #define TLV_CHECK(ett) \
 	opt_tree = proto_tree_add_subtree_format(opts_tree, tvb, ptvcursor_current_offset(cursor), genopts_len, \
 						ett, &tf, "Option: %s, Length: %u", \
-						val_to_str_wmem(pinfo->pool, genopts_type, opt_vals, "Unknown (0x%02x)"), genopts_len); \
+						val_to_str(pinfo->pool, genopts_type, opt_vals, "Unknown (0x%02x)"), genopts_len); \
 	if (genopts_len < 4) { \
 		expert_add_info_format(pinfo, tf, &ei_pgm_genopt_len, \
 					"Length %u invalid, must be >= 4", genopts_len); \
@@ -393,8 +393,8 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 		expert_add_info_format(pinfo, ti, &ei_pgm_opt_type,
 		    "%s Options - initial option is %s, should be %s",
 		    pktname,
-		    val_to_str_wmem(pinfo->pool, opts_type, opt_vals, "Unknown (0x%02x)"),
-		    val_to_str_wmem(pinfo->pool, PGM_OPT_LENGTH, opt_vals, "Unknown (0x%02x)"));
+		    val_to_str(pinfo->pool, opts_type, opt_vals, "Unknown (0x%02x)"),
+		    val_to_str(pinfo->pool, PGM_OPT_LENGTH, opt_vals, "Unknown (0x%02x)"));
 		return;
 	}
 	ptvcursor_add(cursor, hf_pgm_opt_len, 1, ENC_BIG_ENDIAN);
@@ -862,7 +862,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	ptvcursor_add_ret_uint(cursor, hf_pgm_main_dport, 2, ENC_BIG_ENDIAN, &pgmhdr_dport);
 	pinfo->destport = pgmhdr_dport;
 	ptvcursor_add_ret_uint(cursor, hf_pgm_main_type, 1, ENC_BIG_ENDIAN, &pgmhdr_type);
-	pktname = val_to_str_wmem(pinfo->pool, pgmhdr_type, type_vals, "Unknown (0x%02x)");
+	pktname = val_to_str(pinfo->pool, pgmhdr_type, type_vals, "Unknown (0x%02x)");
 	proto_item_append_text(ti, ": Type %s Src Port %u, Dst Port %u",
 	                       pktname, pgmhdr_sport, pgmhdr_dport);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%-5s", pktname);
@@ -1008,7 +1008,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		ptvcursor_add_ret_uint(cursor, hf_pgm_poll_subtype, 2, ENC_BIG_ENDIAN, &poll_stype);
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 				" subtype %s",
-				val_to_str_wmem(pinfo->pool, poll_stype, poll_subtype_vals, "Unknown (0x%02x)"));
+				val_to_str(pinfo->pool, poll_stype, poll_subtype_vals, "Unknown (0x%02x)"));
 		afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
 		ti = ptvcursor_add(cursor, hf_pgm_poll_pathafi, 2, ENC_BIG_ENDIAN);
 		ptvcursor_add(cursor, hf_pgm_poll_res, 2, ENC_BIG_ENDIAN);
