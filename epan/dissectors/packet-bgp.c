@@ -8583,7 +8583,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
 /*
  * Dissect a BGP capability.
  */
-static int
+int
 dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, bool action)
 {
     proto_tree *cap_tree;
