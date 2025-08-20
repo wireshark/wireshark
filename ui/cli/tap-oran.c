@@ -44,7 +44,7 @@ static const char *flow_titles[] = { " Plane",
                                      "Direction  ",
                                      "Frames ",
                                      "Largest PDU  ",
-                                     "Section Types        ",
+                                     "Section Types                ",
                                      "Section IDs        ",
                                      "Extensions",
                                      "Highest Slot",
@@ -233,22 +233,22 @@ oran_stat_draw(void *phs)
         printf("%s  ", flow_titles[i]);
     }
     /* Divider before rows */
-    printf("\n====================================================================================================================================================================================\n");
+    printf("\n============================================================================================================================================================================================\n");
 
     /* Write a row for each flow */
     for (tmp = hs->flow_list; tmp; tmp=tmp->next) {
 
         oran_row_data *row = (oran_row_data*)tmp->data;
-        char sections[64];
+        char sections[32];
         int sections_offset = 0;
         sections[0] = '\0';
 
-        char extensions[128];
+        char extensions[17];
         int extensions_offset = 0;
         extensions[0] = '-';
         extensions[1] = '\0';
 
-        char section_ids[64];
+        char section_ids[28];
         int section_ids_offset = 0;
         section_ids[0] = '-';
         section_ids[1] = '\0';
@@ -256,28 +256,29 @@ oran_stat_draw(void *phs)
         /* Some fields only apply to c-plane */
         if (!row->base_info.userplane) {
             /* Note which sections are used */
-            for (unsigned int s=0; s < SEC_C_MAX_INDEX; s++) {
+            for (unsigned int s=0; s < SEC_C_MAX_INDEX && (extensions_offset < 17-3); s++) {
                 if (row->base_info.section_types[s]) {
-                    sections_offset += snprintf(sections+sections_offset, 64-sections_offset, "%u ", s);
+                    sections_offset += snprintf(sections+sections_offset, 17-sections_offset-1, "%u ", s);
                 }
             }
 
             /* Note which extensions are used */
-            for (unsigned int e=1; e <= HIGHEST_EXTTYPE; e++) {
+            for (unsigned int e=1; e <= HIGHEST_EXTTYPE && (extensions_offset < 17-3); e++) {
                 if (row->base_info.extensions[e]) {
-                    extensions_offset += snprintf(extensions+extensions_offset, 128-extensions_offset, "%u ", e);
+                    extensions_offset += snprintf(extensions+extensions_offset, 17-extensions_offset-1, "%u ", e);
                 }
             }
         }
 
-        for (unsigned id=0; id < 4096; id++) {
+        /* Section IDs */
+        for (unsigned id=0; (id < 4096) && (section_ids_offset < 28-1); id++) {
             if (row->section_ids_present[id]) {
-                section_ids_offset += snprintf(section_ids+section_ids_offset, 64-section_ids_offset, "%u ", id);
+                section_ids_offset += snprintf(section_ids+section_ids_offset, 28-section_ids_offset-1, "%u ", id);
             }
         }
 
         /* Print this row */
-        printf("%6s %8u %11s %9u %13u %17s %20s %18s %13u %12u",
+        printf("%6s %8u %11s %9u %13u %17s %28s %18s %13u %12u",
                (row->base_info.userplane) ? "U" : "C",
                row->base_info.eaxc,
                (row->base_info.uplink) ? "UL" : "DL",
