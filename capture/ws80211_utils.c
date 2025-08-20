@@ -847,27 +847,28 @@ static int ws80211_iface_up(const char *ifname)
 {
 	int sock;
 	struct ifreq ifreq;
+	int err = 0;
 
 	sock = socket(AF_PACKET, SOCK_RAW, 0);
 	if (sock == -1)
-		return -1;
+		return -errno;
 
 	(void) g_strlcpy(ifreq.ifr_name, ifname, sizeof(ifreq.ifr_name));
 
-	if (ioctl(sock, SIOCGIFFLAGS, &ifreq))
-		goto out_err;
+	if (ioctl(sock, SIOCGIFFLAGS, &ifreq)) {
+		err = -errno;
+		goto out;
+	}
 
 	ifreq.ifr_flags |= IFF_UP;
 
-	if (ioctl(sock, SIOCSIFFLAGS, &ifreq))
-		goto out_err;
+	if (ioctl(sock, SIOCSIFFLAGS, &ifreq)) {
+		err = -errno;
+	}
 
+out:
 	close(sock);
-	return 0;
-
-out_err:
-	close(sock);
-	return -1;
+	return err;
 }
 
 /* Needed for NLA_PUT_STRING, which passes strlen as an int */
