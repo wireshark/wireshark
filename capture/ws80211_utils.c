@@ -278,14 +278,22 @@ static void parse_band_vht_capa(struct ws80211_band *band,
 }
 #endif /* HAVE_NL80211_VHT_CAPABILITY */
 
-#ifdef HAVE_NL80211_EHT_CAPABILITY
+#ifdef HAVE_NL80211_HE_CAPABILITY
 static void parse_band_he_cap_phy(struct ws80211_band *band,
 				  struct nlattr *tb)
 {
-	/* For our purposes, this should be redundant with the HT and VHT caps
-	 * already parsed. (Would anything support a particular bandwidth for
-	 * HE but not for VHT?) It is here as a useful POC that the EHT code
-	 * below should work if you have 802.11ax but not 802.11be gear. */
+	/* 802.11ax 26.17.2 "HE BSS operation in the 6 GHz band"
+	 * "A STA 6G shall not transmit an HT Capabilities element,
+	 * VHT Capabilities element, ..." so we need this for 6 GHz.
+	 * In the 6 GHz band overlapping channels aren't used (see
+	 * E.1 Country information and operating classes) so the HT40PLUS
+	 * and HT40MINUS channel types are confusing for users as at least
+	 * one won't work and will result in a failed tune. Instead
+	 * we should use a NL80211_CHAN_WIDTH_40 channel where the center
+	 * freq must be provided and calculate the approprate center freq
+	 * for the non-overlapping channel as done for VHT80 and higher
+	 * bandwidths. So we really need a different channel type for that.
+	 */
 	/* The HE PHY capabilities are 11 bytes long, so unlike the HT
 	 * and VHT PHY capabilities (which are sent as native byte-order
 	 * uint16_t and uint32_t, respectively), they're in the IE's original
@@ -319,6 +327,7 @@ static void parse_band_he_cap_phy(struct ws80211_band *band,
 	}
 }
 
+#ifdef HAVE_NL80211_EHT_CAPABILITY
 static void parse_band_eht_cap_phy(struct ws80211_band *band,
 				   struct nlattr *tb)
 {
@@ -337,6 +346,7 @@ static void parse_band_eht_cap_phy(struct ws80211_band *band,
 		band->channel_types |= 1 << WS80211_CHAN_EHT320;
 	}
 }
+#endif /* HAVE_NL80211_EHT_CAPABILITY */
 
 static void parse_band_iftype_data(struct ws80211_band *band,
 			     struct nlattr *tb)
@@ -357,10 +367,12 @@ static void parse_band_iftype_data(struct ws80211_band *band,
 		 * if the data applies to NL80211_IFTYPE_MONITOR (assuming
 		 * drivers set that correctly?) */
 		parse_band_he_cap_phy(band, tb_iftype[NL80211_BAND_IFTYPE_ATTR_HE_CAP_PHY]);
+#ifdef HAVE_NL80211_EHT_CAPABILITY
 		parse_band_eht_cap_phy(band, tb_iftype[NL80211_BAND_IFTYPE_ATTR_EHT_CAP_PHY]);
+#endif /* HAVE_NL80211_EHT_CAPABILITY */
 	}
 }
-#endif /* HAVE_NL80211_EHT_CAPABILITY */
+#endif /* HAVE_NL80211_HE_CAPABILITY */
 
 static void parse_supported_iftypes(struct ws80211_interface *iface,
 				    struct nlattr *tb)
@@ -472,9 +484,9 @@ static void parse_wiphy_bands(struct ws80211_interface *iface,
 #ifdef HAVE_NL80211_VHT_CAPABILITY
 		parse_band_vht_capa(band, tb_band[NL80211_BAND_ATTR_VHT_CAPA]);
 #endif /* HAVE_NL80211_VHT_CAPABILITY */
-#ifdef HAVE_NL80211_EHT_CAPABILITY
+#ifdef HAVE_NL80211_HE_CAPABILITY
 		parse_band_iftype_data(band, tb_band[NL80211_BAND_ATTR_IFTYPE_DATA]);
-#endif /* HAVE_NL80211_EHT_CAPABILITY */
+#endif /* HAVE_NL80211_HE_CAPABILITY */
 		parse_band_freqs(band, tb_band[NL80211_BAND_ATTR_FREQS]);
 	}
 }

@@ -219,6 +219,7 @@ endif()
 # *If* we found libnl, check if we can use nl80211 stuff with it.
 #
 if (NL_FOUND)
+	# Base set of necessary features
 	check_c_source_compiles(
 		"#include <linux/nl80211.h>
 		int main(void) {
@@ -231,6 +232,9 @@ if (NL_FOUND)
 		}"
 		HAVE_NL80211
 	)
+	# Check for optional features. At some point we can move the
+	# older ones to mandatory.
+	# SET_CHANNEL, Linux kernel 2.6.35 (August 2010)
 	check_c_source_compiles(
 		"#include <linux/nl80211.h>
 		int main(void) {
@@ -238,6 +242,7 @@ if (NL_FOUND)
 		}"
 		HAVE_NL80211_CMD_SET_CHANNEL
 	)
+	# SPLIT_WIPHY_DUMP, Linux kernel 3.10 (June 2013)
 	check_c_source_compiles(
 		"#include <linux/nl80211.h>
 		int main(void) {
@@ -245,6 +250,7 @@ if (NL_FOUND)
 		}"
 		HAVE_NL80211_SPLIT_WIPHY_DUMP
 	)
+	# VHT_CAPABILITY, Linux kernel 3.8 (February 2013)
 	check_c_source_compiles(
 		"#include <linux/nl80211.h>
 		int main(void) {
@@ -252,6 +258,15 @@ if (NL_FOUND)
 		}"
 		HAVE_NL80211_VHT_CAPABILITY
 	)
+	# HE_CAPABILITY, Linux kernel 4.19 (October 2018)
+	check_c_source_compiles(
+		"#include <linux/nl80211.h>
+		int main(void) {
+			enum nl80211_attrs x = NL80211_ATTR_HE_CAPABILITY;
+		}"
+		HAVE_NL80211_HE_CAPABILITY
+	)
+	# EHT_CAPABILITY, Linux kernel 5.18 (May 2022)
 	check_c_source_compiles(
 		"#include <linux/nl80211.h>
 		int main(void) {
