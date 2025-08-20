@@ -4435,7 +4435,7 @@ if (DOXYGEN_EXECUTABLE)
 		COMMAND ${CMAKE_COMMAND} -E tar "cfv" "wsar_html.zip" --format=zip wsar_html
 		DEPENDS wsar_html_perms
 	)
-	set_target_properties(wsar_html wsar_html_zip PROPERTIES
+	set_target_properties(wsar_html wsar_html_perms wsar_html_zip PROPERTIES
 		FOLDER "Documentation"
 		EXCLUDE_FROM_DEFAULT_BUILD True
 	)
