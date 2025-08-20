@@ -1085,7 +1085,7 @@ dissect_per_any_oid(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree
 	}
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
 	val_tvb = tvb_new_octet_aligned(tvb, offset, length * 8);
-	/* Add new data source if the offet was unaligned */
+	/* Add new data source if the offset was unaligned */
 	if ((offset & 7) != 0) {
 		add_new_data_source(actx->pinfo, val_tvb, "Unaligned OCTET STRING");
 	}

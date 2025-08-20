@@ -7,6 +7,7 @@
 1xrtt
 20west
 29west
+2bytes
 32apsk
 3gpp2
 3pcap
@@ -694,6 +695,7 @@ desegmenting
 deselect
 deserialize
 designator
+destdir
 destip
 destport
 determinant
@@ -1710,6 +1712,7 @@ mysql
 méxico
 móviles
 n3iwf
+n3nan
 n3qai
 nacks
 nagle
@@ -2667,6 +2670,7 @@ steinigke
 stevens
 stmin
 stnode
+strato
 stratoshark
 strawberryperl
 strbuf
@@ -3039,6 +3043,7 @@ uninstallation
 uninstalled
 uninstaller
 uninterruptable
+uninterruptible
 unintuitive
 unistim
 universitaet

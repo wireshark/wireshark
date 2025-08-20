@@ -1438,7 +1438,7 @@ proto_register_ISystemActivator (void)
         { &hf_sysact_li_ctxid,
         { "ContextId", "isystemactivator.properties.li.ctxid", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
 
-        /*ScmRequst info*/
+        /*ScmRequest info*/
         { &hf_sysact_sri_cltimplvl,
         { "ClientImpersonationLevel", "isystemactivator.properties.sri.cltimplvl", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_sysact_sri_protseqnum,

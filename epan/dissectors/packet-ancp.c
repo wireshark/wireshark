@@ -172,7 +172,7 @@ static const value_string mtype_names[] = {
     { 146, "Bandwidth Reallocation Request" },
     { 147, "Bandwidth Transfer" },
     { 148, "Delegated Bandwidth Query" },
-    { 149, "Mulicast Flow Query" },
+    { 149, "Multicast Flow Query" },
     { 150, "Committed Bandwidth Report" },
     {   0,  NULL }
 };
@@ -213,7 +213,7 @@ static const value_string codetype_names[] = {
     { 0x055, "Invalid TLV contents" },
     { 0x064, "Command error" },
     { 0x065, "Invalid flow address" },
-    { 0x066, "Mulicast flow does not exist" },
+    { 0x066, "Multicast flow does not exist" },
     { 0x067, "Invalid preferred bandwidth amount" },
     { 0x068, "Inconsistent views of delegated bandwidth amount" },
     { 0x069, "Bandwidth request conflict" },

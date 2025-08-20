@@ -45,7 +45,7 @@ static int hf_llcgprs_sapi;
 static int hf_llcgprs_sapib;
 static int hf_llcgprs_U_fmt; /* 3 upper bits in controlfield (UI format) */
 static int hf_llcgprs_sp_bits; /* Spare bits in control field */
-static int hf_llcgprs_NU; /* Transmited unconfirmed sequence number */
+static int hf_llcgprs_NU; /* Transmitted unconfirmed sequence number */
 static int hf_llcgprs_E_bit; /* Encryption mode bit */
 static int hf_llcgprs_PM_bit;
 static int hf_llcgprs_Un;
@@ -184,7 +184,7 @@ static const true_false_string cr_bit = {
 	"DownLink/UpLink = Command/Response",
 	"DownLink/UpLink = Response/Command"
 };
-/* bits are swaped comparing with "Table 3" in ETSI document */
+/* bits are swapped comparing with "Table 3" in ETSI document */
 static const value_string pme[] = {
 	{ 0, "unprotected,non-ciphered information" },
 	{ 1, "protected, non-ciphered information" },

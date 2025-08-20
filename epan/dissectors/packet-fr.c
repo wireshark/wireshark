@@ -124,7 +124,7 @@ static dissector_table_t ethertype_subdissector_table;
 #define FRF_3_2         0       /* FRF 3.2 or Cisco HDLC */
 #define GPRS_NS         1       /* GPRS Network Services (3GPP TS 08.16) */
 #define RAW_ETHER       2       /* Raw Ethernet */
-#define LAPB            3       /* T.617a-1994 Annex G encapsuation of LAPB */
+#define LAPB            3       /* T.617a-1994 Annex G encapsulation of LAPB */
 
 static int fr_encap = FRF_3_2;
 
@@ -665,7 +665,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       if (tvb_bytes_exist(tvb, offset + 12, 2) &&
           ((type_length = tvb_get_ntohs(tvb, offset + 12)) <= IEEE_802_3_MAX_LEN ||
            dissector_get_uint_handle(ethertype_subdissector_table, type_length) != NULL)) {
-        /* It looks like a length or is a known Ethertype; dissect as raw Etheret */
+        /* It looks like a length or is a known Ethertype; dissect as raw Ethernet */
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector(eth_withfcs_handle, next_tvb, pinfo, tree);
         return;

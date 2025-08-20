@@ -534,7 +534,7 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 	/* Get the length of the PDU */
 	tvb_len = tvb_captured_length(tvb);
-	/* if the length of the tvb is shorder then the cmpp header length exit */
+	/* if the length of the tvb is shorter then the cmpp header length exit */
 	if (tvb_len < CMPP_FIX_HEADER_LENGTH)
 		return 0;
 

@@ -202,7 +202,7 @@ typedef struct minfo minfo_t;
  * The two MPA endpoints are called Initiator, the sender of the MPA Request,
  * and Responder, the sender of the MPA Reply.
  *
- * @full_operation: true if is this state is valid and FLASE otherwise.
+ * @full_operation: true if is this state is valid and FALSE otherwise.
  * @req_frame_num: Frame number of the MPA Request to distinguish this frame
  * 		   from later FPDUs.
  * @rep_frame_num: Frame number of the MPA Reply to distinguish this frame
@@ -216,7 +216,7 @@ typedef struct minfo minfo_t;
  * 		   a FPDU.
  * 		   minfo[0] is used for the Initiator endpoint
  * 		   minfo[1] is used for the Responder endpoint
- * @crc:	   true if CRC is used by both endpoints and FLASE otherwise.
+ * @crc:	   true if CRC is used by both endpoints and FALSE otherwise.
  * @revision:	   Stores the MPA protocol revision number.
  */
 struct mpa_state {
@@ -361,7 +361,7 @@ remove_markers(tvbuff_t *tvb, packet_info *pinfo, uint32_t marker_offset,
 	return mfree_tvb;
 }
 
-/* returns true if this TCP segment carries a MPA REQUEST and FLASE otherwise */
+/* returns true if this TCP segment carries a MPA REQUEST and FALSE otherwise */
 static bool
 is_mpa_req(tvbuff_t *tvb, packet_info *pinfo)
 {

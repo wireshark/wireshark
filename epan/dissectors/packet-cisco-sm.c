@@ -331,7 +331,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
             break;
         case SM_PROTOCOL_X101:
-            /* XXX Reverse enginered so this may not be correct!!!
+            /* XXX Reverse engineered so this may not be correct!!!
              * EISUP - used between Cisco HSI and Cisco PGW devices,
              * uses RUDP with default port number 8003.
              * Protocol stack is RUDP->Cisco SM->SDP.

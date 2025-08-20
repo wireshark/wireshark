@@ -332,7 +332,7 @@ static int hf_dvb_s2_table_fipd_pid;
 /* Return Interaction Path Descriptor */
 static int hf_dvb_s2_table_ripd_continuous_carrier;
 static int hf_dvb_s2_table_ripd_network_routing_label_loop_count;
-static int hf_dvb_s2_table_ripd_allocation_desallocation_flag;
+static int hf_dvb_s2_table_ripd_allocation_deallocation_flag;
 static int hf_dvb_s2_table_ripd_pid_flag;
 static int hf_dvb_s2_table_ripd_pid_loop_count;
 static int hf_dvb_s2_table_ripd_pid;
@@ -1311,7 +1311,7 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                 for (k = 0 ; k <= network_routing_label_loop_count ; k++) {
                     ti = proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_desc_network_routing, tvb, cur_off + new_off, -1, ENC_NA);
                     dvb_s2_hdr_table_network_routing_tree = proto_item_add_subtree(ti, ett_dvb_s2_hdr_table_network_routing);
-                    proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_allocation_desallocation_flag, tvb, cur_off + new_off, 1, ENC_NA);
+                    proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_allocation_deallocation_flag, tvb, cur_off + new_off, 1, ENC_NA);
                     pid_flag = tvb_get_uint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_PID_FLAG_MASK;
                     proto_tree_add_item(dvb_s2_hdr_table_network_routing_tree, hf_dvb_s2_table_ripd_pid_flag, tvb, cur_off + new_off, 1, ENC_NA);
                     new_off += 1;
@@ -3890,8 +3890,8 @@ void proto_register_dvb_s2_table(void)
                 FT_UINT8, BASE_DEC, NULL, 0x0F,
                 NULL, HFILL}
         },
-        {&hf_dvb_s2_table_ripd_allocation_desallocation_flag, {
-                "Allocation desallocation flag", "dvb-s2_table.desc.network_touing.ripd_allocation_desallocation_flag",
+        {&hf_dvb_s2_table_ripd_allocation_deallocation_flag, {
+                "Allocation deallocation flag", "dvb-s2_table.desc.network_touing.ripd_allocation_deallocation_flag",
                 FT_UINT8, BASE_DEC, NULL, 0x02,
                 NULL, HFILL}
         },

@@ -449,7 +449,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
                                                              ett_amp_report, &amp_report, "Report");
 
                 // Each Report is a:
-                //     Tempate [ARI]
+                //     Template [ARI]
                 //     Timestamp [TS] (opt)
                 //     Entries [TNVC] (bytestring containing a TNVC)
                 tmpObj3 = cbor_info(tvb, offset); // Should come back a CBOR array of size 2 or 3
@@ -462,7 +462,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int
                     reportHasTimestamp = 0;
                 }
 
-                // Tempate (bytestring); starts with ARI
+                // Template (bytestring); starts with ARI
                 tmpObj3 = cbor_info(tvb, offset);
                 offset += tmpObj3.size;
                 uint8_t ariFlags;

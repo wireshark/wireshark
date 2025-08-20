@@ -137,7 +137,7 @@ static int hf_mle_tlv_pending_op_dataset; /* SPEC-472 */
 #endif
 
 //Added for Thread 1.2 support
-/* New suppport*/
+/* New support*/
 static int hf_mle_tlv_metric_type_id_flags;
 static int hf_mle_tlv_metric_type_id_flags_l;
 static int hf_mle_tlv_metric_type_id_flags_e;

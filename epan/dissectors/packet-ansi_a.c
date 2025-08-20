@@ -10161,7 +10161,7 @@ static void (*dtap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     NULL        /* NONE */
 };
 
-/* Utillity function to dissect CDMA200 A1 elements in ANSI MAP messages */
+/* Utility function to dissect CDMA200 A1 elements in ANSI MAP messages */
 void
 dissect_cdma2000_a1_elements(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, unsigned len)
 {
