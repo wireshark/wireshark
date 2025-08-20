@@ -101,7 +101,6 @@ json_parse_len(const char *buf, size_t len, jsmntok_t *tokens, unsigned int max_
     return jsmn_parse(&p, buf, len, tokens, max_tokens);
 }
 
-static
 jsmntok_t *json_get_next_object(jsmntok_t *cur)
 {
     int i;

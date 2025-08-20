@@ -99,11 +99,28 @@ WS_DLL_PUBLIC int json_get_array_len(jsmntok_t *array);
 /**
  * Get the pointer to idx element of an array.
  *
+ * @note This requires iterating through the parent's elements and is inefficient
+ * for iterating over an array's elements. If accessing array objects in a loop,
+ * instead use `json_get_next_object`.
+ *
  * @param parent - JSON array.
  * @param idx - index of element.
  * @return Pointer to idx element of an array or NULL if not found.
  */
 WS_DLL_PUBLIC jsmntok_t *json_get_array_index(jsmntok_t *parent, int idx);
+
+/**
+ * Get the pointer to the next JSON element which is a sibling of `cur`.
+ *
+ * This is used for efficiently iterating over elements of a JSON array.
+ *
+ * @note This does not perform bounds checking and so can go out of bounds!
+ * Be sure to track how many times this is called.
+ *
+ * @param cur - JSON array element.
+ * @return Pointer to next sibling element.
+ */
+WS_DLL_PUBLIC jsmntok_t *json_get_next_object(jsmntok_t *cur);
 
 /**
  * Get the unescaped value of a string object belonging to the parent object and named as the name variable.
