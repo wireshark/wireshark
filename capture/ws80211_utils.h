@@ -53,10 +53,16 @@ enum ws80211_fcs_validation {
 	WS80211_FCS_INVALID
 };
 
+struct ws80211_frequency
+{
+	uint32_t freq; // MHz
+	int channel_mask; /* Bitmask of ws80211_channel_types *not* supported for this frequency (e.g., for regulatory reasons) even if supported by the PHY for this band */
+};
+
 struct ws80211_band
 {
 	GArray *frequencies; /* Array of uint32_t (MHz) (lazily created, can be NULL) */
-	int channel_types;
+	int channel_types; /* Bitmask of ws80211_channel_types supported by the PHY on this band */
 };
 
 struct ws80211_interface

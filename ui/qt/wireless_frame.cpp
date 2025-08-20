@@ -49,6 +49,7 @@ const int update_interval_ = 1500; // ms
 const int DataRole = Qt::UserRole + 1;
 const int BandRole = Qt::UserRole + 2;
 
+Q_DECLARE_METATYPE(struct ws80211_frequency)
 Q_DECLARE_METATYPE(enum ws80211_channel_type)
 Q_DECLARE_METATYPE(enum ws80211_band_type)
 
@@ -71,7 +72,7 @@ public:
         m_band = band;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
         endFilterChange(QSortFilterProxyModel::Direction::Rows);
-#elif QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+#elif QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         invalidateRowsFilter();
 #else
         invalidateFilter();
@@ -101,8 +102,8 @@ protected:
         if (model != nullptr) {
             QStandardItem* item = model->item(sourceRow);
 
-            QVariant myData = item->data(BandRole);
-            if (qvariant_cast<enum ws80211_band_type>(myData) == m_band) {
+            QVariant myBand = item->data(BandRole);
+            if (qvariant_cast<enum ws80211_band_type>(myBand) == m_band) {
                 return true;
             }
         }
@@ -111,6 +112,54 @@ protected:
 
 private:
     enum ws80211_band_type m_band;
+};
+
+class ChanTypeProxyModel : public BandProxyModel
+{
+    Q_OBJECT
+
+public:
+    ChanTypeProxyModel(QObject *parent = nullptr)
+        : BandProxyModel(parent), m_mask(0)
+    {
+        QStandardItemModel* model = new QStandardItemModel(this);
+        setSourceModel(model);
+    }
+    void setMask(int mask)
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+        beginFilterChange();
+#endif
+        m_mask = mask;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+        endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#elif QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        invalidateRowsFilter();
+#else
+        invalidateFilter();
+#endif
+    }
+
+protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override
+    {
+        QStandardItemModel* model = qobject_cast<QStandardItemModel*>(sourceModel());
+        if (model != nullptr) {
+            QStandardItem* item = model->item(sourceRow);
+
+            if (m_mask) {
+                QVariant myData = item->data(DataRole);
+                enum ws80211_channel_type chan_type = qvariant_cast<enum ws80211_channel_type>(myData);
+                if (m_mask & (1 << chan_type)) {
+                    return false;
+                }
+            }
+        }
+        return BandProxyModel::filterAcceptsRow(sourceRow, sourceParent);
+    }
+
+private:
+    int m_mask; // QFlags?
 };
 
 WirelessFrame::WirelessFrame(QWidget *parent) :
@@ -137,7 +186,7 @@ WirelessFrame::WirelessFrame(QWidget *parent) :
     QSortFilterProxyModel *proxy = new BandProxyModel(this);
     ui->channelComboBox->setModel(proxy);
 
-    proxy = new BandProxyModel(this);
+    proxy = new ChanTypeProxyModel(this);
     ui->channelTypeComboBox->setModel(proxy);
 
 #if QT_VERSION_CHECK < QT_VERSION_CHECK(6, 0, 0)
@@ -146,6 +195,13 @@ WirelessFrame::WirelessFrame(QWidget *parent) :
     connect(ui->bandComboBox, &QComboBox::currentIndexChanged,
 #endif
             this, &WirelessFrame::bandComboBoxIndexChanged);
+
+#if QT_VERSION_CHECK < QT_VERSION_CHECK(6, 0, 0)
+    connect(ui->channelComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+#else
+    connect(ui->channelComboBox, &QComboBox::currentIndexChanged,
+#endif
+            this, &WirelessFrame::channelComboBoxIndexChanged);
 
     updateInterfaceList();
     connect(mainApp, &MainApplication::localInterfaceEvent,
@@ -326,14 +382,15 @@ void WirelessFrame::getInterfaceInfo()
                 ui->bandComboBox->addItem(QString::fromUtf8(ws80211_band_type_to_str(band_type)), band_type);
                 proxy = qobject_cast<BandProxyModel* >(ui->channelComboBox->model());
                 for (unsigned j = 0; j < band->frequencies->len; j++) {
-                    uint32_t frequency = g_array_index(band->frequencies, uint32_t, j);
+                    struct ws80211_frequency myfreq = g_array_index(band->frequencies, struct ws80211_frequency, j);
+                    uint32_t frequency = myfreq.freq;
                     double ghz = frequency / 1000.0;
                     QString chan_str = QStringLiteral("%1 %2 %3%4")
                             .arg(ieee80211_mhz_to_chan(frequency))
                             .arg(UTF8_MIDDLE_DOT)
                             .arg(ghz, 0, 'f', 3)
                             .arg(units);
-                    proxy->addItem(chan_str, band_type, frequency);
+                    proxy->addItem(chan_str, band_type, QVariant::fromValue(myfreq));
                     if ((int)frequency == iface_info.current_freq) {
                         ui->bandComboBox->setCurrentIndex(k);
                         ui->channelComboBox->setCurrentIndex(ui->channelComboBox->count() - 1);
@@ -390,7 +447,12 @@ void WirelessFrame::setInterfaceInfo()
     QString err_str;
 
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211) && defined(HAVE_LIBPCAP)
-    int frequency = ui->channelComboBox->currentData(DataRole).toInt();
+    if (!ui->channelComboBox->currentData(DataRole).isValid())
+        return;
+    if (!ui->channelTypeComboBox->currentData(DataRole).isValid())
+        return;
+    struct ws80211_frequency myfreq = qvariant_cast<struct ws80211_frequency>(ui->channelComboBox->currentData(DataRole));
+    int frequency = myfreq.freq;
     enum ws80211_channel_type chan_type = qvariant_cast<enum ws80211_channel_type>(ui->channelTypeComboBox->currentData(DataRole));
     int center_freq = ws80211_get_center_frequency(frequency, chan_type);
     const char *chan_type_s = ws80211_chan_type_to_str(chan_type);
@@ -452,6 +514,12 @@ void WirelessFrame::on_channelTypeComboBox_activated(int)
 void WirelessFrame::on_fcsComboBox_activated(int)
 {
     setInterfaceInfo();
+}
+
+void WirelessFrame::channelComboBoxIndexChanged(int)
+{
+    struct ws80211_frequency freq = qvariant_cast<struct ws80211_frequency>(ui->channelComboBox->currentData(DataRole));
+    qobject_cast<ChanTypeProxyModel*>(ui->channelTypeComboBox->model())->setMask(freq.channel_mask);
 }
 
 void WirelessFrame::bandComboBoxIndexChanged(int)
