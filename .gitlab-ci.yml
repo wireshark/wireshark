@@ -23,7 +23,7 @@ variables:
   GIT_FETCH_EXTRA_FLAGS: "--depth=5000"
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
   # The Qt versions that we ship in the development installers.
-  WINDOWS_QT_VERSION: "6.8.1"
+  WINDOWS_QT_VERSION: "6.8.3"
   MACOS_QT_VERSION: "6.8.3"
   # Enable color output in various tools.
   # CMake, Ninja, and others: https://bixense.com/clicolors/
@@ -178,16 +178,26 @@ workflow:
   rules: !reference [.if-2x-daily-schedule]
 
 .build-windows:
+  variables:
+    AQT_HOST: "windows"
+    AQT_ARCH: "msvc2022_64"
+    VCVARS_ARCH: "64"
   stage: build
   retry: 1
   before_script:
+    - if (-Not (Test-Path C:\Qt)) { New-Item -Path C:\Qt -ItemType "directory" }
+    - if (-Not (Test-Path "C:\Qt\$($env:WINDOWS_QT_VERSION)\$($env:AQT_ARCH)\include\QtCore")) {
+        py.exe -m venv "$($env:TEMP)\aqt.venv" ;
+        & $env:TEMP\aqt.venv\Scripts\pip3.exe install aqtinstall ;
+        & $env:TEMP\aqt.venv\Scripts\aqt.exe install-qt --outputdir C:\Qt $env:AQT_HOST desktop $env:WINDOWS_QT_VERSION "win64_$($env:AQT_ARCH)" --modules qt5compat qtmultimedia ;
+      }
     - if (-Not (Test-Path C:\Development)) { New-Item -Path C:\Development -ItemType "directory" }
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
     - $env:Path += ";C:\Program Files\CMake\bin"
-    - $env:CMAKE_PREFIX_PATH = "C:\qt\$($env:WINDOWS_QT_VERSION)\msvc2022_64"
+    - $env:CMAKE_PREFIX_PATH = "C:\Qt\$($env:WINDOWS_QT_VERSION)\$($env:AQT_ARCH)"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
-    - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat`" && set " | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
+    - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars$($env:VCVARS_ARCH).bat`" && set " | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
     # Testing / debugging only.
     # - cmd.exe /c "set CI_PIPELINE_SOURCE"
     # - cmd.exe /c "set CI_PROJECT_URL"
@@ -551,18 +561,14 @@ Windows x64 Package:
       - build/*shark-release-info-*-windows-*.ini
 
 Windows Arm64 Package:
+  variables:
+    AQT_HOST: "windows_arm64"
+    AQT_ARCH: "msvc2022_arm64"
+    VCVARS_ARCH: "arm64"
   extends: .build-windows
   rules: !reference [.if-w-w-only-merged]
   tags:
     - wireshark-windows-arm64-package
-  before_script:
-    - $env:WIRESHARK_BASE_DIR = "C:\Development"
-    - $env:Configuration = "RelWithDebInfo"
-    - $env:CMAKE_PREFIX_PATH = "C:\Qt\$($env:WINDOWS_QT_VERSION)\msvc2022_arm64"
-    # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
-    - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsarm64.bat`" && set" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
-    - mkdir build
-    - cd build
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
     - cmake -G "Visual Studio 17 2022" -A arm64

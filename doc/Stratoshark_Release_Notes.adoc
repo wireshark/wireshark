@@ -29,7 +29,8 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 0.9.2:
 
-* Nothing of note.
+* The Windows installers now ship with Qt 6.8.3.
+  They previously shipped with Qt 6.8.1.
 
 The following changes have been made since version 0.9.1:
 

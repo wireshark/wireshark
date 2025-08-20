@@ -41,7 +41,7 @@ The following features are either new or have been significantly updated since v
 * The Windows installers now ship with Npcap 1.83.
   They previously shipped with Npcap 1.79.
 
-* The Windows installers now ship with Qt 6.8.1.
+* The Windows installers now ship with Qt 6.8.3.
   They previously shipped with Qt 6.5.3.
 
 * WinPcap is no longer supported. On Windows, use Npcap instead, uninstalling
