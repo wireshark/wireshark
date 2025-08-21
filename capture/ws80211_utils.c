@@ -1202,59 +1202,59 @@ void ws80211_clear_band(struct ws80211_band *band)
 
 int ws80211_get_center_frequency(int control_frequency, enum ws80211_channel_type chan_type)
 {
-    int cf1 = -1;
-    size_t j;
-    const int bw80[] = { 5180, 5260, 5500, 5580, 5660, 5745,
-			 5955, 6035, 6115, 6195, 6275, 6355,
-			 6435, 6515, 6595, 6675, 6755, 6835,
-			 6195, 6995 };
-    const int bw160[] = { 5180, 5500, 5955, 6115, 6275, 6435,
-			  6595, 6755, 6915 };
-    /* based on 11be D2 E.1 Country information and operating classes */
-    const int bw320[] = {5955, 6115, 6275, 6435, 6595, 6755};
+	int cf1 = -1;
+	size_t j;
+	const int bw80[] = { 5180, 5260, 5500, 5580, 5660, 5745,
+			     5955, 6035, 6115, 6195, 6275, 6355,
+			     6435, 6515, 6595, 6675, 6755, 6835,
+			     6195, 6995 };
+	const int bw160[] = { 5180, 5500, 5955, 6115, 6275, 6435,
+			      6595, 6755, 6915 };
+	/* based on 11be D2 E.1 Country information and operating classes */
+	const int bw320[] = { 5955, 6115, 6275, 6435, 6595, 6755};
 
-    switch (chan_type) {
-    case WS80211_CHAN_VHT80:
-    case WS80211_CHAN_VHT80P80: /* Needs a second cf as well. */
-        for (j = 0; j < array_length(bw80); j++) {
-            if (control_frequency >= bw80[j] && control_frequency < bw80[j] + 80)
-                break;
-        }
+	switch (chan_type) {
+	case WS80211_CHAN_VHT80:
+	case WS80211_CHAN_VHT80P80: /* Needs a second cf as well. */
+		for (j = 0; j < array_length(bw80); j++) {
+			if (control_frequency >= bw80[j] && control_frequency < bw80[j] + 80)
+				break;
+			}
 
-        if (j == array_length(bw80))
-            break;
+		if (j == array_length(bw80))
+			break;
 
-        cf1 = bw80[j] + 30;
-        break;
-    case WS80211_CHAN_VHT160:
-        for (j = 0; j < array_length(bw160); j++) {
-            if (control_frequency >= bw160[j] && control_frequency < bw160[j] + 160)
-                break;
-        }
+		cf1 = bw80[j] + 30;
+		break;
+	case WS80211_CHAN_VHT160:
+		for (j = 0; j < array_length(bw160); j++) {
+			if (control_frequency >= bw160[j] && control_frequency < bw160[j] + 160)
+				break;
+		}
 
-        if (j == array_length(bw160))
-            break;
+		if (j == array_length(bw160))
+			break;
 
-        cf1 = bw160[j] + 70;
-        break;
-    case WS80211_CHAN_EHT320:
-        for (j = 0; j < array_length(bw320); j++) {
-            if (control_frequency >= bw320[j] && control_frequency < bw320[j] + 160)
-                break;
-        }
+		cf1 = bw160[j] + 70;
+		break;
+	case WS80211_CHAN_EHT320:
+		for (j = 0; j < array_length(bw320); j++) {
+			if (control_frequency >= bw320[j] && control_frequency < bw320[j] + 160)
+				break;
+		}
 
-        if (j == array_length(bw320))
-            break;
+		if (j == array_length(bw320))
+			break;
 
-        cf1 = bw320[j] + 150;
-        break;
-    default:
-    /* Since we explicitly specify HT40MINUS vs HT40PLUS we don't need to
-     * calculate the center freq for those; ws80211_set_freq doesn't need it. */
-        break;
-    }
+		cf1 = bw320[j] + 150;
+		break;
+	default:
+	/* Since we explicitly specify HT40MINUS vs HT40PLUS we don't need to
+	* calculate the center freq for those; ws80211_set_freq doesn't need it. */
+		break;
+	}
 
-    return cf1;
+	return cf1;
 }
 
 /*
