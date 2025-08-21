@@ -9,8 +9,6 @@
 #ifndef __LOGCAT_H__
 #define __LOGCAT_H__
 
-#include <glib.h>
-
 #include "wtap.h"
 
 /* The log format can be found on:

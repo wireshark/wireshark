@@ -12,8 +12,7 @@
 #ifndef __NETTL_H__
 #define __NETTL_H__
 
-#include <glib.h>
-#include <wiretap/wtap.h>
+#include "wtap.h"
 
 /* nettl subsystems are defined in /etc/nettlgen.conf */
 

@@ -88,6 +88,7 @@ def make_wtap_modules(outfile, infiles):
 
     output = preamble
     output += """\
+#include <glib.h>
 #include "wtap_modules.h"
 
 const unsigned wtap_module_count = {0};

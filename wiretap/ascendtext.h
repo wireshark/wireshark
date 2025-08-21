@@ -9,7 +9,7 @@
 
 #ifndef __ASCENDTEXT_H__
 #define __ASCENDTEXT_H__
-#include <glib.h>
+
 #include "wtap.h"
 
 /*

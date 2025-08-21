@@ -13,7 +13,6 @@
 #ifndef __ASCEND_INT_H__
 #define __ASCEND_INT_H__
 
-#include <glib.h>
 #include <stdbool.h>
 #include "ws_symbol_export.h"
 

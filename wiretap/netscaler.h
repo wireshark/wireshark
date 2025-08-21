@@ -9,8 +9,7 @@
 #ifndef _NETSCALER_H
 #define _NETSCALER_H
 
-#include <glib.h>
-#include <wiretap/wtap.h>
+#include "wtap.h"
 
 /* Physical Device full packet trace */
 #define	NSPR_PDPKTRACEFULLTX_V10	0x0310	/* Transmitted */

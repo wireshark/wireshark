@@ -9,9 +9,7 @@
 #ifndef __W_LIBPCAP_H__
 #define __W_LIBPCAP_H__
 
-#include <glib.h>
 #include <wiretap/wtap.h>
-#include "ws_symbol_export.h"
 
 /* Magic numbers in "libpcap" files.
 

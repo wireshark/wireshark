@@ -14,9 +14,7 @@
 #ifndef __VISUAL_H__
 #define __VISUAL_H__
 
-#include <glib.h>
 #include "wtap.h"
-#include "ws_symbol_export.h"
 
 wtap_open_return_val visual_open(wtap *wth, int *err, char **err_info);
 

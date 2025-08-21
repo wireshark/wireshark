@@ -9,8 +9,6 @@
 #ifndef __LOGCAT_TEXT_H__
 #define __LOGCAT_TEXT_H__
 
-#include <glib.h>
-
 #include "wtap.h"
 
 #define SPECIAL_STRING "[-]+ (beginning of \\/?.+)"

@@ -9,8 +9,6 @@
 #ifndef __RUBY_MARSHAL_H__
 #define __RUBY_MARSHAL_H__
 
-#include <glib.h>
-
 #include "wtap.h"
 
 // Current Ruby Marshal library version

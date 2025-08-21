@@ -8,8 +8,6 @@
 #ifndef __DPA400_H__
 #define __DPA400_H__
 
-#include <glib.h>
-
 #include "wtap.h"
 
 wtap_open_return_val dpa400_open(wtap *wth, int *err, char **err_info);

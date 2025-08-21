@@ -14,9 +14,7 @@
 #ifndef __W_PCAP_COMMON_H__
 #define __W_PCAP_COMMON_H__
 
-#include <glib.h>
 #include "wtap.h"
-#include "ws_symbol_export.h"
 
 extern unsigned wtap_max_snaplen_for_encap(int wtap_encap);
 

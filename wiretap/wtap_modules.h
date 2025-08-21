@@ -12,8 +12,6 @@
 #ifndef __WTAP_MODULES_H__
 #define __WTAP_MODULES_H__
 
-#include <glib.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

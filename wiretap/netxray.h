@@ -9,7 +9,6 @@
 #ifndef __NETXRAY_H__
 #define __NETXRAY_H__
 
-#include <glib.h>
 #include "wtap.h"
 
 wtap_open_return_val netxray_open(wtap *wth, int *err, char **err_info);

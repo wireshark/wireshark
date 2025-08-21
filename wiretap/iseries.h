@@ -9,7 +9,6 @@
 #ifndef __W_ISERIES_H__
 #define __W_ISERIES_H__
 
-#include <glib.h>
 #include "wtap.h"
 
 wtap_open_return_val iseries_open(wtap *wth, int *err, char **err_info);

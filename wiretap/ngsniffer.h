@@ -9,7 +9,6 @@
 #ifndef __NGSNIFFER_H__
 #define __NGSNIFFER_H__
 
-#include <glib.h>
 #include "wtap.h"
 
 wtap_open_return_val ngsniffer_open(wtap *wth, int *err, char **err_info);

@@ -9,8 +9,6 @@
 #ifndef __JSON_H__
 #define __JSON_H__
 
-#include <glib.h>
-
 #include "wtap.h"
 
 wtap_open_return_val json_open(wtap *wth, int *err, char **err_info);

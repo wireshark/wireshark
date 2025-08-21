@@ -9,9 +9,8 @@
 
 #ifndef __DAINTREE_SNA_H__
 #define __DAINTREE_SNA_H__
-#include <glib.h>
+
 #include "wtap.h"
-#include "ws_symbol_export.h"
 
 wtap_open_return_val daintree_sna_open(wtap *wth, int *err, char **err_info _U_);
 

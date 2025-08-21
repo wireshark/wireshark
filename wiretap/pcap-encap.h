@@ -13,8 +13,8 @@
 #ifndef __W_PCAP_ENCAP_H__
 #define __W_PCAP_ENCAP_H__
 
-#include <glib.h>
-#include <wiretap/wtap.h>
+#include "wtap.h"
+#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {

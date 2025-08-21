@@ -14,7 +14,6 @@
 #ifndef __W_NETSCREEN_H__
 #define __W_NETSCREEN_H__
 
-#include <glib.h>
 #include "wtap.h"
 
 /* Magic text to check for NetScreen snoop output */

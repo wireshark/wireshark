@@ -9,7 +9,6 @@
 #ifndef __CLLOG_H__
 #define __CLLOG_H__
 
-#include <glib.h>
 #include "wtap.h"
 
 wtap_open_return_val cllog_open(wtap *wth, int *err, char **err_info);

@@ -11,7 +11,6 @@
 #ifndef __W_MP2T_H__
 #define __W_MP2T_H__
 
-#include <glib.h>
 #include "wtap.h"
 
 wtap_open_return_val mp2t_open(wtap *wth, int *err, char **err_info);
