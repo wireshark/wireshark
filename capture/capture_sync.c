@@ -1716,6 +1716,12 @@ pipe_read_bytes(GIOChannel *pipe_io, char *bytes, size_t required, char **msg)
     size_t newly;
     size_t offset = 0;
 
+    /* This should never happen, as "required" should be no greater than 2^24. */
+    if (required > SSIZE_MAX) {
+        ws_debug("read from pipe %p: bytes to read %zu > %zu", pipe_io, required, SSIZE_MAX);
+        *msg = ws_strdup_printf("Error reading from sync pipe: bytes to read %zu > %zu", required, SSIZE_MAX);
+        return -1;
+    }
     while(required) {
         if (g_io_channel_read_chars(pipe_io, &bytes[offset], required, &newly, &err) == G_IO_STATUS_ERROR) {
             if (err != NULL) {
@@ -1731,16 +1737,24 @@ pipe_read_bytes(GIOChannel *pipe_io, char *bytes, size_t required, char **msg)
         if (newly == 0) {
             /* EOF */
             ws_debug("read from pipe %p: EOF (capture closed?)", pipe_io);
-            *msg = 0;
-            return offset;
+            *msg = NULL;
+            /*
+             * offset is, at this point, known to be less than the value of
+             * required passed to us, which is guaranteed to fit in an ssize_t.
+             */
+            return (ssize_t)offset;
         }
 
         required -= newly;
         offset += newly;
     }
 
+    /*
+     * offset is, at this point, known to be equal to the value of
+     * required passed to us, which is guaranteed to fit in an ssize_t.
+     */
     *msg = NULL;
-    return offset;
+    return (ssize_t)offset;
 }
 
 /*
@@ -1801,23 +1815,28 @@ pipe_read_block(GIOChannel *pipe_io, char *indicator, unsigned len, char *msg,
     /* read header (indicator and 3-byte length) */
     newly = pipe_read_bytes(pipe_io, header, 4, err_msg);
     if(newly != 4) {
-        if (newly == 0) {
+        if(newly != -1) {
+            /*
+             * Error; *err_msg has been set.
+             */
+            ws_debug("read %p got an error reading header: %s", pipe_io, *err_msg);
+            return -1;
+        }
+        if(newly == 0) {
             /*
              * Immediate EOF; if the capture child exits normally, this
              * is an "I'm done" indication, so don't report it as an
              * error.
              */
-            ws_debug("read %p got an EOF", pipe_io);
+            ws_debug("read %p got an EOF reading header", pipe_io);
             return 0;
         }
-        ws_debug("read %p failed to read header: %lu", pipe_io, (long)newly);
-        if (newly != -1) {
-            /*
-             * Short read, but not an immediate EOF.
-             */
-            *err_msg = ws_strdup_printf("Premature EOF reading from sync pipe: got only %ld bytes",
-                                       (long)newly);
-        }
+        /*
+         * Short read, but not an immediate EOF.
+         */
+        ws_debug("read %p got premature EOF reading header: %zd", pipe_io, newly);
+        *err_msg = ws_strdup_printf("Premature EOF reading from sync pipe: got only %zd bytes",
+                                    newly);
         return -1;
     }
 
@@ -1855,11 +1874,22 @@ pipe_read_block(GIOChannel *pipe_io, char *indicator, unsigned len, char *msg,
 
     /* read the actual block data */
     newly = pipe_read_bytes(pipe_io, msg, required, err_msg);
-    if(newly != required) {
-        if (newly != -1) {
-            *err_msg = ws_strdup_printf("Unknown message from dumpcap reading data, try to show it as a string: %s",
-                                       msg);
-        }
+    if(newly == -1) {
+        /*
+         * Error; *err_msg has been set.
+         */
+        ws_debug("read %p got an error reading block data: %s", pipe_io, *err_msg);
+        return -1;
+    }
+
+    /*
+     * newly is guaranteed to be >= 0 at this point, as pipe_read_bytes()
+     * either returns -1 on an error, a positive value <= required on
+     * a short read, or required on a non-short read.
+     */
+    if((size_t)newly != required) {
+        *err_msg = ws_strdup_printf("Unknown message from dumpcap reading data, try to show it as a string: %s",
+                                    msg);
         return -1;
     }
 
