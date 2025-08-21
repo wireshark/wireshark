@@ -1534,31 +1534,6 @@ http2_set_stream_imsi(packet_info *pinfo, char* imsi)
     stream_info->imsi = imsi;
 }
 
-const char*
-http2_get_stream_imsi(packet_info *pinfo)
-{
-    conversation_t *conversation;
-    http2_session_t *h2session;
-    http2_stream_info_t *stream_info;
-
-    conversation = find_conversation_pinfo(pinfo, 0);
-    if (!conversation) {
-        return NULL;
-    }
-
-    h2session = (http2_session_t*)conversation_get_proto_data(conversation, proto_http2);
-    if (!h2session) {
-        return NULL;
-    }
-
-    stream_info = get_stream_info(pinfo, h2session, false);
-    if (!stream_info) {
-        return NULL;
-    }
-
-    return stream_info->imsi;
-}
-
 void http2_add_referenceid_imsi(char* referenceid, const char* imsi)
 {
     if(http2_3gpp_session) {
@@ -1594,6 +1569,46 @@ http2_get_imsi_from_location(const char* location)
     char *imsi = NULL;
     if(http2_3gpp_session) {
         imsi = (char *)wmem_map_lookup(http2_location_imsi, location);
+    }
+    return imsi;
+}
+
+const char*
+http2_get_stream_imsi(packet_info *pinfo)
+{
+    conversation_t *conversation;
+    http2_session_t *h2session;
+    http2_stream_info_t *stream_info;
+    const char *imsi = NULL;
+
+    conversation = find_conversation_pinfo(pinfo, 0);
+    if (!conversation) {
+        g_print("no conversation");
+        return NULL;
+    }
+
+    h2session = (http2_session_t*)conversation_get_proto_data(conversation, proto_http2);
+    if (!h2session) {
+        g_print("no h2session");
+        return NULL;
+    }
+
+    stream_info = get_stream_info(pinfo, h2session, false);
+    if (!stream_info) {
+        g_print("no stream_info");
+        return NULL;
+    }
+
+    if(stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
+        imsi = stream_info->imsi;
+    }
+    else if (stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0)) {
+        imsi = http2_get_imsi_from_referenceid(stream_info->referenceid);
+
+        /* Will try to look up match between path referenceid and location ID */
+        if(!imsi) {
+           imsi = http2_get_imsi_from_location(stream_info->referenceid);
+        }
     }
     return imsi;
 }
@@ -1634,12 +1649,6 @@ http2_set_stream_imsi(packet_info *pinfo _U_, char* imsi _U_)
     return;
 }
 
-const char*
-http2_get_stream_imsi(packet_info *pinf _U_)
-{
-    return NULL;
-}
-
 void http2_add_referenceid_imsi(char* referenceid _U_, const char* imsi _U_)
 {
     return;
@@ -1658,6 +1667,12 @@ void http2_add_location_imsi(char* location _U_, const char* imsi _U_)
 
 char*
 http2_get_imsi_from_location(const char* location _U_)
+{
+    return NULL;
+}
+
+const char*
+http2_get_stream_imsi(packet_info *pinf _U_)
 {
     return NULL;
 }
@@ -2190,6 +2205,56 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
                 }
             }
             g_regex_unref(regex_location);
+        }
+    }
+
+    if (strcmp(header_name, HTTP2_HEADER_STATUS) == 0) {
+        char *status = wmem_strndup(wmem_file_scope(), header_value, header_value_length);
+
+        if(http2_3gpp_session) {
+            /* 3GPP Supi look up */
+            /* If no Supi found the try look in referenceId mapping */
+            GMatchInfo *match_info_imsi;
+            GMatchInfo *match_info_referenceid;
+            static GRegex *regex_imsi = NULL;
+            static GRegex *regex_referenceid = NULL;
+            char *matched_imsi = NULL;
+            char *matched_referenceid = NULL;
+
+            /* 3GPP TS 29.571
+            * String identifying a Supi that shall contain either an IMSI, a network specific identifier,
+            * a Global Cable Identifier (GCI) or a Global Line Identifier (GLI) as specified in clause 2.2A of 3GPP TS 23.003.
+            *
+            * We are interested in IMSI and will be formatted as follows:
+            *   Pattern: '^imsi-[0-9]{5,15}$'
+            */
+            if (regex_imsi == NULL) {
+                regex_imsi = g_regex_new (
+                    ".*imsi-([0-9]{5,15}).*",
+                    G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
+            }
+            if (regex_referenceid == NULL) {
+                regex_referenceid = g_regex_new (
+                    ".*\\/(referenceid|chargingdata|sm-contexts|sm-policies|pdu-sessions)\\/([A-Za-z0-9\\-.]+).*",
+                    G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
+            }
+
+            g_regex_match(regex_imsi, status, 0, &match_info_imsi);
+            g_regex_match(regex_referenceid, status, 0, &match_info_referenceid);
+
+            if (g_match_info_matches(match_info_imsi)) {
+                matched_imsi = g_match_info_fetch(match_info_imsi, 1); //will be empty string if imsi is not in supi
+                if (matched_imsi && (strcmp(matched_imsi, "") != 0)) {
+                    stream_info->imsi = matched_imsi;
+                }
+            } else if (g_match_info_matches(match_info_referenceid)) {
+                matched_referenceid = g_match_info_fetch(match_info_referenceid, 2); //will be empty string if referenceid is not found
+                if (matched_referenceid && (strcmp(matched_referenceid, "") != 0)) {
+                    stream_info->referenceid = matched_referenceid;
+                }
+            }
+            g_regex_unref(regex_imsi);
+            g_regex_unref(regex_referenceid);
         }
     }
 
