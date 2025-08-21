@@ -1583,19 +1583,16 @@ http2_get_stream_imsi(packet_info *pinfo)
 
     conversation = find_conversation_pinfo(pinfo, 0);
     if (!conversation) {
-        g_print("no conversation");
         return NULL;
     }
 
     h2session = (http2_session_t*)conversation_get_proto_data(conversation, proto_http2);
     if (!h2session) {
-        g_print("no h2session");
         return NULL;
     }
 
     stream_info = get_stream_info(pinfo, h2session, false);
     if (!stream_info) {
-        g_print("no stream_info");
         return NULL;
     }
 
