@@ -1243,7 +1243,6 @@ static reassembly_table http2_streaming_reassembly_table;
 #define HTTP2_WINDOW_UPDATE     8
 #define HTTP2_CONTINUATION      9
 #define HTTP2_ALTSVC            0xA
-#define HTTP2_BLOCKED           0xB
 #define HTTP2_ORIGIN            0xC
 #define HTTP2_PRIORITY_UPDATE   0x10
 
@@ -1259,7 +1258,6 @@ static const value_string http2_type_vals[] = {
     { HTTP2_WINDOW_UPDATE,   "WINDOW_UPDATE" },
     { HTTP2_CONTINUATION,    "CONTINUATION" },
     { HTTP2_ALTSVC,          "ALTSVC" },
-    { HTTP2_BLOCKED,         "BLOCKED" },
     { HTTP2_ORIGIN,          "ORIGIN" },
     { HTTP2_PRIORITY_UPDATE, "PRIORITY_UPDATE" },
     { 0, NULL }
@@ -3073,7 +3071,6 @@ dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
         case HTTP2_GOAWAY:
         case HTTP2_WINDOW_UPDATE:
         case HTTP2_ALTSVC:
-        case HTTP2_BLOCKED:
         case HTTP2_ORIGIN:
         case HTTP2_PRIORITY_UPDATE:
         default:
@@ -4526,10 +4523,6 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
         case HTTP2_ALTSVC: /* ALTSVC (10) */
             dissect_http2_altsvc(tvb, pinfo, http2_tree, offset, flags, length);
-        break;
-
-        case HTTP2_BLOCKED: /* BLOCKED (11) */
-            /* no payload! */
         break;
 
         case HTTP2_ORIGIN: /* ORIGIN (12) */
