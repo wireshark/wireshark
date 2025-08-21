@@ -16,10 +16,16 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef uint32_t ws_in4_addr;	/* 32 bit IPv4 address, in network byte order */
+/**
+  * Represents a 32-bit IPv4 address in network byte order.
+ */
+typedef uint32_t ws_in4_addr;
 
+/**
+  * Represents a 128-bit IPv6 address.
+ */
 typedef struct e_in6_addr {
-    uint8_t bytes[16];           /* 128 bit IPv6 address */
+    uint8_t bytes[16]; /**< Raw bytes of the IPv6 address. */
 } ws_in6_addr;
 
 
@@ -136,10 +142,32 @@ WS_DLL_PUBLIC WS_RETNONNULL
 const char *
 ws_inet_ntop6(const void *src, char *dst, size_t dst_size);
 
+/**
+ * Parses a string-form IPv4 address into binary format.
+ *
+ * Converts a human-readable IPv4 address (e.g., "127.0.0.1") from @p src
+ * into its 32-bit network byte order representation and stores the result in @p dst.
+ *
+ * @param src Pointer to a string containing the IPv4 address.
+ * @param dst Pointer to a ws_in4_addr where the parsed address will be stored.
+ * @return true on successful parsing, false if the input is not a valid IPv4 address.
+ *
+ */
 WS_DLL_PUBLIC
 bool
 ws_inet_pton4(const char *src, ws_in4_addr *dst);
 
+/**
+ * Parses a string-form IPv6 address into binary format.
+ *
+ * Converts a human-readable IPv6 address (e.g., "2001:db8::1") from @p src
+ * into its 128-bit binary representation and stores the result in @p dst.
+ *
+ * @param src Pointer to a string containing the IPv6 address.
+ * @param dst Pointer to a ws_in6_addr structure where the parsed address will be stored.
+ * @return true on success, false if the input is not a valid IPv6 address.
+ *
+ */
 WS_DLL_PUBLIC
 bool
 ws_inet_pton6(const char *src, ws_in6_addr *dst);
