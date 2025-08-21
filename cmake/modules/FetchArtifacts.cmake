@@ -108,7 +108,13 @@ function(update_artifacts)
       file(REMOVE_RECURSE "${ARTIFACTS_DIR}/${subdir}")
     endforeach()
   elseif(WIN32)
-    # XXX We need to do this more cleanly
+    # XXX We need to do this more cleanly. We might want to install our Windows
+    # libraries in a common root similar to what we do for macOS.
+    file(GLOB artifact_dirs
+      ${ARTIFACTS_DIR}/asciidoctor-bundle-*-windows-ws
+      ${ARTIFACTS_DIR}/falcosecurity-libs-*-ws
+      ${ARTIFACTS_DIR}/falcosecurity-plugins-*-ws
+    )
     foreach(subdir IN ITEMS asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws)
       file(REMOVE_RECURSE "${ARTIFACTS_DIR}/${subdir}")
     endforeach()
@@ -154,18 +160,30 @@ if(APPLE)
   file(MAKE_DIRECTORY ${ARTIFACTS_DIR}/sparkle)
   add_external_artifact(https://github.com/sparkle-project/Sparkle/releases/download/2.7.1/Sparkle-2.7.1.tar.xz f7385c3e8c70c37e5928939e6246ac9070757b4b37a5cb558afa1b0d5ef189de sparkle)
 
-  if(BUILD_stratoshark OR BUILD_falcodump)
+  if(BUILD_stratoshark OR BUILD_strato OR BUILD_falcodump)
     add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.21.0-1-macos-universal.tar.xz b0ac98e6f1906f891a8aa8c552639a1d6595aee26adfb730da9ff643d5e4bfaf)
-    add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-06-11-1-macos-universal.tar.xz e23c3b3c469f9cc84d509d7880653b8e0743d11a20105188402fec5cef0fde9d)
+    add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-08-20-1-macos-universal.tar.xz 7391aa5337914acaac1fd4756ec95c075ca1ece65c0fa6f60d3e34ba24844f4c)
   endif()
 elseif(WIN32)
 # To do:
-# - Move win-setup.ps1 here.
+# - Move the rest of win-setup.ps1 here.
   add_artifact(asciidoctor/asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws.7z d1dae73dd61ded005b8f1f2d7d19bd08e6edbeed216428e8ab898267229d150b)
 
   add_external_artifact(https://docbook.org/xml/5.0.1/docbook-5.0.1.zip 7af9df452410e035a3707883e43039b4062f09dc2f49f2e986da3e4c0386e3c7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
   add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-1.79.2.zip 853dce096f5b32fe0b157d8018d8fecf92022e9c79b5947a98b365679c7e31d7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
   add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-nons-1.79.2.zip ba41126fbf4021e38952f3074dc87cdf1e50f3981280c7a619f88acf31456822 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
+
+  if(WIRESHARK_TARGET_PLATFORM STREQUAL "x64")
+    if(BUILD_stratoshark OR BUILD_strato OR BUILD_falcodump)
+      add_artifact(falcosecurity-libs/falcosecurity-libs-0.21.0-1-x64-ws.7z 917eca3b676e1201d48acfbb72660fcd7af4ce40fe5112bb1ce689d957c18c4a)
+      add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-08-20-1-x64-ws.7z 1c1fc0f94767a79a7d12478b73a937fd363931ebcd457cd1fab437a11410e076)
+    endif()
+  else()
+    if(BUILD_stratoshark OR BUILD_strato OR BUILD_falcodump)
+      add_artifact(falcosecurity-libs/falcosecurity-libs-0.21.0-1-arm64-ws.7z 222a691e704989144c91b08612ab7e0af1a6721a7f0bc3ac17452de3342a654e)
+      add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-08-20-1-arm64-ws.7z e2f36b0056139f51d11bbc1fc81a811809ddf54964508e45c62a96d74722c718)
+    endif()
+  endif()
 endif()
 
 update_artifacts()
