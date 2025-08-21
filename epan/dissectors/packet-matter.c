@@ -49,10 +49,12 @@ static int hf_message_flag_extensions;
 static int hf_message_session_type;
 static int hf_message_counter;
 static int hf_message_src_id;
-static int hf_message_dest_id;
+static int hf_message_dest_node_id;
+static int hf_message_dest_group_id;
 static int hf_message_privacy_header;
 
 static int hf_payload;
+static int hf_payload_mic;
 static int hf_payload_exchange_flags;
 static int hf_payload_flag_initiator;
 static int hf_payload_flag_ack;
@@ -92,6 +94,9 @@ static expert_field ei_matter_tlv_unsupported_control;
 /* message flags + session ID + security flags + counter */
 #define MATTER_MIN_LENGTH 8
 
+// Section 3.6
+#define CRYPTO_AEAD_MIC_LENGTH 16
+
 // Section 4.4.1.2
 #define MESSAGE_FLAG_VERSION_MASK       0xF0
 #define MESSAGE_FLAG_HAS_SOURCE         0x04
@@ -104,6 +109,8 @@ static expert_field ei_matter_tlv_unsupported_control;
 #define SECURITY_FLAG_IS_CONTROL        0x40
 #define SECURITY_FLAG_HAS_EXTENSIONS    0x20
 #define SECURITY_FLAG_SESSION_TYPE_MASK 0x03
+#define SECURITY_FLAG_SESSION_TYPE_UNICAST 0
+#define SECURITY_FLAG_SESSION_TYPE_GROUP   1
 
 // Section 4.4.3.1
 #define EXCHANGE_FLAG_IS_INITIATOR      0x01
@@ -190,6 +197,7 @@ dissect_matter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     uint32_t    offset = 0;
 
     /* info extracted from the packet */
+    bool is_unsecured_session;
     uint8_t message_flags = 0;
     uint8_t security_flags = 0;
     uint8_t message_dsiz = 0;
@@ -237,6 +245,17 @@ dissect_matter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     message_session_type = (security_flags & SECURITY_FLAG_SESSION_TYPE_MASK);
     offset += 1;
 
+    // Section 4.4.1.4: "The Unsecured Session SHALL be indicated
+    // when both Session Type and Session ID are set to 0."
+    is_unsecured_session = (message_session_type == SECURITY_FLAG_SESSION_TYPE_UNICAST && session_id == 0);
+
+    if (is_unsecured_session)
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unsecured Session");
+    else if (message_session_type == SECURITY_FLAG_SESSION_TYPE_UNICAST)
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unicast Session [0x%04x]", session_id);
+    else if (message_session_type == SECURITY_FLAG_SESSION_TYPE_GROUP)
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Group Session [0x%04x]", session_id);
+
     // decryption of message privacy is not yet supported,
     // but add an opaque field with the encrypted blob
     // Section 4.8.3
@@ -257,37 +276,45 @@ dissect_matter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     } else {
 
         // Section 4.4.1.5
-        proto_tree_add_item(matter_tree, hf_message_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        unsigned int message_counter;
+        proto_tree_add_item_ret_uint(matter_tree, hf_message_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN, &message_counter);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ": Counter=%u", message_counter);
         offset += 4;
 
         // Section 4.4.1.6
         if (message_flags & MESSAGE_FLAG_HAS_SOURCE) {
-            proto_tree_add_item(matter_tree, hf_message_src_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            uint64_t node_id;
+            proto_tree_add_item_ret_uint64(matter_tree, hf_message_src_id, tvb, offset, 8, ENC_LITTLE_ENDIAN, &node_id);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " Src=0x%016" PRIx64, node_id);
             offset += 8;
         }
+
         // Section 4.4.1.7
         if (message_dsiz == MESSAGE_FLAG_HAS_DEST_NODE) {
-            proto_tree_add_item(matter_tree, hf_message_dest_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            uint64_t node_id;
+            proto_tree_add_item_ret_uint64(matter_tree, hf_message_dest_node_id, tvb, offset, 8, ENC_LITTLE_ENDIAN, &node_id);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " Dest=0x%016" PRIx64, node_id);
             offset += 8;
         } else if (message_dsiz == MESSAGE_FLAG_HAS_DEST_GROUP) {
-            proto_tree_add_item(matter_tree, hf_message_dest_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            unsigned int group_id;
+            proto_tree_add_item_ret_uint(matter_tree, hf_message_dest_group_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &group_id);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " Group=0x%04x", group_id);
             offset += 2;
         }
 
     }
 
-    // Section 4.4.1.4: "The Unsecured Session SHALL be indicated
-    // when both Session Type and Session ID are set to 0."
-    // Secured sessions not yet supported in the dissector.
-    if (message_session_type == 0 && session_id == 0) {
+    if (is_unsecured_session) {
         proto_item *payload_item = proto_tree_add_none_format(matter_tree, hf_payload, tvb, offset, -1, "Protocol Payload");
         proto_tree *payload_tree = proto_item_add_subtree(payload_item, ett_payload);
         tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
 
         offset += dissect_matter_payload(next_tvb, pinfo, payload_tree);
     } else {
-        uint32_t payload_length = tvb_reported_length_remaining(tvb, offset);
+        // Secured sessions not yet supported in the dissector.
+        uint32_t payload_length = tvb_reported_length_remaining(tvb, offset) - CRYPTO_AEAD_MIC_LENGTH;
         proto_tree_add_none_format(matter_tree, hf_payload, tvb, offset, payload_length, "Encrypted Payload (%u bytes)", payload_length);
+        proto_tree_add_item(matter_tree, hf_payload_mic, tvb, offset + payload_length, CRYPTO_AEAD_MIC_LENGTH, ENC_NA);
     }
 
     return offset;
@@ -340,7 +367,9 @@ dissect_matter_payload(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pl_tre
 
     // Section 4.4.3.6
     if (exchange_flags & EXCHANGE_FLAG_ACK_MSG) {
-        proto_tree_add_item(pl_tree, hf_payload_ack_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        unsigned int ack_counter;
+        proto_tree_add_item_ret_uint(pl_tree, hf_payload_ack_counter, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ack_counter);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " AckCounter=%u", ack_counter);
         offset += 4;
     }
 
@@ -533,7 +562,7 @@ proto_register_matter(void)
         },
         { &hf_message_counter,
           { "Message Counter", "matter.message.counter",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
         { &hf_message_src_id,
@@ -541,10 +570,15 @@ proto_register_matter(void)
             FT_UINT64, BASE_HEX, NULL, 0,
             "Unique identifier of the source node", HFILL }
         },
-        { &hf_message_dest_id,
-          { "Destination Node ID", "matter.message.dest_id",
+        { &hf_message_dest_node_id,
+          { "Destination Node ID", "matter.message.dest_node_id",
             FT_UINT64, BASE_HEX, NULL, 0,
-            "Unique identifier of the destination node or group", HFILL }
+            "Unique identifier of the destination node", HFILL }
+        },
+        { &hf_message_dest_group_id,
+          { "Destination Group ID", "matter.message.dest_group_id",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            "Unique identifier of the destination group", HFILL }
         },
         { &hf_message_privacy_header,
           { "Encrypted header fields", "matter.message.privacy_header",
@@ -555,6 +589,11 @@ proto_register_matter(void)
           { "Payload", "matter.payload",
             FT_NONE, BASE_NONE, NULL, 0,
             "Message Payload", HFILL }
+        },
+        { &hf_payload_mic,
+          { "Integrity Check", "matter.payload.mic",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "Message Integrity Check (MIC) for the encrypted payload", HFILL }
         },
         { &hf_payload_exchange_flags,
           { "Exchange Flags", "matter.payload.exchange_flags",
@@ -608,7 +647,7 @@ proto_register_matter(void)
         },
         { &hf_payload_ack_counter,
           { "Acknowledged message counter", "matter.payload.ack_counter",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             "The message counter of a previous message that is being acknowledged by this message", HFILL }
         },
         { &hf_payload_secured_ext_length,
