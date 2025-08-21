@@ -109,6 +109,7 @@ static int proto_ip_option_traceroute;
 static int proto_ip_option_routeralert;
 static int proto_ip_option_sdb;
 static int proto_ip_option_qs;
+static int proto_ip_option_dsr;
 static int hf_ip_version;
 static int hf_ip_hdr_len;
 static int hf_ip_dsfield;
@@ -181,6 +182,8 @@ static int hf_ip_opt_sec_prot_auth_unassigned2;
 static int hf_ip_opt_sec_prot_auth_fti;
 static int hf_ip_opt_ext_sec_add_sec_info_format_code;
 static int hf_ip_opt_ext_sec_add_sec_info;
+static int hf_ip_opt_dsr_cilium_service_port;
+static int hf_ip_opt_dsr_cilium_service_ip;
 static int hf_ip_rec_rt;
 static int hf_ip_rec_rt_host;
 static int hf_ip_cur_rt;
@@ -255,6 +258,7 @@ static int ett_ip_option_tr;
 static int ett_ip_option_ra;
 static int ett_ip_option_sdb;
 static int ett_ip_option_qs;
+static int ett_ip_option_dsr;
 static int ett_ip_option_other;
 static int ett_ip_fragments;
 static int ett_ip_fragment;
@@ -435,6 +439,7 @@ const value_string ip_version_vals[] = {
 #define IPOPT_DPS       (23|IPOPT_COPY|IPOPT_CONTROL)       /* Malis; Deprecated */
 #define IPOPT_UMP       (24|IPOPT_COPY|IPOPT_CONTROL)       /* Farinacci; Deprecated */
 #define IPOPT_QS        (25|IPOPT_CONTROL)                  /* RFC 4782 */
+#define IPOPT_DSR       (26|IPOPT_COPY)                     /* From Cilium for DSR https://github.com/cilium/cilium/blob/9acb306ce3003304c73394e2f9fe133253934213/bpf/lib/common.h#L612 */
 #define IPOPT_EXP       (30|IPOPT_CONTROL)                  /* RFC 4727 */
 
 
@@ -452,6 +457,7 @@ const value_string ip_version_vals[] = {
 #define IPOLEN_RA               4
 #define IPOLEN_SDB_MIN          6
 #define IPOLEN_QS               8
+#define IPOLEN_DSR              8
 #define IPOLEN_MAX              40
 
 #define IPSEC_RFC791_UNCLASSIFIED 0x0000
@@ -748,6 +754,7 @@ const value_string ipopt_type_number_vals[] = {
   {IPOPT_DPS & IPOPT_NUMBER_MASK, "Dynamic Packet State"},
   {IPOPT_UMP & IPOPT_NUMBER_MASK, "Upstream Multicast Packet"},
   {IPOPT_QS & IPOPT_NUMBER_MASK, "Quick-Start"},
+  {IPOPT_DSR & IPOPT_NUMBER_MASK, "Cilium DSR"},
   {IPOPT_EXP & IPOPT_NUMBER_MASK, "RFC 3692-style experiment"},
   {0, NULL}
 };
@@ -1584,6 +1591,25 @@ dissect_ipopt_qs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * dat
     proto_tree_add_item(field_tree, hf_ip_opt_qs_nonce, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_ip_opt_qs_reserved, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
   }
+
+  return tvb_captured_length(tvb);
+}
+
+
+static int
+dissect_ipopt_cilium_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_)
+{
+  proto_tree *field_tree;
+  proto_item *tf;
+  int        offset = 2;
+
+  field_tree = ip_fixed_option_header(tree, pinfo, tvb, proto_ip_option_dsr, ett_ip_option_dsr, &tf, IPOLEN_DSR, tvb_reported_length(tvb));
+
+  proto_tree_add_item(field_tree, hf_ip_opt_dsr_cilium_service_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  /* Yes, it is encoded with little endian */
+  proto_tree_add_item(field_tree, hf_ip_opt_dsr_cilium_service_ip, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   return tvb_captured_length(tvb);
 }
@@ -2987,6 +3013,15 @@ proto_register_ip(void)
       { "Additional Security Info", "ip.opt.ext_sec_add_sec_info", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL }},
 
+    /* Cilum DSR */
+    { &hf_ip_opt_dsr_cilium_service_port,
+      { "Service Port", "ip.opt.dsr.cilium.service_port", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_dsr_cilium_service_ip,
+      { "Service IPv4", "ip.opt.dsr.cilium.service_ip", FT_IPv4, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+
     { &hf_ip_rec_rt,
       { "Recorded Route", "ip.rec_rt", FT_IPv4, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
@@ -3102,6 +3137,7 @@ proto_register_ip(void)
     &ett_ip_option_ra,
     &ett_ip_option_sdb,
     &ett_ip_option_qs,
+    &ett_ip_option_dsr,
     &ett_ip_option_other,
     &ett_ip_fragments,
     &ett_ip_fragment,
@@ -3231,6 +3267,7 @@ proto_register_ip(void)
   proto_ip_option_routeralert = proto_register_protocol_in_name_only("IP Option - Router Alert", "Router Alert", "ip.options.routeralert", proto_ip, FT_BYTES);
   proto_ip_option_sdb = proto_register_protocol_in_name_only("IP Option - Selective Directed Broadcast", "Selective Directed Broadcast", "ip.options.sdb", proto_ip, FT_BYTES);
   proto_ip_option_qs = proto_register_protocol_in_name_only("IP Option - Quick-Start", "Quick-Start", "ip.options.qs", proto_ip, FT_BYTES);
+  proto_ip_option_dsr = proto_register_protocol_in_name_only("IP Option - Cilium DSR", "Cilium DSR", "ip.options.dsr", proto_ip, FT_BYTES);
 }
 
 void
@@ -3296,6 +3333,7 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("ip.option", IPOPT_RTRALT, create_dissector_handle( dissect_ipopt_ra, proto_ip_option_routeralert ));
   dissector_add_uint("ip.option", IPOPT_SDB, create_dissector_handle( dissect_ipopt_sdb, proto_ip_option_sdb ));
   dissector_add_uint("ip.option", IPOPT_QS, create_dissector_handle( dissect_ipopt_qs, proto_ip_option_qs ));
+  dissector_add_uint("ip.option", IPOPT_DSR, create_dissector_handle( dissect_ipopt_cilium_dsr, proto_ip_option_dsr ));
 
   /* Classic IP uses the same capture function, but wants its own
      protocol associated with it.  To eliminate linking dependencies,
