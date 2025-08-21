@@ -3249,8 +3249,6 @@ void proto_register_bthci_cmd(void);
 void proto_reg_handoff_bthci_cmd(void);
 void proto_register_btcommon(void);
 void proto_reg_handoff_btcommon(void);
-static void dissect_zigbee_direct_adv_data(proto_tree *tree, tvbuff_t *tvb,
-  const gint start, gint length);
 
 static void bthci_cmd_vendor_prompt(packet_info *pinfo _U_, char* result)
 {
@@ -11186,6 +11184,36 @@ static void *bluetooth_eir_ad_tds_organization_id_value(packet_info *pinfo)
     return NULL;
 }
 
+/* Helper function to dissect Zigbee Direct advertisement data. */
+static void
+dissect_zigbee_direct_adv_data(proto_tree *tree, tvbuff_t *tvb, const gint start, gint length)
+{
+    guint offset = start;
+
+    static int * const zd_adv_data[] = {
+        &hf_btcommon_eir_ad_zd_ext_zd_version,
+        &hf_btcommon_eir_ad_zd_ext_zd_flag_ZDTS,
+        &hf_btcommon_eir_ad_zd_ext_zd_flag_PermitJoin,
+        NULL
+    };
+
+    /* Sanity, ensure we have minimum data as per Zigbee Direct extension to BLE advertisement. */
+    if (length < 5) {
+      return; /* Malformed or truncated Zigbee Direct Advertisement data. */
+    }
+
+    /* Zigbee Direct extension: Version & Flags. */
+    proto_tree_add_bitmask(tree, tvb, offset, hf_btcommon_eir_ad_zd_ext, ett_zigbee_direct_adv_extension, zd_adv_data, ENC_NA);
+    offset += 1;
+
+    /* Zigbee PAN ID. */
+    proto_tree_add_item(tree, hf_btcommon_eir_ad_zd_zigbee_panid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* Zigbee NWK address. */
+    proto_tree_add_item(tree, hf_btcommon_eir_ad_zd_zigbee_nwkaddr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+}
+
 static int
 dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetooth_eir_ad_data_t *bluetooth_eir_ad_data)
 {
@@ -13217,37 +13245,6 @@ proto_reg_handoff_btcommon(void)
     btmesh_pbadv_handle = find_dissector("btmesh.pbadv");
     btmesh_beacon_handle = find_dissector("btmesh.beacon");
 }
-
-/* Helper function to dissect Zigbee Direct advertisement data. */
-static void
-dissect_zigbee_direct_adv_data(proto_tree *tree, tvbuff_t *tvb, const gint start, gint length)
-{
-    guint offset = start;
-
-    static int * const zd_adv_data[] = {
-        &hf_btcommon_eir_ad_zd_ext_zd_version,
-        &hf_btcommon_eir_ad_zd_ext_zd_flag_ZDTS,
-        &hf_btcommon_eir_ad_zd_ext_zd_flag_PermitJoin,
-        NULL
-    };
-
-    /* Sanity, ensure we have minimum data as per Zigbee Direct extension to BLE advertisement. */
-    if (length < 5) {
-      return; /* Malformed or truncated Zigbee Direct Advertisement data. */
-    }
-
-    /* Zigbee Direct extension: Version & Flags. */
-    proto_tree_add_bitmask(tree, tvb, offset, hf_btcommon_eir_ad_zd_ext, ett_zigbee_direct_adv_extension, zd_adv_data, ENC_NA);
-    offset += 1;
-
-    /* Zigbee PAN ID. */
-    proto_tree_add_item(tree, hf_btcommon_eir_ad_zd_zigbee_panid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
-
-    /* Zigbee NWK address. */
-    proto_tree_add_item(tree, hf_btcommon_eir_ad_zd_zigbee_nwkaddr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-}
-
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
