@@ -64,6 +64,8 @@ static int hf_oran_ru_port_id;
 static int hf_oran_sequence_id;
 static int hf_oran_e_bit;
 static int hf_oran_subsequence_id;
+static int hf_oran_previous_frame;
+
 
 static int hf_oran_data_direction;
 static int hf_oran_payload_version;
@@ -1558,10 +1560,22 @@ static const value_string acknack_type_vals[] = {
 #define ORAN_C_PLANE 0
 #define ORAN_U_PLANE 1
 
-/* TODO: should ideally have (say) dst MAC address also in key, so don't confuse UL messages with DL messages configuring UL.. */
-static uint32_t make_flow_key(uint16_t eaxc_id, uint8_t plane)
+/* Using parts of src/dst MAC address, so don't confuse UL messages with DL messages configuring UL.. */
+static uint32_t make_flow_key(packet_info *pinfo, uint16_t eaxc_id, uint8_t plane, bool opposite_dir)
 {
-    return eaxc_id | (plane << 16);
+    uint16_t eth_bits = 0;
+    if (pinfo->dl_src.len == 6 && pinfo->dl_dst.len == 6) {
+        /* Only using (most of) 2 bytes from addresses for now, but reluctant to make key longer.. */
+        uint8_t *src_eth = (uint8_t*)pinfo->dl_src.data;
+        uint8_t *dst_eth = (uint8_t*)pinfo->dl_dst.data;
+        if (!opposite_dir) {
+            eth_bits = (src_eth[0]<<8) | dst_eth[5];
+        }
+        else {
+            eth_bits = (dst_eth[0]<<8) | src_eth[5];
+        }
+    }
+    return eaxc_id | (plane << 16) | (eth_bits << 17);
 }
 
 
@@ -1582,6 +1596,7 @@ typedef struct {
 /* Uplink timing */
 /* For a given symbol, track first to last UL frame to find out first-last time */
 /* frameId (8) + subframeId (4) + slotId (6) + symbolId (6) = 24 bits */
+/* N.B. if a capture lasts > 2.5s, may see same timing come around again... */
 static uint32_t get_timing_key(uint8_t frameId, uint8_t subframeId, uint8_t slotId, uint8_t symbolId)
 {
     return symbolId + (slotId<<8) + (subframeId<<14) + (frameId<<18);
@@ -1732,16 +1747,25 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, int hf, uint16_t *eAx
 
 /* 5.1.3.2.8  ecpriSeqid (message identifier) */
 static int
-addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, int plane, uint8_t *seq_id, proto_item **seq_id_ti)
+addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, int plane, uint8_t *seq_id, proto_item **seq_id_ti, packet_info *pinfo)
 {
     /* Subtree */
     proto_item *seqIdItem = proto_tree_add_item(oran_tree, hf_oran_ecpri_seqid, tvb, offset, 2, ENC_NA);
     proto_tree *oran_seqid_tree = proto_item_add_subtree(seqIdItem, ett_oran_ecpri_seqid);
     uint32_t seqId, subSeqId, e = 0;
+
     /* Sequence ID (8 bits) */
     *seq_id_ti = proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_sequence_id, tvb, offset, 1, ENC_NA, &seqId);
     *seq_id = seqId;
     offset += 1;
+
+    /* Show link back to previous sequence ID, if set */
+    flow_result_t *result = wmem_tree_lookup32(flow_results_table, pinfo->num);
+    if (result) {
+        proto_item *prev_ti = proto_tree_add_uint(oran_seqid_tree, hf_oran_previous_frame, tvb, 0, 0, result->previous_frame);
+        proto_item_set_generated(prev_ti);
+    }
+
     /* E bit */
     proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_e_bit, tvb, offset, 1, ENC_NA, &e);
     /* Subsequence ID (7 bits) */
@@ -1763,7 +1787,6 @@ addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, int plane, uint8_t *s
 
     /* Summary */
     proto_item_append_text(seqIdItem, " (SeqId: %3d, E: %d, SubSeqId: %d)", seqId, e, subSeqId);
-
     return offset;
 }
 
@@ -4828,14 +4851,19 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     proto_item_append_text(protocol_item, "-C");
     proto_tree *oran_tree = proto_item_add_subtree(protocol_item, ett_oran);
 
+    /* ecpriRtcid (eAxC ID) */
     uint16_t eAxC;
     addPcOrRtcid(tvb, oran_tree, &offset, hf_oran_ecpri_rtcid, &eAxC);
     tap_info->eaxc = eAxC;
 
+    /* Look up any existing conversation state for eAxC+plane */
+    uint32_t key = make_flow_key(pinfo, eAxC, ORAN_C_PLANE, false);
+    flow_state_t* state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
+
     /* Message identifier */
     uint8_t seq_id;
     proto_item *seq_id_ti;
-    offset = addSeqid(tvb, oran_tree, offset, ORAN_C_PLANE, &seq_id, &seq_id_ti);
+    offset = addSeqid(tvb, oran_tree, offset, ORAN_C_PLANE, &seq_id, &seq_id_ti, pinfo);
 
     /* Section common subtree */
     int section_tree_offset = offset;
@@ -4854,10 +4882,6 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     uint32_t direction = 0;
     proto_item *datadir_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
     tap_info->uplink = (direction==0);
-
-    /* Look up any existing conversation state for eAxC+plane */
-    uint32_t key = make_flow_key(eAxC, ORAN_C_PLANE);
-    flow_state_t* state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
 
     /* Update/report status of conversation */
     if (!PINFO_FD_VISITED(pinfo)) {
@@ -4893,6 +4917,8 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                                    &ei_oran_cplane_unexpected_sequence_number_dl,
                                "Sequence number %u expected, but got %u",
                                result->expected_sequence_number, seq_id);
+
+        /* Update tap info */
         uint32_t missing_sns = (256 + seq_id - result->expected_sequence_number) % 256;
         /* Don't get confused by being slightly out of order.. */
         if (missing_sns < 128) {
@@ -4901,6 +4927,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
         else {
             tap_info->missing_sns = 0;
         }
+
         /* TODO: could add previous/next frames (in seqId tree?) ? */
     }
 
@@ -5957,10 +5984,14 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     addPcOrRtcid(tvb, oran_tree, &offset, hf_oran_ecpri_pcid, &eAxC);
     tap_info->eaxc = eAxC;
 
+    /* Update/report status of conversation */
+    uint32_t key = make_flow_key(pinfo, eAxC, ORAN_U_PLANE, false);
+    flow_state_t* state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
+
     /* Message identifier */
     uint8_t seq_id;
     proto_item *seq_id_ti;
-    offset = addSeqid(tvb, oran_tree, offset, ORAN_U_PLANE, &seq_id, &seq_id_ti);
+    offset = addSeqid(tvb, oran_tree, offset, ORAN_U_PLANE, &seq_id, &seq_id_ti, pinfo);
 
     /* Common header for time reference */
     proto_item *timingHeader = proto_tree_add_string_format(oran_tree, hf_oran_timing_header,
@@ -6009,11 +6040,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int compression;
     int includeUdCompHeader;
 
-    /* Update/report status of conversation */
-    uint32_t key = make_flow_key(eAxC, ORAN_U_PLANE);
-    flow_state_t* state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
-    /* Also look up C-PLANE state so may check current compression settings */
-    uint32_t cplane_key = make_flow_key(eAxC, ORAN_C_PLANE);
+    /* Also look up C-PLANE state (sent in opposite direction) so may check current compression settings */
+    uint32_t cplane_key = make_flow_key(pinfo, eAxC, ORAN_C_PLANE, true);
     flow_state_t* cplane_state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, cplane_key);
 
     if (!PINFO_FD_VISITED(pinfo)) {
@@ -6582,6 +6610,13 @@ proto_register_oran(void)
             FT_UINT8, BASE_DEC,
             NULL, 0x7f,
             "The subsequence ID (for eCPRI layer fragmentation)", HFILL }
+        },
+
+        { &hf_oran_previous_frame,
+          { "Previous frame in stream", "oran_fh_cus.previous-frame",
+            FT_FRAMENUM, BASE_NONE,
+            FRAMENUM_TYPE(FT_FRAMENUM_NONE), 0x0,
+            "Previous frame in sequence", HFILL }
         },
 
         /* Section 7.5.2.1 */
