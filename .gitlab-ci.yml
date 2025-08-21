@@ -254,7 +254,7 @@ workflow:
     - cmake -G Ninja
       -DENABLE_CCACHE=ON
       -DWIRESHARK_BASE_DIR=$WIRESHARK_BASE_DIR
-      -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on
+      -DBUILD_stratoshark=on
       -DFALCO_PLUGINS="$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libcloudtrail.so;$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libgcpaudit.so;$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libk8saudit.so"
       -DTEST_EXTRA_ARGS=--disable-capture
       ..
@@ -378,7 +378,7 @@ Fedora RPM Package:
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
     - export FORCE_CMAKE_NINJA_NON_VERBOSE=1
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake3 -G Ninja -DBUILD_stratoshark=ON -DBUILD_falcodump=ON ..
+    - cmake3 -G Ninja -DBUILD_stratoshark=ON ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wireshark_rpm
 
@@ -413,7 +413,7 @@ Rocky Linux 9 RPM Package:
   image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-9-dev
   script:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja -DUSE_qt6=OFF -DBUILD_stratoshark=ON -DBUILD_falcodump=ON ..
+    - cmake -G Ninja -DUSE_qt6=OFF -DBUILD_stratoshark=ON ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja wireshark_rpm
 
@@ -499,7 +499,7 @@ Arch Linux :
     - mkdir build
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -G Ninja -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on
+    - cmake -G Ninja -DBUILD_stratoshark=on
       -DFALCO_PLUGINS="/tmp/falco-plugins/plugins/cloudtrail/libcloudtrail.so;/tmp/falco-plugins/plugins/gcpaudit/libgcpaudit.so;/tmp/falco-plugins/plugins/gcpaudit/libk8saudit.so"
       -DCMAKE_INSTALL_PREFIX=$WIRESHARK_PREFIX ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
@@ -522,7 +522,7 @@ Windows x64 Package:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
     - cmake -G "Visual Studio 17 2022" -A x64
       -DENABLE_LTO=off
-      -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on
+      -DBUILD_stratoshark=on
       -DFALCO_PLUGINS="C:/Development/wireshark-x64-libs/falcosecurity-plugins-2025-08-20-1-x64-ws/cloudtrail.dll;C:/Development/wireshark-x64-libs/falcosecurity-plugins-2025-08-20-1-x64-ws/gcpaudit.dll;C:/Development/wireshark-x64-libs/falcosecurity-plugins-2025-08-20-1-x64-ws/k8saudit.dll"
       -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
@@ -570,7 +570,7 @@ Windows Arm64 Package:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
     - cmake -G "Visual Studio 17 2022" -A arm64
       -DENABLE_LTO=off
-      -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on
+      -DBUILD_stratoshark=on
       -DFALCO_PLUGINS="C:/Development/wireshark-arm64-libs/falcosecurity-plugins-2025-08-20-1-arm64-ws/cloudtrail.dll;C:/Development/wireshark-arm64-libs/falcosecurity-plugins-2025-08-20-1-arm64-ws/gcpaudit.dll;C:/Development/wireshark-arm64-libs/falcosecurity-plugins-2025-08-20-1-arm64-ws/k8saudit.dll"
       -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
@@ -645,7 +645,7 @@ macOS Universal Package:
       -DWIRESHARK_BASE_DIR="$WIRESHARK_BASE_DIR"
       -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
       -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
-      -DBUILD_stratoshark=on -DBUILD_sshdig=on -DBUILD_falcodump=on
+      -DBUILD_stratoshark=on
       -DFALCO_PLUGINS="$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libcloudtrail.so;$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libgcpaudit.so;$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libk8saudit.so"
       -DTEST_EXTRA_ARGS=--enable-release
       ..
@@ -825,7 +825,10 @@ Ubuntu GCC Build:
     - cd "🦈 build 🦈"
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     # Test release build.
-    - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_CCACHE=ON -DENABLE_WERROR=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=on ..
+    - cmake -G Ninja
+      -DCMAKE_BUILD_TYPE=Debug -DENABLE_CCACHE=ON -DENABLE_WERROR=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+      -DBUILD_sshdig=ON
+      ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - script --command ninja --flush --quiet --return ../gcc_report.txt
     - ansi2html < ../gcc_report.txt > ../gcc_report.html
@@ -957,7 +960,7 @@ Windows Build:
   script:
     # lib{sinsp,scap} don't support Configuration=Debug, so we can't enable
     # BUILD_stratoshark or BUILD_falcodump here just yet.
-    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
+    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off -DBUILD_sshdig=on ..
     - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug test-programs.vcxproj
     - C:\Windows\py.exe -m pytest --disable-gui --build-type=Debug --junitxml=../windows_tests.xml
