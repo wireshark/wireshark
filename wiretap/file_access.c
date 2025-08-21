@@ -2171,8 +2171,8 @@ wtap_dump_can_compress(int file_type_subtype _U_)
 static bool wtap_dump_open_finish(wtap_dumper *wdh, int *err,
 				      char **err_info);
 
-static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
-static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
+static WFILE_T wtap_dump_file_open(const wtap_dumper *wdh, const char *filename);
+static WFILE_T wtap_dump_file_fdopen(const wtap_dumper *wdh, int fd);
 static int wtap_dump_file_close(wtap_dumper *wdh);
 static bool wtap_dump_fix_idb(wtap_dumper *wdh, wtap_block_t idb, int *err);
 
@@ -2670,13 +2670,13 @@ wtap_dump_close(wtap_dumper *wdh, bool *needs_reload,
 }
 
 int
-wtap_dump_file_type_subtype(wtap_dumper *wdh)
+wtap_dump_file_type_subtype(const wtap_dumper *wdh)
 {
 	return wdh->file_type_subtype;
 }
 
 int64_t
-wtap_get_bytes_dumped(wtap_dumper *wdh)
+wtap_get_bytes_dumped(const wtap_dumper *wdh)
 {
 	return wdh->bytes_dumped;
 }
@@ -2688,7 +2688,7 @@ wtap_set_bytes_dumped(wtap_dumper *wdh, int64_t bytes_dumped)
 }
 
 bool
-wtap_addrinfo_list_empty(addrinfo_lists_t *addrinfo_lists)
+wtap_addrinfo_list_empty(const addrinfo_lists_t *addrinfo_lists)
 {
 	return (addrinfo_lists == NULL) ||
 	    ((addrinfo_lists->ipv4_addr_list == NULL) &&
@@ -2754,7 +2754,7 @@ wtap_dump_discard_sysdig_meta_events(wtap_dumper *wdh)
 
 /* internally open a file for writing (compressed or not) */
 static WFILE_T
-wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
+wtap_dump_file_open(const wtap_dumper *wdh, const char *filename)
 {
 	switch (wdh->compression_type) {
 #if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
@@ -2772,7 +2772,7 @@ wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 
 /* internally open a file for writing (compressed or not) */
 static WFILE_T
-wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
+wtap_dump_file_fdopen(const wtap_dumper *wdh, int fd)
 {
 	switch (wdh->compression_type) {
 #if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)

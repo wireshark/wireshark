@@ -73,7 +73,7 @@ ws_buffer_end_ptr(const Buffer* buffer)
 }
 
 static inline void
-ws_buffer_append_buffer(Buffer* buffer, Buffer* src_buffer)
+ws_buffer_append_buffer(Buffer* buffer, const Buffer* src_buffer)
 {
 	ws_buffer_append(buffer, ws_buffer_start_ptr(src_buffer), ws_buffer_length(src_buffer));
 }
@@ -89,7 +89,7 @@ ws_buffer_append_buffer(Buffer* buffer, Buffer* src_buffer)
  WS_DLL_PUBLIC
  uint8_t* ws_buffer_end_ptr(const Buffer* buffer);
  WS_DLL_PUBLIC
- void ws_buffer_append_buffer(Buffer* buffer, Buffer* src_buffer);
+ void ws_buffer_append_buffer(Buffer* buffer, const Buffer* src_buffer);
 #endif
 
 #ifdef __cplusplus

@@ -2414,14 +2414,14 @@ bool wtap_dump(wtap_dumper *, const wtap_rec *, int *err, char **err_info);
 WS_DLL_PUBLIC
 bool wtap_dump_flush(wtap_dumper *, int *);
 WS_DLL_PUBLIC
-int wtap_dump_file_type_subtype(wtap_dumper *wdh);
+int wtap_dump_file_type_subtype(const wtap_dumper *wdh);
 WS_DLL_PUBLIC
-int64_t wtap_get_bytes_dumped(wtap_dumper *);
+int64_t wtap_get_bytes_dumped(const wtap_dumper *);
 WS_DLL_PUBLIC
 void wtap_set_bytes_dumped(wtap_dumper *wdh, int64_t bytes_dumped);
 struct addrinfo;
 WS_DLL_PUBLIC
-bool wtap_addrinfo_list_empty(addrinfo_lists_t *addrinfo_lists);
+bool wtap_addrinfo_list_empty(const addrinfo_lists_t *addrinfo_lists);
 WS_DLL_PUBLIC
 bool wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists);
 WS_DLL_PUBLIC
