@@ -61,9 +61,9 @@ typedef struct sinsp_field_info_t {
     char abbrev[64]; // filter name
     char display[64]; // display name
     char description[1024];
-    bool is_hidden;
-    bool is_conversation;
+    bool skip; // Fields that we don't handle, e.g. lists and tables
     bool is_info;
+    bool is_conversation;
     bool is_numeric_address;
 } sinsp_field_info_t;
 

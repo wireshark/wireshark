@@ -31,8 +31,9 @@
 #endif
 
 // To do:
-// [ ] Move chunkify_string to a thread? For captures with large command lines,
-//     we spend a lot of time hashing strings.
+// - Move chunkify_string to a thread? For captures with large command lines,
+//   we spend a lot of time hashing strings.
+// - Handle list fields.
 
 #define SINSP_CHECK_VERSION(major, minor, micro) \
     (((SINSP_VERSION_MAJOR << 16) + (SINSP_VERSION_MINOR << 8) + SINSP_VERSION_MICRO) >= ((major << 16) + (minor << 8) + micro))
@@ -610,7 +611,7 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sin
     g_strlcpy(field->description, ffi->m_description, sizeof(field->description));
 #endif
 
-    field->is_hidden = ffi->m_flags & EPF_TABLE_ONLY;
+    field->skip = ffi->m_flags & (EPF_IS_LIST | EPF_TABLE_ONLY);
     field->is_conversation = ffi->m_flags & EPF_CONVERSATION;
     field->is_info = ffi->m_flags & EPF_INFO;
 

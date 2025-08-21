@@ -444,9 +444,9 @@ create_source_hfids(bridge_info* bi)
 
     for (size_t j = 0; j < tot_fields; j++) {
         get_sinsp_source_field_info(bi->ssi, j, &sfi);
-        if (sfi.is_hidden) {
+        if (sfi.skip) {
             /*
-             * Skip the fields that are marked as hidden.
+             * Skip special fields (lists and tables).
              * XXX Should we keep them and call proto_item_set_hidden?
              */
             continue;
@@ -487,9 +487,9 @@ create_source_hfids(bridge_info* bi)
         {
             get_sinsp_source_field_info(bi->ssi, j, &sfi);
 
-            if (sfi.is_hidden) {
+            if (sfi.skip) {
                 /*
-                 * Skip the fields that are marked as hidden
+                 * Skip special fields (lists and tables).
                  */
                 continue;
             }
