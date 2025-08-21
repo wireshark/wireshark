@@ -311,6 +311,8 @@ HT40-:: 40 MHz primary channel and a lower secondary channel
 
 HT40+:: 40 MHz primary channel and a higher secondary channel
 
+HE40:: 40 MHz channel, with __centerfreq1__ as its center frequency
+
 HT80:: 80 MHz channel, with __centerfreq1__ as its center frequency
 
 VHT80+80::

@@ -18,11 +18,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/* For our (monitor mode tuning) purposes we shouldn't care about 20 MHz
+ * non HT vs 20 MHz HT. We do care about HT40- vs HT40+ vs HE40 (whether
+ * the center freq must be provided, */
 enum ws80211_channel_type {
 	WS80211_CHAN_NO_HT,
 	WS80211_CHAN_HT20,
 	WS80211_CHAN_HT40MINUS,
 	WS80211_CHAN_HT40PLUS,
+	WS80211_CHAN_HE40,	/* 40 MHz with explicit center freq */
 	WS80211_CHAN_VHT80,
 	WS80211_CHAN_VHT80P80,
 	WS80211_CHAN_VHT160,
@@ -33,6 +37,7 @@ enum ws80211_channel_type {
 #define CHAN_HT20	"HT20"
 #define CHAN_HT40MINUS	"HT40-"
 #define CHAN_HT40PLUS	"HT40+"
+#define CHAN_HE40 	"HE40"
 #define CHAN_VHT80	"VHT80"
 #define CHAN_VHT80P80	"VHT80+80"
 #define CHAN_VHT160	"VHT160"

@@ -29,10 +29,10 @@
 #include <QSortFilterProxyModel>
 
 // To do:
-// - Disable or hide invalid channel types.
 // - Push more status messages ("switched to...") to the status bar.
 // - Add a "Decrypt in the driver" checkbox?
 // - Check for frequency and channel type changes.
+// - Figure out some way to handle 80+80 channels
 // - Find something appropriate to run from the helperToolButton on Linux.
 
 // Questions:
@@ -159,7 +159,7 @@ protected:
     }
 
 private:
-    int m_mask; // QFlags?
+    int m_mask; // QFlags? (easier to use Qt >= 6.2)
 };
 
 WirelessFrame::WirelessFrame(QWidget *parent) :
@@ -411,6 +411,11 @@ void WirelessFrame::getInterfaceInfo()
                 if (band->channel_types & (1 << WS80211_CHAN_HT40PLUS)) {
                     proxy->addItem("HT 40+", band_type, WS80211_CHAN_HT40PLUS);
                 }
+                if (band->channel_types & (1 << WS80211_CHAN_HE40)) {
+                    if (!(band->channel_types & ((1 << WS80211_CHAN_HT40MINUS) | (1 << WS80211_CHAN_HT40PLUS)))) {
+                        proxy->addItem("HE 40", band_type, WS80211_CHAN_HE40);
+                    }
+                }
                 if (band->channel_types & (1 << WS80211_CHAN_VHT80)) {
                     proxy->addItem("VHT 80", band_type, WS80211_CHAN_VHT80);
                 }
@@ -420,10 +425,16 @@ void WirelessFrame::getInterfaceInfo()
                 if (band->channel_types & (1 << WS80211_CHAN_EHT320)) {
                     proxy->addItem("EHT 320", band_type, WS80211_CHAN_EHT320);
                 }
-                int dataIdx = ui->channelTypeComboBox->findData(iface_info.current_chan_type, DataRole);
-                if (dataIdx > -1) {
-                    ui->channelTypeComboBox->setCurrentIndex(dataIdx);
-                }
+            }
+            int dataIdx = ui->channelTypeComboBox->findData(iface_info.current_chan_type, DataRole);
+            /* Some drivers will report the current channel type as HT40- or
+             * HT40+ even in the 6 GHz band that can only be tuned using the
+             * center frequency. */
+            if (dataIdx == -1 && (iface_info.current_chan_type == WS80211_CHAN_HT40MINUS || iface_info.current_chan_type == WS80211_CHAN_HT40PLUS)) {
+                dataIdx = ui->channelTypeComboBox->findData(WS80211_CHAN_HE40, DataRole);
+            }
+            if (dataIdx > -1) {
+                ui->channelTypeComboBox->setCurrentIndex(dataIdx);
             }
 
             if (ws80211_has_fcs_filter()) {
