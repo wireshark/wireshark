@@ -1082,10 +1082,10 @@ dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     goto found;
   cur_tok = json_get_array(json_data, tokens, "pduSessionList");
   if (cur_tok) {
-    int i, count;
-    count = json_get_array_len(cur_tok);
-    for (i = 0; i < count; i++) {
-      jsmntok_t *array_tok = json_get_array_index(cur_tok, i);
+    const int count = json_get_array_len(cur_tok);
+    jsmntok_t* array_tok = json_get_array_index(cur_tok, 0);
+    for (int i = 0; i < count; i++, array_tok = json_get_next_object(array_tok)) {
+
       if (find_n2_info_content(json_data, array_tok, "n2InfoContent",
                                content_info->content_id, &subdissector))
         goto found;
