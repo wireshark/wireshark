@@ -147,6 +147,7 @@ static int hf_ip_opt_type_copy;
 static int hf_ip_opt_type_class;
 static int hf_ip_opt_type_number;
 static int hf_ip_opt_len;
+static int hf_ip_opt_data;
 static int hf_ip_opt_ptr;
 static int hf_ip_opt_sid;
 static int hf_ip_opt_mtu;
@@ -1671,8 +1672,12 @@ dissect_ip_options(tvbuff_t *tvb, int offset, unsigned length,
       }
 
       if (option_dissector == NULL) {
-        proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen, ett_ip_unknown_opt, NULL, "%s (%u byte%s)",
+        field_tree = proto_tree_add_subtree_format(opt_tree, tvb, offset, optlen, ett_ip_unknown_opt, NULL, "%s (%u byte%s)",
                                               name, optlen, plurality(optlen, "", "s"));
+        dissect_ipopt_type(tvb, offset, field_tree);
+
+        proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset+1, 1, ENC_NA);
+        proto_tree_add_item(field_tree, hf_ip_opt_data, tvb, offset+2, optlen-2, ENC_NA);
       } else {
         next_tvb = tvb_new_subset_length(tvb, offset, optlen);
         call_dissector_with_data(option_dissector, next_tvb, pinfo, opt_tree, data);
@@ -2844,6 +2849,10 @@ proto_register_ip(void)
 
     { &hf_ip_opt_len,
       { "Length", "ip.opt.len", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_data,
+      { "Data", "ip.opt.data", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_opt_ptr,
