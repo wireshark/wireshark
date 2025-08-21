@@ -272,7 +272,7 @@ find_next_pkt_info(FILE_T fh,
                 break;
             default:
                 if (IS_TIMESTAMP(block[1]))
-                    process_timestamp(pletoh16(block), time_us);
+                    process_timestamp(pletohu16(block), time_us);
                 break;
         }
     } while (size_stat != SIZE_HAVE_ALL);
@@ -308,7 +308,7 @@ read_packet_data(FILE_T fh, uint8_t dat_trans_type, uint8_t *buf, uint16_t dat_l
             bytes_count++;
         }
         else if (IS_TIMESTAMP(block[1])) {
-                process_timestamp(pletoh16(block), time_us);
+                process_timestamp(pletohu16(block), time_us);
         }
         else if (IS_TRANS_SIZE(block[1])) {
             /* go back before the size transaction block
@@ -340,7 +340,7 @@ create_pseudo_hdr(uint8_t *buf, uint8_t dat_trans_type, uint16_t dat_len,
         return -1;
     }
 
-    phton16(&buf[2], dat_len);
+    phtonu16(&buf[2], dat_len);
 
     return DVB_CI_PSEUDO_HDR_LEN;
 }

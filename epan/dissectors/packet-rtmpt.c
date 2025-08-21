@@ -2239,7 +2239,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                         basic_hlen = rtmpt_basic_header_length(id);
 
                                         if ((header_type < 3) && (tf->have < (basic_hlen+3)) && (tf->have+want >= (basic_hlen+3))) {
-                                                if (pntoh24(tf->saved.d+basic_hlen) == 0xffffff) {
+                                                if (pntohu24(tf->saved.d+basic_hlen) == 0xffffff) {
                                                         tf->len += 4;
                                                 }
                                         }
@@ -2312,7 +2312,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         if (id == 0)
                                 id = tf->saved.d[1] + 64;
                         else if (id == 1)
-                                id = pletoh16(tf->saved.d+1) + 64;
+                                id = pletohu16(tf->saved.d+1) + 64;
                 }
 
                 /* Calculate header values, defaulting from previous packets with same id */
@@ -2323,7 +2323,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         tp = (rtmpt_packet_t *)wmem_tree_lookup32_le(ti->packets, seq+offset-1);
 
                 if (header_type == 0)
-                        src = tf ? pntoh32(tf->saved.d+basic_hlen+7) : tvb_get_ntohl(tvb, offset+basic_hlen+7);
+                        src = tf ? pntohu32(tf->saved.d+basic_hlen+7) : tvb_get_ntohl(tvb, offset+basic_hlen+7);
                 else if (ti)
                         src = ti->src;
                 else src = 0;
@@ -2350,7 +2350,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         }
 
                         if (header_type < 2)
-                                body_len = tf ? pntoh24(tf->saved.d+basic_hlen+3) : tvb_get_ntoh24(tvb, offset+basic_hlen+3);
+                                body_len = tf ? pntohu24(tf->saved.d+basic_hlen+3) : tvb_get_ntoh24(tvb, offset+basic_hlen+3);
                         else if (ti)
                                 body_len = ti->len;
                         else
@@ -2377,15 +2377,15 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         }
 
                         if (header_type == 0) {
-                                ts = tf ? pntoh24(tf->saved.d+basic_hlen) : tvb_get_ntoh24(tvb, offset+basic_hlen);
+                                ts = tf ? pntohu24(tf->saved.d+basic_hlen) : tvb_get_ntoh24(tvb, offset+basic_hlen);
                                 if (ts == 0xffffff) {
-                                        ts = tf ? pntoh32(tf->saved.d+basic_hlen+11) : tvb_get_ntohl(tvb, offset+basic_hlen+11);
+                                        ts = tf ? pntohu32(tf->saved.d+basic_hlen+11) : tvb_get_ntohl(tvb, offset+basic_hlen+11);
                                 }
                                 tsd = ts - ti->ts;
                         } else if (header_type < 3) {
-                                tsd = tf ? pntoh24(tf->saved.d+basic_hlen) : tvb_get_ntoh24(tvb, offset+basic_hlen);
+                                tsd = tf ? pntohu24(tf->saved.d+basic_hlen) : tvb_get_ntoh24(tvb, offset+basic_hlen);
                                 if (tsd == 0xffffff) {
-                                        ts  = tf ? pntoh32(tf->saved.d+basic_hlen+message_hlen-4) : tvb_get_ntohl(tvb, offset+basic_hlen+message_hlen-4);
+                                        ts  = tf ? pntohu32(tf->saved.d+basic_hlen+message_hlen-4) : tvb_get_ntohl(tvb, offset+basic_hlen+message_hlen-4);
                                         tsd = ti->tsd; /* questionable */
                                 } else {
                                         ts  = ti->ts + tsd;
@@ -2485,7 +2485,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         }
                 } else {
                         if (header_type == 3 && tp->resident && tp->have > tp->bhlen + 3
-                            && pntoh24(tp->data.p+tp->bhlen) == 0xffffff) {
+                            && pntohu24(tp->data.p+tp->bhlen) == 0xffffff) {
                                 /* Header type 3 resends the extended time stamp if the last message on the chunk
                                  * stream had an extended timestamp.
                                  * See: https://gitlab.com/wireshark/wireshark/-/issues/15718

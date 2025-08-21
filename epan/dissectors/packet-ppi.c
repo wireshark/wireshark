@@ -366,11 +366,11 @@ capture_ppi(const unsigned char *pd, int offset _U_, int len, capture_packet_inf
     uint32_t dlt;
     unsigned ppi_len;
 
-    ppi_len = pletoh16(pd+2);
+    ppi_len = pletohu16(pd+2);
     if(ppi_len < PPI_V0_HEADER_LEN || !BYTES_ARE_IN_FRAME(0, len, ppi_len))
         return false;
 
-    dlt = pletoh32(pd+4);
+    dlt = pletohu32(pd+4);
 
     return try_capture_dissector("ppi", dlt, pd, ppi_len, len, cpinfo, pseudo_header);
 }

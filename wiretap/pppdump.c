@@ -279,7 +279,7 @@ pppdump_open(wtap *wth, int *err, char **err_info)
 
 	state = g_new(pppdump_t, 1);
 	wth->priv = (void *)state;
-	state->timestamp = pntoh32(&buffer[1]);
+	state->timestamp = pntohu32(&buffer[1]);
 	state->tenths = 0;
 
 	init_state(state);
@@ -665,7 +665,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, char **err_info, uint8_t *pd,
 				if (!wtap_read_bytes(fh, &time_long, sizeof(uint32_t), err, err_info))
 					return false;
 				state->offset += sizeof(uint32_t);
-				state->timestamp = pntoh32(&time_long);
+				state->timestamp = pntohu32(&time_long);
 				state->tenths = 0;
 				break;
 
@@ -673,7 +673,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, char **err_info, uint8_t *pd,
 				if (!wtap_read_bytes(fh, &time_long, sizeof(uint32_t), err, err_info))
 					return false;
 				state->offset += sizeof(uint32_t);
-				state->tenths += pntoh32(&time_long);
+				state->tenths += pntohu32(&time_long);
 
 				if (state->tenths >= 10) {
 					state->timestamp += state->tenths / 10;

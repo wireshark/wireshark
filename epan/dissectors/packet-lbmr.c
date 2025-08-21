@@ -2024,8 +2024,8 @@ static tap_packet_status lbmr_match_packet(packet_info * pinfo, const lbmr_tag_e
     if ((pinfo->dst.type != AT_IPv4) || (pinfo->dst.len != 4) ||
         (pinfo->src.type != AT_IPv4) || (pinfo->src.len != 4))
         return (TAP_PACKET_DONT_REDRAW);
-    dest_addr_h = pntoh32(pinfo->dst.data);
-    src_addr_h = pntoh32(pinfo->src.data);
+    dest_addr_h = pntohu32(pinfo->dst.data);
+    src_addr_h = pntohu32(pinfo->src.data);
 
     if (IN_MULTICAST(dest_addr_h))
     {

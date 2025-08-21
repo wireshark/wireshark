@@ -1797,8 +1797,8 @@ static void
 pipe_convert_header(const unsigned char *header, char *indicator, unsigned *block_len) {
 
     /* convert header values */
-    *indicator = pntoh8(&header[0]);
-    *block_len = pntoh24(&header[1]);
+    *indicator = pntohu8(&header[0]);
+    *block_len = pntohu24(&header[1]);
 }
 
 /* read a message from the sending pipe in the standard format

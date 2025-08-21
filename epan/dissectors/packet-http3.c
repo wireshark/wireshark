@@ -930,9 +930,9 @@ get_header_field_pstr(wmem_allocator_t *scratch, nghttp3_qpack_nv *header_nv, co
      */
     pstr_len = (4 + name_len) + (4 + value_len);
     scratch_buffer = (char *)wmem_alloc(scratch, pstr_len);
-    phton32(&scratch_buffer[0], name_len);
+    phtonu32(&scratch_buffer[0], name_len);
     memcpy(&scratch_buffer[4], name, name_len);
-    phton32(&scratch_buffer[4 + name_len], value_len);
+    phtonu32(&scratch_buffer[4 + name_len], value_len);
     memcpy(&scratch_buffer[4 + name_len + 4], value, value_len);
 
     /* Check whether the pstr is already in the cache,
@@ -985,11 +985,11 @@ http3_get_header_value(packet_info *pinfo, const char* name, bool the_other_dire
             http3_header_field_t *in;
             uint32_t             name_len;
             in = (http3_header_field_t *)wmem_array_index(header_data->header_fields, i);
-            name_len = pntoh32(in->decoded.bytes);
+            name_len = pntohu32(in->decoded.bytes);
             if (strlen(name) == name_len && strncmp(in->decoded.bytes + 4, name, name_len) == 0) {
                 return get_ascii_string(pinfo->pool,
                     in->decoded.bytes + 4 + name_len + 4,
-                    pntoh32(in->decoded.bytes + 4 + name_len));
+                    pntohu32(in->decoded.bytes + 4 + name_len));
             }
         }
     }
@@ -3175,8 +3175,8 @@ http3_hdrcache_length(const void *vv)
     const uint8_t *v = (const uint8_t *)vv;
     uint32_t      namelen, valuelen;
 
-    namelen  = pntoh32(v);
-    valuelen = pntoh32(v + sizeof(namelen) + namelen);
+    namelen  = pntohu32(v);
+    valuelen = pntohu32(v + sizeof(namelen) + namelen);
 
     return namelen + sizeof(namelen) + valuelen + sizeof(valuelen);
 }

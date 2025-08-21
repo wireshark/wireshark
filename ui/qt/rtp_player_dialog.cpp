@@ -2279,47 +2279,47 @@ qint64 RtpPlayerDialog::saveAudioHeaderAU(QFile *save_file, quint32 channels, un
 
     /* https://pubs.opengroup.org/external/auformat.html */
     /* First we write the .au header.  All values in the header are
-     * 4-byte big-endian values, so we use pntoh32() to copy them
+     * 4-byte big-endian values, so we use pntohu32() to copy them
      * to a 4-byte buffer, in big-endian order, and then write out
      * the buffer. */
 
     /* the magic word 0x2e736e64 == .snd */
-    phton32(pd, 0x2e736e64);
+    phtonu32(pd, 0x2e736e64);
     nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
     }
 
     /* header offset == 24 bytes */
-    phton32(pd, 24);
+    phtonu32(pd, 24);
     nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
     }
 
     /* total length; it is permitted to set this to 0xffffffff */
-    phton32(pd, 0xffffffff);
+    phtonu32(pd, 0xffffffff);
     nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
     }
 
     /* encoding format == 16-bit linear PCM */
-    phton32(pd, 3);
+    phtonu32(pd, 3);
     nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
     }
 
     /* sample rate [Hz] */
-    phton32(pd, audio_rate);
+    phtonu32(pd, audio_rate);
     nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
     }
 
     /* channels */
-    phton32(pd, channels);
+    phtonu32(pd, channels);
     nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
@@ -2341,7 +2341,7 @@ qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, quint32 channels, u
     /* http://soundfile.sapp.org/doc/WaveFormat/ */
 
     /* RIFF header, ChunkID 0x52494646 == RIFF */
-    phton32(pd, 0x52494646);
+    phtonu32(pd, 0x52494646);
     nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
@@ -2355,14 +2355,14 @@ qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, quint32 channels, u
     }
 
     /* RIFF header, Format 0x57415645 == WAVE */
-    phton32(pd, 0x57415645);
+    phtonu32(pd, 0x57415645);
     nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
     }
 
     /* WAVE fmt header, Subchunk1ID 0x666d7420 == 'fmt ' */
-    phton32(pd, 0x666d7420);
+    phtonu32(pd, 0x666d7420);
     nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
@@ -2418,7 +2418,7 @@ qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, quint32 channels, u
     }
 
     /* WAVE data header, Subchunk2ID 0x64617461 == 'data' */
-    phton32(pd, 0x64617461);
+    phtonu32(pd, 0x64617461);
     nchars = save_file->write((const char *)pd, 4);
     if (nchars != 4) {
         return -1;
@@ -2440,7 +2440,7 @@ bool RtpPlayerDialog::writeAudioSilenceSamples(QFile *out_file, qint64 samples, 
 {
     uint8_t pd[2];
 
-    phton16(pd, 0x0000);
+    phtonu16(pd, 0x0000);
     for(int s=0; s < stream_count; s++) {
         for(qint64 i=0; i < samples; i++) {
             if (sizeof(SAMPLE) != out_file->write((char *)&pd, sizeof(SAMPLE))) {
@@ -2466,7 +2466,7 @@ bool RtpPlayerDialog::writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudio
         foreach(RtpAudioStream *audio_stream, streams) {
             if (sizeof(sample) == audio_stream->readSample(&sample)) {
                 if (swap_bytes) {
-                    // same as phton16(), but more clear in compare
+                    // same as phtonu16(), but more clear in compare
                     // to else branch
                     pd[0] = (uint8_t)(sample >> 8);
                     pd[1] = (uint8_t)(sample >> 0);
@@ -2478,7 +2478,7 @@ bool RtpPlayerDialog::writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudio
                 read = true;
             } else {
                 // for 0x0000 doesn't matter on order
-                phton16(pd, 0x0000);
+                phtonu16(pd, 0x0000);
             }
             if (sizeof(sample) != out_file->write((char *)&pd, sizeof(sample))) {
                 return false;

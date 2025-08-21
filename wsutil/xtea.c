@@ -21,8 +21,8 @@ void decrypt_xtea_ecb(uint8_t plaintext[8], const uint8_t ciphertext[8], const u
     unsigned i;
     uint32_t v[2], delta = 0x9E3779B9, sum = delta * num_rounds;
 
-    v[0] = pntoh32(&ciphertext[0]);
-    v[1] = pntoh32(&ciphertext[4]);
+    v[0] = pntohu32(&ciphertext[0]);
+    v[1] = pntohu32(&ciphertext[4]);
 
     for (i = 0; i < num_rounds; i++) {
         v[1] -= (((v[0] << 4) ^ (v[0] >> 5)) + v[0]) ^ (sum + key[(sum >> 11) & 3]);
@@ -41,8 +41,8 @@ void decrypt_xtea_le_ecb(uint8_t plaintext[8], const uint8_t ciphertext[8], cons
     unsigned i;
     uint32_t v[2], delta = 0x9E3779B9, sum = delta * num_rounds;
 
-    v[0] = pletoh32(&ciphertext[0]);
-    v[1] = pletoh32(&ciphertext[4]);
+    v[0] = pletohu32(&ciphertext[0]);
+    v[1] = pletohu32(&ciphertext[4]);
 
     for (i = 0; i < num_rounds; i++) {
         v[1] -= (((v[0] << 4) ^ (v[0] >> 5)) + v[0]) ^ (sum + key[(sum >> 11) & 3]);

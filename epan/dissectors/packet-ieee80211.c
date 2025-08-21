@@ -9688,7 +9688,7 @@ capture_ieee80211_common(const unsigned char * pd, int offset, int len,
   if (!BYTES_ARE_IN_FRAME(offset, len, 2))
     return false;
 
-  fcf = pletoh16(&pd[offset]);
+  fcf = pletohu16(&pd[offset]);
 
   if (IS_PROTECTED(FCF_FLAGS(fcf)) && (wlan_ignore_prot == WLAN_IGNORE_PROT_NO))
     return false;
@@ -9741,7 +9741,7 @@ capture_ieee80211_common(const unsigned char * pd, int offset, int len,
           return false;
 
         mesh_flags = pd[hdr_length];
-        if (has_mesh_control(fcf, pletoh16(&pd[qosoff]), mesh_flags)) {
+        if (has_mesh_control(fcf, pletohu16(&pd[qosoff]), mesh_flags)) {
           /* Yes, add the length of that in as well. */
           hdr_length += find_mesh_control_length(mesh_flags);
         }

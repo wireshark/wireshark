@@ -294,7 +294,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
             return -1;
         }
         read_a_tag = true;
-        tag = pletoh16(&tag_value[0]);
+        tag = pletohu16(&tag_value[0]);
         switch (tag) {
 
         case TAG_PEEKTAGGED_LENGTH:
@@ -303,7 +303,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
                 *err_info = g_strdup("peektagged: record has two length fields");
                 return -1;
             }
-            length = pletoh32(&tag_value[2]);
+            length = pletohu32(&tag_value[2]);
             saw_length = true;
             break;
 
@@ -313,7 +313,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
                 *err_info = g_strdup("peektagged: record has two timestamp-lower fields");
                 return -1;
             }
-            timestamp.lower = pletoh32(&tag_value[2]);
+            timestamp.lower = pletohu32(&tag_value[2]);
             saw_timestamp_lower = true;
             break;
 
@@ -323,43 +323,43 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
                 *err_info = g_strdup("peektagged: record has two timestamp-upper fields");
                 return -1;
             }
-            timestamp.upper = pletoh32(&tag_value[2]);
+            timestamp.upper = pletohu32(&tag_value[2]);
             saw_timestamp_upper = true;
             break;
 
         case TAG_PEEKTAGGED_FLAGS_AND_STATUS:
             saw_flags_and_status = true;
-            flags_and_status = pletoh32(&tag_value[2]);
+            flags_and_status = pletohu32(&tag_value[2]);
             break;
 
         case TAG_PEEKTAGGED_CHANNEL:
             ieee_802_11.has_channel = true;
-            ieee_802_11.channel = pletoh32(&tag_value[2]);
+            ieee_802_11.channel = pletohu32(&tag_value[2]);
             break;
 
         case TAG_PEEKTAGGED_DATA_RATE_OR_MCS_INDEX:
-            data_rate_or_mcs_index = pletoh32(&tag_value[2]);
+            data_rate_or_mcs_index = pletohu32(&tag_value[2]);
             saw_data_rate_or_mcs_index = true;
             break;
 
         case TAG_PEEKTAGGED_SIGNAL_PERC:
             ieee_802_11.has_signal_percent = true;
-            ieee_802_11.signal_percent = pletoh32(&tag_value[2]);
+            ieee_802_11.signal_percent = pletohu32(&tag_value[2]);
             break;
 
         case TAG_PEEKTAGGED_SIGNAL_DBM:
             ieee_802_11.has_signal_dbm = true;
-            ieee_802_11.signal_dbm = pletoh32(&tag_value[2]);
+            ieee_802_11.signal_dbm = pletohu32(&tag_value[2]);
             break;
 
         case TAG_PEEKTAGGED_NOISE_PERC:
             ieee_802_11.has_noise_percent = true;
-            ieee_802_11.noise_percent = pletoh32(&tag_value[2]);
+            ieee_802_11.noise_percent = pletohu32(&tag_value[2]);
             break;
 
         case TAG_PEEKTAGGED_NOISE_DBM:
             ieee_802_11.has_noise_dbm = true;
-            ieee_802_11.noise_dbm = pletoh32(&tag_value[2]);
+            ieee_802_11.noise_dbm = pletohu32(&tag_value[2]);
             break;
 
         case TAG_PEEKTAGGED_UNKNOWN_0x000A:
@@ -372,7 +372,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         case TAG_PEEKTAGGED_CENTER_FREQUENCY:
             /* XXX - also seen in an EtherPeek capture; value unknown */
             ieee_802_11.has_frequency = true;
-            ieee_802_11.frequency = pletoh32(&tag_value[2]);
+            ieee_802_11.frequency = pletohu32(&tag_value[2]);
             break;
 
         case TAG_PEEKTAGGED_UNKNOWN_0x000E:
@@ -440,7 +440,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
              * We assume this is present for HT and VHT frames and absent
              * for other frames.
              */
-            ext_flags = pletoh32(&tag_value[2]);
+            ext_flags = pletohu32(&tag_value[2]);
             if (ext_flags & EXT_FLAG_802_11ac) {
                 ieee_802_11.phy = PHDR_802_11_PHY_11AC;
                 /*
@@ -516,7 +516,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
             break;
 
         case TAG_PEEKTAGGED_SLICE_LENGTH:
-            sliceLength = pletoh32(&tag_value[2]);
+            sliceLength = pletohu32(&tag_value[2]);
             break;
 
         default:
@@ -830,7 +830,7 @@ wtap_open_return_val peektagged_open(wtap* wth, int* err, char** err_info)
 
     if (memcmp(ap_hdr.section_id, "sess", sizeof(ap_hdr.section_id)) != 0) {
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = ws_strdup_printf("peektagged: Unknown section ID 0x%08x", pntoh32(ap_hdr.section_id));
+        *err_info = ws_strdup_printf("peektagged: Unknown section ID 0x%08x", pntohu32(ap_hdr.section_id));
         return WTAP_OPEN_ERROR;
     }
 
@@ -878,7 +878,7 @@ wtap_open_return_val peektagged_open(wtap* wth, int* err, char** err_info)
 
     if (memcmp(ap_hdr.section_id, "pkts", sizeof(ap_hdr.section_id)) != 0) {
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = ws_strdup_printf("peektagged: Unknown section ID 0x%08x", pntoh32(ap_hdr.section_id));
+        *err_info = ws_strdup_printf("peektagged: Unknown section ID 0x%08x", pntohu32(ap_hdr.section_id));
         return WTAP_OPEN_ERROR;
     }
 

@@ -495,7 +495,7 @@ eui64_from_uinteger64(fvalue_t *fv, const char *s _U_, uint64_t value, char **er
 {
 	/* Backwards compatibility for specifying as unsigned integer. */
 	uint8_t data[FT_EUI64_LEN];
-	phton64(data, value);
+	phtonu64(data, value);
 
 	/* Free up the old value, if we have one */
 	bytes_fvalue_free(fv);

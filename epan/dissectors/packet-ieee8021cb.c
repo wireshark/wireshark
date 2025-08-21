@@ -56,7 +56,7 @@ capture_ieee8021cb(const unsigned char *pd, int offset, int len, capture_packet_
     if (!BYTES_ARE_IN_FRAME(offset, len, IEEE8021CB_LEN + 1))
         return false;
 
-    encap_proto = pntoh16( &pd[offset + IEEE8021CB_LEN - 2] );
+    encap_proto = pntohu16( &pd[offset + IEEE8021CB_LEN - 2] );
     if (encap_proto <= IEEE_802_3_MAX_LEN) {
         if ( pd[offset + IEEE8021CB_LEN] == 0xff
              && pd[offset + IEEE8021CB_LEN + 1] == 0xff ) {

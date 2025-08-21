@@ -1817,7 +1817,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
               if (sn_length == IPSEC_SA_ESN) {
                 uint8_t sn_bytes[4];
-                phton32(sn_bytes, sn_upper);
+                phtonu32(sn_bytes, sn_upper);
                 for (int i = 0; i < 4; i++) {
                   gcry_md_putc(md_hd, sn_bytes[i]);
                 }
@@ -2347,7 +2347,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             } else {
               uint8_t *aad = wmem_alloc(pinfo->pool, ESP_HEADER_LEN + 4);
               tvb_memcpy(tvb, aad, 0, 4);
-              phton32(&aad[4], sn_upper);
+              phtonu32(&aad[4], sn_upper);
               tvb_memcpy(tvb, &aad[ESP_HEADER_LEN], 4, ESP_HEADER_LEN);
               err = gcry_cipher_authenticate(*cipher_hd, aad, ESP_HEADER_LEN + 4);
             }

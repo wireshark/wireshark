@@ -65,7 +65,7 @@ static int detect_version(FILE_T fh, int *err, char **err_info)
             return -1;
         return 0;
     }
-    payload_length = pletoh16(&tmp);
+    payload_length = pletohu16(&tmp);
 
     /* must contain at least priority and two nulls as separator */
     if (payload_length < 3)
@@ -80,7 +80,7 @@ static int detect_version(FILE_T fh, int *err, char **err_info)
             return -1;
         return 0;
     }
-    hdr_size = pletoh16(&tmp);
+    hdr_size = pletohu16(&tmp);
     read_sofar = 4;
 
     /* ensure buffer is large enough for all versions */
@@ -171,7 +171,7 @@ static bool logcat_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     if (!wtap_read_bytes_or_eof(fh, &tmp, 2, err, err_info)) {
         return false;
     }
-    payload_length = pletoh16(tmp);
+    payload_length = pletohu16(tmp);
 
     if (logcat->version == 1) {
         packet_size = (int)sizeof(struct logger_entry) + payload_length;

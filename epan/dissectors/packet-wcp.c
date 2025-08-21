@@ -500,7 +500,7 @@ static tvbuff_t *wcp_uncompress(tvbuff_t *src_tvb, int offset, packet_info *pinf
 					 */
 					return NULL;
 				}
-				data_offset = pntoh16(src) & WCP_OFFSET_MASK;
+				data_offset = pntohu16(src) & WCP_OFFSET_MASK;
 				if ((*src & 0xf0) == 0x10) {
 					/*
 					 * The count of bytes to copy from

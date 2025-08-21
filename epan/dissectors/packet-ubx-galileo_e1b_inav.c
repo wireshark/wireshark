@@ -574,9 +574,9 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                     uint8_t *buf = wmem_alloc(pinfo->pool, SAR_SHORT_RLM_LENGTH);
 
                     // fill buffer with RLM parts
-                    phton32(buf, (sar_rlm_parts[0].rlm_data << 12) | (sar_rlm_parts[1].rlm_data >> 8));
-                    phton32(buf + 4, (sar_rlm_parts[1].rlm_data << 24) | (sar_rlm_parts[2].rlm_data << 4) | (sar_rlm_parts[3].rlm_data >> 16));
-                    phton16(buf + 8, (sar_rlm_parts[3].rlm_data & 0xffff));
+                    phtonu32(buf, (sar_rlm_parts[0].rlm_data << 12) | (sar_rlm_parts[1].rlm_data >> 8));
+                    phtonu32(buf + 4, (sar_rlm_parts[1].rlm_data << 24) | (sar_rlm_parts[2].rlm_data << 4) | (sar_rlm_parts[3].rlm_data >> 16));
+                    phtonu16(buf + 8, (sar_rlm_parts[3].rlm_data & 0xffff));
 
                     tvbuff_t *rlm_tvb = tvb_new_child_real_data(tvb, (uint8_t *)buf, SAR_SHORT_RLM_LENGTH, SAR_SHORT_RLM_LENGTH);
                     add_new_data_source(pinfo, rlm_tvb, "Galileo E1-B I/NAV SAR Short-RLM");
@@ -608,9 +608,9 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     if (even_page_type == 0 && odd_page_type == 0) {
         // create new tvb with the data word
         word = wmem_alloc(pinfo->pool, 16);
-        phton16(word + 14, (uint16_t)data_16_1);
-        phton64(word + 6, data_66_17);
-        phton64(word, (((uint64_t) inav_type) << 58) | (data_122_67 << 2) | (data_66_17 >> 48));
+        phtonu16(word + 14, (uint16_t)data_16_1);
+        phtonu64(word + 6, data_66_17);
+        phtonu64(word, (((uint64_t) inav_type) << 58) | (data_122_67 << 2) | (data_66_17 >> 48));
 
         next_tvb = tvb_new_child_real_data(tvb, (uint8_t *)word, 16, 16);
         add_new_data_source(pinfo, next_tvb, "Galileo I/NAV Word");

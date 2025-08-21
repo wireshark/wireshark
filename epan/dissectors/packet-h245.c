@@ -3682,7 +3682,7 @@ dissect_h245_T_unsignedMin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     buf = (uint8_t *)wmem_new(actx->pinfo->pool, uint16_t);
-    phton16(buf, value);
+    phtonu16(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint16_t), sizeof(uint16_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
@@ -3709,7 +3709,7 @@ dissect_h245_T_unsignedMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     buf = (uint8_t *)wmem_new(actx->pinfo->pool, uint16_t);
-    phton16(buf, value);
+    phtonu16(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint16_t), sizeof(uint16_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
@@ -3736,7 +3736,7 @@ dissect_h245_T_unsigned32Min(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     buf = (uint8_t *)wmem_new(actx->pinfo->pool, uint32_t);
-    phton32(buf, value);
+    phtonu32(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint32_t), sizeof(uint32_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);
@@ -3763,7 +3763,7 @@ dissect_h245_T_unsigned32Max(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     buf = (uint8_t *)wmem_new(actx->pinfo->pool, uint32_t);
-    phton32(buf, value);
+    phtonu32(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(uint32_t), sizeof(uint32_t));
     ti = proto_tree_add_string(tree, hf_h245_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
 	proto_item_set_hidden(ti);

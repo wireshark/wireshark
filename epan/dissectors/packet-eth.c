@@ -236,7 +236,7 @@ capture_eth(const unsigned char *pd, int offset, int len, capture_packet_info_t 
   if (!BYTES_ARE_IN_FRAME(offset, len, ETH_HEADER_SIZE))
     return false;
 
-  etype = pntoh16(&pd[offset+12]);
+  etype = pntohu16(&pd[offset+12]);
 
   if (etype <= IEEE_802_3_MAX_LEN) {
     /* Oh, yuck.  Cisco ISL frames require special interpretation of the

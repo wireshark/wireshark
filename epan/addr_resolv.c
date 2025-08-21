@@ -4037,7 +4037,7 @@ eui64_to_display(wmem_allocator_t *allocator, const uint64_t addr_eui64)
 {
     uint8_t addr[EUI64_ADDR_LEN];
 
-    phton64(addr, addr_eui64);
+    phtonu64(addr, addr_eui64);
 
     const char *result = get_eui64_name(addr);
 

@@ -76,7 +76,7 @@ capture_wlancap(const unsigned char *pd, int offset, int len, capture_packet_inf
   if (!BYTES_ARE_IN_FRAME(offset, len, sizeof(uint32_t)*2))
     return false;
 
-  length = pntoh32(pd+sizeof(uint32_t));
+  length = pntohu32(pd+sizeof(uint32_t));
 
   if (!BYTES_ARE_IN_FRAME(offset, len, length))
     return false;

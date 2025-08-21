@@ -95,15 +95,15 @@ capture_pktap(const unsigned char *pd, int offset _U_, int len, capture_packet_i
 {
 	uint32_t hdrlen, rectype, dlt;
 
-	hdrlen = pletoh32(pd);
+	hdrlen = pletohu32(pd);
 	if (hdrlen < MIN_PKTAP_HDR_LEN || !BYTES_ARE_IN_FRAME(0, len, hdrlen))
 		return false;
 
-	rectype = pletoh32(pd+4);
+	rectype = pletohu32(pd+4);
 	if (rectype != PKT_REC_PACKET)
 		return false;
 
-	dlt = pletoh32(pd+4);
+	dlt = pletohu32(pd+4);
 
 	/* XXX - We should probably combine this with capture_info.c:capture_info_packet() */
 	switch (dlt) {

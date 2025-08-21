@@ -192,13 +192,13 @@ capture_sll(const unsigned char *pd, int offset _U_, int len, capture_packet_inf
 	if (!BYTES_ARE_IN_FRAME(0, len, SLL_HEADER_SIZE))
 		return false;
 
-	protocol = pntoh16(&pd[14]);
+	protocol = pntohu16(&pd[14]);
 	if (protocol <= 1536) {	/* yes, 1536 - that's how Linux does it */
 		/*
 		 * "proto" is *not* a length field, it's a Linux internal
 		 * protocol type.
 		 */
-		hatype = pntoh16(&pd[2]);
+		hatype = pntohu16(&pd[2]);
 		if (try_capture_dissector("sll.hatype", hatype, pd,
 		    SLL_HEADER_SIZE, len, cpinfo, pseudo_header))
 			return true;
@@ -218,13 +218,13 @@ capture_sll2(const unsigned char *pd, int offset _U_, int len, capture_packet_in
 	if (!BYTES_ARE_IN_FRAME(0, len, SLL2_HEADER_SIZE))
 		return false;
 
-	protocol = pntoh16(&pd[0]);
+	protocol = pntohu16(&pd[0]);
 	if (protocol <= 1536) {	/* yes, 1536 - that's how Linux does it */
 		/*
 		 * "proto" is *not* a length field, it's a Linux internal
 		 * protocol type.
 		 */
-		hatype = pntoh16(&pd[8]);
+		hatype = pntohu16(&pd[8]);
 		if (try_capture_dissector("sll.hatype", hatype, pd,
 		    SLL2_HEADER_SIZE, len, cpinfo, pseudo_header))
 			return true;

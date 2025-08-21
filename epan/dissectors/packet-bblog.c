@@ -529,7 +529,7 @@ dissect_bblog_binary_option(tvbuff_t *tvb, packet_info *pinfo,
      */
     if (custom_data_len < sizeof (uint32_t))
         return (int)cbo_data->optval->custom_binaryval.data.custom_data_len;
-    type = pletoh32(custom_data);
+    type = pletohu32(custom_data);
     custom_data_len -= sizeof (uint32_t);
     custom_data += sizeof (uint32_t);
 

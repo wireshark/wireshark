@@ -194,12 +194,12 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, int *err, char **err_info)
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 
 	/* extract information from header */
-	usecs = pntoh24(&hdr[0]);
-	secs = pntoh40(&hdr[3]);
+	usecs = pntohu24(&hdr[0]);
+	secs = pntohu40(&hdr[3]);
 
 	channel = hdr[8];
 	direction = hdr[9];
-	pkt_len = pntoh16(&hdr[10]);
+	pkt_len = pntohu16(&hdr[10]);
 
 	switch(direction >> 1) {
 
@@ -446,11 +446,11 @@ static bool eyesdn_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		return false;
 	}
 
-	phton24(&buf[0], usecs);				/* 0-2 */
-	phton40(&buf[3], secs);					/* 3-7 */
-	phton8(&buf[8], channel);				/* 8 */
-	phton8(&buf[9], (origin?1:0) + (protocol << 1));	/* 9 */
-	phton16(&buf[10], size);				/* 10-11 */
+	phtonu24(&buf[0], usecs);				/* 0-2 */
+	phtonu40(&buf[3], secs);					/* 3-7 */
+	phtonu8(&buf[8], channel);				/* 8 */
+	phtonu8(&buf[9], (origin?1:0) + (protocol << 1));	/* 9 */
+	phtonu16(&buf[10], size);				/* 10-11 */
 
 	/* start flag */
 	if (!wtap_dump_file_write(wdh, &start_flag, sizeof start_flag, err))

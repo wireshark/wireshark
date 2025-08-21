@@ -108,7 +108,7 @@ capture_chdlc( const unsigned char *pd, int offset, int len, capture_packet_info
   if (!BYTES_ARE_IN_FRAME(offset, len, 4))
     return false;
 
-  switch (pntoh16(&pd[offset + 2])) {
+  switch (pntohu16(&pd[offset + 2])) {
     case ETHERTYPE_IP:
       return call_capture_dissector(ip_cap_handle, pd, offset + 4, len, cpinfo, pseudo_header);
   }

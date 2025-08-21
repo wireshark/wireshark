@@ -697,17 +697,17 @@ zbee_gp_make_nonce(zbee_nwk_green_power_packet *packet, char *nonce)
     if (packet->application_id == ZBEE_NWK_GP_APP_ID_DEFAULT)
     {
         if (packet->direction == ZBEE_NWK_GP_FC_EXT_DIRECTION_FROM_ZGPD) {
-            phtole32(nonce, packet->source_id);
+            phtoleu32(nonce, packet->source_id);
         }
-        phtole32(nonce+4, packet->source_id);
+        phtoleu32(nonce+4, packet->source_id);
     }
     else if (packet->application_id == ZBEE_NWK_GP_APP_ID_ZGP)
     {
-        phtole64(nonce, packet->ieee_packet_src64);
+        phtoleu64(nonce, packet->ieee_packet_src64);
     }
 
     /* Frame counter */
-    phtole32(nonce+8, packet->security_frame_counter);
+    phtoleu32(nonce+8, packet->security_frame_counter);
 
     /* Security control */
     if ((packet->application_id == ZBEE_NWK_GP_APP_ID_ZGP) &&
@@ -845,7 +845,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo, proto_t
                     dec_buffer = (uint8_t *)wmem_alloc(pinfo->pool, ZBEE_SEC_CONST_KEYSIZE);
                     enc_buffer_withA = (uint8_t *)wmem_alloc(pinfo->pool, 4 + ZBEE_SEC_CONST_KEYSIZE + 4); /* CCM* a (this is SrcID) + encKey + MIC */
                     enc_buffer = tvb_memdup(pinfo->pool, tvb, offset - ZBEE_SEC_CONST_KEYSIZE - 4, ZBEE_SEC_CONST_KEYSIZE + 4);
-                    phtole32(enc_buffer_withA, packet->source_id);
+                    phtoleu32(enc_buffer_withA, packet->source_id);
                     memcpy(enc_buffer_withA+4, enc_buffer, ZBEE_SEC_CONST_KEYSIZE + 4);
                     gp_decrypted = false;
 
@@ -1169,7 +1169,7 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo, p
                 dec_buffer = (uint8_t *)wmem_alloc(pinfo->pool, ZBEE_SEC_CONST_KEYSIZE);
                 enc_buffer_withA = (uint8_t *)wmem_alloc(pinfo->pool, 4 + ZBEE_SEC_CONST_KEYSIZE + 4); /* CCM* a (this is SrcID) + encKey + MIC */
                 enc_buffer = tvb_memdup(pinfo->pool, tvb, offset - ZBEE_SEC_CONST_KEYSIZE - 4 - 4, ZBEE_SEC_CONST_KEYSIZE + 4);
-                phtole32(enc_buffer_withA, packet->source_id); /* enc_buffer_withA = CCM* a (srcID) | enc_buffer */
+                phtoleu32(enc_buffer_withA, packet->source_id); /* enc_buffer_withA = CCM* a (srcID) | enc_buffer */
                 memcpy(enc_buffer_withA+4, enc_buffer, ZBEE_SEC_CONST_KEYSIZE + 4);
                 gp_decrypted = false;
 

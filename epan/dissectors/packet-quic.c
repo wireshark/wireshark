@@ -3093,14 +3093,14 @@ quic_decrypt_message(quic_pp_cipher *pp_cipher, tvbuff_t *head, unsigned header_
 
     memcpy(nonce, pp_cipher->pp_iv, TLS13_AEAD_NONCE_LENGTH);
     /* Packet number is left-padded with zeroes and XORed with write_iv */
-    phton64(nonce + sizeof(nonce) - 8, pntoh64(nonce + sizeof(nonce) - 8) ^ packet_number);
+    phtonu64(nonce + sizeof(nonce) - 8, pntohu64(nonce + sizeof(nonce) - 8) ^ packet_number);
     /* QUIC Multipath draft-07 also uses the lower 32 bits of the Path ID
      * (CID sequence number prior to draft-07), which MUST NOT go over 2^32
      * when multipath is used; also, the nonce must be at least 12 bytes.
      */
     if (dgram_info && dgram_info->conn && quic_multipath_negotiated(dgram_info->conn)) {
         DISSECTOR_ASSERT_CMPINT(TLS13_AEAD_NONCE_LENGTH, >=, 12);
-        phton32(nonce + sizeof(nonce) - 12, pntoh32(nonce + sizeof(nonce) - 12) ^ (UINT32_MAX & dgram_info->path_id));
+        phtonu32(nonce + sizeof(nonce) - 12, pntohu32(nonce + sizeof(nonce) - 12) ^ (UINT32_MAX & dgram_info->path_id));
     }
 
     gcry_cipher_reset(pp_cipher->pp_cipher);

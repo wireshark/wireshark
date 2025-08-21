@@ -1953,9 +1953,9 @@ static bool try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, prot
     bool stream_is_big_endian = is_big_endian (header);
 
     if (stream_is_big_endian)
-      message_size = pntoh32 (&header->message_size);
+      message_size = pntohu32 (&header->message_size);
     else
-      message_size = pletoh32 (&header->message_size);
+      message_size = pletohu32 (&header->message_size);
 
     if (*offset < 0 || (uint32_t)*offset > message_size)
       return false;

@@ -1471,7 +1471,7 @@ static bool ieee802154_extend_auth = true;
 
 static int ieee802_15_4_short_address_to_str(const address* addr, char *buf, int buf_len)
 {
-    uint16_t ieee_802_15_4_short_addr = pletoh16(addr->data);
+    uint16_t ieee_802_15_4_short_addr = pletohu16(addr->data);
 
     if (ieee_802_15_4_short_addr == 0xffff)
     {
@@ -2836,7 +2836,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
         packet->dst64 = tvb_get_letoh64(tvb, offset);
 
         /* Copy and convert the address to network byte order. */
-        *p_addr = pntoh64(&(packet->dst64));
+        *p_addr = pntohu64(&(packet->dst64));
 
         /* Display the destination address. */
         /* XXX - OUI resolution doesn't happen when displaying resolved
@@ -2931,7 +2931,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
         packet->src64 = tvb_get_letoh64(tvb, offset);
 
         /* Copy and convert the address to network byte order. */
-        *p_addr = pntoh64(&(packet->src64));
+        *p_addr = pntohu64(&(packet->src64));
 
         /* Display the source address. */
         /* XXX - OUI resolution doesn't happen when displaying resolved
@@ -5941,7 +5941,7 @@ proto_init_ieee802154(void)
     /* Reload the hash table from the static address UAT. */
     for (i=0; (i<num_static_addrs) && (static_addrs); i++) {
         ieee802154_addr_update(&ieee802154_map,(uint16_t)static_addrs[i].addr16, (uint16_t)static_addrs[i].pan,
-               pntoh64(static_addrs[i].eui64), ieee802154_user, IEEE802154_USER_MAPPING);
+               pntohu64(static_addrs[i].eui64), ieee802154_user, IEEE802154_USER_MAPPING);
     } /* for */
 } /* proto_init_ieee802154 */
 

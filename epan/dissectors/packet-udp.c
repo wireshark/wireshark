@@ -854,8 +854,8 @@ capture_udp(const unsigned char *pd _U_, int offset _U_, int len _U_, capture_pa
 
     capture_dissector_increment_count(cpinfo, proto_udp);
 
-    src_port = pntoh16(&pd[offset]);
-    dst_port = pntoh16(&pd[offset+2]);
+    src_port = pntohu16(&pd[offset]);
+    dst_port = pntohu16(&pd[offset+2]);
 
     if (src_port > dst_port) {
         low_port = dst_port;

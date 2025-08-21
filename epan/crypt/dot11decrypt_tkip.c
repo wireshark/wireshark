@@ -108,7 +108,7 @@ static const uint16_t Sbox[256] = {
 #define Mk16(hi, lo) \
 	((uint16_t)((lo) | (((uint16_t) (hi)) << 8)))
 
-#define Mk16_le(v)	((uint16_t)pletoh16(v))
+#define Mk16_le(v)	((uint16_t)pletohu16(v))
 
 #define _S_(v) \
 	((uint16_t)(Sbox[Lo8(v)] ^ ((Sbox[Hi8(v)] << 8) | (Sbox[Hi8(v)] >> 8))))

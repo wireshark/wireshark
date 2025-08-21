@@ -718,7 +718,7 @@ static char * lbtrm_tag_find(packet_info * pinfo)
         return (NULL);
     }
 
-    dest_addr_h = pntoh32(pinfo->dst.data);
+    dest_addr_h = pntohu32(pinfo->dst.data);
     for (idx = 0; idx < lbtrm_tag_count; ++idx)
     {
         tag = &(lbtrm_tag_entry[idx]);
@@ -1510,7 +1510,7 @@ static bool test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
     }
     else
     {
-        dest_addr_h = pntoh32(pinfo->dst.data);
+        dest_addr_h = pntohu32(pinfo->dst.data);
 
         /* Is the destination a multicast address? */
         if (IN_MULTICAST(dest_addr_h))

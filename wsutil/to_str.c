@@ -673,7 +673,7 @@ eui64_to_str(wmem_allocator_t *scope, const uint64_t ad) {
 	buf=(char *)wmem_alloc(scope, WS_EUI64_STRLEN);
 
 	/* Copy and convert the address to network byte order. */
-	*(uint64_t *)(void *)(p_eui64) = pntoh64(&(ad));
+	*(uint64_t *)(void *)(p_eui64) = pntohu64(&(ad));
 
 	tmp = bytes_to_hexstr_punct(buf, p_eui64, 8, ':');
 	*tmp = '\0'; /* NULL terminate */

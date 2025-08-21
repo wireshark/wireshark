@@ -3738,8 +3738,8 @@ find_rpc_over_tcp_reply_start(tvbuff_t *tvb, int offset)
 
 		/* got a match in zero-fill region, verify reply ID and
 		 * record mark fields */
-		ulMsgType = pntoh32 (pbWholeBuf + ibSearchStart - 4);
-		ulRecMark = pntoh32 (pbWholeBuf + ibSearchStart - ibPatternStart);
+		ulMsgType = pntohu32 (pbWholeBuf + ibSearchStart - 4);
+		ulRecMark = pntohu32 (pbWholeBuf + ibSearchStart - ibPatternStart);
 
 		if ((ulMsgType == RPC_REPLY) &&
 			 ((ulRecMark & ~0x80000000) <= (unsigned) max_rpc_tcp_pdu_size)) {

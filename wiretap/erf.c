@@ -461,7 +461,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, char **err_info)
     }
 
     /* fail on decreasing timestamps */
-    if ((ts = pletoh64(&header.ts)) < prevts) {
+    if ((ts = pletohu64(&header.ts)) < prevts) {
       /* reassembled AALx records may not be in time order, also records are not in strict time order between physical interfaces, so allow 1 sec fudge */
       if ( ((prevts-ts)>>32) > 1 ) {
         return WTAP_OPEN_NOT_MINE;
@@ -720,7 +720,7 @@ static bool erf_read_header(wtap *wth, FILE_T fh,
   }
 
   {
-    uint64_t ts = pletoh64(&erf_header->ts);
+    uint64_t ts = pletohu64(&erf_header->ts);
 
     /*if ((erf_header->type & 0x7f) != ERF_TYPE_META || wth->file_type_subtype != file_type_subtype_erf) {*/
       wtap_setup_packet_rec(rec, wth->file_encap);
@@ -762,7 +762,7 @@ static bool erf_read_header(wtap *wth, FILE_T fh,
 
   /* Copy the ERF pseudo header */
   memset(&pseudo_header->erf, 0, sizeof(pseudo_header->erf));
-  pseudo_header->erf.phdr.ts = pletoh64(&erf_header->ts);
+  pseudo_header->erf.phdr.ts = pletohu64(&erf_header->ts);
   pseudo_header->erf.phdr.type = erf_header->type;
   pseudo_header->erf.phdr.flags = erf_header->flags;
   pseudo_header->erf.phdr.rlen = g_ntohs(erf_header->rlen);
@@ -779,7 +779,7 @@ static bool erf_read_header(wtap *wth, FILE_T fh,
       *bytes_read += (uint32_t)sizeof(erf_exhdr);
     *packet_size -=  (uint32_t)sizeof(erf_exhdr);
     skiplen += (uint32_t)sizeof(erf_exhdr);
-    erf_exhdr_sw = pntoh64(erf_exhdr);
+    erf_exhdr_sw = pntohu64(erf_exhdr);
     if (i < max)
       memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
     type = erf_exhdr[0];
@@ -932,12 +932,12 @@ static bool erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_
   switch(encap){
     case WTAP_ENCAP_ERF:
       memset(&erf_hdr, 0, sizeof(erf_hdr));
-      phtole64(&erf_hdr[0], pseudo_header->erf.phdr.ts);
+      phtoleu64(&erf_hdr[0], pseudo_header->erf.phdr.ts);
       erf_hdr[8] = pseudo_header->erf.phdr.type;
       erf_hdr[9] = pseudo_header->erf.phdr.flags;
-      phton16(&erf_hdr[10], pseudo_header->erf.phdr.rlen);
-      phton16(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
-      phton16(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
+      phtonu16(&erf_hdr[10], pseudo_header->erf.phdr.rlen);
+      phtonu16(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
+      phtonu16(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
       size = sizeof(struct erf_phdr);
 
       switch(pseudo_header->erf.phdr.type & 0x7F) {
@@ -948,11 +948,11 @@ static bool erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_
         case ERF_TYPE_MC_AAL5:
         case ERF_TYPE_MC_AAL2:
         case ERF_TYPE_COLOR_MC_HDLC_POS:
-          phton32(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
+          phtonu32(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
           subhdr_size += (int)sizeof(struct erf_mc_hdr);
           break;
         case ERF_TYPE_AAL2:
-          phton32(&erf_subhdr[0], pseudo_header->erf.subhdr.aal2_hdr);
+          phtonu32(&erf_subhdr[0], pseudo_header->erf.subhdr.aal2_hdr);
           subhdr_size += (int)sizeof(struct erf_aal2_hdr);
           break;
         case ERF_TYPE_ETH:
@@ -977,7 +977,7 @@ static bool erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_
   has_more = pseudo_header->erf.phdr.type & 0x80;
   if(has_more){  /*we have extension headers*/
     do{
-      phton64(ehdr+(i*8), pseudo_header->erf.ehdr_list[i].ehdr);
+      phtonu64(ehdr+(i*8), pseudo_header->erf.ehdr_list[i].ehdr);
       if(i == MAX_ERF_EHDR-1) ehdr[i*8] = ehdr[i*8] & 0x7F;
       has_more = ehdr[i*8] & 0x80;
       i++;
@@ -1107,13 +1107,13 @@ static bool erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
       tag_ptr->length = 8;
       tag_ptr->value = (uint8_t*)g_malloc(sizeof(optval->uint64val));
       /* convert to relative ERF timestamp */
-      phtole64(tag_ptr->value, optval->uint64val << 32);
+      phtoleu64(tag_ptr->value, optval->uint64val << 32);
       break;
     case OPT_IDB_SPEED:
       tag_ptr->type = ERF_META_TAG_if_speed;
       tag_ptr->length = 8;
       tag_ptr->value = (uint8_t*)g_malloc(sizeof(optval->uint64val));
-      phton64(tag_ptr->value, optval->uint64val);
+      phtonu64(tag_ptr->value, optval->uint64val);
       break;
     case OPT_IDB_IP4ADDR:
       tag_ptr->type = ERF_META_TAG_if_ipv4;
@@ -1143,7 +1143,7 @@ static bool erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
       tag_ptr->type = ERF_META_TAG_fcs_len;
       tag_ptr->length = 4;
       tag_ptr->value = (uint8_t*)g_malloc(tag_ptr->length);
-      phton32(tag_ptr->value, (uint32_t)optval->uint8val);
+      phtonu32(tag_ptr->value, (uint32_t)optval->uint8val);
       break;
     /* TODO: Don't know what to do with these yet */
     case OPT_IDB_EUIADDR:
@@ -2532,10 +2532,10 @@ static uint32_t erf_meta_read_tag(struct erf_meta_tag* tag, uint8_t *tag_ptr, ui
     return 0;
 
   /* tagtype (2 bytes) */
-  tagtype = pntoh16(&tag_ptr[0]);
+  tagtype = pntohu16(&tag_ptr[0]);
 
   /* length (2 bytes) */
-  taglength = pntoh16(&tag_ptr[2]);
+  taglength = pntohu16(&tag_ptr[2]);
 
   tagtotallength = ERF_META_TAG_TOTAL_ALIGNED_LENGTH(taglength);
 
@@ -2749,13 +2749,13 @@ static int populate_module_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
     switch (tag.type) {
       case ERF_META_TAG_fcs_len:
         if (tag.length >= 4) {
-          state->if_map->module_fcs_len = (int8_t) pntoh32(tag.value);
+          state->if_map->module_fcs_len = (int8_t) pntohu32(tag.value);
         }
         break;
       case ERF_META_TAG_snaplen:
         /* XXX: this is generally per stream */
         if (tag.length >= 4) {
-          state->if_map->module_snaplen = pntoh32(tag.value);
+          state->if_map->module_snaplen = pntohu32(tag.value);
         }
         break;
       case ERF_META_TAG_filter:
@@ -2828,7 +2828,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
        */
       while ((tagtotallength = erf_meta_read_tag(&tag, tag_ptr_tmp, remaining_len_tmp)) && !ERF_META_IS_SECTION(tag.type)) {
         if (tag.type == ERF_META_TAG_if_port_type) {
-          if (tag.length >= 4 && pntoh32(tag.value) == 2) {
+          if (tag.length >= 4 && pntohu32(tag.value) == 2) {
             /* This is a timing port, skip it from now on */
             /* XXX: should we skip all non-capture ports instead? */
 
@@ -2837,7 +2837,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
           }
         } else if (tag.type == ERF_META_TAG_stream_num) {
           if (tag.length >= 4) {
-            if_info->stream_num = (int32_t) pntoh32(tag.value);
+            if_info->stream_num = (int32_t) pntohu32(tag.value);
           }
         }
 
@@ -2906,7 +2906,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
         break;
       case ERF_META_TAG_if_speed:
         if (tag.length >= 8)
-          wtap_block_add_uint64_option(int_data, OPT_IDB_SPEED, pntoh64(tag.value));
+          wtap_block_add_uint64_option(int_data, OPT_IDB_SPEED, pntohu64(tag.value));
         break;
       case ERF_META_TAG_if_num:
         /*
@@ -2918,14 +2918,14 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
         break;
       case ERF_META_TAG_fcs_len:
         if (tag.length >= 4) {
-          wtap_block_add_uint8_option(int_data, OPT_IDB_FCSLEN, (uint8_t) pntoh32(tag.value));
+          wtap_block_add_uint8_option(int_data, OPT_IDB_FCSLEN, (uint8_t) pntohu32(tag.value));
           if_info->set_flags.fcs_len = 1;
         }
         break;
       case ERF_META_TAG_snaplen:
         /* XXX: this generally per stream */
         if (tag.length >= 4) {
-          int_data_mand->snap_len = pntoh32(tag.value);
+          int_data_mand->snap_len = pntohu32(tag.value);
           if_info->set_flags.snaplen = 1;
         }
         break;
@@ -2981,7 +2981,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
   }
 
   if (state->if_map->module_snaplen != (uint32_t) -1 && !if_info->set_flags.snaplen && tag.value) {
-    int_data_mand->snap_len = pntoh32(tag.value);
+    int_data_mand->snap_len = pntohu32(tag.value);
     if_info->set_flags.snaplen = 1;
   }
 
@@ -3043,7 +3043,7 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
     while ((tagtotallength = erf_meta_read_tag(&tag, tag_ptr_tmp, remaining_len_tmp)) && !ERF_META_IS_SECTION(tag.type)) {
       if (tag.type == ERF_META_TAG_stream_num) {
         if (tag.length >= 4) {
-          stream_num = (int32_t) pntoh32(tag.value);
+          stream_num = (int32_t) pntohu32(tag.value);
         }
       }
 
@@ -3086,7 +3086,7 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
         case ERF_META_TAG_fcs_len:
           if (tag.length >= 4) {
             /* Use the largest fcslen of matching streams */
-            int8_t fcs_len = (int8_t) pntoh32(tag.value);
+            int8_t fcs_len = (int8_t) pntohu32(tag.value);
             uint8_t old_fcs_len = 0;
 
             switch (wtap_block_get_uint8_option_value(int_data, OPT_IDB_FCSLEN, &old_fcs_len)) {
@@ -3094,14 +3094,14 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
               case WTAP_OPTTYPE_SUCCESS:
                 /* We already have an FCS length option; update it. */
                 if (fcs_len > old_fcs_len || !if_info->set_flags.fcs_len) {
-                  wtap_block_set_uint8_option_value(int_data, OPT_IDB_FCSLEN, (uint8_t) pntoh32(tag.value));
+                  wtap_block_set_uint8_option_value(int_data, OPT_IDB_FCSLEN, (uint8_t) pntohu32(tag.value));
                   if_info->set_flags.fcs_len = 1;
                 }
                 break;
 
               case WTAP_OPTTYPE_NOT_FOUND:
                 /* We don't have an FCS length option; add it. */
-                wtap_block_add_uint8_option(int_data, OPT_IDB_FCSLEN, (uint8_t) pntoh32(tag.value));
+                wtap_block_add_uint8_option(int_data, OPT_IDB_FCSLEN, (uint8_t) pntohu32(tag.value));
                 if_info->set_flags.fcs_len = 1;
                 break;
 
@@ -3114,10 +3114,10 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
         case ERF_META_TAG_snaplen:
           if (tag.length >= 4) {
             /* Use the largest snaplen of matching streams */
-            uint32_t snaplen = pntoh32(tag.value);
+            uint32_t snaplen = pntohu32(tag.value);
 
             if (snaplen > int_data_mand->snap_len || !if_info->set_flags.snaplen) {
-              int_data_mand->snap_len = pntoh32(tag.value);
+              int_data_mand->snap_len = pntohu32(tag.value);
               if_info->set_flags.snaplen = 1;
             }
           }
@@ -3343,7 +3343,7 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, wtap_rec *rec, uint
     /* Update with new sectiontype */
     state.sectiontype = tag.type;
     if (tag.length >= 4) {
-      state.sectionid = pntoh16(tag.value);
+      state.sectionid = pntohu16(tag.value);
     } else {
       state.sectionid = 0;
     }
@@ -3358,8 +3358,8 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, wtap_rec *rec, uint
        * the section).
        */
       if (tag.type == ERF_META_TAG_parent_section && tag.length >= 4) {
-        state.parentsectiontype = pntoh16(tag.value);
-        state.parentsectionid = pntoh16(&tag.value[2]);
+        state.parentsectiontype = pntohu16(tag.value);
+        state.parentsectionid = pntohu16(&tag.value[2]);
       }
     }
 
@@ -3492,7 +3492,7 @@ static bool erf_dump_priv_compare_capture_comment(wtap_dumper *wdh _U_, erf_dump
     if (ERF_META_IS_SECTION(tag.type)) {
       state.sectiontype = tag.type;
       if (tag.length >= 4) {
-        state.sectionid = pntoh16(tag.value);
+        state.sectionid = pntohu16(tag.value);
       } else {
         state.sectionid = 0;
       }

@@ -386,7 +386,7 @@ GHashTable *zbee_table_link_keyring;
 
 static int zbee_nwk_address_to_str(const address* addr, char *buf, int buf_len)
 {
-    uint16_t zbee_nwk_addr = pletoh16(addr->data);
+    uint16_t zbee_nwk_addr = pletohu16(addr->data);
 
     if ((zbee_nwk_addr == ZBEE_BCAST_ALL) || (zbee_nwk_addr == ZBEE_BCAST_ACTIVE) || (zbee_nwk_addr == ZBEE_BCAST_ROUTERS)) {
         return (int)g_strlcpy(buf, "Broadcast", buf_len) + 1;

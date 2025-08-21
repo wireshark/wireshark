@@ -149,7 +149,7 @@ dissect_ixiatrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
   /* Verify the checksum; if not valid, it means that the trailer is not valid */
   SET_CKSUM_VEC_TVB(vec, tvb, offset, trailer_length + 3);
   comp_cksum = in_cksum(&vec, 1);
-  if (pntoh16(&comp_cksum) != cksum) {
+  if (pntohu16(&comp_cksum) != cksum) {
     return 0;
   }
 

@@ -44,7 +44,7 @@ capture_ap1394(const unsigned char *pd, int offset, int len, capture_packet_info
   /* Skip destination and source addresses */
   offset += 16;
 
-  etype = pntoh16(&pd[offset]);
+  etype = pntohu16(&pd[offset]);
   offset += 2;
   return try_capture_dissector("ethertype", etype, pd, offset, len, cpinfo, pseudo_header);
 }

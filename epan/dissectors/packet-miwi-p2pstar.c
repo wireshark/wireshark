@@ -352,7 +352,7 @@ static void *miwi_da_value(packet_info *pinfo _U_)
 }/* miwi_da_value */
 static int miwi_short_address_to_str(const address* addr, char *buf, int buf_len)
 {
-    uint16_t miwi_short_addr = pletoh16(addr->data);
+    uint16_t miwi_short_addr = pletohu16(addr->data);
 
     if (miwi_short_addr == 0xffff)
     {
@@ -1169,7 +1169,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
         packet->dst64 = tvb_get_letoh64(tvb, offset);
 
         /* Copy and convert the address to network byte order. */
-        *p_addr = pntoh64(&(packet->dst64));
+        *p_addr = pntohu64(&(packet->dst64));
 
         /* Display the destination address. */
         /* XXX - OUI resolution doesn't happen when displaying resolved
@@ -1274,7 +1274,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
         packet->src64 = tvb_get_letoh64(tvb, offset);
 
         /* Copy and convert the address to network byte order. */
-        *p_addr = pntoh64(&(packet->src64));
+        *p_addr = pntohu64(&(packet->src64));
 
         /* Display the source address. */
         /* XXX - OUI resolution doesn't happen when displaying resolved

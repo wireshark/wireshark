@@ -844,7 +844,7 @@ pcap_read_nokiaatm_pseudoheader(FILE_T fh,
 		return -1;
 
 	vpi = atm_phdr[NOKIAATM_VPI];
-	vci = pntoh16(&atm_phdr[NOKIAATM_VCI]);
+	vci = pntohu16(&atm_phdr[NOKIAATM_VCI]);
 
 	pseudo_header->atm.vpi = vpi;
 	pseudo_header->atm.vci = vci;
@@ -891,7 +891,7 @@ pcap_read_sunatm_pseudoheader(FILE_T fh,
 		return -1;
 
 	vpi = atm_phdr[SUNATM_VPI];
-	vci = pntoh16(&atm_phdr[SUNATM_VCI]);
+	vci = pntohu16(&atm_phdr[SUNATM_VCI]);
 
 	switch (atm_phdr[SUNATM_FLAGS] & 0x0F) {
 
@@ -999,7 +999,7 @@ pcap_write_sunatm_pseudoheader(wtap_dumper *wdh,
 		break;
 	}
 	atm_hdr[SUNATM_VPI] = (uint8_t)pseudo_header->atm.vpi;
-	phton16(&atm_hdr[SUNATM_VCI], pseudo_header->atm.vci);
+	phtonu16(&atm_hdr[SUNATM_VCI], pseudo_header->atm.vci);
 	if (!wtap_dump_file_write(wdh, atm_hdr, sizeof(atm_hdr), err))
 		return false;
 	return true;
@@ -1033,14 +1033,14 @@ pcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	if (!wtap_read_bytes(fh, irda_phdr, IRDA_SLL_LEN, err, err_info))
 		return -1;
 
-	if (pntoh16(&irda_phdr[IRDA_SLL_PROTOCOL_OFFSET]) != 0x0017) {
+	if (pntohu16(&irda_phdr[IRDA_SLL_PROTOCOL_OFFSET]) != 0x0017) {
 		*err = WTAP_ERR_BAD_FILE;
 		if (err_info != NULL)
 			*err_info = g_strdup("pcap/pcapng: IrDA capture has a packet with an invalid sll_protocol field");
 		return -1;
 	}
 
-	pseudo_header->irda.pkttype = pntoh16(&irda_phdr[IRDA_SLL_PKTTYPE_OFFSET]);
+	pseudo_header->irda.pkttype = pntohu16(&irda_phdr[IRDA_SLL_PKTTYPE_OFFSET]);
 
 	return IRDA_SLL_LEN;
 }
@@ -1055,8 +1055,8 @@ pcap_write_irda_pseudoheader(wtap_dumper *wdh,
 	 * Write the IrDA header.
 	 */
 	memset(irda_hdr, 0, sizeof(irda_hdr));
-	phton16(&irda_hdr[IRDA_SLL_PKTTYPE_OFFSET], pseudo_header->irda.pkttype);
-	phton16(&irda_hdr[IRDA_SLL_PROTOCOL_OFFSET], 0x0017);
+	phtonu16(&irda_hdr[IRDA_SLL_PKTTYPE_OFFSET], pseudo_header->irda.pkttype);
+	phtonu16(&irda_hdr[IRDA_SLL_PROTOCOL_OFFSET], 0x0017);
 	if (!wtap_dump_file_write(wdh, irda_hdr, sizeof(irda_hdr), err))
 		return false;
 	return true;
@@ -1091,7 +1091,7 @@ pcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 
 	pseudo_header->mtp2.sent         = mtp2_hdr[MTP2_SENT_OFFSET];
 	pseudo_header->mtp2.annex_a_used = mtp2_hdr[MTP2_ANNEX_A_USED_OFFSET];
-	pseudo_header->mtp2.link_number  = pntoh16(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET]);
+	pseudo_header->mtp2.link_number  = pntohu16(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET]);
 
 	return MTP2_HDR_LEN;
 }
@@ -1108,7 +1108,7 @@ pcap_write_mtp2_pseudoheader(wtap_dumper *wdh,
 	memset(&mtp2_hdr, 0, sizeof(mtp2_hdr));
 	mtp2_hdr[MTP2_SENT_OFFSET] = pseudo_header->mtp2.sent;
 	mtp2_hdr[MTP2_ANNEX_A_USED_OFFSET] = pseudo_header->mtp2.annex_a_used;
-	phton16(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET],
+	phtonu16(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET],
 	    pseudo_header->mtp2.link_number);
 	if (!wtap_dump_file_write(wdh, mtp2_hdr, sizeof(mtp2_hdr), err))
 		return false;
@@ -1148,14 +1148,14 @@ pcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	if (!wtap_read_bytes(fh, lapd_phdr, LAPD_SLL_LEN, err, err_info))
 		return -1;
 
-	if (pntoh16(&lapd_phdr[LAPD_SLL_PROTOCOL_OFFSET]) != ETH_P_LAPD) {
+	if (pntohu16(&lapd_phdr[LAPD_SLL_PROTOCOL_OFFSET]) != ETH_P_LAPD) {
 		*err = WTAP_ERR_BAD_FILE;
 		if (err_info != NULL)
 			*err_info = g_strdup("pcap/pcapng: LAPD capture has a packet with an invalid sll_protocol field");
 		return -1;
 	}
 
-	pseudo_header->lapd.pkttype = pntoh16(&lapd_phdr[LAPD_SLL_PKTTYPE_OFFSET]);
+	pseudo_header->lapd.pkttype = pntohu16(&lapd_phdr[LAPD_SLL_PKTTYPE_OFFSET]);
 	pseudo_header->lapd.we_network = !!lapd_phdr[LAPD_SLL_ADDR_OFFSET+0];
 
 	return LAPD_SLL_LEN;
@@ -1171,8 +1171,8 @@ pcap_write_lapd_pseudoheader(wtap_dumper *wdh,
 	 * Write the LAPD header.
 	 */
 	memset(&lapd_hdr, 0, sizeof(lapd_hdr));
-	phton16(&lapd_hdr[LAPD_SLL_PKTTYPE_OFFSET], pseudo_header->lapd.pkttype);
-	phton16(&lapd_hdr[LAPD_SLL_PROTOCOL_OFFSET], ETH_P_LAPD);
+	phtonu16(&lapd_hdr[LAPD_SLL_PKTTYPE_OFFSET], pseudo_header->lapd.pkttype);
+	phtonu16(&lapd_hdr[LAPD_SLL_PROTOCOL_OFFSET], ETH_P_LAPD);
 	lapd_hdr[LAPD_SLL_ADDR_OFFSET + 0] =
 	    pseudo_header->lapd.we_network?0x01:0x00;
 	if (!wtap_dump_file_write(wdh, lapd_hdr, sizeof(lapd_hdr), err))
@@ -1444,12 +1444,12 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 	if (!wtap_read_bytes(fh, erf_hdr, sizeof(struct erf_phdr), err, err_info))
 		return -1;
 	phdr_len = (int)sizeof(struct erf_phdr);
-	pseudo_header->erf.phdr.ts = pletoh64(&erf_hdr[0]); /* timestamp */
+	pseudo_header->erf.phdr.ts = pletohu64(&erf_hdr[0]); /* timestamp */
 	pseudo_header->erf.phdr.type = erf_hdr[8];
 	pseudo_header->erf.phdr.flags = erf_hdr[9];
-	pseudo_header->erf.phdr.rlen = pntoh16(&erf_hdr[10]);
-	pseudo_header->erf.phdr.lctr = pntoh16(&erf_hdr[12]);
-	pseudo_header->erf.phdr.wlen = pntoh16(&erf_hdr[14]);
+	pseudo_header->erf.phdr.rlen = pntohu16(&erf_hdr[10]);
+	pseudo_header->erf.phdr.lctr = pntohu16(&erf_hdr[12]);
+	pseudo_header->erf.phdr.wlen = pntohu16(&erf_hdr[14]);
 
 	/* The high 32 bits of the timestamp contain the integer number of seconds
 	 * while the lower 32 bits contain the binary fraction of the second.
@@ -1504,7 +1504,7 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 			if (i < max) {
 				uint64_t erf_exhdr_sw;
 
-				erf_exhdr_sw = pntoh64(erf_exhdr);
+				erf_exhdr_sw = pntohu64(erf_exhdr);
 				memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
 			}
 			phdr_len += 8;
@@ -1536,7 +1536,7 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 		}
 		if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_mc_header_t), err, err_info))
 			return -1;
-		pseudo_header->erf.subhdr.mc_hdr = pntoh32(&erf_subhdr[0]);
+		pseudo_header->erf.subhdr.mc_hdr = pntohu32(&erf_subhdr[0]);
 		phdr_len += sizeof(erf_mc_header_t);
 		break;
 	case ERF_TYPE_AAL2:
@@ -1555,7 +1555,7 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 		}
 		if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_aal2_header_t), err, err_info))
 			return -1;
-		pseudo_header->erf.subhdr.aal2_hdr = pntoh32(&erf_subhdr[0]);
+		pseudo_header->erf.subhdr.aal2_hdr = pntohu32(&erf_subhdr[0]);
 		phdr_len += sizeof(erf_aal2_header_t);
 		break;
 	case ERF_TYPE_ETH:
@@ -1598,7 +1598,7 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 	 * Write the ERF header.
 	 */
 	memset(&erf_hdr, 0, sizeof(erf_hdr));
-	phtole64(&erf_hdr[0], pseudo_header->erf.phdr.ts);
+	phtoleu64(&erf_hdr[0], pseudo_header->erf.phdr.ts);
 	erf_hdr[8] = pseudo_header->erf.phdr.type;
 	erf_hdr[9] = pseudo_header->erf.phdr.flags;
 
@@ -1610,11 +1610,11 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 	 * here, assume caplen was calculated correctly and
 	 * recalculate from wlen.
 	 */
-	phton16(&erf_hdr[10],
+	phtonu16(&erf_hdr[10],
 	    MIN(pseudo_header->erf.phdr.rlen, pseudo_header->erf.phdr.wlen + pcap_get_phdr_size(WTAP_ENCAP_ERF, pseudo_header)));
 
-	phton16(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
-	phton16(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
+	phtonu16(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
+	phtonu16(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
 	if (!wtap_dump_file_write(wdh, erf_hdr,  sizeof(struct erf_phdr), err))
 		return false;
 
@@ -1627,7 +1627,7 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 		uint8_t type;
 
 		do {
-			phton64(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
+			phtonu64(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
 			type = erf_exhdr[0];
 			/* Clear more extension headers bit if > 8 */
 			if(i == max-1)
@@ -1649,13 +1649,13 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 	case ERF_TYPE_MC_AAL5:
 	case ERF_TYPE_MC_AAL2:
 	case ERF_TYPE_COLOR_MC_HDLC_POS:
-		phton32(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
+		phtonu32(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
 		if (!wtap_dump_file_write(wdh, erf_subhdr,
 		    sizeof(struct erf_mc_hdr), err))
 			return false;
 		break;
 	case ERF_TYPE_AAL2:
-		phton32(&erf_subhdr[0], pseudo_header->erf.subhdr.aal2_hdr);
+		phtonu32(&erf_subhdr[0], pseudo_header->erf.subhdr.aal2_hdr);
 		if (!wtap_dump_file_write(wdh, erf_subhdr,
 		    sizeof(struct erf_aal2_hdr), err))
 			return false;
@@ -1705,7 +1705,7 @@ pcap_read_i2c_linux_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_hea
 
 	pseudo_header->i2c.is_event = i2c_linux_hdr.bus & 0x80 ? 1 : 0;
 	pseudo_header->i2c.bus = i2c_linux_hdr.bus & 0x7f;
-	pseudo_header->i2c.flags = pntoh32(&i2c_linux_hdr.flags);
+	pseudo_header->i2c.flags = pntohu32(&i2c_linux_hdr.flags);
 
 	return (int)sizeof (struct i2c_linux_file_hdr);
 }
@@ -1722,7 +1722,7 @@ pcap_write_i2c_linux_pseudoheader(wtap_dumper *wdh,
 	memset(&i2c_linux_hdr, 0, sizeof(i2c_linux_hdr));
 	i2c_linux_hdr.bus = pseudo_header->i2c.bus |
 			(pseudo_header->i2c.is_event ? 0x80 : 0x00);
-	phton32((uint8_t *)&i2c_linux_hdr.flags, pseudo_header->i2c.flags);
+	phtonu32((uint8_t *)&i2c_linux_hdr.flags, pseudo_header->i2c.flags);
 	if (!wtap_dump_file_write(wdh, &i2c_linux_hdr, sizeof(i2c_linux_hdr), err))
 		return false;
 	return true;
@@ -2050,7 +2050,7 @@ pcap_byteswap_linux_sll_pseudoheader(wtap_rec *rec)
 	/*
 	 * Byte-swap the SocketCAN pseudoheader, if we have one.
 	 */
-	protocol = pntoh16(&pd[LINUX_SLL_PROTOCOL_OFFSET]);
+	protocol = pntohu16(&pd[LINUX_SLL_PROTOCOL_OFFSET]);
 	pcap_byteswap_can_socketcan_pseudoheader(packet_size - LINUX_SLL_LEN,
 	    protocol, pd + LINUX_SLL_LEN);
 }
@@ -2081,7 +2081,7 @@ pcap_byteswap_linux_sll2_pseudoheader(wtap_rec *rec)
 	/*
 	 * Byte-swap the SocketCAN pseudoheader, if we have one.
 	 */
-	protocol = pntoh16(&pd[LINUX_SLL2_PROTOCOL_OFFSET]);
+	protocol = pntohu16(&pd[LINUX_SLL2_PROTOCOL_OFFSET]);
 	pcap_byteswap_can_socketcan_pseudoheader(packet_size - LINUX_SLL2_LEN,
 	    protocol, pd + LINUX_SLL2_LEN);
 }
@@ -2781,7 +2781,7 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 			uint8_t type;
 
 			do {
-				phton64(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
+				phtonu64(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
 				type = erf_exhdr[0];
 				hdrsize += 8;
 				i++;

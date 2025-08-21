@@ -18,8 +18,8 @@
 
 #define le16_to_cpu		GINT16_FROM_LE
 #define le32_to_cpu		GINT32_FROM_LE
-#define get_unaligned_le16	pletoh16
-#define get_unaligned_le32	pletoh32
+#define get_unaligned_le16	pletohu16
+#define get_unaligned_le32	pletohu32
 
 #include "packet-ieee80211-radiotap-iter.h"
 

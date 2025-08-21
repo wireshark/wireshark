@@ -809,7 +809,7 @@ dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned
                 // Adapted from packet-ieee802.15.4.c
                 uint64_t *p_addr = wmem_new(pinfo->pool, uint64_t);
                 /* Copy and convert the address to network byte order. */
-                *p_addr = pntoh64(&(hints->map_rec->addr64));
+                *p_addr = pntohu64(&(hints->map_rec->addr64));
                 set_address(&pinfo->dl_src, AT_EUI64, 8, p_addr);
                 copy_address_shallow(&pinfo->src, &pinfo->dl_src);
                 proto_item* src = proto_tree_add_eui64(tree, hf_wisun_fcie_src, tvb, 0, 0, hints->map_rec->addr64);

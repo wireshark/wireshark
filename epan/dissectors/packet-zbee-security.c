@@ -895,10 +895,10 @@ static void
 zbee_sec_make_nonce(zbee_security_packet *packet, uint8_t *nonce)
 {
     /* First 8 bytes are the extended source address (little endian). */
-    phtole64(nonce, packet->src64);
+    phtoleu64(nonce, packet->src64);
     nonce += 8;
     /* Next 4 bytes are the frame counter (little endian). */
-    phtole32(nonce, packet->counter);
+    phtoleu32(nonce, packet->counter);
     nonce += 4;
     /* Next byte is the security control field. */
     *(nonce) = packet->control;

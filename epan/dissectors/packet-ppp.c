@@ -1846,7 +1846,7 @@ capture_ppp_hdlc(const unsigned char *pd, int offset, int len, capture_packet_in
     if (!BYTES_ARE_IN_FRAME(offset, len, 4))
         return false;
 
-    return try_capture_dissector("ppp_hdlc", pntoh16(&pd[offset + 2]), pd, offset + 4, len, cpinfo, pseudo_header);
+    return try_capture_dissector("ppp_hdlc", pntohu16(&pd[offset + 2]), pd, offset + 4, len, cpinfo, pseudo_header);
 }
 
 static int

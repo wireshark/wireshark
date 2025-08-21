@@ -296,8 +296,8 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, char **err_info)
                   return WTAP_OPEN_ERROR;
             return WTAP_OPEN_NOT_MINE;
       }
-      record_type = pletoh16(rec_header.record_type);
-      record_length = pletoh16(rec_header.record_length); /* make sure to do this for while() loop */
+      record_type = pletohu16(rec_header.record_type);
+      record_length = pletohu16(rec_header.record_length); /* make sure to do this for while() loop */
 
       if (record_type != RT_HeaderRegular && record_type != RT_HeaderCyclic) {
             return WTAP_OPEN_NOT_MINE;
@@ -358,8 +358,8 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, char **err_info)
                   return WTAP_OPEN_ERROR;
             }
 
-            record_type = pletoh16(rec_header.record_type);
-            record_length = pletoh16(rec_header.record_length);
+            record_type = pletohu16(rec_header.record_type);
+            record_length = pletohu16(rec_header.record_length);
 
             /*ws_message("Record 0x%04X Length %d", record_type, record_length);*/
             switch (record_type) {
@@ -383,7 +383,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, char **err_info)
                    */
                   cr_day = summary[0];
                   cr_month = summary[1];
-                  cr_year = pletoh16(&summary[2]);
+                  cr_year = pletohu16(&summary[2]);
                   /*ws_message("Day %d Month %d Year %d (%04X)", cr_day, cr_month,
                     cr_year, cr_year);*/
 
@@ -400,9 +400,9 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, char **err_info)
                   start = mktime(&tm);
                   /*ws_message("Day %d Month %d Year %d", tm.tm_mday,
                     tm.tm_mon, tm.tm_year);*/
-                  mxslc = pletoh16(&summary[30]);
+                  mxslc = pletohu16(&summary[30]);
 
-                  board_type = pletoh16(&summary[188]);
+                  board_type = pletohu16(&summary[188]);
                   switch (board_type) {
                   case BOARD_325:
                         file_encap = WTAP_ENCAP_ETHERNET;
@@ -504,8 +504,8 @@ static bool lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
       if (!wtap_read_bytes(fh, LE_record_length, 2, err, err_info))
             return false;
 
-      record_type = pletoh16(LE_record_type);
-      record_length = pletoh16(LE_record_length);
+      record_type = pletohu16(LE_record_type);
+      record_length = pletohu16(LE_record_length);
 
       /* Only Trace Packet Data Records should occur now that we're in
        * the middle of reading packets.  If any other record type exists
@@ -533,8 +533,8 @@ static bool lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
       if (!wtap_read_bytes(fh, descriptor, DESCRIPTOR_LEN, err, err_info))
             return false;
 
-      true_size = pletoh16(&descriptor[4]);
-      packet_size = pletoh16(&descriptor[6]);
+      true_size = pletohu16(&descriptor[4]);
+      packet_size = pletohu16(&descriptor[6]);
       /*
        * The maximum value of packet_size is 65535, which is less than
        * WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check
@@ -558,9 +558,9 @@ static bool lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
       rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
       rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
-      time_low = pletoh16(&descriptor[8]);
-      time_med = pletoh16(&descriptor[10]);
-      time_high = pletoh16(&descriptor[12]);
+      time_low = pletohu16(&descriptor[8]);
+      time_med = pletohu16(&descriptor[10]);
+      time_high = pletohu16(&descriptor[12]);
       t = (((uint64_t)time_low) << 0) + (((uint64_t)time_med) << 16) +
             (((uint64_t)time_high) << 32);
       tsecs = (time_t) (t/2000000);

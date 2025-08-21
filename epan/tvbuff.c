@@ -1028,7 +1028,7 @@ tvb_get_ntohs(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 2);
-	return pntoh16(ptr);
+	return pntohu16(ptr);
 }
 
 int16_t
@@ -1037,7 +1037,7 @@ tvb_get_ntohis(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 2);
-	return pntoh16(ptr);
+	return pntohu16(ptr);
 }
 
 uint32_t
@@ -1046,7 +1046,7 @@ tvb_get_ntoh24(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 3);
-	return pntoh24(ptr);
+	return pntohu24(ptr);
 }
 
 int32_t
@@ -1065,7 +1065,7 @@ tvb_get_ntohl(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 4);
-	return pntoh32(ptr);
+	return pntohu32(ptr);
 }
 
 int32_t
@@ -1074,7 +1074,7 @@ tvb_get_ntohil(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 4);
-	return pntoh32(ptr);
+	return pntohu32(ptr);
 }
 
 uint64_t
@@ -1083,7 +1083,7 @@ tvb_get_ntoh40(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 5);
-	return pntoh40(ptr);
+	return pntohu40(ptr);
 }
 
 int64_t
@@ -1102,7 +1102,7 @@ tvb_get_ntoh48(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 6);
-	return pntoh48(ptr);
+	return pntohu48(ptr);
 }
 
 int64_t
@@ -1121,7 +1121,7 @@ tvb_get_ntoh56(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 7);
-	return pntoh56(ptr);
+	return pntohu56(ptr);
 }
 
 int64_t
@@ -1140,7 +1140,7 @@ tvb_get_ntoh64(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 8);
-	return pntoh64(ptr);
+	return pntohu64(ptr);
 }
 
 int64_t
@@ -1149,7 +1149,7 @@ tvb_get_ntohi64(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 8);
-	return pntoh64(ptr);
+	return pntohu64(ptr);
 }
 
 uint16_t
@@ -1563,7 +1563,7 @@ tvb_get_letohs(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 2);
-	return pletoh16(ptr);
+	return pletohu16(ptr);
 }
 
 int16_t
@@ -1572,7 +1572,7 @@ tvb_get_letohis(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 2);
-	return pletoh16(ptr);
+	return pletohu16(ptr);
 }
 
 uint32_t
@@ -1581,7 +1581,7 @@ tvb_get_letoh24(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 3);
-	return pletoh24(ptr);
+	return pletohu24(ptr);
 }
 
 int32_t
@@ -1600,7 +1600,7 @@ tvb_get_letohl(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 4);
-	return pletoh32(ptr);
+	return pletohu32(ptr);
 }
 
 int32_t
@@ -1609,7 +1609,7 @@ tvb_get_letohil(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 4);
-	return pletoh32(ptr);
+	return pletohu32(ptr);
 }
 
 uint64_t
@@ -1618,7 +1618,7 @@ tvb_get_letoh40(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 5);
-	return pletoh40(ptr);
+	return pletohu40(ptr);
 }
 
 int64_t
@@ -1637,7 +1637,7 @@ tvb_get_letoh48(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 6);
-	return pletoh48(ptr);
+	return pletohu48(ptr);
 }
 
 int64_t
@@ -1656,7 +1656,7 @@ tvb_get_letoh56(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 7);
-	return pletoh56(ptr);
+	return pletohu56(ptr);
 }
 
 int64_t
@@ -1675,7 +1675,7 @@ tvb_get_letoh64(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 8);
-	return pletoh64(ptr);
+	return pletohu64(ptr);
 }
 
 int64_t
@@ -1684,7 +1684,7 @@ tvb_get_letohi64(tvbuff_t *tvb, const int offset)
 	const uint8_t *ptr;
 
 	ptr = fast_ensure_contiguous(tvb, offset, 8);
-	return pletoh64(ptr);
+	return pletohu64(ptr);
 }
 
 /*
@@ -2166,9 +2166,9 @@ tvb_get_ntohguid(tvbuff_t *tvb, const int offset, e_guid_t *guid)
 {
 	const uint8_t *ptr = ensure_contiguous(tvb, offset, GUID_LEN);
 
-	guid->data1 = pntoh32(ptr + 0);
-	guid->data2 = pntoh16(ptr + 4);
-	guid->data3 = pntoh16(ptr + 6);
+	guid->data1 = pntohu32(ptr + 0);
+	guid->data2 = pntohu16(ptr + 4);
+	guid->data3 = pntohu16(ptr + 6);
 	memcpy(guid->data4, ptr + 8, sizeof guid->data4);
 }
 
@@ -2177,9 +2177,9 @@ tvb_get_letohguid(tvbuff_t *tvb, const int offset, e_guid_t *guid)
 {
 	const uint8_t *ptr = ensure_contiguous(tvb, offset, GUID_LEN);
 
-	guid->data1 = pletoh32(ptr + 0);
-	guid->data2 = pletoh16(ptr + 4);
-	guid->data3 = pletoh16(ptr + 6);
+	guid->data1 = pletohu32(ptr + 0);
+	guid->data2 = pletohu16(ptr + 4);
+	guid->data3 = pletohu16(ptr + 6);
 	memcpy(guid->data4, ptr + 8, sizeof guid->data4);
 }
 

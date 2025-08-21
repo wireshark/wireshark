@@ -101,10 +101,10 @@ static int vsock_addr_to_str(const address* addr, char *buf, int buf_len)
 {
     const uint8_t *addrp = (const uint8_t *)addr->data;
 
-    if(pletoh64(&addrp[0])==2){
+    if(pletohu64(&addrp[0])==2){
         (void) g_strlcpy(buf, "host", buf_len);
     } else {
-        snprintf(buf, buf_len, "%" PRIu64, pletoh64(&addrp[0]));
+        snprintf(buf, buf_len, "%" PRIu64, pletohu64(&addrp[0]));
     }
 
     return (int)(strlen(buf)+1);

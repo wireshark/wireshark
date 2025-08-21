@@ -3945,8 +3945,8 @@ de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
              */
             tvb_memcpy(tvb, interface_id, curr_offset, 8);
             proto_tree_add_bytes_format_value(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, NULL,
-                                              "::%x:%x:%x:%x", pntoh16(&interface_id[0]), pntoh16(&interface_id[2]),
-                                              pntoh16(&interface_id[4]), pntoh16(&interface_id[6]));
+                                              "::%x:%x:%x:%x", pntohu16(&interface_id[0]), pntohu16(&interface_id[2]),
+                                              pntohu16(&interface_id[4]), pntohu16(&interface_id[6]));
             curr_offset+=8;
             break;
         case 3:
@@ -3959,8 +3959,8 @@ de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
              */
             tvb_memcpy(tvb, interface_id, curr_offset, 8);
             proto_tree_add_bytes_format_value(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, NULL,
-                                              "::%x:%x:%x:%x", pntoh16(&interface_id[0]), pntoh16(&interface_id[2]),
-                                              pntoh16(&interface_id[4]), pntoh16(&interface_id[6]));
+                                              "::%x:%x:%x:%x", pntohu16(&interface_id[0]), pntohu16(&interface_id[2]),
+                                              pntohu16(&interface_id[4]), pntohu16(&interface_id[6]));
             curr_offset+=8;
             proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
             curr_offset+=4;

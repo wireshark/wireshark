@@ -432,13 +432,13 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh, wtap_rec *rec,
 
 	/* Extract the fields from the packet */
 #if 0
-	protoNum = pntoh16(&ep_pkt[PEEKCLASSIC_V7_PROTONUM_OFFSET]);
+	protoNum = pntohu16(&ep_pkt[PEEKCLASSIC_V7_PROTONUM_OFFSET]);
 #endif
-	length = pntoh16(&ep_pkt[PEEKCLASSIC_V7_LENGTH_OFFSET]);
-	sliceLength = pntoh16(&ep_pkt[PEEKCLASSIC_V7_SLICE_LENGTH_OFFSET]);
+	length = pntohu16(&ep_pkt[PEEKCLASSIC_V7_LENGTH_OFFSET]);
+	sliceLength = pntohu16(&ep_pkt[PEEKCLASSIC_V7_SLICE_LENGTH_OFFSET]);
 	flags = ep_pkt[PEEKCLASSIC_V7_FLAGS_OFFSET];
 	status = ep_pkt[PEEKCLASSIC_V7_STATUS_OFFSET];
-	timestamp = pntoh64(&ep_pkt[PEEKCLASSIC_V7_TIMESTAMP_OFFSET]);
+	timestamp = pntohu64(&ep_pkt[PEEKCLASSIC_V7_TIMESTAMP_OFFSET]);
 
 	/* force sliceLength to be the actual length of the packet */
 	if (0 == sliceLength) {
@@ -632,17 +632,17 @@ static bool peekclassic_read_packet_v56(wtap *wth, FILE_T fh, wtap_rec *rec,
 		return false;
 
 	/* Extract the fields from the packet */
-	length = pntoh16(&ep_pkt[PEEKCLASSIC_V56_LENGTH_OFFSET]);
-	sliceLength = pntoh16(&ep_pkt[PEEKCLASSIC_V56_SLICE_LENGTH_OFFSET]);
+	length = pntohu16(&ep_pkt[PEEKCLASSIC_V56_LENGTH_OFFSET]);
+	sliceLength = pntohu16(&ep_pkt[PEEKCLASSIC_V56_SLICE_LENGTH_OFFSET]);
 	flags = ep_pkt[PEEKCLASSIC_V56_FLAGS_OFFSET];
 #if 0
 	status = ep_pkt[PEEKCLASSIC_V56_STATUS_OFFSET];
 #endif
-	timestamp = pntoh32(&ep_pkt[PEEKCLASSIC_V56_TIMESTAMP_OFFSET]);
+	timestamp = pntohu32(&ep_pkt[PEEKCLASSIC_V56_TIMESTAMP_OFFSET]);
 #if 0
-	destNum = pntoh16(&ep_pkt[PEEKCLASSIC_V56_DESTNUM_OFFSET]);
-	srcNum = pntoh16(&ep_pkt[PEEKCLASSIC_V56_SRCNUM_OFFSET]);
-	protoNum = pntoh16(&ep_pkt[PEEKCLASSIC_V56_PROTONUM_OFFSET]);
+	destNum = pntohu16(&ep_pkt[PEEKCLASSIC_V56_DESTNUM_OFFSET]);
+	srcNum = pntohu16(&ep_pkt[PEEKCLASSIC_V56_SRCNUM_OFFSET]);
+	protoNum = pntohu16(&ep_pkt[PEEKCLASSIC_V56_PROTONUM_OFFSET]);
 	memcpy(protoStr, &ep_pkt[PEEKCLASSIC_V56_PROTOSTR_OFFSET],
 	    sizeof protoStr);
 #endif

@@ -6310,7 +6310,7 @@ static void
 proto_tree_set_eui64(field_info *fi, const uint64_t value)
 {
 	uint8_t v[FT_EUI64_LEN];
-	phton64(v, value);
+	phtonu64(v, value);
 	fvalue_set_bytes_data(fi->value, v, FT_EUI64_LEN);
 }
 

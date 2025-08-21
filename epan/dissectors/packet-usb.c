@@ -1799,11 +1799,11 @@ static int usb_addr_to_str(const address* addr, char *buf, int buf_len _U_)
 {
     const uint8_t *addrp = (const uint8_t *)addr->data;
 
-    if(pletoh32(&addrp[0])==0xffffffff){
+    if(pletohu32(&addrp[0])==0xffffffff){
         (void) g_strlcpy(buf, "host", buf_len);
     } else {
-        snprintf(buf, buf_len, "%d.%d.%d", pletoh16(&addrp[8]),
-                        pletoh32(&addrp[0]), pletoh32(&addrp[4]) & 0x0f);
+        snprintf(buf, buf_len, "%d.%d.%d", pletohu16(&addrp[8]),
+                        pletohu32(&addrp[0]), pletohu32(&addrp[4]) & 0x0f);
     }
 
     return (int)(strlen(buf)+1);

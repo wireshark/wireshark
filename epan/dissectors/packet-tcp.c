@@ -1681,15 +1681,15 @@ static int exp_pdu_tcp_dissector_data_populate_data(packet_info *pinfo _U_, void
 {
     struct tcpinfo* dissector_data = (struct tcpinfo*)data;
 
-    phton16(&tlv_buffer[0], EXP_PDU_TAG_TCP_INFO_DATA);
-    phton16(&tlv_buffer[2], EXP_PDU_TCP_INFO_DATA_LEN); /* tag length */
-    phton16(&tlv_buffer[4], EXP_PDU_TCP_INFO_VERSION);
-    phton32(&tlv_buffer[6], dissector_data->seq);
-    phton32(&tlv_buffer[10], dissector_data->nxtseq);
-    phton32(&tlv_buffer[14], dissector_data->lastackseq);
+    phtonu16(&tlv_buffer[0], EXP_PDU_TAG_TCP_INFO_DATA);
+    phtonu16(&tlv_buffer[2], EXP_PDU_TCP_INFO_DATA_LEN); /* tag length */
+    phtonu16(&tlv_buffer[4], EXP_PDU_TCP_INFO_VERSION);
+    phtonu32(&tlv_buffer[6], dissector_data->seq);
+    phtonu32(&tlv_buffer[10], dissector_data->nxtseq);
+    phtonu32(&tlv_buffer[14], dissector_data->lastackseq);
     tlv_buffer[18] = dissector_data->is_reassembled;
-    phton16(&tlv_buffer[19], dissector_data->flags);
-    phton16(&tlv_buffer[21], dissector_data->urgent_pointer);
+    phtonu16(&tlv_buffer[19], dissector_data->flags);
+    phtonu16(&tlv_buffer[21], dissector_data->urgent_pointer);
 
     return exp_pdu_tcp_dissector_data_size(pinfo, data);
 }
@@ -8292,8 +8292,8 @@ capture_tcp(const unsigned char *pd, int offset, int len, capture_packet_info_t 
 
     capture_dissector_increment_count(cpinfo, proto_tcp);
 
-    src_port = pntoh16(&pd[offset]);
-    dst_port = pntoh16(&pd[offset+2]);
+    src_port = pntohu16(&pd[offset]);
+    dst_port = pntohu16(&pd[offset+2]);
 
     if (src_port > dst_port) {
         low_port = dst_port;

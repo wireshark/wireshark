@@ -834,7 +834,7 @@ static int sna_fid_to_str_buf(const address *addr, char *buf, int buf_len _U_)
 
 	case 2:
 		addrdata = (const uint8_t *)addr->data;
-		word_to_hex(buf, pntoh16(&addrdata[0]));
+		word_to_hex(buf, pntohu16(&addrdata[0]));
 		buf[4] = '\0';
 		break;
 

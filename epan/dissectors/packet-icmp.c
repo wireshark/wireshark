@@ -437,10 +437,10 @@ static const value_string interface_role_str[] = {
  * rather than ICMP6 in the next header field.
  */
 #define ADDR_IS_MULTICAST(addr) \
-	(((addr)->type == AT_IPv4) && is_a_multicast_addr(pntoh32((addr)->data)))
+	(((addr)->type == AT_IPv4) && is_a_multicast_addr(pntohu32((addr)->data)))
 
 #define ADDR_IS_BROADCAST(addr) \
-	(((addr)->type == AT_IPv4) && is_a_broadcast_addr(pntoh32((addr)->data)))
+	(((addr)->type == AT_IPv4) && is_a_broadcast_addr(pntohu32((addr)->data)))
 
 #define ADDR_IS_NOT_UNICAST(addr) \
 	(ADDR_IS_MULTICAST(addr) || ADDR_IS_BROADCAST(addr))

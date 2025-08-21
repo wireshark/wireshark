@@ -5288,7 +5288,7 @@ tls_check_mac(SslDecoder*decoder, int ct, int ver, uint8_t* data,
         return -1;
 
     /* hash sequence number */
-    phton64(buf, decoder->seq);
+    phtonu64(buf, decoder->seq);
 
     decoder->seq++;
 
@@ -5347,7 +5347,7 @@ ssl3_check_mac(SslDecoder*decoder,int ct,uint8_t* data,
     ssl_md_update(&mc,buf,pad_ct);
 
     /* hash sequence number */
-    phton64(buf, decoder->seq);
+    phtonu64(buf, decoder->seq);
     decoder->seq++;
     ssl_md_update(&mc,buf,8);
 
@@ -5424,7 +5424,7 @@ dtls_check_mac(SslDecryptSession *ssl, SslDecoder*decoder, int ct, uint8_t* data
         ssl_hmac_update(&hm,buf,2);
 
         /* hash sequence number */
-        phton64(buf, decoder->seq);
+        phtonu64(buf, decoder->seq);
         buf[0]=decoder->epoch>>8;
         buf[1]=(uint8_t)decoder->epoch;
         ssl_hmac_update(&hm,buf,8);
@@ -5433,7 +5433,7 @@ dtls_check_mac(SslDecryptSession *ssl, SslDecoder*decoder, int ct, uint8_t* data
         ssl_hmac_update(&hm,cid,cidl);
     } else {
         /* hash sequence number */
-        phton64(buf, decoder->seq);
+        phtonu64(buf, decoder->seq);
         buf[0]=decoder->epoch>>8;
         buf[1]=(uint8_t)decoder->epoch;
         ssl_hmac_update(&hm,buf,8);
@@ -5560,7 +5560,7 @@ tls_decrypt_aead_record(wmem_allocator_t* allocator, SslDecryptSession *ssl, Ssl
         DISSECTOR_ASSERT(decoder->write_iv.data_len == nonce_len);
         memcpy(nonce, decoder->write_iv.data, decoder->write_iv.data_len);
         /* Sequence number is left-padded with zeroes and XORed with write_iv */
-        phton64(nonce + nonce_len - 8, pntoh64(nonce + nonce_len - 8) ^ decoder->seq);
+        phtonu64(nonce + nonce_len - 8, pntohu64(nonce + nonce_len - 8) ^ decoder->seq);
         ssl_debug_printf("%s seq %" PRIu64 "\n", G_STRFUNC, decoder->seq);
     }
 
@@ -5578,13 +5578,13 @@ tls_decrypt_aead_record(wmem_allocator_t* allocator, SslDecryptSession *ssl, Ssl
         if (ssl->session.deprecated_cid) {
             aad_len = 14 + cidl;
             aad = wmem_alloc(allocator, aad_len);
-            phton64(aad, decoder->seq);         /* record sequence number */
-            phton16(aad, decoder->epoch);       /* DTLS 1.2 includes epoch. */
+            phtonu64(aad, decoder->seq);         /* record sequence number */
+            phtonu16(aad, decoder->epoch);       /* DTLS 1.2 includes epoch. */
             aad[8] = ct;                        /* TLSCompressed.type */
-            phton16(aad + 9, record_version);   /* TLSCompressed.version */
+            phtonu16(aad + 9, record_version);   /* TLSCompressed.version */
             memcpy(aad + 11, cid, cidl);        /* cid */
             aad[11 + cidl] = cidl;              /* cid_length */
-            phton16(aad + 12 + cidl, ciphertext_len);  /* TLSCompressed.length */
+            phtonu16(aad + 12 + cidl, ciphertext_len);  /* TLSCompressed.length */
         } else {
             aad_len = 23 + cidl;
             aad = wmem_alloc(allocator, aad_len);
@@ -5592,22 +5592,22 @@ tls_decrypt_aead_record(wmem_allocator_t* allocator, SslDecryptSession *ssl, Ssl
             aad[8] = ct;                        /* TLSCompressed.type */
             aad[9] = cidl;                      /* cid_length */
             aad[10] = ct;                       /* TLSCompressed.type */
-            phton16(aad + 11, record_version);  /* TLSCompressed.version */
-            phton64(aad + 13, decoder->seq);    /* record sequence number */
-            phton16(aad + 13, decoder->epoch);  /* DTLS 1.2 includes epoch. */
+            phtonu16(aad + 11, record_version);  /* TLSCompressed.version */
+            phtonu64(aad + 13, decoder->seq);    /* record sequence number */
+            phtonu16(aad + 13, decoder->epoch);  /* DTLS 1.2 includes epoch. */
             memcpy(aad + 21, cid, cidl);        /* cid */
-            phton16(aad + 21 + cidl, ciphertext_len);  /* TLSCompressed.length */
+            phtonu16(aad + 21 + cidl, ciphertext_len);  /* TLSCompressed.length */
         }
     } else if (is_v12) {
         aad_len = 13;
         aad = wmem_alloc(allocator, aad_len);
-        phton64(aad, decoder->seq);         /* record sequence number */
+        phtonu64(aad, decoder->seq);         /* record sequence number */
         if (version == DTLSV1DOT2_VERSION) {
-            phton16(aad, decoder->epoch);   /* DTLS 1.2 includes epoch. */
+            phtonu16(aad, decoder->epoch);   /* DTLS 1.2 includes epoch. */
         }
         aad[8] = ct;                        /* TLSCompressed.type */
-        phton16(aad + 9, record_version);   /* TLSCompressed.version */
-        phton16(aad + 11, ciphertext_len);  /* TLSCompressed.length */
+        phtonu16(aad + 9, record_version);   /* TLSCompressed.version */
+        phtonu16(aad + 11, ciphertext_len);  /* TLSCompressed.length */
     } else if (version == DTLSV1DOT3_VERSION) {
         aad_len = decoder->dtls13_aad.data_len;
         aad = decoder->dtls13_aad.data;
@@ -5615,8 +5615,8 @@ tls_decrypt_aead_record(wmem_allocator_t* allocator, SslDecryptSession *ssl, Ssl
         aad_len = 5;
         aad = wmem_alloc(allocator, aad_len);
         aad[0] = ct;                        /* TLSCiphertext.opaque_type (23) */
-        phton16(aad + 1, record_version);   /* TLSCiphertext.legacy_record_version (0x0303) */
-        phton16(aad + 3, inl);              /* TLSCiphertext.length */
+        phtonu16(aad + 1, record_version);   /* TLSCiphertext.legacy_record_version (0x0303) */
+        phtonu16(aad + 3, inl);              /* TLSCiphertext.length */
     }
 
     if (decoder->cipher_suite->mode == MODE_CCM || decoder->cipher_suite->mode == MODE_CCM_8) {

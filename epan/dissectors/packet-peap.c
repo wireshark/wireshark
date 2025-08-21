@@ -79,7 +79,7 @@ dissect_peap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
            ))) {
     eap_len_buf = (unsigned char *)wmem_alloc(pinfo->pool, 2);
     eap_len_tvb = tvb_new_child_real_data(tvb, eap_len_buf, 2, 2);
-    phton16(eap_len_buf, 4 + len);
+    phtonu16(eap_len_buf, 4 + len);
 
     next_tvb = tvb_new_composite();
     tvb_composite_append(next_tvb, tvb_new_subset_length(eap_tvb, 0, 2));

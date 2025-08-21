@@ -422,7 +422,7 @@ parse_single_hex_dump_line(char* rec, uint8_t *buf, unsigned byte_offset) {
 		rec[pos+4] = '\0';
 
 		word_value = (uint16_t) strtoul(&rec[pos], NULL, 16);
-		phton16(&buf[byte_offset + i * 2], word_value);
+		phtonu16(&buf[byte_offset + i * 2], word_value);
 		pos += 5;
 	}
 

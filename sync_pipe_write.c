@@ -32,8 +32,8 @@ sync_pipe_write_header(int pipe_fd, char indicator, unsigned int length)
     ws_assert(length <= SP_MAX_MSG_LEN);
 
     /* write header (indicator + 3-byte len) */
-    phton8(&header[0], indicator);
-    phton24(&header[1], length);
+    phtonu8(&header[0], indicator);
+    phtonu24(&header[1], length);
 
     /* write header */
     return ws_write(pipe_fd, header, sizeof header);

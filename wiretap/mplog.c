@@ -131,7 +131,7 @@ static bool mplog_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         }
         data = block[0];
         type = block[1];
-        ctr = pletoh48(&block[2]);
+        ctr = pletohu48(&block[2]);
 
         if (pkt_type == TYPE_UNKNOWN) {
             if (KNOWN_TYPE(type)) {
@@ -173,7 +173,7 @@ static bool mplog_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     else
         start_p[1] = ISO14443_PSEUDO_HDR_PICC_TO_PCD;
 
-    phton16(&start_p[2], pkt_bytes);
+    phtonu16(&start_p[2], pkt_bytes);
 
     wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);

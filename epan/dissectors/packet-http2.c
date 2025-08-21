@@ -1948,8 +1948,8 @@ static size_t http2_hdrcache_length(const void *vv)
     const uint8_t *v = (const uint8_t *)vv;
     uint32_t namelen, valuelen;
 
-    namelen = pntoh32(v);
-    valuelen = pntoh32(v + sizeof(namelen) + namelen);
+    namelen = pntohu32(v);
+    valuelen = pntohu32(v + sizeof(namelen) + namelen);
 
     return namelen + valuelen + sizeof(namelen) + sizeof(valuelen);
 }
@@ -2510,11 +2510,11 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, p
                    to get length in 4 bytes, we have to copy it to
                    uint32_t. */
                 len = (uint32_t)nv.namelen;
-                phton32(&http2_header_pstr[0], len);
+                phtonu32(&http2_header_pstr[0], len);
                 memcpy(&http2_header_pstr[4], nv.name, nv.namelen);
 
                 len = (uint32_t)nv.valuelen;
-                phton32(&http2_header_pstr[4 + nv.namelen], len);
+                phtonu32(&http2_header_pstr[4 + nv.namelen], len);
                 memcpy(&http2_header_pstr[4 + nv.namelen + 4], nv.value, nv.valuelen);
 
                 cached_pstr = (char *)wmem_map_lookup(http2_hdrcache_map, http2_header_pstr);
@@ -3696,9 +3696,9 @@ get_real_header_value(packet_info* pinfo, const char* name, bool the_other_direc
                    value (string)
             */
             data = (char*) hdr->table.data.data;
-            name_len = pntoh32(data);
+            name_len = pntohu32(data);
             if (strlen(name) == name_len && strncmp(data + 4, name, name_len) == 0) {
-                value_len = pntoh32(data + 4 + name_len);
+                value_len = pntohu32(data + 4 + name_len);
                 if (4 + name_len + 4 + value_len == hdr->table.data.datalen) {
                     /* return value */
                     return get_ascii_string(pinfo->pool, data + 4 + name_len + 4, value_len);

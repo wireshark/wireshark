@@ -1794,7 +1794,7 @@ static int dissect_ubx_rxm_sfrbx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         // convenient for dissection, map to big endian and add as new data source.
         buf = wmem_alloc(pinfo->pool, numwords * 4);
         for (unsigned i = 0; i < numwords; i++) {
-            phton32(buf + 4 * i, tvb_get_uint32(tvb, 8 + i * 4, ENC_LITTLE_ENDIAN));
+            phtonu32(buf + 4 * i, tvb_get_uint32(tvb, 8 + i * 4, ENC_LITTLE_ENDIAN));
         }
         next_tvb = tvb_new_child_real_data(tvb, (uint8_t *)buf, numwords * 4, numwords * 4);
         add_new_data_source(pinfo, next_tvb, "GNSS navigation message");

@@ -551,9 +551,9 @@ static int vines_addr_to_str(const address* addr, char *buf, int buf_len)
     const uint8_t *addr_data = (const uint8_t *)addr->data;
     char *bufp = buf;
 
-    bufp = dword_to_hex(bufp, pntoh32(&addr_data[0])); /* 8 bytes */
+    bufp = dword_to_hex(bufp, pntohu32(&addr_data[0])); /* 8 bytes */
     *bufp++ = '.'; /* 1 byte */
-    bufp = word_to_hex(bufp, pntoh16(&addr_data[4])); /* 4 bytes */
+    bufp = word_to_hex(bufp, pntohu16(&addr_data[4])); /* 4 bytes */
     *bufp++ = '\0'; /* NULL terminate */
 
     return (int)(bufp - buf);

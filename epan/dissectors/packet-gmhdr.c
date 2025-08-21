@@ -384,7 +384,7 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     SET_CKSUM_VEC_TVB(vec, tvb, offset, length + 3);
 
     comp_cksum = in_cksum(&vec, 1);
-    if (pntoh16(&comp_cksum) != cksum) {
+    if (pntohu16(&comp_cksum) != cksum) {
       return 0;
     }
   }

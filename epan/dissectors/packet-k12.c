@@ -78,7 +78,7 @@ fill_fp_info(fp_info* p_fp_info, unsigned char* extra_info, uint32_t length)
 {
 	unsigned adj = 0;
 			/* 0x11=control frame 0x30=data frame */
-	unsigned info_type = pntoh16(extra_info);
+	unsigned info_type = pntohu16(extra_info);
 			/* 1=FDD, 2=TDD 3.84, 3=TDD 1.28 */
 	unsigned char radio_mode = extra_info[14];
 	unsigned char channel_type = 0;
@@ -91,7 +91,7 @@ fill_fp_info(fp_info* p_fp_info, unsigned char* extra_info, uint32_t length)
 	p_fp_info->division = (enum division_type)radio_mode;
 
 	/* Format used by K15, later fields are shifted by 8 bytes. */
-	if (pntoh16(extra_info+2) == 5)
+	if (pntohu16(extra_info+2) == 5)
 		adj = 8;
 
 	p_fp_info->iface_type = IuB_Interface;
@@ -160,10 +160,10 @@ fill_fp_info(fp_info* p_fp_info, unsigned char* extra_info, uint32_t length)
 		/* For each channel */
 		for (i = 0; i < (unsigned)p_fp_info->num_chans && (36+i*104+adj) <= length; ++i) {
 			/* Read TB size */
-			p_fp_info->chan_tf_size[i] = pntoh32(extra_info+28+i*104+adj);
+			p_fp_info->chan_tf_size[i] = pntohu32(extra_info+28+i*104+adj);
 			if (p_fp_info->chan_tf_size[i])
 				/* Work out number of TBs on this channel */
-				p_fp_info->chan_num_tbs[i] = pntoh32(extra_info+32+i*104+adj)
+				p_fp_info->chan_num_tbs[i] = pntohu32(extra_info+32+i*104+adj)
 							     / p_fp_info->chan_tf_size[i];
 		}
 	}

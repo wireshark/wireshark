@@ -184,9 +184,9 @@ static void add_proto_name(uint8_t* mbuf, unsigned* offset, const char* proto_na
 	size_t proto_str_len = strlen(proto_name);
 	uint16_t proto_name_len = (uint16_t)((proto_str_len + 3) & 0xfffffffc);
 
-	phton16(mbuf + *offset, EXP_PDU_TAG_DISSECTOR_NAME);
+	phtonu16(mbuf + *offset, EXP_PDU_TAG_DISSECTOR_NAME);
 	*offset += 2;
-	phton16(mbuf + *offset, proto_name_len);
+	phtonu16(mbuf + *offset, proto_name_len);
 	*offset += 2;
 
 	memcpy(mbuf + *offset, proto_name, proto_str_len);
@@ -195,9 +195,9 @@ static void add_proto_name(uint8_t* mbuf, unsigned* offset, const char* proto_na
 
 static void add_ip_source_address(uint8_t* mbuf, unsigned* offset, uint32_t source_address)
 {
-	phton16(mbuf + *offset, EXP_PDU_TAG_IPV4_SRC);
+	phtonu16(mbuf + *offset, EXP_PDU_TAG_IPV4_SRC);
 	*offset += 2;
-	phton16(mbuf + *offset, 4);
+	phtonu16(mbuf + *offset, 4);
 	*offset += 2;
 	memcpy(mbuf + *offset, &source_address, 4);
 	*offset += 4;
@@ -205,9 +205,9 @@ static void add_ip_source_address(uint8_t* mbuf, unsigned* offset, uint32_t sour
 
 static void add_ip_dest_address(uint8_t* mbuf, unsigned* offset, uint32_t dest_address)
 {
-	phton16(mbuf + *offset, EXP_PDU_TAG_IPV4_DST);
+	phtonu16(mbuf + *offset, EXP_PDU_TAG_IPV4_DST);
 	*offset += 2;
-	phton16(mbuf + *offset, 4);
+	phtonu16(mbuf + *offset, 4);
 	*offset += 2;
 	memcpy(mbuf + *offset, &dest_address, 4);
 	*offset += 4;
@@ -217,9 +217,9 @@ static void add_udp_source_port(uint8_t* mbuf, unsigned* offset, uint16_t src_po
 {
 	uint32_t port = htonl(src_port);
 
-	phton16(mbuf + *offset, EXP_PDU_TAG_SRC_PORT);
+	phtonu16(mbuf + *offset, EXP_PDU_TAG_SRC_PORT);
 	*offset += 2;
-	phton16(mbuf + *offset, 4);
+	phtonu16(mbuf + *offset, 4);
 	*offset += 2;
 	memcpy(mbuf + *offset, &port, 4);
 	*offset += 4;
@@ -229,9 +229,9 @@ static void add_udp_dst_port(uint8_t* mbuf, unsigned* offset, uint16_t dst_port)
 {
 	uint32_t port = htonl(dst_port);
 
-	phton16(mbuf + *offset, EXP_PDU_TAG_DST_PORT);
+	phtonu16(mbuf + *offset, EXP_PDU_TAG_DST_PORT);
 	*offset += 2;
-	phton16(mbuf + *offset, 4);
+	phtonu16(mbuf + *offset, 4);
 	*offset += 2;
 	memcpy(mbuf + *offset, &port, 4);
 	*offset += 4;

@@ -657,7 +657,7 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 		return false;
 
 	vpi = atm_phdr.vpi;
-	vci = pntoh16(&atm_phdr.vci);
+	vci = pntohu16(&atm_phdr.vci);
 
 	/*
 	 * The lower 4 bits of the first byte of the header indicate

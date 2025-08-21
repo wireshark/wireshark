@@ -717,10 +717,10 @@ get_ucs_2_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsign
     strbuf = wmem_strbuf_new_sized(scope, length+1);
 
     if (encoding & ENC_BOM && length >= 2) {
-        if (pletoh16(ptr) == BYTE_ORDER_MARK) {
+        if (pletohu16(ptr) == BYTE_ORDER_MARK) {
             encoding = ENC_LITTLE_ENDIAN;
             i += 2;
-        } else if (pntoh16(ptr) == BYTE_ORDER_MARK) {
+        } else if (pntohu16(ptr) == BYTE_ORDER_MARK) {
             encoding = ENC_BIG_ENDIAN;
             i += 2;
         }
@@ -730,9 +730,9 @@ get_ucs_2_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsign
 
     for(; i + 1 < length; i += 2) {
         if (encoding == ENC_BIG_ENDIAN) {
-            uchar = pntoh16(ptr + i);
+            uchar = pntohu16(ptr + i);
         } else {
-            uchar = pletoh16(ptr + i);
+            uchar = pletohu16(ptr + i);
         }
         wmem_strbuf_append_unichar_validated(strbuf, uchar);
     }
@@ -770,10 +770,10 @@ get_utf_16_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsig
     strbuf = wmem_strbuf_new_sized(scope, length+1);
 
     if (encoding & ENC_BOM && length >= 2) {
-        if (pletoh16(ptr) == BYTE_ORDER_MARK) {
+        if (pletohu16(ptr) == BYTE_ORDER_MARK) {
             encoding = ENC_LITTLE_ENDIAN;
             i += 2;
-        } else if (pntoh16(ptr) == BYTE_ORDER_MARK) {
+        } else if (pntohu16(ptr) == BYTE_ORDER_MARK) {
             encoding = ENC_BIG_ENDIAN;
             i += 2;
         }
@@ -783,9 +783,9 @@ get_utf_16_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsig
 
     for(; i + 1 < length; i += 2) {
         if (encoding == ENC_BIG_ENDIAN)
-            uchar2 = pntoh16(ptr + i);
+            uchar2 = pntohu16(ptr + i);
         else
-            uchar2 = pletoh16(ptr + i);
+            uchar2 = pletohu16(ptr + i);
 
         if (IS_LEAD_SURROGATE(uchar2)) {
             /*
@@ -805,9 +805,9 @@ get_utf_16_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsig
             }
             lead_surrogate = uchar2;
             if (encoding == ENC_BIG_ENDIAN)
-                uchar2 = pntoh16(ptr + i);
+                uchar2 = pntohu16(ptr + i);
             else
-                uchar2 = pletoh16(ptr + i);
+                uchar2 = pletohu16(ptr + i);
             if (IS_TRAIL_SURROGATE(uchar2)) {
                 /* Trail surrogate. */
                 uchar = SURROGATE_VALUE(lead_surrogate, uchar2);
@@ -869,10 +869,10 @@ get_ucs_4_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsign
     strbuf = wmem_strbuf_new_sized(scope, length+1);
 
     if (encoding & ENC_BOM && length >= 4) {
-        if (pletoh32(ptr) == BYTE_ORDER_MARK) {
+        if (pletohu32(ptr) == BYTE_ORDER_MARK) {
             encoding = ENC_LITTLE_ENDIAN;
             i += 4;
-        } else if (pntoh32(ptr) == BYTE_ORDER_MARK) {
+        } else if (pntohu32(ptr) == BYTE_ORDER_MARK) {
             encoding = ENC_BIG_ENDIAN;
             i += 4;
         }
@@ -882,9 +882,9 @@ get_ucs_4_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsign
 
     for(; i + 3 < length; i += 4) {
         if (encoding == ENC_BIG_ENDIAN)
-            uchar = pntoh32(ptr + i);
+            uchar = pntohu32(ptr + i);
         else
-            uchar = pletoh32(ptr + i);
+            uchar = pletohu32(ptr + i);
 
         wmem_strbuf_append_unichar_validated(strbuf, uchar);
     }

@@ -531,7 +531,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             etype = pinfo->match_uint;
         }
-        phton16(aad + (ETHHDR_LEN - ETHERTYPE_LEN), etype);
+        phtonu16(aad + (ETHHDR_LEN - ETHERTYPE_LEN), etype);
 
         if (true == encrypted) {
             /* Save the payload length.  Payload will be decrypted later. */

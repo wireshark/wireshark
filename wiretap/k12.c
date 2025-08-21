@@ -469,7 +469,7 @@ static int get_record(k12_t *file_data, FILE_T fh, int64_t file_offset,
         return -1;
     total_read += 4;
 
-    left = pntoh32(buffer + K12_RECORD_LEN);
+    left = pntohu32(buffer + K12_RECORD_LEN);
 #ifdef DEBUG_K12
     actual_len = left;
 #endif
@@ -580,7 +580,7 @@ process_packet_data(wtap *wth, wtap_rec *rec, uint8_t *buffer,
     uint32_t src_id;
     k12_src_desc_t* src_desc;
 
-    type = pntoh32(buffer + K12_RECORD_TYPE);
+    type = pntohu32(buffer + K12_RECORD_TYPE);
     buffer_offset = (type == K12_REC_D0020) ? K12_PACKET_FRAME_D0020 : K12_PACKET_FRAME;
     if (buffer_offset > record_len) {
         *err = WTAP_ERR_BAD_FILE;
@@ -589,7 +589,7 @@ process_packet_data(wtap *wth, wtap_rec *rec, uint8_t *buffer,
         return false;
     }
 
-    length = pntoh32(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
+    length = pntohu32(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
     if (length > record_len - buffer_offset) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("k12: Frame length %u > record frame data %u",
@@ -601,7 +601,7 @@ process_packet_data(wtap *wth, wtap_rec *rec, uint8_t *buffer,
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS;
 
-    ts = pntoh64(buffer + K12_PACKET_TIMESTAMP);
+    ts = pntohu64(buffer + K12_PACKET_TIMESTAMP);
 
     rec->ts.secs = (time_t) ((ts / 2000000) + 631152000);
     rec->ts.nsecs = (uint32_t) ( (ts % 2000000) * 500 );
@@ -617,7 +617,7 @@ process_packet_data(wtap *wth, wtap_rec *rec, uint8_t *buffer,
     rec->rec_header.packet_header.pseudo_header.k12.extra_info = (uint8_t*)ws_buffer_start_ptr(&(k12->extra_info));
     rec->rec_header.packet_header.pseudo_header.k12.extra_length = extra_len;
 
-    src_id = pntoh32(buffer + K12_RECORD_SRC_ID);
+    src_id = pntohu32(buffer + K12_RECORD_SRC_ID);
     K12_DBG(5,("process_packet_data: src_id=%.8x",src_id));
     rec->rec_header.packet_header.pseudo_header.k12.input = src_id;
 
@@ -641,8 +641,8 @@ process_packet_data(wtap *wth, wtap_rec *rec, uint8_t *buffer,
         switch(src_desc->input_type) {
             case K12_PORT_ATMPVC:
                 if (buffer_offset + length + K12_PACKET_OFFSET_CID < record_len) {
-                    rec->rec_header.packet_header.pseudo_header.k12.input_info.atm.vp =  pntoh16(buffer + buffer_offset + length + K12_PACKET_OFFSET_VP);
-                    rec->rec_header.packet_header.pseudo_header.k12.input_info.atm.vc =  pntoh16(buffer + buffer_offset + length + K12_PACKET_OFFSET_VC);
+                    rec->rec_header.packet_header.pseudo_header.k12.input_info.atm.vp =  pntohu16(buffer + buffer_offset + length + K12_PACKET_OFFSET_VP);
+                    rec->rec_header.packet_header.pseudo_header.k12.input_info.atm.vc =  pntohu16(buffer + buffer_offset + length + K12_PACKET_OFFSET_VC);
                     rec->rec_header.packet_header.pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + buffer_offset + length + K12_PACKET_OFFSET_CID));
                     break;
                 }
@@ -706,8 +706,8 @@ static bool k12_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_
 
         buffer = k12->seq_read_buff;
 
-        type = pntoh32(buffer + K12_RECORD_TYPE);
-        src_id = pntoh32(buffer + K12_RECORD_SRC_ID);
+        type = pntohu32(buffer + K12_RECORD_TYPE);
+        src_id = pntohu32(buffer + K12_RECORD_SRC_ID);
 
 
         if ( ! (src_desc = (k12_src_desc_t*)g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(src_id))) ) {
@@ -862,14 +862,14 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
 
     file_data = new_k12_file_data();
 
-    file_data->file_len = pntoh32( header_buffer + 0x8);
+    file_data->file_len = pntohu32( header_buffer + 0x8);
     if (memiszero(header_buffer + 0x10, K12_FILE_HDR_LEN - 0x10)) {
         /*
          * The rest of the file header is all zeroes.  That means
          * this is a file written by the old Wireshark code, and
          * a count of records in the file is at an offset of 0x0C.
          */
-        file_data->num_of_records = pntoh32( header_buffer + 0x0C );
+        file_data->num_of_records = pntohu32( header_buffer + 0x0C );
     } else {
         /*
          * There's at least one non-zero byte in the rest of the
@@ -881,13 +881,13 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
          * the case, we need to see the file to figure out which
          * of those two values, if any, is the count.
          */
-        file_data->num_of_records = pntoh32( header_buffer + K12_FILE_HDR_RECORD_COUNT_1 );
-        if ( file_data->num_of_records != pntoh32( header_buffer + K12_FILE_HDR_RECORD_COUNT_2 ) ) {
+        file_data->num_of_records = pntohu32( header_buffer + K12_FILE_HDR_RECORD_COUNT_1 );
+        if ( file_data->num_of_records != pntohu32( header_buffer + K12_FILE_HDR_RECORD_COUNT_2 ) ) {
             *err = WTAP_ERR_BAD_FILE;
             *err_info = ws_strdup_printf("k12: two different record counts, %u at 0x%02x and %u at 0x%02x",
                                         file_data->num_of_records,
                                         K12_FILE_HDR_RECORD_COUNT_1,
-                                        pntoh32( header_buffer + K12_FILE_HDR_RECORD_COUNT_2 ),
+                                        pntohu32( header_buffer + K12_FILE_HDR_RECORD_COUNT_2 ),
                                         K12_FILE_HDR_RECORD_COUNT_2 );
             destroy_k12_file_data(file_data);
             return WTAP_OPEN_ERROR;
@@ -922,7 +922,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
 
         read_buffer = file_data->seq_read_buff;
 
-        rec_len = pntoh32( read_buffer + K12_RECORD_LEN );
+        rec_len = pntohu32( read_buffer + K12_RECORD_LEN );
         if (rec_len < K12_RECORD_TYPE + 4) {
             /* Record isn't long enough to have a type field */
             *err = WTAP_ERR_BAD_FILE;
@@ -931,7 +931,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
             destroy_k12_file_data(file_data);
             return WTAP_OPEN_ERROR;
         }
-        type = pntoh32( read_buffer + K12_RECORD_TYPE );
+        type = pntohu32( read_buffer + K12_RECORD_TYPE );
 
         if ( (type & K12_MASK_PACKET) == K12_REC_PACKET ||
              (type & K12_MASK_PACKET) == K12_REC_D0020) {
@@ -965,11 +965,11 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
                 return WTAP_OPEN_ERROR;
             }
             port_type = read_buffer[K12_SRCDESC_PORT_TYPE];
-            hwpart_len = pntoh16( read_buffer + K12_SRCDESC_HWPARTLEN );
-            name_len = pntoh16( read_buffer + K12_SRCDESC_NAMELEN );
-            stack_len = pntoh16( read_buffer + K12_SRCDESC_STACKLEN );
+            hwpart_len = pntohu16( read_buffer + K12_SRCDESC_HWPARTLEN );
+            name_len = pntohu16( read_buffer + K12_SRCDESC_NAMELEN );
+            stack_len = pntohu16( read_buffer + K12_SRCDESC_STACKLEN );
 
-            rec->input = pntoh32( read_buffer + K12_RECORD_SRC_ID );
+            rec->input = pntohu32( read_buffer + K12_RECORD_SRC_ID );
 
             K12_DBG(5,("k12_open: INTERFACE RECORD offset=%x interface=%x",offset,rec->input));
 
@@ -1010,7 +1010,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
                     g_free(rec);
                     return WTAP_OPEN_ERROR;
                 }
-                switch(( rec->input_type = pntoh32( read_buffer + K12_SRCDESC_HWPART + K12_SRCDESC_HWPARTTYPE ) )) {
+                switch(( rec->input_type = pntohu32( read_buffer + K12_SRCDESC_HWPART + K12_SRCDESC_HWPARTTYPE ) )) {
                     case K12_PORT_DS0S:
                         /* This appears to be variable-length */
                         rec->input_info.ds0mask = 0x00000000;
@@ -1032,8 +1032,8 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
                             return WTAP_OPEN_ERROR;
                         }
 
-                        rec->input_info.atm.vp = pntoh16( read_buffer + K12_SRCDESC_HWPART + K12_SRCDESC_ATM_VPI );
-                        rec->input_info.atm.vc = pntoh16( read_buffer + K12_SRCDESC_HWPART + K12_SRCDESC_ATM_VCI );
+                        rec->input_info.atm.vp = pntohu16( read_buffer + K12_SRCDESC_HWPART + K12_SRCDESC_ATM_VPI );
+                        rec->input_info.atm.vc = pntohu16( read_buffer + K12_SRCDESC_HWPART + K12_SRCDESC_ATM_VCI );
                         break;
                     default:
                         break;
@@ -1075,8 +1075,8 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
 
         case K12_REC_STK_FILE:
             K12_DBG(1,("k12_open: K12_REC_STK_FILE"));
-            K12_DBG(1,("Field 1: 0x%08x",pntoh32( read_buffer + 0x08 )));
-            K12_DBG(1,("Field 2: 0x%08x",pntoh32( read_buffer + 0x0c )));
+            K12_DBG(1,("Field 1: 0x%08x",pntohu32( read_buffer + 0x08 )));
+            K12_DBG(1,("Field 2: 0x%08x",pntohu32( read_buffer + 0x0c )));
             K12_ASCII_DUMP(1, read_buffer, rec_len, 16);
             break;
 

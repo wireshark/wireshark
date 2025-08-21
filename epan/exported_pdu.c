@@ -42,13 +42,13 @@ static int exp_pdu_data_src_ip_size(packet_info *pinfo, void* data _U_)
 static int exp_pdu_data_src_ip_populate_data(packet_info *pinfo, void* data _U_, uint8_t *tlv_buffer, uint32_t buffer_size _U_)
 {
 	if(pinfo->net_src.type == AT_IPv4){
-		phton16(tlv_buffer+0, EXP_PDU_TAG_IPV4_SRC);
-		phton16(tlv_buffer+2, EXP_PDU_TAG_IPV4_LEN); /* tag length */
+		phtonu16(tlv_buffer+0, EXP_PDU_TAG_IPV4_SRC);
+		phtonu16(tlv_buffer+2, EXP_PDU_TAG_IPV4_LEN); /* tag length */
 		memcpy(tlv_buffer+4, pinfo->net_src.data, EXP_PDU_TAG_IPV4_LEN);
 		return 4 + EXP_PDU_TAG_IPV4_LEN;
 	}else if(pinfo->net_src.type == AT_IPv6){
-		phton16(tlv_buffer+0, EXP_PDU_TAG_IPV6_SRC);
-		phton16(tlv_buffer+2, EXP_PDU_TAG_IPV6_LEN); /* tag length */
+		phtonu16(tlv_buffer+0, EXP_PDU_TAG_IPV6_SRC);
+		phtonu16(tlv_buffer+2, EXP_PDU_TAG_IPV6_LEN); /* tag length */
 		memcpy(tlv_buffer+4, pinfo->net_src.data, EXP_PDU_TAG_IPV6_LEN);
 		return 4 + EXP_PDU_TAG_IPV6_LEN;
 	}
@@ -64,13 +64,13 @@ static int exp_pdu_data_dst_ip_size(packet_info *pinfo, void* data _U_)
 static int exp_pdu_data_dst_ip_populate_data(packet_info *pinfo, void* data _U_, uint8_t *tlv_buffer, uint32_t buffer_size _U_)
 {
 	if(pinfo->net_dst.type == AT_IPv4){
-		phton16(tlv_buffer+0, EXP_PDU_TAG_IPV4_DST);
-		phton16(tlv_buffer+2, EXP_PDU_TAG_IPV4_LEN); /* tag length */
+		phtonu16(tlv_buffer+0, EXP_PDU_TAG_IPV4_DST);
+		phtonu16(tlv_buffer+2, EXP_PDU_TAG_IPV4_LEN); /* tag length */
 		memcpy(tlv_buffer+4, pinfo->net_dst.data, EXP_PDU_TAG_IPV4_LEN);
 		return 4 + EXP_PDU_TAG_IPV4_LEN;
 	}else if(pinfo->net_dst.type == AT_IPv6){
-		phton16(tlv_buffer+0, EXP_PDU_TAG_IPV6_DST);
-		phton16(tlv_buffer+2, EXP_PDU_TAG_IPV6_LEN); /* tag length */
+		phtonu16(tlv_buffer+0, EXP_PDU_TAG_IPV6_DST);
+		phtonu16(tlv_buffer+2, EXP_PDU_TAG_IPV6_LEN); /* tag length */
 		memcpy(tlv_buffer+4, pinfo->net_dst.data, EXP_PDU_TAG_IPV6_LEN);
 		return 4 + EXP_PDU_TAG_IPV6_LEN;
 	}
@@ -125,10 +125,10 @@ static int exp_pdu_data_port_type_populate_data(packet_info *pinfo, void* data, 
 {
 	unsigned pt;
 
-	phton16(tlv_buffer+0, EXP_PDU_TAG_PORT_TYPE);
-	phton16(tlv_buffer+2, EXP_PDU_TAG_PORT_TYPE_LEN); /* tag length */
+	phtonu16(tlv_buffer+0, EXP_PDU_TAG_PORT_TYPE);
+	phtonu16(tlv_buffer+2, EXP_PDU_TAG_PORT_TYPE_LEN); /* tag length */
 	pt = exp_pdu_ws_port_type_to_exp_pdu_port_type(pinfo->ptype);
-	phton32(tlv_buffer+4, pt);
+	phtonu32(tlv_buffer+4, pt);
 
 	return exp_pdu_data_port_type_size(pinfo, data);
 }
@@ -140,9 +140,9 @@ static int exp_pdu_data_port_size(packet_info *pinfo _U_, void* data _U_)
 
 static int exp_pdu_data_port_populate_data(uint32_t port, uint8_t porttype, uint8_t *tlv_buffer, uint32_t buffer_size _U_)
 {
-	phton16(tlv_buffer+0, porttype);
-	phton16(tlv_buffer+2, EXP_PDU_TAG_PORT_LEN); /* tag length */
-	phton32(tlv_buffer+4, port);
+	phtonu16(tlv_buffer+0, porttype);
+	phtonu16(tlv_buffer+2, EXP_PDU_TAG_PORT_LEN); /* tag length */
+	phtonu32(tlv_buffer+4, port);
 
 	return EXP_PDU_TAG_PORT_LEN + 4;
 }
@@ -164,9 +164,9 @@ static int exp_pdu_data_orig_frame_num_size(packet_info *pinfo _U_, void* data _
 
 static int exp_pdu_data_orig_frame_num_populate_data(packet_info *pinfo, void* data, uint8_t *tlv_buffer, uint32_t buffer_size _U_)
 {
-	phton16(tlv_buffer+0, EXP_PDU_TAG_ORIG_FNO);
-	phton16(tlv_buffer+2, EXP_PDU_TAG_ORIG_FNO_LEN); /* tag length */
-	phton32(tlv_buffer+4, pinfo->num);
+	phtonu16(tlv_buffer+0, EXP_PDU_TAG_ORIG_FNO);
+	phtonu16(tlv_buffer+2, EXP_PDU_TAG_ORIG_FNO_LEN); /* tag length */
+	phtonu32(tlv_buffer+4, pinfo->num);
 
 	return exp_pdu_data_orig_frame_num_size(pinfo, data);
 }
@@ -180,9 +180,9 @@ WS_DLL_PUBLIC int exp_pdu_data_dissector_table_num_value_populate_data(packet_in
 {
 	uint32_t value = GPOINTER_TO_UINT(data);
 
-	phton16(tlv_buffer+0, EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL);
-	phton16(tlv_buffer+2, EXP_PDU_TAG_DISSECTOR_TABLE_NUM_VAL_LEN); /* tag length */
-	phton32(tlv_buffer+4, value);
+	phtonu16(tlv_buffer+0, EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL);
+	phtonu16(tlv_buffer+2, EXP_PDU_TAG_DISSECTOR_TABLE_NUM_VAL_LEN); /* tag length */
+	phtonu32(tlv_buffer+4, value);
 
 	return exp_pdu_data_dissector_table_num_value_size(pinfo, data);
 }
@@ -253,8 +253,8 @@ export_pdu_create_tags(packet_info *pinfo, const char* proto_name, uint16_t tag_
 	buf_remaining = exp_pdu_data->tlv_buffer_len;
 
 	/* Start by adding protocol name as a tag */
-	phton16(buffer_data+0, tag_type);
-	phton16(buffer_data+2, proto_tag_len); /* tag length */
+	phtonu16(buffer_data+0, tag_type);
+	phtonu16(buffer_data+2, proto_tag_len); /* tag length */
 	memcpy(buffer_data+4, proto_name, proto_str_len);
 	buffer_data += (proto_tag_len+4);
 	buf_remaining -= (proto_tag_len+4);

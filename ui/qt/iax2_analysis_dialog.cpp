@@ -909,37 +909,37 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
 
     if	(save_format == save_audio_au_) { /* au format; https://pubs.opengroup.org/external/auformat.html */
         /* First we write the .au header.  All values in the header are
-         * 4-byte big-endian values, so we use pntoh32() to copy them
+         * 4-byte big-endian values, so we use pntohu32() to copy them
          * to a 4-byte buffer, in big-endian order, and then write out
          * the buffer. */
 
         /* the magic word 0x2e736e64 == .snd */
-        phton32(pd, 0x2e736e64);
+        phtonu32(pd, 0x2e736e64);
         nchars = save_file.write((const char *)pd, 4);
         if (nchars != 4)
             goto copy_file_err;
         /* header offset == 24 bytes */
-        phton32(pd, 24);
+        phtonu32(pd, 24);
         nchars = save_file.write((const char *)pd, 4);
         if (nchars != 4)
             goto copy_file_err;
         /* total length; it is permitted to set this to 0xffffffff */
-        phton32(pd, 0xffffffff);
+        phtonu32(pd, 0xffffffff);
         nchars = save_file.write((const char *)pd, 4);
         if (nchars != 4)
             goto copy_file_err;
         /* encoding format == 16-bit linear PCM */
-        phton32(pd, 3);
+        phtonu32(pd, 3);
         nchars = save_file.write((const char *)pd, 4);
         if (nchars != 4)
             goto copy_file_err;
         /* sample rate == 8000 Hz */
-        phton32(pd, 8000);
+        phtonu32(pd, 8000);
         nchars = save_file.write((const char *)pd, 4);
         if (nchars != 4)
             goto copy_file_err;
         /* channels == 1 */
-        phton32(pd, 1);
+        phtonu32(pd, 1);
         nchars = save_file.write((const char *)pd, 4);
         if (nchars != 4)
             goto copy_file_err;
@@ -957,10 +957,10 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
 
                 if (fwd_statinfo_.pt == PT_PCMU) {
                     sample = ulaw2linear((unsigned char)f_rawvalue);
-                    phton16(pd, sample);
+                    phtonu16(pd, sample);
                 } else if (fwd_statinfo_.pt == PT_PCMA) {
                     sample = alaw2linear((unsigned char)f_rawvalue);
-                    phton16(pd, sample);
+                    phtonu16(pd, sample);
                 } else {
                     goto copy_file_err;
                 }
@@ -984,10 +984,10 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
 
                 if (rev_statinfo_.pt == PT_PCMU) {
                     sample = ulaw2linear((unsigned char)r_rawvalue);
-                    phton16(pd, sample);
+                    phtonu16(pd, sample);
                 } else if (rev_statinfo_.pt == PT_PCMA) {
                     sample = alaw2linear((unsigned char)r_rawvalue);
-                    phton16(pd, sample);
+                    phtonu16(pd, sample);
                 } else {
                     goto copy_file_err;
                 }
@@ -1062,13 +1062,13 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
                         && (rev_statinfo_.pt == PT_PCMU)) {
                     sample = (ulaw2linear((unsigned char)r_rawvalue)
                               + ulaw2linear((unsigned char)f_rawvalue)) / 2;
-                    phton16(pd, sample);
+                    phtonu16(pd, sample);
                 }
                 else if ((fwd_statinfo_.pt == PT_PCMA)
                          && (rev_statinfo_.pt == PT_PCMA)) {
                     sample = (alaw2linear((unsigned char)r_rawvalue)
                               + alaw2linear((unsigned char)f_rawvalue)) / 2;
-                    phton16(pd, sample);
+                    phtonu16(pd, sample);
                 } else {
                     goto copy_file_err;
                 }

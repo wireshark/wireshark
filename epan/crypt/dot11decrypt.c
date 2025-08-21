@@ -97,7 +97,7 @@ extern const uint32_t crc32_table[256];
 #define DOT11DECRYPT_GET_TK_TKIP(ptk)    (ptk + 32)
 #define DOT11DECRYPT_GET_TK(ptk, akm, dh_group)    (ptk + TK_OFFSET(akm, dh_group))
 
-#define DOT11DECRYPT_IEEE80211_OUI(oui) (pntoh24(oui) == 0x000fac)
+#define DOT11DECRYPT_IEEE80211_OUI(oui) (pntohu24(oui) == 0x000fac)
 
 /****************************************************************************/
 
@@ -664,7 +664,7 @@ int Dot11DecryptScanTdlsForKeys(
         ws_debug("Not EAPOL-Key");
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
     }
-    status=pntoh16(data + offset);
+    status=pntohu16(data + offset);
     if (status != 0 && status != 85) {
         ws_debug("TDLS setup not successful");
         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;

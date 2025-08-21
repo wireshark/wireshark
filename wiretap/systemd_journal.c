@@ -205,7 +205,7 @@ static bool systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec,
             }
             memcpy(buf_ptr + fld_end, &le_data_len, 8);
             fld_end += 8;
-            data_len = pletoh64(&le_data_len);
+            data_len = pletohu64(&le_data_len);
             if (data_len < 1 || data_len - 1 >= MAX_EXPORT_ENTRY_LENGTH - fld_end) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = ws_strdup_printf("systemd: binary data too long");

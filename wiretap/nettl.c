@@ -353,11 +353,11 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
     wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 
-    if ( (pntoh32(&rec_hdr.kind) & NETTL_HDR_PDU_MASK) == 0 ) {
+    if ( (pntohu32(&rec_hdr.kind) & NETTL_HDR_PDU_MASK) == 0 ) {
         /* not actually a data packet (PDU) trace record */
         rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_NETTL_RAW_IP;
-        length = pntoh32(&rec_hdr.length);
-        caplen = pntoh32(&rec_hdr.caplen);
+        length = pntohu32(&rec_hdr.length);
+        caplen = pntohu32(&rec_hdr.caplen);
         padlen = 0;
     } else switch (subsys) {
         case NETTL_SUBSYS_LAN100 :
@@ -421,12 +421,12 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
                 rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_NETTL_ETHERNET;
             }
 
-            length = pntoh32(&rec_hdr.length);
-            caplen = pntoh32(&rec_hdr.caplen);
+            length = pntohu32(&rec_hdr.length);
+            caplen = pntohu32(&rec_hdr.caplen);
 
             /* HPPB FDDI has different inbound vs outbound trace records */
             if (subsys == NETTL_SUBSYS_HPPB_FDDI) {
-                if (pntoh32(&rec_hdr.kind) == NETTL_HDR_PDUIN) {
+                if (pntohu32(&rec_hdr.kind) == NETTL_HDR_PDUIN) {
                     /* inbound is very strange...
                        there are an extra 3 bytes after the DSAP and SSAP
                        for SNAP frames ???
@@ -483,8 +483,8 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
                                       err, err_info))
                 return false;
 
-            length = pntoh16(&drv_eth_hdr.length);
-            caplen = pntoh16(&drv_eth_hdr.caplen);
+            length = pntohu16(&drv_eth_hdr.length);
+            caplen = pntohu16(&drv_eth_hdr.caplen);
             /*
              * XXX - is there a length field that would give the length
              * of this header, so that we don't have to check for
@@ -520,8 +520,8 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
              * And is "from_dce" at xxa[0] in the nettlrec_hdr structure?
              */
             rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_NETTL_X25;
-            length = pntoh32(&rec_hdr.length);
-            caplen = pntoh32(&rec_hdr.caplen);
+            length = pntohu32(&rec_hdr.length);
+            caplen = pntohu32(&rec_hdr.caplen);
             padlen = 24;        /* sizeof (struct nettlrec_sx25l2_hdr) - NETTL_REC_HDR_LEN + 4 */
             if (!wtap_read_bytes(fh, NULL, padlen, err, err_info))
                 return false;
@@ -532,8 +532,8 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
                subsystem -- We'll probably spew junks and core if it isn't... */
             wth->file_encap = WTAP_ENCAP_PER_PACKET;
             rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_NETTL_ETHERNET;
-            length = pntoh32(&rec_hdr.length);
-            caplen = pntoh32(&rec_hdr.caplen);
+            length = pntohu32(&rec_hdr.length);
+            caplen = pntohu32(&rec_hdr.caplen);
             padlen = 0;
             break;
     }
@@ -554,14 +554,14 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char **err_info)
     }
     datalen = caplen - padlen;
     rec->rec_header.packet_header.caplen = datalen;
-    rec->ts.secs = pntoh32(&rec_hdr.sec);
-    rec->ts.nsecs = pntoh32(&rec_hdr.usec) * 1000;
+    rec->ts.secs = pntohu32(&rec_hdr.sec);
+    rec->ts.nsecs = pntohu32(&rec_hdr.usec) * 1000;
 
     pseudo_header->nettl.subsys   = subsys;
-    pseudo_header->nettl.devid    = pntoh32(&rec_hdr.devid);
-    pseudo_header->nettl.kind     = pntoh32(&rec_hdr.kind);
-    pseudo_header->nettl.pid      = pntoh32(&rec_hdr.pid);
-    pseudo_header->nettl.uid      = pntoh32(&rec_hdr.uid);
+    pseudo_header->nettl.devid    = pntohu32(&rec_hdr.devid);
+    pseudo_header->nettl.kind     = pntohu32(&rec_hdr.kind);
+    pseudo_header->nettl.pid      = pntohu32(&rec_hdr.pid);
+    pseudo_header->nettl.uid      = pntohu32(&rec_hdr.uid);
 
     if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
         /*

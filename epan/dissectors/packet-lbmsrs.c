@@ -954,8 +954,8 @@ static bool lbmsrs_match_packet(packet_info * pinfo, const lbmsrs_tag_entry_t * 
         (pinfo->src.type != AT_IPv4) || (pinfo->src.len != 4))
         return false;
 
-    uint32_t dest_addr_h = pntoh32(pinfo->dst.data);
-    uint32_t src_addr_h = pntoh32(pinfo->src.data);
+    uint32_t dest_addr_h = pntohu32(pinfo->dst.data);
+    uint32_t src_addr_h = pntohu32(pinfo->src.data);
 
     uint32_t ip_address_val_h = 0;
     if (NULL != entry->ip_address)

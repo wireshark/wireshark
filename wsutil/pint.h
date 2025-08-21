@@ -21,8 +21,8 @@
  * 32-bit, 40-bit, ... 64-bit integral quantity, in a particular byte
  * order, and fetch the value and return it in host byte order.
  *
- * The pntohN() routines fetch big-endian values; the pletohN() routines
- * fetch little-endian values.
+ * The pntohuN() routines fetch big-endian unsigned values; the pletohuN()
+  * routines fetch little-endian unsigned values.
  */
 
 /* On most architectures, accesses of 16, 32, and 64 bit quantities can be
@@ -92,7 +92,7 @@
 #define pint_bswap64(x) __builtin_bswap64(x)
 #endif
 
-static inline uint16_t pntoh16(const void *p)
+static inline uint16_t pntohu16(const void *p)
 {
     uint16_t ret;
     memcpy(&ret, p, sizeof(ret));
@@ -102,7 +102,7 @@ static inline uint16_t pntoh16(const void *p)
     return ret;
 }
 
-static inline uint32_t pntoh32(const void *p)
+static inline uint32_t pntohu32(const void *p)
 {
     uint32_t ret;
     memcpy(&ret, p, sizeof(ret));
@@ -112,7 +112,7 @@ static inline uint32_t pntoh32(const void *p)
     return ret;
 }
 
-static inline uint64_t pntoh64(const void *p)
+static inline uint64_t pntohu64(const void *p)
 {
     uint64_t ret;
     memcpy(&ret, p, sizeof(ret));
@@ -122,7 +122,7 @@ static inline uint64_t pntoh64(const void *p)
     return ret;
 }
 
-static inline uint16_t pletoh16(const void *p)
+static inline uint16_t pletohu16(const void *p)
 {
     uint16_t ret;
     memcpy(&ret, p, sizeof(ret));
@@ -132,7 +132,7 @@ static inline uint16_t pletoh16(const void *p)
     return ret;
 }
 
-static inline uint32_t pletoh32(const void *p)
+static inline uint32_t pletohu32(const void *p)
 {
     uint32_t ret;
     memcpy(&ret, p, sizeof(ret));
@@ -142,7 +142,7 @@ static inline uint32_t pletoh32(const void *p)
     return ret;
 }
 
-static inline uint64_t pletoh64(const void *p)
+static inline uint64_t pletohu64(const void *p)
 {
     uint64_t ret;
     memcpy(&ret, p, sizeof(ret));
@@ -152,7 +152,7 @@ static inline uint64_t pletoh64(const void *p)
     return ret;
 }
 
-static inline void phton16(uint8_t *p, uint16_t v)
+static inline void phtonu16(uint8_t *p, uint16_t v)
 {
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
     v = pint_bswap16(v);
@@ -160,7 +160,7 @@ static inline void phton16(uint8_t *p, uint16_t v)
     memcpy(p, &v, sizeof(v));
 }
 
-static inline void phton32(uint8_t *p, uint32_t v)
+static inline void phtonu32(uint8_t *p, uint32_t v)
 {
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
     v = pint_bswap32(v);
@@ -168,14 +168,14 @@ static inline void phton32(uint8_t *p, uint32_t v)
     memcpy(p, &v, sizeof(v));
 }
 
-static inline void phton64(uint8_t *p, uint64_t v) {
+static inline void phtonu64(uint8_t *p, uint64_t v) {
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
     v = pint_bswap64(v);
 #endif
     memcpy(p, &v, sizeof(v));
 }
 
-static inline void phtole16(uint8_t *p, uint32_t v)
+static inline void phtoleu16(uint8_t *p, uint32_t v)
 {
 #if G_BYTE_ORDER == G_BIG_ENDIAN
     v = pint_bswap16(v);
@@ -183,7 +183,7 @@ static inline void phtole16(uint8_t *p, uint32_t v)
     memcpy(p, &v, sizeof(v));
 }
 
-static inline void phtole32(uint8_t *p, uint32_t v)
+static inline void phtoleu32(uint8_t *p, uint32_t v)
 {
 #if G_BYTE_ORDER == G_BIG_ENDIAN
     v = pint_bswap32(v);
@@ -191,7 +191,7 @@ static inline void phtole32(uint8_t *p, uint32_t v)
     memcpy(p, &v, sizeof(v));
 }
 
-static inline void phtole64(uint8_t *p, uint64_t v) {
+static inline void phtoleu64(uint8_t *p, uint64_t v) {
 #if G_BYTE_ORDER == G_BIG_ENDIAN
     v = pint_bswap64(v);
 #endif
@@ -200,13 +200,13 @@ static inline void phtole64(uint8_t *p, uint64_t v) {
 
 #else
 /* Portable functions */
-static inline uint16_t pntoh16(const void *p)
+static inline uint16_t pntohu16(const void *p)
 {
     return (uint16_t)*((const uint8_t *)(p)+0)<<8|
            (uint16_t)*((const uint8_t *)(p)+1)<<0;
 }
 
-static inline uint32_t pntoh32(const void *p)
+static inline uint32_t pntohu32(const void *p)
 {
     return (uint32_t)*((const uint8_t *)(p)+0)<<24|
            (uint32_t)*((const uint8_t *)(p)+1)<<16|
@@ -214,7 +214,7 @@ static inline uint32_t pntoh32(const void *p)
            (uint32_t)*((const uint8_t *)(p)+3)<<0;
 }
 
-static inline uint64_t pntoh64(const void *p)
+static inline uint64_t pntohu64(const void *p)
 {
     return (uint64_t)*((const uint8_t *)(p)+0)<<56|
            (uint64_t)*((const uint8_t *)(p)+1)<<48|
@@ -226,13 +226,13 @@ static inline uint64_t pntoh64(const void *p)
            (uint64_t)*((const uint8_t *)(p)+7)<<0;
 }
 
-static inline uint16_t pletoh16(const void *p)
+static inline uint16_t pletohu16(const void *p)
 {
     return (uint16_t)*((const uint8_t *)(p)+1)<<8|
            (uint16_t)*((const uint8_t *)(p)+0)<<0;
 }
 
-static inline uint32_t pletoh32(const void *p)
+static inline uint32_t pletohu32(const void *p)
 {
     return (uint32_t)*((const uint8_t *)(p)+3)<<24|
            (uint32_t)*((const uint8_t *)(p)+2)<<16|
@@ -240,7 +240,7 @@ static inline uint32_t pletoh32(const void *p)
            (uint32_t)*((const uint8_t *)(p)+0)<<0;
 }
 
-static inline uint64_t pletoh64(const void *p)
+static inline uint64_t pletohu64(const void *p)
 {
     return (uint64_t)*((const uint8_t *)(p)+7)<<56|
            (uint64_t)*((const uint8_t *)(p)+6)<<48|
@@ -256,13 +256,13 @@ static inline uint64_t pletoh64(const void *p)
  * These will work regardless of the byte alignment of the pointer.
  */
 
-static inline void phton16(uint8_t *p, uint16_t v)
+static inline void phtonu16(uint8_t *p, uint16_t v)
 {
     p[0] = (uint8_t)(v >> 8);
     p[1] = (uint8_t)(v >> 0);
 }
 
-static inline void phton32(uint8_t *p, uint32_t v)
+static inline void phtonu32(uint8_t *p, uint32_t v)
 {
     p[0] = (uint8_t)(v >> 24);
     p[1] = (uint8_t)(v >> 16);
@@ -270,7 +270,7 @@ static inline void phton32(uint8_t *p, uint32_t v)
     p[3] = (uint8_t)(v >> 0);
 }
 
-static inline void phton64(uint8_t *p, uint64_t v) {
+static inline void phtonu64(uint8_t *p, uint64_t v) {
     p[0] = (uint8_t)(v >> 56);
     p[1] = (uint8_t)(v >> 48);
     p[2] = (uint8_t)(v >> 40);
@@ -281,20 +281,20 @@ static inline void phton64(uint8_t *p, uint64_t v) {
     p[7] = (uint8_t)(v >> 0);
 }
 
-static inline void phtole16(uint8_t *p, uint16_t v)
+static inline void phtoleu16(uint8_t *p, uint16_t v)
 {
     p[0] = (uint8_t)(v >> 0);
     p[1] = (uint8_t)(v >> 8);
 }
 
-static inline void phtole32(uint8_t *p, uint32_t v) {
+static inline void phtoleu32(uint8_t *p, uint32_t v) {
     p[0] = (uint8_t)(v >> 0);
     p[1] = (uint8_t)(v >> 8);
     p[2] = (uint8_t)(v >> 16);
     p[3] = (uint8_t)(v >> 24);
 }
 
-static inline void phtole64(uint8_t *p, uint64_t v) {
+static inline void phtoleu64(uint8_t *p, uint64_t v) {
     p[0] = (uint8_t)(v >> 0);
     p[1] = (uint8_t)(v >> 8);
     p[2] = (uint8_t)(v >> 16);
@@ -309,22 +309,22 @@ static inline void phtole64(uint8_t *p, uint64_t v) {
 /*
  * Single-byte versions, for completeness.
  */
-static inline uint8_t pntoh8(const void *p)
+static inline uint8_t pntohu8(const void *p)
 {
     return *((const uint8_t *)(p)+0)<<0;
 }
 
-static inline uint8_t pletoh8(const void *p)
+static inline uint8_t pletohu8(const void *p)
 {
     return *((const uint8_t *)(p)+0)<<0;
 }
 
-static inline void phton8(uint8_t *p, uint8_t v)
+static inline void phtonu8(uint8_t *p, uint8_t v)
 {
     p[0] = (uint8_t)((v) >> 0);
 }
 
-static inline void phtole8(uint8_t *p, uint8_t v)
+static inline void phtoleu8(uint8_t *p, uint8_t v)
 {
     p[0] = (uint8_t)((v) >> 0);
 }
@@ -334,14 +334,14 @@ static inline void phtole8(uint8_t *p, uint8_t v)
  * compiler optimize them to combinations of power-of-2 operations if
  * possible.
  */
-static inline uint32_t pntoh24(const void *p)
+static inline uint32_t pntohu24(const void *p)
 {
     return (uint32_t)*((const uint8_t *)(p)+0)<<16|
            (uint32_t)*((const uint8_t *)(p)+1)<<8|
            (uint32_t)*((const uint8_t *)(p)+2)<<0;
 }
 
-static inline uint64_t pntoh40(const void *p)
+static inline uint64_t pntohu40(const void *p)
 {
     return (uint64_t)*((const uint8_t *)(p)+0)<<32|
            (uint64_t)*((const uint8_t *)(p)+1)<<24|
@@ -350,7 +350,7 @@ static inline uint64_t pntoh40(const void *p)
            (uint64_t)*((const uint8_t *)(p)+4)<<0;
 }
 
-static inline uint64_t pntoh48(const void *p)
+static inline uint64_t pntohu48(const void *p)
 {
     return (uint64_t)*((const uint8_t *)(p)+0)<<40|
            (uint64_t)*((const uint8_t *)(p)+1)<<32|
@@ -360,7 +360,7 @@ static inline uint64_t pntoh48(const void *p)
            (uint64_t)*((const uint8_t *)(p)+5)<<0;
 }
 
-static inline uint64_t pntoh56(const void *p)
+static inline uint64_t pntohu56(const void *p)
 {
     return (uint64_t)*((const uint8_t *)(p)+0)<<48|
            (uint64_t)*((const uint8_t *)(p)+1)<<40|
@@ -371,14 +371,14 @@ static inline uint64_t pntoh56(const void *p)
            (uint64_t)*((const uint8_t *)(p)+6)<<0;
 }
 
-static inline uint32_t pletoh24(const void *p)
+static inline uint32_t pletohu24(const void *p)
 {
     return (uint32_t)*((const uint8_t *)(p)+2)<<16|
            (uint32_t)*((const uint8_t *)(p)+1)<<8|
            (uint32_t)*((const uint8_t *)(p)+0)<<0;
 }
 
-static inline uint64_t pletoh40(const void *p)
+static inline uint64_t pletohu40(const void *p)
 {
     return (uint64_t)*((const uint8_t *)(p)+4)<<32|
            (uint64_t)*((const uint8_t *)(p)+3)<<24|
@@ -387,7 +387,7 @@ static inline uint64_t pletoh40(const void *p)
            (uint64_t)*((const uint8_t *)(p)+0)<<0;
 }
 
-static inline uint64_t pletoh48(const void *p)
+static inline uint64_t pletohu48(const void *p)
 {
     return (uint64_t)*((const uint8_t *)(p)+5)<<40|
            (uint64_t)*((const uint8_t *)(p)+4)<<32|
@@ -397,7 +397,7 @@ static inline uint64_t pletoh48(const void *p)
            (uint64_t)*((const uint8_t *)(p)+0)<<0;
 }
 
-static inline uint64_t pletoh56(const void *p)
+static inline uint64_t pletohu56(const void *p)
 {
     return (uint64_t)*((const uint8_t *)(p)+6)<<48|
            (uint64_t)*((const uint8_t *)(p)+5)<<40|
@@ -408,14 +408,14 @@ static inline uint64_t pletoh56(const void *p)
            (uint64_t)*((const uint8_t *)(p)+0)<<0;
 }
 
-static inline void phton24(uint8_t *p, uint32_t v)
+static inline void phtonu24(uint8_t *p, uint32_t v)
 {
     p[0] = (uint8_t)((v) >> 16);
     p[1] = (uint8_t)((v) >> 8);
     p[2] = (uint8_t)((v) >> 0);
 }
 
-static inline void phton40(uint8_t *p, uint64_t v)
+static inline void phtonu40(uint8_t *p, uint64_t v)
 {
     p[0] = (uint8_t)((v) >> 32);
     p[1] = (uint8_t)((v) >> 24);
@@ -424,7 +424,7 @@ static inline void phton40(uint8_t *p, uint64_t v)
     p[4] = (uint8_t)((v) >> 0);
 }
 
-static inline void phton48(uint8_t *p, uint64_t v)
+static inline void phtonu48(uint8_t *p, uint64_t v)
 {
     p[0] = (uint8_t)((v) >> 40);
     p[1] = (uint8_t)((v) >> 32);
@@ -434,7 +434,7 @@ static inline void phton48(uint8_t *p, uint64_t v)
     p[5] = (uint8_t)((v) >> 0);
 }
 
-static inline void phton56(uint8_t *p, uint64_t v)
+static inline void phtonu56(uint8_t *p, uint64_t v)
 {
     p[0] = (uint8_t)((v) >> 48);
     p[1] = (uint8_t)((v) >> 40);
@@ -445,14 +445,14 @@ static inline void phton56(uint8_t *p, uint64_t v)
     p[6] = (uint8_t)((v) >> 0);
 }
 
-static inline void phtole24(uint8_t *p, uint32_t v)
+static inline void phtoleu24(uint8_t *p, uint32_t v)
 {
     p[0] = (uint8_t)((v) >> 0);
     p[1] = (uint8_t)((v) >> 8);
     p[2] = (uint8_t)((v) >> 16);
 }
 
-static inline void phtole40(uint8_t *p, uint64_t v)
+static inline void phtoleu40(uint8_t *p, uint64_t v)
 {
     p[0] = (uint8_t)((v) >> 0);
     p[1] = (uint8_t)((v) >> 8);
@@ -461,7 +461,7 @@ static inline void phtole40(uint8_t *p, uint64_t v)
     p[4] = (uint8_t)((v) >> 32);
 }
 
-static inline void phtole48(uint8_t *p, uint64_t v)
+static inline void phtoleu48(uint8_t *p, uint64_t v)
 {
     p[0] = (uint8_t)((v) >> 0);
     p[1] = (uint8_t)((v) >> 8);
@@ -471,7 +471,7 @@ static inline void phtole48(uint8_t *p, uint64_t v)
     p[5] = (uint8_t)((v) >> 40);
 }
 
-static inline void phtole56(uint8_t *p, uint64_t v)
+static inline void phtoleu56(uint8_t *p, uint64_t v)
 {
     p[0] = (uint8_t)((v) >> 0);
     p[1] = (uint8_t)((v) >> 8);

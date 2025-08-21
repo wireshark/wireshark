@@ -448,7 +448,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         }
         /* Write the length in the header */
         length = (eth_hdr_len - length_from) + pkt_len;
-        phton16(&pd[length_pos], length);
+        phtonu16(&pd[length_pos], length);
     }
 
     wtap_setup_packet_rec(rec, wth->file_encap);

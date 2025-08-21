@@ -971,12 +971,12 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             call_dissector(llc_handle, next_tvb, pinfo, tree);
             decoded = true;
           }
-          else if ((pntoh16(octet) & 0xff) == PPP_IP)
+          else if ((pntohu16(octet) & 0xff) == PPP_IP)
           {
             call_dissector(ppp_handle, next_tvb, pinfo, tree);
             decoded = true;
           }
-          else if (pntoh16(octet) == 0x00)
+          else if (pntohu16(octet) == 0x00)
           {
             /*
              * Assume VC multiplexed bridged Ethernet.

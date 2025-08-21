@@ -3821,7 +3821,7 @@ ssh_calc_mac(struct ssh_peer_data *peer_data, uint32_t seqnr, uint8_t* data, uin
         return;
 
     /* hash sequence number */
-    phton32(buf, seqnr);
+    phtonu32(buf, seqnr);
 
     ssh_print_data("Mac IV", peer_data->hmac_iv, peer_data->hmac_iv_len);
     ssh_print_data("Mac seq", buf, 4);
@@ -3911,7 +3911,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
             return tvb_captured_length(tvb);
         }
 
-        message_length = pntoh32(plain_length_buf);
+        message_length = pntohu32(plain_length_buf);
 
         ssh_debug_printf("chachapoly_crypt seqnr=%d [%u]\n", seqnr, message_length);
 
@@ -3958,7 +3958,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 
         memset(poly_key, 0, 32);
         memset(iv, 0, 8);
-        phton64(iv+8, (uint64_t)seqnr);
+        phtonu64(iv+8, (uint64_t)seqnr);
         gcry_cipher_setiv(peer_data->cipher, iv, mac_len);
         gcry_cipher_encrypt(peer_data->cipher, poly_key, 32, poly_key, 32);
 
@@ -4041,7 +4041,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
         const char *ctext = (const char *)tvb_get_ptr(tvb, offset + 4,
                 message_length);
         plain = (char *)wmem_alloc(pinfo->pool, message_length+4);
-        phton32(plain, message_length);
+        phtonu32(plain, message_length);
 
         if ((err = gcry_cipher_authenticate(peer_data->cipher, plain, 4))) {
 // TODO: temporary work-around as long as a Windows python bug is triggered by automated tests
@@ -4110,7 +4110,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
             }
         }
 
-        message_length = pntoh32(peer_data->plain0);
+        message_length = pntohu32(peer_data->plain0);
 
         /* The message_length value doesn't include the length of the
          * message_length field itself, so it must be at least 12 bytes.
@@ -4261,7 +4261,7 @@ ssh_decrypt_chacha20(gcry_cipher_hd_t hd,
     unsigned char seq[8];
     unsigned char iv[16];
 
-    phton64(seq, (uint64_t)seqnr);
+    phtonu64(seq, (uint64_t)seqnr);
 
     // chacha20 uses a different cipher handle for the packet payload & length
     // the payload uses a block counter

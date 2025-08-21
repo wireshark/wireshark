@@ -1494,15 +1494,15 @@ blf_read_ethernetframe(blf_params_t *params, int *err, char **err_info, int64_t 
     tmpbuf[11] = ethheader.src_addr[5];
 
     if (ethheader.tpid != 0 && ethheader.tci != 0) {
-        phton16(tmpbuf + 12, ethheader.tpid);
-        phton16(tmpbuf + 14, ethheader.tci);
-        phton16(tmpbuf + 16, ethheader.ethtype);
+        phtonu16(tmpbuf + 12, ethheader.tpid);
+        phtonu16(tmpbuf + 14, ethheader.tci);
+        phtonu16(tmpbuf + 16, ethheader.ethtype);
         ws_buffer_assure_space(&params->rec->data, (size_t)18 + ethheader.payloadlength);
         ws_buffer_append(&params->rec->data, tmpbuf, (size_t)18);
         caplen = ((uint32_t)18 + ethheader.payloadlength);
         len = ((uint32_t)18 + ethheader.payloadlength);
     } else {
-        phton16(tmpbuf + 12, ethheader.ethtype);
+        phtonu16(tmpbuf + 12, ethheader.ethtype);
         ws_buffer_assure_space(&params->rec->data, (size_t)14 + ethheader.payloadlength);
         ws_buffer_append(&params->rec->data, tmpbuf, (size_t)14);
         caplen = ((uint32_t)14 + ethheader.payloadlength);
@@ -1661,7 +1661,7 @@ blf_can_fill_buf_and_rec(blf_params_t *params, int *err, char **err_info, uint32
     uint8_t  tmpbuf[8];
     unsigned caplen, len;
 
-    phton32(tmpbuf, canid);
+    phtonu32(tmpbuf, canid);
     tmpbuf[4] = payload_length;
     tmpbuf[5] = canfd_flags;
     tmpbuf[6] = 0;
@@ -1905,7 +1905,7 @@ blf_read_canerror(blf_params_t *params, int *err, char **err_info, int64_t block
         canid |= CAN_ERR_PROT;
     }
 
-    phton32(tmpbuf, canid);
+    phtonu32(tmpbuf, canid);
     tmpbuf[4] = payload_length;
 
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
@@ -1986,7 +1986,7 @@ blf_read_canerrorext(blf_params_t *params, int *err, char **err_info, int64_t bl
     payload_length = CAN_ERR_DLC;
     canheader.dlc = payload_length;
 
-    phton32(tmpbuf, canid);
+    phtonu32(tmpbuf, canid);
     tmpbuf[4] = payload_length;
 
     ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
@@ -2071,7 +2071,7 @@ blf_read_canfderror64(blf_params_t *params, int *err, char **err_info, int64_t b
     payload_length = CAN_ERR_DLC;
     canheader.dlc = payload_length;
 
-    phton32(tmpbuf, canid);
+    phtonu32(tmpbuf, canid);
     tmpbuf[4] = payload_length;
     // Don't set FDF, ESI and BRS flags, since error messages are always encapsulated in Classic CAN frames
 
@@ -3288,8 +3288,8 @@ blf_read_ethernet_status(blf_params_t* params, int* err, char** err_info, int64_
 
     fix_endianness_blf_ethernet_status_header(&ethernet_status_header);
 
-    phton16(tmpbuf, ethernet_status_header.channel);
-    phton16(tmpbuf + 2, ethernet_status_header.flags);
+    phtonu16(tmpbuf, ethernet_status_header.channel);
+    phtonu16(tmpbuf + 2, ethernet_status_header.flags);
     tmpbuf[4] = (ethernet_status_header.linkStatus);
     tmpbuf[5] = (ethernet_status_header.ethernetPhy);
     tmpbuf[6] = (ethernet_status_header.duplex);
@@ -3298,10 +3298,10 @@ blf_read_ethernet_status(blf_params_t* params, int* err, char** err_info, int64_
     tmpbuf[9] = (ethernet_status_header.clockMode);
     tmpbuf[10] = (ethernet_status_header.pairs);
     tmpbuf[11] = (ethernet_status_header.hardwareChannel);
-    phton32(tmpbuf + 12, ethernet_status_header.bitrate);
+    phtonu32(tmpbuf + 12, ethernet_status_header.bitrate);
 
     if (object_version >= 1) {
-        phton64(tmpbuf + 16, linkUpDuration);
+        phtonu64(tmpbuf + 16, linkUpDuration);
     }
 
     wtap_buffer_append_epdu_string(&params->rec->data, EXP_PDU_TAG_DISSECTOR_NAME, BLF_APPTEXT_TAG_DISS_ETHSTATUS);
@@ -3349,8 +3349,8 @@ blf_read_ethernet_phystate(blf_params_t* params, int* err, char** err_info, int6
 
     fix_endianness_blf_ethernet_phystate_header(&ethernet_phystate_header);
 
-    phton16(tmpbuf, ethernet_phystate_header.channel);
-    phton16(tmpbuf + 2, ethernet_phystate_header.flags);
+    phtonu16(tmpbuf, ethernet_phystate_header.channel);
+    phtonu16(tmpbuf + 2, ethernet_phystate_header.flags);
     tmpbuf[4] = (ethernet_phystate_header.phyState);
     tmpbuf[5] = (ethernet_phystate_header.phyEvent);
     tmpbuf[6] = (ethernet_phystate_header.hardwareChannel);
@@ -4129,15 +4129,15 @@ static bool blf_dump_ethernet(wtap_dumper *wdh, const wtap_rec *rec, int *err, c
 
     ethheader.direction = blf_get_direction(rec);
 
-    uint16_t eth_type = pntoh16(pd + offset);
+    uint16_t eth_type = pntohu16(pd + offset);
     offset += 2;
 
     if (eth_type == 0x8100 || eth_type == 0x9100 || eth_type == 0x88a8) {
         ethheader.tpid = eth_type;
-        ethheader.tci = pntoh16(pd + offset);
+        ethheader.tci = pntohu16(pd + offset);
         offset += 2;
 
-        eth_type = pntoh16(pd + offset);
+        eth_type = pntohu16(pd + offset);
         offset += 2;
     } else {
         ethheader.tpid = 0;
@@ -4219,7 +4219,7 @@ static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
     }
 
     /* XXX endianess is not defined. Assuming BE as this seems the common choice*/
-    uint32_t can_id = pntoh32(pd);
+    uint32_t can_id = pntohu32(pd);
 
     /* lets check if can_id makes sense
      * 29bit CAN ID mask 0x1fffffff CAN_EFF_MASK
@@ -4228,7 +4228,7 @@ static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
      */
     if (((can_id & CAN_EFF_FLAG) == 0) && ((can_id & (CAN_EFF_MASK & (!CAN_SFF_MASK))) != 0)) {
         ws_message("CAN-ID 0x%08x seems to be in wrong byte order, changing to little-endian", can_id);
-        can_id = pletoh32(pd);
+        can_id = pletohu32(pd);
     }
 
     bool err_flag = (can_id & CAN_ERR_FLAG) == CAN_ERR_FLAG;
@@ -4349,7 +4349,7 @@ static bool blf_dump_sll(wtap_dumper *wdh, const wtap_rec *rec, int *err, char *
         frame_tx = true;
     }
 
-    uint16_t protocol_type = pntoh16(pd + 14);
+    uint16_t protocol_type = pntohu16(pd + 14);
 
     switch (protocol_type) {
     case 0x000C: /* CAN */
@@ -4417,7 +4417,7 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
         frmsg.channel = (uint16_t)iface_entry->channel;
         frmsg.version = 1;
 
-        uint32_t header_crc = (pntoh24(pd + 4) & FLEXRAY_HEADER_CRC_MASK) >> FLEXRAY_HEADER_CRC_SHFT;
+        uint32_t header_crc = (pntohu24(pd + 4) & FLEXRAY_HEADER_CRC_MASK) >> FLEXRAY_HEADER_CRC_SHFT;
 
         if ((pd[0] & FLEXRAY_CHANNEL_MASK) == 0) {
             frmsg.channelMask = BLF_FLEXRAYRCVMSG_CHANNELMASK_A;
@@ -4432,7 +4432,7 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
         frmsg.dir = blf_get_direction(rec);
         frmsg.clientIndex = 0;
         frmsg.clusterNo = 0;
-        frmsg.frameId = (pntoh16(pd + 2)) & FLEXRAY_ID_MASK;
+        frmsg.frameId = (pntohu16(pd + 2)) & FLEXRAY_ID_MASK;
         frmsg.payloadLength = payload_length;
         frmsg.payloadLengthValid = payload_length;
         frmsg.cycle = pd[6] & FLEXRAY_CC_MASK;
@@ -4625,8 +4625,8 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
             return false;
         }
 
-        uint16_t tag_type = pntoh16(pd + pos);
-        uint16_t tag_len = pntoh16(pd + pos + 2);
+        uint16_t tag_type = pntohu16(pd + pos);
+        uint16_t tag_len = pntohu16(pd + pos + 2);
 
         if ((length - pos) < (size_t)tag_len + 4) {
             *err = WTAP_ERR_INTERNAL;

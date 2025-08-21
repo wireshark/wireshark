@@ -75,8 +75,8 @@ wtap_open_return_val csids_open(wtap *wth, int *err, char **err_info)
   if( hdr.zeropad != 0 || hdr.caplen == 0 ) {
     return WTAP_OPEN_NOT_MINE;
   }
-  hdr.seconds = pntoh32( &hdr.seconds );
-  hdr.caplen = pntoh16( &hdr.caplen );
+  hdr.seconds = pntohu32( &hdr.seconds );
+  hdr.caplen = pntohu16( &hdr.caplen );
   if( !wtap_read_bytes( wth->fh, &tmp, 2, err, err_info ) ) {
     if( *err != WTAP_ERR_SHORT_READ ) {
       return WTAP_OPEN_ERROR;
@@ -89,7 +89,7 @@ wtap_open_return_val csids_open(wtap *wth, int *err, char **err_info)
     }
     return WTAP_OPEN_NOT_MINE;
   }
-  iplen = pntoh16(&iplen);
+  iplen = pntohu16(&iplen);
 
   if ( iplen == 0 )
     return WTAP_OPEN_NOT_MINE;
@@ -177,8 +177,8 @@ csids_read_packet(wtap *wth, FILE_T fh, csids_t *csids, wtap_rec *rec,
 
   if( !wtap_read_bytes_or_eof( fh, &hdr, sizeof( struct csids_header), err, err_info ) )
     return false;
-  hdr.seconds = pntoh32(&hdr.seconds);
-  hdr.caplen = pntoh16(&hdr.caplen);
+  hdr.seconds = pntohu32(&hdr.seconds);
+  hdr.caplen = pntohu16(&hdr.caplen);
   /*
    * The maximum value of hdr.caplen is 65535, which is less than
    * WTAP_MAX_PACKET_SIZE_STANDARD will ever be, so we don't need to check

@@ -192,7 +192,7 @@ wtap_open_return_val visual_open(wtap *wth, int *err, char **err_info)
     }
 
     /* Verify the file version is known */
-    vfile_hdr.file_version = pletoh16(&vfile_hdr.file_version);
+    vfile_hdr.file_version = pletohu16(&vfile_hdr.file_version);
     if (vfile_hdr.file_version != 1)
     {
         *err = WTAP_ERR_UNSUPPORTED;
@@ -208,7 +208,7 @@ wtap_open_return_val visual_open(wtap *wth, int *err, char **err_info)
        the first packet is read.
 
        XXX - should we use WTAP_ENCAP_PER_PACKET for that? */
-    switch (pletoh16(&vfile_hdr.media_type))
+    switch (pletohu16(&vfile_hdr.media_type))
     {
     case  6:    /* ethernet-csmacd */
         encap = WTAP_ENCAP_ETHERNET;
@@ -245,7 +245,7 @@ wtap_open_return_val visual_open(wtap *wth, int *err, char **err_info)
     /* Fill in the wiretap struct with data from the file header */
     wth->file_type_subtype = visual_file_type_subtype;
     wth->file_encap = encap;
-    wth->snapshot_length = pletoh16(&vfile_hdr.max_length);
+    wth->snapshot_length = pletohu16(&vfile_hdr.max_length);
 
     /* Set up the pointers to the handlers for this file type */
     wth->subtype_read = visual_read;
@@ -255,8 +255,8 @@ wtap_open_return_val visual_open(wtap *wth, int *err, char **err_info)
     /* Add Visual-specific information to the wiretap struct for later use. */
     visual = g_new(struct visual_read_info, 1);
     wth->priv = (void *)visual;
-    visual->num_pkts = pletoh32(&vfile_hdr.num_pkts);
-    visual->start_time = pletoh32(&vfile_hdr.start_time);
+    visual->num_pkts = pletohu32(&vfile_hdr.num_pkts);
+    visual->start_time = pletohu32(&vfile_hdr.start_time);
     visual->current_pkt = 1;
 
     /*
@@ -330,20 +330,20 @@ static bool visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     }
 
     /* Get the included length of data. This includes extra headers + payload */
-    packet_size = pletoh16(&vpkt_hdr.incl_len);
+    packet_size = pletohu16(&vpkt_hdr.incl_len);
 
     wtap_setup_packet_rec(rec, wth->file_encap);
     rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
     /* Set the packet time and length. */
-    relmsecs = pletoh32(&vpkt_hdr.ts_delta);
+    relmsecs = pletohu32(&vpkt_hdr.ts_delta);
     rec->ts.secs = visual->start_time + relmsecs/1000;
     rec->ts.nsecs = (relmsecs % 1000)*1000000;
 
-    rec->rec_header.packet_header.len = pletoh16(&vpkt_hdr.orig_len);
+    rec->rec_header.packet_header.len = pletohu16(&vpkt_hdr.orig_len);
 
-    packet_status = pletoh32(&vpkt_hdr.status);
+    packet_status = pletohu32(&vpkt_hdr.status);
 
     /* Do encapsulation-specific processing.
 
@@ -481,7 +481,7 @@ static bool visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         case VN_AAL5:
             rec->rec_header.packet_header.pseudo_header.atm.aal = AAL_5;
             rec->rec_header.packet_header.pseudo_header.atm.type = TRAF_LLCMX;
-            rec->rec_header.packet_header.pseudo_header.atm.aal5t_len = pntoh32(&vatm_hdr.data_length);
+            rec->rec_header.packet_header.pseudo_header.atm.aal5t_len = pntohu32(&vatm_hdr.data_length);
             break;
 
         case VN_OAM:
@@ -497,9 +497,9 @@ static bool visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
             rec->rec_header.packet_header.pseudo_header.atm.aal = AAL_UNKNOWN;
             break;
         }
-        rec->rec_header.packet_header.pseudo_header.atm.vpi = pntoh16(&vatm_hdr.vpi) & 0x0FFF;
-        rec->rec_header.packet_header.pseudo_header.atm.vci = pntoh16(&vatm_hdr.vci);
-        rec->rec_header.packet_header.pseudo_header.atm.cells = pntoh16(&vatm_hdr.cell_count);
+        rec->rec_header.packet_header.pseudo_header.atm.vpi = pntohu16(&vatm_hdr.vpi) & 0x0FFF;
+        rec->rec_header.packet_header.pseudo_header.atm.vci = pntohu16(&vatm_hdr.vci);
+        rec->rec_header.packet_header.pseudo_header.atm.cells = pntohu16(&vatm_hdr.cell_count);
 
         /* Using bit value of 1 (DCE -> DTE) to indicate From Network */
         rec->rec_header.packet_header.pseudo_header.atm.channel = vatm_hdr.info & FROM_NETWORK;

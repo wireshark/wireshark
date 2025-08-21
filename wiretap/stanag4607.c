@@ -59,7 +59,7 @@ static bool stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
     return false;
   offset += sizeof stanag_pkt_hdr;
 
-  if (!is_valid_id(pntoh16(&stanag_pkt_hdr[0]))) {
+  if (!is_valid_id(pntohu16(&stanag_pkt_hdr[0]))) {
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup("Bad version number");
     return false;
@@ -69,7 +69,7 @@ static bool stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
   rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 
   /* The next 4 bytes are the packet length */
-  packet_size = pntoh32(&stanag_pkt_hdr[2]);
+  packet_size = pntohu32(&stanag_pkt_hdr[2]);
   if (packet_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
     /*
      * Probably a corrupt capture file; don't blow up trying
@@ -114,7 +114,7 @@ static bool stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
       return false;
     offset += sizeof mseg;
 
-    tm.tm_year = pntoh16(&mseg[35]) - 1900;
+    tm.tm_year = pntohu16(&mseg[35]) - 1900;
     tm.tm_mon = mseg[37] - 1;
     tm.tm_mday = mseg[38];
     tm.tm_hour = 0;
@@ -135,7 +135,7 @@ static bool stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
     if (!wtap_read_bytes(fh, &dseg, sizeof dseg, err, err_info))
       return false;
     offset += sizeof dseg;
-    millisecs = pntoh32(&dseg[15]);
+    millisecs = pntohu32(&dseg[15]);
   }
   if (0 != millisecs) {
     secs = millisecs/1000;

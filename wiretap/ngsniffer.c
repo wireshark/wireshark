@@ -597,7 +597,7 @@ ngsniffer_open(wtap *wth, int *err, char **err_info)
 	if (!wtap_read_bytes(wth->fh, record_length, 4, err, err_info))
 		return WTAP_OPEN_ERROR;
 
-	type = pletoh16(record_type);
+	type = pletohu16(record_type);
 
 	if (type != REC_VERS) {
 		*err = WTAP_ERR_BAD_FILE;
@@ -642,7 +642,7 @@ ngsniffer_open(wtap *wth, int *err, char **err_info)
 	 * for BRI ISDN files, and 0 for non-ISDN files; is that something
 	 * the DOS Sniffer understands?
 	 */
-	maj_vers = pletoh16(&version.maj_vers);
+	maj_vers = pletohu16(&version.maj_vers);
 	if (process_header_records(wth, err, err_info, maj_vers,
 	    version.network) < 0)
 		return WTAP_OPEN_ERROR;
@@ -660,7 +660,7 @@ ngsniffer_open(wtap *wth, int *err, char **err_info)
 			 * ... and this is a version 1 capture; look
 			 * at the first "rsvd" word.
 			 */
-			switch (pletoh16(&version.rsvd[0])) {
+			switch (pletohu16(&version.rsvd[0])) {
 
 			case 1:
 			case 2:
@@ -712,7 +712,7 @@ ngsniffer_open(wtap *wth, int *err, char **err_info)
 	}
 
 	ngsniffer->maj_vers = maj_vers;
-	ngsniffer->min_vers = pletoh16(&version.min_vers);
+	ngsniffer->min_vers = pletohu16(&version.min_vers);
 
 	/* We haven't allocated any uncompression buffers yet. */
 	ngsniffer->seq.buf = NULL;
@@ -743,7 +743,7 @@ ngsniffer_open(wtap *wth, int *err, char **err_info)
 	ngsniffer->network = version.network;
 
 	/* Get capture start time */
-	start_date = pletoh16(&version.date);
+	start_date = pletohu16(&version.date);
 	tm.tm_year = ((start_date&DOS_YEAR_MASK)>>DOS_YEAR_SHIFT) + DOS_YEAR_OFFSET;
 	tm.tm_mon = ((start_date&DOS_MONTH_MASK)>>DOS_MONTH_SHIFT) + DOS_MONTH_OFFSET;
 	tm.tm_mday = ((start_date&DOS_DAY_MASK)>>DOS_DAY_SHIFT);
@@ -753,7 +753,7 @@ ngsniffer_open(wtap *wth, int *err, char **err_info)
 	 * version-dependent?
 	 */
 #if 0
-	start_time = pletoh16(&version.time_dos);
+	start_time = pletohu16(&version.time_dos);
 	tm.tm_hour = (start_time&0xf800)>>11;
 	tm.tm_min = (start_time&0x7e0)>>5;
 	tm.tm_sec = (start_time&0x1f)<<1;
@@ -803,7 +803,7 @@ process_header_records(wtap *wth, int *err, char **err_info, int16_t maj_vers,
 			return 0;	/* EOF */
 		}
 
-		rec_type = pletoh16(record_type);
+		rec_type = pletohu16(record_type);
 		if ((rec_type != REC_HEADER1) && (rec_type != REC_HEADER2)
 			&& (rec_type != REC_HEADER3) && (rec_type != REC_HEADER4)
 			&& (rec_type != REC_HEADER5) && (rec_type != REC_HEADER6)
@@ -825,7 +825,7 @@ process_header_records(wtap *wth, int *err, char **err_info, int16_t maj_vers,
 		    err, err_info))
 			return -1;
 
-		rec_length_remaining = pletoh16(record_length);
+		rec_length_remaining = pletohu16(record_length);
 
 		/*
 		 * Is this is an "Internetwork analyzer" capture, and
@@ -1182,8 +1182,8 @@ read_rec_header(wtap *wth, bool is_random, struct rec_header *hdr,
 	if (!ng_read_bytes(wth, record_length, 4, is_random, err, err_info))
 		return false;
 
-	hdr->type = pletoh16(record_type);
-	hdr->length = pletoh16(record_length);
+	hdr->type = pletohu16(record_type);
+	hdr->length = pletohu16(record_length);
 	return true;
 }
 
@@ -1238,12 +1238,12 @@ process_frame_record(wtap *wth, bool is_random, unsigned *padding,
 		if (!ng_read_bytes(wth, &frame2, (unsigned int)sizeof frame2,
 		   is_random, err, err_info))
 			return false;
-		time_low = pletoh16(&frame2.time_low);
-		time_med = pletoh16(&frame2.time_med);
+		time_low = pletohu16(&frame2.time_low);
+		time_med = pletohu16(&frame2.time_med);
 		time_high = frame2.time_high;
 		time_day = frame2.time_day;
-		size = pletoh16(&frame2.size);
-		true_size = pletoh16(&frame2.true_size);
+		size = pletohu16(&frame2.size);
+		true_size = pletohu16(&frame2.true_size);
 
 		rec_length_remaining -= (unsigned)sizeof frame2;	/* we already read that much */
 
@@ -1282,12 +1282,12 @@ process_frame_record(wtap *wth, bool is_random, unsigned *padding,
 		if (!ng_read_bytes(wth, &frame4, (unsigned int)sizeof frame4,
 		    is_random, err, err_info))
 			return false;
-		time_low = pletoh16(&frame4.time_low);
-		time_med = pletoh16(&frame4.time_med);
+		time_low = pletohu16(&frame4.time_low);
+		time_med = pletohu16(&frame4.time_med);
 		time_high = frame4.time_high;
 		time_day = frame4.time_day;
-		size = pletoh16(&frame4.size);
-		true_size = pletoh16(&frame4.true_size);
+		size = pletohu16(&frame4.size);
+		true_size = pletohu16(&frame4.true_size);
 
 		rec_length_remaining -= (unsigned)sizeof frame4;	/* we already read that much */
 
@@ -1306,12 +1306,12 @@ process_frame_record(wtap *wth, bool is_random, unsigned *padding,
 		if (!ng_read_bytes(wth, &frame6, (unsigned int)sizeof frame6,
 		    is_random, err, err_info))
 			return false;
-		time_low = pletoh16(&frame6.time_low);
-		time_med = pletoh16(&frame6.time_med);
+		time_low = pletohu16(&frame6.time_low);
+		time_med = pletohu16(&frame6.time_med);
 		time_high = frame6.time_high;
 		time_day = frame6.time_day;
-		size = pletoh16(&frame6.size);
-		true_size = pletoh16(&frame6.true_size);
+		size = pletohu16(&frame6.size);
+		true_size = pletohu16(&frame6.true_size);
 
 		rec_length_remaining -= (unsigned)sizeof frame6;	/* we already read that much */
 
@@ -1541,14 +1541,14 @@ set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
 	 * Map flags from frame4.atm_info.StatusWord.
 	 */
 	pseudo_header->atm.flags = 0;
-	StatusWord = pletoh32(&frame4->atm_info.StatusWord);
+	StatusWord = pletohu32(&frame4->atm_info.StatusWord);
 	if (StatusWord & SW_RAW_CELL)
 		pseudo_header->atm.flags |= ATM_RAW_CELL;
 
 	aal_type = frame4->atm_info.AppTrafType & ATT_AALTYPE;
 	hl_type = frame4->atm_info.AppTrafType & ATT_HLTYPE;
-	vpi = pletoh16(&frame4->atm_info.Vpi);
-	vci = pletoh16(&frame4->atm_info.Vci);
+	vpi = pletohu16(&frame4->atm_info.Vpi);
+	vci = pletohu16(&frame4->atm_info.Vci);
 
 	switch (aal_type) {
 
@@ -1776,11 +1776,11 @@ set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
 	}
 	pseudo_header->atm.vpi = vpi;
 	pseudo_header->atm.vci = vci;
-	pseudo_header->atm.channel = pletoh16(&frame4->atm_info.channel);
-	pseudo_header->atm.cells = pletoh16(&frame4->atm_info.cells);
-	pseudo_header->atm.aal5t_u2u = pletoh16(&frame4->atm_info.Trailer.aal5t_u2u);
-	pseudo_header->atm.aal5t_len = pletoh16(&frame4->atm_info.Trailer.aal5t_len);
-	pseudo_header->atm.aal5t_chksum = pntoh32(&frame4->atm_info.Trailer.aal5t_chksum);
+	pseudo_header->atm.channel = pletohu16(&frame4->atm_info.channel);
+	pseudo_header->atm.cells = pletohu16(&frame4->atm_info.cells);
+	pseudo_header->atm.aal5t_u2u = pletohu16(&frame4->atm_info.Trailer.aal5t_u2u);
+	pseudo_header->atm.aal5t_len = pletohu16(&frame4->atm_info.Trailer.aal5t_len);
+	pseudo_header->atm.aal5t_chksum = pntohu32(&frame4->atm_info.Trailer.aal5t_chksum);
 }
 
 static void
@@ -2381,7 +2381,7 @@ SnifferDecompress(unsigned char *inbuf, size_t inlen, unsigned char *outbuf,
 			   plus one byte after it */
 			CHECK_INPUT_POINTER( 3 );
 			bit_mask  = 0x8000;  /* start with the high bit */
-			bit_value = pletoh16(pin);   /* get the next 16 bits */
+			bit_value = pletohu16(pin);   /* get the next 16 bits */
 			pin += 2;          /* skip over what we just grabbed */
 		}
 
@@ -2637,7 +2637,7 @@ read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err,
 	if (!wtap_read_bytes_or_eof(infile, &blob_len, 2, err, err_info))
 		return false;
 	comp_stream->comp_offset += 2;
-	blob_len_host = pletoh16(&blob_len);
+	blob_len_host = pletohu16(&blob_len);
 
 	/* Compressed or uncompressed? */
 	if (blob_len_host < 0) {

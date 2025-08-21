@@ -214,7 +214,7 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec,
 	}
 
 	/* Get the record length */
-	record_length = pntoh32(&header[IPTRACE_1_0_REC_LENGTH_OFFSET]);
+	record_length = pntohu32(&header[IPTRACE_1_0_REC_LENGTH_OFFSET]);
 	if (record_length < IPTRACE_1_0_PINFO_SIZE) {
 		/*
 		 * Uh-oh, the record isn't big enough to even have a
@@ -296,7 +296,7 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec,
 	rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_INTERFACE_ID;
 	rec->rec_header.packet_header.len = packet_size;
 	rec->rec_header.packet_header.caplen = packet_size;
-	rec->ts.secs = pntoh32(&header[IPTRACE_1_0_TV_SEC_OFFSET]);
+	rec->ts.secs = pntohu32(&header[IPTRACE_1_0_TV_SEC_OFFSET]);
 	rec->ts.nsecs = 0;
 	wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS,
 	    pkt_info[IPTRACE_1_0_TX_FLAGS_OFFSET] ?
@@ -469,7 +469,7 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec,
 	}
 
 	/* Get the record length */
-	record_length = pntoh32(&header[IPTRACE_2_0_REC_LENGTH_OFFSET]);
+	record_length = pntohu32(&header[IPTRACE_2_0_REC_LENGTH_OFFSET]);
 	if (record_length < IPTRACE_2_0_PINFO_SIZE) {
 		/*
 		 * Uh-oh, the record isn't big enough to even have a
@@ -569,8 +569,8 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec,
 	rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_INTERFACE_ID;
 	rec->rec_header.packet_header.len = packet_size;
 	rec->rec_header.packet_header.caplen = packet_size;
-	rec->ts.secs = pntoh32(&pkt_info[IPTRACE_2_0_TV_SEC_OFFSET]);
-	rec->ts.nsecs = pntoh32(&pkt_info[IPTRACE_2_0_TV_NSEC_OFFSET]);
+	rec->ts.secs = pntohu32(&pkt_info[IPTRACE_2_0_TV_SEC_OFFSET]);
+	rec->ts.nsecs = pntohu32(&pkt_info[IPTRACE_2_0_TV_NSEC_OFFSET]);
 	wtap_block_add_uint32_option(rec->block, OPT_PKT_FLAGS,
 	    pkt_info[IPTRACE_2_0_TX_FLAGS_OFFSET] ?
 	      (PACK_FLAGS_DIRECTION_OUTBOUND << PACK_FLAGS_DIRECTION_SHIFT) :

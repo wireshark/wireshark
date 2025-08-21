@@ -592,7 +592,7 @@ struct sll2_header {
 #define VLAN_SIZE 4
 static void
 sll_remove_vlan_info(uint8_t* fd, uint32_t* len) {
-    if (pntoh16(fd + offsetof(struct sll_header, sll_protocol)) == ETHERTYPE_VLAN) {
+    if (pntohu16(fd + offsetof(struct sll_header, sll_protocol)) == ETHERTYPE_VLAN) {
         int rest_len;
         /* point to start of vlan */
         fd = fd + offsetof(struct sll_header, sll_protocol);
@@ -609,7 +609,7 @@ sll_remove_vlan_info(uint8_t* fd, uint32_t* len) {
 static void
 sll_set_unused_info(uint8_t* fd) {
     uint32_t ha_len;
-    ha_len = pntoh16(fd + offsetof(struct sll_header, sll_halen));
+    ha_len = pntohu16(fd + offsetof(struct sll_header, sll_halen));
 
     if (ha_len < SLL_ADDRLEN) {
         int unused;
@@ -682,7 +682,7 @@ is_duplicate(wtap_rec *rec) {
     /* Get the size of radiotap header and use that as offset (-p option) */
     if (skip_radiotap == true) {
         tap_header = (const struct ieee80211_radiotap_header*)fd;
-        offset = pletoh16(&tap_header->it_len);
+        offset = pletohu16(&tap_header->it_len);
         if (offset >= len)
             offset = 0;
     }

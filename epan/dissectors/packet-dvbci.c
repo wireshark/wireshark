@@ -3356,8 +3356,8 @@ static int exp_pdu_data_dvbci_size(packet_info *pinfo _U_, void* data _U_)
 
 static int exp_pdu_data_dvbci_populate_data(packet_info *pinfo, void* data, uint8_t *tlv_buffer, uint32_t buffer_size _U_)
 {
-  phton16(&tlv_buffer[0], EXP_PDU_TAG_DVBCI_EVT);
-  phton16(&tlv_buffer[2], EXP_PDU_TAG_DVBCI_EVT_LEN);
+  phtonu16(&tlv_buffer[0], EXP_PDU_TAG_DVBCI_EVT);
+  phtonu16(&tlv_buffer[2], EXP_PDU_TAG_DVBCI_EVT_LEN);
   tlv_buffer[4] = dvbci_get_evt_from_addrs(pinfo);
 
   return exp_pdu_data_dvbci_size(pinfo, data);

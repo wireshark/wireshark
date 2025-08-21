@@ -246,7 +246,7 @@ capture_snap(const unsigned char *pd, int offset, int len, capture_packet_info_t
 		return false;
 
 	oui = pd[offset] << 16 | pd[offset+1] << 8 | pd[offset+2];
-	etype = pntoh16(&pd[offset+3]);
+	etype = pntohu16(&pd[offset+3]);
 	switch (oui) {
 
 	case OUI_ENCAP_ETHER:

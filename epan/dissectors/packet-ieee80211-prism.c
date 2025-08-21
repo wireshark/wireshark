@@ -614,7 +614,7 @@ capture_prism(const unsigned char *pd, int offset, int len, capture_packet_info_
         return false;
 
     /* Some captures with DLT_PRISM have the AVS WLAN header */
-    cookie = pntoh32(pd);
+    cookie = pntohu32(pd);
     if ((cookie == WLANCAP_MAGIC_COOKIE_V1) ||
         (cookie == WLANCAP_MAGIC_COOKIE_V2)) {
         return call_capture_dissector(wlancap_cap_handle, pd, offset, len, cpinfo, pseudo_header);

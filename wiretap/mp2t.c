@@ -157,10 +157,10 @@ mp2t_read_pcr(uint8_t *buffer)
     uint64_t base;
     uint64_t ext;
 
-    base = pntoh40(buffer);
+    base = pntohu40(buffer);
     base >>= 7;
 
-    ext = pntoh16(&buffer[4]);
+    ext = pntohu16(&buffer[4]);
     ext &= 0x01ff;
 
     return (base * 300 + ext);
@@ -206,7 +206,7 @@ mp2t_find_next_pcr(wtap *wth, uint8_t trailer_len,
 
         /* We have a PCR value! */
         *pcr = mp2t_read_pcr(&buffer[6]);
-        *pid = 0x01ff & pntoh16(&buffer[1]);
+        *pid = 0x01ff & pntohu16(&buffer[1]);
         found = true;
     }
 
