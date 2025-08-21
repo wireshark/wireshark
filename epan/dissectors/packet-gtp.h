@@ -193,6 +193,9 @@ void fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame);
 
 bool is_cause_accepted(uint8_t cause, uint32_t version);
 
+/* Add teid map to IMSI from ex NGAP where both are known. */
+void gtp_add_teid_imsi(uint32_t teid, const char* imsi);
+
 WS_DLL_PUBLIC
 int decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const char * qos_str, uint8_t type);
 

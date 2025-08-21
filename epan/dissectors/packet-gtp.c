@@ -2740,6 +2740,27 @@ is_cause_accepted(uint8_t cause, uint32_t version) {
     return false;
 }
 
+/* Relation between teid -> imsi */
+static wmem_map_t* teid_imsi;
+
+void
+gtp_add_teid_imsi(uint32_t teid, const char* imsi)
+{
+    if(g_gtp_session) {
+        wmem_map_insert(teid_imsi, GUINT_TO_POINTER(teid), wmem_strdup(wmem_epan_scope(), imsi));
+    }
+}
+
+static char*
+gtp_get_imsi_from_teid(uint32_t teid)
+{
+    char *imsi = NULL;
+    if(g_gtp_session) {
+        imsi = (char *)wmem_map_lookup(teid_imsi, GUINT_TO_POINTER(teid));
+    }
+    return imsi;
+}
+
 static int decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args);
 static int decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
@@ -10013,6 +10034,11 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
             if (imsi) {
                 add_assoc_imsi_item(tvb, tree, imsi);
             }
+        } else {
+            imsi = gtp_get_imsi_from_teid((uint32_t)gtp_hdr->teid);
+            if (imsi) {
+                add_assoc_imsi_item(tvb, tree, imsi);
+            }
         }
     }
 }
@@ -13248,6 +13274,7 @@ proto_register_gtp(void)
     session_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     session_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     frame_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), gtp_info_hash, gtp_info_equal);
+    teid_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     register_init_routine(gtp_init);
     gtp_tap = register_tap("gtp");
     gtpv1_tap = register_tap("gtpv1");
