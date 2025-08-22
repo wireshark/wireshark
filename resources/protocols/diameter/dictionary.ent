@@ -1,0 +1,22 @@
+<!-- Any files added here need to be added to
+     packaging/nsis/custom_diameter_xmls.txt to be distributed -->
+<!-- The purpose of this file is to allow custom entries to the
+     Diameter dictionary to be added by editing this one file and
+     not the main file (which might make it easier to manage updates).
+     The main dictionary always adds the &Custom; entity, which by
+     default is declared below as an empty string.
+-->
+<!-- To populate the Custom entity with entries, create entities like this:
+        <!ENTITY myEntity		SYSTEM "myFile.xml">
+     either with an external file as above or strings directly in this
+     file and then add the entities to the value of the Custom entity, e.g.
+     replacing the empty string below like so:
+        <!ENTITY Custom "&myEntity;">
+     Note that if the same entity is declared more than once, the
+     first declaration is binding, according to the XML specification.
+     To add more than one custom entity, add them all to the Custom
+     value in a single declaration:
+        <!ENTITY myEntity2		SYSTEM "myFile2.xml">
+        <!ENTITY Custom "&myEntity; &myEntity2;">
+-->
+<!ENTITY Custom "">

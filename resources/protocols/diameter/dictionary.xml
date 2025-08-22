@@ -4,7 +4,7 @@
 <?avp-proto key="Example-AVP" value="data" ?>
 
 <!DOCTYPE dictionary SYSTEM "dictionary.dtd" [
-	<!-- Any files added here need to be added packaging/nsis/wireshark.nsi -->
+	<!-- Any files added here need to be added to packaging/nsis/wireshark.nsi -->
 
 	<!ENTITY nasreq			SYSTEM "nasreq.xml">
 	<!ENTITY eap			SYSTEM "eap.xml">
@@ -35,7 +35,9 @@
 	<!ENTITY Microsoft		SYSTEM "Microsoft.xml">
 	<!ENTITY Metaswitch		SYSTEM "Metaswitch.xml">
 	<!ENTITY Travelping		SYSTEM "Travelping.xml">
-	<!ENTITY Custom			SYSTEM "Custom.xml">
+	<!-- Additional entries and files can also be added to this separate entities file -->
+	<!ENTITY % Custom		SYSTEM "dictionary.ent">
+	%Custom;
 ]>
 <dictionary>
 	<base uri="http://www.ietf.org/rfc/rfc6733.txt">

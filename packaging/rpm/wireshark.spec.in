@@ -621,7 +621,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_mandir}/man1/*
 %{_mandir}/man4/*
 
-%config(noreplace) %{_datadir}/wireshark/diameter/Custom.xml
+%config(noreplace) %{_datadir}/wireshark/diameter/dictionary.ent
 %{_datadir}/wireshark
 
 %if 0%{?install_ld_so_conf}
