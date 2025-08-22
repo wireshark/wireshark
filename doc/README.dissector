@@ -2893,8 +2893,8 @@ upon the conversation index and values inside the request packets.
     conversation = find_or_create_conversation(pinfo);
 
     request_key.conversation = conversation->index;
-    request_key.service = pntoh16(&rxh->serviceId);
-    request_key.callnumber = pntoh32(&rxh->callNumber);
+    request_key.service = pntohu16(&rxh->serviceId);
+    request_key.callnumber = pntohu32(&rxh->callNumber);
 
     request_val = (struct afs_request_val *)g_hash_table_lookup(
         afs_request_hash, &request_key);
@@ -2906,7 +2906,7 @@ upon the conversation index and values inside the request packets.
         *new_request_key = request_key;
 
         request_val = wmem_alloc(wmem_file_scope(), sizeof(struct afs_request_val));
-        request_val -> opcode = pntoh32(&afsh->opcode);
+        request_val -> opcode = pntohu32(&afsh->opcode);
         opcode = request_val->opcode;
 
         g_hash_table_insert(afs_request_hash, new_request_key, request_val);
