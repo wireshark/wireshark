@@ -905,11 +905,11 @@ SectionEnd ; "SecStratosharkQt"
 !endif
 
 
-Section "TShark" SecTShark
+Section "Strato" SecStrato
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "${STAGING_DIR}\tshark.exe"
-File "${STAGING_DIR}\tshark.html"
+File "${STAGING_DIR}\strato.exe"
+File "${STAGING_DIR}\strato.html"
 SectionEnd
 
 Section "-Plugins & Extensions"
@@ -920,6 +920,7 @@ File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\falco-events
 SetOutPath '$INSTDIR\plugins\falco'
 File "${STAGING_DIR}\plugins\falco\cloudtrail.dll"
 File "${STAGING_DIR}\plugins\falco\gcpaudit.dll"
+File "${STAGING_DIR}\plugins\falco\k8saudit.dll"
 !include "custom_plugins.txt"
 
 ;-------------------------------------------
@@ -934,6 +935,9 @@ File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\mate.dll"
 ; This should be a function or macro
 SetOutPath '$INSTDIR\profiles\CloudTrail'
 File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\CloudTrail\colorfilters"
+File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\CloudTrail\dfilter_buttons"
+File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\CloudTrail\preferences"
+File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\CloudTrail\profile_settings"
 ; File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\CloudTrail\preferences"
 ; SetOutPath '$INSTDIR\profiles\Classic'
 ; File "${TOP_SRC_DIR}\resources\share\stratoshark\profiles\Classic\colorfilters"
@@ -1101,7 +1105,7 @@ Push "rawshark"
 Push "reordercap"
 Push "sharkd"
 Push "text2pcap"
-Push "tshark"
+Push "strato"
 
 !ifdef MMDBRESOLVE_EXE
 Push "mmdbresolve"
@@ -1281,9 +1285,9 @@ SectionEnd
 ; ============================================================================
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !ifdef QT_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecStratosharkQt} "The main syscall and log analyzer application."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecStratosharkQt} "The main system call and log analyzer application."
 !endif
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "Text based network protocol analyzer."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecStrato} "Text based system call and log analyzer."
 
   !insertmacro MUI_DESCRIPTION_TEXT ${SecExtcapGroup} "External Capture Interfaces"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecFalcodump} "Provide capture interfaces from Falco plugins."
