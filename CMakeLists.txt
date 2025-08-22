@@ -3244,8 +3244,8 @@ endif()
 
 if(BUILD_strato)
 	set(strato_LIBS
-		ui
 		capchild
+		ui
 		caputils
 		wiretap
 		epan
