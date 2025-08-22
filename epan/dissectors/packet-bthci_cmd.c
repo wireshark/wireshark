@@ -6904,7 +6904,9 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             }
         }
 
-        proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_parameter, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
+        if (param_length > 0) {
+            proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_parameter, tvb, offset, param_length, ENC_NA);
+        }
     } else {
         col_append_str(pinfo->cinfo, COL_INFO, val_to_str_ext(pinfo->pool, opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x"));
 
@@ -8808,7 +8810,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_parameter,
           { "Parameter", "bthci_cmd.parameter",
-            FT_NONE, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_response_in_frame,
