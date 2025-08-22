@@ -25,10 +25,6 @@
 #include <ui/qt/widgets/hex_data_source_view.h>
 #include <ui/qt/widgets/json_data_source_view.h>
 
-// To do:
-// - We might want to add a callback to free_data_sources in so that we
-//   don't have to blindly call clear().
-
 DataSourceTab::DataSourceTab(QWidget *parent, epan_dissect_t *edt_fixed) :
     QTabWidget(parent),
     cap_file_(0),
@@ -270,9 +266,6 @@ void DataSourceTab::setTabsVisible() {
 
 void DataSourceTab::selectedFrameChanged(QList<int> frames)
 {
-    clear();
-    qDeleteAll(findChildren<BaseDataSourceView *>());
-
     if (!is_fixed_packet_) {
         /* If this is not a fixed packet (not the packet dialog), it must be the
          * byte view associated with the packet list. */
@@ -286,6 +279,12 @@ void DataSourceTab::selectedFrameChanged(QList<int> frames)
             edt_ = NULL;
         }
     }
+
+    /* We don't need to call clear() because Qt will remove the child widgets
+     * when they're deleted (calling clear() seems to fire leaveEvent() that
+     * isn't called if just deleted.) https://stackoverflow.com/a/76848495 */
+    clear();
+    qDeleteAll(findChildren<BaseDataSourceView *>());
 
     /* only show the bytes for single selections */
     if (frames.count() == 1)
