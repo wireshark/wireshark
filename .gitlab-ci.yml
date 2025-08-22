@@ -741,6 +741,29 @@ Documentation:
   needs: []
 
 
+# Build the Wireshark API Reference
+WSAR:
+  extends: .build-linux
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
+  when: manual
+  allow_failure: true
+  script:
+    # XXX We might want to move this to wireshark-ubuntu-dev or debian-setup.sh.
+    - DEBIAN_FRONTEND=noninteractive apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get --yes install doxygen
+    - mkdir build
+    - cd build
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - cmake -GNinja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
+    - ninja wsar_html
+  after_script:
+    - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
+  artifacts:
+    paths:
+      - build/wsar_html/*
+  needs: []
+
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#linux-shared-runners
 
 Commit Check:
