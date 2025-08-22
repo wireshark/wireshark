@@ -66,4 +66,7 @@ tls_get_alpn(packet_info *pinfo);
 const char *
 tls_get_client_alpn(packet_info *pinfo);
 
+extern uint32_t
+tls_increment_stream_count(void);
+
 #endif  /* __PACKET_TLS_H__ */

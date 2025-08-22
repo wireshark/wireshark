@@ -97,7 +97,7 @@ class TestSharkd:
         ), (
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
         ))
-    
+
     def test_sharkd_req_load_with_byte_limit(self, check_sharkd_session, capture_file):
         check_sharkd_session((
             {"jsonrpc":"2.0", "id": 1, "method":"load",
@@ -139,7 +139,7 @@ class TestSharkd:
             {"jsonrpc":"2.0","id":2,"result":{"frames": 10, "protocols": ["frame", "eth", "ethertype", "ip", "udp",
                                         "sip", "sdp", "rtp"], "first":1105725482.965944, "last": 1105725491.490081}},
         ))
-    
+
     def test_sharkd_req_load_with_byte_limit(self, check_sharkd_session, capture_file):
         check_sharkd_session((
             {"jsonrpc":"2.0", "id": 1, "method":"load",
@@ -163,7 +163,7 @@ class TestSharkd:
             {"jsonrpc":"2.0","id":2,"result":{"frames": 10, "protocols": ["frame", "eth", "ethertype", "ip", "udp",
                                         "sip", "sdp", "rtp"], "first":1105725482.965944, "last": 1105725491.490081}},
         ))
-    
+
     def test_sharkd_req_load_and_analyse_with_single_byte_limit(self, check_sharkd_session, capture_file):
         check_sharkd_session((
             {"jsonrpc":"2.0", "id": 1, "method":"load",
@@ -1459,11 +1459,11 @@ class TestSharkd:
         ), (
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
             {"jsonrpc":"2.0","id":2,"result":{
-                "fol": [["HTTP2", "tcp.stream eq 0 and http2.streamid eq 1"],["TCP","tcp.stream eq 0"],["TLS","tcp.stream eq 0"]],
+                "fol": [["HTTP2", "tcp.stream eq 0 and http2.streamid eq 1"],["TCP","tcp.stream eq 0"],["TLS","tls.stream eq 0"]],
                 "followers": [
                     {"protocol": "HTTP2","filter": "tcp.stream eq 0 and http2.streamid eq 1","stream": 0, "sub_stream": 1},
                     {"protocol": "TCP","filter": "tcp.stream eq 0","stream": 0},
-                    {"protocol": "TLS","filter": "tcp.stream eq 0","stream": 0},
+                    {"protocol": "TLS","filter": "tls.stream eq 0","stream": 0},
                 ]
             }},
         ))

@@ -1525,7 +1525,7 @@ all connections sharing the same 5-tuple, and will not follow connection
 migration.
 
 The second format specifies stream indices, and is used for TCP, UDP, DCCP,
-TLS, and HTTP. (TLS and HTTP use TCP stream indices.)
+TLS, and HTTP. (HTTP uses TCP stream indices.)
 
 The third format, specifying streams and substreams, is used for HTTP/2,
 QUIC, MP2T, and MPEG-PES due to their use of multiplexing. (TCP stream and

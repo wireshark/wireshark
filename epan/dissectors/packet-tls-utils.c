@@ -5983,6 +5983,18 @@ end:
 
 /*--- Start of dissector-related code below ---*/
 
+/* This is not a "protocol" but ensures that this gets called during
+ * the handoff stage. */
+void proto_reg_handoff_tls_utils(void);
+
+static dissector_handle_t base_tls_handle;
+
+void
+proto_reg_handoff_tls_utils(void)
+{
+    base_tls_handle = find_dissector("tls");
+}
+
 /* get ssl data for this session. if no ssl data is found allocate a new one*/
 SslDecryptSession *
 ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle)
@@ -5991,6 +6003,8 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle)
     SslDecryptSession  *ssl_session;
     int                 proto_ssl;
 
+    /* Note proto_ssl is tls for either the main tls_handle or the
+     * tls13_handshake handle used by QUIC. */
     proto_ssl = dissector_handle_get_protocol_index(tls_handle);
     conv_data = conversation_get_proto_data(conversation, proto_ssl);
     if (conv_data != NULL)
@@ -6036,6 +6050,15 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle)
     ssl_session->session.ech = false;
     ssl_session->session.hrr_ech_declined = false;
     ssl_session->session.first_ch_ech_frame = 0;
+
+    /* We want to increment the stream count for the normal tls handle and
+     * dtls handle, but presumably not for the tls13_handshake handle used
+     * by QUIC (it has its own Follow Stream handling, and the QUIC stream
+     * doesn't get sent to the TLS follow tap.)
+     */
+    if (tls_handle == base_tls_handle) {
+        ssl_session->session.stream = tls_increment_stream_count();
+    }
 
     conversation_add_proto_data(conversation, proto_ssl, ssl_session);
     return ssl_session;

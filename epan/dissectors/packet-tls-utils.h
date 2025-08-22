@@ -493,6 +493,8 @@ typedef struct _SslSession {
     port_type srv_ptype;
     unsigned srv_port;
 
+    uint32_t stream;
+
     /* The Application layer protocol if known (for STARTTLS support) */
     dissector_handle_t   app_handle;
     const char          *alpn_name;

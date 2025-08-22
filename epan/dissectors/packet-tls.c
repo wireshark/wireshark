@@ -102,6 +102,7 @@ static range_t *tls_try_heuristic_first;
 static int tls_follow_tap                    = -1;
 static int exported_pdu_tap                  = -1;
 static int proto_tls;
+static int hf_tls_stream;
 static int hf_tls_record;
 static int hf_tls_record_content_type;
 static int hf_tls_record_opaque_type;
@@ -256,6 +257,7 @@ static uat_t              *ssldecrypt_uat;
 #endif
 static dissector_table_t   ssl_associations;
 static dissector_handle_t  tls_handle;
+static dissector_handle_t  tls13_handshake_handle;
 static StringInfo          ssl_compressed_data;
 static StringInfo          ssl_decrypted_data;
 static int                 ssl_decrypted_data_avail;
@@ -267,6 +269,7 @@ static heur_dissector_list_t ssl_heur_subdissector_list;
 
 static const char *ssl_debug_file_name;
 
+static uint32_t tls_stream_count;
 
 /* Forward declaration we need below */
 void proto_reg_handoff_ssl(void);
@@ -336,6 +339,16 @@ tls_hs_reassembly_table_functions = {
         tls_hs_fragment_free_temporary_key,
 };
 
+uint32_t get_tls_stream_count(void)
+{
+    return tls_stream_count;
+}
+
+uint32_t tls_increment_stream_count(void)
+{
+    return tls_stream_count++;
+}
+
 /* initialize/reset per capture state data (ssl sessions cache) */
 static void
 ssl_init(void)
@@ -346,6 +359,8 @@ ssl_init(void)
 
     /* Reset the identifier for a group of handshake fragments. */
     hs_reassembly_id_count = 0;
+
+    tls_stream_count = 0;
 }
 
 static void
@@ -422,6 +437,36 @@ ssl_reset_uat(void)
 }
 #endif  /* HAVE_LIBGNUTLS */
 
+/*********************************************************************
+ *
+ * Follow Stream support
+ *
+ *********************************************************************/
+
+static char *
+tls_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, unsigned *stream, unsigned *sub_stream _U_)
+{
+    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+    if (!conv) {
+        return NULL;
+    }
+    void *conv_data = conversation_get_proto_data(conv, proto_tls);
+    if (conv_data == NULL) {
+        return NULL;
+    }
+
+    SslDecryptSession *ssl_session = (SslDecryptSession *)conv_data;
+    SslSession *session = &ssl_session->session;
+
+    *stream = session->stream;
+    return ws_strdup_printf("tls.stream eq %u", session->stream);
+}
+
+static char *
+tls_follow_index_filter(unsigned stream, unsigned sub_stream _U_)
+{
+    return ws_strdup_printf("tls.stream eq %u", stream);
+}
 
 static tap_packet_status
 ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ssl, tap_flags_t flags _U_)
@@ -722,6 +767,9 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     {
         ti = proto_tree_add_item(tree, proto_tls, tvb, 0, -1, ENC_NA);
         ssl_tree = proto_item_add_subtree(ti, ett_tls);
+
+        ti = proto_tree_add_uint(ssl_tree, hf_tls_stream, tvb, 0, 0, session->stream);
+        proto_item_set_generated(ti);
     }
     /* iterate through the records in this tvbuff */
     while (tvb_reported_length_remaining(tvb, offset) > 0)
@@ -985,7 +1033,7 @@ dissect_tls13_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     ssl_debug_printf("\n%s enter frame #%u (%s)\n", G_STRFUNC, pinfo->num, (pinfo->fd->visited)?"already visited":"first time");
 
     conversation = find_or_create_conversation(pinfo);
-    ssl_session = ssl_get_session(conversation, tls_handle);
+    ssl_session = ssl_get_session(conversation, tls13_handshake_handle);
     session = &ssl_session->session;
     is_from_server = ssl_packet_from_server(session, ssl_associations, pinfo);
     if (session->version == SSL_VER_UNKNOWN) {
@@ -4518,6 +4566,11 @@ proto_register_tls(void)
 
     /* Setup list of header fields See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
+        { &hf_tls_stream,
+          { "Stream index", "tls.stream",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_tls_record,
           { "Record Layer", "tls.record",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -4946,7 +4999,7 @@ proto_register_tls(void)
         proto_tls);
 
     tls_handle = register_dissector("tls", dissect_ssl, proto_tls);
-    register_dissector("tls13-handshake", dissect_tls13_handshake, proto_tls);
+    tls13_handshake_handle = register_dissector("tls13-handshake", dissect_tls13_handshake, proto_tls);
     register_dissector("tls-echconfig", dissect_tls_echconfig, proto_tls);
 
     register_init_routine(ssl_init);
@@ -4962,8 +5015,8 @@ proto_register_tls(void)
     ssl_debug_printf("proto_register_ssl: registered tap %s:%d\n",
         "tls_follow", tls_follow_tap);
 
-    register_follow_stream(proto_tls, "tls_follow", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
-                            tcp_port_to_display, ssl_follow_tap_listener, get_tcp_stream_count, NULL);
+    register_follow_stream(proto_tls, "tls_follow", tls_follow_conv_filter, tls_follow_index_filter, tcp_follow_address_filter,
+                            tcp_port_to_display, ssl_follow_tap_listener, get_tls_stream_count, NULL);
     secrets_register_type(SECRETS_TYPE_TLS, tls_secrets_block_callback);
 }
 
