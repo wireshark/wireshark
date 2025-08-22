@@ -2452,7 +2452,7 @@ bool RtpPlayerDialog::writeAudioSilenceSamples(QFile *out_file, qint64 samples, 
     return true;
 }
 
-bool RtpPlayerDialog::writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudioStream *> streams, bool swap_bytes)
+bool RtpPlayerDialog::writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudioStream *> streams, bool big_endian)
 {
     SAMPLE sample;
     uint8_t pd[2];
@@ -2465,15 +2465,10 @@ bool RtpPlayerDialog::writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudio
         // Loop over all streams, read one sample from each, write to output
         foreach(RtpAudioStream *audio_stream, streams) {
             if (sizeof(sample) == audio_stream->readSample(&sample)) {
-                if (swap_bytes) {
-                    // same as phtonu16(), but more clear in compare
-                    // to else branch
-                    pd[0] = (uint8_t)(sample >> 8);
-                    pd[1] = (uint8_t)(sample >> 0);
+                if (big_endian) {
+                    phtonu16(pd, sample);
                 } else {
-                    // just copy
-                    pd[1] = (uint8_t)(sample >> 8);
-                    pd[0] = (uint8_t)(sample >> 0);
+                    phtoleu16(pd, sample);
                 }
                 read = true;
             } else {
