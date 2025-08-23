@@ -1333,6 +1333,49 @@ sync_interface_set_80211_chan(const char *iface, const char *freq, const char *t
 }
 
 /*
+ * Get the results of compiling a capture filter for an interface using dumpcap.
+ *
+ * On success, *data points to a buffer containing the dumpcap output,
+ * *primary_msg and *secondary_msg are NULL, and 0 is returned.  *data
+ * must be freed with g_free().
+ *
+ * On failure, *data is NULL, *primary_msg points to an error message,
+ * *secondary_msg either points to an additional error message or is
+ * NULL, and -1 is returned; *primary_msg, and *secondary_msg if not NULL,
+ * must be freed with g_free().
+ */
+int
+sync_if_bpf_filter_open(const char *ifname, const char* filter,
+                          char **data, char **primary_msg,
+                          char **secondary_msg, void (*update_cb)(void))
+{
+    int argc;
+    char **argv;
+    int ret;
+
+    ws_debug("sync_if_bpf_filter_open");
+
+    argv = init_pipe_args(&argc);
+
+    if (!argv) {
+        *primary_msg = g_strdup("We don't know where to find dumpcap.");
+        *secondary_msg = NULL;
+        *data = NULL;
+        return -1;
+    }
+
+    /* Ask for the human-readable BPF code for the capture filter */
+    argv = sync_pipe_add_arg(argv, &argc, "-d");
+    argv = sync_pipe_add_arg(argv, &argc, "-i");
+    argv = sync_pipe_add_arg(argv, &argc, ifname);
+    argv = sync_pipe_add_arg(argv, &argc, "-f");
+    argv = sync_pipe_add_arg(argv, &argc, filter);
+
+    ret = sync_pipe_run_command(argv, data, primary_msg, secondary_msg, update_cb);
+    return ret;
+}
+
+/*
  * Get the list of interfaces using dumpcap.
  *
  * On success, *data points to a buffer containing the dumpcap output,

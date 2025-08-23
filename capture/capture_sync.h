@@ -88,6 +88,26 @@ sync_interface_set_80211_chan(const char *iface, const char *freq, const char *t
                               char **data, char **primary_msg,
                               char **secondary_msg, void (*update_cb)(void));
 
+/** Compile a capture filter and get its BPF bytecode (in human-readable form.)
+ * This is necessary on Linux because, as pcap_compile(3PCAP) says:
+ * "On Linux, if the pcap_t handle corresponds to a live packet capture, the
+ * resulting filter program may use Linux BPF extensions;" this will produce
+ * the actual filter used for a live capture as opposed to the compiled version
+ * without extensions that pcap_open_dead(3PCAP) produces. (However, it requires
+ * permissions to open the device.)
+ *
+ *  @param ifname network interface name
+ *  @param filter capture filter string
+ *  @param data On success, *data points to a buffer containing the dumpcap output, On failure *data is NULL
+ *  @param primary_msg On success NULL, On failure points to an error message
+ *  @param secondary_msg On success NULL, On failure either points to an additional error message or is NULL
+ *  @param update_cb update callback
+ */
+extern int
+sync_if_bpf_filter_open(const char *ifname, const char* filter,
+                          char **data, char **primary_msg,
+                          char **secondary_msg, void (*update_cb)(void));
+
 /** Get an interface list using dumpcap */
 extern int
 sync_interface_list_open(char **data, char **primary_msg,
