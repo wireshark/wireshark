@@ -41,6 +41,7 @@ endmacro()
 ADD_MAN_PAGE(wireshark   1)
 ADD_MAN_PAGE(tshark      1)
 ADD_MAN_PAGE(stratoshark 1)
+ADD_MAN_PAGE(strato      1)
 
 ADD_MAN_PAGE(androiddump 1)
 ADD_MAN_PAGE(capinfos    1)
