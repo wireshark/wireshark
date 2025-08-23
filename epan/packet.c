@@ -629,7 +629,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype, wtap_rec *rec,
 
 	case REC_TYPE_FT_SPECIFIC_EVENT:
 	case REC_TYPE_FT_SPECIFIC_REPORT:
-		edt->pi.pseudo_header = NULL;
+		edt->pi.pseudo_header = &rec->rec_header.ft_specific_header.pseudo_header;
 		break;
 
 	case REC_TYPE_SYSCALL:

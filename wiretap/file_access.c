@@ -102,6 +102,7 @@
 #include "ttl.h"
 #include "peak-trc.h"
 #include "netlog.h"
+#include "procmon.h"
 
 /*
  * Add an extension, and all compressed versions thereof if requested,
@@ -197,6 +198,7 @@ static const struct file_extension_info wireshark_file_type_extensions_base[] = 
 static const struct file_extension_info stratoshark_file_type_extensions_base[] = {
 	{ "Stratoshark/... - scap", true, "scap"},
 	{ "JSON Log", true, "json;jsonl;log" },
+	{"MS Procmon", true, "pml"},
 };
 
 #define N_STRATOSHARK_FILE_TYPE_EXTENSIONS array_length(stratoshark_file_type_extensions_base)
@@ -387,6 +389,7 @@ static const struct open_info open_info_base[] = {
 	{ "Micropross mplog",                       OPEN_INFO_MAGIC,     mplog_open,               NULL,   NULL, NULL },
 	{ "Unigraf DPA-400 capture",                OPEN_INFO_MAGIC,     dpa400_open,              NULL,       NULL, NULL },
 	{ "RFC 7468 files",                         OPEN_INFO_MAGIC,     rfc7468_open,             NULL,  NULL, NULL },
+	{ "MS Procmon Files",                       OPEN_INFO_MAGIC,     procmon_open,             NULL,  NULL, NULL },
 
 	/* Open routines that have no magic numbers and require heuristics. */
 	{ "Novell LANalyzer",                       OPEN_INFO_HEURISTIC, lanalyzer_open,           "tr1",      NULL, NULL },

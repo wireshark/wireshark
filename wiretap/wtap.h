@@ -300,7 +300,7 @@ extern "C" {
 #define WTAP_ENCAP_ZWAVE_SERIAL                 211
 #define WTAP_ENCAP_ETW                          212
 #define WTAP_ENCAP_ERI_ENB_LOG                  213
-#define WTAP_ENCAP_ZBNCP			214
+#define WTAP_ENCAP_ZBNCP                        214
 #define WTAP_ENCAP_USB_2_0_LOW_SPEED            215
 #define WTAP_ENCAP_USB_2_0_FULL_SPEED           216
 #define WTAP_ENCAP_USB_2_0_HIGH_SPEED           217
@@ -313,6 +313,7 @@ extern "C" {
 #define WTAP_ENCAP_EMS                          224
 #define WTAP_ENCAP_DECT_NR                      225
 #define WTAP_ENCAP_MMODULE                      226
+#define WTAP_ENCAP_PROCMON                      227
 
 /* After adding new item here, please also add new item to encap_table_base array */
 
@@ -1191,6 +1192,12 @@ struct netmon_phdr {
     } subheader;
 };
 
+/* Record "pseudo-header" information for header data from MS ProcMon files. */
+
+struct procmon_phdr {
+	bool system_bitness;     /* System bitness: 1 if the system is 64 bit, 0 otherwise. */
+};
+
 /* File "pseudo-header" for BER data files. */
 struct ber_phdr {
     const char *pathname;   /* Path name of file. */
@@ -1228,6 +1235,7 @@ union wtap_pseudo_header {
     struct llcp_phdr    llcp;
     struct logcat_phdr  logcat;
     struct netmon_phdr  netmon;
+    struct procmon_phdr procmon;
     struct ber_phdr     ber;
     struct mmodule_phdr mmodule;
 };
@@ -1377,6 +1385,8 @@ typedef struct {
     int      file_type_subtype; /* the type of file this is for */
     unsigned record_type;       /* the type of record this is - file type-specific value */
     uint32_t record_len;        /* length of the record */
+    union wtap_pseudo_header  pseudo_header;
+
 } wtap_ft_specific_header;
 
 typedef struct {
