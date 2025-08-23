@@ -9048,6 +9048,8 @@ proto_register_oran(void)
 
     module_t * oran_module = prefs_register_protocol(proto_oran, NULL);
 
+    /* prefs_register_static_text_preference(oran_module, "oran.stream", "", ""); */
+
     /* Register bit width/compression preferences separately by direction. */
     prefs_register_uint_preference(oran_module, "oran.du_port_id_bits", "DU Port ID bits [a]",
         "The bit width of DU Port ID - sum of a,b,c&d (eAxC) must be 16", 10, &pref_du_port_id_bits);
@@ -9057,6 +9059,8 @@ proto_register_oran(void)
         "The bit width of CC ID - sum of a,b,c&d (eAxC) must be 16", 10, &pref_cc_id_bits);
     prefs_register_uint_preference(oran_module, "oran.ru_port_id_bits", "RU Port ID bits [d]",
         "The bit width of RU Port ID - sum of a,b,c&d (eAxC) must be 16", 10, &pref_ru_port_id_bits);
+
+    prefs_register_static_text_preference(oran_module, "oran.ul", "", "");
 
     /* Uplink userplane */
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_up", "IQ Bitwidth Uplink",
@@ -9068,6 +9072,13 @@ proto_register_oran(void)
         "configuration of the O-RU. This preference instructs the dissector to expect "
         "this field to be present in uplink messages",
         &pref_includeUdCompHeaderUplink, udcomphdr_present_options, false);
+    prefs_register_uint_preference(oran_module, "oran.ul_slot_us_limit", "Microseconds allowed for UL tx in symbol",
+        "Maximum number of microseconds allowed for UL slot transmission before expert warning (zero to disable).  N.B. timing relative to first frame seen for same symbol",
+        10, &us_allowed_for_ul_in_symbol);
+
+
+
+    prefs_register_static_text_preference(oran_module, "oran.dl", "", "");
 
     /* Downlink userplane */
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_down", "IQ Bitwidth Downlink",
@@ -9080,14 +9091,17 @@ proto_register_oran(void)
         "this field to be present in downlink messages",
         &pref_includeUdCompHeaderDownlink, udcomphdr_present_options, false);
 
+    prefs_register_static_text_preference(oran_module, "oran.sinr", "", "");
+
     /* SINR */
     prefs_register_uint_preference(oran_module, "oran.iq_bitwidth_sinr", "IQ Bitwidth SINR",
         "The bit width of a sample in SINR", 10, &pref_sample_bit_width_sinr);
     prefs_register_enum_preference(oran_module, "oran.ud_comp_sinr", "SINR Compression",
         "SINR Compression", &pref_iqCompressionSINR, ul_compression_options, false);
 
-    prefs_register_uint_preference(oran_module, "oran.rbs_in_uplane_section", "Total RBs in User-Plane data section",
-        "This is used if numPrbu is signalled as 0", 10, &pref_data_plane_section_total_rbs);
+
+    /* BF-related */
+    prefs_register_static_text_preference(oran_module, "oran.bf", "", "");
 
     prefs_register_uint_preference(oran_module, "oran.num_weights_per_bundle", "Number of weights per bundle",
         "Used in decoding of section extension type 11 (Flexible BF weights)", 10, &pref_num_weights_per_bundle);
@@ -9095,24 +9109,28 @@ proto_register_oran(void)
     prefs_register_uint_preference(oran_module, "oran.num_bf_antennas", "Number of BF Antennas",
         "Number of BF Antennas (used for C section type 6)", 10, &pref_num_bf_antennas);
 
+    prefs_register_obsolete_preference(oran_module, "oran.num_bf_weights");
+
+    prefs_register_bool_preference(oran_module, "oran.st6_4byte_alignment_required", "Use 4-byte alignment for ST6 sections",
+        "Default is 1-byte alignment", &st6_4byte_alignment);
+
+
+    /* Misc (and will seldom need to be accessed) */
+    prefs_register_static_text_preference(oran_module, "oran.misc", "", "");
+
     prefs_register_bool_preference(oran_module, "oran.show_iq_samples", "Show IQ Sample values",
         "When enabled, for U-Plane frames show each I and Q value in PRB", &pref_showIQSampleValues);
-
-    prefs_register_obsolete_preference(oran_module, "oran.num_bf_weights");
 
     prefs_register_enum_preference(oran_module, "oran.support_udcomplen", "udCompLen supported",
         "When enabled, U-Plane messages with relevant compression schemes will include udCompLen",
         &pref_support_udcompLen, udcomp_support_options, false);
 
-    prefs_register_bool_preference(oran_module, "oran.st6_4byte_alignment_required", "Use 4-byte alignment for ST6 sections",
-        "Default is 1-byte alignment", &st6_4byte_alignment);
+    prefs_register_uint_preference(oran_module, "oran.rbs_in_uplane_section", "Total RBs in User-Plane data section",
+        "This is used if numPrbu is signalled as 0", 10, &pref_data_plane_section_total_rbs);
 
     prefs_register_bool_preference(oran_module, "oran.unscaled_iq", "Show unscaled I/Q values",
         "", &show_unscaled_values);
 
-    prefs_register_uint_preference(oran_module, "oran.ul_slot_us_limit", "Microseconds allowed for UL tx in symbol",
-        "Maximum number of microseconds allowed for UL slot transmission before expert warning (zero to disable).  N.B. timing relative to first frame seen for same symbol",
-        10, &us_allowed_for_ul_in_symbol);
 
     flow_states_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     flow_results_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
