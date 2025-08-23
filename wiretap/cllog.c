@@ -932,9 +932,10 @@ cllog_open(wtap *wth, int *err, char **err_info)
     {
         /*
          * We've read the first line after the header, so it's the column
-         * header line. Parse it.
+         * header line. Parse it. This requires that we have been provided with a
+         * valid separator.
          */
-        if (!parseColumnHeaderFields(clLog, linep))
+        if (clLog->separator == '\0' || !parseColumnHeaderFields(clLog, linep))
         {
             g_free(clLog);
             return WTAP_OPEN_NOT_MINE;
