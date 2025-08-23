@@ -20,11 +20,16 @@
 #ifndef __CAPTURE_SYNC_H__
 #define __CAPTURE_SYNC_H__
 
+#include <wsutil/processes.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 struct _info_data;
+
+typedef struct _capture_session capture_session;
+typedef struct capture_options_tag capture_options;
 
 /**
  * Start a new capture session.
