@@ -19,6 +19,7 @@
 #include <wiretap/wtap.h>
 #include "ui/capture_opts.h"
 #include "ui/capture_globals.h"
+#include <ui/qt/utils/stock_icon.h>
 
 #include "main_application.h"
 
@@ -81,7 +82,7 @@ void CompiledFilterOutput::compileFilter()
                 if (pcap_compile(pd, &fcode, current.filter.toUtf8().data(), 1, 0) < 0) {
                     compile_results.insert(current.interface, QString(pcap_geterr(pd)));
                     g_mutex_unlock(&pcap_compile_mtx_);
-                    ui->interfaceList->addItem(new QListWidgetItem(QIcon(":expert/expert_error.png"), current.interface));
+                    ui->interfaceList->addItem(new QListWidgetItem(StockIcon("x-expert-error"), current.interface));
                 } else {
                     GString *bpf_code_dump = g_string_new("");
                     struct bpf_insn *insn = fcode.bf_insns;
