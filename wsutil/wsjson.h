@@ -47,7 +47,7 @@ WS_DLL_PUBLIC bool json_validate(const uint8_t *buf, const size_t len);
  * @return The number of tokens needed, or a jsmnerr (which are negative).
  *
  * @note This calls strlen() and requires that buf be a null-terminated string.
- * This can be called with NULL tokens in order to determine the number of
+ * This can be called with @p tokens set to NULL to determine the number of
  * tokens necessary.
  */
 WS_DLL_PUBLIC int json_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens);
@@ -63,8 +63,8 @@ WS_DLL_PUBLIC int json_parse(const char *buf, jsmntok_t *tokens, unsigned int ma
  *
  * @note This still stops parsing after the first '\0' byte, if any. It's
  * useful if a buffer is not null-terminated or if the length is already
- * known. This can be called with NULL tokens in order to determine the number
- * of tokens necessary.
+ * known. This can be called with @p tokens set to NULL to determine the number of
+ * tokens necessary.
  */
 WS_DLL_PUBLIC int json_parse_len(const char *buf, size_t len, jsmntok_t *tokens, unsigned int max_tokens);
 
@@ -105,7 +105,7 @@ WS_DLL_PUBLIC int json_get_array_len(jsmntok_t *array);
  *
  * @param parent - JSON array.
  * @param idx - index of element.
- * @return Pointer to idx element of an array or NULL if not found.
+ * @return Pointer to @p parent array's element at position @p idx or NULL if not found.
  */
 WS_DLL_PUBLIC jsmntok_t *json_get_array_index(jsmntok_t *parent, int idx);
 
@@ -113,14 +113,15 @@ WS_DLL_PUBLIC jsmntok_t *json_get_array_index(jsmntok_t *parent, int idx);
  * Get the pointer to the next JSON element which is a sibling of `cur`.
  *
  * This is used for efficiently iterating over elements of a JSON array. For example:
+ * @code{.c}
+ * // Given a jsmntok_t* `array_token` for the start of the array (e.g., from `json_get_array`)
+ * const int count = json_get_array_len(array_token);
+ * jsmntok_t* element = json_get_array_index(array_token, 0);
+ * for (int i = 0; i < count; i++, element = json_get_next_object(element)) {
+ *   ... // Do something with `element`
+ * }
+ * @endcode
  *
- *  // Given a jsmntok_t* `array_token` for the start of the array (e.g., from `json_get_array`)
- *  const int count = json_get_array_len(array_token);
- *  jsmntok_t* element = json_get_array_index(array_token, 0);
- *  for (int i = 0; i < count; i++, element = json_get_next_object(element)) {
- *      ... // Do something with `element`
- *  }
-
  * @note This does not perform bounds checking and so can go out of bounds!
  * Be sure to track how many times this is called.
  *
@@ -130,12 +131,12 @@ WS_DLL_PUBLIC jsmntok_t *json_get_array_index(jsmntok_t *parent, int idx);
 WS_DLL_PUBLIC jsmntok_t *json_get_next_object(jsmntok_t *cur);
 
 /**
- * Get the unescaped value of a string object belonging to the parent object and named as the name variable.
+ * Get the unescaped value of a string object belonging to the parent object and named as the @p name variable.
  *
  * @param buf - A buffer containing JSON, not necessarily null-terminated.
  * @param parent - JSON object to search within for the `name`.
  * @param name - The name to search the parent object for.
- * @return Pointer to a string belonging to the parent object and named as the 'name' variable or NULL if not found.
+ * @return Pointer to a string belonging to the parent object and named as the @p name variable or NULL if not found.
  *
  * @note This modifies the input buffer.
  */
