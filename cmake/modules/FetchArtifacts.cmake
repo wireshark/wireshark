@@ -2,9 +2,6 @@
 # have a package manager. Track artifacts and versions we install, and
 # re-extract them if we have an updates.
 
-# To do:
-# - Add support for Windows and migrate win-setup.ps1 here.
-
 # It would be nice to be able to make this self-contained, e.g. by
 # extracting artifacts somewhere under CMAKE_BINARY_DIR, but CMake
 # doesn't allow source or build paths in INTERFACE_INCLUDE_DIRECTORIES.
@@ -112,12 +109,35 @@ function(update_artifacts)
     # libraries in a common root similar to what we do for macOS.
     file(GLOB artifact_dirs
       ${ARTIFACTS_DIR}/asciidoctor-bundle-*-windows-ws
-      ${ARTIFACTS_DIR}/falcosecurity-libs-*-ws
-      ${ARTIFACTS_DIR}/falcosecurity-plugins-*-ws
+      ${ARTIFACTS_DIR}/bcg729-*ws
+      ${ARTIFACTS_DIR}/brotli-*ws
+      ${ARTIFACTS_DIR}/c-ares-*-windows-ws
+      ${ARTIFACTS_DIR}/falcosecurity-*-ws
+      ${ARTIFACTS_DIR}/gnutls-*-ws
+      ${ARTIFACTS_DIR}/krb5-*-windows-ws
+      ${ARTIFACTS_DIR}/libgcrypt-bundle-*-ws
+      ${ARTIFACTS_DIR}/libilbc-*-windows-ws
+      ${ARTIFACTS_DIR}/libmaxminddb-*-windows-ws
+      ${ARTIFACTS_DIR}/libsmi-*-windows-ws
+      ${ARTIFACTS_DIR}/libssh-*-ws
+      ${ARTIFACTS_DIR}/lua-*-win*64-*
+      ${ARTIFACTS_DIR}/lz4-*-windows-ws
+      ${ARTIFACTS_DIR}/minizip-*-windows-ws
+      ${ARTIFACTS_DIR}/nghttp?-*-windows-ws
+      ${ARTIFACTS_DIR}/opencore-amr-*-ws
+      ${ARTIFACTS_DIR}/opus-*-windows-ws
+      ${ARTIFACTS_DIR}/sbc-*-windows-ws
+      ${ARTIFACTS_DIR}/snappy-*-windows-ws
+      ${ARTIFACTS_DIR}/speexdsp-*-windows-ws
+      ${ARTIFACTS_DIR}/vcpkg-export-*-windows-ws
+      ${ARTIFACTS_DIR}/WinSparkle-*
+      ${ARTIFACTS_DIR}/xxhash-*-windows-ws
+      ${ARTIFACTS_DIR}/zlib-ng-*-windows-ws
+      ${ARTIFACTS_DIR}/zstd-*-windows-ws
     )
-    foreach(subdir IN ITEMS asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws)
-      file(REMOVE_RECURSE "${ARTIFACTS_DIR}/${subdir}")
-    endforeach()
+    if (artifact_dirs)
+      file(REMOVE_RECURSE "${artifact_dirs}")
+    endif()
   endif()
   download_artifacts(download_ok)
   if(${download_ok})
@@ -165,25 +185,77 @@ if(APPLE)
     add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-08-20-1-macos-universal.tar.xz 7391aa5337914acaac1fd4756ec95c075ca1ece65c0fa6f60d3e34ba24844f4c)
   endif()
 elseif(WIN32)
-# To do:
-# - Move the rest of win-setup.ps1 here.
-  add_artifact(asciidoctor/asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws.7z d1dae73dd61ded005b8f1f2d7d19bd08e6edbeed216428e8ab898267229d150b)
-
-  add_external_artifact(https://docbook.org/xml/5.0.1/docbook-5.0.1.zip 7af9df452410e035a3707883e43039b4062f09dc2f49f2e986da3e4c0386e3c7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
-  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-1.79.2.zip 853dce096f5b32fe0b157d8018d8fecf92022e9c79b5947a98b365679c7e31d7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
-  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-nons-1.79.2.zip ba41126fbf4021e38952f3074dc87cdf1e50f3981280c7a619f88acf31456822 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
-
   if(WIRESHARK_TARGET_PLATFORM STREQUAL "x64")
+    add_artifact(bcg729/bcg729-1.0.4-win64ws.zip 9a095fda4c39860d96f0c568830faa6651cd17635f68e27aa6de46c689aa0ee2)
+    add_artifact(brotli/brotli-1.0.9-1-win64ws.zip 3f8d24aec8668201994327ff8d8542fe507d1d468a500a1aec50d0415f695aab)
+    add_artifact(c-ares/c-ares-1.34.4-x64-windows-ws.zip b82429cce98c164f5a094b172238cea33c130130634a722656bd0981209240cb)
+    add_artifact(gnutls/gnutls-3.8.10-1-x64-mingw-dynamic-ws.7z 3f62c512a5973277ee03a51cecf876b102066ffb5588d87841cbe239f15f9680)
+    add_artifact(krb5/krb5-1.21.3-1-x64-windows-ws.zip 49b83da4baa476c4c31ed3ee463f962114a469b8c3d601db68bdb6bc03a88e42)
+    add_artifact(libgcrypt/libgcrypt-bundle-1.11.1-1-x64-mingw-dynamic-ws.zip 2987e0b57f4509c02a26d146950a1bcb630bc0cca57b2dcce54b357936a7db3b)
+    add_artifact(libilbc/libilbc-2.0.2-4-x64-windows-ws.zip 4f35a1ffa03c89bf473f38249282a7867b203988d2b6d3d2f0924764619fd5f5)
+    add_artifact(libmaxminddb/libmaxminddb-1.12.2-x64-windows-ws.zip 16c5f80c44a76355886ab1a53a01ae3c42eeafe486e6b2bb73ab7658324dce29)
+    add_artifact(libsmi/libsmi-2021-01-15-2-x64-windows-ws.zip ee8e349427d2a4ee9c18fc6b5839bd6df41685ecba03506179c21425e04f3413)
+    add_artifact(libssh/libssh-0.11.2-1-x64-mingw-dynamic-ws.7z 2de534cb53f4074f51d3e348accc9071dc35d8b082ab50eed2adafe58ebc1908)
+    add_artifact(lua/lua-5.4.6-unicode-win64-vc14.zip f0c6c7eb28733425b16717beb338d44c041dfbb5c6807e618d96bd754276aaff)
+    add_artifact(lz4/lz4-1.10.0-1-x64-windows-ws.zip 8b838f68cc90efa2d7c37f2bc651d153487bc336525d67f9c224a3e4bccf3583)
+    add_artifact(minizip/minizip-1.3-1-x64-windows-ws.zip eb0bb5fffda5328e192d0d7951ff0254e64dcd736d46909fde7db792c1c53bcc)
+    add_artifact(minizip-ng/minizip-ng-4.0.9-x64-windows-ws.zip 08ea4d0051a507afd5e0b3bda16bf7fe6da42932c3bb86052b3bdb114a945da1)
+    add_artifact(nghttp2/nghttp2-1.65.0-x64-windows-ws.zip 3f1727c106e3a74b21361955215b5876cbb3e28f9d9658f7af1285417ed76083)
+    add_artifact(nghttp3/nghttp3-1.8.0-x64-windows-ws.zip 31062662e8829243c951c4fc8b69f4a0eb4d38ca1141ad0d9fee35c549b117b6)
+    add_artifact(opencore-amr/opencore-amr-0.1.6-1-x64-mingw-dynamic-ws.zip 013a7b29b62bec123482fed6acd8aed882be3478870c2ec8aec15b7cb81cda02)
+    add_artifact(opus/opus-1.5.1-1-x64-windows-ws.zip 30d293b6e4902edae0ca5d747881d9a18f7f03b66a4758bf797f341f89592e6a)
+    add_artifact(sbc/sbc-2.0-1-x64-windows-ws.zip d1a58f977dcffa168b11b280bd10228191582d263b7c901e50cde7c1c43d9c04)
+    add_artifact(snappy/snappy-1.2.1-1-x64-windows-ws.zip e2ffccb26e91881b42d03061dcc728a98af9037705cb4595c8ccbe8d912b5d68)
+    add_artifact(spandsp/spandsp-0.0.6-5-x64-windows-ws.zip cbb18310876ec6f081662253a2d37f5174ac60c58b0b7cd6759852fbcfaa7d7f)
+    add_artifact(speexdsp/speexdsp-1.21.1-1-win64ws.zip d36db62e64ffaee38d9f607bef07d3778d8957ad29757f3eba169eb135f1a4e5)
+    add_artifact(vcpkg-export/vcpkg-export-2025.07.25-x64-windows-ws.zip 5a9751b4406eeac1c7d46220077da530e584e8aed0ff6fab8dcc2903c6c4c686)
+    add_artifact(WinSparkle/WinSparkle-0.8.0-4-gb320893.zip 3ae42326bcd34594bc21b1e7948863a839ee76e87d9f4cf6b59b9d9f9a083881)
+    add_artifact(xxhash/xxhash-0.8.3-1-x64-windows-ws.zip 35e5adca66137150de17458c41f6b65fa8abb5a46cfb91deaaaa24df08121082)
+    add_artifact(zlib-ng/zlib-ng-2.2.3-1-x64-windows-ws.zip 8b4e5ba1b61688eccb7e315c2f4ce1ef0c4301172f265bd41455e1df6a5a9522)
+    add_artifact(zstd/zstd-1.5.7-x64-windows-ws.zip cdce6d578ece3a14873572b1bffd54b42443ddb97386df9e4552ab7c17b2097d)
+
     if(BUILD_stratoshark OR BUILD_strato OR BUILD_falcodump)
       add_artifact(falcosecurity-libs/falcosecurity-libs-0.21.0-1-x64-ws.7z 917eca3b676e1201d48acfbb72660fcd7af4ce40fe5112bb1ce689d957c18c4a)
       add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-08-20-1-x64-ws.7z 1c1fc0f94767a79a7d12478b73a937fd363931ebcd457cd1fab437a11410e076)
     endif()
-  else()
+  else() # Arm64
+    add_artifact(bcg729/bcg729-1.1.1-1-win64armws.zip f4d76b9acf0d0e12e87a020e9805d136a0e8775e061eeec23910a10828153625)
+    add_artifact(brotli/brotli-1.0.9-1-win64armws.zip 5ba1b62ebc514d55c3eae85a00ff107e587b6e7cb1275e2d33fcddcd49f8e2af)
+    add_artifact(c-ares/c-ares-1.34.4-arm64-windows-ws.zip f1cff731bd7d53effebf79dc64f199a82b875ecbfb3049f67e37765e34847a32)
+    add_artifact(gnutls/gnutls-3.8.10-1-arm64-mingw-dynamic-ws.7z 6174219a79c061874c7bf5cf89b13d0542c37f91f91fbc79c8f0a419a415121e)
+    add_artifact(krb5/krb5-1.21.3-1-arm64-windows-ws.zip 26166173cb653fdf2153c311a9f611a76575359393222cebd5228842632a0ccb)
+    add_artifact(libgcrypt/libgcrypt-bundle-1.11.1-1-arm64-mingw-dynamic-ws.zip a7170343edaa732ab04e76874972291b9875cbd1e394c3bfcee13b89e608719f)
+    add_artifact(libilbc/libilbc-2.0.2-4-arm64-windows-ws.zip 00a506cc1aac8a2e31856e463a555d899b5a6ccf376485a124104858ccf0be6d)
+    add_artifact(libmaxminddb/libmaxminddb-1.12.2-arm64-windows-ws.zip c2cf5e3b1d875ef778df9448c172cdc7f7f3f3a15880ac173ec3df567465e67f)
+    add_artifact(libsmi/libsmi-2021-01-15-2-arm64-windows-ws.zip 3f5b7507a19436bd6494e2cbc89856a5980950f931f7cf0d637a8e764914d015)
+    add_artifact(libssh/libssh-0.11.2-1-arm64-mingw-dynamic-ws.7z ec870f9a2df0779ed49e7984ca8286314ef55809cc7faf7fc3d029b3b314e2a2)
+    add_artifact(lua/lua-5.4.6-unicode-arm64-windows-vc14.zip a28c38acde71de5c495420cd8bf480e2e41f1a14bac81503b700fc64a9679b95)
+    add_artifact(lz4/lz4-1.10.0-1-arm64-windows-ws.zip ee51fbf87bf359fa7835be89797c3488daf502e36e26337b0e649030aab7a09b)
+    add_artifact(minizip/minizip-1.3-1-arm64-windows-ws.zip e5b35d064ff10f1ab1ee9193a0965fd1eb3d1e16eab5a905ab3fea9b14fb5afe)
+    add_artifact(minizip-ng/minizip-ng-4.0.9-arm64-windows-ws.zip c773532508dc6a5f528beb855c472cc343d9d3ace45adea4b0b48dad1ef85acd)
+    add_artifact(nghttp2/nghttp2-1.65.0-arm64-windows-ws.zip 96f88a42f8a82e686de9ee04997ffd84d656bbd882afff890cde69de1bb306fb)
+    add_artifact(nghttp3/nghttp3-1.8.0-arm64-windows-ws.zip 98acb5867bb3b68431d29cefa5356602350ce731105cb2b3ad23e54b1f413bca)
+    add_artifact(opencore-amr/opencore-amr-0.1.6-1-arm64-mingw-dynamic-ws.zip 581ec9e8ee4dde2236b689eec4d39802e2f998baa8d1604a4e91c1da32556b57)
+    add_artifact(opus/opus-1.5.1-1-arm64-windows-ws.zip b50db665b50f12185dacd8efd77cd28eb30e53ac5dcbb09b403e9fb90a9768f4)
+    add_artifact(sbc/sbc-2.0-1-arm64-windows-ws.zip 83cfe4a8b6fa5bae253ecacc1c02e6e4c61b4ad9ad0e5e63f0f30422fb6eac96)
+    add_artifact(snappy/snappy-1.2.1-1-arm64-windows-ws.zip 71d6987360eb1a10abd0d070768e6b7b250c6ea87feaee044ecbc8864c7e57f4)
+    add_artifact(spandsp/spandsp-0.0.6-5-arm64-windows-ws.zip fdf01e3c33e739ff9399b7d42cd8230c97cb27ce51865a0f06285a8f68206b6c)
+    add_artifact(speexdsp/speexdsp-1.2.1-1-win64armws.zip 1759a9193065f27e50dd79dbb1786d24031ac43ccc48c40dca46d8a48552e3bb)
+    add_artifact(vcpkg-export/vcpkg-export-2025.07.25-arm64-windows-ws.zip 68571e46354416d54ec5a86bef10a73426a250f2b920827fa9d7071e2f063ce7)
+    add_artifact(WinSparkle/WinSparkle-0.8.0-4-gb320893.zip 3ae42326bcd34594bc21b1e7948863a839ee76e87d9f4cf6b59b9d9f9a083881)
+    add_artifact(xxhash/xxhash-0.8.3-1-arm64-windows-ws.zip d0fc3804b0c4d43ac09f80d9b0bab8d8b5550df282e56b44be3dd997ccc9eba2)
+    add_artifact(zlib-ng/zlib-ng-2.2.3-1-arm64-windows-ws.zip bea4250059565c3cc49a382d8ec3f82b70c51c3ccca41c5d3daec6862d22d8f8)
+    add_artifact(zstd/zstd-1.5.7-arm64-windows-ws.zip 5a066e38a0c7bbbae3955919107e099565aee0c6c6523c43c0c9a0e6982a6a0a)
+
     if(BUILD_stratoshark OR BUILD_strato OR BUILD_falcodump)
       add_artifact(falcosecurity-libs/falcosecurity-libs-0.21.0-1-arm64-ws.7z 222a691e704989144c91b08612ab7e0af1a6721a7f0bc3ac17452de3342a654e)
       add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-08-20-1-arm64-ws.7z e2f36b0056139f51d11bbc1fc81a811809ddf54964508e45c62a96d74722c718)
     endif()
   endif()
+  add_artifact(asciidoctor/asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws.7z d1dae73dd61ded005b8f1f2d7d19bd08e6edbeed216428e8ab898267229d150b)
+  add_external_artifact(https://docbook.org/xml/5.0.1/docbook-5.0.1.zip 7af9df452410e035a3707883e43039b4062f09dc2f49f2e986da3e4c0386e3c7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
+  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-1.79.2.zip 853dce096f5b32fe0b157d8018d8fecf92022e9c79b5947a98b365679c7e31d7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
+  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-nons-1.79.2.zip ba41126fbf4021e38952f3074dc87cdf1e50f3981280c7a619f88acf31456822 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
 endif()
 
 update_artifacts()
