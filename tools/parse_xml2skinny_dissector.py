@@ -425,7 +425,7 @@ def xml2obj(src):
 
             if self.declare == "yes":
                 if self.basemessage.declared is None or self.name not in self.basemessage.declared:
-                    ret += self.indent_out('g%s %s = 0;\n' %(self.type, self.name))
+                    ret += self.indent_out('%s_t %s = 0;\n' %(self.type, self.name))
                     self.basemessage.declared.append(self.name)
 
             global fieldsArray
