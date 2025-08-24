@@ -1038,9 +1038,9 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
     char indicator;
     int32_t exec_errno = 0;
     unsigned primary_msg_len;
-    char *primary_msg_text;
+    const char *primary_msg_text;
     unsigned secondary_msg_len;
-    char *secondary_msg_text;
+    const char *secondary_msg_text;
     char *combined_msg;
     GString *data_buf = NULL;
     ssize_t count;
@@ -1189,6 +1189,39 @@ sync_pipe_run_command_actual(char **argv, char **data, char **primary_msg,
             *data = NULL;
             break;
 
+        case SP_BAD_FILTER: {
+            uint32_t indx = 0;
+            const char* end;
+
+            if (ws_strtou32(buffer, &end, &indx) && end[0] == ':') {
+                primary_msg_text = end + 1;
+            } else {
+                primary_msg_text = "dumpcap process returned a SP_BAD_FILTER without an error message";
+            }
+            /*
+             * Pick up the child status.
+             */
+            ret = sync_pipe_close_command(&data_pipe_read_fd, sync_pipe_read_io,
+                                          &fork_child, &msg);
+            if (ret == -1) {
+                /*
+                 * Child process failed unexpectedly, or wait failed; msg is the
+                 * error message.
+                 */
+                *primary_msg = msg;
+                *secondary_msg = NULL;
+            } else {
+                /*
+                 * Child process failed, but returned the expected exit status.
+                 * Return the messages it gave us, and indicate failure.
+                 */
+                *primary_msg = g_strdup(primary_msg_text);
+                *secondary_msg = NULL;
+                ret = -1;
+            }
+            *data = NULL;
+            break;
+        }
         case SP_LOG_MSG:
             /*
              * Log from dumpcap; pass to our log
@@ -1346,8 +1379,8 @@ sync_interface_set_80211_chan(const char *iface, const char *freq, const char *t
  */
 int
 sync_if_bpf_filter_open(const char *ifname, const char* filter,
-                          char **data, char **primary_msg,
-                          char **secondary_msg, void (*update_cb)(void))
+                        int linktype, char **data, char **primary_msg,
+                        char **secondary_msg, void (*update_cb)(void))
 {
     int argc;
     char **argv;
@@ -1368,6 +1401,10 @@ sync_if_bpf_filter_open(const char *ifname, const char* filter,
     argv = sync_pipe_add_arg(argv, &argc, "-d");
     argv = sync_pipe_add_arg(argv, &argc, "-i");
     argv = sync_pipe_add_arg(argv, &argc, ifname);
+    if (linktype >= 0) {
+        argv = sync_pipe_add_arg(argv, &argc, "-y");
+        argv = sync_pipe_add_arg(argv, &argc, linktype_val_to_name(linktype));
+    }
     argv = sync_pipe_add_arg(argv, &argc, "-f");
     argv = sync_pipe_add_arg(argv, &argc, filter);
 

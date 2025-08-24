@@ -98,6 +98,7 @@ sync_interface_set_80211_chan(const char *iface, const char *freq, const char *t
  *
  *  @param ifname network interface name
  *  @param filter capture filter string
+ *  @param linktype link layer type (-1 to use device default)
  *  @param data On success, *data points to a buffer containing the dumpcap output, On failure *data is NULL
  *  @param primary_msg On success NULL, On failure points to an error message
  *  @param secondary_msg On success NULL, On failure either points to an additional error message or is NULL
@@ -105,8 +106,8 @@ sync_interface_set_80211_chan(const char *iface, const char *freq, const char *t
  */
 extern int
 sync_if_bpf_filter_open(const char *ifname, const char* filter,
-                          char **data, char **primary_msg,
-                          char **secondary_msg, void (*update_cb)(void));
+                        int linktype, char **data, char **primary_msg,
+                        char **secondary_msg, void (*update_cb)(void));
 
 /** Get an interface list using dumpcap */
 extern int
