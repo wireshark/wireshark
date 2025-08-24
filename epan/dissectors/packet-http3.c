@@ -1757,7 +1757,7 @@ dissect_http3_qpack_encoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     can_continue    = true;
     icnt            = 0;
     offset          = start_offset;
-    end_offset      = start_offset + tvb_captured_length_remaining(tvb, start_offset);;
+    end_offset      = start_offset + tvb_captured_length_remaining(tvb, start_offset);
 
     while (offset < end_offset && can_continue) {
         int         inst_offset;        /* Starting offset of the currently parsed instruction in the tvb */

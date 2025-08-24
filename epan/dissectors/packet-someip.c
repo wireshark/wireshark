@@ -1119,7 +1119,7 @@ get_parameter_config(uint16_t serviceid, uint16_t methodid, uint8_t version, uin
     }
 
     uint64_t key = someip_parameter_key(serviceid, methodid, version, msgtype);
-    return (someip_parameter_list_t *)g_hash_table_lookup(data_someip_parameter_list, &key);;
+    return (someip_parameter_list_t *)g_hash_table_lookup(data_someip_parameter_list, &key);
 }
 
 static void *
@@ -3642,7 +3642,7 @@ dissect_someip_payload_bitfield(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         break;
     case 32:
         value = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
-        break;;
+        break;
     case 16:
         value = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
         break;

@@ -4579,7 +4579,7 @@ static bool blf_dump_lin(wtap_dumper *wdh, const wtap_rec *rec, int *err, char *
     linmsg.headerTime = 0;
     linmsg.fullTime = 0;
     linmsg.crc = pd[6];
-    linmsg.dir = blf_get_direction(rec);;
+    linmsg.dir = blf_get_direction(rec);
     linmsg.res1 = 0;
 
     fix_endianness_blf_linmessage(&linmsg);

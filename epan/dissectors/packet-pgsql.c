@@ -475,7 +475,7 @@ static void set_streamed_txn(packet_info *pinfo, pgsql_conn_data_t *conv_data, b
         pgsql_ppd = wmem_new0(wmem_file_scope(), struct pgsql_per_packet_data_t);
         p_add_proto_data(wmem_file_scope(), pinfo, proto_pgsql, pinfo->curr_layer_num, pgsql_ppd);
     }
-    pgsql_ppd->streamed_txn = streamed_txn;;
+    pgsql_ppd->streamed_txn = streamed_txn;
 }
 
 static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, proto_tree *tree, packet_info *pinfo,

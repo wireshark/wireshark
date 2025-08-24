@@ -171,7 +171,7 @@ get_name_from_ht_diag_addr(unsigned identifier) {
         return NULL;
     }
 
-    return (char *)g_hash_table_lookup(ht_diag_addr, GUINT_TO_POINTER(identifier));;
+    return (char *)g_hash_table_lookup(ht_diag_addr, GUINT_TO_POINTER(identifier));
 }
 
 /**********************************
