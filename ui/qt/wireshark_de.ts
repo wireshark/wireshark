@@ -839,9 +839,9 @@
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln Tag</numerusform>
+            <numerusform>%Ln Tage</numerusform>
         </translation>
     </message>
     <message>
@@ -1058,9 +1058,9 @@
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln Tag</numerusform>
+            <numerusform>%Ln Tage</numerusform>
         </translation>
     </message>
     <message>
@@ -15320,9 +15320,9 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Kommentar von %n Paket löschen</numerusform>
+            <numerusform>Kommentare von %n Paketen löschen</numerusform>
         </translation>
     </message>
     <message>
