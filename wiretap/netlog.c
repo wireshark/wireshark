@@ -824,7 +824,7 @@ static void netlog_close(wtap* wth) {
     if (wth->priv != NULL) {
         NetLogState* netlog_state = wth->priv;
         g_hash_table_destroy(netlog_state->json_packets_ht);
-    };
+    }
 }
 
 /**
@@ -847,11 +847,13 @@ wtap_open_return_val netlog_open(wtap* wth, int* err, char** err_info)
     netlog_state->json_packets_ht = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
     /* Parse and store the packets for future use: */
     if (!netlog_parse_entirety(wth, wth->fh, err, err_info, netlog_state->json_packets_ht)) {
+        g_hash_table_destroy(netlog_state->json_packets_ht);
         g_free(netlog_state);
         return WTAP_OPEN_NOT_MINE;
     }
 
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
+        g_hash_table_destroy(netlog_state->json_packets_ht);
         g_free(netlog_state);
         return WTAP_OPEN_ERROR;
     }
