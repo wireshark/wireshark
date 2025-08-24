@@ -6331,7 +6331,7 @@ proto_tree_add_mac48_detail(const mac_hf_list_t *list_specific,
 			    int idx, tvbuff_t *tvb,
 			    proto_tree *tree, int offset)
 {
-	const uint8_t  addr[6];
+	uint8_t  addr[6];
 	const char    *addr_name  = NULL;
 	const char    *oui_name   = NULL;
 	proto_item    *addr_item  = NULL;
