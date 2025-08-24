@@ -72,7 +72,7 @@ from omniidl import idlast, idltype, idlutil, output
 # 7. Exception can be common to many operations, so handle them outside the
 #    operation helper functions [done]
 # 8. Automatic variable declaration [done, improve, still get some collisions.add variable delegator function ]
-#    For example, mutlidimensional arrays.
+#    For example, multidimensional arrays.
 # 9. wchar and wstring handling [giop API needs improving]
 # 10. Support Fixed [done]
 # 11. Support attributes (get/set) [started, needs language mapping option, perhaps wireshark GUI option

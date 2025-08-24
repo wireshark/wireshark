@@ -555,7 +555,7 @@ static const value_string opcodes_vals_sys[] =
     {SC_ABC_A_ROUTING          , "ABC-A Routing Code"},                  /* IP Phone - NOT EXPECTED */
     {SC_IBS_ROUTING            , "IBS Routing Code"},                    /* IP Phone - NOT EXPECTED */
     {SC_IP_DEVICE_ROUTING      , "IP Device Routing"},
-    {SC_M_REFLEX_HUB_ROUTING   , "Mutli-Reflex Hub Routing Code"},       /* IP Phone - NOT EXPECTED */
+    {SC_M_REFLEX_HUB_ROUTING   , "Multi-Reflex Hub Routing Code"},       /* IP Phone - NOT EXPECTED */
     {SC_SUPER_MSG_2            , "Super Message 2"},
     {SC_DEBUG_IN_LINE          , "Debug In Line"},
     {SC_LED_COMMAND            , "Led Command"},                         /* IP Phone */
