@@ -2396,7 +2396,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">필터 버튼 속성...</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3298,7 +3298,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">필터 버튼 속성...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit</source>
@@ -4018,7 +4018,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show text based on packet</source>
+        <source>Show text as frame encoding</source>
+        <oldsource>Show text based on packet</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5266,7 +5267,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(…)) )</source>
         <oldsource>Missing capturing group data (use (?&lt;data&gt;(...)) )</oldsource>
-        <translation type="unfinished">그룹 데이터를 캡처하는 표현식 없음(사용: (?&lt;data&gt;(...)) )</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -6987,22 +6988,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished">ZIP 파일에서...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished">디렉터리에서...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
-        <translation type="unfinished">선택한 개인 프로필...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished">모든 개인 프로필...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -8626,24 +8627,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished">ZIP 파일에서...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished">디렉터리에서...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)…</source>
         <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
         <translation type="unfinished">
-            <numerusform>선택한 개인 프로필 %Ln개...</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished">모든 개인 프로필...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New profile</source>
@@ -10814,7 +10815,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Decoding streams…</source>
         <oldsource>Decoding streams...</oldsource>
-        <translation type="unfinished">스트림 디코드 중...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10932,7 +10933,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Preparing to play…</source>
         <oldsource>Preparing to play...</oldsource>
-        <translation type="unfinished">재생 준비 중...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown</source>

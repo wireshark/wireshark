@@ -2405,7 +2405,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">Filterknappinställningar …</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3308,7 +3308,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">Filterknappinställningar …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit</source>
@@ -4037,8 +4037,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>…som bitar</translation>
     </message>
     <message>
-        <source>Show text based on packet</source>
-        <translation>Visa text baserat på paket</translation>
+        <source>Show text as frame encoding</source>
+        <oldsource>Show text based on packet</oldsource>
+        <translation type="unfinished">Visa text baserat på paket</translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -5285,7 +5286,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(…)) )</source>
         <oldsource>Missing capturing group data (use (?&lt;data&gt;(...)) )</oldsource>
-        <translation type="unfinished">Data om fångstgrupp saknas (använd (?&lt;data&gt;(...)))</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -7010,22 +7011,22 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished">Från en zip-fil …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished">Från en katalog …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
-        <translation type="unfinished">Vald personlig profil …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished">Alla personliga profiler …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -8653,25 +8654,25 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished">Från en zip-fil …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished">Från en katalog …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)…</source>
         <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
         <translation type="unfinished">
-            <numerusform>%Ln vald personlig profil …</numerusform>
-            <numerusform>%Ln valda personliga profiler …</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished">Alla personliga profiler …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New profile</source>
@@ -10849,7 +10850,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Decoding streams…</source>
         <oldsource>Decoding streams...</oldsource>
-        <translation type="unfinished">Avkodar strömmar …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10967,7 +10968,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Preparing to play…</source>
         <oldsource>Preparing to play...</oldsource>
-        <translation type="unfinished">Förbereder för att spela …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown</source>

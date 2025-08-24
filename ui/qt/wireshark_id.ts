@@ -2396,7 +2396,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">Preferensi Tombol Filter...</translation>
+        <translation>Preferensi Tombol Filter...</translation>
     </message>
 </context>
 <context>
@@ -3298,7 +3298,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">Preferensi Tombol Filter...</translation>
+        <translation>Preferensi Tombol Filter...</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -3399,7 +3399,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Save %1 rules as…</source>
-        <translation type="unfinished"></translation>
+        <translation>Simpan %1 aturan sebagai...</translation>
     </message>
     <message>
         <source>Text file (*.txt);;All Files (</source>
@@ -4018,8 +4018,9 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>...sebagai bit</translation>
     </message>
     <message>
-        <source>Show text based on packet</source>
-        <translation>Tampilkan teks berbasis paket</translation>
+        <source>Show text as frame encoding</source>
+        <oldsource>Show text based on packet</oldsource>
+        <translation type="unfinished">Tampilkan teks berbasis paket</translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -5266,7 +5267,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(…)) )</source>
         <oldsource>Missing capturing group data (use (?&lt;data&gt;(...)) )</oldsource>
-        <translation type="unfinished">Kehilangan data grup penangkapan (gunakan (?&lt;data&gt;(...)) )</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -6987,22 +6988,22 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished">Dari Berkas Zip...</translation>
+        <translation>Dari Berkas Zip...</translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished">Dari Direktori...</translation>
+        <translation>Dari Direktori...</translation>
     </message>
     <message>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
-        <translation type="unfinished">Profil Pribadi yang Dipilih...</translation>
+        <translation>Profil Pribadi yang Dipilih...</translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished">Semua Profil Pribadi...</translation>
+        <translation>Semua Profil Pribadi...</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7027,7 +7028,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>…as %1</source>
-        <translation type="unfinished"></translation>
+        <translation>...sebagai %1</translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
@@ -7472,7 +7473,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Buffer alarm threshold (B):</source>
-        <translation type="unfinished"></translation>
+        <translation>Ambang alarm penyangga (B):</translation>
     </message>
     <message>
         <source>Stream empty speed (Kb/s):</source>
@@ -7494,7 +7495,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
-        <translation type="unfinished"></translation>
+        <translation>Ambang alarm penyangga tidak valid.</translation>
     </message>
     <message>
         <source>The stream empty speed should be between 1 and 10000000. </source>
@@ -8248,7 +8249,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Markers</source>
-        <translation type="unfinished"></translation>
+        <translation>Penanda</translation>
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
@@ -8626,24 +8627,24 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished">Dari Berkas Zip...</translation>
+        <translation>Dari Berkas Zip...</translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished">Dari Direktori...</translation>
+        <translation>Dari Direktori...</translation>
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)…</source>
         <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
-        <translation type="unfinished">
+        <translation>
             <numerusform>%Ln Profil Pribadi yang Dipilih...</numerusform>
         </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished">Semua Profil Pribadi...</translation>
+        <translation>Semua Profil Pribadi...</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -10811,7 +10812,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Decoding streams…</source>
         <oldsource>Decoding streams...</oldsource>
-        <translation type="unfinished">Mendekode stream...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10929,7 +10930,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Preparing to play…</source>
         <oldsource>Preparing to play...</oldsource>
-        <translation type="unfinished">Mempersiapkan memutar...</translation>
+        <translation>Mempersiapkan memutar...</translation>
     </message>
     <message>
         <source>Unknown</source>

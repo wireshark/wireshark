@@ -2395,7 +2395,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">フィルタボタン設定…</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3297,7 +3297,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">フィルタボタン設定…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit</source>
@@ -4017,8 +4017,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>ビット列として…</translation>
     </message>
     <message>
-        <source>Show text based on packet</source>
-        <translation>パケットに応じてテキストを表示</translation>
+        <source>Show text as frame encoding</source>
+        <oldsource>Show text based on packet</oldsource>
+        <translation type="unfinished">パケットに応じてテキストを表示</translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -5265,7 +5266,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(…)) )</source>
         <oldsource>Missing capturing group data (use (?&lt;data&gt;(...)) )</oldsource>
-        <translation type="unfinished">キャプチャグループデータが欠けています ( (?&lt;data&gt;(...))を使用してください )</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -6990,22 +6991,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished">Zipファイルより...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished">ディレクトリより...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
-        <translation type="unfinished">選択された個人プロファイル...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished">すべての個人プロファイル...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -8658,24 +8659,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished">Zipファイルより...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished">ディレクトリより...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)…</source>
         <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
         <translation type="unfinished">
-            <numerusform>%Ln 選択された個人プロファイル...</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished">すべての個人プロファイル...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New profile</source>
@@ -10847,7 +10848,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Decoding streams…</source>
         <oldsource>Decoding streams...</oldsource>
-        <translation type="unfinished">ストリームをデコード中</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10900,7 +10901,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Resampling waveform…</source>
         <oldsource>Resampling waveform...</oldsource>
-        <translation type="unfinished">波形を再サンプリング...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
@@ -10965,7 +10966,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Preparing to play…</source>
         <oldsource>Preparing to play...</oldsource>
-        <translation type="unfinished">再生準備中...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown</source>

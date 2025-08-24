@@ -2155,7 +2155,6 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x023F,   "WaveWare Technologies Inc." },
     { 0x0240,   "Argenox Technologies" },
     { 0x0241,   "Bragi GmbH" },
-    { 0x0242,   "16Lab Inc" },
     { 0x0243,   "Masimo Corp" },
     { 0x0244,   "Iotera Inc" },
     { 0x0245,   "Endress+Hauser" },
@@ -5499,6 +5498,14 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0F50,   "Lantern Innovations Incorporated" },
     { 0x0F51,   "ebm-papst Mulfingen GmbH & Co. KGaA & Co. KG" },
     { 0x0F52,   "Shenzhen Yunke Intelligent Co.Ltd" },
+    { 0x0F53,   "Fledt & Meiton Marin AB" },
+    { 0x0F54,   "ContiTech Deutschland GmbH" },
+    { 0x0F55,   "Sensoteq Ltd" },
+    { 0x0F56,   "Astute Access Group Limited" },
+    { 0x0F57,   "Silverlake Technologies" },
+    { 0x0F58,   "Shenzhen Guo-link Technology Co.,Ltd." },
+    { 0x0F59,   "Silicon Vandals PTY LTD" },
+    { 0x0F5A,   "Vibe Energy B.V." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };

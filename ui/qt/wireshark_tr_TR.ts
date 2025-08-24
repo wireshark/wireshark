@@ -2394,7 +2394,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">Filtre Düğmesi Tercihleri...</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3296,7 +3296,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">Filtre Düğmesi Tercihleri...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit</source>
@@ -4016,7 +4016,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show text based on packet</source>
+        <source>Show text as frame encoding</source>
+        <oldsource>Show text based on packet</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6985,22 +6986,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished">Zip Dosyasından...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished">Dizinden...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
-        <translation type="unfinished">Seçilen Kişisel Profil...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished">Tüm Kişisel Profiller...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -8624,12 +8625,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished">Zip Dosyasından...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished">Dizinden...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)…</source>
@@ -8641,7 +8642,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished">Tüm Kişisel Profiller...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New profile</source>
@@ -10812,7 +10813,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Decoding streams…</source>
         <oldsource>Decoding streams...</oldsource>
-        <translation type="unfinished">Akışların kodunu çözme...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10930,7 +10931,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Preparing to play…</source>
         <oldsource>Preparing to play...</oldsource>
-        <translation type="unfinished">Oynamaya hazırlanıyor...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unknown</source>

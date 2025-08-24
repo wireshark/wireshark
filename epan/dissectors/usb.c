@@ -8841,6 +8841,7 @@ static const value_string usb_products_vals[] = {
     { 0x04cb02fc, "Fuji Fujifilm X-T5" },
     { 0x04cb02fe, "Fuji Fujifilm GFX100 II" },
     { 0x04cb0305, "Fuji Fujifilm X100VI" },
+    { 0x04cb030c, "Fuji Fujifilm X-M5" },
     { 0x04cb5006, "ASK-300" },
     { 0x04cb5007, "DX100" },
     { 0x04cc1122, "Hub" },
