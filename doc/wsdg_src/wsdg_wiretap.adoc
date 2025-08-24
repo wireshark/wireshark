@@ -53,7 +53,7 @@ Now we're ready to begin working on `dumb.c`. At minimum, it requires a few func
 
 * An `open` routine (`dumb_open`) to determine if this is the correct parser for this file format
 * A `read` routine (`dumb_read`) that can read a packet from the file.
-* A `seek_and_read` routine (`dumb_seek_and_read`) to read a packet from a specific location in the file
+* A `seek_read` routine (`dumb_seek_read`) to read a packet from a specific location in the file
 
 ```c
 /* dumb.c
