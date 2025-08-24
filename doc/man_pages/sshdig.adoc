@@ -254,7 +254,7 @@ name. Those executables not being "sshdig" will show up as "custom version" in t
 
 == SEE ALSO
 
-xref:stratoshark.html[stratoshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:extcap.html[extcap](4), xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](1)
+xref:stratoshark.html[stratoshark](1), xref:strato.html[strato](1), xref:dumpcap.html[dumpcap](1), xref:extcap.html[extcap](4)
 
 == NOTES
 

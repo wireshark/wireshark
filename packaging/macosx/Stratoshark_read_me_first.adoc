@@ -14,18 +14,14 @@ If you are running an earlier version of macOS you can install using another pac
 
 To install Stratoshark, drag the _Stratoshark_ application bundle to the _Applications_ folder.
 
-////
 If you would like to add the path to
 https://www.wireshark.org/docs/man-pages/stratoshark.html[Stratoshark],
-// https://www.wireshark.org/docs/man-pages/tshark.html[TShark],
-https://www.wireshark.org/docs/man-pages/capinfos.html[capinfos],
-https://www.wireshark.org/docs/man-pages/editcap.html[editcap],
+https://www.wireshark.org/docs/man-pages/strato.html[Strato],
 and
-https://www.wireshark.org/docs/man-pages/[other command line utilities]
+https://www.wireshark.org/docs/man-pages/dumpcap.html[dumpcap]
 to the system PATH, install the
 link:Stratoshark.app/Contents/Resources/Extras/Add%20Wireshark%20to%20the%20system%20path.pkg[Add Stratoshark to the system path]
 package.
-////
 
 == Uninstalling
 
