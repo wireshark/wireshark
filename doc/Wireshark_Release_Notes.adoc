@@ -209,6 +209,11 @@ for Arm64 and Intel. wsbuglink:17294[]
 
 * Building the documentation on Windows no longer requires Java.
 
+* On Linux, capture filters that use BPF extensions like "inbound", "outbound",
+  and "ifindex" can be used for capturing (and compiled by the Compiled Filter
+  dialog). Instead of always being rejected by the syntax checker, they will be
+  marked as unknown.
+
 === Removed Features and Support
 
 Wireshark no longer supports AirPcap and WinPcap.

@@ -17,14 +17,23 @@
 #endif
 
 #include <wiretap/wtap.h>
-#include "ui/capture_opts.h"
-#include "ui/capture_globals.h"
+#include <capture/capture_sync.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/stock_icon.h>
 
 #include "main_application.h"
 
 #include <QClipboard>
+#include <QMutexLocker>
 #include <QPushButton>
+
+// We use a global mutex to protect pcap_compile since it calls gethostbyname,
+// at least before libpcap 1.8.0. (pcap_compile(3PCAP) says as of libpcap 1.8.0,
+// it is thread-safe.)
+// This probably isn't needed on Windows (where pcap_compile calls
+// EnterCriticalSection + LeaveCriticalSection) or *BSD or macOS where
+// gethostbyname(3) claims that it's thread safe.
+static QMutex pcap_compile_mtx_;
 
 CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QList<InterfaceFilter> &intList) :
     GeometryStateDialog(parent),
@@ -43,10 +52,8 @@ CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QList<InterfaceFilte
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     close_bt->setDefault(true);
 
-    interface_list_ = ui->interfaceList;
-    g_mutex_init(&pcap_compile_mtx_);
 #ifdef HAVE_LIBPCAP
-    compileFilter();
+    compileFilters();
 #endif
 }
 
@@ -60,46 +67,77 @@ CompiledFilterOutput::~CompiledFilterOutput()
         parentWidget()->activateWindow();
     }
     delete ui;
-    g_mutex_clear(&pcap_compile_mtx_);
 }
 
 #ifdef HAVE_LIBPCAP
-void CompiledFilterOutput::compileFilter()
+bool CompiledFilterOutput::compileFilter(const InterfaceFilter& filter)
 {
     struct bpf_program fcode;
 
-    foreach (InterfaceFilter current, intList_) {
-        for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+    pcap_t *pd = pcap_open_dead(filter.linktype, WTAP_MAX_PACKET_SIZE_STANDARD);
+    if (pd == NULL) {
+        return false;
+    }
+    QMutexLocker locker(&pcap_compile_mtx_);
+    int err = pcap_compile(pd, &fcode, filter.filter.toUtf8().constData(), 1, 0);
+    if (err < 0) {
+        compile_results.insert(filter.display_name, QString(pcap_geterr(pd)));
+        pcap_close(pd);
+        return false;
+    }
 
-            if (current.interface.compare(device->display_name)) {
-                continue;
+    QStringList bpf_code_dump;
+    struct bpf_insn *insn = fcode.bf_insns;
+    for (u_int i = 0; i < fcode.bf_len; ++insn, ++i) {
+        bpf_code_dump << QString::fromUtf8(bpf_image(insn, i));
+    }
+    pcap_freecode(&fcode);
+    compile_results.insert(filter.display_name, bpf_code_dump.join('\n'));
+    return true;
+}
+
+void CompiledFilterOutput::compileFilters()
+{
+    char *data, *primary_msg, *secondary_msg;
+    bool success;
+
+    foreach (InterfaceFilter current, intList_) {
+        switch (current.iftype) {
+
+        case IF_EXTCAP:
+            // Extcaps should perhaps have a method to compile a filter
+            // (Cf. extcap_verify_capture_filter())
+            success = compileFilter(current);
+            break;
+
+        case IF_STDIN:
+            success = false;
+            compile_results.insert(current.display_name, tr("Capture filters cannot be compiled for standard input."));
+            break;
+
+        case IF_PIPE:
+            success = false;
+            compile_results.insert(current.display_name, tr("Capture filters cannot be compiled for pipes."));
+            break;
+
+        default:
+            // See if dumpcap can compile the filter. This is more accurate
+            // because BPF extensions might need to be used for a particular
+            // device.
+            if (sync_if_bpf_filter_open(current.device_name.toUtf8().constData(), current.filter.toUtf8().constData(), current.linktype, &data, &primary_msg, &secondary_msg, NULL)) {
+                compile_results.insert(current.display_name, gchar_free_to_qstring(primary_msg));
+                g_free(secondary_msg);
+                success = false;
             } else {
-                pcap_t *pd = pcap_open_dead(device->active_dlt, WTAP_MAX_PACKET_SIZE_STANDARD);
-                if (pd == NULL)
-                    break;
-                g_mutex_lock(&pcap_compile_mtx_);
-                if (pcap_compile(pd, &fcode, current.filter.toUtf8().data(), 1, 0) < 0) {
-                    compile_results.insert(current.interface, QString(pcap_geterr(pd)));
-                    g_mutex_unlock(&pcap_compile_mtx_);
-                    ui->interfaceList->addItem(new QListWidgetItem(StockIcon("x-expert-error"), current.interface));
-                } else {
-                    GString *bpf_code_dump = g_string_new("");
-                    struct bpf_insn *insn = fcode.bf_insns;
-                    int ii, n = fcode.bf_len;
-                    for (ii = 0; ii < n; ++insn, ++ii) {
-                        g_string_append(bpf_code_dump, bpf_image(insn, ii));
-                        g_string_append(bpf_code_dump, "\n");
-                    }
-                    g_mutex_unlock(&pcap_compile_mtx_);
-                    compile_results.insert(current.interface, QString(bpf_code_dump->str));
-                    g_string_free(bpf_code_dump, TRUE);
-                    ui->interfaceList->addItem(new QListWidgetItem(current.interface));
-                    pcap_freecode(&fcode);
-                }
-                pcap_close(pd);
-                break;
+                compile_results.insert(current.display_name, gchar_free_to_qstring(data));
+                success = true;
             }
+            break;
+        }
+        if (success) {
+            ui->interfaceList->addItem(new QListWidgetItem(current.display_name));
+        } else {
+            ui->interfaceList->addItem(new QListWidgetItem(StockIcon("x-expert-error"), current.display_name));
         }
     }
 }

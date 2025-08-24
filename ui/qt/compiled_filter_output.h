@@ -13,17 +13,29 @@
 #include "geometry_state_dialog.h"
 
 #include <config.h>
+
+#include <capture/capture_ifinfo.h>
+
 #include <QList>
 #include <QHash>
 #include <QListWidgetItem>
 
-#include <glib.h>
-
 struct InterfaceFilter {
-    InterfaceFilter(QString intf, QString filt) : interface(intf), filter(filt) {}
+    InterfaceFilter(QString dev_name, interface_type type, QString disp_name, QString filt, int link = -1) : device_name(dev_name), iftype(type), display_name(disp_name), filter(filt), linktype(link) {}
+    InterfaceFilter(QString dev_name, interface_type type, QString disp_name, QString filt, QVariant link) : device_name(dev_name), iftype(type), display_name(disp_name), filter(filt)
+    {
+        bool ok;
+        linktype = link.toInt(&ok);
+        if (!ok) {
+            linktype = -1;
+        }
+    }
 
-    QString interface;
+    QString device_name;
+    interface_type iftype;
+    QString display_name;
     QString filter;
+    int linktype;
 };
 
 namespace Ui {
@@ -37,12 +49,11 @@ class CompiledFilterOutput : public GeometryStateDialog
 private:
     QList<InterfaceFilter> intList_;
     Ui::CompiledFilterOutput *ui;
-    GMutex pcap_compile_mtx_;
     QHash<QString, QString> compile_results;
-    QListWidget *interface_list_;
     QPushButton *copy_bt_;
 #ifdef HAVE_LIBPCAP
-    void compileFilter();
+    bool compileFilter(const InterfaceFilter &filter);
+    void compileFilters();
 #endif
 
 public:

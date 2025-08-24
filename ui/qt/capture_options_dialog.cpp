@@ -129,6 +129,10 @@ public:
             }
         }
         setText(col_link_, linkname);
+        // Something like this should work, but there are some problems
+        // with calling setData when the ComboBox editor is closed and
+        // how it emits dataChanged.
+        //setData(col_link_, Qt::UserRole, device->active_dlt);
 
         if (device->if_info.type == IF_EXTCAP) {
             /* extcap interfaces does not have this settings */
@@ -981,11 +985,15 @@ void CaptureOptionsDialog::updateStatistics(void)
 void CaptureOptionsDialog::on_compileBPF_clicked()
 {
     QList<InterfaceFilter> interfaces;
+    interface_t *device;
     foreach (QTreeWidgetItem *ti, ui->interfaceTree->selectedItems()) {
+        QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
+        device = getDeviceByName(device_name);
+        if (!device) continue;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        interfaces.emplaceBack(ti->text(col_interface_), ti->text(col_filter_));
+        interfaces.emplaceBack(device_name, device->if_info.type, ti->text(col_interface_), ti->text(col_filter_), device->active_dlt);
 #else
-        interfaces.append(InterfaceFilter(ti->text(col_interface_), ti->text(col_filter_)));
+        interfaces.append(InterfaceFilter(device_name, device->if_info.type, ti->text(col_interface_), ti->text(col_filter_), device->active_dlt));
 #endif
     }
 
