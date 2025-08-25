@@ -20,10 +20,12 @@
 
 
 /*
- * Microsoft's Network Monitor file format is supported, at least under
- * Ethernet and token-ring. If you have capture files of other datalink
- * types, please send them to Guy.
-*/
+ * Microsoft's Network Monitor file format is supported, at least for
+ * Ethernet, Token Ring, FDDI, and ATM captures. If any Network Monitor
+ * capture files cannot be read by Wireshark, please submit an issue
+ * on the Wireshark issues list at
+ * https://gitlab.com/wireshark/wireshark/-/issues/
+ */
 
 /* The file at
  *
