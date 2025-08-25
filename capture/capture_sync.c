@@ -1397,13 +1397,23 @@ sync_if_bpf_filter_open(const char *ifname, const char* filter,
         return -1;
     }
 
+    const char* linktype_name = linktype_val_to_name(linktype);
+    if (linktype != -1) { // Allow -1 for device default
+        if (!linktype_name) {
+            *primary_msg = g_strdup_printf("Unknown link-layer type %d.", linktype);
+            *secondary_msg = NULL;
+            *data = NULL;
+            return -1;
+        }
+    }
+
     /* Ask for the human-readable BPF code for the capture filter */
     argv = sync_pipe_add_arg(argv, &argc, "-d");
     argv = sync_pipe_add_arg(argv, &argc, "-i");
     argv = sync_pipe_add_arg(argv, &argc, ifname);
-    if (linktype >= 0) {
+    if (linktype_name) {
         argv = sync_pipe_add_arg(argv, &argc, "-y");
-        argv = sync_pipe_add_arg(argv, &argc, linktype_val_to_name(linktype));
+        argv = sync_pipe_add_arg(argv, &argc, linktype_name);
     }
     argv = sync_pipe_add_arg(argv, &argc, "-f");
     argv = sync_pipe_add_arg(argv, &argc, filter);
