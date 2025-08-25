@@ -16,7 +16,11 @@
 
 #if !defined(HAVE_SSIZE_T)
 #if defined(_WIN32)
+#ifdef __MINGW32__
+#include <basetsd.h>
+#else
 #include <BaseTsd.h>
+#endif
 
 typedef SSIZE_T ssize_t;
 #if !defined(SSIZE_MAX)
