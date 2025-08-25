@@ -147,7 +147,7 @@ extern value_string_ext coap_vals_code_ext;
 
 /* {{{ */
 #define COAP_COMMON_LIST_T(name)						\
-coap_common_dissect_t name;
+coap_common_dissect_t name
 /* }}} */
 
 /* {{{ */
