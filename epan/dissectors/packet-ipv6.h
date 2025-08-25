@@ -85,4 +85,6 @@ struct ipv6_analysis {
 WS_DLL_PUBLIC struct ipv6_analysis *get_ipv6_conversation_data(conversation_t *conv,
                                 packet_info *pinfo);
 
+bool dissect_ipv6_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+
 #endif
