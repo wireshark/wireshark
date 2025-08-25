@@ -87,8 +87,8 @@ def program(program_path, request):
     def resolver(name):
         path = os.path.abspath(os.path.join(program_path, name + dotexe))
         if not os.access(path, os.X_OK):
-            if skip_if_missing == ['all'] or name in skip_if_missing:
-                pytest.skip('Program %s is not available' % (name,))
+            if skip_if_missing == ['all'] or os.path.basename(name) in skip_if_missing:
+                pytest.skip(f'Program %s is not available' % (os.path.basename(name),))
             raise AssertionError('Program %s is not available' % (name,))
         return path
     return resolver

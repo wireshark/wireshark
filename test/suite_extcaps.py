@@ -67,9 +67,9 @@ class TestExtcaps:
             pytest.skip('dpauxmon available on Linux only')
         check_extcap_execution("dpauxmon")
 
-    # def test_falcodump(self, check_extcap_execution):
-    #     ''' extcap interface tests for falcodump '''
-    #     check_extcap_execution("falcodump", stratoshark_extcap=True)
+    def test_falcodump(self, check_extcap_execution):
+        ''' extcap interface tests for falcodump '''
+        check_extcap_execution("falcodump", stratoshark_extcap=True, always_present=False)
 
     def test_randpktdump(self, check_extcap_execution):
         ''' extcap interface tests for randpktdump '''
@@ -83,7 +83,7 @@ class TestExtcaps:
 
     def test_sshdig(self, check_extcap_execution):
         ''' extcap interface tests for sshdig '''
-        check_extcap_execution("sshdig", stratoshark_extcap=True, always_present=False)
+        check_extcap_execution("sshdig", stratoshark_extcap=True)
 
     def test_sshdump(self, check_extcap_execution):
         ''' extcap interface tests for sshdump '''
