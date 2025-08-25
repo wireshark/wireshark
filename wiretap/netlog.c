@@ -657,6 +657,7 @@ static bool parse_json_events(char* filebuf, const NetLogEventConstants netlog_e
             }
             if (!parse_address_port(remote_address, server_ip)){
                 g_free(server_ip);
+                continue;
             }
             g_hash_table_insert(UDP_connection_ids_to_remote_address, GINT_TO_POINTER(event_id), server_ip);
 
