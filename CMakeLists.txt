@@ -733,6 +733,7 @@ else() # ! MSVC
 		-Wunreachable-code	# Clang-only
 		-Wdocumentation		# Clang-only
 		-Wlogical-op		# GCC-only
+		-Wextra-semi		# Clang C and C++. GCC >= 8.0 has for C++ but not C.
 
 		# Run-time protections mechanisms
 		-fstrict-flex-arrays=3			# Consider a trailing array in a struct as a flexible array if declared as []
@@ -856,7 +857,6 @@ else() # ! MSVC
 		#
 		### Flags for C++ only ###
 		#
-		-Wextra-semi	# Clang-only
 	)
 
 	#
