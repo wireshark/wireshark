@@ -862,7 +862,7 @@ dissect_websocket_heur_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
   conversation_t* conversation = find_or_create_conversation(pinfo);
   conversation_set_dissector(conversation, websocket_tcp_handle);
 
-  tcp_dissect_pdus(tvb, pinfo, tree, true, 2, get_websocket_frame_length, dissect_websocket_frame, data);
+  tcp_dissect_pdus(tvb, pinfo, tree, true, 2, get_websocket_frame_length, dissect_websocket_frame, NULL);
   return true;
 }
 
