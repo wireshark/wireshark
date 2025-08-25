@@ -3174,7 +3174,7 @@ function(set_extra_executable_properties _executable _folder)
 		set_target_properties(${_executable} PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
 	endif()
 
-	set(PROGLIST ${PROGLIST} ${_executable})
+	set(PROGLIST ${PROGLIST} ${_executable} PARENT_SCOPE)
 
 	if(ENABLE_APPLICATION_BUNDLE)
 		set(bundle_name "Wireshark.app")
