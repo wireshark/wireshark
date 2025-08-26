@@ -641,16 +641,16 @@ static const enum_val_t ul_compression_options[] = {
     { NULL, NULL, 0 }
 };
 
-static const enum_val_t udcomp_support_options[] = {
-    { "NOT_SUPPORTED",              "Not Supported",    0 },
-    { "SUPPORTED",                  "Supported",        1 },
-    { "HEURISTIC",                  "Use Heuristic",    2 },
+static const enum_val_t udcomplen_support_options[] = {
+    { "NOT_SUPPORTED",              "Not Supported",     0 },
+    { "SUPPORTED",                  "Supported",         1 },
+    { "HEURISTIC",                  "Attempt Heuristic", 2 },
     { NULL, NULL, 0 }
 };
 
 static const enum_val_t udcomphdr_present_options[] = {
-    { "NOT_PRESENT",               "Present",           0 },
-    { "PRESENT",                   "Not Present",       1 },
+    { "NOT_PRESENT",               "Not Present",       0 },
+    { "PRESENT",                   "Present",           1 },
     { "HEURISTIC",                 "Attempt Heuristic", 2 },
     { NULL, NULL, 0 }
 };
@@ -9123,7 +9123,7 @@ proto_register_oran(void)
 
     prefs_register_enum_preference(oran_module, "oran.support_udcomplen", "udCompLen supported",
         "When enabled, U-Plane messages with relevant compression schemes will include udCompLen",
-        &pref_support_udcompLen, udcomp_support_options, false);
+        &pref_support_udcompLen, udcomplen_support_options, false);
 
     prefs_register_uint_preference(oran_module, "oran.rbs_in_uplane_section", "Total RBs in User-Plane data section",
         "This is used if numPrbu is signalled as 0", 10, &pref_data_plane_section_total_rbs);
