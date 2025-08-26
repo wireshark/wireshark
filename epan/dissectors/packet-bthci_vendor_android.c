@@ -201,6 +201,8 @@ static expert_field ei_android_unexpected_data;
 static dissector_handle_t bthci_vendor_android_handle;
 static dissector_handle_t btcommon_ad_android_handle;
 
+static const uint16_t bthci_vendor_manufacturer_android = 0x00e0; // Google LLC
+
 #define ANDROID_OPCODE_VALS(base) \
     { (base) | 0x0153,  "LE Get Vendor Capabilities" }, \
     { (base) | 0x0154,  "LE Multi Advertising" }, \
