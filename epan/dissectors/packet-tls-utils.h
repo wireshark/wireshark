@@ -1415,7 +1415,7 @@ ssl_dissect_hnd_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, pr
                                      bool is_from_server _U_, bool is_dtls _U_);
 /* {{{ */
 #define SSL_COMMON_LIST_T(name) \
-ssl_common_dissect_t name;
+ssl_common_dissect_t name
 /* }}} */
 
 /* {{{ */
