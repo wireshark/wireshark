@@ -562,7 +562,7 @@ dissect_do(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, _U_ void* data)
     }
 
     return offset;
-};
+}
 
 void
 proto_register_do(void)
