@@ -1320,7 +1320,7 @@ dissect_zbee_tlv_ext_pan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     offset += 8;
 
     return offset;
-};
+}
 
 /**
  * Dissector Short PAN ID TLV.
@@ -1339,7 +1339,7 @@ dissect_zbee_tlv_short_pan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     offset += 2;
 
     return offset;
-};
+}
 
 /**
  * Dissector NWK Key TLV.
@@ -1357,7 +1357,7 @@ static unsigned dissect_zbee_tlv_nwk_key(tvbuff_t *tvb, packet_info *pinfo _U_, 
     offset += 16;
 
     return offset;
-};
+}
 
 /**
  * Dissector Device Type TLV.
@@ -1375,7 +1375,7 @@ static unsigned dissect_zbee_tlv_dev_type(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 1;
 
     return offset;
-};
+}
 
 /**
  * Dissector NWK Address TLV.
@@ -1393,7 +1393,7 @@ static unsigned dissect_zbee_tlv_nwk_addr(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 2;
 
     return offset;
-};
+}
 
 /**
  * Dissector Joining Method TLV.
@@ -1411,7 +1411,7 @@ static unsigned dissect_zbee_tlv_join_method(tvbuff_t *tvb, packet_info *pinfo _
     offset += 1;
 
     return offset;
-};
+}
 
 /**
  * Dissector IEEE Address TLV.
@@ -1429,7 +1429,7 @@ static unsigned dissect_zbee_tlv_ieee_addr(tvbuff_t *tvb, packet_info *pinfo _U_
     offset += 8;
 
     return offset;
-};
+}
 
 /**
  * Dissector Trust Center Address TLV.
@@ -1447,7 +1447,7 @@ static unsigned dissect_zbee_tlv_tc_addr(tvbuff_t *tvb, packet_info *pinfo _U_, 
     offset += 8;
 
     return offset;
-};
+}
 
 /**
  * Dissector NWK Update ID TLV.
@@ -1465,7 +1465,7 @@ static unsigned dissect_zbee_tlv_nwk_upd_id(tvbuff_t *tvb, packet_info *pinfo _U
     offset += 1;
 
     return offset;
-};
+}
 
 /**
  * Dissector NWK Active Key Seq Number TLV.
@@ -1483,7 +1483,7 @@ static unsigned dissect_zbee_tlv_key_seq_num(tvbuff_t *tvb, packet_info *pinfo _
     offset += 1;
 
     return offset;
-};
+}
 
 /**
  * Dissector Admin Key TLV.
@@ -1501,7 +1501,7 @@ static unsigned dissect_zbee_tlv_adm_key(tvbuff_t *tvb, packet_info *pinfo _U_, 
     offset += 16;
 
     return offset;
-};
+}
 
 /**
  * Dissector (Manager Joiners) Provisional Link Key TLV.
@@ -1519,7 +1519,7 @@ static unsigned dissect_zbee_tlv_mj_prov_lnk_key(tvbuff_t *tvb, packet_info *pin
     offset += 16;
 
     return offset;
-};
+}
 
 /**
  * Dissector (Manager Joiners) IEEE Address TLV.
@@ -1537,7 +1537,7 @@ static unsigned dissect_zbee_tlv_mj_ieee_addr(tvbuff_t *tvb, packet_info *pinfo 
     offset += 8;
 
     return offset;
-};
+}
 
 /**
  * Dissector (Manager Joiners) Command TLV.
@@ -1555,7 +1555,7 @@ static unsigned dissect_zbee_tlv_mj_cmd(tvbuff_t *tvb, packet_info *pinfo _U_, p
     offset += 1;
 
     return offset;
-};
+}
 
 /**
  * Dissector Channel List TLV.
