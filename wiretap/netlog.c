@@ -525,9 +525,9 @@ static bool parse_json_events(char* filebuf, const NetLogEventConstants netlog_e
     int json_packets_ht_index = 0;
     const int json_array_len = json_get_array_len(json_events);
     jsmntok_t* event_entry = json_get_array_index(json_events, 0);
-    for (int i = 0; i < json_array_len; i++, event_entry = json_get_next_object(event_entry))
+    for (int i = 0; i < json_array_len && event_entry != NULL; i++, event_entry = json_get_next_object(event_entry))
     {
-        if (event_entry == NULL || event_entry->type != JSMN_OBJECT){
+        if (event_entry->type != JSMN_OBJECT){
             ws_debug("Skipping non-object at index %i", i);
             continue;
         }
