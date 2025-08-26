@@ -1,0 +1,462 @@
+commit 9e8326f18b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Aug 25 15:55:36 2025 +0000
+
+    POSIX compatibility: Include lowercase Windows header on MinGW
+
+    Windows is "case-aware" in that even though it's case-insensitive by
+    default, NTFS file systems (and others) store case-sensitivity and it
+    is possible to force Windows into a case sensitive mode:
+    https://learn.microsoft.com/en-us/windows/wsl/case-sensitivity
+
+    The Windows header "BaseTsd.h" has that capitalization, officially, in
+    Windows, but is always lowercase in MinGW. If cross-compiling with MinGW
+    from a Linux system, or in some other situations, the include file can
+    be treated case-sensitively and fail.
+
+    One option is just to always include as lowercase, though that can break
+    in the rare case where someone has made Windows case-sensitive.
+
+    (cherry picked from commit f9027f2bca588bb7824be53188c1c3ab05ed612c)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4d6c7cdde5
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Aug 24 20:13:09 2025 +0000
+
+    Qt: Fix the CompiledFilterOutput error icon
+
+    The icon has not been displayed for the last ten years as it was missed in
+    commit b4a4de78d8f78f0cea54b9ae846a120c2a68d893
+
+    (cherry picked from commit aa02cd06819eda71a27525fec2aa81447f7fd0ba)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit e128d3992f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 24 09:17:38 2025 +0000
+
+    [Automatic update for 2025-08-24]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    manuf failed.
+
+commit 89b38b5c82
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Aug 21 17:13:29 2025 +0000
+
+    Ensure that SSIZE_MAX is defined under Windows
+
+    BaseTsd.h does not define SSIZE_MAX, and only defines MAXSSIZE_T
+    in certain circumstances where cplusplus is defined. SIZE_MAX is
+    defined so long as stdint.h is included.
+
+    (cherry picked from commit 49a6624eeeffe9a12f407e3bb48b7ff8164849f7)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b8bb56ea85
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 17 09:17:10 2025 +0000
+
+    [Automatic update for 2025-08-17]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit fe59c7ad4a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Aug 12 14:25:31 2025 +0000
+
+    sflow: Advance the offset properly on unknown formats
+
+    Instead of just breaking without advancing the offset, add unknown
+    flow record and counters record types as bytes and advance the
+    offset properly, so that subsequent tags are parsed correctly.
+    Add an expert info.
+
+    Ping #20654
+
+    (cherry picked from commit 06be5b796d84b816800c5535b8ec9a128c187e84)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4787b53a12
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Aug 12 14:00:50 2025 +0000
+
+    Qt: fix incorrect center frequency calculation in wireless toolbar
+
+    Center frequency for channel 149, 80MHz should be 5775MHz, but current
+    version generates 5770MHz. When any channel between 149-161 with 80MHz
+    is input, current version produces incorrect results. These result in
+    not being able to set such configs for monitor interface.
+
+    Fix this by reusing code from iw.
+
+    Signed-off-by: Chien Wong <m@xv97.com>
+
+    (cherry picked from commit c8152c80ac92c15f46cd8e23909148e0083c4f28)
+
+    fae07c47 Qt: fix incorrect center frequency calculation in wireless toolbar
+    48ca5bea Fix according to review feedback
+    67ad77d3 Remove out dated comments
+
+    Co-authored-by: Chien Wong <m@xv97.com>
+
+commit 423d725a70
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Aug 12 13:37:40 2025 +0000
+
+    Zigbee Direct: Fixed 'Segmentation fault' due to dereferencing a NULL pointer.
+
+    Zigbee Direct packets relayed over BLE interface will not have IEEE/MAC
+    header, as a result 'ieee_hints' can be NULL.
+
+    Changes part of this commit ensure, 'ieee_hints' is not NULL before it is dereferenced.
+
+    (cherry picked from commit 4bc33ab926f2977eb8dc036d8120c935f6af5a93)
+
+    Co-authored-by: Mohammed Suhel <mhs@exegin.com>
+
+commit 0e3a70d2f9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Aug 11 12:31:24 2025 +0000
+
+    epan: Fix LZ77 decoding when MatchLength is larger than 16-bits
+
+    Read the 32-bit quantity before advancing the offset by 4 bytes
+    in the case where the MatchLength didn't fit in 2 bytes.
+
+    See the pseudocode in [MS-XCA] 2.3.4 for compression:
+    https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-xca/b66751f2-be7b-4d20-a87c-5147c563ff2d
+
+             If MatchLength < (1 << 16)
+                 Write two-byte value MatchLength to OutputPosition
+                 OutputPosition += 2
+             Else
+                 Write two-byte value of 0 to OutputPosition
+                 OutputPosition += 2
+                 Write four-byte value of MatchLength to OutputPosition
+                 OutputPosition += 4
+
+    Fix #20671
+
+    (cherry picked from commit 9c4aa7e03f940884bc0d784c116e4e4e32b9e504)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit de84349d69
+Author: Balint Reczey <balint@balintreczey.hu>
+Date:   Wed Jan 22 22:31:36 2025 +0100
+
+    debian: Build-depend on libssh-dev >= 0.11.1-1 with libssh-gcrypt-dev fallback
+
+    libssh 0.11.1-1 dropped the gcrypt flavor, since it was obsoleted by
+    the OpenSSL licensing change.
+
+    (cherry picked from commit a866c8864a374bda3432c8490800bb81c87f76da)
+
+commit 2201c5dfe7
+Author: Balint Reczey <balint@balintreczey.hu>
+Date:   Mon Oct 21 12:27:09 2024 +0200
+
+    tools: Use esnacc instead of snacc in asn2deb
+
+    The snacc package is about to be removed from Debian, but esnacc,
+    a newer active fork from http://esnacc.org/ stays available.
+
+    (cherry picked from commit 6f7831516648cf70cb76d12a4b05c041279d40ba)
+
+commit f629a7f073
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Aug 10 17:13:39 2025 +0000
+
+    epan: Don't assume the current handle is non-NULL in decodes report
+
+    It's possible for a decode as table entry to exist but the current
+    handle be NULL, if a handle is registered to that value initially
+    in handoffs, but then Decode As overrides the behavior to no
+    dissection. Fixes:
+
+     ** (tshark:2605531) 08:22:16.226451 [Epan ERROR] epan/packet.c:3856 -- dissector_dump_decodes_display(): assertion failed: handle
+     ** (tshark:2605531) Aborting on fatal log level exception
+    Aborted (core dumped)
+
+    (cherry picked from commit f12468bab66ede99939281cdb6f6b3e552faca27)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 1a3449e975
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 10 09:17:16 2025 +0000
+
+    [Automatic update for 2025-08-10]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    manuf failed.
+
+commit 8f45043de4
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Aug 9 16:58:23 2025 +0000
+
+    MySQL: Fix tvb_get_fle call
+
+    The last parameter is a pointer to a uint8_t that (if non-NULL) is
+    used to indicate that the length was NULL. It's not supposed to be
+    an encoding.
+
+    (cherry picked from commit b33b225919daf070c914081ae15128ab36a1dd75)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 601ea89778
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Thu Aug 7 08:39:24 2025 +0200
+
+    bacapp: Add closing tag to listOfPropertyValues
+
+    Add the closing tag of the listOfPropertyValues SEQUENCE OF
+    in a WriteAccessSpecification as used by WritePropertyMultiple.
+
+    See
+    https://bacnet.org/wp-content/uploads/sites/4/2022/08/Encoding.pdf
+    https://bacnet.org/wp-content/uploads/sites/4/2022/08/Add-135-2016bl.pdf
+    for worked examples of WritePropertyMultiple.
+
+    Fix #20665
+
+    (cherry picked from commit 4d21ef22212ea9147947a2cc770f3ec307d9f82a)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0b0ce474e1
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Tue Aug 5 08:48:38 2025 +0000
+
+    Qt: Freeze packet list earlier on profile change
+
+    Freeze the packet list earlier when changing profile to avoid using
+    outdated preferences in temporary packet dissections.
+
+    Related to #20063
+
+    (cherry picked from commit c2e40c7979d6662c95b5e2e6adec627db61bb2c7)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 985fa2d5a0
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue Aug 5 00:10:06 2025 +0000
+
+    SAPB: Only check for tvb length if tvb is not NULL
+
+    Fixes #20661
+
+    (cherry picked from commit d584f66ba713da61b1eb1d711407fbaff5647447)
+
+    Co-authored-by: Michael Mann <mmann78@netscape.net>
+
+commit f518e669de
+Author: Alexandr Alakin <alakinalexandr@gmail.com>
+Date:   Fri Aug 1 15:46:48 2025 +0500
+
+    ciscodump: Fix #20655 (exit IOS config on cleanup)
+
+    Fixes #20655 by exiting configuration mode after removing an ACL
+
+    (cherry picked from commit d4e77ec0)
+
+commit 49b3c53890
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 3 09:17:46 2025 +0000
+
+    [Automatic update for 2025-08-03]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    manuf failed.
+
+commit a038cea0c2
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Sat Aug 2 12:55:13 2025 +0000
+
+    ftype-time/nstime: fix is_negative check for sub-second times
+
+    ping !6722
+
+    (cherry picked from commit e050ec62e3fe95c8385bfa77f64dc27d56e3cd3d)
+
+    Co-authored-by: Chuck Craft <bubbasnmp@gmail.com>
+
+commit cb00200b88
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Sat Aug 2 09:19:03 2025 +0000
+
+    Qt: Fix preference and UAT help URLs with fragments on Windows
+
+    Translate the help URL strings from native separators on Windows so
+    that QDesktopServices::openUrl and QUrl work properly on URL fragments
+    (those with "#" and anchor text.) For some reason URLs without
+    fragments work fine but the non-native path separators confuse
+    QDesktopServices on those types of URLs.
+
+    See 5219e36780248ccc080ced3ef080b8a8e225d64b
+
+    (cherry picked from commit 6b5a010abcd0d498e117bb5d64240440cac50368)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit faf1177c4d
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Fri Aug 1 11:50:38 2025 +0000
+
+    asn2wrs: Fix autotag generation
+
+    If a constructed type contains at least a manual tag, the automatic
+    tagging mode is switched off for this type.
+
+    Fixup e3e52d8c7419281d96e8181de16cc27fb9e685c7
+
+    (cherry picked from commit 3afeba5a4129cf02d255be69e124855c4ce64dff)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit e93af77edf
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Wed Jul 30 06:42:06 2025 +0200
+
+    SCCP: Support segmentation for LUDT[S]
+
+    It's unclear why LUDT[S] would need segmentation, since it allows
+    much larger segments, but ITU-T Q.712 and Q.713 clearly specify it.
+
+    Fix #20647
+
+    (cherry picked from commit 6e729e822ff1af878e362a1d622edafdc62010cc)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0395d2ef89
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jul 29 22:19:13 2025 +0000
+
+    wmem_map: Ensure that the hash multiplication factor is odd
+
+    We multiply the hash results by a random integer before right-shifting,
+    in order to guard against g_direct_hash being used with integer
+    (or pointer as integer) values whose upper bits are identical, such
+    as 16-bit port numbers or pointers allocated nearby each other.
+
+    However, this random integer should be an odd random integer; the
+    larger the power of two that evenly divides x, the more the hash
+    table space collapses and for smaller tables. The effect becomes
+    noticeable if x becomes divisible by 2^15 (because of the hash table
+    of the all the header_field_info, which has ~2^18 entries) and
+    starts to go into denial of service levels when divisible by powers
+    of two above 2^24 or so.
+
+    Ensure that it's odd by adding 1 if even. This produces a uniform
+    random distribution over the odd 32-bit integers.
+
+    (cherry picked from commit a9e3cf41601f3987e13c52608472d4304f40e5a8)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 58fba1f007
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jul 27 13:19:09 2025 +0000
+
+    Qt: Initialize all prefixes when loading supported protocols
+
+    Make sure that all the fields have been registered when loading
+    the model before iterating over all the fields, for the same
+    reason as the Display Filter Expression dialog.
+
+    (cherry picked from commit d5ffd626aaafd76cf5abebbde2dcbde87393ca83)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 963bf2a67d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 27 09:17:35 2025 +0000
+
+    [Automatic update for 2025-07-27]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit d3db4696f7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jul 26 11:48:36 2025 +0000
+
+    ssh: Add a null check
+
+    Fix #20642
+
+    (cherry picked from commit 39daba5e247ea495f88b0be82f0b7ebbdbf50fba)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 8b3f744d2b
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Jul 22 04:21:12 2025 +0000
+
+    RDM: Add Product Detail ID List
+
+    Add Product Detail ID List, with value string, from ANSI E1.20
+    https://tsp.esta.org/tsp/documents/published_docs.php
+
+    Fix #20612
+
+    (cherry picked from commit 4cdfd69117c31ad89db57352869f7890eba2fc97)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 0acd46d31d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 20 18:50:16 2025 -0700
+
+    Windows+macOS: Update libssh to 0.11.2
+
+    (cherry picked from commit 0de96020aacbd37a17677d616a25f57839009fff)
+
+    Conflicts:
+            cmake/modules/FetchArtifacts.cmake
+            tools/macos-setup.sh
+
+commit 0fd56f9449
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 20 09:17:18 2025 +0000
+
+    [Automatic update for 2025-07-20]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit b2e24a74fc
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Jul 18 20:24:54 2025 +0000
+
+    lin: claim to dissect all bytes present in the packet.
+
+    They all belong to us, even if they're after the event message or the
+    frame data and padding.
+
+    And if they're *not* present because the packet's cut short by slicing,
+    they obviously don't belong to us.
+
+    So just return tvb_captured_length(tvb).
+
+    (cherry picked from commit c6e0452e32f52d300f01b2969e76d5f093a9f6c1)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit 1c86fec580
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jul 16 13:27:22 2025 -0700
+
+    Version: 4.4.8 → 4.4.9
+
+    [skip ci]
