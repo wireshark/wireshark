@@ -1,5 +1,7 @@
 # Build options for use by CMake
 
+include(CMakeDependentOption)
+
 option(BUILD_wireshark     "Build Wireshark" ON)
 option(BUILD_stratoshark   "Build Stratoshark" OFF)
 if(BUILD_wireshark OR BUILD_stratoshark)
@@ -41,13 +43,8 @@ else()
 endif()
 option(BUILD_udpdump       "Build udpdump" ON)
 
-if(BUILD_stratoshark OR BUILD_strato)
-	option(BUILD_falcodump     "Build falcodump" ON)
-	option(BUILD_sshdig        "Build sshdig" ON)
-else()
-	option(BUILD_falcodump     "Build falcodump" OFF)
-	option(BUILD_sshdig        "Build sshdig" OFF)
-endif()
+cmake_dependent_option(BUILD_falcodump	"Build falcodump" ON "BUILD_stratoshark OR BUILD_strato" OFF)
+cmake_dependent_option(BUILD_sshdig	"Build sshdig" ON "BUILD_stratoshark OR BUILD_strato" OFF)
 
 option(BUILD_sharkd        "Build sharkd" ON)
 option(BUILD_mmdbresolve   "Build MaxMind DB resolver" ON)
