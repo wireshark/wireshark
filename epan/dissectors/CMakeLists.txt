@@ -1032,6 +1032,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dect-dlc.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dect-mitel-eth.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dect-mitel-rfp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dect-nr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dect-nwk.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-devicenet.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dhcp.c
