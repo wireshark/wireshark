@@ -41,7 +41,7 @@ else()
 endif()
 option(BUILD_udpdump       "Build udpdump" ON)
 
-if(BUILD_stratohark OR BUILD_strato)
+if(BUILD_stratoshark OR BUILD_strato)
 	option(BUILD_falcodump     "Build falcodump" ON)
 	option(BUILD_sshdig        "Build sshdig" ON)
 else()
