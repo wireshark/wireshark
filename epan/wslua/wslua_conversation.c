@@ -391,7 +391,7 @@ WSLUA_ATTR_SET Conversation_set_dissector(lua_State* L) {
     conversation_set_dissector(conv,handle);
 
     return 0;
-};
+}
 
 /* This table is ultimately registered as a sub-table of the class' metatable,
  * and if __index/__newindex is invoked then it calls the appropriate function
