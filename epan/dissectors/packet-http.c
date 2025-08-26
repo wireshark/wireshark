@@ -389,7 +389,8 @@ static bool process_header(tvbuff_t *tvb, int offset, int next_offset,
 			   const unsigned char *line, int linelen, int colon_offset,
 			   packet_info *pinfo, proto_tree *tree,
 			   headers_t *eh_ptr, http_conv_t *conv_data,
-			   media_container_type_t http_type, wmem_map_t *header_value_map, bool streaming_chunk_mode);
+			   media_container_type_t http_type, wmem_map_t *header_value_map,
+			   wmem_allocator_t *header_value_map_allocator, bool streaming_chunk_mode);
 static int find_header_hf_value(tvbuff_t *tvb, int offset, unsigned header_len);
 static bool check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb,
 				   packet_info *pinfo, char *value);
@@ -1247,6 +1248,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	wmem_map_t* header_value_map = NULL;
 	int 		chunk_offset = 0;
 	wmem_map_t	*chunk_map = NULL;
+	wmem_allocator_t *header_value_map_allocator = NULL;
 	/*
 	 * For supporting dissecting chunked data in streaming reassembly mode.
 	 *
@@ -1579,6 +1581,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			handle = streaming_reassembly_data->streaming_handle;
 			content_info = streaming_reassembly_data->content_info;
 			header_value_map = (wmem_map_t*) content_info->data;
+			header_value_map_allocator = wmem_file_scope();
 		}
 	}
 
@@ -1589,7 +1592,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		DISSECTOR_ASSERT_HINT(header_value_map == NULL, "The header_value_map variable should be NULL while headers is NULL.");
 
 		headers = wmem_new0((streaming_chunk_mode ? wmem_file_scope() : pinfo->pool), headers_t);
-		header_value_map = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
+		if (streaming_chunk_mode) {
+			header_value_map_allocator = wmem_file_scope();
+			header_value_map = wmem_map_new(header_value_map_allocator, g_str_hash, g_str_equal);
+		}
 	}
 
 	if (streaming_chunk_mode && begin_with_chunk) {
@@ -1763,6 +1769,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    offset, next_offset - offset, ett_http_request, &hdr_item, text);
 
 			if (!PINFO_FD_VISITED(pinfo)) {
+				if (header_value_map == NULL) {
+					header_value_map_allocator = wmem_file_scope();
+					header_value_map = wmem_map_new(header_value_map_allocator, g_str_hash, g_str_equal);
+				}
 				if (http_type == MEDIA_CONTAINER_HTTP_REQUEST) {
 					curr = push_req(conv_data, pinfo);
 					curr->request_method = wmem_strdup(wmem_file_scope(), stat_info->request_method);
@@ -1784,9 +1794,28 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			 * Header.
 			 */
+			if (header_value_map == NULL && conv_data->req_res_tail) {
+				prv_data = (http_req_res_private_data_t*)conv_data->req_res_tail->private_data;
+				if (prv_data) {
+					header_value_map_allocator = wmem_file_scope();
+					if (prv_data->req_fwd_flow == direction) {
+						header_value_map = prv_data->request_headers;
+					} else {
+						header_value_map = prv_data->response_headers;
+					}
+				}
+			}
+			if (header_value_map == NULL) {
+				/*
+				 * We are seeing a header but have not tracked request or response, so we don't know
+				 * direction of this header, so not going to keep track of it
+				 */
+				header_value_map_allocator = pinfo->pool;
+				header_value_map = wmem_map_new(header_value_map_allocator, g_str_hash, g_str_equal);
+			}
 			bool good_header = process_header(tvb, offset, next_offset, line, linelen,
-			    colon_offset, pinfo, http_tree, headers, conv_data,
-			    http_type, header_value_map, streaming_chunk_mode);
+			    colon_offset, pinfo, http_tree, headers, conv_data, http_type, header_value_map,
+			    header_value_map_allocator, streaming_chunk_mode);
 			if (http_check_ascii_headers && !good_header) {
 				/*
 				 * Line is not a good HTTP header.
@@ -2079,6 +2108,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		content_info = wmem_new0(pinfo->pool, media_content_info_t);
 		content_info->media_str = headers->content_type_parameters;
 		content_info->type = http_type;
+		if (header_value_map == NULL) {
+			header_value_map = wmem_map_new(pinfo->pool, g_str_hash, g_str_equal);
+		}
 		content_info->data = header_value_map;
 	}
 
@@ -3470,7 +3502,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	       const unsigned char *line, int linelen, int colon_offset,
 	       packet_info *pinfo, proto_tree *tree, headers_t *eh_ptr,
 	       http_conv_t *conv_data, media_container_type_t http_type, wmem_map_t *header_value_map,
-	       bool streaming_chunk_mode)
+	       wmem_allocator_t *header_value_map_allocator, bool streaming_chunk_mode)
 {
 	int len;
 	int line_end_offset;
@@ -3568,7 +3600,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	 * has value_bytes_len bytes in it.
 	 */
 	value_bytes_len = line_end_offset - value_offset;
-	value_bytes = (char *)wmem_alloc(wmem_file_scope(), value_bytes_len+1);
+	value_bytes = (char *)wmem_alloc(PINFO_FD_VISITED(pinfo) ? pinfo->pool : header_value_map_allocator, value_bytes_len+1);
 	memcpy(value_bytes, &line[value_offset - offset], value_bytes_len);
 	value_bytes[value_bytes_len] = '\0';
 	value = tvb_get_string_enc(pinfo->pool, tvb, value_offset, value_bytes_len, ENC_ASCII);
