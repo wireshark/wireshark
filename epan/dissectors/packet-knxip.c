@@ -1054,10 +1054,7 @@ static uint8_t dissect_crd( tvbuff_t* tvb, packet_info* pinfo, proto_item* item,
             char* output;
             knxip_tree_add_knx_address( crd_tree, hf_knxip_knx_address, tvb, offset + 2, &output, pinfo->pool );
             proto_item_append_text( crd_item, ", KNX Address: %s", output );
-            if( pinfo )
-            {
-              col_append_fstr( pinfo->cinfo, COL_INFO, ", %s", output );
-            }
+            col_append_fstr( pinfo->cinfo, COL_INFO, ", %s", output );
             if( item )
             {
               proto_item_append_text( item, ", %s", output );
@@ -1080,7 +1077,7 @@ static uint8_t dissect_crd( tvbuff_t* tvb, packet_info* pinfo, proto_item* item,
   }
 
   conn_type_name = try_val_to_str( conn_type, conn_type_vals );
-  if( pinfo && conn_type_name ) col_prepend_fstr( pinfo->cinfo, COL_INFO, "%s ", conn_type_name );
+  if( conn_type_name ) col_prepend_fstr( pinfo->cinfo, COL_INFO, "%s ", conn_type_name );
   proto_item_append_text( item, ", %s", conn_type_name ? conn_type_name : "???" );
 
   if( !ok )
