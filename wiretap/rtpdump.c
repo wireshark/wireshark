@@ -210,11 +210,13 @@ rtpdump_open(wtap *wth, int *err, char **err_info)
         : WTAP_OPEN_ERROR;               \
 } G_STMT_END
 
-    if (!wtap_read_bytes(wth->fh, &start_time.secs, 4, err, err_info)) FAIL;
-    start_time.secs = g_ntohl(start_time.secs);
+    uint32_t u32;
 
-    if (!wtap_read_bytes(wth->fh, &start_time.nsecs, 4, err, err_info)) FAIL;
-    start_time.nsecs = g_ntohl(start_time.nsecs) * 1000;
+    if (!wtap_read_bytes(wth->fh, &u32, 4, err, err_info)) FAIL;
+    start_time.secs = (time_t)g_ntohl(u32);
+
+    if (!wtap_read_bytes(wth->fh, &u32, 4, err, err_info)) FAIL;
+    start_time.nsecs = (int)g_ntohl(u32) * 1000;
 
     if (!wtap_read_bytes(wth->fh, &bin_addr, 4, err, err_info)) FAIL;
     if (!wtap_read_bytes(wth->fh, &bin_port, 2, err, err_info)) FAIL;
