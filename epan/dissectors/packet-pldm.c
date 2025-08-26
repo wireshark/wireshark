@@ -1123,7 +1123,7 @@ uint16_t parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
 		bytes_left = tvb_reported_length(tvb) - offset;
 	}
 	return offset;
-};
+}
 
 static
 int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pldm_packet_data *data)
