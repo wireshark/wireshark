@@ -564,7 +564,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	/* Create a subtree for data segment and add the other fields under it */
 	ltp_data_tree = proto_tree_add_subtree(ltp_tree, tvb, frame_offset, tvb_captured_length_remaining(tvb, frame_offset), ett_data_segm, NULL, "Data Segment");
 
-	/* Client ID - 0 = Bundle Protocol, 1 = CCSDS LTP Service Data Aggregation */
+	/* Client ID - 1 = Bundle Protocol, 2 = CCSDS LTP Service Data Aggregation according to RFC-7116 */
 	add_sdnv64_to_tree(ltp_data_tree, tvb, pinfo, frame_offset, hf_ltp_data_clid, &client_id, &sdnv_length);
 	frame_offset += sdnv_length;
 	segment_size += sdnv_length;
@@ -756,7 +756,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 			tvbuff_t *datatvb;
 
 			if (client_id == 2) {
-				add_sdnv64_to_tree(ltp_data_tree, tvb, pinfo, frame_offset+parse_offset, hf_ltp_data_sda_clid, &sda_client_id, &sdnv_length);
+				add_sdnv64_to_tree(ltp_data_tree, new_tvb, pinfo, frame_offset+parse_offset, hf_ltp_data_sda_clid, &sda_client_id, &sdnv_length);
 				parse_offset += sdnv_length;
 				if (parse_offset == parse_length) {
 					col_set_str(pinfo->cinfo, COL_INFO, "CCSDS LTP SDA Protocol Error");
