@@ -1,0 +1,504 @@
+commit 254d45f2ec
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Aug 21 17:13:49 2025 +0000
+
+    Ensure that SSIZE_MAX is defined under Windows
+
+    BaseTsd.h does not define SSIZE_MAX, and only defines MAXSSIZE_T
+    in certain circumstances where cplusplus is defined. SIZE_MAX is
+    defined so long as stdint.h is included.
+
+    (cherry picked from commit 49a6624eeeffe9a12f407e3bb48b7ff8164849f7)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 8ad280552e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 17 09:17:47 2025 +0000
+
+    [Automatic update for 2025-08-17]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    manuf failed.
+
+commit 6ff29df6e6
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Aug 11 12:31:45 2025 +0000
+
+    epan: Fix LZ77 decoding when MatchLength is larger than 16-bits
+
+    Read the 32-bit quantity before advancing the offset by 4 bytes
+    in the case where the MatchLength didn't fit in 2 bytes.
+
+    See the pseudocode in [MS-XCA] 2.3.4 for compression:
+    https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-xca/b66751f2-be7b-4d20-a87c-5147c563ff2d
+
+             If MatchLength < (1 << 16)
+                 Write two-byte value MatchLength to OutputPosition
+                 OutputPosition += 2
+             Else
+                 Write two-byte value of 0 to OutputPosition
+                 OutputPosition += 2
+                 Write four-byte value of MatchLength to OutputPosition
+                 OutputPosition += 4
+
+    Fix #20671
+
+    (cherry picked from commit 9c4aa7e03f940884bc0d784c116e4e4e32b9e504)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a6f5f88977
+Author: Balint Reczey <balint@balintreczey.hu>
+Date:   Mon Oct 21 12:27:09 2024 +0200
+
+    tools: Use esnacc instead of snacc in asn2deb
+
+    The snacc package is about to be removed from Debian, but esnacc,
+    a newer active fork from http://esnacc.org/ stays available.
+
+    (cherry picked from commit 6f7831516648cf70cb76d12a4b05c041279d40ba)
+
+commit a627d70013
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 10 09:17:33 2025 +0000
+
+    [Automatic update for 2025-08-10]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    manuf failed.
+
+commit 39386c2f50
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Aug 9 16:58:56 2025 +0000
+
+    MySQL: Fix tvb_get_fle call
+
+    The last parameter is a pointer to a uint8_t that (if non-NULL) is
+    used to indicate that the length was NULL. It's not supposed to be
+    an encoding.
+
+    (cherry picked from commit b33b225919daf070c914081ae15128ab36a1dd75)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 8f1a27ff29
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Tue Aug 5 00:10:44 2025 +0000
+
+    SAPB: Only check for tvb length if tvb is not NULL
+
+    Fixes #20661
+
+    (cherry picked from commit d584f66ba713da61b1eb1d711407fbaff5647447)
+
+    Co-authored-by: Michael Mann <mmann78@netscape.net>
+
+commit 9db5d86998
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 3 09:17:44 2025 +0000
+
+    [Automatic update for 2025-08-03]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    manuf failed.
+
+commit fccddda0b7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jul 29 22:19:37 2025 +0000
+
+    wmem_map: Ensure that the hash multiplication factor is odd
+
+    We multiply the hash results by a random integer before right-shifting,
+    in order to guard against g_direct_hash being used with integer
+    (or pointer as integer) values whose upper bits are identical, such
+    as 16-bit port numbers or pointers allocated nearby each other.
+
+    However, this random integer should be an odd random integer; the
+    larger the power of two that evenly divides x, the more the hash
+    table space collapses and for smaller tables. The effect becomes
+    noticeable if x becomes divisible by 2^15 (because of the hash table
+    of the all the header_field_info, which has ~2^18 entries) and
+    starts to go into denial of service levels when divisible by powers
+    of two above 2^24 or so.
+
+    Ensure that it's odd by adding 1 if even. This produces a uniform
+    random distribution over the odd 32-bit integers.
+
+    (cherry picked from commit a9e3cf41601f3987e13c52608472d4304f40e5a8)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 13b04cfc0f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 27 09:17:02 2025 +0000
+
+    [Automatic update for 2025-07-27]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 244acbf158
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 20 16:24:49 2025 -0700
+
+    GitLab CI: Switch to clang 20
+
+commit d84a9f032b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 20 09:18:10 2025 +0000
+
+    [Automatic update for 2025-07-20]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 0b6118da2a
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Jul 18 20:27:08 2025 +0000
+
+    lin: claim to dissect all bytes present in the packet.
+
+    They all belong to us, even if they're after the event message or the
+    frame data and padding.
+
+    And if they're *not* present because the packet's cut short by slicing,
+    they obviously don't belong to us.
+
+    So just return tvb_captured_length(tvb).
+
+    (cherry picked from commit c6e0452e32f52d300f01b2969e76d5f093a9f6c1)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit cb2ae3e1e4
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jul 16 13:51:04 2025 +0000
+
+    DLT: Register DLT storage dissector after registering its protocol
+
+    Since this handle is registered to a different sub-protocol, register
+    in the appropriate registration function. Otherwise it's being
+    registered to the 0 protocol.
+
+    Fixup 5468611d57cb0302d4f0f359f79c0bedc66ee888
+
+    (cherry picked from commit e1b17d89c29d1191c1f4cd74d8a6d3166581d66d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 3fb49debe5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jul 14 16:37:03 2025 -0700
+
+    Windows: Update GnuTLS to 3.8.10
+
+    (cherry picked from commit c1bf5993bc53df246345dd97f2b1274a7ad38f49)
+
+    Conflicts:
+            tools/win-setup.ps1
+
+commit 70116695f5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 13 09:17:12 2025 +0000
+
+    [Automatic update for 2025-07-13]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 0228864cae
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Sat Jul 12 15:00:07 2025 +0200
+
+    UDS: Fixing RDBPI payload (Bugfix)
+
+    The UDS standard has no payload for the response.
+
+    Closes: #20589
+
+commit b56e2a1757
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jul 8 13:52:36 2025 +0000
+
+    http-urlencoded: Handle byte sequences with no '='
+
+    The "aberrant monstrosity" that is the application/x-www-form-urlencoded
+    format is supposed to be serialized with a '=' when there is a name with
+    an empty string value, but parsing is supposed to handle the case where
+    there is no '=' separator by treating it entirely as name.
+
+    Always skip on where the '&' was found when finishing a name-value
+    pair byte sequence to handle both cases with a minimum of tests.
+
+    https://url.spec.whatwg.org/#application/x-www-form-urlencoded
+    https://url.spec.whatwg.org/#urlencoded-parsing
+    https://url.spec.whatwg.org/#urlencoded-serializing
+
+    Fix #20615
+
+    (cherry picked from commit 0102bc0d6c87e0e795a8723260df7b3e45749f9d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit c73072897c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jul 8 11:42:15 2025 +0000
+
+    DNP3: Fix Y2038 issue with timestamps on LLP64 systems (e.g., Windows)
+
+    Cast to a time_t, not a long, when storing in the nstime_t secs, so as
+    to work on platforms where time_t is 64-bit but long is 32 bit, such
+    as Windows.
+
+    These should just be added with ENC_TIME_MSECS|ENC_LITTLE_ENDIAN, which
+    will be changed in a later commit, but this one liner is easier to
+    backport.
+
+    Fix #20618
+
+    (cherry picked from commit cb3333ce21c4b856855da3ee4d5840f1d25ff36a)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit c9cd43105c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 6 20:04:07 2025 -0500
+
+    tools: Use a more unique fuzz ID
+
+    If CI_JOB_ID is set, use it to identify our fuzz artifacts.
+
+    (cherry picked from commit 95dc482a9857fc927b5cce61f1a83860178be130)
+
+commit 96cdcea55a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jul 7 13:51:14 2025 -0500
+
+    GitLab CI: Update CLANG_VERSION
+
+commit aea01cf233
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jun 30 11:20:41 2025 -0700
+
+    ASTERIX: Widen a loop variable
+
+    Fix
+
+        /wireshark/epan/dissectors/packet-asterix.c:61495:35: error: loop variable has narrower type 'uint8_t' than iteration's upper bound 'const unsigned int' [bugprone-too-small-loop-variable,-warnings-as-errors]
+         61495 |             for (i = 0, size = 0; i < field->header_length; i++) {
+               |                                   ^
+
+    (cherry picked from commit 6a6f5da68ef77ea285acaf6d75142b6c9aa5d62f)
+
+    Conflicts:
+            epan/dissectors/packet-asterix.c
+            tools/asterix/packet-asterix-template.c
+
+commit ff254c9a2d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jun 30 11:18:12 2025 -0700
+
+    DOF: Widen a loop variable
+
+    Fix
+
+        /wireshark/epan/dissectors/packet-dof.c:3554:21: error: loop variable has narrower type 'uint8_t' than iteration's upper bound 'const int' [bugprone-too-small-loop-variable,-warnings-as-errors]
+         3554 |         for (i = 0; i < addr_key->addr.len; i++)
+              |                     ^
+
+    (cherry picked from commit d97ab008562d5be1cca1994f9f1c8bc8dd4858aa)
+
+    Conflicts:
+            epan/dissectors/packet-dof.c
+
+commit 775b686bb1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 6 09:15:55 2025 +0000
+
+    [Automatic update for 2025-07-06]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit d79fdb449a
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Jul 2 16:57:54 2025 +0000
+
+    gryphon: Fix Coverity CID 1159201
+
+    Rather than taking the reported length remaining earlier and then
+    subtracting 3 from it, just take it later, which handles underflow.
+
+    (cherry picked from commit a00ef929df97291640838b18389703e56fcafe25)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 9b012a476f
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Jul 1 17:29:44 2025 -0700
+
+    capture_opts: set the timestamp type to a *copy* of the default.
+
+    Timestamp types for interfaces are strings, not the reuslt of calling
+    pcap_tstamp_type_name_to_val() on the string.  If the timestamp type for
+    an interface is changed, the old timestamp type is freed and replaced by
+    a copy of the new type; this means that, when we create a set of options
+    for a new interface, we must set its timestamp type to a *copy* of the
+    default, so that, if it's subsequently freed, we're not freeing it out
+    from under the default or from other interfaces that have been assigned
+    the default.
+
+    That's done with other string options, so it should be done here as
+    well.
+
+    This fixes a crash reported on the security mailing list.
+
+    (backported from commit 7867ac96dd1b2ea5b4514c1fca2ca95dbeffe47d)
+
+commit 3b4ba2d827
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 29 09:15:49 2025 +0000
+
+    [Automatic update for 2025-06-29]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit d8aabe5874
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jun 26 15:09:09 2025 +0000
+
+    sll: Treat GRE over IPv6 as GRE over IPv4
+
+    In ARPHRD_IP6GRE, like ARPHRD_IPGRE, the protocol type field in
+    Linux cooked captures appears to be a GRE protocol type, which, while
+    defined to be Ethertypes, has a few protocols with historical other
+    values and a few protocols encapsulated in GRE differently than
+    encapsulated directly over standard L2 protocols.
+
+    See the example file using NHRP in
+    https://gitlab.com/wireshark/wireshark/-/merge_requests/20242#note_2581638364
+
+    (cherry picked from commit 6ee99b00f053550a0fb97fb2c1472104c4ee5afa)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 3c2f0b597e
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Jun 23 13:10:24 2025 +0200
+
+    etsi_card_app_toolkit: Dissect DNS server address
+
+    The DNS server address depends on command type OPEN CHANNEL,
+    not command number 0x40.
+
+    This issue was introduced in commit e398c8ed6b.
+
+    (cherry picked from commit d9a3ebff61fb98014ef094e2612ca01bd325f7d8)
+
+    Conflicts:
+            epan/dissectors/packet-etsi_card_app_toolkit.c
+
+commit 00a8a0788b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 22 09:16:32 2025 +0000
+
+    [Automatic update for 2025-06-22]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 57b709ce17
+Author: Diego Figueroa <d.figueroa@procitec.de>
+Date:   Wed Jun 18 14:37:26 2025 +0200
+
+    TETRA: correct the length of the call identifier field
+
+    as specified in the standard, the call identifier is a 14 bit word,
+    but in many pdu-types in the in tetra.asn the call identifier was
+    declared as a 10 bit word.
+    This mistake is corrected, and the file epan/dissectors/packet-tetra.c
+    is automatically generated with asn2wrs.py
+
+    For reference see the following tables of ETSI TS 100 392-2:
+    - Table 14.21
+    - Table 14.23
+    - Table 14.31
+    - Table 14.32
+    - Table 14.24
+    - Table 14.22
+    - Table 14.5
+    - Table 14.4
+    - Table 14.7
+    - Table 14.8
+    - Table 14.6
+    - Table 14.16
+    - Table 14.18
+
+    (cherry picked from commit ed083678b7cbabad055bf60666e43511e0f8bd1d)
+
+    Conflicts:
+            epan/dissectors/packet-tetra.c
+
+commit 79d33be1ff
+Author: Odysseus Yang <yongyang@microsoft.com>
+Date:   Mon Jun 16 11:06:58 2025 -0700
+
+    MBIM: Fix MBIM_CID_MS_LTE_ATTACH_STATUS 3.0 dissection
+
+    MBIM_CID_MS_LTE_ATTACH_STATUS 3.0 inserts nw_error (4 bytes) as the
+    second field.
+
+    (cherry picked from commit 92e83a0d58bc16a29da7c78061789b58846a3828)
+
+    Conflicts:
+            epan/dissectors/packet-mbim.c
+
+commit e28470c09b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 15 09:16:00 2025 +0000
+
+    [Automatic update for 2025-06-15]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit cd1363b739
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Jun 15 09:02:26 2025 +0000
+
+    editcap: make sure a file name was specified for --inject-secrets.
+
+    Bug reported in a wirehark-security message.
+
+    (cherry picked from commit 4c685ba9cc803bd22537bd2dd44cbcccd199a422)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit fb99acf840
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Jun 12 09:54:35 2025 -0700
+
+    pcapng: report an error for unknwn Netflix BBLog block types.
+
+    Otherwise, reading the file will stop before reading all of the blocks,
+    without any indication  of what happened.
+
+    (Already done in the main branch, as part of a significant change to
+    provide mechanisms to allow individual custom block and option types to
+    be added without having to modify core Wireshark code.)
+
+    (cherry picked from commit 0114ab63a9d93bdbe3ff3c5fb99da281b198be71)
+
+commit 026efe1946
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 8 09:16:07 2025 +0000
+
+    [Automatic update for 2025-06-08]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit b82d76763b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jun 4 15:15:23 2025 -0700
+
+    Version: 4.2.12 → 4.2.13
+
+    [skip ci]
