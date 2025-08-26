@@ -5,7 +5,7 @@ Wiretap is a library used for reading and writing capture files in various forma
 
 === Background
 
-Wiretap was initially developed as a library to replaceme
+Wiretap was initially developed as a library to replace
 libpcap, the current standard Unix library for packet capturing. Libpcap
 is great in that it is very platform independent and has a wonderful
 BPF optimizing engine. But it has some shortcomings as well. These
@@ -99,7 +99,7 @@ wtap_open_return_val dumb_open(wtap *wth, int *err, char **err_info)
         *err = file_error(wth->fh, err_info);
         return WTAP_OPEN_ERROR;
     }
- 
+
     if (bytes_read < MAGIC_SIZE) {
         /* Not enough bytes */
         return WTAP_OPEN_NOT_MINE;
@@ -165,7 +165,7 @@ static bool dumb_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, char
     uint8_t     payload_raw;    /* Length of the packet's data: Data */
     uint8_t     packet_size;    /* Length of the entire packet: Length + Data */
     uint8_t     *packet_data;   /* Actual data within the packet */
-    
+
     /* Read the header with the size
        Use wtap_read_bytes_or_eof because we may be at EOF before we start
      */
@@ -285,7 +285,7 @@ The `file_type_subtype_info` includes a descriptive name, a
 short name that's convenient to type on a command line (no blanks or
 capital letters, please), common file extensions to open and save,
 any block types supported, and pointers to the "can_write_encap" and
-if writing that file type is supported (see below), "dump_open" routines 
+if writing that file type is supported (see below), "dump_open" routines
 otherwise NULL pointers.
 
 ```c
@@ -309,8 +309,10 @@ void register_dumb(void)
 
 === Additional notes on adding support for reading new capture formats
 
-If the "open" routine allocates any memory, you'll need to create a "close" routine
-by setting the `wtap` 's `subtype_close` member.
+If your "open" routine needs to allocate any memory that persists while the file is open, you will need to save a reference to the allocated memory in the `priv` member of the `wtap` structure.
+The data referenced directly from this pointer will be automatically freed by wiretap (using `g_free()`) when the capture file is closed.
+However, if this data contains pointers to other memory structures you've allocated separately, you'll need to explicitly free those structures.
+To do this, you'll need to create a "close" routine, and set the `wtap` 's `subtype_close` member to point at the routine.
 
 The "read" routine should set the variable `data_offset` to the byte
 offset within the capture file from which the "seek and read" routine
