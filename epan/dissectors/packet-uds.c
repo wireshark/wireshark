@@ -3312,6 +3312,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                             &hf_uds_roe_localization_sign,
                             &hf_uds_roe_localization_length,
                             &hf_uds_roe_localization_offset,
+                            NULL
                         };
                         proto_tree_add_bitmask( uds_tree, tvb, offset, hf_uds_roe_localization, ett_uds_roe_localization, uds_roe_localization_fields, ENC_BIG_ENDIAN);
                         offset += 2;
@@ -3896,11 +3897,7 @@ proto_register_uds(void) {
         &ett_uds_roe_localization,
     };
 
-    proto_uds = proto_register_protocol (
-        "Unified Diagnostic Services",  /* name       */
-        "UDS",                          /* short name */
-        "uds"                           /* abbrev     */
-    );
+    proto_uds = proto_register_protocol ("Unified Diagnostic Services", "UDS", "uds");
 
     proto_register_field_array(proto_uds, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
