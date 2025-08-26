@@ -42,7 +42,6 @@ jobs:
         env:
           PLATFORM: x64
           WIRESHARK_BASE_DIR: C:/wireshark-libs
-          QT5_BASE_DIR: C:/Qt/5.12.3/msvc2017_64
         working-directory: build
       - name: Build
         run: cmake --build . --config RelWithDebInfo
@@ -60,8 +59,6 @@ jobs:
       - name: Install pytest
         run: pip install pytest pytest-xdist
       - name: Run tests
-        env:
-          PYTEST_ADDOPTS: --skip-missing-programs=rawshark
         run: pytest
         working-directory: build
       - name: Build Windows pkg
