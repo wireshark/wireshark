@@ -532,7 +532,6 @@ Windows x64 Package:
     - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
     - msbuild /verbosity:minimal wireshark_nsis.vcxproj
     - msbuild /verbosity:minimal stratoshark_nsis.vcxproj
-    # No need for explicit signing of NSIS installer here. The signing is done by makensis.
     - msbuild /verbosity:minimal wireshark_wix.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix\Wireshark-*.msi
     - msbuild /verbosity:minimal wireshark_portableapps.vcxproj
@@ -650,7 +649,6 @@ macOS Universal Package:
       ..
     # Temporary hack to fix "Package 'zlib', required by 'libscap', not found"
     - sed -i .bak '/Requires.*zlib/d' $WIRESHARK_BASE_DIR/macos-universal-master/lib/pkgconfig/libscap.pc
-    - ( cd $WIRESHARK_BASE_DIR/macos-universal-master/include ; curl -JLO https://raw.githubusercontent.com/troydhanson/uthash/refs/tags/v1.9.8/src/uthash.h )
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - for exe in $( find run/{Wire,Strato}shark.app/Contents/MacOS -type f ) ; do
