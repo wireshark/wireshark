@@ -189,11 +189,7 @@ void proto_register_bpsec_cose(void) {
         &ett_cose_msg,
     };
 
-    proto_bpsec_cose = proto_register_protocol(
-        "BPSec COSE Context", /* name */
-        "BPSec COSE", /* short name */
-        "bpsec-cose" /* abbrev */
-    );
+    proto_bpsec_cose = proto_register_protocol("BPSec COSE Context", "BPSec COSE", "bpsec-cose");
 
     proto_register_field_array(proto_bpsec_cose, fields, array_length(fields));
     proto_register_subtree_array(ett, array_length(ett));

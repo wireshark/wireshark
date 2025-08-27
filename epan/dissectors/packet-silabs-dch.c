@@ -1294,10 +1294,7 @@ void proto_register_silabs_dch(void)
   };
 
   // Register the protocol
-  proto_silabs_dch = proto_register_protocol(
-      "Silabs Debug Channel",
-      "Silabs DCH",
-      "silabs-dch");
+  proto_silabs_dch = proto_register_protocol("Silabs Debug Channel", "Silabs DCH", "silabs-dch");
 
   // Register field header
   proto_register_field_array(proto_silabs_dch, hf, array_length(hf));
