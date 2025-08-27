@@ -41,7 +41,7 @@ def open_url_zipped(url):
     return zipfile.ZipFile(io.BytesIO(body))
 
 def main():
-    isobus_output_path = os.path.join('epan', 'dissectors',  'packet-isobus-parameters.h')
+    isobus_output_path = os.path.join(os.path.dirname(__file__), '..', 'epan', 'dissectors',  'packet-isobus-parameters.h')
 
     isobus_zip_url = [ "https://www.isobus.net/isobus/attachments/", "isoExport_csv.zip"]
 
@@ -99,7 +99,7 @@ def main():
             vs_name = vs_name[:36]
         vehicle_system_names[new_id] = vs_name
 
-        #vehicle_system_names.setdefault(ig_id, {}).setdefault(vs_id, vs_name) 
+        #vehicle_system_names.setdefault(ig_id, {}).setdefault(vs_id, vs_name)
         new_id2 = 256 * new_id + int(f_id)
         specific_functions[new_id2] = f_name
 
@@ -123,7 +123,7 @@ def main():
         exit_msg("{}: Not enough entries ({})".format(isobus_files['pgn_spns'], len(lines)))
 
     pgn_names = {}
- 
+
     pgn_spn_csv = csv.reader(lines)
     next(pgn_spn_csv)
     for row in pgn_spn_csv:
