@@ -272,7 +272,7 @@ Release packages are built on the following platforms:
 
 * Windows 11 Arm64, Visual Studio 2022
 
-* Ubuntu 22.04 x64, gcc
+* Ubuntu 24.04 x64, gcc and clang
 
 * macOS x64, clang
 
