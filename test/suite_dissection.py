@@ -713,6 +713,29 @@ class TestDissectHttp2:
         # Stream ID 1 bytes, decrypted and uncompressed, human readable
         assert grep_output(stdout, '00000000  3a 6d 65 74 68 6f 64 3a')
 
+    def test_http2_window_size_multiple_frames(self, cmd_tshark, features, dirs, capture_file, test_env):
+        '''HTTP/2 calculated window sizes with multiple flow-controlled frames per packet'''
+        if not features.have_nghttp2:
+            pytest.skip('Requires nghttp2.')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('http2-window-size-multiframe.pcap'),
+                '-d', 'tcp.port==8080,http2',
+                '-2',
+                '-Y', 'http2.type == 0 || http2.type == 8',
+                '-T', 'fields',
+                '-e', 'frame.number',
+                '-e', 'http2.calculated.connection.window_size.before',
+                '-e', 'http2.calculated.connection.window_size.after',
+                '-e', 'http2.calculated.stream.window_size.before',
+                '-e', 'http2.calculated.stream.window_size.after',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            # HEADERS, then DATA of 10 and 20 bytes on stream 1
+            '4\t65535,65525\t65525,65505\t65535,65525\t65525,65505',
+            # WINDOW_UPDATE +10 on stream 0, +30 on stream 1, +20 on stream 0
+            '5\t65505,65515\t65515,65535\t65505\t65535',
+        ]
+
 class TestDissectHttp3:
     def test_http3_qpack_reassembly(self, cmd_tshark, features, dirs, capture_file, test_env):
         '''HTTP/3 QPACK encoder stream reassembly'''

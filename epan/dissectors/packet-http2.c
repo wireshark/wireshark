@@ -343,8 +343,7 @@ static int st_node_http2 = -1;
 static int st_node_http2_type = -1;
 
 #define PROTO_DATA_KEY_HEADER 0
-#define PROTO_DATA_KEY_WINDOW_SIZE_CONNECTION_BEFORE 1
-#define PROTO_DATA_KEY_WINDOW_SIZE_STREAM_BEFORE 2
+#define PROTO_DATA_KEY_WINDOW_SIZES_BEFORE 1
 
 /* Packet Header */
 static int proto_http2;
@@ -3784,6 +3783,16 @@ http2_get_header_value(packet_info *pinfo _U_, const char* name _U_, bool the_ot
 }
 #endif
 
+typedef struct {
+    int32_t connection_window_size;
+    int32_t stream_window_size;
+} packet_window_sizes;
+
+typedef struct {
+    wmem_array_t* sizes;
+    unsigned index;
+} packet_window_state;
+
 /* Increment or decrement the accumulated connection and/or stream window
  * sizes based on the flow direction, stream ID and increaseWindow parameter.
  * In other words, if increaseWindow is true, then we're processing a
@@ -3815,28 +3824,46 @@ adjust_window_size(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* http2_ses
      * https://datatracker.ietf.org/doc/html/rfc9113#section-6.9.2
      */
 
+    /* There may be multiple passes, so we must use proto_data to keep state. */
+    packet_window_state* window_state = p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZES_BEFORE);
+    if (!window_state) {
+        window_state = wmem_new0(wmem_file_scope(), packet_window_state);
+        window_state->sizes = wmem_array_new(wmem_file_scope(), sizeof(packet_window_sizes));
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZES_BEFORE, window_state);
+    }
+    if (PINFO_FD_VISITED(pinfo)) {
+        unsigned max = wmem_array_get_count(window_state->sizes);
+        if (max == 0) {
+            return;
+        }
+        if (window_state->index == max) {
+            window_state->index = 0;
+        }
+    } else {
+        static const packet_window_sizes empty = {0};
+        wmem_array_append(window_state->sizes, &empty, 1);
+    }
+    packet_window_sizes* window_sizes_before = wmem_array_index(window_state->sizes, window_state->index);
+    window_state->index++;
+
     /* Always decrease the connection window after sending data,
      * but only increase the connection window for a WINDOW_UPDATE on stream 0 (the connection). */
     if (!increaseWindow || http2_session->current_stream_id == 0) {
-        int32_t* window_size_connection_before = p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZE_CONNECTION_BEFORE);
         int32_t window_size_connection_after;
         bool window_size_overflow = false;
 
-        if (!window_size_connection_before) {
-            /* There may be multiple passes, so we must use proto_data to keep state */
-            window_size_connection_before = wmem_new0(wmem_file_scope(), int32_t);
-            (*window_size_connection_before) = http2_session->current_connection_window_size[flow_index];
+        if (!PINFO_FD_VISITED(pinfo)) {
+            window_sizes_before->connection_window_size = http2_session->current_connection_window_size[flow_index];
             if (ckd_add(&http2_session->current_connection_window_size[flow_index], http2_session->current_connection_window_size[flow_index], finalAdjustment)) {
                 /* Overflow in the negative direction is unlikely, but check. */
                 http2_session->current_connection_window_size[flow_index] = increaseWindow ? INT32_MAX : INT32_MIN;
             }
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZE_CONNECTION_BEFORE, window_size_connection_before);
         }
 
         proto_item_set_generated(proto_tree_add_int(http2_tree, hf_http2_calculated_window_size_connection_before,
-                                                    tvb, 0, 0, (*window_size_connection_before)));
+                                                    tvb, 0, 0, window_sizes_before->connection_window_size));
 
-        if (ckd_add(&window_size_connection_after, *window_size_connection_before, finalAdjustment)) {
+        if (ckd_add(&window_size_connection_after, window_sizes_before->connection_window_size, finalAdjustment)) {
             window_size_connection_after = increaseWindow ? INT32_MAX : INT32_MIN;
             window_size_overflow = true;
         }
@@ -3858,24 +3885,20 @@ adjust_window_size(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* http2_ses
      * but only increase the stream window for a WINDOW_UPDATE on stream > 0 (not the connection). */
     if (!increaseWindow || http2_session->current_stream_id > 0) {
         http2_stream_info_t *http2_stream_info = get_stream_info(pinfo, http2_session, increaseWindow);
-        int32_t* window_size_stream_before = p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZE_STREAM_BEFORE);
         int32_t window_size_stream_after;
         bool window_size_overflow = false;
 
-        if (!window_size_stream_before) {
-            /* There may be multiple passes, so we must use proto_data to keep state */
-            window_size_stream_before = wmem_new0(wmem_file_scope(), int32_t);
-            (*window_size_stream_before) = http2_stream_info->oneway_stream_info[flow_index].current_window_size;
+        if (!PINFO_FD_VISITED(pinfo)) {
+            window_sizes_before->stream_window_size = http2_stream_info->oneway_stream_info[flow_index].current_window_size;
             if (ckd_add(&http2_stream_info->oneway_stream_info[flow_index].current_window_size, http2_stream_info->oneway_stream_info[flow_index].current_window_size, finalAdjustment)) {
                 http2_session->current_connection_window_size[flow_index] = increaseWindow ? INT32_MAX : INT32_MIN;
             }
-            p_add_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZE_STREAM_BEFORE, window_size_stream_before);
         }
 
         proto_item_set_generated(proto_tree_add_int(http2_tree, hf_http2_calculated_window_size_stream_before, tvb, 0, 0,
-                                                    (*window_size_stream_before)));
+                                                    window_sizes_before->stream_window_size));
 
-        if (ckd_add(&window_size_stream_after, *window_size_stream_before, finalAdjustment)) {
+        if (ckd_add(&window_size_stream_after, window_sizes_before->stream_window_size, finalAdjustment)) {
             window_size_stream_after = increaseWindow ? INT32_MAX : INT32_MIN;
             window_size_overflow = true;
         }
