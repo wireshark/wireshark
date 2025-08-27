@@ -370,7 +370,7 @@ target_compile_definitions(wsutil PRIVATE
 set_target_properties(wsutil PROPERTIES
 	PREFIX "lib"
 	LINK_FLAGS "${WS_LINK_FLAGS}"
-	VERSION "0.0.0" SOVERSION 0
+	VERSION "17.0.0" SOVERSION 17
 	FOLDER "DLLs"
 	INSTALL_RPATH "${LIBRARY_INSTALL_RPATH}"
 )

@@ -26,6 +26,9 @@ If you or your organization would like to contribute or become a sponsor, please
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
+// Uncomment for the last release(s) of this branch.
+// This is the last release with official support for Windows 10 and Windows Server 2016.
+
 //=== Bug Fixes
 
 //The following bugs have been fixed:
@@ -225,11 +228,13 @@ The ENABLE_STATIC CMake option has been deprecated in favor of BUILD_SHARED_LIBS
 // === Removed Dissectors
 
 
-//=== New File Format Decoding Support
+=== New File Format Decoding Support
 
-//[commaize]
-//--
-//--
+[commaize]
+--
+Resource Interchange File Format (RIFF)
+TTL File Format
+--
 
 === New Protocol Support
 
@@ -238,20 +243,37 @@ The ENABLE_STATIC CMake option has been deprecated in favor of BUILD_SHARED_LIBS
 // git log --oneline --diff-filter=A --stat v4.3.0rc0.. epan/dissectors plugins
 [commaize]
 --
-Lenbrook Service Discovery Protocol (LSDP)
-Network Time Security Key Establishment Protocol (NTS-KE)
-Private Line Emulation (PLE)
-Roughtime (Roughtime)
-SBAS L5 messages
+Asymmetric Key Packages (AKP)
 Binary HTTP
-Universal Measurement and Calibration Protocol (XCP)
-vSomeIP Internal Protocol (vSomeIP)
-VLP-16 Data and Position messaging
-Navitrol messaging
-SICK CoLA Ascii and CoLA Binary protocols
-Identifier-Locator Network Protocol (ILNP)
 BIST TotalView-ITCH protocol (BIST-ITCH)
 BIST TotalView-OUCH protocol (BIST-OUCH)
+Bluetooth Android HCI (HCI ANDROID)
+Bluetooth Intel HCI (HCI INTEL)
+BPSec COSE Context
+BPSec Default SC
+Commsignia Capture Protocol (C2P)
+DLMS/COSEM
+Ephemeral Diffie-Hellman Over COSE
+Identifier-Locator Network Protocol (ILNP)
+LDANeo Device trailer (LDANeo)
+Lenbrook Service Discovery Protocol (LSDP)
+LLC V1
+Navitrol messaging
+Network Time Security Key Establishment Protocol (NTS-KE)
+Ouster VLP-16
+Private Line Emulation (PLE)
+RCG
+RC V3
+Roughtime
+SBAS L5 Navigation Message
+SGP.22 GSMA Remote SIM Provisioning (SGP.22)
+SGP.32 GSMA Remote SIM Provisioning (SGP.32)
+Silabs Debug Channel
+SICK CoLA Ascii and CoLA Binary protocols
+Universal Measurement and Calibration Protocol (XCP)
+USB Picture Transfer Protocol (USB-PTP)
+VLP-16 Data and Position messaging
+vSomeIP Internal Protocol (vSomeIP)
 --
 
 === Updated Protocol Support
@@ -282,6 +304,8 @@ BLF is now improved (including writing to BLF)
 // === Major API Changes
 
 The Lua API now supports Libgcrypt symmetric cipher functions.
+
+// == Prior Versions
 
 == Getting Wireshark
 

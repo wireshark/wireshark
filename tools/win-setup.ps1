@@ -48,7 +48,7 @@ C:\PS> .\tools\win-setup.ps1 -Destination C:\wireshark-master-64-libs -Platform 
 
 Param(
     [Parameter(Mandatory=$true, Position=0)]
-    [ValidateScript({$_ -like "*[/\]wireshark-*-libs"})]
+    [ValidateScript({$_ -like "*[/\]wireshark-*-libs-4.6"})]
     [String]
     $Destination,
 

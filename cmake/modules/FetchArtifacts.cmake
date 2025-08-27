@@ -16,7 +16,7 @@ if (APPLE)
   # if (NOT IS_DIRECTORY ${WIRESHARK_BASE_DIR} OR NOT IS_WRITABLE ${WIRESHARK_BASE_DIR})
     message(FATAL_ERROR "Please make sure ${WIRESHARK_BASE_DIR} is a directory that is writable by you.")
   endif()
-  set(ARTIFACTS_DIR ${WIRESHARK_BASE_DIR}/macos-universal-master)
+  set(ARTIFACTS_DIR ${WIRESHARK_BASE_DIR}/macos-universal-4.6)
   set(download_prefix "https://dev-libs.wireshark.org/macos/packages")
   # Make sure we look for our fetched artifacts first.
   set(Asciidoctor_ROOT ${ARTIFACTS_DIR})

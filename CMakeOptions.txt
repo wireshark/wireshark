@@ -53,7 +53,7 @@ option(BUILD_sharkd        "Build sharkd" ON)
 option(BUILD_mmdbresolve   "Build MaxMind DB resolver" ON)
 option(BUILD_fuzzshark     "Build fuzzshark" OFF)
 
-option(ENABLE_WERROR     "Treat warnings as errors" ON)
+option(ENABLE_WERROR     "Treat warnings as errors" OFF)
 # Debugging is enabled for "Debug" build type.
 option(ENABLE_DEBUG      "Enable debugging for all build configurations" OFF)
 option(ENABLE_DEBUG_UTF_8  "Enable UTF-8 sanity checks (requires ENABLE_DEBUG)" ON)
