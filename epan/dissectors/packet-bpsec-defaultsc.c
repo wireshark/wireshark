@@ -140,11 +140,7 @@ void proto_register_bpsec_defaultsc(void) {
         &ett_defaultsc_scope,
     };
 
-    proto_bpsec_defaultsc = proto_register_protocol(
-        "BPSec Default Security Contexts", /* name */
-        "BPSec Default SC", /* short name */
-        "bpsec-defaultsc" /* abbrev */
-    );
+    proto_bpsec_defaultsc = proto_register_protocol("BPSec Default Security Contexts", "BPSec Default SC","bpsec-defaultsc");
 
     proto_register_field_array(proto_bpsec_defaultsc, fields, array_length(fields));
     proto_register_subtree_array(ett, array_length(ett));
