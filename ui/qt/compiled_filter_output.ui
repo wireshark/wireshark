@@ -29,6 +29,10 @@
     </layout>
    </item>
    <item>
+     <widget class="ElidedLabel" name="hintLabel">
+     </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -43,6 +47,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ElidedLabel</class>
+   <extends>QLabel</extends>
+   <header>widgets/elided_label.h</header>
+  </customwidget>
+ </customwidgets>
  <connections>
   <connection>
    <sender>buttonBox</sender>

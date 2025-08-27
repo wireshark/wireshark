@@ -41,6 +41,8 @@ CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QList<InterfaceFilte
     ui(new Ui::CompiledFilterOutput)
 {
     ui->setupUi(this);
+    ui->hintLabel->setSmallText();
+
     loadGeometry();
     setAttribute(Qt::WA_DeleteOnClose, true);
     ui->filterList->setCurrentFont(mainApp->monospaceFont());
@@ -51,6 +53,8 @@ CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QList<InterfaceFilte
 
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     close_bt->setDefault(true);
+
+    setTitle();
 
 #ifdef HAVE_LIBPCAP
     compileFilters();
@@ -67,6 +71,30 @@ CompiledFilterOutput::~CompiledFilterOutput()
         parentWidget()->activateWindow();
     }
     delete ui;
+}
+
+void CompiledFilterOutput::setTitle()
+{
+    // How many unique filters do we have?
+    QSet<QString> filterSet;
+    for (const auto &current : intList_) {
+        filterSet << current.filter;
+    }
+    QStringList titleList;
+    titleList << tr("Compiled Filter Output");
+    switch (filterSet.size()) {
+    case 0:
+        titleList << tr("No capture filter");
+        break;
+    case 1:
+        // There's only one member. (Clang complains if this is a for loop.)
+        titleList << *filterSet.cbegin();
+        break;
+    default:
+        titleList << tr("Multiple filters");
+    }
+    setWindowTitle(mainApp->windowTitleString(titleList));
+
 }
 
 #ifdef HAVE_LIBPCAP
@@ -100,6 +128,7 @@ void CompiledFilterOutput::compileFilters()
 {
     char *data, *primary_msg, *secondary_msg;
     bool success;
+    QListWidgetItem *newitem;
 
     foreach (InterfaceFilter current, intList_) {
         switch (current.iftype) {
@@ -135,10 +164,12 @@ void CompiledFilterOutput::compileFilters()
             break;
         }
         if (success) {
-            ui->interfaceList->addItem(new QListWidgetItem(current.display_name));
+            newitem = new QListWidgetItem(current.display_name);
         } else {
-            ui->interfaceList->addItem(new QListWidgetItem(StockIcon("x-expert-error"), current.display_name));
+            newitem = new QListWidgetItem(StockIcon("x-expert-error"), current.display_name);
         }
+        newitem->setData(Qt::UserRole, current.filter);
+        ui->interfaceList->addItem(newitem);
     }
 }
 #endif
@@ -149,6 +180,12 @@ void CompiledFilterOutput::on_interfaceList_currentItemChanged(QListWidgetItem *
     QHash<QString, QString>::const_iterator iter = compile_results.find(interface);
     ui->filterList->clear();
     ui->filterList->setPlainText(iter.value());
+    QString filter = current->data(Qt::UserRole).toString();
+    if (filter.isEmpty()) {
+        ui->hintLabel->setText(tr("No capture filter"));
+    } else {
+        ui->hintLabel->setText(tr("Capture filter: %1").arg(filter));
+    }
 }
 
 void CompiledFilterOutput::copyFilterText()

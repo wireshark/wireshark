@@ -51,6 +51,7 @@ private:
     Ui::CompiledFilterOutput *ui;
     QHash<QString, QString> compile_results;
     QPushButton *copy_bt_;
+    void setTitle();
 #ifdef HAVE_LIBPCAP
     bool compileFilter(const InterfaceFilter &filter);
     void compileFilters();
