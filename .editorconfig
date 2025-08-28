@@ -74,3 +74,7 @@ indent_size = 4
 [*.l]
 indent_style = tab
 indent_size = 8
+
+[cli_main.[ch]]
+indent_style = tab
+indent_size = 8
