@@ -1,3 +1,19 @@
+commit ad1dba3397
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Aug 26 16:35:56 2025 -0700
+
+    Prep for 4.2.13
+
+commit ff3bc358fa
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 24 09:18:37 2025 +0000
+
+    [Automatic update for 2025-08-24]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    manuf failed.
+
 commit 254d45f2ec
 Author: John Thacker <johnthacker@gmail.com>
 Date:   Thu Aug 21 17:13:49 2025 +0000
