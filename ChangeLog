@@ -1,3 +1,9 @@
+commit d81a45a248
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Aug 26 16:35:28 2025 -0700
+
+    Prep for 4.4.9
+
 commit 9e8326f18b
 Author: John Thacker <johnthacker@gmail.com>
 Date:   Mon Aug 25 15:55:36 2025 +0000
