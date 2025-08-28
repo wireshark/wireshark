@@ -22,16 +22,15 @@ If you or your organization would like to contribute or become a sponsor, please
 
 // The following vulnerabilities have been fixed:
 
-// * wssalink:2025-03[] {notable}
-// SSH dissector crash.
-// wsbuglink:20642[].
+// * wssalink:2025-04[] {notable}
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxx[].
 // cveidlink:2025-xxx[].
-// Fixed in master: 39daba5e24
-// Fixed in release-4.4: d3db4696f7
-// Fixed in release-4.2: n/a
+// Fixed in master: xxx
+// Fixed in release-4.4: xxx
+// Fixed in release-4.2: xxx
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-476
-// * Fuzz job crash: fuzz-2025-07-26-10818768582.pcap. wsbuglink:20642[].
+// CWE-824
 
 The following bugs have been fixed:
 
@@ -40,12 +39,6 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one. {notable}
-
-* RDM Product Detail List ID Disect incorrect. wsbuglink:20612[].
-* SCCP LUDT segmentation decoding fails. wsbuglink:20647[].
-* Ciscodump fails to start capture on Cisco IOS. wsbuglink:20655[]. {notable}
-* [BACnet] WritePropertyMultiple closing context tag 1 not showing. wsbuglink:20665[].
-* Bug in LZ77 decoder; reads a 16-bit length when it should read a 32-bit length. wsbuglink:20671[].
 
 // == Known Bugs
 
@@ -65,14 +58,6 @@ There are no new protocols in this release.
 // rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.9.. | ag packet- | sort -u)
 [commaize]
 --
-BACapp
-LIN
-MySQL
-RDM
-SABP
-SCCP
-sFlow
-SSH
 --
 
 === New and Updated Capture File Support
@@ -98,6 +83,17 @@ There is no updated file format support in this release.
 // === Major API Changes
 
 == Prior Versions
+
+Wireshark 4.4.9 included the following changes.
+See the
+https://www.wireshark.org/docs/relnotes/wireshark-4.4.9.html[release notes]
+for details:
+
+* RDM Product Detail List ID Disect incorrect. wsbuglink:20612[].
+* SCCP LUDT segmentation decoding fails. wsbuglink:20647[].
+* Ciscodump fails to start capture on Cisco IOS. wsbuglink:20655[]. {notable}
+* [BACnet] WritePropertyMultiple closing context tag 1 not showing. wsbuglink:20665[].
+* Bug in LZ77 decoder; reads a 16-bit length when it should read a 32-bit length. wsbuglink:20671[].
 
 Wireshark 4.4.8 included the following changes.
 See the
@@ -359,8 +355,8 @@ https://gitlab.com/wireshark/wireshark/-/issues[the issue tracker].
 You can learn protocol analysis and meet Wireshark’s developers at
 https://sharkfest.wireshark.org[SharkFest].
 
-// Official Wireshark training and certification are available from
-// https://www.wiresharktraining.com/[Wireshark University].
+Official Wireshark training and certification are available from
+https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 == Getting Certified
 
