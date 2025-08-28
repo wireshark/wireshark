@@ -4469,6 +4469,8 @@ proto_register_gsm_sim(void)
 		&ett_tprof_b39,
 		&ett_auth_challenge,
 		&ett_auth_response,
+		&ett_gsm_sim_fragment,
+		&ett_gsm_sim_fragments,
 	};
 
 	static ei_register_info ei[] = {
