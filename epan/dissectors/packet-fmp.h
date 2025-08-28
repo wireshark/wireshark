@@ -83,9 +83,9 @@
  * Capabilities
  */
 
-#define FMP_CAP_REVOKE_HANDLE_LIST 0x0001
-#define FMP_CAP_UNC_NAMES 0x0002
-#define FMP_CAP_CIFSV2 0x0004
+#define FMP_CAP_REVOKE_HANDLE_LIST 0x00000001
+#define FMP_CAP_UNC_NAMES          0x00000002
+#define FMP_CAP_CIFSV2             0x00000004
 
 
 typedef enum  {

@@ -250,7 +250,7 @@ dissect_matter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     is_unsecured_session = (message_session_type == SECURITY_FLAG_SESSION_TYPE_UNICAST && session_id == 0);
 
     if (is_unsecured_session)
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Unsecured Session");
+        col_set_str(pinfo->cinfo, COL_INFO, "Unsecured Session");
     else if (message_session_type == SECURITY_FLAG_SESSION_TYPE_UNICAST)
         col_add_fstr(pinfo->cinfo, COL_INFO, "Unicast Session [0x%04x]", session_id);
     else if (message_session_type == SECURITY_FLAG_SESSION_TYPE_GROUP)

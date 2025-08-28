@@ -23,7 +23,7 @@ CPR-PPDU/normal-mode-parameters	cPR_PPDU_normal_mode_parameters
 
 ARU-PPDU/x400-mode-parameters aRU_PPDU_x400_mode_parameters
 CPR-PPDU/x400-mode-parameters cPU_PPDU_x400_mode_parameters
-CPA-PPDU/x410-mode-parameters cPR_PPDU_x400_mode_parameters
+CPA-PPDU/x410-mode-parameters cPR_PPDU_x410_mode_parameters
 
 ARP-PPDU/provider-reason aRU_PPDU_provider-reason
 CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason

@@ -178,7 +178,7 @@ static unsigned wlan_key_mic_len;
  * associations
  */
 static uint32_t association_counter;
-/* associatin_counter is assigned in authentication for AKM 24/MLD */
+/* association_counter is assigned in authentication for AKM 24/MLD */
 static uint32_t assoc_counter_in_auth;
 
 /* Treat all Wi-Fi frames as being S1G frames where it is important */
@@ -38158,7 +38158,7 @@ static const val64_string pre_fec_padding_factor_vals[] = {
 };
 
 static const true_false_string pe_disambiguity_tfs = {
-  "PE Disambiguity ",
+  "PE Disambiguity",
   "no PE Disambiguity"
  };
 

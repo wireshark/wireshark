@@ -50,7 +50,7 @@ static int rtsp_tap;
 
 /* http://www.iana.org/assignments/rtsp-parameters/rtsp-parameters.xml */
 
-const value_string rtsp_status_code_vals[] = {
+static const value_string rtsp_status_code_vals[] = {
     { 100, "Continue" },
     { 199, "Informational - Others" },
 

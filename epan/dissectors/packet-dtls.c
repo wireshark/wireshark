@@ -249,7 +249,7 @@ static const fragment_items dtls_frag_items = {
 
 static SSL_COMMON_LIST_T(dissect_dtls_hf);
 
-uint32_t get_dtls_stream_count(void)
+static uint32_t get_dtls_stream_count(void)
 {
   return dtls_stream_count;
 }

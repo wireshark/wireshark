@@ -1185,7 +1185,7 @@ http_upgrade_dissector(const char *protocol) {
 	return dissector_get_string_handle(upgrade_subdissector_table, protocol);
 }
 
-const char *
+static const char *
 http_get_header_value(packet_info* pinfo, const char *name, bool the_other_direction) {
 	conversation_t* conv = find_or_create_conversation(pinfo);
 	const http_conv_t *conv_data = (http_conv_t *)conversation_get_proto_data(conv, proto_http);

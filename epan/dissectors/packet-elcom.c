@@ -654,7 +654,7 @@ proto_register_elcom(void)
                 },
 
                 { &hf_elcom_userdata_restmark,
-                  { "Restart marking",        "elcom.userdata.response.restartcode",
+                  { "Restart marking",        "elcom.userdata.response.restartmarking",
                     FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
                 },
 

@@ -436,6 +436,8 @@ cmdmfg
 cmdset
 cmstatus
 codabar
+code16div
+code32div
 codebook
 codec
 codecs
@@ -790,6 +792,8 @@ double
 downlink
 doxygen
 dpauxmon
+dpcch
+dpdch
 dpnss
 dport
 drange
@@ -819,6 +823,7 @@ earfcn
 eastat
 eattr
 ebcdic
+ecall
 ecdhe
 ecdsa
 ecefephem
@@ -1046,6 +1051,7 @@ fuzzed
 fuzzer
 fuzzing
 fvalue
+g3facsimile
 g711a
 g711u
 galileo
@@ -1180,6 +1186,7 @@ hsadmin
 hsdpa
 hsdsch
 hspdsch
+hsscch
 hssite
 hsupa
 htonl
@@ -1193,6 +1200,7 @@ hungarian
 hutchison
 hysteresis
 hytec
+ia5string
 iabtnl
 ibsdh
 icapability
@@ -1470,6 +1478,7 @@ linsenderror
 linux
 linwakeup
 list1
+listfor
 literals
 lithionics
 lithuanian
@@ -1543,6 +1552,7 @@ maxlen
 maxlength
 maxmind
 maxnoof
+maxof
 maybefcs
 mbits
 mbsfn
@@ -1939,6 +1949,7 @@ ositp
 osmocom
 osmux
 ospf6
+otdoa
 othersat
 outhdr
 overlay1mask
@@ -2483,6 +2494,7 @@ sdcch
 sdjournal
 sdkflags
 sdram
+sdsch
 sdulength
 sdusize
 secchan
@@ -2538,6 +2550,7 @@ sfcrc
 sfiocr
 sflag
 sflow
+sfnsfn
 sfrbx
 sftpserver
 sftserver
@@ -3106,6 +3119,7 @@ unspecific
 unsubscribe
 unsubscribed
 unsupportable
+unsynchronised
 unsynchronized
 untag
 untagged

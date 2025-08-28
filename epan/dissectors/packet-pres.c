@@ -94,7 +94,7 @@ static int hf_pres_protocol_options;              /* Protocol_options */
 static int hf_pres_initiators_nominated_context;  /* Presentation_context_identifier */
 static int hf_pres_extensions;                    /* T_extensions */
 static int hf_pres_user_data;                     /* User_data */
-static int hf_pres_cPR_PPDU_x400_mode_parameters;  /* RTOACapdu */
+static int hf_pres_cPR_PPDU_x410_mode_parameters;  /* RTOACapdu */
 static int hf_pres_cPU_PPDU_normal_mode_parameters;  /* T_CPA_PPDU_normal_mode_parameters */
 static int hf_pres_responding_presentation_selector;  /* Responding_presentation_selector */
 static int hf_pres_presentation_context_definition_result_list;  /* Presentation_context_definition_result_list */
@@ -864,7 +864,7 @@ dissect_pres_T_CPA_PPDU_normal_mode_parameters(bool implicit_tag _U_, tvbuff_t *
 
 static const ber_sequence_t CPA_PPDU_set[] = {
   { &hf_pres_mode_selector  , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pres_Mode_selector },
-  { &hf_pres_cPR_PPDU_x400_mode_parameters, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rtse_RTOACapdu },
+  { &hf_pres_cPR_PPDU_x410_mode_parameters, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rtse_RTOACapdu },
   { &hf_pres_cPU_PPDU_normal_mode_parameters, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pres_T_CPA_PPDU_normal_mode_parameters },
   { NULL, 0, 0, 0, NULL }
 };
@@ -1528,8 +1528,8 @@ void proto_register_pres(void) {
       { "user-data", "pres.user_data",
         FT_UINT32, BASE_DEC, VALS(pres_User_data_vals), 0,
         NULL, HFILL }},
-    { &hf_pres_cPR_PPDU_x400_mode_parameters,
-      { "x410-mode-parameters", "pres.cPR_PPDU_x400_mode_parameters_element",
+    { &hf_pres_cPR_PPDU_x410_mode_parameters,
+      { "x410-mode-parameters", "pres.cPR_PPDU_x410_mode_parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RTOACapdu", HFILL }},
     { &hf_pres_cPU_PPDU_normal_mode_parameters,

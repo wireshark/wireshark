@@ -873,7 +873,7 @@ static const value_string camel_Component_vals[] = {
   { 0, NULL }
 };
 
-const value_string  camelSRTtype_naming[]= {
+static const value_string  camelSRTtype_naming[]= {
   { CAMELSRT_SESSION,         "TCAP_Session" },
   { CAMELSRT_VOICE_INITIALDP, "InitialDP/Continue" },
   { CAMELSRT_VOICE_ACR1,      "Slice1_ACR/ACH" },

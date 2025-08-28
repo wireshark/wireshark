@@ -951,7 +951,7 @@ get_header_field_pstr(wmem_allocator_t *scratch, nghttp3_qpack_nv *header_nv, co
     *outlen = pstr_len;
 }
 
-const char*
+static const char*
 http3_get_header_value(packet_info *pinfo, const char* name, bool the_other_direction) {
     wmem_list_t          *header_data_list;
     wmem_list_frame_t    *frame;
