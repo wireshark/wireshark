@@ -486,7 +486,7 @@ Arch Linux :
     - export LDFLAGS=-Wl,-rpath,'$ORIGIN/../lib'
     - git clone https://github.com/falcosecurity/libs.git falco-libs
     - cd /tmp/falco-libs
-    - git switch -c 0.18.1 0.18.1
+    - git switch -c 0.20.0 0.20.0
     - printf "\e[0Ksection_start:%s:fslibs_cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -B build -G Ninja -DBUILD_SHARED_LIBS=on -DMINIMAL_BUILD=on -DBUILD_DRIVER=off -DENABLE_ENGINE_KMOD=off -DBUILD_LIBSCAP_EXAMPLES=off -DUSE_BUNDLED_DEPS=off -DUSE_BUNDLED_VALIJSON=on -DCREATE_TEST_TARGETS=off -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_RPATH='$ORIGIN/../lib' -DCMAKE_INSTALL_PREFIX=$WIRESHARK_PREFIX
     - printf "\e[0Ksection_end:%s:fslibs_cmake_section\r\e[0K" "$( date +%s)"
