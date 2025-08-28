@@ -992,6 +992,9 @@ int main(int argc, char **argv)
 
     if (g_list_length(extcap_conf->interfaces) < 1) {
         ws_debug("No source plugins found.");
+        // This should maybe be WS_EXIT_NO_INTERFACES from ws_exit_codes.h,
+        // if we updated the tests to allow that as a valid exit code.
+        ret = EXIT_SUCCESS;
         goto end;
     }
 
@@ -1035,9 +1038,6 @@ int main(int argc, char **argv)
 
     if (argc == 1) {
         extcap_help_print(extcap_conf);
-        // This should maybe be WS_EXIT_NO_INTERFACES from ws_exit_codes.h,
-        // if we updated the tests to allow that as a valid exit code.
-        ret = EXIT_SUCCESS;
         goto end;
     }
 
