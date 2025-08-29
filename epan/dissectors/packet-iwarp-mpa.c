@@ -75,6 +75,7 @@ void proto_reg_handoff_mpa(void);
 
 /* initialize the protocol and registered fields */
 static int proto_iwarp_mpa;
+static dissector_handle_t iwarp_mpa_handle;
 
 static int hf_mpa_req;
 static int hf_mpa_rep;
@@ -1056,15 +1057,78 @@ dissect_iwarp_mpa_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	return len;
 }
 
+static int
+dissect_iwarp_mpa_decode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	conversation_t *conversation = NULL;
+	struct tcpinfo *tcpinfo = NULL;
+	mpa_state_t *state = NULL;
+	bool is_mpa_req_rep = false;
+
+	if (data == NULL)
+		return 0;
+	tcpinfo = (struct tcpinfo *)data;
+
+	/* Set the port type for this packet to be iWarp MPA */
+	pinfo->ptype = PT_IWARP_MPA;
+
+	/* MPA REQUEST or MPA REPLY */
+	if (tvb_captured_length(tvb) >= MPA_REQ_REP_FRAME_HEADER_LEN) {
+		if (is_mpa_req(tvb, pinfo)) {
+			is_mpa_req_rep = true;
+		} else if (is_mpa_rep(tvb, pinfo)) {
+			is_mpa_req_rep = true;
+		}
+	}
+
+	if (is_mpa_req_rep) {
+		/*
+		 * The MPA REQ and REP are in the
+		 * capture so just decode it.
+		 */
+		goto decode;
+	}
+
+	conversation = find_or_create_conversation(pinfo);
+	state = get_mpa_state(conversation);
+	if (state) {
+		/*
+		 * The MPA REQ and REP are in the
+		 * capture or we were below before...
+		 */
+		goto decode;
+	}
+
+	/*
+	 * The start of the iwarp tcp connection
+	 * is not captured, so we have to fake
+	 * the state for a connection without
+	 * the marker bits negotiated
+	 */
+	state = init_mpa_state();
+	state->minfo[MPA_INITIATOR].port = pinfo->srcport;
+	state->minfo[MPA_RESPONDER].port = pinfo->destport;
+	state->full_operation = true;
+
+	conversation_add_proto_data(conversation, proto_iwarp_mpa, state);
+
+decode:
+	tcp_dissect_pdus(tvb, pinfo, tree,
+			 true, /* proto_desegment*/
+			 MPA_SMALLEST_FPDU_LEN,
+			 iwrap_mpa_pdu_length,
+			 dissect_iwarp_mpa_pdu,
+			 tcpinfo);
+	return tvb_captured_length(tvb);
+}
+
 static bool
 dissect_iwarp_mpa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	struct tcpinfo *tcpinfo = NULL;
 	bool is_mpa_pdu = false;
 
 	if (data == NULL)
 		return false;
-	tcpinfo = (struct tcpinfo *)data;
 
 	/* MPA REQUEST or MPA REPLY */
 	if (tvb_captured_length(tvb) >= MPA_REQ_REP_FRAME_HEADER_LEN) {
@@ -1082,16 +1146,7 @@ dissect_iwarp_mpa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		return false;
 	}
 
-	/* Set the port type for this packet to be iWarp MPA */
-	pinfo->ptype = PT_IWARP_MPA;
-
-	tcp_dissect_pdus(tvb, pinfo, tree,
-			 true, /* proto_desegment*/
-			 MPA_SMALLEST_FPDU_LEN,
-			 iwrap_mpa_pdu_length,
-			 dissect_iwarp_mpa_pdu,
-			 tcpinfo);
-	return true;
+	return dissect_iwarp_mpa_decode(tvb, pinfo, tree, data) > 0;
 }
 
 /* registers this protocol with Wireshark */
@@ -1252,6 +1307,8 @@ void proto_register_mpa(void)
 	/* register the protocol name and description */
 	proto_iwarp_mpa = proto_register_protocol("iWARP Marker Protocol data unit Aligned framing", "IWARP_MPA", "iwarp_mpa");
 
+	iwarp_mpa_handle = register_dissector("iwarp_mpa", dissect_iwarp_mpa_decode, proto_iwarp_mpa);
+
 	/* required function calls to register the header fields and subtrees */
 	proto_register_field_array(proto_iwarp_mpa, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -1267,6 +1324,7 @@ proto_reg_handoff_mpa(void)
 	 * port, try this dissector whenever there is TCP traffic.
 	 */
 	heur_dissector_add("tcp", dissect_iwarp_mpa_heur, "IWARP_MPA over TCP", "iwarp_mpa_tcp", proto_iwarp_mpa, HEURISTIC_ENABLE);
+	dissector_add_for_decode_as("tcp.port", iwarp_mpa_handle);
 	ddp_rdmap_handle = find_dissector_add_dependency("iwarp_ddp_rdmap", proto_iwarp_mpa);
 }
 
