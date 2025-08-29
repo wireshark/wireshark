@@ -145,6 +145,9 @@ void proto_register_sgp32(void)
   proto_register_field_array(proto_sgp32, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  register_dissector("sgp32.request", dissect_sgp32_request, proto_sgp32);
+  register_dissector("sgp32.response", dissect_sgp32_response, proto_sgp32);
+
   sgp32_request_dissector_table = register_dissector_table("sgp32.request", "SGP.32 Request", proto_sgp32, FT_UINT16, BASE_HEX);
   sgp32_response_dissector_table = register_dissector_table("sgp32.response", "SGP.32 Response", proto_sgp32, FT_UINT16, BASE_HEX);
 
