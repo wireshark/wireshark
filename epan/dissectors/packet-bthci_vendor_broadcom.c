@@ -246,6 +246,7 @@ static dissector_handle_t btcommon_ad_handle;
     { (base) | 0x0001,  "Write BD ADDR" }, \
     { (base) | 0x0018,  "Update Baudrate" }, \
     { (base) | 0x001C,  "Write SCO PCM INT Parameter" }, \
+    { (base) | 0x001D,  "Read SCO PCM INT Parameter" }, \
     { (base) | 0x001E,  "Write PCM Data Format Parameter" }, \
     { (base) | 0x0027,  "Write Sleep Mode" }, \
     { (base) | 0x002E,  "Download MiniDriver" }, \
@@ -1261,6 +1262,18 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             offset += 1;
 
             switch (ocf) {
+            case 0x001D: /* Read SCO PCM INT Parameter */
+                proto_tree_add_item(main_tree, hf_broadcom_sco_pcm_routing, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                proto_tree_add_item(main_tree, hf_broadcom_sco_pcm_interface_clock_rate, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                proto_tree_add_item(main_tree, hf_broadcom_sco_pcm_interface_frame_type, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                proto_tree_add_item(main_tree, hf_broadcom_sco_pcm_interface_sync_mode, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                proto_tree_add_item(main_tree, hf_broadcom_sco_pcm_interface_clock_mode, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                break;
             case 0x004D: /* Read Memory */
                 if (status == STATUS_SUCCESS) {
                     proto_tree_add_item(main_tree, hf_broadcom_mem_data, tvb, offset, length, ENC_NA);
