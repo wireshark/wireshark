@@ -7,7 +7,7 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is an experimental release intended to test new features for Wireshark 5.0.
+This is an experimental release intended to test new features for Wireshark 4.6.
 
 == What is Wireshark?
 
@@ -342,8 +342,8 @@ https://gitlab.com/wireshark/wireshark/-/issues[the issue tracker].
 You can learn protocol analysis and meet Wireshark’s developers at
 https://sharkfest.wireshark.org[SharkFest].
 
-// Official Wireshark training and certification are available from
-// https://www.wiresharktraining.com/[Wireshark University].
+Official Wireshark training and certification are available from
+https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 == How You Can Help
 
