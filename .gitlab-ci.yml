@@ -155,7 +155,7 @@ workflow:
 
 .build-rpm:
   extends: .build-linux
-  rules: !reference [.if-2x-daily-schedule]
+  rules: !reference [.if-merged]
   before_script:
     # Hack to let ninja make full use of the system on Fedora and Rocky.
     - export RPM_BUILD_NCPUS=$(( $( getconf _NPROCESSORS_ONLN ) + 2 ))
@@ -174,7 +174,7 @@ workflow:
 
 .test-rpm:
   extends: .test-linux
-  rules: !reference [.if-2x-daily-schedule]
+  rules: !reference [.if-merged]
 
 .build-windows:
   variables:
@@ -298,9 +298,7 @@ workflow:
 Source Package:
   extends: .build-ubuntu
   stage: .pre
-  rules:
-    - !reference [.if-w-w-only-merged]
-    - !reference [.if-2x-daily-schedule]
+  rules: !reference [.if-merged]
   script:
     - ../tools/make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
     - ../tools/update-appdata.py
@@ -338,7 +336,7 @@ Source Package:
 # Job to generate packages for Debian stable
 Debian Stable APT Package:
   extends: .build-linux
-  rules: !reference [.if-2x-daily-schedule]
+  rules: !reference [.if-merged]
   image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
   script:
     - ln --symbolic --no-dereference --force packaging/debian
@@ -365,7 +363,7 @@ Debian Stable APT Package:
 
 Debian Stable APT Test:
   extends: .test-linux
-  rules: !reference [.if-2x-daily-schedule]
+  rules: !reference [.if-merged]
   image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
   stage: test
   script:
@@ -432,7 +430,7 @@ Rocky Linux 9 RPM Test:
 
 Ubuntu APT Package:
   extends: .build-ubuntu
-  rules: !reference [.if-2x-daily-schedule]
+  rules: !reference [.if-merged]
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -453,7 +451,7 @@ Ubuntu APT Package:
 
 Ubuntu APT Test:
   extends: .test-linux
-  rules: !reference [.if-2x-daily-schedule]
+  rules: !reference [.if-merged]
   image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
   stage: test
   script:
@@ -465,7 +463,7 @@ Ubuntu APT Test:
 
 Arch Linux :
   extends: .build-linux
-  rules: !reference [.if-2x-daily-schedule]
+  rules: !reference [.if-merged]
   image: registry.gitlab.com/wireshark/wireshark-containers/arch-dev
   script:
     - COMMON_PACMAN_ARGS="--sync --refresh --sysupgrade --needed --noconfirm"
