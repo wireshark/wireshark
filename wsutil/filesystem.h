@@ -27,6 +27,8 @@ extern "C" {
  *
  * Get the pathname of the directory from which the executable came,
  * and save it for future use.
+ * If you change the default application flavor, you should should do
+ * so before calling this.
  *
  * @param arg0 Executable name hint. Should be argv[0].
  * @return NULL on success, and a g_mallocated string containing an error on failure.

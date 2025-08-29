@@ -1007,8 +1007,8 @@ main(int argc, char *argv[])
      * Attempt to get the pathname of the directory containing the
      * executable file.
      */
-    err_msg = configuration_init(argv[0]);
     set_application_flavor(APPLICATION_FLAVOR_STRATOSHARK);
+    err_msg = configuration_init(argv[0]);
     if (err_msg != NULL) {
         fprintf(stderr,
                 "strato: Can't get pathname of directory containing the strato program: %s.\n"
