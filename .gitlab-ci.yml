@@ -351,11 +351,6 @@ Debian Stable APT Package:
     # will fix any breakages that invariably pop up.
     - mkdir debian-packages
     - mv -v ../*.deb debian-packages/
-  after_script:
-    # Used for https://www.wireshark.org/docs/dfref/
-    - TSHARK_VERSION=$( tshark --version | head -n 1 | sed -e 's/.*(v//' -e 's/)\.*$//' -e 's/-0-g.*//' )
-    - tshark -G fields > dfilter-list-${TSHARK_VERSION}.txt
-    - if [[ -n "$MC_DESTINATION_RELEASE" ]] ; then mc --quiet cp dfilter-list-${TSHARK_VERSION}.txt "$MC_DESTINATION_RELEASE/" ; fi
   artifacts:
     paths:
       - debian-packages/*.deb
@@ -369,6 +364,11 @@ Debian Stable APT Test:
   script:
     - DEBIAN_FRONTEND=noninteractive apt-get install ./debian-packages/*.deb -y
     - tshark --version
+  after_script:
+    # Used for https://www.wireshark.org/docs/dfref/
+    - TSHARK_VERSION=$( tshark --version | head -n 1 | sed -e 's/.*(v//' -e 's/)\.*$//' -e 's/-0-g.*//' )
+    - tshark -G fields > dfilter-list-${TSHARK_VERSION}.txt
+    - if [[ -n "$MC_DESTINATION_RELEASE" ]] ; then mc --quiet cp dfilter-list-${TSHARK_VERSION}.txt "$MC_DESTINATION_RELEASE/" ; fi
   variables:
     GIT_STRATEGY: none
   needs: [ 'Debian Stable APT Package' ]
