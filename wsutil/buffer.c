@@ -66,7 +66,6 @@ ws_buffer_assure_space(Buffer* buffer, size_t space)
 {
 	ws_assert(buffer);
 	size_t available_at_end = buffer->allocated - buffer->first_free;
-	size_t space_used;
 	bool space_at_beginning;
 
 	/* If we've got the space already, good! */
@@ -84,7 +83,7 @@ ws_buffer_assure_space(Buffer* buffer, size_t space)
 
 	space_at_beginning = buffer->start >= space;
 	if (space_at_beginning || buffer->start > 0) {
-		space_used = buffer->first_free - buffer->start;
+		size_t space_used = buffer->first_free - buffer->start;
 		/* this memory copy better be safe for overlapping memory regions! */
 		memmove(buffer->data, buffer->data + buffer->start, space_used);
 		buffer->start = 0;
@@ -168,7 +167,7 @@ ws_buffer_end_ptr(const Buffer* buffer)
 }
 
 void
-ws_buffer_append_buffer(Buffer* buffer, Buffer* src_buffer)
+ws_buffer_append_buffer(Buffer* buffer, const Buffer* src_buffer)
 {
 	ws_assert(buffer);
 	ws_buffer_append(buffer, ws_buffer_start_ptr(src_buffer), ws_buffer_length(src_buffer));
