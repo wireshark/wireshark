@@ -133,6 +133,11 @@ char* srt_table_get_tap_string(register_srt_t* srt)
     return g_string_free(cmd_str, FALSE);
 }
 
+srt_param_handler_cb srt_table_get_param_handler_cb(register_srt_t* srt)
+{
+    return srt->param_cb;
+}
+
 void srt_table_get_filter(register_srt_t* srt, const char *opt_arg, const char **filter, char** err)
 {
     char* cmd_str = srt_table_get_tap_string(srt);
