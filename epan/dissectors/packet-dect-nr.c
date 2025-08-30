@@ -1,8 +1,8 @@
 /* packet-dect-nr.c
  *
  * Routines for DECT NR+ MAC layer, and DLC and Convergence layers
- *  - ETSI TS 103 636-4 V1.5.1 (2024-03)
- *  - ETSI TS 103 636-5 V1.5.1 (2024-03)
+ *  - ETSI TS 103 636-4 V1.6.1 (2025-07)
+ *  - ETSI TS 103 636-5 V1.6.1 (2025-07)
  *
  * Copyright 2025, Stig Bjørlykke <stig@bjorlykke.org>
  *
@@ -104,7 +104,7 @@ static int hf_dect_nr_rdbh_hdr_sn;
 static int hf_dect_nr_rdbh_hdr_tx_addr;
 
 /* 6.3.4: MAC Multiplexing Header */
-static int hf_dect_nr_mac_mux_hdr;
+static int hf_dect_nr_mux_hdr;
 static int hf_dect_nr_mux_mac_ext;
 static int hf_dect_nr_mux_len_bit;
 static int hf_dect_nr_mux_ie_type_long;
@@ -116,9 +116,9 @@ static int hf_dect_nr_mux_mac_ie_len_2;
 /* 6.4.2.2: Network Beacon message */
 static int hf_dect_nr_nb_msg;
 static int hf_dect_nr_nb_res1;
-static int hf_dect_nr_nb_tx_pwr_flag;
+static int hf_dect_nr_nb_tx_pwr_field;
 static int hf_dect_nr_nb_pwr_const;
-static int hf_dect_nr_nb_current_flag;
+static int hf_dect_nr_nb_current_field;
 static int hf_dect_nr_nb_channels;
 static int hf_dect_nr_nb_nb_period;
 static int hf_dect_nr_nb_cb_period;
@@ -136,11 +136,11 @@ static int hf_dect_nr_nb_addn_nb_channels;
 static int hf_dect_nr_cb_msg;
 static int hf_dect_nr_cb_sfn;
 static int hf_dect_nr_cb_res1;
-static int hf_dect_nr_cb_tx_pwr_flag;
+static int hf_dect_nr_cb_tx_pwr_field;
 static int hf_dect_nr_cb_pwr_const;
-static int hf_dect_nr_cb_fo_flag;
-static int hf_dect_nr_cb_next_chan_flag;
-static int hf_dect_nr_cb_time_to_next_flag;
+static int hf_dect_nr_cb_fo_field;
+static int hf_dect_nr_cb_next_chan_field;
+static int hf_dect_nr_cb_time_to_next_field;
 static int hf_dect_nr_cb_nb_period;
 static int hf_dect_nr_cb_cb_period;
 static int hf_dect_nr_cb_ctt;
@@ -158,7 +158,7 @@ static int hf_dect_nr_a_req_msg;
 static int hf_dect_nr_a_req_setup_cause;
 static int hf_dect_nr_a_req_num_flows;
 static int hf_dect_nr_a_req_pwr_const;
-static int hf_dect_nr_a_req_ft_mode_flag;
+static int hf_dect_nr_a_req_ft_mode_field;
 static int hf_dect_nr_a_req_current;
 static int hf_dect_nr_a_req_res1;
 static int hf_dect_nr_a_req_harq_proc_tx;
@@ -177,25 +177,25 @@ static int hf_dect_nr_a_req_curr_cl_chan;
 
 /* 6.4.2.5: Association Response message */
 static int hf_dect_nr_a_rsp_msg;
-static int hf_dect_nr_a_rsp_ack_flag;
+static int hf_dect_nr_a_rsp_ack_field;
 static int hf_dect_nr_a_rsp_res1;
-static int hf_dect_nr_a_rsp_harq_mod_flag;
+static int hf_dect_nr_a_rsp_harq_mod_field;
 static int hf_dect_nr_a_rsp_num_flows;
-static int hf_dect_nr_a_rsp_group_flag;
-static int hf_dect_nr_a_rsp_tx_pwr;
+static int hf_dect_nr_a_rsp_group_field;
+static int hf_dect_nr_a_rsp_res2;
 static int hf_dect_nr_a_rsp_rej_cause;
 static int hf_dect_nr_a_rsp_rej_timer;
 static int hf_dect_nr_a_rsp_harq_proc_rx;
 static int hf_dect_nr_a_rsp_max_harq_rerx;
 static int hf_dect_nr_a_rsp_harq_proc_tx;
 static int hf_dect_nr_a_rsp_max_harq_retx;
-static int hf_dect_nr_a_rsp_res2;
-static int hf_dect_nr_a_rsp_flow_id;
 static int hf_dect_nr_a_rsp_res3;
-static int hf_dect_nr_a_rsp_group_id;
+static int hf_dect_nr_a_rsp_flow_id;
 static int hf_dect_nr_a_rsp_res4;
-static int hf_dect_nr_a_rsp_res_tag;
+static int hf_dect_nr_a_rsp_group_id;
 static int hf_dect_nr_a_rsp_res5;
+static int hf_dect_nr_a_rsp_res_tag;
+static int hf_dect_nr_a_rsp_res6;
 
 /* 6.4.2.6: Association Release message */
 static int hf_dect_nr_a_rel_msg;
@@ -204,8 +204,8 @@ static int hf_dect_nr_a_rel_res1;
 
 /* 6.4.2.7: Reconfiguration Request message */
 static int hf_dect_nr_rc_req_msg;
-static int hf_dect_nr_rc_req_tx_harq_flag;
-static int hf_dect_nr_rc_req_rx_harq_flag;
+static int hf_dect_nr_rc_req_tx_harq_field;
+static int hf_dect_nr_rc_req_rx_harq_field;
 static int hf_dect_nr_rc_req_rd_capability;
 static int hf_dect_nr_rc_req_num_flows;
 static int hf_dect_nr_rc_req_radio_resources;
@@ -219,8 +219,8 @@ static int hf_dect_nr_rc_req_flow_id;
 
 /* 6.4.2.8: Reconfiguration Response message */
 static int hf_dect_nr_rc_rsp_msg;
-static int hf_dect_nr_rc_rsp_tx_harq_flag;
-static int hf_dect_nr_rc_rsp_rx_harq_flag;
+static int hf_dect_nr_rc_rsp_tx_harq_field;
+static int hf_dect_nr_rc_rsp_rx_harq_field;
 static int hf_dect_nr_rc_rsp_rd_capability;
 static int hf_dect_nr_rc_rsp_num_flows;
 static int hf_dect_nr_rc_rsp_radio_resources;
@@ -248,12 +248,12 @@ static int hf_dect_nr_ri_application_sn;
 /* 6.4.3.3: Resource Allocation IE */
 static int hf_dect_nr_ra_ie;
 static int hf_dect_nr_ra_alloc_type;
-static int hf_dect_nr_ra_add_flag;
-static int hf_dect_nr_ra_id_flag;
+static int hf_dect_nr_ra_add_field;
+static int hf_dect_nr_ra_id_field;
 static int hf_dect_nr_ra_repeat;
-static int hf_dect_nr_ra_sfn_flag;
-static int hf_dect_nr_ra_channel_flag;
-static int hf_dect_nr_ra_rlf_flag;
+static int hf_dect_nr_ra_sfn_field;
+static int hf_dect_nr_ra_channel_field;
+static int hf_dect_nr_ra_rlf_field;
 static int hf_dect_nr_ra_res1;
 static int hf_dect_nr_ra_res2;
 static int hf_dect_nr_ra_start_ss_dl_9;
@@ -277,11 +277,12 @@ static int hf_dect_nr_ra_rlf;
 static int hf_dect_nr_rar_ie;
 static int hf_dect_nr_rar_res1;
 static int hf_dect_nr_rar_repeat;
-static int hf_dect_nr_rar_sfn_flag;
-static int hf_dect_nr_rar_channel_flag;
-static int hf_dect_nr_rar_chan_2_flag;
+static int hf_dect_nr_rar_sfn_field;
+static int hf_dect_nr_rar_channel_field;
+static int hf_dect_nr_rar_chan_2_field;
+static int hf_dect_nr_rar_res2;
+static int hf_dect_nr_rar_start_ss_9;
 static int hf_dect_nr_rar_start_ss_8;
-static int hf_dect_nr_rar_start_ss_16;
 static int hf_dect_nr_rar_len_type;
 static int hf_dect_nr_rar_len;
 static int hf_dect_nr_rar_max_len_type;
@@ -292,15 +293,18 @@ static int hf_dect_nr_rar_resp_win;
 static int hf_dect_nr_rar_cw_max_sig;
 static int hf_dect_nr_rar_repetition;
 static int hf_dect_nr_rar_validity;
-static int hf_dect_nr_rar_sfn_offset;
-static int hf_dect_nr_rar_res2;
+static int hf_dect_nr_rar_sfn_value;
+static int hf_dect_nr_rar_res3;
 static int hf_dect_nr_rar_channel;
+static int hf_dect_nr_rar_channel_2;
 
 /* 6.4.3.5: RD Capability IE */
 static int hf_dect_nr_rdc_ie;
 static int hf_dect_nr_rdc_num_phy_cap;
 static int hf_dect_nr_rdc_release;
 static int hf_dect_nr_rdc_res1;
+static int hf_dect_nr_rdc_group_ass;
+static int hf_dect_nr_rdc_paging;
 static int hf_dect_nr_rdc_op_modes;
 static int hf_dect_nr_rdc_mesh;
 static int hf_dect_nr_rdc_sched;
@@ -317,21 +321,25 @@ static int hf_dect_nr_rdc_soft_buf_size;
 static int hf_dect_nr_rdc_num_harq_proc;
 static int hf_dect_nr_rdc_res4;
 static int hf_dect_nr_rdc_harq_fb_delay;
+static int hf_dect_nr_rdc_d_delay;
+static int hf_dect_nr_rdc_half_dup;
 static int hf_dect_nr_rdc_res5;
+static int hf_dect_nr_rdc_phy_cap;
 static int hf_dect_nr_rdc_rd_class_mu;
 static int hf_dect_nr_rdc_rd_class_b;
 static int hf_dect_nr_rdc_res6;
+static int hf_dect_nr_rdc_res7;
 
 /* 6.4.3.6: Neighbouring IE */
 static int hf_dect_nr_n_ie;
 static int hf_dect_nr_n_res1;
-static int hf_dect_nr_n_id_flag;
-static int hf_dect_nr_n_mu_flag;
-static int hf_dect_nr_n_snr_flag;
-static int hf_dect_nr_n_rssi2_flag;
+static int hf_dect_nr_n_id_field;
+static int hf_dect_nr_n_mu_field;
+static int hf_dect_nr_n_snr_field;
+static int hf_dect_nr_n_rssi2_field;
 static int hf_dect_nr_n_pwr_const;
-static int hf_dect_nr_n_next_channel_flag;
-static int hf_dect_nr_n_ttn_flag;
+static int hf_dect_nr_n_next_channel_field;
+static int hf_dect_nr_n_ttn_field;
 static int hf_dect_nr_n_nb_period;
 static int hf_dect_nr_n_cb_period;
 static int hf_dect_nr_n_long_rd_id;
@@ -368,7 +376,7 @@ static int hf_dect_nr_pd_bytes;
 
 /* 6.4.3.9: Group Assignment IE */
 static int hf_dect_nr_ga_ie;
-static int hf_dect_nr_ga_single_flag;
+static int hf_dect_nr_ga_single_field;
 static int hf_dect_nr_ga_group_id;
 static int hf_dect_nr_ga_direct;
 static int hf_dect_nr_ga_resource_tag;
@@ -376,10 +384,10 @@ static int hf_dect_nr_ga_resource_tag;
 /* 6.4.3.10: Load Info IE */
 static int hf_dect_nr_li_ie;
 static int hf_dect_nr_li_res1;
-static int hf_dect_nr_li_max_assoc_flag;
-static int hf_dect_nr_li_rd_pt_load_flag;
-static int hf_dect_nr_li_rach_load_flag;
-static int hf_dect_nr_li_channel_load_flag;
+static int hf_dect_nr_li_max_assoc_field;
+static int hf_dect_nr_li_rd_pt_load_field;
+static int hf_dect_nr_li_rach_load_field;
+static int hf_dect_nr_li_channel_load_field;
 static int hf_dect_nr_li_traffic_load_pct;
 static int hf_dect_nr_li_max_assoc_8;
 static int hf_dect_nr_li_max_assoc_16;
@@ -392,10 +400,10 @@ static int hf_dect_nr_li_subslots_busy_pct;
 /* 6.4.3.12: Measurement Report IE */
 static int hf_dect_nr_mr_ie;
 static int hf_dect_nr_mr_res1;
-static int hf_dect_nr_mr_snr_flag;
-static int hf_dect_nr_mr_rssi2_flag;
-static int hf_dect_nr_mr_rssi1_flag;
-static int hf_dect_nr_mr_tx_count_flag;
+static int hf_dect_nr_mr_snr_field;
+static int hf_dect_nr_mr_rssi2_field;
+static int hf_dect_nr_mr_rssi1_field;
+static int hf_dect_nr_mr_tx_count_field;
 static int hf_dect_nr_mr_rach;
 static int hf_dect_nr_mr_snr;
 static int hf_dect_nr_mr_rssi2;
@@ -419,7 +427,7 @@ static int hf_dect_nr_ie_extension;
 static int hf_dect_nr_mic_bytes;
 
 /* DLC */
-static int hf_dect_nr_dlc_st_0;
+static int hf_dect_nr_dlc_pdu;
 static int hf_dect_nr_dlc_ie_type;
 static int hf_dect_nr_dlc_res1;
 static int hf_dect_nr_dlc_si;
@@ -431,7 +439,7 @@ static int hf_dect_nr_dlc_timers;
 static int hf_dect_nr_dlc_routing;
 static int hf_dect_nr_dlc_routing_res1;
 static int hf_dect_nr_dlc_routing_qos;
-static int hf_dect_nr_dlc_routing_delay_flag;
+static int hf_dect_nr_dlc_routing_delay_field;
 static int hf_dect_nr_dlc_routing_hop_count_limit;
 static int hf_dect_nr_dlc_routing_dest_add;
 static int hf_dect_nr_dlc_routing_type;
@@ -474,7 +482,7 @@ static int ett_dect_nr_data_hdr;
 static int ett_dect_nr_bc_hdr;
 static int ett_dect_nr_uc_hdr;
 static int ett_dect_nr_rdbh_hdr;
-static int ett_dect_nr_mac_mux_hdr;
+static int ett_dect_nr_mux_hdr;
 static int ett_dect_nr_nb_msg;
 static int ett_dect_nr_cb_msg;
 static int ett_dect_nr_a_req_msg;
@@ -487,13 +495,14 @@ static int ett_dect_nr_ri_ie;
 static int ett_dect_nr_ra_ie;
 static int ett_dect_nr_rar_ie;
 static int ett_dect_nr_rdc_ie;
+static int ett_dect_nr_rdc_phy_cap;
 static int ett_dect_nr_n_ie;
 static int ett_dect_nr_bi_ie;
 static int ett_dect_nr_ga_ie;
 static int ett_dect_nr_li_ie;
 static int ett_dect_nr_mr_ie;
 static int ett_dect_nr_rds_ie;
-static int ett_dect_nr_dlc_st_0;
+static int ett_dect_nr_dlc_pdu;
 static int ett_dect_nr_dlc_routing;
 static int ett_dect_nr_segment;
 static int ett_dect_nr_segments;
@@ -509,9 +518,9 @@ static heur_dissector_list_t heur_subdissector_list;
 
 /* Preference to configure PHY header type */
 typedef enum {
-    PHF_TYPE_TYPE_1,
-    PHF_TYPE_TYPE_2,
-    PHF_TYPE_TYPE_AUTO,
+	PHF_TYPE_TYPE_1,
+	PHF_TYPE_TYPE_2,
+	PHF_TYPE_TYPE_AUTO,
 } phf_type_t;
 
 static int phf_type_pref = PHF_TYPE_TYPE_AUTO;
@@ -524,9 +533,9 @@ static const enum_val_t phf_type_pref_vals[] = {
 
 /* Preference to configure DLC data type */
 typedef enum {
-    DLC_DATA_TYPE_AUTO,
-    DLC_DATA_TYPE_BINARY,
-    DLC_DATA_TYPE_IPv6,
+	DLC_DATA_TYPE_AUTO,
+	DLC_DATA_TYPE_BINARY,
+	DLC_DATA_TYPE_IPv6,
 } dlc_data_type_t;
 
 static int dlc_data_type_pref = DLC_DATA_TYPE_AUTO;
@@ -617,6 +626,10 @@ static const value_string mcse_vals[] = {
 	{ 9, "256-QAM, R=5/6" },
 	{ 10, "1024-QAM, R=3/4" },
 	{ 11, "1024-QAM, R=5/6" },
+	{ 12, "Reserved" },
+	{ 13, "Reserved" },
+	{ 14, "Reserved" },
+	{ 15, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -687,15 +700,15 @@ static const value_string buffer_status_vals[] = {
 	{ 4, "64 < BS ≤ 128" },
 	{ 5, "128 < BS ≤ 256" },
 	{ 6, "256 < BS ≤ 512" },
-	{ 7, "512 < BS ≤ 1024" },
-	{ 8, "1024 < BS ≤ 2048" },
-	{ 9, "2048 < BS ≤ 4096" },
-	{ 10, "4096 < BS ≤ 8192" },
-	{ 11, "8192 < BS ≤ 16384" },
-	{ 12, "16384 < BS ≤ 32768" },
-	{ 13, "32768 < BS ≤ 65536" },
-	{ 14, "65536 < BS ≤ 131072" },
-	{ 15, "BS > 131072" },
+	{ 7, "512 < BS ≤ 1 024" },
+	{ 8, "1 024 < BS ≤ 2 048" },
+	{ 9, "2 048 < BS ≤ 4 096" },
+	{ 10, "4 096 < BS ≤ 8 192" },
+	{ 11, "8 192 < BS ≤ 16 384" },
+	{ 12, "16 384 < BS ≤ 32 768" },
+	{ 13, "32 768 < BS ≤ 65 536" },
+	{ 14, "65 536 < BS ≤ 131 072" },
+	{ 15, "BS > 131 072" },
 	{ 0, NULL }
 };
 
@@ -809,6 +822,15 @@ static const value_string nb_ie_nb_period_vals[] = {
 	{ 4, "1500 ms" },
 	{ 5, "2000 ms" },
 	{ 6, "4000 ms" },
+	{ 7, "Reserved" },
+	{ 8, "Reserved" },
+	{ 9, "Reserved" },
+	{ 10, "Reserved" },
+	{ 11, "Reserved" },
+	{ 12, "Reserved" },
+	{ 13, "Reserved" },
+	{ 14, "Reserved" },
+	{ 15, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -825,6 +847,11 @@ static const value_string nb_ie_cb_period_vals[] = {
 	{ 8, "8000 ms" },
 	{ 9, "16000 ms" },
 	{ 10, "32000 ms" },
+	{ 11, "Reserved" },
+	{ 12, "Reserved" },
+	{ 13, "Reserved" },
+	{ 14, "Reserved" },
+	{ 15, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -881,8 +908,8 @@ static const value_string rar_repeat_vals[] = {
 
 /* Table 6.4.3.4-1: RACH Resource allocation bitmap */
 static const true_false_string rar_sfn_tfs = {
-	"Resource allocation is valid from the frame indicated in SFN offset field onwards",
-	"Resource allocation is immediately valid from this frame onwards (no SFN offset field)"
+	"Resource allocation is valid from the frame indicated in SFN value field onwards",
+	"Resource allocation is immediately valid from this frame onwards (no SFN value field)"
 };
 
 /* Table 6.4.3.4-1: RACH Resource allocation bitmap */
@@ -955,11 +982,12 @@ static const value_string ar_setup_cause_vals[] = {
 	{ 3, "Re-association after error: Loss of connection, Security error or Other error" },
 	{ 4, "Change of operating channel of this FT device" },
 	{ 5, "Change of operating mode (PT->FT or FT->PT)" },
-	{ 6, "Other" },
+	{ 6, "Paging response" },
+	{ 7, "Reserved" },
 	{ 0, NULL }
 };
 
-/* Table 6.4.2.4-1: Association Request IE field definitions */
+/* Table 6.4.2.4-1: Association Request IE: Number of flows */
 static const value_string a_req_num_flow_vals[] = {
 	{ 7, "Reserved" },
 	{ 0, NULL }
@@ -1026,7 +1054,18 @@ static const value_string assoc_rej_cause_vals[] = {
 	{ 1, "No sufficient HW capacity" },
 	{ 2, "Conflict with Short RD ID detected" },
 	{ 3, "Non-secured Association Requests not accepted" },
-	{ 4, "Other" },
+	{ 4, "Other reason" },
+	{ 5, "Reserved" },
+	{ 6, "Reserved" },
+	{ 7, "Reserved" },
+	{ 8, "Reserved" },
+	{ 9, "Reserved" },
+	{ 10, "Reserved" },
+	{ 11, "Reserved" },
+	{ 12, "Reserved" },
+	{ 13, "Reserved" },
+	{ 14, "Reserved" },
+	{ 15, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -1042,6 +1081,13 @@ static const value_string assoc_rej_time_vals[] = {
 	{ 6, "180 s" },
 	{ 7, "300 s" },
 	{ 8, "600 s" },
+	{ 9, "Reserved" },
+	{ 10, "Reserved" },
+	{ 11, "Reserved" },
+	{ 12, "Reserved" },
+	{ 13, "Reserved" },
+	{ 14, "Reserved" },
+	{ 15, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -1055,8 +1101,14 @@ static const value_string assoc_rel_cause_vals[] = {
 	{ 5, "No sufficient radio resources" },
 	{ 6, "Bad radio quality" },
 	{ 7, "Security error" },
-	{ 8, "Other error" },
-	{ 9, "Other reason" },
+	{ 8, "Short RD ID Conflict detected in PT side" },
+	{ 9, "Short RD ID Conflict detected in FT side" },
+	{ 10, "Not associated" },
+	{ 11, "Reserved" },
+	{ 12, "Not operating in FT mode" },
+	{ 13, "Other error" },
+	{ 14, "Reserved" },
+	{ 15, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -1070,6 +1122,12 @@ static const true_false_string rc_harq_req_tfs = {
 static const true_false_string rc_rd_capability_req_tfs = {
 	"The RD capability is changed",
 	"Ignore",
+};
+
+/* Table 6.4.2.7-1: Reconfiguration Request IE: Number of flows */
+static const value_string rc_req_num_flow_vals[] = {
+	{ 7, "Reserved" },
+	{ 0, NULL }
 };
 
 /* Table 6.4.2.7-1: Reconfiguration Request IE field definitions */
@@ -1099,6 +1157,7 @@ static const true_false_string rc_rd_capability_rsp_tfs = {
 	"Ignore"
 };
 
+/* Table 6.4.2.8-1: Reconfiguration Response IE: Number of flows */
 static const value_string rc_rsp_num_flow_vals[] = {
 	{ 7, "All flows accepted as configured in the Reconfiguration Request" },
 	{ 0, NULL }
@@ -1172,6 +1231,9 @@ static const value_string rdc_release_vals[] = {
 	{ 2, "Release 2" },
 	{ 3, "Release 3" },
 	{ 4, "Release 4" },
+	{ 5, "Reserved" },
+	{ 6, "Reserved" },
+	{ 7, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -1184,7 +1246,7 @@ static const value_string rdc_op_mode_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string rdc_mac_security_vals[]  = {
+static const value_string rdc_mac_security_vals[] = {
 	{ 0, "Not supported" },
 	{ 1, "Mode 1 supported" },
 	{ 2, "Reserved" },
@@ -1214,7 +1276,11 @@ static const value_string rdc_pwr_class_vals[] = {
 	{ 0, "Power class I" },
 	{ 1, "Power class II" },
 	{ 2, "Power class III" },
-	{ 3, "Reserved" },
+	{ 3, "Power class IV" },
+	{ 4, "Reserved" },
+	{ 5, "Reserved" },
+	{ 6, "Reserved" },
+	{ 7, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -1225,6 +1291,9 @@ static const value_string rdc_pwr_two_field_vals[] = {
 	{ 2, "4" },
 	{ 3, "8" },
 	{ 4, "Reserved" },
+	{ 5, "Reserved" },
+	{ 6, "Reserved" },
+	{ 7, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -1239,6 +1308,13 @@ static const value_string rdc_rx_gain_vals[] = {
 	{ 6, "2 dB" },
 	{ 7, "4 dB" },
 	{ 8, "6 dB" },
+	{ 9, "Reserved" },
+	{ 10, "Reserved" },
+	{ 11, "Reserved" },
+	{ 12, "Reserved" },
+	{ 13, "Reserved" },
+	{ 14, "Reserved" },
+	{ 15, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -1256,6 +1332,10 @@ static const value_string rdc_max_mcse_vals[] = {
 	{ 9, "MCS9" },
 	{ 10, "MCS10" },
 	{ 11, "MCS11" },
+	{ 12, "Reserved" },
+	{ 13, "Reserved" },
+	{ 14, "Reserved" },
+	{ 15, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -1270,6 +1350,34 @@ static const value_string rdc_soft_buf_size_vals[] = {
 	{ 6, "512 000 B" },
 	{ 7, "1 024 000 B" },
 	{ 8, "2 048 000 B" },
+	{ 9, "Reserved" },
+	{ 10, "Reserved" },
+	{ 11, "Reserved" },
+	{ 12, "Reserved" },
+	{ 13, "Reserved" },
+	{ 14, "Reserved" },
+	{ 15, "Reserved" },
+	{ 0, NULL }
+};
+
+/* Table 6.4.3.5-1: RD Capability IE: HARQ feedback delay */
+static const value_string rdc_harq_fb_delay_vals[] = {
+	{ 0, "0 subslots" },
+	{ 1, "1 subslot" },
+	{ 2, "2 subslots" },
+	{ 3, "3 subslots" },
+	{ 4, "4 subslots" },
+	{ 5, "5 subslots" },
+	{ 6, "6 subslots" },
+	{ 7, "Reserved" },
+	{ 8, "Reserved" },
+	{ 9, "Reserved" },
+	{ 10, "Reserved" },
+	{ 11, "Reserved" },
+	{ 12, "Reserved" },
+	{ 13, "Reserved" },
+	{ 14, "Reserved" },
+	{ 15, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -1282,6 +1390,15 @@ static const value_string rdc_fourier_factor_vals[] = {
 	{ 4, "12" },
 	{ 5, "16" },
 	{ 6, "Reserved" },
+	{ 7, "Reserved" },
+	{ 8, "Reserved" },
+	{ 9, "Reserved" },
+	{ 10, "Reserved" },
+	{ 11, "Reserved" },
+	{ 12, "Reserved" },
+	{ 13, "Reserved" },
+	{ 14, "Reserved" },
+	{ 15, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -1295,6 +1412,12 @@ static const true_false_string radio_device_class_tfs = {
 static const value_string bi_ind_type_vals[] = {
 	{ 0, "Paging" },
 	{ 1, "RA Response" },
+	{ 2, "Reserved" },
+	{ 3, "Reserved" },
+	{ 4, "Reserved" },
+	{ 5, "Reserved" },
+	{ 6, "Reserved" },
+	{ 7, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -1338,7 +1461,7 @@ static const value_string bi_mimo4_num_layer_vals[] = {
 /* Table 6.4.3.9-1: Group Assignment IE field definitions: Single */
 static const true_false_string dect_nr_ga_single_tfs = {
 	"Single resource assignment for the group member",
-	"Multiple resource assignments follows for a group"
+	"Multiple resource assignments follow for a group"
 };
 
 /* Table 6.4.3.9-1: Group Assignment IE field definitions: Direct */
@@ -1388,6 +1511,10 @@ static const value_string rds_duration_vals[] = {
 	{ 9, "3 000 ms" },
 	{ 10, "4 000 ms" },
 	{ 11, "Unknown" },
+	{ 12, "Reserved" },
+	{ 13, "Reserved" },
+	{ 14, "Reserved" },
+	{ 15, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -1534,10 +1661,10 @@ typedef struct {
 } dect_nr_context_t;
 
 typedef struct {
-    uint32_t tx_id;
-    uint32_t rx_id;
-    uint32_t ie_type;
-    uint32_t sn;
+	uint32_t tx_id;
+	uint32_t rx_id;
+	uint32_t ie_type;
+	uint32_t sn;
 } dect_nr_fragment_key_t;
 
 static unsigned dect_nr_reassembly_hash_func(const void *k)
@@ -1876,7 +2003,7 @@ static int dissect_mac_common_header(tvbuff_t *tvb, int offset, packet_info *pin
 static int dissect_dlc_routing_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int start = offset;
-	bool delay_flag;
+	bool delay_field;
 	uint32_t hop_count_limit;
 	uint32_t dest_add;
 
@@ -1885,7 +2012,7 @@ static int dissect_dlc_routing_header(tvbuff_t *tvb, int offset, packet_info *pi
 
 	dect_tree_add_reserved_item(tree, hf_dect_nr_dlc_routing_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_dect_nr_dlc_routing_qos, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_dlc_routing_delay_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &delay_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_dlc_routing_delay_field, tvb, offset, 1, ENC_BIG_ENDIAN, &delay_field);
 	offset++;
 
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_dlc_routing_hop_count_limit, tvb, offset, 1, ENC_BIG_ENDIAN, &hop_count_limit);
@@ -1913,7 +2040,7 @@ static int dissect_dlc_routing_header(tvbuff_t *tvb, int offset, packet_info *pi
 		offset++;
 	}
 
-	if (delay_flag) {
+	if (delay_field) {
 		proto_tree_add_item(tree, hf_dect_nr_dlc_routing_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
@@ -1969,13 +2096,13 @@ static int dissect_dlc_service_type(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	uint32_t length;
 	bool data_incomplete = false;
 	tvbuff_t *subtvb;
-	char *data_info;
-	char *segm_info = "";
+	wmem_strbuf_t *data_info;
+	wmem_strbuf_t *segm_info;
 
 	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
 
-	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_dlc_st_0, tvb, offset, -1, ENC_NA);
-	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_dlc_st_0);
+	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_dlc_pdu, tvb, offset, -1, ENC_NA);
+	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_dlc_pdu);
 
 	length = tvb_captured_length_remaining(tvb, offset);
 
@@ -2076,18 +2203,19 @@ static int dissect_dlc_service_type(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	}
 
 	data_item = proto_tree_add_item(tree, hf_dect_nr_hls_bin, tvb, offset, data_len, ENC_NA);
+	segm_info = wmem_strbuf_create(pinfo->pool);
 
 	if (dlc_ie_type == 2 || dlc_ie_type == 3) {
 		fragment_head *frag_msg;
 
 		if (si == 0) {
-			segm_info = wmem_strdup_printf(pinfo->pool, "SN %u, ", sn);
+			wmem_strbuf_append_printf(segm_info, "SN %u, ", sn);
 		} else if (si == 1) {
-			segm_info = wmem_strdup_printf(pinfo->pool, "SN %u (first segment), ", sn);
+			wmem_strbuf_append_printf(segm_info, "SN %u (first segment), ", sn);
 		} else if (si == 2) {
-			segm_info = wmem_strdup_printf(pinfo->pool, "SN %u (last segment at %u), ", sn, segm_offset);
+			wmem_strbuf_append_printf(segm_info, "SN %u (last segment at %u), ", sn, segm_offset);
 		} else if (si == 3) {
-			segm_info = wmem_strdup_printf(pinfo->pool, "SN %u (segment at %u), ", sn, segm_offset);
+			wmem_strbuf_append_printf(segm_info, "SN %u (segment at %u), ", sn, segm_offset);
 		}
 
 		/* Reassemble segments */
@@ -2099,7 +2227,9 @@ static int dissect_dlc_service_type(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		subtvb = tvb_new_subset_length(tvb, offset, data_len);
 	}
 
-	data_info = wmem_strdup_printf(pinfo->pool, " [ %s%d bytes ]", segm_info, ctx->ie_length);
+	data_info = wmem_strbuf_create(pinfo->pool);
+	wmem_strbuf_append_printf(data_info, " [ %s%d bytes ]",
+				  wmem_strbuf_finalize(segm_info), ctx->ie_length);
 
 	if (subtvb) {
 		dissect_dlc_data(subtvb, pinfo, proto_tree_get_root(tree));
@@ -2107,11 +2237,11 @@ static int dissect_dlc_service_type(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	offset += data_len;
 
 	if (data_incomplete) {
-		data_info = wmem_strdup_printf(pinfo->pool, "%s [data incomplete]", data_info);
+		wmem_strbuf_append(data_info, " [data incomplete]");
 		expert_add_info(pinfo, data_item, &ei_dect_nr_pdu_cut_short);
 	}
 
-	col_append_str(pinfo->cinfo, COL_INFO, data_info);
+	col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_finalize(data_info));
 	proto_item_set_len(item, offset);
 
 	return offset;
@@ -2157,8 +2287,8 @@ static int dissect_user_plane_data_flow_4(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_network_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	int offset = 0;
-	bool tx_pwr_flag;
-	bool curr_bc_flag;
+	bool tx_pwr_field;
+	bool nb_current_field;
 	uint32_t nb_channels;
 	uint32_t nb_period;
 	uint32_t cb_period;
@@ -2169,9 +2299,9 @@ static int dissect_network_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_nb_msg);
 
 	dect_tree_add_reserved_item(tree, hf_dect_nr_nb_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_nb_tx_pwr_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &tx_pwr_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_nb_tx_pwr_field, tvb, offset, 1, ENC_BIG_ENDIAN, &tx_pwr_field);
 	proto_tree_add_item(tree, hf_dect_nr_nb_pwr_const, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_nb_current_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &curr_bc_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_nb_current_field, tvb, offset, 1, ENC_BIG_ENDIAN, &nb_current_field);
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_nb_channels, tvb, offset, 1, ENC_BIG_ENDIAN, &nb_channels);
 	offset++;
 
@@ -2186,13 +2316,13 @@ static int dissect_network_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_nb_time_to_next, tvb, offset, 4, ENC_BIG_ENDIAN, &ttn);
 	offset += 4;
 
-	if (tx_pwr_flag) {
+	if (tx_pwr_field) {
 		dect_tree_add_reserved_item(tree, hf_dect_nr_nb_res3, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_nb_cl_max_tx_pwr, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 
-	if (curr_bc_flag) {
+	if (nb_current_field) {
 		dect_tree_add_reserved_item(tree, hf_dect_nr_nb_res4, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_nb_curr_cl_chan, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
@@ -2216,12 +2346,13 @@ static int dissect_network_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_t
 static int dissect_cluster_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	int offset = 0;
-	bool tx_pwr_flag;
-	bool fo_flag;
-	bool next_chan_flag;
-	char *next_chan_txt = "";
-	bool ttn_flag;
+	bool tx_pwr_field;
+	bool fo_field;
+	bool next_chan_field;
+	bool ttn_field;
 	uint32_t cb_period;
+
+	wmem_strbuf_t *next_chan_info = wmem_strbuf_create(pinfo->pool);
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_cb_msg, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_cb_msg);
@@ -2230,11 +2361,11 @@ static int dissect_cluster_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	offset++;
 
 	dect_tree_add_reserved_item(tree, hf_dect_nr_cb_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_cb_tx_pwr_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &tx_pwr_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_cb_tx_pwr_field, tvb, offset, 1, ENC_BIG_ENDIAN, &tx_pwr_field);
 	proto_tree_add_item(tree, hf_dect_nr_cb_pwr_const, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_cb_fo_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &fo_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_cb_next_chan_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &next_chan_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_cb_time_to_next_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &ttn_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_cb_fo_field, tvb, offset, 1, ENC_BIG_ENDIAN, &fo_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_cb_next_chan_field, tvb, offset, 1, ENC_BIG_ENDIAN, &next_chan_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_cb_time_to_next_field, tvb, offset, 1, ENC_BIG_ENDIAN, &ttn_field);
 	offset++;
 
 	proto_tree_add_item(tree, hf_dect_nr_cb_nb_period, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2246,33 +2377,34 @@ static int dissect_cluster_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	proto_tree_add_item(tree, hf_dect_nr_cb_min_qual, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	if (tx_pwr_flag) {
+	if (tx_pwr_field) {
 		dect_tree_add_reserved_item(tree, hf_dect_nr_cb_res2, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_cb_cl_max_tx_pwr, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 
-	if (fo_flag) {
+	if (fo_field) {
 		proto_tree_add_item(tree, hf_dect_nr_cb_frame_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 
-	if (next_chan_flag) {
+	if (next_chan_field) {
 		uint32_t next_chan;
 
 		dect_tree_add_reserved_item(tree, hf_dect_nr_cb_res3, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 		proto_tree_add_item_ret_uint(tree, hf_dect_nr_cb_next_cl_chan, tvb, offset, 2, ENC_BIG_ENDIAN, &next_chan);
-		next_chan_txt = wmem_strdup_printf(pinfo->pool, ", Next channel: %u", next_chan);
+		wmem_strbuf_append_printf(next_chan_info, ", Next channel: %u", next_chan);
 		offset += 2;
 	}
 
-	if (ttn_flag) {
+	if (ttn_field) {
 		proto_tree_add_item(tree, hf_dect_nr_cb_time_to_next, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s%s)",
-			val_to_str_const(cb_period, nb_ie_cb_period_vals, "Unknown"), next_chan_txt);
+			val_to_str_const(cb_period, nb_ie_cb_period_vals, "Unknown"),
+			wmem_strbuf_finalize(next_chan_info));
 	proto_item_set_len(item, offset);
 
 	return offset;
@@ -2284,7 +2416,7 @@ static int dissect_association_request_msg(tvbuff_t *tvb, packet_info *pinfo, pr
 	int offset = 0;
 	uint32_t setup_cause;
 	uint32_t num_flows;
-	bool ft_mode_flag;
+	bool ft_mode_field;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_a_req_msg, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_a_req_msg);
@@ -2292,7 +2424,7 @@ static int dissect_association_request_msg(tvbuff_t *tvb, packet_info *pinfo, pr
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_a_req_setup_cause, tvb, offset, 1, ENC_BIG_ENDIAN, &setup_cause);
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_a_req_num_flows, tvb, offset, 1, ENC_BIG_ENDIAN, &num_flows);
 	proto_tree_add_item(tree, hf_dect_nr_a_req_pwr_const, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_a_req_ft_mode_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &ft_mode_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_a_req_ft_mode_field, tvb, offset, 1, ENC_BIG_ENDIAN, &ft_mode_field);
 	offset++;
 
 	proto_tree_add_item(tree, hf_dect_nr_a_req_current, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2316,9 +2448,9 @@ static int dissect_association_request_msg(tvbuff_t *tvb, packet_info *pinfo, pr
 		}
 	}
 
-	if (ft_mode_flag) {
+	if (ft_mode_field) {
 		/* Table 6.4.2.4-1: "The RD operates also in FT mode. RD shall include Network Beacon period,
-		 * Cluster beacon Period, Next Cluster channel and Time to Next fields"
+		 * Cluster beacon Period, Next Cluster channel and Time to next fields"
 		 */
 		proto_tree_add_item(tree, hf_dect_nr_a_req_nb_period, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_a_req_cb_period, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2344,27 +2476,27 @@ static int dissect_association_request_msg(tvbuff_t *tvb, packet_info *pinfo, pr
 static int dissect_association_response_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	int offset = 0;
-	bool ack_flag;
+	bool ack_field;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_a_rsp_msg, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_a_rsp_msg);
 
 	/* The first octet contains the ACK flag */
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_a_rsp_ack_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &ack_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_a_rsp_ack_field, tvb, offset, 1, ENC_BIG_ENDIAN, &ack_field);
 
-	if (ack_flag) { /* Association accepted */
-		bool harq_mod_flag;
+	if (ack_field) { /* Association accepted */
+		bool harq_mod_field;
 		uint32_t num_flows;
-		bool group_flag;
+		bool group_field;
 
 		dect_tree_add_reserved_item(tree, hf_dect_nr_a_rsp_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-		proto_tree_add_item_ret_boolean(tree, hf_dect_nr_a_rsp_harq_mod_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &harq_mod_flag);
+		proto_tree_add_item_ret_boolean(tree, hf_dect_nr_a_rsp_harq_mod_field, tvb, offset, 1, ENC_BIG_ENDIAN, &harq_mod_field);
 		proto_tree_add_item_ret_uint(tree, hf_dect_nr_a_rsp_num_flows, tvb, offset, 1, ENC_BIG_ENDIAN, &num_flows);
-		proto_tree_add_item_ret_boolean(tree, hf_dect_nr_a_rsp_group_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &group_flag);
-		proto_tree_add_item(tree, hf_dect_nr_a_rsp_tx_pwr, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_boolean(tree, hf_dect_nr_a_rsp_group_field, tvb, offset, 1, ENC_BIG_ENDIAN, &group_field);
+		dect_tree_add_reserved_item(tree, hf_dect_nr_a_rsp_res2, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 		offset++;
 
-		if (harq_mod_flag) {
+		if (harq_mod_field) {
 			/* HARQ configuration was not accepted as requested -> HARQ configuration is present */
 			proto_tree_add_item(tree, hf_dect_nr_a_rsp_harq_proc_rx, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_dect_nr_a_rsp_max_harq_rerx, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2378,19 +2510,19 @@ static int dissect_association_response_msg(tvbuff_t *tvb, packet_info *pinfo, p
 		/* Value 7 indicates 'All flows accepted as configured in Association Request' */
 		if (num_flows < 7) {
 			for (uint32_t i = 0; i < num_flows; i++) {
-				dect_tree_add_reserved_item(tree, hf_dect_nr_a_rsp_res2, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+				dect_tree_add_reserved_item(tree, hf_dect_nr_a_rsp_res3, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 				proto_tree_add_item(tree, hf_dect_nr_a_rsp_flow_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 			}
 		}
 
-		if (group_flag) {
+		if (group_field) {
 			/* Group ID and Resource Tag are included */
-			dect_tree_add_reserved_item(tree, hf_dect_nr_a_rsp_res3, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+			dect_tree_add_reserved_item(tree, hf_dect_nr_a_rsp_res4, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_dect_nr_a_rsp_group_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			dect_tree_add_reserved_item(tree, hf_dect_nr_a_rsp_res4, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+			dect_tree_add_reserved_item(tree, hf_dect_nr_a_rsp_res5, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_dect_nr_a_rsp_res_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 		}
@@ -2399,7 +2531,7 @@ static int dissect_association_response_msg(tvbuff_t *tvb, packet_info *pinfo, p
 	} else { /* Association Rejected */
 		uint32_t rej_cause;
 
-		dect_tree_add_reserved_item(tree, hf_dect_nr_a_rsp_res5, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+		dect_tree_add_reserved_item(tree, hf_dect_nr_a_rsp_res6, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 		offset++;
 
 		proto_tree_add_item_ret_uint(tree, hf_dect_nr_a_rsp_rej_cause, tvb, offset, 1, ENC_BIG_ENDIAN, &rej_cause);
@@ -2436,27 +2568,27 @@ static int dissect_association_release_msg(tvbuff_t *tvb, packet_info *pinfo, pr
 static int dissect_reconfiguration_request_msg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
 	int offset = 0;
-	bool tx_harq_flag;
-	bool rx_harq_flag;
+	bool tx_harq_field;
+	bool rx_harq_field;
 	uint32_t num_flows;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_rc_req_msg, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_rc_req_msg);
 
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rc_req_tx_harq_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &tx_harq_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rc_req_rx_harq_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &rx_harq_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rc_req_tx_harq_field, tvb, offset, 1, ENC_BIG_ENDIAN, &tx_harq_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rc_req_rx_harq_field, tvb, offset, 1, ENC_BIG_ENDIAN, &rx_harq_field);
 	proto_tree_add_item(tree, hf_dect_nr_rc_req_rd_capability, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_rc_req_num_flows, tvb, offset, 1, ENC_BIG_ENDIAN, &num_flows);
 	proto_tree_add_item(tree, hf_dect_nr_rc_req_radio_resources, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	if (tx_harq_flag) {
+	if (tx_harq_field) {
 		proto_tree_add_item(tree, hf_dect_nr_rc_req_harq_proc_tx, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_rc_req_max_harq_retx, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 
-	if (rx_harq_flag) {
+	if (rx_harq_field) {
 		proto_tree_add_item(tree, hf_dect_nr_rc_req_harq_proc_rx, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_rc_req_max_harq_rerx, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
@@ -2478,27 +2610,27 @@ static int dissect_reconfiguration_request_msg(tvbuff_t *tvb, packet_info *pinfo
 static int dissect_reconfiguration_response_msg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
 {
 	int offset = 0;
-	bool tx_harq_flag;
-	bool rx_harq_flag;
+	bool tx_harq_field;
+	bool rx_harq_field;
 	uint32_t num_flows;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_rc_rsp_msg, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_rc_rsp_msg);
 
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rc_rsp_tx_harq_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &tx_harq_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rc_rsp_rx_harq_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &rx_harq_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rc_rsp_tx_harq_field, tvb, offset, 1, ENC_BIG_ENDIAN, &tx_harq_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rc_rsp_rx_harq_field, tvb, offset, 1, ENC_BIG_ENDIAN, &rx_harq_field);
 	proto_tree_add_item(tree, hf_dect_nr_rc_rsp_rd_capability, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_rc_rsp_num_flows, tvb, offset, 1, ENC_BIG_ENDIAN, &num_flows);
 	proto_tree_add_item(tree, hf_dect_nr_rc_rsp_radio_resources, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	if (tx_harq_flag) {
+	if (tx_harq_field) {
 		proto_tree_add_item(tree, hf_dect_nr_rc_rsp_harq_proc_tx, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_rc_rsp_max_harq_retx, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 
-	if (rx_harq_flag) {
+	if (rx_harq_field) {
 		proto_tree_add_item(tree, hf_dect_nr_rc_rsp_harq_proc_rx, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_rc_rsp_max_harq_rerx, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
@@ -2567,12 +2699,12 @@ static int dissect_resource_allocation_ie(tvbuff_t *tvb, packet_info *pinfo, pro
 {
 	int offset = 0;
 	uint32_t allocation_type;
-	bool add_flag;
-	bool id_flag;
+	bool add_field;
+	bool id_field;
 	uint32_t repeat;
-	bool sfn_flag;
-	bool channel_flag;
-	bool rlf_flag;
+	bool sfn_field;
+	bool channel_field;
+	bool rlf_field;
 	bool use_9_bits = false;
 
 	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
@@ -2594,14 +2726,14 @@ static int dissect_resource_allocation_ie(tvbuff_t *tvb, packet_info *pinfo, pro
 		return offset;
 	}
 
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_ra_add_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &add_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_ra_id_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &id_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_ra_add_field, tvb, offset, 1, ENC_BIG_ENDIAN, &add_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_ra_id_field, tvb, offset, 1, ENC_BIG_ENDIAN, &id_field);
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_ra_repeat, tvb, offset, 1, ENC_BIG_ENDIAN, &repeat);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_ra_sfn_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &sfn_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_ra_sfn_field, tvb, offset, 1, ENC_BIG_ENDIAN, &sfn_field);
 	offset++;
 
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_ra_channel_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &channel_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_ra_rlf_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &rlf_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_ra_channel_field, tvb, offset, 1, ENC_BIG_ENDIAN, &channel_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_ra_rlf_field, tvb, offset, 1, ENC_BIG_ENDIAN, &rlf_field);
 	dect_tree_add_reserved_item(tree, hf_dect_nr_ra_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 	offset++;
 
@@ -2612,8 +2744,8 @@ static int dissect_resource_allocation_ie(tvbuff_t *tvb, packet_info *pinfo, pro
 
 	if (ctx->ie_length_present) {
 		/* Determine 8 bits or 9 bits based on expected length */
-		uint32_t len = 2 + (allocation_type == 3 ? 4 : 2) + (id_flag ? 2 : 0) + (repeat ? 2 : 0) +
-				   (sfn_flag ? 1 : 0) + (channel_flag ? 2 : 0) + (rlf_flag ? 1 : 0);
+		uint32_t len = 2 + (allocation_type == 3 ? 4 : 2) + (id_field ? 2 : 0) + (repeat ? 2 : 0) +
+				   (sfn_field ? 1 : 0) + (channel_field ? 2 : 0) + (rlf_field ? 1 : 0);
 		if (ctx->ie_length == len + (allocation_type == 3 ? 2 : 1)) {
 			/* 9 bits version */
 			use_9_bits = true;
@@ -2627,7 +2759,7 @@ static int dissect_resource_allocation_ie(tvbuff_t *tvb, packet_info *pinfo, pro
 			offset += 2;
 		} else {
 			proto_tree_add_item(tree, hf_dect_nr_ra_start_ss_dl_8, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset += 1;
+			offset++;
 		}
 
 		proto_tree_add_item(tree, hf_dect_nr_ra_len_type_dl, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2640,7 +2772,7 @@ static int dissect_resource_allocation_ie(tvbuff_t *tvb, packet_info *pinfo, pro
 			offset += 2;
 		} else {
 			proto_tree_add_item(tree, hf_dect_nr_ra_start_ss_ul_8, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset += 1;
+			offset++;
 		}
 
 		proto_tree_add_item(tree, hf_dect_nr_ra_len_type_ul, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2663,7 +2795,7 @@ static int dissect_resource_allocation_ie(tvbuff_t *tvb, packet_info *pinfo, pro
 			} else {
 				proto_tree_add_item(tree, hf_dect_nr_ra_start_ss_ul_8, tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
-			offset += 1;
+			offset++;
 		}
 
 		if (allocation_type == 1) {
@@ -2676,33 +2808,33 @@ static int dissect_resource_allocation_ie(tvbuff_t *tvb, packet_info *pinfo, pro
 		offset++;
 	}
 
-	if (id_flag) {
+	if (id_field) {
 		proto_tree_add_item(tree, hf_dect_nr_ra_short_rd_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 
 	if (repeat) {
 		proto_tree_add_item(tree, hf_dect_nr_ra_repetition, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+		offset++;
 		proto_tree_add_item(tree, hf_dect_nr_ra_validity, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+		offset++;
 	}
 
-	if (sfn_flag) {
+	if (sfn_field) {
 		proto_tree_add_item(tree, hf_dect_nr_ra_sfn_value, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+		offset++;
 	}
 
-	if (channel_flag) {
+	if (channel_field) {
 		dect_tree_add_reserved_item(tree, hf_dect_nr_ra_res3, tvb, offset, 2, pinfo, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_ra_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 
-	if (rlf_flag) {
+	if (rlf_field) {
 		dect_tree_add_reserved_item(tree, hf_dect_nr_ra_res4, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_ra_rlf, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+		offset++;
 	}
 
 	proto_item_set_len(item, offset);
@@ -2715,10 +2847,10 @@ static int dissect_random_access_resource_ie(tvbuff_t *tvb, packet_info *pinfo, 
 {
 	int offset = 0;
 	uint32_t rar_repeat;
-	bool rar_sfn_flag;
-	bool rar_channel_flag;
-	bool rar_chan_2_flag;
-	bool use_16_bits = false;
+	bool rar_sfn_field;
+	bool rar_channel_field;
+	bool rar_chan_2_field;
+	bool use_9_bits = false;
 
 	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
 
@@ -2727,28 +2859,29 @@ static int dissect_random_access_resource_ie(tvbuff_t *tvb, packet_info *pinfo, 
 
 	dect_tree_add_reserved_item(tree, hf_dect_nr_rar_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_rar_repeat, tvb, offset, 1, ENC_BIG_ENDIAN, &rar_repeat);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rar_sfn_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &rar_sfn_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rar_channel_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &rar_channel_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rar_chan_2_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &rar_chan_2_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rar_sfn_field, tvb, offset, 1, ENC_BIG_ENDIAN, &rar_sfn_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rar_channel_field, tvb, offset, 1, ENC_BIG_ENDIAN, &rar_channel_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_rar_chan_2_field, tvb, offset, 1, ENC_BIG_ENDIAN, &rar_chan_2_field);
 	offset++;
 
-	/* 8 bits or 16 bits. The start subslot indicates the first subslot where the RACH
+	/* 8 bits or 9 bits. The start subslot indicates the first subslot where the RACH
 	 * resource allocation is valid in the frame.
-	 * The 8 bits version is used when µ ≤ 4 and the 16 bits version is used when µ > 4.
+	 * The 8 bits version is used when µ ≤ 4 and the 9 bits version is used when µ > 4.
 	 */
 
 	if (ctx->ie_length_present) {
-		/* Determine 8 bits or 16 bits based on expected length */
-		uint32_t len = 4 + (rar_repeat ? 2 : 0) + (rar_sfn_flag ? 1 : 0) +
-				   (rar_channel_flag ? 2 : 0) + (rar_chan_2_flag ? 2 : 0);
+		/* Determine 8 bits or 9 bits based on expected length */
+		uint32_t len = 4 + (rar_repeat ? 2 : 0) + (rar_sfn_field ? 1 : 0) +
+				   (rar_channel_field ? 2 : 0) + (rar_chan_2_field ? 2 : 0);
 		if (ctx->ie_length == len + 2) {
-			/* 16 bits version */
-			use_16_bits = true;
+			/* 9 bits version */
+			use_9_bits = true;
 		}
 	}
 
-	if (use_16_bits) {
-		proto_tree_add_item(tree, hf_dect_nr_rar_start_ss_16, tvb, offset, 2, ENC_BIG_ENDIAN);
+	if (use_9_bits) {
+		dect_tree_add_reserved_item(tree, hf_dect_nr_rar_res2, tvb, offset, 2, pinfo, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_dect_nr_rar_start_ss_9, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	} else {
 		proto_tree_add_item(tree, hf_dect_nr_rar_start_ss_8, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2776,20 +2909,20 @@ static int dissect_random_access_resource_ie(tvbuff_t *tvb, packet_info *pinfo, 
 		offset++;
 	}
 
-	if (rar_sfn_flag) {
-		proto_tree_add_item(tree, hf_dect_nr_rar_sfn_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
+	if (rar_sfn_field) {
+		proto_tree_add_item(tree, hf_dect_nr_rar_sfn_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 
-	if (rar_channel_flag) {
-		dect_tree_add_reserved_item(tree, hf_dect_nr_rar_res2, tvb, offset, 2, pinfo, ENC_BIG_ENDIAN);
+	if (rar_channel_field) {
+		dect_tree_add_reserved_item(tree, hf_dect_nr_rar_res3, tvb, offset, 2, pinfo, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_rar_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 
-	if (rar_chan_2_flag) {
-		dect_tree_add_reserved_item(tree, hf_dect_nr_rar_res2, tvb, offset, 2, pinfo, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_dect_nr_rar_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
+	if (rar_chan_2_field) {
+		dect_tree_add_reserved_item(tree, hf_dect_nr_rar_res3, tvb, offset, 2, pinfo, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_dect_nr_rar_channel_2, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 
@@ -2802,59 +2935,70 @@ static int dissect_random_access_resource_ie(tvbuff_t *tvb, packet_info *pinfo, 
 static int dissect_rd_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	int offset = 0;
-	uint8_t phy_capa_count;
-	uint8_t num_phy;
+	uint32_t num_phy_cap;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_rdc_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_rdc_ie);
+	proto_tree *phy_tree = tree;
 
-	/* Get the number of physical layer capabilities */
-	num_phy = (tvb_get_uint8(tvb, offset) & 0xE0) >> 5;
+	proto_tree_add_item_ret_uint(tree, hf_dect_nr_rdc_num_phy_cap, tvb, offset, 1, ENC_BIG_ENDIAN, &num_phy_cap);
+	proto_tree_add_item(tree, hf_dect_nr_rdc_release, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
 
-	for (phy_capa_count = 0; phy_capa_count <= num_phy; phy_capa_count++) {
-		if (phy_capa_count == 0) {
-			/* The first PHY layer capability is always present without RD class µ and β */
-			proto_tree_add_item(tree, hf_dect_nr_rdc_num_phy_cap, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_dect_nr_rdc_release, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset++;
-			dect_tree_add_reserved_item(tree, hf_dect_nr_rdc_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_dect_nr_rdc_op_modes, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_dect_nr_rdc_mesh, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_dect_nr_rdc_sched, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset++;
-			proto_tree_add_item(tree, hf_dect_nr_rdc_mac_security, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_dect_nr_rdc_dlc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-			dect_tree_add_reserved_item(tree, hf_dect_nr_rdc_res2, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-			offset++;
-		} else {
+	dect_tree_add_reserved_item(tree, hf_dect_nr_rdc_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_nr_rdc_group_ass, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_nr_rdc_paging, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_nr_rdc_op_modes, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_nr_rdc_mesh, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_nr_rdc_sched, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(tree, hf_dect_nr_rdc_mac_security, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_nr_rdc_dlc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	dect_tree_add_reserved_item(tree, hf_dect_nr_rdc_res2, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+	offset++;
+
+	for (uint32_t i = 0; i <= num_phy_cap; i++) {
+		if (i > 0) {
+			/* Put subsequent PHY layer capabilities in a subtree */
+			proto_item *phy_item = proto_tree_add_item(tree, hf_dect_nr_rdc_phy_cap, tvb, offset, 5, ENC_NA);
+			proto_item_append_text(phy_item, " %u", i);
+			phy_tree = proto_item_add_subtree(phy_item, ett_dect_nr_rdc_phy_cap);
+
 			/* Subsequent PHY layer capabilities begin with RD class µ and β */
-			proto_tree_add_item(tree, hf_dect_nr_rdc_rd_class_mu, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_dect_nr_rdc_rd_class_b, tvb, offset, 1, ENC_BIG_ENDIAN);
-			dect_tree_add_reserved_item(tree, hf_dect_nr_rdc_res6, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+			proto_tree_add_item(phy_tree, hf_dect_nr_rdc_rd_class_mu, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(phy_tree, hf_dect_nr_rdc_rd_class_b, tvb, offset, 1, ENC_BIG_ENDIAN);
+			dect_tree_add_reserved_item(phy_tree, hf_dect_nr_rdc_res6, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 			offset++;
 		}
 
-		dect_tree_add_reserved_item(tree, hf_dect_nr_rdc_res3, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_dect_nr_rdc_pwr_class, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_dect_nr_rdc_max_nss_rx, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_dect_nr_rdc_rx_for_tx_div, tvb, offset, 1, ENC_BIG_ENDIAN);
+		dect_tree_add_reserved_item(phy_tree, hf_dect_nr_rdc_res3, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phy_tree, hf_dect_nr_rdc_pwr_class, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phy_tree, hf_dect_nr_rdc_max_nss_rx, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phy_tree, hf_dect_nr_rdc_rx_for_tx_div, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
-		proto_tree_add_item(tree, hf_dect_nr_rdc_rx_gain, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_dect_nr_rdc_max_mcs, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phy_tree, hf_dect_nr_rdc_rx_gain, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phy_tree, hf_dect_nr_rdc_max_mcs, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
-		proto_tree_add_item(tree, hf_dect_nr_rdc_soft_buf_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_dect_nr_rdc_num_harq_proc, tvb, offset, 1, ENC_BIG_ENDIAN);
-		dect_tree_add_reserved_item(tree, hf_dect_nr_rdc_res4, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phy_tree, hf_dect_nr_rdc_soft_buf_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phy_tree, hf_dect_nr_rdc_num_harq_proc, tvb, offset, 1, ENC_BIG_ENDIAN);
+		dect_tree_add_reserved_item(phy_tree, hf_dect_nr_rdc_res4, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 		offset++;
 
-		proto_tree_add_item(tree, hf_dect_nr_rdc_harq_fb_delay, tvb, offset, 1, ENC_BIG_ENDIAN);
-		dect_tree_add_reserved_item(tree, hf_dect_nr_rdc_res5, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+		proto_tree_add_item(phy_tree, hf_dect_nr_rdc_harq_fb_delay, tvb, offset, 1, ENC_BIG_ENDIAN);
+		if (i == 0) {
+			proto_tree_add_item(phy_tree, hf_dect_nr_rdc_d_delay, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(phy_tree, hf_dect_nr_rdc_half_dup, tvb, offset, 1, ENC_BIG_ENDIAN);
+			dect_tree_add_reserved_item(phy_tree, hf_dect_nr_rdc_res5, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+		} else {
+			dect_tree_add_reserved_item(phy_tree, hf_dect_nr_rdc_res7, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+		}
 		offset++;
 	}
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " (Count: %u)", phy_capa_count);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " (Num PHY: %u)", num_phy_cap);
 	proto_item_set_len(item, offset);
 
 	return offset;
@@ -2864,61 +3008,61 @@ static int dissect_rd_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static int dissect_neighbouring_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	int offset = 0;
-	bool id_flag;
-	bool mu_flag;
-	bool snr_flag;
-	bool rssi2_flag;
-	bool next_channel_flag;
-	bool time_to_next_flag;
+	bool id_field;
+	bool mu_field;
+	bool snr_field;
+	bool rssi2_field;
+	bool next_channel_field;
+	bool time_to_next_field;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_n_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_n_ie);
 
 	dect_tree_add_reserved_item(tree, hf_dect_nr_n_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_n_id_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &id_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_n_mu_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &mu_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_n_snr_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &snr_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_n_rssi2_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &rssi2_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_n_id_field, tvb, offset, 1, ENC_BIG_ENDIAN, &id_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_n_mu_field, tvb, offset, 1, ENC_BIG_ENDIAN, &mu_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_n_snr_field, tvb, offset, 1, ENC_BIG_ENDIAN, &snr_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_n_rssi2_field, tvb, offset, 1, ENC_BIG_ENDIAN, &rssi2_field);
 	proto_tree_add_item(tree, hf_dect_nr_n_pwr_const, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_n_next_channel_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &next_channel_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_n_ttn_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &time_to_next_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_n_next_channel_field, tvb, offset, 1, ENC_BIG_ENDIAN, &next_channel_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_n_ttn_field, tvb, offset, 1, ENC_BIG_ENDIAN, &time_to_next_field);
 	offset++;
 
 	proto_tree_add_item(tree, hf_dect_nr_n_nb_period, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_dect_nr_n_cb_period, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	if (id_flag) {
+	if (id_field) {
 		proto_tree_add_item(tree, hf_dect_nr_n_long_rd_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 
-	if (next_channel_flag) {
+	if (next_channel_field) {
 		dect_tree_add_reserved_item(tree, hf_dect_nr_n_res2, tvb, offset, 2, pinfo, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_n_next_cl_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 
-	if (time_to_next_flag) {
+	if (time_to_next_field) {
 		proto_tree_add_item(tree, hf_dect_nr_n_time_to_next, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 
-	if (rssi2_flag) {
+	if (rssi2_field) {
 		proto_tree_add_item(tree, hf_dect_nr_n_rssi2, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+		offset++;
 	}
 
-	if (snr_flag) {
+	if (snr_field) {
 		proto_tree_add_item(tree, hf_dect_nr_n_snr, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+		offset++;
 	}
 
-	if (mu_flag) {
+	if (mu_field) {
 		proto_tree_add_item(tree, hf_dect_nr_n_rd_class_u, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_n_rd_class_b, tvb, offset, 1, ENC_BIG_ENDIAN);
 		dect_tree_add_reserved_item(tree, hf_dect_nr_n_res3, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-		offset += 1;
+		offset++;
 	}
 
 	proto_item_set_len(item, offset);
@@ -3005,7 +3149,7 @@ static int dissect_padding_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 static int dissect_group_assignment_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data)
 {
 	int offset = 0;
-	bool single_flag;
+	bool single_field;
 	int num_resource_tags;
 
 	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
@@ -3013,7 +3157,7 @@ static int dissect_group_assignment_ie(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_ga_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_ga_ie);
 
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_ga_single_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &single_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_ga_single_field, tvb, offset, 1, ENC_BIG_ENDIAN, &single_field);
 	proto_tree_add_item(tree, hf_dect_nr_ga_group_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
@@ -3021,7 +3165,7 @@ static int dissect_group_assignment_ie(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 		/* Determine number of Resource Tags based on expected length */
 		num_resource_tags = ctx->ie_length - offset;
 	} else {
-		num_resource_tags = (single_flag ? 1 : 2);
+		num_resource_tags = (single_field ? 1 : 2);
 	}
 
 	for (int i = 0; i < num_resource_tags; i++) {
@@ -3039,25 +3183,25 @@ static int dissect_group_assignment_ie(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 static int dissect_load_info_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	int offset = 0;
-	bool max_assoc_flag;
-	bool rd_pt_load_flag;
-	bool rach_load_flag;
-	bool channel_load_flag;
+	bool max_assoc_field;
+	bool rd_pt_load_field;
+	bool rach_load_field;
+	bool channel_load_field;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_li_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_li_ie);
 
 	dect_tree_add_reserved_item(tree, hf_dect_nr_li_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_li_max_assoc_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &max_assoc_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_li_rd_pt_load_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &rd_pt_load_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_li_rach_load_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &rach_load_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_li_channel_load_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &channel_load_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_li_max_assoc_field, tvb, offset, 1, ENC_BIG_ENDIAN, &max_assoc_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_li_rd_pt_load_field, tvb, offset, 1, ENC_BIG_ENDIAN, &rd_pt_load_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_li_rach_load_field, tvb, offset, 1, ENC_BIG_ENDIAN, &rach_load_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_li_channel_load_field, tvb, offset, 1, ENC_BIG_ENDIAN, &channel_load_field);
 	offset++;
 
 	proto_tree_add_item(tree, hf_dect_nr_li_traffic_load_pct, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	if (max_assoc_flag) {
+	if (max_assoc_field) {
 		proto_tree_add_item(tree, hf_dect_nr_li_max_assoc_16, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	} else {
@@ -3068,17 +3212,17 @@ static int dissect_load_info_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 	proto_tree_add_item(tree, hf_dect_nr_li_curr_ft_pct, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	if (rd_pt_load_flag) {
+	if (rd_pt_load_field) {
 		proto_tree_add_item(tree, hf_dect_nr_li_curr_pt_pct, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 
-	if (rach_load_flag) {
+	if (rach_load_field) {
 		proto_tree_add_item(tree, hf_dect_nr_li_rach_load_pct, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 
-	if (channel_load_flag) {
+	if (channel_load_field) {
 		proto_tree_add_item(tree, hf_dect_nr_li_subslots_free_pct, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		proto_tree_add_item(tree, hf_dect_nr_li_subslots_busy_pct, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3094,38 +3238,38 @@ static int dissect_load_info_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 static int dissect_measurement_report_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	int offset = 0;
-	bool snr_flag;
-	bool rssi2_flag;
-	bool rssi1_flag;
-	bool tx_count_flag;
+	bool snr_field;
+	bool rssi2_field;
+	bool rssi1_field;
+	bool tx_count_field;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_mr_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_mr_ie);
 
 	dect_tree_add_reserved_item(tree, hf_dect_nr_mr_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_mr_snr_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &snr_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_mr_rssi2_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &rssi2_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_mr_rssi1_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &rssi1_flag);
-	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_mr_tx_count_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &tx_count_flag);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_mr_snr_field, tvb, offset, 1, ENC_BIG_ENDIAN, &snr_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_mr_rssi2_field, tvb, offset, 1, ENC_BIG_ENDIAN, &rssi2_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_mr_rssi1_field, tvb, offset, 1, ENC_BIG_ENDIAN, &rssi1_field);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_mr_tx_count_field, tvb, offset, 1, ENC_BIG_ENDIAN, &tx_count_field);
 	proto_tree_add_item(tree, hf_dect_nr_mr_rach, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	if (snr_flag) {
+	if (snr_field) {
 		proto_tree_add_item(tree, hf_dect_nr_mr_snr, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 
-	if (rssi2_flag) {
+	if (rssi2_field) {
 		proto_tree_add_item(tree, hf_dect_nr_mr_rssi2, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 
-	if (rssi1_flag) {
+	if (rssi1_field) {
 		proto_tree_add_item(tree, hf_dect_nr_mr_rssi1, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 
-	if (tx_count_flag) {
+	if (tx_count_field) {
 		proto_tree_add_item(tree, hf_dect_nr_mr_tx_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
@@ -3139,17 +3283,17 @@ static int dissect_measurement_report_ie(tvbuff_t *tvb, packet_info *pinfo, prot
 static int dissect_radio_device_status_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	int offset = 0;
-	uint32_t status_flag;
+	uint32_t status_field;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_rds_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_rds_ie);
 
 	dect_tree_add_reserved_item(tree, hf_dect_nr_rds_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-	proto_tree_add_item_ret_uint(tree, hf_dect_nr_rds_sf, tvb, offset, 1, ENC_BIG_ENDIAN, &status_flag);
+	proto_tree_add_item_ret_uint(tree, hf_dect_nr_rds_sf, tvb, offset, 1, ENC_BIG_ENDIAN, &status_field);
 	proto_tree_add_item(tree, hf_dect_nr_rds_dur, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str_const(status_flag, rds_status_vals, "Unknown"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str_const(status_field, rds_status_vals, "Unknown"));
 	proto_item_set_len(item, offset);
 
 	return offset;
@@ -3217,8 +3361,8 @@ static int dissect_mac_mux_header(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	uint32_t mac_ext;
 	const char *ie_type_name;
 
-	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_mac_mux_hdr, tvb, offset, -1, ENC_NA);
-	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_mac_mux_hdr);
+	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_mux_hdr, tvb, offset, -1, ENC_NA);
+	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_mux_hdr);
 
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_mux_mac_ext, tvb, offset, 1, ENC_BIG_ENDIAN, &mac_ext);
 
@@ -3656,7 +3800,7 @@ void proto_register_dect_nr(void)
 		},
 
 		/* 6.3.4: MAC Multiplexing Header */
-		{ &hf_dect_nr_mac_mux_hdr,
+		{ &hf_dect_nr_mux_hdr,
 			{ "MAC Multiplexing Header", "dect_nr.mac.mux_hdr", FT_NONE, BASE_NONE,
 			  NULL, 0x0, NULL, HFILL }
 		},
@@ -3700,16 +3844,16 @@ void proto_register_dect_nr(void)
 			{ "Reserved", "dect_nr.mac.nb.res1", FT_UINT8, BASE_DEC,
 			  NULL, 0xE0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_nb_tx_pwr_flag,
-			{ "TX Power", "dect_nr.mac.nb.tx_pwr_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_nb_tx_pwr_field,
+			{ "TX Power", "dect_nr.mac.nb.tx_pwr_field", FT_BOOLEAN, 8,
 			  TFS(&tfs_included_not_included), 0x10, NULL, HFILL }
 		},
 		{ &hf_dect_nr_nb_pwr_const,
 			{ "Power Const", "dect_nr.mac.nb.pwr_const", FT_BOOLEAN, 8,
 			  TFS(&tfs_yes_no), 0x08, "Power Constraints", HFILL }
 		},
-		{ &hf_dect_nr_nb_current_flag,
-			{ "Current cluster channel", "dect_nr.mac.nb.current_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_nb_current_field,
+			{ "Current", "dect_nr.mac.nb.current_field", FT_BOOLEAN, 8,
 			  TFS(&nb_ie_current_tfs), 0x04, NULL, HFILL }
 		},
 		{ &hf_dect_nr_nb_channels,
@@ -3733,7 +3877,7 @@ void proto_register_dect_nr(void)
 			  NULL, 0x1FFF, NULL, HFILL }
 		},
 		{ &hf_dect_nr_nb_time_to_next,
-			{ "Time To Next", "dect_nr.mac.nb.time_to_next", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+			{ "Time to next", "dect_nr.mac.nb.ttn", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
 			  UNS(&units_microseconds), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_nb_res3,
@@ -3741,7 +3885,7 @@ void proto_register_dect_nr(void)
 			  NULL, 0xF0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_nb_cl_max_tx_pwr,
-			{ "Cluster Max TX Power", "dect_nr.mac.nb.cl_max_tx_pwr", FT_UINT8, BASE_DEC,
+			{ "Clusters Max TX Power", "dect_nr.mac.nb.cl_max_tx_pwr", FT_UINT8, BASE_DEC,
 			  VALS(tx_powers_3b_vals), 0x0F, NULL, HFILL }
 		},
 		{ &hf_dect_nr_nb_res4,
@@ -3774,24 +3918,24 @@ void proto_register_dect_nr(void)
 			{ "Reserved", "dect_nr.mac.cb.res1", FT_UINT8, BASE_DEC,
 			  NULL, 0xE0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_cb_tx_pwr_flag,
-			{ "TX Power", "dect_nr.mac.cb.tx_pwr_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_cb_tx_pwr_field,
+			{ "TX Power", "dect_nr.mac.cb.tx_pwr_field", FT_BOOLEAN, 8,
 			  TFS(&tfs_included_not_included), 0x10, NULL, HFILL }
 		},
 		{ &hf_dect_nr_cb_pwr_const,
 			{ "Power Const", "dect_nr.mac.cb.pwr_const", FT_BOOLEAN, 8,
 			  TFS(&tfs_yes_no), 0x08, "Power Constraints", HFILL }
 		},
-		{ &hf_dect_nr_cb_fo_flag,
-			{ "FO", "dect_nr.mac.cb.fo_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_cb_fo_field,
+			{ "FO", "dect_nr.mac.cb.fo_field", FT_BOOLEAN, 8,
 			  TFS(&tfs_present_not_present), 0x04, "Frame Offset", HFILL }
 		},
-		{ &hf_dect_nr_cb_next_chan_flag,
-			{ "Next Channel", "dect_nr.mac.cb.next_chan_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_cb_next_chan_field,
+			{ "Next Channel", "dect_nr.mac.cb.next_chan_field", FT_BOOLEAN, 8,
 			  TFS(&cb_next_chan_tfs), 0x02, NULL, HFILL }
 		},
-		{ &hf_dect_nr_cb_time_to_next_flag,
-			{ "Time To Next", "dect_nr.mac.cb.time_to_next_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_cb_time_to_next_field,
+			{ "Time to next", "dect_nr.mac.cb.ttn_field", FT_BOOLEAN, 8,
 			  TFS(&cb_ttn_tfs), 0x01, NULL, HFILL }
 		},
 		{ &hf_dect_nr_cb_nb_period,
@@ -3835,7 +3979,7 @@ void proto_register_dect_nr(void)
 			  NULL, 0x1FFF, NULL, HFILL }
 		},
 		{ &hf_dect_nr_cb_time_to_next,
-			{ "Time To Next", "dect_nr.mac.cb.time_to_next", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+			{ "Time to next", "dect_nr.mac.cb.ttn", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
 			  UNS(&units_microseconds), 0x0, NULL, HFILL }
 		},
 
@@ -3849,19 +3993,19 @@ void proto_register_dect_nr(void)
 			  VALS(ar_setup_cause_vals), 0xE0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_a_req_num_flows,
-			{ "Number of Flows", "dect_nr.mac.areq.num_flows", FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS,
+			{ "Number of flows", "dect_nr.mac.areq.num_flows", FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS,
 			  VALS(a_req_num_flow_vals), 0x1C, NULL, HFILL }
 		},
 		{ &hf_dect_nr_a_req_pwr_const,
 			{ "Power Const", "dect_nr.mac.areq.pwr_const", FT_BOOLEAN, 8,
 			  TFS(&tfs_yes_no), 0x02, "Power Constraints", HFILL }
 		},
-		{ &hf_dect_nr_a_req_ft_mode_flag,
-			{ "FT Mode", "dect_nr.mac.areq.ft_mode_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_a_req_ft_mode_field,
+			{ "FT Mode", "dect_nr.mac.areq.ft_mode_field", FT_BOOLEAN, 8,
 			  TFS(&ar_ft_mode_tfs), 0x01, NULL, HFILL }
 		},
 		{ &hf_dect_nr_a_req_current,
-			{ "Current cluster channel", "dect_nr.mac.areq.current_flag", FT_BOOLEAN, 8,
+			{ "Current", "dect_nr.mac.areq.current_field", FT_BOOLEAN, 8,
 			  TFS(&nb_ie_current_tfs), 0x80, NULL, HFILL }
 		},
 		{ &hf_dect_nr_a_req_res1,
@@ -3909,7 +4053,7 @@ void proto_register_dect_nr(void)
 			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_a_req_time_to_next,
-			{ "Time To Next", "dect_nr.mac.areq.time_to_next", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+			{ "Time to next", "dect_nr.mac.areq.ttn", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
 			  UNS(&units_microseconds), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_a_req_res4,
@@ -3926,28 +4070,28 @@ void proto_register_dect_nr(void)
 			{ "Association Response message", "dect_nr.mac.arsp", FT_NONE, BASE_NONE,
 			  NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_a_rsp_ack_flag,
-			{ "Association", "dect_nr.mac.arsp.ack_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_a_rsp_ack_field,
+			{ "Association", "dect_nr.mac.arsp.ack_nack_field", FT_BOOLEAN, 8,
 			  TFS(&tfs_accepted_rejected), 0x80, NULL, HFILL }
 		},
 		{ &hf_dect_nr_a_rsp_res1,
 			{ "Reserved", "dect_nr.mac.arsp.res1", FT_UINT8, BASE_DEC,
 			  NULL, 0x40, NULL, HFILL }
 		},
-		{ &hf_dect_nr_a_rsp_harq_mod_flag,
-			{ "HARQ-mod", "dect_nr.mac.arsp.harq_mod_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_a_rsp_harq_mod_field,
+			{ "HARQ-mod", "dect_nr.mac.arsp.harq_mod_field", FT_BOOLEAN, 8,
 			  TFS(&ar_harq_mod_tfs), 0x20, NULL, HFILL }
 		},
 		{ &hf_dect_nr_a_rsp_num_flows,
-			{ "Number of Flows", "dect_nr.mac.arsp.num_flows", FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS,
+			{ "Number of flows", "dect_nr.mac.arsp.num_flows", FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS,
 			  VALS(a_rsp_num_flow_vals), 0x1C, NULL, HFILL }
 		},
-		{ &hf_dect_nr_a_rsp_group_flag,
-			{ "Group ID and Resource Tag", "dect_nr.mac.arsp.group_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_a_rsp_group_field,
+			{ "Group", "dect_nr.mac.arsp.group_field", FT_BOOLEAN, 8,
 			  TFS(&tfs_included_not_included), 0x02, NULL, HFILL }
 		},
-		{ &hf_dect_nr_a_rsp_tx_pwr,
-			{ "TX Power", "dect_nr.mac.arsp.tx_pwr", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_a_rsp_res2,
+			{ "Reserved", "dect_nr.mac.arsp.res2", FT_UINT8, BASE_DEC,
 			  NULL, 0x01, NULL, HFILL }
 		},
 		{ &hf_dect_nr_a_rsp_rej_cause,
@@ -3974,32 +4118,32 @@ void proto_register_dect_nr(void)
 			{ "(RX) Max HARQ RE-TX", "dect_nr.mac.arsp.max_harq_retx", FT_UINT8, BASE_DEC,
 			  VALS(ar_max_harq_re_rxtx_vals), 0x1F, NULL, HFILL }
 		},
-		{ &hf_dect_nr_a_rsp_res2,
-			{ "Reserved", "dect_nr.mac.arsp.res2", FT_UINT8, BASE_DEC,
+		{ &hf_dect_nr_a_rsp_res3,
+			{ "Reserved", "dect_nr.mac.arsp.res3", FT_UINT8, BASE_DEC,
 			  NULL, 0xC0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_a_rsp_flow_id,
 			{ "Flow ID", "dect_nr.mac.arsp.flow_id", FT_UINT8, BASE_DEC,
 			  VALS(mux_hdr_ie_type_mac_ext_012_vals), 0x3F, NULL, HFILL }
 		},
-		{ &hf_dect_nr_a_rsp_res3,
-			{ "Reserved", "dect_nr.mac.arsp.res3", FT_UINT8, BASE_DEC,
+		{ &hf_dect_nr_a_rsp_res4,
+			{ "Reserved", "dect_nr.mac.arsp.res4", FT_UINT8, BASE_DEC,
 			  NULL, 0x80, NULL, HFILL }
 		},
 		{ &hf_dect_nr_a_rsp_group_id,
 			{ "Group ID", "dect_nr.mac.arsp.group_id", FT_UINT8, BASE_DEC,
 			  NULL, 0x7F, NULL, HFILL }
 		},
-		{ &hf_dect_nr_a_rsp_res4,
-			{ "Reserved", "dect_nr.mac.arsp.res4", FT_UINT8, BASE_DEC,
+		{ &hf_dect_nr_a_rsp_res5,
+			{ "Reserved", "dect_nr.mac.arsp.res5", FT_UINT8, BASE_DEC,
 			  NULL, 0xE0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_a_rsp_res_tag,
 			{ "Resource Tag", "dect_nr.mac.arsp.res_tag", FT_UINT8, BASE_DEC,
 			  NULL, 0x1F, NULL, HFILL }
 		},
-		{ &hf_dect_nr_a_rsp_res5,
-			{ "Reserved", "dect_nr.mac.arsp.res5", FT_UINT8, BASE_DEC,
+		{ &hf_dect_nr_a_rsp_res6,
+			{ "Reserved", "dect_nr.mac.arsp.res6", FT_UINT8, BASE_DEC,
 			  NULL, 0x7F, NULL, HFILL }
 		},
 
@@ -4019,109 +4163,109 @@ void proto_register_dect_nr(void)
 
 		/* 6.4.2.7: Reconfiguration Request message */
 		{ &hf_dect_nr_rc_req_msg,
-			{ "Reconfiguration Request message", "dect_nr.mac.rc_req", FT_NONE, BASE_NONE,
+			{ "Reconfiguration Request message", "dect_nr.mac.rcreq", FT_NONE, BASE_NONE,
 			  NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_rc_req_tx_harq_flag,
-			{ "TX HARQ", "dect_nr.mac.rc_req.tx_harq_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_rc_req_tx_harq_field,
+			{ "TX HARQ", "dect_nr.mac.rcreq.tx_harq_field", FT_BOOLEAN, 8,
 			  TFS(&rc_harq_req_tfs), 0x80, NULL, HFILL }
 		},
-		{ &hf_dect_nr_rc_req_rx_harq_flag,
-			{ "RX HARQ", "dect_nr.mac.rc_req.rx_harq_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_rc_req_rx_harq_field,
+			{ "RX HARQ", "dect_nr.mac.rcreq.rx_harq_field", FT_BOOLEAN, 8,
 			  TFS(&rc_harq_req_tfs), 0x40, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_req_rd_capability,
-			{ "RD Capability", "dect_nr.mac.rc_req.rd_capability", FT_BOOLEAN, 8,
+			{ "RD Capability", "dect_nr.mac.rcreq.rd_capability", FT_BOOLEAN, 8,
 			  TFS(&rc_rd_capability_req_tfs), 0x20, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_req_num_flows,
-			{ "Number of flows", "dect_nr.mac.rc_req.num_flows", FT_UINT8, BASE_DEC,
-			  NULL, 0x1C, NULL, HFILL }
+			{ "Number of flows", "dect_nr.mac.rcreq.num_flows", FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS,
+			  VALS(rc_req_num_flow_vals), 0x1C, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_req_radio_resources,
-			{ "Radio Resource", "dect_nr.mac.rc_req.radio_resources", FT_UINT8, BASE_DEC,
+			{ "Radio Resource", "dect_nr.mac.rcreq.radio_resources", FT_UINT8, BASE_DEC,
 			  VALS(rc_radio_resource_vals), 0x03, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_req_harq_proc_tx,
-			{ "HARQ Processes TX", "dect_nr.mac.rc_req.harq_proc_tx", FT_UINT8, BASE_DEC,
+			{ "HARQ Processes TX", "dect_nr.mac.rcreq.harq_proc_tx", FT_UINT8, BASE_DEC,
 			  NULL, 0xE0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_req_max_harq_retx,
-			{ "Max HARQ RE-TX", "dect_nr.mac.rc_req.max_harq_retx", FT_UINT8, BASE_DEC,
+			{ "Max HARQ RE-TX", "dect_nr.mac.rcreq.max_harq_retx", FT_UINT8, BASE_DEC,
 			  VALS(ar_max_harq_re_rxtx_vals), 0x1F, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_req_harq_proc_rx,
-			{ "HARQ Processes RX", "dect_nr.mac.rc_req.harq_proc_rx", FT_UINT8, BASE_DEC,
+			{ "HARQ Processes RX", "dect_nr.mac.rcreq.harq_proc_rx", FT_UINT8, BASE_DEC,
 			  NULL, 0xE0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_req_max_harq_rerx,
-			{ "Max HARQ RE-RX", "dect_nr.mac.rc_req.max_harq_rerx", FT_UINT8, BASE_DEC,
+			{ "Max HARQ RE-RX", "dect_nr.mac.rcreq.max_harq_rerx", FT_UINT8, BASE_DEC,
 			  VALS(ar_max_harq_re_rxtx_vals), 0x1F, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_req_setup_release,
-			{ "Setup/Release", "dect_nr.mac.rc_req.setup_release", FT_BOOLEAN, 8,
+			{ "Setup/Release", "dect_nr.mac.rcreq.setup_release", FT_BOOLEAN, 8,
 			  TFS(&rc_setup_release_tfs), 0x80, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_req_res,
-			{ "Reserved", "dect_nr.mac.rc_req.res1", FT_UINT8, BASE_DEC,
+			{ "Reserved", "dect_nr.mac.rcreq.res1", FT_UINT8, BASE_DEC,
 			  NULL, 0x40, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_req_flow_id,
-			{ "Flow ID", "dect_nr.mac.rc_req.flow_id", FT_UINT8, BASE_DEC,
+			{ "Flow ID", "dect_nr.mac.rcreq.flow_id", FT_UINT8, BASE_DEC,
 			  NULL, 0x3F, NULL, HFILL }
 		},
 
 		/* 6.4.2.8: Reconfiguration Response message */
 		{ &hf_dect_nr_rc_rsp_msg,
-			{ "Reconfiguration Response message", "dect_nr.mac.rc_rsp", FT_NONE, BASE_NONE,
+			{ "Reconfiguration Response message", "dect_nr.mac.rcrsp", FT_NONE, BASE_NONE,
 			  NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_rc_rsp_tx_harq_flag,
-			{ "TX HARQ", "dect_nr.mac.rc_rsp.tx_harq_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_rc_rsp_tx_harq_field,
+			{ "TX HARQ", "dect_nr.mac.rcrsp.tx_harq_field", FT_BOOLEAN, 8,
 			  TFS(&rc_harq_rsp_tfs), 0x80, NULL, HFILL }
 		},
-		{ &hf_dect_nr_rc_rsp_rx_harq_flag,
-			{ "RX HARQ", "dect_nr.mac.rc_rsp.rx_harq_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_rc_rsp_rx_harq_field,
+			{ "RX HARQ", "dect_nr.mac.rcrsp.rx_harq_field", FT_BOOLEAN, 8,
 			  TFS(&rc_harq_rsp_tfs), 0x40, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_rsp_rd_capability,
-			{ "RD Capability", "dect_nr.mac.rc_rsp.rd_capability", FT_BOOLEAN, 8,
+			{ "RD Capability", "dect_nr.mac.rcrsp.rd_capability", FT_BOOLEAN, 8,
 			  TFS(&rc_rd_capability_rsp_tfs), 0x20, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_rsp_num_flows,
-			{ "Number of flows", "dect_nr.mac.rc_rsp.num_flows", FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS,
+			{ "Number of flows", "dect_nr.mac.rcrsp.num_flows", FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS,
 			  VALS(rc_rsp_num_flow_vals), 0x1C, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_rsp_radio_resources,
-			{ "Radio Resource", "dect_nr.mac.rc_rsp.radio_resources", FT_UINT8, BASE_DEC,
+			{ "Radio Resource", "dect_nr.mac.rcrsp.radio_resources", FT_UINT8, BASE_DEC,
 			  VALS(rc_radio_resource_vals), 0x03, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_rsp_harq_proc_tx,
-			{ "HARQ Processes TX", "dect_nr.mac.rc_rsp.harq_proc_tx", FT_UINT8, BASE_DEC,
+			{ "HARQ Processes TX", "dect_nr.mac.rcrsp.harq_proc_tx", FT_UINT8, BASE_DEC,
 			  NULL, 0xE0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_rsp_max_harq_retx,
-			{ "Max HARQ RE-TX", "dect_nr.mac.rc_rsp.max_harq_retx", FT_UINT8, BASE_DEC,
+			{ "Max HARQ RE-TX", "dect_nr.mac.rcrsp.max_harq_retx", FT_UINT8, BASE_DEC,
 			  VALS(ar_max_harq_re_rxtx_vals), 0x1F, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_rsp_harq_proc_rx,
-			{ "HARQ Processes RX", "dect_nr.mac.rc_rsp.harq_proc_rx", FT_UINT8, BASE_DEC,
+			{ "HARQ Processes RX", "dect_nr.mac.rcrsp.harq_proc_rx", FT_UINT8, BASE_DEC,
 			  NULL, 0xE0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_rsp_max_harq_rerx,
-			{ "Max HARQ RE-RX", "dect_nr.mac.rc_rsp.max_harq_rerx", FT_UINT8, BASE_DEC,
+			{ "Max HARQ RE-RX", "dect_nr.mac.rcrsp.max_harq_rerx", FT_UINT8, BASE_DEC,
 			  VALS(ar_max_harq_re_rxtx_vals), 0x1F, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_rsp_setup_release,
-			{ "Setup/Release", "dect_nr.mac.rc_rsp.setup_release", FT_BOOLEAN, 8,
+			{ "Setup/Release", "dect_nr.mac.rcrsp.setup_release", FT_BOOLEAN, 8,
 			  TFS(&rc_setup_release_tfs), 0x80, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_rsp_res,
-			{ "Reserved", "dect_nr.mac.rc_rsp.res1", FT_UINT8, BASE_DEC,
+			{ "Reserved", "dect_nr.mac.rcrsp.res1", FT_UINT8, BASE_DEC,
 			  NULL, 0x40, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rc_rsp_flow_id,
-			{ "Flow ID", "dect_nr.mac.rc_rsp.flow_id", FT_UINT8, BASE_DEC,
+			{ "Flow ID", "dect_nr.mac.rcrsp.flow_id", FT_UINT8, BASE_DEC,
 			  NULL, 0x3F, NULL, HFILL }
 		},
 
@@ -4145,8 +4289,8 @@ void proto_register_dect_nr(void)
 			  VALS(msi_ivt_vals), 0x0F, NULL, HFILL }
 		},
 		{ &hf_dect_nr_msi_hpc,
-			{ "Hyper Packet Counter", "dect_nr.mac.msi.hpc", FT_UINT32, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "HPC", "dect_nr.mac.msi.hpc", FT_UINT32, BASE_HEX,
+			  NULL, 0x0, "Hyper Packet Counter", HFILL }
 		},
 
 		/* 6.4.3.2: Route Info IE */
@@ -4176,28 +4320,28 @@ void proto_register_dect_nr(void)
 			{ "Allocation Type", "dect_nr.mac.ra.alloc_type", FT_UINT8, BASE_DEC,
 			  VALS(ra_alloc_type_vals), 0xC0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_ra_add_flag,
-			{ "Add", "dect_nr.mac.ra.add_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_ra_add_field,
+			{ "Add", "dect_nr.mac.ra.add_field", FT_BOOLEAN, 8,
 			  TFS(&ra_add_tfs), 0x20, NULL, HFILL }
 		},
-		{ &hf_dect_nr_ra_id_flag,
-			{ "Short RD ID", "dect_nr.mac.ra.id_flag", FT_BOOLEAN, 8,
-			  TFS(&tfs_present_not_present), 0x10, NULL, HFILL }
+		{ &hf_dect_nr_ra_id_field,
+			{ "ID", "dect_nr.mac.ra.id_field", FT_BOOLEAN, 8,
+			  TFS(&tfs_present_not_present), 0x10, "Short RD ID", HFILL }
 		},
 		{ &hf_dect_nr_ra_repeat,
 			{ "Repeat", "dect_nr.mac.ra.repeat", FT_UINT8, BASE_DEC,
 			  VALS(ra_repeat_vals), 0x0E, NULL, HFILL }
 		},
-		{ &hf_dect_nr_ra_sfn_flag,
-			{ "SFN", "dect_nr.mac.ra.sfn_flag", FT_BOOLEAN, 8,
-			  TFS(&ra_sfn_tfs), 0x01, "System Frame Number", HFILL }
+		{ &hf_dect_nr_ra_sfn_field,
+			{ "SFN", "dect_nr.mac.ra.sfn_field", FT_BOOLEAN, 8,
+			  TFS(&ra_sfn_tfs), 0x01, NULL, HFILL }
 		},
-		{ &hf_dect_nr_ra_channel_flag,
-			{ "Channel", "dect_nr.mac.ra.channel_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_ra_channel_field,
+			{ "Channel", "dect_nr.mac.ra.channel_field", FT_BOOLEAN, 8,
 			  TFS(&ra_channel_tfs), 0x80, NULL, HFILL }
 		},
-		{ &hf_dect_nr_ra_rlf_flag,
-			{ "RLF", "dect_nr.mac.ra.rlf_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_ra_rlf_field,
+			{ "RLF", "dect_nr.mac.ra.rlf_field", FT_BOOLEAN, 8,
 			  TFS(&tfs_included_not_included), 0x40, NULL, HFILL }
 		},
 		{ &hf_dect_nr_ra_res1,
@@ -4253,7 +4397,7 @@ void proto_register_dect_nr(void)
 			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_ra_sfn_value,
-			{ "SFN Value", "dect_nr.mac.ra.sfn_value", FT_UINT8, BASE_DEC,
+			{ "SFN value", "dect_nr.mac.ra.sfn_value", FT_UINT8, BASE_DEC,
 			  NULL, 0x0, "System Frame Number Value", HFILL }
 		},
 		{ &hf_dect_nr_ra_res3,
@@ -4283,27 +4427,31 @@ void proto_register_dect_nr(void)
 			  NULL, 0xE0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rar_repeat,
-			{ "Resource Allocation Repeat", "dect_nr.mac.rar.repeat", FT_UINT8, BASE_DEC,
+			{ "Repeat", "dect_nr.mac.rar.repeat", FT_UINT8, BASE_DEC,
 			  VALS(rar_repeat_vals), 0x18, NULL, HFILL }
 		},
-		{ &hf_dect_nr_rar_sfn_flag,
-			{ "SFN", "dect_nr.mac.rar.sfn_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_rar_sfn_field,
+			{ "SFN", "dect_nr.mac.rar.sfn_field", FT_BOOLEAN, 8,
 			  TFS(&rar_sfn_tfs), 0x04, "System Frame Number", HFILL }
 		},
-		{ &hf_dect_nr_rar_channel_flag,
-			{ "Channel", "dect_nr.mac.rar.channel_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_rar_channel_field,
+			{ "Channel", "dect_nr.mac.rar.channel_field", FT_BOOLEAN, 8,
 			  TFS(&rar_channel_tfs), 0x02, NULL, HFILL }
 		},
-		{ &hf_dect_nr_rar_chan_2_flag,
-			{ "Chan_2", "dect_nr.mac.rar.chan2_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_rar_chan_2_field,
+			{ "Chan_2", "dect_nr.mac.rar.chan2_field", FT_BOOLEAN, 8,
 			  TFS(&rar_chan_2_tfs), 0x01, NULL, HFILL }
+		},
+		{ &hf_dect_nr_rar_res2,
+			{ "Reserved", "dect_nr.mac.rar.res2", FT_UINT16, BASE_DEC,
+			  NULL, 0xFE00, NULL, HFILL }
+		},
+		{ &hf_dect_nr_rar_start_ss_9,
+			{ "Start subslot", "dect_nr.mac.rar.start_ss", FT_UINT16, BASE_DEC,
+			  NULL, 0x01FF, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rar_start_ss_8,
 			{ "Start subslot", "dect_nr.mac.rar.start_ss", FT_UINT8, BASE_DEC,
-			  NULL, 0x0, NULL, HFILL }
-		},
-		{ &hf_dect_nr_rar_start_ss_16,
-			{ "Start subslot", "dect_nr.mac.rar.start_ss", FT_UINT16, BASE_DEC,
 			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rar_len_type,
@@ -4315,7 +4463,7 @@ void proto_register_dect_nr(void)
 			  NULL, 0x7F, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rar_max_len_type,
-			{ "Max Length type", "dect_nr.mac.rar.max_len_type", FT_BOOLEAN, 8,
+			{ "Max Len type", "dect_nr.mac.rar.max_len_type", FT_BOOLEAN, 8,
 			  TFS(&pkt_len_type_tfs), 0x80, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rar_max_rach_len,
@@ -4346,20 +4494,24 @@ void proto_register_dect_nr(void)
 			{ "Validity", "dect_nr.mac.rar.validity", FT_UINT8, BASE_DEC,
 			  NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_rar_sfn_offset,
-			{ "SFN Offset", "dect_nr.mac.rar.sfn_offset", FT_UINT8, BASE_DEC,
-			  NULL, 0x0, "System Frame Number Offset", HFILL }
+		{ &hf_dect_nr_rar_sfn_value,
+			{ "SFN value", "dect_nr.mac.rar.sfn_value", FT_UINT8, BASE_DEC,
+			  NULL, 0x0, "System Frame Number Value", HFILL }
 		},
-		{ &hf_dect_nr_rar_res2,
-			{ "Reserved", "dect_nr.mac.rar.res2", FT_UINT16, BASE_DEC,
+		{ &hf_dect_nr_rar_res3,
+			{ "Reserved", "dect_nr.mac.rar.res3", FT_UINT16, BASE_DEC,
 			  NULL, 0xE000, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rar_channel,
 			{ "Channel", "dect_nr.mac.rar.channel", FT_UINT16, BASE_DEC,
 			  NULL, 0x1FFF, NULL, HFILL }
 		},
+		{ &hf_dect_nr_rar_channel_2,
+			{ "Channel 2", "dect_nr.mac.rar.channel_2", FT_UINT16, BASE_DEC,
+			  NULL, 0x1FFF, NULL, HFILL }
+		},
 
-		/* 6.4.3.5: Radio Device Capability IE */
+		/* 6.4.3.5: RD Capability IE */
 		{ &hf_dect_nr_rdc_ie,
 			{ "RD Capability IE", "dect_nr.mac.rdc", FT_NONE, BASE_NONE,
 			  NULL, 0x0, NULL, HFILL }
@@ -4374,7 +4526,15 @@ void proto_register_dect_nr(void)
 		},
 		{ &hf_dect_nr_rdc_res1,
 			{ "Reserved", "dect_nr.mac.rdc.res1", FT_UINT8, BASE_DEC,
-			  NULL, 0xF0, NULL, HFILL }
+			  NULL, 0xC0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_rdc_group_ass,
+			{ "Group Assignment", "dect_nr.mac.rdc.group_ass", FT_BOOLEAN, 8,
+			  TFS(&tfs_supported_not_supported), 0x20, NULL, HFILL }
+		},
+		{ &hf_dect_nr_rdc_paging,
+			{ "Paging", "dect_nr.mac.rdc.paging", FT_BOOLEAN, 8,
+			  TFS(&tfs_supported_not_supported), 0x10, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rdc_op_modes,
 			{ "Operating Modes", "dect_nr.mac.rdc.op_modes", FT_UINT8, BASE_DEC,
@@ -4385,7 +4545,7 @@ void proto_register_dect_nr(void)
 			  TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rdc_sched,
-			{ "Scheduled data", "dect_nr.mac.rdc.sched", FT_BOOLEAN, 8,
+			{ "Scheduled", "dect_nr.mac.rdc.scheduled", FT_BOOLEAN, 8,
 			  TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rdc_mac_security,
@@ -4429,7 +4589,7 @@ void proto_register_dect_nr(void)
 			  VALS(rdc_soft_buf_size_vals), 0xF0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rdc_num_harq_proc,
-			{ "Number of parallel HARQ Processes", "dect_nr.mac.rdc.num_harq_proc", FT_UINT8, BASE_DEC,
+			{ "Number of HARQ Processes", "dect_nr.mac.rdc.num_harq_proc", FT_UINT8, BASE_DEC,
 			  VALS(rdc_pwr_two_field_vals), 0x0C, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rdc_res4,
@@ -4438,11 +4598,23 @@ void proto_register_dect_nr(void)
 		},
 		{ &hf_dect_nr_rdc_harq_fb_delay,
 			{ "HARQ feedback delay", "dect_nr.mac.rdc.harq_fb_delay", FT_UINT8, BASE_DEC,
-			  NULL, 0xF0, NULL, HFILL }
+			  VALS(rdc_harq_fb_delay_vals), 0xF0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_rdc_d_delay,
+			{ "D_Delay", "dect_nr.mac.rdc.d_delay", FT_BOOLEAN, 8,
+			  TFS(&tfs_supported_not_supported), 0x08, NULL, HFILL }
+		},
+		{ &hf_dect_nr_rdc_half_dup,
+			{ "Half Duplex", "dect_nr.mac.rdc.half_dup", FT_BOOLEAN, 8,
+			  TFS(&tfs_supported_not_supported), 0x04, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rdc_res5,
 			{ "Reserved", "dect_nr.mac.rdc.res5", FT_UINT8, BASE_DEC,
-			  NULL, 0x0F, NULL, HFILL }
+			  NULL, 0x03, NULL, HFILL }
+		},
+		{ &hf_dect_nr_rdc_phy_cap,
+			{ "PHY Capability", "dect_nr.mac.rdc.phy_cap", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rdc_rd_class_mu,
 			{ "Radio Device Class: µ", "dect_nr.mac.rdc.rd_class_mu", FT_UINT8, BASE_DEC,
@@ -4456,6 +4628,10 @@ void proto_register_dect_nr(void)
 			{ "Reserved", "dect_nr.mac.rdc.res6", FT_UINT8, BASE_DEC,
 			  NULL, 0x01, NULL, HFILL }
 		},
+		{ &hf_dect_nr_rdc_res7,
+			{ "Reserved", "dect_nr.mac.rdc.res7", FT_UINT8, BASE_DEC,
+			  NULL, 0x0F, NULL, HFILL }
+		},
 
 		/* 6.4.3.6: Neighbouring IE */
 		{ &hf_dect_nr_n_ie,
@@ -4466,32 +4642,32 @@ void proto_register_dect_nr(void)
 			{ "Reserved", "dect_nr.mac.n.res1", FT_UINT8, BASE_DEC,
 			  NULL, 0x80, NULL, HFILL }
 		},
-		{ &hf_dect_nr_n_id_flag,
-			{ "Long RD ID", "dect_nr.mac.n.id_flag", FT_BOOLEAN, 8,
-			  TFS(&tfs_present_not_present), 0x40, NULL, HFILL }
+		{ &hf_dect_nr_n_id_field,
+			{ "ID", "dect_nr.mac.n.id_field", FT_BOOLEAN, 8,
+			  TFS(&tfs_present_not_present), 0x40, "Long RD ID", HFILL }
 		},
-		{ &hf_dect_nr_n_mu_flag,
-			{ "µ", "dect_nr.mac.n.mu_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_n_mu_field,
+			{ "µ", "dect_nr.mac.n.mu_field", FT_BOOLEAN, 8,
 			  TFS(&radio_device_class_tfs), 0x20, "Radio device class signalling", HFILL }
 		},
-		{ &hf_dect_nr_n_snr_flag,
-			{ "SNR", "dect_nr.mac.n.snr_flag", FT_BOOLEAN, 8,
-			  TFS(&tfs_present_not_present), 0x10, "SNR measurement result", HFILL }
+		{ &hf_dect_nr_n_snr_field,
+			{ "SNR", "dect_nr.mac.n.snr_field", FT_BOOLEAN, 8,
+			  TFS(&tfs_present_not_present), 0x10, NULL, HFILL }
 		},
-		{ &hf_dect_nr_n_rssi2_flag,
-			{ "RSSI-2", "dect_nr.mac.n.rssi2_flag", FT_BOOLEAN, 8,
-			  TFS(&tfs_present_not_present), 0x08, "RSSI-2 measurement result", HFILL }
+		{ &hf_dect_nr_n_rssi2_field,
+			{ "RSSI-2", "dect_nr.mac.n.rssi2_field", FT_BOOLEAN, 8,
+			  TFS(&tfs_present_not_present), 0x08, NULL, HFILL }
 		},
 		{ &hf_dect_nr_n_pwr_const,
 			{ "Power Const", "dect_nr.mac.n.pwr_const", FT_BOOLEAN, 8,
 			  TFS(&tfs_yes_no), 0x04, "Power Constraints", HFILL }
 		},
-		{ &hf_dect_nr_n_next_channel_flag,
-			{ "Next Channel", "dect_nr.mac.n.next_channel_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_n_next_channel_field,
+			{ "Next Channel", "dect_nr.mac.n.next_channel_field", FT_BOOLEAN, 8,
 			  TFS(&cb_next_chan_tfs), 0x02, NULL, HFILL }
 		},
-		{ &hf_dect_nr_n_ttn_flag,
-			{ "Time To Next", "dect_nr.mac.n.time_to_next_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_n_ttn_field,
+			{ "Time to next", "dect_nr.mac.n.ttn_field", FT_BOOLEAN, 8,
 			  TFS(&cb_ttn_tfs), 0x01, NULL, HFILL }
 		},
 		{ &hf_dect_nr_n_nb_period,
@@ -4515,7 +4691,7 @@ void proto_register_dect_nr(void)
 			  NULL, 0x1FFF, NULL, HFILL }
 		},
 		{ &hf_dect_nr_n_time_to_next,
-			{ "Time To Next", "dect_nr.mac.n.time_to_next", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+			{ "Time to next", "dect_nr.mac.n.ttn", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
 			  UNS(&units_microseconds), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_n_rssi2,
@@ -4620,8 +4796,8 @@ void proto_register_dect_nr(void)
 			{ "Group Assignment IE", "dect_nr.mac.ga", FT_NONE, BASE_NONE,
 			  NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_ga_single_flag,
-			{ "Single", "dect_nr.mac.ga.single_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_ga_single_field,
+			{ "Single", "dect_nr.mac.ga.single_field", FT_BOOLEAN, 8,
 			  TFS(&dect_nr_ga_single_tfs), 0x80, NULL, HFILL }
 		},
 		{ &hf_dect_nr_ga_group_id,
@@ -4643,23 +4819,23 @@ void proto_register_dect_nr(void)
 			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_li_res1,
-			{ "Reserved", "dect_nr.mac.li.res1",
-			  FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
+			{ "Reserved", "dect_nr.mac.li.res1", FT_UINT8, BASE_DEC,
+			  NULL, 0xF0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_li_max_assoc_flag,
-			{ "Max assoc", "dect_nr.mac.li.max_assoc_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_li_max_assoc_field,
+			{ "Max assoc", "dect_nr.mac.li.max_assoc_field", FT_BOOLEAN, 8,
 			  TFS(&li_max_assoc_tfs), 0x08, NULL, HFILL }
 		},
-		{ &hf_dect_nr_li_rd_pt_load_flag,
-			{ "RD PT load", "dect_nr.mac.li.rd_pt_load_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_li_rd_pt_load_field,
+			{ "RD PT load", "dect_nr.mac.li.rd_pt_load_field", FT_BOOLEAN, 8,
 			  TFS(&tfs_present_not_present), 0x04, NULL, HFILL }
 		},
-		{ &hf_dect_nr_li_rach_load_flag,
-			{ "RACH load", "dect_nr.mac.li.rach_load_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_li_rach_load_field,
+			{ "RACH load", "dect_nr.mac.li.rach_load_field", FT_BOOLEAN, 8,
 			  TFS(&tfs_present_not_present), 0x02, "Random Access Channel load", HFILL }
 		},
-		{ &hf_dect_nr_li_channel_load_flag,
-			{ "Channel Load", "dect_nr.mac.li.channel_load_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_li_channel_load_field,
+			{ "Channel Load", "dect_nr.mac.li.channel_load_field", FT_BOOLEAN, 8,
 			  TFS(&tfs_present_not_present), 0x01, NULL, HFILL }
 		},
 		{ &hf_dect_nr_li_traffic_load_pct,
@@ -4704,20 +4880,20 @@ void proto_register_dect_nr(void)
 			{ "Reserved", "dect_nr.mac.mr.res1", FT_UINT8, BASE_DEC,
 			  NULL, 0xE0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_mr_snr_flag,
-			{ "SNR", "dect_nr.mac.mr.snr_flag", FT_BOOLEAN, 8,
-			  TFS(&tfs_present_not_present), 0x10, "SNR measurement result", HFILL }
+		{ &hf_dect_nr_mr_snr_field,
+			{ "SNR", "dect_nr.mac.mr.snr_field", FT_BOOLEAN, 8,
+			  TFS(&tfs_present_not_present), 0x10, NULL, HFILL }
 		},
-		{ &hf_dect_nr_mr_rssi2_flag,
-			{ "RSSI-2", "dect_nr.mac.mr.rssi2_flag", FT_BOOLEAN, 8,
-			  TFS(&tfs_present_not_present), 0x08, "RSSI-2 measurement result", HFILL }
+		{ &hf_dect_nr_mr_rssi2_field,
+			{ "RSSI-2", "dect_nr.mac.mr.rssi2_field", FT_BOOLEAN, 8,
+			  TFS(&tfs_present_not_present), 0x08, NULL, HFILL }
 		},
-		{ &hf_dect_nr_mr_rssi1_flag,
-			{ "RSSI-1", "dect_nr.mac.mr.rssi1_flag", FT_BOOLEAN, 8,
-			  TFS(&tfs_present_not_present), 0x04, "RSSI-1 measurement result", HFILL }
+		{ &hf_dect_nr_mr_rssi1_field,
+			{ "RSSI-1", "dect_nr.mac.mr.rssi1_field", FT_BOOLEAN, 8,
+			  TFS(&tfs_present_not_present), 0x04, NULL, HFILL }
 		},
-		{ &hf_dect_nr_mr_tx_count_flag,
-			{ "TX count", "dect_nr.mac.mr.tx_count_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_mr_tx_count_field,
+			{ "TX count", "dect_nr.mac.mr.tx_count_field", FT_BOOLEAN, 8,
 			  TFS(&tfs_present_not_present), 0x02, NULL, HFILL }
 		},
 		{ &hf_dect_nr_mr_rach,
@@ -4783,33 +4959,36 @@ void proto_register_dect_nr(void)
 
 		/* DLC Headers and Messages */
 
-		/* DLC Service Type 0 */
-		{ &hf_dect_nr_dlc_st_0,
-			{ "DLC PDU", "dect_nr.dlc.st0", FT_NONE, BASE_NONE,
+		{ &hf_dect_nr_dlc_pdu,
+			{ "DLC PDU", "dect_nr.dlc", FT_NONE, BASE_NONE,
 			  NULL, 0x0, "Data Link Control (layer) PDU", HFILL }
 		},
 		{ &hf_dect_nr_dlc_ie_type,
-			{ "IE Type", "dect_nr.dlc.st0.ie_type", FT_UINT8, BASE_DEC,
+			{ "IE Type", "dect_nr.dlc.ie_type", FT_UINT8, BASE_DEC,
 			  VALS(dlc_ie_type_vals), 0xF0, NULL, HFILL }
 		},
+
+		/* DLC Service Type 0 */
 		{ &hf_dect_nr_dlc_res1,
-			{ "Reserved", "dect_nr.dlc.st0.res1", FT_UINT8, BASE_DEC,
+			{ "Reserved", "dect_nr.dlc.res1", FT_UINT8, BASE_DEC,
 			  NULL, 0x0F, NULL, HFILL }
 		},
 
 		/* DLC Service Type 1 */
 		{ &hf_dect_nr_dlc_si,
-			{ "Segmentation indication", "dect_nr.dlc.st123.si", FT_UINT8, BASE_DEC,
+			{ "Segmentation indication", "dect_nr.dlc.si", FT_UINT8, BASE_DEC,
 			  VALS(dlc_si_type_vals), 0x0C, NULL, HFILL }
 		},
 		{ &hf_dect_nr_dlc_sn,
-			{ "Sequence number", "dect_nr.dlc.st123.sn", FT_UINT16, BASE_DEC,
+			{ "Sequence number", "dect_nr.dlc.sn", FT_UINT16, BASE_DEC,
 			  NULL, 0x03FF, NULL, HFILL }
 		},
 		{ &hf_dect_nr_dlc_segm_offset,
-			{ "Segmentation offset", "dect_nr.dlc.st123.so", FT_UINT16, BASE_DEC,
+			{ "Segmentation offset", "dect_nr.dlc.so", FT_UINT16, BASE_DEC,
 			  NULL, 0x0, NULL, HFILL }
 		},
+
+		/* DLC Timers configuration control IE */
 		{ &hf_dect_nr_dlc_timers,
 			{ "DLC SDU lifetime timer", "dect_nr.dlc.sdu_lifetime_timer", FT_UINT8, BASE_DEC,
 			  VALS(dlc_discard_timer_vals), 0xF0, NULL, HFILL }
@@ -4828,8 +5007,8 @@ void proto_register_dect_nr(void)
 			{ "QoS", "dect_nr.dlc.routing.qos", FT_UINT8, BASE_DEC,
 			  VALS(dlc_qos_vals), 0x0E, NULL, HFILL }
 		},
-		{ &hf_dect_nr_dlc_routing_delay_flag,
-			{ "Delay", "dect_nr.dlc.routing.delay_flag", FT_BOOLEAN, 8,
+		{ &hf_dect_nr_dlc_routing_delay_field,
+			{ "Delay", "dect_nr.dlc.routing.delay_field", FT_BOOLEAN, 8,
 			  TFS(&tfs_present_not_present), 0x01, NULL, HFILL }
 		},
 		{ &hf_dect_nr_dlc_routing_hop_count_limit,
@@ -4880,11 +5059,11 @@ void proto_register_dect_nr(void)
 		/* Fragment entries */
 		{ &hf_dect_nr_segments,
 			{ "DLC segments", "dect_nr.dlc.segments", FT_NONE, BASE_NONE,
-			  NULL, 0x00, NULL, HFILL }
+			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_segment,
 			{ "DLC segment", "dect_nr.dlc.segment", FT_FRAMENUM, BASE_NONE,
-			  NULL, 0x00, NULL, HFILL }
+			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_segment_overlap,
 			{ "DLC segment overlap", "dect_nr.dlc.segment.overlap", FT_BOOLEAN, BASE_NONE,
@@ -4904,19 +5083,19 @@ void proto_register_dect_nr(void)
 		},
 		{ &hf_dect_nr_segment_error,
 			{ "DLC segment error", "dect_nr.dlc.segment.error", FT_FRAMENUM, BASE_NONE,
-			  NULL, 0x00, NULL, HFILL }
+			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_segment_count,
 			{ "DLC segment count", "dect_nr.dlc.segment.count", FT_UINT32, BASE_DEC,
-			  NULL, 0x00, NULL, HFILL }
+			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_reassembled_in,
 			{ "Reassembled DLC in frame", "dect_nr.dlc.reassembled.in", FT_FRAMENUM, BASE_NONE,
-			  NULL, 0x00, "This DLC data is reassembled in this frame", HFILL }
+			  NULL, 0x0, "This DLC data is reassembled in this frame", HFILL }
 		},
 		{ &hf_dect_nr_reassembled_length,
 			{ "Reassembled DLC length", "dect_nr.dlc.reassembled.length", FT_UINT32, BASE_DEC,
-			  NULL, 0x00, "The total length of the reassembled payload", HFILL }
+			  NULL, 0x0, "The total length of the reassembled payload", HFILL }
 		},
 	};
 
@@ -4928,7 +5107,7 @@ void proto_register_dect_nr(void)
 		&ett_dect_nr_bc_hdr,
 		&ett_dect_nr_uc_hdr,
 		&ett_dect_nr_rdbh_hdr,
-		&ett_dect_nr_mac_mux_hdr,
+		&ett_dect_nr_mux_hdr,
 		&ett_dect_nr_nb_msg,
 		&ett_dect_nr_cb_msg,
 		&ett_dect_nr_a_req_msg,
@@ -4941,13 +5120,14 @@ void proto_register_dect_nr(void)
 		&ett_dect_nr_ra_ie,
 		&ett_dect_nr_rar_ie,
 		&ett_dect_nr_rdc_ie,
+		&ett_dect_nr_rdc_phy_cap,
 		&ett_dect_nr_n_ie,
 		&ett_dect_nr_bi_ie,
 		&ett_dect_nr_ga_ie,
 		&ett_dect_nr_li_ie,
 		&ett_dect_nr_mr_ie,
 		&ett_dect_nr_rds_ie,
-		&ett_dect_nr_dlc_st_0,
+		&ett_dect_nr_dlc_pdu,
 		&ett_dect_nr_dlc_routing,
 		&ett_dect_nr_segment,
 		&ett_dect_nr_segments,
@@ -4955,23 +5135,23 @@ void proto_register_dect_nr(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_dect_nr_ie_length_not_set,
-			{ "dect_nr.ie_length_not_set", PI_MALFORMED, PI_ERROR,
+			{ "dect_nr.expert.ie_length_not_set", PI_MALFORMED, PI_ERROR,
 			  "IE length not set (length = -1)", EXPFILL }
 		},
 		{ &ei_dect_nr_pdu_cut_short,
-			{ "dect_nr.pdu_cut_short", PI_MALFORMED, PI_WARN,
+			{ "dect_nr.expert.pdu_cut_short", PI_MALFORMED, PI_WARN,
 			  "PDU incomplete, perhaps trace was cut off", EXPFILL }
 		},
 		{ &ei_dect_nr_length_mismatch,
-			{ "dect_nr.length_mismatch", PI_PROTOCOL, PI_WARN,
+			{ "dect_nr.expert.length_mismatch", PI_PROTOCOL, PI_WARN,
 			  "Length mismatch", EXPFILL }
 		},
 		{ &ei_dect_nr_res_non_zero,
-			{ "dect_nr.res_non_zero", PI_PROTOCOL, PI_WARN,
+			{ "dect_nr.expert.res_non_zero", PI_PROTOCOL, PI_WARN,
 			  "Reserved bits are non-zero", EXPFILL }
 		},
 		{ &ei_dect_nr_undecoded,
-			{ "dect_nr.undecoded", PI_PROTOCOL, PI_WARN,
+			{ "dect_nr.expert.undecoded", PI_PROTOCOL, PI_WARN,
 			  "Undecoded", EXPFILL }
 		}
 	};
@@ -5015,8 +5195,8 @@ void proto_reg_handoff_dect_nr(void)
 	dissector_add_uint("dect_nr.msg_ie", 5, create_dissector_handle(dissect_user_plane_data_flow_3, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie", 6, create_dissector_handle(dissect_user_plane_data_flow_4, proto_dect_nr));
 	/* 7: Reserved */
-	dissector_add_uint("dect_nr.msg_ie", 8,  create_dissector_handle(dissect_network_beacon_msg, proto_dect_nr));
-	dissector_add_uint("dect_nr.msg_ie", 9,  create_dissector_handle(dissect_cluster_beacon_msg, proto_dect_nr));
+	dissector_add_uint("dect_nr.msg_ie", 8, create_dissector_handle(dissect_network_beacon_msg, proto_dect_nr));
+	dissector_add_uint("dect_nr.msg_ie", 9, create_dissector_handle(dissect_cluster_beacon_msg, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie", 10, create_dissector_handle(dissect_association_request_msg, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie", 11, create_dissector_handle(dissect_association_response_msg, proto_dect_nr));
 	dissector_add_uint("dect_nr.msg_ie", 12, create_dissector_handle(dissect_association_release_msg, proto_dect_nr));
