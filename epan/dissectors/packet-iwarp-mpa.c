@@ -1064,6 +1064,7 @@ dissect_iwarp_mpa_decode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 	struct tcpinfo *tcpinfo = NULL;
 	mpa_state_t *state = NULL;
 	bool is_mpa_req_rep = false;
+	port_type saved_ptype = pinfo->ptype;
 
 	if (data == NULL)
 		return 0;
@@ -1119,6 +1120,7 @@ decode:
 			 iwrap_mpa_pdu_length,
 			 dissect_iwarp_mpa_pdu,
 			 tcpinfo);
+	pinfo->ptype = saved_ptype;
 	return tvb_captured_length(tvb);
 }
 
