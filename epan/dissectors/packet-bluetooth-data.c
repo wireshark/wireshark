@@ -5506,6 +5506,16 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0F58,   "Shenzhen Guo-link Technology Co.,Ltd." },
     { 0x0F59,   "Silicon Vandals PTY LTD" },
     { 0x0F5A,   "Vibe Energy B.V." },
+    { 0x0F5B,   "shanghai fudan electronics group company Co. Ltd" },
+    { 0x0F5C,   "Micro Technology Services, Inc." },
+    { 0x0F5D,   "Leapcraft ApS" },
+    { 0x0F5E,   "WUXI WEIDA INTELLIGENT ELECTRONICS CO.,LTD." },
+    { 0x0F5F,   "ROBSON SRL" },
+    { 0x0F60,   "Quilt Systems, Inc." },
+    { 0x0F61,   "HyolimXE Co., Ltd." },
+    { 0x0F62,   "Kehwin Technologies Co. Ltd." },
+    { 0x0F63,   "WATTER, Inc." },
+    { 0x0F64,   "SafeNow GmbH" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };

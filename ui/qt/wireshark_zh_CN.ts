@@ -800,26 +800,6 @@
         <source>Automatically detect file type</source>
         <translation>自动检测文件类型</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1，%Ln 分组后出错</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1，在分组 %Ln 处超时</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1，%Ln 分组</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>前置分组</translation>
@@ -3556,18 +3536,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Print</source>
         <translation>打印</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln 客户端 分组，</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln 服务器 分组，</numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -4024,7 +3992,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show text as frame encoding</source>
-        <oldsource>Show text based on packet</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9494,7 +9461,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source></source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Name</source>
@@ -9674,7 +9641,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>QObject::QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="obsolete">CCCH</translation>
+        <translation type="unfinished">CCCH</translation>
     </message>
 </context>
 <context>

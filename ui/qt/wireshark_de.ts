@@ -1233,11 +1233,11 @@
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufzeichnungsfilter kann nicht geprüft werden</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufzeichnungsfilter kann nicht geprüft werden (BPF-Erweiterung benötigt ein Live-Handle)</translation>
     </message>
 </context>
 <context>
@@ -1956,11 +1956,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Capture filters cannot be compiled for standard input.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufzeichnungsfilter kann nicht für den Standardinput kompiliert werden.</translation>
     </message>
     <message>
         <source>Capture filters cannot be compiled for pipes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufzeichnungsfilter kann nicht für Pipes kompiliert werden.</translation>
     </message>
 </context>
 <context>
@@ -2188,7 +2188,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>…as Go literal</source>
-        <translation>als Go Literal</translation>
+        <translation>...als Go Literal</translation>
     </message>
     <message>
         <source>Copy packet bytes as Go literal.</source>
@@ -3575,15 +3575,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message numerus="yes">
         <source>%Ln client pkt(s), </source>
         <translation type="vanished">
-            <numerusform>%Ln Client Paket,</numerusform>
-            <numerusform>%Ln Client Pakete,</numerusform>
+            <numerusform>%Ln Client Paket, </numerusform>
+            <numerusform>%Ln Client Pakete, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln server pkt(s), </source>
         <translation type="vanished">
-            <numerusform>%Ln Server Paket,</numerusform>
-            <numerusform>%Ln Server Pakete,</numerusform>
+            <numerusform>%Ln Server Paket, </numerusform>
+            <numerusform>%Ln Server Pakete, </numerusform>
         </translation>
     </message>
     <message>
@@ -4049,8 +4049,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Show text as frame encoding</source>
-        <oldsource>Show text based on packet</oldsource>
-        <translation type="unfinished">Text basierend auf den Paketen anzeigen</translation>
+        <translation>Text basierend auf Paket-Kodierung anzeigen</translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -9576,7 +9575,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source></source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Name</source>
@@ -9757,7 +9756,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>QObject::QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
+        <translation type="unfinished">CCCH</translation>
     </message>
 </context>
 <context>
@@ -16143,7 +16142,7 @@ a:hover {
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation type="vanished">
             <numerusform>SSL Session Keys exportieren (%Ln Key)</numerusform>
-            <numerusform>SSL Session Key exportieren (%Ln Keys)</numerusform>
+            <numerusform>SSL Session Keys exportieren (%Ln Keys)</numerusform>
         </translation>
     </message>
     <message>

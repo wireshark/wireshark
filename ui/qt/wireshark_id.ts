@@ -800,26 +800,6 @@
         <source>Automatically detect file type</source>
         <translation>Secara otomatis deteksi tipe berkas</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, galat setelah %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, habis waktu pada %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln paket</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Sisip ke depan paket</translation>
@@ -3562,18 +3542,6 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <source>Print</source>
         <translation>Cetak</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln pkt klien, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln pkt server, </numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -4030,8 +3998,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Show text as frame encoding</source>
-        <oldsource>Show text based on packet</oldsource>
-        <translation type="unfinished">Tampilkan teks berbasis paket</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -8677,18 +8644,6 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <source>Select zip file for export</source>
         <translation>Pilih berkas zip untuk diekspor</translation>
     </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>... %Ln profil pribadi yang dipilih</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln profil pribadi yang dipilih</numerusform>
-        </translation>
-    </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
         <translation>Suatu impor profil tidak diizinkan, ketika perubahan sedang tertunda</translation>
@@ -9513,7 +9468,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source></source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Name</source>
@@ -9694,7 +9649,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <name>QObject::QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
+        <translation type="unfinished">CCCH</translation>
     </message>
 </context>
 <context>
@@ -16026,13 +15981,6 @@ a:hover {
     <message>
         <source>No Keys</source>
         <translation>Tidak Ada Kunci</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Ekspor Kunci Sesi SSL (%Ln kunci)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

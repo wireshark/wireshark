@@ -113,10 +113,10 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>
-            <numerusform>Скопіювати Рядок</numerusform>
-            <numerusform>Скопіювати Рядки</numerusform>
-            <numerusform>Скопіювати Рядки</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -3551,22 +3551,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Print</source>
         <translation>Роздрукувати</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln пакет клієнта,</numerusform>
-            <numerusform>%Ln пакети клієнта,</numerusform>
-            <numerusform>%Ln пакетів клієнта,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln пакет сервера,</numerusform>
-            <numerusform>%Ln пакети сервера,</numerusform>
-            <numerusform>%Ln пакетів сервера,</numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -3713,10 +3697,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
-        <translation>
-            <numerusform>%Ln потік.</numerusform>
-            <numerusform>%Ln всього потоків.</numerusform>
-            <numerusform>%Ln всього потоків.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -4037,7 +4021,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show text as frame encoding</source>
-        <oldsource>Show text based on packet</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8458,9 +8441,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message numerus="yes">
         <source>Copy Row(s)</source>
         <translation type="unfinished">
-            <numerusform>Скопіювати Рядок</numerusform>
-            <numerusform>Скопіювати Рядки</numerusform>
-            <numerusform>Скопіювати Рядки</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -9478,7 +9461,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source></source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Name</source>
@@ -9651,6 +9634,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QObject::QObject::QObject</name>
+    <message>
+        <source>CCCH</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

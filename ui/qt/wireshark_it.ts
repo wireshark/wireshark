@@ -105,7 +105,7 @@
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation>Mostra in Finder</translation>
+        <translation>Mostra nella cartella</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -1233,11 +1233,11 @@
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile controllare il filtro di cattura</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile controllare il filtro di cattura (le estensioni BPF richiedono un handle live)</translation>
     </message>
 </context>
 <context>
@@ -1956,11 +1956,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Capture filters cannot be compiled for standard input.</source>
-        <translation type="unfinished"></translation>
+        <translation>I filtri di cattura non possono essere compilati per lo standard input.</translation>
     </message>
     <message>
         <source>Capture filters cannot be compiled for pipes.</source>
-        <translation type="unfinished"></translation>
+        <translation>I filtri di cattura non possono essere compilati per le pipe.</translation>
     </message>
 </context>
 <context>
@@ -3629,22 +3629,22 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
         <translation>
-            <numerusform>%n pacchetto &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt;, </numerusform>
-            <numerusform>%n pacchetti &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln pacchetto &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln pacchetti &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
         <translation>
-            <numerusform>%n pacchetto &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt;, </numerusform>
-            <numerusform>%n pacchetti &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln pacchetto &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln pacchetti &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
         <translation>
-            <numerusform>%n turno.</numerusform>
-            <numerusform>%n turni.</numerusform>
+            <numerusform>%Ln turno.</numerusform>
+            <numerusform>%Ln turni.</numerusform>
         </translation>
     </message>
     <message>
@@ -3654,8 +3654,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
         <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;letti&lt;/span&gt;,</numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;letti&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;lettura&lt;/span&gt;,</numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;letture&lt;/span&gt;,</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -3728,8 +3728,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
         <translation>
-            <numerusform>%n flusso.</numerusform>
-            <numerusform>%n flussi totali.</numerusform>
+            <numerusform>%Ln flusso.</numerusform>
+            <numerusform>%Ln flussi totali.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -4049,8 +4049,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Show text as frame encoding</source>
-        <oldsource>Show text based on packet</oldsource>
-        <translation type="unfinished">Mostra testo sulla base del pacchetto</translation>
+        <translation>Mostra il testo come codifica del frame</translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -8806,8 +8805,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
         <translation>
-            <numerusform>, %Ln profilo importato</numerusform>
-            <numerusform>, %Ln profili importati</numerusform>
+            <numerusform>, %Ln profilo saltato</numerusform>
+            <numerusform>, %Ln profili saltati</numerusform>
         </translation>
     </message>
     <message>
@@ -9577,7 +9576,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source></source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Name</source>
@@ -9758,7 +9757,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>QObject::QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
+        <translation>CCCH</translation>
     </message>
 </context>
 <context>
@@ -11901,15 +11900,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message numerus="yes">
         <source>%Ln node(s)</source>
         <translation>
-            <numerusform>%n nodo</numerusform>
-            <numerusform>%n nodi</numerusform>
+            <numerusform>%Ln nodo</numerusform>
+            <numerusform>%Ln nodi</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
         <translation>
-            <numerusform>%n voce</numerusform>
-            <numerusform>%n voci</numerusform>
+            <numerusform>%Ln elemento</numerusform>
+            <numerusform>%Ln elementi</numerusform>
         </translation>
     </message>
     <message>

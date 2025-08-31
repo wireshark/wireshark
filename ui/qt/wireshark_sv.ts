@@ -802,29 +802,6 @@
         <source>Automatically detect file type</source>
         <translation>Detektera automatiskt filtyp</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, fel efter %Ln paket</numerusform>
-            <numerusform>%1, fel efter %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, tidsgränsen gick ut efter %Ln paket</numerusform>
-            <numerusform>%1, tidsgränsen gick ut efter %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln paket</numerusform>
-            <numerusform>%1, %Ln paket</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Lägg paket före</translation>
@@ -2243,7 +2220,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>DataSourceTab</name>
     <message>
         <source>Packet bytes</source>
-        <translation type="unfinished">Paketbyte</translation>
+        <translation>Paketbyte</translation>
     </message>
     <message>
         <source>Event data</source>
@@ -2416,7 +2393,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Inställningar för filterknapp...</translation>
     </message>
 </context>
 <context>
@@ -3319,7 +3296,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Inställningar för filterknapp...</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -3575,15 +3552,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message numerus="yes">
         <source>%Ln client pkt(s), </source>
         <translation type="vanished">
-            <numerusform>%Ln klientpaket,</numerusform>
-            <numerusform>%Ln klientpaket,</numerusform>
+            <numerusform>%Ln klientpaket, </numerusform>
+            <numerusform>%Ln klientpaket, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln server pkt(s), </source>
         <translation type="vanished">
-            <numerusform>%Ln serverpaket,</numerusform>
-            <numerusform>%Ln serverpaket,</numerusform>
+            <numerusform>%Ln serverpaket, </numerusform>
+            <numerusform>%Ln serverpaket, </numerusform>
         </translation>
     </message>
     <message>
@@ -3649,25 +3626,25 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Event %1. </source>
-        <translation>Händelse %1</translation>
+        <translation>Händelse %1. </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
         <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;läsning&lt;/span&gt;.</numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;läsningar&lt;/span&gt;.</numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;läsning&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;läsningar&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
         <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;skrivning&lt;/span&gt;.</numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;skrivningar&lt;/span&gt;.</numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;skrivning&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;skrivningar&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message>
         <source> Click to select.</source>
-        <translation>Klicka för att välja.</translation>
+        <translation> Klicka för att välja.</translation>
     </message>
     <message>
         <source>Regex Find:</source>
@@ -4049,8 +4026,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Show text as frame encoding</source>
-        <oldsource>Show text based on packet</oldsource>
-        <translation type="unfinished">Visa text baserat på paket</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -6895,7 +6871,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source> %1 Displayed: %2 (%3%)</source>
-        <translation>%1 visade: %2 (%3 %)</translation>
+        <translation> %1 visade: %2 (%3 %)</translation>
     </message>
     <message>
         <source>Manage Profiles…</source>
@@ -6976,11 +6952,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Selected Packet: %1 %2 </source>
-        <translation>Välj paket: %1 %2</translation>
+        <translation>Valda paket: %1 %2 </translation>
     </message>
     <message>
         <source>Selected Event: %1 %2 </source>
-        <translation>Valda händelser: %1 %2</translation>
+        <translation>Vald händelse: %1 %2 </translation>
     </message>
     <message>
         <source>Events: %1</source>
@@ -6988,7 +6964,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source> %1 Selected: %2 (%3%)</source>
-        <translation>%1 valda: %2 (%3 %)</translation>
+        <translation> %1 valda: %2 (%3 %)</translation>
     </message>
     <message>
         <source> %1 Marked: %2 (%3%)</source>
@@ -7005,7 +6981,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source> %1 Comments: %2</source>
-        <translation>%1 kommentarer: %2</translation>
+        <translation> %1 kommentarer: %2</translation>
     </message>
     <message>
         <source> %1  Load time: %2:%3.%4</source>
@@ -7022,22 +6998,22 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Från zip-fil...</translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Från katalog...</translation>
     </message>
     <message>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Vald personlig profil...</translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Alla personliga profiler...</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7063,7 +7039,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>…as %1</source>
-        <translation type="unfinished"></translation>
+        <translation>... som %1</translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
@@ -7335,7 +7311,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Ok</translation>
     </message>
 </context>
 <context>
@@ -8258,7 +8234,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Delete All</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort alla</translation>
     </message>
     <message>
         <source>Show Markers DataPoints</source>
@@ -8665,12 +8641,12 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Från zip-fil...</translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Från katalog...</translation>
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)…</source>
@@ -8683,7 +8659,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Alla personliga profiler...</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -8704,20 +8680,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Select zip file for export</source>
         <translation>Välj zip-fil för exporten</translation>
-    </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln vad personlig profil</numerusform>
-            <numerusform>… %Ln valda personliga profiler</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln vald personlig profil</numerusform>
-            <numerusform>%Ln valda personliga profiler</numerusform>
-        </translation>
     </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
@@ -9547,7 +9509,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source></source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Name</source>
@@ -9728,7 +9690,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>QObject::QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
+        <translation type="unfinished">CCCH</translation>
     </message>
 </context>
 <context>
@@ -13108,11 +13070,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source> (%1 Segment MA)</source>
-        <translation>(%1-segments GM)</translation>
+        <translation> (%1-segments GM)</translation>
     </message>
     <message>
         <source> [not enough data]</source>
-        <translation>[inte tillräckligt med data]</translation>
+        <translation> [inte tillräckligt med data]</translation>
     </message>
     <message>
         <source> for %1:%2 %3 %4:%5</source>
@@ -16108,14 +16070,6 @@ a:hover {
     <message>
         <source>No Keys</source>
         <translation>Inga nycklar</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nyckel)</numerusform>
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nycklar)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

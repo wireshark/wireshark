@@ -113,9 +113,9 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>
-            <numerusform>Copiar linha</numerusform>
-            <numerusform>Copiar linhas</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -802,29 +802,6 @@
         <source>Automatically detect file type</source>
         <translation>Detectar tipo de arquivo automaticamente</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, erro após %Ln pacote</numerusform>
-            <numerusform>%1, erro após %Ln pacotes</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, tempo esgotado em %Ln pacote</numerusform>
-            <numerusform>%1, tempo esgotado em %Ln pacotes</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln pacote</numerusform>
-            <numerusform>%1, %Ln pacotes</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Adicionar pacotes no início</translation>
@@ -904,23 +881,23 @@
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation>
-            <numerusform>%1, erro após %Ln registro de dados</numerusform>
-            <numerusform>%1, erro após %Ln registros de dados</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
-        <translation>
-            <numerusform>%1, tempo esgotado em %Ln registro de dados</numerusform>
-            <numerusform>%1, tempo esgotado em %Ln registros de dados</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
-        <translation>
-            <numerusform>%1, %Ln registro de dados</numerusform>
-            <numerusform>%1, %Ln registros de dados</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -3160,9 +3137,9 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
-        <translation>
-            <numerusform>%Ln Arquivo no Conjunto</numerusform>
-            <numerusform>%Ln Arquivos no Conjunto</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -3572,20 +3549,6 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <source>Print</source>
         <translation>Imprimir</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln pct do cliente,</numerusform>
-            <numerusform>%Ln pcts do cliente,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln pct do servidor,</numerusform>
-            <numerusform>%Ln pcts do servidor,</numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -3628,23 +3591,23 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation>
-            <numerusform>%Ln pct do &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;cliente&lt;/span&gt;,</numerusform>
-            <numerusform>%Ln pcts do &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;cliente&lt;/span&gt;,</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
-        <translation>
-            <numerusform>%Ln pct do &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;servidor&lt;/span&gt;,</numerusform>
-            <numerusform>%Ln pcts do &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;servidor&lt;/span&gt;,</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
-        <translation>
-            <numerusform>%Ln volta</numerusform>
-            <numerusform>%Ln voltas</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -3653,16 +3616,16 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;leitura&lt;/span&gt;,</numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;leituras&lt;/span&gt;,</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;escrita&lt;/span&gt;,</numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;escritas&lt;/span&gt;,</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -3727,16 +3690,16 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
-        <translation>
-            <numerusform>%Ln fluxo total.</numerusform>
-            <numerusform>%Ln fluxos totais.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Max sub stream ID for the selected stream: %Ln</source>
-        <translation>
-            <numerusform>ID máximo do subfluxo para o fluxo selecionado: %Ln</numerusform>
-            <numerusform>ID máximo de subfluxo para os fluxos selecionados: %Ln</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -4049,7 +4012,6 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     </message>
     <message>
         <source>Show text as frame encoding</source>
-        <oldsource>Show text based on packet</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6958,16 +6920,16 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     <message numerus="yes">
         <source>%Ln byte(s)</source>
         <oldsource>, %1 bytes</oldsource>
-        <translation>
-            <numerusform>%Ln byte</numerusform>
-            <numerusform>%Ln bytes</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln bit(s)</source>
-        <translation>
-            <numerusform>%Ln bit</numerusform>
-            <numerusform>%Ln bits</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -7643,16 +7605,16 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     </message>
     <message numerus="yes">
         <source>%Ln byte(s)</source>
-        <translation>
-            <numerusform>%Ln byte</numerusform>
-            <numerusform>%Ln bytes</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln bit(s)</source>
-        <translation>
-            <numerusform>%Ln bit</numerusform>
-            <numerusform>%Ln bits</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -8522,9 +8484,9 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>
-            <numerusform>Copiar linha</numerusform>
-            <numerusform>Copiar linhas</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -8709,20 +8671,6 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <source>Select zip file for export</source>
         <translation>Selecionar arquivo zip para exportação</translation>
     </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln perfil pessoal selecionado</numerusform>
-            <numerusform>… %Ln perfis pessoais selecionados</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln perfil pessoal selecionado</numerusform>
-            <numerusform>%Ln perfis pessoais selecionados</numerusform>
-        </translation>
-    </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
         <translation>A importação de perfis não é permitida enquanto houver alterações pendentes</translation>
@@ -8741,9 +8689,9 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
-        <translation>
-            <numerusform>%Ln perfil exportado</numerusform>
-            <numerusform>%Ln perfis exportados</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -8772,16 +8720,16 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) imported</source>
-        <translation>
-            <numerusform>%Ln perfil importado</numerusform>
-            <numerusform>%Ln perfis importados</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation>
-            <numerusform>, %Ln perfil ignorado</numerusform>
-            <numerusform>, %Ln perfis ignorados</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -9551,7 +9499,7 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     </message>
     <message>
         <source></source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Name</source>
@@ -9732,7 +9680,7 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     <name>QObject::QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="vanished">CCCH</translation>
+        <translation type="unfinished">CCCH</translation>
     </message>
 </context>
 <context>
@@ -11874,16 +11822,16 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation>
-            <numerusform>%Ln nó</numerusform>
-            <numerusform>%Ln nós</numerusform>
+        <translation type="unfinished">
+            <numerusform>%Ln node</numerusform>
+            <numerusform>%Ln nodes</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform>%Ln item</numerusform>
-            <numerusform>%Ln itens</numerusform>
+            <numerusform>%Ln items</numerusform>
         </translation>
     </message>
     <message>
@@ -12270,9 +12218,9 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     </message>
     <message numerus="yes">
         <source>Frame %1, %2, %Ln byte(s).</source>
-        <translation>
-            <numerusform>Quadro %1, %2, %Ln byte</numerusform>
-            <numerusform>Quadro %1, %2, %Ln bytes</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -12373,9 +12321,9 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     </message>
     <message numerus="yes">
         <source>Using %Ln byte(s).</source>
-        <translation>
-            <numerusform>Usando %Ln byte.</numerusform>
-            <numerusform>Usando %Ln bytes.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -13913,9 +13861,9 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
-        <translation>
-            <numerusform>%n interface mostrada, %1 ocultada</numerusform>
-            <numerusform>%n interfaces mostradas, %1 ocultadas</numerusform>
+        <translation type="unfinished">
+            <numerusform>%n interface shown, %1 hidden</numerusform>
+            <numerusform>%n interfaces shown, %1 hidden</numerusform>
         </translation>
     </message>
     <message>
@@ -16113,14 +16061,6 @@ a:hover {
         <source>No Keys</source>
         <translation>Sem Chaves</translation>
     </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Exportar Chaves de Sessão SSL (%Ln chave)</numerusform>
-            <numerusform>Exportar Chaves de Sessão SSL (%Ln chaves)</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Dados brutos (*.bin *.dat *.raw);;Todos os Arquivos (</translation>
@@ -16217,9 +16157,9 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation>
-            <numerusform>Exportar Chaves de Sessão TLS (%Ln chave)</numerusform>
-            <numerusform>Exportar Chaves de Sessão TLS (%Ln chaves)</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
