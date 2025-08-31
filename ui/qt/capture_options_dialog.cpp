@@ -984,16 +984,16 @@ void CaptureOptionsDialog::updateStatistics(void)
 
 void CaptureOptionsDialog::on_compileBPF_clicked()
 {
-    QList<InterfaceFilter> interfaces;
+    InterfaceList interfaces;
     interface_t *device;
     foreach (QTreeWidgetItem *ti, ui->interfaceTree->selectedItems()) {
         QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
         device = getDeviceByName(device_name);
         if (!device) continue;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        interfaces.emplaceBack(device_name, device->if_info.type, ti->text(col_interface_), ti->text(col_filter_), device->active_dlt);
+        interfaces.emplaceBack(device);
 #else
-        interfaces.append(InterfaceFilter(device_name, device->if_info.type, ti->text(col_interface_), ti->text(col_filter_), device->active_dlt));
+        interfaces.append(device);
 #endif
     }
 

@@ -18,6 +18,7 @@
 
 #include <wiretap/wtap.h>
 #include <capture/capture_sync.h>
+#include <ui/capture_opts.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/stock_icon.h>
 
@@ -35,7 +36,7 @@
 // gethostbyname(3) claims that it's thread safe.
 static QMutex pcap_compile_mtx_;
 
-CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QList<InterfaceFilter> &intList) :
+CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, InterfaceList &intList) :
     GeometryStateDialog(parent),
     intList_(intList),
     ui(new Ui::CompiledFilterOutput)
@@ -78,7 +79,7 @@ void CompiledFilterOutput::setTitle()
     // How many unique filters do we have?
     QSet<QString> filterSet;
     for (const auto &current : intList_) {
-        filterSet << current.filter;
+        filterSet << current->cfilter;
     }
     QStringList titleList;
     titleList << tr("Compiled Filter Output");
@@ -98,18 +99,18 @@ void CompiledFilterOutput::setTitle()
 }
 
 #ifdef HAVE_LIBPCAP
-bool CompiledFilterOutput::compileFilter(const InterfaceFilter& filter)
+bool CompiledFilterOutput::compileFilter(const interface_t *interface)
 {
     struct bpf_program fcode;
 
-    pcap_t *pd = pcap_open_dead(filter.linktype, WTAP_MAX_PACKET_SIZE_STANDARD);
+    pcap_t *pd = pcap_open_dead(interface->active_dlt, WTAP_MAX_PACKET_SIZE_STANDARD);
     if (pd == NULL) {
         return false;
     }
     QMutexLocker locker(&pcap_compile_mtx_);
-    int err = pcap_compile(pd, &fcode, filter.filter.toUtf8().constData(), 1, 0);
+    int err = pcap_compile(pd, &fcode, interface->cfilter, 1, 0);
     if (err < 0) {
-        compile_results.insert(filter.display_name, QString(pcap_geterr(pd)));
+        compile_results.insert(QString(interface->display_name), QString(pcap_geterr(pd)));
         pcap_close(pd);
         return false;
     }
@@ -120,7 +121,7 @@ bool CompiledFilterOutput::compileFilter(const InterfaceFilter& filter)
         bpf_code_dump << QString::fromUtf8(bpf_image(insn, i));
     }
     pcap_freecode(&fcode);
-    compile_results.insert(filter.display_name, bpf_code_dump.join('\n'));
+    compile_results.insert(QString(interface->display_name), bpf_code_dump.join('\n'));
     return true;
 }
 
@@ -130,8 +131,8 @@ void CompiledFilterOutput::compileFilters()
     bool success;
     QListWidgetItem *newitem;
 
-    foreach (InterfaceFilter current, intList_) {
-        switch (current.iftype) {
+    for (const auto &current : intList_) {
+        switch (current->if_info.type) {
 
         case IF_EXTCAP:
             // Extcaps should perhaps have a method to compile a filter
@@ -141,34 +142,34 @@ void CompiledFilterOutput::compileFilters()
 
         case IF_STDIN:
             success = false;
-            compile_results.insert(current.display_name, tr("Capture filters cannot be compiled for standard input."));
+            compile_results.insert(QString(current->display_name), tr("Capture filters cannot be compiled for standard input."));
             break;
 
         case IF_PIPE:
             success = false;
-            compile_results.insert(current.display_name, tr("Capture filters cannot be compiled for pipes."));
+            compile_results.insert(QString(current->display_name), tr("Capture filters cannot be compiled for pipes."));
             break;
 
         default:
             // See if dumpcap can compile the filter. This is more accurate
             // because BPF extensions might need to be used for a particular
             // device.
-            if (sync_if_bpf_filter_open(current.device_name.toUtf8().constData(), current.filter.toUtf8().constData(), current.linktype, &data, &primary_msg, &secondary_msg, NULL)) {
-                compile_results.insert(current.display_name, gchar_free_to_qstring(primary_msg));
+            if (sync_if_bpf_filter_open(current->name, current->cfilter, current->active_dlt, current->optimize, &data, &primary_msg, &secondary_msg, NULL)) {
+                compile_results.insert(QString(current->display_name), gchar_free_to_qstring(primary_msg));
                 g_free(secondary_msg);
                 success = false;
             } else {
-                compile_results.insert(current.display_name, gchar_free_to_qstring(data));
+                compile_results.insert(QString(current->display_name), gchar_free_to_qstring(data));
                 success = true;
             }
             break;
         }
         if (success) {
-            newitem = new QListWidgetItem(current.display_name);
+            newitem = new QListWidgetItem(QString(current->display_name));
         } else {
-            newitem = new QListWidgetItem(StockIcon("x-expert-error"), current.display_name);
+            newitem = new QListWidgetItem(StockIcon("x-expert-error"), QString(current->display_name));
         }
-        newitem->setData(Qt::UserRole, current.filter);
+        newitem->setData(Qt::UserRole, QString(current->cfilter));
         ui->interfaceList->addItem(newitem);
     }
 }

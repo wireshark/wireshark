@@ -1381,8 +1381,8 @@ sync_interface_set_80211_chan(const char *iface, const char *freq, const char *t
  * must be freed with g_free().
  */
 int
-sync_if_bpf_filter_open(const char *ifname, const char* filter,
-                        int linktype, char **data, char **primary_msg,
+sync_if_bpf_filter_open(const char *ifname, const char* filter, int linktype,
+                        bool optimize, char **data, char **primary_msg,
                         char **secondary_msg, void (*update_cb)(void))
 {
     int argc;
@@ -1417,6 +1417,9 @@ sync_if_bpf_filter_open(const char *ifname, const char* filter,
     if (linktype_name) {
         argv = sync_pipe_add_arg(argv, &argc, "-y");
         argv = sync_pipe_add_arg(argv, &argc, linktype_name);
+    }
+    if (!optimize) {
+        argv = sync_pipe_add_arg(argv, &argc, "--no-optimize");
     }
     argv = sync_pipe_add_arg(argv, &argc, "-f");
     argv = sync_pipe_add_arg(argv, &argc, filter);
