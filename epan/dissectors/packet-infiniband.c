@@ -1763,8 +1763,20 @@ static void table_destroy_notify(void *data) {
 static int
 dissect_rroce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    /* this is a RRoCE packet, so signal the IB dissector not to look for LRH/GRH */
+    /*
+     * this is a RRoCE packet so signal the IB dissector not to look for LRH/GRH
+     *
+     * We also make sure to reset pinfo->{ptype,srcport,destport} so
+     * that PT_IBQP is only set temporary, so that Follow UDP Stream
+     * still works.
+     */
+    port_type saved_ptype = pinfo->ptype;
+    uint32_t saved_srcport = pinfo->srcport;
+    uint32_t saved_destport = pinfo->destport;
     dissect_infiniband_common(tvb, pinfo, tree, IB_PACKET_STARTS_WITH_BTH);
+    pinfo->ptype = saved_ptype;
+    pinfo->srcport = saved_srcport;
+    pinfo->destport = saved_destport;
     return tvb_captured_length(tvb);
 }
 
