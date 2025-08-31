@@ -4037,8 +4037,6 @@ dissect_http2_settings(tvbuff_t* tvb, packet_info* pinfo _U_, http2_session_t* h
                          */
                         flow_index ^= 1;
 
-                        h2session->initial_new_stream_window_size[flow_index] = newInitialWindowSize;
-
 #ifdef HAVE_NGHTTP2
                         {
                             uint32_t previousInitialWindowSize = h2session->initial_new_stream_window_size[flow_index];
@@ -4060,6 +4058,8 @@ dissect_http2_settings(tvbuff_t* tvb, packet_info* pinfo _U_, http2_session_t* h
                             }
                         }
 #endif
+
+                        h2session->initial_new_stream_window_size[flow_index] = newInitialWindowSize;
                     }
                 }
             break;
