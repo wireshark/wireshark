@@ -2296,6 +2296,18 @@ currently only displays the first comment of a capture file.
 List time stamp types supported for the interface. If no time stamp type can be
 set, no time stamp types are listed.
 
+--no-optimize::
+Do not run the libpcap optimizer when generating code for a capture filter.
+This is useful if you suspect a bug in the optimizer.
+// tshark does not support the -d option to dump the filter, so no need to
+// mention instructive purposes.
+
+This option can occur multiple times. If used before the first
+occurrence of the *-i* option, capture filters are not optimized for all
+interfaces. If used after an *-i* option, the capture filter for the interface
+specified by the last *-i* option occurring before this option is not optimized.
+// This is not supported for extcaps (yet)
+
 --time-stamp-type <type>::
 Change the interface's timestamp method.
 
@@ -2360,6 +2372,10 @@ captures only.
 Should we document it? Deprecate it in favor of also using compress?
 ////
 --
+
+// Add a "capture-options" group for the common capture options?
+// Note a few options have different behavior in tshark, like -w,
+// because they operate on both live capture and when reading from file.
 
 include::dissection-options.adoc[tags=**;!not_tshark]
 

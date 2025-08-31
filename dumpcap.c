@@ -491,6 +491,7 @@ print_usage(FILE *output)
     fprintf(output, "  -L, --list-data-link-types\n");
     fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
+    fprintf(output, "  --no-optimize            do not optimize capture filter\n");
     fprintf(output, "  --update-interval        interval between updates with new packets, in milliseconds (def: %dms)\n", DEFAULT_UPDATE_INTERVAL);
     fprintf(output, "  -d                       print generated BPF code for capture filter\n");
     fprintf(output, "  -k <freq>,[<type>],[<center_freq1>],[<center_freq2>]\n");
@@ -693,7 +694,8 @@ get_capture_device_open_failure_messages(cap_device_open_status open_status,
 
 static bool
 compile_capture_filter(const char *iface, pcap_t *pcap_h,
-                       struct bpf_program *fcode, const char *cfilter)
+                       struct bpf_program *fcode, const char *cfilter,
+                       int optimize)
 {
     bpf_u_int32 netnum, netmask;
     char        lookup_net_err_str[PCAP_ERRBUF_SIZE];
@@ -719,7 +721,7 @@ compile_capture_filter(const char *iface, pcap_t *pcap_h,
      * away the warning.
      */
 DIAG_OFF(cast-qual)
-    if (pcap_compile(pcap_h, fcode, (char *)cfilter, 1, netmask) < 0)
+    if (pcap_compile(pcap_h, fcode, (char *)cfilter, optimize, netmask) < 0)
         return false;
 DIAG_ON(cast-qual)
     return true;
@@ -766,7 +768,8 @@ show_filter_code(capture_options *capture_opts)
 
         /* OK, try to compile the capture filter. */
         if (!compile_capture_filter(interface_opts->name, pcap_h, &fcode,
-                                    interface_opts->cfilter)) {
+                                    interface_opts->cfilter,
+                                    interface_opts->optimize)) {
             snprintf(errmsg, sizeof(errmsg), "%s", pcap_geterr(pcap_h));
             pcap_close(pcap_h);
             report_cfilter_error(capture_opts, j, errmsg);
@@ -3408,7 +3411,7 @@ static void capture_loop_close_input(loop_data *ld)
 /* init the capture filter */
 static initfilter_status_t
 capture_loop_init_filter(pcap_t *pcap_h, bool from_cap_pipe,
-                         const char * name, const char * cfilter)
+                         const char * name, const char * cfilter, int optimize)
 {
     struct bpf_program fcode;
 
@@ -3417,7 +3420,7 @@ capture_loop_init_filter(pcap_t *pcap_h, bool from_cap_pipe,
     /* capture filters only work on real interfaces */
     if (cfilter && !from_cap_pipe) {
         /* A capture filter was specified; set it up. */
-        if (!compile_capture_filter(name, pcap_h, &fcode, cfilter)) {
+        if (!compile_capture_filter(name, pcap_h, &fcode, cfilter, optimize)) {
             /* Treat this specially - our caller might try to compile this
                as a display filter and, if that succeeds, warn the user that
                the display and capture filter syntaxes are different. */
@@ -4293,7 +4296,8 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
          */
         switch (capture_loop_init_filter(pcap_src->pcap_h, pcap_src->from_cap_pipe,
                                          interface_opts->name,
-                                         interface_opts->cfilter?interface_opts->cfilter:"")) {
+                                         interface_opts->cfilter?interface_opts->cfilter:"",
+                                         interface_opts->optimize)) {
 
         case INITFILTER_NO_ERROR:
             break;
@@ -5571,6 +5575,7 @@ main(int argc, char *argv[])
 #endif
         case 'B':        /* Buffer size */
         case 'I':        /* Monitor mode */
+        case LONGOPT_NO_OPTIMIZE:          /* Don't optimize capture filter */
         case LONGOPT_COMPRESS_TYPE:        /* compress type */
         case LONGOPT_CAPTURE_TMPDIR:       /* capture temp directory */
         case LONGOPT_UPDATE_INTERVAL:      /* sync pipe update interval */

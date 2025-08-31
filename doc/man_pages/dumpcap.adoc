@@ -45,6 +45,7 @@ dumpcap - Dump network traffic
 [ *--application-flavor* [wireshark|stratoshark] ]
 [ *--capture-comment* <comment> ]
 [ *--list-time-stamp-types* ]
+[ *--no-optimize* ]
 [ *--time-stamp-type* <type> ]
 [ *--update-interval* <interval> ]
 
@@ -188,8 +189,10 @@ If used in combination with the *-N* option, both limits will apply.
 Setting this limit will enable the usage of the separate thread per interface.
 
 -d::
-Dump the code generated for the capture filter in a human-readable form,
-and exit.
+Dump the code generated for the capture filter(s) in a human-readable form,
+and exit. If capturing on multiple interfaces, the capture filter for each
+interface will be printed in the order that the interfaces were specified.
+(Note that a capture filter may compile differently on different interfaces.)
 
 -D|--list-interfaces::
 Print a list of the interfaces on which *Dumpcap* can capture, and
@@ -484,6 +487,16 @@ used in other tools?
 --list-time-stamp-types::
 List time stamp types supported for the interface. If no time stamp type can be
 set, no time stamp types are listed.
+
+--no-optimize::
+Do not run the libpcap optimizer when generating code for a capture filter.
+This is useful if you suspect a bug in the optimizer, or for instructive
+purposes.
+
+This option can occur multiple times. If used before the first
+occurrence of the *-i* option, capture filters are not optimized for all
+interfaces. If used after an *-i* option, the capture filter for the interface
+specified by the last *-i* option occurring before this option is not optimized.
 
 --time-stamp-type  <type>::
 Change the interface's timestamp method.

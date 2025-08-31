@@ -59,6 +59,7 @@ capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *,
     capture_opts->default_options.hardware        = NULL;
     capture_opts->default_options.display_name    = NULL;
     capture_opts->default_options.cfilter         = NULL;
+    capture_opts->default_options.optimize        = 1;
     capture_opts->default_options.has_snaplen     = false;
     capture_opts->default_options.snaplen         = WTAP_MAX_PACKET_SIZE_STANDARD;
     capture_opts->default_options.linktype        = -1; /* use interface default */
@@ -197,7 +198,7 @@ capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_op
         ws_log(log_domain, log_level, "Interface description[%02d] : %s", i, interface_opts->descr ? interface_opts->descr : "(unspecified)");
         ws_log(log_domain, log_level, "Interface vendor description[%02d] : %s", i, interface_opts->hardware ? interface_opts->hardware : "(unspecified)");
         ws_log(log_domain, log_level, "Display name[%02d]: %s", i, interface_opts->display_name ? interface_opts->display_name : "(unspecified)");
-        ws_log(log_domain, log_level, "Capture filter[%02d]  : %s", i, interface_opts->cfilter ? interface_opts->cfilter : "(unspecified)");
+        ws_log(log_domain, log_level, "Capture filter[%02d]  : %s%s", i, interface_opts->cfilter ? interface_opts->cfilter : "(unspecified)", interface_opts->optimize ? "" : " (unoptimized)");
         ws_log(log_domain, log_level, "Snap length[%02d] (%u) : %d", i, interface_opts->has_snaplen, interface_opts->snaplen);
         ws_log(log_domain, log_level, "Link Type[%02d]       : %d", i, interface_opts->linktype);
         ws_log(log_domain, log_level, "Promiscuous Mode[%02d]: %s", i, interface_opts->promisc_mode?"TRUE":"FALSE");
@@ -237,7 +238,7 @@ capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_op
     ws_log(log_domain, log_level, "Interface Descr[df] : %s", capture_opts->default_options.descr ? capture_opts->default_options.descr : "(unspecified)");
     ws_log(log_domain, log_level, "Interface Hardware Descr[df] : %s", capture_opts->default_options.hardware ? capture_opts->default_options.hardware : "(unspecified)");
     ws_log(log_domain, log_level, "Interface display name[df] : %s", capture_opts->default_options.display_name ? capture_opts->default_options.display_name : "(unspecified)");
-    ws_log(log_domain, log_level, "Capture filter[df]  : %s", capture_opts->default_options.cfilter ? capture_opts->default_options.cfilter : "(unspecified)");
+    ws_log(log_domain, log_level, "Capture filter[df]  : %s%s", capture_opts->default_options.cfilter ? capture_opts->default_options.cfilter : "(unspecified)", capture_opts->default_options.optimize ? "" : " (unoptimized)");
     ws_log(log_domain, log_level, "Snap length[df] (%u) : %d", capture_opts->default_options.has_snaplen, capture_opts->default_options.snaplen);
     ws_log(log_domain, log_level, "Link Type[df]       : %d", capture_opts->default_options.linktype);
     ws_log(log_domain, log_level, "Promiscuous Mode[df]: %s", capture_opts->default_options.promisc_mode?"TRUE":"FALSE");
@@ -637,6 +638,7 @@ fill_in_interface_opts_defaults(interface_options *interface_opts, const capture
 {
 
     interface_opts->cfilter = g_strdup(capture_opts->default_options.cfilter);
+    interface_opts->optimize = capture_opts->default_options.optimize;
     interface_opts->snaplen = capture_opts->default_options.snaplen;
     interface_opts->has_snaplen = capture_opts->default_options.has_snaplen;
     interface_opts->linktype = capture_opts->default_options.linktype;
@@ -1042,6 +1044,16 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         } else {
             g_free(capture_opts->default_options.timestamp_type);
             capture_opts->default_options.timestamp_type = g_strdup(optarg_str_p);
+        }
+        break;
+    case LONGOPT_NO_OPTIMIZE:        /* Don't optimize capture filter */
+        if (capture_opts->ifaces->len > 0) {
+            interface_options *interface_opts;
+
+            interface_opts = &g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+            interface_opts->optimize = 0;
+        } else {
+            capture_opts->default_options.optimize = 0;
         }
         break;
     case 'i':        /* Use interface x */

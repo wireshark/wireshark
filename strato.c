@@ -1277,6 +1277,7 @@ main(int argc, char *argv[])
             case 's':        /* Set the snapshot (capture) length */
             case 'y':        /* Set the pcap data link type */
             case 'B':        /* Buffer size */
+            case LONGOPT_NO_OPTIMIZE:          /* Don't optimize capture filter */
             case LONGOPT_COMPRESS_TYPE:        /* compress type */
             case LONGOPT_CAPTURE_TMPDIR:       /* capture temp directory */
             case LONGOPT_UPDATE_INTERVAL:      /* sync pipe update interval */
