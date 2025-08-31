@@ -1290,10 +1290,6 @@ static const value_string rdc_pwr_two_field_vals[] = {
 	{ 1, "2" },
 	{ 2, "4" },
 	{ 3, "8" },
-	{ 4, "Reserved" },
-	{ 5, "Reserved" },
-	{ 6, "Reserved" },
-	{ 7, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -4991,7 +4987,7 @@ void proto_register_dect_nr(void)
 		/* DLC Timers configuration control IE */
 		{ &hf_dect_nr_dlc_timers,
 			{ "DLC SDU lifetime timer", "dect_nr.dlc.sdu_lifetime_timer", FT_UINT8, BASE_DEC,
-			  VALS(dlc_discard_timer_vals), 0xF0, NULL, HFILL }
+			  VALS(dlc_discard_timer_vals), 0x0, NULL, HFILL }
 		},
 
 		/* DLC Routing header */
