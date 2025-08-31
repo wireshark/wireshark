@@ -451,6 +451,16 @@ List the data link types supported by the interface and exit.
 List time stamp types supported for the interface. If no time stamp type can be
 set, no time stamp types are listed.
 
+--no-optimize::
+Do not run the libpcap optimizer when generating code for a capture filter.
+This is useful if you suspect a bug in the optimizer, or for instructive
+purposes.
+
+This option can occur multiple times. If used before the first
+occurrence of the *-i* option, capture filters are not optimized for all
+interfaces. If used after an *-i* option, the capture filter for the interface
+specified by the last *-i* option occurring before this option is not optimized.
+
 -o  <preference/recent setting>::
 +
 --

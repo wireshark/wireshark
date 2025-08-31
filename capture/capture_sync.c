@@ -860,6 +860,9 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
             argv = sync_pipe_add_arg(argv, &argc, "-f");
             argv = sync_pipe_add_arg(argv, &argc, interface_opts->cfilter);
         }
+        if (!interface_opts->optimize) {
+            argv = sync_pipe_add_arg(argv, &argc, "--no-optimize");
+        }
         if (interface_opts->has_snaplen) {
             char ssnap[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-s");

@@ -49,6 +49,7 @@ fill_from_ifaces (interface_t *device)
         device->snaplen = interface_opts->snaplen;
         g_free(device->cfilter);
         device->cfilter = g_strdup(interface_opts->cfilter);
+        device->optimize = interface_opts->optimize;
         device->timestamp_type = g_strdup(interface_opts->timestamp_type);
         if (interface_opts->linktype != -1) {
             device->active_dlt = interface_opts->linktype;
@@ -319,6 +320,7 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
                 device.snaplen = global_capture_opts.default_options.snaplen;
             }
             device.cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
+            device.optimize     = global_capture_opts.default_options.optimize;
             device.timestamp_type = g_strdup(global_capture_opts.default_options.timestamp_type);
             if ((device.buffer = capture_dev_user_buffersize_find(if_info->name)) == -1) {
                 device.buffer = global_capture_opts.default_options.buffer_size;
@@ -523,6 +525,7 @@ scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void))
             device.has_snaplen = interface_opts->has_snaplen;
             device.snaplen = interface_opts->snaplen;
             device.cfilter = g_strdup(interface_opts->cfilter);
+            device.optimize = interface_opts->optimize;
             device.timestamp_type = g_strdup(interface_opts->timestamp_type);
             device.active_dlt = interface_opts->linktype;
             device.addresses    = NULL;

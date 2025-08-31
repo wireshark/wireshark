@@ -616,9 +616,7 @@ void commandline_other_options(int argc, char *argv[], bool opt_reset)
             case 'w':        /* Write to capture file xxx */
             case 'y':        /* Set the pcap data link type */
             case 'B':        /* Buffer size */
-#if 0
             case LONGOPT_NO_OPTIMIZE: /* Don't optimize capture filter */
-#endif
 #ifdef HAVE_LIBPCAP
                 status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
                 if(status != 0) {

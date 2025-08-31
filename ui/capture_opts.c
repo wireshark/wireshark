@@ -1544,6 +1544,7 @@ collect_ifaces(capture_options *capture_opts)
             interface_opts.display_name = g_strdup(device->display_name);
             interface_opts.linktype = device->active_dlt;
             interface_opts.cfilter = g_strdup(device->cfilter);
+            interface_opts.optimize = device->optimize;
             interface_opts.timestamp_type = g_strdup(device->timestamp_type);
             interface_opts.snaplen = device->snaplen;
             interface_opts.has_snaplen = device->has_snaplen;
