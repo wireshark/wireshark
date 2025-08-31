@@ -2187,7 +2187,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>…as Go literal</source>
-        <translation>als Go Literal</translation>
+        <translation>...als Go Literal</translation>
     </message>
     <message>
         <source>Copy packet bytes as Go literal.</source>
