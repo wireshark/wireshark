@@ -202,12 +202,6 @@ add_package() {
 # otherwise available packages appear as unavailable
 apt-get update || exit 2
 
-# libssh-gcrypt-dev: Debian < trixie, Ubuntu < 25.04
-# libssh-dev: All releases, but trixie and 25.04 has relicensed OpenSSH
-# See: https://bugs.debian.org/1074337
-add_package ADDITIONAL_LIST libssh-dev 0.11.1-1 ||
-ADDITIONAL_LIST="$ADDITIONAL_LIST libssh-gcrypt-dev"
-
 # cmake3 3.5.1: Ubuntu 14.04
 # cmake >= 3.5: Debian >= jessie-backports, Ubuntu >= 16.04
 add_package BASIC_LIST cmake3 ||
@@ -221,10 +215,12 @@ echo "libnghttp2-dev is unavailable" >&2
 add_package ADDITIONAL_LIST libnghttp3-dev ||
 echo "libnghttp3-dev is unavailable" >&2
 
+# libssh-dev (>= 0.6): Debian >= jessie, Ubuntu >= 14.04; trixie and
+# 25.04 have relicensed OpenSSH and dropped libssh-gcrypt-dev.
 # libssh-gcrypt-dev: Debian >= jessie, Ubuntu >= 16.04
-# libssh-dev (>= 0.6): Debian >= jessie, Ubuntu >= 14.04
-add_package ADDITIONAL_LIST libssh-gcrypt-dev ||
+# See: https://bugs.debian.org/1074337
 add_package ADDITIONAL_LIST libssh-dev ||
+add_package ADDITIONAL_LIST libssh-gcrypt-dev ||
 echo "libssh-gcrypt-dev and libssh-dev are unavailable" >&2
 
 # libgnutls28-dev: Debian >= wheezy-backports, Ubuntu >= 12.04
