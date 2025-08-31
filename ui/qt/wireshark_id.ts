@@ -1229,6 +1229,17 @@
     </message>
 </context>
 <context>
+    <name>CaptureFilterSyntaxWorker</name>
+    <message>
+        <source>Unable to check capture filter</source>
+        <translation>Tidak bisa memeriksa filter tangkap</translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CaptureInfoDialog</name>
     <message>
         <source>Capture Information</source>
@@ -1678,6 +1689,26 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selang waktu antara pemberitahuan paket baru. Memengaruhi seberapa sering GUI dimutakhirkan dan granularitas dari pewaktu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <source>Enable Aggregation View for real-time capturing</source>
+        <translation>Fungsikan Tampilan Agregasi untuk penangkapan real-time</translation>
+    </message>
+    <message>
+        <source>This option can only be changed when Aggregation Mode is not active.</source>
+        <translation>Opsi ini hanya dapat diubah saat Mode Agregasi tidak aktif.</translation>
+    </message>
+    <message>
+        <source>Aggregation fields</source>
+        <translation>Bidang agregasi</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bidang yang dipakai untuk agregasi.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Edit..</source>
+        <translation>Edit..</translation>
+    </message>
+    <message>
         <source>Don&apos;t load interfaces on startup</source>
         <translation>Jangan muat antar muka saat awal mula</translation>
     </message>
@@ -1941,6 +1972,26 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Copy filter text to the clipboard.</source>
         <translation>Salin teks filter ke papan klip.</translation>
+    </message>
+    <message>
+        <source>No capture filter</source>
+        <translation>Tidak ada filter tangkapan</translation>
+    </message>
+    <message>
+        <source>Multiple filters</source>
+        <translation>Beberapa filter</translation>
+    </message>
+    <message>
+        <source>Capture filters cannot be compiled for standard input.</source>
+        <translation>Filter tangkapan tidak bisa dikompilasi bagi masukan standar.</translation>
+    </message>
+    <message>
+        <source>Capture filters cannot be compiled for pipes.</source>
+        <translation>Filter tangkapan tidak bisa dikompilasi bagi pipa.</translation>
+    </message>
+    <message>
+        <source>Capture filter: %1</source>
+        <translation>Filter tangkapan: %1</translation>
     </message>
 </context>
 <context>
@@ -4019,8 +4070,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Show text as frame encoding</source>
-        <oldsource>Show text based on packet</oldsource>
-        <translation type="unfinished">Tampilkan teks berbasis paket</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -8229,7 +8279,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Auto Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>Gulir Otomatis</translation>
     </message>
     <message>
         <source>Plots</source>
@@ -15571,6 +15621,14 @@ a:hover {
         <translation>Tunjukkan Paket Tertaut dalam Jendela Baru</translation>
     </message>
     <message>
+        <source>Aggregation in Live Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Aggregation View.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation>Aturan Pewarnaan Baru...</translation>
@@ -15926,7 +15984,7 @@ a:hover {
     </message>
     <message>
         <source>Unsaved packets…</source>
-        <translation type="unfinished"></translation>
+        <translation>Packe belum tersimpan...</translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>

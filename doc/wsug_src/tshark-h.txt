@@ -1,4 +1,4 @@
-TShark (Wireshark) 4.5.0 (v4.5.0rc0-1519-gdac4ac7b76ff)
+TShark (Wireshark) 4.7.0 (v4.7.0rc0-30-gf34465f0e5b8)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -22,6 +22,7 @@ Capture interface:
   -L, --list-data-link-types
                            print list of link-layer types of iface and exit
   --list-time-stamp-types  print list of timestamp types for iface and exit
+  --no-optimize            do not optimize capture filter
 
 Capture display:
   --update-interval        interval between updates with new packets, in milliseconds (def: 100ms)

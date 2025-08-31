@@ -1238,6 +1238,17 @@
     </message>
 </context>
 <context>
+    <name>CaptureFilterSyntaxWorker</name>
+    <message>
+        <source>Unable to check capture filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to check capture filter (BPF extensions require a live handle)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CaptureInfoDialog</name>
     <message>
         <source>Capture Information</source>
@@ -1687,6 +1698,26 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;L&apos;interval entre actualitzacions dels paquets. Afecta la freqüència d&apos;actualització de la interfície i dels temporitzadors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <source>Enable Aggregation View for real-time capturing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This option can only be changed when Aggregation Mode is not active.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Aggregation fields</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Don&apos;t load interfaces on startup</source>
         <translation>No carreguis les interfícies a l&apos;inici</translation>
     </message>
@@ -1714,19 +1745,19 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Add a new coloring rule.</source>
-        <translation>Afegeix una regla de coloració nova.</translation>
+        <translation>Afegeix una regla d&apos;acoloriment nova.</translation>
     </message>
     <message>
         <source>Delete this coloring rule.</source>
-        <translation>Elimina aquesta regla de coloració.</translation>
+        <translation>Elimina aquesta regla d&apos;acoloriment.</translation>
     </message>
     <message>
         <source>Duplicate this coloring rule.</source>
-        <translation>Duplica aquesta regla de coloració.</translation>
+        <translation>Duplica aquesta regla d&apos;acoloriment.</translation>
     </message>
     <message>
         <source>Clear all coloring rules.</source>
-        <translation>Elimina totes les regles de coloració.</translation>
+        <translation>Elimina totes les regles d&apos;acoloriment.</translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
@@ -1762,7 +1793,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Coloring Rules %1</source>
-        <translation>Regles de coloració %1</translation>
+        <translation>Regles d&apos;acoloriment %1</translation>
     </message>
     <message>
         <source>Import…</source>
@@ -1774,7 +1805,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
-        <translation>Copia les regles de coloració d&apos;un altre perfil.</translation>
+        <translation>Copia les regles d&apos;acoloriment d&apos;un altre perfil.</translation>
     </message>
     <message>
         <source>Open </source>
@@ -1786,22 +1817,22 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Import Coloring Rules</source>
-        <translation>Importa regles de coloració</translation>
+        <translation>Importa regles d&apos;acoloriment</translation>
     </message>
     <message>
         <source>Export %1 Coloring Rules</source>
-        <translation>Exporta %1 regles de coloració</translation>
+        <translation>Exporta %1 regles d&apos;acoloriment</translation>
     </message>
 </context>
 <context>
     <name>ColoringRulesModel</name>
     <message>
         <source>New coloring rule</source>
-        <translation>Regla de coloració nova</translation>
+        <translation>Regla d&apos;acoloriment nova</translation>
     </message>
     <message>
         <source>Unable to save coloring rules: %1</source>
-        <translation>Les regles de coloració no s&apos;han pogut desar: %1</translation>
+        <translation>Les regles d&apos;acoloriment no s&apos;han pogut desar: %1</translation>
     </message>
     <message>
         <source>Name</source>
@@ -1950,6 +1981,26 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Copy filter text to the clipboard.</source>
         <translation>Copia el text del filtre al porta-retalls.</translation>
+    </message>
+    <message>
+        <source>No capture filter</source>
+        <translation type="unfinished">No hi ha cap filtre de captura.</translation>
+    </message>
+    <message>
+        <source>Multiple filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture filters cannot be compiled for standard input.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture filters cannot be compiled for pipes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture filter: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2405,7 +2456,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Preferències del botó de filtre…</translation>
     </message>
 </context>
 <context>
@@ -3264,7 +3315,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Filter Buttons Preferences…</source>
-        <translation>Preferències dels botons de filtre...</translation>
+        <translation>Preferències dels botons de filtre…</translation>
     </message>
     <message>
         <source>Label:</source>
@@ -3308,7 +3359,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Preferències del botó de filtre…</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -3409,7 +3460,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Save %1 rules as…</source>
-        <translation type="unfinished"></translation>
+        <translation>Desa les regles de %1 com a…</translation>
     </message>
     <message>
         <source>Text file (*.txt);;All Files (</source>
@@ -4038,8 +4089,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Show text as frame encoding</source>
-        <oldsource>Show text based on packet</oldsource>
-        <translation type="unfinished">Mostra el text basat en el paquet</translation>
+        <translation>Mostra el text com a codificació de trama</translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -5286,7 +5336,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(…)) )</source>
         <oldsource>Missing capturing group data (use (?&lt;data&gt;(...)) )</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Fan falta dades de grups de captura (fes servir (?&lt;data&gt;(…)) )</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -7011,22 +7061,22 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Del fitxer zip…</translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Des de la carpeta…</translation>
     </message>
     <message>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Perfil personal seleccionat…</translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Tots els perfils personals…</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7052,7 +7102,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>…as %1</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a %1</translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
@@ -8284,7 +8334,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Auto Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>Desplaçament automàtic</translation>
     </message>
     <message>
         <source>Plots</source>
@@ -8683,25 +8733,25 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Del fitxer zip…</translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Des de la carpeta…</translation>
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)…</source>
         <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln perfil personal seleccionat…</numerusform>
+            <numerusform>%Ln perfils personals seleccionats…</numerusform>
         </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Tots els perfils personals…</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -10879,7 +10929,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Decoding streams…</source>
         <oldsource>Decoding streams...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Es descodifiquen els fluxos…</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10932,7 +10982,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Resampling waveform…</source>
         <oldsource>Resampling waveform...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Es torna a mostrejar l&apos;ona…</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
@@ -10997,7 +11047,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Preparing to play…</source>
         <oldsource>Preparing to play...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Es prepara per a reproduir…</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -13979,11 +14029,11 @@ a:hover {
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 band.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Estableix la banda 802.11.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Band</source>
-        <translation type="unfinished"></translation>
+        <translation>Banda</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -14140,7 +14190,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;View</source>
-        <translation>&amp;Visualitza</translation>
+        <translation>V&amp;isualitza</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
@@ -14172,7 +14222,7 @@ a:hover {
     </message>
     <message>
         <source>Telephon&amp;y</source>
-        <translation>Tele&amp;fonia</translation>
+        <translation>&amp;Telefonia</translation>
     </message>
     <message>
         <source>RTSP</source>
@@ -15461,7 +15511,7 @@ a:hover {
     </message>
     <message>
         <source>Draw packets using your coloring rules</source>
-        <translation>Representa els paquets fent servir les vostres regles de coloració</translation>
+        <translation>Representa els paquets fent servir les vostres regles d&apos;acoloriment</translation>
     </message>
     <message>
         <source>&amp;Zoom In</source>
@@ -15677,16 +15727,24 @@ a:hover {
     </message>
     <message>
         <source>&amp;Coloring Rules…</source>
-        <translation>Regles de &amp;coloració…</translation>
+        <translation>Regles d&apos;a&amp;coloriment…</translation>
     </message>
     <message>
         <source>Show Linked Packet in New Window</source>
         <translation>Mostra el paquet enllaçat en una finestra nova</translation>
     </message>
     <message>
+        <source>Aggregation in Live Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Aggregation View.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
-        <translation>Regla de coloració nova…</translation>
+        <translation>Regla d&apos;acoloriment nova…</translation>
     </message>
     <message>
         <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
@@ -15747,7 +15805,7 @@ a:hover {
     </message>
     <message>
         <source>Name Resol&amp;ution</source>
-        <translation>Resol&amp;ució del nom</translation>
+        <translation>&amp;Resolució del nom</translation>
     </message>
     <message>
         <source>Service &amp;Response Time</source>
@@ -15823,7 +15881,7 @@ a:hover {
     </message>
     <message>
         <source>Edit the packet list coloring rules.</source>
-        <translation>Edita les regles de coloració de la llista de paquets.</translation>
+        <translation>Edita les regles d&apos;acoloriment de la llista de paquets.</translation>
     </message>
     <message>
         <source>Bluetooth ATT Server Attributes</source>
@@ -15931,7 +15989,7 @@ a:hover {
     <message>
         <source>Create a new coloring rule based on this field.</source>
         <oldsource>Create a new coloring rule based on this conversation.</oldsource>
-        <translation>Crea una regla de coloració nova basada en aquest camp.</translation>
+        <translation>Crea una regla d&apos;acoloriment nova basada en aquest camp.</translation>
     </message>
     <message>
         <source>Reset Colorization</source>
@@ -16039,7 +16097,7 @@ a:hover {
     </message>
     <message>
         <source>Unsaved packets…</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquets sense desar…</translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
