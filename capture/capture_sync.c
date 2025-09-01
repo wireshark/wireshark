@@ -1421,8 +1421,10 @@ sync_if_bpf_filter_open(const char *ifname, const char* filter, int linktype,
     if (!optimize) {
         argv = sync_pipe_add_arg(argv, &argc, "--no-optimize");
     }
-    argv = sync_pipe_add_arg(argv, &argc, "-f");
-    argv = sync_pipe_add_arg(argv, &argc, filter);
+    if (filter && strcmp(filter, "") != 0) {
+        argv = sync_pipe_add_arg(argv, &argc, "-f");
+        argv = sync_pipe_add_arg(argv, &argc, filter);
+    }
 
     ret = sync_pipe_run_command(argv, data, primary_msg, secondary_msg, update_cb);
     return ret;
