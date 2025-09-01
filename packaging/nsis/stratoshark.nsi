@@ -86,6 +86,8 @@ BrandingText "Stratoshark${U+00ae} Installer"
 !define MUI_LICENSEPAGE_BUTTON "Noted"
 !insertmacro MUI_PAGE_LICENSE "${STAGING_DIR}\COPYING.txt"
 
+Page custom DisplayDonatePage
+
 !insertmacro MUI_PAGE_COMPONENTS
 !ifdef QT_DIR
 Page custom DisplayAdditionalTasksPage LeaveAdditionalTasksPage
@@ -110,7 +112,7 @@ Page custom DisplayAdditionalTasksPage LeaveAdditionalTasksPage
   ; Old Modern 1 UI: https://nsis.sourceforge.io/Docs/Modern%20UI/Readme.html
   ; To do: Upgrade to the Modern 2 UI:
   ;ReserveFile "AdditionalTasksPage.ini"
-  ;ReserveFile "DonatePage.ini"
+  ReserveFile "DonatePage.ini"
   ReserveFile /plugin InstallOptions.dll
 
   ; Modern UI 2 / nsDialog pages.
@@ -413,6 +415,7 @@ done:
 
   ;Extract InstallOptions INI files
   ;!insertmacro INSTALLOPTIONS_EXTRACT "AdditionalTasksPage.ini"
+  !insertmacro INSTALLOPTIONS_EXTRACT "DonatePage.ini"
 FunctionEnd
 
 !ifdef QT_DIR
@@ -421,10 +424,10 @@ Function DisplayAdditionalTasksPage
 FunctionEnd
 !endif
 
-; Function DisplayDonatePage
-;   !insertmacro MUI_HEADER_TEXT "Your donations keep these releases coming" "Donate today"
-;   !insertmacro INSTALLOPTIONS_DISPLAY "DonatePage.ini"
-; FunctionEnd
+Function DisplayDonatePage
+  !insertmacro MUI_HEADER_TEXT "Your donations keep these releases coming" "Donate today!"
+  !insertmacro INSTALLOPTIONS_DISPLAY "DonatePage.ini"
+FunctionEnd
 
 ; ============================================================================
 ; Installation execution commands
