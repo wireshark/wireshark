@@ -565,7 +565,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 	 * in it as the offsets of the frames.
 	 */
 	frame_table_length = pletohu32(&hdr.frametablelength);
-	if (frame_table_length > file_size || frame_table_offset >= file_size - frame_table_length) {
+	if (frame_table_length > file_size || frame_table_offset > file_size - frame_table_length) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("netmon: frame table is %u bytes at offset %u, which does not fit into a file of size %" PRIu64,
 		    frame_table_length, frame_table_offset, file_size);
