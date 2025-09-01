@@ -29,7 +29,7 @@ int ws_base32_decode(uint8_t* output, const uint32_t outputLength,
 	uint32_t inIndex = 0;
 	uint32_t work = 0;
 	uint32_t bits = 0;
-	static const uint8_t* kChars = (uint8_t*) "0123456789bcdfghjklmnpqrstuvwxyz";
+	static const uint8_t* const kChars = (uint8_t*) "0123456789bcdfghjklmnpqrstuvwxyz";
 	while (inIndex < inputLength) {
 		work |= ((unsigned) in[inIndex++]) << bits;
 		bits += 8;
