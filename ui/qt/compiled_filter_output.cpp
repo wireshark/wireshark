@@ -108,7 +108,7 @@ bool CompiledFilterOutput::compileFilter(const interface_t *interface)
         return false;
     }
     QMutexLocker locker(&pcap_compile_mtx_);
-    int err = pcap_compile(pd, &fcode, interface->cfilter, 1, 0);
+    int err = pcap_compile(pd, &fcode, interface->cfilter, interface->optimize, 0);
     if (err < 0) {
         compile_results.insert(QString(interface->display_name), QString(pcap_geterr(pd)));
         pcap_close(pd);

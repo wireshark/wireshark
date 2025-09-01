@@ -80,6 +80,11 @@
          </column>
          <column>
           <property name="text">
+           <string>Optimize</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
            <string>Capture Filter</string>
           </property>
          </column>

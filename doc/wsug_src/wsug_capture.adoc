@@ -150,6 +150,13 @@ Lets you capture full, raw 802.11 headers.
 Support depends on the interface type, hardware, driver, and OS.
 Note that enabling this might disconnect you from your wireless network.
 
+Optimize::
+Allows disabling the optimization applied by default when compiling the capture
+filter into bytecode. This affects both the actual capture and the bytecode
+shown in <<ChCapCompiledFilterOutputDialog,the Compiled Filter Output dialog>>.
+This should usually be left enabled, but might be useful if you suspect a bug
+in the optimizer, or for instructive purposes.
+
 Capture Filter::
 The capture filter applied to this interface.
 You can edit the filter by double-clicking on it.

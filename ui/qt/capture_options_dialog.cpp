@@ -67,6 +67,8 @@ const int stat_update_interval_ = 1000; // ms
 
 /*
  * Symbolic names for column indices.
+ * These have to match the order as defined in the .ui file.
+ * col_filter_ should go at the end so that it stretches to consume extra space
  */
 enum
 {
@@ -78,6 +80,7 @@ enum
     col_snaplen_,
     col_buffer_,
     col_monitor_,
+    col_optimize_,
     col_filter_,
     col_num_columns_
 };
@@ -135,11 +138,16 @@ public:
         //setData(col_link_, Qt::UserRole, device->active_dlt);
 
         if (device->if_info.type == IF_EXTCAP) {
-            /* extcap interfaces does not have this settings */
+            /* extcap interfaces do not have these settings (though some
+             * extcaps might be able to support certain of these settings
+             * eventually) */
+            /* XXX - IF_PIPE and IF_STDIN don't have these settings either. */
             setApplicable(col_pmode_, false);
 
             setApplicable(col_snaplen_, false);
             setApplicable(col_buffer_, false);
+
+            setApplicable(col_optimize_, false);
         } else {
             setApplicable(col_pmode_, true);
             setCheckState(col_pmode_, device->pmode ? Qt::Checked : Qt::Unchecked);
@@ -147,6 +155,8 @@ public:
             QString snaplen_string = device->has_snaplen ? QString::number(device->snaplen) : default_str;
             setText(col_snaplen_, snaplen_string);
             setText(col_buffer_, QString::number(device->buffer));
+
+            setCheckState(col_optimize_, device->optimize ? Qt::Checked : Qt::Unchecked);
         }
         setText(col_filter_, device->cfilter);
 
@@ -510,6 +520,10 @@ void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int colum
 
         break;
     }
+    case col_optimize_:
+        device->optimize = item->checkState(col_optimize_) == Qt::Checked ? true : false;
+        ti->updateInterfaceColumns(device);
+        break;
     default:
         break;
     }
@@ -924,6 +938,9 @@ void CaptureOptionsDialog::updateInterfaces()
         case col_monitor_:
             ui->interfaceTree->setColumnWidth(col, one_em * 3.25);
             break;
+        case col_optimize_:
+            ui->interfaceTree->setColumnWidth(col, one_em * 3.25);
+            break;
         default:
             ui->interfaceTree->resizeColumnToContents(col);
         }
@@ -1259,6 +1276,7 @@ bool CaptureOptionsDialog::saveOptionsToPreferences()
             prefs.capture_devices_monitor_mode = qstring_strdup(monitor_list.join(","));
             break;
         }
+        // We don't save col_optimize_ to prefs (it's probably rarely changed.)
 
 #if 0
             // The device cfilter should have been applied at this point.
