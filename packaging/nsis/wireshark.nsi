@@ -95,7 +95,8 @@ BrandingText "Wireshark${U+00ae} Installer"
 !define MUI_LICENSEPAGE_BUTTON "Noted"
 !insertmacro MUI_PAGE_LICENSE "${STAGING_DIR}\COPYING.txt"
 
-Page custom DisplayDonatePage
+; Page custom DisplayDonatePage
+Page custom DisplayCertificationPage
 
 !insertmacro MUI_PAGE_COMPONENTS
 !ifdef QT_DIR
@@ -138,7 +139,8 @@ Page custom DisplayUSBPcapPage
   ; Old Modern 1 UI: https://nsis.sourceforge.io/Docs/Modern%20UI/Readme.html
   ; To do: Upgrade to the Modern 2 UI:
   ;ReserveFile "AdditionalTasksPage.ini"
-  ReserveFile "DonatePage.ini"
+  ;ReserveFile "DonatePage.ini"
+  ReserveFile "CertificationPage.ini"
   ReserveFile "NpcapPage.ini"
   ReserveFile "USBPcapPage.ini"
   ReserveFile /plugin InstallOptions.dll
@@ -485,7 +487,8 @@ done:
 
   ;Extract InstallOptions INI files
   ;!insertmacro INSTALLOPTIONS_EXTRACT "AdditionalTasksPage.ini"
-  !insertmacro INSTALLOPTIONS_EXTRACT "DonatePage.ini"
+  ;!insertmacro INSTALLOPTIONS_EXTRACT "DonatePage.ini"
+  !insertmacro INSTALLOPTIONS_EXTRACT "CertificationPage.ini"
   !insertmacro INSTALLOPTIONS_EXTRACT "NpcapPage.ini"
   !insertmacro INSTALLOPTIONS_EXTRACT "USBPcapPage.ini"
 FunctionEnd
@@ -496,9 +499,14 @@ Function DisplayAdditionalTasksPage
 FunctionEnd
 !endif
 
-Function DisplayDonatePage
-  !insertmacro MUI_HEADER_TEXT "Your donations keep these releases coming" "Donate today"
-  !insertmacro INSTALLOPTIONS_DISPLAY "DonatePage.ini"
+; Function DisplayDonatePage
+;   !insertmacro MUI_HEADER_TEXT "Your donations keep these releases coming" "Donate today!"
+;   !insertmacro INSTALLOPTIONS_DISPLAY "DonatePage.ini"
+; FunctionEnd
+
+Function DisplayCertificationPage
+  !insertmacro MUI_HEADER_TEXT "Do you use Wireshark professionally?" "Become a Wireshark Certified analyst!"
+  !insertmacro INSTALLOPTIONS_DISPLAY "CertificationPage.ini"
 FunctionEnd
 
 Function DisplayNpcapPage
