@@ -2123,7 +2123,7 @@ dissect_vendor_specific(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
 
     proto_tree_add_item(tree, hf_ieee1905_vendor_specific_oui, tvb, offset,
-                        3, ENC_NA);
+                        3, ENC_BIG_ENDIAN);
     offset += 3;
 
     proto_tree_add_item(tree, hf_ieee1905_vendor_specific_info, tvb, offset,
@@ -2371,7 +2371,7 @@ dissect_generic_phy_device_info(tvbuff_t *tvb, packet_info *pinfo _U_,
         offset += 6;
 
         proto_tree_add_item(intf_tree, hf_ieee1905_local_intf_oui,
-                            tvb, offset, 3, ENC_NA);
+                            tvb, offset, 3, ENC_BIG_ENDIAN);
         offset+= 3;
 
         proto_tree_add_item(intf_tree, hf_ieee1905_local_intf_variant,
@@ -2669,7 +2669,7 @@ dissect_push_button_event_type_notification(tvbuff_t *tvb, packet_info *pinfo _U
                                     media_type_index);
 
         proto_tree_add_item(phy_tree, hf_ieee1905_local_intf_oui,
-                            tvb, offset, 3, ENC_NA);
+                            tvb, offset, 3, ENC_BIG_ENDIAN);
         offset+= 3;
 
         proto_tree_add_item(phy_tree, hf_ieee1905_local_intf_variant,
@@ -2758,7 +2758,7 @@ dissect_power_off_interface(tvbuff_t *tvb, packet_info *pinfo,
         offset = dissect_media_type(tvb, pinfo, intf_tree, offset);
 
         proto_tree_add_item(intf_tree, hf_ieee1905_local_intf_oui,
-                            tvb, offset, 3, ENC_NA);
+                            tvb, offset, 3, ENC_BIG_ENDIAN);
         offset+= 3;
 
         proto_tree_add_item(intf_tree, hf_ieee1905_local_intf_variant,
@@ -3435,7 +3435,7 @@ dissect_ap_vht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 2;
 
     proto_tree_add_bitmask(tree, tvb, offset, hf_ieee1905_vht_cap_flags,
-                           ett_vht_cap_flags, capabilities, ENC_NA);
+                           ett_vht_cap_flags, capabilities, ENC_BIG_ENDIAN);
     offset += 2;
 
     return offset;
@@ -5697,7 +5697,7 @@ dissect_channel_scan_result(tvbuff_t *tvb, packet_info *pinfo _U_,
 
         neighbor_num = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(tree, hf_ieee1905_channel_scan_result_neigh_num,
-                            tvb, offset, 2, ENC_NA);
+                            tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         if (neighbor_num > 0) {
@@ -5760,7 +5760,7 @@ dissect_channel_scan_result(tvbuff_t *tvb, packet_info *pinfo _U_,
                     offset += 1;
 
                     proto_tree_add_item(neigh_tree, hf_ieee1905_channel_scan_result_sta_count,
-                                     tvb, offset, 2, ENC_NA);
+                                     tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
                 }
 
@@ -6071,7 +6071,7 @@ dissect_mic(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 6;
 
     mic_len = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ieee1905_mic_length, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_ieee1905_mic_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_ieee1905_mic_bytes, tvb, offset, mic_len,
@@ -6091,7 +6091,7 @@ dissect_encrypted(tvbuff_t *tvb, packet_info *pinfo _U_,
     uint16_t enc_len = 0;
 
     proto_tree_add_item(tree, hf_ieee1905_encrypted_enc_transmission_count,
-                        tvb, offset, 6, ENC_NA);
+                        tvb, offset, 6, ENC_BIG_ENDIAN);
     offset += 6;
 
     proto_tree_add_item(tree, hf_ieee1905_encrypted_source_la_mac_id, tvb,
@@ -6104,7 +6104,7 @@ dissect_encrypted(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     enc_len = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_ieee1905_encrypted_enc_output_field_len, tvb,
-                        offset, 2, ENC_NA);
+                        offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_ieee1905_encrypted_enc_output_field, tvb,
@@ -6720,7 +6720,7 @@ dissect_default_802_1q_settings(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len _U_)
 {
     proto_tree_add_item(tree, hf_ieee1905_default_802_1q_settings_primary_vlan, tvb,
-                        offset, 2, ENC_NA);
+                        offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_bitmask(tree, tvb, offset,
@@ -7346,7 +7346,7 @@ dissect_unsuccessful_association_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset++;
 
     proto_tree_add_item(tree, hf_ieee1905_max_reporting_rate,
-                        tvb, offset, 4, ENC_NA);
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -7360,7 +7360,7 @@ dissect_metric_collection_interval(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len)
 {
     proto_tree_add_item(tree, hf_ieee1905_metric_collection_interval,
-                        tvb, offset, 4, ENC_NA);
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += len;
 
     return offset;
@@ -7408,27 +7408,27 @@ dissect_ap_extended_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 6;
 
     proto_tree_add_item(tree, hf_ieee1905_ap_extended_metrics_unicast_sent, tvb,
-                        offset, 4, ENC_NA);
+                        offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(tree, hf_ieee1905_ap_extended_metrics_unicast_rcvd,
-                        tvb, offset, 4, ENC_NA);
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(tree, hf_ieee1905_ap_extended_metrics_multicast_sent,
-                        tvb, offset, 4, ENC_NA);
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(tree, hf_ieee1905_ap_extended_metrics_multicast_rcvd,
-                        tvb, offset, 4, ENC_NA);
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(tree, hf_ieee1905_ap_extended_metrics_bcast_sent,
-                        tvb, offset, 4, ENC_NA);
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(tree, hf_ieee1905_ap_extended_metrics_bcast_rcvd,
-                        tvb, offset, 4, ENC_NA);
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -7442,7 +7442,7 @@ dissect_status_code(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len _U_)
 {
     proto_tree_add_item(tree, hf_ieee1905_status_code_status, tvb,
-                        offset, 2, ENC_NA);
+                        offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     return offset;
@@ -7530,7 +7530,7 @@ dissect_akm_suite_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 
             proto_tree_add_item(backhaul_akm_suite,
                                 hf_ieee1905_akm_backhaul_suite_oui, tvb,
-                                offset, 3, ENC_NA);
+                                offset, 3, ENC_BIG_ENDIAN);
             offset += 3;
 
             proto_tree_add_item(backhaul_akm_suite,
@@ -7563,7 +7563,7 @@ dissect_akm_suite_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
 
             proto_tree_add_item(fronthaul_akm_suite,
                                 hf_ieee1905_akm_fronthaul_suite_oui, tvb,
-                                offset, 3, ENC_NA);
+                                offset, 3, ENC_BIG_ENDIAN);
             offset += 3;
 
             proto_tree_add_item(fronthaul_akm_suite,
@@ -7639,7 +7639,7 @@ dissect_1905_encap_dpp(tvbuff_t *tvb, packet_info *pinfo,
         offset += 1;
 
         proto_tree_add_item(tree, hf_ieee1905_dpp_encap_dpp_oui, tvb, offset,
-                            3, ENC_NA);
+                            3, ENC_BIG_ENDIAN);
         offset += 3;
 
         proto_tree_add_item(tree, hf_ieee1905_dpp_encap_dpp_subtype, tvb,
@@ -8314,7 +8314,7 @@ dissect_wifi_7_agent_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_bitmask(tree, tvb, offset,
                            hf_ieee1905_wifi_7_agent_capabilities_flags,
                            ett_wifi_7_agent_capabilities_flags,
-                           wifi_7_agent_capabilities_flags_headers, ENC_NA);
+                           wifi_7_agent_capabilities_flags_headers, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_ieee1905_wifi_7_agent_capabilities_reserved,
@@ -8350,7 +8350,7 @@ dissect_wifi_7_agent_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_bitmask(radio_tree, tvb, offset,
                                hf_ieee1905_wifi_7_agent_capabilities_radio_flags,
                                ett_wifi_7_agent_capabilities_radio_flags,
-                               wifi_7_agent_capabilities_radio_flags_headers, ENC_NA);
+                               wifi_7_agent_capabilities_radio_flags_headers, ENC_BIG_ENDIAN);
         offset += 2;
 
         offset = wifi_7_agent_cap_add_record(radio_tree,
@@ -11900,7 +11900,7 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_cac_comp_radar_channel,
           { "Channel", "ieee1905.cac_completion_report.radar.channel",
-            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee1905_cac_status_rpt_active_chan,
           { "Available Channel Count",
