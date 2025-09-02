@@ -102,7 +102,7 @@ wmem_list_remove_frame(wmem_list_t *list, wmem_list_frame_t *frame)
 }
 
 wmem_list_frame_t *
-wmem_list_find(wmem_list_t *list, const void *data)
+wmem_list_find(const wmem_list_t *list, const void *data)
 {
     wmem_list_frame_t *cur;
 
@@ -115,7 +115,7 @@ wmem_list_find(wmem_list_t *list, const void *data)
 }
 
 wmem_list_frame_t *
-wmem_list_find_custom(wmem_list_t *list, const void *data, GCompareFunc compare_func)
+wmem_list_find_custom(const wmem_list_t *list, const void *data, GCompareFunc compare_func)
 {
     wmem_list_frame_t *cur;
 
@@ -300,7 +300,7 @@ wmem_destroy_list(wmem_list_t *list)
 }
 
 void
-wmem_list_foreach(wmem_list_t *list, GFunc foreach_func, void * user_data)
+wmem_list_foreach(const wmem_list_t *list, GFunc foreach_func, void * user_data)
 {
     wmem_list_frame_t *cur;
 

@@ -102,7 +102,7 @@ wmem_map_insert(wmem_map_t *map, const void *key, void *value);
  */
 WS_DLL_PUBLIC
 bool
-wmem_map_contains(wmem_map_t *map, const void *key);
+wmem_map_contains(const wmem_map_t *map, const void *key);
 
 /** Lookup a value in the map.
  *
@@ -112,7 +112,7 @@ wmem_map_contains(wmem_map_t *map, const void *key);
  */
 WS_DLL_PUBLIC
 void *
-wmem_map_lookup(wmem_map_t *map, const void *key);
+wmem_map_lookup(const wmem_map_t *map, const void *key);
 
 /** Lookup a value in the map, returning the key, value, and a boolean which
  * is true if the key is found.
@@ -125,7 +125,7 @@ wmem_map_lookup(wmem_map_t *map, const void *key);
  */
 WS_DLL_PUBLIC
 bool
-wmem_map_lookup_extended(wmem_map_t *map, const void *key, const void **orig_key, void **value);
+wmem_map_lookup_extended(const wmem_map_t *map, const void *key, const void **orig_key, void **value);
 
 /** Remove a value from the map. If no value is stored at that key, nothing
  * happens.
@@ -157,7 +157,7 @@ wmem_map_steal(wmem_map_t *map, const void *key);
  */
 WS_DLL_PUBLIC
 wmem_list_t*
-wmem_map_get_keys(wmem_allocator_t *list_allocator, wmem_map_t *map);
+wmem_map_get_keys(wmem_allocator_t *list_allocator, const wmem_map_t *map);
 
 /** Run a function against all key/value pairs in the map. The order
  * of the calls is unpredictable, since it is based on the internal
@@ -169,7 +169,7 @@ wmem_map_get_keys(wmem_allocator_t *list_allocator, wmem_map_t *map);
  */
 WS_DLL_PUBLIC
 void
-wmem_map_foreach(wmem_map_t *map, GHFunc foreach_func, void * user_data);
+wmem_map_foreach(const wmem_map_t *map, GHFunc foreach_func, void * user_data);
 
 /** Run a function against all key/value pairs in the map. If the
  * function returns true, then the key/value pair is removed from
@@ -199,7 +199,7 @@ wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, void * user_data)
  */
 WS_DLL_PUBLIC
 void *
-wmem_map_find(wmem_map_t *map, GHRFunc foreach_func, void * user_data);
+wmem_map_find(const wmem_map_t *map, GHRFunc foreach_func, void * user_data);
 
 /** Return the number of elements of the map.
  *
@@ -208,7 +208,7 @@ wmem_map_find(wmem_map_t *map, GHRFunc foreach_func, void * user_data);
 */
 WS_DLL_PUBLIC
 unsigned
-wmem_map_size(wmem_map_t *map);
+wmem_map_size(const wmem_map_t *map);
 
 /** Ensure that a certain number of elements can be stored in the wmem_map
  * without having to grow the internal table. This can be useful if a very

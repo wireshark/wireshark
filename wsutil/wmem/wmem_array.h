@@ -66,11 +66,11 @@ wmem_array_append(wmem_array_t *array, const void *in, unsigned count);
 
 WS_DLL_PUBLIC
 void *
-wmem_array_index(wmem_array_t *array, unsigned array_index);
+wmem_array_index(const wmem_array_t *array, unsigned array_index);
 
 WS_DLL_PUBLIC
 int
-wmem_array_try_index(wmem_array_t *array, unsigned array_index, void *val);
+wmem_array_try_index(const wmem_array_t *array, unsigned array_index, void *val);
 
 WS_DLL_PUBLIC
 void
@@ -78,15 +78,15 @@ wmem_array_sort(wmem_array_t *array, int (*compar)(const void*,const void*));
 
 WS_DLL_PUBLIC
 void *
-wmem_array_get_raw(wmem_array_t *array);
+wmem_array_get_raw(const wmem_array_t *array);
 
 WS_DLL_PUBLIC
 unsigned
-wmem_array_get_count(wmem_array_t *array);
+wmem_array_get_count(const wmem_array_t *array);
 
 WS_DLL_PUBLIC
 wmem_allocator_t*
-wmem_array_get_allocator(wmem_array_t* array);
+wmem_array_get_allocator(const wmem_array_t* array);
 
 /* Truncates the underlying array to the elements contained within
  * (including null terminator if set), frees the wmem_array_t

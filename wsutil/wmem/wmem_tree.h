@@ -66,12 +66,12 @@ wmem_tree_destroy(wmem_tree_t *tree, bool free_keys, bool free_values);
 /** Returns true if the tree is empty (has no nodes). */
 WS_DLL_PUBLIC
 bool
-wmem_tree_is_empty(wmem_tree_t *tree);
+wmem_tree_is_empty(const wmem_tree_t *tree);
 
 /** Returns number of nodes in tree */
 WS_DLL_PUBLIC
 unsigned
-wmem_tree_count(wmem_tree_t* tree);
+wmem_tree_count(const wmem_tree_t* tree);
 
 /** Insert a node indexed by a uint32_t key value.
  *
@@ -93,14 +93,14 @@ wmem_tree_insert32(wmem_tree_t *tree, uint32_t key, void *data);
  */
 WS_DLL_PUBLIC
 bool
-wmem_tree_contains32(wmem_tree_t *tree, uint32_t key);
+wmem_tree_contains32(const wmem_tree_t *tree, uint32_t key);
 
 /** Look up a node in the tree indexed by a uint32_t integer value. If no node is
  * found the function will return NULL.
  */
 WS_DLL_PUBLIC
 void *
-wmem_tree_lookup32(wmem_tree_t *tree, uint32_t key);
+wmem_tree_lookup32(const wmem_tree_t *tree, uint32_t key);
 
 /** Look up a node in the tree indexed by a uint32_t integer value.
  * Returns the node that has the largest key that is less than or equal
@@ -108,7 +108,7 @@ wmem_tree_lookup32(wmem_tree_t *tree, uint32_t key);
  */
 WS_DLL_PUBLIC
 void *
-wmem_tree_lookup32_le(wmem_tree_t *tree, uint32_t key);
+wmem_tree_lookup32_le(const wmem_tree_t *tree, uint32_t key);
 
 /** Look up a node in the tree indexed by a uint32_t integer value.
  * Returns the node that has the largest key that is less than or equal
@@ -117,7 +117,7 @@ wmem_tree_lookup32_le(wmem_tree_t *tree, uint32_t key);
  */
 WS_DLL_PUBLIC
 void *
-wmem_tree_lookup32_le_full(wmem_tree_t *tree, uint32_t key, uint32_t *orig_key);
+wmem_tree_lookup32_le_full(const wmem_tree_t *tree, uint32_t key, uint32_t *orig_key);
 
 /** Look up a node in the tree indexed by a uint32_t integer value.
  * Returns the node that has the smallest key that is greater than or equal
@@ -125,7 +125,7 @@ wmem_tree_lookup32_le_full(wmem_tree_t *tree, uint32_t key, uint32_t *orig_key);
  */
 WS_DLL_PUBLIC
 void *
-wmem_tree_lookup32_ge(wmem_tree_t *tree, uint32_t key);
+wmem_tree_lookup32_ge(const wmem_tree_t *tree, uint32_t key);
 
 /** Look up a node in the tree indexed by a uint32_t integer value.
  * Returns the node that has the smallest key that is greater than or equal
@@ -134,7 +134,7 @@ wmem_tree_lookup32_ge(wmem_tree_t *tree, uint32_t key);
  */
 WS_DLL_PUBLIC
 void *
-wmem_tree_lookup32_ge_full(wmem_tree_t *tree, uint32_t key, uint32_t *orig_key);
+wmem_tree_lookup32_ge_full(const wmem_tree_t *tree, uint32_t key, uint32_t *orig_key);
 
 /** Remove a node in the tree indexed by a uint32_t integer value. This
  * now is a real remove. This returns the value stored at that key. If
@@ -164,7 +164,7 @@ wmem_tree_insert_string(wmem_tree_t *tree, const char* key, void *data,
  * wmem_tree_insert_string for an explanation of flags. */
 WS_DLL_PUBLIC
 void *
-wmem_tree_lookup_string(wmem_tree_t* tree, const char* key, uint32_t flags);
+wmem_tree_lookup_string(const wmem_tree_t* tree, const char* key, uint32_t flags);
 
 /** Remove the value under a string key.  This is not really a remove, but the
  * value is set to NULL so that wmem_tree_lookup_string not will find it.
@@ -222,7 +222,7 @@ wmem_tree_insert32_array(wmem_tree_t *tree, wmem_tree_key_t *key, void *data);
  */
 WS_DLL_PUBLIC
 void *
-wmem_tree_lookup32_array(wmem_tree_t *tree, wmem_tree_key_t *key);
+wmem_tree_lookup32_array(const wmem_tree_t *tree, wmem_tree_key_t *key);
 
 /** Look up a node in the tree indexed by a multi-part tree value.
  * The function will return the node that has the largest key that is
@@ -236,7 +236,7 @@ wmem_tree_lookup32_array(wmem_tree_t *tree, wmem_tree_key_t *key);
  */
 WS_DLL_PUBLIC
 void *
-wmem_tree_lookup32_array_le(wmem_tree_t *tree, wmem_tree_key_t *key);
+wmem_tree_lookup32_array_le(const wmem_tree_t *tree, wmem_tree_key_t *key);
 
 /** Function type for processing one node of a tree during a traversal. Value is
  * the value of the node, userdata is whatever was passed to the traversal
@@ -256,14 +256,14 @@ typedef void (*wmem_printer_func)(const void *data);
  */
 WS_DLL_PUBLIC
 bool
-wmem_tree_foreach(wmem_tree_t* tree, wmem_foreach_func callback,
+wmem_tree_foreach(const wmem_tree_t* tree, wmem_foreach_func callback,
         void *user_data);
 
 
 /* Accepts callbacks to print the key and/or data (both printers can be null) */
 WS_DLL_PUBLIC
 void
-wmem_print_tree(wmem_tree_t *tree, wmem_printer_func key_printer, wmem_printer_func data_printer);
+wmem_print_tree(const wmem_tree_t *tree, wmem_printer_func key_printer, wmem_printer_func data_printer);
 
 /**   @}
  *  @} */

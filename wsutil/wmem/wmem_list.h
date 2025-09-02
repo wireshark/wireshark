@@ -73,11 +73,11 @@ wmem_list_remove_frame(wmem_list_t *list, wmem_list_frame_t *frame);
  */
 WS_DLL_PUBLIC
 wmem_list_frame_t *
-wmem_list_find(wmem_list_t *list, const void *data);
+wmem_list_find(const wmem_list_t *list, const void *data);
 
 WS_DLL_PUBLIC
 wmem_list_frame_t *
-wmem_list_find_custom(wmem_list_t *list, const void *data, GCompareFunc func);
+wmem_list_find_custom(const wmem_list_t *list, const void *data, GCompareFunc func);
 
 WS_DLL_PUBLIC
 void
@@ -106,7 +106,7 @@ G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC
 void
-wmem_list_foreach(wmem_list_t *list, GFunc foreach_func, void * user_data);
+wmem_list_foreach(const wmem_list_t *list, GFunc foreach_func, void * user_data);
 
 WS_DLL_PUBLIC
 void

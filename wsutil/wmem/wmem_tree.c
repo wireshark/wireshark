@@ -456,7 +456,7 @@ wmem_tree_destroy(wmem_tree_t *tree, bool free_keys, bool free_values)
 }
 
 bool
-wmem_tree_is_empty(wmem_tree_t *tree)
+wmem_tree_is_empty(const wmem_tree_t *tree)
 {
     return tree->root == NULL;
 }
@@ -470,7 +470,7 @@ count_nodes(const void *key _U_, void *value _U_, void *userdata)
 }
 
 unsigned
-wmem_tree_count(wmem_tree_t* tree)
+wmem_tree_count(const wmem_tree_t* tree)
 {
     unsigned count = 0;
 
@@ -578,7 +578,7 @@ lookup_or_insert32(wmem_tree_t *tree, uint32_t key,
 }
 
 static void *
-wmem_tree_lookup(wmem_tree_t *tree, const void *key, compare_func cmp)
+wmem_tree_lookup(const wmem_tree_t *tree, const void *key, compare_func cmp)
 {
     wmem_tree_node_t *node;
 
@@ -662,7 +662,7 @@ wmem_tree_insert32(wmem_tree_t *tree, uint32_t key, void *data)
     lookup_or_insert32(tree, key, NULL, data, false, true);
 }
 
-bool wmem_tree_contains32(wmem_tree_t *tree, uint32_t key)
+bool wmem_tree_contains32(const wmem_tree_t *tree, uint32_t key)
 {
     if (!tree) {
         return false;
@@ -686,7 +686,7 @@ bool wmem_tree_contains32(wmem_tree_t *tree, uint32_t key)
 }
 
 static wmem_tree_node_t*
-wmem_tree_lookup32_node(wmem_tree_t *tree, uint32_t key)
+wmem_tree_lookup32_node(const wmem_tree_t *tree, uint32_t key)
 {
     if (!tree) {
         return NULL;
@@ -710,7 +710,7 @@ wmem_tree_lookup32_node(wmem_tree_t *tree, uint32_t key)
 }
 
 void *
-wmem_tree_lookup32(wmem_tree_t *tree, uint32_t key)
+wmem_tree_lookup32(const wmem_tree_t *tree, uint32_t key)
 {
     wmem_tree_node_t *node = wmem_tree_lookup32_node(tree, key);
     if (node == NULL) {
@@ -720,7 +720,7 @@ wmem_tree_lookup32(wmem_tree_t *tree, uint32_t key)
 }
 
 static wmem_tree_node_t*
-wmem_tree_lookup32_le_node(wmem_tree_t *tree, uint32_t key)
+wmem_tree_lookup32_le_node(const wmem_tree_t *tree, uint32_t key)
 {
     if (!tree) {
         return NULL;
@@ -786,7 +786,7 @@ wmem_tree_lookup32_le_node(wmem_tree_t *tree, uint32_t key)
 }
 
 void *
-wmem_tree_lookup32_le(wmem_tree_t *tree, uint32_t key)
+wmem_tree_lookup32_le(const wmem_tree_t *tree, uint32_t key)
 {
     wmem_tree_node_t *node = wmem_tree_lookup32_le_node(tree, key);
     if (node == NULL) {
@@ -797,7 +797,7 @@ wmem_tree_lookup32_le(wmem_tree_t *tree, uint32_t key)
 }
 
 void *
-wmem_tree_lookup32_le_full(wmem_tree_t *tree, uint32_t key, uint32_t *orig_key)
+wmem_tree_lookup32_le_full(const wmem_tree_t *tree, uint32_t key, uint32_t *orig_key)
 {
     wmem_tree_node_t *node = wmem_tree_lookup32_le_node(tree, key);
     if (node == NULL) {
@@ -809,7 +809,7 @@ wmem_tree_lookup32_le_full(wmem_tree_t *tree, uint32_t key, uint32_t *orig_key)
 }
 
 static wmem_tree_node_t*
-wmem_tree_lookup32_ge_node(wmem_tree_t *tree, uint32_t key)
+wmem_tree_lookup32_ge_node(const wmem_tree_t *tree, uint32_t key)
 {
     if (!tree) {
         return NULL;
@@ -875,7 +875,7 @@ wmem_tree_lookup32_ge_node(wmem_tree_t *tree, uint32_t key)
 }
 
 void *
-wmem_tree_lookup32_ge(wmem_tree_t *tree, uint32_t key)
+wmem_tree_lookup32_ge(const wmem_tree_t *tree, uint32_t key)
 {
     wmem_tree_node_t *node = wmem_tree_lookup32_ge_node(tree, key);
     if (node == NULL) {
@@ -886,7 +886,7 @@ wmem_tree_lookup32_ge(wmem_tree_t *tree, uint32_t key)
 }
 
 void *
-wmem_tree_lookup32_ge_full(wmem_tree_t *tree, uint32_t key, uint32_t *orig_key)
+wmem_tree_lookup32_ge_full(const wmem_tree_t *tree, uint32_t key, uint32_t *orig_key)
 {
     wmem_tree_node_t *node = wmem_tree_lookup32_ge_node(tree, key);
     if (node == NULL) {
@@ -933,7 +933,7 @@ wmem_tree_insert_string(wmem_tree_t* tree, const char* k, void* v, uint32_t flag
 }
 
 void *
-wmem_tree_lookup_string(wmem_tree_t* tree, const char* k, uint32_t flags)
+wmem_tree_lookup_string(const wmem_tree_t* tree, const char* k, uint32_t flags)
 {
     compare_func cmp;
 
@@ -989,10 +989,10 @@ wmem_tree_insert32_array(wmem_tree_t *tree, wmem_tree_key_t *key, void *data)
 }
 
 static void *
-wmem_tree_lookup32_array_helper(wmem_tree_t *tree, wmem_tree_key_t *key,
-        void*(*helper)(wmem_tree_t*, uint32_t))
+wmem_tree_lookup32_array_helper(const wmem_tree_t *tree, wmem_tree_key_t *key,
+        void*(*helper)(const wmem_tree_t*, uint32_t))
 {
-    wmem_tree_t *lookup_tree = NULL;
+    const wmem_tree_t *lookup_tree = NULL;
     wmem_tree_key_t *cur_key;
     uint32_t i, lookup_key32 = 0;
 
@@ -1024,19 +1024,19 @@ wmem_tree_lookup32_array_helper(wmem_tree_t *tree, wmem_tree_key_t *key,
 }
 
 void *
-wmem_tree_lookup32_array(wmem_tree_t *tree, wmem_tree_key_t *key)
+wmem_tree_lookup32_array(const wmem_tree_t *tree, wmem_tree_key_t *key)
 {
     return wmem_tree_lookup32_array_helper(tree, key, wmem_tree_lookup32);
 }
 
 void *
-wmem_tree_lookup32_array_le(wmem_tree_t *tree, wmem_tree_key_t *key)
+wmem_tree_lookup32_array_le(const wmem_tree_t *tree, wmem_tree_key_t *key)
 {
     return wmem_tree_lookup32_array_helper(tree, key, wmem_tree_lookup32_le);
 }
 
 static bool
-wmem_tree_foreach_nodes(wmem_tree_node_t* node, wmem_foreach_func callback,
+wmem_tree_foreach_nodes(const wmem_tree_node_t* node, wmem_foreach_func callback,
         void *user_data)
 {
     bool stop_traverse = false;
@@ -1073,7 +1073,7 @@ wmem_tree_foreach_nodes(wmem_tree_node_t* node, wmem_foreach_func callback,
 }
 
 bool
-wmem_tree_foreach(wmem_tree_t* tree, wmem_foreach_func callback,
+wmem_tree_foreach(const wmem_tree_t* tree, wmem_foreach_func callback,
         void *user_data)
 {
     if(!tree->root)
@@ -1082,7 +1082,7 @@ wmem_tree_foreach(wmem_tree_t* tree, wmem_foreach_func callback,
     return wmem_tree_foreach_nodes(tree->root, callback, user_data);
 }
 
-static void wmem_print_subtree(wmem_tree_t *tree, uint32_t level, wmem_printer_func key_printer, wmem_printer_func data_printer);
+static void wmem_print_subtree(const wmem_tree_t *tree, uint32_t level, wmem_printer_func key_printer, wmem_printer_func data_printer);
 
 static void
 wmem_print_indent(uint32_t level) {
@@ -1129,7 +1129,7 @@ wmem_tree_print_nodes(const char *prefix, wmem_tree_node_t *node, uint32_t level
 
 
 static void
-wmem_print_subtree(wmem_tree_t *tree, uint32_t level, wmem_printer_func key_printer, wmem_printer_func data_printer)
+wmem_print_subtree(const wmem_tree_t *tree, uint32_t level, wmem_printer_func key_printer, wmem_printer_func data_printer)
 {
     if (!tree)
         return;
@@ -1143,7 +1143,7 @@ wmem_print_subtree(wmem_tree_t *tree, uint32_t level, wmem_printer_func key_prin
 }
 
 void
-wmem_print_tree(wmem_tree_t *tree, wmem_printer_func key_printer, wmem_printer_func data_printer)
+wmem_print_tree(const wmem_tree_t *tree, wmem_printer_func key_printer, wmem_printer_func data_printer)
 {
     wmem_print_subtree(tree, 0, key_printer, data_printer);
 }

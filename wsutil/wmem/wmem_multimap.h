@@ -90,7 +90,7 @@ G_GNUC_MALLOC;
  */
 WS_DLL_PUBLIC
 wmem_list_t*
-wmem_multimap_get_keys(wmem_allocator_t *list_allocator, wmem_multimap_t *map);
+wmem_multimap_get_keys(wmem_allocator_t *list_allocator, const wmem_multimap_t *map);
 
 /** Return the total number of elements in the multimap.
  *
@@ -99,7 +99,7 @@ wmem_multimap_get_keys(wmem_allocator_t *list_allocator, wmem_multimap_t *map);
 */
 WS_DLL_PUBLIC
 unsigned
-wmem_multimap_size(wmem_multimap_t *map);
+wmem_multimap_size(const wmem_multimap_t *map);
 
 /** Returns the number of values in the multimap with a certain hash key.
  * (Note: This is the number of current elements, so this can only be used to
@@ -113,7 +113,7 @@ wmem_multimap_size(wmem_multimap_t *map);
  */
 WS_DLL_PUBLIC
 unsigned
-wmem_multimap_count(wmem_multimap_t *map, const void *key);
+wmem_multimap_count(const wmem_multimap_t *map, const void *key);
 
 /** Insert a value in the multimap.
  *
@@ -143,7 +143,7 @@ wmem_multimap_insert32(wmem_multimap_t *map, const void *key, uint32_t frame_num
  */
 WS_DLL_PUBLIC
 void *
-wmem_multimap_lookup32(wmem_multimap_t *map, const void *key, const uint32_t frame_num);
+wmem_multimap_lookup32(const wmem_multimap_t *map, const void *key, const uint32_t frame_num);
 
 /** Lookup a value in the multimap with an exact match for the map key
  * and the largest value less than or equal to the tree key. This is
@@ -157,7 +157,7 @@ wmem_multimap_lookup32(wmem_multimap_t *map, const void *key, const uint32_t fra
  */
 WS_DLL_PUBLIC
 void *
-wmem_multimap_lookup32_le(wmem_multimap_t *map, const void *key, const uint32_t frame_num);
+wmem_multimap_lookup32_le(const wmem_multimap_t *map, const void *key, const uint32_t frame_num);
 
 /** Remove a value from the multimap. If no value is stored at that key pair,
  * nothing happens. As with wmem_tree, this is not really a remove, but the

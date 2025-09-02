@@ -125,14 +125,14 @@ wmem_array_append(wmem_array_t *array, const void *in, unsigned count)
 }
 
 void *
-wmem_array_index(wmem_array_t *array, unsigned array_index)
+wmem_array_index(const wmem_array_t *array, unsigned array_index)
 {
     g_assert(array_index < array->elem_count);
     return &array->buf[array_index * array->elem_size];
 }
 
 int
-wmem_array_try_index(wmem_array_t *array, unsigned array_index, void *val)
+wmem_array_try_index(const wmem_array_t *array, unsigned array_index, void *val)
 {
     if (array_index >= array->elem_count)
         return -1;
@@ -147,13 +147,13 @@ wmem_array_sort(wmem_array_t *array, int (*compar)(const void*,const void*))
 }
 
 void *
-wmem_array_get_raw(wmem_array_t *array)
+wmem_array_get_raw(const wmem_array_t *array)
 {
     return array->buf;
 }
 
 unsigned
-wmem_array_get_count(wmem_array_t *array)
+wmem_array_get_count(const wmem_array_t *array)
 {
     if (array == NULL)
         return 0;
@@ -162,7 +162,7 @@ wmem_array_get_count(wmem_array_t *array)
 }
 
 wmem_allocator_t*
-wmem_array_get_allocator(wmem_array_t* array)
+wmem_array_get_allocator(const wmem_array_t* array)
 {
     if (array == NULL)
         return NULL;
