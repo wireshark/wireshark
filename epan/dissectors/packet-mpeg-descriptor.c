@@ -29,6 +29,8 @@ static int hf_mpeg_descriptor_data;
 
 static int ett_mpeg_descriptor;
 
+static dissector_table_t iso_ext_tag_table;
+
 static const value_string mpeg_descriptor_tag_vals[] = {
     /* From ISO/IEC 13818-1 */
     { 0x00, "Reserved" },
@@ -886,20 +888,25 @@ static const value_string mpeg_descr_iso_extension_tag_extension_vals[] = {
 static value_string_ext mpeg_descr_iso_extension_tag_extension_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_iso_extension_tag_extension_vals);
 
 static void
-proto_mpeg_descriptor_dissect_iso_extension(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
+proto_mpeg_descriptor_dissect_iso_extension(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned len, proto_tree *tree)
 {
     unsigned  offset_start;
     unsigned  already_dissected;
+    unsigned  tag_ext;
+    tvbuff_t  *descr_ext;
 
     offset_start = offset;
 
-    proto_tree_add_item(tree, hf_mpeg_descr_iso_extension_tag_extension, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_mpeg_descr_iso_extension_tag_extension, tvb, offset, 1, ENC_BIG_ENDIAN, &tag_ext);
     offset += 1;
 
-    /* Just add the extended descriptor data. */
-    already_dissected = offset-offset_start;
-    if (already_dissected<len)
-        proto_tree_add_item(tree, hf_mpeg_descr_iso_extension_data, tvb, offset, len-already_dissected, ENC_NA);
+    descr_ext = tvb_new_subset_length(tvb, offset_start, len);
+    if (!dissector_try_uint(iso_ext_tag_table, tag_ext, descr_ext, pinfo, tree)) {
+        /* No dissector available, just add the extended descriptor data. */
+        already_dissected = offset - offset_start;
+        if (already_dissected < len)
+            proto_tree_add_item(tree, hf_mpeg_descr_iso_extension_data, tvb, offset, len - already_dissected, ENC_NA);
+    }
 }
 
 /* 0x41 Service List Descriptor */
@@ -4496,7 +4503,7 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, packet_info* pinfo, unsigned offset
             proto_mpeg_descriptor_dissect_avc_vid(tvb, offset, descriptor_tree);
             break;
         case 0x3F: /* MPEG2 Extension Descriptor */
-            proto_mpeg_descriptor_dissect_iso_extension(tvb, offset, len, descriptor_tree);
+            proto_mpeg_descriptor_dissect_iso_extension(tvb, pinfo, offset, len, descriptor_tree);
             break;
         case 0x40: /* Network Name Descriptor */
             proto_mpeg_descriptor_dissect_network_name(tvb, offset, len, descriptor_tree);
@@ -6934,6 +6941,7 @@ proto_register_mpeg_descriptor(void)
     proto_register_field_array(proto_mpeg_descriptor, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    iso_ext_tag_table = register_dissector_table("mpeg_descr.iso_ext.tag", "MPEG Descriptor ISO Extension tag", proto_mpeg_descriptor, FT_UINT8, BASE_HEX);
 }
 
 /*
