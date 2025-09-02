@@ -20897,7 +20897,7 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
       offset += 1;
 
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_gtk_kde_pn, tvb,
-                          offset, 6, ENC_NA);
+                          offset, 6, ENC_LITTLE_ENDIAN);
       offset += 6;
 
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_gtk_kde_gtk, tvb,
@@ -20907,11 +20907,11 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
       break;
     case 17: /* MLO IGTK KDE */
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_igtk_kde_key_id, tvb,
-                          offset, 2, ENC_NA);
+                          offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
 
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_igtk_kde_ipn, tvb,
-                          offset, 6, ENC_NA);
+                          offset, 6, ENC_LITTLE_ENDIAN);
       offset += 6;
 
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_igtk_kde_reserved, tvb,
@@ -20927,11 +20927,11 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb,
       break;
     case 18: /* MLO BIGTK KDE */
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_bigtk_kde_key_id, tvb,
-                          offset, 2, ENC_NA);
+                          offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
 
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_bigtk_kde_ipn, tvb,
-                          offset, 6, ENC_NA);
+                          offset, 6, ENC_LITTLE_ENDIAN);
       offset += 6;
 
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_mlo_bigtk_kde_reserved, tvb,
@@ -23672,7 +23672,7 @@ dissect_mmie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
   proto_tree_add_item(tree, hf_ieee80211_tag_mmie_keyid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(tree, hf_ieee80211_tag_mmie_ipn, tvb, offset + 2, 6,
-                      ENC_NA);
+                      ENC_LITTLE_ENDIAN);
   proto_tree_add_item(tree, hf_ieee80211_tag_mmie_mic, tvb, offset + 8, 8,
                       ENC_NA);
   return tvb_captured_length(tvb);
@@ -57212,7 +57212,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_mmie_ipn,
      {"IPN", "wlan.mmie.ipn",
-      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_mmie_mic,
      {"MIC", "wlan.mmie.mic",
