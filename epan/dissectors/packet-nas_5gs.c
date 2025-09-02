@@ -3428,11 +3428,11 @@ de_nas_5gs_mm_pld_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 proto_item *item;
                 proto_tree *subtree, *subtree2;
 
-                entry_offset = curr_offset;
                 subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_mm_pld_cont_pld_entry, &item, "Payload container entry %d", i + 1);
                 proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_pld_cont_pld_cont_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &payload_len);
                 proto_item_set_len(item, payload_len + 2);
                 curr_offset += 2;
+                entry_offset = curr_offset;
                 proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_pld_cont_nb_opt_ies, tvb, curr_offset, 1, ENC_NA, &opt_ies_count);
                 proto_tree_add_item_ret_uint(subtree, hf_nas_5gs_mm_pld_cont_pld_cont_type, tvb, curr_offset, 1, ENC_NA, &payload_type);
                 curr_offset++;
@@ -3483,7 +3483,7 @@ de_nas_5gs_mm_pld_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 nas5gs_data->payload_container_type = payload_type;
                 /* N.B. this recursive call can overwrite nas5gs_data->payload_container_type */
                 de_nas_5gs_mm_pld_cont(tvb, subtree, pinfo, curr_offset, payload_len - (curr_offset - entry_offset), NULL, 0);
-                curr_offset = entry_offset + payload_len + 2;
+                curr_offset = entry_offset + payload_len;
                 nas5gs_data->payload_container_type = type_backup;
             }
         }
