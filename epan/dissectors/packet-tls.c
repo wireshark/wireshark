@@ -339,7 +339,7 @@ tls_hs_reassembly_table_functions = {
         tls_hs_fragment_free_temporary_key,
 };
 
-uint32_t get_tls_stream_count(void)
+static uint32_t get_tls_stream_count(void)
 {
     return tls_stream_count;
 }

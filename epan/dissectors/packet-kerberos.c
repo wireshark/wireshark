@@ -1699,7 +1699,7 @@ static void missing_signing_key(proto_tree *tree, packet_info *pinfo,
 
 #endif /* HAVE_KRB5_PAC_VERIFY */
 
-/* Retreived from read_keytab_file.h */
+/* Retrieved from read_keytab_file.h */
 extern krb5_context keytab_krb5_ctx;
 
 #ifdef HAVE_KRB5_C_FX_CF2_SIMPLE

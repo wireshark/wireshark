@@ -801,7 +801,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
         } else if (pgn == 59392) {
           // Acknowledgement message
           uint32_t reserved = 0xFFFFFF;
-          col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(tvb_get_uint8(tvb, 0), acknowledgement_control_byte, "Unknown"));
+          col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(tvb_get_uint8(tvb, 0), acknowledgement_control_byte, "Unknown"));
 
           proto_tree *ack_tree;
           ti = proto_tree_add_item(isobus_tree, hf_isobus_ack_response, tvb, 0, 8, ENC_NA);
@@ -1027,6 +1027,14 @@ proto_register_isobus(void) {
 
     proto_register_field_array(proto_isobus, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register expert info fields */
+    expert_module_t *expert_isobus = expert_register_protocol(proto_isobus);
+    static ei_register_info ei[] = {
+        { &ei_isobus_ack_msg_reserved, { "isobus.ack_msg_reserved", PI_UNDECODED, PI_WARN, "Reserved field not zero", EXPFILL }}
+    };
+    expert_register_field_array(expert_isobus, ei, array_length(ei));
+
 
     addressIdentifierTable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), address_combination_hash, address_combination_equal);
 

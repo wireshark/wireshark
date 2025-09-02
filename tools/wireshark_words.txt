@@ -435,6 +435,7 @@ cmdcontrol
 cmdmfg
 cmdset
 cmstatus
+cntrl
 codabar
 code16div
 code32div
@@ -864,6 +865,7 @@ encrypt
 encrypting
 encryptionkey
 encrypts
+enctype
 endace
 endian
 endianness
@@ -1202,6 +1204,7 @@ hysteresis
 hytec
 ia5string
 iabtnl
+iakerb
 ibsdh
 icapability
 iccid
@@ -1418,6 +1421,7 @@ kolkata
 korean
 krb5kdc
 krb5krb
+ksumtype
 l1sync
 l2cap
 l2vpn
@@ -1477,6 +1481,7 @@ linrcverror
 linsenderror
 linux
 linwakeup
+lisboa
 list1
 listfor
 literals
@@ -1547,6 +1552,7 @@ marvell
 masterkey
 mathieson
 matrixes
+matsushita
 maxbytes
 maxlen
 maxlength
@@ -1656,14 +1662,18 @@ mqauth
 mqbacf
 mqcacf
 mqcach
+mqcamo
 mqcfstatus
 mqcft
 mqcmd
+mqcmdi
 mqgacf
 mqiacf
 mqiach
 mqiamo
 mqrccf
+mqsecsw
+mqsysp
 mrcpv
 mrpic
 msbuild
@@ -1813,6 +1823,7 @@ norge
 normalise
 normalised
 nortel
+nosupp
 notarized
 notational
 notif
@@ -1887,6 +1898,7 @@ ofpfmfc
 ofpgmfc
 ofpgt
 ofpit
+ofpmbt
 ofpmf
 ofpmmfc
 ofpmofc
@@ -1931,6 +1943,7 @@ optimised
 optimizations
 optimizer
 optiplex
+optoelectronics
 optreq
 optrsp
 optus
@@ -2216,6 +2229,8 @@ rawip
 raymond
 raytheon
 rcode
+rcreq
+rcrsp
 rcsta
 rctxinfo
 rdata
@@ -2644,6 +2659,7 @@ spoofing
 spooled
 spooler
 spoolss
+sqdlighting
 sqlite
 sqlwarn
 srbid
@@ -2675,6 +2691,7 @@ statfs
 statsum
 statusbar
 statvfs
+stcsig
 stderr
 stdin
 stdio
@@ -3299,6 +3316,8 @@ xferflags
 xferstatus
 xfixes
 xhtml
+xidlr
+xidxchg
 xinerama
 xinput
 xmlns

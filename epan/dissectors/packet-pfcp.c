@@ -1257,12 +1257,6 @@ static int hf_pfcp_jnpr_l2tp_is_lns;
 static int hf_pfcp_jnpr_l2tp_ipv4;
 static int hf_pfcp_jnpr_l2tp_tunnel_index;
 
-static const value_string compute_limit_vals[] = {
-    { 0, "Off" },
-    { 1, "On" },
-    { 0, NULL }
-};
-
 static const value_string final_stats[] = {
     { 0, "Do not send final stats" },
     { 1, "Send final stats" },
@@ -18576,7 +18570,7 @@ proto_register_pfcp(void)
 
         { &hf_pfcp_jnpr_compute_limit_exceeded,
         { "Compute Limit Exceeded", "pfcp.jnpr.compute_limit_exceeded",
-            FT_UINT8, BASE_DEC, VALS(compute_limit_vals),
+            FT_BOOLEAN, 8, TFS(&tfs_on_off),
             0x01, NULL, HFILL }
         },
 
