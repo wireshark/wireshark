@@ -864,7 +864,7 @@ static const value_string message_type[] = {
 #define TYPE_CAPWAP_TIMERS                        12
 #define TYPE_DATA_TRANSFER_DATA                   13
 #define TYPE_DATA_TRANSFER_MODE                   14
-#define TYPE_DESCRYPTION_ERROR_REPORT             15
+#define TYPE_DECRYPTION_ERROR_REPORT              15
 #define TYPE_DECRYPTION_ERROR_REPORT_PERIOD       16
 #define TYPE_DELETE_MAC_ENTRY                     17
 #define TYPE_DELETE_STATION                       18
@@ -949,7 +949,7 @@ static const value_string message_element_type_vals[] = {
     { TYPE_CAPWAP_TIMERS, "CAPWAP Timers" },
     { TYPE_DATA_TRANSFER_DATA, "Data Transfer Data" },
     { TYPE_DATA_TRANSFER_MODE, "Data Transfer Mode" },
-    { TYPE_DESCRYPTION_ERROR_REPORT, "Decryption Error Report" },
+    { TYPE_DECRYPTION_ERROR_REPORT, "Decryption Error Report" },
     { TYPE_DECRYPTION_ERROR_REPORT_PERIOD, "Decryption Error Report Period" },
     { TYPE_DELETE_MAC_ENTRY, "Delete MAC ACL Entry" },
     { TYPE_DELETE_STATION, "Delete Station" },

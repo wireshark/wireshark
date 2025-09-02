@@ -1443,7 +1443,7 @@ typedef struct wtap_rec {
      * XXX - some if not all of the rec_header information may belong
      * here, or may already be here.  Eliminating rec_header in favor
      * of this might simplify the process of adding new record/block
-     * types.  For example, some of it might belong in block->mandaory_data.
+     * types.  For example, some of it might belong in block->mandatory_data.
      *
      * It also has a type field that's somewhat equivalent to rec_type.
      *

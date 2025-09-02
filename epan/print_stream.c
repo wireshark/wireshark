@@ -141,7 +141,7 @@ set_color_24bit_escape(FILE *fh, const color_t *fg, const color_t *bg)
      * background colour" options to the Select Graphic Rendition control
      * sequence; those are reserved in ECMA-48, and are specified in ISO
      * standard 8613-6/ITU-T Recommendation T.416, "Open Document Architecture
-     * (ODA) and Interchange Format: Chararcter Content Architectures",
+     * (ODA) and Interchange Format: Character Content Architectures",
      * section 13.1.8 "Select Graphic Rendition (SGR)".  We use the
      * "direct colour in RGB space" option, with a parameter value of 2.
      *

@@ -771,7 +771,7 @@ DIAG_ON(cast-function-type)
 		 * XXX - for Gentoo, PRETTY_NAME might not give a version,
 		 * so fall back on /etc/gentoo-release?  Gentoo is
 		 * a rolling-release distribution, so what *is* the
-		 * significance of the contnets of /etc/gentoo-release?
+		 * significance of the contents of /etc/gentoo-release?
 		 *
 		 * XXX - MX appears to be a Debian-based distribution
 		 * whose /etc/os-release gives its Debian version and
