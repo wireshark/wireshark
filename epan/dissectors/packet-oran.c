@@ -6234,7 +6234,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         uint32_t ud_comp_len;
 
         /* udCompHdr (if preferences indicate will be present) */
-        bool included = (includeUdCompHeader==0) ||   /* 0 means present.. */
+        bool included = (includeUdCompHeader==1) ||   /* 1 means present.. */
                         (includeUdCompHeader==2 && udcomphdr_appears_present(state, direction, tvb, offset));
         if (included) {
             /* 7.5.2.10 */
