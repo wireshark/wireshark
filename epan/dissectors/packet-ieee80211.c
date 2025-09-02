@@ -10462,7 +10462,7 @@ dissect_anqp_network_auth_type_timestamp(proto_tree *tree, tvbuff_t *tvb, int of
       proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_sec,
                           tvb, offset, 1, ENC_NA);
       proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_msec,
-                          tvb, offset, 2, ENC_NA);
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_ts_rsvd,
                           tvb, offset, 1, ENC_NA);
       offset += 10;
@@ -12545,7 +12545,7 @@ static unsigned
 add_ff_tod(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_tod, tvb, offset, 4,
-                     ENC_NA);
+                      ENC_LITTLE_ENDIAN);
   return 4;
 }
 
@@ -12553,7 +12553,7 @@ static unsigned
 add_ff_toa(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_toa, tvb, offset, 4,
-                      ENC_NA);
+                      ENC_LITTLE_ENDIAN);
   return 4;
 }
 
@@ -26035,7 +26035,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
     proto_item_append_text(ti, " : AKM Suite List:");
     for (loop_cnt = 0; loop_cnt < akm_cnt; loop_cnt++) {
       subtree = proto_item_add_subtree(item, ett_tag_wapi_param_set_akm_tree);
-      proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_akm_suite_oui, tvb, offset, 3, ENC_NA);
+      proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_akm_suite_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
       offset += 3;
       akm_suite_type = tvb_get_uint8(tvb, offset);
       proto_tree_add_item(subtree, hf_ieee80211_tag_wapi_param_set_akm_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -26073,7 +26073,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
   }
 
   /* Multicast Cipher Suites*/
-  proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_oui, tvb, offset, 3, ENC_NA);
+  proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
   offset += 3;
   mcast_cipher_type = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -28080,7 +28080,7 @@ dissect_qos_map_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
   for (i = 0; i < 8; i++) {
     dscp_item = proto_tree_add_item(tree, hf_ieee80211_tag_qos_map_set_range,
-                                    tvb, offset, 2, ENC_NA);
+                                    tvb, offset, 2, ENC_LITTLE_ENDIAN);
     dscp_tree = proto_item_add_subtree(dscp_item, ett_qos_map_set_exception);
 
     item = proto_tree_add_item(dscp_tree, hf_ieee80211_tag_qos_map_set_low,
@@ -30650,8 +30650,8 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     switch (sub_tag_id) {
       case NR_SUB_ID_TSF_INFO:
-        proto_tree_add_item(sub_tag_tree, hf_ieee80211_tag_neighbor_report_subelement_tsf_offset, tvb, offset, 2, ENC_NA);
-        proto_tree_add_item(sub_tag_tree, hf_ieee80211_tag_neighbor_report_subelement_beacon_interval, tvb, offset + 2, 2, ENC_NA);
+        proto_tree_add_item(sub_tag_tree, hf_ieee80211_tag_neighbor_report_subelement_tsf_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tag_tree, hf_ieee80211_tag_neighbor_report_subelement_beacon_interval, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
         break;
       case NR_SUB_ID_MEASUREMENT_PILOT_INFO:
         dissect_measurement_pilot_trans_ie(sub_tag_tvb, pinfo, sub_tag_tree, data);
@@ -30663,8 +30663,8 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         proto_tree_add_item(sub_tag_tree, hf_ieee80211_tag_neighbor_report_subelement_bss_trn_can_pref, tvb, offset, 1, ENC_NA);
         break;
       case NR_SUB_ID_BSS_TER_DUR:
-        proto_tree_add_item(sub_tag_tree, hf_ieee80211_tag_neighbor_report_subelement_bss_ter_tsf, tvb, offset, 8, ENC_NA);
-        proto_tree_add_item(sub_tag_tree, hf_ieee80211_tag_neighbor_report_subelement_bss_dur, tvb, offset + 8, 2, ENC_NA);
+        proto_tree_add_item(sub_tag_tree, hf_ieee80211_tag_neighbor_report_subelement_bss_ter_tsf, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tag_tree, hf_ieee80211_tag_neighbor_report_subelement_bss_dur, tvb, offset + 8, 2, ENC_LITTLE_ENDIAN);
         break;
       case NR_SUB_ID_HT_CAPABILITIES:
         dissect_ht_capability_ie_common(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_len, field_data->item_tag_length, false);
@@ -33492,7 +33492,7 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
           /* Retention Expires Relative (optional) */
           if ((sub_tag_end - 1) == 2 ) {
             proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_lci_urp_retention_expires_relative,
-                                  tvb, offset, 2, ENC_NA);
+                                  tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 1;
           }
           break;
@@ -33554,7 +33554,7 @@ ieee80211_tag_measure_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
           offset += 2;
 
           proto_tree_add_item(sub_elem_tree, hf_ieee80211_tag_measure_report_location_civic_type,
-                              tvb, offset, 1, ENC_ASCII);
+                              tvb, offset, 1, ENC_NA);
           offset += 1;
 
           proto_tree_add_item_ret_uint(sub_elem_tree, hf_ieee80211_tag_measure_report_location_civic_length,
@@ -36624,7 +36624,7 @@ ieee80211_tag_dmg_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return tvb_captured_length(tvb);
   }
 
-  proto_tree_add_item(tree, hf_ieee80211_tag_sta_beam_track, tvb, offset, 2, ENC_NA);
+  proto_tree_add_item(tree, hf_ieee80211_tag_sta_beam_track, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
   proto_tree_add_bitmask_list(tree, tvb, offset, 1, ieee80211_tag_dmg_cap5, ENC_LITTLE_ENDIAN);
   offset += 1;
@@ -38811,7 +38811,7 @@ dissect_ieee80211_he_eht_trigger(tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_bitmask(common_tree, tvb, offset,
                              hf_ieee80211_he_trigger_ranging_common_info_2,
                              ett_he_trigger_ranging, ranging_headers2,
-                             ENC_NA);
+                             ENC_LITTLE_ENDIAN);
       offset += 2;
       break;
     default:
@@ -38854,14 +38854,14 @@ dissect_ieee80211_s1g_tack(tvbuff_t *tvb, packet_info *pinfo _U_,
   length += 1;
 
   proto_tree_add_item(tree, hf_ieee80211_pentapartial_timestamp, tvb, offset,
-                      5, ENC_NA);
+                      5, ENC_LITTLE_ENDIAN);
   offset += 5;
   length += 5;
 
    if ((flags & 0xC0) == 0xC0)  {
      proto_tree_add_bitmask_with_flags(tree, tvb, offset,
                         hf_ieee80211_tack_next_twt_info, ett_tack_info,
-                        tack_headers, ENC_NA, BMT_NO_APPEND);
+                        tack_headers, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
      length += 6;
    }
 
@@ -44275,7 +44275,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_fils_discovery_md,
      {"MD", "wlan.fils_discovery.md",
-      FT_UINT24, BASE_HEX, NULL, 0x0,
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
 /* 802.11ad */
@@ -44770,7 +44770,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_dmg_capa_aid,
      {"AID", "wlan.dmg_capa.aid",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 /* 8.4.2.127.2 DMG STA Capability Information field */
     {&hf_ieee80211_tag_reverse_direction, /* DMG STA capa, bits [0] */
@@ -54243,12 +54243,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_wfa_ie_owe_band_info,
      {"Band info", "wlan.wfa.ie.owe.band_info",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_owe_channel_info,
      {"Channel info", "wlan.wfa.ie.owe.channel_info",
-      FT_UINT16, BASE_DEC, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_mbo_oce_attr,
@@ -60326,11 +60326,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_operation_ccfs0,
      {"CCFS0", "wlan.eht.eht_operation_information.ccfs0",
-      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_operation_ccfs1,
      {"CCFS1", "wlan.eht.eht_operation_information.ccfs1",
-      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_operation_disabled_bitmap,
      {"Disabled Subchannel Bitmap",
