@@ -6,6 +6,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN "aethra"
+
 #include "config.h"
 #include "aethra.h"
 
@@ -15,8 +17,6 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-
-#define WS_LOG_DOMAIN "aethra"
 
 /* Magic number in Aethra PC108 files. */
 #define MAGIC_SIZE	5
@@ -104,7 +104,8 @@ struct aethrarec_hdr {
 #define AETHRA_ISDN_LINK_ALL_ALARMS_CLEARED	0x30	/* All Alarms Cleared */
 
 typedef struct {
-	time_t	start;
+	time_t	     start;
+	unsigned int packet_number;
 } aethra_t;
 
 static int aethra_file_type_subtype = -1;
@@ -160,12 +161,11 @@ aethra_read_rec_header(wtap* wth, FILE_T fh, struct aethrarec_hdr* hdr,
 	return true;
 }
 
-static unsigned packet;
-
 /* Read the next packet */
 static bool aethra_read(wtap *wth, wtap_rec *rec, int *err,
     char **err_info, int64_t *data_offset)
 {
+	aethra_t* aethra = (aethra_t*)wth->priv;
 	struct aethrarec_hdr hdr;
 
 	/*
@@ -188,12 +188,12 @@ static bool aethra_read(wtap *wth, wtap_rec *rec, int *err,
 			    rec->rec_header.packet_header.caplen, err, err_info))
 				return false;	/* Read error */
 		}
-		packet++;
+		aethra->packet_number++;
 
 		switch (hdr.rec_type) {
 
 		case AETHRA_ISDN_LINK:
-			ws_noisy("Packet %u: type 0x%02x (AETHRA_ISDN_LINK)\n", packet, hdr.rec_type);
+			ws_noisy("Packet %u: type 0x%02x (AETHRA_ISDN_LINK)\n", aethra->packet_number, hdr.rec_type);
 			switch (hdr.flags & AETHRA_ISDN_LINK_SUBTYPE) {
 
 			case AETHRA_ISDN_LINK_LAPD:
@@ -230,7 +230,7 @@ static bool aethra_read(wtap *wth, wtap_rec *rec, int *err,
 			break;
 
 		default:
-			ws_debug("Packet %u: type 0x%02x, packet_size %u, flags 0x%02x\n", packet, hdr.rec_type, rec->rec_header.packet_header.caplen, hdr.flags);
+			ws_debug("Packet %u: type 0x%02x, packet_size %u, flags 0x%02x\n", aethra->packet_number, hdr.rec_type, rec->rec_header.packet_header.caplen, hdr.flags);
 			break;
 		}
 	}
@@ -305,6 +305,7 @@ wtap_open_return_val aethra_open(wtap* wth, int* err, char** err_info)
 	tm.tm_sec = hdr.start_sec;
 	tm.tm_isdst = -1;
 	aethra->start = mktime(&tm);
+	aethra->packet_number = 0;
 
 	/*
 	 * We've only seen ISDN files, so, for now, we treat all
