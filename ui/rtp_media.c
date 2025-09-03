@@ -135,6 +135,37 @@ decode_rtp_packet_payload(rtp_decoder_t *decoder, uint8_t *payload_data, size_t 
     return decoded_bytes;
 }
 
+/* Number of bits per frame for AMR-NB, see Table 1 RFC3267*/
+/* Values taken for GSM-EFR SID, TDMA-EFR SID and PDC-EFR SID from 3GPP 26.101 Table A.1b */
+
+/*               Frame type     0   1   2   3   4   5   6   7  8  9  10 11 12 13 14 15 */
+static const uint8_t Framebits_NB[] = { 95, 103, 118, 134, 148, 159, 204, 244, 39, 43, 38, 37, 0, 0, 0, 0 };
+
+/** Return AMR narrowband Frame Type (FT) based on AMR speech data payload size.
+ * The input size is the size of an octet aligned payload without the
+ * CMR and TOC octets.
+ *
+ * @return AMR Frame Type (FT)
+ */
+
+static int
+amr_nb_bytes_to_ft(uint8_t bytes)
+{
+    int ft;
+
+    for (ft = 0; ft < AMR_FT_PDC_EFR_SID; ft++) {
+        if ((Framebits_NB[ft] + 7) / 8 == bytes) {
+            return ft;
+        }
+    }
+    /* 12-14 not used, jump to 15 (AMR_FT_NO_DATA): */
+    if (Framebits_NB[AMR_FT_NO_DATA] == bytes) {
+        return AMR_FT_NO_DATA;
+    }
+
+    return -1;
+}
+
 /****************************************************************************/
 /** Prepend an AMR NB Octet-Aligned header (2 bytes) to the AMR payload.
  * A new buffer is allocated, filled and returned. The caller is responsible of freeing it.

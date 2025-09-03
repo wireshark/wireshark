@@ -10,13 +10,6 @@
 #ifndef __PACKET_AMR_H__
 #define __PACKET_AMR_H__
 
-#include "config.h"
-
-#include <stddef.h>
-#include <stdint.h>
-
-#include "ws_symbol_export.h"
-
 /* According to TS 26.101 Table A.1b: */
 #define AMR_FT_0		0	/* 4.75 */
 #define AMR_FT_1		1	/* 5.15 */
@@ -36,7 +29,5 @@
 /* 1B Payload Header + 1B ToC: */
 #define AMR_NB_OA_HDR_LEN 2
 
-WS_DLL_PUBLIC
-int amr_nb_bytes_to_ft(uint8_t bytes);
 
 #endif /*__PACKET_AMR_H__*/
