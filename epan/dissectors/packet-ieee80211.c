@@ -21787,7 +21787,7 @@ dissect_vendor_ie_sgdsn(proto_item *item _U_, proto_tree *ietree,
       case SGDSN_LONGITUDE:
         if (tlv_len == 4) {
           int32_t value;
-          proto_tree_add_item_ret_int(tree, hf_ieee80211_vs_sgdsn_gpscoord, tvb, offset, 4, ENC_NA, &value);
+          proto_tree_add_item_ret_int(tree, hf_ieee80211_vs_sgdsn_gpscoord, tvb, offset, 4, ENC_LITTLE_ENDIAN, &value);
           proto_item_append_text(tree, ": %.5f", value / 100000.0);
         } else {
           expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be 4");
@@ -21797,7 +21797,7 @@ dissect_vendor_ie_sgdsn(proto_item *item _U_, proto_tree *ietree,
       case SGDSN_ALTITUDE_REL:
         if (tlv_len == 2) {
           int32_t value;
-          proto_tree_add_item_ret_int(tree, hf_ieee80211_vs_sgdsn_altitude, tvb, offset, 2, ENC_NA, &value);
+          proto_tree_add_item_ret_int(tree, hf_ieee80211_vs_sgdsn_altitude, tvb, offset, 2, ENC_LITTLE_ENDIAN, &value);
           proto_item_append_text(tree, ": %d m", value);
         } else {
           expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be 4");
@@ -21815,7 +21815,7 @@ dissect_vendor_ie_sgdsn(proto_item *item _U_, proto_tree *ietree,
       case SGDSN_HEADING:
         if (tlv_len == 2) {
           uint32_t value;
-          proto_tree_add_item_ret_uint(tree, hf_ieee80211_vs_sgdsn_heading, tvb, offset, 2, ENC_NA, &value);
+          proto_tree_add_item_ret_uint(tree, hf_ieee80211_vs_sgdsn_heading, tvb, offset, 2, ENC_LITTLE_ENDIAN, &value);
           proto_item_append_text(tree, ": %d deg", value);
         } else {
           expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be 2");
