@@ -219,7 +219,7 @@ class EncodingCheckerBasic:
         self.allow_multiple = allow_multiple
         self.encodings_seen = 0
 
-    def check(self, encoding, call, api_check):
+    def check(self, encoding, call, api_check, item):
         type = self.type
 
         # Are more encodings allowed?
@@ -232,6 +232,11 @@ class EncodingCheckerBasic:
 
         # Is this encoding allowed for this type?
         if not encoding in self.allowed_encodings:
+            # Have an exemption for UINT fields if the length is only 1.
+            if encoding == 'ENC_NA' and item.item_type.find('FT_UINT') != -1 and call.length == 1:
+                return
+
+
             global warnings_found
             print('Warning:', api_check.file + ':' + str(call.line_number),
                   api_check.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' - with bad encoding - ' + '"' + encoding + '"', '-',
@@ -263,7 +268,8 @@ def check_call_enc_matches_item(items_defined, call, api_check):
         encs = [call.enc.strip()]
 
     if call.hf_name in items_defined:
-        type = items_defined[call.hf_name].item_type
+        item = items_defined[call.hf_name]
+        type = item.item_type
         # TODO: checking each ENC_ value that appears, but not enforcing cases where there should be 2 values |d together
         # TODO: should check extra logic here, like flags that should be given or only have significance sometimes, like
         # order within a byte of ENC_BCD_DIGITS_0_9 for FT_STRING
@@ -272,8 +278,8 @@ def check_call_enc_matches_item(items_defined, call, api_check):
         if not checker is None:
             for enc in encs:
                 if enc.startswith('ENC_'):
-                    if type != 'FT_BOOLEAN' or items_defined[call.hf_name].get_field_width_in_bits() > 8:
-                        checker.check(enc, call, api_check)
+                    if type != 'FT_BOOLEAN' or item.get_field_width_in_bits() > 8:
+                        checker.check(enc, call, api_check, item)
 
 
 
