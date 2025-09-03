@@ -32,6 +32,8 @@ The following changes have been made since version 0.9.2:
 * The Windows installers now ship with Qt 6.8.3.
   They previously shipped with Qt 6.8.1.
 
+* The Falco Events dissector now adds IP geolocation fields alongside IPv4 and IPv6 address fields.
+
 The following changes have been made since version 0.9.1:
 
 * The Falco Bridge dissector has been renamed to Falco Events.

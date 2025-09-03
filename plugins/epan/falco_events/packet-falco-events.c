@@ -44,6 +44,7 @@
 #include <epan/dfilter/sttype-op.h>
 #include <epan/exceptions.h>
 #include <epan/follow.h>
+#include <epan/maxmind_db.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>
@@ -78,6 +79,18 @@ typedef struct conv_filter_info {
     wmem_strbuf_t *strbuf;
 } conv_filter_info;
 
+typedef enum geoip_off_e {
+    GEOIP_SUMMARY,
+    GEOIP_COUNTRY,
+    GEOIP_COUNTRY_ISO,
+    GEOIP_CITY,
+    GEOIP_AS_NUMBER,
+    GEOIP_AS_ORG,
+    GEOIP_LATITUDE,
+    GEOIP_LONGITUDE,
+    GEOIP_FIELD_COUNT
+} geoip_off_e;
+
 typedef struct bridge_info {
     sinsp_source_info_t *ssi;
     uint32_t source_id;
@@ -89,6 +102,8 @@ typedef struct bridge_info {
     int *hf_v4_ids;
     hf_register_info* hf_v6;
     int *hf_v6_ids;
+    hf_register_info* hf_geoip;
+    int *hf_geoip_ids;
     int* hf_id_to_addr_id; // Maps an hf offset to an hf_v[46] offset
     unsigned visible_fields;
     unsigned addr_fields;
@@ -147,6 +162,7 @@ static int ett_sinsp_enriched;
 static int ett_sinsp_span;
 static int ett_address;
 static int ett_json;
+static int ett_geoip_info;
 
 static int container_io_tap;
 
@@ -473,6 +489,8 @@ create_source_hfids(bridge_info* bi)
             bi->hf_v4_ids = (int*)wmem_alloc0(wmem_epan_scope(), bi->addr_fields * sizeof(int));
             bi->hf_v6 = (hf_register_info*)wmem_alloc(wmem_epan_scope(), bi->addr_fields * sizeof(hf_register_info));
             bi->hf_v6_ids = (int*)wmem_alloc0(wmem_epan_scope(), bi->addr_fields * sizeof(int));
+            bi->hf_geoip = (hf_register_info*)wmem_alloc(wmem_epan_scope(), bi->addr_fields * GEOIP_FIELD_COUNT * sizeof(hf_register_info));
+            bi->hf_geoip_ids = (int*)wmem_alloc0(wmem_epan_scope(), bi->addr_fields * GEOIP_FIELD_COUNT * sizeof(int));
         }
 
         if (bi->num_conversation_filters) {
@@ -592,7 +610,7 @@ create_source_hfids(bridge_info* bi)
                         wmem_strdup_printf(wmem_epan_scope(), "%s.v4", sfi.abbrev),
                         FT_IPv4, BASE_NONE,
                         NULL, 0x0,
-                        wmem_strdup_printf(wmem_epan_scope(), "%s (IPv4)", sfi.description), HFILL
+                        NULL, HFILL
                     }
                 };
                 bi->hf_v4[addr_fld_cnt] = finfo_v4;
@@ -604,10 +622,68 @@ create_source_hfids(bridge_info* bi)
                         wmem_strdup_printf(wmem_epan_scope(), "%s.v6", sfi.abbrev),
                         FT_IPv6, BASE_NONE,
                         NULL, 0x0,
-                        wmem_strdup_printf(wmem_epan_scope(), "%s (IPv6)", sfi.description), HFILL
+                        NULL, HFILL
                     }
                 };
                 bi->hf_v6[addr_fld_cnt] = finfo_v6;
+
+                for (int gidx = 0; gidx < GEOIP_FIELD_COUNT; gidx++) {
+                    const char *name = NULL;
+                    const char *abbrev = NULL;
+                    ftype = FT_STRING;
+                    fdisplay = BASE_NONE;
+                    switch (gidx) {
+                    case GEOIP_SUMMARY:
+                        name = wmem_strdup_printf(wmem_epan_scope(), "%s GeoIP Information", sfi.display);
+                        abbrev = wmem_strdup_printf(wmem_epan_scope(), "%s.geoip", sfi.abbrev);
+                        break;
+                    case GEOIP_COUNTRY:
+                        name = wmem_strdup_printf(wmem_epan_scope(), "%s GeoIP Country", sfi.display);
+                        abbrev = wmem_strdup_printf(wmem_epan_scope(), "%s.geoip.country", sfi.abbrev);
+                        break;
+                    case GEOIP_COUNTRY_ISO:
+                        name = wmem_strdup_printf(wmem_epan_scope(), "%s GeoIP ISO Two Letter Country Code", sfi.display);
+                        abbrev = wmem_strdup_printf(wmem_epan_scope(), "%s.geoip.country_iso", sfi.abbrev);
+                        break;
+                    case GEOIP_CITY:
+                        name = wmem_strdup_printf(wmem_epan_scope(), "%s GeoIP City", sfi.display);
+                        abbrev = wmem_strdup_printf(wmem_epan_scope(), "%s.geoip.city", sfi.abbrev);
+                        break;
+                    case GEOIP_AS_NUMBER:
+                        name = wmem_strdup_printf(wmem_epan_scope(), "%s GeoIP AS Number", sfi.display);
+                        abbrev = wmem_strdup_printf(wmem_epan_scope(), "%s.geoip.asnum", sfi.abbrev);
+                        ftype = FT_UINT32;
+                        fdisplay = BASE_DEC;
+                        break;
+                    case GEOIP_AS_ORG:
+                        name = wmem_strdup_printf(wmem_epan_scope(), "%s GeoIP AS Organization", sfi.display);
+                        abbrev = wmem_strdup_printf(wmem_epan_scope(), "%s.geoip.org", sfi.abbrev);
+                        break;
+                    case GEOIP_LATITUDE:
+                        name = wmem_strdup_printf(wmem_epan_scope(), "%s GeoIP Latitude", sfi.display);
+                        abbrev = wmem_strdup_printf(wmem_epan_scope(), "%s.geoip.lat", sfi.abbrev);
+                        ftype = FT_DOUBLE;
+                        break;
+                    case GEOIP_LONGITUDE:
+                        name = wmem_strdup_printf(wmem_epan_scope(), "%s GeoIP Longitude", sfi.display);
+                        abbrev = wmem_strdup_printf(wmem_epan_scope(), "%s.geoip.lon", sfi.abbrev);
+                        ftype = FT_DOUBLE;
+                        break;
+                    }
+
+                    hf_register_info finfo_geo = {
+                        bi->hf_geoip_ids + (addr_fld_cnt * GEOIP_FIELD_COUNT) + gidx,
+                        {
+                            name,
+                            abbrev,
+                            ftype, fdisplay,
+                            NULL, 0x0,
+                            NULL, HFILL
+                        }
+                    };
+                    bi->hf_geoip[(addr_fld_cnt * GEOIP_FIELD_COUNT) + gidx] = finfo_geo;
+                }
+
                 addr_fld_cnt++;
             } else if (bi->hf_id_to_addr_id) {
                 bi->hf_id_to_addr_id[fld_cnt] = -1;
@@ -620,6 +696,7 @@ create_source_hfids(bridge_info* bi)
         if (addr_fld_cnt) {
             proto_register_field_array(proto_falco_events, bi->hf_v4, addr_fld_cnt);
             proto_register_field_array(proto_falco_events, bi->hf_v6, addr_fld_cnt);
+            proto_register_field_array(proto_falco_events, bi->hf_geoip, addr_fld_cnt * GEOIP_FIELD_COUNT);
         }
 
         // Useful hf ids
@@ -1070,6 +1147,74 @@ const char* get_str_value(sinsp_field_extract_t *sinsp_fields, uint32_t sf_idx) 
     return res_str;
 }
 
+static void add_geoip_info(proto_tree *tree, bridge_info * bi, int base_idx, packet_info *pinfo, tvbuff_t *tvb, int offset, int length, const mmdb_lookup_t *lookup) {
+    if (!lookup || !lookup->found) {
+        return;
+    }
+
+    wmem_strbuf_t *summary = wmem_strbuf_new(pinfo->pool, "");
+    if (lookup->city) {
+        wmem_strbuf_append(summary, lookup->city);
+    }
+    if (lookup->country_iso) {
+        if (wmem_strbuf_get_len(summary) > 0) wmem_strbuf_append(summary, ", ");
+        wmem_strbuf_append(summary, lookup->country_iso);
+    } else if (lookup->country) {
+        if (wmem_strbuf_get_len(summary) > 0) wmem_strbuf_append(summary, ", ");
+        wmem_strbuf_append(summary, lookup->country);
+    }
+    if (lookup->as_number > 0) {
+        if (wmem_strbuf_get_len(summary) > 0) wmem_strbuf_append(summary, ", ");
+        wmem_strbuf_append_printf(summary, "ASN %u", lookup->as_number);
+    }
+    if (lookup->as_org) {
+        if (wmem_strbuf_get_len(summary) > 0) wmem_strbuf_append(summary, ", ");
+        wmem_strbuf_append(summary, lookup->as_org);
+    }
+
+    proto_item *geoip_info_item = proto_tree_add_string(tree, bi->hf_geoip_ids[base_idx + GEOIP_SUMMARY], tvb, offset, length, wmem_strbuf_finalize(summary));
+    proto_item_set_generated(geoip_info_item);
+    proto_tree *geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
+
+    proto_item *item;
+
+    if (lookup->city) {
+        item = proto_tree_add_string(geoip_info_tree, bi->hf_geoip_ids[base_idx + GEOIP_CITY], tvb, offset, length, lookup->city);
+        proto_item_set_generated(item);
+    }
+
+    if (lookup->country) {
+        item = proto_tree_add_string(geoip_info_tree, bi->hf_geoip_ids[base_idx + GEOIP_COUNTRY], tvb, offset, length, lookup->country);
+        proto_item_set_generated(item);
+    }
+
+    if (lookup->country_iso) {
+        item = proto_tree_add_string(geoip_info_tree, bi->hf_geoip_ids[base_idx + GEOIP_COUNTRY_ISO], tvb, offset, length, lookup->country_iso);
+        proto_item_set_generated(item);
+    }
+
+    if (lookup->as_number > 0) {
+        item = proto_tree_add_uint(geoip_info_tree, bi->hf_geoip_ids[base_idx + GEOIP_AS_NUMBER], tvb, offset, length, lookup->as_number);
+        proto_item_set_generated(item);
+    }
+
+    if (lookup->as_org) {
+        item = proto_tree_add_string(geoip_info_tree, bi->hf_geoip_ids[base_idx + GEOIP_AS_ORG], tvb, offset, length, lookup->as_org);
+        proto_item_set_generated(item);
+    }
+
+    if (lookup->latitude >= -90.0 && lookup->latitude <= 90.0) {
+        item = proto_tree_add_double(geoip_info_tree, bi->hf_geoip_ids[base_idx + GEOIP_LATITUDE], tvb, offset, length, lookup->latitude);
+        proto_item_set_generated(item);
+    }
+
+    if (lookup->longitude >= -180.0 && lookup->longitude <= 180.0) {
+        item = proto_tree_add_double(geoip_info_tree, bi->hf_geoip_ids[base_idx + GEOIP_LONGITUDE], tvb, offset, length, lookup->longitude);
+        proto_item_set_generated(item);
+    }
+}
+
+
 // Minimal dissector for adding protocol layers.
 static int
 dissect_syscall_layer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *psldp)
@@ -1292,20 +1437,28 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
                     proto_tree_add_bytes_with_length(parent_tree, bi->hf_ids[hf_idx], tvb, bytes_offset, bytes_length, sinsp_fields[sf_idx].res.str, sinsp_fields[sf_idx].res_len);
                 } else {
                     // XXX Need to differentiate between src and dest. Falco libs supply client vs server and local vs remote.
+                    const mmdb_lookup_t *lookup = NULL;
+
                     if (sinsp_fields[sf_idx].res_len == 4) {
                         ws_in4_addr v4_addr;
                         memcpy(&v4_addr, sinsp_fields[sf_idx].res.bytes, 4);
                         proto_tree_add_ipv4(parent_tree, bi->hf_v4_ids[addr_fld_idx], tvb, 0, 0, v4_addr);
                         set_address(&pinfo->net_src, AT_IPv4, sizeof(ws_in4_addr), &v4_addr);
                         copy_address_shallow(&pinfo->src, &pinfo->net_src);
+                        lookup = maxmind_db_lookup_ipv4(&v4_addr);
                     } else if (sinsp_fields[sf_idx].res_len == 16) {
                         ws_in6_addr v6_addr;
                         memcpy(&v6_addr, sinsp_fields[sf_idx].res.bytes, 16);
                         proto_tree_add_ipv6(parent_tree, bi->hf_v6_ids[addr_fld_idx], tvb, 0, 0, &v6_addr);
                         set_address(&pinfo->net_src, AT_IPv6, sizeof(ws_in6_addr), &v6_addr);
                         copy_address_shallow(&pinfo->src, &pinfo->net_src);
+                        lookup = maxmind_db_lookup_ipv6(&v6_addr);
                     } else {
                         ws_warning("Invalid length %u for address field %u", sinsp_fields[sf_idx].res_len, sf_idx);
+                    }
+
+                    if (lookup) {
+                        add_geoip_info(tree, bi, bi->hf_geoip_ids[addr_fld_idx * GEOIP_FIELD_COUNT], pinfo, tvb, 0, 0, lookup);
                     }
                     // XXX Add conversation support.
                 }
@@ -1486,16 +1639,22 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
                 ws_in6_addr v6_addr;
                 proto_tree *addr_tree;
                 proto_item *addr_item = NULL;
+                const mmdb_lookup_t *lookup = NULL;
                 if (ws_inet_pton4(sfe->res.str, &v4_addr)) {
                     addr_tree = proto_item_add_subtree(sf_ti, ett_address);
                     addr_item = proto_tree_add_ipv4(addr_tree, bi->hf_v4_ids[addr_fld_idx], tvb, sfe->data_start, sfe->data_length, v4_addr);
                     set_address(&pinfo->net_src, AT_IPv4, sizeof(ws_in4_addr), &v4_addr);
                     copy_address_shallow(&pinfo->src, &pinfo->net_src);
+                    lookup = maxmind_db_lookup_ipv4(&v4_addr);
                 } else if (ws_inet_pton6(sfe->res.str, &v6_addr)) {
                     addr_tree = proto_item_add_subtree(sf_ti, ett_address);
                     addr_item = proto_tree_add_ipv6(addr_tree, bi->hf_v6_ids[addr_fld_idx], tvb, sfe->data_start, sfe->data_length, &v6_addr);
                     set_address(&pinfo->net_src, AT_IPv6, sizeof(ws_in6_addr), &v6_addr);
                     copy_address_shallow(&pinfo->src, &pinfo->net_src);
+                    lookup = maxmind_db_lookup_ipv6(&v6_addr);
+                }
+                if (lookup) {
+                    add_geoip_info(fb_tree, bi, addr_fld_idx * GEOIP_FIELD_COUNT, pinfo, tvb, sfe->data_start, sfe->data_length, lookup);
                 }
                 if (addr_item) {
                     proto_item_set_generated(addr_item);
@@ -1741,6 +1900,7 @@ proto_register_falcoplugin(void)
         &ett_sinsp_span,
         &ett_address,
         &ett_json,
+        &ett_geoip_info,
     };
 
     /*
