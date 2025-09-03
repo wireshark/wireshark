@@ -5024,8 +5024,12 @@ cf_update_section_comments(capture_file *cf, unsigned shb_idx, char **comments)
         comment = comments[i];
         if (wtap_block_get_nth_string_option_value(shb_inf, OPT_COMMENT, i, &shb_comment) != WTAP_OPTTYPE_SUCCESS) {
             /* There's no comment - add one. */
-            wtap_block_add_string_option_owned(shb_inf, OPT_COMMENT, comment);
-            cf->unsaved_changes = true;
+            if (wtap_block_add_string_option_owned(shb_inf, OPT_COMMENT, comment) != WTAP_OPTTYPE_SUCCESS) {
+                /* Should never happen? */
+                g_free(comment);
+            } else {
+                cf->unsaved_changes = true;
+            }
         } else {
             /* See if the comment has changed or not */
             if (strcmp(shb_comment, comment) != 0) {
