@@ -81,9 +81,6 @@ static range_t *ssn_range;
    or when the same TCAP transcation identifier is reused */
 static unsigned gtcap_RepetitionTimeout = 10;
 static unsigned gtcap_LostTimeout = 30;
-static bool gtcap_PersistentSRT=false;
-bool gtcap_DisplaySRT=false;
-bool gtcap_StatSRT=false;
 
 /* Global hash tables*/
 static wmem_map_t *tcaphash_context;
@@ -942,15 +939,14 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             dbg(21,"Display_duplicate %d ",p_tcaphash_begincall->context->first_frame);
 #endif
             p_tcaphash_context=p_tcaphash_begincall->context;
-            if (gtcap_DisplaySRT && tree) {
-              stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
-              proto_item_set_generated(stat_item);
-              pi = proto_tree_add_uint_format(stat_tree, hf_tcapsrt_Duplicate, tvb, 0, 0,
+            stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
+            proto_item_set_generated(stat_item);
+            pi = proto_tree_add_uint_format(stat_tree, hf_tcapsrt_Duplicate, tvb, 0, 0,
                                               p_tcaphash_context->first_frame,
                                               "Duplicate with session %u in frame %u",
                                               p_tcaphash_context->session_id,p_tcaphash_context->first_frame);
-              proto_item_set_generated(pi);
-            }
+            proto_item_set_generated(pi);
+
             return p_tcaphash_context;
           } /* Previous session closed */
         } /* test with Timeout or message Lost */
@@ -982,8 +978,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   /* display tcap session, if available */
-  if ( gtcap_DisplaySRT && tree &&
-       p_tcaphash_context &&
+  if ( p_tcaphash_context &&
        p_tcaphash_context->session_id) {
     stat_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_tcap_stat, &stat_item, "Stat");
     proto_item_set_generated(stat_item);
@@ -1156,8 +1151,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } /* begin found */
   } /* cont found */
     /* display tcap session, if available */
-  if (gtcap_DisplaySRT && tree &&
-      p_tcaphash_context &&
+  if (p_tcaphash_context &&
       p_tcaphash_context->session_id) {
     stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
     proto_item_set_generated(stat_item);
@@ -1260,31 +1254,29 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #ifdef DEBUG_TCAPSRT
     dbg(12,"Found, req=%d ",p_tcaphash_context->first_frame);
 #endif
-    if (gtcap_DisplaySRT && tree) {
-      stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
-      proto_item_set_generated(stat_item);
 
-      pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
-      proto_item_set_generated(pi);
-    }
+    stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
+    proto_item_set_generated(stat_item);
+
+    pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
+    proto_item_set_generated(pi);
 
 #ifdef DEBUG_TCAPSRT
     dbg(20,"Display framereqlink %d ",p_tcaphash_context->first_frame);
 #endif
     /* Indicate the frame to which this is a reply. */
-    if (gtcap_DisplaySRT && stat_tree) {
-      pi = proto_tree_add_uint_format(stat_tree, hf_tcapsrt_EndSession, tvb, 0, 0,
+    pi = proto_tree_add_uint_format(stat_tree, hf_tcapsrt_EndSession, tvb, 0, 0,
                                       p_tcaphash_context->first_frame,
                                       "Begin of session in frame %u",
                                       p_tcaphash_context->first_frame);
-      proto_item_set_generated(pi);
-      /* Calculate Service Response Time */
-      nstime_delta(&delta, &pinfo->abs_ts, &p_tcaphash_context->begin_time);
+    proto_item_set_generated(pi);
+    /* Calculate Service Response Time */
+    nstime_delta(&delta, &pinfo->abs_ts, &p_tcaphash_context->begin_time);
 
-      /* display Service Response Time and make it filterable */
-      pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
-      proto_item_set_generated(pi);
-    }
+    /* display Service Response Time and make it filterable */
+    pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
+    proto_item_set_generated(pi);
+
     /* Close the context and remove it (if needed) */
     tcapsrt_close(p_tcaphash_context,pinfo);
 
@@ -1383,29 +1375,28 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         p_tcaphash_context=p_tcaphash_ansicall->context;
         isResponse=true;
 
-        if (gtcap_DisplaySRT && tree) {
-          stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
-          proto_item_set_generated(stat_item);
+        stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
+        proto_item_set_generated(stat_item);
 
-          pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
-          proto_item_set_generated(pi);
+        pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
+        proto_item_set_generated(pi);
 
 #ifdef DEBUG_TCAPSRT
-          dbg(20,"Display framereqlink %d ",p_tcaphash_context->first_frame);
+        dbg(20,"Display framereqlink %d ",p_tcaphash_context->first_frame);
 #endif
-          /* Indicate the frame to which this is a reply. */
-          pi = proto_tree_add_uint_format(stat_tree, hf_tcapsrt_EndSession, tvb, 0, 0,
+        /* Indicate the frame to which this is a reply. */
+        pi = proto_tree_add_uint_format(stat_tree, hf_tcapsrt_EndSession, tvb, 0, 0,
                                           p_tcaphash_context->first_frame,
                                           "Begin of session in frame %u",
                                           p_tcaphash_context->first_frame);
-          proto_item_set_generated(pi);
-          /* Calculate Service Response Time */
-          nstime_delta(&delta, &pinfo->abs_ts, &p_tcaphash_context->begin_time);
+        proto_item_set_generated(pi);
+        /* Calculate Service Response Time */
+        nstime_delta(&delta, &pinfo->abs_ts, &p_tcaphash_context->begin_time);
 
-          /* display Service Response Time and make it filterable */
-          pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
-          proto_item_set_generated(pi);
-        }
+        /* display Service Response Time and make it filterable */
+        pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
+        proto_item_set_generated(pi);
+
         break;
       } /* Lastframe=0, so take it */
 
@@ -1475,29 +1466,28 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             dbg(12,"Found, req=%d ",p_tcaphash_context->first_frame);
 #endif
 
-            if (gtcap_DisplaySRT && tree) {
-              stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
-              proto_item_set_generated(stat_item);
+            stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
+            proto_item_set_generated(stat_item);
 
-              pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
-              proto_item_set_generated(pi);
+            pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
+            proto_item_set_generated(pi);
 
 #ifdef DEBUG_TCAPSRT
-              dbg(20,"Display framereqlink %d ",p_tcaphash_context->first_frame);
+            dbg(20,"Display framereqlink %d ",p_tcaphash_context->first_frame);
 #endif
-              /* Indicate the frame to which this is a reply. */
-              pi = proto_tree_add_uint_format(stat_tree, hf_tcapsrt_EndSession, tvb, 0, 0,
+            /* Indicate the frame to which this is a reply. */
+            pi = proto_tree_add_uint_format(stat_tree, hf_tcapsrt_EndSession, tvb, 0, 0,
                                               p_tcaphash_context->first_frame,
                                               "Begin of session in frame %u",
                                               p_tcaphash_context->first_frame);
-              proto_item_set_generated(pi);
-              /* Calculate Service Response Time */
-              nstime_delta(&delta, &pinfo->abs_ts, &p_tcaphash_context->begin_time);
+            proto_item_set_generated(pi);
+            /* Calculate Service Response Time */
+            nstime_delta(&delta, &pinfo->abs_ts, &p_tcaphash_context->begin_time);
 
-              /* display Service Response Time and make it filterable */
-              pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
-              proto_item_set_generated(pi);
-            }
+            /* display Service Response Time and make it filterable */
+            pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
+            proto_item_set_generated(pi);
+
             p_tcaphash_context=p_tcaphash_ansicall->context;
           } /* test with Timeout */
         } /* closed */
@@ -1525,8 +1515,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   /* display tcap session, if available */
-  if ( gtcap_DisplaySRT && tree &&
-       p_tcaphash_context &&
+  if ( p_tcaphash_context &&
        p_tcaphash_context->session_id) {
     stat_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_tcap_stat, &stat_item, "Stat");
     proto_item_set_generated(stat_item);
@@ -1536,8 +1525,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
   /* add link to response frame, if available */
-  if( gtcap_DisplaySRT && stat_tree &&
-      p_tcaphash_ansicall->context->last_frame != 0){
+  if ( p_tcaphash_ansicall->context->last_frame != 0){
     if (!isResponse) { /* Request */
 #ifdef DEBUG_TCAPSRT
       dbg(20,"Display_frameRsplink %d ",p_tcaphash_ansicall->context->last_frame);
@@ -1552,19 +1540,17 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       dbg(20,"Display framereqlink %d ",p_tcaphash_context->first_frame);
 #endif
       /* Indicate the frame to which this is a reply. */
-      if (gtcap_DisplaySRT) {
-        pi = proto_tree_add_uint_format(stat_tree, hf_tcapsrt_EndSession, tvb, 0, 0,
+      pi = proto_tree_add_uint_format(stat_tree, hf_tcapsrt_EndSession, tvb, 0, 0,
                                         p_tcaphash_context->first_frame,
                                         "Begin of session in frame %u",
                                         p_tcaphash_context->first_frame);
-        proto_item_set_generated(pi);
-        /* Calculate Service Response Time */
-        nstime_delta(&delta, &pinfo->abs_ts, &p_tcaphash_context->begin_time);
+      proto_item_set_generated(pi);
+      /* Calculate Service Response Time */
+      nstime_delta(&delta, &pinfo->abs_ts, &p_tcaphash_context->begin_time);
 
-        /* display Service Response Time and make it filterable */
-        pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
-        proto_item_set_generated(pi);
-      }
+      /* display Service Response Time and make it filterable */
+      pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
+      proto_item_set_generated(pi);
     } /* Request or Response */
   }
   return p_tcaphash_context;
@@ -1680,128 +1666,6 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
     p_tcaphash_context->last_frame = pinfo->num;
     p_tcaphash_context->end_time = pinfo->abs_ts;
     p_tcaphash_context->closed=true;
-
-    /* If the endkey is present */
-    if (p_tcaphash_context->endcall
-        && !gtcap_PersistentSRT) {
-      if (p_tcaphash_context->endcall->next_endcall) {
-        if (p_tcaphash_context->endcall->previous_endcall ) {
-#ifdef DEBUG_TCAPSRT
-          dbg(20,"deplace Ehash ");
-#endif
-          p_tcaphash_context->endcall->previous_endcall->next_endcall
-            = p_tcaphash_context->endcall->next_endcall;
-          p_tcaphash_context->endcall->next_endcall->previous_endcall
-            = p_tcaphash_context->endcall->previous_endcall;
-          wmem_map_remove(tcaphash_end, p_tcaphash_context->endcall->endkey);
-        } else {
-          /* cannot remove the father */
-#ifdef DEBUG_TCAPSRT
-          dbg(20,"father Ehash ");
-#endif
-        } /* no previous link, so father */
-      } else if (!gtcap_PersistentSRT) {
-#ifdef DEBUG_TCAPSRT
-        dbg(20,"remove Ehash ");
-#endif
-        wmem_map_remove(tcaphash_end, p_tcaphash_context->endcall->endkey);
-
-      } /* endcall without chained string */
-    } /* no endcall */
-
-
-    /* If the contkey is present */
-    if (p_tcaphash_context->contcall
-        && !gtcap_PersistentSRT) {
-      if (p_tcaphash_context->contcall->next_contcall) {
-        if (p_tcaphash_context->contcall->previous_contcall ) {
-#ifdef DEBUG_TCAPSRT
-          dbg(20,"deplace Chash ");
-#endif
-          p_tcaphash_context->contcall->previous_contcall->next_contcall
-            = p_tcaphash_context->contcall->next_contcall;
-          p_tcaphash_context->contcall->next_contcall->previous_contcall
-            = p_tcaphash_context->contcall->previous_contcall;
-          wmem_map_remove(tcaphash_cont, p_tcaphash_context->contcall->contkey);
-        } else {
-          /* cannot remove the father */
-#ifdef DEBUG_TCAPSRT
-          dbg(20,"father Chash ");
-#endif
-        } /* no previous link, so father */
-      } else if (!gtcap_PersistentSRT) {
-#ifdef DEBUG_TCAPSRT
-        dbg(20,"remove Chash ");
-#endif
-        wmem_map_remove(tcaphash_cont, p_tcaphash_context->contcall->contkey);
-      } /* contcall without chained string */
-    } /* no contcall */
-
-
-    /* If the beginkey is present */
-    if (p_tcaphash_context->begincall
-        && !gtcap_PersistentSRT) {
-      if (p_tcaphash_context->begincall->next_begincall) {
-        if (p_tcaphash_context->begincall->previous_begincall ) {
-#ifdef DEBUG_TCAPSRT
-          dbg(20,"deplace Bhash ");
-#endif
-          p_tcaphash_context->begincall->previous_begincall->next_begincall
-            = p_tcaphash_context->begincall->next_begincall;
-          p_tcaphash_context->begincall->next_begincall->previous_begincall
-            = p_tcaphash_context->begincall->previous_begincall;
-          wmem_map_remove(tcaphash_begin, p_tcaphash_context->begincall->beginkey);
-        } else {
-          /* cannot remove the father */
-#ifdef DEBUG_TCAPSRT
-          dbg(20,"father Bhash ");
-#endif
-        }
-      } else  if (!gtcap_PersistentSRT) {
-#ifdef DEBUG_TCAPSRT
-        dbg(20,"remove Bhash ");
-#endif
-        wmem_map_remove(tcaphash_begin, p_tcaphash_context->begincall->beginkey);
-      } /* begincall without chained string */
-    } /* no begincall */
-
-    /* If the ansikey is present */
-    if (p_tcaphash_context->ansicall
-        && !gtcap_PersistentSRT) {
-      if (p_tcaphash_context->ansicall->next_ansicall) {
-        if (p_tcaphash_context->ansicall->previous_ansicall ) {
-#ifdef DEBUG_TCAPSRT
-          dbg(20,"deplace Ahash ");
-#endif
-          p_tcaphash_context->ansicall->previous_ansicall->next_ansicall
-            = p_tcaphash_context->ansicall->next_ansicall;
-          p_tcaphash_context->ansicall->next_ansicall->previous_ansicall
-            = p_tcaphash_context->ansicall->previous_ansicall;
-          wmem_map_remove(tcaphash_ansi, p_tcaphash_context->ansicall->ansikey);
-        } else {
-          /* cannot remove the father */
-#ifdef DEBUG_TCAPSRT
-          dbg(20,"father Ahash ");
-#endif
-        }
-      } else  if (!gtcap_PersistentSRT) {
-#ifdef DEBUG_TCAPSRT
-        dbg(20,"remove Ahash ");
-#endif
-        wmem_map_remove(tcaphash_ansi, p_tcaphash_context->ansicall->ansikey);
-      } /* ansicall without chained string */
-    } /* no ansicall */
-
-    if (!gtcap_PersistentSRT) {
-#ifdef DEBUG_TCAPSRT
-      dbg(20,"remove context ");
-#endif
-      wmem_map_remove(tcaphash_context, p_tcaphash_context->key);
-    }
-  } else { /* no context */
-#ifdef DEBUG_TCAPSRT
-    dbg(20,"No context to remove ");
-#endif
   }
 }
 
@@ -2048,10 +1912,7 @@ proto_register_tcap(void)
 
   prefs_register_obsolete_preference(tcap_module, "srt");
 
-  prefs_register_bool_preference(tcap_module, "persistentsrt",
-                                 "Persistent stats for SRT",
-                                 "Statistics for Response Time",
-                                 &gtcap_PersistentSRT);
+  prefs_register_obsolete_preference(tcap_module, "persistentsrt");
 
   prefs_register_uint_preference(tcap_module, "repetitiontimeout",
                                  "Repetition timeout",
@@ -2100,12 +1961,6 @@ static void init_tcap(void)
 
   /* Reset the session counter */
   tcapsrt_global_SessionId=1;
-
-  /* Display of SRT is enabled
-   * 1) For wireshark only if Persistent Stat is enabled
-   * 2) For tshark, if the CLI SRT tap is registered
-   */
-  gtcap_DisplaySRT=gtcap_PersistentSRT || gtcap_StatSRT;
 }
 
 static void cleanup_tcap(void)

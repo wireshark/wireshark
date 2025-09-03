@@ -236,14 +236,6 @@ static bool camelsrt_init(const char *opt_arg, void *userdata _U_)
     return false;
   }
 
-  /*
-   * If we are using tshark, we have to display the stats, even if the stats are not persistent
-   * As the frame are proceeded in the chronological order, we do not need persistent stats
-   * Whereas, with wireshark, it is not possible to have the correct display, if the stats are
-   * not saved along the analyze
-   */
-  gtcap_StatSRT = true;
-
   return true;
 }
 

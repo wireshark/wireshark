@@ -195,7 +195,6 @@ struct tcaphash_context_t * tcapsrt_call_matching(tvbuff_t *tvb,
 						  proto_tree *tree,
 						  struct tcapsrt_info_t * p_tcap_info);
 
-WS_DLL_PUBLIC bool gtcap_StatSRT;
 
 extern int tcap_standard;
 
