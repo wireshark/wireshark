@@ -229,6 +229,8 @@ workflow:
     HOMEBREW_NO_INSTALL_UPGRADE: "1"
     HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: "1"
     HOMEBREW_NO_UPDATE_REPORT_NEW: "1"
+    WIRESHARK_BASE_DIR: "$CI_PROJECT_DIR/../wireshark-third-party"
+    FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins"
   before_script:
     - printf "\e[0Ksection_start:%s:ci_env_section[collapsed=true]\r\e[0KCI environment variables" "$(date +%s)"
     - env | grep ^CI | sort
@@ -247,7 +249,6 @@ workflow:
     - mkdir build
     - cd build
   script:
-    - export WIRESHARK_BASE_DIR=${CI_PROJECT_DIR}/../wireshark-third-party
     - if [ ! -d $WIRESHARK_BASE_DIR ] ; then mkdir $WIRESHARK_BASE_DIR ; fi
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     #   -DFALCO_PLUGINS="$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libcloudtrail.so;$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libgcpaudit.so;$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libk8saudit.so"
@@ -255,7 +256,7 @@ workflow:
       -DENABLE_CCACHE=ON
       -DWIRESHARK_BASE_DIR=$WIRESHARK_BASE_DIR
       -DBUILD_stratoshark=on
-      -DFALCO_PLUGINS="$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libcloudtrail.so"
+      -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/libcloudtrail.so"
       -DTEST_EXTRA_ARGS=--disable-capture
       ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
@@ -514,6 +515,8 @@ Arch Linux :
       - $CI_PROJECT_DIR/wireshark-arch-*.tar.xz
 
 Windows x64 Package:
+  variables:
+    FALCO_PLUGIN_DIR: "C:/Development/wireshark-x64-libs/falcosecurity-plugins-2025-08-20-1-x64-ws"
   extends: .build-windows
   rules: !reference [.if-w-w-only-merged]
   tags:
@@ -524,7 +527,7 @@ Windows x64 Package:
     - cmake -G "Visual Studio 17 2022" -A x64
       -DENABLE_LTO=off
       -DBUILD_stratoshark=on
-      -DFALCO_PLUGINS="C:/Development/wireshark-x64-libs/falcosecurity-plugins-2025-08-20-1-x64-ws/cloudtrail.dll"
+      -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/cloudtrail.dll;$FALCO_PLUGIN_DIR/gcpaudit.dll;$FALCO_PLUGIN_DIR/k8saudit.dll"
       -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
@@ -562,6 +565,7 @@ Windows Arm64 Package:
     AQT_HOST: "windows_arm64"
     AQT_ARCH: "msvc2022_arm64"
     VCVARS_ARCH: "arm64"
+    FALCO_PLUGIN_DIR: "C:/Development/wireshark-arm64-libs/falcosecurity-plugins-2025-08-20-1-arm64-ws"
   extends: .build-windows
   rules: !reference [.if-w-w-only-merged]
   tags:
@@ -572,7 +576,7 @@ Windows Arm64 Package:
     - cmake -G "Visual Studio 17 2022" -A arm64
       -DENABLE_LTO=off
       -DBUILD_stratoshark=on
-      -DFALCO_PLUGINS="C:/Development/wireshark-arm64-libs/falcosecurity-plugins-2025-08-20-1-arm64-ws/cloudtrail.dll"
+      -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/cloudtrail.dll;$FALCO_PLUGIN_DIR/gcpaudit.dll;$FALCO_PLUGIN_DIR/k8saudit.dll"
       -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
@@ -621,12 +625,13 @@ macOS Universal Package:
   rules: !reference [.if-w-w-only-merged]
   variables:
     CODE_SIGN_IDENTITY: "Wireshark Foundation"
+    WIRESHARK_BASE_DIR: "$CI_PROJECT_DIR/../wireshark-third-party"
+    FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins"
   tags:
     - wireshark-macos-arm-package
   retry: 1
   script:
     - export PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:$PATH:$HOME/bin"
-    - export "WIRESHARK_BASE_DIR=${CI_PROJECT_DIR}/../wireshark-third-party"
     - if [[ $MACOS_REINSTALL_THIRD_PARTY == true ]] ; then rm -rf "$WIRESHARK_BASE_DIR" ; fi
     - if [ ! -d "$WIRESHARK_BASE_DIR" ] ; then mkdir -p "$WIRESHARK_BASE_DIR/Qt" ; fi
     - if [ ! -d "$WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION/macos/lib/QtCore.framework" ] ; then
@@ -642,13 +647,14 @@ macOS Universal Package:
     - ../tools/make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     #   -DFALCO_PLUGINS="$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libcloudtrail.so;$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libgcpaudit.so;$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libk8saudit.so"
+    #  -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/cloudtrail.dll;$FALCO_PLUGIN_DIR/gcpaudit.dll;$FALCO_PLUGIN_DIR/k8saudit.dll"
     - cmake -G Ninja
       -DENABLE_CCACHE=ON
       -DWIRESHARK_BASE_DIR="$WIRESHARK_BASE_DIR"
       -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
       -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
       -DBUILD_stratoshark=on
-      -DFALCO_PLUGINS="$WIRESHARK_BASE_DIR/macos-universal-master/lib/falco/plugins/libcloudtrail.so"
+      -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/libcloudtrail.so"
       -DTEST_EXTRA_ARGS=--enable-release
       ..
     # Temporary hack to fix "Package 'zlib', required by 'libscap', not found"
