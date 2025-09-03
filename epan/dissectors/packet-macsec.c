@@ -314,7 +314,7 @@ attempt_packet_decode(bool encrypted, uint8_t *key, unsigned key_len, const uint
 /* Attempt to decode the packet using PSKs from the PSK table */
 static int
 attempt_packet_decode_with_psks(bool encrypted, const uint8_t *payload, unsigned payload_len) {
-    int result = PROTO_CHECKSUM_E_BAD;
+    int result = PROTO_CHECKSUM_E_UNVERIFIED;
     int table_index = 0;
 
     /* Get the PSK table and its size. */
@@ -351,7 +351,7 @@ attempt_packet_decode_with_psks(bool encrypted, const uint8_t *payload, unsigned
 /* Attempt to decode the packet using SAKs from the CKN table */
 static int
 attempt_packet_decode_with_saks(bool encrypted, unsigned an, const uint8_t *payload, unsigned payload_len) {
-    int result = PROTO_CHECKSUM_E_BAD;
+    int result = PROTO_CHECKSUM_E_UNVERIFIED;
     int table_index = 0;
 
     /* Get the CKN table and its size. */
@@ -717,10 +717,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         call_data_dissector(next_tvb, pinfo, tree);
     }
 
-    /* If the frame was not verified correctly, append this string to the info line
-     * after dissection completes.
-     */
-    if (PROTO_CHECKSUM_E_GOOD != icv_check_success) {
+    if (PROTO_CHECKSUM_E_BAD == icv_check_success) {
         col_append_str(pinfo->cinfo, COL_INFO, " [UNVERIFIED]");
     }
 
@@ -800,7 +797,7 @@ proto_register_macsec(void)
             NULL, 0, NULL, HFILL }
         },
         { &hf_macsec_ICV_check_success,
-            { "Frame Verified", "macsec.verify_info.verified", FT_BOOLEAN, BASE_NONE,
+            { "Frame Verification Successful", "macsec.verify_info.verified", FT_BOOLEAN, BASE_NONE,
               NULL, 0, NULL, HFILL }
         },
         { &hf_macsec_ckn_info,
