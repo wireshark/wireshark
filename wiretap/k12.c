@@ -11,6 +11,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN "k12"
+
 #include "config.h"
 #include "k12.h"
 
@@ -43,33 +45,9 @@ static int k12_file_type_subtype = -1;
 
 void register_k12(void);
 
-/* #define DEBUG_K12 */
-#ifdef DEBUG_K12
-#include <stdio.h>
-#include <stdarg.h>
-#include <wsutil/file_util.h>
+#ifdef WS_DEBUG
 
-FILE* dbg_out;
-char* env_file;
-
-static unsigned int debug_level;
-
-void k12_fprintf(const char* fmt, ...) {
-    va_list ap;
-
-    va_start(ap,fmt);
-    vfprintf(dbg_out, fmt, ap);
-    va_end(ap);
-}
-
-#define CAT(a,b) a##b
-#define K12_DBG(level,args) do { if (level <= debug_level) { \
-            fprintf(dbg_out,"%s:%d: ",CAT(__FI,LE__),CAT(__LI,NE__));   \
-            k12_fprintf args ;                                          \
-            fprintf(dbg_out,"\n");                                      \
-} } while(0)
-
-void k12_hex_ascii_dump(unsigned level, int64_t offset, const char* label, const unsigned char* b, unsigned int len) {
+void k12_hex_ascii_dump(enum ws_log_level level, int64_t offset, const char* label, const unsigned char* b, unsigned int len) {
     static const char* c2t[] = {
         "00","01","02","03","04","05","06","07","08","09","0a","0b","0c","0d","0e","0f",
         "10","11","12","13","14","15","16","17","18","19","1a","1b","1c","1d","1e","1f",
@@ -90,47 +68,59 @@ void k12_hex_ascii_dump(unsigned level, int64_t offset, const char* label, const
     };
     unsigned int i, j;
 
-    if (debug_level < level) return;
+    if (!ws_log_msg_is_active(WS_LOG_DOMAIN, level))
+        return;
 
-    fprintf(dbg_out,"%s(%.8" PRIx64 ",%.4x):\n",label,offset,len);
+    wmem_strbuf_t* dbg = wmem_strbuf_new(NULL, "");
+
+    wmem_strbuf_append_printf(dbg, "%s(%.8" PRIx64 ",%.4x):\n",label,offset,len);
 
     for (i=0 ; i<len ; i += 16) {
         for (j=0; j<16; j++) {
             if ((j%4)==0)
-                fprintf(dbg_out," ");
+                wmem_strbuf_append(dbg, " ");
             if ((i+j)<len)
-                fprintf(dbg_out, "%s", c2t[b[i+j]]);
+                wmem_strbuf_append(dbg, c2t[b[i+j]]);
             else
-                fprintf(dbg_out, "  ");
+                wmem_strbuf_append(dbg, "  ");
         }
-        fprintf(dbg_out, "    ");
+        wmem_strbuf_append(dbg, "    ");
         for (j=0; j<16; j++) {
             if ((i+j)<len)
-                fprintf(dbg_out, "%c", g_ascii_isprint(b[i+j]) ? b[i+j] : '.');
+                wmem_strbuf_append_c(dbg, g_ascii_isprint(b[i+j]) ? b[i+j] : '.');
         }
-        fprintf(dbg_out,"\n");
+        wmem_strbuf_append_c(dbg, '\n');
     }
+
+    ws_log(WS_LOG_DOMAIN, level, "%s", wmem_strbuf_get_str(dbg));
+
+    wmem_strbuf_destroy(dbg);
 }
 
 #define K12_HEX_ASCII_DUMP(x,a,b,c,d) k12_hex_ascii_dump(x,a,b,c,d)
 
-void k12_ascii_dump(unsigned level, uint8_t *buf, uint32_t len, uint32_t buf_offset) {
-    uint32_t i;
+void k12_ascii_dump(enum ws_log_level level, uint8_t *buf, uint32_t len, uint32_t buf_offset) {
 
-    if (debug_level < level) return;
+    if (!ws_log_msg_is_active(WS_LOG_DOMAIN, level))
+        return;
 
-    for (i = buf_offset; i < len; i++) {
+    wmem_strbuf_t* dbg = wmem_strbuf_new(NULL, "");
+
+    for (uint32_t i = buf_offset; i < len; i++) {
         if (g_ascii_isprint(buf[i]) || buf[i] == '\n' || buf[i] == '\t')
-            putc(buf[i], dbg_out);
+            wmem_strbuf_append_c(dbg, buf[i]);
         else if (buf[i] == '\0')
-            fprintf(dbg_out, "(NUL)\n");
+            wmem_strbuf_append(dbg, "(NUL)\n");
     }
+
+    ws_log(WS_LOG_DOMAIN, level, "%s", wmem_strbuf_get_str(dbg));
+
+    wmem_strbuf_destroy(dbg);
 }
 
 #define K12_ASCII_DUMP(x,a,b,c) k12_ascii_dump(x,a,b,c)
 
 #else
-#define K12_DBG(level,args) (void)0
 #define K12_HEX_ASCII_DUMP(x,a,b,c,d)
 #define K12_ASCII_DUMP(x,a,b,c)
 #endif
@@ -149,7 +139,7 @@ void k12_ascii_dump(unsigned level, uint8_t *buf, uint32_t len, uint32_t buf_off
  *  in bytes;
  *
  *  a 32-bit big-endian number giving the "page size" of the file, in
- *  bytes, which is normally 8192;
+ *  bytes, which is normally K12_RECORD_SIZE;
  *
  *  20 unknown bytes;
  *
@@ -171,7 +161,7 @@ void k12_ascii_dump(unsigned level, uint8_t *buf, uint32_t len, uint32_t buf_off
  *
  *  a 32-bit big-endian source ID.
  *
- * Every 8192 bytes, starting immediately after the 512-byte header,
+ * Every K12_RECORD_SIZE bytes, starting immediately after the 512-byte header,
  * there's a 16-byte blob; it's not part of the record data.
  * There's no obvious pattern to the data; it might be junk left
  * in memory as the file was being written.
@@ -202,6 +192,14 @@ static const uint8_t k12_file_magic[] = { 0x00, 0x00, 0x02, 0x00 ,0x12, 0x05, 0x
 #define K12_FILE_HDR_RECORD_COUNT_2 0x2C
 
 #define K12_FILE_BLOB_LEN     16
+ /*
+  * Where the next unknown 16 bytes are stuffed to the file.
+  * Following the file header, they appear every 8192 bytes,
+  * starting right after the file header, so if the file offset
+  * relative to the file header is a multiple of 8192, the
+  * 16-byte blob is there.
+  */
+#define K12_RECORD_SIZE        8192
 
 typedef struct {
     uint32_t file_len;
@@ -401,7 +399,7 @@ typedef struct _k12_src_desc_t {
 
 /*
  * get_record: Get the next record into a buffer
- *   Every 8192 bytes 16 bytes are inserted in the file,
+ *   Every K12_RECORD_SIZE bytes 16 bytes are inserted in the file,
  *   even in the middle of a record.
  *   This reads the next record without the eventual 16 bytes.
  *   returns the length of the record + the stuffing (if any)
@@ -420,25 +418,18 @@ static int get_record(k12_t *file_data, FILE_T fh, int64_t file_offset,
     unsigned total_read = 0;
     unsigned left;
     uint8_t* writep;
-#ifdef DEBUG_K12
+#ifdef WS_DEBUG
     unsigned actual_len;
 #endif
 
-    /*
-     * Where the next unknown 16 bytes are stuffed to the file.
-     * Following the file header, they appear every 8192 bytes,
-     * starting right after the file header, so if the file offset
-     * relative to the file header is a multiple of 8192, the
-     * 16-byte blob is there.
-     */
-    unsigned junky_offset = 8192 - (int) ( (file_offset - K12_FILE_HDR_LEN) % 8192 );
+    unsigned junky_offset = K12_RECORD_SIZE - (int) ( (file_offset - K12_FILE_HDR_LEN) % K12_RECORD_SIZE);
 
-    K12_DBG(6,("get_record: ENTER: junky_offset=%" PRId64 ", file_offset=%" PRId64,junky_offset,file_offset));
+    ws_noisy("get_record: ENTER: junky_offset=%u, file_offset=%" PRId64,junky_offset,file_offset);
 
     /* no buffer is given, lets create it */
     if (buffer == NULL) {
-        buffer = (uint8_t*)g_malloc(8192);
-        buffer_len = 8192;
+        buffer = (uint8_t*)g_malloc(K12_RECORD_SIZE);
+        buffer_len = K12_RECORD_SIZE;
         if (is_random) {
             file_data->rand_read_buff = buffer;
             file_data->rand_read_buff_len = buffer_len;
@@ -448,7 +439,7 @@ static int get_record(k12_t *file_data, FILE_T fh, int64_t file_offset,
         }
     }
 
-    if ( junky_offset == 8192 ) {
+    if ( junky_offset == K12_RECORD_SIZE) {
         /*
          * We're at the beginning of one of the 16-byte blobs,
          * so we first need to skip the blob.
@@ -470,12 +461,12 @@ static int get_record(k12_t *file_data, FILE_T fh, int64_t file_offset,
     total_read += 4;
 
     left = pntohu32(buffer + K12_RECORD_LEN);
-#ifdef DEBUG_K12
+#ifdef WS_DEBUG
     actual_len = left;
 #endif
     junky_offset -= 4;
 
-    K12_DBG(5,("get_record: GET length=%u",left));
+    ws_noisy("get_record: GET length=%u",left);
 
     /*
      * Record length must be at least large enough for the length
@@ -515,7 +506,7 @@ static int get_record(k12_t *file_data, FILE_T fh, int64_t file_offset,
 
     /* Read the rest of the record. */
     do {
-        K12_DBG(6,("get_record: looping left=%d junky_offset=%" PRId64,left,junky_offset));
+        ws_noisy("get_record: looping left=%d junky_offset=%u",left,junky_offset);
 
         if (junky_offset > left) {
             /*
@@ -545,12 +536,12 @@ static int get_record(k12_t *file_data, FILE_T fh, int64_t file_offset,
             total_read += K12_FILE_BLOB_LEN;
 
             left -= junky_offset;
-            junky_offset = 8192;
+            junky_offset = K12_RECORD_SIZE;
         }
 
     } while(left);
 
-    K12_HEX_ASCII_DUMP(5,file_offset, "GOT record", buffer, actual_len);
+    K12_HEX_ASCII_DUMP(LOG_LEVEL_NOISY,file_offset, "GOT record", buffer, actual_len);
     return total_read;
 }
 
@@ -618,7 +609,7 @@ process_packet_data(wtap *wth, wtap_rec *rec, uint8_t *buffer,
     rec->rec_header.packet_header.pseudo_header.k12.extra_length = extra_len;
 
     src_id = pntohu32(buffer + K12_RECORD_SRC_ID);
-    K12_DBG(5,("process_packet_data: src_id=%.8x",src_id));
+    ws_noisy("process_packet_data: src_id=%.8x",src_id);
     rec->rec_header.packet_header.pseudo_header.k12.input = src_id;
 
     if ( ! (src_desc = (k12_src_desc_t*)g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(src_id))) ) {
@@ -633,7 +624,7 @@ process_packet_data(wtap *wth, wtap_rec *rec, uint8_t *buffer,
     }
 
     if (src_desc) {
-        K12_DBG(5,("process_packet_data: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type));
+        ws_noisy("process_packet_data: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type);
         rec->rec_header.packet_header.pseudo_header.k12.input_name = src_desc->input_name;
         rec->rec_header.packet_header.pseudo_header.k12.stack_file = src_desc->stack_file;
         rec->rec_header.packet_header.pseudo_header.k12.input_type = src_desc->input_type;
@@ -652,7 +643,7 @@ process_packet_data(wtap *wth, wtap_rec *rec, uint8_t *buffer,
                 break;
         }
     } else {
-        K12_DBG(5,("process_packet_data: NO SRC_RECORD FOUND"));
+        ws_noisy("process_packet_data: NO SRC_RECORD FOUND");
 
         memset(&(rec->rec_header.packet_header.pseudo_header.k12),0,sizeof(rec->rec_header.packet_header.pseudo_header.k12));
         rec->rec_header.packet_header.pseudo_header.k12.input_name = "unknown port";
@@ -683,7 +674,7 @@ static bool k12_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_
             return false;
         }
 
-        K12_DBG(5,("k12_read: offset=%i",offset));
+        ws_noisy("k12_read: offset=%" PRIi64,offset);
 
         *data_offset = offset;
 
@@ -721,7 +712,7 @@ static bool k12_read(wtap *wth, wtap_rec *rec, int *err, char **err_info, int64_
             src_desc = (k12_src_desc_t*)g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(src_id&K12_RECORD_SRC_ID_MASK));
         }
 
-        K12_DBG(5,("k12_read: record type=%x src_id=%x",type,src_id));
+        ws_noisy("k12_read: record type=%x src_id=%x",type,src_id);
 
         offset += len;
 
@@ -737,20 +728,20 @@ static bool k12_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, 
     int len;
     bool status;
 
-    K12_DBG(5,("k12_seek_read: ENTER"));
+    ws_noisy("k12_seek_read: ENTER");
 
     if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
-        K12_DBG(5,("k12_seek_read: SEEK ERROR"));
+        ws_warning("k12_seek_read: SEEK ERROR");
         return false;
     }
 
     len = get_record(k12, wth->random_fh, seek_off, true, err, err_info);
     if (len < 0) {
-        K12_DBG(5,("k12_seek_read: READ ERROR"));
+        ws_warning("k12_seek_read: READ ERROR");
         return false;
     } else if (len < K12_RECORD_SRC_ID + 4) {
         /* Record not large enough to contain a src ID */
-        K12_DBG(5,("k12_seek_read: SHORT READ"));
+        ws_warning("k12_seek_read: SHORT READ");
         *err = WTAP_ERR_SHORT_READ;
         return false;
     }
@@ -759,7 +750,7 @@ static bool k12_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, 
 
     status = process_packet_data(wth, rec, buffer, (unsigned)len, k12, err, err_info);
 
-    K12_DBG(5,("k12_seek_read: DONE OK"));
+    ws_debug("k12_seek_read: DONE OK");
 
     return status;
 }
@@ -807,10 +798,8 @@ static void k12_close(wtap *wth) {
 
     destroy_k12_file_data(k12);
     wth->priv = NULL;   /* destroy_k12_file_data freed it */
-#ifdef DEBUG_K12
-    K12_DBG(5,("k12_close: CLOSED"));
-    if (env_file) fclose(dbg_out);
-#endif
+
+    ws_noisy("k12_close: CLOSED");
 }
 
 
@@ -819,7 +808,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
     uint8_t header_buffer[K12_FILE_HDR_LEN];
     uint8_t* read_buffer;
     uint32_t type;
-    long offset;
+    unsigned offset;
     long len;
     unsigned port_type;
     uint32_t rec_len;
@@ -829,24 +818,8 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
     unsigned i;
     k12_t* file_data;
 
-#ifdef DEBUG_K12
-    char* env_level = getenv("K12_DEBUG_LEVEL");
-    env_file = getenv("K12_DEBUG_FILENAME");
-    if ( env_file ) {
-        dbg_out = ws_fopen(env_file,"w");
-        if (dbg_out == NULL) {
-                dbg_out = stderr;
-                K12_DBG(1,("unable to open K12 DEBUG FILENAME for writing!  Logging to standard error"));
-        }
-    }
-    else
-        dbg_out = stderr;
-    if ( env_level ) debug_level = (unsigned int)strtoul(env_level,NULL,10);
-    K12_DBG(1,("k12_open: ENTER debug_level=%u",debug_level));
-#endif
-
     if ( !wtap_read_bytes(wth->fh,header_buffer,K12_FILE_HDR_LEN,err,err_info) ) {
-        K12_DBG(1,("k12_open: FILE HEADER TOO SHORT OR READ ERROR"));
+        ws_warning("k12_open: FILE HEADER TOO SHORT OR READ ERROR");
         if (*err != WTAP_ERR_SHORT_READ) {
             return WTAP_OPEN_ERROR;
         }
@@ -854,7 +827,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
     }
 
     if ( memcmp(header_buffer,k12_file_magic,8) != 0 ) {
-        K12_DBG(1,("k12_open: BAD MAGIC"));
+        ws_warning("k12_open: BAD MAGIC");
         return WTAP_OPEN_NOT_MINE;
     }
 
@@ -894,10 +867,10 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
         }
     }
 
-    K12_DBG(5,("k12_open: FILE_HEADER OK: offset=%x file_len=%i records=%i",
+    ws_noisy("k12_open: FILE_HEADER OK: offset=%x file_len = % i records = % i",
             offset,
             file_data->file_len,
-            file_data->num_of_records ));
+            file_data->num_of_records );
 
     do {
         if ( file_data->num_of_records == 0 ) {
@@ -909,12 +882,12 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
         len = get_record(file_data, wth->fh, offset, false, err, err_info);
 
         if ( len < 0 ) {
-            K12_DBG(1,("k12_open: BAD HEADER RECORD",len));
+            ws_warning("k12_open: BAD HEADER RECORD");
             destroy_k12_file_data(file_data);
             return WTAP_OPEN_ERROR;
         }
         if ( len == 0 ) {
-            K12_DBG(1,("k12_open: BAD HEADER RECORD",len));
+            ws_warning("k12_open: BAD HEADER RECORD");
             *err = WTAP_ERR_SHORT_READ;
             destroy_k12_file_data(file_data);
             return WTAP_OPEN_ERROR;
@@ -942,7 +915,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
                 destroy_k12_file_data(file_data);
                 return WTAP_OPEN_ERROR;
             }
-            K12_DBG(5,("k12_open: FIRST PACKET offset=%x",offset));
+            ws_noisy("k12_open: FIRST PACKET offset=%x",offset);
             break;
         }
 
@@ -971,16 +944,16 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
 
             rec->input = pntohu32( read_buffer + K12_RECORD_SRC_ID );
 
-            K12_DBG(5,("k12_open: INTERFACE RECORD offset=%x interface=%x",offset,rec->input));
+            ws_noisy("k12_open: INTERFACE RECORD offset=%x interface = %x",offset,rec->input);
 
             if (name_len == 0) {
-                K12_DBG(5,("k12_open: failed (name_len == 0 in source description"));
+                ws_noisy("k12_open: failed (name_len == 0 in source description");
                 destroy_k12_file_data(file_data);
                 g_free(rec);
                 return WTAP_OPEN_NOT_MINE;
             }
             if (stack_len == 0) {
-                K12_DBG(5,("k12_open: failed (stack_len == 0 in source description"));
+                ws_noisy("k12_open: failed (stack_len == 0 in source description");
                 destroy_k12_file_data(file_data);
                 g_free(rec);
                 return WTAP_OPEN_NOT_MINE;
@@ -1074,14 +1047,14 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
             break;
 
         case K12_REC_STK_FILE:
-            K12_DBG(1,("k12_open: K12_REC_STK_FILE"));
-            K12_DBG(1,("Field 1: 0x%08x",pntohu32( read_buffer + 0x08 )));
-            K12_DBG(1,("Field 2: 0x%08x",pntohu32( read_buffer + 0x0c )));
-            K12_ASCII_DUMP(1, read_buffer, rec_len, 16);
+            ws_info("k12_open: K12_REC_STK_FILE");
+            ws_info("Field 1: 0x%08x",pntohu32( read_buffer + 0x08 ));
+            ws_info("Field 2: 0x%08x",pntohu32( read_buffer + 0x0c ));
+            K12_ASCII_DUMP(LOG_LEVEL_INFO, read_buffer, rec_len, 16);
             break;
 
         default:
-            K12_DBG(1,("k12_open: RECORD TYPE 0x%08x",type));
+            ws_info("k12_open: RECORD TYPE 0x%08x",type);
             break;
         }
         offset += len;
@@ -1129,7 +1102,7 @@ static const char dumpy_junk[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 
 static bool k12_dump_record(wtap_dumper *wdh, uint32_t len,  uint8_t* buffer, int *err_p) {
     k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
-    uint32_t junky_offset = (8192 - ( (k12->file_offset - K12_FILE_HDR_LEN) % 8192 )) % 8192;
+    uint32_t junky_offset = (K12_RECORD_SIZE - ( (k12->file_offset - K12_FILE_HDR_LEN) % K12_RECORD_SIZE)) % K12_RECORD_SIZE;
 
     if (len > junky_offset) {
         if (junky_offset) {
@@ -1164,7 +1137,7 @@ static void k12_dump_src_setting(void *k _U_, void *v, void *p) {
     int   errxxx; /* dummy */
 
     union {
-        uint8_t buffer[8192];
+        uint8_t buffer[K12_RECORD_SIZE];
 
         struct {
             uint32_t len;
@@ -1269,7 +1242,7 @@ static bool k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
     k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
     uint32_t len;
     union {
-        uint8_t buffer[8192];
+        uint8_t buffer[K12_RECORD_SIZE];
         struct {
             uint32_t len;
             uint32_t type;
@@ -1351,7 +1324,7 @@ static bool k12_dump_finish(wtap_dumper *wdh, int *err, char **err_info _U_) {
     if (wtap_dump_file_seek(wdh, K12_FILE_HDR_PAGE_SIZE, SEEK_SET, err) == -1)
         return false;
 
-    d.u = g_htonl(8192);
+    d.u = g_htonl(K12_RECORD_SIZE);
 
     if (! wtap_dump_file_write(wdh, d.b, 4, err))
         return false;
