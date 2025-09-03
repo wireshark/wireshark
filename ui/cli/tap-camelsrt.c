@@ -243,7 +243,6 @@ static bool camelsrt_init(const char *opt_arg, void *userdata _U_)
    * not saved along the analyze
    */
   gtcap_StatSRT = true;
-  gcamel_StatSRT = true;
 
   return true;
 }

@@ -125,6 +125,4 @@ void camelsrt_call_matching(tvbuff_t *tvb,
 			    proto_tree *tree,
 			    struct camelsrt_info_t * p_camel_info);
 
-WS_DLL_PUBLIC bool gcamel_StatSRT;
-
 #endif  /* PACKET_camel_H */
