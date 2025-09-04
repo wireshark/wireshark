@@ -111,28 +111,6 @@ extern "C" {
 #endif
 
 /**
- * It is a step of the PBKDF2 (specifically the PKCS #5 v2.0) defined in
- * the RFC 2898 to derive a key (used as PMK in WPA)
- * @param ppbytes [IN] pointer to a password (sequence of between 8 and
- * 63 ASCII encoded characters)
- * @param ssid [IN] pointer to the SSID string encoded in max 32 ASCII
- * encoded characters
- * @param iterations [IN] times to hash the password (4096 for WPA)
- * @param count [IN] ???
- * @param output [OUT] pointer to a preallocated buffer of
- * SHA1_DIGEST_LEN characters that will contain a part of the key
- */
-static int Dot11DecryptRsnaPwd2PskStep(
-    const uint8_t *ppbytes,
-    const unsigned passLength,
-    const char *ssid,
-    const size_t ssidLength,
-    const int iterations,
-    const int count,
-    unsigned char *output)
-    ;
-
-/**
  * It calculates the passphrase-to-PSK mapping reccomanded for use with
  * RSNAs. This implementation uses the PBKDF2 method defined in the RFC
  * 2898.
@@ -2705,67 +2683,21 @@ Dot11DecryptFtDerivePtk(
 #define MAX_SSID_LENGTH 32 /* maximum SSID length */
 
 static int
-Dot11DecryptRsnaPwd2PskStep(
-    const uint8_t *ppBytes,
-    const unsigned ppLength,
-    const char *ssid,
-    const size_t ssidLength,
-    const int iterations,
-    const int count,
-    unsigned char *output)
-{
-    unsigned char digest[MAX_SSID_LENGTH+4] = { 0 };  /* SSID plus 4 bytes of count */
-    int i, j;
-
-    if (ssidLength > MAX_SSID_LENGTH) {
-        /* This "should not happen" */
-        return DOT11DECRYPT_RET_UNSUCCESS;
-    }
-
-    /* U1 = PRF(P, S || int(i)) */
-    memcpy(digest, ssid, ssidLength);
-    digest[ssidLength] = (unsigned char)((count>>24) & 0xff);
-    digest[ssidLength+1] = (unsigned char)((count>>16) & 0xff);
-    digest[ssidLength+2] = (unsigned char)((count>>8) & 0xff);
-    digest[ssidLength+3] = (unsigned char)(count & 0xff);
-    if (ws_hmac_buffer(GCRY_MD_SHA1, digest, digest, (uint32_t) ssidLength + 4, ppBytes, ppLength)) {
-      return DOT11DECRYPT_RET_UNSUCCESS;
-    }
-
-    /* output = U1 */
-    memcpy(output, digest, 20);
-    for (i = 1; i < iterations; i++) {
-        /* Un = PRF(P, Un-1) */
-        if (ws_hmac_buffer(GCRY_MD_SHA1, digest, digest, HASH_SHA1_LENGTH, ppBytes, ppLength)) {
-          return DOT11DECRYPT_RET_UNSUCCESS;
-        }
-
-        /* output = output xor Un */
-        for (j = 0; j < 20; j++) {
-            output[j] ^= digest[j];
-        }
-    }
-
-    return DOT11DECRYPT_RET_SUCCESS;
-}
-
-static int
 Dot11DecryptRsnaPwd2Psk(
     const struct DOT11DECRYPT_KEY_ITEMDATA_PWD *userPwd,
     unsigned char *output)
 {
-    unsigned char m_output[40] = { 0 };
-    GByteArray *pp_ba = g_byte_array_new();
+    if (userPwd->SsidLen> MAX_SSID_LENGTH) {
+        /* This "should not happen" */
+        return DOT11DECRYPT_RET_UNSUCCESS;
+    }
+    if (gcry_kdf_derive(userPwd->Passphrase, userPwd->PassphraseLen, GCRY_KDF_PBKDF2,
+                        GCRY_MD_SHA1, userPwd->Ssid, userPwd->SsidLen, 4096,
+                        DOT11DECRYPT_WPA_PWD_PSK_LEN, output)) {
+        return DOT11DECRYPT_RET_UNSUCCESS;
+    }
 
-    g_byte_array_append(pp_ba, userPwd->Passphrase, (unsigned)userPwd->PassphraseLen);
-
-    Dot11DecryptRsnaPwd2PskStep(pp_ba->data, pp_ba->len, userPwd->Ssid, userPwd->SsidLen, 4096, 1, m_output);
-    Dot11DecryptRsnaPwd2PskStep(pp_ba->data, pp_ba->len, userPwd->Ssid, userPwd->SsidLen, 4096, 2, &m_output[20]);
-
-    memcpy(output, m_output, DOT11DECRYPT_WPA_PWD_PSK_LEN);
-    g_byte_array_free(pp_ba, true);
-
-    return 0;
+    return DOT11DECRYPT_RET_SUCCESS;
 }
 
 /*
