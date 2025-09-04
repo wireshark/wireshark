@@ -118,10 +118,10 @@ enum {
 
 /* Auto-tuning. Default: NET_VER_5389; NET_VER_MS_TURN if MAGIC_COOKIE is found */
 /* NET_VER_3489 is only useful for packets that conform specifically to
- * draft-ietf-behave-rfc3849bis-03; i.e. that have the 32 bit magic so that they
+ * draft-ietf-behave-rfc3489bis-03; i.e. that have the 32 bit magic so that they
  * are not handled by classicstun instead, have the current (swapped) NONE and
  * REALM attribute numbers, but do not have the attribute padding that was
- * introduced in draft-ietf-behave-rfc3849bis-04.
+ * introduced in draft-ietf-behave-rfc3489bis-04.
  */
 
 static int stun_network_version = NET_VER_5389;
