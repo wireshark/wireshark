@@ -341,6 +341,7 @@ void extcap_base_cleanup(extcap_parameters ** extcap)
     g_free((*extcap)->exename);
     g_free((*extcap)->fifo);
     g_free((*extcap)->interface);
+    g_free((*extcap)->capture_filter);
     g_free((*extcap)->version);
     g_free((*extcap)->compiled_with);
     g_free((*extcap)->running_with);
