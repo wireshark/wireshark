@@ -17,6 +17,7 @@
 #include "pcap-common.h"
 #include "pcap-encap.h"
 #include "erf-common.h"
+#include <jtckdint.h>
 #include <wsutil/ws_assert.h>
 
 /*
@@ -1349,8 +1350,14 @@ libpcap_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * The packet size is really a record size and includes
 		 * the padding.
 		 */
-		packet_size -= 3;
-		orig_size -= 3;
+		if (ckd_sub(&packet_size, packet_size, 3) ||
+		    ckd_sub(&orig_size, orig_size, 3)) {
+			*err = WTAP_ERR_BAD_FILE;
+			if (err_info != NULL) {
+				*err_info = ws_strdup("pcap: AIX FDDI padding is absent");
+			}
+			return false;
+		}
 
 		/*
 		 * Skip the padding.
