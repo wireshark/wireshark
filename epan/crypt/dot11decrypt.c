@@ -1076,7 +1076,7 @@ int Dot11DecryptSetKeys(
     /* check and insert keys */
     for (i=0, success=0; i<(int)keys_nr; i++) {
         if (Dot11DecryptValidateKey(keys+i)==true) {
-            if (keys[i].KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PWD) {
+            if (keys[i].KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PWD && keys[i].UserPwd.SsidLen > 0) {
                 Dot11DecryptRsnaPwd2Psk(&keys[i].UserPwd, keys[i].KeyData.Wpa.Psk);
                 keys[i].KeyData.Wpa.PskLen = DOT11DECRYPT_WPA_PWD_PSK_LEN;
             }
@@ -1696,6 +1696,7 @@ Dot11DecryptRsna4WHandshake(
                 memcpy(&pkt_key.UserPwd.Ssid, ctx->pkt_ssid, ctx->pkt_ssid_len);
                 pkt_key.UserPwd.SsidLen = ctx->pkt_ssid_len;
                 Dot11DecryptRsnaPwd2Psk(&pkt_key.UserPwd, pkt_key.KeyData.Wpa.Psk);
+                pkt_key.KeyData.Wpa.PskLen = DOT11DECRYPT_WPA_PWD_PSK_LEN;
                 tmp_pkt_key = &pkt_key;
             } else {
                 tmp_pkt_key = tmp_key;
@@ -1907,6 +1908,7 @@ Dot11DecryptScanFtAssocForKeys(
             memcpy(&pkt_key.UserPwd.Ssid, ctx->pkt_ssid, ctx->pkt_ssid_len);
             pkt_key.UserPwd.SsidLen = ctx->pkt_ssid_len;
             Dot11DecryptRsnaPwd2Psk(&pkt_key.UserPwd, pkt_key.KeyData.Wpa.Psk);
+            pkt_key.KeyData.Wpa.PskLen = DOT11DECRYPT_WPA_PWD_PSK_LEN;
             tmp_pkt_key = &pkt_key;
         } else {
             tmp_pkt_key = tmp_key;
