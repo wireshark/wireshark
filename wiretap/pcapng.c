@@ -454,6 +454,17 @@ pcapng_get_cb_section_info_data(section_info_t *section_info, uint32_t pen,
     return data;
 }
 
+static void
+pcapng_destroy_section_info(section_info_t *section_info)
+{
+    if (section_info->interfaces != NULL)
+        g_array_free(section_info->interfaces, true);
+    if (section_info->custom_block_data != NULL)
+        g_hash_table_destroy(section_info->custom_block_data);
+    if (section_info->local_block_data != NULL)
+        g_hash_table_destroy(section_info->local_block_data);
+}
+
 void *
 pcapng_get_lb_section_info_data(section_info_t *section_info,
                                 uint32_t block_type,
@@ -1257,8 +1268,10 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     opt_cont_buf_len = bh->block_total_length - MIN_SHB_SIZE;
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_section_header_block_option,
-                                OPT_SECTION_BYTE_ORDER, err, err_info))
+                                OPT_SECTION_BYTE_ORDER, err, err_info)) {
+        pcapng_destroy_section_info(section_info);
         return PCAPNG_BLOCK_ERROR;
+    }
 
     /*
      * We don't return these to the caller in pcapng_read().
@@ -3873,13 +3886,8 @@ pcapng_close(wtap *wth)
      * Free up the interfaces tables for all the sections.
      */
     for (unsigned i = 0; i < pcapng->sections->len; i++) {
-        section_info_t *section_info = &g_array_index(pcapng->sections,
-                                                      section_info_t, i);
-        g_array_free(section_info->interfaces, true);
-        if (section_info->custom_block_data != NULL)
-            g_hash_table_destroy(section_info->custom_block_data);
-        if (section_info->local_block_data != NULL)
-            g_hash_table_destroy(section_info->local_block_data);
+        pcapng_destroy_section_info(&g_array_index(pcapng->sections,
+                                                   section_info_t, i));
     }
     g_array_free(pcapng->sections, true);
 }
