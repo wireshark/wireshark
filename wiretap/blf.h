@@ -351,6 +351,58 @@ typedef struct blf_canfderror64 {
 } blf_canfderror64_t;
 
 
+/* CAN-XL */
+
+#define BLF_CANXLCHANNELFRAME_FLAG_REMOTE_FRAME 0x10
+#define BLF_CANXLCHANNELFRAME_FLAG_SRR          0x200
+#define BLF_CANXLCHANNELFRAME_FLAG_FDF          0x1000
+#define BLF_CANXLCHANNELFRAME_FLAG_BRS          0x2000
+#define BLF_CANXLCHANNELFRAME_FLAG_ESI          0x4000
+#define BLF_CANXLCHANNELFRAME_FLAG_XLF          0x400000
+#define BLF_CANXLCHANNELFRAME_FLAG_RRS          0x800000
+#define BLF_CANXLCHANNELFRAME_FLAG_SEC          0x1000000
+
+typedef struct blf_canxlchannelframe {
+    uint8_t  channel;
+    uint8_t  tx_count;
+    uint8_t  dir;
+    uint8_t  res1;
+    uint32_t frameLength_in_ns;
+
+    uint16_t bitCount;
+    uint16_t res2;
+    uint32_t frameIdentifier;
+
+    uint8_t  serviceDataUnitType;
+    uint8_t  res3;
+    uint16_t dlc;
+    uint16_t dataLength;
+    uint16_t stuffBitCount;
+
+    uint16_t prefaceCRC;
+    uint8_t  virtualControllerAreaNetChannelID;
+    uint8_t  res4;
+    uint32_t acceptanceField;
+
+    uint8_t  stuffCount;
+    uint8_t  res5;
+    uint16_t res6;
+    uint32_t crc;
+
+    uint32_t timeOffsetBrsNs;
+    uint32_t timeOffsetCrcDelNs;
+
+    uint32_t flags;
+    uint32_t reserved;
+
+    uint64_t arbitrationDataBitTimingConfig;
+    uint64_t arbitrationDataHwChannelSettings;
+    uint64_t fdPhaseBitTimingConfig;
+    uint64_t fdPhaseHwChannelSettings;
+    uint64_t xlPhaseBitTimingConfig;
+    uint64_t xlPhaseHwChannelSettings;
+} blf_canxlchannelframe_t;
+
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/FlexRayData.h */
 
 #define BLF_FLEXRAYDATA_FRAME                       0x01

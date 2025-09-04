@@ -36,6 +36,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/time_util.h>
 #include <wsutil/zlib_compat.h>
+#include <wsutil/pint.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
@@ -522,6 +523,32 @@ fix_endianness_blf_canfderror64(blf_canfderror64_t *header) {
     header->crc = GUINT32_FROM_LE(header->crc);
     header->errorPosition = GUINT16_FROM_LE(header->errorPosition);
 }
+
+static void
+fix_endianness_blf_canxlchannelframe(blf_canxlchannelframe_t *header) {
+    header->frameLength_in_ns = GUINT32_FROM_LE(header->frameLength_in_ns);
+    header->bitCount = GUINT16_FROM_LE(header->bitCount);
+    header->res2 = GUINT16_FROM_LE(header->res2);
+    header->frameIdentifier = GUINT32_FROM_LE(header->frameIdentifier);
+    header->dlc = GUINT16_FROM_LE(header->dlc);
+    header->dataLength = GUINT16_FROM_LE(header->dataLength);
+    header->stuffBitCount = GUINT16_FROM_LE(header->stuffBitCount);
+    header->prefaceCRC = GUINT16_FROM_LE(header->prefaceCRC);
+    header->acceptanceField = GUINT32_FROM_LE(header->acceptanceField);
+    header->res5 = GUINT16_FROM_LE(header->res5);
+    header->crc = GUINT32_FROM_LE(header->crc);
+    header->timeOffsetBrsNs = GUINT32_FROM_LE(header->timeOffsetBrsNs);
+    header->timeOffsetCrcDelNs = GUINT32_FROM_LE(header->timeOffsetCrcDelNs);
+    header->flags = GUINT32_FROM_LE(header->flags);
+    header->reserved = GUINT32_FROM_LE(header->reserved);
+    header->arbitrationDataBitTimingConfig = GUINT64_FROM_LE(header->arbitrationDataBitTimingConfig);
+    header->arbitrationDataHwChannelSettings = GUINT64_FROM_LE(header->arbitrationDataHwChannelSettings);
+    header->fdPhaseBitTimingConfig = GUINT64_FROM_LE(header->fdPhaseBitTimingConfig);
+    header->fdPhaseHwChannelSettings = GUINT64_FROM_LE(header->fdPhaseHwChannelSettings);
+    header->xlPhaseBitTimingConfig = GUINT64_FROM_LE(header->xlPhaseBitTimingConfig);
+    header->xlPhaseHwChannelSettings = GUINT64_FROM_LE(header->xlPhaseHwChannelSettings);
+}
+
 
 static void
 fix_endianness_blf_flexraydata(blf_flexraydata_t *header) {
@@ -2086,6 +2113,107 @@ blf_read_canfderror64(blf_params_t *params, int *err, char **err_info, int64_t b
 }
 
 static bool
+blf_read_canxlchannelframe(blf_params_t *params, int *err, char **err_info, int64_t block_start, int64_t data_start, int64_t object_length, uint32_t flags, uint64_t object_timestamp) {
+    blf_canxlchannelframe_t canxlheader;
+
+    if (object_length < (data_start - block_start) + (int)sizeof(canxlheader)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup("blf: CAN_XL_CHANNEL_HEADER: not enough bytes for canxlchannelframe header in object");
+        ws_debug("not enough bytes for canxlchannelframe header in object");
+        return false;
+    }
+
+    if (!blf_read_bytes(params, data_start, &canxlheader, sizeof(canxlheader), err, err_info)) {
+        ws_debug("not enough bytes for canxlchannelframe header in file");
+        return false;
+    }
+    fix_endianness_blf_canxlchannelframe(&canxlheader);
+
+    uint16_t payload_length = canxlheader.dataLength;
+    bool is_canxl = canxlheader.flags & BLF_CANXLCHANNELFRAME_FLAG_XLF;
+
+    if (is_canxl) {
+        uint16_t canid = canxlheader.frameIdentifier & CAN_SFF_MASK;
+
+        uint8_t canxl_flags = 0;
+        if ((canxlheader.flags & BLF_CANXLCHANNELFRAME_FLAG_XLF) == BLF_CANXLCHANNELFRAME_FLAG_XLF) {
+            canxl_flags |= CANXL_XLF;
+        }
+
+        if ((canxlheader.flags & BLF_CANXLCHANNELFRAME_FLAG_SEC) == BLF_CANXLCHANNELFRAME_FLAG_SEC) {
+            canxl_flags |= CANXL_SEC;
+        }
+
+        if ((canxlheader.flags & BLF_CANXLCHANNELFRAME_FLAG_RRS) == BLF_CANXLCHANNELFRAME_FLAG_RRS) {
+            canxl_flags |= CANXL_RRS;
+        }
+
+        uint8_t  tmpbuf[12] = { 0 };
+        tmpbuf[1] = canxlheader.virtualControllerAreaNetChannelID;
+        phtonu16(tmpbuf + 2, canid);
+        tmpbuf[4] = canxl_flags;
+        tmpbuf[5] = canxlheader.serviceDataUnitType;
+        phtoleu16(tmpbuf + 6, payload_length);
+        phtoleu32(tmpbuf + 8, canxlheader.acceptanceField);
+
+        ws_buffer_assure_space(&params->rec->data, sizeof(tmpbuf) + payload_length);
+        ws_buffer_append(&params->rec->data, tmpbuf, sizeof(tmpbuf));
+
+        if (payload_length > 0 && !blf_read_bytes(params, data_start + sizeof(blf_canxlchannelframe_t), ws_buffer_end_ptr(&params->rec->data), payload_length, err, err_info)) {
+            ws_error("copying canxl payload failed");
+            return false;
+        }
+        ws_buffer_increase_length(&params->rec->data, payload_length);
+
+        blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_SOCKETCAN, canxlheader.channel, UINT16_MAX, sizeof(tmpbuf) + payload_length, sizeof(tmpbuf) + payload_length);
+    } else {
+        // Support for CAN or CAN-FD in CAN-XL Channel Frame format is experimental as of 2025!
+        // If you have samples traces, please create a ticket and attach them to it: https://gitlab.com/wireshark/wireshark/-/issues
+
+        bool canfd = canxlheader.flags & BLF_CANXLCHANNELFRAME_FLAG_FDF;
+        uint8_t canfd_flags = 0;
+
+        if (canfd) {
+            if ((canxlheader.flags & BLF_CANXLCHANNELFRAME_FLAG_BRS) == BLF_CANXLCHANNELFRAME_FLAG_BRS) {
+                canfd_flags |= CANFD_BRS;
+            }
+            if ((canxlheader.flags & BLF_CANXLCHANNELFRAME_FLAG_ESI) == BLF_CANXLCHANNELFRAME_FLAG_ESI) {
+                canfd_flags |= CANFD_ESI;
+            }
+            if ((canxlheader.flags & BLF_CANXLCHANNELFRAME_FLAG_FDF) == BLF_CANXLCHANNELFRAME_FLAG_FDF) {
+                canfd_flags |= CANFD_FDF;
+            }
+        } else {
+            if (canxlheader.dlc > 8) {
+                ws_debug("Regular CAN should not have DLC > 8!");
+            }
+
+            canfd_flags = 0;
+        }
+
+        uint32_t canid = canxlheader.frameIdentifier;
+
+        /* Unclear how to reconstruct the EFF Flag. Let's make sure, we set it if the ID is more than 11 bits */
+        if ((canid & CAN_EFF_MASK) > CAN_SFF_MASK) {
+            canid |= CAN_EFF_FLAG;
+        }
+
+        if (!canfd && (canxlheader.flags & BLF_CANXLCHANNELFRAME_FLAG_REMOTE_FRAME) == BLF_CANXLCHANNELFRAME_FLAG_REMOTE_FRAME) {
+            canid |= CAN_RTR_FLAG;
+            payload_length = 0;
+        }
+
+        if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, (uint8_t)payload_length, (uint8_t)payload_length, data_start + sizeof(canxlheader), flags, object_timestamp, canxlheader.channel, canfd_flags)) {
+            return false;
+        }
+    }
+
+    blf_add_direction_option(params, canxlheader.dir ? BLF_DIR_TX : BLF_DIR_RX);
+
+    return true;
+}
+
+static bool
 blf_read_flexraydata(blf_params_t *params, int *err, char **err_info, int64_t block_start, int64_t data_start, int64_t object_length, uint32_t flags, uint64_t object_timestamp) {
     blf_flexraydata_t frheader;
 
@@ -3563,6 +3691,9 @@ blf_read_block(blf_params_t *params, int64_t start_pos, int *err, char **err_inf
         case BLF_OBJTYPE_CAN_FD_ERROR_64:
             return blf_read_canfderror64(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
 
+        case BLF_OBJTYPE_CAN_XL_CHANNEL_FRAME:
+            return blf_read_canxlchannelframe(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
+
         case BLF_OBJTYPE_FLEXRAY_DATA:
             return blf_read_flexraydata(params, err, err_info, start_pos, start_pos + header.header_length, header.object_length, flags, object_timestamp);
 
@@ -4123,6 +4254,7 @@ static uint8_t blf_get_direction(const wtap_rec *rec) {
 
     if (tmp_direction == PACK_FLAGS_DIRECTION_OUTBOUND) {
         return BLF_DIR_TX;
+
     }
 
     return BLF_DIR_RX;
@@ -4202,6 +4334,97 @@ static bool blf_dump_ethernet(wtap_dumper *wdh, const wtap_rec *rec, int *err, c
     return true;
 }
 
+static bool blf_dump_socketcanxl(wtap_dumper *wdh, const wtap_rec *rec, int *err _U_, char **err_info _U_, uint64_t obj_timestamp,
+                                 const uint8_t *pd, size_t length, bool is_rx, bool is_tx) {
+    /* LINKTYPE_CAN_SOCKETCAN */
+    /* https://www.tcpdump.org/linktypes/LINKTYPE_CAN_SOCKETCAN.html */
+
+    //blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
+    blf_channel_to_iface_entry_t *iface_entry = blf_dump_get_interface_mapping(wdh, rec, err, err_info);
+
+    uint8_t  socketcan_vcid = pd[1];
+    uint16_t socketcan_id = pntohu16(pd + 2) & CAN_SFF_MASK;
+    uint8_t  socketcan_flags = pd[4];
+    uint8_t  socketcan_sdut = pd[5];
+    uint16_t socketcan_payload_length = pletohu16(pd + 6);
+
+    if ((socketcan_flags & CANXL_XLF) != CANXL_XLF) {
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = ws_strdup_printf("blf: Socket CAN XL message does not have XL Flag set!");
+        ws_error("LINKTYPE_CAN_SOCKETCAN CAN XL flag not set for CAN XL?");
+        return false;
+    }
+
+    if (length < (size_t)socketcan_payload_length + 12) {
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = ws_strdup_printf("blf: Socket CAN message (length %u) does not contain full payload (%u) (CAN XL)", (uint32_t)length, socketcan_payload_length);
+        ws_error("LINKTYPE_CAN_SOCKETCAN header is too short (CAN XL)!");
+        return false;
+    }
+    uint32_t socketcan_acceptance_field = pletohu32(pd + 8);
+
+    /* LINKTYPE_LINUX_SLL would have set is_tx or is_rx */
+    uint8_t frame_dir = is_tx ? BLF_DIR_TX : BLF_DIR_RX;
+    if (!is_rx && !is_tx) {
+        frame_dir = blf_get_direction(rec);
+    }
+
+    blf_canxlchannelframe_t canxl;
+    canxl.channel = (uint8_t)iface_entry->channel;
+    canxl.tx_count = 0;
+    canxl.dir = frame_dir;
+    canxl.frameLength_in_ns = 0;
+    canxl.bitCount = 0;
+    canxl.frameIdentifier = socketcan_id;
+    canxl.serviceDataUnitType = socketcan_sdut;
+    canxl.dlc = socketcan_payload_length - 1;
+    canxl.dataLength = socketcan_payload_length;
+    canxl.stuffBitCount = 0;
+    canxl.prefaceCRC = 0;
+    canxl.virtualControllerAreaNetChannelID = socketcan_vcid;
+    canxl.acceptanceField = socketcan_acceptance_field;
+    canxl.stuffCount = 0;
+    canxl.crc = 0;
+    canxl.timeOffsetBrsNs = 0;
+    canxl.timeOffsetCrcDelNs = 0;
+    canxl.flags = 0;
+
+    if ((socketcan_flags & CANXL_XLF) == CANXL_XLF) {
+        /* should be always true but we might refactor */
+        canxl.flags |= BLF_CANXLCHANNELFRAME_FLAG_XLF;
+    }
+    if ((socketcan_flags & CANXL_SEC) == CANXL_SEC) {
+        canxl.flags |= BLF_CANXLCHANNELFRAME_FLAG_SEC;
+    }
+    if ((socketcan_flags & CANXL_RRS) == CANXL_RRS) {
+        canxl.flags |= BLF_CANXLCHANNELFRAME_FLAG_RRS;
+    }
+
+    canxl.reserved = 0;
+    canxl.arbitrationDataBitTimingConfig = 0;
+    canxl.arbitrationDataHwChannelSettings = 0;
+    canxl.fdPhaseBitTimingConfig = 0;
+    canxl.fdPhaseHwChannelSettings = 0;
+    canxl.xlPhaseBitTimingConfig = 0;
+    canxl.xlPhaseHwChannelSettings = 0;
+
+    fix_endianness_blf_canxlchannelframe(&canxl);
+
+    if (!blf_dump_objheader(wdh, err, obj_timestamp, BLF_OBJTYPE_CAN_XL_CHANNEL_FRAME, sizeof(blf_canxlchannelframe_t) + socketcan_payload_length)) {
+        return false;
+    }
+
+    if (!wtap_dump_file_write(wdh, &(canxl), sizeof(blf_canxlchannelframe_t), err)) {
+        return false;
+    }
+
+    if (!wtap_dump_file_write(wdh, &(pd[12]), socketcan_payload_length, err)) {
+        return false;
+    }
+
+    return true;
+}
+
 static const uint8_t canfd_length_to_dlc[] = { 0, 1, 2, 3,   4, 5, 6, 7,   8, 0, 0, 0,  9, 0, 0, 0,
                                               10, 0, 0, 0,  11, 0, 0, 0,  12, 0, 0, 0,  0, 0, 0, 0,
                                               13, 0, 0, 0,   0, 0, 0, 0,   0, 0, 0, 0,  0, 0, 0, 0,
@@ -4213,9 +4436,6 @@ static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
     /* LINKTYPE_CAN_SOCKETCAN */
     /* https://www.tcpdump.org/linktypes/LINKTYPE_CAN_SOCKETCAN.html */
 
-    //blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
-    blf_channel_to_iface_entry_t *iface_entry = blf_dump_get_interface_mapping(wdh, rec, err, err_info);
-
     if (length < 8) {
         *err = WTAP_ERR_INTERNAL;
         *err_info = ws_strdup_printf("blf: record length %u for Socket CAN message header is lower than minimum of 8", (uint32_t)length);
@@ -4225,9 +4445,11 @@ static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
 
     /* check for CAN-XL */
     if ((pd[4] & CANXL_XLF) == CANXL_XLF) {
-        ws_message("CAN-XL not supported yet! Skipping.");
-        return true;
+        return blf_dump_socketcanxl(wdh, rec, err, err_info, obj_timestamp, pd, length, is_rx, is_tx);
     }
+
+    //blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
+    blf_channel_to_iface_entry_t *iface_entry = blf_dump_get_interface_mapping(wdh, rec, err, err_info);
 
     uint8_t payload_length = pd[4];
 
@@ -4395,6 +4617,9 @@ static bool blf_dump_sll(wtap_dumper *wdh, const wtap_rec *rec, int *err, char *
         break;
     case 0x000D: /* CAN-FD */
         return blf_dump_socketcan(wdh, rec, err, err_info, obj_timestamp, &(pd[16]), length - 16, false, true, !frame_tx, frame_tx);
+        break;
+    case 0x000E: /* CAN-XL */
+        return blf_dump_socketcanxl(wdh, rec, err, err_info, obj_timestamp, &(pd[16]), length - 16, !frame_tx, frame_tx);
         break;
     default:
         return false;

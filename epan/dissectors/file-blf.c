@@ -22,6 +22,8 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/unit_strings.h>
+#include <epan/dissectors/packet-socketcan.h>
 
 #include <wiretap/blf.h>
 #include <wsutil/array.h>
@@ -144,6 +146,39 @@ static int hf_blf_eth_phy_state_phystate;
 static int hf_blf_eth_phy_state_eventstate;
 static int hf_blf_eth_phy_state_hardwarechannel;
 static int hf_blf_eth_phy_state_res1;
+
+static int hf_blf_canxl_tx_count_number;
+static int hf_blf_canxl_tx_count_attempts;
+static int hf_blf_canxl_tx_dir;
+static int hf_blf_canxl_res1;
+static int hf_blf_canxl_frame_duration_in_ns;
+static int hf_blf_canxl_bit_count;
+static int hf_blf_canxl_res2;
+static int hf_blf_canxl_id;
+static int hf_blf_canxl_sdt;
+static int hf_blf_canxl_res3;
+static int hf_blf_canxl_dlc;
+static int hf_blf_canxl_data_length;
+static int hf_blf_canxl_sbc;
+static int hf_blf_canxl_pcrc;
+static int hf_blf_canxl_vcid;
+static int hf_blf_canxl_res4;
+static int hf_blf_canxl_af;
+static int hf_blf_canxl_stuff_count;
+static int hf_blf_canxl_res5;
+static int hf_blf_canxl_res6;
+static int hf_blf_canxl_fcrc;
+static int hf_blf_canxl_time_offset_brs;
+static int hf_blf_canxl_time_offset_crc_delim;
+static int hf_blf_canxl_flags;
+static int hf_blf_canxl_res;
+static int hf_blf_canxl_arbitration_data_bit_timing;
+static int hf_blf_canxl_arbitration_data_hardware_channel_setting;
+static int hf_blf_canxl_fd_phase_bit_timing;
+static int hf_blf_canxl_fd_phasea_hardware_channel_setting;
+static int hf_blf_canxl_xl_phase_bit_timing;
+static int hf_blf_canxl_xl_phase_hardware_channel_setting;
+static int hf_blf_canxl_data;
 
 static expert_field ei_blf_file_header_length_too_short;
 static expert_field ei_blf_object_header_length_too_short;
@@ -449,6 +484,12 @@ static const value_string blf_eth_phystate_eventstate_vals[] = {
     { 17,    "PowerOff"},
     { 18,    "PowerOn"},
     { 25,    "Activated"},
+    { 0, NULL }
+};
+
+static const value_string blf_direction[] = {
+    { 0, "RX" },
+    { 1, "TX" },
     { 0, NULL }
 };
 
@@ -847,7 +888,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             proto_tree_add_item(subtree, hf_blf_eth_frame_ext_reservedethernetframeex, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
         }
-        break;
+            break;
         case BLF_OBJTYPE_TRIGGER_CONDITION:
         {
             uint32_t triggerblocknamelength;
@@ -872,7 +913,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             proto_tree_add_item(subtree, hf_blf_trigg_cond_triggercondition, tvb, offset, triggerconditionlength, ENC_UTF_8 | ENC_NA);
             offset += triggerconditionlength;
         }
-        break;
+            break;
         case BLF_OBJTYPE_ETHERNET_PHY_STATE:
         {
             static int* const flags1[] = {
@@ -904,7 +945,112 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             proto_tree_add_item(subtree, hf_blf_eth_phy_state_res1, tvb, offset, 1, ENC_NA);
             offset += 1;
         }
-        break;
+            break;
+
+        case BLF_OBJTYPE_CAN_XL_CHANNEL_FRAME:
+        {
+            ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_blf_obj_payload);
+
+            proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_8bit, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_tx_count_number, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(subtree, hf_blf_canxl_tx_count_attempts, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_tx_dir, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_res1, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_frame_duration_in_ns, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_bit_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_res2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_sdt, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_res3, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_dlc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            uint32_t data_length;
+            proto_tree_add_item_ret_uint(subtree, hf_blf_canxl_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &data_length);
+            offset += 2;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_sbc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_pcrc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_vcid, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_res4, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_af, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_stuff_count, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_res5, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_res6, tvb, offset, 1, ENC_NA);
+            offset += 2;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_fcrc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_time_offset_brs, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_time_offset_crc_delim, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_res, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_arbitration_data_bit_timing, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_arbitration_data_hardware_channel_setting, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_fd_phase_bit_timing, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_fd_phasea_hardware_channel_setting, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_xl_phase_bit_timing, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_xl_phase_hardware_channel_setting, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+
+            proto_tree_add_item(subtree, hf_blf_canxl_data, tvb, offset, data_length, ENC_NA);
+        }
+            break;
+
         default:
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_blf_obj_payload);
@@ -1465,6 +1611,71 @@ proto_register_file_blf(void) {
             { "Hardware channel", "blf.object.eth_status.hardwarechannel", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
         { &hf_blf_eth_phy_state_res1,
             { "Reserved", "blf.object.eth_status.res1", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+
+        { &hf_blf_canxl_tx_count_number,
+            { "Number of TX attempts", "blf.object.canxl_channel_frame.tx_attempts", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL} },
+        { &hf_blf_canxl_tx_count_attempts,
+            { "Max number of TX attempts", "blf.object.canxl_channel_frame.max_attempts", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL} },
+        { &hf_blf_canxl_tx_dir,
+            { "Direction", "blf.object.canxl_channel_frame.dir", FT_UINT8, BASE_DEC, VALS(blf_direction), 0x00, NULL, HFILL}},
+        { &hf_blf_canxl_res1,
+            { "Reserved1", "blf.object.canxl_channel_frame.reserved1", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_frame_duration_in_ns,
+            { "Frame duration", "blf.object.canxl_channel_frame.frameduration_in_ns", FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_nanoseconds), 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_bit_count,
+            { "Bit Count", "blf.object.canxl_channel_frame.bit_count", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_res2,
+            { "Reserved2", "blf.object.canxl_channel_frame.reserved2", FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_id,
+            { "Frame ID", "blf.object.canxl_channel_frame.frame_id", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_sdt,
+            { "Service Data Unit", "blf.object.canxl_channel_frame.sdt", FT_UINT8, BASE_HEX, VALS(canxl_sdu_type_vals), 0x00, NULL, HFILL}},
+        { &hf_blf_canxl_res3,
+            { "Reserved3", "blf.object.canxl_channel_frame.reserved3", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_dlc,
+            { "Data Length Code", "blf.object.canxl_channel_frame.dlc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL}},
+        { &hf_blf_canxl_data_length,
+            { "Data Length", "blf.object.canxl_channel_frame.data_length", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_sbc,
+            { "Stuff Bit Count", "blf.object.canxl_channel_frame.sbc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_pcrc,
+            { "Preface CRC", "blf.object.canxl_channel_frame.pcrc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_vcid,
+            { "VCID", "blf.object.canxl_channel_frame.vcid", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_res4,
+            { "Reserved4", "blf.object.canxl_channel_frame.reserved4", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_af,
+            { "Acceptance Field", "blf.object.canxl_channel_frame.af", FT_UINT32, BASE_DEC_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_stuff_count,
+            { "Stuff Count", "blf.object.canxl_channel_frame.stuff_count", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_res5,
+            { "Reserved5", "blf.object.canxl_channel_frame.reserved5", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_res6,
+            { "Reserved6", "blf.object.canxl_channel_frame.reserved6", FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_fcrc,
+            { "Frame CRC", "blf.object.canxl_channel_frame.fcrc", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_time_offset_brs,
+            { "Time Offset BRS", "blf.object.canxl_channel_frame.time_offset_brs", FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_nanoseconds), 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_time_offset_crc_delim,
+            { "Time Offset CRC Delim", "blf.object.canxl_channel_frame.time_offset_crc_delim", FT_UINT32, BASE_DEC | BASE_UNIT_STRING, UNS(&units_nanoseconds), 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_flags,
+            { "Flags", "blf.object.canxl_channel_frame.flags", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_res,
+            { "Reserved", "blf.object.canxl_channel_frame.reserved", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_arbitration_data_bit_timing,
+            { "Arbitration Data: Bit Timing", "blf.object.canxl_channel_frame.arbitration_data.bit_timing", FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_arbitration_data_hardware_channel_setting,
+            { "Arbitration Data: HW Channel Setting", "blf.object.canxl_channel_frame.arbitration_data.hw_channel_set", FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_fd_phase_bit_timing,
+            { "FD Phase: Bit Timing", "blf.object.canxl_channel_frame.fd_phase.bit_timing", FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_fd_phasea_hardware_channel_setting,
+            { "FD Phase: HW Channel Setting", "blf.object.canxl_channel_frame.fd_phase.hw_channel_set", FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_xl_phase_bit_timing,
+            { "XL Phase: Bit Timing", "blf.object.canxl_channel_frame.xl_phase.bit_timing", FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_xl_phase_hardware_channel_setting,
+            { "XL Phase: HW Channel Setting", "blf.object.canxl_channel_frame.xl_phase.hw_channel_set", FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_canxl_data,
+            { "Data", "blf.object.canxl_channel_frame.data", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL } },
     };
 
     static ei_register_info ei[] = {
