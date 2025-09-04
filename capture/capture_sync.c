@@ -1388,15 +1388,6 @@ sync_if_bpf_filter_open(const char *ifname, const char* filter,
 
     ws_debug("sync_if_bpf_filter_open");
 
-    argv = init_pipe_args(&argc);
-
-    if (!argv) {
-        *primary_msg = g_strdup("We don't know where to find dumpcap.");
-        *secondary_msg = NULL;
-        *data = NULL;
-        return -1;
-    }
-
     const char* linktype_name = linktype_val_to_name(linktype);
     if (linktype != -1) { // Allow -1 for device default
         if (!linktype_name) {
@@ -1405,6 +1396,15 @@ sync_if_bpf_filter_open(const char *ifname, const char* filter,
             *data = NULL;
             return -1;
         }
+    }
+
+    argv = init_pipe_args(&argc);
+
+    if (!argv) {
+        *primary_msg = g_strdup("We don't know where to find dumpcap.");
+        *secondary_msg = NULL;
+        *data = NULL;
+        return -1;
     }
 
     /* Ask for the human-readable BPF code for the capture filter */
