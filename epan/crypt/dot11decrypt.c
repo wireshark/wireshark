@@ -1688,8 +1688,7 @@ Dot11DecryptRsna4WHandshake(
             if (!Dot11DecryptIsWpaKeyType(tmp_key->KeyType)) {
                 continue;
             }
-            if (tmp_key->KeyType == DOT11DECRYPT_KEY_TYPE_WPA_PWD &&
-                Dot11DecryptIsPwdWildcardSsid(ctx, tmp_key))
+            if (Dot11DecryptIsPwdWildcardSsid(ctx, tmp_key))
             {
                 /* We have a "wildcard" SSID.  Use the one from the packet. */
                 memcpy(&pkt_key, tmp_key, sizeof(pkt_key));
@@ -1900,8 +1899,7 @@ Dot11DecryptScanFtAssocForKeys(
         if (!Dot11DecryptIsWpaKeyType(tmp_key->KeyType)) {
             continue;
         }
-        if (tmp_key->KeyType == DOT11DECRYPT_KEY_TYPE_WPA_PWD &&
-            Dot11DecryptIsPwdWildcardSsid(ctx, tmp_key))
+        if (Dot11DecryptIsPwdWildcardSsid(ctx, tmp_key))
         {
             /* We have a "wildcard" SSID.  Use the one from the packet. */
             memcpy(&pkt_key, tmp_key, sizeof(pkt_key));
