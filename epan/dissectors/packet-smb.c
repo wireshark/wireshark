@@ -22252,7 +22252,7 @@ proto_register_smb(void)
 		"Whether the dissector should reassemble DCERPC over SMB commands",
 		&smb_dcerpc_reassembly);
 	prefs_register_bool_preference(smb_module, "sid_name_snooping",
-		"Snoop SID to Name mappings",
+		"Snoop SID to Name mappings (NOT SUPPORTED)",
 		"Whether the dissector should snoop SMB and related CIFS protocols to discover and display Names associated with SIDs",
 		&sid_name_snooping);
 

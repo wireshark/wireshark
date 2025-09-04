@@ -14,11 +14,6 @@
 
 #include "ws_symbol_export.h"
 
-/* With MSVC and a libwireshark.dll, we need a
- * special declaration for sid_name_table.
- */
-WS_DLL_PUBLIC GHashTable *sid_name_table;
-
 WS_DLL_PUBLIC
 const char *find_sid_name(const char *sid);
 

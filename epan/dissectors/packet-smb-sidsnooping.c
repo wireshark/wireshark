@@ -35,7 +35,7 @@ static int hf_samr_acct_name;
 static int hf_samr_level;
 
 
-GHashTable *sid_name_table;
+static GHashTable *sid_name_table;
 
 
 static GHashTable *ctx_handle_table;
