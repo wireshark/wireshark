@@ -48,6 +48,7 @@ public:
 
 protected:
     void mouseMoveEvent(QMouseEvent* event) override;
+    void axisRemoved(QCPAxis*) override;
 
 private:
     void markerMoved(const int, const double, const bool);
@@ -59,7 +60,7 @@ private:
     QCPItemText* markerTitle(const int markerIdx, const bool = false);
     QCPItemText* markerDataPoint(const QString& idx, const bool = false);
     QCPItemStraightLine* markerLine(const int mIdx, const int rectIdx, const bool = false);
-    void updateQCPItemText(QCPItemText* item, const QString& txt, const QPointF pos);
+    void updateQCPItemText(QCPItemText* item, const QString& txt, const QPointF pos, QCPAxis* y_axis = Q_NULLPTR);
     void updateDataPointMarker(QCPItemText* item, const double, QCPGraph*, bool visible);
     QString dataPointMarker(const double) const;
     inline QString itemIndex(int markerIdx, int graphIdx) const { return QString("%1_%2").arg(markerIdx).arg(graphIdx); }

@@ -143,9 +143,12 @@ QString CustomPlot::dataPointMarker(const double x) const
     return QString("(%1, %2)").arg(x).arg(value);
 }
 
-void CustomPlot::updateQCPItemText(QCPItemText* item, const QString& txt, const QPointF pos)
+void CustomPlot::updateQCPItemText(QCPItemText* item, const QString& txt, const QPointF pos, QCPAxis* y_axis)
 {
-    item->position->setAxes(tracer()->clipAxisRect()->axis(QCPAxis::atBottom), tracer()->clipAxisRect()->axis(QCPAxis::atLeft));
+    if (y_axis == Q_NULLPTR) {
+        y_axis = tracer()->clipAxisRect()->axis(QCPAxis::atLeft);
+    }
+    item->position->setAxes(tracer()->clipAxisRect()->axis(QCPAxis::atBottom), y_axis);
     item->position->setCoords(pos);
     item->setClipToAxisRect(true);
     item->setClipAxisRect(tracer()->clipAxisRect());
@@ -163,7 +166,7 @@ void CustomPlot::updateDataPointMarker(QCPItemText* item, const double x, QCPGra
     tracer()->setClipAxisRect(graph->valueAxis()->axisRect());
     const QString dataPoint = dataPointMarker(x);
     const double value = tracer()->position->value();
-    updateQCPItemText(item, dataPoint, QPointF(x, value));
+    updateQCPItemText(item, dataPoint, QPointF(x, value), graph->valueAxis());
 }
 
 void CustomPlot::addMarkerElements(const Marker* marker)
@@ -354,6 +357,24 @@ void CustomPlot::mouseMoveEvent(QMouseEvent* event)
         }
     }
     QCustomPlot::mouseMoveEvent(event);
+}
+
+void CustomPlot::axisRemoved(QCPAxis* axis)
+{
+    QCustomPlot::axisRemoved(axis);
+    QCPAxis* defaultAxis = Q_NULLPTR;
+    if (axis->axisRect()->axisCount(QCPAxis::atLeft) > 0) {
+        defaultAxis = axis->axisRect()->axis(QCPAxis::atLeft);
+    }
+    QCPItemTracer* tr = tracer();
+    if (defaultAxis && tr->position->valueAxis() == axis) {
+        tr->position->setAxes(tr->position->keyAxis(), defaultAxis);
+    }
+    for (QCPItemText* item : findChildren<QCPItemText*>()) {
+        if (defaultAxis && item->position->valueAxis() == axis) {
+            item->position->setAxes(item->position->keyAxis(), defaultAxis);
+        }
+    }
 }
 
 QCPItemStraightLine* CustomPlot::markerLine(const int mIdx, const int rectIdx, const bool create)

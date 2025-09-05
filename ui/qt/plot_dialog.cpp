@@ -210,6 +210,7 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf, bool show_default) :
     ctx_menu_.addAction(ui->actionLogScale);
     ctx_menu_.addAction(ui->actionCrosshairs);
     ctx_menu_.addAction(ui->actionTopAxis);
+    ctx_menu_.addAction(ui->actionEnableMultiYAxes);
     ctx_menu_.addAction(ui->actionAutoScroll);
     ctx_menu_.addAction(ui->actionLegend);
     QMenu* markerMenu = new QMenu(tr("Markers"), &ctx_menu_);
@@ -536,7 +537,10 @@ void PlotDialog::syncPlotSettings(int row)
     plot->setName(uat_model_->data(uat_model_->index(row, plotColName)).toString());
     plot->setFilterField(uat_model_->data(uat_model_->index(row, plotColDFilter)).toString(),
         uat_model_->data(uat_model_->index(row, plotColYField)).toString());
-    plot->setColor(uat_model_->data(uat_model_->index(row, plotColColor), Qt::DecorationRole).value<QColor>().rgb());
+    QRgb color = uat_model_->data(uat_model_->index(row, plotColColor), Qt::DecorationRole).value<QColor>().rgb();
+    plot->setColor(color);
+    Plot::setAxisColor(plot->graph()->valueAxis(),
+        !ui->actionEnableMultiYAxes->isChecked() ? QPen(Qt::black) : QPen(color));
     QString data_str = uat_model_->data(uat_model_->index(row, plotColStyle)).toString();
     plot->setPlotStyle((Graph::PlotStyles)str_to_val(qUtf8Printable(data_str), graph_style_vs, 0));
     plot->setYAxisFactor(uat_model_->data(uat_model_->index(row, plotColYAxisFactor)).toDouble());
@@ -710,6 +714,7 @@ void PlotDialog::modelDataChanged(const QModelIndex& topLeft, const QModelIndex&
     }
 
     removeExcessPlots();
+    recreateMultiValueAxes();
     drawMarkers();
 }
 
@@ -726,6 +731,7 @@ void PlotDialog::modelRowsReset()
     }
 
     removeExcessPlots();
+    recreateMultiValueAxes();
 
     ui->deleteToolButton->setEnabled(false);
     ui->copyToolButton->setEnabled(false);
@@ -753,6 +759,7 @@ void PlotDialog::modelRowsRemoved(const QModelIndex&, int first, int last)
     }
 
     removeExcessPlots();
+    recreateMultiValueAxes();
     drawMarkers();
 }
 
@@ -1022,13 +1029,14 @@ void PlotDialog::showContextMenu(const QPoint& pos)
         }
 
         foreach(const QCPAxisRect * axisRect, axisRects()) {
-            const QCPAxis* leftAxis = axisRect->axis(QCPAxis::AxisType::atLeft);
-            if (leftAxis && leftAxis->selectTest(pos, false) >= 0) {
-                QMenu* menu = new QMenu(this);
-                menu->setAttribute(Qt::WA_DeleteOnClose);
-                menu->addAction(ui->actionLogScale);
-                menu->popup(ui->plot->mapToGlobal(pos));
-                return;
+            foreach(const QCPAxis* yAxis, axisRect->axes(QCPAxis::atLeft | QCPAxis::atRight)) {
+                if (yAxis->selectTest(pos, false) >= 0) {
+                    QMenu* menu = new QMenu(this);
+                    menu->setAttribute(Qt::WA_DeleteOnClose);
+                    menu->addAction(ui->actionLogScale);
+                    menu->popup(ui->plot->mapToGlobal(pos));
+                    return;
+                }
             }
         }
 
@@ -1195,6 +1203,7 @@ void PlotDialog::mouseMoved(QMouseEvent* event)
 
 void PlotDialog::mouseReleased(QMouseEvent* event)
 {
+    bool old_auto_axes = auto_axes_;
     auto_axes_ = false;
 
     // QCustomPlot iRangeDrag controls dragging, and it stops dragging when a
@@ -1213,6 +1222,7 @@ void PlotDialog::mouseReleased(QMouseEvent* event)
         if (!rubber_band_->isVisible()) {
             // That was just a click
             showContextMenu(event->pos());
+            auto_axes_ = old_auto_axes;
         }
         else {
             rubber_band_->hide();
@@ -1231,6 +1241,7 @@ void PlotDialog::mouseReleased(QMouseEvent* event)
             else {
                 // Wrong range, interpret it as a simple right click
                 showContextMenu(event->pos());
+                auto_axes_ = old_auto_axes;
             }
         }
     }
@@ -1273,26 +1284,24 @@ QRectF PlotDialog::getZoomRanges(QRect zoom_rect, QCPAxisRect** matchedAxisRect)
 
 void PlotDialog::resetAxes()
 {
-    double axis_pixels;
-    if (ui->actionAutoScroll->isChecked()) {
-        foreach(QCPAxisRect * axisRect, axisRects()) {
-            axisRect->axis(QCPAxis::AxisType::atLeft)->rescale(true);
-        }
-    }
-    else {
+    if (!ui->actionAutoScroll->isChecked()) {
         ui->plot->rescaleAxes(true);
 
         QCPRange x_range = ui->plot->xAxis2->scaleType() == QCPAxis::stLogarithmic ?
             ui->plot->xAxis2->range().sanitizedForLogScale() : ui->plot->xAxis2->range();
-        axis_pixels = ui->plot->xAxis2->axisRect()->width();
+        double axis_pixels = ui->plot->xAxis2->axisRect()->width();
         ui->plot->xAxis2->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, x_range.center());
     }
     for (const QCPAxisRect* axisRect : axisRects()) {
-        QCPAxis* yAxis = axisRect->axis(QCPAxis::AxisType::atLeft);
-        QCPRange y_range = yAxis->scaleType() == QCPAxis::stLogarithmic ?
-            yAxis->range().sanitizedForLogScale() : yAxis->range();
-        axis_pixels = yAxis->axisRect()->height();
-        yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, y_range.center());
+        for (QCPAxis* yAxis : axisRect->axes(QCPAxis::atLeft | QCPAxis::atRight)) {
+            if (ui->actionAutoScroll->isChecked()) {
+                yAxis->rescale(true);
+            }
+            QCPRange y_range = yAxis->scaleType() == QCPAxis::stLogarithmic ?
+                yAxis->range().sanitizedForLogScale() : yAxis->range();
+            double axis_pixels = yAxis->axisRect()->height();
+            yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, y_range.center());
+        }
     }
 
     auto_axes_ = true;
@@ -1305,8 +1314,7 @@ void PlotDialog::doZoom(bool in, bool y)
 {
     if (y) {
         foreach(QCPAxisRect* axisRect, axisRects()) {
-            QCPAxis* yAxis = axisRect->axis(QCPAxis::AxisType::atLeft);
-            if (yAxis) {
+            foreach(QCPAxis * yAxis, axisRect->axes(QCPAxis::atLeft | QCPAxis::atRight)) {
                 double v_factor = axisRect->rangeZoomFactor(Qt::Vertical);
                 if (!in) v_factor = pow(v_factor, -1);
                 yAxis->scaleRange(v_factor, yAxis->range().center());
@@ -1350,8 +1358,7 @@ void PlotDialog::panAxes(int x_pixels, int y_pixels)
     if (h_pan) ui->plot->xAxis2->moveRange(h_pan);
 
     foreach(const QCPAxisRect * axisRect, axisRects()) {
-        QCPAxis* yAxis = axisRect->axis(QCPAxis::AxisType::atLeft);
-        if (yAxis) {
+        foreach(QCPAxis * yAxis, axisRect->axes(QCPAxis::atLeft | QCPAxis::atRight)) {
             double v_pan = yAxis->range().size() * y_pixels / yAxis->axisRect()->height();
             if (v_pan) yAxis->moveRange(v_pan);
         }
@@ -1403,6 +1410,13 @@ void PlotDialog::updateFirstAxisRectHeight() {
     }
     ui->plot->axisRect(0)->setMinimumSize(0, minHeight);
     ui->plot->replot();
+}
+
+void PlotDialog::recreateMultiValueAxes() {
+    if (ui->actionEnableMultiYAxes->isChecked()) {
+        on_actionEnableMultiYAxes_triggered(false);
+        on_actionEnableMultiYAxes_triggered(true);
+    }
 }
 
 QList<QCPAxisRect*> PlotDialog::axisRects() const {
@@ -1609,7 +1623,7 @@ void PlotDialog::on_actionLegend_triggered(bool checked)
 void PlotDialog::on_actionLogScale_triggered(bool checked)
 {
     foreach(const QCPAxisRect * axisRect, axisRects()) {
-        if (QCPAxis* yAxis = axisRect->axis(QCPAxis::AxisType::atLeft)) {
+        foreach(QCPAxis* yAxis, axisRect->axes(QCPAxis::atLeft | QCPAxis::atRight)) {
             if (checked) {
                 yAxis->setScaleType(QCPAxis::stLogarithmic);
                 yAxis->setTicker(QSharedPointer<QCPAxisTickerLog>(new QCPAxisTickerLog));
@@ -1668,6 +1682,7 @@ void PlotDialog::on_deleteToolButton_clicked()
         }
     }
 
+    recreateMultiValueAxes();
     ui->plotUat->setCurrentIndex(uat_model_->index(qMax(0, topRow - 1), plotColEnabled));
     getGraphInfo();
     // We should probably be smarter about this.
@@ -1901,6 +1916,52 @@ void PlotDialog::on_actionAutoScroll_triggered(bool checked) {
     if (checked) {
         autoScroll();
         ui->plot->replot();
+    }
+}
+
+void PlotDialog::on_actionEnableMultiYAxes_triggered(bool checked)
+{
+    ui->actionEnableMultiYAxes->setChecked(checked);
+    for (QCPAxisRect* axisRect : axisRects()) {
+        QCPAxis* defaultValueAxis = axisRect->axis(QCPAxis::atLeft, 0);
+        QList<QCPGraph*> graphs;
+        for (QCPGraph* graph : axisRect->graphs()) {
+            if (graph->visible()) graphs << graph;
+        }
+        QList<QCPAxis*> axes;
+        for (qsizetype i = 0; i < graphs.count(); i++) {
+            QCPGraph* graph = graphs.at(i);
+            if (checked && i != 0) {
+                QCPAxis::AxisType type = (i % 2 == 1) ? QCPAxis::atRight : QCPAxis::atLeft;
+                QCPAxis* y_axis = axisRect->addAxis(type);
+                y_axis->setLayer("axes");
+                y_axis->grid()->setLayer("grid");
+                graph->setValueAxis(y_axis);
+                axes << y_axis;
+            } else {
+                graph->setValueAxis(defaultValueAxis);
+            }
+            Plot::setAxisColor(graph->valueAxis(), !checked ? QPen(Qt::black) : graph->pen());
+        }
+        for (QCPAxis* axis : axisRect->axes(QCPAxis::atLeft | QCPAxis::atRight)) {
+            if (!axes.contains(axis) && axis->visible() && axis != defaultValueAxis) { // keep the default y axis
+                axisRect->removeAxis(axis);
+            }
+        }
+        if (graphs.isEmpty()) {
+            Plot::setAxisColor(defaultValueAxis, QPen(Qt::black));
+        }
+        QList<QCPAxis*> bottomAxes = axisRect->axes(QCPAxis::atBottom);
+        QList<QCPAxis*> leftRightAxes = axisRect->axes(QCPAxis::atLeft | QCPAxis::atRight);
+        axisRect->setRangeDragAxes(bottomAxes, leftRightAxes);
+        axisRect->setRangeZoomAxes(bottomAxes, leftRightAxes);
+        getGraphInfo();
+    }
+    if (ui->actionLogScale->isChecked()) {
+        on_actionLogScale_triggered(true);
+    }
+    else {
+        auto_axes_ ? resetAxes() : ui->plot->replot();
     }
 }
 

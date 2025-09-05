@@ -482,6 +482,17 @@
     <bool>false</bool>
    </property>
   </action>
+  <action name="actionEnableMultiYAxes">
+   <property name="text">
+    <string>Multiple Value Axes</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

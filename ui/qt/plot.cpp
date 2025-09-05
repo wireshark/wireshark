@@ -266,6 +266,14 @@ uint32_t Plot::packetFromTime(double ts) const
     return 0;
 }
 
+void Plot::setAxisColor(QCPAxis* axis, const QPen& pen)
+{
+    axis->setBasePen(pen);
+    axis->setTickPen(pen);
+    axis->setSubTickPen(pen);
+    axis->setTickLabelColor(pen.color());
+}
+
 void Plot::tap_reset(void* plot_ptr)
 {
     Plot* plot = static_cast<Plot*>(plot_ptr);

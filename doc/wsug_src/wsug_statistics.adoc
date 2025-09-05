@@ -656,6 +656,9 @@ Show the axis scale also on top of the plot.
 Enable legend::
 Show a plot legend.
 
+Multiple Value Axes::
+Use multiple Y-axes for displaying data on different scales.
+
 Enable auto scroll::
 Goes automatically to the last drawn points.
 

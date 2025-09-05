@@ -141,6 +141,7 @@ private:
     void drawMarkers();
     void addDataPointsMarkers();
     void updateFirstAxisRectHeight();
+    void recreateMultiValueAxes();
     QList<QCPAxisRect*> axisRects() const;
     void autoScroll() const;
     Ui::PlotDialog* ui;
@@ -221,6 +222,7 @@ private slots:
     void on_actionToggleTimeOrigin_triggered();
     void on_rightButtonBox_accepted();
     void on_actionAutoScroll_triggered(bool checked);
+    void on_actionEnableMultiYAxes_triggered(bool checked);
 
     void on_actionAddMarker_triggered();
     void on_actionMoveMarker_triggered();
