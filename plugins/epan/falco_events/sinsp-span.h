@@ -103,10 +103,8 @@ typedef struct plugin_field_extract_t {
         uint8_t ipv6[16];
         bool boolean;
     } res;
-    int res_len;                // out
     int data_start;             // out
     int data_length;            // out
-//    sinsp_syscall_category_e parent_category;     // out
 } plugin_field_extract_t;
 
 sinsp_span_t *create_sinsp_span(void);
