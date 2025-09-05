@@ -819,7 +819,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
     k12_t* file_data;
 
     if ( !wtap_read_bytes(wth->fh,header_buffer,K12_FILE_HDR_LEN,err,err_info) ) {
-        ws_warning("k12_open: FILE HEADER TOO SHORT OR READ ERROR");
+        ws_debug("k12_open: FILE HEADER TOO SHORT OR READ ERROR");
         if (*err != WTAP_ERR_SHORT_READ) {
             return WTAP_OPEN_ERROR;
         }
@@ -827,7 +827,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
     }
 
     if ( memcmp(header_buffer,k12_file_magic,8) != 0 ) {
-        ws_warning("k12_open: BAD MAGIC");
+        ws_debug("k12_open: BAD MAGIC");
         return WTAP_OPEN_NOT_MINE;
     }
 
@@ -882,12 +882,12 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
         len = get_record(file_data, wth->fh, offset, false, err, err_info);
 
         if ( len < 0 ) {
-            ws_warning("k12_open: BAD HEADER RECORD");
+            ws_debug("k12_open: BAD HEADER RECORD");
             destroy_k12_file_data(file_data);
             return WTAP_OPEN_ERROR;
         }
         if ( len == 0 ) {
-            ws_warning("k12_open: BAD HEADER RECORD");
+            ws_debug("k12_open: BAD HEADER RECORD");
             *err = WTAP_ERR_SHORT_READ;
             destroy_k12_file_data(file_data);
             return WTAP_OPEN_ERROR;
