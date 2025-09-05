@@ -3608,7 +3608,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	value_len = (int)strlen(value);
 
 	if (!PINFO_FD_VISITED(pinfo)) { /* Record header if packet was not visited yet */
-		wmem_map_insert(header_value_map, wmem_strdup(wmem_file_scope(), header_name), value_bytes);
+		wmem_map_insert(header_value_map, wmem_strdup(header_value_map_allocator, header_name), value_bytes);
 	}
 
 	if (hf_index == -1) {
