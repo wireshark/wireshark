@@ -1659,6 +1659,7 @@ void proto_report_dissector_bug(const char *format, ...)
 		va_start(args, format);
 		VTHROW_FORMATTED(DissectorError, format, args);
 		va_end(args);
+		ws_assert_not_reached(); /* GCC 12 with ASAN needs this. */
 	}
 }
 
