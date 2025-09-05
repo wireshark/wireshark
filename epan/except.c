@@ -33,6 +33,7 @@
 #include <limits.h>
 
 #include <glib.h>
+#include <wsutil/ws_assert.h>
 
 #include "except.h"
 
@@ -332,6 +333,7 @@ WS_NORETURN void except_throwf(long group, long code, const char *fmt, ...)
     va_start (vl, fmt);
     except_vthrowf(group, code, fmt, vl);
     va_end (vl);
+    ws_assert_not_reached(); /* GCC 12 with ASAN needs this. */
 }
 
 void (*except_unhandled_catcher(void (*new_catcher)(except_t *)))(except_t *)
