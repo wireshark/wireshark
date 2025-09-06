@@ -1249,6 +1249,36 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int 		chunk_offset = 0;
 	wmem_map_t	*chunk_map = NULL;
 	wmem_allocator_t *header_value_map_allocator = NULL;
+
+	/*
+	 * Originally this dissector only saved the header information (both in
+	 * headers and header_value_map) in pinfo->pool scoped data, passing it
+	 * to the (reassembled, if necessary) body contained in the message.
+	 *
+	 * Some protocols use the chunked transfer method to streaming data;
+	 * the headers are not repeated before each chunk but some dissectors
+	 * want the headers when dissecting each chunk (instead of saving the
+	 * headers themselves when called for the first chunk.) So in that
+	 * case the headers are saved in file scoped memory.
+	 *
+	 * Other protocols use the HTTP Upgrade mechanism; at least the first
+	 * frame for the upgrade protocol (which is likely after the response
+	 * that confirms the upgrade) will need a copy of the headers (likely
+	 * the response header and probably the request as well.) In that case
+	 * we also need to save the headers in file scoped memory.
+	 *
+	 * The current implementation saves the headers in file scoped memory
+	 * for all request/response pairs (but not for stray headers outside
+	 * of a request/response pair, often in fuzzed data.) It probably only
+	 * needs to do so for the above two cases, which could mean initially
+	 * allocating a map in pinfo->pool scope and then copying its contents
+	 * to file scope after an Upgrade header is found in order to prevent
+	 * memory consumption from growing over time for captures with HTTP
+	 * that does *not* use Upgrade or streaming chunked transfer method.
+	 * (For HTTP Upgrade both the request and response should have Upgrade
+	 * headers.)
+	 */
+
 	/*
 	 * For supporting dissecting chunked data in streaming reassembly mode.
 	 *
@@ -1769,7 +1799,15 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    offset, next_offset - offset, ett_http_request, &hdr_item, text);
 
 			if (!PINFO_FD_VISITED(pinfo)) {
-				if (header_value_map == NULL) {
+				if (header_value_map_allocator != wmem_file_scope()) {
+					/*
+					 * If we already have a header_value_map allocated
+					 * with pinfo->pool scope, that means we saw a
+					 * field-line followed by a start line in the same
+					 * message; that's bogus, so we shouldn't need to
+					 * worry about passing the previous "headers" to a
+					 * next dissector, so it's okay to drop the map.
+					 */
 					header_value_map_allocator = wmem_file_scope();
 					header_value_map = wmem_map_new(header_value_map_allocator, g_str_hash, g_str_equal);
 				}
