@@ -2111,6 +2111,11 @@ dissect_tecmp_control_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 
             if (length + (unsigned)16 - (offset - offset_orig) > 0) {
                 proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_unparsed_bytes, tvb, offset, length + (unsigned)16 - (offset - offset_orig), ENC_NA);
+
+                col_append_str(pinfo->cinfo, COL_INFO, ": ");
+                col_set_fence(pinfo->cinfo, COL_INFO);
+                tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, length + (unsigned)16 - (offset - offset_orig));
+                call_data_dissector(sub_tvb, pinfo, tree);
             }
         }
     }
