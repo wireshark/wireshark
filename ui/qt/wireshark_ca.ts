@@ -9756,7 +9756,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <name>QObject::QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="unfinished">CCCH</translation>
+        <translation>CCCH</translation>
     </message>
 </context>
 <context>
