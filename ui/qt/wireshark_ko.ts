@@ -1422,6 +1422,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 예를 들어 1시간으로 설정하면 매시간마다 새로운 파일을 만듭니다.</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;일반적으로 무선 네트워크 카드는 수신이나 발신 네트워크 주소가 자기 자신인 트래픽만 캡처하며, &lt;em&gt;사용자 데이터&lt;/em&gt; 트래픽에는 &amp;quot;가짜&amp;quot; 이더넷 헤더를 추가하여 캡처합니다. 무선 네트워크 카드가 &amp;quot;볼 수&amp;quot; 있는 모든 트래픽을 캡처하거나, 802.11 관리 및 제어 패킷 또는 라디오 계층 정보를 보려면 이 옵션을 선택하십시오. 무선 네트워크 카드와 드라이버에 따라서 모니터 모드 사용 가능 여부가 달라집니다. Wi-Fi 네트워크에서 패킷을 캡처하는 과정에 대한 자세한 정보를 보려면 위키 페이지를 참조하십시오.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>

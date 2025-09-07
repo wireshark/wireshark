@@ -1440,6 +1440,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 Например, если указать 1 час, то каждый час будет создаваться новый файл.</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;p&gt;Обычно беспроводная сетевая карта перехватывает только трафик, отправленный на ее собственный сетевой адрес и с него, &lt;em&gt;а также &lt;/em&gt;трафик пользовательских данных с &amp;quot;поддельными&amp;quot; заголовками Ethernet. Если вы хотите перехватывать весь трафик, который могут &amp;quot;видеть&amp;quot; беспроводные сетевые карты, или вас интересуют пакеты управления или контроля 802.11, или информация радиоуровня, отметьте этот параметр. Доступность режима мониторинга зависит от беспроводной карты и драйвера. Дополнительные сведения о перехвате пакетов в сетях WLAN см. в Wiki.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
     </message>

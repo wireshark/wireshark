@@ -864,6 +864,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C23,   "HID ISO Properties" },
     { 0x2C24,   "LE HID Operation Mode" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC4D,   "Lodestar Technology Inc." },
     { 0xFC4E,   "Lodestar Technology Inc." },
     { 0xFC4F,   "WaveRF, Corp." },
     { 0xFC50,   "Ant Group Co., Ltd." },
@@ -5516,6 +5517,13 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0F62,   "Kehwin Technologies Co. Ltd." },
     { 0x0F63,   "WATTER, Inc." },
     { 0x0F64,   "SafeNow GmbH" },
+    { 0x0F65,   "CZV, Inc" },
+    { 0x0F66,   "BIGREDBEE, LLC" },
+    { 0x0F67,   "White Eagle Sonic Technologies, Inc." },
+    { 0x0F68,   "Navico" },
+    { 0x0F69,   "Ancoe Industry Corporation" },
+    { 0x0F6A,   "Roam Devices LLC" },
+    { 0x0F6B,   "Skywalk Inc." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6259,6 +6267,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c23,   "Bluetooth GATT Attribute HID ISO Properties (UUID 0x2c23)", "BT GATT HID ISO Properties (UUID 0x2c23)", "btgatt.uuid0x2c23" },
     { 0x2c24,   "Bluetooth GATT Attribute LE HID Operation Mode (UUID 0x2c24)", "BT GATT LE HID Operation Mode (UUID 0x2c24)", "btgatt.uuid0x2c24" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc4d,   "Bluetooth GATT Attribute Lodestar Technology Inc. (UUID 0xfc4d)", "BT GATT Lodestar Technology Inc. (UUID 0xfc4d)", "btgatt.uuid0xfc4d" },
     { 0xfc4e,   "Bluetooth GATT Attribute Lodestar Technology Inc. (UUID 0xfc4e)", "BT GATT Lodestar Technology Inc. (UUID 0xfc4e)", "btgatt.uuid0xfc4e" },
     { 0xfc4f,   "Bluetooth GATT Attribute WaveRF, Corp. (UUID 0xfc4f)", "BT GATT WaveRF, Corp. (UUID 0xfc4f)", "btgatt.uuid0xfc4f" },
     { 0xfc50,   "Bluetooth GATT Attribute Ant Group Co., Ltd. (UUID 0xfc50)", "BT GATT Ant Group Co., Ltd. (UUID 0xfc50)", "btgatt.uuid0xfc50" },

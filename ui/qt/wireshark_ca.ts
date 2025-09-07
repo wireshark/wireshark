@@ -1241,11 +1241,11 @@
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>No es pot comprovar el filtre de captura</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation type="unfinished"></translation>
+        <translation>No es pot comprovar el filtre de captura (les extensions BPF requereixen gestió en directe)</translation>
     </message>
 </context>
 <context>
@@ -1429,6 +1429,10 @@
 For example, use 1 hour to have a new file created every hour on the hour.</source>
         <translation>Canvia al fitxer següent quan el temps de rellotge sigui un múltiple de l&apos;interval especificat.
 Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada hora en punt.</translation>
+    </message>
+    <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1699,23 +1703,23 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Enable Aggregation View for real-time capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>Activa la vista d&apos;agregació per a captures en directe</translation>
     </message>
     <message>
         <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aquesta opció només es pot canviar quan el mode d&apos;agregació no està actiu.</translation>
     </message>
     <message>
         <source>Aggregation fields</source>
-        <translation type="unfinished"></translation>
+        <translation>Camps d&apos;agregació</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Camps que es fan servir per a l&apos;agregació.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Edit..</source>
-        <translation type="unfinished"></translation>
+        <translation>Edita...</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -1984,23 +1988,23 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>No capture filter</source>
-        <translation type="unfinished">No hi ha cap filtre de captura.</translation>
+        <translation>No hi ha cap filtre de captura.</translation>
     </message>
     <message>
         <source>Multiple filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Diversos filtres</translation>
     </message>
     <message>
         <source>Capture filters cannot be compiled for standard input.</source>
-        <translation type="unfinished"></translation>
+        <translation>Els filtres de captura no es poden compilar per a entrades estàndard.</translation>
     </message>
     <message>
         <source>Capture filters cannot be compiled for pipes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Els filtres de captura no es poden compilar per a pipes.</translation>
     </message>
     <message>
         <source>Capture filter: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtre de captura: %1</translation>
     </message>
 </context>
 <context>
@@ -15735,11 +15739,11 @@ a:hover {
     </message>
     <message>
         <source>Aggregation in Live Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Agregació en captura en directe</translation>
     </message>
     <message>
         <source>Aggregation View.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vista d&apos;agregació</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>

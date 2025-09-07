@@ -1440,6 +1440,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach uair an chloig ar an uair an chloig.</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;De ghnáth, ní ghabhfaidh cárta líonra gan sreang ach an trácht a sheoltar chuig agus óna sheoladh líonra féin, agus ní ghlacann sé ach trácht &lt;em&gt;sonraí úsáideora&lt;/em&gt; le ceanntásca Ethernet &amp;quot;falsa&amp;quot;. Más mian leat a ghabháil go léir tráchta gur féidir le cártaí líonra gan sreang &amp;quot;a fheiceáil&amp;quot;, nó go bhfuil suim acu i bpaicéid bainistíochta nó rialaithe 802.11, nó faisnéis raidió-ciseal, marcáil an rogha seo. Braitheann infhaighteacht mód Monatóireacht ar an gcárta gan sreang agus ar an tiománaí. Féach ar an Wiki le haghaidh roinnt sonraí breise maidir le paicéid a ghabháil ar líonraí WLAN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>

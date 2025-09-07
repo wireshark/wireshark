@@ -1431,6 +1431,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid hel timma.</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vanligen kommer ett trådlöst nätverkskort bara fånga trafiken som skickas till och från dess egen nätverksadress, och fångar endast &lt;em&gt;användardata&lt;/em&gt;trafik med &amp;quot;falska&amp;quot; Ethernethuvuden. Om du vill fånga all trafik som trådlösa nätverkskort kan &amp;quot;se&amp;quot;, eller är intresserad av 802.11:s hanterings- eller styrpaket, eller radionivåinformation, markera detta alternativ. Övervakningslägets tillgänglighet beror på det trådlösa kortet och drivrutinen. Se Wiki:n för några fler detaljer om att fånga paket på WLAN-nätverk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>

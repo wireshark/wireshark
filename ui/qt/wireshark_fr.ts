@@ -1431,6 +1431,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les heures à l&apos;heure.</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Habituellement, une carte réseau sans-fil ne capture que le trafic émis vers et depuis sa propre adresse réseau, et capture seulement le trafic de &lt;em&gt;données utilisateur&lt;/em&gt; avec un &amp;quot;faux&amp;quot; en-tête Ethernet. Si vous voulez capturer tout le trafic que la carte réseau sans-fil peut &amp;quot;voir&amp;quot;, ou êtes intéressés par les paquets de gestion ou de contrôle 802.11, ou les informations de niveau radio, cochez cette option. La disponibilité du mode Moniteur dépend de la carte sans-fil et de son pilote. Consultez le Wiki pour de plus amples détails concernant la capture de paquets sur un réseau WLAN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>

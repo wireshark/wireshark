@@ -1241,11 +1241,11 @@
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufzeichnungsfilter kann nicht geprüft werden</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufzeichnungsfilter kann nicht geprüft werden (BPF-Erweiterung benötigt ein Live-Handle)</translation>
     </message>
 </context>
 <context>
@@ -1429,6 +1429,10 @@
 For example, use 1 hour to have a new file created every hour on the hour.</source>
         <translation>Zur nächsten Datei wechseln wenn die Urzeit ein gerades Vielfaches des angegebenen Intervalls ist.
 Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angeben.</translation>
+    </message>
+    <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1699,23 +1703,23 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Enable Aggregation View for real-time capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggregationsansicht für Echtzeitaufzeichnung aktivieren</translation>
     </message>
     <message>
         <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Option kann nur geändert werden, wenn der Aggregationsmodus nicht aktiv ist.</translation>
     </message>
     <message>
         <source>Aggregation fields</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggregationsfelder</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Für Aggregation verwendete Felder.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Edit..</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbeiten...</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -1984,23 +1988,23 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>No capture filter</source>
-        <translation type="unfinished">Kein Mitschnittfilter</translation>
+        <translation>Kein Aufzeichnungsfilter</translation>
     </message>
     <message>
         <source>Multiple filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehrere Filter</translation>
     </message>
     <message>
         <source>Capture filters cannot be compiled for standard input.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufzeichnungsfilter kann nicht für den Standardinput kompiliert werden.</translation>
     </message>
     <message>
         <source>Capture filters cannot be compiled for pipes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufzeichnungsfilter kann nicht für Pipes kompiliert werden.</translation>
     </message>
     <message>
         <source>Capture filter: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufzeichnungsfilter: %1</translation>
     </message>
 </context>
 <context>
@@ -15733,11 +15737,11 @@ a:hover {
     </message>
     <message>
         <source>Aggregation in Live Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggregation während der Aufzeichnung</translation>
     </message>
     <message>
         <source>Aggregation View.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggregationsansicht</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>

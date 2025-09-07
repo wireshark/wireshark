@@ -1420,6 +1420,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 Örneğin, her saat başı yeni bir dosyanın oluşturulması için 1 saat kullanın.</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;/html&gt;&lt;head/&gt;&lt;/body&gt;&lt;/p&gt;Genellikle bir kablosuz ağ kartı, yalnızca kendi ağ adresine gönderilen ve ondan gelen trafiği yakalar ve yalnızca &quot;sahte&quot; Ethernet başlıklarıyla &lt;em&gt;kullanıcı verisi&lt;/em&gt; trafiğini yakalar. Kablosuz ağ kartlarının &quot;görebildiği&quot; tüm trafiği yakalamak istiyorsanız veya 802.11 yönetim veya kontrol paketleri veya radyo katmanı bilgileriyle ilgileniyorsanız, bu seçeneği işaretleyin. Monitor modu, kablosuz kart ve sürücüye bağlıdır. WLAN ağlarında paket yakalama hakkında daha fazla ayrıntı için Wiki&apos;ye bakın.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>

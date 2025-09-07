@@ -1422,6 +1422,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal jam.</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Biasanya suatu kartu jaringan nirkabel hanya akan menangkap lalu lintas yang dikirim ke dan dari alamat jaringannya sendiri, dan hanya menangkap lalu lintas &lt;em&gt;data pengguna&lt;/em&gt; dengan header Ethernet &amp;quot;palsu&amp;quot;.Bila Anda ingin menangkap semua lalu lintas yang dapat &amp;quot;dilihat&amp;quot; oleh kartu jaringan nirkabel itu, atau tertari ke paket manajemen atau kontrol 802.11, atau informasi layer radio, tandai opsi ini. Ketersediaan mode monitor bergantung kepada kartu dan driver nirkabel. Lihat Wiki untuk rincian lebih lanjut tentang menangkap paket pada jaringan WLAN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
