@@ -4369,25 +4369,15 @@ static bool blf_dump_socketcanxl(wtap_dumper *wdh, const wtap_rec *rec, int *err
         frame_dir = blf_get_direction(rec);
     }
 
-    blf_canxlchannelframe_t canxl;
+    blf_canxlchannelframe_t canxl = {0};
     canxl.channel = (uint8_t)iface_entry->channel;
-    canxl.tx_count = 0;
     canxl.dir = frame_dir;
-    canxl.frameLength_in_ns = 0;
-    canxl.bitCount = 0;
     canxl.frameIdentifier = socketcan_id;
     canxl.serviceDataUnitType = socketcan_sdut;
     canxl.dlc = socketcan_payload_length - 1;
     canxl.dataLength = socketcan_payload_length;
-    canxl.stuffBitCount = 0;
-    canxl.prefaceCRC = 0;
     canxl.virtualControllerAreaNetChannelID = socketcan_vcid;
     canxl.acceptanceField = socketcan_acceptance_field;
-    canxl.stuffCount = 0;
-    canxl.crc = 0;
-    canxl.timeOffsetBrsNs = 0;
-    canxl.timeOffsetCrcDelNs = 0;
-    canxl.flags = 0;
 
     if ((socketcan_flags & CANXL_XLF) == CANXL_XLF) {
         /* should be always true but we might refactor */
@@ -4399,14 +4389,6 @@ static bool blf_dump_socketcanxl(wtap_dumper *wdh, const wtap_rec *rec, int *err
     if ((socketcan_flags & CANXL_RRS) == CANXL_RRS) {
         canxl.flags |= BLF_CANXLCHANNELFRAME_FLAG_RRS;
     }
-
-    canxl.reserved = 0;
-    canxl.arbitrationDataBitTimingConfig = 0;
-    canxl.arbitrationDataHwChannelSettings = 0;
-    canxl.fdPhaseBitTimingConfig = 0;
-    canxl.fdPhaseHwChannelSettings = 0;
-    canxl.xlPhaseBitTimingConfig = 0;
-    canxl.xlPhaseHwChannelSettings = 0;
 
     fix_endianness_blf_canxlchannelframe(&canxl);
 
