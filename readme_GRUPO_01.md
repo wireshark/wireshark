@@ -57,10 +57,14 @@ Wireshark es considerado un estándar de facto para el análisis de tráfico de 
 
 
 ## 5. Buenas prácticas éticas y legales
-- Uso responsable y normativas.  
+- Uso responsable y normativas:
+
   - Utilizar Wireshark únicamente con fines educativos, de investigación o diagnóstico autorizado.  
+  
   - Respetar la privacidad y la confidencialidad de la información capturada.  
+  
   - Cumplir con las leyes y normativas vigentes relacionadas con la ciberseguridad y el análisis de redes.  
+  
   - Evitar el uso de la herramienta en redes o sistemas sin el consentimiento explícito del propietario.  
 
 
