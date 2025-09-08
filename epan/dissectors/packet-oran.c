@@ -216,6 +216,17 @@ static int hf_oran_blockScaler;
 static int hf_oran_compBitWidth;
 static int hf_oran_compShift;
 
+static int hf_oran_active_beamspace_coefficient_n1;
+static int hf_oran_active_beamspace_coefficient_n2;
+static int hf_oran_active_beamspace_coefficient_n3;
+static int hf_oran_active_beamspace_coefficient_n4;
+static int hf_oran_active_beamspace_coefficient_n5;
+static int hf_oran_active_beamspace_coefficient_n6;
+static int hf_oran_active_beamspace_coefficient_n7;
+static int hf_oran_active_beamspace_coefficient_n8;
+static int hf_oran_activeBeamspaceCoefficientMask;
+static int hf_oran_activeBeamspaceCoefficientMask_bits_set;
+
 static int hf_oran_se6_repetition;
 
 static int hf_oran_rbgSize;
@@ -502,6 +513,7 @@ static int ett_oran_symbol_reordering_layer;
 static int ett_oran_dmrs_entry;
 static int ett_oran_dmrs_symbol_mask;
 static int ett_oran_symbol_mask;
+static int ett_active_beamspace_coefficient_mask;
 
 
 /* Don't want all extensions to open and close together. Use extType-1 entry */
@@ -615,8 +627,11 @@ static bool st6_4byte_alignment = false;
 /* Requested, allows I/Q to be stored as integers.. */
 static bool show_unscaled_values = false;
 
-/* Initialized off */
+/* Initialized off. Timing is in microseconds. */
 static unsigned us_allowed_for_ul_in_symbol = 0;
+
+/* K (number of digital antenna ports support by the O-RU) */
+static unsigned k_antenna_ports = 64;
 
 static const enum_val_t dl_compression_options[] = {
     { "COMP_NONE",                             "No Compression",                                                             COMP_NONE },
@@ -1853,11 +1868,59 @@ static int dissect_bfwCompHdr(tvbuff_t *tvb, proto_tree *tree, int offset,
     return offset;
 }
 
+/* Return offset */
+/* Returning number of entries set - would be good to also return an array of set TRX# so could show which array element
+   each BFW is actually for.. */
+static int dissect_active_beamspace_coefficient_mask(tvbuff_t *tvb, proto_tree *tree, int offset, unsigned *num_bfw_entries)
+{
+    /* activeBeamspaceCoefficientMask - ceil(K/8) octets */
+    /* K is the number of elements in uncompressed beamforming weight vector.
+     * Calculated from parameters describing tx-array or tx-array */
+    unsigned k_octets = (k_antenna_ports + 7) / 8;
+
+    static int * const mask_bits[] = {
+        &hf_oran_active_beamspace_coefficient_n1,
+        &hf_oran_active_beamspace_coefficient_n2,
+        &hf_oran_active_beamspace_coefficient_n3,
+        &hf_oran_active_beamspace_coefficient_n4,
+        &hf_oran_active_beamspace_coefficient_n5,
+        &hf_oran_active_beamspace_coefficient_n6,
+        &hf_oran_active_beamspace_coefficient_n7,
+        &hf_oran_active_beamspace_coefficient_n8,
+        NULL
+    };
+
+    *num_bfw_entries = 0;
+    guint64 val;
+    for (unsigned n=0; n < k_octets; n++) {
+        proto_tree_add_bitmask_ret_uint64(tree, tvb, offset,
+                                          hf_oran_activeBeamspaceCoefficientMask,
+                                          ett_active_beamspace_coefficient_mask, mask_bits,
+                                          ENC_BIG_ENDIAN, &val);
+        offset++;
+        /* Add up the set bits for this byte (but be careful not to count beyond last real K bit..) */
+        for (unsigned b=0; b < 8; b++) {
+            if ((1 << b) & (unsigned)val) {
+                if (((n*8)+b) < k_antenna_ports) {
+                    (*num_bfw_entries)++;
+                }
+            }
+        }
+    }
+
+    /* Show how many bits set */
+    proto_item *ti = proto_tree_add_uint(tree, hf_oran_activeBeamspaceCoefficientMask_bits_set, tvb,
+                                         offset-k_octets, k_octets, *num_bfw_entries);
+    proto_item_set_generated(ti);
+
+    return offset;
+}
+
 /* 7.7.1.3 bfwCompParam (beamforming weight compression parameter).
  * Depends upon passed-in bfwCompMeth (field may be empty) */
 static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset,
-                                proto_item *meth_ti, uint32_t bfw_comp_method,
-                                uint32_t *exponent, bool *supported)
+                                proto_item *meth_ti, uint32_t *bfw_comp_method,
+                                uint32_t *exponent, bool *supported, unsigned *num_bfw_entries)
 {
     if (bfw_comp_method == COMP_NONE) {
         /* Absent! */
@@ -1872,10 +1935,11 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     proto_tree *bfwcompparam_tree = proto_item_add_subtree(bfwcompparam_ti, ett_oran_bfwcompparam);
 
     proto_item_append_text(bfwcompparam_ti,
-                           " (meth=%s)", val_to_str_const(bfw_comp_method, bfw_comp_headers_comp_meth, "reserved"));
+                           " (meth=%s)", val_to_str_const(*bfw_comp_method, bfw_comp_headers_comp_meth, "reserved"));
 
+    *num_bfw_entries = 0;
     *supported = false;
-    switch (bfw_comp_method) {
+    switch (*bfw_comp_method) {
         case COMP_BLOCK_FP:     /* block floating point */
             /* 4 reserved bits +  exponent */
             proto_tree_add_item_ret_uint(bfwcompparam_tree, hf_oran_exponent,
@@ -1898,21 +1962,21 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             break;
-        case 4:                 /* beamspace I */
-            /* K is the number of elements in uncompressed beamforming weight vector.  Calculated from parameters describing tx-array or tx-array */
-            /* Would need to be a dissector preference */
-            /* TODO: activeBeamspaceCoefficientMask - ceil(K/8) octets */
-            /* proto_tree_add_item(extension_tree, hf_oran_blockScaler,
-                                tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++; */
+        case 4:                 /* beamspace I (BLOCK SCALING) */
+            /* activeBeamspaceCoefficientMask */
+            offset = dissect_active_beamspace_coefficient_mask(tvb, bfwcompparam_tree, offset, num_bfw_entries);
+            *bfw_comp_method = COMP_BLOCK_SCALE;
+            *supported = false;
             break;
-        case 5:                 /* beamspace II */
-            /* TODO: activeBeamspaceCoefficientMask - ceil(K/8) octets */
-            /* reserved (4 bits) + exponent (4 bits)
+        case 5:                 /* beamspace II (BLOCK FLOATING POINT) */
+            /* activeBeamspaceCoefficientMask */
+            offset = dissect_active_beamspace_coefficient_mask(tvb, bfwcompparam_tree, offset, num_bfw_entries);
+            /* reserved (4 bits) + exponent (4 bits) */
             proto_tree_add_item(bfwcompparam_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_NA);
             proto_tree_add_item_ret_uint(bfwcompparam_tree, hf_oran_exponent, tvb, offset, 1, ENC_BIG_ENDIAN, exponent);
             offset += 1;
-            */
+            *bfw_comp_method = COMP_BLOCK_FP;
+            *supported = true;
             break;
 
         default:
@@ -1924,8 +1988,8 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
     if (!(*supported) && meth_ti) {
         expert_add_info_format(pinfo, meth_ti, &ei_oran_unsupported_bfw_compression_method,
                                "BFW Compression method %u (%s) not decompressed by dissector",
-                               bfw_comp_method,
-                               val_to_str_const(bfw_comp_method, bfw_comp_headers_comp_meth, "reserved"));
+                               *bfw_comp_method,
+                               val_to_str_const(*bfw_comp_method, bfw_comp_headers_comp_meth, "reserved"));
     }
     return offset;
 }
@@ -2038,8 +2102,9 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
     /* bfwCompParam */
     bool compression_method_supported = false;
     unsigned exponent = 0;
+    unsigned num_bfw_entries = 0;
     offset = dissect_bfwCompParam(tvb, bundle_tree, pinfo, offset, comp_meth_ti,
-                                  bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
+                                  &bfwcomphdr_comp_meth, &exponent, &compression_method_supported, &num_bfw_entries);
 
     /* Can't show details of unsupported compression method */
     if (!compression_method_supported) {
@@ -2066,7 +2131,10 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
                                              num_weights_per_bundle);
     proto_item_set_generated(wpb_ti);
 
-    /* Add the weights for this bundle */
+    /* Add the weights for this bundle. Overwrite with what was seen in bfwCompParam if beamspace */
+    if (num_bfw_entries != 0) {
+        num_weights_per_bundle = num_bfw_entries;
+    }
     for (unsigned w=0; w < num_weights_per_bundle; w++) {
 
         /* Create subtree */
@@ -2696,8 +2764,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* bfwCompParam */
                 uint32_t exponent = 0;
                 bool compression_method_supported = false;
+                unsigned num_trx = 0;
                 offset = dissect_bfwCompParam(tvb, extension_tree, pinfo, offset, comp_meth_ti,
-                                              bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
+                                              &bfwcomphdr_comp_meth, &exponent, &compression_method_supported, &num_trx);
 
                 /* Can't show details of unsupported compression method */
                 if (!compression_method_supported) {
@@ -2712,11 +2781,13 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                  */
 
                 /* I & Q samples
-                   Don't know how many there will be, so just fill available bytes...
-                 */
-                unsigned weights_bytes = (extlen*4)-3;
-                unsigned num_weights_pairs = (weights_bytes*8) / (bfwcomphdr_iq_width*2);
-                unsigned num_trx = num_weights_pairs;
+                   May know how many entries from activeBeamspaceCoefficientMask. */
+                if (num_trx == 0) {
+                    /* Don't know how many there will be, so just fill available bytes... */
+                    unsigned weights_bytes = (extlen*4)-3;
+                    unsigned num_weights_pairs = (weights_bytes*8) / (bfwcomphdr_iq_width*2);
+                    num_trx = num_weights_pairs;
+                }
                 int bit_offset = offset*8;
 
                 for (unsigned n=0; n < num_trx; n++) {
@@ -3683,14 +3754,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             /* bfwCompParam */
                             bool compression_method_supported = false;
                             uint32_t exponent = 0;
+                            unsigned num_bfw_entries;
                             offset = dissect_bfwCompParam(tvb, port_tree, pinfo, offset, comp_meth_ti,
-                                                          bfwcomphdr_comp_meth, &exponent, &compression_method_supported);
+                                                          &bfwcomphdr_comp_meth, &exponent, &compression_method_supported, &num_bfw_entries);
 
                             int bit_offset = offset*8;
                             int bfw_offset;
 
                             /* Add weights for each TRX */
-                            for (unsigned b=0; b < pref_num_bf_antennas; b++) {
+                            unsigned trx_to_add = (num_bfw_entries==0) ? pref_num_bf_antennas : num_bfw_entries;
+                            for (unsigned b=0; b < trx_to_add; b++) {
 
                                 /* Create BFW subtree */
                                 bfw_offset = bit_offset / 8;
@@ -5423,8 +5496,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                             /* bfwCompParam */
                             unsigned exponent = 0;
                             bool     supported = false;
-                            offset = dissect_bfwCompParam(tvb, command_tree, pinfo, offset,
-                                                          comp_meth_ti, bfwcomphdr_comp_meth, &exponent, &supported);
+                            unsigned num_trx_entries;
+                            offset = dissect_bfwCompParam(tvb, command_tree, pinfo, offset, comp_meth_ti,
+                                                          &bfwcomphdr_comp_meth, &exponent, &supported, &num_trx_entries);
 
                             /* Antenna count from preference */
                             unsigned num_trx = pref_num_bf_antennas;
@@ -7311,6 +7385,68 @@ proto_register_oran(void)
             "The shift applied to the entire PRB", HFILL}
         },
 
+        { &hf_oran_active_beamspace_coefficient_n1,
+          { "N1", "oran_fh_cus.activeBeamspace_Coefficient_n1",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_present_not_present), 0x80,
+            NULL, HFILL}
+        },
+        { &hf_oran_active_beamspace_coefficient_n2,
+          { "N2", "oran_fh_cus.activeBeamspace_Coefficient_n2",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_present_not_present), 0x40,
+            NULL, HFILL}
+        },
+        { &hf_oran_active_beamspace_coefficient_n3,
+          { "N3", "oran_fh_cus.activeBeamspace_Coefficient_n3",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_present_not_present), 0x20,
+            NULL, HFILL}
+        },
+        { &hf_oran_active_beamspace_coefficient_n4,
+          { "N4", "oran_fh_cus.activeBeamspace_Coefficient_n4",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_present_not_present), 0x10,
+            NULL, HFILL}
+        },
+        { &hf_oran_active_beamspace_coefficient_n5,
+          { "N5", "oran_fh_cus.activeBeamspace_Coefficient_n5",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_present_not_present), 0x08,
+            NULL, HFILL}
+        },
+        { &hf_oran_active_beamspace_coefficient_n6,
+          { "N6", "oran_fh_cus.activeBeamspace_Coefficient_n6",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_present_not_present), 0x04,
+            NULL, HFILL}
+        },
+        { &hf_oran_active_beamspace_coefficient_n7,
+          { "N7", "oran_fh_cus.activeBeamspace_Coefficient_n7",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_present_not_present), 0x02,
+            NULL, HFILL}
+        },
+        { &hf_oran_active_beamspace_coefficient_n8,
+          { "N8", "oran_fh_cus.activeBeamspace_Coefficient_n8",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_present_not_present), 0x01,
+            NULL, HFILL}
+        },
+
+        { &hf_oran_activeBeamspaceCoefficientMask,
+          { "activeBeamspaceCoefficientMask", "oran_fh_cus.activeBeamspaceCoefficientMask",
+            FT_UINT8, BASE_HEX,
+            NULL, 0xff,
+            NULL, HFILL}
+        },
+        { &hf_oran_activeBeamspaceCoefficientMask_bits_set,
+          { "Array elements set", "oran_fh_cus.activeBeamspaceCoefficientMask.bits-set",
+            FT_UINT32, BASE_DEC,
+            NULL, 0x0,
+            NULL, HFILL}
+        },
+
         /* Section 7.7.6.6 */
         { &hf_oran_se6_repetition,
           { "repetition", "oran_fh_cus.repetition",
@@ -8964,7 +9100,8 @@ proto_register_oran(void)
         &ett_oran_symbol_reordering_layer,
         &ett_oran_dmrs_entry,
         &ett_oran_dmrs_symbol_mask,
-        &ett_oran_symbol_mask
+        &ett_oran_symbol_mask,
+        &ett_active_beamspace_coefficient_mask
     };
 
     static int *ext_ett[HIGHEST_EXTTYPE];
@@ -9130,6 +9267,9 @@ proto_register_oran(void)
 
     prefs_register_bool_preference(oran_module, "oran.unscaled_iq", "Show unscaled I/Q values",
         "", &show_unscaled_values);
+
+    prefs_register_uint_preference(oran_module, "oran.k_antenna_ports", "K - number of antenna ports",
+        "Used in bfwCompParam", 10, &k_antenna_ports);
 
 
     flow_states_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
