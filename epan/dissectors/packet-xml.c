@@ -108,8 +108,8 @@ typedef struct _xml_ns_t {
 
 } xml_ns_t;
 
-static xml_ns_t xml_ns     = {"xml",     "/", -1, -1, -1, NULL, NULL, NULL};
-static xml_ns_t unknown_ns = {"unknown", "?", -1, -1, -1, NULL, NULL, NULL};
+static xml_ns_t xml_ns     = {"xml",     "/", 0, 0, 0, NULL, NULL, NULL};
+static xml_ns_t unknown_ns = {"unknown", "?", 0, 0, 0, NULL, NULL, NULL};
 static xml_ns_t *root_ns;
 
 static bool pref_heuristic_unicode;
@@ -1193,9 +1193,9 @@ static xml_ns_t *xml_new_namespace(wmem_map_t *hash, const char *name, ...)
     char     *attr_name;
 
     ns->name       = wmem_strdup(wmem_epan_scope(), name);
-    ns->hf_tag     = -1;
-    ns->hf_cdata   = -1;
-    ns->ett        = -1;
+    ns->hf_tag     = 0;
+    ns->hf_cdata   = 0;
+    ns->ett        = 0;
     ns->attributes = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
     ns->elements   = NULL;
 
@@ -1203,7 +1203,7 @@ static xml_ns_t *xml_new_namespace(wmem_map_t *hash, const char *name, ...)
 
     while(( attr_name = va_arg(ap, char *) )) {
         int *hfp = wmem_new(wmem_epan_scope(), int);
-        *hfp = -1;
+        *hfp = 0;
         wmem_map_insert(ns->attributes, wmem_strdup(wmem_epan_scope(), attr_name), hfp);
     };
 
@@ -1323,7 +1323,7 @@ static void copy_attrib_item(void *k, void *v _U_, void *p)
     int        *value = wmem_new(wmem_epan_scope(), int);
     wmem_map_t *dst   = (wmem_map_t *)p;
 
-    *value = -1;
+    *value = 0;
     wmem_map_insert(dst, key, value);
 
 }
@@ -1342,9 +1342,9 @@ static xml_ns_t *duplicate_element(xml_ns_t *orig)
     xml_ns_t *new_item = wmem_new(wmem_epan_scope(), xml_ns_t);
 
     new_item->name          = wmem_strdup(wmem_epan_scope(), orig->name);
-    new_item->hf_tag        = -1;
-    new_item->hf_cdata      = -1;
-    new_item->ett           = -1;
+    new_item->hf_tag        = 0;
+    new_item->hf_cdata      = 0;
+    new_item->ett           = 0;
     new_item->attributes    = copy_attributes_hash(orig->attributes);
     new_item->elements      = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
     new_item->element_names = NULL;    // Not used for duplication
@@ -1456,9 +1456,9 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
 
         element->name          = nl->name;
         element->element_names = nl->list;
-        element->hf_tag        = -1;
-        element->hf_cdata      = -1;
-        element->ett           = -1;
+        element->hf_tag        = 0;
+        element->hf_cdata      = 0;
+        element->ett           = 0;
         element->attributes    = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
         element->elements      = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
 
@@ -1483,7 +1483,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
                 char *name = (char *)current_attribute->data;
                 int   *id_p = wmem_new(wmem_epan_scope(), int);
 
-                *id_p = -1;
+                *id_p = 0;
                 wmem_map_insert(element->attributes, name, id_p);
             }
         }
@@ -1520,9 +1520,9 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
     root_element = wmem_new(wmem_epan_scope(), xml_ns_t);
     root_element->name          = wmem_strdup(wmem_epan_scope(), root_name);
     root_element->fqn           = dtd_data->proto_name ? dtd_data->proto_name : root_element->name;
-    root_element->hf_tag        = -1;
-    root_element->hf_cdata      = -1;
-    root_element->ett           = -1;
+    root_element->hf_tag        = 0;
+    root_element->hf_cdata      = 0;
+    root_element->ett           = 0;
     root_element->elements      = wmem_map_new(wmem_epan_scope(), g_str_hash, g_str_equal);
     root_element->element_names = element_names;
 
