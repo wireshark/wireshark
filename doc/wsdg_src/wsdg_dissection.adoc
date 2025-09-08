@@ -61,6 +61,7 @@ built-in dissector and included in the main program, or a plugin.
 
 Plugins are easier to write initially, so let’s start with that.
 With a little care, the plugin can be converted into a built-in dissector.
+For detailed information about plugins, see <<ChapterPlugins>>.
 
 .Dissector Initialisation.
 [source,c]

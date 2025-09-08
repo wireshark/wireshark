@@ -1,75 +1,84 @@
-0. Plugins
+[#ChapterPlugins]
 
-There are a multitude of plugin options available in Wireshark that allow to
-extend its functionality without changing the source code itself.  Using the
+== Plugins
+
+There are a multitude of plugin options available in Wireshark that allow its
+its functionality to be extended without changing the source code itself.  Using the
 available APIs gives you the means to do this.
 
 Currently plugin APIs are available for dissectors (epan), capture file types
-(wiretap) and media decoders (codecs).  This README focuses primarily on
+(wiretap) and media decoders (codecs). This chapter focuses primarily on
 dissector plugins; most of the descriptions are applicable to the other plugin
 types as well.
 
-1. Dissector plugins
+=== Dissector plugins
 
-Writing a "plugin" dissector is not very different from writing a standard
-one.  In fact all of the functions described in README.dissector can be
-used in the plugins exactly as they are used in standard dissectors.
+As noted in <<ChDissectSetup>>, writing a "plugin" dissector is not very different from writing a standard one.
+In fact all of the functions described in _README.dissector_ can be used in the plugins exactly as they are used in standard dissectors.
 
-(Note, however, that not all OSes on which Wireshark runs can support
-plugins.)
+// XXX Is this still true?
+//(Note, however, that not all OSes on which Wireshark runs can support
+//plugins.)
 
 If you've chosen "foo" as the name of your plugin (typically, that would
 be a short name for your protocol, in all lower case), the following
 instructions tell you how to implement it as a plugin.  All occurrences
 of "foo" below should be replaced by the name of your plugin.
 
-2. The directory for the plugin, and its files
+=== The directory for the plugin, and its files
 
 The plugin should be placed in a new plugins/epan/foo directory which should
 contain at least the following files:
 
-CMakeLists.txt
-README
+[none]
+* CMakeLists.txt
+* README
 
-The README can be brief but it should provide essential information relevant
-to developers and users. Optionally AUTHORS and ChangeLog files can be added.
-Optionally you can add your own plugin.rc.in.
+The _README_ can be brief but it should provide essential information relevant
+to developers and users. Optionally _AUTHORS_ and _ChangeLog_ files can be added.
+Optionally you can add your own _plugin.rc.in_.
 
 And of course the source and header files for your dissector.
 
 Examples of these files can be found in plugins/epan/gryphon.
 
-2.1 CMakeLists.txt
+==== CMakeLists.txt
 
-For your plugins/epan/foo/CMakeLists.txt file, see the corresponding file in
-plugins/epan/gryphon.  Replace all occurrences of "gryphon" in those files
+For your _plugins/epan/foo/CMakeLists.txt_ file, see the corresponding file in
+_plugins/epan/gryphon_.  Replace all occurrences of "gryphon" in those files
 with "foo" and add your source files to the DISSECTOR_SRC variable.
 
-2.2 plugin.rc.in
+==== plugin.rc.in
 
-Your plugins/epan/foo/plugin.rc.in is the Windows resource template file used
+Your _plugins/epan/foo/plugin.rc.in_ is the Windows resource template file used
 to add the plugin specific information as resources to the DLL.
 If not provided the plugins/plugin.rc.in file will be used.
 
-3. Changes to existing Wireshark files
+=== Changes to existing Wireshark files
 
-There are two ways to add your plugin dissector to the build, as a custom
+There are two ways to add your plugin dissector to the build: as a custom
 extension or as a permanent addition.  The custom extension is easy to
 configure, but won't be used for inclusion in the distribution if that's
 your goal.  Setting up the permanent addition is somewhat more involved.
 
-3.1 Custom extension
+==== Custom extension
 
-For CMake builds, either pass the custom plugin dir on the CMake generation
+To integrate your plugin with CMake, either pass the custom plugin dir on the CMake generation
 step command line:
 
-CMake ... -DCUSTOM_PLUGIN_SRC_DIR="plugins/epan/foo"
+[source,sh]
+----
+cmake ... -DCUSTOM_PLUGIN_SRC_DIR="plugins/epan/foo"
+----
 
-or copy the top-level file CMakeListsCustom.txt.example to CMakeListsCustom.txt
-(also in the top-level source dir) and edit so that CUSTOM_PLUGIN_SRC_DIR is
+or copy the top-level file _CMakeListsCustom.txt.example_ to _CMakeListsCustom.txt_
+(also in the top-level source dir) and edit so that `CUSTOM_PLUGIN_SRC_DIR` is
 set() to the relative path of your plugin, e.g.
 
+[source,cmake]
+----
 set(CUSTOM_PLUGIN_SRC_DIR plugins/epan/foo)
+----
 
 and re-run the CMake generation step.
 
@@ -79,43 +88,54 @@ If you want to add the plugin to your own Windows installer add a text
 file named custom_plugins.txt to the packaging/nsis directory, with a
 "File" statement for NSIS:
 
+[source,nsis]
+----
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\foo.dll"
+----
 
-3.2 Permanent addition
+==== Permanent addition
 
 In order to be able to permanently add a plugin take the following steps.
 You will need to change the following files:
-	CMakeLists.txt
-	packaging/nsis/wireshark.nsi
+
+[none]
+* CMakeLists.txt
+* packaging/nsis/wireshark.nsi
 
 You might also want to search your Wireshark development directory for
 occurrences of an existing plugin name, in case this document is out of
 date with the current directory structure.  For example,
 
-	grep -rl gryphon .
+[source,sh]
+----
+grep -rl gryphon .
+----
 
 could be used from a shell prompt.
 
-3.2.1  Changes to CMakeLists.txt
+===== Changes to _CMakeLists.txt_
 
 Add your plugin (in alphabetical order) to the PLUGIN_SRC_DIRS:
 
+[source,cmake]
+----
 if(ENABLE_PLUGINS)
+    ...
+    set(PLUGIN_SRC_DIRS
         ...
-        set(PLUGIN_SRC_DIRS
-                ...
-                plugins/epan/ethercat
-                plugins/epan/foo
-                plugins/epan/gryphon
-                plugins/epan/irda
-                ...
+        plugins/epan/ethercat
+        plugins/epan/foo
+        plugins/epan/gryphon
+        plugins/epan/irda
+        ...
+----
 
-3.2.2  Changes to the installers
+===== Changes to the installers
 
 If you want to include your plugin in an installer you have to add lines
 in the NSIS installer wireshark.nsi file.
 
-3.2.2.1  Changes to packaging/nsis/wireshark.nsi
+===== Changes to packaging/nsis/wireshark.nsi
 
 Add the relative path of your plugin DLL (in alphabetical order) to the
 list of "File" statements in the "Dissector Plugins" section:
@@ -125,16 +145,16 @@ File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\foo.dll"
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\gryphon.dll"
 File "${STAGING_DIR}\plugins\${MAJOR_VERSION}.${MINOR_VERSION}\epan\irda.dll"
 
-3.2.2.2  Other installers
+===== Other installers
 
 The PortableApps installer copies plugins from the build directory
 and should not require configuration.
 
-4. Development and plugins on Unix
+=== Development and plugins on Unix
 
 Plugins make some aspects of development easier and some harder.
 
-The first thing is that you'll have to run cmake once more to setup your
+The first thing is that you'll have to run `cmake` once more to setup your
 build environment.
 
 The good news is that if you are working on a single plugin then you will
@@ -146,19 +166,28 @@ The bad news is that Wireshark will not use the plugins unless the plugins
 are installed in one of the places it expects them to find.
 
 One way of dealing with this problem is to set an environment variable
-when running Wireshark: WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1.
+when running Wireshark: `WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1`.
 
 Another way to deal with this problem is to set up a working root for
-wireshark, say in $HOME/build/root and build Wireshark to install
+wireshark, say in _$HOME/build/root_ and build Wireshark to install
 there
 
+[source,cmake]
+----
 cmake -D CMAKE_INSTALL_PREFIX=${HOME}/build/root && make install
+----
 
-then subsequent rebuilds/installs of your plugin can be accomplished
-by going to the plugins/foo directory and running
+then subsequent rebuilds and installs of your plugin can be accomplished
+by going to the _plugins/foo_ directory and running
 
+[source,sh]
+----
 make install
+----
 
+// This was retained from the initial import from README.plugins, but
+// can be removed any time.
+////
 5. Update "old style" plugins
 
 5.1 How to update an "old style" plugin (since Wireshark 2.5)
@@ -237,19 +266,19 @@ is encouraged to update their plugins as outlined below:
 	#include "plugins/plugin_api_defs.h"
 
     o Remove the init function.
+////
 
-6 How to plugin related interface options
+=== How to plugin related interface options
 
 To demonstrate the functionality of the plugin interface options, a
-demonstration plugin exists (pluginifdemo). To build it using cmake, the
-build option ENABLE_PLUGIN_IFDEMO has to be enabled.
+demonstration plugin exists named "pluginifdemo". To build it using CMake, the
+build option `ENABLE_PLUGIN_IFDEMO` has to be enabled.
 
-6.1 Implement a plugin GUI menu
+==== Implement a plugin GUI menu
 
-A plugin (as well as built-in dissectors) may implement a menu within
-Wireshark to be used to trigger options, start tools, open Websites, ...
+Plugins (as well as built-in dissectors) may implement menus within Wireshark which can be used to trigger options, start tools, open Websites, and other actions.
 
-This menu structure is built using the plugin_if.h interface and its
+This menu structure is built using the _plugin_if.h_ interface and its
 corresponding functions.
 
 The menu items all call a callback provided by the plugin, which takes
@@ -257,33 +286,39 @@ a pointer to the menuitem entry as data. This pointer may be used to
 provide userdata to each entry. The pointer must utilize WS_DLL_PUBLIC_DEF
 and has the following structure:
 
-    WS_DLL_PUBLIC_DEF void
-    menu_cb(ext_menubar_gui_type gui_type, void *gui_data,
-            void *user_data _U_)
-    {
-        ... Do something ...
-    }
+[source,c]
+----
+WS_DLL_PUBLIC_DEF void
+menu_cb(ext_menubar_gui_type gui_type, void *gui_data,
+        void *user_data _U_)
+{
+    ... Do something ...
+}
+----
 
 The menu entries themselves are generated with the following code structure:
 
-    ext_menu_t * ext_menu, *os_menu = NULL;
+[source,c]
+----
+ext_menu_t * ext_menu, *os_menu = NULL;
 
-    ext_menu = ext_menubar_register_menu (
-            <your_proto_item>, "Some Menu Entry", true );
-    ext_menubar_add_entry(ext_menu, "Test Entry 1",
-            "This is a tooltip", menu_cb, <user_data>);
-    ext_menubar_add_entry(ext_menu, "Test Entry 2",
-            NULL, menu_cb, <user_data>);
+ext_menu = ext_menubar_register_menu (
+        <your_proto_item>, "Some Menu Entry", true );
+ext_menubar_add_entry(ext_menu, "Test Entry 1",
+        "This is a tooltip", menu_cb, <user_data>);
+ext_menubar_add_entry(ext_menu, "Test Entry 2",
+        NULL, menu_cb, <user_data>);
 
-    os_menu = ext_menubar_add_submenu(ext_menu, "Sub Menu" );
-    ext_menubar_add_entry(os_menu, "Test Entry A",
-            NULL, menu_cb, <user_data>);
-    ext_menubar_add_entry(os_menu, "Test Entry B",
-            NULL, menu_cb, <user_data>);
+os_menu = ext_menubar_add_submenu(ext_menu, "Sub Menu" );
+ext_menubar_add_entry(os_menu, "Test Entry A",
+        NULL, menu_cb, <user_data>);
+ext_menubar_add_entry(os_menu, "Test Entry B",
+        NULL, menu_cb, <user_data>);
+----
 
-For a more detailed information, please refer to plugin_if.h
+For a more detailed information, please refer to _plugin_if.h_.
 
-6.2 Implement interactions with the main interface
+==== Implement interactions with the main interface
 
 Due to memory constraints on most platforms, plugin functionality cannot be
 called directly from a DLL context. Instead special functions will be used,
@@ -291,24 +326,30 @@ which will implement certain options for plugins to utilize.
 
 The following methods exist so far:
 
-	/* Applies the given filter string as display filter */
-	WS_DLL_PUBLIC void plugin_if_apply_filter
-		(const char * filter_string, bool force);
+[source,c]
+----
+/* Applies the given filter string as display filter */
+WS_DLL_PUBLIC void plugin_if_apply_filter
+        (const char * filter_string, bool force);
 
-	/* Saves the given preference to the main preference storage */
-	WS_DLL_PUBLIC void plugin_if_save_preference
-		(const char * pref_module, const char * pref_key, const char * pref_value);
+/* Saves the given preference to the main preference storage */
+WS_DLL_PUBLIC void plugin_if_save_preference
+        (const char * pref_module, const char * pref_key, const char * pref_value);
 
-	/* Jumps to the given frame number */
-	WS_DLL_PUBLIC void plugin_if_goto_frame(uint32_t framenr);
+/* Jumps to the given frame number */
+WS_DLL_PUBLIC void plugin_if_goto_frame(uint32_t framenr);
+----
 
-6.3 Implement a plugin specific toolbar
+==== Implement a plugin specific toolbar
 
 A toolbar may be registered which allows implementing an interactive user
 interaction with the main application. The toolbar is generated using the following
 code:
 
-    ext_toolbar_t * tb = ext_toolbar_register_toolbar("Plugin Interface Demo Toolbar");
+[source,c]
+----
+ext_toolbar_t * tb = ext_toolbar_register_toolbar("Plugin Interface Demo Toolbar");
+----
 
 This registers a toolbar, which will be shown underneath "View->Additional Toolbars" in
 the main menu, as well as the popup action window when right-clicking on any other tool-
@@ -318,50 +359,59 @@ It behaves identically to the existing toolbars and can be hidden as well as def
 appear specific to selected profiles. The name with which it is being shown is the given
 name in this function call.
 
-6.3.1 Register elements for the toolbar
+===== Register elements for the toolbar
 
 To add items to the toolbar, 4 different types of elements do exist.
 
-  * BOOLEAN - a checkbox to select / unselect
-  * BUTTON - a button to click
-  * STRING - a text field with validation options
-  * SELECTOR - a dropdown selection field
+* BOOLEAN - a checkbox to select / unselect
+* BUTTON - a button to click
+* STRING - a text field with validation options
+* SELECTOR - a dropdown selection field
 
-To add an element to the toolbar, the following function is being used:
+To add an element to the toolbar, the following function can be used:
 
-    ext_toolbar_add_entry( ext_toolbar_t * parent, ext_toolbar_item_t type, const char *label,
-        const char *defvalue, const char *tooltip, bool capture_only, GList * value_list,
-        bool is_required, const char * regex, ext_toolbar_action_cb callback, void *user_data)
+[source,c]
+----
+ext_toolbar_add_entry( ext_toolbar_t * parent, ext_toolbar_item_t type, const char *label,
+    const char *defvalue, const char *tooltip, bool capture_only, GList * value_list,
+    bool is_required, const char * regex, ext_toolbar_action_cb callback, void *user_data)
 
-    parent_bar - the parent toolbar for this entry, to be registered by ext_toolbar_register_toolbar
-    name - the entry name (the internal used one) for the item, used to send updates to the element
-    label - the entry label (the displayed name) for the item, visible to the user
-    defvalue - the default value for the toolbar element
-        - EXT_TOOLBAR_BOOLEAN - 1 is for a checked element, 0 is unchecked
-        - EXT_TOOLBAR_STRING - Text already entered upon initial display
-    tooltip - a tooltip to be displayed on mouse-over
-    capture_only - entry is only active, if a capture is active
-    callback - the action which will be invoked after the item is activated
-    value_list - a non-null list of values created by ext_toolbar_add_val(), if the item type
-        is EXT_TOOLBAR_SELECTOR
-    valid_regex - a validation regular expression for EXT_TOOLBAR_STRING
-    is_required - a zero entry for EXT_TOOLBAR_STRING is not allowed
-    user_data - a user defined pointer, which will be added to the toolbar callback
+parent_bar - the parent toolbar for this entry, to be registered by ext_toolbar_register_toolbar
+name - the entry name (the internal used one) for the item, used to send updates to the element
+label - the entry label (the displayed name) for the item, visible to the user
+defvalue - the default value for the toolbar element
+    - EXT_TOOLBAR_BOOLEAN - 1 is for a checked element, 0 is unchecked
+    - EXT_TOOLBAR_STRING - Text already entered upon initial display
+tooltip - a tooltip to be displayed on mouse-over
+capture_only - entry is only active, if a capture is active
+callback - the action which will be invoked after the item is activated
+value_list - a non-null list of values created by ext_toolbar_add_val(), if the item type
+    is EXT_TOOLBAR_SELECTOR
+valid_regex - a validation regular expression for EXT_TOOLBAR_STRING
+is_required - a zero entry for EXT_TOOLBAR_STRING is not allowed
+user_data - a user defined pointer, which will be added to the toolbar callback
+----
 
 In case of the toolbar type EXT_TOOLBAR_SELECTOR a value list has to be provided. This list
 is generated using ext_toolbar_add_val():
 
-    GList * entries = 0;
-    entries = ext_toolbar_add_val(entries, "1", "ABCD", false );
-    entries = ext_toolbar_add_val(entries, "2", "EFG", false );
-    entries = ext_toolbar_add_val(entries, "3", "HIJ", true );
-    entries = ext_toolbar_add_val(entries, "4", "KLM", false );
+[source,c]
+----
+GList * entries = 0;
+entries = ext_toolbar_add_val(entries, "1", "ABCD", false );
+entries = ext_toolbar_add_val(entries, "2", "EFG", false );
+entries = ext_toolbar_add_val(entries, "3", "HIJ", true );
+entries = ext_toolbar_add_val(entries, "4", "KLM", false );
+----
 
-6.3.2 Callback for activation of an item
+===== Callback for activation of an item
 
 If an item has been activated, the provided callback is being triggered.
 
-    void toolbar_cb(void *toolbar_item, void *item_data, void *user_data)
+[source,c]
+----
+void toolbar_cb(void *toolbar_item, void *item_data, void *user_data)
+----
 
 For EXT_TOOLBAR_BUTTON the callback is triggered upon a click on the button, for
 EXT_TOOLBAR_BOOLEAN and EXT_TOOLBAR_SELECTOR the callback is triggered with every change
@@ -371,45 +421,53 @@ For EXT_TOOLBAR_STRING either the return key has to be hit or the apply button p
 
 The parameters of the callback are defined as follows:
 
-    toolbar_item - an element of the type ext_toolbar_t * representing the item that has been
-                   activated
-    item_data - the data of the item during activation. The content depends on the item type:
-         - EXT_TOOLBAR_BUTTON - the entry is null
-         - EXT_TOOLBAR_BOOLEAN - the entry is 0 if the checkbox is unchecked and 1 if it is checked
-         - EXT_TOOLBAR_STRING - a string representing the context of the textbox. Only valid strings
-                   are being passed, it can be safely assumed, that an applied regular expression has
-                   been checked.
-         - EXT_TOOLBAR_SELECTOR - the value of the selected entry
-    user_data - the data provided during element registration
+toolbar_item:: an element of the type ext_toolbar_t * representing the item that has been
+               activated
+item_data:: the data of the item during activation. The content depends on the item type:
+--
+* EXT_TOOLBAR_BUTTON - the entry is null
+* EXT_TOOLBAR_BOOLEAN - the entry is 0 if the checkbox is unchecked and 1 if it is checked
+* EXT_TOOLBAR_STRING - a string representing the context of the textbox. Only valid strings
+  are being passed, it can be safely assumed, that an applied regular expression has been checked.
+* EXT_TOOLBAR_SELECTOR - the value of the selected entry
+--
+user_data:: the data provided during element registration
 
-6.3.3 Sending updates to the toolbar items
+===== Sending updates to the toolbar items
 
 A plugin may send updates to the toolbar entry, using one of the following methods. The parameter
 silent defines, if the registered toolbar callback is triggered by the update or not.
 
-    void ext_toolbar_update_value(ext_toolbar_t * entry, void *data, bool silent)
+[source,c]
+----
+void ext_toolbar_update_value(ext_toolbar_t * entry, void *data, bool silent)
+----
 
-    - EXT_TOOLBAR_BUTTON, EXT_TOOLBAR_STRING - the displayed text (on the button or in the textbox)
-        are being changed, in that case data is expected to be a string
-    - EXT_TOOLBAR_BOOLEAN - the checkbox value is being changed, to either 0 or 1, in both cases
-        data is expected to be an integer sent by GINT_TO_POINTER(n)
-    - EXT_TOOLBAR_SELECTOR - the display text to be changed. If no element exists with this text,
-        nothing will happen
+* EXT_TOOLBAR_BUTTON, EXT_TOOLBAR_STRING - the displayed text (on the button or in the textbox)
+  are being changed, in that case data is expected to be a string
+* EXT_TOOLBAR_BOOLEAN - the checkbox value is being changed, to either 0 or 1, in both cases
+  data is expected to be an integer sent by GINT_TO_POINTER(n)
+* EXT_TOOLBAR_SELECTOR - the display text to be changed. If no element exists with this text,
+  nothing will happen
 
+[source,c]
+----
     void ext_toolbar_update_data(ext_toolbar_t * entry, void *data, bool silent)
+----
 
-    - EXT_TOOLBAR_SELECTOR - change the value list to the one provided with data. Attention! this
-        does not change the list stored within the item just the one in the displayed combobox
+* EXT_TOOLBAR_SELECTOR - change the value list to the one provided with data. Attention! this
+  does not change the list stored within the item just the one in the displayed combobox
 
-    void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, void *data, void *value,
-        bool silent)
+[source,c]
+----
+void ext_toolbar_update_data_by_index(ext_toolbar_t * entry, void *data, void *value,
+     bool silent)
+----
 
-    - EXT_TOOLBAR_SELECTOR - change the display text for the entry with the provided value. Both
-        data and value must be char * pointer.
+* EXT_TOOLBAR_SELECTOR - change the display text for the entry with the provided value. Both
+  data and value must be char * pointer.
 
-
-----------------
-
+////
 Ed Warnicke <hagbard@physics.rutgers.edu>
 Guy Harris <guy@alum.mit.edu>
 
@@ -422,3 +480,4 @@ Jeff Foster <jfoste@woodward.com>
 Olivier Abad <oabad@cybercable.fr>
 Laurent Deniel <laurent.deniel@free.fr>
 Jaap Keuter <jaap.keuter@xs4all.nl>
+////
