@@ -32,7 +32,7 @@ Wireshark es considerado un estándar de facto para el análisis de tráfico de 
 
 - Releases: Se publican versiones estables de forma regular, mejorando compatibilidad, seguridad y características.
 
-- Issues: Se mantiene una gestión activa de errores y sugerencias, con cientos de issues cerrados y discusiones colaborativas.
+- Issues: Se mantiene una gestión activa de errores y sugerencias, con cientos de issues cerrados y discusiones colaborativas..
 
 **Comparación con alternativas** 
 
