@@ -133,7 +133,7 @@ static int hf_dect_nr_nb_cl_max_tx_pwr;
 static int hf_dect_nr_nb_res4;
 static int hf_dect_nr_nb_curr_cl_chan;
 static int hf_dect_nr_nb_res5;
-static int hf_dect_nr_nb_addn_nb_channels;
+static int hf_dect_nr_nb_additional_nb_channels;
 
 /* 6.4.2.3: Cluster Beacon message */
 static int hf_dect_nr_cb_msg;
@@ -428,12 +428,12 @@ static int hf_dect_nr_rds_assoc;
 static int hf_dect_nr_rds_sf;
 static int hf_dect_nr_rds_dur;
 
-/* 6.4.3.15 RD capability short IE */
-static int hf_dect_nr_rd_cap_short_ie;
-static int hf_dect_nr_rd_cap_short_res1;
-static int hf_dect_nr_rd_cap_short_cb_mc;
-static int hf_dect_nr_rd_cap_short_harq_fb_delay;
-static int hf_dect_nr_rd_cap_short_dwa;
+/* 6.4.3.15 RD Capability short IE */
+static int hf_dect_nr_rdcs_ie;
+static int hf_dect_nr_rdcs_res1;
+static int hf_dect_nr_rdcs_cb_mc;
+static int hf_dect_nr_rdcs_harq_fb_delay;
+static int hf_dect_nr_rdcs_dwa;
 
 /* 6.4.3.16 Source Routing IE */
 static int hf_dect_nr_sr_ie;
@@ -541,7 +541,7 @@ static int ett_dect_nr_ga_ie;
 static int ett_dect_nr_li_ie;
 static int ett_dect_nr_mr_ie;
 static int ett_dect_nr_rds_ie;
-static int ett_dect_nr_rd_cap_short_ie;
+static int ett_dect_nr_rdcs_ie;
 static int ett_dect_nr_sr_ie;
 static int ett_dect_nr_ji_ie;
 static int ett_dect_nr_ac_ie;
@@ -1527,14 +1527,14 @@ static const value_string rds_duration_vals[] = {
 	{ 0, NULL }
 };
 
-/* Table 6.4.3.15-1: RD capability Short IE field definitions: CB_MC */
-static const true_false_string rd_cap_short_cb_mc_tfs = {
+/* Table 6.4.3.15-1: RD Capability Short IE field definitions: CB_MC */
+static const true_false_string rdcs_cb_mc_tfs = {
 	"RD in FT mode supports association without monitoring Cluster Beacon messages",
 	"RD in FT mode does not support association without monitoring Cluster Beacon messages"
 };
 
-/* Table 6.4.3.15-1: RD capability Short IE field definitions: DWA */
-static const true_false_string rd_cap_short_dwa_tfs = {
+/* Table 6.4.3.15-1: RD Capability Short IE field definitions: DWA */
+static const true_false_string rdcs_dwa_tfs = {
 	"RD in FT mode supports uplink data transmission without association",
 	"RD in FT mode does not support uplink data transmission without association"
 };
@@ -2445,7 +2445,7 @@ static int dissect_network_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 	for (uint32_t i = 0; i < nb_channels; i++) {
 		dect_tree_add_reserved_item(tree, hf_dect_nr_nb_res5, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_dect_nr_nb_addn_nb_channels, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_dect_nr_nb_additional_nb_channels, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 
@@ -3447,18 +3447,18 @@ static int dissect_radio_device_status_ie(tvbuff_t *tvb, packet_info *pinfo, pro
 	return offset;
 }
 
-/* 6.4.3.15 RD capability short IE */
+/* 6.4.3.15 RD Capability short IE */
 static int dissect_rd_capability_short_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
 	int offset = 0;
 
-	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_rd_cap_short_ie, tvb, offset, -1, ENC_NA);
-	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_rd_cap_short_ie);
+	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_rdcs_ie, tvb, offset, -1, ENC_NA);
+	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_rdcs_ie);
 
-	dect_tree_add_reserved_item(tree, hf_dect_nr_rd_cap_short_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_dect_nr_rd_cap_short_cb_mc, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_dect_nr_rd_cap_short_harq_fb_delay, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_dect_nr_rd_cap_short_dwa, tvb, offset, 1, ENC_BIG_ENDIAN);
+	dect_tree_add_reserved_item(tree, hf_dect_nr_rdcs_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_nr_rdcs_cb_mc, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_nr_rdcs_harq_fb_delay, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_nr_rdcs_dwa, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	proto_item_set_len(item, offset);
@@ -3962,7 +3962,7 @@ void proto_register_dect_nr(void)
 
 		{ &hf_dect_nr_mac_pdu,
 			{ "MAC PDU", "dect_nr.mac", FT_NONE, BASE_NONE,
-			  NULL, 0x0, NULL, HFILL }
+			  NULL, 0x0, "Medium Access Control (layer) PDU", HFILL }
 		},
 		{ &hf_dect_nr_mac_version,
 			{ "Version", "dect_nr.mac.version", FT_UINT8, BASE_DEC,
@@ -4115,7 +4115,7 @@ void proto_register_dect_nr(void)
 			  TFS(&nb_ie_current_tfs), 0x04, NULL, HFILL }
 		},
 		{ &hf_dect_nr_nb_channels,
-			{ "Network beacon channels", "dect_nr.mac.nb.channels", FT_UINT8, BASE_DEC,
+			{ "Network beacon channels", "dect_nr.mac.nb.nb_channels", FT_UINT8, BASE_DEC,
 			  NULL, 0x03, NULL, HFILL }
 		},
 		{ &hf_dect_nr_nb_nb_period,
@@ -4158,8 +4158,8 @@ void proto_register_dect_nr(void)
 			{ "Reserved", "dect_nr.mac.nb.res5", FT_UINT8, BASE_DEC,
 			  NULL, 0xE0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_nb_addn_nb_channels,
-			{ "Additional Network Beacon Channels", "dect_nr.mac.nb.addn_nb_channels", FT_UINT16, BASE_DEC,
+		{ &hf_dect_nr_nb_additional_nb_channels,
+			{ "Additional Network Beacon Channels", "dect_nr.mac.nb.additional_nb_channels", FT_UINT16, BASE_DEC,
 			  NULL, 0x1FFF, NULL, HFILL }
 		},
 
@@ -4849,7 +4849,7 @@ void proto_register_dect_nr(void)
 			  NULL, 0x80, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rdc_pwr_class,
-			{ "RD Power Class", "dect_nr.mac.rdc.pwr_class", FT_UINT8, BASE_DEC,
+			{ "RD Power Class", "dect_nr.mac.rdc.rd_pwr_class", FT_UINT8, BASE_DEC,
 			  VALS(rdc_pwr_class_vals), 0x70, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rdc_max_nss_rx,
@@ -5223,26 +5223,26 @@ void proto_register_dect_nr(void)
 			  VALS(rds_duration_vals), 0x0F, NULL, HFILL }
 		},
 
-		/* 6.4.3.15 RD capability short IE */
-		{ &hf_dect_nr_rd_cap_short_ie,
-			{ "RD capability short IE", "dect_nr.mac.rd_cap_short", FT_NONE, BASE_NONE,
+		/* 6.4.3.15 RD Capability short IE */
+		{ &hf_dect_nr_rdcs_ie,
+			{ "RD Capability short IE", "dect_nr.mac.rdcs", FT_NONE, BASE_NONE,
 			  NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_rd_cap_short_res1,
-			{ "Reserved", "dect_nr.mac.rd_cap_short.res1", FT_UINT8, BASE_DEC,
+		{ &hf_dect_nr_rdcs_res1,
+			{ "Reserved", "dect_nr.mac.rdcs.res1", FT_UINT8, BASE_DEC,
 			  NULL, 0xC0, NULL, HFILL }
 		},
-		{ &hf_dect_nr_rd_cap_short_cb_mc,
-			{ "CB/MC capability", "dect_nr.mac.rd_cap_short.cb_mc", FT_BOOLEAN, 8,
-			  TFS(&rd_cap_short_cb_mc_tfs), 0x20, NULL, HFILL }
+		{ &hf_dect_nr_rdcs_cb_mc,
+			{ "CB/MC capability", "dect_nr.mac.rdcs.cb_mc", FT_BOOLEAN, 8,
+			  TFS(&rdcs_cb_mc_tfs), 0x20, NULL, HFILL }
 		},
-		{ &hf_dect_nr_rd_cap_short_harq_fb_delay,
-			{ "HARQ feedback delay", "dect_nr.mac.rd_cap_short.harq_fb_delay", FT_UINT8, BASE_DEC,
+		{ &hf_dect_nr_rdcs_harq_fb_delay,
+			{ "HARQ feedback delay", "dect_nr.mac.rdcs.harq_fb_delay", FT_UINT8, BASE_DEC,
 			  VALS(rdc_harq_fb_delay_vals), 0x1E, NULL, HFILL }
 		},
-		{ &hf_dect_nr_rd_cap_short_dwa,
-			{ "DWA", "dect_nr.mac.rd_cap_short.dwa", FT_BOOLEAN, 8,
-			  TFS(&rd_cap_short_dwa_tfs), 0x01, "Uplink data transmission without association", HFILL }
+		{ &hf_dect_nr_rdcs_dwa,
+			{ "DWA", "dect_nr.mac.rdcs.dwa", FT_BOOLEAN, 8,
+			  TFS(&rdcs_dwa_tfs), 0x01, "Uplink data transmission without association", HFILL }
 		},
 
 		/* 6.4.3.16 Source Routing IE */
@@ -5496,7 +5496,7 @@ void proto_register_dect_nr(void)
 		&ett_dect_nr_li_ie,
 		&ett_dect_nr_mr_ie,
 		&ett_dect_nr_rds_ie,
-		&ett_dect_nr_rd_cap_short_ie,
+		&ett_dect_nr_rdcs_ie,
 		&ett_dect_nr_sr_ie,
 		&ett_dect_nr_ji_ie,
 		&ett_dect_nr_ac_ie,
