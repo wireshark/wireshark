@@ -67,7 +67,7 @@
  * capturing groups like so:
  * (?<seqno>\d+)\s*(?<dir><|>)\s*(?<time>\d+:\d\d:\d\d.\d+)\s+(?<data>[0-9a-fA-F]+)\\s+
  *
- * Fields are decoded using a leanient parser, but only one attempt is made.
+ * Fields are decoded using a lenient parser, but only one attempt is made.
  * Except for in data invalid values will be replaced by default ones.
  * data currently only accepts plain HEX, OCT or BIN encoded data.
  * common field separators are ignored. Note however that 0x or 0b prefixing is

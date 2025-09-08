@@ -4075,7 +4075,7 @@ static gcry_error_t rtps_util_decrypt_data(
 
 /**
  * @brief Generates the session key and uses it to decrypt the secure payload.
- * The decripted payload is stored in an allocated buffer using the allocator
+ * The decrypted payload is stored in an allocated buffer using the allocator
  * passed as parameter.
  */
 static uint8_t *rtps_decrypt_secure_payload(
@@ -17496,7 +17496,7 @@ static bool dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     guid.instance_id = tvb_get_ntohl(tvb, offset+16);
 
     /*
-     * If decription is enabled, store the guid prefix to be used later in the
+     * If decryption is enabled, store the guid prefix to be used later in the
      * dissect_SECURE and dissect_SECURE_PREFIX functions.
      */
     if (enable_rtps_psk_decryption) {

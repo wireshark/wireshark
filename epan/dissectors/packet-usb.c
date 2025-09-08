@@ -3311,7 +3311,7 @@ dissect_usb_device_capability_descriptor(packet_info *pinfo, proto_tree *tree,
         }
     } else if (cap_type == BOS_CAP_SUPERSPEED_USB) {
         /* USB 3.2 Specification 9.6.2.2 SuperSpeed USB Device Capability */
-        static int * const usb_ss_bmAtrributes_fields[] = {
+        static int * const usb_ss_bmAttributes_fields[] = {
             &hf_usb_ss_bmAttributes_reserved0,
             &hf_usb_ss_bmAttributes_LTM,
             &hf_usb_ss_bmAttributes_reserved7_2,
@@ -3327,7 +3327,7 @@ dissect_usb_device_capability_descriptor(packet_info *pinfo, proto_tree *tree,
         };
 
         proto_tree_add_bitmask(tree, tvb, offset, hf_usb_ss_bmAttributes,
-            ett_ss_bmAttributes, usb_ss_bmAtrributes_fields, ENC_LITTLE_ENDIAN);
+            ett_ss_bmAttributes, usb_ss_bmAttributes_fields, ENC_LITTLE_ENDIAN);
         offset += 1;
         proto_tree_add_bitmask(tree, tvb, offset, hf_usb_ss_wSpeedSupported,
             ett_ss_wSpeedSupported, usb_ss_wSpeedSupported_fields, ENC_LITTLE_ENDIAN);
