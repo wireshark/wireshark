@@ -189,14 +189,14 @@ WirelessFrame::WirelessFrame(QWidget *parent) :
     proxy = new ChanTypeProxyModel(this);
     ui->channelTypeComboBox->setModel(proxy);
 
-#if QT_VERSION_CHECK < QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     connect(ui->bandComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
 #else
     connect(ui->bandComboBox, &QComboBox::currentIndexChanged,
 #endif
             this, &WirelessFrame::bandComboBoxIndexChanged);
 
-#if QT_VERSION_CHECK < QT_VERSION_CHECK(6, 0, 0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     connect(ui->channelComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
 #else
     connect(ui->channelComboBox, &QComboBox::currentIndexChanged,
