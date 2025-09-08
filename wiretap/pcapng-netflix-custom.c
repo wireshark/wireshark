@@ -116,11 +116,11 @@ pcapng_read_nflx_custom_block(FILE_T fh, section_info_t *section_info,
                 ws_debug("Failed to read skipped");
                 return false;
             }
+            opt_cont_buf_len = wblock->rec->rec_header.custom_block_header.length - MIN_NFLX_CB_SIZE - sizeof(uint32_t);
             wblock->rec->presence_flags = 0;
             wblock->rec->rec_header.custom_block_header.length = 4;
             mandatory_data->skipped = GUINT32_FROM_LE(skipped);
             wblock->internal = false;
-            opt_cont_buf_len = wblock->rec->rec_header.custom_block_header.length - MIN_NFLX_CB_SIZE - sizeof(uint32_t);
             ws_debug("skipped: %u", mandatory_data->skipped);
             break;
         default:
