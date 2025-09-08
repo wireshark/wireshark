@@ -521,7 +521,9 @@ create_shb_header(const merge_in_file_t *in_files, const unsigned in_file_count,
      */
     opt_str = g_string_free(comment_gstr, FALSE);
     /* XXX: We probably want to prepend (insert at index 0) instead? */
-    wtap_block_add_string_option_owned(shb_hdr, OPT_COMMENT, opt_str);
+    if (wtap_block_add_string_option_owned(shb_hdr, OPT_COMMENT, opt_str) != WTAP_OPTTYPE_SUCCESS) {
+        g_free(opt_str);
+    }
     /*
      * XXX - and how do we preserve all the OPT_SHB_HARDWARE, OPT_SHB_OS,
      * and OPT_SHB_USERAPPL values from all the previous files?

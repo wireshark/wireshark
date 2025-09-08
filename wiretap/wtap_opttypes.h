@@ -884,11 +884,12 @@ wtap_block_add_string_option(wtap_block_t block, unsigned option_id, const char 
  * @param[in] block Block to which to add the option
  * @param[in] option_id Identifier value for option
  * @param[in] value Value of option
- * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
- * error code otherwise
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful (caller no longer owns @p value),
+ * error code otherwise (caller still owns @p value)
+ * @note To avoid memory leaks, the caller @b must examine the return status to determine ownership of @p value.
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
-wtap_block_add_string_option_owned(wtap_block_t block, unsigned option_id, char *value);
+wtap_block_add_string_option_owned(wtap_block_t block, unsigned option_id, char *value) G_GNUC_WARN_UNUSED_RESULT;
 
 /** Add a string option to a block with a printf-formatted string as its value
  *
