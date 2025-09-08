@@ -89,7 +89,7 @@ typedef struct _io_graph_settings_t {
     uint32_t yaxis;
     char* yfield;
     uint32_t sma_period;
-    uint32_t y_axis_factor;
+    double y_axis_factor;
 } io_graph_settings_t;
 
 static const value_string graph_style_vs[] = {
@@ -265,7 +265,7 @@ UAT_VS_DEF(io_graph, style, io_graph_settings_t, uint32_t, 0, "Line")
 // XXX Need to use "Events" where appropriate.
 UAT_VS_DEF(io_graph, yaxis, io_graph_settings_t, uint32_t, 0, "Packets")
 UAT_PROTO_FIELD_CB_DEF(io_graph, yfield, io_graph_settings_t)
-UAT_DEC_CB_DEF(io_graph, y_axis_factor, io_graph_settings_t)
+UAT_DBL_CB_DEF(io_graph, y_axis_factor, io_graph_settings_t)
 UAT_BOOL_ENABLE_CB_DEF(io_graph, asAOT, io_graph_settings_t)
 
 static uat_field_t io_graph_packet_fields[] = {
@@ -277,7 +277,7 @@ static uat_field_t io_graph_packet_fields[] = {
     UAT_FLD_VS(io_graph, yaxis, "Y Axis", y_axis_packet_vs, "Y Axis units"),
     UAT_FLD_PROTO_FIELD(io_graph, yfield, "Y Field", "Apply calculations to this field"),
     UAT_FLD_SMA_PERIOD(io_graph, sma_period, "SMA Period", moving_avg_vs, "Simple moving average period"),
-    UAT_FLD_DEC(io_graph, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
+    UAT_FLD_DBL(io_graph, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
     UAT_FLD_BOOL_ENABLE(io_graph, asAOT, "Avg over Time", "Average over time interpretation"),
 
     UAT_END_FIELDS
@@ -292,7 +292,7 @@ static uat_field_t io_graph_event_fields[] = {
     UAT_FLD_VS(io_graph, yaxis, "Y Axis", y_axis_event_vs, "Y Axis units"),
     UAT_FLD_PROTO_FIELD(io_graph, yfield, "Y Field", "Apply calculations to this field"),
     UAT_FLD_SMA_PERIOD(io_graph, sma_period, "SMA Period", moving_avg_vs, "Simple moving average period"),
-    UAT_FLD_DEC(io_graph, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
+    UAT_FLD_DBL(io_graph, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
     UAT_FLD_BOOL_ENABLE(io_graph, asAOT, "asAOT", "asAOT"),
 
     UAT_END_FIELDS
@@ -593,7 +593,7 @@ void IOGraphDialog::copyFromProfile(QString filename)
     }
 }
 
-void IOGraphDialog::addGraph(bool checked, bool asAOT, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average, int y_axis_factor)
+void IOGraphDialog::addGraph(bool checked, bool asAOT, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average, double y_axis_factor)
 {
     if (uat_model_ == nullptr)
         return;
@@ -760,7 +760,7 @@ void IOGraphDialog::syncGraphSettings(int row)
     data_str = uat_model_->data(uat_model_->index(row, colSMAPeriod)).toString();
     iog->moving_avg_period_ = str_to_val(qUtf8Printable(data_str), moving_avg_vs, 0);
 
-    iog->setYAxisFactor(uat_model_->data(uat_model_->index(row, colYAxisFactor)).toInt());
+    iog->setYAxisFactor(uat_model_->data(uat_model_->index(row, colYAxisFactor)).toDouble());
 
     iog->setInterval(ui->intervalComboBox->itemData(ui->intervalComboBox->currentIndex()).toInt());
 

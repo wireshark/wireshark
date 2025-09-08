@@ -62,7 +62,7 @@ public:
     ~IOGraphDialog();
 
     void addGraph(bool checked, bool asAOT, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style,
-                  io_graph_item_unit_t value_units, QString yfield, int moving_average, int yaxisfactor);
+                  io_graph_item_unit_t value_units, QString yfield, int moving_average, double yaxisfactor);
     void addGraph(bool checked, bool asAOT, QString dfilter, io_graph_item_unit_t value_units, QString yfield);
     void addGraph(bool copy_from_current = false);
     void addDefaultGraph(bool enabled, int idx = 0);

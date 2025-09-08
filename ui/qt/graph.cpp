@@ -85,7 +85,7 @@ void Graph::setVisible(bool visible)
     }
 }
 
-void Graph::setYAxisFactor(unsigned int y_axis_factor)
+void Graph::setYAxisFactor(double y_axis_factor)
 {
     y_axis_factor_ = y_axis_factor;
 }

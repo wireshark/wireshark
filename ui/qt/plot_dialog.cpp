@@ -62,7 +62,7 @@ extern "C" {
     UAT_COLOR_CB_DEF(plot, color, plot_settings_t)
     UAT_VS_DEF(plot, style, plot_settings_t, uint32_t, 0, "Line")
     UAT_PROTO_FIELD_CB_DEF(plot, yfield, plot_settings_t)
-    UAT_DEC_CB_DEF(plot, y_axis_factor, plot_settings_t)
+    UAT_DBL_CB_DEF(plot, y_axis_factor, plot_settings_t)
 
     static uat_field_t plot_packet_fields[] = {
         UAT_FLD_BOOL(plot, enabled, "Enabled", "Graph visibility"),
@@ -72,7 +72,7 @@ extern "C" {
         UAT_FLD_COLOR(plot, color, "Color", "Plot color (#RRGGBB)"),
         UAT_FLD_VS(plot, style, "Style", graph_style_vs, "Plot style"),
         UAT_FLD_PROTO_FIELD(plot, yfield, "Y Field", "Field to plot"),
-        UAT_FLD_DEC(plot, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
+        UAT_FLD_DBL(plot, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
 
         UAT_END_FIELDS
     };
@@ -85,7 +85,7 @@ extern "C" {
         UAT_FLD_COLOR(plot, color, "Color", "Plot color (#RRGGBB)"),
         UAT_FLD_VS(plot, style, "Style", graph_style_vs, "Plot style"),
         UAT_FLD_PROTO_FIELD(plot, yfield, "Y Field", "Field to plot"),
-        UAT_FLD_DEC(plot, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
+        UAT_FLD_DBL(plot, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
 
         UAT_END_FIELDS
     };
@@ -539,7 +539,7 @@ void PlotDialog::syncPlotSettings(int row)
     plot->setColor(uat_model_->data(uat_model_->index(row, plotColColor), Qt::DecorationRole).value<QColor>().rgb());
     QString data_str = uat_model_->data(uat_model_->index(row, plotColStyle)).toString();
     plot->setPlotStyle((Graph::PlotStyles)str_to_val(qUtf8Printable(data_str), graph_style_vs, 0));
-    plot->setYAxisFactor(uat_model_->data(uat_model_->index(row, plotColYAxisFactor)).toInt());
+    plot->setYAxisFactor(uat_model_->data(uat_model_->index(row, plotColYAxisFactor)).toDouble());
     plot->setAbsoluteTime(abs_time_);
 
     if (!plot->configError().isEmpty()) {
@@ -570,7 +570,7 @@ int PlotDialog::getLastPlotIdx()
 }
 
 void PlotDialog::addPlot(bool checked, const QString& name, const QString& dfilter,
-    QRgb color_idx, Graph::PlotStyles style, const QString& yfield, int y_axis_factor)
+    QRgb color_idx, Graph::PlotStyles style, const QString& yfield, double y_axis_factor)
 {
     if (!uat_model_) return;
 
