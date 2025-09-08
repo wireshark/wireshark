@@ -24,7 +24,7 @@ Wireshark utiliza la GNU General Public License (GPL), lo que permite su uso, es
 
 Wireshark es considerado un estándar de facto para el análisis de tráfico de red, ampliamente referenciado en libros, cursos y certificaciones de ciberseguridad (como CEH, OSCP, etc.).
 
-**Métricas** 
+**Métricas**.
 
 - Estrellas (stars): Más de 6.000, lo que indica un alto interés por parte de la comunidad.
 
