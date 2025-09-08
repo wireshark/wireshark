@@ -991,7 +991,7 @@ macOS Build:
   rules: !reference [.if-fuzz-schedule]
   tags:
     - wireshark-ubuntu-fuzz
-  resource_group: fuzz-master
+  resource_group: fuzz-release-4.6
   variables:
     INSTALL_PREFIX: "$CI_PROJECT_DIR/_install"
     MIN_PLUGINS: 10
@@ -1065,7 +1065,7 @@ ASan randpkt Fuzz:
 Valgrind Menagerie Fuzz:
   extends: .fuzz-ubuntu
   stage: fuzz-valgrind
-  resource_group: fuzz-master-valgrind
+  resource_group: fuzz-release-4.6-valgrind
   variables:
     # Use DWARF-4 debug info. Valgrind does not support Clang 14 with DWARF-5.
     # https://gitlab.com/wireshark/wireshark/-/issues/18191
