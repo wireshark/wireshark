@@ -11,4 +11,4 @@ En ciberseguridad, Wireshark resulta fundamental porque:
 - **Pruebas y auditorías de seguridad:** valida configuraciones de firewall, VPNs, cifrado y protocolos.  
 - **Formación y capacitación:** es utilizado en universidades, laboratorios y entrenamientos para comprender cómo funcionan los protocolos y cómo se explotan vulnerabilidades.  
 
-Gracias a su robustez y comunidad activa, Wireshark es considerado una herramienta esencial para administradores de red y profesionales de ciberseguridad, apoyando la detección temprana de amenazas y el fortalecimiento de la seguridad informática.
+Gracias a su robustez y comunidad activa, Wireshark es considerado una herramienta esencial para administradores de red y profesionales de ciberseguridad, apoyando la detección temprana de amenazas y el fortalecimiento de la seguridad informática..
