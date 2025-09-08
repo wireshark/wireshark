@@ -70,8 +70,8 @@ Wireshark es considerado un estándar de facto para el análisis de tráfico de 
 
 
 
-## 6. Contribuciones del equipo --> 
-- Joel Sarmiento - Resumen (castellano) y utilidad en ciberseguridad.
+## 6. Contribuciones del equipo
+- Joel Sarmiento - Resumen y utilidad en ciberseguridad.
 - Nilson Romero - Justificación técnica de la elección y fundamentos y referencias.
 - Emilio Córdova – Desarrollo del apartado de buenas prácticas éticas y legales.
 
