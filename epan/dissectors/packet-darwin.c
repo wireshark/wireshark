@@ -424,7 +424,7 @@ dissect_darwin_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
             first_metadata_item = false;
         }
         if (darwin->present_opts & PINFO_DARWIN_MD_HAS_COMP_GENCNT) {
-            ti = proto_tree_add_uint(dmd_tree, hf_darwin_metadata_trace_tag, tvb, 0, 0, darwin->trace_tag);
+            ti = proto_tree_add_uint(dmd_tree, hf_darwin_metadata_comp_gencnt, tvb, 0, 0, darwin->comp_gencnt);
             PROTO_ITEM_SET_GENERATED(ti);
             proto_item_append_text(dmd_item, "%sgencnt=%u",
                 first_metadata_item ? " " : "; ",
