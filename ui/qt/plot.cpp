@@ -217,6 +217,14 @@ void Plot::setAbsoluteTime(bool abs_time)
     }
 }
 
+void Plot::setYAxisFactor(unsigned int y_axis_factor)
+{
+    if (y_axis_factor != y_axis_factor_) {
+        Graph::setYAxisFactor(y_axis_factor);
+        tapDraw();
+    }
+}
+
 bool Plot::itemCompare(const plot_item_t& a, const plot_item_t& b)
 {
     double res = a.frame_ts - b.frame_ts;
