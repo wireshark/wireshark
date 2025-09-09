@@ -39,6 +39,9 @@ enum {
     NUM_FLOW_COLUMNS
 };
 
+/* Global stats */
+uint32_t largest_ul_delay_in_us = 0;
+
 static const char *flow_titles[] = { " Plane",
                                      "eAxC ID ",
                                      "Direction  ",
@@ -114,6 +117,11 @@ oran_stat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
 
     if (!hs) {
         return TAP_PACKET_DONT_REDRAW;
+    }
+
+    /* Update global stats */
+    if (si->ul_delay_in_us > largest_ul_delay_in_us) {
+        largest_ul_delay_in_us = si->ul_delay_in_us;
     }
 
     bool row_found = false;
@@ -302,6 +310,11 @@ oran_stat_draw(void *phs)
             printf("\n");
         }
     }
+
+    /* Now show global stats */
+    printf("\n Largest UL delay\n");
+    printf("=================\n");
+    printf("%15u\n", largest_ul_delay_in_us);
 }
 
 /* Create a new ORAN stats struct */

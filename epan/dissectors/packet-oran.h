@@ -52,7 +52,7 @@ typedef struct oran_tap_info {
     uint32_t num_prbs_zero;
     uint32_t num_res_zero;
 
-
+    uint32_t ul_delay_in_us;
     /* TODO: compression/bitwidth, mu/scs, slots, Section IDs, beams? */
     /* N.B. bitwidth, method, but each section could potentially have different udcompHdr.. */
 } oran_tap_info;

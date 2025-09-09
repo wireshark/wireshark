@@ -6219,13 +6219,13 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     int nseconds_between_packets =
                           pinfo->abs_ts.nsecs - timing->first_frame_time.nsecs;
 
+
                     /* Round to nearest microsecond. */
                     uint32_t total_gap = (seconds_between_packets*1000000) +
                                          ((nseconds_between_packets+500) / 1000);
 
-                    proto_item *ti = NULL;
-
                     /* Show how long it has been */
+                    proto_item *ti = NULL;
                     if (pinfo->num != timing->first_frame) {
                         ti = proto_tree_add_uint(timingHeader, hf_oran_u_section_ul_symbol_time, tvb, 0, 0, total_gap);
                         proto_item_set_generated(ti);
@@ -6252,6 +6252,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         ti = proto_tree_add_uint(timingHeader, hf_oran_u_section_ul_symbol_last_frame, tvb, 0, 0, timing->last_frame_in_symbol);
                         proto_item_set_generated(ti);
                     }
+
+                    tap_info->ul_delay_in_us = total_gap;
                 }
             }
         }
