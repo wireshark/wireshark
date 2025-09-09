@@ -44,6 +44,7 @@ public:
     void setPlotStartTime(double start_time);
     bool absoluteTime() const { return abs_time_; }
     void setAbsoluteTime(bool abs_time);
+    void setYAxisFactor(unsigned int y_axis_factor);
     int hfIndex() const { return hf_index_; }
     const std::vector<plot_item_t>& getItems() const { return items_; }
 
