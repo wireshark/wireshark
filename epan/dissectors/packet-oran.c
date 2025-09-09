@@ -2793,6 +2793,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                    We can therefore derive TRX (number of antennas).
                  */
 
+                bool using_array = false;
+
                 /* I & Q samples
                    May know how many entries from activeBeamspaceCoefficientMask. */
                 if (num_trx == 0) {
@@ -2801,13 +2803,17 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     unsigned num_weights_pairs = (weights_bytes*8) / (bfwcomphdr_iq_width*2);
                     num_trx = num_weights_pairs;
                 }
+                else {
+                    using_array = true;
+                }
+
                 int bit_offset = offset*8;
 
                 for (unsigned n=0; n < num_trx; n++) {
                     /* Create antenna subtree */
                     int bfw_offset = bit_offset / 8;
 
-                    uint16_t trx_index = (num_trx) ? trx[n] : n+1;
+                    uint16_t trx_index = (using_array) ? trx[n] : n+1;
 
                     proto_item *bfw_ti = proto_tree_add_string_format(extension_tree, hf_oran_bfw,
                                                                       tvb, bfw_offset, 0, "", "TRX %3u: (", trx_index);
