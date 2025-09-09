@@ -1,10 +1,10 @@
 
 This is an example of how to build a Wireshark plugin out-of-tree. This
 is an alternative, more recent way to build Wireshark binary plugins,
-than the one in 'README.plugins', that describes in detail how to
-include a new plugin into the project source tree (here called in-tree
-build). Building a plugin out-of-tree doesn't require rebuilding the whole
-Wireshark source tree every time.
+than the one in the "Plugins" chapter in the Developer's Guide, and
+describes in detail how to include a new plugin into the project source
+tree (here called in-tree build). Building a plugin out-of-tree doesn't
+require rebuilding the whole Wireshark source tree every time.
 
 You always need to rebuild plugins for each major.minor Wireshark version.
 Binary compatibility is never guaranteed between those releases and Wireshark
