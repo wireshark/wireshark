@@ -994,7 +994,7 @@ scsistat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
     return TAP_PACKET_REDRAW;
 }
 
-unsigned
+static unsigned
 scsistat_param(register_srt_t* srt, const char* opt_arg, char** err)
 {
     int pos = 0;

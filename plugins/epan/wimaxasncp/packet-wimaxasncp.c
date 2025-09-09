@@ -2708,7 +2708,7 @@ wimaxasncp_dict_print_tlv(void* data, void* user_data)
     wimaxasncp_dict_tlv_t* tlv = (wimaxasncp_dict_tlv_t*)data;
     FILE* fh = (FILE*)user_data;
 
-    char* str_decoder = val_to_str(NULL, tlv->decoder, wimaxasncp_decode_type_vals, "Unknown");
+    const char* str_decoder = val_to_str_const(tlv->decoder, wimaxasncp_decode_type_vals, "Unknown");
     fprintf(fh, "TLV: %s[%u] %s[%d] %s (since %u)\n",
         tlv->name ? (char*)tlv->name : "-",
         tlv->type,
@@ -2716,7 +2716,6 @@ wimaxasncp_dict_print_tlv(void* data, void* user_data)
         tlv->decoder,
         tlv->description ? (char*)tlv->description : "",
         tlv->since);
-    wmem_free(NULL, str_decoder);
     g_slist_foreach(tlv->enums, wimaxasncp_dict_print_tlv_enum, fh);
 }
 
@@ -2733,7 +2732,7 @@ wimaxasncp_print_tlv(void* data, void* user_data)
     wimaxasncp_tlv_new_t* tlv = (wimaxasncp_tlv_new_t*)data;
     FILE* fh = (FILE*)user_data;
 
-    char* str_decoder = val_to_str(NULL, tlv->decoder, wimaxasncp_decode_type_vals, "Unknown");
+    const char* str_decoder = val_to_str_const(tlv->decoder, wimaxasncp_decode_type_vals, "Unknown");
     fprintf(fh,
         "%s\n"
         "  type                   = %u\n"
@@ -2767,7 +2766,6 @@ wimaxasncp_print_tlv(void* data, void* user_data)
         tlv->hf_ipv6_mask,
         tlv->hf_vendor_id,
         tlv->hf_vendor_rest_of_info);
-    wmem_free(NULL, str_decoder);
 }
 
 static bool

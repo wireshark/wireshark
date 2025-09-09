@@ -321,6 +321,7 @@ cannot
 canonicalised
 canonicalize
 canonicalized
+canxl
 capab
 capacitive
 capinfos
@@ -400,6 +401,7 @@ chromaticity
 chset
 chunked
 chunking
+cibcccame
 cicam
 cinfo
 ciphered
@@ -1400,6 +1402,7 @@ kasme
 kasumi
 kbytes
 kchip
+kdeth
 keepalive
 kerberos
 keybcs
@@ -1513,6 +1516,7 @@ lowpan
 lquota
 lsarpc
 lscap
+lsequence
 lsflags
 lsgsn
 lspping
@@ -2034,6 +2038,7 @@ peripherals
 peristency
 persian
 persistency
+persresv
 pfname
 pgpool
 pharos
@@ -2167,6 +2172,7 @@ ptype
 pubdir
 pubkey
 publickey
+pubsub
 pucch
 pusch
 pwach
@@ -2354,6 +2360,7 @@ reprogramming
 republish
 reqid
 reqinfo
+reqlink
 reqseq
 reqtype
 requester
