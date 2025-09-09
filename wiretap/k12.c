@@ -206,7 +206,6 @@ typedef struct {
     uint32_t num_of_records;     /* XXX: not sure about this */
 
     GHashTable* src_by_id;       /* k12_srcdsc_recs by input */
-    GHashTable* src_by_name;     /* k12_srcdsc_recs by stack_name */
 
     uint8_t *seq_read_buff;      /* read buffer for sequential reading */
     unsigned seq_read_buff_len;  /* length of that buffer */
@@ -756,13 +755,20 @@ static bool k12_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec, int *err, 
 }
 
 
+static void destroy_srcdsc(void *v) {
+    k12_src_desc_t* rec = (k12_src_desc_t*)v;
+
+    g_free(rec->input_name);
+    g_free(rec->stack_file);
+    g_free(rec);
+}
+
 static k12_t* new_k12_file_data(void) {
     k12_t* fd = g_new(k12_t,1);
 
     fd->file_len = 0;
     fd->num_of_records = 0;
-    fd->src_by_name = g_hash_table_new(g_str_hash,g_str_equal);
-    fd->src_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
+    fd->src_by_id = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, destroy_srcdsc);
     fd->seq_read_buff = NULL;
     fd->seq_read_buff_len = 0;
     fd->rand_read_buff = NULL;
@@ -773,20 +779,8 @@ static k12_t* new_k12_file_data(void) {
     return fd;
 }
 
-static gboolean destroy_srcdsc(void *k _U_, void *v, void *p _U_) {
-    k12_src_desc_t* rec = (k12_src_desc_t*)v;
-
-    g_free(rec->input_name);
-    g_free(rec->stack_file);
-    g_free(rec);
-
-    return true;
-}
-
 static void destroy_k12_file_data(k12_t* fd) {
     g_hash_table_destroy(fd->src_by_id);
-    g_hash_table_foreach_remove(fd->src_by_name,destroy_srcdsc,NULL);
-    g_hash_table_destroy(fd->src_by_name);
     ws_buffer_free(&(fd->extra_info));
     g_free(fd->seq_read_buff);
     g_free(fd->rand_read_buff);
@@ -1043,7 +1037,6 @@ wtap_open_return_val k12_open(wtap *wth, int *err, char **err_info) {
             ascii_strdown_inplace (rec->stack_file);
 
             g_hash_table_insert(file_data->src_by_id,GUINT_TO_POINTER(rec->input),rec);
-            g_hash_table_insert(file_data->src_by_name,rec->stack_file,rec);
             break;
 
         case K12_REC_STK_FILE:
