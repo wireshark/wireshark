@@ -5353,6 +5353,16 @@ proto_register_http2(void)
         " within the same stream",
         &http2_3gpp_session);
 
+#if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG) || defined(HAVE_BROTLI) || defined(HAVE_ZSTD)
+    prefs_register_bool_preference(http2_module, "decompress_body",
+        "Uncompress entity bodies",
+        "Whether to uncompress entity bodies that are compressed "
+        "using \"Content-Encoding: \"",
+        &http2_decompress_body);
+#else
+    prefs_register_obsolete_preference(http2_module, "decompress_body");
+#endif
+
     http2_referenceid_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
     http2_location_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
 
