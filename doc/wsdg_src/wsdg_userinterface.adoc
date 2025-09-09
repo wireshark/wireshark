@@ -279,7 +279,7 @@ The main window has many QActions which are shared with child widgets. See
 _ui/qt/proto_tree.cpp_ for an example of this.
 
 To demonstrate the functionality of the plugin interface options, a
-demonstration plugin exists (pluginifdemo). See _doc/README.plugins_ and
+demonstration plugin exists (pluginifdemo). See <<ChapterPlugins>> and
 _plugins/epan/pluginifdemo_.
 
 https://www.kdab.com/development-resources/qt-tools/gammaray/[GammaRay] lets you inspect
