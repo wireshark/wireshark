@@ -191,6 +191,8 @@
 */
 #define EXP_PDU_TAG_3GPP_ID   38
 
+#define EXP_PDU_TAG_LINK_DIRECTION 39 /**< The packet's link direction (P2P_DIR_UL, P2P_DIR_DL). */
+
 #define EXP_PDU_TAG_IPV4_LEN            4
 #define EXP_PDU_TAG_IPV6_LEN            16
 
