@@ -1,5 +1,5 @@
-/* packet-ldaneo.c
- * Routines for LDANeo Device trailer dissection
+/* packet-lda-neo-trailer.c
+ * Routines for LDA Neo Device trailer dissection
  * Vladimir Arustamov <vladimir@ldatech.com>
  *
  * Copyright 2025 LDA Technologies https://ldatech.com
@@ -50,72 +50,72 @@
  */
 
 /* Parameters common to 40G port range and lane  */
-#define LDANEO_40G_PORT_ID_MIN 49
-#define LDANEO_40G_PORT_ID_MAX 56
-#define LDANEO_40G_PORT_LANE_COUNT 4
+#define LDA_NEO_TRAILER_40G_PORT_ID_MIN 49
+#define LDA_NEO_TRAILER_40G_PORT_ID_MAX 56
+#define LDA_NEO_TRAILER_40G_PORT_LANE_COUNT 4
 
 /* Parameters common mask */
-#define LDANEO_MASK_DEFAULT 0x0
-#define LDANEO_MASK_CRC_INVALID 0x80
-#define LDANEO_MASK_DEVICE_ID 0x7F
-#define LDANEO_MASK_PCS_CODE 0x01
-#define LDANEO_MASK_PCS_CODE_POS 0xFC
-#define LDANEO_MASK_PORT_ID 0x3F
-#define LDANEO_MASK_PORT_SPEED 0xC0
+#define LDA_NEO_TRAILER_MASK_DEFAULT 0x0
+#define LDA_NEO_TRAILER_MASK_CRC_INVALID 0x80
+#define LDA_NEO_TRAILER_MASK_DEVICE_ID 0x7F
+#define LDA_NEO_TRAILER_MASK_PCS_CODE 0x01
+#define LDA_NEO_TRAILER_MASK_PCS_CODE_POS 0xFC
+#define LDA_NEO_TRAILER_MASK_PORT_ID 0x3F
+#define LDA_NEO_TRAILER_MASK_PORT_SPEED 0xC0
 
 /* Parameters common offset */
-#define LDANEO_SIG_OFFSET 0
-#define LDANEO_SEQNUM_OFFSET 1
-#define LDANEO_DEVID_OFFSET 3
-#define LDANEO_PCS_CODE_OFFSET 4
-#define LDANEO_PORTID_OFFSET 5
-#define LDANEO_PICOSEC_OFFSET 6
+#define LDA_NEO_TRAILER_SIG_OFFSET 0
+#define LDA_NEO_TRAILER_SEQNUM_OFFSET 1
+#define LDA_NEO_TRAILER_DEVID_OFFSET 3
+#define LDA_NEO_TRAILER_PCS_CODE_OFFSET 4
+#define LDA_NEO_TRAILER_PORTID_OFFSET 5
+#define LDA_NEO_TRAILER_PICOSEC_OFFSET 6
 
 /* Parameters common data length */
-#define LDANEO_DATA_LENGTH 16
-#define LDANEO_SIG_LENGTH_V2 (LDANEO_SEQNUM_OFFSET - LDANEO_SIG_OFFSET)
-#define LDANEO_SEQNUM_LENGTH (LDANEO_DEVID_OFFSET - LDANEO_SEQNUM_OFFSET)
-#define LDANEO_DEVID_LENGTH (LDANEO_PCS_CODE_OFFSET - LDANEO_DEVID_OFFSET)
-#define LDANEO_PCS_CODE_LENGTH (LDANEO_PORTID_OFFSET - LDANEO_PCS_CODE_OFFSET)
-#define LDANEO_PORTID_LENGTH (LDANEO_PICOSEC_OFFSET - LDANEO_PORTID_OFFSET)
-#define LDANEO_PICOSEC_LENGTH (LDANEO_DATA_LENGTH - LDANEO_PICOSEC_OFFSET)
+#define LDA_NEO_TRAILER_DATA_LENGTH 16
+#define LDA_NEO_TRAILER_SIG_LENGTH_V2 (LDA_NEO_TRAILER_SEQNUM_OFFSET - LDA_NEO_TRAILER_SIG_OFFSET)
+#define LDA_NEO_TRAILER_SEQNUM_LENGTH (LDA_NEO_TRAILER_DEVID_OFFSET - LDA_NEO_TRAILER_SEQNUM_OFFSET)
+#define LDA_NEO_TRAILER_DEVID_LENGTH (LDA_NEO_TRAILER_PCS_CODE_OFFSET - LDA_NEO_TRAILER_DEVID_OFFSET)
+#define LDA_NEO_TRAILER_PCS_CODE_LENGTH (LDA_NEO_TRAILER_PORTID_OFFSET - LDA_NEO_TRAILER_PCS_CODE_OFFSET)
+#define LDA_NEO_TRAILER_PORTID_LENGTH (LDA_NEO_TRAILER_PICOSEC_OFFSET - LDA_NEO_TRAILER_PORTID_OFFSET)
+#define LDA_NEO_TRAILER_PICOSEC_LENGTH (LDA_NEO_TRAILER_DATA_LENGTH - LDA_NEO_TRAILER_PICOSEC_OFFSET)
 
 #define SECONDS_IN_MONTH 2592000 /* Representation month to second */
 
 /* Prototypes */
 /* (Required to prevent [-Wmissing-prototypes] warnings */
-void proto_reg_handoff_ldaneo(void);
-void proto_register_ldaneo(void);
+void proto_reg_handoff_lda_neo_trailer(void);
+void proto_register_lda_neo_trailer(void);
 
 /* Initialization signature */
 static const uint8_t ldasig = 0x4c; /* Hex value 'L' */
 
 /* Dissector registration */
-static int proto_ldaneo;
+static int proto_lda_neo_trailer;
 
 /* Header field register ids */
-static int hf_ldaneo_sig;
-static int hf_ldaneo_seq_num;
-static int hf_ldaneo_crc_invalid;
-static int hf_ldaneo_dev_id;
-static int hf_ldaneo_pcs_code;
-static int hf_ldaneo_pcs_code_pos;
-static int hf_ldaneo_port_id;
-static int hf_ldaneo_port_preamble_lane;
-static int hf_ldaneo_port_speed;
-static int hf_ldaneo_timestamp;
+static int hf_lda_neo_trailer_sig;
+static int hf_lda_neo_trailer_seq_num;
+static int hf_lda_neo_trailer_crc_invalid;
+static int hf_lda_neo_trailer_dev_id;
+static int hf_lda_neo_trailer_pcs_code;
+static int hf_lda_neo_trailer_pcs_code_pos;
+static int hf_lda_neo_trailer_port_id;
+static int hf_lda_neo_trailer_port_preamble_lane;
+static int hf_lda_neo_trailer_port_speed;
+static int hf_lda_neo_trailer_timestamp;
 #if defined(_M_X64) && (_MSC_VER >= 1920) || defined(__SIZEOF_INT128__)
-static int hf_ldaneo_picosec;
-static int hf_ldaneo_nanosec;
-static int hf_ldaneo_datetime;
+static int hf_lda_neo_trailer_picosec;
+static int hf_lda_neo_trailer_nanosec;
+static int hf_lda_neo_trailer_datetime;
 #endif
 
 /* Header field register ids for unexpected parameters */
-static expert_field ei_ldaneo_invalid;
-static expert_field ei_ldaneo_port_id_invalid;
-static expert_field ei_ldaneo_pcs_code_invalid;
-static expert_field ei_ldaneo_port_speed_invalid;
-static expert_field ei_ldaneo_cant_handle_picoseconds;
+static expert_field ei_lda_neo_trailer_invalid;
+static expert_field ei_lda_neo_trailer_port_id_invalid;
+static expert_field ei_lda_neo_trailer_pcs_code_invalid;
+static expert_field ei_lda_neo_trailer_port_speed_invalid;
+static expert_field ei_lda_neo_trailer_cant_handle_picoseconds;
 
 /* Speed configuration */
 static const value_string port_speed_str[] = {
@@ -125,13 +125,13 @@ static const value_string port_speed_str[] = {
     {0, NULL}
 };
 
-static dissector_handle_t ldaneo_handle;
+static dissector_handle_t lda_neo_trailer_handle;
 
-static int ett_ldaneo;
-static int ett_ldaneo_pcs_code;
-static int ett_ldaneo_port;
-static int ett_ldaneo_port_id;
-static int ett_ldaneo_timestamp;
+static int ett_lda_neo_trailer;
+static int ett_lda_neo_trailer_pcs_code;
+static int ett_lda_neo_trailer_port;
+static int ett_lda_neo_trailer_port_id;
+static int ett_lda_neo_trailer_timestamp;
 
 /* Timestamp representation from epoch */
 typedef struct _timestamp_data {
@@ -150,14 +150,14 @@ static bool
 extract_nstime(tvbuff_t *tvb, int32_t offset, timestamp_data* data)
 {
    uint32_t i;
-   uint8_t picosec_buf[LDANEO_PICOSEC_LENGTH];
+   uint8_t picosec_buf[LDA_NEO_TRAILER_PICOSEC_LENGTH];
    int64_t nanosec;
    uint64_t picosec_counter_high;
    uint64_t picosec_counter_low;
    int64_t remainder = 0;
 
    /* Fill 10 byte timestamp buffer */
-   tvb_memcpy(tvb, picosec_buf, offset, LDANEO_PICOSEC_LENGTH);
+   tvb_memcpy(tvb, picosec_buf, offset, LDA_NEO_TRAILER_PICOSEC_LENGTH);
    picosec_counter_high = picosec_buf[0];
    picosec_counter_low = 0;
 
@@ -186,11 +186,11 @@ extract_nstime(tvbuff_t *tvb, int32_t offset, timestamp_data* data)
 static bool
 extract_nstime(tvbuff_t *tvb, int32_t offset, timestamp_data* data)
 {
-   uint8_t picosec_buf[LDANEO_PICOSEC_LENGTH];
+   uint8_t picosec_buf[LDA_NEO_TRAILER_PICOSEC_LENGTH];
    uint32_t i;
 
    /* Fill 10 byte timestamp buffer */
-   tvb_memcpy(tvb, picosec_buf, offset, LDANEO_PICOSEC_LENGTH);
+   tvb_memcpy(tvb, picosec_buf, offset, LDA_NEO_TRAILER_PICOSEC_LENGTH);
    unsigned __int128 picosec_counter;
    picosec_counter = picosec_buf[0];
 
@@ -215,7 +215,7 @@ extract_nstime(tvbuff_t *tvb _U_, int32_t offset _U_, timestamp_data* data)
 #endif
 
 static int
-dissect_ldaneo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_lda_neo_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     uint8_t signature;
     uint8_t speed;
@@ -229,18 +229,18 @@ dissect_ldaneo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     uint8_t lane = 0;
 
     proto_item *ti_root;
-    proto_tree *ldaneo_tree;
+    proto_tree *lda_neo_trailer_tree;
 
     timestamp_data timestamp;
     nstime_t ts;
 
     /* Check do we have enough data */
-    extra_trailer_bytes = tvb_captured_length(tvb) - LDANEO_DATA_LENGTH;
+    extra_trailer_bytes = tvb_captured_length(tvb) - LDA_NEO_TRAILER_DATA_LENGTH;
     if (extra_trailer_bytes < 0) {
         return 0;
     }
 
-    /* Find the LDANeo signature in the extra trailer bytes */
+    /* Find the LDA Neo Device trailer signature in the extra trailer bytes */
     for (offset = 0; offset <= extra_trailer_bytes; ++offset) {
         signature = tvb_get_uint8(tvb, offset);
         if (signature != ldasig) {
@@ -248,7 +248,7 @@ dissect_ldaneo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         /* Extract timestamp segments */
-        if (!extract_nstime(tvb, offset + LDANEO_DATA_LENGTH - LDANEO_PICOSEC_LENGTH, &timestamp)) {
+        if (!extract_nstime(tvb, offset + LDA_NEO_TRAILER_DATA_LENGTH - LDA_NEO_TRAILER_PICOSEC_LENGTH, &timestamp)) {
             continue;
         }
         ts_sec = (uint32_t)(timestamp.nanosec / 1000000000);
@@ -267,192 +267,192 @@ dissect_ldaneo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         break;
     }
     if (offset > extra_trailer_bytes) {
-        /* No valid LDANeo signature found */
+        /* No valid LDA Neo Device trailer signature found */
         return 0;
     }
 
-    /* Construct LDANeo tree */
-    ti_root = proto_tree_add_item(tree, proto_ldaneo, tvb, offset, LDANEO_DATA_LENGTH, ENC_NA);
-    ldaneo_tree = proto_item_add_subtree(ti_root, ett_ldaneo);
+    /* Construct LDA Neo Device trailer tree */
+    ti_root = proto_tree_add_item(tree, proto_lda_neo_trailer, tvb, offset, LDA_NEO_TRAILER_DATA_LENGTH, ENC_NA);
+    lda_neo_trailer_tree = proto_item_add_subtree(ti_root, ett_lda_neo_trailer);
 
-    /* Construct LDANeo signature */
-    proto_tree_add_item(ldaneo_tree, hf_ldaneo_sig, tvb, offset, LDANEO_SIG_LENGTH_V2, ENC_ASCII);
-    offset += LDANEO_SIG_LENGTH_V2;
+    /* Construct LDA Neo Device trailer signature */
+    proto_tree_add_item(lda_neo_trailer_tree, hf_lda_neo_trailer_sig, tvb, offset, LDA_NEO_TRAILER_SIG_LENGTH_V2, ENC_ASCII);
+    offset += LDA_NEO_TRAILER_SIG_LENGTH_V2;
 
-    /* Construct LDANeo sequence number */
-    proto_tree_add_item(ldaneo_tree, hf_ldaneo_seq_num, tvb, offset, LDANEO_SEQNUM_LENGTH,
+    /* Construct LDA Neo Device trailer sequence number */
+    proto_tree_add_item(lda_neo_trailer_tree, hf_lda_neo_trailer_seq_num, tvb, offset, LDA_NEO_TRAILER_SEQNUM_LENGTH,
             ENC_BIG_ENDIAN);
-    offset += LDANEO_SEQNUM_LENGTH;
+    offset += LDA_NEO_TRAILER_SEQNUM_LENGTH;
 
-    /* Construct LDANeo CRC validation flag */
-    proto_tree_add_item(ldaneo_tree, hf_ldaneo_crc_invalid, tvb, offset, LDANEO_DEVID_LENGTH,
+    /* Construct LDA Neo Device trailer CRC validation flag */
+    proto_tree_add_item(lda_neo_trailer_tree, hf_lda_neo_trailer_crc_invalid, tvb, offset, LDA_NEO_TRAILER_DEVID_LENGTH,
             ENC_LITTLE_ENDIAN);
 
-    /* Construct LDANeo device ID */
-    proto_tree_add_item(ldaneo_tree, hf_ldaneo_dev_id, tvb, offset, LDANEO_DEVID_LENGTH,
+    /* Construct LDA Neo Device trailer device ID */
+    proto_tree_add_item(lda_neo_trailer_tree, hf_lda_neo_trailer_dev_id, tvb, offset, LDA_NEO_TRAILER_DEVID_LENGTH,
             ENC_LITTLE_ENDIAN);
-    offset += LDANEO_DEVID_LENGTH;
+    offset += LDA_NEO_TRAILER_DEVID_LENGTH;
 
-    /* Construct LDANeo PCS code tree and fields */
-    proto_tree *pcs_tree = proto_tree_add_subtree(ldaneo_tree, tvb, offset, LDANEO_PCS_CODE_LENGTH,
-            ett_ldaneo_pcs_code, &ti_root, "PCS");
-    pcs_code = tvb_get_uint8(tvb, offset) & LDANEO_MASK_PCS_CODE;
-    port = tvb_get_uint8(tvb, offset + LDANEO_PCS_CODE_LENGTH) & LDANEO_MASK_PORT_ID;
+    /* Construct LDA Neo Device trailer PCS code tree and fields */
+    proto_tree *pcs_tree = proto_tree_add_subtree(lda_neo_trailer_tree, tvb, offset, LDA_NEO_TRAILER_PCS_CODE_LENGTH,
+            ett_lda_neo_trailer_pcs_code, &ti_root, "PCS");
+    pcs_code = tvb_get_uint8(tvb, offset) & LDA_NEO_TRAILER_MASK_PCS_CODE;
+    port = tvb_get_uint8(tvb, offset + LDA_NEO_TRAILER_PCS_CODE_LENGTH) & LDA_NEO_TRAILER_MASK_PORT_ID;
 
     /* PCS Code always 0 for 40G. */
-    if (pcs_code == true && port >= LDANEO_40G_PORT_ID_MIN && port <= LDANEO_40G_PORT_ID_MAX) {
+    if (pcs_code == true && port >= LDA_NEO_TRAILER_40G_PORT_ID_MIN && port <= LDA_NEO_TRAILER_40G_PORT_ID_MAX) {
         invalid = true;
-        proto_tree_add_expert(pcs_tree, pinfo, &ei_ldaneo_pcs_code_invalid, tvb,
-                LDANEO_PCS_CODE_OFFSET, LDANEO_PCS_CODE_LENGTH);
+        proto_tree_add_expert(pcs_tree, pinfo, &ei_lda_neo_trailer_pcs_code_invalid, tvb,
+                LDA_NEO_TRAILER_PCS_CODE_OFFSET, LDA_NEO_TRAILER_PCS_CODE_LENGTH);
     } else {
-        proto_tree_add_item(pcs_tree, hf_ldaneo_pcs_code, tvb, offset, LDANEO_PCS_CODE_LENGTH,
+        proto_tree_add_item(pcs_tree, hf_lda_neo_trailer_pcs_code, tvb, offset, LDA_NEO_TRAILER_PCS_CODE_LENGTH,
                 ENC_LITTLE_ENDIAN);
     }
-    proto_tree_add_item(pcs_tree, hf_ldaneo_pcs_code_pos, tvb, offset, LDANEO_PCS_CODE_LENGTH,
+    proto_tree_add_item(pcs_tree, hf_lda_neo_trailer_pcs_code_pos, tvb, offset, LDA_NEO_TRAILER_PCS_CODE_LENGTH,
             ENC_LITTLE_ENDIAN);
-    offset += LDANEO_PCS_CODE_LENGTH;
+    offset += LDA_NEO_TRAILER_PCS_CODE_LENGTH;
 
-    /* Construct LDANeo port tree and fields */
-    proto_tree *port_tree = proto_tree_add_subtree(ldaneo_tree, tvb, offset, LDANEO_PORTID_LENGTH,
-            ett_ldaneo_port, &ti_root, "Port");
-    proto_item *port_id_item = proto_tree_add_item(port_tree, hf_ldaneo_port_id, tvb, offset,
-            LDANEO_PORTID_LENGTH, ENC_LITTLE_ENDIAN);
-    if (port <= LDANEO_40G_PORT_ID_MAX) {
-        if (port > LDANEO_40G_PORT_ID_MIN) {
-            lane = (port - LDANEO_40G_PORT_ID_MIN) % LDANEO_40G_PORT_LANE_COUNT;
+    /* Construct LDA Neo Device trailer port tree and fields */
+    proto_tree *port_tree = proto_tree_add_subtree(lda_neo_trailer_tree, tvb, offset, LDA_NEO_TRAILER_PORTID_LENGTH,
+            ett_lda_neo_trailer_port, &ti_root, "Port");
+    proto_item *port_id_item = proto_tree_add_item(port_tree, hf_lda_neo_trailer_port_id, tvb, offset,
+            LDA_NEO_TRAILER_PORTID_LENGTH, ENC_LITTLE_ENDIAN);
+    if (port <= LDA_NEO_TRAILER_40G_PORT_ID_MAX) {
+        if (port > LDA_NEO_TRAILER_40G_PORT_ID_MIN) {
+            lane = (port - LDA_NEO_TRAILER_40G_PORT_ID_MIN) % LDA_NEO_TRAILER_40G_PORT_LANE_COUNT;
 
-            proto_tree *port_id_tree = proto_item_add_subtree(port_id_item, ett_ldaneo_port_id);
-            proto_tree_add_uint(port_id_tree, hf_ldaneo_port_preamble_lane, tvb, offset,
-                    LDANEO_PORTID_LENGTH, lane);
+            proto_tree *port_id_tree = proto_item_add_subtree(port_id_item, ett_lda_neo_trailer_port_id);
+            proto_tree_add_uint(port_id_tree, hf_lda_neo_trailer_port_preamble_lane, tvb, offset,
+                    LDA_NEO_TRAILER_PORTID_LENGTH, lane);
         }
     } else {
         invalid = true;
-        proto_tree_add_expert(ldaneo_tree, pinfo, &ei_ldaneo_port_id_invalid, tvb,
-                LDANEO_PORTID_OFFSET, LDANEO_PORTID_LENGTH);
+        proto_tree_add_expert(lda_neo_trailer_tree, pinfo, &ei_lda_neo_trailer_port_id_invalid, tvb,
+                LDA_NEO_TRAILER_PORTID_OFFSET, LDA_NEO_TRAILER_PORTID_LENGTH);
     }
 
-    speed = (tvb_get_uint8(tvb, offset) & LDANEO_MASK_PORT_SPEED) >> 6;
+    speed = (tvb_get_uint8(tvb, offset) & LDA_NEO_TRAILER_MASK_PORT_SPEED) >> 6;
 
     /* Validate speed with port_speed_str */
     if (speed < 3) {
-        /* Construct LDANeo speed */
-        proto_tree_add_item(port_tree, hf_ldaneo_port_speed, tvb, offset,
-                LDANEO_PORTID_LENGTH, ENC_LITTLE_ENDIAN);
+        /* Construct LDA Neo Device trailer speed */
+        proto_tree_add_item(port_tree, hf_lda_neo_trailer_port_speed, tvb, offset,
+                LDA_NEO_TRAILER_PORTID_LENGTH, ENC_LITTLE_ENDIAN);
     } else {
         invalid = true;
-        proto_tree_add_expert(port_tree, pinfo, &ei_ldaneo_port_speed_invalid, tvb,
-                offset, LDANEO_PORTID_LENGTH);
+        proto_tree_add_expert(port_tree, pinfo, &ei_lda_neo_trailer_port_speed_invalid, tvb,
+                offset, LDA_NEO_TRAILER_PORTID_LENGTH);
     }
 
     if (invalid) {
-        expert_add_info(pinfo, ti_root, &ei_ldaneo_invalid);
+        expert_add_info(pinfo, ti_root, &ei_lda_neo_trailer_invalid);
     }
 
-    offset += LDANEO_PORTID_LENGTH;
+    offset += LDA_NEO_TRAILER_PORTID_LENGTH;
 
-    /* Construct LDANeo timestamp */
-    //proto_tree *ts_tree = proto_tree_add_subtree(ldaneo_tree, tvb, offset, LDANEO_PICOSEC_LENGTH,
-    //        ett_ldaneo_timestamp, &ti_root, "Timestamp");
-    proto_item *ts_item = proto_tree_add_item(ldaneo_tree, hf_ldaneo_timestamp, tvb, offset,
-            LDANEO_PICOSEC_LENGTH, ENC_NA);
-    proto_tree *ts_tree = proto_item_add_subtree(ts_item, ett_ldaneo_timestamp);
+    /* Construct LDA Neo Device trailer timestamp */
+    //proto_tree *ts_tree = proto_tree_add_subtree(lda_neo_trailer_tree, tvb, offset, LDA_NEO_TRAILER_PICOSEC_LENGTH,
+    //        ett_lda_neo_trailer_timestamp, &ti_root, "Timestamp");
+    proto_item *ts_item = proto_tree_add_item(lda_neo_trailer_tree, hf_lda_neo_trailer_timestamp, tvb, offset,
+            LDA_NEO_TRAILER_PICOSEC_LENGTH, ENC_NA);
+    proto_tree *ts_tree = proto_item_add_subtree(ts_item, ett_lda_neo_trailer_timestamp);
 
 #if defined(_M_X64) && (_MSC_VER >= 1920) || defined(__SIZEOF_INT128__)
-    proto_tree_add_uint64(ts_tree, hf_ldaneo_nanosec, tvb, offset, LDANEO_PICOSEC_LENGTH,
+    proto_tree_add_uint64(ts_tree, hf_lda_neo_trailer_nanosec, tvb, offset, LDA_NEO_TRAILER_PICOSEC_LENGTH,
             timestamp.nanosec);
-    proto_tree_add_uint(ts_tree, hf_ldaneo_picosec, tvb, offset, LDANEO_PICOSEC_LENGTH,
+    proto_tree_add_uint(ts_tree, hf_lda_neo_trailer_picosec, tvb, offset, LDA_NEO_TRAILER_PICOSEC_LENGTH,
             timestamp.picosec);
-    proto_tree_add_time(ts_tree, hf_ldaneo_datetime, tvb, offset, LDANEO_PICOSEC_LENGTH, &ts);
+    proto_tree_add_time(ts_tree, hf_lda_neo_trailer_datetime, tvb, offset, LDA_NEO_TRAILER_PICOSEC_LENGTH, &ts);
 #else
-    proto_tree_add_expert(ts_tree, pinfo, &ei_ldaneo_cant_handle_picoseconds, tvb,
-            offset, LDANEO_PORTID_LENGTH);
+    proto_tree_add_expert(ts_tree, pinfo, &ei_lda_neo_trailer_cant_handle_picoseconds, tvb,
+            offset, LDA_NEO_TRAILER_PORTID_LENGTH);
 #endif
 
-    return offset + LDANEO_PICOSEC_LENGTH;
+    return offset + LDA_NEO_TRAILER_PICOSEC_LENGTH;
 }
 
 static bool
-dissect_ldaneo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_lda_neo_trailer_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_ldaneo(tvb, pinfo, tree, data) > 0;
+    return dissect_lda_neo_trailer(tvb, pinfo, tree, data) > 0;
 }
 
 /*
- * Register the LDANeo protocol
+ * Register the LDA Neo Device trailer protocol
  */
 void
-proto_register_ldaneo(void)
+proto_register_lda_neo_trailer(void)
 {
-    module_t        *ldaneo_module;
-    expert_module_t *expert_ldaneo;
+    module_t        *lda_neo_trailer_module;
+    expert_module_t *expert_lda_neo_trailer;
 
     /* Setup list of header fields */
     static hf_register_info hf[] = {
         {
-            &hf_ldaneo_sig,
-            {"Signature", "ldaneo.signature", FT_STRING, BASE_NONE, NULL, LDANEO_MASK_DEFAULT,
+            &hf_lda_neo_trailer_sig,
+            {"Signature", "lda_neo_trailer.signature", FT_STRING, BASE_NONE, NULL, LDA_NEO_TRAILER_MASK_DEFAULT,
                 NULL, HFILL}
         },
         {
-            &hf_ldaneo_seq_num,
-            {"Sequence Number", "ldaneo.seqnum", FT_UINT16, BASE_DEC, NULL, LDANEO_MASK_DEFAULT,
+            &hf_lda_neo_trailer_seq_num,
+            {"Sequence Number", "lda_neo_trailer.seqnum", FT_UINT16, BASE_DEC, NULL, LDA_NEO_TRAILER_MASK_DEFAULT,
                 NULL, HFILL}
         },
         {
-            &hf_ldaneo_crc_invalid,
-            {"CRC Invalid", "ldaneo.crc_invalid", FT_BOOLEAN, 8, NULL, LDANEO_MASK_CRC_INVALID,
+            &hf_lda_neo_trailer_crc_invalid,
+            {"CRC Invalid", "lda_neo_trailer.crc_invalid", FT_BOOLEAN, 8, NULL, LDA_NEO_TRAILER_MASK_CRC_INVALID,
                 NULL, HFILL}
         },
         {
-            &hf_ldaneo_dev_id,
-            {"Device ID", "ldaneo.devid", FT_UINT8, BASE_DEC, NULL, LDANEO_MASK_DEVICE_ID, NULL,
+            &hf_lda_neo_trailer_dev_id,
+            {"Device ID", "lda_neo_trailer.devid", FT_UINT8, BASE_DEC, NULL, LDA_NEO_TRAILER_MASK_DEVICE_ID, NULL,
                 HFILL}
         },
         {
-            &hf_ldaneo_pcs_code,
-            {"PCS Code 33", "ldaneo.pcscode33", FT_BOOLEAN, 8, NULL, LDANEO_MASK_PCS_CODE,
+            &hf_lda_neo_trailer_pcs_code,
+            {"PCS Code 33", "lda_neo_trailer.pcscode33", FT_BOOLEAN, 8, NULL, LDA_NEO_TRAILER_MASK_PCS_CODE,
                 NULL, HFILL}
         },
 
         {
-            &hf_ldaneo_pcs_code_pos,
-            {"PCS Position", "ldaneo.pcscode_position", FT_UINT8, BASE_DEC, NULL,
-                LDANEO_MASK_PCS_CODE_POS, NULL, HFILL}
+            &hf_lda_neo_trailer_pcs_code_pos,
+            {"PCS Position", "lda_neo_trailer.pcscode_position", FT_UINT8, BASE_DEC, NULL,
+                LDA_NEO_TRAILER_MASK_PCS_CODE_POS, NULL, HFILL}
         },
         {
-            &hf_ldaneo_port_id,
-            {"Port ID", "ldaneo.portid", FT_UINT8, BASE_DEC, NULL, LDANEO_MASK_PORT_ID, NULL, HFILL}
+            &hf_lda_neo_trailer_port_id,
+            {"Port ID", "lda_neo_trailer.portid", FT_UINT8, BASE_DEC, NULL, LDA_NEO_TRAILER_MASK_PORT_ID, NULL, HFILL}
         },
         {
-            &hf_ldaneo_port_preamble_lane,
-            {"40G preamble Lane", "ldaneo.preamble_lane", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
+            &hf_lda_neo_trailer_port_preamble_lane,
+            {"40G preamble Lane", "lda_neo_trailer.preamble_lane", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
         },
         {
-            &hf_ldaneo_port_speed,
-            {"Port speed", "ldaneo.portspeed", FT_UINT8, BASE_DEC, VALS(port_speed_str),
-                LDANEO_MASK_PORT_SPEED, NULL, HFILL}
+            &hf_lda_neo_trailer_port_speed,
+            {"Port speed", "lda_neo_trailer.portspeed", FT_UINT8, BASE_DEC, VALS(port_speed_str),
+                LDA_NEO_TRAILER_MASK_PORT_SPEED, NULL, HFILL}
         },
         {
-            &hf_ldaneo_timestamp,
-            {"Timestamp", "ldaneo.timestamp", FT_BYTES, BASE_NONE, NULL, LDANEO_MASK_DEFAULT, NULL,
+            &hf_lda_neo_trailer_timestamp,
+            {"Timestamp", "lda_neo_trailer.timestamp", FT_BYTES, BASE_NONE, NULL, LDA_NEO_TRAILER_MASK_DEFAULT, NULL,
                 HFILL}
         },
 
 #if defined(_M_X64) && (_MSC_VER >= 1920) || defined(__SIZEOF_INT128__)
         {
-            &hf_ldaneo_nanosec,
-            {"Nanosec", "ldaneo.timestamp.nanosec", FT_UINT64, BASE_DEC, NULL, LDANEO_MASK_DEFAULT,
+            &hf_lda_neo_trailer_nanosec,
+            {"Nanosec", "lda_neo_trailer.timestamp.nanosec", FT_UINT64, BASE_DEC, NULL, LDA_NEO_TRAILER_MASK_DEFAULT,
                 NULL, HFILL}
         },
         {
-            &hf_ldaneo_picosec,
-            {"Picosec", "ldaneo.timestamp.picosec", FT_UINT16, BASE_DEC, NULL, LDANEO_MASK_DEFAULT,
+            &hf_lda_neo_trailer_picosec,
+            {"Picosec", "lda_neo_trailer.timestamp.picosec", FT_UINT16, BASE_DEC, NULL, LDA_NEO_TRAILER_MASK_DEFAULT,
                 NULL, HFILL}
         },
         {
-            &hf_ldaneo_datetime,
-            {"Date time", "ldaneo.timestamp.datetime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
-                LDANEO_MASK_DEFAULT, NULL, HFILL}
+            &hf_lda_neo_trailer_datetime,
+            {"Date time", "lda_neo_trailer.timestamp.datetime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+                LDA_NEO_TRAILER_MASK_DEFAULT, NULL, HFILL}
         },
 #endif
     };
@@ -460,66 +460,66 @@ proto_register_ldaneo(void)
     /* Setup protocol expert items */
     static ei_register_info ei[] = {
         {
-            &ei_ldaneo_invalid,
-            {"ldaneo.invalid", PI_MALFORMED, PI_ERROR, "Invalid Packet", EXPFILL}
+            &ei_lda_neo_trailer_invalid,
+            {"lda_neo_trailer.invalid", PI_MALFORMED, PI_ERROR, "Invalid Packet", EXPFILL}
         },
         {
-            &ei_ldaneo_pcs_code_invalid,
-            {"ldaneo.pcscode33_invalid", PI_MALFORMED, PI_ERROR, "PCS Code 33 invalid", EXPFILL}
+            &ei_lda_neo_trailer_pcs_code_invalid,
+            {"lda_neo_trailer.pcscode33_invalid", PI_MALFORMED, PI_ERROR, "PCS Code 33 invalid", EXPFILL}
         },
         {
-            &ei_ldaneo_port_speed_invalid,
-            {"ldaneo.portspeed_invalid", PI_MALFORMED, PI_ERROR, "Port speed invalid", EXPFILL}
+            &ei_lda_neo_trailer_port_speed_invalid,
+            {"lda_neo_trailer.portspeed_invalid", PI_MALFORMED, PI_ERROR, "Port speed invalid", EXPFILL}
         },
         {
-            &ei_ldaneo_port_id_invalid,
-            {"ldaneo.portid_invalid", PI_MALFORMED, PI_ERROR, "Invalid port ID", EXPFILL}
+            &ei_lda_neo_trailer_port_id_invalid,
+            {"lda_neo_trailer.portid_invalid", PI_MALFORMED, PI_ERROR, "Invalid port ID", EXPFILL}
         },
         {
-            &ei_ldaneo_cant_handle_picoseconds,
-            {"ldaneo.cant_handle_picoseconds", PI_UNDECODED, PI_WARN, "Wireshark doesn't handle picosecond time stamps on this platform", EXPFILL}
+            &ei_lda_neo_trailer_cant_handle_picoseconds,
+            {"lda_neo_trailer.cant_handle_picoseconds", PI_UNDECODED, PI_WARN, "Wireshark doesn't handle picosecond time stamps on this platform", EXPFILL}
         }
     };
     /* Setup protocol subtree array */
     static int *ett[] = {
-        &ett_ldaneo,
-        &ett_ldaneo_pcs_code,
-        &ett_ldaneo_port,
-        &ett_ldaneo_port_id,
-        &ett_ldaneo_timestamp
+        &ett_lda_neo_trailer,
+        &ett_lda_neo_trailer_pcs_code,
+        &ett_lda_neo_trailer_port,
+        &ett_lda_neo_trailer_port_id,
+        &ett_lda_neo_trailer_timestamp
     };
 
     /* Register the protocol name and description */
-    proto_ldaneo = proto_register_protocol("LDANeo Device trailer", "LDANeo", "ldaneo");
+    proto_lda_neo_trailer = proto_register_protocol("LDA Neo Device trailer", "LDA_NEO_TRAILER", "lda_neo_trailer");
 
     /* Register the header fields and subtrees */
-    proto_register_field_array(proto_ldaneo, hf, array_length(hf));
+    proto_register_field_array(proto_lda_neo_trailer, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Required function calls to register expert items */
-    expert_ldaneo = expert_register_protocol(proto_ldaneo);
-    expert_register_field_array(expert_ldaneo, ei, array_length(ei));
+    expert_lda_neo_trailer = expert_register_protocol(proto_lda_neo_trailer);
+    expert_register_field_array(expert_lda_neo_trailer, ei, array_length(ei));
 
-    ldaneo_handle = register_dissector("ldaneo", dissect_ldaneo, proto_ldaneo);
+    lda_neo_trailer_handle = register_dissector("lda_neo_trailer", dissect_lda_neo_trailer, proto_lda_neo_trailer);
 
-    ldaneo_module = prefs_register_protocol(proto_ldaneo, NULL);
-    prefs_register_bool_preference(ldaneo_module, "timestamp", "Enable time validation",
+    lda_neo_trailer_module = prefs_register_protocol(proto_lda_neo_trailer, NULL);
+    prefs_register_bool_preference(lda_neo_trailer_module, "timestamp", "Enable time validation",
             "The trailer detection includes additional validation through time verification,"
             " which provides extra accuracy.",
             &pref_timestamp_validation);
 }
 
-/* The registration ldaneo routine */
+/* The registration lda_neo_trailer routine */
 void
-proto_reg_handoff_ldaneo(void)
+proto_reg_handoff_lda_neo_trailer(void)
 {
     /* add session dissector to atn dissector list dissector list */
     heur_dissector_add(
         "eth.trailer",
-        dissect_ldaneo_heur,
-        "LDANeo Device trailer",
-        "ldaneo",
-        proto_ldaneo,
+        dissect_lda_neo_trailer_heur,
+        "LDA Neo Device trailer",
+        "lda_neo_trailer",
+        proto_lda_neo_trailer,
         HEURISTIC_ENABLE
     );
 }
