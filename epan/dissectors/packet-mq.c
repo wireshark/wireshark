@@ -4210,7 +4210,7 @@ void proto_register_mq(void)
         {&hf_mq_id_cf2_CanTrcRte, {"Trace Rte Capab", "mq.id.icf2.cantraceroute", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF2_TRACE_ROUTE_CAPABLE, "ID ICF2 Trace Route Capable", HFILL}},
 
         {&hf_mq_id_cf3_CanMsgPrp, {"Msg Property Cap", "mq.id.ief3.msgpropertycap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF3_MSG_PROP_CAPABLE, "ID ICF3 Message PropertyCapable", HFILL}},
-        {&hf_mq_id_cf3_CanMulticast, {"Multicast Cap", "mq.id.ief3.multicastcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF3_MULTICAST_CAPABLE, "ID ICF3 Mutlicast Capabilities", HFILL}},
+        {&hf_mq_id_cf3_CanMulticast, {"Multicast Cap", "mq.id.ief3.multicastcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF3_MULTICAST_CAPABLE, "ID ICF3 Multicast Capabilities", HFILL}},
         {&hf_mq_id_cf3_PropIntSep, {"Prop Int Separate", "mq.id.ief3.propintseparate", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF3_MSG_PROP_INT_SEPARATE, "ID ICF3 Property Int Separate", HFILL}},
         {&hf_mq_id_cf3_MPlxSyGet, {"Multiplex_synchget", "mq.id.ief3.multiplexsynchget", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF3_MULTIPLEX_SYNCGET, "ID ICF3 MULTIPLEX_SYNCGET", HFILL}},
         {&hf_mq_id_cf3_ProtAlgorit, {"Prot Algorithms", "mq.id.ief3.protalgorithms", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF3_PROT_ALGORITHMS, "ID ICF3 Prot Algorithms", HFILL}},

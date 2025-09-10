@@ -4429,7 +4429,7 @@ proto_register_gsm_a_common(void)
         NULL, HFILL}
     },
     { &hf_gsm_a_dtm_e_gprs_high_multi_slot_info_present,
-        { "DTM E/GPRS High Multi Slot Information present", "gsm_a.classmark3.dtm_e_gprs_high_mutli_slot_info_present",
+        { "DTM E/GPRS High Multi Slot Information present", "gsm_a.classmark3.dtm_e_gprs_high_multi_slot_info_present",
         FT_BOOLEAN, BASE_NONE, NULL, 0x00,
         NULL, HFILL}
     },

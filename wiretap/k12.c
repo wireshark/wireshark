@@ -230,7 +230,7 @@ typedef struct _k12_src_desc_t {
 /*
  * According to the Tektronix documentation, this value is a combination of
  * a "group" code and a "type" code, with both being 2-byte values and
- * with the "group" code followe by the "type" code.  The "group" values
+ * with the "group" code followed by the "type" code.  The "group" values
  * are:
  *
  *      0x0001 - "data event"
