@@ -285,12 +285,14 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec,
             {
               /* Get buffer pointer ready */
               ws_buffer_assure_space(&rec->data,
-                                  strlen(timestamp_string)+1 +       /* timestamp */
-                                  strlen(log3gpp->protocol.name)+1 + /* Protocol name */
+                                  strlen(timestamp_string)+1 +
+                                  strlen(log3gpp->protocol.name)+1 +
                                   1 +                                /* direction */
+                                  strlen(log3gpp->protocol.parameters)+1 +
                                   (size_t)(data_chars/2));
 
               frame_buffer = ws_buffer_start_ptr(&rec->data);
+
               /*********************/
               /* Write stub header */
               stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
@@ -313,9 +315,10 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec,
             {
               /* Get buffer pointer ready */
               ws_buffer_assure_space(&rec->data,
-                                  strlen(timestamp_string)+1 +       /* timestamp */
-                                  strlen(log3gpp->protocol.name)+1 + /* Protocol name */
+                                  strlen(timestamp_string)+1 +
+                                  strlen(log3gpp->protocol.name)+1 +
                                   1 +                                /* direction */
+                                  strlen(log3gpp->protocol.parameters)+1 +
                                   data_chars);
               frame_buffer = ws_buffer_start_ptr(&rec->data);
 
@@ -398,19 +401,23 @@ log3gpp_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
         rec->ts.nsecs =
             ((log3gpp->start_usecs + useconds) % 1000000) * 1000;
 
-        /*********************/
-        /* Write stub header */
-        ws_buffer_assure_space(&rec->data,
-                               strlen(timestamp_string)+1 +       /* timestamp */
-                               strlen(log3gpp->protocol.name)+1 + /* Protocol name */
-                               1 +                                /* direction */
-                               data_chars);
-        frame_buffer = ws_buffer_start_ptr(&rec->data);
-        stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
-                                        direction);
-
         if (!is_text_data)
         {
+          /* Get buffer pointer ready */
+          ws_buffer_assure_space(&rec->data,
+                              strlen(timestamp_string)+1 +
+                              strlen(log3gpp->protocol.name)+1 +
+                              1 +                                /* direction */
+                              strlen(log3gpp->protocol.parameters)+1 +
+                              (size_t)(data_chars/2));
+
+          frame_buffer = ws_buffer_start_ptr(&rec->data);
+
+          /*********************/
+          /* Write stub header */
+          stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
+                                          direction);
+
           /********************************/
           /* Copy packet data into buffer */
           for (n=0; n <= data_chars; n+=2)
@@ -423,6 +430,20 @@ log3gpp_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
         }
         else
         {
+          /* Get buffer pointer ready */
+          ws_buffer_assure_space(&rec->data,
+                              strlen(timestamp_string)+1 +
+                              strlen(log3gpp->protocol.name)+1 +
+                              1 +                                /* direction */
+                              strlen(log3gpp->protocol.parameters)+1 +
+                              data_chars);
+          frame_buffer = ws_buffer_start_ptr(&rec->data);
+
+          /*********************/
+          /* Write stub header */
+          stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
+                                          direction);
+
           /* do not convert the ascii char */
           memcpy(&frame_buffer[stub_offset],&log3gpp->linebuff[dollar_offset],data_chars);
           frame_buffer[stub_offset+data_chars-1] = '\0';
