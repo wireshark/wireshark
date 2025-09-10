@@ -2111,7 +2111,7 @@ cf_reftime_packets(capture_file* cf)
                 cf->provider.ref = fdata;
 
             /* Get the time elapsed between the first packet and this one. */
-            fdata->frame_ref_num = (fdata != cf->provider.ref) ? cf->provider.ref->num : 0;
+            fdata->frame_ref_num = cf->provider.ref->num;
             nstime_delta(&rel_ts, &fdata->abs_ts, &cf->provider.ref->abs_ts);
 
             /* If it's greater than the current elapsed time, set the elapsed

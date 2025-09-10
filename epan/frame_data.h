@@ -79,6 +79,7 @@ typedef struct _frame_data {
   GHashTable  *dependent_frames;     /**< A hash table of frames which this one depends on */
   const struct _color_filter *color_filter;  /**< Per-packet matching color_filter_t object */
   uint32_t     cum_bytes;    /**< Cumulative bytes into the capture */
+  /* XXX - cum_bytes presumably ought to be 64-bit as well now */
   uint8_t      tcp_snd_manual_analysis;   /**< TCP SEQ Analysis Overriding, 0 = none, 1 = OOO, 2 = RET , 3 = Fast RET, 4 = Spurious RET  */
   /* Keep the bitfields below to 24 bits, so this plus the previous field
      are 32 bits. (XXX - The previous field could be a bitfield too.) */
@@ -96,7 +97,10 @@ typedef struct _frame_data {
   unsigned int tsprec           : 4; /**< Time stamp precision -2^tsprec gives up to femtoseconds */
   nstime_t     abs_ts;       /**< Absolute timestamp */
   nstime_t     shift_offset; /**< How much the abs_tm of the frame is shifted */
-  uint32_t     frame_ref_num; /**< Previous reference frame (0 if this is one) */
+  uint32_t     frame_ref_num; /**< Reference frame for relative timestamps (can be this frame) */
+  /* frame_ref_num == num if ref_time == true, but also if this is the first
+   * record that has_ts (or if somehow a record without a TS is a reference
+   * time frame, the first frame after that with has_ts == true.) */
   uint32_t     prev_dis_num; /**< Previous displayed frame (0 if first one) */
   GSList*      aggregation_keys; /**< Holds the aggregation_key values used for rendering the aggregation view. */
 } frame_data;

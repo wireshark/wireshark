@@ -426,7 +426,7 @@ frame_data_set_before_dissect(frame_data *fdata,
     *elapsed_time = rel_ts;
   }
 
-  fdata->frame_ref_num = (*frame_ref != fdata) ? (*frame_ref)->num : 0;
+  fdata->frame_ref_num = (*frame_ref)->num;
   fdata->prev_dis_num = (prev_dis) ? prev_dis->num : 0;
 }
 

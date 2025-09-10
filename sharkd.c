@@ -590,7 +590,7 @@ sharkd_retap(void)
             break;
 
         fdata->ref_time = false;
-        fdata->frame_ref_num = (framenum != 1) ? 1 : 0;
+        fdata->frame_ref_num = 1;
         fdata->prev_dis_num = framenum - 1;
         epan_dissect_run_with_taps(&edt, cfile.cd_t, &rec, fdata, cinfo);
         wtap_rec_reset(&rec);
@@ -654,7 +654,7 @@ sharkd_filter(const char *dftext, uint8_t **result)
         epan_dissect_prime_with_dfilter(&edt, dfcode);
 
         fdata->ref_time = false;
-        fdata->frame_ref_num = (framenum != 1) ? 1 : 0;
+        fdata->frame_ref_num = 1;
         fdata->prev_dis_num = prev_dis_num;
         epan_dissect_run(&edt, cfile.cd_t, &rec, fdata, NULL);
 
