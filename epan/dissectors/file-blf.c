@@ -495,7 +495,7 @@ static const value_string blf_direction[] = {
 
 void proto_register_file_blf(void);
 void proto_reg_handoff_file_blf(void);
-static int dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+static int dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t *frame_number);
 
 #define MAGIC_NUMBER_SIZE 4
 static const uint8_t blf_file_magic[MAGIC_NUMBER_SIZE] = { 'L', 'O', 'G', 'G' };
@@ -560,7 +560,7 @@ version_format(char* string, uint32_t value)
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset_orig) {
+dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset_orig, uint32_t *frame_number) {
     proto_item    *ti_root = NULL;
     proto_item    *ti = NULL;
     proto_item    *ti_lobj_hdr;
@@ -574,6 +574,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
     uint32_t       obj_length;
     unsigned       obj_type;
     uint32_t       comp_method;
+    uint32_t       channel;
 
     /* this should never happen since we should only be called with at least 16 Bytes present */
     if (tvb_captured_length_remaining(tvb, offset_orig) < 16) {
@@ -651,7 +652,12 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
     }
 
     proto_item_set_end(ti_root, tvb, offset_orig + obj_length);
-    proto_item_append_text(ti_root, " (%s)", val_to_str(pinfo->pool, obj_type, blf_object_names, "%d"));
+    if (obj_type != BLF_OBJTYPE_LOG_CONTAINER) {
+        proto_item_append_text(ti_root, " [%d] (%s)", *frame_number, val_to_str(pinfo->pool, obj_type, blf_object_names, "%d"));
+        (*frame_number)++;
+    } else {
+        proto_item_append_text(ti_root, " (%s)", val_to_str(pinfo->pool, obj_type, blf_object_names, "%d"));
+    }
 
     switch (obj_type) {
         case BLF_OBJTYPE_LOG_CONTAINER:
@@ -682,15 +688,16 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
 
                 unsigned tmp = 42;
                 while ((offset_sub + 16 <= offset_orig + obj_length - offset) && (tmp > 0)) {
-                    tmp = dissect_blf_next_object(sub_tvb, pinfo, subtree, offset_sub);
+                    tmp = dissect_blf_next_object(sub_tvb, pinfo, subtree, offset_sub, frame_number);
                     offset_sub += tmp;
                 }
             }
             break;
         case BLF_OBJTYPE_APP_TEXT:
         {
-            unsigned source;
-            unsigned textlength;
+            uint32_t source;
+            uint32_t remaining = 0;
+            uint32_t textlength;
 
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
@@ -728,12 +735,13 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
                  *   empty string is written as cluster name.
                  */
                 proto_tree_add_item(subtree, hf_blf_app_text_data_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(subtree, hf_blf_app_text_channelno, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint(subtree, hf_blf_app_text_channelno, tvb, offset, 4, ENC_LITTLE_ENDIAN, &channel);
+                proto_item_append_text(ti_root, " (Channel: %d)", channel);
                 proto_tree_add_item(subtree, hf_blf_app_text_busstype, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(subtree, hf_blf_app_text_can_fd_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 break;
             case BLF_APPTEXT_METADATA:
-                proto_tree_add_item(subtree, hf_blf_app_text_metadata_remaining_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint(subtree, hf_blf_app_text_metadata_remaining_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &remaining);
                 proto_tree_add_item(subtree, hf_blf_app_text_metadata_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 break;
             case BLF_APPTEXT_TRACELINE:
@@ -760,6 +768,11 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
                 call_dissector(xml_handle, new_tvb, pinfo, subtree);
             } else {
                 proto_tree_add_item(subtree, hf_blf_app_text_text, tvb, offset, textlength, ENC_UTF_8|ENC_NA);
+            }
+
+            if (remaining != 0 && remaining > textlength) {
+                /* This is not the final Meta Data packet, so we need to adjust */
+                (*frame_number)--;
             }
         }
             break;
@@ -815,7 +828,8 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             subtree = proto_item_add_subtree(ti, ett_blf_obj_payload);
 
             /* uint16_t channel {}; */
-            proto_tree_add_item(subtree, hf_blf_eth_status_channel, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(subtree, hf_blf_eth_status_channel, tvb, offset, 2, ENC_LITTLE_ENDIAN, &channel);
+            proto_item_append_text(ti_root, " (Channel: %d)", channel);
             offset += 2;
             /* uint16_t flags; */
             proto_tree_add_bitmask_list(subtree, tvb, offset, 2, flags1, ENC_LITTLE_ENDIAN);
@@ -864,7 +878,9 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             proto_tree_add_item(subtree, hf_blf_eth_frame_ext_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             /* uint16_t channel {}; */
-            proto_tree_add_item(subtree, hf_blf_eth_frame_ext_channel, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(subtree, hf_blf_eth_frame_ext_channel, tvb, offset, 2, ENC_LITTLE_ENDIAN, &channel);
+            proto_item_append_text(ti_root, " (Channel: %d)", channel);
+
             offset += 2;
             /* uint16_t hardwareChannel {}; */
             proto_tree_add_item(subtree, hf_blf_eth_frame_ext_hardwarechannel, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -927,7 +943,8 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             subtree = proto_item_add_subtree(ti, ett_blf_obj_payload);
 
             /* uint16_t channel {}; */
-            proto_tree_add_item(subtree, hf_blf_eth_phystate_channel, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(subtree, hf_blf_eth_phystate_channel, tvb, offset, 2, ENC_LITTLE_ENDIAN, &channel);
+            proto_item_append_text(ti_root, " (Channel: %d)", channel);
             offset += 2;
             /* uint16_t flags; */
             proto_tree_add_bitmask_list(subtree, tvb, offset, 2, flags1, ENC_LITTLE_ENDIAN);
@@ -952,7 +969,8 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_blf_obj_payload);
 
-            proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_8bit, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_payload_channel_8bit, tvb, offset, 1, ENC_NA, &channel);
+            proto_item_append_text(ti_root, " (Channel: %d)", channel);
             offset += 1;
 
             proto_tree_add_item(subtree, hf_blf_canxl_tx_count_number, tvb, offset, 1, ENC_NA);
@@ -1073,31 +1091,37 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
                 (obj_type == BLF_OBJTYPE_ETHERNET_STATISTIC) ||
                 (BLF_OBJTYPE_ETHERNET_PHY_STATE <= obj_type && obj_type <= BLF_OBJTYPE_MACSEC_STATUS)) {
                 /* 16bit channel */
-                proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset, 2, ENC_LITTLE_ENDIAN, &channel);
+                proto_item_append_text(ti_root, " (Channel: %d)", channel);
             } else if ((obj_type == BLF_OBJTYPE_CAN_FD_MESSAGE_64) ||
                        (obj_type == BLF_OBJTYPE_CAN_FD_ERROR_64) ||
                        (obj_type == BLF_OBJTYPE_CAN_XL_CHANNEL_FRAME) ||
                        (obj_type == BLF_OBJTYPE_CAN_XL_CHANNEL_ERRORFRAME)) {
                 /* 8 bit channel */
-                proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_8bit, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_payload_channel_8bit, tvb, offset, 1, ENC_NA, &channel);
+                proto_item_append_text(ti_root, " (Channel: %d)", channel);
             } else if (obj_type == BLF_OBJTYPE_ETHERNET_RX_ERROR) {
                 /* 16 bit channel after 2 byte offset */
-                proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN, &channel);
+                proto_item_append_text(ti_root, " (Channel: %d)", channel);
             } else if ((obj_type == BLF_OBJTYPE_GPS_EVENT) ||
                        (obj_type == BLF_OBJTYPE_A429_MESSAGE) ||
                        (BLF_OBJTYPE_ETHERNET_FRAME_EX <= obj_type && obj_type <= BLF_OBJTYPE_ETHERNET_ERROR_FORWARDED)) {
                 /* 16 bit channel after 4 byte offset */
-                proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN, &channel);
+                proto_item_append_text(ti_root, " (Channel: %d)", channel);
             } else if ((obj_type == BLF_OBJTYPE_ETHERNET_FRAME) ||
                        (obj_type == BLF_OBJTYPE_AFDX_FRAME)) {
                 /* 16 bit channel after 6 byte offset */
-                proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset + 6, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset + 6, 2, ENC_LITTLE_ENDIAN, &channel);
+                proto_item_append_text(ti_root, " (Channel: %d)", channel);
             } else if ((BLF_OBJTYPE_LIN_MESSAGE2 <= obj_type && obj_type <= BLF_OBJTYPE_LIN_LONG_DOM_SIG) ||
                        (obj_type == BLF_OBJTYPE_LIN_LONG_DOM_SIG) ||
                        (obj_type == BLF_OBJTYPE_LIN_LONG_DOM_SIG2) ||
                        (obj_type == BLF_OBJTYPE_LIN_UNEXPECTED_WAKEUP)) {
                 /* 16 bit channel after 12 byte offset */
-                proto_tree_add_item(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset + 12, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint(subtree, hf_blf_lobj_payload_channel_16bit, tvb, offset + 12, 2, ENC_LITTLE_ENDIAN, &channel);
+                proto_item_append_text(ti_root, " (Channel: %d)", channel);
             }
 
             offset = offset_orig + obj_length;
@@ -1109,7 +1133,7 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) {
+dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t *frame_number) {
     int offset_orig = offset;
 
     while (tvb_captured_length_remaining(tvb, offset) >= 16) {
@@ -1117,7 +1141,7 @@ dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             offset += 1;
         } else {
             increment_dissection_depth(pinfo);
-            int bytes_parsed = dissect_blf_lobj(tvb, pinfo, tree, offset);
+            int bytes_parsed = dissect_blf_lobj(tvb, pinfo, tree, offset, frame_number);
             decrement_dissection_depth(pinfo);
             if (bytes_parsed <= 0) {
                 return 0;
@@ -1184,7 +1208,8 @@ dissect_blf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree_add_item(subtree, hf_blf_file_header_restore_point_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 8;
 
-    offset += dissect_blf_next_object(tvb, pinfo, blf_tree, offset);
+    uint32_t frame_number = 1;
+    offset += dissect_blf_next_object(tvb, pinfo, blf_tree, offset, &frame_number);
 
     return offset;
 }
