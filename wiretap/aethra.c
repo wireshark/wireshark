@@ -267,6 +267,7 @@ packet, hdr.rec_type, rec->rec_header.packet_header.caplen, hdr.flags);
 	}
 
 found:
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	return true;
 }
 
@@ -293,6 +294,7 @@ aethra_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 	    rec->rec_header.packet_header.caplen, err, err_info))
 		return false;	/* failed */
 
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	return true;
 }
 
@@ -333,7 +335,6 @@ aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
 	packet_size = rec_size - (uint32_t)(sizeof *hdr - sizeof hdr->rec_size);
 
 	wtap_setup_packet_rec(rec, wth->file_encap);
-	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS;
 	msecs = pletohu32(hdr->timestamp);
 	rec->ts.secs = aethra->start + (msecs / 1000);
