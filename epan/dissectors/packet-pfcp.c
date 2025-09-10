@@ -1405,6 +1405,7 @@ static int hf_pfcp_nokia_serving_node_id_uuid;
 static int hf_pfcp_nokia_pcc_rule_name;
 static int hf_pfcp_nokia_calltrace_profile;
 static int hf_pfcp_nokia_custom_charging_group;
+static int hf_pfcp_nokia_lpt_present_b0;
 static int hf_pfcp_nokia_content_filtering_policy_id;
 static int hf_pfcp_nokia_dropped_volume_measurement;
 static int hf_pfcp_nokia_dropped_volume_measurement_b0_tovol;
@@ -1420,6 +1421,10 @@ static int hf_pfcp_nokia_drop_vol_meas_tonop;
 static int hf_pfcp_nokia_drop_vol_meas_ulnop;
 static int hf_pfcp_nokia_drop_vol_meas_dlnop;
 static int hf_pfcp_nokia_health_report_interval;
+static int hf_pfcp_nokia_ipv6_lla;
+static int hf_pfcp_nokia_periodic_shcv_duration;
+static int hf_pfcp_nokia_periodic_shcv_retry_count;
+static int hf_pfcp_nokia_periodic_shcv_timeout;
 
 
 static int ett_pfcp;
@@ -13470,6 +13475,19 @@ static int dissect_pfcp_nokia_custom_charging_group(tvbuff_t *tvb, packet_info *
     return dissect_pfcp_string_ie(tvb, pinfo, tree, hf_pfcp_nokia_custom_charging_group);
 }
 
+static int dissect_pfcp_nokia_lpt_present(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static int * const flags[] = {
+        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_nokia_lpt_present_b0,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, 0, 1, flags, ENC_BIG_ENDIAN);
+
+    return 1;
+}
+
 static int dissect_pfcp_nokia_content_filtering_policy_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     uint32_t id;
@@ -13546,6 +13564,30 @@ dissect_pfcp_nokia_health_report_interval(tvbuff_t *tvb, packet_info *pinfo _U_,
     return 4;
 }
 
+static int dissect_pfcp_nokia_ipv6_lla(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    ws_in6_addr lla = {0};
+
+    lla.bytes[0] = 0xfe;
+    lla.bytes[1] = 0x80;
+    for (unsigned i = 0; i < 8; i++) {
+        lla.bytes[8 + i] = tvb_get_uint8(tvb, i);
+    }
+
+    proto_tree_add_ipv6(tree, hf_pfcp_nokia_ipv6_lla, tvb, 0, 8, &lla);
+
+    return 8;
+}
+
+static int dissect_pfcp_nokia_periodic_shcv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_pfcp_nokia_periodic_shcv_duration, tvb, 0, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_nokia_periodic_shcv_retry_count, tvb, 3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_nokia_periodic_shcv_timeout, tvb, 4, 1, ENC_BIG_ENDIAN);
+
+    return 5;
+}
+
 static pfcp_generic_ie_t pfcp_nokia_ies[] = {
     {VENDOR_NOKIA, 32774, "UP Aggregate Route",                dissect_pfcp_grouped_ie_wrapper, -1},
     {VENDOR_NOKIA, 32775, "SAP Template",                      dissect_pfcp_nokia_sap_template, -1},
@@ -13594,9 +13636,13 @@ static pfcp_generic_ie_t pfcp_nokia_ies[] = {
     {VENDOR_NOKIA, 32836, "PCC Rule Name",                     dissect_pfcp_nokia_pcc_rule_name, -1},
     {VENDOR_NOKIA, 32837, "Calltrace Profile",                 dissect_pfcp_nokia_calltrace_profile, -1},
     {VENDOR_NOKIA, 32838, "Custom Charging Group",             dissect_pfcp_nokia_custom_charging_group, -1},
+    {VENDOR_NOKIA, 32839, "LPT Present",                       dissect_pfcp_nokia_lpt_present, -1},
     {VENDOR_NOKIA, 32840, "Content Filtering Policy Id",       dissect_pfcp_nokia_content_filtering_policy_id, -1},
     {VENDOR_NOKIA, 32841, "Dropped Volume Measurement",        dissect_pfcp_nokia_dropped_volume_measurement, -1},
     {VENDOR_NOKIA, 32842, "Health Report Interval",            dissect_pfcp_nokia_health_report_interval, -1},
+    {VENDOR_NOKIA, 32852, "IPv6 LLA",                          dissect_pfcp_nokia_ipv6_lla, -1},
+    {VENDOR_NOKIA, 32853, "SHCV",                              dissect_pfcp_grouped_ie_wrapper, -1},
+    {VENDOR_NOKIA, 32854, "Periodic SHCV",                     dissect_pfcp_nokia_periodic_shcv, -1},
 };
 
 static void
@@ -19412,6 +19458,11 @@ proto_register_pfcp(void)
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_pfcp_nokia_lpt_present_b0,
+        { "Logical Port Present", "pfcp.nokia.lpt_present.b0",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
         { &hf_pfcp_nokia_content_filtering_policy_id,
           { "Content Filtering Policy Id", "pfcp.nokia.content_filtering_policy_id",
             FT_UINT32, BASE_DEC, NULL, 0,
@@ -19485,6 +19536,26 @@ proto_register_pfcp(void)
         { &hf_pfcp_nokia_health_report_interval,
         { "Health Report Interval", "pfcp.nokia.health_report_interval",
             FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_ipv6_lla,
+        { "IPv6 LLA", "pfcp.nokia.ipv6_lla",
+            FT_IPv6, BASE_NONE, NULL, 0,
+            "IPv6 link-local address", HFILL }
+        },
+        { &hf_pfcp_nokia_periodic_shcv_duration,
+        { "Duration", "pfcp.nokia.periodic_shcv_duration",
+            FT_UINT24, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_periodic_shcv_retry_count,
+        { "Retry Count", "pfcp.nokia.periodic_shcv_retry_count",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_nokia_periodic_shcv_timeout,
+        { "Timeout", "pfcp.nokia.periodic_shcv_timeout",
+            FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
     };
