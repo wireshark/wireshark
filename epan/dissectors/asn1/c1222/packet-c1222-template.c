@@ -331,7 +331,9 @@ static uat_t *c1222_uat;
       fieldname##_allocated = fieldname##_len; \
       fieldname[0] = 0x06;  /* create absolute OID tag */ \
       fieldname[1] = (fieldname##_len - 2) & 0xff;  \
-      memcpy(&(fieldname[2]), c1222_baseoid, c1222_baseoid_len); \
+      if (c1222_baseoid != NULL) { \
+        memcpy(&(fieldname[2]), c1222_baseoid, c1222_baseoid_len); \
+      } \
       tvb_memcpy(tvb, &(fieldname[c1222_baseoid_len+2]), start_offset+2, length-2); \
       break; \
     case 0x06:  /* absolute OID */ \
