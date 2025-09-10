@@ -2125,12 +2125,13 @@ static ttl_result_t ttl_read_segmented_message_entry(wtap* wth, wtap_rec* rec, i
             item->type = GUINT32_FROM_LE(item->type);
             size -= sizeof(uint32_t);
 
-            /* If the reassebled size is too big, we go on as usual, but without a buffer.
+            /* If the reassembled size is too big, we go on as usual, but without a buffer.
              * This way we avoid problems with segments later.
              */
             if (item->size <= WTAP_MAX_PACKET_SIZE_STANDARD) {
                 item->buf = g_try_malloc(item->size);
                 if (item->buf == NULL) {
+                    g_free(item);
                     *err = WTAP_ERR_INTERNAL;
                     *err_info = ws_strdup("ttl_read_segmented_message_entry: cannot allocate memory");
                     return TTL_ERROR;
