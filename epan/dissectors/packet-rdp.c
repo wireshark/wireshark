@@ -122,6 +122,7 @@ static int hf_rdp_requestedProtocols_flag_ssl;
 static int hf_rdp_requestedProtocols_flag_hybrid;
 static int hf_rdp_requestedProtocols_flag_rdstls;
 static int hf_rdp_requestedProtocols_flag_hybrid_ex;
+static int hf_rdp_requestedProtocols_flag_rdsaad;
 static int hf_rdp_correlationInfo_flags;
 static int hf_rdp_correlationId;
 static int hf_rdp_correlationInfo_reserved;
@@ -3185,6 +3186,7 @@ dissect_rdpNegReq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
     &hf_rdp_requestedProtocols_flag_hybrid,
     &hf_rdp_requestedProtocols_flag_rdstls,
     &hf_rdp_requestedProtocols_flag_hybrid_ex,
+	&hf_rdp_requestedProtocols_flag_rdsaad,
     NULL
   };
 
@@ -3881,6 +3883,10 @@ proto_register_rdp(void) {
     { &hf_rdp_requestedProtocols_flag_hybrid_ex,
       { "CredSSP with Early User Authorization Result PDU supported", "rdp.negReq.requestedProtocols.hybrid_ex",
         FT_BOOLEAN, 32, NULL, 0x00000008,
+	NULL, HFILL }},
+    { &hf_rdp_requestedProtocols_flag_rdsaad,
+      { "RDSAAD supported", "rdp.negReq.requestedProtocols.rdsaad",
+        FT_BOOLEAN, 32, NULL, 0x00000010,
 	NULL, HFILL }},
     { &hf_rdp_correlationInfo_flags,
       { "Flags", "rdp.correlationInfo.flags",
