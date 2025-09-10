@@ -645,7 +645,7 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 		# 	--verbose \
 		# 	"$pkglib/Sparkle.framework/Versions/B/XPCServices/org.sparkle-project.Downloader.xpc" \
 		# 	|| exit 1
-	else
+	elif [ "$sparkle_version" == "1" ] ; then
 		echo "Signing Sparkle's AutoUpdate.app"
 		codesign \
 			--sign "$codesign_dev_app_identity" \
