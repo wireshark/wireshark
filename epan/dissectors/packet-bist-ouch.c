@@ -448,27 +448,37 @@ ob_track_and_annotate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, proto_i
             }
         } else if (ti.type == 'U' && ti.is_inbound) {
             /* Inbound Replace Order: unify EOT & ROT */
+            /* Look up existing order groups for both IOT (Inbound Order Token) and ROT (Replace Order Token) */
             order_group_t *iot_group = ti.has_iot ? ob_lookup_and_canonicalize(token_map, ti.iot) : NULL;
             order_group_t *rot_group = ti.has_rot ? ob_lookup_and_canonicalize(token_map, ti.rot) : NULL;
 
+            /* Case 1: Neither IOT nor ROT have been seen before - create new group for IOT */
             if (!iot_group && !rot_group) {
                 iot_group = ob_ensure_group_for_token(token_map, ti.iot, pinfo->fd->num);
                 if (!iot_group->initial_token) iot_group->initial_token = wmem_strdup(wmem_file_scope(), ti.iot);
                 group = iot_group;
                 /* Map ROT as well so outbound rejects referencing ROT join this chain */
                 if (ti.has_rot) ob_map_token_to_group(token_map, ti.rot, group);
-            } else if (rot_group && !iot_group) {
+            }
+            /* Case 2: Only ROT exists - add IOT to the existing ROT group */
+            else if (rot_group && !iot_group) {
                 if (!rot_group->initial_token) rot_group->initial_token = wmem_strdup(wmem_file_scope(), ti.iot);
                 ob_map_token_to_group(token_map, ti.iot, rot_group);
                 group = rot_group;
-            } else if (iot_group && rot_group && iot_group != rot_group) {
+            }
+            /* Case 3: Both IOT and ROT exist but are different groups - merge them */
+            else if (iot_group && rot_group && iot_group != rot_group) {
                 order_group_t *root = ob_union_groups(iot_group, rot_group);
                 if (!root->initial_token) root->initial_token = wmem_strdup(wmem_file_scope(), ti.iot);
                 ob_map_token_to_group(token_map, ti.iot, root);
                 if (ti.has_rot) ob_map_token_to_group(token_map, ti.rot, root);
                 group = root;
-            } else {
-                group = iot_group ? iot_group : rot_group;
+            }
+            /* Case 4: Both IOT and ROT exist and are the same group - use IOT group */
+            else {
+                /* At this point, iot_group and rot_group are the same object (if both exist),
+                   so we can safely use iot_group directly */
+                group = iot_group;
                 if (group && !group->initial_token && ti.has_iot)
                     group->initial_token = wmem_strdup(wmem_file_scope(), ti.iot);
                 if (group && ti.has_iot) ob_map_token_to_group(token_map, ti.iot, group);
