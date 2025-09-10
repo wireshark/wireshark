@@ -320,6 +320,9 @@ else:
     files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'),
                                        include_generated=True)
 
+# Ensure that all source files exist (i.e., cope with deletes/renames)
+files = [ f for f in files if os.path.exists(f) ]
+
 
 # If scanning a subset of files, list them here.
 print('Examining:')

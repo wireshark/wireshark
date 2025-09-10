@@ -117,6 +117,8 @@ if args.commits:
     files = set(filter(is_dissector_file, files))
     dissectors.extend(files)
 
+# Ensure that all dissectors exist (i.e., cope with deletes/renames)
+dissectors = [ d for d in dissectors if os.path.exists(d) ]
 
 # Tools that should be run on selected files.
 # Boolean arg is for whether build-dir is needed in order to run it.

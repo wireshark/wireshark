@@ -122,7 +122,7 @@ files = []
 all_urls = set()
 
 def find_links_in_file(filename):
-    if os.path.isdir(filename):
+    if os.path.isdir(filename) or not os.path.exists(filename):
         return
 
     with open(filename, 'r', encoding="utf8") as f:
