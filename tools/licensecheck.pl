@@ -744,7 +744,18 @@ sub parselicense {
 			$license = "MIT/X11 (BSD like) $license";
 		}
 
-		if ($licensetext  =~ /Permission to use, copy, modify, and(\/or)? distribute this software for any purpose with or without fee is hereby granted, provided.*copyright notice.*permission notice.*all copies/) {
+		#
+		# If the license has already been identified as an ISC
+		# license, we don't need to add "ISC" to the license
+		# name just because its text starts out like the ISC
+		# license.
+		#
+		# XXX - either 1) this means don't include SPDX *and*
+		# the license text, in which case it should report *that*
+		# as the problem, or 2) this protection should probably
+		# be done for other license types.
+		#
+		if ($license !~ /ISC/ && $licensetext =~ /Permission to use, copy, modify, and(\/or)? distribute this software for any purpose with or without fee is hereby granted, provided.*copyright notice.*permission notice.*all copies/) {
 			$license = "ISC $license";
 		}
 
