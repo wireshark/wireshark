@@ -565,6 +565,12 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 	 * in it as the offsets of the frames.
 	 */
 	frame_table_length = pletohu32(&hdr.frametablelength);
+	if (frame_table_length > file_size || frame_table_offset >= file_size - frame_table_length) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = ws_strdup_printf("netmon: frame table is %u bytes at offset %u, which does not fit into a file of size %" PRIu64,
+		    frame_table_length, frame_table_offset, file_size);
+		return WTAP_OPEN_ERROR;
+	}
 	frame_table_size = frame_table_length / (uint32_t)sizeof (uint32_t);
 	if ((frame_table_size * sizeof (uint32_t)) != frame_table_length) {
 		*err = WTAP_ERR_BAD_FILE;
@@ -595,9 +601,6 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = ws_strdup_printf("netmon: frame table length is %u, which is larger than we support",
 		    frame_table_length);
-		return WTAP_OPEN_ERROR;
-	}
-	if (file_seek(wth->fh, frame_table_offset, SEEK_SET, err) == -1) {
 		return WTAP_OPEN_ERROR;
 	}
 
@@ -658,17 +661,9 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 		}
 	}
 
-	/*
-	 * Return back to the frame table offset
-	 */
 	if (file_seek(wth->fh, frame_table_offset, SEEK_SET, err) == -1) {
 		return WTAP_OPEN_ERROR;
 	}
-
-	/*
-	 * Sanity check the process info table information before we bother to allocate
-	 * large chunks of memory for the frame table
-	 */
 
 	frame_table = (uint32_t *)g_try_malloc(frame_table_length);
 	if (frame_table_length != 0 && frame_table == NULL) {
