@@ -2420,14 +2420,16 @@ main(int argc, char *argv[])
     }
 
     if (ex_opt_count("read_format") > 0) {
-        const char* name = ex_opt_get_next("read_format");
+        char* name = ex_opt_get_next("read_format");
         in_file_type = open_info_name_to_type(name);
         if (in_file_type == WTAP_TYPE_AUTO) {
             cmdarg_err("\"%s\" isn't a valid read file format type", name? name : "");
+            g_free(name);
             list_read_capture_types();
             exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
+        g_free(name);
     }
 
     if (global_dissect_options.time_format != TS_NOT_SET)

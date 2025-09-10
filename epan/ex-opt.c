@@ -84,7 +84,7 @@ const char* ex_opt_get_nth(const char* key, unsigned key_index) {
 
 }
 
-extern const char* ex_opt_get_next(const char* key) {
+extern char* ex_opt_get_next(const char* key) {
     GPtrArray* this_opts;
 
     if (! ex_opts)
@@ -94,7 +94,7 @@ extern const char* ex_opt_get_next(const char* key) {
 
     if (this_opts) {
         if (this_opts->len)
-            return (const char *)g_ptr_array_remove_index(this_opts,0);
+            return (char *)g_ptr_array_remove_index(this_opts,0);
         else
             return NULL;
     } else {

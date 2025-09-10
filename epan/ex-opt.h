@@ -31,8 +31,8 @@ WS_DLL_PUBLIC int ex_opt_count(const char* key);
 /* fetches the nth argument of a given key returns NULL if there isn't */
 WS_DLL_PUBLIC const char* ex_opt_get_nth(const char* key, unsigned key_index);
 
-/* extracts the next value of a given key */
-WS_DLL_PUBLIC const char* ex_opt_get_next(const char* key);
+/* extracts the next value of a given key; caller must free */
+WS_DLL_PUBLIC char* ex_opt_get_next(const char* key);
 
 #ifdef __cplusplus
 }

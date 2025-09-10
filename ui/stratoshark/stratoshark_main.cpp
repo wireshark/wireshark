@@ -743,7 +743,9 @@ int main(int argc, char *qt_argv[])
     stat_tap_iterate_tables(register_simple_stat_tables, NULL);
 
     if (ex_opt_count("read_format") > 0) {
-        in_file_type = open_info_name_to_type(ex_opt_get_next("read_format"));
+        char *name = ex_opt_get_next("read_format");
+        in_file_type = open_info_name_to_type(name);
+        g_free(name);
     }
 
     splash_update(RA_PREFERENCES, NULL, NULL);
