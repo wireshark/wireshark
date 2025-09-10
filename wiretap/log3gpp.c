@@ -102,7 +102,7 @@ static void log3gpp_close(wtap* wth)
 }
 
 /********************************************/
-/* Open file (for reading)                 */
+/* Open file (for reading)                  */
 /********************************************/
 wtap_open_return_val
 log3gpp_open(wtap *wth, int *err, char **err_info _U_)
@@ -208,6 +208,87 @@ log3gpp_open(wtap *wth, int *err, char **err_info _U_)
     return retval;
 }
 
+/**************************************************/
+/* Emit a packet record into 'rec'                */
+/**************************************************/
+static void
+build_packet_record(wtap* wth, wtap_rec *rec, log3gpp_t const *log3gpp,
+                    int seconds, int useconds, long dollar_offset, int data_chars,
+                    packet_direction_t direction, bool is_text_data)
+{
+    unsigned char *frame_buffer;
+    int n;
+    int stub_offset = 0;
+    char timestamp_string[MAX_TIMESTAMP_LEN+1];
+
+    snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
+
+    wtap_setup_packet_rec(rec, wth->file_encap);
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
+    rec->presence_flags = WTAP_HAS_TS;
+
+    /* Fill in timestamp (capture base + packet offset) */
+    rec->ts.secs = log3gpp->start_secs + seconds;
+    if ((log3gpp->start_usecs + useconds) >= 1000000)
+    {
+        rec->ts.secs++;
+    }
+    rec->ts.nsecs =
+        ((log3gpp->start_usecs + useconds) % 1000000) * 1000;
+
+    if (!is_text_data)
+    {
+      /* Get buffer pointer ready */
+      ws_buffer_assure_space(&rec->data,
+                          strlen(timestamp_string)+1 +
+                          strlen(log3gpp->protocol.name)+1 +
+                          1 +                                /* direction */
+                          strlen(log3gpp->protocol.parameters)+1 +
+                          (size_t)(data_chars/2));
+
+      frame_buffer = ws_buffer_start_ptr(&rec->data);
+
+      /*********************/
+      /* Write stub header */
+      stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
+                                      direction);
+
+      /* Binary data length is half bytestring length + stub header */
+      rec->rec_header.packet_header.len = data_chars/2 + stub_offset;
+      rec->rec_header.packet_header.caplen = data_chars/2 + stub_offset;
+      /********************************/
+      /* Copy packet data into buffer */
+      for (n=0; n <= data_chars; n+=2)
+      {
+        frame_buffer[stub_offset + n/2] = (hex_from_char(log3gpp->linebuff[dollar_offset+n]) << 4) |
+                                           hex_from_char(log3gpp->linebuff[dollar_offset+n+1]);
+      }
+    }
+    else
+    {
+      /* Get buffer pointer ready */
+      ws_buffer_assure_space(&rec->data,
+                          strlen(timestamp_string)+1 +
+                          strlen(log3gpp->protocol.name)+1 +
+                          1 +                                /* direction */
+                          strlen(log3gpp->protocol.parameters)+1 +
+                          data_chars);
+      frame_buffer = ws_buffer_start_ptr(&rec->data);
+
+      /*********************/
+      /* Write stub header */
+      stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
+                                      direction);
+
+      /* Binary data length is bytestring length + stub header */
+      rec->rec_header.packet_header.len = data_chars + stub_offset;
+      rec->rec_header.packet_header.caplen = data_chars + stub_offset;
+
+      /* do not convert the ascii char */
+      memcpy(&frame_buffer[stub_offset],&log3gpp->linebuff[dollar_offset],data_chars);
+      frame_buffer[stub_offset+data_chars-1] = '\0';
+    }
+}
 
 /**************************************************/
 /* Read packet function.                          */
@@ -255,88 +336,14 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec,
                        &direction,
                        &is_text_data))
         {
-            unsigned char *frame_buffer;
-            int n;
-            int stub_offset = 0;
-            char timestamp_string[MAX_TIMESTAMP_LEN+1];
-            /*not used int64_t *pkey = NULL;*/
-
-            snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
-
-            wtap_setup_packet_rec(rec, wth->file_encap);
-            rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
-            rec->presence_flags = WTAP_HAS_TS;
-
             /* Set data_offset to the beginning of the line we're returning.
                This will be the seek_off parameter when this frame is re-read.
             */
             *data_offset = this_offset;
-
-            /* Fill in timestamp (capture base + packet offset) */
-            rec->ts.secs = log3gpp->start_secs + seconds;
-            if ((log3gpp->start_usecs + useconds) >= 1000000)
-            {
-                rec->ts.secs++;
-            }
-            rec->ts.nsecs =
-                ((log3gpp->start_usecs + useconds) % 1000000) *1000;
-
-            if (!is_text_data)
-            {
-              /* Get buffer pointer ready */
-              ws_buffer_assure_space(&rec->data,
-                                  strlen(timestamp_string)+1 +
-                                  strlen(log3gpp->protocol.name)+1 +
-                                  1 +                                /* direction */
-                                  strlen(log3gpp->protocol.parameters)+1 +
-                                  (size_t)(data_chars/2));
-
-              frame_buffer = ws_buffer_start_ptr(&rec->data);
-
-              /*********************/
-              /* Write stub header */
-              stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
-                                              direction);
-
-              /* Binary data length is half bytestring length + stub header */
-              rec->rec_header.packet_header.len = data_chars/2 + stub_offset;
-              rec->rec_header.packet_header.caplen = data_chars/2 + stub_offset;
-              /********************************/
-              /* Copy packet data into buffer */
-              for (n=0; n <= data_chars; n+=2)
-              {
-                frame_buffer[stub_offset + n/2] = (hex_from_char(log3gpp->linebuff[dollar_offset+n]) << 4) |
-                                                   hex_from_char(log3gpp->linebuff[dollar_offset+n+1]);
-              }
-              *err = errno = 0;
-              return true;
-            }
-            else
-            {
-              /* Get buffer pointer ready */
-              ws_buffer_assure_space(&rec->data,
-                                  strlen(timestamp_string)+1 +
-                                  strlen(log3gpp->protocol.name)+1 +
-                                  1 +                                /* direction */
-                                  strlen(log3gpp->protocol.parameters)+1 +
-                                  data_chars);
-              frame_buffer = ws_buffer_start_ptr(&rec->data);
-
-              /*********************/
-              /* Write stub header */
-              stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
-                                              direction);
-
-              /* Binary data length is bytestring length + stub header */
-              rec->rec_header.packet_header.len = data_chars + stub_offset;
-              rec->rec_header.packet_header.caplen = data_chars + stub_offset;
-
-              /* do not convert the ascii char */
-              memcpy(&frame_buffer[stub_offset],&log3gpp->linebuff[dollar_offset],data_chars);
-              frame_buffer[stub_offset+data_chars-1]= '\0';
-              *err = errno = 0;
-              return true;
-            }
+            build_packet_record(wth, rec, log3gpp, seconds, useconds,
+                                dollar_offset, data_chars, direction, is_text_data);
+            *err = errno = 0;
+            return true;
         }
     }
 
@@ -347,7 +354,7 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec,
 
 
 /**************************************************/
-/* Read & seek function.                          */
+/* Seek & read function.                          */
 /**************************************************/
 static bool
 log3gpp_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
@@ -358,8 +365,7 @@ log3gpp_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     int seconds, useconds, data_chars;
     bool is_text_data;
     log3gpp_t* log3gpp = (log3gpp_t*)wth->priv;
-    int length = 0;
-    unsigned char *frame_buffer;
+    int line_length = 0;
 
     /* Reset errno */
     *err = errno = 0;
@@ -371,85 +377,22 @@ log3gpp_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     }
 
     /* Re-read whole line (this really should succeed) */
-    if (!read_new_line(wth->random_fh, &length, log3gpp->linebuff,
+    if (!read_new_line(wth->random_fh, &line_length, log3gpp->linebuff,
         sizeof log3gpp->linebuff, err, err_info)) {
         return false;
     }
 
     /* Try to parse this line again (should succeed as re-reading...) */
-    if (parse_line(log3gpp->linebuff, length, &log3gpp->protocol, &seconds, &useconds,
+    if (parse_line(log3gpp->linebuff, line_length, &log3gpp->protocol, &seconds, &useconds,
                    &dollar_offset,
                    &data_chars,
                    &direction,
                    &is_text_data))
     {
-        int n;
-        int stub_offset = 0;
-        char timestamp_string[32];
-        snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
-
-        wtap_setup_packet_rec(rec, wth->file_encap);
-        rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
-        rec->presence_flags = WTAP_HAS_TS;
-
-        /* Fill in timestamp (capture base + packet offset) */
-        rec->ts.secs = log3gpp->start_secs + seconds;
-        if ((log3gpp->start_usecs + useconds) >= 1000000)
-        {
-            rec->ts.secs++;
-        }
-        rec->ts.nsecs =
-            ((log3gpp->start_usecs + useconds) % 1000000) * 1000;
-
-        if (!is_text_data)
-        {
-          /* Get buffer pointer ready */
-          ws_buffer_assure_space(&rec->data,
-                              strlen(timestamp_string)+1 +
-                              strlen(log3gpp->protocol.name)+1 +
-                              1 +                                /* direction */
-                              strlen(log3gpp->protocol.parameters)+1 +
-                              (size_t)(data_chars/2));
-
-          frame_buffer = ws_buffer_start_ptr(&rec->data);
-
-          /*********************/
-          /* Write stub header */
-          stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
-                                          direction);
-
-          /********************************/
-          /* Copy packet data into buffer */
-          for (n=0; n <= data_chars; n+=2)
-          {
-            frame_buffer[stub_offset + n/2] = (hex_from_char(log3gpp->linebuff[dollar_offset+n]) << 4) |
-                                               hex_from_char(log3gpp->linebuff[dollar_offset+n+1]);
-          }
-          *err = errno = 0;
-          return true;
-        }
-        else
-        {
-          /* Get buffer pointer ready */
-          ws_buffer_assure_space(&rec->data,
-                              strlen(timestamp_string)+1 +
-                              strlen(log3gpp->protocol.name)+1 +
-                              1 +                                /* direction */
-                              strlen(log3gpp->protocol.parameters)+1 +
-                              data_chars);
-          frame_buffer = ws_buffer_start_ptr(&rec->data);
-
-          /*********************/
-          /* Write stub header */
-          stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
-                                          direction);
-
-          /* do not convert the ascii char */
-          memcpy(&frame_buffer[stub_offset],&log3gpp->linebuff[dollar_offset],data_chars);
-          frame_buffer[stub_offset+data_chars-1] = '\0';
-          *err = errno = 0;
-          return true;
-        }
+        build_packet_record(wth, rec, log3gpp, seconds, useconds,
+                            dollar_offset, data_chars, direction, is_text_data);
+        *err = errno = 0;
+        return true;
     }
 
     /* If get here, must have failed */
