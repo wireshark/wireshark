@@ -387,7 +387,11 @@ pcapng_read_darwin_legacy_block(wtap* wth, FILE_T fh, uint32_t block_size _U_,
     dpib = wtap_block_create( WTAP_BLOCK_FT_SPECIFIC_INFORMATION);
     dpib->mandatory_data = dpib_mand;
     wblock->block = dpib;
+    /* Add the block to the `wtap->dpibs` array, and increment the block's refcount,
+     * to reflect that the block is now referenced by two entities.
+     */
     wtap_add_dpib(wth, dpib);
+    wtap_block_ref(wblock->block);
 
     /* We don't return these to the caller in pcapng_read(). */
     wblock->internal = true;
