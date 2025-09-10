@@ -29,8 +29,8 @@ The cleanup callback:
 Other than that the stats_tree should be registered.
 
 If you want to make it a plugin, stats_tree_register() should be called by
-plugin_register_tap_listener() read README.plugins for other information
-regarding Wireshark plugins.
+plugin_register_tap_listener() read the "Plugins" chapter of the
+Developer's Guide for other information regarding Wireshark plugins.
 
 If you want it as part of the dissector stats_tree_register() can be called
 either by proto_register_xxx() or if you prefer by proto_reg_handoff_xxx().

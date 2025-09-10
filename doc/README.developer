@@ -46,7 +46,6 @@ README.dissector as well as the following README files:
 
 - doc/README.heuristic      - what are heuristic dissectors and how to write
                               them
-- doc/README.plugins        - how to "pluginize" a dissector
 - doc/README.request_response_tracking - how to track req./resp. times and such
 - doc/README.wmem           - how to obtain "memory leak free" memory
 
