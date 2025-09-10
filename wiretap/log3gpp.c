@@ -39,26 +39,25 @@ typedef enum packet_direction_t
 } packet_direction_t;
 
 typedef struct {
-    time_t	start_secs;
-    uint32_t	start_usecs;
+    /* Protocol name of the packet that the packet was captured at */
+    char        name[MAX_PROTOCOL_NAME+1];
+
+    /* Optional string parameter giving info required for the protocol dissector */
+    char        parameters[MAX_PROTOCOL_PAR_STRING+1];
+} log3gpp_protocol_t;
+
+typedef struct {
+    int                first_packet_offset;
+    time_t             start_secs;
+    uint32_t           start_usecs;
+
+    log3gpp_protocol_t protocol;
+    char               linebuff[MAX_LINE_LENGTH + 1];
 } log3gpp_t;
-
-int first_packet_offset;
-char firstline[MAX_FIRST_LINE_LENGTH];
-char secondline[MAX_TIMESTAMP_LINE_LENGTH];
-int secondline_length;
-
-/***********************************************************/
-/* Transient data used for parsing                         */
 
 /* 'Magic number' at start of 3gpp log files. */
 static const char log3gpp_magic[] = "3GPP protocols transcript";
 
-/* Protocol name of the packet that the packet was captured at */
-static char protocol_name[MAX_PROTOCOL_NAME+1];
-
-/* Optional string parameter giving info required for the protocol dissector */
-static char protocol_parameters[MAX_PROTOCOL_PAR_STRING+1];
 /************************************************************/
 /* Functions called from wiretap core                       */
 static bool log3gpp_read( wtap* wth, wtap_rec* rec,
@@ -73,12 +72,13 @@ static bool read_new_line(FILE_T fh, int* length,
     char* buf, size_t bufsize, int* err,
     char** err_info);
 
-static bool parse_line(char* linebuff, int line_length, int *seconds, int *useconds,
+static bool parse_line(char* linebuff, int line_length, log3gpp_protocol_t *protocol,
+                           int *seconds, int *useconds,
                            long *data_offset,
                            int *data_chars,
                            packet_direction_t *direction,
                            bool *is_text_data);
-static int write_stub_header(unsigned char *frame_buffer, char *timestamp_string,
+static int write_stub_header(log3gpp_protocol_t const *protocol, unsigned char *frame_buffer, char *timestamp_string,
                              packet_direction_t direction);
 static unsigned char hex_from_char(char c);
 /*not used static char char_from_hex(unsigned char hex);*/
@@ -112,8 +112,9 @@ log3gpp_open(wtap *wth, int *err, char **err_info _U_)
     log3gpp_t *log3gpp;
     wtap_open_return_val retval;
     /* Buffer to hold a single text line read from the file */
-    static char linebuff[MAX_LINE_LENGTH];
+    char linebuff[MAX(MAX_FIRST_LINE_LENGTH, MAX_TIMESTAMP_LEN) + 1];
     int firstline_length = 0;
+    int secondline_length;
 
     /* Clear errno before reading from the file */
     errno = 0;
@@ -159,8 +160,6 @@ log3gpp_open(wtap *wth, int *err, char **err_info _U_)
         }
     }
 
-    first_packet_offset = firstline_length +  secondline_length;
-
     if ((secondline_length >= MAX_TIMESTAMP_LINE_LENGTH) ||
         (!get_file_time_stamp(linebuff, &timestamp, &usecs)))
     {
@@ -171,8 +170,11 @@ log3gpp_open(wtap *wth, int *err, char **err_info _U_)
 
     /* Allocate struct and fill in timestamp (netmon re used)*/
     log3gpp = g_new(log3gpp_t, 1);
+    log3gpp->first_packet_offset = firstline_length + secondline_length;
     log3gpp->start_secs = timestamp;
     log3gpp->start_usecs = usecs;
+    log3gpp->protocol.name[0] = '\0';
+    log3gpp->protocol.parameters[0] = '\0';
     wth->priv = (void *)log3gpp;
 
     /************************************************************/
@@ -216,7 +218,6 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec,
     int* err, char** err_info, int64_t* data_offset)
 {
     int64_t offset = file_tell(wth->fh);
-    static char linebuff[MAX_LINE_LENGTH + 1];
     long dollar_offset;
     packet_direction_t direction;
     bool is_text_data;
@@ -231,15 +232,15 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec,
         /* Are looking for first packet after 2nd line */
         if (file_tell(wth->fh) == 0)
         {
-            this_offset += (int64_t)first_packet_offset +1+1;
+            this_offset += (int64_t)log3gpp->first_packet_offset +1+1;
         }
 
         /* Clear errno before reading from the file */
         errno = 0;
 
         /* Read a new line from file into linebuff */
-        if (!read_new_line(wth->fh, &line_length, linebuff,
-            sizeof linebuff, err, err_info)) {
+        if (!read_new_line(wth->fh, &line_length, log3gpp->linebuff,
+            sizeof log3gpp->linebuff, err, err_info)) {
             if (*err != 0) {
                 return false;  /* error */
             }
@@ -248,7 +249,7 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec,
         }
 
         /* Try to parse the line as a frame record */
-        if (parse_line(linebuff, line_length, &seconds, &useconds,
+        if (parse_line(log3gpp->linebuff, line_length, &log3gpp->protocol, &seconds, &useconds,
                        &dollar_offset,
                        &data_chars,
                        &direction,
@@ -284,15 +285,15 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec,
             {
               /* Get buffer pointer ready */
               ws_buffer_assure_space(&rec->data,
-                                  strlen(timestamp_string)+1 + /* timestamp */
-                                  strlen(protocol_name)+1 +    /* Protocol name */
-                                  1 +                          /* direction */
+                                  strlen(timestamp_string)+1 +       /* timestamp */
+                                  strlen(log3gpp->protocol.name)+1 + /* Protocol name */
+                                  1 +                                /* direction */
                                   (size_t)(data_chars/2));
 
               frame_buffer = ws_buffer_start_ptr(&rec->data);
               /*********************/
               /* Write stub header */
-              stub_offset = write_stub_header(frame_buffer, timestamp_string,
+              stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
                                               direction);
 
               /* Binary data length is half bytestring length + stub header */
@@ -302,8 +303,8 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec,
               /* Copy packet data into buffer */
               for (n=0; n <= data_chars; n+=2)
               {
-                frame_buffer[stub_offset + n/2] = (hex_from_char(linebuff[dollar_offset+n]) << 4) |
-                                                   hex_from_char(linebuff[dollar_offset+n+1]);
+                frame_buffer[stub_offset + n/2] = (hex_from_char(log3gpp->linebuff[dollar_offset+n]) << 4) |
+                                                   hex_from_char(log3gpp->linebuff[dollar_offset+n+1]);
               }
               *err = errno = 0;
               return true;
@@ -312,15 +313,15 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec,
             {
               /* Get buffer pointer ready */
               ws_buffer_assure_space(&rec->data,
-                                  strlen(timestamp_string)+1 + /* timestamp */
-                                  strlen(protocol_name)+1 +    /* Protocol name */
-                                  1 +                          /* direction */
+                                  strlen(timestamp_string)+1 +       /* timestamp */
+                                  strlen(log3gpp->protocol.name)+1 + /* Protocol name */
+                                  1 +                                /* direction */
                                   data_chars);
               frame_buffer = ws_buffer_start_ptr(&rec->data);
 
               /*********************/
               /* Write stub header */
-              stub_offset = write_stub_header(frame_buffer, timestamp_string,
+              stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
                                               direction);
 
               /* Binary data length is bytestring length + stub header */
@@ -328,7 +329,7 @@ bool log3gpp_read(wtap* wth, wtap_rec* rec,
               rec->rec_header.packet_header.caplen = data_chars + stub_offset;
 
               /* do not convert the ascii char */
-              memcpy(&frame_buffer[stub_offset],&linebuff[dollar_offset],data_chars);
+              memcpy(&frame_buffer[stub_offset],&log3gpp->linebuff[dollar_offset],data_chars);
               frame_buffer[stub_offset+data_chars-1]= '\0';
               *err = errno = 0;
               return true;
@@ -350,7 +351,6 @@ log3gpp_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
                     int *err, char **err_info)
 {
     long dollar_offset;
-    static char linebuff[MAX_LINE_LENGTH + 1];
     packet_direction_t direction;
     int seconds, useconds, data_chars;
     bool is_text_data;
@@ -368,13 +368,13 @@ log3gpp_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     }
 
     /* Re-read whole line (this really should succeed) */
-    if (!read_new_line(wth->random_fh, &length, linebuff,
-        sizeof linebuff, err, err_info)) {
+    if (!read_new_line(wth->random_fh, &length, log3gpp->linebuff,
+        sizeof log3gpp->linebuff, err, err_info)) {
         return false;
     }
 
     /* Try to parse this line again (should succeed as re-reading...) */
-    if (parse_line(linebuff, length, &seconds, &useconds,
+    if (parse_line(log3gpp->linebuff, length, &log3gpp->protocol, &seconds, &useconds,
                    &dollar_offset,
                    &data_chars,
                    &direction,
@@ -401,12 +401,12 @@ log3gpp_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
         /*********************/
         /* Write stub header */
         ws_buffer_assure_space(&rec->data,
-                               strlen(timestamp_string)+1 + /* timestamp */
-                               strlen(protocol_name)+1 +    /* Protocol name */
-                               1 +                          /* direction */
+                               strlen(timestamp_string)+1 +       /* timestamp */
+                               strlen(log3gpp->protocol.name)+1 + /* Protocol name */
+                               1 +                                /* direction */
                                data_chars);
         frame_buffer = ws_buffer_start_ptr(&rec->data);
-        stub_offset = write_stub_header(frame_buffer, timestamp_string,
+        stub_offset = write_stub_header(&log3gpp->protocol, frame_buffer, timestamp_string,
                                         direction);
 
         if (!is_text_data)
@@ -415,8 +415,8 @@ log3gpp_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
           /* Copy packet data into buffer */
           for (n=0; n <= data_chars; n+=2)
           {
-            frame_buffer[stub_offset + n/2] = (hex_from_char(linebuff[dollar_offset+n]) << 4) |
-                                               hex_from_char(linebuff[dollar_offset+n+1]);
+            frame_buffer[stub_offset + n/2] = (hex_from_char(log3gpp->linebuff[dollar_offset+n]) << 4) |
+                                               hex_from_char(log3gpp->linebuff[dollar_offset+n+1]);
           }
           *err = errno = 0;
           return true;
@@ -424,7 +424,7 @@ log3gpp_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
         else
         {
           /* do not convert the ascii char */
-          memcpy(&frame_buffer[stub_offset],&linebuff[dollar_offset],data_chars);
+          memcpy(&frame_buffer[stub_offset],&log3gpp->linebuff[dollar_offset],data_chars);
           frame_buffer[stub_offset+data_chars-1] = '\0';
           *err = errno = 0;
           return true;
@@ -445,8 +445,8 @@ log3gpp_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 
 /**********************************************************************/
 /* Read a new line from the file, starting at offset.                 */
-/* - writes data to static var linebuff                               */
-/* - on return 'offset' will point to the next position to read from  */
+/* - writes data to 'linebuff'                                        */
+/* - on return 'length' will contain the number of bytes read         */
 /* - return true if this read is successful                           */
 /**********************************************************************/
 static bool
@@ -486,7 +486,8 @@ read_new_line(FILE_T fh, int* length,
 /* - data position and length                                         */
 /* Return true if this packet looks valid and can be displayed        */
 /**********************************************************************/
-bool parse_line(char* linebuff, int line_length, int *seconds, int *useconds,
+bool parse_line(char* linebuff, int line_length, log3gpp_protocol_t *protocol,
+                    int *seconds, int *useconds,
                     long *data_offset, int *data_chars,
                     packet_direction_t *direction,
                     bool *is_text_data)
@@ -594,14 +595,14 @@ bool parse_line(char* linebuff, int line_length, int *seconds, int *useconds,
         {
             return false;
         }
-        protocol_name[protocol_chars] = linebuff[n];
+        protocol->name[protocol_chars] = linebuff[n];
     }
     if (protocol_chars == MAX_PROTOCOL_NAME || n >= line_length)
     {
         /* If doesn't fit, fail rather than truncate */
         return false;
     }
-    protocol_name[protocol_chars] = '\0';
+    protocol->name[protocol_chars] = '\0';
 
     /* Space char must follow protocol name */
     if (linebuff[n] != ' ')
@@ -619,7 +620,7 @@ bool parse_line(char* linebuff, int line_length, int *seconds, int *useconds,
     }
 
 
-    if (strcmp(protocol_name,"TXT") == 0)
+    if (strcmp(protocol->name,"TXT") == 0)
     {
       *direction = uplink;
       *data_offset = n;
@@ -647,9 +648,9 @@ bool parse_line(char* linebuff, int line_length, int *seconds, int *useconds,
       for (; (n < line_length) && (linebuff[n] != '$') && (prot_option_chars < MAX_PROTOCOL_PAR_STRING);
            n++,prot_option_chars++)
       {
-        protocol_parameters[prot_option_chars] = linebuff[n];
+        protocol->parameters[prot_option_chars] = linebuff[n];
       }
-      protocol_parameters[prot_option_chars] = '\0';
+      protocol->parameters[prot_option_chars] = '\0';
       if (prot_option_chars == MAX_PROTOCOL_PAR_STRING || n >= line_length)
       {
         /* If doesn't fit, fail rather than truncate */
@@ -673,7 +674,7 @@ bool parse_line(char* linebuff, int line_length, int *seconds, int *useconds,
 /*****************************************************************/
 /* Write the stub info to the data buffer while reading a packet */
 /*****************************************************************/
-int write_stub_header(unsigned char *frame_buffer, char *timestamp_string,
+int write_stub_header(log3gpp_protocol_t const *protocol, unsigned char *frame_buffer, char *timestamp_string,
                       packet_direction_t direction)
 {
     int stub_offset = 0;
@@ -683,16 +684,16 @@ int write_stub_header(unsigned char *frame_buffer, char *timestamp_string,
     stub_offset += (int)(strlen(timestamp_string) + 1);
 
     /* Protocol name */
-    (void) g_strlcpy((char*)&frame_buffer[stub_offset], protocol_name, MAX_PROTOCOL_NAME+1);
-    stub_offset += (int)(strlen(protocol_name) + 1);
+    (void) g_strlcpy((char*)&frame_buffer[stub_offset], protocol->name, MAX_PROTOCOL_NAME+1);
+    stub_offset += (int)(strlen(protocol->name) + 1);
 
     /* Direction */
     frame_buffer[stub_offset] = direction;
     stub_offset++;
 
     /* Option string (might be string of length 0) */
-    (void) g_strlcpy((char*)&frame_buffer[stub_offset], protocol_parameters,MAX_PROTOCOL_PAR_STRING+1);
-    stub_offset += (int)(strlen(protocol_parameters) + 1);
+    (void) g_strlcpy((char*)&frame_buffer[stub_offset], protocol->parameters,MAX_PROTOCOL_PAR_STRING+1);
+    stub_offset += (int)(strlen(protocol->parameters) + 1);
     return stub_offset;
 }
 
