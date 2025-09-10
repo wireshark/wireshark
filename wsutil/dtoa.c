@@ -378,7 +378,8 @@ Exactly one of IEEE_8087, IEEE_MC68k, VAX, or IBM should be defined.
 #ifdef SET_INEXACT
 #define dtoa_divmax 27
 #else
-int dtoa_divmax = 2;	/* Permit experimenting: on some systems, 64-bit integer */
+static const int dtoa_divmax = 2;
+			/* Permit experimenting: on some systems, 64-bit integer */
 			/* division is slow enough that we may sometimes want to */
 			/* avoid using it.   We assume (but do not check) that   */
 			/* dtoa_divmax <= 27.*/
@@ -389,7 +390,7 @@ typedef struct BF96 {		/* Normalized 96-bit software floating point numbers */
 	int e;			/* number represented = b * 2^e, with .5 <= b < 1 */
 	} BF96;
 
- static BF96 pten[667] = {
+ static const BF96 pten[667] = {
 	{ 0xeef453d6, 0x923bd65a, 0x113faa29, -1136 },
 	{ 0x9558b466, 0x1b6565f8, 0x4ac7ca59, -1132 },
 	{ 0xbaaee17f, 0xa23ebf76, 0x5d79bcf0, -1129 },
@@ -1058,7 +1059,7 @@ typedef struct BF96 {		/* Normalized 96-bit software floating point numbers */
 	{ 0xfcf62c1d, 0xee382c42, 0x46729e03, 1073 },
 	{ 0x9e19db92, 0xb4e31ba9, 0x6c07a2c2, 1077 }
 	};
- static short int Lhint[2098] = {
+ static const short int Lhint[2098] = {
 	   /*18,*/19,    19,    19,    19,    20,    20,    20,    21,    21,
 	   21,    22,    22,    22,    23,    23,    23,    23,    24,    24,
 	   24,    25,    25,    25,    26,    26,    26,    26,    27,    27,
@@ -1269,7 +1270,7 @@ typedef struct BF96 {		/* Normalized 96-bit software floating point numbers */
 	  641,   642,   642,   642,   643,   643,   643,   644,   644,   644,
 	  644,   645,   645,   645,   646,   646,   646,   647,   647,   647,
 	  647,   648,   648,   648,   649,   649,   649,   650,   650 };
- static ULLong pfive[27] = {
+ static const ULLong pfive[27] = {
 		5ll,
 		25ll,
 		125ll,
@@ -1299,7 +1300,7 @@ typedef struct BF96 {		/* Normalized 96-bit software floating point numbers */
 		7450580596923828125ll
 		};
 
- static int pfivebits[25] = {3, 5, 7, 10, 12, 14, 17, 19, 21, 24, 26, 28, 31,
+ static const int pfivebits[25] = {3, 5, 7, 10, 12, 14, 17, 19, 21, 24, 26, 28, 31,
 			     33, 35, 38, 40, 42, 45, 47, 49, 52, 54, 56, 59};
 #endif /*}*/
 #endif /*}} NO_LONG_LONG */
@@ -1902,7 +1903,7 @@ pow5mult(Bigint *b, int k MTd)
 	ThInfo *TI;
 #endif
 	int i;
-	static int p05[3] = { 5, 25, 125 };
+	static const int p05[3] = { 5, 25, 125 };
 
 	if ((i = k & 3))
 		b = multadd(b, p05[i-1], 0 MTa);
@@ -2616,7 +2617,7 @@ dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve, char
 	int inexact, oldinexact;
 #endif
 #ifdef USE_BF96 /*{{*/
-	BF96 *p10;
+	const BF96 *p10;
 	ULLong dbhi, dbits, dblo, den, hb, rb, rblo, res, res0, res3, reslo, sres,
 		sulp, tv0, tv1, tv2, tv3, ulp, ulplo, ulpmask, ures, ureslo, zb;
 	int eulp, k1, n2, ulpadj, ulpshift;

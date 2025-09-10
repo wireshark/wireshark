@@ -34,7 +34,7 @@ typedef struct freq_cvt_s {
  *
  * XXX - what about 802.11ad?
  */
-static freq_cvt_t freq_cvt[] = {
+static const freq_cvt_t freq_cvt[] = {
     { 2412, 2472,   1, true },  /* IEEE Std 802.11-2020: Section 15.4.4.3 and Annex E */
     { 2484, 2484,  14, true },  /* IEEE Std 802.11-2020: Section 15.4.4.3 and Annex E */
     { 5000, 5925,   0, false }, /* IEEE Std 802.11-2020: Annex E */

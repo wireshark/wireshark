@@ -44,7 +44,7 @@ enum json_dumper_element_type {
 #define JSON_DUMPER_TYPE(state)         ((enum json_dumper_element_type)((state) & 7))
 #define JSON_DUMPER_HAS_NAME            (1 << 3)
 
-static const char *json_dumper_element_type_names[] = {
+static const char * const json_dumper_element_type_names[] = {
     [JSON_DUMPER_TYPE_NONE] = "none",
     [JSON_DUMPER_TYPE_VALUE] = "value",
     [JSON_DUMPER_TYPE_OBJECT] = "object",
