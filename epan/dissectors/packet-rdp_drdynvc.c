@@ -64,6 +64,7 @@ dissector_handle_t cliprdr_handle;
 dissector_handle_t rdpdr_handle;
 dissector_handle_t snd_handle;
 dissector_handle_t ear_handle;
+dissector_handle_t ecam_handle;
 
 #define PNAME  "RDP Dynamic Channel Protocol"
 #define PSNAME "DRDYNVC"
@@ -243,6 +244,11 @@ drdynvc_find_channel_type(const char *name)
 		if (strcmp(knownChannels[i].name, name) == 0)
 			return knownChannels[i].type;
 	}
+
+	// TODO: replace with proper registration of announced ecam sub channels
+	if (strstr(name, "RDCamera_Device_") == name)
+		return DRDYNVC_CHANNEL_CAM;
+
 	return DRDYNVC_CHANNEL_UNKNOWN;
 }
 
@@ -551,6 +557,9 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					case DRDYNVC_CHANNEL_AUTH_REDIR:
 						call_dissector(ear_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 						break;
+					case DRDYNVC_CHANNEL_CAM:
+						call_dissector(ecam_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+						break;
 					case DRDYNVC_CHANNEL_DR:
 						call_dissector(rdpdr_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 						break;
@@ -670,6 +679,9 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 						break;
 					case DRDYNVC_CHANNEL_AUTH_REDIR:
 						call_dissector(ear_handle, targetTvb, pinfo, tree);
+						break;
+					case DRDYNVC_CHANNEL_CAM:
+						call_dissector(ecam_handle, targetTvb, pinfo, tree);
 						break;
 					case DRDYNVC_CHANNEL_DR:
 						call_dissector(rdpdr_handle, targetTvb, pinfo, tree);
@@ -925,6 +937,7 @@ void proto_reg_handoff_drdynvc(void) {
 	cliprdr_handle = find_dissector("rdp_cliprdr");
 	snd_handle = find_dissector("rdp_snd");
 	ear_handle = find_dissector("rdp_ear");
+	ecam_handle = find_dissector("rdp_ecam");
 }
 
 /*
