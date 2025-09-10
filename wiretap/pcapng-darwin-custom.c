@@ -377,7 +377,7 @@ pcapng_read_darwin_legacy_block(wtap* wth, FILE_T fh, uint32_t block_size _U_,
     if (!wtap_read_bytes(fh, &process_info, sizeof process_info, err, err_info)) {
         ws_debug("failed to read packet data");
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup_printf("pcapng: can not read %lu bytes for process info",
+        *err_info = ws_strdup_printf("pcapng: can not read %zu bytes for process info",
                                     sizeof(process_info));
         return false;
     }
