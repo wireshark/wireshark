@@ -4247,6 +4247,10 @@ set(SHARK_PUBLIC_HEADERS
 	cfile.h
 	cli_main.h
 	file.h
+	include/c128/bits.h
+	include/c128/endian.h
+	include/c128/integer.h
+	include/c128/types.h
 	include/ws_attributes.h
 	include/ws_codepoints.h
 	include/ws_compiler_tests.h
