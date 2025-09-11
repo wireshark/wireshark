@@ -12840,19 +12840,28 @@ static void dissect_APP_ACK_CONF(tvbuff_t *tvb,
 static void dissect_parameterized_serialized_data(proto_tree *tree, tvbuff_t *tvb,
                        int offset_input, int size, const unsigned encoding)
 {
-  uint32_t member_id, member_length;
-  proto_item * ti;
-  proto_tree * data_tree, * member_tree;
+  proto_item* ti;
+  proto_tree* member_tree;
   int offset = offset_input;
   int deserialized_size = 0;
-  data_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
-          ett_rtps_serialized_data, &ti, "serializedData");
+  proto_tree* data_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+    ett_rtps_serialized_data, &ti, "serializedData");
   while (deserialized_size < size) {
-    ALIGN_ZERO(offset, 2, offset_input);
-    member_id = tvb_get_uint16(tvb, offset, encoding);
-    member_length = tvb_get_uint16(tvb, offset+2, encoding);
+    /* PL_CDR/ParameterList style fields are 4-byte aligned relative to the
+     * encapsulation start. */
+    ALIGN_ZERO(offset, 4, offset_input);
+
+    /* Read the 4-byte short header candidate */
+    uint32_t member_id = tvb_get_uint16(tvb, offset, encoding);
+    uint32_t member_length = tvb_get_uint16(tvb, offset + 2, encoding);
 
     if ((member_id & PID_EXTENDED) == PID_EXTENDED) {
+      /* Extended 12-byte header:
+       * [0..1]: PID_EXTENDED
+       * [2..3]: length of extended payload in bytes (should be 8 for [ext_id(4) + ext_len(4)])
+       * [4..7]: extended member id (uint32)
+       * [8..11]: extended member length (uint32)
+       */
       member_id = tvb_get_uint32(tvb, offset+4, encoding);
       member_length = tvb_get_uint32(tvb, offset+8, encoding);
       member_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, member_length + 12,
