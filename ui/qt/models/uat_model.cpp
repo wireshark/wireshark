@@ -385,6 +385,11 @@ bool UatModel::setData(const QModelIndex &index, const QVariant &value, int role
     if (field->mode != PT_TXTMOD_BOOL) {
         const QByteArray &str = value.toString().toUtf8();
         const QByteArray &bytes = field->mode == PT_TXTMOD_HEXBYTES ? QByteArray::fromHex(str) : str;
+        // XXX - This converts from string to value before checkRow converts
+        // back to a string to check the value. For, e.g., the numeric types,
+        // that means that they aren't really checked, just converted to a
+        // number if possible. The chk function for those needs to be called
+        // earlier (possibly in UatDelegate.)
         field->cb.set(rec, bytes.constData(), (unsigned) bytes.size(), field->cbdata.set, field->fld_data);
     } else {
         if (value.toInt() == Qt::Checked) {
@@ -544,7 +549,7 @@ QModelIndex UatModel::copyRow(QModelIndex original)
 
     uat_->changed = true;
 
-    endInsertRows();    
+    endInsertRows();
 
     return index(newRow, 0, QModelIndex());
 }

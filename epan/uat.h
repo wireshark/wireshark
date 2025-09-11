@@ -19,6 +19,7 @@
 
 #include "ws_symbol_export.h"
 #include <wsutil/strtoi.h>
+#include <wsutil/dtoa.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -387,6 +388,8 @@ bool uat_fld_chk_num_signed_dec(void*, const char*, unsigned, const void*, const
 WS_DLL_PUBLIC
 bool uat_fld_chk_num_signed_dec64(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
+bool uat_fld_chk_num_dbl(void*, const char*, unsigned, const void*, const void*, char** err);
+WS_DLL_PUBLIC
 bool uat_fld_chk_bool(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
 bool uat_fld_chk_enum(void*, const char*, unsigned, const void*, const void*, char**);
@@ -646,6 +649,28 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 
 #define UAT_FLD_HEX64(basename,field_name,title,desc) \
 {#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_hex64,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
+/*
+ * DBL Macros,
+ *   a double precision floating-point number contained in (((rec_t*)rec)->(field_name))
+ *
+ *   [using g_ascii_dtostr() would be fine for tostr_cb for storing data, but
+ *   produces more ugly looking values when presenting to the user. dtoa_g_fmt
+ *   produces the shortest string which also is a unique round-trip for any
+ *   particular value.]
+ */
+#define UAT_DBL_CB_DEF(basename,field_name,rec_t) \
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+    char* tmp_str = g_strndup(buf,len); \
+    ((rec_t*)rec)->field_name = g_ascii_strtod(tmp_str, NULL); \
+    g_free(tmp_str); } \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+    char buf[32]; \
+    *out_ptr = ws_strdup(dtoa_g_fmt(buf, ((rec_t*)rec)->field_name)); \
+    *out_len = (unsigned)strlen(*out_ptr); }
+
+#define UAT_FLD_DBL(basename,field_name,title,desc) \
+    {#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_dbl,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 /*
  * BOOL Macros,

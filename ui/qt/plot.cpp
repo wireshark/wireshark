@@ -217,7 +217,7 @@ void Plot::setAbsoluteTime(bool abs_time)
     }
 }
 
-void Plot::setYAxisFactor(unsigned int y_axis_factor)
+void Plot::setYAxisFactor(double y_axis_factor)
 {
     if (y_axis_factor != y_axis_factor_) {
         Graph::setYAxisFactor(y_axis_factor);

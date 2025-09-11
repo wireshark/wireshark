@@ -812,6 +812,36 @@ bool uat_fld_chk_num_signed_dec64(void* u1 _U_, const char* strptr, unsigned len
     return true;
 }
 
+bool uat_fld_chk_num_dbl(void* u1 _U_, const char* strptr, unsigned len, const void* u2 _U_, const void* u3 _U_, char** err) {
+    if (len > 0) {
+        char* str = g_strndup(strptr, len);
+        char* strn;
+
+        double value = g_ascii_strtod(str, &strn);
+        bool result = true;
+        if (errno == ERANGE) {
+            /* Distinguish between underflow and overflow.
+             * The function used for integers handles overflow. */
+            if (value == 0) {
+                *err = g_strdup("Value would underflow");
+                return false;
+            }
+            result = false;
+        } else if ((value == 0 && strn == str)) {
+            /* No conversion could be performed. (The ws_strtoi
+             * functions in libwsutil do this check.) */
+            errno = EINVAL;
+            result = false;
+        }
+        result = uat_fld_chk_num_check_result(result, strn, err);
+        g_free(str);
+        return result;
+    }
+
+    *err = NULL;
+    return true;
+}
+
 bool uat_fld_chk_bool(void* u1 _U_, const char* strptr, unsigned len, const void* u2 _U_, const void* u3 _U_, char** err)
 {
     char* str = g_strndup(strptr,len);
