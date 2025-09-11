@@ -186,7 +186,15 @@ Editions are the replacement for syntax going forward and include a few grammar 
 but we don't care about what it is. We just need to support the syntax generally, so we can use a strLit to simplify things. This also
 leaves things open in case it changes to a strLit in the future. For examples and explanations see: https://protobuf.dev/editions/overview/
 */
-edition ::= PT_EDITION PT_ASSIGN PT_STRLIT PT_SEMICOLON.
+edition ::= PT_EDITION PT_ASSIGN strLit(B) PT_SEMICOLON. {
+    if (strcmp(B, "2024") == 0) {
+        state->file->syntax_version = 3;
+    } else if (strcmp(B, "2023") == 0) {
+        state->file->syntax_version = 3;
+    } else {
+        pbl_parser_error(state, "unsupported edition %s", B);
+    }
+}
 
 protoBody(A) ::= . { A = pbl_create_node(state->file, CUR_LINENO, PBL_PACKAGE, NAME_TO_BE_SET); } /* create am empty package node */
 protoBody ::= protoBody import. /* default action is {A = B; } */
