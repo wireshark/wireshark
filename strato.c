@@ -2268,6 +2268,9 @@ strato_epan_new(capture_file *cf)
         cap_file_provider_get_interface_name,
         cap_file_provider_get_interface_description,
         NULL,
+        NULL,
+        NULL,
+        NULL,
     };
 
     return epan_new(&cf->provider, &funcs);
