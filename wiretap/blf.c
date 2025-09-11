@@ -3999,6 +3999,11 @@ blf_dump_expand_interface_mapping(wtap_dumper *wdh, int new_size) {
 
 static bool
 blf_dump_set_interface_mapping(wtap_dumper *wdh, uint32_t interface_id, int pkt_encap, uint16_t channel, uint16_t hw_channel) {
+    if (channel == 0) {
+        ws_warning("Trying to set channel to 0! That will probably lead to an unreadable file! Replacing by 1 to limit problem!");
+        channel = 1;
+    }
+
     blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
 
     blf_dump_expand_interface_mapping(wdh, interface_id + 1);
@@ -4057,6 +4062,17 @@ blf_init_file_header(wtap_dumper *wdh, int *err) {
 }
 
 static bool
+blf_write_add_padding(wtap_dumper *wdh, int *err, uint8_t count) {
+    if (count > 0 && count < 4) {
+        uint8_t padding[3] = { 0 };
+        if (!wtap_dump_file_write(wdh, &padding, count, err)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool
 blf_write_file_header_zeros(wtap_dumper *wdh, int *err) {
     /* lets add 144 bytes for the header and padding */
     uint8_t padding[144] = { 0 };
@@ -4095,6 +4111,11 @@ blf_finalize_file_header(wtap_dumper *wdh, int *err) {
     int64_t bytes_written = wtap_dump_file_tell(wdh, err);
 
     /* update the header and convert all to LE */
+    fileheader->api_version = (((WIRESHARK_VERSION_MAJOR * 100) + WIRESHARK_VERSION_MINOR) * 100 + WIRESHARK_VERSION_MICRO) * 100;
+    fileheader->application_major = WIRESHARK_VERSION_MAJOR;
+    fileheader->application_minor = WIRESHARK_VERSION_MINOR;
+    fileheader->application_build = WIRESHARK_VERSION_MICRO;
+
     fileheader->len_compressed = (uint64_t)bytes_written;
     fileheader->len_uncompressed = (uint64_t)bytes_written;
 
@@ -4331,7 +4352,9 @@ static bool blf_dump_ethernet(wtap_dumper *wdh, const wtap_rec *rec, int *err, c
         return false;
     }
 
-    return true;
+    /* Add strange padding to 4 bytes. */
+    uint8_t padding_needed = (sizeof(blf_ethernetframeheader_t) + ethheader.payloadlength) % 4;
+    return blf_write_add_padding(wdh, err, padding_needed);
 }
 
 static bool blf_dump_socketcanxl(wtap_dumper *wdh, const wtap_rec *rec, int *err _U_, char **err_info _U_, uint64_t obj_timestamp,
@@ -4530,8 +4553,8 @@ static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
         blf_canmessage_t canmsg;
 
         if (payload_length > 8) {
-            ws_warning("CAN frames can only have 0 to 8 bytes of payload! We have %d bytes", payload_length);
-            payload_length = 0;
+            ws_warning("CAN frames can only have up to 8 bytes of payload! We have %d bytes", payload_length);
+            payload_length = 8;
         }
 
         canmsg.dlc = payload_length;
@@ -4556,7 +4579,7 @@ static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
 
         fix_endianness_blf_canmessage(&canmsg);
 
-        if (!blf_dump_objheader(wdh, err, obj_timestamp, BLF_OBJTYPE_CAN_MESSAGE, sizeof(blf_canmessage_t) + payload_length)) {
+        if (!blf_dump_objheader(wdh, err, obj_timestamp, BLF_OBJTYPE_CAN_MESSAGE, sizeof(blf_canmessage_t) + 8)) {
             return false;
         }
 
@@ -4568,6 +4591,15 @@ static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
     if (!wtap_dump_file_write(wdh, &(pd[8]), payload_length, err)) {
         return false;
     }
+
+    if (!canfd && payload_length < 8) {
+        uint8_t padding[8] = { 0 };
+        if (!wtap_dump_file_write(wdh, &padding, 8 - payload_length, err)) {
+            return false;
+        }
+    }
+
+    /* no padding */
 
     return true;
 }
@@ -4763,6 +4795,8 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
         return true;
     }
 
+    /* no padding */
+
     return true;
 }
 
@@ -4842,6 +4876,8 @@ static bool blf_dump_lin(wtap_dumper *wdh, const wtap_rec *rec, int *err, char *
     if (!wtap_dump_file_write(wdh, &(rest_of_header), 4, err)) {
         return false;
     }
+
+    /* no padding! */
 
     return true;
 }
@@ -4940,6 +4976,7 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
             } else if (col_info_len == strlen(BLF_APPTEXT_COL_INFO_TEXT_IDENTITY) && 0 == strncmp(BLF_APPTEXT_COL_INFO_TEXT_IDENTITY, &pd[col_info_pos], col_info_len)) {
                 /* BLF_APPTEXT_METADATA: BLF_APPTEXT_XML_IDENTITY */
                 apptext_header.reservedAppText1 = (BLF_APPTEXT_XML_IDENTITY << 24) | (0xffffff & payload_len);
+
             // else if
                 /* BLF_APPTEXT_COMMENT */
                 /* tags: BLF_APPTEXT_TAG_DISS_DEFAULT, BLF_APPTEXT_COL_PROT_TEXT, "Comment: %s" */
@@ -4956,16 +4993,53 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
                 return true; /* just leave */
             }
 
-            fix_endianness_blf_apptext_header(&apptext_header);
-            if (!blf_dump_objheader(wdh, err, obj_timestamp, BLF_OBJTYPE_APP_TEXT, sizeof(blf_apptext_t) + payload_len)) {
-                return false;
+            if (payload_len > 2048 && (apptext_header.source != BLF_APPTEXT_METADATA)) {
+                ws_warning("Only Meta Data can be broken into smaller chunks!");
             }
-            if (!wtap_dump_file_write(wdh, &(apptext_header), sizeof(blf_apptext_t), err)) {
-                return false;
-            }
-            if (!wtap_dump_file_write(wdh, &(pd[pos]), payload_len, err)) {
-                return false;
-            }
+
+            uint32_t chunk_size = payload_len;
+            bool last_round = false;
+            do {
+                if (payload_len > 2048 && apptext_header.source == BLF_APPTEXT_METADATA) {
+                    chunk_size = 2048;
+                } else {
+                    chunk_size = payload_len;
+                    last_round = true;
+                }
+
+                if (!blf_dump_objheader(wdh, err, obj_timestamp, BLF_OBJTYPE_APP_TEXT, sizeof(blf_apptext_t) + chunk_size)) {
+                    return false;
+                }
+
+                if (apptext_header.source == BLF_APPTEXT_METADATA) {
+                    apptext_header.reservedAppText1 = (0xff000000 & apptext_header.reservedAppText1) | (0x00ffffff & payload_len);
+                }
+
+                apptext_header.textLength = chunk_size;
+                fix_endianness_blf_apptext_header(&apptext_header);
+                if (!wtap_dump_file_write(wdh, &(apptext_header), sizeof(blf_apptext_t), err)) {
+                    return false;
+                }
+                if (!last_round) {
+                    fix_endianness_blf_apptext_header(&apptext_header);
+                }
+
+                if (!wtap_dump_file_write(wdh, &(pd[pos]), chunk_size, err)) {
+                    return false;
+                }
+                pos += chunk_size;
+
+                /* Add strange padding to 4 bytes. */
+                uint8_t padding_needed = (sizeof(blf_apptext_t) + chunk_size) % 4;
+                if (!blf_write_add_padding(wdh, err, padding_needed)) {
+                    return false;
+                }
+
+                if (!last_round) {
+                    payload_len -= 2048;
+                }
+            } while (!last_round);
+
             return true;
         }
         // else if
@@ -4982,11 +5056,13 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
     return true;
 }
 
-static bool blf_dump_interface_setup_by_idb_desc(wtap_dumper *wdh, int *err _U_) {
+static bool blf_dump_interface_setup_by_blf_based_idb_desc(wtap_dumper *wdh, int *err _U_) {
     blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
+    bool iface_descr_found;
 
+    /* check all interfaces first to avoid inconstistent state */
     for (unsigned i = 0; i < wdh->interface_data->len; i++) {
-        ws_debug("interface: %d", i);
+        ws_debug("interface: %d (pass 1)", i);
 
         /* get interface data */
         wtap_block_t idb = g_array_index(wdh->interface_data, wtap_block_t, i);
@@ -4995,7 +5071,7 @@ static bool blf_dump_interface_setup_by_idb_desc(wtap_dumper *wdh, int *err _U_)
         }
 
         char *iface_descr = NULL;
-        bool iface_descr_found = wtap_block_get_string_option_value(idb, OPT_IDB_DESCRIPTION, &iface_descr) == WTAP_OPTTYPE_SUCCESS;
+        iface_descr_found = wtap_block_get_string_option_value(idb, OPT_IDB_DESCRIPTION, &iface_descr) == WTAP_OPTTYPE_SUCCESS;
 
         if (!iface_descr_found) {
             ws_debug("IDB interface description not found! We need to map the interfaces.");
@@ -5004,6 +5080,25 @@ static bool blf_dump_interface_setup_by_idb_desc(wtap_dumper *wdh, int *err _U_)
 
         if (strncmp(iface_descr, "BLF-", 4) != 0) {
             ws_debug("IDB interface description found but not BLF format! We have to map freely the interfaces.");
+            return false;
+        }
+    }
+
+    for (unsigned i = 0; i < wdh->interface_data->len; i++) {
+        ws_debug("interface: %d (pass 2)", i);
+
+        /* get interface data */
+        wtap_block_t idb = g_array_index(wdh->interface_data, wtap_block_t, i);
+        if (idb == NULL) {
+            return false;
+        }
+
+        char *iface_descr = NULL;
+        iface_descr_found = wtap_block_get_string_option_value(idb, OPT_IDB_DESCRIPTION, &iface_descr);
+
+        if (!iface_descr_found) {
+            /* This cannot be reached but it removes a warning. */
+            ws_debug("IDB interface description not found! We need to map the interfaces.");
             return false;
         }
 
@@ -5044,7 +5139,7 @@ static bool blf_dump_interface_setup(wtap_dumper *wdh, int *err) {
     //blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
 
     /* Try 1: BLF details in Interface Description */
-    if (blf_dump_interface_setup_by_idb_desc(wdh, err)) {
+    if (blf_dump_interface_setup_by_blf_based_idb_desc(wdh, err)) {
         return true;
     }
 
@@ -5066,58 +5161,14 @@ static bool blf_dump_interface_setup(wtap_dumper *wdh, int *err) {
             char *iface_name = NULL;
             bool iface_name_found = wtap_block_get_string_option_value(idb, OPT_IDB_NAME, &iface_name) == WTAP_OPTTYPE_SUCCESS;
 
-            /* BLF can only support 256 channels */
-            if (iface_name_found && iface_name != NULL && i < 256) {
-                blf_apptext_t apptextheader;
-                apptextheader.source = BLF_APPTEXT_CHANNEL;
+            /* BLF can only support 255 channels */
+            if (iface_name_found && iface_name != NULL && (i) < 255) {
+                uint8_t iface_id = (uint8_t)(i + 1);
 
-                apptextheader.reservedAppText1 = 0x01 | ((uint8_t)i << 8);
+                /* we are not even trying to create APPTEXT CHANNELS as we are missing too much information */
 
-                switch (mand_data->wtap_encap) {
-                case WTAP_ENCAP_ETHERNET:
-                    apptextheader.reservedAppText1 |= (BLF_BUSTYPE_ETHERNET << 16);
-                    break;
-
-                case WTAP_ENCAP_SLL:
-                case WTAP_ENCAP_SOCKETCAN:
-                    apptextheader.reservedAppText1 |= (BLF_BUSTYPE_CAN << 16);
-                    /* TODO: Do we have to set CAN-FD flag? (bit 24)*/
-                    break;
-
-                case WTAP_ENCAP_LIN:
-                    apptextheader.reservedAppText1 |= (BLF_BUSTYPE_LIN << 16);
-                    break;
-
-                }
-
-                apptextheader.reservedAppText2 = 0;
-
-                /* We do not know the name of the database file.*/
-                const char prefix[] = "unknown.db;";
-                uint32_t textlength = (uint32_t)(strlen(prefix) + strlen(iface_name));
-                apptextheader.textLength = textlength;
-
-                fix_endianness_blf_apptext_header(&apptextheader);
-
-                if (!blf_dump_objheader(wdh, err, 0, BLF_OBJTYPE_APP_TEXT, sizeof(apptextheader) + textlength)) {
-                    return false;
-                }
-
-                if (!wtap_dump_file_write(wdh, &(apptextheader), sizeof(blf_apptext_t), err)) {
-                    return false;
-                }
-
-                if (!wtap_dump_file_write(wdh, prefix, strlen(prefix), err)) {
-                    return false;
-                }
-
-                /* write channel name !*/
-                if (!wtap_dump_file_write(wdh, iface_name, strlen(iface_name), err)) {
-                    return false;
-                }
-
-                /* mapping up to 256 interface ids to channels directly */
-                if (!blf_dump_set_interface_mapping(wdh, i, mand_data->wtap_encap, (uint16_t)i, UINT16_MAX)) {
+                /* mapping up to 255 interface ids to channels directly */
+                if (!blf_dump_set_interface_mapping(wdh, i, mand_data->wtap_encap, (uint16_t)iface_id, UINT16_MAX)) {
                     return false;
                 }
             }
