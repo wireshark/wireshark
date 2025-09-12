@@ -649,7 +649,7 @@ macOS Universal Package:
       -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
       -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
       -DBUILD_stratoshark=on
-     -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/cloudtrail.dll;$FALCO_PLUGIN_DIR/gcpaudit.dll;$FALCO_PLUGIN_DIR/k8saudit.dll"
+      -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/libcloudtrail.so;$FALCO_PLUGIN_DIR/libgcpaudit.so;$FALCO_PLUGIN_DIR/libk8saudit.so"
       -DTEST_EXTRA_ARGS=--enable-release
       ..
     # Temporary hack to fix "Package 'zlib', required by 'libscap', not found"
