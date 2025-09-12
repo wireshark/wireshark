@@ -6523,6 +6523,9 @@ double QCPAxisTicker::cleanMantissa(double input) const
 QCPAxisTickerDateTime::QCPAxisTickerDateTime() :
   mDateTimeFormat(QLatin1String("hh:mm:ss\ndd.MM.yy")),
   mDateTimeSpec(Qt::LocalTime),
+# if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+  mTimeZone(QTimeZone::LocalTime),
+# endif
   mDateStrategy(dsNone)
 {
   setTickCount(4);
