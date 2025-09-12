@@ -175,7 +175,7 @@ const QString file_size_to_qstring(const int64_t size);
  *
  * @param ti_time The value to convert.
  *
- * @return A QString representation of the file size in SI units.
+ * @return A QString representation of the date time value.
  */
 const QString time_t_to_qstring(time_t ti_time);
 
