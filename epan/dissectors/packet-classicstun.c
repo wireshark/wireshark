@@ -15,8 +15,11 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/tfs.h>
 #include <epan/conversation.h>
+#include <wsutil/ws_padding_to.h>
+
 void proto_register_classicstun(void);
 void proto_reg_handoff_classicstun(void);
 
@@ -40,6 +43,7 @@ static int hf_classicstun_time;
 static int hf_classicstun_att_type; /* CLASSIC-STUN attribute fields */
 static int hf_classicstun_att_length;
 static int hf_classicstun_att_value;
+static int hf_classicstun_att_padding;
 static int hf_classicstun_att_family;
 static int hf_classicstun_att_ipv4;
 static int hf_classicstun_att_ipv6;
@@ -59,6 +63,8 @@ static int hf_classicstun_att_magic_cookie;
 static int hf_classicstun_att_bandwidth;
 static int hf_classicstun_att_data;
 static int hf_classicstun_att_connection_request_binding;
+
+static expert_field ei_classicstun_att_padding;
 
 /* Structure containing transaction specific information */
 typedef struct _classicstun_transaction_t {
@@ -204,6 +210,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
     proto_item                *ti;
     proto_item                *ta;
+    proto_item                *length_item;
     proto_tree                *classicstun_tree;
     proto_tree                *att_type_tree;
     proto_tree                *att_tree;
@@ -359,6 +366,8 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
         offset = CLASSICSTUN_HDR_LEN;
 
+        unsigned att_length_pad;
+
         while( msg_length > 0) {
             att_type = tvb_get_ntohs(tvb, offset); /* Type field in attribute header */
             att_length = tvb_get_ntohs(tvb, offset+2); /* Length field in attribute header */
@@ -379,7 +388,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                                att_length);
                 break;
             }
-            proto_tree_add_uint(att_tree, hf_classicstun_att_length, tvb,
+            length_item = proto_tree_add_uint(att_tree, hf_classicstun_att_length, tvb,
                         offset, 2, att_length);
             offset += 2;
             switch( att_type ){
@@ -535,6 +544,49 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             }
             offset += att_length;
             msg_length -= ATTR_HDR_LEN+att_length;
+            /* RFC 3489 aligns the attributes it defines on 32-bit boundaries
+             * by padding them internally, such that att_length MUST always
+             * be a multiple of 4. As RFC 5389 notes, this mechanism "never
+             * worked for the few attributes that weren't aligned naturally
+             * on 32 bit boundaries," such as USERNAME and PASSWORD. Note that
+             * this dissector dissects some attribute types which were added
+             * (and some later withdrawn) in draft-ietf-behave-rfc3489bis-00;
+             * those also MUST be aligned.
+             *
+             * There exist widely used classic STUN implementations that fail
+             * to pad attributes; some (but not all?) of those use the RFC 5389
+             * padding (introduced in draft-ietf-behave-rfc3489bis-04) whereby
+             * att_length has the attribute length prior to padding and padding
+             * up to 32 bit boundaries is added outside the attribute, despite
+             * not using the Magic Cookie introduced in rfc3489bis-03 that would
+             * cause the RFC 5389 and later dissector to handle the frame.
+             */
+            att_length_pad = WS_PADDING_TO_4(att_length);
+            if (att_length_pad && msg_length) {
+                /* Possible padding. Apply heuristics. */
+                if (msg_length == att_length_pad) {
+                    /* There is exactly enough room for padding, and not enough
+                     * for another attribute (ATTR_HDR_LEN is 4), so assume
+                     * message ending padding. */
+                    expert_add_info(pinfo, length_item, &ei_classicstun_att_padding);
+                    proto_tree_add_uint(att_tree, hf_classicstun_att_padding, tvb, offset, att_length_pad, att_length_pad);
+                    offset += att_length_pad;
+                    msg_length -= att_length_pad;
+                } else if (msg_length >= att_length_pad + ATTR_HDR_LEN) {
+                    /* There is enough room for a next attribute either
+                     * with or without padding. */
+                    if (try_val_to_str(tvb_get_ntohs(tvb, offset), attributes) == NULL &&
+                        try_val_to_str(tvb_get_ntohs(tvb, offset + att_length_pad), attributes)) {
+
+                        /* It looks like a valid attribute assuming padding
+                         * but not without assuming padding. Assume padding. */
+                        expert_add_info(pinfo, length_item, &ei_classicstun_att_padding);
+                        proto_tree_add_uint(att_tree, hf_classicstun_att_padding, tvb, offset, att_length_pad, att_length_pad);
+                        offset += att_length_pad;
+                        msg_length -= att_length_pad;
+                    }
+                }
+            }
         }
     }
     return tvb_reported_length(tvb);
@@ -551,6 +603,8 @@ dissect_classicstun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 void
 proto_register_classicstun(void)
 {
+    expert_module_t *expert_classicstun;
+
     static hf_register_info hf[] = {
         { &hf_classicstun_type,
             { "Message Type",   "classicstun.type",     FT_UINT16,
@@ -593,6 +647,10 @@ proto_register_classicstun(void)
         { &hf_classicstun_att_value,
             { "Value",  "classicstun.att.value",    FT_BYTES,
             BASE_NONE,  NULL,   0x0,    NULL,   HFILL }
+        },
+        { &hf_classicstun_att_padding,
+            { "Padding",  "classicstun.att.padding",    FT_UINT16,
+            BASE_DEC,   NULL,   0x0,    NULL,   HFILL }
         },
         { &hf_classicstun_att_family,
             { "Protocol Family",    "classicstun.att.family",   FT_UINT16,
@@ -679,6 +737,12 @@ proto_register_classicstun(void)
         &ett_classicstun_att,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_classicstun_att_padding,
+            { "classicstun.att.padding.assumed", PI_ASSUMPTION, PI_NOTE, "RFC 3489 STUN MUST align attribute lengths to a multiple of 4; assuming RFC 5389 style padding", EXPFILL}
+        }
+    };
+
 /* Register the protocol name and description */
     proto_classicstun = proto_register_protocol("Simple Traversal of UDP Through NAT",
                             "CLASSICSTUN", "classicstun");
@@ -686,6 +750,8 @@ proto_register_classicstun(void)
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_classicstun, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_classicstun = expert_register_protocol(proto_classicstun);
+    expert_register_field_array(expert_classicstun, ei, array_length(ei));
 
     /* heuristic subdissectors (used for the DATA field) */
     heur_subdissector_list = register_heur_dissector_list_with_description("classicstun", "CLASSICSTUN DATA payload", proto_classicstun);
