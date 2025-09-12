@@ -980,6 +980,7 @@ tfshark_epan_new(capture_file *cf)
     static const struct packet_provider_funcs funcs = {
         /* XXX - there should be no need for time stamps */
         cap_file_provider_get_frame_ts,
+        cap_file_provider_get_start_ts,
         no_interface_name,
         NULL,
         NULL,

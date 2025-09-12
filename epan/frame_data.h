@@ -131,6 +131,9 @@ extern bool frame_rel_first_frame_time(const struct epan_session *epan,
 extern bool frame_rel_time(const struct epan_session *epan,
                            const frame_data *fdata, nstime_t *delta);
 
+extern bool frame_rel_start_time(const struct epan_session *epan,
+                                 const frame_data *fdata, nstime_t *delta);
+
 extern bool frame_delta_time_prev_captured(const struct epan_session *epan,
                                            const frame_data *fdata,
                                            nstime_t *delta);

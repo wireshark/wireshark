@@ -48,8 +48,6 @@ typedef struct {
 
 typedef struct {
     int                first_packet_offset;
-    time_t             start_secs;
-    uint32_t           start_usecs;
 
     log3gpp_protocol_t protocol;
     char               linebuff[MAX_LINE_LENGTH + 1];
@@ -166,8 +164,6 @@ log3gpp_open(wtap *wth, int *err, char **err_info _U_)
     /* Allocate struct and fill in timestamp (netmon re used)*/
     log3gpp = g_new(log3gpp_t, 1);
     log3gpp->first_packet_offset = firstline_length + secondline_length;
-    log3gpp->start_secs = timestamp;
-    log3gpp->start_usecs = usecs;
     log3gpp->protocol.name[0] = '\0';
     log3gpp->protocol.parameters[0] = '\0';
     wth->priv = (void *)log3gpp;
@@ -187,7 +183,11 @@ log3gpp_open(wtap *wth, int *err, char **err_info _U_)
     wth->subtype_close = log3gpp_close;
 
     /* Choose microseconds (have 4 decimal places...) */
+    /* XXX - If there are 4 decimal places, why not WTAP_TSPREC_100_USEC? */
     wth->file_tsprec = WTAP_TSPREC_USEC;
+
+    wth->file_start_ts.secs = timestamp;
+    wth->file_start_ts.nsecs = usecs * 1000;
 
     *err = errno;
 
@@ -223,13 +223,8 @@ build_packet_record(wtap* wth, wtap_rec *rec, log3gpp_t const *log3gpp,
     rec->presence_flags = WTAP_HAS_TS;
 
     /* Fill in timestamp (capture base + packet offset) */
-    rec->ts.secs = log3gpp->start_secs + seconds;
-    if ((log3gpp->start_usecs + useconds) >= 1000000)
-    {
-        rec->ts.secs++;
-    }
-    rec->ts.nsecs =
-        ((log3gpp->start_usecs + useconds) % 1000000) * 1000;
+    nstime_t tmp_ts = NSTIME_INIT_SECS_USECS(seconds, useconds);
+    nstime_sum(&rec->ts, &wth->file_start_ts, &tmp_ts);
 
     if (!is_text_data)
     {

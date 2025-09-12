@@ -1624,8 +1624,6 @@ ttl_init_rec(wtap_rec* rec, uint64_t timestamp, uint16_t addr, int pkt_encap, ui
     rec->rec_header.packet_header.caplen = caplen;
     rec->rec_header.packet_header.len = len;
 
-    rec->ts_rel_cap_valid = false;
-
     rec->rec_header.packet_header.interface_id = iface_id;
 
     wtap_block_add_uint32_option(rec->block, OPT_PKT_QUEUE, addr);

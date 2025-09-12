@@ -676,11 +676,20 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype, wtap_rec *rec,
 	 * XXX - what is pinfo->rel_ts used for?  All times are
 	 * relative to some zero point on the t axis, so why
 	 * is pinfo->rel_ts used instead of pinfo->abs_ts?
+	 *
+	 * XXX - Some records aren't packets, and some, packets or not, don't
+	 * have time stamps. Should pinfo->rel_ts be relative to the first
+	 * frame (or packet record, or record of the time type as the current
+	 * record?) that *has* a time stamp?
 	 */
 	frame_rel_first_frame_time(edt->session, fd, &edt->pi.rel_ts);
 
-	if (rec->ts_rel_cap_valid) {
-		nstime_copy(&edt->pi.rel_cap_ts, &rec->ts_rel_cap);
+	/* pinfo->rel_cap_ts is used by the new Plot dialog, though
+	 * it could probably just use frame_rel_start_time instead.
+	 */
+	nstime_t rel_time;
+	if (frame_rel_start_time(edt->session, fd, &rel_time)) {
+		nstime_copy(&edt->pi.rel_cap_ts, &rel_time);
 		edt->pi.rel_cap_ts_present = true;
 	}
 

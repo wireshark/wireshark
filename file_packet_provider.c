@@ -33,6 +33,12 @@ cap_file_provider_get_frame_ts(struct packet_provider_data *prov, uint32_t frame
     return (fd && fd->has_ts) ? &fd->abs_ts : NULL;
 }
 
+const nstime_t *
+cap_file_provider_get_start_ts(struct packet_provider_data *prov)
+{
+    return prov->wth ? wtap_file_start_ts(prov->wth) : NULL;
+}
+
 static int
 frame_cmp(const void *a, const void *b, void *user_data _U_)
 {

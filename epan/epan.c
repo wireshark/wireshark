@@ -536,6 +536,22 @@ epan_get_frame_ts(const epan_t *session, uint32_t frame_num)
 	return abs_ts;
 }
 
+const nstime_t *
+epan_get_start_ts(const epan_t *session)
+{
+	const nstime_t *abs_ts = NULL;
+
+	if (session && session->funcs.get_start_ts)
+		abs_ts = session->funcs.get_start_ts(session->prov);
+
+	/* abs_ts will be null if we don't have a session, the session
+	   doesn't have a function to return time stamps, or that
+	   function returns null, e.g. because the frame doesn't
+	   *have* a time stamp. (It could return unset in the last
+	   case.) */
+	return abs_ts;
+}
+
 int32_t
 epan_get_process_id(const epan_t *session, uint32_t process_info_id, unsigned section_number)
 {

@@ -891,15 +891,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				proto_item_set_generated(item);
 			}
 
+			if (frame_rel_start_time(pinfo->epan, pinfo->fd, &rel_ts)) {
+				item = proto_tree_add_time(fh_tree, hf_frame_time_relative_cap, tvb,
+							   0, 0, &(rel_ts));
+				proto_item_set_generated(item);
+			}
+
 			if (pinfo->fd->ref_time) {
 				ti = proto_tree_add_item(fh_tree, hf_frame_time_reference, tvb, 0, 0, ENC_NA);
 				proto_item_set_generated(ti);
-			}
-
-			if (pinfo->rel_cap_ts_present) {
-				item = proto_tree_add_time(fh_tree, hf_frame_time_relative_cap, tvb,
-							   0, 0, &(pinfo->rel_cap_ts));
-				proto_item_set_generated(item);
 			}
 		}
 	}

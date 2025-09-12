@@ -74,6 +74,12 @@ struct wtap {
                                                 * precision
                                                 * e.g. WTAP_TSPREC_USEC
                                                 */
+    nstime_t                    file_start_ts; /**< Per-file start time, for
+                                                * those file formats that have
+                                                * a start time distinct from
+                                                * that of the first record with
+                                                * a timestamp. (Can be unset.)
+                                                */
     wtap_new_ipv4_callback_t    add_new_ipv4;
     wtap_new_ipv6_callback_t    add_new_ipv6;
     wtap_new_secrets_callback_t add_new_secrets;

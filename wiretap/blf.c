@@ -1350,21 +1350,18 @@ blf_init_rec(blf_params_t *params, uint32_t flags, uint64_t object_timestamp, in
     wtap_setup_packet_rec(params->rec, pkt_encap);
     params->rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     params->rec->presence_flags = WTAP_HAS_CAP_LEN | WTAP_HAS_INTERFACE_ID;
-    params->rec->ts_rel_cap_valid = false;
     switch (flags) {
     case BLF_TIMESTAMP_RESOLUTION_10US:
         params->rec->presence_flags |= WTAP_HAS_TS;
         params->rec->tsprec = WTAP_TSPREC_10_USEC;
         object_timestamp *= 10000;
         object_timestamp += params->blf_data->start_offset_ns;
-        params->rec->ts_rel_cap_valid = true;
         break;
 
     case BLF_TIMESTAMP_RESOLUTION_1NS:
         params->rec->presence_flags |= WTAP_HAS_TS;
         params->rec->tsprec = WTAP_TSPREC_NSEC;
         object_timestamp += params->blf_data->start_offset_ns;
-        params->rec->ts_rel_cap_valid = true;
         break;
 
     default:
@@ -1386,11 +1383,6 @@ blf_init_rec(blf_params_t *params, uint32_t flags, uint64_t object_timestamp, in
     params->rec->ts.nsecs = object_timestamp % (1000 * 1000 * 1000);
     params->rec->rec_header.packet_header.caplen = caplen;
     params->rec->rec_header.packet_header.len = len;
-
-    nstime_t tmp_ts;
-    tmp_ts.secs = params->blf_data->start_offset_ns / (1000 * 1000 * 1000);
-    tmp_ts.nsecs = params->blf_data->start_offset_ns % (1000 * 1000 * 1000);
-    nstime_delta(&params->rec->ts_rel_cap, &params->rec->ts, &tmp_ts);
 
     params->rec->rec_header.packet_header.interface_id = blf_lookup_interface(params, pkt_encap, channel, hwchannel, NULL);
 
@@ -3898,6 +3890,8 @@ blf_open(wtap *wth, int *err, char **err_info) {
     wth->file_encap = WTAP_ENCAP_NONE;
     wth->snapshot_length = 0;
     wth->file_tsprec = WTAP_TSPREC_UNKNOWN;
+    wth->file_start_ts.secs = blf->start_offset_ns / (1000 * 1000 * 1000);
+    wth->file_start_ts.nsecs = blf->start_offset_ns % (1000 * 1000 * 1000);
     wth->subtype_read = blf_read;
     wth->subtype_seek_read = blf_seek_read;
     wth->subtype_close = blf_close;

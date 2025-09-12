@@ -1428,8 +1428,6 @@ typedef struct wtap_rec {
     unsigned  section_number;    /* section, within file, containing this record */
     nstime_t  ts;                /* time stamp */
     int       tsprec;            /* WTAP_TSPREC_ value for this record */
-    nstime_t  ts_rel_cap;        /* time stamp relative from capture start */
-    bool      ts_rel_cap_valid;  /* is ts_rel_cap valid and can be used? */
     const char *rec_type_name;   /* name of this record type */
     union {
         wtap_packet_header packet_header;
@@ -2059,6 +2057,8 @@ WS_DLL_PUBLIC
 int wtap_file_encap(wtap *wth);
 WS_DLL_PUBLIC
 int wtap_file_tsprec(wtap *wth);
+WS_DLL_PUBLIC
+const nstime_t* wtap_file_start_ts(wtap *wth);
 
 /**
  * @brief Gets number of section header blocks.

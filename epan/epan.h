@@ -57,6 +57,7 @@ struct packet_provider_data;
  */
 struct packet_provider_funcs {
 	const nstime_t *(*get_frame_ts)(struct packet_provider_data *prov, uint32_t frame_num);
+	const nstime_t *(*get_start_ts)(struct packet_provider_data *prov);
 	const char *(*get_interface_name)(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
 	const char *(*get_interface_description)(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
 	wtap_block_t (*get_modified_block)(struct packet_provider_data *prov, const frame_data *fd);
@@ -161,6 +162,8 @@ WS_DLL_PUBLIC const uint8_t *epan_get_process_uuid(const epan_t *session, uint32
 
 
 const nstime_t *epan_get_frame_ts(const epan_t *session, uint32_t frame_num);
+
+const nstime_t *epan_get_start_ts(const epan_t *session);
 
 WS_DLL_PUBLIC void epan_free(epan_t *session);
 

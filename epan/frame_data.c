@@ -132,6 +132,36 @@ frame_rel_time(const struct epan_session *epan, const frame_data *fdata,
                                 delta);
 }
 
+bool
+frame_rel_start_time(const struct epan_session *epan, const frame_data *fdata,
+                     nstime_t *delta)
+{
+  if (!fdata->has_ts) {
+    /* We don't have a time stamp for this packet. Set the delta time
+       to zero, and return false. */
+    /* XXX - Would it make more sense to set the delta time to "unset"
+     * rather than zero here and in similar functions when returning
+     * false? */
+    nstime_set_zero(delta);
+    return false;
+  }
+
+  const nstime_t *start_ts = epan_get_start_ts(epan);
+
+  if (start_ts == NULL || nstime_is_unset(start_ts)) {
+    /* There isn't an explicit start time.  Set the delta
+       time to zero, and return false. */
+    nstime_set_zero(delta);
+    return false;
+  }
+
+  /* This frame has a time stamp and the start time stamp exists;
+     compute the delta between this frame's time stamp and
+     the start time stamp, and return true. */
+  nstime_delta(delta, &fdata->abs_ts, start_ts);
+  return true;
+}
+
 static int
 frame_compare_rel_times(const struct epan_session *epan,
                         const frame_data *fdata1, const frame_data *fdata2)
