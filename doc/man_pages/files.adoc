@@ -245,7 +245,7 @@ with *tshark -G manuf*.
 
 In addition to the __manuf__ file, another file with the same format,
 __wka__, is looked for in the global directory. This file is distributed
-with Wireshark, and contains data about well-known MAC adddresses and
+with Wireshark, and contains data about well-known MAC addresses and
 address ranges assembled from various non IEEE but respected sources.
 --
 

@@ -415,7 +415,7 @@ actual dates and times be displayed for all packets in UTC.
 --
 
 -u <s | hms>::
-Show timesamps as seconds (“s”, the default) or hours, minutes, and seconds (“hms”)
+Show timestamps as seconds (“s”, the default) or hours, minutes, and seconds (“hms”)
 
 -v::
 --version::

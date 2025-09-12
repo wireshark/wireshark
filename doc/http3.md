@@ -43,7 +43,7 @@ The essential call tree:
 ### Overview of the HTTP3 header dissection
 The QPACK implementation from `nghttp3` requires a separate QPACK decoder instance
 for every HTTP3 connection. The different HTTP3 streams that constitute a single
-HTTP3 conneciton are sharing the same QPACK decoder instance.
+HTTP3 connection are sharing the same QPACK decoder instance.
 
 The HTTP3 dissector interacts with the QPACK decoder in 2 ways:
 -  On the reception of QPACK encoder data (which is delivered on a dedicated unidirectional stream),
@@ -57,7 +57,7 @@ the dissector adds expert info items.
 The decompression can fail due to several reasons:
 -  If the instruction count required by the compressed HTTP3 headers
    exceeds the maximal instruction count that the QPACK decoder is aware of,
-   the decoding becomes "blocked". This situation can occure when the QUIC packets
+   the decoding becomes "blocked". This situation can occur when the QUIC packets
    that carry the QPACK encoder instructions are dropped/reordered.
 -  If the state of the decoder becomes invalid, which may happen when a "garbage"
    data is received on the QUIC stream.
@@ -78,7 +78,7 @@ The `HTTP3_CONN_INFO_MAP` contains session-level information for every HTTP3 con
 in a PCAP file. This map is lazily allocated, and is cleared upon exiting the file scope.
 
 ### HTTP3 header caches
-The dissector attempts to conserve memory, by avoding allocating memory for
+The dissector attempts to conserve memory, by avoiding allocating memory for
 duplicate header names/values. Instead, the dissector keeps the decoded names/values
 in two caches: `HTTP3_HEADER_CACHE` and `HTTP3_HEADER_DEF_CACHE`. The former stores
 the decoded HTTP3 header values, and the latter stores the decoded HTTP3 header names.

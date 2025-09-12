@@ -494,7 +494,7 @@ WSLUA_ARG_ERROR - this is a pure C macro and does not generate any
 documentation.  It is used for errors in type/value of function/method
 arguments.
 
-Example: see the example in thr WSLUA_CONSTRUCTOR above.
+Example: see the example in the WSLUA_CONSTRUCTOR above.
 
 
 ==============================================================================

@@ -1509,7 +1509,7 @@ new request. It’s possible to set multiple time references in the capture file
 The time references will not be saved permanently and will be lost when you
 close the capture file.
 
-Time referencing supercedes the value for the time relative to first
+Time referencing supersedes the value for the time relative to first
 capture packet. It affects the default Time column if the time display
 format is set to “Seconds Since First Captured Packet”, or a “Relative Time”
 column if one has been added. It also affects the `frame.time_relative` field.

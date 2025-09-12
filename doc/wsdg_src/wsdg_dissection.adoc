@@ -810,7 +810,7 @@ There's been a slight alteration to the function used to add the sequence number
 dissection. Firstly, `proto_tree_add_item()` has changed to
 `proto_tree_add_item_ret_uint()` so we can store the actual value of the field in the variable
 `sequenceno`.
-We can now use the value of this field to determine wether to add
+We can now use the value of this field to determine whether to add
 the expert item.
 
 Secondly, the `proto_item` returned by the function is saved in previously

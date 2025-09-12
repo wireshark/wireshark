@@ -412,7 +412,7 @@ Examples are:
 
 ----
 00:00:01        Xerox   Xerox Corporation
-00:50:C2:00:30:00/36      Microsof        Microsoft
+00:50:C2:00:30:00/36      Microsoft        Microsoft
 ----
 
 In earlier versions of Wireshark, official information from the IEEE

@@ -59,7 +59,7 @@ FALCO_PLUGINS:: Semicolon-separated paths to individual Falco plugins, e.g. `/pa
 .Example 1: Building on Linux using Make
 [sh]
 ----
-# This assumes that falcosecurity-libs and the CloudTral plugin were installed in
+# This assumes that falcosecurity-libs and the CloudTrail plugin were installed in
 # `/opt/falco-libs/0.18.1`.
 cmake \
   -DBUILD_stratoshark=ON \

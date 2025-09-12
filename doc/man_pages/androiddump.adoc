@@ -204,7 +204,7 @@ For tcpdump this is followed by target network device name (like `eth0`).
 
 Then Android Device's name if available, otherwise `unknown`.
 
-Last part of it is DeviceID - the identificator of the device provided by Android SDK (see `adb devices`).
+Last part of it is DeviceID - the identifier of the device provided by Android SDK (see `adb devices`).
 
 For example: `Android Logcat Main unknown MSM7627A`
 
