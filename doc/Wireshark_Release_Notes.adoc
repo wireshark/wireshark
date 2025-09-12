@@ -32,195 +32,21 @@ See the “New and Updated Features” section below for more details.
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
-//* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
+//* Wireshark keeps waving its finger about an inch from you and saying "I'm not touching you."
 
 === New and Updated Features
 
-The following features are either new or have been significantly updated since version 4.4.0:
+The following features are either new or have been significantly updated since version 4.6.0:
 
-* The Windows installers now ship with Npcap 1.83.
-  They previously shipped with Npcap 1.79.
+// * The Windows installers now ship with Npcap 1.83.
+//   They previously shipped with Npcap 1.79.
 
-* The Windows installers now ship with Qt 6.8.3.
-  They previously shipped with Qt 6.5.3.
+// * The Windows installers now ship with Qt 6.8.3.
+//   They previously shipped with Qt 6.5.3.
 
-* WinPcap is no longer supported. On Windows, use Npcap instead, uninstalling
-  WinPcap if necessary. The last release ever of WinPcap, 4.1.3, was on
-  2013-03-08 and only supports up to Windows 8, which is no longer supported
-  by Microsoft or Wireshark.
+* Nothing of note.
 
-* We now ship universal macOS installers instead of separate packages
-for Arm64 and Intel. wsbuglink:17294[]
-
-* Source packages are now compressed using zstd.
-
-* Live captures can be compressed while writing. (Previously there was
-  support for compressing when performing multiple file capture, at file
-  rotation time.) The `--compress` option in TShark works on live captures
-  as well. wsbuglink:9311[]
-
-* Absolute time fields, regardless of field display in the Packet Details,
-  are always written in ISO 8601 format in UTC with -T json. This was already
-  the case for -T ek since version 4.2.0. JSON is primarily a data interchange
-  format read by software, so a standard format is desirable.
-
-* When absolute times field are output with -T fields, the "show" field of -T
-  pdml, or in custom columns (including CSV output of columns), the formatting
-  similar to asctime (e.g., Dec 18, 2017 05:28:39.071704055 EST) has been
-  deprecated in favor of ISO 8601. For backwards compatibility, a preference
-  has been added, protocols.display_abs_time_ascii, which can be set to continue
-  to format times as before. This preference can also be set to never use ASCII
-  time and to use ISO 8601 time formatting in the protocol tree (Packet Details)
-  as well. It is possible that a future release will remove the ascitime style
-  formatting entirely.
-
-* UTC frame time column formats (including "Time (format as specified)" when
-  a UTC time display format is selected) have a "Z" suffix per ISO 8601. Local
-  time formats remain unqualified (including if the local time zone is UTC.)
-  Custom columns displaying FT_ABSOLUTE_TIME already had time zone indication.
-
-* The TShark `-G` option for generating glossary reports does not need to be the
-  first option given on the command line anymore. In addition, the reports now
-  are affected by other command line options such as `-o`, `-d`, and
-  `--disable-protocol`, in addition to the `-C` option, which was already supported.
-  (The `defaultprefs` report remains unaffected by any other options.)
-  As a part of this change, `-G` with no argument, which was previously deprecated,
-  is no longer supported. Use `tshark -G fields` to produce the same report.
-  Also, the syntax for only listing fields with a certain prefix has changed to
-  `tshark -G fields,prefix`.
-
-* The underlying type of EUI-64 fields has been switched to bytes when packet
-  matching, similar to most other address formats. This means that EUI-64
-  addresses can be sliced and compared to other bytes types, e.g. the filter
-  `wpan.src64[:3] == eth.src[:3]`. Fields can still be specified using 64-bit
-  unsigned integer literals, though arithmetic with other integers is no longer
-  supported.
-
-* Wireshark can now decrypt NTP packets using NTS (Network Time Security). To decrypt packets,
-  the NTS-KE (Network Time Security Key Establishment Protocol) packets need to be present,
-  alongside the TLS client and exporter secrets. Additionally, the parts of a NTP packet which
-  can be cryptographically authenticated (from NTP packet header until the end  of the last
-  extension field that precedes the NTS Authenticator and Encrypted Extension Fields
-  extension field) are checked for validity.
-
-* Wiresharks' capability to decrypt MACsec packets has been expanded to either
-  use the SAK unwrapped by the MKA dissector, or the PSK configured in the
-  MACsec dissector. To enable the MKA dissector to unwrap the SAK, the CAK for
-  the applicable CKN can be entered in the extended CKN/CAK Info UAT in the
-  MKA dissector preferences. The ability of the MACsec dissector to decrypt
-  packets using a PSK has been extended to a list of PSKs, which can entered
-  through a new UAT.
-
-* The TCP Stream Graph axes now use units with SI prefixes. wsbuglink:20197[]
-
-* Custom columns have an option to show the values using the same format as
-  in Packet Details.
-
-* Custom column complex expressions (e.g., with arithmetic, filter functions,
-  etc.) that return numeric results are sorted numerically instead of
-  lexicographically.
-
-* Display filter functions `float` and `double` are added to allow explicitly
-  converting field types like integers and times to single and double precision
-  floats. They can be used to perform further arithmetic operations on fields
-  of different types, including in custom column definitions.
-
-* The minimum width of the I/O Graph dialog window is reduced, so it should
-  work better on small resolution desktops, especially in certain languages.
-  To enable this, some checkbox controls were moved to the graph right-click
-  context menu. wsbuglink:20147[]
-
-* X.509 certificates, used in TLS and elsewhere, can be exported via the
-  File->Export Objects menu in Wireshark (under the name "X509AF") and
-  `--export-objects` in TShark (with the protocol name `x509af`.)
-
-* Zstandard Content-Encoding is supported in the HTTP and HTTP/2 dissectors.
-
-* Follow Stream is supported for MPEG 2 Transport Stream PIDs, and for
-  Packetized Elementary Streams contained within MPEG 2 TS. The latter
-  can be used to extract audio or video for playback with other tools.
-
-* DNP 3 (Distributed Network Protocol 3) is now supported in the Conversations
-  and Endpoints table dialogs.
-
-* The Lua supplied preloaded libraries `bit` and `rex_pcre2` are loaded in
-  a way that adds them to the `package.loaded` table, as though through
-  `require`, so that `require("bit")` and `require("rex_pcre2")` statements
-  in Lua dissectors, while usually superfluous, behave as expected. wsbuglink:20213[]
-
-* The packet list (Wireshark) and event list (Stratoshark) no longer support rows with multiple lines.
-  wsbuglink:14424[]
-
-* The `ethers` file can also contain EUI-64 to name mappings. wsbuglink:15487[]
-
-* Wireshark "Import from Hex Dump" and text2pcap support byte groups with 2 to
-  4 bytes (with an option for little-endian byte order), and support hexadecimal
-  offsets with a `0x` or `0X` prefix (as produced by `tcpdump -x`, among others).
-  wsbuglink:16193[]
-
-* Frame timestamps can be added as preamble to hex dumps in Wireshark from
-  the "Print" and "Export Packet Dissection" dialogs, and in TShark with
-  the `--hexdump time` option. wsbuglink:17132[]
-
-* Lua now has a `Conversation` object, which exposes conversations and conversation
-  data to Lua. Resolves wsbuglink:15396[]
-
-* Supports "Copy in HTML" format via main menu, context menu and keyboard
-  shortcut. It also provides an option (via knobs in preferences) to copy plain
-  text with aligned columns along with an ability to select a copy format to be
-  used when copied via keyboard shortcut.
-
-* The "no duplicate keys" version of JSON output that tshark has supported
-  since 2.6.0 is available through the GUI Export Dissections Dialog.
-  Note that this format does not necessarily preserve the ordering of all
-  children in a tree, if sibling with identical keys are not consecutive.
-
-* The GUI Export Dissections Dialog can output raw hex bytes of the frame
-  data for each field with or without exporting the field values, the same
-  formats as the "-T json -x" and "-T jsonraw" output modes, respectively,
-  of TShark.
-
-* The Conversations and Endpoints dialogs have an option to display byte counts
-  and bit rates in exact counts instead of human-readable numbers with SI units.
-  The default setting when opening a dialog is controlled by a Statistics
-  preference, "conv.machine_readable". The same preference controls whether
-  precise byte counts are used in the TShark "-z conv" and "-z endpoints" taps.
-
-* The output format for some TShark statistics taps (those selected with
-  "-z <tap>,tree", which use the stats_tree system) can be controlled via
-  a preference "-o statistics.output_format".
-
-* The color scheme can be set to Light or Dark mode independently of the
-  current OS default on Windows and macOS, if Wireshark is built with
-  Qt 6.8 or later as the official installers do. wsbuglink:19328[]
-
-* LibXml2 is now a required dependency.
-
-* Add marker manipulations options in Plot dialog.
-
-* Add auto scroll option in Plot dialog.
-
-* The View menu has an option to Redissect Packets manually, which can be useful
-  when address resolution or decryption secrets have changed.
-
-* HTTP2 tracking of 3GPP session over 5G Service Based Interfaces is now optional
-  available. When enabled "Associate IMSI" will be add on HTTP2 streams which
-  has been found belong to a session.
-
-* Building the documentation on Windows no longer requires Java.
-
-* On Linux, capture filters that use BPF extensions like "inbound", "outbound",
-  and "ifindex" can be used for capturing (and compiled by the Compiled Filter
-  dialog). Instead of always being rejected by the syntax checker, they will be
-  marked as unknown.
-
-=== Removed Features and Support
-
-Wireshark no longer supports AirPcap and WinPcap.
-
-Wireshark no longer supports libnl versions 1 or 2.
-
-The ENABLE_STATIC CMake option has been deprecated in favor of BUILD_SHARED_LIBS
+// === Removed Features and Support
 
 // === Removed Dissectors
 
@@ -238,20 +64,6 @@ The ENABLE_STATIC CMake option has been deprecated in favor of BUILD_SHARED_LIBS
 // git log --oneline --diff-filter=A --stat v4.3.0rc0.. epan/dissectors plugins
 [commaize]
 --
-Lenbrook Service Discovery Protocol (LSDP)
-Network Time Security Key Establishment Protocol (NTS-KE)
-Private Line Emulation (PLE)
-Roughtime (Roughtime)
-SBAS L5 messages
-Binary HTTP
-Universal Measurement and Calibration Protocol (XCP)
-vSomeIP Internal Protocol (vSomeIP)
-VLP-16 Data and Position messaging
-Navitrol messaging
-SICK CoLA Ascii and CoLA Binary protocols
-Identifier-Locator Network Protocol (ILNP)
-BIST TotalView-ITCH protocol (BIST-ITCH)
-BIST TotalView-OUCH protocol (BIST-OUCH)
 --
 
 === Updated Protocol Support
@@ -262,14 +74,9 @@ Too many protocol updates have been made to list them all here.
 
 [commaize]
 --
-BLF is now improved (including writing to BLF)
 --
 
-=== New and Updated Capture Interfaces support
-
-* On Windows, etwdump's user-friendliness has been greatly improved
-  thanks to various extcap changes. It should also now display the
-  raw bytes of unknown events.
+=== New and Updated Capture Interface support
 
 // [commaize]
 // --
@@ -280,8 +87,6 @@ BLF is now improved (including writing to BLF)
 //_Non-empty section placeholder._
 
 // === Major API Changes
-
-The Lua API now supports Libgcrypt symmetric cipher functions.
 
 == Getting Wireshark
 
@@ -318,8 +123,8 @@ https://gitlab.com/wireshark/wireshark/-/issues[the issue tracker].
 You can learn protocol analysis and meet Wireshark’s developers at
 https://sharkfest.wireshark.org[SharkFest].
 
-// Official Wireshark training and certification are available from
-// https://www.wiresharktraining.com/[Wireshark University].
+Official Wireshark training and certification are available from
+https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 == How You Can Help
 
