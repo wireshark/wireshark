@@ -9,9 +9,8 @@ Do not edit manually!
 Call InitAdditionalTasksPage</CreateFunctionCustomScript>
   <Label Name="ExtensionsLabel" Location="22, 151" Size="372, 52" Text="The scap extension will be associated with Stratoshark." TabIndex="0" />
   <CheckBox Name="AssociateExtensionsCheckBox" Location="22, 126" Size="406, 14" Text="Associate trace file extensions with Stratoshark" TabIndex="1" />
-  <CheckBox Name="QuickLaunchCheckBox" Location="22, 74" Size="406, 14" Text="Stratoshark Quick Launch Icon" TabIndex="2" />
-  <CheckBox Name="DesktopIconCheckBox" Location="22, 54" Size="406, 14" Text="Stratoshark Desktop Icon" TabIndex="3" />
-  <CheckBox Name="StartMenuCheckBox" Location="22, 34" Size="406, 14" Text="Stratoshark Start Menu Item" TabIndex="4" />
-  <Label Name="FileExtensionsLabel" Location="12, 101" Size="426, 14" Text="Associate File Extensions" Font="Microsoft Sans Serif, 8.25pt, style=Bold" TabIndex="5" />
-  <Label Name="CreateShortcutsLabel" Location="12, 9" Size="426, 14" Text="Create Shortcuts" Font="Microsoft Sans Serif, 8.25pt, style=Bold" TabIndex="6" />
+  <CheckBox Name="DesktopIconCheckBox" Location="22, 54" Size="406, 14" Text="Stratoshark Desktop Icon" TabIndex="2" />
+  <CheckBox Name="StartMenuCheckBox" Location="22, 34" Size="406, 14" Text="Stratoshark Start Menu Item" TabIndex="3" />
+  <Label Name="FileExtensionsLabel" Location="12, 101" Size="426, 14" Text="Associate File Extensions" Font="Microsoft Sans Serif, 8.25pt, style=Bold" TabIndex="4" />
+  <Label Name="CreateShortcutsLabel" Location="12, 9" Size="426, 14" Text="Create Shortcuts" Font="Microsoft Sans Serif, 8.25pt, style=Bold" TabIndex="5" />
 </Dialog>
