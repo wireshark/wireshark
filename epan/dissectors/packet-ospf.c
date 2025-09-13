@@ -1075,7 +1075,8 @@ static int hf_ospf_tlv_length;
 static int hf_ospf_v3_e_lsa_tlv_type;
 static int hf_ospf_v3_e_lsa_tlv_length;
 
-/* Header OSPF v2 auth */
+/* Header OSPF v2 auth + multi-instance */
+static int hf_ospf_header_instance_id;
 static int hf_ospf_header_auth_type;
 static int hf_ospf_header_auth_data_none;
 static int hf_ospf_header_auth_data_simple;
@@ -1086,7 +1087,7 @@ static int hf_ospf_header_auth_crypt_data;
 static int hf_ospf_header_auth_data_unknown;
 
 /* Header OSPF v3 */
-static int hf_ospf_header_instance_id;
+static int hf_ospf_v3_header_instance_id;
 static int hf_ospf_header_reserved;
 
 /* Hello */
@@ -1483,7 +1484,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     uint32_t phdr[2];
     uint16_t cksum, computed_cksum;
     unsigned length, reported_length;
-    uint16_t auth_type;
+    uint8_t auth_type;
     int crypto_len = 0;
     unsigned int ospf_header_length;
     uint8_t instance_id;
@@ -1633,9 +1634,10 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     switch (version) {
 
     case OSPF_VERSION_2:
-        /* Authentication is only valid for OSPFv2 */
-        proto_tree_add_item(ospf_header_tree, hf_ospf_header_auth_type, tvb, 14, 2, ENC_BIG_ENDIAN);
-        auth_type = tvb_get_ntohs(tvb, 14);
+        /* Authentication and multi-instance is only valid for OSPFv2 */
+        proto_tree_add_item(ospf_header_tree, hf_ospf_header_instance_id, tvb, 14, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ospf_header_tree, hf_ospf_header_auth_type, tvb, 15, 1, ENC_BIG_ENDIAN);
+        auth_type = tvb_get_uint8(tvb, 15);
         switch (auth_type) {
         case OSPF_AUTH_NONE:
             proto_tree_add_item(ospf_header_tree, hf_ospf_header_auth_data_none, tvb, 16, 8, ENC_NA);
@@ -1670,7 +1672,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     case OSPF_VERSION_3:
         /* Instance ID and "reserved" is OSPFv3-only */
-        proto_tree_add_item(ospf_header_tree, hf_ospf_header_instance_id, tvb, 14, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ospf_header_tree, hf_ospf_v3_header_instance_id, tvb, 14, 1, ENC_BIG_ENDIAN);
         instance_id = tvb_get_uint8(tvb, 14);
         /* By default set address_family to OSPF_AF_6 */
         address_family = OSPF_AF_6;
@@ -2261,13 +2263,29 @@ static const value_string oif_stlv_str[] = {
     {0, NULL},
 };
 
+/* Ref. https://www.iana.org/assignments/ospfv2-parameters/ospfv2-parameters.xhtml#instance-ids */
 static const range_string ospf_instance_id_rvals[] = {
-    { 0, 31, "IPv6 unicast AF" },
-    { 32, 63, "IPv6 multicast AF" },
-    { 64, 95, "IPv4 unicast AF" },
-    { 96, 127, "IPv4 multicast AF" },
-    { 128, 255, "Reserved" },
-    { 0, 0, NULL },
+    {   0,   0, "Base IPv4 Unicast Instance" },
+    {   1,   1, "Base IPv4 Multicast Instance" },
+    {   2,   2, "Base IPv4 In-band Management Instance" },
+    {   3, 127, "Private Use" },
+    { 128, 255, "Unassigned" },
+    {   0,   0, NULL },
+};
+
+/* Ref. https://www.iana.org/assignments/ospfv3-parameters/ospfv3-parameters.xhtml#ospfv3-parameters-9 */
+static const range_string ospfv3_instance_id_rvals[] = {
+    {   0,   0, "Base IPv6 Unicast AF" },
+    {   1,  31, "Base IPv6 Unicast AF (local policy)" },
+    {  32,  32, "Base IPv6 Multicast" },
+    {  33,  63, "IPv6 Multicast AFs (local policy)" },
+    {  64,  64, "Base IPv4 Unicast AF" },
+    {  65,  95, "IPv4 Unicast AFs (local policy)" },
+    {  96,  96, "Base IPv4 Multicast" },
+    {  97, 127, "IPv4 Multicast AFs (local policy)" },
+    { 128, 191, "Unassigned" },
+    { 192, 255, "Private Use" },
+    {   0,   0, NULL },
 };
 
 /*
@@ -4784,9 +4802,12 @@ proto_register_ospf(void)
         {&hf_ospf_tlv_length,
          { "TLV Length", "ospf.tlv_length", FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL }},
+        {&hf_ospf_header_instance_id,
+         { "Instance ID", "ospf.instance_id", FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(ospf_instance_id_rvals), 0x0,
+           NULL, HFILL }},
         /* OSPF Header v2 (Auth) */
         {&hf_ospf_header_auth_type,
-         { "Auth Type", "ospf.auth.type", FT_UINT16, BASE_DEC, VALS(auth_vals), 0x0,
+         { "Auth Type", "ospf.auth.type", FT_UINT8, BASE_DEC, VALS(auth_vals), 0x0,
            NULL, HFILL }},
         {&hf_ospf_header_auth_data_none,
          { "Auth Data (none)", "ospf.auth.none", FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -4811,9 +4832,10 @@ proto_register_ospf(void)
            NULL, HFILL }},
 
         /* OSPF Header v3 */
-        {&hf_ospf_header_instance_id,
-         { "Instance ID", "ospf.instance_id", FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(ospf_instance_id_rvals), 0x0,
+        {&hf_ospf_v3_header_instance_id,
+         { "Instance ID", "ospf.v3.instance_id", FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(ospfv3_instance_id_rvals), 0x0,
            NULL, HFILL }},
+
         {&hf_ospf_header_reserved,
          { "Reserved", "ospf.reserved", FT_BYTES, BASE_NONE, NULL, 0x0,
            "Must be zero", HFILL }},
