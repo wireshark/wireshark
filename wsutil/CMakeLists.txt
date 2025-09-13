@@ -337,6 +337,16 @@ set_source_files_properties(
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+	# The optimizer in GCC 12.2 (at least) gets confused about "ulpmask"
+	# being used uninitialized.  Silence it.
+	set_source_files_properties(
+		dtoa.c
+		PROPERTIES
+		COMPILE_FLAGS "${WERROR_COMMON_FLAGS} -Wno-maybe-uninitialized"
+	)
+endif()
+
 if (HAVE_SSE4_2)
 	# TODO with CMake 2.8.12, we could use COMPILE_OPTIONS and just append
 	# instead of this COMPILE_FLAGS duplication...
@@ -352,7 +362,7 @@ if (ENABLE_APPLICATION_BUNDLE)
 		filesystem.c
 		PROPERTIES
 		COMPILE_FLAGS "${WERROR_COMMON_FLAGS} -DENABLE_APPLICATION_BUNDLE"
-)
+	)
 endif()
 
 add_library(wsutil
