@@ -980,14 +980,21 @@ dissect_h264_scaling_list(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, i
     int32_t delta_scale;
 
     for (j = 0; j < sizeOfScalingList; j++) {
-      if (nextScale != 0) {
-          /* delta_scale 0 | 1 se(v) */
-          delta_scale = dissect_h264_exp_golomb_code(tree, pinfo, hf_h264_delta_scale, tvb, &bit_offset, H264_SE_V);
-          nextScale = ( lastScale + delta_scale + 256 ) % 256;
-          /* hf_index_usedefaultscalingmatrixflag = ( j == 0 && nextScale == 0 ); */
-      }
-      hf_index_scalinglist[ j ] = ( nextScale == 0 ) ? lastScale : nextScale;
-      lastScale = hf_index_scalinglist[ j ];
+        if (nextScale != 0) {
+            /* delta_scale 0 | 1 se(v) */
+            delta_scale = dissect_h264_exp_golomb_code(tree, pinfo, hf_h264_delta_scale, tvb, &bit_offset, H264_SE_V);
+            /* 7.4.2.1.1.1 Scaling list semantics "The value of delta_scale
+             * shall be in the range of −128 to +127, inclusive."
+             */
+            if (delta_scale > 127 || delta_scale < -128) {
+                expert_add_info_format(pinfo, proto_tree_get_parent(tree), &ei_h264_oversized_exp_golomb_code, "The value of delta_scale shall be in the range -128 to +127, inclusive");
+                delta_scale %= 256;
+            }
+            nextScale = ( lastScale + delta_scale + 256 ) % 256;
+            /* hf_index_usedefaultscalingmatrixflag = ( j == 0 && nextScale == 0 ); */
+        }
+        hf_index_scalinglist[ j ] = ( nextScale == 0 ) ? lastScale : nextScale;
+        lastScale = hf_index_scalinglist[ j ];
     }
 
     return bit_offset;
