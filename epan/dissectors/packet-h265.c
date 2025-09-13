@@ -789,7 +789,7 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, pack
 {
 	proto_item *ti;
 
-	int      leading_zero_bits, bit_offset, start_offset;
+	int      leading_zero_bits, bit_offset, start_offset, length;
 	uint32_t codenum, mask, value, tmp;
 	int32_t  se_value = 0;
 	int      b;
@@ -850,89 +850,6 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, pack
 		bit_offset++;
 	}
 
-	/* XXX: This could be handled in the general case and reduce code
-	 * duplication.  */
-	if (leading_zero_bits == 0) {
-		codenum = 0;
-		*start_bit_offset = bit_offset;
-		for (; bit % 8; bit++) {
-			if (bit && (!(bit % 4))) {
-				(void) g_strlcat(str, " ", 256);
-			}
-			(void) g_strlcat(str, ".", 256);
-		}
-		if (hf_field) {
-			(void) g_strlcat(str, " = ", 256);
-			(void) g_strlcat(str, hf_field->name, 256);
-			switch (descriptor) {
-			case H265_SE_V:
-				/* if the syntax element is coded as se(v),
-				* the value of the syntax element is derived by invoking the
-				* mapping process for signed Exp-Golomb codes as specified in
-				* subclause 9.1.1 with codeNum as the input.
-				*/
-				if (hf_field->type == FT_INT32) {
-					if (hf_field->strings) {
-						proto_tree_add_int_format(tree, hf_index, tvb, start_offset, 1, codenum,
-							"%s: %s (%d)",
-							str,
-							val_to_str_const(codenum, cVALS(hf_field->strings), "Unknown "),
-							codenum);
-					}
-					else {
-						switch (hf_field->display) {
-						case BASE_DEC:
-							proto_tree_add_int_format(tree, hf_index, tvb, start_offset, 1, codenum,
-								"%s: %d",
-								str,
-								codenum);
-							break;
-						default:
-							DISSECTOR_ASSERT_NOT_REACHED();
-							break;
-						}
-					}
-				}
-				return codenum;
-			default:
-				break;
-			}
-			if (hf_field->type == FT_UINT32) {
-				if (hf_field->strings) {
-					proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
-						"%s: %s (%u)",
-						str,
-						val_to_str_const(codenum, cVALS(hf_field->strings), "Unknown "),
-						codenum);
-				}
-				else {
-					switch (hf_field->display) {
-					case BASE_DEC:
-						proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
-							"%s: %u",
-							str,
-							codenum);
-						break;
-					case BASE_HEX:
-						proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
-							"%s: 0x%x",
-							str,
-							codenum);
-						break;
-					default:
-						DISSECTOR_ASSERT_NOT_REACHED();
-						break;
-					}
-				}
-			}
-			else {
-				/* Only allow uint32_t */
-				DISSECTOR_ASSERT_NOT_REACHED();
-			}
-		}
-		return codenum;
-	}
-
 	/*
 	Syntax elements coded as ue(v), me(v), or se(v) are Exp-Golomb-coded. Syntax elements coded as te(v) are truncated
 	Exp-Golomb-coded. The parsing process for these syntax elements begins with reading the bits starting at the current
@@ -979,6 +896,11 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, pack
 			}
 		}
 		mask = 1U << 31;
+        } else if (leading_zero_bits == 0) {
+                codenum = 0;
+		if (descriptor == H265_SE_V) {
+                    se_value = 0;
+                }
 	} else { /* Non-overflow general case */
 		if (leading_zero_bits > 16)
 			value = tvb_get_bits32(tvb, bit_offset, leading_zero_bits, ENC_BIG_ENDIAN);
@@ -1009,16 +931,17 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, pack
 	}
 
 	bit_offset = bit_offset + leading_zero_bits;
+        length = ((bit_offset + 7) >> 3) - start_offset;
 
 	if (overflow) {
 		*start_bit_offset = bit_offset;
 		/* We will probably get a BoundsError later in the packet. */
 		if (descriptor == H265_SE_V) {
-			ti = proto_tree_add_int_format_value(tree, hf_index, tvb, start_offset, (bit_offset >> 3) - start_offset + 1, codenum, "Invalid value (%d leading zero bits), clamped to %" PRId32, leading_zero_bits, se_value);
+			ti = proto_tree_add_int_format_value(tree, hf_index, tvb, start_offset, length, codenum, "Invalid value (%d leading zero bits), clamped to %" PRId32, leading_zero_bits, se_value);
 			expert_add_info(NULL, ti, &ei_h265_oversized_exp_golomb_code);
 			return se_value;
 		} else {
-			ti = proto_tree_add_uint_format_value(tree, hf_index, tvb, start_offset, (bit_offset >> 3) - start_offset + 1, codenum, "Invalid value (%d leading zero bits), clamped to %" PRIu32, leading_zero_bits, codenum);
+			ti = proto_tree_add_uint_format_value(tree, hf_index, tvb, start_offset, length, codenum, "Invalid value (%d leading zero bits), clamped to %" PRIu32, leading_zero_bits, codenum);
 			expert_add_info(NULL, ti, &ei_h265_oversized_exp_golomb_code);
 			return codenum;
 		}
@@ -1066,7 +989,7 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, pack
 		}
 		if (hf_field->type == FT_UINT32) {
 			if (hf_field->strings) {
-				proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
+				proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, length, codenum,
 					"%s: %s (%u)",
 					str,
 					val_to_str_const(codenum, cVALS(hf_field->strings), "Unknown "),
@@ -1075,13 +998,13 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, pack
 			else {
 				switch (hf_field->display) {
 				case BASE_DEC:
-					proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
+					proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, length, codenum,
 						"%s: %u",
 						str,
 						codenum);
 					break;
 				case BASE_HEX:
-					proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
+					proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, length, codenum,
 						"%s: 0x%x",
 						str,
 						codenum);
@@ -1094,7 +1017,7 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, pack
 		}
 		else if (hf_field->type == FT_INT32) {
 			if (hf_field->strings) {
-				proto_tree_add_int_format(tree, hf_index, tvb, start_offset, 1, codenum,
+				proto_tree_add_int_format(tree, hf_index, tvb, start_offset, length, codenum,
 					"%s: %s (%d)",
 					str,
 					val_to_str_const(codenum, cVALS(hf_field->strings), "Unknown "),
@@ -1103,7 +1026,7 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, pack
 			else {
 				switch (hf_field->display) {
 				case BASE_DEC:
-					proto_tree_add_int_format(tree, hf_index, tvb, start_offset, 1, codenum,
+					proto_tree_add_int_format(tree, hf_index, tvb, start_offset, length, codenum,
 						"%s: %d",
 						str,
 						se_value);
