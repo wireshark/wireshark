@@ -243,13 +243,18 @@ compute_offset(const tvbuff_t *tvb, const int offset, unsigned *offset_ptr)
 	}
 	else {
 		/* Negative offset - relative to the end of the packet. */
-		if (G_LIKELY((unsigned) -offset <= tvb->length)) {
-			*offset_ptr = tvb->length + offset;
-		} else if ((unsigned) -offset <= tvb->contained_length) {
+		/* Prevent UB on 2's complement platforms. All tested compilers
+		 * (gcc, clang, MSVC) compile this to a single instruction on
+		 * x86, ARM, RISC-V, S390x, SPARC, etc. at -O1 and higher
+		 * according to godbolt.org. */
+		unsigned abs_offset = ((unsigned)-(offset + 1)) + 1;
+		if (G_LIKELY(abs_offset <= tvb->length)) {
+			*offset_ptr = tvb->length - abs_offset;
+		} else if (abs_offset <= tvb->contained_length) {
 			return BoundsError;
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			return FragmentBoundsError;
-		} else if ((unsigned) -offset <= tvb->reported_length) {
+		} else if (abs_offset <= tvb->reported_length) {
 			return ContainedBoundsError;
 		} else {
 			return ReportedBoundsError;
