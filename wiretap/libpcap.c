@@ -17,7 +17,6 @@
 #include "pcap-common.h"
 #include "pcap-encap.h"
 #include "erf-common.h"
-#include <jtckdint.h>
 #include <wsutil/ws_assert.h>
 
 /*
