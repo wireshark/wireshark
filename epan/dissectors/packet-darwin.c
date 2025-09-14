@@ -429,7 +429,6 @@ dissect_darwin_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
             proto_item_append_text(dmd_item, "%sgencnt=%u",
                 first_metadata_item ? " " : "; ",
                 darwin->comp_gencnt);
-            first_metadata_item = false;
         }
     }
 
