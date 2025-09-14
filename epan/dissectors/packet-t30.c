@@ -272,7 +272,7 @@ static const value_string t30_facsimile_control_field_vals[] = {
     /* 0x88 */    { T30_FC_ISP,      "Internet Selective Polling Address" },
     { 0, NULL }
 };
-value_string_ext t30_facsimile_control_field_vals_ext =
+static value_string_ext t30_facsimile_control_field_vals_ext =
     VALUE_STRING_EXT_INIT(t30_facsimile_control_field_vals);
 
 static const value_string t30_facsimile_control_field_vals_short[] = {
@@ -328,7 +328,7 @@ static const value_string t30_facsimile_control_field_vals_short[] = {
     /* 0x88 */    { T30_FC_ISP,      "ISP" },
     { 0, NULL }
 };
-value_string_ext t30_facsimile_control_field_vals_short_ext =
+static value_string_ext t30_facsimile_control_field_vals_short_ext =
     VALUE_STRING_EXT_INIT(t30_facsimile_control_field_vals_short);
 
 static const value_string t30_data_signalling_rate_vals[] = {

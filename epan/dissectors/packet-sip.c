@@ -5702,7 +5702,7 @@ static bool sip_validate_authorization(sip_authorization_t *authorization_info, 
 /* TODO: extra codes to be added from SIP extensions?
  * https://www.iana.org/assignments/sip-parameters/sip-parameters.xhtml#sip-parameters-6
  */
-const value_string sip_response_code_vals[] = {
+static const value_string sip_response_code_vals[] = {
     { 999, "Unknown response"}, /* Must be first */
 
     { 100, "Trying"},

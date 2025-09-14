@@ -545,6 +545,7 @@ proto_reg_handoff_darwin(void)
         &ett_proc_info_eproc,
         &ett_darwin_metadata,
         &ett_darwin_metadata_flags,
+        &ett_darwin_metadata_dropped
     };
 
     int proto_frame = proto_registrar_get_id_byname("frame");

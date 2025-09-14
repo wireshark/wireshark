@@ -18283,7 +18283,7 @@ proto_register_pn_io (void)
     },  /* XXX - special values */
     { &hf_pn_io_initiator_udprtport,
       { "InitiatorUDPRTPort", "pn_io.initiator_udprtport",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
+        FT_UINT16, BASE_PT_UDP, NULL, 0x0,
         NULL, HFILL }
     },  /* XXX - special values */
     { &hf_pn_io_station_name_length,
@@ -18313,7 +18313,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_cmresponder_udprtport,
       { "CMResponderUDPRTPort", "pn_io.cmresponder_udprtport",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
+        FT_UINT16, BASE_PT_UDP, NULL, 0x0,
         NULL, HFILL }
     },  /* XXX - special values */
     { &hf_pn_io_number_of_iocrs,

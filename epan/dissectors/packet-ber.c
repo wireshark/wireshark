@@ -1680,7 +1680,7 @@ proto_tree_add_debug_text(tree, "OCTET STRING dissect_ber_octet_string(%s) enter
              *
              * ISO/IEC 2022 is also ECMA-35:
              *
-             *    http://www.ecma-international.org/publications/files/ECMA-ST/Ecma-035.pdf
+             *    https://www.ecma-international.org/wp-content/uploads/ECMA-35_4th_edition_march_1985.pdf
              *
              * ISO/IEC 2375 is the procedure for registering character
              * codings in the ISO International Register of Character Sets.

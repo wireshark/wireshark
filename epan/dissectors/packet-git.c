@@ -337,7 +337,7 @@ proto_reg_handoff_git(void)
    * Add the dissectors for GIT over HTTP
    *
    * Reference documentation at
-   * https://www.kernel.org/pub/software/scm/git/docs//technical/http-protocol.txt
+   * https://git-scm.com/docs/http-protocol
    */
   dissector_handle_t git_upload_pack_adv_handle;
   dissector_handle_t git_upload_pack_req_handle;

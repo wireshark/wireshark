@@ -1370,7 +1370,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_GREASE_0A0A, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_GREASE_1A1A, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_GREASE_2A2A, "Reserved (GREASE)" }, /* RFC 8701 */
-    { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* https://tools.ietf.org/id/draft-agl-tls-nextprotoneg-03.html */
+    { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* https://datatracker.ietf.org/doc/html/draft-agl-tls-nextprotoneg-03 */
     { SSL_HND_HELLO_EXT_GREASE_3A3A, "Reserved (GREASE)" }, /* RFC 8701 */
     { SSL_HND_HELLO_EXT_ALPS_OLD, "application_settings_old" }, /* draft-vvv-tls-alps-01 */
     { SSL_HND_HELLO_EXT_ALPS, "application_settings" }, /* draft-vvv-tls-alps-01 */ /* https://chromestatus.com/feature/5149147365900288 */
@@ -2796,7 +2796,7 @@ const val64_string quic_enable_time_stamp_v2_vals[] = {
     { 0, NULL }
 };
 
-/* https://tools.ietf.org/html/draft-multipath-04 */
+/* https://datatracker.ietf.org/doc/draft-ietf-quic-multipath/04/ */
 const val64_string quic_enable_multipath_vals[] = {
     { 0, "don't support multipath" },
     { 1, "support multipath as defined in this document" },

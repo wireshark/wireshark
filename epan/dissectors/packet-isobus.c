@@ -1016,7 +1016,8 @@ proto_register_isobus(void) {
         &ett_isobus_name,
         &ett_isobus_fragment,
         &ett_isobus_fragments,
-        &ett_isobus_datetime_response
+        &ett_isobus_datetime_response,
+        &ett_isobus_ack_response
     };
 
     /* Register protocol init routine */

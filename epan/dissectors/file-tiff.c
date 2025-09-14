@@ -8,7 +8,7 @@
  * Copyright 1998 Gerald Combs
  *
  * The TIFF 6 specification can be found at:
- * https://www.adobe.io/content/dam/udp/en/open/standards/tiff/TIFF6.pdf
+ * https://www.itu.int/itudoc/itu-t/com16/tiff-fx/docs/tiff6.pdf
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */

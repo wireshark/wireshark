@@ -456,7 +456,7 @@ static const value_string wsp_vals_pdu_type[] = {
     { 0x00, NULL }
 
 };
-value_string_ext wsp_vals_pdu_type_ext = VALUE_STRING_EXT_INIT(wsp_vals_pdu_type);
+static value_string_ext wsp_vals_pdu_type_ext = VALUE_STRING_EXT_INIT(wsp_vals_pdu_type);
 
 /* The WSP status codes are inherited from the HTTP status codes */
 static const value_string wsp_vals_status[] = {
@@ -509,7 +509,7 @@ static const value_string wsp_vals_status[] = {
 
     { 0x00, NULL }
 };
-value_string_ext wsp_vals_status_ext = VALUE_STRING_EXT_INIT(wsp_vals_status);
+static value_string_ext wsp_vals_status_ext = VALUE_STRING_EXT_INIT(wsp_vals_status);
 
 static const value_string vals_wsp_reason_codes[] = {
     { 0xE0, "Protocol Error (Illegal PDU)" },

@@ -80,7 +80,7 @@ static const value_string sccp_message_type_values[] = {
   { 0,                          NULL } };
 
 /* Same as above but in acronym form (for the Info column) */
-const value_string sccp_message_type_acro_values[] = {
+static const value_string sccp_message_type_acro_values[] = {
   { SCCP_MSG_TYPE_CR,           "CR" },
   { SCCP_MSG_TYPE_CC,           "CC" },
   { SCCP_MSG_TYPE_CREF,         "CREF" },

@@ -541,7 +541,7 @@ proto_register_bt_tracker(void)
     },
     { &hf_bt_tracker_tr_port,
       { "(TCP) Port", "bt-tracker.tracker.port",
-      FT_UINT16, BASE_DEC, NULL, 0x00,
+      FT_UINT16, BASE_PT_TCP, NULL, 0x00,
       NULL, HFILL }
     },
     { &hf_bt_tracker_completed,

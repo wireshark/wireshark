@@ -732,7 +732,7 @@ proto_register_epm (void)
         { &hf_epm_proto_tcp_port,
           { "TCP Port", "epm.proto.tcp_port", FT_UINT16, BASE_PT_TCP, NULL, 0x0, "TCP Port where this service can be found", HFILL }},
         { &hf_epm_proto_http_port,
-          { "TCP Port", "epm.proto.http_port", FT_UINT16, BASE_DEC, NULL, 0x0, "TCP Port where this service can be found", HFILL }},
+          { "TCP Port", "epm.proto.http_port", FT_UINT16, BASE_PT_TCP, NULL, 0x0, "TCP Port where this service can be found", HFILL }},
         { &hf_epm_tower_rhs_len,
           { "RHS Length", "epm.tower.rhs.len", FT_UINT16, BASE_DEC, NULL, 0x0, "Length of RHS data", HFILL }},
         { &hf_epm_tower_lhs_len,

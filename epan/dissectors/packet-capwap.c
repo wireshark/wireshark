@@ -5879,6 +5879,7 @@ proto_register_capwap_control(void)
         &ett_capwap_ieee80211_update_wlan_capability,
         &ett_capwap_ieee80211_station_capabilities,
         &ett_capwap_ieee80211_ofdm_control_band_support,
+        &ett_capwap_ieee80211_qos_sub_element,
         &ett_msg_fragment,
         &ett_msg_fragments
     };

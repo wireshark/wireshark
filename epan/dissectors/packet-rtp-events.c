@@ -383,7 +383,7 @@ static const value_string rtp_event_type_values[] =
     { RTP_CISCO_NSE_MODEM_RELAY_IND ,      "Cisco NSE: Shift to modem relay mode"},
     { 0,               NULL },
 };
-value_string_ext rtp_event_type_values_ext = VALUE_STRING_EXT_INIT(rtp_event_type_values);
+static value_string_ext rtp_event_type_values_ext = VALUE_STRING_EXT_INIT(rtp_event_type_values);
 
 /* RTP Events fields defining a subtree */
 

@@ -208,7 +208,7 @@ static const value_string message_class_type_acro_values[] = {
   { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_DEREG_RSP ,    "DEREG_RSP" },
   { 0,                           NULL } };
 
-const value_string sua_co_class_type_acro_values[] = {
+static const value_string sua_co_class_type_acro_values[] = {
   { MESSAGE_TYPE_CORE ,         "CORE" },
   { MESSAGE_TYPE_COAK ,         "COAK" },
   { MESSAGE_TYPE_COREF ,        "COREF" },

@@ -8,6 +8,9 @@
 20west
 29west
 2bytes
+2encoded
+2string
+2subids
 32apsk
 3gpp2
 3pcap
@@ -269,6 +272,7 @@ bootup
 bosch
 bouygues
 bpsec
+brachy
 brasil
 bratislava
 britain
@@ -285,6 +289,7 @@ bssmap
 btatt
 btbredr
 btcommon
+btgatt
 bthci
 btl2cap
 btmesh
@@ -1389,6 +1394,7 @@ janeiro
 january
 japanese
 jetds
+jiangsu
 jminfo
 joiners
 jsonraw
@@ -1580,6 +1586,7 @@ measurements
 measx
 mediaone
 medion
+medtronic
 megabit
 megaco
 mellanox
@@ -2090,6 +2097,7 @@ portset
 portstatus
 positioner
 posix
+postel
 postfix
 powercontrol
 pppdump
@@ -2692,6 +2700,7 @@ stainfo
 stanag
 standardised
 standardization
+standarisation
 starttls
 stateful
 statfs
@@ -3287,6 +3296,7 @@ wireshark
 wiretap
 wisun
 withfcs
+withings
 withoutfcs
 wksta
 wlansp
@@ -3323,6 +3333,7 @@ xferflags
 xferstatus
 xfixes
 xhtml
+xiaomi
 xidlr
 xidxchg
 xinerama
