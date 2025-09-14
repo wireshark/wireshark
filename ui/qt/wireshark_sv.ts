@@ -8362,7 +8362,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Select a plot for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj en plottning för detaljer.</translation>
     </message>
     <message>
         <source>Click to select packet</source>
@@ -8386,27 +8386,27 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Move to top left</source>
-        <translation type="unfinished">Flytta överst till vänster</translation>
+        <translation>Flytta överst till vänster</translation>
     </message>
     <message>
         <source>Move to top center</source>
-        <translation type="unfinished">Flytta överst till mitten</translation>
+        <translation>Flytta överst till mitten</translation>
     </message>
     <message>
         <source>Move to top right</source>
-        <translation type="unfinished">Flytta överst till höger</translation>
+        <translation>Flytta överst till höger</translation>
     </message>
     <message>
         <source>Move to bottom left</source>
-        <translation type="unfinished">Flytta nederst till vänster</translation>
+        <translation>Flytta nederst till vänster</translation>
     </message>
     <message>
         <source>Move to bottom center</source>
-        <translation type="unfinished">Flytta nederst till mitten</translation>
+        <translation>Flytta nederst till mitten</translation>
     </message>
     <message>
         <source>Move to bottom right</source>
-        <translation type="unfinished">Flytta nederst till höger</translation>
+        <translation>Flytta nederst till höger</translation>
     </message>
     <message>
         <source>Time (s)</source>
@@ -8414,11 +8414,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>relative to capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>relativt början av fångsten</translation>
     </message>
     <message>
         <source>relative to first data point</source>
-        <translation type="unfinished"></translation>
+        <translation>relativt första datapunkten</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
@@ -8703,9 +8703,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)…</source>
         <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln vald personlig profil …</numerusform>
+            <numerusform>%Ln valda personliga profiler …</numerusform>
         </translation>
     </message>
     <message>
@@ -8732,6 +8732,20 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Select zip file for export</source>
         <translation>Välj zip-fil för exporten</translation>
+    </message>
+    <message numerus="yes">
+        <source>… %Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>… %Ln vald personlig profil</numerusform>
+            <numerusform>… %Ln valda personliga profiler</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>%Ln vald personlig profil</numerusform>
+            <numerusform>%Ln valda personliga profiler</numerusform>
+        </translation>
     </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
@@ -9715,7 +9729,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Dissector</source>
-        <translation type="unfinished">Dissekerare</translation>
+        <translation>Dissekerare</translation>
     </message>
     <message>
         <source>File Type</source>
@@ -9731,7 +9745,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Tap Listener</source>
-        <translation type="unfinished"></translation>
+        <translation>Uttagslyssnare</translation>
     </message>
     <message>
         <source>Display Filter</source>
@@ -10379,7 +10393,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <translation type="unfinished"></translation>
+        <translation>Förbered ett filter som matchar de valda strömmarna.</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10570,11 +10584,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Visual Sample Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Visuell samplingshastighet:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust the sampling rate used for the waveform display. Higher values display higher frequency harmonics but take additional processing time. Values between 1 kHz and 48 kHz are supported.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Justera samplingshastigheten som används till visningen av vågformen. Högre värden visar högre frekvensharmonier men tar ytterligare tid att bearbeta. Värden mellan 1 kHz och 48 kHz stödjs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source> Hz</source>
@@ -10750,7 +10764,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <translation type="unfinished"></translation>
+        <translation>Förbered ett filter som matchar de valda strömmarna.</translation>
     </message>
     <message>
         <source>R&amp;efresh streams</source>
@@ -11100,7 +11114,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Open the analysis window for the selected streams and add it to it</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna analysfönstret för de valda strömmarna och lägg till till det</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -11156,7 +11170,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Mark the packets of the selected streams.</source>
-        <translation type="unfinished"></translation>
+        <translation>Markera paketen i den valda strömmen.</translation>
     </message>
     <message>
         <source>M</source>
@@ -11200,7 +11214,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Prepare a filter matching the selected streams.</source>
-        <translation type="unfinished"></translation>
+        <translation>Förbered ett filter som matchar de valda strömmarna.</translation>
     </message>
     <message>
         <source>P</source>
@@ -13609,7 +13623,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Show flow sequence for selected calls.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa flödessekvens för de valda anropen.</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
@@ -13617,7 +13631,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Prepare a filter matching the selected calls.</source>
-        <translation type="unfinished"></translation>
+        <translation>Förbered ett filter som matchar de valda anropen.</translation>
     </message>
     <message>
         <source>Cop&amp;y</source>
@@ -13977,11 +13991,11 @@ a:hover {
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 band.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ange 802.11-band.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Band</source>
-        <translation type="unfinished"></translation>
+        <translation>Band</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -15279,7 +15293,7 @@ a:hover {
     </message>
     <message>
         <source>Redissect Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Dissekera om paket</translation>
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
@@ -15423,11 +15437,11 @@ a:hover {
     </message>
     <message>
         <source>Plots</source>
-        <translation type="unfinished">Plottningar</translation>
+        <translation>Plottningar</translation>
     </message>
     <message>
         <source>Plot display filter fields over time</source>
-        <translation type="unfinished"></translation>
+        <translation>Plotta visningsfiltrets fält över tid</translation>
     </message>
     <message>
         <source>&amp;Main Toolbar</source>
