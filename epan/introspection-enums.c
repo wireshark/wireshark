@@ -15,8 +15,8 @@
  */
 #include <epan/address.h>
 #include <epan/ipproto.h>
-#include <epan/proto.h>
 #include <epan/ftypes/ftypes.h>
+#include <epan/proto.h>
 #include <epan/stat_groups.h>
 
 #define ENUM(arg) { #arg, arg }
