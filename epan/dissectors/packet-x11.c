@@ -198,6 +198,7 @@ static int ett_x11_visualtype;
 
 static expert_field ei_x11_invalid_format;
 static expert_field ei_x11_request_length;
+static expert_field ei_x11_event_length;
 static expert_field ei_x11_keycode_value_out_of_range;
 
 /* desegmentation of X11 messages */
@@ -3376,11 +3377,13 @@ static void tryExtensionEvent(int event, tvbuff_t *tvb, int *offsetp, proto_tree
             func(tvb, offsetp, t, byte_order);
 }
 
-static void tryGenericExtensionEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
+static void tryGenericExtensionEvent(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t,
                                      x11_conv_data_t *state, unsigned byte_order)
 {
+      proto_item *ti;
       const char *extname;
-      int extension, length;
+      int extension;
+      uint32_t length;
 
       extension = tvb_get_uint8(tvb, *offsetp);
       (*offsetp)++;
@@ -3394,9 +3397,17 @@ static void tryGenericExtensionEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 
       CARD16(event_sequencenumber);
 
-      length = REPLYLENGTH(eventlength);
-      length = length * 4 + 32;
+      ti = proto_tree_add_item_ret_uint(t, hf_x11_eventlength, tvb, *offsetp, 4, byte_order, &length);
       *offsetp += 4;
+      /* The length field specifies the number of 4-byte blocks after the
+       * initial 32 bytes. */
+      uint64_t tmp = (uint64_t)length * 4 + 32;
+      if (tmp > INT_MAX) {
+            expert_add_info_format(pinfo, ti, &ei_x11_event_length, "Bogus generic extension length (%"PRId64" bytes)", tmp);
+            return;
+      }
+      length = (uint32_t)tmp;
+      /* XXX - It might be better to take a subset TVB instead of passing length. */
 
       if (extname) {
           x11_generic_event_info *info;
@@ -3410,7 +3421,7 @@ static void tryGenericExtensionEvent(tvbuff_t *tvb, int *offsetp, proto_tree *t,
               for (i = 0; info[i].dissect != NULL; i++) {
                   if (info[i].minor == opcode) {
                       *offsetp += 2;
-                      info[i].dissect(tvb, length, offsetp, t, byte_order);
+                      info[i].dissect(tvb, (int)length, offsetp, t, byte_order);
                       return;
                   }
               }
@@ -6122,7 +6133,7 @@ decode_x11_event(tvbuff_t *tvb, packet_info* pinfo, unsigned char eventcode, con
                   break;
 
             case GenericEvent:
-                  tryGenericExtensionEvent(tvb, offsetp, t, state, byte_order);
+                  tryGenericExtensionEvent(tvb, pinfo, offsetp, t, state, byte_order);
                   break;
 
             default:
@@ -6276,6 +6287,7 @@ static void register_x11_fields(const char* unused _U_)
       static ei_register_info ei[] = {
             { &ei_x11_invalid_format, { "x11.invalid_format", PI_PROTOCOL, PI_WARN, "Invalid Format", EXPFILL }},
             { &ei_x11_request_length, { "x11.request-length.invalid", PI_PROTOCOL, PI_WARN, "Invalid Length", EXPFILL }},
+            { &ei_x11_event_length, { "x11.eventlength.invalid", PI_PROTOCOL, PI_WARN, "Invalid Length", EXPFILL }},
             { &ei_x11_keycode_value_out_of_range, { "x11.keycode_value_out_of_range", PI_PROTOCOL, PI_WARN, "keycode value is out of range", EXPFILL }},
       };
 
