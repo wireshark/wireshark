@@ -1194,7 +1194,7 @@ smpp_mktime(const char *datestr, nstime_t *nstime, bool *relative)
         nstime->nsecs = 0;
     }
 
-    return relative;
+    return true;
 }
 
 /*!
