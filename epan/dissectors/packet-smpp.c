@@ -38,6 +38,7 @@
 
 #include "config.h"
 
+#include <errno.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -243,6 +244,7 @@ static int hf_huawei_smpp_notify_mode;
 static int hf_huawei_smpp_delivery_result;
 
 static expert_field ei_smpp_message_payload_duplicate;
+static expert_field ei_smpp_date_time_decoding_failed;
 
 /* Initialize the subtree pointers */
 static int ett_smpp;
@@ -1114,22 +1116,36 @@ smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
 /*!
  * SMPP equivalent of mktime() (3). Convert date to standard 'time_t' format
  *
- * \param       datestr The SMPP-formatted date to convert
- * \param       secs    Returns the 'time_t' equivalent
- * \param       nsecs   Returns the additional nano-seconds
+ * \param      datestr  The SMPP-formatted date to convert
+ * \param      nstime   Returns the 'nstime_t' equivalent
+ * \param      relative Returns whether time is specified relative or absolute
  *
- * \return              Whether time is specified relative (true) or absolute (false)
- *                      If invalid abs time: return *secs = (time_t)(-1) and *nsecs=0
+ * \return              Whether the time parsed validly.
  */
 
-/* XXX: This function needs better error checking and handling */
-
 static bool
-smpp_mktime(const char *datestr, time_t *secs, int *nsecs)
+smpp_mktime(const char *datestr, nstime_t *nstime, bool *relative)
 {
     struct tm    r_time;
     time_t       t_diff;
-    bool         relative = (datestr[15] == 'R') ? true : false;
+
+    for (int i = 0; i < 15; ++i) {
+        if (!g_ascii_isdigit(datestr[i])) {
+            return false;
+        }
+    }
+
+    switch (datestr[15]) {
+    case 'R':
+        *relative = true;
+        break;
+    case '+':
+    case '-':
+        *relative = false;
+        break;
+    default:
+        return false;
+    }
 
     r_time.tm_year = 10 * (datestr[0] - '0') + (datestr[1] - '0');
     /*
@@ -1145,27 +1161,37 @@ smpp_mktime(const char *datestr, time_t *secs, int *nsecs)
     r_time.tm_sec  = 10 * (datestr[10] - '0') + (datestr[11] - '0');
     r_time.tm_isdst = -1;
 
-    if (relative == false) {
-        *secs = mktime_utc(&r_time);
-        *nsecs = 0;
-        if (*secs == (time_t)(-1)) {
-            return relative;
+    /* Some implementations of timegm, mktime, etc. happily convert
+     * October 40 to November 9, etc. Don't allow that. */
+    if (!tm_is_valid(&r_time)) {
+        return false;
+    }
+
+    if (*relative == false) {
+        nstime->secs = mktime_utc(&r_time);
+        if (errno == EINVAL) {
+            return false;
         }
-        *nsecs = (datestr[12] - '0') * 100000000;
+        nstime->nsecs = (datestr[12] - '0') * 100000000;
 
         t_diff = (10 * (datestr[13] - '0') + (datestr[14] - '0')) * 900;
         if (datestr[15] == '-')
             /* Represented time is behind UTC, shift it forward to UTC */
-            *secs += t_diff;
+            nstime->secs += t_diff;
         else if (datestr[15] == '+')
             /* Represented time is ahead of UTC, shift it backward to UTC */
-            *secs -= t_diff;
+            nstime->secs -= t_diff;
     } else {
-        *secs = r_time.tm_sec + 60 *
+        /* The SMPP standard gives examples of a relative time using years
+         * and months, but that can't be converted into a FT_RELATIVE_TIME
+         * without knowing the start time. In practice it shouldn't happen.
+         * XXX - Either fail or use some kind of contractual average month?
+         */
+        nstime->secs = r_time.tm_sec + 60 *
             (r_time.tm_min + 60 *
              (r_time.tm_hour + 24 *
               r_time.tm_mday));
-        *nsecs = 0;
+        nstime->nsecs = 0;
     }
 
     return relative;
@@ -1225,25 +1251,27 @@ static void
 smpp_handle_time(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                  int field, int field_R, int *offset)
 {
+    proto_item *ti;
     char     *strval;
     int       len;
-    nstime_t  tmptime;
+    nstime_t  tmptime = NSTIME_INIT_ZERO;
+    bool relative;
 
     strval = (char *) tvb_get_stringz_enc(pinfo->pool, tvb, *offset, &len, ENC_ASCII);
     if (*strval)
     {
-        if (len >= 16)
+        if (len >= 16 && smpp_mktime(strval, &tmptime, &relative))
         {
-            if (smpp_mktime(strval, &tmptime.secs, &tmptime.nsecs))
+            if (relative) {
                 proto_tree_add_time(tree, field_R, tvb, *offset, len, &tmptime);
-            else
+            } else {
                 proto_tree_add_time(tree, field, tvb, *offset, len, &tmptime);
+            }
         }
         else
         {
-            tmptime.secs = 0;
-            tmptime.nsecs = 0;
-            proto_tree_add_time_format_value(tree, field_R, tvb, *offset, len, &tmptime, "%s", strval);
+            ti = proto_tree_add_time_format_value(tree, field_R, tvb, *offset, len, &tmptime, "%s", strval);
+            expert_add_info(pinfo, ti, &ei_smpp_date_time_decoding_failed);
         }
     }
     *offset += len;
@@ -3780,6 +3808,11 @@ proto_register_smpp(void)
         { &ei_smpp_message_payload_duplicate,
           { "smpp.message_payload.duplicate", PI_PROTOCOL, PI_WARN,
             "short_message field and message_payload TLV can only appear once in total",
+            EXPFILL }
+        },
+        { &ei_smpp_date_time_decoding_failed,
+          { "smpp.date_time.decoding.failed", PI_PROTOCOL, PI_WARN,
+            "Failed to decode date and time from string",
             EXPFILL }
         }
     };
