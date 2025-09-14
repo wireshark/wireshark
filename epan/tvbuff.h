@@ -102,66 +102,131 @@ typedef struct tvbuff tvbuff_t;
 
 typedef void (*tvbuff_free_cb_t)(void*);
 
-/** Extracts 'number of bits' starting at 'bit offset'.
- * Returns a pointer to a newly initialized g_malloc'd REAL_DATA
- * tvbuff with the bits octet aligned.
- * Bits are counted from MSB (0) to LSB (7) within octets.
+ /**
+ * @brief Extracts a specified number of bits starting at a given bit offset,
+ *        aligning the result to octet boundaries.
+ *
+ * Bits are counted from most significant bit (MSB = 0) to least significant bit (LSB = 7)
+ * within each octet. The returned tvbuff is newly allocated and octet-aligned.
+ *
+ * @param tvb         The source tvbuff to extract bits from.
+ * @param bit_offset  The starting bit offset within the tvbuff.
+ * @param no_of_bits  The number of bits to extract.
+ *
+ * @return A pointer to a newly initialized, g_malloc'd tvbuff containing the extracted bits,
+ *         aligned to octet boundaries.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_octet_aligned(tvbuff_t *tvb,
     uint32_t bit_offset, int32_t no_of_bits);
 
-/** Extracts 'number of bits' starting at 'bit offset'.
- * Bits are counted from LSB (0) to MSB (7) within octets.
+ /**
+ * @brief Extracts a specified number of bits starting at a given bit offset,
+ *        with bits counted from least significant bit (LSB = 0) to most significant bit (MSB = 7)
+ *        within each octet.
+ *
+ * @param tvb         The source tvbuff to extract bits from.
+ * @param bit_offset  The starting bit offset within the tvbuff.
+ * @param no_of_bits  The number of bits to extract.
+ *
+ * @return A pointer to a tvbuff containing the extracted bits.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_octet_right_aligned(tvbuff_t *tvb,
     uint32_t bit_offset, int32_t no_of_bits);
 
 WS_DLL_PUBLIC tvbuff_t *tvb_new_chain(tvbuff_t *parent, tvbuff_t *backing);
 
+/**
+ * @brief Creates a full clone of the given tvbuff.
+ *
+ * @param tvb  The tvbuff to clone.
+ * @return A pointer to a new tvbuff containing a complete copy of the original data.
+ */
 WS_DLL_PUBLIC tvbuff_t *tvb_clone(tvbuff_t *tvb);
 
+/**
+ * @brief Clones a portion of the given tvbuff starting at a specific offset and length.
+ *
+ * If the tvbuff's operations structure provides a custom `tvb_clone` implementation,
+ * it will be used to perform the clone. Otherwise, a generic clone is performed.
+ *
+ * @param tvb     The source tvbuff to clone from.
+ * @param offset  The starting offset within the tvbuff.
+ * @param len     The number of bytes to clone.
+ *
+ * @return A pointer to a new tvbuff containing the cloned data region.
+ *
+ * @see tvb_generic_clone_offset_len()
+ */
 WS_DLL_PUBLIC tvbuff_t *tvb_clone_offset_len(tvbuff_t *tvb, unsigned offset,
     unsigned len);
 
-/** Free a tvbuff_t and all tvbuffs chained from it
- * The tvbuff must be 'the 'head' (initial) tvb of a chain or
- * must not be in a chain.
- * If specified, a callback to free the tvbuff data will be invoked
- * for each tvbuff free'd */
+ /**
+ * @brief Free a tvbuff_t and all tvbuffs chained from it.
+ *
+ * The tvbuff must be the 'head' (initial) tvb of a chain or must not be in a chain.
+ * If specified, a callback to free the tvbuff data will be invoked for each tvbuff freed.
+ *
+ * @param tvb  The tvbuff to free along with all chained tvbuffs.
+ */
 WS_DLL_PUBLIC void tvb_free(tvbuff_t *tvb);
 
-/** Free the tvbuff_t and all tvbuffs chained from it.
- * The tvbuff must be 'the 'head' (initial) tvb of a chain or
- * must not be in a chain.
- * If specified, a callback to free the tvbuff data will be invoked
- * for each tvbuff free'd */
+/**
+ * @brief Free the tvbuff_t and all tvbuffs chained from it.
+ *
+ * The tvbuff must be the 'head' (initial) tvb of a chain or must not be in a chain.
+ * If specified, a callback to free the tvbuff data will be invoked for each tvbuff freed.
+ *
+ * @param tvb  The tvbuff to free along with all chained tvbuffs.
+ */
 WS_DLL_PUBLIC void tvb_free_chain(tvbuff_t *tvb);
 
-/** Set a callback function to call when a tvbuff is actually freed
- * One argument is passed to that callback --- a void* that points
- * to the real data. Obviously, this only applies to a
- * "real" tvbuff. */
+/**
+ * @brief Set a callback function to be called when a tvbuff is actually freed.
+ *
+ * One argument is passed to that callback — a void* that points to the real data.
+ * Obviously, this only applies to a "real" tvbuff.
+ *
+ * @param tvb   The tvbuff for which to set the free callback.
+ * @param func  The callback function to invoke when the tvbuff is freed.
+ */
 WS_DLL_PUBLIC void tvb_set_free_cb(tvbuff_t *tvb, const tvbuff_free_cb_t func);
 
-/** Attach a "real" tvbuff to a parent tvbuff. This connection is used
- * during a tvb_free_chain()... the "child" "real" tvbuff acts as if it
- * is part of the chain-of-creation of the parent tvbuff, although it
- * isn't. This is useful if you need to take the data from some tvbuff,
- * run some operation on it, like decryption or decompression, and make
- * a new tvbuff from it, yet want the new tvbuff to be part of the chain.
- * The reality is that the new tvbuff *is* part of the "chain of creation",
- * but in a way that these tvbuff routines are ignorant of. Use this
- * function to make the tvbuff routines knowledgable of this fact. */
+/**
+ * @brief Attach a "real" tvbuff to a parent tvbuff.
+ *
+ * This connection is used during a tvb_free_chain(). The "child" "real" tvbuff acts as if it
+ * is part of the chain-of-creation of the parent tvbuff, although it isn't.
+ *
+ * This is useful if you need to take the data from some tvbuff, run some operation on it,
+ * like decryption or decompression, and make a new tvbuff from it, yet want the new tvbuff
+ * to be part of the chain.
+ *
+ * The reality is that the new tvbuff *is* part of the "chain of creation", but in a way that
+ * these tvbuff routines are ignorant of. Use this function to make the tvbuff routines
+ * knowledgeable of this fact.
+ *
+ * @param parent  The parent tvbuff to which the child tvbuff will be attached.
+ * @param child   The "real" child tvbuff to attach to the parent.
+ */
 WS_DLL_PUBLIC void tvb_set_child_real_data_tvbuff(tvbuff_t *parent,
     tvbuff_t *child);
 
 WS_DLL_PUBLIC tvbuff_t *tvb_new_child_real_data(tvbuff_t *parent,
     const uint8_t *data, const unsigned length, const int reported_length);
 
-/** Create a tvbuff backed by existing data. Can throw ReportedBoundsError.
- * Normally, a callback to free the data should be registered using
- * tvb_set_free_cb(); when this tvbuff is freed, then your callback will be
- * called, and at that time you can free your original data. */
+/**
+ * @brief Create a tvbuff backed by existing data.
+ *
+ * Create a tvbuff backed by existing data. Can throw ReportedBoundsError.
+ * Normally, a callback to free the data should be registered using @ref tvb_set_free_cb "tvb_set_free_cb()";
+ * when this tvbuff is freed, your callback will be called, allowing you to free your original data.
+ *
+ * @param data            Pointer to the existing data buffer.
+ * @param length          Length of the data buffer in bytes.
+ * @param reported_length The length reported for this tvbuff (may differ from actual length).
+ *
+ * @return A pointer to the newly created tvbuff backed by the provided data.
+ */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_real_data(const uint8_t *data,
     const unsigned length, const int reported_length);
 
@@ -203,45 +268,99 @@ WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_length_caplen(tvbuff_t *backing,
     const int reported_length);
 
 /**
- * Similar to tvb_new_subset_length_caplen() but with captured length calculated
- * to fit within the existing captured length and the specified
- * reported length.
- * Can throw ReportedBoundsError. */
+ * Similar to @ref tvb_new_subset_length_caplen() but with captured length calculated
+ * to fit within the existing captured length and the specified reported length.
+ *
+ * Can throw ReportedBoundsError.
+ *
+ * @param backing         The backing tvbuff.
+ * @param backing_offset  The offset into the backing tvbuff.
+ * @param reported_length The reported length for the new subset.
+ *
+ * @return A pointer to the newly created subset tvbuff.
+ */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_length(tvbuff_t *backing,
     const int backing_offset, const int reported_length);
 
-/** Similar to tvb_new_subset_length_caplen() but with backing_length and reported_length set
- * to -1.  Can throw ReportedBoundsError. */
+/**
+ * @brief Similar to @ref tvb_new_subset_length_caplen() but with backing_length and reported_length set to -1.
+ *
+ * Can throw ReportedBoundsError.
+ *
+ * @param backing         The backing tvbuff.
+ * @param backing_offset  The offset into the backing tvbuff.
+ *
+ * @return A pointer to the newly created subset tvbuff.
+ */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_remaining(tvbuff_t *backing,
     const int backing_offset);
 
-/*
-* Both tvb_composite_append and tvb_composite_prepend can throw
- * BoundsError if member_offset/member_length goes beyond bounds of
- * the 'member' tvbuff. */
-
-/** Append to the list of tvbuffs that make up this composite tvbuff */
+/**
+ * @brief Append to the list of tvbuffs that make up this composite tvbuff.
+ *
+ * Can throw BoundsError if member_offset or member_length goes beyond the bounds
+ * of the 'member' tvbuff.
+ *
+ * @param tvb     The composite tvbuff to which a member will be appended.
+ * @param member  The tvbuff member to append.
+ */
 WS_DLL_PUBLIC void tvb_composite_append(tvbuff_t *tvb, tvbuff_t *member);
 
-/** Prepend to the list of tvbuffs that make up this composite tvbuff */
+/**
+ * @brief Prepend to the list of tvbuffs that make up this composite tvbuff.
+ *
+ * Can throw BoundsError if member_offset or member_length goes beyond the bounds
+ * of the 'member' tvbuff.
+ *
+ * @param tvb     The composite tvbuff to which a member will be prepended.
+ * @param member  The tvbuff member to prepend.
+ */
 extern void tvb_composite_prepend(tvbuff_t *tvb, tvbuff_t *member);
 
-/** Create an empty composite tvbuff. */
+/**
+ * @brief Create an empty composite tvbuff.
+ *
+ * @return A pointer to a new, empty composite tvbuff.
+ */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_composite(void);
 
-/** Mark a composite tvbuff as initialized. No further appends or prepends
- * occur, data access can finally happen after this finalization. */
+
+/**
+ * @brief Mark a composite tvbuff as finalized.
+ *
+ * After finalization, no further appends or prepends may occur,
+ * and data access can finally take place.
+ *
+ * @param tvb  The composite tvbuff to finalize.
+ */
 WS_DLL_PUBLIC void tvb_composite_finalize(tvbuff_t *tvb);
 
 
-/* Get amount of captured data in the buffer (which is *NOT* necessarily the
- * length of the packet). You probably want tvb_reported_length instead. */
+/**
+ * @brief Get the amount of captured data in the buffer.
+ *
+ * This is *NOT* necessarily the length of the packet.
+ * You probably want to use @ref tvb_reported_length instead.
+ *
+ * @param tvb  The tvbuff to query.
+ *
+ * @return The number of bytes of captured data in the tvbuff.
+ */
 WS_DLL_PUBLIC unsigned tvb_captured_length(const tvbuff_t *tvb);
 
-/** Computes bytes to end of buffer, from offset (which can be negative,
- * to indicate bytes from end of buffer). Function returns 0 if offset is
- * either at the end of the buffer or out of bounds. No exception is thrown.
- * You probably want tvb_reported_length_remaining instead. */
+/**
+ * @brief Computes bytes to end of buffer from the given offset.
+ *
+ * The offset can be negative to indicate bytes from the end of the buffer.
+ * The function returns 0 if the offset is either at the end of the buffer or out of bounds.
+ * No exception is thrown.
+ * You probably want @ref tvb_reported_length_remaining instead.
+ *
+ * @param tvb    The tvbuff to query.
+ * @param offset The offset from which to compute the remaining bytes (can be negative).
+ *
+ * @return The number of bytes remaining to the end of the buffer from the given offset.
+ */
 WS_DLL_PUBLIC int tvb_captured_length_remaining(const tvbuff_t *tvb, const int offset);
 
 /** Same as above, but throws an exception if the offset is out of bounds. */
@@ -253,42 +372,97 @@ WS_DLL_PUBLIC unsigned tvb_ensure_captured_length_remaining(const tvbuff_t *tvb,
 WS_DLL_PUBLIC bool tvb_bytes_exist(const tvbuff_t *tvb, const int offset,
     const int length);
 
-/** Checks that the bytes referred to by 'offset'/'length', where 'length'
- * is a 64-bit unsigned integer, actually exist in the buffer, and throws
- * an exception if they aren't. */
+/**
+ * @brief Checks that the bytes referred to by 'offset' and 'length' actually exist in the buffer.
+ *
+ * The 'length' parameter is a 64-bit unsigned integer.
+ * Throws an exception if the bytes do not exist.
+ *
+ * @param tvb    The tvbuff to check.
+ * @param offset The starting offset within the tvbuff.
+ * @param length The number of bytes to check for existence.
+ *
+ * @see tvb_ensure_bytes_exist()
+ */
 WS_DLL_PUBLIC void tvb_ensure_bytes_exist64(const tvbuff_t *tvb,
     const int offset, const uint64_t length);
 
-/** Checks that the bytes referred to by 'offset'/'length' actually exist
- * in the buffer, and throws an exception if they aren't. */
+/**
+ * @brief Checks that the bytes referred to by 'offset' and 'length' actually exist in the buffer.
+ *
+ * Throws an exception if the bytes do not exist.
+ *
+ * @param tvb    The tvbuff to check.
+ * @param offset The starting offset within the tvbuff.
+ * @param length The number of bytes to check for existence.
+ *
+ * @see tvb_ensure_bytes_exist64()
+ */
 WS_DLL_PUBLIC void tvb_ensure_bytes_exist(const tvbuff_t *tvb,
     const int offset, const int length);
 
-/* Checks (w/o throwing exception) that offset exists in buffer */
+/**
+ * @brief Checks (without throwing an exception) whether the offset exists in the buffer.
+ *
+ * @param tvb    The tvbuff to check.
+ * @param offset The offset to verify.
+ *
+ * @return true if the offset exists within the buffer; false otherwise.
+ */
 WS_DLL_PUBLIC bool tvb_offset_exists(const tvbuff_t *tvb,
     const int offset);
 
-/* Get reported length of buffer */
+/**
+ * @brief Get reported length of buffer.
+ *
+ * @param tvb The tvbuff to query.
+ *
+ * @return The reported length of the buffer.
+ */
 WS_DLL_PUBLIC unsigned tvb_reported_length(const tvbuff_t *tvb);
 
-/** Computes bytes of reported packet data to end of buffer, from offset
- * (which can be negative, to indicate bytes from end of buffer). Function
- * returns 0 if offset is either at the end of the buffer or out of bounds.
- * No exception is thrown. */
+/**
+ * @brief Computes bytes of reported packet data from the given offset to the end of buffer.
+ *
+ * The offset can be negative to indicate bytes from the end of the buffer.
+ * The function returns 0 if the offset is at the end of the buffer or out of bounds.
+ * No exception is thrown.
+ *
+ * @param tvb    The tvbuff to query.
+ * @param offset The offset from which to compute the remaining bytes (can be negative).
+ *
+ * @return The number of bytes remaining to the end of the buffer from the given offset.
+ */
 WS_DLL_PUBLIC int tvb_reported_length_remaining(const tvbuff_t *tvb,
     const int offset);
 
-/** Same as above, but throws an exception if the offset is out of bounds. */
+/**
+ * @brief Same as @ref tvb_reported_length_remaining but throws an exception if the offset is out of bounds.
+ *
+ * @param tvb    The tvbuff to query.
+ * @param offset The offset from which to compute remaining bytes (can be negative).
+ *
+ * @return The number of bytes remaining to the end of the buffer from the given offset.
+ *
+ * @throws ReportedBoundsError if the offset is out of bounds.
+ */
 WS_DLL_PUBLIC unsigned tvb_ensure_reported_length_remaining(const tvbuff_t *tvb,
     const int offset);
 
-/** Set the reported length of a tvbuff to a given value; used for protocols
-   whose headers contain an explicit length and where the calling
-   dissector's payload may include padding as well as the packet for
-   this protocol.
+/**
+ * @brief Set a tvbuff's reported_length to a given value.
+ *
+ * Used for protocols whose headers contain an explicit length and where the
+ * calling dissector's payload may include padding as well as the packet for
+ * this protocol.
+ *
+ * Also adjusts the available and contained length accordingly.
+ *
+ * @param tvb             The tvbuff whose reported length is to be set.
+ * @param reported_length The new reported length.
+ */
+WS_DLL_PUBLIC void tvb_set_reported_length(tvbuff_t *tvb, const unsigned reported_length);
 
-   Also adjusts the available and contained length. */
-WS_DLL_PUBLIC void tvb_set_reported_length(tvbuff_t *tvb, const unsigned);
 
 /* Repair a tvbuff where the captured length is greater than the
  * reported length; such a tvbuff makes no sense, as it's impossible
