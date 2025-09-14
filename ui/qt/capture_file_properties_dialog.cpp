@@ -195,35 +195,39 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     out << table_end;
 
     // Time Section
-    if (summary.packet_count_ts == summary.packet_count &&
-            summary.packet_count >= 1)
-    {
+    bool start_time_valid = summary.start_time != DBL_MAX;
+    bool stop_time_valid = summary.stop_time != DBL_MIN;
+
+    if (start_time_valid || stop_time_valid) {
         out << section_tmpl_.arg(tr("Time"));
         out << table_begin;
 
         // start time
-        out << table_row_begin;
-        if (application_flavor_is_wireshark()) {
-            out << table_vheader_tmpl.arg(tr("First packet"));
-        } else {
-            out << table_vheader_tmpl.arg(tr("First event"));
+        if (start_time_valid) {
+            out << table_row_begin;
+            if (application_flavor_is_wireshark()) {
+                out << table_vheader_tmpl.arg(tr("First packet"));
+            } else {
+                out << table_vheader_tmpl.arg(tr("First event"));
+            }
+            out << table_data_tmpl.arg(time_t_to_qstring((time_t)summary.start_time))
+                << table_row_end;
         }
-        out << table_data_tmpl.arg(time_t_to_qstring((time_t)summary.start_time))
-            << table_row_end;
 
         // stop time
-        out << table_row_begin;
-        if (application_flavor_is_wireshark()) {
-            out << table_vheader_tmpl.arg(tr("Last packet"));
-        } else {
-            out << table_vheader_tmpl.arg(tr("Last event"));
+        if (stop_time_valid) {
+            out << table_row_begin;
+            if (application_flavor_is_wireshark()) {
+                out << table_vheader_tmpl.arg(tr("Last packet"));
+            } else {
+                out << table_vheader_tmpl.arg(tr("Last event"));
+            }
+            out << table_data_tmpl.arg(time_t_to_qstring((time_t)summary.stop_time))
+                << table_row_end;
         }
-        out << table_data_tmpl.arg(time_t_to_qstring((time_t)summary.stop_time))
-            << table_row_end;
 
         // elapsed seconds (capture duration)
-        if (summary.packet_count_ts >= 2)
-        {
+        if (start_time_valid && stop_time_valid) {
             /* elapsed seconds */
             QString elapsed_str;
             unsigned int elapsed_time = (unsigned int)summary.elapsed_time;

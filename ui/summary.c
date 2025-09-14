@@ -123,17 +123,17 @@ summary_fill_in(capture_file *cf, summary_tally *st)
     size_t hash_bytes;
 
     st->packet_count_ts = 0;
-    st->start_time = 0;
-    st->stop_time = 0;
+    st->start_time = DBL_MAX;
+    st->stop_time = DBL_MIN;
     st->bytes = 0;
     st->filtered_count = 0;
     st->filtered_count_ts = 0;
-    st->filtered_start = 0;
+    st->filtered_start = DBL_MAX;
     st->filtered_stop = 0;
     st->filtered_bytes = 0;
     st->marked_count = 0;
     st->marked_count_ts = 0;
-    st->marked_start = 0;
+    st->marked_start = DBL_MAX;
     st->marked_stop = 0;
     st->marked_bytes = 0;
     st->ignored_count = 0;
@@ -141,8 +141,10 @@ summary_fill_in(capture_file *cf, summary_tally *st)
     /* initialize the tally */
     if (cf->count != 0) {
         first_frame = frame_data_sequence_find(cf->provider.frames, 1);
-        st->start_time = nstime_to_sec(&first_frame->abs_ts);
-        st->stop_time = nstime_to_sec(&first_frame->abs_ts);
+        if (first_frame->has_ts) {
+            st->start_time = nstime_to_sec(&first_frame->abs_ts);
+            st->stop_time = nstime_to_sec(&first_frame->abs_ts);
+        }
 
         for (framenum = 1; framenum <= cf->count; framenum++) {
             cur_frame = frame_data_sequence_find(cf->provider.frames, framenum);
