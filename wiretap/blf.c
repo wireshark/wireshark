@@ -46,6 +46,25 @@
 static const uint8_t blf_magic[] = { 'L', 'O', 'G', 'G' };
 static const uint8_t blf_obj_magic[] = { 'L', 'O', 'B', 'J' };
 
+static const value_string blf_application_names[] = {
+    { 0,    "Unknown" },
+    { 1,    "Vector CANalyzer" },
+    { 2,    "Vector CANoe" },
+    { 3,    "Vector CANstress" },
+    { 4,    "Vector CANlog" },
+    { 5,    "Vector CANape" },
+    { 6,    "Vector CANcaseXL log" },
+    { 7,    "Vector Logger Configurator" },
+    { 200,  "Porsche Logger" },
+    { 201,  "CAETEC Logger" },
+    { 202,  "Vector Network Simulator" },
+    { 203,  "IPETRONIK logger" },
+    { 204,  "RT PK" },
+    { 205,  "PikeTec" },
+    { 206,  "Sparks" },
+    { 0, NULL }
+};
+
 static int blf_file_type_subtype = -1;
 
 void register_blf(void);
@@ -3897,6 +3916,15 @@ blf_open(wtap *wth, int *err, char **err_info) {
     wth->subtype_close = blf_close;
     wth->file_type_subtype = blf_file_type_subtype;
 
+    wtap_block_t block = wtap_block_create(WTAP_BLOCK_SECTION);
+    wtapng_section_mandatory_t *shb_mand = (wtapng_section_mandatory_t *)wtap_block_get_mandatory_data(block);
+    shb_mand->section_length = UINT64_MAX;
+
+    wtap_block_add_string_option_format(block, OPT_SHB_USERAPPL, "%s %d.%d.%d", try_val_to_str(header.application, blf_application_names),
+                                        header.application_major, header.application_minor, header.application_build);
+    wtap_block_copy(g_array_index(wth->shb_hdrs, wtap_block_t, 0), block);
+    wtap_block_unref(block);
+
     return WTAP_OPEN_MINE;
 }
 
@@ -5324,8 +5352,8 @@ static const struct file_type_subtype_info blf_info = {
         blf_dump_can_write_encap, blf_dump_open, NULL
 };
 
-void register_blf(void)
-{
+void register_blf(void) {
+
     blf_file_type_subtype = wtap_register_file_type_subtype(&blf_info);
 
     /*

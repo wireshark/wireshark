@@ -327,6 +327,7 @@ static const value_string blf_object_names[] = {
     { 0, NULL }
 };
 
+/* blf.c has the same table! */
 static const value_string application_names[] = {
     { 0,    "Unknown" },
     { 1,    "Vector CANalyzer" },
