@@ -3216,11 +3216,6 @@ pcapng_read_block(wtap *wth, FILE_T fh,
          */
         section_info = new_section_info;
 
-        /*
-         * Get information for this block type, for use when setting the
-         * internal flag.
-         */
-        handler = g_hash_table_lookup(block_handlers, GUINT_TO_POINTER(bh.block_type));
     } else {
         /*
          * Not an SHB.
