@@ -630,6 +630,8 @@ macOS Universal Package:
   rules: !reference [.if-w-w-only-merged]
   variables:
     CODE_SIGN_IDENTITY: "Wireshark Foundation"
+    WIRESHARK_BASE_DIR: "$CI_PROJECT_DIR/../wireshark-third-party"
+    FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/macos-universal-4.6/lib/falco/plugins"
   tags:
     - wireshark-macos-arm-package
   retry: 1
@@ -658,7 +660,7 @@ macOS Universal Package:
       -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0
       -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
       -DBUILD_stratoshark=on
-      -DFALCO_PLUGINS="$WIRESHARK_BASE_DIR/macos-universal-4.6/lib/falco/plugins/libcloudtrail.so"
+      -DFALCO_PLUGINS="$FALCO_PLUGIN_DIR/libcloudtrail.so;$FALCO_PLUGIN_DIR/libgcpaudit.so;$FALCO_PLUGIN_DIR/libk8saudit.so"
       -DTEST_EXTRA_ARGS=--enable-release
       ..
     # Temporary hack to fix "Package 'zlib', required by 'libscap', not found"
