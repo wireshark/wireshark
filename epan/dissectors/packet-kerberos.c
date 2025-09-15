@@ -8901,13 +8901,13 @@ kerberos_rm_to_reclen(unsigned krb_rm)
 unsigned
 get_krb_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-	unsigned krb_rm;
-	int pdulen;
+	unsigned krb_rm, pdulen;
 
 	krb_rm = tvb_get_ntohl(tvb, offset);
-	pdulen = kerberos_rm_to_reclen(krb_rm);
-	return (pdulen + 4);
+	pdulen = (unsigned)kerberos_rm_to_reclen(krb_rm) + 4U;
+	return pdulen;
 }
+
 static void
 kerberos_prefs_apply_cb(void) {
 #ifdef HAVE_LIBNETTLE
