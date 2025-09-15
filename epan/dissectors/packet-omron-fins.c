@@ -9,8 +9,11 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Reference for OMRON-FINS W227_E1_02_FINS_Command_Reference_Manual
- * Hopefully google will find it for you.
+ * Reference:
+ *
+ *     OMRON FINS Commands Reference Manual, W227-E1-2
+ *
+ *     https://www.myomron.com/downloads/1.Manuals/Networks/W227E12_FINS_Commands_Reference_Manual.pdf
  *
  * Special thanks to the guys who wrote the README.developer: it's great.
  *
