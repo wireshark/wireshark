@@ -818,7 +818,7 @@ static const value_string statuscode_vals[] =
 {
     { 0, "Success" },
     { 1, "UnspecFail" },
-    { 2, "NoAddrAvail" },
+    { 2, "NoAddrsAvail" },
     { 3, "NoBinding" },
     { 4, "NotOnLink" },
     { 5, "UseMulticast (obsolete)" },    /* obsoleted draft-ietf-dhc-rfc8415bis-12 */
