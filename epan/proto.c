@@ -3474,8 +3474,7 @@ ptvcursor_add_ret_uint(ptvcursor_t *ptvc, int hfindex, int length,
 		}
 	}
 
-	ptvc->offset += get_full_length(hfinfo, ptvc->tvb, offset, length,
-	    item_length, encoding);
+	ptvcursor_advance(ptvc, get_full_length(hfinfo, ptvc->tvb, offset, length, item_length, encoding));
 
 	CHECK_FOR_NULL_TREE(ptvc->tree);
 
@@ -3534,8 +3533,7 @@ ptvcursor_add_ret_int(ptvcursor_t *ptvc, int hfindex, int length,
 		*retval = ws_sign_ext32(*retval, no_of_bits);
 	}
 
-	ptvc->offset += get_full_length(hfinfo, ptvc->tvb, offset, length,
-	    item_length, encoding);
+	ptvcursor_advance(ptvc, get_full_length(hfinfo, ptvc->tvb, offset, length, item_length, encoding));
 
 	CHECK_FOR_NULL_TREE(ptvc->tree);
 
@@ -3587,7 +3585,7 @@ ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, int length, const unsigned e
 	if (retval)
 		*retval = value;
 
-	ptvc->offset += item_length;
+	ptvcursor_advance(ptvc, item_length);
 
 	CHECK_FOR_NULL_TREE(ptvc->tree);
 
@@ -3645,8 +3643,7 @@ ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hfindex, int length, const unsi
 		*retval = (bitval != 0);
 	}
 
-	ptvc->offset += get_full_length(hfinfo, ptvc->tvb, offset, length,
-	    item_length, encoding);
+	ptvcursor_advance(ptvc, get_full_length(hfinfo, ptvc->tvb, offset, length, item_length, encoding));
 
 	CHECK_FOR_NULL_TREE(ptvc->tree);
 
@@ -4379,8 +4376,7 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, int length,
 	get_hfi_length(hfinfo, ptvc->tvb, offset, &length, &item_length, encoding);
 	test_length(hfinfo, ptvc->tvb, offset, item_length, encoding);
 
-	ptvc->offset += get_full_length(hfinfo, ptvc->tvb, offset, length,
-	    item_length, encoding);
+	ptvcursor_advance(ptvc, get_full_length(hfinfo, ptvc->tvb, offset, length, item_length, encoding));
 
 	CHECK_FOR_NULL_TREE(ptvc->tree);
 
@@ -4753,7 +4749,9 @@ ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, int length,
 void
 ptvcursor_advance(ptvcursor_t* ptvc, int length)
 {
-	ptvc->offset += length;
+	if (ckd_add(&ptvc->offset, ptvc->offset, length)) {
+		THROW(ReportedBoundsError);
+	}
 }
 
 
