@@ -20,10 +20,12 @@
 
 #include "packet-ams.h"
 
+#include "epan/dissectors/packet-tcp.h"
+
 void proto_register_ams(void);
 void proto_reg_handoff_ams(void);
 
-#define AMS_TCP_PORT 48898 /* Not IANA registered */
+#define AMS_TCP_PORT_RANGE "48898" /* Not IANA registered */
 
 /* Define the ams proto */
 int proto_ams;
@@ -456,7 +458,10 @@ static int dissect_ams_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
    }
    else
    {
-      offset+=AmsHead_Len;
+      cmdId = tvb_get_letohs(tvb, offset + 16);
+      stateflags = tvb_get_letohs(tvb, offset + 18);
+
+      offset += AmsHead_Len;
    }
 
    if ( (stateflags & AMSCMDSF_ADSCMD) != 0 )
@@ -834,8 +839,10 @@ static int dissect_ams_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
       if( tree && ams_length-offset > 0 )
          proto_tree_add_item(ams_tree, hf_ams_data, tvb, offset, ams_length-offset, ENC_NA);
    }
-   return offset;
+
+   return ams_length;
 }
+
 
 /*ams*/
 static int dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -843,12 +850,24 @@ static int dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     return dissect_ams_pdu(tvb, pinfo, tree, 0);
 }
 
-static int dissect_amstcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static unsigned get_amstcp_length(packet_info* pinfo _U_, tvbuff_t* tvb, int offset, void* data _U_)
 {
-    if( TcpAdsParserHDR_Len > tvb_reported_length(tvb))
-        return 0;
+    // The 6-byte AMS/TCP header is 2 reserved bytes followed by 4 bytes
+    // indicating the length of the AMS header and data that follows.
 
+    return tvb_get_uint32(tvb, offset + 2, ENC_LITTLE_ENDIAN) + TcpAdsParserHDR_Len;
+}
+
+static int dissect_amstcp_reassembled(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+{
     return dissect_ams_pdu(tvb, pinfo, tree, TcpAdsParserHDR_Len);
+}
+
+static int dissect_amstcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, true, TcpAdsParserHDR_Len, get_amstcp_length, dissect_amstcp_reassembled, NULL);
+
+    return tvb_captured_length(tvb);
 }
 
 void proto_register_ams(void)
@@ -1229,7 +1248,7 @@ void proto_register_ams(void)
 
 void proto_reg_handoff_ams(void)
 {
-   dissector_add_uint_with_preference("tcp.port", AMS_TCP_PORT, amstcp_handle);
+   dissector_add_uint_range_with_preference("tcp.port", AMS_TCP_PORT_RANGE, amstcp_handle);
    dissector_add_uint("ecatf.type", 2, ams_handle);
 }
 
