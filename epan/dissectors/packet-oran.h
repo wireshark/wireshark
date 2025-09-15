@@ -34,6 +34,7 @@ typedef struct oran_tap_info {
     uint16_t eaxc;
     bool     uplink;
     /* TODO: Timing info */
+    uint8_t frame;
     uint8_t slot;
     /* Missing SNs */
     uint32_t missing_sns;

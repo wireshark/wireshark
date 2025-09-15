@@ -41,6 +41,9 @@ enum {
 
 /* Global stats */
 uint32_t largest_ul_delay_in_us = 0;
+/* Assuming that it is unlikely we have > 255 radio frames.. */
+int      first_radio_frame = -1;
+int      last_radio_frame = -1;
 
 static const char *flow_titles[] = { " Plane",
                                      "eAxC ID ",
@@ -123,6 +126,11 @@ oran_stat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     if (si->ul_delay_in_us > largest_ul_delay_in_us) {
         largest_ul_delay_in_us = si->ul_delay_in_us;
     }
+
+    if (first_radio_frame == -1) {
+        first_radio_frame = (int)si->frame;
+    }
+    last_radio_frame = (int)si->frame;
 
     bool row_found = false;
     /* Look among existing rows for this flow */
@@ -312,9 +320,9 @@ oran_stat_draw(void *phs)
     }
 
     /* Now show global stats */
-    printf("\n Largest UL delay\n");
-    printf("=================\n");
-    printf("%15u\n", largest_ul_delay_in_us);
+    printf("\n Largest UL delay    First radio frame    Last radio frame\n");
+    printf("=============================================================\n");
+    printf("%17u %20u %19u\n", largest_ul_delay_in_us, first_radio_frame, last_radio_frame);
 }
 
 /* Create a new ORAN stats struct */

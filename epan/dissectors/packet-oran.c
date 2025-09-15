@@ -5052,6 +5052,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     /* frameId */
     uint32_t frameId = 0;
     proto_tree_add_item_ret_uint(section_tree, hf_oran_frame_id, tvb, offset, 1, ENC_NA, &frameId);
+    tap_info->frame = frameId;
     offset += 1;
 
     /* subframeId */
@@ -6115,6 +6116,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* frameId */
     uint32_t frameId = 0;
     proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_frame_id, tvb, offset, 1, ENC_NA, &frameId);
+    tap_info->frame = frameId;
     offset += 1;
 
     /* subframeId */
