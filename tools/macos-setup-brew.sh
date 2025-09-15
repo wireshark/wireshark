@@ -97,6 +97,7 @@ BUILD_LIST=(
     ccache
     cmake
     ninja
+    pkgconf
 )
 
 # Qt isn't technically required, but...
