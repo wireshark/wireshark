@@ -13,7 +13,7 @@
 
 #include "ws_symbol_export.h"
 
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 
 #ifdef __cplusplus
 extern "C" {

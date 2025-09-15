@@ -11,7 +11,7 @@
 
 #include <wireshark.h>
 
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 
 #include "dfilter.h"
 #include "dfilter-translator.h"

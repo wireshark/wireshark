@@ -57,7 +57,7 @@ DIAG_ON(frame-larger-than=)
 #include "epan/plugin_if.h"
 #include "epan/uat.h"
 #include "epan/uat-int.h"
-#include "epan/value_string.h"
+#include <wsutil/value_string.h>
 
 #ifdef HAVE_LUA
 #include <epan/wslua/init_wslua.h>

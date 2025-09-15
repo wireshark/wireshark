@@ -25,7 +25,7 @@
 
 #include "wsutil/nstime.h"
 #include "tvbuff.h"
-#include "value_string.h"
+#include <wsutil/value_string.h>
 #include "packet_info.h"
 #include "ftypes/ftypes.h"
 #include "register.h"

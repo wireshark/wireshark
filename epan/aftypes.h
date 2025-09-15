@@ -15,7 +15,7 @@
 #ifndef __AFTYPES_H__
 #define __AFTYPES_H__
 
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -23,7 +23,7 @@
 #include <glib.h>
 
 #include <epan/packet_info.h>
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-bssap.h>
@@ -172,52 +172,52 @@ gsm_a_stat_draw(
     printf("BSSMAP\n");
     printf("Message (ID)Type                                        Number\n");
 
-    gsm_a_stat_draw_vs_helper(stat_p->bssmap_message_type, vs_get_external_value_string("gsm_a_bssmap_msg_strings"));
+    gsm_a_stat_draw_vs_helper(stat_p->bssmap_message_type, get_external_value_string("gsm_a_bssmap_msg_strings"));
 
     printf("\nDTAP %s\n", val_to_str_const(PD_MM, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    gsm_a_stat_draw_vs_helper(stat_p->dtap_mm_message_type, vs_get_external_value_string("gsm_a_dtap_msg_mm_strings"));
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_mm_message_type, get_external_value_string("gsm_a_dtap_msg_mm_strings"));
 
     printf("\nDTAP %s\n", val_to_str_const(PD_RR, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    gsm_a_stat_draw_vs_helper(stat_p->dtap_rr_message_type, vs_get_external_value_string("gsm_a_dtap_msg_rr_strings"));
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_rr_message_type, get_external_value_string("gsm_a_dtap_msg_rr_strings"));
 
     printf("\nDTAP %s\n", val_to_str_const(PD_CC, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    gsm_a_stat_draw_vs_helper(stat_p->dtap_cc_message_type, vs_get_external_value_string("gsm_a_dtap_msg_cc_strings"));
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_cc_message_type, get_external_value_string("gsm_a_dtap_msg_cc_strings"));
 
     printf("\nDTAP %s\n", val_to_str_const(PD_GMM, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    gsm_a_stat_draw_vs_helper(stat_p->dtap_gmm_message_type, vs_get_external_value_string("gsm_a_dtap_msg_gmm_strings"));
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_gmm_message_type, get_external_value_string("gsm_a_dtap_msg_gmm_strings"));
 
     printf("\nDTAP %s\n", val_to_str_const(PD_SMS, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    gsm_a_stat_draw_vs_helper(stat_p->dtap_sms_message_type, vs_get_external_value_string("gsm_a_dtap_msg_sms_strings"));
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_sms_message_type, get_external_value_string("gsm_a_dtap_msg_sms_strings"));
 
     printf("\nDTAP %s\n", val_to_str_const(PD_SM, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    gsm_a_stat_draw_vs_helper(stat_p->dtap_sm_message_type, vs_get_external_value_string("gsm_a_dtap_msg_sm_strings"));
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_sm_message_type, get_external_value_string("gsm_a_dtap_msg_sm_strings"));
 
     printf("\nDTAP %s\n", val_to_str_const(PD_SS, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    gsm_a_stat_draw_vs_helper(stat_p->dtap_ss_message_type, vs_get_external_value_string("gsm_a_dtap_msg_ss_strings"));
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_ss_message_type, get_external_value_string("gsm_a_dtap_msg_ss_strings"));
 
     printf("\nDTAP %s\n", val_to_str_const(PD_TP, gsm_a_pd_vals, "Unknown Type"));
     printf("Message (ID)Type                                        Number\n");
 
-    gsm_a_stat_draw_vs_helper(stat_p->dtap_tp_message_type, vs_get_external_value_string("gsm_a_dtap_msg_tp_strings"));
+    gsm_a_stat_draw_vs_helper(stat_p->dtap_tp_message_type, get_external_value_string("gsm_a_dtap_msg_tp_strings"));
 
     printf("\nSACCH Radio Resources Management messages\n");
     printf("Message (ID)Type                                        Number\n");
 
-    gsm_a_stat_draw_vs_helper(stat_p->sacch_rr_message_type, vs_get_external_value_string("gsm_a_rr_short_pd_msg_strings"));
+    gsm_a_stat_draw_vs_helper(stat_p->sacch_rr_message_type, get_external_value_string("gsm_a_rr_short_pd_msg_strings"));
 
     printf("==============================================================\n");
 }

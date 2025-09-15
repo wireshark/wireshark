@@ -362,14 +362,14 @@ tap_packet_status BluetoothDevicesDialog::tapPacket(void *tapinfo_ptr, packet_in
         item->setText(column_number_is_local_adapter,  tr("true"));
 
     if (tap_device->type == BLUETOOTH_DEVICE_LOCAL_VERSION) {
-        item->setText(column_number_hci_version,    val_to_str_const(tap_device->data.local_version.hci_version, vs_get_external_value_string("bthci_evt_hci_version"), "Unknown 0x%02x"));
+        item->setText(column_number_hci_version,    val_to_str_const(tap_device->data.local_version.hci_version, get_external_value_string("bthci_evt_hci_version"), "Unknown 0x%02x"));
         item->setText(column_number_hci_revision,   QString::number(tap_device->data.local_version.hci_revision));
-        item->setText(column_number_lmp_version,    val_to_str_const(tap_device->data.local_version.lmp_version, vs_get_external_value_string("bthci_evt_lmp_version"), "Unknown 0x%02x"));
+        item->setText(column_number_lmp_version,    val_to_str_const(tap_device->data.local_version.lmp_version, get_external_value_string("bthci_evt_lmp_version"), "Unknown 0x%02x"));
         item->setText(column_number_lmp_subversion, QString::number(tap_device->data.local_version.lmp_subversion));
         item->setText(column_number_manufacturer,   val_to_str_ext_const(tap_device->data.local_version.manufacturer, get_external_value_string_ext("bluetooth_company_id_vals_ext"), "Unknown 0x%04x"));
     }
     if (tap_device->type == BLUETOOTH_DEVICE_REMOTE_VERSION) {
-        item->setText(column_number_lmp_version,    val_to_str_const(tap_device->data.remote_version.lmp_version, vs_get_external_value_string("bthci_evt_lmp_version"), "Unknown 0x%02x"));
+        item->setText(column_number_lmp_version,    val_to_str_const(tap_device->data.remote_version.lmp_version, get_external_value_string("bthci_evt_lmp_version"), "Unknown 0x%02x"));
         item->setText(column_number_lmp_subversion, QString::number(tap_device->data.remote_version.lmp_subversion));
         item->setText(column_number_manufacturer,   val_to_str_ext_const(tap_device->data.remote_version.manufacturer, get_external_value_string_ext("bluetooth_company_id_vals_ext"), "Unknown 0x%04x"));
     }

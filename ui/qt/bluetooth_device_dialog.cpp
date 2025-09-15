@@ -463,14 +463,14 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
 
         break;
     case BLUETOOTH_DEVICE_SCAN:
-        field = QString(val_to_str_const(tap_device->data.scan, vs_get_external_value_string("bthci_cmd_scan_enable_values"), "Unknown 0x%02x"));
+        field = QString(val_to_str_const(tap_device->data.scan, get_external_value_string("bthci_cmd_scan_enable_values"), "Unknown 0x%02x"));
         item = tableWidget->item(row_number_scan, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_scan, tapinfo->changes, pinfo);
         item->setText(field);
         break;
     case BLUETOOTH_DEVICE_LOCAL_VERSION:
-        field = QString(val_to_str_const(tap_device->data.local_version.hci_version, vs_get_external_value_string("bthci_evt_hci_version"), "Unknown 0x%02x"));
+        field = QString(val_to_str_const(tap_device->data.local_version.hci_version, get_external_value_string("bthci_evt_hci_version"), "Unknown 0x%02x"));
         item = tableWidget->item(row_number_hci_version, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_hci_version, tapinfo->changes, pinfo);
@@ -482,13 +482,13 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
         updateChanges(tableWidget, field, row_number_hci_revision, tapinfo->changes, pinfo);
         item->setText(field);
 
-        field = QString(val_to_str_const(tap_device->data.local_version.lmp_version, vs_get_external_value_string("bthci_evt_lmp_version"), "Unknown 0x%02x"));
+        field = QString(val_to_str_const(tap_device->data.local_version.lmp_version, get_external_value_string("bthci_evt_lmp_version"), "Unknown 0x%02x"));
         item = tableWidget->item(row_number_lmp_version, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_lmp_version, tapinfo->changes, pinfo);
         item->setText(field);
 
-        field = QString(val_to_str_const(tap_device->data.local_version.lmp_version, vs_get_external_value_string("bthci_evt_lmp_version"), "Unknown 0x%02x"));
+        field = QString(val_to_str_const(tap_device->data.local_version.lmp_version, get_external_value_string("bthci_evt_lmp_version"), "Unknown 0x%02x"));
         item = tableWidget->item(row_number_lmp_version, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_lmp_version, tapinfo->changes, pinfo);
@@ -509,7 +509,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
         break;
     case BLUETOOTH_DEVICE_REMOTE_VERSION:
 
-        field = QString(val_to_str_const(tap_device->data.remote_version.lmp_version, vs_get_external_value_string("bthci_evt_lmp_version"), "Unknown 0x%02x"));
+        field = QString(val_to_str_const(tap_device->data.remote_version.lmp_version, get_external_value_string("bthci_evt_lmp_version"), "Unknown 0x%02x"));
         item = tableWidget->item(row_number_lmp_version, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_lmp_version, tapinfo->changes, pinfo);
@@ -545,7 +545,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
 
         break;
     case BLUETOOTH_DEVICE_AUTHENTICATION:
-        field = QString(val_to_str_const(tap_device->data.authentication, vs_get_external_value_string("bthci_cmd_authentication_enable_values"), "Unknown 0x%02x"));
+        field = QString(val_to_str_const(tap_device->data.authentication, get_external_value_string("bthci_cmd_authentication_enable_values"), "Unknown 0x%02x"));
         item = tableWidget->item(row_number_authentication, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_authentication, tapinfo->changes, pinfo);
@@ -553,7 +553,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
 
         break;
     case BLUETOOTH_DEVICE_ENCRYPTION:
-        field = QString(val_to_str_const(tap_device->data.encryption, vs_get_external_value_string("bthci_cmd_encrypt_mode_vals"), "Unknown 0x%02x"));
+        field = QString(val_to_str_const(tap_device->data.encryption, get_external_value_string("bthci_cmd_encrypt_mode_vals"), "Unknown 0x%02x"));
         item = tableWidget->item(row_number_encryption, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_encryption, tapinfo->changes, pinfo);
@@ -577,7 +577,7 @@ tap_packet_status BluetoothDeviceDialog::tapPacket(void *tapinfo_ptr, packet_inf
 
         break;
     case BLUETOOTH_DEVICE_INQUIRY_MODE:
-        field = QString(val_to_str_const(tap_device->data.inquiry_mode, vs_get_external_value_string("bthci_cmd_inq_modes"), "Unknown 0x%02x"));
+        field = QString(val_to_str_const(tap_device->data.inquiry_mode, get_external_value_string("bthci_cmd_inq_modes"), "Unknown 0x%02x"));
         item = tableWidget->item(row_number_inquiry_mode, column_number_value);
         saveItemData(item, tap_device, pinfo);
         updateChanges(tableWidget, field, row_number_inquiry_mode, tapinfo->changes, pinfo);

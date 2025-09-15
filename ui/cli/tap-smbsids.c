@@ -20,7 +20,7 @@
 #include <epan/dissectors/packet-smb-sidsnooping.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 #include <epan/dissectors/packet-smb.h>
 
 #include <wsutil/cmdarg_err.h>

@@ -16,7 +16,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/range.h>
 #include <epan/to_str.h>
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 
 #include <ui/recent.h>
 #include <ui/util.h>

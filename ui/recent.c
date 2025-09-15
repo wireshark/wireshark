@@ -21,7 +21,7 @@
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/column.h>
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 
 #ifdef HAVE_PCAP_REMOTE
 #include "ui/capture_opts.h"

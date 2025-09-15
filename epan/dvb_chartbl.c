@@ -14,7 +14,7 @@
 
 #include <epan/proto.h>
 #include <epan/tvbuff.h>
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 
 #include "dvb_chartbl.h"
 

@@ -18,7 +18,7 @@
 
 #include "config.h"
 
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 
 const value_string g_statusCodes[] = {
     {0x00000000, "Good"},

@@ -20,7 +20,7 @@
 #include <glib.h>
 
 #include <epan/proto.h>
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 #include <epan/params.h>
 
 #include <epan/iana_charsets.h>

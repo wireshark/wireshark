@@ -26,7 +26,7 @@
 #include <epan/dissectors/packet-lin.h>
 #include <string.h>
 #include <errno.h>
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 #include <wiretap/wtap.h>
 #include <wiretap/wtap_opttypes.h>
 #include <wsutil/wslog.h>

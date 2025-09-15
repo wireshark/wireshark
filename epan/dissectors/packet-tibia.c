@@ -92,7 +92,6 @@
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/conversation.h>
-#include <epan/value_string.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>

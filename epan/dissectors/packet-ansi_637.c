@@ -30,7 +30,6 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/tfs.h>
-#include <epan/value_string.h>
 #include <wsutil/array.h>
 
 #include "packet-gsm_sms.h"

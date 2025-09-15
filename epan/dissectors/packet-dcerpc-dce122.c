@@ -12,7 +12,7 @@
 
 #include "config.h"
 
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 #include "packet-dcerpc-dce122.h"
 
 static const value_string dce_error_vals[] = {

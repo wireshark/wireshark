@@ -28,7 +28,6 @@
 #include <config.h>
 #include <wireshark.h>
 
-#include <epan/value_string.h>
 #include <epan/ipproto.h>
 #include <epan/packet.h>
 #include <epan/proto_data.h>

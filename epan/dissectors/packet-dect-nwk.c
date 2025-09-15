@@ -19,7 +19,6 @@
 #include <epan/proto.h>
 #include <epan/tfs.h>
 #include <epan/tvbuff.h>
-#include <epan/value_string.h>
 #include <epan/wmem_scopes.h>
 #include <ftypes/ftypes.h>
 

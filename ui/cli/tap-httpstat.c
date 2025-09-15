@@ -17,7 +17,7 @@
 #include <glib.h>
 
 #include <epan/packet_info.h>
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-http.h>
@@ -58,7 +58,7 @@ static void
 http_init_hash(httpstat_t *sp)
 {
 	int i;
-	value_string* status_codes = vs_get_external_value_string("vals_http_status_code");
+	value_string* status_codes = get_external_value_string("vals_http_status_code");
 
 	sp->hash_responses = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 

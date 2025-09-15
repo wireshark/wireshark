@@ -10,7 +10,7 @@
 #ifndef __PACKET_NETLINK_H__
 #define __PACKET_NETLINK_H__
 
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 
 /* from <include/uapi/linux/netlink.h> prefixed with WS_ */
 enum {

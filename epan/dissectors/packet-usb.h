@@ -13,7 +13,7 @@
 #include <epan/packet_info.h>
 #include <epan/proto.h>
 #include <epan/tvbuff.h>
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 #include <epan/tfs.h>
 #include <wsutil/nstime.h>
 

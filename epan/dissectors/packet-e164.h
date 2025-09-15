@@ -12,7 +12,7 @@
 #ifndef __PACKET_E164_H__
 #define __PACKET_E164_H__
 
-#include <epan/value_string.h>
+#include <wsutil/value_string.h>
 #include "ws_symbol_export.h"
 
 extern const value_string E164_country_code_value[];

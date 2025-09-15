@@ -148,7 +148,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	uat.h
 	uat-int.h
 	unit_strings.h
-	value_string.h
 	wmem_scopes.h
 	wscbor.h
 	wscbor_enc.h
@@ -255,7 +254,6 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	tvbuff_lznt1.c
 	tvbuff_rdp.c
 	uat.c
-	value_string.c
 	wscbor.c
 	wscbor_enc.c
 	unit_strings.c

@@ -24,7 +24,6 @@
 #include "addr_resolv.h"
 #include "address_types.h"
 #include "osi-utils.h"
-#include "value_string.h"
 #include "column-info.h"
 #include "column.h"
 #include "proto.h"
@@ -33,6 +32,7 @@
 #include <epan/epan.h>
 #include <epan/dfilter/dfilter.h>
 
+#include <wsutil/value_string.h>
 #include <wsutil/inet_cidr.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/ws_assert.h>

@@ -12,7 +12,7 @@
 
 #include <ui/qt/models/uat_delegate.h>
 #include <epan/packet.h> // for get_dissector_names()
-#include "epan/value_string.h"
+#include <wsutil/value_string.h>
 #include <wsutil/ws_assert.h>
 #include <QRegularExpression>
 #include <QComboBox>

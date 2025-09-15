@@ -15,7 +15,6 @@
 #define PACKET_UBX_H
 
 #include <wsutil/pint.h>
-#include <epan/value_string.h>
 
 extern const value_string DAY_NUMBER[];
 

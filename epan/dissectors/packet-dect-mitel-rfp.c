@@ -27,7 +27,6 @@
 #include <epan/tfs.h>
 #include <epan/tvbuff.h>
 #include <epan/unit_strings.h>
-#include <epan/value_string.h>
 #include <ftypes/ftypes.h>
 
 /* Prototypes */

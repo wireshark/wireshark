@@ -13,7 +13,6 @@
 
 #include "config.h"
 
-#include <epan/value_string.h>
 #include <epan/aftypes.h>
 
 static const value_string linux_af_vals[] = {
