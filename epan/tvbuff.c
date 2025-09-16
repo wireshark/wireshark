@@ -673,7 +673,12 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const int offset, const int length)
 	/* XXX: Below this point could be replaced with a call to
 	 * check_offset_length with no functional change, however this is a
 	 * *very* hot path and check_offset_length is not well-optimized for
-	 * this case, so we eat some code duplication for a lot of speedup. */
+	 * this case (mostly because that function handles length -1 meaning
+	 * "until the end of the buffer?"), so we eat some code duplication
+	 * for a lot of speedup.
+	 *
+	 * XXX - Could it be replaced with a call just to compute_offset?
+	 */
 
 	if (offset >= 0) {
 		/* Positive offset - relative to the beginning of the packet. */
@@ -691,13 +696,15 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const int offset, const int length)
 	}
 	else {
 		/* Negative offset - relative to the end of the packet. */
-		if (G_LIKELY((unsigned) -offset <= tvb->length)) {
-			real_offset = tvb->length + offset;
-		} else if ((unsigned) -offset <= tvb->contained_length) {
+		/* Prevent UB on 2's complement platforms. */
+		unsigned abs_offset = ((unsigned)-(offset + 1)) + 1;
+		if (G_LIKELY(abs_offset <= tvb->length)) {
+			real_offset = tvb->length - abs_offset;
+		} else if (abs_offset <= tvb->contained_length) {
 			THROW(BoundsError);
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			THROW(FragmentBoundsError);
-		} else if ((unsigned) -offset <= tvb->reported_length) {
+		} else if (abs_offset <= tvb->reported_length) {
 			THROW(ContainedBoundsError);
 		} else {
 			THROW(ReportedBoundsError);
