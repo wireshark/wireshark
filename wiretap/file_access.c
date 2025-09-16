@@ -59,6 +59,7 @@
 #include "logcat.h"
 #include "logcat_text.h"
 #include "json.h"
+#include "json_lines.h"
 #include "observer.h"
 #include "k12.h"
 #include "ber.h"
@@ -181,6 +182,7 @@ static const struct file_extension_info wireshark_file_type_extensions_base[] = 
 	{ "JPEG/JFIF files", false, "jpg;jpeg;jfif" },
 	{ "NetLog file", true, "json" },
 	{ "JavaScript Object Notation file", false, "json" },
+	{ "JSON Lines", true, "jsonl;log" },
 	{ "MP4 file", false, "mp4" },
 	{ "RTPDump file", false, "rtp;rtpdump" },
 	{ "EMS file", false, "ems" },
@@ -192,7 +194,8 @@ static const struct file_extension_info wireshark_file_type_extensions_base[] = 
 #define	N_WIRESHARK_FILE_TYPE_EXTENSIONS array_length(wireshark_file_type_extensions_base)
 
 static const struct file_extension_info stratoshark_file_type_extensions_base[] = {
-    {"Stratoshark/... - scap", true, "scap"},
+	{ "Stratoshark/... - scap", true, "scap"},
+	{ "JSON Lines", true, "jsonl;log" },
 };
 
 #define N_STRATOSHARK_FILE_TYPE_EXTENSIONS array_length(stratoshark_file_type_extensions_base)
@@ -445,7 +448,9 @@ static const struct open_info open_info_base[] = {
 	{ "CAM Inspector file",                     OPEN_INFO_HEURISTIC, camins_open,              "camins",   NULL, NULL },
 	/* NetLog needs to be before JSON open because it is a specifically formatted JSON file */
 	{ "NetLog",                                 OPEN_INFO_HEURISTIC, netlog_open,              "json",     NULL, NULL },
-	{ "JavaScript Object Notation",             OPEN_INFO_HEURISTIC, json_open,                "json",     NULL, NULL },
+    /* JSON Lines needs to be before JSON open because it handles a variety of JSON logs */
+    { "JSON Lines",                             OPEN_INFO_HEURISTIC, json_lines_open,          "jsonl;log", NULL, NULL },
+    { "JavaScript Object Notation",             OPEN_INFO_HEURISTIC, json_open,                "json",     NULL, NULL },
 	{ "Ruby Marshal Object",                    OPEN_INFO_HEURISTIC, ruby_marshal_open,        "",         NULL, NULL },
 	{ "3gpp phone log",                         OPEN_INFO_MAGIC,     log3gpp_open,             "log",      NULL, NULL },
 	{ "MP4 media file",                         OPEN_INFO_MAGIC,     mp4_open,                 "mp4",      NULL, NULL },

@@ -183,12 +183,12 @@ static bool parse_log_event_constants(char *filebuf, jsmntok_t *root_json_token,
 
     jsmntok_t* json_constants = json_get_object(filebuf, root_json_token, "constants");
     if (json_constants == NULL){
-        ws_warning("Failed to parse the JSON constants");
+        ws_debug("Failed to parse the JSON constants");
         return false;
     }
     jsmntok_t* json_logevent_constants = json_get_object(filebuf, json_constants, "logEventTypes");
     if (json_logevent_constants == NULL){
-        ws_warning("Failed to parse the JSON logEventTypes");
+        ws_debug("Failed to parse the JSON logEventTypes");
         return false;
     }
 

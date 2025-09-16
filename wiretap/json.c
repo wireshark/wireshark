@@ -15,6 +15,11 @@
 
 #include <wsutil/wsjson.h>
 
+/*
+ * This reads an arbitrary, possibly large JSON object.
+ * For JSON log data, see json_lines.c.
+ */
+
 /* Maximum size of json file. */
 #define MAX_FILE_SIZE  (50*1024*1024)
 

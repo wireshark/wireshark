@@ -26,7 +26,7 @@ WS_DLL_PUBLIC int file_peekc(FILE_T stream);
 WS_DLL_PUBLIC int file_getc(FILE_T stream);
 WS_DLL_PUBLIC char *file_gets(char *buf, int len, FILE_T stream);
 WS_DLL_PUBLIC char *file_getsp(char *buf, int len, FILE_T stream);
-WS_DLL_PUBLIC int file_eof(FILE_T stream);
+WS_DLL_PUBLIC bool file_eof(FILE_T stream);
 WS_DLL_PUBLIC int file_error(FILE_T fh, char **err_info);
 extern void file_clearerr(FILE_T stream);
 extern void file_fdclose(FILE_T file);

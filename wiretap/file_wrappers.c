@@ -2481,7 +2481,7 @@ file_gets(char *buf, int len, FILE_T file)
     return buf;
 }
 
-int
+bool
 file_eof(FILE_T file)
 {
     /* return end-of-file state */
