@@ -10,9 +10,9 @@
  */
 
 /* Dissector based on MBIM specification 1.0 Errata-1 and MBIM extended version 2.0
- * http://www.usb.org/developers/devclass_docs/MBIM10Errata1_073013.zip
+ * https://www.usb.org/sites/default/files/MBIM10Errata1_073013.zip
  * http://compliance.usb.org/mbim/
- * http://www.usb.org/developers/docs/devclass_docs/MBIMMultiflow10.zip
+ * https://www.usb.org/sites/default/files/MBIMMultiflow10.zip
  *
  * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/host-shutdown-device-service
  *
@@ -3467,15 +3467,15 @@ mbim_dissect_tcs(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int* offse
     int tc_value_length;
     while (*offset - base_offset < tcs_buffer_length) {
         subtree = proto_tree_add_subtree_format(tree, tvb, *offset, 0, ett_mbim_pair_list, NULL, "Traffic component #%u", tc_pos);
-        proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_type, tvb, *offset, 1, ENC_BIG_ENDIAN, &tc_type);
+        proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_type, tvb, *offset, 1, ENC_NA, &tc_type);
         *offset += 1;
         switch (tc_type) {
             case URSP_TC_TYPE_MATCH_ALL:
                 break;
             case URSP_TC_TYPE_OSID_APPID:
-                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_os_id, tvb, *offset, 16, ENC_NA);
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_os_id, tvb, *offset, 16, ENC_BIG_ENDIAN);
                 *offset += 16;
-                proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_length, tvb, *offset, 1, ENC_BIG_ENDIAN, &tc_value_length);
+                proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_length, tvb, *offset, 1, ENC_NA, &tc_value_length);
                 *offset += 1;
                 proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_app_id, tvb, *offset, tc_value_length, ENC_ASCII);
                 *offset += tc_value_length;
@@ -3493,7 +3493,7 @@ mbim_dissect_tcs(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int* offse
                 *offset += 1;
                 break;
             case URSP_TC_TYPE_PROTOCOL_ID_OR_NEXT_HEADER:
-                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_proto_id, tvb, *offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_proto_id, tvb, *offset, 1, ENC_NA);
                 *offset += 1;
                 break;
             case URSP_TC_TYPE_PORT:
@@ -3674,7 +3674,7 @@ mbim_dissect_tlv_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *of
                 mbim_dissect_ms_wake_packet(tvb, pinfo, tree, *offset);
                 break;
             case TLV_TYPE_TYPE_OSID:
-                proto_tree_add_item(tree, hf_mbim_tlv_ie_data_guid, tvb, *offset, 16, ENC_NA);
+                proto_tree_add_item(tree, hf_mbim_tlv_ie_data_guid, tvb, *offset, 16, ENC_BIG_ENDIAN);
                 break;
             case TLV_TYPE_TYPE_3GPP_REL_VERSION:
                 proto_tree_add_item(tree, hf_mbim_tlv_ie_data_int32, tvb, *offset, data_length, ENC_LITTLE_ENDIAN);
@@ -9068,7 +9068,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                         switch (cid) {
                             case MBIM_CID_MSFWID_FIRMWAREID:
                                 if (msg_type == MBIM_COMMAND_DONE) {
-                                    proto_tree_add_item(subtree, hf_mbim_msfwid_firmwareid_info_firmware_id, frag_tvb, offset, 16, ENC_NA);
+                                    proto_tree_add_item(subtree, hf_mbim_msfwid_firmwareid_info_firmware_id, frag_tvb, offset, 16, ENC_BIG_ENDIAN);
                                 } else if (info_buff_len) {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
                                 }

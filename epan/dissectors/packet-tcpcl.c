@@ -424,7 +424,7 @@ static hf_register_info hf_tcpcl[] = {
     {&hf_tcpclv4_xfer_ack_time_diff, {"Acknowledgment Time", "tcpcl.v4.xfer_ack.time_diff", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     // XFER_REFUSE fields
     {&hf_tcpclv4_xfer_refuse_reason, {"Reason", "tcpcl.v4.xfer_refuse.reason", FT_UINT8, BASE_DEC, VALS(v4_xfer_refuse_reason_vals), 0x0, NULL, HFILL}},
-    {&hf_tcpclv4_xfer_refuse_related_seg, {"Related XFER_SEGMENT", "tcpcl.v4.xfer_refuse.related_seg", FT_FRAMENUM, BASE_NONE, VALS(v4_xfer_refuse_reason_vals), 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_xfer_refuse_related_seg, {"Related XFER_SEGMENT", "tcpcl.v4.xfer_refuse.related_seg", FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     // MSG_REJECT fields
     {&hf_tcpclv4_msg_reject_reason, {"Reason", "tcpcl.v4.msg_reject.reason", FT_UINT8, BASE_DEC, VALS(v4_msg_reject_reason_vals), 0x0, NULL, HFILL}},
     {&hf_tcpclv4_msg_reject_head, {"Rejected Type", "tcpcl.v4.msg_reject.head", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},

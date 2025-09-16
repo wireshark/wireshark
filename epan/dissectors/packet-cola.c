@@ -290,7 +290,7 @@ static const value_string access_mode_user_level_vals[] = {
 	{ 2,	"Maintenance" },
 	{ 3,	"Authorized client" },
 	{ 4,	"Service" },
-	{ 0xFFFFFFFF,	"Invalid number" },
+	{ 0xFF,	"Invalid number" },
 	{ 0,	NULL }
 };
 

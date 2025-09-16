@@ -1458,7 +1458,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, uns
             break;
             case TAG_CCS:
                 while(offset_end - tag_offset >= 8){
-                    proto_tree_add_item(tag_tree, hf_gquic_tag_ccs, tvb, tag_offset_start + tag_offset, 8, ENC_NA);
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_ccs, tvb, tag_offset_start + tag_offset, 8, ENC_BIG_ENDIAN);
                     tag_offset += 8;
                 }
             break;

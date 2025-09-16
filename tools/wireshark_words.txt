@@ -984,6 +984,7 @@ falco
 falcodump
 falcosecurity
 fallthru
+fapmqcno
 fastcom
 fastip
 fastmsg
@@ -1676,6 +1677,7 @@ mqcach
 mqcamo
 mqcfstatus
 mqcft
+mqchsstate
 mqcmd
 mqcmdi
 mqgacf
@@ -1745,6 +1747,7 @@ móviles
 n3iwf
 n3nan
 n3qai
+nacional
 nacks
 nagle
 namelen
@@ -2076,6 +2079,7 @@ plugins
 pluginsdir
 plura
 pmconfig
+pmiss
 pmkid
 pname
 polestar
@@ -2097,6 +2101,7 @@ portset
 portstatus
 positioner
 posix
+poste
 postel
 postfix
 powercontrol
@@ -2182,6 +2187,7 @@ pubkey
 publickey
 pubsub
 pucch
+puflags
 pusch
 pwach
 pwcesopsn
@@ -2593,6 +2599,7 @@ sharkd
 shenzhen
 shomiti
 shortstr
+showtec
 showtechnic
 shtdn
 siapp
@@ -2714,6 +2721,7 @@ stdio
 stdout
 steinigke
 stevens
+stims
 stmin
 stnode
 strato
@@ -3191,6 +3199,7 @@ userinfo
 userlist
 userplane
 ushort
+utf16le
 utf8mb
 utf8string
 utilization

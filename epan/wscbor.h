@@ -74,7 +74,7 @@ typedef struct {
  * @return The new object.
  */
 WS_DLL_PUBLIC
-wscbor_error_t * wscbor_error_new(wmem_allocator_t *alloc, expert_field *ei, const char *format, ...);
+wscbor_error_t * wscbor_error_new(wmem_allocator_t *alloc, expert_field *ei, const char *format, ...) G_GNUC_PRINTF(3,4);
 
 /// Tag metadata and value
 typedef struct {

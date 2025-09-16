@@ -48,6 +48,7 @@ class Call:
     def __init__(self, function_name, hf_name, macros, line_number=None, offset=None, length=None, fields=None, enc=None):
         self.hf_name = hf_name
         self.line_number = line_number
+        self.function_name = function_name
         self.fields = fields
         self.enc = enc
         if enc:
@@ -221,6 +222,10 @@ class EncodingCheckerBasic:
 
     def check(self, encoding, call, api_check, item):
         type = self.type
+
+        # Doesn't even really have an encoding type..
+        if call.function_name.find('_add_none') != -1:
+            return
 
         # Are more encodings allowed?
         if not self.allow_multiple and self.encodings_seen >= 1:
