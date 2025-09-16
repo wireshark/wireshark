@@ -3970,7 +3970,10 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
         len = tvb_reported_length_remaining(tvb, offset);
         end_offset = offset + len;
     }
-    if ((int)len <= 0) {
+    uint32_t bit_len;
+    /* 8.6.2 A bitstring has an initial octet, so length >= 1.
+     * Also make sure the number of bits doesn't overflow. */
+    if ((int)len <= 0 || ckd_mul(&bit_len, len, 8)) {
         proto_tree_add_expert_format(
             parent_tree, actx->pinfo, &ei_ber_constr_bitstr, tvb, offset, len,
             "BER Error: dissect_ber_constrained_bitstring(): frame:%u offset:%d Was passed an illegal length of %d",
@@ -3997,7 +4000,7 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
             if (out_tvb) {
                 *out_tvb = ber_tvb_new_subset_length(tvb, offset, len);
             }
-            ber_check_length(8 * len - pad, min_len, max_len, actx, item, true);
+            ber_check_length(bit_len - pad, min_len, max_len, actx, item, true);
             return end_offset;
         } else {
             /* padding */
@@ -4080,7 +4083,7 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
         }
     }
 
-    ber_check_length(8 * len - pad, min_len, max_len, actx, item, true);
+    ber_check_length(bit_len - pad, min_len, max_len, actx, item, true);
 
     return end_offset;
 }
