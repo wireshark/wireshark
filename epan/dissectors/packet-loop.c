@@ -9,9 +9,11 @@
  *
  * for a copy of the DIX spec and
  *
- *    http://stuff.mit.edu/people/jhawk/ctp.html
+ *    https://web.archive.org/web/20100616135342/http://stuff.mit.edu/people/jhawk/ctp.html
  *
- * for section 8.
+ * for a link to a page that includes for section 8:
+ *
+ *    https://web.archive.org/web/20100728134019/http://stuff.mit.edu/people/jhawk/ctp.pdf
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
