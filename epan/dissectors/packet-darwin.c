@@ -13,10 +13,13 @@
 
 #include "config.h"
 
+#include <wireshark.h>
 #include <wiretap/wtap.h>
 #include <epan/packet.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
+
+#include "packet-darwin-droptap-msg.h"
 
 #define PNAME  "Apple Darwin"
 #define PSNAME "Darwin"
@@ -48,7 +51,11 @@ static int hf_darwin_metadata_flags_nf;
 static int hf_darwin_metadata_flow_id;
 static int hf_darwin_metadata_trace_tag;
 static int hf_darwin_metadata_dropped;
+static int hf_darwin_metadata_drop_reason_code;
 static int hf_darwin_metadata_drop_reason;
+static int hf_darwin_metadata_drop_component;
+static int hf_darwin_metadata_drop_domain;
+
 static int hf_darwin_metadata_drop_line;
 static int hf_darwin_metadata_drop_func;
 
@@ -61,41 +68,146 @@ static int ett_darwin_metadata;
 static int ett_darwin_metadata_flags;
 static int ett_darwin_metadata_dropped;
 
+/**
+ * Mapping of the Darwin traffic classes to string values.
+ * Higher values correspond to higher priorities.
+ */
 static const value_string darwin_svc_class_vals[] = {
-    { 0x0000,  "BE" },
-    { 0x0064,  "BK_SYS" },
-    { 0x00C8,  "BK" },
-    { 0x012C,  "RD" },
-    { 0x0190,  "OAM" },
-    { 0x01F4,  "AV" },
-    { 0x0258,  "RV" },
-    { 0x02BC,  "VI" },
-    { 0x0320,  "VO" },
-    { 0x0384,  "CTL" },
+    { 0x0000,  "BE" },     /**< "Best Effort" */
+    { 0x0964,  "BK_SYS" }, /**< "Background System" */
+    { 0x00C8,  "BK" },     /**< "Background" */
+    { 0x012C,  "RD" },     /**< "Responsive Data" ?? */
+    { 0x0190,  "OAM" },    /**< "Operations, Administration, Management" */
+    { 0x01F4,  "AV" },     /**< "Audio/Video" */
+    { 0x0258,  "RV" },     /**< "Responsive Video" */
+    { 0x02BC,  "VI" },     /**< "Video" */
+    { 0x0320,  "VO" },     /**< "Voice" */
+    { 0x0384,  "CTL" },    /**< "Control" */
     { 0, NULL }
 };
 
+/*
+ * Droptap support.
+ * Droptap is a macOS-specific network interface,
+ * which allows capturing packets dropped by the kernel,
+ * along with a "reason code" (and sometimes additional
+ * metadata). See packet-darwin-droptap-msg.h for the
+ * detailed description of the "reason" code.
+ */
+
+/**
+ * Mapping of component codes to string values.
+ * If a new component is added to packet-darwin-droptap-msg.h,
+ * this will need to be updated.
+ * Given that a new component will represent an extremely
+ * significant change to the xnu architecture, this mapping
+ * is unlikely to change.
+ *
+ * See packet-darwin-droptap-msg.h for additional context.
+ */
+static const value_string darwin_drop_component_vals[] = {
+    {DROPTAP_SKYWALK, "Skywalk"},
+    {DROPTAP_BSD, "BSD"},
+    {0, NULL }
+};
+
+/*
+ * Mapping of Skywalk and BSD domain codes to string values.
+ * Domains are smaller than components, hence new
+ * domain codes are somewhat more likely to appear
+ * in the future. Still, the expectation is that
+ * the below mapping will remain mostly stable.
+ *
+ * See packet-darwin-droptap-msg.h for additional context.
+ */
+
+/**
+ * Skywalk (user-space networking) domains.
+ */
+static const value_string darwin_drop_skywalk_domain_vals[] = {
+    {DROPTAP_FSW, "fsw"},       /**< Flowswitch */
+    {DROPTAP_NETIF, "netif"},   /**< Network Interface */
+    {DROPTAP_AQM, "AQM"},       /**< Active Queue Management */
+    {0, NULL }
+};
+
+/**
+ * BSD (kernel-space networking) domains.
+ */
+static const value_string darwin_drop_bsd_domain_vals[] = {
+    {DROPTAP_TCP, "TCP"},
+    {DROPTAP_UDP, "UDP"},
+    {DROPTAP_IP, "IPv4"},
+    {DROPTAP_SOCK, "Socket"},
+    {DROPTAP_DLIL, "DLIL"},
+    {DROPTAP_IPSEC, "IPSec"},
+    {DROPTAP_IP6, "IPv6"},
+    {DROPTAP_MPTCP, "MPTCP"},
+    {DROPTAP_PF, "pf"},
+    {DROPTAP_BRIDGE, "bridge"},
+    {0, NULL }
+};
+
+/**
+ * Mapping component-domain-specific reason codes to string values.
+ *
+ * Unlike the "component" and "domain" mappings above,
+ * it is quite likely that additional component-domain-specific
+ * reason codes will be introduced in the future releases.
+ *
+ * In order to make the Wireshark codebase easier to sync
+ * with the Darwin code, the following mapping is automatically
+ * generated from the macro DARWIN_DROP_REASON_LIST (defined
+ * in packet-darwin-droptap-msg.h) during the invocation of
+ * `proto_reg_handoff_darwin`.
+ */
+static GArray *darwin_drop_reason_details;
+
+/**
+ * enum containing all drop reason values,
+ * for type safety.
+ * Generated from the macro DARWIN_DROP_REASON_LIST
+ * (defined in packet-darwin-droptap-msg.h)
+ */
+typedef enum drop_reason {
+#define DROP_REASON_ENUM_VALUE(reason, component, domain, code, msg) \
+	reason = DROP_REASON(component, domain, code),
+	DARWIN_DROP_REASON_LIST(DROP_REASON_ENUM_VALUE)
+#undef DROP_REASON_ENUM_VALUE
+} drop_reason_t;
+
+/**
+ * Darwin specific metadata.
+ */
 typedef struct darwin_md {
-#define PINFO_DARWIN_MD_HAS_DPIB_ID     1
+#define PINFO_DARWIN_MD_HAS_DPIB_ID         (1)
     uint32_t dpib_id;             /**< Id of the Darwin Process Info Block that corresponds to the `proc` */
-#define PINFO_DARWIN_MD_HAS_EDPIB_ID    2
+#define PINFO_DARWIN_MD_HAS_EDPIB_ID        (1 << 1)
     uint32_t effective_dpib_id;   /**< Id of the Darwin Process Info Block that corresponds to the `eproc` */
-#define PINFO_DARWIN_MD_HAS_SVC_CODE    4
+#define PINFO_DARWIN_MD_HAS_SVC_CODE        (1 << 2)
     uint32_t svc_code;            /**< Service Class Code  */
-#define PINFO_DARWIN_MD_HAS_MD_FLAGS    8
+#define PINFO_DARWIN_MD_HAS_MD_FLAGS        (1 << 3)
     uint32_t md_flags;            /**< Metadata flags  */
-#define PINFO_DARWIN_MD_HAS_FLOW_ID     16
+#define PINFO_DARWIN_MD_HAS_FLOW_ID         (1 << 4)
     uint32_t flow_id;             /**< Internal flow id (flow =~ TCP / QUIC conn) */
-#define PINFO_DARWIN_MD_HAS_TRACE_TAG   32
+#define PINFO_DARWIN_MD_HAS_TRACE_TAG       (1 << 5)
     uint32_t trace_tag;           /**< Internal trace tag */
-#define PINFO_DARWIN_MD_HAS_DROP_REASON   64
-    uint32_t drop_reason;         /**< Packet was dropped by kernel (not by libpcap) */
-#define PINFO_DARWIN_MD_HAS_DROP_LINE   128
-    uint32_t drop_line;           /**< Packet was dropped by kernel (not by libpcap) */
-#define PINFO_DARWIN_MD_HAS_DROP_FUNC   256
-    const char* drop_func;       /**< Packet was dropped by kernel (not by libpcap) */
-#define PINFO_DARWIN_MD_HAS_COMP_GENCNT 512
+#define PINFO_DARWIN_MD_HAS_DROP_REASON     (1 << 6)
+    uint32_t drop_reason;         /**< For packets dropped by kernel: reason code */
+#define PINFO_DARWIN_MD_HAS_DROP_LINE       (1 << 7)
+    uint32_t drop_line;           /**< For packets dropped by kernel: source code line */
+#define PINFO_DARWIN_MD_HAS_DROP_FUNC       (1 << 8)
+    const char* drop_func;       /**< For packets dropped by kernel: function name */
+#define PINFO_DARWIN_MD_HAS_COMP_GENCNT     (1 << 9)
     uint32_t comp_gencnt;         /**< Generation count */
+#define PINFO_DARWIN_MD_HAS_DROP_COMPONENT  (1 << 10)
+    const char *drop_component;   /**< For packets dropped by kernel: component name  */
+    int drop_component_code;
+#define PINFO_DARWIN_MD_HAS_DROP_DOMAIN     (1 << 11)
+    const char *drop_domain;      /**< For packets dropped by kernel: domain name */
+    int drop_domain_code;
+#define PINFO_DARWIN_MD_HAS_DROP_MSG        (1 << 12)
+    const char *drop_msg;  /**< For packets dropped by kernel: reason */
 #define PINFO_DARWIN_MD_OPT_BITMASK (\
     PINFO_DARWIN_MD_HAS_SVC_CODE|\
     PINFO_DARWIN_MD_HAS_MD_FLAGS|\
@@ -104,7 +216,10 @@ typedef struct darwin_md {
     PINFO_DARWIN_MD_HAS_DROP_REASON|\
     PINFO_DARWIN_MD_HAS_DROP_LINE|\
     PINFO_DARWIN_MD_HAS_DROP_FUNC|\
-    PINFO_DARWIN_MD_HAS_COMP_GENCNT\
+    PINFO_DARWIN_MD_HAS_COMP_GENCNT|\
+    PINFO_DARWIN_MD_HAS_DROP_COMPONENT|\
+    PINFO_DARWIN_MD_HAS_DROP_DOMAIN|\
+    PINFO_DARWIN_MD_HAS_DROP_MSG\
 ) /**< Bitmask for Darwin-specific options (v.s. process info, which *may* be present on other systems ) */
     uint64_t present_opts;        /**< Bitmask for present codes */
 } darwin_md;
@@ -224,9 +339,38 @@ dissect_darwin_drop_reason(tvbuff_t* tvb _U_, packet_info* pinfo, proto_tree* tr
 {
     wtap_optval_t* optval = (wtap_optval_t*)data;
 
+    const value_string *domain_vals = NULL;
+
     struct darwin_md* darwin = get_darwin_proto_data(pinfo);
     darwin->drop_reason = optval->uint32val;
     darwin->present_opts |= PINFO_DARWIN_MD_HAS_DROP_REASON;
+
+    if (darwin_drop_reason_details && darwin_drop_reason_details->data) {
+        darwin->drop_msg = val_to_str_const(darwin->drop_reason,
+            (const value_string*)darwin_drop_reason_details->data, "Unknown");
+        darwin->present_opts |= PINFO_DARWIN_MD_HAS_DROP_MSG;
+    }
+
+    darwin->drop_component_code = (darwin->drop_reason & DROP_COMPONENT_MASK) >> DROP_COMPONENT_OFFSET;
+    darwin->drop_domain_code = (darwin->drop_reason & DROP_DOMAIN_MASK) >> DROP_DOMAIN_OFFSET;
+
+    if (darwin->drop_component_code == DROPTAP_SKYWALK || darwin->drop_component_code == DROPTAP_BSD) {
+        darwin->drop_component = val_to_str_const(darwin->drop_component_code,
+                (const value_string*)darwin_drop_component_vals, NULL);
+        if (darwin->drop_component) {
+            darwin->present_opts |= PINFO_DARWIN_MD_HAS_DROP_COMPONENT;
+        }
+        domain_vals = (darwin->drop_component_code == DROPTAP_SKYWALK)
+            ? darwin_drop_skywalk_domain_vals
+            : darwin_drop_bsd_domain_vals;
+
+        darwin->drop_domain = val_to_str_const(darwin->drop_domain_code,
+                domain_vals, NULL);
+
+        if (darwin->drop_domain) {
+            darwin->present_opts |= PINFO_DARWIN_MD_HAS_DROP_DOMAIN;
+        }
+    }
 
     return 1;
 }
@@ -416,10 +560,25 @@ dissect_darwin_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
                     darwin->drop_line);
             }
             if (darwin->present_opts & PINFO_DARWIN_MD_HAS_DROP_REASON) {
-                ti = proto_tree_add_uint(drop_tree, hf_darwin_metadata_drop_reason, tvb, 0, 0, darwin->drop_reason);
+                ti = proto_tree_add_uint(drop_tree, hf_darwin_metadata_drop_reason_code, tvb, 0, 0, darwin->drop_reason);
                 PROTO_ITEM_SET_GENERATED(ti);
+
                 proto_item_append_text(dmd_item, " 0x%x", darwin->drop_reason);
                 proto_item_append_text(drop_item, " 0x%x", darwin->drop_reason);
+            }
+            if (darwin->present_opts & PINFO_DARWIN_MD_HAS_DROP_MSG) {
+                ti = proto_tree_add_string(drop_tree, hf_darwin_metadata_drop_reason, tvb, 0, 0, darwin->drop_msg);
+                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_append_text(dmd_item, " (%s)", darwin->drop_msg);
+                proto_item_append_text(drop_item, " (%s)", darwin->drop_msg);
+            }
+            if (darwin->present_opts & PINFO_DARWIN_MD_HAS_DROP_COMPONENT) {
+                ti = proto_tree_add_string(drop_tree, hf_darwin_metadata_drop_component, tvb, 0, 0, darwin->drop_component);
+                PROTO_ITEM_SET_GENERATED(ti);
+            }
+            if (darwin->present_opts & PINFO_DARWIN_MD_HAS_DROP_DOMAIN) {
+                ti = proto_tree_add_string(drop_tree, hf_darwin_metadata_drop_domain, tvb, 0, 0, darwin->drop_domain);
+                PROTO_ITEM_SET_GENERATED(ti);
             }
             first_metadata_item = false;
         }
@@ -435,6 +594,20 @@ dissect_darwin_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
     return 1;
 }
 
+/*
+ * Build a lookup table based on the DARWIN_DROP_REASON_LIST
+ */
+static void populate_drop_reason_details(void)
+{
+    darwin_drop_reason_details = g_array_new(FALSE, FALSE, sizeof(value_string));
+
+#define DROP_REASON_ADD_DETAIL(reason, component, domain, code, msg) \
+    g_array_append_val(darwin_drop_reason_details, ((value_string){reason, msg}));
+
+    DARWIN_DROP_REASON_LIST(DROP_REASON_ADD_DETAIL);
+#undef DROP_REASON_ADD_DETAIL
+}
+
 void
 proto_register_darwin(void)
 {
@@ -443,7 +616,6 @@ proto_register_darwin(void)
 
     register_dissector("darwin", dissect_darwin_data, proto_darwin);
 }
-
 
 void
 proto_reg_handoff_darwin(void)
@@ -521,9 +693,21 @@ proto_reg_handoff_darwin(void)
           { "Packet Dropped By Kernel", "frame.darwin.drop",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
-        { &hf_darwin_metadata_drop_reason,
-          { "Drop Reason", "frame.darwin.drop.reason_code",
+        { &hf_darwin_metadata_drop_reason_code,
+          { "Drop Reason Code", "frame.darwin.drop.reason_code",
             FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_darwin_metadata_drop_reason,
+          { "Drop Reason", "frame.darwin.drop.reason",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_darwin_metadata_drop_component,
+          { "Component", "frame.darwin.drop.component",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_darwin_metadata_drop_domain,
+          { "Domain", "frame.darwin.drop.domain",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_darwin_metadata_drop_line,
           { "Drop Line", "frame.darwin.drop.line",
@@ -547,6 +731,8 @@ proto_reg_handoff_darwin(void)
         &ett_darwin_metadata_flags,
         &ett_darwin_metadata_dropped
     };
+
+    populate_drop_reason_details();
 
     int proto_frame = proto_registrar_get_id_byname("frame");
 
