@@ -4913,7 +4913,8 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
 
     if (tree) {
         /* build Request-URI tree*/
-        offset=offset + parameter_len+1;
+        offset += parameter_len + 1;
+        linelen -= parameter_len + 1;
         sip_uri_offset_init(&uri_offsets);
         /* calc R-URI len*/
         uri_offsets.uri_end = tvb_find_uint8(tvb, offset, linelen, ' ')-1;
