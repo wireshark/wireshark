@@ -35,7 +35,7 @@ See the “New and Updated Features” section below for more details.
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
-//* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
+//* Wireshark contains traces of nuts. What kind of nuts? The kind you're allergic to.
 
 === New and Updated Features
 
@@ -52,10 +52,12 @@ The following features are either new or have been significantly updated since v
   2013-03-08 and only supports up to Windows 8, which is no longer supported
   by Microsoft or Wireshark.
 
-* We now ship universal macOS installers instead of separate packages
-for Arm64 and Intel. wsbuglink:17294[]
+* We now ship universal macOS installers instead of separate packages for Arm64 and Intel. wsbuglink:17294[]
 
 * Source packages are now compressed using zstd.
+
+* A new “Plots” dialog has been added, which provides scatter plots in contrast to the “I/O Graphs” dialog, which provides histograms.
+  The Plots dialog window supports multiple plots, markers, and automatic scrolling.
 
 * Live captures can be compressed while writing. (Previously there was
   support for compressing when performing multiple file capture, at file
@@ -128,13 +130,13 @@ for Arm64 and Intel. wsbuglink:17294[]
   floats. They can be used to perform further arithmetic operations on fields
   of different types, including in custom column definitions.
 
-* The minimum width of the I/O Graph dialog window is reduced, so it should
+* The minimum width of the I/O Graph dialog window has been reduced, so it should
   work better on small resolution desktops, especially in certain languages.
   To enable this, some checkbox controls were moved to the graph right-click
   context menu. wsbuglink:20147[]
 
 * X.509 certificates, used in TLS and elsewhere, can be exported via the
-  File->Export Objects menu in Wireshark (under the name "X509AF") and
+  menu:File[Export Objects] menu in Wireshark (under the name "X509AF") and
   `--export-objects` in TShark (with the protocol name `x509af`.)
 
 * Zstandard Content-Encoding is supported in the HTTP and HTTP/2 dissectors.
@@ -199,11 +201,7 @@ for Arm64 and Intel. wsbuglink:17294[]
 
 * LibXml2 is now a required dependency.
 
-* Add marker manipulations options in Plot dialog.
-
-* Add auto scroll option in Plot dialog.
-
-* The View menu has an option to Redissect Packets manually, which can be useful
+* The menu:View[] menu has an option to Redissect Packets manually, which can be useful
   when address resolution or decryption secrets have changed.
 
 * HTTP2 tracking of 3GPP session over 5G Service Based Interfaces is now optional
@@ -223,7 +221,7 @@ Wireshark no longer supports AirPcap and WinPcap.
 
 Wireshark no longer supports libnl versions 1 or 2.
 
-The ENABLE_STATIC CMake option has been deprecated in favor of BUILD_SHARED_LIBS
+The `ENABLE_STATIC` CMake option has been deprecated in favor of `BUILD_SHARED_LIBS`
 
 // === Removed Dissectors
 
