@@ -39,6 +39,10 @@ See the “New and Updated Features” section below for more details.
 
 === New and Updated Features
 
+The following features are new (or have been significantly updated) since version 4.6.0rc1:
+
+* Nothing of note.
+
 The following features are either new or have been significantly updated since version 4.4.0:
 
 * The Windows installers now ship with Npcap 1.83.
@@ -304,6 +308,11 @@ BLF is now improved (including writing to BLF)
 The Lua API now supports Libgcrypt symmetric cipher functions.
 
 // == Prior Versions
+
+// Wireshark 4.6.0 included the following changes.
+// See the
+// https://www.wireshark.org/docs/relnotes/wireshark-4.6.0.html[release notes]
+// for details:
 
 == Getting Wireshark
 
