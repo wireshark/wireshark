@@ -1326,6 +1326,73 @@ sip_uri_offset_init(uri_offset_info *uri_offsets){
     uri_offsets->uri_host_port_end = -1;
 
 }
+
+static int
+dissect_tel_uri(tvbuff_t *tvb, packet_info *pinfo _U_, int current_offset,
+                int line_end_offset, uri_offset_info *uri_offsets)
+{
+    unsigned char c = '\0';
+    uri_offsets->uri_type = SIP_URI_TYPE_TEL;
+
+    if (uri_offsets->uri_end == -1)
+    {
+        /* name-addr form was NOT used e.g no closing ">" */
+        /* look for the first ',' or ';' which will mark the end of this URI
+         * In this case a semicolon indicates a header field parameter, and not an uri parameter.
+         */
+        int end_offset;
+
+        end_offset = tvb_ws_mempbrk_pattern_uint8(tvb, current_offset, line_end_offset - current_offset, &pbrk_comma_semi, NULL);
+
+        if (end_offset != -1)
+        {
+            uri_offsets->uri_end = end_offset - 1;
+        }
+        else
+        {
+            /* We don't have a semicolon or a comma.
+             * In that case, we assume that the end of the URI is at the line end
+              */
+            uri_offsets->uri_end = line_end_offset - 3; /* remove '\r\n' */
+        }
+        uri_offsets->name_addr_end = uri_offsets->uri_end;
+    }
+
+    uri_offsets->uri_user_start = current_offset;
+
+    int parameter_end_offset = uri_offsets->uri_user_start;
+    if (parameter_end_offset < line_end_offset)
+    {
+        parameter_end_offset++;
+        parameter_end_offset = tvb_ws_mempbrk_pattern_uint8(tvb, parameter_end_offset, line_end_offset - parameter_end_offset, &pbrk_param_end, &c);
+        if (parameter_end_offset == -1)
+        {
+            parameter_end_offset = line_end_offset;
+        } else {
+            /* after adding character to this switch(), update also pbrk_param_end */
+            switch (c) {
+                case '>':
+                case ',':
+                    break;
+                case ';':
+                    uri_offsets->uri_parameters_start = parameter_end_offset + 1;
+                    break;
+                case '?':
+                case ' ':
+                case '\r':
+                    break;
+                default:
+                    DISSECTOR_ASSERT_NOT_REACHED();
+                    break;
+            }
+        }
+    }
+
+    uri_offsets->uri_user_end = parameter_end_offset -1;
+
+    return uri_offsets->name_addr_end;
+}
+
 /* Code to parse a sip uri.
  * Returns Offset end off parsing or -1 for unsuccessful parsing
  * - sip_uri_offset_init() must have been called first.
@@ -1350,8 +1417,10 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, int start_offset,
     /* Set uri start offset in case this was called directly */
     uri_offsets->uri_start = current_offset;
 
-    /* Check if it's really a sip uri ( it might be a tel uri, parse that?) */
-    if (tvb_strneql(tvb, current_offset, "sip", 3) != 0){
+    /* Check if it's really a sip uri (it might be a tel uri) */
+    if (tvb_strneql(tvb, current_offset, "tel:", 4) == 0) {
+        return dissect_tel_uri(tvb, pinfo, current_offset + 4, line_end_offset, uri_offsets);
+    } else if (tvb_strneql(tvb, current_offset, "sip", 3) != 0){
         if (uri_offsets->uri_end != -1) {
             /* We know where the URI ends, set the offsets*/
             return uri_offsets->name_addr_end;
@@ -1846,7 +1915,7 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, packet_info *pinfo
                              tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start + 1, ENC_UTF_8|ENC_NA);
     uri_item_tree = proto_item_add_subtree(ti, *(uri->ett_uri));
 
-    if (uri_offsets->uri_type != SIP_URI_TYPE_SIP) {
+    if (uri_offsets->uri_type != SIP_URI_TYPE_SIP && uri_offsets->uri_type != SIP_URI_TYPE_TEL) {
         return ti;
     }
 
@@ -1866,8 +1935,10 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, packet_info *pinfo
 
     }
 
-    proto_tree_add_item(uri_item_tree, *(uri->hf_sip_host), tvb, uri_offsets->uri_host_start,
-                        uri_offsets->uri_host_end - uri_offsets->uri_host_start + 1, ENC_UTF_8|ENC_NA);
+    if(uri_offsets->uri_host_end > uri_offsets->uri_host_start) {
+        proto_tree_add_item(uri_item_tree, *(uri->hf_sip_host), tvb, uri_offsets->uri_host_start,
+                            uri_offsets->uri_host_end - uri_offsets->uri_host_start + 1, ENC_UTF_8|ENC_NA);
+    }
 
     if(uri_offsets->uri_host_port_end > uri_offsets->uri_host_port_start) {
         proto_tree_add_item(uri_item_tree, *(uri->hf_sip_port), tvb, uri_offsets->uri_host_port_start,
