@@ -128,7 +128,9 @@ static wscbor_head_t * wscbor_head_read(wmem_allocator_t *alloc, tvbuff_t *tvb, 
             break;
     }
 
-    *offset += head->length;
+    if (ckd_add(offset, *offset, head->length)) {
+        THROW(ReportedBoundsError);
+    }
     return head;
 }
 
@@ -149,18 +151,26 @@ struct _wscbor_chunk_priv_t {
 };
 
 /** Get a clamped string length suitable for tvb functions.
- * @param[in,out] chunk The chunk to set errors on.
+ * @param[in,out] chunk The chunk to set errors on if the length is clamped.
+ * @param[in,out] offset The current offset to advance to no more than INT_MAX.
  * @param head_value The value to clamp.
  * @return The clamped length value.
  */
-static int wscbor_get_length(wscbor_chunk_t *chunk, uint64_t head_value) {
+static int wscbor_get_length(wscbor_chunk_t *chunk, int *offset, uint64_t head_value) {
+    int start_offset = *offset;
     int length;
-    if (head_value > INT_MAX) {
+    /* Truncate the length so that the offset doesn't overflow.
+     * This prevents an exception reading this chunk, but will
+     * throw an exception reading the head of the next chunk
+     * at least when advancing the offset there.
+     */
+    if (ckd_add(offset, start_offset, head_value)) {
         wmem_list_append(chunk->errors, wscbor_error_new(
                 chunk->_priv->alloc, &ei_cbor_overflow,
                 NULL
         ));
-        length = INT_MAX;
+        *offset = INT_MAX;
+        length = INT_MAX - start_offset;
     }
     else {
         length = (int) head_value;
@@ -197,6 +207,8 @@ wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, int *
     chunk->tags = wmem_list_new(alloc);
     chunk->start = *offset;
 
+    CLEANUP_PUSH(((void (*)(void *))wscbor_chunk_free), chunk);
+
     // Read a sequence of tags followed by an item header
     while (true) {
         // This will break out of the loop if it runs out of buffer
@@ -231,9 +243,8 @@ wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, int *
         case CBOR_TYPE_BYTESTRING:
         case CBOR_TYPE_STRING:
             if (chunk->type_minor != 31) {
-                const int datalen = wscbor_get_length(chunk, chunk->head_value);
+                const int datalen = wscbor_get_length(chunk, offset, chunk->head_value);
                 // skip over definite data
-                *offset += datalen;
                 chunk->data_length += datalen;
                 // allow even zero-length strings
                 chunk->_priv->str_value = tvb_new_subset_length(tvb, chunk->start + chunk->head_length, datalen);
@@ -261,8 +272,7 @@ wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, int *
                             ));
                         }
                         else {
-                            const int datalen = wscbor_get_length(chunk, head->rawvalue);
-                            *offset += datalen;
+                            const int datalen = wscbor_get_length(chunk, offset, head->rawvalue);
                             chunk->data_length += datalen;
                             if(datalen) {
                                 if (!chunk->_priv->str_value) {
@@ -299,6 +309,8 @@ wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, int *
         default:
             break;
     }
+
+    CLEANUP_POP;
 
     return chunk;
 }

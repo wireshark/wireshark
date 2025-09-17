@@ -586,7 +586,7 @@ wscbor_test_require_bstr_overflow(void)
         const tvbuff_t *val = wscbor_require_bstr(test_scope, chunk);
         g_assert_nonnull(val);
         g_assert_cmpuint(wscbor_has_errors(chunk), ==, 1);
-        g_assert_cmpuint(tvb_reported_length(val), ==, INT_MAX);
+        g_assert_cmpuint(tvb_reported_length(val), ==, INT_MAX - chunk->head_length);
         g_assert_cmpuint(tvb_captured_length(val), ==, 2);
 
         wscbor_chunk_free(chunk);

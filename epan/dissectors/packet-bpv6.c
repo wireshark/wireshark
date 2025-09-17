@@ -44,6 +44,7 @@
 #include <epan/expert.h>
 #include <epan/tfs.h>
 #include <epan/wscbor.h>
+#include <epan/exceptions.h>
 #include "packet-bpv6.h"
 #include "packet-cfdp.h"
 
@@ -1970,20 +1971,27 @@ dissect_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
     }
 
-    wscbor_chunk_t *frame = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-    if (frame->type_major == CBOR_TYPE_ARRAY) {
-        wscbor_chunk_t *primary = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-        if (primary->type_major == CBOR_TYPE_ARRAY) {
-            wscbor_chunk_t *version = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-            if (version->type_major == CBOR_TYPE_UINT) {
-                uint64_t vers_val = version->head_value;
-                if (vers_val == 7) {
-                    return call_dissector(bpv7_handle, tvb, pinfo, tree);
+    volatile uint64_t vers_val = 0;
+
+    TRY {
+        wscbor_chunk_t *frame = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+        if (frame->type_major == CBOR_TYPE_ARRAY) {
+            wscbor_chunk_t *primary = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+            if (primary->type_major == CBOR_TYPE_ARRAY) {
+                wscbor_chunk_t *version = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+                if (version->type_major == CBOR_TYPE_UINT) {
+                    vers_val = version->head_value;
                 }
             }
         }
     }
+    CATCH_BOUNDS_ERRORS {
+    }
+    ENDTRY;
 
+    if (vers_val == 7) {
+        return call_dissector(bpv7_handle, tvb, pinfo, tree);
+    }
     return 0;
 }
 
