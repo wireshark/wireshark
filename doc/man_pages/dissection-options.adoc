@@ -130,7 +130,7 @@ network, possibly leading to dropped packets.
 --only-protocols <protocols>::
 Only enable dissection of these protocols, comma separated. Disable everything else.
 
--t  (a|ad|adoy|d|dd|e|r|u|ud|udoy)[.[N]]|.[N]::
+-t  (a|ad|adoy|d|dd|e|r|rc|u|ud|udoy)[.[N]]|.[N]::
 +
 --
 Set the format of the packet timestamp displayed in the default time
@@ -157,6 +157,9 @@ previous displayed packet was captured
 
 *r* relative: The relative time is the time elapsed between the first packet
 and the current packet
+
+*rc* relative to capture start: The relative to capture start time is the
+time elapsed between the start of the capturing and the current packet
 
 *u* UTC: The absolute time, as UTC with a "Z" suffix, is the actual time
 the packet was captured, with no date displayed

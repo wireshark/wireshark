@@ -1304,6 +1304,36 @@ col_set_rel_time(const frame_data *fd, column_info *cinfo, const int col)
 }
 
 static void
+col_set_rel_cap_time(const frame_data *fd, column_info *cinfo, const int col)
+{
+  nstime_t del_cap_ts;
+
+  /*
+   * If there's no capture start time, leave the column blank.
+   */
+  if (!frame_rel_start_time(cinfo->epan, fd, &del_cap_ts)) {
+    cinfo->columns[col].col_buf[0] = '\0';
+    return;
+  }
+
+  switch (timestamp_get_seconds_type()) {
+  case TS_SECONDS_DEFAULT:
+    set_time_seconds(fd, &del_cap_ts, cinfo->columns[col].col_buf);
+    cinfo->col_expr.col_expr[col] = "frame.time_relative_capture_start";
+    (void)g_strlcpy(cinfo->col_expr.col_expr_val[col], cinfo->columns[col].col_buf, COL_MAX_LEN);
+    break;
+  case TS_SECONDS_HOUR_MIN_SEC:
+    set_time_hour_min_sec(fd, &del_cap_ts, cinfo->columns[col].col_buf, col_decimal_point);
+    cinfo->col_expr.col_expr[col] = "frame.time_relative_capture_start";
+    set_time_seconds(fd, &del_cap_ts, cinfo->col_expr.col_expr_val[col]);
+    break;
+  default:
+    ws_assert_not_reached();
+  }
+  cinfo->columns[col].col_data = cinfo->columns[col].col_buf;
+}
+
+static void
 col_set_delta_time(const frame_data *fd, column_info *cinfo, const int col)
 {
   nstime_t del_cap_ts;
@@ -1532,6 +1562,27 @@ set_fd_time(const epan_t *epan, frame_data *fd, char *buf)
     }
     break;
 
+  case TS_RELATIVE_CAP:
+    /*
+     * If there's no relative time for this frame, leave the
+     * column blank.
+     */
+    if (frame_rel_start_time(epan, fd, &del_ts)) {
+      switch (timestamp_get_seconds_type()) {
+      case TS_SECONDS_DEFAULT:
+        set_time_seconds(fd, &del_ts, buf);
+        break;
+      case TS_SECONDS_HOUR_MIN_SEC:
+        set_time_seconds(fd, &del_ts, buf);
+        break;
+      default:
+        ws_assert_not_reached();
+      }
+    } else {
+      buf[0] = '\0';
+    }
+    break;
+
   case TS_DELTA:
     /*
      * If there's no time since the previous captured frame, leave the
@@ -1617,6 +1668,10 @@ col_set_cls_time(const frame_data *fd, column_info *cinfo, const int col)
     col_set_rel_time(fd, cinfo, col);
     break;
 
+  case TS_RELATIVE_CAP:
+    col_set_rel_cap_time(fd, cinfo, col);
+    break;
+
   case TS_DELTA:
     col_set_delta_time(fd, cinfo, col);
     break;
@@ -1669,6 +1724,10 @@ col_set_fmt_time(const frame_data *fd, column_info *cinfo, const int fmt, const 
 
   case COL_ABS_YDOY_TIME:
     col_set_abs_ydoy_time(fd, cinfo, col);
+    break;
+
+  case COL_REL_CAP_TIME:
+    col_set_rel_cap_time(fd, cinfo, col);
     break;
 
   case COL_REL_TIME:

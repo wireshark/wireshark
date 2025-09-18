@@ -299,6 +299,7 @@
      <addaction name="actionViewTimeDisplayFormatDateYDOYandTimeOfDay"/>
      <addaction name="actionViewTimeDisplayFormatTimeOfDay"/>
      <addaction name="actionViewTimeDisplayFormatSecondsSinceEpoch"/>
+     <addaction name="actionViewTimeDisplayFormatSecondsSinceCaptureStart"/>
      <addaction name="actionViewTimeDisplayFormatSecondsSinceFirstCapturedPacket"/>
      <addaction name="actionViewTimeDisplayFormatSecondsSincePreviousCapturedPacket"/>
      <addaction name="actionViewTimeDisplayFormatSecondsSincePreviousDisplayedPacket"/>
@@ -2320,6 +2321,17 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+3</string>
+   </property>
+  </action>
+  <action name="actionViewTimeDisplayFormatSecondsSinceCaptureStart">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Seconds Since Capture Start</string>
+   </property>
+   <property name="toolTip">
+    <string>Show packet times as seconds since the start of the capture file.</string>
    </property>
   </action>
   <action name="actionViewTimeDisplayFormatSecondsSinceFirstCapturedPacket">

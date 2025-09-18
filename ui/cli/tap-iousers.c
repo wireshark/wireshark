@@ -66,6 +66,7 @@ iousers_draw(void *arg)
 			display_ports ? "            " : "");
 		break;
 	case TS_RELATIVE:
+	case TS_RELATIVE_CAP:
 	case TS_NOT_SET:
 	default:
 		printf("%s                                               |       <-      | |       ->      | |     Total     |    Relative    |   Duration   |\n",
@@ -226,6 +227,7 @@ iousers_draw(void *arg)
 					printf("%20.9f", nstime_to_sec(&iui->start_abs_time));
 					break;
 				case TS_RELATIVE:
+				case TS_RELATIVE_CAP:
 				case TS_NOT_SET:
 				default:
 					printf("%14.9f",

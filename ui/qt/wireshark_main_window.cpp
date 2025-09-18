@@ -2156,6 +2156,7 @@ void WiresharkMainWindow::initTimeDisplayFormatMenu()
     td_actions[main_ui_->actionViewTimeDisplayFormatDateYDOYandTimeOfDay] = TS_ABSOLUTE_WITH_YDOY;
     td_actions[main_ui_->actionViewTimeDisplayFormatTimeOfDay] = TS_ABSOLUTE;
     td_actions[main_ui_->actionViewTimeDisplayFormatSecondsSinceEpoch] = TS_EPOCH;
+    td_actions[main_ui_->actionViewTimeDisplayFormatSecondsSinceCaptureStart] = TS_RELATIVE_CAP;
     td_actions[main_ui_->actionViewTimeDisplayFormatSecondsSinceFirstCapturedPacket] = TS_RELATIVE;
     td_actions[main_ui_->actionViewTimeDisplayFormatSecondsSincePreviousCapturedPacket] = TS_DELTA;
     td_actions[main_ui_->actionViewTimeDisplayFormatSecondsSincePreviousDisplayedPacket] = TS_DELTA_DIS;

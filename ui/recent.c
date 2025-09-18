@@ -102,6 +102,7 @@ recent_settings_t recent;
 
 static const value_string ts_type_values[] = {
     { TS_RELATIVE,             "RELATIVE"           },
+    { TS_RELATIVE_CAP,         "RELATIVE_CAP"       },
     { TS_ABSOLUTE,             "ABSOLUTE"           },
     { TS_ABSOLUTE_WITH_YMD,    "ABSOLUTE_WITH_YMD"  },
     { TS_ABSOLUTE_WITH_YDOY,   "ABSOLUTE_WITH_YDOY" },

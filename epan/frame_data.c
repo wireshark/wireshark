@@ -176,6 +176,20 @@ frame_compare_rel_times(const struct epan_session *epan,
                                    fdata2, have_del_rel_ts2, &del_rel_ts2);
 }
 
+static int
+frame_compare_rel_start_times(const struct epan_session *epan,
+                        const frame_data *fdata1, const frame_data *fdata2)
+{
+  nstime_t del_rel_start_ts1, del_rel_start_ts2;
+  bool have_del_rel_start_ts1, have_del_rel_start_ts2;
+
+  have_del_rel_start_ts1 = frame_rel_start_time(epan, fdata1, &del_rel_start_ts1);
+  have_del_rel_start_ts2 = frame_rel_start_time(epan, fdata2, &del_rel_start_ts2);
+
+  return frame_compare_time_deltas(fdata1, have_del_rel_start_ts1, &del_rel_start_ts1,
+                                   fdata2, have_del_rel_start_ts2, &del_rel_start_ts2);
+}
+
 bool
 frame_delta_time_prev_captured(const struct epan_session *epan,
                                const frame_data *fdata, nstime_t *delta)
@@ -275,6 +289,9 @@ frame_data_compare(const struct epan_session *epan, const frame_data *fdata1, co
 
     case TS_RELATIVE:
       return frame_compare_rel_times(epan, fdata1, fdata2);
+
+    case TS_RELATIVE_CAP:
+      return frame_compare_rel_start_times(epan, fdata1, fdata2);
 
     case TS_DELTA:
       return frame_compare_delta_times_prev_captured(epan, fdata1, fdata2);

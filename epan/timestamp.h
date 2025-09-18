@@ -23,7 +23,8 @@ extern "C" {
  * Type of time-stamp shown in the summary display.
  */
 typedef enum {
-	TS_RELATIVE,            /* Since start of capture */
+	TS_RELATIVE,            /* Since first captured frame */
+	TS_RELATIVE_CAP,        /* Since start of capture */
 	TS_ABSOLUTE,		/* Local absolute time, without date */
 	TS_ABSOLUTE_WITH_YMD,	/* Local absolute time, with date in YYYY-MM-DD form */
 	TS_ABSOLUTE_WITH_YDOY,	/* Local absolute time, with date in YYYY DOY form */

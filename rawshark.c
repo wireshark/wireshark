@@ -207,7 +207,7 @@ print_usage(FILE *output)
     fprintf(output, "  -l                       flush output after each packet\n");
     fprintf(output, "  -S                       format string for fields\n");
     fprintf(output, "                           (%%D - name, %%S - stringval, %%N numval)\n");
-    fprintf(output, "  -t (a|ad|adoy|d|dd|e|r|u|ud|udoy)[.[N]]|.[N]\n");
+    fprintf(output, "  -t (a|ad|adoy|d|dd|e|r|rc|u|ud|udoy)[.[N]]|.[N]\n");
     fprintf(output, "                           output format of time stamps (def: r: rel. to first)\n");
     fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
     fprintf(output, "\n");

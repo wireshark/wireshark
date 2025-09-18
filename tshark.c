@@ -556,7 +556,7 @@ print_usage(FILE *output)
     fprintf(output, "     aggregator=,|/s|<char> select comma, space, printable character as\n");
     fprintf(output, "                           aggregator\n");
     fprintf(output, "     quote=d|s|n           select double, single, no quotes for values\n");
-    fprintf(output, "  -t (a|ad|adoy|d|dd|e|r|u|ud|udoy)[.[N]]|.[N]\n");
+    fprintf(output, "  -t (a|ad|adoy|d|dd|e|r|rc|u|ud|udoy)[.[N]]|.[N]\n");
     fprintf(output, "                           output format of time stamps (def: r: rel. to first)\n");
     fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
     fprintf(output, "  -l                       flush standard output after each packet\n");

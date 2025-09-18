@@ -386,6 +386,9 @@ packet list window. The format can be one of:
 r:: Relative, which specifies timestamps are
 displayed relative to the first packet captured.
 
+rc:: Relative to Capture Start, which specifies timestamps are
+displayed relative to the start of the capturing.
+
 a:: Absolute, which specifies that actual times
 be displayed for all packets.
 

@@ -72,16 +72,17 @@ col_format_to_string(const int fmt) {
     "%L",                                       /* 34) COL_PACKET_LENGTH */
     "%p",                                       /* 35) COL_PROTOCOL */
     "%Rt",                                      /* 36) COL_REL_TIME */
-    "%s",                                       /* 37) COL_DEF_SRC */
-    "%S",                                       /* 38) COL_DEF_SRC_PORT */
-    "%rs",                                      /* 39) COL_RES_SRC */
-    "%us",                                      /* 40) COL_UNRES_SRC */
-    "%rS",                                      /* 41) COL_RES_SRC_PORT */
-    "%uS",                                      /* 42) COL_UNRES_SRC_PORT */
-    "%Yut",                                     /* 43) COL_UTC_YMD_TIME */
-    "%YDOYut",                                  /* 44) COL_UTC_YDOY_TIME */
-    "%Aut",                                     /* 45) COL_UTC_TIME */
-    "%t",                                       /* 46) COL_CLS_TIME */
+    "%Rct",                                     /* 37) COL_REL_CAP_TIME */
+    "%s",                                       /* 38) COL_DEF_SRC */
+    "%S",                                       /* 39) COL_DEF_SRC_PORT */
+    "%rs",                                      /* 40) COL_RES_SRC */
+    "%us",                                      /* 41) COL_UNRES_SRC */
+    "%rS",                                      /* 42) COL_RES_SRC_PORT */
+    "%uS",                                      /* 43) COL_UNRES_SRC_PORT */
+    "%Yut",                                     /* 44) COL_UTC_YMD_TIME */
+    "%YDOYut",                                  /* 45) COL_UTC_YDOY_TIME */
+    "%Aut",                                     /* 46) COL_UTC_TIME */
+    "%t",                                       /* 47) COL_CLS_TIME */
   };
 
  /* Note the formats in migrated_columns[] below have been used in deprecated
@@ -142,6 +143,7 @@ col_format_desc(const int fmt_num) {
     { COL_PACKET_LENGTH, "Packet length (bytes)" },
     { COL_PROTOCOL, "Protocol" },
     { COL_REL_TIME, "Relative time" },
+    { COL_REL_CAP_TIME, "Relative to capture start time" },
     { COL_DEF_SRC, "Source address" },
     { COL_DEF_SRC_PORT, "Source port" },
     { COL_RES_SRC, "Src addr (resolved)" },
@@ -729,7 +731,8 @@ get_timestamp_column_longest_string(const int type, const int precision)
         else
             ws_assert_not_reached();
         break;
-    case(TS_RELATIVE):  /* fallthrough */
+    case(TS_RELATIVE):      /* fallthrough */
+    case(TS_RELATIVE_CAP):
     case(TS_DELTA):
     case(TS_DELTA_DIS):
         if(precision == TS_PREC_AUTO) {
@@ -802,6 +805,8 @@ get_column_longest_string(const int format)
       return get_timestamp_column_longest_string(TS_UTC, timestamp_get_precision());
     case COL_REL_TIME:
       return get_timestamp_column_longest_string(TS_RELATIVE, timestamp_get_precision());
+    case COL_REL_CAP_TIME:
+      return get_timestamp_column_longest_string(TS_RELATIVE_CAP, timestamp_get_precision());
     case COL_DELTA_TIME:
       return get_timestamp_column_longest_string(TS_DELTA, timestamp_get_precision());
     case COL_DELTA_TIME_DIS:
