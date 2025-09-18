@@ -32,6 +32,10 @@ The following changes have been made since version 0.9.2:
 * The Windows installers now ship with Qt 6.8.3.
   They previously shipped with Qt 6.8.1.
 
+* Stratoshark now ships with “strato”, a command line tool similar to tshark.
+
+* The Windows and macOS packages now ship with the gcpaudit and k8saudit plugins.
+
 * The Falco Events dissector now adds IP geolocation fields alongside IPv4 and IPv6 address fields.
 
 The following changes have been made since version 0.9.1:
