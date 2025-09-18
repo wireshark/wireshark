@@ -61,7 +61,6 @@ int Dot11DecryptGcmpDecrypt(
 	PDOT11DECRYPT_MAC_FRAME wh;
 	uint8_t aad[30];
 	uint8_t nonce[12];
-	uint8_t mic[16];
 	ssize_t data_len;
 	size_t aad_len;
 	int z = mac_header_len;
@@ -70,12 +69,11 @@ int Dot11DecryptGcmpDecrypt(
 	uint8_t *ivp = m + z;
 
 	wh = (PDOT11DECRYPT_MAC_FRAME )m;
-	data_len = len - (z + DOT11DECRYPT_GCMP_HEADER + sizeof(mic));
+	data_len = len - (z + DOT11DECRYPT_GCMP_HEADER + DOT11DECRYPT_GCMP_TRAILER);
 	if (data_len < 1) {
 		return 0;
 	}
 
-	memcpy(mic, m + len - sizeof(mic), sizeof(mic));
 	pn = READ_6(ivp[0], ivp[1], ivp[4], ivp[5], ivp[6], ivp[7]);
 	gcmp_construct_nonce(wh, pn, nonce);
 	dot11decrypt_construct_aad(wh, aad, &aad_len);
@@ -95,7 +93,7 @@ int Dot11DecryptGcmpDecrypt(
 	if (gcry_cipher_decrypt(handle, m + z + DOT11DECRYPT_GCMP_HEADER, data_len, NULL, 0)) {
 		goto err_out;
 	}
-	if (gcry_cipher_checktag(handle, mic, sizeof(mic))) {
+	if (gcry_cipher_checktag(handle, m + len - DOT11DECRYPT_GCMP_TRAILER, DOT11DECRYPT_GCMP_TRAILER)) {
 		goto err_out;
 	}
 
