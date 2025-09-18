@@ -37,6 +37,8 @@ typedef struct _summary_tally {
     uint64_t              bytes;              /**< total bytes */
     double                start_time;         /**< seconds, with msec resolution */
     double                stop_time;          /**< seconds, with msec resolution */
+    double                cap_start_time;     /**< seconds, with msec resolution */
+    double                cap_end_time;       /**< seconds, with msec resolution */
     double                elapsed_time;       /**< seconds, with msec resolution,
                                                 includes time before first packet
                                                 and after last packet */

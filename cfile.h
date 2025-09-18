@@ -133,6 +133,7 @@ extern void cap_file_init(capture_file *cf);
 
 const nstime_t *cap_file_provider_get_frame_ts(struct packet_provider_data *prov, uint32_t frame_num);
 const nstime_t *cap_file_provider_get_start_ts(struct packet_provider_data *prov);
+const nstime_t *cap_file_provider_get_end_ts(struct packet_provider_data *prov);
 const char *cap_file_provider_get_interface_name(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
 const char *cap_file_provider_get_interface_description(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
 int32_t cap_file_provider_get_process_id(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number);

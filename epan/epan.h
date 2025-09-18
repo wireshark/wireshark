@@ -72,6 +72,7 @@ struct packet_provider_data;
 struct packet_provider_funcs {
 	const nstime_t *(*get_frame_ts)(struct packet_provider_data *prov, uint32_t frame_num);
 	const nstime_t *(*get_start_ts)(struct packet_provider_data *prov);
+	const nstime_t *(*get_end_ts)(struct packet_provider_data *prov);
 	const char *(*get_interface_name)(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
 	const char *(*get_interface_description)(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
 	wtap_block_t (*get_modified_block)(struct packet_provider_data *prov, const frame_data *fd);

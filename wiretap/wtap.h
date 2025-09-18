@@ -2066,6 +2066,8 @@ WS_DLL_PUBLIC
 int wtap_file_tsprec(wtap *wth);
 WS_DLL_PUBLIC
 const nstime_t* wtap_file_start_ts(wtap *wth);
+WS_DLL_PUBLIC
+const nstime_t* wtap_file_end_ts(wtap *wth);
 
 /**
  * @brief Gets number of section header blocks.

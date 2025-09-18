@@ -128,6 +128,12 @@ wtap_file_start_ts(wtap *wth)
 	return &wth->file_start_ts;
 }
 
+const nstime_t*
+wtap_file_end_ts(wtap *wth)
+{
+	return &wth->file_end_ts;
+}
+
 unsigned
 wtap_file_get_num_shbs(wtap *wth)
 {

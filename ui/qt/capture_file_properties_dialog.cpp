@@ -195,12 +195,25 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     out << table_end;
 
     // Time Section
+    bool cap_start_time_valid = summary.cap_start_time != DBL_MAX;
+    bool cap_end_time_valid = summary.cap_end_time != DBL_MAX;
     bool start_time_valid = summary.start_time != DBL_MAX;
     bool stop_time_valid = summary.stop_time != DBL_MIN;
 
-    if (start_time_valid || stop_time_valid) {
+    if (start_time_valid || stop_time_valid || cap_start_time_valid || cap_end_time_valid) {
         out << section_tmpl_.arg(tr("Time"));
         out << table_begin;
+
+        // cap start time
+        if (cap_start_time_valid) {
+            out << table_row_begin;
+            if (application_flavor_is_wireshark()) {
+                out << table_vheader_tmpl.arg(tr("Capture start"));
+            } else {
+                out << table_vheader_tmpl.arg(tr("Log start"));
+            }
+            out << table_data_tmpl.arg(time_t_to_qstring((time_t)summary.cap_start_time)) << table_row_end;
+        }
 
         // start time
         if (start_time_valid) {
@@ -226,7 +239,18 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
                 << table_row_end;
         }
 
-        // elapsed seconds (capture duration)
+        // cap end time
+        if (cap_end_time_valid) {
+            out << table_row_begin;
+            if (application_flavor_is_wireshark()) {
+                out << table_vheader_tmpl.arg(tr("Capture end"));
+            } else {
+                out << table_vheader_tmpl.arg(tr("Log end"));
+            }
+            out << table_data_tmpl.arg(time_t_to_qstring((time_t)summary.cap_end_time)) << table_row_end;
+        }
+
+        // elapsed seconds (first to last packet)
         if (start_time_valid && stop_time_valid) {
             /* elapsed seconds */
             QString elapsed_str;
@@ -241,12 +265,33 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
                     .arg(elapsed_time % 3600 / 60, 2, 10, QChar('0'))
                     .arg(elapsed_time % 60, 2, 10, QChar('0'));
             out << table_row_begin
-                << table_vheader_tmpl.arg(tr("Elapsed"))
+                << table_vheader_tmpl.arg(tr("Elapsed (first to last packet)"))
+                << table_data_tmpl.arg(elapsed_str)
+                << table_row_end;
+        }
+
+        // elapsed seconds (capture duration)
+        if (cap_start_time_valid && cap_end_time_valid) {
+            /* elapsed seconds */
+            QString elapsed_str;
+            unsigned int elapsed_time = (unsigned int)(summary.cap_end_time - summary.cap_start_time);
+            unsigned int days = elapsed_time / 86400;
+            if (days) {
+                elapsed_str = tr("%Ln day(s)", "", days) + " ";
+            }
+
+            elapsed_str += QStringLiteral("%1:%2:%3")
+                .arg(elapsed_time % 86400 / 3600, 2, 10, QChar('0'))
+                .arg(elapsed_time % 3600 / 60, 2, 10, QChar('0'))
+                .arg(elapsed_time % 60, 2, 10, QChar('0'));
+            out << table_row_begin
+                << table_vheader_tmpl.arg(tr("Elapsed capturing"))
                 << table_data_tmpl.arg(elapsed_str)
                 << table_row_end;
         }
 
         out << table_end;
+
     }
 
     // Information from file sections.

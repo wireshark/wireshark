@@ -1406,6 +1406,7 @@ raw_epan_new(capture_file *cf)
     static const struct packet_provider_funcs funcs = {
         cap_file_provider_get_frame_ts,
         cap_file_provider_get_start_ts,
+        cap_file_provider_get_end_ts,
         cap_file_provider_get_interface_name,
         cap_file_provider_get_interface_description,
         NULL,

@@ -138,6 +138,11 @@ summary_fill_in(capture_file *cf, summary_tally *st)
     st->marked_bytes = 0;
     st->ignored_count = 0;
 
+    const nstime_t *cap_start = cap_file_provider_get_start_ts(&(cf->provider));
+    const nstime_t *cap_end = cap_file_provider_get_end_ts(&(cf->provider));
+    st->cap_start_time = cap_start == NULL ? DBL_MAX : nstime_to_sec(cap_start);
+    st->cap_end_time = cap_end == NULL ? DBL_MIN : nstime_to_sec(cap_end);
+
     /* initialize the tally */
     if (cf->count != 0) {
         first_frame = frame_data_sequence_find(cf->provider.frames, 1);
