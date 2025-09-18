@@ -489,7 +489,6 @@ static int dissect_ams_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                   offset+=(int)sizeof(uint32_t);
 
                   proto_tree_add_item(ams_adstree, hf_ams_adscblength, tvb, offset, (int)sizeof(uint32_t), ENC_LITTLE_ENDIAN);
-                  offset+=(int)sizeof(uint32_t);
                }
             }
          }
