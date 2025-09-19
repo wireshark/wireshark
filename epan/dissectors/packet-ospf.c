@@ -184,6 +184,7 @@ static const value_string auth_vals[] = {
 #define OSPF_V3_LSTYPE_NSSA                  7
 #define OSPF_V3_LSTYPE_LINK                  8
 #define OSPF_V3_LSTYPE_INTRA_AREA_PREFIX     9
+#define OSPF_V3_LSTYPE_GRACE                11
 #define OSPF_V3_LSTYPE_OPAQUE_RI            12
 
 /* OSPFv3 E-LSA*/
@@ -261,10 +262,10 @@ static const value_string restart_reason_vals[] = {
 #define GRACE_TLV_IP 3
 
 static const value_string grace_tlv_type_vals[] = {
-    {GRACE_TLV_PERIOD,     "grace-LSA Grace Period"},
-    {GRACE_TLV_REASON,     "grace-LSA Restart Reason"},
-    {GRACE_TLV_IP,         "grace-LSA Restart IP"},
-    {0, NULL}
+    {GRACE_TLV_PERIOD,     "Grace-LSA Grace Period"   },
+    {GRACE_TLV_REASON,     "Grace-LSA Restart Reason" },
+    {GRACE_TLV_IP,         "Grace-LSA Restart IP"     },
+    {0,                    NULL                       }
 };
 
 /* http://www.iana.org/assignments/ospf-parameters/ospf-parameters.xhtml#ri-tlv */
@@ -440,8 +441,9 @@ static const value_string v3_ls_type_vals[] = {
     {OSPF_V3_LSTYPE_E_INTER_AREA_PREFIX,  "E-Inter-Area-Prefix-LSA"      },
     {OSPF_V3_LSTYPE_E_INTER_AREA_ROUTER,  "E-Inter-Area-Router-LSA"      },
     {OSPF_V3_LSTYPE_E_AS_EXTERNAL,        "E-AS-External-LSA"            },
-    {OSPF_V3_LSTYPE_E_LINK,               "E-Link-LSA"                  },
-    {OSPF_V3_LSTYPE_E_INTRA_AREA_PREFIX,  "E-Intra-Area-Prefix-LSA"     },
+    {OSPF_V3_LSTYPE_E_LINK,               "E-Link-LSA"                   },
+    {OSPF_V3_LSTYPE_E_INTRA_AREA_PREFIX,  "E-Intra-Area-Prefix-LSA"      },
+    {OSPF_V3_LSTYPE_GRACE,                "Grace-LSA"                    },
     {OSPF_V3_LSTYPE_OPAQUE_RI,            "Router Information Opaque-LSA"},
     {0,                                   NULL                           }
 };
@@ -1035,10 +1037,10 @@ static int hf_ospf_ls_fapm_flags;
 static int hf_ospf_ls_fapm_flags_e;
 static int hf_ospf_ls_fapm_metric;
 static int hf_ospf_unknown_tlv;
-static int hf_ospf_v2_grace_tlv;
-static int hf_ospf_v2_grace_period;
-static int hf_ospf_v2_grace_reason;
-static int hf_ospf_v2_grace_ip;
+static int hf_ospf_grace_tlv;
+static int hf_ospf_grace_period;
+static int hf_ospf_grace_reason;
+static int hf_ospf_grace_ip;
 static int hf_ospf_v3_lls_ext_options_tlv;
 static int hf_ospf_v3_lls_ext_options;
 static int hf_ospf_v3_lls_ext_options_lr;
@@ -2976,10 +2978,10 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
 }
 
 /*
- * Dissect the TLVs within a Grace-LSA as defined by RFC 3623
+ * Dissect the TLVs within a grace-LSA as defined by RFC 3623 and 5187.
  */
 static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, packet_info *pinfo, int offset,
-                                        proto_tree *tree, uint32_t length)
+                                        proto_tree *tree, uint32_t length, uint8_t ospf_version)
 {
     uint16_t tlv_type;
     uint16_t tlv_length;
@@ -2989,9 +2991,6 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, packet_info *pinfo, int o
     uint8_t restart_reason;
     proto_tree *tlv_tree;
     proto_item *tree_item;
-    proto_item *grace_tree_item;
-
-    if (!tree) { return; }
 
     while (length > 0)
     {
@@ -3002,39 +3001,39 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, packet_info *pinfo, int o
          */
         tlv_total_length = tlv_length + 4 + WS_PADDING_TO_4(tlv_length);
 
-        tree_item = proto_tree_add_item(tree, hf_ospf_v2_grace_tlv, tvb, offset,
+        tree_item = proto_tree_add_item(tree, hf_ospf_grace_tlv, tvb, offset,
                                         tlv_total_length, ENC_NA);
         tlv_tree = proto_item_add_subtree(tree_item, ett_ospf_lsa_grace_tlv);
         proto_tree_add_uint_format_value(tlv_tree, hf_ospf_tlv_type, tvb, offset, 2, tlv_type, "%s (%u)",
                             val_to_str_const(tlv_type, grace_tlv_type_vals, "Unknown grace-LSA TLV"), tlv_type);
         proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
-        switch (tlv_type) {
-        case GRACE_TLV_PERIOD:
+        if(tlv_type == GRACE_TLV_PERIOD)
+        {
             grace_period = tvb_get_ntohl(tvb, offset + 4);
-            grace_tree_item = proto_tree_add_item(tlv_tree, hf_ospf_v2_grace_period, tvb,
-                                                  offset + 4, tlv_length, ENC_BIG_ENDIAN);
-            proto_item_append_text(grace_tree_item, " seconds");
+            proto_tree_add_item(tlv_tree, hf_ospf_grace_period, tvb, offset + 4, tlv_length, ENC_BIG_ENDIAN);
             proto_item_set_text(tree_item, "Grace Period: %u seconds", grace_period);
-            break;
-        case GRACE_TLV_REASON:
+        }
+        else if(tlv_type == GRACE_TLV_REASON)
+        {
             restart_reason = tvb_get_uint8(tvb, offset + 4);
-            proto_tree_add_item(tlv_tree, hf_ospf_v2_grace_reason, tvb, offset + 4,
-                                tlv_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_ospf_grace_reason, tvb, offset + 4, tlv_length, ENC_BIG_ENDIAN);
             proto_item_set_text(tree_item, "Restart Reason: %s (%u)",
                                 val_to_str_const(restart_reason, restart_reason_vals, "Unknown Restart Reason"),
                                 restart_reason);
-            break;
-        case GRACE_TLV_IP:
-            proto_tree_add_item(tlv_tree, hf_ospf_v2_grace_ip, tvb, offset + 4,
-                                tlv_length, ENC_BIG_ENDIAN);
-
+        }
+        else if(tlv_type == GRACE_TLV_IP && ospf_version == OSPF_VERSION_2)
+        {
+            /* Type 3 is only applicable to OSPFv2. */
+            proto_tree_add_item(tlv_tree, hf_ospf_grace_ip, tvb, offset + 4, tlv_length, ENC_BIG_ENDIAN);
             proto_item_set_text(tree_item, "Restart IP: %s", tvb_address_with_resolution_to_str(pinfo->pool, tvb, AT_IPv4, offset + 4));
             break;
-        default:
-            proto_item_set_text(tree_item, "Unknown grace-LSA TLV");
-            break;
         }
+        else
+        {
+            proto_item_set_text(tree_item, "Unknown grace-LSA TLV");
+        }
+
         if (4U + tlv_length < tlv_total_length) {
             proto_tree_add_item(tlv_tree, hf_ospf_pad_bytes, tvb, offset + 4U + tlv_length, tlv_total_length - (4U + tlv_length), ENC_NA);
         }
@@ -4032,7 +4031,7 @@ dissect_ospf_lsa_opaque(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
         dissect_ospf_lsa_opaque_ri(tvb, pinfo, offset, tree, length);
         break;
     case OSPF_LSA_GRACE:
-        dissect_ospf_lsa_grace_tlv(tvb, pinfo, offset, tree, length);
+        dissect_ospf_lsa_grace_tlv(tvb, pinfo, offset, tree, length, OSPF_VERSION_2);
         break;
     case OSPF_LSA_EXT_PREFIX:
         dissect_ospf_lsa_ext_prefix(tvb, pinfo, offset, tree, length);
@@ -4391,9 +4390,8 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     if (!disassemble_body)
         return offset;
 
-    switch (ls_type){
-
-
+    switch (ls_type)
+    {
     case OSPF_V3_LSTYPE_ROUTER:
         /* flags field in an router-lsa */
         proto_tree_add_bitmask(ospf_lsa_tree, tvb, offset, hf_ospf_v3_router_lsa_flag, ett_ospf_v3_router_lsa_flags, bf_v3_router_lsa_flags, ENC_BIG_ENDIAN);
@@ -4443,7 +4441,6 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         break;
 
     case OSPF_V3_LSTYPE_NETWORK:
-
         dissect_ospf_v3_network_lsa_common(tvb, pinfo, ospf_lsa_tree, &offset, &ls_length);
 
         while (ls_length > 0 ) {
@@ -4453,9 +4450,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         }
         break;
 
-
     case OSPF_V3_LSTYPE_INTER_AREA_PREFIX:
-
         /* reserved field */
         reserved = tvb_get_uint8(tvb, offset);
         ti = proto_tree_add_item(ospf_lsa_tree, hf_ospf_header_reserved, tvb, offset, 1, ENC_NA);
@@ -4484,12 +4479,9 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         dissect_ospf_v3_address_prefix(tvb, pinfo, offset, prefix_length, ospf_lsa_tree, address_family);
 
         offset+=(prefix_length+31)/32*4;
-
         break;
 
-
     case OSPF_V3_LSTYPE_INTER_AREA_ROUTER:
-
         /* reserved field */
         reserved = tvb_get_uint8(tvb, offset);
         ti = proto_tree_add_item(ospf_lsa_tree, hf_ospf_header_reserved, tvb, offset, 1, ENC_NA);
@@ -4514,10 +4506,8 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         offset+=12;
         break;
 
-
     case OSPF_V3_LSTYPE_NSSA:
     case OSPF_V3_LSTYPE_AS_EXTERNAL:
-
         /* flags */
         proto_tree_add_bitmask(ospf_lsa_tree, tvb, offset, hf_ospf_v3_as_external_flag, ett_ospf_v3_as_external_flags, bf_v3_as_external_flags, ENC_BIG_ENDIAN);
         flags=tvb_get_uint8(tvb, offset);
@@ -4565,11 +4555,9 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_referenced_link_state_id, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset+=4;
         }
-
         break;
 
     case OSPF_V3_LSTYPE_LINK:
-
         /* router priority */
         proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_router_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -4615,7 +4603,6 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         break;
 
     case OSPF_V3_LSTYPE_INTRA_AREA_PREFIX:
-
         /* # prefixes */
         proto_tree_add_item_ret_uint(ospf_lsa_tree, hf_ospf_v3_lsa_num_prefixes, tvb, offset, 2, ENC_BIG_ENDIAN, &number_prefixes);
 
@@ -4659,7 +4646,6 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         break;
 
     case OSPF_V3_LSTYPE_E_INTRA_AREA_PREFIX:
-
         /* prefixes, 0 as per RFC  */
         proto_tree_add_item_ret_uint(ospf_lsa_tree, hf_ospf_v3_lsa_num_prefixes, tvb, offset, 2, ENC_BIG_ENDIAN, &number_prefixes);
 
@@ -4678,8 +4664,8 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         dissect_ospf6_e_lsa_tlv(tvb, pinfo, offset, ospf_lsa_tree, ls_length, address_family);
         offset += ls_length;
         break;
-    case OSPF_V3_LSTYPE_E_ROUTER:
 
+    case OSPF_V3_LSTYPE_E_ROUTER:
         /* flags field in an router-lsa */
         proto_tree_add_bitmask(ospf_lsa_tree, tvb, offset, hf_ospf_v3_router_lsa_flag, ett_ospf_v3_router_lsa_flags, bf_v3_router_lsa_flags, ENC_BIG_ENDIAN);
 
@@ -4694,7 +4680,6 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         break;
 
     case OSPF_V3_LSTYPE_E_NETWORK:
-
         /* reserved field & options */
         dissect_ospf_v3_network_lsa_common(tvb, pinfo, ospf_lsa_tree, &offset, &ls_length);
 
@@ -4704,13 +4689,12 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         break;
 
     case OSPF_V3_LSTYPE_E_AS_EXTERNAL:
-
         /* External-Prefix TLV */
         dissect_ospf6_e_lsa_tlv(tvb, pinfo, offset, ospf_lsa_tree, ls_length, address_family);
         offset += ls_length;
-    break;
-    case OSPF_V3_LSTYPE_E_LINK:
+        break;
 
+    case OSPF_V3_LSTYPE_E_LINK:
         /* router priority */
         proto_tree_add_item(ospf_lsa_tree, hf_ospf_v3_lsa_router_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -4721,6 +4705,12 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         ls_length-=4;
 
         dissect_ospf6_e_lsa_tlv(tvb, pinfo, offset, ospf_lsa_tree, ls_length, address_family);
+        offset += ls_length;
+        break;
+
+    case OSPF_V3_LSTYPE_GRACE:
+        /* Grace-TLV */
+        dissect_ospf_lsa_grace_tlv(tvb, pinfo, offset, ospf_lsa_tree, ls_length, OSPF_VERSION_3);
         offset += ls_length;
         break;
 
@@ -5540,18 +5530,18 @@ proto_register_ospf(void)
            NULL, 0, NULL, HFILL }},
 
         /* OSPF Restart TLVs  */
-        {&hf_ospf_v2_grace_tlv,
-         { "Grace TLV", "ospf.v2.grace", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_ospf_v2_grace_period,
-         { "Grace Period", "ospf.v2.grace.period", FT_UINT32, BASE_DEC,
-           NULL, 0x0,
+        {&hf_ospf_grace_tlv,
+         { "Grace TLV", "ospf.grace", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_ospf_grace_period,
+         { "Grace Period", "ospf.grace.period", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
+           UNS(&units_seconds), 0x0,
            "The number of seconds neighbors should advertise the router as fully adjacent",
            HFILL }},
-        {&hf_ospf_v2_grace_reason,
-         { "Restart Reason", "ospf.v2.grace.reason", FT_UINT8, BASE_DEC,
+        {&hf_ospf_grace_reason,
+         { "Restart Reason", "ospf.grace.reason", FT_UINT8, BASE_DEC,
            VALS(restart_reason_vals), 0x0, "The reason the router is restarting", HFILL }},
-        {&hf_ospf_v2_grace_ip,
-         { "Restart IP", "ospf.v2.grace.ip", FT_IPv4, BASE_NONE,
+        {&hf_ospf_grace_ip,
+         { "Restart IP", "ospf.grace.ip", FT_IPv4, BASE_NONE,
            NULL, 0x0, "The IP address of the interface originating this LSA", HFILL }},
 
         /* OSPFv3 LLS TLVs */
