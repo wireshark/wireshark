@@ -152,6 +152,7 @@ static dissector_handle_t syscall_evt_dissector_handle;
 static dissector_handle_t syscall_fd_dissector_handle;
 
 static int proto_falco_events;
+static int proto_falco_json_events;
 static int proto_syscalls[NUM_SINSP_SYSCALL_CATEGORIES];
 
 static int ett_falco_events;
@@ -1064,13 +1065,13 @@ get_bridge_info(uint32_t source_id)
 }
 
 static int
-dissect_falco_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *epd_p)
+dissect_falco_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *epd_p)
 {
     int encoding = pinfo->rec->rec_header.syscall_header.byte_order == G_BIG_ENDIAN ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Falco Events");
 
-    // Some events don't have any data. Make sure we don't return 0 in that case
+    // Some syscall events don't have any data. Make sure we don't return 0 in that case
     // so that things like "protocols in frame" work.
     int consumed = tvb_captured_length(tvb);
     if (consumed == 0) {
@@ -1080,7 +1081,7 @@ dissect_falco_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     // https://github.com/falcosecurity/libs/blob/9c942f27/userspace/libscap/scap.c#L1900
 
     uint32_t source_id = 0;
-    if (pinfo->rec->rec_header.syscall_header.event_type == FALCO_PPME_PLUGINEVENT_E) {
+    if (pinfo->rec->rec_type == REC_TYPE_SYSCALL && pinfo->rec->rec_header.syscall_header.event_type == FALCO_PPME_PLUGINEVENT_E) {
         source_id = tvb_get_uint32(tvb, 8, encoding);
     }
 
@@ -1122,6 +1123,50 @@ dissect_falco_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     }
 
     return consumed;
+}
+
+// We assume that there is no whitespace between key names and their colons.
+// This is *probably* safe, but if not we can just parse the buffer if needed.
+static bool has_keys(const uint8_t *data, int data_len, const char *keys[]) {
+    for (size_t idx = 0; keys[idx]; idx++) {
+        if (!ws_memmem(data, data_len, keys[idx], strlen(keys[idx]))) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static int
+dissect_falco_json_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    uint32_t source_id = 0;
+
+    // https://kubernetes.io/docs/reference/config-api/apiserver-audit.v1/
+    const char *k8saudit_keys[] = { "\"kind\":", "\"apiVersion\":", "\"level\":", "\"auditID\":", NULL };
+    // https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-record-contents.html
+    const char *cloudtrail_keys[] = { "\"eventVersion\":", "\"userIdentity\":", "\"eventSource\":", NULL };
+    // https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
+    const char *gcpaudit_keys[] = { "\"insertId\":", "\"logName\":", NULL };
+
+    const uint8_t *tvb_data = tvb_get_ptr(tvb, 0, -1);
+    int tvb_len = tvb_captured_length(tvb);
+
+    if (has_keys(tvb_data, tvb_len, k8saudit_keys)) {
+        source_id = K8SAUDIT_PLUGIN_ID;
+    } else if (has_keys(tvb_data, tvb_len, cloudtrail_keys)) {
+        source_id = CLOUDTRAIL_PLUGIN_ID;
+    } else if (has_keys(tvb_data, tvb_len, gcpaudit_keys)) {
+        source_id = GCPAUDIT_PLUGIN_ID;
+    }
+
+    bridge_info* bi = get_bridge_info(source_id);
+
+    if (source_id != 0 && bi) {
+        set_data_source_media_type(get_data_source_by_tvb(pinfo, tvb), DS_MEDIA_TYPE_APPLICATION_JSON);
+        return dissect_sinsp_plugin(tvb, pinfo, tree, bi);
+    }
+    return 0;
 }
 
 int extract_lineage_number(const char *fld_name) {
@@ -1765,8 +1810,11 @@ proto_register_falcoplugin(void)
     register_cleanup_routine(&falco_events_cleanup);
 
     proto_falco_events = proto_register_protocol("Falco Events", "Falco Events", "falcoevents");
-    register_dissector("falcoevents", dissect_falco_events, proto_falco_events);
+    register_dissector("falcoevents", dissect_falco_event, proto_falco_events);
     proto_register_alias(proto_falco_events, "falcobridge");
+
+    proto_falco_json_events = proto_register_protocol("Falco JSON Events", "Falco JSON Events", "falcojson");
+    register_dissector("falcojson", dissect_falco_json_event, proto_falco_json_events);
 
     // Register the syscall conversation filters.
     // These show up in the "Conversation Filter" and "Colorize Conversation" context menus.

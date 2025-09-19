@@ -446,11 +446,11 @@ static const struct open_info open_info_base[] = {
 	/* Extremely weak heuristics - put them at the end. */
 	{ "Ixia IxVeriWave .vwr Raw Capture",       OPEN_INFO_HEURISTIC, vwr_open,                 "vwr",      NULL, NULL },
 	{ "CAM Inspector file",                     OPEN_INFO_HEURISTIC, camins_open,              "camins",   NULL, NULL },
-	/* NetLog needs to be before JSON open because it is a specifically formatted JSON file */
+	/* NetLog needs to be before JSON because it is a specifically formatted JSON file */
 	{ "NetLog",                                 OPEN_INFO_HEURISTIC, netlog_open,              "json",     NULL, NULL },
-    /* JSON Lines needs to be before JSON open because it handles a variety of JSON logs */
-    { "JSON Lines",                             OPEN_INFO_HEURISTIC, json_lines_open,          "jsonl;log", NULL, NULL },
-    { "JavaScript Object Notation",             OPEN_INFO_HEURISTIC, json_open,                "json",     NULL, NULL },
+	/* JSON Log needs to be before JSON because it handles a variety of JSON logs */
+	{ "JSON Log",                               OPEN_INFO_HEURISTIC, json_log_open,            "jsonl;log", NULL, NULL },
+	{ "JavaScript Object Notation",             OPEN_INFO_HEURISTIC, json_open,                "json",     NULL, NULL },
 	{ "Ruby Marshal Object",                    OPEN_INFO_HEURISTIC, ruby_marshal_open,        "",         NULL, NULL },
 	{ "3gpp phone log",                         OPEN_INFO_MAGIC,     log3gpp_open,             "log",      NULL, NULL },
 	{ "MP4 media file",                         OPEN_INFO_MAGIC,     mp4_open,                 "mp4",      NULL, NULL },
