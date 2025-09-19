@@ -345,6 +345,18 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
 		PROPERTIES
 		COMPILE_FLAGS "${WERROR_COMMON_FLAGS} -Wno-maybe-uninitialized"
 	)
+	# Make GCC follow the C standard with regards to excess precision to
+	# avoid floating point instability on x86 processors without SSE
+	# (using the x87 FPU and 80-bit floating point intermediates.)
+	# GCC supports -fexcess-precision=standard for C starting with 4.5.
+	# (Wireshark requires C11, so not clear the project can be compiled
+	# with an older version anyway so don't bother testing for the flag.)
+	set_property(SOURCE
+		str_util.c
+		APPEND
+		PROPERTY
+		COMPILE_OPTIONS
+		-fexcess-precision=standard)
 endif()
 
 if (HAVE_SSE4_2)
