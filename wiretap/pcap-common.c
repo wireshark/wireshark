@@ -2466,10 +2466,10 @@ pcap_process_pseudo_header(FILE_T fh, bool is_nokia, int wtap_encap,
  * Set the "unsliced length" field of the packet header to that value.
  */
 static void
-fix_linux_usb_mmapped_length(wtap_rec *rec, const u_char *bp)
+fix_linux_usb_mmapped_length(wtap_rec *rec, const uint8_t *bp)
 {
 	const struct linux_usb_phdr *hdr;
-	u_int bytes_left;
+	unsigned bytes_left;
 
 	/*
 	 * All callers of this routine must ensure that pkth->caplen is
@@ -2485,7 +2485,7 @@ fix_linux_usb_mmapped_length(wtap_rec *rec, const u_char *bp)
 	    rec->rec_header.packet_header.len == sizeof(struct linux_usb_phdr) +
 	                 (hdr->ndesc * sizeof (struct linux_usb_isodesc)) + hdr->urb_len) {
 		struct linux_usb_isodesc *descs;
-		u_int pre_truncation_data_len, pre_truncation_len;
+		unsigned pre_truncation_data_len, pre_truncation_len;
 
 		descs = (struct linux_usb_isodesc *) (bp + sizeof(struct linux_usb_phdr));
 
@@ -2509,7 +2509,7 @@ fix_linux_usb_mmapped_length(wtap_rec *rec, const u_char *bp)
 		for (uint32_t desc = 0;
 		    desc < hdr->ndesc && bytes_left >= sizeof (struct linux_usb_isodesc);
 		    desc++, bytes_left -= sizeof (struct linux_usb_isodesc)) {
-			u_int desc_end;
+			unsigned desc_end;
 
 			if (descs[desc].iso_len != 0) {
 				desc_end = descs[desc].iso_off + descs[desc].iso_len;
