@@ -71,7 +71,7 @@ int Dot11DecryptGcmpDecrypt(
 	wh = (PDOT11DECRYPT_MAC_FRAME )m;
 	data_len = len - (z + DOT11DECRYPT_GCMP_HEADER + DOT11DECRYPT_GCMP_TRAILER);
 	if (data_len < 1) {
-		return 0;
+		return -1;
 	}
 
 	pn = READ_6(ivp[0], ivp[1], ivp[4], ivp[5], ivp[6], ivp[7]);

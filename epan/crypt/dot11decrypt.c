@@ -1201,7 +1201,11 @@ Dot11DecryptRsnaMng(
     unsigned char *try_data;
     unsigned try_data_len = *decrypt_len;
 
-    if (*decrypt_len == 0) {
+    /* There should be at least 1 byte encrypted and TKIP/CCMP/GCMP header
+       should be present. Trailer is at least 8 bytes and it's precisely checked
+       afterwards. */
+    if (*decrypt_len < mac_header_len + DOT11DECRYPT_RSNA_HEADER + 1 +
+                       DOT11DECRYPT_RSNA_MIN_TRAILER) {
         ws_debug("Invalid decryption length");
         return DOT11DECRYPT_RET_UNSUCCESS;
     }
@@ -1235,21 +1239,14 @@ Dot11DecryptRsnaMng(
            DEBUG_DUMP("ptk portion used", DOT11DECRYPT_GET_TK_TKIP(sa->wpa.ptk),
                       16, LOG_LEVEL_NOISY);
 
-           if (*decrypt_len < (unsigned)mac_header_len) {
-               ws_debug("Invalid decryption length");
-               g_free(try_data);
-               return DOT11DECRYPT_RET_UNSUCCESS;
-           }
-           if (*decrypt_len < DOT11DECRYPT_TKIP_MICLEN + DOT11DECRYPT_WEP_ICV) {
-               ws_debug("Invalid decryption length");
-               g_free(try_data);
-               return DOT11DECRYPT_RET_UNSUCCESS;
-           }
-
-           ret = Dot11DecryptTkipDecrypt(try_data + mac_header_len, *decrypt_len - mac_header_len,
-                                         try_data + DOT11DECRYPT_TA_OFFSET,
+           ret = Dot11DecryptTkipDecrypt(try_data, mac_header_len, *decrypt_len,
                                          DOT11DECRYPT_GET_TK_TKIP(sa->wpa.ptk));
            if (ret) {
+               if (ret < 0) {
+                   ws_debug("Invalid decryption length");
+                   g_free(try_data);
+                   return DOT11DECRYPT_RET_UNSUCCESS;
+               }
                ws_noisy("TKIP failed!");
                continue;
            }
@@ -1263,16 +1260,16 @@ Dot11DecryptRsnaMng(
        {
            ws_noisy("GCMP");
 
-           if (*decrypt_len < DOT11DECRYPT_GCMP_TRAILER) {
-               ws_debug("Invalid decryption length");
-               g_free(try_data);
-               return DOT11DECRYPT_RET_UNSUCCESS;
-           }
            ret = Dot11DecryptGcmpDecrypt(try_data, mac_header_len, (int)*decrypt_len,
                                          DOT11DECRYPT_GET_TK(sa->wpa.ptk, sa->wpa.akm, sa->wpa.dh_group),
                                          Dot11DecryptGetTkLen(sa->wpa.cipher) / 8);
            if (ret) {
-              continue;
+               if (ret < 0) {
+                   ws_debug("Invalid decryption length");
+                   g_free(try_data);
+                   return DOT11DECRYPT_RET_UNSUCCESS;
+               }
+               continue;
            }
            ws_noisy("GCMP DECRYPTED!!!");
            /* remove MIC from the end of packet */
@@ -1283,18 +1280,18 @@ Dot11DecryptRsnaMng(
            ws_noisy("CCMP");
 
            unsigned trailer = sa->wpa.cipher != 10 ? DOT11DECRYPT_CCMP_TRAILER : DOT11DECRYPT_CCMP_256_TRAILER;
-           if (*decrypt_len < trailer) {
-               ws_debug("Invalid decryption length");
-               g_free(try_data);
-               return DOT11DECRYPT_RET_UNSUCCESS;
-           }
 
            ret = Dot11DecryptCcmpDecrypt(try_data, mac_header_len, (int)*decrypt_len,
                                          DOT11DECRYPT_GET_TK(sa->wpa.ptk, sa->wpa.akm, sa->wpa.dh_group),
                                          Dot11DecryptGetTkLen(sa->wpa.cipher) / 8,
                                          trailer);
            if (ret) {
-              continue;
+               if (ret < 0) {
+                   ws_debug("Invalid decryption length");
+                   g_free(try_data);
+                   return DOT11DECRYPT_RET_UNSUCCESS;
+               }
+               continue;
            }
            ws_noisy("CCMP DECRYPTED!!!");
            /* remove MIC from the end of packet */
@@ -1310,26 +1307,20 @@ Dot11DecryptRsnaMng(
         return ret;
     }
 
-    if (*decrypt_len > try_data_len || *decrypt_len < 8) {
-        ws_debug("Invalid decryption length");
-        g_free(try_data);
-        return DOT11DECRYPT_RET_UNSUCCESS;
-    }
+    /* We should have decrypted at least 1 byte successfully and
+       subtracted security trailer.  */
+    ws_assert(*decrypt_len > mac_header_len + DOT11DECRYPT_RSNA_HEADER &&
+              *decrypt_len < try_data_len);
 
     /* remove protection bit */
     decrypt_data[1]&=0xBF;
 
-    /* remove TKIP/CCMP header */
-    *decrypt_len-=8;
-
-    if (*decrypt_len < mac_header_len) {
-        ws_debug("Invalid decryption length < mac_header_len");
-        g_free(try_data);
-        return DOT11DECRYPT_RET_UNSUCCESS;
-    }
+    /* remove TKIP/CCMP/GCMP header */
+    *decrypt_len -= DOT11DECRYPT_RSNA_HEADER;
 
     /* copy the decrypted data into the decrypt buffer GCS*/
-    memcpy(decrypt_data + mac_header_len, try_data + mac_header_len + 8,
+    memcpy(decrypt_data + mac_header_len,
+           try_data + mac_header_len + DOT11DECRYPT_RSNA_HEADER,
            *decrypt_len - mac_header_len);
     g_free(try_data);
 
@@ -1355,6 +1346,13 @@ Dot11DecryptWepMng(
     unsigned char *try_data;
     DOT11DECRYPT_SEC_ASSOCIATION *sa;
     unsigned try_data_len = *decrypt_len;
+    ssize_t ciphertext_len = (ssize_t)*decrypt_len -
+                             (ssize_t)(mac_header_len + DOT11DECRYPT_WEP_HEADER + DOT11DECRYPT_WEP_TRAILER);
+
+    if (ciphertext_len < 1) {
+        ws_debug("Decryption length too short");
+        return DOT11DECRYPT_RET_UNSUCCESS;
+    }
 
     try_data = (unsigned char *)g_malloc(try_data_len);
 
@@ -1397,8 +1395,8 @@ Dot11DecryptWepMng(
 
             ret_value=Dot11DecryptWepDecrypt(wep_key,
                 keylen+DOT11DECRYPT_WEP_IVLEN,
-                try_data + (mac_header_len+DOT11DECRYPT_WEP_IVLEN+DOT11DECRYPT_WEP_KIDLEN),
-                *decrypt_len-(mac_header_len+DOT11DECRYPT_WEP_IVLEN+DOT11DECRYPT_WEP_KIDLEN+DOT11DECRYPT_CRC_LEN));
+                try_data + (mac_header_len + DOT11DECRYPT_WEP_HEADER),
+                ciphertext_len);
 
             if (ret_value == DOT11DECRYPT_RET_SUCCESS)
                 memcpy(decrypt_data, try_data, *decrypt_len);
@@ -1441,19 +1439,12 @@ Dot11DecryptWepMng(
 
     ws_noisy("WEP DECRYPTED!!!");
 
-    /* remove ICV (4bytes) from the end of packet */
-    *decrypt_len-=4;
-
-    if (*decrypt_len < 4) {
-        ws_debug("Decryption length too short");
-        return DOT11DECRYPT_RET_UNSUCCESS;
-    }
+    /* remove IV(4bytes) and ICV (4bytes) from the packet */
+    *decrypt_len -= 4 + 4;
 
     /* remove protection bit */
     decrypt_data[1]&=0xBF;
 
-    /* remove IC header */
-    *decrypt_len-=4;
     memmove(decrypt_data + mac_header_len,
             decrypt_data + mac_header_len + DOT11DECRYPT_WEP_IVLEN + DOT11DECRYPT_WEP_KIDLEN,
             *decrypt_len - mac_header_len);

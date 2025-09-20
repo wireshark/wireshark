@@ -186,9 +186,9 @@ static void Dot11DecryptTkipMixingPhase2(
 /* Note: taken from FreeBSD source code, RELENG 6,										*/
 /*		sys/net80211/ieee80211_crypto_tkip.c, 936											*/
 int Dot11DecryptTkipDecrypt(
-	unsigned char *tkip_mpdu,
+	uint8_t *mpdu,
+	size_t mac_header_len,
 	size_t mpdu_len,
-	unsigned char TA[DOT11DECRYPT_MAC_LEN],
 	unsigned char TK[DOT11DECRYPT_TK_LEN])
 {
 	uint64_t TSC64;
@@ -197,8 +197,16 @@ int Dot11DecryptTkipDecrypt(
 	uint8_t *IV;
 	uint16_t TTAK[DOT11DECRYPT_TTAK_LEN];
 	uint8_t wep_seed[DOT11DECRYPT_WEP_128_KEY_LEN];
+	ssize_t decrypt_len = (ssize_t)mpdu_len -
+	                      (ssize_t)(mac_header_len + DOT11DECRYPT_TKIP_HEADER + DOT11DECRYPT_WEP_ICV);
+	const uint8_t *TA;
 
-	IV = tkip_mpdu;
+	if (decrypt_len < 1) {
+	    return -1;
+	}
+
+	TA = mpdu + DOT11DECRYPT_TA_OFFSET;
+	IV = mpdu + mac_header_len;
 
 	TSC64 = READ_6(IV[2], IV[0], IV[4], IV[5], IV[6], IV[7]);
 	TSC16 = (uint16_t)TSC64;
@@ -211,14 +219,17 @@ int Dot11DecryptTkipDecrypt(
 
 	Dot11DecryptTkipMixingPhase2(wep_seed, TK, TTAK, TSC16);
 
-	return Dot11DecryptWepDecrypt(
+	if (Dot11DecryptWepDecrypt(
 		wep_seed,
 		DOT11DECRYPT_WEP_128_KEY_LEN,
-		tkip_mpdu + DOT11DECRYPT_TKIP_HEADER,
-		mpdu_len-(DOT11DECRYPT_TKIP_HEADER+DOT11DECRYPT_WEP_ICV));	/* MPDU - TKIP_HEADER - MIC	*/
+		IV + DOT11DECRYPT_TKIP_HEADER,
+		decrypt_len)) {
+		return 1;
+	}
 
 	/* TODO check (IEEE 802.11i-2004, pg. 44)												*/
 
+	return 0;
 }
 /*																										*/
 /******************************************************************************/
