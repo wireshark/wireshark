@@ -184,8 +184,13 @@ static const value_string auth_vals[] = {
 #define OSPF_V3_LSTYPE_NSSA                  7
 #define OSPF_V3_LSTYPE_LINK                  8
 #define OSPF_V3_LSTYPE_INTRA_AREA_PREFIX     9
+#define OSPF_V3_LSTYPE_INTRA_AREA_TE        10
 #define OSPF_V3_LSTYPE_GRACE                11
 #define OSPF_V3_LSTYPE_OPAQUE_RI            12
+#define OSPF_V3_LSTYPE_INTER_AS_TE_V3       13
+#define OSPF_V3_LSTYPE_OSPF_V3_L1VPN        14
+#define OSPF_V3_LSTYPE_OSPF_V3_AC           15
+#define OSPF_V3_LSTYPE_OSPF_V3_DF           16
 
 /* OSPFv3 E-LSA*/
 #define OSPF_V3_LSTYPE_E_ROUTER            33
@@ -197,6 +202,8 @@ static const value_string auth_vals[] = {
 #define OSPF_V3_LSTYPE_E_TYPE_7            39
 #define OSPF_V3_LSTYPE_E_LINK              40
 #define OSPF_V3_LSTYPE_E_INTRA_AREA_PREFIX 41
+
+#define OSPF_V3_LSTYPE_SRV6_LOCATOR        42
 
 /* Opaque LSA types */
 #define OSPF_LSTYPE_OP_BASE      8
@@ -287,6 +294,10 @@ static const value_string grace_tlv_type_vals[] = {
 #define OPAQUE_TLV_SRLB             14
 #define OPAQUE_TLV_SRMS_PREF        15
 #define OPAQUE_TLV_FLEX_ALGO_DEF    16
+#define OPAQUE_TLV_OSPF_AREA_LEADER 17
+#define OPAQUE_TLV_OSPF_DYN_FLOOD   18
+#define OPAQUE_TLV_SRV6_CAPS        20
+#define OPAQUE_TLV_IP_ALGO          21
 
 /* The Opaque RI LSA TLV types definitions. */
 static const value_string ri_tlv_type_vals[] = {
@@ -306,6 +317,10 @@ static const value_string ri_tlv_type_vals[] = {
     {OPAQUE_TLV_SRLB,               "SR Local Block"                     },
     {OPAQUE_TLV_SRMS_PREF,          "SRMS Preference"                    },
     {OPAQUE_TLV_FLEX_ALGO_DEF,      "Flexible Algorithm Definition"      },
+    {OPAQUE_TLV_OSPF_AREA_LEADER,   "OSPF Area Leader"                   },
+    {OPAQUE_TLV_OSPF_DYN_FLOOD,     "OSPF Dynamic Flooding"              },
+    {OPAQUE_TLV_SRV6_CAPS,          "SRv6 Capabilities"                  },
+    {OPAQUE_TLV_IP_ALGO,            "IP Algorithm"                       },
     {0, NULL}
 };
 
@@ -436,15 +451,22 @@ static const value_string v3_ls_type_vals[] = {
     {OSPF_V3_LSTYPE_NSSA,                 "NSSA-LSA"                     },
     {OSPF_V3_LSTYPE_LINK,                 "Link-LSA"                     },
     {OSPF_V3_LSTYPE_INTRA_AREA_PREFIX,    "Intra-Area-Prefix-LSA"        },
+    {OSPF_V3_LSTYPE_INTRA_AREA_TE,        "Intra-Area-TE-LSA"            },
+    {OSPF_V3_LSTYPE_GRACE,                "GRACE-LSA"                    },
+    {OSPF_V3_LSTYPE_OPAQUE_RI,            "Router Information Opaque-LSA"},
+    {OSPF_V3_LSTYPE_INTER_AS_TE_V3,       "Inter-AS-TE-V3 LSA"           },
+    {OSPF_V3_LSTYPE_OSPF_V3_L1VPN,        "OSPFv3 L1VPN LSA"             },
+    {OSPF_V3_LSTYPE_OSPF_V3_AC,           "OSPFv3 Autoconfiguration LSA" },
+    {OSPF_V3_LSTYPE_OSPF_V3_DF,           "OSPFv3 Dynamic Flooding LSA"  },
     {OSPF_V3_LSTYPE_E_ROUTER,             "E-Router-LSA"                 },
     {OSPF_V3_LSTYPE_E_NETWORK,            "E-Network-LSA"                },
     {OSPF_V3_LSTYPE_E_INTER_AREA_PREFIX,  "E-Inter-Area-Prefix-LSA"      },
     {OSPF_V3_LSTYPE_E_INTER_AREA_ROUTER,  "E-Inter-Area-Router-LSA"      },
     {OSPF_V3_LSTYPE_E_AS_EXTERNAL,        "E-AS-External-LSA"            },
+    {OSPF_V3_LSTYPE_E_TYPE_7,             "E-Type-7-LSA"                 },
     {OSPF_V3_LSTYPE_E_LINK,               "E-Link-LSA"                   },
     {OSPF_V3_LSTYPE_E_INTRA_AREA_PREFIX,  "E-Intra-Area-Prefix-LSA"      },
-    {OSPF_V3_LSTYPE_GRACE,                "Grace-LSA"                    },
-    {OSPF_V3_LSTYPE_OPAQUE_RI,            "Router Information Opaque-LSA"},
+    {OSPF_V3_LSTYPE_SRV6_LOCATOR,         "SRv6 Locator LSA"             },
     {0,                                   NULL                           }
 };
 
