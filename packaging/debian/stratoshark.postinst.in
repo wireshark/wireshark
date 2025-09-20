@@ -19,7 +19,7 @@ set -e
 # https://wiki.debian.org/AccountHandlingInMaintainerScripts
 
 . /usr/share/debconf/confmodule
-PROGRAM=$(dpkg-divert --truename /usr/lib/@DEB_HOST_MULTIARCH@/stratoshark/extcap/falcodump)
+PROGRAM=$(dpkg-divert --truename /usr/libexec/stratoshark/extcap/falcodump)
 GROUP=scap
 
 if ! dpkg-statoverride --list $PROGRAM > /dev/null; then
