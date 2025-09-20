@@ -44,6 +44,7 @@ static int hf_epmd_edata;
 static int hf_epmd_names;
 static int hf_epmd_result;
 static int hf_epmd_creation;
+static int hf_epmd_creation2;
 
 static int ett_epmd;
 
@@ -67,6 +68,7 @@ static dissector_handle_t edp_handle;
 #define EPMD_PORT2_REQ     'z' /* 122 */
 #define EPMD_ALIVE2_RESP   'y' /* 121 */
 #define EPMD_PORT2_RESP    'w' /* 119 */
+#define EPMD_ALIVE2_X_RESP 'v' /* 118 - Extended response for highvsn >= 6 */
 
 static const value_string message_types[] = {
     { EPMD_ALIVE_REQ    , "EPMD_ALIVE_REQ"     },
@@ -80,6 +82,7 @@ static const value_string message_types[] = {
     { EPMD_PORT2_REQ    , "EPMD_PORT2_REQ"     },
     { EPMD_ALIVE2_RESP  , "EPMD_ALIVE2_RESP"   },
     { EPMD_PORT2_RESP   , "EPMD_PORT2_RESP"    },
+    { EPMD_ALIVE2_X_RESP, "EPMD_ALIVE2_X_RESP" },
     {  0, NULL }
 };
 
@@ -198,13 +201,45 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree 
 
     switch (type) {
         case EPMD_ALIVE_OK_RESP:
-        case EPMD_ALIVE2_RESP:
             result = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(tree, hf_epmd_creation, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             if (!result) {
+                col_append_str(pinfo->cinfo, COL_INFO, " OK");
+            } else {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " ERROR 0x%02X", result);
+            }
+            break;
+
+        case EPMD_ALIVE2_RESP:
+            result = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            if (!result) {
+                proto_tree_add_item(tree, hf_epmd_creation, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                col_append_str(pinfo->cinfo, COL_INFO, " OK");
+            } else {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " ERROR 0x%02X", result);
+            }
+            break;
+
+        case EPMD_ALIVE2_X_RESP:
+            result = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item(tree, hf_epmd_result, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            if (!result) {
+                /* Check remaining length to determine creation field size */
+                int remaining = tvb_reported_length_remaining(tvb, offset);
+                if (remaining >= 4) {
+                    proto_tree_add_item(tree, hf_epmd_creation2, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+                } else if (remaining >= 2) {
+                    proto_tree_add_item(tree, hf_epmd_creation, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                }
                 col_append_str(pinfo->cinfo, COL_INFO, " OK");
             } else {
                 col_append_fstr(pinfo->cinfo, COL_INFO, " ERROR 0x%02X", result);
@@ -273,6 +308,7 @@ check_epmd(tvbuff_t *tvb) {
     switch (type) {
         case EPMD_ALIVE_OK_RESP:
         case EPMD_ALIVE2_RESP:
+        case EPMD_ALIVE2_X_RESP:
         case EPMD_PORT2_RESP:
             return true;
         default:
@@ -354,6 +390,11 @@ proto_register_epmd(void)
           { "Creation", "epmd.creation",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
+
+        { &hf_epmd_creation2,
+          { "Creation", "epmd.creation2",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Creation (4 bytes)", HFILL }},
 
         { &hf_epmd_dist_high,
           { "Highest Version", "epmd.dist_high",
