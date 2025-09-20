@@ -126,10 +126,10 @@ static const value_string packettypenames[] = { /*!< Messageid List */
  * @return int returns number of bytes used
  *
  */
-static int
+static unsigned
 count_vle_bytes(tvbuff_t *tvb, int offset)
 {
-    int byte_count = 1;
+    unsigned byte_count = 1;
 
     if(tvb_get_uint8(tvb, offset) & 0x80)     /* If the first bit of the first byte is 1 */
         byte_count = 2;                                     /* There's at least 2 bytes of content length */
@@ -216,7 +216,7 @@ dissect_reliable_message_index_base(tvbuff_t *buffer, int offset, proto_tree *tr
 static int
 dissect_content_length_vle(tvbuff_t *buffer, int *offset, proto_tree *tree)
 {
-    int     byte_count;
+    unsigned byte_count;
     uint32_t length;
 
     length     = 0;
@@ -521,7 +521,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int current_pr
 static unsigned
 get_knet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    return count_vle_bytes(tvb, offset) + dissect_content_length_vle(tvb, &offset, NULL);
+    return count_vle_bytes(tvb, offset) + (unsigned)dissect_content_length_vle(tvb, &offset, NULL);
 }
 
 /**
