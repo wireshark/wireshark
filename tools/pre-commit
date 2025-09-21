@@ -58,6 +58,7 @@ fi
 
 have_diameter_files="False"
 bad_alloc_patterns=${PWD}/tools/detect_bad_alloc_patterns.py
+bad_proto_tree_add=${PWD}/tools/detect_bad_proto_tree_add.py
 exit_status=0
 
 for COMMIT_ID in $COMMIT_IDS; do
@@ -77,6 +78,7 @@ for COMMIT_ID in $COMMIT_IDS; do
     fi
 
     echo "$COMMIT_FILES" | $PYBIN "$bad_alloc_patterns"
+    echo "$COMMIT_FILES" | $PYBIN "$bad_proto_tree_add"
 
     # On windows python will output \r\n line endings - we don't want that.
     #
