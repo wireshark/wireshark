@@ -15503,6 +15503,14 @@ a:hover {
         <translation>UNIX/POSIX 기원(1970-01-01)으로부터의 초 단위 시간으로 패킷 시간을 표현합니다.</translation>
     </message>
     <message>
+        <source>Seconds Since Capture Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet times as seconds since the start of the capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Seconds Since Previous Captured Packet</source>
         <translation>이전에 캡처된 패킷부터 초 단위 시간</translation>
     </message>

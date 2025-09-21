@@ -15574,6 +15574,14 @@ a:hover {
         <translation>Mostra els temps dels paquets en segons des de l&apos;inici de l&apos;època UNIX/POSIX (01-01-1970).</translation>
     </message>
     <message>
+        <source>Seconds Since Capture Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet times as seconds since the start of the capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Seconds Since Previous Captured Packet</source>
         <translation>Segons des de l&apos;anterior paquet capturat</translation>
     </message>

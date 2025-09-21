@@ -15612,6 +15612,14 @@ a:hover {
         <translation>Taispeáin amanna paicéad mar na soicindí ón Epoch UNIX / POSIX (1970-01-01).</translation>
     </message>
     <message>
+        <source>Seconds Since Capture Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet times as seconds since the start of the capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Seconds Since Previous Captured Packet</source>
         <translation>Soicind ó paicéad a gabhadh roimhe seo</translation>
     </message>

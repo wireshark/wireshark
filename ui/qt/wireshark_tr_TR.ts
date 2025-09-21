@@ -15501,6 +15501,14 @@ a:üzerine gelin{
         <translation>Paket sürelerini UNIX / POSIX döneminden (1970-01-01) bu yana saniye olarak göster.</translation>
     </message>
     <message>
+        <source>Seconds Since Capture Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet times as seconds since the start of the capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Seconds Since Previous Captured Packet</source>
         <translation>Önceki Yakalanan Paketten Beri Saniye</translation>
     </message>

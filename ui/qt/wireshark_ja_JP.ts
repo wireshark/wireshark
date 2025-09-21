@@ -1232,11 +1232,11 @@
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタをチェックできません</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタをチェックできません(BPF拡張はライブハンドルを必要とします)</translation>
     </message>
 </context>
 <context>
@@ -1422,7 +1422,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Optimize</source>
-        <translation type="unfinished"></translation>
+        <translation>最適化</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1693,23 +1693,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Enable Aggregation View for real-time capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>リアルタイムキャプチャのために集約ビューを有効にします</translation>
     </message>
     <message>
         <source>This option can only be changed when Aggregation Mode is not active.</source>
-        <translation type="unfinished"></translation>
+        <translation>このオプションは集約モードがアクティブでない場合にのみ変更できます</translation>
     </message>
     <message>
         <source>Aggregation fields</source>
-        <translation type="unfinished"></translation>
+        <translation>集約フィールド</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fiedls used for aggregation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;集約に用いるフィールド&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Edit..</source>
-        <translation type="unfinished"></translation>
+        <translation>編集..</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -1978,23 +1978,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No capture filter</source>
-        <translation type="unfinished">キャプチャフィルタなし</translation>
+        <translation>キャプチャフィルタなし</translation>
     </message>
     <message>
         <source>Multiple filters</source>
-        <translation type="unfinished"></translation>
+        <translation>複数フィルタ</translation>
     </message>
     <message>
         <source>Capture filters cannot be compiled for standard input.</source>
-        <translation type="unfinished"></translation>
+        <translation>標準入力に対してキャプチャフィルタをコンパイルできません</translation>
     </message>
     <message>
         <source>Capture filters cannot be compiled for pipes.</source>
-        <translation type="unfinished"></translation>
+        <translation>パイプに対してキャプチャフィルタをコンパイルできません</translation>
     </message>
     <message>
         <source>Capture filter: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ: %1</translation>
     </message>
 </context>
 <context>
@@ -2450,7 +2450,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>フィルタボタン設定…</translation>
     </message>
 </context>
 <context>
@@ -3352,7 +3352,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>フィルタボタン設定…</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -3453,7 +3453,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save %1 rules as…</source>
-        <translation type="unfinished"></translation>
+        <translation>…として %1 ルールを保存</translation>
     </message>
     <message>
         <source>Text file (*.txt);;All Files (</source>
@@ -4073,7 +4073,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show text as frame encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>フレームエンコードに応じてテキストを表示</translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -5320,7 +5320,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(…)) )</source>
         <oldsource>Missing capturing group data (use (?&lt;data&gt;(...)) )</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャグループデータが欠けています ( (?&lt;data&gt;(...))を使用してください )</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -7045,22 +7045,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Zipファイルより...</translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>ディレクトリより...</translation>
     </message>
     <message>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>選択された個人プロファイル...</translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>すべての個人プロファイル...</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7085,7 +7085,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 として…</translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
@@ -8315,7 +8315,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Auto Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>自動スクロール</translation>
     </message>
     <message>
         <source>Plots</source>
@@ -8713,24 +8713,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Zipファイルより...</translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>ディレクトリより...</translation>
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)…</source>
         <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln 選択された個人プロファイル...</numerusform>
         </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>すべての個人プロファイル...</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -10902,7 +10902,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Decoding streams…</source>
         <oldsource>Decoding streams...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>ストリームをデコード中…</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10955,7 +10955,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Resampling waveform…</source>
         <oldsource>Resampling waveform...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>波形を再サンプリング...</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
@@ -11020,7 +11020,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Preparing to play…</source>
         <oldsource>Preparing to play...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>再生準備中...</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -13995,11 +13995,11 @@ a:hover {
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 band.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;802.11バンドを設定します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Band</source>
-        <translation type="unfinished"></translation>
+        <translation>バンド</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -15536,6 +15536,14 @@ a:hover {
         <translation>パケットの時間をUNIX/POSIX起源(1970-01-01)以来の秒数で表示します</translation>
     </message>
     <message>
+        <source>Seconds Since Capture Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet times as seconds since the start of the capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Seconds Since Previous Captured Packet</source>
         <translation>前にキャプチャされたパケットからの秒数</translation>
     </message>
@@ -15701,11 +15709,11 @@ a:hover {
     </message>
     <message>
         <source>Aggregation in Live Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ中に集約</translation>
     </message>
     <message>
         <source>Aggregation View.</source>
-        <translation type="unfinished"></translation>
+        <translation>集約ビュー</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -15872,7 +15880,7 @@ a:hover {
     </message>
     <message>
         <source>Automatically scroll to the last packet during a live capture.</source>
-        <translation>生キャプチャ中の最後のパケットを自動スクロールします</translation>
+        <translation>キャプチャ中の最後のパケットを自動スクロールします</translation>
     </message>
     <message>
         <source>Expert Information</source>
@@ -16063,7 +16071,7 @@ a:hover {
     </message>
     <message>
         <source>Unsaved packets…</source>
-        <translation type="unfinished"></translation>
+        <translation>保存されていないパケット…</translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>

@@ -15582,6 +15582,14 @@ a:hover {
         <translation>Показывать временные характеристики пакетов в виде числа секунд с начала эпохи UNIX / POSIX (1970-01-01).</translation>
     </message>
     <message>
+        <source>Seconds Since Capture Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet times as seconds since the start of the capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Seconds Since Previous Captured Packet</source>
         <translation>Число секунд с момента захвата предыдущего пакета</translation>
     </message>

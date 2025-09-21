@@ -15368,6 +15368,14 @@ a:hover {
         <translation>Представити час пакетів у вигляді секунд, що минули з початку епохи UNIX / POSIX (1970-01-01).</translation>
     </message>
     <message>
+        <source>Seconds Since Capture Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet times as seconds since the start of the capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Seconds Since Previous Captured Packet</source>
         <translation>Секунди Від Попереднього Захопленого Пакету</translation>
     </message>

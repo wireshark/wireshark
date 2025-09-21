@@ -15547,6 +15547,14 @@ a:hover {
         <translation>Exibir os tempos dos pacotes como segundos desde a época UNIX / POSIX (1970-01-01).</translation>
     </message>
     <message>
+        <source>Seconds Since Capture Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show packet times as seconds since the start of the capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Seconds Since Previous Captured Packet</source>
         <translation>Segundos Desde o Pacote Capturado Anterior</translation>
     </message>

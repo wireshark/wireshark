@@ -1,4 +1,4 @@
-Rawshark (Wireshark) 4.7.0 (v4.7.0rc0-30-gf34465f0e5b8)
+Rawshark (Wireshark) 4.7.0 (v4.7.0rc0-206-gc9bb74b3e72a)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -41,7 +41,7 @@ Output:
   -l                       flush output after each packet
   -S                       format string for fields
                            (%D - name, %S - stringval, %N numval)
-  -t (a|ad|adoy|d|dd|e|r|u|ud|udoy)[.[N]]|.[N]
+  -t (a|ad|adoy|d|dd|e|r|rc|u|ud|udoy)[.[N]]|.[N]
                            output format of time stamps (def: r: rel. to first)
   -u s|hms                 output format of seconds (def: s: seconds)
 
