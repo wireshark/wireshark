@@ -104,11 +104,13 @@ set(WSUTIL_PUBLIC_HEADERS
 	crc16-plain.h
 	crc32.h
 	curve25519.h
+	dtoa.h
 	eax.h
 	epochs.h
 	exported_pdu_tlvs.h
 	failure_message_simple.h
 	feature_list.h
+	file_util.h
 	filesystem.h
 	g711.h
 	inet_addr.h
