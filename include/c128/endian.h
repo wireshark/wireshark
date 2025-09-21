@@ -340,7 +340,7 @@ static inline u64 le64toh(u64 x) { return le64(x); }
                  unsigned long long: le64toh  \
                  )(X)
 
-#else
+#elif defined (__cplusplus)
 
 template <typename T> T htobe(T x);
 
