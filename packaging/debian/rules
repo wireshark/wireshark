@@ -81,10 +81,21 @@ else
 endif
 	rm -rf $(CURDIR)/debian/tmp/usr/share/wireshark/COPYING
 
+HEADER_CHECK_FLAGS = $(shell pkg-config --cflags glib-2.0) \
+	$(shell dpkg-buildflags --get CPPFLAGS) \
+	$(shell dpkg-buildflags --get CFLAGS) \
+	-Idebian/libwireshark-dev/usr/include \
+	-Idebian/libwireshark-dev/usr/include/wireshark \
+	-Idebian/libwireshark-dev/usr/include/libwireshark-dev/epan/dissectors \
+	-Idebian/libwiretap-dev/usr/include/wireshark \
+	-Idebian/libwsutil-dev/usr/include/wireshark \
+
 override_dh_install:
 	dh_install
-	# check all necessary headers are included
-	$(CC) -c debian/headers-check.c $(shell pkg-config --cflags glib-2.0) $(shell dpkg-buildflags --get CPPFLAGS) $(shell dpkg-buildflags --get CFLAGS) -Idebian/libwireshark-dev/usr/include -Idebian/libwireshark-dev/usr/include/wireshark -Idebian/libwiretap-dev/usr/include/wireshark -Idebian/libwsutil-dev/usr/include/wireshark -o /dev/null
+	# check that all headers can be preprocessed
+	find debian/*-dev/usr/include -type f | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -E - $(HEADER_CHECK_FLAGS) -o /dev/null
+	# check than #include-ing the most widely used headers compiles
+	$(CC) -c debian/headers-check.c $(HEADER_CHECK_FLAGS) -o /dev/null
 
 override_dh_fixperms:
 	dh_fixperms
