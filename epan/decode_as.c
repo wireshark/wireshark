@@ -13,7 +13,7 @@
 #include <glib.h>
 
 #include "decode_as.h"
-#include "packet.h"
+#include <epan/packet.h>
 #include "prefs.h"
 #include "prefs-int.h"
 #include "wsutil/application_flavor.h"

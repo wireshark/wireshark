@@ -20,7 +20,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "timestamp.h"
 
 #include "osi-utils.h"

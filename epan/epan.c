@@ -39,7 +39,7 @@
 
 #include "conversation.h"
 #include "except.h"
-#include "packet.h"
+#include <epan/packet.h>
 #include "prefs.h"
 #include "column-info.h"
 #include "tap.h"

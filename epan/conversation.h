@@ -13,7 +13,7 @@
 
 #include "ws_symbol_export.h"
 
-#include "packet.h"			/* for conversation dissector type */
+#include <epan/packet.h>			/* for conversation dissector type */
 #include <epan/wmem_scopes.h>
 
 #ifdef __cplusplus

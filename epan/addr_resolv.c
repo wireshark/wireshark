@@ -81,7 +81,7 @@
 
 #include <glib.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "addr_resolv.h"
 #include "wsutil/filesystem.h"
 

@@ -34,7 +34,7 @@
 
 #include <ftypes/ftypes.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "exceptions.h"
 #include "ptvcursor.h"
 #include "strutil.h"
