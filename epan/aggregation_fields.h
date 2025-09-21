@@ -13,6 +13,8 @@
 #ifndef __AGGREGATION_FIELDS_H__
 #define __AGGREGATION_FIELDS_H__
 
+#include <epan/prefs.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

@@ -13,6 +13,7 @@
 #ifndef __ASN1_H__
 #define __ASN1_H__
 
+#include <epan/packet.h>
 #include "ws_symbol_export.h"
 
 typedef enum {

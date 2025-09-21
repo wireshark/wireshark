@@ -13,7 +13,6 @@
 #define PACKET_RF4CE_SECUR_H
 
 #include <stdbool.h>
-#include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/uat.h>

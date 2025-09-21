@@ -11,8 +11,6 @@
 #ifndef __PACKET_GSM_OSMUX_H__
 #define __PACKET_GSM_OSMUX_H__
 
-#include "config.h"
-
 #include <stdint.h>
 
 #include "epan/packet.h"
