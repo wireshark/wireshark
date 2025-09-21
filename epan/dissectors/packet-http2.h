@@ -77,11 +77,11 @@ const char*
 http2_get_stream_imsi(packet_info *pinfo);
 
 /**
- * Add referenceid map to IMSI on active HTTP/2 Stream for the current PDU (typically the DATA frame).
+ * Add notifyuri map to IMSI on active HTTP/2 Stream for the current PDU (typically the DATA frame).
  * Only valid when called from a HTTP/2 subdissector.
  */
 void
-http2_add_referenceid_imsi(char* referenceid, const char* imsi);
+http2_add_notifyuri_imsi(char* notifyuri, const char* imsi);
 
 /**
  * Get IMSI from on location mapping.

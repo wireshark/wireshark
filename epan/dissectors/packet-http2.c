@@ -87,8 +87,8 @@ static bool http2_decompress_body;
 /* Track 3GPP session over 5G Service Based Interfaces */
 static bool http2_3gpp_session = false;
 
-/* Relation between referenceid -> imsi */
-static wmem_map_t* http2_referenceid_imsi;
+/* Relation between notifyuri -> imsi */
+static wmem_map_t* http2_notifyuri_imsi;
 
 /* Relation between location -> imsi */
 static wmem_map_t* http2_location_imsi;
@@ -1532,21 +1532,21 @@ http2_set_stream_imsi(packet_info *pinfo, char* imsi)
     stream_info->imsi = imsi;
 }
 
-void http2_add_referenceid_imsi(char* referenceid, const char* imsi)
+void http2_add_notifyuri_imsi(char* notifyuri, const char* imsi)
 {
     if(http2_3gpp_session) {
-        wmem_map_insert(http2_referenceid_imsi,
-                        wmem_strdup(wmem_file_scope(), referenceid),
+        wmem_map_insert(http2_notifyuri_imsi,
+                        wmem_strdup(wmem_file_scope(), notifyuri),
                         wmem_strdup(wmem_file_scope(), imsi));
     }
 }
 
 static char*
-http2_get_imsi_from_referenceid(const char* referenceid)
+http2_get_imsi_from_notifyuri(const char* notifyuri)
 {
     char *imsi = NULL;
     if(http2_3gpp_session) {
-        imsi = (char *)wmem_map_lookup(http2_referenceid_imsi, referenceid);
+        imsi = (char *)wmem_map_lookup(http2_notifyuri_imsi,notifyuri);
     }
     return imsi;
 }
@@ -1597,13 +1597,13 @@ http2_get_stream_imsi(packet_info *pinfo)
     if(stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
         imsi = stream_info->imsi;
     }
-    else if (stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0)) {
-        imsi = http2_get_imsi_from_referenceid(stream_info->referenceid);
 
-        /* Will try to look up match between path referenceid and location ID */
-        if(!imsi) {
-           imsi = http2_get_imsi_from_location(stream_info->referenceid);
-        }
+    if(!imsi && stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0)) {
+        imsi = http2_get_imsi_from_location(stream_info->referenceid);
+    }
+
+    if(!imsi && stream_info->path && (strcmp(stream_info->path, "") != 0)) {
+        imsi = http2_get_imsi_from_notifyuri(stream_info->path);
     }
     return imsi;
 }
@@ -1644,13 +1644,13 @@ http2_set_stream_imsi(packet_info *pinfo _U_, char* imsi _U_)
     return;
 }
 
-void http2_add_referenceid_imsi(char* referenceid _U_, const char* imsi _U_)
+void http2_add_notifyuri_imsi(char* notifyuri _U_, const char* imsi _U_)
 {
     return;
 }
 
 char*
-http2_get_imsi_from_referenceid(const char* referenceid _U_)
+http2_get_imsi_from_notifyuri(const char* notifyuri _U_)
 {
     return NULL;
 }
@@ -2840,16 +2840,13 @@ static void
 dissect_http2_add_assoc_imsi_to_tracked_3gpp_session(tvbuff_t *tvb, proto_tree *http2_tree, http2_stream_info_t *stream_info) {
     /* Add Associate IMSI */
     if (http2_3gpp_session) {
+        char *imsi = NULL;
         if(stream_info->imsi && (strcmp(stream_info->imsi, "") != 0)) {
             add_assoc_imsi_item(tvb, http2_tree, stream_info->imsi);
-        } else if (stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0)) {
-            char *imsi = NULL;
-            if((imsi = http2_get_imsi_from_referenceid(stream_info->referenceid))) {
-                add_assoc_imsi_item(tvb, http2_tree, imsi);
-            /* Will try to look up match between path referenceid and location ID */
-            } else if((imsi = http2_get_imsi_from_location(stream_info->referenceid))) {
-                add_assoc_imsi_item(tvb, http2_tree, imsi);
-            }
+        } else if (stream_info->referenceid && (strcmp(stream_info->referenceid, "") != 0) && (imsi = http2_get_imsi_from_location(stream_info->referenceid))) {
+            add_assoc_imsi_item(tvb, http2_tree, imsi);
+        } else if (stream_info->path && (strcmp(stream_info->path, "") != 0) && (imsi = http2_get_imsi_from_notifyuri(stream_info->path))) {
+            add_assoc_imsi_item(tvb, http2_tree, imsi);
         }
     }
 }
@@ -5363,7 +5360,7 @@ proto_register_http2(void)
     prefs_register_obsolete_preference(http2_module, "decompress_body");
 #endif
 
-    http2_referenceid_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
+    http2_notifyuri_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
     http2_location_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), wmem_str_hash, g_str_equal);
 
     /* Fill hash table with static headers */
