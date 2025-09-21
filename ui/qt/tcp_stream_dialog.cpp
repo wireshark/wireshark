@@ -107,6 +107,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     ts_origin_conn_(true),
     seq_offset_(0),
     seq_origin_zero_(true),
+    si_units_(true),
     title_(nullptr),
     base_graph_(nullptr),
     tput_graph_(nullptr),
@@ -196,6 +197,8 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     ctx_menu_.addAction(ui->actionDragZoom);
     ctx_menu_.addAction(ui->actionToggleSequenceNumbers);
     ctx_menu_.addAction(ui->actionToggleTimeOrigin);
+    ctx_menu_.addAction(ui->actionToggleUnits);
+    connect(ui->actionToggleUnits, &QAction::triggered, this, &TCPStreamDialog::toggleUnits);
     ctx_menu_.addAction(ui->actionCrosshairs);
     connect(ui->actionCrosshairs, &QAction::triggered, this, &TCPStreamDialog::toggleTracerStyle);
     ctx_menu_.addSeparator();
@@ -502,6 +505,9 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
     case Qt::Key_T:
         on_actionToggleTimeOrigin_triggered();
         break;
+    case Qt::Key_U:
+        toggleUnits();
+        break;
     case Qt::Key_Z:
         on_actionDragZoom_triggered();
         break;
@@ -629,19 +635,9 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
 
     sp->xAxis->setLabel(time_s_label_);
     // Most graphs have Seconds as the x-Axis
-    QSharedPointer<QCPAxisTickerSi> si_ticker = qSharedPointerDynamicCast<QCPAxisTickerSi>(sp->xAxis->ticker());
-    if (si_ticker) {
-        si_ticker->setUnit(FORMAT_SIZE_UNIT_SECONDS);
-    } else {
-        sp->xAxis->setTicker(QSharedPointer<QCPAxisTickerSi>(new QCPAxisTickerSi(FORMAT_SIZE_UNIT_SECONDS)));
-    }
+    setAxisUnits(sp->xAxis, FORMAT_SIZE_UNIT_SECONDS);
     // Most graphs have Bytes as the y-Axis
-    si_ticker = qSharedPointerDynamicCast<QCPAxisTickerSi>(sp->yAxis->ticker());
-    if (si_ticker) {
-        si_ticker->setUnit(FORMAT_SIZE_UNIT_BYTES);
-    } else {
-        sp->yAxis->setTicker(QSharedPointer<QCPAxisTickerSi>(new QCPAxisTickerSi(FORMAT_SIZE_UNIT_BYTES)));
-    }
+    setAxisUnits(sp->yAxis, FORMAT_SIZE_UNIT_BYTES);
     // Most graphs don't have a second y-Axis
     sp->yAxis2->setVisible(false);
     sp->yAxis2->setLabel(QString());
@@ -908,6 +904,21 @@ void TCPStreamDialog::resetAxes()
     sp->replot();
 }
 
+void TCPStreamDialog::setAxisUnits(QCPAxis *axis, format_size_units_e units)
+{
+    QSharedPointer<QCPAxisTickerSi> si_ticker = qSharedPointerDynamicCast<QCPAxisTickerSi>(axis->ticker());
+    if (si_units_) {
+        if (si_ticker) {
+            si_ticker->setUnit(units);
+        } else {
+            axis->setTicker(QSharedPointer<QCPAxisTickerSi>(new QCPAxisTickerSi(units)));
+        }
+    } else {
+        if (si_ticker) {
+            axis->setTicker(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker));
+        }
+    }
+}
 void TCPStreamDialog::fillStevens()
 {
     QString dlg_title = tr("Sequence Numbers (Stevens)") + streamDescription();
@@ -1314,12 +1325,7 @@ void TCPStreamDialog::fillThroughput()
     sp->yAxis2->setLabel(average_throughput_label_);
     sp->yAxis2->setLabelColor(QColor(graph_color_2));
     sp->yAxis2->setTickLabelColor(QColor(graph_color_2));
-    QSharedPointer<QCPAxisTickerSi> si_ticker = qSharedPointerDynamicCast<QCPAxisTickerSi>(sp->yAxis2->ticker());
-    if (si_ticker) {
-        si_ticker->setUnit(FORMAT_SIZE_UNIT_BITS_S);
-    } else {
-        sp->yAxis2->setTicker(QSharedPointer<QCPAxisTickerSi>(new QCPAxisTickerSi(FORMAT_SIZE_UNIT_BITS_S)));
-    }
+    setAxisUnits(sp->yAxis2, FORMAT_SIZE_UNIT_BITS_S);
     sp->yAxis2->setVisible(true);
 
     base_graph_->setVisible(ui->showSegLengthCheckBox->isChecked());
@@ -1588,20 +1594,10 @@ void TCPStreamDialog::fillRoundTripTime()
     if (bySeqNumber) {
         sequence_num_map_.clear();
         sp->xAxis->setLabel(sequence_number_label_);
-        QSharedPointer<QCPAxisTickerSi> si_ticker = qSharedPointerDynamicCast<QCPAxisTickerSi>(sp->xAxis->ticker());
-        if (si_ticker) {
-            si_ticker->setUnit(FORMAT_SIZE_UNIT_BYTES);
-        } else {
-            sp->xAxis->setTicker(QSharedPointer<QCPAxisTickerSi>(new QCPAxisTickerSi(FORMAT_SIZE_UNIT_BYTES)));
-        }
+        setAxisUnits(sp->xAxis, FORMAT_SIZE_UNIT_BYTES);
     }
     sp->yAxis->setLabel(round_trip_time_ms_label_);
-    QSharedPointer<QCPAxisTickerSi> si_ticker = qSharedPointerDynamicCast<QCPAxisTickerSi>(sp->yAxis->ticker());
-    if (si_ticker) {
-        si_ticker->setUnit(FORMAT_SIZE_UNIT_SECONDS);
-    } else {
-        sp->yAxis->setTicker(QSharedPointer<QCPAxisTickerSi>(new QCPAxisTickerSi(FORMAT_SIZE_UNIT_SECONDS)));
-    }
+    setAxisUnits(sp->yAxis, FORMAT_SIZE_UNIT_SECONDS);
 
     base_graph_->setLineStyle(QCPGraph::lsLine);
 
@@ -1816,12 +1812,7 @@ void TCPStreamDialog::fillWindowScale()
     sp->yAxis2->setLabel(window_size_label_);
     sp->yAxis2->setLabelColor(QColor(graph_color_3));
     sp->yAxis2->setTickLabelColor(QColor(graph_color_3));
-    QSharedPointer<QCPAxisTickerSi> si_ticker = qSharedPointerDynamicCast<QCPAxisTickerSi>(sp->yAxis2->ticker());
-    if (si_ticker) {
-        si_ticker->setUnit(FORMAT_SIZE_UNIT_BYTES);
-    } else {
-        sp->yAxis2->setTicker(QSharedPointer<QCPAxisTickerSi>(new QCPAxisTickerSi(FORMAT_SIZE_UNIT_BYTES)));
-    }
+    setAxisUnits(sp->yAxis2, FORMAT_SIZE_UNIT_BYTES);
 
     sp->yAxis2->setVisible(true);
 
@@ -2421,6 +2412,12 @@ void TCPStreamDialog::on_actionToggleTimeOrigin_triggered()
 {
     ts_origin_conn_ = ts_origin_conn_ ? false : true;
     fillGraph();
+}
+
+void TCPStreamDialog::toggleUnits()
+{
+    si_units_ = !si_units_;
+    fillGraph(/*reset_axes=*/false, /*set_focus=*/false);
 }
 
 void TCPStreamDialog::on_actionRoundTripTime_triggered()

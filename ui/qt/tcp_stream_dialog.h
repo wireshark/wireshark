@@ -15,6 +15,7 @@
 #include <file.h>
 
 #include <epan/dissectors/packet-tcp.h>
+#include <wsutil/str_util.h>
 
 #include "ui/tap-tcp-stream.h"
 
@@ -73,6 +74,7 @@ private:
     QMap<double, struct segment *> sequence_num_map_;
     uint32_t seq_offset_;
     bool seq_origin_zero_;
+    bool si_units_;
     struct tcp_graph graph_;
     QCPTextElement *title_;
     QString stream_desc_;
@@ -128,6 +130,7 @@ private:
     void zoomAxes(bool in);
     void zoomXAxis(bool in);
     void zoomYAxis(bool in);
+    void setAxisUnits(QCPAxis *axis, format_size_units_e units);
     void panAxes(int x_pixels, int y_pixels);
     void resetAxes();
     void fillStevens();
@@ -148,6 +151,7 @@ private slots:
     void mouseReleased(QMouseEvent *event);
     void captureEvent(CaptureEvent e);
     void transformYRange(const QCPRange &y_range1);
+    void toggleUnits();
     void on_buttonBox_accepted();
     void on_graphTypeComboBox_currentIndexChanged(int index);
     void on_resetButton_clicked();
