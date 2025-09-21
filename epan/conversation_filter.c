@@ -12,7 +12,7 @@
 #include "config.h"
 
 #include <glib.h>
-#include "packet.h"
+#include <epan/packet.h>
 
 #include "conversation_filter.h"
 

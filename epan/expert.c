@@ -15,7 +15,7 @@
 
 #include <stdio.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "expert.h"
 #include "uat.h"
 #include "prefs.h"

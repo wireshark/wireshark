@@ -14,7 +14,7 @@
 
 #include <glib.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "address_types.h"
 #include "to_str.h"
 #include "addr_resolv.h"

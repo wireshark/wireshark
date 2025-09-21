@@ -17,7 +17,7 @@
 #include <wiretap/wtap.h>
 #include <wsutil/array.h>
 
-#include "packet.h"
+#include <epan/packet.h>
 #include "to_str.h"
 #include "conversation.h"
 

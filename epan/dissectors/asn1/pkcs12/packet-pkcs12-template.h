@@ -12,7 +12,7 @@
 #ifndef PACKET_PKCS12_H
 #define PACKET_PKCS12_H
 
-#include "packet.h"
+#include <epan/packet.h>
 
 void PBE_reset_parameters(void);
 int PBE_decrypt_data(dissector_t dissector, const char *description, tvbuff_t *encrypted_tvb, packet_info *pinfo, asn1_ctx_t *actx, proto_item *item);

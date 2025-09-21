@@ -24,7 +24,7 @@
 #include "uat.h"
 #include "prefs.h"
 #include "proto.h"
-#include "packet.h"
+#include <epan/packet.h>
 #include "wsutil/filesystem.h"
 #include "dissectors/packet-ber.h"
 #include <wsutil/ws_assert.h>
