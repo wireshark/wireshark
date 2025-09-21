@@ -20,7 +20,7 @@
 #include <epan/range.h>
 #include <epan/frame_data.h>
 
-#include "cfile.h"
+#include <cfile.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -13,8 +13,8 @@
 #define XMPP_UTILS_H
 
 #include "ws_symbol_export.h"
-#include "tvbuff.h"
-#include "dissectors/packet-xml.h"
+#include <epan/tvbuff.h>
+#include <epan/dissectors/packet-xml.h>
 #include <epan/wmem_scopes.h>
 
 #define xmpp_elem_cdata(elem) \

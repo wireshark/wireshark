@@ -8,8 +8,6 @@
 #ifndef NGHTTP2_HD_HUFFMAN_H
 #define NGHTTP2_HD_HUFFMAN_H
 
-#include <config.h>
-
 #include <stdlib.h>
 #include <stdint.h>
 
