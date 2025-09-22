@@ -4330,23 +4330,16 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 				proto_tree *unknown_tlv;
 
 				unknown_tlv = proto_tree_add_subtree(tree, tvb,
-						offset,
-						length + 4,
+						offset - 4,
+						iter.this_arg_size + 4,
 						ett_radiotap_unknown_tlv,
 						NULL, "Unknown TLV");
-				proto_tree_add_item(unknown_tlv,
-						hf_radiotap_tlv_type, tvb,
-						offset, 2, ENC_LITTLE_ENDIAN);
-				offset += 2;
-
-				proto_tree_add_item(unknown_tlv,
-						hf_radiotap_tlv_datalen, tvb,
-						offset, 2, ENC_LITTLE_ENDIAN);
-				offset += 2;
+				add_tlv_items(unknown_tlv, tvb, offset);
 
 				proto_tree_add_item(unknown_tlv,
 						hf_radiotap_unknown_tlv_data,
-						tvb, offset, length, ENC_NA);
+						tvb, offset, iter.this_arg_size,
+						ENC_NA);
 			} else {
 				proto_tree_add_item(item_tree,
 						hf_radiotap_unknown_tlv_data,
