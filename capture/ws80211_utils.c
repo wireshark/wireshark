@@ -1232,7 +1232,7 @@ void ws80211_free_interfaces(GArray *interfaces)
 		return;
 
 	while (interfaces->len) {
-		iface = g_array_index(interfaces, struct ws80211_interface *, 0);
+		iface = g_array_index(interfaces, struct ws80211_interface *, interfaces->len - 1);
 		g_array_remove_index(interfaces, interfaces->len - 1);
 		g_array_free(iface->bands, true);
 		g_free(iface->ifname);
