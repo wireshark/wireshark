@@ -86,6 +86,7 @@ set(WIRETAP_C_MODULE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/observer.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packetlogger.c
 	${CMAKE_CURRENT_SOURCE_DIR}/pcap-common.c
+	${CMAKE_CURRENT_SOURCE_DIR}/pcapng-darwin-custom.c
 	${CMAKE_CURRENT_SOURCE_DIR}/pcapng-netflix-custom.c
 	${CMAKE_CURRENT_SOURCE_DIR}/pcapng-sysdig.c
 	${CMAKE_CURRENT_SOURCE_DIR}/peak-trc.c

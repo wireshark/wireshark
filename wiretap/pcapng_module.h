@@ -61,6 +61,7 @@ extern "C" {
 #define BLOCK_TYPE_SYSDIG_EVF_V2_LARGE    0x00000222 /* Sysdig Event Block with flags version 2 with large payload */
 #define BLOCK_TYPE_CB_COPY                0x00000BAD /* Custom Block which can be copied */
 #define BLOCK_TYPE_CB_NO_COPY             0x40000BAD /* Custom Block which should not be copied */
+#define BLOCK_TYPE_LEGACY_DPIB            0x80000001 /* Historically, Apple used this code for Darwin Process Info Block. */
 
 /* TODO: the following are not yet well defined in the draft spec,
  * and do not yet have block type values assigned to them:

@@ -1560,6 +1560,9 @@ typedef struct wtap_dump_params {
     const GArray *mevs_growing;             /**< Meta events that will be written while writing packets, or NULL.
                                                  This array may grow since the dumper was opened and will subsequently
                                                  be written before newer packets are written in wtap_dump. */
+    const GArray *dpibs_growing;            /**< DPIBs that will be written while writing packets, or NULL.
+                                                 This array may grow since the dumper was opened and will subsequently
+                                                 be written before newer packets are written in wtap_dump. */
     bool        dont_copy_idbs;             /**< XXX - don't copy IDBs; this should eventually always be the case. */
 } wtap_dump_params;
 
@@ -2121,6 +2124,10 @@ unsigned wtap_file_get_shb_global_interface_id(wtap *wth, unsigned shb_num, uint
  */
 WS_DLL_PUBLIC
 wtapng_iface_descriptions_t *wtap_file_get_idb_info(wtap *wth);
+
+
+WS_DLL_PUBLIC
+wtapng_dpib_lookup_info_t * wtap_file_get_dpib_lookup_info(wtap *wth);
 
 /**
  * @brief Gets next interface description.

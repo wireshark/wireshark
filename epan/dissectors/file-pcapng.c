@@ -158,9 +158,9 @@ static int hf_pcapng_cb_data;
 static int hf_pcapng_cb_option_string;
 static int hf_pcapng_cb_option_data;
 
-static int hf_pcapng_option_data_packet_darwin_dpeb_id;
+static int hf_pcapng_option_data_packet_darwin_dpib_id;
 static int hf_pcapng_option_data_packet_darwin_svc_class;
-static int hf_pcapng_option_data_packet_darwin_edpeb_id;
+static int hf_pcapng_option_data_packet_darwin_edpib_id;
 static int hf_pcapng_option_data_packet_darwin_flags;
 static int hf_pcapng_option_data_packet_darwin_flags_reserved;
 static int hf_pcapng_option_data_packet_darwin_flags_wk;
@@ -324,16 +324,16 @@ static const value_string option_code_interface_description_vals[] = {
  * Enhanced Packet Block (EPB) options for supporting Darwin process information
  *
  *    Enhanced Packet Blocks may be augmented with an Apple defined Darwin
- *    process event block id option (dpeb_id) and / or an effective Darwin
- *    process event block id option (edpeb_id) that refer to particular
- *    Darwin processes via the supplied DPEB ID option payload value.  There
- *    must be a Darwin Process Event Block for each Darwin process to which an
- *    augmented EPB references.  If the file does not contain any EPBs that
- *    contain any Darwin dpeb_id or edpeb_id options then the file does not need
- *    to have any DPEBs.
+ *    Process Info Block Id option (dpib_id) and / or an Effective Darwin
+ *    Process Info Block Id option (edpib_id) that refer to particular
+ *    Darwin processes via the supplied DPIB ID option payload value.
+ *    There must be a Darwin Process Info Block (DPIB) for each Darwin process
+ *    to which an augmented EPB references.  If the file does not contain any EPBs
+ *    that contain any Darwin dpib_id or edpib_id options, then the file
+ *    does not need to have any DPIBs.
  *
- *    A Darwin Process Event Block is valid only inside the section to which
- *    it belongs.  The structure of a Darwin Process Event Block is shown in
+ *    A Darwin Process Info Block is valid only inside the section to which
+ *    it belongs.  The structure of a Darwin Process Info Block is shown in
  *    Figure XXX.1 below.
  *
  *    An Enhanced Packet Block (EPB) may be augmented with any or all of the
@@ -342,22 +342,22 @@ static const value_string option_code_interface_description_vals[] = {
  *          +------------------+-------+--------+-------------------+
  *          | Name             | Code  | Length | Multiple allowed? |
  *          +------------------+-------+--------+-------------------+
- *          | darwin_dpeb_id   | 32769 | 4      | no?               |
+ *          | darwin_dpib_id   | 32769 | 4      | no?               |
  *          | darwin_svc_class | 32770 | 4      | no?               |
- *          | darwin_edpeb_id  | 32771 | 4      | no?               |
+ *          | darwin_edpib_id  | 32771 | 4      | no?               |
  *          | darwin_flags     | 32772 | 4      | no?               |
  *          | darwin_flow_id   | 32773 | 4      | no?               |
  *          +------------------+------+---------+-------------------+
  *
  *           Table XXX.2: Darwin options for Enhanced Packet Blocks
  *
- *    darwin_dpeb_id:
- *            The darwin_dpeb_id option specifies the Darwin Process Event
+ *    darwin_dpib_id:
+ *            The darwin_dpib_id option specifies the Darwin Process Info
  *            Block ID for the process (proc) this packet is associated with;
- *            the correct DPEB will be the one whose DPEB ID (within the
+ *            the correct DPIB will be the one whose DPIB ID (within the
  *            current Section of the file) is identified by the same number
- *            (see Section XXX.X) of this field.  The DPEB ID MUST be valid,
- *            which means that a matching Darwin Process Event Block MUST
+ *            (see Section XXX.X) of this field.  The DPIB ID MUST be valid,
+ *            which means that a matching Darwin Process Info Block MUST
  *            exist.
  *
  *    darwin_srv_class:
@@ -384,14 +384,14 @@ static const value_string option_code_interface_description_vals[] = {
  *
  *              Table XXX.3: Darwin Service Class Option Values
  *
- *    darwin_edpeb_id:
- *            The darwin_edpeb_id option specifies the Darwin Process Event
+ *    darwin_edpib_id:
+ *            The darwin_edpib_id option specifies the Darwin Process Info
  *            Block ID for the effective process (eproc) this packet is
- *            associated with; the correct DPEB will be the one whose DPEB
+ *            associated with; the correct DPIB will be the one whose DPIB
  *            ID (within the current Section of the file) is identified by
- *            the same number (see Section XXX.X) of this field.  The DPEB
+ *            the same number (see Section XXX.X) of this field.  The DPIB
  *            ID MUST be valid, which means that a matching Darwin Process
- *            Event Block MUST exist.
+ *            Info Block MUST exist.
  *
  *    darwin_flags:
  *            The darwin_flags option is a 32 bit field for indicating
@@ -435,9 +435,9 @@ static const value_string option_code_enhanced_packet_vals[] = {
     { OPT_PKT_VERDICT,      "Verdict" },
     { OPT_PKT_PROCIDTHRDID, "Process ID thread ID" },
     OPTION_CODE_CUSTOM_OPTIONS,
-    { 32769,   "Darwin DPEB ID" },
+    { 32769,   "Darwin DPIB ID" },
     { 32770,   "Darwin Service Class" },
-    { 32771,   "Darwin Effective DPEB ID" },
+    { 32771,   "Darwin Effective DPIB ID" },
     { 32772,   "Darwin Flags" },
     { 32773,   "Darwin Flow ID" },
     { 0, NULL }
@@ -1289,8 +1289,8 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 4;
 
                 break;
-            case 32769: /* Darwin DPEB ID */
-                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_dpeb_id, tvb, offset, option_length, encoding, &value_u32);
+            case 32769: /* Darwin DPIB ID */
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_dpib_id, tvb, offset, option_length, encoding, &value_u32);
                 offset += option_length;
 
                 proto_item_append_text(option_item, " = %u", value_u32);
@@ -1303,8 +1303,8 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 proto_item_append_text(option_item, " = %s", val_to_str_const(value_u32, option_code_darwin_svc_class_vals, "Unknown"));
 
                 break;
-            case 32771: /* Darwin Effective DPEB ID */
-                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_edpeb_id, tvb, offset, option_length, encoding, &value_u32);
+            case 32771: /* Darwin Effective DPIB ID */
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_edpib_id, tvb, offset, option_length, encoding, &value_u32);
                 offset += option_length;
 
                 proto_item_append_text(option_item, " = %u", value_u32);
@@ -2538,8 +2538,8 @@ proto_register_pcapng(void)
             FT_UINT16, BASE_HEX, VALS(packet_flags_direction_vals), 0x0003,
             NULL, HFILL }
         },
-        { &hf_pcapng_option_data_packet_darwin_dpeb_id,
-            { "DPEB ID",                                   "pcapng.options.option.data.packet.darwin.dpeb_id",
+        { &hf_pcapng_option_data_packet_darwin_dpib_id,
+            { "DPIB ID",                                   "pcapng.options.option.data.packet.darwin.dpib_id",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
@@ -2548,8 +2548,8 @@ proto_register_pcapng(void)
             FT_UINT32, BASE_DEC, VALS(option_code_darwin_svc_class_vals), 0x00,
             NULL, HFILL }
         },
-        { &hf_pcapng_option_data_packet_darwin_edpeb_id,
-            { "Effective DPED ID",                         "pcapng.options.option.data.packet.darwin.edpeb_id",
+        { &hf_pcapng_option_data_packet_darwin_edpib_id,
+            { "Effective DPIB ID",                         "pcapng.options.option.data.packet.darwin.edpib_id",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },

@@ -1900,7 +1900,7 @@ static void cb_create(wtap_block_t block)
 static void ft_specific_information_create(wtap_block_t block)
 {
     /* Ensure this is null, so when g_free is called on it, it simply returns */
-    block->mandatory_data = NULL;
+        block->mandatory_data = NULL;
 }
 
 void wtap_opttypes_initialize(void)
@@ -2171,6 +2171,66 @@ void wtap_opttypes_initialize(void)
         WTAP_OPTTYPE_UINT64,
         0
     };
+    static const wtap_opttype_t pkt_darwin_peb_id = {
+        "darwin_peb_id",
+        "Darwin PEB ID",
+        WTAP_OPTTYPE_UINT32,
+        0
+    };
+    static const wtap_opttype_t pkt_darwin_svc_code = {
+        "darwin_svc_code",
+        "Darwin SVC code",
+        WTAP_OPTTYPE_UINT32,
+        0
+    };
+    static const wtap_opttype_t pkt_darwin_effective_peb_id = {
+        "darwin_epeb_id",
+        "Darwin effective PEB ID",
+        WTAP_OPTTYPE_UINT32,
+        0
+    };
+    static const wtap_opttype_t pkt_darwin_metadata_flags = {
+        "darwin_md_flags",
+        "Darwin metadata flags",
+        WTAP_OPTTYPE_UINT32,
+        0
+    };
+    static const wtap_opttype_t pkt_darwin_flow_id = {
+        "darwin_md_flags",
+        "Darwin metadata flags",
+        WTAP_OPTTYPE_UINT32,
+        0
+    };
+    static const wtap_opttype_t pkt_darwin_trace_tag = {
+        "darwin_md_flags",
+        "Darwin metadata flags",
+        WTAP_OPTTYPE_UINT32,
+        0
+    };
+    static const wtap_opttype_t pkt_darwin_drop_reason = {
+        "darwin_md_flags",
+        "Darwin metadata flags",
+        WTAP_OPTTYPE_UINT32,
+        0
+    };
+    static const wtap_opttype_t pkt_darwin_drop_line = {
+        "darwin_md_flags",
+        "Darwin metadata flags",
+        WTAP_OPTTYPE_UINT32,
+        0
+    };
+    static const wtap_opttype_t pkt_darwin_drop_func = {
+        "darwin_md_flags",
+        "Darwin metadata flags",
+        WTAP_OPTTYPE_STRING,
+        0
+    };
+    static const wtap_opttype_t pkt_darwin_comp_gencnt = {
+        "darwin_md_flags",
+        "Darwin metadata flags",
+        WTAP_OPTTYPE_UINT32,
+        0
+    };
 
     static wtap_blocktype_t ft_specific_event_block = {
         WTAP_BLOCK_FT_SPECIFIC_EVENT, /* block_type */
@@ -2286,6 +2346,16 @@ void wtap_opttypes_initialize(void)
     wtap_opttype_option_register(&pkt_block, OPT_PKT_QUEUE, &pkt_queue);
     wtap_opttype_option_register(&pkt_block, OPT_PKT_VERDICT, &pkt_verdict);
     wtap_opttype_option_register(&pkt_block, OPT_PKT_PROCIDTHRDID, &pkt_proc_id_thread_id);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_DARWIN_PIB_ID, &pkt_darwin_peb_id);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_DARWIN_SVC_CODE, &pkt_darwin_svc_code);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_DARWIN_EFFECTIVE_PIB_ID, &pkt_darwin_effective_peb_id);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_DARWIN_MD_FLAGS, &pkt_darwin_metadata_flags);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_DARWIN_FLOW_ID, &pkt_darwin_flow_id);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_DARWIN_TRACE_TAG, &pkt_darwin_trace_tag);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_DARWIN_DROP_REASON, &pkt_darwin_drop_reason);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_DARWIN_DROP_LINE, &pkt_darwin_drop_line);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_DARWIN_DROP_FUNC, &pkt_darwin_drop_func);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_DARWIN_COMP_GENCNT, &pkt_darwin_comp_gencnt);
 
     /*
      * Register the file-type specific event block; the options will be
@@ -2314,6 +2384,16 @@ void wtap_opttypes_initialize(void)
      * dependent on the file type.
      */
     wtap_opttype_block_register(&ft_specific_information_block);
+#if 0
+    /*
+     * Register the Legacy DPEB and the options that can appear in it.
+     */
+     wtap_opttype_block_register(&dpeb_block);
+     wtap_opttype_option_register(&dpeb_block, OPT_DPEB_NAME, &dpeb_name);
+     wtap_opttype_option_register(&dpeb_block, OPT_DPEB_UUID, &dpeb_uuid);
+#endif
+
+
 
 #ifdef DEBUG_COUNT_REFS
     memset(blocks_active, 0, sizeof(blocks_active));

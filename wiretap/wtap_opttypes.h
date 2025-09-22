@@ -154,6 +154,23 @@ extern "C" {
 #define OPT_ISB_OSDROP       7
 #define OPT_ISB_USRDELIV     8
 
+/* Darwin Process Info Block (DPIB) */
+#define OPT_DPIB_NAME        2   /**< Process name: NUL-terminated UTF8 string (limited to 16 characters including the NUL) */
+#define OPT_DPIB_UUID        4   /**< Process UUID: 16 byte */
+
+/* Darwin-specific options for EPB */
+#define OPT_PKT_DARWIN_PIB_ID               32769   /**< 32-bit number of the Darwin PIB that describes the Process ID. */
+#define	OPT_PKT_DARWIN_SVC_CODE	            32770   /**< 32-bit type of service code. */
+#define OPT_PKT_DARWIN_EFFECTIVE_PIB_ID     32771   /**< 32-bit number of the Darwin PIB that describes the Effective Process ID. */
+#define OPT_PKT_DARWIN_MD_FLAGS             32772   /**< 32-bit bitmask containing the packet metadata flags. */
+#define OPT_PKT_DARWIN_FLOW_ID              32773   /**< 32-bit opaque flow identifier. */
+#define OPT_PKT_DARWIN_TRACE_TAG            32774   /**< 16-bit opaque trace tag. */
+#define OPT_PKT_DARWIN_DROP_REASON          32775   /**< 32-bit drop reason. */
+#define OPT_PKT_DARWIN_DROP_LINE            32776   /**< 16-bit drop line. */
+#define OPT_PKT_DARWIN_DROP_FUNC            32777   /**< NUL-terminated name of the dropping function. */
+#define OPT_PKT_DARWIN_COMP_GENCNT          32778   /**< 32-bit current value of the compression generation count (epoch). */
+
+
 /*
  * Currently supported blocks; these are not the pcapng block type values
  * for them, they're identifiers used internally, and more than one
@@ -187,6 +204,32 @@ extern "C" {
  * the Simple Packet Block, and the deprecated Packet Block) is not
  * currently used; it's reserved for future use.  The same applies
  * to WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT.
+ *
+ * WTAP_BLOCK_FT_SPECIFIC_EVENT contains filetype-specific "events",
+ * such as "carrier lost" or "moved to a new channel". The "events"
+ * are commonly time-stamped.
+ *
+ * WTAP_BLOCK_FT_SPECIFIC_REPORT contains filetype-specific "reports"
+ * such as "number of times the carrier has been lost".
+ * Similarly to "events", the "reports" are commonly time-stamped;
+ * in addition, the "reports" may include the "duration".
+ *
+ * WTAP_BLOCK_FT_SPECIFIC_INFORMATION contains filetype-specific
+ * "information", which is NOT timestamped.
+ *
+ * The distinction between the "events", "reports" and "information"
+ * is that both the "events" and "reports" describe something
+ * that has happened at some point in time, whereas the "information"
+ * does not have a time coordinate. Further, the "events" differ
+ * from the "reports" in the significance of the time coordinate.
+ * For the "events", the time stamp represents a state change,
+ * so that everything that happened before the "event" is
+ * qualitatively different from everything that followed.
+ * On the other hand, the time coordinates of "reports"
+ * do not have the same significance.
+ *
+ * WTAP_BLOCK_FT_SPECIFIC_INFORMATION is a block that contains
+ * informtaion
  */
 typedef enum {
     WTAP_BLOCK_SECTION = 0,
@@ -258,6 +301,14 @@ typedef struct wtapng_iface_descriptions_s {
     GArray *interface_data;
 } wtapng_iface_descriptions_t;
 
+/** struct holding the information to lookup a Darwin PIB.
+ *  the dpibs array holds an array of wtap_block_t
+ *  representing Darwin PIBs, one per PIB.
+ */
+ typedef struct wtapng_dpib_lookup_info_s {
+    GArray     *dpibs;
+} wtapng_dpib_lookup_info_t;
+
 /**
  * Holds the required data from a WTAP_BLOCK_IF_ID_AND_INFO.
  */
@@ -326,6 +377,13 @@ typedef struct wtapng_packet_mandatory_s {
     uint32_t orig_len;
 } wtapng_packet_mandatory_t;
 #endif
+
+/**
+ * Holds the required data from a WTAP_BLOCK_LEGACY_DARWIN_PROCESS_EVENT.
+ */
+ typedef struct wtapng_darwin_process_event_mandatory_s {
+    uint32_t               process_id;      /** Process ID */
+}  wtapng_darwin_process_event_mandatory_t;
 
 /**
  * Holds the required data from a WTAP_BLOCK_FT_SPECIFIC_REPORT.

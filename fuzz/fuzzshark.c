@@ -84,7 +84,10 @@ fuzzshark_epan_new(void)
 		fuzzshark_get_frame_ts,
 		NULL,
 		NULL,
-		NULL
+		NULL,
+		NULL,
+		NULL,
+		NULL,
 	};
 
 	return epan_new(NULL, &funcs);

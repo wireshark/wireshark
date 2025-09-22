@@ -47,7 +47,8 @@ struct wtap {
     GArray                      *nrbs;                  /**< Holds the Name Res Blocks, or NULL */
     GArray                      *dsbs;                  /**< An array of DSBs (of type wtap_block_t), or NULL if not supported. */
     GArray                      *meta_events;           /**< An array of meta events (of type wtap_block_t), or NULL if not supported. */
-
+    GArray                      *dpibs;                 /**< An array of DPIBs (of type wtap_block_t), or NULL if not supported. */
+    unsigned                    next_dpib_id;           /**< Next DPIB id  */
     char                        *pathname;              /**< File pathname; might just be "-" */
 
     void                        *priv;                  /**< Stores per-file state and is free'd automatically by wtap_close() */
@@ -128,9 +129,11 @@ struct wtap_dumper {
     const GArray            *nrbs_growing;          /**< A reference to an array of NRBs (of type wtap_block_t) */
     const GArray            *dsbs_growing;          /**< A reference to an array of DSBs (of type wtap_block_t) */
     const GArray            *mevs_growing;          /**< A reference to an array of Sysdig meta events (of type wtap_block_t) */
+    const GArray            *dpibs_growing;          /**< A reference to an array of DPIBs (of type wtap_block_t) */
     unsigned                nrbs_growing_written;   /**< Number of already processed NRBs in nrbs_growing. */
     unsigned                dsbs_growing_written;   /**< Number of already processed DSBs in dsbs_growing. */
     unsigned                mevs_growing_written;   /**< Number of already processed meta events in mevs_growing. */
+    unsigned                dpibs_growing_written;   /**< Number of already processed DPIBs in dsbs_growing. */
 };
 
 WS_DLL_PUBLIC bool wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
@@ -252,6 +255,12 @@ wtap_full_file_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
  */
 void
 wtap_add_idb(wtap *wth, wtap_block_t idb);
+
+/**
+ * Add a DPIB to the dpibs list for a file.
+ */
+ void
+ wtap_add_dpib(wtap *wth, wtap_block_t dpib);
 
 /**
  * Invokes the callback with the given name resolution block.

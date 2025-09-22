@@ -249,7 +249,10 @@ sharkd_epan_new(capture_file *cf)
         cap_file_provider_get_frame_ts,
         cap_file_provider_get_interface_name,
         cap_file_provider_get_interface_description,
-        cap_file_provider_get_modified_block
+        cap_file_provider_get_modified_block,
+        cap_file_provider_get_process_id,
+        cap_file_provider_get_process_name,
+        cap_file_provider_get_process_uuid,
     };
 
     return epan_new(&cf->provider, &funcs);
