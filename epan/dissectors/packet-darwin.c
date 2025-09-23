@@ -647,7 +647,7 @@ proto_reg_handoff_darwin(void)
             NULL, HFILL }},
         { &hf_darwin_metadata_svc_code,
           { "Service Class", "frame.darwin.sc",
-            FT_UINT8, BASE_DEC, VALS(darwin_svc_class_vals), 0x0,
+            FT_UINT32, BASE_DEC, VALS(darwin_svc_class_vals), 0x0,
             NULL, HFILL }},
         { &hf_darwin_metadata_flags,
           { "Flags", "frame.darwin.flags",
