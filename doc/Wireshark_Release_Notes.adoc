@@ -41,19 +41,19 @@ See the “New and Updated Features” section below for more details.
 
 The following features are new (or have been significantly updated) since version 4.6.0rc1:
 
-* Nothing of note.
+* Wireshark can dissect process information, packet metadata, flow IDs, drop information, and other information provided by `tcpdump` on macOS.
 
 The following features are either new or have been significantly updated since version 4.4.0:
 
 * The Windows installers now ship with Npcap 1.83.
   They previously shipped with Npcap 1.79.
 
-* The Windows installers now ship with Qt 6.8.3.
+* The Windows and macOS installers now ship with Qt 6.8.3.
   They previously shipped with Qt 6.5.3.
 
 * WinPcap is no longer supported. On Windows, use Npcap instead, uninstalling
-  WinPcap if necessary. The last release ever of WinPcap, 4.1.3, was on
-  2013-03-08 and only supports up to Windows 8, which is no longer supported
+  WinPcap if necessary. The last release ever of WinPcap, 4.1.3, was in
+  2013 and only supports up to Windows 8, which is no longer supported
   by Microsoft or Wireshark.
 
 * We now ship universal macOS installers instead of separate packages for Arm64 and Intel. wsbuglink:17294[]
@@ -112,7 +112,7 @@ The following features are either new or have been significantly updated since v
   extension field that precedes the NTS Authenticator and Encrypted Extension Fields
   extension field) are checked for validity.
 
-* Wiresharks' capability to decrypt MACsec packets has been expanded to either
+* Wireshark’s ability to decrypt MACsec packets has been expanded to either
   use the SAK unwrapped by the MKA dissector, or the PSK configured in the
   MACsec dissector. To enable the MKA dissector to unwrap the SAK, the CAK for
   the applicable CKN can be entered in the extended CKN/CAK Info UAT in the
@@ -160,9 +160,9 @@ The following features are either new or have been significantly updated since v
 * The packet list (Wireshark) and event list (Stratoshark) no longer support rows with multiple lines.
   wsbuglink:14424[]
 
-* The `ethers` file can also contain EUI-64 to name mappings. wsbuglink:15487[]
+* The _ethers_ file can also contain EUI-64 to name mappings. wsbuglink:15487[]
 
-* Wireshark "Import from Hex Dump" and text2pcap support byte groups with 2 to
+* Wireshark’s "Import from Hex Dump" feature and text2pcap now support byte groups with 2 to
   4 bytes (with an option for little-endian byte order), and support hexadecimal
   offsets with a `0x` or `0X` prefix (as produced by `tcpdump -x`, among others).
   wsbuglink:16193[]
@@ -172,10 +172,10 @@ The following features are either new or have been significantly updated since v
   the `--hexdump time` option. wsbuglink:17132[]
 
 * Lua now has a `Conversation` object, which exposes conversations and conversation
-  data to Lua. Resolves wsbuglink:15396[]
+  data to Lua. wsbuglink:15396[]
 
-* Supports "Copy in HTML" format via main menu, context menu and keyboard
-  shortcut. It also provides an option (via knobs in preferences) to copy plain
+* An menu:Edit[Copy,as HTML] menu item has been added, along with associated context menu items and a keyboard
+  shortcut. It provides an option (via knobs in preferences) to copy plain
   text with aligned columns along with an ability to select a copy format to be
   used when copied via keyboard shortcut.
 
@@ -201,7 +201,7 @@ The following features are either new or have been significantly updated since v
 
 * The color scheme can be set to Light or Dark mode independently of the
   current OS default on Windows and macOS, if Wireshark is built with
-  Qt 6.8 or later as the official installers do. wsbuglink:19328[]
+  Qt 6.8 or later as the official installers are. wsbuglink:19328[]
 
 * LibXml2 is now a required dependency.
 
