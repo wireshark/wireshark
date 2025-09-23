@@ -12,9 +12,9 @@
 
 /*
  * See Mongo Wire Protocol Specification
- * http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol
+ * https://www.mongodb.com/docs/manual/reference/mongodb-wire-protocol/
  * See also BSON Specification
- * http://bsonspec.org/#/specification
+ * http://bsonspec.org/spec.html
  */
 
 #include "config.h"
@@ -24,6 +24,7 @@
 #include <wsutil/array.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/exceptions.h>
 #include <wsutil/crc32.h> // CRC32C_PRELOAD
 #include <epan/crc32-tvb.h> // crc32c_tvb_offset_calculate
 #include "packet-tcp.h"
@@ -291,6 +292,7 @@ static int ett_mongo_doc_sequence;
 
 static expert_field ei_mongo_document_recursion_exceeded;
 static expert_field ei_mongo_document_length_bad;
+static expert_field ei_mongo_section_size_bad;
 static expert_field ei_mongo_unknown;
 static expert_field ei_mongo_unsupported_compression;
 static expert_field ei_mongo_too_large_compressed;
@@ -826,12 +828,20 @@ dissect_op_msg_section(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto
   int section_len = -1;   /* Section length */
 
   e_type = tvb_get_uint8(tvb, offset);
-  section_len = tvb_get_letohl(tvb, offset+1);
 
-  ti = proto_tree_add_item(tree, hf_mongo_msg_sections_section, tvb, offset, 1 + section_len, ENC_NA);
+  ti = proto_tree_add_item(tree, hf_mongo_msg_sections_section, tvb, offset, 1, ENC_NA);
   section_tree = proto_item_add_subtree(ti, ett_mongo_section);
   proto_tree_add_item(section_tree, hf_mongo_msg_sections_section_kind, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
+
+  section_len = tvb_get_letohil(tvb, offset);
+  /* The section length must be strictly smaller than the total message size,
+   * both signed int32s. This prevents signed integer overflow. */
+  if (section_len < 0 || section_len == INT32_MAX) {
+    proto_tree_add_expert_format(section_tree, pinfo, &ei_mongo_section_size_bad, tvb, offset, 4, "Bogus Mongo message section size: %i", section_len);
+    THROW(ReportedBoundsError);
+  }
+  proto_item_set_len(ti, 1 + section_len);
 
   switch (e_type) {
     case KIND_BODY:
@@ -1568,6 +1578,7 @@ proto_register_mongo(void)
   static ei_register_info ei[] = {
      { &ei_mongo_document_recursion_exceeded, { "mongo.document.recursion_exceeded", PI_MALFORMED, PI_ERROR, "BSON document recursion exceeds", EXPFILL }},
      { &ei_mongo_document_length_bad, { "mongo.document.length.bad",  PI_MALFORMED, PI_ERROR, "BSON document length bad", EXPFILL }},
+     { &ei_mongo_section_size_bad, { "mongo.msg.sections.section.size.bad",  PI_MALFORMED, PI_ERROR, "Bogus Mongo message section size", EXPFILL }},
      { &ei_mongo_unknown, { "mongo.unknown.expert", PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)", EXPFILL }},
      { &ei_mongo_unsupported_compression, { "mongo.unsupported_compression.expert", PI_UNDECODED, PI_WARN, "This packet was compressed with an unsupported compressor", EXPFILL }},
      { &ei_mongo_too_large_compressed, { "mongo.too_large_compressed.expert", PI_UNDECODED, PI_WARN, "The size of the uncompressed packet exceeded the maximum allowed value", EXPFILL }},
