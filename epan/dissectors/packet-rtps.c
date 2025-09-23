@@ -14213,28 +14213,30 @@ static void dissect_HEADER_EXTENSION(tvbuff_t* tvb, packet_info* pinfo, int offs
         p_get_proto_data(
             pinfo->pool, pinfo, proto_rtps, RTPS_DECRYPTION_INFO_KEY);
 
-    decryption_info->aad_length =
-        20 /* rtps header size. */
-        + 4 /* header extension submessage id, flags, octetsToNextHeader */
-        + header_extension_length;
+    if (decryption_info) {
+      decryption_info->aad_length =
+          20 /* rtps header size. */
+          + 4 /* header extension submessage id, flags, octetsToNextHeader */
+          + header_extension_length;
 
-    additional_authenticated_data = tvb_get_ptr(
-        rtps_root->tvb,
-        rtps_root->tvb_offset,
-        (int) decryption_info->aad_length);
+      additional_authenticated_data = tvb_get_ptr(
+          rtps_root->tvb,
+          rtps_root->tvb_offset,
+          (int) decryption_info->aad_length);
 
-    /* Do a copy of the bytes, so that we can later zero the necessary parts. */
-    decryption_info->additional_authenticated_data_allocated = true;
-    decryption_info->additional_authenticated_data = g_memdup2(
-        additional_authenticated_data,
-        decryption_info->aad_length);
+      /* Do a copy of the bytes, so that we can later zero the necessary parts. */
+      decryption_info->additional_authenticated_data_allocated = true;
+      decryption_info->additional_authenticated_data = g_memdup2(
+          additional_authenticated_data,
+          decryption_info->aad_length);
+    }
   }
 
   if ((flags & RTPS_HE_MESSAGE_LENGTH_FLAG) == RTPS_HE_MESSAGE_LENGTH_FLAG) {
     proto_tree_add_item(tree, hf_rtps_message_length, tvb, offset, 4, encoding);
     offset += 4;
 
-    if (enable_rtps_psk_decryption) {
+    if (enable_rtps_psk_decryption && decryption_info) {
       memset(
           decryption_info->additional_authenticated_data
               + offsetToHeaderExtensionData,
