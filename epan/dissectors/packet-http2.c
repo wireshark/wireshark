@@ -1541,7 +1541,7 @@ void http2_add_referenceid_imsi(char* referenceid, const char* imsi)
     }
 }
 
-char*
+static char*
 http2_get_imsi_from_referenceid(const char* referenceid)
 {
     char *imsi = NULL;
@@ -1561,7 +1561,7 @@ http2_add_location_imsi(char* location, const char* imsi)
     }
 }
 
-static char*
+char*
 http2_get_imsi_from_location(const char* location)
 {
     char *imsi = NULL;
@@ -2187,7 +2187,7 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
 
             if (regex_location == NULL) {
                 regex_location = g_regex_new (
-                    ".*\\/(chargingdata|sm-policies|pdu-sessions)\\/([A-Za-z0-9\\-.]+).*",
+                    ".*\\/(chargingdata|sm-contexts|sm-policies|pdu-sessions)\\/([A-Za-z0-9\\-.]+).*",
                     G_REGEX_CASELESS | G_REGEX_FIRSTLINE, 0, NULL);
             }
 

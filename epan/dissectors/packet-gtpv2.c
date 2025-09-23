@@ -9397,12 +9397,12 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                         imsi = wmem_strdup(wmem_file_scope(), args->imsi);
                         wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count++), imsi);
                     } else {
-                        /* If handover from 5G, look up referenceid from earlier HTTP2 streams */
+                        /* If handover from 5G, look up location from earlier HTTP2 streams */
                         static char to_str_back_buf[32];
                         #define BACK_PTR (&to_str_back_buf[31]) /* pointer to NUL string terminator */
 
-                        char* referenceid = uint_to_str_back(BACK_PTR, (uint32_t)gtpv2_hdr->teid);
-                        imsi = http2_get_imsi_from_referenceid(referenceid);
+                        char* location = uint_to_str_back(BACK_PTR, (uint32_t)gtpv2_hdr->teid);
+                        imsi = http2_get_imsi_from_location(location);
                         if(imsi) {
                             wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count++), imsi);
                         }

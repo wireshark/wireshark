@@ -84,10 +84,10 @@ void
 http2_add_referenceid_imsi(char* referenceid, const char* imsi);
 
 /**
- * Get IMSI from on referenceid mapping.
+ * Get IMSI from on location mapping.
  */
 char*
-http2_get_imsi_from_referenceid(const char* referenceid);
+http2_get_imsi_from_location(const char* location);
 
 /**
  * Retrieves the HTTP/2 Stream ID which is smaller than or equal to the provided
