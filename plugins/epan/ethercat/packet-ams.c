@@ -644,7 +644,7 @@ static int dissect_ams_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 offset += 4;
 
                 proto_tree_add_item(ams_adstree, hf_ams_adscycletime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                offset += 4;
+                /* offset += 4; */
             }
          }
          break;
@@ -670,7 +670,7 @@ static int dissect_ams_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                   offset += 4;
 
                   proto_tree_add_item_ret_uint(ams_adstree, hf_ams_adsnoteblocksstamps, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nStamps);
-                  offset += 4;
+                  /* offset += 4; */
 
                   /*ToDo: dissect noteblocks*/
                }
