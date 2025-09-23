@@ -17,7 +17,7 @@
 
 /*
  * This reads an arbitrary, possibly large JSON object.
- * For JSON log data, see json_lines.c.
+ * For JSON log data, see json_log.c.
  */
 
 /* Maximum size of json file. */

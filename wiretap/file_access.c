@@ -59,7 +59,7 @@
 #include "logcat.h"
 #include "logcat_text.h"
 #include "json.h"
-#include "json_lines.h"
+#include "json_log.h"
 #include "observer.h"
 #include "k12.h"
 #include "ber.h"
