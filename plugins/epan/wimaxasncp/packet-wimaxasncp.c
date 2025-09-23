@@ -2865,15 +2865,15 @@ wimaxasncp_dictionary_process_file(const char* filename, GSList** tlvs)
                                 {
                                 case 8:
                                     if (ws_strtou32(parenthesized_value_str, NULL, &bit_shift))
-                                        tlv_enum->code = 1 << (7 - bit_shift);
+                                        tlv_enum->code = 1U << (7 - bit_shift);
                                     break;
                                 case 16:
                                     if (ws_strtou32(parenthesized_value_str, NULL, &bit_shift))
-                                        tlv_enum->code = 1 << (15 - bit_shift);
+                                        tlv_enum->code = 1U << (15 - bit_shift);
                                     break;
                                 case 32:
                                     if (ws_strtou32(parenthesized_value_str, NULL, &bit_shift))
-                                        tlv_enum->code = 1 << (31 - bit_shift);
+                                        tlv_enum->code = 1U << (31 - bit_shift);
                                     break;
                                 }
                                 g_free(parenthesized_value_str);
