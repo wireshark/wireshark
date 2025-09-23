@@ -235,6 +235,9 @@ typedef struct conv_tables {
 
 	/* track uid to username mappings */
 	wmem_tree_t *uid_tree;
+
+	/* This table is used to track which request frame a [NT]Trans[2] response fragment maps to */
+	GHashTable  *trans_frag_resp;
 } conv_tables_t;
 
 /* si */
