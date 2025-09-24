@@ -1313,7 +1313,7 @@ static xml_ns_t *make_xml_hier(char       *elem_name,
     unsigned  i;
     struct _attr_reg_data  d;
 
-    if ( g_str_equal(elem_name, root->name) ) {
+    if ( !elem_name || g_str_equal(elem_name, root->name) ) {
         return NULL;
     }
 
