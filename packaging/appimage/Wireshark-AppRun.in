@@ -19,7 +19,7 @@ if [ -z "$WIRESHARK_DATA_DIR" ] ; then
 fi
 
 if [ -z "$WIRESHARK_EXTCAP_DIR" ] ; then
-    export WIRESHARK_EXTCAP_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/wireshark/extcap"
+    export WIRESHARK_EXTCAP_DIR="$APPDIR@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBEXECDIR@/wireshark/extcap"
 fi
 
 if [ -z "$WIRESHARK_PLUGIN_DIR" ] ; then
