@@ -61,21 +61,6 @@ typedef struct {
 WS_DLL_PUBLIC
 bpsec_id_t * bpsec_id_new(wmem_allocator_t *alloc, int64_t context_id, int64_t type_id);
 
-/** Function to match the GDestroyNotify signature.
- */
-WS_DLL_PUBLIC
-void bpsec_id_free(wmem_allocator_t *alloc, void *ptr);
-
-/** Function to match the GCompareFunc signature.
- */
-WS_DLL_PUBLIC
-gboolean bpsec_id_equal(const void *a, const void *b);
-
-/** Function to match the GHashFunc signature.
- */
-WS_DLL_PUBLIC
-unsigned bpsec_id_hash(const void *key);
-
 #ifdef __cplusplus
 }
 #endif

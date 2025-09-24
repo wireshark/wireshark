@@ -4191,7 +4191,7 @@ static uint16_t
 get_gatt_char_decl_handle_from_handle(packet_info *pinfo, uint32_t handle,
     btl2cap_data_t *l2cap_data);
 
-bool bluetooth_gatt_has_no_parameter(uint8_t opcode)
+static bool bluetooth_gatt_has_no_parameter(uint8_t opcode)
 {
     return is_readable_request(opcode) ||
             opcode == ATT_OPCODE_WRITE_RESPONSE ||

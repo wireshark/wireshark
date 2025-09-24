@@ -68,13 +68,13 @@ void proto_reg_handoff_smb(void);
  * The document "NT LAN Manager SMB File Sharing Protocol Extensions"
  * can be found at
  *
- *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
+ *	https://www.samba.org/samba/ftp/specs/smb-nt01.doc
  *
  * (or, presumably a similar path under the Samba mirrors).  As the
  * ".doc" indicates, it's a Word document.  Some of the specs from the
  * Microsoft FTP site can be found in the
  *
- *	http://www.samba.org/samba/ftp/specs/
+ *	https://www.samba.org/samba/ftp/specs/
  *
  * directory as well.
  *
@@ -3998,7 +3998,7 @@ dissect_smb_access_mask_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 	/*
 	 * Some of these bits come from
 	 *
-	 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
+	 *	https://www.samba.org/samba/ftp/specs/smb-nt01.doc
 	 *
 	 * and others come from the section on ZwOpenFile in "Windows(R)
 	 * NT(R)/2000 Native API Reference".
@@ -4096,7 +4096,7 @@ dissect_nt_create_options_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 	/*
 	 * From
 	 *
-	 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
+	 *	https://www.samba.org/samba/ftp/specs/smb-nt01.doc
 	 */
 	static int * const fields[] = {
 		&hf_smb_nt_create_options_directory_file,
@@ -9050,7 +9050,7 @@ dissect_nt_security_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
  * in "Windows(R) NT(R)/2000 Native API Reference"; do those go over
  * the wire as well?  (The spec at
  *
- *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
+ *	https://www.samba.org/samba/ftp/specs/smb-nt01.doc
  *
  * says that "the FILE_NO_INTERMEDIATE_BUFFERING option is not exported
  * via the SMB protocol.  The NT redirector should convert this option
@@ -19209,7 +19209,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	/*
 	 * The document at
 	 *
-	 *	http://www.samba.org/samba/ftp/specs/smbpub.txt
+	 *	https://www.samba.org/samba/ftp/specs/smbpub.txt
 	 *
 	 * (a text version of "Microsoft Networks SMB FILE SHARING
 	 * PROTOCOL, Document Version 6.0p") says that:

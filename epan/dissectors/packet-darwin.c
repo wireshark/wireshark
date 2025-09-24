@@ -417,7 +417,7 @@ dissect_darwin_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
     struct darwin_md* darwin = (struct darwin_md*)p_get_proto_data(wmem_file_scope(), pinfo, proto_darwin, 0);
     proto_item* ti;
 
-    /* Reqiure darwin data */
+    /* Require darwin data */
     if (darwin == NULL)
         return 0;
 

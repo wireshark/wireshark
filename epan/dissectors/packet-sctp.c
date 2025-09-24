@@ -316,7 +316,7 @@ static expert_field ei_sctp_tsn_retransmitted;
 static expert_field ei_sctp_sack_chunk_gap_block_malformed;
 static expert_field ei_sctp_sack_chunk_number_tsns_gap_acked_100;
 
-const value_string chunk_type_values[] = {
+static const value_string chunk_type_values[] = {
   { SCTP_DATA_CHUNK_ID,              "DATA" },
   { SCTP_INIT_CHUNK_ID,              "INIT" },
   { SCTP_INIT_ACK_CHUNK_ID,          "INIT_ACK" },
@@ -3350,7 +3350,7 @@ export_sctp_data_chunk(packet_info *pinfo, tvbuff_t *tvb, uint32_t payload_proto
   } else if (pinfo->srcport != 0) {
     exp_pdu_data = create_exp_pdu_table(pinfo, tvb, "sctp.port", pinfo->srcport);
   } else {
-    /* do not export anything when none of the above fileds are available */
+    /* do not export anything when none of the above fields are available */
     return;
   }
 

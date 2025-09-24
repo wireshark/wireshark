@@ -89,7 +89,6 @@ bluetooth_uuid_t
 get_gatt_bluetooth_uuid_from_handle(packet_info *pinfo, uint32_t handle, uint8_t opcode,
     btl2cap_data_t *l2cap_data);
 
-WS_DLL_PUBLIC bool bluetooth_gatt_has_no_parameter(uint8_t opcode);
 WS_DLL_PUBLIC expert_field ei_btatt_invalid_usage;
 
 #endif

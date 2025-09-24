@@ -90,12 +90,7 @@ bpsec_id_t * bpsec_id_new(wmem_allocator_t *alloc, int64_t context_id, int64_t t
     return obj;
 }
 
-void bpsec_id_free(wmem_allocator_t *alloc, void *ptr) {
-    //bpsec_id_t *obj = (bpsec_id_t *)ptr;
-    wmem_free(alloc, ptr);
-}
-
-gboolean bpsec_id_equal(const void *a, const void *b) {
+static gboolean bpsec_id_equal(const void *a, const void *b) {
     const bpsec_id_t *aobj = a;
     const bpsec_id_t *bobj = b;
     return (
@@ -105,7 +100,7 @@ gboolean bpsec_id_equal(const void *a, const void *b) {
     );
 }
 
-unsigned bpsec_id_hash(const void *key) {
+static unsigned bpsec_id_hash(const void *key) {
     const bpsec_id_t *obj = key;
     return (
         g_int64_hash(&(obj->context_id))

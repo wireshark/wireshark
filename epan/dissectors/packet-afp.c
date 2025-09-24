@@ -454,7 +454,7 @@ static const value_string CommandCode_vals[] = {
 	{AFP_ADDICON,		"FPAddIcon" },
 	{0,			 NULL }
 };
-value_string_ext CommandCode_vals_ext = VALUE_STRING_EXT_INIT(CommandCode_vals);
+static value_string_ext CommandCode_vals_ext = VALUE_STRING_EXT_INIT(CommandCode_vals);
 
 static const value_string unicode_hint_vals[] = {
 	{    0,	"MacRoman" },
@@ -1095,7 +1095,7 @@ static const value_string afp_server_addr_type_vals[] = {
 	{6,   "IP6 address" },
 	{7,   "IP6+port address" },
 	{0,   NULL } };
-value_string_ext afp_server_addr_type_vals_ext = VALUE_STRING_EXT_INIT(afp_server_addr_type_vals);
+static value_string_ext afp_server_addr_type_vals_ext = VALUE_STRING_EXT_INIT(afp_server_addr_type_vals);
 
 #define AFP_NUM_PROCEDURES     256
 

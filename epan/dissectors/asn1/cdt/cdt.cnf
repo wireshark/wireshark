@@ -20,11 +20,11 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
 
   %(DEFAULT_BODY)s
   proto_item_append_text (cdt_item, ", %%s",
-                          val_to_str(actx->pinfo->pool, value, cdt_AlgorithmID_ShortForm_vals,
+                          val_to_str_const(value, cdt_AlgorithmID_ShortForm_vals,
                                       "unknown"));
 
   col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%%s ",
-                   val_to_str(actx->pinfo->pool, value, cdt_AlgorithmID_ShortForm_vals,
+                   val_to_str_const(value, cdt_AlgorithmID_ShortForm_vals,
                                "unknown"));
 
 #.FN_PARS ContentType-ShortForm
@@ -34,11 +34,11 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
 
   %(DEFAULT_BODY)s
   proto_item_append_text (cdt_item, ", %%s",
-                          val_to_str(actx->pinfo->pool, content_type, cdt_ContentType_ShortForm_vals,
+                          val_to_str_const(content_type, cdt_ContentType_ShortForm_vals,
                                       "unknown"));
 
   col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%%s ",
-                   val_to_str(actx->pinfo->pool, content_type, cdt_ContentType_ShortForm_vals,
+                   val_to_str_const(content_type, cdt_ContentType_ShortForm_vals,
                                "unknown"));
 
 #.FN_PARS CompressedContentInfo/contentType/contentType-OID
