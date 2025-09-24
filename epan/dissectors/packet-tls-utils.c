@@ -7655,7 +7655,8 @@ static int
 ssl_dissect_hnd_ext_delegated_credentials(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                           proto_tree *tree, packet_info* pinfo, uint32_t offset, uint32_t offset_end, uint8_t hnd_type)
 {
-    if (hnd_type == SSL_HND_CLIENT_HELLO) {
+    if (hnd_type == SSL_HND_CLIENT_HELLO ||
+        hnd_type == SSL_HND_CERT_REQUEST) {
         /*
          *  struct {
          *    SignatureScheme supported_signature_algorithm<2..2^16-2>;
