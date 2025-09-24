@@ -8936,13 +8936,6 @@ sta_is_s1g(packet_info *pinfo)
   return GPOINTER_TO_INT(data_p);
 }
 
-static const unsigned char bssid_broadcast_data[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-static address bssid_broadcast;
-bool
-is_broadcast_bssid(const address *bssid) {
-  return addresses_equal(&bssid_broadcast, bssid);
-}
-
 static heur_dissector_list_t heur_subdissector_list;
 
 static dissector_handle_t ieee80211_handle;
@@ -62055,7 +62048,6 @@ proto_register_ieee80211(void)
                                                             ether_len, ether_name_resolution_str, ether_name_resolution_len);
   wlan_bssid_address_type = address_type_dissector_register("AT_ETHER_BSSID", "WLAN BSSID Address", ether_to_str, ether_str_len, NULL, wlan_bssid_col_filter_str,
                                                             ether_len, ether_name_resolution_str, ether_name_resolution_len);
-  set_address(&bssid_broadcast, wlan_bssid_address_type, 6, bssid_broadcast_data);
 
   wlan_ra_ta_address_type = address_type_dissector_register("AT_ETHER_RA_TA", "WLAN RA/TA Address", ether_to_str, ether_str_len, NULL, wlan_ra_ta_col_filter_str,
                                                             ether_len, ether_name_resolution_str, ether_name_resolution_len);

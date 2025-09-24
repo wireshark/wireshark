@@ -89,9 +89,6 @@ float ieee80211_htrate(int mcs_index, bool bandwidth, bool short_gi);
 
 WS_DLL_PUBLIC value_string_ext ieee80211_supported_rates_vals_ext;
 
-WS_DLL_PUBLIC
-bool is_broadcast_bssid(const address *bssid);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
