@@ -1899,22 +1899,30 @@ void TCPStreamDialog::graphClicked(QMouseEvent *event)
 {
     QCustomPlot *sp = ui->streamPlot;
 
+    switch (event->button()) {
+    case Qt::LeftButton:
+        if (mouse_drags_) {
+            if (sp->axisRect()->rect().contains(event->pos())) {
+                sp->setCursor(QCursor(Qt::ClosedHandCursor));
+            }
+            on_actionGoToPacket_triggered();
+        } else {
+            if (!rubber_band_) {
+                rubber_band_ = new QRubberBand(QRubberBand::Rectangle, sp);
+            }
+            rb_origin_ = event->pos();
+            rubber_band_->setGeometry(QRect(rb_origin_, QSize()));
+            rubber_band_->show();
+        }
+        break;
+    default:
+        if (mouse_drags_) {
+            sp->setCursor(QCursor(Qt::OpenHandCursor));
+        }
+    }
+
     // mouse press on graph should reset focus to graph
     sp->setFocus();
-
-    if (mouse_drags_) {
-        if (sp->axisRect()->rect().contains(event->pos())) {
-            sp->setCursor(QCursor(Qt::ClosedHandCursor));
-        }
-        on_actionGoToPacket_triggered();
-    } else {
-        if (!rubber_band_) {
-            rubber_band_ = new QRubberBand(QRubberBand::Rectangle, sp);
-        }
-        rb_origin_ = event->pos();
-        rubber_band_->setGeometry(QRect(rb_origin_, QSize()));
-        rubber_band_->show();
-    }
 }
 
 void TCPStreamDialog::axisClicked(QCPAxis *axis, QCPAxis::SelectablePart, QMouseEvent *)
@@ -1957,6 +1965,10 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
     if (event) {
         if (event->buttons().testFlag(Qt::LeftButton)) {
             if (mouse_drags_) {
+                /// XXX - We might not actually be dragging. QCustomPlot
+                /// iRangeDrag stops dragging when a button other than
+                /// leftButton is released (even if leftButton is still
+                /// held down.)
                 shape = Qt::ClosedHandCursor;
             } else {
                 shape = Qt::CrossCursor;
@@ -2047,7 +2059,7 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
 
 void TCPStreamDialog::mouseReleased(QMouseEvent *event)
 {
-    if (rubber_band_ && rubber_band_->isVisible()) {
+    if (rubber_band_ && rubber_band_->isVisible() && event->button() == Qt::LeftButton) {
         rubber_band_->hide();
         if (!mouse_drags_) {
             QRectF zoom_ranges = getZoomRanges(QRect(rb_origin_, event->pos()));
@@ -2061,6 +2073,9 @@ void TCPStreamDialog::mouseReleased(QMouseEvent *event)
             }
         }
     } else if (ui->streamPlot->cursor().shape() == Qt::ClosedHandCursor) {
+        /// XXX - QCustomPlot iRangeDrag stops dragging when a button other
+        /// than leftButton is released (even if leftButton is still held
+        /// down), so change our icon.
         ui->streamPlot->setCursor(QCursor(Qt::OpenHandCursor));
     }
 }
