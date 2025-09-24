@@ -43,6 +43,10 @@ ATTRIBUTE	Xylan-Acce-Priv-F-R1			39	octets
 ATTRIBUTE	Xylan-Acce-Priv-F-R2			40	octets
 ATTRIBUTE	Xylan-Acce-Priv-F-W1			41	octets
 ATTRIBUTE	Xylan-Acce-Priv-F-W2			42	octets
+ATTRIBUTE	Xylan-Acce-Priv-F-R3			43	octets
+ATTRIBUTE	Xylan-Acce-Priv-F-R4			44	octets
+ATTRIBUTE	Xylan-Acce-Priv-F-W3			45	octets
+ATTRIBUTE	Xylan-Acce-Priv-F-W4			46	octets
 
 ATTRIBUTE	Xylan-Policy-List			100	string
 ATTRIBUTE	Xylan-Redirect-Url			101	string
