@@ -82,7 +82,7 @@ void FilterExpressionToolBar::onCustomMenuHandler(const QPoint& pos)
     customMenu(this, filterAction, pos);
 }
 
-void FilterExpressionToolBar::customMenu(FilterExpressionToolBar * target, QAction * filterAction, const QPoint& pos)
+void FilterExpressionToolBar::customMenu(QWidget* target, QAction * filterAction, const QPoint& pos)
 {
     QMenu * filterMenu = new QMenu(target);
     filterMenu->setAttribute(Qt::WA_DeleteOnClose);
@@ -98,24 +98,24 @@ void FilterExpressionToolBar::customMenu(FilterExpressionToolBar * target, QActi
         filterMenu->addAction(FilterAction::copyFilterAction(filterText, target));
         filterMenu->addSeparator();
         QAction * actEdit = filterMenu->addAction(tr("Edit"));
-        connect(actEdit, &QAction::triggered, target, &FilterExpressionToolBar::editFilter);
+        connect(actEdit, &QAction::triggered, this, &FilterExpressionToolBar::editFilter);
         actEdit->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
         actEdit->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
         actEdit->setData(filterAction->data());
         QAction * actDisable = filterMenu->addAction(tr("Disable"));
-        connect(actDisable, &QAction::triggered, target, &FilterExpressionToolBar::disableFilter);
+        connect(actDisable, &QAction::triggered, this, &FilterExpressionToolBar::disableFilter);
         actDisable->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
         actDisable->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
         actDisable->setData(filterAction->data());
         QAction * actRemove = filterMenu->addAction(tr("Remove"));
-        connect(actRemove, &QAction::triggered, target, &FilterExpressionToolBar::removeFilter);
+        connect(actRemove, &QAction::triggered, this, &FilterExpressionToolBar::removeFilter);
         actRemove->setProperty(dfe_property_label_, filterAction->property(dfe_property_label_));
         actRemove->setProperty(dfe_property_expression_, filterAction->property(dfe_property_expression_));
         actRemove->setData(filterAction->data());
         filterMenu->addSeparator();
     }
     QAction *actFilter = filterMenu->addAction(tr("Filter Button Preferences…"));
-    connect(actFilter, &QAction::triggered, target, &FilterExpressionToolBar::toolBarShowPreferences);
+    connect(actFilter, &QAction::triggered, this, &FilterExpressionToolBar::toolBarShowPreferences);
 
     /* Forcing the menus to get closed, no matter which action has been triggered */
     connect(filterMenu, &QMenu::triggered, this, &FilterExpressionToolBar::closeMenu);
@@ -307,7 +307,7 @@ bool FilterExpressionToolBar::eventFilter(QObject *obj, QEvent *event)
 
             if (filterAction) {
                 QPoint tb_pos = this->mapFromGlobal(ctx->globalPos());
-                customMenu(this, filterAction, tb_pos);
+                customMenu(qm, filterAction, tb_pos);
             }
             return true;
         }
