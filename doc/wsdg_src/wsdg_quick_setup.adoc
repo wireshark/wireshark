@@ -336,7 +336,6 @@ choco install -y git cmake python3
 ===== Install Microsoft Visual Studio
 
 Download and install https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=17[“Microsoft Visual Studio 2022 Community Edition”].
-If you prefer you can instead download and install https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16[“Microsoft Visual Studio 2019 Community Edition”].
 The examples below are for Visual Studio 2022 but can be adapted for Visual Studio 2019.
 These are small utilities that download all the other required parts (which are quite large).
 
@@ -393,7 +392,7 @@ In the "Select Components" page, select your desired Qt version. We recommend
 the latest LTS version, and the stable Windows installers currently ship with Qt {windows-qt6-lts-version}.
 Select the following components:
 
-* MSVC 2019 64-bit
+* MSVC 2022 64-bit
 * Qt 5 Compatibility Module
 * Qt Debug Information Files (contains PDB files which can be used for debugging)
 * Under "Additional Libraries" select "Qt Multimedia" to support advanced
