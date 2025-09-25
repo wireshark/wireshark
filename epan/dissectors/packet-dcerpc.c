@@ -1679,9 +1679,6 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 static void
 dcerpc_init_finalize(dissector_handle_t guid_handle, guid_key *key, dcerpc_uuid_value *value)
 {
-    module_t          *samr_module;
-    const char        *filter_name = proto_get_protocol_filter_name(value->proto_id);
-
     g_hash_table_insert(dcerpc_uuids, key, value);
 
     /* Register the GUID with the dissector table */
@@ -1689,13 +1686,6 @@ dcerpc_init_finalize(dissector_handle_t guid_handle, guid_key *key, dcerpc_uuid_
 
     /* add this GUID to the global name resolving */
     guids_add_uuid(&key->guid, proto_get_protocol_short_name(value->proto));
-
-    /* Register the samr.nt_password preference as obsolete */
-    /* This should be in packet-dcerpc-samr.c */
-    if (strcmp(filter_name, "samr") == 0) {
-        samr_module = prefs_register_protocol_obsolete(value->proto_id);
-        prefs_register_obsolete_preference(samr_module, "nt_password");
-    }
 }
 
 void

@@ -975,6 +975,16 @@ sub RegisterInterface($$)
 
 		$self->pidl_code("proto_register_field_array(proto_dcerpc_$x->{NAME}, hf, array_length (hf));");
 		$self->pidl_code("proto_register_subtree_array(ett, array_length(ett));");
+
+		# SAMR dissector used to have a preference that is no longer supported
+		# Generate the obsolence here instead of making all registered DCE/RPC protocols check for it at runtime
+		if ($x->{NAME} eq "samr") {
+		    $self->deindent;
+		    $self->pidl_code("");
+		    $self->indent;
+		    $self->pidl_code("module_t* $x->{NAME}_module = prefs_register_protocol_obsolete(proto_dcerpc_$x->{NAME});");
+		    $self->pidl_code("prefs_register_obsolete_preference($x->{NAME}_module, \"nt_password\");");
+		}
 	} else {
 		$self->pidl_code("proto_dcerpc = proto_get_id_by_filter_name(\"dcerpc\");");
 		$self->pidl_code("proto_register_field_array(proto_dcerpc, hf, array_length(hf));");

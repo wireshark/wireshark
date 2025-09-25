@@ -16537,6 +16537,9 @@ void proto_register_dcerpc_samr(void)
 	proto_dcerpc_samr = proto_register_protocol("SAMR (pidl)", "SAMR", "samr");
 	proto_register_field_array(proto_dcerpc_samr, hf, array_length (hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	module_t* samr_module = prefs_register_protocol_obsolete(proto_dcerpc_samr);
+	prefs_register_obsolete_preference(samr_module, "nt_password");
 }
 
 void proto_reg_handoff_dcerpc_samr(void)
