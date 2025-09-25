@@ -616,6 +616,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 %{_libdir}/lib*.so.*
 %{_libdir}/wireshark
+%{_libexecdir}/wireshark
 # Don't pick up the wireshark (GUI) man page here
 %exclude %{_mandir}/man1/wireshark.*
 %{_mandir}/man1/*
@@ -661,7 +662,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_datadir}/icons/hicolor/*/mimetypes/*
 %{_datadir}/mime/packages/org.wireshark.Stratoshark.xml
 %{_bindir}/stratoshark
-%{_libdir}/stratoshark
+%{_libexecdir}/stratoshark
 %{_mandir}/man1/stratoshark.*
 %{_mandir}/man1/falcodump.*
 %{_mandir}/man1/sshdig.*
@@ -675,22 +676,22 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 # https://falco.org/docs/setup/container/#docker-least-privileged-modern-ebpf
 %if %{use_stratoshark_group} && %{setuid_falcodump}
 # Setuid but only executable by members of the 'stratoshark' group
-%attr(4750, root, stratoshark) %{_libdir}/stratoshark/extcap/falcodump
+%attr(4750, root, stratoshark) %{_libexecdir}/stratoshark/extcap/falcodump
 %else
 %if %{use_stratoshark_group} && %{setcap_falcodump}
 # Setcap but only executable by members of the 'stratoshark' group
-%attr(0750, root, stratoshark) %caps(cap_sys_admin,cap_sys_resource,cap_sys_ptrace=ep) %{_libdir}/stratoshark/extcap/falcodump
+%attr(0750, root, stratoshark) %caps(cap_sys_admin,cap_sys_resource,cap_sys_ptrace=ep) %{_libexecdir}/stratoshark/extcap/falcodump
 %else
 %if %{setuid_falcodump}
 # Setuid and executable by all
-%attr(4755, root, root) %{_libdir}/stratoshark/extcap/falcodump
+%attr(4755, root, root) %{_libexecdir}/stratoshark/extcap/falcodump
 %else
 %if %{setcap_falcodump}
 # Setcap and executable by all
-%attr(0755, root, root) %caps(cap_sys_admin,cap_sys_resource,cap_sys_ptrace=ep) %{_libdir}/stratoshark/extcap/falcodump
+%attr(0755, root, root) %caps(cap_sys_admin,cap_sys_resource,cap_sys_ptrace=ep) %{_libexecdir}/stratoshark/extcap/falcodump
 %else
 # Executable by all but with no special permissions
-%attr(0755, root, root) %{_libdir}/stratoshark/extcap/falcodump
+%attr(0755, root, root) %{_libexecdir}/stratoshark/extcap/falcodump
 %endif
 %endif
 %endif
