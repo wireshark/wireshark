@@ -11071,19 +11071,20 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
             ssl_md_cleanup(&mc);
             hkdf_extract(hash_algo, NULL, 0, ssl->client_random.data, 32, prk);
             StringInfo prk_string = {prk, len};
-            tls13_hkdf_expand_label_context(hash_algo, &prk_string, tls13_hkdf_label_prefix(ssl),
+            if (tls13_hkdf_expand_label_context(hash_algo, &prk_string, tls13_hkdf_label_prefix(ssl),
                                             is_hrr ? "hrr ech accept confirmation" : "ech accept confirmation",
-                                            transcript_hash, len, 8, &ech_verify_out);
-            memcpy(is_hrr ? ssl->session.hrr_ech_confirmation : ssl->session.ech_confirmation, ech_verify_out, 8);
-            if (tvb_memeql(tvb, confirmation_offset, ech_verify_out, 8) == -1) {
-                if (is_hrr) {
-                    ssl->session.hrr_ech_declined = true;
-                    ssl->session.first_ch_ech_frame = 0;
+                                            transcript_hash, len, 8, &ech_verify_out)) {
+                memcpy(is_hrr ? ssl->session.hrr_ech_confirmation : ssl->session.ech_confirmation, ech_verify_out, 8);
+                if (tvb_memeql(tvb, confirmation_offset, ech_verify_out, 8) == -1) {
+                    if (is_hrr) {
+                        ssl->session.hrr_ech_declined = true;
+                        ssl->session.first_ch_ech_frame = 0;
+                    }
+                    memcpy(ssl->client_random.data, ssl->session.client_random.data, ssl->session.client_random.data_len);
+                    ssl_print_data("Updated Client Random", ssl->client_random.data, 32);
                 }
-                memcpy(ssl->client_random.data, ssl->session.client_random.data, ssl->session.client_random.data_len);
-                ssl_print_data("Updated Client Random", ssl->client_random.data, 32);
+                wmem_free(NULL, ech_verify_out);
             }
-            wmem_free(NULL, ech_verify_out);
             ssl->session.ech = true;
         }
     }
