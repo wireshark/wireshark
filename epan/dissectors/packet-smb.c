@@ -18493,6 +18493,8 @@ free_hash_tables(void *ctarg, void *user_data _U_)
 		g_hash_table_destroy(ct->primaries);
 	if (ct->tid_service)
 		g_hash_table_destroy(ct->tid_service);
+	if (ct->trans_frag_resp)
+		g_hash_table_destroy(ct->trans_frag_resp);
 	g_slist_free(ct->GSL_fid_info);
 	g_free(ct);
 }
