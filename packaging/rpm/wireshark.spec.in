@@ -534,7 +534,10 @@ install -Dm 0644 %{buildroot}%{_prefix}/share/applications/org.wireshark.Stratos
 # require this (at least if desktop-file-install was not used to install it).
 desktop-file-validate %{buildroot}%{_datadir}/applications/org.wireshark.Stratoshark.desktop
 %endif
+%endif
 
+%if %{use_wireshark_group} || "%{use_stratoshark_group}" == "1"
+%pre
 %if %{use_wireshark_group}
 getent group wireshark >/dev/null || groupadd -r wireshark
 %endif
