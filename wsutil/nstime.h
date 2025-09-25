@@ -37,13 +37,13 @@ typedef struct {
 #define NSTIME_INIT_UNSET {0, INT_MAX}
 
 /* Initialize to a specified number of seconds and nanoseconds */
-#define NSTIME_INIT_SECS_NSECS(secs, nsecs)	{secs + (nsecs / 1000000000), nsecs % 1000000000}
+#define NSTIME_INIT_SECS_NSECS(secs, nsecs)	{(secs) + ((nsecs) / 1000000000), (nsecs) % 1000000000}
 
 /* Initialize to a specified number of seconds and microseconds */
-#define NSTIME_INIT_SECS_USECS(secs, usecs)	{secs + (usecs / 1000000), (usecs % 1000000) * 1000}
+#define NSTIME_INIT_SECS_USECS(secs, usecs)	{(secs) + ((usecs) / 1000000), ((usecs) % 1000000) * 1000}
 
 /* Initialize to a specified number of seconds and milliseconds */
-#define NSTIME_INIT_SECS_MSECS(secs, msecs)	{secs + (msecs / 1000), (msecs % 1000) * 1000000}
+#define NSTIME_INIT_SECS_MSECS(secs, msecs)	{(secs) + ((msecs) / 1000), ((msecs) % 1000) * 1000000}
 
 /* Initialize to a specified number of seconds */
 #define NSTIME_INIT_SECS(secs)			{secs, 0}
