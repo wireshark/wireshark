@@ -1453,7 +1453,7 @@ static uint32_t dissect_ies(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
           apparent_addr_family = tvb_get_letohs(tvb, offset+2);
           proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINFAMILY, tvb, offset + 2, 2, apparent_addr_family);
 
-          if (apparent_addr_family == LINUX_AF_INET) {
+          if (apparent_addr_family == LINUX_AF_INET && ie_data->peer_address.type == AT_IPv4) {
             uint32_t addr;
             proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINPORT, tvb, offset + 4, 2, ie_data->peer_port);
             memcpy(&addr, ie_data->peer_address.data, 4);
