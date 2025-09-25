@@ -21,6 +21,7 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-rpc.h>
 #include <epan/guid-utils.h>
+#include <epan/to_str.h>
 #include <epan/srt_table.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -86,17 +87,6 @@ onc_rpc_find_versions(const char *, ftenum_t , void *rpik_ptr, void *, void *rsr
     rpc_proc_info_key *rpik = (rpc_proc_info_key *)rpik_ptr;
 
     rsrt_dlg->addOncRpcProgramVersion(rpik->prog, rpik->vers);
-}
-
-static void
-onc_rpc_count_procedures(const char *, ftenum_t , void *rpik_ptr, void *, void *rsrtd_ptr)
-{
-    RpcServiceResponseTimeDialog *rsrt_dlg = dynamic_cast<RpcServiceResponseTimeDialog *>((RpcServiceResponseTimeDialog *)rsrtd_ptr);
-    if (!rsrt_dlg) return;
-
-    rpc_proc_info_key *rpik = (rpc_proc_info_key *)rpik_ptr;
-
-    rsrt_dlg->updateOncRpcProcedureCount(rpik->prog, rpik->vers, rpik->proc);
 }
 
 } // extern "C"
@@ -262,14 +252,6 @@ void RpcServiceResponseTimeDialog::addOncRpcProgramVersion(uint32_t program, uin
     }
 }
 
-void RpcServiceResponseTimeDialog::updateOncRpcProcedureCount(uint32_t program, uint32_t version, int procedure)
-{
-    if (onc_name_to_program_[program_combo_->currentText()] != program) return;
-    if (version_combo_->itemData(version_combo_->currentIndex()).toUInt() != version) return;
-
-    if (procedure > onc_rpc_num_procedures_) onc_rpc_num_procedures_ = procedure;
-}
-
 void RpcServiceResponseTimeDialog::setDceRpcUuidAndVersion(_e_guid_t *uuid, int version)
 {
     bool found = false;
@@ -372,51 +354,34 @@ void RpcServiceResponseTimeDialog::fillVersionCombo()
 
 void RpcServiceResponseTimeDialog::provideParameterData()
 {
-    void *tap_data = NULL;
+    char* err;
     const QString program_name = program_combo_->currentText();
-    uint32_t max_procs = 0;
 
+    srt_param_handler_cb param = srt_table_get_param_handler_cb(srt_);
+    if (param == NULL)
+        return;     //Sanity check
+
+    //Convert to a string format the SRT functionality can handle
+    QString srtString;
     switch (dlg_type_) {
     case DceRpc:
     {
         if (!dce_name_to_uuid_key_.contains(program_name)) return;
 
         guid_key *dkey = dce_name_to_uuid_key_[program_name];
-        uint16_t version = (uint16_t) version_combo_->itemData(version_combo_->currentIndex()).toUInt();
-        const dcerpc_sub_dissector *procs = dcerpc_get_proto_sub_dissector(&(dkey->guid), version);
-        if (!procs) return;
-
-        dcerpcstat_tap_data_t *dtap_data = g_new0(dcerpcstat_tap_data_t, 1);
-        dtap_data->uuid = dkey->guid;
-        dtap_data->ver = version;
-        dtap_data->prog = dcerpc_get_proto_name(&dtap_data->uuid, dtap_data->ver);
-
-        for (int i = 0; procs[i].name; i++) {
-            if (procs[i].num > max_procs) max_procs = procs[i].num;
-        }
-        dtap_data->num_procedures = max_procs + 1;
-
-        tap_data = dtap_data;
+        char* guid_str = guid_to_str(NULL, &dkey->guid);
+        srtString = QString(",%1,%2.0").arg(guid_str).arg(version_combo_->itemData(version_combo_->currentIndex()).toUInt());
+        wmem_free(NULL, guid_str);
         break;
     }
     case OncRpc:
     {
         if (!onc_name_to_program_.contains(program_name)) return;
 
-        rpcstat_tap_data_t *otap_data = g_new0(rpcstat_tap_data_t, 1);
-        otap_data->program = onc_name_to_program_[program_name];
-        otap_data->prog = rpc_prog_name(otap_data->program);
-        otap_data->version = (uint32_t) version_combo_->itemData(version_combo_->currentIndex()).toUInt();
-
-        onc_rpc_num_procedures_ = -1;
-        dissector_table_foreach ("rpc.call", onc_rpc_count_procedures, this);
-        dissector_table_foreach ("rpc.reply", onc_rpc_count_procedures, this);
-        otap_data->num_procedures = onc_rpc_num_procedures_ + 1;
-
-        tap_data = otap_data;
+        srtString = QString(",%1,%2").arg(onc_name_to_program_[program_name]).arg(version_combo_->itemData(version_combo_->currentIndex()).toUInt());
         break;
     }
     }
 
-    set_srt_table_param_data(srt_, tap_data);
+    param(srt_, srtString.toStdString().c_str(), &err);
 }

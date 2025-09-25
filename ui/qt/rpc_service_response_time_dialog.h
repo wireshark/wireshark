@@ -37,7 +37,6 @@ public:
     void addDceRpcProgramVersion(_guid_key *key);
     void addOncRpcProgram(uint32_t program, struct _rpc_prog_info_value *value);
     void addOncRpcProgramVersion(uint32_t program, uint32_t version);
-    void updateOncRpcProcedureCount(uint32_t program, uint32_t version, int procedure);
 
     void setDceRpcUuidAndVersion(struct _e_guid_t *uuid, int version);
     void setOncRpcProgramAndVersion(int program, int version);
@@ -61,7 +60,6 @@ private:
 
     // ONC-RPC
     QMap<QString, uint32_t> onc_name_to_program_;
-    int onc_rpc_num_procedures_;
 
     void clearVersionCombo();
     void fillVersionCombo();
