@@ -345,7 +345,7 @@ proto_reg_handoff_remunk (void)
 {
 
     /* Register the IPID */
-    guids_add_uuid(&ipid_remunk, "IPID-IRemUnknown");
+    guids_add_guid(&ipid_remunk, "IPID-IRemUnknown");
 
     /* Register the interfaces */
     dcerpc_init_uuid(proto_remunk, ett_remunk,

@@ -46,16 +46,6 @@ WS_DLL_PUBLIC const char *guids_get_guid_name(const e_guid_t *guid, wmem_allocat
 /* (if you need hex string only, use guid_to_str instead) */
 WS_DLL_PUBLIC const char* guids_resolve_guid_to_str(const e_guid_t *guid, wmem_allocator_t *scope);
 
-/* add a UUID (dcerpc_init_uuid() will call this too) */
-#define guids_add_uuid(uuid, name) guids_add_guid((const e_guid_t *) (uuid), (name))
-
-/* try to get registered name for this UUID */
-#define guids_get_uuid_name(uuid, scope) guids_get_guid_name((e_guid_t *) (uuid), scope)
-
-/* resolve UUID to name (or if unknown to hex string) */
-/* (if you need hex string only, use guid_to_str instead) */
-#define guids_resolve_uuid_to_str(uuid) guids_resolve_guid_to_str((e_guid_t *) (uuid))
-
 WS_DLL_PUBLIC int guid_cmp(const e_guid_t *g1, const e_guid_t *g2);
 
 WS_DLL_PUBLIC unsigned guid_hash(const e_guid_t *guid);

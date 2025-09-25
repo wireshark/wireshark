@@ -334,7 +334,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         case PROTO_ID_UUID:
             dcerpc_tvb_get_uuid (tvb, offset+1, &u8little_endian, &uuid);
 
-            uuid_name = guids_get_uuid_name(&uuid, pinfo->pool);
+            uuid_name = guids_get_guid_name(&uuid, pinfo->pool);
 
             if(uuid_name != NULL) {
                 proto_tree_add_guid_format (tr, hf_epm_uuid, tvb, offset+1, 16, (e_guid_t *) &uuid,

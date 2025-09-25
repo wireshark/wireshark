@@ -1685,7 +1685,7 @@ dcerpc_init_finalize(dissector_handle_t guid_handle, guid_key *key, dcerpc_uuid_
     dissector_add_guid( "dcerpc.uuid", key, guid_handle );
 
     /* add this GUID to the global name resolving */
-    guids_add_uuid(&key->guid, proto_get_protocol_short_name(value->proto));
+    guids_add_guid(&key->guid, proto_get_protocol_short_name(value->proto));
 }
 
 void
@@ -3546,7 +3546,7 @@ dissect_sec_vt_pcontext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
     const char *uuid_name;
 
     tvb_get_letohguid(tvb, offset, &uuid);
-    uuid_name = guids_get_uuid_name(&uuid, pinfo->pool);
+    uuid_name = guids_get_guid_name(&uuid, pinfo->pool);
     if (!uuid_name) {
             uuid_name = guid_to_str(pinfo->pool, &uuid);
     }
@@ -3560,7 +3560,7 @@ dissect_sec_vt_pcontext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
     offset += 4;
 
     tvb_get_letohguid(tvb, offset, &uuid);
-    uuid_name = guids_get_uuid_name(&uuid, pinfo->pool);
+    uuid_name = guids_get_guid_name(&uuid, pinfo->pool);
     if (!uuid_name) {
             uuid_name = guid_to_str(pinfo->pool, &uuid);
     }
@@ -4144,7 +4144,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, int offset, packet_info *pinfo,
             iface_tree = proto_item_add_subtree(iface_item, ett_dcerpc_cn_iface);
 
             uuid_str = guid_to_str(pinfo->pool, (e_guid_t*)&if_id);
-            uuid_name = guids_get_uuid_name(&if_id, pinfo->pool);
+            uuid_name = guids_get_guid_name(&if_id, pinfo->pool);
             if (uuid_name) {
                 proto_tree_add_guid_format(iface_tree, hf_dcerpc_cn_bind_if_id, tvb,
                                            offset, 16, (e_guid_t *) &if_id, "Interface: %s UUID: %s", uuid_name, uuid_str);
@@ -4188,7 +4188,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 trans_tree = proto_item_add_subtree(trans_item, ett_dcerpc_cn_trans_syntax);
 
                 uuid_str = guid_to_str(pinfo->pool, (e_guid_t *) &trans_id);
-                uuid_name = guids_get_uuid_name(&trans_id, pinfo->pool);
+                uuid_name = guids_get_guid_name(&trans_id, pinfo->pool);
 
                 /* check for [MS-RPCE] 3.3.1.5.3 Bind Time Feature Negotiation */
                 if (trans_id.data1 == 0x6cb71c2c && trans_id.data2 == 0x9812 && trans_id.data3 == 0x4540) {
@@ -4351,7 +4351,7 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         if (ctx_tree) {
             dcerpc_tvb_get_uuid(tvb, offset, hdr->drep, &trans_id);
-            uuid_name = guids_get_uuid_name(&trans_id, pinfo->pool);
+            uuid_name = guids_get_guid_name(&trans_id, pinfo->pool);
             if (! uuid_name) {
                 uuid_name = guid_to_str(pinfo->pool, (e_guid_t *) &trans_id);
             }
@@ -6614,7 +6614,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     if (tree) {
         uuid_str = guid_to_str(pinfo->pool, (e_guid_t*)&hdr.if_id);
-        uuid_name = guids_get_uuid_name(&hdr.if_id, pinfo->pool);
+        uuid_name = guids_get_guid_name(&hdr.if_id, pinfo->pool);
         if (uuid_name) {
             proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
                                        offset, 16, (e_guid_t *) &hdr.if_id, "Interface: %s UUID: %s", uuid_name, uuid_str);
@@ -7338,9 +7338,9 @@ proto_reg_handoff_dcerpc(void)
 
     dissector_add_for_decode_as("tcp.port", dcerpc_tcp_handle);
 
-    guids_add_uuid(&uuid_data_repr_proto, "32bit NDR");
-    guids_add_uuid(&uuid_ndr64, "64bit NDR");
-    guids_add_uuid(&uuid_asyncemsmdb, "async MAPI");
+    guids_add_guid(&uuid_data_repr_proto, "32bit NDR");
+    guids_add_guid(&uuid_ndr64, "64bit NDR");
+    guids_add_guid(&uuid_asyncemsmdb, "async MAPI");
 }
 
 /*
