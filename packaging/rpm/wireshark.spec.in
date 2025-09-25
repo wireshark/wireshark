@@ -339,7 +339,8 @@ Requires(post):	desktop-file-utils
 #Requires:	dejavu-sans-mono-fonts
 
 %description -n stratoshark
-This package contains the Stratoshark GUI and desktop integration files.
+This package contains the Stratoshark GUI and desktop integration files,
+the strato text-mode variant, and necessary Stratoshark-related extcaps.
 %endif
 
 %prep
@@ -589,6 +590,8 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %exclude %{_bindir}/wireshark*
 %exclude %{_bindir}/dftest
 %exclude %{_bindir}/idl2wrs
+# Don't pick up the stratoshark or strato binaries here
+%exclude %{_bindir}/strato*
 %{_bindir}/*
 
 # This generates a warning because dumpcap is listed twice. That's
@@ -622,6 +625,11 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libexecdir}/wireshark
 # Don't pick up the wireshark (GUI) man page here
 %exclude %{_mandir}/man1/wireshark.*
+# Don't pick up the stratoshark related man pages here
+%exclude %{_mandir}/man1/strato.*
+%exclude %{_mandir}/man1/stratoshark.*
+%exclude %{_mandir}/man1/falcodump.*
+%exclude %{_mandir}/man1/sshdig.*
 %{_mandir}/man1/*
 %{_mandir}/man4/*
 
@@ -664,7 +672,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_datadir}/icons/hicolor/*/apps/*
 %{_datadir}/icons/hicolor/*/mimetypes/*
 %{_datadir}/mime/packages/org.wireshark.Stratoshark.xml
-%{_bindir}/stratoshark
+%{_bindir}/strato*
 %{_libexecdir}/stratoshark
 %{_mandir}/man1/stratoshark.*
 %{_mandir}/man1/falcodump.*
