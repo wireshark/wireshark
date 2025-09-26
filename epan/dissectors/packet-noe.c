@@ -1323,12 +1323,10 @@ static void decode_evt(proto_tree  *tree,
             offset += 1;
             /*length -= 1;*/
 
-            proto_tree_add_uint_format_value(tree, hf_noe_value,
+            proto_tree_add_item(tree, hf_noe_value,
                 tvb,
                 offset,
-                1, tvb_get_ntohs(tvb, offset),
-                "%d",
-                tvb_get_ntohs(tvb, offset));
+                2, ENC_BIG_ENDIAN);
             break;
         }
     default:
