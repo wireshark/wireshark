@@ -91,6 +91,7 @@ typedef struct dct2000_file_externals
        Records (file offset -> line_prefix_info_t)
     */
     GHashTable *packet_prefix_table;
+    char linebuff[MAX_LINE_LENGTH + 1];
 } dct2000_file_externals_t;
 
 /* 'Magic number' at start of Catapult DCT2000 .out files. */
@@ -129,8 +130,7 @@ static bool parse_line(char *linebuff, int line_length,
 static bool process_parsed_line(wtap *wth,
                                     const dct2000_file_externals_t *file_externals,
                                     wtap_rec *rec,
-                                    int64_t file_offset,
-                                    char *linebuff, long dollar_offset,
+                                    int64_t file_offset, long dollar_offset,
                                     int seconds, int useconds,
                                     char *timestamp_string,
                                     packet_direction_t direction, int encap,
@@ -141,7 +141,7 @@ static bool process_parsed_line(wtap *wth,
                                     int *err, char **err_info);
 static uint8_t hex_from_char(char c);
 static void   prepare_hex_byte_from_chars_table(void);
-static uint8_t hex_byte_from_chars(char *c);
+static uint8_t hex_byte_from_chars(const char *c);
 static char char_from_hex(uint8_t hex);
 
 static void set_aal_info(union wtap_pseudo_header *pseudo_header,
@@ -173,7 +173,7 @@ catapult_dct2000_open(wtap *wth, int *err, char **err_info)
     uint32_t usecs;
     int firstline_length = 0;
     dct2000_file_externals_t *file_externals;
-    static char linebuff[MAX_LINE_LENGTH];
+    char linebuff[MAX(MAX_FIRST_LINE_LENGTH, MAX_TIMESTAMP_LINE_LENGTH) + 1];
     static bool hex_byte_table_values_set = false;
 
     /* Clear errno before reading from the file */
@@ -364,7 +364,6 @@ catapult_dct2000_read(wtap *wth, wtap_rec *rec,
         bool is_comment = false;
         bool is_sprint = false;
         int64_t this_offset;
-        static char linebuff[MAX_LINE_LENGTH+1];
         char aal_header_chars[AAL_HEADER_CHARS];
         char context_name[MAX_CONTEXT_NAME];
         uint8_t context_port = 0;
@@ -376,8 +375,8 @@ catapult_dct2000_read(wtap *wth, wtap_rec *rec,
         this_offset = file_tell(wth->fh);
 
         /* Read a new line from file into linebuff */
-        if (!read_new_line(wth->fh, &line_length, linebuff,
-                           sizeof linebuff, err, err_info)) {
+        if (!read_new_line(wth->fh, &line_length, file_externals->linebuff,
+                           sizeof file_externals->linebuff, err, err_info)) {
             if (*err != 0) {
                 return false;  /* error */
             }
@@ -386,7 +385,7 @@ catapult_dct2000_read(wtap *wth, wtap_rec *rec,
         }
 
         /* Try to parse the line as a frame record */
-        if (parse_line(linebuff, line_length, &seconds, &useconds,
+        if (parse_line(file_externals->linebuff, line_length, &seconds, &useconds,
                        &before_time_offset, &after_time_offset,
                        &dollar_offset,
                        &data_chars, &direction, &encap, &is_comment, &is_sprint,
@@ -405,7 +404,7 @@ catapult_dct2000_read(wtap *wth, wtap_rec *rec,
 
             if (!process_parsed_line(wth, file_externals,
                                      rec, this_offset,
-                                     linebuff, dollar_offset,
+                                     dollar_offset,
                                      seconds, useconds,
                                      timestamp_string,
                                      direction, encap,
@@ -421,12 +420,12 @@ catapult_dct2000_read(wtap *wth, wtap_rec *rec,
 
             /* Create and use buffer for contents before time */
             line_prefix_info->before_time = (char *)g_malloc(before_time_offset+1);
-            memcpy(line_prefix_info->before_time, linebuff, before_time_offset);
+            memcpy(line_prefix_info->before_time, file_externals->linebuff, before_time_offset);
             line_prefix_info->before_time[before_time_offset] = '\0';
 
             /* There is usually a ' l ' between the timestamp and the data.  Set flag to record this. */
             line_prefix_info->has_l =  ((size_t)(dollar_offset - after_time_offset -1) == strlen(" l ")) &&
-                                        (strncmp(linebuff+after_time_offset, " l ", 3) == 0);
+                                        (strncmp(file_externals->linebuff+after_time_offset, " l ", 3) == 0);
 
             /* Add packet entry into table */
             pkey = (int64_t *)g_malloc(sizeof(*pkey));
@@ -452,7 +451,6 @@ catapult_dct2000_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 {
     int length;
     long dollar_offset, before_time_offset, after_time_offset;
-    static char linebuff[MAX_LINE_LENGTH+1];
     char aal_header_chars[AAL_HEADER_CHARS];
     char context_name[MAX_CONTEXT_NAME];
     uint8_t context_port = 0;
@@ -478,13 +476,13 @@ catapult_dct2000_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     }
 
     /* Re-read whole line (this really should succeed) */
-    if (!read_new_line(wth->random_fh, &length, linebuff,
-                      sizeof linebuff, err, err_info)) {
+    if (!read_new_line(wth->random_fh, &length, file_externals->linebuff,
+                      sizeof file_externals->linebuff, err, err_info)) {
         return false;
     }
 
     /* Try to parse this line again (should succeed as re-reading...) */
-    if (parse_line(linebuff, length, &seconds, &useconds,
+    if (parse_line(file_externals->linebuff, length, &seconds, &useconds,
                    &before_time_offset, &after_time_offset,
                    &dollar_offset,
                    &data_chars, &direction, &encap, &is_comment, &is_sprint,
@@ -497,7 +495,7 @@ catapult_dct2000_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
 
         if (!process_parsed_line(wth, file_externals,
                                  rec, seek_off,
-                                 linebuff, dollar_offset,
+                                 dollar_offset,
                                  seconds, useconds,
                                  timestamp_string,
                                  direction, encap,
@@ -1286,8 +1284,7 @@ parse_line(char *linebuff, int line_length,
 static bool
 process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
                     wtap_rec *rec,
-                    int64_t file_offset,
-                    char *linebuff, long dollar_offset,
+                    int64_t file_offset, long dollar_offset,
                     int seconds, int useconds, char *timestamp_string,
                     packet_direction_t direction, int encap,
                     char *context_name, uint8_t context_port,
@@ -1382,14 +1379,14 @@ process_parsed_line(wtap *wth, const dct2000_file_externals_t *file_externals,
         /* Copy packet data into buffer, converting from ascii hex */
         for (n=0; n < data_chars; n+=2) {
             frame_buffer[stub_offset + n/2] =
-                hex_byte_from_chars(linebuff+dollar_offset+n);
+                hex_byte_from_chars(file_externals->linebuff+dollar_offset+n);
         }
     }
     else {
         /***********************************************************/
         /* Copy packet data into buffer, just copying ascii chars  */
         for (n=0; n < data_chars; n++) {
-            frame_buffer[stub_offset + n] = linebuff[dollar_offset+n];
+            frame_buffer[stub_offset + n] = file_externals->linebuff[dollar_offset+n];
         }
     }
 
@@ -1543,7 +1540,7 @@ static void  prepare_hex_byte_from_chars_table(void)
 }
 
 /* Extract and return a byte value from 2 ascii hex chars, starting from the given pointer */
-static uint8_t hex_byte_from_chars(char *c)
+static uint8_t hex_byte_from_chars(const char *c)
 {
     /* Return value from quick table lookup */
     return s_tableValues[(unsigned char)c[0]][(unsigned char)c[1]];
