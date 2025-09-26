@@ -182,7 +182,7 @@ LIBXML2_VERSION=2.11.5
 LZ4_VERSION=1.9.4
 SBC_VERSION=2.0
 CARES_VERSION=1.19.1
-LIBSSH_VERSION=0.10.5
+LIBSSH_VERSION=0.11.3
 # mmdbresolve
 MAXMINDDB_VERSION=1.4.3
 NGHTTP2_VERSION=1.56.0
@@ -1473,7 +1473,7 @@ install_gmp() {
         # According to
         #
         #   https://www.mail-archive.com/gmp-bugs@gmplib.org/msg01492.html
-        # 
+        #
         # and other pages, the Shiny New Linker in Xcode 15 causes this
         # build to fail with "ld: branch8 out of range 384833 in
         # ___gmpn_add_nc_x86_64"; linking with -ld64 is a workaround.
