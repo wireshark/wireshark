@@ -79,7 +79,8 @@ XZ_VERSION=5.2.5
 # CMake is required to do the build - and to build some of the
 # dependencies.
 #
-CMAKE_VERSION=${CMAKE_VERSION-3.21.4}
+CMAKE_VERSION=${CMAKE_VERSION-4.1.1}
+CMAKE_SHA256=${CMAKE_SHA256-d228a1b6f9cf4a0ed5d2df1953cddd4f9be2de49f03de51a4bf06a7b1892d8b4}
 
 #
 # Ninja isn't required, as make is provided with Xcode, but it is
@@ -673,36 +674,20 @@ install_cmake() {
         #
         case "$CMAKE_MAJOR_VERSION" in
 
-        0|1|2)
+        0|1|2|3)
             echo "CMake $CMAKE_VERSION" is too old 1>&2
             ;;
 
-        3)
+        4)
             #
             # Download the DMG and do a drag install, where "drag" means
             # "mv".
             #
-            # 3.1.1 to 3.19.1 have a Darwin-x86_64 DMG.
-            # 3.19.2 has a macos-universal DMG for 10.10 and later
-            # 3.19.3 and later have a macos-universal DMG for 10.13 and later,
-            # and a macos10.10-universal DMG for 10.10 and later.
-            #
-            if [ "$CMAKE_MINOR_VERSION" -lt 10 ]; then
-                echo "CMake $CMAKE_VERSION" is too old 1>&2
-            elif [ "$CMAKE_MINOR_VERSION" -lt 19 -o \
-                 "$CMAKE_VERSION" = 3.19.0 -o \
-                 "$CMAKE_VERSION" = 3.19.1 ]; then
-                type="Darwin-x86_64"
-            elif [ "$CMAKE_VERSION" = 3.19.2 -o \
-                 "$DARWIN_MAJOR_VERSION" -ge 17 ]; then
-                type="macos-universal"
-            else
-                type="macos10.0-universal"
-            fi
-            [ -f cmake-$CMAKE_VERSION-$type.dmg ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-$type.dmg
+            [ -f cmake-$CMAKE_VERSION-macos-universal.dmg ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-macos-universal.dmg
+            echo "$CMAKE_SHA256  cmake-$CMAKE_VERSION-macos-universal.dmg" | shasum --algorithm 256 --check
             $no_build && echo "Skipping installation" && return
-            sudo hdiutil attach cmake-$CMAKE_VERSION-$type.dmg
-            sudo ditto /Volumes/cmake-$CMAKE_VERSION-$type/CMake.app /Applications/CMake.app
+            sudo hdiutil attach cmake-$CMAKE_VERSION-macos-universal.dmg
+            sudo ditto /Volumes/cmake-$CMAKE_VERSION-macos-universal/CMake.app /Applications/CMake.app
 
             #
             # Plant the appropriate symbolic links in $installation_prefix/bin.
@@ -719,7 +704,7 @@ install_cmake() {
             do
                 sudo ln -s /Applications/CMake.app/Contents/bin/$i "$installation_prefix/bin/$i"
             done
-            sudo hdiutil detach /Volumes/cmake-$CMAKE_VERSION-$type
+            sudo hdiutil detach /Volumes/cmake-$CMAKE_VERSION-macos-universal
             ;;
 
         *)
