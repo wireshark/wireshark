@@ -529,7 +529,7 @@ static int
 dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	if (falco_json_handle) {
-		int falco_len = call_dissector(falco_json_handle, tvb, pinfo, tree);
+		int falco_len = call_dissector_only(falco_json_handle, tvb, pinfo, tree, NULL);
 		if (falco_len > 0) {
 			return falco_len;
 		}
