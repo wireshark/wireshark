@@ -185,6 +185,7 @@ wtap_open_return_val json_log_open(wtap *wth, int *err, char **err_info _U_)
 
     int bytes_read = file_read(log_data, MAX_JSON_LOG_ENTRY_SIZE, wth->fh);
     if (bytes_read < 1) {
+        g_free(log_buf);
         return WTAP_OPEN_NOT_MINE;
     }
 
