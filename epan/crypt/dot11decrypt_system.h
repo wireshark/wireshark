@@ -42,7 +42,7 @@
 #define DOT11DECRYPT_TK_LEN                           16
 
 /* Max length of capture data						*/
-#define	DOT11DECRYPT_MAX_CAPLEN			8192
+#define	DOT11DECRYPT_MAX_CAPLEN			(12 * 1024)
 
 #define	DOT11DECRYPT_WEP_IVLEN	3       /* 24bit */
 #define	DOT11DECRYPT_WEP_KIDLEN	1       /* 1 octet */
