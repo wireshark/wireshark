@@ -424,7 +424,7 @@ dissect_cbch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data  _U
         {
             /* Reassembled */
 
-            /* the tvb contains the reassmbled message prepended with the sequence number octet from the first block
+            /* the tvb contains the reassembled message prepended with the sequence number octet from the first block
                We use this to determine whether this is a normal message or a scheduling message */
             offset = 0;
 

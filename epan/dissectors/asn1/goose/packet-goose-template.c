@@ -216,7 +216,7 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 }
 
 /*
-* Dissect RGOOSE PDUs inside ISO 8602/X.234 CLTP ConnecteionLess
+* Dissect RGOOSE PDUs inside ISO 8602/X.234 CLTP ConnectionLess
 * Transport Protocol.
 */
 static int

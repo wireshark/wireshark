@@ -390,7 +390,7 @@ proto_register_mctp(void)
      *    message integrity check (which is type-specific!). For example,
      *    NVMe-MI, which includes the type byte in packet specifications
      *
-     * mctp.encap-type: for procotols that are trivially encapsulated in a
+     * mctp.encap-type: for protocols that are trivially encapsulated in a
      *    MCTP message, and do not handle the type byte themselves. For
      *    example, NC-SI over MCTP, which just wraps a NC-SI packet within
      *    a MCTP message.

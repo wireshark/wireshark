@@ -804,7 +804,7 @@ static void printtokenlist(int count)
 /* this function will parse the header and pick up the fields
  * we are interested in.
  * the header is supposed to start at the very first token and look like
- * [ <fields> ] inteface <ifname> {
+ * [ <fields> ] interface <ifname> {
  *
  * we are interested in the fields:
  *	   uuid

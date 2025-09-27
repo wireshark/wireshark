@@ -4,7 +4,7 @@
 /* asn2wrs.py -b -q -L -p idmp -c ./idmp.cnf -s ./packet-idmp-template -D . -O ../.. IDMProtocolSpecification.asn CommonProtocolSpecification.asn */
 
 /* packet-idmp.c
- * Routines for X.519 Internet Directly Mapped Procotol (IDMP) packet dissection
+ * Routines for X.519 Internet Directly Mapped Protocol (IDMP) packet dissection
  * Graeme Lunt 2010
  *
  * Wireshark - Network traffic analyzer

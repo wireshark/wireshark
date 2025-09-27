@@ -2522,7 +2522,7 @@ static const fragment_items opa_rmpp_frag_items = {
  *
  * @param[in] tvb pointer to packet buffer
  * @param[in] offset offset into packet buffer where port select mask begins
- * @param[out] port_list optional: pointer to an arrray of ports, allocated via allocator
+ * @param[out] port_list optional: pointer to an array of ports, allocated via allocator
  * @param[out] num_ports optional: pointer to a number of ports in set in port
  *                                 select mask and portlist if provided.
  * @return char* pointer to range string allocated using

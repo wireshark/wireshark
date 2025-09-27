@@ -26,7 +26,7 @@
  */
 
 /*
- developper comments:
+ developer comments:
   Which CPDLC messages are supported ?
     Protected Mode CPDLC (AeQualifier 22) and Plain Old CPDLC (AeQualifier 2)
     The dissector has been tested with ICAO doc9705 Edition2 compliant traffic.

@@ -53,7 +53,7 @@
  *  CRC16 is calculated using the x^16 + x^12 + x^5 + 1 polynomial
  *  as specified by ITU-T, and is calculated over the IEEE 802.15.4
  *  packet (excluding the FCS) as transmitted over the air. Note,
- *  that because the least significan bits are transmitted first, this
+ *  that because the least significant bits are transmitted first, this
  *  will require reversing the bit-order in each byte. Also, unlike
  *  most CRC algorithms, IEEE 802.15.4 uses an initial and final value
  *  of 0x0000, instead of 0xffff (which is used by the ITU-T).

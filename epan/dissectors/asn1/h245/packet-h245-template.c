@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * To quote the author of the previous H245 dissector:
- *   "This is a complete replacement of the previous limitied dissector
+ *   "This is a complete replacement of the previous limited dissector
  * that Ronnie was crazy enough to write by hand. It was a lot of time
  * to hack it by hand, but it is incomplete and buggy and it is good when
  * it will go away."

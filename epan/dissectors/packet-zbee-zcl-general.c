@@ -11418,7 +11418,7 @@ dissect_zcl_sched_energy_phase(tvbuff_t *tvb, proto_tree *tree, unsigned *offset
  *      dissect_zcl_pwr_prof_enphsschednotif
  *  DESCRIPTION
  *      this function is called in order to decode "EnergyPhasesScheduleNotification"
- *      and "EnergyPhasesScheduleResoponse" payload.
+ *      and "EnergyPhasesScheduleResponse" payload.
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.

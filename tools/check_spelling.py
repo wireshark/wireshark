@@ -305,7 +305,7 @@ def getCommentWords(code_string):
         words += m.group(1).split()
 
     # C comments
-    matches = re.finditer(r'/\*(.*?)\*/', code_string)
+    matches = re.finditer(r'/\*(.*?)\*/', code_string, re.MULTILINE|re.DOTALL)
     for m in matches:
         words += m.group(1).split()
 
