@@ -27,9 +27,6 @@
 #ifdef ENABLE_APPLICATION_BUNDLE
 #include <mach-o/dyld.h>
 #endif
-#ifdef __linux__
-#include <sys/utsname.h>
-#endif
 #ifdef __FreeBSD__
 #include <sys/types.h>
 #include <sys/sysctl.h>
@@ -335,7 +332,7 @@ static char *configuration_environment_variable(const char *suffix) {
  * So, on platforms where we know of a mechanism to get that path
  * (where getting that path doesn't involve argv[0], which is not
  * guaranteed to reflect the path to the binary), this routine
- * attempsts to use that platform's mechanism.  On other platforms,
+ * attempts to use that platform's mechanism.  On other platforms,
  * it just returns NULL.
  *
  * This is not guaranteed to return an absolute path; if it doesn't,
@@ -385,24 +382,11 @@ get_current_executable_path(void)
      * of the dynamic linker, and this will get a better answer on
      * those versions.
      *
-     * It only works on Linux 2.2 or later, so we just give up on
-     * earlier versions.
-     *
      * XXX - are there OS versions that support "exe" but not "self"?
      */
-    struct utsname name;
     static char executable_path[PATH_MAX + 1];
     ssize_t r;
 
-    if (uname(&name) == -1)
-        return NULL;
-    if (strncmp(name.release, "1.", 2) == 0)
-        return NULL; /* Linux 1.x */
-    if (strcmp(name.release, "2.0") == 0 ||
-        strncmp(name.release, "2.0.", 4) == 0 ||
-        strcmp(name.release, "2.1") == 0 ||
-        strncmp(name.release, "2.1.", 4) == 0)
-        return NULL; /* Linux 2.0.x or 2.1.x */
     if ((r = readlink("/proc/self/exe", executable_path, PATH_MAX)) == -1)
         return NULL;
     executable_path[r] = '\0';
