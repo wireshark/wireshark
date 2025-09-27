@@ -1079,7 +1079,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* We expect to get the client message first. If this is from an
          * an assigned server port, call it the server, otherwise call it
          * the client.
-         * XXX - We don't unambigously know which side is the server and
+         * XXX - We don't unambiguously know which side is the server and
          * which the client until the KEX specific _INIT and _REPLY messages;
          * we ought to be able to handle the cases where the version string or
          * KEXINIT messages are out of order or where the client version string

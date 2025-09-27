@@ -4355,7 +4355,7 @@ dissect_hie_rendezvous_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 /**
  * Dissect the Time Correction Header IE (7.4.2.7)
  *
- * This field is constructed by taking a signed 16-bit 2's compliment time
+ * This field is constructed by taking a signed 16-bit 2's complement time
  * correction in the range of -2048 us to 2047 us, AND'ing it with 0xfff, and
  * OR'ing again with 0x8000 to indicate a negative acknowledgment.
  */

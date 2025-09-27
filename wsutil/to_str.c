@@ -774,7 +774,7 @@ format_fractional_part_nsecs(char *buf, size_t buflen, uint32_t nsecs, const cha
 	 * and gets rid of some divisions and remainders by 100
 	 * done to generate the digits.
 	 *
-	 * We pass preciions as the last argument to
+	 * We pass precision as the last argument to
 	 * uint_to_str_back_len(), as that might mean that
 	 * all of the cases end up using common code to
 	 * do part of the call to uint_to_str_back_len().

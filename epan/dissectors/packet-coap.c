@@ -1128,7 +1128,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 
 /*
  * options dissector.
- * return offset pointing the next of options. (i.e. the top of the paylaod
+ * return offset pointing the next of options. (i.e. the top of the payload
  * or the end of the data.
  */
 int

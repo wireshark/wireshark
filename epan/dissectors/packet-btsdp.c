@@ -3584,7 +3584,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset,
     int                  service_hdp_data_exchange_specification = -1;
     int                  hfx_attribute_id = hf_service_attribute_id_generic;
     const value_string  *name_vals = NULL;
-    const char          *profile_speficic = "";
+    const char          *profile_specific = "";
     int                  new_offset;
     int                  old_offset;
     uint8_t              type;
@@ -3596,7 +3596,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset,
         case BTSDP_DID_SERVICE_UUID:
             name_vals = vs_did_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_did;
-            profile_speficic = "(DID) ";
+            profile_specific = "(DID) ";
 
             if (number_of_attributes > 1) {
                 service_did_vendor_id_source = findUintAttribute(tvb, service_offset, number_of_attributes, 0x205);
@@ -3606,62 +3606,62 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset,
         case BTSDP_HID_SERVICE_UUID:
             name_vals = vs_hid_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_hid;
-            profile_speficic = "(HID) ";
+            profile_specific = "(HID) ";
             break;
         case BTSDP_SYNC_SERVICE_UUID:
             name_vals = vs_synch_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_synch;
-            profile_speficic = "(SYNCH) ";
+            profile_specific = "(SYNCH) ";
             break;
         case BTSDP_PBAP_PSE_SERVICE_UUID:
         case BTSDP_PBAP_SERVICE_UUID:
             name_vals = vs_pbap_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_pbap;
-            profile_speficic = "(PBAP) ";
+            profile_specific = "(PBAP) ";
             break;
         case BTSDP_PAN_NAP_SERVICE_UUID:
             name_vals = vs_pan_nap_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_pan_nap;
-            profile_speficic = "(PAN NAP) ";
+            profile_specific = "(PAN NAP) ";
             break;
         case BTSDP_PAN_GN_SERVICE_UUID:
             name_vals = vs_pan_gn_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_pan_gn;
-            profile_speficic = "(PAN GN) ";
+            profile_specific = "(PAN GN) ";
             break;
         case BTSDP_PAN_PANU_SERVICE_UUID:
             name_vals = vs_pan_panu_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_pan_panu;
-            profile_speficic = "(PAN PANU) ";
+            profile_specific = "(PAN PANU) ";
             break;
         case BTSDP_OPP_SERVICE_UUID:
             name_vals = vs_opp_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_opp;
-            profile_speficic = "(OPP) ";
+            profile_specific = "(OPP) ";
             break;
         case BTSDP_MAP_SERVICE_UUID:
         case BTSDP_MAP_ACCESS_SRV_SERVICE_UUID:
             name_vals = vs_map_mas_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_map_mas;
-            profile_speficic = "(MAP MAS) ";
+            profile_specific = "(MAP MAS) ";
             break;
         case BTSDP_MAP_NOTIFICATION_SRV_SERVICE_UUID:
             name_vals = vs_map_mns_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_map_mns;
-            profile_speficic = "(MAP MNS) ";
+            profile_specific = "(MAP MNS) ";
             break;
         case BTSDP_WAP_SERVICE_UUID:
         case BTSDP_WAP_CLIENT_SERVICE_UUID:
             name_vals = vs_wap_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_wap;
-            profile_speficic = "(WAP) ";
+            profile_specific = "(WAP) ";
             break;
         case BTSDP_HDP_SERVICE_UUID:
         case BTSDP_HDP_SOURCE_SERVICE_UUID:
         case BTSDP_HDP_SINK_SERVICE_UUID:
             name_vals = vs_hdp_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_hdp;
-            profile_speficic = "(HDP) ";
+            profile_specific = "(HDP) ";
 
             if (number_of_attributes > 1) {
                 service_hdp_data_exchange_specification = findUintAttribute(tvb, service_offset, number_of_attributes, 0x301);
@@ -3671,75 +3671,75 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset,
         case BTSDP_HSP_HS_SERVICE_UUID:
             name_vals = vs_hsp_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_hsp;
-            profile_speficic = "(HSP) ";
+            profile_specific = "(HSP) ";
             break;
         case BTSDP_HCRP_SERVICE_UUID:
         case BTSDP_HCRP_PRINT_SERVICE_UUID:
         case BTSDP_HCRP_SCAN_SERVICE_UUID:
             name_vals = vs_hcrp_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_hcrp;
-            profile_speficic = "(HCRP) ";
+            profile_specific = "(HCRP) ";
             break;
         case BTSDP_HFP_SERVICE_UUID:
             name_vals = vs_hfp_gw_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_hfp_hf;
-            profile_speficic = "(HFP HS) ";
+            profile_specific = "(HFP HS) ";
             break;
         case BTSDP_HFP_GW_SERVICE_UUID:
             name_vals = vs_hfp_ag_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_hfp_ag;
-            profile_speficic = "(HFP AG) ";
+            profile_specific = "(HFP AG) ";
             break;
         case BTSDP_GNSS_UUID:
         case BTSDP_GNSS_SERVER_UUID:
             name_vals = vs_gnss_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_gnss;
-            profile_speficic = "(GNSS) ";
+            profile_specific = "(GNSS) ";
             break;
         case BTSDP_FTP_SERVICE_UUID:
             name_vals = vs_ftp_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_ftp;
-            profile_speficic = "(FTP) ";
+            profile_specific = "(FTP) ";
             break;
         case BTSDP_FAX_SERVICE_UUID:
             name_vals = vs_fax_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_fax;
-            profile_speficic = "(FAX) ";
+            profile_specific = "(FAX) ";
             break;
         case BTSDP_CTP_SERVICE_UUID:
             name_vals = vs_ctp_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_ctp;
-            profile_speficic = "(CTP) ";
+            profile_specific = "(CTP) ";
             break;
         case BTSDP_A2DP_SOURCE_SERVICE_UUID:
         case BTSDP_A2DP_SINK_SERVICE_UUID:
         case BTSDP_A2DP_DISTRIBUTION_SERVICE_UUID:
             name_vals = vs_a2dp_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_a2dp;
-            profile_speficic = "(A2DP) ";
+            profile_specific = "(A2DP) ";
             break;
         case BTSDP_AVRCP_TG_SERVICE_UUID:
         case BTSDP_AVRCP_SERVICE_UUID:
         case BTSDP_AVRCP_CT_SERVICE_UUID:
             name_vals = vs_avrcp_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_avrcp;
-            profile_speficic = "(AVRCP) ";
+            profile_specific = "(AVRCP) ";
             break;
         case BTSDP_BIP_SERVICE_UUID:
         case BTSDP_BIP_RESPONDER_SERVICE_UUID:
             name_vals = vs_bip_imaging_responder_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_bip_imaging_responder;
-            profile_speficic = "(BIP IR) ";
+            profile_specific = "(BIP IR) ";
             break;
         case BTSDP_BIP_AUTO_ARCH_SERVICE_UUID:
             name_vals = vs_bip_imaging_other_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_bip_imaging_other;
-            profile_speficic = "(BIP IAA) ";
+            profile_specific = "(BIP IAA) ";
             break;
         case BTSDP_BIP_REF_OBJ_SERVICE_UUID:
             name_vals = vs_bip_imaging_other_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_bip_imaging_other;
-            profile_speficic = "(BIP IRO) ";
+            profile_specific = "(BIP IRO) ";
             break;
         case BTSDP_BPP_SERVICE_UUID:
         case BTSDP_BPP_STATUS_SERVICE_UUID:
@@ -3747,33 +3747,33 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset,
         case BTSDP_BPP_REFERENCE_PRINTING_SERVICE_UUID:
             name_vals = vs_bpp_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_bpp;
-            profile_speficic = "(BPP) ";
+            profile_specific = "(BPP) ";
             break;
         case BTSDP_BPP_REFLECTED_UI_SERVICE_UUID:
             name_vals = vs_bpp_reflected_ui_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_bpp_rui;
-            profile_speficic = "(BPP RUI) ";
+            profile_specific = "(BPP RUI) ";
             break;
         case BTSDP_DUN_SERVICE_UUID:
             name_vals = vs_dun_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_dun;
-            profile_speficic = "(DUN) ";
+            profile_specific = "(DUN) ";
             break;
         case BTSDP_CTN_ACCESS_SERVICE_UUID:
             name_vals = vs_ctn_as_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_ctn_as;
-            profile_speficic = "(CTN AS) ";
+            profile_specific = "(CTN AS) ";
             break;
         case BTSDP_CTN_NOTIFICATION_SERVICE_UUID:
             name_vals = vs_ctn_ns_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_ctn_ns;
-            profile_speficic = "(CTN NS) ";
+            profile_specific = "(CTN NS) ";
             break;
         case BTSDP_MULTI_PROFILE_UUID:
         case BTSDP_MULTI_PROFILE_SC_UUID:
             name_vals = vs_mps_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_mps;
-            profile_speficic = "(MPS) ";
+            profile_specific = "(MPS) ";
             break;
     }
 
@@ -3781,13 +3781,13 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset,
         attribute_name = val_to_str_const(id, name_vals, "Unknown");
     } else {
         attribute_name = val_to_str_const(id, vs_general_attribute_id, "Unknown");
-        profile_speficic = "";
+        profile_specific = "";
         hfx_attribute_id = hf_service_attribute_id_generic;
     }
 
     if (!attribute_only) {
         attribute_item = proto_tree_add_none_format(tree, hf_service_attribute, tvb, offset, tvb_reported_length_remaining(tvb, offset),
-                        "Service Attribute: %s%s (0x%x)", profile_speficic, attribute_name, id);
+                        "Service Attribute: %s%s (0x%x)", profile_specific, attribute_name, id);
         attribute_tree = proto_item_add_subtree(attribute_item, ett_btsdp_attribute);
     } else {
         attribute_tree = tree;
@@ -3831,8 +3831,8 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset,
             proto_item_set_len(attribute_item, 3 + size + (offset - old_offset));
             proto_item_set_len(attribute_value_item, size + (offset - old_offset));
         } else {
-            proto_item_append_text(attribute_id_item, " %s", profile_speficic);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "[%s%s 0x%04x] ", profile_speficic, attribute_name, id);
+            proto_item_append_text(attribute_id_item, " %s", profile_specific);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "[%s%s 0x%04x] ", profile_specific, attribute_name, id);
         }
     }
 

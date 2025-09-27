@@ -9849,7 +9849,7 @@ static const value_string zbee_zcl_ota_srv_tx_cmd_names[] = {
 };
 
 /* Payload Type */
-static const value_string zbee_zcl_ota_paylaod_type_names[] = {
+static const value_string zbee_zcl_ota_payload_type_names[] = {
     { ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ,                         "Query Jitter" },
     { ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC,                      "Query Jitter and Manufacturer Code" },
     { ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC_IT,                   "Query Jitter, Manufacturer Code and Image Type" },
@@ -10752,7 +10752,7 @@ void proto_register_zbee_zcl_ota(void)
             RVALS(zbee_zcl_ota_zb_stack_ver_names), 0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_payload_type,
-            { "Payload Type", "zbee_zcl_general.ota.payload.type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ota_paylaod_type_names),
+            { "Payload Type", "zbee_zcl_general.ota.payload.type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ota_payload_type_names),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_query_jitter,

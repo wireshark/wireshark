@@ -6157,7 +6157,7 @@ dissect_pfcp_qfi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
 }
 
 /*
- * 8.2.90   Querry URR Reference
+ * 8.2.90   Query URR Reference
  */
 static void
 dissect_pfcp_query_urr_reference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args _U_)

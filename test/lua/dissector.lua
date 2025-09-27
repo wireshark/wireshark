@@ -74,7 +74,7 @@ local default_settings =
 -- from the command line; because you can't set lua preferences from the command
 -- line using the '-o' switch (the preferences don't exist until this script is
 -- loaded, so the command line thinks they're invalid preferences being set)
--- so we pass them in as command arguments insetad, and handle it here:
+-- so we pass them in as command arguments instead, and handle it here:
 local args={...} -- get passed-in args
 if args and #args > 0 then
     for _, arg in ipairs(args) do

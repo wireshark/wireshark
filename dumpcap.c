@@ -6169,7 +6169,7 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
         va_copy(user_ap_copy, user_ap);
 #endif
         if (capture_child) {
-            /* Format the log mesage as the numeric level, followed
+            /* Format the log message as the numeric level, followed
              * by a colon and then a string matching the standard log
              * string. In the future perhaps we serialize file, line,
              * and func (which can be NULL) instead.

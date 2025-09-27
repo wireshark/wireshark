@@ -44,7 +44,7 @@ why not using existing ses, pres and acse dissectors ?
     to implement everything the new atn-ulcs dissector.
 
 why using conversations ?
-    PER encoded user data is ambigous; the same encoding may apply to a CM or
+    PER encoded user data is ambiguous; the same encoding may apply to a CM or
     CPDLC PDU. The workaround is to decode on a transport connection basis.
     I use my own version of conversations to identify
     the transport connection the PDU belongs to for the standard functions

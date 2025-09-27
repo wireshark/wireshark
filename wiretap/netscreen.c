@@ -267,7 +267,7 @@ netscreen_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
  *   <length> is the length of the packet on the network;
  *
  *   <llinfo>, at least for Ethernet, appears to be a source MAC
- *     address, folowed by "->", folowed by a destination MAC
+ *     address, followed by "->", followed by a destination MAC
  *     address, followed by a sequence of Ethertypes, each
  *     preceded by a "/" (multiple Ethertypes if there are VLAN
  *     tags and the like), possibly followed by ", tag <tag>".

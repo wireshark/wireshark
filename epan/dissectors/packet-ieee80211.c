@@ -23179,7 +23179,7 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case 4:
     /* Power Constraint info is mandatory only for 20MHz, others are optional*/
     /* Power is expressed in terms of 0.5dBm from -64 to 63 and is encoded
-     * as 8-bit 2's compliment */
+     * as 8-bit 2's complement */
     for (i = 0; i <= opt_ie_cnt; i++) {
       switch(i) {
       case 0:

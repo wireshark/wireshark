@@ -382,7 +382,7 @@ pcapng_read_darwin_legacy_block(wtap* wth, FILE_T fh, uint32_t block_size _U_,
         return false;
     }
 
-    /* Initialize the wblock->block to poitn to a new DPIB block */
+    /* Initialize the wblock->block to point to a new DPIB block */
     dpib_mand = g_malloc0(sizeof(wtapng_ft_specific_mandatory_t));
     dpib = wtap_block_create( WTAP_BLOCK_FT_SPECIFIC_INFORMATION);
     dpib->mandatory_data = dpib_mand;

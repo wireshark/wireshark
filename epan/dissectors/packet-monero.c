@@ -48,7 +48,7 @@ static const value_string monero_commands[] =
   { 2007, "ChainResponse" },
   { 2008, "NewFluffyBlock" },
   { 2009, "FluffyMissingTxsRequest" },
-  { 2010, "GetTxPoolCompliment" },
+  { 2010, "GetTxPoolComplement" },
   { 0, NULL }
 };
 

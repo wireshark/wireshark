@@ -1431,7 +1431,7 @@ static uint32_t compute_crc_s5_time(uint32_t pid_seed, uint8_t ack_mcast_byte, u
     return timestamp_crc;
 }
 
-static bool verify_compliment_data(tvbuff_t *tvb, int data_offset, int complement_data_offset, int data_size)
+static bool verify_complement_data(tvbuff_t *tvb, int data_offset, int complement_data_offset, int data_size)
 {
     const uint8_t *data = tvb_get_ptr(tvb, data_offset, data_size);
     const uint8_t *complement_data = tvb_get_ptr(tvb, complement_data_offset, data_size);
@@ -1729,7 +1729,7 @@ static void dissect_base_format_3_to_250_byte_data(packet_info* pinfo, proto_tre
    }
 
    proto_item* complement_item = proto_tree_add_item(tree, hf_cipsafety_complement_data, tvb, io_data_size + 3, io_data_size, ENC_NA);
-   if (!verify_compliment_data(tvb, 0, io_data_size + 3, io_data_size))
+   if (!verify_complement_data(tvb, 0, io_data_size + 3, io_data_size))
       expert_add_info(pinfo, complement_item, &ei_cipsafety_not_complement_data);
 
    if (compute_crc)
@@ -1820,7 +1820,7 @@ static void dissect_extended_format_3_to_250_byte_data(packet_info* pinfo, proto
    }
 
    proto_item* complement_item = proto_tree_add_item(tree, hf_cipsafety_complement_data, tvb, io_data_size + 3, io_data_size, ENC_NA);
-   if (!verify_compliment_data(tvb, 0, io_data_size + 3, io_data_size))
+   if (!verify_complement_data(tvb, 0, io_data_size + 3, io_data_size))
       expert_add_info(pinfo, complement_item, &ei_cipsafety_not_complement_data);
 
    uint32_t crc_s5_0, crc_s5_1, crc_s5_2;
