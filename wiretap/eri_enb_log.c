@@ -22,14 +22,18 @@ void register_eri_enb_log(void);
 
 #define MAX_LINE_LENGTH            131072
 
+typedef struct {
+    char line[MAX_LINE_LENGTH];
+} eri_enb_log_t;
+
 static bool eri_enb_log_get_packet(wtap *wth, FILE_T fh, wtap_rec* rec,
 	int* err _U_, char** err_info _U_)
 {
-	static char line[MAX_LINE_LENGTH];
+	eri_enb_log_t *eri_enb = (eri_enb_log_t *)wth->priv;
 	/* Read in a line */
 	int64_t pos_before = file_tell(fh);
 
-	while (file_gets(line, sizeof(line), fh) != NULL)
+	while (file_gets(eri_enb->line, sizeof(eri_enb->line), fh) != NULL)
 	{
 		nstime_t packet_time;
 		int length;
@@ -37,17 +41,17 @@ static bool eri_enb_log_get_packet(wtap *wth, FILE_T fh, wtap_rec* rec,
 		length = (int)(file_tell(fh) - pos_before);
 
 		/* ...but don't want to include newline in line length */
-		if (length > 0 && line[length - 1] == '\n') {
-			line[length - 1] = '\0';
+		if (length > 0 && eri_enb->line[length - 1] == '\n') {
+			eri_enb->line[length - 1] = '\0';
 			length = length - 1;
 		}
 		/* Nor do we want '\r' (as will be written when log is created on windows) */
-		if (length > 0 && line[length - 1] == '\r') {
-			line[length - 1] = '\0';
+		if (length > 0 && eri_enb->line[length - 1] == '\r') {
+			eri_enb->line[length - 1] = '\0';
 			length = length - 1;
 		}
 
-		if (NULL != iso8601_to_nstime(&packet_time, line+1, ISO8601_DATETIME)) {
+		if (NULL != iso8601_to_nstime(&packet_time, eri_enb->line+1, ISO8601_DATETIME)) {
 			rec->ts.secs = packet_time.secs;
 			rec->ts.nsecs = packet_time.nsecs;
 			rec->presence_flags |= WTAP_HAS_TS;
@@ -65,7 +69,7 @@ static bool eri_enb_log_get_packet(wtap *wth, FILE_T fh, wtap_rec* rec,
 		*err = 0;
 
 		/* Append data to the packet buffer */
-		ws_buffer_append(&rec->data, line, rec->rec_header.packet_header.caplen);
+		ws_buffer_append(&rec->data, eri_enb->line, rec->rec_header.packet_header.caplen);
 
 		return true;
 
@@ -94,12 +98,21 @@ static bool eri_enb_log_seek_read(wtap* wth, int64_t seek_off,
 	return eri_enb_log_get_packet(wth, wth->random_fh, rec, err, err_info);
 }
 
+static void eri_enb_log_close(wtap *wth)
+{
+	eri_enb_log_t *eri_enb = (eri_enb_log_t *)wth->priv;
+
+	g_free(eri_enb);
+	/* XXX: Prevent double free by wtap_close() */
+	wth->priv = NULL;
+}
+
 wtap_open_return_val
 eri_enb_log_open(wtap *wth, int *err, char **err_info)
 {
 	char line1[64];
 
-	/* Look for Gammu DCT3 trace header */
+	/* Look for Ericsson eNode-B log header */
 	if (file_gets(line1, sizeof(line1), wth->fh) == NULL)
 	{
 		*err = file_error(wth->fh, err_info);
@@ -121,7 +134,9 @@ eri_enb_log_open(wtap *wth, int *err, char **err_info)
 	wth->file_tsprec = WTAP_TSPREC_NSEC;
 	wth->subtype_read = eri_enb_log_read;
 	wth->subtype_seek_read = eri_enb_log_seek_read;
+	wth->subtype_close = eri_enb_log_close;
 	wth->snapshot_length = 0;
+	wth->priv = g_new(eri_enb_log_t, 1);
 
 	return WTAP_OPEN_MINE;
 }
