@@ -21,15 +21,13 @@ typedef struct {
     uint8_t Q[EAX_SIZEOF_KEY];
 } eax_s;
 
-static eax_s instance;
-
 /* these are defined as macros so they'll be easy to redo in assembly if desired */
 #define BLK_CPY(dst, src) { memcpy(dst, src, EAX_SIZEOF_KEY); }
 #define BLK_XOR(dst, src) { int z; for (z=0; z < EAX_SIZEOF_KEY; z++) dst[z] ^= src[z]; }
 static void Dbl(uint8_t *out, const uint8_t *in);
 static void CTR(const uint8_t *ws, uint8_t *pK, uint8_t *pN, uint16_t SizeN);
-static void CMAC(uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN);
-static void dCMAC(uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN, const uint8_t *pC, uint16_t SizeC);
+static void CMAC(const eax_s *instance, uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN);
+static void dCMAC(const eax_s *instance, uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN, const uint8_t *pC, uint16_t SizeC);
 void AesEncrypt(unsigned char msg[EAX_SIZEOF_KEY], unsigned char key[EAX_SIZEOF_KEY]);
 
 /*!
@@ -50,6 +48,7 @@ bool Eax_Decrypt(uint8_t *pN, uint8_t *pK, uint8_t *pC,
                      uint32_t SizeN, uint32_t SizeK, uint32_t SizeC, MAC_T *pMac,
                      uint8_t Mode)
 {
+    eax_s instance;
     uint8_t wsn[EAX_SIZEOF_KEY];
     uint8_t wsc[EAX_SIZEOF_KEY];
     int i;
@@ -68,9 +67,9 @@ bool Eax_Decrypt(uint8_t *pN, uint8_t *pK, uint8_t *pC,
     /* first copy the nonce into our working space */
     BLK_CPY(wsn, instance.D);
     if (Mode == EAX_MODE_CLEARTEXT_AUTH) {
-        dCMAC(pK, wsn, pN, SizeN, pC, SizeC);
+        dCMAC(&instance, pK, wsn, pN, SizeN, pC, SizeC);
     } else {
-        CMAC(pK, wsn, pN, SizeN);
+        CMAC(&instance, pK, wsn, pN, SizeN);
     }
     /*
      *  In authentication mode the inputs are: pN, pK (and associated sizes),
@@ -93,7 +92,7 @@ bool Eax_Decrypt(uint8_t *pN, uint8_t *pK, uint8_t *pC,
         {
             /* first copy the nonce into our working space */
             BLK_CPY(wsc, instance.Q);
-            CMAC(pK, wsc, pC, SizeC);
+            CMAC(&instance, pK, wsc, pC, SizeC);
             BLK_XOR(wsc, wsn);
         }
         if (memcmp(pMac, &wsc[EAX_SIZEOF_KEY-sizeof(*pMac)], sizeof(*pMac)) == 0)
@@ -121,12 +120,12 @@ static void Dbl(uint8_t *out, const uint8_t *in)
         out[0] ^= 0x87;
 }
 
-static void CMAC(uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN)
+static void CMAC(const eax_s *instance, uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN)
 {
-    dCMAC(pK, ws, pN, SizeN, NULL, 0);
+    dCMAC(instance, pK, ws, pN, SizeN, NULL, 0);
 }
 
-static void dCMAC(uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN, const uint8_t *pC, uint16_t SizeC)
+static void dCMAC(const eax_s *instance, uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN, const uint8_t *pC, uint16_t SizeC)
 {
     gcry_cipher_hd_t cipher_hd;
     uint8_t *work;
@@ -155,10 +154,10 @@ static void dCMAC(uint8_t *pK, uint8_t *ws, const uint8_t *pN, uint16_t SizeN, c
         for (ptr = &work[SizeT+1]; ptr <= &work[worksize-1]; ptr++)
             *ptr = 0;
         ptr= &work[worksize-0x10];
-        BLK_XOR(ptr, instance.Q);
+        BLK_XOR(ptr, instance->Q);
     } else {
         ptr = &work[worksize-0x10];
-        BLK_XOR(ptr, instance.D);
+        BLK_XOR(ptr, instance->D);
     }
     /* open the cipher */
     if (gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC,0)){/* GCRY_CIPHER_CBC_MAC)) { */
