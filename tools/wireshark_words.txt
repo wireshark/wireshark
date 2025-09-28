@@ -260,6 +260,7 @@ bitmap
 bitmask
 bitrate
 bitstring
+bjorlykke
 blackhole
 bluedroid
 bmaple
@@ -1126,6 +1127,7 @@ google
 gopname
 goroutines
 gostr
+goutte
 gpointer
 gprscdr
 gprsmeasurementparams
@@ -1157,6 +1159,7 @@ hangul
 hangup
 hangzhou
 haptic
+harald
 harqid
 harris
 hartip
@@ -1167,6 +1170,7 @@ hazelcast
 hbreq
 hbresp
 hcidump
+hcolon
 headend
 hebrew
 heimdal
@@ -1316,6 +1320,7 @@ instr
 instrmnt
 instrmt
 instrumented
+int32t
 intcon
 intel
 intensities
@@ -1402,6 +1407,7 @@ japanese
 jetds
 jiangsu
 jminfo
+joerg
 joiners
 jsonraw
 jtids
@@ -1441,7 +1447,8 @@ l1sync
 l2cap
 l2vpn
 l3vpn
-ladebzki
+labedzki
+laforge
 laggy
 lanalyzer
 lanka
@@ -1767,6 +1774,7 @@ nasdaq
 natively
 nbifom
 nbrar
+nbytes
 ndpsm
 ndriver
 nederland
@@ -1888,6 +1896,7 @@ numitems
 nvgre
 nvmeof
 nvram
+nxtpdu
 oampdu
 obfuscated
 objectid
@@ -2031,6 +2040,7 @@ pathconf
 paxos
 pbcch
 pbx2dev
+pbx2pbx
 pcapng
 pccch
 pcch
@@ -3098,6 +3108,7 @@ unhidden
 unicast
 unicode
 unicom
+unicos
 unidirectionally
 unignore
 unimplemented
@@ -3276,6 +3287,7 @@ vnode
 vocoder
 vodacom
 vodafone
+voelker
 voipmetrics
 volerr
 volid
@@ -3297,6 +3309,7 @@ webkit
 webrtc
 websocket
 wednesday
+welte
 werror
 whereis
 whoami

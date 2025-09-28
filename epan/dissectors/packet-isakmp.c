@@ -6181,7 +6181,7 @@ dissect_enc(tvbuff_t *tvb,
          * Unfortunately gcrypt_cipher_gettag() have nothing similar to gcry_md_read(),
          * so we need copy data to buffer here.
          * Here, depending on cgrypt version gcm length shall be given differently:
-         * - in 1.7.x length can be of any aproved length (4,8,12,13,14,15,16 bytes),
+         * - in 1.7.x length can be of any approved length (4,8,12,13,14,15,16 bytes),
          * - in 1.6.x length must be equal of cipher block length. Aaargh... :-(
          * We use accepted for both versions length of block size for GCM (16 bytes).
          * For CCM length given must be the same as given to gcry_cipher_ctl(GCRYCTL_SET_CCM_LENGTHS)

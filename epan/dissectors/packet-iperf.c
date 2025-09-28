@@ -612,7 +612,7 @@ dissect_iperf2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
     - client_hdrext_isoch_settings (40 bytes)
     - cca_field (34 bytes)
     - Combinations of the above
-    - OR a bounnceback header (64 bytes in total)
+    - OR a bounceback header (64 bytes in total)
 
     We do two pass analysis to avoid code duplication:
     - First, we collect the total headers length

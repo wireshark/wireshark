@@ -1199,7 +1199,7 @@ dissect_bssap_MM_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
      *  information elements of the MM information message as defined
      *  3GPP TS 24.008, excluding the Protocol discriminator, Skip
      *  indicator and Message type. This field includes the IEI and length
-     *  indicatior of the other information elements.
+     *  indicator of the other information elements.
      */
     dtap_mm_mm_info(tvb, ie_tree, pinfo, offset, ie_len);
 

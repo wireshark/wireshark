@@ -18,7 +18,7 @@
    Some stuff in the EDP Info field (no spec)
   - Things seen in traces
    Flags in the EDP Vlan field (value 0x01)
-  - TLV type 0x0e (ESL) shared link managemnt
+  - TLV type 0x0e (ESL) shared link management
    TLV type 0x15 (XOS only?) Link bit details (eth autoneg)
    EAPS type 0x10 (ESL?)
    ESRP state 0x03

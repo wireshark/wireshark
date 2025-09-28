@@ -1172,7 +1172,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			offset = offset + 4;
 
 			/* W8 Unused */
-			/* might be set prior to 1.7.3 but according to Allan Stephens this was never verfied by the receiver
+			/* might be set prior to 1.7.3 but according to Allan Stephens this was never verified by the receiver
 			   proto_tree_add_item(tipc_tree, hf_tipcv2_transport_seq_no, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
 			   */
 			proto_tree_add_none_format(tipc_tree, hf_tipc_unused_word, tipc_tvb, offset, 4, "word 8 unused for this user");

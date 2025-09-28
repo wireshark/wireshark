@@ -233,7 +233,7 @@ static inline void memcpy_reverse(uint8_t *dst, const uint8_t *src, size_t len)
  *
  * @param  str       pointer to a hex string
  * @param  buf       pointer to buffer, where to place result
- * @param  bytes_num number of bytes to retrive from the string
+ * @param  bytes_num number of bytes to retrieve from the string
  * @return success
  */
 static bool zbd_parse_uat_hexline(const char *str,
@@ -1458,7 +1458,7 @@ static int dissect_zb_direct_manage_joiners(tvbuff_t    *tvb,
 }
 
 /**
- * Dissector for Indentify.
+ * Dissector for Identify.
  *
  * @param  tvb     pointer to buffer containing raw packet
  * @param  pinfo   pointer to packet information fields

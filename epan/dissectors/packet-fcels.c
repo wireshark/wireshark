@@ -984,7 +984,7 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_item (cmnsvc_tree, hf_fcels_npname, tvb, offset+20, 8, ENC_NA);
         proto_tree_add_item (cmnsvc_tree, hf_fcels_fnname, tvb, offset+28, 8, ENC_NA);
 
-        /* Add subtree for class paramters */
+        /* Add subtree for class parameters */
         offset = 36;
         for (svcclass = 1; svcclass < 5; svcclass++) {
             cmnsvc_tree = proto_tree_add_subtree_format(logi_tree, tvb, offset, 16,

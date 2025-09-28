@@ -571,7 +571,7 @@ dissect_dcc_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 	correct if connection went through a firewall or similar. */
 
 	/* Very hokey check - if all three of pid/report/retrans look like little-endian
-		numbers, host is probably little endian. Probably innacurate on super-heavily-used
+		numbers, host is probably little endian. Probably inaccurate on super-heavily-used
 		DCC clients though. This should be good enough for now. */
 	client_is_le = (( (tvb_get_uint8(tvb, offset+4) | tvb_get_uint8(tvb, offset+5)) &&
 						(tvb_get_uint8(tvb, offset+8) | tvb_get_uint8(tvb, offset+9)) &&

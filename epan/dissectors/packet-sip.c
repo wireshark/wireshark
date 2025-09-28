@@ -3486,7 +3486,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         const char *proto_name;
         void *tmp;
 
-        /* For SIP messages with other sip messages embeded in the body, don't export those individually.
+        /* For SIP messages with other sip messages embedded in the body, don't export those individually.
          * E.g. if we are called from the mime_multipart dissector don't export the message.
          */
         cur = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
@@ -3598,7 +3598,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             while (tvb_offset_exists(tvb, next_offset) && ((c = tvb_get_uint8(tvb, next_offset)) == ' ' || c == '\t'))
             {
                 /*
-                 * This line end is not a header seperator.
+                 * This line end is not a header separator.
                  * It just extends the header with another line.
                  * Look for next line end:
                  */
@@ -3664,7 +3664,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             while (tvb_offset_exists(tvb, next_offset) && ((c = tvb_get_uint8(tvb, next_offset)) == ' ' || c == '\t'))
             {
                 /*
-                 * This line end is not a header seperator.
+                 * This line end is not a header separator.
                  * It just extends the header with another line.
                  * Look for next line end:
                  */

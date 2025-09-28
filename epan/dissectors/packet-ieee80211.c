@@ -26701,7 +26701,7 @@ dissect_bss_ac_access_delay_ie(tvbuff_t *tvb, packet_info *pinfo,
   }
 
   /* TODO: Display the scaled representation of the average
-    medium access delay (a big (precalculed) value_string ?)
+    medium access delay (a big (precalculated) value_string ?)
     See 8.4.2.46 BSS AC Access Delay element ... */
 
   proto_tree_add_item(tree, hf_ieee80211_tag_bss_avg_ac_access_delay_be, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -38869,7 +38869,7 @@ dissect_ieee80211_s1g_tack(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 /*
- * Dissect a VHT or an HE NDP accouncement frame. They differ past
+ * Dissect a VHT or an HE NDP announcement frame. They differ past
  * the sounding dialog token with a bit in the SDT indicating VHT vs HE.
  */
 #define NDP_ANNC_VHT_HE 0x02
@@ -39725,7 +39725,7 @@ dissect_ieee80211_pv1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
    * A4 Present, and A-MSDU subfields of the SID are reserved. Should
    * they be dissected differently, and ignored / expert info if set?
    *
-   * For PV1_MANAGMENT frames (9.8.5), A4 and A-MSDU cannot be present.
+   * For PV1_MANAGEMENT frames (9.8.5), A4 and A-MSDU cannot be present.
    * Ignore / expert info if set?
    */
   if (a1_is_sid) {
@@ -39943,7 +39943,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        */
       if (!isDMG) {
         /*
-         * Non-DMG PHY; treat this field as hving an HT Control field.
+         * Non-DMG PHY; treat this field as having an HT Control field.
          *
          * XXX - as I read the above, this shouldn't be set except for
          * HT, VHT, or HE PHYs; however, in the capture in issue 11351,
@@ -40091,7 +40091,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
            */
           if (!isDMG) {
             /*
-             * Non-DMG PHY; treat this field as hving an HT Control field.
+             * Non-DMG PHY; treat this field as having an HT Control field.
              *
              * XXX - as I read the above, this shouldn't be set except for
              * HT, VHT, or HE PHYs; however, in the capture in issue 11351,
@@ -42649,7 +42649,7 @@ set_dot11decrypt_keys(void)
 
     if (dk != NULL)
     {
-      /* parse_key_string() does vaildation, so if it doesn't
+      /* parse_key_string() does validation, so if it doesn't
        * return NULL, we can just copy the results.
        */
       DOT11DECRYPT_KEY_ITEM key = { 0 };
@@ -62023,7 +62023,7 @@ proto_register_ieee80211(void)
 
   /*
    * Create the hash table we will use for holding STA properties that
-   * track newer protocol varients like S1G, DMG, etc. Use the existing
+   * track newer protocol variants like S1G, DMG, etc. Use the existing
    * retransmit hash and equal functions.
    */
   sta_prop_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),

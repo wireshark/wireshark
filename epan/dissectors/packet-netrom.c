@@ -24,7 +24,7 @@
  *   packet-sdlc.c
  *   packet-x25.c
  *   packet-lapb.c
- *   paket-gprs-llc.c
+ *   packet-gprs-llc.c
  *   xdlc.c
  * with the base file built from README.developers.
  */

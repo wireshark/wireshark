@@ -3971,7 +3971,7 @@ static int reassemble_mq(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, vo
 
                 /*
                 2 or more fragments.
-                Build Up the full pdu to be dissected correwctly
+                Build Up the full pdu to be dissected correctly
                 */
                 next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
                 add_new_data_source(pinfo, next_tvb, "Reassembled MQ");

@@ -599,7 +599,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                          * units shall not be sent per PES packet unless they
                          * fit in the same transport packet (ETSI TS 101 154).
                          * This is not guaranteed for audio frames, so proper
-                         * dissction there should involve looking for frame
+                         * dissection there should involve looking for frame
                          * sync and reassembling across PES packet boundaries
                          * if necessary.
                          */

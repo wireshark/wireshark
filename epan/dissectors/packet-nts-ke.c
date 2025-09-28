@@ -177,7 +177,7 @@ static const range_string nts_ke_aead_rvals[] = {
  *
  * All crypto functions will need GCRYPT >= 1.10.0 because
  * GCRY_CIPHER_MODE_SIV is a mandatory algorithm. If'ing out SIV algos
- * to compile sucessfully without GCRYPT support.
+ * to compile successfully without GCRYPT support.
  */
 static const nts_aead nts_ke_aead_gcry_map[] = {
 #if GCRYPT_VERSION_NUMBER >= 0x010a00

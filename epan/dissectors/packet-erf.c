@@ -1240,7 +1240,7 @@ init_tag_fields(wmem_array_t *hfri_table, wmem_array_t *ett_table, const erf_met
 
   /*Tags with subfields (only)*/
   /*XXX: Can't currently easily be described in the template because
-   * there is curently no dissect bitfield equivalent that supports arbitrary
+   * there is currently no dissect bitfield equivalent that supports arbitrary
    * types/offsets*/
   switch (tag->code) {
   /*Special case: parent_section*/

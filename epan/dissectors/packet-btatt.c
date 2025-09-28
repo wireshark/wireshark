@@ -4782,7 +4782,7 @@ btatt_call_dissector_by_dissector_name_with_data(const char *dissector_name,
 }
 
 /*
-    dissects attribute handle and takes care of reassemly:
+    dissects attribute handle and takes care of reassembly:
     If sub-dissector sets pinfo->deseg_offset >0 && < pktlen the leftover bytes are stored and front-attached to the next packet
     returns 0 if paket was not handled
     returns #bytes consumed

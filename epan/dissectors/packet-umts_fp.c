@@ -5358,7 +5358,7 @@ static uint8_t fake_map[256];
  * TODO: This need to be fixed!
  * Basically you would want the actual RRC messages, that sooner or later maps
  * transport channel id's to logical id's or RAB IDs
- * to set the proper logical channel/RAB ID, but for now we make syntethic ones.
+ * to set the proper logical channel/RAB ID, but for now we make synthetic ones.
  * */
 
 static uint8_t
@@ -5612,7 +5612,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                     }
                     else {
                         /* Unfamiliar DCH format, faking LCHID */
-                        /* Asuming the channel isn't multiplexed (ie. C/T field not present) */
+                        /* Assuming the channel isn't multiplexed (ie. C/T field not present) */
                         macinf->ctmux[j+chan] = false;
 
                         /* TODO: This stuff has to be reworked! */

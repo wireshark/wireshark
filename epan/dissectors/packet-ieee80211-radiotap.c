@@ -713,7 +713,7 @@ static int radiotap_fcs_handling = USE_FCS_BIT;
 #define IEEE80211_RADIOTAP_F_SHORTGI	0x80
 #define IEEE80211_RADIOTAP_XCHANNEL	18
 
-/* Official specifcation:
+/* Official specification:
  *
  * http://www.radiotap.org/
  *
@@ -1370,7 +1370,7 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	uint8_t ltf_symbol_size = 0;
 
 	/*
-	 * This is set differetly for each packet, depending on
+	 * This is set differently for each packet, depending on
 	 * which values in data3 are known.  It thus will not
 	 * work if it's static.
 	 */
@@ -1658,7 +1658,7 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_,
 	uint16_t flags2;
 
 	/*
-	 * This is set differetly for each packet, depending on
+	 * This is set differently for each packet, depending on
 	 * which values in flags1 are known.  It thus will not
 	 * work if it's static.
 	 */

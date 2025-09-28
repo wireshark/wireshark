@@ -2183,7 +2183,7 @@ dissect_cb_reply(ptvcursor_t *cursor, packet_info* pinfo _U_, struct rxinfo *rxi
 	if ( rxinfo->type == RX_PACKET_TYPE_DATA )
 	{
 		switch ( opcode ) {
-			case 65538: /* get-capabilites */
+			case 65538: /* get-capabilities */
 				OUT_CM_INTERFACES(cursor);
 				OUT_CM_CAPABILITIES(cursor);
 				break;

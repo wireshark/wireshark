@@ -167,7 +167,7 @@
 #define MASTER_LEN 48   /* rfc 5246 */
 #define MAXIV 16        /* big enough for AES256 */
 #define MAXKEY 32       /* big enough for AES256 */
-#define KEYBLSIZE 16    /* Maximum symetric key blocksize */
+#define KEYBLSIZE 16    /* Maximum symmetric key blocksize */
 #define DEF_RSA_LEN 512 /* Default length of generated RSA keys */
 #define RSA_EXP 65537   /* Public key exponent of generated RSA keys */
 #define SALT_LEN 4      /* Length of salt for IV */

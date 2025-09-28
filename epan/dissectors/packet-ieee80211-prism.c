@@ -105,7 +105,7 @@ static dissector_handle_t prism_handle;
  *
  *      RSSI (receive signal strength indication) is "the total power
  *      received by the radio hardware while receiving the frame,
- *      including signal, interfereence, and background noise";
+ *      including signal, interference, and background noise";
  *
  *      "silence value" is "the total power observed just before the
  *      start of the frame".

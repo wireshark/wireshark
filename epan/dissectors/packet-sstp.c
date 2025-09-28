@@ -1,5 +1,5 @@
 /* packet-sstp.c
- * routines for sstp packet dissasembly
+ * routines for sstp packet disassembly
  * - MS-SSTP:
  *
  *    https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-sstp
@@ -309,7 +309,7 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
       }
     }
 
-    /* While testing with different dumps, i noticed data in the buffer i couldnt find any documentation about */
+    /* While testing with different dumps, I noticed data in the buffer I couldn't find any documentation about */
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
       proto_tree_add_item(sstp_tree, hf_sstp_data_unknown, tvb, offset, -1, ENC_NA);
     }

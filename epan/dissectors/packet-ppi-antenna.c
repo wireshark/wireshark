@@ -1,5 +1,5 @@
 /* packet-ppi-antenna.c
- * Routines for PPI-GEOLOCATION-ANNTENNA  dissection
+ * Routines for PPI-GEOLOCATION-ANTENNA  dissection
  * Copyright 2010, Harris Corp, jellch@harris.com
  *
  * Wireshark - Network traffic analyzer
@@ -252,7 +252,7 @@ dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         case  PPI_ANTENNA_BEAMID:
             if (length_remaining < 2)
                 break;
-            beamid= tvb_get_letohs(tvb, offset); /* convert endianess */
+            beamid= tvb_get_letohs(tvb, offset); /* convert endianness */
             proto_tree_add_uint(ppi_antenna_tree, hf_ppi_antenna_beamid, tvb, offset, 2, beamid);
             offset+=2;
             length_remaining-=2;

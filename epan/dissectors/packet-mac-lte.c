@@ -2486,7 +2486,7 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
         /* Show which timers are still running and how long they have to go.
            TODO: Complain if it looks like DRX looks like it should be on
-           TODO: if PDU is a retranmission, would be good to check to see if DRX
+           TODO: if PDU is a retransmission, would be good to check to see if DRX
                  would have been on for original Tx! */
 
         /* Is onduration timer running? */

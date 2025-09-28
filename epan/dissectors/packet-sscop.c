@@ -134,7 +134,7 @@ static value_string_ext sscop_type_vals_ext = VALUE_STRING_EXT_INIT(sscop_type_v
 /*
  * Begin PDU, Begin Acknowledge PDU (no N(SQ) in it), Resynchronization
  * PDU, Resynchronization Acknowledge PDU (no N(SQ) in it in Q.SAAL),
- * Error Recovery PDU, Error Recovery Acknoledge PDU (no N(SQ) in it).
+ * Error Recovery PDU, Error Recovery Acknowledge PDU (no N(SQ) in it).
  */
 #define SSCOP_N_SQ      (reported_length - 5)   /* One byte */
 #define SSCOP_N_MR      (reported_length - 4)   /* lower 3 bytes thereof */

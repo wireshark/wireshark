@@ -211,7 +211,7 @@ val_to_valstr(uint32_t val, const value_valuestring *vvs)
  *	This requires a list { "media/type", discriminator, { decodings } }
  *
  *   b.1. Use a discriminator to choose an appropriate token mapping;
- *	The disciminator needs a small number of bytes from the data tvbuff_t.
+ *	The discriminator needs a small number of bytes from the data tvbuff_t.
  *
  * else
  *   b.2. Provide a list to the end-user with all possible token mappings.

@@ -13,7 +13,7 @@
  */
 
 /*
- * This is a proprietary protocol deveolped by Mitel for communication
+ * This is a proprietary protocol developed by Mitel for communication
  * between the DECT system management Software (OMM) and the DECT
  * base station (RFPs)
  */
@@ -777,7 +777,7 @@ SYS-MAX-CHANNELS Message
 | Offset | Len | Content   |
 | ------ | --- | --------- |
 |      0 |   1 | DSP       |
-|      1 |   1 | Sesseions |
+|      1 |   1 | Sessions  |
 */
 static unsigned dissect_dect_mitel_rfp_sys_max_channels(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_, unsigned offset)
 {
@@ -903,7 +903,7 @@ SYS-INIT Message
 |      0 |   4 | Model Type        |
 |      8 |   6 | MAC Address       |
 |     20 |   4 | Capabilities      |
-|     24 |  64 | AES enrypted Data |
+|     24 |  64 | AES encrypted Data|
 |     88 |   4 | Protocol          |
 |    112 |  32 | Software Version  |
 |    256 |  16 | Signature         |

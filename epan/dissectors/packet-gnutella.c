@@ -180,7 +180,7 @@ static void dissect_gnutella_query(tvbuff_t *tvb, unsigned offset, proto_tree *t
 		 *   encoding was specified, but most servents use
 		 *   the ISO-8859-1 character set, but other encodings
 		 *   such as UTF-8 MAY also be used (possibly in
-		 *   conjonction with Query Data), as well as other
+		 *   conjunction with Query Data), as well as other
 		 *   international character sets (ISO-8859-*, KOI-8,
 		 *   S-JIS, Big5, ...).
 		 *

@@ -3,7 +3,7 @@
  */
 /* TODO audit value parameter for proto_tree_add_boolean() calls */
 /* packet-scsi.c
- * Routines for decoding SCSI CDBs and responsess
+ * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
  * Wireshark - Network traffic analyzer

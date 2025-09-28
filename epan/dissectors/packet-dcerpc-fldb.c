@@ -1736,7 +1736,7 @@ proto_register_fldb (void)
      {"Site Flags", "fldb.vldbentry.siteflags", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
       HFILL}},
     {&hf_fldb_vldbentry_sitemaxreplicalatency,
-     {"Site Max Replica Latench", "fldb.vldbentry.sitemaxreplatency", FT_UINT32,
+     {"Site Max Replica Latency", "fldb.vldbentry.sitemaxreplatency", FT_UINT32,
       BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_fldb_vldbentry_siteprincipal,
      {"Principal Name", "fldb.vldbentry.siteprincipal", FT_STRING, BASE_NONE, NULL,

@@ -604,7 +604,7 @@ static int parameter_type(proto_tree *tree, tvbuff_t *tvb, int offset_parameter_
   uint32_t parameter, parameter_length;
 
   /* A general parameter decoding looks like: Identifier -> Length -> Value
-   There is another case statment to account for the 'F' bit */
+   There is another case statement to account for the 'F' bit */
   if ((param_value & 0x0F) == 0x0F)
   {
       ti = proto_tree_add_item_ret_uint(tree, hf_ansi_tcap_parameter, tvb, offset_parameter_type, 2, ENC_BIG_ENDIAN, &parameter);

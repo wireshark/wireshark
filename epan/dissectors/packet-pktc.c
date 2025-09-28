@@ -187,7 +187,7 @@ dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbu
     case DOI_SNMPv3:
         switch(kmmid){
         /* we don't distinguish between manager and agent engineid.
-           feel free to add separation for this if it is imporant enough
+           feel free to add separation for this if it is important enough
            for you. */
         case KMMID_AP_REQUEST:
         case KMMID_AP_REPLY:
@@ -228,7 +228,7 @@ dissect_pktc_app_specific_data(packet_info *pinfo, proto_tree *parent_tree, tvbu
         switch(kmmid){
         /* we don't distinguish between SPIs for inbound Security Associations
            of the client (AP-REQ) vs. server (AP-REP, REKEY). Feel free to add
-           separation for this if it is imporant enough for you. */
+           separation for this if it is important enough for you. */
         case KMMID_AP_REQUEST:
         case KMMID_AP_REPLY:
         case KMMID_REKEY:

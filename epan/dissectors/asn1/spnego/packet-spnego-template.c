@@ -1263,7 +1263,7 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
    * object ID and a blob containing the data ...
    * XXX - is this RFC 2743's "Mechanism-Independent Token Format",
    * with the "optional" "use in non-initial tokens" being chosen.
-   * ASN1 code addet to spnego.asn to handle this.
+   * ASN1 code added to spnego.asn to handle this.
    */
 
   offset = dissect_spnego_InitialContextToken(false, tvb, offset, &asn1_ctx , subtree, -1);

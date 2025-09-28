@@ -18877,7 +18877,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	else if ((si->cmd == SMB_COM_TRANSACTION_SECONDARY)    /* Transaction Secondary */
 		 || (si->cmd == SMB_COM_TRANSACTION2_SECONDARY)   /* Transaction2 Secondary */
 		 || (si->cmd == SMB_COM_NT_TRANSACT_SECONDARY)) { /* NT Transaction Secondary */
-		 /* In the case of secondariy requests there is response to the initial request
+		/* In the case of secondary requests there is response to the initial request
 		    followed by one or more secondary *requests* then another response. Each
 		    of the secondaries should point to the second response as the response
 		    and have "Response in: <second response's frame number>".

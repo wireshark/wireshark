@@ -981,7 +981,7 @@ void dissect_ptp_transactionID(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 /**
  * This method handles dissecting the Unicode name that is
- * specificed in multiple packets.
+ * specified in multiple packets.
  */
 static void dissect_ptpIP_unicode_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset)
 {

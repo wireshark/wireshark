@@ -1315,7 +1315,7 @@ dissect_mp2t_adaptation_field(tvbuff_t *tvb, int offset, proto_tree *tree)
     proto_tree_add_item(tree, hf_mp2t_af_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* fix issues where afc==3 but af_length==0
-     *  Adaptaion field...spec section 2.4.3.5: The value 0 is for inserting a single
+     *  Adaptation field...spec section 2.4.3.5: The value 0 is for inserting a single
      *  stuffing byte in a Transport Stream packet. When the adaptation_field_control
      *  value is '11', the value of the adaptation_field_length shall be in the range 0 to 182.
      */

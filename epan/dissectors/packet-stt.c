@@ -905,7 +905,7 @@ void
 proto_reg_handoff_stt(void)
 {
     /*
-     * The I-D doesn't explicity indicate that the FCS isn't present
+     * The I-D doesn't explicitly indicate that the FCS isn't present
      * in the tunneled Ethernet frames, but it is missing from the
      * captures attached to bug 10282.
      */

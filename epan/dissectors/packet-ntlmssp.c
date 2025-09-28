@@ -1946,7 +1946,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
    * XXX: I've seen a capture which does an HTTP CONNECT which:
    *      - has the NEGOTIATE & CHALLENGE messages in one TCP connection;
    *      - has the AUTHENTICATE message in a second TCP connection;
-   *        (The authentication aparently succeeded).
+   *        (The authentication apparently succeeded).
    *      For that case, in order to get the flags from the CHALLENGE_MESSAGE,
    *      we'd somehow have to manage NTLMSSP exchanges that cross TCP
    *      connection boundaries.

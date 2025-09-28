@@ -3260,7 +3260,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                 {
                     if( numOfEvents)
                     {
-                        /* here only the first head can be easy parsed, because information of the request is requiered */
+                        /* here only the first head can be easy parsed, because information of the request is required */
                         proto_tree_add_item( uds_tree, hf_uds_roe_EVOAE, tvb, offset, 1, ENC_NA);
                         offset += 1;
                         proto_tree_add_item( uds_tree, hf_uds_roe_window_time, tvb, offset, 1, ENC_NA);

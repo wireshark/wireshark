@@ -546,7 +546,7 @@ static bool findSafetyFrame ( packet_info *pinfo, tvbuff_t *message_tvb, unsigne
     rem_length = tvb_reported_length_remaining (message_tvb, ctr);
 
     /* Search will allways start at the second byte of the frame ( cause it determines )
-     * the type of package and therefore everything else. Therefore the mininmum length - 1
+     * the type of package and therefore everything else. Therefore the minimum length - 1
      * is the correct minimum length */
     while ( rem_length >= ( OSS_MINIMUM_LENGTH - 1 ) )
     {

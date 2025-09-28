@@ -3297,7 +3297,7 @@ static int dissect_cemi( tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, vo
 
   /* Only add cEMI information to the info column (not replacing it).
     This means that we do not have to clear that column here, but
-    are adding a seperator here.
+    are adding a separator here.
   */
   col_append_str( cinfo, COL_INFO, " " );
 

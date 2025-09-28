@@ -9167,7 +9167,7 @@ fBitStringTag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offs
 }
 
 /* handles generic application types, as well as enumerated and enumerations
-   with reserved and proprietarty ranges (split) */
+   with reserved and proprietary ranges (split) */
 static unsigned
 fApplicationTypesEnumeratedSplit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset,
     const char *label, const value_string *src, uint32_t split_val)

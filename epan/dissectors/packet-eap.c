@@ -2143,14 +2143,14 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             The only way to know is, by knowing
             that we are already in defragmentation
-            "mode" and we are expecing packet
+            "mode" and we are expecting packet
             carrying fragment of data. (either
             because we have not received expected
             amount of data, or because the packet before
             had "F"ragment flag set.)
 
             The situation is alleviated by fact that it
-            is simple ack/nack protcol so there's no
+            is simple ack/nack protocol so there's no
             place for out-of-order packets like it is
             possible with IP.
 
@@ -2259,7 +2259,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             We test here to see whether EAP-TLS packet
             carry fragmented of TLS data.
 
-            If this is the case, we do reasembly below,
+            If this is the case, we do reassembly below,
             otherwise we just call dissector.
           */
           if (needs_reassembly) {
@@ -2290,7 +2290,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                   eap_tree, pinfo, next_tvb, &frag_tree_item);
 
                 /*
-                 * We're finished reassembing this frame.
+                 * We're finished reassembling this frame.
                  * Reinitialize the reassembly state.
                  */
                 if (!pinfo->fd->visited)

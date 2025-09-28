@@ -1625,8 +1625,8 @@ smb2_sesid_info_hash(const void *k)
  * This keeps track of fid to name mapping and application level conversations
  * over named pipes.
  *
- * This handles implementation bugs, where the fid_persitent is 0 or
- * the fid_persitent/fid_volative is not unique per conversation.
+ * This handles implementation bugs, where the fid_persistent is 0 or
+ * the fid_persistent/fid_volatile is not unique per conversation.
  */
 static int
 smb2_fid_info_equal(const void *k1, const void *k2)
@@ -2822,7 +2822,7 @@ dissect_fscc_file_attr(tvbuff_t* tvb, proto_tree* parent_tree, int offset, uint3
 	return offset;
 }
 
-/* this info level is unique to SMB2 and differst from the corresponding
+/* this info level is unique to SMB2 and different from the corresponding
  * SMB_FILE_ALL_INFO in SMB
  */
 static int
