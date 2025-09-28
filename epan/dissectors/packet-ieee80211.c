@@ -40436,8 +40436,8 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           subframe_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_subframe_tree);
           i += 1;
 
-          proto_tree_add_mac48_detail(&mac_da, NULL, ett_addr, tvb, subframe_tree, msdu_offset);
-          proto_tree_add_mac48_detail(&mac_sa, NULL, ett_addr, tvb, subframe_tree, msdu_offset+6);
+          proto_tree_add_mac48_detail(&mac_da, NULL, ett_addr, next_tvb, subframe_tree, msdu_offset);
+          proto_tree_add_mac48_detail(&mac_sa, NULL, ett_addr, next_tvb, subframe_tree, msdu_offset+6);
           proto_tree_add_item(subframe_tree, hf_ieee80211_amsdu_length, next_tvb, msdu_offset+12, 2, ENC_BIG_ENDIAN);
 
           msdu_offset += 14;
