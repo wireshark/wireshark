@@ -974,7 +974,7 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 	return offset;
 }
 
-static int parse_result_metadata_more_pages(proto_tree* tree, tvbuff_t* tvb, int offset, int flags)
+static int parse_result_metadata_more_pages(proto_tree* tree, tvbuff_t* tvb, int offset, uint32_t flags)
 {
 	int32_t bytes_length = 0;
 
@@ -992,7 +992,7 @@ static int parse_result_metadata_more_pages(proto_tree* tree, tvbuff_t* tvb, int
 }
 
 static int parse_result_metadata(proto_tree* tree, packet_info *pinfo, tvbuff_t* tvb,
-			int offset, int flags, int result_rows_columns_count)
+			int offset, uint32_t flags, int result_rows_columns_count)
 {
 	proto_tree* col_spec_subtree = NULL;
 	uint32_t string_length = 0;
@@ -1079,9 +1079,8 @@ static int parse_result_schema_change(proto_tree* subtree, packet_info *pinfo, t
 
 
 static int parse_row(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t* tvb,
-			int offset_metadata, int offset, int result_rows_columns_count)
+			int offset_metadata, int offset, int result_rows_columns_count, uint32_t flags)
 {
-	int32_t result_rows_flags = 0;
 	int string_length;
 	int shadow_offset;
 	proto_item *item;
@@ -1089,7 +1088,7 @@ static int parse_row(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t* 
 
 	shadow_offset = offset_metadata;
 	for (j = 0; j < result_rows_columns_count; ++j) {
-		if (!(result_rows_flags & CQL_RESULT_ROWS_FLAG_GLOBAL_TABLES_SPEC)) {
+		if (!(flags & CQL_RESULT_ROWS_FLAG_GLOBAL_TABLES_SPEC)) {
 			/* ksname and tablename */
 			item = proto_tree_add_item_ret_uint(columns_subtree, hf_cql_string_length, tvb, shadow_offset, 2, ENC_BIG_ENDIAN, &string_length);
 			proto_item_set_hidden(item);
@@ -1103,6 +1102,25 @@ static int parse_row(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t* 
 			item = proto_tree_add_item(columns_subtree, hf_cql_string_result_rows_table_name, tvb, shadow_offset, string_length, ENC_UTF_8);
 			proto_item_set_hidden(item);
 			shadow_offset += string_length;
+		} else { /* global table spec flag is on: ksname and tablename are NOT repeated for each column */
+			if (j == 0)  { /* only for the 1st column, dissect the global ksname and tablename */
+				int ks_offset = offset_metadata;
+				item = proto_tree_add_item_ret_uint(columns_subtree, hf_cql_string_length, tvb, ks_offset, 2, ENC_BIG_ENDIAN, &string_length);
+				proto_item_set_hidden(item);
+				ks_offset += 2;
+				item = proto_tree_add_item(columns_subtree, hf_cql_string_result_rows_keyspace_name, tvb, ks_offset, string_length, ENC_UTF_8);
+				proto_item_set_hidden(item);
+				ks_offset += string_length;
+				item = proto_tree_add_item_ret_uint(columns_subtree, hf_cql_string_length, tvb, ks_offset, 2, ENC_BIG_ENDIAN, &string_length);
+				proto_item_set_hidden(item);
+				ks_offset += 2;
+				item = proto_tree_add_item(columns_subtree, hf_cql_string_result_rows_table_name, tvb, ks_offset, string_length, ENC_UTF_8);
+				proto_item_set_hidden(item);
+				ks_offset += string_length;
+				if (shadow_offset == offset_metadata) { /* if it's the 1st time we parsed the global ksname and tablename, now shadow_offset should skip them */
+					shadow_offset = ks_offset;
+				}
+			}
 		}
 
 		/* column name */
@@ -1149,7 +1167,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 	uint32_t batch_size = 0;
 	uint32_t batch_query_type = 0;
 	uint32_t result_kind = 0;
-	int32_t result_rows_flags = 0;
+	uint32_t result_rows_flags = 0;
 	int32_t result_rows_columns_count = 0;
 	int32_t result_prepared_flags = 0;
 	int32_t result_prepared_pk_count = 0;
@@ -1636,7 +1654,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 								proto_item_append_text(columns_subtree, " for row # %" PRId64, j + 1);
 
 								if (offset_row_metadata) {
-									offset = parse_row(columns_subtree, pinfo, tvb, offset_row_metadata, offset, result_rows_columns_count);
+									offset = parse_row(columns_subtree, pinfo, tvb, offset_row_metadata, offset, result_rows_columns_count, result_rows_flags);
 								} else {
 									for (k = 0; k < result_rows_columns_count; ++k) {
 										proto_tree_add_item_ret_int(columns_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &bytes_length);
