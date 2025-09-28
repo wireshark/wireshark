@@ -54,8 +54,6 @@ override_dh_auto_configure:
 		-DBUILD_xxx2deb=ON \
 		-DBUILD_corbaidl2wrs=ON \
 		$(CONFIGURE_SWITCHES)
-	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' \
-		debian/stratoshark.postinst.in > debian/stratoshark.postinst
 
 override_dh_auto_build:
 	# Ignore warnings from asn2wrs.py about duplicate field names.
