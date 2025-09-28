@@ -53,8 +53,12 @@ def open_url(url):
             req = urllib.request.Request(url_path, headers=req_headers)
             response = urllib.request.urlopen(req)
             body = response.read().decode('UTF-8', 'replace').replace(u'\u200e', '')
-        except Exception:
-            exit_msg('Error opening ' + url_path)
+        except urllib.error.HTTPError as e:
+            exit_msg(f'Error {e.code} opening {url_path}: {e.reason}')
+        except urllib.error.URLError as e:
+            exit_msg(f'Error opening {url_path}: {e.reason}')
+        except Exception as e:
+            exit_msg(f'Error opening {url_path}: {e}')
 
     return body
 
