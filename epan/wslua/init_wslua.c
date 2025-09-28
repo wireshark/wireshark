@@ -1221,7 +1221,7 @@ static void wslua_add_deprecated(void)
      */
     wslua_init_wtap_filetypes(L);
 
-    /* Old / deprecated menu groups. These shoudn't be used in new code. */
+    /* Old / deprecated menu groups. These shouldn't be used in new code. */
     lua_getglobal(L, "MENU_PACKET_ANALYZE_UNSORTED");
     lua_setglobal(L, "MENU_ANALYZE_UNSORTED");
     lua_getglobal(L, "MENU_ANALYZE_CONVERSATION_FILTER");

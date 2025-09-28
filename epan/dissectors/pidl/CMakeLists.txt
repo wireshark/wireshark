@@ -54,7 +54,7 @@ set(PIDL_DISSECTOR_NAMES
 # XXX - the "Syntax error near '/'" errors show up if cpp doesn't strip
 # C99/C++ comments and the file in question - nspi.idl - contains
 # C99/C++ comments, because the parser runs cpp, by default, to strip
-# comments and proccess #includes.  Those errors may cause
+# comments and process #includes.  Those errors may cause
 # packet-dcerpc-nspi.c, and possibly packet-dcerpc-mapi.c not to be
 # generated.  GCC's cpp appears to strip them by default, but Xcode's
 # cpp, at least as of Xcode 15.2, does not - cc -E does, however,

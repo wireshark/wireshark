@@ -29,7 +29,7 @@ extern "C" {
  * The idea is to augment a self-balancing Binary Search Tree (BST) like Red Black Tree, AVL Tree, etc ...
  * to maintain a set of intervals so that all operations can be done in O(Logn) time.
  *    @{
- * Following wikipedia's convention this is an augmented tree rather then an interval tree
+ * Following wikipedia's convention this is an augmented tree rather than an interval tree
  * http://www.wikiwand.com/en/Interval_tree
  */
 

@@ -514,7 +514,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
                 foffset = sss_string(tvb, hf_sss_secret, atree, foffset, true, 0);
                 msg_length = tvb_get_letohl(tvb, foffset);
                 foffset += (msg_length+4);   /* Unsure of what this length and parameter are */
-                /* A bad secret of length greater then 256 characters will cause frag
+                /* A bad secret of length greater than 256 characters will cause frag
                    packets and then we will see these as malformed packets.
                    So check to make sure we still have data in the packet anytime
                    we read a secret. */

@@ -584,7 +584,7 @@ static const value_string _uds_rsdbi_units[] = {
     {0x25, "Bar [bar]"},
     {0x26, "Atmosphere [atm]"},
     {0x27, "Pound force per square inch [psi]"},
-    {0x28, "Becqerel [Bq]"},
+    {0x28, "Becquerel [Bq]"},
     {0x29, "Lumen [lm]"},
     {0x2a, "Lux [lx]"},
     {0x2b, "Litre [l]"},
@@ -1129,8 +1129,8 @@ static int hf_uds_roe_dtc_status_mask_TNCTOC;
 static int hf_uds_roe_dtc_status_mask_WIR;
 static int hf_uds_roe_identifier;
 static int hf_uds_roe_did;
-static int hf_uds_roe_comparision;
-static int hf_uds_roe_comparision_value;
+static int hf_uds_roe_comparison;
+static int hf_uds_roe_comparison_value;
 static int hf_uds_roe_hysteresis_value;
 static int hf_uds_roe_localization;
 static int hf_uds_roe_localization_sign;
@@ -3302,9 +3302,9 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
                     {
                         proto_tree_add_item( uds_tree, hf_uds_roe_did, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
-                        proto_tree_add_item( uds_tree, hf_uds_roe_comparision, tvb, offset, 1, ENC_NA);
+                        proto_tree_add_item( uds_tree, hf_uds_roe_comparison, tvb, offset, 1, ENC_NA);
                         offset += 1;
-                        proto_tree_add_item( uds_tree, hf_uds_roe_comparision_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item( uds_tree, hf_uds_roe_comparison_value, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
                         proto_tree_add_item( uds_tree, hf_uds_roe_hysteresis_value, tvb, offset, 1, ENC_NA);
                         offset += 1;
@@ -3835,10 +3835,10 @@ proto_register_uds(void) {
             "Identifier", "uds.roe.identifier", FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL}},
         { &hf_uds_roe_did, {
             "DID", "uds.roe.did", FT_UINT16, BASE_HEX, 0, 0, NULL, HFILL}},
-        { &hf_uds_roe_comparision, {
+        { &hf_uds_roe_comparison, {
             "Comparison logic", "uds.roe.ocov.logic", FT_UINT8, BASE_DEC, VALS( uds_roe_ocov_logic_types), 0, NULL, HFILL }},
-        { &hf_uds_roe_comparision_value, {
-            "Comparision Value", "uds.roe.ocov.value", FT_UINT32, BASE_DEC_HEX, 0, 0, NULL, HFILL }},
+        { &hf_uds_roe_comparison_value, {
+            "Comparison Value", "uds.roe.ocov.value", FT_UINT32, BASE_DEC_HEX, 0, 0, NULL, HFILL }},
         { &hf_uds_roe_hysteresis_value, {
             "hysteresis value[%]", "uds.roe.ocov.hysteresis", FT_UINT8, BASE_DEC, 0, 0, NULL, HFILL}},
         { &hf_uds_roe_localization, {

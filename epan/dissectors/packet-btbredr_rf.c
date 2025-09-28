@@ -49,8 +49,8 @@ static int hf_corrected_payload_bits;
 static int hf_lower_address_part;
 static int hf_reference_lower_address_part;
 static int hf_invalid_reference_lower_address_part;
-static int hf_reference_upper_addres_part;
-static int hf_invalid_reference_upper_addres_part;
+static int hf_reference_upper_address_part;
+static int hf_invalid_reference_upper_address_part;
 static int hf_whitened_packet_header;
 static int hf_invalid_packet_header;
 static int hf_packet_header;
@@ -91,7 +91,7 @@ static int hf_flags_crc_pass;
 static int hf_flags_crc_checked;
 static int hf_flags_hec_pass;
 static int hf_flags_hec_checked;
-static int hf_flags_reference_upper_addres_part_valid;
+static int hf_flags_reference_upper_address_part_valid;
 static int hf_flags_rf_channel_aliasing;
 static int hf_flags_br_edr_data_present;
 static int hf_flags_reference_lower_address_part_valid;
@@ -144,7 +144,7 @@ static int hf_fhs_pagescanmode;
 #define FLAGS_CRC_CHECKED                                   0x0400
 #define FLAGS_HEC_PASS                                      0x0200
 #define FLAGS_HEC_CHECKED                                   0x0100
-#define FLAGS_REFERENCE_UPPER_ADDRES_PART_VALID             0x0080
+#define FLAGS_REFERENCE_UPPER_ADDRESS_PART_VALID            0x0080
 #define FLAGS_RF_CHANNEL_ALIASING                           0x0040
 #define FLAGS_BR_EDR_DATA_PRESENT                           0x0020
 #define FLAGS_REFERENCE_LOWER_ADDRESS_PART_VALID            0x0010
@@ -779,18 +779,18 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree_add_item(btbredr_rf_tree, hf_x, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     offset += 3;
 
-    if (flags & FLAGS_REFERENCE_UPPER_ADDRES_PART_VALID) {
-        hf_x = hf_reference_upper_addres_part;
+    if (flags & FLAGS_REFERENCE_UPPER_ADDRESS_PART_VALID) {
+        hf_x = hf_reference_upper_address_part;
         uap = tvb_get_uint8(tvb, offset);
     } else {
-        hf_x = hf_invalid_reference_upper_addres_part;
+        hf_x = hf_invalid_reference_upper_address_part;
     }
     proto_tree_add_item(btbredr_rf_tree, hf_x, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     {
         uint32_t hdr = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
-        bool have_uap = device_info || !!(flags & FLAGS_REFERENCE_UPPER_ADDRES_PART_VALID);
+        bool have_uap = device_info || !!(flags & FLAGS_REFERENCE_UPPER_ADDRESS_PART_VALID);
         bool is_inquiry = is_reserved_lap(lap);
         bool is_inquiry_fhs = is_inquiry && (((hdr >> 3) & 0x0f) == 2);
         bool is_inquiry_broken_fhs = is_inquiry && (((hdr >> 11) & 0x0f) == 2);
@@ -1009,7 +1009,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree_add_item(flags_tree, hf_flags_crc_checked, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(flags_tree, hf_flags_hec_pass, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(flags_tree, hf_flags_hec_checked, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(flags_tree, hf_flags_reference_upper_addres_part_valid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_flags_reference_upper_address_part_valid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(flags_tree, hf_flags_rf_channel_aliasing, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(flags_tree, hf_flags_br_edr_data_present, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(flags_tree, hf_flags_reference_lower_address_part_valid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1541,7 +1541,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                            if (isochronous_crc) {
                                proto_item *crc_item = NULL;
                                crc_item = proto_tree_add_item(btbredr_rf_tree, hf_crc, tvb, offset + isochronous_length, 2, ENC_LITTLE_ENDIAN);
-                               if ((flags & FLAGS_REFERENCE_UPPER_ADDRES_PART_VALID) && !check_crc(uap, tvb, offset, isochronous_length + 2))
+                               if ((flags & FLAGS_REFERENCE_UPPER_ADDRESS_PART_VALID) && !check_crc(uap, tvb, offset, isochronous_length + 2))
                                    expert_add_info(pinfo, crc_item, &ei_incorrect_crc);
                                offset += 2;
                            }
@@ -1779,7 +1779,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                            if (data_crc) {
                                proto_item *crc_item = NULL;
                                crc_item = proto_tree_add_item(btbredr_rf_tree, hf_crc, tvb, offset + data_length, 2, ENC_LITTLE_ENDIAN);
-                               if ((flags & FLAGS_REFERENCE_UPPER_ADDRES_PART_VALID) && !check_crc(uap, tvb, offset, data_length + 2))
+                               if ((flags & FLAGS_REFERENCE_UPPER_ADDRESS_PART_VALID) && !check_crc(uap, tvb, offset, data_length + 2))
                                    expert_add_info(pinfo, crc_item, &ei_incorrect_crc);
                                offset += 2;
                            }
@@ -2035,12 +2035,12 @@ proto_register_btbredr_rf(void)
             FT_UINT24, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
-        {  &hf_reference_upper_addres_part,
+        {  &hf_reference_upper_address_part,
             { "Reference Upper Address Part",                   "btbredr_rf.reference_upper_address_part",
             FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
-        {  &hf_invalid_reference_upper_addres_part,
+        {  &hf_invalid_reference_upper_address_part,
             { "Invalid Reference Upper Address Part",           "btbredr_rf.invalid.reference_upper_address_part",
             FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
@@ -2280,7 +2280,7 @@ proto_register_btbredr_rf(void)
             FT_BOOLEAN, 16, NULL, 0x0100,
             NULL, HFILL }
         },
-        {  &hf_flags_reference_upper_addres_part_valid,
+        {  &hf_flags_reference_upper_address_part_valid,
             { "Reference Upper Address Part Valid",             "btbredr_rf.flags.reference_upper_address_part_valid",
             FT_BOOLEAN, 16, NULL, 0x0080,
             NULL, HFILL }

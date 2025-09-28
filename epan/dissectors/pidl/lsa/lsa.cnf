@@ -21,9 +21,9 @@ PARAM_VALUE lsarpc_dissect_element_lsa_CloseTrustedDomainEx_handle_ PIDL_POLHND_
 
 
 
-TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8 
+TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8
 
-TYPE sec_desc_buf "offset=cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL 4 
+TYPE sec_desc_buf "offset=cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL 4
 HF_FIELD hf_lsarpc_sec_desc_buf_len "Sec Desc Buf Len" "lsarpc.sec_desc_buf_len" FT_UINT32 BASE_DEC NULL 0 "" "" ""
 
 
@@ -260,7 +260,7 @@ lsarpc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 static int
 lsarpc_dissect_struct_security_descriptor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, uint8_t *drep _U_, int unused1 _U_, int unused2 _U_){
 	return cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
-} 
+}
 
 
 int
@@ -278,7 +278,7 @@ cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	return offset;
 }
 
-# PIDL cant handle top level arrays so we must explicitely go through a
+# PIDL can't handle top level arrays so we must explicitly go through a
 # ref pointer here
 static int
 lsarpc_dissect_element_lsa_LookupNames3_names_X(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di, uint8_t *drep _U_)

@@ -13,7 +13,7 @@
  * The following formats are supported:
  *
  * JSON Lines (https://jsonlines.org/), which are JSON objects separated by newlines:
- *   Kubneretes audit logs: https://kubernetes.io/docs/reference/config-api/apiserver-audit.v1/
+ *   Kubernetes audit logs: https://kubernetes.io/docs/reference/config-api/apiserver-audit.v1/
  *   GCP audit logs: https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
  *
  * AWS CloudTrail, which is a JSON object containing an array of log entries:

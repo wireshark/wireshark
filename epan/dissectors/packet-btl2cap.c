@@ -3092,7 +3092,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         /* 3.2 "For G-frames, the PDU length equals the payload size plus the
          * number of octets in the PSM."
-         * Substract the PSM length. (Yes, technically the PSM is "at least"
+         * Subtract the PSM length. (Yes, technically the PSM is "at least"
          * two octets in length, Little Endian where only the MSB (== Last)
          * has least significant bit 0, and that's used to detect the size.
          * We only use 2 octets everywhere in this dissector, though.)

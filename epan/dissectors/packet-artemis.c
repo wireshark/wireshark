@@ -60,7 +60,7 @@ dissect_artemis_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     artemis_tree = proto_item_add_subtree(ti, ett_artemis);
 
     len_item = proto_tree_add_item_ret_uint(artemis_tree, hf_artemis_len, tvb, 0, 4, ENC_BIG_ENDIAN, &length);
-    if (length < 9) {    /* 9 = 1(type) + channel(8), if length is smaller, we cant read even type+channel */
+    if (length < 9) {    /* 9 = 1(type) + channel(8), if length is smaller, we can't read even type+channel */
         expert_add_info(pinfo, len_item, &ei_artemis_len_short);
         return tvb_captured_length(tvb);
     }

@@ -3102,7 +3102,7 @@ bool get_CDR_boolean(tvbuff_t *tvb, int *offset) {
 
 /* Copy a 1 octet sequence from the tvbuff
  * which represents a char, and convert
- * it to an char value.
+ * it to a char value.
  * offset is then incremented by 1, to indicate the 1 octet which
  * has been processed.
  */
@@ -3380,7 +3380,7 @@ void get_CDR_interface(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 /* Copy a 4 octet sequence from the tvbuff
  * which represents a signed long value, and convert
- * it to an signed long value, taking into account byte order.
+ * it to a signed long value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
  * boundary for long values.
  * offset is then incremented by 4, to indicate the 4 octets which
@@ -3404,7 +3404,7 @@ int32_t get_CDR_long(tvbuff_t *tvb, int *offset, bool stream_is_big_endian, int 
 
 /* Copy a 8 octet sequence from the tvbuff
  * which represents a signed long long value, and convert
- * it to an signed long long value, taking into account byte order.
+ * it to a signed long long value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
  * boundary for long long values.
  * offset is then incremented by 8, to indicate the 8 octets which
@@ -3525,7 +3525,7 @@ giop_add_CDR_string(wmem_allocator_t* scope, proto_tree *tree, tvbuff_t *tvb, in
 
 /* Copy an octet sequence from the tvbuff
  * which represents a string, and convert
- * it to an string value, taking into account byte order.
+ * it to a string value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
  * boundary for string values. (begins with an unsigned long LI)
  *

@@ -669,7 +669,7 @@ static float ieee80211_he_mu_ofdma_rate(unsigned nsts, unsigned mcs, unsigned ru
 /*
  * EHT MCS rate table converted from http://mcsindex.net
  * indexed by (MCS,BW,GI)
- * Covering only upto 4x996-tone-RU/320MHz, Additional RUs and Punctured modes not added yet.
+ * Covering only up to 4x996-tone-RU/320MHz, Additional RUs and Punctured modes not added yet.
  * For higher # of spatial streams, the rate will be computed based on the 1SS rates below.
  * The resultant error in rate computation remains within a maximum of +/- 0.5 Mbps from corresponding static table rates.
  */

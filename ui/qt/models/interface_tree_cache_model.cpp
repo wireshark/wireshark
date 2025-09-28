@@ -75,7 +75,7 @@ void InterfaceTreeCacheModel::saveNewDevices()
 {
     QList<interface_t>::const_iterator it = newDevices.constBegin();
     /* idx is used for iterating only over the indices of the new devices. As all new
-     * devices are stored with an index higher then sourceModel->rowCount(), we start
+     * devices are stored with an index higher than sourceModel->rowCount(), we start
      * only with those storage indices.
      * it is just the iterator over the new devices. A new device must not necessarily
      * have storage, which will lead to that device not being stored in global_capture_opts */

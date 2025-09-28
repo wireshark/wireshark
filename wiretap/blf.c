@@ -1415,7 +1415,7 @@ blf_init_rec(blf_params_t *params, uint32_t flags, uint64_t object_timestamp, in
 
 static void
 blf_add_direction_option(blf_params_t *params, uint16_t direction) {
-    uint32_t tmp = PACK_FLAGS_DIRECTION_INBOUND; /* dont care */
+    uint32_t tmp = PACK_FLAGS_DIRECTION_INBOUND; /* don't care */
 
     switch (direction) {
     case BLF_DIR_RX:

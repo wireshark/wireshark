@@ -1130,7 +1130,7 @@ as
 and
 `[static] int dissect_Proto_Type(...);`
 
-Use #.NO_EMIT if you dont need to call this function at all from anywhere (except from the template itself) and use #.USER_DEFINED is better if you implement the function inside the template but still want to allow it to be called from other places.
+Use #.NO_EMIT if you don't need to call this function at all from anywhere (except from the template itself) and use #.USER_DEFINED is better if you implement the function inside the template but still want to allow it to be called from other places.
 // (need much better explanation here)
 
 [#ASN1CnfDirectiveNO_EMITSyntax]

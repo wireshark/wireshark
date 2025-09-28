@@ -921,7 +921,7 @@ static const value_string ndps_filter_enum[] = {
 static const value_string ndps_filter_item_enum[] = {
     { 0x00000000, "Equality" },
     { 0x00000001, "Substrings" },
-    { 0x00000002, "Greater then or Equal to" },
+    { 0x00000002, "Greater than or Equal to" },
     { 0x00000003, "Less then or Equal to" },
     { 0x00000004, "Present" },
     { 0x00000005, "Subset of" },

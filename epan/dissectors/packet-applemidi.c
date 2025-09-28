@@ -55,7 +55,7 @@ void proto_reg_handoff_applemidi(void);
 /* Apple network MIDI valid commands */
 #define APPLEMIDI_COMMAND_INVITATION			0x494e		/*   "IN"   */
 #define APPLEMIDI_COMMAND_INVITATION_REJECTED		0x4e4f		/*   "NO"   */
-#define APLLEMIDI_COMMAND_INVITATION_ACCEPTED		0x4f4b		/*   "OK"   */
+#define APPLEMIDI_COMMAND_INVITATION_ACCEPTED		0x4f4b		/*   "OK"   */
 #define APPLEMIDI_COMMAND_ENDSESSION			0x4259		/*   "BY"   */
 #define APPLEMIDI_COMMAND_SYNCHRONIZATION		0x434b		/*   "CK"   */
 #define APPLEMIDI_COMMAND_RECEIVER_FEEDBACK		0x5253		/*   "RS"   */
@@ -85,7 +85,7 @@ static int	ett_applemidi_seq_num;
 static const value_string applemidi_commands[] = {
 	{ APPLEMIDI_COMMAND_INVITATION,			"Invitation" },
 	{ APPLEMIDI_COMMAND_INVITATION_REJECTED,	"Invitation Rejected" },
-	{ APLLEMIDI_COMMAND_INVITATION_ACCEPTED,	"Invitation Accepted" },
+	{ APPLEMIDI_COMMAND_INVITATION_ACCEPTED,	"Invitation Accepted" },
 	{ APPLEMIDI_COMMAND_ENDSESSION,			"End Session" },
 	{ APPLEMIDI_COMMAND_SYNCHRONIZATION,		"Synchronization" },
 	{ APPLEMIDI_COMMAND_RECEIVER_FEEDBACK,		"Receiver Feedback" },
@@ -134,7 +134,7 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 	 * name of the participant */
 	if ( ( APPLEMIDI_COMMAND_INVITATION == command ) ||
 	     ( APPLEMIDI_COMMAND_INVITATION_REJECTED == command ) ||
-	     ( APLLEMIDI_COMMAND_INVITATION_ACCEPTED == command ) ||
+	     ( APPLEMIDI_COMMAND_INVITATION_ACCEPTED == command ) ||
 	     ( APPLEMIDI_COMMAND_ENDSESSION == command ) ) {
 
 		proto_tree_add_item( applemidi_tree, hf_applemidi_protocol_version, tvb, offset, 4, ENC_BIG_ENDIAN  );
@@ -238,7 +238,7 @@ test_applemidi(tvbuff_t *tvb, uint16_t *command_p, bool conversation_established
 	/* ... followed by packet-command: "IN", "NO", "OK", "BY", "CK" and "RS" and "RL" */
 	if ( ( APPLEMIDI_COMMAND_INVITATION            == *command_p ) ||
 	     ( APPLEMIDI_COMMAND_INVITATION_REJECTED   == *command_p ) ||
-	     ( APLLEMIDI_COMMAND_INVITATION_ACCEPTED   == *command_p ) ||
+	     ( APPLEMIDI_COMMAND_INVITATION_ACCEPTED   == *command_p ) ||
 	     ( APPLEMIDI_COMMAND_ENDSESSION            == *command_p ) ||
 	     ( APPLEMIDI_COMMAND_SYNCHRONIZATION       == *command_p ) ||
 	     ( APPLEMIDI_COMMAND_RECEIVER_FEEDBACK     == *command_p ) ||

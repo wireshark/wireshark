@@ -21315,7 +21315,7 @@ this supports:
 
     proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_cisco_ap_name_v2, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool,&apname);
     proto_item_append_text(ietree, ": AP name v2: %s", apname);
-    // Set to true, so we dont append "Aironet type"
+    // Set to true, so we don't append "Aironet type"
     dont_change = true;
   break;
 

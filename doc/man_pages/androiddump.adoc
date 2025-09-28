@@ -132,7 +132,7 @@ Use other than default (5037) ADB daemon's TCP port.
 --logcat-text=<TRUE or FALSE>::
 +
 --
-If TRUE then use text logcat rather then binary. This option only has an
+If TRUE then use text logcat rather than binary. This option only has an
 effect on
 Logcat interfaces. This have no effect from Lollipop where is no binary Logcat
 available.

@@ -95,7 +95,7 @@ static int hf_dect_mitel_eth_rfpc_extended_capabilities_extended_fp_info2;
 static int hf_dect_mitel_eth_rfpc_extended_capabilities_ipq_services_supported;
 static int hf_dect_mitel_eth_rfpc_extended_capabilities_mac_suspend_resume;
 static int hf_dect_mitel_eth_rfpc_extended_capabilities_frequency_replacement_supported;
-static int hf_dect_mitel_eth_rfpc_extended_capabilities_syncronization;
+static int hf_dect_mitel_eth_rfpc_extended_capabilities_synchronization;
 
 static int hf_dect_mitel_eth_rfpc_mac_capabilities_flags;
 static int hf_dect_mitel_eth_rfpc_mac_capabilities_multibearer_connections;
@@ -718,7 +718,7 @@ static unsigned dissect_dect_mitel_eth_rfpc_extended_capabilities(tvbuff_t *tvb,
 		&hf_dect_mitel_eth_rfpc_extended_capabilities_ipq_services_supported,
 		&hf_dect_mitel_eth_rfpc_extended_capabilities_mac_suspend_resume,
 		&hf_dect_mitel_eth_rfpc_extended_capabilities_frequency_replacement_supported,
-		&hf_dect_mitel_eth_rfpc_extended_capabilities_syncronization,
+		&hf_dect_mitel_eth_rfpc_extended_capabilities_synchronization,
 		NULL
 	};
 
@@ -1593,7 +1593,7 @@ void proto_register_dect_mitel_eth(void)
 				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_FREQUENCY_REPLACEMENT_SUPPORTED, NULL, HFILL
 			}
 		},
-		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_syncronization,
+		{ &hf_dect_mitel_eth_rfpc_extended_capabilities_synchronization,
 			{ "Synchronization", "dect_mitel_eth.rfpc.extended_capabilities.synchronization", FT_BOOLEAN, 32,
 				TFS(&tfs_prolonged_standard), DECT_MITEL_ETH_RFPC_EXTENDED_CAPABILITY_SYNCHRONIZATION, NULL, HFILL
 			}

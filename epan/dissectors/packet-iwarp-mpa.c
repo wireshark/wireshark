@@ -793,7 +793,7 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/*
 	 * Initialize starting offset for this FPDU. Deals with the case that this
-	 * FPDU may start with a Marker instead of the ULPDU_LENTH header field.
+	 * FPDU may start with a Marker instead of the ULPDU_LENGTH header field.
 	 */
 	if (state->minfo[endpoint].valid
 			&& get_first_marker_offset(state, tcpinfo, endpoint) == 0) {

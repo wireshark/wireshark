@@ -2903,7 +2903,7 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
             Only add this check for new format trailers.  Old format trailers are becoming less
             common and likely wouldn't have been added after FCS anyway.
-            If needed, the walk trailer prefernce would find the old format trailer after an FCS.
+            If needed, the walk trailer preference would find the old format trailer after an FCS.
             This seems reasonable enough for old format trailers. */
             for (unsigned i = 0; i <= offset && i <= 4; i++) {
                 if (tvb_get_ntohl(tvb, offset + 4 - i) == F5_DPT_V1_HDR_MAGIC) {

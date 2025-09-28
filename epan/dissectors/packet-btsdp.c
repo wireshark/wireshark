@@ -6547,7 +6547,7 @@ proto_register_btsdp(void)
 
     static ei_register_info ei[] = {
         { &ei_btsdp_continuation_state_none,  { "btsdp.expert.continuation_state_none",  PI_MALFORMED, PI_WARN,      "There is no Continuation State", EXPFILL }},
-        { &ei_btsdp_continuation_state_large, { "btsdp.expert.continuation_state_large", PI_MALFORMED, PI_WARN,      "Continuation State data is longer then 16", EXPFILL }},
+        { &ei_btsdp_continuation_state_large, { "btsdp.expert.continuation_state_large", PI_MALFORMED, PI_WARN,      "Continuation State data is longer than 16", EXPFILL }},
         { &ei_data_element_value_large,       { "btsdp.expert.data_element.value.large", PI_MALFORMED, PI_WARN,      "Data size exceeds the length of payload", EXPFILL }},
         { &ei_length_bad,      { "btsdp.expert.length.bad",      PI_MALFORMED, PI_WARN, "Invalid length", EXPFILL }},
     };

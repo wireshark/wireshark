@@ -836,7 +836,7 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
         offset++;
     }
 
-    /* Following data is menufacturer-specific */
+    /* Following data is manufacturer-specific */
     manufacturer_payload_len = data_len - offset - 1;
     if (manufacturer_payload_len > 0)
     {

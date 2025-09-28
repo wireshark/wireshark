@@ -120,7 +120,7 @@ static int hf_zbncp_data_bind_type;
 static int hf_zbncp_data_ieee_addr;
 static int hf_zbncp_data_ext_pan_id;
 static int hf_zbncp_data_coordinator_version;
-static int hf_zbncp_data_trust_center_addres;
+static int hf_zbncp_data_trust_center_address;
 static int hf_zbncp_data_remote_ieee_addr;
 static int hf_zbncp_data_src_ieee_addr;
 static int hf_zbncp_data_dst_ieee_addr;
@@ -1733,7 +1733,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     case ZBNCP_CMD_GET_TRUST_CENTER_ADDRESS:
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
-            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_trust_center_addres, tvb, offset, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_trust_center_address, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
         }
         break;
@@ -5308,7 +5308,7 @@ void proto_register_zbncp(void)
         {&hf_zbncp_data_coordinator_version,
          {"Coordinator version", "zbncp.data.coord_version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
-        {&hf_zbncp_data_trust_center_addres,
+        {&hf_zbncp_data_trust_center_address,
          {"IEEE trust center address", "zbncp.data.ieee_trust_center_addr", FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_data_ieee_addr,

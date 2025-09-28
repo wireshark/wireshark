@@ -540,7 +540,7 @@ wimaxasncp_find_tlv_info(void* data, void* user_data)
         /* if the TLV is defined for current NWG version */
         if (tlv->since <= global_wimaxasncp_nwg_ver)
         {
-            /* if the current TLV is newer then last found TLV, save it */
+            /* if the current TLV is newer than last found TLV, save it */
             if ((info_data->res == NULL) || (tlv->since > info_data->res->since))
             {
                 info_data->res = tlv;

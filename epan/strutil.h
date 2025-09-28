@@ -112,7 +112,7 @@ bool       uri_str_to_bytes(const char *uri_str, GByteArray *bytes);
 
 /** Turn a OID string representation (dot notation) into a byte array.
  *
- * @param oid_str The OID string (dot notaion).
+ * @param oid_str The OID string (dot notation).
  * @param bytes The GByteArray that will receive the bytes.  This
  *        must be initialized by the caller.
  * @param is_absolute True if this is an absolute OID; false for relative OID.
@@ -123,7 +123,7 @@ bool       rel_oid_str_to_bytes(const char *oid_str, GByteArray *bytes, bool is_
 
 /** Turn a OID string representation (dot notation) into a byte array.
  *
- * @param oid_str The OID string (dot notaion).
+ * @param oid_str The OID string (dot notation).
  * @param bytes The GByteArray that will receive the bytes.  This
  *        must be initialized by the caller.
  * @return True if the string was converted successfully

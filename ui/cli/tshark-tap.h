@@ -1,6 +1,6 @@
 /** @file
  *
- * Registation tap hooks for TShark
+ * Registration tap hooks for TShark
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

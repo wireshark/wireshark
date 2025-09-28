@@ -62,29 +62,29 @@ static bool prefs_try_json_on_string = TRUE;
 
 static dissector_handle_t json_handle;
 
-static int dissect_resp_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_lenth, int array_depth) {
+static int dissect_resp_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth) {
     uint8_t *string_value;
 
     string_value = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
-                                      string_lenth - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
-    proto_tree_add_string(tree, hf_resp_string, tvb, offset, string_lenth + CRLF_LENGTH, string_value);
+                                      string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
+    proto_tree_add_string(tree, hf_resp_string, tvb, offset, string_length + CRLF_LENGTH, string_value);
 
     /* Simple strings can be used as a response for commands */
     if (RESP_RESPONSE(pinfo) && array_depth == 0) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, " ", string_value);
     }
 
-    return string_lenth + CRLF_LENGTH;
+    return string_length + CRLF_LENGTH;
 }
 
-static int dissect_resp_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_lenth) {
+static int dissect_resp_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length) {
     uint8_t *error_value;
 
     error_value = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
-                                     string_lenth - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
-    proto_tree_add_string(tree, hf_resp_error, tvb, offset, string_lenth + CRLF_LENGTH, error_value);
+                                     string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
+    proto_tree_add_string(tree, hf_resp_error, tvb, offset, string_length + CRLF_LENGTH, error_value);
     col_append_fstr(pinfo->cinfo, COL_INFO, " Error: %s", error_value);
-    return string_lenth + CRLF_LENGTH;
+    return string_length + CRLF_LENGTH;
 }
 
 static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int bulk_string_string_length, int array_depth) {

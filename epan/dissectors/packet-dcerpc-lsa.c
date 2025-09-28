@@ -1943,7 +1943,7 @@ lsarpc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 static int
 lsarpc_dissect_struct_security_descriptor(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, uint8_t *drep _U_, int unused1 _U_, int unused2 _U_){
 	return cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
-} 
+}
 int
 lsarpc_dissect_struct_dom_sid2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, uint8_t *drep _U_, int unused1 _U_, int unused2 _U_) {
 	/* sid */

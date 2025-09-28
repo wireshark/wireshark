@@ -180,7 +180,7 @@ get_ilnp_conversation_data(conversation_t *conv, packet_info *pinfo) {
 
     /* Get the data for this conversation */
     ilnpd = (struct ilnp_analysis *) conversation_get_proto_data(conv, proto_ilnp);
-    if (!ilnpd) { // if it doesnt exist, initialise new one
+    if (!ilnpd) { // if it doesn't exist, initialise new one
         ilnpd = init_ilnp_conversation_data(pinfo);
         conversation_add_proto_data(conv, proto_ilnp, ilnpd);
     }

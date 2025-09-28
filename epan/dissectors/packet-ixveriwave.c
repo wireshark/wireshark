@@ -872,7 +872,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             offset              +=4;
         }
 
-    } else { //Rather then the legacy it takes care to show the Time Header for RadioTapHeader in new format
+    } else { //Rather than the legacy it takes care to show the Time Header for RadioTapHeader in new format
         /*
          * OCTO time header.
          */

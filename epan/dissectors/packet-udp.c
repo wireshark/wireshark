@@ -1050,7 +1050,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
         item = proto_tree_add_uint(udp_tree, hf_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
         proto_item_set_generated(item);
         if ((udph->uh_sum_cov < 8) || (udph->uh_sum_cov > udph->uh_ulen)) {
-            /* Bogus coverage - it includes the header, so it must be >= 8, and no larger then the IP payload size. */
+            /* Bogus coverage - it includes the header, so it must be >= 8, and no larger than the IP payload size. */
             proto_item_append_text(len_cov_item, " (bogus, must be >= 8 and <= %u)", udph->uh_ulen);
             expert_add_info_format(pinfo, len_cov_item, &ei_udplite_checksum_coverage_bad, "Bad checksum coverage length value %u < 8 or > %u",
                          udph->uh_sum_cov, udph->uh_ulen);

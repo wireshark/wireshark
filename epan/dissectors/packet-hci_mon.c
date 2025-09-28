@@ -163,7 +163,7 @@ static value_string_ext(priority_vals_ext) = VALUE_STRING_EXT_INIT(priority_vals
 #define EVENT_PIN_CODE_REQUEST               0x000e
 #define EVENT_USER_CONFIRMATION_REQUEST      0x000f
 #define EVENT_USER_PASSKEY_REQUEST           0x0010
-#define EVENT_AUTHENTICAION_FAILED           0x0011
+#define EVENT_AUTHENTICATION_FAILED          0x0011
 #define EVENT_DEVICE_FOUND                   0x0012
 #define EVENT_DISCOVERING                    0x0013
 #define EVENT_DEVICE_BLOCKED                 0x0014
@@ -203,7 +203,7 @@ static const value_string event_vals[] = {
     { EVENT_PIN_CODE_REQUEST,               "PIN code request" },
     { EVENT_USER_CONFIRMATION_REQUEST,      "User confirmation request" },
     { EVENT_USER_PASSKEY_REQUEST,           "User passkey request" },
-    { EVENT_AUTHENTICAION_FAILED,           "Authentication failed" },
+    { EVENT_AUTHENTICATION_FAILED,          "Authentication failed" },
     { EVENT_DEVICE_FOUND,                   "Device found" },
     { EVENT_DISCOVERING,                    "Discovering" },
     { EVENT_DEVICE_BLOCKED,                 "Device blocked" },

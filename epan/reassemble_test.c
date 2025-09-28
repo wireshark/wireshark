@@ -1758,7 +1758,7 @@ test_fragment_add_partial_reassembly(void)
     ASSERT_EQ(0,fd_head->len);     /* unused */
     /* ASSERT_EQ(0,fd_head->datalen);
      * reassembly not finished; datalen not well defined.
-     * Current implemenation has it as 0, could change to 90 without issues */
+     * Current implementation has it as 0, could change to 90 without issues */
     ASSERT_EQ(0,fd_head->reassembled_in);
     ASSERT_EQ(0,fd_head->flags);
     ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
@@ -2550,7 +2550,7 @@ test_fragment_add_check_partial_reassembly(void)
     ASSERT_EQ(0,fd_head->len);     /* unused */
     /* ASSERT_EQ(0,fd_head->datalen);
      * reassembly not finished; datalen not well defined.
-     * Current implemenation has it as 0, could change to 90 without issues */
+     * Current implementation has it as 0, could change to 90 without issues */
     ASSERT_EQ(0,fd_head->reassembled_in);
     ASSERT_EQ(0,fd_head->flags);
     ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
@@ -2586,7 +2586,7 @@ test_fragment_add_check_partial_reassembly(void)
     ASSERT_EQ(0,fd_head->len);     /* unused */
     /* ASSERT_EQ(0,fd_head->datalen);
      * reassembly not finished; datalen not well defined.
-     * Current implemenation has it as 0, could change to 90 without issues */
+     * Current implementation has it as 0, could change to 90 without issues */
     ASSERT_EQ(0,fd_head->reassembled_in);
     ASSERT_EQ(0,fd_head->flags);
     ASSERT_NE_POINTER(NULL,fd_head->tvb_data);

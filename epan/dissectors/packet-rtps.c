@@ -4635,7 +4635,7 @@ static int dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, packet_info *p
             ALIGN_ZERO(offset, length, offset_zero);
             unsigned seq_size =  tvb_get_uint32(tvb, offset, encoding);
 
-            /* In case this sequence is not shown and is a native type. We get the sze length for calculating
+            /* In case this sequence is not shown and is a native type. We get the element size for calculating
              * the whole sequence length */
             if (info != NULL) {
                 sequence_kind_length = get_native_type_cdr_length(info->base_type_id);
@@ -13201,7 +13201,7 @@ static void dissect_parameterized_serialized_data(proto_tree *tree, tvbuff_t *tv
  */
 
  /* Dissects the encapsulation header and uncompress the serialized
-  *  data if is is compressed and it is compressed in using Zlib.
+  *  data if it is compressed using Zlib.
   *
   * @param[in] tree
   * @param[in] packet info.
@@ -13219,7 +13219,7 @@ static void dissect_parameterized_serialized_data(proto_tree *tree, tvbuff_t *tv
   * @param[out] uncompressed_tvb_out If not null it will contain the uncompressed tvb pointer. If the serialized data is not uncompressed it will return NULL.
   * @param[out] compressed_data_tree_out If not null it will contain the subtree of the uncompressed data.
   *
-  * @return the offset after the at the beginning of the serialized data
+  * @return the offset of the beginning of the serialized data
   * @note All output parameters are optional.
   */
 static

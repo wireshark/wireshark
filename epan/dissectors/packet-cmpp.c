@@ -534,7 +534,7 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 	/* Get the length of the PDU */
 	tvb_len = tvb_captured_length(tvb);
-	/* if the length of the tvb is shorter then the cmpp header length exit */
+	/* if the length of the tvb is shorter than the cmpp header length exit */
 	if (tvb_len < CMPP_FIX_HEADER_LENGTH)
 		return 0;
 
@@ -701,7 +701,7 @@ proto_register_cmpp(void) {
 		{ &hf_cmpp_connect_resp_status,
 		  { "Connect Response Status", "cmpp.connect_resp.Status",
 		    FT_UINT32, BASE_DEC, VALS(vals_connect_resp_status), 0x00,
-		    "Response Status, Value higher then 4 means other error",
+		    "Response Status, Value higher than 4 means other error",
 		    HFILL }
 		},
 		{ &hf_cmpp_connect_resp_AuthenticatorISMG,
@@ -839,7 +839,7 @@ proto_register_cmpp(void) {
 		{ &hf_cmpp_submit_DestUsr_tl,
 		  { "Destination Address Count", "cmpp.submit.DestUsr_tl",
 		    FT_UINT8, BASE_DEC, NULL, 0x00,
-		    "Number of destination address, must smaller then 100",
+		    "Number of destination addresses, must be smaller than 100",
 		    HFILL }
 		},
 		{ &hf_cmpp_Dest_terminal_Id,

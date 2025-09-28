@@ -208,7 +208,7 @@ void csnStreamInit(csnStream_t* ar, int BitOffset, int BitCount, packet_info* pi
 ******************************************************************************/
 int16_t csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, tvbuff_t *tvb, void* data, int ett_csn1);
 
-/* CSN struct macro's */
+/* CSN struct macros */
 #define  CSN_DESCR_BEGIN(_STRUCT)\
         CSN_DESCR CSNDESCR_##_STRUCT[] = {
 

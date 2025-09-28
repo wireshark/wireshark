@@ -4997,7 +4997,7 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     /* If the payload was encrypted, the main payload was not dissected.
      */
     if (srtcp_encrypted == true) {
-        /* If we don't have srtcp_info we cant calculate the length
+        /* If we don't have srtcp_info we can't calculate the length
          */
         if (srtcp_info) {
             proto_tree_add_expert(rtcp_tree, pinfo, &ei_srtcp_encrypted_payload, tvb, offset, srtcp_offset - offset);

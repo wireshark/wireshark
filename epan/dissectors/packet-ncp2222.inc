@@ -1,7 +1,7 @@
 #define FAKE_TREE_IS_VISIBLE 1
 /* fake that the tree is visible so that proto.c will not try to
  "fake" generation of finfo values/nodes.
-  Thus this means netware dissector is slower than it has to, but it wont crash.
+  Thus this means netware dissector is slower than it has to, but it won't crash.
   once the dissector is refactored to avoid calling fvalue_ functions directly this faking of whether the tree is visible or not can be removed.
 */
 
@@ -2165,7 +2165,7 @@ ncp_hash_lookup(conversation_t *conversation, uint8_t nw_sequence, uint32_t pkt_
     request_key.nw_sequence_long = (0x10000+((pkt_num/16)<<16)) | nw_sequence;
 
     /* Since masking of sequence number utilizes the packet number as
-     * part of it's algorythm it is possible for a packet to sit right
+     * part of its algorithm, it is possible for a packet to sit right
      * on the boundary and fail. (depending on number of packets in trace)
      * Loop through all the previous sequence numbers in the hash to see
      * if the original request packet can be found.

@@ -2745,7 +2745,7 @@ test_ocp1(tvbuff_t *tvb)
 
     /* Check packet length
         * - PDU's header size can be larger than packet (fragmentation)
-        * - packet could be larger then header's PDU size (multiple PDUs)
+        * - packet could be larger than header's PDU size (multiple PDUs)
         *   If the byte after message one is SyncVal again and there are enough remaining bytes
         *   for at least a header, then it smells like OCP.1, really...but don't iterate through every possible PDU
         *   (Header's PDU size field includes header and message length but excludes SyncVal (1 byte))

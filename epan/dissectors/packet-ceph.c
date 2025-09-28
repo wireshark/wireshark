@@ -889,7 +889,7 @@ static const uint8_t *C_BANNER = (const uint8_t*)"ceph v";
 #define C_PGPOOL_FLAG_FULL	       (1U << 1) /* pool is full */
 #define C_PGPOOL_FLAG_FAKE_EC_POOL     (1U << 2) /* require ReplicatedPG to act like an EC pg */
 
-/** Macros to create value_stings.
+/** Macros to create value_strings.
  *
  * These are a quick wrapper around the functions in value_string.h.  They
  * create an enum `base` with the given values, a `value_string base_strings[]`
@@ -1739,7 +1739,7 @@ int c_warn_ver(proto_item *ti,
 	if (act < min)
 	{
 		expert_add_info_format(data->pinfo, ti, &ei_ver_tooold,
-				       "Version %d is lower then the minimum "
+				       "Version %d is lower than the minimum "
 				       "supported version (%d).",
 				       act, min);
 		return -1;
@@ -1747,7 +1747,7 @@ int c_warn_ver(proto_item *ti,
 	if (act > max)
 	{
 		expert_add_info_format(data->pinfo, ti, &ei_ver_toonew,
-				       "Version %d is higher then the maximum "
+				       "Version %d is higher than the maximum "
 				       "supported version (%d).",
 				       act, max);
 		return 1;
@@ -5115,7 +5115,7 @@ unsigned c_dissect_msg_osd_op(proto_tree *root,
 		/*
 			If the size is huge (maybe it was mangled on the wire) we want to
 			avoid allocating massive amounts of memory to handle it.  So, if
-			it is larger then can possibly fit in the rest of the message bail
+			it is larger than can possibly fit in the rest of the message, bail
 			out.
 		*/
 		expert_add_info(data->pinfo, ti2, &ei_sizeillogical);

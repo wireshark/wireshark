@@ -617,7 +617,7 @@ is_duplicate_idb(const wtap_block_t idb1, const wtap_block_t idb2)
     }
 
     /* if_tsresol not present is treated as 6. Presumably if two IDBs are
-     * otherwise the same but one has an explict if_tsresol of 6 and one
+     * otherwise the same but one has an explicit if_tsresol of 6 and one
      * has no if_tsresol, those are the same. (Wiretap or some other library
      * might remove a TSRESOL option with value 6 when exporting packets as
      * it's unnecessary.)

@@ -2479,7 +2479,7 @@ void proto_register_icmp(void)
 
 	prefs_register_bool_preference(icmp_module, "never_timestamp",
 				       "Never interpret ICMP echo data bytes as timestamp",
-				       "Rather then interpreting ICMP echo data as timestamp always treat is as raw data",
+				       "Rather than interpreting ICMP echo data as timestamp, always treat is as raw data",
 				       &never_timestamp);
 
 	register_seq_analysis("icmp", "ICMP Flows", proto_icmp, NULL, TL_REQUIRES_COLUMNS, icmp_seq_analysis_packet);

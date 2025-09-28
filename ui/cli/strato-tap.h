@@ -1,6 +1,6 @@
 /** @file
  *
- * Registation tap hooks for Strato
+ * Registration tap hooks for Strato
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

@@ -77,7 +77,7 @@ WSLUA_METHOD GcryptCipher_ctl(lua_State* L) {
     [source,lua]
     ----
     local cipher = GcryptCipher.open(GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CBC, 0)
-    -- CFB mode syncronization
+    -- CFB mode synchronization
     cipher:ctl(GCRYCTL_CFB_SYNC, ByteArray.new())
     -- enabling CBC-MAC mode
     cipher:ctl(GCRYCTL_SET_CBC_MAC, ByteArray.new())

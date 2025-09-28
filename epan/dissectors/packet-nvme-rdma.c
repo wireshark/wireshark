@@ -83,10 +83,10 @@ http://www.iana.org/assignments/service-names-port-numbers/service-names-port-nu
 struct nvme_rdma_cmd_ctx;
 
 /* The idea of RDMA context matching is as follows:
- * addresses, sizes, and keys are registred with nvme_add_data_request()
+ * addresses, sizes, and keys are registered with nvme_add_data_request()
  * at RDMA request, the packet is matched to queue (this is already done)
  * at RDMA request, we see address, size, key, and find command with nvme_lookup_data_request()
- * we store comand context and packet sequence in the queue
+ * we store command context and packet sequence in the queue
  * the next RDMA transfer with the same sequence number will find a macth from queue to the command
  * knowing command context, we can decode the buffer
  * We expect all RDMA transfers to be done in order, so storing in queue context is OK

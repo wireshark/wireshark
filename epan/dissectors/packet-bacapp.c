@@ -2062,7 +2062,7 @@ fSessionKey(tvbuff_t *tvb, proto_tree *tree, unsigned offset);
  * BACnetSpecialEvent ::= SEQUENCE {
  *  period      CHOICE {
  *      calendarEntry       [0] BACnetCalendarEntry,
- *      calendarRefernce    [1] BACnetObjectIdentifier
+ *      calendarReference    [1] BACnetObjectIdentifier
  *      },
  *      listOfTimeValues    [2] SEQUENCE OF BACnetTimeValue,
  *      eventPriority       [3] Unsigned (1..16)

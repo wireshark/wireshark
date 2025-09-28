@@ -202,7 +202,7 @@ dissect_bt_tracker_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *t
         return offset;
       case EXT_NOP:
         /* A special case option that has a fixed-length of one byte. It is not followed by a length field, or associated data.
-           A NOP has no affect on option parsing. It is used only if optional padding is necessary in the future. */
+           A NOP has no effect on option parsing. It is used only if optional padding is necessary in the future. */
         break;
       case EXT_URLDATA:
         proto_tree_add_item_ret_uint(ext_tree, hf_bt_tracker_extension_len, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_length);

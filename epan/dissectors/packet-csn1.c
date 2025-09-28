@@ -60,10 +60,10 @@ tvb_get_masked_bits8(tvbuff_t *tvb, int bit_offset,  const int no_of_bits)
   }
   else
   {
-    uint8_t hight_part = (0x2B ^ tvb_get_uint8(tvb, byte_offset)) & maskBits[8 - relative_bit_offset];
-    hight_part = (uint8_t) (hight_part << (-bit_shift));
+    uint8_t high_part = (0x2B ^ tvb_get_uint8(tvb, byte_offset)) & maskBits[8 - relative_bit_offset];
+    high_part = (uint8_t) (high_part << (-bit_shift));
     result =  (0x2B ^ tvb_get_uint8(tvb, byte_offset+1)) >> (8 + bit_shift);
-    result |= hight_part;
+    result |= high_part;
   }
   return result;
 }

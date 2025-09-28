@@ -654,7 +654,7 @@ static h248_package_t h248_pkg_cg = {
 	&ett_h248_pkg_cg_params,
 	h248_pkg_cg_props_vals,
 	h248_pkg_cg_sig_cd_evt_vals,
-	NULL,NULL,			/* value_stings:  event, stats */
+	NULL,NULL,			/* value_strings:  event, stats */
 	NULL,  /* dissectors: prop */
 	h248_pkg_cg_signals_cd_events,
 	NULL,		/* dissectors: events */

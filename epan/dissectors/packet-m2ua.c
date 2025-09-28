@@ -714,7 +714,7 @@ dissect_registration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
   dissect_parameters(parameters_tvb, pinfo, tree, parameter_tree);
 }
 
-#define SUCCESSFULL_REGISTRATION_STATUS               0
+#define SUCCESSFUL_REGISTRATION_STATUS                0
 #define UNKNOWN_REGISTRATION_STATUS                   1
 #define INVALID_SDLI_REGISTRATION_STATUS              2
 #define INVALID_SDTI_REGISTRATION_STATUS              3
@@ -725,7 +725,7 @@ dissect_registration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
 #define INSUFFICIENT_RESOURCES_REGISTRATION_STATUS    8
 
 static const value_string registration_status_values[] = {
-  { SUCCESSFULL_REGISTRATION_STATUS,              "Successfully registered" },
+  { SUCCESSFUL_REGISTRATION_STATUS,               "Successfully registered" },
   { UNKNOWN_REGISTRATION_STATUS,                  "Error - Unknown" },
   { INVALID_SDLI_REGISTRATION_STATUS,             "Error - Invalid SDLI" },
   { INVALID_SDTI_REGISTRATION_STATUS,             "Error - Invalid SDTI" },
@@ -762,14 +762,14 @@ dissect_deregistration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pi
 #define UNKNOWN_DEREGISTRATION_STATUS                      1
 #define INVALID_INTERFACE_IDENTIFIER_DEREGISTRATION_STATUS 2
 #define PERMISSION_DENIED_DEREGISTRATION_STATUS            3
-#define NOT_REGISTRED_DEREGISTRATION_STATUS                4
+#define NOT_REGISTERED_DEREGISTRATION_STATUS               4
 
 static const value_string deregistration_status_values[] = {
   { SUCCESSFULL_DEREGISTRATION_STATUS,                  "Successfully deregistered" },
   { UNKNOWN_DEREGISTRATION_STATUS,                      "Error - Unknown" },
   { INVALID_INTERFACE_IDENTIFIER_DEREGISTRATION_STATUS, "Error - Invalid interface identifier" },
   { PERMISSION_DENIED_DEREGISTRATION_STATUS,            "Error - Permission denied" },
-  { NOT_REGISTRED_DEREGISTRATION_STATUS,                "Error - Not registered" },
+  { NOT_REGISTERED_DEREGISTRATION_STATUS,               "Error - Not registered" },
   { 0,                                                  NULL } };
 
 #define DEREGISTRATION_STATUS_LENGTH 4

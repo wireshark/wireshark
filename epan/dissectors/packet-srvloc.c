@@ -526,7 +526,7 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
     case CHARSET_ISO_10646_UCS_2:
         while (offset+2<length) {
             offset += 2;
-            /* If the length passed is longer then the actual payload then this must be an incomplete packet. */
+            /* If the length passed is longer than the actual payload then this must be an incomplete packet. */
             if (tvb_reported_length_remaining(tvb, 4)<length) {
                 proto_tree_add_expert(tree, pinfo, &ei_srvloc_malformed, tvb, offset, -1);
                 break;
