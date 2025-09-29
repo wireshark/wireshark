@@ -279,7 +279,7 @@ typedef struct pcapng_custom_block_enterprise_handler_t
  * Register a handler for a pcapng custom block with an enterprise number.
  */
 WS_DLL_PUBLIC
-void register_pcapng_custom_block_enterprise_handler(unsigned enterprise_number, pcapng_custom_block_enterprise_handler_t* handler);
+void register_pcapng_custom_block_enterprise_handler(unsigned enterprise_number, pcapng_custom_block_enterprise_handler_t const * handler);
 
 /*
  * Helper routines for modules.

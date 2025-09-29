@@ -863,7 +863,7 @@ pcapng_process_custom_binary_option(wtapng_block_t *wblock,
                                     int *err, char **err_info)
 {
     uint32_t pen;
-    pcapng_custom_block_enterprise_handler_t* pen_handler;
+    pcapng_custom_block_enterprise_handler_t const *pen_handler;
     bool ret;
 
     if (!pcapng_process_custom_option_common(section_info, option_length,
@@ -872,7 +872,7 @@ pcapng_process_custom_binary_option(wtapng_block_t *wblock,
         return false;
     }
 
-    pen_handler = (pcapng_custom_block_enterprise_handler_t*)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(pen));
+    pen_handler = (pcapng_custom_block_enterprise_handler_t const *)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(pen));
 
     if (pen_handler != NULL)
     {
@@ -2922,9 +2922,9 @@ pcapng_read_interface_statistics_block(wtap *wth _U_, FILE_T fh,
 }
 
 void
-register_pcapng_custom_block_enterprise_handler(unsigned enterprise_number, pcapng_custom_block_enterprise_handler_t* handler)
+register_pcapng_custom_block_enterprise_handler(unsigned enterprise_number, pcapng_custom_block_enterprise_handler_t const *handler)
 {
-    g_hash_table_insert(custom_enterprise_handlers, GUINT_TO_POINTER(enterprise_number), handler);
+    g_hash_table_insert(custom_enterprise_handlers, GUINT_TO_POINTER(enterprise_number), (void *)handler);
 }
 
 static bool
@@ -2935,7 +2935,7 @@ pcapng_read_custom_block(wtap *wth _U_, FILE_T fh, uint32_t block_type,
 {
     pcapng_custom_block_t cb;
     uint32_t pen;
-    pcapng_custom_block_enterprise_handler_t* pen_handler;
+    pcapng_custom_block_enterprise_handler_t const *pen_handler;
 
     /* Is this block long enough to be an CB? */
     if (block_content_length < sizeof cb) {
@@ -2966,7 +2966,7 @@ pcapng_read_custom_block(wtap *wth _U_, FILE_T fh, uint32_t block_type,
     wtap_setup_custom_block_rec(wblock->rec, pen, block_payload_length,
                                 (block_type == BLOCK_TYPE_CB_COPY));
 
-    pen_handler = (pcapng_custom_block_enterprise_handler_t*)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(pen));
+    pen_handler = (pcapng_custom_block_enterprise_handler_t const *)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(pen));
 
     if (pen_handler != NULL)
     {
@@ -5243,7 +5243,7 @@ static bool
 pcapng_write_custom_block_copy(wtap_dumper *wdh, const wtap_rec *rec,
                                int *err, char **err_info _U_)
 {
-    pcapng_custom_block_enterprise_handler_t *pen_handler;
+    pcapng_custom_block_enterprise_handler_t const *pen_handler;
     uint32_t block_content_length;
     pcapng_custom_block_t cb;
     uint32_t pad_len;
@@ -5253,7 +5253,7 @@ pcapng_write_custom_block_copy(wtap_dumper *wdh, const wtap_rec *rec,
         return true;
     }
 
-    pen_handler = (pcapng_custom_block_enterprise_handler_t*)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(rec->rec_header.custom_block_header.pen));
+    pen_handler = (pcapng_custom_block_enterprise_handler_t const *)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(rec->rec_header.custom_block_header.pen));
     if (pen_handler != NULL)
     {
         if (!pen_handler->writer(wdh, rec, err, err_info))

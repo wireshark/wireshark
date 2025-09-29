@@ -316,7 +316,7 @@ pcapng_write_nflx_custom_block(wtap_dumper *wdh, const wtap_rec *rec, int *err,
 
 void register_nflx_custom(void)
 {
-    static pcapng_custom_block_enterprise_handler_t enterprise_netflix =
+    static const pcapng_custom_block_enterprise_handler_t enterprise_netflix =
     {
         pcapng_read_nflx_custom_block,
         pcapng_process_nflx_custom_option,
