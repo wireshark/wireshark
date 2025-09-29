@@ -20,7 +20,7 @@ function print_usage() {
 	printf "\\t--install-optional: install optional software as well\\n"
 	printf "\\t--install-deb-deps: install packages required to build the .deb file\\n"
 	printf "\\t--install-test-deps: install packages required to run all tests\\n"
-	printf "\\t--install-qt5-deps: force installation of packages required to use Qt5\\n"
+	printf "\\t--install-qt5-deps: force installation of packages required to use Qt5 (not recommended)\\n"
 	printf "\\t--install-qt6-deps: force installation of packages required to use Qt6\\n"
 	printf "\\t--install-all: install everything\\n"
 	printf "\\t[other]: other options are passed as-is to apt\\n"

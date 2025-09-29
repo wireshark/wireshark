@@ -1415,6 +1415,7 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 		if(DEFINED ENV{WIRESHARK_QT5_PREFIX_PATH})
 			list(APPEND CMAKE_PREFIX_PATH $ENV{WIRESHARK_QT5_PREFIX_PATH})
 		endif()
+		message(DEPRECATION "Support for building with Qt5 will be removed in the future.")
 		if(APPLE)
 			# Homebrew installs Qt5 in different locations for different
 			# versions and architectures. Ensure that it can be found by
