@@ -187,16 +187,17 @@ Dot11DecryptGetSa(
     ;
 
 static int Dot11DecryptGetSaAddress(
-    const DOT11DECRYPT_MAC_FRAME_ADDR4 *frame,
+    const uint8_t *mac_header,
+    unsigned mac_header_len,
     DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
     ;
 
 static const unsigned char * Dot11DecryptGetStaAddress(
-    const DOT11DECRYPT_MAC_FRAME_ADDR4 *frame)
+    const DOT11DECRYPT_MAC_FRAME *frame)
     ;
 
 static const unsigned char * Dot11DecryptGetBssidAddress(
-    const DOT11DECRYPT_MAC_FRAME_ADDR4 *frame)
+    const DOT11DECRYPT_MAC_FRAME *frame)
     ;
 
 static uint8_t
@@ -976,7 +977,7 @@ int Dot11DecryptDecryptPacket(
     }
 
     /* get STA/BSSID address */
-    if (Dot11DecryptGetSaAddress((const DOT11DECRYPT_MAC_FRAME_ADDR4 *)(data), &id) != DOT11DECRYPT_RET_SUCCESS) {
+    if (Dot11DecryptGetSaAddress(data, mac_header_len, &id) != DOT11DECRYPT_RET_SUCCESS) {
         ws_noisy("STA/BSSID not found");
         return DOT11DECRYPT_RET_REQ_DATA;
     }
@@ -2224,9 +2225,17 @@ Dot11DecryptValidateKey(
 
 static int
 Dot11DecryptGetSaAddress(
-    const DOT11DECRYPT_MAC_FRAME_ADDR4 *frame,
+    const uint8_t *mac_header,
+    unsigned mac_header_len,
     DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
 {
+    const DOT11DECRYPT_MAC_FRAME *frame;
+
+    if (mac_header_len < sizeof(DOT11DECRYPT_MAC_FRAME)) {
+        return DOT11DECRYPT_RET_UNSUCCESS;
+    }
+    frame = (const DOT11DECRYPT_MAC_FRAME *)mac_header;
+
     if ((DOT11DECRYPT_TYPE(frame->fc[0])==DOT11DECRYPT_TYPE_DATA) &&
         (DOT11DECRYPT_DS_BITS(frame->fc[1]) == 0) &&
         (memcmp(frame->addr2, frame->addr3, DOT11DECRYPT_MAC_LEN) != 0) &&
@@ -2278,7 +2287,7 @@ Dot11DecryptGetSaAddress(
 
 static const unsigned char *
 Dot11DecryptGetStaAddress(
-    const DOT11DECRYPT_MAC_FRAME_ADDR4 *frame)
+    const DOT11DECRYPT_MAC_FRAME *frame)
 {
     switch(DOT11DECRYPT_DS_BITS(frame->fc[1])) { /* Bit 1 = FromDS, bit 0 = ToDS */
         case 0:
@@ -2303,7 +2312,7 @@ Dot11DecryptGetStaAddress(
 
 static const unsigned char *
 Dot11DecryptGetBssidAddress(
-    const DOT11DECRYPT_MAC_FRAME_ADDR4 *frame)
+    const DOT11DECRYPT_MAC_FRAME *frame)
 {
     switch(DOT11DECRYPT_DS_BITS(frame->fc[1])) { /* Bit 1 = FromDS, bit 0 = ToDS */
         case 0:
