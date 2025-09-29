@@ -6330,19 +6330,19 @@ proto_tree_add_mac48_detail(const mac_hf_list_t *list_specific,
 			    int idx, tvbuff_t *tvb,
 			    proto_tree *tree, int offset)
 {
-	uint8_t  addr[6];
-	const char    *addr_name  = NULL;
-	const char    *oui_name   = NULL;
-	proto_item    *addr_item  = NULL;
-	proto_tree    *addr_tree  = NULL;
-	proto_item    *ret_val    = NULL;
+	uint8_t     addr[6];
+	const char *addr_name = NULL;
+	const char *oui_name  = NULL;
+	proto_item *addr_item = NULL;
+	proto_tree *addr_tree = NULL;
+	proto_item *ret_val   = NULL;
 
 	if (tree == NULL || list_specific == NULL) {
 		return NULL;
 	}
 
 	/* Resolve what we can of the address */
-	tvb_memcpy(tvb, (void *)addr, offset, 6);
+	tvb_memcpy(tvb, addr, offset, sizeof addr);
 	if (list_specific->hf_addr_resolved || (list_generic && list_generic->hf_addr_resolved)) {
 		addr_name = get_ether_name(addr);
 	}
