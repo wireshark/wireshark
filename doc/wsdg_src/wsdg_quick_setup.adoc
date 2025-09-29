@@ -71,7 +71,7 @@ The setup script is `tools/debian-setup.sh`; its options are:
 * `--install-optional` install optional software as well
 * `--install-deb-deps` install packages required to build the .deb file
 * `--install-test-deps` install packages required to run all tests
-* `--install-qt5-deps` force installation of packages required to use Qt5
+* `--install-qt5-deps` force installation of packages required to use Qt5 (not recommended)
 * `--install-qt6-deps` force installation of packages required to use Qt6
 * `--install-all` install everything
 * `[other]` other options are passed as-is to apt
@@ -83,7 +83,7 @@ The setup script is `tools/rpm-setup.sh`; its options are:
 
 * `--install-optional` install optional software as well
 * `--install-rpm-deps` install packages required to build the .rpm file
-* `--install-qt5-deps` force installation of packages required to use Qt5
+* `--install-qt5-deps` force installation of packages required to use Qt5 (not recommended)
 * `--install-qt6-deps` force installation of packages required to use Qt6
 * `--install-all` install everything
 * `[other]` other options are passed as-is to the packet manager

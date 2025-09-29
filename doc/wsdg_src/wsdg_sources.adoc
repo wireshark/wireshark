@@ -1356,7 +1356,7 @@ your `~/.rpmmacros` file to enable parallel builds:
 Building the RPM package requires quite a few packages and libraries
 including GLib, `gcc`, `flex`, Asciidoctor, and Qt development
 tools such as `uic` and `moc`. The required Qt packages can usually be
-obtained by installing the _qt5-devel_ package. For a complete list of
+obtained by installing the _qt6-qt*-devel_ packages. For a complete list of
 build requirements, look for the “BuildRequires” lines in
 _packaging/rpm/wireshark.spec.in_.
 
