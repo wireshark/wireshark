@@ -41,57 +41,68 @@ struct conversation_element;
 #define PINFO_HAS_TS            0x00000001  /**< time stamp */
 
 typedef struct _packet_info {
-  const char *current_proto;        /**< name of protocol currently being dissected */
-  struct epan_column_info *cinfo;   /**< Column formatting information */
-  uint32_t presence_flags;           /**< Presence flags for some items */
-  uint32_t num;                      /**< Frame number */
-  nstime_t abs_ts;                  /**< Packet absolute time stamp */
-  nstime_t rel_ts;                  /**< Relative timestamp (yes, it can be negative) */
-  nstime_t rel_cap_ts;              /**< Relative timestamp from capture start (might be negative for broken files) */
-  bool rel_cap_ts_present;      /**< Relative timestamp from capture start valid */
-  frame_data *fd;
-  union wtap_pseudo_header *pseudo_header;
-  wtap_rec *rec;                    /**< Record metadata */
-  GSList *data_src;                 /**< Frame data sources */
-  address dl_src;                   /**< link-layer source address */
-  address dl_dst;                   /**< link-layer destination address */
-  address net_src;                  /**< network-layer source address */
-  address net_dst;                  /**< network-layer destination address */
-  address src;                      /**< source address (net if present, DL otherwise )*/
-  address dst;                      /**< destination address (net if present, DL otherwise )*/
-  uint32_t vlan_id;                  /**< First encountered VLAN Id if present otherwise 0 */
-  const char *noreassembly_reason;  /**< reason why reassembly wasn't done, if any */
-  bool fragmented;              /**< true if the protocol is only a fragment */
+  const char *current_proto;                          /**< Name of protocol currently being dissected */
+  struct epan_column_info *cinfo;                     /**< Column formatting information */
+  uint32_t presence_flags;                            /**< Presence flags for some items */
+  uint32_t num;                                       /**< Frame number */
+  nstime_t abs_ts;                                    /**< Packet absolute timestamp */
+  nstime_t rel_ts;                                    /**< Relative timestamp (can be negative) */
+  nstime_t rel_cap_ts;                                /**< Relative timestamp from capture start (may be negative for broken files) */
+  bool rel_cap_ts_present;                            /**< True if relative capture timestamp is valid */
+
+  frame_data *fd;                                     /**< Frame metadata and indexing information */
+  union wtap_pseudo_header *pseudo_header;            /**< Capture-specific pseudo header (e.g., Ethernet, 802.11) */
+  wtap_rec *rec;                                      /**< Record metadata */
+  GSList *data_src;                                   /**< Frame data sources */
+
+  address dl_src;                                     /**< Link-layer source address */
+  address dl_dst;                                     /**< Link-layer destination address */
+  address net_src;                                    /**< Network-layer source address */
+  address net_dst;                                    /**< Network-layer destination address */
+  address src;                                        /**< Source address (network if present, else DL) */
+  address dst;                                        /**< Destination address (network if present, else DL) */
+
+  uint32_t vlan_id;                                   /**< First encountered VLAN ID if present, else 0 */
+  const char *noreassembly_reason;                    /**< Reason why reassembly was not performed, if any */
+  bool fragmented;                                    /**< True if the protocol is a fragment */
+
   struct {
-    uint32_t in_error_pkt:1;         /**< true if we're inside an {ICMP,CLNP,...} error packet */
-    uint32_t in_gre_pkt:1;           /**< true if we're encapsulated inside a GRE packet */
+      uint32_t in_error_pkt : 1;                      /**< True if inside an error packet (e.g., ICMP, CLNP) */
+      uint32_t in_gre_pkt   : 1;                      /**< True if encapsulated inside a GRE packet */
   } flags;
-  uint32_t expert_severity;         /**< highest expert severity */
-  port_type ptype;                  /**< type of the following two port numbers */
-  uint32_t srcport;                  /**< source port */
-  uint32_t destport;                 /**< destination port */
-  uint32_t match_uint;               /**< matched uint for calling subdissector from table */
-  const char *match_string;         /**< matched string for calling subdissector from table */
-  bool use_conv_addr_port_endpoints; /**< true if address/port endpoints member should be used for conversations */
-  struct conversation_addr_port_endpoints* conv_addr_port_endpoints; /**< Data that can be used for address+port conversations, including wildcarding */
-  struct conversation_element *conv_elements; /**< Arbitrary conversation identifier; can't be wildcarded */
-  uint16_t can_desegment;            /**< >0 if this segment could be desegmented.
-                                         A dissector that can offer this API (e.g.
-                                         TCP) sets can_desegment=2, then
-                                         can_desegment is decremented by 1 each time
-                                         we pass to the next subdissector. Thus only
-                                         the dissector immediately above the
-                                         protocol which sets the flag can use it*/
-  uint16_t saved_can_desegment;      /**< Value of can_desegment before current
-                                         dissector was called.  Supplied so that
-                                         dissectors for proxy protocols such as
-                                         SOCKS can restore it, allowing the
-                                         dissectors that they call to use the
-                                         TCP dissector's desegmentation (SOCKS
-                                         just retransmits TCP segments once it's
-                                         finished setting things up, so the TCP
-                                         desegmentor can desegment its payload). */
-  int desegment_offset;             /**< offset to stuff needing desegmentation */
+
+  uint32_t expert_severity;                           /**< Highest expert severity level */
+  port_type ptype;                                    /**< Type of the srcport and destport */
+  uint32_t srcport;                                   /**< Source port */
+  uint32_t destport;                                  /**< Destination port */
+
+  uint32_t match_uint;                                /**< Matched uint for calling subdissector from a table */
+  const char *match_string;                           /**< Matched string for calling subdissector from a table */
+
+  bool use_conv_addr_port_endpoints;                  /**< True if address/port endpoints should be used for conversations */
+  struct conversation_addr_port_endpoints *conv_addr_port_endpoints; /**< Address+port conversation data, including wildcarding */
+  struct conversation_element *conv_elements;         /**< Arbitrary conversation identifier (cannot be wildcarded) */
+
+  uint16_t can_desegment;                             /**< >0 if this segment could be desegmented.
+                                                          A dissector that can offer this API (e.g.
+                                                          TCP) sets can_desegment=2, then
+                                                          can_desegment is decremented by 1 each time
+                                                          we pass to the next subdissector. Thus only
+                                                          the dissector immediately above the
+                                                          protocol which sets the flag can use it*/
+
+  uint16_t saved_can_desegment;                       /**< Value of can_desegment before current
+                                                          dissector was called.  Supplied so that
+                                                          dissectors for proxy protocols such as
+                                                          SOCKS can restore it, allowing the
+                                                          dissectors that they call to use the
+                                                          TCP dissector's desegmentation (SOCKS
+                                                          just retransmits TCP segments once it's
+                                                          finished setting things up, so the TCP
+                                                          desegmentor can desegment its payload). */
+
+  int desegment_offset;                               /**< Offset to data needing desegmentation */
+
 #define DESEGMENT_ONE_MORE_SEGMENT 0x0fffffff
 #define DESEGMENT_UNTIL_FIN        0x0ffffffe
   uint32_t desegment_len;            /**< requested desegmentation additional length
@@ -126,43 +137,41 @@ typedef struct _packet_info {
                                    immediately below the current one and not
                                    any further.
                                 */
-  uint32_t bytes_until_next_pdu;
+  uint32_t bytes_until_next_pdu;                         /**< Number of bytes until the next PDU starts beyond the next segment */
 
   int     p2p_dir;              /**< Packet was captured as an
                                        outbound (P2P_DIR_SENT)
                                        inbound (P2P_DIR_RECV)
                                        unknown (P2P_DIR_UNKNOWN) */
 
-  GHashTable *private_table;    /**< a hash table passed from one dissector to another */
+  GHashTable *private_table;                           /**< Hash table passed between dissectors */
+  wmem_list_t *layers;                                 /**< List of protocol layers */
+  wmem_map_t *proto_layers;                            /**< Map from proto_id to curr_proto_layer_num */
+  uint8_t curr_layer_num;                              /**< Current "depth" or layer number in the current frame */
+  uint8_t curr_proto_layer_num;                        /**< Current "depth" or layer number for this dissector in the current frame */
+  uint16_t link_number;                                /**< Link-layer interface index */
 
-  wmem_list_t *layers;          /**< layers of each protocol */
-  wmem_map_t *proto_layers;     /** map of proto_id to curr_proto_layer_num. */
-  uint8_t curr_layer_num;        /**< The current "depth" or layer number in the current frame */
-  uint8_t curr_proto_layer_num;  /**< The current "depth" or layer number for this dissector in the current frame */
-  uint16_t link_number;
+  uint16_t clnp_srcref;                                /**< CLNP/COTP source reference (cannot use srcport to avoid confusion with TPKT) */
+  uint16_t clnp_dstref;                                /**< CLNP/COTP destination reference (cannot use dstport to avoid confusion with TPKT) */
 
-  uint16_t clnp_srcref;          /**< clnp/cotp source reference (can't use srcport, this would confuse tpkt) */
-  uint16_t clnp_dstref;          /**< clnp/cotp destination reference (can't use dstport, this would confuse tpkt) */
+  int link_dir;                                        /**< Link direction (e.g., 3GPP uplink or downlink) */
+  int16_t src_win_scale;                               /**< Rcv.Wind.Shift src applies when sending segments; -1 unknown; -2 disabled */
+  int16_t dst_win_scale;                               /**< Rcv.Wind.Shift dst applies when sending segments; -1 unknown; -2 disabled */
 
-  int link_dir;                 /**< 3GPP messages are sometime different UP link(UL) or Downlink(DL) */
+  GSList *proto_data;                                  /**< Per-packet protocol data */
+  GSList *frame_end_routines;                          /**< List of routines to execute after frame dissection */
 
-  int16_t src_win_scale;        /**< Rcv.Wind.Shift src applies when sending segments; -1 unknown; -2 disabled */
-  int16_t dst_win_scale;        /**< Rcv.Wind.Shift dst applies when sending segments; -1 unknown; -2 disabled */
+  wmem_allocator_t *pool;                              /**< Memory pool scoped to this pinfo */
+  struct epan_session *epan;                           /**< Pointer to the current epan session context */
 
-  GSList* proto_data;          /**< Per packet proto data */
+  const char *heur_list_name;                          /**< Name of heuristic list if packet is being heuristically dissected */
+  int dissection_depth;                                /**< Current "depth" or layer number in the current frame */
 
-  GSList* frame_end_routines;
-
-  wmem_allocator_t *pool;      /**< Memory pool scoped to the pinfo struct */
-  struct epan_session *epan;
-  const char *heur_list_name;    /**< name of heur list if this packet is being heuristically dissected */
-  int dissection_depth;         /**< The current "depth" or layer number in the current frame */
-
-  uint32_t stream_id;            /**< Conversation Stream ID of the highest protocol */
-  uint32_t track_ctype;          /**< Tracks the conversation type for these protocols
-                                      subscribing to an error packet follow-up.
-                                      Typically transport protocols such as UDP or TCP
-                                      are likely to be followed up by ICMP. */
+  uint32_t stream_id;                                  /**< Conversation stream ID of the highest protocol */
+  uint32_t track_ctype;                                /**< Tracks the conversation type for these protocols
+                                                            subscribing to an error packet follow-up.
+                                                            Typically transport protocols such as UDP or TCP
+                                                            are likely to be followed up by ICMP. */
 } packet_info;
 
 /** @} */
