@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.6.0 (2025-06)
+-- 3GPP TS 38.473 V18.7.0 (2025-09)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -301,6 +301,7 @@ maxnoAggCombinations					INTEGER ::= 2
 maxnoAggregatedPosSRSCombinations		INTEGER ::= 32
 maxnoofCandidateCells					INTEGER ::= 8
 maxnoofSSBIndices						INTEGER ::= 64
+maxnoofPreambleIndex					INTEGER ::= 64
 
 
 
@@ -1185,6 +1186,9 @@ id-candidatePSCellsToCancel							ProtocolIE-ID ::= 858
 id-MobilityInitiation								ProtocolIE-ID ::= 859
 id-ValidityAreaSpecificSRSInformationExtended		ProtocolIE-ID ::= 860
 id-PLMNIndexNRAssistanceInfoForNetShar						ProtocolIE-ID ::= 861
+id-TCIStatesConfigurationsList						ProtocolIE-ID ::= 862
+id-LTMTCIStatesConfigurationsList					ProtocolIE-ID ::= 863
+
 
 
 

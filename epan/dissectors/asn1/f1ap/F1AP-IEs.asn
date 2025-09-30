@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.6.0 (2025-06)
+-- 3GPP TS 38.473 V18.7.0 (2025-09)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -281,6 +281,7 @@ IMPORTS
 	id-SRSPosPeriodicConfigHyperSFNIndex,
 	id-candidatePSCellsToCancel,
 	id-ValidityAreaSpecificSRSInformationExtended,
+	id-TCIStatesConfigurationsList,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -412,7 +413,8 @@ IMPORTS
 	maxnoAggCombinations,
 	maxnoAggregatedPosSRSCombinations,
 	maxnoofCandidateCells,
-	maxnoofSSBIndices
+	maxnoofSSBIndices,
+	maxnoofPreambleIndex
 
 
 
@@ -4261,6 +4263,7 @@ LTMConfiguration	::= SEQUENCE {
 }
 
 LTMConfiguration-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-TCIStatesConfigurationsList	CRITICALITY		reject		EXTENSION		TCIStatesConfigurationsList		PRESENCE		optional	},
 	...
 }
 
@@ -4312,7 +4315,21 @@ LTMCFRAResourceConfig-Item ::= SEQUENCE {
 LTMCFRAResourceConfig-Item-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
 LTMCFRAResourceConfig ::= OCTET STRING
+
+LTMTCIStatesConfigurationsList ::= SEQUENCE (SIZE (1.. maxnoofLTMCells)) OF LTMTCIStatesConfigurations-Item
+
+LTMTCIStatesConfigurations-Item::= SEQUENCE {
+	nRCGI							NRCGI,
+	tCIStatesConfigurationsList		TCIStatesConfigurationsList,
+	iE-Extensions					ProtocolExtensionContainer { { LTMTCIStatesConfigurations-Item-ExtIEs } }	OPTIONAL,
+	...
+}
+
+LTMTCIStatesConfigurations-Item-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 
 -- M
@@ -6425,7 +6442,7 @@ PrimaryPathIndication ::= ENUMERATED {
 	...
 }
 
-PreambleIndexList ::= SEQUENCE (SIZE (1.. maxnoofLTMCells)) OF PreambleIndexList-Item
+PreambleIndexList ::= SEQUENCE (SIZE (1.. maxnoofPreambleIndex)) OF PreambleIndexList-Item
 
 PreambleIndexList-Item::= SEQUENCE {
 	preambleIndex		INTEGER (0..63),

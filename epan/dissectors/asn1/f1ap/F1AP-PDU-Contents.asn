@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V18.6.0 (2025-06)
+-- 3GPP TS 38.473 V18.7.0 (2025-09)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -442,7 +442,8 @@ IMPORTS
 	F1U-PathFailure,
 	LTMResetInformation,
 	MobilityInitiation,
-	PLMNIndexNR
+	PLMNIndexNR,
+	LTMTCIStatesConfigurationsList
 
 
 FROM F1AP-IEs
@@ -1036,6 +1037,7 @@ FROM F1AP-Containers
 	id-PreconfiguredSRSInformation,
 	id-MobilityInitiation,
 	id-PLMNIndexNRAssistanceInfoForNetShar,
+	id-LTMTCIStatesConfigurationsList,
 	maxCellingNBDU,
 	maxnoofCandidateSpCells,
 	maxnoofDRBs,
@@ -2049,7 +2051,8 @@ UEContextModificationRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-DLLBTFailureInformationRequest				CRITICALITY ignore	TYPE DLLBTFailureInformationRequest				PRESENCE optional }|
 	{ ID id-SLPositioning-Ranging-Service-Info		CRITICALITY ignore	TYPE SLPositioning-Ranging-Service-Info						PRESENCE optional	}|
 	{ ID id-NonIntegerDRXCycle						CRITICALITY ignore	TYPE NonIntegerDRXCycle									PRESENCE optional	}|
-	{ ID id-LTMResetInformation						CRITICALITY ignore	TYPE LTMResetInformation								PRESENCE optional	},
+	{ ID id-LTMResetInformation						CRITICALITY ignore	TYPE LTMResetInformation								PRESENCE optional	}|
+	{ ID id-LTMTCIStatesConfigurationsList			CRITICALITY reject	TYPE LTMTCIStatesConfigurationsList				PRESENCE optional	},
 	...
 }
 

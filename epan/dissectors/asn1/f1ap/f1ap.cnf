@@ -1060,6 +1060,8 @@ id-candidatePSCellsToCancel                          ProtocolIE-ID
 id-MobilityInitiation                                ProtocolIE-ID
 id-ValidityAreaSpecificSRSInformationExtended        ProtocolIE-ID
 id-PLMNIndexNRAssistanceInfoForNetShar               ProtocolIE-ID
+id-TCIStatesConfigurationsList                       ProtocolIE-ID
+id-LTMTCIStatesConfigurationsList                    ProtocolIE-ID
 
 #.END
 
@@ -1671,6 +1673,7 @@ LTMResetInformation                               N f1ap.ies id-LTMResetInformat
 RequestedSRSPreconfigurationCharacteristics-List  N f1ap.ies id-PreconfiguredSRSInformation
 MobilityInitiation                                N f1ap.ies id-MobilityInitiation
 PLMNIndexNR                                       N f1ap.ies id-PLMNIndexNRAssistanceInfoForNetShar
+LTMTCIStatesConfigurationsList                    N f1ap.ies id-LTMTCIStatesConfigurationsList
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -1910,6 +1913,7 @@ TagIDPointer                                      N f1ap.extension id-TagIDPoint
 SRSPosPeriodicConfigHyperSFNIndex                 N f1ap.extension id-SRSPosPeriodicConfigHyperSFNIndex
 PSCellList                                        N f1ap.extension id-candidatePSCellsToCancel
 ValidityAreaSpecificSRSInformationExtended        N f1ap.extension id-ValidityAreaSpecificSRSInformationExtended
+TCIStatesConfigurationsList                       N f1ap.extension id-TCIStatesConfigurationsList
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset
