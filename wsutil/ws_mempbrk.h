@@ -26,16 +26,50 @@ typedef struct {
 #endif
 } ws_mempbrk_pattern;
 
-/** Compile the pattern for the needles to find using ws_mempbrk_exec().
+/**
+ * @brief Compile the pattern for the needles to find using ws_mempbrk_exec().
+ *
+ * Initializes the internal representation of the search pattern using the
+ * specified set of needle bytes. This enables efficient scanning of buffers
+ * for any matching byte.
+ *
+ * @param pattern  Pointer to the pattern structure to initialize.
+ * @param needles  Null-terminated string of bytes to search for.
  */
 WS_DLL_PUBLIC void ws_mempbrk_compile(ws_mempbrk_pattern* pattern, const char *needles);
 
-/** Scan for the needles specified by the compiled pattern.
+
+/**
+ * @brief Scan for the needles specified by the compiled pattern.
+ *
+ * Searches the input buffer `haystack` for the first occurrence of any byte
+ * listed in the precompiled `pattern`. If a match is found, the matched byte
+ * is stored in `found_needle` (if non-NULL), and a pointer to its location
+ * in `haystack` is returned. Returns NULL if no match is found.
+ *
+ * @param haystack       Pointer to the input buffer to search.
+ * @param haystacklen    Length of the input buffer in bytes.
+ * @param pattern        Precompiled pattern containing target bytes.
+ * @param found_needle   Optional output pointer to receive the matched byte.
+ * @return               Pointer to the first matching byte in `haystack`, or NULL if none found.
  */
 WS_DLL_PUBLIC const uint8_t *ws_mempbrk_exec(const uint8_t* haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, unsigned char *found_needle);
 
-/** Scan for the needles specified by the compiled pattern, starting at the
+
+/**
+ * @brief Scan for the needles specified by the compiled pattern, starting at the
  * end of the haystack and working backwards.
+ *
+ * Searches the input buffer `haystack` in reverse for the first occurrence of any byte
+ * listed in the precompiled `pattern`. If a match is found, the matched byte is stored
+ * in `found_needle` (if non-NULL), and a pointer to its location in `haystack` is returned.
+ * Returns NULL if no match is found.
+ *
+ * @param haystack       Pointer to the input buffer to search.
+ * @param haystacklen    Length of the input buffer in bytes.
+ * @param pattern        Precompiled pattern containing target bytes.
+ * @param found_needle   Optional output pointer to receive the matched byte.
+ * @return               Pointer to the first matching byte in `haystack`, or NULL if none found.
  */
 WS_DLL_PUBLIC const uint8_t *ws_memrpbrk_exec(const uint8_t* haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, unsigned char *found_needle);
 
