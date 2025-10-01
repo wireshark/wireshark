@@ -312,9 +312,8 @@ static const fragment_items pn_rsi_frag_items = {
 
 static int
 dissect_pn_rta_remaining_user_data_bytes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-    proto_tree *tree, uint8_t *drep, uint32_t length, uint8_t u8MoreFrag, uint32_t u32FOpnumOffsetOpnum, int type)
+    proto_tree *tree, uint8_t *drep, uint32_t length, uint8_t u8MoreFrag, uint32_t u32FOpnumOffsetOpnum, uint32_t u32FOpnumOffsetOffset, int type)
 {
-    fragment_head  *fd_frag;
     fragment_head  *fd_reass;
     conversation_t *conv;
     tvbuff_t       *next_tvb;
@@ -332,9 +331,6 @@ dissect_pn_rta_remaining_user_data_bytes(tvbuff_t *tvb, int offset, packet_info 
                 pinfo->srcport, pinfo->destport, 0);
         }
 
-        /* XXX - don't know if this will work with multiple segmented Ack's in a single TCP stream */
-        fd_frag = fragment_get(&pn_rsi_reassembly_table, pinfo, conv->conv_index, NULL);
-        fd_reass = fragment_get_reassembled_id(&pn_rsi_reassembly_table, pinfo, conv->conv_index);
     }
     else {
         /* plain COTP transport (without RFC1006/TCP), try reassembling */
@@ -344,14 +340,12 @@ dissect_pn_rta_remaining_user_data_bytes(tvbuff_t *tvb, int offset, packet_info 
             conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, CONVERSATION_NONE,
                 pinfo->clnp_srcref, pinfo->clnp_dstref, 0);
         }
-
-        /* XXX - don't know if this will work with multiple segmented Ack's in a single TCP stream */
-        fd_frag = fragment_get(&pn_rsi_reassembly_table, pinfo, conv->conv_index, NULL);
-        fd_reass = fragment_get_reassembled_id(&pn_rsi_reassembly_table, pinfo, conv->conv_index);
     }
+    fd_reass = fragment_get_reassembled_id(&pn_rsi_reassembly_table, pinfo, conv->conv_index);
 
     /* is this packet containing a "standalone" segment? */
-    if (!u8MoreFrag && !fd_frag && !fd_reass) {
+    if (!u8MoreFrag && !u32FOpnumOffsetOffset) {
+
         /* "standalone" segment, simply show payload and return */
         offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
         return offset;
@@ -433,7 +427,7 @@ dissect_RSI_SVCS_block(tvbuff_t *tvb, int offset,
 
     if (length > 0) {
         offset = dissect_pn_rta_remaining_user_data_bytes(tvb, offset, pinfo, sub_tree, drep,
-            tvb_captured_length_remaining(tvb, offset), u8MoreFrag, u32FOpnumOffsetOpnum, PDU_TYPE_REQ);
+            tvb_captured_length_remaining(tvb, offset), u8MoreFrag, u32FOpnumOffsetOpnum, u32FOpnumOffsetOffset, PDU_TYPE_REQ);
     }
     return offset;
 }
@@ -481,7 +475,7 @@ dissect_RSI_CONN_block(tvbuff_t *tvb, int offset,
 
     if (length > 0) {
         offset = dissect_pn_rta_remaining_user_data_bytes(tvb, offset, pinfo, sub_tree, drep,
-            tvb_captured_length_remaining(tvb, offset), u8MoreFrag, u32FOpnumOffsetOpnum, PDU_TYPE_REQ);
+            tvb_captured_length_remaining(tvb, offset), u8MoreFrag, u32FOpnumOffsetOpnum, u32FOpnumOffsetOffset, PDU_TYPE_REQ);
     }
 
     return offset;
@@ -534,7 +528,7 @@ dissect_SecurityAssociationContol_block(tvbuff_t* tvb, int offset,
 
     if (length > 0) {
         offset = dissect_pn_rta_remaining_user_data_bytes(tvb, offset, pinfo, sub_tree, drep,
-            tvb_captured_length_remaining(tvb, offset), u8MoreFrag, u32FOpnumOffsetOpnum, PDU_TYPE_REQ);
+            tvb_captured_length_remaining(tvb, offset), u8MoreFrag, u32FOpnumOffsetOpnum, u32FOpnumOffsetOffset, PDU_TYPE_REQ);
     }
 
     return offset;
@@ -629,7 +623,7 @@ dissect_RSI_RSP_block(tvbuff_t *tvb, int offset,
 
     if (length > 0) {
         offset = dissect_pn_rta_remaining_user_data_bytes(tvb, offset, pinfo, tree, drep,
-            tvb_captured_length_remaining(tvb, offset), u8MoreFrag, u32FOpnumOffsetOpnum, PDU_TYPE_RSP);
+            tvb_captured_length_remaining(tvb, offset), u8MoreFrag, u32FOpnumOffsetOpnum, u32FOpnumOffsetOffset, PDU_TYPE_RSP);
     }
 
     return offset;
