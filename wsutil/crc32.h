@@ -30,22 +30,32 @@ extern "C" {
 	 ((crc32c_value & 0x0000ff00) <<  8)	|	\
 	 ((crc32c_value & 0x000000ff) << 24))
 
-/** Lookup the crc value in the crc32_ccitt_table
- @param pos Position in the table. */
+/**
+ * @brief Lookup a CRC-32/CCITT table value by position.
+ *
+ * Retrieves the precomputed CRC value from the `crc32_ccitt_table` at the specified
+ * position. This table is typically used to accelerate CRC-32/CCITT calculations
+ * by avoiding repeated polynomial division.
+ *
+ * @param pos  Index into the CRC-32/CCITT lookup table (0–255).
+ * @return     CRC value corresponding to the given position.
+ */
 WS_DLL_PUBLIC uint32_t crc32_ccitt_table_lookup (unsigned char pos);
 
 /** Lookup the crc value in the crc32c_table
  @param pos Position in the table. */
 WS_DLL_PUBLIC uint32_t crc32c_table_lookup (unsigned char pos);
 
-/** Compute CRC32C checksum of a buffer of data.
+/**
+ @brief Compute CRC32C checksum of a buffer of data.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @param crc The preload value for the CRC32C computation.
  @return The CRC32C checksum. */
 WS_DLL_PUBLIC uint32_t crc32c_calculate(const void *buf, int len, uint32_t crc);
 
-/** Compute CRC32C checksum of a buffer of data without swapping seed crc
+/**
+ @brief Compute CRC32C checksum of a buffer of data without swapping seed crc
  or completed checksum
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
@@ -53,29 +63,34 @@ WS_DLL_PUBLIC uint32_t crc32c_calculate(const void *buf, int len, uint32_t crc);
  @return The CRC32C checksum. */
 WS_DLL_PUBLIC uint32_t crc32c_calculate_no_swap(const void *buf, int len, uint32_t crc);
 
-/** Compute CRC32 CCITT checksum of a buffer of data.
+/**
+ @brief Compute CRC32 CCITT checksum of a buffer of data.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @return The CRC32 CCITT checksum. */
 WS_DLL_PUBLIC uint32_t crc32_ccitt(const uint8_t *buf, unsigned len);
 
-/** Compute CRC32 CCITT checksum of a buffer of data.  If computing the
- *  checksum over multiple buffers and you want to feed the partial CRC32
- *  back in, remember to take the 1's complement of the partial CRC32 first.
+/**
+ @brief Compute CRC32 CCITT checksum of a buffer of data.
+ *
+ * If computing the checksum over multiple buffers and you want to feed the partial CRC32
+ * back in, remember to take the 1's complement of the partial CRC32 first.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @param seed The seed to use.
  @return The CRC32 CCITT checksum (using the given seed). */
 WS_DLL_PUBLIC uint32_t crc32_ccitt_seed(const uint8_t *buf, unsigned len, uint32_t seed);
 
-/** Compute MPEG-2 CRC32 checksum of a buffer of data.
+/**
+ @brief Compute MPEG-2 CRC32 checksum of a buffer of data.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @param seed The seed to use.
  @return The CRC32 MPEG-2 checksum (using the given seed). */
 WS_DLL_PUBLIC uint32_t crc32_mpeg2_seed(const uint8_t *buf, unsigned len, uint32_t seed);
 
-/** Computes CRC32 checksum for the given data with the polynom 0x0AA725CF using
+/**
+ * @brief Computes CRC32 checksum for the given data with the polynom 0x0AA725CF using
  *  precompiled CRC table
  * @param buf a pointer to a buffer of the given length
  * @param len the length of the given buffer
@@ -84,7 +99,8 @@ WS_DLL_PUBLIC uint32_t crc32_mpeg2_seed(const uint8_t *buf, unsigned len, uint32
  */
 WS_DLL_PUBLIC uint32_t crc32_0x0AA725CF_seed(const uint8_t *buf, unsigned len, uint32_t seed);
 
-/** Computes CRC32 checksum for the given data with the polynom 0x5D6DCB using
+/**
+ * @brief Computes CRC32 checksum for the given data with the polynom 0x5D6DCB using
  *  precompiled CRC table
  * @param buf a pointer to a buffer of the given length
  * @param len the length of the given buffer
@@ -93,6 +109,22 @@ WS_DLL_PUBLIC uint32_t crc32_0x0AA725CF_seed(const uint8_t *buf, unsigned len, u
  */
 WS_DLL_PUBLIC uint32_t crc32_0x5D6DCB_seed(const uint8_t *buf, unsigned len, uint32_t seed);
 
+/**
+ * @brief Decrypt WEP-encrypted 802.11 payload using RC4 stream cipher.
+ *
+ * Performs WEP decryption on the provided `cypher_text` buffer using the RC4
+ * algorithm seeded with the specified initialization vector and WEP key.
+ * The decryption is done in-place, modifying `cypher_text` directly.
+ *
+ * This function assumes the input data is WEP-encrypted and that the seed
+ * contains both the IV and the shared WEP key. It does not verify the ICV.
+ *
+ * @param seed        Pointer to the RC4 seed (IV + WEP key).
+ * @param seed_len    Length of the seed in bytes.
+ * @param cypher_text Pointer to the encrypted data buffer (will be decrypted in-place).
+ * @param data_len    Length of the encrypted data in bytes.
+ * @return            0 on success, non-zero on failure.
+ */
 WS_DLL_PUBLIC int Dot11DecryptWepDecrypt(
 	const unsigned char *seed,
 	const size_t seed_len,

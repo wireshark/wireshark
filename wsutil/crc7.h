@@ -47,7 +47,7 @@ static inline uint8_t crc7init(void)
 
 
 /**
- * Update the crc value with new data.
+ * @brief Update the crc value with new data.
  *
  * \param crc      The current crc value.
  * \param data     Pointer to a buffer of \a data_len bytes.
@@ -58,7 +58,7 @@ WS_DLL_PUBLIC uint8_t crc7update(uint8_t crc, const unsigned char *data, int dat
 
 
 /**
- * Calculate the final crc value.
+ * @brief Calculate the final crc value.
  *
  * \param crc  The current crc value.
  * \return     The final crc value.

@@ -28,19 +28,24 @@ extern "C" {
        First bit is LSB)
 */
 
-/** Compute CRC16 CCITT checksum of a buffer of data.
+/**
+ @brief Compute CRC16 CCITT checksum of a buffer of data.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @return The CRC16 CCITT checksum. */
 WS_DLL_PUBLIC uint16_t crc16_ccitt(const uint8_t *buf, unsigned len);
 
-/** Compute CRC16 X.25 CCITT checksum of a buffer of data.
+/**
+ @brief Compute CRC16 X.25 CCITT checksum of a buffer of data.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @return The CRC16 X.25 CCITT checksum. */
 WS_DLL_PUBLIC uint16_t crc16_x25_ccitt_seed(const uint8_t *buf, unsigned len, uint16_t seed);
 
-/** Compute CRC16 CCITT checksum of a buffer of data.  If computing the
+/**
+ * @brief Compute CRC16 CCITT checksum of a buffer of data.
+ *
+ * If computing the
  *  checksum over multiple buffers and you want to feed the partial CRC16
  *  back in, remember to take the 1's complement of the partial CRC16 first.
  @param buf The buffer containing the data.
@@ -49,20 +54,23 @@ WS_DLL_PUBLIC uint16_t crc16_x25_ccitt_seed(const uint8_t *buf, unsigned len, ui
  @return The CRC16 CCITT checksum (using the given seed). */
 WS_DLL_PUBLIC uint16_t crc16_ccitt_seed(const uint8_t *buf, unsigned len, uint16_t seed);
 
-/** Compute the 16bit CRC_A value of a buffer as defined in ISO14443-3.
+/**
+ @brief Compute the 16bit CRC_A value of a buffer as defined in ISO14443-3.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @return the CRC16 checksum for the buffer */
 WS_DLL_PUBLIC uint16_t crc16_iso14443a(const uint8_t *buf, unsigned len);
 
-/** Compute the 16bit CRC value of a buffer as defined in USB Specification.
+/**
+ @brief Compute the 16bit CRC value of a buffer as defined in USB Specification.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @return the CRC16 checksum for the buffer */
 WS_DLL_PUBLIC uint16_t crc16_usb(const uint8_t *buf, unsigned len);
 
-/** Calculates a CRC16 checksum for the given buffer with the polynom
- *  0x5935 using a precompiled CRC table
+/**
+ * @brief Calculates a CRC16 checksum for the given buffer with the polynomial
+ *  0x5935 using a precompiled CRC table.
  * @param buf a pointer to a buffer of the given length
  * @param len the length of the given buffer
  * @param seed The seed to use.
@@ -70,7 +78,8 @@ WS_DLL_PUBLIC uint16_t crc16_usb(const uint8_t *buf, unsigned len);
  */
 WS_DLL_PUBLIC uint16_t crc16_0x5935(const uint8_t *buf, uint32_t len, uint16_t seed);
 
-/** Calculates a CRC16 checksum for the given buffer with the polynom
+/**
+ * @brief Calculates a CRC16 checksum for the given buffer with the polynom
  *  0x755B using a precompiled CRC table
  * @param buf a pointer to a buffer of the given length
  * @param len the length of the given buffer
@@ -79,7 +88,8 @@ WS_DLL_PUBLIC uint16_t crc16_0x5935(const uint8_t *buf, uint32_t len, uint16_t s
  */
 WS_DLL_PUBLIC uint16_t crc16_0x755B(const uint8_t *buf, uint32_t len, uint16_t seed);
 
-/** Computes CRC16 checksum for the given data with the polynom 0x9949 using
+/**
+ * @brief Computes CRC16 checksum for the given data with the polynom 0x9949 using
  *  precompiled CRC table
  * @param buf a pointer to a buffer of the given length
  * @param len the length of the given buffer
@@ -88,7 +98,8 @@ WS_DLL_PUBLIC uint16_t crc16_0x755B(const uint8_t *buf, uint32_t len, uint16_t s
  */
 WS_DLL_PUBLIC uint16_t crc16_0x9949_seed(const uint8_t *buf, unsigned len, uint16_t seed);
 
-/** Computes CRC16 checksum for the given data with the polynom 0x3D65 using
+/**
+ * @brief Computes CRC16 checksum for the given data with the polynom 0x3D65 using
  *  precompiled CRC table
  * @param buf a pointer to a buffer of the given length
  * @param len the length of the given buffer
@@ -97,7 +108,8 @@ WS_DLL_PUBLIC uint16_t crc16_0x9949_seed(const uint8_t *buf, unsigned len, uint1
  */
 WS_DLL_PUBLIC uint16_t crc16_0x3D65_seed(const uint8_t *buf, unsigned len, uint16_t seed);
 
-/** Computes CRC16 checksum for the given data with the polynom 0x080F using
+/**
+ * @brief Computes CRC16 checksum for the given data with the polynom 0x080F using
  *  precompiled CRC table
  * @param buf a pointer to a buffer of the given length
  * @param len the length of the given buffer

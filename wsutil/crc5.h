@@ -19,18 +19,29 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** Compute the 5-bit CRC value of a input value matching the CRC-5
- defined in USB 2.0 Specification. This function calculates the CRC
- on low 11 bits of the input value. High bits are ignored.
- @param input Source data for which the CRC-5 should be calculated.
- @return the CRC5 checksum for input value */
+/**
+ * @brief Compute the 5-bit CRC value for a USB token using the CRC-5 polynomial.
+ *
+ * Implements the CRC-5 checksum algorithm as defined in the USB 2.0 Specification.
+ * The calculation is performed on the lower 11 bits of the input value; any higher
+ * bits are ignored. This function is typically used to validate USB token packets.
+ *
+ * @param input 11-bit input value (lower 11 bits of `input` are used).
+ * @return      5-bit CRC checksum.
+ */
 WS_DLL_PUBLIC uint8_t crc5_usb_11bit_input(uint16_t input);
 
-/** Compute the 5-bit CRC value of a input value matching the CRC-5
- defined in USB 2.0 Specification. This function calculates the CRC
- on low 19 bits of the input value. High bits are ignored.
- @param input Source data for which the CRC-5 should be calculated.
- @return the CRC5 checksum for input value */
+/**
+ * @brief Compute the 5-bit CRC value for a USB token using the CRC-5 polynomial.
+ *
+ * Implements the CRC-5 checksum algorithm as defined in the USB 2.0 Specification.
+ * The calculation is performed on the lower 19 bits of the input value; any higher
+ * bits are ignored. This function is typically used to validate USB handshake packets
+ * or other protocol elements that utilize extended bit-width tokens.
+ *
+ * @param input 19-bit input value (lower 19 bits of `input` are used).
+ * @return      5-bit CRC checksum.
+ */
 WS_DLL_PUBLIC uint8_t crc5_usb_19bit_input(uint32_t input);
 
 #ifdef __cplusplus

@@ -31,6 +31,24 @@ extern "C" {
  *    ReflectOut   = False
  *    Algorithm    = table-driven
  *****************************************************************************/
+
+/**
+ * @brief Compute the CRC-11/UMTS checksum using polynomial 0x307 with no reflection or final XOR.
+ *
+ * This function calculates the 11-bit CRC value over the input byte stream
+ * using the CRC-11 polynomial defined by ITU-T (0x307). It does not apply
+ * input or output reflection, nor does it perform a final XOR. This variant
+ * is commonly used in UMTS and other telecom protocols.
+ *
+ * Polynomial: x^11 + x^9 + x^8 + x^2 + 1 (0x307)
+ * Initial value: 0x000
+ * No input/output reflection
+ * No final XOR
+ *
+ * @param data      Pointer to the input byte stream.
+ * @param data_len  Length of the input data in bytes.
+ * @return          11-bit CRC checksum.
+ */
 WS_DLL_PUBLIC
 uint16_t crc11_307_noreflect_noxor(const uint8_t *data, uint64_t data_len);
 

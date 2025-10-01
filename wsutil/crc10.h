@@ -12,7 +12,14 @@
 
 #include <wireshark.h>
 
-/* Update the data block's CRC-10 remainder one byte at a time */
+/**
+ * @brief Update the data block's CRC-10 remainder one byte at a time.
+ *
+ * @param crc10          Initial CRC-10 remainder.
+ * @param data_blk_ptr   Pointer to the input data block.
+ * @param data_blk_size  Length of the data block in bytes.
+ * @return               Updated CRC-10 remainder after processing the block.
+ */
 WS_DLL_PUBLIC uint16_t update_crc10_by_bytes(uint16_t crc10, const uint8_t *data_blk_ptr, int data_blk_size);
 
 #endif /* __CRC10_H__ */
