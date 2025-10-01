@@ -26,7 +26,7 @@ extern "C" {
 #endif
 
 /**
- * Check if a buffer is valid JSON.
+ * @brief Check if a buffer is valid JSON.
  *
  * @param buf - A buffer containing JSON.
  * @param len - The length of the JSON data in the buffer.
@@ -39,7 +39,7 @@ extern "C" {
 WS_DLL_PUBLIC bool json_validate(const uint8_t *buf, const size_t len);
 
 /**
- * Parse a JSON string and write the token's addresses into the tokens array.
+ * @brief Parse a JSON string and write the token's addresses into the tokens array.
  *
  * @param buf - A null-terminated string containing JSON.
  * @param tokens - An array for storing the parsed tokens. Can be NULL, to validate only.
@@ -53,7 +53,7 @@ WS_DLL_PUBLIC bool json_validate(const uint8_t *buf, const size_t len);
 WS_DLL_PUBLIC int json_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens);
 
 /**
- * Parse a JSON buffer and write the token's addresses into the tokens array.
+ * @brief Parse a JSON buffer and write the token's addresses into the tokens array.
  *
  * @param buf - A buffer containing JSON, not necessarily null-terminated.
  * @param len - The length of the JSON data in the buffer.
@@ -69,7 +69,7 @@ WS_DLL_PUBLIC int json_parse(const char *buf, jsmntok_t *tokens, unsigned int ma
 WS_DLL_PUBLIC int json_parse_len(const char *buf, size_t len, jsmntok_t *tokens, unsigned int max_tokens);
 
 /**
- * Get the pointer to an object belonging to the parent object and named as the name variable.
+ * @brief Get the pointer to an object belonging to the parent object and named as the name variable.
  *
  * @param buf - A buffer containing JSON, not necessarily null-terminated.
  * @param parent - JSON object to search within for the `name`.
@@ -79,7 +79,7 @@ WS_DLL_PUBLIC int json_parse_len(const char *buf, size_t len, jsmntok_t *tokens,
 WS_DLL_PUBLIC jsmntok_t *json_get_object(const char *buf, jsmntok_t *parent, const char *name);
 
 /**
- * Get the pointer to an array belonging to the parent object and named as the name variable.
+ * @brief Get the pointer to an array belonging to the parent object and named as the name variable.
  *
  * @param buf - A buffer containing JSON, not necessarily null-terminated.
  * @param parent - JSON object to search within for the `name`.
@@ -89,7 +89,7 @@ WS_DLL_PUBLIC jsmntok_t *json_get_object(const char *buf, jsmntok_t *parent, con
 WS_DLL_PUBLIC jsmntok_t *json_get_array(const char *buf, jsmntok_t *parent, const char *name);
 
 /**
- * Get the number of elements of an array.
+ * @brief Get the number of elements of an array.
  *
  * @param array - JSON array.
  * @return The number of elements in an array or -1 if the JSON object is not an array.
@@ -97,7 +97,7 @@ WS_DLL_PUBLIC jsmntok_t *json_get_array(const char *buf, jsmntok_t *parent, cons
 WS_DLL_PUBLIC int json_get_array_len(jsmntok_t *array);
 
 /**
- * Get the pointer to idx element of an array.
+ * @brief Get the pointer to idx element of an array.
  *
  * @note This requires iterating through the parent's elements and is inefficient
  * for iterating over an array's elements. If accessing array objects in a loop,
@@ -110,7 +110,7 @@ WS_DLL_PUBLIC int json_get_array_len(jsmntok_t *array);
 WS_DLL_PUBLIC jsmntok_t *json_get_array_index(jsmntok_t *parent, int idx);
 
 /**
- * Get the pointer to the next JSON element which is a sibling of `cur`.
+ * @brief Get the pointer to the next JSON element which is a sibling of `cur`.
  *
  * This is used for efficiently iterating over elements of a JSON array. For example:
  * @code{.c}
@@ -131,7 +131,7 @@ WS_DLL_PUBLIC jsmntok_t *json_get_array_index(jsmntok_t *parent, int idx);
 WS_DLL_PUBLIC jsmntok_t *json_get_next_object(jsmntok_t *cur);
 
 /**
- * Get the unescaped value of a string object belonging to the parent object and named as the @p name variable.
+ * @brief Get the unescaped value of a string object belonging to the parent object and named as the @p name variable.
  *
  * @param buf - A buffer containing JSON, not necessarily null-terminated.
  * @param parent - JSON object to search within for the `name`.
@@ -143,7 +143,7 @@ WS_DLL_PUBLIC jsmntok_t *json_get_next_object(jsmntok_t *cur);
 WS_DLL_PUBLIC char *json_get_string(char *buf, jsmntok_t *parent, const char *name);
 
 /**
- * Get the value of a number object belonging to the parent object and named as the name variable.
+ * @brief Get the value of a number object belonging to the parent object and named as the name variable.
  *
  * @param buf - A buffer containing JSON, not necessarily null-terminated.
  * @param parent - JSON object to search within for the `name`.
@@ -156,7 +156,7 @@ WS_DLL_PUBLIC char *json_get_string(char *buf, jsmntok_t *parent, const char *na
 WS_DLL_PUBLIC bool json_get_double(char *buf, jsmntok_t *parent, const char *name, double *val);
 
 /**
- * Get the value of a number object belonging to the parent object and named as the name variable.
+ * @brief Get the value of a number object belonging to the parent object and named as the name variable.
  *
  * @param buf - A buffer containing JSON, not necessarily null-terminated.
  * @param parent - JSON object to search within for the `name`.
@@ -169,7 +169,7 @@ WS_DLL_PUBLIC bool json_get_double(char *buf, jsmntok_t *parent, const char *nam
 WS_DLL_PUBLIC bool json_get_int(char *buf, jsmntok_t *parent, const char *name, int64_t *val);
 
 /**
- * Get the value of a boolean belonging to the parent object and named as the name variable.
+ * @brief Get the value of a boolean belonging to the parent object and named as the name variable.
  *
  * @param buf - A buffer containing JSON, not necessarily null-terminated.
  * @param parent - JSON object to search within for the `name`.
@@ -182,7 +182,7 @@ WS_DLL_PUBLIC bool json_get_int(char *buf, jsmntok_t *parent, const char *name, 
 WS_DLL_PUBLIC bool json_get_boolean(char *buf, jsmntok_t *parent, const char *name, bool *val);
 
 /**
- * Decode the contents of a JSON string value by overwriting the input data.
+ * @brief Decode the contents of a JSON string value by overwriting the input data.
 
  * @param text - JSON string to decode.
  * @return true on success and false if invalid characters were encountered.
