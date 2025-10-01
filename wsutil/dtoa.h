@@ -16,7 +16,10 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Stores the closest decimal approximation to value in buf;
+/**
+ * @brief Convert a double to its shortest exact decimal representation.
+ *
+ * Stores the closest decimal approximation to value in buf;
  * it suffices to declare buf
  *      char buf[32];
  *
@@ -38,6 +41,10 @@ extern "C" {
  * difficulty in implementation caused this to be one of the last widely
  * supported features across C++ standard libraries. It is not part of the
  * C standard library functions.
+ *
+ * @param buf    Output buffer to store the decimal string (minimum 32 bytes).
+ * @param value  Input double value to convert.
+ * @return       Pointer to `buf` containing the resulting string.
  */
 WS_DLL_PUBLIC char *dtoa_g_fmt(char *buf, double value);
 
