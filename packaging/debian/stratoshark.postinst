@@ -8,7 +8,7 @@ set -e
 # the requirements described at
 # https://github.com/draios/sysdig/wiki/How%20to%20Install%20Sysdig%20for%20Linux#use-sysdig-as-non-root
 #
-# Provide an option to install falcodump setuid root for now.
+# Provide an option to install dumpcalls setuid root for now.
 # Hopefully at some point we'll be able to switch to capabilities.
 # https://falco.org/docs/install-operate/running/#least-privileged
 
@@ -19,7 +19,7 @@ set -e
 # https://wiki.debian.org/AccountHandlingInMaintainerScripts
 
 . /usr/share/debconf/confmodule
-PROGRAM=$(dpkg-divert --truename /usr/libexec/stratoshark/extcap/falcodump)
+PROGRAM=$(dpkg-divert --truename /usr/libexec/stratoshark/extcap/dumpcalls)
 GROUP=scap
 
 if ! dpkg-statoverride --list $PROGRAM > /dev/null; then

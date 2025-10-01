@@ -283,7 +283,7 @@ static int list_config(char *interface)
     printf("arg {number=%u}{call=--remote-capture-command-select}{display=Remote capture command selection}"
             "{type=radio}{tooltip=The remote capture command to build a command line for}{group=Capture}\n", inc);
     printf("value {arg=%u}{value=sysdig}{display=sysdig}\n", inc);
-    // XXX Add falcodump?
+    // XXX Add dumpcalls?
     printf("value {arg=%u}{value=other}{display=Other:}\n", inc++);
     printf("arg {number=%u}{call=--remote-capture-command}{display=Remote capture command}"
             "{type=string}{tooltip=The remote command used to capture}{group=Capture}\n", inc++);

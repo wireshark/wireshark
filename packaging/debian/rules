@@ -39,7 +39,7 @@ else
 endif
 
 ifneq ($(filter pkg.wireshark.stratoshark,$(DEB_BUILD_PROFILES)),)
-    CONFIGURE_SWITCHES += -DBUILD_stratoshark=ON -DBUILD_falcodump=ON
+    CONFIGURE_SWITCHES += -DBUILD_stratoshark=ON -DBUILD_falcodump=ON -DBUILD_dumpcalls=ON
 endif
 
 ifeq ($(wildcard .git),)

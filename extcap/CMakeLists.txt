@@ -332,6 +332,32 @@ if(BUILD_sdjournal AND SYSTEMD_FOUND)
 	add_dependencies(extcaps sdjournal)
 endif()
 
+if(BUILD_dumpcalls AND SINSP_FOUND)
+	set(dumpcalls_LIBS
+		wsutil
+		${SINSP_LINK_LIBRARIES}
+		${CMAKE_DL_LIBS}
+		${GCRYPT_LIBRARIES}
+	)
+	set(dumpcalls_FILES
+		$<TARGET_OBJECTS:extcap-base>
+		dumpcalls.cpp
+	)
+
+	set_executable_resources(dumpcalls "dumpcalls")
+	add_executable(dumpcalls ${dumpcalls_FILES})
+	set_extlog_executable_properties(dumpcalls)
+	target_link_libraries(dumpcalls ${dumpcalls_LIBS})
+	target_include_directories(dumpcalls SYSTEM PRIVATE ${SINSP_INCLUDE_DIRS})
+	if(WIN32)
+		# libsinsp/dumper.h includes libscap/scap_savefile_api.h, which includes
+		# libscap/scap_zlib.h.
+		target_include_directories(dumpcalls SYSTEM PRIVATE ${ZLIB_INCLUDE_DIR})
+	endif()
+	install(TARGETS dumpcalls RUNTIME DESTINATION ${STRATOSHARK_EXTCAP_INSTALL_LIBDIR})
+	add_dependencies(extcaps dumpcalls)
+endif()
+
 if(BUILD_falcodump AND SINSP_FOUND)
 	set(falcodump_LIBS
 		wsutil

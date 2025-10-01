@@ -55,16 +55,16 @@
 %global use_wireshark_group 1
 
 %if %{with stratoshark}
-# Stratoshark captures system calls locally using falcodump, which is linked
+# Stratoshark captures system calls locally using dumpcalls, which is linked
 # to libscap. libscap can capture system calls from a device (/dev/scap0) or
 # via an eBPF probe.
-%global setuid_falcodump 0
+%global setuid_dumpcalls 0
 # Requires the capabilities described at
 # https://falco.org/docs/setup/container/#docker-least-privileged-modern-ebpf
-%global setcap_falcodump 1
+%global setcap_dumpcalls 1
 
 # Set to 1 if you want a group called 'stratoshark' which users must be a member
-# of in order to run falcodump.  Only used if setuid_falcodump or setcap_falcodump
+# of in order to run dumpcalls.  Only used if setuid_dumpcalls or setcap_dumpcalls
 # are set.
 %global use_stratoshark_group 1
 %endif
@@ -389,9 +389,9 @@ the strato text-mode variant, and necessary Stratoshark-related extcaps.
   -DBUILD_wireshark=OFF \
 %endif
 %if %{with stratoshark}
-  -DBUILD_stratoshark=ON -DBUILD_falcodump=ON \
+  -DBUILD_stratoshark=ON -DBUILD_falcodump=ON -DBUILD_dumpcalls=ON \
 %else
-  -DBUILD_stratoshark=OFF -DBUILD_falcodump=OFF \
+  -DBUILD_stratoshark=OFF -DBUILD_falcodump=OFF -DBUILD_dumpcalls=OFF \
 %endif
 %if %{with lua}
   -DENABLE_LUA=ON \
@@ -629,6 +629,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %exclude %{_mandir}/man1/strato.*
 %exclude %{_mandir}/man1/stratoshark.*
 %exclude %{_mandir}/man1/falcodump.*
+%exclude %{_mandir}/man1/dumpcalls.*
 %exclude %{_mandir}/man1/sshdig.*
 %{_mandir}/man1/*
 %{_mandir}/man4/*
@@ -676,6 +677,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libexecdir}/stratoshark
 %{_mandir}/man1/stratoshark.*
 %{_mandir}/man1/falcodump.*
+%{_mandir}/man1/dumpcalls.*
 %{_mandir}/man1/sshdig.*
 
 # The note above about generating a warning because dumpcap is listed twice
@@ -685,24 +687,24 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 # However, Docker doesn't support CAP_BPF and CAP_PERFMON so we use
 # CAP_SYS_ADMIN instead.
 # https://falco.org/docs/setup/container/#docker-least-privileged-modern-ebpf
-%if %{use_stratoshark_group} && %{setuid_falcodump}
+%if %{use_stratoshark_group} && %{setuid_dumpcalls}
 # Setuid but only executable by members of the 'stratoshark' group
-%attr(4750, root, stratoshark) %{_libexecdir}/stratoshark/extcap/falcodump
+%attr(4750, root, stratoshark) %{_libexecdir}/stratoshark/extcap/dumpcalls
 %else
-%if %{use_stratoshark_group} && %{setcap_falcodump}
+%if %{use_stratoshark_group} && %{setcap_dumpcalls}
 # Setcap but only executable by members of the 'stratoshark' group
-%attr(0750, root, stratoshark) %caps(cap_sys_admin,cap_sys_resource,cap_sys_ptrace=ep) %{_libexecdir}/stratoshark/extcap/falcodump
+%attr(0750, root, stratoshark) %caps(cap_sys_admin,cap_sys_resource,cap_sys_ptrace=ep) %{_libexecdir}/stratoshark/extcap/dumpcalls
 %else
-%if %{setuid_falcodump}
+%if %{setuid_dumpcalls}
 # Setuid and executable by all
-%attr(4755, root, root) %{_libexecdir}/stratoshark/extcap/falcodump
+%attr(4755, root, root) %{_libexecdir}/stratoshark/extcap/dumpcalls
 %else
-%if %{setcap_falcodump}
+%if %{setcap_dumpcalls}
 # Setcap and executable by all
-%attr(0755, root, root) %caps(cap_sys_admin,cap_sys_resource,cap_sys_ptrace=ep) %{_libexecdir}/stratoshark/extcap/falcodump
+%attr(0755, root, root) %caps(cap_sys_admin,cap_sys_resource,cap_sys_ptrace=ep) %{_libexecdir}/stratoshark/extcap/dumpcalls
 %else
 # Executable by all but with no special permissions
-%attr(0755, root, root) %{_libexecdir}/stratoshark/extcap/falcodump
+%attr(0755, root, root) %{_libexecdir}/stratoshark/extcap/dumpcalls
 %endif
 %endif
 %endif

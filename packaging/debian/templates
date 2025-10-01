@@ -65,7 +65,7 @@ Template: stratoshark/install-setuid
 Type: boolean
 Default: false
 _Description: Should non-superusers be able to capture system calls?
- The falcodump external capture utility for Stratoshark can be
+ The dumpcalls external capture utility for Stratoshark can be
  installed in a way that allows members of the "scap" system group
  to capture system calls without needing to run Stratoshark directly
  as root.

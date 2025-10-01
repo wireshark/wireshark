@@ -1007,6 +1007,8 @@ SectionEnd ; "Tools"
 
 SectionGroup /e "External capture tools (extcap)" SecExtcapGroup
 
+; Dumpcalls is Linux-only
+
 Section "Falcodump" SecFalcodump
 ;-------------------------------------------
   !insertmacro InstallExtcap "falcodump"

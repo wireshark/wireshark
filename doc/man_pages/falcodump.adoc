@@ -28,12 +28,6 @@ falcodump - Dump log data to a file using a Falco source plugin.
 [ *--log-level*=<log level> ]
 [ *--log-file*=<path to file> ]
 
-.System call options
-[manarg]
-[ *--include-capture-processes=<TRUE or FALSE> ]
-[ *--include-switch-calls=<TRUE or FALSE> ]
-
-
 .CloudTrail plugin options
 [manarg]
 [ *--cloudtrail-s3downloadconcurrency*=<number of concurrent downloads> ]
@@ -47,13 +41,12 @@ falcodump - Dump log data to a file using a Falco source plugin.
 [ *--cloudtrail-aws-config*=<path> ]
 [ *--cloudtrail-aws-credentials*=<path to file> ]
 
-
 == DESCRIPTION
 
 *falcodump* is an extcap tool that allows one to capture log messages from cloud providers.
 
 Each plugin is listed as a separate interface.
-For example, the AWS CloudTrail plugin is listed as “cloudtrail”.
+For example, the Kubernetes audit plugin is listed as “k8saudit” and the AWS CloudTrail plugin is listed as “cloudtrail”.
 
 == OPTIONS
 
@@ -97,17 +90,6 @@ Set the log level
 
 --log-file::
 Set a log file to log messages in addition to the console
-
-== SYSTEM CALL OPTIONS
-
---include-capture-processes::
-Include system calls for capture processes (falcodump, dumpcap, and Stratoshark) if TRUE.
-Defaults to FALSE.
-
---include-switch-calls::
-Include "switch" calls if TRUE.
-Defaults to FALSE.
-
 
 == PLUGINS
 
@@ -213,7 +195,7 @@ NOTE: kbd:[CTRL+C] should be used to stop the capture in order to ensure clean t
 
 == SEE ALSO
 
-xref:stratoshark.html[stratoshark](1), xref:strato.html[strato](1), xref:dumpcap.html[dumpcap](1), xref:extcap.html[extcap](4)
+xref:stratoshark.html[stratoshark](1), xref:strato.html[strato](1), xref:dumpcalls.html[dumpcalls](1), xref:dumpcap.html[dumpcap](1), xref:extcap.html[extcap](4)
 
 == NOTES
 

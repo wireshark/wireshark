@@ -43,6 +43,11 @@ else()
 endif()
 option(BUILD_udpdump       "Build udpdump" ON)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	cmake_dependent_option(BUILD_dumpcalls	"Build dumpcalls" ON "BUILD_stratoshark OR BUILD_strato" OFF)
+else()
+	cmake_dependent_option(BUILD_dumpcalls	"Build dumpcalls" OFF "BUILD_stratoshark OR BUILD_strato" OFF)
+endif()
 cmake_dependent_option(BUILD_falcodump	"Build falcodump" ON "BUILD_stratoshark OR BUILD_strato" OFF)
 cmake_dependent_option(BUILD_sshdig	"Build sshdig" ON "BUILD_stratoshark OR BUILD_strato" OFF)
 

@@ -25,7 +25,7 @@ def pytest_addoption(parser):
         help='Skip tests that lack programs from this list instead of failing'
              ' them. Use "all" to ignore all missing programs.',
         # We might want to build this automatically, e.g. by grepping CMakeCache.txt
-        default='stratoshark,strato,falcodump,sshdig'
+        default='stratoshark,strato,falcodump,dumpcalls,sshdig'
     )
     parser.addoption('--enable-release', action='store_true',
         help='Enable release tests'

@@ -28,7 +28,9 @@ If you switch back and forth between system call and CloudTrail captures on a re
 You can obtain system call captures using the https://github.com/draios/sysdig[sysdig command line tool] or by using Stratoshark on a Linux system.
 Stratoshark ships with the following capture sources:
 
-https://gitlab.com/wireshark/wireshark/-/blob/master/doc/man_pages/falcodump.adoc[Falcodump]:: Allows capturing logs from a variety of sources using Falco plugins and local system calls on Linux.
+https://gitlab.com/wireshark/wireshark/-/blob/master/doc/man_pages/falcodump.adoc[Falcodump]:: Allows capturing logs from a variety of sources using Falco plugins.
+
+https://gitlab.com/wireshark/wireshark/-/blob/master/doc/man_pages/dumpcalls.adoc[Dumpcalls]:: Allows capturing local system calls on Linux.
 
 https://gitlab.com/wireshark/wireshark/-/blob/master/doc/man_pages/sshdig.adoc[Sshdig]:: Allows system call capture from remote systems using sysdig over SSH.
 
@@ -50,7 +52,8 @@ In order to build Stratoshark, do the following:
 --
 [horizontal]
 BUILD_stratoshark:: Must be enabled, e.g. set to ON.
-BUILD_falcodump:: Must be enabled for local capture on Linux and Falco plugin capture on all platforms.
+BUILD_falcodump:: Must be enabled for Falco plugin capture.
+BUILD_dumpcalls:: Must be enabled for local capture on Linux.
 BUILD_sshdig:: Must be enabled for remote capture over SSH.
 CMAKE_PREFIX_PATH:: If you installed libsinsp and libscap to a non-standard directory, https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html[this should point there].
 FALCO_PLUGINS:: Semicolon-separated paths to individual Falco plugins, e.g. `/path/to/libcloudtrail.so`.
@@ -64,6 +67,7 @@ FALCO_PLUGINS:: Semicolon-separated paths to individual Falco plugins, e.g. `/pa
 cmake \
   -DBUILD_stratoshark=ON \
   -DBUILD_falcodump=ON \
+  -DBUILD_dumpcalls=ON \
   -DCMAKE_PREFIX_PATH=/opt/falco-libs/0.18.1 \
   -DFALCO_PLUGINS=/opt/falco-libs/0.18.1/lib/falcosecurity/plugins/libcloudtrail.so \
   ..
