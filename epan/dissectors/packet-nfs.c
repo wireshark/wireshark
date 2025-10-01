@@ -949,6 +949,8 @@ static int ett_nfs4_notify_delay;
 static int ett_nfs4_notify_attrs;
 static int ett_nfs4_cb_notify_changes;
 static int ett_nfs4_cb_notify_list_entries;
+static int ett_nfs4_cb_notify_attr4_dir;
+static int ett_nfs4_cb_notify_attr4_child;
 static int ett_nfs4_cb_notify_remove4;
 static int ett_nfs4_cb_notify_add4;
 static int ett_nfs4_cb_notify_rename4;
@@ -9110,6 +9112,31 @@ static const value_string notify_type4[] = {
 	{	NOTIFY4_RENAME_ENTRY, "Rename Entry" },
 #define NOTIFY4_CHANGE_COOKIE_VERIFIER	5
 	{	NOTIFY4_CHANGE_COOKIE_VERIFIER, "Change Cookie Verifier" },
+	/*
+	 * Added in NFSv4.1 bis document
+	 */
+#define NOTIFY4_GFLAG_EXTEND 		6
+	{	NOTIFY4_GFLAG_EXTEND, "RFC8881bis Extensions Supported" },
+#define NOTIFY4_AUFLAG_VALID		7
+	{	NOTIFY4_AUFLAG_VALID, "Lookup Authorization Flags Valid" },
+#define NOTIFY4_AUFLAG_OWNER	8
+	{	NOTIFY4_AUFLAG_OWNER, "Owner LOOKUP Authorized" },
+#define NOTIFY4_AUFLAG_GROUP		9
+	{	NOTIFY4_AUFLAG_GROUP, "Group LOOKUP Authorized" },
+#define NOTIFY4_AUFLAG_OTHER		10
+	{	NOTIFY4_AUFLAG_OTHER, "Other LOOKUP Authorized" },
+#define NOTIFY4_CHANGE_AUTH		11
+	{	NOTIFY4_CHANGE_AUTH, "LOOKUP Authorization Change" },
+#define NOTIFY4_CFLAG_ORDER		12
+	{	NOTIFY4_CFLAG_ORDER, "Directory Ordering Info Requested" },
+#define NOTIFY4_AUFLAG_GANOW		13
+	{	NOTIFY4_AUFLAG_GANOW, "GETATTRs Require No Access Checks" },
+#define NOTIFY4_AUFLAG_GALATER		14
+	{	NOTIFY4_AUFLAG_GALATER, "GETATTRs Require Access Checks" },
+#define NOTIFY4_CHANGE_GA		15
+	{	NOTIFY4_CHANGE_GA, "GETATTR Authorization Change" },
+#define NOTIFY4_CHANGE_AMASK		16
+	{	NOTIFY4_CHANGE_AMASK, "Update to Change Notification Mask" },
 	{	0,	NULL	}
 };
 static value_string_ext notify_type4_ext = VALUE_STRING_EXT_INIT(notify_type4);
@@ -11789,6 +11816,13 @@ dissect_prev_entry4(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pi
 }
 
 static int
+dissect_notify_attr4(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo,
+		       rpc_call_info_value *civ)
+{
+	return dissect_notify_entry4(tvb, offset, tree, pinfo, civ);
+}
+
+static int
 dissect_notify_add4(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo,
 		       rpc_call_info_value *civ)
 {
@@ -11856,11 +11890,25 @@ dissect_nfs4_cb_notify_args(tvbuff_t *tvb, int offset, proto_tree *tree, packet_
 		len = tvb_get_ntohl(tvb, offset);
 		ntree = proto_tree_add_subtree_format(ctree, tvb, offset, 4,
 						      ett_nfs4_cb_notify_list_entries,
-						      NULL, "Notifications (len: %u)", len);
+						      NULL, "notify_vals (len: %u)", len);
 		offset += 4;
 
-		/* FIXME: NOTIFY4_CHANGE_CHILD_ATTRS */
-		/* FIXME: NOTIFY4_CHANGE_DIR_ATTRS */
+		if (mask & BIT(NOTIFY4_CHANGE_CHILD_ATTRS)) {
+			proto_tree *rtree;
+
+			rtree = proto_tree_add_subtree(ntree, tvb, offset, 4,
+						       ett_nfs4_cb_notify_attr4_child,
+						       NULL, "Child Attr Change");
+			offset = dissect_notify_attr4(tvb, offset, rtree, pinfo, civ);
+		}
+		if (mask & BIT(NOTIFY4_CHANGE_DIR_ATTRS)) {
+			proto_tree *rtree;
+
+			rtree = proto_tree_add_subtree(ntree, tvb, offset, 4,
+						       ett_nfs4_cb_notify_attr4_dir,
+						       NULL, "Dir Attr Change");
+			offset = dissect_notify_attr4(tvb, offset, rtree, pinfo, civ);
+		}
 		if (mask & BIT(NOTIFY4_REMOVE_ENTRY)) {
 			proto_tree *rtree;
 
@@ -15103,6 +15151,8 @@ proto_register_nfs(void)
 		&ett_nfs4_notify_attrs,
 		&ett_nfs4_cb_notify_changes,
 		&ett_nfs4_cb_notify_list_entries,
+		&ett_nfs4_cb_notify_attr4_dir,
+		&ett_nfs4_cb_notify_attr4_child,
 		&ett_nfs4_cb_notify_remove4,
 		&ett_nfs4_cb_notify_add4,
 		&ett_nfs4_cb_notify_rename4
