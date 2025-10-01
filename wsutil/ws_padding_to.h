@@ -10,13 +10,45 @@
 #ifndef __WS_PADDING_TO_H__
 #define __WS_PADDING_TO_H__
 
-/*
- * Amount needed to pad to various powers of 2.
+/**
+ * @def WS_PADDING_TO_2
+ * @brief Compute padding needed to align to 2 bytes.
+ * @param n Current size in bytes.
+ * @return Number of bytes needed to reach next multiple of 2.
  */
 #define WS_PADDING_TO_2(n) ((2U - ((n) % 2U)) % 2U)
+
+/**
+ * @def WS_PADDING_TO_4
+ * @brief Compute padding needed to align to 4 bytes.
+ * @param n Current size in bytes.
+ * @return Number of bytes needed to reach next multiple of 4.
+ */
 #define WS_PADDING_TO_4(n) ((4U - ((n) % 4U)) % 4U)
+
+/**
+ * @def WS_PADDING_TO_8
+ * @brief Compute padding needed to align to 8 bytes.
+ * @param n Current size in bytes.
+ * @return Number of bytes needed to reach next multiple of 8.
+ */
 #define WS_PADDING_TO_8(n) ((8U - ((n) % 8U)) % 8U)
+
+/**
+ * @def WS_PADDING_TO_16
+ * @brief Compute padding needed to align to 16 bytes.
+ * @param n Current size in bytes.
+ * @return Number of bytes needed to reach next multiple of 16.
+ */
 #define WS_PADDING_TO_16(n) ((16U - ((n) % 16U)) % 16U)
+
+/**
+ * @def WS_PADDING_TO_32
+ * @brief Compute padding needed to align to 32 bytes.
+ * @param n Current size in bytes.
+ * @return Number of bytes needed to reach next multiple of 32.
+ */
 #define WS_PADDING_TO_32(n) ((32U - ((n) % 32U)) % 32U)
+
 
 #endif /* __WS_PADDING_TO_H__ */
