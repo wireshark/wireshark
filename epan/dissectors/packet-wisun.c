@@ -29,6 +29,7 @@ void proto_reg_handoff_wisun(void);
 typedef struct {
     ieee802154_map_rec initiator;
     ieee802154_map_rec target;
+    uint32_t second_fnum;
 } edfe_exchange_t;
 
 // for each exchange, maps both source address and destination address to a
@@ -737,9 +738,11 @@ wisun_create_hie_tree(tvbuff_t *tvb, proto_tree *tree, int hf, int ett)
 static int
 dissect_wisun_uttie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
+    const char *str = col_get_text(pinfo->cinfo, COL_INFO);
     uint8_t frame_type = tvb_get_uint8(tvb, offset);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Wi-SUN");
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(frame_type, wisun_frame_type_vals, "Unknown Wi-SUN Frame"));
+    if (str && strncmp(str, "EDFE", 4))
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(frame_type, wisun_frame_type_vals, "Unknown Wi-SUN Frame"));
     proto_tree_add_item(tree, hf_wisun_uttie_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_wisun_uttie_ufsi, tvb, offset+1, 3, ENC_LITTLE_ENDIAN);
     return 4;
@@ -775,14 +778,26 @@ dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned
 
     // EDFE processing
     ieee802154_hints_t* hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
-    if (packet && hints && packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
-        // first packet has source address
+    if (!packet || !hints || packet->dst_addr_mode != IEEE802154_FCF_ADDR_EXT) {
+        return 2;
+    }
+
+    wmem_tree_t* byframe = (wmem_tree_t *)wmem_map_lookup(edfe_byaddr, &packet->dst64);
+    edfe_exchange_t *ex = NULL;
+    if (byframe) {
+        ex = (edfe_exchange_t *)wmem_tree_lookup32_le(byframe, pinfo->num);
+    }
+
+    if (!ex || ex->initiator.start_fnum == pinfo->num ||
+        (!hints->map_rec && ex->initiator.end_fnum != ~(unsigned)0) ||
+        (ex->second_fnum == ~(unsigned)0 && packet->src64 == ex->initiator.addr64)) {
         if (!hints->map_rec && packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
-            edfe_exchange_t* ex = wmem_new(wmem_file_scope(), edfe_exchange_t);
+            ex = wmem_new(wmem_file_scope(), edfe_exchange_t);
             ex->initiator.proto = "Wi-SUN";
             ex->target.proto = "Wi-SUN";
             ex->initiator.start_fnum = pinfo->num;
             ex->target.start_fnum = pinfo->num;
+            ex->second_fnum = ~(unsigned)0;
             ex->initiator.end_fnum = ~(unsigned)0;
             ex->target.end_fnum = ~(unsigned)0;
 
@@ -790,35 +805,43 @@ dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned
             ex->target.addr64 = packet->dst64;
             edfe_insert_exchange(&ex->initiator.addr64, ex);
             edfe_insert_exchange(&ex->target.addr64, ex);
-        } else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) {
-            if (!hints->map_rec) {
-                wmem_tree_t* byframe = (wmem_tree_t *)wmem_map_lookup(edfe_byaddr, &packet->dst64);
-                if (byframe) {
-                    edfe_exchange_t *ex = (edfe_exchange_t *)wmem_tree_lookup32_le(byframe, pinfo->num);
-                    if (ex && pinfo->num <= ex->initiator.end_fnum) {
-                        hints->map_rec = ex->initiator.addr64 == packet->dst64 ? &ex->target : &ex->initiator;
-                        if (tx == 0 && rx == 0) {
-                            // last frame
-                            ex->initiator.end_fnum = pinfo->num;
-                        }
-                    }
-                }
+            hints->map_rec = &ex->initiator;
+        }
+    } else {
+        if (!hints->map_rec && pinfo->num <= ex->initiator.end_fnum) {
+            hints->map_rec = ex->initiator.addr64 == packet->dst64 ? &ex->target : &ex->initiator;
+            if (ex->second_fnum == ~(unsigned)0) {
+                ex->second_fnum = pinfo->num;
             }
-            if (hints->map_rec) {
-                // Set address to ensure that 6LoWPAN reassembly works
-                // Adapted from packet-ieee802.15.4.c
-                uint64_t *p_addr = wmem_new(pinfo->pool, uint64_t);
-                /* Copy and convert the address to network byte order. */
-                *p_addr = pntohu64(&(hints->map_rec->addr64));
-                set_address(&pinfo->dl_src, AT_EUI64, 8, p_addr);
-                copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-                proto_item* src = proto_tree_add_eui64(tree, hf_wisun_fcie_src, tvb, 0, 0, hints->map_rec->addr64);
-                proto_item_set_generated(src);
-                proto_item* frm = proto_tree_add_uint(tree, hf_wisun_fcie_initial_frame, tvb, 0, 0, hints->map_rec->start_fnum);
-                proto_item_set_generated(frm);
-            } else {
-                expert_add_info(pinfo, tree, &ei_wisun_edfe_start_not_found);
+            if (tx == 0 && rx == 0) {
+                // last frame
+                ex->initiator.end_fnum = pinfo->num;
             }
+        }
+        if (hints->map_rec) {
+            // Set address to ensure that 6LoWPAN reassembly works
+            // Adapted from packet-ieee802.15.4.c
+            uint64_t *p_addr = wmem_new(pinfo->pool, uint64_t);
+            /* Copy and convert the address to network byte order. */
+            *p_addr = pntohu64(&(hints->map_rec->addr64));
+            set_address(&pinfo->dl_src, AT_EUI64, 8, p_addr);
+            copy_address_shallow(&pinfo->src, &pinfo->dl_src);
+            proto_item* src = proto_tree_add_eui64(tree, hf_wisun_fcie_src, tvb, 0, 0, hints->map_rec->addr64);
+            proto_item_set_generated(src);
+            proto_item* frm = proto_tree_add_uint(tree, hf_wisun_fcie_initial_frame, tvb, 0, 0, hints->map_rec->start_fnum);
+            proto_item_set_generated(frm);
+        } else {
+            expert_add_info(pinfo, tree, &ei_wisun_edfe_start_not_found);
+        }
+    }
+
+    if (ex) {
+        if (pinfo->num == ex->initiator.start_fnum) {
+            col_set_str(pinfo->cinfo, COL_INFO, "EDFE Initial Frame");
+        } else if (pinfo->num == ex->initiator.end_fnum) {
+            col_set_str(pinfo->cinfo, COL_INFO, "EDFE Final Frame");
+        } else {
+            col_set_str(pinfo->cinfo, COL_INFO, "EDFE Response Frame");
         }
     }
 
