@@ -17,6 +17,14 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Append detailed CPU information to a GString buffer.
+ *
+ * Retrieves system-specific CPU details such as model name, architecture,
+ * core count, and feature flags, and appends them to the provided `GString`.
+ *
+ * @param str Pointer to a `GString` buffer where CPU information will be appended.
+ */
 WS_DLL_PUBLIC void get_cpu_info(GString *str);
 
 #ifdef __cplusplus
