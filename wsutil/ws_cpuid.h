@@ -35,6 +35,21 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
+/**
+ * @def ws_cpuid
+ * @brief Execute the x86 CPUID instruction with the given selector.
+ *
+ * Retrieves CPU information by executing the CPUID instruction with the specified
+ * selector. The results are stored in the `CPUInfo` array as
+ * EAX, EBX, ECX, and EDX, respectively.
+ *
+ * @param CPUInfo   Pointer to an array of four uint32_t values to receive
+ *                  EAX, EBX, ECX, and EDX results, in that order.
+ * @param selector  Initial EAX value for the CPUID instruction.
+ * @return          true if cpuinfo is available, otherwise 0.
+ */
+
+
 #if defined(_MSC_VER)     /* MSVC */
 
 /*
