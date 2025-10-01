@@ -19,8 +19,24 @@
  */
 #include "wireshark.h"
 
+/**
+ * @brief Decrypt a single 64-bit block using XTEA in ECB mode.
+ *
+ * @param plaintext     Output buffer for the decrypted 8-byte block.
+ * @param ciphertext    Input buffer containing the encrypted 8-byte block.
+ * @param key           128-bit key as four 32-bit words.
+ * @param num_rounds    Number of XTEA rounds to perform.
+ */
 WS_DLL_PUBLIC void decrypt_xtea_ecb(uint8_t plaintext[8], const uint8_t ciphertext[8], const uint32_t key[4], unsigned num_rounds);
 
+/**
+ * @brief Decrypt a single 64-bit block using XTEA in little-endian ECB mode.
+ *
+ * @param plaintext     Output buffer for the decrypted 8-byte block.
+ * @param ciphertext    Input buffer containing the encrypted 8-byte block.
+ * @param key           128-bit key as four 32-bit words.
+ * @param num_rounds    Number of XTEA rounds to perform.
+ */
 WS_DLL_PUBLIC void decrypt_xtea_le_ecb(uint8_t plaintext[8], const uint8_t ciphertext[8], const uint32_t key[4], unsigned num_rounds);
 
 #endif /* __XTEA_H__ */
