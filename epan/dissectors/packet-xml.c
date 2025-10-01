@@ -15,6 +15,8 @@
 
 #include "config.h"
 
+#define WS_LOG_DOMAIN "XML"
+
 #include <string.h>
 #include <errno.h>
 
@@ -1697,28 +1699,9 @@ static void dtd_internalSubset_cb(void* ctx _U_, const xmlChar* name, const xmlC
     }
 }
 
-// NOLINTNEXTLINE(misc-no-recursion)
-static GList* dtd_elementDecl_add_list(GList* list, xmlElementContent* content)
-{
-    if (content != NULL) {
-        if (content->c1 != NULL) {
-            if (content->c1->name != NULL) {
-                list = g_list_prepend(list, wmem_ascii_strdown(wmem_epan_scope(), (const char*)content->c1->name, -1));
-            }
-            list = dtd_elementDecl_add_list(list, content->c1);
-        }
-        if (content->c2 != NULL) {
-            if (content->c2->name != NULL) {
-                list = g_list_prepend(list, wmem_ascii_strdown(wmem_epan_scope(), (const char*)content->c2->name, -1));
-            }
-            list = dtd_elementDecl_add_list(list, content->c2);
-        }
-    }
+#define XML_ELEM_MAX_CHILDREN 256
 
-    return list;
-}
-
-static void dtd_elementDecl_cb(void* ctx _U_, const xmlChar* name, int type _U_, xmlElementContent* content _U_)
+static void dtd_elementDecl_cb(void* ctx _U_, const xmlChar* name, int type, xmlElementContent* content)
 {
     dtd_named_list_t* new_element = g_new0(dtd_named_list_t, 1);
 
@@ -1731,11 +1714,23 @@ static void dtd_elementDecl_cb(void* ctx _U_, const xmlChar* name, int type _U_,
     }
 
     //Make list
-    if ((content != NULL) && (content->name != NULL)) {
-        new_element->list = g_list_prepend(new_element->list, wmem_ascii_strdown(wmem_epan_scope(), (const char*)content->name, -1));
+    int len = 0;
+    const xmlChar *children[XML_ELEM_MAX_CHILDREN]={0};
+    xmlValidGetPotentialChildren(content, children, &len, XML_ELEM_MAX_CHILDREN);
+    if (len == XML_ELEM_MAX_CHILDREN) {
+        ws_warning("Element '%s' has too many children, list truncated", new_element->name);
     }
-    new_element->list = dtd_elementDecl_add_list(new_element->list, content);
-
+    int i = 0;
+    if (type == XML_ELEMENT_TYPE_MIXED) {
+        /* The first child is always "#PCDATA", which we don't care about
+         * as we always create a .cdata field regardless. */
+        ws_assert(len && (xmlStrcmp("#PCDATA", children[0]) == 0));
+        i = 1;
+    }
+    for (; i < len; ++i) {
+        new_element->list = g_list_prepend(new_element->list, wmem_ascii_strdown(wmem_epan_scope(), (const char*)children[i], -1));
+    }
+    new_element->list = g_list_reverse(new_element->list);
     g_ptr_array_add(g_build_data->elements, new_element);
 }
 
