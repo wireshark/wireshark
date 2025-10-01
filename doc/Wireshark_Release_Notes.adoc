@@ -254,6 +254,7 @@ Bluetooth Intel HCI (HCI INTEL)
 BPSec COSE Context
 BPSec Default SC
 Commsignia Capture Protocol (C2P)
+DECT NR+ (DECT-2020 New Radio)
 DLMS/COSEM
 Ephemeral Diffie-Hellman Over COSE
 Identifier-Locator Network Protocol (ILNP)
