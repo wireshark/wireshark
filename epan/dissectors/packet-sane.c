@@ -1074,7 +1074,7 @@ void proto_register_sane(void) {
                             VALS(opcode_vals),
                             0,
                             "RPC request type",
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_version,
                     {
@@ -1085,7 +1085,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             "Protocol version",
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_version_major,
                     {
@@ -1096,7 +1096,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_version_minor,
                     {
@@ -1107,7 +1107,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_version_build,
                     {
@@ -1118,7 +1118,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_username,
                     {
@@ -1129,7 +1129,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_password,
                     {
@@ -1140,7 +1140,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_string,
                     {
@@ -1151,7 +1151,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_string_length,
                     {
@@ -1162,7 +1162,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_array_length,
                     {
@@ -1173,7 +1173,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_device_descriptor,
                     {
@@ -1184,7 +1184,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_device_name,
                     {
@@ -1195,7 +1195,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_device_vendor,
                     {
@@ -1206,7 +1206,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_device_model,
                     {
@@ -1217,7 +1217,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_device_type,
                     {
@@ -1228,7 +1228,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_resource_name,
                     {
@@ -1239,7 +1239,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_device_handle,
                     {
@@ -1250,7 +1250,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_index,
                     {
@@ -1261,7 +1261,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_control_action,
                     {
@@ -1272,7 +1272,7 @@ void proto_register_sane(void) {
                             VALS(control_types),
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_length,
                     {
@@ -1283,8 +1283,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
-
+                            HFILL
                     }},
             {&hf_sane_option_value_type,
                     {
@@ -1295,7 +1294,7 @@ void proto_register_sane(void) {
                             VALS(sane_value_types),
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_status,
                     {
@@ -1306,7 +1305,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_count,
                     {
@@ -1317,7 +1316,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_pointer_value,
                     {
@@ -1328,7 +1327,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_name,
                     {
@@ -1339,7 +1338,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_title,
                     {
@@ -1350,7 +1349,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_description,
                     {
@@ -1361,7 +1360,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_descriptor,
                     {
@@ -1372,7 +1371,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_unit,
                     {
@@ -1383,7 +1382,7 @@ void proto_register_sane(void) {
                             VALS(sane_option_units),
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_size,
                     {
@@ -1394,7 +1393,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_capabilities,
                     {
@@ -1405,8 +1404,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
-
+                            HFILL
                     }},
             {&hf_sane_option_capability_soft_select,
                     {
@@ -1417,7 +1415,7 @@ void proto_register_sane(void) {
                             NULL,
                             SANE_CAP_SOFT_SELECT,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_capability_hard_select,
                     {
@@ -1428,7 +1426,7 @@ void proto_register_sane(void) {
                             NULL,
                             SANE_CAP_HARD_SELECT,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_capability_soft_detect,
                     {
@@ -1439,7 +1437,7 @@ void proto_register_sane(void) {
                             NULL,
                             SANE_CAP_SOFT_DETECT,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_capability_emulated,
                     {
@@ -1450,7 +1448,7 @@ void proto_register_sane(void) {
                             NULL,
                             SANE_CAP_EMULATED,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_capability_automatic,
                     {
@@ -1461,7 +1459,7 @@ void proto_register_sane(void) {
                             NULL,
                             SANE_CAP_AUTOMATIC,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_capability_inactive,
                     {
@@ -1472,7 +1470,7 @@ void proto_register_sane(void) {
                             NULL,
                             SANE_CAP_INACTIVE,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_capability_advanced,
                     {
@@ -1483,7 +1481,7 @@ void proto_register_sane(void) {
                             NULL,
                             SANE_CAP_ADVANCED,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_value,
                     {
@@ -1494,7 +1492,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_string_value,
                     {
@@ -1505,7 +1503,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_numeric_value,
                     {
@@ -1516,7 +1514,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_boolean_value,
                     {
@@ -1527,7 +1525,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_constraints,
                     {
@@ -1538,7 +1536,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_constraint_type,
                     {
@@ -1549,7 +1547,7 @@ void proto_register_sane(void) {
                             VALS(sane_constraint_type_names),
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_possible_string_value,
                     {
@@ -1560,7 +1558,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_possible_word_value,
                     {
@@ -1571,7 +1569,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_range_min,
                     {
@@ -1582,7 +1580,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_range_max,
                     {
@@ -1593,7 +1591,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_option_range_quant,
                     {
@@ -1604,7 +1602,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_data_port,
                     {
@@ -1615,7 +1613,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_byte_order,
                     {
@@ -1626,7 +1624,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_frame_format,
                     {
@@ -1637,7 +1635,7 @@ void proto_register_sane(void) {
                             VALS(sane_frame_format_names),
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_scan_line_count,
                     {
@@ -1648,7 +1646,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_scan_pixel_depth,
                     {
@@ -1659,7 +1657,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_scan_pixels_per_line,
                     {
@@ -1670,7 +1668,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_scan_bytes_per_line,
                     {
@@ -1681,7 +1679,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_scan_is_last_frame,
                     {
@@ -1692,7 +1690,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_dummy_value,
                     {
@@ -1703,7 +1701,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_control_option_info,
                     {
@@ -1714,7 +1712,7 @@ void proto_register_sane(void) {
                             NULL,
                             0,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_control_option_inexact,
                     {
@@ -1725,7 +1723,7 @@ void proto_register_sane(void) {
                             NULL,
                             SANE_INFO_INEXACT,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_control_option_reload_options,
                     {
@@ -1736,7 +1734,7 @@ void proto_register_sane(void) {
                             NULL,
                             SANE_INFO_RELOAD_OPTIONS,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
             {&hf_sane_control_option_reload_params,
                     {
@@ -1747,7 +1745,7 @@ void proto_register_sane(void) {
                             NULL,
                             SANE_INFO_RELOAD_PARAMS,
                             NULL,
-                            HFILL,
+                            HFILL
                     }},
     };
 

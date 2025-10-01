@@ -3421,7 +3421,7 @@ proto_register_rohc(void)
             { &hf_rohc_ir_previous_frame,
               { "Previous IR frame","rohc.ir.prev.frame_num",
                 FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-                NULL , HFILL,
+                NULL , HFILL
               }
             },
             { &hf_rohc_ir_profile,
