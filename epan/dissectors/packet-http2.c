@@ -420,6 +420,7 @@ static int hf_http2_settings_max_frame_size;
 static int hf_http2_settings_max_header_list_size;
 static int hf_http2_settings_extended_connect;
 static int hf_http2_settings_no_rfc7540_priorities;
+static int hf_http2_settings_tls_reneg_permitted;
 static int hf_http2_settings_unknown;
 /* Push Promise */
 static int hf_http2_push_promise_r;
@@ -1342,6 +1343,7 @@ static const value_string http2_error_codes_vals[] = {
 #define HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE     6
 #define HTTP2_SETTINGS_EXTENDED_CONNECT         8 /* RFC 8441 */
 #define HTTP2_SETTINGS_NO_RFC7540_PRIORITIES    9 /* RFC 9218 */
+#define HTTP2_SETTINGS_TLS_RENEG_PERMITTED     16 /* MS-HTTP2E */
 
 static const value_string http2_settings_vals[] = {
     { HTTP2_SETTINGS_HEADER_TABLE_SIZE,      "Header table size" },
@@ -1352,6 +1354,15 @@ static const value_string http2_settings_vals[] = {
     { HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE,   "Max header list size" },
     { HTTP2_SETTINGS_EXTENDED_CONNECT,       "Extended CONNECT" },
     { HTTP2_SETTINGS_NO_RFC7540_PRIORITIES,  "No RFC7540 Priorities" },
+    { HTTP2_SETTINGS_TLS_RENEG_PERMITTED,    "TLS Renegotiation Permitted" },
+    { 0, NULL }
+};
+
+static const value_string http2_tls_reneg_permitted_vals[] = {
+    { 0x00, "Disabled" },
+    { 0x01, "Client-initiated acceptable" },
+    { 0x02, "Server-initiated acceptable" },
+    { 0x03, "Initiation from any party acceptable" },
     { 0, NULL }
 };
 
@@ -4072,6 +4083,9 @@ dissect_http2_settings(tvbuff_t* tvb, packet_info* pinfo _U_, http2_session_t* h
             case HTTP2_SETTINGS_NO_RFC7540_PRIORITIES:
                 proto_tree_add_item(settings_tree, hf_http2_settings_no_rfc7540_priorities, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
+            case HTTP2_SETTINGS_TLS_RENEG_PERMITTED:
+                proto_tree_add_item(settings_tree, hf_http2_settings_tls_reneg_permitted, tvb, offset, 4, ENC_BIG_ENDIAN);
+            break;
             default:
                 proto_tree_add_item(settings_tree, hf_http2_settings_unknown, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
@@ -5045,6 +5059,11 @@ proto_register_http2(void)
             { "No RFC7540 Priorities", "http2.settings.no_rfc7540_priorities",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
+        },
+        { &hf_http2_settings_tls_reneg_permitted,
+            { "TLS Renegotiation Permitted", "http2.settings.tls_reneg_permitted",
+              FT_UINT32, BASE_DEC, VALS(http2_tls_reneg_permitted_vals), 0x0,
+              "Indicates the sender's capability and willingness to employ TLS renegotiation", HFILL }
         },
         { &hf_http2_settings_unknown,
             { "Unknown Settings", "http2.settings.unknown",
