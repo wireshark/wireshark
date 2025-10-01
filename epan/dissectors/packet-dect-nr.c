@@ -18,10 +18,13 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/unit_strings.h>
+#include <epan/strutil.h>
 #include <epan/tfs.h>
 #include <epan/reassemble.h>
+#include <epan/conversation.h>
 #include <wsutil/str_util.h>
 #include <wiretap/wtap.h>
+#include <gcrypt.h>
 
 static int proto_dect_nr;
 
@@ -85,6 +88,8 @@ static int hf_dect_nr_data_hdr;
 static int hf_dect_nr_data_hdr_res1;
 static int hf_dect_nr_data_hdr_reset;
 static int hf_dect_nr_data_hdr_sn;
+static int hf_dect_nr_data_hdr_rx_addr;
+static int hf_dect_nr_data_hdr_tx_addr;
 
 /* 6.3.3.2: Beacon Header */
 static int hf_dect_nr_bc_hdr;
@@ -95,7 +100,6 @@ static int hf_dect_nr_bc_hdr_tx_addr;
 static int hf_dect_nr_uc_hdr;
 static int hf_dect_nr_uc_hdr_res1;
 static int hf_dect_nr_uc_hdr_rst;
-static int hf_dect_nr_uc_hdr_mac_seq;
 static int hf_dect_nr_uc_hdr_sn;
 static int hf_dect_nr_uc_hdr_rx_addr;
 static int hf_dect_nr_uc_hdr_tx_addr;
@@ -502,7 +506,9 @@ static int hf_dect_nr_segment_count;
 static int hf_dect_nr_reassembled_in;
 static int hf_dect_nr_reassembled_length;
 
-/* Undecoded */
+/* Miscellaneous */
+static int hf_dect_nr_mac_encrypted;
+static int hf_dect_nr_conv_index;
 static int hf_dect_nr_undecoded;
 
 /* Expert info */
@@ -510,12 +516,14 @@ static expert_field ei_dect_nr_ie_length_not_set;
 static expert_field ei_dect_nr_pdu_cut_short;
 static expert_field ei_dect_nr_length_mismatch;
 static expert_field ei_dect_nr_res_non_zero;
+static expert_field ei_dect_nr_mac_encrypted;
 static expert_field ei_dect_nr_undecoded;
 
 /* Protocol subtrees */
 static int ett_dect_nr;
 static int ett_dect_nr_phf;
 static int ett_dect_nr_mac_pdu;
+static int ett_dect_nr_mac_encrypted;
 static int ett_dect_nr_data_hdr;
 static int ett_dect_nr_bc_hdr;
 static int ett_dect_nr_uc_hdr;
@@ -561,6 +569,8 @@ static dissector_table_t ie_extension_dissector_table;
 
 static heur_dissector_list_t heur_subdissector_list;
 
+static wmem_map_t *rd_id_map;
+
 /* Preference to configure PHY header type */
 typedef enum {
 	PHF_TYPE_TYPE_1,
@@ -591,9 +601,28 @@ static const enum_val_t dlc_data_type_pref_vals[] = {
 	{ NULL, NULL, -1 }
 };
 
+#define KEY_MAX 4
+static bool mac_pdus_decrypted_pref;
+static const char *cipher_key_pref[KEY_MAX];
+
 static const value_string dect_plcf_size_vals[] = {
 	{ 0, "Type 1: 40 bits" },
 	{ 1, "Type 2: 80 bits" },
+	{ 0, NULL }
+};
+
+/* Table 4.2.3.2-1: Use of Long RD ID address space */
+static const value_string long_rd_id_address_vals[] = {
+	{ 0x00000000, "Reserved address" },
+	{ 0xFFFFFFFE, "Backend address" },
+	{ 0xFFFFFFFF, "Broadcast address" },
+	{ 0, NULL }
+};
+
+/* Table 4.2.3.3-1: Use of Short RD ID address space */
+static const value_string short_rd_id_address_vals[] = {
+	{ 0x0000, "Reserved address" },
+	{ 0xFFFF, "Broadcast address" },
 	{ 0, NULL }
 };
 
@@ -930,7 +959,7 @@ static const value_string msi_version_vals[] = {
 /* Table 6.4.3.1-2: Security IV type for Mode 1 */
 static const value_string msi_ivt_vals[] = {
 	{ 0, "One time HPC" },
-	{ 1, "Resynchronizing HPC, initiate Mode -1 security by using this HPC value in both UL and DL communication" },
+	{ 1, "Resynchronizing HPC, initiate Mode 1 security by using this HPC value in both UL and DL communication" },
 	{ 2, "One time HPC, with HPC request" },
 	{ 3, "Reserved" },
 	{ 4, "Reserved" },
@@ -1738,15 +1767,32 @@ static const fragment_items dect_nr_segment_items = {
 	"DLC PDU segments"
 };
 
+typedef struct dect_nr_sec_info {
+	uint32_t version;
+	uint32_t key;
+	uint32_t hpc;
+} dect_nr_sec_info_t;
+
+typedef struct dect_nr_conv_info {
+	uint32_t last_psn[2];
+	wmem_tree_t *hpc_tree;
+} dect_nr_conv_info_t;
+
 typedef struct {
+	uint32_t nw_id;
 	uint32_t tx_id;
 	uint32_t rx_id;
 	uint32_t ie_type;
 	uint32_t ie_length;
 	bool ie_length_present;
+	bool sec_info_present;
+	dect_nr_sec_info_t sec_info;
+	uint32_t psn;
+	dect_nr_conv_info_t *conv_info;
 } dect_nr_context_t;
 
 typedef struct {
+	uint32_t nw_id;
 	uint32_t tx_id;
 	uint32_t rx_id;
 	uint32_t ie_type;
@@ -1768,7 +1814,8 @@ static int dect_nr_reassembly_equal_func(const void *k1, const void *k2)
 	dect_nr_fragment_key_t *key1 = (dect_nr_fragment_key_t *)k1;
 	dect_nr_fragment_key_t *key2 = (dect_nr_fragment_key_t *)k2;
 
-	return ((key1->tx_id == key2->tx_id) && (key1->rx_id == key2->rx_id) && (key1->sn == key2->sn));
+	return ((key1->nw_id == key2->nw_id) && (key1->tx_id == key2->tx_id) &&
+		(key1->rx_id == key2->rx_id) && (key1->sn == key2->sn));
 }
 
 static void *dect_nr_reassembly_key_func(const packet_info *pinfo _U_, uint32_t id, const void *data)
@@ -1776,6 +1823,7 @@ static void *dect_nr_reassembly_key_func(const packet_info *pinfo _U_, uint32_t 
 	dect_nr_fragment_key_t *key = g_slice_new(dect_nr_fragment_key_t);
 	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
 
+	key->nw_id = ctx->nw_id;
 	key->tx_id = ctx->tx_id;
 	key->rx_id = ctx->rx_id;
 	key->ie_type = ctx->ie_type;
@@ -1861,6 +1909,111 @@ static void format_hex_pct_cf_func(char *result, uint32_t value)
 	snprintf(result, ITEM_LABEL_LENGTH, "%.2f %%", (value * 100.0) / 255.0);
 }
 
+static void insert_long_rd_id(uint32_t nw_id, uint32_t short_rd_id, uint32_t long_rd_id)
+{
+	/* nw_id is 8 bits and short_rd_id is 16 bits */
+	uint32_t rd_id_key = (nw_id << 16) | short_rd_id;
+
+	if (!wmem_map_contains(rd_id_map, GUINT_TO_POINTER(rd_id_key))) {
+		wmem_map_insert(rd_id_map, GUINT_TO_POINTER(rd_id_key), GUINT_TO_POINTER(long_rd_id));
+	}
+}
+
+static uint32_t lookup_long_rd_id(uint32_t nw_id, uint32_t short_rd_id)
+{
+	/* nw_id is 8 bits and short_rd_id is 16 bits */
+	uint32_t rd_id_key = (nw_id << 16) | short_rd_id;
+	uint32_t long_rd_id;
+
+	if (wmem_map_contains(rd_id_map, GUINT_TO_POINTER(rd_id_key))) {
+		long_rd_id = GPOINTER_TO_UINT(wmem_map_lookup(rd_id_map, GUINT_TO_POINTER(rd_id_key)));
+	} else {
+		long_rd_id = 0xFFFFFFFF; /* Broadcast address */
+	}
+
+	return long_rd_id;
+}
+
+static void set_last_psn(dect_nr_context_t *ctx, uint32_t psn)
+{
+	int idx = (ctx->tx_id < ctx->rx_id) ? 1 : 0;
+	ctx->conv_info->last_psn[idx] = psn;
+}
+
+static uint32_t get_last_psn(dect_nr_context_t *ctx)
+{
+	int idx = (ctx->tx_id < ctx->rx_id) ? 1 : 0;
+	return ctx->conv_info->last_psn[idx];
+}
+
+static void insert_sec_info(packet_info *pinfo, dect_nr_context_t *ctx, dect_nr_sec_info_t *sec_info)
+{
+	/* Only insert when having a conversation */
+	if (ctx->conv_info) {
+		wmem_tree_key_t key[2];
+		dect_nr_sec_info_t *new_sec_info;
+
+		key[0].length = 1;
+		key[0].key = &pinfo->num;
+		key[1].length = 0;
+		key[1].key = NULL;
+
+		new_sec_info = wmem_new(wmem_file_scope(), dect_nr_sec_info_t);
+		*new_sec_info = *sec_info;
+		wmem_tree_insert32_array(ctx->conv_info->hpc_tree, key, new_sec_info);
+	}
+}
+
+static const dect_nr_sec_info_t *lookup_sec_info(packet_info *pinfo, const dect_nr_context_t *ctx)
+{
+	/* Only lookup when having a conversation */
+	if (ctx->conv_info) {
+		wmem_tree_key_t key[2];
+
+		key[0].length = 1;
+		key[0].key = &pinfo->num;
+		key[1].length = 0;
+		key[1].key = NULL;
+
+		return wmem_tree_lookup32_array_le(ctx->conv_info->hpc_tree, key);
+	}
+
+	return NULL;
+}
+
+static void conversation_setup(packet_info *pinfo, proto_tree *tree, dect_nr_context_t *ctx)
+{
+	conversation_t *conversation;
+	address tx_addr;
+	address rx_addr;
+
+	if (ctx->rx_id == 0 || ctx->rx_id == 0xFFFF) {
+		/* Receiver ID is zero or broadcast, no conversation */
+		return;
+	}
+
+	/* nw_id is 8 bits and tx_id/rx_id is 16 bits */
+	uint32_t tx_id_key = (ctx->nw_id << 16) | ctx->tx_id;
+	set_address(&tx_addr, AT_NUMERIC, 4, &tx_id_key);
+	uint32_t rx_id_key = (ctx->nw_id << 16) | ctx->rx_id;
+	set_address(&rx_addr, AT_NUMERIC, 4, &rx_id_key);
+
+	conversation = find_conversation(pinfo->num, &tx_addr, &rx_addr, CONVERSATION_NONE, 0, 0, 0);
+	if (!conversation) {
+		conversation = conversation_new(pinfo->num, &tx_addr, &rx_addr, CONVERSATION_NONE, 0, 0, 0);
+	}
+
+	ctx->conv_info = (dect_nr_conv_info_t *)conversation_get_proto_data(conversation, proto_dect_nr);
+	if (!ctx->conv_info) {
+		ctx->conv_info = wmem_new0(wmem_file_scope(), dect_nr_conv_info_t);
+		ctx->conv_info->hpc_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+		conversation_add_proto_data(conversation, proto_dect_nr, ctx->conv_info);
+	}
+
+	proto_item *item = proto_tree_add_uint(tree, hf_dect_nr_conv_index, NULL, 0, 0, conversation->conv_index);
+	proto_item_set_generated(item);
+}
+
 /* 6.2: Physical Header Field */
 static int dissect_physical_header_field(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dect_nr_context_t *ctx)
 {
@@ -1902,7 +2055,7 @@ static int dissect_physical_header_field(tvbuff_t *tvb, int offset, packet_info 
 	}
 	offset++;
 
-	proto_tree_add_item(tree, hf_dect_nr_short_nw_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_dect_nr_short_nw_id, tvb, offset, 1, ENC_BIG_ENDIAN, &ctx->nw_id);
 	offset++;
 
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_transmitter_id, tvb, offset, 2, ENC_BIG_ENDIAN, &ctx->tx_id);
@@ -2005,30 +2158,53 @@ static int dissect_physical_header_field(tvbuff_t *tvb, int offset, packet_info 
 		offset += 5;
 	}
 
+	conversation_setup(pinfo, tree, ctx);
+
 	return offset;
 }
 
 /* 6.3.3.1: Data MAC PDU Header */
-static int dissect_mac_data_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+static int dissect_mac_data_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
 	int offset = 0;
+	uint32_t long_rd_id;
+
+	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_data_hdr, tvb, offset, 2, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_data_hdr);
 
 	dect_tree_add_reserved_item(tree, hf_dect_nr_data_hdr_res1, tvb, offset, 2, pinfo, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_dect_nr_data_hdr_reset, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_dect_nr_data_hdr_sn, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_dect_nr_data_hdr_sn, tvb, offset, 2, ENC_BIG_ENDIAN, &ctx->psn);
 	offset += 2;
+
+	long_rd_id = lookup_long_rd_id(ctx->nw_id, ctx->rx_id);
+	item = proto_tree_add_uint(tree, hf_dect_nr_data_hdr_rx_addr, NULL, 0, 0, long_rd_id);
+	proto_item_set_generated(item);
+
+	if (long_rd_id != 0xFFFFFFFF) {
+		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08x", long_rd_id);
+	}
+
+	long_rd_id = lookup_long_rd_id(ctx->nw_id, ctx->tx_id);
+	item = proto_tree_add_uint(tree, hf_dect_nr_data_hdr_tx_addr, NULL, 0, 0, long_rd_id);
+	proto_item_set_generated(item);
+
+	if (long_rd_id != 0xFFFFFFFF) {
+		col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08x", long_rd_id);
+	}
 
 	return offset;
 }
 
 /* 6.3.3.2: Beacon Header */
-static int dissect_mac_beacon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+static int dissect_mac_beacon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
 	int offset = 0;
 	uint32_t tx_addr;
+
+	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_bc_hdr, tvb, offset, 7, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_bc_hdr);
@@ -2040,26 +2216,27 @@ static int dissect_mac_beacon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08x", tx_addr);
 	offset += 4;
 
+	insert_long_rd_id(ctx->nw_id, ctx->tx_id, tx_addr);
+
 	return offset;
 }
 
 /* 6.3.3.3: Unicast Header */
-static int dissect_mac_unicast_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+static int dissect_mac_unicast_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
 	int offset = 0;
 	uint32_t tx_addr;
 	uint32_t rx_addr;
 
+	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
+
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_uc_hdr, tvb, offset, 10, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_uc_hdr);
 
-	dect_tree_add_reserved_item(tree, hf_dect_nr_uc_hdr_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_dect_nr_uc_hdr_rst, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_dect_nr_uc_hdr_mac_seq, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
-
-	proto_tree_add_item(tree, hf_dect_nr_uc_hdr_sn, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+	dect_tree_add_reserved_item(tree, hf_dect_nr_uc_hdr_res1, tvb, offset, 2, pinfo, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dect_nr_uc_hdr_rst, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_dect_nr_uc_hdr_sn, tvb, offset, 2, ENC_BIG_ENDIAN, &ctx->psn);
+	offset += 2;
 
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_uc_hdr_rx_addr, tvb, offset, 4, ENC_BIG_ENDIAN, &rx_addr);
 	col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08x", rx_addr);
@@ -2069,36 +2246,63 @@ static int dissect_mac_unicast_header(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08x", tx_addr);
 	offset += 4;
 
+	insert_long_rd_id(ctx->nw_id, ctx->tx_id, tx_addr);
+	insert_long_rd_id(ctx->nw_id, ctx->rx_id, rx_addr);
+
 	return offset;
 }
 
 /* 6.3.3.4: RD Broadcasting Header */
-static int dissect_mac_rd_broadcasting_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+static int dissect_mac_rd_broadcasting_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
 	int offset = 0;
 	uint32_t tx_addr;
+
+	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_rdbh_hdr, tvb, offset, 6, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_rdbh_hdr);
 
 	dect_tree_add_reserved_item(tree, hf_dect_nr_rdbh_hdr_res1, tvb, offset, 2, pinfo, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_dect_nr_rdbh_hdr_reset, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_dect_nr_rdbh_hdr_sn, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_dect_nr_rdbh_hdr_sn, tvb, offset, 2, ENC_BIG_ENDIAN, &ctx->psn);
 	offset += 2;
 
 	proto_tree_add_item_ret_uint(tree, hf_dect_nr_rdbh_hdr_tx_addr, tvb, offset, 4, ENC_BIG_ENDIAN, &tx_addr);
 	col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08x", tx_addr);
 	offset += 4;
 
+	insert_long_rd_id(ctx->nw_id, ctx->tx_id, tx_addr);
+
 	return offset;
 }
 
 /* 6.3.3: MAC Common Header */
-static int dissect_mac_common_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, uint32_t mac_hdr_type)
+static int dissect_mac_common_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, dect_nr_context_t *ctx, uint32_t mac_hdr_type)
 {
 	int sublen;
 
-	sublen = dissector_try_uint_with_data(mac_hdr_dissector_table, mac_hdr_type, tvb, pinfo, parent_tree, false, NULL);
+	sublen = dissector_try_uint_with_data(mac_hdr_dissector_table, mac_hdr_type, tvb, pinfo, parent_tree, false, ctx);
+
+	if (!PINFO_FD_VISITED(pinfo) && ctx->conv_info) {
+		if (ctx->psn == 0 || ctx->psn < get_last_psn(ctx)) {
+			const dect_nr_sec_info_t *sec_info;
+
+			/* 5.9.1.3 Ciphering
+			 * If MAC PDU sequence number is 0 or rolls over 0 from the previously
+			 * received sequence number: increment the HPC by one.
+			 */
+			sec_info = lookup_sec_info(pinfo, ctx);
+
+			if (sec_info) {
+				dect_nr_sec_info_t next_sec_info = *sec_info;
+				next_sec_info.hpc++;
+				insert_sec_info(pinfo, ctx, &next_sec_info);
+			}
+		}
+
+		set_last_psn(ctx, ctx->psn);
+	}
 
 	if (sublen <= 0 && tvb_reported_length(tvb) > 0) {
 		/* Unknown header type with unknown length */
@@ -2792,20 +2996,28 @@ static int dissect_joining_beacon_msg(tvbuff_t *tvb, packet_info *pinfo, proto_t
 }
 
 /* 6.4.3.1: MAC Security Info IE */
-static int dissect_security_info_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void *data _U_)
+static int dissect_security_info_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
 	int offset = 0;
+	uint32_t iv_type;
+
+	dect_nr_context_t *ctx = (dect_nr_context_t *)data;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_msi_ie, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_msi_ie);
 
-	proto_tree_add_item(tree, hf_dect_nr_msi_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_dect_nr_msi_key, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_dect_nr_msi_ivt, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_dect_nr_msi_version, tvb, offset, 1, ENC_BIG_ENDIAN, &ctx->sec_info.version);
+	proto_tree_add_item_ret_uint(tree, hf_dect_nr_msi_key, tvb, offset, 1, ENC_BIG_ENDIAN, &ctx->sec_info.key);
+	proto_tree_add_item_ret_uint(tree, hf_dect_nr_msi_ivt, tvb, offset, 1, ENC_BIG_ENDIAN, &iv_type);
 	offset++;
 
-	proto_tree_add_item(tree, hf_dect_nr_msi_hpc, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_dect_nr_msi_hpc, tvb, offset, 4, ENC_BIG_ENDIAN, &ctx->sec_info.hpc);
 	offset += 4;
+
+	ctx->sec_info_present = true;
+	if (!PINFO_FD_VISITED(pinfo) && ctx->sec_info.version == 0 && iv_type == 1) {
+		insert_sec_info(pinfo, ctx, &ctx->sec_info);
+	}
 
 	proto_item_set_len(item, offset);
 
@@ -3568,6 +3780,94 @@ static int dissect_ie_type_extension(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	return offset;
 }
 
+static tvbuff_t *decrypt_mac_pdus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dect_nr_context_t *ctx)
+{
+	unsigned length = tvb_captured_length_remaining(tvb, offset);
+	proto_item *item = proto_tree_add_item(tree, hf_dect_nr_mac_encrypted, tvb, offset, length, ENC_NA);
+
+	const dect_nr_sec_info_t *sec_info;
+	GByteArray *cipher_key;
+
+	if (ctx->sec_info_present) {
+		sec_info = &ctx->sec_info;
+	} else {
+		sec_info = lookup_sec_info(pinfo, ctx);
+
+		if (sec_info) {
+			tree = proto_item_add_subtree(item, ett_dect_nr_mac_encrypted);
+			item = proto_tree_add_uint(tree, hf_dect_nr_msi_hpc, NULL, 0, 0, sec_info->hpc);
+			proto_item_set_generated(item);
+		} else {
+			item = expert_add_info(pinfo, item, &ei_dect_nr_mac_encrypted);
+			proto_item_append_text(item, " (missing security info)");
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[Missing Security Info IE]");
+			return NULL;
+		}
+	}
+
+	if (sec_info->version > 0) {
+		item = expert_add_info(pinfo, item, &ei_dect_nr_mac_encrypted);
+		proto_item_append_text(item, " (unknown security version %u)", sec_info->version);
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[Unknown Security Version %u]", sec_info->version);
+		return NULL;
+	}
+
+	if (sec_info->key > KEY_MAX || !cipher_key_pref[sec_info->key] || strlen(cipher_key_pref[sec_info->key]) == 0) {
+		item = expert_add_info(pinfo, item, &ei_dect_nr_mac_encrypted);
+		proto_item_append_text(item, " (no cipher key #%u)", sec_info->key);
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[No Cipher Key #%u]", sec_info->key);
+		return NULL;
+	}
+
+	cipher_key = g_byte_array_new();
+	if (!hex_str_to_bytes(cipher_key_pref[sec_info->key], cipher_key, false)) {
+		item = expert_add_info(pinfo, item, &ei_dect_nr_mac_encrypted);
+		proto_item_append_text(item, " (illegal cipher key #%u)", sec_info->key);
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[Illegal Cipher Key #%u]", sec_info->key);
+		g_byte_array_free(cipher_key, true);
+		return NULL;
+	}
+
+	uint32_t tx_long_rd_id = lookup_long_rd_id(ctx->nw_id, ctx->tx_id);
+	uint32_t rx_long_rd_id = lookup_long_rd_id(ctx->nw_id, ctx->rx_id);
+
+	/*
+	 * The bit 0 is the most significant bit and bit 127 is the least significant bit
+	 * of the initialization vector.
+	 *
+	 *   0 to 31 (octets 0 to 3)   Long RD ID of the transmitter.
+	 *  32 to 63 (octets 4 to 7)   Long RD ID of the receiver.
+	 *  64 to 95 (octets 8 to 11)  Hyper Packet Counter (HPC).
+	 *  96 to 107 (12 bits)        Packet Sequence Number (PSN), transmitted in MAC PDU.
+	 * 108 to 127 (20 bits)        Ciphering engine internal byte counter.
+	 *                             Increased by one at every 16 byte ciphered block.
+	 *                             Set to zero for the first 16 byte block of the MAC PDU.
+	 */
+	unsigned char iv[16];
+
+	*(uint32_t *)&iv[0] = GUINT32_TO_BE(tx_long_rd_id);
+	*(uint32_t *)&iv[4] = GUINT32_TO_BE(rx_long_rd_id);
+	*(uint32_t *)&iv[8] = GUINT32_TO_BE(sec_info->hpc);
+	*(uint32_t *)&iv[12] = GUINT32_TO_BE(ctx->psn << 20);
+
+	uint8_t *payload_data = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, length);
+
+	gcry_cipher_hd_t handle;
+	gcry_cipher_open(&handle, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0);
+	gcry_cipher_setkey(handle, cipher_key->data, cipher_key->len);
+	gcry_cipher_setctr(handle, iv, sizeof(iv));
+
+	/* Decrypt the payload data in place */
+	gcry_cipher_decrypt(handle, payload_data, length, NULL, 0);
+	gcry_cipher_close(handle);
+
+	tvbuff_t *decrypt_tvb = tvb_new_real_data(payload_data, length, length);
+	add_new_data_source(pinfo, decrypt_tvb, "Decrypted MAC PDUs");
+	g_byte_array_free(cipher_key, true);
+
+	return decrypt_tvb;
+}
+
 static int dissect_mac_mux_msg_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dissector_table_t dissector_table, dect_nr_context_t *ctx)
 {
 	tvbuff_t *subtvb;
@@ -3683,6 +3983,7 @@ static int dissect_mac_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 	tvbuff_t *subtvb;
 	int start;
 	int length;
+	bool decrypted = false;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_mac_pdu, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_mac_pdu);
@@ -3695,7 +3996,7 @@ static int dissect_mac_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 	/* Use a tvb subset for MAC Common header and MAC multiplexing header to preserve trailing MIC */
 	length = tvb_reported_length(tvb);
-	if (mac_security != 0 && length > 5) {
+	if (mac_security != 0 && mac_pdus_decrypted_pref && length > 5) {
 		/* 5 bytes MIC at the end */
 		length -= 5;
 	}
@@ -3703,10 +4004,25 @@ static int dissect_mac_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 	start = offset;
 
 	/* 6.3.3 MAC Common header */
-	offset += dissect_mac_common_header(subtvb, pinfo, tree, mac_hdr_type);
+	offset += dissect_mac_common_header(subtvb, pinfo, tree, ctx, mac_hdr_type);
 
 	/* One or more MAC SDUs included in MAC PDU with MAC multiplexing header */
 	while (offset < length) {
+		if (!decrypted && !mac_pdus_decrypted_pref && (mac_security == 1 || (mac_security == 2 && ctx->ie_type == 16))) {
+			/* Decrypt the MAC PDUs */
+			subtvb = decrypt_mac_pdus(tvb, offset, pinfo, tree, ctx);
+
+			if (subtvb) {
+				tvb = subtvb;
+				start = offset = 0;
+				length = tvb_reported_length(tvb) - 5; /* 5 bytes MIC at the end */
+				subtvb = tvb_new_subset_length(tvb, 0, length);
+				decrypted = true;
+			} else {
+				return tvb_reported_length(tvb);
+			}
+		}
+
 		/* 6.3.4 MAC multiplexing header */
 		offset += dissect_mac_mux_header(subtvb, offset - start, pinfo, tree, ctx);
 	}
@@ -3720,7 +4036,7 @@ static int dissect_mac_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 		if (mic_len == 0) {
 			expert_add_info(pinfo, item, &ei_dect_nr_pdu_cut_short);
-			col_append_str(pinfo->cinfo, COL_INFO, " [MIC missing]");
+			col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[MIC missing]");
 		}
 	}
 
@@ -3776,8 +4092,8 @@ void proto_register_dect_nr(void)
 			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_transmitter_id,
-			{ "Transmitter Short RD ID", "dect_nr.phf.transmitter_id", FT_UINT16, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Transmitter Short RD ID", "dect_nr.phf.transmitter_id", FT_UINT16, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(short_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_tx_pwr,
 			{ "Transmit Power", "dect_nr.phf.tx_pwr", FT_UINT8, BASE_DEC,
@@ -3796,8 +4112,8 @@ void proto_register_dect_nr(void)
 			  VALS(mcse_vals), 0x0F, "Data Field Modulation and Coding Scheme (Type 2)", HFILL }
 		},
 		{ &hf_dect_nr_receiver_id,
-			{ "Receiver Short RD ID", "dect_nr.phf.receiver_id", FT_UINT16, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Receiver Short RD ID", "dect_nr.phf.receiver_id", FT_UINT16, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(short_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_spatial_streams,
 			{ "Number of Spatial Streams", "dect_nr.phf.spatial_streams", FT_UINT8, BASE_DEC,
@@ -3994,6 +4310,14 @@ void proto_register_dect_nr(void)
 			{ "Sequence number", "dect_nr.mac.hdr.data.sn", FT_UINT16, BASE_DEC,
 			  NULL, 0x0FFF, NULL, HFILL }
 		},
+		{ &hf_dect_nr_data_hdr_rx_addr,
+			{ "Receiver Address", "dect_nr.mac.hdr.data.rx_addr", FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(long_rd_id_address_vals), 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_data_hdr_tx_addr,
+			{ "Transmitter Address", "dect_nr.mac.hdr.data.tx_addr", FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(long_rd_id_address_vals), 0x0, NULL, HFILL }
+		},
 
 		/* 6.3.3.2: Beacon Header */
 		{ &hf_dect_nr_bc_hdr,
@@ -4005,8 +4329,8 @@ void proto_register_dect_nr(void)
 			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_bc_hdr_tx_addr,
-			{ "Transmitter Address", "dect_nr.mac.hdr.bc.tx_addr", FT_UINT32, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Transmitter Address", "dect_nr.mac.hdr.bc.tx_addr", FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(long_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 
 		/* 6.3.3.3: Unicast Header */
@@ -4015,28 +4339,24 @@ void proto_register_dect_nr(void)
 			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_uc_hdr_res1,
-			{ "Reserved", "dect_nr.mac.hdr.uc.res1", FT_UINT8, BASE_DEC,
-			  NULL, 0xE0, NULL, HFILL }
+			{ "Reserved", "dect_nr.mac.hdr.uc.res1", FT_UINT16, BASE_DEC,
+			  NULL, 0xE000, NULL, HFILL }
 		},
 		{ &hf_dect_nr_uc_hdr_rst,
-			{ "Reset", "dect_nr.mac.hdr.uc.rst", FT_BOOLEAN, 8,
-			  NULL, 0x10, NULL, HFILL }
-		},
-		{ &hf_dect_nr_uc_hdr_mac_seq,
-			{ "MAC Sequence", "dect_nr.mac.hdr.uc.mac_seq", FT_UINT8, BASE_DEC,
-			  NULL, 0x0F, NULL, HFILL }
+			{ "Reset", "dect_nr.mac.hdr.uc.rst", FT_BOOLEAN, 16,
+			  NULL, 0x1000, NULL, HFILL }
 		},
 		{ &hf_dect_nr_uc_hdr_sn,
-			{ "Sequence Number", "dect_nr.mac.hdr.uc.sn", FT_UINT8, BASE_DEC,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Sequence Number", "dect_nr.mac.hdr.uc.sn", FT_UINT16, BASE_DEC,
+			  NULL, 0x0FFF, NULL, HFILL }
 		},
 		{ &hf_dect_nr_uc_hdr_rx_addr,
-			{ "Receiver Address", "dect_nr.mac.hdr.uc.rx_addr", FT_UINT32, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Receiver Address", "dect_nr.mac.hdr.uc.rx_addr", FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(long_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_uc_hdr_tx_addr,
-			{ "Transmitter Address", "dect_nr.mac.hdr.uc.tx_addr", FT_UINT32, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Transmitter Address", "dect_nr.mac.hdr.uc.tx_addr", FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(long_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 
 		/* 6.3.3.4: RD Broadcasting Header */
@@ -4057,8 +4377,8 @@ void proto_register_dect_nr(void)
 			  NULL, 0x0FFF, NULL, HFILL }
 		},
 		{ &hf_dect_nr_rdbh_hdr_tx_addr,
-			{ "Transmitter Address", "dect_nr.mac.hdr.rdbh.tx_addr", FT_UINT32, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Transmitter Address", "dect_nr.mac.hdr.rdbh.tx_addr", FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(long_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 
 		/* 6.3.4: MAC Multiplexing Header */
@@ -4583,8 +4903,8 @@ void proto_register_dect_nr(void)
 			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_ri_sink_address,
-			{ "Sink Address", "dect_nr.mac.ri.sink_address", FT_UINT32, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Sink Address", "dect_nr.mac.ri.sink_address", FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(long_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_ri_route_cost,
 			{ "Route Cost", "dect_nr.mac.ri.route_cost", FT_UINT8, BASE_DEC,
@@ -4669,8 +4989,8 @@ void proto_register_dect_nr(void)
 			  NULL, 0x7F, NULL, HFILL }
 		},
 		{ &hf_dect_nr_ra_short_rd_id,
-			{ "Short RD ID", "dect_nr.mac.ra.short_rd_id", FT_UINT16, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Short RD ID", "dect_nr.mac.ra.short_rd_id", FT_UINT16, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(short_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_ra_repetition,
 			{ "Repetition", "dect_nr.mac.ra.repetition", FT_UINT8, BASE_DEC,
@@ -4963,8 +5283,8 @@ void proto_register_dect_nr(void)
 			  VALS(nb_ie_cb_period_vals), 0x0F, NULL, HFILL }
 		},
 		{ &hf_dect_nr_n_long_rd_id,
-			{ "Long RD ID", "dect_nr.mac.n.long_rd_id", FT_UINT32, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Long RD ID", "dect_nr.mac.n.long_rd_id", FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(long_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_n_res2,
 			{ "Reserved", "dect_nr.mac.n.res2", FT_UINT16, BASE_DEC,
@@ -5029,12 +5349,12 @@ void proto_register_dect_nr(void)
 			  TFS(&tfs_present_not_present), 0x01, NULL, HFILL }
 		},
 		{ &hf_dect_nr_bi_short_rd_id,
-			{ "Short RD ID", "dect_nr.mac.bi.short_rd_id", FT_UINT16, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Short RD ID", "dect_nr.mac.bi.short_rd_id", FT_UINT16, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(short_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_bi_long_rd_id,
-			{ "Long RD ID", "dect_nr.mac.bi.long_rd_id", FT_UINT32, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Long RD ID", "dect_nr.mac.bi.long_rd_id", FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(long_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_bi_mcs_res1,
 			{ "Reserved", "dect_nr.mac.bi.mcs.res1", FT_UINT8, BASE_DEC,
@@ -5251,8 +5571,8 @@ void proto_register_dect_nr(void)
 			  NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_sr_id,
-			{ "Source Route ID", "dect_nr.mac.sr.id", FT_UINT32, BASE_DEC,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Source Route ID", "dect_nr.mac.sr.id", FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(long_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_sr_hop_limit,
 			{ "Hop-limit", "dect_nr.mac.sr.hop_limit", FT_UINT8, BASE_DEC,
@@ -5392,12 +5712,12 @@ void proto_register_dect_nr(void)
 			  VALS(dlc_routing_type_vals), 0x07, NULL, HFILL }
 		},
 		{ &hf_dect_nr_dlc_routing_src_addr,
-			{ "Source Address", "dect_nr.dlc.routing.src_addr", FT_UINT32, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Source Address", "dect_nr.dlc.routing.src_addr", FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(long_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_dlc_routing_dst_addr,
-			{ "Destination Address", "dect_nr.dlc.routing.dst_addr", FT_UINT32, BASE_HEX,
-			  NULL, 0x0, NULL, HFILL }
+			{ "Destination Address", "dect_nr.dlc.routing.dst_addr", FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+			  VALS(long_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_dlc_routing_hop_count,
 			{ "Hop-count", "dect_nr.dlc.routing.hop_count", FT_UINT8, BASE_DEC,
@@ -5418,7 +5738,15 @@ void proto_register_dect_nr(void)
 			  NULL, 0x0, NULL, HFILL }
 		},
 
-		/* Undecoded */
+		/* Miscellaneous */
+		{ &hf_dect_nr_mac_encrypted,
+			{ "Encrypted MAC PDUs", "dect_nr.mac.encrypted", FT_NONE, BASE_NONE,
+			  NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_dect_nr_conv_index,
+			{ "Conversation Index", "dect_nr.conv_index", FT_UINT32, BASE_DEC,
+			  NULL, 0x0, NULL, HFILL }
+		},
 		{ &hf_dect_nr_undecoded,
 			{ "Undecoded", "dect_nr.undecoded", FT_BYTES, BASE_NONE,
 			  NULL, 0x0, NULL, HFILL }
@@ -5471,6 +5799,7 @@ void proto_register_dect_nr(void)
 		&ett_dect_nr,
 		&ett_dect_nr_phf,
 		&ett_dect_nr_mac_pdu,
+		&ett_dect_nr_mac_encrypted,
 		&ett_dect_nr_data_hdr,
 		&ett_dect_nr_bc_hdr,
 		&ett_dect_nr_uc_hdr,
@@ -5523,6 +5852,10 @@ void proto_register_dect_nr(void)
 			{ "dect_nr.expert.res_non_zero", PI_PROTOCOL, PI_WARN,
 			  "Reserved bits are non-zero", EXPFILL }
 		},
+		{ &ei_dect_nr_mac_encrypted,
+			{ "dect_nr.expert.mac_encrypted", PI_PROTOCOL, PI_NOTE,
+			  "Encrypted MAC PDUs", EXPFILL }
+		},
 		{ &ei_dect_nr_undecoded,
 			{ "dect_nr.expert.undecoded", PI_PROTOCOL, PI_WARN,
 			  "Undecoded", EXPFILL }
@@ -5552,8 +5885,25 @@ void proto_register_dect_nr(void)
 	prefs_register_enum_preference(module, "dlc_data_type", "DLC PDU data type",
 				       "Automatic will use heuristics to determine payload.",
 				       &dlc_data_type_pref, dlc_data_type_pref_vals, false);
+	prefs_register_bool_preference(module, "mac_pdus_decrypted", "Handle MAC PDUs as decrypted",
+				       "Always handle MAC PDUs as decrypted",
+				       &mac_pdus_decrypted_pref);
+	prefs_register_string_preference(module, "cipher_key_0", "Cipher Key 0",
+					 "Cipher Key 0 as HEX string.",
+					 &cipher_key_pref[0]);
+	prefs_register_string_preference(module, "cipher_key_1", "Cipher Key 1",
+					 "Cipher Key 1 as HEX string.",
+					 &cipher_key_pref[1]);
+	prefs_register_string_preference(module, "cipher_key_2", "Cipher Key 2",
+					 "Cipher Key 2 as HEX string.",
+					 &cipher_key_pref[2]);
+	prefs_register_string_preference(module, "cipher_key_3", "Cipher Key 3",
+					 "Cipher Key 3 as HEX string.",
+					 &cipher_key_pref[3]);
 
 	heur_subdissector_list = register_heur_dissector_list("dect_nr.dlc", proto_dect_nr);
+
+	rd_id_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 void proto_reg_handoff_dect_nr(void)
