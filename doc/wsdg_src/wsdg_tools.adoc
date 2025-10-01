@@ -118,10 +118,9 @@ Let you set the path to a locally-compiled version of c-ares. Most
 optional libraries have xxx_INCLUDE_DIR and xxx_LIB flags that let you
 control their discovery.
 
--DCMAKE_OSX_DEPLOYMENT_TARGET=10.14::
+-DCMAKE_OSX_DEPLOYMENT_TARGET=12.0::
 Specify the minimum macOS version for Wireshark and each command line utility.
 Note that this doesn’t affect the minimum target for third-party libraries.
-For example, if you’re building for macOS 10.14 you’ll need to install https://doc.qt.io/qt-5/supported-platforms.html[Qt 5.15 or earlier] and ensure that other libraries support macOS 10.14, for example by running `tools/macos-setup.sh -t 10.14`.
 
 -DENABLE_APPLICATION_BUNDLE=OFF:: Disable building an application bundle (Wireshark.app) on macOS
 

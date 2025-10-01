@@ -30,6 +30,7 @@ function print_usage() {
     printf "\\t--install-sparkle-deps: install the Sparkle automatic updater\\n"
     printf "\\t--install-test-deps: install packages required for automated testing\\n"
     printf "\\t--install-all: install everything\\n"
+    printf "\\t  (You should probably set WIRESHARK_BASE_DIR instead.)\\n"
     printf "\\t--install-stratoshark: install everything to compile Stratoshark and the Falco Events plugin\\n"
     printf "\\t[other]: other options are passed as-is to brew\\n"
 }

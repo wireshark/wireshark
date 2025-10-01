@@ -44,38 +44,6 @@ fi
 #
 
 #
-# We use curl, but older versions of curl in older macOS releases can't
-# handle some sites - including the xz site. We also use the --fail-with-body
-# flag, which was added in curl 7.76.0.
-#
-# If the version of curl in the system is older than 7.76.0, download
-# curl and install it.
-#
-current_curl_version=$( curl --version | sed -n 's/curl \([0-9.]*\) .*/\1/p' )
-current_curl_major_version="$( expr "$current_curl_version" : '\([0-9][0-9]*\).*' )"
-current_curl_minor_version="$(expr "$current_curl_version" : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-if [[ $current_curl_major_version -lt 7 ||
-     ($current_curl_major_version -eq 7 &&
-      $current_curl_minor_version -lt 54) ]]; then
-    CURL_VERSION=${CURL_VERSION-7.88.1}
-fi
-
-#
-# Some packages need xz to unpack their current source.
-# XXX: tar, since macOS 10.9, can uncompress xz'ed tarballs,
-# so perhaps we could get rid of this now?
-#
-# DO NOT UPDATE THIS TO A COMPROMISED VERSION; see
-#
-#    https://www.openwall.com/lists/oss-security/2024/03/29/4
-#
-#    https://access.redhat.com/security/cve/CVE-2024-3094
-#
-#    https://nvd.nist.gov/vuln/detail/CVE-2024-3094
-#
-XZ_VERSION=5.2.5
-
-#
 # CMake is required to do the build - and to build some of the
 # dependencies.
 #
@@ -90,125 +58,8 @@ CMAKE_SHA256=${CMAKE_SHA256-d228a1b6f9cf4a0ed5d2df1953cddd4f9be2de49f03de51a4bf0
 NINJA_VERSION=${NINJA_VERSION-1.12.1}
 NINJA_SHA256=89a287444b5b3e98f88a945afa50ce937b8ffd1dcc59c555ad9b1baf855298c9
 
-#
-# The following libraries and tools are required even to build only TShark.
-#
-GETTEXT_VERSION=0.22.5
-GLIB_VERSION=2.80.3
-if [ "$GLIB_VERSION" ]; then
-    GLIB_MAJOR_VERSION="$( expr $GLIB_VERSION : '\([0-9][0-9]*\).*' )"
-    GLIB_MINOR_VERSION="$( expr $GLIB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-#     Unused?
-#     GLIB_DOTDOT_VERSION="$( expr $GLIB_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-#     GLIB_MAJOR_MINOR_VERSION=$GLIB_MAJOR_VERSION.$GLIB_MINOR_VERSION
-#     GLIB_MAJOR_MINOR_DOTDOT_VERSION=$GLIB_MAJOR_VERSION.$GLIB_MINOR_VERSION.$GLIB_DOTDOT_VERSION
-fi
+# pkg-config isn't required, but it makes library discovery more reliable.
 PKG_CONFIG_VERSION=0.29.2
-#
-# libgpg-error is required for libgcrypt.
-#
-LIBGPG_ERROR_VERSION=1.51
-#
-# libgcrypt is required.
-#
-LIBGCRYPT_VERSION=1.11.0
-#
-# libpcre2 is required.
-#
-PCRE2_VERSION=10.44
-
-#
-# One or more of the following libraries are required to build Wireshark.
-#
-# To override the version of Qt call the script with some of the variables
-# set to the new values. Setting the variable to empty will disable building
-# the toolkit and will uninstall any version previously installed by the
-# script, e.g.
-# "QT_VERSION=5.10.1 ./macos-setup.sh"
-# will build and install with QT 5.10.1.
-#
-QT_VERSION=${QT_VERSION-6.2.4}
-
-if [ "$QT_VERSION" ]; then
-    QT_MAJOR_VERSION="$( expr "$QT_VERSION" : '\([0-9][0-9]*\).*' )"
-    QT_MINOR_VERSION="$( expr "$QT_VERSION" : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-    QT_DOTDOT_VERSION="$( expr "$QT_VERSION" : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-    QT_MAJOR_MINOR_VERSION=$QT_MAJOR_VERSION.$QT_MINOR_VERSION
-    QT_MAJOR_MINOR_DOTDOT_VERSION=$QT_MAJOR_VERSION.$QT_MINOR_VERSION.$QT_DOTDOT_VERSION
-fi
-
-#
-# The following libraries are optional.
-# Comment them out if you don't want them, but note that some of
-# the optional libraries are required by other optional libraries.
-#
-LIBSMI_VERSION=0.4.8
-GNUTLS_VERSION=3.8.10
-GNUTLS_SHA256=db7fab7cce791e7727ebbef2334301c821d79a550ec55c9ef096b610b03eb6b7
-if [ "$GNUTLS_VERSION" ]; then
-    #
-    # We'll be building GnuTLS, so we may need some additional libraries.
-    # We assume GnuTLS can work with Nettle; newer versions *only* use
-    # Nettle, not libgcrypt.
-    #
-    GNUTLS_MAJOR_VERSION="$( expr $GNUTLS_VERSION : '\([0-9][0-9]*\).*' )"
-    GNUTLS_MINOR_VERSION="$( expr $GNUTLS_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-    NETTLE_VERSION=3.10.2
-
-    #
-    # And, in turn, Nettle requires GMP.
-    #
-    GMP_VERSION=6.3.0
-
-    #
-    # And p11-kit
-    P11KIT_VERSION=0.25.5
-
-    # Which requires libtasn1
-    LIBTASN1_VERSION=4.20.0
-fi
-# lua_bitop.c has been ported to 5.3 and 5.4 so use the latest release.
-# We may still need to check for compatibility issues (we'd want Lua
-# scripts to work with 5.1 through 5.4, as long as they only use Lua
-# features present in all versions)
-LUA_VERSION=5.4.6
-SNAPPY_VERSION=1.2.1
-ZSTD_VERSION=1.5.6
-ZLIBNG_VERSION=2.1.6
-LIBXML2_VERSION=2.11.9 # Matches vcpkg
-LIBXML2_SHA256=780157a1efdb57188ec474dca87acaee67a3a839c2525b2214d318228451809f
-LZ4_VERSION=1.10.0
-SBC_VERSION=2.0
-CARES_VERSION=1.31.0
-LIBSSH_VERSION=0.11.3
-# mmdbresolve
-MAXMINDDB_VERSION=1.9.1
-NGHTTP2_VERSION=1.62.1
-NGHTTP3_VERSION=1.1.0
-SPANDSP_VERSION=0.0.6
-SPEEXDSP_VERSION=1.2.1
-if [ "$SPANDSP_VERSION" ]; then
-    #
-    # SpanDSP depends on libtiff.
-    #
-    LIBTIFF_VERSION=3.8.1
-fi
-BCG729_VERSION=1.1.1
-# libilbc 3.0.0 & later link with absiel, which is released under Apache 2.0
-ILBC_VERSION=2.0.2
-OPENCORE_AMR_VERSION=0.1.6
-OPENCORE_AMR_SHA256=483eb4061088e2b34b358e47540b5d495a96cd468e361050fae615b1809dc4a1
-OPUS_VERSION=1.4
-
-# Falco libs (libsinsp and libscap) and their dependencies. Unset for now.
-FALCO_LIBS_VERSION=0.18.1
-if [ "$FALCO_LIBS_VERSION" ] ; then
-    FALCO_LIBS_SHA256=1812e8236c4cb51d3fe5dd066d71be99f25da7ed22d8feeeebeed09bdc26325f
-    JSONCPP_VERSION=1.9.5
-    ONETBB_VERSION=2021.11.0
-    # 2023-06-01 and later require Abseil.
-    RE2_VERSION=2022-06-01
-fi
 
 #
 # Is /usr/bin/python3 a working version of Python?  It may be, as it
@@ -226,48 +77,7 @@ else
     #
     PYTHON3_VERSION=3.12.1
 fi
-BROTLI_VERSION=1.0.9
-# minizip/minizipng
-MINIZIPNG_VERSION=4.0.7
-ZLIB_VERSION=1.3
-# Uncomment to enable automatic updates using Sparkle
-#SPARKLE_VERSION=2.2.2
 
-#
-# Asciidoctor is required to build the documentation.
-#
-# As the Asciidoctor Homebrew formula shows, managing all of the various
-# dependencies can become quite hairy:
-# https://github.com/Homebrew/homebrew-core/blob/master/Formula/a/asciidoctor.rb
-# Maybe we should install a JRE and use AsciidoctorJ instead?
-ASCIIDOCTOR_VERSION=${ASCIIDOCTOR_VERSION-2.0.23}
-ASCIIDOCTORPDF_VERSION=${ASCIIDOCTORPDF_VERSION-1.6.1}
-# css_parser 1.13 and later require Ruby 2.7
-
-CSS_PARSER_VERSION=${CSS_PARSER_VERSION-1.12.0}
-#
-# GNU autotools.  They're not supplied with the macOS versions we
-# support, and we currently use them for minizip.
-#
-M4_VERSION=1.4.19
-AUTOCONF_VERSION=2.72
-AUTOMAKE_VERSION=1.17
-LIBTOOL_VERSION=2.5.4
-
-install_curl() {
-    if [ "$CURL_VERSION" ] && [ ! -f "curl-$CURL_VERSION-done" ] ; then
-        echo "Downloading, building, and installing curl:"
-        [ -f "curl-$CURL_VERSION.tar.bz2" ] || curl --fail --location --remote-name "https://curl.haxx.se/download/curl-$CURL_VERSION.tar.bz2"
-        $no_build && echo "Skipping installation" && return
-        bzcat "curl-$CURL_VERSION.tar.bz2" | tar xf -
-        cd "curl-$CURL_VERSION"
-        ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch "curl-$CURL_VERSION-done"
-    fi
-}
 
 uninstall_curl() {
     if [ -n "$installed_curl_version" ] ; then
@@ -277,37 +87,7 @@ uninstall_curl() {
         make distclean
         cd ..
         rm "curl-$installed_curl_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "curl-$installed_curl_version"
-            rm -rf "curl-$installed_curl_version.tar.bz2"
-        fi
-
         installed_curl_version=""
-    fi
-}
-
-install_xz() {
-    if [ "$XZ_VERSION" ] && [ ! -f xz-$XZ_VERSION-done ] ; then
-        echo "Downloading, building, and installing xz:"
-        [ -f xz-$XZ_VERSION.tar.bz2 ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2
-        $no_build && echo "Skipping installation" && return
-        bzcat xz-$XZ_VERSION.tar.bz2 | tar xf -
-        cd xz-$XZ_VERSION
-        #
-        # This builds and installs liblzma, which libxml2 uses, and
-        # Wireshark uses libxml2, so we need to build this with
-        # all the minimum-deployment-version and SDK stuff.
-        #
-        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch xz-$XZ_VERSION-done
     fi
 }
 
@@ -319,15 +99,6 @@ uninstall_xz() {
         make distclean
         cd ..
         rm "xz-$installed_xz_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "xz-$installed_xz_version"
-            rm -rf "xz-$installed_xz_version.tar.bz2"
-        fi
-
         installed_xz_version=""
     fi
 }
@@ -340,15 +111,6 @@ uninstall_lzip() {
         make distclean
         cd ..
         rm "lzip-$installed_lzip_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "lzip-$installed_lzip_version"
-            rm -rf "lzip-$installed_lzip_version.tar.gz"
-        fi
-
         installed_lzip_version=""
     fi
 }
@@ -361,37 +123,10 @@ uninstall_pcre() {
         make distclean
         cd ..
         rm "pcre-$installed_pcre_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "pcre-$installed_pcre_version"
-            rm -rf "pcre-$installed_pcre_version.tar.bz2"
-        fi
-
         installed_pcre_version=""
     fi
 }
 
-install_pcre2() {
-    if [ "$PCRE2_VERSION" ] && [ ! -f "pcre2-$PCRE2_VERSION-done" ] ; then
-        echo "Downloading, building, and installing pcre2:"
-        [ -f "pcre2-$PCRE2_VERSION.tar.bz2" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://github.com/PhilipHazel/pcre2/releases/download/pcre2-$PCRE2_VERSION/pcre2-$PCRE2_VERSION.tar.bz2"
-        $no_build && echo "Skipping installation" && return
-        bzcat "pcre2-$PCRE2_VERSION.tar.bz2" | tar xf -
-        cd "pcre2-$PCRE2_VERSION"
-        mkdir build_dir
-        cd build_dir
-        # https://github.com/Homebrew/homebrew-core/blob/master/Formula/pcre2.rb
-        # https://github.com/microsoft/vcpkg/blob/master/ports/pcre2/portfile.cmake
-        "${DO_CMAKE[@]}" -DBUILD_STATIC_LIBS=OFF -DBUILD_SHARED_LIBS=ON -DPCRE2_SUPPORT_JIT=ON -DPCRE2_SUPPORT_UNICODE=ON ..
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ../..
-        touch "pcre2-$PCRE2_VERSION-done"
-    fi
-}
 
 uninstall_pcre2() {
     if [ -n "$installed_pcre2_version" ] && [ -s "pcre2-$installed_pcre2_version/build_dir/install_manifest.txt" ] ; then
@@ -399,31 +134,7 @@ uninstall_pcre2() {
         # PCRE2 10.39 installs pcre2unicode.3 twice, so this will return an error.
         while read -r ; do $DO_RM -f -v "$REPLY" ; done < <(cat "pcre2-$installed_pcre2_version/build_dir/install_manifest.txt"; echo)
         rm "pcre2-$installed_pcre2_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "pcre2-$installed_pcre2_version"
-            rm -rf "pcre2-$installed_pcre2_version.tar.bz2"
-        fi
-
         installed_pcre2_version=""
-    fi
-}
-
-install_m4() {
-    if [ "$M4_VERSION" -a ! -f m4-$M4_VERSION-done ] ; then
-        echo "Downloading, building and installing GNU m4..."
-        [ -f m4-$M4_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://ftp.gnu.org/gnu/m4/m4-$M4_VERSION.tar.xz
-        $no_build && echo "Skipping installation" && return
-        xzcat m4-$M4_VERSION.tar.xz | tar xf -
-        cd m4-$M4_VERSION
-        ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch m4-$M4_VERSION-done
     fi
 }
 
@@ -432,7 +143,7 @@ uninstall_m4() {
         #
         # autoconf depends on this, so uninstall it.
         #
-        uninstall_autoconf "$@"
+        uninstall_autoconf
 
         echo "Uninstalling GNU m4:"
         cd m4-$installed_m4_version
@@ -440,31 +151,7 @@ uninstall_m4() {
         make distclean
         cd ..
         rm m4-$installed_m4_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf m4-$installed_m4_version
-            rm -rf m4-$installed_m4_version.tar.xz
-        fi
-
         installed_m4_version=""
-    fi
-}
-
-install_autoconf() {
-    if [ "$AUTOCONF_VERSION" -a ! -f autoconf-$AUTOCONF_VERSION-done ] ; then
-        echo "Downloading, building and installing GNU autoconf..."
-        [ -f autoconf-$AUTOCONF_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://ftp.gnu.org/gnu/autoconf/autoconf-$AUTOCONF_VERSION.tar.xz
-        $no_build && echo "Skipping installation" && return
-        xzcat autoconf-$AUTOCONF_VERSION.tar.xz | tar xf -
-        cd autoconf-$AUTOCONF_VERSION
-        ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch autoconf-$AUTOCONF_VERSION-done
     fi
 }
 
@@ -473,8 +160,8 @@ uninstall_autoconf() {
         #
         # automake and libtool depend on this, so uninstall them.
         #
-        uninstall_libtool "$@"
-        uninstall_automake "$@"
+        uninstall_libtool
+        uninstall_automake
 
         echo "Uninstalling GNU autoconf:"
         cd autoconf-$installed_autoconf_version
@@ -482,31 +169,7 @@ uninstall_autoconf() {
         make distclean
         cd ..
         rm autoconf-$installed_autoconf_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf autoconf-$installed_autoconf_version
-            rm -rf autoconf-$installed_autoconf_version.tar.xz
-        fi
-
         installed_autoconf_version=""
-    fi
-}
-
-install_automake() {
-    if [ "$AUTOMAKE_VERSION" -a ! -f automake-$AUTOMAKE_VERSION-done ] ; then
-        echo "Downloading, building and installing GNU automake..."
-        [ -f automake-$AUTOMAKE_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://ftp.gnu.org/gnu/automake/automake-$AUTOMAKE_VERSION.tar.xz
-        $no_build && echo "Skipping installation" && return
-        xzcat automake-$AUTOMAKE_VERSION.tar.xz | tar xf -
-        cd automake-$AUTOMAKE_VERSION
-        ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch automake-$AUTOMAKE_VERSION-done
     fi
 }
 
@@ -515,7 +178,7 @@ uninstall_automake() {
         #
         # libtool depends on this(?), so uninstall it.
         #
-        uninstall_libtool "$@"
+        uninstall_libtool
 
         echo "Uninstalling GNU automake:"
         cd automake-$installed_automake_version
@@ -523,31 +186,7 @@ uninstall_automake() {
         make distclean
         cd ..
         rm automake-$installed_automake_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf automake-$installed_automake_version
-            rm -rf automake-$installed_automake_version.tar.xz
-        fi
-
         installed_automake_version=""
-    fi
-}
-
-install_libtool() {
-    if [ "$LIBTOOL_VERSION" -a ! -f libtool-$LIBTOOL_VERSION-done ] ; then
-        echo "Downloading, building and installing GNU libtool..."
-        [ -f libtool-$LIBTOOL_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://ftp.gnu.org/gnu/libtool/libtool-$LIBTOOL_VERSION.tar.xz
-        $no_build && echo "Skipping installation" && return
-        xzcat libtool-$LIBTOOL_VERSION.tar.xz | tar xf -
-        cd libtool-$LIBTOOL_VERSION
-        ./configure "${CONFIGURE_OPTS[@]}" --program-prefix=g
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-       touch libtool-$LIBTOOL_VERSION-done
     fi
 }
 
@@ -561,15 +200,6 @@ uninstall_libtool() {
         make distclean
         cd ..
         rm libtool-$installed_libtool_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf libtool-$installed_libtool_version
-            rm -rf libtool-$installed_libtool_version.tar.xz
-        fi
-
         installed_libtool_version=""
     fi
 }
@@ -603,15 +233,6 @@ uninstall_ninja() {
     fi
 }
 
-install_asciidoctor() {
-    if [ ! -f asciidoctor-${ASCIIDOCTOR_VERSION}-done ]; then
-        echo "Downloading and installing Asciidoctor:"
-        $no_build && echo "Skipping installation" && return
-        sudo gem install -V asciidoctor --version "=${ASCIIDOCTOR_VERSION}"
-        touch asciidoctor-${ASCIIDOCTOR_VERSION}-done
-    fi
-}
-
 uninstall_asciidoctor() {
     if [ -n "$installed_asciidoctor_version" ]; then
         echo "Uninstalling Asciidoctor:"
@@ -626,19 +247,6 @@ uninstall_asciidoctor() {
         ##    rm -f asciidoctor-$installed_asciidoctor_version
         ##fi
         installed_asciidoctor_version=""
-    fi
-}
-
-install_asciidoctorpdf() {
-    if [ ! -f asciidoctorpdf-${ASCIIDOCTORPDF_VERSION}-done ]; then
-        ## XXX gem does not track dependencies that are installed for asciidoctor-pdf
-        ## record them for uninstallation
-        ## ttfunk, pdf-core, prawn, prawn-table, Ascii85, ruby-rc4, hashery, afm, pdf-reader, prawn-templates, public_suffix, addressable, css_parser, prawn-svg, prawn-icon, safe_yaml, thread_safe, polyglot, treetop, asciidoctor-pdf
-        echo "Downloading and installing Asciidoctor-pdf:"
-        $no_build && echo "Skipping installation" && return
-        sudo gem install -V css_parser --version "=${CSS_PARSER_VERSION}"
-        sudo gem install -V asciidoctor-pdf --version "=${ASCIIDOCTORPDF_VERSION}"
-        touch asciidoctorpdf-${ASCIIDOCTORPDF_VERSION}-done
     fi
 }
 
@@ -748,21 +356,6 @@ uninstall_cmake() {
     fi
 }
 
-install_meson() {
-    #
-    # Install Meson with pip3 if we don't have it already.
-    #
-    if $MESON --version >/dev/null 2>&1
-    then
-        # We have it.
-        :
-    else
-        $no_build && echo "Skipping installation" && return
-        sudo pip3 install meson
-        touch meson-done
-    fi
-}
-
 uninstall_meson() {
     #
     # If we installed Meson, uninstal it with pip3.
@@ -797,28 +390,12 @@ uninstall_pytest() {
     fi
 }
 
-install_gettext() {
-    if [ ! -f gettext-$GETTEXT_VERSION-done ] ; then
-        echo "Downloading, building, and installing GNU gettext:"
-        [ -f gettext-$GETTEXT_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://ftp.gnu.org/pub/gnu/gettext/gettext-$GETTEXT_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat gettext-$GETTEXT_VERSION.tar.gz | tar xf -
-        cd gettext-$GETTEXT_VERSION
-        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch gettext-$GETTEXT_VERSION-done
-    fi
-}
-
 uninstall_gettext() {
     if [ -n "$installed_gettext_version" ] ; then
         #
         # GLib depends on this, so uninstall it.
         #
-        uninstall_glib "$@"
+        uninstall_glib
 
         echo "Uninstalling GNU gettext:"
         cd gettext-$installed_gettext_version
@@ -826,15 +403,6 @@ uninstall_gettext() {
         make distclean
         cd ..
         rm gettext-$installed_gettext_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf gettext-$installed_gettext_version
-            rm -rf gettext-$installed_gettext_version.tar.gz
-        fi
-
         installed_gettext_version=""
     fi
 }
@@ -872,199 +440,6 @@ uninstall_pkg_config() {
         fi
 
         installed_pkg_config_version=""
-    fi
-}
-
-install_glib() {
-    if [ ! -f glib-$GLIB_VERSION-done ] ; then
-        echo "Downloading, building, and installing GLib:"
-        glib_dir=$( expr "$GLIB_VERSION" : '\([0-9][0-9]*\.[0-9][0-9]*\).*' )
-        #
-        # Starting with GLib 2.28.8, xz-compressed tarballs are available.
-        #
-        [ -f glib-$GLIB_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://download.gnome.org/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz"
-        $no_build && echo "Skipping installation" && return
-        xzcat glib-$GLIB_VERSION.tar.xz | tar xf -
-        cd glib-$GLIB_VERSION
-        #
-        # First, determine where the system include files are.
-        # (It's not necessarily /usr/include.)  There's a bit of a
-        # greasy hack here; pre-5.x versions of the developer tools
-        # don't support the --show-sdk-path option, and will produce
-        # no output, so includedir will be set to /usr/include
-        # (in those older versions of the developer tools, there is
-        # a /usr/include directory).
-        #
-        # We need this for several things we do later.
-        #
-        includedir=$( SDKROOT="$SDKPATH" xcrun --show-sdk-path 2>/dev/null )/usr/include
-        #
-        # GLib's configuration procedure, whether autotools-based or
-        # Meson-based, really likes to use pkg-config to find libraries,
-        # including libffi.
-        #
-        # At least some versions of macOS provide libffi, but, as macOS
-        # doesn't provide pkg-config, they don't provide a .pc file for
-        # it, so the autotools-based configuration needs some trickery
-        # to get it to find the OS-supplied libffi, and the Meson-based
-        # configuration simply won't find it at all.
-        #
-        # So, if we have a system-provided libffi, but pkg-config
-        # doesn't find libffi, we construct a .pc file for that libffi,
-        # and install it in $installation_prefix/lib/pkgconfig.
-        #
-        # First, check whether pkg-config finds libffi but thinks its
-        # header files are in a non-existent directory.  That probaby
-        # means that we generated the .pc file when some SDK was the
-        # appropriate choice, but Xcode has been updated since then
-        # and that SDK is no longer present.  If so, we remove it,
-        # so that we will regenerate it if necessary, rather than
-        # trying to build with a bogus include directory.  (Yes, this
-        # can happen, and has happened, causing mysterius build
-        # failures when "#include <ffi.h>" fails.)
-        #
-        if pkg-config libffi ; then
-            # We have a .pc file for libffi; what does it say the
-            # include directory is?
-            incldir=$( pkg-config --variable=includedir libffi )
-            if [ -n "$incldir" -a ! -d "$incldir" ] ; then
-                # Bogus - remove it, assuming
-                $DO_RM "$installation_prefix/lib/pkgconfig/libffi.pc"
-            fi
-        fi
-        if pkg-config libffi ; then
-            # It found libffi; no need to install a .pc file, and we
-            # don't want to overwrite what's there already.
-            :
-        elif [ ! -e "$includedir"/ffi/ffi.h ] ; then
-            # We don't appear to have libffi as part of the system, so
-            # let the configuration process figure out what to do.
-            #
-            # We test for the header file, not the library, because, in
-            # Big Sur and later, there's no guarantee that, for a system
-            # shared library, there's a corresponding dylib file in
-            # /usr/lib.
-            :
-        else
-            #
-            # We have libffi, but pkg-config didn't find it; generate
-            # and install the .pc file.
-            #
-
-            #
-            # Now generate the .pc file.
-            #
-            # We generate the contents of the .pc file by using cat with
-            # a here document containing a template for the file and
-            # piping that to a sed command that replaces @INCLUDEDIR@ in
-            # the template with the include directory we discovered
-            # above, so that the .pc file gives the compiler flags
-            # necessary to find the libffi headers (which are *not*
-            # necessarily in /usr/include, as per the above).
-            #
-            # The EOF marker for the here document is in quotes, to tell
-            # the shell not to do shell expansion, as .pc files use a
-            # syntax to refer to .pc file variables that looks like the
-            # syntax to refer to shell variables.
-            #
-            # The writing of the libffi.pc file is a greasy hack - the
-            # process of generating the contents of the .pc file writes
-            # to the standard output, but running the last process in
-            # the pipeline as root won't allow the shell that's
-            # *running* it to open the .pc file if we don't have write
-            # permission on $installation_prefix/lib/pkgconfig, so we need a
-            # program that creates a file and then reads from the
-            # standard input and writes to that file.  UN*Xes have a
-            # program that does that; it's called "tee". :-)
-            #
-            # However, it *also* writes the file to the standard output,
-            # so we redirect that to /dev/null when we run it.
-            #
-            cat <<"EOF" | sed "s;@INCLUDEDIR@;$includedir;" | $DO_TEE_TO_PC_FILE "$installation_prefix/lib/pkgconfig/libffi.pc" >/dev/null
-prefix=/usr
-libdir=${prefix}/lib
-includedir=@INCLUDEDIR@
-
-Name: ffi
-Description: Library supporting Foreign Function Interfaces
-Version: 3.2.9999
-Libs: -L${libdir} -lffi
-Cflags: -I${includedir}/ffi
-EOF
-        fi
-
-        #
-        # GLib 2.59.1 and later use Meson+Ninja as the build system.
-        #
-        case $GLIB_MAJOR_VERSION in
-
-        1)
-            echo "GLib $GLIB_VERSION" is too old 1>&2
-            ;;
-
-        *)
-            case $GLIB_MINOR_VERSION in
-
-            [0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9])
-                echo "GLib $GLIB_VERSION" is too old 1>&2
-                ;;
-
-            5[0-8])
-                if [ ! -f ./configure ]; then
-                    LIBTOOLIZE=glibtoolize ./autogen.sh
-                fi
-                #
-                # At least with the version of Xcode that comes with
-                # Leopard, /usr/include/ffi/fficonfig.h doesn't define
-                # MACOSX, which causes the build of GLib to fail for at
-                # least some versions of GLib.  If we don't find
-                # "#define.*MACOSX" in /usr/include/ffi/fficonfig.h,
-                # explicitly define it.
-                #
-                # While we're at it, suppress -Wformat-nonliteral to
-                # avoid a case where clang's stricter rules on when not
-                # to complain about non-literal format arguments cause
-                # it to complain about code that's safe but it wasn't
-                # told that.  See my comment #25 in GNOME bug 691608:
-                #
-                #    https://bugzilla.gnome.org/show_bug.cgi?id=691608#c25
-                #
-                if grep -qs '#define.*MACOSX' "$includedir/ffi/fficonfig.h"
-                then
-                    # It's defined, nothing to do
-                    CFLAGS="$CFLAGS -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-                        ./configure "${CONFIGURE_OPTS[@]}"
-                else
-                    CFLAGS="$CFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -DMACOSX -Wno-format-nonliteral $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-                        ./configure "${CONFIGURE_OPTS[@]}"
-                fi
-                make "${MAKE_BUILD_OPTS[@]}"
-                $DO_MAKE_INSTALL
-                ;;
-
-            59|[6-9][0-9]|[1-9][0-9][0-9])
-                #
-                # 2.59.0 doesn't require Meson and Ninja, but it
-                # supports it, and I'm too lazy to add a dot-dot
-                # version check.
-                #
-                # Disable tests to work around
-                #
-                #    https://gitlab.gnome.org/GNOME/glib/-/issues/2902
-                #
-                CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-                    $MESON -Dprefix="$installation_prefix" -Dtests=false _build
-                ninja -C _build
-                $DO_NINJA_INSTALL
-                ;;
-            *)
-                echo "Glib's put out 1000 2.x releases?" 1>&2
-                ;;
-
-            esac
-        esac
-        cd ..
-        touch glib-$GLIB_VERSION-done
     fi
 }
 
@@ -1131,71 +506,7 @@ uninstall_glib() {
         esac
         cd ..
         rm glib-$installed_glib_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf glib-$installed_glib_version
-            rm -rf glib-$installed_glib_version.tar.xz
-        fi
-
         installed_glib_version=""
-    fi
-}
-
-install_qt() {
-    if [ "$QT_VERSION" -a ! -f qt-$QT_VERSION-done ]; then
-        echo "Downloading and installing Qt:"
-        #
-        # What you get for this URL might just be a 302 Found reply, so use
-        # -L so we get redirected.
-        #
-        # 5.0 - 5.1:  qt-mac-opensource-{version}-clang-offline.dmg
-        # 5.2.0:      qt-mac-opensource-{version}.dmg
-        # 5.2.1:      qt-opensource-mac-x64-clang-{version}.dmg
-        # 5.3 - 5.8:  qt-opensource-mac-x64-clang-{version}.dmg
-        # 5.9 - 5.14: qt-opensource-mac-x64-{version}.dmg
-        # 5.15 - 6.0: Offline installers no longer provided.
-        # ( https://download.qt.io/archive/qt/5.15/5.15.0/OFFLINE_README.txt )
-        # XXX: We need a different approach for QT >= 5.15. One option would be to
-        # install https://github.com/miurahr/aqtinstall, either permanently or into
-        # a temporary venv.
-        #
-        case $QT_MAJOR_VERSION in
-
-        1|2|3|4)
-            echo "Qt $QT_VERSION" is too old 1>&2
-            ;;
-
-        5)
-            case $QT_MINOR_VERSION in
-
-            0|1|2|3|4|5|6|7|8|9|10|11|12|13|14)
-                echo "Qt $QT_VERSION" is too old 1>&2
-                ;;
-
-            *)
-                echo "The Qt Company no longer provides open source offline installers for Qt $QT_VERSION" 1>&2
-                ;;
-
-            esac
-            [ -f $QT_VOLUME.dmg ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_MAJOR_MINOR_DOTDOT_VERSION/$QT_VOLUME.dmg
-            $no_build && echo "Skipping installation" && return
-            sudo hdiutil attach $QT_VOLUME.dmg
-
-            #
-            # Run the installer executable directly, so that we wait for
-            # it to finish.  Then unmount the volume.
-            #
-            /Volumes/$QT_VOLUME/$QT_VOLUME.app/Contents/MacOS/$QT_VOLUME
-            sudo hdiutil detach /Volumes/$QT_VOLUME
-            touch qt-$QT_VERSION-done
-            ;;
-        *)
-            echo "The Qt Company no longer provides open source offline installers for Qt $QT_VERSION" 1>&2
-            ;;
-        esac
     fi
 }
 
@@ -1204,57 +515,7 @@ uninstall_qt() {
         echo "Uninstalling Qt:"
         rm -rf $HOME/Qt$installed_qt_version
         rm qt-$installed_qt_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded version.
-            #
-            # 5.0 - 5.1:  qt-mac-opensource-{version}-clang-offline.dmg
-            # 5.2.0:      qt-mac-opensource-{version}.dmg
-            # 5.2.1:      qt-opensource-mac-x64-clang-{version}.dmg
-            # 5.3 - 5.8:  qt-opensource-mac-x64-clang-{version}.dmg
-            # 5.9 - 5.14: qt-opensource-mac-x64-{version}.dmg
-            #
-            installed_qt_major_version="$( expr "$installed_qt_version" : '\([0-9][0-9]*\).*' )"
-            installed_qt_minor_version="$( expr "$installed_qt_version" : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-            # installed_qt_dotdot_version="$( expr "$installed_qt_version" : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-            case $installed_qt_major_version in
-
-            1|2|3|4)
-                echo "Qt $installed_qt_version" is too old 1>&2
-                ;;
-
-            5*)
-                case $installed_qt_minor_version in
-
-                0|1|2|3|4|5|6|7|8|9|10|11)
-                    echo "Qt $installed_qt_version" is too old 1>&2
-                    ;;
-
-                12|13|14)
-                    installed_qt_volume=qt-opensource-mac-x64-$installed_qt_version.dmg
-                    ;;
-                esac
-            esac
-            rm -f $installed_qt_volume
-        fi
-
         installed_qt_version=""
-    fi
-}
-
-install_libsmi() {
-    if [ "$LIBSMI_VERSION" -a ! -f libsmi-$LIBSMI_VERSION-done ] ; then
-        echo "Downloading, building, and installing libsmi:"
-        [ -f libsmi-$LIBSMI_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://www.ibr.cs.tu-bs.de/projects/libsmi/download/libsmi-$LIBSMI_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat libsmi-$LIBSMI_VERSION.tar.gz | tar xf -
-        cd libsmi-$LIBSMI_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch libsmi-$LIBSMI_VERSION-done
     fi
 }
 
@@ -1266,31 +527,7 @@ uninstall_libsmi() {
         make distclean
         cd ..
         rm libsmi-$installed_libsmi_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf libsmi-$installed_libsmi_version
-            rm -rf libsmi-$installed_libsmi_version.tar.gz
-        fi
-
         installed_libsmi_version=""
-    fi
-}
-
-install_libgpg_error() {
-    if [ "$LIBGPG_ERROR_VERSION" -a ! -f libgpg-error-$LIBGPG_ERROR_VERSION-done ] ; then
-        echo "Downloading, building, and installing libgpg-error:"
-        [ -f libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2
-        $no_build && echo "Skipping installation" && return
-        bzcat libgpg-error-$LIBGPG_ERROR_VERSION.tar.bz2 | tar xf -
-        cd libgpg-error-$LIBGPG_ERROR_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch libgpg-error-$LIBGPG_ERROR_VERSION-done
     fi
 }
 
@@ -1299,7 +536,7 @@ uninstall_libgpg_error() {
         #
         # libgcrypt depends on this, so uninstall it.
         #
-        uninstall_libgcrypt "$@"
+        uninstall_libgcrypt
 
         echo "Uninstalling libgpg-error:"
         cd libgpg-error-$installed_libgpg_error_version
@@ -1307,55 +544,7 @@ uninstall_libgpg_error() {
         make distclean
         cd ..
         rm libgpg-error-$installed_libgpg_error_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf libgpg-error-$installed_libgpg_error_version
-            rm -rf libgpg-error-$installed_libgpg_error_version.tar.bz2
-        fi
-
         installed_libgpg_error_version=""
-    fi
-}
-
-install_libgcrypt() {
-    if [ "$LIBGCRYPT_VERSION" -a ! -f libgcrypt-$LIBGCRYPT_VERSION-done ] ; then
-        #
-        # libgpg-error is required for libgcrypt.
-        #
-        if [ -z $LIBGPG_ERROR_VERSION ]
-        then
-            echo "libgcrypt requires libgpg-error, but you didn't install libgpg-error." 1>&2
-            exit 1
-        fi
-
-        echo "Downloading, building, and installing libgcrypt:"
-        [ -f libgcrypt-$LIBGCRYPT_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-$LIBGCRYPT_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat libgcrypt-$LIBGCRYPT_VERSION.tar.gz | tar xf -
-        cd libgcrypt-$LIBGCRYPT_VERSION
-        #
-        # The assembler language code is not compatible with the macOS
-        # x86 assembler (or is it an x86-64 vs. x86-32 issue?).
-        #
-        # libgcrypt expects gnu89, not c99/gnu99, semantics for
-        # "inline".  See, for example:
-        #
-        #    https://lists.freebsd.org/pipermail/freebsd-ports-bugs/2010-October/198809.html
-        #
-        # We specify "unix" as the random number generator so that we
-        # don't try to use getentropy, because random/rndgetentropy.c
-        # *REQUIRES* Linux getrandom(), which we don't have.  (This should
-        # not matter, as we only use this for decryption, as far as I know.)
-        #
-        CFLAGS="$CFLAGS -std=gnu89 $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}" --disable-asm --enable-random=unix
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch libgcrypt-$LIBGCRYPT_VERSION-done
     fi
 }
 
@@ -1367,64 +556,7 @@ uninstall_libgcrypt() {
         make distclean
         cd ..
         rm libgcrypt-$installed_libgcrypt_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf libgcrypt-$installed_libgcrypt_version
-            rm -rf libgcrypt-$installed_libgcrypt_version.tar.gz
-        fi
-
         installed_libgcrypt_version=""
-    fi
-}
-
-install_gmp() {
-    if [ "$GMP_VERSION" ] && [ ! -f "gmp-$GMP_VERSION-done" ] ; then
-        echo "Downloading, building, and installing GMP:"
-        [ -f "gmp-$GMP_VERSION.tar.xz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://gmplib.org/download/gmp/gmp-$GMP_VERSION.tar.xz
-        $no_build && echo "Skipping installation" && return
-        xzcat "gmp-$GMP_VERSION.tar.xz" | tar xf -
-        cd "gmp-$GMP_VERSION"
-        #
-        # Create a fat binary: https://gmplib.org/manual/Notes-for-Package-Builds.html
-        #
-        # According to
-        #
-        #   https://www.mail-archive.com/gmp-bugs@gmplib.org/msg01492.html
-        #
-        # and other pages, the Shiny New Linker in Xcode 15 causes this
-        # build to fail with "ld: branch8 out of range 384833 in
-        # ___gmpn_add_nc_x86_64"; linking with -ld64 is a workaround.
-        #
-        # For now, link with -ld64 on Xcode 15 and later.
-        #
-        XCODE_VERSION=$( xcodebuild -version | sed -n 's;Xcode \(.*\);\1;p' )
-        XCODE_MAJOR_VERSION="$( expr "$XCODE_VERSION" : '\([0-9][0-9]*\).*' )"
-        # XCODE_MINOR_VERSION="$( expr $XCODE_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-        # XCODE_DOTDOT_VERSION="$( expr $XCODE_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-        if [ "$XCODE_MAJOR_VERSION" -ge 15 ]
-        then
-            LD64_FLAG="-ld64"
-        else
-            LD64_FLAG=""
-        fi
-        if [ "$DARWIN_PROCESSOR_ARCH" = "x86_64" ]
-        then
-            # If contemplating darwin20 or newer, refer to the last two paragraphs of
-            # https://gmplib.org/list-archives/gmp-bugs/2024-October/005539.html
-            # and either ensure that GMP is newer than 6.3.0 or run "autoreconf".
-            GMP_BUILD_OPTION="--build=nehalem-apple-darwin18"
-        else
-            GMP_BUILD_OPTION=""
-        fi
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS $LD64_FLAG" \
-            ./configure "${CONFIGURE_OPTS[@]}" --enable-fat "$GMP_BUILD_OPTION"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch "gmp-$GMP_VERSION-done"
     fi
 }
 
@@ -1441,32 +573,7 @@ uninstall_gmp() {
         make distclean
         cd ..
         rm "gmp-$installed_gmp_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "gmp-$installed_gmp_version"
-            rm -rf "gmp-$installed_gmp_version.tar.xz"
-        fi
-
         installed_gmp_version=""
-    fi
-}
-
-install_libtasn1() {
-    if [ "$LIBTASN1_VERSION" ] && [ ! -f "libtasn1-$LIBTASN1_VERSION-done" ] ; then
-        echo "Downloading, building, and installing libtasn1:"
-        [ -f "libtasn1-$LIBTASN1_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://ftp.gnu.org/gnu/libtasn1/libtasn1-$LIBTASN1_VERSION.tar.gz"
-        $no_build && echo "Skipping installation" && return
-        gzcat "libtasn1-$LIBTASN1_VERSION.tar.gz" | tar xf -
-        cd "libtasn1-$LIBTASN1_VERSION"
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch "libtasn1-$LIBTASN1_VERSION-done"
     fi
 }
 
@@ -1483,47 +590,7 @@ uninstall_libtasn1() {
         make distclean
         cd ..
         rm "libtasn1-$installed_libtasn1_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "libtasn1-$installed_libtasn1_version"
-            rm -rf "libtasn1-$installed_libtasn1_version.tar.gz"
-        fi
-
         installed_libtasn1_version=""
-    fi
-}
-
-install_p11_kit() {
-    if [ "$P11KIT_VERSION" ] && [ ! -f "p11-kit-$P11KIT_VERSION-done" ] ; then
-        echo "Downloading, building, and installing p11-kit:"
-        [ -f "p11-kit-$P11KIT_VERSION.tar.xz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://github.com/p11-glue/p11-kit/releases/download/$P11KIT_VERSION/p11-kit-$P11KIT_VERSION.tar.xz"
-        $no_build && echo "Skipping installation" && return
-        xzcat "p11-kit-$P11KIT_VERSION.tar.xz" | tar xf -
-        cd "p11-kit-$P11KIT_VERSION"
-        #
-        # Prior to Catalina, the libffi that's supplied with macOS
-        # doesn't support ffi_closure_alloc() or ffi_prep_closure_loc(),
-        # both of which are required by p11-kit if built with libffi.
-        #
-        # According to
-        #
-        #    https://p11-glue.github.io/p11-glue/p11-kit/manual/devel-building.html
-        #
-        # libffi is used "for sharing of PKCS#11 modules between
-        # multiple callers in the same process. It is highly recommended
-        # that this dependency be treated as a required dependency.",
-        # but it's not clear that this matters to us, so we just
-        # configure p11-kit not to use libffi.
-        #
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LIBS=-lintl \
-            ./configure "${CONFIGURE_OPTS[@]}" --without-libffi --without-trust-paths
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch "p11-kit-$P11KIT_VERSION-done"
     fi
 }
 
@@ -1553,22 +620,6 @@ uninstall_p11_kit() {
     fi
 }
 
-install_nettle() {
-    if [ "$NETTLE_VERSION" ] && [ ! -f "nettle-$NETTLE_VERSION-done" ] ; then
-        echo "Downloading, building, and installing Nettle:"
-        [ -f "nettle-$NETTLE_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://ftp.gnu.org/gnu/nettle/nettle-$NETTLE_VERSION.tar.gz"
-        $no_build && echo "Skipping installation" && return
-        gzcat "nettle-$NETTLE_VERSION.tar.gz" | tar xf -
-        cd "nettle-$NETTLE_VERSION"
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch "nettle-$NETTLE_VERSION-done"
-    fi
-}
-
 uninstall_nettle() {
     if [ -n "$installed_nettle_version" ] ; then
         #
@@ -1595,32 +646,6 @@ uninstall_nettle() {
     fi
 }
 
-install_gnutls() {
-    if [ "$GNUTLS_VERSION" ] && [ ! -f "gnutls-$GNUTLS_VERSION-done" ] ; then
-        #
-        # GnuTLS requires Nettle.
-        #
-        if [ -z "$NETTLE_VERSION" ]
-        then
-            echo "GnuTLS requires Nettle, but you didn't install Nettle" 1>&2
-            exit 1
-        fi
-
-        echo "Downloading, building, and installing GnuTLS:"
-        [ -f gnutls-$GNUTLS_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://www.gnupg.org/ftp/gcrypt/gnutls/v$GNUTLS_MAJOR_VERSION.$GNUTLS_MINOR_VERSION/gnutls-$GNUTLS_VERSION.tar.xz"
-        echo "$GNUTLS_SHA256  gnutls-$GNUTLS_VERSION.tar.xz" | shasum --algorithm 256 --check
-        $no_build && echo "Skipping installation" && return
-        tar -xf gnutls-$GNUTLS_VERSION.tar.xz
-        cd gnutls-$GNUTLS_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}" --with-included-unistring --disable-guile
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch gnutls-$GNUTLS_VERSION-done
-    fi
-}
-
 uninstall_gnutls() {
     if [ -n "$installed_gnutls_version" ] ; then
         echo "Uninstalling GnuTLS:"
@@ -1642,20 +667,6 @@ uninstall_gnutls() {
     fi
 }
 
-install_lua() {
-    if [ "$LUA_VERSION" -a ! -f lua-$LUA_VERSION-done ] ; then
-        echo "Downloading, building, and installing Lua:"
-        [ -f lua-$LUA_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://www.lua.org/ftp/lua-$LUA_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat lua-$LUA_VERSION.tar.gz | tar xf -
-        cd lua-$LUA_VERSION
-        make INSTALL_TOP="$installation_prefix" MYCFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" MYLDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" macosx
-        $DO_MAKE INSTALL_TOP="$installation_prefix" install
-        cd ..
-        touch lua-$LUA_VERSION-done
-    fi
-}
-
 uninstall_lua() {
     if [ -n "$installed_lua_version" ] ; then
         echo "Uninstalling Lua:"
@@ -1672,44 +683,7 @@ uninstall_lua() {
         make clean
         cd ..
         rm lua-$installed_lua_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf lua-$installed_lua_version
-            rm -rf lua-$installed_lua_version.tar.gz
-        fi
-
         installed_lua_version=""
-    fi
-}
-
-install_snappy() {
-    if [ "$SNAPPY_VERSION" -a ! -f snappy-$SNAPPY_VERSION-done ] ; then
-        echo "Downloading, building, and installing snappy:"
-        [ -f snappy-$SNAPPY_VERSION.tar.gz ] || curl "${CURL_LOCAL_NAME_OPTS[@]}" snappy-$SNAPPY_VERSION.tar.gz https://github.com/google/snappy/archive/$SNAPPY_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat snappy-$SNAPPY_VERSION.tar.gz | tar xf -
-        cd snappy-$SNAPPY_VERSION
-	if [ "$SNAPPY_VERSION" = "1.1.10" ] ; then
-	    # This patch corresponds to https://github.com/google/snappy/commit/27f34a580be4a3becf5f8c0cba13433f53c21337
-	    patch -p0 < "${topdir}/tools/macos-setup-patches/snappy-signed.patch"
-	fi
-        mkdir build_dir
-        cd build_dir
-        #
-        # Build a shared library, because we'll be linking libwireshark,
-        # which is a C library, with libsnappy, and libsnappy is a C++
-        # library and requires the C++ run time; the shared library
-        # will carry that dependency with it, so linking with it should
-        # Just Work.
-        #
-        "${DO_CMAKE[@]}" -DBUILD_SHARED_LIBS=YES -DSNAPPY_BUILD_BENCHMARKS=NO -DSNAPPY_BUILD_TESTS=NO ..
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ../..
-        touch snappy-$SNAPPY_VERSION-done
     fi
 }
 
@@ -1745,33 +719,7 @@ uninstall_snappy() {
         rm -rf build_dir
         cd ..
         rm snappy-$installed_snappy_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf snappy-$installed_snappy_version
-            rm -rf snappy-$installed_snappy_version.tar.gz
-        fi
-
         installed_snappy_version=""
-    fi
-}
-
-install_zstd() {
-    if [ "$ZSTD_VERSION" ] && [ ! -f zstd-$ZSTD_VERSION-done ] ; then
-        echo "Downloading, building, and installing zstd:"
-        [ -f zstd-$ZSTD_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://github.com/facebook/zstd/releases/download/v$ZSTD_VERSION/zstd-$ZSTD_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat zstd-$ZSTD_VERSION.tar.gz | tar xf -
-        cd zstd-$ZSTD_VERSION
-        # We shouldn't have to specify DESTDIR.
-        # https://github.com/facebook/zstd/issues/3146
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            make PREFIX="$installation_prefix" DESTDIR="$installation_prefix" "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE PREFIX="$installation_prefix" install
-        cd ..
-        touch zstd-$ZSTD_VERSION-done
     fi
 }
 
@@ -1788,33 +736,7 @@ uninstall_zstd() {
         make clean
         cd ..
         rm "zstd-$installed_zstd_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "zstd-$installed_zstd_version"
-            rm -rf "zstd-$installed_zstd_version.tar.gz"
-        fi
-
         installed_zstd_version=""
-    fi
-}
-#$ZLIBNG_VERSION
-install_zlibng() {
-    if [ "$ZLIBNG_VERSION" ] && [ ! -f zlib-ng-$ZLIBNG_VERSION-done ] ; then
-        echo "Downloading, building, and installing zlib-ng:"
-        [ -f $ZLIBNG_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://github.com/zlib-ng/zlib-ng/archive/refs/tags/$ZLIBNG_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat $ZLIBNG_VERSION.tar.gz | tar xf -
-        cd zlib-ng-$ZLIBNG_VERSION
-        mkdir build
-        cd build
-        "${DO_CMAKE[@]}" ..
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ../..
-        touch zlib-ng-$ZLIBNG_VERSION-done
     fi
 }
 
@@ -1829,41 +751,7 @@ uninstall_zlibng() {
         make clean
         cd ..
         rm "zlib-ng-$installed_zlibng_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "zlib-ng-$installed_zlibng_version"
-            rm -rf "zlib-ng-$installed_zlibng_version.tar.gz"
-        fi
-
         installed_zlibng_version=""
-    fi
-}
-install_libxml2() {
-    if [ "$LIBXML2_VERSION" ] && [ ! -f libxml2-$LIBXML2_VERSION-done ] ; then
-        echo "Downloading, building, and installing libxml2:"
-        LIBXML2_MAJOR_VERSION="$( expr "$LIBXML2_VERSION" : '\([0-9][0-9]*\).*' )"
-        LIBXML2_MINOR_VERSION="$( expr "$LIBXML2_VERSION" : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-        LIBXML2_MAJOR_MINOR_VERSION=$LIBXML2_MAJOR_VERSION.$LIBXML2_MINOR_VERSION
-        [ -f libxml2-$LIBXML2_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" "https://download.gnome.org/sources/libxml2/$LIBXML2_MAJOR_MINOR_VERSION/libxml2-$LIBXML2_VERSION.tar.xz"
-        echo "$LIBXML2_SHA256  libxml2-$LIBXML2_VERSION.tar.xz" | shasum --algorithm 256 --check
-        $no_build && echo "Skipping installation" && return
-        xzcat libxml2-$LIBXML2_VERSION.tar.xz | tar xf -
-        cd "libxml2-$LIBXML2_VERSION"
-        #
-        # At least on macOS 12.0.1 with Xcode 13.1, when we build
-        # libxml2, the linker complains that we don't have the right
-        # to link with the Python framework, so don't build with
-        # Python.
-        #
-        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}" --without-python
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch libxml2-$LIBXML2_VERSION-done
     fi
 }
 
@@ -1875,73 +763,7 @@ uninstall_libxml2() {
         make distclean
         cd ..
         rm "libxml2-$installed_libxml2_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "libxml2-$installed_libxml2_version"
-            rm -rf "libxml2-$installed_libxml2_version.tar.xz"
-        fi
-
         installed_libxml2_version=""
-    fi
-}
-
-install_lz4() {
-    if [ "$LZ4_VERSION" ] && [ ! -f lz4-$LZ4_VERSION-done ] ; then
-        echo "Downloading, building, and installing lz4:"
-        #
-        # lz4 switched from sequentially numbered releases, named rN,
-        # to vX.Y.Z-numbered releases.
-        #
-        # The old sequentially-numbered releases were in tarballs
-        # at https://github.com/lz4/lz4/archive/rN.tar.gz, which
-        # extract into an lz4-rN directory.
-        #
-        # THe new vX.Y.Z-numbered releases are in tarballs at
-        # https://github.com/lz4/lz4/archive/vX.Y.Z.tar.gz, which
-        # extract into an lz4-X.Y.Z directory - no, not lz4-vX.Y.Z,
-        # just lz4-X.Y.Z.
-        #
-        # We expect LZ4_VERSION to be set to rN for the sequentially-
-        # numbered releases and X.Y.Z - not vX.Y.Z - for the vX.Y.Z-
-        # numbered releases.  We also tell Curl to download the tarball
-        # with a name that corresponds to the name of the target
-        # directory, so that it begins with "lz4-" and ends with either
-        # "rN" or "X.Y.Z", to match what almost all of the other
-        # support libraries do.
-        #
-        if [[ "$LZ4_VERSION" == r* ]]
-        then
-            echo "lz4 $LZ4_VERSION" is too old 1>&2
-        else
-            LZ4_MAJOR_VERSION="$( expr "$LZ4_VERSION" : '\([0-9][0-9]*\).*' )"
-            LZ4_MINOR_VERSION="$( expr "$LZ4_VERSION" : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-            [ -f lz4-$LZ4_VERSION.tar.gz ] || curl "${CURL_LOCAL_NAME_OPTS[@]}" lz4-$LZ4_VERSION.tar.gz https://github.com/lz4/lz4/archive/v$LZ4_VERSION.tar.gz
-            $no_build && echo "Skipping installation" && return
-            gzcat lz4-$LZ4_VERSION.tar.gz | tar xf -
-            cd lz4-$LZ4_VERSION
-            #
-            # On lz4 < 1.10.0, if MOREFLAGS is set, that's added to CFLAGS (or
-            # CPPFLAGS on 1.9.4), and those are combined with LDFLAGS into
-            # FLAGS, which is used when building source files and libraries.
-            #
-            # On lz4 >= 1.10.0, user defined CFLAGS are appended the default
-            # CFLAGS, and those are combined with CPPFLAGS and LDFLAGS into
-            # ALLFLAGS, which is used when building source files and libraries.
-            #
-            if [[ "$LZ4_MAJOR_VERSION" -gt 1 ]] || [[ "$LZ4_MINOR_VERSION" -ge 10 ]]; then
-                CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" \
-                    make PREFIX="$installation_prefix" "${MAKE_BUILD_OPTS[@]}"
-            else
-                MOREFLAGS="-D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" \
-                    make PREFIX="$installation_prefix" "${MAKE_BUILD_OPTS[@]}"
-            fi
-            $DO_MAKE PREFIX="$installation_prefix" install
-            cd ..
-        fi
-        touch lz4-$LZ4_VERSION-done
     fi
 }
 
@@ -1959,43 +781,7 @@ uninstall_lz4() {
         make clean
         cd ..
         rm "lz4-$installed_lz4_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            # "make install" apparently causes some stuff to be
-            # modified in the build tree, so, as it's done as
-            # root, that leaves stuff owned by root in the build
-            # tree.  Therefore, we have to remove the build tree
-            # as root.
-            #
-            sudo rm -rf "lz4-$installed_lz4_version"
-            rm -rf "lz4-$installed_lz4_version.tar.gz"
-        fi
-
         installed_lz4_version=""
-    fi
-}
-
-install_sbc() {
-    if [ "$SBC_VERSION" -a ! -f sbc-$SBC_VERSION-done ] ; then
-        echo "Downloading, building, and installing sbc:"
-        [ -f sbc-$SBC_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://www.kernel.org/pub/linux/bluetooth/sbc-$SBC_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat sbc-$SBC_VERSION.tar.gz | tar xf -
-        cd sbc-$SBC_VERSION
-        if [ "$DARWIN_PROCESSOR_ARCH" = "arm64" ] ; then
-            CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS -U__ARM_NEON__" CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-                ./configure "${CONFIGURE_OPTS[@]}" --disable-tools --disable-tester --disable-shared
-        else
-            CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-                ./configure "${CONFIGURE_OPTS[@]}" --disable-tools --disable-tester --disable-shared
-        fi
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch sbc-$SBC_VERSION-done
     fi
 }
 
@@ -2007,32 +793,7 @@ uninstall_sbc() {
         make distclean
         cd ..
         rm sbc-$installed_sbc_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf sbc-$installed_sbc_version
-            rm -rf sbc-$installed_sbc_version.tar.gz
-        fi
-
         installed_sbc_version=""
-    fi
-}
-
-install_maxminddb() {
-    if [ "$MAXMINDDB_VERSION" -a ! -f maxminddb-$MAXMINDDB_VERSION-done ] ; then
-        echo "Downloading, building, and installing MaxMindDB API:"
-        [ -f libmaxminddb-$MAXMINDDB_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://github.com/maxmind/libmaxminddb/releases/download/$MAXMINDDB_VERSION/libmaxminddb-$MAXMINDDB_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat libmaxminddb-$MAXMINDDB_VERSION.tar.gz | tar xf -
-        cd libmaxminddb-$MAXMINDDB_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch maxminddb-$MAXMINDDB_VERSION-done
     fi
 }
 
@@ -2044,33 +805,7 @@ uninstall_maxminddb() {
         make distclean
         cd ..
         rm maxminddb-$installed_maxminddb_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf libmaxminddb-$installed_maxminddb_version
-            rm -rf libmaxminddb-$installed_maxminddb_version.tar.gz
-        fi
-
         installed_maxminddb_version=""
-    fi
-}
-
-install_c_ares() {
-    if [ "$CARES_VERSION" -a ! -f c-ares-$CARES_VERSION-done ] ; then
-        echo "Downloading, building, and installing C-Ares API:"
-        # https://github.com/c-ares/c-ares/releases/download/v1.31.0/c-ares-1.31.0.tar.gz
-        [ -f c-ares-$CARES_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://github.com/c-ares/c-ares/releases/download/v$CARES_VERSION/c-ares-$CARES_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat c-ares-$CARES_VERSION.tar.gz | tar xf -
-        cd c-ares-$CARES_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch c-ares-$CARES_VERSION-done
     fi
 }
 
@@ -2082,37 +817,7 @@ uninstall_c_ares() {
         make distclean
         cd ..
         rm c-ares-$installed_cares_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf c-ares-$installed_cares_version
-            rm -rf c-ares-$installed_cares_version.tar.gz
-        fi
-
         installed_cares_version=""
-    fi
-}
-
-install_libssh() {
-    if [ "$LIBSSH_VERSION" -a ! -f libssh-$LIBSSH_VERSION-done ] ; then
-        echo "Downloading, building, and installing libssh:"
-        LIBSSH_MAJOR_VERSION="$( expr "$LIBSSH_VERSION" : '\([0-9][0-9]*\).*' )"
-        LIBSSH_MINOR_VERSION="$( expr "$LIBSSH_VERSION" : '[0-9][0-9]*\.\([0-9][0-9]*\).*' )"
-        LIBSSH_MAJOR_MINOR_VERSION=$LIBSSH_MAJOR_VERSION.$LIBSSH_MINOR_VERSION
-        [ -f libssh-$LIBSSH_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://www.libssh.org/files/$LIBSSH_MAJOR_MINOR_VERSION/libssh-$LIBSSH_VERSION.tar.xz
-        $no_build && echo "Skipping installation" && return
-        xzcat libssh-$LIBSSH_VERSION.tar.xz | tar xf -
-        cd "libssh-$LIBSSH_VERSION"
-        patch -p1 < "${topdir}/tools/macos-setup-patches/libssh-werror.patch"
-        mkdir build
-        cd build
-        "${DO_CMAKE[@]}" -DWITH_GCRYPT=1 ..
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ../..
-        touch libssh-$LIBSSH_VERSION-done
     fi
 }
 
@@ -2137,32 +842,7 @@ uninstall_libssh() {
         rm -rf build
         cd ..
         rm libssh-$installed_libssh_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf libssh-$installed_libssh_version
-            rm -rf libssh-$installed_libssh_version.tar.gz
-        fi
-
         installed_libssh_version=""
-    fi
-}
-
-install_nghttp2() {
-    if [ "$NGHTTP2_VERSION" -a ! -f nghttp2-$NGHTTP2_VERSION-done ] ; then
-        echo "Downloading, building, and installing nghttp2:"
-        [ -f nghttp2-$NGHTTP2_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://github.com/nghttp2/nghttp2/releases/download/v$NGHTTP2_VERSION/nghttp2-$NGHTTP2_VERSION.tar.xz
-        $no_build && echo "Skipping installation" && return
-        xzcat nghttp2-$NGHTTP2_VERSION.tar.xz | tar xf -
-        cd nghttp2-$NGHTTP2_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}" --enable-lib-only
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch nghttp2-$NGHTTP2_VERSION-done
     fi
 }
 
@@ -2174,32 +854,7 @@ uninstall_nghttp2() {
         make distclean
         cd ..
         rm nghttp2-$installed_nghttp2_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf nghttp2-$installed_nghttp2_version
-            rm -rf nghttp2-$installed_nghttp2_version.tar.xz
-        fi
-
         installed_nghttp2_version=""
-    fi
-}
-
-install_nghttp3() {
-    if [ "$NGHTTP3_VERSION" -a ! -f nghttp3-$NGHTTP3_VERSION-done ] ; then
-        echo "Downloading, building, and installing nghttp3:"
-        [ -f nghttp3-$NGHTTP3_VERSION.tar.xz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://github.com/ngtcp2/nghttp3/releases/download/v$NGHTTP3_VERSION/nghttp3-$NGHTTP3_VERSION.tar.xz
-        $no_build && echo "Skipping installation" && return
-        xzcat nghttp3-$NGHTTP3_VERSION.tar.xz | tar xf -
-        cd nghttp3-$NGHTTP3_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}" --enable-lib-only
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch nghttp3-$NGHTTP3_VERSION-done
     fi
 }
 
@@ -2211,35 +866,7 @@ uninstall_nghttp3() {
         make distclean
         cd ..
         rm nghttp3-$installed_nghttp3_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf nghttp3-$installed_nghttp3_version
-            rm -rf nghttp3-$installed_nghttp3_version.tar.xz
-        fi
-
         installed_nghttp3_version=""
-    fi
-}
-
-install_libtiff() {
-    if [ "$LIBTIFF_VERSION" -a ! -f tiff-$LIBTIFF_VERSION-done ] ; then
-        echo "Downloading, building, and installing libtiff:"
-        [ -f tiff-$LIBTIFF_VERSION.tar.gz ] ||
-            curl "${CURL_REMOTE_NAME_OPTS[@]}" https://download.osgeo.org/libtiff/tiff-$LIBTIFF_VERSION.tar.gz     ||
-            curl "${CURL_REMOTE_NAME_OPTS[@]}" https://download.osgeo.org/libtiff/old/tiff-$LIBTIFF_VERSION.tar.gz ||
-            exit 1
-        $no_build && echo "Skipping installation" && return
-        gzcat tiff-$LIBTIFF_VERSION.tar.gz | tar xf -
-        cd tiff-$LIBTIFF_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch tiff-$LIBTIFF_VERSION-done
     fi
 }
 
@@ -2251,38 +878,7 @@ uninstall_libtiff() {
         make distclean
         cd ..
         rm tiff-$installed_libtiff_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf tiff-$installed_libtiff_version
-            rm -rf tiff-$installed_libtiff_version.tar.gz
-        fi
-
         installed_libtiff_version=""
-    fi
-}
-
-install_spandsp() {
-    if [ "$SPANDSP_VERSION" -a ! -f spandsp-$SPANDSP_VERSION-done ] ; then
-        echo "Downloading, building, and installing SpanDSP:"
-        [ -f spandsp-$SPANDSP_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://www.soft-switch.org/downloads/spandsp/spandsp-$SPANDSP_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat spandsp-$SPANDSP_VERSION.tar.gz | tar xf -
-        cd spandsp-$SPANDSP_VERSION
-        #
-        # Don't use -Wunused-but-set-variable, as it's not supported
-        # by all the gcc versions in the versions of Xcode that we
-        # support.
-        #
-        patch -p0 < "${topdir}/tools/macos-setup-patches/spandsp-configure-patch"
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch spandsp-$SPANDSP_VERSION-done
     fi
 }
 
@@ -2294,32 +890,7 @@ uninstall_spandsp() {
         make distclean
         cd ..
         rm spandsp-$installed_spandsp_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf spandsp-$installed_spandsp_version
-            rm -rf spandsp-$installed_spandsp_version.tar.gz
-        fi
-
         installed_spandsp_version=""
-    fi
-}
-
-install_speexdsp() {
-    if [ "$SPEEXDSP_VERSION" -a ! -f speexdsp-$SPEEXDSP_VERSION-done ] ; then
-        echo "Downloading, building, and installing SpeexDSP:"
-        [ -f speexdsp-$SPEEXDSP_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://ftp.osuosl.org/pub/xiph/releases/speex/speexdsp-$SPEEXDSP_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat speexdsp-$SPEEXDSP_VERSION.tar.gz | tar xf -
-        cd speexdsp-$SPEEXDSP_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch speexdsp-$SPEEXDSP_VERSION-done
     fi
 }
 
@@ -2331,33 +902,7 @@ uninstall_speexdsp() {
         make distclean
         cd ..
         rm speexdsp-$installed_speexdsp_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf speexdsp-$installed_speexdsp_version
-            rm -rf speexdsp-$installed_speexdsp_version.tar.gz
-        fi
-
         installed_speexdsp_version=""
-    fi
-}
-
-install_bcg729() {
-    if [ "$BCG729_VERSION" -a ! -f bcg729-$BCG729_VERSION-done ] ; then
-        echo "Downloading, building, and installing bcg729:"
-        [ -f bcg729-$BCG729_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://gitlab.linphone.org/BC/public/bcg729/-/archive/$BCG729_VERSION/bcg729-$BCG729_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat bcg729-$BCG729_VERSION.tar.gz | tar xf -
-        cd bcg729-$BCG729_VERSION
-        mkdir build_dir
-        cd build_dir
-        "${DO_CMAKE[@]}" ..
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ../..
-        touch bcg729-$BCG729_VERSION-done
     fi
 }
 
@@ -2382,32 +927,7 @@ uninstall_bcg729() {
         rm -rf build_dir
         cd ..
         rm bcg729-$installed_bcg729_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf bcg729-$installed_bcg729_version
-            rm -rf bcg729-$installed_bcg729_version.tar.gz
-        fi
-
         installed_bcg729_version=""
-    fi
-}
-
-install_ilbc() {
-    if [ -n "$ILBC_VERSION" ] && [ ! -f ilbc-$ILBC_VERSION-done ] ; then
-        echo "Downloading, building, and installing iLBC:"
-        [ -f libilbc-$ILBC_VERSION.tar.bz ] || curl --location --remote-name https://github.com/TimothyGu/libilbc/releases/download/v$ILBC_VERSION/libilbc-$ILBC_VERSION.tar.bz2
-        $no_build && echo "Skipping installation" && return
-        bzcat libilbc-$ILBC_VERSION.tar.bz2 | tar xf -
-        cd libilbc-$ILBC_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch ilbc-$ILBC_VERSION-done
     fi
 }
 
@@ -2419,33 +939,7 @@ uninstall_ilbc() {
         make distclean
         cd ..
         rm "ilbc-$installed_ilbc_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "libilbc-$installed_ilbc_version"
-            rm -rf "libilbc-$installed_ilbc_version.tar.bz2"
-        fi
-
         installed_ilbc_version=""
-    fi
-}
-
-install_opencore_amr() {
-    if [ "$OPENCORE_AMR_VERSION" ] && [ ! -f opencore-amr-$OPENCORE_AMR_VERSION-done ] ; then
-        echo "Downloading, building, and installing opencore-amr:"
-        [ -f opencore-amr-$OPENCORE_AMR_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://downloads.sourceforge.net/project/opencore-amr/opencore-amr/opencore-amr-$OPENCORE_AMR_VERSION.tar.gz
-        echo "$OPENCORE_AMR_SHA256  opencore-amr-$OPENCORE_AMR_VERSION.tar.gz" | shasum --algorithm 256 --check
-        $no_build && echo "Skipping installation" && return
-        tar -xf opencore-amr-$OPENCORE_AMR_VERSION.tar.gz
-        cd opencore-amr-$OPENCORE_AMR_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch opencore-amr-$OPENCORE_AMR_VERSION-done
     fi
 }
 
@@ -2457,32 +951,7 @@ uninstall_opencore_amr() {
         make distclean
         cd ..
         rm "opencore-amr-$installed_opencore_amr_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "opencore-amr-$installed_opencore_amr_version"
-            rm -rf "opencore-amr-$installed_opencore_amr_version.tar.gz"
-        fi
-
         installed_opencore_amr_version=""
-    fi
-}
-
-install_opus() {
-    if [ "$OPUS_VERSION" -a ! -f opus-$OPUS_VERSION-done ] ; then
-        echo "Downloading, building, and installing opus:"
-        [ -f opus-$OPUS_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://downloads.xiph.org/releases/opus/opus-$OPUS_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat opus-$OPUS_VERSION.tar.gz | tar xf -
-        cd opus-$OPUS_VERSION
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ..
-        touch opus-$OPUS_VERSION-done
     fi
 }
 
@@ -2494,33 +963,7 @@ uninstall_opus() {
         make distclean
         cd ..
         rm opus-$installed_opus_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf opus-$installed_opus_version
-            rm -rf opus-$installed_opus_version.tar.gz
-        fi
-
         installed_opus_version=""
-    fi
-}
-
-install_jsoncpp() {
-    if [ "$JSONCPP_VERSION" ] && [ ! -f "jsoncpp-$JSONCPP_VERSION-done" ] ; then
-        echo "Downloading, building, and installing JsonCpp:"
-        [ -f "jsoncpp-$JSONCPP_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" --remote-header-name "https://github.com/open-source-parsers/jsoncpp/archive/refs/tags/$JSONCPP_VERSION.tar.gz"
-        $no_build && echo "Skipping installation" && return
-        tar -xf "jsoncpp-$JSONCPP_VERSION.tar.gz"
-        cd "jsoncpp-$JSONCPP_VERSION"
-        mkdir build_dir
-        cd build_dir
-        "${DO_CMAKE[@]}" -DBUILD_OBJECT_LIBS=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF ..
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ../..
-        touch "jsoncpp-$JSONCPP_VERSION-done"
     fi
 }
 
@@ -2529,33 +972,7 @@ uninstall_jsoncpp() {
         echo "Uninstalling JsonCpp:"
         while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat "jsoncpp-$installed_jsoncpp_version/build_dir/install_manifest.txt"; echo)
         rm "jsoncpp-$JSONCPP_VERSION-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "jsoncpp-$installed_jsoncpp_version"
-            rm -rf "jsoncpp-$installed_jsoncpp_version.tar.gz"
-        fi
-
         installed_jsoncpp_version=""
-    fi
-}
-
-install_onetbb() {
-    if [ "$ONETBB_VERSION" ] && [ ! -f "onetbb-$ONETBB_VERSION-done" ] ; then
-        echo "Downloading, building, and installing oneTBB:"
-        [ -f "oneTBB-$ONETBB_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" --remote-header-name "https://github.com/oneapi-src/oneTBB/archive/refs/tags/v$ONETBB_VERSION.tar.gz"
-        $no_build && echo "Skipping installation" && return
-        tar -xf "oneTBB-$ONETBB_VERSION.tar.gz"
-        cd "oneTBB-$ONETBB_VERSION"
-        mkdir build_dir
-        cd build_dir
-        "${DO_CMAKE[@]}" -DBUILD_SHARED_LIBS=ON -DTBB_TEST=OFF ..
-        make "${MAKE_BUILD_OPTS[@]}" tbb
-        $DO_MAKE_INSTALL
-        cd ../..
-        touch "onetbb-$ONETBB_VERSION-done"
     fi
 }
 
@@ -2564,33 +981,7 @@ uninstall_onetbb() {
         echo "Uninstalling oneTBB:"
         while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat "oneTBB-$installed_onetbb_version/build_dir/install_manifest.txt"; echo)
         rm "onetbb-$installed_onetbb_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "oneTBB-$installed_onetbb_version"
-            rm -rf "oneTBB-$installed_onetbb_version.tar.gz"
-        fi
-
         installed_onetbb_version=""
-    fi
-}
-
-install_re2() {
-    if [ "$RE2_VERSION" ] && [ ! -f "re2-$RE2_VERSION-done" ] ; then
-        echo "Downloading, building, and installing RE2:"
-        [ -f "re2-$RE2_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" --remote-header-name "https://github.com/google/re2/archive/refs/tags/$RE2_VERSION.tar.gz"
-        $no_build && echo "Skipping installation" && return
-        tar -xf "re2-$RE2_VERSION.tar.gz"
-        cd "re2-$RE2_VERSION"
-        mkdir build_dir
-        cd build_dir
-        "${DO_CMAKE[@]}" -DBUILD_SHARED_LIBS=ON -DRE2_BUILD_TESTING=OFF ..
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ../..
-        touch "re2-$RE2_VERSION-done"
     fi
 }
 
@@ -2599,42 +990,7 @@ uninstall_re2() {
         echo "Uninstalling RE2:"
         while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat "re2-$installed_re2_version/build_dir/install_manifest.txt"; echo)
         rm "re2-$installed_re2_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "re2-$installed_re2_version"
-            rm -rf "re2-$installed_re2_version.tar.gz"
-        fi
-
         installed_re2_version=""
-    fi
-}
-
-install_falco_libs() {
-    if [ "$FALCO_LIBS_VERSION" ] && [ ! -f "falco-libs-$FALCO_LIBS_VERSION-done" ] ; then
-        echo "Downloading, building, and installing libsinsp and libscap:"
-        [ -f "falco-libs-$FALCO_LIBS_VERSION.tar.gz" ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" --remote-header-name "https://github.com/falcosecurity/libs/archive/refs/tags/$FALCO_LIBS_VERSION.tar.gz"
-        [ -f "falco-libs-$FALCO_LIBS_VERSION.tar.gz" ] || mv "libs-$FALCO_LIBS_VERSION.tar.gz" "falco-libs-$FALCO_LIBS_VERSION.tar.gz"
-        $no_build && echo "Skipping installation" && return
-        echo "$FALCO_LIBS_SHA256  falco-libs-$FALCO_LIBS_VERSION.tar.gz" | shasum --algorithm 256 --check
-        tar -xf "falco-libs-$FALCO_LIBS_VERSION.tar.gz"
-        mv "libs-$FALCO_LIBS_VERSION" "falco-libs-$FALCO_LIBS_VERSION"
-        cd "falco-libs-$FALCO_LIBS_VERSION"
-	patch -p1 < "${topdir}/tools/macos-setup-patches/falco-uthash_h-install.patch"
-	patch -p1 < "${topdir}/tools/macos-setup-patches/falco-include-dirs.patch"
-        mkdir build_dir
-        cd build_dir
-        "${DO_CMAKE[@]}" -DFALCOSECURITY_LIBS_VERSION="$FALCO_LIBS_VERSION" \
-            -DBUILD_SHARED_LIBS=ON -DMINIMAL_BUILD=ON -DCREATE_TEST_TARGETS=OFF \
-            -DUSE_BUNDLED_DEPS=ON -DUSE_BUNDLED_CARES=OFF -DUSE_BUNDLED_ZLIB=OFF \
-            -DUSE_BUNDLED_JSONCPP=OFF -DUSE_BUNDLED_TBB=OFF -DUSE_BUNDLED_RE2=OFF \
-            ..
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ../..
-        touch "falco-libs-$FALCO_LIBS_VERSION-done"
     fi
 }
 
@@ -2644,15 +1000,6 @@ uninstall_falco_libs() {
         $DO_RM "$installation_prefix"/include/falcosecurity/uthash.h
         while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat "falco-libs-$installed_falco_libs_version/build_dir/install_manifest.txt"; echo)
         rm "falco-libs-$installed_falco_libs_version-done"
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf "falco-libs-$installed_falco_libs_version"
-            rm -rf "falco-libs-$installed_falco_libs_version.tar.gz"
-        fi
-
         installed_falco_libs_version=""
     fi
 }
@@ -2728,23 +1075,6 @@ uninstall_python3() {
     fi
 }
 
-install_brotli() {
-    if [ "$BROTLI_VERSION" -a ! -f brotli-$BROTLI_VERSION-done ] ; then
-        echo "Downloading, building, and installing brotli:"
-        [ -f brotli-$BROTLI_VERSION.tar.gz ] || curl "${CURL_LOCAL_NAME_OPTS[@]}" brotli-$BROTLI_VERSION.tar.gz https://github.com/google/brotli/archive/v$BROTLI_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat brotli-$BROTLI_VERSION.tar.gz | tar xf -
-        cd brotli-$BROTLI_VERSION
-        mkdir build_dir
-        cd build_dir
-        "${DO_CMAKE[@]}" ..
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ../..
-        touch brotli-$BROTLI_VERSION-done
-    fi
-}
-
 uninstall_brotli() {
     if [ -n "$installed_brotli_version" ] ; then
         echo "Uninstalling brotli:"
@@ -2766,44 +1096,7 @@ uninstall_brotli() {
         rm -rf build_dir
         cd ..
         rm brotli-$installed_brotli_version-done
-
-        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf brotli-$installed_brotli_version
-            rm -rf brotli-$installed_brotli_version.tar.gz
-        fi
-
         installed_brotli_version=""
-    fi
-}
-
-install_minizip() {
-    if [ "$ZLIB_VERSION" ] && [ ! -f minizip-$ZLIB_VERSION-done ] ; then
-        echo "Downloading, building, and installing zlib for minizip:"
-        [ -f zlib-$ZLIB_VERSION.tar.gz ] || curl "${CURL_LOCAL_NAME_OPTS[@]}" zlib-$ZLIB_VERSION.tar.gz https://zlib.net/fossils/zlib-$ZLIB_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat zlib-$ZLIB_VERSION.tar.gz | tar xf -
-        #
-        # minizip ships both with a minimal Makefile that doesn't
-        # support "make install", "make uninstall", or "make distclean",
-        # and with a Makefile.am file that, if we do an autoreconf,
-        # gives us a configure script, and a Makefile.in that, if we run
-        # the configure script, gives us a Makefile that supports all of
-        # those targets, and that installs a pkg-config .pc file for
-        # minizip.
-        #
-        # So that's what we do.
-        #
-        cd zlib-$ZLIB_VERSION/contrib/minizip
-        LIBTOOLIZE=glibtoolize autoreconf --force --install
-        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" \
-            ./configure "${CONFIGURE_OPTS[@]}"
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ../../..
-        touch minizip-$ZLIB_VERSION-done
     fi
 }
 
@@ -2816,68 +1109,33 @@ uninstall_minizip() {
         cd ../../..
 
         rm minizip-$installed_minizip_version-done
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf zlib-$installed_minizip_version
-            rm -rf zlib-$installed_minizip_version.tar.gz
-        fi
-
         installed_minizip_version=""
-    fi
-}
-
-install_minizip_ng() {
-    if [ "$MINIZIPNG_VERSION" ] && [ ! -f minizip-ng-$MINIZIPNG_VERSION-done ] ; then
-        echo "Downloading, building, and installing minizip-ng:"
-        [ -f $MINIZIPNG_VERSION.tar.gz ] || curl "${CURL_REMOTE_NAME_OPTS[@]}" https://github.com/zlib-ng/minizip-ng/archive/refs/tags/$MINIZIPNG_VERSION.tar.gz
-        $no_build && echo "Skipping installation" && return
-        gzcat $MINIZIPNG_VERSION.tar.gz | tar xf -
-        cd minizip-ng-$MINIZIPNG_VERSION
-        mkdir build
-        cd build
-        "${DO_CMAKE[@]}" ..
-        make "${MAKE_BUILD_OPTS[@]}"
-        $DO_MAKE_INSTALL
-        cd ../..
-        touch minizip-ng-$MINIZIPNG_VERSION-done
     fi
 }
 
 uninstall_minizip_ng() {
     if [ -n "$installed_minizip_ng_version" ] ; then
         echo "Uninstalling minizip-ng:"
-        cd minizip-ng-$installed_minizip_ng_version/contrib/minizip
-        $DO_MAKE_UNINSTALL
-        make distclean
-        cd ../../..
+        cd minizip-ng-$installed_minizip_ng_version
+        #
+        # minizip-ng uses cmake and doesn't support "make uninstall";
+        # just remove what we know it installs.
+        #
+        # $DO_MAKE_UNINSTALL
+        $DO_RM -rf "$installation_prefix"/lib/libminizip-ng* \
+                   "$installation_prefix"/lib/cmake/minizip-ng \
+                   "$installation_prefix"/lib/pkgconfig/minizip-ng* \
+                   "$installation_prefix"/include/minizip-ng
+        #
+        # minizip-ng uses cmake on macOS and doesn't support "make distclean";
+        # just remove the enire build directory.
+        #
+        # make distclean
+        rm -rf build_dir
+        cd ..
 
         rm minizip-ng-$installed_minizip_ng_version-done
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            #
-            # Get rid of the previously downloaded and unpacked version.
-            #
-            rm -rf minizip-ng-$installed_minizip_ng_version
-            rm -rf minizip-ng-$installed_minizip_ng_version.tar.gz
-        fi
-
         installed_minizip_ng_version=""
-    fi
-}
-install_sparkle() {
-    if [ "$SPARKLE_VERSION" ] && [ ! -f sparkle-$SPARKLE_VERSION-done ] ; then
-        echo "Downloading and installing Sparkle:"
-        #
-        # Download the tarball and unpack it in $installation_prefix/Sparkle-x.y.z
-        #
-        [ -f Sparkle-$SPARKLE_VERSION.tar.xz ] || curl "${CURL_LOCAL_NAME_OPTS[@]}" Sparkle-$SPARKLE_VERSION.tar.xz https://github.com/sparkle-project/Sparkle/releases/download/$SPARKLE_VERSION/Sparkle-$SPARKLE_VERSION.tar.xz
-        $no_build && echo "Skipping installation" && return
-        test -d "$installation_prefix/Sparkle-$SPARKLE_VERSION" || sudo mkdir "$installation_prefix/Sparkle-$SPARKLE_VERSION"
-        sudo tar -C "$installation_prefix/Sparkle-$SPARKLE_VERSION" -xpof Sparkle-$SPARKLE_VERSION.tar.xz
-        touch sparkle-$SPARKLE_VERSION-done
     fi
 }
 
@@ -2887,11 +1145,6 @@ uninstall_sparkle() {
         sudo rm -rf "$installation_prefix/Sparkle-$installed_sparkle_version"
 
         rm sparkle-$installed_sparkle_version-done
-
-        if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
-            rm -f "Sparkle-$installed_sparkle_version.tar.xz"
-        fi
-
         installed_sparkle_version=""
     fi
 }
@@ -2901,16 +1154,14 @@ install_all() {
     # Check whether the versions we have installed are the versions
     # requested; if not, uninstall the installed versions.
     #
-    if [ -n "$installed_brotli_version" -a \
-              "$installed_brotli_version" != "$BROTLI_VERSION" ] ; then
-        echo "Installed brotli version is $installed_brotli_version"
-        if [ -z "$BROTLI_VERSION" ] ; then
-            echo "brotli is not requested"
-        else
-            echo "Requested brotli version is $BROTLI_VERSION"
-        fi
-        uninstall_brotli -r
-    fi
+
+    cat <<FIN
+==============================================================================
+= This script only installs the tools required to build Wireshark. It no     =
+= longer installs any development libraries. Set WIRESHARK_BASE_DIR instead: =
+= https://www.wireshark.org/docs/wsdg_html_chunked/ChapterSetup.html#_macos  =
+==============================================================================
+FIN
 
     if [ -n "$installed_python3_version" -a \
               "$installed_python3_version" != "$PYTHON3_VERSION" ] ; then
@@ -2921,321 +1172,6 @@ install_all() {
             echo "Requested python3 version is $PYTHON3_VERSION"
         fi
         uninstall_python3 -r
-    fi
-
-    if [ -n "$installed_bcg729_version" -a \
-              "$installed_bcg729_version" != "$BCG729_VERSION" ] ; then
-        echo "Installed bcg729 version is $installed_bcg729_version"
-        if [ -z "$BCG729_VERSION" ] ; then
-            echo "bcg729 is not requested"
-        else
-            echo "Requested bcg729 version is $BCG729_VERSION"
-        fi
-        uninstall_bcg729 -r
-    fi
-
-    if [ -n "$installed_ilbc_version" ] \
-              && [ "$installed_ilbc_version" != "$ILBC_VERSION" ] ; then
-        echo "Installed iLBC version is $installed_ilbc_version"
-        if [ -z "$ILBC_VERSION" ] ; then
-            echo "iLBC is not requested"
-        else
-            echo "Requested iLBC version is $ILBC_VERSION"
-        fi
-        uninstall_ilbc -r
-    fi
-
-    if [ -n "$installed_opencore_amr_version" ] \
-           && [ "$installed_opencore_amr_version" != "$OPENCORE_AMR_VERSION" ] ; then
-        echo "Installed opencore-amr version is $installed_opencore_amr_version"
-        if [ -z "$OPENCORE_AMR_VERSION" ] ; then
-            echo "opencore-amr is not requested"
-        else
-            echo "Requested opencore-amr version is $OPENCORE_AMR_VERSION"
-        fi
-        uninstall_opencore_amr -r
-    fi
-
-    if [ -n "$installed_opus_version" ] \
-           && [ "$installed_opus_version" != "$OPUS_VERSION" ] ; then
-        echo "Installed opus version is $installed_opus_version"
-        if [ -z "$OPUS_VERSION" ] ; then
-            echo "opus is not requested"
-        else
-            echo "Requested opus version is $OPUS_VERSION"
-        fi
-        uninstall_opus -r
-    fi
-
-    if [ -n "$installed_spandsp_version" -a \
-              "$installed_spandsp_version" != "$SPANDSP_VERSION" ] ; then
-        echo "Installed SpanDSP version is $installed_spandsp_version"
-        if [ -z "$SPANDSP_VERSION" ] ; then
-            echo "spandsp is not requested"
-        else
-            echo "Requested SpanDSP version is $SPANDSP_VERSION"
-        fi
-        uninstall_spandsp -r
-    fi
-
-    if [ -n "$installed_speexdsp_version" -a \
-              "$installed_speexdsp_version" != "$SPEEXDSP_VERSION" ] ; then
-        echo "Installed SpeexDSP version is $installed_speexdsp_version"
-        if [ -z "$SPEEXDSP_VERSION" ] ; then
-            echo "speexdsp is not requested"
-        else
-            echo "Requested SpeexDSP version is $SPEEXDSP_VERSION"
-        fi
-        uninstall_speexdsp -r
-    fi
-
-    if [ -n "$installed_libtiff_version" -a \
-              "$installed_libtiff_version" != "$LIBTIFF_VERSION" ] ; then
-        echo "Installed libtiff version is $installed_libtiff_version"
-        if [ -z "$LIBTIFF_VERSION" ] ; then
-            echo "libtiff is not requested"
-        else
-            echo "Requested libtiff version is $LIBTIFF_VERSION"
-        fi
-        uninstall_libtiff -r
-    fi
-
-    if [ -n "$installed_nghttp2_version" -a \
-              "$installed_nghttp2_version" != "$NGHTTP2_VERSION" ] ; then
-        echo "Installed nghttp2 version is $installed_nghttp2_version"
-        if [ -z "$NGHTTP2_VERSION" ] ; then
-            echo "nghttp2 is not requested"
-        else
-            echo "Requested nghttp2 version is $NGHTTP2_VERSION"
-        fi
-        uninstall_nghttp2 -r
-    fi
-
-    if [ -n "$installed_nghttp3_version" -a \
-              "$installed_nghttp3_version" != "$NGHTTP3_VERSION" ] ; then
-        echo "Installed nghttp3 version is $installed_nghttp3_version"
-        if [ -z "$NGHTTP3_VERSION" ] ; then
-            echo "nghttp3 is not requested"
-        else
-            echo "Requested nghttp3 version is $NGHTTP3_VERSION"
-        fi
-        uninstall_nghttp3 -r
-    fi
-
-    if [ -n "$installed_libssh_version" -a \
-              "$installed_libssh_version" != "$LIBSSH_VERSION" ] ; then
-        echo "Installed libssh version is $installed_libssh_version"
-        if [ -z "$LIBSSH_VERSION" ] ; then
-            echo "libssh is not requested"
-        else
-            echo "Requested libssh version is $LIBSSH_VERSION"
-        fi
-        uninstall_libssh -r
-    fi
-
-    if [ -n "$installed_cares_version" -a \
-              "$installed_cares_version" != "$CARES_VERSION" ] ; then
-        echo "Installed C-Ares version is $installed_cares_version"
-        if [ -z "$CARES_VERSION" ] ; then
-            echo "C-Ares is not requested"
-        else
-            echo "Requested C-Ares version is $CARES_VERSION"
-        fi
-        uninstall_c_ares -r
-    fi
-
-    if [ -n "$installed_maxminddb_version" -a \
-              "$installed_maxminddb_version" != "$MAXMINDDB_VERSION" ] ; then
-        echo "Installed MaxMindDB API version is $installed_maxminddb_version"
-        if [ -z "$MAXMINDDB_VERSION" ] ; then
-            echo "MaxMindDB is not requested"
-        else
-            echo "Requested MaxMindDB version is $MAXMINDDB_VERSION"
-        fi
-        uninstall_maxminddb -r
-    fi
-
-    if [ -n "$installed_sbc_version" -a \
-              "$installed_sbc_version" != "$SBC_VERSION" ] ; then
-        echo "Installed SBC version is $installed_sbc_version"
-        if [ -z "$SBC_VERSION" ] ; then
-            echo "SBC is not requested"
-        else
-            echo "Requested SBC version is $SBC_VERSION"
-        fi
-        uninstall_sbc -r
-    fi
-
-    if [ -n "$installed_lz4_version" -a \
-              "$installed_lz4_version" != "$LZ4_VERSION" ] ; then
-        echo "Installed LZ4 version is $installed_lz4_version"
-        if [ -z "$LZ4_VERSION" ] ; then
-            echo "LZ4 is not requested"
-        else
-            echo "Requested LZ4 version is $LZ4_VERSION"
-        fi
-        uninstall_lz4 -r
-    fi
-
-    if [ -n "$installed_libxml2_version" ] && [ "$installed_libxml2_version" != "$LIBXML2_VERSION" ] ; then
-        echo "Installed libxml2 version is $installed_libxml2_version"
-        if [ -z "$LIBXML2_VERSION" ] ; then
-            echo "libxml2 is not requested"
-        else
-            echo "Requested libxml2 version is $LIBXML2_VERSION"
-        fi
-        uninstall_libxml2 -r
-    fi
-
-    if [ -n "$installed_snappy_version" -a \
-              "$installed_snappy_version" != "$SNAPPY_VERSION" ] ; then
-        echo "Installed SNAPPY version is $installed_snappy_version"
-        if [ -z "$SNAPPY_VERSION" ] ; then
-            echo "SNAPPY is not requested"
-        else
-            echo "Requested SNAPPY version is $SNAPPY_VERSION"
-        fi
-        uninstall_snappy -r
-    fi
-
-    if [ -n "$installed_zstd_version" ] && [ "$installed_zstd_version" != "$ZSTD_VERSION" ] ; then
-        echo "Installed zstd version is $installed_zstd_version"
-        if [ -z "$ZSTD_VERSION" ] ; then
-            echo "zstd is not requested"
-        else
-            echo "Requested zstd version is $ZSTD_VERSION"
-        fi
-        uninstall_zstd -r
-    fi
-
-    if [ -n "$installed_zlibng_version" ] && [ "$installed_zlibng_version" != "$ZLIBNG_VERSION" ] ; then
-        echo "Installed zlibng version is $installed_zlibng_version"
-        if [ -z "$ZLIBNG_VERSION" ] ; then
-            echo "zlibng is not requested"
-        else
-            echo "Requested zlibng version is $ZLIBNG_VERSION"
-        fi
-        uninstall_zlibng -r
-    fi
-
-    if [ -n "$installed_lua_version" -a \
-              "$installed_lua_version" != "$LUA_VERSION" ] ; then
-        echo "Installed Lua version is $installed_lua_version"
-        if [ -z "$LUA_VERSION" ] ; then
-            echo "Lua is not requested"
-        else
-            echo "Requested Lua version is $LUA_VERSION"
-        fi
-        uninstall_lua -r
-    fi
-
-    if [ -n "$installed_gnutls_version" ] && [ "$installed_gnutls_version" != "$GNUTLS_VERSION" ] ; then
-        echo "Installed GnuTLS version is $installed_gnutls_version"
-        if [ -z "$GNUTLS_VERSION" ] ; then
-            echo "GnuTLS is not requested"
-        else
-            echo "Requested GnuTLS version is $GNUTLS_VERSION"
-        fi
-        uninstall_gnutls -r
-    fi
-
-    if [ -n "$installed_nettle_version" -a \
-              "$installed_nettle_version" != "$NETTLE_VERSION" ] ; then
-        echo "Installed Nettle version is $installed_nettle_version"
-        if [ -z "$NETTLE_VERSION" ] ; then
-            echo "Nettle is not requested"
-        else
-            echo "Requested Nettle version is $NETTLE_VERSION"
-        fi
-        uninstall_nettle -r
-    fi
-
-    if [ -n "$installed_gmp_version" -a \
-              "$installed_gmp_version" != "$GMP_VERSION" ] ; then
-        echo "Installed GMP version is $installed_gmp_version"
-        if [ -z "$GMP_VERSION" ] ; then
-            echo "GMP is not requested"
-        else
-            echo "Requested GMP version is $GMP_VERSION"
-        fi
-        uninstall_gmp -r
-    fi
-
-    if [ -n "$installed_p11_kit_version" -a \
-              "$installed_p11_kit_version" != "$P11KIT_VERSION" ] ; then
-        echo "Installed p11-kit version is $installed_p11_kit_version"
-        if [ -z "$P11KIT_VERSION" ] ; then
-            echo "p11-kit is not requested"
-        else
-            echo "Requested p11-kit version is $P11KIT_VERSION"
-        fi
-        uninstall_p11_kit -r
-    fi
-
-    if [ -n "$installed_libtasn1_version" -a \
-              "$installed_libtasn1_version" != "$LIBTASN1_VERSION" ] ; then
-        echo "Installed libtasn1 version is $installed_libtasn1_version"
-        if [ -z "$LIBTASN1_VERSION" ] ; then
-            echo "libtasn1 is not requested"
-        else
-            echo "Requested libtasn1 version is $LIBTASN1_VERSION"
-        fi
-        uninstall_libtasn1 -r
-    fi
-
-    if [ -n "$installed_libgcrypt_version" -a \
-              "$installed_libgcrypt_version" != "$LIBGCRYPT_VERSION" ] ; then
-        echo "Installed libgcrypt version is $installed_libgcrypt_version"
-        if [ -z "$LIBGCRYPT_VERSION" ] ; then
-            echo "libgcrypt is not requested"
-        else
-            echo "Requested libgcrypt version is $LIBGCRYPT_VERSION"
-        fi
-        uninstall_libgcrypt -r
-    fi
-
-    if [ -n "$installed_libgpg_error_version" -a \
-              "$installed_libgpg_error_version" != "$LIBGPG_ERROR_VERSION" ] ; then
-        echo "Installed libgpg-error version is $installed_libgpg_error_version"
-        if [ -z "$LIBGPG_ERROR_VERSION" ] ; then
-            echo "libgpg-error is not requested"
-        else
-            echo "Requested libgpg-error version is $LIBGPG_ERROR_VERSION"
-        fi
-        uninstall_libgpg_error -r
-    fi
-
-    if [ -n "$installed_libsmi_version" -a \
-              "$installed_libsmi_version" != "$LIBSMI_VERSION" ] ; then
-        echo "Installed libsmi version is $installed_libsmi_version"
-        if [ -z "$LIBSMI_VERSION" ] ; then
-            echo "libsmi is not requested"
-        else
-            echo "Requested libsmi version is $LIBSMI_VERSION"
-        fi
-        uninstall_libsmi -r
-    fi
-
-    if [ -n "$installed_qt_version" -a \
-              "$installed_qt_version" != "$QT_VERSION" ] ; then
-        echo "Installed Qt version is $installed_qt_version"
-        if [ -z "$QT_VERSION" ] ; then
-            echo "Qt is not requested"
-        else
-            echo "Requested Qt version is $QT_VERSION"
-        fi
-        uninstall_qt -r
-    fi
-
-    if [ -n "$installed_glib_version" -a \
-              "$installed_glib_version" != "$GLIB_VERSION" ] ; then
-        echo "Installed GLib version is $installed_glib_version"
-        if [ -z "$GLIB_VERSION" ] ; then
-            echo "GLib is not requested"
-        else
-            echo "Requested GLib version is $GLIB_VERSION"
-        fi
-        uninstall_glib -r
     fi
 
     if [ -n "$installed_pkg_config_version" -a \
@@ -3249,17 +1185,6 @@ install_all() {
         uninstall_pkg_config -r
     fi
 
-    if [ -n "$installed_gettext_version" -a \
-              "$installed_gettext_version" != "$GETTEXT_VERSION" ] ; then
-        echo "Installed GNU gettext version is $installed_gettext_version"
-        if [ -z "$GETTEXT_VERSION" ] ; then
-            echo "GNU gettext is not requested"
-        else
-            echo "Requested GNU gettext version is $GETTEXT_VERSION"
-        fi
-        uninstall_gettext -r
-    fi
-
     if [ -n "$installed_ninja_version" -a \
               "$installed_ninja_version" != "$NINJA_VERSION" ] ; then
         echo "Installed Ninja version is $installed_ninja_version"
@@ -3269,36 +1194,6 @@ install_all() {
             echo "Requested Ninja version is $NINJA_VERSION"
         fi
         uninstall_ninja -r
-    fi
-
-    if [ -n "$installed_asciidoctorpdf_version" -a \
-              "$installed_asciidoctorpdf_version" != "$ASCIIDOCTORPDF_VERSION" ] ; then
-        echo "Installed Asciidoctor-pdf version is $installed_asciidoctorpdf_version"
-        if [ -z "$ASCIIDOCTORPDF_VERSION" ] ; then
-            echo "Asciidoctor-pdf is not requested"
-        else
-            echo "Requested Asciidoctor-pdf version is $ASCIIDOCTORPDF_VERSION"
-        fi
-        # XXX - really remove this?
-        # Or should we remember it as installed only if this script
-        # installed it?
-        #
-        uninstall_asciidoctorpdf -r
-    fi
-
-    if [ -n "$installed_asciidoctor_version" -a \
-              "$installed_asciidoctor_version" != "$ASCIIDOCTOR_VERSION" ] ; then
-        echo "Installed Asciidoctor version is $installed_asciidoctor_version"
-        if [ -z "$ASCIIDOCTOR_VERSION" ] ; then
-            echo "Asciidoctor is not requested"
-        else
-            echo "Requested Asciidoctor version is $ASCIIDOCTOR_VERSION"
-        fi
-        # XXX - really remove this?
-        # Or should we remember it as installed only if this script
-        # installed it?
-        #
-        uninstall_asciidoctor -r
     fi
 
     if [ -n "$installed_cmake_version" -a \
@@ -3312,304 +1207,16 @@ install_all() {
         uninstall_cmake -r
     fi
 
-    if [ -n "$installed_libtool_version" -a \
-              "$installed_libtool_version" != "$LIBTOOL_VERSION" ] ; then
-        echo "Installed GNU libtool version is $installed_libtool_version"
-        if [ -z "$LIBTOOL_VERSION" ] ; then
-            echo "GNU libtool is not requested"
-        else
-            echo "Requested GNU libtool version is $LIBTOOL_VERSION"
-        fi
-        uninstall_libtool -r
-    fi
-
-    if [ -n "$installed_automake_version" -a \
-              "$installed_automake_version" != "$AUTOMAKE_VERSION" ] ; then
-        echo "Installed GNU automake version is $installed_automake_version"
-        if [ -z "$AUTOMAKE_VERSION" ] ; then
-            echo "GNU automake is not requested"
-        else
-            echo "Requested GNU automake version is $AUTOMAKE_VERSION"
-        fi
-        uninstall_automake -r
-    fi
-
-    if [ -n "$installed_autoconf_version" -a \
-              "$installed_autoconf_version" != "$AUTOCONF_VERSION" ] ; then
-        echo "Installed GNU autoconf version is $installed_autoconf_version"
-        if [ -z "$AUTOCONF_VERSION" ] ; then
-            echo "GNU autoconf is not requested"
-        else
-            echo "Requested GNU autoconf version is $AUTOCONF_VERSION"
-        fi
-        uninstall_autoconf -r
-    fi
-
-    if [ -n "$installed_pcre_version" ] ; then
-        echo "Installed pcre1 version is $installed_pcre_version"
-        echo "(We no longer build with pcre1)"
-        uninstall_pcre -r
-    fi
-
-    if [ -n "$installed_pcre2_version" -a \
-              "$installed_pcre2_version" != "$PCRE2_VERSION" ] ; then
-        echo "Installed pcre2 version is $installed_pcre2_version"
-        if [ -z "$PCRE2_VERSION" ] ; then
-            echo "pcre2 is not requested"
-        else
-            echo "Requested pcre2 version is $PCRE2_VERSION"
-        fi
-        uninstall_pcre2 -r
-    fi
-
-    if [ -n "$installed_lzip_version" ] ; then
-        echo "Removing legacy install of lzip"
-        uninstall_lzip -r
-    fi
-
-    if [ -n "$installed_xz_version" -a \
-              "$installed_xz_version" != "$XZ_VERSION" ] ; then
-        echo "Installed xz version is $installed_xz_version"
-        if [ -z "$XZ_VERSION" ] ; then
-            echo "xz is not requested"
-        else
-            echo "Requested xz version is $XZ_VERSION"
-        fi
-        uninstall_xz -r
-    fi
-
-    if [ -n "$installed_curl_version" -a \
-              "$installed_curl_version" != "$CURL_VERSION" ] ; then
-        echo "Installed curl version is $installed_curl_version"
-        if [ -z "$CURL_VERSION" ] ; then
-            echo "curl is not requested"
-        else
-            echo "Requested curl version is $CURL_VERSION"
-        fi
-        uninstall_curl -r
-    fi
-
-    if [ -n "$installed_minizip_version" -a \
-              "$installed_minizip_version" != "$ZLIB_VERSION" ] ; then
-        echo "Installed minizip (zlib) version is $installed_minizip_version"
-        if [ -z "$ZLIB_VERSION" ] ; then
-            echo "minizip is not requested"
-        else
-            echo "Requested minizip (zlib) version is $ZLIB_VERSION"
-        fi
-        uninstall_minizip -r
-    fi
-
-    if [ -n "$installed_minizip_ng_version" ] && [ "$installed_minizip_ng_version" != "$MINIZIPNG_VERSION" ] ; then
-    echo "Installed minizip-ng version is $installed_minizip_ng_version"
-    if [ -z "$MINIZIPNG_VERSION" ] ; then
-        echo "minizip-ng is not requested"
-    else
-        echo "Requested minizip-ng version is $MINIZIPNG_VERSION"
-    fi
-    uninstall_minizip_ng -r
-    fi
-
-    if [ -n "$installed_sparkle_version" -a \
-              "$installed_sparkle_version" != "$SPARKLE_VERSION" ] ; then
-        echo "Installed Sparkle version is $installed_sparkle_version"
-        if [ -z "$SPARKLE_VERSION" ] ; then
-            echo "Sparkle is not requested"
-        else
-            echo "Requested Sparkle version is $SPARKLE_VERSION"
-        fi
-        uninstall_sparkle -r
-    fi
-
-    if [ "$installed_falco_libs_version" ] && [ "$installed_falco_libs_version" != "$FALCO_LIBS_VERSION" ] ; then
-        echo "Installed Falco libs (libsinsp and libscap) version is $installed_falco_libs_version"
-        if [ -z "$FALCO_LIBS_VERSION" ] ; then
-            echo "Falco libs is not requested"
-        else
-            echo "Requested Falco libs version is $FALCO_LIBS_VERSION"
-        fi
-        uninstall_falco_libs -r
-    fi
-
-    if [ "$installed_jsoncpp_version" ] && [ "$installed_jsoncpp_version" != "$JSONCPP_VERSION" ] ; then
-        echo "Installed JsonCpp version is $installed_jsoncpp_version"
-        if [ -z "$JSONCPP_VERSION" ] ; then
-            echo "JsonCpp is not requested"
-        else
-            echo "Requested JsonCpp version is $JSONCPP_VERSION"
-        fi
-        uninstall_jsoncpp -r
-    fi
-
-    if [ "$installed_onetbb_version" ] && [ "$installed_onetbb_version" != "$ONETBB_VERSION" ] ; then
-        echo "Installed oneTBB version is $installed_onetbb_version"
-        if [ -z "$ONETBB_VERSION" ] ; then
-            echo "oneTBB is not requested"
-        else
-            echo "Requested oneTBB version is $ONETBB_VERSION"
-        fi
-        uninstall_onetbb -r
-    fi
-
-    if [ "$installed_re2_version" ] && [ "$installed_re2_version" != "$RE2_VERSION" ] ; then
-        echo "Installed RE2 version is $installed_re2_version"
-        if [ -z "$RE2_VERSION" ] ; then
-            echo "RE2 is not requested"
-        else
-            echo "Requested RE2 version is $RE2_VERSION"
-        fi
-        uninstall_re2 -r
-    fi
-
-    #
-    # Start with curl: we may need it to download and install xz.
-    #
-    install_curl
-
-    #
-    # Now install xz: it is the sole download format of glib later than 2.31.2.
-    #
-    install_xz
-
-    install_m4
-
-    install_autoconf
-
-    install_automake
-
-    install_libtool
 
     install_cmake
 
-    install_pcre2
-
-    #
-    # Install Python 3 now; not only is it needed for the Wireshark
-    # build process, it's also needed for the Meson build system,
-    # which newer versions of GLib use as their build system.
-    #
     install_python3
-
-    #
-    # Now install Meson and pytest.
-    #
-    install_meson
 
     install_pytest
 
     install_ninja
 
-    install_asciidoctor
-
-    install_asciidoctorpdf
-
-    #
-    # Start with GNU gettext; GLib requires it, and macOS doesn't have it
-    # or a BSD-licensed replacement.
-    #
-    # At least on Lion with Xcode 4, _FORTIFY_SOURCE gets defined as 2
-    # by default, which causes, for example, stpncpy to be defined as
-    # a hairy macro that collides with the GNU gettext configure script's
-    # attempts to workaround AIX's lack of a declaration for stpncpy,
-    # with the result being a huge train wreck.  Define _FORTIFY_SOURCE
-    # as 0 in an attempt to keep the trains on separate tracks.
-    #
-    install_gettext
-
-    #
-    # GLib depends on pkg-config and libxml2.
-    # By default, pkg-config depends on GLib; we break the dependency cycle
-    # by configuring pkg-config to use its own internal version of GLib.
-    #
     install_pkg_config
-
-    install_libxml2
-
-    install_glib
-
-    #
-    # Now we have reached a point where we can build everything but
-    # the GUI (Wireshark).
-    #
-    install_qt
-
-    #
-    # Now we have reached a point where we can build everything including
-    # the GUI (Wireshark), but not with any optional features such as
-    # SNMP OID resolution, some forms of decryption, Lua scripting, playback
-    # of audio, or MaxMindDB mapping of IP addresses.
-    #
-    # We now conditionally download optional libraries to support them;
-    # the default is to download them all.
-    #
-
-    install_libsmi
-
-    install_libgpg_error
-
-    install_libgcrypt
-
-    install_gmp
-
-    install_libtasn1
-
-    install_p11_kit
-
-    install_nettle
-
-    install_gnutls
-
-    install_lua
-
-    install_snappy
-
-    install_zstd
-
-    install_zlibng
-
-    install_lz4
-
-    install_sbc
-
-    install_maxminddb
-
-    install_c_ares
-
-    install_libssh
-
-    install_nghttp2
-
-    install_nghttp3
-
-    install_libtiff
-
-    install_spandsp
-
-    install_speexdsp
-
-    install_bcg729
-
-    install_ilbc
-
-    install_opencore_amr
-
-    install_opus
-
-    install_brotli
-
-    install_minizip_ng
-
-    install_minizip
-
-    install_sparkle
-
-    install_re2
-
-    install_onetbb
-
-    install_jsoncpp
-
-    install_falco_libs
 }
 
 uninstall_all() {
@@ -3733,6 +1340,8 @@ uninstall_all() {
 
         uninstall_pcre
 
+        uninstall_pcre2
+
         # Legacy, remove
         uninstall_lzip
 
@@ -3763,26 +1372,9 @@ else
 fi
 
 #
-# If we have SDKs available, the default target OS is the major version
-# of the one we're running; get that and strip off the third component
-# if present.
-#
-for i in /Developer/SDKs \
-    /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs \
-    /Library/Developer/CommandLineTools/SDKs
-do
-    if [ -d "$i" ]
-    then
-        min_osx_target=$( sw_vers -productVersion | sed 's/\([0-9]*\)\.\([0-9]*\)\.[0-9]*/\1.\2/' )
-        break
-    fi
-done
-
-#
 # Parse command-line flags:
 #
 # -h - print help.
-# -t <target> - build libraries so that they'll work on the specified
 # version of macOS and later versions.
 # -u - do an uninstall.
 # -n - download all packages, but don't build or install.
@@ -3792,11 +1384,11 @@ no_build=false
 
 installation_prefix=/usr/local
 
-while getopts hnp:t:u name
+while getopts hnp:u name
 do
     case $name in
     h|\?)
-        echo "Usage: macos-setup.sh [ -n ] [ -p <installation prefix> ] [ -t <target> ] [ -u ]" 1>&1
+        echo "Usage: macos-setup.sh [ -n ] [ -p <installation prefix> ] [ -u ]" 1>&1
         exit 0
         ;;
     n)
@@ -3804,9 +1396,6 @@ do
         ;;
     p)
         installation_prefix="$OPTARG"
-        ;;
-    t)
-        min_osx_target="$OPTARG"
         ;;
     u)
         do_uninstall=yes
@@ -3839,53 +1428,18 @@ fi
 #
 if [ -w "$installation_prefix" ]
 then
-    DO_MAKE="make"
     DO_MAKE_INSTALL="make install"
     DO_MAKE_UNINSTALL="make uninstall"
-    DO_NINJA_INSTALL="ninja -C _build install"
     DO_NINJA_UNINSTALL="ninja -C _build uninstall"
-    DO_TEE_TO_PC_FILE="tee"
     DO_RM="rm"
     DO_MV="mv"
 else
-    DO_MAKE="sudo make"
     DO_MAKE_INSTALL="sudo make install"
     DO_MAKE_UNINSTALL="sudo make uninstall"
-    DO_NINJA_INSTALL="sudo ninja -C _build install"
     DO_NINJA_UNINSTALL="sudo ninja -C _build uninstall"
-    DO_TEE_TO_PC_FILE="sudo tee"
     DO_RM="sudo rm"
     DO_MV="sudo mv"
 fi
-
-#
-# When building with CMake, don't build libraries with an install path
-# that begins with @rpath because that will cause binaries linked with it
-# to use that path as the library to look for, and that will cause the
-# run-time linker, at least on macOS 14 and later, not to find the library
-# in $installation_prefix/lib unless you explicitly set DYLD_LIBRARY_PATH to include
-# $installation_prefix/lib.  That means that you get "didn't find libpcre" errors if
-# you try to run binaries from a build unless you set DYLD_LIBRARYPATH to
-# include $installation_prefix/lib.
-#
-# However, setting CMAKE_MACOSX_RPATH to OFF causes the installed
-# library just to have the file name of the library as its install
-# name.  It needs to be the full installed path of the library in
-# order to make running binaries from the build directory work, so
-# we set CMAKE_INSTALL_NAME_DIR to $installation_prefix/lib.
-#
-# packaging/macosx/osx-app.sh will convert *all* libraries in
-# the app bundle to have an @rpath install name, so this won't
-# break anything there; it just fixes the ability to run from the
-# build directory.
-#
-DO_CMAKE=( cmake
-    -DCMAKE_OSX_DEPLOYMENT_TARGET="$min_osx_target"
-    -DSDKROOT="$SDKPATH"
-    -DCMAKE_MACOSX_RPATH=OFF
-    -DCMAKE_INSTALL_PREFIX="$installation_prefix"
-    -DCMAKE_INSTALL_NAME_DIR="$installation_prefix/lib"
-    )
 
 #
 # Get the version numbers of installed packages, if any.
@@ -3973,144 +1527,6 @@ fi
 
 CURL_REMOTE_NAME_OPTS=(--fail-with-body --location --remote-name)
 CURL_LOCAL_NAME_OPTS=(--fail-with-body --location --output)
-
-#
-# If we have a target release, look for the oldest SDK that's for an
-# OS equal to or later than that one, and build libraries against it
-# rather than against the headers and, more importantly, libraries
-# that come with the OS, so that we don't end up with support libraries
-# that only work on the OS version on which we built them, not earlier
-# versions of the same release, or earlier releases if the minimum is
-# earlier.
-#
-if [ -n "$min_osx_target" ]
-then
-    #
-    # Get the major and minor version of the target release.
-    # We assume it'll be a while before there's a macOS 100. :-)
-    #
-    case "$min_osx_target" in
-
-    [1-9][0-9].*)
-        #
-        # major.minor.
-        #
-        min_osx_target_major=$( echo "$min_osx_target" | sed -n 's/\([1-9][0-9]*\)\..*/\1/p' )
-        min_osx_target_minor=$( echo "$min_osx_target" | sed -n 's/[1-9][0-9]*\.\(.*\)/\1/p' )
-        ;;
-
-    [1-9][0-9])
-        #
-        # Just a major version number was specified; make the minor
-        # version 0.
-        #
-        min_osx_target_major="$min_osx_target"
-        min_osx_target_minor=0
-        ;;
-
-    *)
-        echo "macosx-setup.sh: Invalid target release $min_osx_target" 1>&2
-        exit 1
-        ;;
-    esac
-
-    #
-    # Search each directory that might contain SDKs.
-    #
-    sdkpath=""
-    for sdksdir in /Developer/SDKs \
-        /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs \
-        /Library/Developer/CommandLineTools/SDKs
-    do
-        #
-        # Get a list of all the SDKs.
-        #
-        if ! test -d "$sdksdir"
-        then
-            #
-            # There is no directory with that name.
-            # Move on to the next one in the list, if any.
-            #
-            continue
-        fi
-
-        #
-        # Get a list of all the SDKs in that directory, if any.
-        # We assume it'll be a while before there's a macOS 100. :-)
-        #
-        sdklist=$( (cd "$sdksdir"; ls -d MacOSX[1-9][0-9].[0-9]*.sdk 2>/dev/null) )
-
-        for sdk in $sdklist
-        do
-            #
-            # Get the major and minor version for this SDK.
-            #
-            sdk_major=$( echo "$sdk" | sed -n 's/MacOSX\([1-9][0-9]*\)\..*\.sdk/\1/p' )
-            sdk_minor=$( echo "$sdk" | sed -n 's/MacOSX[1-9][0-9]*\.\(.*\)\.sdk/\1/p' )
-
-            #
-            # Is it for the deployment target or some later release?
-            # Starting with major 11, the minor version no longer matters.
-            #
-            if test "$sdk_major" -gt "$min_osx_target_major" -o \
-                \( "$sdk_major" -eq "$min_osx_target_major" -a \
-                \( "$sdk_major" -ge 11 -o \
-                   "$sdk_minor" -ge "$min_osx_target_minor" \) \)
-            then
-                #
-                # Yes, use it.
-                #
-                sdkpath="$sdksdir/$sdk"
-                break 2
-            fi
-        done
-    done
-
-    if [ -z "$sdkpath" ]
-    then
-        echo "macos-setup.sh: Couldn't find an SDK for macOS $min_osx_target or later" 1>&2
-        exit 1
-    fi
-
-    SDKPATH="$sdkpath"
-    echo "Using the $sdk_major.$sdk_minor SDK"
-
-    #
-    # Make sure there are links to $installation_prefix/include and $installation_prefix/lib
-    # in the SDK's usr/local.
-    #
-    # XXX - Is this needed any more?
-#     if [ ! -e $SDKPATH$installation_prefix/include ]
-#     then
-#         if [ ! -d $SDKPATH$installation_prefix ]
-#         then
-#             sudo mkdir $SDKPATH$installation_prefix
-#         fi
-#         sudo ln -s $installation_prefix/include $SDKPATH$installation_prefix/include
-#     fi
-#     if [ ! -e $SDKPATH$installation_prefix/lib ]
-#     then
-#         if [ ! -d $SDKPATH$installation_prefix ]
-#         then
-#             sudo mkdir $SDKPATH$installation_prefix
-#         fi
-#         sudo ln -s $installation_prefix/lib $SDKPATH$installation_prefix/lib
-#     fi
-
-    #
-    # Set the minimum OS version for which to build to the specified
-    # minimum target OS version, so we don't, for example, end up using
-    # linker features supported by the OS version on which we're building
-    # but not by the target version.
-    #
-    VERSION_MIN_FLAGS="-mmacosx-version-min=$min_osx_target"
-
-    #
-    # Compile and link against the SDK.
-    #
-    SDKFLAGS="-isysroot $SDKPATH"
-
-fi
 
 #
 # You need Xcode or the command-line tools installed to get the compilers (xcrun checks both).

@@ -94,10 +94,9 @@ The setup script is `tools/rpm-setup.sh`; its options are:
 You must first install Xcode.
 
 As with Windows we provide pre-built third party libraries which will be automatically installed if you set the `WIRESHARK_BASE_DIR` CMake variable to a directory that is writable by you, such as _/opt/wireshark-third-party_ or _wireshark-libraries_ at the same level as your Wireshark source code directory.
-You can alternatively use two scripts to install the packages and libraries required to build Wireshark and its documentation:
-`tools/macos-setup-brew.sh`, which will use the https://brew.sh/[Homebrew] package manager and `tools/macos-setup.sh`, which will build any required libraries and tools locally, except for Qt 6.
 
-`tools/macos-setup-brew.sh` supports the following options:
+You can use `tools/macos-setup-brew.sh` to install the tools required to build Wireshark using the https://brew.sh/[Homebrew] package manager.
+You can also use it to install third party libraries instead of setting `WIRESHARK_BASE_DIR`.
 
 * `--install-required` install third party libraries required to build Wireshark. Not needed if you set `WIRESHARK_BASE_DIR`.
 * `--install-optional` install optional third party libraries. Not needed if you set `WIRESHARK_BASE_DIR`.
@@ -107,18 +106,20 @@ You can alternatively use two scripts to install the packages and libraries requ
 * `--install-stratoshark` install libraries required to build Stratoshark and the Falco Events plugin
 * `[other]` other options are passed as-is to brew
 
-`tools/macos-setup.sh` supports the following options:
+Running `tools/macos-setup-brew.sh` with no options will install CMake, Ninja, pgkconf, and ccache.
 
-* `-n` dry run; don't build or install any packages
+In the past, `tools/macos-setup.sh` could be used to build third party libraries locally.
+It is now deprecated, and can only be used to install the tools required to build Wireshark or to remove any previously installed libraries.
+It supports the following options:
+
+* `-n` dry run; don't build or install any tools
 * `-p` specify the installation prefix; _/usr/local_ is the default
-* `-t` specify the minimum macOS target version
 * `-u` uninstall packages
 
-We recommend `tools/macos-setup-brew.sh` if you're using Homebrew and you don't need to worry about backward compatibility with older macOS releases.
+We recommend setting `WIRESHARK_BASE_DIR` to install libraries, since it's easy and it's what we use to create the offical packages.
+If you're using Homebrew we recommend using `tools/macos-setup-brew.sh` with no options to install CMake and Ninja.
 
-If you will be building Wireshark with Qt 6, which is the default for
-Wireshark 4.0 and later, you will also have to install Qt; the
-`tools/macos-setup.sh` script will not install Qt 6. To install
+You will also have to install Qt 6. To install
 Qt, go to the https://www.qt.io/download-qt-installer-oss[Download Qt
 for open source use page], select “macOS” if it's not already selected,
 and then select “Qt online installer for macOS“.  This will download a
@@ -142,6 +143,14 @@ Optionally, under "Additional Libraries" also select the following components:
 
 You can deselect all of the other the components such as “Qt Charts” or “Android xxxx”
 as they aren’t required.
+
+If you don't want register for the Qt Online Installer for macOS, you can install Qt from the command line using https://github.com/miurahr/aqtinstall/releases[Another (unofficial) Qt CLI Installer].
+The AQt command to install Qt and the modules recommended above would look something like the following:
+
+[subs="attributes+"]
+----
+aqt install-qt mac desktop {macos-qt6-lts-version} clang_64 --modules qt5compat qtmultimedia debug_info
+----
 
 [#ChSetupUNIXBuild]
 
