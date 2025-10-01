@@ -105,7 +105,7 @@ extern "C" {
 #define OPT_IDB_TSOFFSET       14    /**< A 64-bit signed integer value that specifies an offset (in seconds)
                                        *     that must be added to the timestamp of each packet to obtain
                                        *     the absolute timestamp of a packet. If the option is not present,
-                                       *     an offst of 0 is assumed (i.e., timestamps in blocks are absolute
+                                       *     an offset of 0 is assumed (i.e., timestamps in blocks are absolute
                                        *     timestamps).
                                        *
                                        *     This offset is not intended to be used as an offset between local
@@ -229,7 +229,7 @@ extern "C" {
  * do not have the same significance.
  *
  * WTAP_BLOCK_FT_SPECIFIC_INFORMATION is a block that contains
- * informtaion
+ * information
  */
 typedef enum {
     WTAP_BLOCK_SECTION = 0,
@@ -295,7 +295,7 @@ typedef struct wtapng_section_mandatory_s {
 
 /** struct holding the information to build a WTAP_BLOCK_IF_ID_AND_INFO.
  *  the interface_data array holds an array of wtap_block_t
- *  representing interfacs, one per interface.
+ *  representing interfaces, one per interface.
  */
 typedef struct wtapng_iface_descriptions_s {
     GArray *interface_data;
@@ -1210,7 +1210,7 @@ wtap_block_get_if_filter_option_value(wtap_block_t block, unsigned option_id, if
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_add_packet_verdict_option(wtap_block_t block, unsigned option_id, packet_verdict_opt_t* value);
 
-/** Set packet_verdict option value for the nth instsance of a particular
+/** Set packet_verdict option value for the nth instance of a particular
  * option in a block
  *
  * @param[in] block Block in which to set the option value

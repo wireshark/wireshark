@@ -1755,7 +1755,7 @@ main(int argc, char *argv[])
     }
 
     /* If we specified output fields, but not the output field type... */
-    /* XXX: If we specfied both output fields with -e *and* protocol filters
+    /* XXX: If we specified both output fields with -e *and* protocol filters
      * with -j/-J, only the former are used. Should we warn or abort?
      * This also doesn't distinguish PDML from PSML, but shouldn't allow the
      * latter.

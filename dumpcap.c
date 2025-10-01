@@ -1354,7 +1354,7 @@ dlt_to_linktype(int dlt)
 	/* DLT_PFSYNC has a value on several platforms that's in the
 	   non-matching range, a value on FreeBSD that's in the high
 	   matching range and that's *not* equal to LINKTYPE_PFSYNC,
-	   and has a value on the rmaining platforms that's equal
+	   and has a value on the remaining platforms that's equal
 	   to LINKTYPE_PFSYNC, which is in the high matching range.
 
 	   Map it to LINKTYPE_PFSYNC if it's not equal to LINKTYPE_PFSYNC. */
@@ -1382,7 +1382,7 @@ dlt_to_linktype(int dlt)
 
 	/* These DLT_ values have different values on different
 	   platforms, so we assigned them LINKTYPE_ values just
-	   below the lower bound of the high matchig range;
+	   below the lower bound of the high matching range;
 	   those values should never be equal to any DLT_
 	   values, so that should avoid collisions.
 

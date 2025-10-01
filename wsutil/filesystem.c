@@ -244,7 +244,7 @@ test_for_regular_file(const char *path)
  *
  *    Contains loadable bundles that extend the basic features of your
  *    application. You use this directory to include code modules that
- *    must be loaded into your applicationbs process space in order to
+ *    must be loaded into your application's process space in order to
  *    be used. You would not use this directory to store standalone
  *    executables.
  *

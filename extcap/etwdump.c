@@ -216,7 +216,7 @@ static int list_config(char* interface)
         "{type=table}{tooltip=Should contain the list of provider GUIDs, keyword and level filters for the etl file or live session.}{required=sufficient}{group=Capture}\n",
         inc++);
     /*
-    * The undecidable events are those that either don't have sub-dissector or don't have anthing meaningful to display except for the EVENT_HEADER.
+    * The undecidable events are those that either don't have sub-dissector or don't have anything meaningful to display except for the EVENT_HEADER.
     */
     printf("arg {number=%u}{call=--iue}{display=Should undecidable events be included}"
         "{type=boolflag}{default=false}{tooltip=Choose if the undecidable event is included}{group=Capture}\n",

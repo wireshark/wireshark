@@ -1982,7 +1982,7 @@ static bool run_capture_asa(ssh_channel channel, const char* iface, const char* 
 				} else {
 					cmdline = g_strdup_printf("capture %s type isakmp packet-length 32810 interface %s", WIRESHARK_CAPTURE, ifname);
 				}
-				/* Completelly different output
+				/* Completely different output
 				} else if (strstr(iface_one,  "webvpn")) {
 					cmdline = g_strdup_printf("capture %s type webvpn user %s", WIRESHARK_CAPTURE, ifname);
 					process_filter = false;

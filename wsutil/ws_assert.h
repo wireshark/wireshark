@@ -28,13 +28,13 @@
  * code is treated as an if that tests the expression.
  *
  * This could mean that, if "defined but not used" tests are
- * being done, any variable tested in the expression may be warked
+ * being done, any variable tested in the expression may be warned
  * as "defined but not used" if WS_ASSERT_ENABLED is 0, causing
  * a pile of warnings if the variable isn't marked as unused
  * (especially true of parametre variables).
  *
  * However, some compilers - Clang, in my tests, and probably GCC,
- * due to tests in builds not failing - treate "if (0 && (expression))"
+ * due to tests in builds not failing - treat "if (0 && (expression))"
  * specially, pretending hat all variables in the expression are used,
  * even if they aren't used in the generated code. (At least in
  * Apple clang version 15.0.0 (clang-1500.1.0.2.5), it must be

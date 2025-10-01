@@ -43,7 +43,7 @@ extern pcap_t *open_capture_device_pcap_create(capture_options *capture_opts,
 extern char *cant_get_if_list_error_message(const char *err_str);
 
 /*
- * Get a longer, secondary error message corrresponding to why getting
+ * Get a longer, secondary error message corresponding to why getting
  * capabilities or opening a device failed. This is used to let the error
  * message string be platform-dependent.
  */

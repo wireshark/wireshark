@@ -105,7 +105,7 @@ typedef unsigned (*codec_get_frequency_fn)(codec_context_t *context);
  * @param outputSamplesSize Length of output buffer in bytes (not samples!)
  *        Function can override this value. All codecs set it to same value as it returns in (2) when (2) is called.
  *
- * @return Count of reqired bytes (!not samples) to allocate in (1) or
+ * @return Count of required bytes (!not samples) to allocate in (1) or
  *         Count of decoded bytes (!not samples) in (2)
  */
 typedef size_t (*codec_decode_fn)(codec_context_t *context,

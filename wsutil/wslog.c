@@ -16,7 +16,7 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
-/* Because ws_assert() dependes on ws_error() we do not use it
+/* Because ws_assert() depends on ws_error() we do not use it
  * here and fall back on assert() instead. */
 #include <assert.h>
 #ifdef HAVE_UNISTD_H

@@ -40,7 +40,7 @@ const int ws_utf8_seqlen[256] = {
  * a unit. (I.e., given a sequence of 2 or 3 bytes which are a
  * truncated version of a 3 or 4 byte UTF-8 character, but the next
  * byte does not continue the character, the set of 2 or 3 bytes
- * are replaced with one REPLACMENT CHARACTER.)
+ * are replaced with one REPLACEMENT CHARACTER.)
  */
 static inline size_t
 utf_8_validate(const uint8_t *start, ssize_t length, const uint8_t **end)
@@ -173,7 +173,7 @@ utf_8_validate(const uint8_t *start, ssize_t length, const uint8_t **end)
  * be added later.
  *
  * Compared with g_utf8_make_valid(), this function does not consider
- * internal NUL bytes as invalid and replace them with replacment characters.
+ * internal NUL bytes as invalid and replace them with replacement characters.
  * It also replaces maximal subparts as a unit; i.e., a sequence of 2 or 3
  * bytes which are a truncated version of a valid 3 or 4 byte character (but
  * the next byte does not continue the character) are replaced with a single

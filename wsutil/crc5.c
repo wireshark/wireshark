@@ -21,7 +21,7 @@ static uint8_t crc5_usb_bits(uint32_t v, int vl, uint8_t ival)
      *
      * "One of the properties of LFSRs is that a 1 bit in the input toggles a
      *  completely predictable set of register bits *at any point in the
-     *  future*. This isn't often useful for most CRC caculations on variable
+     *  future*. This isn't often useful for most CRC calculations on variable
      *  sized input, as the cost of working out which those bits are vastly
      *  outweighs most other methods."
      *

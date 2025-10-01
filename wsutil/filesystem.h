@@ -232,7 +232,7 @@ WS_DLL_PUBLIC int delete_persconffile_profile(const char *profilename,
 				       char **pf_dir_path_return);
 
 /*
- * Rename the directory for the given confinguration profile.
+ * Rename the directory for the given configuration profile.
  */
 WS_DLL_PUBLIC int rename_persconffile_profile(const char *fromname, const char *toname,
 				       char **pf_from_dir_path_return,
@@ -410,7 +410,7 @@ WS_DLL_PUBLIC bool copy_file_binary_mode(const char *from_filename,
 WS_DLL_PUBLIC char* data_file_url(const char *filename);
 
 /*
- * Free the internal structtures
+ * Free the internal structures
  */
 WS_DLL_PUBLIC void free_progdirs(void);
 

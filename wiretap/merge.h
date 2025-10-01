@@ -109,7 +109,7 @@ typedef struct {
  * @param snaplen The snaplen to limit it to, or 0 to leave as it is in the files
  * @param app_name The application name performing the merge, used in SHB info
  * @param cb The callback information to use during execution
- * @param compression_type The compresion type to use for the output
+ * @param compression_type The compression type to use for the output
  * @return true on success, false on failure
  */
 WS_DLL_PUBLIC bool

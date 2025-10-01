@@ -78,7 +78,7 @@ mktime_utc(struct tm *tm)
 	 * value for 2013-03-01 00:00:00 UTC, but also set
 	 * errno to EOVERFLOW.  This may be true of other
 	 * implementations based on the tzcode reference
-	 * impelementation of timegm().
+	 * implementation of timegm().
 	 *
 	 * The macOS and FreeBSD documentation for timegm() neither
 	 * commit to leaving errno alone nor commit to setting it

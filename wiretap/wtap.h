@@ -1610,7 +1610,7 @@ typedef struct wtap_wslua_file_info {
  * whose contents we can dissect, and a list of extensions files of
  * that type might have.
  *
- * Note that entries in this table do *not* necessarily correspoond
+ * Note that entries in this table do *not* necessarily correspond
  * to single file types; for example, the entry that lists just "cap"
  * is for several file formats, all of which use the extension ".cap".
  *
@@ -2168,7 +2168,7 @@ void wtap_free_idb_info(wtapng_iface_descriptions_t *idb_info);
 /**
  * @brief Gets a debug string of an interface description.
  * @details Returns a newly allocated string of debug information about
- *          the given interface descrption, useful for debugging.
+ *          the given interface description, useful for debugging.
  * @note The returned pointer must be g_free'd.
  *
  * @param if_descr The interface description.
@@ -2568,7 +2568,7 @@ block_support_t wtap_file_type_subtype_supports_block(int file_type_subtype,
 
 /**
  * Return an indication of whether this capture file format supports
- * the option in queston for the block in question.
+ * the option in question for the block in question.
  */
 WS_DLL_PUBLIC
 option_support_t wtap_file_type_subtype_supports_option(int file_type_subtype,

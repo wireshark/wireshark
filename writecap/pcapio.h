@@ -71,16 +71,16 @@ pcapng_write_block(pcapio_writer* pfile,
  */
 extern bool
 pcapng_write_section_header_block(pcapio_writer* pfile,  /**< Write information */
-                                  GPtrArray *comments,  /**< Comments on the section, Optinon 1 opt_comment
+                                  GPtrArray *comments,  /**< Comments on the section, Option 1 opt_comment
                                                          * UTF-8 strings containing comments that areassociated to the current block.
                                                          */
-                                  const char *hw,       /**< HW, Optinon 2 shb_hardware
+                                  const char *hw,       /**< HW, Option 2 shb_hardware
                                                          * An UTF-8 string containing the description of the hardware  used to create this section.
                                                          */
-                                  const char *os,       /**< Operating system name, Optinon 3 shb_os
+                                  const char *os,       /**< Operating system name, Option 3 shb_os
                                                          * An UTF-8 string containing the name of the operating system used to create this section.
                                                          */
-                                  const char *appname,  /**< Application name, Optinon 4 shb_userappl
+                                  const char *appname,  /**< Application name, Option 4 shb_userappl
                                                          * An UTF-8 string containing the name of the application  used to create this section.
                                                          */
                                   uint64_t section_length, /**< Length of section */

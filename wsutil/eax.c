@@ -33,7 +33,7 @@ void AesEncrypt(unsigned char msg[EAX_SIZEOF_KEY], unsigned char key[EAX_SIZEOF_
 /*!
  Decrypts cleartext data using EAX' mode (see ANSI Standard C12.22-2008).
 
- @param[in]     pN      pointer to cleartext (canonified form)
+ @param[in]     pN      pointer to cleartext (cannonified form)
  @param[in]     pK      pointer to secret key
  @param[in,out] pC      pointer to ciphertext
  @param[in]     SizeN   byte length of cleartext (pN) buffer
