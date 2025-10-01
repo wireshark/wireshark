@@ -1777,8 +1777,8 @@ dissect_per_choice(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree 
 {
 	bool /*extension_present,*/ extension_flag;
 	int extension_root_entries;
-	uint32_t choice_index;
-	int i, idx, cidx;
+	uint32_t choice_index, cidx;
+	int i, idx;
 	uint32_t ext_length = 0;
 	uint32_t old_offset = offset;
 	proto_item *choice_item = NULL;
