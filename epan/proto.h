@@ -2972,7 +2972,7 @@ proto_get_finfo_ptr_array because it has to search through the tree.
     g_ptr_array_free(<array>, true). */
 WS_DLL_PUBLIC GPtrArray* proto_find_first_finfo(proto_tree *tree, const int hfindex);
 
-/** Return GPtrArray* of field_info pointers containg all hfindexes that appear
+/** Return GPtrArray* of field_info pointers containing all hfindexes that appear
     in tree.
  @param tree tree of interest
  @return GPtrArry pointer

@@ -1128,7 +1128,7 @@ typedef struct
   bool A56_bit;
   bool A57_bit;
   /*-- zero means that the same values apply for parameters as in the immediately preceding Access capabilities field within this IE
-  *-- The presence of the A5 bits is mandatory in the 1st Access capabilies struct within this IE.
+  *-- The presence of the A5 bits is mandatory in the 1st Access capabilities struct within this IE.
   */
 
   uint8_t ES_IND;
@@ -1139,7 +1139,7 @@ typedef struct
   uint8_t Exist_Multislot_capability;
   Multislot_capability_t Multislot_capability;
   /* -- zero means that the same values apply for multislot parameters as in the immediately preceding Access capabilities field within this IE.
-   * -- The presence of the Multislot capability struct is mandatory in the 1st Access capabilites struct within this IE.
+   * -- The presence of the Multislot capability struct is mandatory in the 1st Access capabilities struct within this IE.
    */
   /* -------- Rel 99 additions */
   uint8_t Exist_Eight_PSK_Power_Capability;

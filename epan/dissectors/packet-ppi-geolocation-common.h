@@ -28,7 +28,7 @@
 #define PPI_GEOBASE_LENGTH_OFFSET   2   /* offset of length field */
 #define PPI_GEOBASE_PRESENT_OFFSET  4   /* offset of "present" field */
 /*
- * These BITNO macros were accquired from the radiotap parser. maybe we can share them
+ * These BITNO macros were acquired from the radiotap parser. maybe we can share them
  * eventually
  */
 #define BITNO_32(x) (((x) >> 16) ? 16 + BITNO_16((x) >> 16) : BITNO_16((x)))

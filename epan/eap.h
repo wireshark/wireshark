@@ -1,5 +1,5 @@
 /** @file
- * Extenal definitions for EAP Extensible Authentication Protocol dissection
+ * External definitions for EAP Extensible Authentication Protocol dissection
  * RFC 2284, RFC 3748
  *
  * Wireshark - Network traffic analyzer

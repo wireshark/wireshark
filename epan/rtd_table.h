@@ -118,7 +118,7 @@ WS_DLL_PUBLIC void free_rtd_table(rtd_stat_table* table);
  */
 WS_DLL_PUBLIC void reset_rtd_table(rtd_stat_table* table);
 
-/** Interator to walk RTD tables and execute func
+/** Iterator to walk RTD tables and execute func
  * Used for initialization
  *
  * @param func action to be performed on all conversation tables

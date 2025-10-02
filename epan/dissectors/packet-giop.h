@@ -501,7 +501,7 @@ WS_DLL_PUBLIC bool is_big_endian (MessageHeader * header);
 
 /*
  * get_encap_info() for any encapsulation  (eg:sequences)
- * we come across. updates the new boundary and endianess
+ * we come across. updates the new boundary and endianness
  * and *offset, and returns the sequence length.
  */
 

@@ -33,7 +33,7 @@ extern "C" {
 
 /*
  * Raw Ethernet over ARCNET - Linux's "if_arcnet.h" calls this
- * "MS LanMan/WfWg 'NDIS' encapsuation".
+ * "MS LanMan/WfWg 'NDIS' encapsulation".
  */
 #define ARCNET_PROTO_ETHERNET	232
 

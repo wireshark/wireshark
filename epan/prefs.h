@@ -957,7 +957,7 @@ char *prefs_pref_to_str(pref_t *pref, pref_source_t source);
  *
  * @param pref A preference.
  *
- * @return A boolean indication the obsolesence of the preference.
+ * @return A boolean indication the obsolescence of the preference.
  */
 WS_DLL_PUBLIC
 bool prefs_is_preference_obsolete(pref_t *pref);

@@ -845,7 +845,7 @@ struct data_source;
  * set to DS_MEDIA_TYPE_APPLICATION_OCTET_STREAM.
  * @param pinfo Packet info.
  * @param tvb The tvbuff to associate with the data source.
- * @param name A display-freindly name of the data source.
+ * @param name A display-friendly name of the data source.
  * @return An opaque pointer to the data source.
  */
 WS_DLL_PUBLIC struct data_source* add_new_data_source(packet_info *pinfo, tvbuff_t *tvb,

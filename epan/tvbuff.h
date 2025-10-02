@@ -910,7 +910,7 @@ WS_DLL_PUBLIC char *tvb_get_ts_23_038_7bits_string_packed(wmem_allocator_t *scop
 /**
  * Given an allocator scope, a tvbuff, an offset, and a length in
  * octets with the specified offset and length referring to a string
- * in the 3GPP TS 23.038 7bits encoding, with one octet per code poiint
+ * in the 3GPP TS 23.038 7bits encoding, with one octet per code point
  * (the 8th bit of each octet should be 0; if not, the octet is invalid):
  *
  *    allocate a buffer using the specified scope;
@@ -1259,7 +1259,7 @@ WS_DLL_PUBLIC const char *tvb_bcd_dig_to_str(wmem_allocator_t *scope,
  * set, if NUL a default digit set of 0-9 returning "?" for overdecadic digits
  * will be used.  A pointer to the WMEM-allocated string will
  * be returned. Note a tvbuff content of 0xf is considered a 'filler' and will
- * end the conversion. Function uses big endian convetion: first digit is based
+ * end the conversion. Function uses big endian convention: first digit is based
  * on high order nibble, second digit is based on low order nibble.
  */
 WS_DLL_PUBLIC const char *tvb_bcd_dig_to_str_be(wmem_allocator_t *scope,

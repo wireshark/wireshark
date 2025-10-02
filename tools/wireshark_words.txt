@@ -49,6 +49,7 @@ addon
 addrbook
 addresp
 addrs
+addrstrlen
 addrtype
 addrv
 adjacency
@@ -491,6 +492,7 @@ compilable
 compilers
 completel
 compr
+comprlen
 computable
 comunicaciones
 concatenate
@@ -1209,6 +1211,8 @@ hspdsch
 hsscch
 hssite
 hsupa
+hsyncend
+hsyncstart
 htonl
 htons
 htotal
@@ -2999,6 +3003,7 @@ tvbparse
 tvbuf
 tvbuff
 tvbuffer
+tvbuffs
 twamp
 twopc
 txchannel
@@ -3252,6 +3257,7 @@ vcard
 vcpkg
 vcredist
 vcxproj
+vdisplay
 vector3d
 venusmngr
 verbose

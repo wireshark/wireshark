@@ -146,7 +146,7 @@ static const value_string gtp_sel_mode_vals[] = {
 };
 
 /** GTP header extension info
-* This structure is used to transfer infotmation to users of the "gtp.hdr_ext" dissector table
+* This structure is used to transfer information to users of the "gtp.hdr_ext" dissector table
 */
 
 typedef struct gtp_hdr_ext_info {

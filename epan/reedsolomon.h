@@ -87,7 +87,7 @@ int encode_rs(dtype data[], dtype bb[]);
  *
  * The decoder corrects the symbols in place, if possible and returns
  * the number of corrected symbols. If the codeword is illegal or
- * uncorrectible, the data array is unchanged and -1 is returned
+ * uncorrectable, the data array is unchanged and -1 is returned
  */
 int eras_dec_rs(dtype data[], int eras_pos[], int no_eras);
 

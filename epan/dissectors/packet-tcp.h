@@ -286,7 +286,7 @@ struct mptcp_subflow {
 	wmem_itree_t *dsn2packet_map;
 
 	/* Map SSN to a DSS mappings
-	 * a DSS can map DSN to SSNs possibily over several packets,
+	 * a DSS can map DSN to SSNs possibly over several packets,
 	 * hence some packets may have been mapped by previous DSS,
 	 * whence the necessity to be able to look for SSN -> DSN */
 	wmem_itree_t *ssn2dsn_mappings;

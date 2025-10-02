@@ -45,7 +45,7 @@ typedef struct _xmpp_data_t{
 typedef struct _xmpp_element_t{
     char* name;
 
-    /*abbreviation that apprears before tag name (<nos:x .../>)
+    /*abbreviation that appears before tag name (<nos:x .../>)
      if abbrev doesn't appear then NULL*/
     char* default_ns_abbrev;
     /*pair of namespace abbrev and namespace*/
@@ -108,7 +108,7 @@ typedef struct _xmpp_conv_info_t {
     uint32_t     ssl_start;
 } xmpp_conv_info_t;
 
-/** Struct conatins frame numbers (request frame(IQ set/get) and
+/** Struct contains frame numbers (request frame(IQ set/get) and
  * response frame(IQ result/error)).
  */
 typedef struct _xmpp_reqresp_transaction_t {

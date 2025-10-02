@@ -169,7 +169,7 @@ WS_DLL_PUBLIC follow_sub_stream_id_func get_follow_sub_stream_id_func(register_f
 WS_DLL_PUBLIC tap_packet_status
 follow_tvb_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags);
 
-/** Interator to walk all registered followers and execute func
+/** Iterator to walk all registered followers and execute func
  *
  * @param func action to be performed on all conversation tables
  * @param user_data any data needed to help perform function

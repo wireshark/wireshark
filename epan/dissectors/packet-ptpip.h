@@ -359,7 +359,7 @@ typedef enum {
     PTP_OC_MTP_WMDRMND_GetWMDRMNDLicenseResponse     = 0x9185,
 
     /*
-    * Windows Media Player Portiable Devices
+    * Windows Media Player Portable Devices
     * Extension Codes (microsoft.com/WMPPD: 11.1)
     */
     PTP_OC_MTP_WMPPD_ReportAddedDeletedItems         = 0x9201,

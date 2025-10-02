@@ -290,7 +290,7 @@ extern value_string_ext scsi_asc_val_ext;
     }
 
 /* If the data pdu contains an alloc_len as well, this macro can be set
- * to registe this offset for the TRY section above.
+ * to register this offset for the TRY section above.
  * At the end of the TRY section we will, if set, verify that the data
  * pdu contained all bytes that was specified in the data alloc len.
  *

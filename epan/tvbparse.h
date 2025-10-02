@@ -43,7 +43,7 @@
 
  The wanted elements are instantiated once by the proto_register_xxx function.
 
- The parser is instantiated for every packet and it mantains its state.
+ The parser is instantiated for every packet and it maintains its state.
 
  The element's data is destroyed before the next packet is dissected.
  */
@@ -61,7 +61,7 @@ typedef struct _tvbparse_t tvbparse_t;
 
 /*
  * a callback function to be called before or after an element has been
- * successfuly extracted.
+ * successfully extracted.
  *
  * Note that if the token belongs to a composed token the callbacks of the
  * components won't be called unless the composed token is successfully
@@ -376,7 +376,7 @@ tvbparse_wanted_t* tvbparse_quoted(const int id,
 
 /*
  * a helper callback for quoted strings that will shrink the token to contain
- * only the string andnot the quotes
+ * only the string and not the quotes
  */
 WS_DLL_PUBLIC
 void tvbparse_shrink_token_cb(void* tvbparse_data,

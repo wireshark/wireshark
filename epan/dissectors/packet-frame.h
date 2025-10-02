@@ -25,7 +25,7 @@ struct custom_binary_opt_data {
 
 /*
  * Routine used to register frame end routine.  The routine should only
- * be registred when the dissector is used in the frame, not in the
+ * be registered when the dissector is used in the frame, not in the
  * proto_register_XXX function.
  */
 void

@@ -16,7 +16,7 @@
 /*
  * Common UTF-8 sequences.
  * Although we've supported UTF-8 encoded source files since April 2019 /
- * bd75f5af0a, it can be useful to explictly encode some code points in
+ * bd75f5af0a, it can be useful to explicitly encode some code points in
  * order to ensure that we use them consistently.
  *
  * Sequences can be found at

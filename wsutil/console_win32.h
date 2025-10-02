@@ -59,7 +59,7 @@ bool get_console_wait(void);
 WS_DLL_PUBLIC
 void set_stdin_capture(bool set_stdin_capture);
 
-/** get stdin caputre
+/** get stdin capture
  * @return set/no set stdin_capture
  */
 WS_DLL_PUBLIC

@@ -148,7 +148,7 @@ WS_DLL_PUBLIC void sequence_analysis_use_col_info_as_label_comment(packet_info *
  */
 WS_DLL_PUBLIC register_analysis_t* sequence_analysis_find_by_name(const char* name);
 
-/** Interator to walk sequence_analysis tables and execute func
+/** Iterator to walk sequence_analysis tables and execute func
  *
  * @param func action to be performed on all sequence_analysis tables
  * @param user_data any data needed to help perform function
