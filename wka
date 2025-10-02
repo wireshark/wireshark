@@ -148,6 +148,10 @@
 01-80-C2-00-01-20	FDDI-All-Concentrator-MACs
 01-80-C2-00-01-30	FDDI-Synchronous-Bandwidth-Allocation
 01-80-C2-00-02-00/40	ETSI-reserved-future-std
+# According to the IEEE the next address is unassigned, but that has never
+# stopped Mikrotik from using an address, Ethetype, or port.
+# https://wiki.mikrotik.com/Manual:Tools/RoMON
+01-80-C2-00-88-BF	Mikrotik-RoMON
 
 01-DD-00-FF-FF-FF	Ungermann-Bass-boot-me-requests
 01-DD-01-00-00-00	Ungermann-Bass-Spanning-Tree
