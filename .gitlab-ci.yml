@@ -636,16 +636,16 @@ macOS Universal Package:
     - wireshark-macos-arm-package
   retry: 1
   before_script:
+    - export PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:$PATH:$HOME/bin"
     - python3 -m venv $CI_PROJECT_DIR/.venv
     - source $CI_PROJECT_DIR/.venv/bin/activate
     - pip3 install pytest pytest-xdist
   script:
-    - export PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:$PATH:$HOME/bin"
-    - export "WIRESHARK_BASE_DIR=${CI_PROJECT_DIR}/../wireshark-third-party"
     - if [[ $MACOS_REINSTALL_THIRD_PARTY == true ]] ; then rm -rf "$WIRESHARK_BASE_DIR" ; fi
     # Temporary hack
-    - if [ ! -d "$WIRESHARK_BASE_DIR/cmake-4.1.2-macos-universal/CMake.app/Contents/bin/cmake" ] ; then (
+    - if [ ! -e "$WIRESHARK_BASE_DIR/cmake-4.1.2-macos-universal/CMake.app/Contents/bin/cmake" ] ; then (
           cd "$WIRESHARK_BASE_DIR" ;
+          rm -rf cmake-4.1.2-macos-universal* ;
           curl -JLO https://github.com/Kitware/CMake/releases/download/v4.1.2/cmake-4.1.2-macos-universal.tar.gz ;
           tar -xf cmake-4.1.2-macos-universal.tar.gz ;
       ) fi
