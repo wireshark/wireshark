@@ -5134,7 +5134,7 @@ proto_register_enip(void)
       { &hf_eip_security_apply_behavior_flags, { "Apply Behavior Flags", "cip.eip_security.apply_behavior_flags", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
       { &hf_eip_security_check_subject_alternative_name, { "Check Subject Alternative Name", "cip.eip_security.check_subject_alternative_name", FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0, NULL, HFILL } },
       { &hf_eip_security_close_delay, { "Close Delay", "cip.eip_security.close_delay", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0, NULL, HFILL } },
-      { &hf_eip_security_dtls_timeout, { "DTLS Timeout", "cip.eip_security.dtls_timeout", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0, NULL, HFILL } },
+      { &hf_eip_security_dtls_timeout, { "DTLS Timeout", "cip.eip_security.dtls_timeout", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0, NULL, HFILL } },
       { &hf_eip_security_pull_model_enable, { "Pull Model Enable", "cip.eip_security.pull_model_enable", FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0, NULL, HFILL } },
       { &hf_eip_security_pull_model_status, { "Pull Model Status", "cip.eip_security.pull_model_status", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
 
