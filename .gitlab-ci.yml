@@ -72,9 +72,13 @@ workflow:
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "release-4.6" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
   - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == "release-4.6" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
   - if: '$CI_PIPELINE_SOURCE == "api"'
-# Incoming merge requests.
+# Incoming merge requests, including merge trains
 .if-merge-request:
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    interruptible: true
+# Incoming merge requests, excluding merge trains.
+.if-plain-merge-request:
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
     interruptible: true
 # Incoming non-detached merge requests. Must be used for runners which are only
 # available in wireshark/wireshark, e.g. wireshark-windows-*
@@ -874,15 +878,15 @@ Ubuntu GCC Build:
 # packages work, so disable the MinGW builds for now.
 .Fedora MinGW Build:
   extends: .build-mingw
-  rules: !reference [.if-merge-request]
+  rules: !reference [.if-plain-merge-request]
   needs: [ 'Commit Check' ]
 
 Clang + Code Checks:
   extends: .build-ubuntu
   tags:
     - saas-linux-medium-amd64
-  rules: !reference [.if-merge-request]
-  needs: [ 'Commit Check' ]
+  rules: !reference [.if-plain-merge-request]
+  # needs: [ 'Commit Check' ]
   script:
     - source /clang-latest.env
     - apt-get update && apt-get --yes install python3-venv
@@ -940,7 +944,7 @@ Clang + Code Checks:
 
 .No options:
   extends: .build-ubuntu
-  rules: !reference [.if-merge-request]
+  rules: !reference [.if-plain-merge-request]
   needs: [ 'Commit Check' ]
   script: |
     cmake -GNinja -DENABLE_CCACHE=ON \
