@@ -7,7 +7,7 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is an experimental release intended to test new features for Wireshark 4.6.
+This is the first release of the 4.6 branch.
 
 == What is Wireshark?
 
@@ -17,6 +17,9 @@ It is used for troubleshooting, analysis, development and education.
 Wireshark is hosted by the Wireshark Foundation, a nonprofit which promotes protocol analysis education.
 Wireshark and the foundation depend on your contributions in order to do their work.
 If you or your organization would like to contribute or become a sponsor, please visit https://wiresharkfoundation.org[wiresharkfoundation.org].
+
+Official Wireshark training and certification are available from
+https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 == What’s New
 
@@ -48,17 +51,14 @@ The following features are either new or have been significantly updated since v
 * The Windows installers now ship with Npcap 1.83.
   They previously shipped with Npcap 1.79.
 
-* The Windows and macOS installers now ship with Qt 6.8.3.
+* The Windows and macOS installers now ship with Qt 6.9.3.
   They previously shipped with Qt 6.5.3.
-
-* WinPcap is no longer supported. On Windows, use Npcap instead, uninstalling
-  WinPcap if necessary. The last release ever of WinPcap, 4.1.3, was in
-  2013 and only supports up to Windows 8, which is no longer supported
-  by Microsoft or Wireshark.
 
 * We now ship universal macOS installers instead of separate packages for Arm64 and Intel. wsbuglink:17294[]
 
-* Source packages are now compressed using zstd.
+* WinPcap is no longer supported. On Windows, use Npcap instead, uninstalling WinPcap if necessary.
+  The final release of WinPcap was version 4.1.3 in 2013.
+  It only supports up to Windows 8, which is no longer supported by Microsoft or Wireshark.
 
 * A new “Plots” dialog has been added, which provides scatter plots in contrast to the “I/O Graphs” dialog, which provides histograms.
   The Plots dialog window supports multiple plots, markers, and automatic scrolling.
@@ -203,7 +203,8 @@ The following features are either new or have been significantly updated since v
   current OS default on Windows and macOS, if Wireshark is built with
   Qt 6.8 or later as the official installers are. wsbuglink:19328[]
 
-* LibXml2 is now a required dependency.
+* libxml2 is now a required dependency.
+  Note that Wireshark will not build with libxml2 2.15.0, but other versions should work.
 
 * The menu:View[] menu has an option to Redissect Packets manually, which can be useful
   when address resolution or decryption secrets have changed.
@@ -258,7 +259,7 @@ DECT NR+ (DECT-2020 New Radio)
 DLMS/COSEM
 Ephemeral Diffie-Hellman Over COSE
 Identifier-Locator Network Protocol (ILNP)
-LDANeo Device trailer (LDANeo)
+LDA Neo Device trailer (LDA_NEO_TRAILER)
 Lenbrook Service Discovery Protocol (LSDP)
 LLC V1
 Navitrol messaging
@@ -304,7 +305,7 @@ BLF is now improved (including writing to BLF)
 
 //_Non-empty section placeholder._
 
-// === Major API Changes
+=== Major API Changes
 
 The Lua API now supports Libgcrypt symmetric cipher functions.
 
@@ -349,9 +350,6 @@ https://gitlab.com/wireshark/wireshark/-/issues[the issue tracker].
 
 You can learn protocol analysis and meet Wireshark’s developers at
 https://sharkfest.wireshark.org[SharkFest].
-
-Official Wireshark training and certification are available from
-https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 == How You Can Help
 
