@@ -3854,18 +3854,22 @@ static tvbuff_t *decrypt_mac_pdus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	uint8_t *payload_data = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, length);
 
-	/* Decrypt the payload data in place */
 	gcry_cipher_hd_t handle;
-	if (gcry_cipher_open(&handle, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0) ||
-	    gcry_cipher_setkey(handle, cipher_key->data, cipher_key->len) ||
-	    gcry_cipher_setctr(handle, iv, sizeof(iv)) ||
-	    gcry_cipher_decrypt(handle, payload_data, length, NULL, 0)) {
+	gcry_error_t err;
+
+	/* Decrypt the payload data in place */
+	err = gcry_cipher_open(&handle, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0) ||
+	      gcry_cipher_setkey(handle, cipher_key->data, cipher_key->len) ||
+	      gcry_cipher_setctr(handle, iv, sizeof(iv)) ||
+	      gcry_cipher_decrypt(handle, payload_data, length, NULL, 0);
+	gcry_cipher_close(handle);
+
+	if (err) {
 		item = expert_add_info(pinfo, item, &ei_dect_nr_mac_encrypted);
 		proto_item_append_text(item, " (decryption failed)");
 		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[Decryption failed]");
 		return NULL;
 	}
-	gcry_cipher_close(handle);
 
 	tvbuff_t *decrypt_tvb = tvb_new_real_data(payload_data, length, length);
 	add_new_data_source(pinfo, decrypt_tvb, "Decrypted MAC PDUs");
