@@ -640,6 +640,13 @@ macOS Universal Package:
   script:
     - export PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:$PATH:$HOME/bin"
     - if [[ $MACOS_REINSTALL_THIRD_PARTY == true ]] ; then rm -rf "$WIRESHARK_BASE_DIR" ; fi
+    # Temporary hack
+    - if [ ! -d "$WIRESHARK_BASE_DIR/cmake-4.1.2-macos-universal/CMake.app/Contents/bin/cmake" ] ; then (
+          cd "$WIRESHARK_BASE_DIR" ;
+          curl -JLO https://github.com/Kitware/CMake/releases/download/v4.1.2/cmake-4.1.2-macos-universal.tar.gz ;
+          tar -xf cmake-4.1.2-macos-universal.tar.gz ;
+      ) fi
+    - export PATH="$WIRESHARK_BASE_DIR/cmake-4.1.2-macos-universal/CMake.app/Contents/bin:$PATH"
     - if [ ! -d "$WIRESHARK_BASE_DIR/Qt" ] ; then mkdir -p "$WIRESHARK_BASE_DIR/Qt" ; fi
     - if [ ! -d "$WIRESHARK_BASE_DIR/Qt/$MACOS_QT_VERSION/macos/lib/QtCore.framework" ] ; then
         pip3 install aqtinstall ;
