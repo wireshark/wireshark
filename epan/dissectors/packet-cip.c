@@ -7079,13 +7079,6 @@ int dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto
          dissect_cip_data(mult_serv_tree, next_tvb, 0, pinfo, NULL, mult_serv_item, true);
       }
 
-      /* Add the embedded CIP service to the item. */
-      if (mult_serv_item != NULL)
-      {
-         uint8_t service = tvb_get_uint8(next_tvb, 0);
-         proto_item_append_text(mult_serv_item, "%s", val_to_str(pinfo->pool, service & CIP_SC_MASK, cip_sc_vals, "Service (0x%02x)"));
-      }
-
       if (i != num_services - 1)
       {
           col_append_str(pinfo->cinfo, COL_INFO, ", ");
@@ -8432,7 +8425,8 @@ static void dissect_cip_cm_unconnected_send_req(proto_tree* cmd_data_tree, tvbuf
    proto_tree_add_item(cmd_data_tree, hf_cip_cm_msg_req_size, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
 
    /* Message Request */
-   proto_tree* temp_tree = proto_tree_add_subtree(cmd_data_tree, tvb, offset + 4, msg_req_siz, ett_cm_mes_req, NULL, "CIP Embedded Message Request");
+   proto_item* temp_item;
+   proto_tree* temp_tree = proto_tree_add_subtree(cmd_data_tree, tvb, offset + 4, msg_req_siz, ett_cm_mes_req, &temp_item, "CIP Embedded Message Request: ");
 
    /*
    ** We call ourselves again to dissect embedded packet
@@ -8456,7 +8450,7 @@ static void dissect_cip_cm_unconnected_send_req(proto_tree* cmd_data_tree, tvbuf
       }
    }
 
-   dissect_cip_data(temp_tree, next_tvb, 0, pinfo, pembedded_req_info, NULL, false);
+   dissect_cip_data(temp_tree, next_tvb, 0, pinfo, pembedded_req_info, temp_item, false);
 
    if (msg_req_siz % 2)
    {
@@ -9840,6 +9834,7 @@ void dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_
          if(!dissector_try_heuristic(heur_subdissector_service, tvb, pinfo, item_tree, &hdtbl_entry, NULL))
          {
            dissect_cip_generic_service_rsp(tvb, pinfo, cip_tree);
+           proto_item_append_text(msp_item, "%s", val_to_str(pinfo->pool, service & CIP_SC_MASK, cip_sc_vals, "Service (0x%02x)"));
          }
       }
       else if (service_entry)
@@ -9849,6 +9844,7 @@ void dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_
       else
       {
          call_dissector( cip_class_generic_handle, tvb, pinfo, item_tree );
+         proto_item_append_text(msp_item, "%s", val_to_str(pinfo->pool, service & CIP_SC_MASK, cip_sc_vals, "Service (0x%02x)"));
       }
    } /* End of if reply */
    else
@@ -9923,6 +9919,7 @@ void dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_
              }
 
              dissect_cip_generic_service_req(tvb, pinfo, cip_tree, &path_info);
+             proto_item_append_text(msp_item, "%s", val_to_str(pinfo->pool, service& CIP_SC_MASK, cip_sc_vals, "Service (0x%02x)"));
           }
       }
       else if ( dissector )
@@ -9936,6 +9933,7 @@ void dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_
       else
       {
          call_dissector( cip_class_generic_handle, tvb, pinfo, item_tree );
+         proto_item_append_text(msp_item, "%s", val_to_str(pinfo->pool, service & CIP_SC_MASK, cip_sc_vals, "Service (0x%02x)"));
       }
    } /* End of if-else( request ) */
 
