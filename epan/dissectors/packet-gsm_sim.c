@@ -2050,6 +2050,10 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 			dissect_auth_challenge(p2 & 0x07, tvb, sim_tree, offset, p3);
 			offset += p3;
 		}
+		if (tvb_reported_length_remaining(tvb, offset)) {
+			dissect_apdu_le(sim_tree, tvb, offset, extended_len, false);
+			offset += (extended_len ? 2 : 1);
+		}
 		break;
 	case 0x10: /* TERMINAL PROFILE */
 		dissect_apdu_lc(sim_tree, tvb, offset+P3_OFFS, extended_len);
