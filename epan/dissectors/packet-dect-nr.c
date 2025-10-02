@@ -3794,9 +3794,11 @@ static tvbuff_t *decrypt_mac_pdus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		sec_info = lookup_sec_info(pinfo, ctx);
 
 		if (sec_info) {
+			proto_item *hpc_item;
+
 			tree = proto_item_add_subtree(item, ett_dect_nr_mac_encrypted);
-			item = proto_tree_add_uint(tree, hf_dect_nr_msi_hpc, NULL, 0, 0, sec_info->hpc);
-			proto_item_set_generated(item);
+			hpc_item = proto_tree_add_uint(tree, hf_dect_nr_msi_hpc, NULL, 0, 0, sec_info->hpc);
+			proto_item_set_generated(hpc_item);
 		} else {
 			item = expert_add_info(pinfo, item, &ei_dect_nr_mac_encrypted);
 			proto_item_append_text(item, " (missing security info)");
@@ -3812,7 +3814,7 @@ static tvbuff_t *decrypt_mac_pdus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return NULL;
 	}
 
-	if (sec_info->key > KEY_MAX || !cipher_key_pref[sec_info->key] || strlen(cipher_key_pref[sec_info->key]) == 0) {
+	if (sec_info->key >= KEY_MAX || !cipher_key_pref[sec_info->key] || strlen(cipher_key_pref[sec_info->key]) == 0) {
 		item = expert_add_info(pinfo, item, &ei_dect_nr_mac_encrypted);
 		proto_item_append_text(item, " (no cipher key #%u)", sec_info->key);
 		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[No Cipher Key #%u]", sec_info->key);
@@ -3852,13 +3854,17 @@ static tvbuff_t *decrypt_mac_pdus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	uint8_t *payload_data = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, length);
 
-	gcry_cipher_hd_t handle;
-	gcry_cipher_open(&handle, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0);
-	gcry_cipher_setkey(handle, cipher_key->data, cipher_key->len);
-	gcry_cipher_setctr(handle, iv, sizeof(iv));
-
 	/* Decrypt the payload data in place */
-	gcry_cipher_decrypt(handle, payload_data, length, NULL, 0);
+	gcry_cipher_hd_t handle;
+	if (gcry_cipher_open(&handle, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0) ||
+	    gcry_cipher_setkey(handle, cipher_key->data, cipher_key->len) ||
+	    gcry_cipher_setctr(handle, iv, sizeof(iv)) ||
+	    gcry_cipher_decrypt(handle, payload_data, length, NULL, 0)) {
+		item = expert_add_info(pinfo, item, &ei_dect_nr_mac_encrypted);
+		proto_item_append_text(item, " (decryption failed)");
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[Decryption failed]");
+		return NULL;
+	}
 	gcry_cipher_close(handle);
 
 	tvbuff_t *decrypt_tvb = tvb_new_real_data(payload_data, length, length);
