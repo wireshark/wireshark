@@ -115,79 +115,185 @@ extern char *g_pipxnets_path;
 
 /* Functions in addr_resolv.c */
 
-/*
- * returns an ipv4 object built from its address
+/**
+ * @brief Construct a new IPv4 object from a 32-bit address.
+ *
+ * Creates and returns a `hashipv4_t` instance initialized with the given
+ * IPv4 address. The address should be provided in host byte order as a
+ * 32-bit unsigned integer.
+ *
+ * @param addr  IPv4 address in host byte order.
+ * @return      Pointer to a newly allocated `hashipv4_t` object.
  */
 WS_DLL_PUBLIC hashipv4_t * new_ipv4(const unsigned addr);
 
-/*
- * returns a 'dummy ip4' object built from an address
+/**
+ * @brief Populate a dummy IPv4 object with the specified address.
+ *
+ * Initializes the given `hashipv4_t` pointer with the provided IPv4 address,
+ * marking it as a placeholder or synthetic entry. This is typically used for
+ * testing, fallback logic, or internal bookkeeping where a non-real IP is
+ * required.
+ *
+ * @param addr IPv4 address in host byte order.
+ * @param tp   Pointer to a `hashipv4_t` object to populate.
+ * @return     `true` on success, `false` on failure.
  */
 WS_DLL_PUBLIC bool fill_dummy_ip4(const unsigned addr, hashipv4_t* volatile tp);
 
-/*
- * udp_port_to_display() returns the port name corresponding to that UDP port,
- * or the port number as a string if not found.
+/**
+ * @brief Resolve a UDP port number to its display name.
+ *
+ * Returns a human-readable name for the specified UDP port, such as "DNS" for port 53.
+ * If no known name is associated with the port, the function returns the numeric
+ * port value as a string. The result is allocated using the provided `wmem_allocator_t`.
+ *
+ * @param allocator Memory allocator used to allocate the returned string.
+ * @param port      UDP port number to resolve.
+ * @return          Allocated string containing the port name or numeric value.
  */
 WS_DLL_PUBLIC char *udp_port_to_display(wmem_allocator_t *allocator, unsigned port);
 
-/*
- * tcp_port_to_display() returns the port name corresponding to that TCP port,
- * or the port number as a string if not found.
+
+/**
+ * @brief Resolve a TCP port number to its display name.
+ *
+ * Returns a human-readable name for the specified TCP port, such as "HTTP" for port 80.
+ * If no known name is associated with the port, the function returns the numeric
+ * port value as a string. The result is allocated using the provided `wmem_allocator_t`.
+ *
+ * @param allocator Memory allocator used to allocate the returned string.
+ * @param port      TCP port number to resolve.
+ * @return          Allocated string containing the port name or numeric value.
  */
 WS_DLL_PUBLIC char *tcp_port_to_display(wmem_allocator_t *allocator, unsigned port);
 
-/*
- * dccp_port_to_display() returns the port name corresponding to that DCCP port,
- * or the port number as a string if not found.
+/**
+ * @brief Resolve a DCCP port number to its display name.
+ *
+ * Returns a human-readable name for the specified DCCP port, such as "RTP" or "DCCP-Test".
+ * If no known name is associated with the port, the function returns the numeric
+ * port value as a string. The result is allocated using the provided `wmem_allocator_t`.
+ *
+ * @param allocator Memory allocator used to allocate the returned string.
+ * @param port      DCCP port number to resolve.
+ * @return          Allocated string containing the port name or numeric value.
  */
 extern char *dccp_port_to_display(wmem_allocator_t *allocator, unsigned port);
 
-/*
- * sctp_port_to_display() returns the port name corresponding to that SCTP port,
- * or the port number as a string if not found.
+/**
+ * @brief Resolve an SCTP port number to its display name.
+ *
+ * Returns a human-readable name for the specified SCTP port, such as "Diameter" for port 3868.
+ * If no known name is associated with the port, the function returns the numeric
+ * port value as a string. The result is allocated using the provided `wmem_allocator_t`.
+ *
+ * @param allocator Memory allocator used to allocate the returned string.
+ * @param port      SCTP port number to resolve.
+ * @return          Allocated string containing the port name or numeric value.
  */
 WS_DLL_PUBLIC char *sctp_port_to_display(wmem_allocator_t *allocator, unsigned port);
 
-/*
- * serv_name_lookup() returns the well known service name string, or numeric
- * representation if one doesn't exist.
+/**
+ * @brief Resolve a port number to its well-known service name.
+ *
+ * Returns a string representing the service name associated with the given
+ * port and protocol (e.g., "HTTP" for TCP port 80). If no known service name
+ * exists for the specified port, the function returns the numeric port value
+ * as a string.
+ *
+ * @param proto Protocol type (e.g., PT_TCP, PT_UDP).
+ * @param port  Port number to resolve.
+ * @return      Constant string containing the service name or numeric value.
  */
 WS_DLL_PUBLIC const char *serv_name_lookup(port_type proto, unsigned port);
 
-/*
- * enterprises_lookup() returns the private enterprise code string, or 'unknown_str'
- * if one doesn't exist, or "<Unknown>" if that is NULL.
+/**
+ * @brief Resolve a private enterprise code to its registered name.
+ *
+ * Returns the name associated with the given private enterprise code (PEC),
+ * commonly used in SNMP, IPFIX, and other protocol metadata. If no known
+ * name exists for the specified code, the function returns `unknown_str`,
+ * or the string "<Unknown>" if `unknown_str` is NULL.
+ *
+ * This is typically used for display, logging, or protocol dissection.
+ *
+ * @param value        Private enterprise code to resolve.
+ * @param unknown_str  Fallback string if the code is not recognized.
+ * @return             Constant string containing the enterprise name or fallback.
  */
 WS_DLL_PUBLIC const char *enterprises_lookup(uint32_t value, const char *unknown_str);
 
-/*
- * try_enterprises_lookup() returns the private enterprise code string, or NULL if not found.
+/**
+ * @brief Attempt to resolve a private enterprise code to its registered name.
+ *
+ * Returns the name associated with the given private enterprise code (PEC),
+ * commonly used in SNMP, IPFIX, and other protocol metadata. If the code is
+ * not recognized, the function returns `NULL`.
+ *
+ * @param value Private enterprise code to resolve.
+ * @return      Constant string containing the enterprise name, or `NULL` if not found.
  */
 WS_DLL_PUBLIC const char *try_enterprises_lookup(uint32_t value);
 
-/*
- * enterprises_base_custom() prints the "name (decimal)" string to 'buf'.
- * (Used with BASE_CUSTOM field display).
+/**
+ * @brief Format a private enterprise code as "name (decimal)" into a buffer.
+ *
+ * Writes a string representation of the given enterprise code to `buf`,
+ * using the format `"Name (1234)"`. If the code is unknown, the name portion
+ * is resolved via `enterprises_lookup()` and may fall back to "<Unknown>".
+ *
+ * @param buf   Output buffer to receive the formatted string.
+ * @param value Private enterprise code to format.
  */
 WS_DLL_PUBLIC void enterprises_base_custom(char *buf, uint32_t value);
 
-/*
- * try_serv_name_lookup() returns the well known service name string, or NULL if
- * one doesn't exist.
+/**
+ * @brief Attempt to resolve a port number to its well-known service name.
+ *
+ * Returns the service name associated with the specified port and protocol
+ * (e.g., "HTTPS" for TCP port 443). If no known service name exists for the
+ * given combination, the function returns `NULL`.
+ *
+ * @param proto Protocol type (e.g., PT_TCP, PT_UDP).
+ * @param port  Port number to resolve.
+ * @return      Constant string containing the service name, or `NULL` if not found.
  */
 WS_DLL_PUBLIC const char *try_serv_name_lookup(port_type proto, unsigned port);
 
-/*
- * port_with_resolution_to_str() prints the "<resolved> (<numerical>)" port
- * string.
+/**
+ * @brief Format a port number with its resolved service name.
+ *
+ * Returns a string in the format `"ServiceName (port)"`, such as `"HTTP (80)"`,
+ * based on the specified protocol and port number. If no known service name
+ * exists for the port, the numeric value is used as both the name and number.
+ * The result is allocated using the provided `wmem_allocator_t`.
+ *
+ * @param scope Memory allocator used to allocate the returned string.
+ * @param proto Protocol type (e.g., PT_TCP, PT_UDP).
+ * @param port  Port number to format.
+ * @return      Allocated string containing the formatted port representation.
  */
 WS_DLL_PUBLIC char *port_with_resolution_to_str(wmem_allocator_t *scope,
                                         port_type proto, unsigned port);
 
-/*
- * port_with_resolution_to_str_buf() prints the "<resolved> (<numerical>)" port
- * string to 'buf'. Return value is the same as snprintf().
+/**
+ * @brief Format a port number with its resolved service name into a buffer.
+ *
+ * Writes a string in the format `"ServiceName (port)"`—such as `"SSH (22)"`—
+ * to the provided buffer, based on the specified protocol and port number.
+ * If no known service name exists, the numeric value is used as both name
+ * and number. This function is typically used for logging, diagnostics,
+ * or UI display where fixed-size output is required.
+ *
+ * The return value matches that of `snprintf()`: the number of characters
+ * that would have been written if the buffer were large enough.
+ *
+ * @param buf       Output buffer to receive the formatted string.
+ * @param buf_size  Size of the output buffer in bytes.
+ * @param proto     Protocol type (e.g., PT_TCP, PT_UDP).
+ * @param port      Port number to format.
+ * @return          Number of characters that would have been written.
  */
 WS_DLL_PUBLIC int port_with_resolution_to_str_buf(char *buf, unsigned long buf_size,
                                         port_type proto, unsigned port);
@@ -201,32 +307,62 @@ struct pref_module;
 extern void addr_resolve_pref_init(struct pref_module *nameres);
 extern void addr_resolve_pref_apply(void);
 
-/*
- * disable_name_resolution() sets all relevant gbl_resolv_flags to false.
+/**
+ * @brief Disable all forms of name resolution.
+ *
+ * Sets all relevant global resolution flags (`gbl_resolv_flags`) to `false`,
+ * effectively disabling hostname, service name, and other symbolic resolution
+ * features. This is typically used to improve performance or enforce numeric-only
+ * output in protocol analysis and logging.
  */
 WS_DLL_PUBLIC void disable_name_resolution(void);
 
-/** If we're using c-ares process outstanding host name lookups.
- *  This is called from a GLIB timeout in Wireshark and before processing
- *  each packet in the first pass of two-pass TShark.
+/**
+ * @brief Process outstanding asynchronous host name lookups via c-ares.
+ *
+ * If c-ares is enabled, this function checks for completed host name resolutions
+ * and updates internal state accordingly. It is invoked periodically via a GLIB
+ * timeout in Wireshark, and before each packet is processed during the first pass
+ * of two-pass TShark analysis.
  *
  * @return True if any new objects have been resolved since the previous
  * call. This can be used to trigger a display update, e.g. in Wireshark.
  */
 WS_DLL_PUBLIC bool host_name_lookup_process(void);
 
-/* get_hostname returns the host name or "%d.%d.%d.%d" if not found.
- * The string does not have to be freed; it will be freed when the
- * address hashtables are emptied (e.g., when preferences change or
- * redissection.) However, this increases persistent memory usage
- * even when host name lookups are off.
+/**
+ * @brief Resolve an IPv4 address to its host name.
  *
- * This might get deprecated in the future for get_hostname_wmem.
+ * Returns a string containing the host name associated with the given IPv4
+ * address, or a numeric string in the format `"%d.%d.%d.%d"` if no name is found.
+ * The returned string is managed internally and must not be freed by the caller.
+ * It will be released when address hashtables are cleared (e.g., due to preference
+ * changes or redissection).
+ *
+ * @note This function may increase persistent memory usage even when host name
+ *       resolution is disabled. It may be deprecated in favor of `get_hostname_wmem()`
+ *       for better memory management.
+ *
+ * @param addr IPv4 address in host byte order.
+ * @return     Constant string containing the resolved host name or numeric address.
  */
 WS_DLL_PUBLIC const char *get_hostname(const unsigned addr);
 
-/* get_hostname_wmem returns the host name or "%d.%d.%d.%d" if not found
- * The returned string is allocated according to the wmem scope allocator. */
+/**
+ * @brief Resolve an IPv4 address to its host name using scoped memory allocation.
+ *
+ * Returns a string containing the host name associated with the given IPv4 address,
+ * or a numeric string in the format `"%d.%d.%d.%d"` if no name is found. The returned
+ * string is allocated using the provided `wmem_allocator_t`, allowing flexible memory
+ * management across dissector passes or UI components.
+ *
+ * This function is preferred over `get_hostname()` for memory safety and scoped lifetime
+ * control, especially in environments with redissection or preference reloads.
+ *
+ * @param allocator Memory allocator used to allocate the returned string.
+ * @param addr      IPv4 address in host byte order.
+ * @return          Allocated string containing the resolved host name or numeric address.
+ */
 WS_DLL_PUBLIC char *get_hostname_wmem(wmem_allocator_t *allocator, const unsigned addr);
 
 /* get_hostname6 returns the host name, or numeric addr if not found.
