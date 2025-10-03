@@ -173,13 +173,19 @@ WSLUA_METHOD Column_set(lua_State *L) {
 WSLUA_METHOD Column_append(lua_State *L) {
     /* Appends text to a Column. */
 #define WSLUA_ARG_Column_append_TEXT 2 /* The text to append to the Column. */
+#define WSLUA_OPTARG_Column_append_SEP 3 /* An optional separator to use as prefix if the column is not empty. */
     Column c = checkColumn(L,1);
     const char* s = luaL_checkstring(L,WSLUA_ARG_Column_append_TEXT);
 
     if (!(c->cinfo))
         return 0;
 
-    col_append_str(c->cinfo, c->col, s);
+    if (lua_gettop(L) >= WSLUA_OPTARG_Column_append_SEP) {
+        const char* sep = luaL_checkstring(L,WSLUA_OPTARG_Column_append_SEP);
+        col_append_sep_str(c->cinfo, c->col, sep, s);
+    } else {
+        col_append_str(c->cinfo, c->col, s);
+    }
 
     return 0;
 }
