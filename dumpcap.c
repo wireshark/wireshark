@@ -25,10 +25,6 @@
 
 #include <wsutil/ws_getopt.h>
 
-#if defined(__APPLE__) && defined(__LP64__)
-#include <sys/utsname.h>
-#endif
-
 #include <signal.h>
 #include <errno.h>
 
@@ -389,18 +385,8 @@ static loop_data   global_ld;
 /*
  * Timeout, in milliseconds, for reads from the stream of captured packets
  * from a capture device.
- *
- * A bug in Mac OS X 10.6 and 10.6.1 causes calls to pcap_open_live(), in
- * 64-bit applications, with sub-second timeouts not to work.  The bug is
- * fixed in 10.6.2, re-broken in 10.6.3, and again fixed in 10.6.5.
  */
-#if defined(__APPLE__) && defined(__LP64__)
-static bool need_timeout_workaround;
-
-#define CAP_READ_TIMEOUT        (need_timeout_workaround ? 1000 : 250)
-#else
 #define CAP_READ_TIMEOUT        250
-#endif
 
 /*
  * Timeout, in microseconds, for reads from the stream of captured packets
@@ -5240,9 +5226,6 @@ main(int argc, char *argv[])
     int               status, run_once_args = 0;
     int               i;
     unsigned          j;
-#if defined(__APPLE__) && defined(__LP64__)
-    struct utsname    osinfo;
-#endif
     GString          *str;
 
     /* Set the program name. */
@@ -5356,28 +5339,6 @@ main(int argc, char *argv[])
     /* Initialize the version information. */
     ws_init_version_info("Dumpcap", gather_dumpcap_compiled_info,
                          gather_dumpcap_runtime_info);
-
-#if defined(__APPLE__) && defined(__LP64__)
-    /*
-     * Is this Mac OS X 10.6.0, 10.6.1, 10.6.3, or 10.6.4?  If so, we need
-     * a bug workaround - timeouts less than 1 second don't work with libpcap
-     * in 64-bit code.  (The bug was introduced in 10.6, fixed in 10.6.2,
-     * re-introduced in 10.6.3, not fixed in 10.6.4, and fixed in 10.6.5.
-     * The problem is extremely unlikely to be reintroduced in a future
-     * release.)
-     */
-    if (uname(&osinfo) == 0) {
-        /*
-         * {Mac} OS X/macOS 10.x uses Darwin {x+4}.0.0; 10.x.y uses Darwin
-         * {x+4}.y.0 (except that 10.6.1 appears to have a uname version
-         * number of 10.0.0, not 10.1.0 - go figure).
-         */
-        if (strcmp(osinfo.release, "10.0.0") == 0 ||    /* 10.6, 10.6.1 */
-            strcmp(osinfo.release, "10.3.0") == 0 ||    /* 10.6.3 */
-            strcmp(osinfo.release, "10.4.0") == 0)              /* 10.6.4 */
-            need_timeout_workaround = true;
-    }
-#endif
 
     /* Initialize the pcaps list and IDBs */
     global_ld.pcaps = g_array_new(FALSE, FALSE, sizeof(capture_src *));
