@@ -83,7 +83,7 @@ class IPv6SpecialBlock(ipaddress.IPv6Network):
     def __str__(self):
         addr = self.network_address.packed
         mask = self.prefixlen
-        line = '{{ .ipv6 = {{ {}, {} }} }}'.format(self.addr_c_array(addr), mask)
+        line = '{{ .ipv6 = {{ {{ {} }}, {} }} }}'.format(self.addr_c_array(addr), mask)
         return line
 
 class IPRegistry(list):
@@ -149,16 +149,13 @@ class IPv6Registry(IPRegistry):
 
     def fill(self):
         self.sort()
-        fill_data = '// GCC bug?\n'
-        fill_data += 'DIAG_OFF(missing-braces)\n'
-        fill_data += '_U_ static const struct ws_iana_ip_special_block __ipv6_special_block[] = {\n'
+        fill_data = '_U_ static const struct ws_iana_ip_special_block __ipv6_special_block[] = {\n'
         for row in self:
             line = \
 '''    {{ 6, {},
             {}, {}, {}, {}, {}, {} }},\n'''.format(*row)
             fill_data += line
         fill_data += '};\n'
-        fill_data += 'DIAG_ON(missing-braces)\n'
         return fill_data
 
 IANA_URLS = {
