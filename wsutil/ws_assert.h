@@ -57,12 +57,18 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*
- * We don't want to execute the expression without assertions because
- * it might be time and space costly and the goal here is to optimize for
- * that case. However removing it completely is not good enough
- * because it might generate many unused variable warnings. So we use
- * if (false) and let the compiler optimize away the dead execution branch.
+/**
+ * @def ws_assert_if_active
+ * @brief Conditinally assert an expression.
+ *
+ * Evaluates the expression `expr` when `active` is true. If the expression
+ * evaluates to false, triggers an error with a descriptive message via `ws_error()`.
+ * When `active` is false, the expression is wrapped in a dead branch to
+ * avoid execution while suppressing unused variable warnings, allowing the compiler
+ * to optimize it away.
+ *
+ * @param active  Flag indicating whether assertions are enabled.
+ * @param expr    Expression to be asserted.
  */
 #define ws_assert_if_active(active, expr) \
         do {                                                \
@@ -70,25 +76,57 @@ extern "C" {
                 ws_error("assertion failed: %s", #expr);    \
         } while (0)
 
-/*
- * ws_abort_if_fail() is not conditional on having assertions enabled.
- * Usually used to appease a static analyzer.
+/**
+ * @def ws_abort_if_fail
+ * @brief Unconditionally assert an expression, typically for static analysis.
+ *
+ * Always evaluates `expr` and triggers an error via `ws_error()` if it fails.
+ * Intended to satisfy static analyzers by ensuring the expression is checked,
+ * regardless of runtime assertion settings.
+ *
+ * @param expr  Expression to assert.
  */
 #define ws_abort_if_fail(expr) \
         ws_assert_if_active(true, expr)
 
-/*
- * ws_assert() cannot produce side effects, otherwise code will
- * behave differently because of having assertions enabled/disabled, and
- * probably introduce some difficult to track bugs.
+/**
+ * @def ws_assert
+ * @brief Unconditionally assert an expression when assertions are enabled.
+ *
+ * Evaluates `expr` only if `WS_ASSERT_ENABLED` is true. The expression must not
+ * produce side effects, as assertion state should not alter program behavior.
+ * If the assertion fails, triggers an error via `ws_error()`.
+ *
+ * @param expr  Expression to assert.
  */
 #define ws_assert(expr) \
         ws_assert_if_active(WS_ASSERT_ENABLED, expr)
 
 
+/**
+ * @def ws_assert_streq
+ * @brief Assert that two strings are non-NULL and equal.
+ *
+ * Checks that both `s1` and `s2` are non-NULL and that their contents match.
+ * If the assertion fails, triggers an error via `ws_error()`.
+ *
+ * @param s1  First string to compare.
+ * @param s2  Second string to compare.
+ */
 #define ws_assert_streq(s1, s2) \
         ws_assert((s1) && (s2) && strcmp((s1), (s2)) == 0)
 
+/**
+ * @def ws_assert_utf8
+ * @brief Assert that a string is valid UTF-8 when assertions are enabled.
+ *
+ * Validates that the given string `str` of length `len` is well-formed UTF-8.
+ * If validation fails and assertions are enabled, logs an error with full context
+ * including the location of the failure.
+ *
+ * @param str   Pointer to the string to validate.
+ * @param len   Length of the string in bytes.
+ */
 #define ws_assert_utf8(str, len) \
         do {                                                            \
             const char *__assert_endptr;                                \
@@ -115,6 +153,16 @@ extern "C" {
  * that a certain code path is not used. We avoid that with
  * ws_assert_not_reached(). There is no reason to ever use a no-op here.
  */
+
+ /**
+ * @def ws_assert_not_reached
+ * @brief Unconditionally abort execution if reached; always indicates a programming error.
+ *
+ * This macro is used to mark code paths that should never be executed.
+ * Unlike conditional assertions, it is always active—even when assertions are disabled—
+ * to prevent compiler warnings and ensure that unreachable code is clearly flagged.
+ * Invoking this macro will trigger an error via `ws_error()` and terminate execution.
+ */
 #define ws_assert_not_reached() \
         ws_error("assertion \"not reached\" failed")
 
@@ -129,11 +177,33 @@ extern "C" {
  * execution for debugging purposes, if one of these checks fail.
  */
 
+/**
+ * @def ws_warn_badarg
+ * @brief Log a warning for an invalid function argument.
+ *
+ * Emits a warning message indicating that the argument `str` is invalid.
+ * Intended for use in macros that assert argument correctness without
+ * causing inconsistent program state. Can be paired with a fatal log domain
+ * for debugging purposes.
+ *
+ * @param str  String representation of the invalid argument expression.
+ */
 #define ws_warn_badarg(str) \
     ws_log_full(LOG_DOMAIN_EINVAL, LOG_LEVEL_WARNING, \
                     __FILE__, __LINE__, __func__, \
                     "invalid argument: %s", str)
 
+/**
+ * @def ws_return_str_if
+ * @brief Return a formatted error string if an expression is true and assertions are enabled.
+ *
+ * Checks `expr` when `WS_ASSERT_ENABLED` is true. If the expression evaluates to true,
+ * logs a warning with the expression string and returns a formatted error string
+ * allocated in the given `scope`.
+ *
+ * @param expr   Expression to evaluate.
+ * @param scope  Memory scope for allocating the returned error string.
+ */
 #define ws_return_str_if(expr, scope) \
         do { \
             if (WS_ASSERT_ENABLED && (expr)) { \
@@ -142,6 +212,16 @@ extern "C" {
             } \
         } while (0)
 
+/**
+ * @def ws_return_val_if
+ * @brief Return a value if an expression is true and assertions are enabled.
+ *
+ * Checks `expr` when `WS_ASSERT_ENABLED` is true. If the expression evaluates to true,
+ * logs a warning with the expression string and returns the specified value `val`.
+ *
+ * @param expr  Expression to evaluate.
+ * @param val   Value to return if the expression is true.
+ */
 #define ws_return_val_if(expr, val) \
         do { \
             if (WS_ASSERT_ENABLED && (expr)) { \
