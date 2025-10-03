@@ -173,7 +173,7 @@ static bool wlan_key_mic_len_enable;
 static unsigned wlan_key_mic_len;
 
 /* Counter incremented on each (re)association
- * This value will be assiged to each packet's pinfo->srcport/pinfo->destport
+ * This value will be assigned to each packet's pinfo->srcport/pinfo->destport
  * as a way to uniquely make a one to one mapping between conversations and
  * associations
  */
@@ -61054,7 +61054,7 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
 
     {&hf_ieee80211_eht_bw_indi_param_disabled_subchan_bitmap,
-     {"Disabled Subchannel Bitmap Present", "wlan.eht.bw_indication_params.disabled_subchan_bitamp",
+     {"Disabled Subchannel Bitmap Present", "wlan.eht.bw_indication_params.disabled_subchan_bitmap",
       FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
 
     {&hf_ieee80211_eht_bw_indi_param_reserved1,

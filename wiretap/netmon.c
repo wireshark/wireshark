@@ -1008,7 +1008,7 @@ netmon_set_pseudo_header_info(wtap_rec *rec)
 
 	case WTAP_ENCAP_IEEE_802_11_NETMON:
 		/*
-		 * The 802.11 metadata at the beginnning of the frame data
+		 * The 802.11 metadata at the beginning of the frame data
 		 * is processed by a dissector, which fills in a pseudo-
 		 * header and passes it to the 802.11 radio dissector,
 		 * just as is done with other 802.11 radio metadata headers

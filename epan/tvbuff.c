@@ -102,7 +102,7 @@ tvb_free_internal(tvbuff_t *tvb)
 
 /* XXX: just call tvb_free_chain();
  *      Not removed so that existing dissectors using tvb_free() need not be changed.
- *      I'd argue that existing calls to tvb_free() should have actually beeen
+ *      I'd argue that existing calls to tvb_free() should have actually been
  *      calls to tvb_free_chain() although the calls were OK as long as no
  *      subsets, etc had been created on the tvb. */
 void
@@ -3224,7 +3224,7 @@ tvb_get_apn_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
 	 * (FQDNs)", subsection 19.4.2.1 "General", says:
 	 *
 	 *    The encoding of any identifier used as part of a Fully
-	 *    Qualifed Domain Name (FQDN) shall follow the Name Syntax
+	 *    Qualified Domain Name (FQDN) shall follow the Name Syntax
 	 *    defined in IETF RFC 2181 [18], IETF RFC 1035 [19] and
 	 *    IETF RFC 1123 [20].  An FQDN consists of one or more
 	 *    labels. Each label is coded as a one octet length field
@@ -3655,7 +3655,7 @@ tvb_get_stringz_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int
  * through a pointer.
  *
  * As long as we aren't using composite TVBs, this saves the cycles used
- * (often unnecessariliy) in allocating a buffer and copying the string into
+ * (often unnecessarily) in allocating a buffer and copying the string into
  * it.  (If we do start using composite TVBs, we may want to replace this
  * function with the _ephemeral version.)
  */

@@ -71,7 +71,7 @@ static void* macro_uat_copy(void* dest, const void* orig, size_t len _U_) {
 		/*
 		 * The contents of the m->parts array contains pointers
 		 * into various sections of m->priv.  Since it's
-		 * an argv style array of ponters, this array is
+		 * an argv style array of pointers, this array is
 		 * actually one larger than the number of parts
 		 * to hold the final NULL terminator.
 		 *

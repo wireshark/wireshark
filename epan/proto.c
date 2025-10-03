@@ -3431,7 +3431,7 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 }
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
- * and returns proto_item* and uint value retreived*/
+ * and returns proto_item* and uint value retrieved*/
 proto_item *
 ptvcursor_add_ret_uint(ptvcursor_t *ptvc, int hfindex, int length,
 	      const unsigned encoding, uint32_t *retval)
@@ -3488,7 +3488,7 @@ ptvcursor_add_ret_uint(ptvcursor_t *ptvc, int hfindex, int length,
 }
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
- * and returns proto_item* and int value retreived*/
+ * and returns proto_item* and int value retrieved*/
 proto_item *
 ptvcursor_add_ret_int(ptvcursor_t *ptvc, int hfindex, int length,
 	      const unsigned encoding, int32_t *retval)
@@ -3547,7 +3547,7 @@ ptvcursor_add_ret_int(ptvcursor_t *ptvc, int hfindex, int length,
 }
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
- * and returns proto_item* and string value retreived */
+ * and returns proto_item* and string value retrieved */
 proto_item*
 ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, int length, const unsigned encoding, wmem_allocator_t *scope, const uint8_t **retval)
 {
@@ -3598,7 +3598,7 @@ ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, int length, const unsigned e
 }
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
- * and returns proto_item* and boolean value retreived */
+ * and returns proto_item* and boolean value retrieved */
 proto_item*
 ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hfindex, int length, const unsigned encoding, bool *retval)
 {
@@ -8204,7 +8204,7 @@ void
 proto_tree_move_item(proto_tree *tree, proto_item *fixed_item,
 		     proto_item *item_to_move)
 {
-	/* This function doesn't generate any values. It only reorganizes the prococol tree
+	/* This function doesn't generate any values. It only reorganizes the protocol tree
 	 * so we can bail out immediately if it isn't visible. */
 	if (!tree || !PTREE_DATA(tree)->visible)
 		return;

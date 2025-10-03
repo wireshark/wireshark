@@ -4486,7 +4486,7 @@ static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
         }
     }
 
-    /* XXX endianess is not defined. Assuming BE as this seems the common choice*/
+    /* XXX endianness is not defined. Assuming BE as this seems the common choice*/
     uint32_t can_id = pntohu32(pd);
 
     /* lets check if can_id makes sense
@@ -5063,7 +5063,7 @@ static bool blf_dump_interface_setup_by_blf_based_idb_desc(wtap_dumper *wdh, int
     blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
     bool iface_descr_found;
 
-    /* check all interfaces first to avoid inconstistent state */
+    /* check all interfaces first to avoid inconsistent state */
     for (unsigned i = 0; i < wdh->interface_data->len; i++) {
         ws_debug("interface: %d (pass 1)", i);
 

@@ -1668,7 +1668,7 @@ file_fdopen(int fd)
          * If the value is too big to fit into a unsigned,
          * just use the maximum read buffer size.
          *
-         * On top of that, the Single UNIX Speification says that
+         * On top of that, the Single UNIX Specification says that
          * st_blksize is of type blksize_t, which is a *signed*
          * integer type, and, at minimum, macOS 11.6 and Linux 5.14.11's
          * include/uapi/asm-generic/stat.h define it as such.
@@ -1951,7 +1951,7 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
      * we've already read and buffered if we're actually seeking forwards.)
      *
      * It might in certain cases be faster to continue reading linearly
-     * foward rather than jump to the fast seek point if the distance
+     * forward rather than jump to the fast seek point if the distance
      * to the fast seek point is small, but we might only be able to do that
      * if the compression context doesn't change (which for LZ4 includes if
      * we jump to a LZ4 with different options.)

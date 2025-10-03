@@ -831,7 +831,7 @@ add_conversation_table_data_extended(
      * Relies heavily on frameid to identify the conversation.
      * XXX - Later on, either implement one more find_conversation() function to look for
      * conv_id in the 'addr/port tuple' Htable, or move the conversation to the convid Htable to
-     * build a quickier identification method.
+     * build a quicker identification method.
      */
     conversation_t *ct = find_conversation(frameid, src, dst, ctype, src_port, dst_port, 0);
 

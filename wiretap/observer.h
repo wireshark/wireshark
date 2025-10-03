@@ -123,7 +123,7 @@ typedef struct tlv_time_info {
     (_tlv_time_info).time_format = GUINT32_TO_LE((_tlv_time_info).time_format)
 
 /*
- * Might some of these be broadecast and multicast packet counts, or
+ * Might some of these be broadcast and multicast packet counts, or
  * error counts, or both?
  */
 typedef struct tlv_network_load

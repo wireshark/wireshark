@@ -1603,7 +1603,7 @@ static bool erf_write_anchor_meta_update_phdr(wtap_dumper *wdh, erf_dump_t *dump
      * we want to make explicit */
 
     /* XXX: it is important that we know the implicit Host ID here or we end
-     * up semi-permentantly associating the packet with Host 0 (unknown), we should
+     * up semi-permanently associating the packet with Host 0 (unknown), we should
      * pass it through from the reader. In theory we should be on the
      * original capture machine if we have no Host ID extension headers. */
     host_id_src_hdr = erf_host_id_ext_hdr(implicit_host_id, source_id);
@@ -1698,7 +1698,7 @@ static bool erf_write_meta_record(wtap_dumper *wdh, erf_dump_t *dump_priv, uint6
      * These will be appended to the first extension header in
      * other_header.erf.ehdr_list.  There are a total of MAX_ERF_EHDR
      * extension headers in that array, so we can append no more than
-     * MAX_ERF_EHDR - 1 extension headeers.
+     * MAX_ERF_EHDR - 1 extension headers.
      */
     num_extra_ehdrs = MIN(extra_ehdrs->len, MAX_ERF_EHDR - 1);
     total_rlen += num_extra_ehdrs * 8;
@@ -2319,7 +2319,7 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, uint64_t impl
         /*
          * XXX: We have duplicate interfaces in this case, but not much else we
          * can do since we have already dissected the earlier packets. Expected
-         * to be unusual as it reqires a mix of explicit and implicit Host ID
+         * to be unusual as it requires a mix of explicit and implicit Host ID
          * (e.g. FlowID extension header only) packets with the same effective
          * Host ID before the first ERF_TYPE_META record.
          */
@@ -3283,7 +3283,7 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, wtap_rec *rec, uint
         /* TODO: This doesn't work very well for some tags that map to
          * pcapng options where the pcapng specification only allows one
          * instance per block, which is the case for most options.  The
-         * only current exxceptions are:
+         * only current exceptions are:
          *
          *   comments;
          *   IPv4 and IPv6 addresses for an interface;

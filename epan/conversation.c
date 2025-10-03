@@ -331,7 +331,7 @@ is_no_addr2_port2_key(conversation_element_t *key)
  *
  * Passing a pointer to a conversation whose options mask does not include
  * CONVERSATION_TEMPLATE or where the conversation's protocol type (ptype)
- * indicates a non-connnection oriented protocol will return the conversation
+ * indicates a non-connection oriented protocol will return the conversation
  * without changes.
  *
  * addr2 and port2 are used in the function if their respective conversation

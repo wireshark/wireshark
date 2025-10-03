@@ -79,7 +79,7 @@ typedef struct ttl_read {
 /*
  * Values smaller than 0 indicate errors, 0 means OK, 1 means everything is
  * good, but the entry is unsupported. 2 means that the file looks corrupted
- * or unaliged and our caller should try to fix the situation.
+ * or unaligned and our caller should try to fix the situation.
  */
 typedef enum {
     TTL_ERROR = -1,
@@ -2228,7 +2228,7 @@ static ttl_result_t ttl_read_segmented_message_entry(wtap* wth, wtap_rec* rec, i
     }
 
     /* Read it as if it was a normal entry, but passing the buffer
-     * as input insted of the file handler.
+     * as input instead of the file handler.
      */
     return ttl_read_entry(wth, rec, err, err_info, &new_in, 0, new_in.size);
 }

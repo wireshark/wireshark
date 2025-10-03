@@ -200,7 +200,7 @@ print_address_prefix_buf(const uint8_t *ad, int length, char *buf, int buf_len)
      * the IDI is 3 digits, i.e. 1 1/2 octets.
      */
     /* there used to be a check for (length > RFC1237_FULLAREA_LEN + 1) here,
-     * in order to report an invalied length of AREA for DCC / ISO 6523 AFI,
+     * in order to report an invalid length of AREA for DCC / ISO 6523 AFI,
      * but that can *never* be the case because the if() test above explicitly
      * tests for (length == RFC1237_FULLAREA_LEN) or (length == RFC1237_FULLAREA_LEN + 1)
      */

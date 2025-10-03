@@ -380,7 +380,7 @@ typedef struct _k12_src_desc_t {
  *   LAYPARAM, followed by a quoted protocol name and a number (-2147221504
  *   in one file, which is 0x80040000)
  *
- *   SPC_CONF, folloed by a number, a quoted string with numbers separated
+ *   SPC_CONF, followed by a number, a quoted string with numbers separated
  *   by hyphens, and another number
  *
  *   CIC_CONF, with a similar syntax to SPC_CONF

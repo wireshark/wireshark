@@ -1309,7 +1309,7 @@ host_lookup(const unsigned addr)
             if (resolve_synchronously || name_resolve_concurrency == 0) {
                 /*
                  * Either all names are to be resolved synchronously or
-                 * the concurrencly level is 0; do the resolution
+                 * the concurrency level is 0; do the resolution
                  * synchronously.
                  */
                 sync_lookup_ip4(addr);
@@ -1384,7 +1384,7 @@ host_lookup6(const ws_in6_addr *addr)
             if (resolve_synchronously || name_resolve_concurrency == 0) {
                 /*
                  * Either all names are to be resolved synchronously or
-                 * the concurrencly level is 0; do the resolution
+                 * the concurrency level is 0; do the resolution
                  * synchronously.
                  */
                 sync_lookup_ip6(addr);

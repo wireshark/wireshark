@@ -58,7 +58,7 @@
  * as they are the easiest way to tie the code to the specifications.
  *
  * The specification documents are also the easiest way (although
- * maybe not the clearest) to expose fields to the Wireshar user.
+ * maybe not the clearest) to expose fields to the Wireshark user.
  * A consistent naming is used, which is:
  *
  *   (spec)-pdu-(seq)-(field)
@@ -153,7 +153,7 @@
  * session information and associate each packet with the appropriate session. These
  * sessions refer to more general session information.
  *
- * In order to make lookups easier, the most fine-grainded sessions are assigned
+ * In order to make lookups easier, the most fine-grained sessions are assigned
  * unique identifiers. Secure sessions are always born unsecure (during security
  * negotiation). These use the same session identifiers, but the state for the
  * secure and unsecured times are separated. Once a session is secured it never
@@ -2210,7 +2210,7 @@ static void dpp_reset_sid_support(void)
  * OPERATION IDENTIFIER SUPPORT
  * Operation identifiers are an extension of a SID, and represent each separate
  * operation in the DOF. They are identified by a SID and an operation count.
- * Like SIDs, they are indepenent of version (at least in meaning, the formatting
+ * Like SIDs, they are independent of version (at least in meaning, the formatting
  * may change).
  *
  * The hash is used to look up common operation information each time an operation
@@ -2685,7 +2685,7 @@ static int dissect_2008_16_security_5(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 }
 
 /**
- * Security.6.1: Session Initator Block.
+ * Security.6.1: Session Initiator Block.
  * Returns dof_2008_16_security_6_1
  */
 static int dissect_2008_16_security_6_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -4788,7 +4788,7 @@ static int read_c4(tvbuff_t *tvb, int offset, uint32_t *v, int *L)
 
 /**
  * Validate PDU Type.3
- * Validaes the encoding.
+ * Validates the encoding.
  * Add Expert Info if format invalid
  * This also validates Spec Type.3.1.
  */
@@ -4850,7 +4850,7 @@ static int read_c3(tvbuff_t *tvb, int offset, uint32_t *v, int *L)
 
 /**
  * Validate PDU Type.2
- * Validaes the encoding.
+ * Validates the encoding.
  * Adds Expert Info if format invalid
  * This also validates Spec Type.2.1.
  */
@@ -4900,7 +4900,7 @@ static int read_c2(tvbuff_t *tvb, int offset, uint16_t *v, int *L)
 
 /**
  * Validates PDU Type.1
- * Validaes the encoding.
+ * Validates the encoding.
  * Adds Expert Info if format invalid
  * This also validates Spec Type.1.1.
  */
@@ -5134,7 +5134,7 @@ static void learn_sender_sid(dof_api_data *api_data, uint8_t length, const uint8
 }
 
 /**
- * Learn a SID from an explict operation. This only defines sids and sid ids.
+ * Learn a SID from an explicit operation. This only defines sids and sid ids.
  */
 static void learn_operation_sid(dof_2009_1_pdu_20_opid *opid, uint8_t length, const uint8_t *sid)
 {

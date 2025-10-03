@@ -60,7 +60,7 @@ typedef struct _funnel_packet_menu_t {
     struct _funnel_packet_menu_t* next;   /**< Pointer to the next
                                                _funnel_packet_menu_t for the
                                                singly-linked list
-                                               implemenation */
+                                               implementation */
 } funnel_packet_menu_t;
 
 /*

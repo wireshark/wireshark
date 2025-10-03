@@ -1,3 +1,4 @@
+0f1a2c
 0x%02x
 0x%08x
 10base
@@ -285,6 +286,7 @@ broadcom
 broman
 brotli
 browsers
+bsdos
 bsmap
 bssap
 bssgp
@@ -316,6 +318,7 @@ c1220func
 cablelabs
 caching
 cadenced
+calib
 callback
 callid
 callout
@@ -378,6 +381,7 @@ cframe
 chacha
 chan1
 chan2
+chandle
 changelog
 channelisation
 channelised
@@ -609,6 +613,7 @@ dcname
 dcomp
 dct3trace
 ddstlv
+ddutt
 deact
 deactivated
 deactivating
@@ -705,6 +710,7 @@ descr
 descriptor
 descriptors
 descs
+deseg
 desegment
 desegmentation
 desegmented
@@ -755,6 +761,7 @@ digitizer
 digium
 dilithium
 dimmable
+dinesh
 diplexer
 dipsa
 directionality
@@ -834,6 +841,7 @@ dyntatom
 dzgre
 düsseldorf
 e2node
+eadata
 eapol
 earcfn
 earfcn
@@ -844,6 +852,7 @@ ecall
 ecdhe
 ecdsa
 ecefephem
+ecjpake
 econet
 ecpri
 ed137a
@@ -1034,6 +1043,7 @@ fmdata
 fname
 foffset
 followup
+fondelli
 foobar
 format0
 forti
@@ -1050,6 +1060,7 @@ framenum
 framenumber
 framests
 frametype
+francesco
 frcrpt
 freebsd
 friday
@@ -1137,6 +1148,7 @@ gprscdr
 gprsmeasurementparams
 gprsmeasurementparams3g
 gpsascii
+graeme
 granularity
 greek
 greent
@@ -1175,6 +1187,7 @@ hbreq
 hbresp
 hcidump
 hcolon
+hdisplay
 headend
 hebrew
 heimdal
@@ -1195,6 +1208,7 @@ hi2operations
 histogram
 historizing
 hitachi
+hkroot
 hnbap
 homedir
 homeplug
@@ -1208,6 +1222,7 @@ hresult
 hsadmin
 hsdpa
 hsdsch
+hskew
 hspdsch
 hsscch
 hssite
@@ -1223,6 +1238,7 @@ huawei
 huffman
 hungarian
 hutchison
+hwsim
 hysteresis
 hytec
 ia5string
@@ -1449,6 +1465,7 @@ korean
 krb5kdc
 krb5krb
 ksumtype
+kubernetes
 l1sync
 l2cap
 l2vpn
@@ -1466,6 +1483,7 @@ layer2octet
 layerables
 lbart
 lbmpdm
+lbrkt
 lcgid
 lcids
 lcsap
@@ -1532,6 +1550,7 @@ logoff
 logon
 logout
 logray
+lombardo
 london
 lookup
 lookups
@@ -1566,6 +1585,7 @@ macros
 macsec
 madge
 madrid
+madsen
 magnitudes
 mailto
 maintainers
@@ -1575,6 +1595,7 @@ manarg
 manip
 mantissa
 manuf
+mapfv
 mappable
 marconi
 mariadb
@@ -1624,6 +1645,7 @@ metadata
 metamethod
 metamethods
 metatable
+metatech
 metatraffic
 meteorological
 metermod
@@ -1799,6 +1821,7 @@ netflow
 nethop
 netkey
 netkeyindex
+netlib
 netlink
 netlogon
 netmask
@@ -1907,6 +1930,7 @@ oampdu
 obfuscated
 objectid
 objkey
+oblig
 obsoleted
 obsspd
 octal
@@ -1999,6 +2023,7 @@ osinl
 ositp
 osmocom
 osmux
+osnma
 ospf6
 otdoa
 othersat
@@ -2108,6 +2133,7 @@ pmconfig
 pmiss
 pmkid
 pname
+poffset
 polestar
 polska
 polycom
@@ -2274,6 +2300,7 @@ raster
 rawip
 raymond
 raytheon
+rbrkt
 rcode
 rcreq
 rcrsp
@@ -2472,6 +2499,7 @@ rfmon
 rgoose
 rhsalias
 richard
+rimcas
 rinfo
 ripemd
 rlcmac
@@ -2624,6 +2652,7 @@ sha384
 sha512
 sharkd
 shenzhen
+shmseg
 shomiti
 shortstr
 showtec
@@ -2992,6 +3021,7 @@ tsprec
 tstamp
 ttltrig
 tuesday
+tuexen
 tunables
 tunid
 tunneled
@@ -3245,6 +3275,7 @@ v1310
 v1410
 v1530
 v1610
+v2client
 valgrind
 validations
 validator
@@ -3312,12 +3343,14 @@ vxlan
 waitpid
 wakeup
 wapforum
+wblock
 wbxml
 wchar
 webcam
 webkit
 webrtc
 websocket
+webvpn
 wednesday
 welte
 werror

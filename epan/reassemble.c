@@ -1478,7 +1478,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 				 * common case for overlap conflicts is when
 				 * an earlier reassembly isn't fully contained
 				 * in the capture, and we've reused an
-				 * indentification number / wrapped around
+				 * identification number / wrapped around
 				 * offset sequence numbers much later in the
 				 * capture. In that case, we probably *do*
 				 * want to overwrite conflicting bytes, since

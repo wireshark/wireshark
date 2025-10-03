@@ -326,7 +326,7 @@ fConfirmedServiceAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
 /**
  * AcknowledgeAlarm-Request ::= SEQUENCE {
  *  acknowledgingProcessIdentifier [0] Unsigned32,
- *  eventObjectIdentifier          [1] BACnetObjectIdentifer,
+ *  eventObjectIdentifier          [1] BACnetObjectIdentifier,
  *  eventStateAcknowledge          [2] BACnetEventState,
  *  timeStamp                      [3] BACnetTimeStamp,
  *  acknowledgementSource          [4] Character String,
@@ -344,8 +344,8 @@ fAcknowledgeAlarmRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
 /**
  * ConfirmedCOVNotification-Request ::= SEQUENCE {
  *  subscriberProcessIdentifier [0] Unsigned32,
- *  initiatingDeviceIdentifier  [1] BACnetObjectIdentifer,
- *  monitoredObjectIdentifier   [2] BACnetObjectIdentifer,
+ *  initiatingDeviceIdentifier  [1] BACnetObjectIdentifier,
+ *  monitoredObjectIdentifier   [2] BACnetObjectIdentifier,
  *  timeRemaining               [3] unsigned,
  *  listOfValues                [4] SEQUENCE OF BACnetPropertyValues
  * }
@@ -361,8 +361,8 @@ fConfirmedCOVNotificationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 /**
  * ConfirmedEventNotification-Request ::= SEQUENCE {
  *  ProcessIdentifier           [0] Unsigned32,
- *  initiatingDeviceIdentifier  [1] BACnetObjectIdentifer,
- *  eventObjectIdentifier       [2] BACnetObjectIdentifer,
+ *  initiatingDeviceIdentifier  [1] BACnetObjectIdentifier,
+ *  eventObjectIdentifier       [2] BACnetObjectIdentifier,
  *  timeStamp                   [3] BACnetTimeStamp,
  *  notificationClass           [4] unsigned,
  *  priority                    [5] unsigned8,
@@ -385,7 +385,7 @@ fConfirmedEventNotificationRequest(tvbuff_t *tvb, packet_info *pinfo,  proto_tre
 
 /**
  * GetAlarmSummary-ACK ::= SEQUENCE OF SEQUENCE {
- *  objectIdentifier         BACnetObjectIdentifer,
+ *  objectIdentifier         BACnetObjectIdentifier,
  *  alarmState               BACnetEventState,
  *  acknowledgedTransitions  BACnetEventTransitionBits
  * }
@@ -431,7 +431,7 @@ fGetEnrollmentSummaryRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 /**
  * GetEnrollmentSummary-ACK ::= SEQUENCE OF SEQUENCE {
- *  objectIdentifier    BACnetObjectIdentifer,
+ *  objectIdentifier    BACnetObjectIdentifier,
  *  eventType           BACnetEventType,
  *  eventState          BACnetEventState,
  *  priority            Unsigned8,
@@ -448,7 +448,7 @@ fGetEnrollmentSummaryAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
 
 /**
  * GetEventInformation-Request ::= SEQUENCE {
- *  lastReceivedObjectIdentifier    [0] BACnetObjectIdentifer
+ *  lastReceivedObjectIdentifier    [0] BACnetObjectIdentifier
  * }
  * @param tvb the tv buffer of the current data
  * @param pinfo the packet info of the current data
@@ -651,7 +651,7 @@ fCreateObjectAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned o
 
 /**
  * DeleteObject-Request ::= SEQUENCE {
- *  ObjectIdentifier    BACnetObjectIdentifer
+ *  ObjectIdentifier    BACnetObjectIdentifier
  * }
  * @param tvb the tv buffer of the current data
  * @param pinfo the packet info of the current data
@@ -1062,8 +1062,8 @@ fUnconfirmedServiceRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 /**
  * UnconfirmedCOVNotification-Request ::= SEQUENCE {
  *  subscriberProcessIdentifier [0] Unsigned32,
- *  initiatingDeviceIdentifier  [1] BACnetObjectIdentifer,
- *  monitoredObjectIdentifier   [2] BACnetObjectIdentifer,
+ *  initiatingDeviceIdentifier  [1] BACnetObjectIdentifier,
+ *  monitoredObjectIdentifier   [2] BACnetObjectIdentifier,
  *  timeRemaining               [3] unsigned,
  *  listOfValues                [4] SEQUENCE OF BACnetPropertyValues
  * }
@@ -1079,8 +1079,8 @@ fUnconfirmedCOVNotificationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 /**
  * UnconfirmedEventNotification-Request ::= SEQUENCE {
  *  ProcessIdentifier           [0] Unsigned32,
- *  initiatingDeviceIdentifier  [1] BACnetObjectIdentifer,
- *  eventObjectIdentifier       [2] BACnetObjectIdentifer,
+ *  initiatingDeviceIdentifier  [1] BACnetObjectIdentifier,
+ *  eventObjectIdentifier       [2] BACnetObjectIdentifier,
  *  timeStamp                   [3] BACnetTimeStamp,
  *  notificationClass           [4] unsigned,
  *  priority                    [5] unsigned8,

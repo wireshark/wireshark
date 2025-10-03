@@ -34,7 +34,7 @@
 
 WSLUA_CLASS_DEFINE(Dissector,NOP);
 /*
-   A refererence to a dissector, used to call a dissector against a packet or a part of it.
+   A reference to a dissector, used to call a dissector against a packet or a part of it.
  */
 
 WSLUA_CONSTRUCTOR Dissector_get (lua_State *L) {

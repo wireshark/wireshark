@@ -59,7 +59,7 @@ extern "C" {
 
 /**
  * @def ws_assert_if_active
- * @brief Conditinally assert an expression.
+ * @brief Conditionally assert an expression.
  *
  * Evaluates the expression `expr` when `active` is true. If the expression
  * evaluates to false, triggers an error with a descriptive message via `ws_error()`.

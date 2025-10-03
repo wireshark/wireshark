@@ -63,7 +63,7 @@ Password:*******
 tr600>snoop dump b1
  Trace start?(on/off/dump/dtl)->dump
  IP Address?->b1
-B1 Port Filetering
+B1 Port Filtering
 Trace start(Dump Mode)...
 
 tr600>[No.1] 00:00:09.14 B1:1 Tx 207.193.26.136->151.164.1.8 DNS  SPORT=1028 LEN=38 CHKSUM=4FD4 ID=2390 Query RD QCNT=1 pow.zing.org?

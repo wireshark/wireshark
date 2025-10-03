@@ -6432,7 +6432,7 @@ set_pref(char *pref_name, const char *value, void *private_data,
         {
             /* This is for backwards compatibility in case any of the preferences
                that shared the "Decode As" preference name and used to be PREF_RANGE
-               are now applied directly to the Decode As funtionality */
+               are now applied directly to the Decode As functionality */
             range_t *newrange;
             dissector_table_t sub_dissectors;
             dissector_handle_t handle;

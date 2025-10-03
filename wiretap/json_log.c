@@ -7,7 +7,7 @@
  */
 
 /*
- * This reads seqences of JSON records which contain timestamps. For general
+ * This reads sequences of JSON records which contain timestamps. For general
  * JSON support, see json.c.
  *
  * The following formats are supported:

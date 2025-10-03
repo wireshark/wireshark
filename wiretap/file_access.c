@@ -2938,7 +2938,7 @@ cleanup_open_routines(void)
  * code should use wtap_name_to_file_type_subtype() to look up
  * file types by their name, just as C code should.
  *
- * The backwards-ccmpatibility names are the old WTAP_FILE_TYPE_SUBTYPE_
+ * The backwards-compatibility names are the old WTAP_FILE_TYPE_SUBTYPE_
  * #define name, with WTAP_FILE_TYPE_SUBTYPE_ removed.
  */
 

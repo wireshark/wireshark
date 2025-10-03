@@ -1146,7 +1146,7 @@ static try_record_ret_t libpcap_try_record(wtap *wth, pcap_variant_t variant,
 			/*
 			 * 2 8-bit values that are filled in only
 			 * if libpcap is built with SMP debugging,
-			 * fllowed by 3 bytes of 8-bit padding,
+			 * followed by 3 bytes of 8-bit padding,
 			 * not guaranteed to be zero.
 			 *
 			 * Just skip them.

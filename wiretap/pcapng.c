@@ -553,7 +553,7 @@ pcapng_process_uint32_option(wtapng_block_t *wblock,
          *
          * XXX - options are aligned on 32-bit boundaries, so, while
          * it may be true that 64-bit options aren't guaranteed to be
-         * aligned on 64-bit bounaries, it shouldn't be true that 32-bit
+         * aligned on 64-bit boundaries, it shouldn't be true that 32-bit
          * options aren't guaranteed to be aligned on 32-bit boundaries.
          */
         memcpy(&uint32, option_content, sizeof(uint32_t));
@@ -1242,7 +1242,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
 
        Version 1.2 is written by some programs that write additional
        block types (which can be read by any code that handles them,
-       regarless of whether the minor version if 0 or 2, so that's
+       regardless of whether the minor version if 0 or 2, so that's
        not a reason to change the minor version number).
 
        XXX - the pcapng specification says that readers should

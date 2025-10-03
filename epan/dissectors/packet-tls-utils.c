@@ -11620,7 +11620,7 @@ ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tr
      *
      * struct {
      *     opaque url<1..2^16-1>;
-     *     unint8 padding;
+     *     uint8 padding;
      *     opaque SHA1Hash[20];
      * } URLAndHash;
      */

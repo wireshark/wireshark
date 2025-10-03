@@ -1,6 +1,6 @@
 /* stream.c
  *
- * Definititions for handling circuit-switched protocols
+ * Definitions for handling circuit-switched protocols
  * which are handled as streams, and don't have lengths
  * and IDs such as are required for reassemble.h
  *
@@ -296,7 +296,7 @@ stream_t *find_stream ( const struct conversation *conv, int p2p_dir )
 
 /* cleanup the stream routines */
 /* Note: stream_cleanup must only be called when seasonal memory
- *       is also freed since the hash tables countain pointers to
+ *       is also freed since the hash tables contain pointers to
  *       wmem_file_scoped memory.
  */
 void stream_cleanup( void )

@@ -3023,7 +3023,7 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
     GSList      *current_ndr_pointer_list;
 
     /*
-     * pidl has a difficiency of unconditionally emitting calls
+     * pidl has a defficiency of unconditionally emitting calls
      * dissect_deferred_pointers() to the generated dissectors.
      */
     if (di->pointers.list_list == NULL) {

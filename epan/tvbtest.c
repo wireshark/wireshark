@@ -67,7 +67,7 @@ test_searches(tvbuff_t *tvb, int offset, search_test_params *sp)
 }
 
 /* Tests a tvbuff against the expected pattern/length.
- * Returns true if all tests succeeed, false if any test fails */
+ * Returns true if all tests succeed, false if any test fails */
 static bool
 test(tvbuff_t *tvb, const char* name,
      uint8_t* expected_data, unsigned expected_length, unsigned expected_reported_length)

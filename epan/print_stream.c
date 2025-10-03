@@ -460,7 +460,7 @@ print_stream_text_alloc(bool to_file, FILE *fh)
      * "determines whether fd is associated with a character device
      * (a terminal, console, printer, or serial port)".
      *
-     * We specifically want to know if it's assciated with a *console*,
+     * We specifically want to know if it's associated with a *console*,
      * as, if it is, we'll be using console-specific APIs.
      */
     CONSOLE_SCREEN_BUFFER_INFO csb_info;

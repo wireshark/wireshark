@@ -3110,7 +3110,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 		if (hdtbl_entry->protocol != NULL) {
 			proto_id = proto_get_id(hdtbl_entry->protocol);
 			/* do NOT change this behavior - wslua uses the protocol short name set here in order
-			   to determine which Lua-based heurisitc dissector to call */
+			   to determine which Lua-based heuristic dissector to call */
 			pinfo->current_proto =
 				proto_get_protocol_short_name(hdtbl_entry->protocol);
 

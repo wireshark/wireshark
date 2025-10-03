@@ -31,7 +31,7 @@
 /*
  * Linux and Windows, at least, when performing Local Checksum Offload
  * store the one's complement sum (not inverted to its bitwise complement)
- * of the pseudo header in the checksum field (instead of intializing
+ * of the pseudo header in the checksum field (instead of initializing
  * to zero), allowing the device driver to calculate the real checksum
  * later without needing knowledge of the pseudoheader itself.
  * (This is presumably why GSO requires equal length buffers - so that the

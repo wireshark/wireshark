@@ -2496,7 +2496,7 @@ fix_linux_usb_mmapped_length(wtap_rec *rec, const uint8_t *bp)
 		 * on the URB length.
 		 *
 		 * That's not correct, because the data isn't contiguous,
-		 * and the isochronous descriptos show how it's scattered.
+		 * and the isochronous descriptors show how it's scattered.
 		 *
 		 * Find the end of the last chunk of data in the buffer
 		 * referred to by the isochronous descriptors; that indicates
