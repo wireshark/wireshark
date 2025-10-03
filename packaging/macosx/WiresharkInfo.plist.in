@@ -286,5 +286,9 @@
 	<key>SUAutomaticallyUpdate</key>
 	<false/>
 
+	<!-- Run in compatibility mode without Liquid Glass -->
+	<key>UIDesignRequiresCompatibility</key>
+	<true/>
+
 </dict>
 </plist>
