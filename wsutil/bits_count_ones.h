@@ -36,6 +36,18 @@
  * Other CPUs may have population count instructions as well.
  */
 
+/**
+ * @brief Count the number of set bits (ones) in a 64-bit integer.
+ *
+ * Uses a branchless, bitwise population count algorithm to compute the number
+ * of bits set to 1 in the input value. This is also known as Hamming weight.
+ *
+ * The implementation is based on the "SWAR" (SIMD Within A Register) technique,
+ * which performs parallel bit counting using masks and shifts.
+ *
+ * @param x 64-bit unsigned integer to evaluate.
+ * @return  Number of bits set to 1.
+ */
 static inline int
 ws_count_ones(const uint64_t x)
 {
