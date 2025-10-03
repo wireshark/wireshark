@@ -223,12 +223,12 @@ static int dissect_m_module(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item_ret_uint(subtree, hf_ood, tvb, 0x28, 4, ENC_LITTLE_ENDIAN, &entsz);
     proto_tree_add_item(subtree, hf_cksm, tvb, 0x2c, 4, ENC_NA);
 
-    struct mentry_info * mentry_table = (struct mentry_info *) wmem_alloc(pinfo->pool, sizeof(struct mentry_info) * nentries);
+    struct mentry_info * mentry = (struct mentry_info *) wmem_alloc(pinfo->pool, sizeof(struct mentry_info));
 
     for (uint32_t i = 0; i<nentries; i++){
         offset += entsz;
-        add_mentry_m_module(subtree,tvb,pinfo,offset,entsz,&mentry_table[i]);
-        setup_mentry_table_content(subtree,tvb,pinfo ,&mentry_table[i]);
+        add_mentry_m_module(subtree,tvb,pinfo,offset,entsz,mentry);
+        setup_mentry_table_content(subtree,tvb,pinfo ,mentry);
     }
 
     // Returning record size, which in this case is entire m-file
