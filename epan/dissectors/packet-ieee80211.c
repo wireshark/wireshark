@@ -54484,7 +54484,7 @@ proto_register_ieee80211(void)
       FT_UINT48, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_rsn_ie_bigtk_bigtk,
-     {"Key ID", "wlan.rsn.ie.bigtk_kde.bigtk",
+     {"BIGTK", "wlan.rsn.ie.bigtk_kde.bigtk",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_rsn_ie_mlo_link_info,
