@@ -361,8 +361,16 @@ class TestWsluaUnicode:
             assert f.read() == 'Feedback from Lua: Ф-€-中\n'
 
 class TestWsluaLocale:
-    # Some tests under different a locale, e.g. German uses comma as the decimal
+    # Some tests under a different locale, e.g. German uses comma as the decimal
     # separator (and dot as the thousands separator.)
+    def test_wslua_globals_locale(self, check_lua_script_locale, dirs):
+        '''wslua globals'''
+        check_lua_script_locale('verify_globals.lua', empty_pcap, True,
+            'de_DE.utf-8',
+            '-X', 'lua_script2:' + os.path.join(dirs.lua_dir, ''),
+            '-X', 'lua_script2:' + os.path.join(dirs.lua_dir, 'globals_4.4.txt'),
+        )
+
     def test_wslua_util_locale(self, check_lua_script_locale):
         '''wslua utility functions in a non-English locale'''
         check_lua_script_locale('util.lua', empty_pcap, True, 'de_DE.utf-8')
