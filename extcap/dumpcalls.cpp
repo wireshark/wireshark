@@ -317,7 +317,7 @@ int main(int argc, char **argv)
         inspector.open_kmod();
         extcap_base_register_interface(extcap_conf, KMOD_ENGINE, "System calls via kernel module", 147, "USER0");
     } catch (sinsp_exception &e) {
-        ws_warning("Unable to probe " KMOD_ENGINE ": %s", e.what());
+        ws_debug("Unable to probe " KMOD_ENGINE ": %s", e.what());
     }
     inspector.close();
 #endif
@@ -326,7 +326,7 @@ int main(int argc, char **argv)
         inspector.open_modern_bpf();
         extcap_base_register_interface(extcap_conf, MODERN_BPF_ENGINE, "System calls via modern eBPF", 147, "USER0");
     } catch (sinsp_exception &e) {
-        ws_warning("Unable to probe " MODERN_BPF_ENGINE ": %s", e.what());
+        ws_debug("Unable to probe " MODERN_BPF_ENGINE ": %s", e.what());
     }
     inspector.close();
 #endif
