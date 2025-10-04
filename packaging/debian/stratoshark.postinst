@@ -12,7 +12,7 @@ set -e
 # Hopefully at some point we'll be able to switch to capabilities.
 # https://falco.org/docs/install-operate/running/#least-privileged
 
-# There's no corresponding stratoshark.postrm script because the "scap" group
+# There's no corresponding stratoshark.postrm script because the "_scap" group
 # might be shared with falcosecurity-scap-dkms, so we don't want to
 # remove it here.
 # Also, there are arguments against removing groups in general:
@@ -20,7 +20,7 @@ set -e
 
 . /usr/share/debconf/confmodule
 PROGRAM=$(dpkg-divert --truename /usr/libexec/stratoshark/extcap/dumpcalls)
-GROUP=scap
+GROUP=_scap
 
 if ! dpkg-statoverride --list $PROGRAM > /dev/null; then
     db_get stratoshark/install-setuid

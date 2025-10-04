@@ -152,51 +152,51 @@ msgstr "Apakah yang bukan pengguna super dapat menangkap panggilan sistem?"
 #: ../templates:7001
 msgid ""
 "The falcodump external capture utility (extcap) can be installed in a way "
-"that allows members of the \"scap\" system group to capture system calls. "
+"that allows members of the \"_scap\" system group to capture system calls. "
 "This is recommended over the alternative of running Stratoshark directly as "
 "root, because less of the code will run with elevated privileges."
-msgstr "Utilitas penangkapan eksternal (extcap) falcodump dapat dipasang dengan cara yang memungkinkan anggota dari grup sistem \"scap\" menangkap pemanggilan sistem. Ini lebih direkomendasikan daripada alternatif menjalankan Stratoshark secara langsung sebagai root, karena lebih sedikit kode yang akan dijalankan dengan hak yang ditingkatkan."
+msgstr "Utilitas penangkapan eksternal (extcap) falcodump dapat dipasang dengan cara yang memungkinkan anggota dari grup sistem \"_scap\" menangkap pemanggilan sistem. Ini lebih direkomendasikan daripada alternatif menjalankan Stratoshark secara langsung sebagai root, karena lebih sedikit kode yang akan dijalankan dengan hak yang ditingkatkan."
 
 #. Type: error
 #. Description
 #: ../templates:8001
-msgid "Creating the \"scap\" system group failed"
-msgstr "Pembuatan grup sistem \"scap\" gagal"
+msgid "Creating the \"_scap\" system group failed"
+msgstr "Pembuatan grup sistem \"_scap\" gagal"
 
 #. Type: error
 #. Description
 #: ../templates:8001
 msgid ""
-"The \"scap\" group does not exist, and creating it failed, so Stratoshark "
+"The \"_scap\" group does not exist, and creating it failed, so Stratoshark "
 "cannot be configured to capture system calls as an unprivileged user."
-msgstr "Grup \"scap\" tidak ada, dan upaya membuatnya gagal, sehingga Stratoshark tidak bisa dikonfigurasi untuk menangkap panggilan sistem sebagai pengguna tanpa hak khusus."
+msgstr "Grup \"_scap\" tidak ada, dan upaya membuatnya gagal, sehingga Stratoshark tidak bisa dikonfigurasi untuk menangkap panggilan sistem sebagai pengguna tanpa hak khusus."
 
 #. Type: error
 #. Description
 #: ../templates:8001
 msgid ""
-"Please create the \"scap\" system group and try configuring stratoshark "
+"Please create the \"_scap\" system group and try configuring stratoshark "
 "again."
-msgstr "Silakan buat grup sistem \"scap\" dan cobalah mengonfigurasi stratoshark lagi."
+msgstr "Silakan buat grup sistem \"_scap\" dan cobalah mengonfigurasi stratoshark lagi."
 
 #. Type: error
 #. Description
 #: ../templates:9001
-msgid "The \"scap\" group is a system group"
-msgstr "Grup \"scap\" adalah sebuah grup sistem"
+msgid "The \"_scap\" group is a system group"
+msgstr "Grup \"_scap\" adalah sebuah grup sistem"
 
 #. Type: error
 #. Description
 #: ../templates:9001
 msgid ""
-"The \"scap\" group exists as a user group, but the preferred configuration "
+"The \"_scap\" group exists as a user group, but the preferred configuration "
 "is for it to be created as a system group."
-msgstr "Grup \"scap\" ada sebagai sebuah grup pengguna, tapi konfigurasi yang disukai adalah agar itu dibuat sebagai sebuah grup sistem."
+msgstr "Grup \"_scap\" ada sebagai sebuah grup pengguna, tapi konfigurasi yang disukai adalah agar itu dibuat sebagai sebuah grup sistem."
 
 #. Type: error
 #. Description
 #: ../templates:9001
 msgid ""
-"As a result, purging stratoshark will not remove the \"scap\" group, but "
+"As a result, purging stratoshark will not remove the \"_scap\" group, but "
 "everything else should work properly."
-msgstr "Akibatnya, membuang habis stratoshark tidak akan mengubah grup \"scap\", tetapi semua yang lain mestinya bekerja dengan benar."
+msgstr "Akibatnya, membuang habis stratoshark tidak akan mengubah grup \"_scap\", tetapi semua yang lain mestinya bekerja dengan benar."

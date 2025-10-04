@@ -66,7 +66,7 @@ Type: boolean
 Default: false
 _Description: Should non-superusers be able to capture system calls?
  The dumpcalls external capture utility for Stratoshark can be
- installed in a way that allows members of the "scap" system group
+ installed in a way that allows members of the "_scap" system group
  to capture system calls without needing to run Stratoshark directly
  as root.
  .
@@ -75,23 +75,23 @@ _Description: Should non-superusers be able to capture system calls?
  .
  Using this feature has the security advantage that less of the code
  will run with elevated privileges. However, since it makes the
- "scap" group more security-sensitive it is disabled by default.
+ "_scap" group more security-sensitive it is disabled by default.
 
 Template: stratoshark/addgroup-failed
 Type: error
-_Description: Creating the "scap" system group failed
- The "scap" group does not exist, and creating it failed, so
+_Description: Creating the "_scap" system group failed
+ The "_scap" group does not exist, and creating it failed, so
  Stratoshark cannot be configured to capture system calls as an unprivileged
  user.
  .
- Please create the "scap" system group and try configuring
+ Please create the "_scap" system group and try configuring
  stratoshark again.
 
 Template: stratoshark/group-is-user-group
 Type: error
-_Description: The "scap" group should be a system group
- The "scap" group exists as a user group, but the preferred
+_Description: The "_scap" group should be a system group
+ The "_scap" group exists as a user group, but the preferred
  configuration is for it to be created as a system group.
  .
- As a result, purging stratoshark will not remove the "scap"
+ As a result, purging stratoshark will not remove the "_scap"
  group, but everything else should work properly.
