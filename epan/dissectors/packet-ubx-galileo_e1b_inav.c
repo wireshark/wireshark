@@ -654,73 +654,77 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 osnma_dsm_blks = (osnma_dsm_blk *) conversation_get_proto_data(c, proto_ubx_gal_inav);
             }
 
-            // store block
-            osnma_dsm_blks[dsm_blk_id].set = true;
-            memcpy(osnma_dsm_blks[dsm_blk_id].blk, &hkroot_msg[2], OSNMA_DSM_BLK_LENGTH);
+            if (osnma_dsm_blks != NULL) {
 
-            // If first block of a DSM has been received, continue processing.
-            if (osnma_dsm_blks[0].set && 0 < osnma_dsm_blks[0].blk[0]) {
+                // store block
+                osnma_dsm_blks[dsm_blk_id].set = true;
+                memcpy(osnma_dsm_blks[dsm_blk_id].blk, &hkroot_msg[2], OSNMA_DSM_BLK_LENGTH);
 
-                // Count the number of sequential blocks received.
-                uint8_t dsm_blk_count = 0;
-                for (i = 0; i < OSNMA_DSM_BLK_NUM; i++) {
-                    if (osnma_dsm_blks[i].set) {
-                        dsm_blk_count++;
-                    }
-                    else {
-                        break;
-                    }
-                }
+                // If first block of a DSM has been received, continue processing.
+                if (osnma_dsm_blks[0].set && 0 < osnma_dsm_blks[0].blk[0]) {
 
-                // Compare number of received blocks against NB_DP / NB_DK in block 0.
-                if (dsm_blk_count == (osnma_dsm_blks[0].blk[0] >> 4) + 6) {
-                    // All blocks for a DSM have been received.
-                    // Now dissect it.
-
-                    dsm_buf = wmem_alloc(pinfo->pool, dsm_blk_count * OSNMA_DSM_BLK_LENGTH);
-                    for (i = 0; i < dsm_blk_count; i++) {
-                        memcpy(&dsm_buf[i * OSNMA_DSM_BLK_LENGTH], osnma_dsm_blks[i].blk, OSNMA_DSM_BLK_LENGTH);
-                    }
-                    tvbuff_t *osnma_dsm_tvb = tvb_new_child_real_data(tvb, (uint8_t *)dsm_buf, dsm_blk_count * OSNMA_DSM_BLK_LENGTH, dsm_blk_count * OSNMA_DSM_BLK_LENGTH);
-                    add_new_data_source(pinfo, osnma_dsm_tvb, "Galileo E1-B I/NAV OSNMA DSM");
-
-
-                    if (dsm_id < 12) {
-                        // dissect DSM-KROOT
-                        uint32_t dk_len = dsm_blk_count * OSNMA_DSM_BLK_LENGTH;
-
-                        proto_tree *osnma_dsm_tree = proto_tree_add_subtree(osnma_tree, osnma_dsm_tvb, 0, dk_len, ett_ubx_gal_inav_osnma_dsm, NULL, "DSM-KROOT (re-assembled)");
-                        proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_nb_dk,     osnma_dsm_tvb,  0,  1, ENC_NA);
-                        proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_pkid,      osnma_dsm_tvb,  0,  1, ENC_NA);
-                        proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_cidkr,     osnma_dsm_tvb,  1,  1, ENC_NA);
-                        proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_reserved1, osnma_dsm_tvb,  1,  1, ENC_NA);
-                        proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_hf,        osnma_dsm_tvb,  1,  1, ENC_NA);
-                        proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_mf,        osnma_dsm_tvb,  1,  1, ENC_NA);
-                        proto_tree_add_item_ret_uint(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_ks, osnma_dsm_tvb, 2, 1, ENC_NA, &dsm_ks);
-                        uint32_t ks_len = ks2len(dsm_ks);
-                        proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_ts,        osnma_dsm_tvb,  2,  1, ENC_NA);
-                        proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_maclt,     osnma_dsm_tvb,  3,  1, ENC_NA);
-                        proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_reserved2, osnma_dsm_tvb,  4,  1, ENC_NA);
-                        proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_wn_k,      osnma_dsm_tvb,  4,  2, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_towh_k,    osnma_dsm_tvb,  6,  1, ENC_NA);
-                        proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_alpha,     osnma_dsm_tvb,  7,  6, ENC_NA);
-                        if (ks_len > 0) {
-                            // TODO: The length of the digital signature should be derived from the DSM-PKR NPKT with matching PKID.
-                            uint32_t ds_len = 64;
-                            uint32_t p_dk_len = dk_len - 13 - ks_len - ds_len;
-
-                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_kroot, osnma_dsm_tvb, 13,                   ks_len,   ENC_NA);
-                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_ds,    osnma_dsm_tvb, 13 + ks_len,          ds_len,   ENC_NA);
-                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_p_dk,  osnma_dsm_tvb, 13 + ks_len + ds_len, p_dk_len, ENC_NA);
+                    // Count the number of sequential blocks received.
+                    uint8_t dsm_blk_count = 0;
+                    for (i = 0; i < OSNMA_DSM_BLK_NUM; i++) {
+                        if (osnma_dsm_blks[i].set) {
+                            dsm_blk_count++;
+                        }
+                        else {
+                            break;
                         }
                     }
-                    else {
-                        // dissect DSM-PKR
-                        proto_tree *osnma_dsm_tree = proto_tree_add_subtree(osnma_tree, osnma_dsm_tvb, 0, dsm_blk_count * OSNMA_DSM_BLK_LENGTH, ett_ubx_gal_inav_osnma_dsm, NULL, "DSM-PKR (re-assembled)");
-                        proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_nb_dp, osnma_dsm_tvb, 0, 1, ENC_NA);
+
+                    // Compare number of received blocks against NB_DP / NB_DK in block 0.
+                    if (dsm_blk_count == (osnma_dsm_blks[0].blk[0] >> 4) + 6) {
+                        // All blocks for a DSM have been received.
+                        // Now dissect it.
+
+                        dsm_buf = wmem_alloc(pinfo->pool, dsm_blk_count * OSNMA_DSM_BLK_LENGTH);
+                        for (i = 0; i < dsm_blk_count; i++) {
+                            memcpy(&dsm_buf[i * OSNMA_DSM_BLK_LENGTH], osnma_dsm_blks[i].blk, OSNMA_DSM_BLK_LENGTH);
+                        }
+                        tvbuff_t *osnma_dsm_tvb = tvb_new_child_real_data(tvb, (uint8_t *)dsm_buf, dsm_blk_count * OSNMA_DSM_BLK_LENGTH, dsm_blk_count * OSNMA_DSM_BLK_LENGTH);
+                        add_new_data_source(pinfo, osnma_dsm_tvb, "Galileo E1-B I/NAV OSNMA DSM");
+
+
+                        if (dsm_id < 12) {
+                            // dissect DSM-KROOT
+                            uint32_t dk_len = dsm_blk_count * OSNMA_DSM_BLK_LENGTH;
+
+                            proto_tree *osnma_dsm_tree = proto_tree_add_subtree(osnma_tree, osnma_dsm_tvb, 0, dk_len, ett_ubx_gal_inav_osnma_dsm, NULL, "DSM-KROOT (re-assembled)");
+                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_nb_dk,     osnma_dsm_tvb,  0,  1, ENC_NA);
+                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_pkid,      osnma_dsm_tvb,  0,  1, ENC_NA);
+                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_cidkr,     osnma_dsm_tvb,  1,  1, ENC_NA);
+                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_reserved1, osnma_dsm_tvb,  1,  1, ENC_NA);
+                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_hf,        osnma_dsm_tvb,  1,  1, ENC_NA);
+                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_mf,        osnma_dsm_tvb,  1,  1, ENC_NA);
+                            proto_tree_add_item_ret_uint(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_ks, osnma_dsm_tvb, 2, 1, ENC_NA, &dsm_ks);
+                            uint32_t ks_len = ks2len(dsm_ks);
+                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_ts,        osnma_dsm_tvb,  2,  1, ENC_NA);
+                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_maclt,     osnma_dsm_tvb,  3,  1, ENC_NA);
+                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_reserved2, osnma_dsm_tvb,  4,  1, ENC_NA);
+                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_wn_k,      osnma_dsm_tvb,  4,  2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_towh_k,    osnma_dsm_tvb,  6,  1, ENC_NA);
+                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_alpha,     osnma_dsm_tvb,  7,  6, ENC_NA);
+                            if (ks_len > 0) {
+                                // TODO: The length of the digital signature should be derived from the DSM-PKR NPKT with matching PKID.
+                                uint32_t ds_len = 64;
+                                uint32_t p_dk_len = dk_len - 13 - ks_len - ds_len;
+
+                                proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_kroot, osnma_dsm_tvb, 13,                   ks_len,   ENC_NA);
+                                proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_ds,    osnma_dsm_tvb, 13 + ks_len,          ds_len,   ENC_NA);
+                                proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_p_dk,  osnma_dsm_tvb, 13 + ks_len + ds_len, p_dk_len, ENC_NA);
+                            }
+                        }
+                        else {
+                            // dissect DSM-PKR
+                            proto_tree *osnma_dsm_tree = proto_tree_add_subtree(osnma_tree, osnma_dsm_tvb, 0, dsm_blk_count * OSNMA_DSM_BLK_LENGTH, ett_ubx_gal_inav_osnma_dsm, NULL, "DSM-PKR (re-assembled)");
+                            proto_tree_add_item(osnma_dsm_tree, hf_ubx_gal_inav_osnma_dsm_nb_dp, osnma_dsm_tvb, 0, 1, ENC_NA);
+                        }
                     }
                 }
             }
+
         }
 
         proto_tree *sar_tree = proto_tree_add_subtree(gal_inav_tree, tvb, 23, 4, ett_ubx_gal_inav_sar, NULL, "SAR");
