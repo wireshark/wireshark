@@ -864,6 +864,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C23,   "HID ISO Properties" },
     { 0x2C24,   "LE HID Operation Mode" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC48,   "Michelin" },
     { 0xFC49,   "Golioth, Inc." },
     { 0xFC4A,   "Shenzhen Shokz Co.,Ltd." },
     { 0xFC4B,   "WinMagic Inc." },
@@ -5397,6 +5398,8 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0F86,   "Lakecrest Pty Ltd" },
     { 0x0F87,   "Anacove Inc." },
     { 0x0F88,   "Kohler Ventures, Inc." },
+    { 0x0F89,   "STOREIO TECHNOLOGIES LTD" },
+    { 0x0F8A,   "Innogando S.L." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6140,6 +6143,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c23,   "Bluetooth GATT Attribute HID ISO Properties (UUID 0x2c23)", "BT GATT HID ISO Properties (UUID 0x2c23)", "btgatt.uuid0x2c23" },
     { 0x2c24,   "Bluetooth GATT Attribute LE HID Operation Mode (UUID 0x2c24)", "BT GATT LE HID Operation Mode (UUID 0x2c24)", "btgatt.uuid0x2c24" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc48,   "Bluetooth GATT Attribute Michelin (UUID 0xfc48)", "BT GATT Michelin (UUID 0xfc48)", "btgatt.uuid0xfc48" },
     { 0xfc49,   "Bluetooth GATT Attribute Golioth, Inc. (UUID 0xfc49)", "BT GATT Golioth, Inc. (UUID 0xfc49)", "btgatt.uuid0xfc49" },
     { 0xfc4a,   "Bluetooth GATT Attribute Shenzhen Shokz Co.,Ltd. (UUID 0xfc4a)", "BT GATT Shenzhen Shokz Co.,Ltd. (UUID 0xfc4a)", "btgatt.uuid0xfc4a" },
     { 0xfc4b,   "Bluetooth GATT Attribute WinMagic Inc. (UUID 0xfc4b)", "BT GATT WinMagic Inc. (UUID 0xfc4b)", "btgatt.uuid0xfc4b" },

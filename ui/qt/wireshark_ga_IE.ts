@@ -113,10 +113,10 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Cóipeáil Sraith</numerusform>
+            <numerusform>Cóipeáil Sraitheanna</numerusform>
+            <numerusform>Cóipeáil Sraitheanna</numerusform>
         </translation>
     </message>
 </context>
@@ -794,15 +794,41 @@
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln lá</numerusform>
+            <numerusform>%Ln laethanta</numerusform>
+            <numerusform>%Ln laethanta</numerusform>
         </translation>
     </message>
     <message>
         <source>Automatically detect file type</source>
         <translation>Aimsigh cineál comhaid go huathoibríoch</translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1, earráid i ndiaidh phaicéad %Ln</numerusform>
+            <numerusform>%1, earráid i ndiaidh %Ln paicéad</numerusform>
+            <numerusform>%1, earráid i ndiaidh %Ln paicéad</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln packet(s)</source>
+        <oldsource>%1, timed out at %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1, am críochnaithe ag %Ln paicéad</numerusform>
+            <numerusform>%1, am críochnaithe ag %Ln paicéid</numerusform>
+            <numerusform>%1, am críochnaithe ag %Ln paicéid</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln packet(s)</source>
+        <translation type="vanished">
+            <numerusform>%1, %Ln paicéad</numerusform>
+            <numerusform>%1, %Ln paicéid</numerusform>
+            <numerusform>%1, %Ln paicéid</numerusform>
+        </translation>
     </message>
     <message>
         <source>Prepend packets</source>
@@ -883,26 +909,26 @@
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, earráid i ndiaidh taifead sonraí %Ln</numerusform>
+            <numerusform>%1, earráid i ndiaidh %Ln taifead sonraí</numerusform>
+            <numerusform>%1, earráid i ndiaidh %Ln taifead sonraí</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, am críochnaithe ag %Ln taifead sonraí</numerusform>
+            <numerusform>%1, am críochnaithe ag %Ln taifid sonraí</numerusform>
+            <numerusform>%1, am críochnaithe ag %Ln taifid sonraí</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, taifead sonraí %Ln</numerusform>
+            <numerusform>%1, %Ln taifid sonraí</numerusform>
+            <numerusform>%1, %Ln taifid sonraí</numerusform>
         </translation>
     </message>
     <message>
@@ -994,10 +1020,10 @@
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln lá</numerusform>
+            <numerusform>%Ln laethanta</numerusform>
+            <numerusform>%Ln laethanta</numerusform>
         </translation>
     </message>
     <message>
@@ -1216,11 +1242,11 @@
     <name>CaptureFilterSyntaxWorker</name>
     <message>
         <source>Unable to check capture filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Ní féidir an scagaire gabhála a sheiceáil</translation>
     </message>
     <message>
         <source>Unable to check capture filter (BPF extensions require a live handle)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ní féidir an scagaire gabhála a sheiceáil (tá láimhseáil beo ag teastáil ó shíntí BPF)</translation>
     </message>
 </context>
 <context>
@@ -1940,11 +1966,11 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Capture filters cannot be compiled for standard input.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ní féidir scagairí gabhála a thiomsú le haghaidh ionchuir chaighdeánaigh.</translation>
     </message>
     <message>
         <source>Capture filters cannot be compiled for pipes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ní féidir scagairí gabhála a thiomsú le haghaidh píopaí.</translation>
     </message>
 </context>
 <context>
@@ -2400,7 +2426,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Roghanna Cnaipe Scagaire…</translation>
     </message>
 </context>
 <context>
@@ -3144,10 +3170,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Comhad %Ln sa Tacar</numerusform>
+            <numerusform>%Ln Comhaid sa Tacar</numerusform>
+            <numerusform>%Ln Comhaid sa Tacar</numerusform>
         </translation>
     </message>
 </context>
@@ -3304,7 +3330,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Roghanna Cnaipe Scagaire…</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -3405,7 +3431,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Save %1 rules as…</source>
-        <translation type="unfinished"></translation>
+        <translation>Sábháil %1 riail mar…</translation>
     </message>
     <message>
         <source>Text file (*.txt);;All Files (</source>
@@ -3557,6 +3583,22 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <source>Print</source>
         <translation>Priontáil</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>Pacáiste cliant %Ln,</numerusform>
+            <numerusform>%Ln pacáistí cliant,</numerusform>
+            <numerusform>%Ln pacáistí cliant,</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>Pacáiste freastalaí %Ln,</numerusform>
+            <numerusform>%Ln pacáistí freastalaí,</numerusform>
+            <numerusform>%Ln pacáistí freastalaí,</numerusform>
+        </translation>
+    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -3599,26 +3641,26 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;cliant&lt;/span&gt; pacáiste,</numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;cliant&lt;/span&gt; pacáiste,</numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;cliant&lt;/span&gt; pacáiste,</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;fhreastalaí&lt;/span&gt; pacáiste,</numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;fhreastalaí&lt;/span&gt; phacáiste,</numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;fhreastalaí&lt;/span&gt; phacáiste,</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Cas %Ln.</numerusform>
+            <numerusform>%Ln casadh.</numerusform>
+            <numerusform>%Ln casadh.</numerusform>
         </translation>
     </message>
     <message>
@@ -3627,18 +3669,18 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;léann&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;léann&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;léann&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;scríobhann&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;scríobhann&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;scríobhann&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message>
@@ -3703,18 +3745,18 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Sruth %Ln.</numerusform>
+            <numerusform>%Ln sruthanna iomlána.</numerusform>
+            <numerusform>%Ln sruthanna iomlána.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Max sub stream ID for the selected stream: %Ln</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Uasmhéid ID fo-shrutha don sruth roghnaithe: %Ln</numerusform>
+            <numerusform>Uasmhéid ID fo-shrutha don sruth roghnaithe: %Ln</numerusform>
+            <numerusform>Uasmhéid ID fo-shrutha don sruth roghnaithe: %Ln</numerusform>
         </translation>
     </message>
     <message>
@@ -4027,7 +4069,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Show text as frame encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>Taispeáin téacs mar ionchódú fráma</translation>
     </message>
     <message>
         <source>Show text based on event</source>
@@ -5274,7 +5316,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Missing capturing group data (use (?&lt;data&gt;(…)) )</source>
         <oldsource>Missing capturing group data (use (?&lt;data&gt;(...)) )</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Sonraí grúpa á ngabháil ar iarraidh (úsáid (?&lt;data&gt;(…)))</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -6933,18 +6975,18 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message numerus="yes">
         <source>%Ln byte(s)</source>
         <oldsource>, %1 bytes</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln beart</numerusform>
+            <numerusform>%Ln beart</numerusform>
+            <numerusform>%Ln beart</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln bit(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln giotán</numerusform>
+            <numerusform>%Ln giotáin</numerusform>
+            <numerusform>%Ln giotáin</numerusform>
         </translation>
     </message>
     <message>
@@ -7003,22 +7045,22 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Ó Chomhad Zip…</translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Ón Eolaire…</translation>
     </message>
     <message>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Próifíl Phearsanta Roghnaithe…</translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Gach Próifíl Phearsanta…</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -7045,7 +7087,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>…as %1</source>
-        <translation type="unfinished"></translation>
+        <translation>…mar %1</translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
@@ -7621,18 +7663,18 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>%Ln byte(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln beart</numerusform>
+            <numerusform>%Ln bearta</numerusform>
+            <numerusform>%Ln bearta</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln bit(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln giotán</numerusform>
+            <numerusform>%Ln giotáin</numerusform>
+            <numerusform>%Ln giotáin</numerusform>
         </translation>
     </message>
 </context>
@@ -8279,7 +8321,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Auto Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>Scrollaigh Uathoibríoch</translation>
     </message>
     <message>
         <source>Plots</source>
@@ -8299,7 +8341,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Markers</source>
-        <translation type="unfinished"></translation>
+        <translation>Marcóirí</translation>
     </message>
     <message>
         <source>Wireshark Plots: %1</source>
@@ -8531,10 +8573,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Cóipeáil Sraith</numerusform>
+            <numerusform>Cóipeáil Sraitheanna</numerusform>
+            <numerusform>Cóipeáil Sraitheanna</numerusform>
         </translation>
     </message>
 </context>
@@ -8679,26 +8721,26 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Ó Chomhad Zip…</translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Ón Eolaire…</translation>
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)…</source>
         <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln Próifíl Phearsanta Roghnaithe…</numerusform>
+            <numerusform>%Ln Próifílí Pearsanta Roghnaithe…</numerusform>
+            <numerusform>%Ln Próifílí Pearsanta Roghnaithe…</numerusform>
         </translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Gach Próifíl Phearsanta…</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -8720,6 +8762,22 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <source>Select zip file for export</source>
         <translation>Roghnaigh comhad zip le heaspórtáil</translation>
     </message>
+    <message numerus="yes">
+        <source>… %Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>… %Ln próifíl phearsanta roghnaithe</numerusform>
+            <numerusform>… %Ln próifílí pearsanta roghnaithe</numerusform>
+            <numerusform>… %Ln próifílí pearsanta roghnaithe</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>%Ln próifíl phearsanta roghnaithe</numerusform>
+            <numerusform>%Ln próifílí pearsanta roghnaithe</numerusform>
+            <numerusform>%Ln próifílí pearsanta roghnaithe</numerusform>
+        </translation>
+    </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending</source>
         <translation>Ní cheadaítear próifílí a iompórtáil, cé go bhfuil athruithe ar feitheamh</translation>
@@ -8738,10 +8796,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln próifíl easpórtáilte</numerusform>
+            <numerusform>%Ln próifílí easpórtáilte</numerusform>
+            <numerusform>%Ln próifílí easpórtáilte</numerusform>
         </translation>
     </message>
     <message>
@@ -8770,18 +8828,18 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) imported</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Próifíl %Ln allmhairithe</numerusform>
+            <numerusform>%Ln próifílí allmhairithe</numerusform>
+            <numerusform>%Ln próifílí allmhairithe</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>, scipeáladh próifíl %Ln</numerusform>
+            <numerusform>, %Ln próifílí scipeáilte</numerusform>
+            <numerusform>, %Ln próifílí scipeáilte</numerusform>
         </translation>
     </message>
     <message>
@@ -9733,7 +9791,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <name>QObject::QObject::QObject</name>
     <message>
         <source>CCCH</source>
-        <translation type="unfinished">CCCH</translation>
+        <translation>CCCH</translation>
     </message>
 </context>
 <context>
@@ -10870,7 +10928,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Decoding streams…</source>
         <oldsource>Decoding streams...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Sruthanna a dhíchódú…</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10923,7 +10981,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Resampling waveform…</source>
         <oldsource>Resampling waveform...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Tonnfhoirm athshamplála…</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
@@ -10988,7 +11046,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Preparing to play…</source>
         <oldsource>Preparing to play...</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Ag ullmhú le himirt…</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -11875,18 +11933,18 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation type="unfinished">
-            <numerusform>%Ln node</numerusform>
-            <numerusform>%Ln nodes</numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>nód %Ln</numerusform>
+            <numerusform>%Ln nóid</numerusform>
+            <numerusform>%Ln nóid</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation type="unfinished">
-            <numerusform>%Ln item</numerusform>
-            <numerusform>%Ln items</numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln mír</numerusform>
+            <numerusform>%Ln míreanna</numerusform>
+            <numerusform>%Ln míreanna</numerusform>
         </translation>
     </message>
     <message>
@@ -12273,10 +12331,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>Frame %1, %2, %Ln byte(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Fráma %1, %2, %Ln beart.</numerusform>
+            <numerusform>Fráma %1, %2, %Ln bearta.</numerusform>
+            <numerusform>Fráma %1, %2, %Ln bearta.</numerusform>
         </translation>
     </message>
     <message>
@@ -12377,10 +12435,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>Using %Ln byte(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ag baint úsáide as %Ln beart.</numerusform>
+            <numerusform>Ag baint úsáide as %Ln bearta.</numerusform>
+            <numerusform>Ag baint úsáide as %Ln bearta.</numerusform>
         </translation>
     </message>
     <message>
@@ -13918,10 +13976,10 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
-        <translation type="unfinished">
-            <numerusform>%n interface shown, %1 hidden</numerusform>
-            <numerusform>%n interfaces shown, %1 hidden</numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n comhéadan taispeánta, %1 i bhfolach</numerusform>
+            <numerusform>%n comhéadan taispeánta, %1 i bhfolach</numerusform>
+            <numerusform>%n comhéadan taispeánta, %1 i bhfolach</numerusform>
         </translation>
     </message>
     <message>
@@ -13973,11 +14031,11 @@ a:hover {
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 band.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Socraigh an banda 802.11.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Band</source>
-        <translation type="unfinished"></translation>
+        <translation>Banna</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -16033,7 +16091,7 @@ a:hover {
     </message>
     <message>
         <source>Unsaved packets…</source>
-        <translation type="unfinished"></translation>
+        <translation>Pacáistí neamhshábháilte…</translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
@@ -16119,6 +16177,15 @@ a:hover {
         <source>No Keys</source>
         <translation>Gan Eochracha</translation>
     </message>
+    <message numerus="yes">
+        <source>Export SSL Session Keys (%Ln key(s))</source>
+        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
+        <translation type="vanished">
+            <numerusform>Easpórtáil Eochracha Seisiúin SSL (eochair %Ln)</numerusform>
+            <numerusform>Easpórtáil Eochracha Seisiúin SSL (eochracha %Ln)</numerusform>
+            <numerusform>Easpórtáil Eochracha Seisiúin SSL (eochracha %Ln)</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Sonraí amha (*.bin *.dat *.raw);; Gach Comhad (</translation>
@@ -16188,10 +16255,10 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Scrios tráchtanna ón bpacáiste %Ln</numerusform>
+            <numerusform>Scrios tráchtanna ó phaicéid %Ln</numerusform>
+            <numerusform>Scrios tráchtanna ó phaicéid %Ln</numerusform>
         </translation>
     </message>
     <message>
@@ -16216,10 +16283,10 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Easpórtáil Eochracha Seisiúin TLS (eochair %Ln)</numerusform>
+            <numerusform>Easpórtáil Eochracha Seisiúin TLS (%Ln eochracha)</numerusform>
+            <numerusform>Easpórtáil Eochracha Seisiúin TLS (%Ln eochracha)</numerusform>
         </translation>
     </message>
     <message>
