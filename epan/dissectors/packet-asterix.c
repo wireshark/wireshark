@@ -275,7 +275,7 @@ static unsigned asterix_parse_re_field (tvbuff_t *tvb, unsigned offset, proto_tr
         }
     }
 
-    table_params table_p;
+    table_params table_p = {0};
     get_expansion_table(cat, ed, &table_p);
 
     i = 0;
