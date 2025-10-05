@@ -23663,17 +23663,21 @@ dissect_mmie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
+  int mic_len = 8;
 
-  if (tag_len < 16) {
+  if (!(tag_len == 16 || tag_len == 24)) {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
-                          "MMIE content length must be at least 16 bytes");
+                          "MMIE content length must be 16 or 24 bytes");
     return 1;
   }
 
+  if (tag_len == 24) {
+    mic_len = 16;
+  }
   proto_tree_add_item(tree, hf_ieee80211_tag_mmie_keyid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(tree, hf_ieee80211_tag_mmie_ipn, tvb, offset + 2, 6,
                       ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tree, hf_ieee80211_tag_mmie_mic, tvb, offset + 8, 8,
+  proto_tree_add_item(tree, hf_ieee80211_tag_mmie_mic, tvb, offset + 8, mic_len,
                       ENC_NA);
   return tvb_captured_length(tvb);
 }
