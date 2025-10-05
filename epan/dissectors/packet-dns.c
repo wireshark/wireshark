@@ -4721,7 +4721,36 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /*
    * Do we have a conversation for this connection?
    */
-  conversation = find_or_create_conversation(pinfo);
+  if (is_llmnr && transport == DNS_TRANSPORT_UDP) {
+    /* LLMNR over UDP: requests are sent to link-scope multicast addresses
+     * and "an LLMNR response MUST be sent to the sender via unicast."
+     * (RFC 4795, 2.3)
+     *
+     * XXX - What about mDNS? It sends responses over multicast, so the opposite
+     * logic could be used. However, mDNS does not use the transaction ID at all
+     * nor is the question repeated in the response, so requests and responses
+     * are harder to associate. Perhaps requests and responses should not be
+     * tracked in mDNS at all.
+     */
+    conversation_element_t *conv_key = wmem_alloc_array(pinfo->pool, conversation_element_t, 3);
+    conv_key[0].type = CE_ADDRESS;
+    conv_key[1].type = CE_PORT;
+    conv_key[2].type = CE_CONVERSATION_TYPE;
+    conv_key[2].conversation_type_val = CONVERSATION_UDP;
+    if (flags & F_RESPONSE) {
+      conv_key[0].addr_val = pinfo->dst;
+      conv_key[1].port_val = pinfo->destport;
+    } else {
+      conv_key[0].addr_val = pinfo->src;
+      conv_key[1].port_val = pinfo->srcport;
+    }
+    conversation = find_conversation_full(pinfo->num, conv_key);
+    if (!conversation) {
+      conversation = conversation_new_full(pinfo->num, conv_key);
+    }
+  } else {
+    conversation = find_or_create_conversation(pinfo);
+  }
 
   /*
    * DoH: Each DNS query-response pair is mapped into an HTTP exchange.
