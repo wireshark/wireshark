@@ -12,6 +12,7 @@
 /*
  * CQL V3 reference: https://github.com/apache/cassandra/blob/trunk/doc/native_protocol_v3.spec
  * CQL V4 reference: https://github.com/apache/cassandra/blob/trunk/doc/native_protocol_v4.spec
+ * CQL V5 reference: https://github.com/apache/cassandra/blob/trunk/doc/native_protocol_v5.spec
  */
 #include "config.h"
 #include <epan/conversation.h>
@@ -1177,6 +1178,39 @@ static int
 dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, void* data _U_);
 
 static int
+dissect_cql5_uncomp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+{
+	proto_item* ti;
+	proto_tree* cql_tree;
+	proto_tree* header_tree;
+	uint32_t offset = 0;
+	uint32_t length;
+	bool isSelfContained;
+	uint64_t header_data = tvb_get_letoh64(tvb, offset);
+	tvbuff_t *payload_tvb = NULL;
+
+	header_data &= 0xFFFFFFFFFF; // mask to 40 bits
+	length = header_data & MAX_PAYLOAD_LENGTH;
+	isSelfContained = (header_data >> 17) & 1;  // Self-contained flag at bit 17
+
+	uint32_t payload_offset = offset + 6;  // Skip the 6-byte header + CRC24 to get to payload
+
+	ti = proto_tree_add_item(tree, proto_cql, tvb, offset, length + 6 + 4, ENC_NA);
+	cql_tree = proto_item_add_subtree(ti, ett_cql_protocol);
+
+	ti = proto_tree_add_item(cql_tree, hf_cql5_header, tvb, offset, 6, ENC_NA);
+	header_tree = proto_item_add_subtree(ti, ett_cql5_header);
+
+	proto_tree_add_uint(header_tree, hf_cql5_compressed_length, tvb, offset, 3, length);
+	proto_tree_add_boolean(header_tree, hf_cql5_self_contained, tvb, offset + 2, 1, isSelfContained);
+	proto_tree_add_item(header_tree, hf_cql5_crc32, tvb, length + 6, 4, ENC_LITTLE_ENDIAN);
+
+	payload_tvb = tvb_new_subset_length(tvb, payload_offset, length);
+	tcp_dissect_pdus(payload_tvb, pinfo, cql_tree, cql_desegment, 9 /* bytes to determine length of PDU */, get_cql_pdu_len, dissect_cql_tcp_pdu, data);
+	return length + 6 + 4; // length + header + crc32
+}
+
+static int
 dissect_cql5_comp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
 	proto_item* ti;
@@ -1186,7 +1220,6 @@ dissect_cql5_comp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
 	uint32_t length, uncomp_length;
 	bool isSelfContained;
 	uint64_t header_data = tvb_get_letoh64(tvb, offset);
-
 
 	header_data &= 0xFFFFFFFFFF; // mask to 40 bits
 	length = header_data & MAX_PAYLOAD_LENGTH;
@@ -1961,8 +1994,7 @@ dissect_cql_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 			if (cql_conv->frame_start_v5_proto != 0 && pinfo->num > cql_conv->frame_start_v5_proto) {
 				/* if we are already in v5 and negotiation is done, use the stored compression level */
 				if (cql_conv->compression_level == CQL_COMPRESSION_NONE) {
-					/* FIXME: dissect non-compressed CQLv5 */
-					tcp_dissect_pdus(tvb, pinfo, tree, cql_desegment, 3 /* bytes to determine length of PDU */, get_cql5_non_comp_pdu_len, dissect_cql_tcp_pdu, data);
+					tcp_dissect_pdus(tvb, pinfo, tree, cql_desegment, 3 /* bytes to determine length of PDU */, get_cql5_non_comp_pdu_len, dissect_cql5_uncomp, data);
 				} else if (cql_conv->compression_level == CQL_COMPRESSION_LZ4) {
 					tcp_dissect_pdus(tvb, pinfo, tree, cql_desegment, 3 /* bytes to determine length of PDU */, get_cql5_comp_pdu_len, dissect_cql5_comp, data);
 				} else {
