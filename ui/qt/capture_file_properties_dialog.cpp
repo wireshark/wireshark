@@ -196,7 +196,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
     // Time Section
     bool cap_start_time_valid = summary.cap_start_time != DBL_MAX;
-    bool cap_end_time_valid = summary.cap_end_time != DBL_MAX;
+    bool cap_end_time_valid = summary.cap_end_time != DBL_MIN;
     bool start_time_valid = summary.start_time != DBL_MAX;
     bool stop_time_valid = summary.stop_time != DBL_MIN;
 

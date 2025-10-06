@@ -1047,6 +1047,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	wth->subtype_close = NULL;
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 	nstime_set_unset(&wth->file_start_ts);
+	nstime_set_unset(&wth->file_end_ts);
 	wth->pathname = g_strdup(filename);
 	wth->priv = NULL;
 	wth->wslua_data = NULL;
