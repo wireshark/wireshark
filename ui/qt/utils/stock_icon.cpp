@@ -85,7 +85,7 @@ StockIcon::StockIcon(const QString icon_name) :
     }
 
     // Is this one of our locally sourced, cage-free, organic icons?
-    QStringList types = QStringList() << "8x8" << "14x14" << "16x16" << "24x14" << "24x24";
+    QStringList types = QStringList() << "24x24" << "24x14" << "16x16" << "14x14" << "8x8";
     QList<QIcon::Mode> icon_modes = QList<QIcon::Mode>()
             << QIcon::Disabled
             << QIcon::Active
@@ -154,7 +154,7 @@ StockIcon::StockIcon(const QString icon_name) :
 // Create a square icon filled with the specified color.
 QIcon StockIcon::colorIcon(const QRgb bg_color, const QRgb fg_color, const QString glyph)
 {
-    QList<int> sizes = QList<int>() << 12 << 16 << 24 << 32 << 48;
+    QList<int> sizes = QList<int>() << 48 << 32 << 24 << 16 << 12;
     QIcon color_icon;
 
     foreach (int size, sizes) {
@@ -181,7 +181,7 @@ QIcon StockIcon::colorIcon(const QRgb bg_color, const QRgb fg_color, const QStri
 // Create a triangle icon filled with the specified color.
 QIcon StockIcon::colorIconTriangle(const QRgb bg_color, const QRgb fg_color)
 {
-    QList<int> sizes = QList<int>() << 12 << 16 << 24 << 32 << 48;
+    QList<int> sizes = QList<int>() << 48 << 32 << 24 << 16 << 12;
     QIcon color_icon;
 
     foreach (int size, sizes) {
@@ -206,7 +206,7 @@ QIcon StockIcon::colorIconTriangle(const QRgb bg_color, const QRgb fg_color)
 // Create a cross icon filled with the specified color.
 QIcon StockIcon::colorIconCross(const QRgb bg_color, const QRgb fg_color)
 {
-    QList<int> sizes = QList<int>() << 12 << 16 << 24 << 32 << 48;
+    QList<int> sizes = QList<int>() << 48 << 32 << 24 << 16 << 12;
     QIcon color_icon;
 
     foreach (int size, sizes) {
@@ -231,7 +231,7 @@ QIcon StockIcon::colorIconCross(const QRgb bg_color, const QRgb fg_color)
 // Create a circle icon filled with the specified color.
 QIcon StockIcon::colorIconCircle(const QRgb bg_color, const QRgb fg_color)
 {
-    QList<int> sizes = QList<int>() << 12 << 16 << 24 << 32 << 48;
+    QList<int> sizes = QList<int>() << 48 << 32 << 24 << 16 << 12;
     QIcon color_icon;
 
     foreach (int size, sizes) {
