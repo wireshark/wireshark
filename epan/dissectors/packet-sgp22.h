@@ -21,7 +21,7 @@
 #define id_rsp                         "2.23.146.1"
 #define id_rsp_metadata                id_rsp".3"
 #define id_rsp_metadata_serviceSpecificOIDs id_rsp_metadata".1"
-#define id_rsp_metadata_activationCodeRetrievalInfo id_rsp_metadata".1"
+#define id_rsp_metadata_activationCodeRetrievalInfo id_rsp_metadata_serviceSpecificOIDs".1"
 #define id_rsp_cert_objects            id_rsp".2"
 #define id_rspExt                      id_rsp_cert_objects".0"
 #define id_rspRole                     id_rsp_cert_objects".1"

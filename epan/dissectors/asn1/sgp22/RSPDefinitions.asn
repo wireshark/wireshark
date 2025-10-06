@@ -447,7 +447,7 @@ ActivationCodeRetrievalInfo ::= CHOICE {
 
 id-rsp-metadata OBJECT IDENTIFIER ::= { id-rsp metadata(3)}
 id-rsp-metadata-serviceSpecificOIDs OBJECT IDENTIFIER ::= { id-rsp-metadata serviceSpecificOIDs (1)}
-id-rsp-metadata-activationCodeRetrievalInfo OBJECT IDENTIFIER ::= { id-rsp-metadata activationCodeRetrievalInfo (1)}
+id-rsp-metadata-activationCodeRetrievalInfo OBJECT IDENTIFIER ::= { id-rsp-metadata-serviceSpecificOIDs activationCodeRetrievalInfo (1)}
 
 
 id-rsp-cert-objects OBJECT IDENTIFIER ::= {  id-rsp cert-objects(2)}
@@ -690,8 +690,8 @@ AuthenticateClientRequest ::= [59] SEQUENCE { -- Tag 'BF3B'
 }
 
 AuthenticateClientResponseEs9 ::= [59] CHOICE { -- Tag 'BF3B'
-	authenticateClientOk [0] AuthenticateClientOk,
-	authenticateClientError [1] INTEGER {
+	authenticateClientOk AuthenticateClientOk,
+	authenticateClientError INTEGER {
 		eumCertificateInvalid(1),
 		eumCertificateExpired(2),
 		euiccCertificateInvalid(3),
@@ -705,8 +705,7 @@ AuthenticateClientResponseEs9 ::= [59] CHOICE { -- Tag 'BF3B'
 		insufficientMemory(11), -- Note: values 12-17 are reserved for future versions of SGP.22
 		downloadOrderExpired(18),
 		undefinedError(127)
-	},
-	authenticateClientOkAcr [5] AuthenticateClientOkAcr
+	}
 }
 
 AuthenticateClientOk ::= SEQUENCE {
@@ -715,11 +714,6 @@ AuthenticateClientOk ::= SEQUENCE {
 	smdpSigned2 SmdpSigned2, -- Signed information
 	smdpSignature2 [APPLICATION 55] OCTET STRING, 	-- tag '5F37'
 	smdpCertificate Certificate	-- CERT.DPpb.ECDSA
-}
-
-AuthenticateClientOkAcr ::= SEQUENCE {
-	transactionId [0] TransactionId,
-	profileMetaData [37] StoreMetadataRequest
 }
 
 GetBoundProfilePackageRequest ::= [58] SEQUENCE { -- Tag 'BF3A'

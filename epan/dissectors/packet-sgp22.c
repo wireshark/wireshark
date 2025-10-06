@@ -295,7 +295,6 @@ static int hf_sgp22_authenticateServerResponse;   /* AuthenticateServerResponse 
 static int hf_sgp22_useMatchingIdForAcr;          /* NULL */
 static int hf_sgp22_authenticateClientOk;         /* AuthenticateClientOk */
 static int hf_sgp22_authenticateClientError;      /* T_authenticateClientError */
-static int hf_sgp22_authenticateClientOkAcr;      /* AuthenticateClientOkAcr */
 static int hf_sgp22_profileMetaData;              /* StoreMetadataRequest */
 static int hf_sgp22_prepareDownloadResponse;      /* PrepareDownloadResponse */
 static int hf_sgp22_getBoundProfilePackageOk;     /* GetBoundProfilePackageOk */
@@ -483,7 +482,6 @@ static int ett_sgp22_InitiateAuthenticationOkEs9;
 static int ett_sgp22_AuthenticateClientRequest_U;
 static int ett_sgp22_AuthenticateClientResponseEs9_U;
 static int ett_sgp22_AuthenticateClientOk;
-static int ett_sgp22_AuthenticateClientOkAcr;
 static int ett_sgp22_GetBoundProfilePackageRequest_U;
 static int ett_sgp22_GetBoundProfilePackageResponse_U;
 static int ett_sgp22_GetBoundProfilePackageOk;
@@ -3635,32 +3633,15 @@ dissect_sgp22_T_authenticateClientError(bool implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t AuthenticateClientOkAcr_sequence[] = {
-  { &hf_sgp22_transactionId , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sgp22_TransactionId },
-  { &hf_sgp22_profileMetaData, BER_CLASS_CON, 37, BER_FLAGS_IMPLTAG, dissect_sgp22_StoreMetadataRequest },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_sgp22_AuthenticateClientOkAcr(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AuthenticateClientOkAcr_sequence, hf_index, ett_sgp22_AuthenticateClientOkAcr);
-
-  return offset;
-}
-
-
 static const value_string sgp22_AuthenticateClientResponseEs9_U_vals[] = {
   {   0, "authenticateClientOk" },
   {   1, "authenticateClientError" },
-  {   5, "authenticateClientOkAcr" },
   { 0, NULL }
 };
 
 static const ber_choice_t AuthenticateClientResponseEs9_U_choice[] = {
   {   0, &hf_sgp22_authenticateClientOk, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sgp22_AuthenticateClientOk },
   {   1, &hf_sgp22_authenticateClientError, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_sgp22_T_authenticateClientError },
-  {   5, &hf_sgp22_authenticateClientOkAcr, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_sgp22_AuthenticateClientOkAcr },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -5699,10 +5680,6 @@ void proto_register_sgp22(void)
       { "authenticateClientError", "sgp22.authenticateClientError",
         FT_INT32, BASE_DEC, VALS(sgp22_T_authenticateClientError_vals), 0,
         NULL, HFILL }},
-    { &hf_sgp22_authenticateClientOkAcr,
-      { "authenticateClientOkAcr", "sgp22.authenticateClientOkAcr_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_sgp22_profileMetaData,
       { "profileMetaData", "sgp22.profileMetaData_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6122,7 +6099,6 @@ void proto_register_sgp22(void)
     &ett_sgp22_AuthenticateClientRequest_U,
     &ett_sgp22_AuthenticateClientResponseEs9_U,
     &ett_sgp22_AuthenticateClientOk,
-    &ett_sgp22_AuthenticateClientOkAcr,
     &ett_sgp22_GetBoundProfilePackageRequest_U,
     &ett_sgp22_GetBoundProfilePackageResponse_U,
     &ett_sgp22_GetBoundProfilePackageOk,
@@ -6173,7 +6149,7 @@ void proto_reg_handoff_sgp22(void)
   register_ber_oid_dissector("2.23.146.1.2.0.1", dissect_ExpirationDate_PDU, proto_sgp22, "id-rsp-expDate");
   register_ber_oid_dissector("2.23.146.1.2.0.2", dissect_TotalPartialCrlNumber_PDU, proto_sgp22, "id-rsp-totalPartialCrlNumber");
   register_ber_oid_dissector("2.23.146.1.2.0.3", dissect_PartialCrlNumber_PDU, proto_sgp22, "id-rsp-partialCrlNumber");
-  register_ber_oid_dissector("2.23.146.1.3.1", dissect_ActivationCodeRetrievalInfo_PDU, proto_sgp22, "id-rsp-metadata-activationCodeRetrievalInfo");
+  register_ber_oid_dissector("2.23.146.1.3.1.1", dissect_ActivationCodeRetrievalInfo_PDU, proto_sgp22, "id-rsp-metadata-activationCodeRetrievalInfo");
   dissector_add_uint("sgp22.request", 0xA2, create_dissector_handle(dissect_RemoteProfileProvisioningRequest_PDU, proto_sgp22));
   dissector_add_uint("sgp22.response", 0xA2, create_dissector_handle(dissect_RemoteProfileProvisioningResponse_PDU, proto_sgp22));
   dissector_add_uint("sgp22.request", 0xE0, create_dissector_handle(dissect_ISDRProprietaryApplicationTemplate_PDU, proto_sgp22));
