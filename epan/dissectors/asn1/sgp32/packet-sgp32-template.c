@@ -15,6 +15,7 @@
 #include <epan/packet.h>
 
 #include "packet-ber.h"
+#include "packet-media-type.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
 #include "packet-sgp22.h"
@@ -34,6 +35,8 @@ static int ett_sgp32;
 #include "packet-sgp32-ett.c"
 
 #include "packet-sgp32-fn.c"
+
+static dissector_handle_t sgp32_handle;
 
 /* Dissector tables */
 static dissector_table_t sgp22_request_dissector_table;
@@ -130,6 +133,34 @@ int dissect_sgp32_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   return offset;
 }
 
+static int dissect_sgp32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  media_content_info_t *content_info = (media_content_info_t *)data;
+  proto_item *sgp32_ti;
+  proto_tree *sgp32_tree;
+  int offset;
+
+  if (!content_info ||
+      ((content_info->type != MEDIA_CONTAINER_HTTP_REQUEST) &&
+       (content_info->type != MEDIA_CONTAINER_HTTP_RESPONSE))) {
+    return 0;
+  }
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGP.32");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  sgp32_ti = proto_tree_add_item(tree, proto_sgp32, tvb, 0, -1, ENC_NA);
+  sgp32_tree = proto_item_add_subtree(sgp32_ti, ett_sgp32);
+
+  if (content_info->type == MEDIA_CONTAINER_HTTP_REQUEST) {
+    offset = dissect_EsipaMessageFromIpaToEim_PDU(tvb, pinfo, sgp32_tree, NULL);
+  } else {
+    offset = dissect_EsipaMessageFromEimToIpa_PDU(tvb, pinfo, sgp32_tree, NULL);
+  }
+
+  return offset;
+}
+
 void proto_register_sgp32(void)
 {
   static hf_register_info hf[] = {
@@ -145,6 +176,7 @@ void proto_register_sgp32(void)
   proto_register_field_array(proto_sgp32, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  sgp32_handle = register_dissector("sgp32", dissect_sgp32, proto_sgp32);
   register_dissector("sgp32.request", dissect_sgp32_request, proto_sgp32);
   register_dissector("sgp32.response", dissect_sgp32_response, proto_sgp32);
 
@@ -159,6 +191,8 @@ void proto_reg_handoff_sgp32(void)
 {
   sgp22_request_dissector_table = find_dissector_table("sgp22.request");
   sgp22_response_dissector_table = find_dissector_table("sgp22.response");
+
+  dissector_add_string("media_type", "application/x-gsma-rsp-asn1", sgp32_handle);
 
 #include "packet-sgp32-dis-tab.c"
 }

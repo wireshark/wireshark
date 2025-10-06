@@ -11,9 +11,32 @@ RSPDefinitions sgp22
 
 #.OMIT_ASSIGNMENT
 AuthenticateClientRequest
+
+#.PDU
 EsipaMessageFromIpaToEim
 EsipaMessageFromEimToIpa
-#.END
+
+#.FN_PARS
+EsipaMessageFromIpaToEim VAL_PTR = &choice
+EsipaMessageFromEimToIpa VAL_PTR = &choice
+
+#.FN_HDR EsipaMessageFromIpaToEim
+  int choice;
+
+#.FN_FTR EsipaMessageFromIpaToEim
+  if (choice != -1) {
+    const char *choice_str = val_to_str_const(EsipaMessageFromIpaToEim_choice[choice].value, sgp32_EsipaMessageFromIpaToEim_vals, "Unknown");
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s", choice_str);
+  }
+
+#.FN_HDR EsipaMessageFromEimToIpa
+  int choice;
+
+#.FN_FTR EsipaMessageFromEimToIpa
+  if (choice != -1) {
+    const char *choice_str = val_to_str_const(EsipaMessageFromEimToIpa_choice[choice].value, sgp32_EsipaMessageFromEimToIpa_vals, "Unknown");
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s", choice_str);
+  }
 
 #.REGISTER
 ISDRProprietaryApplicationTemplateIoT      N sgp32.request   0xE1
