@@ -36,9 +36,10 @@ UnsuccessfulOutcome/value  UnsuccessfulOutcome_value
 ProtocolExtensionField/id extension_id
 PrivateIE-Field/id private_id
 InitiatingMessage/value initiatingMessage_value
+SuccessfulOutcome/value successfulOutcome_value
+UnsuccessfulOutcome/value unsuccessfulOutcome_value
 
 ProtocolIE-Field/value protocolIE_Field_value
-SuccessfulOutcome/value successfulOutcome_value
 PrivateIE-Field/value privateIE_Field_value
 ExtTLA-Item/gTPTransportLayerAddresses gtptlas
 
@@ -81,6 +82,17 @@ ProtocolIE-ContainerPairList
 #.FN_HDR UnsuccessfulOutcome/value
   struct xnap_private_data *xnap_data = xnap_get_private_data(actx->pinfo);
   xnap_data->message_type = UNSUCCESSFUL_OUTCOME;
+
+#.FN_BODY PrivateIE-ID/global  FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
+%(DEFAULT_BODY)s
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
+
+#.FN_BODY PrivateIE-Field/value
+  if (actx->external.direct_ref_present){
+    offset=call_per_oid_callback(actx->external.direct_reference, tvb, actx->pinfo, tree, offset, actx, hf_index);
+  }else{
+    %(DEFAULT_BODY)s
+  }
 
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &xnap_ProtocolIE_ID_vals_ext

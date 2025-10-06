@@ -1282,7 +1282,7 @@ static int hf_xnap_DataCollectionFailure_PDU;     /* DataCollectionFailure */
 static int hf_xnap_DataCollectionUpdate_PDU;      /* DataCollectionUpdate */
 static int hf_xnap_XnAP_PDU_PDU;                  /* XnAP_PDU */
 static int hf_xnap_local;                         /* INTEGER_0_maxPrivateIEs */
-static int hf_xnap_global;                        /* OBJECT_IDENTIFIER */
+static int hf_xnap_global;                        /* T_global */
 static int hf_xnap_ProtocolIE_Container_item;     /* ProtocolIE_Field */
 static int hf_xnap_id;                            /* ProtocolIE_ID */
 static int hf_xnap_criticality;                   /* Criticality */
@@ -2728,7 +2728,7 @@ static int hf_xnap_successfulOutcome;             /* SuccessfulOutcome */
 static int hf_xnap_unsuccessfulOutcome;           /* UnsuccessfulOutcome */
 static int hf_xnap_initiatingMessage_value;       /* InitiatingMessage_value */
 static int hf_xnap_successfulOutcome_value;       /* SuccessfulOutcome_value */
-static int hf_xnap_value;                         /* UnsuccessfulOutcome_value */
+static int hf_xnap_unsuccessfulOutcome_value;     /* UnsuccessfulOutcome_value */
 /* named bits */
 static int hf_xnap_RAT_RestrictionInformation_e_UTRA;
 static int hf_xnap_RAT_RestrictionInformation_nR;
@@ -3984,8 +3984,11 @@ dissect_xnap_INTEGER_0_maxPrivateIEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static int
-dissect_xnap_OBJECT_IDENTIFIER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, NULL);
+dissect_xnap_T_global(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &actx->external.direct_reference);
+
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
+
 
   return offset;
 }
@@ -3999,7 +4002,7 @@ static const value_string xnap_PrivateIE_ID_vals[] = {
 
 static const per_choice_t PrivateIE_ID_choice[] = {
   {   0, &hf_xnap_local          , ASN1_NO_EXTENSIONS     , dissect_xnap_INTEGER_0_maxPrivateIEs },
-  {   1, &hf_xnap_global         , ASN1_NO_EXTENSIONS     , dissect_xnap_OBJECT_IDENTIFIER },
+  {   1, &hf_xnap_global         , ASN1_NO_EXTENSIONS     , dissect_xnap_T_global },
   { 0, NULL, 0, NULL }
 };
 
@@ -4688,7 +4691,13 @@ dissect_xnap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static int
 dissect_xnap_PrivateIE_Field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
+  if (actx->external.direct_ref_present){
+    offset=call_per_oid_callback(actx->external.direct_reference, tvb, actx->pinfo, tree, offset, actx, hf_index);
+  }else{
+      offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
+
+  }
+
 
   return offset;
 }
@@ -29147,7 +29156,7 @@ dissect_xnap_UnsuccessfulOutcome_value(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static const per_sequence_t UnsuccessfulOutcome_sequence[] = {
   { &hf_xnap_procedureCode  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_ProcedureCode },
   { &hf_xnap_criticality    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_Criticality },
-  { &hf_xnap_value          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_UnsuccessfulOutcome_value },
+  { &hf_xnap_unsuccessfulOutcome_value, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xnap_UnsuccessfulOutcome_value },
   { NULL, 0, 0, NULL }
 };
 
@@ -35448,7 +35457,7 @@ void proto_register_xnap(void) {
     { &hf_xnap_global,
       { "global", "xnap.global",
         FT_OID, BASE_NONE, NULL, 0,
-        "OBJECT_IDENTIFIER", HFILL }},
+        NULL, HFILL }},
     { &hf_xnap_ProtocolIE_Container_item,
       { "ProtocolIE-Field", "xnap.ProtocolIE_Field_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -41229,8 +41238,8 @@ void proto_register_xnap(void) {
       { "value", "xnap.successfulOutcome_value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SuccessfulOutcome_value", HFILL }},
-    { &hf_xnap_value,
-      { "value", "xnap.value_element",
+    { &hf_xnap_unsuccessfulOutcome_value,
+      { "value", "xnap.unsuccessfulOutcome_value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
     { &hf_xnap_RAT_RestrictionInformation_e_UTRA,
