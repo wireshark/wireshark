@@ -612,7 +612,6 @@ static int pref_includeUdCompHeaderUplink = 2;     /* start heuristic */
 static int pref_includeUdCompHeaderDownlink = 2;   /* start heuristic */
 
 static unsigned pref_data_plane_section_total_rbs = 273;
-static unsigned pref_num_weights_per_bundle = 32;
 static unsigned pref_num_bf_antennas = 32;
 static bool pref_showIQSampleValues = true;
 
@@ -629,9 +628,6 @@ static bool show_unscaled_values = false;
 
 /* Initialized off. Timing is in microseconds. */
 static unsigned us_allowed_for_ul_in_symbol = 0;
-
-/* K (number of digital antenna ports support by the O-RU) */
-static unsigned k_antenna_ports = 64;
 
 static const enum_val_t dl_compression_options[] = {
     { "COMP_NONE",                             "No Compression",                                                             COMP_NONE },
@@ -1876,7 +1872,7 @@ static int dissect_active_beamspace_coefficient_mask(tvbuff_t *tvb, proto_tree *
     /* activeBeamspaceCoefficientMask - ceil(K/8) octets */
     /* K is the number of elements in uncompressed beamforming weight vector.
      * Calculated from parameters describing tx-array or tx-array */
-    unsigned k_octets = (k_antenna_ports + 7) / 8;
+    unsigned k_octets = (pref_data_plane_section_total_rbs + 7) / 8;
 
     static uint16_t trx_enabled[1024];
 
@@ -1904,7 +1900,7 @@ static int dissect_active_beamspace_coefficient_mask(tvbuff_t *tvb, proto_tree *
         /* Add up the set bits for this byte (but be careful not to count beyond last real K bit..) */
         for (unsigned b=0; b < 8; b++) {
             if ((1 << b) & (unsigned)val) {
-                if (((n*8)+b) < k_antenna_ports) {
+                if (((n*8)+b) < pref_data_plane_section_total_rbs) {
                     if (*num_trx_entries < 1024-1) {   /* Don't write beyond array (which should be plenty big) */
                         trx_enabled[(*num_trx_entries)++] = (n*8) + b + 1;
                     }
@@ -3422,7 +3418,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                     comp_meth_ti, bfwcomphdr_comp_meth,
                                                     (ext11_settings.ext21_set) ?
                                                         numPrbc :
-                                                        pref_num_weights_per_bundle,
+                                                        pref_num_bf_antennas,
                                                     bfwcomphdr_iq_width,
                                                     b,                                 /* bundle number */
                                                     ext11_settings.bundles[b].start,
@@ -9272,11 +9268,10 @@ proto_register_oran(void)
     /* BF-related */
     prefs_register_static_text_preference(oran_module, "oran.bf", "", "");
 
-    prefs_register_uint_preference(oran_module, "oran.num_weights_per_bundle", "Number of weights per bundle",
-        "Used in decoding of section extension type 11 (Flexible BF weights)", 10, &pref_num_weights_per_bundle);
+    prefs_register_obsolete_preference(oran_module, "oran.num_weights_per_bundle");
 
-    prefs_register_uint_preference(oran_module, "oran.num_bf_antennas", "Number of BF Antennas",
-        "Number of BF Antennas (used for C section type 6)", 10, &pref_num_bf_antennas);
+    prefs_register_uint_preference(oran_module, "oran.num_bf_antennas", "Number of beam weights",
+        "Number of array elements that BF weights will be provided for", 10, &pref_num_bf_antennas);
 
     prefs_register_obsolete_preference(oran_module, "oran.num_bf_weights");
 
@@ -9300,8 +9295,7 @@ proto_register_oran(void)
     prefs_register_bool_preference(oran_module, "oran.unscaled_iq", "Show unscaled I/Q values",
         "", &show_unscaled_values);
 
-    prefs_register_uint_preference(oran_module, "oran.k_antenna_ports", "K - number of antenna ports",
-        "Used in bfwCompParam", 10, &k_antenna_ports);
+    prefs_register_obsolete_preference(oran_module, "oran.k_antenna_ports");
 
 
     flow_states_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
