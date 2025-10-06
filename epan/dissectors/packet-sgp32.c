@@ -4312,8 +4312,7 @@ dissect_sgp32_EsipaMessageFromIpaToEim(bool implicit_tag _U_, tvbuff_t *tvb _U_,
                                  &choice);
 
   if (choice != -1) {
-    const char *choice_str = val_to_str_const(EsipaMessageFromIpaToEim_choice[choice].value, sgp32_EsipaMessageFromIpaToEim_vals, "Unknown");
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s", choice_str);
+    col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(EsipaMessageFromIpaToEim_choice[choice].value, sgp32_EsipaMessageFromIpaToEim_vals, "Unknown"));
   }
 
   return offset;
@@ -4808,8 +4807,7 @@ dissect_sgp32_EsipaMessageFromEimToIpa(bool implicit_tag _U_, tvbuff_t *tvb _U_,
                                  &choice);
 
   if (choice != -1) {
-    const char *choice_str = val_to_str_const(EsipaMessageFromEimToIpa_choice[choice].value, sgp32_EsipaMessageFromEimToIpa_vals, "Unknown");
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s", choice_str);
+    col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(EsipaMessageFromEimToIpa_choice[choice].value, sgp32_EsipaMessageFromEimToIpa_vals, "Unknown"));
   }
 
   return offset;
