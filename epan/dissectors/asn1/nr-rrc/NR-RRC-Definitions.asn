@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V18.6.0 (2025-06)
+-- 3GPP TS 38.331 V18.7.0 (2025-09)
 
 NR-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -7918,7 +7918,7 @@ MeasObjectId ::=                    INTEGER (1..maxNrofObjectId)
 -- TAG-MEASOBJECTNR-START
 
 MeasObjectNR ::=                    SEQUENCE {
-    ssbFrequency                        ARFCN-ValueNR                                                   OPTIONAL,   -- Cond SSBorAssociatedSSB2
+    ssbFrequency                        ARFCN-ValueNR                                                   OPTIONAL,   -- Cond SSBorAssociatedSSB
     ssbSubcarrierSpacing                SubcarrierSpacing                                               OPTIONAL,   -- Cond SSBorAssociatedSSB
     smtc1                               SSB-MTC                                                         OPTIONAL,   -- Cond SSBorAssociatedSSB
     smtc2                               SSB-MTC2                                                        OPTIONAL,   -- Cond IntraFreqConnected
@@ -13777,12 +13777,12 @@ SRS-PosTx-Hopping-r18 ::=                       SEQUENCE {
 }
 
 SRS-PosUplinkTransmissionWindowConfig-r18 ::=   SEQUENCE {
-    startSFN-r18                                    INTEGER(0..1023),
+    dummy                             INTEGER(0..1023),
     windowPeriodicityAndOffset-r18                  CHOICE {
         periodicityAndOffset-r18                        SRS-PeriodicityAndOffset-r16,
-        periodicityAndOffset-Ext-r18                    SRS-PeriodicityAndOffsetExt-r16
+        periodicityAndOffsetExt-r18                     SRS-PeriodicityAndOffsetExt-r16
     },
-    duration-r18                                    ENUMERATED {s1,s2,s4,s6},
+    duration-r18                                    ENUMERATED {sl1, sl2, sl4, sl6},
     ...
 }
 
@@ -20081,8 +20081,8 @@ PosSRS-TxFrequencyHoppingRRC-Inactive-r18 ::=   SEQUENCE {
     rf-TxRetuneTimeFR2-r18                          ENUMERATED {n35, n70, n140}                        OPTIONAL,
     switchTimeBetweenActiveBWP-FrequencyHop-r18     ENUMERATED {n100, n140, n200, n300, n500}          OPTIONAL,
     numOfOverlappingPRB-r18                         ENUMERATED {n0, n1, n2, n4}                        OPTIONAL,
-    maximumSRS-Resource-Periodic-r18                ENUMERATED {n1, n2, n4, n8, n16, n32, n64}         OPTIONAL,
-    maximumSRS-Resource-Semipersistent-r18          ENUMERATED {n0, n1, n2, n4, n8, n16, n32, n64}     OPTIONAL,
+    maximumSRS-ResourcePeriodic-r18                 ENUMERATED {n1, n2, n4, n8, n16, n32, n64}         OPTIONAL,
+    maximumSRS-ResourceSemipersistent-r18           ENUMERATED {n0, n1, n2, n4, n8, n16, n32, n64}     OPTIONAL,
     ...
 }
 
@@ -21063,6 +21063,9 @@ BandNR ::=                          SEQUENCE {
         maxNumberDL-TCI-AcrossCells-r18                                 INTEGER (1..32),
         maxNumberUL-TCI-AcrossCells-r18                                 INTEGER (1..32)
     }                                                                                                                          OPTIONAL
+    ]],
+    [[
+    eventA4BasedCondHandoverATG-r18                                 ENUMERATED {supported}                                     OPTIONAL
     ]]
 }
 
@@ -22784,17 +22787,17 @@ ReleasePreferenceConfig-r16 ::=       SEQUENCE {
     releasePreferenceProhibitTimer-r16    ENUMERATED {
                                               s0, s0dot5, s1, s2, s3, s4, s5, s6, s7,
                                               s8, s9, s10, s20, s30, infinity, spare1},
-    connectedReporting                    ENUMERATED {true}                                               OPTIONAL  -- Need R
+    connectedReporting-r16                ENUMERATED {true}                                               OPTIONAL  -- Need R
 }
 
 RLM-RelaxationReportingConfig-r17 ::= SEQUENCE {
-    rlm-RelaxtionReportingProhibitTimer   ENUMERATED {s0, s0dot5, s1, s2, s5, s10, s20, s30,
-                                          s60, s90, s120, s300, s600, infinity, spare2, spare1}
+    rlm-RelaxtionReportingProhibitTimer-r17  ENUMERATED {s0, s0dot5, s1, s2, s5, s10, s20, s30,
+                                             s60, s90, s120, s300, s600, infinity, spare2, spare1}
 }
 
 BFD-RelaxationReportingConfig-r17 ::= SEQUENCE {
-    bfd-RelaxtionReportingProhibitTimer   ENUMERATED {s0, s0dot5, s1, s2, s5, s10, s20, s30,
-                                          s60, s90, s120, s300, s600, infinity, spare2, spare1}
+    bfd-RelaxtionReportingProhibitTimer-r17  ENUMERATED {s0, s0dot5, s1, s2, s5, s10, s20, s30,
+                                             s60, s90, s120, s300, s600, infinity, spare2, spare1}
 }
 
 SCG-DeactivationPreferenceConfig-r17 ::=       SEQUENCE {
@@ -23138,7 +23141,7 @@ SL-CBR-CommonTxDedicatedSL-PRS-RP-List-r18 ::= SEQUENCE {
                                                                                                                  OPTIONAL     -- Need M
 }
 
-SL-CBR-LevelsDedicatedSL-PRS-RP-r18 ::= SEQUENCE (SIZE (0..maxCBR-LevelDedSL-PRS-1-r18)) OF SL-CBR-Dedicated-SL-PRS-RP-r18
+SL-CBR-LevelsDedicatedSL-PRS-RP-r18 ::= SEQUENCE (SIZE (0..maxCBR-LevelDedSL-PRS-1-r18)) OF SL-CBR-DedicatedSL-PRS-RP-r18
 
 SL-CBR-SL-PRS-TxConfig-r18 ::=          SEQUENCE {
     sl-PRS-CR-Limit-r18                     INTEGER(0..10000)                                                    OPTIONAL,    -- Need M
@@ -23146,7 +23149,7 @@ SL-CBR-SL-PRS-TxConfig-r18 ::=          SEQUENCE {
     sl-PRS-MaxNum-Transmissions-r18         INTEGER(1..32)                                                       OPTIONAL     -- Need M
 }
 
-SL-CBR-Dedicated-SL-PRS-RP-r18 ::= INTEGER (0..100)
+SL-CBR-DedicatedSL-PRS-RP-r18 ::= INTEGER (0..100)
 
 -- TAG-SL-CBR-COMMONTXDEDICATEDSL-PRS-RP-LIST-STOP
 -- TAG-SL-CONFIGDEDICATEDNR-START
@@ -23298,7 +23301,7 @@ SL-ConfiguredGrantConfigDedicatedSL-PRS-RP-r18 ::=     SEQUENCE {
     sl-PRS-ConfigIndexCG-r18                               SL-ConfigIndexCG-r16,
     sl-PRS-PeriodCG-r18                                    SL-PeriodCG-r16                                         OPTIONAL, -- Need M
     sl-PRS-ResourcePoolID-r18                              SL-ResourcePoolID-r16                                   OPTIONAL, -- Need M
-    rrc-ConfiguredSidelinkGrantDedicated-SL-PRS-RP-r18     SEQUENCE {
+    rrc-ConfiguredSidelinkGrantDedicatedSL-PRS-RP-r18      SEQUENCE {
         sl-TimeOffsetCG-Type1-r18                              INTEGER (0..7999)                                   OPTIONAL, -- Need R
         sl-TimeReferenceSFN-Type1-r18                          ENUMERATED {sfn512}                                 OPTIONAL, -- Need S
         sl-TimeResourceCG-Type1-r18                            INTEGER (0..496)                                    OPTIONAL, -- Need M
@@ -23832,7 +23835,7 @@ SL-PRS-ResourcePool-r18 ::=                  SEQUENCE {
     sl-CBR-CommonTxDedicatedSL-PRS-RP-List-r18    SL-CBR-CommonTxDedicatedSL-PRS-RP-List-r18                     OPTIONAL,   -- Need M
     sl-PriorityThreshold-UL-URLLC-r18             INTEGER (1..9)                                                 OPTIONAL,   -- Need M
     sl-PriorityThreshold-r18                      INTEGER (1..9)                                                 OPTIONAL,   -- Need M
-    sl-SelectionWindowListDedicatedSL-PRS-RP-r18  SEQUENCE (SIZE (8)) OF SL-SelectionWindowConfigDedicated-SL-PRS-RP-r18
+    sl-SelectionWindowListDedicatedSL-PRS-RP-r18  SEQUENCE (SIZE (8)) OF SL-SelectionWindowConfigDedicatedSL-PRS-RP-r18
                                                                                                                  OPTIONAL,   -- Need M
     sl-Thres-RSRP-ListDedicatedSL-PRS-RP-r18      SEQUENCE (SIZE (64)) OF SL-PRS-ThresRSRP-r18                   OPTIONAL,   -- Need M
     sl-PreemptionEnableDedicatedSL-PRS-RP-r18     ENUMERATED {enabled, pl1, pl2, pl3, pl4, pl5, pl6, pl7, pl8}   OPTIONAL    -- Need R
@@ -23883,7 +23886,7 @@ SL-PriorityTxConfigIndexDedicatedSL-PRS-RP-r18 ::= SEQUENCE {
 
 SL-PRS-TxConfigIndex-r18 ::=    INTEGER (0.. maxNrofSL-PRS-TxConfig-r18)
 
-SL-SelectionWindowConfigDedicated-SL-PRS-RP-r18::= SEQUENCE {
+SL-SelectionWindowConfigDedicatedSL-PRS-RP-r18::=  SEQUENCE {
     sl-PRS-Priority-r18                                INTEGER (1..8),
     sl-PRS-SelectionWindow-r18                         ENUMERATED {n1, n5, n10, n20}
 }
@@ -24383,7 +24386,7 @@ SL-ScheduledConfig-r16 ::=                   SEQUENCE {
     sl-DCI-ToSL-Trans-r16                        SEQUENCE (SIZE (1..8)) OF INTEGER (1..32)                OPTIONAL     -- Need M
     ]],
     [[
-    sl-ConfiguredGrantConfigDedicated-SL-PRS-RP-List-r18 SL-ConfiguredGrantConfigDedicated-SL-PRS-RP-List-r18  OPTIONAL, -- Need M
+    sl-ConfiguredGrantConfigDedicatedSL-PRS-RP-List-r18 SL-ConfiguredGrantConfigDedicatedSL-PRS-RP-List-r18  OPTIONAL, -- Need M
     sl-PRS-RNTI-r18                              RNTI-Value                                               OPTIONAL,    -- Need M
     sl-PRS-CS-RNTI-r18                           RNTI-Value                                               OPTIONAL     -- Need M
     ]]
@@ -24401,10 +24404,10 @@ SL-ConfiguredGrantConfigList-r16 ::=       SEQUENCE {
     sl-ConfiguredGrantConfigToAddModList-r16   SEQUENCE (SIZE (1..maxNrofCG-SL-r16)) OF SL-ConfiguredGrantConfig-r16 OPTIONAL  -- Need N
 }
 
-SL-ConfiguredGrantConfigDedicated-SL-PRS-RP-List-r18 ::= SEQUENCE {
-    sl-ConfiguredGrantConfigDedicated-SL-PRS-RPToReleaseList-r18  SEQUENCE (SIZE (1..maxNrofCG-SL-r16)) OF SL-ConfigIndexCG-r16
+SL-ConfiguredGrantConfigDedicatedSL-PRS-RP-List-r18 ::= SEQUENCE {
+    sl-ConfiguredGrantConfigDedicatedSL-PRS-RP-ToReleaseList-r18  SEQUENCE (SIZE (1..maxNrofCG-SL-r16)) OF SL-ConfigIndexCG-r16
                                                                                                                OPTIONAL, -- Need N
-    sl-ConfiguredGrantConfigDedicated-SL-PRS-RPToAddModList-r18
+    sl-ConfiguredGrantConfigDedicatedSL-PRS-RP-ToAddModList-r18
         SEQUENCE (SIZE (1..maxNrofCG-SL-r16)) OF SL-ConfiguredGrantConfigDedicatedSL-PRS-RP-r18                OPTIONAL  -- Need N
 }
 
