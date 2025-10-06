@@ -1075,11 +1075,10 @@ static const value_string apdu_ins_vals[] = {
 
 /* Section 7.3.7 */
 
-static const range_string search_ef_identifier_vals[] = {
-	{ 0, 0, "Currently selected EF" },
-	{ 1, 30, "Short EF identifier" },
-	{ 31, 31, "Reserved for future use" },
-	{ 0, 0, NULL}
+static const value_string search_ef_identifier_vals[] = {
+	{ 0, "Currently selected EF" },
+	{ 31, "Reserved for future use" },
+	{ 0, NULL}
 };
 
 static const value_string search_mode_vals[] = {
@@ -1519,10 +1518,9 @@ static const value_string status_return_data_vals[] = {
 	{ 0, NULL }
 };
 
-static const range_string record_file_vals[] = {
-	{ 0, 0, "Currently selected EF" },
-	{ 1, 31, "Short File identifier" },
-	{ 0, 0, NULL}
+static const value_string record_file_vals[] = {
+	{ 0, "Currently selected EF" },
+	{ 0, NULL}
 };
 
 static const value_string record_mode_vals[] = {
@@ -2628,7 +2626,7 @@ proto_register_gsm_sim(void)
 		},
 		{ &hf_record_file,
 			{ "File", "gsm_sim.record_file",
-			FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(record_file_vals), 0xF8,
+			FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(record_file_vals), 0xF8,
 			NULL, HFILL }
 		},
 		{ &hf_record_mode,
@@ -4336,7 +4334,7 @@ proto_register_gsm_sim(void)
 
 		{ &hf_search_ef_identifier,
 			{ "EF Identifier", "gsm_sim.search_ef_identifier",
-			FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(search_ef_identifier_vals), 0xF8,
+			FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(search_ef_identifier_vals), 0xF8,
 			NULL, HFILL },
 		},
 		{ &hf_search_mode,
