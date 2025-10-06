@@ -236,7 +236,7 @@ class EncodingCheckerBasic:
             #errors_found += 1
 
         # Is this encoding allowed for this type?
-        if not encoding in self.allowed_encodings:
+        if encoding not in self.allowed_encodings:
             # Have an exemption for UINT fields if the length is only 1.
             if encoding == 'ENC_NA' and item.item_type.find('FT_UINT') != -1 and call.length == 1:
                 return
@@ -280,7 +280,7 @@ def check_call_enc_matches_item(items_defined, call, api_check):
         # order within a byte of ENC_BCD_DIGITS_0_9 for FT_STRING
 
         checker = create_enc_checker(type)
-        if not checker is None:
+        if checker is not None:
             for enc in encs:
                 if enc.startswith('ENC_'):
                     if type != 'FT_BOOLEAN' or item.get_field_width_in_bits() > 8:
