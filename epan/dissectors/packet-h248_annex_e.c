@@ -69,7 +69,7 @@ static const value_string h248_pkg_generic_cause_gencause_vals[] = {
 	{ 0, NULL }
 };
 
-static h248_pkg_param_t h248_pkg_generic_cause_evt_params[] = {
+static const h248_pkg_param_t h248_pkg_generic_cause_evt_params[] = {
 	{ 0x0001, &hf_h248_pkg_generic_cause_gencause, h248_param_ber_integer, &h248_e_implicit },
 	{ 0x0002, &hf_h248_pkg_generic_cause_failurecause, h248_param_ber_octetstring, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
@@ -94,7 +94,7 @@ static const value_string h248_pkg_generic_sc_vals[] = {
 	{0,NULL}
 };
 
-static h248_pkg_param_t h248_pkg_generic_sc_evt_params[] = {
+static const h248_pkg_param_t h248_pkg_generic_sc_evt_params[] = {
 	{ 0x0001, &hf_h248_pkg_generic_sc_sig_id, h248_param_PkgdName, &h248_e_implicit },
 	{ 0x0002, &hf_h248_pkg_generic_sc_meth, h248_param_ber_integer, &h248_e_implicit },
 	{ 0x0003, &hf_h248_pkg_generic_sc_slid, h248_param_ber_integer, &h248_e_implicit },
@@ -102,7 +102,7 @@ static h248_pkg_param_t h248_pkg_generic_sc_evt_params[] = {
 	{ 0, NULL, NULL, NULL}
 };
 
-static h248_pkg_evt_t h248_pkg_generic_cause_evts[] = {
+static const h248_pkg_evt_t h248_pkg_generic_cause_evts[] = {
 	{ 0x0001, &hf_h248_pkg_generic_cause_evt, &ett_h248_pkg_generic_cause_evt, h248_pkg_generic_cause_evt_params, h248_pkg_generic_cause_gencause_vals},
 	{ 0x0002, &hf_h248_pkg_generic_sc_evt, &ett_h248_pkg_generic_sc_evt, h248_pkg_generic_sc_evt_params, h248_pkg_generic_sc_vals},
 	{ 0, NULL, NULL, NULL, NULL}
@@ -150,7 +150,7 @@ static const value_string h248_pkg_root_props_vals[] = {
 	{ 0, NULL }
 };
 
-static h248_pkg_param_t h248_pkg_root_properties[] = {
+static const h248_pkg_param_t h248_pkg_root_properties[] = {
 	{ 0x0001, &hf_h248_pkg_root_maxnrofctx, h248_param_ber_integer, &h248_e_implicit },
 	{ 0x0002, &hf_h248_pkg_root_maxtermsperctx, h248_param_ber_integer, &h248_e_implicit },
 	{ 0x0003, &hf_h248_pkg_root_normalmgexectime, h248_param_ber_integer, &h248_e_implicit },
@@ -211,7 +211,7 @@ static const value_string h248_pkg_tonegen_pt_btd_param_vals[] = {
 	{ 0, NULL }
 };
 
-static h248_pkg_param_t h248_pkg_tonegen_sig_params[] = {
+static const h248_pkg_param_t h248_pkg_tonegen_sig_params[] = {
 	{ 0x0001, &hf_h248_pkg_tonegen_sig_pt_tl, h248_param_ber_integer, &h248_e_implicit },
 	{ 0x0002, &hf_h248_pkg_tonegen_sig_pt_ind, h248_param_ber_integer, &h248_e_implicit },
 	{ 0x0003, &hf_h248_pkg_tonegen_sig_pg_btd, h248_param_ber_integer, &implicit },
@@ -411,7 +411,7 @@ static const h248_pkg_param_t h248_pkg_dg_signal_params[] = {
 };
 
 /* Signals definitions */
-static h248_pkg_sig_t h248_pkg_dg_signals[] = {
+static const h248_pkg_sig_t h248_pkg_dg_signals[] = {
 	{ 0X0001, &hf_h248_pkg_dg_sig_pt, &ett_h248_pkg_dg_sig_pt, h248_pkg_dg_signal_params,h248_pkg_dg_signals_vals },
 	{ 0x0010, &hf_h248_pkg_dg_sig_d0, &ett_h248_pkg_dg_sig_d0, h248_pkg_dg_signal_params,h248_pkg_dg_signals_vals },
 	{ 0x0011, &hf_h248_pkg_dg_sig_d1, &ett_h248_pkg_dg_sig_d1, h248_pkg_dg_signal_params,h248_pkg_dg_signals_vals },
@@ -530,7 +530,7 @@ static const value_string h248_pkg_dd_ce_vals[] = {
 	{ 0, NULL }
 };
 
-static h248_pkg_param_t h248_pkg_dd_ds_events[] = {
+static const h248_pkg_param_t h248_pkg_dd_ds_events[] = {
 	{ 0x0001, &hf_h248_pkg_dd_evt_ce_ds, h248_param_ber_octetstring, &implicit },
 	{ 0x0003, &hf_h248_pkg_dd_evt_ce_meth, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL }
@@ -544,7 +544,7 @@ static const h248_pkg_param_t h248_pkg_dd_event_params[] = {
 };
 
 
-static h248_pkg_evt_t h248_pkg_dd_events[] = {
+static const h248_pkg_evt_t h248_pkg_dd_events[] = {
 	{ 0x0001, &hf_h248_pkg_dd_evt_std, &ett_h248_pkg_dd_evt_std, h248_pkg_dd_event_params, h248_pkg_dd_event_vals },
 	{ 0x0002, &hf_h248_pkg_dd_evt_etd, &ett_h248_pkg_dd_evt_etd, h248_pkg_dd_event_params, h248_pkg_dd_event_vals },
 	{ 0x0003, &hf_h248_pkg_dd_evt_ltd, &ett_h248_pkg_dd_evt_ltd, h248_pkg_dd_event_params, h248_pkg_dd_event_vals },
@@ -759,34 +759,34 @@ static const true_false_string h248_pkg_al_evt_offhook_par_init_vals = {
 };
 
 
-static h248_pkg_param_t h248_pkg_al_sig_cadence[] = {
+static const h248_pkg_param_t h248_pkg_al_sig_cadence[] = {
 	{ 0x0006, &hf_h248_pkg_al_sig_cadence_on_off, h248_param_ber_octetstring, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL }
 };
 
-static h248_pkg_param_t  h248_pkg_al_evt_onhook_params[] = {
+static const h248_pkg_param_t  h248_pkg_al_evt_onhook_params[] = {
 	{ 0x0001, &hf_h248_pkg_al_evt_onhook_par_strict, h248_param_ber_integer, &h248_e_implicit },
 	{ 0x0002, &hf_h248_pkg_al_evt_onhook_par_init, h248_param_ber_boolean, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
-static h248_pkg_param_t  h248_pkg_al_evt_offhook_params[] = {
+static const h248_pkg_param_t  h248_pkg_al_evt_offhook_params[] = {
 	{ 0x0001, &hf_h248_pkg_al_evt_offhook_par_strict, h248_param_ber_integer, &h248_e_implicit },
 	{ 0x0002, &hf_h248_pkg_al_evt_offhook_par_init, h248_param_ber_boolean, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
-static h248_pkg_param_t  h248_pkg_al_evt_flashhook_params[] = {
+static const h248_pkg_param_t  h248_pkg_al_evt_flashhook_params[] = {
 	{ 0x0001, &hf_h248_pkg_al_evt_flashhook_par_mindur, h248_param_ber_integer, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
-static h248_pkg_sig_t h248_pkg_al_sig[] = {
+static const h248_pkg_sig_t h248_pkg_al_sig[] = {
 	{ 0x0002, &hf_h248_pkg_al_sig_cadence, &ett_h248_pkg_al_sig_cadence, h248_pkg_al_sig_cadence, h248_pkg_al_sig_params_vals},
 	{ 0, NULL, NULL, NULL, NULL }
 };
 
-static h248_pkg_evt_t h248_pkg_al_evts[] = {
+static const h248_pkg_evt_t h248_pkg_al_evts[] = {
 	{ 0x0004, &hf_h248_pkg_al_evt_onhook, &ett_h248_pkg_al_evt_onhook, h248_pkg_al_evt_onhook_params, h248_pkg_al_evt_onhook_params_vals},
 	{ 0x0005, &hf_h248_pkg_al_evt_offhook, &ett_h248_pkg_al_evt_offhook, h248_pkg_al_evt_offhook_params, h248_pkg_al_evt_onhook_params_vals },
 	{ 0x0006, &hf_h248_pkg_al_evt_flashhook, &ett_h248_pkg_al_evt_flashhook, h248_pkg_al_evt_flashhook_params, h248_pkg_al_evt_flashhook_params_vals },
@@ -920,7 +920,7 @@ static const value_string h248_pkg_tdmc_props_vals[] = {
 };
 
 
-static h248_pkg_param_t h248_pkg_tdmc_props[] = {
+static const h248_pkg_param_t h248_pkg_tdmc_props[] = {
 	{ 0x0008, &hf_h248_pkg_tdmc_ec, h248_param_ber_boolean, &h248_e_implicit },
 	{ 0x000a, &hf_h248_pkg_tdmc_gain, h248_param_ber_integer, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL}

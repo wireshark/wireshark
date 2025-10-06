@@ -71,7 +71,7 @@ static const value_string hf_h248_2_dtone_dtt_obs_evt_val_values[] = {
     { 0, NULL }
 };
 
-static h248_pkg_param_t h248_2_dtone_dtt_obs_evt_params[] = {
+static const h248_pkg_param_t h248_2_dtone_dtt_obs_evt_params[] = {
     { 0x0001, &hf_h248_2_dtone_dtt_obs_evt_val, h248_param_ber_integer, NULL },
     { 0, NULL, NULL, NULL}
 };
@@ -83,7 +83,7 @@ static const value_string h248_2_ctype_events_vals[] = {
     { 0, NULL }
 };
 
-static h248_pkg_evt_t h248_pkg_generic_cause_evts[] = {
+static const h248_pkg_evt_t h248_pkg_generic_cause_evts[] = {
     { 0x0001, &hf_h248_2_dtone_dtt_obs_evt, &ett_h248_2_dtone_dtt_obs_evt, h248_2_dtone_dtt_obs_evt_params, h248_2_ctype_events_vals},
     { 0, NULL, NULL, NULL, NULL}
 };

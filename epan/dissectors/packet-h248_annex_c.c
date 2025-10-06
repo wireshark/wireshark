@@ -869,7 +869,7 @@ static void dissect_h248_annexc_SDP_M(proto_tree* tree, tvbuff_t* tvb, packet_in
 
 static bool h248_c_implicit = true;
 
-static h248_pkg_param_t h248_annexc_package_properties[] = {
+static const h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0x1001, &hf_h248_pkg_annexc_media, h248_param_ber_integer, NULL },
 	{ 0x1002, &hf_h248_pkg_annexc_transmission_mode, h248_param_ber_integer, NULL },
 	{ 0x1003, &hf_h248_pkg_annexc_num_of_channels, h248_param_ber_integer, NULL },
