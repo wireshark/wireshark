@@ -2091,7 +2091,6 @@ static int sender_id_tlv_chassis_id(proto_tree *cfm_tlv_tree, tvbuff_t *tvb, int
 	proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_subtype, tvb, tlv_data_offset, 1, ENC_NA);
 	uint8_t chassis_id_subtype = tvb_get_uint8(tvb, tlv_data_offset);
 	tlv_data_offset += 1;
-	tlv_chassis_id_length -= 1;
 
 	switch (chassis_id_subtype) {
 	case 1:
