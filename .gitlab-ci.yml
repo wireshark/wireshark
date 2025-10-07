@@ -540,6 +540,11 @@ macOS Arm Package:
   tags:
     - wireshark-macos-arm-package
   retry: 1
+  before_script:
+    - export PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:$PATH:$HOME/bin"
+    - python3 -m venv $CI_PROJECT_DIR/.venv
+    - source $CI_PROJECT_DIR/.venv/bin/activate
+    - pip3 install pytest pytest-xdist
   script:
     - export CMAKE_PREFIX_PATH=/usr/local/Qt-$MACOS_QT6_LTS_VERSION
     # Not needed for Falco libs 0.19?
