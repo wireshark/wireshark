@@ -448,7 +448,10 @@ def generate_uap_datafield_function(db, cat, ed_major, ed_minor, data_field, dat
         bytes_offset = 0
         bits_offset = 0
         goto_used = False
-        for item in variation[1]:
+        for item_index, item in enumerate(variation[1]):
+            last_item = False
+            if item_index == (len(variation[1]) - 1):
+                last_item = True
             extended_item = reverse_lookup(db.item, item)
             if (extended_item != None):
                 if (extended_item[0] == 'Item'):
@@ -485,17 +488,19 @@ def generate_uap_datafield_function(db, cat, ed_major, ed_minor, data_field, dat
                 ret += '  proto_tree_add_bits_item(' + sub_tree_name + ', ' + bit_name + ', tvb, (offset * 8) + ' + str(bits_offset) + ', 1, ENC_BIG_ENDIAN);\n'
                 bits_offset += 1
                 bytes_length = int(bits_offset / 8)
-                if (bytes_length > 1):
-                    ret += '  if (asterix_extended_end(tvb, offset + ' + str(bytes_length - 1) + '))\n'
-                else:
-                    ret += '  if (asterix_extended_end(tvb, offset))\n'
+                if (last_item == False):
+                    if (bytes_length > 1):
+                        ret += '  if (asterix_extended_end(tvb, offset + ' + str(bytes_length - 1) + '))\n'
+                    else:
+                        ret += '  if (asterix_extended_end(tvb, offset))\n'
                 if ((bits_offset % 8) != 0):
                     bytes_length += 1
-                ret += '  {\n'
-                ret += '    offset+=' + str(bytes_length) + ';\n'
-                ret += '    goto end;\n'
-                goto_used = True
-                ret += '  }\n'
+                if (last_item == False):
+                    ret += '  {\n'
+                    ret += '    offset+=' + str(bytes_length) + ';\n'
+                    ret += '    goto end;\n'
+                    goto_used = True
+                    ret += '  }\n'
                 ret += '  offset+=' + str(bytes_length) + ';\n'
                 bytes_offset += bytes_length
                 data_field_size = 'offset - offset_start'
@@ -576,7 +581,7 @@ def generate_uap(db, cat, uap, ed_major, ed_minor):
     ret = ""
     uap_index = 0
     table_name = "cat_" + cat  + "_ed_major_" + ed_major + "_ed_minor_" + ed_minor + "_" + uap[0].lower() + "_table"
-    table_name_expand = "int* " + table_name + "_expand[] = {\n"
+    table_name_expand = "static int* " + table_name + "_expand[] = {\n"
     for data_field in uap[1]:
         if (data_field == "RE"):
             fspec_len = get_fslen(db, cat, ed_major, ed_minor)
@@ -641,7 +646,7 @@ def generate_uaps(db):
                 ret += generate_uap(db, cat, uap, ed_major, ed_minor)
         else:
             table_name = "cat_" + cat  + "_ed_major_" + ed_major + "_ed_minor_" + ed_minor + "_uap_table_expansion"
-            table_name_expand = "int* " + table_name + "_expand[] = {\n"
+            table_name_expand = "static int* " + table_name + "_expand[] = {\n"
             table_name = "static const ttt " + table_name + "[] = {\n"
             index = 0
             for i in asterix[1][3]:
@@ -715,7 +720,12 @@ def generate_uaps(db):
             expansion_table += "    table->table_pointer = cat_" + cat + "_ed_major_" + str(asterix[1][1][0]) + "_ed_minor_" + str(asterix[1][1][1]) + "_uap_table_expansion;\n"
             expansion_table += "    table->table_pointer_expand = cat_" + cat + "_ed_major_" + str(asterix[1][1][0]) + "_ed_minor_" + str(asterix[1][1][1]) + "_uap_table_expansion_expand;\n"
             expansion_table += "  }\n"
-    expansion_table += "  return;\n"
+            expansion_table += "  else\n"
+    expansion_table += "  {\n"
+    expansion_table += "    table->table_size = 0;\n"
+    expansion_table += "    table->table_pointer = NULL;\n"
+    expansion_table += "    table->table_pointer_expand = NULL;\n"
+    expansion_table += "  }\n"
     uap_table += "  else\n  {\n"
     uap_table += "    table->table_size = 0;\n"
     uap_table += "    table->table_pointer = NULL;\n"
@@ -832,7 +842,7 @@ def generate_dissector_properties(db):
                 expansion[1].append((ed_major, ed_minor))
 
     ret = ""
-    dialog_table = "dialog_cat_struct asterix_properties[] = {\n"
+    dialog_table = "static dialog_cat_struct asterix_properties[] = {\n"
     for cat in category_list:
         cat_code = generate_dissector_properties_code(db, cat)
         ret += cat_code[0]

@@ -379,7 +379,7 @@ static const enum_val_t cat_247_enum_vals[] = {
 };
 
 static int value_247_1_3_default = value_247_1_3;
-dialog_cat_struct asterix_properties[] = {
+static dialog_cat_struct asterix_properties[] = {
   { 1, (int*)&value_cat_1, &value_1_1_4_default, cat_1_enum_vals, "cat_1", true },
   { 2, (int*)&value_cat_2, &value_2_1_2_default, cat_2_enum_vals, "cat_2", true },
   { 4, (int*)&value_cat_4, &value_4_1_13_default, cat_4_enum_vals, "cat_4", true },
@@ -13328,11 +13328,6 @@ static int dissect_cat_1_ed_major_1_ed_minor_2_datafield_1_plot(tvbuff_t *tvb, u
   proto_item *spare_item_1_5 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 5, 2, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 5, 2, spare_item_1_5);
   proto_tree_add_bits_item(datablock_tree, expand_var_15, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -13527,7 +13522,7 @@ static int dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvbuff_t *tvb, 
   proto_tree_add_item (tree, expand_var, tvb, offset, len, ENC_NA);
   return len;
 }
-int* cat_1_ed_major_1_ed_minor_2_plot_table_expand[] = {
+static int* cat_1_ed_major_1_ed_minor_2_plot_table_expand[] = {
   &expand_var_0, //010
   &expand_var_3, //020
   &expand_var_16, //040
@@ -13665,11 +13660,6 @@ static int dissect_cat_1_ed_major_1_ed_minor_2_datafield_12_track(tvbuff_t *tvb,
   proto_item *spare_item_1_1 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 1, 6, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 1, 6, spare_item_1_1);
   proto_tree_add_bits_item(datablock_tree, expand_var_100, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -13707,7 +13697,7 @@ static int dissect_cat_1_ed_major_1_ed_minor_2_datafield_21_track(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_14_plot(tvb, offset, tree, expand_var);
 }
-int* cat_1_ed_major_1_ed_minor_2_track_table_expand[] = {
+static int* cat_1_ed_major_1_ed_minor_2_track_table_expand[] = {
   &expand_var_75, //010
   &expand_var_76, //020
   &expand_var_77, //161
@@ -13819,7 +13809,7 @@ static int dissect_cat_1_ed_major_1_ed_minor_3_datafield_19_plot(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_1_ed_major_1_ed_minor_3_plot_table_expand[] = {
+static int* cat_1_ed_major_1_ed_minor_3_plot_table_expand[] = {
   &expand_var_109, //010
   &expand_var_110, //020
   &expand_var_111, //040
@@ -13949,7 +13939,7 @@ static int dissect_cat_1_ed_major_1_ed_minor_3_datafield_21_track(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_14_plot(tvb, offset, tree, expand_var);
 }
-int* cat_1_ed_major_1_ed_minor_3_track_table_expand[] = {
+static int* cat_1_ed_major_1_ed_minor_3_track_table_expand[] = {
   &expand_var_125, //010
   &expand_var_126, //020
   &expand_var_127, //161
@@ -14061,7 +14051,7 @@ static int dissect_cat_1_ed_major_1_ed_minor_4_datafield_19_plot(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_1_ed_major_1_ed_minor_4_plot_table_expand[] = {
+static int* cat_1_ed_major_1_ed_minor_4_plot_table_expand[] = {
   &expand_var_146, //010
   &expand_var_147, //020
   &expand_var_148, //040
@@ -14191,7 +14181,7 @@ static int dissect_cat_1_ed_major_1_ed_minor_4_datafield_21_track(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_14_plot(tvb, offset, tree, expand_var);
 }
-int* cat_1_ed_major_1_ed_minor_4_track_table_expand[] = {
+static int* cat_1_ed_major_1_ed_minor_4_track_table_expand[] = {
   &expand_var_162, //010
   &expand_var_163, //020
   &expand_var_164, //161
@@ -14348,7 +14338,7 @@ static int dissect_cat_2_ed_major_1_ed_minor_0_datafield_12_uap(tvbuff_t *tvb, u
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_2_ed_major_1_ed_minor_0_uap_table_expand[] = {
+static int* cat_2_ed_major_1_ed_minor_0_uap_table_expand[] = {
   &expand_var_183, //010
   &expand_var_184, //000
   &expand_var_185, //020
@@ -14428,7 +14418,7 @@ static int dissect_cat_2_ed_major_1_ed_minor_1_datafield_12_uap(tvbuff_t *tvb, u
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_2_ed_major_1_ed_minor_1_uap_table_expand[] = {
+static int* cat_2_ed_major_1_ed_minor_1_uap_table_expand[] = {
   &expand_var_205, //010
   &expand_var_206, //000
   &expand_var_207, //020
@@ -14508,7 +14498,7 @@ static int dissect_cat_2_ed_major_1_ed_minor_2_datafield_12_uap(tvbuff_t *tvb, u
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_2_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static int* cat_2_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_217, //010
   &expand_var_218, //000
   &expand_var_219, //020
@@ -14694,11 +14684,6 @@ static int dissect_cat_4_ed_major_1_ed_minor_12_datafield_6_uap(tvbuff_t *tvb, u
   proto_tree_add_bits_item(datablock_tree, expand_var_291, tvb, (offset * 8) + 5, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_292, tvb, (offset * 8) + 6, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_293, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -14791,11 +14776,6 @@ static int dissect_cat_4_ed_major_1_ed_minor_12_datafield_8_226_compound_226(tvb
   proto_item *spare_item_1_4 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 4, 3, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 4, 3, spare_item_1_4);
   proto_tree_add_bits_item(datablock_tree, expand_var_318, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -14966,11 +14946,6 @@ static int dissect_cat_4_ed_major_1_ed_minor_12_datafield_9_198_compound_198(tvb
   proto_item *spare_item_2_6 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 6, 1, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 6, 1, spare_item_2_6);
   proto_tree_add_bits_item(datablock_tree, expand_var_347, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -15447,7 +15422,7 @@ static int dissect_cat_4_ed_major_1_ed_minor_12_datafield_20_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_4_ed_major_1_ed_minor_12_uap_table_expand[] = {
+static int* cat_4_ed_major_1_ed_minor_12_uap_table_expand[] = {
   &expand_var_229, //010
   &expand_var_230, //000
   &expand_var_231, //015
@@ -15637,11 +15612,6 @@ static int dissect_cat_4_ed_major_1_ed_minor_13_datafield_6_uap(tvbuff_t *tvb, u
   proto_item *spare_item_7_1 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 1, 6, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 1, 6, spare_item_7_1);
   proto_tree_add_bits_item(datablock_tree, expand_var_458, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -15703,7 +15673,7 @@ static int dissect_cat_4_ed_major_1_ed_minor_13_datafield_20_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_4_ed_major_1_ed_minor_13_uap_table_expand[] = {
+static int* cat_4_ed_major_1_ed_minor_13_uap_table_expand[] = {
   &expand_var_390, //010
   &expand_var_391, //000
   &expand_var_392, //015
@@ -15781,11 +15751,6 @@ static int dissect_cat_8_ed_major_1_ed_minor_2_datafield_2_uap(tvbuff_t *tvb, un
   proto_tree_add_bits_item(datablock_tree, expand_var_479, tvb, (offset * 8) + 5, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_480, tvb, (offset * 8) + 6, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_481, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -15921,13 +15886,7 @@ static int dissect_cat_8_ed_major_1_ed_minor_2_datafield_8_uap(tvbuff_t *tvb, un
   value_expand_var_505 = value_expand_var_505 >> 1;
   proto_tree_add_uint (datablock_tree, expand_var_505, tvb, offset + 1, 2, value_expand_var_505);
   proto_tree_add_bits_item(datablock_tree, expand_var_506, tvb, (offset * 8) + 23, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset + 2))
-  {
-    offset+=3;
-    goto end;
-  }
   offset+=3;
-end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
@@ -15979,7 +15938,7 @@ static int dissect_cat_8_ed_major_1_ed_minor_2_datafield_12_uap(tvbuff_t *tvb, u
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_8_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static int* cat_8_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_472, //010
   &expand_var_473, //000
   &expand_var_474, //020
@@ -16063,7 +16022,7 @@ static int dissect_cat_8_ed_major_1_ed_minor_3_datafield_12_uap(tvbuff_t *tvb, u
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_8_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static int* cat_8_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_516, //010
   &expand_var_517, //000
   &expand_var_518, //020
@@ -16116,13 +16075,7 @@ static int dissect_cat_9_ed_major_2_ed_minor_1_datafield_2_uap(tvbuff_t *tvb, un
   proto_tree_add_uint (datablock_tree, expand_var_533, tvb, offset + 0, 1, value_expand_var_533);
   proto_tree_add_bits_item(datablock_tree, expand_var_534, tvb, (offset * 8) + 4, 3, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_535, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
-end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
@@ -16169,13 +16122,7 @@ static int dissect_cat_9_ed_major_2_ed_minor_1_datafield_4_uap(tvbuff_t *tvb, un
   proto_item *spare_item_0_6 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 6, 1, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 6, 1, spare_item_0_6);
   proto_tree_add_bits_item(datablock_tree, expand_var_543, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
-end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
@@ -16239,7 +16186,7 @@ static int dissect_cat_9_ed_major_2_ed_minor_1_datafield_8_uap(tvbuff_t *tvb, un
   proto_tree_add_uint (tree, expand_var, tvb, offset + 0, 2, value_expand_var);
   return 2;
 }
-int* cat_9_ed_major_2_ed_minor_1_uap_table_expand[] = {
+static int* cat_9_ed_major_2_ed_minor_1_uap_table_expand[] = {
   &expand_var_529, //010
   &expand_var_530, //000
   &expand_var_531, //020
@@ -16303,11 +16250,6 @@ static int dissect_cat_10_ed_major_1_ed_minor_1_datafield_2_uap(tvbuff_t *tvb, u
   proto_item *spare_item_2_1 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 1, 6, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 1, 6, spare_item_2_1);
   proto_tree_add_bits_item(datablock_tree, expand_var_570, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -16421,11 +16363,6 @@ static int dissect_cat_10_ed_major_1_ed_minor_1_datafield_10_uap(tvbuff_t *tvb, 
   proto_item *spare_item_2_1 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 1, 6, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 1, 6, spare_item_2_1);
   proto_tree_add_bits_item(datablock_tree, expand_var_602, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -16549,11 +16486,6 @@ static int dissect_cat_10_ed_major_1_ed_minor_1_datafield_18_uap(tvbuff_t *tvb, 
   value_expand_var_628 = value_expand_var_628 >> 1;
   proto_tree_add_uint (datablock_tree, expand_var_628, tvb, offset + 0, 1, value_expand_var_628);
   proto_tree_add_bits_item(datablock_tree, expand_var_629, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -16660,7 +16592,7 @@ static int dissect_cat_10_ed_major_1_ed_minor_1_datafield_27_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-int* cat_10_ed_major_1_ed_minor_1_uap_table_expand[] = {
+static int* cat_10_ed_major_1_ed_minor_1_uap_table_expand[] = {
   &expand_var_554, //010
   &expand_var_555, //000
   &expand_var_556, //020
@@ -17010,11 +16942,6 @@ static int dissect_cat_11_ed_major_1_ed_minor_2_datafield_12_uap(tvbuff_t *tvb, 
   proto_item *spare_item_2_5 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 5, 2, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 5, 2, spare_item_2_5);
   proto_tree_add_bits_item(datablock_tree, expand_var_718, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -17743,7 +17670,7 @@ static int dissect_cat_11_ed_major_1_ed_minor_2_datafield_28_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-int* cat_11_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static int* cat_11_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_653, //010
   &expand_var_656, //000
   &expand_var_657, //015
@@ -18041,11 +17968,6 @@ static int dissect_cat_11_ed_major_1_ed_minor_3_datafield_12_uap(tvbuff_t *tvb, 
   proto_tree_add_bits_item(datablock_tree, expand_var_876, tvb, (offset * 8) + 5, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_877, tvb, (offset * 8) + 6, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_878, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -18483,7 +18405,7 @@ static int dissect_cat_11_ed_major_1_ed_minor_3_datafield_28_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-int* cat_11_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static int* cat_11_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_818, //010
   &expand_var_819, //000
   &expand_var_820, //015
@@ -18572,13 +18494,7 @@ static int dissect_cat_15_ed_major_1_ed_minor_0_datafield_3_uap(tvbuff_t *tvb, u
   proto_item *spare_item_0_6 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 6, 1, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 6, 1, spare_item_0_6);
   proto_tree_add_bits_item(datablock_tree, expand_var_936, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
-end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
@@ -18608,13 +18524,7 @@ static int dissect_cat_15_ed_major_1_ed_minor_0_datafield_7_uap(tvbuff_t *tvb, u
   proto_tree_add_bits_item(datablock_tree, expand_var_945, tvb, (offset * 8) + 5, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_946, tvb, (offset * 8) + 6, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_947, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
-end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
@@ -20090,7 +20000,7 @@ static int dissect_cat_15_ed_major_1_ed_minor_0_datafield_25_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_15_ed_major_1_ed_minor_0_uap_table_expand[] = {
+static int* cat_15_ed_major_1_ed_minor_0_uap_table_expand[] = {
   &expand_var_927, //010
   &expand_var_928, //000
   &expand_var_931, //015
@@ -20250,7 +20160,7 @@ static int dissect_cat_15_ed_major_1_ed_minor_1_datafield_25_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_15_ed_major_1_ed_minor_1_uap_table_expand[] = {
+static int* cat_15_ed_major_1_ed_minor_1_uap_table_expand[] = {
   &expand_var_1106, //010
   &expand_var_1107, //000
   &expand_var_1108, //015
@@ -20410,7 +20320,7 @@ static int dissect_cat_15_ed_major_1_ed_minor_2_datafield_25_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_15_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static int* cat_15_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_1132, //010
   &expand_var_1133, //000
   &expand_var_1134, //015
@@ -20638,7 +20548,7 @@ static int dissect_cat_16_ed_major_1_ed_minor_0_datafield_10_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_16_ed_major_1_ed_minor_0_uap_table_expand[] = {
+static int* cat_16_ed_major_1_ed_minor_0_uap_table_expand[] = {
   &expand_var_1158, //010
   &expand_var_1159, //015
   &expand_var_1160, //000
@@ -20795,7 +20705,7 @@ static int dissect_cat_17_ed_major_1_ed_minor_3_datafield_20_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_17_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static int* cat_17_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_1188, //010
   &expand_var_1189, //012
   &expand_var_1190, //000
@@ -20997,11 +20907,6 @@ static int dissect_cat_18_ed_major_1_ed_minor_7_datafield_17_uap(tvbuff_t *tvb, 
   proto_item *spare_item_1_1 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 1, 6, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 1, 6, spare_item_1_1);
   proto_tree_add_bits_item(datablock_tree, expand_var_1259, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -21034,11 +20939,6 @@ static int dissect_cat_18_ed_major_1_ed_minor_7_datafield_18_uap(tvbuff_t *tvb, 
   proto_item *spare_item_1_5 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 5, 2, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 5, 2, spare_item_1_5);
   proto_tree_add_bits_item(datablock_tree, expand_var_1274, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -21190,7 +21090,7 @@ static int dissect_cat_18_ed_major_1_ed_minor_7_datafield_34_uap(tvbuff_t *tvb, 
   proto_tree_add_uint (tree, expand_var, tvb, offset + 0, 1, value_expand_var);
   return 1;
 }
-int* cat_18_ed_major_1_ed_minor_7_uap_table_expand[] = {
+static int* cat_18_ed_major_1_ed_minor_7_uap_table_expand[] = {
   &expand_var_1220, //036
   &expand_var_1221, //037
   &expand_var_1222, //000
@@ -21404,7 +21304,7 @@ static int dissect_cat_18_ed_major_1_ed_minor_8_datafield_34_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_18_ed_major_1_ed_minor_7_datafield_34_uap(tvb, offset, tree, expand_var);
 }
-int* cat_18_ed_major_1_ed_minor_8_uap_table_expand[] = {
+static int* cat_18_ed_major_1_ed_minor_8_uap_table_expand[] = {
   &expand_var_1312, //036
   &expand_var_1313, //037
   &expand_var_1314, //000
@@ -21579,11 +21479,6 @@ static int dissect_cat_19_ed_major_1_ed_minor_3_datafield_6_uap(tvbuff_t *tvb, u
   proto_item *spare_item_1_6 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 6, 1, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 6, 1, spare_item_1_6);
   proto_tree_add_bits_item(datablock_tree, expand_var_1378, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -21629,7 +21524,7 @@ static int dissect_cat_19_ed_major_1_ed_minor_3_datafield_13_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_19_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static int* cat_19_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_1347, //010
   &expand_var_1348, //000
   &expand_var_1349, //140
@@ -21692,11 +21587,6 @@ static int dissect_cat_20_ed_major_1_ed_minor_9_datafield_1_uap(tvbuff_t *tvb, u
   proto_tree_add_bits_item(datablock_tree, expand_var_1401, tvb, (offset * 8) + 5, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_1402, tvb, (offset * 8) + 6, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_1403, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -21767,11 +21657,6 @@ static int dissect_cat_20_ed_major_1_ed_minor_9_datafield_6_uap(tvbuff_t *tvb, u
   proto_item *spare_item_1_1 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 1, 6, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 1, 6, spare_item_1_1);
   proto_tree_add_bits_item(datablock_tree, expand_var_1422, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -22120,7 +22005,7 @@ static int dissect_cat_20_ed_major_1_ed_minor_9_datafield_27_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_20_ed_major_1_ed_minor_9_uap_table_expand[] = {
+static int* cat_20_ed_major_1_ed_minor_9_uap_table_expand[] = {
   &expand_var_1386, //010
   &expand_var_1387, //020
   &expand_var_1404, //140
@@ -22221,11 +22106,6 @@ static int dissect_cat_20_ed_major_1_ed_minor_10_datafield_1_uap(tvbuff_t *tvb, 
   proto_item *spare_item_2_2 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 2, 5, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 2, 5, spare_item_2_2);
   proto_tree_add_bits_item(datablock_tree, expand_var_1531, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -22269,11 +22149,6 @@ static int dissect_cat_20_ed_major_1_ed_minor_10_datafield_6_uap(tvbuff_t *tvb, 
   proto_item *spare_item_1_1 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 1, 6, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 1, 6, spare_item_1_1);
   proto_tree_add_bits_item(datablock_tree, expand_var_1545, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -22397,7 +22272,7 @@ static int dissect_cat_20_ed_major_1_ed_minor_10_datafield_27_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_20_ed_major_1_ed_minor_10_uap_table_expand[] = {
+static int* cat_20_ed_major_1_ed_minor_10_uap_table_expand[] = {
   &expand_var_1512, //010
   &expand_var_1513, //020
   &expand_var_1532, //140
@@ -22618,7 +22493,7 @@ static int dissect_cat_20_ed_major_1_ed_minor_11_datafield_27_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_20_ed_major_1_ed_minor_11_uap_table_expand[] = {
+static int* cat_20_ed_major_1_ed_minor_11_uap_table_expand[] = {
   &expand_var_1571, //010
   &expand_var_1572, //020
   &expand_var_1573, //140
@@ -22832,11 +22707,6 @@ static int dissect_cat_21_ed_major_0_ed_minor_23_datafield_16_uap(tvbuff_t *tvb,
   double value_expand_var_1654_d = (double)value_expand_var_1654_s * 0.25;
   proto_tree_add_double (datablock_tree, expand_var_1654, tvb, offset + 0, 1, value_expand_var_1654_d);
   proto_tree_add_bits_item(datablock_tree, expand_var_1655, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -22975,13 +22845,7 @@ static int dissect_cat_21_ed_major_0_ed_minor_23_datafield_25_1031_compound_1031
   proto_item *spare_item_0_2 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 2, 5, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 2, 5, spare_item_0_2);
   proto_tree_add_bits_item(datablock_tree, expand_var_1679, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
-end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
@@ -23081,7 +22945,7 @@ static int dissect_cat_21_ed_major_0_ed_minor_23_datafield_34_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_21_ed_major_0_ed_minor_23_uap_table_expand[] = {
+static int* cat_21_ed_major_0_ed_minor_23_uap_table_expand[] = {
   &expand_var_1611, //010
   &expand_var_1612, //040
   &expand_var_1622, //030
@@ -23282,7 +23146,7 @@ static int dissect_cat_21_ed_major_0_ed_minor_24_datafield_34_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_21_ed_major_0_ed_minor_24_uap_table_expand[] = {
+static int* cat_21_ed_major_0_ed_minor_24_uap_table_expand[] = {
   &expand_var_1696, //010
   &expand_var_1697, //040
   &expand_var_1698, //030
@@ -23473,7 +23337,7 @@ static int dissect_cat_21_ed_major_0_ed_minor_25_datafield_34_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_21_ed_major_0_ed_minor_25_uap_table_expand[] = {
+static int* cat_21_ed_major_0_ed_minor_25_uap_table_expand[] = {
   &expand_var_1726, //010
   &expand_var_1727, //040
   &expand_var_1728, //030
@@ -23680,7 +23544,7 @@ static int dissect_cat_21_ed_major_0_ed_minor_26_datafield_34_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_21_ed_major_0_ed_minor_26_uap_table_expand[] = {
+static int* cat_21_ed_major_0_ed_minor_26_uap_table_expand[] = {
   &expand_var_1754, //010
   &expand_var_1755, //040
   &expand_var_1756, //030
@@ -23822,11 +23686,6 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_4_Uap(tvbuff_t *tvb, u
   double value_expand_var_1807_d = (double)value_expand_var_1807 * 2.8125;
   proto_tree_add_double (datablock_tree, expand_var_1807, tvb, offset + 0, 1, value_expand_var_1807_d);
   proto_tree_add_bits_item(datablock_tree, expand_var_1808, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -23842,13 +23701,7 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_5_Uap(tvbuff_t *tvb, u
   proto_item *spare_item_0_2 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 2, 5, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 2, 5, spare_item_0_2);
   proto_tree_add_bits_item(datablock_tree, expand_var_1812, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
-end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
@@ -24003,7 +23856,7 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_Uap(tvbuff_t *tvb, u
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-int* cat_21_ed_major_1_ed_minor_4_uap_table_expansion_expand[] = {
+static int* cat_21_ed_major_1_ed_minor_4_uap_table_expansion_expand[] = {
   &expand_var_1788,
   &expand_var_1790,
   &expand_var_1794,
@@ -24127,11 +23980,6 @@ static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_5_Uap(tvbuff_t *tvb, u
   proto_item *spare_item_6 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 6, 1, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 6, 1, spare_item_6);
   proto_tree_add_bits_item(datablock_tree, expand_var_1888, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -24148,7 +23996,7 @@ static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_7_Uap(tvbuff_t *tvb, u
 {
   return dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_Uap(tvb, offset, tree, expand_var);
 }
-int* cat_21_ed_major_1_ed_minor_5_uap_table_expansion_expand[] = {
+static int* cat_21_ed_major_1_ed_minor_5_uap_table_expansion_expand[] = {
   &expand_var_1844,
   &expand_var_1845,
   &expand_var_1846,
@@ -24209,11 +24057,6 @@ static int dissect_cat_21_ed_major_2_ed_minor_1_datafield_1_uap(tvbuff_t *tvb, u
   proto_tree_add_bits_item(datablock_tree, expand_var_1908, tvb, (offset * 8) + 5, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_1909, tvb, (offset * 8) + 6, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_1910, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -24373,11 +24216,6 @@ static int dissect_cat_21_ed_major_2_ed_minor_1_datafield_16_uap(tvbuff_t *tvb, 
   proto_item *spare_item_3_4 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 4, 3, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 4, 3, spare_item_3_4);
   proto_tree_add_bits_item(datablock_tree, expand_var_1947, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -24942,7 +24780,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_1_datafield_48_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_21_ed_major_2_ed_minor_1_uap_table_expand[] = {
+static int* cat_21_ed_major_2_ed_minor_1_uap_table_expand[] = {
   &expand_var_1891, //010
   &expand_var_1892, //040
   &expand_var_1911, //161
@@ -25220,11 +25058,6 @@ static int dissect_cat_21_ed_major_2_ed_minor_2_datafield_36_uap(tvbuff_t *tvb, 
   proto_item *spare_item_1_4 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 4, 3, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 4, 3, spare_item_1_4);
   proto_tree_add_bits_item(datablock_tree, expand_var_2092, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -25263,7 +25096,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_2_datafield_48_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_21_ed_major_2_ed_minor_2_uap_table_expand[] = {
+static int* cat_21_ed_major_2_ed_minor_2_uap_table_expand[] = {
   &expand_var_2043, //010
   &expand_var_2044, //040
   &expand_var_2045, //161
@@ -25407,11 +25240,6 @@ static int dissect_cat_21_ed_major_2_ed_minor_3_datafield_1_uap(tvbuff_t *tvb, u
   proto_tree_add_bits_item(datablock_tree, expand_var_2118, tvb, (offset * 8) + 5, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_2119, tvb, (offset * 8) + 6, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_2120, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -25590,7 +25418,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_3_datafield_48_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_21_ed_major_2_ed_minor_3_uap_table_expand[] = {
+static int* cat_21_ed_major_2_ed_minor_3_uap_table_expand[] = {
   &expand_var_2100, //010
   &expand_var_2101, //040
   &expand_var_2121, //161
@@ -25873,7 +25701,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_4_datafield_48_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_21_ed_major_2_ed_minor_4_uap_table_expand[] = {
+static int* cat_21_ed_major_2_ed_minor_4_uap_table_expand[] = {
   &expand_var_2163, //010
   &expand_var_2164, //040
   &expand_var_2165, //161
@@ -26163,7 +25991,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_5_datafield_48_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_21_ed_major_2_ed_minor_5_uap_table_expand[] = {
+static int* cat_21_ed_major_2_ed_minor_5_uap_table_expand[] = {
   &expand_var_2207, //010
   &expand_var_2208, //040
   &expand_var_2209, //161
@@ -26331,11 +26159,6 @@ static int dissect_cat_21_ed_major_2_ed_minor_6_datafield_1_uap(tvbuff_t *tvb, u
   value_expand_var_2279 = value_expand_var_2279 & 0b0111111;
   proto_tree_add_uint (datablock_tree, expand_var_2279, tvb, offset + 0, 1, value_expand_var_2279);
   proto_tree_add_bits_item(datablock_tree, expand_var_2280, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -26838,7 +26661,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_6_datafield_48_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_21_ed_major_2_ed_minor_6_uap_table_expand[] = {
+static int* cat_21_ed_major_2_ed_minor_6_uap_table_expand[] = {
   &expand_var_2254, //010
   &expand_var_2255, //040
   &expand_var_2281, //161
@@ -27121,11 +26944,6 @@ static int dissect_cat_21_ed_major_2_ed_minor_7_datafield_16_uap(tvbuff_t *tvb, 
   value_expand_var_2393 = value_expand_var_2393 >> 1;
   proto_tree_add_uint (datablock_tree, expand_var_2393, tvb, offset + 0, 1, value_expand_var_2393);
   proto_tree_add_bits_item(datablock_tree, expand_var_2394, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -27244,7 +27062,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_7_datafield_48_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_21_ed_major_2_ed_minor_7_uap_table_expand[] = {
+static int* cat_21_ed_major_2_ed_minor_7_uap_table_expand[] = {
   &expand_var_2351, //010
   &expand_var_2352, //040
   &expand_var_2353, //161
@@ -27392,11 +27210,6 @@ static int dissect_cat_23_ed_major_1_ed_minor_2_datafield_4_uap(tvbuff_t *tvb, u
   value_expand_var_2437 = value_expand_var_2437 >> 1;
   proto_tree_add_uint (datablock_tree, expand_var_2437, tvb, offset + 0, 1, value_expand_var_2437);
   proto_tree_add_bits_item(datablock_tree, expand_var_2438, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -27424,11 +27237,6 @@ static int dissect_cat_23_ed_major_1_ed_minor_2_datafield_5_uap(tvbuff_t *tvb, u
   value_expand_var_2443 = value_expand_var_2443 >> 1;
   proto_tree_add_uint (datablock_tree, expand_var_2443, tvb, offset + 0, 1, value_expand_var_2443);
   proto_tree_add_bits_item(datablock_tree, expand_var_2444, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -27449,13 +27257,7 @@ static int dissect_cat_23_ed_major_1_ed_minor_2_datafield_7_uap(tvbuff_t *tvb, u
   check_spare_bits (tvb, (offset * 8) + 0, 4, spare_item_0_0);
   proto_tree_add_bits_item(datablock_tree, expand_var_2447, tvb, (offset * 8) + 4, 3, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_2448, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
-end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
@@ -27503,7 +27305,7 @@ static int dissect_cat_23_ed_major_1_ed_minor_2_datafield_13_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_23_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static int* cat_23_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_2422, //010
   &expand_var_2423, //000
   &expand_var_2424, //015
@@ -27583,7 +27385,7 @@ static int dissect_cat_23_ed_major_1_ed_minor_3_datafield_13_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_23_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static int* cat_23_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_2456, //010
   &expand_var_2457, //000
   &expand_var_2458, //015
@@ -27667,11 +27469,6 @@ static int dissect_cat_25_ed_major_1_ed_minor_5_datafield_6_uap(tvbuff_t *tvb, u
   proto_tree_add_bits_item(datablock_tree, expand_var_2480, tvb, (offset * 8) + 1, 3, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_2481, tvb, (offset * 8) + 4, 3, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_2482, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -27786,7 +27583,7 @@ static int dissect_cat_25_ed_major_1_ed_minor_5_datafield_12_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_16_ed_major_1_ed_minor_0_datafield_7_uap(tvb, offset, tree, expand_var);
 }
-int* cat_25_ed_major_1_ed_minor_5_uap_table_expand[] = {
+static int* cat_25_ed_major_1_ed_minor_5_uap_table_expand[] = {
   &expand_var_2467, //010
   &expand_var_2468, //000
   &expand_var_2471, //200
@@ -27855,13 +27652,7 @@ static int dissect_cat_32_ed_major_1_ed_minor_1_datafield_6_uap(tvbuff_t *tvb, u
   value_expand_var_2510 = value_expand_var_2510 >> 1;
   proto_tree_add_uint (datablock_tree, expand_var_2510, tvb, offset + 1, 2, value_expand_var_2510);
   proto_tree_add_bits_item(datablock_tree, expand_var_2511, tvb, (offset * 8) + 23, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset + 2))
-  {
-    offset+=3;
-    goto end;
-  }
   offset+=3;
-end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
@@ -28169,7 +27960,7 @@ static int dissect_cat_32_ed_major_1_ed_minor_1_datafield_20_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-int* cat_32_ed_major_1_ed_minor_1_uap_table_expand[] = {
+static int* cat_32_ed_major_1_ed_minor_1_uap_table_expand[] = {
   &expand_var_2500, //010
   &expand_var_2501, //015
   &expand_var_2502, //018
@@ -28305,7 +28096,7 @@ static int dissect_cat_32_ed_major_1_ed_minor_2_datafield_20_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-int* cat_32_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static int* cat_32_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_2562, //010
   &expand_var_2563, //015
   &expand_var_2564, //018
@@ -28658,7 +28449,7 @@ static int dissect_cat_34_ed_major_1_ed_minor_27_datafield_13_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_34_ed_major_1_ed_minor_27_uap_table_expand[] = {
+static int* cat_34_ed_major_1_ed_minor_27_uap_table_expand[] = {
   &expand_var_2584, //010
   &expand_var_2585, //000
   &expand_var_2586, //030
@@ -28777,7 +28568,7 @@ static int dissect_cat_34_ed_major_1_ed_minor_28_datafield_13_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_34_ed_major_1_ed_minor_28_uap_table_expand[] = {
+static int* cat_34_ed_major_1_ed_minor_28_uap_table_expand[] = {
   &expand_var_2649, //010
   &expand_var_2650, //000
   &expand_var_2651, //030
@@ -28870,7 +28661,7 @@ static int dissect_cat_34_ed_major_1_ed_minor_29_datafield_13_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_34_ed_major_1_ed_minor_29_uap_table_expand[] = {
+static int* cat_34_ed_major_1_ed_minor_29_uap_table_expand[] = {
   &expand_var_2666, //010
   &expand_var_2667, //000
   &expand_var_2668, //030
@@ -29216,13 +29007,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_2_Uap(tvbuff_t *tvb, 
   check_spare_bits (tvb, (offset * 8) + 0, 5, spare_item_0_0);
   proto_tree_add_bits_item(datablock_tree, expand_var_2727, tvb, (offset * 8) + 5, 2, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_2728, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
-end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
@@ -29734,7 +29519,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_Uap(tvbuff_t *tvb, 
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-int* cat_48_ed_major_1_ed_minor_11_uap_table_expansion_expand[] = {
+static int* cat_48_ed_major_1_ed_minor_11_uap_table_expansion_expand[] = {
   &expand_var_2680,
   &expand_var_2713,
   &expand_var_2726,
@@ -29856,7 +29641,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_Uap(tvbuff_t *tvb, 
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-int* cat_48_ed_major_1_ed_minor_12_uap_table_expansion_expand[] = {
+static int* cat_48_ed_major_1_ed_minor_12_uap_table_expansion_expand[] = {
   &expand_var_2805,
   &expand_var_2806,
   &expand_var_2807,
@@ -29996,7 +29781,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_Uap(tvbuff_t *tvb, 
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-int* cat_48_ed_major_1_ed_minor_13_uap_table_expansion_expand[] = {
+static int* cat_48_ed_major_1_ed_minor_13_uap_table_expansion_expand[] = {
   &expand_var_2827,
   &expand_var_2828,
   &expand_var_2829,
@@ -30048,11 +29833,6 @@ static int dissect_cat_48_ed_major_1_ed_minor_27_datafield_2_uap(tvbuff_t *tvb, 
   proto_tree_add_bits_item(datablock_tree, expand_var_2855, tvb, (offset * 8) + 4, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_2856, tvb, (offset * 8) + 5, 2, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_2857, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -30299,11 +30079,6 @@ static int dissect_cat_48_ed_major_1_ed_minor_27_datafield_13_uap(tvbuff_t *tvb,
   proto_item *spare_item_1_4 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 4, 3, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 4, 3, spare_item_1_4);
   proto_tree_add_bits_item(datablock_tree, expand_var_2902, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -30516,7 +30291,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_27_datafield_27_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 48);
   return offset - offset_start;
 }
-int* cat_48_ed_major_1_ed_minor_27_uap_table_expand[] = {
+static int* cat_48_ed_major_1_ed_minor_27_uap_table_expand[] = {
   &expand_var_2842, //010
   &expand_var_2843, //140
   &expand_var_2844, //020
@@ -30711,7 +30486,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_28_datafield_27_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 48);
   return offset - offset_start;
 }
-int* cat_48_ed_major_1_ed_minor_28_uap_table_expand[] = {
+static int* cat_48_ed_major_1_ed_minor_28_uap_table_expand[] = {
   &expand_var_2948, //010
   &expand_var_2949, //140
   &expand_var_2950, //020
@@ -30888,7 +30663,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_29_datafield_27_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 48);
   return offset - offset_start;
 }
-int* cat_48_ed_major_1_ed_minor_29_uap_table_expand[] = {
+static int* cat_48_ed_major_1_ed_minor_29_uap_table_expand[] = {
   &expand_var_2977, //010
   &expand_var_2978, //140
   &expand_var_2979, //020
@@ -31065,7 +30840,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_30_datafield_27_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 48);
   return offset - offset_start;
 }
-int* cat_48_ed_major_1_ed_minor_30_uap_table_expand[] = {
+static int* cat_48_ed_major_1_ed_minor_30_uap_table_expand[] = {
   &expand_var_3005, //010
   &expand_var_3006, //140
   &expand_var_3007, //020
@@ -31172,11 +30947,6 @@ static int dissect_cat_48_ed_major_1_ed_minor_31_datafield_2_uap(tvbuff_t *tvb, 
   proto_item *spare_item_2_6 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 6, 1, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 6, 1, spare_item_2_6);
   proto_tree_add_bits_item(datablock_tree, expand_var_3055, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -31305,7 +31075,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_31_datafield_27_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 48);
   return offset - offset_start;
 }
-int* cat_48_ed_major_1_ed_minor_31_uap_table_expand[] = {
+static int* cat_48_ed_major_1_ed_minor_31_uap_table_expand[] = {
   &expand_var_3033, //010
   &expand_var_3034, //140
   &expand_var_3035, //020
@@ -31451,11 +31221,6 @@ static int dissect_cat_48_ed_major_1_ed_minor_32_datafield_2_uap(tvbuff_t *tvb, 
   proto_item *spare_item_5_4 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 4, 3, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 4, 3, spare_item_5_4);
   proto_tree_add_bits_item(datablock_tree, expand_var_3121, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -31593,7 +31358,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_32_datafield_27_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 48);
   return offset - offset_start;
 }
-int* cat_48_ed_major_1_ed_minor_32_uap_table_expand[] = {
+static int* cat_48_ed_major_1_ed_minor_32_uap_table_expand[] = {
   &expand_var_3082, //010
   &expand_var_3083, //140
   &expand_var_3084, //020
@@ -31744,17 +31509,11 @@ static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_3_Uap(tvbuff_t *tvb, u
   proto_item *spare_item_0_1 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 1, 6, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 1, 6, spare_item_0_1);
   proto_tree_add_bits_item(datablock_tree, expand_var_3167, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
-end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
-int* cat_62_ed_major_1_ed_minor_2_uap_table_expansion_expand[] = {
+static int* cat_62_ed_major_1_ed_minor_2_uap_table_expansion_expand[] = {
   &expand_var_3151,
   &expand_var_3157,
   &expand_var_3162,
@@ -31789,13 +31548,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_3_Uap(tvbuff_t *tvb, u
   proto_item *spare_item_0_3 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 3, 4, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 3, 4, spare_item_0_3);
   proto_tree_add_bits_item(datablock_tree, expand_var_3175, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
-end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
@@ -31924,7 +31677,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_Uap(tvbuff_t *tvb, u
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-int* cat_62_ed_major_1_ed_minor_3_uap_table_expansion_expand[] = {
+static int* cat_62_ed_major_1_ed_minor_3_uap_table_expansion_expand[] = {
   &expand_var_3168,
   &expand_var_3169,
   &expand_var_3170,
@@ -32091,13 +31844,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_16_datafield_10_1928_compound_1928
   proto_item *spare_item_0_2 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 2, 5, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 2, 5, spare_item_0_2);
   proto_tree_add_bits_item(datablock_tree, expand_var_3255, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
-end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
@@ -32647,11 +32394,6 @@ static int dissect_cat_62_ed_major_1_ed_minor_16_datafield_12_uap(tvbuff_t *tvb,
   proto_item *spare_item_5_3 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 3, 4, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 3, 4, spare_item_5_3);
   proto_tree_add_bits_item(datablock_tree, expand_var_3353, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -34029,7 +33771,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_16_datafield_34_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_62_ed_major_1_ed_minor_16_uap_table_expand[] = {
+static int* cat_62_ed_major_1_ed_minor_16_uap_table_expand[] = {
   &expand_var_3214, //010
   NULL,
   &expand_var_3215, //015
@@ -34232,7 +33974,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_17_datafield_34_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_62_ed_major_1_ed_minor_17_uap_table_expand[] = {
+static int* cat_62_ed_major_1_ed_minor_17_uap_table_expand[] = {
   &expand_var_3516, //010
   NULL,
   &expand_var_3517, //015
@@ -34803,11 +34545,6 @@ static int dissect_cat_62_ed_major_1_ed_minor_18_datafield_12_uap(tvbuff_t *tvb,
   proto_item *spare_item_5_6 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 6, 1, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 6, 1, spare_item_5_6);
   proto_tree_add_bits_item(datablock_tree, expand_var_3635, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -34886,7 +34623,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_18_datafield_34_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_62_ed_major_1_ed_minor_18_uap_table_expand[] = {
+static int* cat_62_ed_major_1_ed_minor_18_uap_table_expand[] = {
   &expand_var_3549, //010
   NULL,
   &expand_var_3550, //015
@@ -35524,7 +35261,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_19_datafield_34_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_62_ed_major_1_ed_minor_19_uap_table_expand[] = {
+static int* cat_62_ed_major_1_ed_minor_19_uap_table_expand[] = {
   &expand_var_3653, //010
   NULL,
   &expand_var_3654, //015
@@ -36078,11 +35815,6 @@ static int dissect_cat_62_ed_major_1_ed_minor_20_datafield_12_uap(tvbuff_t *tvb,
   proto_tree_add_bits_item(datablock_tree, expand_var_3794, tvb, (offset * 8) + 5, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_3795, tvb, (offset * 8) + 6, 1, ENC_BIG_ENDIAN);
   proto_tree_add_bits_item(datablock_tree, expand_var_3796, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -36161,7 +35893,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_20_datafield_34_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_62_ed_major_1_ed_minor_20_uap_table_expand[] = {
+static int* cat_62_ed_major_1_ed_minor_20_uap_table_expand[] = {
   &expand_var_3716, //010
   NULL,
   &expand_var_3717, //015
@@ -36385,11 +36117,6 @@ static int dissect_cat_62_ed_major_1_ed_minor_21_datafield_12_uap(tvbuff_t *tvb,
   proto_item *spare_item_6_1 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 1, 6, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 1, 6, spare_item_6_1);
   proto_tree_add_bits_item(datablock_tree, expand_var_3872, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -36868,7 +36595,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_21_datafield_34_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_62_ed_major_1_ed_minor_21_uap_table_expand[] = {
+static int* cat_62_ed_major_1_ed_minor_21_uap_table_expand[] = {
   &expand_var_3814, //010
   NULL,
   &expand_var_3815, //015
@@ -36985,11 +36712,6 @@ static int dissect_cat_63_ed_major_1_ed_minor_6_datafield_4_uap(tvbuff_t *tvb, u
   proto_item *spare_item_1_6 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 6, 1, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 6, 1, spare_item_1_6);
   proto_tree_add_bits_item(datablock_tree, expand_var_3939, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -37057,7 +36779,7 @@ static int dissect_cat_63_ed_major_1_ed_minor_6_datafield_13_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_63_ed_major_1_ed_minor_6_uap_table_expand[] = {
+static int* cat_63_ed_major_1_ed_minor_6_uap_table_expand[] = {
   &expand_var_3921, //010
   &expand_var_3922, //015
   &expand_var_3923, //030
@@ -37145,11 +36867,6 @@ static int dissect_cat_63_ed_major_1_ed_minor_7_datafield_4_uap(tvbuff_t *tvb, u
   proto_item *spare_item_2_4 = proto_tree_add_bits_item(datablock_tree, hf_asterix_spare, tvb, (offset * 8) + 4, 3, ENC_NA);
   check_spare_bits (tvb, (offset * 8) + 4, 3, spare_item_2_4);
   proto_tree_add_bits_item(datablock_tree, expand_var_3975, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
-  if (asterix_extended_end(tvb, offset))
-  {
-    offset+=1;
-    goto end;
-  }
   offset+=1;
 end:
   proto_item_set_len(sub_tree, offset - offset_start);
@@ -37217,7 +36934,7 @@ static int dissect_cat_63_ed_major_1_ed_minor_7_datafield_13_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_63_ed_major_1_ed_minor_7_uap_table_expand[] = {
+static int* cat_63_ed_major_1_ed_minor_7_uap_table_expand[] = {
   &expand_var_3952, //010
   &expand_var_3953, //015
   &expand_var_3954, //030
@@ -37303,7 +37020,7 @@ static int dissect_cat_65_ed_major_1_ed_minor_4_datafield_13_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_65_ed_major_1_ed_minor_4_uap_table_expand[] = {
+static int* cat_65_ed_major_1_ed_minor_4_uap_table_expand[] = {
   &expand_var_3988, //010
   &expand_var_3989, //000
   &expand_var_3990, //015
@@ -37375,7 +37092,7 @@ static int dissect_cat_65_ed_major_1_ed_minor_5_datafield_13_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_65_ed_major_1_ed_minor_5_uap_table_expand[] = {
+static int* cat_65_ed_major_1_ed_minor_5_uap_table_expand[] = {
   &expand_var_4002, //010
   &expand_var_4003, //000
   &expand_var_4004, //015
@@ -37447,7 +37164,7 @@ static int dissect_cat_65_ed_major_1_ed_minor_6_datafield_13_uap(tvbuff_t *tvb, 
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_65_ed_major_1_ed_minor_6_uap_table_expand[] = {
+static int* cat_65_ed_major_1_ed_minor_6_uap_table_expand[] = {
   &expand_var_4011, //010
   &expand_var_4012, //000
   &expand_var_4013, //015
@@ -37857,7 +37574,7 @@ static int dissect_cat_150_ed_major_3_ed_minor_0_datafield_27_uap(tvbuff_t *tvb,
   proto_item_set_len(item, offset - offset_start);
   return offset - offset_start;
 }
-int* cat_150_ed_major_3_ed_minor_0_uap_table_expand[] = {
+static int* cat_150_ed_major_3_ed_minor_0_uap_table_expand[] = {
   &expand_var_4020, //010
   &expand_var_4023, //020
   &expand_var_4024, //030
@@ -38056,7 +37773,7 @@ static int dissect_cat_205_ed_major_1_ed_minor_0_datafield_21_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_205_ed_major_1_ed_minor_0_uap_table_expand[] = {
+static int* cat_205_ed_major_1_ed_minor_0_uap_table_expand[] = {
   &expand_var_4080, //010
   &expand_var_4081, //015
   &expand_var_4082, //000
@@ -38267,7 +37984,7 @@ static int dissect_cat_240_ed_major_1_ed_minor_3_datafield_13_uap(tvbuff_t *tvb,
 {
   return dissect_cat_1_ed_major_1_ed_minor_2_datafield_19_plot(tvb, offset, tree, expand_var);
 }
-int* cat_240_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static int* cat_240_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_4107, //010
   &expand_var_4108, //000
   &expand_var_4109, //020
@@ -38355,7 +38072,7 @@ static int dissect_cat_247_ed_major_1_ed_minor_2_datafield_6_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-int* cat_247_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static int* cat_247_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_4136, //010
   &expand_var_4137, //015
   &expand_var_4138, //140
@@ -38401,7 +38118,7 @@ static int dissect_cat_247_ed_major_1_ed_minor_3_datafield_6_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-int* cat_247_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static int* cat_247_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_4146, //010
   &expand_var_4147, //015
   &expand_var_4148, //140
@@ -39329,41 +39046,52 @@ static void get_expansion_table(unsigned int cat, int ed, table_params *table)
     table->table_pointer = cat_21_ed_major_1_ed_minor_4_uap_table_expansion;
     table->table_pointer_expand = cat_21_ed_major_1_ed_minor_4_uap_table_expansion_expand;
   }
+  else
   if (cat == 21 && ed == value_21_1_5_re)
   {
     table->table_size = 8;
     table->table_pointer = cat_21_ed_major_1_ed_minor_5_uap_table_expansion;
     table->table_pointer_expand = cat_21_ed_major_1_ed_minor_5_uap_table_expansion_expand;
   }
+  else
   if (cat == 48 && ed == value_48_1_11_re)
   {
     table->table_size = 7;
     table->table_pointer = cat_48_ed_major_1_ed_minor_11_uap_table_expansion;
     table->table_pointer_expand = cat_48_ed_major_1_ed_minor_11_uap_table_expansion_expand;
   }
+  else
   if (cat == 48 && ed == value_48_1_12_re)
   {
     table->table_size = 8;
     table->table_pointer = cat_48_ed_major_1_ed_minor_12_uap_table_expansion;
     table->table_pointer_expand = cat_48_ed_major_1_ed_minor_12_uap_table_expansion_expand;
   }
+  else
   if (cat == 48 && ed == value_48_1_13_re)
   {
     table->table_size = 8;
     table->table_pointer = cat_48_ed_major_1_ed_minor_13_uap_table_expansion;
     table->table_pointer_expand = cat_48_ed_major_1_ed_minor_13_uap_table_expansion_expand;
   }
+  else
   if (cat == 62 && ed == value_62_1_2_re)
   {
     table->table_size = 4;
     table->table_pointer = cat_62_ed_major_1_ed_minor_2_uap_table_expansion;
     table->table_pointer_expand = cat_62_ed_major_1_ed_minor_2_uap_table_expansion_expand;
   }
+  else
   if (cat == 62 && ed == value_62_1_3_re)
   {
     table->table_size = 5;
     table->table_pointer = cat_62_ed_major_1_ed_minor_3_uap_table_expansion;
     table->table_pointer_expand = cat_62_ed_major_1_ed_minor_3_uap_table_expansion_expand;
   }
-  return;
+  else
+  {
+    table->table_size = 0;
+    table->table_pointer = NULL;
+    table->table_pointer_expand = NULL;
+  }
 }

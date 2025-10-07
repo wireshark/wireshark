@@ -85,7 +85,7 @@ static int asterix_get_signed_value(tvbuff_t *tvb, unsigned offset, unsigned byt
 // get signed integer from specified number of bits
 static int get_signed_int(unsigned value, unsigned bits)
 {
-    unsigned int ret = 0;
+    int ret = 0;
     int sign = 1;
     if ((value >> (bits - 1) & 1))
     {
@@ -109,7 +109,7 @@ static int get_signed_int(unsigned value, unsigned bits)
 // test extended FX bit
 static bool asterix_extended_end (tvbuff_t *tvb, unsigned offset)
 {
-  guint8 val = tvb_get_uint8(tvb, offset);
+  uint8_t val = tvb_get_uint8(tvb, offset);
   if ((val & 0x01) == 0)
   {
     return true;
@@ -241,9 +241,6 @@ static unsigned asterix_dissect_fspec (tvbuff_t *tvb, unsigned offset, proto_tre
     } else {
         unsigned value = asterix_get_unsigned_value(tvb, offset, fspec_len);
         unsigned fspec_bit_length = fspec_len * 9 + 1;
-        if (fspec_bit_length > MAX_FSPEC_BIT_LENGTH) {
-            return -1;
-        }
         memset(fspec_bit_string, 0, fspec_bit_length);
         unsigned str_index = 0;
         for (unsigned int i = 0; i < fspec_len * 8; i++) {
@@ -331,7 +328,6 @@ static int probe_possible_record (tvbuff_t *tvb, unsigned offset, unsigned int c
     // use NULL pointer for proto_tree pointer, so that wireshark ignores all tree add calls
     proto_tree *asterix_packet_tree = NULL;
 
-    int fspec_len = asterix_dissect_fspec (tvb, offset, asterix_packet_tree);
     int start_offset = offset;
 
     table_params table_p;
@@ -340,38 +336,38 @@ static int probe_possible_record (tvbuff_t *tvb, unsigned offset, unsigned int c
     if (table_p.table_pointer == NULL) {
         //unknown category, abort
         return -1;
-    } else {
-        if (!check_fspec_validity (tvb, start_offset, &table_p)) {
-            return -1;
-        }
+    }
+    if (!check_fspec_validity (tvb, start_offset, &table_p)) {
+        return -1;
+    }
 
-        offset += fspec_len;
-        unsigned i = 0;
-        unsigned fs_index = 0;
-        while (i <= table_p.table_size) {
-            if (((fs_index + 1) % 8) == 0) {
-                if (!asterix_field_exists(tvb, start_offset, fs_index)) {
-                    break;
-                }
-                fs_index++;
+    offset += asterix_dissect_fspec (tvb, offset, asterix_packet_tree);
+    unsigned i = 0;
+    unsigned fs_index = 0;
+    while (i <= table_p.table_size) {
+        if (((fs_index + 1) % 8) == 0) {
+            if (!asterix_field_exists(tvb, start_offset, fs_index)) {
+                break;
             }
-            if (asterix_field_exists(tvb, start_offset, fs_index)) {
-                int *expand = table_p.table_pointer_expand[i];
-                int expand_value = -1;
-                if (expand != NULL)
-                {
-                    expand_value = *expand;
-                }
-                int fun_len = table_p.table_pointer[i](tvb, offset, asterix_packet_tree, expand_value);
-                if (fun_len == -1) {
-                    return -1;
-                }
-                offset += fun_len;
-            }
-            i++;
             fs_index++;
         }
+        if (asterix_field_exists(tvb, start_offset, fs_index)) {
+            int *expand = table_p.table_pointer_expand[i];
+            int expand_value = -1;
+            if (expand != NULL)
+            {
+                expand_value = *expand;
+            }
+            int fun_len = table_p.table_pointer[i](tvb, offset, asterix_packet_tree, expand_value);
+            if (fun_len == -1) {
+                return -1;
+            }
+            offset += fun_len;
+        }
+        i++;
+        fs_index++;
     }
+
     return offset;
 }
 
@@ -428,61 +424,59 @@ static int dissect_asterix_record (tvbuff_t *tvb, packet_info *pinfo, unsigned o
     ti = proto_tree_add_item (tree, hf_asterix_record, tvb, offset, 0, ENC_NA);
     asterix_packet_tree = proto_item_add_subtree (ti, ett_asterix);
 
-    int fspec_len = asterix_dissect_fspec (tvb, offset, asterix_packet_tree);
-    int start_offset = offset;
-
     table_params table_p;
     get_category_uap_table(cat, ed, uap, &table_p);
 
+    if (table_p.table_pointer == NULL || table_p.table_pointer_expand == NULL) {
+        // skip unknown category
+        expert_add_info_format(pinfo, ti, &ei_asterix_overflow, "Unknown category");
+        return -1;
+    }
     if (!check_fspec_validity (tvb, offset, &table_p)) {
+        // something wrong with FSPEC field
         expert_add_info_format(pinfo, ti, &ei_asterix_overflow, "FSPEC field invalid");
         return -1;
     }
+    int start_offset = offset;
 
-    if (table_p.table_pointer == NULL || table_p.table_pointer_expand == NULL) {
-        // skip unknown category
-        return -1;
-    }
-    else {
-        offset += fspec_len;
-        unsigned i = 0;
-        unsigned fs_index = 0;
-        while (i <= table_p.table_size) {
-            if (((fs_index + 1) % 8) == 0 && fs_index > 0) {
-                if (!asterix_field_exists(tvb, start_offset, fs_index)) {
-                    break;
-                }
-                fs_index++;
+    offset += asterix_dissect_fspec (tvb, offset, asterix_packet_tree);;
+    unsigned i = 0;
+    unsigned fs_index = 0;
+    while (i <= table_p.table_size) {
+        if (((fs_index + 1) % 8) == 0 && fs_index > 0) {
+            if (!asterix_field_exists(tvb, start_offset, fs_index)) {
+                break;
             }
-            if (asterix_field_exists(tvb, start_offset, fs_index)) {
-                int *expand = table_p.table_pointer_expand[i];
-                int expand_value = -1;
-                if (expand != NULL)
-                {
-                    expand_value = *expand;
-                }
-                if (table_p.table_pointer[i] != NULL) {
-                    int fun_len = table_p.table_pointer[i](tvb, offset, asterix_packet_tree, expand_value);
-                    if (fun_len == -1) {
-                        return -1;
-                    }
-                    offset += fun_len;
-                } else {
-                    return -1;
-                }
-            }
-            i++;
             fs_index++;
         }
-        unsigned int item_length = offset - start_offset;
-        proto_item_set_len(ti, item_length);
-        proto_item_append_text(ti, ", length %u", item_length);
-        proto_item_append_text(ti, ", %s", table_p.uap_name);
-
-        if (offset > datablock_end) {
-            //record outside datablock
-            expert_add_info_format(pinfo, ti, &ei_asterix_overflow, "Record out of bounds");
+        if (asterix_field_exists(tvb, start_offset, fs_index)) {
+            int *expand = table_p.table_pointer_expand[i];
+            int expand_value = -1;
+            if (expand != NULL)
+            {
+                expand_value = *expand;
+            }
+            if (table_p.table_pointer[i] != NULL) {
+                int fun_len = table_p.table_pointer[i](tvb, offset, asterix_packet_tree, expand_value);
+                if (fun_len == -1) {
+                    return -1;
+                }
+                offset += fun_len;
+            } else {
+                return -1;
+            }
         }
+        i++;
+        fs_index++;
+    }
+    unsigned int item_length = offset - start_offset;
+    proto_item_set_len(ti, item_length);
+    proto_item_append_text(ti, ", length %u", item_length);
+    proto_item_append_text(ti, ", %s", table_p.uap_name);
+
+    if (offset > datablock_end) {
+        //record outside datablock
+        expert_add_info_format(pinfo, ti, &ei_asterix_overflow, "Record out of bounds");
     }
     return offset;
 }
@@ -510,6 +504,7 @@ static void dissect_asterix_records (tvbuff_t *tvb, packet_info *pinfo, int offs
     uap_table_indexes indexes;
     get_uap_tables(cat, ed, &indexes);
 
+    // if category unknown both start_index and end_index are 0
     if ((indexes.end_index - indexes.start_index) > 0)
     {
         probe_possible_records (tvb, pinfo, offset, datablock_end, cat, ed, &indexes, stack, 0);
@@ -595,6 +590,8 @@ static void dissect_asterix_data_blocks (tvbuff_t *tvb, packet_info *pinfo, prot
     int i = 0;
     int n = tvb_reported_length (tvb);
 
+    // Datablock parsing is strict. This means that all datablocks must be alligned with UDP datagram data. If not, no datablock is parsed.
+    // In future versions strictness level may be added as a configuration option.
     if (check_datagram_datablocks (tvb, pinfo, tree))
     {
         while (i < n) {
