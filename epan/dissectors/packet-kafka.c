@@ -215,6 +215,14 @@ static int hf_kafka_group_id;
 static int hf_kafka_member_epoch;
 static int hf_kafka_endpoint_type;
 static int hf_kafka_last_fetched_epoch;
+static int hf_kafka_filter_entity_type;
+static int hf_kafka_filter_entity_name;
+static int hf_kafka_filter_match_type;
+static int hf_kafka_filter_match;
+static int hf_kafka_filter_strict;
+static int hf_kafka_quota_config_key;
+static int hf_kafka_quota_config_value;
+static int hf_kafka_quota_remove;
 
 static int ett_kafka;
 static int ett_kafka_batch;
@@ -271,6 +279,8 @@ static int ett_kafka_renewers;
 static int ett_kafka_renewer;
 static int ett_kafka_owners;
 static int ett_kafka_owner;
+static int ett_kafka_quota_entries;
+static int ett_kafka_quota_filter_components;
 static int ett_kafka_tokens;
 static int ett_kafka_token;
 /* in Kafka 2.5 these structures have been added, but not yet used */
@@ -490,6 +500,10 @@ static const kafka_api_info_t kafka_apis[] = {
       0, 0, 0 },
     { KAFKA_OFFSET_DELETE,                 "OffsetDelete",
       0, 0, -1 },
+    { KAFKA_DESCRIBE_CLIENT_QUOTAS,        "DescribeClientQuotas",
+      0, 1, 1 },
+    { KAFKA_ALTER_CLIENT_QUOTAS,           "AlterClientQuotas",
+      0, 1, 1 },
     { KAFKA_DESCRIBE_CLUSTER,              "DescribeCluster",
       0, 1, 0 },
     { KAFKA_ALLOCATE_PRODUCER_IDS,         "AllocateProducerIds",
@@ -777,6 +791,13 @@ static const value_string config_operations[] = {
 static const value_string election_types[] = {
     { 0, "Preferred" },
     { 1, "Unclean" },
+    { 0, NULL }
+};
+
+static const value_string filter_match_types[] = {
+    { 0, "Exact Name" },
+    { 1, "Default Name" },
+    { 2, "Any Specified Name" },
     { 0, NULL }
 };
 
@@ -1476,6 +1497,14 @@ static int
 dissect_kafka_int64(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int64_t *p_value)
 {
     if (p_value != NULL) *p_value = tvb_get_int64(tvb, offset, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_item, tvb, offset, 8, ENC_BIG_ENDIAN);
+    return offset+8;
+}
+
+static int
+dissect_kafka_float64(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, double *p_value)
+{
+    if (p_value != NULL) *p_value = tvb_get_ieee_double(tvb, offset, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_item, tvb, offset, 8, ENC_BIG_ENDIAN);
     return offset+8;
 }
@@ -9599,6 +9628,241 @@ dissect_kafka_offset_delete_response(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     return offset;
 }
 
+/* DESCRIBE CLIENT QUOTAS REQUEST/RESPONSE */
+static int
+dissect_kafka_quota_filter_components(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                                      kafka_api_version_t api_version)
+{
+    // { "name": "EntityType", "type": "string", "versions": "0+",
+    //   "about": "The entity type that the filter component applies to." },
+    offset = dissect_kafka_string(tree, hf_kafka_filter_entity_type, tvb, pinfo, offset, api_version >= 1, NULL, NULL);
+    // { "name": "MatchType", "type": "int8", "versions": "0+",
+    //   "about": "How to match the entity {0 = exact name, 1 = default name, 2 = any specified name}." },
+    offset = dissect_kafka_int8(tree, hf_kafka_filter_match_type, tvb, pinfo, offset, NULL);
+    // { "name": "Match", "type": "string", "versions": "0+", "nullableVersions": "0+",
+    //   "about": "The string to match against, or null if unused for the match type." }
+    offset = dissect_kafka_string(tree, hf_kafka_filter_match, tvb, pinfo, offset, api_version >= 1, NULL, NULL);
+    if (api_version >= 1) {
+        offset = dissect_kafka_tagged_fields(tvb, pinfo, tree, offset, 0);
+    }
+    return offset;
+}
+
+// DescribeClientQuotasRequest
+// Version 1 enables flexible versions.
+// "validVersions": "0-1",
+// "flexibleVersions": "1+",
+static int
+dissect_kafka_describe_client_quotas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                                             kafka_api_version_t api_version)
+{
+    // { "name": "Components", "type": "[]ComponentData", "versions": "0+",
+    //   "about": "Filter components to apply to quota entities." }
+    proto_item *subti;
+    proto_tree *subtree;
+    subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_quota_filter_components, &subti, "Components");
+    offset  = dissect_kafka_array(subtree, tvb, pinfo, offset, api_version >= 1, api_version,
+                                  &dissect_kafka_quota_filter_components, NULL);
+    proto_item_set_end(subti, tvb, offset);
+    // { "name": "Strict", "type": "bool", "versions": "0+",
+    //   "about": "Whether the match is strict, i.e. should exclude entities with unspecified entity types." }
+    offset = dissect_kafka_bool(tree, hf_kafka_filter_strict, tvb, pinfo, offset);
+    if (api_version >= 1) {
+        offset = dissect_kafka_tagged_fields(tvb, pinfo, tree, offset, 0);
+    }
+    return offset;
+}
+
+static int
+dissect_kafka_quota_entity_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                                kafka_api_version_t api_version)
+{
+    // { "name": "EntityType", "type": "string", "versions": "0+",
+    //   "about": "The entity type." },
+    offset = dissect_kafka_string(tree, hf_kafka_filter_entity_type, tvb, pinfo, offset, api_version >= 1, NULL, NULL);
+    // { "name": "EntityName", "type": "string", "versions": "0+", "nullableVersions": "0+",
+    //   "about": "The entity name, or null if the default." }
+    offset = dissect_kafka_string(tree, hf_kafka_filter_entity_name, tvb, pinfo, offset, api_version >= 1, NULL, NULL);
+    if (api_version >= 1) {
+        offset = dissect_kafka_tagged_fields(tvb, pinfo, tree, offset, 0);
+    }
+    return offset;
+}
+
+static int
+dissect_kafka_quota_value_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                               kafka_api_version_t api_version)
+{
+    // { "name": "Key", "type": "string", "versions": "0+",
+    //   "about": "The quota configuration key." },
+    offset = dissect_kafka_string(tree, hf_kafka_quota_config_key, tvb, pinfo, offset, api_version >= 1, NULL, NULL);
+    // { "name": "Value", "type": "float64", "versions": "0+",
+    //   "about": "The quota configuration value." }
+    offset = dissect_kafka_float64(tree, hf_kafka_quota_config_value, tvb, pinfo, offset, NULL);
+    if (api_version >= 1) {
+        offset = dissect_kafka_tagged_fields(tvb, pinfo, tree, offset, 0);
+    }
+    return offset;
+}
+
+static int
+dissect_kafka_quota_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                            kafka_api_version_t api_version)
+{
+    // { "name": "Entity", "type": "[]EntityData", "versions": "0+",
+    //   "about": "The quota entity description." }
+    offset = dissect_kafka_array(tree, tvb, pinfo, offset, api_version >= 1, api_version,
+                                 &dissect_kafka_quota_entity_data, NULL);
+    // { "name": "Values", "type": "[]ValueData", "versions": "0+",
+    //   "about": "The quota values for the entity." }
+    offset = dissect_kafka_array(tree, tvb, pinfo, offset, api_version >= 1, api_version,
+                                 &dissect_kafka_quota_value_data, NULL);
+    if (api_version >= 1) {
+        offset = dissect_kafka_tagged_fields(tvb, pinfo, tree, offset, 0);
+    }
+    return offset;
+}
+
+// DescribeClientQuotasResponse
+// Version 1 enables flexible versions.
+// "validVersions": "0-1",
+// "flexibleVersions": "1+",
+static int
+dissect_kafka_describe_client_quotas_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                                              kafka_api_version_t api_version)
+{
+    // { "name": "ThrottleTimeMs", "type": "int32", "versions": "0+",
+    //   "about": "The duration in milliseconds for which the request was throttled due to a quota violation, or zero if the request did not violate any quota." },
+    offset = dissect_kafka_throttle_time(tvb, pinfo, tree, offset);
+    // { "name": "ErrorCode", "type": "int16", "versions": "0+",
+    //   "about": "The error code, or `0` if the quota description succeeded." },
+    offset = dissect_kafka_error(tvb, pinfo, tree, offset);
+    // { "name": "ErrorMessage", "type": "string", "versions": "0+", "nullableVersions": "0+",
+    //   "about": "The error message, or `null` if the quota description succeeded." },
+    offset = dissect_kafka_string(tree, hf_kafka_error_message, tvb, pinfo, offset, api_version >= 1, NULL, NULL);
+    // { "name": "Entries", "type": "[]EntryData", "versions": "0+", "nullableVersions": "0+",
+    //   "about": "A result entry." }
+    proto_item *subti;
+    proto_tree *subtree;
+    subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_quota_entries, &subti, "Entries");
+    offset  = dissect_kafka_array(subtree, tvb, pinfo, offset, api_version >= 1, api_version,
+                                  &dissect_kafka_quota_entries, NULL);
+    proto_item_set_end(subti, tvb, offset);
+    if (api_version >= 1) {
+        offset = dissect_kafka_tagged_fields(tvb, pinfo, tree, offset, 0);
+    }
+    return offset;
+}
+
+/* ALTER CLIENT QUOTAS REQUEST/RESPONSE */
+static int
+dissect_kafka_quota_op_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                            kafka_api_version_t api_version)
+{
+    // { "name": "Key", "type": "string", "versions": "0+",
+    //   "about": "The quota configuration key." },
+    offset = dissect_kafka_string(tree, hf_kafka_quota_config_key, tvb, pinfo, offset, api_version >= 1, NULL, NULL);
+    // { "name": "Value", "type": "float64", "versions": "0+",
+    //   "about": "The value to set, otherwise ignored if the value is to be removed." },
+    offset = dissect_kafka_float64(tree, hf_kafka_quota_config_value, tvb, pinfo, offset, NULL);
+    // { "name": "Remove", "type": "bool", "versions": "0+",
+    //   "about": "Whether the quota configuration value should be removed, otherwise set." }
+    offset = dissect_kafka_bool(tree, hf_kafka_quota_remove, tvb, pinfo, offset);
+    if (api_version >= 1) {
+        offset = dissect_kafka_tagged_fields(tvb, pinfo, tree, offset, 0);
+    }
+    return offset;
+}
+
+static int
+dissect_kafka_quota_alter_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                                  kafka_api_version_t api_version)
+{
+    // { "name": "Entity", "type": "[]EntityData", "versions": "0+",
+    //   "about": "The quota entity to alter."
+    offset = dissect_kafka_array(tree, tvb, pinfo, offset, api_version >= 1, api_version,
+                                 &dissect_kafka_quota_entity_data, NULL);
+    // { "name": "Ops", "type": "[]OpData", "versions": "0+",
+    //   "about": "An individual quota configuration entry to alter.", "fields": [
+    offset = dissect_kafka_array(tree, tvb, pinfo, offset, api_version >= 1, api_version,
+                                 &dissect_kafka_quota_op_data, NULL);
+    if (api_version >= 1) {
+        offset = dissect_kafka_tagged_fields(tvb, pinfo, tree, offset, 0);
+    }
+    return offset;
+}
+
+// AlterClientQuotasRequest
+// Version 1 enables flexible versions.
+// "validVersions": "0-1",
+// "flexibleVersions": "1+",
+static int
+dissect_kafka_alter_client_quotas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                                          kafka_api_version_t api_version)
+{
+    proto_item *subti;
+    proto_tree *subtree;
+    // { "name": "Entries", "type": "[]EntryData", "versions": "0+",
+    //   "about": "The quota configuration entries to alter."
+    subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_quota_entries, &subti, "Entries");
+    offset  = dissect_kafka_array(subtree, tvb, pinfo, offset, api_version >= 1, api_version,
+                                  &dissect_kafka_quota_alter_entries, NULL);
+    proto_item_set_end(subti, tvb, offset);
+    // { "name": "ValidateOnly", "type": "bool", "versions": "0+",
+    //   "about": "Whether the alteration should be validated, but not performed." }
+    proto_tree_add_item(subtree, hf_kafka_validate_only, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    if (api_version >= 1) {
+        offset = dissect_kafka_tagged_fields(tvb, pinfo, tree, offset, 0);
+    }
+    return offset;
+}
+
+static int
+dissect_kafka_quota_alter_response_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                                           kafka_api_version_t api_version)
+{
+    // { "name": "ErrorCode", "type": "int16", "versions": "0+",
+    //   "about": "The error code, or `0` if the quota alteration succeeded." },
+    offset = dissect_kafka_error(tvb, pinfo, tree, offset);
+    // { "name": "ErrorMessage", "type": "string", "versions": "0+", "nullableVersions": "0+",
+    //   "about": "The error message, or `null` if the quota alteration succeeded." },
+    offset = dissect_kafka_string(tree, hf_kafka_error_message, tvb, pinfo, offset, api_version >= 1, NULL, NULL);
+    // { "name": "Entity", "type": "[]EntityData", "versions": "0+",
+    //   "about": "The quota entity to alter.", "fields": [
+    offset = dissect_kafka_array(tree, tvb, pinfo, offset, api_version >= 1, api_version,
+                                 &dissect_kafka_quota_entity_data, NULL);
+    if (api_version >= 1) {
+        offset = dissect_kafka_tagged_fields(tvb, pinfo, tree, offset, 0);
+    }
+    return offset;
+}
+
+// AlterClientQuotasResponse
+// Version 1 enables flexible versions.
+// "validVersions": "0-1",
+// "flexibleVersions": "1+",
+static int
+dissect_kafka_alter_client_quotas_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+                                           kafka_api_version_t api_version)
+{
+    // { "name": "ThrottleTimeMs", "type": "int32", "versions": "0+",
+    //   "about": "The duration in milliseconds for which the request was throttled due to a quota violation, or zero if the request did not violate any quota." },
+    offset = dissect_kafka_throttle_time(tvb, pinfo, tree, offset);
+    proto_item *subti;
+    proto_tree *subtree;
+    // { "name": "Entries", "type": "[]EntryData", "versions": "0+",
+    //   "about": "The quota configuration entries to alter."
+    subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_quota_entries, &subti, "Entries");
+    offset  = dissect_kafka_array(subtree, tvb, pinfo, offset, api_version >= 1, api_version,
+                                  &dissect_kafka_quota_alter_response_entries, NULL);
+    proto_item_set_end(subti, tvb, offset);
+    if (api_version >= 1) {
+        offset = dissect_kafka_tagged_fields(tvb, pinfo, tree, offset, 0);
+    }
+    return offset;
+}
+
 /* DESCRIBE_CLUSTER REQUEST/RESPONSE */
 static int
 dissect_kafka_describe_cluster_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
@@ -9996,6 +10260,12 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             case KAFKA_OFFSET_DELETE:
                 offset = dissect_kafka_offset_delete_request(tvb, pinfo, kafka_tree, offset, dissect_api_version);
                 break;
+            case KAFKA_DESCRIBE_CLIENT_QUOTAS:
+                offset = dissect_kafka_describe_client_quotas_request(tvb, pinfo, kafka_tree, offset, dissect_api_version);
+                break;
+            case KAFKA_ALTER_CLIENT_QUOTAS:
+                offset = dissect_kafka_alter_client_quotas_request(tvb, pinfo, kafka_tree, offset, dissect_api_version);
+                break;
             case KAFKA_DESCRIBE_CLUSTER:
                 offset = dissect_kafka_describe_cluster_request(tvb, pinfo, kafka_tree, offset, dissect_api_version);
                 break;
@@ -10211,6 +10481,12 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 break;
             case KAFKA_OFFSET_DELETE:
                 offset = dissect_kafka_offset_delete_response(tvb, pinfo, kafka_tree, offset, dissect_api_version);
+                break;
+            case KAFKA_DESCRIBE_CLIENT_QUOTAS:
+                offset = dissect_kafka_describe_client_quotas_response(tvb, pinfo, kafka_tree, offset, dissect_api_version);
+                break;
+            case KAFKA_ALTER_CLIENT_QUOTAS:
+                offset = dissect_kafka_alter_client_quotas_response(tvb, pinfo, kafka_tree, offset, dissect_api_version);
                 break;
             case KAFKA_DESCRIBE_CLUSTER:
                 offset = dissect_kafka_describe_cluster_response(tvb, pinfo, kafka_tree, offset, dissect_api_version);
@@ -11159,6 +11435,46 @@ proto_register_kafka_protocol_fields(int protocol)
               FT_INT32, BASE_DEC, 0, 0,
               NULL, HFILL }
         },
+        { &hf_kafka_filter_entity_type,
+            { "Entity Type", "kafka.filter_entity_type",
+               FT_STRING, BASE_NONE, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_filter_entity_name,
+            { "Entity Name", "kafka.filter_entity_name",
+               FT_STRING, BASE_NONE, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_filter_match_type,
+            { "Match Type", "kafka.filter_match_type",
+               FT_INT8, BASE_DEC, VALS(filter_match_types), 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_filter_match,
+            { "Match", "kafka.filter_match",
+               FT_STRING, BASE_NONE, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_filter_strict,
+            { "Strict", "kafka.filter_strict",
+               FT_BOOLEAN, BASE_NONE, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_quota_config_key,
+            { "Quota Config Key", "kafka.quota_config_key",
+               FT_STRING, BASE_NONE, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_quota_config_value,
+            { "Quota Config Value", "kafka.quota_config_value",
+               FT_DOUBLE, BASE_NONE, 0, 0,
+               NULL, HFILL }
+        },
+        { &hf_kafka_quota_remove,
+            { "Remove Quota", "kafka.quota_remove",
+               FT_BOOLEAN, BASE_NONE, 0, 0,
+               NULL, HFILL }
+        },
     };
 
     proto_register_field_array(protocol, hf, array_length(hf));
@@ -11224,6 +11540,8 @@ proto_register_kafka_protocol_subtrees(const int proto _U_)
         &ett_kafka_renewer,
         &ett_kafka_owners,
         &ett_kafka_owner,
+        &ett_kafka_quota_entries,
+        &ett_kafka_quota_filter_components,
         &ett_kafka_tokens,
         &ett_kafka_token,
         &ett_kafka_tagged_fields,
