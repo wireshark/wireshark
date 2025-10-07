@@ -22,6 +22,7 @@
 
 static int proto_pldm;
 static int ett_pldm;
+static int ett_pldm_fwu_components;
 
 static wmem_map_t* pldmTypeMap;
 static wmem_allocator_t *addr_resolv_scope;
@@ -34,6 +35,7 @@ static int hf_pldm_reserved;
 static int hf_pldm_base_commands;
 static int hf_pldm_BIOS_commands;
 static int hf_pldm_FRU_commands;
+static int hf_pldm_FWU_commands;
 static int hf_pldm_platform_commands;
 static int hf_pldm_base_typeVersion;
 static int hf_pldm_base_PLDMtype;
@@ -164,6 +166,37 @@ static int hf_fru_record_field_value;
 static int hf_fru_record_crc;
 static int hf_fru_table_handle;
 
+/* FW Update definitions */
+static int hf_fwu_completion_code;
+
+static int hf_fwu_cap_dur_update;
+static int hf_fwu_comp_count;
+static int hf_fwu_act_ver_str_type;
+static int hf_fwu_act_ver_str_len;
+static int hf_fwu_pend_ver_str_type;
+static int hf_fwu_pend_ver_str_len;
+static int hf_fwu_act_ver_str;
+static int hf_fwu_pend_ver_str;
+static int hf_fwu_comp_classification;
+static int hf_fwu_comp_identifier;
+
+/* ComponentParameterTable */
+static int hf_fwu_comp_class_index;
+static int hf_fwu_act_comp_class_stamp;
+static int hf_fwu_act_comp_str_type;
+static int hf_fwu_act_comp_ver_str_len;
+static int hf_fwu_act_comp_rel_date;
+static int hf_fwu_pend_comp_class_stamp;
+static int hf_fwu_pend_comp_str_type;
+static int hf_fwu_pend_comp_ver_str_len;
+static int hf_fwu_pend_comp_rel_date;
+static int hf_fwu_comp_act_method;
+static int hf_fwu_comp_cap_dur_update;
+static int hf_fwu_act_comp_ver_str;
+static int hf_fwu_pend_comp_ver_str;
+
+
+
 static const value_string directions[] = {
 	{0, "response"},
 	{1, "reserved"},
@@ -214,6 +247,34 @@ static const value_string pldmFruCmds[] = {
 	{2, "GetFRURecordTable"},
 	{3, "SetFRURecordTable"},
 	{4, "GetFRURecordByOption"},
+	{0, NULL}
+};
+
+static const value_string pldmFwuCmds[] = {
+	{0x01, "QueryDeviceIdentifiers"},
+	{0x02, "GetFirmwareParameters"},
+	{0x03, "QueryDownstreamDevices"},
+	{0x04, "QueryDownstreamIdentifiers"},
+	{0x05, "GetDownstreamFirmwareParameters"},
+	{0x10, "RequestUpdate"},
+	{0x11, "GetPackageData"},
+	{0x12, "GetDeviceMetaData"},
+	{0x13, "PassComponentTable"},
+	{0x14, "UpdateComponent"},
+	{0x15, "RequestFirmwareData"},
+	{0x16, "TransferComplete"},
+	{0x17, "VerifyComplete"},
+	{0x18, "ApplyComplete"},
+	{0x19, "GetMetaData"},
+	{0x1A, "ActivateFirmware"},
+	{0x1B, "GetStatus"},
+	{0x1C, "CancelUpdateComponent"},
+	{0x1D, "CancelUpdate"},
+	{0x1E, "ActivatePendingComponentImageSet"},
+	{0x1F, "ActivatePendingComponentImage"},
+	{0x20, "RequestDownstreamDeviceUpdate"},
+	{0x21, "GetComponentOpaqueData"},
+	{0x22, "UpdateSecurityRevision"},
 	{0, NULL}
 };
 
@@ -453,7 +514,7 @@ static const value_string FRU_completion_code[] = {
 	{0, NULL}
 };
 
-static const value_string record_encoding[] = {
+static const value_string string_types[] = {
 	{1, "ASCII"},
 	{2, "UTF8"},
 	{3, "UTF16"},
@@ -487,6 +548,56 @@ static const value_string field_types_general[] = {
 	{0xf, "Vendor IANA"},
 	{0, NULL}
 };
+
+/* FW Update */
+static const value_string FWU_completion_code[] = {
+	{0x80, "NOT_IN_UPDATE_MODE"},
+	{0x81, "ALREADY_IN_UPDATE_MODE"},
+	{0x82, "DATA_OUT_OF_RANGE"},
+	{0x83, "INVALID_TRANSFER_LENGTH"},
+	{0x84, "INVALID_STATE_FOR_COMMAND"},
+	{0x85, "INCOMPLETE_UPDATE"},
+	{0x86, "BUSY_IN_BACKGROUND"},
+	{0x87, "CANCEL_PENDING"},
+	{0x88, "COMMAND_NOT_EXPECTED"},
+	{0x89, "RETRY_REQUEST_FW_DATA"},
+	{0x8A, "UNABLE_TO_INITIATE_UPDATE"},
+	{0x8B, "ACTIVATION_NOT_REQUIRED"},
+	{0x8C, "SELF_CONTAINED_ACTIVATION_NOT_PERMITTED"},
+	{0x8D, "NO_DEVICE_METADATA"},
+	{0x8E, "RETRY_REQUEST_UPDATE"},
+	{0x8F, "NO_PACKAGE_DATA"},
+	{0x90, "INVALID_TRANSFER_HANDLE"},
+	{0x91, "INVALID_TRANSFER_OPERATION_FLAG"},
+	{0x92, "ACTIVATE_PENDING_IMAGE_NOT_PERMITTED"},
+	{0x93, "PACKAGE_DATA_ERROR"},
+	{0x94, "NO_OPAQUE_DATA"},
+	{0x95, "UPDATE_SECURITY_REVISION_NOT_PERMITTED"},
+	{0x96, "DOWNSTREAM_DEVICE_LIST_CHANGED"},
+	{0, NULL}
+};
+
+/* ComponentClassification Values */
+static const value_string comp_classes[] = {
+	{0x0000, "Unknown"},
+	{0x0001, "Other"},
+	{0x0002, "Driver"},
+	{0x0003, "Configuration Software"},
+	{0x0004, "Application Software"},
+	{0x0005, "Instrumentation"},
+	{0x0006, "Firmware/BIOS"},
+	{0x0007, "Diagnostic Software"},
+	{0x0008, "Operating System"},
+	{0x0009, "Middleware"},
+	{0x000A, "Firmware"},
+	{0x000B, "BIOS/FCode"},
+	{0x000C, "Support/Service Pack"},
+	{0x000D, "Software Bundle"},
+	// Values 0x8000-0xFFFE are reserved for Vendor Defined values.
+	{0xFFFF, "Downstream Device"},
+	{0, NULL}
+};
+
 
 /* Some details of frame seen passed info functions handling packet types.
    Not stored as per-packet data in frame...  */
@@ -1101,7 +1212,9 @@ uint16_t parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
 						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb, offset, field_len, ENC_UTF_8);
 						break;
 					case 0x3:
-						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb, offset, field_len, ENC_UTF_16 | ENC_BOM);
+						// Removed ENC_BOM encoding flag, [ENC_UTF_16 | ENC_BOM] --> [ENC_UTF_16]
+						// as it caused "bad encoding" warning
+						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb, offset, field_len, ENC_UTF_16);
 						break;
 					case 0x4:
 						proto_tree_add_item(p_tree, hf_fru_record_field_value, tvb,
@@ -1236,8 +1349,143 @@ int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pld
 	return tvb_captured_length(tvb);
 }
 
+static
+int dissect_FWU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pldm_packet_data *data)
+{
+	uint8_t request = data->direction;
+	uint16_t offset = 0;
+	uint32_t pldm_cmd;
+	//uint8_t padding = 0;
+	proto_tree_add_item_ret_uint(p_tree, hf_pldm_FWU_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pldm_cmd);
+	offset += 1;
+	if (!request) {
+		uint8_t completion_code = tvb_get_uint8(tvb, offset);
+		if(completion_code >= 0x80 && completion_code <= 0x96)
+			proto_tree_add_item(p_tree, hf_fwu_completion_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		else
+			proto_tree_add_item(p_tree, hf_pldm_completion_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+		if (completion_code)
+			return tvb_captured_length(tvb);
+		offset += 1;
+	}
+	switch (pldm_cmd) {
+		case 0x02: // GetFirmwareParameters
+			if (!request) {
+				uint32_t num_components = 0;
+				uint32_t act_fw_ver_len = 0, act_fw_ver_str_type = 0;
+				uint32_t pend_fw_ver_len = 0, pend_fw_ver_str_type = 0;
+				char *act_fw_ver_str, *pend_fw_ver_str;
+
+				proto_tree_add_item(p_tree, hf_fwu_cap_dur_update, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+				offset += 4;
+				proto_tree_add_item_ret_uint(p_tree, hf_fwu_comp_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &num_components);
+				offset += 2;
+				proto_tree_add_item_ret_uint(p_tree, hf_fwu_act_ver_str_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &act_fw_ver_str_type);
+				offset += 1;
+				proto_tree_add_item_ret_uint(p_tree, hf_fwu_act_ver_str_len, tvb, offset, 1, ENC_LITTLE_ENDIAN, &act_fw_ver_len);
+				offset += 1;
+				proto_tree_add_item_ret_uint(p_tree, hf_fwu_pend_ver_str_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pend_fw_ver_str_type);
+				offset += 1;
+				proto_tree_add_item_ret_uint(p_tree, hf_fwu_pend_ver_str_len, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pend_fw_ver_len);
+				offset += 1;
+				if(act_fw_ver_len > 0) {
+					act_fw_ver_str = tvb_get_string_enc(pinfo->pool, tvb, offset, act_fw_ver_len, act_fw_ver_str_type);
+					proto_tree_add_string(p_tree, hf_fwu_act_ver_str, tvb, offset, act_fw_ver_len, act_fw_ver_str);
+					offset += act_fw_ver_len;
+				}
+				if(pend_fw_ver_len > 0) {
+					pend_fw_ver_str = tvb_get_string_enc(pinfo->pool, tvb, offset, pend_fw_ver_len, pend_fw_ver_str_type);
+					proto_tree_add_string(p_tree, hf_fwu_pend_ver_str, tvb, offset, pend_fw_ver_len, pend_fw_ver_str);
+					offset += pend_fw_ver_len;
+				}
+
+				if (num_components > 0) {
+					// A sub-tree for the component information
+					//proto_item *ti_components;
+					proto_tree *components_tree;
+					proto_item *cti;
+					//ti_components = proto_tree_add_protocol_format(fwu_tree, proto_pldm_fwu_components, tvb, offset, -1, "Device Firmware Components (%u)", num_components);
+					//components_tree = proto_item_add_subtree(p_tree, ett_pldm_fwu_components);
+
+					for (uint32_t i = 0; i < num_components; i++) {
+						uint32_t act_comp_ver_len = 0, act_comp_ver_str_type = 0;
+						uint32_t pend_comp_ver_len = 0, pend_comp_ver_str_type = 0;
+						char *act_comp_ver_str, *pend_comp_ver_str;
+
+						//proto_item *ti_component;
+						//proto_tree *component_tree;
+						//uint8_t comp_name_len;
+
+						//ti_component = proto_tree_add_protocol_format(components_tree, proto_pldm_fwu_component, tvb, offset, -1, "Component %u", i);
+						//component_tree = proto_item_add_subtree(ti_component, ett_pldm_fwu_component);
+						components_tree = proto_tree_add_subtree_format(p_tree, tvb, offset, 39, ett_pldm_fwu_components, &cti, "Component %u", i + 1);
+						// Component Classification (2 bytes)
+						proto_tree_add_item(components_tree, hf_fwu_comp_classification, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+						offset += 2;
+						// Component Identifier (2 bytes)
+						proto_tree_add_item(components_tree, hf_fwu_comp_identifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+						offset += 2;
+
+						proto_tree_add_item(components_tree, hf_fwu_comp_class_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+						offset += 1;
+
+						proto_tree_add_item(components_tree, hf_fwu_act_comp_class_stamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+						offset += 4;
+
+						proto_tree_add_item_ret_uint(components_tree, hf_fwu_act_comp_str_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &act_comp_ver_str_type);
+						offset += 1;
+
+						proto_tree_add_item_ret_uint(components_tree, hf_fwu_act_comp_ver_str_len, tvb, offset, 1, ENC_LITTLE_ENDIAN, &act_comp_ver_len);
+						offset += 1;
+
+						proto_tree_add_item(components_tree, hf_fwu_act_comp_rel_date, tvb, offset, 8, ENC_ASCII);
+						offset += 8;
+
+						proto_tree_add_item(components_tree, hf_fwu_pend_comp_class_stamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+						offset += 4;
+
+						proto_tree_add_item_ret_uint(components_tree, hf_fwu_pend_comp_str_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pend_comp_ver_str_type);
+						offset += 1;
+
+						proto_tree_add_item_ret_uint(components_tree, hf_fwu_pend_comp_ver_str_len, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pend_comp_ver_len);
+						offset += 1;
+
+						proto_tree_add_item(components_tree, hf_fwu_pend_comp_rel_date, tvb, offset, 8, ENC_ASCII);
+						offset += 8;
+
+						proto_tree_add_item(components_tree, hf_fwu_comp_act_method, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+						offset += 2;
+
+						proto_tree_add_item(components_tree, hf_fwu_comp_cap_dur_update, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+						offset += 4;
+
+						if(act_comp_ver_len > 0) {
+							act_comp_ver_str = tvb_get_string_enc(pinfo->pool, tvb, offset, act_comp_ver_len, act_comp_ver_str_type);
+							proto_tree_add_string(components_tree, hf_fwu_act_comp_ver_str, tvb, offset, act_comp_ver_len, act_comp_ver_str);
+							offset += act_comp_ver_len;
+						}
+
+						if(pend_comp_ver_len > 0) {
+							pend_comp_ver_str = tvb_get_string_enc(pinfo->pool, tvb, offset, pend_comp_ver_len, pend_comp_ver_str_type);
+							proto_tree_add_string(components_tree, hf_fwu_pend_comp_ver_str, tvb, offset, pend_comp_ver_len, pend_comp_ver_str);
+							offset += pend_comp_ver_len;
+						}
+					}
+				}
+			}
+			break;
+
+		default:
+			col_append_str(pinfo->cinfo, COL_INFO, "To be implemented PLDM command");
+			break;
+	}
+
+	return tvb_captured_length(tvb);
+}
+
 static int dissect_pldm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                void *data _U_)
+		void *data _U_)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PLDM");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -1280,6 +1528,10 @@ static int dissect_pldm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					break;
 				case 4:
 					dissect_FRU(next_tvb, pinfo, pldm_tree, &d);
+					break;
+				case 5:
+					dissect_FWU(next_tvb, pinfo, pldm_tree, &d);
+					break;
 			}
 		}
 	}
@@ -1334,6 +1586,9 @@ void proto_register_pldm(void)
 		{&hf_pldm_FRU_commands,
 			{"FRU Command", "pldm.fruCommands", FT_UINT8, BASE_HEX, VALS(pldmFruCmds),
 				0x0, "FRU Command Supported", HFILL}},
+		{&hf_pldm_FWU_commands,
+			{"FWU Command", "pldm.fwuCommands", FT_UINT8, BASE_HEX, VALS(pldmFwuCmds),
+				0x0, "FW Update Command Supported", HFILL}},
 		{&hf_pldm_platform_commands,
 			{"Platform Command", "pldm.platformCommands", FT_UINT8, BASE_HEX, VALS(pldmPlatformCmds),
 				0x0, "Platform Command Supported", HFILL}},
@@ -1619,7 +1874,7 @@ void proto_register_pldm(void)
 			{"Number of FRU fields", "pldm.fru.record.num_fields", FT_UINT8, BASE_DEC, NULL,
 				0x0, NULL, HFILL}},
 		{&hf_fru_record_encoding,
-			{"FRU Record Encoding", "pldm.fru.record.encoding", FT_UINT8, BASE_DEC, VALS(record_encoding),
+			{"FRU Record Encoding", "pldm.fru.record.encoding", FT_UINT8, BASE_DEC, VALS(string_types),
 				0x0, NULL, HFILL}},
 		{&hf_fru_record_field_type,
 			{"FRU Record Field Type", "pldm.fru.record.field_type", FT_UINT8, BASE_DEC, VALS(field_types_general),
@@ -1633,9 +1888,82 @@ void proto_register_pldm(void)
 		{&hf_fru_record_crc,
 			{"FRU Record CRC32 (Unchecked)", "pldm.fru.record.crc", FT_UINT32, BASE_HEX, NULL,
 				0x0, NULL, HFILL}},
+		/*FW Update*/
+		{&hf_fwu_completion_code,
+			{"Completion code", "pldm.fwu.completion_code", FT_UINT8, BASE_HEX, VALS(FWU_completion_code),
+				0x0, NULL, HFILL}},
+		{&hf_fwu_cap_dur_update,
+			{"CapabilitiesDuringUpdate", "pldm.fwu.cap_dur_update", FT_UINT32, BASE_HEX, NULL,
+				0x0, NULL, HFILL}},
+		{&hf_fwu_comp_count,
+			{"ComponentCount", "pldm.fwu.comp_count", FT_UINT16, BASE_DEC, NULL,
+				0x0, NULL, HFILL}},
+		{&hf_fwu_act_ver_str_type,
+			{"ActiveComponentImageSetVersionStringType", "pldm.fwu.act_ver_str_type", FT_UINT8, BASE_DEC, VALS(string_types),
+				0x0, NULL, HFILL}},
+		{&hf_fwu_act_ver_str_len,
+			{"ActiveComponentImageSetVersionStringLength", "pldm.fwu.act_ver_str_len", FT_UINT8, BASE_DEC, NULL,
+				0x0, NULL, HFILL}},
+		{&hf_fwu_pend_ver_str_type,
+			{"PendingComponentImageSetVersionStringType", "pldm.fwu.pend_ver_str_type", FT_UINT8, BASE_DEC, VALS(string_types),
+				0x0, NULL, HFILL}},
+		{&hf_fwu_pend_ver_str_len,
+			{"PendingComponentImageSetVersionStringLength", "pldm.fwu.pend_ver_str_len", FT_UINT8, BASE_DEC, NULL,
+				0x0, NULL, HFILL}},
+		{&hf_fwu_act_ver_str,
+			{"ActiveComponentImageSetVersionString", "pldm.fwu.act_ver_str", FT_STRING, BASE_NONE, NULL,
+				0x0,NULL, HFILL}},
+		{&hf_fwu_pend_ver_str,
+			{"PendingComponentImageSetVersionString", "pldm.fwu.pend_ver_str", FT_STRING, BASE_NONE, NULL,
+				0x0,NULL, HFILL}},
+		{&hf_fwu_comp_classification,
+			{"ComponentClassification", "pldm.fwu.comp_class", FT_UINT32, BASE_DEC, VALS(comp_classes),
+				0x0, NULL, HFILL}},
+		{&hf_fwu_comp_identifier,
+			{"ComponentIdentifier", "pldm.fwu.comp_id", FT_UINT16, BASE_DEC, NULL,
+				0x0, NULL, HFILL}},
+		{&hf_fwu_comp_class_index,
+			{"ComponentClassificationIndex", "pldm.fwu.comp_class_index", FT_UINT8, BASE_DEC, NULL,
+				0x0, NULL, HFILL}},
+		{&hf_fwu_act_comp_class_stamp,
+			{"ActiveComponentComparisonStamp", "pldm.fwu.act_comp_class_stamp", FT_UINT32, BASE_DEC, NULL,
+				0x0, NULL, HFILL}},
+		{&hf_fwu_act_comp_str_type,
+			{"ActiveComponentVersionStringType", "pldm.fwu.act_comp_str_type", FT_UINT8, BASE_DEC, VALS(string_types),
+				0x0, NULL, HFILL}},
+		{&hf_fwu_act_comp_ver_str_len,
+			{"ActiveComponentVersionStringLength", "pldm.fwu.act_comp_ver_str_len", FT_UINT8, BASE_DEC, NULL,
+				0x0, NULL, HFILL}},
+		{&hf_fwu_act_comp_rel_date,
+			{"ActiveComponentReleaseDate", "pldm.fwu.act_comp_rel_date", FT_STRING, BASE_NONE, NULL,
+				0x0,NULL, HFILL}},
+		{&hf_fwu_pend_comp_class_stamp,
+			{"PendingComponentComparisonStamp", "pldm.fwu.pend_comp_class_stamp", FT_UINT32, BASE_DEC, NULL,
+				0x0, NULL, HFILL}},
+		{&hf_fwu_pend_comp_str_type,
+			{"PendingComponentVersionStringType", "pldm.fwu.pend_comp_str_type", FT_UINT8, BASE_DEC, VALS(string_types),
+				0x0, NULL, HFILL}},
+		{&hf_fwu_pend_comp_ver_str_len,
+			{"PendingComponentVersionStringLength", "pldm.fwu.pend_comp_ver_str_len", FT_UINT8, BASE_DEC, NULL,
+				0x0, NULL, HFILL}},
+		{&hf_fwu_pend_comp_rel_date,
+			{"PendingComponentReleaseDate", "pldm.fwu.pend_comp_rel_date", FT_STRING, BASE_NONE, NULL,
+				0x0,NULL, HFILL}},
+		{&hf_fwu_comp_act_method,
+			{"ComponentActivationMethods", "pldm.fwu.comp_act_method", FT_UINT16, BASE_DEC, NULL,
+				0x0, NULL, HFILL}},
+		{&hf_fwu_comp_cap_dur_update,
+			{"CapabilitiesDuringUpdate", "pldm.fwu.comp_cap_dur_update", FT_UINT32, BASE_DEC, NULL,
+				0x0, NULL, HFILL}},
+		{&hf_fwu_act_comp_ver_str,
+			{"ActiveComponentVersionString", "pldm.fwu.act_comp_ver_str", FT_STRING, BASE_NONE, NULL,
+				0x0,NULL, HFILL}},
+		{&hf_fwu_pend_comp_ver_str,
+			{"PendingComponentVersionString", "pldm.fwu.pend_comp_ver_str", FT_STRING, BASE_NONE, NULL,
+				0x0,NULL, HFILL}},
 	};
 
-	static int *ett[] = {&ett_pldm};
+	static int *ett[] = {&ett_pldm, &ett_pldm_fwu_components};
 	proto_pldm = proto_register_protocol("PLDM Protocol", "PLDM", "pldm");
 	proto_register_field_array(proto_pldm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
