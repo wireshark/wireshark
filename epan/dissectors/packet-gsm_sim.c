@@ -1567,20 +1567,20 @@ static const char *get_sw_string(wmem_allocator_t *scope, uint16_t sw)
 	case 0x9e:
 		return "Length of the response data given / SIM data download error";
 	case 0x9f:
-		return wmem_strdup_printf(scope, "Length of the response data, Length is %u", sw2);
+		return wmem_strdup_printf(scope, "Length of the response data, Length is %u", sw2 ? sw2 : 256);
 	case 0x92:
 		if ((sw & 0xf0) == 0x00)
 			return "Command successful but after internal retry routine";
 		break;
 	case 0x61:
-		return wmem_strdup_printf(scope, "Response ready, Response length is %u", sw2);
+		return wmem_strdup_printf(scope, "Response ready, Response length is %u", sw2 ? sw2 : 256);
 	case 0x67:
 		if (sw2 == 0x00)
 			return "Wrong length"; /* TS 102.221 / Section 10.2.1.5 */
 		else
 			return "Incorrect parameter P3"; /* TS 51.011 / Section 9.4.6 */
 	case 0x6c:
-		return wmem_strdup_printf(scope, "Terminal should repeat command, Length for repeated command is %u", sw2);
+		return wmem_strdup_printf(scope, "Terminal should repeat command, Length for repeated command is %u", sw2 ? sw2 : 256);
 	case 0x6d:
 		return "Unknown instruction code";
 	case 0x6e:
@@ -2103,7 +2103,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 	case 0x14: /* TERMINAL RESPONSE */
 		dissect_apdu_lc(sim_tree, tvb, offset+P3_OFFS, extended_len);
 		subtvb = tvb_new_subset_length(tvb, offset+data_offs, p3);
-		call_dissector_with_data(sub_handle_cap, subtvb, pinfo, sim_tree, GUINT_TO_POINTER(0x14));
+		call_dissector_with_data(sub_handle_cap, subtvb, pinfo, tree, GUINT_TO_POINTER(0x14));
 		offset += data_offs + p3;
 		break;
 	case 0x70: /* MANAGE CHANNEL */
@@ -2271,8 +2271,8 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 	/* obtain status word */
 	sw = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_uint_format(sim_tree, hf_apdu_sw, tvb, offset, 2, sw,
-							"Status Word: %04x %s", sw, get_sw_string(pinfo->pool, sw));
+	proto_tree_add_uint_format_value(sim_tree, hf_apdu_sw, tvb, offset, 2, sw,
+					 "%04x %s", sw, get_sw_string(pinfo->pool, sw));
 	/* XXX - Add a PI_RESPONSE_CODE expert info for a non normal sw */
 
 	offset += 2;
@@ -2580,7 +2580,7 @@ proto_register_gsm_sim(void)
 			  "ISO 7816-4 APDU Data Payload", HFILL }
 		},
 		{ &hf_apdu_sw,
-			{ "Status Word (SW1:SW2)", "gsm_sim.apdu.sw",
+			{ "Status Word", "gsm_sim.apdu.sw",
 			  FT_UINT16, BASE_HEX, VALS(sw_vals), 0,
 			  "ISO 7816-4 APDU Status Word", HFILL }
 		},
