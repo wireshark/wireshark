@@ -20,19 +20,23 @@ If you or your organization would like to contribute or become a sponsor, please
 
 This is expected to be the final release of the 4.2 branch.
 
+This is the last release branch with official support for macOS 10.14 and 10.15.
+
 === Bug Fixes
 
 // The following vulnerabilities have been fixed:
 
-// * wssalink:2025-04[] {notable}
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxx[].
-// cveidlink:2025-xxx[].
-// Fixed in master: xxx
-// Fixed in release-4.4: xxx
-// Fixed in release-4.2: xxx
+* wssalink:2025-04[] {notable}
+MONGO dissector infinite loop.
+wsbuglink:20724[].
+cveidlink:2025-xxx[].
+// Fixed in master: 1ec4709cab
+// Fixed in release-4.6: fdb3823962
+// Fixed in release-4.4: ac504cd5de
+// Fixed in release-4.2: 513e5d4972
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-824
+// CWE-835
+// * Fuzz job crash: fuzz-2025-09-22-11446760871.pcap. wsbuglink:20724[].
 
 The following bugs have been fixed:
 
@@ -40,6 +44,12 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark grabs your ID at 3 am, goes to Waffle House, and insults people.
+
+* Using wslog parameters in command line applications leads to freeing invalid memory. wsbuglink:20500[].
+* On macOS a lower resolution Wireshark icon is displayed in the App Switcher and Launchpad. wsbuglink:20544[].
+// misdissection, but no crash.
+* Fuzz job crash: fuzz-2025-08-06-10932469456.pcap. wsbuglink:20666[].
+* Encoding on NAS5GS- NASDL Transport Message-Multiple Container contains inconsistencies. wsbuglink:20679[].
 
 === New and Updated Features
 
@@ -57,9 +67,15 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.13.. | ag packet- | sort -u)
+// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.2.14.. | rg packet- | sort -u)
 [commaize]
 --
+H.248E
+HTTP2
+IAX2
+MONGO
+NAS-5GS
+XML
 --
 
 === New and Updated Capture File Support
