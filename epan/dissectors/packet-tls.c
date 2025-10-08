@@ -2286,8 +2286,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         add_new_data_source(pinfo, decrypted, "Decrypted TLS");
         if (session->version == TLSV1DOT3_VERSION) {
             content_type = record->type;
-            ti = proto_tree_add_uint(ssl_record_tree, hf_tls_record_content_type,
-                                     decrypted, record->content_len, 1, record->type);
+            proto_tree_add_uint(ssl_record_tree, hf_tls_record_content_type,
+                                decrypted, record->content_len, 1, record->type);
             decrypted = tvb_new_subset_length(decrypted, 0, record->content_len);
         }
         ti = proto_tree_add_uint64(ssl_record_tree, hf_tls_record_sequence_number,

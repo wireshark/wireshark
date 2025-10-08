@@ -1086,8 +1086,8 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
     if (content_type == SSL_ID_TLS12_CID) {
       content_type = record->type;
-      ti = proto_tree_add_uint(dtls_record_tree, hf_dtls_record_content_type,
-                               decrypted, record->content_len, 1, record->type);
+      proto_tree_add_uint(dtls_record_tree, hf_dtls_record_content_type,
+                          decrypted, record->content_len, 1, record->type);
       decrypted = tvb_new_subset_length(decrypted, 0, record->content_len);
     }
   }
@@ -1715,8 +1715,8 @@ dissect_dtls13_record(tvbuff_t *tvb, packet_info *pinfo _U_,
   {
     add_new_data_source(pinfo, decrypted, "Decrypted DTLS");
 
-    ti = proto_tree_add_uint(dtls_record_tree, hf_dtls_record_content_type,
-                             decrypted, record->content_len, 1, record->type);
+    proto_tree_add_uint(dtls_record_tree, hf_dtls_record_content_type,
+                        decrypted, record->content_len, 1, record->type);
     decrypted = tvb_new_subset_length(decrypted, 0, record->content_len);
 
     ti = proto_tree_add_uint(dtls_record_tree, hf_dtls_record_sequence_suffix_dec, tvb, hdr_start + 1 + cid_length,
