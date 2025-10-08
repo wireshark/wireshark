@@ -22,7 +22,6 @@ typedef struct {
 	uint16_t hw_protocol; /* protocol for NFQUEUE packet payloads. */
 } netlink_netfilter_info_t;
 
-
 static dissector_handle_t netlink_netfilter;
 static dissector_handle_t nflog_handle;
 static dissector_table_t ethertype_table;
@@ -371,44 +370,6 @@ enum ws_ipset_ip_attr {
 	WS_IPSET_ATTR_IPADDR_IPV6       = 2,
 };
 
-/* Netfilter commands from <include/uapi/linux/netfilter/netfilter.h> */
-enum nf_tables_msg_types {
-	WS_NFT_MSG_NEWTABLE             = 0,
-	WS_NFT_MSG_GETTABLE             = 1,
-	WS_NFT_MSG_DELTABLE             = 2,
-	WS_NFT_MSG_NEWCHAIN             = 3,
-	WS_NFT_MSG_GETCHAIN             = 4,
-	WS_NFT_MSG_DELCHAIN             = 5,
-	WS_NFT_MSG_NEWRULE              = 6,
-	WS_NFT_MSG_GETRULE              = 7,
-	WS_NFT_MSG_DELRULE              = 8,
-	WS_NFT_MSG_NEWSET               = 9,
-	WS_NFT_MSG_GETSET               = 10,
-	WS_NFT_MSG_DELSET               = 11,
-	WS_NFT_MSG_NEWSETELEM           = 12,
-	WS_NFT_MSG_GETSETELEM           = 13,
-	WS_NFT_MSG_DELSETELEM           = 14,
-	WS_NFT_MSG_NEWGEN               = 15,
-	WS_NFT_MSG_GETGEN               = 16,
-	WS_NFT_MSG_TRACE                = 17,
-	WS_NFT_MSG_NEWOBJ               = 18,
-	WS_NFT_MSG_GETOBJ               = 19,
-	WS_NFT_MSG_DELOBJ               = 20,
-	WS_NFT_MSG_GETOBJ_RESET         = 21,
-	WS_NFT_MSG_NEWFLOWTABLE         = 22,
-	WS_NFT_MSG_GETFLOWTABLE         = 23,
-	WS_NFT_MSG_DELFLOWTABLE         = 24,
-	WS_NFT_MSG_GETRULE_RESET        = 25,
-	WS_NFT_MSG_DESTROYTABLE         = 26,
-	WS_NFT_MSG_DESTROYCHAIN         = 27,
-	WS_NFT_MSG_DESTROYRULE          = 28,
-	WS_NFT_MSG_DESTROYSET           = 29,
-	WS_NFT_MSG_DESTROYSETELEM       = 30,
-	WS_NFT_MSG_DESTROYOBJ           = 31,
-	WS_NFT_MSG_DESTROYFLOWTABLE     = 32,
-	WS_NFT_MSG_GETSETELEM_RESET     = 33,
-};
-
 static int proto_netlink_netfilter;
 
 static int hf_ipset_adt_attr;
@@ -507,6 +468,49 @@ static int hf_nfq_uid;
 static int hf_nfq_verdict_id;
 static int hf_nfq_verdict_verdict;
 static int hf_nftables_command;
+static int hf_nft_rule_attr;
+static int hf_nft_rule_attr_table;
+static int hf_nft_rule_attr_chain;
+static int hf_nft_rule_attr_handle;
+static int hf_nft_rule_attr_position;
+static int hf_nft_rule_attr_userdata;
+static int hf_nft_rule_attr_id;
+static int hf_nft_rule_attr_position_id;
+static int hf_nft_rule_attr_chain_id;
+static int hf_nft_rule_compat_attr;
+static int hf_nft_rule_compat_attr_proto;
+static int hf_nft_rule_compat_attr_flags;
+static int hf_nft_expr_attr;
+static int hf_nft_expr_attr_name;
+static int hf_nft_list_attr;
+static int hf_nft_meta_attr;
+static int hf_nft_meta_dreg;
+static int hf_nft_meta_key;
+static int hf_nft_meta_sreg;
+static int hf_nft_cmp_attr;
+static int hf_nft_cmp_sreg;
+static int hf_nft_cmp_op;
+static int hf_nft_payload_attr;
+static int hf_nft_payload_dreg;
+static int hf_nft_payload_base;
+static int hf_nft_payload_offset;
+static int hf_nft_payload_len;
+static int hf_nft_payload_sreg;
+static int hf_nft_payload_csum_type;
+static int hf_nft_payload_csum_offset;
+static int hf_nft_payload_csum_flags;
+static int hf_nft_immediate_attr;
+static int hf_nft_immediate_dreg;
+static int hf_nft_nat_attr;
+static int hf_nft_nat_type;
+static int hf_nft_nat_family;
+static int hf_nft_nat_reg_addr_min;
+static int hf_nft_nat_reg_addr_max;
+static int hf_nft_nat_reg_proto_min;
+static int hf_nft_nat_reg_proto_max;
+static int hf_nft_nat_flags;
+static int hf_nft_data_attr;
+static int hf_nft_data_value;
 static int hf_padding;
 
 static int ett_netlink_netfilter;
@@ -526,6 +530,16 @@ static int ett_ipset_attr;
 static int ett_ipset_cadt_attr;
 static int ett_ipset_adt_attr;
 static int ett_ipset_ip_attr;
+static int ett_nft_rule_attr;
+static int ett_nft_rule_compat_attr;
+static int ett_nft_expr_attr;
+static int ett_nft_list_attr;
+static int ett_nft_meta_attr;
+static int ett_nft_cmp_attr;
+static int ett_nft_payload_attr;
+static int ett_nft_immediate_attr;
+static int ett_nft_nat_attr;
+static int ett_nft_data_attr;
 
 static int dissect_netlink_netfilter_header(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
@@ -1599,6 +1613,936 @@ dissect_netfilter_ipset(tvbuff_t *tvb, netlink_netfilter_info_t *info, struct pa
 
 /* NFTABLES */
 
+/* Netfilter commands from <include/uapi/linux/netfilter/netfilter.h> */
+enum nf_tables_msg_types {
+	WS_NFT_MSG_NEWTABLE             = 0,
+	WS_NFT_MSG_GETTABLE             = 1,
+	WS_NFT_MSG_DELTABLE             = 2,
+	WS_NFT_MSG_NEWCHAIN             = 3,
+	WS_NFT_MSG_GETCHAIN             = 4,
+	WS_NFT_MSG_DELCHAIN             = 5,
+	WS_NFT_MSG_NEWRULE              = 6,
+	WS_NFT_MSG_GETRULE              = 7,
+	WS_NFT_MSG_DELRULE              = 8,
+	WS_NFT_MSG_NEWSET               = 9,
+	WS_NFT_MSG_GETSET               = 10,
+	WS_NFT_MSG_DELSET               = 11,
+	WS_NFT_MSG_NEWSETELEM           = 12,
+	WS_NFT_MSG_GETSETELEM           = 13,
+	WS_NFT_MSG_DELSETELEM           = 14,
+	WS_NFT_MSG_NEWGEN               = 15,
+	WS_NFT_MSG_GETGEN               = 16,
+	WS_NFT_MSG_TRACE                = 17,
+	WS_NFT_MSG_NEWOBJ               = 18,
+	WS_NFT_MSG_GETOBJ               = 19,
+	WS_NFT_MSG_DELOBJ               = 20,
+	WS_NFT_MSG_GETOBJ_RESET         = 21,
+	WS_NFT_MSG_NEWFLOWTABLE         = 22,
+	WS_NFT_MSG_GETFLOWTABLE         = 23,
+	WS_NFT_MSG_DELFLOWTABLE         = 24,
+	WS_NFT_MSG_GETRULE_RESET        = 25,
+	WS_NFT_MSG_DESTROYTABLE         = 26,
+	WS_NFT_MSG_DESTROYCHAIN         = 27,
+	WS_NFT_MSG_DESTROYRULE          = 28,
+	WS_NFT_MSG_DESTROYSET           = 29,
+	WS_NFT_MSG_DESTROYSETELEM       = 30,
+	WS_NFT_MSG_DESTROYOBJ           = 31,
+	WS_NFT_MSG_DESTROYFLOWTABLE     = 32,
+	WS_NFT_MSG_GETSETELEM_RESET     = 33,
+};
+
+/* nftables rule attributes from <include/uapi/linux/netfilter/nf_tables.h> */
+enum ws_nft_rule_attributes {
+	WS_NFTA_RULE_UNSPEC      = 0,
+	WS_NFTA_RULE_TABLE       = 1,
+	WS_NFTA_RULE_CHAIN       = 2,
+	WS_NFTA_RULE_HANDLE      = 3,
+	WS_NFTA_RULE_EXPRESSIONS = 4,
+	WS_NFTA_RULE_COMPAT      = 5,
+	WS_NFTA_RULE_POSITION    = 6,
+	WS_NFTA_RULE_USERDATA    = 7,
+	WS_NFTA_RULE_PAD         = 8,
+	WS_NFTA_RULE_ID          = 9,
+	WS_NFTA_RULE_POSITION_ID = 10,
+	WS_NFTA_RULE_CHAIN_ID    = 11,
+};
+
+/* nftables rule compat attributes from <include/uapi/linux/netfilter/nf_tables.h> */
+enum ws_nft_rule_compat_attributes {
+	WS_NFTA_RULE_COMPAT_UNSPEC = 0,
+	WS_NFTA_RULE_COMPAT_PROTO  = 1,
+	WS_NFTA_RULE_COMPAT_FLAGS  = 2,
+};
+
+/* nftables expression attributes from <include/uapi/linux/netfilter/nf_tables.h> */
+enum ws_nft_expr_attributes {
+	WS_NFTA_EXPR_UNSPEC = 0,
+	WS_NFTA_EXPR_NAME   = 1,
+	WS_NFTA_EXPR_DATA   = 2,
+};
+
+/* nftables list attributes from <include/uapi/linux/netfilter/nf_tables.h> */
+enum ws_nft_list_attributes {
+	WS_NFTA_LIST_UNSPEC = 0,
+	WS_NFTA_LIST_ELEM   = 1,
+};
+
+/* nftables meta expression attributes from <include/uapi/linux/netfilter/nf_tables.h> */
+enum ws_nft_meta_attributes {
+	WS_NFTA_META_UNSPEC = 0,
+	WS_NFTA_META_DREG   = 1,
+	WS_NFTA_META_KEY    = 2,
+	WS_NFTA_META_SREG   = 3,
+};
+
+/* nftables meta expression keys from <include/uapi/linux/netfilter/nf_tables.h> */
+enum ws_nft_meta_keys {
+	WS_NFT_META_LEN          = 0,
+	WS_NFT_META_PROTOCOL     = 1,
+	WS_NFT_META_PRIORITY     = 2,
+	WS_NFT_META_MARK         = 3,
+	WS_NFT_META_IIF          = 4,
+	WS_NFT_META_OIF          = 5,
+	WS_NFT_META_IIFNAME      = 6,
+	WS_NFT_META_OIFNAME      = 7,
+	WS_NFT_META_IFTYPE       = 8,
+	WS_NFT_META_OIFTYPE      = 9,
+	WS_NFT_META_SKUID        = 10,
+	WS_NFT_META_SKGID        = 11,
+	WS_NFT_META_NFTRACE      = 12,
+	WS_NFT_META_RTCLASSID    = 13,
+	WS_NFT_META_SECMARK      = 14,
+	WS_NFT_META_NFPROTO      = 15,
+	WS_NFT_META_L4PROTO      = 16,
+	WS_NFT_META_BRI_IIFNAME  = 17,
+	WS_NFT_META_BRI_OIFNAME  = 18,
+	WS_NFT_META_PKTTYPE      = 19,
+	WS_NFT_META_CPU          = 20,
+	WS_NFT_META_IIFGROUP     = 21,
+	WS_NFT_META_OIFGROUP     = 22,
+	WS_NFT_META_CGROUP       = 23,
+	WS_NFT_META_PRANDOM      = 24,
+	WS_NFT_META_SECPATH      = 25,
+	WS_NFT_META_IIFKIND      = 26,
+	WS_NFT_META_OIFKIND      = 27,
+	WS_NFT_META_BRI_IIFPVID  = 28,
+	WS_NFT_META_BRI_IIFVPROTO = 29,
+	WS_NFT_META_TIME_NS      = 30,
+	WS_NFT_META_TIME_DAY     = 31,
+	WS_NFT_META_TIME_HOUR    = 32,
+	WS_NFT_META_SDIF         = 33,
+	WS_NFT_META_SDIFNAME     = 34,
+	WS_NFT_META_BRI_BROUTE   = 35,
+	WS_NFT_META_BRI_IIFHWADDR = 37,
+};
+
+/* nftables cmp expression attributes from <include/uapi/linux/netfilter/nf_tables.h> */
+enum ws_nft_cmp_attributes {
+	WS_NFTA_CMP_UNSPEC = 0,
+	WS_NFTA_CMP_SREG   = 1,
+	WS_NFTA_CMP_OP     = 2,
+	WS_NFTA_CMP_DATA   = 3,
+};
+
+/* nftables cmp expression operations from <include/uapi/linux/netfilter/nf_tables.h> */
+enum ws_nft_cmp_ops {
+	WS_NFT_CMP_EQ  = 0,
+	WS_NFT_CMP_NEQ = 1,
+	WS_NFT_CMP_LT  = 2,
+	WS_NFT_CMP_LTE = 3,
+	WS_NFT_CMP_GT  = 4,
+	WS_NFT_CMP_GTE = 5,
+};
+
+/* nftables payload expression attributes from <include/uapi/linux/netfilter/nf_tables.h> */
+enum ws_nft_payload_attributes {
+	WS_NFTA_PAYLOAD_UNSPEC      = 0,
+	WS_NFTA_PAYLOAD_DREG        = 1,
+	WS_NFTA_PAYLOAD_BASE        = 2,
+	WS_NFTA_PAYLOAD_OFFSET      = 3,
+	WS_NFTA_PAYLOAD_LEN         = 4,
+	WS_NFTA_PAYLOAD_SREG        = 5,
+	WS_NFTA_PAYLOAD_CSUM_TYPE   = 6,
+	WS_NFTA_PAYLOAD_CSUM_OFFSET = 7,
+	WS_NFTA_PAYLOAD_CSUM_FLAGS  = 8,
+};
+
+/* nftables immediate expression attributes from <include/uapi/linux/netfilter/nf_tables.h> */
+enum ws_nft_immediate_attributes {
+	WS_NFTA_IMMEDIATE_UNSPEC = 0,
+	WS_NFTA_IMMEDIATE_DREG   = 1,
+	WS_NFTA_IMMEDIATE_DATA   = 2,
+};
+
+/* nftables NAT expression attributes from <include/uapi/linux/netfilter/nf_tables.h> */
+enum ws_nft_nat_attributes {
+	WS_NFTA_NAT_UNSPEC         = 0,
+	WS_NFTA_NAT_TYPE           = 1,
+	WS_NFTA_NAT_FAMILY         = 2,
+	WS_NFTA_NAT_REG_ADDR_MIN   = 3,
+	WS_NFTA_NAT_REG_ADDR_MAX   = 4,
+	WS_NFTA_NAT_REG_PROTO_MIN  = 5,
+	WS_NFTA_NAT_REG_PROTO_MAX  = 6,
+	WS_NFTA_NAT_FLAGS          = 7,
+};
+
+/* nftables NAT expression types from <include/uapi/linux/netfilter/nf_tables.h> */
+enum ws_nft_nat_types {
+	WS_NFT_NAT_SNAT = 0,
+	WS_NFT_NAT_DNAT = 1,
+};
+
+/* nftables data attributes from <include/uapi/linux/netfilter/nf_tables.h> */
+enum ws_nft_data_attributes {
+	WS_NFTA_DATA_UNSPEC  = 0,
+	WS_NFTA_DATA_VALUE   = 1,
+	WS_NFTA_DATA_VERDICT = 2,
+};
+
+typedef struct {
+	netlink_netfilter_info_t *base;
+	uint32_t key;
+	uint32_t dreg;
+	uint32_t sreg;
+	bool has_key;
+	bool has_dreg;
+	bool has_sreg;
+} nft_meta_ctx_t;
+
+typedef struct {
+	const uint8_t *data;
+	uint32_t data_len;
+	bool has_data;
+} nft_data_ctx_t;
+
+typedef struct {
+	netlink_netfilter_info_t *base;
+	uint32_t op;
+	uint32_t sreg;
+	nft_data_ctx_t data_ctx;
+	bool has_op;
+	bool has_sreg;
+} nft_cmp_ctx_t;
+
+typedef struct {
+	netlink_netfilter_info_t *base;
+	uint32_t dreg;
+	uint32_t sreg;
+	uint32_t base_field;
+	uint32_t offset;
+	uint32_t len;
+	uint32_t csum_type;
+	uint32_t csum_offset;
+	uint32_t csum_flags;
+	bool has_dreg;
+	bool has_sreg;
+	bool has_base;
+	bool has_offset;
+	bool has_len;
+	bool has_csum_type;
+	bool has_csum_offset;
+	bool has_csum_flags;
+} nft_payload_ctx_t;
+
+typedef struct {
+	netlink_netfilter_info_t *base;
+	uint32_t dreg;
+	nft_data_ctx_t data_ctx;
+	bool has_dreg;
+} nft_immediate_ctx_t;
+
+typedef struct {
+	netlink_netfilter_info_t *base;
+	uint32_t type;
+	uint32_t family;
+	uint32_t reg_addr_min;
+	uint32_t reg_addr_max;
+	uint32_t reg_proto_min;
+	uint32_t reg_proto_max;
+	uint32_t flags;
+	bool has_type;
+	bool has_family;
+	bool has_reg_addr_min;
+	bool has_reg_addr_max;
+	bool has_reg_proto_min;
+	bool has_reg_proto_max;
+	bool has_flags;
+} nft_nat_ctx_t;
+
+typedef struct {
+	netlink_netfilter_info_t *base;
+	const char *expr_name;
+} nft_expr_ctx_t;
+
+
+static const value_string nft_rule_attr_vals[] = {
+	{ WS_NFTA_RULE_UNSPEC,      "Unspecified" },
+	{ WS_NFTA_RULE_TABLE,       "Table" },
+	{ WS_NFTA_RULE_CHAIN,       "Chain" },
+	{ WS_NFTA_RULE_HANDLE,      "Handle" },
+	{ WS_NFTA_RULE_EXPRESSIONS, "Expressions" },
+	{ WS_NFTA_RULE_COMPAT,      "Compatibility" },
+	{ WS_NFTA_RULE_POSITION,    "Position" },
+	{ WS_NFTA_RULE_USERDATA,    "User data" },
+	{ WS_NFTA_RULE_PAD,         "Padding" },
+	{ WS_NFTA_RULE_ID,          "ID" },
+	{ WS_NFTA_RULE_POSITION_ID, "Position ID" },
+	{ WS_NFTA_RULE_CHAIN_ID,    "Chain ID" },
+	{ 0, NULL }
+};
+
+static const value_string nft_rule_compat_attr_vals[] = {
+	{ WS_NFTA_RULE_COMPAT_UNSPEC, "Unspecified" },
+	{ WS_NFTA_RULE_COMPAT_PROTO,  "Protocol" },
+	{ WS_NFTA_RULE_COMPAT_FLAGS,  "Flags" },
+	{ 0, NULL }
+};
+
+static const value_string nft_expr_attr_vals[] = {
+	{ WS_NFTA_EXPR_UNSPEC, "Unspecified" },
+	{ WS_NFTA_EXPR_NAME,   "Name" },
+	{ WS_NFTA_EXPR_DATA,   "Data" },
+	{ 0, NULL }
+};
+
+static const value_string nft_list_attr_vals[] = {
+	{ WS_NFTA_LIST_UNSPEC, "Unspecified" },
+	{ WS_NFTA_LIST_ELEM,   "Element" },
+	{ 0, NULL }
+};
+
+static const value_string nft_meta_attr_vals[] = {
+	{ WS_NFTA_META_UNSPEC, "Unspecified" },
+	{ WS_NFTA_META_DREG,   "Destination register" },
+	{ WS_NFTA_META_KEY,    "Key" },
+	{ WS_NFTA_META_SREG,   "Source register" },
+	{ 0, NULL }
+};
+
+static const value_string nft_meta_key_vals[] = {
+	{ WS_NFT_META_LEN,          "Packet length" },
+	{ WS_NFT_META_PROTOCOL,     "Ethertype protocol" },
+	{ WS_NFT_META_PRIORITY,     "TC packet priority" },
+	{ WS_NFT_META_MARK,         "Netfilter packet mark" },
+	{ WS_NFT_META_IIF,          "Input interface index" },
+	{ WS_NFT_META_OIF,          "Output interface index" },
+	{ WS_NFT_META_IIFNAME,      "Input interface name" },
+	{ WS_NFT_META_OIFNAME,      "Output interface name" },
+	{ WS_NFT_META_IFTYPE,       "Input interface type" },
+	{ WS_NFT_META_OIFTYPE,      "Output interface type" },
+	{ WS_NFT_META_SKUID,        "Originating socket UID" },
+	{ WS_NFT_META_SKGID,        "Originating socket GID" },
+	{ WS_NFT_META_NFTRACE,      "Packet nftrace bit" },
+	{ WS_NFT_META_RTCLASSID,    "Routing realm" },
+	{ WS_NFT_META_SECMARK,      "Packet secmark" },
+	{ WS_NFT_META_NFPROTO,      "Netfilter protocol" },
+	{ WS_NFT_META_L4PROTO,      "Layer 4 protocol" },
+	{ WS_NFT_META_BRI_IIFNAME,  "Bridge input interface name" },
+	{ WS_NFT_META_BRI_OIFNAME,  "Bridge output interface name" },
+	{ WS_NFT_META_PKTTYPE,      "Packet type" },
+	{ WS_NFT_META_CPU,          "CPU ID" },
+	{ WS_NFT_META_IIFGROUP,     "Input interface group" },
+	{ WS_NFT_META_OIFGROUP,     "Output interface group" },
+	{ WS_NFT_META_CGROUP,       "Control group ID" },
+	{ WS_NFT_META_PRANDOM,      "Pseudo-random number" },
+	{ WS_NFT_META_SECPATH,      "Has security path" },
+	{ WS_NFT_META_IIFKIND,      "Input interface kind" },
+	{ WS_NFT_META_OIFKIND,      "Output interface kind" },
+	{ WS_NFT_META_BRI_IIFPVID,  "Bridge input port PVID" },
+	{ WS_NFT_META_BRI_IIFVPROTO, "Bridge input VLAN proto" },
+	{ WS_NFT_META_TIME_NS,      "Time since epoch (ns)" },
+	{ WS_NFT_META_TIME_DAY,     "Day of week" },
+	{ WS_NFT_META_TIME_HOUR,    "Hour of day" },
+	{ WS_NFT_META_SDIF,         "Slave device interface index" },
+	{ WS_NFT_META_SDIFNAME,     "Slave device interface name" },
+	{ WS_NFT_META_BRI_BROUTE,   "Bridge broute bit" },
+	{ WS_NFT_META_BRI_IIFHWADDR, "Bridge input interface hardware address" },
+	{ 0, NULL }
+};
+
+static const value_string nft_cmp_attr_vals[] = {
+	{ WS_NFTA_CMP_UNSPEC, "Unspecified" },
+	{ WS_NFTA_CMP_SREG,   "Source register" },
+	{ WS_NFTA_CMP_OP,     "Operation" },
+	{ WS_NFTA_CMP_DATA,   "Data" },
+	{ 0, NULL }
+};
+
+static const value_string nft_cmp_op_vals[] = {
+	{ WS_NFT_CMP_EQ,  "Equal" },
+	{ WS_NFT_CMP_NEQ, "Not equal" },
+	{ WS_NFT_CMP_LT,  "Less than" },
+	{ WS_NFT_CMP_LTE, "Less than or equal" },
+	{ WS_NFT_CMP_GT,  "Greater than" },
+	{ WS_NFT_CMP_GTE, "Greater than or equal" },
+	{ 0, NULL }
+};
+
+static const value_string nft_payload_attr_vals[] = {
+	{ WS_NFTA_PAYLOAD_UNSPEC,      "Unspecified" },
+	{ WS_NFTA_PAYLOAD_DREG,        "Destination register" },
+	{ WS_NFTA_PAYLOAD_BASE,        "Base" },
+	{ WS_NFTA_PAYLOAD_OFFSET,      "Offset" },
+	{ WS_NFTA_PAYLOAD_LEN,         "Length" },
+	{ WS_NFTA_PAYLOAD_SREG,        "Source register" },
+	{ WS_NFTA_PAYLOAD_CSUM_TYPE,   "Checksum type" },
+	{ WS_NFTA_PAYLOAD_CSUM_OFFSET, "Checksum offset" },
+	{ WS_NFTA_PAYLOAD_CSUM_FLAGS,  "Checksum flags" },
+	{ 0, NULL }
+};
+
+/* NFT_PAYLOAD_LL_HEADER=0, NFT_PAYLOAD_NETWORK_HEADER=1, NFT_PAYLOAD_TRANSPORT_HEADER=2 */
+static const value_string nft_payload_base_vals[] = {
+	{ 0, "link layer" },
+	{ 1, "network" },
+	{ 2, "transport" },
+	{ 0, NULL }
+};
+
+static const value_string nft_immediate_attr_vals[] = {
+	{ WS_NFTA_IMMEDIATE_UNSPEC, "Unspecified" },
+	{ WS_NFTA_IMMEDIATE_DREG,   "Destination register" },
+	{ WS_NFTA_IMMEDIATE_DATA,   "Data" },
+	{ 0, NULL }
+};
+
+static const value_string nft_nat_attr_vals[] = {
+	{ WS_NFTA_NAT_UNSPEC,        "Unspecified" },
+	{ WS_NFTA_NAT_TYPE,          "Type" },
+	{ WS_NFTA_NAT_FAMILY,        "Family" },
+	{ WS_NFTA_NAT_REG_ADDR_MIN,  "Address min register" },
+	{ WS_NFTA_NAT_REG_ADDR_MAX,  "Address max register" },
+	{ WS_NFTA_NAT_REG_PROTO_MIN, "Protocol min register" },
+	{ WS_NFTA_NAT_REG_PROTO_MAX, "Protocol max register" },
+	{ WS_NFTA_NAT_FLAGS,         "Flags" },
+	{ 0, NULL }
+};
+
+static const value_string nft_nat_type_vals[] = {
+	{ WS_NFT_NAT_SNAT, "Source NAT" },
+	{ WS_NFT_NAT_DNAT, "Destination NAT" },
+	{ 0, NULL }
+};
+
+static const value_string nft_data_attr_vals[] = {
+	{ WS_NFTA_DATA_UNSPEC,  "Unspecified" },
+	{ WS_NFTA_DATA_VALUE,   "Value" },
+	{ WS_NFTA_DATA_VERDICT, "Verdict" },
+	{ 0, NULL }
+};
+
+/* Forward declaration for dissect_nft_data_attrs (needed by cmp and immediate dissectors) */
+static int dissect_nft_data_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len);
+
+static int
+dissect_nft_meta_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_nft_meta_attributes type = (enum ws_nft_meta_attributes) nla_type & NLA_TYPE_MASK;
+	nft_meta_ctx_t *ctx = (nft_meta_ctx_t *) data;
+
+	switch (type) {
+		case WS_NFTA_META_DREG:
+			proto_tree_add_item_ret_uint(tree, hf_nft_meta_dreg, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->dreg);
+			ctx->has_dreg = true;
+			return 1;
+
+		case WS_NFTA_META_KEY:
+			proto_tree_add_item_ret_uint(tree, hf_nft_meta_key, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->key);
+			ctx->has_key = true;
+			return 1;
+
+		case WS_NFTA_META_SREG:
+			proto_tree_add_item_ret_uint(tree, hf_nft_meta_sreg, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->sreg);
+			ctx->has_sreg = true;
+			return 1;
+
+		case WS_NFTA_META_UNSPEC:
+		default:
+			return 0;
+	}
+
+	return 0;
+}
+
+static int
+dissect_nft_cmp_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_nft_cmp_attributes type = (enum ws_nft_cmp_attributes) nla_type & NLA_TYPE_MASK;
+	nft_cmp_ctx_t *ctx = (nft_cmp_ctx_t *) data;
+
+	switch (type) {
+		case WS_NFTA_CMP_SREG:
+			proto_tree_add_item_ret_uint(tree, hf_nft_cmp_sreg, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->sreg);
+			ctx->has_sreg = true;
+			return 1;
+
+		case WS_NFTA_CMP_OP:
+			proto_tree_add_item_ret_uint(tree, hf_nft_cmp_op, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->op);
+			ctx->has_op = true;
+			return 1;
+
+		case WS_NFTA_CMP_DATA:
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, hf_nft_data_attr, ett_nft_data_attr, &ctx->data_ctx, nl_data,
+				                                  tree, offset, len, dissect_nft_data_attrs);
+			return 0;
+
+		case WS_NFTA_CMP_UNSPEC:
+		default:
+			return 0;
+	}
+
+	return 0;
+}
+
+static int
+dissect_nft_payload_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_nft_payload_attributes type = (enum ws_nft_payload_attributes) nla_type & NLA_TYPE_MASK;
+	nft_payload_ctx_t *ctx = (nft_payload_ctx_t *) data;
+
+	switch (type) {
+		case WS_NFTA_PAYLOAD_DREG:
+			proto_tree_add_item_ret_uint(tree, hf_nft_payload_dreg, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->dreg);
+			ctx->has_dreg = true;
+			return 1;
+
+		case WS_NFTA_PAYLOAD_BASE:
+			proto_tree_add_item_ret_uint(tree, hf_nft_payload_base, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->base_field);
+			ctx->has_base = true;
+			return 1;
+
+		case WS_NFTA_PAYLOAD_OFFSET:
+			proto_tree_add_item_ret_uint(tree, hf_nft_payload_offset, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->offset);
+			ctx->has_offset = true;
+			return 1;
+
+		case WS_NFTA_PAYLOAD_LEN:
+			proto_tree_add_item_ret_uint(tree, hf_nft_payload_len, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->len);
+			ctx->has_len = true;
+			return 1;
+
+		case WS_NFTA_PAYLOAD_SREG:
+			proto_tree_add_item_ret_uint(tree, hf_nft_payload_sreg, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->sreg);
+			ctx->has_sreg = true;
+			return 1;
+
+		case WS_NFTA_PAYLOAD_CSUM_TYPE:
+			proto_tree_add_item_ret_uint(tree, hf_nft_payload_csum_type, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->csum_type);
+			ctx->has_csum_type = true;
+			return 1;
+
+		case WS_NFTA_PAYLOAD_CSUM_OFFSET:
+			proto_tree_add_item_ret_uint(tree, hf_nft_payload_csum_offset, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->csum_offset);
+			ctx->has_csum_offset = true;
+			return 1;
+
+		case WS_NFTA_PAYLOAD_CSUM_FLAGS:
+			proto_tree_add_item_ret_uint(tree, hf_nft_payload_csum_flags, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->csum_flags);
+			ctx->has_csum_flags = true;
+			return 1;
+
+		case WS_NFTA_PAYLOAD_UNSPEC:
+		default:
+			return 0;
+	}
+
+	return 0;
+}
+
+static int
+dissect_nft_immediate_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_nft_immediate_attributes type = (enum ws_nft_immediate_attributes) nla_type & NLA_TYPE_MASK;
+	nft_immediate_ctx_t *ctx = (nft_immediate_ctx_t *) data;
+
+	switch (type) {
+		case WS_NFTA_IMMEDIATE_DREG:
+			proto_tree_add_item_ret_uint(tree, hf_nft_immediate_dreg, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->dreg);
+			ctx->has_dreg = true;
+			return 1;
+
+		case WS_NFTA_IMMEDIATE_DATA:
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, hf_nft_data_attr, ett_nft_data_attr, &ctx->data_ctx, nl_data,
+				                                  tree, offset, len, dissect_nft_data_attrs);
+			return 0;
+
+		case WS_NFTA_IMMEDIATE_UNSPEC:
+		default:
+			return 0;
+	}
+
+	return 0;
+}
+
+static int
+dissect_nft_nat_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_nft_nat_attributes type = (enum ws_nft_nat_attributes) nla_type & NLA_TYPE_MASK;
+	nft_nat_ctx_t *ctx = (nft_nat_ctx_t *) data;
+
+	switch (type) {
+		case WS_NFTA_NAT_TYPE:
+			proto_tree_add_item_ret_uint(tree, hf_nft_nat_type, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->type);
+			ctx->has_type = true;
+			return 1;
+
+		case WS_NFTA_NAT_FAMILY:
+			proto_tree_add_item_ret_uint(tree, hf_nft_nat_family, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->family);
+			ctx->has_family = true;
+			return 1;
+
+		case WS_NFTA_NAT_REG_ADDR_MIN:
+			proto_tree_add_item_ret_uint(tree, hf_nft_nat_reg_addr_min, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->reg_addr_min);
+			ctx->has_reg_addr_min = true;
+			return 1;
+
+		case WS_NFTA_NAT_REG_ADDR_MAX:
+			proto_tree_add_item_ret_uint(tree, hf_nft_nat_reg_addr_max, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->reg_addr_max);
+			ctx->has_reg_addr_max = true;
+			return 1;
+
+		case WS_NFTA_NAT_REG_PROTO_MIN:
+			proto_tree_add_item_ret_uint(tree, hf_nft_nat_reg_proto_min, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->reg_proto_min);
+			ctx->has_reg_proto_min = true;
+			return 1;
+
+		case WS_NFTA_NAT_REG_PROTO_MAX:
+			proto_tree_add_item_ret_uint(tree, hf_nft_nat_reg_proto_max, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->reg_proto_max);
+			ctx->has_reg_proto_max = true;
+			return 1;
+
+		case WS_NFTA_NAT_FLAGS:
+			proto_tree_add_item_ret_uint(tree, hf_nft_nat_flags, tvb, offset, len, ENC_BIG_ENDIAN, &ctx->flags);
+			ctx->has_flags = true;
+			return 1;
+
+		case WS_NFTA_NAT_UNSPEC:
+		default:
+			return 0;
+	}
+
+	return 0;
+}
+
+static int
+dissect_nft_data_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_nft_data_attributes type = (enum ws_nft_data_attributes) nla_type & NLA_TYPE_MASK;
+
+	switch (type) {
+		case WS_NFTA_DATA_VALUE:
+			{
+				nft_data_ctx_t *ctx = (nft_data_ctx_t *) data;
+				proto_tree_add_item(tree, hf_nft_data_value, tvb, offset, len, ENC_NA);
+				ctx->data = tvb_get_ptr(tvb, offset, len);
+				ctx->data_len = len;
+				ctx->has_data = true;
+			}
+			return 1;
+
+		case WS_NFTA_DATA_VERDICT:
+			/* TODO: Verdict dissector */
+			return 0;
+
+		case WS_NFTA_DATA_UNSPEC:
+		default:
+			return 0;
+	}
+
+	return 0;
+}
+
+static int
+dissect_nft_expr_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_nft_expr_attributes type = (enum ws_nft_expr_attributes) nla_type & NLA_TYPE_MASK;
+
+	switch (type) {
+		case WS_NFTA_EXPR_NAME:
+			{
+				nft_expr_ctx_t *expr_ctx = (nft_expr_ctx_t *) data;
+				proto_tree_add_item(tree, hf_nft_expr_attr_name, tvb, offset, len, ENC_UTF_8);
+				/* Store expression name for NFTA_EXPR_DATA dispatch */
+				expr_ctx->expr_name = (const char *)tvb_get_string_enc(expr_ctx->base->pinfo->pool, tvb, offset, len, ENC_UTF_8);
+			}
+			return 1;
+
+		case WS_NFTA_EXPR_DATA:
+			if (nla_type & NLA_F_NESTED) {
+				nft_expr_ctx_t *expr_ctx = (nft_expr_ctx_t *) data;
+				int ret = 0;
+				proto_item *expr_item = proto_tree_get_parent(proto_tree_get_parent_tree(tree));
+
+				/* Dispatch to appropriate expression-specific dissector based on name */
+				if (expr_ctx->expr_name) {
+					if (strcmp(expr_ctx->expr_name, "meta") == 0) {
+						nft_meta_ctx_t meta_ctx;
+						memset(&meta_ctx, 0, sizeof(meta_ctx));
+						meta_ctx.base = expr_ctx->base;
+
+						ret = dissect_netlink_attributes(tvb, hf_nft_meta_attr, ett_nft_meta_attr, &meta_ctx, nl_data,
+						                                  tree, offset, len, dissect_nft_meta_attrs);
+						/* Format: "meta load <key> => reg <dreg>" or "meta set <key> with reg <sreg>" */
+						if (meta_ctx.has_dreg && meta_ctx.has_key) {
+							proto_item_append_text(expr_item, "  [ meta load %s => reg %u ]",
+							                       val_to_str_const(meta_ctx.key, nft_meta_key_vals, "unknown"),
+							                       meta_ctx.dreg);
+						} else if (meta_ctx.has_sreg && meta_ctx.has_key) {
+							proto_item_append_text(expr_item, "  [ meta set %s with reg %u ]",
+							                       val_to_str_const(meta_ctx.key, nft_meta_key_vals, "unknown"),
+							                       meta_ctx.sreg);
+						}
+					}
+					else if (strcmp(expr_ctx->expr_name, "cmp") == 0) {
+						nft_cmp_ctx_t cmp_ctx;
+						memset(&cmp_ctx, 0, sizeof(cmp_ctx));
+						cmp_ctx.base = expr_ctx->base;
+
+						ret = dissect_netlink_attributes(tvb, hf_nft_cmp_attr, ett_nft_cmp_attr, &cmp_ctx, nl_data,
+						                                  tree, offset, len, dissect_nft_cmp_attrs);
+						/* Format: "cmp <op> reg <sreg> <data>" */
+						if (cmp_ctx.has_op && cmp_ctx.has_sreg && cmp_ctx.data_ctx.has_data) {
+							uint32_t i;
+							proto_item_append_text(expr_item, "  [ cmp %s reg %u 0x",
+							                       val_to_str_const(cmp_ctx.op, nft_cmp_op_vals, "unknown"),
+							                       cmp_ctx.sreg);
+							for (i = 0; i < cmp_ctx.data_ctx.data_len && i < 8; i++) {
+								proto_item_append_text(expr_item, "%02x", cmp_ctx.data_ctx.data[i]);
+							}
+							proto_item_append_text(expr_item, " ]");
+						}
+					}
+					else if (strcmp(expr_ctx->expr_name, "payload") == 0) {
+						nft_payload_ctx_t payload_ctx;
+						memset(&payload_ctx, 0, sizeof(payload_ctx));
+						payload_ctx.base = expr_ctx->base;
+
+						ret = dissect_netlink_attributes(tvb, hf_nft_payload_attr, ett_nft_payload_attr, &payload_ctx, nl_data,
+						                                  tree, offset, len, dissect_nft_payload_attrs);
+						/* Format: "payload load ..." or "payload write ..." depending on sreg */
+						if (payload_ctx.has_sreg && payload_ctx.has_base &&
+							payload_ctx.has_offset && payload_ctx.has_len) {
+							/* Write mode: "payload write reg <sreg> => <len>b @ <base> header + <offset> csum_type <type> csum_off <off> csum_flags <flags>" */
+							proto_item_append_text(expr_item, "  [ payload write reg %u => %ub @ %s header + %u",
+												payload_ctx.sreg,
+												payload_ctx.len,
+												val_to_str_const(payload_ctx.base_field, nft_payload_base_vals, "unknown"),
+												payload_ctx.offset);
+							if (payload_ctx.has_csum_type)
+								proto_item_append_text(expr_item, " csum_type %u", payload_ctx.csum_type);
+							if (payload_ctx.has_csum_offset)
+								proto_item_append_text(expr_item, " csum_off %u", payload_ctx.csum_offset);
+							if (payload_ctx.has_csum_flags)
+								proto_item_append_text(expr_item, " csum_flags 0x%x", payload_ctx.csum_flags);
+							proto_item_append_text(expr_item, " ]");
+						} else if (payload_ctx.has_dreg && payload_ctx.has_base &&
+								payload_ctx.has_offset && payload_ctx.has_len) {
+							/* Load mode: "payload load <len>b @ <base> header + <offset> => reg <dreg>" */
+							proto_item_append_text(expr_item, "  [ payload load %ub @ %s header + %u => reg %u ]",
+												payload_ctx.len,
+												val_to_str_const(payload_ctx.base_field, nft_payload_base_vals, "unknown"),
+												payload_ctx.offset,
+												payload_ctx.dreg);
+						}
+					}
+					else if (strcmp(expr_ctx->expr_name, "immediate") == 0) {
+						nft_immediate_ctx_t imm_ctx;
+						memset(&imm_ctx, 0, sizeof(imm_ctx));
+						imm_ctx.base = expr_ctx->base;
+
+						ret = dissect_netlink_attributes(tvb, hf_nft_immediate_attr, ett_nft_immediate_attr, &imm_ctx, nl_data,
+						                                  tree, offset, len, dissect_nft_immediate_attrs);
+						/* Format: "immediate reg <dreg> <data>" */
+						if (imm_ctx.has_dreg && imm_ctx.data_ctx.has_data) {
+							uint32_t i;
+							proto_item_append_text(expr_item, "  [ immediate reg %u 0x",
+							                       imm_ctx.dreg);
+							for (i = 0; i < imm_ctx.data_ctx.data_len && i < 8; i++) {
+								proto_item_append_text(expr_item, "%02x", imm_ctx.data_ctx.data[i]);
+							}
+							proto_item_append_text(expr_item, " ]");
+						}
+					}
+					else if (strcmp(expr_ctx->expr_name, "nat") == 0) {
+						nft_nat_ctx_t nat_ctx;
+						memset(&nat_ctx, 0, sizeof(nat_ctx));
+						nat_ctx.base = expr_ctx->base;
+
+						ret = dissect_netlink_attributes(tvb, hf_nft_nat_attr, ett_nft_nat_attr, &nat_ctx, nl_data,
+						                                  tree, offset, len, dissect_nft_nat_attrs);
+						/* Format: "nat <type> <family> addr_min reg <reg> proto_min reg <reg>" */
+						if (nat_ctx.has_type && nat_ctx.has_family) {
+							proto_item_append_text(expr_item, "  [ nat %s %s",
+							                       val_to_str_const(nat_ctx.type, nft_nat_type_vals, "unknown"),
+							                       val_to_str_const(nat_ctx.family, nfproto_family_vals, "unknown"));
+							if (nat_ctx.has_reg_addr_min)
+								proto_item_append_text(expr_item, " addr_min reg %u", nat_ctx.reg_addr_min);
+							if (nat_ctx.has_reg_proto_min)
+								proto_item_append_text(expr_item, " proto_min reg %u", nat_ctx.reg_proto_min);
+							if (nat_ctx.has_reg_addr_max)
+								proto_item_append_text(expr_item, " addr_max reg %u", nat_ctx.reg_addr_max);
+							if (nat_ctx.has_reg_proto_max)
+								proto_item_append_text(expr_item, " proto_max reg %u", nat_ctx.reg_proto_max);
+							if (nat_ctx.has_flags)
+								proto_item_append_text(expr_item, " flags 0x%x", nat_ctx.flags);
+							proto_item_append_text(expr_item, " ]");
+						}
+					}
+				}
+				return ret;
+			}
+			return 0;
+
+		case WS_NFTA_EXPR_UNSPEC:
+		default:
+			return 0;
+	}
+
+	return 0;
+}
+
+static int
+dissect_nft_list_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_nft_list_attributes type = (enum ws_nft_list_attributes) nla_type & NLA_TYPE_MASK;
+	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
+
+	switch (type) {
+		case WS_NFTA_LIST_ELEM:
+			if (nla_type & NLA_F_NESTED) {
+				nft_expr_ctx_t expr_ctx;
+				memset(&expr_ctx, 0, sizeof(expr_ctx));
+				expr_ctx.base = info;
+				return dissect_netlink_attributes(tvb, hf_nft_expr_attr, ett_nft_expr_attr, &expr_ctx, nl_data,
+								  tree, offset, len, dissect_nft_expr_attrs);
+			}
+			return 0;
+
+		case WS_NFTA_LIST_UNSPEC:
+		default:
+			return 0;
+	}
+
+	return 0;
+}
+
+static int
+dissect_nft_rule_compat_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data _U_, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_nft_rule_compat_attributes type = (enum ws_nft_rule_compat_attributes) nla_type & NLA_TYPE_MASK;
+
+	switch (type) {
+		case WS_NFTA_RULE_COMPAT_PROTO:
+			proto_tree_add_item(tree, hf_nft_rule_compat_attr_proto, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_NFTA_RULE_COMPAT_FLAGS:
+			proto_tree_add_item(tree, hf_nft_rule_compat_attr_flags, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_NFTA_RULE_COMPAT_UNSPEC:
+		default:
+			return 0;
+	}
+
+	return 0;
+}
+
+static int
+dissect_nft_rule_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
+{
+	enum ws_nft_rule_attributes type = (enum ws_nft_rule_attributes) nla_type & NLA_TYPE_MASK;
+	netlink_netfilter_info_t *info = (netlink_netfilter_info_t *) data;
+
+	switch (type) {
+		case WS_NFTA_RULE_TABLE:
+		{
+			const uint8_t *table_name;
+			proto_tree_add_item_ret_string(tree, hf_nft_rule_attr_table, tvb, offset, len, ENC_UTF_8, info->pinfo->pool, &table_name);
+			proto_item_append_text(tree, ": %s", table_name);
+			return 1;
+		}
+
+		case WS_NFTA_RULE_CHAIN:
+		{
+			const uint8_t *chain_name;
+			proto_tree_add_item_ret_string(tree, hf_nft_rule_attr_chain, tvb, offset, len, ENC_UTF_8, info->pinfo->pool, &chain_name);
+			proto_item_append_text(tree, ": %s", chain_name);
+			return 1;
+		}
+
+		case WS_NFTA_RULE_HANDLE:
+			proto_tree_add_item(tree, hf_nft_rule_attr_handle, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_NFTA_RULE_EXPRESSIONS:
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, hf_nft_list_attr, ett_nft_list_attr, info, nl_data,
+								  tree, offset, len, dissect_nft_list_attrs);
+			return 0;
+
+		case WS_NFTA_RULE_COMPAT:
+			if (nla_type & NLA_F_NESTED)
+				return dissect_netlink_attributes(tvb, hf_nft_rule_compat_attr, ett_nft_rule_compat_attr, info, nl_data,
+								  tree, offset, len, dissect_nft_rule_compat_attrs);
+			return 0;
+
+		case WS_NFTA_RULE_POSITION:
+			proto_tree_add_item(tree, hf_nft_rule_attr_position, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_NFTA_RULE_USERDATA:
+		{
+			const uint8_t *userdata;
+			proto_tree_add_item_ret_string(tree, hf_nft_rule_attr_userdata, tvb, offset, len, ENC_UTF_8, info->pinfo->pool, &userdata);
+			proto_item_append_text(tree, ": %s", userdata);
+			return 1;
+		}
+
+		case WS_NFTA_RULE_ID:
+			proto_tree_add_item(tree, hf_nft_rule_attr_id, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_NFTA_RULE_POSITION_ID:
+			proto_tree_add_item(tree, hf_nft_rule_attr_position_id, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_NFTA_RULE_CHAIN_ID:
+			proto_tree_add_item(tree, hf_nft_rule_attr_chain_id, tvb, offset, len, ENC_BIG_ENDIAN);
+			return 1;
+
+		case WS_NFTA_RULE_UNSPEC:
+		case WS_NFTA_RULE_PAD:
+		default:
+			return 0;
+	}
+
+	return 0;
+}
+
+static int
+dissect_netfilter_nftables(tvbuff_t *tvb, netlink_netfilter_info_t *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset)
+{
+	enum nf_tables_msg_types type = (enum nf_tables_msg_types) (nl_data->type & 0xff);
+
+	offset = dissect_netlink_netfilter_header(tvb, tree, offset);
+
+	switch (type) {
+		case WS_NFT_MSG_NEWRULE:
+		case WS_NFT_MSG_GETRULE:
+		case WS_NFT_MSG_DELRULE:
+		case WS_NFT_MSG_GETRULE_RESET:
+		case WS_NFT_MSG_DESTROYRULE:
+			return dissect_netlink_attributes_to_end(tvb, hf_nft_rule_attr, ett_nft_rule_attr, info, nl_data, tree, offset, dissect_nft_rule_attrs);
+
+		default:
+			/* Other nftables message types not yet implemented */
+			return offset;
+	}
+}
+
 static const value_string nftables_command_vals[] = {
 	{ WS_NFT_MSG_NEWTABLE,         "New table" },
 	{ WS_NFT_MSG_GETTABLE,         "Get table" },
@@ -1722,6 +2666,10 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 			offset = dissect_netfilter_ipset(tvb, &info, nl_data, nlmsg_tree, offset);
 			break;
 
+		case WS_NFNL_SUBSYS_NFTABLES:
+			offset = dissect_netfilter_nftables(tvb, &info, nl_data, nlmsg_tree, offset);
+			break;
+
 		default:
 			call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, nlmsg_tree);
 			offset = tvb_reported_length(tvb);
@@ -1736,9 +2684,9 @@ proto_register_netlink_netfilter(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_netlink_netfilter_family,
-			{ "Address family", "netlink-netfilter.family",
-			  FT_UINT8, BASE_DEC | BASE_EXT_STRING, &linux_af_vals_ext, 0x00,
-			  "nfnetlink address family", HFILL }
+			{ "Protocol family", "netlink-netfilter.family",
+			  FT_UINT8, BASE_DEC, VALS(nfproto_family_vals), 0x00,
+			  "nfnetlink protocol family", HFILL }
 		},
 		{ &hf_netlink_netfilter_version,
 			{ "Version", "netlink-netfilter.version",
@@ -2210,6 +3158,221 @@ proto_register_netlink_netfilter(void)
 			  FT_UINT16, BASE_DEC, VALS(nftables_command_vals), 0x00FF,
 			  NULL, HFILL }
 		},
+		{ &hf_nft_rule_attr,
+			{ "Type", "netlink-netfilter.nft_rule",
+			  FT_UINT16, BASE_DEC, VALS(nft_rule_attr_vals), NLA_TYPE_MASK,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_rule_attr_table,
+			{ "Table", "netlink-netfilter.nft_rule.table",
+			  FT_STRINGZ, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_rule_attr_chain,
+			{ "Chain", "netlink-netfilter.nft_rule.chain",
+			  FT_STRINGZ, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_rule_attr_handle,
+			{ "Handle", "netlink-netfilter.nft_rule.handle",
+			  FT_UINT64, BASE_HEX, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_rule_attr_position,
+			{ "Position", "netlink-netfilter.nft_rule.position",
+			  FT_UINT64, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_rule_attr_userdata,
+			{ "Userdata", "netlink-netfilter.nft_rule.userdata",
+			  FT_STRING, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_rule_attr_id,
+			{ "ID", "netlink-netfilter.nft_rule.id",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_rule_attr_position_id,
+			{ "Position ID", "netlink-netfilter.nft_rule.position_id",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_rule_attr_chain_id,
+			{ "Chain ID", "netlink-netfilter.nft_rule.chain_id",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_rule_compat_attr,
+			{ "Type", "netlink-netfilter.nft_rule.compat",
+			  FT_UINT16, BASE_DEC, VALS(nft_rule_compat_attr_vals), NLA_TYPE_MASK,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_rule_compat_attr_proto,
+			{ "Protocol", "netlink-netfilter.nft_rule.compat.proto",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_rule_compat_attr_flags,
+			{ "Flags", "netlink-netfilter.nft_rule.compat.flags",
+			  FT_UINT32, BASE_HEX, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_expr_attr,
+			{ "Type", "netlink-netfilter.nft_expr",
+			  FT_UINT16, BASE_DEC, VALS(nft_expr_attr_vals), NLA_TYPE_MASK,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_expr_attr_name,
+			{ "Name", "netlink-netfilter.nft_expr.name",
+			  FT_STRINGZ, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_list_attr,
+			{ "Type", "netlink-netfilter.nft_list",
+			  FT_UINT16, BASE_DEC, VALS(nft_list_attr_vals), NLA_TYPE_MASK,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_meta_attr,
+			{ "Type", "netlink-netfilter.nft_expr.meta",
+			  FT_UINT16, BASE_DEC, VALS(nft_meta_attr_vals), NLA_TYPE_MASK,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_meta_dreg,
+			{ "Destination register", "netlink-netfilter.nft_expr.meta.dreg",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_meta_key,
+			{ "Key", "netlink-netfilter.nft_expr.meta.key",
+			  FT_UINT32, BASE_DEC, VALS(nft_meta_key_vals), 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_meta_sreg,
+			{ "Source register", "netlink-netfilter.nft_expr.meta.sreg",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_cmp_attr,
+			{ "Type", "netlink-netfilter.nft_expr.cmp",
+			  FT_UINT16, BASE_DEC, VALS(nft_cmp_attr_vals), NLA_TYPE_MASK,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_cmp_sreg,
+			{ "Source register", "netlink-netfilter.nft_expr.cmp.sreg",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_cmp_op,
+			{ "Operation", "netlink-netfilter.nft_expr.cmp.op",
+			  FT_UINT32, BASE_DEC, VALS(nft_cmp_op_vals), 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_payload_attr,
+			{ "Type", "netlink-netfilter.nft_expr.payload",
+			  FT_UINT16, BASE_DEC, VALS(nft_payload_attr_vals), NLA_TYPE_MASK,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_payload_dreg,
+			{ "Destination register", "netlink-netfilter.nft_expr.payload.dreg",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_payload_base,
+			{ "Base", "netlink-netfilter.nft_expr.payload.base",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_payload_offset,
+			{ "Offset", "netlink-netfilter.nft_expr.payload.offset",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_payload_len,
+			{ "Length", "netlink-netfilter.nft_expr.payload.len",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_payload_sreg,
+			{ "Source register", "netlink-netfilter.nft_expr.payload.sreg",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_payload_csum_type,
+			{ "Checksum type", "netlink-netfilter.nft_expr.payload.csum_type",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_payload_csum_offset,
+			{ "Checksum offset", "netlink-netfilter.nft_expr.payload.csum_offset",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_payload_csum_flags,
+			{ "Checksum flags", "netlink-netfilter.nft_expr.payload.csum_flags",
+			  FT_UINT32, BASE_HEX, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_immediate_attr,
+			{ "Type", "netlink-netfilter.nft_expr.immediate",
+			  FT_UINT16, BASE_DEC, VALS(nft_immediate_attr_vals), NLA_TYPE_MASK,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_immediate_dreg,
+			{ "Destination register", "netlink-netfilter.nft_expr.immediate.dreg",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_nat_attr,
+			{ "Type", "netlink-netfilter.nft_expr.nat",
+			  FT_UINT16, BASE_DEC, VALS(nft_nat_attr_vals), NLA_TYPE_MASK,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_nat_type,
+			{ "NAT type", "netlink-netfilter.nft_expr.nat.type",
+			  FT_UINT32, BASE_DEC, VALS(nft_nat_type_vals), 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_nat_family,
+			{ "Family", "netlink-netfilter.nft_expr.nat.family",
+			  FT_UINT32, BASE_DEC, VALS(nfproto_family_vals), 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_nat_reg_addr_min,
+			{ "Address min register", "netlink-netfilter.nft_expr.nat.reg_addr_min",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_nat_reg_addr_max,
+			{ "Address max register", "netlink-netfilter.nft_expr.nat.reg_addr_max",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_nat_reg_proto_min,
+			{ "Protocol min register", "netlink-netfilter.nft_expr.nat.reg_proto_min",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_nat_reg_proto_max,
+			{ "Protocol max register", "netlink-netfilter.nft_expr.nat.reg_proto_max",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_nat_flags,
+			{ "Flags", "netlink-netfilter.nft_expr.nat.flags",
+			  FT_UINT32, BASE_HEX, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_data_attr,
+			{ "Type", "netlink-netfilter.nft_data",
+			  FT_UINT16, BASE_DEC, VALS(nft_data_attr_vals), NLA_TYPE_MASK,
+			  NULL, HFILL }
+		},
+		{ &hf_nft_data_value,
+			{ "Value", "netlink-netfilter.nft_data.value",
+			  FT_BYTES, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
 		{ &hf_netlink_netfilter_subsys,
 			{ "Subsystem", "netlink-netfilter.subsys",
 			  FT_UINT16, BASE_DEC, VALS(netlink_netfilter_subsystem_vals), 0xFF00,
@@ -2240,6 +3403,16 @@ proto_register_netlink_netfilter(void)
 		&ett_ipset_cadt_attr,
 		&ett_ipset_adt_attr,
 		&ett_ipset_ip_attr,
+		&ett_nft_rule_attr,
+		&ett_nft_rule_compat_attr,
+		&ett_nft_expr_attr,
+		&ett_nft_list_attr,
+		&ett_nft_meta_attr,
+		&ett_nft_cmp_attr,
+		&ett_nft_payload_attr,
+		&ett_nft_immediate_attr,
+		&ett_nft_nat_attr,
+		&ett_nft_data_attr,
 	};
 
 	proto_netlink_netfilter = proto_register_protocol("Linux netlink netfilter protocol", "netfilter", "netlink-netfilter" );
