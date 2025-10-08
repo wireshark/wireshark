@@ -1944,9 +1944,11 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 
 	switch (ins) {
 	case 0xA4: /* SELECT */
-		if (p3 < 2)
-			break;
 		dissect_apdu_lc(sim_tree, tvb, offset+P3_OFFS, extended_len);
+		if (p3 < 2) {
+			offset += data_offs;
+			break;
+		}
 		switch (p1) {
 		case 0x03:	/* parent DF */
 			col_append_str(pinfo->cinfo, COL_INFO, "Parent DF ");
@@ -2104,6 +2106,7 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 		dissect_apdu_lc(sim_tree, tvb, offset+P3_OFFS, extended_len);
 		subtvb = tvb_new_subset_length(tvb, offset+data_offs, p3);
 		call_dissector_with_data(sub_handle_cap, subtvb, pinfo, tree, GUINT_TO_POINTER(0x14));
+		proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset+data_offs, p3, ENC_NA);
 		offset += data_offs + p3;
 		break;
 	case 0x70: /* MANAGE CHANNEL */
