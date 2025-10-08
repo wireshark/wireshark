@@ -8643,7 +8643,7 @@ svcctl_dissect_element_OpenSCManager2_handle(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 svcctl_dissect_element_OpenSCManager2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenSCManager2_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenSCManager2_handle, PIDL_POLHND_OPEN);
 
 	return offset;
 }
