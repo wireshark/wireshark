@@ -2325,7 +2325,7 @@ svcctl_dissect_element_CloseServiceHandle_object_handle(tvbuff_t *tvb _U_, int o
 static int
 svcctl_dissect_element_CloseServiceHandle_object_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CloseServiceHandle_object_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CloseServiceHandle_object_handle, PIDL_POLHND_CLOSE);
 
 	return offset;
 }
@@ -3541,7 +3541,7 @@ svcctl_dissect_element_CreateServiceW_service_handle(tvbuff_t *tvb _U_, int offs
 static int
 svcctl_dissect_element_CreateServiceW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceW_service_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceW_service_handle, PIDL_POLHND_OPEN);
 
 	return offset;
 }
@@ -3896,7 +3896,7 @@ svcctl_dissect_element_OpenSCManagerW_scm_handle(tvbuff_t *tvb _U_, int offset _
 static int
 svcctl_dissect_element_OpenSCManagerW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenSCManagerW_scm_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenSCManagerW_scm_handle, PIDL_POLHND_OPEN);
 
 	return offset;
 }
@@ -3984,7 +3984,7 @@ svcctl_dissect_element_OpenServiceW_service_handle(tvbuff_t *tvb _U_, int offset
 static int
 svcctl_dissect_element_OpenServiceW_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenServiceW_service_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenServiceW_service_handle, PIDL_POLHND_OPEN);
 
 	return offset;
 }
@@ -5043,7 +5043,7 @@ svcctl_dissect_element_CreateServiceA_service_handle(tvbuff_t *tvb _U_, int offs
 static int
 svcctl_dissect_element_CreateServiceA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceA_service_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceA_service_handle, PIDL_POLHND_OPEN);
 
 	return offset;
 }
@@ -5464,7 +5464,7 @@ svcctl_dissect_element_OpenSCManagerA_scm_handle(tvbuff_t *tvb _U_, int offset _
 static int
 svcctl_dissect_element_OpenSCManagerA_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenSCManagerA_scm_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenSCManagerA_scm_handle, PIDL_POLHND_OPEN);
 
 	return offset;
 }
@@ -5552,7 +5552,7 @@ svcctl_dissect_element_OpenServiceA_service_handle(tvbuff_t *tvb _U_, int offset
 static int
 svcctl_dissect_element_OpenServiceA_service_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenServiceA_service_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenServiceA_service_handle, PIDL_POLHND_OPEN);
 
 	return offset;
 }
@@ -7461,7 +7461,7 @@ svcctl_dissect_element_CreateServiceWOW64A_handle(tvbuff_t *tvb _U_, int offset 
 static int
 svcctl_dissect_element_CreateServiceWOW64A_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64A_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64A_handle, PIDL_POLHND_OPEN);
 
 	return offset;
 }
@@ -7760,7 +7760,7 @@ svcctl_dissect_element_CreateServiceWOW64W_handle(tvbuff_t *tvb _U_, int offset 
 static int
 svcctl_dissect_element_CreateServiceWOW64W_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64W_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateServiceWOW64W_handle, PIDL_POLHND_OPEN);
 
 	return offset;
 }
@@ -8446,7 +8446,7 @@ svcctl_dissect_element_CreateWowService_handle(tvbuff_t *tvb _U_, int offset _U_
 static int
 svcctl_dissect_element_CreateWowService_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_CreateWowService_handle, PIDL_POLHND_OPEN);
 
 	return offset;
 }

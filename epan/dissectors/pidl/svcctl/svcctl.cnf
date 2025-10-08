@@ -13,6 +13,25 @@ NOEMIT svcctl_dissect_element_EnumServicesStatusW_services
 NOEMIT svcctl_dissect_element_EnumServicesStatusW_bytes_needed
 NOEMIT svcctl_dissect_element_EnumServicesStatusW_services_returned
 
+# policyhandle tracking
+# This block is to specify where a policyhandle is opened and where it is
+# closed so that policyhandles when dissected contain nice info such as
+# [opened in xxx]  [closed in yyy]
+#
+# Policyhandles are opened in these functions
+PARAM_VALUE svcctl_dissect_element_OpenSCManagerW_scm_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE svcctl_dissect_element_OpenSCManagerA_scm_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE svcctl_dissect_element_OpenServiceW_service_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE svcctl_dissect_element_OpenServiceA_service_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE svcctl_dissect_element_CreateServiceW_service_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE svcctl_dissect_element_CreateServiceA_service_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE svcctl_dissect_element_CreateServiceWOW64W_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE svcctl_dissect_element_CreateServiceWOW64A_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE svcctl_dissect_element_CreateWowService_handle_ PIDL_POLHND_OPEN
+PARAM_VALUE svcctl_dissect_element_OpenSCManager2_policy_handle_ PIDL_POLHND_OPEN
+# Policyhandles are closed in these functions
+PARAM_VALUE svcctl_dissect_element_CloseServiceHandle_object_handle_ PIDL_POLHND_CLOSE
+
 CODE START
 
 /*  ENUM_SERVICE_STATUSW Caveats
