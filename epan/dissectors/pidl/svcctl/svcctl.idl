@@ -441,18 +441,18 @@ interface svcctl
   /* Function 0x14 */
   WERROR svcctl_GetServiceDisplayNameW(
     [in,ref] policy_handle *scm_handle,
-    [in,unique,string,charset(UTF16)] uint16 *service_name,
-    [out,ref,string,charset(UTF16)] uint16 **display_name,
-    [in,out,unique] uint32 *display_name_length
+    [in,string,charset(UTF16),range(0,SC_MAX_NAME_LENGTH)] uint16 *service_name,
+    [out,string,charset(UTF16),range(1,SC_MAX_NAME_LENGTH),size_is(*display_name_length+1)] uint16 *display_name,
+    [in,out] uint32 *display_name_length
   );
 
   /*****************/
   /* Function 0x15 */
   WERROR svcctl_GetServiceKeyNameW(
     [in,ref] policy_handle *scm_handle,
-    [in,unique,string,charset(UTF16)] uint16 *display_name,
-    [out,ref,string,charset(UTF16)] uint16 **service_name,
-    [in,out,unique] uint32 *service_name_length
+    [in,string,charset(UTF16),range(0,SC_MAX_NAME_LENGTH)] uint16 *display_name,
+    [out,string,charset(UTF16),range(1,SC_MAX_NAME_LENGTH),size_is(*service_name_length+1)] uint16 *service_name,
+    [in,out] uint32 *service_name_length
   );
 
   /*****************/
