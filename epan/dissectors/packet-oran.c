@@ -428,6 +428,7 @@ static int hf_oran_tx_win_for_on_air_symbol_r;
 static int hf_oran_num_fo_fb;
 static int hf_oran_freq_offset_fb;
 
+static int hf_oran_num_ue_sinr_rpt;
 static int hf_oran_num_sinr_per_prb;
 static int hf_oran_num_sinr_per_prb_right;
 
@@ -4347,16 +4348,16 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_tree_add_item(extension_tree, hf_oran_reserved_3bits, tvb, offset, 1, ENC_BIG_ENDIAN);
                 /* numUeSinrRpt */
                 uint32_t num_ue_sinr_rpt;
-                proto_tree_add_item_ret_uint(extension_tree, hf_oran_reserved_3bits, tvb, offset, 1, ENC_BIG_ENDIAN, &num_ue_sinr_rpt);
+                proto_tree_add_item_ret_uint(extension_tree, hf_oran_num_ue_sinr_rpt, tvb, offset, 1, ENC_BIG_ENDIAN, &num_ue_sinr_rpt);
                 offset += 1;
 
                 for (uint32_t n=0; n < num_ue_sinr_rpt; n++) {
                     /* reserved (1 bit) */
-                    proto_tree_add_item(extension_tree, (n % 2) ? hf_oran_reserved_1bit : hf_oran_reserved_bit4,
+                    proto_tree_add_item(extension_tree, (n % 2) ? hf_oran_reserved_bit4 : hf_oran_reserved_1bit,
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
 
                     /* numSinrPerPrb (3 bits).  Taken from alternate nibbles within byte.  */
-                    proto_tree_add_item(extension_tree, (n % 2) ? hf_oran_num_sinr_per_prb : hf_oran_num_sinr_per_prb_right,
+                    proto_tree_add_item(extension_tree, (n % 2) ? hf_oran_num_sinr_per_prb_right : hf_oran_num_sinr_per_prb,
                                         tvb, offset, 1, ENC_BIG_ENDIAN);
                     if (n % 2) {
                         offset += 1;
@@ -8936,17 +8937,25 @@ proto_register_oran(void)
             "UE frequency offset feedback", HFILL}
         },
 
+        /* 7.7.28.2 */
+        { &hf_oran_num_ue_sinr_rpt,
+          { "numUeSinrRpt", "oran_fh_cus.numUeSinrRpt",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x1f,
+            "number of sinr reported UEs {1 - 12}", HFILL}
+        },
+
         /* 7.5.2.19 */
         { &hf_oran_num_sinr_per_prb,
           { "numSinrPerPrb", "oran_fh_cus.numSinrPerPrb",
             FT_UINT8, BASE_DEC,
-            VALS(num_sinr_per_prb_vals), 0xe0,
+            VALS(num_sinr_per_prb_vals), 0x70,
             "number of SINR values per PRB", HFILL}
         },
         { &hf_oran_num_sinr_per_prb_right,
           { "numSinrPerPrb", "oran_fh_cus.numSinrPerPrb",
             FT_UINT8, BASE_DEC,
-            VALS(num_sinr_per_prb_vals), 0x0e,
+            VALS(num_sinr_per_prb_vals), 0x07,
             "number of SINR values per PRB", HFILL}
         },
 
