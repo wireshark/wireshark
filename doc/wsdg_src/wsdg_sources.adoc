@@ -1172,11 +1172,11 @@ For example, if your packaging system links to or downloads the
 source tarball and you want to download from 1.na.dl.wireshark.org,
 use
 
-https://1.na.dl.wireshark.org/download/src/all-versions/wireshark-{wireshark-version}.tar.zst
+https://1.na.dl.wireshark.org/download/src/all-versions/wireshark-{wireshark-version}.tar.xz
 
 instead of
 
-https://1.na.dl.wireshark.org/download/src/wireshark-{wireshark-version}.tar.zst
+https://1.na.dl.wireshark.org/download/src/wireshark-{wireshark-version}.tar.xz
 
 [discrete]
 ===== Staying Current

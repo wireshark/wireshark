@@ -39,7 +39,7 @@ if test -n "${1-}"; then
     PROJECT_VERSION="$1"
 fi
 
-TARBALL="${DESTDIR}/wireshark-${PROJECT_VERSION}.tar.zst"
+TARBALL="${DESTDIR}/wireshark-${PROJECT_VERSION}.tar.xz"
 
 # A tarball produced by 'git archive' will have the $Format string
 # substituted due to the use of 'export-subst' in .gitattributes.
@@ -52,7 +52,7 @@ if [[ $COMMIT != \$F* ]] ; then
     if [[ -f "$TARBALL" ]] ; then
         # git get-tar-commit-id works outside a git repo, as it
         # only reads the first 1024 bytes of the tar extended header.
-        if [[ $(git get-tar-commit-id < <(zstdcat "$TARBALL")) == "$COMMIT" ]] ; then
+        if [[ $(git get-tar-commit-id < <(xzcat "$TARBALL")) == "$COMMIT" ]] ; then
             echo "$TARBALL commit ID matches $COMMIT."
         else
             # Allow people to make changes to a downloaded source tarball
@@ -65,7 +65,7 @@ if [[ $COMMIT != \$F* ]] ; then
     echo ""
     echo "The build system cannot produce a source tarball outside of a git repository."
     echo "If you are trying to build an RPM package from source extracted from a tarball,"
-    echo "copy it (i.e., wireshark-${PROJECT_VERSION}.tar.zst) to"
+    echo "copy it (i.e., wireshark-${PROJECT_VERSION}.tar.xz) to"
     echo "$DESTDIR"
     echo "and run the build command again."
 
@@ -84,7 +84,7 @@ fi
 
 if [ -f "$TARBALL" ] ; then
     printf "Found %s\\n" "$TARBALL"
-    if TARBALL_ID=$(git get-tar-commit-id < <(zstdcat "$TARBALL")) && COMMIT_ID=$(git rev-parse --verify "$COMMIT") ; then
+    if TARBALL_ID=$(git get-tar-commit-id < <(xzcat "$TARBALL")) && COMMIT_ID=$(git rev-parse --verify "$COMMIT") ; then
         if [[ $TARBALL_ID == "$COMMIT_ID" ]] ; then
             echo "$TARBALL commit ID matches $COMMIT."
             exit 0
@@ -94,4 +94,7 @@ fi
 
 echo "Creating $TARBALL from $COMMIT"
 
-git archive --prefix="wireshark-${PROJECT_VERSION}/" "$COMMIT" | zstd --threads=0 --long --ultra -22 > "$TARBALL"
+XZ_OPTS=
+echo . | xz --threads=0 > /dev/null 2>&1 && XZ_OPTS=--threads=0
+
+git archive --prefix="wireshark-${PROJECT_VERSION}/" "$COMMIT" | xz $XZ_OPTS > "$TARBALL"
