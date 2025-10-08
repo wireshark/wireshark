@@ -518,7 +518,7 @@ sub Element($$$$$$)
 		} else {
 			$moreparam = "";
 		}
-		if (($e->{PROPERTIES}->{switch_is} eq "") && ($switchvars{$name}) &&
+		if ((not has_property($e, "switch_is")) && ($switchvars{$name}) &&
 			#not a "native" type
 			(!($type =~ /^uint(8|16|1632|32|3264|64)/))) {
 			$param = $name;
