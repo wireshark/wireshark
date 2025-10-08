@@ -328,7 +328,6 @@ Source Package:
     - cp -v "doc/Stratoshark Release Notes.html" ../stratoshark-release-notes-${STRATOSHARK_VERSION}.html
     - cp -v "doc/Stratoshark Release Notes.txt" ../stratoshark-release-notes-${STRATOSHARK_VERSION}.txt
     - cd ..
-    - zstdcat --threads=0 wireshark-${WIRESHARK_VERSION}.tar.zst | xz --threads=0 > wireshark-${WIRESHARK_VERSION}.tar.xz
   after_script:
     # - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
     - if [ "$CI_JOB_STATUS" != "success" ]; then exit 0 ; fi
