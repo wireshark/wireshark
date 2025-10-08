@@ -38,9 +38,9 @@ HF_RENAME hf_samr_samr_QuerySecurity_handle hf_samr_handle
 HF_FIELD hf_samr_connect_handle "Connect Handle" "samr.connect_handle" FT_BYTES BASE_NONE NULL 0 "" "" ""
 HF_RENAME hf_samr_samr_Connect_connect_handle hf_samr_connect_handle
 HF_RENAME hf_samr_samr_LookupDomain_connect_handle hf_samr_connect_handle
-HF_RENAME hf_samr_samr_EnumDomain_connect_handle hf_samr_connect_handle
+HF_RENAME hf_samr_samr_EnumDomains_connect_handle hf_samr_connect_handle
 HF_RENAME hf_samr_samr_OpenDomain_connect_handle hf_samr_connect_handle
-HF_RENAME hf_samr_samr_Shutdown_handle hf_samr_connect_handle
+HF_RENAME hf_samr_samr_Shutdown_connect_handle hf_samr_connect_handle
 HF_RENAME hf_samr_samr_Connect2_connect_handle hf_samr_connect_handle
 HF_RENAME hf_samr_samr_SetBootKeyInformation_connect_handle hf_samr_connect_handle
 HF_RENAME hf_samr_samr_GetBootKeyInformation_connect_handle hf_samr_connect_handle
@@ -155,17 +155,17 @@ TYPE lsa_AsciiString "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tre
 TYPE lsa_StringLarge "offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
 TYPE lsa_AsciiStringLarge "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
 TYPE lsa_BinaryString "offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_STRING BASE_NONE 0 NULL 5
-TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8 
+TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8
 
 
-TYPE sec_desc_buf "offset=cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL 4 
+TYPE sec_desc_buf "offset=cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL 4
 HF_FIELD hf_samr_sec_desc_buf_len "Sec Desc Buf Len" "samr.sec_desc_buf_len" FT_UINT32 BASE_DEC NULL 0 "" "" ""
 
-TYPE dom_sid2 "offset=cnf_dissect_dom_sid2(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL 4 
+TYPE dom_sid2 "offset=cnf_dissect_dom_sid2(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL 4
 
-TYPE lsa_SidArray "offset=cnf_dissect_lsa_SidArray(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL 4 
+TYPE lsa_SidArray "offset=cnf_dissect_lsa_SidArray(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL 4
 
-TYPE security_secinfo "offset=cnf_dissect_samr_security_secinfo(tvb, offset, pinfo, tree, drep);" FT_NONE BASE_NONE 0 NULL 4 
+TYPE security_secinfo "offset=cnf_dissect_samr_security_secinfo(tvb, offset, pinfo, tree, drep);" FT_NONE BASE_NONE 0 NULL 4
 
 #
 # ConnectX access masks

@@ -327,7 +327,6 @@ static int hf_samr_samr_EnumDomainUsers_num_entries;
 static int hf_samr_samr_EnumDomainUsers_resume_handle;
 static int hf_samr_samr_EnumDomainUsers_sam;
 static int hf_samr_samr_EnumDomains_buf_size;
-static int hf_samr_samr_EnumDomains_connect_handle;
 static int hf_samr_samr_EnumDomains_num_entries;
 static int hf_samr_samr_EnumDomains_resume_handle;
 static int hf_samr_samr_EnumDomains_sam;
@@ -363,7 +362,6 @@ static int hf_samr_samr_FieldsPresent_SAMR_FIELD_SEC_DESC;
 static int hf_samr_samr_FieldsPresent_SAMR_FIELD_WORKSTATIONS;
 static int hf_samr_samr_GetAliasMembership_rids;
 static int hf_samr_samr_GetAliasMembership_sids;
-static int hf_samr_samr_GetBootKeyInformation_domain_handle;
 static int hf_samr_samr_GetBootKeyInformation_unknown;
 static int hf_samr_samr_GetDisplayEnumerationIndex2_idx;
 static int hf_samr_samr_GetDisplayEnumerationIndex2_level;
@@ -493,7 +491,6 @@ static int hf_samr_samr_SetUserInfo2_info;
 static int hf_samr_samr_SetUserInfo2_level;
 static int hf_samr_samr_SetUserInfo_info;
 static int hf_samr_samr_SetUserInfo_level;
-static int hf_samr_samr_Shutdown_connect_handle;
 static int hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_CHANGE_GROUP_MEMBERSHIP;
 static int hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_CHANGE_PASSWORD;
 static int hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_ATTRIBUTES;
@@ -1974,8 +1971,8 @@ static int samr_dissect_element_SetBootKeyInformation_connect_handle_(tvbuff_t *
 static int samr_dissect_element_SetBootKeyInformation_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int samr_dissect_element_SetBootKeyInformation_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int samr_dissect_element_SetBootKeyInformation_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int samr_dissect_element_GetBootKeyInformation_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int samr_dissect_element_GetBootKeyInformation_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int samr_dissect_element_GetBootKeyInformation_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int samr_dissect_element_GetBootKeyInformation_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int samr_dissect_element_GetBootKeyInformation_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int samr_dissect_element_GetBootKeyInformation_unknown_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int samr_dissect_element_Connect3_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -9201,7 +9198,7 @@ samr_dissect_QuerySecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 static int
 samr_dissect_element_Shutdown_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Shutdown_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_samr_Shutdown_connect_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_Shutdown_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_connect_handle);
 
 	return offset;
 }
@@ -9209,7 +9206,7 @@ samr_dissect_element_Shutdown_connect_handle(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 samr_dissect_element_Shutdown_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_Shutdown_connect_handle, PIDL_POLHND_CLOSE);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_handle, PIDL_POLHND_CLOSE);
 
 	return offset;
 }
@@ -9334,7 +9331,7 @@ samr_dissect_LookupDomain_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 samr_dissect_element_EnumDomains_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomains_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_samr_EnumDomains_connect_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_EnumDomains_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_connect_handle);
 
 	return offset;
 }
@@ -9342,7 +9339,7 @@ samr_dissect_element_EnumDomains_connect_handle(tvbuff_t *tvb _U_, int offset _U
 static int
 samr_dissect_element_EnumDomains_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EnumDomains_connect_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_handle, 0);
 
 	return offset;
 }
@@ -14130,17 +14127,17 @@ samr_dissect_SetBootKeyInformation_request(tvbuff_t *tvb _U_, int offset _U_, pa
 }
 
 static int
-samr_dissect_element_GetBootKeyInformation_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+samr_dissect_element_GetBootKeyInformation_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetBootKeyInformation_domain_handle_, NDR_POINTER_REF, "Pointer to Domain Handle (policy_handle)",hf_samr_samr_GetBootKeyInformation_domain_handle);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_GetBootKeyInformation_connect_handle_, NDR_POINTER_REF, "Pointer to Connect Handle (policy_handle)",hf_samr_connect_handle);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_GetBootKeyInformation_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+samr_dissect_element_GetBootKeyInformation_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_GetBootKeyInformation_domain_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_samr_connect_handle, 0);
 
 	return offset;
 }
@@ -14162,7 +14159,7 @@ samr_dissect_element_GetBootKeyInformation_unknown_(tvbuff_t *tvb _U_, int offse
 }
 
 /* IDL: NTSTATUS samr_GetBootKeyInformation( */
-/* IDL: [in] [ref] policy_handle *domain_handle, */
+/* IDL: [in] [ref] policy_handle *connect_handle, */
 /* IDL: [out] [ref] uint32 *unknown */
 /* IDL: ); */
 
@@ -14187,7 +14184,7 @@ static int
 samr_dissect_GetBootKeyInformation_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	di->dcerpc_procedure_name="GetBootKeyInformation";
-	offset = samr_dissect_element_GetBootKeyInformation_domain_handle(tvb, offset, pinfo, tree, di, drep);
+	offset = samr_dissect_element_GetBootKeyInformation_connect_handle(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	return offset;
 }
@@ -15727,8 +15724,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Sam", "samr.samr_EnumDomainUsers.sam", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_EnumDomains_buf_size,
 	  { "Buf Size", "samr.samr_EnumDomains.buf_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_EnumDomains_connect_handle,
-	  { "Connect Handle", "samr.samr_EnumDomains.connect_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_EnumDomains_num_entries,
 	  { "Num Entries", "samr.samr_EnumDomains.num_entries", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_EnumDomains_resume_handle,
@@ -15799,8 +15794,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Rids", "samr.samr_GetAliasMembership.rids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_GetAliasMembership_sids,
 	  { "Sids", "samr.samr_GetAliasMembership.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_GetBootKeyInformation_domain_handle,
-	  { "Domain Handle", "samr.samr_GetBootKeyInformation.domain_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_GetBootKeyInformation_unknown,
 	  { "Unknown", "samr.samr_GetBootKeyInformation.unknown", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_GetDisplayEnumerationIndex2_idx,
@@ -16059,8 +16052,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Info", "samr.samr_SetUserInfo.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_SetUserInfo_level,
 	  { "Level", "samr.samr_SetUserInfo.level", FT_UINT1632, BASE_DEC, VALS(samr_samr_UserInfoLevel_vals), 0, NULL, HFILL }},
-	{ &hf_samr_samr_Shutdown_connect_handle,
-	  { "Connect Handle", "samr.samr_Shutdown.connect_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_CHANGE_GROUP_MEMBERSHIP,
 	  { "SAMR USER ACCESS CHANGE GROUP MEMBERSHIP", "samr.samr_UserAccessMask.SAMR_USER_ACCESS_CHANGE_GROUP_MEMBERSHIP", FT_BOOLEAN, 32, TFS(&samr_UserAccessMask_SAMR_USER_ACCESS_CHANGE_GROUP_MEMBERSHIP_tfs), ( 0x00000400 ), NULL, HFILL }},
 	{ &hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_CHANGE_PASSWORD,

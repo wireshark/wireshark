@@ -1450,7 +1450,7 @@ import "misc.idl", "lsa.idl";
 	/************************/
 	/* Function    0x3c     */
 	NTSTATUS samr_GetBootKeyInformation(
-		[in,ref]   policy_handle *domain_handle,
+		[in,ref]   policy_handle *connect_handle,
 		[out,ref]  uint32 *unknown
 		);
 
