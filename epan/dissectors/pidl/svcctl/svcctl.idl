@@ -574,18 +574,18 @@ interface svcctl
   /* Function 0x20 */
   WERROR svcctl_GetServiceDisplayNameA(
     [in,ref] policy_handle *handle,
-    [in,unique] astring *service_name,
-    [out,ref,string,charset(ASCII)] uint8 **display_name,
-    [in,out,unique] uint32 *display_name_length
+    [in,range(0, SC_MAX_NAME_LENGTH)] astring *service_name,
+    [out,string,charset(ASCII),size_is(*display_name_length)] uint8 *display_name,
+    [in,out] uint32 *display_name_length
   );
 
   /*****************/
   /* Function 0x21 */
   WERROR svcctl_GetServiceKeyNameA(
     [in,ref] policy_handle *scm_handle,
-    [in,unique] astring *service_name,
-    [out,ref,string,charset(ASCII)] uint8 **key_name,
-    [in,out,unique] uint32 *display_name_length
+    [in,range(0, SC_MAX_NAME_LENGTH)] astring *service_name,
+    [out,string,charset(ASCII),size_is(*key_name_length)] uint8 *key_name,
+    [in,out] uint32 *key_name_length
   );
 
   /*****************/

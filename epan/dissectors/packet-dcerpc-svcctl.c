@@ -277,8 +277,8 @@ static int hf_svcctl_svcctl_GetServiceDisplayNameW_display_name;
 static int hf_svcctl_svcctl_GetServiceDisplayNameW_display_name_length;
 static int hf_svcctl_svcctl_GetServiceDisplayNameW_scm_handle;
 static int hf_svcctl_svcctl_GetServiceDisplayNameW_service_name;
-static int hf_svcctl_svcctl_GetServiceKeyNameA_display_name_length;
 static int hf_svcctl_svcctl_GetServiceKeyNameA_key_name;
+static int hf_svcctl_svcctl_GetServiceKeyNameA_key_name_length;
 static int hf_svcctl_svcctl_GetServiceKeyNameA_scm_handle;
 static int hf_svcctl_svcctl_GetServiceKeyNameA_service_name;
 static int hf_svcctl_svcctl_GetServiceKeyNameW_display_name;
@@ -908,7 +908,6 @@ static int svcctl_dissect_element_GetServiceDisplayNameA_service_name(tvbuff_t *
 static int svcctl_dissect_element_GetServiceDisplayNameA_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int svcctl_dissect_element_GetServiceDisplayNameA_display_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int svcctl_dissect_element_GetServiceDisplayNameA_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceDisplayNameA_display_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int svcctl_dissect_element_GetServiceDisplayNameA_display_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int svcctl_dissect_element_GetServiceDisplayNameA_display_name_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int svcctl_dissect_element_GetServiceKeyNameA_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -917,9 +916,8 @@ static int svcctl_dissect_element_GetServiceKeyNameA_service_name(tvbuff_t *tvb 
 static int svcctl_dissect_element_GetServiceKeyNameA_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int svcctl_dissect_element_GetServiceKeyNameA_key_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int svcctl_dissect_element_GetServiceKeyNameA_key_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameA_key_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameA_display_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int svcctl_dissect_element_GetServiceKeyNameA_display_name_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int svcctl_dissect_element_GetServiceKeyNameA_key_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int svcctl_dissect_element_GetServiceKeyNameA_key_name_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int svcctl_dissect_element_GetCurrentGroupeStateW_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int svcctl_dissect_element_GetCurrentGroupeStateW_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int svcctl_dissect_element_GetCurrentGroupeStateW_lpLoadOrderGroup(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -5884,7 +5882,7 @@ svcctl_dissect_element_GetServiceDisplayNameA_handle_(tvbuff_t *tvb _U_, int off
 static int
 svcctl_dissect_element_GetServiceDisplayNameA_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceDisplayNameA_service_name_, NDR_POINTER_UNIQUE, "Pointer to Service Name (string)",hf_svcctl_svcctl_GetServiceDisplayNameA_service_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceDisplayNameA_service_name_, NDR_POINTER_REF, "Pointer to Service Name (string)",hf_svcctl_svcctl_GetServiceDisplayNameA_service_name);
 
 	return offset;
 }
@@ -5908,14 +5906,6 @@ svcctl_dissect_element_GetServiceDisplayNameA_display_name(tvbuff_t *tvb _U_, in
 static int
 svcctl_dissect_element_GetServiceDisplayNameA_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceDisplayNameA_display_name__, NDR_POINTER_UNIQUE, "Pointer to Display Name (uint8)",hf_svcctl_svcctl_GetServiceDisplayNameA_display_name);
-
-	return offset;
-}
-
-static int
-svcctl_dissect_element_GetServiceDisplayNameA_display_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
-{
 	char *data;
 
 	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_GetServiceDisplayNameA_display_name, false, &data);
@@ -5927,7 +5917,7 @@ svcctl_dissect_element_GetServiceDisplayNameA_display_name__(tvbuff_t *tvb _U_, 
 static int
 svcctl_dissect_element_GetServiceDisplayNameA_display_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceDisplayNameA_display_name_length_, NDR_POINTER_UNIQUE, "Pointer to Display Name Length (uint32)",hf_svcctl_svcctl_GetServiceDisplayNameA_display_name_length);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceDisplayNameA_display_name_length_, NDR_POINTER_REF, "Pointer to Display Name Length (uint32)",hf_svcctl_svcctl_GetServiceDisplayNameA_display_name_length);
 
 	return offset;
 }
@@ -5942,9 +5932,9 @@ svcctl_dissect_element_GetServiceDisplayNameA_display_name_length_(tvbuff_t *tvb
 
 /* IDL: WERROR svcctl_GetServiceDisplayNameA( */
 /* IDL: [in] [ref] policy_handle *handle, */
-/* IDL: [flag(LIBNDR_FLAG_STR_ASCII|LIBNDR_FLAG_STR_NULLTERM)] [in] [unique(1)] string *service_name, */
-/* IDL: [charset(ASCII)] [out] [ref] uint8 **display_name, */
-/* IDL: [in] [out] [unique(1)] uint32 *display_name_length */
+/* IDL: [flag(LIBNDR_FLAG_STR_ASCII|LIBNDR_FLAG_STR_NULLTERM)] [in] [range(0,SC_MAX_NAME_LENGTH)] [ref] string *service_name, */
+/* IDL: [charset(ASCII)] [out] [ref] [size_is(*display_name_length)] uint8 *display_name, */
+/* IDL: [in] [out] [ref] uint32 *display_name_length */
 /* IDL: ); */
 
 static int
@@ -5999,7 +5989,7 @@ svcctl_dissect_element_GetServiceKeyNameA_scm_handle_(tvbuff_t *tvb _U_, int off
 static int
 svcctl_dissect_element_GetServiceKeyNameA_service_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceKeyNameA_service_name_, NDR_POINTER_UNIQUE, "Pointer to Service Name (string)",hf_svcctl_svcctl_GetServiceKeyNameA_service_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceKeyNameA_service_name_, NDR_POINTER_REF, "Pointer to Service Name (string)",hf_svcctl_svcctl_GetServiceKeyNameA_service_name);
 
 	return offset;
 }
@@ -6023,14 +6013,6 @@ svcctl_dissect_element_GetServiceKeyNameA_key_name(tvbuff_t *tvb _U_, int offset
 static int
 svcctl_dissect_element_GetServiceKeyNameA_key_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceKeyNameA_key_name__, NDR_POINTER_UNIQUE, "Pointer to Key Name (uint8)",hf_svcctl_svcctl_GetServiceKeyNameA_key_name);
-
-	return offset;
-}
-
-static int
-svcctl_dissect_element_GetServiceKeyNameA_key_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
-{
 	char *data;
 
 	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint8_t), hf_svcctl_svcctl_GetServiceKeyNameA_key_name, false, &data);
@@ -6040,26 +6022,26 @@ svcctl_dissect_element_GetServiceKeyNameA_key_name__(tvbuff_t *tvb _U_, int offs
 }
 
 static int
-svcctl_dissect_element_GetServiceKeyNameA_display_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+svcctl_dissect_element_GetServiceKeyNameA_key_name_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceKeyNameA_display_name_length_, NDR_POINTER_UNIQUE, "Pointer to Display Name Length (uint32)",hf_svcctl_svcctl_GetServiceKeyNameA_display_name_length);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_GetServiceKeyNameA_key_name_length_, NDR_POINTER_REF, "Pointer to Key Name Length (uint32)",hf_svcctl_svcctl_GetServiceKeyNameA_key_name_length);
 
 	return offset;
 }
 
 static int
-svcctl_dissect_element_GetServiceKeyNameA_display_name_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+svcctl_dissect_element_GetServiceKeyNameA_key_name_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_GetServiceKeyNameA_display_name_length, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_GetServiceKeyNameA_key_name_length, 0);
 
 	return offset;
 }
 
 /* IDL: WERROR svcctl_GetServiceKeyNameA( */
 /* IDL: [in] [ref] policy_handle *scm_handle, */
-/* IDL: [flag(LIBNDR_FLAG_STR_ASCII|LIBNDR_FLAG_STR_NULLTERM)] [in] [unique(1)] string *service_name, */
-/* IDL: [charset(ASCII)] [out] [ref] uint8 **key_name, */
-/* IDL: [in] [out] [unique(1)] uint32 *display_name_length */
+/* IDL: [flag(LIBNDR_FLAG_STR_ASCII|LIBNDR_FLAG_STR_NULLTERM)] [in] [range(0,SC_MAX_NAME_LENGTH)] [ref] string *service_name, */
+/* IDL: [charset(ASCII)] [out] [ref] [size_is(*key_name_length)] uint8 *key_name, */
+/* IDL: [in] [out] [ref] uint32 *key_name_length */
 /* IDL: ); */
 
 static int
@@ -6071,7 +6053,7 @@ svcctl_dissect_GetServiceKeyNameA_response(tvbuff_t *tvb _U_, int offset _U_, pa
 	offset = svcctl_dissect_element_GetServiceKeyNameA_key_name(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-	offset = svcctl_dissect_element_GetServiceKeyNameA_display_name_length(tvb, offset, pinfo, tree, di, drep);
+	offset = svcctl_dissect_element_GetServiceKeyNameA_key_name_length(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_werror, &status);
@@ -6090,7 +6072,7 @@ svcctl_dissect_GetServiceKeyNameA_request(tvbuff_t *tvb _U_, int offset _U_, pac
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = svcctl_dissect_element_GetServiceKeyNameA_service_name(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
-	offset = svcctl_dissect_element_GetServiceKeyNameA_display_name_length(tvb, offset, pinfo, tree, di, drep);
+	offset = svcctl_dissect_element_GetServiceKeyNameA_key_name_length(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	return offset;
 }
@@ -9362,10 +9344,10 @@ void proto_register_dcerpc_svcctl(void)
 	  { "Scm Handle", "svcctl.svcctl_GetServiceDisplayNameW.scm_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_GetServiceDisplayNameW_service_name,
 	  { "Service Name", "svcctl.svcctl_GetServiceDisplayNameW.service_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_svcctl_svcctl_GetServiceKeyNameA_display_name_length,
-	  { "Display Name Length", "svcctl.svcctl_GetServiceKeyNameA.display_name_length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_GetServiceKeyNameA_key_name,
 	  { "Key Name", "svcctl.svcctl_GetServiceKeyNameA.key_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_svcctl_svcctl_GetServiceKeyNameA_key_name_length,
+	  { "Key Name Length", "svcctl.svcctl_GetServiceKeyNameA.key_name_length", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_GetServiceKeyNameA_scm_handle,
 	  { "Scm Handle", "svcctl.svcctl_GetServiceKeyNameA.scm_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_GetServiceKeyNameA_service_name,
