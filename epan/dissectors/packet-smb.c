@@ -25,6 +25,7 @@
 #include <epan/to_str.h>
 #include <epan/export_object.h>
 #include <epan/tfs.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/array.h>
 #include <wsutil/ws_padding_to.h>
@@ -921,10 +922,6 @@ static const fragment_items smb_frag_items = {
 };
 
 static proto_tree *top_tree_global;     /* ugly */
-
-uint16_t  last_fnum = 0;
-bool	  mult_cmds = false;
-
 
 static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *smb_tree, uint8_t cmd, smb_info_t *si);
 
@@ -3303,6 +3300,7 @@ dissect_old_dir_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	const char *dn;
 	uint8_t     wc;
 	uint16_t    bc;
+	multi_cmds_t *pdata = NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -3330,8 +3328,18 @@ dissect_old_dir_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		dn);
 	COUNT_BYTES(dn_len);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Directory: %s",
-		    format_text(pinfo->pool, (const unsigned char *)dn, strlen(dn)));
+	pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+	if (pdata && !pdata->multi_cmds) {
+		if (dn) {
+			if (strlen(dn) <= 40) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, ", Dir: %s",
+					format_text(pinfo->pool,
+					(const unsigned char *)dn, strlen(dn)));
+			} else {
+				col_append_str(pinfo->cinfo, COL_INFO, ", Dir: [See Packet Detail]");
+			}
+		}
+	}
 
 	END_OF_SMB
 
@@ -3893,6 +3901,7 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	uint8_t     wc;
 	uint16_t    bc;
 	smb_fid_saved_info_t *fsi; /* eo_smb needs to track this info */
+	multi_cmds_t *pdata = NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -3937,7 +3946,9 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 		si->sip->extra_info      = fsi;
 	}
 
-	if (mult_cmds == false) {
+	pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+
+	if (pdata && !pdata->multi_cmds) {
 		if (strlen(fn) <= 40) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
 				format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
@@ -4512,6 +4523,7 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	uint16_t    bc;
 	smb_fid_saved_info_t *fsi; /* eo_smb needs to track this info */
 	uint32_t		file_attributes = 0;
+	multi_cmds_t *pdata = NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -4553,7 +4565,9 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		si->sip->extra_info      = fsi;
 	}
 
-	if (mult_cmds == false) {
+	pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+
+	if (pdata && !pdata->multi_cmds) {
 		if (strlen(fn) <= 40) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
 				format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
@@ -4574,7 +4588,7 @@ dissect_close_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	uint8_t wc;
 	uint16_t bc, fid;
 	smb_fid_info_t *fid_info = NULL;
-
+	multi_cmds_t *pdata = NULL;
 	WORD_COUNT;
 
 	si->smbtree = smb_tree;
@@ -4593,7 +4607,8 @@ dissect_close_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* Keep the path length limit short enough for the user to notice that there
 	* are multiple requests in this packet if any. */
-	if (mult_cmds == false) {
+	pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+	if (pdata && !pdata->multi_cmds) {
 		if (fid_info && fid_info->fsi) {
 			if (strlen(fid_info->fsi->filename) <= 40) {
 				col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
@@ -4637,6 +4652,9 @@ dissect_delete_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* file name */
 	fn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &fn_len,
 		false, false, &bc);
+	if (fn == NULL)
+		goto endofcommand;
+
 	proto_item_append_text(smb_tree, ", (%s)", wmem_strdup(wmem_file_scope(), fn));
 
 	if ((!pinfo->fd->visited) && si->sip) {
@@ -4644,14 +4662,10 @@ dissect_delete_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		si->sip->extra_info = wmem_strdup(wmem_file_scope(), fn);
 	}
 
-	if (fn == NULL)
-		goto endofcommand;
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES(fn_len);
 
-	/* Keep the path length limit short enough for the user to notice there
-	 * are, if any, multiple requests in this packet. */
 	if (strlen(fn) <= 40) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
 			format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
@@ -4803,6 +4817,7 @@ dissect_query_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	uint8_t     wc;
 	const char *fn;
 	int         fn_len;
+	multi_cmds_t *pdata = NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -4824,7 +4839,9 @@ dissect_query_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		fn);
 	COUNT_BYTES(fn_len);
 
-	if (mult_cmds == false) {
+	pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+
+	if (pdata && !pdata->multi_cmds) {
 		if (strlen(fn) <= 40) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
 				format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
@@ -4874,6 +4891,7 @@ dissect_set_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	const char *fn;
 	uint8_t     wc;
 	uint16_t    bc;
+	multi_cmds_t *pdata = NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -4905,12 +4923,16 @@ dissect_set_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		fn);
 	COUNT_BYTES(fn_len);
 
-	if (mult_cmds == false) {
-		if (strlen(fn) <= 40) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-				format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
-		} else {
-			col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
+	pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+
+	if (pdata && !pdata->multi_cmds) {
+		if (fn) {
+			if (strlen(fn)<=40 ){
+				col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
+					format_text(pinfo->pool,(const unsigned char*)fn,strlen(fn)));
+			} else{
+				col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
+			}
 		}
 	}
 
@@ -4956,10 +4978,8 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	if (mult_cmds == false)
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-					", %u byte%s at offset %u", cnt,
-					(cnt == 1) ? "" : "s", ofs);
+	col_append_fstr(pinfo->cinfo, COL_INFO,
+		", %u byte%s at offset %u", cnt, (cnt == 1) ? "" : "s", ofs);
 
 	/* remaining */
 	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -5353,6 +5373,7 @@ dissect_create_temporary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	const char *fn;
 	uint8_t     wc;
 	uint16_t    bc;
+	multi_cmds_t *pdata = NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -5392,12 +5413,16 @@ dissect_create_temporary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		fn);
 	COUNT_BYTES(fn_len);
 
-	if (mult_cmds == false) {
-		if (strlen(fn) <= 40) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-				format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
-		} else {
-			col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
+	pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+
+	if (pdata && !pdata->multi_cmds) {
+		if (fn) {
+			if (strlen(fn)<=40){
+				col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
+					format_text(pinfo->pool,(const unsigned char*)fn,strlen(fn)));
+			} else{
+				col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
+			}
 		}
 	}
 
@@ -6948,6 +6973,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	uint32_t    to;
 	int         fn_len;
 	const char *fn;
+	multi_cmds_t *pdata = NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -7033,12 +7059,16 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 		si->sip->extra_info = fsi;
 	}
 
-	if (mult_cmds == false) {
-		if (strlen(fn) <= 40) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-				format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
-		} else {
-			col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
+	pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+
+	if (pdata && !pdata->multi_cmds) {
+		if (fn) {
+			if (strlen(fn)<=40){
+				col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
+					format_text(pinfo->pool,(const unsigned char*)fn,strlen(fn)));
+			} else{
+				col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
+			}
 		}
 	}
 
@@ -7243,6 +7273,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	uint64_t      ofs;
 	unsigned int  fid;
 	rw_info_t    *rwi                   = NULL;
+	multi_cmds_t	     *pdata = NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -7356,10 +7387,12 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	ofs = offsethigh;
 	ofs = (ofs<<32) | offsetlow;
 
-	if (mult_cmds == false)
+	pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+	if (pdata && !pdata->multi_cmds) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
-				", %u byte%s at offset %" PRIu64,
-				maxcnt, (maxcnt == 1) ? "" : "s", ofs);
+			", %u byte%s at offset %" PRIu64,
+			maxcnt, (maxcnt == 1) ? "" : "s", ofs);
+	}
 
 	/* save the offset/len for this transaction */
 	if (si->sip && !pinfo->fd->visited) {
@@ -7546,8 +7579,8 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	uint16_t	fid                   = 0; /* was unsigned int fid = 0; */
 	uint16_t        mode                  = 0;
 	rw_info_t      *rwi                   = NULL;
-
-	uint32_t		tvblen;
+	uint32_t	tvblen;
+	multi_cmds_t   *pdata = NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -7633,10 +7666,12 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	ofs = offsethigh;
 	ofs = (ofs<<32) | offsetlow;
 
-	if (mult_cmds == false)
+	pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+	if (pdata && !pdata->multi_cmds) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 				", %u byte%s at offset %" PRIu64,
 				datalen, (datalen == 1) ? "" : "s", ofs);
+	}
 
 	/* save the offset/len for this transaction */
 	if (si->sip && !pinfo->fd->visited) {
@@ -10962,6 +10997,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	const char *fn;
 	uint32_t    create_flags = 0, access_mask = 0, file_attributes = 0;
 	uint32_t    share_access = 0, create_options = 0, create_disposition = 0;
+	multi_cmds_t *pdata = NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -11085,12 +11121,15 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		si->sip->extra_info	 = fsi;
 	}
 
-	if (mult_cmds == false) {
-		if (strlen(fn) <= 40) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-				format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
-		} else {
-			col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
+	pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+	if (pdata && !pdata->multi_cmds) {
+		if (fn)	{
+			if (strlen(fn) <= 40) {
+				col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
+					format_text(pinfo->pool,(const unsigned char*)fn,strlen(fn)));
+			} else {
+				col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
+			}
 		}
 	}
 
@@ -11750,6 +11789,7 @@ dissect_smb_get_dfs_request_data(tvbuff_t *tvb, packet_info *pinfo,
 	int         fn_len;
 	const char *fn;
 	uint16_t    bc = *bcp;
+	multi_cmds_t *pdata = NULL;
 
 	/* referral level */
 	CHECK_BYTE_COUNT_TRANS(2);
@@ -11763,12 +11803,15 @@ dissect_smb_get_dfs_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		fn);
 	COUNT_BYTES_TRANS(fn_len);
 
-	if (mult_cmds == false) {
-		if (strlen(fn) <= 40) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-				format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
-		} else {
-			col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
+	pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+	if (pdata && !pdata->multi_cmds) {
+		if (fn)	{
+			if (strlen(fn) <= 40) {
+				col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
+					format_text(pinfo->pool,(const unsigned char*)fn,strlen(fn)));
+			} else {
+				col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
+			}
 		}
 	}
 
@@ -11785,8 +11828,11 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 	int                   fn_len;
 	const char           *fn;
 	uint32_t	      search_id;
+	multi_cmds_t	     *pdata = NULL;
 
 	DISSECTOR_ASSERT(si);
+
+	pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
 
 	if ((si->sip != NULL) && (si->sip->extra_info_type == SMB_EI_T2I))
 		t2i = (smb_transact2_info_t *)si->sip->extra_info;
@@ -11850,12 +11896,15 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
 
-		if (mult_cmds == false) {
-			if (strlen(fn) <= 40) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-					format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
-			} else {
-				col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
+		pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+		if (pdata && !pdata->multi_cmds) {
+			if (fn)	{
+				if (strlen(fn) <= 40) {
+					col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
+						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
+				} else {
+					col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
+				}
 			}
 		}
 		break;
@@ -11898,15 +11947,16 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
 
-		if (mult_cmds == false) {
+		if (pdata && !pdata->multi_cmds) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str(pinfo->pool, si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
-			if (mult_cmds == false) {
-				if (strlen(fn) <= 40) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, ", Pattern: %s",
-						format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+
+			if (fn) {
+				if (strlen(fn) <= 40){
+					col_append_fstr(pinfo->cinfo,COL_INFO,", Pattern: %s",
+						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
 				} else {
-					col_append_str(pinfo->cinfo, COL_INFO, ", Pattern: [See Packet Detail]");
+					col_append_str(pinfo->cinfo,COL_INFO,", Pattern: [See Packet Detail]");
 				}
 			}
 		}
@@ -11952,8 +12002,8 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
 
-		if (mult_cmds == false)	{
-			if (strlen(fn)) {
+		if (pdata && !pdata->multi_cmds) {
+			if (fn && strlen(fn)) {
 				/* Keep the path length limit short enough for the user to notice there
 				 * are, if any, multiple requests in this packet. */
 				if (strlen(fn) <= 40) {
@@ -11976,10 +12026,9 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 
-		if (mult_cmds == false)
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-						val_to_str_ext(pinfo->pool, si->info_level, &qfsi_vals_ext,
-								"Unknown (0x%02x)"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+					val_to_str_ext(pinfo->pool, si->info_level, &qfsi_vals_ext,
+							"Unknown (0x%02x)"));
 		break;
 	case 0x0004:	/*TRANS2_SET_FS_INFORMATION*/
 		/* level of interest */
@@ -11990,10 +12039,9 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint(tree, hf_smb_sfsi_information_level, tvb, offset+2, 2, si->info_level);
 		COUNT_BYTES_TRANS(4);
 
-		if (mult_cmds == false)
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-						val_to_str(pinfo->pool, si->info_level, sfsi_vals,
-							   "Unknown (0x%02x)"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+					val_to_str(pinfo->pool, si->info_level, sfsi_vals,
+						   "Unknown (0x%02x)"));
 		break;
 	case 0x0005:	/*TRANS2_QUERY_PATH_INFORMATION*/
 		/* level of interest */
@@ -12004,11 +12052,10 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 
-		if (mult_cmds == false)
-			col_append_fstr(
-					pinfo->cinfo, COL_INFO, ", %s",
-					val_to_str_ext(pinfo->pool, si->info_level, &qpi_loi_vals_ext,
-						   "Unknown (%u)"));
+		col_append_fstr(
+				pinfo->cinfo, COL_INFO, ", %s",
+				val_to_str_ext(pinfo->pool, si->info_level, &qpi_loi_vals_ext,
+					   "Unknown (%u)"));
 
 		/* 4 reserved bytes */
 		CHECK_BYTE_COUNT_TRANS(4);
@@ -12026,12 +12073,14 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			t2i->name = wmem_strdup(wmem_file_scope(), fn);
 		}
 
-		if (mult_cmds == false) {
-			if (strlen(fn) <= 40) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-					format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
-			} else {
-				col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
+		if (pdata && !pdata->multi_cmds) {
+			if (fn) {
+				if (strlen(fn) <= 40){
+					col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
+						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
+				} else {
+					col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
+				}
 			}
 		}
 		break;
@@ -12056,12 +12105,14 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
 
-		if (mult_cmds == false) {
-			if (strlen(fn) <= 40) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-					format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
-			} else {
-				col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
+		if (pdata && !pdata->multi_cmds) {
+			if (fn) {
+				if (strlen(fn) <= 40){
+					col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
+						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
+				} else {
+					col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
+				}
 			}
 		}
 		break;
@@ -12088,7 +12139,8 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 
-		if (!mult_cmds)	{
+		pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+		if (pdata && !pdata->multi_cmds) {
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str_ext(pinfo->pool, si->info_level, &qpi_loi_vals_ext,
@@ -12118,13 +12170,12 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint(tree, hf_smb_spi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 
-		if (mult_cmds == false)	{
+		if (pdata && !pdata->multi_cmds) {
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str_ext(pinfo->pool, si->info_level, &spi_loi_vals_ext,
 					"Unknown (%u)"));
 		}
-
 #if 0
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
@@ -12206,12 +12257,14 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
 
-		if (mult_cmds == false) {
-			if (strlen(fn) <= 40) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-					format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
-			} else {
-				col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
+		if (pdata && !pdata->multi_cmds) {
+			if (fn) {
+				if (strlen(fn) <= 40){
+					col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
+						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
+				} else {
+					col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
+				}
 			}
 		}
 		break;
@@ -12241,9 +12294,16 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
 
-		if (mult_cmds == false)
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", Dir: %s",
-				    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		if (pdata && !pdata->multi_cmds) {
+			if (fn) {
+				if (strlen(fn) <= 40){
+					col_append_fstr(pinfo->cinfo,COL_INFO,", Dir: %s",
+						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
+				} else {
+					col_append_str(pinfo->cinfo,COL_INFO,", Dir: [See Packet Detail]");
+				}
+			}
+		}
 		break;
 	case 0x000e:	/*TRANS2_SESSION_SETUP*/
 		/* XXX unknown structure*/
@@ -12259,12 +12319,14 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
 
-		if (mult_cmds == false) {
-			if (strlen(fn) <= 40) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-					format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
-			} else {
-				col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
+		if (pdata && !pdata->multi_cmds) {
+			if (fn) {
+				if (strlen(fn) <= 40){
+					col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
+						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
+				} else {
+					col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
+				}
 			}
 		}
 		break;
@@ -14860,7 +14922,9 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	uint16_t              bc;
 	int                   padcnt;
 	bool                  dissected_trans;
-	proto_item	      *it;
+	proto_item	     *it;
+	multi_cmds_t	     *pdata = NULL;
+
 	DISSECTOR_ASSERT(si);
 
 	WORD_COUNT;
@@ -14919,8 +14983,11 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			it = proto_tree_add_uint(tree, hf_bytes_until_total_data_count, tvb, 0, 0, diff);
 			proto_item_set_generated(it);
 		}
-		if (tdc && mult_cmds == false)
+
+		pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+		if (tdc && (pdata && !pdata->multi_cmds)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u of %u", dd + dc, tdc);
+		}
 
 		if (si->cmd == SMB_COM_TRANSACTION2 || si->cmd == SMB_COM_TRANSACTION2_SECONDARY) {
 			uint16_t fid;
@@ -15046,8 +15113,10 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				proto_item_append_text(smb_tree, " %s",
 						val_to_str_ext(pinfo->pool, subcmd, &trans2_cmd_vals_ext, "Unknown (0x%02x)"));
 
-				if (tdc && mult_cmds == false)
+				pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+				if (tdc && (pdata && !pdata->multi_cmds)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u of %u", dc, tdc);
+				}
 
 				if (!si->unidir) {
 					if (!pinfo->fd->visited && si->sip) {
@@ -15280,9 +15349,13 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (!dissected_trans)
 				dissect_trans_data(s_tvb, p_tvb, d_tvb, tree);
 
-		} else if (tdc && mult_cmds == false)	{
-			col_append_fstr(pinfo->cinfo, COL_INFO,	", Data: %u of %u", dc + dd, tdc);
+		} else {
+			pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+			if (tdc && (pdata && !pdata->multi_cmds)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, ", Data: %u of %u", dc + dd, tdc);
+			}
 		}
+
 	}
 
 	END_OF_SMB
@@ -18306,30 +18379,16 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 		proto_tree *cmd_tree;
 		int (*dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree, smb_info_t *si);
 
-		if (!mult_cmds) {
-			col_clear(pinfo->cinfo, COL_INFO);
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-				"%s %s",
-				val_to_str_ext(pinfo->pool, cmd, &smb_cmd_vals_ext, "Unknown (0x%02x)"),
-				(si->request)? "Request" : "Response");
-		} else {
-			/* Don't display "Trans2" in the Packet List */
-			if (cmd != 0x32)
-				col_append_fstr(pinfo->cinfo, COL_INFO,
-					"; %s",
-					val_to_str_ext(pinfo->pool, cmd, &smb_cmd_vals_ext, "Unknown (0x%02x)"));
-		}
-
 		proto_item_append_text(smb_tree, ", %s %s (0x%02x)",
-			val_to_str_ext_const(cmd, &smb_cmd_vals_ext, "Unknown"),
-			(si->request)?"Request":"Response",
-			cmd);
+			val_to_str_ext_const(si->cmd, &smb_cmd_vals_ext, "Unknown"),
+			(si && si->request) ? "Request" : "Response",
+			si->cmd);
 
 		cmd_tree = proto_tree_add_subtree_format(smb_tree, tvb, offset, -1,
 			ett_smb_command, &cmd_item, "%s %s (0x%02x)",
-			val_to_str_ext_const(cmd, &smb_cmd_vals_ext, "Unknown"),
-			(si->request)?"Request":"Response",
-			cmd);
+			val_to_str_ext_const(si->cmd, &smb_cmd_vals_ext, "Unknown"),
+			(si && si->request) ? "Request" : "Response",
+			si->cmd);
 
 
 		/* we track FIDs on a per transaction basis.
@@ -18783,13 +18842,59 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	 */
 	si->request = !(flags&SMB_FLAGS_DIRN);
 
-	if (pinfo->num == last_fnum) {
-		mult_cmds = true;
-	} else {
-		mult_cmds = false;
+	multi_cmds_t *pdata = (multi_cmds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_smb, 0);
+	if (!pdata) {
+		pdata = wmem_new0(wmem_file_scope(), multi_cmds_t);
+		pdata->command_count = 0;
+		pdata->frame_num = 0;
+		pdata->cmd_index = 0;
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_smb, 0, pdata);
 	}
 
-	last_fnum = pinfo->num;
+	if (!pinfo->fd->visited) {
+		if (pdata->frame_num != pinfo->fd->num) {
+			pdata->frame_num = pinfo->fd->num;
+			pdata->command_count = 0;
+			pdata->cmd_index = 0;
+		}
+		pdata->command_count++;
+		pdata->multi_cmds = (pdata->command_count > 1);
+	}
+
+	if (pinfo->fd->visited && pdata && pdata->frame_num == pinfo->fd->num) {
+		if (pdata->cmd_index >= pdata->command_count) {
+			pdata->cmd_index = 0;
+		}
+	}
+
+	/* Common code for both Pass 1 (tshark) and Pass 2 (Wireshark) */
+	if ((!pinfo->fd->visited) ||
+		(pinfo->fd->visited && pdata && pdata->frame_num == pinfo->fd->num)) {
+
+		/* Remove NBT "Session message" if present */
+		const gchar *info = col_get_text(pinfo->cinfo, COL_INFO);
+		if (info && strstr(info, "Session message")) {
+			const gchar *session_pos = strstr(info, "Session message");
+			gsize before_len = session_pos - info;
+			const gchar *after_pos = session_pos + strlen("Session message");
+			gchar *cleaned = wmem_strdup_printf(wmem_file_scope(), "%.*s%s",
+						(int)before_len, info, after_pos);
+			col_set_str(pinfo->cinfo, COL_INFO, cleaned);
+		}
+
+		/* Add command formatting */
+		if (pdata->cmd_index < pdata->command_count || !pinfo->fd->visited) {
+			const char *cmd_name = val_to_str_ext_const(si->cmd, &smb_cmd_vals_ext, "Unknown");
+			if (pdata->cmd_index == 0) {
+				const char *suffix = si->request ? "Request" : "Response";
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", cmd_name, suffix);
+			} else if ((pdata->command_count > 1 || !pinfo->fd->visited) &&
+				si->cmd != 0x32 && si->cmd != 0xa0) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, "; %s", cmd_name);
+			}
+			pdata->cmd_index++;
+		}
+	}
 
 	flags2 = tvb_get_letohs(tvb, offset+10);
 	if (flags2 & 0x8000) {

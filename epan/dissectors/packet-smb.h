@@ -142,6 +142,13 @@ typedef struct {
 	const char *name;
 } smb_transact2_info_t;
 
+typedef struct {
+    guint    frame_num;
+    guint    command_count;
+    gboolean multi_cmds;
+    guint    cmd_index;
+} multi_cmds_t;
+
 /*
  * The information we need to save about a request in order to show the
  * frame number of the request in the dissection of the reply.
