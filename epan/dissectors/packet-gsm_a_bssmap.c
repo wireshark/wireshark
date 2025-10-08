@@ -4587,7 +4587,7 @@ be_osmocom_osmux_cid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, ui
 }
 
 
-uint16_t (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len) = {
+uint16_t (* const bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len) = {
     NULL,               /* Undefined */
     be_cic,             /* Circuit Identity Code */
     NULL,               /* Reserved */
@@ -5059,7 +5059,7 @@ be_fe_source_cell_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_, ui
 }
 
 
-static uint16_t (*bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_) = {
+static uint16_t (* const bssmap_bss_to_bss_element_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_) = {
     be_fe_extra_info,              /* { 0x01,       "Extra information" }, */
     be_fe_cur_chan_type2,          /* { 0x02,       "Current Channel Type 2" }, */
     be_fe_target_radio_cell_info,  /* { 0x03,       "Target cell radio information" }, */
@@ -7386,7 +7386,7 @@ bssmap_lcls_notif(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t 
 #define NUM_GSM_BSSMAP_MSG (int)array_length(gsm_a_bssmap_msg_strings)
 static int ett_gsm_bssmap_msg[NUM_GSM_BSSMAP_MSG];
 
-static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
+static void (* const bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
     bssmap_ass_req,                     /* Assignment Request */
     bssmap_ass_complete,                /* Assignment Complete */
     bssmap_ass_failure,                 /* Assignment Failure */

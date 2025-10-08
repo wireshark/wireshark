@@ -841,7 +841,7 @@ static const value_string uncertainty_range[] = {
     { 0,  NULL }
 };
 
-typedef uint16_t (**elem_func_hander)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len);
+typedef uint16_t (* const * elem_func_hander)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len);
 
 int
 dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
@@ -2052,7 +2052,7 @@ uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int p
     proto_item         *item;
     value_string_ext    elem_names_ext;
     int                *elem_ett;
-    elem_fcn           *elem_funcs;
+    const elem_fcn     *elem_funcs;
     char               *a_add_string;
     const char         *elem_name;
 
@@ -3564,7 +3564,7 @@ de_ms_net_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint
 }
 
 
-uint16_t (*common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len) = {
+uint16_t (* const common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len) = {
     /* Common Information Elements 10.5.1 */
     de_cell_id,                        /* Cell Identity */
     de_ciph_key_seq_num,               /* Ciphering Key Sequence Number */

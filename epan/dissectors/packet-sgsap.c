@@ -746,7 +746,7 @@ typedef enum
 sgsap_elem_idx_t;
 #endif /* 0 */
 
-uint16_t (*sgsap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string, int string_len) = {
+uint16_t (* const sgsap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string, int string_len) = {
     NULL/*DE_SGSAP_IMSI*/,                                  /* 9.4.6 IMSI*/
     de_sgsap_vlr_name,                                      /* 9.4.22 VLR name*/
     NULL/*DE_SGSAP_TMSI*/,                                  /* 9.4.20 TMSI */
@@ -1435,7 +1435,7 @@ static value_string_ext sgsap_msg_strings_ext = VALUE_STRING_EXT_INIT(sgsap_msg_
 
 #define NUM_SGSAP_MSG array_length(sgsap_msg_strings)
 static int ett_sgsap_msg[NUM_SGSAP_MSG];
-static void (*sgsap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len) = {
+static void (* const sgsap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len) = {
     sgsap_paging_req,           /* 0x01,    "SGsAP-PAGING-REQUEST"  8.14 */
     sgsap_paging_rej,           /* 0x02,    "SGsAP-PAGING-REJECT"   8.13 */
 /*

@@ -7133,7 +7133,7 @@ static elem_idx_t ansi_a_elem_1_max = (elem_idx_t) 0;
 #define MAX_IOS401_NUM_ELEM_1 array_length(ansi_a_ios401_elem_1_strings)
 #define MAX_IOS501_NUM_ELEM_1 array_length(ansi_a_ios501_elem_1_strings)
 static int ett_ansi_elem_1[MAX(MAX_IOS401_NUM_ELEM_1, MAX_IOS501_NUM_ELEM_1)];
-static uint8_t (*elem_1_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, unsigned len, ansi_a_shared_data_t *data_p) =
+static uint8_t (* const elem_1_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, unsigned len, ansi_a_shared_data_t *data_p) =
 {
     elem_acc_net_id,                /* Access Network Identifiers */
     elem_adds_user_part,            /* ADDS User Part */
@@ -10049,7 +10049,7 @@ dtap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t off
 #define ANSI_A_IOS401_BSMAP_NUM_MSG array_length(ansi_a_ios401_bsmap_strings)
 #define ANSI_A_IOS501_BSMAP_NUM_MSG array_length(ansi_a_ios501_bsmap_strings)
 static int ett_bsmap_msg[MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)];
-static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, unsigned len, ansi_a_shared_data_t *data_p) =
+static void (* const bsmap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, unsigned len, ansi_a_shared_data_t *data_p) =
 {
     bsmap_add_srvc_noti,            /* Additional Service Notification */
     bsmap_adds_page,                /* ADDS Page */
@@ -10119,7 +10119,7 @@ static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 #define ANSI_A_IOS401_DTAP_NUM_MSG array_length(ansi_a_ios401_dtap_strings)
 #define ANSI_A_IOS501_DTAP_NUM_MSG array_length(ansi_a_ios501_dtap_strings)
 static int ett_dtap_msg[MAX(ANSI_A_IOS401_DTAP_NUM_MSG, ANSI_A_IOS501_DTAP_NUM_MSG)];
-static void (*dtap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, unsigned len, ansi_a_shared_data_t *data_p) =
+static void (* const dtap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, unsigned len, ansi_a_shared_data_t *data_p) =
 {
     dtap_add_srvc_req,              /* Additional Service Request */
     dtap_adds_deliver,              /* ADDS Deliver */

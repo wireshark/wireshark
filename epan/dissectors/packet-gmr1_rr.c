@@ -1169,7 +1169,7 @@ GMR1_IE_FUNC(gmr1_ie_rr_persistence_lvl)
 }
 
 
-elem_fcn gmr1_ie_rr_func[NUM_GMR1_IE_RR] = {
+const elem_fcn gmr1_ie_rr_func[NUM_GMR1_IE_RR] = {
 	gmr1_ie_rr_chan_desc,		/* Channel Description */
 	gmr1_ie_rr_chan_mode,		/* Channel Mode */
 	gmr1_ie_rr_ciph_mode_setting,	/* Cipher Mode Setting */

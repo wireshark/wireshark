@@ -507,7 +507,7 @@ typedef enum
 }
 bsslap_elem_idx_t;
 */
-elem_fcn bsslap_elem_fcn[] = {
+const elem_fcn bsslap_elem_fcn[] = {
     /* BSS LAP Elements 5 */
     NULL,            /* Reserved */
     de_ta,           /* Timing Advance */

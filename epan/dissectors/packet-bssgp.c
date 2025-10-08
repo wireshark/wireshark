@@ -3901,7 +3901,7 @@ value_string_ext bssgp_elem_strings_ext = VALUE_STRING_EXT_INIT(bssgp_elem_strin
 int ett_bssgp_elem[NUM_BSSGP_ELEM];
 
 
-uint16_t (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len) = {
+uint16_t (* const bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len) = {
     de_bssgp_aligment_octets,                                   /* 11.3.1   0x00 Alignment octets */
     de_bssgp_bmax_default_ms,                                   /* 11.3.2   0x01 Bmax default MS  */
     de_bssgp_bss_area_ind,                                      /* 11.3.3   0x02 BSS Area Indication */
@@ -6666,7 +6666,7 @@ static value_string_ext bssgp_msg_strings_ext = VALUE_STRING_EXT_INIT(bssgp_msg_
 
 #define NUM_BSSGP_MSG array_length(bssgp_msg_strings)
 static int ett_bssgp_msg[NUM_BSSGP_MSG];
-static void (*bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
+static void (* const bssgp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
 /* 0x00 to 0x10 */
     bssgp_dl_unitdata,                  /* 10.2.1 DL-UNITDATA */
     bssgp_ul_unitdata,                  /* 10.2.2 UL-UNITDATA */

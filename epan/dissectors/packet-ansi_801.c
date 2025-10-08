@@ -1034,7 +1034,7 @@ rev_pr_can_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
 }
 
-static void (*for_req_type_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset) = {
+static void (* const for_req_type_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset) = {
 	NULL, /* Reserved */
 	NULL, /* no data */	/* Request MS Information */
 	NULL, /* no data */	/* Request Autonomous Measurement Weighting Factors */
@@ -1046,7 +1046,7 @@ static void (*for_req_type_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	NULL, /* NONE */
 };
 
-static void (*for_rsp_type_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset) = {
+static void (* const for_rsp_type_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset) = {
 	for_reject,              /* Reject */
 	for_pr_bs_cap,           /* Provide BS Capabilities */
 	NULL,                    /* Provide GPS Acquisition Assistance */
@@ -1063,7 +1063,7 @@ static void (*for_rsp_type_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	NULL,                    /* NONE */
 };
 
-static void (*rev_req_type_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset) = {
+static void (* const rev_req_type_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset) = {
 	NULL,	/* Reserved */
 	NULL,   /* no data */		/* Request BS Capabilities */
 	rev_req_gps_acq_ass,		/* Request GPS Acquisition Assistance */
@@ -1080,7 +1080,7 @@ static void (*rev_req_type_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	NULL,	/* NONE */
 };
 
-static void (*rev_rsp_type_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset) = {
+static void (* const rev_rsp_type_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset) = {
 	rev_reject,            /* Reject */
 	rev_pr_ms_information, /* Provide MS Information */
 	NULL,                  /* Provide Autonomous Measurement Weighting Factors */

@@ -3163,7 +3163,7 @@ static const value_string for_msg_type_strings[] = {
     { 0, NULL }
 };
 #define NUM_FOR_MSGS array_length(for_msg_type_strings)
-static void (*ansi_683_for_msg_fcn[])(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned len, uint32_t offset) = {
+static void (* const ansi_683_for_msg_fcn[])(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned len, uint32_t offset) = {
     msg_config_req,             /* Configuration Request */
     msg_download_req,           /* Download Request */
     msg_ms_key_req,             /* MS Key Request */
@@ -3219,7 +3219,7 @@ static const value_string rev_msg_type_strings[] = {
     { 0, NULL }
 };
 #define NUM_REV_MSGS array_length(rev_msg_type_strings)
-static void (*ansi_683_rev_msg_fcn[])(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned len, uint32_t offset) = {
+static void (* const ansi_683_rev_msg_fcn[])(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned len, uint32_t offset) = {
     msg_config_rsp,             /* Configuration Response */
     msg_download_rsp,           /* Download Response */
     msg_ms_key_rsp,             /* MS Key Response */

@@ -1287,7 +1287,7 @@ gdsdb_sql_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
 	return tvb_reported_length(tvb);
 }
 
-static int (*gdsdb_handle_opcode[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) = {
+static int (* const gdsdb_handle_opcode[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) = {
 	gdsdb_dummy,             /* op_void */
 	gdsdb_connect,           /* op_connect */
 	gdsdb_dummy,             /* op_exit */

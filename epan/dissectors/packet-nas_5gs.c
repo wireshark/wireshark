@@ -7317,7 +7317,7 @@ value_string_ext nas_5gs_common_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs
 int ett_nas_5gs_common_elem[NUM_NAS_5GS_COMMON_ELEM];
 
 
-uint16_t(*nas_5gs_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+uint16_t(* const nas_5gs_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     uint32_t offset, unsigned len,
     char *add_string, int string_len) = {
         /*  9.10.2    Common information elements */
@@ -7596,7 +7596,7 @@ value_string_ext nas_5gs_mm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_mm_
 #define NUM_NAS_5GS_MM_ELEM array_length(nas_5gs_mm_elem_strings)
 int ett_nas_5gs_mm_elem[NUM_NAS_5GS_MM_ELEM];
 
-uint16_t(*nas_5gs_mm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+uint16_t(* const nas_5gs_mm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     uint32_t offset, unsigned len,
     char *add_string, int string_len) = {
         /*  9.11.3    5GS mobility management (5GMM) information elements */
@@ -7821,7 +7821,7 @@ value_string_ext nas_5gs_sm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_sm_
 #define NUM_NAS_5GS_SM_ELEM array_length(nas_5gs_sm_elem_strings)
 int ett_nas_5gs_sm_elem[NUM_NAS_5GS_SM_ELEM];
 
-uint16_t(*nas_5gs_sm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+uint16_t(* const nas_5gs_sm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     uint32_t offset, unsigned len,
     char *add_string, int string_len) = {
         /*  5GS session management (5GSM) information elements */
@@ -11560,7 +11560,7 @@ value_string_ext nas_5gs_updp_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_u
 #define NUM_NAS_5GS_UPDP_ELEM array_length(nas_5gs_updp_elem_strings)
 int ett_nas_5gs_updp_elem[NUM_NAS_5GS_UPDP_ELEM];
 
-uint16_t(*nas_5gs_updp_elem_fcn[])(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+uint16_t(* const nas_5gs_updp_elem_fcn[])(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
     uint32_t offset, unsigned len,
     char* add_string, int string_len) = {
         /*  5GS session management (5GSM) information elements */
@@ -11763,7 +11763,7 @@ static value_string_ext nas_5gs_mm_msg_strings_ext = VALUE_STRING_EXT_INIT(nas_5
 
 #define NUM_NAS_5GS_MM_MSG array_length(nas_5gs_mm_message_type_vals)
 static int ett_nas_5gs_mm_msg[NUM_NAS_5GS_MM_MSG];
-static void(*nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
+static void(* const nas_5gs_mm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
     nas_5gs_mm_registration_req,                /* 0x41    Registration request */
     nas_5gs_mm_registration_accept,             /* 0x42    Registration accept */
     nas_5gs_mm_registration_complete,           /* 0x43    Registration complete */
@@ -11867,7 +11867,7 @@ static value_string_ext nas_5gs_sm_msg_strings_ext = VALUE_STRING_EXT_INIT(nas_5
 #define NUM_NAS_5GS_SM_MSG array_length(nas_5gs_sm_message_type_vals)
 static int ett_nas_5gs_sm_msg[NUM_NAS_5GS_SM_MSG];
 
-static void(*nas_5gs_sm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
+static void(* const nas_5gs_sm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
     nas_5gs_sm_pdu_ses_est_req,            /* 0xc1     PDU session establishment request */
     nas_5gs_sm_pdu_ses_est_acc,            /* 0xc2     PDU session establishment accept */
     nas_5gs_sm_pdu_ses_est_rej,            /* 0xc3     PDU session establishment reject */
@@ -11927,7 +11927,7 @@ static value_string_ext nas_5gs_updp_msg_strings_ext = VALUE_STRING_EXT_INIT(nas
 #define NUM_NAS_5GS_UPDP_MSG array_length(nas_5gs_updp_msg_strings)
 static int ett_nas_5gs_updp_msg[NUM_NAS_5GS_UPDP_MSG];
 
-static void(*nas_5gs_updp_msg_fcn[])(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, uint32_t offset, unsigned len) = {
+static void(* const nas_5gs_updp_msg_fcn[])(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, uint32_t offset, unsigned len) = {
     nas_5gs_exp_not_dissected_yet,         /* 0x0     Reserved */
     nas_5gs_updp_manage_ue_policy_cmd,     /* 0x1     MANAGE UE POLICY COMMAND */
     nas_5gs_updp_manage_ue_policy_cmd_cmpl,/* 0x2     MANAGE UE POLICY COMPLETE */

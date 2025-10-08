@@ -226,7 +226,7 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t of
 	return curr_offset - offset;
 }
 
-uint16_t (*rp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len) = {
+uint16_t (* const rp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len) = {
 	/* Short Message Service Information Elements [5] 8.2 */
 	de_rp_message_ref, /* RP-Message Reference */
 	de_rp_orig_addr,   /* RP-Originator Address */
@@ -402,7 +402,7 @@ rp_error_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offs
 
 #define	NUM_GSM_RP_MSG array_length(gsm_rp_msg_strings)
 static int ett_gsm_rp_msg[NUM_GSM_RP_MSG];
-static void (*rp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len) = {
+static void (* const rp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len) = {
 	rp_data_ms_n,	/* RP-DATA (MS to Network) */
 	rp_data_n_ms,	/* RP-DATA (Network to MS) */
 	rp_ack_ms_n,	/* RP-ACK (MS to Network) */

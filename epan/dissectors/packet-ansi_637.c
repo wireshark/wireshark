@@ -1840,7 +1840,7 @@ tele_param_tp_failure_cause(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 #define NUM_TELE_PARAM array_length(ansi_tele_param_strings)
 static int ett_ansi_637_tele_param[NUM_TELE_PARAM];
-static void (*ansi_637_tele_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p) = {
+static void (* const ansi_637_tele_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, bool *has_private_data_p) = {
     tele_param_msg_id,                  /* Message Identifier */
     tele_param_user_data,               /* User Data */
     tele_param_rsp_code,                /* User Response Code */
@@ -2264,7 +2264,7 @@ trans_param_bearer_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_,
 
 #define NUM_TRANS_PARAM array_length(ansi_trans_param_strings)
 static int ett_ansi_637_trans_param[NUM_TRANS_PARAM];
-static void (*ansi_637_trans_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, char *add_string, int string_len) = {
+static void (* const ansi_637_trans_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset, char *add_string, int string_len) = {
     trans_param_tele_id,                /* Teleservice Identifier */
     trans_param_srvc_cat,               /* Service Category */
     trans_param_address,                /* Originating Address */

@@ -222,7 +222,7 @@ GMR1_IE_FUNC(gmr1_ie_com_spare_nibble)
 	return 1;
 }
 
-elem_fcn gmr1_ie_common_func[NUM_GMR1_IE_COMMON] = {
+const elem_fcn gmr1_ie_common_func[NUM_GMR1_IE_COMMON] = {
 	gmr1_ie_com_cm2,			/* MES Classmark 2 */
 	gmr1_ie_com_spare_nibble,		/* Spare Half Octet */
 };

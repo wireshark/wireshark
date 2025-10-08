@@ -6692,7 +6692,7 @@ de_sm_nbifom_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint3
 	return len;
 }
 
-uint16_t (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string, int string_len) = {
+uint16_t (* const gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string, int string_len) = {
 	/* GPRS Mobility Management Information Elements 10.5.5 */
 	de_gmm_add_upd_type,               /* Additional Update Type */
 	de_gmm_attach_res,                 /* Attach Result */
@@ -8383,7 +8383,7 @@ dtap_sm_req_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32
 
 #define	NUM_GSM_DTAP_MSG_GMM array_length(gsm_a_dtap_msg_gmm_strings)
 static int ett_gsm_dtap_msg_gmm[NUM_GSM_DTAP_MSG_GMM];
-static void (*dtap_msg_gmm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
+static void (* const dtap_msg_gmm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
 	dtap_gmm_attach_req,		/* Attach Request */
 	dtap_gmm_attach_acc,		/* Attach Accept */
 	dtap_gmm_attach_com,		/* Attach Complete */
@@ -8412,7 +8412,7 @@ static void (*dtap_msg_gmm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
 #define	NUM_GSM_DTAP_MSG_SM array_length(gsm_a_dtap_msg_sm_strings)
 static int ett_gsm_dtap_msg_sm[NUM_GSM_DTAP_MSG_SM];
-static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
+static void (* const dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
 	dtap_sm_act_pdp_req,		/* Activate PDP Context Request */
 	dtap_sm_act_pdp_acc,		/* Activate PDP Context Accept */
 	dtap_sm_act_pdp_rej,		/* Activate PDP Context Reject */

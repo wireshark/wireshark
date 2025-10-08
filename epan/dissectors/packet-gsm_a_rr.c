@@ -9211,7 +9211,7 @@ de_rr_ec_fua(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t o
     return len;
 }
 
-uint16_t (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len) = {
+uint16_t (* const rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string, int string_len) = {
     /* Radio Resource Management  Information Elements 10.5.2, most are from 10.5.1 */
 
     de_rr_ba_range,                             /* [3]  10.5.2.1a       BA Range */
@@ -11826,7 +11826,7 @@ dtap_rr_ec_dl_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint3
 
 #define NUM_GSM_DTAP_MSG_RR array_length(gsm_a_dtap_msg_rr_strings)
 static int ett_gsm_dtap_msg_rr[NUM_GSM_DTAP_MSG_RR];
-static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len) = {
+static void (* const dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len) = {
     NULL,       /* Reserved */
     dtap_rr_add_ass,            /* Additional Assignment */
     dtap_rr_imm_ass,            /* 9.1.18 Immediate assignment  */
@@ -12246,7 +12246,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 #define NUM_GSM_DTAP_EC_CCCH_MSG_RR array_length(gsm_a_dtap_msg_rr_ec_ccch_strings)
 static int ett_gsm_dtap_ec_ccch_msg_rr[NUM_GSM_DTAP_EC_CCCH_MSG_RR];
-static void (*dtap_msg_rr_ec_ccch_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len) = {
+static void (* const dtap_msg_rr_ec_ccch_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len) = {
   dtap_rr_ec_imm_ass_type_2,                  /* EC-Immediate Assignment Type 2 */
   dtap_rr_ec_imm_ass_rej,                     /* EC-Immediate Assignment Reject */
   dtap_rr_ec_dummy,                           /* EC-Dummy */
@@ -12346,7 +12346,7 @@ const value_string gsm_a_rr_short_pd_msg_strings[] = {
 
 #define NUM_GSM_SACCH_MSG_RR array_length(gsm_a_rr_short_pd_msg_strings)
 static int ett_gsm_sacch_msg_rr[NUM_GSM_SACCH_MSG_RR];
-static void (*sacch_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
+static void (* const sacch_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len) = {
     NULL,                       /* System Information Type 10 */
     NULL,                       /* Notification/FACCH */
     NULL,                       /* Uplink Free  */

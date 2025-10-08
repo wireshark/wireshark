@@ -47,7 +47,7 @@ static const value_string sndcp_xid_pcomp_algo_str[] = {
 typedef struct
 {
     uint8_t nb_of_dcomp_pcomp; /* note that a DCOMP or a PCOMP is 4 bit wide */
-    uint16_t (**func_array_ptr) (tvbuff_t *, proto_tree *, uint16_t);
+    uint16_t (* const *func_array_ptr) (tvbuff_t *, proto_tree *, uint16_t);
 } algo_parameters_t;
 
 /* Initialize the protocol and registered fields
@@ -371,14 +371,14 @@ static uint16_t parse_V44_p3r(tvbuff_t *tvb, proto_tree *tree, uint16_t offset)
 /***************************************************/
 /* Compression algorithms element dissector arrays */
 /***************************************************/
-static uint16_t (*rfc1144_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
+static uint16_t (* const rfc1144_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
     parse_applicable_nsapi,
     parse_rfc1144_s0,
     NULL
 };
 
 
-static uint16_t (*rfc2507_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
+static uint16_t (* const rfc2507_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
     parse_applicable_nsapi,
     parse_rfc2507_f_max_period,
     parse_rfc2507_f_max_time,
@@ -388,7 +388,7 @@ static uint16_t (*rfc2507_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
     NULL
 };
 
-static uint16_t (*rohc_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
+static uint16_t (* const rohc_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
     parse_applicable_nsapi,
     parse_rohc_max_cid,
     parse_rohc_max_header,
@@ -412,7 +412,7 @@ static uint16_t (*rohc_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
 };
 
 /* Array containing the number of pcomp and the function array pointer */
-static algo_parameters_t pcomp_algo_pars[] = {
+static const algo_parameters_t pcomp_algo_pars[] = {
     {2, rfc1144_elem_fcn},
     {5, rfc2507_elem_fcn},
     {2, rohc_elem_fcn}
@@ -420,7 +420,7 @@ static algo_parameters_t pcomp_algo_pars[] = {
 
 /* Data compression algorithms */
 
-static uint16_t (*v42bis_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
+static uint16_t (* const v42bis_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
     parse_applicable_nsapi,
     parse_V42bis_p0,
     parse_V42bis_p1,
@@ -428,7 +428,7 @@ static uint16_t (*v42bis_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
     NULL
 };
 
-static uint16_t (*v44_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
+static uint16_t (* const v44_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
     parse_applicable_nsapi,
     parse_V44_c0,
     parse_V44_p0,
@@ -440,7 +440,7 @@ static uint16_t (*v44_elem_fcn[])(tvbuff_t *, proto_tree *, uint16_t) = {
 };
 
 /* Array containing the number of dcomp and the function array pointer */
-static algo_parameters_t dcomp_algo_pars[] = {
+static const algo_parameters_t dcomp_algo_pars[] = {
     {1, v42bis_elem_fcn},
     {2, v44_elem_fcn},
 
@@ -533,7 +533,7 @@ static void parse_compression_parameters(tvbuff_t *tvb, packet_info* pinfo, prot
     uint8_t entity, len, algo_id;
     int number_of_comp, i;
     bool p_bit_set;
-    algo_parameters_t * algo_pars;
+    const algo_parameters_t * algo_pars;
     uint8_t function_index;
     proto_tree *comp_entity_tree = NULL;
     uint16_t tvb_len, offset=0 , new_offset, entity_offset;

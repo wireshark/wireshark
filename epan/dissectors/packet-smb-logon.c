@@ -852,7 +852,7 @@ static const value_string commands[] = {
 	{0,	NULL}
 };
 
-static int (*dissect_smb_logon_cmds[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) = {
+static int (* const dissect_smb_logon_cmds[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset) = {
 	dissect_smb_logon_request,    /* 0x00 (LM1.0/LM2.0 LOGON Request) */
 	dissect_smb_logon_LM10_resp,  /* 0x01 (LM1.0 LOGON Response)	*/
 	dissect_smb_logon_2,	      /* 0x02 (LM1.0 Query Centralized Init.)*/

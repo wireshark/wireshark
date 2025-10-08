@@ -93,98 +93,98 @@ extern uint16_t de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_inf
 /* Needed to share the packet-gsm_a_common.c functions */
 extern value_string_ext gsm_bssmap_elem_strings_ext;
 extern int ett_gsm_bssmap_elem[];
-extern elem_fcn bssmap_elem_fcn[];
+extern const elem_fcn bssmap_elem_fcn[];
 extern int hf_gsm_a_bssmap_elem_id;
 
 extern value_string_ext gsm_dtap_elem_strings_ext;
 extern int ett_gsm_dtap_elem[];
-extern elem_fcn dtap_elem_fcn[];
+extern const elem_fcn dtap_elem_fcn[];
 extern int hf_gsm_a_dtap_elem_id;
 
 extern value_string_ext gsm_rp_elem_strings_ext;
 extern int ett_gsm_rp_elem[];
-extern elem_fcn rp_elem_fcn[];
+extern const elem_fcn rp_elem_fcn[];
 extern int hf_gsm_a_rp_elem_id;
 
 extern value_string_ext gsm_rr_elem_strings_ext;
 extern int ett_gsm_rr_elem[];
-extern elem_fcn rr_elem_fcn[];
+extern const elem_fcn rr_elem_fcn[];
 extern int hf_gsm_a_rr_elem_id;
 extern void get_rr_msg_params(uint8_t oct, const char **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn);
 
 extern value_string_ext gsm_common_elem_strings_ext;
 extern int ett_gsm_common_elem[];
-extern elem_fcn common_elem_fcn[];
+extern const elem_fcn common_elem_fcn[];
 extern int hf_gsm_a_common_elem_id;
 
 extern value_string_ext gsm_gm_elem_strings_ext;
 extern int ett_gsm_gm_elem[];
-extern elem_fcn gm_elem_fcn[];
+extern const elem_fcn gm_elem_fcn[];
 extern int hf_gsm_a_gm_elem_id;
 extern void get_gmm_msg_params(uint8_t oct, const char **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn);
 extern void get_sm_msg_params(uint8_t oct, const char **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn);
 
 extern value_string_ext gsm_bsslap_elem_strings_ext;
 extern int ett_gsm_bsslap_elem[];
-extern elem_fcn bsslap_elem_fcn[];
+extern const elem_fcn bsslap_elem_fcn[];
 extern int hf_gsm_a_bsslap_elem_id;
 
 extern value_string_ext gsm_bssmap_le_elem_strings_ext;
 extern int ett_gsm_bssmap_le_elem[];
-extern elem_fcn bssmap_le_elem_fcn[];
+extern const elem_fcn bssmap_le_elem_fcn[];
 extern int hf_gsm_bssmap_le_elem_id;
 
 extern value_string_ext nas_eps_common_elem_strings_ext;
 extern int ett_nas_eps_common_elem[];
-extern elem_fcn nas_eps_common_elem_fcn[];
+extern const elem_fcn nas_eps_common_elem_fcn[];
 extern int hf_nas_eps_common_elem_id;
 
 extern value_string_ext nas_emm_elem_strings_ext;
 extern int ett_nas_eps_emm_elem[];
-extern elem_fcn emm_elem_fcn[];
+extern const elem_fcn emm_elem_fcn[];
 extern int hf_nas_eps_emm_elem_id;
 
 extern value_string_ext nas_esm_elem_strings_ext;
 extern int ett_nas_eps_esm_elem[];
-extern elem_fcn esm_elem_fcn[];
+extern const elem_fcn esm_elem_fcn[];
 extern int hf_nas_eps_esm_elem_id;
 
 extern value_string_ext sgsap_elem_strings_ext;
 extern int ett_sgsap_elem[];
-extern elem_fcn sgsap_elem_fcn[];
+extern const elem_fcn sgsap_elem_fcn[];
 extern int hf_sgsap_elem_id;
 
 extern value_string_ext bssgp_elem_strings_ext;
 extern int ett_bssgp_elem[];
-extern elem_fcn bssgp_elem_fcn[];
+extern const elem_fcn bssgp_elem_fcn[];
 extern int hf_bssgp_elem_id;
 
 extern value_string_ext gmr1_ie_common_strings_ext;
-extern elem_fcn gmr1_ie_common_func[];
+extern const elem_fcn gmr1_ie_common_func[];
 extern int ett_gmr1_ie_common[];
 
 extern value_string_ext gmr1_ie_rr_strings_ext;
-extern elem_fcn gmr1_ie_rr_func[];
+extern const elem_fcn gmr1_ie_rr_func[];
 extern int ett_gmr1_ie_rr[];
 
 extern value_string_ext nas_5gs_common_elem_strings_ext;
 extern int ett_nas_5gs_common_elem[];
-extern elem_fcn nas_5gs_common_elem_fcn[];
+extern const elem_fcn nas_5gs_common_elem_fcn[];
 extern int hf_nas_5gs_common_elem_id;
 
 extern value_string_ext nas_5gs_mm_elem_strings_ext;
 extern int ett_nas_5gs_mm_elem[];
-extern elem_fcn nas_5gs_mm_elem_fcn[];
+extern const elem_fcn nas_5gs_mm_elem_fcn[];
 extern int hf_nas_5gs_mm_elem_id;
 
 extern value_string_ext nas_5gs_sm_elem_strings_ext;
 extern int ett_nas_5gs_sm_elem[];
-extern elem_fcn nas_5gs_sm_elem_fcn[];
+extern const elem_fcn nas_5gs_sm_elem_fcn[];
 extern int hf_nas_5gs_sm_elem_id;
 
 extern value_string_ext nas_5gs_updp_elem_strings_ext;
 extern int ett_nas_5gs_updp_elem[];
-extern elem_fcn nas_5gs_updp_elem_fcn[];
+extern const elem_fcn nas_5gs_updp_elem_fcn[];
 extern int hf_nas_5gs_updp_elem_id;
 
 extern sccp_assoc_info_t* sccp_assoc;
