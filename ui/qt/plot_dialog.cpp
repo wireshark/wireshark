@@ -1862,7 +1862,7 @@ void PlotDialog::updateXAxisLabel()
 // XXX - We have similar code in IO/Graph, tcp_stream_dialog and packet_diagram. Should this be a common routine?
 void PlotDialog::on_rightButtonBox_accepted()
 {
-    QString file_name, extension;
+    QString file_name;
     QDir path(mainApp->openDialogInitialDir());
     QString pdf_filter = tr("Portable Document Format (*.pdf)");
     QString png_filter = tr("Portable Network Graphics (*.png)");
@@ -1871,13 +1871,14 @@ void PlotDialog::on_rightButtonBox_accepted()
     QString jpeg_filter = tr("JPEG File Interchange Format (*.jpeg *.jpg)");
     //QString csv_filter = tr("Comma Separated Values (*.csv)");
     //QString filter = QStringLiteral("%1;;%2;;%3;;%4;;%5")
-    QString filter = QStringLiteral("%1;;%2;;%3;;%4")
-        .arg(pdf_filter)
-        .arg(png_filter)
-        .arg(bmp_filter)
-        .arg(jpeg_filter)
-        //.arg(csv_filter);
-        ;
+    QString filter = QStringLiteral("%1;;%2;;%3;;%4;;%5").arg(
+        pdf_filter,
+        png_filter,
+        bmp_filter,
+        jpeg_filter
+        // csv_filter
+    );
+    QString extension = png_filter;
 
     QString save_file = path.canonicalPath();
     if (!file_closed_) {
