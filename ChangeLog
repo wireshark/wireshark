@@ -1,0 +1,495 @@
+commit 323e27b441
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Oct 7 16:07:07 2025 -0700
+
+    Prep for 4.4.10
+
+commit d1c30951fb
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Oct 7 16:18:12 2025 -0700
+
+    GitLab CI: Fix pytest in the macOS Arm job
+
+commit e3ec3916cc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Oct 7 20:43:12 2025 +0000
+
+    CFM: Sender ID TLV wrong chassis ID length
+
+    The length reported in the Sender ID TLV is the actual length of
+    the chassis ID, excluding the chassis ID subtype.
+
+    ping #20748
+
+    (cherry picked from commit e99d7faf891fd223a4d1f055bd09c0374b61de06)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit 04e3ef484f
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sun Oct 5 11:17:49 2025 +0200
+
+    CFM: Fix linktrace reply ingress interface alias off by 1
+
+    (cherry picked from commit 33854cbeaa7ed79fecbc215c9e33d9d8dafa20af)
+
+    Co-authored-by: Derek Denk <derek.denk@live.com>
+
+commit 8d89e07c80
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Oct 6 16:47:34 2025 -0700
+
+    Qt: Reverse our icon loading order
+
+    Load our icons in descending order from largest to the smallest. This
+    fixes #20544 here.
+
+    (cherry picked from commit 2632c9371f647797f3b79fabd85ce5a0a6108a50)
+
+commit c36432dd52
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Fri Oct 3 09:16:55 2025 +0200
+
+    Qt: Run without Liquid Glass on macOS
+
+    Set UIDesignRequiresCompatibility to run without Liquid Glass.
+
+    (cherry picked from commit 352ff7dd7c1677775cd647ff59791449b6a33a48)
+
+commit e8c6af75fd
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sun Oct 5 11:20:06 2025 +0200
+
+    ieee80211: Fix display name of BIGTK
+
+    Signed-off-by: Chien Wong <m@xv97.com>
+
+    (cherry picked from commit 6f22d93c29d569563bacffef4c84c47d94cf71cb)
+
+    Co-authored-by: Chien Wong <m@xv97.com>
+
+commit f3a2ab48fc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 5 10:17:33 2025 +0000
+
+    [Automatic update for 2025-10-05]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a6b64ffb3a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Oct 5 14:19:16 2025 +0000
+
+    DOF: Ensure that a string is null terminated at the proper place
+
+    Apparently when the interface ID has an illegal value for the
+    length, two different parts of the code treat it somewhat
+    differently. Terminate the string after the last character
+    written.
+
+    All this string handling should probably be changed to something
+    using a wmem_strbuf.
+
+    Fix #20744
+
+    (cherry picked from commit 135c12677b0b498025f1425ea14c72759e840912)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit c44b407e6b
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sun Sep 28 20:39:04 2025 +0200
+
+    packet-cql.c: fix 'CQL: packets with global spec are not properly dissected'
+
+    Due to at least 2-3 bugs in the code:
+    1. Flags was not always passed as uint, but as int (benign)
+    2. Flags was not even passed (OUCH) to the function to be used.
+    3. If global spec IS set, we need to ONCE go over the global ksname and table. Just ONCE.
+
+    Fixes: https://gitlab.com/wireshark/wireshark/-/issues/20733
+    Signed-off-by: Yaniv Kaul <mykaul@gmail.com>
+
+    (cherry picked from commit efc3e293bc37e57bc360a4505e4b7c6d46dda261)
+
+    Co-authored-by: Yaniv Michael Kaul <yaniv.kaul@scylladb.com>
+
+commit 1f4b90ee77
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Mon Sep 29 09:39:09 2025 +0200
+
+    Fix compilation on clang22
+
+    (cherry picked from commit c19e5e64b5218d1a226adf2881829616b554be91)
+
+    Co-authored-by: Moshe Kaplan <mosheekaplan@gmail.com>
+
+commit afc15f201b
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sun Sep 28 10:50:03 2025 +0200
+
+    ieee80211: Fix A-MSDU subframe address
+
+    The msdu_offset is offset inside A-MSDU, not the MPDU.
+
+    Fixes 4995e9a8d5b6f50eb9649d2e680669b196624bd3.
+
+    Signed-off-by: Chien Wong <m@xv97.com>
+
+    (cherry picked from commit bb49819ad89940a2225cdc1aadecee3ea5136e43)
+
+    Co-authored-by: Chien Wong <m@xv97.com>
+
+commit 31130f40b3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 28 10:16:59 2025 +0000
+
+    [Automatic update for 2025-09-28]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 63c14d0067
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Sep 27 08:40:56 2025 -0700
+
+    Windows: Update krb5 to 1.22.1
+
+commit f1cd10158d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Sep 26 13:54:03 2025 -0700
+
+    macos-setup: Update libssh to 0.11.3
+
+    (cherry picked from commit c28501ea1bf29d5f5b3fd9157ff1eeac402e744e)
+
+commit 4d577f863d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Sep 26 13:58:02 2025 -0700
+
+    Windows: Update libssh to 0.3.11
+
+commit 9ff1873f5c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Sep 25 09:04:21 2025 -0700
+
+    IAX2: Add an address type check
+
+    Make sure we're operating on an expected address type. This should fix a
+    scan-build "Argument with 'nonnull' attribute passed null" warning.
+
+    (cherry picked from commit 8bbd491f0f39640e9ff84ec608e77e80b5021b93)
+
+commit 59467445a9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Sep 24 15:27:52 2025 -0700
+
+    XML: Add a NULL check
+
+    Make sure a variable is non-NULL before passing it to g_str_equal. This
+    should fix a scan-build "Argument with 'nonnull' attribute passed null"
+    warning.
+
+    (cherry picked from commit 7ce6e448a15aeb5a471aa1e0aacabedf1aa7fde9)
+
+commit ceee07cbbb
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Thu Sep 25 12:05:29 2025 +0200
+
+    TLS: fix "delegated_credentials" extension for client authentication
+
+    Fix: ac49b5aff36bc0c4fbee8f013f4d65ad84685039
+    Close: #20728
+
+    (cherry picked from commit 12305e93abf4b31995bb657238c01472b99b4961)
+
+    Co-authored-by: Ivan Nardi <nardi.ivan@gmail.com>
+
+commit ac504cd5de
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Sep 23 11:21:14 2025 +0000
+
+    Mongo: Avoid infinite loop in dissect_op_msg_section
+
+    If the size of a a OP_MSG data section is indicated as -1, that
+    leads to advancing the offset by section_len + 1, or zero, which
+    causes an infinite loop.
+
+    The total message and section lengths in Mongo are signed int32s;
+    it is impossible for them to be negative, and impossible for the
+    section length to be INT_MAX (since the message length includes
+    the length of the four byte headers and flag bits.)
+
+    Throw an error to avoid the offset moving backwards, an infinite loop,
+    or signed integer overflow.
+
+    Also update some URLs to their new locations.
+
+    Fix #20724.
+
+    (cherry picked from commit 1ec4709cab382f7077ba66d2e382c2e75ce335c1)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b8e3ff4044
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 21 10:17:59 2025 +0000
+
+    [Automatic update for 2025-09-21]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    manuf failed.
+
+commit 250164d3c3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Sep 15 10:26:05 2025 +0000
+
+    H.248 Annex E: Fix ToneDetection Tone ID List dissection
+
+    This is a sublist of Enumeration, which maps to a SEQUENCE OF
+    INTEGERS in ASN.1, though the main H.248 dissector takes care of
+    the SEQUENCE OF part. The other Tone ID lists, like hf_h248_pkg_cg_sig_pt_tl,
+    are already h249_param_ber_integer. Note this fixes the last parameter,
+    because implicit is a boolean; to use h248_param_uint_item the last
+    parameter be a length.
+
+    This caused a problem once gbooleans (which are actually 32-bit
+    integers) were replaced with real stdbool bools.
+
+    Fix #20666.
+
+    (cherry picked from commit 73a919a4e4ea4abd14247af3370e6e016996fef6)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 1ff5e91443
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 14 10:17:47 2025 +0000
+
+    [Automatic update for 2025-09-14]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 31d6c2820e
+Author: Ignacy Gawędzki <ignacy.gawedzki@green-communications.fr>
+Date:   Thu Nov 28 16:00:56 2024 +0100
+
+    Add missing packet-ipv6.h to DISSECTOR_PUBLIC_HEADERS
+
+    In commit 1c0f9cd3aef81ce76360af4d094b450e34b1e251, inclusion of
+    packet-ipv6.h was added to several installed files, but the file
+    itself is not installed.
+
+    Signed-off-by: Ignacy Gawędzki <ignacy.gawedzki@green-communications.fr>
+
+commit 3ce5b35a34
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 7 14:04:30 2025 -0700
+
+    tools: Reorder make-enums.py's header list
+
+    Reorder our header file list to suit PyClibrary 0.3.0.
+
+    (cherry picked from commit c9972d95b29e1efe0c43ad47ff7c3e6a0d0adf3f)
+
+commit 99a60e58b4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 7 09:54:24 2025 -0700
+
+    tools: Add a sanity check to make-enums.py
+
+    Add a check to make sure we're not writing fewer lines than what we had
+    before in case we're using a buggy version of PyClibrary (such as
+    0.3.0).
+
+    (cherry picked from commit dc6e17304f4d21704bc3347fa452c5bf993273e3)
+
+commit 25c6875f0c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 7 17:46:18 2025 +0000
+
+    [Automatic update for 2025-09-07]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit c4b47fb51c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu May 1 20:11:50 2025 -0400
+
+    jtckdint: Replace ISC license text with SPDX License Identifier
+
+    Follow our conventions
+
+    (cherry picked from commit 9cd544be2b79abb293ce73fa90014f51397b4935)
+
+commit d09e576d60
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Apr 30 11:54:51 2025 -0400
+
+    jtckdint: Cast to prevent MSVC (C4244) shortening errors
+
+    Explicitly cast the result to prevent MSVC from warning about
+    possible shortening from implicit casts.
+
+    (cherry picked from commit e466733077428d19dd4d4a52c31f35e634775eab)
+
+commit 377efdb1ed
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Apr 29 23:08:15 2025 -0400
+
+    jtckdint: Add C23 compatible checked arithmetic header
+
+    Add a header-only library for C23 checked integer arithmetic from
+    https://github.com/jart/jtckdint
+
+    This header is not used on this branch yet, but makes it easier
+    to backport fixes from the latest development.
+
+    Ping #20144
+
+    (backported from commit 9883652f9657e8bd8f32a8e0a16e2f1a2434969e)
+
+commit 08221207f2
+Author: João Valverde <j@v6e.pt>
+Date:   Fri Aug 29 00:13:07 2025 +0100
+
+    cli_main: Fix freeing argv array
+
+    ISO C allows for argv contents to be modified by user code.
+    Therefore we cannot depend on receiving back the same argv
+    contents that were passed to user code. Otherwise it
+    introduces a potential crash when freeing possibly
+    nulled pointers.
+
+    Instead we introduce a GPtrArray auxiliary data structure
+    to hold on to a private reference to the allocated memory.
+
+    Fix #20500
+
+    (cherry picked from commit 4e065ece7b69b8a7a0cfae79e6c3eeda71985b73)
+
+commit 3a5b19422c
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Sep 2 22:19:33 2025 +0200
+
+    NAS 5GS: fix multiple payloads container
+
+    Fixes #20679
+
+    (cherry picked from commit e4057ab370e6ffeb22cc5a6e5fd1e63af58b4d50)
+
+    Co-authored-by: Pascal Quantin <pascal@wireshark.org>
+
+commit ad991d1a79
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 31 16:54:09 2025 +0000
+
+    [Automatic update for 2025-08-31]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 07bf4ac589
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Aug 31 14:15:40 2025 +0000
+
+    HTTP2: fix updating of existing streams' window
+
+    Previously, the window size delta was computed after setting the initial window size to the new value. That meant that the delta was always thought to be zero.
+
+    (cherry picked from commit 7ac2ee6d8389478097ede8f34e57406ae4610d19)
+
+    Co-authored-by: Benjamin Peterson <benjamin@python.org>
+
+commit 5ff90dd50a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jun 24 17:59:42 2025 -0400
+
+    Qt: Wildcarded disconnect considered harmful
+
+    Only disconnect the main stack from the signal that we connected,
+    instead of doing a wildcarded disconnect all signals. In Qt 6.8.4,
+    6.9.1, and later, the wildcard disconnect causes a Qt warning about
+    disconnecting the destroyed() signal. (Cf. #20174 and commit
+    7a7b99e0d96ff378f531b40300ce41b65a2c049a for a similar case,
+    which caused crashing in QAccessibilityCache, i.e.
+    https://bugreports.qt.io/browse/QTBUG-134610 )
+
+    Prevents warning:
+    ** (wireshark:1860454) 08:10:05.984811 [GUI WARNING] -- QObject::disconnect: wildcard call disconnects from destroyed signal of QStackedWidget::mainStack
+
+    This is the only signal that needs to be disconnected, as it's the
+    only one we manually connect (and the one mentioned in commit
+    a8a3903e55af23bdce550a95ffe14a398fd1204c which introduced the
+    disconnect.)
+
+    (backported from commit 6f13ac41b7df38aaa87ba8a37e72dac3ea84465b)
+
+commit 72766deddc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Aug 29 14:13:57 2025 +0000
+
+    packaging: Use _docdir in RPM spec; fix __bindir on SUSE
+
+    SUSE for some reason defines their __cmake and __ninja macros to
+    depend on _bindir; _bindir depends on _prefix and is the location
+    where the binaries for the package being built will be installed.
+    This isn't the case with __make, which is just defined as /usr/bin/make
+
+    But just because we could be installing to a different prefix doesn't
+    mean we want to run CMake or Ninja out of the directories we're
+    installing to. We want to use the system package CMake and Ninja.
+
+    Also, the newest SUSE doesn't have _docdir set to _datadir/doc by default,
+    so use the _docdir macro (which exists on RHEL/Fedora, and presumably
+    all RPM distributions) for the document file locations.
+
+    (cherry picked from commit 9b72cd7f41ba4cca3d7a6e8bc1eca48d7b157474)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 9ee23bc238
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Aug 29 13:43:59 2025 +0000
+
+    packaging: SUSE Qt6 package names are slightly different
+
+    SUSE also requires that the LinguistTools package be specified.
+    (RH and Fedora pull that in as a dependency on Tools.)
+
+    Also on SUSE 15 use a more recent gcc, for C++17 support.
+
+    (cherry picked from commit abfb145ae98160de1e6a88878579e7be26b6d2f9)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 991a48d324
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Fri Aug 29 06:48:33 2025 +0200
+
+    Edit packet-ltp.c for correcting LTP SDA dissection
+
+    (cherry picked from commit 177eb5fda938939f5ca247a3210df5ed68a49446)
+
+    Co-authored-by: Cheol-Hea Koo <chouoo@gmail.com>
+
+commit 3ee1eb5827
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Aug 28 23:08:13 2025 +0000
+
+    GitLab CI: Build on SUSE 15.6
+
+    Switch to the OpenSUSE 15.6 container on the master branch.
+    We can build against Qt6, though (following upstream) only
+    with a later gcc than the default, due to C++17 support.
+
+    (cherry picked from commit 474facd7045ce26aeea71014497965407b65fa93)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit ea42e82977
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Aug 28 16:18:13 2025 -0700
+
+    Version: 4.4.9 → 4.4.10
+
+    [skip ci]
