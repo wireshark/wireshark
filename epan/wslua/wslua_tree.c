@@ -1093,6 +1093,11 @@ WSLUA_METHOD TreeItem_set_len(lua_State *L) {
     TreeItem ti = checkTreeItem(L,1);
     int len = (int)luaL_checkinteger(L,WSLUA_ARG_TreeItem_set_len_LEN);
 
+    if (len < 0) {
+        luaL_argerror(L,WSLUA_ARG_TreeItem_set_len_LEN,"must be a positive value");
+        return 0;
+    }
+
     proto_item_set_len(ti->item, len);
 
     /* copy the TreeItem userdata so we give it back */
