@@ -19,8 +19,8 @@ import time
 def show_progress(filenum, num_files, filename, num_matching):
     print('')
     print('=== Progress: checking', filename, '-', filenum, 'of', num_files, 'files -', num_matching, 'matching so far ===')
-    print('=== Press Ctrl-C again to within 5 seconds to really exit ===')
-    time.sleep(2)
+    print('=== Press Ctrl-C again within 5 seconds to really exit ===')
+    time.sleep(1.5)
 
 def show_results(complete):
     print('------------------------------')
@@ -99,6 +99,15 @@ parser.add_argument('--tshark', action='store', default='tshark',
                     help='version of tshark to run')
 args = parser.parse_args()
 
+
+# Make sure there is a usable tshark
+try:
+    version_info = subprocess.check_output([ args.tshark, '--version']).decode('utf-8')
+    #print(version_info)
+except Exception as e:
+    print(e)
+    print('Could not run tshark(', args.tshark, ') - please specify a working version using --tshark <path-to-tshark>')
+    exit(1)
 
 # Find files worth checking.
 print('Compiling list of files to check.')
