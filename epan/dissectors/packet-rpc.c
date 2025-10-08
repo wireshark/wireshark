@@ -25,6 +25,7 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/srt_table.h>
+#include <epan/uuid_types.h>
 #include <epan/show_exception.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
@@ -312,8 +313,8 @@ static const fragment_items rpc_frag_items = {
 	"fragments"
 };
 
-/* Hash table with info on RPC program numbers */
-GHashTable *rpc_progs;
+/* UUID table ID with info on RPC program numbers */
+static int rpc_uuid_id;
 
 typedef bool (*rec_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
 	tvbuff_t *, fragment_head *, int, uint32_t, bool, bool);
@@ -414,7 +415,7 @@ rpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
 	{
 		tap_data = g_new0(rpcstat_tap_data_t, 1);
 
-		tap_data->prog    = rpc_prog_name(program);
+		tap_data->prog    = uuid_type_get_uuid_name("rpc", GUINT_TO_POINTER(program), NULL);
 		tap_data->program = program;
 		tap_data->version = version;
 
@@ -505,16 +506,6 @@ rpc_proc_name(wmem_allocator_t *allocator, uint32_t prog, uint32_t vers, uint32_
 /*********************************/
 /* Hash array with program names */
 /*********************************/
-
-static void
-rpc_prog_free_val(void *v)
-{
-	rpc_prog_info_value *value = (rpc_prog_info_value*)v;
-
-	g_array_free(value->procedure_hfs, true);
-	g_free(value);
-}
-
 void
 rpc_init_prog(int proto, uint32_t prog, int ett, size_t nvers,
     const rpc_prog_vers_info *versions)
@@ -523,14 +514,14 @@ rpc_init_prog(int proto, uint32_t prog, int ett, size_t nvers,
 	size_t versidx;
 	const vsff *proc;
 
-	value = g_new(rpc_prog_info_value, 1);
+	value = wmem_new(wmem_epan_scope(), rpc_prog_info_value);
 	value->proto = find_protocol_by_id(proto);
 	value->proto_id = proto;
 	value->ett = ett;
 	value->progname = proto_get_protocol_short_name(value->proto);
-	value->procedure_hfs = g_array_new(false, true, sizeof (int));
+	value->procedure_hfs = wmem_array_new(wmem_epan_scope(), sizeof(int));
 
-	g_hash_table_insert(rpc_progs,GUINT_TO_POINTER(prog),value);
+	uuid_type_insert(rpc_uuid_id, GUINT_TO_POINTER(prog), value);
 
 	/*
 	 * Now register each of the versions of the program.
@@ -539,10 +530,13 @@ rpc_init_prog(int proto, uint32_t prog, int ett, size_t nvers,
 		/*
 		 * Add the operation number hfinfo value for this version.
 		 */
-		value->procedure_hfs = g_array_set_size(value->procedure_hfs,
-		    versions[versidx].vers);
-		g_array_insert_val(value->procedure_hfs,
-		    versions[versidx].vers, *versions[versidx].procedure_hf);
+		int size_diff = versions[versidx].vers - wmem_array_get_count(value->procedure_hfs);
+		if (size_diff > 0)
+		{
+			int* grow_data = wmem_alloc0_array(wmem_epan_scope(), int, size_diff);
+			wmem_array_append(value->procedure_hfs, grow_data, size_diff);
+		}
+		wmem_array_append_one(value->procedure_hfs, *versions[versidx].procedure_hf);
 
 		for (proc = versions[versidx].proc_table; proc->strptr != NULL;
 		    proc++) {
@@ -594,8 +588,8 @@ rpc_prog_hf(uint32_t prog, uint32_t vers)
 {
 	rpc_prog_info_value     *rpc_prog;
 
-	if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,GUINT_TO_POINTER(prog)))) {
-		return g_array_index(rpc_prog->procedure_hfs, int, vers);
+	if ((rpc_prog = (rpc_prog_info_value *)uuid_type_lookup(rpc_uuid_id,GUINT_TO_POINTER(prog)))) {
+		return *((int*)wmem_array_index(rpc_prog->procedure_hfs, vers));
 	}
 	return -1;
 }
@@ -603,21 +597,16 @@ rpc_prog_hf(uint32_t prog, uint32_t vers)
 /*	return the name associated with a previously registered program. This
 	should probably eventually be expanded to use the rpc YP/NIS map
 	so that it can give names for programs not handled by wireshark */
-const char *
-rpc_prog_name(uint32_t prog)
+static const char*
+rpc_prog_name(void* uuid, wmem_allocator_t* scope _U_)
 {
-	const char *progname = NULL;
-	rpc_prog_info_value     *rpc_prog;
+	rpc_prog_info_value* rpc_prog;
 
-	if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,GUINT_TO_POINTER(prog))) == NULL) {
-		progname = "Unknown";
-	}
-	else {
-		progname = rpc_prog->progname;
-	}
-	return progname;
+	if ((rpc_prog = (rpc_prog_info_value*)uuid_type_lookup(rpc_uuid_id, GUINT_TO_POINTER(uuid))) == NULL)
+		return "Unknown";
+
+	return rpc_prog->progname;
 }
-
 
 /*--------------------------------------*/
 /* end of Hash array with program names */
@@ -1953,7 +1942,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Put the program, version, and procedure into the tree. */
 		tmp_item=proto_tree_add_uint_format(tree, prog_id, tvb,
 			0, 0, rpc_call->prog, "Program: %s (%u)",
-			rpc_prog_name(rpc_call->prog), rpc_call->prog);
+			uuid_type_get_uuid_name("rpc", GUINT_TO_POINTER(rpc_call->prog), pinfo->pool), rpc_call->prog);
 		proto_item_set_generated(tmp_item);
 
 		tmp_item=proto_tree_add_uint(tree, vers_id, tvb, 0, 0, rpc_call->vers);
@@ -2051,7 +2040,7 @@ looks_like_rpc_call(tvbuff_t *tvb, packet_info *pinfo, int offset)
 		return NULL;
 
 	/* Do we know this program? */
-	rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs, GUINT_TO_POINTER(rpc_prog_key));
+	rpc_prog = (rpc_prog_info_value *)uuid_type_lookup(rpc_uuid_id, GUINT_TO_POINTER(rpc_prog_key));
 	if (rpc_prog == NULL) {
 		uint32_t version;
 
@@ -2582,7 +2571,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		rpc_prog_key = prog;
-		if ((rpc_prog = (rpc_prog_info_value *)g_hash_table_lookup(rpc_progs,GUINT_TO_POINTER(rpc_prog_key))) == NULL) {
+		if ((rpc_prog = (rpc_prog_info_value *)uuid_type_lookup(rpc_uuid_id,GUINT_TO_POINTER(rpc_prog_key))) == NULL) {
 			proto = NULL;
 			proto_id = proto_rpc_unknown;
 			ett = 0;
@@ -2840,8 +2829,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		tmp_item=proto_tree_add_uint(ptree,
 				hf_rpc_programversion, tvb, 0, 0, vers);
 		proto_item_set_generated(tmp_item);
-		if (rpc_prog && rpc_prog->procedure_hfs && (rpc_prog->procedure_hfs->len > vers) )
-			procedure_hf = g_array_index(rpc_prog->procedure_hfs, int, vers);
+		if (rpc_prog && rpc_prog->procedure_hfs && (wmem_array_get_count(rpc_prog->procedure_hfs) > vers) )
+			procedure_hf = *((int*)wmem_array_index(rpc_prog->procedure_hfs, vers));
 		else {
 			/*
 			 * No such element in the GArray.
@@ -3984,7 +3973,7 @@ static void rpc_prog_stat_init(stat_tap_table_ui* new_stat)
 }
 
 static tap_packet_status
-rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *rciv_ptr, tap_flags_t flags _U_)
+rpc_prog_stat_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *rciv_ptr, tap_flags_t flags _U_)
 {
 	stat_data_t* stat_data = (stat_data_t*)tapdata;
 	const rpc_call_info_value *ri = (const rpc_call_info_value *)rciv_ptr;
@@ -4017,7 +4006,7 @@ rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 		memset(items, 0, sizeof(items));
 
 		items[PROGRAM_NAME_COLUMN].type = TABLE_ITEM_STRING;
-		items[PROGRAM_NAME_COLUMN].value.string_value = g_strdup(rpc_prog_name(ri->prog));
+		items[PROGRAM_NAME_COLUMN].value.string_value = g_strdup(uuid_type_get_uuid_name("rpc", GUINT_TO_POINTER(ri->prog), pinfo->pool));
 		items[PROGRAM_NUM_COLUMN].type = TABLE_ITEM_UINT;
 		items[PROGRAM_NUM_COLUMN].value.uint_value = ri->prog;
 		items[VERSION_COLUMN].type = TABLE_ITEM_UINT;
@@ -4092,12 +4081,6 @@ rpc_prog_stat_free_table_item(stat_tap_table* table _U_, unsigned row _U_, unsig
 {
 	if (column != PROGRAM_NAME_COLUMN) return;
 	g_free((char*)field_data->value.string_value);
-}
-
-static void
-rpc_shutdown(void)
-{
-	g_hash_table_destroy(rpc_progs);
 }
 
 /* will be called once from register.c at startup time */
@@ -4455,12 +4438,10 @@ proto_register_rpc(void)
 	 * will be called before any handoff registration routines
 	 * are called.
 	 */
-	rpc_progs = g_hash_table_new_full(g_direct_hash, g_direct_equal,
-			NULL, rpc_prog_free_val);
+	/* The program ID is considered a UUID so that the hash table can be more cleanly shared with the GUI layer */
+	rpc_uuid_id = uuid_type_dissector_register("rpc", g_direct_hash, g_direct_equal, rpc_prog_name);
 
 	authgss_contexts=wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-
-	register_shutdown_routine(rpc_shutdown);
 }
 
 void

@@ -438,14 +438,6 @@ typedef void (*decode_add_show_list_func)(void *data, void *user_data);
 WS_DLL_PUBLIC void decode_dcerpc_add_show_list(decode_add_show_list_func func, void *user_data);
 
 
-/* the registered subdissectors. With MSVC and a
- * libwireshark.dll, we need a special declaration.
- */
-/* Key: guid_key *
- * Value: dcerpc_uuid_value *
- */
-WS_DLL_PUBLIC GHashTable *dcerpc_uuids;
-
 typedef struct _dcerpc_uuid_value {
     protocol_t *proto;
     int proto_id;

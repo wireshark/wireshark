@@ -144,7 +144,6 @@ extern const value_string rpc_auth_flavor[];
 
 WS_DLL_PUBLIC void rpc_init_prog(int proto, uint32_t prog, int ett, size_t nvers,
     const rpc_prog_vers_info *versions);
-WS_DLL_PUBLIC const char *rpc_prog_name(uint32_t prog);
 WS_DLL_PUBLIC const char *rpc_proc_name(wmem_allocator_t *allocator, uint32_t prog, uint32_t vers, uint32_t proc);
 WS_DLL_PUBLIC int rpc_prog_hf(uint32_t prog, uint32_t vers);
 
@@ -195,16 +194,8 @@ typedef struct _rpc_prog_info_value {
 	int proto_id;
 	int ett;
 	const char* progname;
-	GArray *procedure_hfs; /* int */
+	wmem_array_t* procedure_hfs; /* int */
 } rpc_prog_info_value;
-
-/* rpc_progs is also used in tap. With MSVC and a
- * libwireshark.dll, we need a special declaration.
- */
-/* Key: Program number (uint32_t)
- * Value: rpc_prog_info_value *
- */
-WS_DLL_PUBLIC GHashTable *rpc_progs;
 
 typedef struct _rpc_proc_info_key {
 	uint32_t	prog;

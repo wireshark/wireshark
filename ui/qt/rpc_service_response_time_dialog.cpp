@@ -21,6 +21,7 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-rpc.h>
 #include <epan/guid-utils.h>
+#include <epan/uuid_types.h>
 #include <epan/to_str.h>
 #include <epan/srt_table.h>
 
@@ -110,7 +111,7 @@ RpcServiceResponseTimeDialog::RpcServiceResponseTimeDialog(QWidget &parent, Capt
 
     if (dlg_type == DceRpc) {
         setWindowSubtitle(tr("DCE-RPC Service Response Times"));
-        g_hash_table_foreach(dcerpc_uuids, dce_rpc_add_program, this);
+        uuid_type_foreach("dcerpc", dce_rpc_add_program, this);
         // This is a loooooong list. The GTK+ UI addresses this by making
         // the program combo a tree instead of a list. We might want to add a
         // full-height list to the left of the stats tree instead.
@@ -121,7 +122,7 @@ RpcServiceResponseTimeDialog::RpcServiceResponseTimeDialog(QWidget &parent, Capt
         program_combo_->addItems(programs);
     } else {
         setWindowSubtitle(tr("ONC-RPC Service Response Times"));
-        g_hash_table_foreach(rpc_progs, onc_rpc_add_program, this);
+        uuid_type_foreach("rpc", onc_rpc_add_program, this);
         QStringList programs = onc_name_to_program_.keys();
         std::sort(programs.begin(), programs.end(), qStringCaseLessThan);
         connect(program_combo_, SIGNAL(currentTextChanged(const QString)),
@@ -318,7 +319,7 @@ void RpcServiceResponseTimeDialog::dceRpcProgramChanged(const QString &program_n
 
     if (!dce_name_to_uuid_key_.contains(program_name)) return;
 
-    g_hash_table_foreach(dcerpc_uuids, dce_rpc_find_versions, this);
+    uuid_type_foreach("dcerpc", dce_rpc_find_versions, this);
 
     fillVersionCombo();
 }

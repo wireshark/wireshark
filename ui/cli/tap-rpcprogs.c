@@ -23,6 +23,7 @@
 #include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
+#include <epan/uuid_types.h>
 #include <epan/dissectors/packet-rpc.h>
 
 #include <wsutil/cmdarg_err.h>
@@ -187,7 +188,7 @@ rpcprogs_draw(void *tapdata)
 		td = ((uint64_t)(rp->tot.secs)) * NANOSECS_PER_SEC + rp->tot.nsecs;
 		td = ((td / rp->num) + 500) / 1000;
 
-		snprintf(str, sizeof(str), "%s(%d)", rpc_prog_name(rp->program), rp->program);
+		snprintf(str, sizeof(str), "%s(%d)", uuid_type_get_uuid_name("rpc", GUINT_TO_POINTER(rp->program), NULL), rp->program);
 		printf("%-15s %2u %6d %3d.%06d %3d.%06d %3" PRIu64 ".%06" PRIu64 "\n",
 		       str,
 		       rp->version,

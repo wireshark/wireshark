@@ -45,6 +45,7 @@
 #include "tap.h"
 #include "addr_resolv.h"
 #include "oids.h"
+#include "uuid_types.h"
 #include <epan/wmem_scopes.h>
 #include "expert.h"
 #include "print.h"
@@ -281,6 +282,7 @@ epan_init(register_cb cb, void *client_data, bool load_plugins)
 	value_string_externals_init();
 
 	/* initialize the GUID to name mapping table */
+	uuid_types_initialize();
 	guids_init();
 
 	/* initialize name resolution (addr_resolv.c) */
