@@ -331,7 +331,7 @@ de_sgsap_lcs_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint
  * information elements of the MM information message as defined in
  * 3GPP TS 24.008, excluding the Protocol discriminator, Skip
  * indicator and Message type. This field includes the IEI and length
- * indicatior of the other information elements.
+ * indicator of the other information elements.
  */
 static uint16_t
 de_sgsap_mm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)

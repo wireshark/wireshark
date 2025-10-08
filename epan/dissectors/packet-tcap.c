@@ -2059,7 +2059,7 @@ create_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
 }
 
 /*
- * Create the record identifiying the TCAP transaction
+ * Create the record identifying the TCAP transaction
  * When the identifier for the transaction is reused, check
  * the following criteria before to append a new record:
  * - a timeout corresponding to a message retransmission is detected,
@@ -2802,7 +2802,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /*
  * Service Response Time analyze
  * Called just after dissector call
- * Associate a TCAP context to a tcap session and display session related infomations
+ * Associate a TCAP context to a tcap session and display session related information
  * like the first frame, the last, the session duration,
  * and a uniq session identifier for the filtering
  *

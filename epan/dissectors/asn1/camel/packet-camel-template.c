@@ -306,7 +306,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #include "packet-camel-table.c"
 
 /*
- * DEBUG fonctions
+ * DEBUG functions
  */
 
 #undef DEBUG_CAMELSRT
@@ -578,7 +578,7 @@ camelsrt_tcap_matching(tvbuff_t *tvb _U_, packet_info *pinfo,
 }
 
 /*
- * Create the record identifiying the Camel session
+ * Create the record identifying the Camel session
  * As the Tcap session id given by the TCAP dissector is uniq, it will be
  * used as main key.
  */

@@ -4703,7 +4703,7 @@ dissect_client_capability_report(tvbuff_t *tvb, packet_info *pinfo _U_,
          * 10 for a Reassoc Request.
          *
          * => The problem is that you don't know which of the 2 it is and where the IE start
-         * => Assume the most occuring case and thus useful case (Assoc Request)
+         * => Assume the most occurring case and thus useful case (Assoc Request)
          */
         if (len >= ASSOC_REQ_BODY_FIXED_SIZE) {
             proto_tree *ie_tree;
@@ -7463,7 +7463,7 @@ dissect_disassociation_reason_code(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 /*
- * Dissect a Backhaul STA Radio Capabilitoes TLV:
+ * Dissect a Backhaul STA Radio Capabilities TLV:
  */
 static int * const backhaul_sta_radio_capa_flags[] = {
     &hf_ieee1905_backhaul_sta_radio_capa_mac_included,

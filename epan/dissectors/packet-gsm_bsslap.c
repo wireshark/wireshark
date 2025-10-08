@@ -463,7 +463,7 @@ de_tfi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset,
 
 /*
 This enum has been moved to packet-gsm_a_common to
-make it possible to use element dissecton from this dissector
+make it possible to use element dissection from this dissector
 in other dissectors.
 It is left here as a comment for easier reference.
 

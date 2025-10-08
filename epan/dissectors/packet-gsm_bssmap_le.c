@@ -735,7 +735,7 @@ static int ett_gsm_bssmap_le_msg[NUM_GSM_BSSMAP_LE_MSG];
 
 /*
 This enum is defined in packet-gsm_a_common.h to
-make it possible to use element dissecton from this dissector
+make it possible to use element dissection from this dissector
 in other dissectors.
 
 It is shown here as a comment for easier reference.

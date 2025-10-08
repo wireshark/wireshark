@@ -3435,7 +3435,7 @@ static rtps_psk_options_t rtps_psk_options = { NULL, 0 };
  * app_id, instance_id, and psk_index. These fields do not require a match if
  * the user leaves them empty or containing only the '*' wildcard character
  * (note that the the psk secret passphrase must always match). Ignoring all the
- * previuos fields will result in an attempt to decode the RTPS message
+ * previous fields will result in an attempt to decode the RTPS message
  * regardless of the GUID or the PSK index.
  */
 UAT_CSTRING_CB_DEF(
@@ -4606,7 +4606,7 @@ static int dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, packet_info *p
             }
 
             /* If reached the limit and there are remaining elements we need to show the message and
-             * assign the length of the ramining elements to this */
+             * assign the length of the remaining elements to this */
             if (enable_max_array_data_type_elements && show && !show_current_element) {
                 proto_tree_add_subtree_format(
                     aux_tree,
@@ -4636,7 +4636,7 @@ static int dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, packet_info *p
             unsigned seq_size =  tvb_get_uint32(tvb, offset, encoding);
 
             /* In case this sequence is not shown and is a native type. We get the sze length for calculating
-             * the whole seuqnece length */
+             * the whole sequence length */
             if (info != NULL) {
                 sequence_kind_length = get_native_type_cdr_length(info->base_type_id);
             }
@@ -4678,7 +4678,7 @@ static int dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, packet_info *p
                          info->base_type_id, temp_buff, EXTENSIBILITY_INVALID, offset_zero, 0, 0, show_current_element);
             }
             /* If reached the limit and there are remaining elements we need to show the message and
-             * assign the length of the ramining elements to this */
+             * assign the length of the remaining elements to this */
             if (enable_max_array_data_type_elements && show && !show_current_element) {
                 proto_tree_add_subtree_format(
                     aux_tree,
@@ -4817,7 +4817,7 @@ static int dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, packet_info *p
                 num_elements = info->num_elements;
               }
               /* If reached the limit and there are remaining elements we need to show the message and
-               * assign the length of the ramining elements to this */
+               * assign the length of the remaining elements to this */
               if (enable_max_array_data_type_elements && show && !show_current_element) {
                 proto_tree_add_subtree_format(
                   aux_tree,
@@ -6392,7 +6392,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
      *          <type_code_length>
      *
      * <kind> ::= long (0=TK_NULL, 1=TK_SHORT...)
-     * <type_code_length> ::= unsugned short
+     * <type_code_length> ::= unsigned short
      *
      */
   switch(tk_id) {
@@ -9917,7 +9917,7 @@ static type_mapping * rtps_util_get_topic_info(endpoint_guid * guid) {
   if (guid) {
     unsigned entity_id_low = 0xFF & guid->entity_id;
     /* If the entity guid low is ENTITYID_NORMAL_META_GROUP_READER or ENTITYID_NORMAL_META_GROUP_WRITER then
-     * is a builtin endpoint that uses the type InstaneStateResponseData. The type_mapping for this type is not
+     * is a builtin endpoint that uses the type InstanceStateResponseData. The type_mapping for this type is not
      * available through discovery. It is defined by code in
      * initialize_instance_state_data_response_dissection_info function.
      */
@@ -9995,7 +9995,7 @@ static const char* rtps_util_add_topic_info(proto_tree *tree, packet_info* pinfo
  * @param[in] size in bytes from the initial offset to the end of the serialized data
  * @param[in] compressed_size size in bytes of the compressed chunk in the tvb.
  * @param[out] True if it tries to uncompress the data. In environment where Zlib is not available this will be false. This is used for
- *   distinguis when the data is not decompressed because Zlib is not available (not warning) and cases where it is but fails (warning).
+ *   distinguish when the data is not decompressed because Zlib is not available (not warning) and cases where it is but fails (warning).
  *
  * @return The uncompressed data on a new TVB if everything goes fine. Otherwise NULL
  */
@@ -10030,7 +10030,7 @@ tvbuff_t *rtps_util_get_uncompressed_tvb_zlib(
  *  C = 0b000 to indicate no compression
 */
 
-/* Dissects the encapsultaion options
+/* Dissects the encapsulation options
 *
 * @param[in] tree
 * @param[in] packet info.
@@ -12663,7 +12663,7 @@ static bool dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, packe
      * only applies to an end coherent set sample.
      * Since there are different ways to finish a coherent set it is necessary
      * to store information about the available coherent sets. this PID requires
-     * set the corrresponding coherence set as "is_set".
+     * set the corresponding coherence set as "is_set".
      */
      /* 0...2...........7...............15.............23...............31
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -13200,7 +13200,7 @@ static void dissect_parameterized_serialized_data(proto_tree *tree, tvbuff_t *tv
  *  could be used to define a custom compressor plugin for matching purposes.
  */
 
- /* Dissects the encapsultaion header and uncompress the serialized
+ /* Dissects the encapsulation header and uncompress the serialized
   *  data if is is compressed and it is compressed in using Zlib.
   *
   * @param[in] tree
@@ -13209,17 +13209,17 @@ static void dissect_parameterized_serialized_data(proto_tree *tree, tvbuff_t *tv
   * @param[in] offset offset at the beginning of the encapsulation id.
   * @param[in] size in bytes from the initial offset to the end of the serialized data
   * @param[in] uncompress_if_compressed true for uncompressing if the data should be uncompressed.
-  * @param[out] encapsulation_id_out If not null it will contain the encapsultaion_id
+  * @param[out] encapsulation_id_out If not null it will contain the encapsulation_id
   * @param[out] compression_option_out If not null it will contain the compression option
   * @param[out] padding_bytes_out If not null it will contain the padding bytes
   * @param[out] extended_compression_options_out If not null it will contain the extended compression options
   * @param[out] extended_header_bits_out If not null it will contain the extended header bits
-  * @param[out] is_compressed_out If not null it will indicate if the serielized data is compressed
-  * @param[out] uncompressed_ok_out If not null it will indicate if the serizlized data has been successfully uncompressed
-  * @param[out] uncompressed_tvb_out If not null it will contain the uncompressed tvb pointer. If the seriaized data is not uncompressed it will return NULL.
+  * @param[out] is_compressed_out If not null it will indicate if the serialized data is compressed
+  * @param[out] uncompressed_ok_out If not null it will indicate if the serialized data has been successfully uncompressed
+  * @param[out] uncompressed_tvb_out If not null it will contain the uncompressed tvb pointer. If the serialized data is not uncompressed it will return NULL.
   * @param[out] compressed_data_tree_out If not null it will contain the subtree of the uncompressed data.
   *
-  * @return the offset after the at the beginining of the serialized data
+  * @return the offset after the at the beginning of the serialized data
   * @note All output parameters are optional.
   */
 static
@@ -13385,7 +13385,7 @@ int rtps_prepare_encapsulated_data(
  * type specified the type of endianness of the payload.
  *
  *  Fragmentation : Options only appear on first fragment
- * Serieaized data might be compressed or uncompressed. Depending on that the
+ * Serialized data might be compressed or uncompressed. Depending on that the
  * header contains more elements. This is indicated in the encapsulation
  * options where:
  *
@@ -13502,7 +13502,7 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
      * - uncompressed_tvb contains the uncompressed tvb or the packet tvb
      * - compressed_data_tree points to the tree of the uncompressed data
      *       or the rtps_parameter_sequence_tree.
-     * - offset points to 0 of the uncompressed tvb or the offseet of the packet
+     * - offset points to 0 of the uncompressed tvb or the offset of the packet
      *       tvb if it is not decompressed.
      * Only try to dissect the user data if it is not compressed or it is compressed and correctly uncompressed */
     if (is_compressed == uncompressed_ok) {
@@ -16880,7 +16880,7 @@ static void dissect_RTI_CRC(tvbuff_t *tvb, packet_info *pinfo, int offset, uint8
 }
 
 /**
- * @brief Do a forward search for the begining of the tags section in the
+ * @brief Do a forward search for the beginning of the tags section in the
  * SRTPS POSTFIX/SEC POSTFIX submessage.
  */
 static int rtps_util_look_for_secure_tag(
@@ -17057,7 +17057,7 @@ static void dissect_SECURE(
      * When decrypting with PSKs there is only one tag in the SRTPS POSTFIX/SEC
      * POSTFIX submessage. The offset is the one until the next submessage.
      * The 4 constant is the sum of submessage_id(1 byte)
-     * + flags (1 byte) + octects to the next submessage(2 bytes)
+     * + flags (1 byte) + octets to the next submessage(2 bytes)
      */
     tag_offset = rtps_util_look_for_secure_tag(
         tvb,
@@ -17204,7 +17204,7 @@ static void dissect_SECURE_PREFIX(tvbuff_t *tvb, packet_info *pinfo _U_, int off
      * +                 octet transformation_key_id[4]                +
      * |                                                               |
      * +---------------+---------------+---------------+---------------+
-     * |                          sesion_id                            |
+     * |                          session_id                           |
      * +---------------+---------------+---------------+---------------+
      * |               init_vector_suffix[8]                           |
      * +---------------+---------------+---------------+---------------+
@@ -18371,7 +18371,7 @@ static void initialize_instance_state_data_response_dissection_info(builtin_type
    */
 
   /* This type mapping is not available in the "registry" map. It is used in the function
-   * rtps_util_get_topic_info when the endopint GUID determines that the type is InstanceStateDataResponse
+   * rtps_util_get_topic_info when the endpoint GUID determines that the type is InstanceStateDataResponse
    */
   _builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.type_id = InstanceStateDataResponse_type_id;
   _builtin_types_dissection_data->type_mappings.instance_state_data_response_type_mapping.guid.entity_id = ENTITYID_NORMAL_META_GROUP_READER;

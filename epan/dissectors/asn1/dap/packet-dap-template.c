@@ -1,5 +1,5 @@
 /* packet-dap.c
- * Routines for X.511 (X.500 Directory Asbtract Service) and X.519 DAP  packet dissection
+ * Routines for X.511 (X.500 Directory Abstract Service) and X.519 DAP  packet dissection
  * Graeme Lunt 2005
  *
  * Wireshark - Network traffic analyzer

@@ -967,6 +967,7 @@ eventlog
 evolutions
 exclusions
 executables
+exegin
 exflags
 exfunc
 exocet
@@ -1535,6 +1536,7 @@ literals
 lithionics
 lithuanian
 llcgprs
+lldpdu
 llogd
 lnpdqp
 localise
@@ -1803,6 +1805,8 @@ natively
 nbifom
 nbrar
 nbytes
+ncell
+ndiswan
 ndpsm
 ndriver
 nederland
@@ -1833,6 +1837,7 @@ netxray
 newark
 newpw
 nexthop
+nextint
 nextseq
 nforge
 nfs2err
@@ -2111,6 +2116,7 @@ phonebook
 phymod
 physcellid
 physlink
+phytype
 picmg
 picosecond
 pinfo
@@ -3394,6 +3400,7 @@ wscbor
 wslog
 wslua
 wsluarm
+wstring
 wsutil
 x32bit
 x509ce

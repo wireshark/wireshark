@@ -28369,7 +28369,7 @@ has_comeback_after(uint8_t flags, tvbuff_t *tvb, int offset, int len _U_)
   }
 
   /*
-   * If there is a comeback field and the comback_after is present ...
+   * If there is a comeback field and the comeback_after is present ...
    */
   if (flags & 0x01) {
         /* Check if the comeback_after field is there? */

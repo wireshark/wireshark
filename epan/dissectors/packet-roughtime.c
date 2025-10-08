@@ -446,7 +446,7 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
     /*
      * Conversation data
      *
-     * Checks must only suceed on top-level message (non-recursive)
+     * Checks must only succeed on top-level message (non-recursive)
      */
     if(conv_data && pinfo->dissection_depth == 1) {
 
