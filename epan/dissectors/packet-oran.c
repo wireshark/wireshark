@@ -5114,6 +5114,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
     else if (sectionType != SEC_C_LAA) {
+        /* numberOfSections */
         proto_tree_add_item_ret_uint(section_tree, hf_oran_numberOfSections, tvb, offset, 1, ENC_NA, &nSections);
     }
     else {
@@ -5347,9 +5348,13 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     }
 
 
-    proto_item_append_text(sectionHeading, "%d, %s, Frame: %d, Subframe: %d, Slot: %d, StartSymbol: %d",
+    proto_item_append_text(sectionHeading, "%d, %s, frameId: %d, subframeId: %d, slotId: %d, startSymbolId: %d",
                            sectionType, val_to_str_const(direction, data_direction_vals, "Unknown"),
                            frameId, subframeId, slotId, startSymbolId);
+    if (nSections) {
+        proto_item_append_text(sectionHeading, ", numberOfSections=%u", nSections);
+    }
+
     write_pdu_label_and_info(protocol_item, NULL, pinfo, ", Type: %2d %s", sectionType,
                              rval_to_str_const(sectionType, section_types_short, "Unknown"));
 
@@ -6135,7 +6140,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *pi = proto_tree_add_string(timing_header_tree, hf_oran_refa, tvb, ref_a_offset, 3, id);
     proto_item_set_generated(pi);
 
-    proto_item_append_text(timingHeader, "%s, Frame: %d, Subframe: %d, Slot: %d, Symbol: %d)",
+    proto_item_append_text(timingHeader, "%s, frameId: %d, subframeId: %d, slotId: %d, symbolId: %d)",
         val_to_str_const(direction, data_direction_vals, "Unknown"), frameId, subframeId, slotId, symbolId);
 
     unsigned sample_bit_width;
@@ -6792,7 +6797,7 @@ proto_register_oran(void)
           { "Number of Sections", "oran_fh_cus.numberOfSections",
             FT_UINT8, BASE_DEC,
             NULL, 0x0,
-            "The number of section IDs included in this C-Plane message", HFILL}
+            "The number of section IDs included in this message", HFILL}
         },
 
         /* Section 7.5.2.9 */
