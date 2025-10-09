@@ -7679,7 +7679,7 @@ proto_register_dns(void)
         NULL, HFILL }},
 
     { &hf_dns_hip_pk_algo,
-      { "HIT algorithm", "dns.hip.hit.pk.algo",
+      { "PK algorithm", "dns.hip.hit.pk.algo",
         FT_UINT8, BASE_DEC, VALS(hip_algo_vals), 0,
         NULL, HFILL }},
 
