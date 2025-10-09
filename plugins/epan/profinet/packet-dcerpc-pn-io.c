@@ -218,7 +218,7 @@ static int hf_pn_io_iocr_properties_full_subframe_structure;
 static int hf_pn_io_data_length;
 static int hf_pn_io_ir_frame_data;
 static int hf_pn_io_frame_id;
-static int hf_pn_io_gating_cycle;
+static int hf_pn_io_send_clock_factor;
 static int hf_pn_io_reduction_ratio;
 static int hf_pn_io_phase;
 static int hf_pn_io_sequence;
@@ -435,6 +435,7 @@ static int hf_pn_io_yellowtime;
 static int hf_pn_io_reserved_interval_begin;
 static int hf_pn_io_reserved_interval_end;
 static int hf_pn_io_pllwindow;
+static int hf_pn_io_gating_cycle;
 static int hf_pn_io_sync_send_factor;
 static int hf_pn_io_sync_properties;
 static int hf_pn_io_sync_frame_address;
@@ -13829,7 +13830,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
     uint16_t    u16LT;
     uint16_t    u16DataLength;
     uint16_t    u16FrameID;
-    uint16_t    u16GatingCycle;
+    uint16_t    u16SendClockFactor;
     uint16_t    u16ReductionRatio;
     uint16_t    u16Phase;
     uint16_t    u16Sequence;
@@ -13889,7 +13890,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_frame_id, &u16FrameID);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_gating_cycle, &u16GatingCycle);
+                        hf_pn_io_send_clock_factor, &u16SendClockFactor);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_reduction_ratio, &u16ReductionRatio);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
@@ -13932,7 +13933,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ": %s, Ref:0x%x, Len:%u, FrameID:0x%x, Clock:%u, Ratio:%u, Phase:%u APIs:%u",
         val_to_str(pinfo->pool, u16IOCRType, pn_io_iocr_type, "0x%x"),
         u16IOCRReference, u16DataLength, u16FrameID,
-        u16GatingCycle, u16ReductionRatio, u16Phase, u16NumberOfAPIs);
+        u16SendClockFactor, u16ReductionRatio, u16Phase, u16NumberOfAPIs);
 
     while (u16NumberOfAPIs--) {
         api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, ENC_NA);
@@ -18632,8 +18633,8 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_gating_cycle,
-      { "GatingCycle", "pn_io.gating_cycle",
+    { &hf_pn_io_send_clock_factor,
+      { "SendClockFactor", "pn_io.send_clock_factor",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     }, /* XXX - special values */
@@ -19538,6 +19539,11 @@ proto_register_pn_io (void)
     { &hf_pn_io_pllwindow,
       { "PLLWindow", "pn_io.pllwindow",
         FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_gating_cycle,
+      { "GatingCycle", "pn_io.gating_cycle",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_sync_send_factor,
