@@ -325,8 +325,9 @@ static const struct supported_block_type json_blocks_supported[] = {
     { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
+// https://jsonlines.org/ suggests .jsonl, but .json and .log seem to be more common.
 static const struct file_type_subtype_info json_log_info = {
-    "JSON Log", "jsonlog", "jsonl", "log",
+    "JSON Log", "jsonlog", "jsonl", "json;log",
     false, BLOCKS_SUPPORTED(json_blocks_supported),
     NULL, NULL, NULL
 };

@@ -183,7 +183,7 @@ static const struct file_extension_info wireshark_file_type_extensions_base[] = 
 	{ "JPEG/JFIF files", false, "jpg;jpeg;jfif" },
 	{ "NetLog file", true, "json" },
 	{ "JavaScript Object Notation file", false, "json" },
-	{ "JSON Lines", true, "jsonl;log" },
+	{ "JSON Log", true, "json;jsonl;log" },
 	{ "MP4 file", false, "mp4" },
 	{ "RTPDump file", false, "rtp;rtpdump" },
 	{ "EMS file", false, "ems" },
@@ -196,7 +196,7 @@ static const struct file_extension_info wireshark_file_type_extensions_base[] = 
 
 static const struct file_extension_info stratoshark_file_type_extensions_base[] = {
 	{ "Stratoshark/... - scap", true, "scap"},
-	{ "JSON Lines", true, "jsonl;log" },
+	{ "JSON Log", true, "json;jsonl;log" },
 };
 
 #define N_STRATOSHARK_FILE_TYPE_EXTENSIONS array_length(stratoshark_file_type_extensions_base)
@@ -450,7 +450,7 @@ static const struct open_info open_info_base[] = {
 	/* NetLog needs to be before JSON because it is a specifically formatted JSON file */
 	{ "NetLog",                                 OPEN_INFO_HEURISTIC, netlog_open,              "json",     NULL, NULL },
 	/* JSON Log needs to be before JSON because it handles a variety of JSON logs */
-	{ "JSON Log",                               OPEN_INFO_HEURISTIC, json_log_open,            "jsonl;log", NULL, NULL },
+	{ "JSON Log",                               OPEN_INFO_HEURISTIC, json_log_open,            "json;jsonl;log", NULL, NULL },
 	{ "JavaScript Object Notation",             OPEN_INFO_HEURISTIC, json_open,                "json",     NULL, NULL },
 	{ "Bachmann M-Module File",                 OPEN_INFO_HEURISTIC, mmodule_open,             "m",        NULL, NULL },
 	{ "Ruby Marshal Object",                    OPEN_INFO_HEURISTIC, ruby_marshal_open,        "",         NULL, NULL },
