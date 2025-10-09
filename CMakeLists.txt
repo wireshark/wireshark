@@ -1410,31 +1410,14 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 		if (APPLE AND Qt6Widgets_VERSION VERSION_LESS 6.5.3)
 			message(WARNING "Qt 6.5.3 or later is required.")
 		endif()
-	else(USE_qt6)
+	else() # USE_qt6
 		set(qtver 5)
 		if(DEFINED ENV{WIRESHARK_QT5_PREFIX_PATH})
 			list(APPEND CMAKE_PREFIX_PATH $ENV{WIRESHARK_QT5_PREFIX_PATH})
 		endif()
-		message(DEPRECATION "Support for building with Qt5 will be removed in the future.")
-		if(APPLE)
-			# Homebrew installs Qt5 in different locations for different
-			# versions and architectures. Ensure that it can be found by
-			# CMake since it is not in the default /usr/local prefix.
-			set(QT5_APPLE_PATHS
-				/opt/homebrew/opt/qt@5
-				/opt/homebrew/opt/qt5
-				/usr/local/opt/qt@5
-				/usr/local/opt/qt5
-			)
-			foreach(_qt5_apple_path in QT5_APPLE_PATHS)
-				if(EXISTS ${_qt5_apple_path})
-					# Add it to PATHS so that it doesn't override the
-					# CMAKE_PREFIX_PATH environment variable.
-					# QT_FIND_PACKAGE_OPTIONS should be passed to find_package,
-					# e.g. find_package(Qt5Core ${QT_FIND_PACKAGE_OPTIONS})
-					list(APPEND QT5_FIND_PACKAGE_OPTIONS PATHS ${_qt5_apple_path})
-				endif()
-			endforeach()
+		message(DEPRECATION "Support for building with Qt 5 will be removed in the future.")
+		if(APPLE OR WIN32)
+			message(FATAL_ERROR "Qt 6 is required to build on ${CMAKE_SYSTEM_NAME}.")
 		endif()
 
 		set(QT5_PACKAGELIST
@@ -1446,15 +1429,10 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 			Qt5Concurrent
 		)
 		set(QT5_OPTIONAL_PACKAGELIST
+			# DBus is a core component of Qt6, but was an add-on in Qt5.
+			Qt5DBus
 			Qt5Multimedia
 		)
-		if(WIN32)
-			list(APPEND QT5_PACKAGELIST Qt5WinExtras)
-		endif()
-		if(NOT WIN32 AND NOT APPLE)
-			# DBus is a core component of Qt6, but was an add-on in Qt5.
-			list(APPEND QT5_OPTIONAL_PACKAGELIST Qt5DBus)
-		endif()
 		foreach(_qt5_package IN LISTS QT5_PACKAGELIST)
 			find_package(${_qt5_package} REQUIRED ${QT5_FIND_PACKAGE_OPTIONS})
 			list(APPEND QT5_LIBRARIES ${${_qt5_package}_LIBRARIES})
@@ -1481,7 +1459,7 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 			# of the Qt6 headers. Resolve this by explicit including Qt5.
 			list(APPEND QT5_INCLUDE_DIRS /usr/local/opt/qt5/include)
 		endif()
-	endif(USE_qt6)
+	endif() # USE_qt6
 
 	set(QT_FOUND ON)
 	if(APPLE)
