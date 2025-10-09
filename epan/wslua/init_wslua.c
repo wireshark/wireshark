@@ -272,6 +272,22 @@ static int dissector_error_handler(lua_State *LS) {
     return -2;
 }
 
+static void lua_resetthread_cb(void *user_data) {
+
+    lua_State *L1 = (lua_State*)user_data;
+
+    ws_debug("freeing thread: %p", L1);
+    // lua_closethread(..., NULL) was introduced in 5.4.6 to replace
+    // lua_resetthread() but it's not mandatory yet (maybe in 5.5?)
+    lua_resetthread(L1);
+    // The thread was pushed onto the global stack when created. Each thread
+    // should be taken off the stack in order.
+    lua_State *L2 = lua_tothread(L, -1);
+    ws_assert(L1 == L2);
+    // Now remove the thread from the global state stack, which will allow it
+    // to be garbage collected.
+    lua_pop(L, 1);
+}
 
 int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
     int consumed_bytes = tvb_captured_length(tvb);
@@ -286,49 +302,64 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
      * dissectors[current_proto](tvb,pinfo,tree)
      */
 
-    // set the stack top be index 0
-    lua_settop(L,0);
+    // Create a new thread with an independent execution stack and,
+    // importantly, an independent errorJmp linked list. This avoids
+    // issues with nested lua_pcalls, where a Wireshark exception
+    // can longjmp out of the inner pcall's luaD_rawunprotected function,
+    // and a lua_error from the outer pcall then tries to longjmp to
+    // the exited no longer valid inner setjmp, which is undefined
+    // behavior and likely crashes.
+    // This pushes the new thread onto the global stack (which
+    // prevents the new thread from being garbage collected.)
+    lua_State *L1 = lua_newthread(L);
+    ws_debug("new Lua thread: %p", L1);
+
+    // Make sure that even in the case of an uncaught Wireshark exception
+    // that the thread is reset and garbage collected. (This could possibly
+    // be a TRY..FINALLY block that also does some handling to put the
+    // Lua call stack in the tree.)
+    CLEANUP_PUSH(lua_resetthread_cb, L1);
 
     // After call, stack: [ error_handler_func ]
-    lua_pushcfunction(L, dissector_error_handler);
+    lua_pushcfunction(L1, dissector_error_handler);
 
     // Push the dissectors table onto the the stack
     // After call, stack: [ error_handler_func, dissectors_table ]
-    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
+    lua_rawgeti(L1, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
 
     // Push a copy of the current_proto string onto the stack
     // After call, stack: [ error_handler_func, dissectors_table, current_proto ]
-    lua_pushstring(L, pinfo->current_proto);
+    lua_pushstring(L1, pinfo->current_proto);
 
     // dissectors_table[current_proto], a dissector, goes into the stack
     // The key (current_proto) is popped off the stack.
     // After call, stack: [ error_handler_func, dissectors_table, dissector ]
-    lua_gettable(L, -2);
+    lua_gettable(L1, -2);
 
     // We don't need the dissectors_table in the stack
     // After call, stack: [ error_handler_func, dissector ]
-    lua_remove(L,2);
+    lua_remove(L1,2);
 
     // Is the dissector a function?
-    if (lua_isfunction(L,2)) {
+    if (lua_isfunction(L1,2)) {
 
         // After call, stack: [ error_handler_func, dissector, tvb ]
-        push_Tvb(L,tvb);
+        push_Tvb(L1,tvb);
         // After call, stack: [ error_handler_func, dissector, tvb, pinfo ]
-        push_Pinfo(L,pinfo);
+        push_Pinfo(L1,pinfo);
         // After call, stack: [ error_handler_func, dissector, tvb, pinfo, TreeItem ]
-        lua_tree = push_TreeItem(L, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
+        lua_tree = push_TreeItem(L1, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
         proto_item_set_hidden(lua_tree->item);
 
-        if  ( lua_pcall(L, /*num_args=*/3, /*num_results=*/1, /*error_handler_func_stack_position=*/1) ) {
+        if  ( lua_pcall(L1, /*num_args=*/3, /*num_results=*/1, /*error_handler_func_stack_position=*/1) ) {
             // do nothing; the traceback error message handler function does everything
         } else {
 
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
-            if (lua_isnumber(L, -1)) {
+            if (lua_isnumber(L1, -1)) {
                 /* we got the consumed bytes or the missing bytes as a negative number */
-                consumed_bytes = wslua_toint(L, -1);
-                lua_pop(L, 1);
+                consumed_bytes = wslua_toint(L1, -1);
+                lua_pop(L1, 1);
             }
         }
 
@@ -337,7 +368,12 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
                     "Lua Error: did not find the %s dissector in the dissectors table", pinfo->current_proto);
     }
 
+    // XXX - Should this be registered before the lua_pcall, in case there's
+    // an exception? Also, as there can be nested dissector calls, should we
+    // try to avoid registering it more than once?
     wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
+
+    CLEANUP_CALL_AND_POP;
 
     lua_pinfo = saved_lua_pinfo;
     lua_tree = saved_lua_tree;
@@ -377,65 +413,77 @@ bool heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void*
      * So it's like registry[table_ref][heur_list_name][proto_name] = func
      */
 
-    lua_settop(L,0);
+    // Create a new thread with an independent execution stack and,
+    // importantly, a independent linked list errorJmp of lua_longjmp.
+    // This pushes the new thread onto the global stack (which
+    // prevents the new thread from being garbage collected.)
+    lua_State *L1 = lua_newthread(L);
+    ws_debug("new Lua thread: %p", L1);
+
+    CLEANUP_PUSH(lua_resetthread_cb, L1);
 
     /* get the table of all lua heuristic dissector lists */
-    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_heur_dissectors_table_ref);
+    lua_rawgeti(L1, LUA_REGISTRYINDEX, lua_heur_dissectors_table_ref);
 
     /* get the table inside that, for the lua heuristic dissectors of the requested heur list */
-    if (!wslua_get_table(L, -1, pinfo->heur_list_name)) {
+    if (!wslua_get_table(L1, -1, pinfo->heur_list_name)) {
         /* this shouldn't happen */
-        lua_settop(L,0);
         proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
                 "internal error in heur_dissect_lua: no %s heur list table", pinfo->heur_list_name);
-        return false;
+        result = false;
+        goto end;
     }
 
     /* get the table inside that, for the specific lua heuristic dissector */
-    if (!wslua_get_field(L,-1,pinfo->current_proto)) {
+    if (!wslua_get_field(L1,-1,pinfo->current_proto)) {
         /* this shouldn't happen */
-        lua_settop(L,0);
         proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
                 "internal error in heur_dissect_lua: no %s heuristic dissector for list %s",
                         pinfo->current_proto, pinfo->heur_list_name);
-        return false;
+        result = false;
+        goto end;
     }
 
     /* remove the table of all lists (the one in the registry) */
-    lua_remove(L,1);
+    lua_remove(L1,1);
     /* remove the heur_list_name heur list table */
-    lua_remove(L,1);
+    lua_remove(L1,1);
 
-    if (!lua_isfunction(L,-1)) {
+    if (!lua_isfunction(L1,-1)) {
         /* this shouldn't happen */
-        lua_settop(L,0);
         proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
                 "internal error in heur_dissect_lua: %s heuristic dissector is not a function", pinfo->current_proto);
-        return false;
+        result = false;
+        goto end;
     }
 
-    push_Tvb(L,tvb);
-    push_Pinfo(L,pinfo);
-    lua_tree = push_TreeItem(L, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
+    push_Tvb(L1,tvb);
+    push_Pinfo(L1,pinfo);
+    lua_tree = push_TreeItem(L1, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
     proto_item_set_hidden(lua_tree->item);
 
-    if  ( lua_pcall(L,3,1,0) ) {
+    if  ( lua_pcall(L1,3,1,0) ) {
         proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
-                "Lua Error: error calling %s heuristic dissector: %s", pinfo->current_proto, lua_tostring(L,-1));
-        lua_settop(L,0);
+                "Lua Error: error calling %s heuristic dissector: %s", pinfo->current_proto, lua_tostring(L1,-1));
     } else {
-        if (lua_isboolean(L, -1) || lua_isnil(L, -1)) {
-            result = lua_toboolean(L, -1);
-        } else if (lua_type(L, -1) == LUA_TNUMBER) {
-            result = lua_tointeger(L,-1) != 0 ? true : false;
+        if (lua_isboolean(L1, -1) || lua_isnil(L1, -1)) {
+            result = lua_toboolean(L1, -1);
+        } else if (lua_type(L1, -1) == LUA_TNUMBER) {
+            result = lua_tointeger(L1,-1) != 0 ? true : false;
         } else {
             proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
                     "Lua Error: invalid return value from Lua %s heuristic dissector", pinfo->current_proto);
         }
-        lua_pop(L, 1);
+        lua_pop(L1, 1);
     }
 
+end:
+    // XXX - Should this be registered before the lua_pcall, in case there's
+    // an exception? Also, as there can be nested dissector calls, should we
+    // try to avoid registering it more than once?
     wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
+
+    CLEANUP_CALL_AND_POP;
 
     lua_pinfo = saved_lua_pinfo;
     lua_tree = saved_lua_tree;
