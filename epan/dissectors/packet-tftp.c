@@ -814,10 +814,11 @@ static conversation_t* create_tftp_conversation(packet_info *pinfo)
   conversation_t* conversation = NULL;
   if (!PINFO_FD_VISITED(pinfo)) {
     /* New read or write request on first pass, so create conversation with client port only */
-    conversation = find_conversation_strat(pinfo, CONVERSATION_UDP, NO_PORT_B, false);
-    if(!conversation) {
-        conversation = conversation_new_strat(pinfo, CONVERSATION_UDP, NO_PORT2);
-    }
+    /* XXX - We might want to create one conversation for the addresses and
+     * port, and have a wmem_tree_t of tftp_conv_info_t, which is the
+     * information for a single transfer.
+     */
+    conversation = conversation_new_strat(pinfo, CONVERSATION_UDP, NO_PORT2);
 
     conversation_set_dissector(conversation, tftp_handle);
     /* Store conversation in this frame */
@@ -904,27 +905,24 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   conversation_t   *conversation = NULL;
 
   /*
-   * The first TFTP packet goes to the TFTP port; the second one
-   * comes from some *other* port, but goes back to the same
-   * IP address and port as the ones from which the first packet
-   * came; all subsequent packets go between those two IP addresses
-   * and ports.
+   * The first TFTP packet (which is always a read or write request)
+   * goes to the TFTP port; the second one comes from some *other* port,
+   * but goes back to the same IP address and port as the ones from which
+   * the first packet came; all subsequent packets go between those two
+   * IP addresses and ports.
    *
-   * If this packet went to the TFTP port (either to one of the ports
-   * set in the preferences or to a port set via Decode As), we check
-   * to see if there's already a conversation with one address/port pair
-   * matching the source IP address and port of this packet,
-   * the other address matching the destination IP address of this
-   * packet, and any destination port.
-   *
-   * If not, we create one, with its address 1/port 1 pair being
+   * If this packet looks like the first of a transfer, we create
+   * a conversation, with its address 1/port 1 pair being
    * the source address/port of this packet, its address 2 being
    * the destination address of this packet, and its port 2 being
    * wildcarded, and give it the TFTP dissector as a dissector.
+   *
+   * By checking if it looks like a request, we handle the case where
+   * the same port is reused for another file transfer later in the
+   * capture, and also handle the (rare but apparently existing) case
+   * where the *other* port is still the TFTP port.
    */
-  if ((value_is_in_range(global_tftp_port_range, pinfo->destport) ||
-       (pinfo->match_uint == pinfo->destport)) &&
-      is_valid_request(tvb, pinfo))
+  if (is_valid_request(tvb, pinfo))
   {
     conversation = create_tftp_conversation(pinfo);
   }
@@ -932,9 +930,10 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   if (conversation == NULL)
   {
     /* Not the initial read or write request */
-    /* Look for wildcarded conversation based upon client port */
+    /* Look for wildcarded conversation based upon client port, checking
+     * both directions (we don't know which side *is* the client port.) */
     if ((conversation = find_conversation_strat(pinfo, CONVERSATION_UDP,
-                                     NO_PORT_B, false)) && conversation_get_dissector(conversation, pinfo->num) == tftp_handle) {
+                                     NO_PORT_B, true)) && conversation_get_dissector(conversation, pinfo->num) == tftp_handle) {
 #if 0
       /* XXX: While setting the wildcarded port makes sense, if we do that,
        * it's more complicated to find the correct conversation if ports are
