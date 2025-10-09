@@ -1644,8 +1644,8 @@ enum {
 
 static void set_stats_message_type(packet_info *pinfo, int type);
 
-static const uint8_t *st_str_packets        = "Total Packets";
-static const uint8_t *st_str_packet_types   = "E2AP Packet Types";
+static const uint8_t * const st_str_packets      = "Total Packets";
+static const uint8_t * const st_str_packet_types = "E2AP Packet Types";
 
 static int st_node_packets = -1;
 static int st_node_packet_types = -1;
@@ -1762,7 +1762,7 @@ e2ap_get_private_data(packet_info *pinfo)
 /****************************************************************************************************************/
 /* These are the strings that we look for at the beginning of RAN Function Description to identify RAN Function */
 /* Static table mapping from string -> ran_function */
-static const char* g_ran_function_name_table[MAX_RANFUNCTIONS] =
+static const char* const g_ran_function_name_table[MAX_RANFUNCTIONS] =
 {
     "ORAN-E2SM-KPM",
     "ORAN-E2SM-RC",
@@ -1775,11 +1775,11 @@ static const char* g_ran_function_name_table[MAX_RANFUNCTIONS] =
 
 /* Per-conversation mapping: ranFunctionId -> ran_function+dissector */
 typedef struct {
-    uint32_t                 setup_frame;
-    uint32_t                 ran_function_id;
-    ran_function_t           ran_function;
-    char                     oid[MAX_OID_LEN];       // i.e., OID from setupRequest
-    ran_function_dissector_t *dissector;
+    uint32_t                       setup_frame;
+    uint32_t                       ran_function_id;
+    ran_function_t                 ran_function;
+    char                           oid[MAX_OID_LEN];       // i.e., OID from setupRequest
+    const ran_function_dissector_t *dissector;
 } ran_function_id_mapping_t;
 
 typedef struct  {
@@ -1823,16 +1823,16 @@ static gnb_ran_functions_t s_gnb_ran_functions_table;
 
 /* Table of available dissectors for each RAN function */
 typedef struct {
-    uint32_t                 num_available_dissectors;
+    uint32_t                        num_available_dissectors;
 #define MAX_DISSECTORS_PER_RAN_FUNCTION 8
-    ran_function_dissector_t* ran_function_dissectors[MAX_DISSECTORS_PER_RAN_FUNCTION];
+    const ran_function_dissector_t* ran_function_dissectors[MAX_DISSECTORS_PER_RAN_FUNCTION];
 } ran_function_available_dissectors_t;
 
 /* Available dissectors should be set here */
 static ran_function_available_dissectors_t g_ran_functions_available_dissectors[MAX_RANFUNCTIONS];
 
 /* Will be called from outside this file by separate dissectors */
-void register_e2ap_ran_function_dissector(ran_function_t ran_function, ran_function_dissector_t *dissector)
+void register_e2ap_ran_function_dissector(ran_function_t ran_function, const ran_function_dissector_t *dissector)
 {
     if ((ran_function >= MIN_RANFUNCTIONS) && (ran_function < MAX_RANFUNCTIONS)) {
         ran_function_available_dissectors_t *available_dissectors = &g_ran_functions_available_dissectors[ran_function];
@@ -1892,8 +1892,8 @@ void e2ap_store_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbuf
 
     uint32_t ran_function_id = e2ap_data->ran_function_id;
 
-    ran_function_t           ran_function = MAX_RANFUNCTIONS;  /* i.e. invalid */
-    ran_function_dissector_t *ran_function_dissector = NULL;
+    ran_function_t                 ran_function = MAX_RANFUNCTIONS;  /* i.e. invalid */
+    const ran_function_dissector_t *ran_function_dissector = NULL;
 
     /* Check known RAN function names */
     for (int n=MIN_RANFUNCTIONS; n < MAX_RANFUNCTIONS; n++) {
@@ -1958,7 +1958,7 @@ void e2ap_store_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 
 /* Look for Service Model function pointers, based on current RANFunctionID from frame */
-static ran_function_dissector_t* lookup_ranfunction_dissector(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
+static const ran_function_dissector_t* lookup_ranfunction_dissector(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 {
     /* Get ranFunctionID from this frame */
     struct e2ap_private_data *e2ap_data = e2ap_get_private_data(pinfo);
@@ -3560,7 +3560,7 @@ dissect_e2ap_RICactionDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ran_action_definition_dissector) {
       dissector->functions.ran_action_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -3616,7 +3616,7 @@ dissect_e2ap_RICcallProcessID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ran_callprocessid_dissector) {
       dissector->functions.ran_callprocessid_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -3653,7 +3653,7 @@ dissect_e2ap_RICcontrolHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ric_control_header_dissector) {
       dissector->functions.ric_control_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -3672,7 +3672,7 @@ dissect_e2ap_RICcontrolMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ric_control_message_dissector) {
       dissector->functions.ric_control_message_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -3691,7 +3691,7 @@ dissect_e2ap_RICcontrolOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ric_control_outcome_dissector) {
         dissector->functions.ric_control_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -3710,7 +3710,7 @@ dissect_e2ap_RICeventTriggerDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_c
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ran_event_trigger_dissector) {
       dissector->functions.ran_event_trigger_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -3729,7 +3729,7 @@ dissect_e2ap_RICindicationHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ran_indication_header_dissector) {
       dissector->functions.ran_indication_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -3748,7 +3748,7 @@ dissect_e2ap_RICindicationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ran_indication_message_dissector) {
       dissector->functions.ran_indication_message_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -3865,7 +3865,7 @@ dissect_e2ap_RICqueryHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ric_query_header_dissector) {
       dissector->functions.ric_query_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -3886,7 +3886,7 @@ dissect_e2ap_RICqueryDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ric_query_definition_dissector) {
       dissector->functions.ric_query_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -3905,7 +3905,7 @@ dissect_e2ap_RICqueryOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ric_query_outcome_dissector) {
       dissector->functions.ric_query_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -14866,7 +14866,7 @@ proto_reg_handoff_e2ap(void)
   /*********************************************************/
   /* Register 'built-in' dissectors (i.e., from asn1/e2ap) */
 
-  static ran_function_dissector_t kpm_v3 =
+  static const ran_function_dissector_t kpm_v3 =
   { "ORAN-E2SM-KPM", "1.3.6.1.4.1.53148.1.3.2.2", 3, 0,
     {  dissect_E2SM_KPM_RANfunction_Description_PDU,
 
@@ -14885,7 +14885,7 @@ proto_reg_handoff_e2ap(void)
      }
   };
 
-  static ran_function_dissector_t rc_v1 =
+  static const ran_function_dissector_t rc_v1 =
   { "ORAN-E2SM-RC",  "1.3.6.1.4.1.53148.1.1.2.3", 1, 3,
     {  dissect_E2SM_RC_RANFunctionDefinition_PDU,
 
@@ -14905,7 +14905,7 @@ proto_reg_handoff_e2ap(void)
     }
   };
 
-  static ran_function_dissector_t ni_v1 =
+  static const ran_function_dissector_t ni_v1 =
   { "ORAN-E2SM-NI",  "1.3.6.1.4.1.53148.1.1.2.1", 1, 0,
     {  dissect_E2SM_NI_RANfunction_Description_PDU,
 
@@ -14924,7 +14924,7 @@ proto_reg_handoff_e2ap(void)
     }
   };
 
-  static ran_function_dissector_t ccc_v1 =
+  static const ran_function_dissector_t ccc_v1 =
   { "{", /*"ORAN-E2SM-CCC",*/  "1.3.6.1.4.1.53148.1.1.2.4", 1, 0,
     /* See table 5.1 */
     {  dissect_E2SM_NI_JSON_PDU,
@@ -14944,7 +14944,7 @@ proto_reg_handoff_e2ap(void)
     }
   };
 
-  static ran_function_dissector_t ccc_v2 =
+  static const ran_function_dissector_t ccc_v2 =
   { "{", /*"ORAN-E2SM-CCC",*/  "1.3.6.1.4.1.53148.1.2.2.4", 2, 0,
     /* See table 5.1 */
     {  dissect_E2SM_NI_JSON_PDU,
@@ -14964,7 +14964,7 @@ proto_reg_handoff_e2ap(void)
     }
   };
 
-  static ran_function_dissector_t ccc_v3 =
+  static const ran_function_dissector_t ccc_v3 =
   { "{", /*"ORAN-E2SM-CCC",*/  "1.3.6.1.4.1.53148.1.3.2.4", 3, 0,
     /* See table 5.1 */
     {  dissect_E2SM_NI_JSON_PDU,
@@ -14984,7 +14984,7 @@ proto_reg_handoff_e2ap(void)
     }
   };
 
-  static ran_function_dissector_t ccc_v4 =
+  static const ran_function_dissector_t ccc_v4 =
   { "{", /*"ORAN-E2SM-CCC",*/  "1.3.6.1.4.1.53148.1.4.2.4", 4, 0,
     /* See table 5.1 */
     {  dissect_E2SM_NI_JSON_PDU,
@@ -15004,7 +15004,7 @@ proto_reg_handoff_e2ap(void)
     }
   };
 
-  static ran_function_dissector_t ccc_v5 =
+  static const ran_function_dissector_t ccc_v5 =
   { "{", /*"ORAN-E2SM-CCC",*/  "1.3.6.1.4.1.53148.1.5.2.4", 5, 0,
     /* See table 5.1 */
     {  dissect_E2SM_NI_JSON_PDU,

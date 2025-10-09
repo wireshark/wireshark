@@ -61,7 +61,7 @@ proto_reg_handoff_llc_v1(void)
 {
 //#include "packet-llc-v1-dis-tab.c"
 
-    static ran_function_dissector_t llc =
+    static const ran_function_dissector_t llc =
     { "ORAN-E2SM-LLC", "1.3.6.1.4.1.53148.1.1.2.5", 1, 0,
       {  dissect_E2SM_LLC_RANFunctionDefinition_PDU,
 

@@ -329,7 +329,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 #.FN_BODY RICcontrolHeader VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ric_control_header_dissector) {
       dissector->functions.ric_control_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -339,7 +339,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 #.FN_BODY RICcontrolMessage VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ric_control_message_dissector) {
       dissector->functions.ric_control_message_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -349,7 +349,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 #.FN_BODY RICcontrolOutcome VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ric_control_outcome_dissector) {
         dissector->functions.ric_control_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -359,7 +359,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 #.FN_BODY RICqueryOutcome VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ric_query_outcome_dissector) {
       dissector->functions.ric_query_outcome_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -369,7 +369,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 #.FN_BODY RICqueryDefinition VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ric_query_definition_dissector) {
       dissector->functions.ric_query_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -379,7 +379,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 #.FN_BODY RICqueryHeader VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ric_query_header_dissector) {
       dissector->functions.ric_query_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -391,7 +391,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 #.FN_BODY RICeventTriggerDefinition VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ran_event_trigger_dissector) {
       dissector->functions.ran_event_trigger_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -401,7 +401,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 #.FN_BODY RICactionDefinition VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ran_action_definition_dissector) {
       dissector->functions.ran_action_definition_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -411,7 +411,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 #.FN_BODY RICindicationHeader VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ran_indication_header_dissector) {
       dissector->functions.ran_indication_header_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -421,7 +421,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 #.FN_BODY RICindicationMessage VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ran_indication_message_dissector) {
       dissector->functions.ran_indication_message_dissector(parameter_tvb, actx->pinfo, tree, NULL);
@@ -431,7 +431,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
 #.FN_BODY RICcallProcessID VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
-  ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
+  const ran_function_dissector_t* dissector = lookup_ranfunction_dissector(actx->pinfo, tree, parameter_tvb);
   if (dissector) {
     if (dissector->functions.ran_callprocessid_dissector) {
       dissector->functions.ran_callprocessid_dissector(parameter_tvb, actx->pinfo, tree, NULL);
