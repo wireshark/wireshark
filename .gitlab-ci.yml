@@ -787,7 +787,7 @@ WSAR:
 
 Commit Check:
   extends: .build-ubuntu
-  rules: !reference [.if-merge-request]
+  rules: !reference [.if-plain-merge-request]
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -835,7 +835,9 @@ Ubuntu GCC Build:
   variables:
     CC: "gcc"
     CXX: "g++"
-  needs: [ 'Commit Check' ]
+  needs:
+    - job: "Commit Check"
+      optional: true
   script:
     - source /gcc-latest.env
     # build-ubuntu puts us in `build`.
@@ -878,7 +880,9 @@ Ubuntu Qt5 Build:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: manual
       allow_failure: true
-  needs: [ 'Commit Check' ]
+  needs:
+    - job: "Commit Check"
+      optional: true
   script:
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja -DENABLE_CCACHE=ON -DENABLE_WERROR=ON -DUSE_qt6=OFF ..
@@ -891,7 +895,9 @@ Ubuntu Qt5 Build:
 .Fedora MinGW Build:
   extends: .build-mingw
   rules: !reference [.if-plain-merge-request]
-  needs: [ 'Commit Check' ]
+  needs:
+    - job: "Commit Check"
+      optional: true
 
 Clang + Code Checks:
   extends: .build-ubuntu
@@ -957,7 +963,9 @@ Clang + Code Checks:
 No options:
   extends: .build-ubuntu
   rules: !reference [.if-plain-merge-request]
-  needs: [ 'Commit Check' ]
+  needs:
+    - job: "Commit Check"
+      optional: true
   script: |
     cmake -GNinja -DENABLE_CCACHE=ON \
       -DENABLE_BROTLI=OFF -DENABLE_CAP=OFF -DENABLE_CHECKHF_CONFLICT=ON -DENABLE_GNUTLS=OFF \
@@ -975,7 +983,9 @@ Windows Build:
   rules: !reference [.if-w-w-only-merge-request]
   tags:
     - wireshark-windows-merge-req
-  needs: [ 'Commit Check' ]
+  needs:
+    - job: "Commit Check"
+      optional: true
   script:
     # lib{sinsp,scap} don't support Configuration=Debug, so we can't enable
     # BUILD_stratoshark or BUILD_falcodump here just yet.
@@ -995,7 +1005,9 @@ macOS Build:
     when: always
     reports:
       junit: macos_tests.xml
-  needs: [ 'Commit Check' ]
+  needs:
+    - job: "Commit Check"
+      optional: true
 
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
 # and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481
