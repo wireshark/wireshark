@@ -40,7 +40,7 @@ typedef struct {
 typedef int (*ttt)(tvbuff_t *, unsigned, proto_tree *, int);
 typedef struct {
     const ttt *table_pointer;
-    int** table_pointer_expand;
+    const int* const * table_pointer_expand;
     unsigned int table_size;
     char uap_name[MAX_UAP_NAME_LENGTH];
 } table_params;

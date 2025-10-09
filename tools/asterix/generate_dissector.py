@@ -596,7 +596,7 @@ def generate_uap(db, cat, uap, ed_major, ed_minor):
     ret = ""
     uap_index = 0
     table_name = "cat_" + cat  + "_ed_major_" + ed_major + "_ed_minor_" + ed_minor + "_" + uap[0].lower() + "_table"
-    table_name_expand = "static int* " + table_name + "_expand[] = {\n"
+    table_name_expand = "static const int* const " + table_name + "_expand[] = {\n"
     data_field_functions = []
     for data_field in uap[1]:
         if data_field is None:
@@ -699,7 +699,7 @@ def generate_uaps(db):
                 ret += generate_uap(db, cat, uap, ed_major, ed_minor)
         else:
             table_name = "cat_" + cat  + "_ed_major_" + ed_major + "_ed_minor_" + ed_minor + "_uap_table_expansion"
-            table_name_expand = "static int* " + table_name + "_expand[] = {\n"
+            table_name_expand = "static const int* const " + table_name + "_expand[] = {\n"
             table_name = "static const ttt " + table_name + "[] = {\n"
             index = 0
             for i in asterix[1][3]:
@@ -732,7 +732,7 @@ def generate_uaps(db):
     last_cat_expansion = None
 
     interpretation_properties = ""
-    interpretation_table = "static dialog_int_struct interpretation_properties[] = {\n"
+    interpretation_table = "static const dialog_int_struct interpretation_properties[] = {\n"
 
     for asterix in db.asterix:
         cat = str(asterix[1][0])
@@ -904,7 +904,7 @@ def generate_dissector_properties(db):
             else:
                 expansion[1].append((ed_major, ed_minor))
 
-    dialog_table = "static dialog_cat_struct asterix_properties[] = {\n"
+    dialog_table = "static const dialog_cat_struct asterix_properties[] = {\n"
     for cat in category_list:
         cat_code = generate_dissector_properties_code(cat)
         ret += cat_code[0]

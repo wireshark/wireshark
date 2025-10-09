@@ -381,7 +381,7 @@ static const enum_val_t cat_247_enum_vals[] = {
 };
 
 static int value_247_1_3_default = value_247_1_3;
-static dialog_cat_struct asterix_properties[] = {
+static const dialog_cat_struct asterix_properties[] = {
   { 1, &value_1_1_4_default, cat_1_enum_vals, "cat_1", "Category 1", true },
   { 2, &value_2_1_2_default, cat_2_enum_vals, "cat_2", "Category 2", true },
   { 4, &value_4_1_13_default, cat_4_enum_vals, "cat_4", "Category 4", true },
@@ -13627,7 +13627,7 @@ static int dissect_cat_1_ed_major_1_ed_minor_2_datafield_SP_plot(tvbuff_t *tvb, 
   proto_tree_add_item (tree, expand_var, tvb, offset, bytes, ENC_NA);
   return bytes;
 }
-static int* cat_1_ed_major_1_ed_minor_2_plot_table_expand[] = {
+static const int* const cat_1_ed_major_1_ed_minor_2_plot_table_expand[] = {
   &expand_var_0, //010
   &expand_var_3, //020
   &expand_var_16, //040
@@ -13739,7 +13739,7 @@ end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
-static int* cat_1_ed_major_1_ed_minor_2_track_table_expand[] = {
+static const int* const cat_1_ed_major_1_ed_minor_2_track_table_expand[] = {
   &expand_var_75, //010
   &expand_var_76, //020
   &expand_var_77, //161
@@ -13787,7 +13787,7 @@ static const ttt cat_1_ed_major_1_ed_minor_2_track_table[] = {
   NULL,
   &dissect_cat_1_ed_major_1_ed_minor_2_datafield_150_plot, //15
 };
-static int* cat_1_ed_major_1_ed_minor_3_plot_table_expand[] = {
+static const int* const cat_1_ed_major_1_ed_minor_3_plot_table_expand[] = {
   &expand_var_109, //010
   &expand_var_110, //020
   &expand_var_111, //040
@@ -13833,7 +13833,7 @@ static const ttt cat_1_ed_major_1_ed_minor_3_plot_table[] = {
   &dissect_cat_1_ed_major_1_ed_minor_2_datafield_SP_plot, //SP
   NULL
 };
-static int* cat_1_ed_major_1_ed_minor_3_track_table_expand[] = {
+static const int* const cat_1_ed_major_1_ed_minor_3_track_table_expand[] = {
   &expand_var_125, //010
   &expand_var_126, //020
   &expand_var_127, //161
@@ -13881,7 +13881,7 @@ static const ttt cat_1_ed_major_1_ed_minor_3_track_table[] = {
   NULL,
   &dissect_cat_1_ed_major_1_ed_minor_2_datafield_150_plot, //15
 };
-static int* cat_1_ed_major_1_ed_minor_4_plot_table_expand[] = {
+static const int* const cat_1_ed_major_1_ed_minor_4_plot_table_expand[] = {
   &expand_var_146, //010
   &expand_var_147, //020
   &expand_var_148, //040
@@ -13927,7 +13927,7 @@ static const ttt cat_1_ed_major_1_ed_minor_4_plot_table[] = {
   &dissect_cat_1_ed_major_1_ed_minor_2_datafield_SP_plot, //SP
   NULL
 };
-static int* cat_1_ed_major_1_ed_minor_4_track_table_expand[] = {
+static const int* const cat_1_ed_major_1_ed_minor_4_track_table_expand[] = {
   &expand_var_162, //010
   &expand_var_163, //020
   &expand_var_164, //161
@@ -14065,7 +14065,7 @@ static int dissect_cat_2_ed_major_1_ed_minor_0_datafield_090_uap(tvbuff_t *tvb, 
   proto_tree_add_double (tree_group_0, expand_var_202, tvb, offset + 1, 1, value_expand_var_202_d);
   return 2;
 }
-static int* cat_2_ed_major_1_ed_minor_0_uap_table_expand[] = {
+static const int* const cat_2_ed_major_1_ed_minor_0_uap_table_expand[] = {
   &expand_var_183, //010
   &expand_var_184, //000
   &expand_var_185, //020
@@ -14097,7 +14097,7 @@ static const ttt cat_2_ed_major_1_ed_minor_0_uap_table[] = {
   &dissect_cat_1_ed_major_1_ed_minor_2_datafield_SP_plot, //SP
   NULL
 };
-static int* cat_2_ed_major_1_ed_minor_1_uap_table_expand[] = {
+static const int* const cat_2_ed_major_1_ed_minor_1_uap_table_expand[] = {
   &expand_var_205, //010
   &expand_var_206, //000
   &expand_var_207, //020
@@ -14129,7 +14129,7 @@ static const ttt cat_2_ed_major_1_ed_minor_1_uap_table[] = {
   &dissect_cat_1_ed_major_1_ed_minor_2_datafield_SP_plot, //SP
   NULL
 };
-static int* cat_2_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static const int* const cat_2_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_217, //010
   &expand_var_218, //000
   &expand_var_219, //020
@@ -14969,7 +14969,7 @@ static int dissect_cat_4_ed_major_1_ed_minor_12_datafield_19_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_4_ed_major_1_ed_minor_12_uap_table_expand[] = {
+static const int* const cat_4_ed_major_1_ed_minor_12_uap_table_expand[] = {
   &expand_var_229, //010
   &expand_var_230, //000
   &expand_var_231, //015
@@ -15162,7 +15162,7 @@ static int dissect_cat_4_ed_major_1_ed_minor_13_datafield_19_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_4_ed_major_1_ed_minor_13_uap_table_expand[] = {
+static const int* const cat_4_ed_major_1_ed_minor_13_uap_table_expand[] = {
   &expand_var_390, //010
   &expand_var_391, //000
   &expand_var_392, //015
@@ -15422,7 +15422,7 @@ static int dissect_cat_8_ed_major_1_ed_minor_2_datafield_038_uap(tvbuff_t *tvb, 
   proto_item_set_len(item, offset - offset_start);
   return offset - offset_start;
 }
-static int* cat_8_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static const int* const cat_8_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_472, //010
   &expand_var_473, //000
   &expand_var_474, //020
@@ -15454,7 +15454,7 @@ static const ttt cat_8_ed_major_1_ed_minor_2_uap_table[] = {
   &dissect_cat_1_ed_major_1_ed_minor_2_datafield_SP_plot, //SP
   NULL
 };
-static int* cat_8_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static const int* const cat_8_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_516, //010
   &expand_var_517, //000
   &expand_var_518, //020
@@ -15621,7 +15621,7 @@ static int dissect_cat_9_ed_major_2_ed_minor_1_datafield_100_uap(tvbuff_t *tvb, 
   proto_tree_add_uint (tree, expand_var, tvb, offset + 0, 2, value_expand_var);
   return 2;
 }
-static int* cat_9_ed_major_2_ed_minor_1_uap_table_expand[] = {
+static const int* const cat_9_ed_major_2_ed_minor_1_uap_table_expand[] = {
   &expand_var_529, //010
   &expand_var_530, //000
   &expand_var_531, //020
@@ -16031,7 +16031,7 @@ static int dissect_cat_10_ed_major_1_ed_minor_1_datafield_27_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_10_ed_major_1_ed_minor_1_uap_table_expand[] = {
+static const int* const cat_10_ed_major_1_ed_minor_1_uap_table_expand[] = {
   &expand_var_554, //010
   &expand_var_555, //000
   &expand_var_556, //020
@@ -17051,7 +17051,7 @@ static int dissect_cat_11_ed_major_1_ed_minor_2_datafield_28_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_11_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static const int* const cat_11_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_653, //010
   &expand_var_656, //000
   &expand_var_657, //015
@@ -17595,7 +17595,7 @@ static int dissect_cat_11_ed_major_1_ed_minor_3_datafield_28_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_11_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static const int* const cat_11_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_818, //010
   &expand_var_819, //000
   &expand_var_820, //015
@@ -19071,7 +19071,7 @@ static int dissect_cat_15_ed_major_1_ed_minor_0_datafield_631_uap(tvbuff_t *tvb,
   proto_item_set_len(item, offset - offset_start);
   return offset - offset_start;
 }
-static int* cat_15_ed_major_1_ed_minor_0_uap_table_expand[] = {
+static const int* const cat_15_ed_major_1_ed_minor_0_uap_table_expand[] = {
   &expand_var_927, //010
   &expand_var_928, //000
   &expand_var_931, //015
@@ -19127,7 +19127,7 @@ static const ttt cat_15_ed_major_1_ed_minor_0_uap_table[] = {
   &dissect_cat_15_ed_major_1_ed_minor_0_datafield_631_uap, //631
   &dissect_cat_1_ed_major_1_ed_minor_2_datafield_SP_plot, //S
 };
-static int* cat_15_ed_major_1_ed_minor_1_uap_table_expand[] = {
+static const int* const cat_15_ed_major_1_ed_minor_1_uap_table_expand[] = {
   &expand_var_1106, //010
   &expand_var_1107, //000
   &expand_var_1108, //015
@@ -19183,7 +19183,7 @@ static const ttt cat_15_ed_major_1_ed_minor_1_uap_table[] = {
   &dissect_cat_15_ed_major_1_ed_minor_0_datafield_631_uap, //631
   &dissect_cat_1_ed_major_1_ed_minor_2_datafield_SP_plot, //S
 };
-static int* cat_15_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static const int* const cat_15_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_1132, //010
   &expand_var_1133, //000
   &expand_var_1134, //015
@@ -19396,7 +19396,7 @@ static int dissect_cat_16_ed_major_1_ed_minor_0_datafield_420_uap(tvbuff_t *tvb,
   proto_item_set_len(item, offset - offset_start);
   return offset - offset_start;
 }
-static int* cat_16_ed_major_1_ed_minor_0_uap_table_expand[] = {
+static const int* const cat_16_ed_major_1_ed_minor_0_uap_table_expand[] = {
   &expand_var_1158, //010
   &expand_var_1159, //015
   &expand_var_1160, //000
@@ -19518,7 +19518,7 @@ static int dissect_cat_17_ed_major_1_ed_minor_3_datafield_210_uap(tvbuff_t *tvb,
   proto_item_set_len(item, offset - offset_start);
   return offset - offset_start;
 }
-static int* cat_17_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static const int* const cat_17_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_1188, //010
   &expand_var_1189, //012
   &expand_var_1190, //000
@@ -19874,7 +19874,7 @@ static int dissect_cat_18_ed_major_1_ed_minor_7_datafield_013_uap(tvbuff_t *tvb,
   proto_tree_add_uint (tree, expand_var, tvb, offset + 0, 1, value_expand_var);
   return 1;
 }
-static int* cat_18_ed_major_1_ed_minor_7_uap_table_expand[] = {
+static const int* const cat_18_ed_major_1_ed_minor_7_uap_table_expand[] = {
   &expand_var_1220, //036
   &expand_var_1221, //037
   &expand_var_1222, //000
@@ -19948,7 +19948,7 @@ static const ttt cat_18_ed_major_1_ed_minor_7_uap_table[] = {
   &dissect_cat_18_ed_major_1_ed_minor_7_datafield_012_uap, //012
   &dissect_cat_18_ed_major_1_ed_minor_7_datafield_013_uap, //01
 };
-static int* cat_18_ed_major_1_ed_minor_8_uap_table_expand[] = {
+static const int* const cat_18_ed_major_1_ed_minor_8_uap_table_expand[] = {
   &expand_var_1312, //036
   &expand_var_1313, //037
   &expand_var_1314, //000
@@ -20162,7 +20162,7 @@ static int dissect_cat_19_ed_major_1_ed_minor_3_datafield_12_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_19_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static const int* const cat_19_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_1347, //010
   &expand_var_1348, //000
   &expand_var_1349, //140
@@ -20626,7 +20626,7 @@ static int dissect_cat_20_ed_major_1_ed_minor_9_datafield_26_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_20_ed_major_1_ed_minor_9_uap_table_expand[] = {
+static const int* const cat_20_ed_major_1_ed_minor_9_uap_table_expand[] = {
   &expand_var_1386, //010
   &expand_var_1387, //020
   &expand_var_1404, //140
@@ -20806,7 +20806,7 @@ static int dissect_cat_20_ed_major_1_ed_minor_10_datafield_26_uap(tvbuff_t *tvb,
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_20_ed_major_1_ed_minor_10_uap_table_expand[] = {
+static const int* const cat_20_ed_major_1_ed_minor_10_uap_table_expand[] = {
   &expand_var_1512, //010
   &expand_var_1513, //020
   &expand_var_1532, //140
@@ -20926,7 +20926,7 @@ static int dissect_cat_20_ed_major_1_ed_minor_11_datafield_26_uap(tvbuff_t *tvb,
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_20_ed_major_1_ed_minor_11_uap_table_expand[] = {
+static const int* const cat_20_ed_major_1_ed_minor_11_uap_table_expand[] = {
   &expand_var_1571, //010
   &expand_var_1572, //020
   &expand_var_1573, //140
@@ -21346,7 +21346,7 @@ static int dissect_cat_21_ed_major_0_ed_minor_23_datafield_33_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 21);
   return offset - offset_start;
 }
-static int* cat_21_ed_major_0_ed_minor_23_uap_table_expand[] = {
+static const int* const cat_21_ed_major_0_ed_minor_23_uap_table_expand[] = {
   &expand_var_1611, //010
   &expand_var_1612, //040
   &expand_var_1622, //030
@@ -21443,7 +21443,7 @@ static int dissect_cat_21_ed_major_0_ed_minor_24_datafield_33_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 21);
   return offset - offset_start;
 }
-static int* cat_21_ed_major_0_ed_minor_24_uap_table_expand[] = {
+static const int* const cat_21_ed_major_0_ed_minor_24_uap_table_expand[] = {
   &expand_var_1696, //010
   &expand_var_1697, //040
   &expand_var_1698, //030
@@ -21526,7 +21526,7 @@ static int dissect_cat_21_ed_major_0_ed_minor_25_datafield_33_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 21);
   return offset - offset_start;
 }
-static int* cat_21_ed_major_0_ed_minor_25_uap_table_expand[] = {
+static const int* const cat_21_ed_major_0_ed_minor_25_uap_table_expand[] = {
   &expand_var_1726, //010
   &expand_var_1727, //040
   &expand_var_1728, //030
@@ -21621,7 +21621,7 @@ static int dissect_cat_21_ed_major_0_ed_minor_26_datafield_33_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 21);
   return offset - offset_start;
 }
-static int* cat_21_ed_major_0_ed_minor_26_uap_table_expand[] = {
+static const int* const cat_21_ed_major_0_ed_minor_26_uap_table_expand[] = {
   &expand_var_1754, //010
   &expand_var_1755, //040
   &expand_var_1756, //030
@@ -21939,7 +21939,7 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_1143_re(tvbuff_t *tvb,
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-static int* cat_21_ed_major_1_ed_minor_4_uap_table_expansion_expand[] = {
+static const int* const cat_21_ed_major_1_ed_minor_4_uap_table_expansion_expand[] = {
   &expand_var_1788,
   &expand_var_1790,
   &expand_var_1794,
@@ -22064,7 +22064,7 @@ static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_1183_re(tvbuff_t *tvb,
   proto_tree_add_double (tree, expand_var, tvb, offset + 0, 2, value_expand_var_d);
   return 2;
 }
-static int* cat_21_ed_major_1_ed_minor_5_uap_table_expansion_expand[] = {
+static const int* const cat_21_ed_major_1_ed_minor_5_uap_table_expansion_expand[] = {
   &expand_var_1844,
   &expand_var_1845,
   &expand_var_1846,
@@ -22691,7 +22691,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_1_datafield_47_uap(tvbuff_t *tvb, 
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 21);
   return offset - offset_start;
 }
-static int* cat_21_ed_major_2_ed_minor_1_uap_table_expand[] = {
+static const int* const cat_21_ed_major_2_ed_minor_1_uap_table_expand[] = {
   &expand_var_1891, //010
   &expand_var_1892, //040
   &expand_var_1911, //161
@@ -22848,7 +22848,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_2_datafield_47_uap(tvbuff_t *tvb, 
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 21);
   return offset - offset_start;
 }
-static int* cat_21_ed_major_2_ed_minor_2_uap_table_expand[] = {
+static const int* const cat_21_ed_major_2_ed_minor_2_uap_table_expand[] = {
   &expand_var_2043, //010
   &expand_var_2044, //040
   &expand_var_2045, //161
@@ -23007,7 +23007,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_3_datafield_47_uap(tvbuff_t *tvb, 
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 21);
   return offset - offset_start;
 }
-static int* cat_21_ed_major_2_ed_minor_3_uap_table_expand[] = {
+static const int* const cat_21_ed_major_2_ed_minor_3_uap_table_expand[] = {
   &expand_var_2100, //010
   &expand_var_2101, //040
   &expand_var_2121, //161
@@ -23118,7 +23118,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_4_datafield_47_uap(tvbuff_t *tvb, 
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 21);
   return offset - offset_start;
 }
-static int* cat_21_ed_major_2_ed_minor_4_uap_table_expand[] = {
+static const int* const cat_21_ed_major_2_ed_minor_4_uap_table_expand[] = {
   &expand_var_2163, //010
   &expand_var_2164, //040
   &expand_var_2165, //161
@@ -23240,7 +23240,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_5_datafield_47_uap(tvbuff_t *tvb, 
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 21);
   return offset - offset_start;
 }
-static int* cat_21_ed_major_2_ed_minor_5_uap_table_expand[] = {
+static const int* const cat_21_ed_major_2_ed_minor_5_uap_table_expand[] = {
   &expand_var_2207, //010
   &expand_var_2208, //040
   &expand_var_2209, //161
@@ -23679,7 +23679,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_6_datafield_47_uap(tvbuff_t *tvb, 
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 21);
   return offset - offset_start;
 }
-static int* cat_21_ed_major_2_ed_minor_6_uap_table_expand[] = {
+static const int* const cat_21_ed_major_2_ed_minor_6_uap_table_expand[] = {
   &expand_var_2254, //010
   &expand_var_2255, //040
   &expand_var_2281, //161
@@ -23917,7 +23917,7 @@ static int dissect_cat_21_ed_major_2_ed_minor_7_datafield_47_uap(tvbuff_t *tvb, 
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 21);
   return offset - offset_start;
 }
-static int* cat_21_ed_major_2_ed_minor_7_uap_table_expand[] = {
+static const int* const cat_21_ed_major_2_ed_minor_7_uap_table_expand[] = {
   &expand_var_2351, //010
   &expand_var_2352, //040
   &expand_var_2353, //161
@@ -24164,7 +24164,7 @@ static int dissect_cat_23_ed_major_1_ed_minor_2_datafield_12_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_23_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static const int* const cat_23_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_2422, //010
   &expand_var_2423, //000
   &expand_var_2424, //015
@@ -24204,7 +24204,7 @@ static int dissect_cat_23_ed_major_1_ed_minor_3_datafield_12_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_23_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static const int* const cat_23_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_2456, //010
   &expand_var_2457, //000
   &expand_var_2458, //015
@@ -24384,7 +24384,7 @@ static int dissect_cat_25_ed_major_1_ed_minor_5_datafield_600_uap(tvbuff_t *tvb,
   proto_tree_add_double (tree_group_0, expand_var_2498, tvb, offset + 4, 4, value_expand_var_2498_d);
   return 8;
 }
-static int* cat_25_ed_major_1_ed_minor_5_uap_table_expand[] = {
+static const int* const cat_25_ed_major_1_ed_minor_5_uap_table_expand[] = {
   &expand_var_2467, //010
   &expand_var_2468, //000
   &expand_var_2471, //200
@@ -24444,7 +24444,7 @@ static int dissect_cat_25_ed_major_1_ed_minor_6_datafield_120_uap(tvbuff_t *tvb,
   proto_item_set_len(item, offset - offset_start);
   return offset - offset_start;
 }
-static int* cat_25_ed_major_1_ed_minor_6_uap_table_expand[] = {
+static const int* const cat_25_ed_major_1_ed_minor_6_uap_table_expand[] = {
   &expand_var_2500, //010
   &expand_var_2501, //000
   &expand_var_2502, //200
@@ -24779,7 +24779,7 @@ static int dissect_cat_32_ed_major_1_ed_minor_1_datafield_20_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_32_ed_major_1_ed_minor_1_uap_table_expand[] = {
+static const int* const cat_32_ed_major_1_ed_minor_1_uap_table_expand[] = {
   &expand_var_2517, //010
   &expand_var_2518, //015
   &expand_var_2519, //018
@@ -24843,7 +24843,7 @@ static int dissect_cat_32_ed_major_1_ed_minor_2_datafield_20_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_32_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static const int* const cat_32_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_2579, //010
   &expand_var_2580, //015
   &expand_var_2581, //018
@@ -25178,7 +25178,7 @@ static int dissect_cat_34_ed_major_1_ed_minor_27_datafield_12_uap(tvbuff_t *tvb,
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_34_ed_major_1_ed_minor_27_uap_table_expand[] = {
+static const int* const cat_34_ed_major_1_ed_minor_27_uap_table_expand[] = {
   &expand_var_2601, //010
   &expand_var_2602, //000
   &expand_var_2603, //030
@@ -25254,7 +25254,7 @@ static int dissect_cat_34_ed_major_1_ed_minor_28_datafield_12_uap(tvbuff_t *tvb,
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_34_ed_major_1_ed_minor_28_uap_table_expand[] = {
+static const int* const cat_34_ed_major_1_ed_minor_28_uap_table_expand[] = {
   &expand_var_2666, //010
   &expand_var_2667, //000
   &expand_var_2668, //030
@@ -25300,7 +25300,7 @@ static int dissect_cat_34_ed_major_1_ed_minor_29_datafield_12_uap(tvbuff_t *tvb,
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_34_ed_major_1_ed_minor_29_uap_table_expand[] = {
+static const int* const cat_34_ed_major_1_ed_minor_29_uap_table_expand[] = {
   &expand_var_2683, //010
   &expand_var_2684, //000
   &expand_var_2685, //030
@@ -26120,7 +26120,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1614_re(tvbuff_t *tvb
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-static int* cat_48_ed_major_1_ed_minor_11_uap_table_expansion_expand[] = {
+static const int* const cat_48_ed_major_1_ed_minor_11_uap_table_expansion_expand[] = {
   &expand_var_2697,
   &expand_var_2730,
   &expand_var_2743,
@@ -26214,7 +26214,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_1623_re(tvbuff_t *tvb
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-static int* cat_48_ed_major_1_ed_minor_12_uap_table_expansion_expand[] = {
+static const int* const cat_48_ed_major_1_ed_minor_12_uap_table_expansion_expand[] = {
   &expand_var_2822,
   &expand_var_2823,
   &expand_var_2824,
@@ -26314,7 +26314,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_1628_re(tvbuff_t *tvb
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-static int* cat_48_ed_major_1_ed_minor_13_uap_table_expansion_expand[] = {
+static const int* const cat_48_ed_major_1_ed_minor_13_uap_table_expansion_expand[] = {
   &expand_var_2844,
   &expand_var_2845,
   &expand_var_2846,
@@ -26775,7 +26775,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_27_datafield_27_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 48);
   return offset - offset_start;
 }
-static int* cat_48_ed_major_1_ed_minor_27_uap_table_expand[] = {
+static const int* const cat_48_ed_major_1_ed_minor_27_uap_table_expand[] = {
   &expand_var_2859, //010
   &expand_var_2860, //140
   &expand_var_2861, //020
@@ -26868,7 +26868,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_28_datafield_27_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 48);
   return offset - offset_start;
 }
-static int* cat_48_ed_major_1_ed_minor_28_uap_table_expand[] = {
+static const int* const cat_48_ed_major_1_ed_minor_28_uap_table_expand[] = {
   &expand_var_2965, //010
   &expand_var_2966, //140
   &expand_var_2967, //020
@@ -26937,7 +26937,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_29_datafield_27_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 48);
   return offset - offset_start;
 }
-static int* cat_48_ed_major_1_ed_minor_29_uap_table_expand[] = {
+static const int* const cat_48_ed_major_1_ed_minor_29_uap_table_expand[] = {
   &expand_var_2994, //010
   &expand_var_2995, //140
   &expand_var_2996, //020
@@ -27006,7 +27006,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_30_datafield_27_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 48);
   return offset - offset_start;
 }
-static int* cat_48_ed_major_1_ed_minor_30_uap_table_expand[] = {
+static const int* const cat_48_ed_major_1_ed_minor_30_uap_table_expand[] = {
   &expand_var_3022, //010
   &expand_var_3023, //140
   &expand_var_3024, //020
@@ -27148,7 +27148,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_31_datafield_27_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 48);
   return offset - offset_start;
 }
-static int* cat_48_ed_major_1_ed_minor_31_uap_table_expand[] = {
+static const int* const cat_48_ed_major_1_ed_minor_31_uap_table_expand[] = {
   &expand_var_3050, //010
   &expand_var_3051, //140
   &expand_var_3052, //020
@@ -27342,7 +27342,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_32_datafield_27_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 48);
   return offset - offset_start;
 }
-static int* cat_48_ed_major_1_ed_minor_32_uap_table_expand[] = {
+static const int* const cat_48_ed_major_1_ed_minor_32_uap_table_expand[] = {
   &expand_var_3099, //010
   &expand_var_3100, //140
   &expand_var_3101, //020
@@ -27502,7 +27502,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_1748_re(tvbuff_t *tvb,
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
-static int* cat_62_ed_major_1_ed_minor_2_uap_table_expansion_expand[] = {
+static const int* const cat_62_ed_major_1_ed_minor_2_uap_table_expansion_expand[] = {
   &expand_var_3168,
   &expand_var_3174,
   &expand_var_3179,
@@ -27659,7 +27659,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_1780_re(tvbuff_t *tvb,
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-static int* cat_62_ed_major_1_ed_minor_3_uap_table_expansion_expand[] = {
+static const int* const cat_62_ed_major_1_ed_minor_3_uap_table_expansion_expand[] = {
   &expand_var_3185,
   &expand_var_3186,
   &expand_var_3187,
@@ -29440,7 +29440,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_16_datafield_33_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 62);
   return offset - offset_start;
 }
-static int* cat_62_ed_major_1_ed_minor_16_uap_table_expand[] = {
+static const int* const cat_62_ed_major_1_ed_minor_16_uap_table_expand[] = {
   &expand_var_3231, //010
   NULL,
   &expand_var_3232, //015
@@ -29535,7 +29535,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_17_datafield_33_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 62);
   return offset - offset_start;
 }
-static int* cat_62_ed_major_1_ed_minor_17_uap_table_expand[] = {
+static const int* const cat_62_ed_major_1_ed_minor_17_uap_table_expand[] = {
   &expand_var_3533, //010
   NULL,
   &expand_var_3534, //015
@@ -29977,7 +29977,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_18_datafield_33_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 62);
   return offset - offset_start;
 }
-static int* cat_62_ed_major_1_ed_minor_18_uap_table_expand[] = {
+static const int* const cat_62_ed_major_1_ed_minor_18_uap_table_expand[] = {
   &expand_var_3566, //010
   NULL,
   &expand_var_3567, //015
@@ -30375,7 +30375,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_19_datafield_33_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 62);
   return offset - offset_start;
 }
-static int* cat_62_ed_major_1_ed_minor_19_uap_table_expand[] = {
+static const int* const cat_62_ed_major_1_ed_minor_19_uap_table_expand[] = {
   &expand_var_3670, //010
   NULL,
   &expand_var_3671, //015
@@ -30796,7 +30796,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_20_datafield_33_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 62);
   return offset - offset_start;
 }
-static int* cat_62_ed_major_1_ed_minor_20_uap_table_expand[] = {
+static const int* const cat_62_ed_major_1_ed_minor_20_uap_table_expand[] = {
   &expand_var_3733, //010
   NULL,
   &expand_var_3734, //015
@@ -31283,7 +31283,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_21_datafield_33_uap(tvbuff_t *tvb,
   offset+=asterix_parse_re_field (tvb, offset, sub_tree, 1, 62);
   return offset - offset_start;
 }
-static int* cat_62_ed_major_1_ed_minor_21_uap_table_expand[] = {
+static const int* const cat_62_ed_major_1_ed_minor_21_uap_table_expand[] = {
   &expand_var_3831, //010
   NULL,
   &expand_var_3832, //015
@@ -31444,7 +31444,7 @@ static int dissect_cat_63_ed_major_1_ed_minor_6_datafield_12_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_63_ed_major_1_ed_minor_6_uap_table_expand[] = {
+static const int* const cat_63_ed_major_1_ed_minor_6_uap_table_expand[] = {
   &expand_var_3938, //010
   &expand_var_3939, //015
   &expand_var_3940, //030
@@ -31576,7 +31576,7 @@ static int dissect_cat_63_ed_major_1_ed_minor_7_datafield_12_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_63_ed_major_1_ed_minor_7_uap_table_expand[] = {
+static const int* const cat_63_ed_major_1_ed_minor_7_uap_table_expand[] = {
   &expand_var_3969, //010
   &expand_var_3970, //015
   &expand_var_3971, //030
@@ -31644,7 +31644,7 @@ static int dissect_cat_65_ed_major_1_ed_minor_4_datafield_12_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_65_ed_major_1_ed_minor_4_uap_table_expand[] = {
+static const int* const cat_65_ed_major_1_ed_minor_4_uap_table_expand[] = {
   &expand_var_4005, //010
   &expand_var_4006, //000
   &expand_var_4007, //015
@@ -31684,7 +31684,7 @@ static int dissect_cat_65_ed_major_1_ed_minor_5_datafield_12_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_65_ed_major_1_ed_minor_5_uap_table_expand[] = {
+static const int* const cat_65_ed_major_1_ed_minor_5_uap_table_expand[] = {
   &expand_var_4019, //010
   &expand_var_4020, //000
   &expand_var_4021, //015
@@ -31724,7 +31724,7 @@ static int dissect_cat_65_ed_major_1_ed_minor_6_datafield_12_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_65_ed_major_1_ed_minor_6_uap_table_expand[] = {
+static const int* const cat_65_ed_major_1_ed_minor_6_uap_table_expand[] = {
   &expand_var_4028, //010
   &expand_var_4029, //000
   &expand_var_4030, //015
@@ -32067,7 +32067,7 @@ static int dissect_cat_150_ed_major_3_ed_minor_0_datafield_151_uap(tvbuff_t *tvb
   proto_item_set_len(item, offset - offset_start);
   return offset - offset_start;
 }
-static int* cat_150_ed_major_3_ed_minor_0_uap_table_expand[] = {
+static const int* const cat_150_ed_major_3_ed_minor_0_uap_table_expand[] = {
   &expand_var_4037, //010
   &expand_var_4040, //020
   &expand_var_4041, //030
@@ -32203,7 +32203,7 @@ static int dissect_cat_205_ed_major_1_ed_minor_0_datafield_180_uap(tvbuff_t *tvb
   proto_tree_add_double (tree, expand_var, tvb, offset + 0, 2, value_expand_var_d);
   return 2;
 }
-static int* cat_205_ed_major_1_ed_minor_0_uap_table_expand[] = {
+static const int* const cat_205_ed_major_1_ed_minor_0_uap_table_expand[] = {
   &expand_var_4097, //010
   &expand_var_4098, //015
   &expand_var_4099, //000
@@ -32393,7 +32393,7 @@ static int dissect_cat_240_ed_major_1_ed_minor_3_datafield_12_uap(tvbuff_t *tvb,
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_240_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static const int* const cat_240_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_4124, //010
   &expand_var_4125, //000
   &expand_var_4126, //020
@@ -32465,7 +32465,7 @@ static int dissect_cat_247_ed_major_1_ed_minor_2_datafield_6_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_247_ed_major_1_ed_minor_2_uap_table_expand[] = {
+static const int* const cat_247_ed_major_1_ed_minor_2_uap_table_expand[] = {
   &expand_var_4153, //010
   &expand_var_4154, //015
   &expand_var_4155, //140
@@ -32491,7 +32491,7 @@ static int dissect_cat_247_ed_major_1_ed_minor_3_datafield_6_uap(tvbuff_t *tvb, 
   offset+=len;
   return offset - offset_start;
 }
-static int* cat_247_ed_major_1_ed_minor_3_uap_table_expand[] = {
+static const int* const cat_247_ed_major_1_ed_minor_3_uap_table_expand[] = {
   &expand_var_4163, //010
   &expand_var_4164, //015
   &expand_var_4165, //140
@@ -32548,7 +32548,7 @@ static const enum_val_t uap_int_1_1_4_probe_enum_vals[] = {
 };
 static int uap_int_1_1_4_default = uap_int_1_1_4_probe;
 
-static dialog_int_struct interpretation_properties[] = {
+static const dialog_int_struct interpretation_properties[] = {
   {1, value_1_1_2, "1_1_2", " Interpret edition_1_2 as ", &uap_int_1_1_2_default, uap_int_1_1_2_probe_enum_vals},
   {1, value_1_1_3, "1_1_3", " Interpret edition_1_3 as ", &uap_int_1_1_3_default, uap_int_1_1_3_probe_enum_vals},
   {1, value_1_1_4, "1_1_4", " Interpret edition_1_4 as ", &uap_int_1_1_4_default, uap_int_1_1_4_probe_enum_vals}
