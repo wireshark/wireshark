@@ -918,7 +918,8 @@ CSN_DESCR_END  (SystemInformation1_t)
 
 	/* System Information type 2 - [1] 10.1.32 */
 
-static CSN_DESCR_BEGIN(SI2_Block_Header_t)
+static const
+CSN_DESCR_BEGIN(SI2_Block_Header_t)
   M_UINT       (SI2_Block_Header_t, Protocol_Version, 4, &hf_si_protocol_version),
   M_UINT       (SI2_Block_Header_t, Block_Type, 1, &hf_si_block_type),
   M_UINT       (SI2_Block_Header_t, Spare, 3, &hf_si_spare),
