@@ -2376,7 +2376,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             wmem_map_t *fmtp_map;
 
 #ifdef DEBUG_CONVERSATION
-            rtp_dump_dyn_payload(p_conv_data->rtp_dyn_payload);
+            rtp_dump_dyn_payload(p_packet_data->rtp_dyn_payload);
 #endif
             DPRINT(("looking up conversation data for dyn_pt=%d", payload_type));
 
