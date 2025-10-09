@@ -15,6 +15,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 
@@ -71,6 +72,9 @@ static int hf_ams_statebroadcast;
 static int hf_ams_cbdata;
 static int hf_ams_errorcode;
 static int hf_ams_invokeid;
+static int hf_ams_response_in;
+static int hf_ams_response_to;
+static int hf_ams_response_time;
 static int hf_ams_data;
 
 /*ads Commands */
@@ -122,6 +126,18 @@ static int hf_ams_adscycletime;
 /* static int hf_ams_adscmpmin; */
 
 static dissector_handle_t ams_handle;
+
+/* Structure for tracking request/response transactions */
+typedef struct _ams_transaction_t {
+   uint32_t req_frame;
+   uint32_t rep_frame;
+   nstime_t req_time;
+} ams_transaction_t;
+
+/* Structure for per-conversation data */
+typedef struct _ams_conv_info_t {
+   wmem_map_t *transactions;  /* Maps invokeId -> ams_transaction_t */
+} ams_conv_info_t;
 
 static const value_string TransMode[] =
 {
@@ -397,6 +413,10 @@ static int dissect_ams_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
    unsigned ams_length = tvb_reported_length(tvb);
    uint16_t stateflags;
    uint32_t cmdId, cbdata = 0;
+   uint32_t invokeId;
+   conversation_t *conversation;
+   ams_conv_info_t *ams_info;
+   ams_transaction_t *ams_trans = NULL;
    static int* const state_flags[] = {
            &hf_ams_stateresponse,
            &hf_ams_statenoreturn,
@@ -444,8 +464,47 @@ static int dissect_ams_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
    proto_tree_add_item(ams_tree, hf_ams_errorcode, tvb, offset, 4,ENC_LITTLE_ENDIAN);
    offset += 4;
 
-   proto_tree_add_item(ams_tree, hf_ams_invokeid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item_ret_uint(ams_tree, hf_ams_invokeid, tvb, offset, 4, ENC_LITTLE_ENDIAN, &invokeId);
    offset += 4;
+
+   /* Track request/response using conversation */
+   conversation = find_or_create_conversation(pinfo);
+   ams_info = (ams_conv_info_t *)conversation_get_proto_data(conversation, proto_ams);
+   if (!ams_info) {
+      /* No conversation data yet, create it */
+      ams_info = wmem_new(wmem_file_scope(), ams_conv_info_t);
+      ams_info->transactions = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+      conversation_add_proto_data(conversation, proto_ams, ams_info);
+   }
+
+   if (!PINFO_FD_VISITED(pinfo)) {
+      /* First pass - track the transaction */
+      if ((stateflags & AMSCMDSF_RESPONSE) == 0) {
+         /* This is a request */
+         ams_trans = wmem_new(wmem_file_scope(), ams_transaction_t);
+         ams_trans->req_frame = pinfo->num;
+         ams_trans->rep_frame = 0;
+         ams_trans->req_time = pinfo->abs_ts;
+         wmem_map_insert(ams_info->transactions, GUINT_TO_POINTER(invokeId), ams_trans);
+      } else {
+         /* This is a response */
+         ams_trans = (ams_transaction_t *)wmem_map_lookup(ams_info->transactions, GUINT_TO_POINTER(invokeId));
+         if (ams_trans && ams_trans->rep_frame == 0) {
+            ams_trans->rep_frame = pinfo->num;
+         }
+      }
+   } else {
+      /* Subsequent pass - retrieve the transaction */
+      ams_trans = (ams_transaction_t *)wmem_map_lookup(ams_info->transactions, GUINT_TO_POINTER(invokeId));
+   }
+
+   if (!ams_trans) {
+      /* Create a "fake" transaction structure for this packet */
+      ams_trans = wmem_new(pinfo->pool, ams_transaction_t);
+      ams_trans->req_frame = 0;
+      ams_trans->rep_frame = 0;
+      ams_trans->req_time = pinfo->abs_ts;
+   }
 
    if ( (stateflags & AMSCMDSF_ADSCMD) != 0 )
    {
@@ -453,6 +512,13 @@ static int dissect_ams_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
       if ( (stateflags & AMSCMDSF_RESPONSE) == 0 )
       {
          col_append_fstr(pinfo->cinfo, COL_INFO, "%s Request", val_to_str_const(cmdId, AMS_CommandId_vals, "Unknown"));
+
+         /* Add request state tracking info to the tree */
+         if (ams_trans->rep_frame) {
+            proto_item *it;
+            it = proto_tree_add_uint(ams_tree, hf_ams_response_in, tvb, 0, 0, ams_trans->rep_frame);
+            proto_item_set_generated(it);
+         }
 
          /* Request */
          switch ( cmdId )
@@ -615,6 +681,19 @@ static int dissect_ams_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
       else
       {
          col_append_fstr(pinfo->cinfo, COL_INFO, "%s Response", val_to_str_const(cmdId, AMS_CommandId_vals, "Unknown"));
+
+         /* Add response state tracking info to the tree */
+         if (ams_trans->req_frame) {
+            proto_item *it;
+            nstime_t ns;
+
+            it = proto_tree_add_uint(ams_tree, hf_ams_response_to, tvb, 0, 0, ams_trans->req_frame);
+            proto_item_set_generated(it);
+
+            nstime_delta(&ns, &pinfo->abs_ts, &ams_trans->req_time);
+            it = proto_tree_add_time(ams_tree, hf_ams_response_time, tvb, 0, 0, &ns);
+            proto_item_set_generated(it);
+         }
 
          /* Response */
          switch ( cmdId )
@@ -872,6 +951,21 @@ void proto_register_ams(void)
            { "InvokeId", "ams.invokeid",
              FT_UINT32, BASE_HEX, NULL, 0x0,
              NULL, HFILL }
+         },
+         { &hf_ams_response_in,
+           { "Response In", "ams.response_in",
+             FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+             "The response to this AMS request is in this frame", HFILL }
+         },
+         { &hf_ams_response_to,
+           { "Request In", "ams.response_to",
+             FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+             "This is a response to the AMS request in this frame", HFILL }
+         },
+         { &hf_ams_response_time,
+           { "Response Time", "ams.response_time",
+             FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+             "The time between the Request and the Response", HFILL }
          },
          { &hf_ams_adsdata,
            { "Data", "ams.ads_data",
