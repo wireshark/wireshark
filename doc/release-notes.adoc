@@ -22,47 +22,26 @@ If you or your organization would like to contribute or become a sponsor, please
 
 // The following vulnerabilities have been fixed:
 
-* wssalink:2025-04[] {notable}
-MONGO dissector infinite loop.
-wsbuglink:20724[].
-cveidlink:2025-xxx[].
-// Fixed in master: 1ec4709cab
-// Fixed in release-4.6: fdb3823962
-// Fixed in release-4.4: ac504cd5de
-// Fixed in release-4.2: 513e5d4972
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-835
-// * Fuzz job crash: fuzz-2025-09-22-11446760871.pcap. wsbuglink:20724[].
-
 // * wssalink:2025-05[] {notable}
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
 // cveidlink:2025-xxx[].
 // Fixed in master: xxx
 // Fixed in release-4.6: xxx
-// Fixed in release-4.6: xxx
+// Fixed in release-4.4: xxx
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
 // CWE-824
 
 The following bugs have been fixed:
 
-//The following bugs have been fixed:
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one. {notable}
 
-* Using wslog parameters in command line applications leads to freeing invalid memory. wsbuglink:20500[].
-* On macOS a lower resolution Wireshark icon is displayed in the App Switcher and Launchpad. wsbuglink:20544[]. {notable}
-// misdissection, but no crash.
-* Fuzz job crash: fuzz-2025-08-06-10932469456.pcap. wsbuglink:20666[].
-* Encoding on NAS5GS- NASDL Transport Message-Multiple Container contains inconsistencies. wsbuglink:20679[]. {notable}
-* Bad resolver in Delegated Credential (RFC 9345) of TLS 1.3 CertificateRequest message. wsbuglink:20728[]. {notable}
-* Fuzz job UTF-8 encoding issue: fuzz-2025-10-03-11586692659.pcap. wsbuglink:20744[].
-
 // == Known Bugs
 
-=== New and Updated Features
+// === New and Updated Features
 
 // === Removed Features and Support
 
@@ -78,17 +57,6 @@ There are no new protocols in this release.
 // rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.10.. | rg packet- | sort -u)
 [commaize]
 --
-CFM
-CQL
-DOF
-H.248E
-IEEE 802.11
-HTTP2
-IAX2
-LTP
-MONGO
-NAS-5GS
-XML
 --
 
 === New and Updated Capture File Support
@@ -99,7 +67,7 @@ There is no new or updated capture file support in this release.
 // --
 // --
 
-=== Updated File Format Decoding Support
+=== New and Updated File Format Decoding Support
 
 There is no updated file format support in this release.
 // Add one file type per line between the -- delimiters.
@@ -114,6 +82,19 @@ There is no updated file format support in this release.
 // === Major API Changes
 
 == Prior Versions
+
+Wireshark 4.4.10 included the following changes.
+See the
+https://www.wireshark.org/docs/relnotes/wireshark-4.4.10.html[release notes]
+for details:
+
+* Using wslog parameters in command line applications leads to freeing invalid memory. wsbuglink:20500[].
+* On macOS a lower resolution Wireshark icon is displayed in the App Switcher and Launchpad. sbuglink:20544[]. {notable}
+// misdissection, but no crash.
+* Fuzz job crash: fuzz-2025-08-06-10932469456.pcap. wsbuglink:20666[].
+* Encoding on NAS5GS- NASDL Transport Message-Multiple Container contains inconsistencies. wsbuglink:20679]. {notable}
+* Bad resolver in Delegated Credential (RFC 9345) of TLS 1.3 CertificateRequest message. wsbuglink:20728]. {notable}
+* Fuzz job UTF-8 encoding issue: fuzz-2025-10-03-11586692659.pcap. wsbuglink:20744[].
 
 Wireshark 4.4.9 included the following changes.
 See the
