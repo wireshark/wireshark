@@ -328,12 +328,6 @@ static int frstrans_dissect_element_InitializeFileTransferAsync_size_read(tvbuff
 static int frstrans_dissect_element_InitializeFileTransferAsync_size_read_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int frstrans_dissect_element_InitializeFileTransferAsync_is_end_of_file(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int frstrans_dissect_element_InitializeFileTransferAsync_is_end_of_file_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int
-cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, uint32_t param _U_, int hfindex)
-{
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hfindex, NULL);
-	return offset;
-}
 
 
 /* IDL: enum { */
@@ -446,7 +440,7 @@ frstrans_dissect_element_VersionVector_db_guid(tvbuff_t *tvb _U_, int offset _U_
 static int
 frstrans_dissect_element_VersionVector_low(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_frstrans_frstrans_VersionVector_low);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_frstrans_frstrans_VersionVector_low, NULL);
 
 	return offset;
 }
@@ -454,7 +448,7 @@ frstrans_dissect_element_VersionVector_low(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 frstrans_dissect_element_VersionVector_high(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_frstrans_frstrans_VersionVector_high);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_frstrans_frstrans_VersionVector_high, NULL);
 
 	return offset;
 }
@@ -616,7 +610,7 @@ frstrans_dissect_element_Update_uid_db_guid(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 frstrans_dissect_element_Update_uid_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_frstrans_frstrans_Update_uid_version);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_frstrans_frstrans_Update_uid_version, NULL);
 
 	return offset;
 }
@@ -632,7 +626,7 @@ frstrans_dissect_element_Update_gsvn_db_guid(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 frstrans_dissect_element_Update_gsvn_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_frstrans_frstrans_Update_gsvn_version);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_frstrans_frstrans_Update_gsvn_version, NULL);
 
 	return offset;
 }
@@ -648,7 +642,7 @@ frstrans_dissect_element_Update_parent_db_guid(tvbuff_t *tvb _U_, int offset _U_
 static int
 frstrans_dissect_element_Update_parent_version(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_frstrans_frstrans_Update_parent_version);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_frstrans_frstrans_Update_parent_version, NULL);
 
 	return offset;
 }
@@ -916,7 +910,7 @@ frstrans_dissect_struct_EpoqueVector(tvbuff_t *tvb _U_, int offset _U_, packet_i
 static int
 frstrans_dissect_element_AsyncVersionVectorResponse_vv_generation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_frstrans_frstrans_AsyncVersionVectorResponse_vv_generation);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_frstrans_frstrans_AsyncVersionVectorResponse_vv_generation, NULL);
 
 	return offset;
 }
@@ -1489,7 +1483,7 @@ frstrans_dissect_enum_RdcCompressionAlgorithm(tvbuff_t *tvb _U_, int offset _U_,
 static int
 frstrans_dissect_element_RdcFileInfo_on_disk_file_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_frstrans_frstrans_RdcFileInfo_on_disk_file_size);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_frstrans_frstrans_RdcFileInfo_on_disk_file_size, NULL);
 
 	return offset;
 }
@@ -1497,7 +1491,7 @@ frstrans_dissect_element_RdcFileInfo_on_disk_file_size(tvbuff_t *tvb _U_, int of
 static int
 frstrans_dissect_element_RdcFileInfo_file_size_estimate(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_frstrans_frstrans_RdcFileInfo_file_size_estimate);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_frstrans_frstrans_RdcFileInfo_file_size_estimate, NULL);
 
 	return offset;
 }
@@ -1946,7 +1940,7 @@ frstrans_dissect_element_RequestUpdates_gvsn_version(tvbuff_t *tvb _U_, int offs
 static int
 frstrans_dissect_element_RequestUpdates_gvsn_version_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_frstrans_frstrans_RequestUpdates_gvsn_version);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_frstrans_frstrans_RequestUpdates_gvsn_version, NULL);
 
 	return offset;
 }
@@ -2059,7 +2053,7 @@ frstrans_dissect_element_RequestVersionVector_change_type(tvbuff_t *tvb _U_, int
 static int
 frstrans_dissect_element_RequestVersionVector_vv_generation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_frstrans_frstrans_RequestVersionVector_vv_generation);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_frstrans_frstrans_RequestVersionVector_vv_generation, NULL);
 
 	return offset;
 }

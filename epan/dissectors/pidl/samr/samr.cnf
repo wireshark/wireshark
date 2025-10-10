@@ -155,7 +155,6 @@ TYPE lsa_AsciiString "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tre
 TYPE lsa_StringLarge "offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
 TYPE lsa_AsciiStringLarge "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
 TYPE lsa_BinaryString "offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_STRING BASE_NONE 0 NULL 5
-TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8
 
 
 TYPE sec_desc_buf "offset=cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL 4
@@ -390,15 +389,6 @@ cnf_dissect_lsa_AsciiString(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 	return offset;
 }
-
-static int
-cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, uint32_t param _U_, int hfindex)
-{
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hfindex, NULL);
-
-	return offset;
-}
-
 
 
 

@@ -2199,12 +2199,6 @@ cnf_dissect_lsa_AsciiString(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	return offset;
 }
 static int
-cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, uint32_t param _U_, int hfindex)
-{
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hfindex, NULL);
-	return offset;
-}
-static int
 cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	uint64_t len;
@@ -3204,7 +3198,7 @@ samr_dissect_struct_DomInfo7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 static int
 samr_dissect_element_DomInfo8_sequence_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomInfo8_sequence_num);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo8_sequence_num, NULL);
 
 	return offset;
 }
@@ -3309,7 +3303,7 @@ samr_dissect_element_DomGeneralInformation2_general(tvbuff_t *tvb _U_, int offse
 static int
 samr_dissect_element_DomGeneralInformation2_lockout_duration(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomGeneralInformation2_lockout_duration);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomGeneralInformation2_lockout_duration, NULL);
 
 	return offset;
 }
@@ -3317,7 +3311,7 @@ samr_dissect_element_DomGeneralInformation2_lockout_duration(tvbuff_t *tvb _U_, 
 static int
 samr_dissect_element_DomGeneralInformation2_lockout_window(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomGeneralInformation2_lockout_window);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomGeneralInformation2_lockout_window, NULL);
 
 	return offset;
 }
@@ -3375,7 +3369,7 @@ samr_dissect_struct_DomGeneralInformation2(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 samr_dissect_element_DomInfo12_lockout_duration(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomInfo12_lockout_duration);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo12_lockout_duration, NULL);
 
 	return offset;
 }
@@ -3383,7 +3377,7 @@ samr_dissect_element_DomInfo12_lockout_duration(tvbuff_t *tvb _U_, int offset _U
 static int
 samr_dissect_element_DomInfo12_lockout_window(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomInfo12_lockout_window);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo12_lockout_window, NULL);
 
 	return offset;
 }
@@ -3439,7 +3433,7 @@ samr_dissect_struct_DomInfo12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 static int
 samr_dissect_element_DomInfo13_sequence_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomInfo13_sequence_num);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo13_sequence_num, NULL);
 
 	return offset;
 }
@@ -3455,7 +3449,7 @@ samr_dissect_element_DomInfo13_domain_create_time(tvbuff_t *tvb _U_, int offset 
 static int
 samr_dissect_element_DomInfo13_modified_count_at_last_promotion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_DomInfo13_modified_count_at_last_promotion);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_DomInfo13_modified_count_at_last_promotion, NULL);
 
 	return offset;
 }
@@ -6615,7 +6609,7 @@ samr_dissect_element_EncryptedPasswordAES_cipher__(tvbuff_t *tvb _U_, int offset
 static int
 samr_dissect_element_EncryptedPasswordAES_PBKDF2Iterations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_samr_samr_EncryptedPasswordAES_PBKDF2Iterations);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_samr_samr_EncryptedPasswordAES_PBKDF2Iterations, NULL);
 
 	return offset;
 }

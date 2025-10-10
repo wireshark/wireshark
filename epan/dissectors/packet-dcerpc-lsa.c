@@ -1950,12 +1950,6 @@ lsarpc_dissect_struct_dom_sid2(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	return dissect_ndr_nt_SID(tvb, offset, pinfo, tree, di, drep);
 }
 static int
-cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, uint32_t param _U_, int hfindex)
-{
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hfindex, NULL);
-	return offset;
-}
-static int
 lsarpc_dissect_element_lsa_LookupNames3_names_X(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di, uint8_t *drep _U_)
 {
 	proto_item *item = NULL;
@@ -3013,7 +3007,7 @@ lsarpc_dissect_element_lsa_AuditLogInfo_maximum_log_size(tvbuff_t *tvb _U_, int 
 static int
 lsarpc_dissect_element_lsa_AuditLogInfo_retention_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_AuditLogInfo_retention_time);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditLogInfo_retention_time, NULL);
 
 	return offset;
 }
@@ -3029,7 +3023,7 @@ lsarpc_dissect_element_lsa_AuditLogInfo_shutdown_in_progress(tvbuff_t *tvb _U_, 
 static int
 lsarpc_dissect_element_lsa_AuditLogInfo_time_to_shutdown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_AuditLogInfo_time_to_shutdown);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_AuditLogInfo_time_to_shutdown, NULL);
 
 	return offset;
 }
@@ -3482,7 +3476,7 @@ lsarpc_dissect_element_lsa_DefaultQuotaInfo_pagefile(tvbuff_t *tvb _U_, int offs
 static int
 lsarpc_dissect_element_lsa_DefaultQuotaInfo_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_DefaultQuotaInfo_unknown);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DefaultQuotaInfo_unknown, NULL);
 
 	return offset;
 }
@@ -3535,7 +3529,7 @@ lsarpc_dissect_struct_lsa_DefaultQuotaInfo(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 lsarpc_dissect_element_lsa_ModificationInfo_modified_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_ModificationInfo_modified_id);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_ModificationInfo_modified_id, NULL);
 
 	return offset;
 }
@@ -6663,7 +6657,7 @@ lsarpc_dissect_element_lsa_DomainInfoKerberos_authentication_options(tvbuff_t *t
 static int
 lsarpc_dissect_element_lsa_DomainInfoKerberos_service_tkt_lifetime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_DomainInfoKerberos_service_tkt_lifetime);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DomainInfoKerberos_service_tkt_lifetime, NULL);
 
 	return offset;
 }
@@ -6671,7 +6665,7 @@ lsarpc_dissect_element_lsa_DomainInfoKerberos_service_tkt_lifetime(tvbuff_t *tvb
 static int
 lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_lifetime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_lifetime);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_lifetime, NULL);
 
 	return offset;
 }
@@ -6679,7 +6673,7 @@ lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_lifetime(tvbuff_t *tvb _U
 static int
 lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_renewaltime(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_renewaltime);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DomainInfoKerberos_user_tkt_renewaltime, NULL);
 
 	return offset;
 }
@@ -6687,7 +6681,7 @@ lsarpc_dissect_element_lsa_DomainInfoKerberos_user_tkt_renewaltime(tvbuff_t *tvb
 static int
 lsarpc_dissect_element_lsa_DomainInfoKerberos_clock_skew(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_DomainInfoKerberos_clock_skew);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DomainInfoKerberos_clock_skew, NULL);
 
 	return offset;
 }
@@ -6695,7 +6689,7 @@ lsarpc_dissect_element_lsa_DomainInfoKerberos_clock_skew(tvbuff_t *tvb _U_, int 
 static int
 lsarpc_dissect_element_lsa_DomainInfoKerberos_reserved(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, 0, hf_lsarpc_lsa_DomainInfoKerberos_reserved);
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_DomainInfoKerberos_reserved, NULL);
 
 	return offset;
 }

@@ -33,7 +33,6 @@ PARAM_VALUE wkssvc_dissect_element_NetWkstaTransportEnum_server_name_ 1|PIDL_SET
 
 
 TYPE lsa_String "offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
-TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8 
 
 CODE START
 
@@ -53,7 +52,7 @@ cnf_dissect_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	if (parent_tree) {
 		tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 0, ett_wkssvc_lsa_String, &item, "%s: ", hf_info->name);
 	}
-	
+
 	offset = wkssvc_dissect_element_lsa_String_name_len(tvb, offset, pinfo, tree, di, drep);
 	offset = wkssvc_dissect_element_lsa_String_name_size(tvb, offset, pinfo, tree, di, drep);
 
@@ -64,14 +63,6 @@ cnf_dissect_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 		GINT_TO_POINTER(param));
 
 	proto_item_set_len(item, offset-old_offset);
-
-	return offset;
-}
-
-static int
-cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, uint32_t param _U_, int hfindex)
-{
-	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, di, drep, hfindex, NULL);
 
 	return offset;
 }
