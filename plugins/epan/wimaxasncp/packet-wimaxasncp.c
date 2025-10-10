@@ -25,7 +25,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
-#include <epan/eap.h>
+#include <epan/dissectors/packet-eap.h>
 
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>

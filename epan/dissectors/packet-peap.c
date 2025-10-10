@@ -14,10 +14,10 @@
 #include <stdio.h>
 
 #include <epan/packet.h>
-#include <epan/eap.h>
 #include <epan/expert.h>
 #include <wsutil/pint.h>
 #include <epan/proto_data.h>
+#include "packet-eap.h"
 
 void proto_register_peap(void);
 void proto_reg_handoff_peap(void);

@@ -154,8 +154,7 @@ class DefinedSymbols:
                                       os.path.join('epan', 'dissectors', 'packet-epl.h'),
                                       os.path.join('epan', 'dissectors', 'packet-bluetooth.h'),
                                       os.path.join('epan', 'dissectors', 'packet-dcerpc.h'),
-                                      os.path.join('epan', 'ip_opts.h'),
-                                      os.path.join('epan', 'eap.h')]
+                                      os.path.join('epan', 'ip_opts.h')]
         for hf in common_mismatched_headers:
             try:
                 f = open(hf)

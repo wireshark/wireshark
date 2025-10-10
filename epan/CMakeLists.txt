@@ -59,7 +59,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	disabled_protos.h
 	conversation_filter.h
 	dvb_chartbl.h
-	eap.h
 	epan.h
 	epan_dissect.h
 	etypes.h
