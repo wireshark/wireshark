@@ -34,7 +34,7 @@
 
 #include "wsutil/array.h"
 
-#include "pci-ids.h"
+#include "packet-ncsi-data.h"
 
 typedef struct
 {

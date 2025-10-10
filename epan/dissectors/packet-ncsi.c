@@ -26,9 +26,9 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include <epan/addr_resolv.h>
-#include <epan/pci-ids.h>
 #include <epan/charsets.h>
 #include "packet-mctp.h"
+#include "packet-ncsi-data.h"
 
 void proto_reg_handoff_ncsi(void);
 void proto_register_ncsi(void);

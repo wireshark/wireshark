@@ -3,7 +3,7 @@
 # make-pci-ids - Creates a file containing PCI IDs.
 # It use the databases from
 # https://github.com/pciutils/pciids/raw/master/pci.ids
-# to create our file epan/dissectors/pci-ids.c
+# to create our file epan/dissectors/packet-ncsi-data.c
 #
 # Wireshark - Network traffic analyzer
 #
@@ -17,7 +17,7 @@ import string
 import sys
 import urllib.request, urllib.error, urllib.parse
 
-OUTPUT_FILE = "epan/pci-ids.c"
+OUTPUT_FILE = "epan/dissectors/packet-ncsi-data.c"
 
 MIN_VENDOR_COUNT = 2250 # 2261 on 2021-11-01
 MIN_DEVICE_COUNT = 33000 # 33724 on 2021-11-01
@@ -39,7 +39,7 @@ CODE_PREFIX = """\
 
 #include "wsutil/array.h"
 
-#include "pci-ids.h"
+#include "packet-ncsi-data.h"
 
 typedef struct
 {

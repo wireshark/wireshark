@@ -506,6 +506,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ncp-int.h
 	packet-ncp-nmas.h
 	packet-ncp-sss.h
+	packet-ncsi-data.h
 	packet-ndmp.h
 	packet-ndps.h
 	packet-netbios.h
@@ -1616,6 +1617,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ncp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ncs.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ncsi.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ncsi-data.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ndmp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ndp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ndps.c
