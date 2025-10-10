@@ -1415,9 +1415,20 @@ sub DumpFunctionTable($)
 sub CheckUsed($$)
 {
 	my ($self, $conformance) = @_;
+
+	# Check if some word appears inside a CODE block
+	# This has false positives if a word appears within a comment.
+	# We could use Regexp::Common to remove comments before searching.
+	local *CheckCode = sub {
+		my $name = shift;
+		return (exists ($conformance->{override}) and ($conformance->{override} =~ /\b$name\b/));
+	};
+
 	foreach (values %{$conformance->{header_fields}}) {
 		if (not defined($self->{hf_used}->{$_->{INDEX}})) {
-			warning($_->{POS}, "hf field `$_->{INDEX}' not used");
+			if (not CheckCode($_->{INDEX})) {
+				warning($_->{POS}, "hf field `$_->{INDEX}' not used");
+			}
 		}
 	}
 
