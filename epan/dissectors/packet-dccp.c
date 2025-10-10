@@ -47,7 +47,6 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/dccpservicecodes.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include <epan/prefs.h>

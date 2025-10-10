@@ -58,7 +58,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	decode_as.h
 	disabled_protos.h
 	conversation_filter.h
-	dccpservicecodes.h
 	dvb_chartbl.h
 	eap.h
 	epan.h
