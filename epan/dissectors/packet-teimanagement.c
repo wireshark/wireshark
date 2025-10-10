@@ -13,7 +13,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/lapd_sapi.h>
+#include "packet-lapd.h"
 
 /* ISDN/LAPD references:
  *

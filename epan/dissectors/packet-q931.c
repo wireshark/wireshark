@@ -23,7 +23,7 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/sctpppids.h>
-#include <epan/lapd_sapi.h>
+#include "packet-lapd.h"
 #include "packet-tpkt.h"
 #include "packet-osi.h"
 

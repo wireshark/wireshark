@@ -30,11 +30,11 @@
 #include <epan/crc16-tvb.h>
 #include <epan/prefs.h>
 #include <wiretap/wtap.h>
-#include <epan/lapd_sapi.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include "packet-lapd.h"
 #include "packet-xdlc.h"
 
 void proto_register_lapd(void);

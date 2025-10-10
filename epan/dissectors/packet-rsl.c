@@ -24,7 +24,6 @@
 #include <epan/packet.h>
 
 #include "packet-gsm_a_common.h"
-#include "lapd_sapi.h"
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
@@ -33,6 +32,7 @@
 
 #include <wsutil/array.h>
 
+#include "packet-lapd.h"
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 

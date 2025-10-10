@@ -15,11 +15,11 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/lapd_sapi.h>
 #include <epan/prefs.h>
 #include <epan/unit_strings.h>
 
 #include "packet-gsm_a_common.h"
+#include "packet-lapd.h"
 
 void proto_register_abis_oml(void);
 void proto_reg_handoff_abis_oml(void);

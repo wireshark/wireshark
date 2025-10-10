@@ -471,6 +471,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-knxip.h
 	packet-knxip_decrypt.h
 	packet-l2tp.h
+	packet-lapd.h
 	packet-lapdm.h
 	packet-lbm.h
 	packet-lbtrm.h

@@ -9,8 +9,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __LAPD_SAPI_H__
-#define __LAPD_SAPI_H__
+#ifndef __PACKET_LAPD_H__
+#define __PACKET_LAPD_H__
 
 #define	LAPD_SAPI_Q931		0	/* Q.931 call control procedure */
 #define	LAPD_SAPI_PM_Q931	1	/* Packet mode Q.931 call control procedure */
@@ -22,4 +22,4 @@
 #define LAPD_GSM_SAPI_NOT_USED_16	16
 #define LAPD_GSM_SAPI_OM_PROC		62
 
-#endif /* lapd_sapi.h */
+#endif /* __PACKET_LAPD_H__ */

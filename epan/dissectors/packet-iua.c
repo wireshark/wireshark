@@ -22,9 +22,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
-#include <epan/lapd_sapi.h>
 #include <wsutil/str_util.h>
 #include <wsutil/ws_roundup.h>
+#include "packet-lapd.h"
 
 void proto_register_iua(void);
 void proto_reg_handoff_iua(void);

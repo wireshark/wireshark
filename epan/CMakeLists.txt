@@ -84,7 +84,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	iana-ip.h
 	ip_opts.h
 	ipproto.h
-	lapd_sapi.h
 	maxmind_db.h
 	media_params.h
 	next_tvb.h
