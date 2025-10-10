@@ -37,7 +37,7 @@ Strict mode:
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
-#include <epan/cisco_pid.h>
+#include "packet-cisco-pid.h"
 
 void proto_register_mcp(void);
 void proto_reg_handoff_mcp(void);

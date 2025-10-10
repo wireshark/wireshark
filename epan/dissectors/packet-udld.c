@@ -12,7 +12,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/cisco_pid.h>
+#include "packet-cisco-pid.h"
 
 /*
  * See

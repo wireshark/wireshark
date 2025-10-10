@@ -24,7 +24,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
-#include <epan/cisco_pid.h>
+#include "packet-cisco-pid.h"
 
 /*
  * It's incomplete, and it appears to be inaccurate in a number of places,

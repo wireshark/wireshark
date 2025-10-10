@@ -325,6 +325,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-chdlc.h
 	packet-cip.h
 	packet-cipsafety.h
+	packet-cisco-pid.h
 	packet-cmip.h
 	packet-cmp.h
 	packet-cms.h

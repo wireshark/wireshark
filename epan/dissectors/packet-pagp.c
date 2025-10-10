@@ -17,9 +17,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
-#include <epan/cisco_pid.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include "packet-cisco-pid.h"
 
 void proto_register_pagp(void);
 void proto_reg_handoff_pagp(void);

@@ -43,7 +43,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	asn1.h
 	capture_dissectors.h
 	charsets.h
-	cisco_pid.h
 	color_filters.h
 	column.h
 	column-info.h

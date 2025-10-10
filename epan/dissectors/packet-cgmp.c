@@ -11,7 +11,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/cisco_pid.h>
+#include "packet-cisco-pid.h"
 
 /*
  * See
