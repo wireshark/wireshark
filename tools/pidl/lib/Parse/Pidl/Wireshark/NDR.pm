@@ -435,7 +435,7 @@ sub ElementLevel($$$$$$$$)
 			$varswitch = $e->{PROPERTIES}->{switch_is};
 		}
 		my $num_bits = ($l->{HEADER_SIZE}*8);
-		my $hf2 = $self->register_hf_field($hf."_", "Subcontext length", "$ifname.$pn.$_->{NAME}subcontext", "FT_UINT$num_bits", "BASE_HEX", "NULL", 0, "");
+		my $hf2 = $self->register_hf_field($hf."_", "Subcontext length", "$ifname.$pn.$e->{NAME}.subcontext", "FT_UINT$num_bits", "BASE_HEX", "NULL", 0, "");
 		$num_bits = 3264 if ($num_bits == 32);
 		$self->{hf_used}->{$hf2} = 1;
 		$self->pidl_code("uint${num_bits}_t size;");
