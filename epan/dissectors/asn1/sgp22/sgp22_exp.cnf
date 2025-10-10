@@ -1,5 +1,5 @@
 #.IMPORT_TAG
-# CtxParams1                            BER_CLASS_UNI  BER_UNI_TAG_CHOICE
+CtxParams1                            BER_CLASS_ANY  -1/*choice*/
 EUICCInfo1                            BER_CLASS_CON  32
 EuiccSignPIR                          BER_CLASS_APP  55
 Iccid                                 BER_CLASS_APP  26
@@ -10,4 +10,15 @@ OtherSignedNotification               BER_CLASS_UNI  BER_UNI_TAG_SEQUENCE
 ServerSigned1                         BER_CLASS_UNI  BER_UNI_TAG_SEQUENCE
 SmdpSigned2                           BER_CLASS_UNI  BER_UNI_TAG_SEQUENCE
 VersionType                           BER_CLASS_UNI  BER_UNI_TAG_OCTETSTRING
+#.END
+
+#.TYPE_ATTR
+CtxParams1     TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(sgp22_CtxParams1_vals)
+EuiccSignPIR   TYPE = FT_BYTES
+Iccid          TYPE = FT_STRING
+Octet16        TYPE = FT_BYTES
+OctetTo16      TYPE = FT_BYTES
+Octet32        TYPE = FT_BYTES
+TransactionId  TYPE = FT_BYTES
+VersionType    TYPE = FT_STRING
 #.END

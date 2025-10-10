@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-sgp22.c                                                             */
-/* asn2wrs.py -b -q -L -p sgp22 -c ./sgp22.cnf -s ./packet-sgp22-template -D . -O ../.. PEDefinitions.asn RSPDefinitions.asn */
+/* asn2wrs.py -b -C -q -L -p sgp22 -c ./sgp22.cnf -s ./packet-sgp22-template -D . -O ../.. PEDefinitions.asn RSPDefinitions.asn */
 
 /* packet-sgp22.c
  * Routines for SGP.22 packet dissection.
@@ -21,6 +21,7 @@
 #include <epan/oids.h>
 
 #include "packet-ber.h"
+#include "packet-media-type.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
 #include "packet-sgp22.h"
@@ -374,6 +375,7 @@ static int hf_sgp22_T_lpaeSupport_lpaeUsingScws;
 static int hf_sgp22_T_lpaeOption_activateCatBasedLpae;
 static int hf_sgp22_T_lpaeOption_activateScwsBasedLpae;
 
+static int ett_sgp22;
 static int ett_sgp22_UICCCapability;
 static int ett_sgp22_GetEuiccInfo1Request_U;
 static int ett_sgp22_EUICCInfo1_U;
@@ -553,8 +555,8 @@ dissect_sgp22_UICCCapability(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_sgp22_Octet8(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   8, 8, hf_index, NULL);
 
   return offset;
 }
@@ -563,8 +565,8 @@ dissect_sgp22_Octet8(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_sgp22_Octet4(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   4, 4, hf_index, NULL);
 
   return offset;
 }
@@ -573,8 +575,8 @@ dissect_sgp22_Octet4(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 int
 dissect_sgp22_Octet16(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   16, 16, hf_index, NULL);
 
   return offset;
 }
@@ -583,8 +585,8 @@ dissect_sgp22_Octet16(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 int
 dissect_sgp22_OctetTo16(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 16, hf_index, NULL);
 
   return offset;
 }
@@ -593,8 +595,8 @@ dissect_sgp22_OctetTo16(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 int
 dissect_sgp22_Octet32(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   32, 32, hf_index, NULL);
 
   return offset;
 }
@@ -603,8 +605,8 @@ dissect_sgp22_Octet32(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 int
 dissect_sgp22_Octet1(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 1, hf_index, NULL);
 
   return offset;
 }
@@ -613,8 +615,23 @@ dissect_sgp22_Octet1(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 int
 dissect_sgp22_VersionType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  tvbuff_t *next_tvb = NULL;
+
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   3, 3, -1, &next_tvb);
+
+  if (next_tvb) {
+    wmem_strbuf_t *version_str = wmem_strbuf_create(NULL);
+    for (unsigned i = 0; i < 3; i++) {
+      uint8_t value = tvb_get_uint8(next_tvb, i);
+      if (i < (3 - 1) || value > 0) {
+        /* Do not show last value if this is 0, according to spec */
+        wmem_strbuf_append_printf(version_str, "%c%u", (i == 0 ? 'v' : '.'), value);
+      }
+    }
+    actx->created_item = proto_tree_add_string(tree, hf_index, next_tvb, 0, -1, wmem_strbuf_finalize(version_str));
+  }
+
 
   return offset;
 }
@@ -622,9 +639,16 @@ dissect_sgp22_VersionType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static int
-dissect_sgp22_OCTET_STRING_SIZE_10(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+dissect_sgp22_Iccid_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *next_tvb = NULL;
+
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   10, 10, -1, &next_tvb);
+
+  if (next_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, next_tvb, 0, -1, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
+  }
+
 
   return offset;
 }
@@ -634,7 +658,7 @@ dissect_sgp22_OCTET_STRING_SIZE_10(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 int
 dissect_sgp22_Iccid(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 26, true, dissect_sgp22_OCTET_STRING_SIZE_10);
+                                      hf_index, BER_CLASS_APP, 26, true, dissect_sgp22_Iccid_U);
 
   return offset;
 }
@@ -668,8 +692,8 @@ dissect_sgp22_RemoteOpId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 int
 dissect_sgp22_TransactionId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 16, hf_index, NULL);
 
   return offset;
 }
@@ -828,9 +852,9 @@ dissect_sgp22_PprIds(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_sgp22_UTF8String_SIZE_0_64(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                                        actx, tree, tvb, offset,
+                                                        0, 64, hf_index, NULL);
 
   return offset;
 }
@@ -1107,9 +1131,9 @@ dissect_sgp22_ProfileState(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_sgp22_UTF8String_SIZE_0_32(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                                        actx, tree, tvb, offset,
+                                                        0, 32, hf_index, NULL);
 
   return offset;
 }
@@ -1134,8 +1158,8 @@ dissect_sgp22_IconType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_sgp22_OCTET_STRING_SIZE_0_1024(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   0, 1024, hf_index, NULL);
 
   return offset;
 }
@@ -1190,8 +1214,8 @@ dissect_sgp22_SEQUENCE_OF_NotificationConfigurationInformation(bool implicit_tag
 
 static int
 dissect_sgp22_OCTET_STRING_SIZE_3(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   3, 3, hf_index, NULL);
 
   return offset;
 }
@@ -2105,8 +2129,8 @@ dissect_sgp22_NotificationMetadata(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_sgp22_OCTET_STRING_SIZE_5_16(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   5, 16, hf_index, NULL);
 
   return offset;
 }
@@ -2430,9 +2454,9 @@ dissect_sgp22_SetNicknameResponse(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_sgp22_UTF8String_SIZE_0_255(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                                        actx, tree, tvb, offset,
+                                                        0, 255, hf_index, NULL);
 
   return offset;
 }
@@ -3503,9 +3527,15 @@ static const ber_choice_t RemoteProfileProvisioningRequest_U_choice[] = {
 
 static int
 dissect_sgp22_RemoteProfileProvisioningRequest_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  int choice;
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  RemoteProfileProvisioningRequest_U_choice, hf_index, ett_sgp22_RemoteProfileProvisioningRequest_U,
-                                 NULL);
+                                 &choice);
+
+  if (choice != -1) {
+    col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(RemoteProfileProvisioningRequest_U_choice[choice].value, sgp22_RemoteProfileProvisioningRequest_U_vals, "Unknown"));
+  }
 
   return offset;
 }
@@ -3913,9 +3943,15 @@ static const ber_choice_t RemoteProfileProvisioningResponse_U_choice[] = {
 
 static int
 dissect_sgp22_RemoteProfileProvisioningResponse_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  int choice;
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  RemoteProfileProvisioningResponse_U_choice, hf_index, ett_sgp22_RemoteProfileProvisioningResponse_U,
-                                 NULL);
+                                 &choice);
+
+  if (choice != -1) {
+    col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(RemoteProfileProvisioningResponse_U_choice[choice].value, sgp22_RemoteProfileProvisioningResponse_U_vals, "Unknown"));
+  }
 
   return offset;
 }
@@ -4629,6 +4665,36 @@ static int dissect_AuthenticateClientResponseEs11_PDU(tvbuff_t *tvb _U_, packet_
 }
 
 
+static dissector_handle_t sgp22_handle;
+
+static int dissect_sgp22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  media_content_info_t *content_info = (media_content_info_t *)data;
+  proto_item *sgp22_ti;
+  proto_tree *sgp22_tree;
+  int offset;
+
+  if (!content_info ||
+      ((content_info->type != MEDIA_CONTAINER_HTTP_REQUEST) &&
+       (content_info->type != MEDIA_CONTAINER_HTTP_RESPONSE))) {
+    return 0;
+  }
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGP.22");
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  sgp22_ti = proto_tree_add_item(tree, proto_sgp22, tvb, 0, -1, ENC_NA);
+  sgp22_tree = proto_item_add_subtree(sgp22_ti, ett_sgp22);
+
+  if (content_info->type == MEDIA_CONTAINER_HTTP_REQUEST) {
+    offset = dissect_RemoteProfileProvisioningRequest_PDU(tvb, pinfo, sgp22_tree, NULL);
+  } else {
+    offset = dissect_RemoteProfileProvisioningResponse_PDU(tvb, pinfo, sgp22_tree, NULL);
+  }
+
+  return offset;
+}
+
 void proto_register_sgp22(void)
 {
   static hf_register_info hf[] = {
@@ -4898,31 +4964,31 @@ void proto_register_sgp22(void)
         NULL, HFILL }},
     { &hf_sgp22_svn,
       { "svn", "sgp22.svn",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_euiccCiPKIdListForVerification,
       { "euiccCiPKIdListForVerification", "sgp22.euiccCiPKIdListForVerification",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SEQUENCE_OF_SubjectKeyIdentifier", HFILL }},
     { &hf_sgp22_euiccCiPKIdListForVerification_item,
-      { "SubjectKeyIdentifier", "sgp22.SubjectKeyIdentifier_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "SubjectKeyIdentifier", "sgp22.SubjectKeyIdentifier",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp22_euiccCiPKIdListForSigning,
       { "euiccCiPKIdListForSigning", "sgp22.euiccCiPKIdListForSigning",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SEQUENCE_OF_SubjectKeyIdentifier", HFILL }},
     { &hf_sgp22_euiccCiPKIdListForSigning_item,
-      { "SubjectKeyIdentifier", "sgp22.SubjectKeyIdentifier_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "SubjectKeyIdentifier", "sgp22.SubjectKeyIdentifier",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp22_profileVersion,
       { "profileVersion", "sgp22.profileVersion",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_euiccFirmwareVer,
       { "euiccFirmwareVer", "sgp22.euiccFirmwareVer",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_extCardResource,
       { "extCardResource", "sgp22.extCardResource",
@@ -4934,11 +5000,11 @@ void proto_register_sgp22(void)
         NULL, HFILL }},
     { &hf_sgp22_ts102241Version,
       { "ts102241Version", "sgp22.ts102241Version",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_globalplatformVersion,
       { "globalplatformVersion", "sgp22.globalplatformVersion",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_rspCapability,
       { "rspCapability", "sgp22.rspCapability",
@@ -4954,7 +5020,7 @@ void proto_register_sgp22(void)
         "PprIds", HFILL }},
     { &hf_sgp22_ppVersion,
       { "ppVersion", "sgp22.ppVersion",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_sasAcreditationNumber,
       { "sasAcreditationNumber", "sgp22.sasAcreditationNumber",
@@ -4978,7 +5044,7 @@ void proto_register_sgp22(void)
         "SEQUENCE_OF_VersionType", HFILL }},
     { &hf_sgp22_additionalEuiccProfilePackageVersions_item,
       { "VersionType", "sgp22.VersionType",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp22_platformLabel,
       { "platformLabel", "sgp22.platformLabel",
@@ -5002,51 +5068,51 @@ void proto_register_sgp22(void)
         "Octet8", HFILL }},
     { &hf_sgp22_gsmSupportedRelease,
       { "gsmSupportedRelease", "sgp22.gsmSupportedRelease",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_utranSupportedRelease,
       { "utranSupportedRelease", "sgp22.utranSupportedRelease",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_cdma2000onexSupportedRelease,
       { "cdma2000onexSupportedRelease", "sgp22.cdma2000onexSupportedRelease",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_cdma2000hrpdSupportedRelease,
       { "cdma2000hrpdSupportedRelease", "sgp22.cdma2000hrpdSupportedRelease",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_cdma2000ehrpdSupportedRelease,
       { "cdma2000ehrpdSupportedRelease", "sgp22.cdma2000ehrpdSupportedRelease",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_eutranEpcSupportedRelease,
       { "eutranEpcSupportedRelease", "sgp22.eutranEpcSupportedRelease",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_contactlessSupportedRelease,
       { "contactlessSupportedRelease", "sgp22.contactlessSupportedRelease",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_rspCrlSupportedVersion,
       { "rspCrlSupportedVersion", "sgp22.rspCrlSupportedVersion",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_nrEpcSupportedRelease,
       { "nrEpcSupportedRelease", "sgp22.nrEpcSupportedRelease",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_nr5gcSupportedRelease,
       { "nr5gcSupportedRelease", "sgp22.nr5gcSupportedRelease",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_eutran5gcSupportedRelease,
       { "eutran5gcSupportedRelease", "sgp22.eutran5gcSupportedRelease",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_lpaSvn,
       { "lpaSvn", "sgp22.lpaSvn",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_catSupportedClasses,
       { "catSupportedClasses", "sgp22.catSupportedClasses",
@@ -5062,7 +5128,7 @@ void proto_register_sgp22(void)
         NULL, HFILL }},
     { &hf_sgp22_naiSupport,
       { "naiSupport", "sgp22.naiSupport",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp22_groupOfDeviceManufacturerOid,
       { "groupOfDeviceManufacturerOid", "sgp22.groupOfDeviceManufacturerOid",
@@ -5078,7 +5144,7 @@ void proto_register_sgp22(void)
         "OctetTo16", HFILL }},
     { &hf_sgp22_iccid,
       { "iccid", "sgp22.iccid",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp22_profileClass,
       { "profileClass", "sgp22.profileClass",
@@ -5245,8 +5311,8 @@ void proto_register_sgp22(void)
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
     { &hf_sgp22_euiccCiPKIdToBeUsed,
-      { "euiccCiPKIdToBeUsed", "sgp22.euiccCiPKIdToBeUsed_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "euiccCiPKIdToBeUsed", "sgp22.euiccCiPKIdToBeUsed",
+        FT_BYTES, BASE_NONE, NULL, 0,
         "SubjectKeyIdentifier", HFILL }},
     { &hf_sgp22_serverCertificate,
       { "serverCertificate", "sgp22.serverCertificate_element",
@@ -5991,6 +6057,7 @@ void proto_register_sgp22(void)
   };
 
   static int *ett[] = {
+    &ett_sgp22,
     &ett_sgp22_UICCCapability,
     &ett_sgp22_GetEuiccInfo1Request_U,
     &ett_sgp22_EUICCInfo1_U,
@@ -6125,6 +6192,8 @@ void proto_register_sgp22(void)
   proto_register_field_array(proto_sgp22, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  sgp22_handle = register_dissector("sgp22", dissect_sgp22, proto_sgp22);
+
   register_dissector_table("sgp22.request", "SGP.22 Request", proto_sgp22, FT_UINT16, BASE_HEX);
   register_dissector_table("sgp22.response", "SGP.22 Response", proto_sgp22, FT_UINT16, BASE_HEX);
 }
@@ -6146,12 +6215,12 @@ void proto_reg_handoff_sgp22(void)
   oid_add_from_string("id-rspRole-ds-tls", id_rspRole_ds_tls);
   oid_add_from_string("id-rspRole-ds-auth", id_rspRole_ds_auth);
 
+  dissector_add_for_decode_as("media_type", sgp22_handle);
+
   register_ber_oid_dissector("2.23.146.1.2.0.1", dissect_ExpirationDate_PDU, proto_sgp22, "id-rsp-expDate");
   register_ber_oid_dissector("2.23.146.1.2.0.2", dissect_TotalPartialCrlNumber_PDU, proto_sgp22, "id-rsp-totalPartialCrlNumber");
   register_ber_oid_dissector("2.23.146.1.2.0.3", dissect_PartialCrlNumber_PDU, proto_sgp22, "id-rsp-partialCrlNumber");
   register_ber_oid_dissector("2.23.146.1.3.1.1", dissect_ActivationCodeRetrievalInfo_PDU, proto_sgp22, "id-rsp-metadata-activationCodeRetrievalInfo");
-  dissector_add_uint("sgp22.request", 0xA2, create_dissector_handle(dissect_RemoteProfileProvisioningRequest_PDU, proto_sgp22));
-  dissector_add_uint("sgp22.response", 0xA2, create_dissector_handle(dissect_RemoteProfileProvisioningResponse_PDU, proto_sgp22));
   dissector_add_uint("sgp22.request", 0xE0, create_dissector_handle(dissect_ISDRProprietaryApplicationTemplate_PDU, proto_sgp22));
   dissector_add_uint("sgp22.request", 0xE3, create_dissector_handle(dissect_ProfileInfo_PDU, proto_sgp22));
   dissector_add_uint("sgp22.request", 0xBF20, create_dissector_handle(dissect_GetEuiccInfo1Request_PDU, proto_sgp22));

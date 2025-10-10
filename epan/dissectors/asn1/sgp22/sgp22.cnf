@@ -51,14 +51,64 @@ VendorSpecificExtension
 VersionType
 RulesAuthorisationTable
 
+#.TYPE_ATTR
+Iccid/_untag TYPE = FT_STRING
+VersionType TYPE = FT_STRING
+
+#.FN_BODY Iccid/_untag VAL_PTR = &next_tvb HF_INDEX = -1
+  tvbuff_t *next_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (next_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, next_tvb, 0, -1, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
+  }
+
+#.FN_BODY VersionType VAL_PTR = &next_tvb HF_INDEX = -1
+  tvbuff_t *next_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (next_tvb) {
+    wmem_strbuf_t *version_str = wmem_strbuf_create(NULL);
+    for (unsigned i = 0; i < %(MAX_VAL)s; i++) {
+      uint8_t value = tvb_get_uint8(next_tvb, i);
+      if (i < (%(MAX_VAL)s - 1) || value > 0) {
+        /* Do not show last value if this is 0, according to spec */
+        wmem_strbuf_append_printf(version_str, "%%c%%u", (i == 0 ? 'v' : '.'), value);
+      }
+    }
+    actx->created_item = proto_tree_add_string(tree, hf_index, next_tvb, 0, -1, wmem_strbuf_finalize(version_str));
+  }
+
+#.PDU
+RemoteProfileProvisioningRequest
+RemoteProfileProvisioningResponse
+
+#.FN_PARS
+RemoteProfileProvisioningRequest/_untag VAL_PTR = &choice
+RemoteProfileProvisioningResponse/_untag VAL_PTR = &choice
+
+#.FN_HDR RemoteProfileProvisioningRequest/_untag
+  int choice;
+
+#.FN_FTR RemoteProfileProvisioningRequest/_untag
+  if (choice != -1) {
+    col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(RemoteProfileProvisioningRequest_U_choice[choice].value, sgp22_RemoteProfileProvisioningRequest_U_vals, "Unknown"));
+  }
+
+#.FN_HDR RemoteProfileProvisioningResponse/_untag
+  int choice;
+
+#.FN_FTR RemoteProfileProvisioningResponse/_untag
+  if (choice != -1) {
+    col_append_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(RemoteProfileProvisioningResponse_U_choice[choice].value, sgp22_RemoteProfileProvisioningResponse_U_vals, "Unknown"));
+  }
+
 #.REGISTER
 ExpirationDate                 B "2.23.146.1.2.0.1"  "id-rsp-expDate"
 TotalPartialCrlNumber          B "2.23.146.1.2.0.2"  "id-rsp-totalPartialCrlNumber"
 PartialCrlNumber               B "2.23.146.1.2.0.3"  "id-rsp-partialCrlNumber"
 ActivationCodeRetrievalInfo    B "2.23.146.1.3.1.1"  "id-rsp-metadata-activationCodeRetrievalInfo"
 
-RemoteProfileProvisioningRequest   N sgp22.request   0xA2
-RemoteProfileProvisioningResponse  N sgp22.response  0xA2
 ISDRProprietaryApplicationTemplate N sgp22.request   0xE0
 ProfileInfo                        N sgp22.request   0xE3
 GetEuiccInfo1Request               N sgp22.request   0xBF20

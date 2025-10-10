@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-sgp32.c                                                             */
-/* asn2wrs.py -b -q -L -p sgp32 -c ./sgp32.cnf -s ./packet-sgp32-template -D . -O ../.. SGP32Definitions.asn */
+/* asn2wrs.py -b -C -q -L -p sgp32 -c ./sgp32.cnf -s ./packet-sgp32-template -D . -O ../.. SGP32Definitions.asn */
 
 /* packet-sgp32.c
  * Routines for SGP.32 packet dissection.
@@ -561,9 +561,9 @@ static int ett_sgp32_T_ePRAndNotifications_01;
 
 static int
 dissect_sgp32_UTF8String_SIZE_1_128(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                                        actx, tree, tvb, offset,
+                                                        1, 128, hf_index, NULL);
 
   return offset;
 }
@@ -1097,9 +1097,9 @@ dissect_sgp32_IpaEuiccDataRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_sgp32_UTF8String_SIZE_0_255(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                                        actx, tree, tvb, offset,
+                                                        0, 255, hf_index, NULL);
 
   return offset;
 }
@@ -1266,9 +1266,9 @@ dissect_sgp32_DeleteProfileResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_sgp32_UTF8String_SIZE_0_64(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                                        actx, tree, tvb, offset,
+                                                        0, 64, hf_index, NULL);
 
   return offset;
 }
@@ -1277,9 +1277,9 @@ dissect_sgp32_UTF8String_SIZE_0_64(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_sgp32_UTF8String_SIZE_0_32(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                                        actx, tree, tvb, offset,
+                                                        0, 32, hf_index, NULL);
 
   return offset;
 }
@@ -1288,8 +1288,8 @@ dissect_sgp32_UTF8String_SIZE_0_32(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_sgp32_OCTET_STRING_SIZE_0_1024(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   0, 1024, hf_index, NULL);
 
   return offset;
 }
@@ -1954,8 +1954,8 @@ dissect_sgp32_ProfileInstallationResult(bool implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_sgp32_OCTET_STRING_SIZE_2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   2, 2, hf_index, NULL);
 
   return offset;
 }
@@ -2178,8 +2178,8 @@ dissect_sgp32_IpaMode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_sgp32_OCTET_STRING_SIZE_0_32(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   0, 32, hf_index, NULL);
 
   return offset;
 }
@@ -3719,7 +3719,7 @@ static const ber_sequence_t EuiccSigned1_sequence[] = {
   { &hf_sgp32_serverAddress , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_sgp32_UTF8String },
   { &hf_sgp32_serverChallenge, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_sgp22_Octet16 },
   { &hf_sgp32_euiccInfo2    , BER_CLASS_CON, 34, BER_FLAGS_IMPLTAG, dissect_sgp32_EUICCInfo2 },
-  { &hf_sgp32_ctxParams1    , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_sgp22_CtxParams1 },
+  { &hf_sgp32_ctxParams1    , BER_CLASS_ANY, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_sgp22_CtxParams1 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4245,8 +4245,8 @@ dissect_sgp32_StateChangeCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_sgp32_OCTET_STRING_SIZE_3(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   3, 3, hf_index, NULL);
 
   return offset;
 }
@@ -5563,16 +5563,16 @@ void proto_register_sgp32(void)
         FT_STRING, BASE_NONE, NULL, 0,
         "UTF8String_SIZE_1_128", HFILL }},
     { &hf_sgp32_eidValue,
-      { "eidValue", "sgp32.eidValue_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "eidValue", "sgp32.eidValue",
+        FT_BYTES, BASE_NONE, NULL, 0,
         "Octet16", HFILL }},
     { &hf_sgp32_counterValue,
       { "counterValue", "sgp32.counterValue",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
     { &hf_sgp32_eimTransactionId,
-      { "eimTransactionId", "sgp32.eimTransactionId_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "eimTransactionId", "sgp32.eimTransactionId",
+        FT_BYTES, BASE_NONE, NULL, 0,
         "TransactionId", HFILL }},
     { &hf_sgp32_euiccPackage,
       { "euiccPackage", "sgp32.euiccPackage",
@@ -5635,8 +5635,8 @@ void proto_register_sgp32(void)
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_euiccCiPKId,
-      { "euiccCiPKId", "sgp32.euiccCiPKId_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "euiccCiPKId", "sgp32.euiccCiPKId",
+        FT_BYTES, BASE_NONE, NULL, 0,
         "SubjectKeyIdentifier", HFILL }},
     { &hf_sgp32_indirectProfileDownload,
       { "indirectProfileDownload", "sgp32.indirectProfileDownload_element",
@@ -5667,8 +5667,8 @@ void proto_register_sgp32(void)
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_iccid,
-      { "iccid", "sgp32.iccid_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "iccid", "sgp32.iccid",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_rollbackFlag,
       { "rollbackFlag", "sgp32.rollbackFlag_element",
@@ -5991,8 +5991,8 @@ void proto_register_sgp32(void)
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_isdpAid,
-      { "isdpAid", "sgp32.isdpAid_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "isdpAid", "sgp32.isdpAid",
+        FT_BYTES, BASE_NONE, NULL, 0,
         "OctetTo16", HFILL }},
     { &hf_sgp32_profileState,
       { "profileState", "sgp32.profileState_element",
@@ -6063,16 +6063,16 @@ void proto_register_sgp32(void)
         FT_NONE, BASE_NONE, NULL, 0,
         "VendorSpecificExtension", HFILL }},
     { &hf_sgp32_profileVersion,
-      { "profileVersion", "sgp32.profileVersion_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "profileVersion", "sgp32.profileVersion",
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp32_svn,
-      { "svn", "sgp32.svn_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "svn", "sgp32.svn",
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp32_euiccFirmwareVer,
-      { "euiccFirmwareVer", "sgp32.euiccFirmwareVer_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "euiccFirmwareVer", "sgp32.euiccFirmwareVer",
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp32_extCardResource,
       { "extCardResource", "sgp32.extCardResource",
@@ -6083,12 +6083,12 @@ void proto_register_sgp32(void)
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_ts102241Version,
-      { "ts102241Version", "sgp32.ts102241Version_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "ts102241Version", "sgp32.ts102241Version",
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp32_globalplatformVersion,
-      { "globalplatformVersion", "sgp32.globalplatformVersion_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "globalplatformVersion", "sgp32.globalplatformVersion",
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp32_rspCapability,
       { "rspCapability", "sgp32.rspCapability_element",
@@ -6099,16 +6099,16 @@ void proto_register_sgp32(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         "SEQUENCE_OF_SubjectKeyIdentifier", HFILL }},
     { &hf_sgp32_euiccCiPKIdListForVerification_item,
-      { "SubjectKeyIdentifier", "sgp32.SubjectKeyIdentifier_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "SubjectKeyIdentifier", "sgp32.SubjectKeyIdentifier",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_euiccCiPKIdListForSigning,
       { "euiccCiPKIdListForSigning", "sgp32.euiccCiPKIdListForSigning",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SEQUENCE_OF_SubjectKeyIdentifier", HFILL }},
     { &hf_sgp32_euiccCiPKIdListForSigning_item,
-      { "SubjectKeyIdentifier", "sgp32.SubjectKeyIdentifier_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "SubjectKeyIdentifier", "sgp32.SubjectKeyIdentifier",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_euiccCategory,
       { "euiccCategory", "sgp32.euiccCategory",
@@ -6119,8 +6119,8 @@ void proto_register_sgp32(void)
         FT_NONE, BASE_NONE, NULL, 0,
         "PprIds", HFILL }},
     { &hf_sgp32_ppVersion,
-      { "ppVersion", "sgp32.ppVersion_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "ppVersion", "sgp32.ppVersion",
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp32_sasAcreditationNumber,
       { "sasAcreditationNumber", "sgp32.sasAcreditationNumber",
@@ -6143,8 +6143,8 @@ void proto_register_sgp32(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         "SEQUENCE_OF_VersionType", HFILL }},
     { &hf_sgp32_additionalEuiccProfilePackageVersions_item,
-      { "VersionType", "sgp32.VersionType_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "VersionType", "sgp32.VersionType",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_ipaMode,
       { "ipaMode", "sgp32.ipaMode",
@@ -6155,16 +6155,16 @@ void proto_register_sgp32(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         "SEQUENCE_OF_SubjectKeyIdentifier", HFILL }},
     { &hf_sgp32_euiccCiPKIdListForSigningV3_item,
-      { "SubjectKeyIdentifier", "sgp32.SubjectKeyIdentifier_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "SubjectKeyIdentifier", "sgp32.SubjectKeyIdentifier",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_additionalEuiccInfo,
       { "additionalEuiccInfo", "sgp32.additionalEuiccInfo",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_0_32", HFILL }},
     { &hf_sgp32_highestSvn,
-      { "highestSvn", "sgp32.highestSvn_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "highestSvn", "sgp32.highestSvn",
+        FT_STRING, BASE_NONE, NULL, 0,
         "VersionType", HFILL }},
     { &hf_sgp32_iotSpecificInfo,
       { "iotSpecificInfo", "sgp32.iotSpecificInfo_element",
@@ -6175,8 +6175,8 @@ void proto_register_sgp32(void)
         FT_UINT32, BASE_DEC, NULL, 0,
         "SEQUENCE_OF_VersionType", HFILL }},
     { &hf_sgp32_iotVersion_item,
-      { "VersionType", "sgp32.VersionType_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "VersionType", "sgp32.VersionType",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_ecallSupported,
       { "ecallSupported", "sgp32.ecallSupported_element",
@@ -6335,24 +6335,24 @@ void proto_register_sgp32(void)
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
     { &hf_sgp32_hashCc,
-      { "hashCc", "sgp32.hashCc_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "hashCc", "sgp32.hashCc",
+        FT_BYTES, BASE_NONE, NULL, 0,
         "Octet32", HFILL }},
     { &hf_sgp32_transactionId,
-      { "transactionId", "sgp32.transactionId_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "transactionId", "sgp32.transactionId",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_serverAddress,
       { "serverAddress", "sgp32.serverAddress",
         FT_STRING, BASE_NONE, NULL, 0,
         "UTF8String", HFILL }},
     { &hf_sgp32_serverChallenge,
-      { "serverChallenge", "sgp32.serverChallenge_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "serverChallenge", "sgp32.serverChallenge",
+        FT_BYTES, BASE_NONE, NULL, 0,
         "Octet16", HFILL }},
     { &hf_sgp32_ctxParams1,
-      { "ctxParams1", "sgp32.ctxParams1_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "ctxParams1", "sgp32.ctxParams1",
+        FT_UINT32, BASE_DEC, VALS(sgp22_CtxParams1_vals), 0,
         NULL, HFILL }},
     { &hf_sgp32_euiccSigned1,
       { "euiccSigned1", "sgp32.euiccSigned1_element",
@@ -6399,8 +6399,8 @@ void proto_register_sgp32(void)
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_euiccSignPIR,
-      { "euiccSignPIR", "sgp32.euiccSignPIR_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "euiccSignPIR", "sgp32.euiccSignPIR",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sgp32_compactProfileInstallationResultData,
       { "compactProfileInstallationResultData", "sgp32.compactProfileInstallationResultData_element",
@@ -6523,8 +6523,8 @@ void proto_register_sgp32(void)
         FT_UINT32, BASE_DEC, VALS(sgp32_ProvideEimPackageResultResponse_U_vals), 0,
         NULL, HFILL }},
     { &hf_sgp32_euiccChallenge,
-      { "euiccChallenge", "sgp32.euiccChallenge_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "euiccChallenge", "sgp32.euiccChallenge",
+        FT_BYTES, BASE_NONE, NULL, 0,
         "Octet16", HFILL }},
     { &hf_sgp32_smdpAddress,
       { "smdpAddress", "sgp32.smdpAddress",
