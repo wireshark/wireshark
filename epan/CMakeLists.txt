@@ -43,7 +43,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	arptypes.h
 	asn1.h
 	ax25_pids.h
-	bridged_pids.h
 	capture_dissectors.h
 	charsets.h
 	chdlctypes.h
@@ -93,7 +92,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	ip_opts.h
 	ipproto.h
 	lapd_sapi.h
-	llcsaps.h
 	maxmind_db.h
 	media_params.h
 	next_tvb.h

@@ -16,13 +16,14 @@
 
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
-#include <epan/llcsaps.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-netbios.h"
+#include "packet-llc.h"
+
 
 void proto_register_netbios(void);
 void proto_reg_handoff_netbios(void);

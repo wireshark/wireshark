@@ -13,7 +13,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/llcsaps.h>
 #include <epan/chdlctypes.h>
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
@@ -21,6 +20,8 @@
 #include <epan/expert.h>
 #include <epan/cisco_pid.h>
 #include <epan/tfs.h>
+#include "packet-llc.h"
+
 
 /* Offsets of fields within a BPDU */
 

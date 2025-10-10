@@ -11,8 +11,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/llcsaps.h>
 #include "packet-hpext.h"
+#include "packet-llc.h"
 
 void proto_register_hpext(void);
 void proto_reg_handoff_hpext(void);

@@ -18,9 +18,10 @@
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
 #include <epan/ipproto.h>
-#include <epan/llcsaps.h>
 #include "packet-gre.h"
 #include "packet-wccp.h"
+#include "packet-llc.h"
+
 
 #include <epan/decode_as.h>
 

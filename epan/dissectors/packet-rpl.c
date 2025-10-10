@@ -13,7 +13,6 @@
 
 #include <epan/packet.h>
 
-#include <epan/llcsaps.h>
 #include "packet-llc.h"
 
 void proto_register_rpl(void);

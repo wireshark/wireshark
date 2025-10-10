@@ -16,7 +16,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/llcsaps.h>
 #include <epan/aftypes.h>
 #include <epan/chdlctypes.h>
 #include <epan/ipproto.h>
@@ -24,6 +23,7 @@
 #include "packet-ppp.h"
 #include "packet-tpkt.h"
 #include "packet-juniper.h"
+#include "packet-llc.h"
 
 void proto_reg_handoff_osi(void);
 void proto_register_osi(void);

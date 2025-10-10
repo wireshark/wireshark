@@ -14,7 +14,6 @@
 
 #include <epan/packet.h>
 #include <epan/ax25_pids.h>
-#include <epan/llcsaps.h>
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
@@ -24,6 +23,7 @@
 #include <wiretap/wtap.h>
 #include "packet-sflow.h"
 #include "packet-osi.h"
+#include "packet-llc.h"
 
 void proto_register_x25(void);
 void proto_reg_handoff_x25(void);

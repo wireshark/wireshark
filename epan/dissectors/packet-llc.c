@@ -15,8 +15,6 @@
 #include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include <epan/oui.h>
-#include <epan/llcsaps.h>
-#include <epan/bridged_pids.h>
 #include <epan/arcnet_pids.h>
 #include <epan/addr_resolv.h>
 #include <epan/tfs.h>
