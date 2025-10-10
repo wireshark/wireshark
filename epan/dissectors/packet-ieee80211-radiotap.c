@@ -4329,7 +4329,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			if (iter.tlv_mode) {
 				proto_tree *unknown_tlv;
 
-				unknown_tlv = proto_tree_add_subtree(tree, tvb,
+				unknown_tlv = proto_tree_add_subtree(item_tree, tvb,
 						offset - 4,
 						iter.this_arg_size + 4,
 						ett_radiotap_unknown_tlv,
