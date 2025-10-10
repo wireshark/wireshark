@@ -12,10 +12,6 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
-[app_mem_usage.[ch]]
-indent_style = tab
-indent_size = tab
-
 [asn1.[ch]]
 indent_size = 2
 

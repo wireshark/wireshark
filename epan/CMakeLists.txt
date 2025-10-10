@@ -38,7 +38,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	address_types.h
 	afn.h
 	aftypes.h
-	app_mem_usage.h
 	arptypes.h
 	asn1.h
 	capture_dissectors.h
@@ -147,7 +146,6 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	address_types.c
 	afn.c
 	aftypes.c
-	app_mem_usage.c
 	asn1.c
 	capture_dissectors.c
 	charsets.c
@@ -315,7 +313,6 @@ target_link_libraries(epan
 		${NGHTTP3_LIBRARIES}
 		${SMI_LIBRARIES}
 		${SNAPPY_LIBRARIES}
-		${WIN_PSAPI_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
 		${XXHASH_LIBRARIES}
 		${ZLIB_LIBRARIES}

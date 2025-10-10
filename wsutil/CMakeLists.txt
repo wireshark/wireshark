@@ -81,6 +81,7 @@ set(WMEM_FILES
 set(WSUTIL_PUBLIC_HEADERS
 	802_11-utils.h
 	adler32.h
+	app_mem_usage.h
 	application_flavor.h
 	array.h
 	base32.h
@@ -164,6 +165,7 @@ set(WSUTIL_PUBLIC_HEADERS
 set(WSUTIL_COMMON_FILES
 	802_11-utils.c
 	adler32.c
+	app_mem_usage.c
 	application_flavor.c
 	base32.c
 	bitswap.c
@@ -420,6 +422,7 @@ target_link_libraries(wsutil
 		$<IF:$<CONFIG:Debug>,${PCRE2_DEBUG_LIBRARIES},${PCRE2_LIBRARIES}>
 		${WIN_IPHLPAPI_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
+		${WIN_PSAPI_LIBRARY}
 )
 
 target_include_directories(wsutil SYSTEM
@@ -479,6 +482,7 @@ target_link_libraries(wsutil_static
 		$<IF:$<CONFIG:Debug>,${PCRE2_DEBUG_LIBRARIES},${PCRE2_LIBRARIES}>
 		${WIN_IPHLPAPI_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
+		${WIN_PSAPI_LIBRARY}
 )
 
 target_include_directories(wsutil_static SYSTEM
