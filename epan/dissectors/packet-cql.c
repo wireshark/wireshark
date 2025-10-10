@@ -116,6 +116,11 @@ static int hf_cql_batch_query_size;
 static int hf_cql_error_code;
 static int hf_cql_result_kind;
 static int hf_cql_result_rows_data_type;
+static int hf_cql_error_failure_received;
+static int hf_cql_error_block_for;
+static int hf_cql_error_num_failures;
+static int hf_cql_error_data_present;
+static int hf_cql_error_write_type;
 
 static int hf_cql_query_flags_values;
 static int hf_cql_query_flags_skip_metadata;
@@ -1752,6 +1757,40 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				proto_tree_add_item_ret_uint(cql_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
 				offset += 2;
 				proto_tree_add_item(cql_subtree, hf_cql_string, tvb, offset, string_length, ENC_UTF_8);
+				offset += string_length;
+
+				if (error_code == CQL_ERROR_WRITE_TIMEOUT || error_code == CQL_ERROR_READ_TIMEOUT || error_code == CQL_ERROR_READ_FAILURE || error_code == CQL_ERROR_WRITE_FAILURE) {
+					proto_tree_add_item(cql_subtree, hf_cql_consistency, tvb, offset, 2, ENC_BIG_ENDIAN);
+					offset += 2;
+					proto_tree_add_item(cql_subtree, hf_cql_error_failure_received, tvb, offset, 4, ENC_BIG_ENDIAN);
+					offset += 4;
+					proto_tree_add_item(cql_subtree, hf_cql_error_block_for, tvb, offset, 4, ENC_BIG_ENDIAN);
+					offset += 4;
+
+					if (error_code == CQL_ERROR_WRITE_TIMEOUT) {
+						proto_tree_add_item_ret_uint(cql_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
+						offset += 2;
+						proto_tree_add_item(cql_subtree, hf_cql_error_write_type, tvb, offset, string_length, ENC_UTF_8);
+						offset += string_length;
+					} else if (error_code == CQL_ERROR_READ_TIMEOUT) {
+						proto_tree_add_item(cql_subtree, hf_cql_error_data_present, tvb, offset, 1, ENC_NA);
+						offset += 1;
+					} else if (error_code == CQL_ERROR_READ_FAILURE) {
+						/* FIXME - in protocol v5, there's a reason_map here instead of num failures as in previous protocols*/
+						proto_tree_add_item(cql_subtree, hf_cql_error_num_failures, tvb, offset, 4, ENC_BIG_ENDIAN);
+						offset += 4;
+						proto_tree_add_item(cql_subtree, hf_cql_error_data_present, tvb, offset, 1, ENC_NA);
+						offset += 1;
+					} else if (error_code == CQL_ERROR_WRITE_FAILURE) {
+						/* FIXME - in protocol v5, there's a reason_map here instead of num failures as in previous protocols*/
+						proto_tree_add_item(cql_subtree, hf_cql_error_num_failures, tvb, offset, 4, ENC_BIG_ENDIAN);
+						offset += 4;
+						proto_tree_add_item_ret_uint(cql_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
+						offset += 2;
+						proto_tree_add_item(cql_subtree, hf_cql_error_write_type, tvb, offset, string_length, ENC_UTF_8);
+						offset += string_length;
+					}
+				}
 				break;
 
 
@@ -2660,6 +2699,46 @@ proto_register_cql(void)
 				FT_UINT16, BASE_HEX,
 				VALS(cql_consistency_names), 0x0,
 				"CQL consistency level specification", HFILL
+			}
+		},
+		{ &hf_cql_error_failure_received,
+			{
+				"Error Failure Received", "cql.error_failure_received",
+				FT_UINT32, BASE_DEC,
+				NULL, 0x0,
+				"Number of nodes answered (read) / failed (write)", HFILL
+			}
+		},
+		{ &hf_cql_error_block_for,
+			{
+				"Error Block For", "cql.error_block_for",
+				FT_UINT32, BASE_DEC,
+				NULL, 0x0,
+				"Number of replica responss required to achieve CL", HFILL
+			}
+		},
+		{ &hf_cql_error_num_failures,
+			{
+				"Error Num Failures", "cql.error_num_failures",
+				FT_UINT32, BASE_DEC,
+				NULL, 0x0,
+				"Number of nodes experienced failure", HFILL
+			}
+		},
+		{ &hf_cql_error_data_present,
+			{
+				"Error data present flag", "cql.error_data_present",
+				FT_UINT8, BASE_DEC,
+				NULL, 0x0,
+				"Replica responded or not", HFILL
+			}
+		},
+		{ &hf_cql_error_write_type,
+			{
+				"Error Write Type", "cql.error_write_type",
+				FT_STRING, BASE_NONE,
+				NULL, 0x0,
+				NULL, HFILL
 			}
 		},
 		{
