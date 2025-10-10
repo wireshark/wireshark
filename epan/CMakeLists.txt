@@ -67,7 +67,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	dccpservicecodes.h
 	dvb_chartbl.h
 	eap.h
-	eapol_keydes_types.h
 	epan.h
 	epan_dissect.h
 	etypes.h

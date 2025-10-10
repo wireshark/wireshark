@@ -68,7 +68,6 @@
 #include <epan/expert.h>
 #include <epan/conversation_table.h>
 #include <epan/uat.h>
-#include <epan/eapol_keydes_types.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
@@ -3731,6 +3730,7 @@ static int proto_wlan;
 static int proto_centrino;
 static int proto_aggregate;
 static bool ieee80211_tvb_invalid;
+static int proto_eapol; /* Externally retrieved */
 
 /* ************************************************************************* */
 /*                Header field info values for FC-field                      */
@@ -62295,6 +62295,8 @@ proto_reg_handoff_ieee80211(void)
   epd_llc_handle        = find_dissector_add_dependency("epd_llc", proto_wlan);
   ipx_handle            = find_dissector_add_dependency("ipx", proto_wlan);
   eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_wlan);
+
+  proto_eapol = proto_get_id_by_filter_name("eapol");
 
   /*
    * Get the Ethertype dissector table.

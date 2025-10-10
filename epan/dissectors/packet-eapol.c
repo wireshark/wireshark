@@ -12,7 +12,6 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
-#include <epan/eapol_keydes_types.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 
@@ -21,7 +20,7 @@
 void proto_register_eapol(void);
 void proto_reg_handoff_eapol(void);
 
-int proto_eapol;
+static int proto_eapol;
 static int hf_eapol_version;
 static int hf_eapol_type;
 static int hf_eapol_len;

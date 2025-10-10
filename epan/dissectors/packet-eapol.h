@@ -23,7 +23,10 @@
 #define EAPOL_ANNOUNCEMENT_SPECIFIC  7
 #define EAPOL_ANNOUNCEMENT_REQUEST   8
 
-extern int proto_eapol;
+/* EAPOL Key Descriptor types */
+#define EAPOL_RC4_KEY           1 /* RC4 - deprecated */
+#define EAPOL_RSN_KEY           2 /* 802.11i - "work in progress" */
+#define EAPOL_WPA_KEY           254
 
 #define EAPOL_KEY_FRAME_KEY 0
 typedef struct {
