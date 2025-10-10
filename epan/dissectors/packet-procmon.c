@@ -2499,7 +2499,7 @@ dissect_procmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
     col_clear(pinfo->cinfo, COL_INFO);
-    col_add_str(pinfo->cinfo, COL_INFO, "MS Procmon Event");
+    col_set_str(pinfo->cinfo, COL_INFO, "MS Procmon Event");
 
     ti = proto_tree_add_item(tree, proto_procmon, tvb, 0, -1, ENC_NA);
     procmon_tree = proto_item_add_subtree(ti, ett_procmon);
@@ -3090,11 +3090,11 @@ proto_register_procmon(void)
             FT_UINT32, BASE_DEC, VALS(filesystem_open_result_vals), 0, NULL, HFILL}
         },
         { &hf_procmon_filesystem_readwrite_file_io_flags,
-          { "IO Flags", "procmon.filesystem.readwrite_file.length",
+          { "IO Flags", "procmon.filesystem.readwrite_file.io_flags",
             FT_UINT32, BASE_HEX, NULL, 0x00EFFFFF, NULL, HFILL }
         },
         { &hf_procmon_filesystem_readwrite_file_priority,
-          { "Priority", "procmon.filesystem.readwrite_file.length",
+          { "Priority", "procmon.filesystem.readwrite_file.priority",
             FT_UINT32, BASE_HEX, VALS(filesystem_readwrite_priority_vals), 0x00E00000, NULL, HFILL}
         },
         { &hf_procmon_filesystem_readwrite_file_length,
@@ -3175,7 +3175,7 @@ proto_register_procmon(void)
         },
         { &hf_procmon_filesystem_directory_control_query_name_length,
           { "Name Length", "procmon.filesystem.directory_control.query.name_length",
-            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_filesystem_directory_control_query_name,
           { "Name", "procmon.filesystem.directory_control.query.name",
@@ -3313,7 +3313,7 @@ proto_register_procmon(void)
 
     static ei_register_info ei[] = {
             { &ei_procmon_unknown_event_class, { "procmon.event_class.unknown", PI_UNDECODED, PI_WARN, "Unknown event class", EXPFILL }},
-            { &ei_procmon_unknown_operation, { "procmon.operation_type.unknown", PI_UNDECODED, PI_WARN, "Unknown event class", EXPFILL }},
+            { &ei_procmon_unknown_operation, { "procmon.operation_type.unknown", PI_UNDECODED, PI_WARN, "Unknown event operation", EXPFILL }},
     };
 
     expert_module_t* expert_procmon;
