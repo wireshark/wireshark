@@ -10,6 +10,11 @@
 #ifndef __PACKET_CHDLC_H__
 #define __PACKET_CHDLC_H__
 
+/* Cisco HDLC packet types that aren't just Ethernet types */
+#define CHDLCTYPE_FRARP		0x0808	/* Frame Relay ARP */
+#define CHDLCTYPE_BPDU		0x4242	/* IEEE spanning tree protocol */
+#define CHDLCTYPE_OSI 	        0xfefe  /* ISO network-layer protocols */
+
 /*
  * See section 4.3.1 of RFC 1547, and
  *

@@ -15,7 +15,6 @@
 #include <wsutil/pint.h>
 #include <epan/etypes.h>
 #include <epan/prefs.h>
-#include <epan/chdlctypes.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include "packet-chdlc.h"
