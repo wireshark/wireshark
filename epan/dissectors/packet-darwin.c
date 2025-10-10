@@ -74,7 +74,7 @@ static int ett_darwin_metadata_dropped;
  */
 static const value_string darwin_svc_class_vals[] = {
     { 0x0000,  "BE" },     /**< "Best Effort" */
-    { 0x0964,  "BK_SYS" }, /**< "Background System" */
+    { 0x0064,  "BK_SYS" }, /**< "Background System" */
     { 0x00C8,  "BK" },     /**< "Background" */
     { 0x012C,  "RD" },     /**< "Responsive Data" ?? */
     { 0x0190,  "OAM" },    /**< "Operations, Administration, Management" */
