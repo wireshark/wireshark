@@ -1870,6 +1870,7 @@ if(ENABLE_PLUGINS)
 		plugins/wiretap/usbdump
 		plugins/codecs/G711
 		plugins/codecs/l16_mono
+		plugins/codecs/l24
 		${CUSTOM_PLUGIN_SRC_DIR}
 	)
 	set(STRATOSHARK_PLUGIN_SRC_DIRS)
