@@ -17,10 +17,10 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
-#include <epan/nlpid.h>
 #include <epan/etypes.h>
 #include <epan/ws_printf.h>
 #include <wiretap/wtap.h>
+#include "packet-osi.h"
 
 void proto_register_vpp(void);
 void proto_reg_handoff_vpp(void);

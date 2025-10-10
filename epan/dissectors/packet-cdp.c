@@ -15,11 +15,11 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/in_cksum.h>
-#include <epan/nlpid.h>
 #include <epan/etypes.h>
 #include <epan/cisco_pid.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include "packet-osi.h"
 
 /*
  *

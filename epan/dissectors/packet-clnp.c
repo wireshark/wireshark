@@ -17,7 +17,6 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
-#include <epan/nlpid.h>
 #include <epan/tfs.h>
 
 #include "packet-osi.h"

@@ -17,7 +17,6 @@
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
 #include <epan/tap.h>
-#include <epan/nlpid.h>
 #include "packet-q931.h"
 #include "packet-e164.h"
 #include <epan/prefs.h>
@@ -26,6 +25,7 @@
 #include <epan/sctpppids.h>
 #include <epan/lapd_sapi.h>
 #include "packet-tpkt.h"
+#include "packet-osi.h"
 
 
 /* Q.931 references:

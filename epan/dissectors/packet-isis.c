@@ -15,7 +15,6 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/nlpid.h>
 #include <epan/etypes.h>
 #include "packet-osi.h"
 #include "packet-isis.h"

@@ -22,7 +22,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/nlpid.h>
+#include "packet-osi.h"
 
 #define IDRP_PROTO "ISO/IEC 10747 (1993): Inter Domain Routing Protocol "
 

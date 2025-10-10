@@ -20,7 +20,7 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-juniper.h"
-#include <epan/nlpid.h>
+#include "packet-osi.h"
 
 void proto_register_juniper(void);
 void proto_reg_handoff_juniper(void);

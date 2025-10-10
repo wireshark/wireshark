@@ -11,7 +11,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/nlpid.h>
+#include "packet-osi.h"
 
 void proto_register_x29(void);
 void proto_reg_handoff_x29(void);

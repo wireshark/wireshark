@@ -23,7 +23,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/nlpid.h>
+#include "packet-osi.h"
 
 void proto_register_lmi(void);
 void proto_reg_handoff_lmi(void);

@@ -36,8 +36,8 @@
 #include "packet-juniper.h"
 #include "packet-sflow.h"
 #include "packet-l2tp.h"
+#include "packet-osi.h"
 #include <epan/etypes.h>
-#include <epan/nlpid.h>
 
 void proto_register_fr(void);
 void proto_reg_handoff_fr(void);

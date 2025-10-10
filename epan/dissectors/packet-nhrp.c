@@ -26,12 +26,12 @@
 #include <epan/expert.h>
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
-#include <epan/nlpid.h>
 #include <epan/afn.h>
 #include <epan/in_cksum.h>
 #include "packet-iana-oui.h"
 #include "packet-llc.h"
 #include "packet-gre.h"
+#include "packet-osi.h"
 
 void proto_register_nhrp(void);
 void proto_reg_handoff_nhrp(void);

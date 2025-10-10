@@ -16,14 +16,14 @@
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/chdlctypes.h>
-#include <epan/nlpid.h>
 #include <epan/addr_resolv.h>
+#include <epan/expert.h>
 #include "packet-chdlc.h"
 #include "packet-ppp.h"
 #include "packet-ip.h"
 #include "packet-juniper.h"
 #include "packet-l2tp.h"
-#include <epan/expert.h>
+#include "packet-osi.h"
 
 /*
  * See section 4.3.1 of RFC 1547, and

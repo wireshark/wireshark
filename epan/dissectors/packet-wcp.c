@@ -92,9 +92,9 @@
 #include <wsutil/pint.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>
-#include <epan/nlpid.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
+#include "packet-osi.h"
 
 #define MAX_WIN_BUF_LEN 0x7fff		/* storage size for decompressed data */
 #define MAX_WCP_BUF_LEN 2048		/* storage size for compressed data */

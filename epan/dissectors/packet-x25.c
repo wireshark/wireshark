@@ -19,11 +19,11 @@
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/nlpid.h>
 #include <epan/lapd_sapi.h>
 #include <epan/tfs.h>
 #include <wiretap/wtap.h>
 #include "packet-sflow.h"
+#include "packet-osi.h"
 
 void proto_register_x25(void);
 void proto_reg_handoff_x25(void);

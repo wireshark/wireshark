@@ -32,7 +32,6 @@
 #include <epan/aftypes.h>
 #include <epan/arcnet_pids.h>
 #include <epan/in_cksum.h>
-#include <epan/nlpid.h>
 #include <epan/ax25_pids.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
@@ -51,6 +50,7 @@
 #include "packet-mpls.h"
 #include "packet-nsh.h"
 #include "packet-eth.h"
+#include "packet-osi.h"
 
 void proto_register_ip(void);
 void proto_reg_handoff_ip(void);

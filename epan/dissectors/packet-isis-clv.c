@@ -16,7 +16,7 @@
 #include <epan/expert.h>
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
-#include <epan/nlpid.h>
+#include "packet-osi.h"
 
 static const value_string algorithm_vals[] = {
     { 16, "hmac-md5" },
