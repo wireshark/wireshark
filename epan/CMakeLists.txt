@@ -55,7 +55,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	conversation.h
 	conversation_debug.h
 	conversation_table.h
-	conv_id.h
 	crc10-tvb.h
 	crc16-tvb.h
 	crc32-tvb.h
