@@ -24,7 +24,7 @@
 
 #include <epan/packet.h>
 
-#include <epan/iax2_codec_type.h>
+#include "packet-iax2.h"
 
 #include "packet-h263.h"
 #include "packet-rtp_pt.h"

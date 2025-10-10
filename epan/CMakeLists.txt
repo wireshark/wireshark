@@ -79,7 +79,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	golay.h
 	guid-utils.h
 	iana_charsets.h
-	iax2_codec_type.h
 	in_cksum.h
 	introspection.h
 	iana-ip.h

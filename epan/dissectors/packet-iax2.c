@@ -31,7 +31,6 @@
 #include <wsutil/str_util.h>
 
 #include "packet-iax2.h"
-#include <epan/iax2_codec_type.h>
 
 void proto_register_iax2(void);
 void proto_reg_handoff_iax2(void);

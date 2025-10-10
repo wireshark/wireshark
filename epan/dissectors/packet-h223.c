@@ -18,7 +18,6 @@
 #include <epan/expert.h>
 #include <epan/stream.h>
 #include <epan/golay.h>
-#include <epan/iax2_codec_type.h>
 #include <epan/show_exception.h>
 #include <epan/asn1.h>
 #include <wsutil/bitswap.h>
@@ -27,6 +26,7 @@
 #include "packet-h245.h"
 #include "packet-iax2.h"
 #include "packet-h223.h"
+#include "packet-iax2.h"
 
 /* #define DEBUG_H223 */
 

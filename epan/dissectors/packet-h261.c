@@ -22,7 +22,7 @@
 
 #include <epan/packet.h>
 
-#include <epan/iax2_codec_type.h>
+#include "packet-iax2.h"
 #include "packet-rtp_pt.h"
 
 void proto_register_h261(void);
