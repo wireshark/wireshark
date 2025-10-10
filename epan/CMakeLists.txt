@@ -39,7 +39,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	afn.h
 	aftypes.h
 	app_mem_usage.h
-	arcnet_pids.h
 	arptypes.h
 	asn1.h
 	ax25_pids.h

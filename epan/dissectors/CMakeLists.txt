@@ -281,6 +281,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ansi_a.h
 	packet-ansi_map.h
 	packet-ansi_tcap.h
+	packet-arcnet.h
 	packet-arp.h
 	packet-asap+enrp-common.h
 	packet-atalk.h

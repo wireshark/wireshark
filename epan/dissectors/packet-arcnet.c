@@ -14,8 +14,8 @@
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
 #include <epan/address_types.h>
-#include <epan/arcnet_pids.h>
 #include <epan/to_str.h>
+#include "packet-arcnet.h"
 #include "packet-ip.h"
 #include "packet-arp.h"
 

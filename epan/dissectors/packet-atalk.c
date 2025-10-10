@@ -17,7 +17,6 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/aftypes.h>
-#include <epan/arcnet_pids.h>
 #include <epan/oui.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
@@ -30,6 +29,7 @@
 #include "packet-atalk.h"
 #include "packet-afp.h"
 #include "packet-ppp.h"
+#include "packet-arcnet.h"
 
 
 void proto_register_atalk(void);

@@ -10,12 +10,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __ARCNET_PIDS_H__
-#define __ARCNET_PIDS_H__
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+#ifndef __PACKET_ARCNET_H__
+#define __PACKET_ARCNET_H__
 
 /* RFC 1051 */
 #define ARCNET_PROTO_IP_1051	240
@@ -50,8 +46,4 @@ extern "C" {
 
 #define ARCNET_PROTO_BACNET	205
 
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif /* arcnet_pids.h */
+#endif /* packet_arcnet.h */
