@@ -30,7 +30,6 @@
 #include <epan/reassemble.h>
 #include <epan/ipproto.h>
 #include <epan/etypes.h>
-#include <epan/ppptypes.h>
 #include <epan/aftypes.h>
 #include <epan/arcnet_pids.h>
 #include <epan/decode_as.h>
@@ -50,6 +49,8 @@
 #include "packet-mpls.h"
 #include "packet-nsh.h"
 #include "packet-osi.h"
+#include "packet-ppp.h"
+
 
 void proto_register_ipv6(void);
 void proto_reg_handoff_ipv6(void);

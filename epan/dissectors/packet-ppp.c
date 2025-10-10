@@ -21,7 +21,6 @@
 #include <wsutil/str_util.h>
 #include <epan/prefs.h>
 #include "packet-ppp.h"
-#include <epan/ppptypes.h>
 #include <epan/etypes.h>
 #include <epan/oui.h>
 #include <epan/expert.h>

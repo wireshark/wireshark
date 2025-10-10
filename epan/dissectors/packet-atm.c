@@ -14,7 +14,6 @@
 #include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include <epan/oui.h>
-#include <epan/ppptypes.h>
 #include <epan/expert.h>
 #include <epan/crc10-tvb.h>
 #include <epan/crc32-tvb.h>
@@ -25,6 +24,8 @@
 #include "packet-snmp.h"
 #include <epan/prefs.h>
 #include "packet-pw-atm.h"
+#include "packet-ppp.h"
+
 
 void proto_register_atm(void);
 void proto_reg_handoff_atm(void);

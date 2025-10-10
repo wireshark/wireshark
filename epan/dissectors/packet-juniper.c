@@ -14,13 +14,14 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
-#include <epan/ppptypes.h>
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-juniper.h"
 #include "packet-osi.h"
+#include "packet-ppp.h"
+
 
 void proto_register_juniper(void);
 void proto_reg_handoff_juniper(void);

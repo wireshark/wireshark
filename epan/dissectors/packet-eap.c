@@ -13,7 +13,6 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/ppptypes.h>
 #include <epan/reassemble.h>
 #include <epan/eap.h>
 #include <epan/expert.h>
@@ -24,6 +23,7 @@
 #include "packet-wps.h"
 #include "packet-e212.h"
 #include "packet-tls-utils.h"
+#include "packet-ppp.h"
 
 void proto_register_eap(void);
 void proto_reg_handoff_eap(void);

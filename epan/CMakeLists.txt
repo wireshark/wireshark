@@ -105,7 +105,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	packet_info.h
 	params.h
 	plugin_if.h
-	ppptypes.h
 	print.h
 	print_stream.h
 	prefs.h

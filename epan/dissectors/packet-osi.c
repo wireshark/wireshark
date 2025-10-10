@@ -18,10 +18,10 @@
 #include <epan/prefs.h>
 #include <epan/llcsaps.h>
 #include <epan/aftypes.h>
-#include <epan/ppptypes.h>
 #include <epan/chdlctypes.h>
 #include <epan/ipproto.h>
 #include "packet-osi.h"
+#include "packet-ppp.h"
 #include "packet-tpkt.h"
 #include "packet-juniper.h"
 

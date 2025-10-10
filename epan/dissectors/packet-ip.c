@@ -27,7 +27,6 @@
 #include <epan/conversation_filter.h>
 #include <epan/reassemble.h>
 #include <epan/etypes.h>
-#include <epan/ppptypes.h>
 #include <epan/llcsaps.h>
 #include <epan/aftypes.h>
 #include <epan/arcnet_pids.h>
@@ -51,6 +50,8 @@
 #include "packet-nsh.h"
 #include "packet-eth.h"
 #include "packet-osi.h"
+#include "packet-ppp.h"
+
 
 void proto_register_ip(void);
 void proto_reg_handoff_ip(void);

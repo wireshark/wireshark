@@ -12,14 +12,7 @@
 
 #include "config.h"
 
-#if 0
-#endif
 #include <epan/packet.h>
-#if 0
-#include <epan/llcsaps.h>
-#include <epan/ppptypes.h>
-#include <epan/chdlctypes.h>
-#endif
 #include <epan/addr_resolv.h>
 
 void proto_register_retix_bpdu(void);

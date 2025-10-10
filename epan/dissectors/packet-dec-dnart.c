@@ -38,8 +38,9 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
-#include <epan/ppptypes.h>
 #include <epan/tfs.h>
+#include "packet-ppp.h"
+
 
 typedef enum {
     RT_CTL_INITIALIZATION,

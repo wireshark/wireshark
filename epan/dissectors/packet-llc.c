@@ -17,7 +17,6 @@
 #include <epan/oui.h>
 #include <epan/llcsaps.h>
 #include <epan/bridged_pids.h>
-#include <epan/ppptypes.h>
 #include <epan/arcnet_pids.h>
 #include <epan/addr_resolv.h>
 #include <epan/tfs.h>
@@ -27,6 +26,7 @@
 #include "packet-juniper.h"
 #include "packet-xdlc.h"
 #include "packet-osi.h"
+#include "packet-ppp.h"
 
 #include "packet-llc.h"
 

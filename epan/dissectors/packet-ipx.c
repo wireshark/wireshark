@@ -21,7 +21,6 @@
 #include "packet-sll.h"
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
-#include <epan/ppptypes.h>
 #include <epan/llcsaps.h>
 #include <epan/aftypes.h>
 #include <epan/arcnet_pids.h>
@@ -29,6 +28,8 @@
 #include <epan/conversation_table.h>
 #include <epan/proto_data.h>
 #include <epan/unit_strings.h>
+#include "packet-ppp.h"
+
 
 void proto_register_ipx(void);
 void proto_reg_handoff_ipx(void);

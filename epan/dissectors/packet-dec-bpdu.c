@@ -14,8 +14,8 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
-#include <epan/ppptypes.h>
 #include <epan/tfs.h>
+#include "packet-ppp.h"
 
 /* Offsets of fields within a BPDU */
 

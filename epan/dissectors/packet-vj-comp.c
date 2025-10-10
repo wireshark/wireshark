@@ -28,10 +28,11 @@
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/ipproto.h>
-#include <epan/ppptypes.h>
 #include <epan/tfs.h>
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>
+#include "packet-ppp.h"
+
 
 /* Store the last connection number we've seen.
  * Only used on the first pass, in case the connection number itself

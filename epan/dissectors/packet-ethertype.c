@@ -17,12 +17,12 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/etypes.h>
-#include <epan/ppptypes.h>
 #include <epan/show_exception.h>
 #include <epan/decode_as.h>
 #include <epan/capture_dissectors.h>
 #include <epan/proto_data.h>
 #include "packet-eth.h"
+#include "packet-ppp.h"
 
 void proto_register_ethertype(void);
 

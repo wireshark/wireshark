@@ -41,7 +41,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
-#include <epan/ppptypes.h>
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
