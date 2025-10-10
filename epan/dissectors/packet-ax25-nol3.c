@@ -36,7 +36,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/ax25_pids.h>
+#include "packet-ax25.h"
 #include "packet-xdlc.h"
 
 #define STRLEN	80

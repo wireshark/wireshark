@@ -288,6 +288,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-atm.h
 	packet-atn-ulcs.h
 	packet-autosar-ipdu-multiplexer.h
+	packet-ax25.h
 	packet-bacapp.h
 	packet-bacnet.h
 	packet-bblog.h

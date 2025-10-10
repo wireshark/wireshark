@@ -25,7 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/ax25_pids.h>
+#include "packet-ax25.h"
 
 void proto_register_flexnet(void);
 void proto_reg_handoff_flexnet(void);

@@ -34,9 +34,9 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/capture_dissectors.h>
-#include <epan/ax25_pids.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include "packet-ax25.h"
 
 void proto_register_netrom(void);
 void proto_reg_handoff_netrom(void);

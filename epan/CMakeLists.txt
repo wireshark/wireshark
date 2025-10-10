@@ -41,7 +41,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	app_mem_usage.h
 	arptypes.h
 	asn1.h
-	ax25_pids.h
 	capture_dissectors.h
 	charsets.h
 	chdlctypes.h

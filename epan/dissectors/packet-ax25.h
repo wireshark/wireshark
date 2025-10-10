@@ -10,8 +10,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __AX25_PIDS_H__
-#define __AX25_PIDS_H__
+#ifndef __PACKET_AX25_H__
+#define __PACKET_AX25_H__
 
 /* AX.25 Layer 3 Protocol ID's (pid) */
 #define AX25_P_ROSE	0x01	/* ISO 8208 / CCITT X.25 PLP */
@@ -29,4 +29,4 @@
 #define AX25_P_NO_L3 	0xF0	/* No layer 3 protocol */
 #define AX25_P_L3_ESC 	0xFF	/* Escape character. Next octet contains more layer 3 protocol info */
 
-#endif /* __AX25_PIDS_H__ */
+#endif /* __PACKET_AX25_H__ */
