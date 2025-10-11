@@ -1773,9 +1773,6 @@ proto_tree_add_debug_text(tree, "OCTET STRING dissect_ber_octet_string(%s) enter
             it = ber_proto_tree_add_item(actx->pinfo, tree, hf_id, tvb, offset, length_remaining, encoding);
             actx->created_item = it;
             ber_check_length(length_remaining, min_len, max_len, actx, it, false);
-        } else {
-
-            proto_tree_add_item(tree, hf_ber_unknown_octetstring, tvb, offset, len, ENC_NA);
         }
 
         if (out_tvb) {
