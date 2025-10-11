@@ -1712,13 +1712,13 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                 && (primary->dst_eid->uri.type != AT_NONE)) {
             // conversation starts in either order
             address *addra, *addrb;
-            if (cmp_address(&(primary->src_nodeid->uri), &(primary->dst_eid->uri)) < 0) {
-                addra = &(primary->src_nodeid->uri);
-                addrb = &(primary->dst_eid->uri);
+            if (cmp_address(&(pinfo->src), &(pinfo->dst)) < 0) {
+                addra = &(pinfo->src);
+                addrb = &(pinfo->dst);
             }
             else {
-                addra = &(primary->dst_eid->uri);
-                addrb = &(primary->src_nodeid->uri);
+                addra = &(pinfo->dst);
+                addrb = &(pinfo->src);
             }
 
             conversation_element_t *conv_el = wmem_alloc_array(pinfo->pool, conversation_element_t, 3);
