@@ -631,7 +631,6 @@ cnf_dissect_winreg_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	if (parent_tree) {
 		tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 0, ett_winreg_winreg_String, &item, "%s: ", hf_info->name);
 	}
-	
 	offset = winreg_dissect_element_String_name_len(tvb, offset, pinfo, tree, di, drep);
 	offset = winreg_dissect_element_String_name_size(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_ndr_pointer_cb(
@@ -2427,7 +2426,7 @@ winreg_dissect_element_LoadKey_keyname(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 winreg_dissect_element_LoadKey_keyname_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, di, drep, 0, hf_winreg_winreg_LoadKey_keyname);
+	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, di, drep, 2|PIDL_SET_COL_INFO, hf_winreg_winreg_LoadKey_keyname);
 
 	return offset;
 }
@@ -2938,7 +2937,7 @@ winreg_dissect_element_QueryValue_value_name(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 winreg_dissect_element_QueryValue_value_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, di, drep, 0, hf_winreg_winreg_QueryValue_value_name);
+	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, di, drep, 2|PIDL_SET_COL_INFO, hf_winreg_winreg_QueryValue_value_name);
 
 	return offset;
 }
@@ -3269,7 +3268,7 @@ winreg_dissect_element_SaveKey_filename(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 winreg_dissect_element_SaveKey_filename_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, di, drep, 0, hf_winreg_winreg_SaveKey_filename);
+	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, di, drep, 2|PIDL_SET_COL_INFO, hf_winreg_winreg_SaveKey_filename);
 
 	return offset;
 }
