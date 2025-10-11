@@ -282,8 +282,7 @@ static void lua_resetthread_cb(void *user_data) {
     lua_resetthread(L1);
     // The thread was pushed onto the global stack when created. Each thread
     // should be taken off the stack in order.
-    lua_State *L2 = lua_tothread(L, -1);
-    ws_assert(L1 == L2);
+    ws_assert(L1 == lua_tothread(L, -1));
     // Now remove the thread from the global state stack, which will allow it
     // to be garbage collected.
     lua_pop(L, 1);
