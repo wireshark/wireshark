@@ -347,7 +347,7 @@ sub ElementLevel($$$$$$$$)
 		$self->pidl_code("offset = dissect_ndr_$type\_pointer(tvb, offset, pinfo, tree, di, drep, $myname\_, $ptrtype_mappings{$l->{POINTER_TYPE}}, \"Pointer to ".field2name(StripPrefixes($e->{NAME}, $self->{conformance}->{strip_prefixes})) . " ($e->{TYPE})\",$hf);");
 	} elsif ($l->{TYPE} eq "ARRAY") {
 		if ($l->{IS_INLINE}) {
-			error($e->{ORIGINAL}, "Inline arrays not supported");
+			error($e->{ORIGINAL}, "Inline arrays not supported automatically. Use conformance file MANUAL directives for `$myname' and `$l->{SIZE_IS}' to implement them.");
 		} elsif ($l->{IS_FIXED}) {
 			$self->pidl_code("int i;");
 			$self->pidl_code("for (i = 0; i < $l->{SIZE_IS}; i++)");
@@ -589,22 +589,24 @@ sub Element($$$$$$)
 		next if ($_->{TYPE} eq "SWITCH");
 		next if (defined($self->{conformance}->{noemit}->{"$dissectorname$add"}));
 		$self->pidl_def("static int $dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_$moreparam);");
-		$self->pidl_fn_start("$dissectorname$add");
-		$self->pidl_code("static int");
-		$self->pidl_code("$dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_$moreparam)");
-		$self->pidl_code("{");
-		$self->indent;
+		if (not defined($self->{conformance}->{manual}->{"$dissectorname$add"})) {
+			$self->pidl_fn_start("$dissectorname$add");
+			$self->pidl_code("static int");
+			$self->pidl_code("$dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_$moreparam)");
+			$self->pidl_code("{");
+			$self->indent;
 
-		$self->ElementLevel($e,$_,$hf,$dissectorname.$add,$pn,$ifname,$param);
-		if (defined $oldparam) {
-			$param = $oldparam;
+			$self->ElementLevel($e,$_,$hf,$dissectorname.$add,$pn,$ifname,$param);
+			if (defined $oldparam) {
+				$param = $oldparam;
+			}
+
+			$self->pidl_code("");
+			$self->pidl_code("return offset;");
+			$self->deindent;
+			$self->pidl_code("}\n");
+			$self->pidl_fn_end("$dissectorname$add");
 		}
-
-		$self->pidl_code("");
-		$self->pidl_code("return offset;");
-		$self->deindent;
-		$self->pidl_code("}\n");
-		$self->pidl_fn_end("$dissectorname$add");
 		$add.="_";
 		last if ($_->{TYPE} eq "ARRAY" and $_->{IS_ZERO_TERMINATED});
 	}

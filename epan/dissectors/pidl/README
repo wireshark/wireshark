@@ -100,11 +100,6 @@ Not compiling idl
 As of September 26, 2014, the following idl have issues when generating
 and compiling:
 
-pidl complains that inline arrays aren't supported for these:
-
-	dnsserver/dnsserver.idl
-	eventlog/eventlog.idl
-
 pidl complains about a syntax error due to a line commented out with a
 // comment for these:
 
