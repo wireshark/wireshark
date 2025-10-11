@@ -112,7 +112,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	rtd_table.h
 	secrets.h
 	show_exception.h
-	slow_protocol_subtypes.h
 	sminmpec.h
 	srt_table.h
 	stat_tap_ui.h

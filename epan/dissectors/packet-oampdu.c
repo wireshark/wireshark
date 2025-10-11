@@ -18,8 +18,8 @@
 #include <epan/packet.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
-#include <epan/slow_protocol_subtypes.h>
 #include <epan/expert.h>
+#include "packet-slowprotocols.h"
 
 /* General declarations */
 void proto_register_oampdu(void);

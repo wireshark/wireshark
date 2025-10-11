@@ -17,13 +17,14 @@
 
 #include <epan/packet.h>
 
-#include <epan/slow_protocol_subtypes.h>
 #include <epan/addr_resolv.h>
 #include <epan/oui.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include <wsutil/str_util.h>
+
+#include "packet-slowprotocols.h"
 
 /* General declarations */
 void proto_register_ossp(void);

@@ -19,7 +19,7 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
-#include <epan/slow_protocol_subtypes.h>
+#include "packet-slowprotocols.h"
 
 /* General declarations */
 void proto_register_slow_protocols(void);

@@ -604,6 +604,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-sip.h
 	packet-skinny.h
 	packet-sll.h
+	packet-slowprotocols.h
 	packet-smb.h
 	packet-smb2.h
 	packet-smb-browse.h

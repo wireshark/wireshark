@@ -17,7 +17,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
-#include <epan/slow_protocol_subtypes.h>
+#include "packet-slowprotocols.h"
 
 /* General declarations */
 void proto_register_marker(void);
