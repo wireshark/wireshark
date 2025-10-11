@@ -86,6 +86,11 @@ typedef struct tcpheader {
 
 	uint32_t th_rawack;  /* raw value */
 	uint32_t th_ack;     /* raw or relative value depending on tcp_relative_seq */
+	bool flagkarn; /* XXX - might later become a bit field */
+
+	/* This is the absolute maximum we could find in TCP options (RFC2018, section 3) */
+	#define MAX_TCP_SACK_RANGES 4
+	uint8_t num_sack_ranges;
 	bool th_have_seglen;	/* true if th_seglen is valid */
 	uint32_t th_seglen;  /* in bytes */
 	uint32_t th_win;   /* make it 32 bits so we can handle some scaling */
@@ -97,11 +102,6 @@ typedef struct tcpheader {
 	uint32_t th_stream; /* this stream index field is included to help differentiate when address/port pairs are reused */
 	address ip_src;
 	address ip_dst;
-	bool flagkarn; /* XXX - might later become a bit field */
-
-	/* This is the absolute maximum we could find in TCP options (RFC2018, section 3) */
-	#define MAX_TCP_SACK_RANGES 4
-	uint8_t num_sack_ranges;
 	uint32_t sack_left_edge[MAX_TCP_SACK_RANGES];
 	uint32_t sack_right_edge[MAX_TCP_SACK_RANGES];
 
@@ -119,10 +119,10 @@ struct tcpinfo {
 	uint32_t seq;             /* Sequence number of first byte in the data */
 	uint32_t nxtseq;          /* Sequence number of first byte after data */
 	uint32_t lastackseq;      /* Sequence number of last ack */
-	bool    is_reassembled;   /* This is reassembled data. */
 	uint16_t flags;           /* TCP flags */
 	uint16_t urgent_pointer;  /* Urgent pointer value for the current packet. */
 	uint32_t stream;          /* Stream id passed to export PDU */
+	bool    is_reassembled;   /* This is reassembled data. */
 };
 
 /*
@@ -161,18 +161,21 @@ typedef struct _tcp_unacked_t {
 	uint32_t frame;
 	uint32_t seq;
 	uint32_t nextseq;
-	nstime_t ts;
 	bool     karn_flag; /* indication for the later Karn discovery */
+	nstime_t ts;
 } tcp_unacked_t;
 
 struct tcp_acked {
 	uint32_t frame_acked;
+	uint32_t rto_frame;
 	nstime_t ts;
 
-	uint32_t rto_frame;
 	nstime_t rto_ts;	/* Time since previous packet for
 				   retransmissions. */
 	uint16_t flags; /* see TCP_A_* in packet-tcp.c */
+	bool partial_ack; /* true when acknowledging data
+				 and not a full segment */
+	bool iskarn; /* true when this ACK is ambiguous according to Karn */
 	uint32_t dupack_num;	/* dup ack number */
 	uint32_t dupack_frame;	/* dup ack to frame # */
 	uint32_t bytes_in_flight; /* number of bytes in flight */
@@ -180,9 +183,6 @@ struct tcp_acked {
 
 	uint32_t new_data_seq; /* For segments with old data,
 				 where new data starts */
-	bool partial_ack; /* true when acknowledging data
-				 and not a full segment */
-	bool iskarn; /* true when this ACK is ambiguous according to Karn */
 };
 
 /* One instance of this structure is created for each pdu that spans across
@@ -216,16 +216,15 @@ typedef struct _mptcp_dss_mapping_t {
 	uint32_t ssn_low;
 	uint32_t ssn_high;
 
-/* Ideally the dsn should always be registered with the extended version
- * but it may not be possible if we don't know the 32 MSB of the base_dsn
- */
-	bool extended_dsn; /* true if MPTCP_DSS_FLAG_DATA_8BYTES */
-
 	uint64_t rawdsn;    /* matches the low member of range
                     should be converted to the 64 bits version before being registered
                 */
-/* to check if mapping was sent before or after packet */
-uint32_t frame;
+	/* to check if mapping was sent before or after packet */
+	uint32_t frame;
+	/* Ideally the dsn should always be registered with the extended version
+	* but it may not be possible if we don't know the 32 MSB of the base_dsn
+	*/
+	bool extended_dsn; /* true if MPTCP_DSS_FLAG_DATA_8BYTES */
 } mptcp_dss_mapping_t;
 
 
@@ -247,11 +246,10 @@ typedef struct _mptcp_meta_flow_t {
 
 	/* flags exchanged between hosts during 3WHS. Gives checksum/extensibility/hmac information */
 	uint8_t flags;
+	uint8_t version;	/* negotiated mptcp version */
 	uint64_t base_dsn;	/* first data seq number (used by relative sequence numbers) seen. */
 	uint64_t nextseq;	/* highest seen nextseq */
 	uint64_t dfin;		/* data fin */
-
-	uint8_t version;		/* negotiated mptcp version */
 
 	uint64_t key;		/* if it was set */
 
@@ -275,11 +273,6 @@ typedef struct _mptcp_meta_flow_t {
 
 /* MPTCP data specific to this subflow direction */
 struct mptcp_subflow {
-	uint8_t static_flags; /* flags stating which of the flow */
-	uint32_t nonce;       /* used only for MP_JOIN */
-	uint8_t address_id;   /* sent during an MP_JOIN */
-
-
 	/* map DSN to packets
 	 * Used when looking for reinjections across subflows
 	 */
@@ -292,6 +285,9 @@ struct mptcp_subflow {
 	wmem_itree_t *ssn2dsn_mappings;
 	/* meta flow to which it is attached. Helps setting forward and backward meta flow */
 	mptcp_meta_flow_t *meta;
+	uint32_t nonce;       /* used only for MP_JOIN */
+	uint8_t static_flags; /* flags stating which of the flow */
+	uint8_t address_id;   /* sent during an MP_JOIN */
 };
 
 
@@ -313,8 +309,24 @@ typedef enum {
 typedef struct tcp_analyze_seq_flow_info_t {
 	tcp_unacked_t *segments;/* List of segments for which we haven't seen an ACK */
 	uint16_t segment_count;	/* How many unacked segments we're currently storing */
-	uint32_t lastack;	/* Last seen ack for the reverse flow */
+	uint8_t lastacklen;     /* length of the last fwd ACK packet - 0 means pure ACK */
+
+	bool valid_bif;     /* if lost pkts, disable BiF until ACK is recvd */
+	bool push_set_last; /* tracking last time PSH flag was set */
+
+	/*
+	 * Handling of contiguous SEQ ranges
+	 */
+	bool is_client;		/* tracking who initiated the conversation */
+	uint8_t  num_contiguous_ranges;
+
+	/*
+	 * Handling of SACK blocks
+	 * Copied from tcpheader
+	 */
+	uint8_t num_sack_ranges;
 	nstime_t lastacktime;	/* Time of the last ack packet */
+	uint32_t lastack;	/* Last seen ack for the reverse flow */
 	uint32_t lastnondupack;	/* frame number of last seen non dupack */
 	uint32_t dupacknum;	/* dupack number */
 	uint32_t nextseq;	/* highest seen nextseq */
@@ -324,31 +336,15 @@ typedef struct tcp_analyze_seq_flow_info_t {
 	uint32_t nextseqframe;	/* frame number for segment with highest
 				 * sequence number
 				 */
+	uint32_t push_bytes_sent; /* bytes since the last PSH flag */
 	nstime_t nextseqtime;	/* Time of the nextseq packet so we can
 				 * distinguish between retransmission,
 				 * fast retransmissions and outoforder
 				 */
 
-	uint8_t lastacklen;     /* length of the last fwd ACK packet - 0 means pure ACK */
-
-	bool valid_bif;     /* if lost pkts, disable BiF until ACK is recvd */
-	bool push_set_last; /* tracking last time PSH flag was set */
-	uint32_t push_bytes_sent; /* bytes since the last PSH flag */
-
-	/*
-	 * Handling of contiguous SEQ ranges
-	 */
-	bool is_client;		/* tracking who initiated the conversation */
-	uint8_t  num_contiguous_ranges;
-	uint32_t contiguous_ranges[MAX_CONTIGUOUS_SEQUENCES][2];
-
-	/*
-	 * Handling of SACK blocks
-	 * Copied from tcpheader
-	 */
-	uint8_t num_sack_ranges;
 	uint32_t sack_left_edge[MAX_TCP_SACK_RANGES];
 	uint32_t sack_right_edge[MAX_TCP_SACK_RANGES];
+	uint32_t contiguous_ranges[MAX_CONTIGUOUS_SEQUENCES][2];
 
 } tcp_analyze_seq_flow_info_t;
 
@@ -362,7 +358,6 @@ typedef struct tcp_process_info_t {
 } tcp_process_info_t;
 
 typedef struct _tcp_flow_t {
-	uint8_t static_flags; /* true if base seq set */
 	uint32_t base_seq;	/* base seq number (used by relative sequence numbers)*/
 #define TCP_MAX_UNACKED_SEGMENTS 10000 /* The most unacked segments we'll store */
 	uint32_t fin;		/* frame number of the final FIN */
@@ -370,18 +365,20 @@ typedef struct _tcp_flow_t {
 	int16_t	win_scale;	/* -1 is we don't know, -2 is window scaling is not used */
 	int16_t mss;  		/* maximum segment size, -1 unknown */
 	bool scps_capable;	/* flow advertised scps capabilities */
+	uint8_t static_flags; /* true if base seq set */
 	uint16_t maxsizeacked;  /* 0 if not yet known */
-	uint8_t mp_operations; /* tracking of the MPTCP operations */
-	bool is_first_ack;  /* indicates if this is the first ACK */
-	bool closing_initiator; /* tracking who is responsible of the connection end */
-
-	tcp_analyze_seq_flow_info_t* tcp_analyze_seq_info;
-
 /* This tcp flow/session contains only one single PDU and should
  * be reassembled until the final FIN segment.
  */
 #define TCP_FLOW_REASSEMBLE_UNTIL_FIN	0x0001
 	uint16_t flags;
+
+	/* The number of data flows seen in that direction */
+	uint16_t flow_count;
+	uint8_t mp_operations; /* tracking of the MPTCP operations */
+	bool is_first_ack;  /* indicates if this is the first ACK */
+	bool closing_initiator; /* tracking who is responsible of the connection end */
+	tcp_analyze_seq_flow_info_t* tcp_analyze_seq_info;
 
 	/* see TCP_A_* in packet-tcp.c */
 	uint32_t lastsegmentflags;
@@ -390,9 +387,6 @@ typedef struct _tcp_flow_t {
 	 * Valid only on the first pass and used to handle out-of-order segments
 	 * during reassembly. */
 	uint32_t maxnextseq;
-
-	/* The number of data flows seen in that direction */
-	uint16_t flow_count;
 
 	/* This tree is indexed by sequence number and keeps track of all
 	 * all pdus spanning multiple segments for this flow.
@@ -413,22 +407,20 @@ typedef struct _tcp_flow_t {
 struct mptcp_analysis {
 
 	uint16_t mp_flags; /* MPTCP meta analysis related, see MPTCP_META_* in packet-tcp.c */
+	uint8_t hmac_algo;  /* hmac decided after negotiation */
+	/* Keep track of the last TCP operations seen in order to avoid false DUP ACKs */
+	uint8_t mp_operations;
+	uint32_t stream; /* Keep track of unique mptcp stream (per MP_CAPABLE handshake) */
+	wmem_list_t* subflows;	/* List of subflows (tcp_analysis) */
+
+	/* identifier of the tcp stream that saw the initial 3WHS with MP_CAPABLE option */
+	struct tcp_analysis *master;
 
 	/*
 	 * For other subflows, they link the meta via mptcp_subflow_t::meta_flow
 	 * according to the validity of the token.
 	 */
 	mptcp_meta_flow_t meta_flow[2];
-
-	uint32_t stream; /* Keep track of unique mptcp stream (per MP_CAPABLE handshake) */
-	uint8_t hmac_algo;  /* hmac decided after negotiation */
-	wmem_list_t* subflows;	/* List of subflows (tcp_analysis) */
-
-	/* identifier of the tcp stream that saw the initial 3WHS with MP_CAPABLE option */
-	struct tcp_analysis *master;
-
-	/* Keep track of the last TCP operations seen in order to avoid false DUP ACKs */
-	uint8_t mp_operations;
 };
 
 struct tcp_analysis {
@@ -496,6 +488,12 @@ struct tcp_analysis {
 	/* Keep track of packet number within the TCP stream */
 	uint32_t        pnum;
 
+	/* allocated only when mptcp enabled
+	 * several tcp_analysis may refer to the same mptcp_analysis
+	 * can exist without any meta
+	 */
+	struct mptcp_analysis* mptcp_analysis;
+
 	/* Remembers the server port on the SYN (or SYN|ACK) packet to
 	 * help determine which dissector to call
 	 */
@@ -509,26 +507,19 @@ struct tcp_analysis {
 	/* Remembers which side is currently sending data. */
 	int8_t flow_direction : 2;
 
-	/* allocated only when mptcp enabled
-	 * several tcp_analysis may refer to the same mptcp_analysis
-	 * can exist without any meta
-	 */
-	struct mptcp_analysis* mptcp_analysis;
-
 	/* Track the TCP conversation completeness, as the capture might
 	 * contain all parts of a TCP flow (establishment, data, clearing) or
 	 * just some parts if we jumped on the bandwagon of an already established
 	 * connection or left before it was terminated explicitly
 	 */
 	uint8_t         conversation_completeness;
-
-	/* Stores the value as a String to be displayed in the appropriate field */
-	char            *conversation_completeness_str;
-
 	/* Track AccECN support */
 	bool had_acc_ecn_setup_syn;
 	bool had_acc_ecn_setup_syn_ack;
 	bool had_acc_ecn_option;
+
+	/* Stores the value as a String to be displayed in the appropriate field */
+	char            *conversation_completeness_str;
 };
 
 /* Structure that keeps per packet data. First used to be able
