@@ -18,10 +18,10 @@
 
 #include <epan/packet.h>
 #include <epan/ipproto.h>
-#include <epan/sctpppids.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include "packet-sctp.h"
 
 
 void proto_register_componentstatusprotocol(void);

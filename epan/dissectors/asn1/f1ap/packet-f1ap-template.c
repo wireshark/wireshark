@@ -16,7 +16,6 @@
 #include <epan/packet.h>
 
 #include <epan/asn1.h>
-#include <epan/sctpppids.h>
 #include <epan/proto_data.h>
 #include <epan/stats_tree.h>
 #include <epan/tfs.h>
@@ -32,6 +31,7 @@
 #include "packet-lte-rrc.h"
 #include "packet-nrppa.h"
 #include "packet-lpp.h"
+#include "packet-sctp.h"
 
 #define PNAME  "F1 Application Protocol"
 #define PSNAME "F1AP"

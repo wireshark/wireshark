@@ -19,7 +19,6 @@
 
 #include <epan/packet.h>
 #include <epan/asn1.h>
-#include <epan/sctpppids.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
@@ -32,6 +31,7 @@
 #include "packet-gsm_map.h"
 #include "packet-s1ap.h"
 #include "packet-lte-rrc.h"
+#include "packet-sctp.h"
 
 #define PNAME  "SBc Application Part"
 #define PSNAME "SBcAP"

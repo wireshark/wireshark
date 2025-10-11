@@ -17,9 +17,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/sctpppids.h>
 #include <epan/stat_tap_ui.h>
 #include <wsutil/array.h>
+#include "packet-sctp.h"
 
 void proto_register_calcappprotocol(void);
 void proto_reg_handoff_calcappprotocol(void);

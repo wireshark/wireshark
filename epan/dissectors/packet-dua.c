@@ -21,9 +21,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/sctpppids.h>
 #include <wsutil/str_util.h>
 #include <wsutil/ws_roundup.h>
+#include "packet-sctp.h"
 
 void proto_register_dua(void);
 void proto_reg_handoff_dua(void);

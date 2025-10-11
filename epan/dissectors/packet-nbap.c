@@ -22,7 +22,6 @@
 
 #include <epan/to_str.h>
 #include <epan/packet.h>
-#include <epan/sctpppids.h>
 #include <epan/asn1.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
@@ -38,6 +37,7 @@
 #include "packet-rrc.h"
 #include "packet-umts_rlc.h"
 #include "packet-nbap.h"
+#include "packet-sctp.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */

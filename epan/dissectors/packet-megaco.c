@@ -37,7 +37,6 @@
 #include <epan/prefs-int.h>
 #include <epan/exported_pdu.h>
 #include <epan/asn1.h>
-#include <epan/sctpppids.h>
 #include <epan/charsets.h>
 #include <epan/unit_strings.h>
 
@@ -50,6 +49,7 @@
 #include "packet-ip.h"
 #include "packet-media-type.h"
 #include "packet-sdp.h"
+#include "packet-sctp.h"
 
 void proto_register_megaco(void);
 void proto_reg_handoff_megaco(void);

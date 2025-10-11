@@ -23,8 +23,8 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
-#include <epan/sctpppids.h>
 #include <epan/expert.h>
+#include "packet-sctp.h"
 
 void proto_register_m2pa(void);
 void proto_reg_handoff_m2pa(void);

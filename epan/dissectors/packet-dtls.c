@@ -44,7 +44,6 @@
 #include <epan/uat.h>
 #include <epan/addr_resolv.h>
 #include <epan/follow.h>
-#include <epan/sctpppids.h>
 #include <epan/exported_pdu.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
@@ -60,6 +59,7 @@
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include "packet-udp.h"
+#include "packet-sctp.h"
 
 void proto_register_dtls(void);
 

@@ -17,8 +17,8 @@
 
 #include <epan/packet.h>
 #include <epan/ipproto.h>
-#include <epan/sctpppids.h>
 #include <epan/stat_tap_ui.h>
+#include "packet-sctp.h"
 
 
 void proto_register_hipercontracer(void);

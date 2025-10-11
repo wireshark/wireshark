@@ -25,7 +25,6 @@
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
-#include <epan/sctpppids.h>
 #include <epan/expert.h>
 #include <wsutil/array.h>
 
@@ -34,6 +33,7 @@
 #include "packet-e212.h"
 #include "packet-sccp.h"
 #include "packet-lcsap.h"
+#include "packet-sctp.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */

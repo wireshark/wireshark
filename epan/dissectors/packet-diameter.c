@@ -45,7 +45,6 @@
 #include <epan/tap.h>
 #include <epan/srt_table.h>
 #include <epan/exported_pdu.h>
-#include <epan/sctpppids.h>
 #include <epan/show_exception.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
@@ -67,6 +66,7 @@
 #include "packet-e212.h"
 #include "packet-e164.h"
 #include "packet-eap.h"
+#include "packet-sctp.h"
 
 void proto_register_diameter(void);
 void proto_reg_handoff_diameter(void);

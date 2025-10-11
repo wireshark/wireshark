@@ -22,7 +22,6 @@
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
-#include <epan/sctpppids.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/conversation.h>
@@ -35,6 +34,7 @@
 #include "packet-e2ap.h"
 #include "packet-per.h"
 #include "packet-ntp.h"
+#include "packet-sctp.h"
 
 #define PNAME  "E2 Application Protocol"
 #define PSNAME "E2AP"

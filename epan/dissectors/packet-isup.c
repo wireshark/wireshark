@@ -41,7 +41,6 @@
 #include <epan/stats_tree.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
-#include <epan/sctpppids.h>
 #include <epan/osi-utils.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
@@ -56,6 +55,7 @@
 #include "packet-charging_ase.h"
 #include "packet-mtp3.h"
 #include "packet-media-type.h"
+#include "packet-sctp.h"
 
 void proto_register_isup(void);
 void proto_reg_handoff_isup(void);

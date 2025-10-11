@@ -19,7 +19,6 @@
 
 #include <epan/asn1.h>
 #include <epan/prefs.h>
-#include <epan/sctpppids.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
@@ -42,6 +41,7 @@
 #include "packet-ntp.h"
 #include "packet-ngap.h"
 #include "packet-lpp.h"
+#include "packet-sctp.h"
 
 #define PNAME  "S1 Application Protocol"
 #define PSNAME "S1AP"

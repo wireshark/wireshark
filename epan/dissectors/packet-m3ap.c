@@ -21,7 +21,6 @@
 
 #include <epan/strutil.h>
 #include <epan/asn1.h>
-#include <epan/sctpppids.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/unit_strings.h>
@@ -31,6 +30,7 @@
 #include "packet-per.h"
 #include "packet-e212.h"
 #include "packet-gtpv2.h"
+#include "packet-sctp.h"
 
 #define PNAME  "M3 Application Protocol"
 #define PSNAME "M3AP"

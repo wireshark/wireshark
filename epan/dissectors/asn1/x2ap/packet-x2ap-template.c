@@ -21,7 +21,6 @@
 #include <epan/tfs.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
-#include <epan/sctpppids.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
@@ -38,6 +37,7 @@
 #include "packet-s1ap.h"
 #include "packet-f1ap.h"
 #include "packet-xnap.h"
+#include "packet-sctp.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */

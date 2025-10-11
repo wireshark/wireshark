@@ -23,7 +23,7 @@
 #include "packet-e212.h"
 #include "packet-gsm_map.h"
 #include "packet-gsm_sms.h"
-#include <epan/sctpppids.h>
+#include "packet-sctp.h"
 #include "packet-cell_broadcast.h"
 
 #define PNAME  "UTRAN IuBC interface SABP signaling"

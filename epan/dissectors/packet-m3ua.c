@@ -23,7 +23,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/address_types.h>
-#include <epan/sctpppids.h>
+#include <epan/tap.h>
 #include <wsutil/str_util.h>
 #include <wsutil/ws_roundup.h>
 #include "packet-mtp3.h"
@@ -31,7 +31,7 @@
 #include "packet-frame.h"
 #include "packet-tcp.h"
 #include "packet-q708.h"
-#include <epan/tap.h>
+#include "packet-sctp.h"
 
 void proto_register_m3ua(void);
 void proto_reg_handoff_m3ua(void);

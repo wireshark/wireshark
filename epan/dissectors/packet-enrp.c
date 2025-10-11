@@ -22,7 +22,6 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/sctpppids.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
@@ -34,6 +33,7 @@
 #include <wsutil/array.h>
 
 #include "packet-asap+enrp-common.h"
+#include "packet-sctp.h"
 
 void proto_register_enrp(void);
 void proto_reg_handoff_enrp(void);

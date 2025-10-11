@@ -22,7 +22,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/sctpppids.h>
+#include "packet-sctp.h"
 
 void proto_register_rtcdc(void);
 void proto_reg_handoff_rtcdc(void);

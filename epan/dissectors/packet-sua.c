@@ -20,7 +20,6 @@
 #include <epan/packet.h>
 #include <epan/address_types.h>
 #include <epan/prefs.h>
-#include <epan/sctpppids.h>
 #include <epan/tap.h>
 #include <epan/to_str.h>
 #include <epan/tfs.h>
@@ -31,6 +30,9 @@
 
 #include "packet-mtp3.h"
 #include "packet-sccp.h"
+#include "packet-sctp.h"
+
+
 void proto_register_sua(void);
 void proto_reg_handoff_sua(void);
 

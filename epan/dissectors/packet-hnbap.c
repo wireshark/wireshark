@@ -19,7 +19,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/sctpppids.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
@@ -27,6 +26,7 @@
 
 #include "packet-per.h"
 #include "packet-e212.h"
+#include "packet-sctp.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */

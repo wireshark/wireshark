@@ -46,7 +46,6 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/sctpppids.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
@@ -69,6 +68,7 @@
 #endif
 
 #include "packet-tcp.h"
+#include "packet-sctp.h"
 
 void proto_register_ssh(void);
 void proto_reg_handoff_ssh(void);

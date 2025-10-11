@@ -24,7 +24,6 @@
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
-#include <epan/sctpppids.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/conversation.h>
@@ -52,6 +51,7 @@
 #include "packet-media-type.h"
 #include "packet-http2.h"
 #include "packet-gtp.h"
+#include "packet-sctp.h"
 
 #define PNAME  "NG Application Protocol"
 #define PSNAME "NGAP"

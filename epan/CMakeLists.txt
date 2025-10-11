@@ -110,7 +110,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	register.h
 	req_resp_hdrs.h
 	rtd_table.h
-	sctpppids.h
 	secrets.h
 	show_exception.h
 	slow_protocol_subtypes.h
@@ -210,7 +209,6 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	register.c
 	req_resp_hdrs.c
 	rtd_table.c
-	sctpppids.c
 	secrets.c
 	sequence_analysis.c
 	services.c

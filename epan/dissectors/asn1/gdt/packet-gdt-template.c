@@ -13,11 +13,11 @@
 # include "config.h"
 
 #include <epan/packet.h>
-#include <epan/sctpppids.h>
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
 #include "packet-gdt.h"
+#include "packet-sctp.h"
 
 #define PNAME  "Generic Data Transfer Protocol"
 #define PSNAME "GDT"

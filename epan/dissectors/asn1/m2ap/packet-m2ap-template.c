@@ -14,7 +14,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/sctpppids.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
@@ -23,6 +22,7 @@
 
 #include "packet-per.h"
 #include "packet-e212.h"
+#include "packet-sctp.h"
 
 #define PNAME  "M2 Application Protocol"
 #define PSNAME "M2AP"

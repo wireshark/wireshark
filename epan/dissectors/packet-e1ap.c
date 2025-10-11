@@ -21,7 +21,6 @@
 #include <epan/packet.h>
 
 #include <epan/asn1.h>
-#include <epan/sctpppids.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
@@ -33,6 +32,7 @@
 #include "packet-ntp.h"
 #include "packet-nr-rrc.h"
 #include "packet-tcp.h"
+#include "packet-sctp.h"
 
 #define PNAME  "E1 Application Protocol"
 #define PSNAME "E1AP"
