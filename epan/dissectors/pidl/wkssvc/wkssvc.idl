@@ -13,7 +13,11 @@ import "../srvsvc/srvsvc.idl", "../lsa/lsa.idl";
   endpoint("ncacn_np:[\\pipe\\wkssvc]","ncacn_ip_tcp:","ncalrpc:")
 ] interface wkssvc
 {
-	typedef [v1_enum] enum srvsvc_PlatformId srvsvc_PlatformId;
+	/* pidl does not properly compile a typedef where the type specifier
+	   references another type other than a base type or a struct, union,
+	   or enum, so this is handled in the conformance file.
+	typedef [v1_enum] srvsvc_PlatformId srvsvc_PlatformId;
+	*/
 
 #define BOOL uint32
 
