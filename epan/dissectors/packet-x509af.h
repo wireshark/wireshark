@@ -17,6 +17,14 @@
 #ifndef PACKET_X509AF_H
 #define PACKET_X509AF_H
 
+#define id_at_userCertificate          id_at".36"
+#define id_at_cAcertificate            id_at".37"
+#define id_at_authorityRevocationList  id_at".38"
+#define id_at_certificateRevocationList id_at".39"
+#define id_at_crossCertificatePair     id_at".40"
+#define id_at_attributeCertificate     id_at".58"
+#define id_at_attributeCertificateRevocationList id_at".59"
+#define ub_user_identifier             256
 extern const value_string x509af_Version_vals[];
 extern const value_string x509af_Time_vals[];
 WS_DLL_PUBLIC int dissect_x509af_Certificate(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

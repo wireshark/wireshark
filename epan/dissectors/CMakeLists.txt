@@ -415,6 +415,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-gssapi.h
 	packet-gtp.h
 	packet-gtpv2.h
+	packet-HI2Operations.h
 	packet-h223.h
 	packet-h225.h
 	packet-h235.h

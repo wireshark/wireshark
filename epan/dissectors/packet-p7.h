@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-p7.h                                                                */
-/* asn2wrs.py -b -C -q -L -p p7 -c ./p7.cnf -s ./packet-p7-template -D . -O ../.. MSAbstractService.asn MSGeneralAttributeTypes.asn MSAccessProtocol.asn MSUpperBounds.asn */
+/* asn2wrs.py -b -q -L -p p7 -c ./p7.cnf -s ./packet-p7-template -D . -O ../.. MSAbstractService.asn MSGeneralAttributeTypes.asn MSAccessProtocol.asn MSUpperBounds.asn */
 
 /* packet-p7.h
  * Routines for X.413 (P7) packet dissection

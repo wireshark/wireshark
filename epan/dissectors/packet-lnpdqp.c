@@ -254,8 +254,8 @@ dissect_lnpdqp_Digits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
         default:
             break;
     }
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &parameter_tvb);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   4, 9, hf_index, &parameter_tvb);
 
     if (parameter_tvb){
         subtree = proto_item_add_subtree(actx->created_item, ett_lnpdqp_digits);
@@ -270,8 +270,8 @@ dissect_lnpdqp_Digits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_lnpdqp_BillingIndicators(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   4, 4, hf_index, NULL);
 
   return offset;
 }
@@ -325,8 +325,8 @@ dissect_lnpdqp_ServiceKey(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_lnpdqp_OriginatingStationType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 1, hf_index, NULL);
 
   return offset;
 }

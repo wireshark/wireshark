@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-cms.c                                                               */
-/* asn2wrs.py -b -C -q -L -p cms -c ./cms.cnf -s ./packet-cms-template -D . -O ../.. CryptographicMessageSyntax.asn AttributeCertificateVersion1.asn CMSFirmwareWrapper.asn CMSAlgorithmProtectionAttribute.asn */
+/* asn2wrs.py -b -q -L -p cms -c ./cms.cnf -s ./packet-cms-template -D . -O ../.. CryptographicMessageSyntax.asn AttributeCertificateVersion1.asn CMSFirmwareWrapper.asn CMSAlgorithmProtectionAttribute.asn */
 
 /* packet-cms.c
  * Routines for RFC5652 Cryptographic Message Syntax packet dissection

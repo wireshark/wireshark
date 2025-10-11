@@ -107,7 +107,7 @@ ASN.1 to Wireshark dissector compiler
     -k            : Keep intermediate files though single file output is used
     -L            : Suppress #line directive from .cnf file
     -D dir        : Directory for input_file(s) (default: '.')
-    -C            : Add check for SIZE constraints
+    -C            : Do not add check for SIZE constraints
     -r prefix     : Remove the prefix from type names
 
     input_file(s) : Input ASN.1 file(s)

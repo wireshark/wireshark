@@ -35,6 +35,6 @@ set( EXTRA_CNF
 	../sgp22/sgp22-exp.cnf
 )
 
-set( A2W_FLAGS -b -C )
+set( A2W_FLAGS -b )
 
 ASN2WRS()

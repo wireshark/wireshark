@@ -16,6 +16,22 @@
 #ifndef PACKET_CHARGING_ASE_H
 #define PACKET_CHARGING_ASE_H
 
+#define minSubTariffControlLen         1
+#define maxSubTariffControlLen         8
+#define minAcknowledgementIndicatorsLen 1
+#define maxAcknowledgementIndicatorsLen 8
+#define minChargingControlIndicatorsLen 1
+#define maxChargingControlIndicatorsLen 8
+#define maxNetworkOperators            6
+#define minStopIndicatorsLen           1
+#define maxStopIndicatorsLen           8
+#define minTariffIndicatorsLen         1
+#define maxTariffIndicatorsLen         8
+#define minCommunicationTariffNum      1
+#define maxCommunicationTariffNum      4
+#define noCharge                       0
+#define noScale                        0
+#define numOfExtensions                1
 extern const value_string charging_ase_ChargingMessageType_vals[];
 int dissect_charging_ase_ChargingMessageType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_charging_ase_ChargingMessageType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);

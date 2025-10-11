@@ -8067,7 +8067,7 @@ def eth_usage():
     -k            : Keep intermediate files though single file output is used
     -L            : Suppress #line directive from .cnf file
     -D dir        : Directory for input_file(s) (default: '.')
-    -C            : Add check for SIZE constraints
+    -C            : Do not add check for SIZE constraints
     -r prefix     : Remove the prefix from type names
 
     input_file(s) : Input ASN.1 file(s)
@@ -8162,7 +8162,7 @@ def asn2wrs_main():
     ectx.conform.suppress_line = False
     ectx.output.outnm = None
     ectx.output.single_file = None
-    ectx.constraints_check = False
+    ectx.constraints_check = True
     for o, a in opts:
         if o in ("-h", "-?"):
             eth_usage(); sys.exit(2)
@@ -8176,7 +8176,7 @@ def asn2wrs_main():
         if o in ("-D",):
             ectx.srcdir = relpath(a)
         if o in ("-C",):
-            ectx.constraints_check = True
+            ectx.constraints_check = False
         if o in ("-L",):
             ectx.conform.suppress_line = True
         if o in ("-q",):

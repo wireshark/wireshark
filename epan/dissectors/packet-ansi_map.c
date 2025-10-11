@@ -4457,8 +4457,8 @@ dissect_ansi_map_AuthenticationResponseUniqueChallenge(bool implicit_tag _U_, tv
 
 static int
 dissect_ansi_map_CallHistoryCount(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 63U, hf_index, NULL);
 
   return offset;
 }
@@ -4923,8 +4923,8 @@ dissect_ansi_map_SystemCapabilities(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_ansi_map_CallHistoryCountExpected(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 63U, hf_index, NULL);
 
   return offset;
 }
@@ -5734,8 +5734,8 @@ dissect_ansi_map_ChannelData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_ansi_map_InterSwitchCount(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 255U, hf_index, NULL);
 
   return offset;
 }
@@ -7847,8 +7847,8 @@ static value_string_ext ansi_map_SignalQuality_vals_ext = VALUE_STRING_EXT_INIT(
 
 static int
 dissect_ansi_map_SignalQuality(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 255U, hf_index, NULL);
 
   return offset;
 }
@@ -10072,8 +10072,8 @@ dissect_ansi_map_ControlChannelData(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_ansi_map_ReceivedSignalQuality(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 255U, hf_index, NULL);
 
   return offset;
 }

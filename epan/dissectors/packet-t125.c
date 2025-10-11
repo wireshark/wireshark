@@ -107,8 +107,8 @@ dissect_t125_DataPriority(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_t125_INTEGER_0_MAX(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer64(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, NO_BOUND, hf_index, NULL);
 
   return offset;
 }

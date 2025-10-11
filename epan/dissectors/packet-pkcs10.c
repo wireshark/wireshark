@@ -67,8 +67,8 @@ static const value_string pkcs10_T_version_vals[] = {
 
 static int
 dissect_pkcs10_T_version(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 0U, hf_index, NULL);
 
   return offset;
 }
@@ -99,8 +99,8 @@ static const ber_sequence_t T_values_set_of[1] = {
 
 static int
 dissect_pkcs10_T_values(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 T_values_set_of, hf_index, ett_pkcs10_T_values);
+  offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
+                                             1, NO_BOUND, T_values_set_of, hf_index, ett_pkcs10_T_values);
 
   return offset;
 }

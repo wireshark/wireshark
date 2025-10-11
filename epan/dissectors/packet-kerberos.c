@@ -5174,8 +5174,8 @@ unknown:
 
 static int
 dissect_kerberos_INTEGER_5(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            5U, 5U, hf_index, NULL);
 
   return offset;
 }
@@ -5326,8 +5326,8 @@ dissect_kerberos_ENCTYPE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_kerberos_UInt32(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 4294967295U, hf_index, NULL);
 
   return offset;
 }
@@ -5510,8 +5510,8 @@ dissect_kerberos_Checksum(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_kerberos_Microseconds(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 999999U, hf_index, NULL);
 
   return offset;
 }
@@ -5529,8 +5529,8 @@ dissect_kerberos_KerberosTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_kerberos_Int32(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            INT32_MIN, 2147483647U, hf_index, NULL);
 
   return offset;
 }
@@ -7477,8 +7477,8 @@ static const ber_sequence_t ETYPE_INFO2_sequence_of[1] = {
 
 static int
 dissect_kerberos_ETYPE_INFO2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      ETYPE_INFO2_sequence_of, hf_index, ett_kerberos_ETYPE_INFO2);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, ETYPE_INFO2_sequence_of, hf_index, ett_kerberos_ETYPE_INFO2);
 
   return offset;
 }
@@ -7925,8 +7925,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_Verifier_sequence_of[1] = {
 
 static int
 dissect_kerberos_SEQUENCE_SIZE_1_MAX_OF_Verifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_MAX_OF_Verifier_sequence_of, hf_index, ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_Verifier);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, SEQUENCE_SIZE_1_MAX_OF_Verifier_sequence_of, hf_index, ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_Verifier);
 
   return offset;
 }
@@ -8263,8 +8263,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_SPAKEGroup_sequence_of[1] = {
 
 static int
 dissect_kerberos_SEQUENCE_SIZE_1_MAX_OF_SPAKEGroup(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_MAX_OF_SPAKEGroup_sequence_of, hf_index, ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_SPAKEGroup);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, SEQUENCE_SIZE_1_MAX_OF_SPAKEGroup_sequence_of, hf_index, ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_SPAKEGroup);
 
   return offset;
 }
@@ -8305,8 +8305,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_SPAKESecondFactor_sequence_of
 
 static int
 dissect_kerberos_SEQUENCE_SIZE_1_MAX_OF_SPAKESecondFactor(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_MAX_OF_SPAKESecondFactor_sequence_of, hf_index, ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_SPAKESecondFactor);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, SEQUENCE_SIZE_1_MAX_OF_SPAKESecondFactor_sequence_of, hf_index, ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_SPAKESecondFactor);
 
   return offset;
 }

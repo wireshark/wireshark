@@ -5591,9 +5591,9 @@ dissect_mms_T_vmdPhysicalStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_mms_BIT_STRING_SIZE_0_128(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, 0, hf_index, -1,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                0, 128, NULL, 0, hf_index, -1,
+                                                NULL);
 
   return offset;
 }

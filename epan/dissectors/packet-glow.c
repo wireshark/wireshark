@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-glow.c                                                              */
-/* asn2wrs.py -b -q -L -p glow -c ./glow.cnf -s ./packet-glow-template -D . -O ../.. glow.asn */
+/* asn2wrs.py -b -C -q -L -p glow -c ./glow.cnf -s ./packet-glow-template -D . -O ../.. glow.asn */
 
 /* packet-glow.c
  * Routines for GLOW packet dissection

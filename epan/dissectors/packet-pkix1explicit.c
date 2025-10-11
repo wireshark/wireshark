@@ -387,8 +387,8 @@ static const ber_sequence_t T_values_set_of[1] = {
 
 static int
 dissect_pkix1explicit_T_values(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 T_values_set_of, hf_index, ett_pkix1explicit_T_values);
+  offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
+                                             1, NO_BOUND, T_values_set_of, hf_index, ett_pkix1explicit_T_values);
 
   return offset;
 }
@@ -544,8 +544,8 @@ dissect_pkix1explicit_T_addressFamily(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 	tvbuff_t	*parameter_tvb;
 	proto_tree *subtree;
 
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &parameter_tvb);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   2, 3, hf_index, &parameter_tvb);
 
 
 	if (!parameter_tvb)

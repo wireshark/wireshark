@@ -11,6 +11,7 @@
 #ifndef PACKET_CHARGING_ASE_H
 #define PACKET_CHARGING_ASE_H
 
+#include "packet-charging_ase-val.h"
 #include "packet-charging_ase-exp.h"
 
 #endif  /* PACKET_CHARGING_ASE_H */

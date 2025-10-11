@@ -20,6 +20,7 @@
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
+#include "packet-HI2Operations.h"
 #include "packet-e212.h"
 #include "packet-gsm_a_common.h"
 #include "packet-gtpv2.h"

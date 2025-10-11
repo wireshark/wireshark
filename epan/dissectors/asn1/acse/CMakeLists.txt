@@ -34,7 +34,7 @@ set( SRC_FILES
 	${EXT_ASN_FILE_LIST}
 )
 
-set( A2W_FLAGS -b -C )
+set( A2W_FLAGS -b )
 
 set( EXTRA_CNF
 	"${CMAKE_CURRENT_BINARY_DIR}/../x509if/x509if-exp.cnf"

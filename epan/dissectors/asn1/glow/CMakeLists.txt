@@ -29,6 +29,6 @@ set( SRC_FILES
 	${EXT_ASN_FILE_LIST}
 )
 
-set( A2W_FLAGS -b )
+set( A2W_FLAGS -b -C )
 
 ASN2WRS()

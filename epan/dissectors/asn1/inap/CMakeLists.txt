@@ -63,7 +63,7 @@ set( SRC_FILES
 	${EXT_ASN_FILE_LIST}
 )
 
-set( A2W_FLAGS -b )
+set( A2W_FLAGS -b -C )
 
 set( EXTRA_CNF
 	"${CMAKE_CURRENT_BINARY_DIR}/../dap/dap-exp.cnf"

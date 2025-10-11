@@ -39,6 +39,6 @@ set( EXTRA_CNF
 	../pkix1implicit/pkix1implicit_exp.cnf
 )
 
-set( A2W_FLAGS -b -C )
+set( A2W_FLAGS -b )
 
 ASN2WRS()

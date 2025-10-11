@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-cosem.c                                                             */
-/* asn2wrs.py -b -C -q -L -p cosem -c ./cosem.cnf -s ./packet-cosem-template -D . -O ../.. cosem.asn */
+/* asn2wrs.py -b -q -L -p cosem -c ./cosem.cnf -s ./packet-cosem-template -D . -O ../.. cosem.asn */
 
 /* packet-cosem.c
  *

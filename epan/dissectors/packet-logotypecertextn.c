@@ -139,8 +139,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue_sequence_of[1
 
 static int
 dissect_logotypecertextn_SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue_sequence_of, hf_index, ett_logotypecertextn_SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue_sequence_of, hf_index, ett_logotypecertextn_SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue);
 
   return offset;
 }
@@ -165,8 +165,8 @@ static const ber_sequence_t T_logotypeURI_sequence_of[1] = {
 
 static int
 dissect_logotypecertextn_T_logotypeURI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      T_logotypeURI_sequence_of, hf_index, ett_logotypecertextn_T_logotypeURI);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, T_logotypeURI_sequence_of, hf_index, ett_logotypecertextn_T_logotypeURI);
 
   return offset;
 }
@@ -363,8 +363,8 @@ static const ber_sequence_t T_refStructURI_sequence_of[1] = {
 
 static int
 dissect_logotypecertextn_T_refStructURI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      T_refStructURI_sequence_of, hf_index, ett_logotypecertextn_T_refStructURI);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, T_refStructURI_sequence_of, hf_index, ett_logotypecertextn_T_refStructURI);
 
   return offset;
 }

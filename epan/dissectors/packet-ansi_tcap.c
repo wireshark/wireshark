@@ -1197,8 +1197,8 @@ dissect_ansi_tcap_T_national(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
  uint8_t family;
  uint8_t specifier;
 
-    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &ansi_tcap_private.d.OperationCode_national);
+    offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            -32768, 32767U, hf_index, &ansi_tcap_private.d.OperationCode_national);
 
   /* mask off the H bit */
   ansi_tcap_private.d.OperationCode_national = (ansi_tcap_private.d.OperationCode_national&0x7fff);
@@ -1297,8 +1297,8 @@ dissect_ansi_tcap_OperationCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ansi_tcap_INTEGER_M128_127(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            -128, 127U, hf_index, NULL);
 
   return offset;
 }
@@ -1323,8 +1323,8 @@ static const value_string ansi_tcap_ANSIMAPPrivateErrorcode_vals[] = {
 
 static int
 dissect_ansi_tcap_ANSIMAPPrivateErrorcode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 255U, hf_index, NULL);
 
   return offset;
 }
@@ -1413,8 +1413,8 @@ dissect_ansi_tcap_TransactionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ansi_tcap_OCTET_STRING_SIZE_1(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 1, hf_index, NULL);
 
   return offset;
 }
@@ -1619,8 +1619,8 @@ dissect_ansi_tcap_DialoguePortion(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_ansi_tcap_T_componentIDs(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   0, 2, hf_index, NULL);
 
   return offset;
 }
@@ -1661,8 +1661,8 @@ dissect_ansi_tcap_Invoke(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_ansi_tcap_T_componentID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 1, hf_index, NULL);
 
   return offset;
 }
@@ -1701,8 +1701,8 @@ dissect_ansi_tcap_ReturnResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_ansi_tcap_T_componentID_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 1, hf_index, NULL);
 
   return offset;
 }
@@ -1740,8 +1740,8 @@ dissect_ansi_tcap_ReturnError(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_ansi_tcap_OCTET_STRING_SIZE_0_1(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   0, 1, hf_index, NULL);
 
   return offset;
 }

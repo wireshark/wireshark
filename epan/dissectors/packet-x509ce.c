@@ -487,8 +487,8 @@ static const ber_sequence_t GeneralNames_sequence_of[1] = {
 
 int
 dissect_x509ce_GeneralNames(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      GeneralNames_sequence_of, hf_index, ett_x509ce_GeneralNames);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, GeneralNames_sequence_of, hf_index, ett_x509ce_GeneralNames);
 
   return offset;
 }
@@ -637,8 +637,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo_sequence_
 
 static int
 dissect_x509ce_SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo_sequence_of, hf_index, ett_x509ce_SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo_sequence_of, hf_index, ett_x509ce_SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo);
 
   return offset;
 }
@@ -665,8 +665,8 @@ static const ber_sequence_t CertificatePoliciesSyntax_sequence_of[1] = {
 
 int
 dissect_x509ce_CertificatePoliciesSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      CertificatePoliciesSyntax_sequence_of, hf_index, ett_x509ce_CertificatePoliciesSyntax);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, CertificatePoliciesSyntax_sequence_of, hf_index, ett_x509ce_CertificatePoliciesSyntax);
 
   return offset;
 }
@@ -693,8 +693,8 @@ static const ber_sequence_t PolicyMappingsSyntax_sequence_of[1] = {
 
 int
 dissect_x509ce_PolicyMappingsSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      PolicyMappingsSyntax_sequence_of, hf_index, ett_x509ce_PolicyMappingsSyntax);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, PolicyMappingsSyntax_sequence_of, hf_index, ett_x509ce_PolicyMappingsSyntax);
 
   return offset;
 }
@@ -706,8 +706,8 @@ static const ber_sequence_t AttributesSyntax_sequence_of[1] = {
 
 int
 dissect_x509ce_AttributesSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      AttributesSyntax_sequence_of, hf_index, ett_x509ce_AttributesSyntax);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, AttributesSyntax_sequence_of, hf_index, ett_x509ce_AttributesSyntax);
 
   return offset;
 }
@@ -725,8 +725,8 @@ dissect_x509ce_BOOLEAN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_x509ce_INTEGER_0_MAX(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer64(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, NO_BOUND, hf_index, NULL);
 
   return offset;
 }
@@ -750,8 +750,8 @@ dissect_x509ce_BasicConstraintsSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 int
 dissect_x509ce_BaseDistance(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer64(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, NO_BOUND, hf_index, NULL);
 
   return offset;
 }
@@ -779,8 +779,8 @@ static const ber_sequence_t GeneralSubtrees_sequence_of[1] = {
 
 int
 dissect_x509ce_GeneralSubtrees(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      GeneralSubtrees_sequence_of, hf_index, ett_x509ce_GeneralSubtrees);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, GeneralSubtrees_sequence_of, hf_index, ett_x509ce_GeneralSubtrees);
 
   return offset;
 }
@@ -804,8 +804,8 @@ dissect_x509ce_NameConstraintsSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 int
 dissect_x509ce_SkipCerts(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer64(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, NO_BOUND, hf_index, NULL);
 
   return offset;
 }
@@ -829,8 +829,8 @@ dissect_x509ce_PolicyConstraintsSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 
 int
 dissect_x509ce_CRLNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer64(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, NO_BOUND, hf_index, NULL);
 
   return offset;
 }
@@ -960,8 +960,8 @@ dissect_x509ce_NumberRange(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 int
 dissect_x509ce_CRLStreamIdentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer64(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, NO_BOUND, hf_index, NULL);
 
   return offset;
 }
@@ -1010,8 +1010,8 @@ static const ber_sequence_t CRLScopeSyntax_sequence_of[1] = {
 
 int
 dissect_x509ce_CRLScopeSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      CRLScopeSyntax_sequence_of, hf_index, ett_x509ce_CRLScopeSyntax);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, CRLScopeSyntax_sequence_of, hf_index, ett_x509ce_CRLScopeSyntax);
 
   return offset;
 }
@@ -1077,8 +1077,8 @@ static const ber_sequence_t StatusReferrals_sequence_of[1] = {
 
 int
 dissect_x509ce_StatusReferrals(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      StatusReferrals_sequence_of, hf_index, ett_x509ce_StatusReferrals);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, StatusReferrals_sequence_of, hf_index, ett_x509ce_StatusReferrals);
 
   return offset;
 }
@@ -1137,8 +1137,8 @@ static const ber_sequence_t CRLDistPointsSyntax_sequence_of[1] = {
 
 int
 dissect_x509ce_CRLDistPointsSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      CRLDistPointsSyntax_sequence_of, hf_index, ett_x509ce_CRLDistPointsSyntax);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, CRLDistPointsSyntax_sequence_of, hf_index, ett_x509ce_CRLDistPointsSyntax);
 
   return offset;
 }
@@ -1192,8 +1192,8 @@ static const ber_sequence_t CertificateSerialNumbers_sequence_of[1] = {
 
 static int
 dissect_x509ce_CertificateSerialNumbers(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      CertificateSerialNumbers_sequence_of, hf_index, ett_x509ce_CertificateSerialNumbers);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, CertificateSerialNumbers_sequence_of, hf_index, ett_x509ce_CertificateSerialNumbers);
 
   return offset;
 }
@@ -1261,8 +1261,8 @@ static const ber_sequence_t ToBeRevokedSyntax_sequence_of[1] = {
 
 static int
 dissect_x509ce_ToBeRevokedSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      ToBeRevokedSyntax_sequence_of, hf_index, ett_x509ce_ToBeRevokedSyntax);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, ToBeRevokedSyntax_sequence_of, hf_index, ett_x509ce_ToBeRevokedSyntax);
 
   return offset;
 }
@@ -1313,8 +1313,8 @@ static const ber_sequence_t RevokedGroupsSyntax_sequence_of[1] = {
 
 static int
 dissect_x509ce_RevokedGroupsSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      RevokedGroupsSyntax_sequence_of, hf_index, ett_x509ce_RevokedGroupsSyntax);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, RevokedGroupsSyntax_sequence_of, hf_index, ett_x509ce_RevokedGroupsSyntax);
 
   return offset;
 }
@@ -1413,8 +1413,8 @@ static const ber_sequence_t CertPolicySet_sequence_of[1] = {
 
 int
 dissect_x509ce_CertPolicySet(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      CertPolicySet_sequence_of, hf_index, ett_x509ce_CertPolicySet);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, CertPolicySet_sequence_of, hf_index, ett_x509ce_CertPolicySet);
 
   return offset;
 }
@@ -1683,9 +1683,9 @@ dissect_x509ce_EntrustVersionInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_x509ce_NFType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                                        actx, tree, tvb, offset,
+                                                        1, 32, hf_index, NULL);
 
   return offset;
 }
@@ -1697,8 +1697,8 @@ static const ber_sequence_t NFTypes_sequence_of[1] = {
 
 static int
 dissect_x509ce_NFTypes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      NFTypes_sequence_of, hf_index, ett_x509ce_NFTypes);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, NO_BOUND, NFTypes_sequence_of, hf_index, ett_x509ce_NFTypes);
 
   return offset;
 }
@@ -1733,8 +1733,8 @@ dissect_x509ce_CiplusInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 int
 dissect_x509ce_CicamBrandId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 65535U, hf_index, NULL);
 
   return offset;
 }
@@ -1743,8 +1743,8 @@ dissect_x509ce_CicamBrandId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 int
 dissect_x509ce_SecurityLevel(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer64(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, NO_BOUND, hf_index, NULL);
 
   return offset;
 }

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-sgp22.h                                                             */
-/* asn2wrs.py -b -C -q -L -p sgp22 -c ./sgp22.cnf -s ./packet-sgp22-template -D . -O ../.. PEDefinitions.asn RSPDefinitions.asn */
+/* asn2wrs.py -b -q -L -p sgp22 -c ./sgp22.cnf -s ./packet-sgp22-template -D . -O ../.. PEDefinitions.asn RSPDefinitions.asn */
 
 /* packet-sgp22.h
  * Routines for SGP.22 packet dissection.

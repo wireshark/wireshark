@@ -142,9 +142,9 @@ static int * const ChargingControlIndicators_bits[] = {
 
 static int
 dissect_charging_ase_ChargingControlIndicators(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ChargingControlIndicators_bits, 3, hf_index, ett_charging_ase_ChargingControlIndicators,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                minChargingControlIndicatorsLen, maxChargingControlIndicatorsLen, ChargingControlIndicators_bits, 3, hf_index, ett_charging_ase_ChargingControlIndicators,
+                                                NULL);
 
   return offset;
 }
@@ -153,8 +153,8 @@ dissect_charging_ase_ChargingControlIndicators(bool implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_charging_ase_CurrencyFactor(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 999999U, hf_index, NULL);
 
   return offset;
 }
@@ -163,8 +163,8 @@ dissect_charging_ase_CurrencyFactor(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_charging_ase_CurrencyScale(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            -7, 3U, hf_index, NULL);
 
   return offset;
 }
@@ -188,8 +188,8 @@ dissect_charging_ase_CurrencyFactorScale(bool implicit_tag _U_, tvbuff_t *tvb _U
 
 static int
 dissect_charging_ase_TariffDuration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 36000U, hf_index, NULL);
 
   return offset;
 }
@@ -202,9 +202,9 @@ static int * const SubTariffControl_bits[] = {
 
 static int
 dissect_charging_ase_SubTariffControl(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    SubTariffControl_bits, 1, hf_index, ett_charging_ase_SubTariffControl,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                minSubTariffControlLen, maxSubTariffControlLen, SubTariffControl_bits, 1, hf_index, ett_charging_ase_SubTariffControl,
+                                                NULL);
 
   return offset;
 }
@@ -232,8 +232,8 @@ static const ber_sequence_t SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunica
 
 static int
 dissect_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargeCurrency(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargeCurrency_sequence_of, hf_index, ett_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargeCurrency);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  minCommunicationTariffNum, maxCommunicationTariffNum, SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargeCurrency_sequence_of, hf_index, ett_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargeCurrency);
 
   return offset;
 }
@@ -246,9 +246,9 @@ static int * const T_tariffControlIndicators_bits[] = {
 
 static int
 dissect_charging_ase_T_tariffControlIndicators(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_tariffControlIndicators_bits, 1, hf_index, ett_charging_ase_T_tariffControlIndicators,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                minTariffIndicatorsLen, maxTariffIndicatorsLen, T_tariffControlIndicators_bits, 1, hf_index, ett_charging_ase_T_tariffControlIndicators,
+                                                NULL);
 
   return offset;
 }
@@ -274,8 +274,8 @@ dissect_charging_ase_TariffCurrencyFormat(bool implicit_tag _U_, tvbuff_t *tvb _
 
 static int
 dissect_charging_ase_TariffSwitchoverTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 1, hf_index, NULL);
 
   return offset;
 }
@@ -314,8 +314,8 @@ dissect_charging_ase_TariffCurrency(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_charging_ase_PulseUnits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 1, hf_index, NULL);
 
   return offset;
 }
@@ -324,8 +324,8 @@ dissect_charging_ase_PulseUnits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_charging_ase_ChargeUnitTimeInterval(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   2, 2, hf_index, NULL);
 
   return offset;
 }
@@ -353,8 +353,8 @@ static const ber_sequence_t SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunica
 
 static int
 dissect_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargePulse(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargePulse_sequence_of, hf_index, ett_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargePulse);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  minCommunicationTariffNum, maxCommunicationTariffNum, SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargePulse_sequence_of, hf_index, ett_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargePulse);
 
   return offset;
 }
@@ -367,9 +367,9 @@ static int * const T_tariffControlIndicators_01_bits[] = {
 
 static int
 dissect_charging_ase_T_tariffControlIndicators_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_tariffControlIndicators_01_bits, 1, hf_index, ett_charging_ase_T_tariffControlIndicators_01,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                minTariffIndicatorsLen, maxTariffIndicatorsLen, T_tariffControlIndicators_01_bits, 1, hf_index, ett_charging_ase_T_tariffControlIndicators_01,
+                                                NULL);
 
   return offset;
 }
@@ -534,8 +534,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField_se
 
 static int
 dissect_charging_ase_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField_sequence_of, hf_index, ett_charging_ase_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, numOfExtensions, SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField_sequence_of, hf_index, ett_charging_ase_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField);
 
   return offset;
 }
@@ -553,8 +553,8 @@ dissect_charging_ase_NetworkIdentification(bool implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_charging_ase_ReferenceID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 4294967295U, hf_index, NULL);
 
   return offset;
 }
@@ -684,9 +684,9 @@ static int * const T_acknowledgementIndicators_bits[] = {
 
 static int
 dissect_charging_ase_T_acknowledgementIndicators(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_acknowledgementIndicators_bits, 1, hf_index, ett_charging_ase_T_acknowledgementIndicators,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                minAcknowledgementIndicatorsLen, maxAcknowledgementIndicatorsLen, T_acknowledgementIndicators_bits, 1, hf_index, ett_charging_ase_T_acknowledgementIndicators,
+                                                NULL);
 
   return offset;
 }
@@ -715,8 +715,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_maxNetworkOperators_OF_NetworkIdenti
 
 static int
 dissect_charging_ase_SEQUENCE_SIZE_1_maxNetworkOperators_OF_NetworkIdentification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_maxNetworkOperators_OF_NetworkIdentification_sequence_of, hf_index, ett_charging_ase_SEQUENCE_SIZE_1_maxNetworkOperators_OF_NetworkIdentification);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, maxNetworkOperators, SEQUENCE_SIZE_1_maxNetworkOperators_OF_NetworkIdentification_sequence_of, hf_index, ett_charging_ase_SEQUENCE_SIZE_1_maxNetworkOperators_OF_NetworkIdentification);
 
   return offset;
 }
@@ -745,9 +745,9 @@ static int * const T_stopIndicators_bits[] = {
 
 static int
 dissect_charging_ase_T_stopIndicators(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_stopIndicators_bits, 1, hf_index, ett_charging_ase_T_stopIndicators,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                minStopIndicatorsLen, maxStopIndicatorsLen, T_stopIndicators_bits, 1, hf_index, ett_charging_ase_T_stopIndicators,
+                                                NULL);
 
   return offset;
 }

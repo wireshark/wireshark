@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-acse.c                                                              */
-/* asn2wrs.py -b -C -q -L -p acse -c ./acse.cnf -s ./packet-acse-template -D . -O ../.. acse.asn */
+/* asn2wrs.py -b -q -L -p acse -c ./acse.cnf -s ./packet-acse-template -D . -O ../.. acse.asn */
 
 /*XXX
   There is a bug in asn2wrs that it can not yet handle tagged assignments such

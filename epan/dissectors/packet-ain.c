@@ -865,8 +865,8 @@ static const value_string ain_err_code_string_vals[] = {
 
 static int
 dissect_ain_OCTET_STRING_SIZE_1_120(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 120, hf_index, NULL);
 
   return offset;
 }
@@ -885,8 +885,8 @@ dissect_ain_IPReturnBlock(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_ain_OCTET_STRING_SIZE_6(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   6, 6, hf_index, NULL);
 
   return offset;
 }
@@ -905,8 +905,8 @@ dissect_ain_Amp1(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static int
 dissect_ain_SpcID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   3, 3, hf_index, NULL);
 
   return offset;
 }
@@ -972,8 +972,8 @@ dissect_ain_AmpAINNodeID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_ain_AmpCLogSeqNo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 32767U, hf_index, NULL);
 
   return offset;
 }
@@ -1015,8 +1015,8 @@ dissect_ain_AmpCallProgInd(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_ain_AmpTestReqInd(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 127U, hf_index, NULL);
 
   return offset;
 }
@@ -1025,8 +1025,8 @@ dissect_ain_AmpTestReqInd(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_ain_AmpCLogName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 10, hf_index, NULL);
 
   return offset;
 }
@@ -1035,9 +1035,9 @@ dissect_ain_AmpCLogName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_ain_IA5String_SIZE_4_8(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                                        actx, tree, tvb, offset,
+                                                        4, 8, hf_index, NULL);
 
   return offset;
 }
@@ -1157,8 +1157,8 @@ dissect_ain_CallInfoFromResourceArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_ain_Dn(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   5, 5, hf_index, NULL);
 
   return offset;
 }
@@ -1167,8 +1167,8 @@ dissect_ain_Dn(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_ain_OCTET_STRING_SIZE_3_20(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   3, 20, hf_index, NULL);
 
   return offset;
 }
@@ -1202,8 +1202,8 @@ dissect_ain_T_bri(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_ain_TrunkGroupID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 9999U, hf_index, NULL);
 
   return offset;
 }
@@ -1212,8 +1212,8 @@ dissect_ain_TrunkGroupID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_ain_PrivateFacilityGID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 9999U, hf_index, NULL);
 
   return offset;
 }
@@ -1222,8 +1222,8 @@ dissect_ain_PrivateFacilityGID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_ain_ADSIcpeID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   4, 4, hf_index, NULL);
 
   return offset;
 }
@@ -1350,8 +1350,8 @@ dissect_ain_CloseArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_ain_INTEGER_0_255(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 255U, hf_index, NULL);
 
   return offset;
 }
@@ -1370,8 +1370,8 @@ dissect_ain_ClearCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_ain_INTEGER_0_2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 2U, hf_index, NULL);
 
   return offset;
 }
@@ -1517,8 +1517,8 @@ dissect_ain_CarrierFormat(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
 
-    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &parameter_tvb);
+    offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   4, 4, hf_index, &parameter_tvb);
 
 
   if (!parameter_tvb)
@@ -1597,8 +1597,8 @@ dissect_ain_FailureCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_ain_AMATimeDuration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   8, 8, hf_index, NULL);
 
   return offset;
 }
@@ -1648,8 +1648,8 @@ dissect_ain_AMAMeasurement(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_ain_OCTET_STRING_SIZE_1_20(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 20, hf_index, NULL);
 
   return offset;
 }
@@ -1844,8 +1844,8 @@ dissect_ain_CallingPartyID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_ain_BusinessGroup(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   7, 7, hf_index, NULL);
 
   return offset;
 }
@@ -1864,8 +1864,8 @@ dissect_ain_CallingPartyBGID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_ain_INTEGER_0_99(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 99U, hf_index, NULL);
 
   return offset;
 }
@@ -1934,8 +1934,8 @@ dissect_ain_RedirectingPartyID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_ain_OCTET_STRING_SIZE_2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   2, 2, hf_index, NULL);
 
   return offset;
 }
@@ -1954,8 +1954,8 @@ dissect_ain_RedirectionInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_ain_OCTET_STRING_SIZE_1(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 1, hf_index, NULL);
 
   return offset;
 }
@@ -1974,8 +1974,8 @@ dissect_ain_ACGEncountered(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_ain_OCTET_STRING_SIZE_1_10(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 10, hf_index, NULL);
 
   return offset;
 }
@@ -2023,8 +2023,8 @@ dissect_ain_AMASequenceNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_ain_OCTET_STRING_SIZE_4_11(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   4, 11, hf_index, NULL);
 
   return offset;
 }
@@ -2046,8 +2046,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_5_OF_GenericAddress_sequence_of[1] =
 
 static int
 dissect_ain_SEQUENCE_SIZE_1_5_OF_GenericAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_5_OF_GenericAddress_sequence_of, hf_index, ett_ain_SEQUENCE_SIZE_1_5_OF_GenericAddress);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, 5, SEQUENCE_SIZE_1_5_OF_GenericAddress_sequence_of, hf_index, ett_ain_SEQUENCE_SIZE_1_5_OF_GenericAddress);
 
   return offset;
 }
@@ -2066,8 +2066,8 @@ dissect_ain_GenericAddressList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_ain_OCTET_STRING_SIZE_2_12(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   2, 12, hf_index, NULL);
 
   return offset;
 }
@@ -2096,8 +2096,8 @@ dissect_ain_CTRConnection(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_ain_OCTET_STRING_SIZE_3(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   3, 3, hf_index, NULL);
 
   return offset;
 }
@@ -2141,8 +2141,8 @@ dissect_ain_Prefix(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_ain_OCTET_STRING_SIZE_8_13(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   8, 13, hf_index, NULL);
 
   return offset;
 }
@@ -2161,8 +2161,8 @@ dissect_ain_CallingGeodeticLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_ain_TriggerInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   0, 31, hf_index, NULL);
 
   return offset;
 }
@@ -2377,8 +2377,8 @@ dissect_ain_ODisconnectArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_ain_OCTET_STRING_SIZE_1_2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 2, hf_index, NULL);
 
   return offset;
 }
@@ -2616,8 +2616,8 @@ dissect_ain_TAnswerArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_ain_OCTET_STRING_SIZE_2_3(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   2, 3, hf_index, NULL);
 
   return offset;
 }
@@ -2975,8 +2975,8 @@ dissect_ain_OutpulseNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_ain_OCTET_STRING_SIZE_5(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   5, 5, hf_index, NULL);
 
   return offset;
 }
@@ -3082,8 +3082,8 @@ dissect_ain_PassiveLegTreatment(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ain_BillingIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   4, 4, hf_index, NULL);
 
   return offset;
 }
@@ -3165,8 +3165,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_2_OF_AMALineNumber_sequence_of[1] = 
 
 static int
 dissect_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_2_OF_AMALineNumber_sequence_of, hf_index, ett_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, 2, SEQUENCE_SIZE_1_2_OF_AMALineNumber_sequence_of, hf_index, ett_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber);
 
   return offset;
 }
@@ -3178,8 +3178,8 @@ dissect_ain_AMAslpID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
 
-    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &parameter_tvb);
+    offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   5, 5, hf_index, &parameter_tvb);
 
 
   if (!parameter_tvb)
@@ -3210,8 +3210,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC_sequence_of[1
 
 static int
 dissect_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC_sequence_of, hf_index, ett_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, 5, SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC_sequence_of, hf_index, ett_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC);
 
   return offset;
 }
@@ -3252,8 +3252,8 @@ dissect_ain_ServiceProviderID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_ain_INTEGER_0_32767(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 32767U, hf_index, NULL);
 
   return offset;
 }
@@ -3318,8 +3318,8 @@ dissect_ain_ForwardCallIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_ain_OCTET_STRING_SIZE_7(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   7, 7, hf_index, NULL);
 
   return offset;
 }
@@ -3338,8 +3338,8 @@ dissect_ain_AMAServiceProviderID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_ain_OCTET_STRING_SIZE_2_11(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   2, 11, hf_index, NULL);
 
   return offset;
 }
@@ -3361,8 +3361,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_5_OF_GenericDigits_sequence_of[1] = 
 
 static int
 dissect_ain_SEQUENCE_SIZE_1_5_OF_GenericDigits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_5_OF_GenericDigits_sequence_of, hf_index, ett_ain_SEQUENCE_SIZE_1_5_OF_GenericDigits);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, 5, SEQUENCE_SIZE_1_5_OF_GenericDigits_sequence_of, hf_index, ett_ain_SEQUENCE_SIZE_1_5_OF_GenericDigits);
 
   return offset;
 }
@@ -3486,8 +3486,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_15_OF_DisplayInformation_sequence_of
 
 static int
 dissect_ain_SEQUENCE_SIZE_1_15_OF_DisplayInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_SIZE_1_15_OF_DisplayInformation_sequence_of, hf_index, ett_ain_SEQUENCE_SIZE_1_15_OF_DisplayInformation);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, 15, SEQUENCE_SIZE_1_15_OF_DisplayInformation_sequence_of, hf_index, ett_ain_SEQUENCE_SIZE_1_15_OF_DisplayInformation);
 
   return offset;
 }
@@ -3713,8 +3713,8 @@ dissect_ain_CollectInformationArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_ain_INTEGER_0_127(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 127U, hf_index, NULL);
 
   return offset;
 }
@@ -3733,8 +3733,8 @@ dissect_ain_ResourceType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_ain_AnnounceElement(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   3, 131, hf_index, NULL);
 
   return offset;
 }
@@ -3746,8 +3746,8 @@ static const ber_sequence_t UninterAnnounceBlock_sequence_of[1] = {
 
 static int
 dissect_ain_UninterAnnounceBlock(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      UninterAnnounceBlock_sequence_of, hf_index, ett_ain_UninterAnnounceBlock);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, 10, UninterAnnounceBlock_sequence_of, hf_index, ett_ain_UninterAnnounceBlock);
 
   return offset;
 }
@@ -3759,8 +3759,8 @@ static const ber_sequence_t InterAnnounceBlock_sequence_of[1] = {
 
 static int
 dissect_ain_InterAnnounceBlock(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      InterAnnounceBlock_sequence_of, hf_index, ett_ain_InterAnnounceBlock);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, 10, InterAnnounceBlock_sequence_of, hf_index, ett_ain_InterAnnounceBlock);
 
   return offset;
 }
@@ -3784,8 +3784,8 @@ dissect_ain_AnnouncementBlock(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_ain_MaximumDigits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 255U, hf_index, NULL);
 
   return offset;
 }
@@ -3810,8 +3810,8 @@ dissect_ain_AnnouncementDigitBlock(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_ain_FlexParameterBlock(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 120, hf_index, NULL);
 
   return offset;
 }
@@ -3971,8 +3971,8 @@ dissect_ain_ContinueArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_ain_INTEGER_1_99(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 99U, hf_index, NULL);
 
   return offset;
 }
@@ -3991,8 +3991,8 @@ dissect_ain_NotificationDuration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_ain_INTEGER_1_999(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 999U, hf_index, NULL);
 
   return offset;
 }
@@ -4120,8 +4120,8 @@ dissect_ain_DisconnectArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_ain_INTEGER_1_2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 2U, hf_index, NULL);
 
   return offset;
 }
@@ -4406,8 +4406,8 @@ dissect_ain_ExtendedRinging(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_ain_INTEGER_0_300(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 300U, hf_index, NULL);
 
   return offset;
 }
@@ -4508,8 +4508,8 @@ dissect_ain_SendToResourceArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_ain_INTEGER_1_300(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 300U, hf_index, NULL);
 
   return offset;
 }
@@ -4874,8 +4874,8 @@ dissect_ain_RES_activityTest(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_ain_OCTET_STRING_SIZE_4(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   4, 4, hf_index, NULL);
 
   return offset;
 }
@@ -5093,8 +5093,8 @@ dissect_ain_EchoRequestArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_ain_OCTET_STRING_SIZE_2_128(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   2, 128, hf_index, NULL);
 
   return offset;
 }
@@ -5181,8 +5181,8 @@ dissect_ain_MonitorTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_ain_INTEGER_1_2047(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 2047U, hf_index, NULL);
 
   return offset;
 }
@@ -5332,8 +5332,8 @@ dissect_ain_EnvelopeEncodingAuthority(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_ain_OCTET_STRING_SIZE_1_180(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 180, hf_index, NULL);
 
   return offset;
 }
@@ -5352,8 +5352,8 @@ dissect_ain_EnvelopContent(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_ain_OCTET_STRING_SIZE_3_75(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   3, 75, hf_index, NULL);
 
   return offset;
 }
@@ -5493,8 +5493,8 @@ static const ber_sequence_t EntireList_sequence_of[1] = {
 
 static int
 dissect_ain_EntireList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      EntireList_sequence_of, hf_index, ett_ain_EntireList);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, 32, EntireList_sequence_of, hf_index, ett_ain_EntireList);
 
   return offset;
 }
@@ -5558,8 +5558,8 @@ dissect_ain_MemorySlot(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_ain_ListSize(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 32U, hf_index, NULL);
 
   return offset;
 }
@@ -5577,8 +5577,8 @@ dissect_ain_ForwardToDn(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_ain_DelayInterval(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 60U, hf_index, NULL);
 
   return offset;
 }
@@ -6121,8 +6121,8 @@ dissect_ain_EDPNotification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_ain_INTEGER_1_120(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 120U, hf_index, NULL);
 
   return offset;
 }
@@ -6151,8 +6151,8 @@ dissect_ain_TNoAnswerTimer(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_ain_IntervalTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 86400U, hf_index, NULL);
 
   return offset;
 }
@@ -6161,8 +6161,8 @@ dissect_ain_IntervalTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_ain_LocalSSPTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   7, 7, hf_index, NULL);
 
   return offset;
 }
@@ -6171,8 +6171,8 @@ dissect_ain_LocalSSPTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_ain_AbsoluteSCPTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   7, 7, hf_index, NULL);
 
   return offset;
 }
@@ -6225,8 +6225,8 @@ dissect_ain_ODTMFDigitsString(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_ain_INTEGER_1_4(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 4U, hf_index, NULL);
 
   return offset;
 }
@@ -6484,9 +6484,9 @@ dissect_ain_DnCtID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_ain_LocalSSPID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                                        actx, tree, tvb, offset,
+                                                        1, 8, hf_index, NULL);
 
   return offset;
 }
@@ -6495,9 +6495,9 @@ dissect_ain_LocalSSPID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_ain_PublicDialingPlanID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                                        actx, tree, tvb, offset,
+                                                        1, 8, hf_index, NULL);
 
   return offset;
 }
@@ -6506,9 +6506,9 @@ dissect_ain_PublicDialingPlanID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ain_PRIOfficeEquipmentID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                                        actx, tree, tvb, offset,
+                                                        1, 12, hf_index, NULL);
 
   return offset;
 }
@@ -6517,9 +6517,9 @@ dissect_ain_PRIOfficeEquipmentID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_ain_BasicBusinessGroupID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                                        actx, tree, tvb, offset,
+                                                        1, 10, hf_index, NULL);
 
   return offset;
 }
@@ -6528,9 +6528,9 @@ dissect_ain_BasicBusinessGroupID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_ain_BasicBusinessGroupDialingPlanID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                                        actx, tree, tvb, offset,
+                                                        1, 4, hf_index, NULL);
 
   return offset;
 }
@@ -6539,9 +6539,9 @@ dissect_ain_BasicBusinessGroupDialingPlanID(bool implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_ain_AFRPatternID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                                        actx, tree, tvb, offset,
+                                                        1, 4, hf_index, NULL);
 
   return offset;
 }
@@ -6550,9 +6550,9 @@ dissect_ain_AFRPatternID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_ain_OfficeEquipmentID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                                        actx, tree, tvb, offset,
+                                                        1, 12, hf_index, NULL);
 
   return offset;
 }
@@ -6601,8 +6601,8 @@ dissect_ain_SSPUserResourceID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_ain_DPNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 33U, hf_index, NULL);
 
   return offset;
 }
@@ -6611,9 +6611,9 @@ dissect_ain_DPNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_ain_TriggerItemSubnumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                                        actx, tree, tvb, offset,
+                                                        1, 8, hf_index, NULL);
 
   return offset;
 }
@@ -6653,8 +6653,8 @@ dissect_ain_PotentialUse(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_ain_PRIDS1ID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 28U, hf_index, NULL);
 
   return offset;
 }
@@ -6663,8 +6663,8 @@ dissect_ain_PRIDS1ID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_ain_PRIDS0ID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 24U, hf_index, NULL);
 
   return offset;
 }
@@ -6812,9 +6812,9 @@ dissect_ain_UpdateGroup2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_ain_SpeedCallingCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                                        actx, tree, tvb, offset,
+                                                        1, 3, hf_index, NULL);
 
   return offset;
 }
@@ -7684,8 +7684,8 @@ dissect_ain_TimerUpdated(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_ain_OCTET_STRING_SIZE_1_5(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
+                                                   1, 5, hf_index, NULL);
 
   return offset;
 }
@@ -8013,8 +8013,8 @@ static const ber_sequence_t InvParms_sequence_of[1] = {
 
 static int
 dissect_ain_InvParms(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      InvParms_sequence_of, hf_index, ett_ain_InvParms);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, 1, InvParms_sequence_of, hf_index, ett_ain_InvParms);
 
   return offset;
 }

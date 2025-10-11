@@ -2499,8 +2499,8 @@ dissect_cmip_BackUpRelationshipObject(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_cmip_INTEGER_0_100(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 100U, hf_index, NULL);
 
   return offset;
 }
@@ -2654,8 +2654,8 @@ dissect_cmip_GroupObjects(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_cmip_INTEGER_0_23(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 23U, hf_index, NULL);
 
   return offset;
 }
@@ -2664,8 +2664,8 @@ dissect_cmip_INTEGER_0_23(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_cmip_INTEGER_0_59(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 59U, hf_index, NULL);
 
   return offset;
 }
@@ -3451,9 +3451,9 @@ static int * const T_daysOfWeek_bits[] = {
 
 static int
 dissect_cmip_T_daysOfWeek(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_daysOfWeek_bits, 7, hf_index, ett_cmip_T_daysOfWeek,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                7, 7, T_daysOfWeek_bits, 7, hf_index, ett_cmip_T_daysOfWeek,
+                                                NULL);
 
   return offset;
 }

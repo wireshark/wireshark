@@ -425,8 +425,8 @@ static const value_string pkcs12_T_version_vals[] = {
 
 static int
 dissect_pkcs12_T_version(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            3U, 3U, hf_index, NULL);
 
   return offset;
 }
@@ -801,8 +801,8 @@ dissect_pkcs12_T_saltChoice(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_pkcs12_INTEGER_1_MAX(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer64(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, NO_BOUND, hf_index, NULL);
 
   return offset;
 }

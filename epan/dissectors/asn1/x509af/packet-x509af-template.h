@@ -12,6 +12,7 @@
 #ifndef PACKET_X509AF_H
 #define PACKET_X509AF_H
 
+#include "packet-x509af-val.h"
 #include "packet-x509af-exp.h"
 
 extern const char* x509af_get_last_algorithm_id(void);

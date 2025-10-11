@@ -93,7 +93,7 @@ int dissect_mscldap_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, i
 
 WS_DLL_PUBLIC const value_string ldap_procedure_names[];
 
-/*#include "packet-ldap-exp.h" */
+#include "packet-ldap-val.h"
 
 #endif  /* PACKET_LDAP_H */
 
