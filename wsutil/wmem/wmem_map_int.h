@@ -17,6 +17,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Initialize internal hashing parameters for the wmem subsystem.
+ *
+ * Generates random values used to seed the hashing mechanism, including a random odd
+ * multiplier and a preseed value. These values help randomize hash behavior to reduce
+ * collision risks and improve distribution.
+ *
+ * This function should be called once during initialization before any hashing operations.
+ */
 WS_DLL_LOCAL
 void
 wmem_init_hashing(void);

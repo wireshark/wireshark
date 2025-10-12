@@ -37,7 +37,10 @@ extern "C" {
 struct _wmem_map_t;
 typedef struct _wmem_map_t wmem_map_t;
 
-/** Creates a map with the given allocator scope. When the scope is emptied,
+/**
+ * @brief Creates a map with the given allocator scope.
+ *
+ * Creates a map with the given allocator scope. When the scope is emptied,
  * the map is fully destroyed. Items stored in it will not be freed unless they
  * were allocated from the same scope. For details on the GHashFunc and
  * GEqualFunc parameters, see the glib documentation at:
@@ -63,7 +66,10 @@ wmem_map_new(wmem_allocator_t *allocator,
         GHashFunc hash_func, GEqualFunc eql_func)
 G_GNUC_MALLOC;
 
-/** Creates a map with two allocator scopes. The base structure lives in the
+/**
+ * @brief Creates a map with two allocator scopes.
+ *
+ * The base structure lives in the
  * metadata scope, and the map data lives in the data scope. Every time free_all
  * occurs in the data scope the map is transparently emptied without affecting
  * the location of the base / metadata structure.
@@ -83,7 +89,8 @@ wmem_map_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *data_
         GHashFunc hash_func, GEqualFunc eql_func)
 G_GNUC_MALLOC;
 
-/** Inserts a value into the map.
+/**
+ * @brief Inserts a value into the map.
  *
  * @param map The map to insert into. Must not be NULL.
  * @param key The key to insert by.
@@ -94,7 +101,8 @@ WS_DLL_PUBLIC
 void *
 wmem_map_insert(wmem_map_t *map, const void *key, void *value);
 
-/** Check if a value is in the map.
+/**
+ * @brief Check if a value is in the map.
  *
  * @param map The map to search in. May be NULL.
  * @param key The key to lookup.
@@ -104,7 +112,8 @@ WS_DLL_PUBLIC
 bool
 wmem_map_contains(const wmem_map_t *map, const void *key);
 
-/** Lookup a value in the map.
+/**
+ * @brief Lookup a value in the map.
  *
  * @param map The map to search in. May be NULL.
  * @param key The key to lookup.
@@ -114,7 +123,8 @@ WS_DLL_PUBLIC
 void *
 wmem_map_lookup(const wmem_map_t *map, const void *key);
 
-/** Lookup a value in the map, returning the key, value, and a boolean which
+/**
+ * @brief Lookup a value in the map, returning the key, value, and a boolean which
  * is true if the key is found.
  *
  * @param map The map to search in. May be NULL.
@@ -127,7 +137,8 @@ WS_DLL_PUBLIC
 bool
 wmem_map_lookup_extended(const wmem_map_t *map, const void *key, const void **orig_key, void **value);
 
-/** Remove a value from the map. If no value is stored at that key, nothing
+/**
+ * @brief Remove a value from the map. If no value is stored at that key, nothing
  * happens.
  *
  * @param map The map to remove from. May be NULL.
@@ -138,7 +149,8 @@ WS_DLL_PUBLIC
 void *
 wmem_map_remove(wmem_map_t *map, const void *key);
 
-/** Remove a key and value from the map but does not destroy (free) them. If no
+/**
+ * @brief Remove a key and value from the map but does not destroy (free) them. If no
  * value is stored at that key, nothing happens.
  *
  * @param map The map to remove from. May be NULL.
@@ -149,7 +161,8 @@ WS_DLL_PUBLIC
 bool
 wmem_map_steal(wmem_map_t *map, const void *key);
 
-/** Retrieves a list of keys inside the map
+/**
+ * @brief Retrieves a list of keys inside the map
  *
  * @param list_allocator The allocator scope for the returned list.
  * @param map The map to extract keys from
@@ -159,7 +172,10 @@ WS_DLL_PUBLIC
 wmem_list_t*
 wmem_map_get_keys(wmem_allocator_t *list_allocator, const wmem_map_t *map);
 
-/** Run a function against all key/value pairs in the map. The order
+/**
+ * @brief Run a function against all key/value pairs in the map.
+ *
+ * The order
  * of the calls is unpredictable, since it is based on the internal
  * storage of data.
  *
@@ -171,9 +187,12 @@ WS_DLL_PUBLIC
 void
 wmem_map_foreach(const wmem_map_t *map, GHFunc foreach_func, void * user_data);
 
-/** Run a function against all key/value pairs in the map. If the
+/**
+ * @brief Run a function against all key/value pairs in the map. If the
  * function returns true, then the key/value pair is removed from
- * the map. The order of the calls is unpredictable, since it is
+ * the map.
+ *
+ * The order of the calls is unpredictable, since it is
  * based on the internal storage of data.
  *
  * @param map The map to use. May be NULL.
@@ -185,7 +204,8 @@ WS_DLL_PUBLIC
 unsigned
 wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, void * user_data);
 
-/** Run a function against all key/value pairs in the map until the
+/**
+ * @brief Run a function against all key/value pairs in the map until the
  * function returns true, at which point the value of matching pair
  * is returned. If no pair that matches the function is found, NULL
  * is returned. The order of the calls is unpredictable, since it is
@@ -201,7 +221,8 @@ WS_DLL_PUBLIC
 void *
 wmem_map_find(const wmem_map_t *map, GHRFunc foreach_func, void * user_data);
 
-/** Return the number of elements of the map.
+/**
+ * @brief Return the number of elements in the map.
  *
  * @param map The map to use
  * @return the number of elements
@@ -210,8 +231,11 @@ WS_DLL_PUBLIC
 unsigned
 wmem_map_size(const wmem_map_t *map);
 
-/** Ensure that a certain number of elements can be stored in the wmem_map
- * without having to grow the internal table. This can be useful if a very
+/**
+ * @brief Ensure that a certain number of elements can be stored in the wmem_map
+ * without having to grow the internal table.
+ *
+ * This can be useful if a very
  * large number of elements need to be inserted. It preallocates a certain
  * number of buckets and avoids automatic reallocation and copies as the
  * map grows.
@@ -226,8 +250,11 @@ WS_DLL_PUBLIC
 size_t
 wmem_map_reserve(wmem_map_t *map, uint64_t capacity);
 
-/** Cleanup memory used by the map instead of waiting for the allocator pool
- * to be freed or destroyed. Do NOT simply call wmem_free on a wmem_map_t.
+/**
+ * @brief Cleanup memory used by the map instead of waiting for the allocator pool
+ * to be freed or destroyed.
+ *
+ * Do NOT simply call wmem_free on a wmem_map_t.
  *
  * @param map The map to use
  * @param free_keys Whether to free the keys as well
@@ -244,7 +271,10 @@ WS_DLL_PUBLIC
 void
 wmem_map_destroy(wmem_map_t *map, bool free_keys, bool free_values);
 
-/** Compute a strong hash value for an arbitrary sequence of bytes. Use of this
+/**
+ * @brief Compute a strong hash value for an arbitrary sequence of bytes.
+ *
+ * Use of this
  * hash value should be secure against algorithmic complexity attacks, even for
  * short keys. The computation uses a random seed which is generated on wmem
  * initialization, so the same key will hash to different values on different
@@ -258,22 +288,52 @@ WS_DLL_PUBLIC
 uint32_t
 wmem_strong_hash(const uint8_t *buf, const size_t len);
 
-/** An implementation of GHashFunc using wmem_strong_hash. Prefer this over
- * g_str_hash when the data comes from an untrusted source.
+ /**
+ * @brief Secure hash function for string keys using wmem_strong_hash.
+ *
+ * This function computes a strong, randomized hash of the input
+ * string key using `wmem_strong_hash`, which incorporates internal seeding
+ * for better resistance against hash collision attacks.
+ *
+ * Prefer this over `g_str_hash` when the input data may come from untrusted
+ * sources, such as network packets or user input.
+ *
+ * @param key Pointer to a null-terminated string to hash.
+ * @return A 32-bit unsigned integer hash value.
  */
 WS_DLL_PUBLIC
 unsigned
 wmem_str_hash(const void *key);
 
-/** An implementation of GHashFunc using wmem_strong_hash. Prefer this over
- * g_int64_hash when the data comes from an untrusted source.
+/**
+ * @brief Secure hash function for 64-bit integer keys using wmem_strong_hash.
+ *
+ * This function computes a strong, randomized hash of the input
+ * integer key using `wmem_strong_hash`, which incorporates internal seeding
+ * for better resistance against hash collision attacks.
+ *
+ * Prefer this over `g_int64_hash` when the input data may come from untrusted sources,
+ * such as external files, network traffic, or user input.
+ *
+ * @param key Pointer to a 64-bit integer (`gint64`) to hash.
+ * @return A 32-bit unsigned integer hash value.
  */
 WS_DLL_PUBLIC
 unsigned
 wmem_int64_hash(const void *key);
 
-/** An implementation of GHashFunc using wmem_strong_hash. Prefer this over
- * g_double_hash when the data comes from an untrusted source.
+/**
+ * @brief Secure hash function for double-precision floating-point keys using wmem_strong_hash.
+ *
+ * This function computes a strong, randomized hash of the input
+ * double key using `wmem_strong_hash`, which incorporates internal seeding
+ * for better resistance against hash collision attacks.
+ *
+ * Prefer this over `g_double_hash` when the input data may come from untrusted sources,
+ * such as network traffic, external files, or user input.
+ *
+ * @param key Pointer to a `double` value to hash.
+ * @return A 32-bit unsigned integer hash value.
  */
 WS_DLL_PUBLIC
 unsigned
