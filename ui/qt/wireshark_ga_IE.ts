@@ -1031,10 +1031,6 @@
         <translation>Imeacht deireanach</translation>
     </message>
     <message>
-        <source>Elapsed</source>
-        <translation type="vanished">Imithe</translation>
-    </message>
-    <message>
         <source>Capture end</source>
         <translation type="unfinished"></translation>
     </message>

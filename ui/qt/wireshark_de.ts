@@ -1023,10 +1023,6 @@
         <translation>Letztes Ereignis</translation>
     </message>
     <message>
-        <source>Elapsed</source>
-        <translation type="vanished">Zeitspanne</translation>
-    </message>
-    <message>
         <source>Capture end</source>
         <translation type="unfinished"></translation>
     </message>

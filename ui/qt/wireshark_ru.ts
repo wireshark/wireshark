@@ -1031,10 +1031,6 @@
         <translation>Последнее событие</translation>
     </message>
     <message>
-        <source>Elapsed</source>
-        <translation type="vanished">Прошло</translation>
-    </message>
-    <message>
         <source>Capture end</source>
         <translation type="unfinished"></translation>
     </message>

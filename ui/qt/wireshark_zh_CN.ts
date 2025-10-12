@@ -1015,10 +1015,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Elapsed</source>
-        <translation type="vanished">经过时间</translation>
-    </message>
-    <message>
         <source>Capture end</source>
         <translation type="unfinished"></translation>
     </message>

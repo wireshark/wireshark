@@ -1015,10 +1015,6 @@
         <translation>마지막 이벤트</translation>
     </message>
     <message>
-        <source>Elapsed</source>
-        <translation type="vanished">경과 시간</translation>
-    </message>
-    <message>
         <source>Capture end</source>
         <translation type="unfinished"></translation>
     </message>

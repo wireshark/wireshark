@@ -1000,10 +1000,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Elapsed</source>
-        <translation type="vanished">Transcurrido</translation>
-    </message>
-    <message>
         <source>Capture end</source>
         <translation type="unfinished"></translation>
     </message>

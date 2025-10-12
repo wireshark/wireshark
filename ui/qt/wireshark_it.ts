@@ -1000,11 +1000,11 @@
     </message>
     <message>
         <source>Capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>Inizio della cattura</translation>
     </message>
     <message>
         <source>Log start</source>
-        <translation type="unfinished"></translation>
+        <translation>Inizio log</translation>
     </message>
     <message>
         <source>First packet</source>
@@ -1023,16 +1023,12 @@
         <translation>Ultimo evento</translation>
     </message>
     <message>
-        <source>Elapsed</source>
-        <translation type="vanished">Trascorso</translation>
-    </message>
-    <message>
         <source>Capture end</source>
-        <translation type="unfinished"></translation>
+        <translation>Fine della cattura</translation>
     </message>
     <message>
         <source>Log end</source>
-        <translation type="unfinished"></translation>
+        <translation>Fine log</translation>
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
@@ -1043,11 +1039,11 @@
     </message>
     <message>
         <source>Elapsed (first to last packet)</source>
-        <translation type="unfinished"></translation>
+        <translation>Trascorso (dal primo all&apos;ultimo pacchetto)</translation>
     </message>
     <message>
         <source>Elapsed capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>Trascorso durante la cattura</translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -8367,7 +8363,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Multiple Value Axes</source>
-        <translation type="unfinished"></translation>
+        <translation>Assi con più valori</translation>
     </message>
     <message>
         <source>Plots</source>
@@ -15496,11 +15492,11 @@ a:hover {
     </message>
     <message>
         <source>Inject ESP Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Immissione segreti TLS</translation>
     </message>
     <message>
         <source>Embed used ESP secrets in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Incorpora i segreti ESP utilizzati nel file di cattura</translation>
     </message>
     <message>
         <source>Discard All Secrets</source>
@@ -16399,11 +16395,11 @@ a:hover {
     </message>
     <message>
         <source>No ESP Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun segreto ESP</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation>Non sono disponibili segreti utilizzati per decifrare il traffico ESP nel file di cattura. Desideri visualizzare informazioni su come decifrare il traffico ESP sul wiki?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

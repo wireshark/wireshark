@@ -1031,10 +1031,6 @@
         <translation>Ostatnie zdarzenie</translation>
     </message>
     <message>
-        <source>Elapsed</source>
-        <translation type="vanished">Minęło</translation>
-    </message>
-    <message>
         <source>Capture end</source>
         <translation type="unfinished"></translation>
     </message>

@@ -992,11 +992,11 @@
     </message>
     <message>
         <source>Capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ開始</translation>
     </message>
     <message>
         <source>Log start</source>
-        <translation type="unfinished"></translation>
+        <translation>ログ開始</translation>
     </message>
     <message>
         <source>First packet</source>
@@ -1015,16 +1015,12 @@
         <translation>最後のイベント</translation>
     </message>
     <message>
-        <source>Elapsed</source>
-        <translation type="vanished">経過時間</translation>
-    </message>
-    <message>
         <source>Capture end</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ停止</translation>
     </message>
     <message>
         <source>Log end</source>
-        <translation type="unfinished"></translation>
+        <translation>ログ停止</translation>
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
@@ -1034,11 +1030,11 @@
     </message>
     <message>
         <source>Elapsed (first to last packet)</source>
-        <translation type="unfinished"></translation>
+        <translation>経過(最初から最後のパケット)</translation>
     </message>
     <message>
         <source>Elapsed capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ経過</translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -8343,7 +8339,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Multiple Value Axes</source>
-        <translation type="unfinished"></translation>
+        <translation>複数値の軸</translation>
     </message>
     <message>
         <source>Plots</source>
@@ -15459,11 +15455,11 @@ a:hover {
     </message>
     <message>
         <source>Inject ESP Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>ESPシークレットを注入</translation>
     </message>
     <message>
         <source>Embed used ESP secrets in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイル内にESPシークレットの埋め込みが使用されています</translation>
     </message>
     <message>
         <source>Discard All Secrets</source>
@@ -16359,11 +16355,11 @@ a:hover {
     </message>
     <message>
         <source>No ESP Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>ESPシークレットなし</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャファイルにはESPトラフィックを復号化するのに用いられる利用可能なシークレットはありません。WikiでESPトラフィックを復号する方法についての情報をご覧になりますか？</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

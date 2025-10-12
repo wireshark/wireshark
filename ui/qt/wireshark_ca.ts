@@ -1000,11 +1000,11 @@
     </message>
     <message>
         <source>Capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>Inici de la captura</translation>
     </message>
     <message>
         <source>Log start</source>
-        <translation type="unfinished"></translation>
+        <translation>Inici del registre</translation>
     </message>
     <message>
         <source>First packet</source>
@@ -1023,16 +1023,12 @@
         <translation>Últim esdeveniment</translation>
     </message>
     <message>
-        <source>Elapsed</source>
-        <translation type="vanished">Transcorregut</translation>
-    </message>
-    <message>
         <source>Capture end</source>
-        <translation type="unfinished"></translation>
+        <translation>Fi de la captura</translation>
     </message>
     <message>
         <source>Log end</source>
-        <translation type="unfinished"></translation>
+        <translation>Fi del registre</translation>
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
@@ -1043,11 +1039,11 @@
     </message>
     <message>
         <source>Elapsed (first to last packet)</source>
-        <translation type="unfinished"></translation>
+        <translation>Transcorregut (del primer a l&apos;últim paquet)</translation>
     </message>
     <message>
         <source>Elapsed capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>Transcorregut capturant</translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -8366,7 +8362,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Multiple Value Axes</source>
-        <translation type="unfinished"></translation>
+        <translation>Eixos amb múltiples valors</translation>
     </message>
     <message>
         <source>Plots</source>
@@ -8394,7 +8390,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Stratoshark Plots: %1</source>
-        <translation>Gràfics del Stratoshark: %1</translation>
+        <translation>Gràfics de l&apos;Stratoshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -14063,7 +14059,7 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation>Esteu esnifant el pegament que manté unit el vostre sistema fent servir el Stratoshark</translation>
+        <translation>Esteu esnifant el pegament que manté unit el vostre sistema fent servir l&apos;Stratoshark</translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
@@ -15496,11 +15492,11 @@ a:hover {
     </message>
     <message>
         <source>Inject ESP Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Injecta secrets ESP</translation>
     </message>
     <message>
         <source>Embed used ESP secrets in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Incrusta els secrets ESP emprats al fitxer de captura</translation>
     </message>
     <message>
         <source>Discard All Secrets</source>
@@ -16399,11 +16395,12 @@ a:hover {
     </message>
     <message>
         <source>No ESP Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha secrets ESP</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha secrets disponibles fets servir per a desencriptar el trànsit ESP del fitxer de captura.
+Voleu veure informació sobre com desencriptar el trànsit ESP a la wiki?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>
