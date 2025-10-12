@@ -2037,8 +2037,8 @@ dissect_z3950_printable_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, i
 
     if (hf_alternate > 0) {
         /* extract the value of the octet string so we can look at it. */
-        /* This does not display anything because tree is NULL. */
-        offset = dissect_ber_octet_string(implicit_tag, actx, NULL, tvb, offset, hf_index, &next_tvb);
+        /* This does not display anything because hf_index is -1. */
+        offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, -1, &next_tvb);
 
         if (next_tvb &&
             tvb_ascii_isprint(next_tvb, 0, tvb_reported_length(next_tvb))) {
