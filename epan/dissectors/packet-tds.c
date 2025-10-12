@@ -6604,7 +6604,7 @@ static int
 dissect_tds_featureextack_token(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     uint8_t featureid;
-    int featureackdatalen;
+    uint32_t featureackdatalen;
     proto_tree *feature_tree = NULL;
     proto_item * feature_item;
     unsigned cur = offset;
@@ -6612,9 +6612,8 @@ dissect_tds_featureextack_token(tvbuff_t *tvb, unsigned offset, proto_tree *tree
     while(tvb_reported_length_remaining(tvb, cur) > 0)
     {
         featureid = tvb_get_uint8(tvb, cur);
-        featureackdatalen = tvb_get_uint32(tvb, cur + 1, ENC_LITTLE_ENDIAN);
 
-        feature_item = proto_tree_add_item(tree, hf_tds_featureextack_feature, tvb, cur, featureid == 0xff ? 1 : 5 + featureackdatalen, ENC_NA);
+        feature_item = proto_tree_add_item(tree, hf_tds_featureextack_feature, tvb, cur, featureid == 0xff ? 1 : 5, ENC_NA);
         feature_tree = proto_item_add_subtree(feature_item, ett_tds_col);
 
         proto_tree_add_item(feature_tree, hf_tds_featureextack_featureid, tvb, cur, 1, ENC_LITTLE_ENDIAN);
@@ -6623,10 +6622,11 @@ dissect_tds_featureextack_token(tvbuff_t *tvb, unsigned offset, proto_tree *tree
         if(featureid == 0xff)
             break;
 
-        proto_tree_add_item(feature_tree, hf_tds_featureextack_featureackdatalen, tvb, cur, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(feature_tree, hf_tds_featureextack_featureackdatalen, tvb, cur, 4, ENC_LITTLE_ENDIAN, &featureackdatalen);
         cur += 4;
 
         proto_tree_add_item(feature_tree, hf_tds_featureextack_featureackdata, tvb, cur, featureackdatalen, ENC_NA);
+        proto_item_set_len(feature_item, 5 + featureackdatalen);
         cur += featureackdatalen;
     }
 
