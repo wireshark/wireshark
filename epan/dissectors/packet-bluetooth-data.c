@@ -5400,6 +5400,14 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0F88,   "Kohler Ventures, Inc." },
     { 0x0F89,   "STOREIO TECHNOLOGIES LTD" },
     { 0x0F8A,   "Innogando S.L." },
+    { 0x0F8B,   "A.Y. McDonald Mfg. Co." },
+    { 0x0F8C,   "ROYAL PARTS CO.,LTD" },
+    { 0x0F8D,   "JUREN CO., LTD." },
+    { 0x0F8E,   "Biceek Inc" },
+    { 0x0F8F,   "SIGNUM INTELLIGENCE LTD" },
+    { 0x0F90,   "MOBI7 TECNOLOGIA EM MOBILIDADE S.A." },
+    { 0x0F91,   "Valostra Digital Ventures LLP" },
+    { 0x0F92,   "Ethos Group, Inc." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };

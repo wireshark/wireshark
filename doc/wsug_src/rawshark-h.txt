@@ -1,4 +1,4 @@
-Rawshark (Wireshark) 4.6.0 (v4.6.0rc0-17-g887633bf4458)
+Rawshark (Wireshark) 4.6.1 (v4.6.1rc0-8-g239e58a64041)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
