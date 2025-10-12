@@ -49,7 +49,10 @@ extern "C" {
 
 typedef struct _wmem_multimap_t wmem_multimap_t;
 
-/** Creates a multimap with the given allocator scope. When the scope is emptied,
+/**
+ * @brief Creates a multimap with the given allocator scope.
+ *
+ * When the scope is emptied,
  * the map is fully destroyed. Items stored in it will not be freed unless they
  * were allocated from the same scope.
  *
@@ -64,7 +67,10 @@ wmem_multimap_new(wmem_allocator_t *allocator,
         GHashFunc hash_func, GEqualFunc eql_func)
 G_GNUC_MALLOC;
 
-/** Creates a multimap with two allocator scopes. The base structure lives in the
+/**
+ * @brief Creates a multimap with two allocator scopes.
+ *
+ * The base structure lives in the
  * metadata scope, and the map data lives in the data scope. Every time free_all
  * occurs in the data scope the map is transparently emptied without affecting
  * the location of the base / metadata structure.
@@ -75,6 +81,12 @@ G_GNUC_MALLOC;
  * The primary use for this function is to create maps that reset for each new
  * capture file that is loaded. This can be done by specifying wmem_epan_scope()
  * as the metadata scope and wmem_file_scope() as the data scope.
+ *
+ * @param metadata_scope Pointer to the allocator used for the base structure.
+ * @param data_scope Pointer to the allocator used for the map's key-value data.
+ * @param hash_func The hash function used to place inserted keys.
+ * @param eql_func The equality function used to compare inserted keys.
+ * @return The newly-allocated map.
  */
 WS_DLL_PUBLIC
 wmem_multimap_t *
@@ -82,7 +94,8 @@ wmem_multimap_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *
         GHashFunc hash_func, GEqualFunc eql_func)
 G_GNUC_MALLOC;
 
-/** Retrieves a list of the keys inside the multimap
+/**
+ * @brief Retrieves a list of the keys inside the multimap
  *
  * @param list_allocator The allocator scope for the returned list.
  * @param map The multimap to extract keys from
@@ -92,7 +105,8 @@ WS_DLL_PUBLIC
 wmem_list_t*
 wmem_multimap_get_keys(wmem_allocator_t *list_allocator, const wmem_multimap_t *map);
 
-/** Return the total number of elements in the multimap.
+/**
+ * @brief Return the total number of elements in the multimap.
  *
  * @param map The multimap to use
  * @return the number of elements
@@ -101,10 +115,12 @@ WS_DLL_PUBLIC
 unsigned
 wmem_multimap_size(const wmem_multimap_t *map);
 
-/** Returns the number of values in the multimap with a certain hash key.
- * (Note: This is the number of current elements, so this can only be used to
+/**
+ * @brief Returns the number of values in the multimap with a certain hash key.
+ *
+ * Note: This is the number of current elements, so this can only be used to
  * safely generate unique tree keys prior to insertion if no values have been
- * removed, due to how the tree implementation works.)
+ * removed, due to how the tree implementation works.
  *
  * @param map The multimap to search in.
  * @param key The primary key to lookup in the map.
@@ -115,7 +131,13 @@ WS_DLL_PUBLIC
 unsigned
 wmem_multimap_count(const wmem_multimap_t *map, const void *key);
 
-/** Insert a value in the multimap.
+/**
+ * @brief Insert a value in the multimap.
+ *
+ * Note: as with wmem_tree, if there is already a node with the same pair
+ * of keys, then the existing value will simply be overwritten. This is not
+ * a problem if the value is wmem allocated, but if it is manually managed,
+ * then you must ensure that the pair is unique or do a lookup before inserting.
  *
  * @param map The multimap to insert into.
  * @param key The key to insert by in the map.
@@ -124,17 +146,13 @@ wmem_multimap_count(const wmem_multimap_t *map, const void *key);
  * @return true if there was already a tree mapped at key, in which case the
  * caller may safely free key. (This is not necessary if key is allocated with
  * a wmem pool.)
- *
- * Note: as with wmem_tree, if there is already a node with the same pair
- * of keys, then the existing value will simply be overwritten. This is not
- * a problem if the value is wmem allocated, but if it is manually managed,
- * then you must ensure that the pair is unique or do a lookup before inserting.
  */
 WS_DLL_PUBLIC
 bool
 wmem_multimap_insert32(wmem_multimap_t *map, const void *key, uint32_t frame_num, void *value);
 
-/** Lookup a value in the multimap combination with an exact match.
+/**
+ * @brief Lookup a value in the multimap combination with an exact match.
  *
  * @param map The multimap to search in.
  * @param key The primary key to lookup in the map.
@@ -145,8 +163,11 @@ WS_DLL_PUBLIC
 void *
 wmem_multimap_lookup32(const wmem_multimap_t *map, const void *key, const uint32_t frame_num);
 
-/** Lookup a value in the multimap with an exact match for the map key
- * and the largest value less than or equal to the tree key. This is
+/**
+ * @brief Lookup a value in the multimap with an exact match for the map key
+ * and the largest value less than or equal to the tree key.
+ *
+ * This is
  * useful for request/response matching where IDs can be reused.
  *
  * @param map The multimap to search in.
@@ -159,7 +180,10 @@ WS_DLL_PUBLIC
 void *
 wmem_multimap_lookup32_le(const wmem_multimap_t *map, const void *key, const uint32_t frame_num);
 
-/** Remove a value from the multimap. If no value is stored at that key pair,
+/**
+ * @brief Remove a value from the multimap.
+ *
+ * If no value is stored at that key pair,
  * nothing happens. As with wmem_tree, this is not really a remove, but the
  * value is set to NULL so that wmem_multimap_lookup32 not will find it.
  *
