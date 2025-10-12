@@ -9133,7 +9133,7 @@ static hf_register_info hf[] = {
 { &hf_asterix_category, { "Category", "asterix.category", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &hf_asterix_length,   { "Length", "asterix.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &hf_asterix_fspec,    { "FSPEC", "asterix.fspec", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &hf_asterix_fspec_bitstring,    { "FSPEC", "asterix.fspec", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &hf_asterix_fspec_bitstring,    { "FSPEC", "asterix.fspec_bitstring", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &hf_asterix_datablock,{ "ASTERIX DATA BLOCK", "asterix.datablock", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &hf_asterix_record,   { "RECORD", "asterix.record", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &hf_asterix_counter,   { "Repetition", "asterix.counter", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -9141,8 +9141,8 @@ static hf_register_info hf[] = {
 { &hf_asterix_possible_interpretations,   { "Possible interpretations:", "asterix.possible_interpretations", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &hf_asterix_spare,   { "Spare bits", "asterix.spare_bit", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_0, { "010 : Data Source Identifier", "asterix.1_1_2_010_plot_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1, { "SAC : System Area Code", "asterix.1_1_2_010_plot_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2, { "SIC : System Identification Code", "asterix.1_1_2_010_plot_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1, { "SAC : System Area Code", "asterix.1_1_2_010_plot_group_1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2, { "SIC : System Identification Code", "asterix.1_1_2_010_plot_group_2", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3, { "020 : Target Report Descriptor", "asterix.1_1_2_020_plot_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4, { "TYP", "asterix.1_1_2_020_plot_extended_TYP", FT_UINT8, BASE_DEC, VALS(value_map_2), 0x0, NULL, HFILL } },
 { &expand_var_5, { "SIM", "asterix.1_1_2_020_plot_extended_SIM", FT_UINT8, BASE_DEC, VALS(value_map_3), 0x0, NULL, HFILL } },
@@ -9157,74 +9157,74 @@ static hf_register_info hf[] = {
 { &expand_var_14, { "MI", "asterix.1_1_2_020_plot_extended_MI", FT_UINT8, BASE_DEC, VALS(value_map_11), 0x0, NULL, HFILL } },
 { &expand_var_15, { "FX", "asterix.1_1_2_020_plot_extended_020_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_16, { "040 : Measured Position in Polar Co-ordinates", "asterix.1_1_2_040_plot_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_17, { "RHO [NM]", "asterix.1_1_2_040_plot_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_18, { "THETA [°]", "asterix.1_1_2_040_plot_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_17, { "RHO [NM]", "asterix.1_1_2_040_plot_group_14", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_18, { "THETA [°]", "asterix.1_1_2_040_plot_group_15", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_19, { "070 : Mode-3/A Code in Octal Representation", "asterix.1_1_2_070_plot_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_20, { "V", "asterix.1_1_2_070_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_21, { "G", "asterix.1_1_2_070_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_22, { "L", "asterix.1_1_2_070_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_32), 0x0, NULL, HFILL } },
-{ &expand_var_23, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.1_1_2_070_plot_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_20, { "V", "asterix.1_1_2_070_plot_group_18", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_21, { "G", "asterix.1_1_2_070_plot_group_19", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_22, { "L", "asterix.1_1_2_070_plot_group_36", FT_UINT8, BASE_DEC, VALS(value_map_32), 0x0, NULL, HFILL } },
+{ &expand_var_23, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.1_1_2_070_plot_group_37", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_24, { "090 : Mode-C Code in Binary Representation", "asterix.1_1_2_090_plot_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_25, { "V", "asterix.1_1_2_090_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_26, { "G", "asterix.1_1_2_090_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_27, { "HGT : Mode-C HEIGHT [FL]", "asterix.1_1_2_090_plot_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_25, { "V", "asterix.1_1_2_090_plot_group_18", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_26, { "G", "asterix.1_1_2_090_plot_group_19", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_27, { "HGT : Mode-C HEIGHT [FL]", "asterix.1_1_2_090_plot_group_38", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_28, { "130 : Radar Plot Characteristics", "asterix.1_1_2_130_plot_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_29, { "130 : Radar Plot Characteristics", "asterix.1_1_2_130_rep0_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_30, { "141 : Truncated Time of Day [s]", "asterix.1_1_2_141_plot_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_31, { "050 : Mode-2 Code in Octal Representation", "asterix.1_1_2_050_plot_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_32, { "V", "asterix.1_1_2_050_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_33, { "G", "asterix.1_1_2_050_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_34, { "L", "asterix.1_1_2_050_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_18), 0x0, NULL, HFILL } },
-{ &expand_var_35, { "MODE2 : Mode-2 Code in Octal Representation", "asterix.1_1_2_050_plot_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_32, { "V", "asterix.1_1_2_050_plot_group_18", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_33, { "G", "asterix.1_1_2_050_plot_group_19", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_34, { "L", "asterix.1_1_2_050_plot_group_20", FT_UINT8, BASE_DEC, VALS(value_map_18), 0x0, NULL, HFILL } },
+{ &expand_var_35, { "MODE2 : Mode-2 Code in Octal Representation", "asterix.1_1_2_050_plot_group_22", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_36, { "120 : Measured Radial Doppler Speed [NM/s]", "asterix.1_1_2_120_plot_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_37, { "131 : Received Power [dBm]", "asterix.1_1_2_131_plot_element", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_38, { "080 : Mode-3/A Code Confidence Indicator", "asterix.1_1_2_080_plot_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_39, { "QA4", "asterix.1_1_2_080_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_20), 0x0, NULL, HFILL } },
-{ &expand_var_40, { "QA2", "asterix.1_1_2_080_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_21), 0x0, NULL, HFILL } },
-{ &expand_var_41, { "QA1", "asterix.1_1_2_080_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_22), 0x0, NULL, HFILL } },
-{ &expand_var_42, { "QB4", "asterix.1_1_2_080_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_23), 0x0, NULL, HFILL } },
-{ &expand_var_43, { "QB2", "asterix.1_1_2_080_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_24), 0x0, NULL, HFILL } },
-{ &expand_var_44, { "QB1", "asterix.1_1_2_080_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_25), 0x0, NULL, HFILL } },
-{ &expand_var_45, { "QC4", "asterix.1_1_2_080_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_26), 0x0, NULL, HFILL } },
-{ &expand_var_46, { "QC2", "asterix.1_1_2_080_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_27), 0x0, NULL, HFILL } },
-{ &expand_var_47, { "QC1", "asterix.1_1_2_080_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_28), 0x0, NULL, HFILL } },
-{ &expand_var_48, { "QD4", "asterix.1_1_2_080_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_29), 0x0, NULL, HFILL } },
-{ &expand_var_49, { "QD2", "asterix.1_1_2_080_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_30), 0x0, NULL, HFILL } },
-{ &expand_var_50, { "QD1", "asterix.1_1_2_080_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_31), 0x0, NULL, HFILL } },
+{ &expand_var_39, { "QA4", "asterix.1_1_2_080_plot_group_24", FT_UINT8, BASE_DEC, VALS(value_map_20), 0x0, NULL, HFILL } },
+{ &expand_var_40, { "QA2", "asterix.1_1_2_080_plot_group_25", FT_UINT8, BASE_DEC, VALS(value_map_21), 0x0, NULL, HFILL } },
+{ &expand_var_41, { "QA1", "asterix.1_1_2_080_plot_group_26", FT_UINT8, BASE_DEC, VALS(value_map_22), 0x0, NULL, HFILL } },
+{ &expand_var_42, { "QB4", "asterix.1_1_2_080_plot_group_27", FT_UINT8, BASE_DEC, VALS(value_map_23), 0x0, NULL, HFILL } },
+{ &expand_var_43, { "QB2", "asterix.1_1_2_080_plot_group_28", FT_UINT8, BASE_DEC, VALS(value_map_24), 0x0, NULL, HFILL } },
+{ &expand_var_44, { "QB1", "asterix.1_1_2_080_plot_group_29", FT_UINT8, BASE_DEC, VALS(value_map_25), 0x0, NULL, HFILL } },
+{ &expand_var_45, { "QC4", "asterix.1_1_2_080_plot_group_30", FT_UINT8, BASE_DEC, VALS(value_map_26), 0x0, NULL, HFILL } },
+{ &expand_var_46, { "QC2", "asterix.1_1_2_080_plot_group_31", FT_UINT8, BASE_DEC, VALS(value_map_27), 0x0, NULL, HFILL } },
+{ &expand_var_47, { "QC1", "asterix.1_1_2_080_plot_group_32", FT_UINT8, BASE_DEC, VALS(value_map_28), 0x0, NULL, HFILL } },
+{ &expand_var_48, { "QD4", "asterix.1_1_2_080_plot_group_33", FT_UINT8, BASE_DEC, VALS(value_map_29), 0x0, NULL, HFILL } },
+{ &expand_var_49, { "QD2", "asterix.1_1_2_080_plot_group_34", FT_UINT8, BASE_DEC, VALS(value_map_30), 0x0, NULL, HFILL } },
+{ &expand_var_50, { "QD1", "asterix.1_1_2_080_plot_group_35", FT_UINT8, BASE_DEC, VALS(value_map_31), 0x0, NULL, HFILL } },
 { &expand_var_51, { "100 : Mode-C Code and Code Confidence Indicator", "asterix.1_1_2_100_plot_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_52, { "V", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_53, { "G", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_54, { "MODEC : Mode-C Reply in Gray Notation", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_55, { "QC1", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_28), 0x0, NULL, HFILL } },
-{ &expand_var_56, { "QA1", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_22), 0x0, NULL, HFILL } },
-{ &expand_var_57, { "QC2", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_27), 0x0, NULL, HFILL } },
-{ &expand_var_58, { "QA2", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_21), 0x0, NULL, HFILL } },
-{ &expand_var_59, { "QC4", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_26), 0x0, NULL, HFILL } },
-{ &expand_var_60, { "QA4", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_20), 0x0, NULL, HFILL } },
-{ &expand_var_61, { "QB1", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_25), 0x0, NULL, HFILL } },
-{ &expand_var_62, { "QD1", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_31), 0x0, NULL, HFILL } },
-{ &expand_var_63, { "QB2", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_24), 0x0, NULL, HFILL } },
-{ &expand_var_64, { "QD2", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_30), 0x0, NULL, HFILL } },
-{ &expand_var_65, { "QB4", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_23), 0x0, NULL, HFILL } },
-{ &expand_var_66, { "QD4", "asterix.1_1_2_100_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_29), 0x0, NULL, HFILL } },
+{ &expand_var_52, { "V", "asterix.1_1_2_100_plot_group_18", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_53, { "G", "asterix.1_1_2_100_plot_group_19", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_54, { "MODEC : Mode-C Reply in Gray Notation", "asterix.1_1_2_100_plot_group_39", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_55, { "QC1", "asterix.1_1_2_100_plot_group_32", FT_UINT8, BASE_DEC, VALS(value_map_28), 0x0, NULL, HFILL } },
+{ &expand_var_56, { "QA1", "asterix.1_1_2_100_plot_group_40", FT_UINT8, BASE_DEC, VALS(value_map_22), 0x0, NULL, HFILL } },
+{ &expand_var_57, { "QC2", "asterix.1_1_2_100_plot_group_41", FT_UINT8, BASE_DEC, VALS(value_map_27), 0x0, NULL, HFILL } },
+{ &expand_var_58, { "QA2", "asterix.1_1_2_100_plot_group_42", FT_UINT8, BASE_DEC, VALS(value_map_21), 0x0, NULL, HFILL } },
+{ &expand_var_59, { "QC4", "asterix.1_1_2_100_plot_group_43", FT_UINT8, BASE_DEC, VALS(value_map_26), 0x0, NULL, HFILL } },
+{ &expand_var_60, { "QA4", "asterix.1_1_2_100_plot_group_44", FT_UINT8, BASE_DEC, VALS(value_map_20), 0x0, NULL, HFILL } },
+{ &expand_var_61, { "QB1", "asterix.1_1_2_100_plot_group_45", FT_UINT8, BASE_DEC, VALS(value_map_25), 0x0, NULL, HFILL } },
+{ &expand_var_62, { "QD1", "asterix.1_1_2_100_plot_group_46", FT_UINT8, BASE_DEC, VALS(value_map_31), 0x0, NULL, HFILL } },
+{ &expand_var_63, { "QB2", "asterix.1_1_2_100_plot_group_47", FT_UINT8, BASE_DEC, VALS(value_map_24), 0x0, NULL, HFILL } },
+{ &expand_var_64, { "QD2", "asterix.1_1_2_100_plot_group_48", FT_UINT8, BASE_DEC, VALS(value_map_30), 0x0, NULL, HFILL } },
+{ &expand_var_65, { "QB4", "asterix.1_1_2_100_plot_group_49", FT_UINT8, BASE_DEC, VALS(value_map_23), 0x0, NULL, HFILL } },
+{ &expand_var_66, { "QD4", "asterix.1_1_2_100_plot_group_50", FT_UINT8, BASE_DEC, VALS(value_map_29), 0x0, NULL, HFILL } },
 { &expand_var_67, { "060 : Mode-2 Code Confidence Indicator", "asterix.1_1_2_060_plot_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_68, { "030 : Warning/Error Conditions", "asterix.1_1_2_030_plot_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_69, { "030 : Warning/Error Conditions", "asterix.1_1_2_030_rep1_element", FT_UINT8, BASE_DEC, VALS(value_map_12), 0x0, NULL, HFILL } },
 { &expand_var_70, { "150 : Presence of X-Pulse", "asterix.1_1_2_150_plot_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_71, { "XA", "asterix.1_1_2_150_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_37), 0x0, NULL, HFILL } },
-{ &expand_var_72, { "XC", "asterix.1_1_2_150_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_38), 0x0, NULL, HFILL } },
-{ &expand_var_73, { "X2", "asterix.1_1_2_150_plot_group", FT_UINT8, BASE_DEC, VALS(value_map_39), 0x0, NULL, HFILL } },
+{ &expand_var_71, { "XA", "asterix.1_1_2_150_plot_group_51", FT_UINT8, BASE_DEC, VALS(value_map_37), 0x0, NULL, HFILL } },
+{ &expand_var_72, { "XC", "asterix.1_1_2_150_plot_group_52", FT_UINT8, BASE_DEC, VALS(value_map_38), 0x0, NULL, HFILL } },
+{ &expand_var_73, { "X2", "asterix.1_1_2_150_plot_group_53", FT_UINT8, BASE_DEC, VALS(value_map_39), 0x0, NULL, HFILL } },
 { &expand_var_74, { "SP : Special Purpose Field", "asterix.1_1_2_SP_plot_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_75, { "010 : Data Source Identifier", "asterix.1_1_2_010_track_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_76, { "020 : Target Report Descriptor", "asterix.1_1_2_020_track_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_77, { "161 : Track Plot Number", "asterix.1_1_2_161_track_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_78, { "040 : Measured Position in Polar Co-ordinates", "asterix.1_1_2_040_track_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_79, { "042 : Calculated Position in Cartesian Co-ordinates", "asterix.1_1_2_042_track_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_80, { "X : X-Component [NM]", "asterix.1_1_2_042_track_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_81, { "Y : Y-Component [NM]", "asterix.1_1_2_042_track_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_80, { "X : X-Component [NM]", "asterix.1_1_2_042_track_group_16", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_81, { "Y : Y-Component [NM]", "asterix.1_1_2_042_track_group_17", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_82, { "200 : Calculated Track Velocity in Polar Co-ordinates", "asterix.1_1_2_200_track_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_83, { "GSP : Calculated Groundspeed [NM/s]", "asterix.1_1_2_200_track_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_84, { "HDG : Calculated Heading [°]", "asterix.1_1_2_200_track_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_83, { "GSP : Calculated Groundspeed [NM/s]", "asterix.1_1_2_200_track_group_62", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_84, { "HDG : Calculated Heading [°]", "asterix.1_1_2_200_track_group_63", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_85, { "070 : Mode-3/A Code in Octal Representation", "asterix.1_1_2_070_track_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_86, { "090 : Mode-C Code in Binary Representation", "asterix.1_1_2_090_track_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_87, { "141 : Truncated Time of Day [s]", "asterix.1_1_2_141_track_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -9332,17 +9332,17 @@ static hf_register_info hf[] = {
 { &expand_var_189, { "060 : Station Processing Mode", "asterix.2_1_0_060_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_190, { "070 : Plot Count Values", "asterix.2_1_0_070_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_191, { "070 : Plot Count Values", "asterix.2_1_0_070_rep2_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_192, { "A : Aerial Identification", "asterix.2_1_0_070_rep2_group", FT_UINT8, BASE_DEC, VALS(value_map_50), 0x0, NULL, HFILL } },
-{ &expand_var_193, { "IDENT", "asterix.2_1_0_070_rep2_group", FT_UINT8, BASE_DEC, VALS(value_map_51), 0x0, NULL, HFILL } },
-{ &expand_var_194, { "COUNTER", "asterix.2_1_0_070_rep2_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_192, { "A : Aerial Identification", "asterix.2_1_0_070_rep2_group_64", FT_UINT8, BASE_DEC, VALS(value_map_50), 0x0, NULL, HFILL } },
+{ &expand_var_193, { "IDENT", "asterix.2_1_0_070_rep2_group_65", FT_UINT8, BASE_DEC, VALS(value_map_51), 0x0, NULL, HFILL } },
+{ &expand_var_194, { "COUNTER", "asterix.2_1_0_070_rep2_group_66", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_195, { "100 : Dynamic Window Type 1", "asterix.2_1_0_100_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_196, { "RS : Rho Start [NM]", "asterix.2_1_0_100_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_197, { "RE : Rho End [NM]", "asterix.2_1_0_100_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_198, { "TS : Theta Start [°]", "asterix.2_1_0_100_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_199, { "TE : Theta End [°]", "asterix.2_1_0_100_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_196, { "RS : Rho Start [NM]", "asterix.2_1_0_100_uap_group_69", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_197, { "RE : Rho End [NM]", "asterix.2_1_0_100_uap_group_70", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_198, { "TS : Theta Start [°]", "asterix.2_1_0_100_uap_group_71", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_199, { "TE : Theta End [°]", "asterix.2_1_0_100_uap_group_72", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_200, { "090 : Collimation Error", "asterix.2_1_0_090_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_201, { "RE : Range Error [NM]", "asterix.2_1_0_090_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_202, { "AE : Azimuth Error [°]", "asterix.2_1_0_090_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_201, { "RE : Range Error [NM]", "asterix.2_1_0_090_uap_group_67", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_202, { "AE : Azimuth Error [°]", "asterix.2_1_0_090_uap_group_68", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_203, { "080 : Warning/Error Conditions", "asterix.2_1_0_080_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_204, { "SP : Special Purpose Field", "asterix.2_1_0_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_205, { "010 : Data Source Identifier", "asterix.2_1_1_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -9376,7 +9376,7 @@ static hf_register_info hf[] = {
 { &expand_var_233, { "020 : Time of Message [s]", "asterix.4_1_12_020_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_234, { "040 : Alert Identifier", "asterix.4_1_12_040_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_235, { "045 : Alert Status", "asterix.4_1_12_045_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_236, { "STAT : Status of the Alert", "asterix.4_1_12_045_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_236, { "STAT : Status of the Alert", "asterix.4_1_12_045_uap_group_73", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_237, { "060 : Safety Net Function and System Status", "asterix.4_1_12_060_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_238, { "MRVA", "asterix.4_1_12_060_uap_extended_MRVA", FT_UINT8, BASE_DEC, VALS(value_map_56), 0x0, NULL, HFILL } },
 { &expand_var_239, { "RAMLD", "asterix.4_1_12_060_uap_extended_RAMLD", FT_UINT8, BASE_DEC, VALS(value_map_57), 0x0, NULL, HFILL } },
@@ -9438,15 +9438,15 @@ static hf_register_info hf[] = {
 { &expand_var_295, { "170 : Aircraft Identification and Characteristics 1", "asterix.4_1_12_170_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_296, { "AI1 : Aircraft Identifier (in 7 Characters) of Aircraft 1 Involved in the Conflict", "asterix.4_1_12_170_206_compound_206_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_297, { "M31 : Mode 3/A Code Aircraft 1", "asterix.4_1_12_170_208_compound_208_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_298, { "MODE3A : Mode-3/A Code (Converted Into Octal Representation) of Aircraft 1 Involved in the Conflict", "asterix.4_1_12_170_208_compound_208_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_298, { "MODE3A : Mode-3/A Code (Converted Into Octal Representation) of Aircraft 1 Involved in the Conflict", "asterix.4_1_12_170_208_compound_208_group_148", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_299, { "CPW : Predicted Conflict Position Target 1 in WGS-84 Coordinates", "asterix.4_1_12_170_212_compound_212_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_300, { "LAT : Latitude in WGS-84 in Two’s Complement [°]", "asterix.4_1_12_170_212_compound_212_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_301, { "LON : Longitude in WGS-84 in Two’s Complement [°]", "asterix.4_1_12_170_212_compound_212_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_302, { "ALT : Altitude of Predicted Conflict [ft]", "asterix.4_1_12_170_212_compound_212_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_300, { "LAT : Latitude in WGS-84 in Two’s Complement [°]", "asterix.4_1_12_170_212_compound_212_group_149", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_301, { "LON : Longitude in WGS-84 in Two’s Complement [°]", "asterix.4_1_12_170_212_compound_212_group_150", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_302, { "ALT : Altitude of Predicted Conflict [ft]", "asterix.4_1_12_170_212_compound_212_group_151", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_303, { "CPC : Predicted Conflict Position for the Aircraft 1 Involved in the Conflict", "asterix.4_1_12_170_216_compound_216_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_304, { "X : Starting X-position of the Conflict [m]", "asterix.4_1_12_170_216_compound_216_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_305, { "Y : Starting Y-position of the Conflict [m]", "asterix.4_1_12_170_216_compound_216_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_306, { "Z : Starting Z-position of the Conflict [ft]", "asterix.4_1_12_170_216_compound_216_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_304, { "X : Starting X-position of the Conflict [m]", "asterix.4_1_12_170_216_compound_216_group_152", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_305, { "Y : Starting Y-position of the Conflict [m]", "asterix.4_1_12_170_216_compound_216_group_153", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_306, { "Z : Starting Z-position of the Conflict [ft]", "asterix.4_1_12_170_216_compound_216_group_154", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_307, { "TT1 : Time to Runway Threshold for First Approaching Aircraft in a RIMCA [s]", "asterix.4_1_12_170_217_compound_217_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_308, { "DT1 : Distance to Runway Threshold for Aircraft 1 Involved in a RIMCA [m]", "asterix.4_1_12_170_218_compound_218_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_309, { "AC1 : Characteristics of Aircraft 1 Involved in the Conflict", "asterix.4_1_12_170_226_compound_226_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -9461,7 +9461,7 @@ static hf_register_info hf[] = {
 { &expand_var_318, { "FX", "asterix.4_1_12_170_226_compound_226_extended_AC1_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_319, { "MS1 : Aircraft Identification Downloaded from Aircraft 1 Involved in the Conflict If Equipped with a Mode-S Transponder", "asterix.4_1_12_170_227_compound_227_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_320, { "FP1 : Number of the Flight Plan Correlated to Aircraft 1 Involved in the Conflict", "asterix.4_1_12_170_229_compound_229_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_321, { "NBR []", "asterix.4_1_12_170_229_compound_229_group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_321, { "NBR []", "asterix.4_1_12_170_229_compound_229_group_164", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_322, { "CF1 : Cleared Flight Level for Aircraft 1 Involved in the Conflict [FL]", "asterix.4_1_12_170_230_compound_230_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_323, { "120 : Conflict Characteristics", "asterix.4_1_12_120_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_324, { "CN : Conflict Nature", "asterix.4_1_12_120_198_compound_198_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -9489,9 +9489,9 @@ static hf_register_info hf[] = {
 { &expand_var_346, { "AIW", "asterix.4_1_12_120_198_compound_198_extended_AIW", FT_UINT8, BASE_DEC, VALS(value_map_131), 0x0, NULL, HFILL } },
 { &expand_var_347, { "FX", "asterix.4_1_12_120_198_compound_198_extended_CN_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_348, { "CC : Conflict Classification", "asterix.4_1_12_120_202_compound_202_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_349, { "TID : Identification of Conflict Categories Definition Table", "asterix.4_1_12_120_202_compound_202_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_350, { "CPC : Conflict Properties Class", "asterix.4_1_12_120_202_compound_202_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_351, { "CS : Conflict Severity", "asterix.4_1_12_120_202_compound_202_group", FT_UINT8, BASE_DEC, VALS(value_map_132), 0x0, NULL, HFILL } },
+{ &expand_var_349, { "TID : Identification of Conflict Categories Definition Table", "asterix.4_1_12_120_202_compound_202_group_145", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_350, { "CPC : Conflict Properties Class", "asterix.4_1_12_120_202_compound_202_group_146", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_351, { "CS : Conflict Severity", "asterix.4_1_12_120_202_compound_202_group_147", FT_UINT8, BASE_DEC, VALS(value_map_132), 0x0, NULL, HFILL } },
 { &expand_var_352, { "CP : Conflict Probability [%]", "asterix.4_1_12_120_203_compound_203_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_353, { "CD : Conflict Duration [s]", "asterix.4_1_12_120_204_compound_204_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_354, { "070 : Conflict Timing and Separation", "asterix.4_1_12_070_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -9515,7 +9515,7 @@ static hf_register_info hf[] = {
 { &expand_var_372, { "171 : Aircraft Identification and Characteristics 2", "asterix.4_1_12_171_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_373, { "AI2 : Aircraft Identifier (in 7 Characters) of Aircraft 2 Involved in the Conflict", "asterix.4_1_12_171_232_compound_232_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_374, { "M32 : Mode 3/A Code Aircraft 2", "asterix.4_1_12_171_234_compound_234_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_375, { "MODE3A : Mode-3/A Code (Converted Into Octal Representation) of Aircraft 2 Involved in the Conflict", "asterix.4_1_12_171_234_compound_234_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_375, { "MODE3A : Mode-3/A Code (Converted Into Octal Representation) of Aircraft 2 Involved in the Conflict", "asterix.4_1_12_171_234_compound_234_group_165", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_376, { "CPW : Predicted Conflict Position Target 2 in WGS-84 Coordinates", "asterix.4_1_12_171_235_compound_235_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_377, { "CPL : Predicted Conflict Position for the Aircraft 2 Involved in the Conflict", "asterix.4_1_12_171_236_compound_236_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_378, { "TT2 : Time to Runway Threshold for Second Approaching Aircraft in a RIMCA [s]", "asterix.4_1_12_171_237_compound_237_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -9526,8 +9526,8 @@ static hf_register_info hf[] = {
 { &expand_var_383, { "CF2 : Cleared Flight Level for Aircraft 2 Involved in the Conflict [FL]", "asterix.4_1_12_171_242_compound_242_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_384, { "110 : FDPS Sector Control Identification", "asterix.4_1_12_110_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_385, { "110 : FDPS Sector Control Identification", "asterix.4_1_12_110_rep4_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_386, { "CEN", "asterix.4_1_12_110_rep4_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_387, { "POS", "asterix.4_1_12_110_rep4_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_386, { "CEN", "asterix.4_1_12_110_rep4_group_123", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_387, { "POS", "asterix.4_1_12_110_rep4_group_124", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_388, { "RE : Reserved Expansion Field", "asterix.4_1_12_19_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_389, { "SP : Special Purpose Field", "asterix.4_1_12_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_390, { "010 : Data Source Identifier", "asterix.4_1_13_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -9536,10 +9536,10 @@ static hf_register_info hf[] = {
 { &expand_var_393, { "020 : Time of Message [s]", "asterix.4_1_13_020_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_394, { "040 : Alert Identifier", "asterix.4_1_13_040_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_395, { "045 : Area and Alert Status", "asterix.4_1_13_045_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_396, { "AREA : Area Status", "asterix.4_1_13_045_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_397, { "EP : Element Populated Bit", "asterix.4_1_13_045_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_398, { "VAL : Area Status Value", "asterix.4_1_13_045_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_146), 0x0, NULL, HFILL } },
-{ &expand_var_399, { "STAT : Status of the Alert", "asterix.4_1_13_045_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_396, { "AREA : Area Status", "asterix.4_1_13_045_uap_group_168", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_397, { "EP : Element Populated Bit", "asterix.4_1_13_045_uap_group_166", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_398, { "VAL : Area Status Value", "asterix.4_1_13_045_uap_group_167", FT_UINT8, BASE_DEC, VALS(value_map_146), 0x0, NULL, HFILL } },
+{ &expand_var_399, { "STAT : Status of the Alert", "asterix.4_1_13_045_uap_group_73", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_400, { "060 : Safety Net Function and System Status", "asterix.4_1_13_060_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_401, { "MRVA", "asterix.4_1_13_060_uap_extended_MRVA", FT_UINT8, BASE_DEC, VALS(value_map_56), 0x0, NULL, HFILL } },
 { &expand_var_402, { "RAMLD", "asterix.4_1_13_060_uap_extended_RAMLD", FT_UINT8, BASE_DEC, VALS(value_map_57), 0x0, NULL, HFILL } },
@@ -9624,23 +9624,23 @@ static hf_register_info hf[] = {
 { &expand_var_481, { "FX", "asterix.8_1_2_020_uap_extended_020_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_482, { "036 : Sequence of Cartesian Vectors in SPF Notation", "asterix.8_1_2_036_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_483, { "036 : Sequence of Cartesian Vectors in SPF Notation", "asterix.8_1_2_036_rep5_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_484, { "X : X-Component", "asterix.8_1_2_036_rep5_group", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_485, { "Y : Y-Component", "asterix.8_1_2_036_rep5_group", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_486, { "LENGTH : Length", "asterix.8_1_2_036_rep5_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_484, { "X : X-Component", "asterix.8_1_2_036_rep5_group_178", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_485, { "Y : Y-Component", "asterix.8_1_2_036_rep5_group_179", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_486, { "LENGTH : Length", "asterix.8_1_2_036_rep5_group_180", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_487, { "034 : Sequence of Polar Vectors in SPF Notation", "asterix.8_1_2_034_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_488, { "034 : Sequence of Polar Vectors in SPF Notation", "asterix.8_1_2_034_rep6_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_489, { "STR : Start Range", "asterix.8_1_2_034_rep6_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_490, { "ENDR : End Range", "asterix.8_1_2_034_rep6_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_491, { "AZ : Azimuth [°]", "asterix.8_1_2_034_rep6_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_489, { "STR : Start Range", "asterix.8_1_2_034_rep6_group_175", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_490, { "ENDR : End Range", "asterix.8_1_2_034_rep6_group_176", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_491, { "AZ : Azimuth [°]", "asterix.8_1_2_034_rep6_group_177", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_492, { "040 : Contour Identifier", "asterix.8_1_2_040_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_493, { "ORG", "asterix.8_1_2_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_149), 0x0, NULL, HFILL } },
-{ &expand_var_494, { "I : Intensity Level", "asterix.8_1_2_040_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_495, { "FSTLST", "asterix.8_1_2_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_154), 0x0, NULL, HFILL } },
-{ &expand_var_496, { "CSN : Contour Serial Number", "asterix.8_1_2_040_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_493, { "ORG", "asterix.8_1_2_040_uap_group_170", FT_UINT8, BASE_DEC, VALS(value_map_149), 0x0, NULL, HFILL } },
+{ &expand_var_494, { "I : Intensity Level", "asterix.8_1_2_040_uap_group_185", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_495, { "FSTLST", "asterix.8_1_2_040_uap_group_186", FT_UINT8, BASE_DEC, VALS(value_map_154), 0x0, NULL, HFILL } },
+{ &expand_var_496, { "CSN : Contour Serial Number", "asterix.8_1_2_040_uap_group_187", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_497, { "050 : Sequence of Contour Points in SPF Notation", "asterix.8_1_2_050_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_498, { "050 : Sequence of Contour Points in SPF Notation", "asterix.8_1_2_050_rep7_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_499, { "X1", "asterix.8_1_2_050_rep7_group", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_500, { "Y1", "asterix.8_1_2_050_rep7_group", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_499, { "X1", "asterix.8_1_2_050_rep7_group_188", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_500, { "Y1", "asterix.8_1_2_050_rep7_group_189", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_501, { "090 : Time of Day [s]", "asterix.8_1_2_090_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_502, { "100 : Processing Status", "asterix.8_1_2_100_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_503, { "F(Scaling Factor)", "asterix.8_1_2_100_uap_extended_F", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -9651,10 +9651,10 @@ static hf_register_info hf[] = {
 { &expand_var_508, { "120 : Total Number of Items Constituting One Weather Picture", "asterix.8_1_2_120_uap_element", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_509, { "038 : Sequence of Weather Vectors in SPF Notation", "asterix.8_1_2_038_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_510, { "038 : Sequence of Weather Vectors in SPF Notation", "asterix.8_1_2_038_rep8_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_511, { "X1 : X1-Component", "asterix.8_1_2_038_rep8_group", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_512, { "Y1 : Y1-Component", "asterix.8_1_2_038_rep8_group", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_513, { "X2 : X2-Component", "asterix.8_1_2_038_rep8_group", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_514, { "Y2 : Y2-Component", "asterix.8_1_2_038_rep8_group", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_511, { "X1 : X1-Component", "asterix.8_1_2_038_rep8_group_181", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_512, { "Y1 : Y1-Component", "asterix.8_1_2_038_rep8_group_182", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_513, { "X2 : X2-Component", "asterix.8_1_2_038_rep8_group_183", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_514, { "Y2 : Y2-Component", "asterix.8_1_2_038_rep8_group_184", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_515, { "SP : Special Purpose Field", "asterix.8_1_2_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_516, { "010 : Data Source Identifier", "asterix.8_1_3_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_517, { "000 : Message Type", "asterix.8_1_3_000_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_148), 0x0, NULL, HFILL } },
@@ -9678,9 +9678,9 @@ static hf_register_info hf[] = {
 { &expand_var_535, { "FX", "asterix.9_2_1_020_uap_extended_020_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_536, { "030 : Sequence of Cartesian Vectors", "asterix.9_2_1_030_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_537, { "030 : Sequence of Cartesian Vectors", "asterix.9_2_1_030_rep9_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_538, { "X : X-coordinate", "asterix.9_2_1_030_rep9_group", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_539, { "Y : Y-coordinate", "asterix.9_2_1_030_rep9_group", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_540, { "L : Vector Length", "asterix.9_2_1_030_rep9_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_538, { "X : X-coordinate", "asterix.9_2_1_030_rep9_group_193", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_539, { "Y : Y-coordinate", "asterix.9_2_1_030_rep9_group_194", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_540, { "L : Vector Length", "asterix.9_2_1_030_rep9_group_195", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_541, { "060 : Synchronisation/Control Signal", "asterix.9_2_1_060_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_542, { "SN(Step Number)", "asterix.9_2_1_060_uap_extended_SN", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_543, { "FX", "asterix.9_2_1_060_uap_extended_060_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -9688,11 +9688,11 @@ static hf_register_info hf[] = {
 { &expand_var_545, { "080 : Processing Status", "asterix.9_2_1_080_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_546, { "090 : Radar Configuration and Status", "asterix.9_2_1_090_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_547, { "090 : Radar Configuration and Status", "asterix.9_2_1_090_rep10_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_548, { "SAC : SAC of Radar Concerned", "asterix.9_2_1_090_rep10_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_549, { "SIC : SIC of Radar Concerned", "asterix.9_2_1_090_rep10_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_550, { "CP : Circular Polarisation", "asterix.9_2_1_090_rep10_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_551, { "WO : Weather Channel Overload", "asterix.9_2_1_090_rep10_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_552, { "R : Reduction Step in Use By Radar  Concerned", "asterix.9_2_1_090_rep10_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_548, { "SAC : SAC of Radar Concerned", "asterix.9_2_1_090_rep10_group_197", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_549, { "SIC : SIC of Radar Concerned", "asterix.9_2_1_090_rep10_group_198", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_550, { "CP : Circular Polarisation", "asterix.9_2_1_090_rep10_group_199", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_551, { "WO : Weather Channel Overload", "asterix.9_2_1_090_rep10_group_200", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_552, { "R : Reduction Step in Use By Radar  Concerned", "asterix.9_2_1_090_rep10_group_201", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_553, { "100 : Vector Count", "asterix.9_2_1_100_uap_element", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_554, { "010 : Data Source Identifier", "asterix.10_1_1_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_555, { "000 : Message Type", "asterix.10_1_1_000_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_156), 0x0, NULL, HFILL } },
@@ -9713,22 +9713,22 @@ static hf_register_info hf[] = {
 { &expand_var_570, { "FX", "asterix.10_1_1_020_uap_extended_020_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_571, { "140 : Time of Day [s]", "asterix.10_1_1_140_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_572, { "041 : Position in WGS-84 Co-ordinates", "asterix.10_1_1_041_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_573, { "LAT : Latitude [°]", "asterix.10_1_1_041_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_574, { "LON : Longitude [°]", "asterix.10_1_1_041_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_573, { "LAT : Latitude [°]", "asterix.10_1_1_041_uap_group_215", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_574, { "LON : Longitude [°]", "asterix.10_1_1_041_uap_group_216", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_575, { "040 : Measured Position in Polar Co-ordinates", "asterix.10_1_1_040_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_576, { "RHO : RHO [m]", "asterix.10_1_1_040_uap_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_577, { "TH : Theta [°]", "asterix.10_1_1_040_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_576, { "RHO : RHO [m]", "asterix.10_1_1_040_uap_group_213", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_577, { "TH : Theta [°]", "asterix.10_1_1_040_uap_group_214", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_578, { "042 : Position in Cartesian Co-ordinates", "asterix.10_1_1_042_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_579, { "X : X Coordinate [m]", "asterix.10_1_1_042_uap_group", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_580, { "Y : Y Coordinate [m]", "asterix.10_1_1_042_uap_group", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_579, { "X : X Coordinate [m]", "asterix.10_1_1_042_uap_group_217", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_580, { "Y : Y Coordinate [m]", "asterix.10_1_1_042_uap_group_218", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_581, { "200 : Calculated Track Velocity in Polar Co-ordinates", "asterix.10_1_1_200_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_582, { "GSP : Ground Speed [NM/s]", "asterix.10_1_1_200_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_583, { "TRA : Track Angle [°]", "asterix.10_1_1_200_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_582, { "GSP : Ground Speed [NM/s]", "asterix.10_1_1_200_uap_group_234", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_583, { "TRA : Track Angle [°]", "asterix.10_1_1_200_uap_group_235", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_584, { "202 : Calculated Track Velocity in Cartesian Co-ordinates", "asterix.10_1_1_202_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_585, { "VX : X Velocity [m/s]", "asterix.10_1_1_202_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_586, { "VY : Y Velocity [m/s]", "asterix.10_1_1_202_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_585, { "VX : X Velocity [m/s]", "asterix.10_1_1_202_uap_group_236", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_586, { "VY : Y Velocity [m/s]", "asterix.10_1_1_202_uap_group_237", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_587, { "161 : Track Number", "asterix.10_1_1_161_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_588, { "TRK : Track Number", "asterix.10_1_1_161_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_588, { "TRK : Track Number", "asterix.10_1_1_161_uap_group_224", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_589, { "170 : Track Status", "asterix.10_1_1_170_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_590, { "CNF", "asterix.10_1_1_170_uap_extended_CNF", FT_UINT8, BASE_DEC, VALS(value_map_173), 0x0, NULL, HFILL } },
 { &expand_var_591, { "TRE", "asterix.10_1_1_170_uap_extended_TRE", FT_UINT8, BASE_DEC, VALS(value_map_46), 0x0, NULL, HFILL } },
@@ -9744,24 +9744,24 @@ static hf_register_info hf[] = {
 { &expand_var_601, { "GHO", "asterix.10_1_1_170_uap_extended_GHO", FT_UINT8, BASE_DEC, VALS(value_map_45), 0x0, NULL, HFILL } },
 { &expand_var_602, { "FX", "asterix.10_1_1_170_uap_extended_170_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_603, { "060 : Mode-3/A Code in Octal Representation", "asterix.10_1_1_060_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_604, { "V : Validated", "asterix.10_1_1_060_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_605, { "G : Garbled", "asterix.10_1_1_060_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_606, { "L", "asterix.10_1_1_060_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_171), 0x0, NULL, HFILL } },
-{ &expand_var_607, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.10_1_1_060_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_604, { "V : Validated", "asterix.10_1_1_060_uap_group_219", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_605, { "G : Garbled", "asterix.10_1_1_060_uap_group_220", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_606, { "L", "asterix.10_1_1_060_uap_group_221", FT_UINT8, BASE_DEC, VALS(value_map_171), 0x0, NULL, HFILL } },
+{ &expand_var_607, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.10_1_1_060_uap_group_222", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_608, { "220 : Target Address", "asterix.10_1_1_220_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_609, { "245 : Target Identification", "asterix.10_1_1_245_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_610, { "STI", "asterix.10_1_1_245_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_183), 0x0, NULL, HFILL } },
-{ &expand_var_611, { "CHR : Characters 1-8 (Coded on 6 Bits Each) Defining Target Identification", "asterix.10_1_1_245_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_610, { "STI", "asterix.10_1_1_245_uap_group_240", FT_UINT8, BASE_DEC, VALS(value_map_183), 0x0, NULL, HFILL } },
+{ &expand_var_611, { "CHR : Characters 1-8 (Coded on 6 Bits Each) Defining Target Identification", "asterix.10_1_1_245_uap_group_241", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_612, { "250 : Mode S MB Data", "asterix.10_1_1_250_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_613, { "250 : Mode S MB Data", "asterix.10_1_1_250_rep11_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_614, { "MBDATA", "asterix.10_1_1_250_rep11_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_615, { "BDS1", "asterix.10_1_1_250_rep11_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_616, { "BDS2", "asterix.10_1_1_250_rep11_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_614, { "MBDATA", "asterix.10_1_1_250_rep11_group_242", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_615, { "BDS1", "asterix.10_1_1_250_rep11_group_243", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_616, { "BDS2", "asterix.10_1_1_250_rep11_group_244", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_617, { "300 : Vehicle Fleet Identification", "asterix.10_1_1_300_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_186), 0x0, NULL, HFILL } },
 { &expand_var_618, { "090 : Flight Level in Binary Representation", "asterix.10_1_1_090_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_619, { "V : Validated", "asterix.10_1_1_090_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_620, { "G : Garbled", "asterix.10_1_1_090_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_621, { "FL : Flight Level [FL]", "asterix.10_1_1_090_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_619, { "V : Validated", "asterix.10_1_1_090_uap_group_219", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_620, { "G : Garbled", "asterix.10_1_1_090_uap_group_220", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_621, { "FL : Flight Level [FL]", "asterix.10_1_1_090_uap_group_223", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_622, { "091 : Measured Height [ft]", "asterix.10_1_1_091_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_623, { "270 : Target Size and Orientation", "asterix.10_1_1_270_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_624, { "LENGTH(Length) [m]", "asterix.10_1_1_270_uap_extended_LENGTH", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -9771,74 +9771,74 @@ static hf_register_info hf[] = {
 { &expand_var_628, { "WIDTH(Width) [m]", "asterix.10_1_1_270_uap_extended_WIDTH", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_629, { "FX", "asterix.10_1_1_270_uap_extended_270_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_630, { "550 : System Status", "asterix.10_1_1_550_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_631, { "NOGO : Operational Release Status of the System", "asterix.10_1_1_550_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_191), 0x0, NULL, HFILL } },
-{ &expand_var_632, { "OVL : Overload Indicator", "asterix.10_1_1_550_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
-{ &expand_var_633, { "TSV : Time Source Validity", "asterix.10_1_1_550_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_193), 0x0, NULL, HFILL } },
-{ &expand_var_634, { "DIV", "asterix.10_1_1_550_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_194), 0x0, NULL, HFILL } },
-{ &expand_var_635, { "TTF", "asterix.10_1_1_550_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_195), 0x0, NULL, HFILL } },
+{ &expand_var_631, { "NOGO : Operational Release Status of the System", "asterix.10_1_1_550_uap_group_255", FT_UINT8, BASE_DEC, VALS(value_map_191), 0x0, NULL, HFILL } },
+{ &expand_var_632, { "OVL : Overload Indicator", "asterix.10_1_1_550_uap_group_256", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
+{ &expand_var_633, { "TSV : Time Source Validity", "asterix.10_1_1_550_uap_group_257", FT_UINT8, BASE_DEC, VALS(value_map_193), 0x0, NULL, HFILL } },
+{ &expand_var_634, { "DIV", "asterix.10_1_1_550_uap_group_258", FT_UINT8, BASE_DEC, VALS(value_map_194), 0x0, NULL, HFILL } },
+{ &expand_var_635, { "TTF", "asterix.10_1_1_550_uap_group_259", FT_UINT8, BASE_DEC, VALS(value_map_195), 0x0, NULL, HFILL } },
 { &expand_var_636, { "310 : Pre-programmed Message", "asterix.10_1_1_310_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_637, { "TRB", "asterix.10_1_1_310_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_187), 0x0, NULL, HFILL } },
-{ &expand_var_638, { "MSG", "asterix.10_1_1_310_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_188), 0x0, NULL, HFILL } },
+{ &expand_var_637, { "TRB", "asterix.10_1_1_310_uap_group_250", FT_UINT8, BASE_DEC, VALS(value_map_187), 0x0, NULL, HFILL } },
+{ &expand_var_638, { "MSG", "asterix.10_1_1_310_uap_group_251", FT_UINT8, BASE_DEC, VALS(value_map_188), 0x0, NULL, HFILL } },
 { &expand_var_639, { "500 : Standard Deviation of Position", "asterix.10_1_1_500_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_640, { "DEVX : Standard Deviation of X Component [m]", "asterix.10_1_1_500_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_641, { "DEVY : Standard Deviation of Y Component [m]", "asterix.10_1_1_500_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_642, { "COVXY : Covariance in Two’s Complement Form [m]", "asterix.10_1_1_500_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_640, { "DEVX : Standard Deviation of X Component [m]", "asterix.10_1_1_500_uap_group_252", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_641, { "DEVY : Standard Deviation of Y Component [m]", "asterix.10_1_1_500_uap_group_253", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_642, { "COVXY : Covariance in Two’s Complement Form [m]", "asterix.10_1_1_500_uap_group_254", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_643, { "280 : Presence", "asterix.10_1_1_280_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_644, { "280 : Presence", "asterix.10_1_1_280_rep12_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_645, { "DRHO [m]", "asterix.10_1_1_280_rep12_group", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_646, { "DTHETA [°]", "asterix.10_1_1_280_rep12_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_645, { "DRHO [m]", "asterix.10_1_1_280_rep12_group_248", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_646, { "DTHETA [°]", "asterix.10_1_1_280_rep12_group_249", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_647, { "131 : Amplitude of Primary Plot", "asterix.10_1_1_131_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_648, { "210 : Calculated Acceleration", "asterix.10_1_1_210_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_649, { "AX : X Acceleration [m/s²]", "asterix.10_1_1_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_650, { "AY : Y Acceleration [m/s²]", "asterix.10_1_1_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_649, { "AX : X Acceleration [m/s²]", "asterix.10_1_1_210_uap_group_238", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_650, { "AY : Y Acceleration [m/s²]", "asterix.10_1_1_210_uap_group_239", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_651, { "SP : Special Purpose Field", "asterix.10_1_1_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_652, { "RE : Reserved Expansion Field", "asterix.10_1_1_27_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_653, { "010 : Data Source Identifier", "asterix.11_1_2_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_654, { "SAC : System Area Code Fixed to Zero", "asterix.11_1_2_010_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_655, { "SIC : System Identification Code", "asterix.11_1_2_010_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_654, { "SAC : System Area Code Fixed to Zero", "asterix.11_1_2_010_uap_group_260", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_655, { "SIC : System Identification Code", "asterix.11_1_2_010_uap_group_2", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_656, { "000 : Message Type", "asterix.11_1_2_000_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_196), 0x0, NULL, HFILL } },
 { &expand_var_657, { "015 : Service Identification", "asterix.11_1_2_015_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_658, { "140 : Time of Track Information [s]", "asterix.11_1_2_140_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_659, { "041 : Position in WGS-84 Coordinates", "asterix.11_1_2_041_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_660, { "LAT : Latitude in WGS-84 in Two's Complement [°]", "asterix.11_1_2_041_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_661, { "LON : Longitude in WGS-84 in Two's Complement [°]", "asterix.11_1_2_041_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_660, { "LAT : Latitude in WGS-84 in Two's Complement [°]", "asterix.11_1_2_041_uap_group_261", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_661, { "LON : Longitude in WGS-84 in Two's Complement [°]", "asterix.11_1_2_041_uap_group_262", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_662, { "042 : Calculated Position in Cartesian Co-ordinates", "asterix.11_1_2_042_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_663, { "X : X-Component [m]", "asterix.11_1_2_042_uap_group", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_664, { "Y : Y-Component [m]", "asterix.11_1_2_042_uap_group", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_663, { "X : X-Component [m]", "asterix.11_1_2_042_uap_group_263", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_664, { "Y : Y-Component [m]", "asterix.11_1_2_042_uap_group_264", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_665, { "202 : Calculated Track Velocity in Cartesian Coordinates", "asterix.11_1_2_202_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_666, { "VX : Vx [m/s]", "asterix.11_1_2_202_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_667, { "VY : Vy [m/s]", "asterix.11_1_2_202_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_666, { "VX : Vx [m/s]", "asterix.11_1_2_202_uap_group_285", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_667, { "VY : Vy [m/s]", "asterix.11_1_2_202_uap_group_286", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_668, { "210 : Calculated Acceleration", "asterix.11_1_2_210_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_669, { "AX : Ax [m/s²]", "asterix.11_1_2_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_670, { "AY : Ay [m/s²]", "asterix.11_1_2_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_669, { "AX : Ax [m/s²]", "asterix.11_1_2_210_uap_group_287", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_670, { "AY : Ay [m/s²]", "asterix.11_1_2_210_uap_group_288", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_671, { "060 : Mode-3/A Code in Octal Representation", "asterix.11_1_2_060_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_672, { "MOD3A : Mode-3/A Reply in Octal Representation", "asterix.11_1_2_060_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_672, { "MOD3A : Mode-3/A Reply in Octal Representation", "asterix.11_1_2_060_uap_group_265", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_673, { "245 : Target Identification", "asterix.11_1_2_245_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_674, { "STI", "asterix.11_1_2_245_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_183), 0x0, NULL, HFILL } },
-{ &expand_var_675, { "TID : Target Identification", "asterix.11_1_2_245_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_674, { "STI", "asterix.11_1_2_245_uap_group_240", FT_UINT8, BASE_DEC, VALS(value_map_183), 0x0, NULL, HFILL } },
+{ &expand_var_675, { "TID : Target Identification", "asterix.11_1_2_245_uap_group_289", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_676, { "380 : Mode-S / ADS-B Related Data", "asterix.11_1_2_380_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_677, { "MB : BDS", "asterix.11_1_2_380_448_compound_448_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_678, { "MB : BDS", "asterix.11_1_2_380_rep13_element", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_679, { "ADR : 24 Bits Aircraft Address", "asterix.11_1_2_380_449_compound_449_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_680, { "COMACAS : Communications/ACAS Capability and Flight Status", "asterix.11_1_2_380_460_compound_460_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_681, { "COM : Communications Capability of the Transponder", "asterix.11_1_2_380_460_compound_460_group", FT_UINT8, BASE_DEC, VALS(value_map_221), 0x0, NULL, HFILL } },
-{ &expand_var_682, { "STAT : Flight Status", "asterix.11_1_2_380_460_compound_460_group", FT_UINT8, BASE_DEC, VALS(value_map_222), 0x0, NULL, HFILL } },
-{ &expand_var_683, { "SSC : Specific Service Capability", "asterix.11_1_2_380_460_compound_460_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_684, { "ARC : Altitude Reporting Capability", "asterix.11_1_2_380_460_compound_460_group", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
-{ &expand_var_685, { "AIC : Aircraft Identification Capability", "asterix.11_1_2_380_460_compound_460_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_686, { "B1A : BDS 1,0 Bit 16", "asterix.11_1_2_380_460_compound_460_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_687, { "B1B : BDS 1,0 Bit 37/40", "asterix.11_1_2_380_460_compound_460_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_688, { "AC : ACAS Operational", "asterix.11_1_2_380_460_compound_460_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_689, { "MN : Multiple Navigational Aids Operating", "asterix.11_1_2_380_460_compound_460_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_690, { "DC : Differential Correction", "asterix.11_1_2_380_460_compound_460_group", FT_UINT8, BASE_DEC, VALS(value_map_225), 0x0, NULL, HFILL } },
+{ &expand_var_681, { "COM : Communications Capability of the Transponder", "asterix.11_1_2_380_460_compound_460_group_292", FT_UINT8, BASE_DEC, VALS(value_map_221), 0x0, NULL, HFILL } },
+{ &expand_var_682, { "STAT : Flight Status", "asterix.11_1_2_380_460_compound_460_group_293", FT_UINT8, BASE_DEC, VALS(value_map_222), 0x0, NULL, HFILL } },
+{ &expand_var_683, { "SSC : Specific Service Capability", "asterix.11_1_2_380_460_compound_460_group_294", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_684, { "ARC : Altitude Reporting Capability", "asterix.11_1_2_380_460_compound_460_group_295", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
+{ &expand_var_685, { "AIC : Aircraft Identification Capability", "asterix.11_1_2_380_460_compound_460_group_296", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_686, { "B1A : BDS 1,0 Bit 16", "asterix.11_1_2_380_460_compound_460_group_297", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_687, { "B1B : BDS 1,0 Bit 37/40", "asterix.11_1_2_380_460_compound_460_group_298", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_688, { "AC : ACAS Operational", "asterix.11_1_2_380_460_compound_460_group_299", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_689, { "MN : Multiple Navigational Aids Operating", "asterix.11_1_2_380_460_compound_460_group_300", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_690, { "DC : Differential Correction", "asterix.11_1_2_380_460_compound_460_group_301", FT_UINT8, BASE_DEC, VALS(value_map_225), 0x0, NULL, HFILL } },
 { &expand_var_691, { "ACT : Aircraft Derived Aircraft Type", "asterix.11_1_2_380_461_compound_461_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_692, { "ECAT : Emitter Category", "asterix.11_1_2_380_462_compound_462_element", FT_UINT8, BASE_DEC, VALS(value_map_226), 0x0, NULL, HFILL } },
 { &expand_var_693, { "AVTECH : Available Technologies", "asterix.11_1_2_380_466_compound_466_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_694, { "VDL : VDL Mode 4", "asterix.11_1_2_380_466_compound_466_group", FT_UINT8, BASE_DEC, VALS(value_map_227), 0x0, NULL, HFILL } },
-{ &expand_var_695, { "MDS : Mode S", "asterix.11_1_2_380_466_compound_466_group", FT_UINT8, BASE_DEC, VALS(value_map_228), 0x0, NULL, HFILL } },
-{ &expand_var_696, { "UAT : UAT", "asterix.11_1_2_380_466_compound_466_group", FT_UINT8, BASE_DEC, VALS(value_map_229), 0x0, NULL, HFILL } },
+{ &expand_var_694, { "VDL : VDL Mode 4", "asterix.11_1_2_380_466_compound_466_group_302", FT_UINT8, BASE_DEC, VALS(value_map_227), 0x0, NULL, HFILL } },
+{ &expand_var_695, { "MDS : Mode S", "asterix.11_1_2_380_466_compound_466_group_303", FT_UINT8, BASE_DEC, VALS(value_map_228), 0x0, NULL, HFILL } },
+{ &expand_var_696, { "UAT : UAT", "asterix.11_1_2_380_466_compound_466_group_304", FT_UINT8, BASE_DEC, VALS(value_map_229), 0x0, NULL, HFILL } },
 { &expand_var_697, { "161 : Track Number", "asterix.11_1_2_161_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_698, { "FTN : Fusion Track Number", "asterix.11_1_2_161_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_698, { "FTN : Fusion Track Number", "asterix.11_1_2_161_uap_group_268", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_699, { "170 : Track Status", "asterix.11_1_2_170_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_700, { "MON", "asterix.11_1_2_170_uap_extended_MON", FT_UINT8, BASE_DEC, VALS(value_map_198), 0x0, NULL, HFILL } },
 { &expand_var_701, { "GBS", "asterix.11_1_2_170_uap_extended_GBS", FT_UINT8, BASE_DEC, VALS(value_map_199), 0x0, NULL, HFILL } },
@@ -9875,24 +9875,24 @@ static hf_register_info hf[] = {
 { &expand_var_732, { "430 : Phase of Flight", "asterix.11_1_2_430_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_237), 0x0, NULL, HFILL } },
 { &expand_var_733, { "090 : Measured Flight Level [FL]", "asterix.11_1_2_090_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_734, { "093 : Calculated Track Barometric Altitude", "asterix.11_1_2_093_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_735, { "QNH : QNH Correction Applied", "asterix.11_1_2_093_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_197), 0x0, NULL, HFILL } },
-{ &expand_var_736, { "CTBA : Calculated Track Barometric Altitude [FL]", "asterix.11_1_2_093_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_735, { "QNH : QNH Correction Applied", "asterix.11_1_2_093_uap_group_266", FT_UINT8, BASE_DEC, VALS(value_map_197), 0x0, NULL, HFILL } },
+{ &expand_var_736, { "CTBA : Calculated Track Barometric Altitude [FL]", "asterix.11_1_2_093_uap_group_267", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_737, { "092 : Calculated Track Geometric Altitude [ft]", "asterix.11_1_2_092_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_738, { "215 : Calculated Rate Of Climb/Descent [ft/min]", "asterix.11_1_2_215_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_739, { "270 : Target Size and Orientation", "asterix.11_1_2_270_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_740, { "390 : Flight Plan Related Data", "asterix.11_1_2_390_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_741, { "FPPSID : FPPS Identification Tag", "asterix.11_1_2_390_469_compound_469_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_742, { "SAC : System Area Code", "asterix.11_1_2_390_469_compound_469_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_743, { "SIC : System Identity Code", "asterix.11_1_2_390_469_compound_469_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_742, { "SAC : System Area Code", "asterix.11_1_2_390_469_compound_469_group_1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_743, { "SIC : System Identity Code", "asterix.11_1_2_390_469_compound_469_group_305", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_744, { "CSN : Callsign", "asterix.11_1_2_390_470_compound_470_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_745, { "IFPSFLIGHTID : IFPS_FLIGHT_ID", "asterix.11_1_2_390_473_compound_473_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_746, { "TYP : IFPS Flight ID Type", "asterix.11_1_2_390_473_compound_473_group", FT_UINT8, BASE_DEC, VALS(value_map_230), 0x0, NULL, HFILL } },
-{ &expand_var_747, { "NBR : IFPS Flight ID Number", "asterix.11_1_2_390_473_compound_473_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_746, { "TYP : IFPS Flight ID Type", "asterix.11_1_2_390_473_compound_473_group_306", FT_UINT8, BASE_DEC, VALS(value_map_230), 0x0, NULL, HFILL } },
+{ &expand_var_747, { "NBR : IFPS Flight ID Number", "asterix.11_1_2_390_473_compound_473_group_307", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_748, { "FLIGHTCAT : Flight Category", "asterix.11_1_2_390_477_compound_477_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_749, { "GATOAT : Flight Type", "asterix.11_1_2_390_477_compound_477_group", FT_UINT8, BASE_DEC, VALS(value_map_135), 0x0, NULL, HFILL } },
-{ &expand_var_750, { "FR1FR2 : Flight Rules", "asterix.11_1_2_390_477_compound_477_group", FT_UINT8, BASE_DEC, VALS(value_map_136), 0x0, NULL, HFILL } },
-{ &expand_var_751, { "RVSM : RVSM", "asterix.11_1_2_390_477_compound_477_group", FT_UINT8, BASE_DEC, VALS(value_map_137), 0x0, NULL, HFILL } },
-{ &expand_var_752, { "HPR : Flight Priority", "asterix.11_1_2_390_477_compound_477_group", FT_UINT8, BASE_DEC, VALS(value_map_138), 0x0, NULL, HFILL } },
+{ &expand_var_749, { "GATOAT : Flight Type", "asterix.11_1_2_390_477_compound_477_group_308", FT_UINT8, BASE_DEC, VALS(value_map_135), 0x0, NULL, HFILL } },
+{ &expand_var_750, { "FR1FR2 : Flight Rules", "asterix.11_1_2_390_477_compound_477_group_156", FT_UINT8, BASE_DEC, VALS(value_map_136), 0x0, NULL, HFILL } },
+{ &expand_var_751, { "RVSM : RVSM", "asterix.11_1_2_390_477_compound_477_group_309", FT_UINT8, BASE_DEC, VALS(value_map_137), 0x0, NULL, HFILL } },
+{ &expand_var_752, { "HPR : Flight Priority", "asterix.11_1_2_390_477_compound_477_group_310", FT_UINT8, BASE_DEC, VALS(value_map_138), 0x0, NULL, HFILL } },
 { &expand_var_753, { "TOA : Type of Aircraft", "asterix.11_1_2_390_478_compound_478_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_754, { "WTC : Wake Turbulence Category", "asterix.11_1_2_390_479_compound_479_element", FT_UINT8, BASE_DEC, VALS(value_map_231), 0x0, NULL, HFILL } },
 { &expand_var_755, { "ADEP : Departure Airport", "asterix.11_1_2_390_480_compound_480_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -9900,62 +9900,62 @@ static hf_register_info hf[] = {
 { &expand_var_757, { "RWY : Runway Designation", "asterix.11_1_2_390_482_compound_482_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_758, { "CFL : Current Cleared Flight Level [FL]", "asterix.11_1_2_390_483_compound_483_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_759, { "CCP : Current Control Position", "asterix.11_1_2_390_486_compound_486_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_760, { "CENTRE : 8-bit Group Identification Code", "asterix.11_1_2_390_486_compound_486_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_761, { "POSITION : 8-bit Control Position Identification Code", "asterix.11_1_2_390_486_compound_486_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_760, { "CENTRE : 8-bit Group Identification Code", "asterix.11_1_2_390_486_compound_486_group_311", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_761, { "POSITION : 8-bit Control Position Identification Code", "asterix.11_1_2_390_486_compound_486_group_312", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_762, { "TOD : Time of Departure", "asterix.11_1_2_390_493_compound_493_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_763, { "TOD : Time of Departure", "asterix.11_1_2_390_rep14_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_764, { "TYP : Time Type", "asterix.11_1_2_390_rep14_group", FT_UINT8, BASE_DEC, VALS(value_map_232), 0x0, NULL, HFILL } },
-{ &expand_var_765, { "DAY : Day", "asterix.11_1_2_390_rep14_group", FT_UINT8, BASE_DEC, VALS(value_map_233), 0x0, NULL, HFILL } },
-{ &expand_var_766, { "HOR : Hours, from 0 to 23", "asterix.11_1_2_390_rep14_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_767, { "MIN : Minutes, from 0 to 59", "asterix.11_1_2_390_rep14_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_768, { "AVS : Seconds Available", "asterix.11_1_2_390_rep14_group", FT_UINT8, BASE_DEC, VALS(value_map_234), 0x0, NULL, HFILL } },
-{ &expand_var_769, { "SEC : Seconds, from 0 to 59", "asterix.11_1_2_390_rep14_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_764, { "TYP : Time Type", "asterix.11_1_2_390_rep14_group_313", FT_UINT8, BASE_DEC, VALS(value_map_232), 0x0, NULL, HFILL } },
+{ &expand_var_765, { "DAY : Day", "asterix.11_1_2_390_rep14_group_314", FT_UINT8, BASE_DEC, VALS(value_map_233), 0x0, NULL, HFILL } },
+{ &expand_var_766, { "HOR : Hours, from 0 to 23", "asterix.11_1_2_390_rep14_group_315", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_767, { "MIN : Minutes, from 0 to 59", "asterix.11_1_2_390_rep14_group_316", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_768, { "AVS : Seconds Available", "asterix.11_1_2_390_rep14_group_317", FT_UINT8, BASE_DEC, VALS(value_map_234), 0x0, NULL, HFILL } },
+{ &expand_var_769, { "SEC : Seconds, from 0 to 59", "asterix.11_1_2_390_rep14_group_318", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_770, { "AST : Aircraft Stand", "asterix.11_1_2_390_494_compound_494_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_771, { "STS : Stand Status", "asterix.11_1_2_390_497_compound_497_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_772, { "EMP : Stand Empty", "asterix.11_1_2_390_497_compound_497_group", FT_UINT8, BASE_DEC, VALS(value_map_235), 0x0, NULL, HFILL } },
-{ &expand_var_773, { "AVL : Stand Available", "asterix.11_1_2_390_497_compound_497_group", FT_UINT8, BASE_DEC, VALS(value_map_236), 0x0, NULL, HFILL } },
+{ &expand_var_772, { "EMP : Stand Empty", "asterix.11_1_2_390_497_compound_497_group_319", FT_UINT8, BASE_DEC, VALS(value_map_235), 0x0, NULL, HFILL } },
+{ &expand_var_773, { "AVL : Stand Available", "asterix.11_1_2_390_497_compound_497_group_320", FT_UINT8, BASE_DEC, VALS(value_map_236), 0x0, NULL, HFILL } },
 { &expand_var_774, { "300 : Vehicle Fleet Identification", "asterix.11_1_2_300_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_218), 0x0, NULL, HFILL } },
 { &expand_var_775, { "310 : Pre-programmed Message", "asterix.11_1_2_310_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_776, { "TRB : In Trouble", "asterix.11_1_2_310_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_187), 0x0, NULL, HFILL } },
-{ &expand_var_777, { "MSG : Message", "asterix.11_1_2_310_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_219), 0x0, NULL, HFILL } },
+{ &expand_var_776, { "TRB : In Trouble", "asterix.11_1_2_310_uap_group_290", FT_UINT8, BASE_DEC, VALS(value_map_187), 0x0, NULL, HFILL } },
+{ &expand_var_777, { "MSG : Message", "asterix.11_1_2_310_uap_group_291", FT_UINT8, BASE_DEC, VALS(value_map_219), 0x0, NULL, HFILL } },
 { &expand_var_778, { "500 : Estimated Accuracies", "asterix.11_1_2_500_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_779, { "APC : Estimated Accuracy Of Track Position (Cartesian)", "asterix.11_1_2_500_502_compound_502_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_780, { "X : Estimated Accuracy of the Calculated Position of X Component [m]", "asterix.11_1_2_500_502_compound_502_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_781, { "Y : Estimated Accuracy of the Calculated Position of Y Component [m]", "asterix.11_1_2_500_502_compound_502_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_780, { "X : Estimated Accuracy of the Calculated Position of X Component [m]", "asterix.11_1_2_500_502_compound_502_group_321", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_781, { "Y : Estimated Accuracy of the Calculated Position of Y Component [m]", "asterix.11_1_2_500_502_compound_502_group_322", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_782, { "APW : Estimated Accuracy Of Track Position (WGS84)", "asterix.11_1_2_500_505_compound_505_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_783, { "LAT : APW Latitude Component Accuracy [°]", "asterix.11_1_2_500_505_compound_505_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_784, { "LON : APW Longitude Component Accuracy [°]", "asterix.11_1_2_500_505_compound_505_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_783, { "LAT : APW Latitude Component Accuracy [°]", "asterix.11_1_2_500_505_compound_505_group_323", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_784, { "LON : APW Longitude Component Accuracy [°]", "asterix.11_1_2_500_505_compound_505_group_324", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_785, { "ATH : Estimated Accuracy Of Track Height [m]", "asterix.11_1_2_500_506_compound_506_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_786, { "AVC : Estimated Accuracy Of Track Velocity (Cartesian)", "asterix.11_1_2_500_509_compound_509_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_787, { "X : Estimated Accuracy of the Calculated Velocity of X Component [m/s]", "asterix.11_1_2_500_509_compound_509_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_788, { "Y : Estimated Accuracy of the Calculated Velocity of Y Component [m/s]", "asterix.11_1_2_500_509_compound_509_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_787, { "X : Estimated Accuracy of the Calculated Velocity of X Component [m/s]", "asterix.11_1_2_500_509_compound_509_group_325", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_788, { "Y : Estimated Accuracy of the Calculated Velocity of Y Component [m/s]", "asterix.11_1_2_500_509_compound_509_group_326", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_789, { "ARC : Estimated Accuracy Of Rate Of Climb / Descent [m/s]", "asterix.11_1_2_500_510_compound_510_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_790, { "AAC : Estimated Accuracy Of Acceleration (Cartesian)", "asterix.11_1_2_500_513_compound_513_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_791, { "X : Estimated Accuracy Of Acceleration of X Component [m/s²]", "asterix.11_1_2_500_513_compound_513_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_792, { "Y : Estimated Accuracy Of Acceleration of Y Component [m/s²]", "asterix.11_1_2_500_513_compound_513_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_791, { "X : Estimated Accuracy Of Acceleration of X Component [m/s²]", "asterix.11_1_2_500_513_compound_513_group_327", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_792, { "Y : Estimated Accuracy Of Acceleration of Y Component [m/s²]", "asterix.11_1_2_500_513_compound_513_group_328", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_793, { "600 : Alert Messages", "asterix.11_1_2_600_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_794, { "ACK : Alert Acknowleged", "asterix.11_1_2_600_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_241), 0x0, NULL, HFILL } },
-{ &expand_var_795, { "SVR : Alert Severity", "asterix.11_1_2_600_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_242), 0x0, NULL, HFILL } },
-{ &expand_var_796, { "AT : Alert Type", "asterix.11_1_2_600_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_797, { "AN : Alert Number", "asterix.11_1_2_600_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_794, { "ACK : Alert Acknowleged", "asterix.11_1_2_600_uap_group_329", FT_UINT8, BASE_DEC, VALS(value_map_241), 0x0, NULL, HFILL } },
+{ &expand_var_795, { "SVR : Alert Severity", "asterix.11_1_2_600_uap_group_330", FT_UINT8, BASE_DEC, VALS(value_map_242), 0x0, NULL, HFILL } },
+{ &expand_var_796, { "AT : Alert Type", "asterix.11_1_2_600_uap_group_331", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_797, { "AN : Alert Number", "asterix.11_1_2_600_uap_group_332", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_798, { "605 : Tracks in Alert", "asterix.11_1_2_605_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_799, { "605 : Tracks in Alert", "asterix.11_1_2_605_rep15_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_800, { "FTN : Fusion Track Number", "asterix.11_1_2_605_rep15_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_800, { "FTN : Fusion Track Number", "asterix.11_1_2_605_rep15_group_333", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_801, { "610 : Holdbar Status", "asterix.11_1_2_610_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_802, { "610 : Holdbar Status", "asterix.11_1_2_610_rep16_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_803, { "BKN : Bank Number", "asterix.11_1_2_610_rep16_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_804, { "I1 : Indicator 1", "asterix.11_1_2_610_rep16_group", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
-{ &expand_var_805, { "I2 : Indicator 2", "asterix.11_1_2_610_rep16_group", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
-{ &expand_var_806, { "I3 : Indicator 3", "asterix.11_1_2_610_rep16_group", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
-{ &expand_var_807, { "I4 : Indicator 4", "asterix.11_1_2_610_rep16_group", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
-{ &expand_var_808, { "I5 : Indicator 5", "asterix.11_1_2_610_rep16_group", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
-{ &expand_var_809, { "I6 : Indicator 6", "asterix.11_1_2_610_rep16_group", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
-{ &expand_var_810, { "I7 : Indicator 7", "asterix.11_1_2_610_rep16_group", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
-{ &expand_var_811, { "I8 : Indicator 8", "asterix.11_1_2_610_rep16_group", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
-{ &expand_var_812, { "I9 : Indicator 9", "asterix.11_1_2_610_rep16_group", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
-{ &expand_var_813, { "I10 : Indicator 10", "asterix.11_1_2_610_rep16_group", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
-{ &expand_var_814, { "I11 : Indicator 11", "asterix.11_1_2_610_rep16_group", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
-{ &expand_var_815, { "I12 : Indicator 12", "asterix.11_1_2_610_rep16_group", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
+{ &expand_var_803, { "BKN : Bank Number", "asterix.11_1_2_610_rep16_group_334", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_804, { "I1 : Indicator 1", "asterix.11_1_2_610_rep16_group_335", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
+{ &expand_var_805, { "I2 : Indicator 2", "asterix.11_1_2_610_rep16_group_336", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
+{ &expand_var_806, { "I3 : Indicator 3", "asterix.11_1_2_610_rep16_group_337", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
+{ &expand_var_807, { "I4 : Indicator 4", "asterix.11_1_2_610_rep16_group_338", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
+{ &expand_var_808, { "I5 : Indicator 5", "asterix.11_1_2_610_rep16_group_339", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
+{ &expand_var_809, { "I6 : Indicator 6", "asterix.11_1_2_610_rep16_group_340", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
+{ &expand_var_810, { "I7 : Indicator 7", "asterix.11_1_2_610_rep16_group_341", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
+{ &expand_var_811, { "I8 : Indicator 8", "asterix.11_1_2_610_rep16_group_342", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
+{ &expand_var_812, { "I9 : Indicator 9", "asterix.11_1_2_610_rep16_group_343", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
+{ &expand_var_813, { "I10 : Indicator 10", "asterix.11_1_2_610_rep16_group_344", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
+{ &expand_var_814, { "I11 : Indicator 11", "asterix.11_1_2_610_rep16_group_345", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
+{ &expand_var_815, { "I12 : Indicator 12", "asterix.11_1_2_610_rep16_group_346", FT_UINT8, BASE_DEC, VALS(value_map_243), 0x0, NULL, HFILL } },
 { &expand_var_816, { "SP : Special Purpose Field", "asterix.11_1_2_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_817, { "RE : Reserved Expansion Field", "asterix.11_1_2_28_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_818, { "010 : Data Source Identifier", "asterix.11_1_3_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -9965,29 +9965,29 @@ static hf_register_info hf[] = {
 { &expand_var_822, { "041 : Position in WGS-84 Coordinates", "asterix.11_1_3_041_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_823, { "042 : Calculated Position in Cartesian Co-ordinates", "asterix.11_1_3_042_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_824, { "202 : Calculated Track Velocity in Cartesian Coordinates", "asterix.11_1_3_202_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_825, { "VX : Vx [m/s]", "asterix.11_1_3_202_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_826, { "VY : Vy [m/s]", "asterix.11_1_3_202_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_825, { "VX : Vx [m/s]", "asterix.11_1_3_202_uap_group_354", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_826, { "VY : Vy [m/s]", "asterix.11_1_3_202_uap_group_355", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_827, { "210 : Calculated Acceleration", "asterix.11_1_3_210_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_828, { "AX : Ax [m/s²]", "asterix.11_1_3_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_829, { "AY : Ay [m/s²]", "asterix.11_1_3_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_828, { "AX : Ax [m/s²]", "asterix.11_1_3_210_uap_group_356", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_829, { "AY : Ay [m/s²]", "asterix.11_1_3_210_uap_group_357", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_830, { "060 : Mode-3/A Code in Octal Representation", "asterix.11_1_3_060_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_831, { "245 : Target Identification", "asterix.11_1_3_245_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_832, { "STI", "asterix.11_1_3_245_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_183), 0x0, NULL, HFILL } },
-{ &expand_var_833, { "TID : Target Identification", "asterix.11_1_3_245_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_832, { "STI", "asterix.11_1_3_245_uap_group_358", FT_UINT8, BASE_DEC, VALS(value_map_183), 0x0, NULL, HFILL } },
+{ &expand_var_833, { "TID : Target Identification", "asterix.11_1_3_245_uap_group_359", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_834, { "380 : Mode-S / ADS-B Related Data", "asterix.11_1_3_380_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_835, { "MB : BDS", "asterix.11_1_3_380_448_compound_448_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_836, { "ADR : 24 Bits Aircraft Address", "asterix.11_1_3_380_449_compound_449_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_837, { "COMACAS : Communications/ACAS Capability and Flight Status", "asterix.11_1_3_380_563_compound_563_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_838, { "COM : Communications Capability of the Transponder", "asterix.11_1_3_380_563_compound_563_group", FT_UINT8, BASE_DEC, VALS(value_map_221), 0x0, NULL, HFILL } },
-{ &expand_var_839, { "STAT : Flight Status", "asterix.11_1_3_380_563_compound_563_group", FT_UINT8, BASE_DEC, VALS(value_map_251), 0x0, NULL, HFILL } },
-{ &expand_var_840, { "SSC : Specific Service Capability", "asterix.11_1_3_380_563_compound_563_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_841, { "ARC : Altitude Reporting Capability", "asterix.11_1_3_380_563_compound_563_group", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
-{ &expand_var_842, { "AIC : Aircraft Identification Capability", "asterix.11_1_3_380_563_compound_563_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_843, { "B1A : BDS 1,0 Bit 16", "asterix.11_1_3_380_563_compound_563_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_844, { "B1B : BDS 1,0 Bit 37/40", "asterix.11_1_3_380_563_compound_563_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_845, { "AC : ACAS Operational", "asterix.11_1_3_380_563_compound_563_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_846, { "MN : Multiple Navigational Aids Operating", "asterix.11_1_3_380_563_compound_563_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_847, { "DC : Differential Correction", "asterix.11_1_3_380_563_compound_563_group", FT_UINT8, BASE_DEC, VALS(value_map_225), 0x0, NULL, HFILL } },
+{ &expand_var_838, { "COM : Communications Capability of the Transponder", "asterix.11_1_3_380_563_compound_563_group_292", FT_UINT8, BASE_DEC, VALS(value_map_221), 0x0, NULL, HFILL } },
+{ &expand_var_839, { "STAT : Flight Status", "asterix.11_1_3_380_563_compound_563_group_360", FT_UINT8, BASE_DEC, VALS(value_map_251), 0x0, NULL, HFILL } },
+{ &expand_var_840, { "SSC : Specific Service Capability", "asterix.11_1_3_380_563_compound_563_group_294", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_841, { "ARC : Altitude Reporting Capability", "asterix.11_1_3_380_563_compound_563_group_295", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
+{ &expand_var_842, { "AIC : Aircraft Identification Capability", "asterix.11_1_3_380_563_compound_563_group_296", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_843, { "B1A : BDS 1,0 Bit 16", "asterix.11_1_3_380_563_compound_563_group_297", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_844, { "B1B : BDS 1,0 Bit 37/40", "asterix.11_1_3_380_563_compound_563_group_298", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_845, { "AC : ACAS Operational", "asterix.11_1_3_380_563_compound_563_group_299", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_846, { "MN : Multiple Navigational Aids Operating", "asterix.11_1_3_380_563_compound_563_group_300", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_847, { "DC : Differential Correction", "asterix.11_1_3_380_563_compound_563_group_301", FT_UINT8, BASE_DEC, VALS(value_map_225), 0x0, NULL, HFILL } },
 { &expand_var_848, { "ACT : Aircraft Derived Aircraft Type", "asterix.11_1_3_380_461_compound_461_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_849, { "ECAT : Emitter Category", "asterix.11_1_3_380_462_compound_462_element", FT_UINT8, BASE_DEC, VALS(value_map_226), 0x0, NULL, HFILL } },
 { &expand_var_850, { "AVTECH : Available Technologies", "asterix.11_1_3_380_466_compound_466_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -10035,8 +10035,8 @@ static hf_register_info hf[] = {
 { &expand_var_892, { "430 : Phase of Flight", "asterix.11_1_3_430_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_237), 0x0, NULL, HFILL } },
 { &expand_var_893, { "090 : Measured Flight Level [FL]", "asterix.11_1_3_090_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_894, { "093 : Calculated Track Barometric Altitude", "asterix.11_1_3_093_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_895, { "QNH : QNH Correction Applied", "asterix.11_1_3_093_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_244), 0x0, NULL, HFILL } },
-{ &expand_var_896, { "CTBA : Calculated Track Barometric Altitude [FL]", "asterix.11_1_3_093_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_895, { "QNH : QNH Correction Applied", "asterix.11_1_3_093_uap_group_347", FT_UINT8, BASE_DEC, VALS(value_map_244), 0x0, NULL, HFILL } },
+{ &expand_var_896, { "CTBA : Calculated Track Barometric Altitude [FL]", "asterix.11_1_3_093_uap_group_267", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_897, { "092 : Calculated Track Geometric Altitude [ft]", "asterix.11_1_3_092_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_898, { "215 : Calculated Rate Of Climb/Descent [ft/min]", "asterix.11_1_3_215_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_899, { "270 : Target Size and Orientation", "asterix.11_1_3_270_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -10045,10 +10045,10 @@ static hf_register_info hf[] = {
 { &expand_var_902, { "CSN : Callsign", "asterix.11_1_3_390_470_compound_470_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_903, { "IFPSFLIGHTID : IFPS_FLIGHT_ID", "asterix.11_1_3_390_473_compound_473_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_904, { "FLIGHTCAT : Flight Category", "asterix.11_1_3_390_566_compound_566_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_905, { "GATOAT : Flight Type", "asterix.11_1_3_390_566_compound_566_group", FT_UINT8, BASE_DEC, VALS(value_map_135), 0x0, NULL, HFILL } },
-{ &expand_var_906, { "FR1FR2 : Flight Rules", "asterix.11_1_3_390_566_compound_566_group", FT_UINT8, BASE_DEC, VALS(value_map_252), 0x0, NULL, HFILL } },
-{ &expand_var_907, { "RVSM : RVSM", "asterix.11_1_3_390_566_compound_566_group", FT_UINT8, BASE_DEC, VALS(value_map_137), 0x0, NULL, HFILL } },
-{ &expand_var_908, { "HPR : Flight Priority", "asterix.11_1_3_390_566_compound_566_group", FT_UINT8, BASE_DEC, VALS(value_map_138), 0x0, NULL, HFILL } },
+{ &expand_var_905, { "GATOAT : Flight Type", "asterix.11_1_3_390_566_compound_566_group_308", FT_UINT8, BASE_DEC, VALS(value_map_135), 0x0, NULL, HFILL } },
+{ &expand_var_906, { "FR1FR2 : Flight Rules", "asterix.11_1_3_390_566_compound_566_group_361", FT_UINT8, BASE_DEC, VALS(value_map_252), 0x0, NULL, HFILL } },
+{ &expand_var_907, { "RVSM : RVSM", "asterix.11_1_3_390_566_compound_566_group_309", FT_UINT8, BASE_DEC, VALS(value_map_137), 0x0, NULL, HFILL } },
+{ &expand_var_908, { "HPR : Flight Priority", "asterix.11_1_3_390_566_compound_566_group_310", FT_UINT8, BASE_DEC, VALS(value_map_138), 0x0, NULL, HFILL } },
 { &expand_var_909, { "TOA : Type of Aircraft", "asterix.11_1_3_390_478_compound_478_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_910, { "WTC : Wake Turbulence Category", "asterix.11_1_3_390_479_compound_479_element", FT_UINT8, BASE_DEC, VALS(value_map_231), 0x0, NULL, HFILL } },
 { &expand_var_911, { "ADEP : Departure Airport", "asterix.11_1_3_390_480_compound_480_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -10069,8 +10069,8 @@ static hf_register_info hf[] = {
 { &expand_var_926, { "RE : Reserved Expansion Field", "asterix.11_1_3_28_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_927, { "010 : Data Source Identifier", "asterix.15_1_0_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_928, { "000 : Message Type", "asterix.15_1_0_000_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_929, { "MT : Message Type", "asterix.15_1_0_000_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_253), 0x0, NULL, HFILL } },
-{ &expand_var_930, { "RG : Report Generation", "asterix.15_1_0_000_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_254), 0x0, NULL, HFILL } },
+{ &expand_var_929, { "MT : Message Type", "asterix.15_1_0_000_uap_group_362", FT_UINT8, BASE_DEC, VALS(value_map_253), 0x0, NULL, HFILL } },
+{ &expand_var_930, { "RG : Report Generation", "asterix.15_1_0_000_uap_group_363", FT_UINT8, BASE_DEC, VALS(value_map_254), 0x0, NULL, HFILL } },
 { &expand_var_931, { "015 : Service Identification", "asterix.15_1_0_015_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_932, { "020 : Target Report Descriptor", "asterix.15_1_0_020_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_933, { "MOMU(Mono-Static Target Report or Multi-Static Target Report)", "asterix.15_1_0_020_uap_extended_MOMU", FT_UINT8, BASE_DEC, VALS(value_map_255), 0x0, NULL, HFILL } },
@@ -10089,7 +10089,7 @@ static hf_register_info hf[] = {
 { &expand_var_946, { "CNF(Confirmed vs. Tentative Track)", "asterix.15_1_0_170_uap_extended_CNF", FT_UINT8, BASE_DEC, VALS(value_map_262), 0x0, NULL, HFILL } },
 { &expand_var_947, { "FX", "asterix.15_1_0_170_uap_extended_170_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_948, { "050 : Update Period", "asterix.15_1_0_050_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_949, { "UPD : Update Period [s]", "asterix.15_1_0_050_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_949, { "UPD : Update Period [s]", "asterix.15_1_0_050_uap_group_367", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_950, { "270 : Target Size & Orientation", "asterix.15_1_0_270_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_951, { "LEN : Target Length [m]", "asterix.15_1_0_270_587_compound_587_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_952, { "WDT : Target Width [m]", "asterix.15_1_0_270_588_compound_588_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -10097,88 +10097,88 @@ static hf_register_info hf[] = {
 { &expand_var_954, { "ORT : Target Orientation [°]", "asterix.15_1_0_270_590_compound_590_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_955, { "300 : Object Classification", "asterix.15_1_0_300_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_956, { "300 : Object Classification", "asterix.15_1_0_300_rep17_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_957, { "CLS : Classification", "asterix.15_1_0_300_rep17_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_958, { "PRB : Probability", "asterix.15_1_0_300_rep17_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_957, { "CLS : Classification", "asterix.15_1_0_300_rep17_group_374", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_958, { "PRB : Probability", "asterix.15_1_0_300_rep17_group_375", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_959, { "400 : Measurement Identifier", "asterix.15_1_0_400_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_960, { "PID : Pair Identifier", "asterix.15_1_0_400_uap_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_961, { "ON : Observation Number", "asterix.15_1_0_400_uap_group", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_960, { "PID : Pair Identifier", "asterix.15_1_0_400_uap_group_376", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_961, { "ON : Observation Number", "asterix.15_1_0_400_uap_group_377", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_962, { "600 : Horizontal Position Information", "asterix.15_1_0_600_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_963, { "P84 : Horizontal Position in WGS-84 Coordinates", "asterix.15_1_0_600_601_compound_601_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_964, { "LATITUDE [°]", "asterix.15_1_0_600_601_compound_601_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_965, { "LONGITUDE [°]", "asterix.15_1_0_600_601_compound_601_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_964, { "LATITUDE [°]", "asterix.15_1_0_600_601_compound_601_group_378", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_965, { "LONGITUDE [°]", "asterix.15_1_0_600_601_compound_601_group_379", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_966, { "HPR : Horizontal Position Resolution", "asterix.15_1_0_600_605_compound_605_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_967, { "RSHPX [m]", "asterix.15_1_0_600_605_compound_605_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_968, { "RSHPY [m]", "asterix.15_1_0_600_605_compound_605_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_969, { "CORSHPXY []", "asterix.15_1_0_600_605_compound_605_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_967, { "RSHPX [m]", "asterix.15_1_0_600_605_compound_605_group_380", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_968, { "RSHPY [m]", "asterix.15_1_0_600_605_compound_605_group_381", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_969, { "CORSHPXY []", "asterix.15_1_0_600_605_compound_605_group_382", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_970, { "HPP : Horizontal Position Precision", "asterix.15_1_0_600_609_compound_609_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_971, { "SDHPX [m]", "asterix.15_1_0_600_609_compound_609_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_972, { "SDHPY [m]", "asterix.15_1_0_600_609_compound_609_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_973, { "COSDHPXY []", "asterix.15_1_0_600_609_compound_609_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_971, { "SDHPX [m]", "asterix.15_1_0_600_609_compound_609_group_383", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_972, { "SDHPY [m]", "asterix.15_1_0_600_609_compound_609_group_384", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_973, { "COSDHPXY []", "asterix.15_1_0_600_609_compound_609_group_385", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_974, { "601 : Geometric Height Information", "asterix.15_1_0_601_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_975, { "GH : Geometric Height (WGS-84) [m]", "asterix.15_1_0_601_611_compound_611_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_976, { "RSGH : Geometric Height Resolution [m]", "asterix.15_1_0_601_612_compound_612_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_977, { "SDGH : Geometric Height Precision [m]", "asterix.15_1_0_601_613_compound_613_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_978, { "CI6 : Confidence Interval for Geometric Height (67%)", "asterix.15_1_0_601_616_compound_616_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_979, { "UCI6 [m]", "asterix.15_1_0_601_616_compound_616_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_980, { "LCI6 [m]", "asterix.15_1_0_601_616_compound_616_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_979, { "UCI6 [m]", "asterix.15_1_0_601_616_compound_616_group_386", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_980, { "LCI6 [m]", "asterix.15_1_0_601_616_compound_616_group_387", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_981, { "CI9 : Confidence Interval for Geometric Height (95%)", "asterix.15_1_0_601_619_compound_619_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_982, { "UCI9 [m]", "asterix.15_1_0_601_619_compound_619_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_983, { "LCI9 [m]", "asterix.15_1_0_601_619_compound_619_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_982, { "UCI9 [m]", "asterix.15_1_0_601_619_compound_619_group_388", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_983, { "LCI9 [m]", "asterix.15_1_0_601_619_compound_619_group_389", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_984, { "COGHHP : Correlation of Geometric Height and Horizontal Position", "asterix.15_1_0_601_622_compound_622_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_985, { "X []", "asterix.15_1_0_601_622_compound_622_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_986, { "Y []", "asterix.15_1_0_601_622_compound_622_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_985, { "X []", "asterix.15_1_0_601_622_compound_622_group_390", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_986, { "Y []", "asterix.15_1_0_601_622_compound_622_group_391", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_987, { "COGHHV : Correlation of Geometric Height and Horizontal Velocity", "asterix.15_1_0_601_623_compound_623_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_988, { "COGHHA : Correlation of Geometric Height and Horizontal Acceleration", "asterix.15_1_0_601_624_compound_624_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_989, { "602 : Horizontal Velocity Information", "asterix.15_1_0_602_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_990, { "HV : Horizontal Velocity Vector", "asterix.15_1_0_602_628_compound_628_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_991, { "X [m/s]", "asterix.15_1_0_602_628_compound_628_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_992, { "Y [m/s]", "asterix.15_1_0_602_628_compound_628_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_991, { "X [m/s]", "asterix.15_1_0_602_628_compound_628_group_392", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_992, { "Y [m/s]", "asterix.15_1_0_602_628_compound_628_group_393", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_993, { "RSHV : Horizontal Velocity Resolution", "asterix.15_1_0_602_632_compound_632_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_994, { "X [m/s]", "asterix.15_1_0_602_632_compound_632_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_995, { "Y [m/s]", "asterix.15_1_0_602_632_compound_632_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_996, { "CORSHVXY []", "asterix.15_1_0_602_632_compound_632_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_994, { "X [m/s]", "asterix.15_1_0_602_632_compound_632_group_394", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_995, { "Y [m/s]", "asterix.15_1_0_602_632_compound_632_group_395", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_996, { "CORSHVXY []", "asterix.15_1_0_602_632_compound_632_group_396", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_997, { "SDHV : Horizontal Velocity Precision", "asterix.15_1_0_602_634_compound_634_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_998, { "X [m/s]", "asterix.15_1_0_602_634_compound_634_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_999, { "Y [m/s]", "asterix.15_1_0_602_634_compound_634_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1000, { "COHVXY []", "asterix.15_1_0_602_634_compound_634_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_998, { "X [m/s]", "asterix.15_1_0_602_634_compound_634_group_394", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_999, { "Y [m/s]", "asterix.15_1_0_602_634_compound_634_group_395", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1000, { "COHVXY []", "asterix.15_1_0_602_634_compound_634_group_397", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1001, { "COHVHP : Correlation of Horizontal Velocity and Horizontal Position", "asterix.15_1_0_602_639_compound_639_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1002, { "COHVXHPX []", "asterix.15_1_0_602_639_compound_639_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1003, { "COHVXHPY []", "asterix.15_1_0_602_639_compound_639_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1004, { "COHVYHPX []", "asterix.15_1_0_602_639_compound_639_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1005, { "COHVYHPY []", "asterix.15_1_0_602_639_compound_639_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1002, { "COHVXHPX []", "asterix.15_1_0_602_639_compound_639_group_398", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1003, { "COHVXHPY []", "asterix.15_1_0_602_639_compound_639_group_399", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1004, { "COHVYHPX []", "asterix.15_1_0_602_639_compound_639_group_400", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1005, { "COHVYHPY []", "asterix.15_1_0_602_639_compound_639_group_401", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1006, { "603 : Horizontal Acceleration Information", "asterix.15_1_0_603_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1007, { "HA : Horizontal Acceleration Vector", "asterix.15_1_0_603_643_compound_643_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1008, { "X [m/s²]", "asterix.15_1_0_603_643_compound_643_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1009, { "Y [m/s²]", "asterix.15_1_0_603_643_compound_643_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1008, { "X [m/s²]", "asterix.15_1_0_603_643_compound_643_group_402", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1009, { "Y [m/s²]", "asterix.15_1_0_603_643_compound_643_group_403", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1010, { "SDHA : Horizontal Acceleration Precision", "asterix.15_1_0_603_647_compound_647_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1011, { "X [m/s²]", "asterix.15_1_0_603_647_compound_647_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1012, { "Y [m/s²]", "asterix.15_1_0_603_647_compound_647_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1013, { "COHAXY []", "asterix.15_1_0_603_647_compound_647_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1011, { "X [m/s²]", "asterix.15_1_0_603_647_compound_647_group_404", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1012, { "Y [m/s²]", "asterix.15_1_0_603_647_compound_647_group_405", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1013, { "COHAXY []", "asterix.15_1_0_603_647_compound_647_group_406", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1014, { "COHAHP : Correlation of Horizontal Acceleration and Horizontal Position", "asterix.15_1_0_603_652_compound_652_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1015, { "COHAXHPX []", "asterix.15_1_0_603_652_compound_652_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1016, { "COHAXHPY []", "asterix.15_1_0_603_652_compound_652_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1017, { "COHAYHPX []", "asterix.15_1_0_603_652_compound_652_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1018, { "COAYHPY []", "asterix.15_1_0_603_652_compound_652_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1015, { "COHAXHPX []", "asterix.15_1_0_603_652_compound_652_group_407", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1016, { "COHAXHPY []", "asterix.15_1_0_603_652_compound_652_group_408", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1017, { "COHAYHPX []", "asterix.15_1_0_603_652_compound_652_group_409", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1018, { "COAYHPY []", "asterix.15_1_0_603_652_compound_652_group_410", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1019, { "COHAHV : Correlation of Horizontal Acceleration and Horizontal Velocity", "asterix.15_1_0_603_657_compound_657_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1020, { "COHAXHVX []", "asterix.15_1_0_603_657_compound_657_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1021, { "COHAXHVY []", "asterix.15_1_0_603_657_compound_657_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1022, { "COHAYHVX []", "asterix.15_1_0_603_657_compound_657_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1023, { "COHAYHVY []", "asterix.15_1_0_603_657_compound_657_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1020, { "COHAXHVX []", "asterix.15_1_0_603_657_compound_657_group_411", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1021, { "COHAXHVY []", "asterix.15_1_0_603_657_compound_657_group_412", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1022, { "COHAYHVX []", "asterix.15_1_0_603_657_compound_657_group_413", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1023, { "COHAYHVY []", "asterix.15_1_0_603_657_compound_657_group_414", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1024, { "604 : Vertical Velocity Information", "asterix.15_1_0_604_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1025, { "VV : Vertical Velocity [m/s]", "asterix.15_1_0_604_659_compound_659_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1026, { "RSVV : Vertical Velocity Resolution [m/s]", "asterix.15_1_0_604_660_compound_660_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1027, { "SDVV : Vertical Velocity Precision", "asterix.15_1_0_604_663_compound_663_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1028, { "SDVV [m/s]", "asterix.15_1_0_604_663_compound_663_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1029, { "COVVGH []", "asterix.15_1_0_604_663_compound_663_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1028, { "SDVV [m/s]", "asterix.15_1_0_604_663_compound_663_group_415", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1029, { "COVVGH []", "asterix.15_1_0_604_663_compound_663_group_416", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1030, { "COVVHP : Correlation of Vertical Velocity and Horizontal Position", "asterix.15_1_0_604_664_compound_664_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1031, { "COVVHV : Correlation of Vertical Velocity and Horizontal Velocity", "asterix.15_1_0_604_665_compound_665_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1032, { "COVVHA : Correlation of Vertical Velocity and Horizontal Acceleration", "asterix.15_1_0_604_666_compound_666_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1033, { "605 : Vertical Velocity Information", "asterix.15_1_0_605_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1034, { "VA : Vertical Acceleration [m/s²]", "asterix.15_1_0_605_668_compound_668_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1035, { "RSVA : Vertical Acceleration Precision", "asterix.15_1_0_605_672_compound_672_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1036, { "SDVA [m/s²]", "asterix.15_1_0_605_672_compound_672_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1037, { "COVAGH []", "asterix.15_1_0_605_672_compound_672_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1038, { "COVAVV []", "asterix.15_1_0_605_672_compound_672_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1036, { "SDVA [m/s²]", "asterix.15_1_0_605_672_compound_672_group_417", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1037, { "COVAGH []", "asterix.15_1_0_605_672_compound_672_group_418", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1038, { "COVAVV []", "asterix.15_1_0_605_672_compound_672_group_419", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1039, { "COVAHP : Correlation of Vertical Acceleration and Horizontal Position", "asterix.15_1_0_605_673_compound_673_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1040, { "COVAHV : Correlation of Vertical Acceleration and Horizontal Velocity", "asterix.15_1_0_605_674_compound_674_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1041, { "COVAHA : Correlation of Vertical Acceleration and Horizontal Acceleration", "asterix.15_1_0_605_675_compound_675_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -10191,20 +10191,20 @@ static hf_register_info hf[] = {
 { &expand_var_1048, { "RR : Range Rate [m/s]", "asterix.15_1_0_625_680_compound_680_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1049, { "RSRR : Range Rate Resolution [m/s]", "asterix.15_1_0_625_681_compound_681_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1050, { "SDRR : Range Rate Precision", "asterix.15_1_0_625_684_compound_684_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1051, { "SDRR [m/s]", "asterix.15_1_0_625_684_compound_684_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1052, { "CORRR []", "asterix.15_1_0_625_684_compound_684_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1051, { "SDRR [m/s]", "asterix.15_1_0_625_684_compound_684_group_420", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1052, { "CORRR []", "asterix.15_1_0_625_684_compound_684_group_421", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1053, { "RA : Range Acceleration [m/s²]", "asterix.15_1_0_625_685_compound_685_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1054, { "SDRA : Range Acceleration Precision", "asterix.15_1_0_625_689_compound_689_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1055, { "SDRA [m/s²]", "asterix.15_1_0_625_689_compound_689_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1056, { "CORAR []", "asterix.15_1_0_625_689_compound_689_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1057, { "CORARR []", "asterix.15_1_0_625_689_compound_689_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1055, { "SDRA [m/s²]", "asterix.15_1_0_625_689_compound_689_group_422", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1056, { "CORAR []", "asterix.15_1_0_625_689_compound_689_group_423", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1057, { "CORARR []", "asterix.15_1_0_625_689_compound_689_group_424", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1058, { "626 : Doppler Information", "asterix.15_1_0_626_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1059, { "DV : Doppler Velocity [m/s]", "asterix.15_1_0_626_691_compound_691_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1060, { "SDDV : Precision of Doppler Velocity [m/s]", "asterix.15_1_0_626_692_compound_692_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1061, { "DA : Doppler Acceleration [m/s²]", "asterix.15_1_0_626_693_compound_693_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1062, { "SDDA : Precision of Doppler Acceleration", "asterix.15_1_0_626_696_compound_696_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1063, { "SDDA [m/s²]", "asterix.15_1_0_626_696_compound_696_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1064, { "CODADV []", "asterix.15_1_0_626_696_compound_696_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1063, { "SDDA [m/s²]", "asterix.15_1_0_626_696_compound_696_group_425", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1064, { "CODADV []", "asterix.15_1_0_626_696_compound_696_group_426", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1065, { "CODVR : Correlation of Doppler Velocity and Range []", "asterix.15_1_0_626_697_compound_697_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1066, { "CODVRR : Correlation of Doppler Velocity and Range Rate []", "asterix.15_1_0_626_698_compound_698_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1067, { "CODVRA : Correlation of Doppler Velocity and Range Acceleration []", "asterix.15_1_0_626_699_compound_699_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -10217,34 +10217,34 @@ static hf_register_info hf[] = {
 { &expand_var_1074, { "SDASZ : Standard Deviation of Azimuth [°]", "asterix.15_1_0_627_705_compound_705_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1075, { "AZR : Azimuth Rate [°]", "asterix.15_1_0_627_706_compound_706_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1076, { "SDAZR : Standard Deviation of Azimuth Rate", "asterix.15_1_0_627_709_compound_709_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1077, { "SDAZR [°]", "asterix.15_1_0_627_709_compound_709_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1078, { "COAZRAZ []", "asterix.15_1_0_627_709_compound_709_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1077, { "SDAZR [°]", "asterix.15_1_0_627_709_compound_709_group_427", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1078, { "COAZRAZ []", "asterix.15_1_0_627_709_compound_709_group_428", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1079, { "AZEX : Azimuth Extent", "asterix.15_1_0_627_712_compound_712_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1080, { "S [°]", "asterix.15_1_0_627_712_compound_712_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1081, { "E [°]", "asterix.15_1_0_627_712_compound_712_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1080, { "S [°]", "asterix.15_1_0_627_712_compound_712_group_429", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1081, { "E [°]", "asterix.15_1_0_627_712_compound_712_group_430", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1082, { "628 : Elevation Information", "asterix.15_1_0_628_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1083, { "EL : Elevation [°]", "asterix.15_1_0_628_714_compound_714_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1084, { "RSEL : Elevation Resolution [°]", "asterix.15_1_0_628_715_compound_715_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1085, { "SDEL : Standard Deviation of Elevation [°]", "asterix.15_1_0_628_716_compound_716_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1086, { "ER : Elevation Rate [°/s]", "asterix.15_1_0_628_717_compound_717_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1087, { "SDER : Standard Deviation of Elevation Rate", "asterix.15_1_0_628_720_compound_720_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1088, { "SDELR [°/s]", "asterix.15_1_0_628_720_compound_720_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1089, { "COELREL []", "asterix.15_1_0_628_720_compound_720_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1088, { "SDELR [°/s]", "asterix.15_1_0_628_720_compound_720_group_431", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1089, { "COELREL []", "asterix.15_1_0_628_720_compound_720_group_432", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1090, { "ELEX : Elevation Extent", "asterix.15_1_0_628_723_compound_723_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1091, { "S [°]", "asterix.15_1_0_628_723_compound_723_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1092, { "E [°]", "asterix.15_1_0_628_723_compound_723_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1091, { "S [°]", "asterix.15_1_0_628_723_compound_723_group_433", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1092, { "E [°]", "asterix.15_1_0_628_723_compound_723_group_434", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1093, { "630 : Path Quality", "asterix.15_1_0_630_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1094, { "DPP : Direct Path - Power [dB]", "asterix.15_1_0_630_725_compound_725_element", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1095, { "DPS : Direct Path - Signal to Noise Ratio (SNR) [dB]", "asterix.15_1_0_630_726_compound_726_element", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1096, { "RPP : Reflected Path - Power", "asterix.15_1_0_630_728_compound_728_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1097, { "RPP [dB]", "asterix.15_1_0_630_728_compound_728_group", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1097, { "RPP [dB]", "asterix.15_1_0_630_728_compound_728_group_436", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1098, { "RPS : Reflected Path - Signal to Noise Ratio (SNR) [dB]", "asterix.15_1_0_630_729_compound_729_element", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1099, { "631 : Contour (Azimuth, Elevation Angle, Range Extent)", "asterix.15_1_0_631_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1100, { "631 : Contour (Azimuth, Elevation Angle, Range Extent)", "asterix.15_1_0_631_rep19_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1101, { "AZCON [°]", "asterix.15_1_0_631_rep19_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1102, { "ELCON [°]", "asterix.15_1_0_631_rep19_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1103, { "RGCONSTOP [m]", "asterix.15_1_0_631_rep19_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1104, { "RGCONSTART [m]", "asterix.15_1_0_631_rep19_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1101, { "AZCON [°]", "asterix.15_1_0_631_rep19_group_437", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1102, { "ELCON [°]", "asterix.15_1_0_631_rep19_group_438", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1103, { "RGCONSTOP [m]", "asterix.15_1_0_631_rep19_group_439", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1104, { "RGCONSTART [m]", "asterix.15_1_0_631_rep19_group_440", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1105, { "SP : Special Purpose Field", "asterix.15_1_0_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1106, { "010 : Data Source Identifier", "asterix.15_1_1_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1107, { "000 : Message Type", "asterix.15_1_1_000_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -10305,28 +10305,28 @@ static hf_register_info hf[] = {
 { &expand_var_1162, { "200 : System Configuration Reporting Period [s]", "asterix.16_1_0_200_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1163, { "300 : Pair Identification", "asterix.16_1_0_300_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1164, { "300 : Pair Identification", "asterix.16_1_0_300_rep20_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1165, { "PID : Pair Identification", "asterix.16_1_0_300_rep20_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1166, { "TID : Transmitter Identification", "asterix.16_1_0_300_rep20_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1167, { "RID : Receiver Identification", "asterix.16_1_0_300_rep20_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1165, { "PID : Pair Identification", "asterix.16_1_0_300_rep20_group_441", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1166, { "TID : Transmitter Identification", "asterix.16_1_0_300_rep20_group_442", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1167, { "RID : Receiver Identification", "asterix.16_1_0_300_rep20_group_443", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1168, { "400 : Position of the System Reference Point", "asterix.16_1_0_400_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1169, { "LAT : Latitude [°]", "asterix.16_1_0_400_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1170, { "LON : Longitude [°]", "asterix.16_1_0_400_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1169, { "LAT : Latitude [°]", "asterix.16_1_0_400_uap_group_444", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1170, { "LON : Longitude [°]", "asterix.16_1_0_400_uap_group_445", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1171, { "405 : Height of System Reference Point [m]", "asterix.16_1_0_405_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1172, { "410 : Transmitter Properties", "asterix.16_1_0_410_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1173, { "410 : Transmitter Properties", "asterix.16_1_0_410_rep21_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1174, { "TID : Transmitter ID", "asterix.16_1_0_410_rep21_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1175, { "LAT : Latitude [°]", "asterix.16_1_0_410_rep21_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1176, { "LON : Longitude [°]", "asterix.16_1_0_410_rep21_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1177, { "ALT : Altitude [m]", "asterix.16_1_0_410_rep21_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1178, { "TTO : Transmission Time Offset [ns]", "asterix.16_1_0_410_rep21_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1179, { "ATO : Accuracy of Transmission Time Offset [ns]", "asterix.16_1_0_410_rep21_group", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1180, { "PCI : Parallel Transmitter Index", "asterix.16_1_0_410_rep21_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1174, { "TID : Transmitter ID", "asterix.16_1_0_410_rep21_group_446", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1175, { "LAT : Latitude [°]", "asterix.16_1_0_410_rep21_group_444", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1176, { "LON : Longitude [°]", "asterix.16_1_0_410_rep21_group_445", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1177, { "ALT : Altitude [m]", "asterix.16_1_0_410_rep21_group_447", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1178, { "TTO : Transmission Time Offset [ns]", "asterix.16_1_0_410_rep21_group_448", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1179, { "ATO : Accuracy of Transmission Time Offset [ns]", "asterix.16_1_0_410_rep21_group_449", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1180, { "PCI : Parallel Transmitter Index", "asterix.16_1_0_410_rep21_group_450", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1181, { "420 : Receiver Properties", "asterix.16_1_0_420_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1182, { "420 : Receiver Properties", "asterix.16_1_0_420_rep22_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1183, { "RID : Receiver Component ID", "asterix.16_1_0_420_rep22_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1184, { "LAT : Latitude [°]", "asterix.16_1_0_420_rep22_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1185, { "LON : Longitude [°]", "asterix.16_1_0_420_rep22_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1186, { "ALT : Altitude [m]", "asterix.16_1_0_420_rep22_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1183, { "RID : Receiver Component ID", "asterix.16_1_0_420_rep22_group_451", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1184, { "LAT : Latitude [°]", "asterix.16_1_0_420_rep22_group_444", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1185, { "LON : Longitude [°]", "asterix.16_1_0_420_rep22_group_445", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1186, { "ALT : Altitude [m]", "asterix.16_1_0_420_rep22_group_447", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1187, { "SP : Special Purpose Field", "asterix.16_1_0_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1188, { "010 : Data Source Identifier", "asterix.17_1_3_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1189, { "012 : Data Destination Identifier", "asterix.17_1_3_012_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -10336,26 +10336,26 @@ static hf_register_info hf[] = {
 { &expand_var_1193, { "221 : Duplicate Address Reference Number (DRN)", "asterix.17_1_3_221_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1194, { "140 : Time of Day [s]", "asterix.17_1_3_140_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1195, { "045 : Calculated Position in WGS-84 Coordinates", "asterix.17_1_3_045_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1196, { "LAT : Latitude [°]", "asterix.17_1_3_045_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1197, { "LON : Longitude [°]", "asterix.17_1_3_045_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1196, { "LAT : Latitude [°]", "asterix.17_1_3_045_uap_group_452", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1197, { "LON : Longitude [°]", "asterix.17_1_3_045_uap_group_453", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1198, { "070 : Mode 3/A Code in Octal Representation", "asterix.17_1_3_070_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1199, { "V", "asterix.17_1_3_070_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_1200, { "G", "asterix.17_1_3_070_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_1201, { "L", "asterix.17_1_3_070_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_289), 0x0, NULL, HFILL } },
-{ &expand_var_1202, { "MODE3A : Mode 3/A Reply in Octal Representation", "asterix.17_1_3_070_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1199, { "V", "asterix.17_1_3_070_uap_group_454", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_1200, { "G", "asterix.17_1_3_070_uap_group_457", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_1201, { "L", "asterix.17_1_3_070_uap_group_458", FT_UINT8, BASE_DEC, VALS(value_map_289), 0x0, NULL, HFILL } },
+{ &expand_var_1202, { "MODE3A : Mode 3/A Reply in Octal Representation", "asterix.17_1_3_070_uap_group_459", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1203, { "050 : Flight Level in Binary Representation", "asterix.17_1_3_050_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1204, { "V", "asterix.17_1_3_050_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_1205, { "G", "asterix.17_1_3_050_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_288), 0x0, NULL, HFILL } },
-{ &expand_var_1206, { "ALT : Altitude [FL]", "asterix.17_1_3_050_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1204, { "V", "asterix.17_1_3_050_uap_group_454", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_1205, { "G", "asterix.17_1_3_050_uap_group_455", FT_UINT8, BASE_DEC, VALS(value_map_288), 0x0, NULL, HFILL } },
+{ &expand_var_1206, { "ALT : Altitude [FL]", "asterix.17_1_3_050_uap_group_456", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1207, { "200 : Track Velocity in Polar Co-ordinates", "asterix.17_1_3_200_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1208, { "GSP : Calculated Groundspeed [NM/s]", "asterix.17_1_3_200_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1209, { "HDG : Calculated Heading [°]", "asterix.17_1_3_200_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1208, { "GSP : Calculated Groundspeed [NM/s]", "asterix.17_1_3_200_uap_group_460", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1209, { "HDG : Calculated Heading [°]", "asterix.17_1_3_200_uap_group_461", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1210, { "230 : Transponder Capability", "asterix.17_1_3_230_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1211, { "CA : Communications Capability of the Transponder", "asterix.17_1_3_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_290), 0x0, NULL, HFILL } },
-{ &expand_var_1212, { "SI : SI/II-capabilities of the Transponder", "asterix.17_1_3_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_291), 0x0, NULL, HFILL } },
+{ &expand_var_1211, { "CA : Communications Capability of the Transponder", "asterix.17_1_3_230_uap_group_462", FT_UINT8, BASE_DEC, VALS(value_map_290), 0x0, NULL, HFILL } },
+{ &expand_var_1212, { "SI : SI/II-capabilities of the Transponder", "asterix.17_1_3_230_uap_group_463", FT_UINT8, BASE_DEC, VALS(value_map_291), 0x0, NULL, HFILL } },
 { &expand_var_1213, { "240 : Track Status", "asterix.17_1_3_240_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1214, { "CST : Track Coasted", "asterix.17_1_3_240_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_292), 0x0, NULL, HFILL } },
-{ &expand_var_1215, { "FLT : Flight Level Tracking", "asterix.17_1_3_240_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_293), 0x0, NULL, HFILL } },
+{ &expand_var_1214, { "CST : Track Coasted", "asterix.17_1_3_240_uap_group_464", FT_UINT8, BASE_DEC, VALS(value_map_292), 0x0, NULL, HFILL } },
+{ &expand_var_1215, { "FLT : Flight Level Tracking", "asterix.17_1_3_240_uap_group_465", FT_UINT8, BASE_DEC, VALS(value_map_293), 0x0, NULL, HFILL } },
 { &expand_var_1216, { "210 : Mode S Address List", "asterix.17_1_3_210_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1217, { "210 : Mode S Address List", "asterix.17_1_3_210_rep23_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1218, { "360 : Cluster Controller Command State", "asterix.17_1_3_360_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -10364,33 +10364,33 @@ static hf_register_info hf[] = {
 { &expand_var_1221, { "037 : Data Destination Identifier", "asterix.18_1_7_037_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1222, { "000 : Message Type", "asterix.18_1_7_000_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_294), 0x0, NULL, HFILL } },
 { &expand_var_1223, { "001 : Result", "asterix.18_1_7_001_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1224, { "CAUSE : Cause", "asterix.18_1_7_001_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_295), 0x0, NULL, HFILL } },
-{ &expand_var_1225, { "DIAG : Diagnostic", "asterix.18_1_7_001_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_296), 0x0, NULL, HFILL } },
+{ &expand_var_1224, { "CAUSE : Cause", "asterix.18_1_7_001_uap_group_466", FT_UINT8, BASE_DEC, VALS(value_map_295), 0x0, NULL, HFILL } },
+{ &expand_var_1225, { "DIAG : Diagnostic", "asterix.18_1_7_001_uap_group_467", FT_UINT8, BASE_DEC, VALS(value_map_296), 0x0, NULL, HFILL } },
 { &expand_var_1226, { "005 : Mode S Address", "asterix.18_1_7_005_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1227, { "016 : Packet Number", "asterix.18_1_7_016_uap_element", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1228, { "017 : Packet Number List", "asterix.18_1_7_017_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1229, { "017 : Packet Number List", "asterix.18_1_7_017_rep24_element", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1230, { "018 : Mode S Packet Properties", "asterix.18_1_7_018_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1231, { "PR : Mode S Packet Internal Priority", "asterix.18_1_7_018_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1232, { "PT : Packet Type", "asterix.18_1_7_018_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_321), 0x0, NULL, HFILL } },
+{ &expand_var_1231, { "PR : Mode S Packet Internal Priority", "asterix.18_1_7_018_uap_group_499", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1232, { "PT : Packet Type", "asterix.18_1_7_018_uap_group_500", FT_UINT8, BASE_DEC, VALS(value_map_321), 0x0, NULL, HFILL } },
 { &expand_var_1233, { "019 : Mode S Packet", "asterix.18_1_7_019_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1234, { "028 : GICB Extraction Periodicity [s]", "asterix.18_1_7_028_uap_element", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1235, { "030 : GICB Properties", "asterix.18_1_7_030_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1236, { "PRIORITY : GICB Priority", "asterix.18_1_7_030_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1237, { "PC : Periodicity Constraint", "asterix.18_1_7_030_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_322), 0x0, NULL, HFILL } },
-{ &expand_var_1238, { "AU : Asynchronous Update", "asterix.18_1_7_030_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_323), 0x0, NULL, HFILL } },
-{ &expand_var_1239, { "NE : Non Extraction", "asterix.18_1_7_030_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_324), 0x0, NULL, HFILL } },
-{ &expand_var_1240, { "RD : Reply Destination", "asterix.18_1_7_030_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_325), 0x0, NULL, HFILL } },
+{ &expand_var_1236, { "PRIORITY : GICB Priority", "asterix.18_1_7_030_uap_group_506", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1237, { "PC : Periodicity Constraint", "asterix.18_1_7_030_uap_group_507", FT_UINT8, BASE_DEC, VALS(value_map_322), 0x0, NULL, HFILL } },
+{ &expand_var_1238, { "AU : Asynchronous Update", "asterix.18_1_7_030_uap_group_508", FT_UINT8, BASE_DEC, VALS(value_map_323), 0x0, NULL, HFILL } },
+{ &expand_var_1239, { "NE : Non Extraction", "asterix.18_1_7_030_uap_group_509", FT_UINT8, BASE_DEC, VALS(value_map_324), 0x0, NULL, HFILL } },
+{ &expand_var_1240, { "RD : Reply Destination", "asterix.18_1_7_030_uap_group_510", FT_UINT8, BASE_DEC, VALS(value_map_325), 0x0, NULL, HFILL } },
 { &expand_var_1241, { "025 : GICB Number", "asterix.18_1_7_025_uap_element", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1242, { "027 : BDS Code", "asterix.18_1_7_027_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1243, { "029 : GICB Extracted", "asterix.18_1_7_029_uap_element", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1244, { "002 : Time of Day [s]", "asterix.18_1_7_002_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1245, { "006 : Mode S Address List", "asterix.18_1_7_006_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1246, { "007 : Aircraft Data Link Command", "asterix.18_1_7_007_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1247, { "UM : Uplink Mask", "asterix.18_1_7_007_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_297), 0x0, NULL, HFILL } },
-{ &expand_var_1248, { "DM : Downlink Mask", "asterix.18_1_7_007_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_298), 0x0, NULL, HFILL } },
-{ &expand_var_1249, { "UC : Uplink Command", "asterix.18_1_7_007_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_299), 0x0, NULL, HFILL } },
-{ &expand_var_1250, { "DC : Downlink Command", "asterix.18_1_7_007_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_300), 0x0, NULL, HFILL } },
+{ &expand_var_1247, { "UM : Uplink Mask", "asterix.18_1_7_007_uap_group_470", FT_UINT8, BASE_DEC, VALS(value_map_297), 0x0, NULL, HFILL } },
+{ &expand_var_1248, { "DM : Downlink Mask", "asterix.18_1_7_007_uap_group_471", FT_UINT8, BASE_DEC, VALS(value_map_298), 0x0, NULL, HFILL } },
+{ &expand_var_1249, { "UC : Uplink Command", "asterix.18_1_7_007_uap_group_472", FT_UINT8, BASE_DEC, VALS(value_map_299), 0x0, NULL, HFILL } },
+{ &expand_var_1250, { "DC : Downlink Command", "asterix.18_1_7_007_uap_group_473", FT_UINT8, BASE_DEC, VALS(value_map_300), 0x0, NULL, HFILL } },
 { &expand_var_1251, { "008 : Aircraft Data Link Status", "asterix.18_1_7_008_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1252, { "UDS(Uplink Default Status)", "asterix.18_1_7_008_uap_extended_UDS", FT_UINT8, BASE_DEC, VALS(value_map_301), 0x0, NULL, HFILL } },
 { &expand_var_1253, { "DDS(Downlink Default Status)", "asterix.18_1_7_008_uap_extended_DDS", FT_UINT8, BASE_DEC, VALS(value_map_302), 0x0, NULL, HFILL } },
@@ -10416,41 +10416,41 @@ static hf_register_info hf[] = {
 { &expand_var_1273, { "HD", "asterix.18_1_7_009_uap_extended_HD", FT_UINT8, BASE_DEC, VALS(value_map_316), 0x0, NULL, HFILL } },
 { &expand_var_1274, { "FX", "asterix.18_1_7_009_uap_extended_009_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1275, { "010 : Transponder Communications Capability", "asterix.18_1_7_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1276, { "COM : Communications Capability of the Transponder", "asterix.18_1_7_010_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_317), 0x0, NULL, HFILL } },
+{ &expand_var_1276, { "COM : Communications Capability of the Transponder", "asterix.18_1_7_010_uap_group_492", FT_UINT8, BASE_DEC, VALS(value_map_317), 0x0, NULL, HFILL } },
 { &expand_var_1277, { "011 : Capability Report", "asterix.18_1_7_011_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1278, { "014 : Aircraft Position in Polar Co-ordinates", "asterix.18_1_7_014_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1279, { "RHO [NM]", "asterix.18_1_7_014_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1280, { "THETA [°]", "asterix.18_1_7_014_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1279, { "RHO [NM]", "asterix.18_1_7_014_uap_group_495", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1280, { "THETA [°]", "asterix.18_1_7_014_uap_group_496", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1281, { "015 : Aircraft Position in Cartesian Co-ordinates", "asterix.18_1_7_015_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1282, { "X : X-Component [NM]", "asterix.18_1_7_015_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1283, { "Y : Y-Component [NM]", "asterix.18_1_7_015_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1282, { "X : X-Component [NM]", "asterix.18_1_7_015_uap_group_497", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1283, { "Y : Y-Component [NM]", "asterix.18_1_7_015_uap_group_498", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1284, { "020 : Broadcast Number", "asterix.18_1_7_020_uap_element", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1285, { "021 : Broadcast Properties", "asterix.18_1_7_021_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1286, { "PRIORITY : Priority", "asterix.18_1_7_021_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1287, { "POWER : Power", "asterix.18_1_7_021_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1288, { "DURATION : Duration [s]", "asterix.18_1_7_021_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1289, { "COVERAGE : Coverage", "asterix.18_1_7_021_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1286, { "PRIORITY : Priority", "asterix.18_1_7_021_uap_group_501", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1287, { "POWER : Power", "asterix.18_1_7_021_uap_group_502", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1288, { "DURATION : Duration [s]", "asterix.18_1_7_021_uap_group_503", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1289, { "COVERAGE : Coverage", "asterix.18_1_7_021_uap_group_504", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1290, { "022 : Broadcast Prefix", "asterix.18_1_7_022_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1291, { "PREFIX : Prefix Field", "asterix.18_1_7_022_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1291, { "PREFIX : Prefix Field", "asterix.18_1_7_022_uap_group_505", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1292, { "023 : Uplink or Downlink Broadcast", "asterix.18_1_7_023_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1293, { "004 : II Code", "asterix.18_1_7_004_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1294, { "PREVIOUSII : Former II Code", "asterix.18_1_7_004_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1295, { "CURRENTII : Current II Code", "asterix.18_1_7_004_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1294, { "PREVIOUSII : Former II Code", "asterix.18_1_7_004_uap_group_468", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1295, { "CURRENTII : Current II Code", "asterix.18_1_7_004_uap_group_469", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1296, { "031 : Aircraft Identity", "asterix.18_1_7_031_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1297, { "032 : Aircraft Mode A", "asterix.18_1_7_032_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1298, { "V", "asterix.18_1_7_032_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_1299, { "G", "asterix.18_1_7_032_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_1300, { "L", "asterix.18_1_7_032_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_171), 0x0, NULL, HFILL } },
-{ &expand_var_1301, { "MOD3A", "asterix.18_1_7_032_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1298, { "V", "asterix.18_1_7_032_uap_group_454", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_1299, { "G", "asterix.18_1_7_032_uap_group_457", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_1300, { "L", "asterix.18_1_7_032_uap_group_511", FT_UINT8, BASE_DEC, VALS(value_map_171), 0x0, NULL, HFILL } },
+{ &expand_var_1301, { "MOD3A", "asterix.18_1_7_032_uap_group_512", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1302, { "033 : Aircraft Height", "asterix.18_1_7_033_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1303, { "V", "asterix.18_1_7_033_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_1304, { "G", "asterix.18_1_7_033_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_1305, { "FL : Flight Level [FL]", "asterix.18_1_7_033_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1303, { "V", "asterix.18_1_7_033_uap_group_454", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_1304, { "G", "asterix.18_1_7_033_uap_group_457", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_1305, { "FL : Flight Level [FL]", "asterix.18_1_7_033_uap_group_513", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1306, { "034 : Aircraft Speed [NM/s]", "asterix.18_1_7_034_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1307, { "035 : Aircraft Heading [°]", "asterix.18_1_7_035_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1308, { "012 : Aircraft Coverage Quality Factor", "asterix.18_1_7_012_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1309, { "FS : Flight Status", "asterix.18_1_7_012_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_318), 0x0, NULL, HFILL } },
-{ &expand_var_1310, { "CQF : Aircraft CQF", "asterix.18_1_7_012_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_319), 0x0, NULL, HFILL } },
+{ &expand_var_1309, { "FS : Flight Status", "asterix.18_1_7_012_uap_group_493", FT_UINT8, BASE_DEC, VALS(value_map_318), 0x0, NULL, HFILL } },
+{ &expand_var_1310, { "CQF : Aircraft CQF", "asterix.18_1_7_012_uap_group_494", FT_UINT8, BASE_DEC, VALS(value_map_319), 0x0, NULL, HFILL } },
 { &expand_var_1311, { "013 : Aircraft CQF Calculation Method", "asterix.18_1_7_013_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1312, { "036 : Data Source Identifier", "asterix.18_1_8_036_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1313, { "037 : Data Destination Identifier", "asterix.18_1_8_037_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -10491,27 +10491,27 @@ static hf_register_info hf[] = {
 { &expand_var_1348, { "000 : Message Type", "asterix.19_1_3_000_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_326), 0x0, NULL, HFILL } },
 { &expand_var_1349, { "140 : Time of Day [s]", "asterix.19_1_3_140_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1350, { "550 : System Status", "asterix.19_1_3_550_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1351, { "NOGO : Operational Release Status of the System", "asterix.19_1_3_550_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_327), 0x0, NULL, HFILL } },
-{ &expand_var_1352, { "OVL : Overload Indicator", "asterix.19_1_3_550_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
-{ &expand_var_1353, { "TSV : Time Source Validity", "asterix.19_1_3_550_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_193), 0x0, NULL, HFILL } },
-{ &expand_var_1354, { "TTF : Test Target", "asterix.19_1_3_550_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_195), 0x0, NULL, HFILL } },
+{ &expand_var_1351, { "NOGO : Operational Release Status of the System", "asterix.19_1_3_550_uap_group_514", FT_UINT8, BASE_DEC, VALS(value_map_327), 0x0, NULL, HFILL } },
+{ &expand_var_1352, { "OVL : Overload Indicator", "asterix.19_1_3_550_uap_group_256", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
+{ &expand_var_1353, { "TSV : Time Source Validity", "asterix.19_1_3_550_uap_group_257", FT_UINT8, BASE_DEC, VALS(value_map_193), 0x0, NULL, HFILL } },
+{ &expand_var_1354, { "TTF : Test Target", "asterix.19_1_3_550_uap_group_515", FT_UINT8, BASE_DEC, VALS(value_map_195), 0x0, NULL, HFILL } },
 { &expand_var_1355, { "551 : Tracking Processor Detailed Status", "asterix.19_1_3_551_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1356, { "TP1A", "asterix.19_1_3_551_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_328), 0x0, NULL, HFILL } },
-{ &expand_var_1357, { "TP1B", "asterix.19_1_3_551_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_329), 0x0, NULL, HFILL } },
-{ &expand_var_1358, { "TP2A", "asterix.19_1_3_551_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_328), 0x0, NULL, HFILL } },
-{ &expand_var_1359, { "TP2B", "asterix.19_1_3_551_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_329), 0x0, NULL, HFILL } },
-{ &expand_var_1360, { "TP3A", "asterix.19_1_3_551_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_328), 0x0, NULL, HFILL } },
-{ &expand_var_1361, { "TP3B", "asterix.19_1_3_551_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_329), 0x0, NULL, HFILL } },
-{ &expand_var_1362, { "TP4A", "asterix.19_1_3_551_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_328), 0x0, NULL, HFILL } },
-{ &expand_var_1363, { "TP4B", "asterix.19_1_3_551_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_329), 0x0, NULL, HFILL } },
+{ &expand_var_1356, { "TP1A", "asterix.19_1_3_551_uap_group_516", FT_UINT8, BASE_DEC, VALS(value_map_328), 0x0, NULL, HFILL } },
+{ &expand_var_1357, { "TP1B", "asterix.19_1_3_551_uap_group_517", FT_UINT8, BASE_DEC, VALS(value_map_329), 0x0, NULL, HFILL } },
+{ &expand_var_1358, { "TP2A", "asterix.19_1_3_551_uap_group_518", FT_UINT8, BASE_DEC, VALS(value_map_328), 0x0, NULL, HFILL } },
+{ &expand_var_1359, { "TP2B", "asterix.19_1_3_551_uap_group_519", FT_UINT8, BASE_DEC, VALS(value_map_329), 0x0, NULL, HFILL } },
+{ &expand_var_1360, { "TP3A", "asterix.19_1_3_551_uap_group_520", FT_UINT8, BASE_DEC, VALS(value_map_328), 0x0, NULL, HFILL } },
+{ &expand_var_1361, { "TP3B", "asterix.19_1_3_551_uap_group_521", FT_UINT8, BASE_DEC, VALS(value_map_329), 0x0, NULL, HFILL } },
+{ &expand_var_1362, { "TP4A", "asterix.19_1_3_551_uap_group_522", FT_UINT8, BASE_DEC, VALS(value_map_328), 0x0, NULL, HFILL } },
+{ &expand_var_1363, { "TP4B", "asterix.19_1_3_551_uap_group_523", FT_UINT8, BASE_DEC, VALS(value_map_329), 0x0, NULL, HFILL } },
 { &expand_var_1364, { "552 : Remote Sensor Detailed Status", "asterix.19_1_3_552_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1365, { "552 : Remote Sensor Detailed Status", "asterix.19_1_3_552_rep25_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1366, { "RSI : 8-bit Identification Number of RS", "asterix.19_1_3_552_rep25_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1367, { "RS1090 : Receiver 1090 MHz", "asterix.19_1_3_552_rep25_group", FT_UINT8, BASE_DEC, VALS(value_map_330), 0x0, NULL, HFILL } },
-{ &expand_var_1368, { "TX1030 : Transmitter 1030 MHz", "asterix.19_1_3_552_rep25_group", FT_UINT8, BASE_DEC, VALS(value_map_330), 0x0, NULL, HFILL } },
-{ &expand_var_1369, { "TX1090 : Transmitter 1090 MHz", "asterix.19_1_3_552_rep25_group", FT_UINT8, BASE_DEC, VALS(value_map_330), 0x0, NULL, HFILL } },
-{ &expand_var_1370, { "RSS : RS Status", "asterix.19_1_3_552_rep25_group", FT_UINT8, BASE_DEC, VALS(value_map_329), 0x0, NULL, HFILL } },
-{ &expand_var_1371, { "RSO : RS Operational", "asterix.19_1_3_552_rep25_group", FT_UINT8, BASE_DEC, VALS(value_map_331), 0x0, NULL, HFILL } },
+{ &expand_var_1366, { "RSI : 8-bit Identification Number of RS", "asterix.19_1_3_552_rep25_group_524", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1367, { "RS1090 : Receiver 1090 MHz", "asterix.19_1_3_552_rep25_group_525", FT_UINT8, BASE_DEC, VALS(value_map_330), 0x0, NULL, HFILL } },
+{ &expand_var_1368, { "TX1030 : Transmitter 1030 MHz", "asterix.19_1_3_552_rep25_group_526", FT_UINT8, BASE_DEC, VALS(value_map_330), 0x0, NULL, HFILL } },
+{ &expand_var_1369, { "TX1090 : Transmitter 1090 MHz", "asterix.19_1_3_552_rep25_group_527", FT_UINT8, BASE_DEC, VALS(value_map_330), 0x0, NULL, HFILL } },
+{ &expand_var_1370, { "RSS : RS Status", "asterix.19_1_3_552_rep25_group_528", FT_UINT8, BASE_DEC, VALS(value_map_329), 0x0, NULL, HFILL } },
+{ &expand_var_1371, { "RSO : RS Operational", "asterix.19_1_3_552_rep25_group_529", FT_UINT8, BASE_DEC, VALS(value_map_331), 0x0, NULL, HFILL } },
 { &expand_var_1372, { "553 : Reference Transponder Detailed Status", "asterix.19_1_3_553_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1373, { "REFTR1(Ref Trans 1 Status)", "asterix.19_1_3_553_uap_extended_REFTR1", FT_UINT8, BASE_DEC, VALS(value_map_332), 0x0, NULL, HFILL } },
 { &expand_var_1374, { "REFTR2(Ref Trans 2 Status)", "asterix.19_1_3_553_uap_extended_REFTR2", FT_UINT8, BASE_DEC, VALS(value_map_332), 0x0, NULL, HFILL } },
@@ -10520,8 +10520,8 @@ static hf_register_info hf[] = {
 { &expand_var_1377, { "REFTR4(Ref Trans 4 Status)", "asterix.19_1_3_553_uap_extended_REFTR4", FT_UINT8, BASE_DEC, VALS(value_map_332), 0x0, NULL, HFILL } },
 { &expand_var_1378, { "FX", "asterix.19_1_3_553_uap_extended_553_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1379, { "600 : Position of the MLT System Reference Point", "asterix.19_1_3_600_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1380, { "LAT : Latitude [°]", "asterix.19_1_3_600_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1381, { "LON : Longitude [°]", "asterix.19_1_3_600_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1380, { "LAT : Latitude [°]", "asterix.19_1_3_600_uap_group_534", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1381, { "LON : Longitude [°]", "asterix.19_1_3_600_uap_group_535", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1382, { "610 : Height of the MLT System Reference Point [m]", "asterix.19_1_3_610_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1383, { "620 : WGS-84 Undulation [m]", "asterix.19_1_3_620_uap_element", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1384, { "RE : Reserved Expansion Field", "asterix.19_1_3_12_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -10546,13 +10546,13 @@ static hf_register_info hf[] = {
 { &expand_var_1403, { "FX", "asterix.20_1_9_020_uap_extended_020_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1404, { "140 : Time of Day [s]", "asterix.20_1_9_140_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1405, { "041 : Position In WGS-84 Coordinates", "asterix.20_1_9_041_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1406, { "LAT : Latitude [°]", "asterix.20_1_9_041_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1407, { "LON : Longitude [°]", "asterix.20_1_9_041_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1406, { "LAT : Latitude [°]", "asterix.20_1_9_041_uap_group_550", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1407, { "LON : Longitude [°]", "asterix.20_1_9_041_uap_group_551", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1408, { "042 : Position in Cartesian Coordinates", "asterix.20_1_9_042_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1409, { "X : X-coordinate [m]", "asterix.20_1_9_042_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1410, { "Y : Y-coordinate [m]", "asterix.20_1_9_042_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1409, { "X : X-coordinate [m]", "asterix.20_1_9_042_uap_group_552", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1410, { "Y : Y-coordinate [m]", "asterix.20_1_9_042_uap_group_553", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1411, { "161 : Track Number", "asterix.20_1_9_161_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1412, { "TRN : Track Number", "asterix.20_1_9_161_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1412, { "TRN : Track Number", "asterix.20_1_9_161_uap_group_574", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1413, { "170 : Track Status", "asterix.20_1_9_170_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1414, { "CNF", "asterix.20_1_9_170_uap_extended_CNF", FT_UINT8, BASE_DEC, VALS(value_map_346), 0x0, NULL, HFILL } },
 { &expand_var_1415, { "TRE", "asterix.20_1_9_170_uap_extended_TRE", FT_UINT8, BASE_DEC, VALS(value_map_46), 0x0, NULL, HFILL } },
@@ -10564,92 +10564,92 @@ static hf_register_info hf[] = {
 { &expand_var_1421, { "GHO", "asterix.20_1_9_170_uap_extended_GHO", FT_UINT8, BASE_DEC, VALS(value_map_45), 0x0, NULL, HFILL } },
 { &expand_var_1422, { "FX", "asterix.20_1_9_170_uap_extended_170_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1423, { "070 : Mode-3/A Code in Octal Representation", "asterix.20_1_9_070_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1424, { "V : Validated", "asterix.20_1_9_070_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_1425, { "G : Garbled", "asterix.20_1_9_070_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_1426, { "L", "asterix.20_1_9_070_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_345), 0x0, NULL, HFILL } },
-{ &expand_var_1427, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.20_1_9_070_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1424, { "V : Validated", "asterix.20_1_9_070_uap_group_554", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_1425, { "G : Garbled", "asterix.20_1_9_070_uap_group_555", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_1426, { "L", "asterix.20_1_9_070_uap_group_560", FT_UINT8, BASE_DEC, VALS(value_map_345), 0x0, NULL, HFILL } },
+{ &expand_var_1427, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.20_1_9_070_uap_group_37", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1428, { "202 : Calculated Track Velocity in Cartesian Coordinates", "asterix.20_1_9_202_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1429, { "VX [m/s]", "asterix.20_1_9_202_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1430, { "VY [m/s]", "asterix.20_1_9_202_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1429, { "VX [m/s]", "asterix.20_1_9_202_uap_group_580", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1430, { "VY [m/s]", "asterix.20_1_9_202_uap_group_581", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1431, { "090 : Flight Level in Binary Representation", "asterix.20_1_9_090_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1432, { "V : Validated", "asterix.20_1_9_090_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_1433, { "G : Garbled", "asterix.20_1_9_090_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_1434, { "FL : Flight Level [FL]", "asterix.20_1_9_090_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1432, { "V : Validated", "asterix.20_1_9_090_uap_group_554", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_1433, { "G : Garbled", "asterix.20_1_9_090_uap_group_555", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_1434, { "FL : Flight Level [FL]", "asterix.20_1_9_090_uap_group_561", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1435, { "100 : Mode C Code", "asterix.20_1_9_100_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1436, { "V : Validated", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_1437, { "G : Garbled", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_1438, { "MODEC : Mode-C Reply in Gray Notation", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1439, { "QC1 : Quality Pulse C1", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_28), 0x0, NULL, HFILL } },
-{ &expand_var_1440, { "QA1 : Quality Pulse A1", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_22), 0x0, NULL, HFILL } },
-{ &expand_var_1441, { "QC2 : Quality Pulse C2", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_27), 0x0, NULL, HFILL } },
-{ &expand_var_1442, { "QA2 : Quality Pulse A2", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_21), 0x0, NULL, HFILL } },
-{ &expand_var_1443, { "QC4 : Quality Pulse C4", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_26), 0x0, NULL, HFILL } },
-{ &expand_var_1444, { "QA4 : Quality Pulse A4", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_20), 0x0, NULL, HFILL } },
-{ &expand_var_1445, { "QB1 : Quality Pulse B1", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_25), 0x0, NULL, HFILL } },
-{ &expand_var_1446, { "QD1 : Quality Pulse D1", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_31), 0x0, NULL, HFILL } },
-{ &expand_var_1447, { "QB2 : Quality Pulse B2", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_24), 0x0, NULL, HFILL } },
-{ &expand_var_1448, { "QD2 : Quality Pulse D2", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_24), 0x0, NULL, HFILL } },
-{ &expand_var_1449, { "QB4 : Quality Pulse B4", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_23), 0x0, NULL, HFILL } },
-{ &expand_var_1450, { "QD4 : Quality Pulse D4", "asterix.20_1_9_100_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_29), 0x0, NULL, HFILL } },
+{ &expand_var_1436, { "V : Validated", "asterix.20_1_9_100_uap_group_554", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_1437, { "G : Garbled", "asterix.20_1_9_100_uap_group_555", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_1438, { "MODEC : Mode-C Reply in Gray Notation", "asterix.20_1_9_100_uap_group_39", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1439, { "QC1 : Quality Pulse C1", "asterix.20_1_9_100_uap_group_562", FT_UINT8, BASE_DEC, VALS(value_map_28), 0x0, NULL, HFILL } },
+{ &expand_var_1440, { "QA1 : Quality Pulse A1", "asterix.20_1_9_100_uap_group_563", FT_UINT8, BASE_DEC, VALS(value_map_22), 0x0, NULL, HFILL } },
+{ &expand_var_1441, { "QC2 : Quality Pulse C2", "asterix.20_1_9_100_uap_group_564", FT_UINT8, BASE_DEC, VALS(value_map_27), 0x0, NULL, HFILL } },
+{ &expand_var_1442, { "QA2 : Quality Pulse A2", "asterix.20_1_9_100_uap_group_565", FT_UINT8, BASE_DEC, VALS(value_map_21), 0x0, NULL, HFILL } },
+{ &expand_var_1443, { "QC4 : Quality Pulse C4", "asterix.20_1_9_100_uap_group_566", FT_UINT8, BASE_DEC, VALS(value_map_26), 0x0, NULL, HFILL } },
+{ &expand_var_1444, { "QA4 : Quality Pulse A4", "asterix.20_1_9_100_uap_group_567", FT_UINT8, BASE_DEC, VALS(value_map_20), 0x0, NULL, HFILL } },
+{ &expand_var_1445, { "QB1 : Quality Pulse B1", "asterix.20_1_9_100_uap_group_568", FT_UINT8, BASE_DEC, VALS(value_map_25), 0x0, NULL, HFILL } },
+{ &expand_var_1446, { "QD1 : Quality Pulse D1", "asterix.20_1_9_100_uap_group_569", FT_UINT8, BASE_DEC, VALS(value_map_31), 0x0, NULL, HFILL } },
+{ &expand_var_1447, { "QB2 : Quality Pulse B2", "asterix.20_1_9_100_uap_group_570", FT_UINT8, BASE_DEC, VALS(value_map_24), 0x0, NULL, HFILL } },
+{ &expand_var_1448, { "QD2 : Quality Pulse D2", "asterix.20_1_9_100_uap_group_571", FT_UINT8, BASE_DEC, VALS(value_map_24), 0x0, NULL, HFILL } },
+{ &expand_var_1449, { "QB4 : Quality Pulse B4", "asterix.20_1_9_100_uap_group_572", FT_UINT8, BASE_DEC, VALS(value_map_23), 0x0, NULL, HFILL } },
+{ &expand_var_1450, { "QD4 : Quality Pulse D4", "asterix.20_1_9_100_uap_group_573", FT_UINT8, BASE_DEC, VALS(value_map_29), 0x0, NULL, HFILL } },
 { &expand_var_1451, { "220 : Target Address", "asterix.20_1_9_220_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1452, { "245 : Target Identification", "asterix.20_1_9_245_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1453, { "STI", "asterix.20_1_9_245_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_348), 0x0, NULL, HFILL } },
-{ &expand_var_1454, { "CHR : Characters 1-8 (coded on 6 Bits Each) Defining Target Identification", "asterix.20_1_9_245_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1453, { "STI", "asterix.20_1_9_245_uap_group_591", FT_UINT8, BASE_DEC, VALS(value_map_348), 0x0, NULL, HFILL } },
+{ &expand_var_1454, { "CHR : Characters 1-8 (coded on 6 Bits Each) Defining Target Identification", "asterix.20_1_9_245_uap_group_592", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1455, { "110 : Measured Height (Local Cartesian Coordinates) [ft]", "asterix.20_1_9_110_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1456, { "105 : Geometric Height (WGS-84) [ft]", "asterix.20_1_9_105_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1457, { "210 : Calculated Acceleration", "asterix.20_1_9_210_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1458, { "AX [m/s²]", "asterix.20_1_9_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1459, { "AY [m/s²]", "asterix.20_1_9_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1458, { "AX [m/s²]", "asterix.20_1_9_210_uap_group_582", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1459, { "AY [m/s²]", "asterix.20_1_9_210_uap_group_583", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1460, { "300 : Vehicle Fleet Identification", "asterix.20_1_9_300_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_186), 0x0, NULL, HFILL } },
 { &expand_var_1461, { "310 : Pre-programmed Message", "asterix.20_1_9_310_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1462, { "TRB", "asterix.20_1_9_310_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_187), 0x0, NULL, HFILL } },
-{ &expand_var_1463, { "MSG", "asterix.20_1_9_310_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_219), 0x0, NULL, HFILL } },
+{ &expand_var_1462, { "TRB", "asterix.20_1_9_310_uap_group_250", FT_UINT8, BASE_DEC, VALS(value_map_187), 0x0, NULL, HFILL } },
+{ &expand_var_1463, { "MSG", "asterix.20_1_9_310_uap_group_596", FT_UINT8, BASE_DEC, VALS(value_map_219), 0x0, NULL, HFILL } },
 { &expand_var_1464, { "500 : Position Accuracy", "asterix.20_1_9_500_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1465, { "DOP : DOP of Position", "asterix.20_1_9_500_990_compound_990_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1466, { "X : DOP (X-Component) []", "asterix.20_1_9_500_990_compound_990_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1467, { "Y : DOP (Y-Component) []", "asterix.20_1_9_500_990_compound_990_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1468, { "XY : DOP (Correlation XY) []", "asterix.20_1_9_500_990_compound_990_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1466, { "X : DOP (X-Component) []", "asterix.20_1_9_500_990_compound_990_group_605", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1467, { "Y : DOP (Y-Component) []", "asterix.20_1_9_500_990_compound_990_group_606", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1468, { "XY : DOP (Correlation XY) []", "asterix.20_1_9_500_990_compound_990_group_607", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1469, { "SDP : Standard Deviation of Position", "asterix.20_1_9_500_994_compound_994_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1470, { "X : SDP (X-Component) [m]", "asterix.20_1_9_500_994_compound_994_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1471, { "Y : SDP (Y-Component) [m]", "asterix.20_1_9_500_994_compound_994_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1472, { "XY : SDP (Correlation XY) []", "asterix.20_1_9_500_994_compound_994_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1470, { "X : SDP (X-Component) [m]", "asterix.20_1_9_500_994_compound_994_group_608", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1471, { "Y : SDP (Y-Component) [m]", "asterix.20_1_9_500_994_compound_994_group_609", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1472, { "XY : SDP (Correlation XY) []", "asterix.20_1_9_500_994_compound_994_group_610", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1473, { "SDH : Standard Deviation of Geometric Height (WGS 84) [m]", "asterix.20_1_9_500_995_compound_995_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1474, { "400 : Contributing Devices", "asterix.20_1_9_400_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1475, { "400 : Contributing Devices", "asterix.20_1_9_400_rep26_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1476, { "BIT1 : TU1/RU1 Contribution", "asterix.20_1_9_400_rep26_group", FT_UINT8, BASE_DEC, VALS(value_map_349), 0x0, NULL, HFILL } },
-{ &expand_var_1477, { "BIT2 : TU2/RU2 Contribution", "asterix.20_1_9_400_rep26_group", FT_UINT8, BASE_DEC, VALS(value_map_350), 0x0, NULL, HFILL } },
-{ &expand_var_1478, { "BIT3 : TU3/RU3 Contribution", "asterix.20_1_9_400_rep26_group", FT_UINT8, BASE_DEC, VALS(value_map_351), 0x0, NULL, HFILL } },
-{ &expand_var_1479, { "BIT4 : TU4/RU4 Contribution", "asterix.20_1_9_400_rep26_group", FT_UINT8, BASE_DEC, VALS(value_map_352), 0x0, NULL, HFILL } },
-{ &expand_var_1480, { "BIT5 : TU5/RU5 Contribution", "asterix.20_1_9_400_rep26_group", FT_UINT8, BASE_DEC, VALS(value_map_353), 0x0, NULL, HFILL } },
-{ &expand_var_1481, { "BIT6 : TU6/RU6 Contribution", "asterix.20_1_9_400_rep26_group", FT_UINT8, BASE_DEC, VALS(value_map_354), 0x0, NULL, HFILL } },
-{ &expand_var_1482, { "BIT7 : TU7/RU7 Contribution", "asterix.20_1_9_400_rep26_group", FT_UINT8, BASE_DEC, VALS(value_map_355), 0x0, NULL, HFILL } },
-{ &expand_var_1483, { "BIT8 : TU8/RU8 Contribution", "asterix.20_1_9_400_rep26_group", FT_UINT8, BASE_DEC, VALS(value_map_356), 0x0, NULL, HFILL } },
+{ &expand_var_1476, { "BIT1 : TU1/RU1 Contribution", "asterix.20_1_9_400_rep26_group_597", FT_UINT8, BASE_DEC, VALS(value_map_349), 0x0, NULL, HFILL } },
+{ &expand_var_1477, { "BIT2 : TU2/RU2 Contribution", "asterix.20_1_9_400_rep26_group_598", FT_UINT8, BASE_DEC, VALS(value_map_350), 0x0, NULL, HFILL } },
+{ &expand_var_1478, { "BIT3 : TU3/RU3 Contribution", "asterix.20_1_9_400_rep26_group_599", FT_UINT8, BASE_DEC, VALS(value_map_351), 0x0, NULL, HFILL } },
+{ &expand_var_1479, { "BIT4 : TU4/RU4 Contribution", "asterix.20_1_9_400_rep26_group_600", FT_UINT8, BASE_DEC, VALS(value_map_352), 0x0, NULL, HFILL } },
+{ &expand_var_1480, { "BIT5 : TU5/RU5 Contribution", "asterix.20_1_9_400_rep26_group_601", FT_UINT8, BASE_DEC, VALS(value_map_353), 0x0, NULL, HFILL } },
+{ &expand_var_1481, { "BIT6 : TU6/RU6 Contribution", "asterix.20_1_9_400_rep26_group_602", FT_UINT8, BASE_DEC, VALS(value_map_354), 0x0, NULL, HFILL } },
+{ &expand_var_1482, { "BIT7 : TU7/RU7 Contribution", "asterix.20_1_9_400_rep26_group_603", FT_UINT8, BASE_DEC, VALS(value_map_355), 0x0, NULL, HFILL } },
+{ &expand_var_1483, { "BIT8 : TU8/RU8 Contribution", "asterix.20_1_9_400_rep26_group_604", FT_UINT8, BASE_DEC, VALS(value_map_356), 0x0, NULL, HFILL } },
 { &expand_var_1484, { "250 : Mode S MB Data", "asterix.20_1_9_250_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1485, { "250 : Mode S MB Data", "asterix.20_1_9_250_rep27_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1486, { "MBDATA : 56-bit Message Conveying Mode S Comm B Message Data", "asterix.20_1_9_250_rep27_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1487, { "BDS1 : Comm B Data Buffer Store 1 Address", "asterix.20_1_9_250_rep27_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1488, { "BDS2 : Comm B Data Buffer Store 2 Address", "asterix.20_1_9_250_rep27_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1486, { "MBDATA : 56-bit Message Conveying Mode S Comm B Message Data", "asterix.20_1_9_250_rep27_group_593", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1487, { "BDS1 : Comm B Data Buffer Store 1 Address", "asterix.20_1_9_250_rep27_group_594", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1488, { "BDS2 : Comm B Data Buffer Store 2 Address", "asterix.20_1_9_250_rep27_group_595", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1489, { "230 : Communications/ACAS Capability and Flight Status", "asterix.20_1_9_230_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1490, { "COM : Communications Capability of the Transponder", "asterix.20_1_9_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_221), 0x0, NULL, HFILL } },
-{ &expand_var_1491, { "STAT : Flight Status", "asterix.20_1_9_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_347), 0x0, NULL, HFILL } },
-{ &expand_var_1492, { "MSSC : Mode-S Specific Service Capability", "asterix.20_1_9_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_1493, { "ARC : Altitude Reporting Capability", "asterix.20_1_9_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
-{ &expand_var_1494, { "AIC : Aircraft Identification Capability", "asterix.20_1_9_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_1495, { "B1A : BDS 1,0 Bit 16", "asterix.20_1_9_230_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1496, { "B1B : BDS 1,0 Bits 37/40", "asterix.20_1_9_230_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1490, { "COM : Communications Capability of the Transponder", "asterix.20_1_9_230_uap_group_584", FT_UINT8, BASE_DEC, VALS(value_map_221), 0x0, NULL, HFILL } },
+{ &expand_var_1491, { "STAT : Flight Status", "asterix.20_1_9_230_uap_group_585", FT_UINT8, BASE_DEC, VALS(value_map_347), 0x0, NULL, HFILL } },
+{ &expand_var_1492, { "MSSC : Mode-S Specific Service Capability", "asterix.20_1_9_230_uap_group_586", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_1493, { "ARC : Altitude Reporting Capability", "asterix.20_1_9_230_uap_group_587", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
+{ &expand_var_1494, { "AIC : Aircraft Identification Capability", "asterix.20_1_9_230_uap_group_588", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_1495, { "B1A : BDS 1,0 Bit 16", "asterix.20_1_9_230_uap_group_589", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1496, { "B1B : BDS 1,0 Bits 37/40", "asterix.20_1_9_230_uap_group_590", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1497, { "260 : ACAS Resolution Advisory Report", "asterix.20_1_9_260_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1498, { "030 : Warning/Error Conditions", "asterix.20_1_9_030_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1499, { "030 : Warning/Error Conditions", "asterix.20_1_9_030_rep28_element", FT_UINT8, BASE_DEC, VALS(value_map_342), 0x0, NULL, HFILL } },
 { &expand_var_1500, { "055 : Mode-1 Code in Octal Representation", "asterix.20_1_9_055_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1501, { "V : Validated", "asterix.20_1_9_055_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_1502, { "G : Garbled", "asterix.20_1_9_055_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_1503, { "L", "asterix.20_1_9_055_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_344), 0x0, NULL, HFILL } },
-{ &expand_var_1504, { "MODE1 : Mode-1 Code in Octal Representation", "asterix.20_1_9_055_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1501, { "V : Validated", "asterix.20_1_9_055_uap_group_554", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_1502, { "G : Garbled", "asterix.20_1_9_055_uap_group_555", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_1503, { "L", "asterix.20_1_9_055_uap_group_558", FT_UINT8, BASE_DEC, VALS(value_map_344), 0x0, NULL, HFILL } },
+{ &expand_var_1504, { "MODE1 : Mode-1 Code in Octal Representation", "asterix.20_1_9_055_uap_group_559", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1505, { "050 : Mode-2 Code in Octal Representation", "asterix.20_1_9_050_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1506, { "V : Validated", "asterix.20_1_9_050_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_1507, { "G : Garbled", "asterix.20_1_9_050_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_1508, { "L", "asterix.20_1_9_050_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_343), 0x0, NULL, HFILL } },
-{ &expand_var_1509, { "MODE2 : Mode-2 Reply in Octal Representation", "asterix.20_1_9_050_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1506, { "V : Validated", "asterix.20_1_9_050_uap_group_554", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_1507, { "G : Garbled", "asterix.20_1_9_050_uap_group_555", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_1508, { "L", "asterix.20_1_9_050_uap_group_556", FT_UINT8, BASE_DEC, VALS(value_map_343), 0x0, NULL, HFILL } },
+{ &expand_var_1509, { "MODE2 : Mode-2 Reply in Octal Representation", "asterix.20_1_9_050_uap_group_557", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1510, { "RE : Reserved Expansion Field", "asterix.20_1_9_26_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1511, { "SP : Special Purpose Field", "asterix.20_1_9_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1512, { "010 : Data Source Identifier", "asterix.20_1_10_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -10701,9 +10701,9 @@ static hf_register_info hf[] = {
 { &expand_var_1558, { "400 : Contributing Devices", "asterix.20_1_10_400_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1559, { "250 : BDS Register Data", "asterix.20_1_10_250_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1560, { "250 : BDS Register Data", "asterix.20_1_10_250_rep29_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1561, { "BDSREGISTER : 56-bit Message Conveying Mode S Comm B Message Data", "asterix.20_1_10_250_rep29_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1562, { "BDS1 : Comm B Data Buffer Store 1 Address", "asterix.20_1_10_250_rep29_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1563, { "BDS2 : Comm B Data Buffer Store 2 Address", "asterix.20_1_10_250_rep29_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1561, { "BDSREGISTER : 56-bit Message Conveying Mode S Comm B Message Data", "asterix.20_1_10_250_rep29_group_613", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1562, { "BDS1 : Comm B Data Buffer Store 1 Address", "asterix.20_1_10_250_rep29_group_594", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1563, { "BDS2 : Comm B Data Buffer Store 2 Address", "asterix.20_1_10_250_rep29_group_595", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1564, { "230 : Communications/ACAS Capability and Flight Status", "asterix.20_1_10_230_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1565, { "260 : ACAS Resolution Advisory Report", "asterix.20_1_10_260_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1566, { "030 : Warning/Error Conditions", "asterix.20_1_10_030_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -10733,18 +10733,18 @@ static hf_register_info hf[] = {
 { &expand_var_1590, { "400 : Contributing Devices", "asterix.20_1_11_400_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1591, { "250 : BDS Register Data", "asterix.20_1_11_250_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1592, { "250 : BDS Register Data", "asterix.20_1_11_250_rep30_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1593, { "BDSDATA : 56-bit Message Conveying BDS Register Data", "asterix.20_1_11_250_rep30_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1594, { "BDS1 : BDS Register Address 1", "asterix.20_1_11_250_rep30_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1595, { "BDS2 : BDS Register Address 2", "asterix.20_1_11_250_rep30_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1593, { "BDSDATA : 56-bit Message Conveying BDS Register Data", "asterix.20_1_11_250_rep30_group_615", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1594, { "BDS1 : BDS Register Address 1", "asterix.20_1_11_250_rep30_group_616", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1595, { "BDS2 : BDS Register Address 2", "asterix.20_1_11_250_rep30_group_617", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1596, { "230 : Communications/ACAS Capability and Flight Status", "asterix.20_1_11_230_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1597, { "COM : Communications Capability of the Transponder", "asterix.20_1_11_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_221), 0x0, NULL, HFILL } },
-{ &expand_var_1598, { "STAT : Flight Status", "asterix.20_1_11_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_347), 0x0, NULL, HFILL } },
-{ &expand_var_1599, { "CASEVN : CAS Extended Version Number", "asterix.20_1_11_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_360), 0x0, NULL, HFILL } },
-{ &expand_var_1600, { "MSSC : Mode-S Specific Service Capability", "asterix.20_1_11_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_1601, { "ARC : Altitude Reporting Capability", "asterix.20_1_11_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
-{ &expand_var_1602, { "AIC : Aircraft Identification Capability", "asterix.20_1_11_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_1603, { "B1A : BDS 1,0 Bit 16", "asterix.20_1_11_230_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1604, { "B1B : BDS 1,0 Bits 37/40", "asterix.20_1_11_230_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1597, { "COM : Communications Capability of the Transponder", "asterix.20_1_11_230_uap_group_584", FT_UINT8, BASE_DEC, VALS(value_map_221), 0x0, NULL, HFILL } },
+{ &expand_var_1598, { "STAT : Flight Status", "asterix.20_1_11_230_uap_group_585", FT_UINT8, BASE_DEC, VALS(value_map_347), 0x0, NULL, HFILL } },
+{ &expand_var_1599, { "CASEVN : CAS Extended Version Number", "asterix.20_1_11_230_uap_group_614", FT_UINT8, BASE_DEC, VALS(value_map_360), 0x0, NULL, HFILL } },
+{ &expand_var_1600, { "MSSC : Mode-S Specific Service Capability", "asterix.20_1_11_230_uap_group_586", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_1601, { "ARC : Altitude Reporting Capability", "asterix.20_1_11_230_uap_group_587", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
+{ &expand_var_1602, { "AIC : Aircraft Identification Capability", "asterix.20_1_11_230_uap_group_588", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_1603, { "B1A : BDS 1,0 Bit 16", "asterix.20_1_11_230_uap_group_589", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1604, { "B1B : BDS 1,0 Bits 37/40", "asterix.20_1_11_230_uap_group_590", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1605, { "260 : ACAS Resolution Advisory Report", "asterix.20_1_11_260_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1606, { "030 : Warning/Error Conditions", "asterix.20_1_11_030_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1607, { "055 : Mode-1 Code in Octal Representation", "asterix.20_1_11_055_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -10753,44 +10753,44 @@ static hf_register_info hf[] = {
 { &expand_var_1610, { "SP : Special Purpose Field", "asterix.20_1_11_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1611, { "010 : Data Source Identification", "asterix.21_0_23_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1612, { "040 : Target Report Descriptor", "asterix.21_0_23_040_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1613, { "DCR : Differential Correction", "asterix.21_0_23_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_158), 0x0, NULL, HFILL } },
-{ &expand_var_1614, { "GBS : Ground Bit Setting", "asterix.21_0_23_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_363), 0x0, NULL, HFILL } },
-{ &expand_var_1615, { "SIM : Simulated Target", "asterix.21_0_23_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_162), 0x0, NULL, HFILL } },
-{ &expand_var_1616, { "TST : Test Target", "asterix.21_0_23_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_163), 0x0, NULL, HFILL } },
-{ &expand_var_1617, { "RAB : Report Type", "asterix.21_0_23_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_164), 0x0, NULL, HFILL } },
-{ &expand_var_1618, { "SAA : Selected Altitude Available", "asterix.21_0_23_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_364), 0x0, NULL, HFILL } },
-{ &expand_var_1619, { "SPI : Special Position Identification", "asterix.21_0_23_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_167), 0x0, NULL, HFILL } },
-{ &expand_var_1620, { "ATP : Address Type", "asterix.21_0_23_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_365), 0x0, NULL, HFILL } },
-{ &expand_var_1621, { "ARC : Altitude Reporting Capability", "asterix.21_0_23_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_366), 0x0, NULL, HFILL } },
+{ &expand_var_1613, { "DCR : Differential Correction", "asterix.21_0_23_040_uap_group_618", FT_UINT8, BASE_DEC, VALS(value_map_158), 0x0, NULL, HFILL } },
+{ &expand_var_1614, { "GBS : Ground Bit Setting", "asterix.21_0_23_040_uap_group_619", FT_UINT8, BASE_DEC, VALS(value_map_363), 0x0, NULL, HFILL } },
+{ &expand_var_1615, { "SIM : Simulated Target", "asterix.21_0_23_040_uap_group_620", FT_UINT8, BASE_DEC, VALS(value_map_162), 0x0, NULL, HFILL } },
+{ &expand_var_1616, { "TST : Test Target", "asterix.21_0_23_040_uap_group_621", FT_UINT8, BASE_DEC, VALS(value_map_163), 0x0, NULL, HFILL } },
+{ &expand_var_1617, { "RAB : Report Type", "asterix.21_0_23_040_uap_group_622", FT_UINT8, BASE_DEC, VALS(value_map_164), 0x0, NULL, HFILL } },
+{ &expand_var_1618, { "SAA : Selected Altitude Available", "asterix.21_0_23_040_uap_group_623", FT_UINT8, BASE_DEC, VALS(value_map_364), 0x0, NULL, HFILL } },
+{ &expand_var_1619, { "SPI : Special Position Identification", "asterix.21_0_23_040_uap_group_624", FT_UINT8, BASE_DEC, VALS(value_map_167), 0x0, NULL, HFILL } },
+{ &expand_var_1620, { "ATP : Address Type", "asterix.21_0_23_040_uap_group_625", FT_UINT8, BASE_DEC, VALS(value_map_365), 0x0, NULL, HFILL } },
+{ &expand_var_1621, { "ARC : Altitude Reporting Capability", "asterix.21_0_23_040_uap_group_626", FT_UINT8, BASE_DEC, VALS(value_map_366), 0x0, NULL, HFILL } },
 { &expand_var_1622, { "030 : Time of Day [s]", "asterix.21_0_23_030_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1623, { "130 : Position in WGS-84 Co-ordinates", "asterix.21_0_23_130_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1624, { "LAT : Latitude [°]", "asterix.21_0_23_130_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1625, { "LON : Longitude [°]", "asterix.21_0_23_130_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1624, { "LAT : Latitude [°]", "asterix.21_0_23_130_uap_group_645", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1625, { "LON : Longitude [°]", "asterix.21_0_23_130_uap_group_646", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1626, { "080 : Target Address", "asterix.21_0_23_080_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1627, { "140 : Geometric Altitude [ft]", "asterix.21_0_23_140_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1628, { "090 : Figure of Merit", "asterix.21_0_23_090_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1629, { "AC : ACAS Capabilities", "asterix.21_0_23_090_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_367), 0x0, NULL, HFILL } },
-{ &expand_var_1630, { "MN : Multiple Navigation Aids", "asterix.21_0_23_090_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_368), 0x0, NULL, HFILL } },
-{ &expand_var_1631, { "DC : Differencial Correction", "asterix.21_0_23_090_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_369), 0x0, NULL, HFILL } },
-{ &expand_var_1632, { "PA : Position Accuracy []", "asterix.21_0_23_090_uap_group", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1629, { "AC : ACAS Capabilities", "asterix.21_0_23_090_uap_group_627", FT_UINT8, BASE_DEC, VALS(value_map_367), 0x0, NULL, HFILL } },
+{ &expand_var_1630, { "MN : Multiple Navigation Aids", "asterix.21_0_23_090_uap_group_628", FT_UINT8, BASE_DEC, VALS(value_map_368), 0x0, NULL, HFILL } },
+{ &expand_var_1631, { "DC : Differencial Correction", "asterix.21_0_23_090_uap_group_629", FT_UINT8, BASE_DEC, VALS(value_map_369), 0x0, NULL, HFILL } },
+{ &expand_var_1632, { "PA : Position Accuracy []", "asterix.21_0_23_090_uap_group_630", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1633, { "210 : Link Technology Indicator", "asterix.21_0_23_210_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1634, { "DTI : Cockpit Display of Traffic Information", "asterix.21_0_23_210_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_391), 0x0, NULL, HFILL } },
-{ &expand_var_1635, { "MDS : Mode-S Extended Squitter", "asterix.21_0_23_210_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_392), 0x0, NULL, HFILL } },
-{ &expand_var_1636, { "UAT : UAT", "asterix.21_0_23_210_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_392), 0x0, NULL, HFILL } },
-{ &expand_var_1637, { "VDL : VDL Mode 4", "asterix.21_0_23_210_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_392), 0x0, NULL, HFILL } },
-{ &expand_var_1638, { "OTR : Other Technology", "asterix.21_0_23_210_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_392), 0x0, NULL, HFILL } },
+{ &expand_var_1634, { "DTI : Cockpit Display of Traffic Information", "asterix.21_0_23_210_uap_group_659", FT_UINT8, BASE_DEC, VALS(value_map_391), 0x0, NULL, HFILL } },
+{ &expand_var_1635, { "MDS : Mode-S Extended Squitter", "asterix.21_0_23_210_uap_group_660", FT_UINT8, BASE_DEC, VALS(value_map_392), 0x0, NULL, HFILL } },
+{ &expand_var_1636, { "UAT : UAT", "asterix.21_0_23_210_uap_group_661", FT_UINT8, BASE_DEC, VALS(value_map_392), 0x0, NULL, HFILL } },
+{ &expand_var_1637, { "VDL : VDL Mode 4", "asterix.21_0_23_210_uap_group_662", FT_UINT8, BASE_DEC, VALS(value_map_392), 0x0, NULL, HFILL } },
+{ &expand_var_1638, { "OTR : Other Technology", "asterix.21_0_23_210_uap_group_663", FT_UINT8, BASE_DEC, VALS(value_map_392), 0x0, NULL, HFILL } },
 { &expand_var_1639, { "230 : Roll Angle [°]", "asterix.21_0_23_230_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1640, { "145 : Flight Level [FL]", "asterix.21_0_23_145_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1641, { "150 : Air Speed", "asterix.21_0_23_150_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1642, { "IM", "asterix.21_0_23_150_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_385), 0x0, NULL, HFILL } },
-{ &expand_var_1643, { "AS : Air Speed (IAS or Mach)", "asterix.21_0_23_150_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1642, { "IM", "asterix.21_0_23_150_uap_group_653", FT_UINT8, BASE_DEC, VALS(value_map_385), 0x0, NULL, HFILL } },
+{ &expand_var_1643, { "AS : Air Speed (IAS or Mach)", "asterix.21_0_23_150_uap_group_654", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1644, { "151 : True Airspeed [kt]", "asterix.21_0_23_151_uap_element", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1645, { "152 : Magnetic Heading [°]", "asterix.21_0_23_152_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1646, { "155 : Barometric Vertical Rate [ft/min]", "asterix.21_0_23_155_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1647, { "157 : Geometric Vertical Rate [ft/min]", "asterix.21_0_23_157_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1648, { "160 : Ground Vector", "asterix.21_0_23_160_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1649, { "GS : Ground Speed in Two's Complement Form Referenced to WGS84 [NM/s]", "asterix.21_0_23_160_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1650, { "TA : Track Angle [°]", "asterix.21_0_23_160_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1649, { "GS : Ground Speed in Two's Complement Form Referenced to WGS84 [NM/s]", "asterix.21_0_23_160_uap_group_655", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1650, { "TA : Track Angle [°]", "asterix.21_0_23_160_uap_group_656", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1651, { "165 : Rate Of Turn", "asterix.21_0_23_165_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1652, { "TI(Turn Indicator)", "asterix.21_0_23_165_uap_extended_TI", FT_UINT8, BASE_DEC, VALS(value_map_388), 0x0, NULL, HFILL } },
 { &expand_var_1653, { "FX", "asterix.21_0_23_165_uap_extended_165_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -10807,14 +10807,14 @@ static hf_register_info hf[] = {
 { &expand_var_1664, { "TMP : Temperature [°C]", "asterix.21_0_23_220_1082_compound_1082_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1665, { "TRB : Turbulence", "asterix.21_0_23_220_1083_compound_1083_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1666, { "146 : Intermediate State Selected Altitude", "asterix.21_0_23_146_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1667, { "SAS : Source Availability", "asterix.21_0_23_146_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_382), 0x0, NULL, HFILL } },
-{ &expand_var_1668, { "SRC : Source", "asterix.21_0_23_146_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_383), 0x0, NULL, HFILL } },
-{ &expand_var_1669, { "ALT : Altitude [ft]", "asterix.21_0_23_146_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1667, { "SAS : Source Availability", "asterix.21_0_23_146_uap_group_647", FT_UINT8, BASE_DEC, VALS(value_map_382), 0x0, NULL, HFILL } },
+{ &expand_var_1668, { "SRC : Source", "asterix.21_0_23_146_uap_group_648", FT_UINT8, BASE_DEC, VALS(value_map_383), 0x0, NULL, HFILL } },
+{ &expand_var_1669, { "ALT : Altitude [ft]", "asterix.21_0_23_146_uap_group_649", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1670, { "148 : Final State Selected Altitude", "asterix.21_0_23_148_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1671, { "MV : Manage Vertical Mode", "asterix.21_0_23_148_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_384), 0x0, NULL, HFILL } },
-{ &expand_var_1672, { "AH : Altitude Hold Mode", "asterix.21_0_23_148_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_384), 0x0, NULL, HFILL } },
-{ &expand_var_1673, { "AM : Approach Mode", "asterix.21_0_23_148_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_384), 0x0, NULL, HFILL } },
-{ &expand_var_1674, { "ALT : Altitude [ft]", "asterix.21_0_23_148_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1671, { "MV : Manage Vertical Mode", "asterix.21_0_23_148_uap_group_650", FT_UINT8, BASE_DEC, VALS(value_map_384), 0x0, NULL, HFILL } },
+{ &expand_var_1672, { "AH : Altitude Hold Mode", "asterix.21_0_23_148_uap_group_651", FT_UINT8, BASE_DEC, VALS(value_map_384), 0x0, NULL, HFILL } },
+{ &expand_var_1673, { "AM : Approach Mode", "asterix.21_0_23_148_uap_group_652", FT_UINT8, BASE_DEC, VALS(value_map_384), 0x0, NULL, HFILL } },
+{ &expand_var_1674, { "ALT : Altitude [ft]", "asterix.21_0_23_148_uap_group_649", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1675, { "110 : Trajectory Intent", "asterix.21_0_23_110_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1676, { "TIS : Trajectory Intent Status", "asterix.21_0_23_110_1031_compound_1031_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1677, { "NAV", "asterix.21_0_23_110_1031_compound_1031_extended_NAV", FT_UINT8, BASE_DEC, VALS(value_map_371), 0x0, NULL, HFILL } },
@@ -10822,26 +10822,26 @@ static hf_register_info hf[] = {
 { &expand_var_1679, { "FX", "asterix.21_0_23_110_1031_compound_1031_extended_TIS_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1680, { "TID : Trajectory Intent Data", "asterix.21_0_23_110_1044_compound_1044_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1681, { "TID : Trajectory Intent Data", "asterix.21_0_23_110_rep31_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1682, { "TCA", "asterix.21_0_23_110_rep31_group", FT_UINT8, BASE_DEC, VALS(value_map_373), 0x0, NULL, HFILL } },
-{ &expand_var_1683, { "NC", "asterix.21_0_23_110_rep31_group", FT_UINT8, BASE_DEC, VALS(value_map_374), 0x0, NULL, HFILL } },
-{ &expand_var_1684, { "TCPN", "asterix.21_0_23_110_rep31_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1685, { "ALT : Altitude in Two's Complement Form [ft]", "asterix.21_0_23_110_rep31_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1686, { "LAT : In WGS.84 in Two's Complement [°]", "asterix.21_0_23_110_rep31_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1687, { "LON : In WGS.84 in Two's Complement [°]", "asterix.21_0_23_110_rep31_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1688, { "PT : Point Type", "asterix.21_0_23_110_rep31_group", FT_UINT8, BASE_DEC, VALS(value_map_377), 0x0, NULL, HFILL } },
-{ &expand_var_1689, { "TD", "asterix.21_0_23_110_rep31_group", FT_UINT8, BASE_DEC, VALS(value_map_378), 0x0, NULL, HFILL } },
-{ &expand_var_1690, { "TRA", "asterix.21_0_23_110_rep31_group", FT_UINT8, BASE_DEC, VALS(value_map_379), 0x0, NULL, HFILL } },
-{ &expand_var_1691, { "TOA", "asterix.21_0_23_110_rep31_group", FT_UINT8, BASE_DEC, VALS(value_map_380), 0x0, NULL, HFILL } },
-{ &expand_var_1692, { "TOV : Time Over Point [s]", "asterix.21_0_23_110_rep31_group", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1693, { "TTR : TCP Turn Radius [NM]", "asterix.21_0_23_110_rep31_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1682, { "TCA", "asterix.21_0_23_110_rep31_group_633", FT_UINT8, BASE_DEC, VALS(value_map_373), 0x0, NULL, HFILL } },
+{ &expand_var_1683, { "NC", "asterix.21_0_23_110_rep31_group_634", FT_UINT8, BASE_DEC, VALS(value_map_374), 0x0, NULL, HFILL } },
+{ &expand_var_1684, { "TCPN", "asterix.21_0_23_110_rep31_group_635", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1685, { "ALT : Altitude in Two's Complement Form [ft]", "asterix.21_0_23_110_rep31_group_636", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1686, { "LAT : In WGS.84 in Two's Complement [°]", "asterix.21_0_23_110_rep31_group_637", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1687, { "LON : In WGS.84 in Two's Complement [°]", "asterix.21_0_23_110_rep31_group_638", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1688, { "PT : Point Type", "asterix.21_0_23_110_rep31_group_639", FT_UINT8, BASE_DEC, VALS(value_map_377), 0x0, NULL, HFILL } },
+{ &expand_var_1689, { "TD", "asterix.21_0_23_110_rep31_group_640", FT_UINT8, BASE_DEC, VALS(value_map_378), 0x0, NULL, HFILL } },
+{ &expand_var_1690, { "TRA", "asterix.21_0_23_110_rep31_group_641", FT_UINT8, BASE_DEC, VALS(value_map_379), 0x0, NULL, HFILL } },
+{ &expand_var_1691, { "TOA", "asterix.21_0_23_110_rep31_group_642", FT_UINT8, BASE_DEC, VALS(value_map_380), 0x0, NULL, HFILL } },
+{ &expand_var_1692, { "TOV : Time Over Point [s]", "asterix.21_0_23_110_rep31_group_643", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1693, { "TTR : TCP Turn Radius [NM]", "asterix.21_0_23_110_rep31_group_644", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1694, { "RE : Reserved Expansion Field", "asterix.21_0_23_33_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1695, { "SP : Special Purpose Field", "asterix.21_0_23_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1696, { "010 : Data Source Identification", "asterix.21_0_24_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1697, { "040 : Target Report Descriptor", "asterix.21_0_24_040_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1698, { "030 : Time of Day [s]", "asterix.21_0_24_030_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1699, { "130 : Position in WGS-84 Co-ordinates", "asterix.21_0_24_130_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1700, { "LAT : Latitude [°]", "asterix.21_0_24_130_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1701, { "LON : Longitude [°]", "asterix.21_0_24_130_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1700, { "LAT : Latitude [°]", "asterix.21_0_24_130_uap_group_664", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1701, { "LON : Longitude [°]", "asterix.21_0_24_130_uap_group_665", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1702, { "080 : Target Address", "asterix.21_0_24_080_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1703, { "140 : Geometric Altitude [ft]", "asterix.21_0_24_140_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1704, { "090 : Figure of Merit", "asterix.21_0_24_090_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -10921,116 +10921,116 @@ static hf_register_info hf[] = {
 { &expand_var_1778, { "148 : Final State Selected Altitude", "asterix.21_0_26_148_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1779, { "110 : Trajectory Intent", "asterix.21_0_26_110_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1780, { "070 : Mode 3/A Code in Octal Representation", "asterix.21_0_26_070_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1781, { "V", "asterix.21_0_26_070_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_1782, { "G", "asterix.21_0_26_070_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_1783, { "L", "asterix.21_0_26_070_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_396), 0x0, NULL, HFILL } },
-{ &expand_var_1784, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.21_0_26_070_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1781, { "V", "asterix.21_0_26_070_uap_group_454", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_1782, { "G", "asterix.21_0_26_070_uap_group_457", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_1783, { "L", "asterix.21_0_26_070_uap_group_666", FT_UINT8, BASE_DEC, VALS(value_map_396), 0x0, NULL, HFILL } },
+{ &expand_var_1784, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.21_0_26_070_uap_group_667", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1785, { "131 : Signal Amplitude", "asterix.21_0_26_131_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1786, { "RE : Reserved Expansion Field", "asterix.21_0_26_33_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1787, { "SP : Special Purpose Field", "asterix.21_0_26_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1788, { "BPS : Barometric Pressure Setting", "asterix.21_1_4_0_Uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1789, { "BPS : Barometric Pressure Setting [hPa]", "asterix.21_1_4_0_Uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1790, { "SH : Selected Heading", "asterix.21_1_4_0_Uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1791, { "HDR : Horizontal Reference Direction", "asterix.21_1_4_0_Uap_group", FT_UINT8, BASE_DEC, VALS(value_map_398), 0x0, NULL, HFILL } },
-{ &expand_var_1792, { "STAT : Selected Heading Status", "asterix.21_1_4_0_Uap_group", FT_UINT8, BASE_DEC, VALS(value_map_399), 0x0, NULL, HFILL } },
-{ &expand_var_1793, { "SH : Selected Heading [°]", "asterix.21_1_4_0_Uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1794, { "NAV : Navigation Mode", "asterix.21_1_4_0_Uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1795, { "AP : Autopilot", "asterix.21_1_4_0_Uap_group", FT_UINT8, BASE_DEC, VALS(value_map_401), 0x0, NULL, HFILL } },
-{ &expand_var_1796, { "VN : Vertical Navigation", "asterix.21_1_4_0_Uap_group", FT_UINT8, BASE_DEC, VALS(value_map_402), 0x0, NULL, HFILL } },
-{ &expand_var_1797, { "AH : Altitude Hold", "asterix.21_1_4_0_Uap_group", FT_UINT8, BASE_DEC, VALS(value_map_403), 0x0, NULL, HFILL } },
-{ &expand_var_1798, { "AM : Approach Mode", "asterix.21_1_4_0_Uap_group", FT_UINT8, BASE_DEC, VALS(value_map_404), 0x0, NULL, HFILL } },
-{ &expand_var_1799, { "GAO : GPS Antenna Offset", "asterix.21_1_4_0_Uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1800, { "SGV : Surface Ground Vector", "asterix.21_1_4_0_Uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1801, { "STP", "asterix.21_1_4_0_Uap_extended_STP", FT_UINT8, BASE_DEC, VALS(value_map_405), 0x0, NULL, HFILL } },
-{ &expand_var_1802, { "HTS", "asterix.21_1_4_0_Uap_extended_HTS", FT_UINT8, BASE_DEC, VALS(value_map_406), 0x0, NULL, HFILL } },
-{ &expand_var_1803, { "HTT", "asterix.21_1_4_0_Uap_extended_HTT", FT_UINT8, BASE_DEC, VALS(value_map_407), 0x0, NULL, HFILL } },
-{ &expand_var_1804, { "HRD", "asterix.21_1_4_0_Uap_extended_HRD", FT_UINT8, BASE_DEC, VALS(value_map_398), 0x0, NULL, HFILL } },
-{ &expand_var_1805, { "GSS(Ground Speed) [kt]", "asterix.21_1_4_0_Uap_extended_GSS", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1806, { "FX", "asterix.21_1_4_0_Uap_extended_SGV_FX_15", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1807, { "HGT(Heading/Ground Track Information) [°]", "asterix.21_1_4_0_Uap_extended_HGT", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1808, { "FX", "asterix.21_1_4_0_Uap_extended_SGV_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1809, { "STA : Aircraft Status", "asterix.21_1_4_0_Uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1810, { "ES", "asterix.21_1_4_0_Uap_extended_ES", FT_UINT8, BASE_DEC, VALS(value_map_409), 0x0, NULL, HFILL } },
-{ &expand_var_1811, { "UAT", "asterix.21_1_4_0_Uap_extended_UAT", FT_UINT8, BASE_DEC, VALS(value_map_410), 0x0, NULL, HFILL } },
-{ &expand_var_1812, { "FX", "asterix.21_1_4_0_Uap_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1813, { "TNH : True North Heading [°]", "asterix.21_1_4_0_Uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1814, { "MES : Military Extended Squitter", "asterix.21_1_4_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1815, { "SUM : Mode 5 Summary", "asterix.21_1_4_0_1124_compound_1124_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1816, { "M5", "asterix.21_1_4_0_1124_compound_1124_group", FT_UINT8, BASE_DEC, VALS(value_map_411), 0x0, NULL, HFILL } },
-{ &expand_var_1817, { "ID", "asterix.21_1_4_0_1124_compound_1124_group", FT_UINT8, BASE_DEC, VALS(value_map_412), 0x0, NULL, HFILL } },
-{ &expand_var_1818, { "DA", "asterix.21_1_4_0_1124_compound_1124_group", FT_UINT8, BASE_DEC, VALS(value_map_413), 0x0, NULL, HFILL } },
-{ &expand_var_1819, { "M1", "asterix.21_1_4_0_1124_compound_1124_group", FT_UINT8, BASE_DEC, VALS(value_map_414), 0x0, NULL, HFILL } },
-{ &expand_var_1820, { "M2", "asterix.21_1_4_0_1124_compound_1124_group", FT_UINT8, BASE_DEC, VALS(value_map_415), 0x0, NULL, HFILL } },
-{ &expand_var_1821, { "M3", "asterix.21_1_4_0_1124_compound_1124_group", FT_UINT8, BASE_DEC, VALS(value_map_416), 0x0, NULL, HFILL } },
-{ &expand_var_1822, { "MC", "asterix.21_1_4_0_1124_compound_1124_group", FT_UINT8, BASE_DEC, VALS(value_map_417), 0x0, NULL, HFILL } },
-{ &expand_var_1823, { "PO", "asterix.21_1_4_0_1124_compound_1124_group", FT_UINT8, BASE_DEC, VALS(value_map_418), 0x0, NULL, HFILL } },
-{ &expand_var_1824, { "PNO : Mode 5 PIN / National Origin", "asterix.21_1_4_0_1127_compound_1127_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1825, { "PIN : PIN Code", "asterix.21_1_4_0_1127_compound_1127_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1826, { "NO : National Origin Code", "asterix.21_1_4_0_1127_compound_1127_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1827, { "EM1 : Extended Mode 1 Code in Octal Representation", "asterix.21_1_4_0_1130_compound_1130_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1828, { "V", "asterix.21_1_4_0_1130_compound_1130_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_1829, { "L", "asterix.21_1_4_0_1130_compound_1130_group", FT_UINT8, BASE_DEC, VALS(value_map_419), 0x0, NULL, HFILL } },
-{ &expand_var_1830, { "EM1 : Extended Mode 1 Code in Octal Representation", "asterix.21_1_4_0_1130_compound_1130_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1831, { "XP : X Pulse Presence", "asterix.21_1_4_0_1137_compound_1137_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1832, { "XP : X-pulse from Mode 5 PIN Reply/report", "asterix.21_1_4_0_1137_compound_1137_group", FT_UINT8, BASE_DEC, VALS(value_map_420), 0x0, NULL, HFILL } },
-{ &expand_var_1833, { "X5 : X-pulse from Mode 5 Data Reply or Report", "asterix.21_1_4_0_1137_compound_1137_group", FT_UINT8, BASE_DEC, VALS(value_map_421), 0x0, NULL, HFILL } },
-{ &expand_var_1834, { "XC : X-pulse from Mode C Reply", "asterix.21_1_4_0_1137_compound_1137_group", FT_UINT8, BASE_DEC, VALS(value_map_422), 0x0, NULL, HFILL } },
-{ &expand_var_1835, { "X3 : X-pulse from Mode 3/A Reply", "asterix.21_1_4_0_1137_compound_1137_group", FT_UINT8, BASE_DEC, VALS(value_map_423), 0x0, NULL, HFILL } },
-{ &expand_var_1836, { "X2 : X-pulse from Mode 2 Reply", "asterix.21_1_4_0_1137_compound_1137_group", FT_UINT8, BASE_DEC, VALS(value_map_424), 0x0, NULL, HFILL } },
-{ &expand_var_1837, { "X1 : X-pulse from Mode 1 Reply", "asterix.21_1_4_0_1137_compound_1137_group", FT_UINT8, BASE_DEC, VALS(value_map_425), 0x0, NULL, HFILL } },
-{ &expand_var_1838, { "FOM : Figure of Merit", "asterix.21_1_4_0_1139_compound_1139_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1839, { "FOM : Figure of Merit", "asterix.21_1_4_0_1139_compound_1139_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1840, { "M2 : Mode 2 Code in Octal Representation", "asterix.21_1_4_0_1142_compound_1142_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1841, { "V", "asterix.21_1_4_0_1142_compound_1142_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_1842, { "L", "asterix.21_1_4_0_1142_compound_1142_group", FT_UINT8, BASE_DEC, VALS(value_map_18), 0x0, NULL, HFILL } },
-{ &expand_var_1843, { "MODE2 : Mode 2 Code in Octal Representation", "asterix.21_1_4_0_1142_compound_1142_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1844, { "BPS : Barometric Pressure Setting", "asterix.21_1_5_0_Uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1845, { "SH : Selected Heading", "asterix.21_1_5_0_Uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1846, { "NAV : Navigation Mode", "asterix.21_1_5_0_Uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1847, { "AP : Autopilot", "asterix.21_1_5_0_Uap_group", FT_UINT8, BASE_DEC, VALS(value_map_401), 0x0, NULL, HFILL } },
-{ &expand_var_1848, { "VN : Vertical Navigation", "asterix.21_1_5_0_Uap_group", FT_UINT8, BASE_DEC, VALS(value_map_402), 0x0, NULL, HFILL } },
-{ &expand_var_1849, { "AH : Altitude Hold", "asterix.21_1_5_0_Uap_group", FT_UINT8, BASE_DEC, VALS(value_map_403), 0x0, NULL, HFILL } },
-{ &expand_var_1850, { "AM : Approach Mode", "asterix.21_1_5_0_Uap_group", FT_UINT8, BASE_DEC, VALS(value_map_404), 0x0, NULL, HFILL } },
-{ &expand_var_1851, { "MFM : Status of MCP/FCU Mode Bits", "asterix.21_1_5_0_Uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1852, { "EP : Element Populated Bit", "asterix.21_1_5_0_Uap_group", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_1853, { "VAL : Value", "asterix.21_1_5_0_Uap_group", FT_UINT8, BASE_DEC, VALS(value_map_426), 0x0, NULL, HFILL } },
-{ &expand_var_1854, { "GAO : GPS Antenna Offset", "asterix.21_1_5_0_Uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1855, { "SGV : Surface Ground Vector", "asterix.21_1_5_0_Uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1856, { "STA : Aircraft Status", "asterix.21_1_5_0_Uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1857, { "ES(ES IN Capability)", "asterix.21_1_5_0_Uap_extended_ES", FT_UINT8, BASE_DEC, VALS(value_map_409), 0x0, NULL, HFILL } },
-{ &expand_var_1858, { "UAT(UAT IN Capability)", "asterix.21_1_5_0_Uap_extended_UAT", FT_UINT8, BASE_DEC, VALS(value_map_410), 0x0, NULL, HFILL } },
-{ &expand_var_1859, { "EP : Element Populated Bit", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_1860, { "VAL : Value", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_427), 0x0, NULL, HFILL } },
-{ &expand_var_1861, { "EP : Element Populated Bit", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_1862, { "VAL : Value", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_428), 0x0, NULL, HFILL } },
-{ &expand_var_1863, { "FX", "asterix.21_1_5_0_Uap_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1864, { "EP : Element Populated Bit", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_1865, { "VAL : Value", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_429), 0x0, NULL, HFILL } },
-{ &expand_var_1866, { "EP : Element Populated Bit", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_1867, { "VAL : Value", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_430), 0x0, NULL, HFILL } },
-{ &expand_var_1868, { "FX", "asterix.21_1_5_0_Uap_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1869, { "EP : Element Populated Bit", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_1870, { "VAL : Value", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_431), 0x0, NULL, HFILL } },
-{ &expand_var_1871, { "EP : Element Populated Bit", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_1872, { "VAL : Value", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_432), 0x0, NULL, HFILL } },
-{ &expand_var_1873, { "EP : Element Populated Bit", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_1874, { "VAL : Value", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_433), 0x0, NULL, HFILL } },
-{ &expand_var_1875, { "FX", "asterix.21_1_5_0_Uap_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1876, { "EP : Element Populated Bit", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_1877, { "VAL : Value", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_434), 0x0, NULL, HFILL } },
-{ &expand_var_1878, { "EP : Element Populated Bit", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_1879, { "VAL : Value", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1880, { "FX", "asterix.21_1_5_0_Uap_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1881, { "EP : Element Populated Bit", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_1882, { "VAL : Value", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_435), 0x0, NULL, HFILL } },
-{ &expand_var_1883, { "EP : Element Population Bit", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_1884, { "VAL : Value", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_436), 0x0, NULL, HFILL } },
-{ &expand_var_1885, { "FX", "asterix.21_1_5_0_Uap_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1886, { "EP : Element Populated Bit", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_437), 0x0, NULL, HFILL } },
-{ &expand_var_1887, { "VAL : Value", "asterix.21_1_5_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_438), 0x0, NULL, HFILL } },
-{ &expand_var_1888, { "FX", "asterix.21_1_5_0_Uap_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1889, { "TNH : True North Heading [°]", "asterix.21_1_5_0_Uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1890, { "MES : Military Extended Squitter", "asterix.21_1_5_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1788, { "BPS : Barometric Pressure Setting", "asterix.21_1_4_1094_re_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1789, { "BPS : Barometric Pressure Setting [hPa]", "asterix.21_1_4_1094_re_group_668", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1790, { "SH : Selected Heading", "asterix.21_1_4_1098_re_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1791, { "HDR : Horizontal Reference Direction", "asterix.21_1_4_1098_re_group_669", FT_UINT8, BASE_DEC, VALS(value_map_398), 0x0, NULL, HFILL } },
+{ &expand_var_1792, { "STAT : Selected Heading Status", "asterix.21_1_4_1098_re_group_670", FT_UINT8, BASE_DEC, VALS(value_map_399), 0x0, NULL, HFILL } },
+{ &expand_var_1793, { "SH : Selected Heading [°]", "asterix.21_1_4_1098_re_group_671", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1794, { "NAV : Navigation Mode", "asterix.21_1_4_1103_re_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1795, { "AP : Autopilot", "asterix.21_1_4_1103_re_group_672", FT_UINT8, BASE_DEC, VALS(value_map_401), 0x0, NULL, HFILL } },
+{ &expand_var_1796, { "VN : Vertical Navigation", "asterix.21_1_4_1103_re_group_673", FT_UINT8, BASE_DEC, VALS(value_map_402), 0x0, NULL, HFILL } },
+{ &expand_var_1797, { "AH : Altitude Hold", "asterix.21_1_4_1103_re_group_674", FT_UINT8, BASE_DEC, VALS(value_map_403), 0x0, NULL, HFILL } },
+{ &expand_var_1798, { "AM : Approach Mode", "asterix.21_1_4_1103_re_group_675", FT_UINT8, BASE_DEC, VALS(value_map_404), 0x0, NULL, HFILL } },
+{ &expand_var_1799, { "GAO : GPS Antenna Offset", "asterix.21_1_4_1104_re_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1800, { "SGV : Surface Ground Vector", "asterix.21_1_4_1111_re_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1801, { "STP", "asterix.21_1_4_1111_re_extended_STP", FT_UINT8, BASE_DEC, VALS(value_map_405), 0x0, NULL, HFILL } },
+{ &expand_var_1802, { "HTS", "asterix.21_1_4_1111_re_extended_HTS", FT_UINT8, BASE_DEC, VALS(value_map_406), 0x0, NULL, HFILL } },
+{ &expand_var_1803, { "HTT", "asterix.21_1_4_1111_re_extended_HTT", FT_UINT8, BASE_DEC, VALS(value_map_407), 0x0, NULL, HFILL } },
+{ &expand_var_1804, { "HRD", "asterix.21_1_4_1111_re_extended_HRD", FT_UINT8, BASE_DEC, VALS(value_map_398), 0x0, NULL, HFILL } },
+{ &expand_var_1805, { "GSS(Ground Speed) [kt]", "asterix.21_1_4_1111_re_extended_GSS", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1806, { "FX", "asterix.21_1_4_1111_re_extended_SGV_FX_15", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1807, { "HGT(Heading/Ground Track Information) [°]", "asterix.21_1_4_1111_re_extended_HGT", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1808, { "FX", "asterix.21_1_4_1111_re_extended_SGV_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1809, { "STA : Aircraft Status", "asterix.21_1_4_1114_re_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1810, { "ES", "asterix.21_1_4_1114_re_extended_ES", FT_UINT8, BASE_DEC, VALS(value_map_409), 0x0, NULL, HFILL } },
+{ &expand_var_1811, { "UAT", "asterix.21_1_4_1114_re_extended_UAT", FT_UINT8, BASE_DEC, VALS(value_map_410), 0x0, NULL, HFILL } },
+{ &expand_var_1812, { "FX", "asterix.21_1_4_1114_re_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1813, { "TNH : True North Heading [°]", "asterix.21_1_4_1115_re_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1814, { "MES : Military Extended Squitter", "asterix.21_1_4_1143_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1815, { "SUM : Mode 5 Summary", "asterix.21_1_4_1143_1124_compound_1124_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1816, { "M5", "asterix.21_1_4_1143_1124_compound_1124_group_684", FT_UINT8, BASE_DEC, VALS(value_map_411), 0x0, NULL, HFILL } },
+{ &expand_var_1817, { "ID", "asterix.21_1_4_1143_1124_compound_1124_group_685", FT_UINT8, BASE_DEC, VALS(value_map_412), 0x0, NULL, HFILL } },
+{ &expand_var_1818, { "DA", "asterix.21_1_4_1143_1124_compound_1124_group_686", FT_UINT8, BASE_DEC, VALS(value_map_413), 0x0, NULL, HFILL } },
+{ &expand_var_1819, { "M1", "asterix.21_1_4_1143_1124_compound_1124_group_687", FT_UINT8, BASE_DEC, VALS(value_map_414), 0x0, NULL, HFILL } },
+{ &expand_var_1820, { "M2", "asterix.21_1_4_1143_1124_compound_1124_group_688", FT_UINT8, BASE_DEC, VALS(value_map_415), 0x0, NULL, HFILL } },
+{ &expand_var_1821, { "M3", "asterix.21_1_4_1143_1124_compound_1124_group_689", FT_UINT8, BASE_DEC, VALS(value_map_416), 0x0, NULL, HFILL } },
+{ &expand_var_1822, { "MC", "asterix.21_1_4_1143_1124_compound_1124_group_690", FT_UINT8, BASE_DEC, VALS(value_map_417), 0x0, NULL, HFILL } },
+{ &expand_var_1823, { "PO", "asterix.21_1_4_1143_1124_compound_1124_group_691", FT_UINT8, BASE_DEC, VALS(value_map_418), 0x0, NULL, HFILL } },
+{ &expand_var_1824, { "PNO : Mode 5 PIN / National Origin", "asterix.21_1_4_1143_1127_compound_1127_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1825, { "PIN : PIN Code", "asterix.21_1_4_1143_1127_compound_1127_group_692", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1826, { "NO : National Origin Code", "asterix.21_1_4_1143_1127_compound_1127_group_693", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1827, { "EM1 : Extended Mode 1 Code in Octal Representation", "asterix.21_1_4_1143_1130_compound_1130_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1828, { "V", "asterix.21_1_4_1143_1130_compound_1130_group_454", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_1829, { "L", "asterix.21_1_4_1143_1130_compound_1130_group_694", FT_UINT8, BASE_DEC, VALS(value_map_419), 0x0, NULL, HFILL } },
+{ &expand_var_1830, { "EM1 : Extended Mode 1 Code in Octal Representation", "asterix.21_1_4_1143_1130_compound_1130_group_695", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1831, { "XP : X Pulse Presence", "asterix.21_1_4_1143_1137_compound_1137_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1832, { "XP : X-pulse from Mode 5 PIN Reply/report", "asterix.21_1_4_1143_1137_compound_1137_group_696", FT_UINT8, BASE_DEC, VALS(value_map_420), 0x0, NULL, HFILL } },
+{ &expand_var_1833, { "X5 : X-pulse from Mode 5 Data Reply or Report", "asterix.21_1_4_1143_1137_compound_1137_group_697", FT_UINT8, BASE_DEC, VALS(value_map_421), 0x0, NULL, HFILL } },
+{ &expand_var_1834, { "XC : X-pulse from Mode C Reply", "asterix.21_1_4_1143_1137_compound_1137_group_698", FT_UINT8, BASE_DEC, VALS(value_map_422), 0x0, NULL, HFILL } },
+{ &expand_var_1835, { "X3 : X-pulse from Mode 3/A Reply", "asterix.21_1_4_1143_1137_compound_1137_group_699", FT_UINT8, BASE_DEC, VALS(value_map_423), 0x0, NULL, HFILL } },
+{ &expand_var_1836, { "X2 : X-pulse from Mode 2 Reply", "asterix.21_1_4_1143_1137_compound_1137_group_700", FT_UINT8, BASE_DEC, VALS(value_map_424), 0x0, NULL, HFILL } },
+{ &expand_var_1837, { "X1 : X-pulse from Mode 1 Reply", "asterix.21_1_4_1143_1137_compound_1137_group_701", FT_UINT8, BASE_DEC, VALS(value_map_425), 0x0, NULL, HFILL } },
+{ &expand_var_1838, { "FOM : Figure of Merit", "asterix.21_1_4_1143_1139_compound_1139_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1839, { "FOM : Figure of Merit", "asterix.21_1_4_1143_1139_compound_1139_group_702", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1840, { "M2 : Mode 2 Code in Octal Representation", "asterix.21_1_4_1143_1142_compound_1142_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1841, { "V", "asterix.21_1_4_1143_1142_compound_1142_group_454", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_1842, { "L", "asterix.21_1_4_1143_1142_compound_1142_group_703", FT_UINT8, BASE_DEC, VALS(value_map_18), 0x0, NULL, HFILL } },
+{ &expand_var_1843, { "MODE2 : Mode 2 Code in Octal Representation", "asterix.21_1_4_1143_1142_compound_1142_group_704", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1844, { "BPS : Barometric Pressure Setting", "asterix.21_1_5_1094_re_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1845, { "SH : Selected Heading", "asterix.21_1_5_1098_re_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1846, { "NAV : Navigation Mode", "asterix.21_1_5_1147_re_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1847, { "AP : Autopilot", "asterix.21_1_5_1147_re_group_672", FT_UINT8, BASE_DEC, VALS(value_map_401), 0x0, NULL, HFILL } },
+{ &expand_var_1848, { "VN : Vertical Navigation", "asterix.21_1_5_1147_re_group_673", FT_UINT8, BASE_DEC, VALS(value_map_402), 0x0, NULL, HFILL } },
+{ &expand_var_1849, { "AH : Altitude Hold", "asterix.21_1_5_1147_re_group_674", FT_UINT8, BASE_DEC, VALS(value_map_403), 0x0, NULL, HFILL } },
+{ &expand_var_1850, { "AM : Approach Mode", "asterix.21_1_5_1147_re_group_675", FT_UINT8, BASE_DEC, VALS(value_map_404), 0x0, NULL, HFILL } },
+{ &expand_var_1851, { "MFM : Status of MCP/FCU Mode Bits", "asterix.21_1_5_1147_re_group_707", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1852, { "EP : Element Populated Bit", "asterix.21_1_5_1147_re_group_705", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_1853, { "VAL : Value", "asterix.21_1_5_1147_re_group_706", FT_UINT8, BASE_DEC, VALS(value_map_426), 0x0, NULL, HFILL } },
+{ &expand_var_1854, { "GAO : GPS Antenna Offset", "asterix.21_1_5_1104_re_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1855, { "SGV : Surface Ground Vector", "asterix.21_1_5_1111_re_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1856, { "STA : Aircraft Status", "asterix.21_1_5_1182_re_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1857, { "ES(ES IN Capability)", "asterix.21_1_5_1182_re_extended_ES", FT_UINT8, BASE_DEC, VALS(value_map_409), 0x0, NULL, HFILL } },
+{ &expand_var_1858, { "UAT(UAT IN Capability)", "asterix.21_1_5_1182_re_extended_UAT", FT_UINT8, BASE_DEC, VALS(value_map_410), 0x0, NULL, HFILL } },
+{ &expand_var_1859, { "EP : Element Populated Bit", "asterix.21_1_5_1182_re_extended_710", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_1860, { "VAL : Value", "asterix.21_1_5_1182_re_extended_711", FT_UINT8, BASE_DEC, VALS(value_map_427), 0x0, NULL, HFILL } },
+{ &expand_var_1861, { "EP : Element Populated Bit", "asterix.21_1_5_1182_re_extended_713", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_1862, { "VAL : Value", "asterix.21_1_5_1182_re_extended_714", FT_UINT8, BASE_DEC, VALS(value_map_428), 0x0, NULL, HFILL } },
+{ &expand_var_1863, { "FX", "asterix.21_1_5_1182_re_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1864, { "EP : Element Populated Bit", "asterix.21_1_5_1182_re_extended_716", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_1865, { "VAL : Value", "asterix.21_1_5_1182_re_extended_717", FT_UINT8, BASE_DEC, VALS(value_map_429), 0x0, NULL, HFILL } },
+{ &expand_var_1866, { "EP : Element Populated Bit", "asterix.21_1_5_1182_re_extended_719", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_1867, { "VAL : Value", "asterix.21_1_5_1182_re_extended_720", FT_UINT8, BASE_DEC, VALS(value_map_430), 0x0, NULL, HFILL } },
+{ &expand_var_1868, { "FX", "asterix.21_1_5_1182_re_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1869, { "EP : Element Populated Bit", "asterix.21_1_5_1182_re_extended_722", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_1870, { "VAL : Value", "asterix.21_1_5_1182_re_extended_723", FT_UINT8, BASE_DEC, VALS(value_map_431), 0x0, NULL, HFILL } },
+{ &expand_var_1871, { "EP : Element Populated Bit", "asterix.21_1_5_1182_re_extended_725", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_1872, { "VAL : Value", "asterix.21_1_5_1182_re_extended_726", FT_UINT8, BASE_DEC, VALS(value_map_432), 0x0, NULL, HFILL } },
+{ &expand_var_1873, { "EP : Element Populated Bit", "asterix.21_1_5_1182_re_extended_719", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_1874, { "VAL : Value", "asterix.21_1_5_1182_re_extended_728", FT_UINT8, BASE_DEC, VALS(value_map_433), 0x0, NULL, HFILL } },
+{ &expand_var_1875, { "FX", "asterix.21_1_5_1182_re_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1876, { "EP : Element Populated Bit", "asterix.21_1_5_1182_re_extended_713", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_1877, { "VAL : Value", "asterix.21_1_5_1182_re_extended_730", FT_UINT8, BASE_DEC, VALS(value_map_434), 0x0, NULL, HFILL } },
+{ &expand_var_1878, { "EP : Element Populated Bit", "asterix.21_1_5_1182_re_extended_166", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_1879, { "VAL : Value", "asterix.21_1_5_1182_re_extended_732", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1880, { "FX", "asterix.21_1_5_1182_re_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1881, { "EP : Element Populated Bit", "asterix.21_1_5_1182_re_extended_705", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_1882, { "VAL : Value", "asterix.21_1_5_1182_re_extended_734", FT_UINT8, BASE_DEC, VALS(value_map_435), 0x0, NULL, HFILL } },
+{ &expand_var_1883, { "EP : Element Population Bit", "asterix.21_1_5_1182_re_extended_736", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_1884, { "VAL : Value", "asterix.21_1_5_1182_re_extended_737", FT_UINT8, BASE_DEC, VALS(value_map_436), 0x0, NULL, HFILL } },
+{ &expand_var_1885, { "FX", "asterix.21_1_5_1182_re_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1886, { "EP : Element Populated Bit", "asterix.21_1_5_1182_re_extended_739", FT_UINT8, BASE_DEC, VALS(value_map_437), 0x0, NULL, HFILL } },
+{ &expand_var_1887, { "VAL : Value", "asterix.21_1_5_1182_re_extended_740", FT_UINT8, BASE_DEC, VALS(value_map_438), 0x0, NULL, HFILL } },
+{ &expand_var_1888, { "FX", "asterix.21_1_5_1182_re_extended_STA_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1889, { "TNH : True North Heading [°]", "asterix.21_1_5_1183_re_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1890, { "MES : Military Extended Squitter", "asterix.21_1_5_1143_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1891, { "010 : Data Source Identification", "asterix.21_2_1_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1892, { "040 : Target Report Descriptor", "asterix.21_2_1_040_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1893, { "ATP(Address Type)", "asterix.21_2_1_040_uap_extended_ATP", FT_UINT8, BASE_DEC, VALS(value_map_448), 0x0, NULL, HFILL } },
@@ -11052,27 +11052,27 @@ static hf_register_info hf[] = {
 { &expand_var_1909, { "RCF(Range Check)", "asterix.21_2_1_040_uap_extended_RCF", FT_UINT8, BASE_DEC, VALS(value_map_456), 0x0, NULL, HFILL } },
 { &expand_var_1910, { "FX", "asterix.21_2_1_040_uap_extended_040_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1911, { "161 : Track Number", "asterix.21_2_1_161_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1912, { "TRNUM : Track Number", "asterix.21_2_1_161_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1912, { "TRNUM : Track Number", "asterix.21_2_1_161_uap_group_788", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1913, { "015 : Service Identification", "asterix.21_2_1_015_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1914, { "071 : Time of Applicability for Position [s]", "asterix.21_2_1_071_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1915, { "130 : Position in WGS-84 Co-ordinates", "asterix.21_2_1_130_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1916, { "131 : High-Resolution Position in WGS-84 Co-ordinates", "asterix.21_2_1_131_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1917, { "LAT : Latitude [°]", "asterix.21_2_1_131_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1918, { "LON : Longitude [°]", "asterix.21_2_1_131_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1917, { "LAT : Latitude [°]", "asterix.21_2_1_131_uap_group_776", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1918, { "LON : Longitude [°]", "asterix.21_2_1_131_uap_group_777", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1919, { "072 : Time of Applicability for Velocity [s]", "asterix.21_2_1_072_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1920, { "150 : Air Speed", "asterix.21_2_1_150_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1921, { "151 : True Airspeed", "asterix.21_2_1_151_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1922, { "RE : Range Exceeded Indicator", "asterix.21_2_1_151_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_462), 0x0, NULL, HFILL } },
-{ &expand_var_1923, { "TAS : True Air Speed [kt]", "asterix.21_2_1_151_uap_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1922, { "RE : Range Exceeded Indicator", "asterix.21_2_1_151_uap_group_782", FT_UINT8, BASE_DEC, VALS(value_map_462), 0x0, NULL, HFILL } },
+{ &expand_var_1923, { "TAS : True Air Speed [kt]", "asterix.21_2_1_151_uap_group_783", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1924, { "080 : Target Address", "asterix.21_2_1_080_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1925, { "073 : Time of Message Reception for Position [s]", "asterix.21_2_1_073_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1926, { "074 : Time of Message Reception of Position-High Precision", "asterix.21_2_1_074_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1927, { "FSI : Full Second Indication", "asterix.21_2_1_074_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_457), 0x0, NULL, HFILL } },
-{ &expand_var_1928, { "TOMRP : Fractional Part of the Time of Message Reception for Position in the Ground Station [s]", "asterix.21_2_1_074_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1927, { "FSI : Full Second Indication", "asterix.21_2_1_074_uap_group_764", FT_UINT8, BASE_DEC, VALS(value_map_457), 0x0, NULL, HFILL } },
+{ &expand_var_1928, { "TOMRP : Fractional Part of the Time of Message Reception for Position in the Ground Station [s]", "asterix.21_2_1_074_uap_group_765", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1929, { "075 : Time of Message Reception for Velocity [s]", "asterix.21_2_1_075_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1930, { "076 : Time of Message Reception of Velocity-High Precision", "asterix.21_2_1_076_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1931, { "FSI : Full Second Indication", "asterix.21_2_1_076_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_459), 0x0, NULL, HFILL } },
-{ &expand_var_1932, { "TOMRP : Fractional Part of the Time of Message Reception for Position in the Ground Station [s]", "asterix.21_2_1_076_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1931, { "FSI : Full Second Indication", "asterix.21_2_1_076_uap_group_766", FT_UINT8, BASE_DEC, VALS(value_map_459), 0x0, NULL, HFILL } },
+{ &expand_var_1932, { "TOMRP : Fractional Part of the Time of Message Reception for Position in the Ground Station [s]", "asterix.21_2_1_076_uap_group_765", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1933, { "140 : Geometric Height [ft]", "asterix.21_2_1_140_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1934, { "090 : Quality Indicators", "asterix.21_2_1_090_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1935, { "NUCRNACV(Navigation Uncertainty Category for Velocity NUCr or the Navigation Accuracy Category for Velocity NACv)", "asterix.21_2_1_090_uap_extended_NUCRNACV", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -11089,54 +11089,54 @@ static hf_register_info hf[] = {
 { &expand_var_1946, { "PIC(Position Integrity Category)", "asterix.21_2_1_090_uap_extended_PIC", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1947, { "FX", "asterix.21_2_1_090_uap_extended_090_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1948, { "210 : MOPS Version", "asterix.21_2_1_210_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1949, { "VNS : Version Not Supported", "asterix.21_2_1_210_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_468), 0x0, NULL, HFILL } },
-{ &expand_var_1950, { "VN : Version Number", "asterix.21_2_1_210_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_469), 0x0, NULL, HFILL } },
-{ &expand_var_1951, { "LTT : Link Technology Type", "asterix.21_2_1_210_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_470), 0x0, NULL, HFILL } },
+{ &expand_var_1949, { "VNS : Version Not Supported", "asterix.21_2_1_210_uap_group_794", FT_UINT8, BASE_DEC, VALS(value_map_468), 0x0, NULL, HFILL } },
+{ &expand_var_1950, { "VN : Version Number", "asterix.21_2_1_210_uap_group_795", FT_UINT8, BASE_DEC, VALS(value_map_469), 0x0, NULL, HFILL } },
+{ &expand_var_1951, { "LTT : Link Technology Type", "asterix.21_2_1_210_uap_group_796", FT_UINT8, BASE_DEC, VALS(value_map_470), 0x0, NULL, HFILL } },
 { &expand_var_1952, { "070 : Mode 3/A Code in Octal Representation", "asterix.21_2_1_070_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1953, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.21_2_1_070_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1953, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.21_2_1_070_uap_group_222", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1954, { "230 : Roll Angle [°]", "asterix.21_2_1_230_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1955, { "145 : Flight Level [FL]", "asterix.21_2_1_145_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1956, { "152 : Magnetic Heading [°]", "asterix.21_2_1_152_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1957, { "200 : Target Status", "asterix.21_2_1_200_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1958, { "ICF : Intent Change Flag (see Note)", "asterix.21_2_1_200_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_464), 0x0, NULL, HFILL } },
-{ &expand_var_1959, { "LNAV : LNAV Mode", "asterix.21_2_1_200_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_465), 0x0, NULL, HFILL } },
-{ &expand_var_1960, { "PS : Priority Status", "asterix.21_2_1_200_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_466), 0x0, NULL, HFILL } },
-{ &expand_var_1961, { "SS : Surveillance Status", "asterix.21_2_1_200_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_467), 0x0, NULL, HFILL } },
+{ &expand_var_1958, { "ICF : Intent Change Flag (see Note)", "asterix.21_2_1_200_uap_group_790", FT_UINT8, BASE_DEC, VALS(value_map_464), 0x0, NULL, HFILL } },
+{ &expand_var_1959, { "LNAV : LNAV Mode", "asterix.21_2_1_200_uap_group_791", FT_UINT8, BASE_DEC, VALS(value_map_465), 0x0, NULL, HFILL } },
+{ &expand_var_1960, { "PS : Priority Status", "asterix.21_2_1_200_uap_group_792", FT_UINT8, BASE_DEC, VALS(value_map_466), 0x0, NULL, HFILL } },
+{ &expand_var_1961, { "SS : Surveillance Status", "asterix.21_2_1_200_uap_group_793", FT_UINT8, BASE_DEC, VALS(value_map_467), 0x0, NULL, HFILL } },
 { &expand_var_1962, { "155 : Barometric Vertical Rate", "asterix.21_2_1_155_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1963, { "RE : Range Exceeded Indicator", "asterix.21_2_1_155_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_462), 0x0, NULL, HFILL } },
-{ &expand_var_1964, { "BVR : Barometric Vertical Rate [ft/min]", "asterix.21_2_1_155_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1963, { "RE : Range Exceeded Indicator", "asterix.21_2_1_155_uap_group_782", FT_UINT8, BASE_DEC, VALS(value_map_462), 0x0, NULL, HFILL } },
+{ &expand_var_1964, { "BVR : Barometric Vertical Rate [ft/min]", "asterix.21_2_1_155_uap_group_784", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1965, { "157 : Geometric Vertical Rate", "asterix.21_2_1_157_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1966, { "RE : Range Exceeded Indicator", "asterix.21_2_1_157_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_462), 0x0, NULL, HFILL } },
-{ &expand_var_1967, { "GVR : Geometric Vertical Rate [ft/min]", "asterix.21_2_1_157_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1966, { "RE : Range Exceeded Indicator", "asterix.21_2_1_157_uap_group_782", FT_UINT8, BASE_DEC, VALS(value_map_462), 0x0, NULL, HFILL } },
+{ &expand_var_1967, { "GVR : Geometric Vertical Rate [ft/min]", "asterix.21_2_1_157_uap_group_785", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1968, { "160 : Airborne Ground Vector", "asterix.21_2_1_160_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1969, { "RE : Range Exceeded Indicator", "asterix.21_2_1_160_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_462), 0x0, NULL, HFILL } },
-{ &expand_var_1970, { "GS : Ground Speed Referenced to WGS-84 [NM/s]", "asterix.21_2_1_160_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1971, { "TA : Track Angle Clockwise Reference to True North [°]", "asterix.21_2_1_160_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1969, { "RE : Range Exceeded Indicator", "asterix.21_2_1_160_uap_group_782", FT_UINT8, BASE_DEC, VALS(value_map_462), 0x0, NULL, HFILL } },
+{ &expand_var_1970, { "GS : Ground Speed Referenced to WGS-84 [NM/s]", "asterix.21_2_1_160_uap_group_786", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1971, { "TA : Track Angle Clockwise Reference to True North [°]", "asterix.21_2_1_160_uap_group_787", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1972, { "165 : Track Angle Rate", "asterix.21_2_1_165_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1973, { "TAR : Track Angle Rate [°/s]", "asterix.21_2_1_165_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1973, { "TAR : Track Angle Rate [°/s]", "asterix.21_2_1_165_uap_group_789", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1974, { "077 : Time of ASTERIX Report Transmission [s]", "asterix.21_2_1_077_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1975, { "170 : Target Identification", "asterix.21_2_1_170_uap_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1976, { "020 : Emitter Category", "asterix.21_2_1_020_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_447), 0x0, NULL, HFILL } },
 { &expand_var_1977, { "220 : Met Information", "asterix.21_2_1_220_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1978, { "146 : Selected Altitude", "asterix.21_2_1_146_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1979, { "SAS : Source Availability", "asterix.21_2_1_146_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_382), 0x0, NULL, HFILL } },
-{ &expand_var_1980, { "S : Source", "asterix.21_2_1_146_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_383), 0x0, NULL, HFILL } },
-{ &expand_var_1981, { "ALT : Altitude [ft]", "asterix.21_2_1_146_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1979, { "SAS : Source Availability", "asterix.21_2_1_146_uap_group_647", FT_UINT8, BASE_DEC, VALS(value_map_382), 0x0, NULL, HFILL } },
+{ &expand_var_1980, { "S : Source", "asterix.21_2_1_146_uap_group_778", FT_UINT8, BASE_DEC, VALS(value_map_383), 0x0, NULL, HFILL } },
+{ &expand_var_1981, { "ALT : Altitude [ft]", "asterix.21_2_1_146_uap_group_649", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1982, { "148 : Final State Selected Altitude", "asterix.21_2_1_148_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1983, { "MV : Manage Vertical Mode", "asterix.21_2_1_148_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_461), 0x0, NULL, HFILL } },
-{ &expand_var_1984, { "AH : Altitude Hold Mode", "asterix.21_2_1_148_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_461), 0x0, NULL, HFILL } },
-{ &expand_var_1985, { "AM : Approach Mode", "asterix.21_2_1_148_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_461), 0x0, NULL, HFILL } },
-{ &expand_var_1986, { "ALT : Altitude [ft]", "asterix.21_2_1_148_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_1983, { "MV : Manage Vertical Mode", "asterix.21_2_1_148_uap_group_779", FT_UINT8, BASE_DEC, VALS(value_map_461), 0x0, NULL, HFILL } },
+{ &expand_var_1984, { "AH : Altitude Hold Mode", "asterix.21_2_1_148_uap_group_780", FT_UINT8, BASE_DEC, VALS(value_map_461), 0x0, NULL, HFILL } },
+{ &expand_var_1985, { "AM : Approach Mode", "asterix.21_2_1_148_uap_group_781", FT_UINT8, BASE_DEC, VALS(value_map_461), 0x0, NULL, HFILL } },
+{ &expand_var_1986, { "ALT : Altitude [ft]", "asterix.21_2_1_148_uap_group_649", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1987, { "110 : Trajectory Intent", "asterix.21_2_1_110_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1988, { "016 : Service Management [s]", "asterix.21_2_1_016_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1989, { "008 : Aircraft Operational Status", "asterix.21_2_1_008_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_1990, { "RA : TCAS Resolution Advisory Active", "asterix.21_2_1_008_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_439), 0x0, NULL, HFILL } },
-{ &expand_var_1991, { "TC : Target Trajectory Change Report Capability", "asterix.21_2_1_008_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_440), 0x0, NULL, HFILL } },
-{ &expand_var_1992, { "TS : Target State Report Capability", "asterix.21_2_1_008_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_441), 0x0, NULL, HFILL } },
-{ &expand_var_1993, { "ARV : Air-Referenced Velocity Report Capability", "asterix.21_2_1_008_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_442), 0x0, NULL, HFILL } },
-{ &expand_var_1994, { "CDTIA : Cockpit Display of Traffic Information Airborne", "asterix.21_2_1_008_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_443), 0x0, NULL, HFILL } },
-{ &expand_var_1995, { "NOTTCAS : TCAS System Status", "asterix.21_2_1_008_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_444), 0x0, NULL, HFILL } },
-{ &expand_var_1996, { "SA : Single Antenna", "asterix.21_2_1_008_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_445), 0x0, NULL, HFILL } },
+{ &expand_var_1990, { "RA : TCAS Resolution Advisory Active", "asterix.21_2_1_008_uap_group_742", FT_UINT8, BASE_DEC, VALS(value_map_439), 0x0, NULL, HFILL } },
+{ &expand_var_1991, { "TC : Target Trajectory Change Report Capability", "asterix.21_2_1_008_uap_group_743", FT_UINT8, BASE_DEC, VALS(value_map_440), 0x0, NULL, HFILL } },
+{ &expand_var_1992, { "TS : Target State Report Capability", "asterix.21_2_1_008_uap_group_744", FT_UINT8, BASE_DEC, VALS(value_map_441), 0x0, NULL, HFILL } },
+{ &expand_var_1993, { "ARV : Air-Referenced Velocity Report Capability", "asterix.21_2_1_008_uap_group_745", FT_UINT8, BASE_DEC, VALS(value_map_442), 0x0, NULL, HFILL } },
+{ &expand_var_1994, { "CDTIA : Cockpit Display of Traffic Information Airborne", "asterix.21_2_1_008_uap_group_746", FT_UINT8, BASE_DEC, VALS(value_map_443), 0x0, NULL, HFILL } },
+{ &expand_var_1995, { "NOTTCAS : TCAS System Status", "asterix.21_2_1_008_uap_group_747", FT_UINT8, BASE_DEC, VALS(value_map_444), 0x0, NULL, HFILL } },
+{ &expand_var_1996, { "SA : Single Antenna", "asterix.21_2_1_008_uap_group_748", FT_UINT8, BASE_DEC, VALS(value_map_445), 0x0, NULL, HFILL } },
 { &expand_var_1997, { "271 : Surface Capabilities and Characteristics", "asterix.21_2_1_271_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1998, { "POA(Position Offset Applied)", "asterix.21_2_1_271_uap_extended_POA", FT_UINT8, BASE_DEC, VALS(value_map_471), 0x0, NULL, HFILL } },
 { &expand_var_1999, { "CDTIS(Cockpit Display of Traffic Information Surface)", "asterix.21_2_1_271_uap_extended_CDTIS", FT_UINT8, BASE_DEC, VALS(value_map_443), 0x0, NULL, HFILL } },
@@ -11148,14 +11148,14 @@ static hf_register_info hf[] = {
 { &expand_var_2005, { "132 : Message Amplitude [dBm]", "asterix.21_2_1_132_uap_element", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2006, { "250 : Mode S MB Data", "asterix.21_2_1_250_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2007, { "260 : ACAS Resolution Advisory Report", "asterix.21_2_1_260_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2008, { "TYP : Message Type (= 28 for 1090 ES, Version 2)", "asterix.21_2_1_260_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2009, { "STYP : Message Sub-type (= 2 for 1090 ES, Version 2)", "asterix.21_2_1_260_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2010, { "ARA : Active Resolution Advisories", "asterix.21_2_1_260_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2011, { "RAC : RAC (RA Complement) Record", "asterix.21_2_1_260_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2012, { "RAT : RA Terminated", "asterix.21_2_1_260_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2013, { "MTE : Multiple Threat Encounter", "asterix.21_2_1_260_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2014, { "TTI : Threat Type Indicator", "asterix.21_2_1_260_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2015, { "TID : Threat Identity Data", "asterix.21_2_1_260_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2008, { "TYP : Message Type (= 28 for 1090 ES, Version 2)", "asterix.21_2_1_260_uap_group_797", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2009, { "STYP : Message Sub-type (= 2 for 1090 ES, Version 2)", "asterix.21_2_1_260_uap_group_798", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2010, { "ARA : Active Resolution Advisories", "asterix.21_2_1_260_uap_group_799", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2011, { "RAC : RAC (RA Complement) Record", "asterix.21_2_1_260_uap_group_800", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2012, { "RAT : RA Terminated", "asterix.21_2_1_260_uap_group_801", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2013, { "MTE : Multiple Threat Encounter", "asterix.21_2_1_260_uap_group_802", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2014, { "TTI : Threat Type Indicator", "asterix.21_2_1_260_uap_group_803", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2015, { "TID : Threat Identity Data", "asterix.21_2_1_260_uap_group_804", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2016, { "400 : Receiver ID", "asterix.21_2_1_400_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2017, { "295 : Data Ages", "asterix.21_2_1_295_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2018, { "AOS : Aircraft Operational Status Age [s]", "asterix.21_2_1_295_1284_compound_1284_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -11206,11 +11206,11 @@ static hf_register_info hf[] = {
 { &expand_var_2063, { "145 : Flight Level [FL]", "asterix.21_2_2_145_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2064, { "152 : Magnetic Heading [°]", "asterix.21_2_2_152_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2065, { "200 : Target Status", "asterix.21_2_2_200_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2066, { "ICF : Intent Change Flag (see Note)", "asterix.21_2_2_200_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_464), 0x0, NULL, HFILL } },
-{ &expand_var_2067, { "LNAV : LNAV Mode", "asterix.21_2_2_200_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_465), 0x0, NULL, HFILL } },
-{ &expand_var_2068, { "ME : Military Emergency", "asterix.21_2_2_200_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_476), 0x0, NULL, HFILL } },
-{ &expand_var_2069, { "PS : Priority Status", "asterix.21_2_2_200_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_466), 0x0, NULL, HFILL } },
-{ &expand_var_2070, { "SS : Surveillance Status", "asterix.21_2_2_200_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_467), 0x0, NULL, HFILL } },
+{ &expand_var_2066, { "ICF : Intent Change Flag (see Note)", "asterix.21_2_2_200_uap_group_790", FT_UINT8, BASE_DEC, VALS(value_map_464), 0x0, NULL, HFILL } },
+{ &expand_var_2067, { "LNAV : LNAV Mode", "asterix.21_2_2_200_uap_group_791", FT_UINT8, BASE_DEC, VALS(value_map_465), 0x0, NULL, HFILL } },
+{ &expand_var_2068, { "ME : Military Emergency", "asterix.21_2_2_200_uap_group_811", FT_UINT8, BASE_DEC, VALS(value_map_476), 0x0, NULL, HFILL } },
+{ &expand_var_2069, { "PS : Priority Status", "asterix.21_2_2_200_uap_group_792", FT_UINT8, BASE_DEC, VALS(value_map_466), 0x0, NULL, HFILL } },
+{ &expand_var_2070, { "SS : Surveillance Status", "asterix.21_2_2_200_uap_group_793", FT_UINT8, BASE_DEC, VALS(value_map_467), 0x0, NULL, HFILL } },
 { &expand_var_2071, { "155 : Barometric Vertical Rate", "asterix.21_2_2_155_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2072, { "157 : Geometric Vertical Rate", "asterix.21_2_2_157_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2073, { "160 : Airborne Ground Vector", "asterix.21_2_2_160_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -11365,9 +11365,9 @@ static hf_register_info hf[] = {
 { &expand_var_2222, { "140 : Geometric Height [ft]", "asterix.21_2_5_140_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2223, { "090 : Quality Indicators", "asterix.21_2_5_090_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2224, { "210 : MOPS Version", "asterix.21_2_5_210_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2225, { "VNS : Version Not Supported", "asterix.21_2_5_210_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_468), 0x0, NULL, HFILL } },
-{ &expand_var_2226, { "VN : Version Number", "asterix.21_2_5_210_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_478), 0x0, NULL, HFILL } },
-{ &expand_var_2227, { "LTT : Link Technology Type", "asterix.21_2_5_210_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_470), 0x0, NULL, HFILL } },
+{ &expand_var_2225, { "VNS : Version Not Supported", "asterix.21_2_5_210_uap_group_794", FT_UINT8, BASE_DEC, VALS(value_map_468), 0x0, NULL, HFILL } },
+{ &expand_var_2226, { "VN : Version Number", "asterix.21_2_5_210_uap_group_814", FT_UINT8, BASE_DEC, VALS(value_map_478), 0x0, NULL, HFILL } },
+{ &expand_var_2227, { "LTT : Link Technology Type", "asterix.21_2_5_210_uap_group_796", FT_UINT8, BASE_DEC, VALS(value_map_470), 0x0, NULL, HFILL } },
 { &expand_var_2228, { "070 : Mode 3/A Code in Octal Representation", "asterix.21_2_5_070_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2229, { "230 : Roll Angle [°]", "asterix.21_2_5_230_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2230, { "145 : Flight Level [FL]", "asterix.21_2_5_145_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -11415,11 +11415,11 @@ static hf_register_info hf[] = {
 { &expand_var_2272, { "LDPJ(Local Decoding Position Jump)", "asterix.21_2_6_040_uap_extended_LDPJ", FT_UINT8, BASE_DEC, VALS(value_map_455), 0x0, NULL, HFILL } },
 { &expand_var_2273, { "RCF(Range Check)", "asterix.21_2_6_040_uap_extended_RCF", FT_UINT8, BASE_DEC, VALS(value_map_456), 0x0, NULL, HFILL } },
 { &expand_var_2274, { "FX", "asterix.21_2_6_040_uap_extended_040_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2275, { "EP : Element Populated Bit", "asterix.21_2_6_040_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_2276, { "VAL : Value", "asterix.21_2_6_040_uap_extended", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2275, { "EP : Element Populated Bit", "asterix.21_2_6_040_uap_extended_713", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_2276, { "VAL : Value", "asterix.21_2_6_040_uap_extended_815", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2277, { "FX", "asterix.21_2_6_040_uap_extended_040_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2278, { "EP : Element Populated Bit", "asterix.21_2_6_040_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_2279, { "VAL : Value", "asterix.21_2_6_040_uap_extended", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2278, { "EP : Element Populated Bit", "asterix.21_2_6_040_uap_extended_705", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_2279, { "VAL : Value", "asterix.21_2_6_040_uap_extended_817", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2280, { "FX", "asterix.21_2_6_040_uap_extended_040_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2281, { "161 : Track Number", "asterix.21_2_6_161_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2282, { "015 : Service Identification", "asterix.21_2_6_015_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -11432,17 +11432,17 @@ static hf_register_info hf[] = {
 { &expand_var_2289, { "080 : Target Address", "asterix.21_2_6_080_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2290, { "073 : Time of Message Reception for Position [s]", "asterix.21_2_6_073_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2291, { "074 : Time of Message Reception of Position-High Precision", "asterix.21_2_6_074_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2292, { "FSI : Full Second Indication", "asterix.21_2_6_074_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_457), 0x0, NULL, HFILL } },
-{ &expand_var_2293, { "TOMRP : Fractional Part of the Time of Message Reception for Position in the Ground Station [s]", "asterix.21_2_6_074_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2292, { "FSI : Full Second Indication", "asterix.21_2_6_074_uap_group_820", FT_UINT8, BASE_DEC, VALS(value_map_457), 0x0, NULL, HFILL } },
+{ &expand_var_2293, { "TOMRP : Fractional Part of the Time of Message Reception for Position in the Ground Station [s]", "asterix.21_2_6_074_uap_group_821", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2294, { "075 : Time of Message Reception for Velocity [s]", "asterix.21_2_6_075_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2295, { "076 : Time of Message Reception of Velocity-High Precision", "asterix.21_2_6_076_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2296, { "FSI : Full Second Indication", "asterix.21_2_6_076_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_459), 0x0, NULL, HFILL } },
-{ &expand_var_2297, { "TOMRP : Fractional Part of the Time of Message Reception for Position in the Ground Station [s]", "asterix.21_2_6_076_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2296, { "FSI : Full Second Indication", "asterix.21_2_6_076_uap_group_822", FT_UINT8, BASE_DEC, VALS(value_map_459), 0x0, NULL, HFILL } },
+{ &expand_var_2297, { "TOMRP : Fractional Part of the Time of Message Reception for Position in the Ground Station [s]", "asterix.21_2_6_076_uap_group_821", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2298, { "140 : Geometric Height [ft]", "asterix.21_2_6_140_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2299, { "090 : Quality Indicators", "asterix.21_2_6_090_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2300, { "210 : MOPS Version", "asterix.21_2_6_210_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2301, { "070 : Mode 3/A Code in Octal Representation", "asterix.21_2_6_070_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2302, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.21_2_6_070_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2302, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.21_2_6_070_uap_group_819", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2303, { "230 : Roll Angle [°]", "asterix.21_2_6_230_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2304, { "145 : Flight Level [FL]", "asterix.21_2_6_145_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2305, { "152 : Magnetic Heading [°]", "asterix.21_2_6_152_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -11522,8 +11522,8 @@ static hf_register_info hf[] = {
 { &expand_var_2379, { "PIC(Position Integrity Category)", "asterix.21_2_7_090_uap_extended_PIC", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2380, { "SRC(Source of the PIC)", "asterix.21_2_7_090_uap_extended_SRC", FT_UINT8, BASE_DEC, VALS(value_map_479), 0x0, NULL, HFILL } },
 { &expand_var_2381, { "FX", "asterix.21_2_7_090_uap_extended_090_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2382, { "EP : VAL_STATE Element Populated Bit", "asterix.21_2_7_090_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_2383, { "VAL : VAL_STATE Value", "asterix.21_2_7_090_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_480), 0x0, NULL, HFILL } },
+{ &expand_var_2382, { "EP : VAL_STATE Element Populated Bit", "asterix.21_2_7_090_uap_extended_824", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_2383, { "VAL : VAL_STATE Value", "asterix.21_2_7_090_uap_extended_825", FT_UINT8, BASE_DEC, VALS(value_map_480), 0x0, NULL, HFILL } },
 { &expand_var_2384, { "VD(Validation Distance Availability)", "asterix.21_2_7_090_uap_extended_VD", FT_UINT8, BASE_DEC, VALS(value_map_481), 0x0, NULL, HFILL } },
 { &expand_var_2385, { "VQ(Validation Distance Quality Availability)", "asterix.21_2_7_090_uap_extended_VQ", FT_UINT8, BASE_DEC, VALS(value_map_481), 0x0, NULL, HFILL } },
 { &expand_var_2386, { "FX", "asterix.21_2_7_090_uap_extended_090_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -11565,8 +11565,8 @@ static hf_register_info hf[] = {
 { &expand_var_2422, { "010 : Data Source Identifier", "asterix.23_1_2_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2423, { "000 : Report Type", "asterix.23_1_2_000_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_483), 0x0, NULL, HFILL } },
 { &expand_var_2424, { "015 : Service Type and Identification", "asterix.23_1_2_015_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2425, { "SID : Service Identification", "asterix.23_1_2_015_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2426, { "STYP : Type of Service", "asterix.23_1_2_015_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_484), 0x0, NULL, HFILL } },
+{ &expand_var_2425, { "SID : Service Identification", "asterix.23_1_2_015_uap_group_833", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2426, { "STYP : Type of Service", "asterix.23_1_2_015_uap_group_834", FT_UINT8, BASE_DEC, VALS(value_map_484), 0x0, NULL, HFILL } },
 { &expand_var_2427, { "070 : Time of Day [s]", "asterix.23_1_2_070_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2428, { "100 : Ground Station Status", "asterix.23_1_2_100_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2429, { "NOGO(Operational Release Status of the Data)", "asterix.23_1_2_100_uap_extended_NOGO", FT_UINT8, BASE_DEC, VALS(value_map_485), 0x0, NULL, HFILL } },
@@ -11591,9 +11591,9 @@ static hf_register_info hf[] = {
 { &expand_var_2448, { "FX", "asterix.23_1_2_110_uap_extended_110_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2449, { "120 : Service Statistics", "asterix.23_1_2_120_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2450, { "120 : Service Statistics", "asterix.23_1_2_120_rep32_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2451, { "TYPE : Type of Report Counter", "asterix.23_1_2_120_rep32_group", FT_UINT8, BASE_DEC, VALS(value_map_493), 0x0, NULL, HFILL } },
-{ &expand_var_2452, { "REF : Reference from which the Messages Are Countered", "asterix.23_1_2_120_rep32_group", FT_UINT8, BASE_DEC, VALS(value_map_494), 0x0, NULL, HFILL } },
-{ &expand_var_2453, { "CV : 32-bit Counter Value", "asterix.23_1_2_120_rep32_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2451, { "TYPE : Type of Report Counter", "asterix.23_1_2_120_rep32_group_847", FT_UINT8, BASE_DEC, VALS(value_map_493), 0x0, NULL, HFILL } },
+{ &expand_var_2452, { "REF : Reference from which the Messages Are Countered", "asterix.23_1_2_120_rep32_group_848", FT_UINT8, BASE_DEC, VALS(value_map_494), 0x0, NULL, HFILL } },
+{ &expand_var_2453, { "CV : 32-bit Counter Value", "asterix.23_1_2_120_rep32_group_849", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2454, { "RE : Reserved Expansion Field", "asterix.23_1_2_12_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2455, { "SP : Special Purpose Field", "asterix.23_1_2_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2456, { "010 : Data Source Identifier", "asterix.23_1_3_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -11609,8 +11609,8 @@ static hf_register_info hf[] = {
 { &expand_var_2466, { "SP : Special Purpose Field", "asterix.23_1_3_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2467, { "010 : Data Source Identifier", "asterix.25_1_5_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2468, { "000 : Report Type", "asterix.25_1_5_000_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2469, { "RTYP : Report Type", "asterix.25_1_5_000_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2470, { "RG : Report Generation", "asterix.25_1_5_000_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_254), 0x0, NULL, HFILL } },
+{ &expand_var_2469, { "RTYP : Report Type", "asterix.25_1_5_000_uap_group_850", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2470, { "RG : Report Generation", "asterix.25_1_5_000_uap_group_363", FT_UINT8, BASE_DEC, VALS(value_map_254), 0x0, NULL, HFILL } },
 { &expand_var_2471, { "200 : Message Identification", "asterix.25_1_5_200_uap_element", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2472, { "015 : Service Identification", "asterix.25_1_5_015_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2473, { "020 : Service Designator", "asterix.25_1_5_020_uap_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -11627,25 +11627,25 @@ static hf_register_info hf[] = {
 { &expand_var_2484, { "105 : System and Service Error Codes", "asterix.25_1_5_105_rep33_element", FT_UINT8, BASE_DEC, VALS(value_map_500), 0x0, NULL, HFILL } },
 { &expand_var_2485, { "120 : Component Status", "asterix.25_1_5_120_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2486, { "120 : Component Status", "asterix.25_1_5_120_rep34_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2487, { "CID : Component ID", "asterix.25_1_5_120_rep34_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2488, { "ERRC : Error Code", "asterix.25_1_5_120_rep34_group", FT_UINT8, BASE_DEC, VALS(value_map_501), 0x0, NULL, HFILL } },
-{ &expand_var_2489, { "CS : Component State/Mode", "asterix.25_1_5_120_rep34_group", FT_UINT8, BASE_DEC, VALS(value_map_502), 0x0, NULL, HFILL } },
+{ &expand_var_2487, { "CID : Component ID", "asterix.25_1_5_120_rep34_group_856", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2488, { "ERRC : Error Code", "asterix.25_1_5_120_rep34_group_857", FT_UINT8, BASE_DEC, VALS(value_map_501), 0x0, NULL, HFILL } },
+{ &expand_var_2489, { "CS : Component State/Mode", "asterix.25_1_5_120_rep34_group_858", FT_UINT8, BASE_DEC, VALS(value_map_502), 0x0, NULL, HFILL } },
 { &expand_var_2490, { "140 : Service Statistics", "asterix.25_1_5_140_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2491, { "140 : Service Statistics", "asterix.25_1_5_140_rep35_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2492, { "TYPE : Type of Report Counter", "asterix.25_1_5_140_rep35_group", FT_UINT8, BASE_DEC, VALS(value_map_503), 0x0, NULL, HFILL } },
-{ &expand_var_2493, { "REF : Reference from which the Messages Are Counted", "asterix.25_1_5_140_rep35_group", FT_UINT8, BASE_DEC, VALS(value_map_504), 0x0, NULL, HFILL } },
-{ &expand_var_2494, { "COUNT : Counter Value", "asterix.25_1_5_140_rep35_group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2492, { "TYPE : Type of Report Counter", "asterix.25_1_5_140_rep35_group_859", FT_UINT8, BASE_DEC, VALS(value_map_503), 0x0, NULL, HFILL } },
+{ &expand_var_2493, { "REF : Reference from which the Messages Are Counted", "asterix.25_1_5_140_rep35_group_860", FT_UINT8, BASE_DEC, VALS(value_map_504), 0x0, NULL, HFILL } },
+{ &expand_var_2494, { "COUNT : Counter Value", "asterix.25_1_5_140_rep35_group_861", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2495, { "SP : Special Purpose Field", "asterix.25_1_5_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2496, { "600 : Position of the System Reference Point", "asterix.25_1_5_600_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2497, { "LAT : Latitude [°]", "asterix.25_1_5_600_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2498, { "LON : Longitude [°]", "asterix.25_1_5_600_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2497, { "LAT : Latitude [°]", "asterix.25_1_5_600_uap_group_862", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2498, { "LON : Longitude [°]", "asterix.25_1_5_600_uap_group_863", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2499, { "610 : Height of the System Reference Point [m]", "asterix.25_1_5_610_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2500, { "010 : Server Identification Tag", "asterix.32_1_1_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2501, { "015 : User Number", "asterix.32_1_1_015_uap_element", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2502, { "018 : Data Source Identification Tag", "asterix.32_1_1_018_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2503, { "035 : Type of Message", "asterix.32_1_1_035_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2504, { "FAMILY", "asterix.32_1_1_035_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_506), 0x0, NULL, HFILL } },
-{ &expand_var_2505, { "NATURE", "asterix.32_1_1_035_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_507), 0x0, NULL, HFILL } },
+{ &expand_var_2504, { "FAMILY", "asterix.32_1_1_035_uap_group_864", FT_UINT8, BASE_DEC, VALS(value_map_506), 0x0, NULL, HFILL } },
+{ &expand_var_2505, { "NATURE", "asterix.32_1_1_035_uap_group_865", FT_UINT8, BASE_DEC, VALS(value_map_507), 0x0, NULL, HFILL } },
 { &expand_var_2506, { "020 : Time of ASTERIX Report Generation [s]", "asterix.32_1_1_020_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2507, { "040 : Track Number", "asterix.32_1_1_040_uap_element", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2508, { "050 : Composed Track Number", "asterix.32_1_1_050_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -11653,52 +11653,52 @@ static hf_register_info hf[] = {
 { &expand_var_2510, { "STN(System Track Number)", "asterix.32_1_1_050_uap_extended_STN", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2511, { "FX", "asterix.32_1_1_050_uap_extended_050_FX_23", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2512, { "060 : Track Mode 3/A", "asterix.32_1_1_060_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2513, { "MODE3A : (Mode 3/A Code) 4 Digits, Octal Representation", "asterix.32_1_1_060_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2513, { "MODE3A : (Mode 3/A Code) 4 Digits, Octal Representation", "asterix.32_1_1_060_uap_group_868", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2514, { "400 : Callsign", "asterix.32_1_1_400_uap_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2515, { "410 : Plan Number", "asterix.32_1_1_410_uap_element", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2516, { "420 : Flight Category", "asterix.32_1_1_420_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2517, { "GATOAT", "asterix.32_1_1_420_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_135), 0x0, NULL, HFILL } },
-{ &expand_var_2518, { "FR1FR2", "asterix.32_1_1_420_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_136), 0x0, NULL, HFILL } },
-{ &expand_var_2519, { "SP3", "asterix.32_1_1_420_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2520, { "SP2", "asterix.32_1_1_420_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2521, { "SP1", "asterix.32_1_1_420_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2517, { "GATOAT", "asterix.32_1_1_420_uap_group_869", FT_UINT8, BASE_DEC, VALS(value_map_135), 0x0, NULL, HFILL } },
+{ &expand_var_2518, { "FR1FR2", "asterix.32_1_1_420_uap_group_870", FT_UINT8, BASE_DEC, VALS(value_map_136), 0x0, NULL, HFILL } },
+{ &expand_var_2519, { "SP3", "asterix.32_1_1_420_uap_group_871", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2520, { "SP2", "asterix.32_1_1_420_uap_group_872", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2521, { "SP1", "asterix.32_1_1_420_uap_group_873", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2522, { "440 : Departure Aerodrome", "asterix.32_1_1_440_uap_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2523, { "450 : Destination Aerodrome", "asterix.32_1_1_450_uap_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2524, { "480 : Current Cleared Flight Level [FL]", "asterix.32_1_1_480_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2525, { "490 : Current Control Position", "asterix.32_1_1_490_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2526, { "CEN : Centre", "asterix.32_1_1_490_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2527, { "POS : Position", "asterix.32_1_1_490_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2526, { "CEN : Centre", "asterix.32_1_1_490_uap_group_878", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2527, { "POS : Position", "asterix.32_1_1_490_uap_group_879", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2528, { "430 : Type of Aircraft", "asterix.32_1_1_430_uap_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2529, { "435 : Wake Turbulence Category", "asterix.32_1_1_435_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_231), 0x0, NULL, HFILL } },
 { &expand_var_2530, { "460 : Allocated SSR Codes", "asterix.32_1_1_460_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2531, { "460 : Allocated SSR Codes", "asterix.32_1_1_460_rep36_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2532, { "OCT1 : 1st Octal Digit", "asterix.32_1_1_460_rep36_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2533, { "OCT2 : 2nd Octal Digit", "asterix.32_1_1_460_rep36_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2534, { "OCT3 : 3rd Octal Digit", "asterix.32_1_1_460_rep36_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2535, { "OCT4 : 4th Octal Digit", "asterix.32_1_1_460_rep36_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2532, { "OCT1 : 1st Octal Digit", "asterix.32_1_1_460_rep36_group_874", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2533, { "OCT2 : 2nd Octal Digit", "asterix.32_1_1_460_rep36_group_875", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2534, { "OCT3 : 3rd Octal Digit", "asterix.32_1_1_460_rep36_group_876", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2535, { "OCT4 : 4th Octal Digit", "asterix.32_1_1_460_rep36_group_877", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2536, { "500 : Supplementary Flight Data", "asterix.32_1_1_500_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2537, { "IFI : IFPS FLIGHT ID", "asterix.32_1_1_500_1432_compound_1432_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2538, { "TYP", "asterix.32_1_1_500_1432_compound_1432_group", FT_UINT8, BASE_DEC, VALS(value_map_508), 0x0, NULL, HFILL } },
-{ &expand_var_2539, { "NBR", "asterix.32_1_1_500_1432_compound_1432_group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2538, { "TYP", "asterix.32_1_1_500_1432_compound_1432_group_880", FT_UINT8, BASE_DEC, VALS(value_map_508), 0x0, NULL, HFILL } },
+{ &expand_var_2539, { "NBR", "asterix.32_1_1_500_1432_compound_1432_group_881", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2540, { "RVP : RVSM & Flight Priority", "asterix.32_1_1_500_1435_compound_1435_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2541, { "RVSM", "asterix.32_1_1_500_1435_compound_1435_group", FT_UINT8, BASE_DEC, VALS(value_map_509), 0x0, NULL, HFILL } },
-{ &expand_var_2542, { "HPR", "asterix.32_1_1_500_1435_compound_1435_group", FT_UINT8, BASE_DEC, VALS(value_map_138), 0x0, NULL, HFILL } },
+{ &expand_var_2541, { "RVSM", "asterix.32_1_1_500_1435_compound_1435_group_882", FT_UINT8, BASE_DEC, VALS(value_map_509), 0x0, NULL, HFILL } },
+{ &expand_var_2542, { "HPR", "asterix.32_1_1_500_1435_compound_1435_group_883", FT_UINT8, BASE_DEC, VALS(value_map_138), 0x0, NULL, HFILL } },
 { &expand_var_2543, { "RDS : Runway Designation", "asterix.32_1_1_500_1439_compound_1439_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2544, { "NU1 : First Number", "asterix.32_1_1_500_1439_compound_1439_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2545, { "NU2 : Second Number", "asterix.32_1_1_500_1439_compound_1439_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2546, { "LTR : Letter", "asterix.32_1_1_500_1439_compound_1439_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2544, { "NU1 : First Number", "asterix.32_1_1_500_1439_compound_1439_group_884", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2545, { "NU2 : Second Number", "asterix.32_1_1_500_1439_compound_1439_group_885", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2546, { "LTR : Letter", "asterix.32_1_1_500_1439_compound_1439_group_886", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2547, { "TOD : Time of Departure / Arrival", "asterix.32_1_1_500_1446_compound_1446_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2548, { "TOD : Time of Departure / Arrival", "asterix.32_1_1_500_rep37_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2549, { "TYP", "asterix.32_1_1_500_rep37_group", FT_UINT8, BASE_DEC, VALS(value_map_510), 0x0, NULL, HFILL } },
-{ &expand_var_2550, { "DAY", "asterix.32_1_1_500_rep37_group", FT_UINT8, BASE_DEC, VALS(value_map_511), 0x0, NULL, HFILL } },
-{ &expand_var_2551, { "HOR", "asterix.32_1_1_500_rep37_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2552, { "MIN", "asterix.32_1_1_500_rep37_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2553, { "AVS", "asterix.32_1_1_500_rep37_group", FT_UINT8, BASE_DEC, VALS(value_map_234), 0x0, NULL, HFILL } },
-{ &expand_var_2554, { "SEC", "asterix.32_1_1_500_rep37_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2549, { "TYP", "asterix.32_1_1_500_rep37_group_887", FT_UINT8, BASE_DEC, VALS(value_map_510), 0x0, NULL, HFILL } },
+{ &expand_var_2550, { "DAY", "asterix.32_1_1_500_rep37_group_888", FT_UINT8, BASE_DEC, VALS(value_map_511), 0x0, NULL, HFILL } },
+{ &expand_var_2551, { "HOR", "asterix.32_1_1_500_rep37_group_889", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2552, { "MIN", "asterix.32_1_1_500_rep37_group_890", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2553, { "AVS", "asterix.32_1_1_500_rep37_group_891", FT_UINT8, BASE_DEC, VALS(value_map_234), 0x0, NULL, HFILL } },
+{ &expand_var_2554, { "SEC", "asterix.32_1_1_500_rep37_group_892", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2555, { "AST : Aircraft Stand", "asterix.32_1_1_500_494_compound_494_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2556, { "STS : Stand Status", "asterix.32_1_1_500_1449_compound_1449_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2557, { "EMP", "asterix.32_1_1_500_1449_compound_1449_group", FT_UINT8, BASE_DEC, VALS(value_map_512), 0x0, NULL, HFILL } },
-{ &expand_var_2558, { "AVL", "asterix.32_1_1_500_1449_compound_1449_group", FT_UINT8, BASE_DEC, VALS(value_map_513), 0x0, NULL, HFILL } },
+{ &expand_var_2557, { "EMP", "asterix.32_1_1_500_1449_compound_1449_group_893", FT_UINT8, BASE_DEC, VALS(value_map_512), 0x0, NULL, HFILL } },
+{ &expand_var_2558, { "AVL", "asterix.32_1_1_500_1449_compound_1449_group_894", FT_UINT8, BASE_DEC, VALS(value_map_513), 0x0, NULL, HFILL } },
 { &expand_var_2559, { "SID : Standard Instrument Departure", "asterix.32_1_1_500_1450_compound_1450_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2560, { "STAR : Standard Instrument Arrival", "asterix.32_1_1_500_1451_compound_1451_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2561, { "RE : Reserved Expansion Field", "asterix.32_1_1_20_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -11706,8 +11706,8 @@ static hf_register_info hf[] = {
 { &expand_var_2563, { "015 : User Number", "asterix.32_1_2_015_uap_element", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2564, { "018 : Data Source Identification Tag", "asterix.32_1_2_018_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2565, { "035 : Type of Message", "asterix.32_1_2_035_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2566, { "FAMILY", "asterix.32_1_2_035_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_514), 0x0, NULL, HFILL } },
-{ &expand_var_2567, { "NATURE", "asterix.32_1_2_035_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2566, { "FAMILY", "asterix.32_1_2_035_uap_group_895", FT_UINT8, BASE_DEC, VALS(value_map_514), 0x0, NULL, HFILL } },
+{ &expand_var_2567, { "NATURE", "asterix.32_1_2_035_uap_group_896", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2568, { "020 : Time of ASTERIX Report Generation [s]", "asterix.32_1_2_020_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2569, { "040 : Track Number", "asterix.32_1_2_040_uap_element", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2570, { "050 : Composed Track Number", "asterix.32_1_2_050_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -11731,62 +11731,62 @@ static hf_register_info hf[] = {
 { &expand_var_2588, { "041 : Antenna Rotation Speed [s]", "asterix.34_1_27_041_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2589, { "050 : System Configuration and Status", "asterix.34_1_27_050_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2590, { "COM : Common Part", "asterix.34_1_27_050_1464_compound_1464_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2591, { "NOGO : Operational Release Status of the System", "asterix.34_1_27_050_1464_compound_1464_group", FT_UINT8, BASE_DEC, VALS(value_map_516), 0x0, NULL, HFILL } },
-{ &expand_var_2592, { "RDPC : Radar Data Processor Chain Selection Status", "asterix.34_1_27_050_1464_compound_1464_group", FT_UINT8, BASE_DEC, VALS(value_map_517), 0x0, NULL, HFILL } },
-{ &expand_var_2593, { "RDPR : Event to Signal a Reset/restart of the Selected Radar Data Processor Chain, I.e. Expect a New Assignment of Track Numbers", "asterix.34_1_27_050_1464_compound_1464_group", FT_UINT8, BASE_DEC, VALS(value_map_518), 0x0, NULL, HFILL } },
-{ &expand_var_2594, { "OVLRDP : Radar Data Processor Overload Indicator", "asterix.34_1_27_050_1464_compound_1464_group", FT_UINT8, BASE_DEC, VALS(value_map_519), 0x0, NULL, HFILL } },
-{ &expand_var_2595, { "OVLXMT : Transmission Subsystem Overload Status", "asterix.34_1_27_050_1464_compound_1464_group", FT_UINT8, BASE_DEC, VALS(value_map_487), 0x0, NULL, HFILL } },
-{ &expand_var_2596, { "MSC : Monitoring System Connected Status", "asterix.34_1_27_050_1464_compound_1464_group", FT_UINT8, BASE_DEC, VALS(value_map_520), 0x0, NULL, HFILL } },
-{ &expand_var_2597, { "TSV : Time Source Validity", "asterix.34_1_27_050_1464_compound_1464_group", FT_UINT8, BASE_DEC, VALS(value_map_193), 0x0, NULL, HFILL } },
+{ &expand_var_2591, { "NOGO : Operational Release Status of the System", "asterix.34_1_27_050_1464_compound_1464_group_897", FT_UINT8, BASE_DEC, VALS(value_map_516), 0x0, NULL, HFILL } },
+{ &expand_var_2592, { "RDPC : Radar Data Processor Chain Selection Status", "asterix.34_1_27_050_1464_compound_1464_group_898", FT_UINT8, BASE_DEC, VALS(value_map_517), 0x0, NULL, HFILL } },
+{ &expand_var_2593, { "RDPR : Event to Signal a Reset/restart of the Selected Radar Data Processor Chain, I.e. Expect a New Assignment of Track Numbers", "asterix.34_1_27_050_1464_compound_1464_group_899", FT_UINT8, BASE_DEC, VALS(value_map_518), 0x0, NULL, HFILL } },
+{ &expand_var_2594, { "OVLRDP : Radar Data Processor Overload Indicator", "asterix.34_1_27_050_1464_compound_1464_group_900", FT_UINT8, BASE_DEC, VALS(value_map_519), 0x0, NULL, HFILL } },
+{ &expand_var_2595, { "OVLXMT : Transmission Subsystem Overload Status", "asterix.34_1_27_050_1464_compound_1464_group_901", FT_UINT8, BASE_DEC, VALS(value_map_487), 0x0, NULL, HFILL } },
+{ &expand_var_2596, { "MSC : Monitoring System Connected Status", "asterix.34_1_27_050_1464_compound_1464_group_902", FT_UINT8, BASE_DEC, VALS(value_map_520), 0x0, NULL, HFILL } },
+{ &expand_var_2597, { "TSV : Time Source Validity", "asterix.34_1_27_050_1464_compound_1464_group_903", FT_UINT8, BASE_DEC, VALS(value_map_193), 0x0, NULL, HFILL } },
 { &expand_var_2598, { "PSR : Specific Status Information for a PSR Sensor", "asterix.34_1_27_050_1469_compound_1469_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2599, { "ANT : Selected Antenna", "asterix.34_1_27_050_1469_compound_1469_group", FT_UINT8, BASE_DEC, VALS(value_map_521), 0x0, NULL, HFILL } },
-{ &expand_var_2600, { "CHAB : Channel A/B Selection Status", "asterix.34_1_27_050_1469_compound_1469_group", FT_UINT8, BASE_DEC, VALS(value_map_522), 0x0, NULL, HFILL } },
-{ &expand_var_2601, { "OVL : Overload Condition", "asterix.34_1_27_050_1469_compound_1469_group", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
-{ &expand_var_2602, { "MSC : Monitoring System Connected Status", "asterix.34_1_27_050_1469_compound_1469_group", FT_UINT8, BASE_DEC, VALS(value_map_520), 0x0, NULL, HFILL } },
+{ &expand_var_2599, { "ANT : Selected Antenna", "asterix.34_1_27_050_1469_compound_1469_group_904", FT_UINT8, BASE_DEC, VALS(value_map_521), 0x0, NULL, HFILL } },
+{ &expand_var_2600, { "CHAB : Channel A/B Selection Status", "asterix.34_1_27_050_1469_compound_1469_group_905", FT_UINT8, BASE_DEC, VALS(value_map_522), 0x0, NULL, HFILL } },
+{ &expand_var_2601, { "OVL : Overload Condition", "asterix.34_1_27_050_1469_compound_1469_group_906", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
+{ &expand_var_2602, { "MSC : Monitoring System Connected Status", "asterix.34_1_27_050_1469_compound_1469_group_907", FT_UINT8, BASE_DEC, VALS(value_map_520), 0x0, NULL, HFILL } },
 { &expand_var_2603, { "SSR : Specific Status Information for a SSR Sensor", "asterix.34_1_27_050_1472_compound_1472_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2604, { "ANT : Selected Antenna", "asterix.34_1_27_050_1472_compound_1472_group", FT_UINT8, BASE_DEC, VALS(value_map_521), 0x0, NULL, HFILL } },
-{ &expand_var_2605, { "CHAB : Channel A/B Selection Status", "asterix.34_1_27_050_1472_compound_1472_group", FT_UINT8, BASE_DEC, VALS(value_map_523), 0x0, NULL, HFILL } },
-{ &expand_var_2606, { "OVL : Overload Condition", "asterix.34_1_27_050_1472_compound_1472_group", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
-{ &expand_var_2607, { "MSC : Monitoring System Connected Status:", "asterix.34_1_27_050_1472_compound_1472_group", FT_UINT8, BASE_DEC, VALS(value_map_520), 0x0, NULL, HFILL } },
+{ &expand_var_2604, { "ANT : Selected Antenna", "asterix.34_1_27_050_1472_compound_1472_group_904", FT_UINT8, BASE_DEC, VALS(value_map_521), 0x0, NULL, HFILL } },
+{ &expand_var_2605, { "CHAB : Channel A/B Selection Status", "asterix.34_1_27_050_1472_compound_1472_group_908", FT_UINT8, BASE_DEC, VALS(value_map_523), 0x0, NULL, HFILL } },
+{ &expand_var_2606, { "OVL : Overload Condition", "asterix.34_1_27_050_1472_compound_1472_group_906", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
+{ &expand_var_2607, { "MSC : Monitoring System Connected Status:", "asterix.34_1_27_050_1472_compound_1472_group_909", FT_UINT8, BASE_DEC, VALS(value_map_520), 0x0, NULL, HFILL } },
 { &expand_var_2608, { "MDS : Specific Status Information for a Mode S Sensor", "asterix.34_1_27_050_1479_compound_1479_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2609, { "ANT : Selected Antenna", "asterix.34_1_27_050_1479_compound_1479_group", FT_UINT8, BASE_DEC, VALS(value_map_521), 0x0, NULL, HFILL } },
-{ &expand_var_2610, { "CHAB : Channel A/B Selection Status", "asterix.34_1_27_050_1479_compound_1479_group", FT_UINT8, BASE_DEC, VALS(value_map_524), 0x0, NULL, HFILL } },
-{ &expand_var_2611, { "OVLSUR : Overload Condition", "asterix.34_1_27_050_1479_compound_1479_group", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
-{ &expand_var_2612, { "MSC : Monitoring System Connected Status:", "asterix.34_1_27_050_1479_compound_1479_group", FT_UINT8, BASE_DEC, VALS(value_map_520), 0x0, NULL, HFILL } },
-{ &expand_var_2613, { "SCF : Channel A/B Selection Status for Surveillance Co-ordination Function", "asterix.34_1_27_050_1479_compound_1479_group", FT_UINT8, BASE_DEC, VALS(value_map_525), 0x0, NULL, HFILL } },
-{ &expand_var_2614, { "DLF : Channel A/B Selection Status for Data Link Function", "asterix.34_1_27_050_1479_compound_1479_group", FT_UINT8, BASE_DEC, VALS(value_map_525), 0x0, NULL, HFILL } },
-{ &expand_var_2615, { "OVLSCF : Overload in Surveillance Co-ordination Function", "asterix.34_1_27_050_1479_compound_1479_group", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
-{ &expand_var_2616, { "OVLDLF : Overload in Data Link Function", "asterix.34_1_27_050_1479_compound_1479_group", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
+{ &expand_var_2609, { "ANT : Selected Antenna", "asterix.34_1_27_050_1479_compound_1479_group_904", FT_UINT8, BASE_DEC, VALS(value_map_521), 0x0, NULL, HFILL } },
+{ &expand_var_2610, { "CHAB : Channel A/B Selection Status", "asterix.34_1_27_050_1479_compound_1479_group_910", FT_UINT8, BASE_DEC, VALS(value_map_524), 0x0, NULL, HFILL } },
+{ &expand_var_2611, { "OVLSUR : Overload Condition", "asterix.34_1_27_050_1479_compound_1479_group_911", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
+{ &expand_var_2612, { "MSC : Monitoring System Connected Status:", "asterix.34_1_27_050_1479_compound_1479_group_909", FT_UINT8, BASE_DEC, VALS(value_map_520), 0x0, NULL, HFILL } },
+{ &expand_var_2613, { "SCF : Channel A/B Selection Status for Surveillance Co-ordination Function", "asterix.34_1_27_050_1479_compound_1479_group_912", FT_UINT8, BASE_DEC, VALS(value_map_525), 0x0, NULL, HFILL } },
+{ &expand_var_2614, { "DLF : Channel A/B Selection Status for Data Link Function", "asterix.34_1_27_050_1479_compound_1479_group_913", FT_UINT8, BASE_DEC, VALS(value_map_525), 0x0, NULL, HFILL } },
+{ &expand_var_2615, { "OVLSCF : Overload in Surveillance Co-ordination Function", "asterix.34_1_27_050_1479_compound_1479_group_914", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
+{ &expand_var_2616, { "OVLDLF : Overload in Data Link Function", "asterix.34_1_27_050_1479_compound_1479_group_915", FT_UINT8, BASE_DEC, VALS(value_map_192), 0x0, NULL, HFILL } },
 { &expand_var_2617, { "060 : System Processing Mode", "asterix.34_1_27_060_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2618, { "COM : Common Part", "asterix.34_1_27_060_1483_compound_1483_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2619, { "REDRDP : Reduction Steps in Use for An Overload of the RDP", "asterix.34_1_27_060_1483_compound_1483_group", FT_UINT8, BASE_DEC, VALS(value_map_526), 0x0, NULL, HFILL } },
-{ &expand_var_2620, { "REDXMT : Reduction Steps in Use for An Overload of the Transmission Subsystem", "asterix.34_1_27_060_1483_compound_1483_group", FT_UINT8, BASE_DEC, VALS(value_map_526), 0x0, NULL, HFILL } },
+{ &expand_var_2619, { "REDRDP : Reduction Steps in Use for An Overload of the RDP", "asterix.34_1_27_060_1483_compound_1483_group_916", FT_UINT8, BASE_DEC, VALS(value_map_526), 0x0, NULL, HFILL } },
+{ &expand_var_2620, { "REDXMT : Reduction Steps in Use for An Overload of the Transmission Subsystem", "asterix.34_1_27_060_1483_compound_1483_group_917", FT_UINT8, BASE_DEC, VALS(value_map_526), 0x0, NULL, HFILL } },
 { &expand_var_2621, { "PSR : Specific Processing Mode Information for a PSR Sensor", "asterix.34_1_27_060_1487_compound_1487_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2622, { "POL : Polarization in Use by PSR", "asterix.34_1_27_060_1487_compound_1487_group", FT_UINT8, BASE_DEC, VALS(value_map_527), 0x0, NULL, HFILL } },
-{ &expand_var_2623, { "REDRAD : Reduction Steps in Use as Result of An Overload Within the PSR Subsystem", "asterix.34_1_27_060_1487_compound_1487_group", FT_UINT8, BASE_DEC, VALS(value_map_526), 0x0, NULL, HFILL } },
-{ &expand_var_2624, { "STC : Sensitivity Time Control Map in Use", "asterix.34_1_27_060_1487_compound_1487_group", FT_UINT8, BASE_DEC, VALS(value_map_528), 0x0, NULL, HFILL } },
+{ &expand_var_2622, { "POL : Polarization in Use by PSR", "asterix.34_1_27_060_1487_compound_1487_group_918", FT_UINT8, BASE_DEC, VALS(value_map_527), 0x0, NULL, HFILL } },
+{ &expand_var_2623, { "REDRAD : Reduction Steps in Use as Result of An Overload Within the PSR Subsystem", "asterix.34_1_27_060_1487_compound_1487_group_919", FT_UINT8, BASE_DEC, VALS(value_map_526), 0x0, NULL, HFILL } },
+{ &expand_var_2624, { "STC : Sensitivity Time Control Map in Use", "asterix.34_1_27_060_1487_compound_1487_group_920", FT_UINT8, BASE_DEC, VALS(value_map_528), 0x0, NULL, HFILL } },
 { &expand_var_2625, { "SSR : Specific Processing Mode Information for a SSR Sensor", "asterix.34_1_27_060_1489_compound_1489_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2626, { "REDRAD : Reduction Steps in Use as Result of An Overload Within the SSR Subsystem", "asterix.34_1_27_060_1489_compound_1489_group", FT_UINT8, BASE_DEC, VALS(value_map_526), 0x0, NULL, HFILL } },
+{ &expand_var_2626, { "REDRAD : Reduction Steps in Use as Result of An Overload Within the SSR Subsystem", "asterix.34_1_27_060_1489_compound_1489_group_921", FT_UINT8, BASE_DEC, VALS(value_map_526), 0x0, NULL, HFILL } },
 { &expand_var_2627, { "MDS : Specific Processing Mode Information for a Mode S Sensor", "asterix.34_1_27_060_1492_compound_1492_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2628, { "REDRAD : Reduction Steps in Use as Result of An Overload Within the Mode S Subsystem", "asterix.34_1_27_060_1492_compound_1492_group", FT_UINT8, BASE_DEC, VALS(value_map_526), 0x0, NULL, HFILL } },
-{ &expand_var_2629, { "CLU : Cluster State", "asterix.34_1_27_060_1492_compound_1492_group", FT_UINT8, BASE_DEC, VALS(value_map_529), 0x0, NULL, HFILL } },
+{ &expand_var_2628, { "REDRAD : Reduction Steps in Use as Result of An Overload Within the Mode S Subsystem", "asterix.34_1_27_060_1492_compound_1492_group_922", FT_UINT8, BASE_DEC, VALS(value_map_526), 0x0, NULL, HFILL } },
+{ &expand_var_2629, { "CLU : Cluster State", "asterix.34_1_27_060_1492_compound_1492_group_923", FT_UINT8, BASE_DEC, VALS(value_map_529), 0x0, NULL, HFILL } },
 { &expand_var_2630, { "070 : Message Count Values", "asterix.34_1_27_070_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2631, { "070 : Message Count Values", "asterix.34_1_27_070_rep38_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2632, { "TYP : Type of Message Counter", "asterix.34_1_27_070_rep38_group", FT_UINT8, BASE_DEC, VALS(value_map_530), 0x0, NULL, HFILL } },
-{ &expand_var_2633, { "COUNT : COUNTER", "asterix.34_1_27_070_rep38_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2632, { "TYP : Type of Message Counter", "asterix.34_1_27_070_rep38_group_924", FT_UINT8, BASE_DEC, VALS(value_map_530), 0x0, NULL, HFILL } },
+{ &expand_var_2633, { "COUNT : COUNTER", "asterix.34_1_27_070_rep38_group_925", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2634, { "100 : Generic Polar Window", "asterix.34_1_27_100_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2635, { "RHOST : Rho Start [NM]", "asterix.34_1_27_100_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2636, { "RHOEND : Rho End [NM]", "asterix.34_1_27_100_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2637, { "THETAST : Theta Start [°]", "asterix.34_1_27_100_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2638, { "THETAEND : Theta End [°]", "asterix.34_1_27_100_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2635, { "RHOST : Rho Start [NM]", "asterix.34_1_27_100_uap_group_928", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2636, { "RHOEND : Rho End [NM]", "asterix.34_1_27_100_uap_group_929", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2637, { "THETAST : Theta Start [°]", "asterix.34_1_27_100_uap_group_930", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2638, { "THETAEND : Theta End [°]", "asterix.34_1_27_100_uap_group_931", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2639, { "110 : Data Filter", "asterix.34_1_27_110_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_531), 0x0, NULL, HFILL } },
 { &expand_var_2640, { "120 : 3D-Position Of Data Source", "asterix.34_1_27_120_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2641, { "HGT : Height of Data Source [m]", "asterix.34_1_27_120_uap_group", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2642, { "LAT : Latitude [°]", "asterix.34_1_27_120_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2643, { "LON : Longitude [°]", "asterix.34_1_27_120_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2641, { "HGT : Height of Data Source [m]", "asterix.34_1_27_120_uap_group_932", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2642, { "LAT : Latitude [°]", "asterix.34_1_27_120_uap_group_645", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2643, { "LON : Longitude [°]", "asterix.34_1_27_120_uap_group_646", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2644, { "090 : Collimation Error", "asterix.34_1_27_090_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2645, { "RNG : Range Error [NM]", "asterix.34_1_27_090_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2646, { "AZM : Azimuth Error [°]", "asterix.34_1_27_090_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2645, { "RNG : Range Error [NM]", "asterix.34_1_27_090_uap_group_926", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2646, { "AZM : Azimuth Error [°]", "asterix.34_1_27_090_uap_group_927", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2647, { "RE : Reserved Expansion Field", "asterix.34_1_27_12_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2648, { "SP : Special Purpose Field", "asterix.34_1_27_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2649, { "010 : Data Source Identifier", "asterix.34_1_28_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -11798,8 +11798,8 @@ static hf_register_info hf[] = {
 { &expand_var_2655, { "060 : System Processing Mode", "asterix.34_1_28_060_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2656, { "070 : Message Count Values", "asterix.34_1_28_070_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2657, { "070 : Message Count Values", "asterix.34_1_28_070_rep39_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2658, { "TYP : Type of Message Counter", "asterix.34_1_28_070_rep39_group", FT_UINT8, BASE_DEC, VALS(value_map_533), 0x0, NULL, HFILL } },
-{ &expand_var_2659, { "COUNT : COUNTER", "asterix.34_1_28_070_rep39_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2658, { "TYP : Type of Message Counter", "asterix.34_1_28_070_rep39_group_933", FT_UINT8, BASE_DEC, VALS(value_map_533), 0x0, NULL, HFILL } },
+{ &expand_var_2659, { "COUNT : COUNTER", "asterix.34_1_28_070_rep39_group_925", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2660, { "100 : Generic Polar Window", "asterix.34_1_28_100_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2661, { "110 : Data Filter", "asterix.34_1_28_110_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_531), 0x0, NULL, HFILL } },
 { &expand_var_2662, { "120 : 3D-Position Of Data Source", "asterix.34_1_28_120_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -11820,168 +11820,168 @@ static hf_register_info hf[] = {
 { &expand_var_2677, { "090 : Collimation Error", "asterix.34_1_29_090_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2678, { "RE : Reserved Expansion Field", "asterix.34_1_29_12_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2679, { "SP : Special Purpose Field", "asterix.34_1_29_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2680, { "MD5 : Mode 5 Reports", "asterix.48_1_11_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2681, { "SUM : Mode 5 Summary", "asterix.48_1_11_0_1514_compound_1514_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2682, { "M5", "asterix.48_1_11_0_1514_compound_1514_group", FT_UINT8, BASE_DEC, VALS(value_map_411), 0x0, NULL, HFILL } },
-{ &expand_var_2683, { "ID", "asterix.48_1_11_0_1514_compound_1514_group", FT_UINT8, BASE_DEC, VALS(value_map_412), 0x0, NULL, HFILL } },
-{ &expand_var_2684, { "DA", "asterix.48_1_11_0_1514_compound_1514_group", FT_UINT8, BASE_DEC, VALS(value_map_535), 0x0, NULL, HFILL } },
-{ &expand_var_2685, { "M1", "asterix.48_1_11_0_1514_compound_1514_group", FT_UINT8, BASE_DEC, VALS(value_map_414), 0x0, NULL, HFILL } },
-{ &expand_var_2686, { "M2", "asterix.48_1_11_0_1514_compound_1514_group", FT_UINT8, BASE_DEC, VALS(value_map_415), 0x0, NULL, HFILL } },
-{ &expand_var_2687, { "M3", "asterix.48_1_11_0_1514_compound_1514_group", FT_UINT8, BASE_DEC, VALS(value_map_416), 0x0, NULL, HFILL } },
-{ &expand_var_2688, { "MC", "asterix.48_1_11_0_1514_compound_1514_group", FT_UINT8, BASE_DEC, VALS(value_map_536), 0x0, NULL, HFILL } },
-{ &expand_var_2689, { "PMN : PIN/ National Origin/Mission Code", "asterix.48_1_11_0_1518_compound_1518_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2690, { "PIN : PIN Code", "asterix.48_1_11_0_1518_compound_1518_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2691, { "NAV : Validity of NAT", "asterix.48_1_11_0_1518_compound_1518_group", FT_UINT8, BASE_DEC, VALS(value_map_537), 0x0, NULL, HFILL } },
-{ &expand_var_2692, { "NAT : National Origin", "asterix.48_1_11_0_1518_compound_1518_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2693, { "MIS : Mission Code", "asterix.48_1_11_0_1518_compound_1518_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2694, { "POS : Mode 5 Reported Position", "asterix.48_1_11_0_1521_compound_1521_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2695, { "LAT : Latitude in WGS 84 [°]", "asterix.48_1_11_0_1521_compound_1521_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2696, { "LON : Longitude in WGS 84 [°]", "asterix.48_1_11_0_1521_compound_1521_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2697, { "GA : Mode 5 GNSS-derived Altitude", "asterix.48_1_11_0_1524_compound_1524_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2698, { "RES", "asterix.48_1_11_0_1524_compound_1524_group", FT_UINT8, BASE_DEC, VALS(value_map_538), 0x0, NULL, HFILL } },
-{ &expand_var_2699, { "GA [ft]", "asterix.48_1_11_0_1524_compound_1524_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2700, { "EM1 : Extended Mode 1 Code in Octal Representation", "asterix.48_1_11_0_1527_compound_1527_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2701, { "V", "asterix.48_1_11_0_1527_compound_1527_group", FT_UINT8, BASE_DEC, VALS(value_map_539), 0x0, NULL, HFILL } },
-{ &expand_var_2702, { "G", "asterix.48_1_11_0_1527_compound_1527_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_2703, { "L", "asterix.48_1_11_0_1527_compound_1527_group", FT_UINT8, BASE_DEC, VALS(value_map_540), 0x0, NULL, HFILL } },
-{ &expand_var_2704, { "EM1 : Extended Mode 1 Code in Octal Representation", "asterix.48_1_11_0_1527_compound_1527_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2705, { "TOS : Time Offset for POS and GA [s]", "asterix.48_1_11_0_1528_compound_1528_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2706, { "XP : X Pulse Presence", "asterix.48_1_11_0_1531_compound_1531_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2707, { "XP : X-pulse from Mode 5 PIN Reply/Report", "asterix.48_1_11_0_1531_compound_1531_group", FT_UINT8, BASE_DEC, VALS(value_map_420), 0x0, NULL, HFILL } },
-{ &expand_var_2708, { "X5 : X-pulse from Mode 5 Data Reply or Report", "asterix.48_1_11_0_1531_compound_1531_group", FT_UINT8, BASE_DEC, VALS(value_map_421), 0x0, NULL, HFILL } },
-{ &expand_var_2709, { "XC : X-pulse from Mode C Reply", "asterix.48_1_11_0_1531_compound_1531_group", FT_UINT8, BASE_DEC, VALS(value_map_422), 0x0, NULL, HFILL } },
-{ &expand_var_2710, { "X3 : X-pulse from Mode 3/A Reply", "asterix.48_1_11_0_1531_compound_1531_group", FT_UINT8, BASE_DEC, VALS(value_map_423), 0x0, NULL, HFILL } },
-{ &expand_var_2711, { "X2 : X-pulse from Mode 2 Reply", "asterix.48_1_11_0_1531_compound_1531_group", FT_UINT8, BASE_DEC, VALS(value_map_541), 0x0, NULL, HFILL } },
-{ &expand_var_2712, { "X1 : X-pulse from Mode 1 Reply", "asterix.48_1_11_0_1531_compound_1531_group", FT_UINT8, BASE_DEC, VALS(value_map_425), 0x0, NULL, HFILL } },
-{ &expand_var_2713, { "M5N : Mode 5 Reports, New Format", "asterix.48_1_11_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2714, { "SUM : Mode 5 Summary", "asterix.48_1_11_0_1514_compound_1514_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2715, { "PMN : PIN/ National Origin/Mission Code", "asterix.48_1_11_0_1535_compound_1535_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2716, { "PIN : PIN Code", "asterix.48_1_11_0_1535_compound_1535_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2717, { "NOV : Validity of NO", "asterix.48_1_11_0_1535_compound_1535_group", FT_UINT8, BASE_DEC, VALS(value_map_537), 0x0, NULL, HFILL } },
-{ &expand_var_2718, { "NO : National Origin", "asterix.48_1_11_0_1535_compound_1535_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2719, { "POS : Mode 5 Reported Position", "asterix.48_1_11_0_1521_compound_1521_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2720, { "GA : Mode 5 GNSS-derived Altitude", "asterix.48_1_11_0_1524_compound_1524_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2721, { "EM1 : Extended Mode 1 Code in Octal Representation", "asterix.48_1_11_0_1527_compound_1527_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2722, { "TOS : Time Offset for POS and GA [s]", "asterix.48_1_11_0_1528_compound_1528_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2723, { "XP : X Pulse Presence", "asterix.48_1_11_0_1531_compound_1531_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2724, { "FOM : Figure of Merit", "asterix.48_1_11_0_1537_compound_1537_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2725, { "FOM", "asterix.48_1_11_0_1537_compound_1537_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2726, { "M4E : Extended Mode 4 Report", "asterix.48_1_11_0_Uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2727, { "FOEFRI(Indication Foe/Friend (Mode4))", "asterix.48_1_11_0_Uap_extended_FOEFRI", FT_UINT8, BASE_DEC, VALS(value_map_542), 0x0, NULL, HFILL } },
-{ &expand_var_2728, { "FX", "asterix.48_1_11_0_Uap_extended_M4E_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2729, { "RPC : Radar Plot Characteristics", "asterix.48_1_11_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2730, { "SCO : Score", "asterix.48_1_11_0_1541_compound_1541_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2731, { "SRC : Signal/Clutter Ratio [dB]", "asterix.48_1_11_0_1542_compound_1542_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2732, { "RW : Range Width [NM]", "asterix.48_1_11_0_1543_compound_1543_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2733, { "AR : Ambiguous Range [NM]", "asterix.48_1_11_0_1544_compound_1544_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2734, { "ERR : Extended Range Report [NM]", "asterix.48_1_11_0_Uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2735, { "RTC : Radar Track Characteristics", "asterix.48_1_11_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2736, { "PTL : Plot/Track Link", "asterix.48_1_11_0_1553_compound_1553_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2737, { "SCN : Track / SCN Association", "asterix.48_1_11_0_1553_compound_1553_group", FT_UINT8, BASE_DEC, VALS(value_map_544), 0x0, NULL, HFILL } },
-{ &expand_var_2738, { "RC : Roll Call Component", "asterix.48_1_11_0_1553_compound_1553_group", FT_UINT8, BASE_DEC, VALS(value_map_545), 0x0, NULL, HFILL } },
-{ &expand_var_2739, { "AC : All Call Component", "asterix.48_1_11_0_1553_compound_1553_group", FT_UINT8, BASE_DEC, VALS(value_map_546), 0x0, NULL, HFILL } },
-{ &expand_var_2740, { "SSR : SSR Component", "asterix.48_1_11_0_1553_compound_1553_group", FT_UINT8, BASE_DEC, VALS(value_map_547), 0x0, NULL, HFILL } },
-{ &expand_var_2741, { "PSR : PSR Component", "asterix.48_1_11_0_1553_compound_1553_group", FT_UINT8, BASE_DEC, VALS(value_map_548), 0x0, NULL, HFILL } },
-{ &expand_var_2742, { "PLOTNR", "asterix.48_1_11_0_1553_compound_1553_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2743, { "ATL : ADS-B/Track Link", "asterix.48_1_11_0_1554_compound_1554_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2744, { "ATL : ADS-B/Track Link", "asterix.48_1_11_0_rep40_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2745, { "TRN : Turn State [%]", "asterix.48_1_11_0_1555_compound_1555_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2746, { "NPP : Next Predicted Position", "asterix.48_1_11_0_1567_compound_1567_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2747, { "PREDRHO : Predicted Range [NM]", "asterix.48_1_11_0_1567_compound_1567_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2748, { "PREDTHETA : Predicted Azimuth [°]", "asterix.48_1_11_0_1567_compound_1567_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2749, { "EVOLRHOSTART : Predicted Closest Range [NM]", "asterix.48_1_11_0_1567_compound_1567_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2750, { "EVOLRHOEND : Predicted Largest Range [NM]", "asterix.48_1_11_0_1567_compound_1567_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2751, { "EVOLTHETASTART : Predicted Smallest Azimuth [°]", "asterix.48_1_11_0_1567_compound_1567_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2752, { "EVOLTHETAEND : Predicted Largest Azimuth [°]", "asterix.48_1_11_0_1567_compound_1567_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2753, { "NOISERHOSTART : Predicted Closest Range [NM]", "asterix.48_1_11_0_1567_compound_1567_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2754, { "NOISERHOEND : Predicted Largest Range [NM]", "asterix.48_1_11_0_1567_compound_1567_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2755, { "NOISETHETASTART : Predicted Smallest Azimuth [°]", "asterix.48_1_11_0_1567_compound_1567_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2756, { "NOISETHETAEND : Predicted Largest Azimuth [°]", "asterix.48_1_11_0_1567_compound_1567_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2757, { "PREDTIME : Predicted Detection Time [s]", "asterix.48_1_11_0_1567_compound_1567_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2758, { "DLK : Data Link Characteristics", "asterix.48_1_11_0_1571_compound_1571_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2759, { "DLK : Data Link Characteristics", "asterix.48_1_11_0_rep41_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2760, { "TYPE", "asterix.48_1_11_0_rep41_group", FT_UINT8, BASE_DEC, VALS(value_map_550), 0x0, NULL, HFILL } },
-{ &expand_var_2761, { "ORIGIN", "asterix.48_1_11_0_rep41_group", FT_UINT8, BASE_DEC, VALS(value_map_551), 0x0, NULL, HFILL } },
-{ &expand_var_2762, { "STATE", "asterix.48_1_11_0_rep41_group", FT_UINT8, BASE_DEC, VALS(value_map_552), 0x0, NULL, HFILL } },
-{ &expand_var_2763, { "LCK : Lockout Characteristics", "asterix.48_1_11_0_1574_compound_1574_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2764, { "LS : Lockout State", "asterix.48_1_11_0_1574_compound_1574_group", FT_UINT8, BASE_DEC, VALS(value_map_553), 0x0, NULL, HFILL } },
-{ &expand_var_2765, { "LOCTIM : Lockout Time [ms]", "asterix.48_1_11_0_1574_compound_1574_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2766, { "TC : Transition Code", "asterix.48_1_11_0_1581_compound_1581_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2767, { "TCOUNT1", "asterix.48_1_11_0_1581_compound_1581_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2768, { "TCODE1", "asterix.48_1_11_0_1581_compound_1581_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2769, { "TCOUNT2", "asterix.48_1_11_0_1581_compound_1581_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2770, { "TCODE2", "asterix.48_1_11_0_1581_compound_1581_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2771, { "TCOUNT3", "asterix.48_1_11_0_1581_compound_1581_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2772, { "TCODE3", "asterix.48_1_11_0_1581_compound_1581_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2773, { "TLC : Track Life Cycle", "asterix.48_1_11_0_1585_compound_1585_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2774, { "ACQI", "asterix.48_1_11_0_1585_compound_1585_group", FT_UINT8, BASE_DEC, VALS(value_map_555), 0x0, NULL, HFILL } },
-{ &expand_var_2775, { "TRKUPDCTR", "asterix.48_1_11_0_1585_compound_1585_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2776, { "LASTTRKUPD [ms]", "asterix.48_1_11_0_1585_compound_1585_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2777, { "ASI : Adjacent Sensor Information", "asterix.48_1_11_0_1592_compound_1592_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2778, { "ASI : Adjacent Sensor Information", "asterix.48_1_11_0_rep42_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2779, { "SACADJS : SAC of the Adjacent Sensor", "asterix.48_1_11_0_rep42_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2780, { "SICADJS : SIC of the Adjacent Sensor", "asterix.48_1_11_0_rep42_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2781, { "TIMEOFDAYSCN : Absolute Timestamp in UTC Provided by the SCN [s]", "asterix.48_1_11_0_rep42_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2782, { "DATAUSE : Use of Adjacent Sensor Data", "asterix.48_1_11_0_rep42_group", FT_UINT8, BASE_DEC, VALS(value_map_556), 0x0, NULL, HFILL } },
-{ &expand_var_2783, { "DRNA : DRN Availability", "asterix.48_1_11_0_rep42_group", FT_UINT8, BASE_DEC, VALS(value_map_557), 0x0, NULL, HFILL } },
-{ &expand_var_2784, { "DRN", "asterix.48_1_11_0_rep42_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2785, { "TES : Track Extrapolation Source", "asterix.48_1_11_0_1593_compound_1593_element", FT_UINT8, BASE_DEC, VALS(value_map_558), 0x0, NULL, HFILL } },
-{ &expand_var_2786, { "IR : Identity Requested", "asterix.48_1_11_0_1596_compound_1596_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2787, { "IR", "asterix.48_1_11_0_1596_compound_1596_group", FT_UINT8, BASE_DEC, VALS(value_map_559), 0x0, NULL, HFILL } },
-{ &expand_var_2788, { "M3A : Age of Mode 3/A Code (I048/070) [s]", "asterix.48_1_11_0_1596_compound_1596_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2789, { "CPC : Common and Plot Characteristics", "asterix.48_1_11_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2790, { "PNB : Plot Number", "asterix.48_1_11_0_1598_compound_1598_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2791, { "RPL : Replies/Plot Link", "asterix.48_1_11_0_1601_compound_1601_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2792, { "RPL : Replies/Plot Link", "asterix.48_1_11_0_rep43_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2793, { "TYPE : Reply Type", "asterix.48_1_11_0_rep43_group", FT_UINT8, BASE_DEC, VALS(value_map_560), 0x0, NULL, HFILL } },
-{ &expand_var_2794, { "REPLYNBR", "asterix.48_1_11_0_rep43_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2795, { "SNB : Scan Number", "asterix.48_1_11_0_1602_compound_1602_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2796, { "DATE : Common and Plot Characteristics Date", "asterix.48_1_11_0_1611_compound_1611_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2797, { "Y1", "asterix.48_1_11_0_1611_compound_1611_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2798, { "Y2", "asterix.48_1_11_0_1611_compound_1611_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2799, { "Y3", "asterix.48_1_11_0_1611_compound_1611_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2800, { "Y4", "asterix.48_1_11_0_1611_compound_1611_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2801, { "M1", "asterix.48_1_11_0_1611_compound_1611_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2802, { "M2", "asterix.48_1_11_0_1611_compound_1611_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2803, { "D1", "asterix.48_1_11_0_1611_compound_1611_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2804, { "D2", "asterix.48_1_11_0_1611_compound_1611_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2805, { "MD5 : Mode 5 Reports", "asterix.48_1_12_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2806, { "M5N : Mode 5 Reports, New Format", "asterix.48_1_12_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2807, { "M4E : Extended Mode 4 Report", "asterix.48_1_12_0_Uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2808, { "RPC : Radar Plot Characteristics", "asterix.48_1_12_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2809, { "ERR : Extended Range Report [NM]", "asterix.48_1_12_0_Uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2810, { "RTC : Radar Track Characteristics", "asterix.48_1_12_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2811, { "CPC : Common and Plot Characteristics", "asterix.48_1_12_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2812, { "GEN48 : Generic Category 048 Data", "asterix.48_1_12_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2813, { "ALTM2 : Alternative Mode 2 Code", "asterix.48_1_12_0_1615_compound_1615_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2814, { "V", "asterix.48_1_12_0_1615_compound_1615_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_2815, { "G", "asterix.48_1_12_0_1615_compound_1615_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_2816, { "L", "asterix.48_1_12_0_1615_compound_1615_group", FT_UINT8, BASE_DEC, VALS(value_map_561), 0x0, NULL, HFILL } },
-{ &expand_var_2817, { "ALTM2 : Mode-2 Code in Octal Representation", "asterix.48_1_12_0_1615_compound_1615_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2818, { "ALTM3 : Alternative Mode 3/A", "asterix.48_1_12_0_1618_compound_1618_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2819, { "V", "asterix.48_1_12_0_1618_compound_1618_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_2820, { "G", "asterix.48_1_12_0_1618_compound_1618_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_2821, { "L", "asterix.48_1_12_0_1618_compound_1618_group", FT_UINT8, BASE_DEC, VALS(value_map_562), 0x0, NULL, HFILL } },
-{ &expand_var_2822, { "ALTM3 : Mode-3/A Code in Octal Representation", "asterix.48_1_12_0_1618_compound_1618_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2823, { "ALTFL : Alternative Flight Level", "asterix.48_1_12_0_1620_compound_1620_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2824, { "V", "asterix.48_1_12_0_1620_compound_1620_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_2825, { "G", "asterix.48_1_12_0_1620_compound_1620_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_2826, { "ALTFL : Flight Level in Two's Complement Form [ALTFL]", "asterix.48_1_12_0_1620_compound_1620_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2827, { "MD5 : Mode 5 Reports", "asterix.48_1_13_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2828, { "M5N : Mode 5 Reports, New Format", "asterix.48_1_13_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2829, { "M4E : Extended Mode 4 Report", "asterix.48_1_13_0_Uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2830, { "RPC : Radar Plot Characteristics", "asterix.48_1_13_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2831, { "ERR : Extended Range Report [NM]", "asterix.48_1_13_0_Uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2832, { "RTC : Radar Track Characteristics", "asterix.48_1_13_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2833, { "CPC : Common and Plot Characteristics", "asterix.48_1_13_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2834, { "GEN48 : Generic Category 048 Data", "asterix.48_1_13_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2835, { "ALTM2 : Alternative Mode 2 Code", "asterix.48_1_13_0_1615_compound_1615_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2836, { "ALTM3 : Alternative Mode 3/A", "asterix.48_1_13_0_1618_compound_1618_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2837, { "ALTFL : Alternative Flight Level", "asterix.48_1_13_0_1620_compound_1620_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2838, { "RCSDB : Radar Cross Section", "asterix.48_1_13_0_1623_compound_1623_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2839, { "RCSDB [dBm²]", "asterix.48_1_13_0_1623_compound_1623_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2840, { "RCSM : Radar Cross Section", "asterix.48_1_13_0_1625_compound_1625_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2841, { "RCSM [m²]", "asterix.48_1_13_0_1625_compound_1625_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2680, { "MD5 : Mode 5 Reports", "asterix.48_1_11_1532_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2681, { "SUM : Mode 5 Summary", "asterix.48_1_11_1532_1514_compound_1514_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2682, { "M5", "asterix.48_1_11_1532_1514_compound_1514_group_684", FT_UINT8, BASE_DEC, VALS(value_map_411), 0x0, NULL, HFILL } },
+{ &expand_var_2683, { "ID", "asterix.48_1_11_1532_1514_compound_1514_group_685", FT_UINT8, BASE_DEC, VALS(value_map_412), 0x0, NULL, HFILL } },
+{ &expand_var_2684, { "DA", "asterix.48_1_11_1532_1514_compound_1514_group_934", FT_UINT8, BASE_DEC, VALS(value_map_535), 0x0, NULL, HFILL } },
+{ &expand_var_2685, { "M1", "asterix.48_1_11_1532_1514_compound_1514_group_687", FT_UINT8, BASE_DEC, VALS(value_map_414), 0x0, NULL, HFILL } },
+{ &expand_var_2686, { "M2", "asterix.48_1_11_1532_1514_compound_1514_group_688", FT_UINT8, BASE_DEC, VALS(value_map_415), 0x0, NULL, HFILL } },
+{ &expand_var_2687, { "M3", "asterix.48_1_11_1532_1514_compound_1514_group_689", FT_UINT8, BASE_DEC, VALS(value_map_416), 0x0, NULL, HFILL } },
+{ &expand_var_2688, { "MC", "asterix.48_1_11_1532_1514_compound_1514_group_935", FT_UINT8, BASE_DEC, VALS(value_map_536), 0x0, NULL, HFILL } },
+{ &expand_var_2689, { "PMN : PIN/ National Origin/Mission Code", "asterix.48_1_11_1532_1518_compound_1518_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2690, { "PIN : PIN Code", "asterix.48_1_11_1532_1518_compound_1518_group_692", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2691, { "NAV : Validity of NAT", "asterix.48_1_11_1532_1518_compound_1518_group_936", FT_UINT8, BASE_DEC, VALS(value_map_537), 0x0, NULL, HFILL } },
+{ &expand_var_2692, { "NAT : National Origin", "asterix.48_1_11_1532_1518_compound_1518_group_937", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2693, { "MIS : Mission Code", "asterix.48_1_11_1532_1518_compound_1518_group_938", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2694, { "POS : Mode 5 Reported Position", "asterix.48_1_11_1532_1521_compound_1521_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2695, { "LAT : Latitude in WGS 84 [°]", "asterix.48_1_11_1532_1521_compound_1521_group_939", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2696, { "LON : Longitude in WGS 84 [°]", "asterix.48_1_11_1532_1521_compound_1521_group_940", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2697, { "GA : Mode 5 GNSS-derived Altitude", "asterix.48_1_11_1532_1524_compound_1524_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2698, { "RES", "asterix.48_1_11_1532_1524_compound_1524_group_941", FT_UINT8, BASE_DEC, VALS(value_map_538), 0x0, NULL, HFILL } },
+{ &expand_var_2699, { "GA [ft]", "asterix.48_1_11_1532_1524_compound_1524_group_942", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2700, { "EM1 : Extended Mode 1 Code in Octal Representation", "asterix.48_1_11_1532_1527_compound_1527_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2701, { "V", "asterix.48_1_11_1532_1527_compound_1527_group_943", FT_UINT8, BASE_DEC, VALS(value_map_539), 0x0, NULL, HFILL } },
+{ &expand_var_2702, { "G", "asterix.48_1_11_1532_1527_compound_1527_group_457", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_2703, { "L", "asterix.48_1_11_1532_1527_compound_1527_group_944", FT_UINT8, BASE_DEC, VALS(value_map_540), 0x0, NULL, HFILL } },
+{ &expand_var_2704, { "EM1 : Extended Mode 1 Code in Octal Representation", "asterix.48_1_11_1532_1527_compound_1527_group_695", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2705, { "TOS : Time Offset for POS and GA [s]", "asterix.48_1_11_1532_1528_compound_1528_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2706, { "XP : X Pulse Presence", "asterix.48_1_11_1532_1531_compound_1531_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2707, { "XP : X-pulse from Mode 5 PIN Reply/Report", "asterix.48_1_11_1532_1531_compound_1531_group_945", FT_UINT8, BASE_DEC, VALS(value_map_420), 0x0, NULL, HFILL } },
+{ &expand_var_2708, { "X5 : X-pulse from Mode 5 Data Reply or Report", "asterix.48_1_11_1532_1531_compound_1531_group_697", FT_UINT8, BASE_DEC, VALS(value_map_421), 0x0, NULL, HFILL } },
+{ &expand_var_2709, { "XC : X-pulse from Mode C Reply", "asterix.48_1_11_1532_1531_compound_1531_group_698", FT_UINT8, BASE_DEC, VALS(value_map_422), 0x0, NULL, HFILL } },
+{ &expand_var_2710, { "X3 : X-pulse from Mode 3/A Reply", "asterix.48_1_11_1532_1531_compound_1531_group_699", FT_UINT8, BASE_DEC, VALS(value_map_423), 0x0, NULL, HFILL } },
+{ &expand_var_2711, { "X2 : X-pulse from Mode 2 Reply", "asterix.48_1_11_1532_1531_compound_1531_group_946", FT_UINT8, BASE_DEC, VALS(value_map_541), 0x0, NULL, HFILL } },
+{ &expand_var_2712, { "X1 : X-pulse from Mode 1 Reply", "asterix.48_1_11_1532_1531_compound_1531_group_701", FT_UINT8, BASE_DEC, VALS(value_map_425), 0x0, NULL, HFILL } },
+{ &expand_var_2713, { "M5N : Mode 5 Reports, New Format", "asterix.48_1_11_1538_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2714, { "SUM : Mode 5 Summary", "asterix.48_1_11_1538_1514_compound_1514_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2715, { "PMN : PIN/ National Origin/Mission Code", "asterix.48_1_11_1538_1535_compound_1535_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2716, { "PIN : PIN Code", "asterix.48_1_11_1538_1535_compound_1535_group_692", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2717, { "NOV : Validity of NO", "asterix.48_1_11_1538_1535_compound_1535_group_947", FT_UINT8, BASE_DEC, VALS(value_map_537), 0x0, NULL, HFILL } },
+{ &expand_var_2718, { "NO : National Origin", "asterix.48_1_11_1538_1535_compound_1535_group_948", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2719, { "POS : Mode 5 Reported Position", "asterix.48_1_11_1538_1521_compound_1521_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2720, { "GA : Mode 5 GNSS-derived Altitude", "asterix.48_1_11_1538_1524_compound_1524_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2721, { "EM1 : Extended Mode 1 Code in Octal Representation", "asterix.48_1_11_1538_1527_compound_1527_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2722, { "TOS : Time Offset for POS and GA [s]", "asterix.48_1_11_1538_1528_compound_1528_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2723, { "XP : X Pulse Presence", "asterix.48_1_11_1538_1531_compound_1531_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2724, { "FOM : Figure of Merit", "asterix.48_1_11_1538_1537_compound_1537_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2725, { "FOM", "asterix.48_1_11_1538_1537_compound_1537_group_949", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2726, { "M4E : Extended Mode 4 Report", "asterix.48_1_11_1540_re_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2727, { "FOEFRI(Indication Foe/Friend (Mode4))", "asterix.48_1_11_1540_re_extended_FOEFRI", FT_UINT8, BASE_DEC, VALS(value_map_542), 0x0, NULL, HFILL } },
+{ &expand_var_2728, { "FX", "asterix.48_1_11_1540_re_extended_M4E_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2729, { "RPC : Radar Plot Characteristics", "asterix.48_1_11_1545_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2730, { "SCO : Score", "asterix.48_1_11_1545_1541_compound_1541_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2731, { "SRC : Signal/Clutter Ratio [dB]", "asterix.48_1_11_1545_1542_compound_1542_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2732, { "RW : Range Width [NM]", "asterix.48_1_11_1545_1543_compound_1543_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2733, { "AR : Ambiguous Range [NM]", "asterix.48_1_11_1545_1544_compound_1544_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2734, { "ERR : Extended Range Report [NM]", "asterix.48_1_11_1546_re_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2735, { "RTC : Radar Track Characteristics", "asterix.48_1_11_1597_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2736, { "PTL : Plot/Track Link", "asterix.48_1_11_1597_1553_compound_1553_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2737, { "SCN : Track / SCN Association", "asterix.48_1_11_1597_1553_compound_1553_group_951", FT_UINT8, BASE_DEC, VALS(value_map_544), 0x0, NULL, HFILL } },
+{ &expand_var_2738, { "RC : Roll Call Component", "asterix.48_1_11_1597_1553_compound_1553_group_952", FT_UINT8, BASE_DEC, VALS(value_map_545), 0x0, NULL, HFILL } },
+{ &expand_var_2739, { "AC : All Call Component", "asterix.48_1_11_1597_1553_compound_1553_group_953", FT_UINT8, BASE_DEC, VALS(value_map_546), 0x0, NULL, HFILL } },
+{ &expand_var_2740, { "SSR : SSR Component", "asterix.48_1_11_1597_1553_compound_1553_group_954", FT_UINT8, BASE_DEC, VALS(value_map_547), 0x0, NULL, HFILL } },
+{ &expand_var_2741, { "PSR : PSR Component", "asterix.48_1_11_1597_1553_compound_1553_group_955", FT_UINT8, BASE_DEC, VALS(value_map_548), 0x0, NULL, HFILL } },
+{ &expand_var_2742, { "PLOTNR", "asterix.48_1_11_1597_1553_compound_1553_group_956", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2743, { "ATL : ADS-B/Track Link", "asterix.48_1_11_1597_1554_compound_1554_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2744, { "ATL : ADS-B/Track Link", "asterix.48_1_11_1597_rep40_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2745, { "TRN : Turn State [%]", "asterix.48_1_11_1597_1555_compound_1555_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2746, { "NPP : Next Predicted Position", "asterix.48_1_11_1597_1567_compound_1567_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2747, { "PREDRHO : Predicted Range [NM]", "asterix.48_1_11_1597_1567_compound_1567_group_957", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2748, { "PREDTHETA : Predicted Azimuth [°]", "asterix.48_1_11_1597_1567_compound_1567_group_958", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2749, { "EVOLRHOSTART : Predicted Closest Range [NM]", "asterix.48_1_11_1597_1567_compound_1567_group_959", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2750, { "EVOLRHOEND : Predicted Largest Range [NM]", "asterix.48_1_11_1597_1567_compound_1567_group_960", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2751, { "EVOLTHETASTART : Predicted Smallest Azimuth [°]", "asterix.48_1_11_1597_1567_compound_1567_group_961", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2752, { "EVOLTHETAEND : Predicted Largest Azimuth [°]", "asterix.48_1_11_1597_1567_compound_1567_group_962", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2753, { "NOISERHOSTART : Predicted Closest Range [NM]", "asterix.48_1_11_1597_1567_compound_1567_group_963", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2754, { "NOISERHOEND : Predicted Largest Range [NM]", "asterix.48_1_11_1597_1567_compound_1567_group_964", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2755, { "NOISETHETASTART : Predicted Smallest Azimuth [°]", "asterix.48_1_11_1597_1567_compound_1567_group_965", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2756, { "NOISETHETAEND : Predicted Largest Azimuth [°]", "asterix.48_1_11_1597_1567_compound_1567_group_966", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2757, { "PREDTIME : Predicted Detection Time [s]", "asterix.48_1_11_1597_1567_compound_1567_group_967", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2758, { "DLK : Data Link Characteristics", "asterix.48_1_11_1597_1571_compound_1571_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2759, { "DLK : Data Link Characteristics", "asterix.48_1_11_1597_rep41_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2760, { "TYPE", "asterix.48_1_11_1597_rep41_group_968", FT_UINT8, BASE_DEC, VALS(value_map_550), 0x0, NULL, HFILL } },
+{ &expand_var_2761, { "ORIGIN", "asterix.48_1_11_1597_rep41_group_969", FT_UINT8, BASE_DEC, VALS(value_map_551), 0x0, NULL, HFILL } },
+{ &expand_var_2762, { "STATE", "asterix.48_1_11_1597_rep41_group_970", FT_UINT8, BASE_DEC, VALS(value_map_552), 0x0, NULL, HFILL } },
+{ &expand_var_2763, { "LCK : Lockout Characteristics", "asterix.48_1_11_1597_1574_compound_1574_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2764, { "LS : Lockout State", "asterix.48_1_11_1597_1574_compound_1574_group_971", FT_UINT8, BASE_DEC, VALS(value_map_553), 0x0, NULL, HFILL } },
+{ &expand_var_2765, { "LOCTIM : Lockout Time [ms]", "asterix.48_1_11_1597_1574_compound_1574_group_972", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2766, { "TC : Transition Code", "asterix.48_1_11_1597_1581_compound_1581_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2767, { "TCOUNT1", "asterix.48_1_11_1597_1581_compound_1581_group_973", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2768, { "TCODE1", "asterix.48_1_11_1597_1581_compound_1581_group_974", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2769, { "TCOUNT2", "asterix.48_1_11_1597_1581_compound_1581_group_975", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2770, { "TCODE2", "asterix.48_1_11_1597_1581_compound_1581_group_976", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2771, { "TCOUNT3", "asterix.48_1_11_1597_1581_compound_1581_group_977", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2772, { "TCODE3", "asterix.48_1_11_1597_1581_compound_1581_group_978", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2773, { "TLC : Track Life Cycle", "asterix.48_1_11_1597_1585_compound_1585_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2774, { "ACQI", "asterix.48_1_11_1597_1585_compound_1585_group_979", FT_UINT8, BASE_DEC, VALS(value_map_555), 0x0, NULL, HFILL } },
+{ &expand_var_2775, { "TRKUPDCTR", "asterix.48_1_11_1597_1585_compound_1585_group_980", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2776, { "LASTTRKUPD [ms]", "asterix.48_1_11_1597_1585_compound_1585_group_981", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2777, { "ASI : Adjacent Sensor Information", "asterix.48_1_11_1597_1592_compound_1592_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2778, { "ASI : Adjacent Sensor Information", "asterix.48_1_11_1597_rep42_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2779, { "SACADJS : SAC of the Adjacent Sensor", "asterix.48_1_11_1597_rep42_group_982", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2780, { "SICADJS : SIC of the Adjacent Sensor", "asterix.48_1_11_1597_rep42_group_983", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2781, { "TIMEOFDAYSCN : Absolute Timestamp in UTC Provided by the SCN [s]", "asterix.48_1_11_1597_rep42_group_984", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2782, { "DATAUSE : Use of Adjacent Sensor Data", "asterix.48_1_11_1597_rep42_group_985", FT_UINT8, BASE_DEC, VALS(value_map_556), 0x0, NULL, HFILL } },
+{ &expand_var_2783, { "DRNA : DRN Availability", "asterix.48_1_11_1597_rep42_group_986", FT_UINT8, BASE_DEC, VALS(value_map_557), 0x0, NULL, HFILL } },
+{ &expand_var_2784, { "DRN", "asterix.48_1_11_1597_rep42_group_987", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2785, { "TES : Track Extrapolation Source", "asterix.48_1_11_1597_1593_compound_1593_element", FT_UINT8, BASE_DEC, VALS(value_map_558), 0x0, NULL, HFILL } },
+{ &expand_var_2786, { "IR : Identity Requested", "asterix.48_1_11_1597_1596_compound_1596_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2787, { "IR", "asterix.48_1_11_1597_1596_compound_1596_group_988", FT_UINT8, BASE_DEC, VALS(value_map_559), 0x0, NULL, HFILL } },
+{ &expand_var_2788, { "M3A : Age of Mode 3/A Code (I048/070) [s]", "asterix.48_1_11_1597_1596_compound_1596_group_989", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2789, { "CPC : Common and Plot Characteristics", "asterix.48_1_11_1612_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2790, { "PNB : Plot Number", "asterix.48_1_11_1612_1598_compound_1598_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2791, { "RPL : Replies/Plot Link", "asterix.48_1_11_1612_1601_compound_1601_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2792, { "RPL : Replies/Plot Link", "asterix.48_1_11_1612_rep43_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2793, { "TYPE : Reply Type", "asterix.48_1_11_1612_rep43_group_990", FT_UINT8, BASE_DEC, VALS(value_map_560), 0x0, NULL, HFILL } },
+{ &expand_var_2794, { "REPLYNBR", "asterix.48_1_11_1612_rep43_group_991", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2795, { "SNB : Scan Number", "asterix.48_1_11_1612_1602_compound_1602_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2796, { "DATE : Common and Plot Characteristics Date", "asterix.48_1_11_1612_1611_compound_1611_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2797, { "Y1", "asterix.48_1_11_1612_1611_compound_1611_group_992", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2798, { "Y2", "asterix.48_1_11_1612_1611_compound_1611_group_993", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2799, { "Y3", "asterix.48_1_11_1612_1611_compound_1611_group_994", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2800, { "Y4", "asterix.48_1_11_1612_1611_compound_1611_group_995", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2801, { "M1", "asterix.48_1_11_1612_1611_compound_1611_group_996", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2802, { "M2", "asterix.48_1_11_1612_1611_compound_1611_group_997", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2803, { "D1", "asterix.48_1_11_1612_1611_compound_1611_group_998", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2804, { "D2", "asterix.48_1_11_1612_1611_compound_1611_group_999", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2805, { "MD5 : Mode 5 Reports", "asterix.48_1_12_1532_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2806, { "M5N : Mode 5 Reports, New Format", "asterix.48_1_12_1538_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2807, { "M4E : Extended Mode 4 Report", "asterix.48_1_12_1540_re_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2808, { "RPC : Radar Plot Characteristics", "asterix.48_1_12_1545_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2809, { "ERR : Extended Range Report [NM]", "asterix.48_1_12_1546_re_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2810, { "RTC : Radar Track Characteristics", "asterix.48_1_12_1597_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2811, { "CPC : Common and Plot Characteristics", "asterix.48_1_12_1612_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2812, { "GEN48 : Generic Category 048 Data", "asterix.48_1_12_1621_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2813, { "ALTM2 : Alternative Mode 2 Code", "asterix.48_1_12_1621_1615_compound_1615_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2814, { "V", "asterix.48_1_12_1621_1615_compound_1615_group_454", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_2815, { "G", "asterix.48_1_12_1621_1615_compound_1615_group_457", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_2816, { "L", "asterix.48_1_12_1621_1615_compound_1615_group_1000", FT_UINT8, BASE_DEC, VALS(value_map_561), 0x0, NULL, HFILL } },
+{ &expand_var_2817, { "ALTM2 : Mode-2 Code in Octal Representation", "asterix.48_1_12_1621_1615_compound_1615_group_1001", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2818, { "ALTM3 : Alternative Mode 3/A", "asterix.48_1_12_1621_1618_compound_1618_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2819, { "V", "asterix.48_1_12_1621_1618_compound_1618_group_454", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_2820, { "G", "asterix.48_1_12_1621_1618_compound_1618_group_457", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_2821, { "L", "asterix.48_1_12_1621_1618_compound_1618_group_1002", FT_UINT8, BASE_DEC, VALS(value_map_562), 0x0, NULL, HFILL } },
+{ &expand_var_2822, { "ALTM3 : Mode-3/A Code in Octal Representation", "asterix.48_1_12_1621_1618_compound_1618_group_1003", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2823, { "ALTFL : Alternative Flight Level", "asterix.48_1_12_1621_1620_compound_1620_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2824, { "V", "asterix.48_1_12_1621_1620_compound_1620_group_454", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_2825, { "G", "asterix.48_1_12_1621_1620_compound_1620_group_457", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_2826, { "ALTFL : Flight Level in Two's Complement Form [ALTFL]", "asterix.48_1_12_1621_1620_compound_1620_group_1004", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2827, { "MD5 : Mode 5 Reports", "asterix.48_1_13_1532_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2828, { "M5N : Mode 5 Reports, New Format", "asterix.48_1_13_1538_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2829, { "M4E : Extended Mode 4 Report", "asterix.48_1_13_1540_re_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2830, { "RPC : Radar Plot Characteristics", "asterix.48_1_13_1545_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2831, { "ERR : Extended Range Report [NM]", "asterix.48_1_13_1546_re_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2832, { "RTC : Radar Track Characteristics", "asterix.48_1_13_1597_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2833, { "CPC : Common and Plot Characteristics", "asterix.48_1_13_1612_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2834, { "GEN48 : Generic Category 048 Data", "asterix.48_1_13_1626_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2835, { "ALTM2 : Alternative Mode 2 Code", "asterix.48_1_13_1626_1615_compound_1615_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2836, { "ALTM3 : Alternative Mode 3/A", "asterix.48_1_13_1626_1618_compound_1618_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2837, { "ALTFL : Alternative Flight Level", "asterix.48_1_13_1626_1620_compound_1620_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2838, { "RCSDB : Radar Cross Section", "asterix.48_1_13_1626_1623_compound_1623_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2839, { "RCSDB [dBm²]", "asterix.48_1_13_1626_1623_compound_1623_group_1005", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2840, { "RCSM : Radar Cross Section", "asterix.48_1_13_1626_1625_compound_1625_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2841, { "RCSM [m²]", "asterix.48_1_13_1626_1625_compound_1625_group_1006", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2842, { "010 : Data Source Identifier", "asterix.48_1_27_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2843, { "140 : Time of Day [s]", "asterix.48_1_27_140_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2844, { "020 : Target Report Descriptor", "asterix.48_1_27_020_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -11999,17 +11999,17 @@ static hf_register_info hf[] = {
 { &expand_var_2856, { "FOEFRI", "asterix.48_1_27_020_uap_extended_FOEFRI", FT_UINT8, BASE_DEC, VALS(value_map_573), 0x0, NULL, HFILL } },
 { &expand_var_2857, { "FX", "asterix.48_1_27_020_uap_extended_020_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2858, { "040 : Measured Position in Polar Co-ordinates", "asterix.48_1_27_040_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2859, { "RHO [NM]", "asterix.48_1_27_040_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2860, { "THETA [°]", "asterix.48_1_27_040_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2859, { "RHO [NM]", "asterix.48_1_27_040_uap_group_1018", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2860, { "THETA [°]", "asterix.48_1_27_040_uap_group_15", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2861, { "070 : Mode-3/A Code in Octal Representation", "asterix.48_1_27_070_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2862, { "V", "asterix.48_1_27_070_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_2863, { "G", "asterix.48_1_27_070_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_2864, { "L", "asterix.48_1_27_070_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_171), 0x0, NULL, HFILL } },
-{ &expand_var_2865, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.48_1_27_070_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2862, { "V", "asterix.48_1_27_070_uap_group_18", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_2863, { "G", "asterix.48_1_27_070_uap_group_19", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_2864, { "L", "asterix.48_1_27_070_uap_group_1027", FT_UINT8, BASE_DEC, VALS(value_map_171), 0x0, NULL, HFILL } },
+{ &expand_var_2865, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.48_1_27_070_uap_group_37", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2866, { "090 : Flight Level in Binary Representation", "asterix.48_1_27_090_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2867, { "V", "asterix.48_1_27_090_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_2868, { "G", "asterix.48_1_27_090_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_2869, { "FL [FL]", "asterix.48_1_27_090_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2867, { "V", "asterix.48_1_27_090_uap_group_18", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_2868, { "G", "asterix.48_1_27_090_uap_group_19", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_2869, { "FL [FL]", "asterix.48_1_27_090_uap_group_1028", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2870, { "130 : Radar Plot Characteristics", "asterix.48_1_27_130_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2871, { "SRL : SSR Plot Runlength [°]", "asterix.48_1_27_130_1667_compound_1667_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2872, { "SRR : Number of Received Replies for (M)SSR", "asterix.48_1_27_130_1668_compound_1668_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -12022,14 +12022,14 @@ static hf_register_info hf[] = {
 { &expand_var_2879, { "240 : Aircraft Identification", "asterix.48_1_27_240_uap_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2880, { "250 : Mode S MB Data", "asterix.48_1_27_250_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2881, { "250 : Mode S MB Data", "asterix.48_1_27_250_rep44_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2882, { "MBDATA : Mode S Comm B Message Data", "asterix.48_1_27_250_rep44_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2883, { "BDS1 : Comm B Data Buffer Store 1 Address", "asterix.48_1_27_250_rep44_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2884, { "BDS2 : Comm B Data Buffer Store 2 Address", "asterix.48_1_27_250_rep44_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2882, { "MBDATA : Mode S Comm B Message Data", "asterix.48_1_27_250_rep44_group_1052", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2883, { "BDS1 : Comm B Data Buffer Store 1 Address", "asterix.48_1_27_250_rep44_group_594", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2884, { "BDS2 : Comm B Data Buffer Store 2 Address", "asterix.48_1_27_250_rep44_group_595", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2885, { "161 : Track Number", "asterix.48_1_27_161_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2886, { "TRN : Track Number", "asterix.48_1_27_161_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2886, { "TRN : Track Number", "asterix.48_1_27_161_uap_group_1035", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2887, { "042 : Calculated Position in Cartesian Co-ordinates", "asterix.48_1_27_042_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2888, { "X : X-Component [NM]", "asterix.48_1_27_042_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2889, { "Y : X-Component [NM]", "asterix.48_1_27_042_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2888, { "X : X-Component [NM]", "asterix.48_1_27_042_uap_group_1019", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2889, { "Y : X-Component [NM]", "asterix.48_1_27_042_uap_group_1020", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2890, { "200 : Calculated Track Velocity in Polar Co-ordinates", "asterix.48_1_27_200_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2891, { "170 : Track Status", "asterix.48_1_27_170_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2892, { "CNF(Confirmed Vs. Tentative Track)", "asterix.48_1_27_170_uap_extended_CNF", FT_UINT8, BASE_DEC, VALS(value_map_262), 0x0, NULL, HFILL } },
@@ -12044,47 +12044,47 @@ static hf_register_info hf[] = {
 { &expand_var_2901, { "TCC(Type of Plot Coordinate Transformation Mechanism:)", "asterix.48_1_27_170_uap_extended_TCC", FT_UINT8, BASE_DEC, VALS(value_map_588), 0x0, NULL, HFILL } },
 { &expand_var_2902, { "FX", "asterix.48_1_27_170_uap_extended_170_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2903, { "210 : Track Quality", "asterix.48_1_27_210_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2904, { "SIGX : Sigma (X)) Standard Deviation on the Horizontal Axis of the Local Grid System [NM]", "asterix.48_1_27_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2905, { "SIGY : Sigma (Y)) Standard Deviation on the Vertical Axis of the Local Grid System [NM]", "asterix.48_1_27_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2906, { "SIGV : Sigma (V)) Standard Deviation on the Groundspeed Within the Local Grid System [NM/s]", "asterix.48_1_27_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2907, { "SIGH : Sigma (H)) Standard Deviation on the Heading Within the Local Grid System [°]", "asterix.48_1_27_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2904, { "SIGX : Sigma (X)) Standard Deviation on the Horizontal Axis of the Local Grid System [NM]", "asterix.48_1_27_210_uap_group_1045", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2905, { "SIGY : Sigma (Y)) Standard Deviation on the Vertical Axis of the Local Grid System [NM]", "asterix.48_1_27_210_uap_group_1046", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2906, { "SIGV : Sigma (V)) Standard Deviation on the Groundspeed Within the Local Grid System [NM/s]", "asterix.48_1_27_210_uap_group_1047", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2907, { "SIGH : Sigma (H)) Standard Deviation on the Heading Within the Local Grid System [°]", "asterix.48_1_27_210_uap_group_1048", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2908, { "030 : Warning/Error Conditions and Target Classification", "asterix.48_1_27_030_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2909, { "030 : Warning/Error Conditions and Target Classification", "asterix.48_1_27_030_rep45_element", FT_UINT8, BASE_DEC, VALS(value_map_574), 0x0, NULL, HFILL } },
 { &expand_var_2910, { "080 : Mode-3/A Code Confidence Indicator", "asterix.48_1_27_080_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2911, { "100 : Mode-C Code and Code Confidence Indicator", "asterix.48_1_27_100_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2912, { "110 : Height Measured by a 3D Radar", "asterix.48_1_27_110_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2913, { "3DH : 3D Height, in Binary Notation. Negative Values Are Expressed in Two's Complement [ft]", "asterix.48_1_27_110_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2913, { "3DH : 3D Height, in Binary Notation. Negative Values Are Expressed in Two's Complement [ft]", "asterix.48_1_27_110_uap_group_1029", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2914, { "120 : Radial Doppler Speed", "asterix.48_1_27_120_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2915, { "CAL : Calculated Doppler Speed", "asterix.48_1_27_120_1661_compound_1661_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2916, { "D", "asterix.48_1_27_120_1661_compound_1661_group", FT_UINT8, BASE_DEC, VALS(value_map_576), 0x0, NULL, HFILL } },
-{ &expand_var_2917, { "CAL : Calculated Doppler Speed, Coded in Two's Complement [m/s]", "asterix.48_1_27_120_1661_compound_1661_group", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2916, { "D", "asterix.48_1_27_120_1661_compound_1661_group_1030", FT_UINT8, BASE_DEC, VALS(value_map_576), 0x0, NULL, HFILL } },
+{ &expand_var_2917, { "CAL : Calculated Doppler Speed, Coded in Two's Complement [m/s]", "asterix.48_1_27_120_1661_compound_1661_group_1031", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2918, { "RDS : Raw Doppler Speed", "asterix.48_1_27_120_1665_compound_1665_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2919, { "RDS : Raw Doppler Speed", "asterix.48_1_27_120_rep46_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2920, { "DOP : Doppler Speed [m/s]", "asterix.48_1_27_120_rep46_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2921, { "AMB : Ambiguity Range [m/s]", "asterix.48_1_27_120_rep46_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2922, { "FRQ : Transmitter Frequency [MHz]", "asterix.48_1_27_120_rep46_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2920, { "DOP : Doppler Speed [m/s]", "asterix.48_1_27_120_rep46_group_1032", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2921, { "AMB : Ambiguity Range [m/s]", "asterix.48_1_27_120_rep46_group_1033", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2922, { "FRQ : Transmitter Frequency [MHz]", "asterix.48_1_27_120_rep46_group_1034", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2923, { "230 : Communications/ACAS Capability and Flight Status", "asterix.48_1_27_230_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2924, { "COM : Communications Capability of the Transponder", "asterix.48_1_27_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_590), 0x0, NULL, HFILL } },
-{ &expand_var_2925, { "STAT : Flight Status", "asterix.48_1_27_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_591), 0x0, NULL, HFILL } },
-{ &expand_var_2926, { "SI : SI/II Transponder Capability", "asterix.48_1_27_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_592), 0x0, NULL, HFILL } },
-{ &expand_var_2927, { "MSSC : Mode-S Specific Service Capability", "asterix.48_1_27_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_2928, { "ARC : Altitude Reporting Capability", "asterix.48_1_27_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
-{ &expand_var_2929, { "AIC : Aircraft Identification Capability", "asterix.48_1_27_230_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_2930, { "B1A : BDS 1,0 Bit 16", "asterix.48_1_27_230_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2931, { "B1B : BDS 1,0 Bits 37/40", "asterix.48_1_27_230_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2924, { "COM : Communications Capability of the Transponder", "asterix.48_1_27_230_uap_group_1049", FT_UINT8, BASE_DEC, VALS(value_map_590), 0x0, NULL, HFILL } },
+{ &expand_var_2925, { "STAT : Flight Status", "asterix.48_1_27_230_uap_group_1050", FT_UINT8, BASE_DEC, VALS(value_map_591), 0x0, NULL, HFILL } },
+{ &expand_var_2926, { "SI : SI/II Transponder Capability", "asterix.48_1_27_230_uap_group_1051", FT_UINT8, BASE_DEC, VALS(value_map_592), 0x0, NULL, HFILL } },
+{ &expand_var_2927, { "MSSC : Mode-S Specific Service Capability", "asterix.48_1_27_230_uap_group_586", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_2928, { "ARC : Altitude Reporting Capability", "asterix.48_1_27_230_uap_group_587", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
+{ &expand_var_2929, { "AIC : Aircraft Identification Capability", "asterix.48_1_27_230_uap_group_588", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_2930, { "B1A : BDS 1,0 Bit 16", "asterix.48_1_27_230_uap_group_589", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2931, { "B1B : BDS 1,0 Bits 37/40", "asterix.48_1_27_230_uap_group_590", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2932, { "260 : ACAS Resolution Advisory Report", "asterix.48_1_27_260_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2933, { "055 : Mode-1 Code in Octal Representation", "asterix.48_1_27_055_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2934, { "V", "asterix.48_1_27_055_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_2935, { "G", "asterix.48_1_27_055_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_2936, { "L", "asterix.48_1_27_055_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_575), 0x0, NULL, HFILL } },
-{ &expand_var_2937, { "MODE1 : Mode-1 Code", "asterix.48_1_27_055_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_2934, { "V", "asterix.48_1_27_055_uap_group_18", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_2935, { "G", "asterix.48_1_27_055_uap_group_19", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_2936, { "L", "asterix.48_1_27_055_uap_group_1021", FT_UINT8, BASE_DEC, VALS(value_map_575), 0x0, NULL, HFILL } },
+{ &expand_var_2937, { "MODE1 : Mode-1 Code", "asterix.48_1_27_055_uap_group_1022", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2938, { "050 : Mode-2 Code in Octal Representation", "asterix.48_1_27_050_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2939, { "065 : Mode-1 Code Confidence Indicator", "asterix.48_1_27_065_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_2940, { "QA4", "asterix.48_1_27_065_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_20), 0x0, NULL, HFILL } },
-{ &expand_var_2941, { "QA2", "asterix.48_1_27_065_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_21), 0x0, NULL, HFILL } },
-{ &expand_var_2942, { "QA1", "asterix.48_1_27_065_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_22), 0x0, NULL, HFILL } },
-{ &expand_var_2943, { "QB2", "asterix.48_1_27_065_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_24), 0x0, NULL, HFILL } },
-{ &expand_var_2944, { "QB1", "asterix.48_1_27_065_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_25), 0x0, NULL, HFILL } },
+{ &expand_var_2940, { "QA4", "asterix.48_1_27_065_uap_group_1023", FT_UINT8, BASE_DEC, VALS(value_map_20), 0x0, NULL, HFILL } },
+{ &expand_var_2941, { "QA2", "asterix.48_1_27_065_uap_group_1024", FT_UINT8, BASE_DEC, VALS(value_map_21), 0x0, NULL, HFILL } },
+{ &expand_var_2942, { "QA1", "asterix.48_1_27_065_uap_group_40", FT_UINT8, BASE_DEC, VALS(value_map_22), 0x0, NULL, HFILL } },
+{ &expand_var_2943, { "QB2", "asterix.48_1_27_065_uap_group_1025", FT_UINT8, BASE_DEC, VALS(value_map_24), 0x0, NULL, HFILL } },
+{ &expand_var_2944, { "QB1", "asterix.48_1_27_065_uap_group_1026", FT_UINT8, BASE_DEC, VALS(value_map_25), 0x0, NULL, HFILL } },
 { &expand_var_2945, { "060 : Mode-2 Code Confidence Indicator", "asterix.48_1_27_060_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2946, { "SP : Special Purpose Field", "asterix.48_1_27_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_2947, { "RE : Reserved Expansion Field", "asterix.48_1_27_27_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -12189,12 +12189,12 @@ static hf_register_info hf[] = {
 { &expand_var_3046, { "MI", "asterix.48_1_31_020_uap_extended_MI", FT_UINT8, BASE_DEC, VALS(value_map_572), 0x0, NULL, HFILL } },
 { &expand_var_3047, { "FOEFRI", "asterix.48_1_31_020_uap_extended_FOEFRI", FT_UINT8, BASE_DEC, VALS(value_map_573), 0x0, NULL, HFILL } },
 { &expand_var_3048, { "FX", "asterix.48_1_31_020_uap_extended_020_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3049, { "EP : ADSB Element Populated Bit", "asterix.48_1_31_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_594), 0x0, NULL, HFILL } },
-{ &expand_var_3050, { "VAL : On-Site ADS-B Information", "asterix.48_1_31_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_595), 0x0, NULL, HFILL } },
-{ &expand_var_3051, { "EP : SCN Element Populated Bit", "asterix.48_1_31_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_596), 0x0, NULL, HFILL } },
-{ &expand_var_3052, { "VAL : Surveillance Cluster Network Information", "asterix.48_1_31_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_595), 0x0, NULL, HFILL } },
-{ &expand_var_3053, { "EP : PAI Element Populated Bit", "asterix.48_1_31_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_597), 0x0, NULL, HFILL } },
-{ &expand_var_3054, { "VAL : Passive Acquisition Interface Information", "asterix.48_1_31_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_595), 0x0, NULL, HFILL } },
+{ &expand_var_3049, { "EP : ADSB Element Populated Bit", "asterix.48_1_31_020_uap_extended_1053", FT_UINT8, BASE_DEC, VALS(value_map_594), 0x0, NULL, HFILL } },
+{ &expand_var_3050, { "VAL : On-Site ADS-B Information", "asterix.48_1_31_020_uap_extended_1054", FT_UINT8, BASE_DEC, VALS(value_map_595), 0x0, NULL, HFILL } },
+{ &expand_var_3051, { "EP : SCN Element Populated Bit", "asterix.48_1_31_020_uap_extended_1056", FT_UINT8, BASE_DEC, VALS(value_map_596), 0x0, NULL, HFILL } },
+{ &expand_var_3052, { "VAL : Surveillance Cluster Network Information", "asterix.48_1_31_020_uap_extended_1057", FT_UINT8, BASE_DEC, VALS(value_map_595), 0x0, NULL, HFILL } },
+{ &expand_var_3053, { "EP : PAI Element Populated Bit", "asterix.48_1_31_020_uap_extended_1059", FT_UINT8, BASE_DEC, VALS(value_map_597), 0x0, NULL, HFILL } },
+{ &expand_var_3054, { "VAL : Passive Acquisition Interface Information", "asterix.48_1_31_020_uap_extended_1060", FT_UINT8, BASE_DEC, VALS(value_map_595), 0x0, NULL, HFILL } },
 { &expand_var_3055, { "FX", "asterix.48_1_31_020_uap_extended_020_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3056, { "040 : Measured Position in Polar Co-ordinates", "asterix.48_1_31_040_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3057, { "070 : Mode-3/A Code in Octal Representation", "asterix.48_1_31_070_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -12238,36 +12238,36 @@ static hf_register_info hf[] = {
 { &expand_var_3095, { "MI", "asterix.48_1_32_020_uap_extended_MI", FT_UINT8, BASE_DEC, VALS(value_map_572), 0x0, NULL, HFILL } },
 { &expand_var_3096, { "FOEFRI", "asterix.48_1_32_020_uap_extended_FOEFRI", FT_UINT8, BASE_DEC, VALS(value_map_573), 0x0, NULL, HFILL } },
 { &expand_var_3097, { "FX", "asterix.48_1_32_020_uap_extended_020_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3098, { "EP : ADSB Element Populated Bit", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_594), 0x0, NULL, HFILL } },
-{ &expand_var_3099, { "VAL : On-Site ADS-B Information", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_595), 0x0, NULL, HFILL } },
-{ &expand_var_3100, { "EP : SCN Element Populated Bit", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_596), 0x0, NULL, HFILL } },
-{ &expand_var_3101, { "VAL : Surveillance Cluster Network Information", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_595), 0x0, NULL, HFILL } },
-{ &expand_var_3102, { "EP : PAI Element Populated Bit", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_597), 0x0, NULL, HFILL } },
-{ &expand_var_3103, { "VAL : Passive Acquisition Interface Information", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_595), 0x0, NULL, HFILL } },
+{ &expand_var_3098, { "EP : ADSB Element Populated Bit", "asterix.48_1_32_020_uap_extended_1053", FT_UINT8, BASE_DEC, VALS(value_map_594), 0x0, NULL, HFILL } },
+{ &expand_var_3099, { "VAL : On-Site ADS-B Information", "asterix.48_1_32_020_uap_extended_1054", FT_UINT8, BASE_DEC, VALS(value_map_595), 0x0, NULL, HFILL } },
+{ &expand_var_3100, { "EP : SCN Element Populated Bit", "asterix.48_1_32_020_uap_extended_1056", FT_UINT8, BASE_DEC, VALS(value_map_596), 0x0, NULL, HFILL } },
+{ &expand_var_3101, { "VAL : Surveillance Cluster Network Information", "asterix.48_1_32_020_uap_extended_1057", FT_UINT8, BASE_DEC, VALS(value_map_595), 0x0, NULL, HFILL } },
+{ &expand_var_3102, { "EP : PAI Element Populated Bit", "asterix.48_1_32_020_uap_extended_1059", FT_UINT8, BASE_DEC, VALS(value_map_597), 0x0, NULL, HFILL } },
+{ &expand_var_3103, { "VAL : Passive Acquisition Interface Information", "asterix.48_1_32_020_uap_extended_1060", FT_UINT8, BASE_DEC, VALS(value_map_595), 0x0, NULL, HFILL } },
 { &expand_var_3104, { "FX", "asterix.48_1_32_020_uap_extended_020_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3105, { "EP : ACASXV Element Populated Bit", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_599), 0x0, NULL, HFILL } },
-{ &expand_var_3106, { "VAL : ACAS Extended Version Value", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_600), 0x0, NULL, HFILL } },
-{ &expand_var_3107, { "EP : POXPR Element Populated Bit", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_601), 0x0, NULL, HFILL } },
-{ &expand_var_3108, { "VAL : PO Transpomder Capability", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_602), 0x0, NULL, HFILL } },
+{ &expand_var_3105, { "EP : ACASXV Element Populated Bit", "asterix.48_1_32_020_uap_extended_1062", FT_UINT8, BASE_DEC, VALS(value_map_599), 0x0, NULL, HFILL } },
+{ &expand_var_3106, { "VAL : ACAS Extended Version Value", "asterix.48_1_32_020_uap_extended_1063", FT_UINT8, BASE_DEC, VALS(value_map_600), 0x0, NULL, HFILL } },
+{ &expand_var_3107, { "EP : POXPR Element Populated Bit", "asterix.48_1_32_020_uap_extended_1065", FT_UINT8, BASE_DEC, VALS(value_map_601), 0x0, NULL, HFILL } },
+{ &expand_var_3108, { "VAL : PO Transpomder Capability", "asterix.48_1_32_020_uap_extended_1066", FT_UINT8, BASE_DEC, VALS(value_map_602), 0x0, NULL, HFILL } },
 { &expand_var_3109, { "FX", "asterix.48_1_32_020_uap_extended_020_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3110, { "EP : POACT Element Populated Bit", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_603), 0x0, NULL, HFILL } },
-{ &expand_var_3111, { "VAL : POACT Active for Current Plot", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_604), 0x0, NULL, HFILL } },
-{ &expand_var_3112, { "EP : DTFXPR Element Populated Bit", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_605), 0x0, NULL, HFILL } },
-{ &expand_var_3113, { "VAL : Basic Dataflash Transponder Capability", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_606), 0x0, NULL, HFILL } },
-{ &expand_var_3114, { "EP : DTFACT Element Populated Bit", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_607), 0x0, NULL, HFILL } },
-{ &expand_var_3115, { "VAL : Basic Dataflash in Current Plot", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_608), 0x0, NULL, HFILL } },
+{ &expand_var_3110, { "EP : POACT Element Populated Bit", "asterix.48_1_32_020_uap_extended_1068", FT_UINT8, BASE_DEC, VALS(value_map_603), 0x0, NULL, HFILL } },
+{ &expand_var_3111, { "VAL : POACT Active for Current Plot", "asterix.48_1_32_020_uap_extended_1069", FT_UINT8, BASE_DEC, VALS(value_map_604), 0x0, NULL, HFILL } },
+{ &expand_var_3112, { "EP : DTFXPR Element Populated Bit", "asterix.48_1_32_020_uap_extended_1071", FT_UINT8, BASE_DEC, VALS(value_map_605), 0x0, NULL, HFILL } },
+{ &expand_var_3113, { "VAL : Basic Dataflash Transponder Capability", "asterix.48_1_32_020_uap_extended_1072", FT_UINT8, BASE_DEC, VALS(value_map_606), 0x0, NULL, HFILL } },
+{ &expand_var_3114, { "EP : DTFACT Element Populated Bit", "asterix.48_1_32_020_uap_extended_1074", FT_UINT8, BASE_DEC, VALS(value_map_607), 0x0, NULL, HFILL } },
+{ &expand_var_3115, { "VAL : Basic Dataflash in Current Plot", "asterix.48_1_32_020_uap_extended_1075", FT_UINT8, BASE_DEC, VALS(value_map_608), 0x0, NULL, HFILL } },
 { &expand_var_3116, { "FX", "asterix.48_1_32_020_uap_extended_020_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3117, { "EP : IRMXPR Element Populated Bit", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_609), 0x0, NULL, HFILL } },
-{ &expand_var_3118, { "VAL : Transponder IRM Capability", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_610), 0x0, NULL, HFILL } },
-{ &expand_var_3119, { "EP : IRM Element Populated Bit", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_611), 0x0, NULL, HFILL } },
-{ &expand_var_3120, { "VAL : IRM Active for Current Plot", "asterix.48_1_32_020_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_612), 0x0, NULL, HFILL } },
+{ &expand_var_3117, { "EP : IRMXPR Element Populated Bit", "asterix.48_1_32_020_uap_extended_1077", FT_UINT8, BASE_DEC, VALS(value_map_609), 0x0, NULL, HFILL } },
+{ &expand_var_3118, { "VAL : Transponder IRM Capability", "asterix.48_1_32_020_uap_extended_1078", FT_UINT8, BASE_DEC, VALS(value_map_610), 0x0, NULL, HFILL } },
+{ &expand_var_3119, { "EP : IRM Element Populated Bit", "asterix.48_1_32_020_uap_extended_1080", FT_UINT8, BASE_DEC, VALS(value_map_611), 0x0, NULL, HFILL } },
+{ &expand_var_3120, { "VAL : IRM Active for Current Plot", "asterix.48_1_32_020_uap_extended_1081", FT_UINT8, BASE_DEC, VALS(value_map_612), 0x0, NULL, HFILL } },
 { &expand_var_3121, { "FX", "asterix.48_1_32_020_uap_extended_020_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3122, { "040 : Measured Position in Polar Co-ordinates", "asterix.48_1_32_040_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3123, { "070 : Mode-3/A Code in Octal Representation", "asterix.48_1_32_070_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3124, { "090 : Flight Level in Binary Representation", "asterix.48_1_32_090_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3125, { "V", "asterix.48_1_32_090_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_3126, { "G", "asterix.48_1_32_090_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_3127, { "FL [FL]", "asterix.48_1_32_090_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3125, { "V", "asterix.48_1_32_090_uap_group_18", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_3126, { "G", "asterix.48_1_32_090_uap_group_19", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_3127, { "FL [FL]", "asterix.48_1_32_090_uap_group_1083", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3128, { "130 : Radar Plot Characteristics", "asterix.48_1_32_130_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3129, { "220 : Aircraft Address", "asterix.48_1_32_220_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3130, { "240 : Aircraft Identification", "asterix.48_1_32_240_uap_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -12291,170 +12291,170 @@ static hf_register_info hf[] = {
 { &expand_var_3148, { "060 : Mode-2 Code Confidence Indicator", "asterix.48_1_32_060_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3149, { "SP : Special Purpose Field", "asterix.48_1_32_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3150, { "RE : Reserved Expansion Field", "asterix.48_1_32_27_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3151, { "CST : Contributing Sensors With Local Tracknumbers", "asterix.62_1_2_0_Uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3152, { "CST : Contributing Sensors With Local Tracknumbers", "asterix.62_1_2_0_rep50_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3153, { "SAC : System Area Code", "asterix.62_1_2_0_rep50_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3154, { "SIC : System Identification Code", "asterix.62_1_2_0_rep50_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3155, { "TYP", "asterix.62_1_2_0_rep50_group", FT_UINT8, BASE_DEC, VALS(value_map_614), 0x0, NULL, HFILL } },
-{ &expand_var_3156, { "LTN : Local Track Number", "asterix.62_1_2_0_rep50_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3157, { "CSN : Contributing Sensors No Local Tracknumbers", "asterix.62_1_2_0_Uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3158, { "CSN : Contributing Sensors No Local Tracknumbers", "asterix.62_1_2_0_rep51_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3159, { "SAC : System Area Code", "asterix.62_1_2_0_rep51_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3160, { "SIC : System Identification Code", "asterix.62_1_2_0_rep51_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3161, { "TYP", "asterix.62_1_2_0_rep51_group", FT_UINT8, BASE_DEC, VALS(value_map_614), 0x0, NULL, HFILL } },
-{ &expand_var_3162, { "TVS : Calculated Track Velocity Relative to System Reference Point", "asterix.62_1_2_0_Uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3163, { "VX [m/s]", "asterix.62_1_2_0_Uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3164, { "VY [m/s]", "asterix.62_1_2_0_Uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3165, { "STS : Supplementary Track Status", "asterix.62_1_2_0_Uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3166, { "FDR(Flight Data Retained)", "asterix.62_1_2_0_Uap_extended_FDR", FT_UINT8, BASE_DEC, VALS(value_map_615), 0x0, NULL, HFILL } },
-{ &expand_var_3167, { "FX", "asterix.62_1_2_0_Uap_extended_STS_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3168, { "CST : Contributing Sensors With Local Tracknumbers", "asterix.62_1_3_0_Uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3169, { "CSN : Contributing Sensors No Local Tracknumbers", "asterix.62_1_3_0_Uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3170, { "TVS : Calculated Track Velocity Relative to System Reference Point", "asterix.62_1_3_0_Uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3171, { "STS : Supplementary Track Status", "asterix.62_1_3_0_Uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3172, { "FDR(Flight Data Retained)", "asterix.62_1_3_0_Uap_extended_FDR", FT_UINT8, BASE_DEC, VALS(value_map_615), 0x0, NULL, HFILL } },
-{ &expand_var_3173, { "EP : LNAV Element Populated", "asterix.62_1_3_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_616), 0x0, NULL, HFILL } },
-{ &expand_var_3174, { "VAL : LNAV Mode", "asterix.62_1_3_0_Uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_617), 0x0, NULL, HFILL } },
-{ &expand_var_3175, { "FX", "asterix.62_1_3_0_Uap_extended_STS_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3176, { "V3 : ADS-B Version 3 Data", "asterix.62_1_3_0_Uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3177, { "PS3 : Priority Status for Version 3 ADS-B Systems", "asterix.62_1_3_0_1753_compound_1753_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3178, { "EP : Priority Status for Version 3 ADS-B Systems Populated", "asterix.62_1_3_0_1753_compound_1753_group", FT_UINT8, BASE_DEC, VALS(value_map_618), 0x0, NULL, HFILL } },
-{ &expand_var_3179, { "VAL : Priority Status for Version 3 ADS-B Systems", "asterix.62_1_3_0_1753_compound_1753_group", FT_UINT8, BASE_DEC, VALS(value_map_619), 0x0, NULL, HFILL } },
-{ &expand_var_3180, { "AS : Aircraft Status", "asterix.62_1_3_0_1765_compound_1765_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3181, { "RCE : Reduced Capability Equipment", "asterix.62_1_3_0_1765_compound_1765_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3182, { "EP : Element Populated Bit", "asterix.62_1_3_0_1765_compound_1765_group", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_3183, { "VAL : Value", "asterix.62_1_3_0_1765_compound_1765_group", FT_UINT8, BASE_DEC, VALS(value_map_620), 0x0, NULL, HFILL } },
-{ &expand_var_3184, { "RRL : Reply Rate Limiting", "asterix.62_1_3_0_1765_compound_1765_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3185, { "EP : Element Populated Bit", "asterix.62_1_3_0_1765_compound_1765_group", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_3186, { "VAL : Value", "asterix.62_1_3_0_1765_compound_1765_group", FT_UINT8, BASE_DEC, VALS(value_map_428), 0x0, NULL, HFILL } },
-{ &expand_var_3187, { "TPW : Transmit Power", "asterix.62_1_3_0_1765_compound_1765_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3188, { "EP : Element Populated Bit", "asterix.62_1_3_0_1765_compound_1765_group", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_3189, { "VAL : Value", "asterix.62_1_3_0_1765_compound_1765_group", FT_UINT8, BASE_DEC, VALS(value_map_430), 0x0, NULL, HFILL } },
-{ &expand_var_3190, { "TSI : Transponder Side Indication", "asterix.62_1_3_0_1765_compound_1765_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3191, { "EP : Element Populated Bit", "asterix.62_1_3_0_1765_compound_1765_group", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_3192, { "VAL : Value", "asterix.62_1_3_0_1765_compound_1765_group", FT_UINT8, BASE_DEC, VALS(value_map_621), 0x0, NULL, HFILL } },
-{ &expand_var_3193, { "TAO : Transponder Antenna Offset", "asterix.62_1_3_0_1765_compound_1765_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3194, { "EP : Element Populated Bit", "asterix.62_1_3_0_1765_compound_1765_group", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_3195, { "RE : Range Exceeded", "asterix.62_1_3_0_1765_compound_1765_group", FT_UINT8, BASE_DEC, VALS(value_map_462), 0x0, NULL, HFILL } },
-{ &expand_var_3196, { "VAL : Value", "asterix.62_1_3_0_1765_compound_1765_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3197, { "UAS : UAS/RPAS Status", "asterix.62_1_3_0_1772_compound_1772_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3198, { "MUO : Manned / Unmanned Operation", "asterix.62_1_3_0_1772_compound_1772_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3199, { "EP : Element Populated Bit", "asterix.62_1_3_0_1772_compound_1772_group", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_3200, { "VAL : Value", "asterix.62_1_3_0_1772_compound_1772_group", FT_UINT8, BASE_DEC, VALS(value_map_432), 0x0, NULL, HFILL } },
-{ &expand_var_3201, { "DAA : Detect and Avoid Capabilities", "asterix.62_1_3_0_1772_compound_1772_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3202, { "EP : Element Populated Bit", "asterix.62_1_3_0_1772_compound_1772_group", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_3203, { "VAL : Value", "asterix.62_1_3_0_1772_compound_1772_group", FT_UINT8, BASE_DEC, VALS(value_map_434), 0x0, NULL, HFILL } },
-{ &expand_var_3204, { "RWC : Remain Well Clear", "asterix.62_1_3_0_1772_compound_1772_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3205, { "EP : Element Populated Bit", "asterix.62_1_3_0_1772_compound_1772_group", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_3206, { "VAL : Value", "asterix.62_1_3_0_1772_compound_1772_group", FT_UINT8, BASE_DEC, VALS(value_map_433), 0x0, NULL, HFILL } },
-{ &expand_var_3207, { "CASS : Collision Avoidance System Status", "asterix.62_1_3_0_1777_compound_1777_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3208, { "SVH : Sense Vertical & Horizontal", "asterix.62_1_3_0_1777_compound_1777_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3209, { "EP : Element Populated Bit", "asterix.62_1_3_0_1777_compound_1777_group", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_3210, { "VAL : Value", "asterix.62_1_3_0_1777_compound_1777_group", FT_UINT8, BASE_DEC, VALS(value_map_435), 0x0, NULL, HFILL } },
-{ &expand_var_3211, { "CATC : CAS Type & Capability", "asterix.62_1_3_0_1777_compound_1777_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3212, { "EP : Element Populated Bit", "asterix.62_1_3_0_1777_compound_1777_group", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_3213, { "VAL : Value", "asterix.62_1_3_0_1777_compound_1777_group", FT_UINT8, BASE_DEC, VALS(value_map_622), 0x0, NULL, HFILL } },
+{ &expand_var_3151, { "CST : Contributing Sensors With Local Tracknumbers", "asterix.62_1_2_1740_re_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3152, { "CST : Contributing Sensors With Local Tracknumbers", "asterix.62_1_2_1740_rep50_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3153, { "SAC : System Area Code", "asterix.62_1_2_1740_rep50_group_1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3154, { "SIC : System Identification Code", "asterix.62_1_2_1740_rep50_group_2", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3155, { "TYP", "asterix.62_1_2_1740_rep50_group_1084", FT_UINT8, BASE_DEC, VALS(value_map_614), 0x0, NULL, HFILL } },
+{ &expand_var_3156, { "LTN : Local Track Number", "asterix.62_1_2_1740_rep50_group_1085", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3157, { "CSN : Contributing Sensors No Local Tracknumbers", "asterix.62_1_2_1741_re_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3158, { "CSN : Contributing Sensors No Local Tracknumbers", "asterix.62_1_2_1741_rep51_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3159, { "SAC : System Area Code", "asterix.62_1_2_1741_rep51_group_1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3160, { "SIC : System Identification Code", "asterix.62_1_2_1741_rep51_group_2", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3161, { "TYP", "asterix.62_1_2_1741_rep51_group_1084", FT_UINT8, BASE_DEC, VALS(value_map_614), 0x0, NULL, HFILL } },
+{ &expand_var_3162, { "TVS : Calculated Track Velocity Relative to System Reference Point", "asterix.62_1_2_1744_re_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3163, { "VX [m/s]", "asterix.62_1_2_1744_re_group_1086", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3164, { "VY [m/s]", "asterix.62_1_2_1744_re_group_1087", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3165, { "STS : Supplementary Track Status", "asterix.62_1_2_1746_re_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3166, { "FDR(Flight Data Retained)", "asterix.62_1_2_1746_re_extended_FDR", FT_UINT8, BASE_DEC, VALS(value_map_615), 0x0, NULL, HFILL } },
+{ &expand_var_3167, { "FX", "asterix.62_1_2_1746_re_extended_STS_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3168, { "CST : Contributing Sensors With Local Tracknumbers", "asterix.62_1_3_1740_re_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3169, { "CSN : Contributing Sensors No Local Tracknumbers", "asterix.62_1_3_1741_re_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3170, { "TVS : Calculated Track Velocity Relative to System Reference Point", "asterix.62_1_3_1744_re_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3171, { "STS : Supplementary Track Status", "asterix.62_1_3_1750_re_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3172, { "FDR(Flight Data Retained)", "asterix.62_1_3_1750_re_extended_FDR", FT_UINT8, BASE_DEC, VALS(value_map_615), 0x0, NULL, HFILL } },
+{ &expand_var_3173, { "EP : LNAV Element Populated", "asterix.62_1_3_1750_re_extended_1089", FT_UINT8, BASE_DEC, VALS(value_map_616), 0x0, NULL, HFILL } },
+{ &expand_var_3174, { "VAL : LNAV Mode", "asterix.62_1_3_1750_re_extended_1090", FT_UINT8, BASE_DEC, VALS(value_map_617), 0x0, NULL, HFILL } },
+{ &expand_var_3175, { "FX", "asterix.62_1_3_1750_re_extended_STS_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3176, { "V3 : ADS-B Version 3 Data", "asterix.62_1_3_1778_re_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3177, { "PS3 : Priority Status for Version 3 ADS-B Systems", "asterix.62_1_3_1778_1753_compound_1753_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3178, { "EP : Priority Status for Version 3 ADS-B Systems Populated", "asterix.62_1_3_1778_1753_compound_1753_group_1092", FT_UINT8, BASE_DEC, VALS(value_map_618), 0x0, NULL, HFILL } },
+{ &expand_var_3179, { "VAL : Priority Status for Version 3 ADS-B Systems", "asterix.62_1_3_1778_1753_compound_1753_group_1093", FT_UINT8, BASE_DEC, VALS(value_map_619), 0x0, NULL, HFILL } },
+{ &expand_var_3180, { "AS : Aircraft Status", "asterix.62_1_3_1778_1765_compound_1765_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3181, { "RCE : Reduced Capability Equipment", "asterix.62_1_3_1778_1765_compound_1765_group_1095", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3182, { "EP : Element Populated Bit", "asterix.62_1_3_1778_1765_compound_1765_group_166", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_3183, { "VAL : Value", "asterix.62_1_3_1778_1765_compound_1765_group_1094", FT_UINT8, BASE_DEC, VALS(value_map_620), 0x0, NULL, HFILL } },
+{ &expand_var_3184, { "RRL : Reply Rate Limiting", "asterix.62_1_3_1778_1765_compound_1765_group_1097", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3185, { "EP : Element Populated Bit", "asterix.62_1_3_1778_1765_compound_1765_group_719", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_3186, { "VAL : Value", "asterix.62_1_3_1778_1765_compound_1765_group_1096", FT_UINT8, BASE_DEC, VALS(value_map_428), 0x0, NULL, HFILL } },
+{ &expand_var_3187, { "TPW : Transmit Power", "asterix.62_1_3_1778_1765_compound_1765_group_1099", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3188, { "EP : Element Populated Bit", "asterix.62_1_3_1778_1765_compound_1765_group_713", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_3189, { "VAL : Value", "asterix.62_1_3_1778_1765_compound_1765_group_1098", FT_UINT8, BASE_DEC, VALS(value_map_430), 0x0, NULL, HFILL } },
+{ &expand_var_3190, { "TSI : Transponder Side Indication", "asterix.62_1_3_1778_1765_compound_1765_group_1101", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3191, { "EP : Element Populated Bit", "asterix.62_1_3_1778_1765_compound_1765_group_166", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_3192, { "VAL : Value", "asterix.62_1_3_1778_1765_compound_1765_group_1100", FT_UINT8, BASE_DEC, VALS(value_map_621), 0x0, NULL, HFILL } },
+{ &expand_var_3193, { "TAO : Transponder Antenna Offset", "asterix.62_1_3_1778_1765_compound_1765_group_1104", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3194, { "EP : Element Populated Bit", "asterix.62_1_3_1778_1765_compound_1765_group_719", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_3195, { "RE : Range Exceeded", "asterix.62_1_3_1778_1765_compound_1765_group_1102", FT_UINT8, BASE_DEC, VALS(value_map_462), 0x0, NULL, HFILL } },
+{ &expand_var_3196, { "VAL : Value", "asterix.62_1_3_1778_1765_compound_1765_group_1103", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3197, { "UAS : UAS/RPAS Status", "asterix.62_1_3_1778_1772_compound_1772_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3198, { "MUO : Manned / Unmanned Operation", "asterix.62_1_3_1778_1772_compound_1772_group_1106", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3199, { "EP : Element Populated Bit", "asterix.62_1_3_1778_1772_compound_1772_group_166", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_3200, { "VAL : Value", "asterix.62_1_3_1778_1772_compound_1772_group_1105", FT_UINT8, BASE_DEC, VALS(value_map_432), 0x0, NULL, HFILL } },
+{ &expand_var_3201, { "DAA : Detect and Avoid Capabilities", "asterix.62_1_3_1778_1772_compound_1772_group_1108", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3202, { "EP : Element Populated Bit", "asterix.62_1_3_1778_1772_compound_1772_group_710", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_3203, { "VAL : Value", "asterix.62_1_3_1778_1772_compound_1772_group_1107", FT_UINT8, BASE_DEC, VALS(value_map_434), 0x0, NULL, HFILL } },
+{ &expand_var_3204, { "RWC : Remain Well Clear", "asterix.62_1_3_1778_1772_compound_1772_group_1110", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3205, { "EP : Element Populated Bit", "asterix.62_1_3_1778_1772_compound_1772_group_713", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_3206, { "VAL : Value", "asterix.62_1_3_1778_1772_compound_1772_group_1109", FT_UINT8, BASE_DEC, VALS(value_map_433), 0x0, NULL, HFILL } },
+{ &expand_var_3207, { "CASS : Collision Avoidance System Status", "asterix.62_1_3_1778_1777_compound_1777_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3208, { "SVH : Sense Vertical & Horizontal", "asterix.62_1_3_1778_1777_compound_1777_group_1112", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3209, { "EP : Element Populated Bit", "asterix.62_1_3_1778_1777_compound_1777_group_166", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_3210, { "VAL : Value", "asterix.62_1_3_1778_1777_compound_1777_group_1111", FT_UINT8, BASE_DEC, VALS(value_map_435), 0x0, NULL, HFILL } },
+{ &expand_var_3211, { "CATC : CAS Type & Capability", "asterix.62_1_3_1778_1777_compound_1777_group_1114", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3212, { "EP : Element Populated Bit", "asterix.62_1_3_1778_1777_compound_1777_group_719", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_3213, { "VAL : Value", "asterix.62_1_3_1778_1777_compound_1777_group_1113", FT_UINT8, BASE_DEC, VALS(value_map_622), 0x0, NULL, HFILL } },
 { &expand_var_3214, { "010 : Data Source Identifier", "asterix.62_1_16_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3215, { "015 : Service Identification", "asterix.62_1_16_015_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3216, { "070 : Time Of Track Information [s]", "asterix.62_1_16_070_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3217, { "105 : Calculated Position In WGS-84 Co-ordinates", "asterix.62_1_16_105_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3218, { "LAT : Latitude [°]", "asterix.62_1_16_105_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3219, { "LON : Longitude [°]", "asterix.62_1_16_105_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3218, { "LAT : Latitude [°]", "asterix.62_1_16_105_uap_group_1143", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3219, { "LON : Longitude [°]", "asterix.62_1_16_105_uap_group_1144", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3220, { "100 : Calculated Track Position (Cartesian)", "asterix.62_1_16_100_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3221, { "X : X Coordinate [m]", "asterix.62_1_16_100_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3222, { "Y : Y Coordinate [m]", "asterix.62_1_16_100_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3221, { "X : X Coordinate [m]", "asterix.62_1_16_100_uap_group_1141", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3222, { "Y : Y Coordinate [m]", "asterix.62_1_16_100_uap_group_1142", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3223, { "185 : Calculated Track Velocity (Cartesian)", "asterix.62_1_16_185_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3224, { "VX : Velocity (X-component) [m/s]", "asterix.62_1_16_185_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3225, { "VY : Velocity (Y-component) [m/s]", "asterix.62_1_16_185_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3224, { "VX : Velocity (X-component) [m/s]", "asterix.62_1_16_185_uap_group_1157", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3225, { "VY : Velocity (Y-component) [m/s]", "asterix.62_1_16_185_uap_group_1158", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3226, { "210 : Calculated Acceleration (Cartesian)", "asterix.62_1_16_210_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3227, { "AX [m/s²]", "asterix.62_1_16_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3228, { "AY [m/s²]", "asterix.62_1_16_210_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3227, { "AX [m/s²]", "asterix.62_1_16_210_uap_group_1163", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3228, { "AY [m/s²]", "asterix.62_1_16_210_uap_group_1164", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3229, { "060 : Track Mode 3/A Code", "asterix.62_1_16_060_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3230, { "CH : Change in Mode 3/A", "asterix.62_1_16_060_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_623), 0x0, NULL, HFILL } },
-{ &expand_var_3231, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.62_1_16_060_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3230, { "CH : Change in Mode 3/A", "asterix.62_1_16_060_uap_group_1115", FT_UINT8, BASE_DEC, VALS(value_map_623), 0x0, NULL, HFILL } },
+{ &expand_var_3231, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.62_1_16_060_uap_group_667", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3232, { "245 : Target Identification", "asterix.62_1_16_245_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3233, { "STI", "asterix.62_1_16_245_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_653), 0x0, NULL, HFILL } },
-{ &expand_var_3234, { "CHR : Characters 1-8 (Coded on 6 Bits Each) Defining Target Identification", "asterix.62_1_16_245_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3233, { "STI", "asterix.62_1_16_245_uap_group_1165", FT_UINT8, BASE_DEC, VALS(value_map_653), 0x0, NULL, HFILL } },
+{ &expand_var_3234, { "CHR : Characters 1-8 (Coded on 6 Bits Each) Defining Target Identification", "asterix.62_1_16_245_uap_group_1166", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3235, { "380 : Aircraft Derived Data", "asterix.62_1_16_380_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3236, { "ADR : Target Address", "asterix.62_1_16_380_1913_compound_1913_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3237, { "ID : Target Identification", "asterix.62_1_16_380_1914_compound_1914_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3238, { "MHG : Magnetic Heading [°]", "asterix.62_1_16_380_1915_compound_1915_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3239, { "IAS : Indicated Airspeed/Mach No", "asterix.62_1_16_380_1918_compound_1918_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3240, { "IM", "asterix.62_1_16_380_1918_compound_1918_group", FT_UINT8, BASE_DEC, VALS(value_map_657), 0x0, NULL, HFILL } },
-{ &expand_var_3241, { "IAS", "asterix.62_1_16_380_1918_compound_1918_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3240, { "IM", "asterix.62_1_16_380_1918_compound_1918_group_1176", FT_UINT8, BASE_DEC, VALS(value_map_657), 0x0, NULL, HFILL } },
+{ &expand_var_3241, { "IAS", "asterix.62_1_16_380_1918_compound_1918_group_1177", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3242, { "TAS : True Airspeed [kt]", "asterix.62_1_16_380_1919_compound_1919_element", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3243, { "SAL : Selected Altitude", "asterix.62_1_16_380_1923_compound_1923_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3244, { "SAS", "asterix.62_1_16_380_1923_compound_1923_group", FT_UINT8, BASE_DEC, VALS(value_map_658), 0x0, NULL, HFILL } },
-{ &expand_var_3245, { "SRC", "asterix.62_1_16_380_1923_compound_1923_group", FT_UINT8, BASE_DEC, VALS(value_map_659), 0x0, NULL, HFILL } },
-{ &expand_var_3246, { "ALT : Altitude in Two's Complement Form [ft]", "asterix.62_1_16_380_1923_compound_1923_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3244, { "SAS", "asterix.62_1_16_380_1923_compound_1923_group_1178", FT_UINT8, BASE_DEC, VALS(value_map_658), 0x0, NULL, HFILL } },
+{ &expand_var_3245, { "SRC", "asterix.62_1_16_380_1923_compound_1923_group_1179", FT_UINT8, BASE_DEC, VALS(value_map_659), 0x0, NULL, HFILL } },
+{ &expand_var_3246, { "ALT : Altitude in Two's Complement Form [ft]", "asterix.62_1_16_380_1923_compound_1923_group_1180", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3247, { "FSS : Final State Selected Altitude", "asterix.62_1_16_380_1925_compound_1925_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3248, { "MV : Manage Vertical Mode", "asterix.62_1_16_380_1925_compound_1925_group", FT_UINT8, BASE_DEC, VALS(value_map_384), 0x0, NULL, HFILL } },
-{ &expand_var_3249, { "AH : Altitude Hold", "asterix.62_1_16_380_1925_compound_1925_group", FT_UINT8, BASE_DEC, VALS(value_map_384), 0x0, NULL, HFILL } },
-{ &expand_var_3250, { "AM : Approach Mode", "asterix.62_1_16_380_1925_compound_1925_group", FT_UINT8, BASE_DEC, VALS(value_map_384), 0x0, NULL, HFILL } },
-{ &expand_var_3251, { "ALT : Altitude in Two's Complement Form [ft]", "asterix.62_1_16_380_1925_compound_1925_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3248, { "MV : Manage Vertical Mode", "asterix.62_1_16_380_1925_compound_1925_group_650", FT_UINT8, BASE_DEC, VALS(value_map_384), 0x0, NULL, HFILL } },
+{ &expand_var_3249, { "AH : Altitude Hold", "asterix.62_1_16_380_1925_compound_1925_group_1181", FT_UINT8, BASE_DEC, VALS(value_map_384), 0x0, NULL, HFILL } },
+{ &expand_var_3250, { "AM : Approach Mode", "asterix.62_1_16_380_1925_compound_1925_group_652", FT_UINT8, BASE_DEC, VALS(value_map_384), 0x0, NULL, HFILL } },
+{ &expand_var_3251, { "ALT : Altitude in Two's Complement Form [ft]", "asterix.62_1_16_380_1925_compound_1925_group_1180", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3252, { "TIS : Trajectory Intent Status", "asterix.62_1_16_380_1928_compound_1928_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3253, { "NAV(TID Available)", "asterix.62_1_16_380_1928_compound_1928_extended_NAV", FT_UINT8, BASE_DEC, VALS(value_map_660), 0x0, NULL, HFILL } },
 { &expand_var_3254, { "NVB(TID Valid)", "asterix.62_1_16_380_1928_compound_1928_extended_NVB", FT_UINT8, BASE_DEC, VALS(value_map_661), 0x0, NULL, HFILL } },
 { &expand_var_3255, { "FX", "asterix.62_1_16_380_1928_compound_1928_extended_TIS_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3256, { "TID : Trajectory Intent Data", "asterix.62_1_16_380_1937_compound_1937_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3257, { "TID : Trajectory Intent Data", "asterix.62_1_16_380_rep52_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3258, { "TCA : TCP Number Availability", "asterix.62_1_16_380_rep52_group", FT_UINT8, BASE_DEC, VALS(value_map_373), 0x0, NULL, HFILL } },
-{ &expand_var_3259, { "NC : TCP Compliance", "asterix.62_1_16_380_rep52_group", FT_UINT8, BASE_DEC, VALS(value_map_374), 0x0, NULL, HFILL } },
-{ &expand_var_3260, { "TCPN : Trajectory Change Point Number", "asterix.62_1_16_380_rep52_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3261, { "ALT : Altitude in Two's Complement Form [ft]", "asterix.62_1_16_380_rep52_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3262, { "LAT : Latitude in WGS.84 in Two's Complement [°]", "asterix.62_1_16_380_rep52_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3263, { "LON : Longitude in WGS.84 in Two's Complement [°]", "asterix.62_1_16_380_rep52_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3264, { "PT : Point Type", "asterix.62_1_16_380_rep52_group", FT_UINT8, BASE_DEC, VALS(value_map_377), 0x0, NULL, HFILL } },
-{ &expand_var_3265, { "TD : Turn Direction", "asterix.62_1_16_380_rep52_group", FT_UINT8, BASE_DEC, VALS(value_map_378), 0x0, NULL, HFILL } },
-{ &expand_var_3266, { "TRA : Turn Radius Availability", "asterix.62_1_16_380_rep52_group", FT_UINT8, BASE_DEC, VALS(value_map_379), 0x0, NULL, HFILL } },
-{ &expand_var_3267, { "TOA : TOV Available", "asterix.62_1_16_380_rep52_group", FT_UINT8, BASE_DEC, VALS(value_map_380), 0x0, NULL, HFILL } },
-{ &expand_var_3268, { "TOV : Time Over Point [s]", "asterix.62_1_16_380_rep52_group", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3269, { "TTR : TCP Turn Radius [NM]", "asterix.62_1_16_380_rep52_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3258, { "TCA : TCP Number Availability", "asterix.62_1_16_380_rep52_group_1184", FT_UINT8, BASE_DEC, VALS(value_map_373), 0x0, NULL, HFILL } },
+{ &expand_var_3259, { "NC : TCP Compliance", "asterix.62_1_16_380_rep52_group_1185", FT_UINT8, BASE_DEC, VALS(value_map_374), 0x0, NULL, HFILL } },
+{ &expand_var_3260, { "TCPN : Trajectory Change Point Number", "asterix.62_1_16_380_rep52_group_1186", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3261, { "ALT : Altitude in Two's Complement Form [ft]", "asterix.62_1_16_380_rep52_group_636", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3262, { "LAT : Latitude in WGS.84 in Two's Complement [°]", "asterix.62_1_16_380_rep52_group_1187", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3263, { "LON : Longitude in WGS.84 in Two's Complement [°]", "asterix.62_1_16_380_rep52_group_1188", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3264, { "PT : Point Type", "asterix.62_1_16_380_rep52_group_639", FT_UINT8, BASE_DEC, VALS(value_map_377), 0x0, NULL, HFILL } },
+{ &expand_var_3265, { "TD : Turn Direction", "asterix.62_1_16_380_rep52_group_1189", FT_UINT8, BASE_DEC, VALS(value_map_378), 0x0, NULL, HFILL } },
+{ &expand_var_3266, { "TRA : Turn Radius Availability", "asterix.62_1_16_380_rep52_group_1190", FT_UINT8, BASE_DEC, VALS(value_map_379), 0x0, NULL, HFILL } },
+{ &expand_var_3267, { "TOA : TOV Available", "asterix.62_1_16_380_rep52_group_1191", FT_UINT8, BASE_DEC, VALS(value_map_380), 0x0, NULL, HFILL } },
+{ &expand_var_3268, { "TOV : Time Over Point [s]", "asterix.62_1_16_380_rep52_group_643", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3269, { "TTR : TCP Turn Radius [NM]", "asterix.62_1_16_380_rep52_group_644", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3270, { "COM : Communications/ACAS Capability and Flight Status", "asterix.62_1_16_380_1940_compound_1940_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3271, { "COM : Communications Capability of the Transponder", "asterix.62_1_16_380_1940_compound_1940_group", FT_UINT8, BASE_DEC, VALS(value_map_221), 0x0, NULL, HFILL } },
-{ &expand_var_3272, { "STAT : Flight Status", "asterix.62_1_16_380_1940_compound_1940_group", FT_UINT8, BASE_DEC, VALS(value_map_662), 0x0, NULL, HFILL } },
-{ &expand_var_3273, { "SSC : Specific Service Capability", "asterix.62_1_16_380_1940_compound_1940_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_3274, { "ARC : Altitude Reporting Capability", "asterix.62_1_16_380_1940_compound_1940_group", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
-{ &expand_var_3275, { "AIC : Aircraft Identification Capability", "asterix.62_1_16_380_1940_compound_1940_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_3276, { "B1A : BDS 1,0 Bit 16", "asterix.62_1_16_380_1940_compound_1940_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3277, { "B1B : BDS BDS 1,0 Bits 37/40", "asterix.62_1_16_380_1940_compound_1940_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3271, { "COM : Communications Capability of the Transponder", "asterix.62_1_16_380_1940_compound_1940_group_292", FT_UINT8, BASE_DEC, VALS(value_map_221), 0x0, NULL, HFILL } },
+{ &expand_var_3272, { "STAT : Flight Status", "asterix.62_1_16_380_1940_compound_1940_group_1192", FT_UINT8, BASE_DEC, VALS(value_map_662), 0x0, NULL, HFILL } },
+{ &expand_var_3273, { "SSC : Specific Service Capability", "asterix.62_1_16_380_1940_compound_1940_group_294", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_3274, { "ARC : Altitude Reporting Capability", "asterix.62_1_16_380_1940_compound_1940_group_295", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
+{ &expand_var_3275, { "AIC : Aircraft Identification Capability", "asterix.62_1_16_380_1940_compound_1940_group_296", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_3276, { "B1A : BDS 1,0 Bit 16", "asterix.62_1_16_380_1940_compound_1940_group_297", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3277, { "B1B : BDS BDS 1,0 Bits 37/40", "asterix.62_1_16_380_1940_compound_1940_group_1193", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3278, { "SAB : Status Reported by ADS-B", "asterix.62_1_16_380_1946_compound_1946_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3279, { "AC : ACAS Status", "asterix.62_1_16_380_1946_compound_1946_group", FT_UINT8, BASE_DEC, VALS(value_map_663), 0x0, NULL, HFILL } },
-{ &expand_var_3280, { "MN : Multiple Navigational Aids Status", "asterix.62_1_16_380_1946_compound_1946_group", FT_UINT8, BASE_DEC, VALS(value_map_664), 0x0, NULL, HFILL } },
-{ &expand_var_3281, { "DC : Differential Correction Status", "asterix.62_1_16_380_1946_compound_1946_group", FT_UINT8, BASE_DEC, VALS(value_map_665), 0x0, NULL, HFILL } },
-{ &expand_var_3282, { "GBS : Ground Bit Set", "asterix.62_1_16_380_1946_compound_1946_group", FT_UINT8, BASE_DEC, VALS(value_map_666), 0x0, NULL, HFILL } },
-{ &expand_var_3283, { "STAT : Flight Status", "asterix.62_1_16_380_1946_compound_1946_group", FT_UINT8, BASE_DEC, VALS(value_map_667), 0x0, NULL, HFILL } },
+{ &expand_var_3279, { "AC : ACAS Status", "asterix.62_1_16_380_1946_compound_1946_group_1194", FT_UINT8, BASE_DEC, VALS(value_map_663), 0x0, NULL, HFILL } },
+{ &expand_var_3280, { "MN : Multiple Navigational Aids Status", "asterix.62_1_16_380_1946_compound_1946_group_1195", FT_UINT8, BASE_DEC, VALS(value_map_664), 0x0, NULL, HFILL } },
+{ &expand_var_3281, { "DC : Differential Correction Status", "asterix.62_1_16_380_1946_compound_1946_group_1196", FT_UINT8, BASE_DEC, VALS(value_map_665), 0x0, NULL, HFILL } },
+{ &expand_var_3282, { "GBS : Ground Bit Set", "asterix.62_1_16_380_1946_compound_1946_group_1197", FT_UINT8, BASE_DEC, VALS(value_map_666), 0x0, NULL, HFILL } },
+{ &expand_var_3283, { "STAT : Flight Status", "asterix.62_1_16_380_1946_compound_1946_group_1198", FT_UINT8, BASE_DEC, VALS(value_map_667), 0x0, NULL, HFILL } },
 { &expand_var_3284, { "ACS : ACAS Resolution Advisory Report", "asterix.62_1_16_380_1947_compound_1947_element", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3285, { "BVR : Barometric Vertical Rate [ft/min]", "asterix.62_1_16_380_1948_compound_1948_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3286, { "GVR : Geometric Vertical Rate [ft/min]", "asterix.62_1_16_380_1949_compound_1949_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3287, { "RAN : Roll Angle [°]", "asterix.62_1_16_380_1950_compound_1950_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3288, { "TAR : Track Angle Rate", "asterix.62_1_16_380_1952_compound_1952_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3289, { "TI : Turn Indicator", "asterix.62_1_16_380_1952_compound_1952_group", FT_UINT8, BASE_DEC, VALS(value_map_388), 0x0, NULL, HFILL } },
-{ &expand_var_3290, { "ROT : Rate of Turn in Two's Complement Form [°/s]", "asterix.62_1_16_380_1952_compound_1952_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3289, { "TI : Turn Indicator", "asterix.62_1_16_380_1952_compound_1952_group_657", FT_UINT8, BASE_DEC, VALS(value_map_388), 0x0, NULL, HFILL } },
+{ &expand_var_3290, { "ROT : Rate of Turn in Two's Complement Form [°/s]", "asterix.62_1_16_380_1952_compound_1952_group_1199", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3291, { "TAN : Track Angle [°]", "asterix.62_1_16_380_1953_compound_1953_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3292, { "GS : Ground Speed [NM/s]", "asterix.62_1_16_380_1954_compound_1954_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3293, { "VUN : Velocity Uncertainty", "asterix.62_1_16_380_1955_compound_1955_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3294, { "MET : Meteorological Data", "asterix.62_1_16_380_1964_compound_1964_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3295, { "WS : Wind Speed Valid Flag", "asterix.62_1_16_380_1964_compound_1964_group", FT_UINT8, BASE_DEC, VALS(value_map_668), 0x0, NULL, HFILL } },
-{ &expand_var_3296, { "WD : Wind Direction Valid Flag", "asterix.62_1_16_380_1964_compound_1964_group", FT_UINT8, BASE_DEC, VALS(value_map_669), 0x0, NULL, HFILL } },
-{ &expand_var_3297, { "TMP : Temperature Valid Flag", "asterix.62_1_16_380_1964_compound_1964_group", FT_UINT8, BASE_DEC, VALS(value_map_670), 0x0, NULL, HFILL } },
-{ &expand_var_3298, { "TRB : Turbulence Valid Flag", "asterix.62_1_16_380_1964_compound_1964_group", FT_UINT8, BASE_DEC, VALS(value_map_671), 0x0, NULL, HFILL } },
-{ &expand_var_3299, { "WSD : Wind Speed [kt]", "asterix.62_1_16_380_1964_compound_1964_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3300, { "WDD : Wind Direction [°]", "asterix.62_1_16_380_1964_compound_1964_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3301, { "TMPD : Temperature in Degrees Celsius [°C]", "asterix.62_1_16_380_1964_compound_1964_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3302, { "TRBD : Turbulence", "asterix.62_1_16_380_1964_compound_1964_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3295, { "WS : Wind Speed Valid Flag", "asterix.62_1_16_380_1964_compound_1964_group_1200", FT_UINT8, BASE_DEC, VALS(value_map_668), 0x0, NULL, HFILL } },
+{ &expand_var_3296, { "WD : Wind Direction Valid Flag", "asterix.62_1_16_380_1964_compound_1964_group_1201", FT_UINT8, BASE_DEC, VALS(value_map_669), 0x0, NULL, HFILL } },
+{ &expand_var_3297, { "TMP : Temperature Valid Flag", "asterix.62_1_16_380_1964_compound_1964_group_1202", FT_UINT8, BASE_DEC, VALS(value_map_670), 0x0, NULL, HFILL } },
+{ &expand_var_3298, { "TRB : Turbulence Valid Flag", "asterix.62_1_16_380_1964_compound_1964_group_1203", FT_UINT8, BASE_DEC, VALS(value_map_671), 0x0, NULL, HFILL } },
+{ &expand_var_3299, { "WSD : Wind Speed [kt]", "asterix.62_1_16_380_1964_compound_1964_group_1204", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3300, { "WDD : Wind Direction [°]", "asterix.62_1_16_380_1964_compound_1964_group_1205", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3301, { "TMPD : Temperature in Degrees Celsius [°C]", "asterix.62_1_16_380_1964_compound_1964_group_1206", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3302, { "TRBD : Turbulence", "asterix.62_1_16_380_1964_compound_1964_group_1207", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3303, { "EMC : Emitter Category", "asterix.62_1_16_380_1965_compound_1965_element", FT_UINT8, BASE_DEC, VALS(value_map_672), 0x0, NULL, HFILL } },
 { &expand_var_3304, { "POS : Position", "asterix.62_1_16_380_1968_compound_1968_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3305, { "LAT : Latitude in WGS.84 in Two's Complement Form [°]", "asterix.62_1_16_380_1968_compound_1968_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3306, { "LON : Longitude in WGS.84 in Two's Complement Form [°]", "asterix.62_1_16_380_1968_compound_1968_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3305, { "LAT : Latitude in WGS.84 in Two's Complement Form [°]", "asterix.62_1_16_380_1968_compound_1968_group_1208", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3306, { "LON : Longitude in WGS.84 in Two's Complement Form [°]", "asterix.62_1_16_380_1968_compound_1968_group_1209", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3307, { "GAL : Geometric Altitude [ft]", "asterix.62_1_16_380_1969_compound_1969_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3308, { "PUN : Position Uncertainty", "asterix.62_1_16_380_1971_compound_1971_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3309, { "PUN : Position Uncertainty", "asterix.62_1_16_380_1971_compound_1971_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3309, { "PUN : Position Uncertainty", "asterix.62_1_16_380_1971_compound_1971_group_1210", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3310, { "MB : MODE S MB DATA", "asterix.62_1_16_380_1972_compound_1972_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3311, { "IAR : Indicated Airspeed [kt]", "asterix.62_1_16_380_1973_compound_1973_element", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3312, { "MAC : Mach Number [Mach]", "asterix.62_1_16_380_1974_compound_1974_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3313, { "BPS : Barometric Pressure Setting (derived from Mode S BDS 4,0)", "asterix.62_1_16_380_1976_compound_1976_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3314, { "BPS [mb]", "asterix.62_1_16_380_1976_compound_1976_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3314, { "BPS [mb]", "asterix.62_1_16_380_1976_compound_1976_group_1211", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3315, { "040 : Track Number", "asterix.62_1_16_040_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3316, { "080 : Track Status", "asterix.62_1_16_080_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3317, { "MON", "asterix.62_1_16_080_uap_extended_MON", FT_UINT8, BASE_DEC, VALS(value_map_624), 0x0, NULL, HFILL } },
@@ -12506,10 +12506,10 @@ static hf_register_info hf[] = {
 { &expand_var_3363, { "LOP : Loop Age [s]", "asterix.62_1_16_290_1862_compound_1862_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3364, { "MLT : Multilateration Age [s]", "asterix.62_1_16_290_1863_compound_1863_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3365, { "200 : Mode of Movement", "asterix.62_1_16_200_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3366, { "TRANS : Transversal Acceleration", "asterix.62_1_16_200_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_649), 0x0, NULL, HFILL } },
-{ &expand_var_3367, { "LONG : Longitudinal Acceleration", "asterix.62_1_16_200_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_650), 0x0, NULL, HFILL } },
-{ &expand_var_3368, { "VERT : Vertical Rate", "asterix.62_1_16_200_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_651), 0x0, NULL, HFILL } },
-{ &expand_var_3369, { "ADF : Altitude Discrepancy Flag", "asterix.62_1_16_200_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_652), 0x0, NULL, HFILL } },
+{ &expand_var_3366, { "TRANS : Transversal Acceleration", "asterix.62_1_16_200_uap_group_1159", FT_UINT8, BASE_DEC, VALS(value_map_649), 0x0, NULL, HFILL } },
+{ &expand_var_3367, { "LONG : Longitudinal Acceleration", "asterix.62_1_16_200_uap_group_1160", FT_UINT8, BASE_DEC, VALS(value_map_650), 0x0, NULL, HFILL } },
+{ &expand_var_3368, { "VERT : Vertical Rate", "asterix.62_1_16_200_uap_group_1161", FT_UINT8, BASE_DEC, VALS(value_map_651), 0x0, NULL, HFILL } },
+{ &expand_var_3369, { "ADF : Altitude Discrepancy Flag", "asterix.62_1_16_200_uap_group_1162", FT_UINT8, BASE_DEC, VALS(value_map_652), 0x0, NULL, HFILL } },
 { &expand_var_3370, { "295 : Track Data Ages", "asterix.62_1_16_295_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3371, { "MFL : Measured Flight Level Age [s]", "asterix.62_1_16_295_1865_compound_1865_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3372, { "MD1 : Mode 1 Age [s]", "asterix.62_1_16_295_1866_compound_1866_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -12545,20 +12545,20 @@ static hf_register_info hf[] = {
 { &expand_var_3402, { "136 : Measured Flight Level [FL]", "asterix.62_1_16_136_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3403, { "130 : Calculated Track Geometric Altitude [ft]", "asterix.62_1_16_130_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3404, { "135 : Calculated Track Barometric Altitude", "asterix.62_1_16_135_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3405, { "QNH", "asterix.62_1_16_135_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_197), 0x0, NULL, HFILL } },
-{ &expand_var_3406, { "CTB : Calculated Track Barometric Altitude [FL]", "asterix.62_1_16_135_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3405, { "QNH", "asterix.62_1_16_135_uap_group_1155", FT_UINT8, BASE_DEC, VALS(value_map_197), 0x0, NULL, HFILL } },
+{ &expand_var_3406, { "CTB : Calculated Track Barometric Altitude [FL]", "asterix.62_1_16_135_uap_group_1156", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3407, { "220 : Calculated Rate of Climb/Descent [ft/min]", "asterix.62_1_16_220_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3408, { "390 : Flight Plan Related Data", "asterix.62_1_16_390_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3409, { "TAG : FPPS Identification Tag", "asterix.62_1_16_390_1978_compound_1978_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3410, { "CS : Callsign", "asterix.62_1_16_390_1979_compound_1979_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3411, { "IFI : IFPS_FLIGHT_ID", "asterix.62_1_16_390_1981_compound_1981_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3412, { "TYP", "asterix.62_1_16_390_1981_compound_1981_group", FT_UINT8, BASE_DEC, VALS(value_map_508), 0x0, NULL, HFILL } },
-{ &expand_var_3413, { "NBR : Number from 0 to 99 999 999", "asterix.62_1_16_390_1981_compound_1981_group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3412, { "TYP", "asterix.62_1_16_390_1981_compound_1981_group_880", FT_UINT8, BASE_DEC, VALS(value_map_508), 0x0, NULL, HFILL } },
+{ &expand_var_3413, { "NBR : Number from 0 to 99 999 999", "asterix.62_1_16_390_1981_compound_1981_group_1212", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3414, { "FCT : Flight Category", "asterix.62_1_16_390_1984_compound_1984_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3415, { "GATOAT", "asterix.62_1_16_390_1984_compound_1984_group", FT_UINT8, BASE_DEC, VALS(value_map_135), 0x0, NULL, HFILL } },
-{ &expand_var_3416, { "FR1FR2", "asterix.62_1_16_390_1984_compound_1984_group", FT_UINT8, BASE_DEC, VALS(value_map_252), 0x0, NULL, HFILL } },
-{ &expand_var_3417, { "RVSM", "asterix.62_1_16_390_1984_compound_1984_group", FT_UINT8, BASE_DEC, VALS(value_map_137), 0x0, NULL, HFILL } },
-{ &expand_var_3418, { "HPR", "asterix.62_1_16_390_1984_compound_1984_group", FT_UINT8, BASE_DEC, VALS(value_map_138), 0x0, NULL, HFILL } },
+{ &expand_var_3415, { "GATOAT", "asterix.62_1_16_390_1984_compound_1984_group_1213", FT_UINT8, BASE_DEC, VALS(value_map_135), 0x0, NULL, HFILL } },
+{ &expand_var_3416, { "FR1FR2", "asterix.62_1_16_390_1984_compound_1984_group_1214", FT_UINT8, BASE_DEC, VALS(value_map_252), 0x0, NULL, HFILL } },
+{ &expand_var_3417, { "RVSM", "asterix.62_1_16_390_1984_compound_1984_group_157", FT_UINT8, BASE_DEC, VALS(value_map_137), 0x0, NULL, HFILL } },
+{ &expand_var_3418, { "HPR", "asterix.62_1_16_390_1984_compound_1984_group_158", FT_UINT8, BASE_DEC, VALS(value_map_138), 0x0, NULL, HFILL } },
 { &expand_var_3419, { "TAC : Type of Aircraft", "asterix.62_1_16_390_1985_compound_1985_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3420, { "WTC : Wake Turbulence Category", "asterix.62_1_16_390_1986_compound_1986_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3421, { "DEP : Departure Airport", "asterix.62_1_16_390_1987_compound_1987_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -12568,92 +12568,92 @@ static hf_register_info hf[] = {
 { &expand_var_3425, { "CTL : Current Control Position", "asterix.62_1_16_390_1989_compound_1989_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3426, { "TOD : Time of Departure / Arrival", "asterix.62_1_16_390_1995_compound_1995_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3427, { "TOD : Time of Departure / Arrival", "asterix.62_1_16_390_rep53_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3428, { "TYP", "asterix.62_1_16_390_rep53_group", FT_UINT8, BASE_DEC, VALS(value_map_232), 0x0, NULL, HFILL } },
-{ &expand_var_3429, { "DAY", "asterix.62_1_16_390_rep53_group", FT_UINT8, BASE_DEC, VALS(value_map_511), 0x0, NULL, HFILL } },
-{ &expand_var_3430, { "HOR : Hours", "asterix.62_1_16_390_rep53_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3431, { "MIN : Minutes", "asterix.62_1_16_390_rep53_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3432, { "AVS : Seconds Available Flag", "asterix.62_1_16_390_rep53_group", FT_UINT8, BASE_DEC, VALS(value_map_234), 0x0, NULL, HFILL } },
-{ &expand_var_3433, { "SEC : Seconds", "asterix.62_1_16_390_rep53_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3428, { "TYP", "asterix.62_1_16_390_rep53_group_1215", FT_UINT8, BASE_DEC, VALS(value_map_232), 0x0, NULL, HFILL } },
+{ &expand_var_3429, { "DAY", "asterix.62_1_16_390_rep53_group_888", FT_UINT8, BASE_DEC, VALS(value_map_511), 0x0, NULL, HFILL } },
+{ &expand_var_3430, { "HOR : Hours", "asterix.62_1_16_390_rep53_group_1216", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3431, { "MIN : Minutes", "asterix.62_1_16_390_rep53_group_1217", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3432, { "AVS : Seconds Available Flag", "asterix.62_1_16_390_rep53_group_1218", FT_UINT8, BASE_DEC, VALS(value_map_234), 0x0, NULL, HFILL } },
+{ &expand_var_3433, { "SEC : Seconds", "asterix.62_1_16_390_rep53_group_1219", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3434, { "AST : Aircraft Stand", "asterix.62_1_16_390_494_compound_494_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3435, { "STS : Stand Status", "asterix.62_1_16_390_1449_compound_1449_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3436, { "STD : Standard Instrument Departure", "asterix.62_1_16_390_1996_compound_1996_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3437, { "STA : Standard Instrument Arrival", "asterix.62_1_16_390_1997_compound_1997_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3438, { "PEM : Pre-Emergency Mode 3/A", "asterix.62_1_16_390_1999_compound_1999_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3439, { "VA", "asterix.62_1_16_390_1999_compound_1999_group", FT_UINT8, BASE_DEC, VALS(value_map_675), 0x0, NULL, HFILL } },
-{ &expand_var_3440, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.62_1_16_390_1999_compound_1999_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3439, { "VA", "asterix.62_1_16_390_1999_compound_1999_group_1220", FT_UINT8, BASE_DEC, VALS(value_map_675), 0x0, NULL, HFILL } },
+{ &expand_var_3440, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.62_1_16_390_1999_compound_1999_group_667", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3441, { "PEC : Pre-Emergency Callsign", "asterix.62_1_16_390_2000_compound_2000_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3442, { "270 : Target Size and Orientation", "asterix.62_1_16_270_uap_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3443, { "300 : Vehicle Fleet Identification", "asterix.62_1_16_300_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_186), 0x0, NULL, HFILL } },
 { &expand_var_3444, { "110 : Mode 5 Data Reports and Extended Mode 1 Code", "asterix.62_1_16_110_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3445, { "SUM : Mode 5 Summary", "asterix.62_1_16_110_1821_compound_1821_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3446, { "M5", "asterix.62_1_16_110_1821_compound_1821_group", FT_UINT8, BASE_DEC, VALS(value_map_411), 0x0, NULL, HFILL } },
-{ &expand_var_3447, { "ID", "asterix.62_1_16_110_1821_compound_1821_group", FT_UINT8, BASE_DEC, VALS(value_map_642), 0x0, NULL, HFILL } },
-{ &expand_var_3448, { "DA", "asterix.62_1_16_110_1821_compound_1821_group", FT_UINT8, BASE_DEC, VALS(value_map_413), 0x0, NULL, HFILL } },
-{ &expand_var_3449, { "M1", "asterix.62_1_16_110_1821_compound_1821_group", FT_UINT8, BASE_DEC, VALS(value_map_643), 0x0, NULL, HFILL } },
-{ &expand_var_3450, { "M2", "asterix.62_1_16_110_1821_compound_1821_group", FT_UINT8, BASE_DEC, VALS(value_map_644), 0x0, NULL, HFILL } },
-{ &expand_var_3451, { "M3", "asterix.62_1_16_110_1821_compound_1821_group", FT_UINT8, BASE_DEC, VALS(value_map_645), 0x0, NULL, HFILL } },
-{ &expand_var_3452, { "MC", "asterix.62_1_16_110_1821_compound_1821_group", FT_UINT8, BASE_DEC, VALS(value_map_646), 0x0, NULL, HFILL } },
-{ &expand_var_3453, { "X : X-pulse from Mode 5 Data Reply or Report", "asterix.62_1_16_110_1821_compound_1821_group", FT_UINT8, BASE_DEC, VALS(value_map_647), 0x0, NULL, HFILL } },
+{ &expand_var_3446, { "M5", "asterix.62_1_16_110_1821_compound_1821_group_684", FT_UINT8, BASE_DEC, VALS(value_map_411), 0x0, NULL, HFILL } },
+{ &expand_var_3447, { "ID", "asterix.62_1_16_110_1821_compound_1821_group_1145", FT_UINT8, BASE_DEC, VALS(value_map_642), 0x0, NULL, HFILL } },
+{ &expand_var_3448, { "DA", "asterix.62_1_16_110_1821_compound_1821_group_686", FT_UINT8, BASE_DEC, VALS(value_map_413), 0x0, NULL, HFILL } },
+{ &expand_var_3449, { "M1", "asterix.62_1_16_110_1821_compound_1821_group_1146", FT_UINT8, BASE_DEC, VALS(value_map_643), 0x0, NULL, HFILL } },
+{ &expand_var_3450, { "M2", "asterix.62_1_16_110_1821_compound_1821_group_1147", FT_UINT8, BASE_DEC, VALS(value_map_644), 0x0, NULL, HFILL } },
+{ &expand_var_3451, { "M3", "asterix.62_1_16_110_1821_compound_1821_group_1148", FT_UINT8, BASE_DEC, VALS(value_map_645), 0x0, NULL, HFILL } },
+{ &expand_var_3452, { "MC", "asterix.62_1_16_110_1821_compound_1821_group_1149", FT_UINT8, BASE_DEC, VALS(value_map_646), 0x0, NULL, HFILL } },
+{ &expand_var_3453, { "X : X-pulse from Mode 5 Data Reply or Report", "asterix.62_1_16_110_1821_compound_1821_group_1150", FT_UINT8, BASE_DEC, VALS(value_map_647), 0x0, NULL, HFILL } },
 { &expand_var_3454, { "PMN : Mode 5 PIN/ National Origin/Mission Code", "asterix.62_1_16_110_1822_compound_1822_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3455, { "PIN : PIN Code", "asterix.62_1_16_110_1822_compound_1822_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3456, { "NAT : National Origin", "asterix.62_1_16_110_1822_compound_1822_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3457, { "MIS : Mission Code", "asterix.62_1_16_110_1822_compound_1822_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3455, { "PIN : PIN Code", "asterix.62_1_16_110_1822_compound_1822_group_692", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3456, { "NAT : National Origin", "asterix.62_1_16_110_1822_compound_1822_group_937", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3457, { "MIS : Mission Code", "asterix.62_1_16_110_1822_compound_1822_group_938", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3458, { "POS : Mode 5 Reported Position", "asterix.62_1_16_110_1823_compound_1823_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3459, { "GA : Mode 5 GNSS-derived Altitude", "asterix.62_1_16_110_1826_compound_1826_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3460, { "RES : Resolution with which the GNSS-derived Altitude (GA) is Reported", "asterix.62_1_16_110_1826_compound_1826_group", FT_UINT8, BASE_DEC, VALS(value_map_538), 0x0, NULL, HFILL } },
-{ &expand_var_3461, { "GA : GNSS-derived Altitude of Target, Expressed as Height Above WGS 84 Ellipsoid [ft]", "asterix.62_1_16_110_1826_compound_1826_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3460, { "RES : Resolution with which the GNSS-derived Altitude (GA) is Reported", "asterix.62_1_16_110_1826_compound_1826_group_1151", FT_UINT8, BASE_DEC, VALS(value_map_538), 0x0, NULL, HFILL } },
+{ &expand_var_3461, { "GA : GNSS-derived Altitude of Target, Expressed as Height Above WGS 84 Ellipsoid [ft]", "asterix.62_1_16_110_1826_compound_1826_group_1152", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3462, { "EM1 : Extended Mode 1 Code in Octal Representation", "asterix.62_1_16_110_1828_compound_1828_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3463, { "EM1 : Extended Mode 1 Reply in Octal Representation", "asterix.62_1_16_110_1828_compound_1828_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3463, { "EM1 : Extended Mode 1 Reply in Octal Representation", "asterix.62_1_16_110_1828_compound_1828_group_1153", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3464, { "TOS : Time Offset for POS and GA [s]", "asterix.62_1_16_110_1829_compound_1829_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3465, { "XP : X Pulse Presence", "asterix.62_1_16_110_1830_compound_1830_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3466, { "X5 : X-pulse from Mode 5 Data Reply or Report", "asterix.62_1_16_110_1830_compound_1830_group", FT_UINT8, BASE_DEC, VALS(value_map_421), 0x0, NULL, HFILL } },
-{ &expand_var_3467, { "XC : X-pulse from Mode C Reply", "asterix.62_1_16_110_1830_compound_1830_group", FT_UINT8, BASE_DEC, VALS(value_map_422), 0x0, NULL, HFILL } },
-{ &expand_var_3468, { "X3 : X-pulse from Mode 3/A Reply", "asterix.62_1_16_110_1830_compound_1830_group", FT_UINT8, BASE_DEC, VALS(value_map_423), 0x0, NULL, HFILL } },
-{ &expand_var_3469, { "X2 : X-pulse from Mode 2 Reply", "asterix.62_1_16_110_1830_compound_1830_group", FT_UINT8, BASE_DEC, VALS(value_map_541), 0x0, NULL, HFILL } },
-{ &expand_var_3470, { "X1 : X-pulse from Mode 1 Reply", "asterix.62_1_16_110_1830_compound_1830_group", FT_UINT8, BASE_DEC, VALS(value_map_425), 0x0, NULL, HFILL } },
+{ &expand_var_3466, { "X5 : X-pulse from Mode 5 Data Reply or Report", "asterix.62_1_16_110_1830_compound_1830_group_697", FT_UINT8, BASE_DEC, VALS(value_map_421), 0x0, NULL, HFILL } },
+{ &expand_var_3467, { "XC : X-pulse from Mode C Reply", "asterix.62_1_16_110_1830_compound_1830_group_698", FT_UINT8, BASE_DEC, VALS(value_map_422), 0x0, NULL, HFILL } },
+{ &expand_var_3468, { "X3 : X-pulse from Mode 3/A Reply", "asterix.62_1_16_110_1830_compound_1830_group_699", FT_UINT8, BASE_DEC, VALS(value_map_423), 0x0, NULL, HFILL } },
+{ &expand_var_3469, { "X2 : X-pulse from Mode 2 Reply", "asterix.62_1_16_110_1830_compound_1830_group_946", FT_UINT8, BASE_DEC, VALS(value_map_541), 0x0, NULL, HFILL } },
+{ &expand_var_3470, { "X1 : X-pulse from Mode 1 Reply", "asterix.62_1_16_110_1830_compound_1830_group_701", FT_UINT8, BASE_DEC, VALS(value_map_425), 0x0, NULL, HFILL } },
 { &expand_var_3471, { "120 : Track Mode 2 Code", "asterix.62_1_16_120_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3472, { "MODE2 : Mode-2 Code in Octal Representation", "asterix.62_1_16_120_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3472, { "MODE2 : Mode-2 Code in Octal Representation", "asterix.62_1_16_120_uap_group_1154", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3473, { "510 : Composed Track Number", "asterix.62_1_16_510_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3474, { "510 : Composed Track Number", "asterix.62_1_16_510_rep54_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3475, { "IDENT : System Unit Identification", "asterix.62_1_16_510_rep54_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3476, { "TRACK : System Track Number", "asterix.62_1_16_510_rep54_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3475, { "IDENT : System Unit Identification", "asterix.62_1_16_510_rep54_group_1229", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3476, { "TRACK : System Track Number", "asterix.62_1_16_510_rep54_group_1230", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3477, { "500 : Estimated Accuracies", "asterix.62_1_16_500_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3478, { "APC : Estimated Accuracy Of Track Position (Cartesian)", "asterix.62_1_16_500_2004_compound_2004_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3479, { "X : APC (X-Component) [m]", "asterix.62_1_16_500_2004_compound_2004_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3480, { "Y : APC (Y-Component) [m]", "asterix.62_1_16_500_2004_compound_2004_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3479, { "X : APC (X-Component) [m]", "asterix.62_1_16_500_2004_compound_2004_group_1221", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3480, { "Y : APC (Y-Component) [m]", "asterix.62_1_16_500_2004_compound_2004_group_1222", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3481, { "COV : XY Covariance Component [m]", "asterix.62_1_16_500_2005_compound_2005_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3482, { "APW : Estimated Accuracy Of Track Position (WGS-84)", "asterix.62_1_16_500_2008_compound_2008_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3483, { "LAT : APW (Latitude Component) [°]", "asterix.62_1_16_500_2008_compound_2008_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3484, { "LON : APW (Longitude Component) [°]", "asterix.62_1_16_500_2008_compound_2008_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3483, { "LAT : APW (Latitude Component) [°]", "asterix.62_1_16_500_2008_compound_2008_group_1223", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3484, { "LON : APW (Longitude Component) [°]", "asterix.62_1_16_500_2008_compound_2008_group_1224", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3485, { "AGA : Estimated Accuracy Of Calculated Track Geometric Altitude [ft]", "asterix.62_1_16_500_2009_compound_2009_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3486, { "ABA : Estimated Accuracy Of Calculated Track Barometric Altitude [FL]", "asterix.62_1_16_500_2010_compound_2010_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3487, { "ATV : Estimated Accuracy Of Track Velocity (Cartesian)", "asterix.62_1_16_500_2013_compound_2013_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3488, { "X : ATV (X-Component) [m/s]", "asterix.62_1_16_500_2013_compound_2013_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3489, { "Y : ATV (Y-Component) [m/s]", "asterix.62_1_16_500_2013_compound_2013_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3488, { "X : ATV (X-Component) [m/s]", "asterix.62_1_16_500_2013_compound_2013_group_1225", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3489, { "Y : ATV (Y-Component) [m/s]", "asterix.62_1_16_500_2013_compound_2013_group_1226", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3490, { "AA : Estimated Accuracy Of Acceleration (Cartesian)", "asterix.62_1_16_500_2016_compound_2016_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3491, { "X : AA (X-Component) [m/s²]", "asterix.62_1_16_500_2016_compound_2016_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3492, { "Y : AA (Y-Component) [m/s²]", "asterix.62_1_16_500_2016_compound_2016_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3491, { "X : AA (X-Component) [m/s²]", "asterix.62_1_16_500_2016_compound_2016_group_1227", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3492, { "Y : AA (Y-Component) [m/s²]", "asterix.62_1_16_500_2016_compound_2016_group_1228", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3493, { "ARC : Estimated Accuracy Of Rate Of Climb/Descent [ft/min]", "asterix.62_1_16_500_2017_compound_2017_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3494, { "340 : Measured Information", "asterix.62_1_16_340_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3495, { "SID : Sensor Identification", "asterix.62_1_16_340_1897_compound_1897_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3496, { "POS : Measured Position", "asterix.62_1_16_340_1900_compound_1900_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3497, { "RHO : Measured Distance [NM]", "asterix.62_1_16_340_1900_compound_1900_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3498, { "THETA : Measured Azimuth [°]", "asterix.62_1_16_340_1900_compound_1900_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3497, { "RHO : Measured Distance [NM]", "asterix.62_1_16_340_1900_compound_1900_group_1167", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3498, { "THETA : Measured Azimuth [°]", "asterix.62_1_16_340_1900_compound_1900_group_1168", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3499, { "HEIGHT : Measured 3-D Height [ft]", "asterix.62_1_16_340_1901_compound_1901_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3500, { "MDC :", "asterix.62_1_16_340_1905_compound_1905_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3501, { "V : Validated", "asterix.62_1_16_340_1905_compound_1905_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_3502, { "G : Garbled", "asterix.62_1_16_340_1905_compound_1905_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_3503, { "LMC : Last Measured Mode C Code [FL]", "asterix.62_1_16_340_1905_compound_1905_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3501, { "V : Validated", "asterix.62_1_16_340_1905_compound_1905_group_1169", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_3502, { "G : Garbled", "asterix.62_1_16_340_1905_compound_1905_group_1170", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_3503, { "LMC : Last Measured Mode C Code [FL]", "asterix.62_1_16_340_1905_compound_1905_group_1171", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3504, { "MDA :", "asterix.62_1_16_340_1907_compound_1907_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3505, { "V : Validated", "asterix.62_1_16_340_1907_compound_1907_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_3506, { "G : Garbled", "asterix.62_1_16_340_1907_compound_1907_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_3507, { "L", "asterix.62_1_16_340_1907_compound_1907_group", FT_UINT8, BASE_DEC, VALS(value_map_654), 0x0, NULL, HFILL } },
-{ &expand_var_3508, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.62_1_16_340_1907_compound_1907_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3505, { "V : Validated", "asterix.62_1_16_340_1907_compound_1907_group_1169", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_3506, { "G : Garbled", "asterix.62_1_16_340_1907_compound_1907_group_1170", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_3507, { "L", "asterix.62_1_16_340_1907_compound_1907_group_1172", FT_UINT8, BASE_DEC, VALS(value_map_654), 0x0, NULL, HFILL } },
+{ &expand_var_3508, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.62_1_16_340_1907_compound_1907_group_667", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3509, { "TYP :", "asterix.62_1_16_340_1911_compound_1911_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3510, { "TYP : Report Type", "asterix.62_1_16_340_1911_compound_1911_group", FT_UINT8, BASE_DEC, VALS(value_map_655), 0x0, NULL, HFILL } },
-{ &expand_var_3511, { "SIM", "asterix.62_1_16_340_1911_compound_1911_group", FT_UINT8, BASE_DEC, VALS(value_map_162), 0x0, NULL, HFILL } },
-{ &expand_var_3512, { "RAB", "asterix.62_1_16_340_1911_compound_1911_group", FT_UINT8, BASE_DEC, VALS(value_map_656), 0x0, NULL, HFILL } },
-{ &expand_var_3513, { "TST", "asterix.62_1_16_340_1911_compound_1911_group", FT_UINT8, BASE_DEC, VALS(value_map_569), 0x0, NULL, HFILL } },
+{ &expand_var_3510, { "TYP : Report Type", "asterix.62_1_16_340_1911_compound_1911_group_1173", FT_UINT8, BASE_DEC, VALS(value_map_655), 0x0, NULL, HFILL } },
+{ &expand_var_3511, { "SIM", "asterix.62_1_16_340_1911_compound_1911_group_1008", FT_UINT8, BASE_DEC, VALS(value_map_162), 0x0, NULL, HFILL } },
+{ &expand_var_3512, { "RAB", "asterix.62_1_16_340_1911_compound_1911_group_1174", FT_UINT8, BASE_DEC, VALS(value_map_656), 0x0, NULL, HFILL } },
+{ &expand_var_3513, { "TST", "asterix.62_1_16_340_1911_compound_1911_group_1175", FT_UINT8, BASE_DEC, VALS(value_map_569), 0x0, NULL, HFILL } },
 { &expand_var_3514, { "RE : Reserved Expansion Field", "asterix.62_1_16_33_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3515, { "SP : Special Purpose Field", "asterix.62_1_16_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3516, { "010 : Data Source Identifier", "asterix.62_1_17_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -12664,10 +12664,10 @@ static hf_register_info hf[] = {
 { &expand_var_3521, { "185 : Calculated Track Velocity (Cartesian)", "asterix.62_1_17_185_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3522, { "210 : Calculated Acceleration (Cartesian)", "asterix.62_1_17_210_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3523, { "060 : Track Mode 3/A Code", "asterix.62_1_17_060_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3524, { "V : Validated", "asterix.62_1_17_060_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
-{ &expand_var_3525, { "G : Garbled", "asterix.62_1_17_060_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
-{ &expand_var_3526, { "CH : Change in Mode 3/A", "asterix.62_1_17_060_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_623), 0x0, NULL, HFILL } },
-{ &expand_var_3527, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.62_1_17_060_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3524, { "V : Validated", "asterix.62_1_17_060_uap_group_1169", FT_UINT8, BASE_DEC, VALS(value_map_16), 0x0, NULL, HFILL } },
+{ &expand_var_3525, { "G : Garbled", "asterix.62_1_17_060_uap_group_1170", FT_UINT8, BASE_DEC, VALS(value_map_17), 0x0, NULL, HFILL } },
+{ &expand_var_3526, { "CH : Change in Mode 3/A", "asterix.62_1_17_060_uap_group_1115", FT_UINT8, BASE_DEC, VALS(value_map_623), 0x0, NULL, HFILL } },
+{ &expand_var_3527, { "MODE3A : Mode-3/A Reply in Octal Representation", "asterix.62_1_17_060_uap_group_667", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3528, { "245 : Target Identification", "asterix.62_1_17_245_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3529, { "380 : Aircraft Derived Data", "asterix.62_1_17_380_uap_compound", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3530, { "040 : Track Number", "asterix.62_1_17_040_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -12709,13 +12709,13 @@ static hf_register_info hf[] = {
 { &expand_var_3566, { "TIS : Trajectory Intent Status", "asterix.62_1_18_380_1928_compound_1928_extended", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3567, { "TID : Trajectory Intent Data", "asterix.62_1_18_380_1937_compound_1937_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3568, { "COM : Communications/ACAS Capability and Flight Status", "asterix.62_1_18_380_2028_compound_2028_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3569, { "COM : Communications Capability of the Transponder", "asterix.62_1_18_380_2028_compound_2028_group", FT_UINT8, BASE_DEC, VALS(value_map_221), 0x0, NULL, HFILL } },
-{ &expand_var_3570, { "STAT : Flight Status", "asterix.62_1_18_380_2028_compound_2028_group", FT_UINT8, BASE_DEC, VALS(value_map_684), 0x0, NULL, HFILL } },
-{ &expand_var_3571, { "SSC : Specific Service Capability", "asterix.62_1_18_380_2028_compound_2028_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_3572, { "ARC : Altitude Reporting Capability", "asterix.62_1_18_380_2028_compound_2028_group", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
-{ &expand_var_3573, { "AIC : Aircraft Identification Capability", "asterix.62_1_18_380_2028_compound_2028_group", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
-{ &expand_var_3574, { "B1A : BDS 1,0 Bit 16", "asterix.62_1_18_380_2028_compound_2028_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3575, { "B1B : BDS BDS 1,0 Bits 37/40", "asterix.62_1_18_380_2028_compound_2028_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3569, { "COM : Communications Capability of the Transponder", "asterix.62_1_18_380_2028_compound_2028_group_292", FT_UINT8, BASE_DEC, VALS(value_map_221), 0x0, NULL, HFILL } },
+{ &expand_var_3570, { "STAT : Flight Status", "asterix.62_1_18_380_2028_compound_2028_group_1234", FT_UINT8, BASE_DEC, VALS(value_map_684), 0x0, NULL, HFILL } },
+{ &expand_var_3571, { "SSC : Specific Service Capability", "asterix.62_1_18_380_2028_compound_2028_group_294", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_3572, { "ARC : Altitude Reporting Capability", "asterix.62_1_18_380_2028_compound_2028_group_295", FT_UINT8, BASE_DEC, VALS(value_map_224), 0x0, NULL, HFILL } },
+{ &expand_var_3573, { "AIC : Aircraft Identification Capability", "asterix.62_1_18_380_2028_compound_2028_group_296", FT_UINT8, BASE_DEC, VALS(value_map_223), 0x0, NULL, HFILL } },
+{ &expand_var_3574, { "B1A : BDS 1,0 Bit 16", "asterix.62_1_18_380_2028_compound_2028_group_297", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3575, { "B1B : BDS BDS 1,0 Bits 37/40", "asterix.62_1_18_380_2028_compound_2028_group_1193", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3576, { "SAB : Status Reported by ADS-B", "asterix.62_1_18_380_1946_compound_1946_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3577, { "ACS : ACAS Resolution Advisory Report", "asterix.62_1_18_380_1947_compound_1947_element", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3578, { "BVR : Barometric Vertical Rate [ft/min]", "asterix.62_1_18_380_1948_compound_1948_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -12958,11 +12958,11 @@ static hf_register_info hf[] = {
 { &expand_var_3815, { "015 : Service Identification", "asterix.62_1_21_015_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3816, { "070 : Time Of Track Information [s]", "asterix.62_1_21_070_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3817, { "105 : Calculated Position In WGS-84 Co-ordinates", "asterix.62_1_21_105_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3818, { "LAT : Latitude [°]", "asterix.62_1_21_105_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3819, { "LON : Longitude [°]", "asterix.62_1_21_105_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3818, { "LAT : Latitude [°]", "asterix.62_1_21_105_uap_group_1239", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3819, { "LON : Longitude [°]", "asterix.62_1_21_105_uap_group_1240", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3820, { "100 : Calculated Track Position (Cartesian)", "asterix.62_1_21_100_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3821, { "X : X Coordinate [m]", "asterix.62_1_21_100_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3822, { "Y : Y Coordinate [m]", "asterix.62_1_21_100_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3821, { "X : X Coordinate [m]", "asterix.62_1_21_100_uap_group_1237", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3822, { "Y : Y Coordinate [m]", "asterix.62_1_21_100_uap_group_1238", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3823, { "185 : Calculated Track Velocity (Cartesian)", "asterix.62_1_21_185_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3824, { "210 : Calculated Acceleration (Cartesian)", "asterix.62_1_21_210_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3825, { "060 : Track Mode 3/A Code", "asterix.62_1_21_060_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -13082,12 +13082,12 @@ static hf_register_info hf[] = {
 { &expand_var_3939, { "FX", "asterix.63_1_6_060_uap_extended_060_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3940, { "070 : Time Stamping Bias [ms]", "asterix.63_1_6_070_uap_element", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3941, { "080 : SSR / Mode S Range Gain and Bias", "asterix.63_1_6_080_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3942, { "SRG : Mode S Range Gain []", "asterix.63_1_6_080_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3943, { "SRB : Mode S Range Bias [NM]", "asterix.63_1_6_080_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3942, { "SRG : Mode S Range Gain []", "asterix.63_1_6_080_uap_group_1252", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3943, { "SRB : Mode S Range Bias [NM]", "asterix.63_1_6_080_uap_group_1253", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3944, { "081 : SSR Mode S Azimuth Bias [°]", "asterix.63_1_6_081_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3945, { "090 : PSR Range Gain and Bias", "asterix.63_1_6_090_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3946, { "PRG : PSR Range Gain []", "asterix.63_1_6_090_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3947, { "PRB : PSR Range Bias [NM]", "asterix.63_1_6_090_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3946, { "PRG : PSR Range Gain []", "asterix.63_1_6_090_uap_group_1254", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3947, { "PRB : PSR Range Bias [NM]", "asterix.63_1_6_090_uap_group_1255", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3948, { "091 : PSR Azimuth Bias [°]", "asterix.63_1_6_091_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3949, { "092 : PSR Elevation Bias [°]", "asterix.63_1_6_092_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3950, { "RE : Reserved Expansion Field", "asterix.63_1_6_12_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -13111,19 +13111,19 @@ static hf_register_info hf[] = {
 { &expand_var_3968, { "TSV(Time Source Validity)", "asterix.63_1_7_060_uap_extended_TSV", FT_UINT8, BASE_DEC, VALS(value_map_193), 0x0, NULL, HFILL } },
 { &expand_var_3969, { "NPW(No Plot Warning)", "asterix.63_1_7_060_uap_extended_NPW", FT_UINT8, BASE_DEC, VALS(value_map_694), 0x0, NULL, HFILL } },
 { &expand_var_3970, { "FX", "asterix.63_1_7_060_uap_extended_060_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3971, { "EP : Element Populated Bit", "asterix.63_1_7_060_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_3972, { "VAL : Test Target Failure Status Values", "asterix.63_1_7_060_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_195), 0x0, NULL, HFILL } },
-{ &expand_var_3973, { "EP : Element Populated Bit", "asterix.63_1_7_060_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
-{ &expand_var_3974, { "VAL : Indication of Spoofing Attack Values", "asterix.63_1_7_060_uap_extended", FT_UINT8, BASE_DEC, VALS(value_map_489), 0x0, NULL, HFILL } },
+{ &expand_var_3971, { "EP : Element Populated Bit", "asterix.63_1_7_060_uap_extended_722", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_3972, { "VAL : Test Target Failure Status Values", "asterix.63_1_7_060_uap_extended_1256", FT_UINT8, BASE_DEC, VALS(value_map_195), 0x0, NULL, HFILL } },
+{ &expand_var_3973, { "EP : Element Populated Bit", "asterix.63_1_7_060_uap_extended_166", FT_UINT8, BASE_DEC, VALS(value_map_145), 0x0, NULL, HFILL } },
+{ &expand_var_3974, { "VAL : Indication of Spoofing Attack Values", "asterix.63_1_7_060_uap_extended_1258", FT_UINT8, BASE_DEC, VALS(value_map_489), 0x0, NULL, HFILL } },
 { &expand_var_3975, { "FX", "asterix.63_1_7_060_uap_extended_060_FX_7", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3976, { "070 : Time Stamping Bias [ms]", "asterix.63_1_7_070_uap_element", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3977, { "080 : SSR / Mode S Range Gain and Bias", "asterix.63_1_7_080_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3978, { "SRG : Mode S Range Gain []", "asterix.63_1_7_080_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3979, { "SRB : Mode S Range Bias [NM]", "asterix.63_1_7_080_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3978, { "SRG : Mode S Range Gain []", "asterix.63_1_7_080_uap_group_1260", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3979, { "SRB : Mode S Range Bias [NM]", "asterix.63_1_7_080_uap_group_1261", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3980, { "081 : SSR Mode S Azimuth Bias [°]", "asterix.63_1_7_081_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3981, { "090 : PSR Range Gain and Bias", "asterix.63_1_7_090_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3982, { "PRG : PSR Range Gain []", "asterix.63_1_7_090_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3983, { "PRB : PSR Range Bias [NM]", "asterix.63_1_7_090_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3982, { "PRG : PSR Range Gain []", "asterix.63_1_7_090_uap_group_1262", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3983, { "PRB : PSR Range Bias [NM]", "asterix.63_1_7_090_uap_group_1263", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3984, { "091 : PSR Azimuth Bias [°]", "asterix.63_1_7_091_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3985, { "092 : PSR Elevation Bias [°]", "asterix.63_1_7_092_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3986, { "RE : Reserved Expansion Field", "asterix.63_1_7_12_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -13134,11 +13134,11 @@ static hf_register_info hf[] = {
 { &expand_var_3991, { "030 : Time of Message [s]", "asterix.65_1_4_030_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3992, { "020 : Batch Number", "asterix.65_1_4_020_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3993, { "040 : SDPS Configuration and Status", "asterix.65_1_4_040_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_3994, { "NOGO", "asterix.65_1_4_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_699), 0x0, NULL, HFILL } },
-{ &expand_var_3995, { "OVL", "asterix.65_1_4_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_700), 0x0, NULL, HFILL } },
-{ &expand_var_3996, { "TSV", "asterix.65_1_4_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_701), 0x0, NULL, HFILL } },
-{ &expand_var_3997, { "PSS : Processing System Status", "asterix.65_1_4_040_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_702), 0x0, NULL, HFILL } },
-{ &expand_var_3998, { "STTN : Track Re-numbering Indication", "asterix.65_1_4_040_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_3994, { "NOGO", "asterix.65_1_4_040_uap_group_1264", FT_UINT8, BASE_DEC, VALS(value_map_699), 0x0, NULL, HFILL } },
+{ &expand_var_3995, { "OVL", "asterix.65_1_4_040_uap_group_1265", FT_UINT8, BASE_DEC, VALS(value_map_700), 0x0, NULL, HFILL } },
+{ &expand_var_3996, { "TSV", "asterix.65_1_4_040_uap_group_1266", FT_UINT8, BASE_DEC, VALS(value_map_701), 0x0, NULL, HFILL } },
+{ &expand_var_3997, { "PSS : Processing System Status", "asterix.65_1_4_040_uap_group_1267", FT_UINT8, BASE_DEC, VALS(value_map_702), 0x0, NULL, HFILL } },
+{ &expand_var_3998, { "STTN : Track Re-numbering Indication", "asterix.65_1_4_040_uap_group_1268", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3999, { "050 : Service Status Report", "asterix.65_1_4_050_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_703), 0x0, NULL, HFILL } },
 { &expand_var_4000, { "RE : Reserved Expansion Field", "asterix.65_1_4_12_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4001, { "SP : Special Purpose Field", "asterix.65_1_4_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -13161,8 +13161,8 @@ static hf_register_info hf[] = {
 { &expand_var_4018, { "RE : Reserved Expansion Field", "asterix.65_1_6_12_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4019, { "SP : Special Purpose Field", "asterix.65_1_6_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4020, { "010 : Destination ID", "asterix.150_3_0_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4021, { "CEN : Centre Identifier", "asterix.150_3_0_010_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4022, { "POS : Workstation Identifier", "asterix.150_3_0_010_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4021, { "CEN : Centre Identifier", "asterix.150_3_0_010_uap_group_1269", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4022, { "POS : Workstation Identifier", "asterix.150_3_0_010_uap_group_1270", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4023, { "020 : Source ID", "asterix.150_3_0_020_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4024, { "030 : Message Type", "asterix.150_3_0_030_uap_element", FT_UINT8, BASE_DEC, VALS(value_map_704), 0x0, NULL, HFILL } },
 { &expand_var_4025, { "040 : Plan Reference Number", "asterix.150_3_0_040_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -13172,32 +13172,32 @@ static hf_register_info hf[] = {
 { &expand_var_4029, { "080 : Departure Aerodrome", "asterix.150_3_0_080_uap_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4030, { "090 : Destination Aerodrome", "asterix.150_3_0_090_uap_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4031, { "100 : Type Flags", "asterix.150_3_0_100_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4032, { "GAT : General Air Traffic", "asterix.150_3_0_100_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4033, { "OAT : Operational Air Traffic", "asterix.150_3_0_100_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4034, { "CPL : Complete Flight Plan", "asterix.150_3_0_100_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4035, { "SPN : Short Flight Plan", "asterix.150_3_0_100_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4032, { "GAT : General Air Traffic", "asterix.150_3_0_100_uap_group_1271", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4033, { "OAT : Operational Air Traffic", "asterix.150_3_0_100_uap_group_1272", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4034, { "CPL : Complete Flight Plan", "asterix.150_3_0_100_uap_group_1273", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4035, { "SPN : Short Flight Plan", "asterix.150_3_0_100_uap_group_1274", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4036, { "110 : Status Flags", "asterix.150_3_0_110_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4037, { "HLD : Aircraft is in Hold State", "asterix.150_3_0_110_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4038, { "RVQ : Aircraft is RVSM Equipped", "asterix.150_3_0_110_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4039, { "RVC : Aircraft is RVSM Capable", "asterix.150_3_0_110_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4040, { "RVX : Aircraft is RVSM Exempted", "asterix.150_3_0_110_uap_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4037, { "HLD : Aircraft is in Hold State", "asterix.150_3_0_110_uap_group_1275", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4038, { "RVQ : Aircraft is RVSM Equipped", "asterix.150_3_0_110_uap_group_1276", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4039, { "RVC : Aircraft is RVSM Capable", "asterix.150_3_0_110_uap_group_1277", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4040, { "RVX : Aircraft is RVSM Exempted", "asterix.150_3_0_110_uap_group_1278", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4041, { "120 : Aircraft Type", "asterix.150_3_0_120_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4042, { "NOA : Number of Aircraft", "asterix.150_3_0_120_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4043, { "TOA : Type of Aircraft", "asterix.150_3_0_120_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4044, { "WT : Wake Turbulence", "asterix.150_3_0_120_uap_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4042, { "NOA : Number of Aircraft", "asterix.150_3_0_120_uap_group_1279", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4043, { "TOA : Type of Aircraft", "asterix.150_3_0_120_uap_group_1280", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4044, { "WT : Wake Turbulence", "asterix.150_3_0_120_uap_group_1281", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4045, { "130 : Cleared Flight Level", "asterix.150_3_0_130_uap_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4046, { "140 : Route Points, Description", "asterix.150_3_0_140_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4047, { "140 : Route Points, Description", "asterix.150_3_0_140_rep55_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4048, { "T : Route Point Type", "asterix.150_3_0_140_rep55_group", FT_UINT8, BASE_DEC, VALS(value_map_705), 0x0, NULL, HFILL } },
-{ &expand_var_4049, { "E : Route Point Description Element", "asterix.150_3_0_140_rep55_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4048, { "T : Route Point Type", "asterix.150_3_0_140_rep55_group_1282", FT_UINT8, BASE_DEC, VALS(value_map_705), 0x0, NULL, HFILL } },
+{ &expand_var_4049, { "E : Route Point Description Element", "asterix.150_3_0_140_rep55_group_1283", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4050, { "150 : Route Points, Coordinates", "asterix.150_3_0_150_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4051, { "150 : Route Points, Coordinates", "asterix.150_3_0_150_rep56_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4052, { "X : X Co-ordinate [NM]", "asterix.150_3_0_150_rep56_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4053, { "Y : Y Co-ordinate [NM]", "asterix.150_3_0_150_rep56_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4052, { "X : X Co-ordinate [NM]", "asterix.150_3_0_150_rep56_group_1284", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4053, { "Y : Y Co-ordinate [NM]", "asterix.150_3_0_150_rep56_group_1285", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4054, { "160 : Route Points, Time", "asterix.150_3_0_160_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4055, { "160 : Route Points, Time", "asterix.150_3_0_160_rep57_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4056, { "HH : Hours", "asterix.150_3_0_160_rep57_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4057, { "MM : Minutes", "asterix.150_3_0_160_rep57_group", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4056, { "HH : Hours", "asterix.150_3_0_160_rep57_group_1286", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4057, { "MM : Minutes", "asterix.150_3_0_160_rep57_group_1287", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4058, { "170 : Route Points, Flight Level", "asterix.150_3_0_170_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4059, { "170 : Route Points, Flight Level", "asterix.150_3_0_170_rep58_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4060, { "180 : Route Points, Speed", "asterix.150_3_0_180_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -13210,13 +13210,13 @@ static hf_register_info hf[] = {
 { &expand_var_4067, { "230 : Number of Plans", "asterix.150_3_0_230_uap_element", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4068, { "240 : Newly Correlated Plans", "asterix.150_3_0_240_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4069, { "240 : Newly Correlated Plans", "asterix.150_3_0_240_rep61_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4070, { "PLAN : Plan Number", "asterix.150_3_0_240_rep61_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4071, { "TRACK : Track Number", "asterix.150_3_0_240_rep61_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4070, { "PLAN : Plan Number", "asterix.150_3_0_240_rep61_group_1288", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4071, { "TRACK : Track Number", "asterix.150_3_0_240_rep61_group_1289", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4072, { "250 : Newly De-correlated Plans", "asterix.150_3_0_250_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4073, { "251 : Tracks in Conflict", "asterix.150_3_0_251_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4074, { "251 : Tracks in Conflict", "asterix.150_3_0_251_rep62_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4075, { "TRACK1 : Track Number 1", "asterix.150_3_0_251_rep62_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4076, { "TRACK2 : Track Number 2", "asterix.150_3_0_251_rep62_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4075, { "TRACK1 : Track Number 1", "asterix.150_3_0_251_rep62_group_1290", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4076, { "TRACK2 : Track Number 2", "asterix.150_3_0_251_rep62_group_1291", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4077, { "171 : Route Points, Requested Flight Level", "asterix.150_3_0_171_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4078, { "151 : Route Points, Geographic Position", "asterix.150_3_0_151_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4079, { "151 : Route Points, Geographic Position", "asterix.150_3_0_151_rep63_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -13227,11 +13227,11 @@ static hf_register_info hf[] = {
 { &expand_var_4084, { "040 : Report Number", "asterix.205_1_0_040_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4085, { "090 : Radio Channel Name", "asterix.205_1_0_090_uap_element", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4086, { "050 : Position in WGS-84 Coordinates", "asterix.205_1_0_050_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4087, { "LAT : Latitude in WGS-84 [°]", "asterix.205_1_0_050_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4088, { "LON : Longitude in WGS-84 [°]", "asterix.205_1_0_050_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4087, { "LAT : Latitude in WGS-84 [°]", "asterix.205_1_0_050_uap_group_1292", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4088, { "LON : Longitude in WGS-84 [°]", "asterix.205_1_0_050_uap_group_1293", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4089, { "060 : Position in Cartesian Coordinates", "asterix.205_1_0_060_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4090, { "X : X-coordinate [m]", "asterix.205_1_0_060_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4091, { "Y : Y-coordinate [m]", "asterix.205_1_0_060_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4090, { "X : X-coordinate [m]", "asterix.205_1_0_060_uap_group_1294", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4091, { "Y : Y-coordinate [m]", "asterix.205_1_0_060_uap_group_1295", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4092, { "070 : Local Bearing [°]", "asterix.205_1_0_070_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4093, { "080 : System Bearing [°]", "asterix.205_1_0_080_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4094, { "100 : Quality of Measurement", "asterix.205_1_0_100_uap_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -13252,21 +13252,21 @@ static hf_register_info hf[] = {
 { &expand_var_4109, { "020 : Video Record Header", "asterix.240_1_3_020_uap_element", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4110, { "030 : Video Summary", "asterix.240_1_3_030_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4111, { "040 : Video Header Nano", "asterix.240_1_3_040_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4112, { "STARTAZ : Start Azimuth of the Cells Group [°]", "asterix.240_1_3_040_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4113, { "ENDAZ : End Azimuth of the Cells Group [°]", "asterix.240_1_3_040_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4114, { "STARTRG : Starting Range of the Cells Group, Expressed in Number of Cells", "asterix.240_1_3_040_uap_group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4115, { "CELLDUR : Video Cell Duration in Nano-seconds [ns]", "asterix.240_1_3_040_uap_group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4112, { "STARTAZ : Start Azimuth of the Cells Group [°]", "asterix.240_1_3_040_uap_group_1296", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4113, { "ENDAZ : End Azimuth of the Cells Group [°]", "asterix.240_1_3_040_uap_group_1297", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4114, { "STARTRG : Starting Range of the Cells Group, Expressed in Number of Cells", "asterix.240_1_3_040_uap_group_1298", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4115, { "CELLDUR : Video Cell Duration in Nano-seconds [ns]", "asterix.240_1_3_040_uap_group_1299", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4116, { "041 : Video Header Femto", "asterix.240_1_3_041_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4117, { "STARTAZ : Start Azimuth of the Cells Group [°]", "asterix.240_1_3_041_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4118, { "ENDAZ : End Azimuth of the Cells Group [°]", "asterix.240_1_3_041_uap_group", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4119, { "STARTRG : Starting Range of the Cells Group, Expressed in Number of Cells", "asterix.240_1_3_041_uap_group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4120, { "CELLDUR : Video Cell Duration in Femto-seconds [fs]", "asterix.240_1_3_041_uap_group", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4117, { "STARTAZ : Start Azimuth of the Cells Group [°]", "asterix.240_1_3_041_uap_group_1296", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4118, { "ENDAZ : End Azimuth of the Cells Group [°]", "asterix.240_1_3_041_uap_group_1297", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4119, { "STARTRG : Starting Range of the Cells Group, Expressed in Number of Cells", "asterix.240_1_3_041_uap_group_1298", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4120, { "CELLDUR : Video Cell Duration in Femto-seconds [fs]", "asterix.240_1_3_041_uap_group_1300", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4121, { "048 : Video Cells Resolution & Data Compression Indicator", "asterix.240_1_3_048_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4122, { "C : Data Compression Indicator", "asterix.240_1_3_048_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_712), 0x0, NULL, HFILL } },
-{ &expand_var_4123, { "RES : Bit Resolution", "asterix.240_1_3_048_uap_group", FT_UINT8, BASE_DEC, VALS(value_map_713), 0x0, NULL, HFILL } },
+{ &expand_var_4122, { "C : Data Compression Indicator", "asterix.240_1_3_048_uap_group_1301", FT_UINT8, BASE_DEC, VALS(value_map_712), 0x0, NULL, HFILL } },
+{ &expand_var_4123, { "RES : Bit Resolution", "asterix.240_1_3_048_uap_group_1302", FT_UINT8, BASE_DEC, VALS(value_map_713), 0x0, NULL, HFILL } },
 { &expand_var_4124, { "049 : Video Octets & Video Cells Counters", "asterix.240_1_3_049_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4125, { "NBVB : Number of 'valid' Octets", "asterix.240_1_3_049_uap_group", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4126, { "NBCELLS : Number of 'valid' Cells", "asterix.240_1_3_049_uap_group", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4125, { "NBVB : Number of 'valid' Octets", "asterix.240_1_3_049_uap_group_1303", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4126, { "NBCELLS : Number of 'valid' Cells", "asterix.240_1_3_049_uap_group_1304", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4127, { "050 : Video Block Low Data Volume", "asterix.240_1_3_050_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4128, { "050 : Video Block Low Data Volume", "asterix.240_1_3_050_rep65_element", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4129, { "051 : Video Block Medium Data Volume", "asterix.240_1_3_051_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -13281,9 +13281,9 @@ static hf_register_info hf[] = {
 { &expand_var_4138, { "140 : Time of Day [s]", "asterix.247_1_2_140_uap_element", FT_DOUBLE, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4139, { "550 : Category Version Number Report", "asterix.247_1_2_550_uap_repetitive", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4140, { "550 : Category Version Number Report", "asterix.247_1_2_550_rep68_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4141, { "CAT : Category", "asterix.247_1_2_550_rep68_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4142, { "MAIN : Main Version Number", "asterix.247_1_2_550_rep68_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-{ &expand_var_4143, { "SUB : Sub Version Number", "asterix.247_1_2_550_rep68_group", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4141, { "CAT : Category", "asterix.247_1_2_550_rep68_group_1305", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4142, { "MAIN : Main Version Number", "asterix.247_1_2_550_rep68_group_1306", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+{ &expand_var_4143, { "SUB : Sub Version Number", "asterix.247_1_2_550_rep68_group_1307", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4144, { "SP : Special Purpose Field", "asterix.247_1_2_SP_uap_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4145, { "RE : Reserved Expansion Field", "asterix.247_1_2_6_explicit", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_4146, { "010 : Data Source Identifier", "asterix.247_1_3_010_uap_group", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -23618,7 +23618,7 @@ static const ttt cat_21_ed_major_0_ed_minor_26_uap_table[] = {
   &dissect_cat_21_ed_major_0_ed_minor_26_datafield_33_uap, //RE
   &dissect_cat_21_ed_major_0_ed_minor_26_datafield_34_uap, //S
 };
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_0_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1788
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_0_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1094 expand_var_1788
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 2, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -23630,7 +23630,7 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_0_Uap(tvbuff_t *tvb, u
   proto_tree_add_double (tree_group_0, expand_var_1789, tvb, offset + 0, 2, value_expand_var_1789_d);
   return 2;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_1_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1790
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_1_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1098 expand_var_1790
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 2, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -23644,7 +23644,7 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_1_Uap(tvbuff_t *tvb, u
   proto_tree_add_double (tree_group_0, expand_var_1793, tvb, offset + 0, 2, value_expand_var_1793_d);
   return 2;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_2_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1794
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_2_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1103 expand_var_1794
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 1, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -23656,11 +23656,11 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_2_Uap(tvbuff_t *tvb, u
   check_spare_bits (tvb, (offset * 8) + 4, 4, spare_item_4);
   return 1;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_3_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1799
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_3_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1104 expand_var_1799
 {
   return dissect_cat_11_ed_major_1_ed_minor_2_datafield_2_uap(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_4_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1800
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_4_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1111 expand_var_1800
 {
   int offset_start = offset;
   proto_item *sub_tree = proto_tree_add_item (tree, expand_var, tvb, offset, 0, ENC_NA);
@@ -23691,7 +23691,7 @@ end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_5_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1809
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_5_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1114 expand_var_1809
 {
   int offset_start = offset;
   proto_item *sub_tree = proto_tree_add_item (tree, expand_var, tvb, offset, 0, ENC_NA);
@@ -23705,14 +23705,14 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_5_Uap(tvbuff_t *tvb, u
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_6_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1813
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_6_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1115 expand_var_1813
 {
   unsigned int value_expand_var = asterix_get_unsigned_value (tvb, offset + 0, 2);
   double value_expand_var_d = (double)value_expand_var * 0.0054931640625;
   proto_tree_add_double (tree, expand_var, tvb, offset + 0, 2, value_expand_var_d);
   return 2;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1124_compound_1124(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1815
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1124_compound_1124(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1143 expand_var_1815
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 1, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -23726,7 +23726,7 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1124_compound_1124(t
   proto_tree_add_bits_item(tree_group_0, expand_var_1823, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
   return 1;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1127_compound_1127(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1824
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1127_compound_1127(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1143 expand_var_1824
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 4, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -23742,7 +23742,7 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1127_compound_1127(t
   proto_tree_add_uint (tree_group_0, expand_var_1826, tvb, offset + 2, 2, value_expand_var_1826);
   return 4;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1130_compound_1130(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1827
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1130_compound_1130(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1143 expand_var_1827
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 2, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -23755,7 +23755,7 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1130_compound_1130(t
   print_octal_string (tvb, offset + 0, 4, 12, 2, tree_group_0, expand_var_1830);
   return 2;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1137_compound_1137(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1831
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1137_compound_1137(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1143 expand_var_1831
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 1, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -23769,7 +23769,7 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1137_compound_1137(t
   proto_tree_add_bits_item(tree_group_0, expand_var_1837, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
   return 1;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1139_compound_1139(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1838
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1139_compound_1139(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1143 expand_var_1838
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 1, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -23780,7 +23780,7 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1139_compound_1139(t
   proto_tree_add_uint (tree_group_0, expand_var_1839, tvb, offset + 0, 1, value_expand_var_1839);
   return 1;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1142_compound_1142(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1840
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1142_compound_1142(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1143 expand_var_1840
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 2, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -23793,7 +23793,7 @@ static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_1142_compound_1142(t
   print_octal_string (tvb, offset + 0, 4, 12, 2, tree_group_0, expand_var_1843);
   return 2;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1814
+static int dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1143 expand_var_1814
 {
   unsigned offset_start = offset;
   unsigned fspec_len = asterix_fspec_len (tvb, offset);
@@ -23867,24 +23867,24 @@ static int* cat_21_ed_major_1_ed_minor_4_uap_table_expansion_expand[] = {
   &expand_var_1814
 };
 static const ttt cat_21_ed_major_1_ed_minor_4_uap_table_expansion[] = {
-  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_0_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_1_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_2_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_3_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_4_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_5_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_6_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_Uap
+  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_0_re,
+  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_1_re,
+  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_2_re,
+  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_3_re,
+  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_4_re,
+  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_5_re,
+  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_6_re,
+  &dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_re
 };
-static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_0_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1844
+static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_0_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1094 expand_var_1844
 {
-  return dissect_cat_21_ed_major_1_ed_minor_4_datafield_0_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_21_ed_major_1_ed_minor_4_datafield_0_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_1_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1845
+static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_1_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1098 expand_var_1845
 {
-  return dissect_cat_21_ed_major_1_ed_minor_4_datafield_1_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_21_ed_major_1_ed_minor_4_datafield_1_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_2_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1846
+static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_2_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1147 expand_var_1846
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 1, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -23900,15 +23900,15 @@ static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_2_Uap(tvbuff_t *tvb, u
   check_spare_bits (tvb, (offset * 8) + 6, 2, spare_item_6);
   return 1;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_3_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1854
+static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_3_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1104 expand_var_1854
 {
   return dissect_cat_11_ed_major_1_ed_minor_2_datafield_2_uap(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_4_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1855
+static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_4_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1111 expand_var_1855
 {
-  return dissect_cat_21_ed_major_1_ed_minor_4_datafield_4_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_21_ed_major_1_ed_minor_4_datafield_4_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_5_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1856
+static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_5_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1182 expand_var_1856
 {
   int offset_start = offset;
   proto_item *sub_tree = proto_tree_add_item (tree, expand_var, tvb, offset, 0, ENC_NA);
@@ -23985,16 +23985,16 @@ end:
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_6_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1889
+static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_6_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1183 expand_var_1889
 {
   unsigned int value_expand_var = asterix_get_unsigned_value (tvb, offset + 0, 2);
   double value_expand_var_d = (double)value_expand_var * 0.0054931640625;
   proto_tree_add_double (tree, expand_var, tvb, offset + 0, 2, value_expand_var_d);
   return 2;
 }
-static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_7_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_1890
+static int dissect_cat_21_ed_major_1_ed_minor_5_datafield_7_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1143 expand_var_1890
 {
-  return dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_21_ed_major_1_ed_minor_4_datafield_7_re(tvb, offset, tree, expand_var);
 }
 static int* cat_21_ed_major_1_ed_minor_5_uap_table_expansion_expand[] = {
   &expand_var_1844,
@@ -24007,14 +24007,14 @@ static int* cat_21_ed_major_1_ed_minor_5_uap_table_expansion_expand[] = {
   &expand_var_1890
 };
 static const ttt cat_21_ed_major_1_ed_minor_5_uap_table_expansion[] = {
-  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_0_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_1_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_2_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_3_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_4_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_5_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_6_Uap,
-  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_7_Uap
+  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_0_re,
+  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_1_re,
+  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_2_re,
+  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_3_re,
+  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_4_re,
+  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_5_re,
+  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_6_re,
+  &dissect_cat_21_ed_major_1_ed_minor_5_datafield_7_re
 };
 static int dissect_cat_21_ed_major_2_ed_minor_1_datafield_0_uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //010 expand_var_1891
 {
@@ -28693,7 +28693,7 @@ static const ttt cat_34_ed_major_1_ed_minor_29_uap_table[] = {
   &dissect_cat_34_ed_major_1_ed_minor_29_datafield_12_uap, //RE
   &dissect_cat_34_ed_major_1_ed_minor_29_datafield_13_uap, //S
 };
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1514_compound_1514(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2681
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1514_compound_1514(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1532 expand_var_2681
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 1, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -28708,7 +28708,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1514_compound_1514(
   check_spare_bits (tvb, (offset * 8) + 7, 1, spare_item_7);
   return 1;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1518_compound_1518(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2689
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1518_compound_1518(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1532 expand_var_2689
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 4, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -28730,7 +28730,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1518_compound_1518(
   proto_tree_add_uint (tree_group_0, expand_var_2693, tvb, offset + 3, 1, value_expand_var_2693);
   return 4;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1521_compound_1521(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2694
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1521_compound_1521(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1532 expand_var_2694
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 6, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -28744,7 +28744,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1521_compound_1521(
   proto_tree_add_double (tree_group_0, expand_var_2696, tvb, offset + 3, 3, value_expand_var_2696_d);
   return 6;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1524_compound_1524(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2697
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1524_compound_1524(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1532 expand_var_2697
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 2, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -28758,7 +28758,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1524_compound_1524(
   proto_tree_add_double (tree_group_0, expand_var_2699, tvb, offset + 0, 2, value_expand_var_2699_d);
   return 2;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1527_compound_1527(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2700
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1527_compound_1527(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1532 expand_var_2700
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 2, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -28770,14 +28770,14 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1527_compound_1527(
   print_octal_string (tvb, offset + 0, 4, 12, 2, tree_group_0, expand_var_2704);
   return 2;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1528_compound_1528(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2705
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1528_compound_1528(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1532 expand_var_2705
 {
   unsigned int value_expand_var = asterix_get_unsigned_value (tvb, offset + 0, 1);
   double value_expand_var_d = (double)value_expand_var * 0.0078125;
   proto_tree_add_double (tree, expand_var, tvb, offset + 0, 1, value_expand_var_d);
   return 1;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1531_compound_1531(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2706
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1531_compound_1531(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1532 expand_var_2706
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 1, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -28791,7 +28791,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1531_compound_1531(
   proto_tree_add_bits_item(tree_group_0, expand_var_2712, tvb, (offset * 8) + 7, 1, ENC_BIG_ENDIAN);
   return 1;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2680
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1532 expand_var_2680
 {
   unsigned offset_start = offset;
   unsigned fspec_len = asterix_fspec_len (tvb, offset);
@@ -28862,11 +28862,11 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_Uap(tvbuff_t *tvb, 
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1514_compound_1514(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2714
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1514_compound_1514(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1538 expand_var_2714
 {
   return dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1514_compound_1514(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1535_compound_1535(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2715
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1535_compound_1535(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1538 expand_var_2715
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 4, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -28883,27 +28883,27 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1535_compound_1535(
   proto_tree_add_uint (tree_group_0, expand_var_2718, tvb, offset + 2, 2, value_expand_var_2718);
   return 4;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1521_compound_1521(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2719
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1521_compound_1521(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1538 expand_var_2719
 {
   return dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1521_compound_1521(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1524_compound_1524(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2720
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1524_compound_1524(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1538 expand_var_2720
 {
   return dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1524_compound_1524(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1527_compound_1527(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2721
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1527_compound_1527(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1538 expand_var_2721
 {
   return dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1527_compound_1527(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1528_compound_1528(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2722
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1528_compound_1528(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1538 expand_var_2722
 {
   return dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1528_compound_1528(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1531_compound_1531(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2723
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1531_compound_1531(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1538 expand_var_2723
 {
   return dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_1531_compound_1531(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1537_compound_1537(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2724
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1537_compound_1537(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1538 expand_var_2724
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 1, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -28914,7 +28914,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_1537_compound_1537(
   proto_tree_add_uint (tree_group_0, expand_var_2725, tvb, offset + 0, 1, value_expand_var_2725);
   return 1;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2713
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1538 expand_var_2713
 {
   unsigned offset_start = offset;
   unsigned fspec_len = asterix_fspec_len (tvb, offset);
@@ -28998,7 +28998,7 @@ end:
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_2_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2726
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_2_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1540 expand_var_2726
 {
   int offset_start = offset;
   proto_item *sub_tree = proto_tree_add_item (tree, expand_var, tvb, offset, 0, ENC_NA);
@@ -29011,29 +29011,29 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_2_Uap(tvbuff_t *tvb, 
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_1541_compound_1541(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2730
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_1541_compound_1541(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1545 expand_var_2730
 {
   return dissect_cat_21_ed_major_0_ed_minor_23_datafield_22_1083_compound_1083(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_1542_compound_1542(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2731
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_1542_compound_1542(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1545 expand_var_2731
 {
   unsigned int value_expand_var = asterix_get_unsigned_value (tvb, offset + 0, 2);
   double value_expand_var_d = (double)value_expand_var * 0.1;
   proto_tree_add_double (tree, expand_var, tvb, offset + 0, 2, value_expand_var_d);
   return 2;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_1543_compound_1543(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2732
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_1543_compound_1543(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1545 expand_var_2732
 {
   unsigned int value_expand_var = asterix_get_unsigned_value (tvb, offset + 0, 2);
   double value_expand_var_d = (double)value_expand_var * 0.00390625;
   proto_tree_add_double (tree, expand_var, tvb, offset + 0, 2, value_expand_var_d);
   return 2;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_1544_compound_1544(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2733
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_1544_compound_1544(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1545 expand_var_2733
 {
   return dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_1543_compound_1543(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2729
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1545 expand_var_2729
 {
   unsigned offset_start = offset;
   unsigned fspec_len = asterix_fspec_len (tvb, offset);
@@ -29080,14 +29080,14 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_Uap(tvbuff_t *tvb, 
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_4_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2734
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_4_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1546 expand_var_2734
 {
   unsigned int value_expand_var = asterix_get_unsigned_value (tvb, offset + 0, 3);
   double value_expand_var_d = (double)value_expand_var * 0.00390625;
   proto_tree_add_double (tree, expand_var, tvb, offset + 0, 3, value_expand_var_d);
   return 3;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1553_compound_1553(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2736
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1553_compound_1553(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2736
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 3, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29102,11 +29102,11 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1553_compound_1553(
   proto_tree_add_uint (tree_group_0, expand_var_2742, tvb, offset + 1, 2, value_expand_var_2742);
   return 3;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_rep40(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2744
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_rep40(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2744
 {
   return dissect_cat_4_ed_major_1_ed_minor_12_datafield_4_uap(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1554_compound_1554(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2743
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1554_compound_1554(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2743
 {
   int fun_len;
   unsigned offset_start = offset;
@@ -29126,13 +29126,13 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1554_compound_1554(
   proto_item_set_len(item, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1555_compound_1555(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2745
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1555_compound_1555(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2745
 {
   unsigned int value_expand_var = asterix_get_unsigned_value (tvb, offset + 0, 1);
   proto_tree_add_uint (tree, expand_var, tvb, offset + 0, 1, value_expand_var);
   return 1;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1567_compound_1567(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2746
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1567_compound_1567(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2746
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 22, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29171,7 +29171,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1567_compound_1567(
   proto_tree_add_double (tree_group_0, expand_var_2757, tvb, offset + 20, 2, value_expand_var_2757_d);
   return 22;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_rep41(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2759
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_rep41(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2759
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 1, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29180,7 +29180,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_rep41(tvbuff_t *tvb
   proto_tree_add_bits_item(tree_group_0, expand_var_2762, tvb, (offset * 8) + 6, 2, ENC_BIG_ENDIAN);
   return 1;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1571_compound_1571(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2758
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1571_compound_1571(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2758
 {
   int fun_len;
   unsigned offset_start = offset;
@@ -29200,7 +29200,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1571_compound_1571(
   proto_item_set_len(item, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1574_compound_1574(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2763
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1574_compound_1574(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2763
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 2, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29210,7 +29210,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1574_compound_1574(
   proto_tree_add_uint (tree_group_0, expand_var_2765, tvb, offset + 0, 2, value_expand_var_2765);
   return 2;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1581_compound_1581(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2766
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1581_compound_1581(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2766
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 6, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29233,7 +29233,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1581_compound_1581(
   print_octal_string (tvb, offset + 4, 4, 12, 2, tree_group_0, expand_var_2772);
   return 6;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1585_compound_1585(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2773
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1585_compound_1585(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2773
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 4, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29245,7 +29245,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1585_compound_1585(
   proto_tree_add_uint (tree_group_0, expand_var_2776, tvb, offset + 2, 2, value_expand_var_2776);
   return 4;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_rep42(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2778
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_rep42(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2778
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 7, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29262,7 +29262,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_rep42(tvbuff_t *tvb
   proto_tree_add_uint (tree_group_0, expand_var_2784, tvb, offset + 5, 2, value_expand_var_2784);
   return 7;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1592_compound_1592(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2777
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1592_compound_1592(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2777
 {
   int fun_len;
   unsigned offset_start = offset;
@@ -29282,12 +29282,12 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1592_compound_1592(
   proto_item_set_len(item, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1593_compound_1593(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2785
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1593_compound_1593(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2785
 {
   proto_tree_add_item(tree, expand_var, tvb, offset, 1, ENC_BIG_ENDIAN);
   return 1;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1596_compound_1596(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2786
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1596_compound_1596(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2786
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 1, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29297,7 +29297,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_1596_compound_1596(
   proto_tree_add_uint (tree_group_0, expand_var_2788, tvb, offset + 0, 1, value_expand_var_2788);
   return 1;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2735
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2735
 {
   unsigned offset_start = offset;
   unsigned fspec_len = asterix_fspec_len (tvb, offset);
@@ -29405,11 +29405,11 @@ end:
   proto_item_set_len(ti, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_1598_compound_1598(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2790
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_1598_compound_1598(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1612 expand_var_2790
 {
   return dissect_cat_4_ed_major_1_ed_minor_12_datafield_4_uap(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_rep43(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2792
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_rep43(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1612 expand_var_2792
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 3, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29418,7 +29418,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_rep43(tvbuff_t *tvb
   proto_tree_add_uint (tree_group_0, expand_var_2794, tvb, offset + 1, 2, value_expand_var_2794);
   return 3;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_1601_compound_1601(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2791
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_1601_compound_1601(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1612 expand_var_2791
 {
   int fun_len;
   unsigned offset_start = offset;
@@ -29438,11 +29438,11 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_1601_compound_1601(
   proto_item_set_len(item, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_1602_compound_1602(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2795
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_1602_compound_1602(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1612 expand_var_2795
 {
   return dissect_cat_21_ed_major_0_ed_minor_23_datafield_22_1083_compound_1083(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_1611_compound_1611(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2796
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_1611_compound_1611(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1612 expand_var_2796
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 4, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29472,7 +29472,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_1611_compound_1611(
   proto_tree_add_uint (tree_group_0, expand_var_2804, tvb, offset + 3, 1, value_expand_var_2804);
   return 4;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2789
+static int dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1612 expand_var_2789
 {
   unsigned offset_start = offset;
   unsigned fspec_len = asterix_fspec_len (tvb, offset);
@@ -29529,43 +29529,43 @@ static int* cat_48_ed_major_1_ed_minor_11_uap_table_expansion_expand[] = {
   &expand_var_2789
 };
 static const ttt cat_48_ed_major_1_ed_minor_11_uap_table_expansion[] = {
-  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_2_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_4_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_Uap
+  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_re,
+  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_re,
+  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_2_re,
+  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_re,
+  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_4_re,
+  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_re,
+  &dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_re
 };
-static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_0_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2805
+static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_0_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1532 expand_var_2805
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_1_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2806
+static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_1_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1538 expand_var_2806
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_2_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2807
+static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_2_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1540 expand_var_2807
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_2_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_2_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_3_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2808
+static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_3_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1545 expand_var_2808
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_4_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2809
+static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_4_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1546 expand_var_2809
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_4_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_4_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_5_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2810
+static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_5_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2810
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_6_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2811
+static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_6_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1612 expand_var_2811
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_1615_compound_1615(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2813
+static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_1615_compound_1615(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1621 expand_var_2813
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 2, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29577,7 +29577,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_1615_compound_1615(
   print_octal_string (tvb, offset + 0, 4, 12, 2, tree_group_0, expand_var_2817);
   return 2;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_1618_compound_1618(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2818
+static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_1618_compound_1618(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1621 expand_var_2818
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 2, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29589,7 +29589,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_1618_compound_1618(
   print_octal_string (tvb, offset + 0, 4, 12, 2, tree_group_0, expand_var_2822);
   return 2;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_1620_compound_1620(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2823
+static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_1620_compound_1620(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1621 expand_var_2823
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 2, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29602,7 +29602,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_1620_compound_1620(
   proto_tree_add_double (tree_group_0, expand_var_2826, tvb, offset + 0, 2, value_expand_var_2826_d);
   return 2;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2812
+static int dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1621 expand_var_2812
 {
   unsigned offset_start = offset;
   unsigned fspec_len = asterix_fspec_len (tvb, offset);
@@ -29652,56 +29652,56 @@ static int* cat_48_ed_major_1_ed_minor_12_uap_table_expansion_expand[] = {
   &expand_var_2812
 };
 static const ttt cat_48_ed_major_1_ed_minor_12_uap_table_expansion[] = {
-  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_0_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_1_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_2_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_3_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_4_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_5_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_6_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_Uap
+  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_0_re,
+  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_1_re,
+  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_2_re,
+  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_3_re,
+  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_4_re,
+  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_5_re,
+  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_6_re,
+  &dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_re
 };
-static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_0_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2827
+static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_0_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1532 expand_var_2827
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_0_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_1_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2828
+static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_1_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1538 expand_var_2828
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_1_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_2_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2829
+static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_2_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1540 expand_var_2829
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_2_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_2_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_3_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2830
+static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_3_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1545 expand_var_2830
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_3_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_4_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2831
+static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_4_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1546 expand_var_2831
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_4_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_4_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_5_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2832
+static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_5_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1597 expand_var_2832
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_5_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_6_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2833
+static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_6_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1612 expand_var_2833
 {
-  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_48_ed_major_1_ed_minor_11_datafield_6_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_1615_compound_1615(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2835
+static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_1615_compound_1615(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1626 expand_var_2835
 {
   return dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_1615_compound_1615(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_1618_compound_1618(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2836
+static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_1618_compound_1618(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1626 expand_var_2836
 {
   return dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_1618_compound_1618(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_1620_compound_1620(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2837
+static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_1620_compound_1620(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1626 expand_var_2837
 {
   return dissect_cat_48_ed_major_1_ed_minor_12_datafield_7_1620_compound_1620(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_1623_compound_1623(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2838
+static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_1623_compound_1623(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1626 expand_var_2838
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 2, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29714,7 +29714,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_1623_compound_1623(
   proto_tree_add_double (tree_group_0, expand_var_2839, tvb, offset + 0, 2, value_expand_var_2839_d);
   return 2;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_1625_compound_1625(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2840
+static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_1625_compound_1625(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1626 expand_var_2840
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 4, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -29726,7 +29726,7 @@ static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_1625_compound_1625(
   proto_tree_add_double (tree_group_0, expand_var_2841, tvb, offset + 0, 4, value_expand_var_2841_d);
   return 4;
 }
-static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_2834
+static int dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1626 expand_var_2834
 {
   unsigned offset_start = offset;
   unsigned fspec_len = asterix_fspec_len (tvb, offset);
@@ -29792,14 +29792,14 @@ static int* cat_48_ed_major_1_ed_minor_13_uap_table_expansion_expand[] = {
   &expand_var_2834
 };
 static const ttt cat_48_ed_major_1_ed_minor_13_uap_table_expansion[] = {
-  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_0_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_1_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_2_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_3_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_4_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_5_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_6_Uap,
-  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_Uap
+  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_0_re,
+  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_1_re,
+  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_2_re,
+  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_3_re,
+  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_4_re,
+  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_5_re,
+  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_6_re,
+  &dissect_cat_48_ed_major_1_ed_minor_13_datafield_7_re
 };
 static int dissect_cat_48_ed_major_1_ed_minor_27_datafield_0_uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //010 expand_var_2842
 {
@@ -31418,7 +31418,7 @@ static const ttt cat_48_ed_major_1_ed_minor_32_uap_table[] = {
   &dissect_cat_48_ed_major_1_ed_minor_32_datafield_26_uap, //SP
   &dissect_cat_48_ed_major_1_ed_minor_32_datafield_27_uap, //R
 };
-static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_0_rep50(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3152
+static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_0_rep50(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1740 expand_var_3152
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 5, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -31433,7 +31433,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_0_rep50(tvbuff_t *tvb,
   proto_tree_add_uint (tree_group_0, expand_var_3156, tvb, offset + 3, 2, value_expand_var_3156);
   return 5;
 }
-static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_0_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3151
+static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_0_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1740 expand_var_3151
 {
   int fun_len;
   unsigned offset_start = offset;
@@ -31453,7 +31453,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_0_Uap(tvbuff_t *tvb, u
   proto_item_set_len(item, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_1_rep51(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3158
+static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_1_rep51(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1741 expand_var_3158
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 3, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -31466,7 +31466,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_1_rep51(tvbuff_t *tvb,
   proto_tree_add_bits_item(tree_group_0, expand_var_3161, tvb, (offset * 8) + 20, 4, ENC_BIG_ENDIAN);
   return 3;
 }
-static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_1_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3157
+static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_1_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1741 expand_var_3157
 {
   int fun_len;
   unsigned offset_start = offset;
@@ -31486,7 +31486,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_1_Uap(tvbuff_t *tvb, u
   proto_item_set_len(item, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_2_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3162
+static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_2_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1744 expand_var_3162
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 4, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -31500,7 +31500,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_2_Uap(tvbuff_t *tvb, u
   proto_tree_add_double (tree_group_0, expand_var_3164, tvb, offset + 2, 2, value_expand_var_3164_d);
   return 4;
 }
-static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_3_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3165
+static int dissect_cat_62_ed_major_1_ed_minor_2_datafield_3_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1746 expand_var_3165
 {
   int offset_start = offset;
   proto_item *sub_tree = proto_tree_add_item (tree, expand_var, tvb, offset, 0, ENC_NA);
@@ -31520,24 +31520,24 @@ static int* cat_62_ed_major_1_ed_minor_2_uap_table_expansion_expand[] = {
   &expand_var_3165
 };
 static const ttt cat_62_ed_major_1_ed_minor_2_uap_table_expansion[] = {
-  &dissect_cat_62_ed_major_1_ed_minor_2_datafield_0_Uap,
-  &dissect_cat_62_ed_major_1_ed_minor_2_datafield_1_Uap,
-  &dissect_cat_62_ed_major_1_ed_minor_2_datafield_2_Uap,
-  &dissect_cat_62_ed_major_1_ed_minor_2_datafield_3_Uap
+  &dissect_cat_62_ed_major_1_ed_minor_2_datafield_0_re,
+  &dissect_cat_62_ed_major_1_ed_minor_2_datafield_1_re,
+  &dissect_cat_62_ed_major_1_ed_minor_2_datafield_2_re,
+  &dissect_cat_62_ed_major_1_ed_minor_2_datafield_3_re
 };
-static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_0_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3168
+static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_0_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1740 expand_var_3168
 {
-  return dissect_cat_62_ed_major_1_ed_minor_2_datafield_0_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_62_ed_major_1_ed_minor_2_datafield_0_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_1_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3169
+static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_1_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1741 expand_var_3169
 {
-  return dissect_cat_62_ed_major_1_ed_minor_2_datafield_1_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_62_ed_major_1_ed_minor_2_datafield_1_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_2_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3170
+static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_2_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1744 expand_var_3170
 {
-  return dissect_cat_62_ed_major_1_ed_minor_2_datafield_2_Uap(tvb, offset, tree, expand_var);
+  return dissect_cat_62_ed_major_1_ed_minor_2_datafield_2_re(tvb, offset, tree, expand_var);
 }
-static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_3_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3171
+static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_3_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1750 expand_var_3171
 {
   int offset_start = offset;
   proto_item *sub_tree = proto_tree_add_item (tree, expand_var, tvb, offset, 0, ENC_NA);
@@ -31552,7 +31552,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_3_Uap(tvbuff_t *tvb, u
   proto_item_set_len(sub_tree, offset - offset_start);
   return offset - offset_start;
 }
-static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_1753_compound_1753(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3177
+static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_1753_compound_1753(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1778 expand_var_3177
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 1, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -31562,7 +31562,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_1753_compound_1753(t
   check_spare_bits (tvb, (offset * 8) + 4, 4, spare_item_4);
   return 1;
 }
-static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_1765_compound_1765(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3180
+static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_1765_compound_1765(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1778 expand_var_3180
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 3, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -31594,7 +31594,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_1765_compound_1765(t
   check_spare_bits (tvb, (offset * 8) + 19, 5, spare_item_19);
   return 3;
 }
-static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_1772_compound_1772(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3197
+static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_1772_compound_1772(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1778 expand_var_3197
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 1, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -31614,7 +31614,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_1772_compound_1772(t
   check_spare_bits (tvb, (offset * 8) + 7, 1, spare_item_7);
   return 1;
 }
-static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_1777_compound_1777(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3207
+static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_1777_compound_1777(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1778 expand_var_3207
 {
   proto_item *tree_group_item_0 = proto_tree_add_item (tree, expand_var, tvb, offset + 0, 1, ENC_NA);
   proto_tree *tree_group_0 = proto_item_add_subtree (tree_group_item_0, ett_asterix_subtree);
@@ -31630,7 +31630,7 @@ static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_1777_compound_1777(t
   check_spare_bits (tvb, (offset * 8) + 7, 1, spare_item_7);
   return 1;
 }
-static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_Uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //0 expand_var_3176
+static int dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_re(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //1778 expand_var_3176
 {
   unsigned offset_start = offset;
   unsigned fspec_len = asterix_fspec_len (tvb, offset);
@@ -31685,11 +31685,11 @@ static int* cat_62_ed_major_1_ed_minor_3_uap_table_expansion_expand[] = {
   &expand_var_3176
 };
 static const ttt cat_62_ed_major_1_ed_minor_3_uap_table_expansion[] = {
-  &dissect_cat_62_ed_major_1_ed_minor_3_datafield_0_Uap,
-  &dissect_cat_62_ed_major_1_ed_minor_3_datafield_1_Uap,
-  &dissect_cat_62_ed_major_1_ed_minor_3_datafield_2_Uap,
-  &dissect_cat_62_ed_major_1_ed_minor_3_datafield_3_Uap,
-  &dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_Uap
+  &dissect_cat_62_ed_major_1_ed_minor_3_datafield_0_re,
+  &dissect_cat_62_ed_major_1_ed_minor_3_datafield_1_re,
+  &dissect_cat_62_ed_major_1_ed_minor_3_datafield_2_re,
+  &dissect_cat_62_ed_major_1_ed_minor_3_datafield_3_re,
+  &dissect_cat_62_ed_major_1_ed_minor_3_datafield_4_re
 };
 static int dissect_cat_62_ed_major_1_ed_minor_16_datafield_0_uap(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int expand_var) //010 expand_var_3214
 {
@@ -38550,483 +38550,483 @@ static void get_category_uap_table(unsigned int cat, int ed, int uap, table_para
 {
   if (cat == 1 && ed == value_1_1_2 && uap == uap_1_1_2_plot)
   {
-    table->table_size = 20;
+    table->table_size = 21;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "plot");
     table->table_pointer = cat_1_ed_major_1_ed_minor_2_plot_table;
     table->table_pointer_expand = cat_1_ed_major_1_ed_minor_2_plot_table_expand;
   }
   else if (cat == 1 && ed == value_1_1_2 && uap == uap_1_1_2_track)
   {
-    table->table_size = 21;
+    table->table_size = 22;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "track");
     table->table_pointer = cat_1_ed_major_1_ed_minor_2_track_table;
     table->table_pointer_expand = cat_1_ed_major_1_ed_minor_2_track_table_expand;
   }
   else if (cat == 1 && ed == value_1_1_3 && uap == uap_1_1_3_plot)
   {
-    table->table_size = 20;
+    table->table_size = 21;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "plot");
     table->table_pointer = cat_1_ed_major_1_ed_minor_3_plot_table;
     table->table_pointer_expand = cat_1_ed_major_1_ed_minor_3_plot_table_expand;
   }
   else if (cat == 1 && ed == value_1_1_3 && uap == uap_1_1_3_track)
   {
-    table->table_size = 21;
+    table->table_size = 22;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "track");
     table->table_pointer = cat_1_ed_major_1_ed_minor_3_track_table;
     table->table_pointer_expand = cat_1_ed_major_1_ed_minor_3_track_table_expand;
   }
   else if (cat == 1 && ed == value_1_1_4 && uap == uap_1_1_4_plot)
   {
-    table->table_size = 20;
+    table->table_size = 21;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "plot");
     table->table_pointer = cat_1_ed_major_1_ed_minor_4_plot_table;
     table->table_pointer_expand = cat_1_ed_major_1_ed_minor_4_plot_table_expand;
   }
   else if (cat == 1 && ed == value_1_1_4 && uap == uap_1_1_4_track)
   {
-    table->table_size = 21;
+    table->table_size = 22;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "track");
     table->table_pointer = cat_1_ed_major_1_ed_minor_4_track_table;
     table->table_pointer_expand = cat_1_ed_major_1_ed_minor_4_track_table_expand;
   }
   else if (cat == 2 && ed == value_2_1_0 && uap == uap_2_1_0_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_2_ed_major_1_ed_minor_0_uap_table;
     table->table_pointer_expand = cat_2_ed_major_1_ed_minor_0_uap_table_expand;
   }
   else if (cat == 2 && ed == value_2_1_1 && uap == uap_2_1_1_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_2_ed_major_1_ed_minor_1_uap_table;
     table->table_pointer_expand = cat_2_ed_major_1_ed_minor_1_uap_table_expand;
   }
   else if (cat == 2 && ed == value_2_1_2 && uap == uap_2_1_2_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_2_ed_major_1_ed_minor_2_uap_table;
     table->table_pointer_expand = cat_2_ed_major_1_ed_minor_2_uap_table_expand;
   }
   else if (cat == 4 && ed == value_4_1_12 && uap == uap_4_1_12_uap)
   {
-    table->table_size = 20;
+    table->table_size = 21;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_4_ed_major_1_ed_minor_12_uap_table;
     table->table_pointer_expand = cat_4_ed_major_1_ed_minor_12_uap_table_expand;
   }
   else if (cat == 4 && ed == value_4_1_13 && uap == uap_4_1_13_uap)
   {
-    table->table_size = 20;
+    table->table_size = 21;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_4_ed_major_1_ed_minor_13_uap_table;
     table->table_pointer_expand = cat_4_ed_major_1_ed_minor_13_uap_table_expand;
   }
   else if (cat == 8 && ed == value_8_1_2 && uap == uap_8_1_2_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_8_ed_major_1_ed_minor_2_uap_table;
     table->table_pointer_expand = cat_8_ed_major_1_ed_minor_2_uap_table_expand;
   }
   else if (cat == 8 && ed == value_8_1_3 && uap == uap_8_1_3_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_8_ed_major_1_ed_minor_3_uap_table;
     table->table_pointer_expand = cat_8_ed_major_1_ed_minor_3_uap_table_expand;
   }
   else if (cat == 9 && ed == value_9_2_1 && uap == uap_9_2_1_uap)
   {
-    table->table_size = 8;
+    table->table_size = 9;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_9_ed_major_2_ed_minor_1_uap_table;
     table->table_pointer_expand = cat_9_ed_major_2_ed_minor_1_uap_table_expand;
   }
   else if (cat == 10 && ed == value_10_1_1 && uap == uap_10_1_1_uap)
   {
-    table->table_size = 27;
+    table->table_size = 28;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_10_ed_major_1_ed_minor_1_uap_table;
     table->table_pointer_expand = cat_10_ed_major_1_ed_minor_1_uap_table_expand;
   }
   else if (cat == 11 && ed == value_11_1_2 && uap == uap_11_1_2_uap)
   {
-    table->table_size = 28;
+    table->table_size = 29;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_11_ed_major_1_ed_minor_2_uap_table;
     table->table_pointer_expand = cat_11_ed_major_1_ed_minor_2_uap_table_expand;
   }
   else if (cat == 11 && ed == value_11_1_3 && uap == uap_11_1_3_uap)
   {
-    table->table_size = 28;
+    table->table_size = 29;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_11_ed_major_1_ed_minor_3_uap_table;
     table->table_pointer_expand = cat_11_ed_major_1_ed_minor_3_uap_table_expand;
   }
   else if (cat == 15 && ed == value_15_1_0 && uap == uap_15_1_0_uap)
   {
-    table->table_size = 25;
+    table->table_size = 26;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_15_ed_major_1_ed_minor_0_uap_table;
     table->table_pointer_expand = cat_15_ed_major_1_ed_minor_0_uap_table_expand;
   }
   else if (cat == 15 && ed == value_15_1_1 && uap == uap_15_1_1_uap)
   {
-    table->table_size = 25;
+    table->table_size = 26;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_15_ed_major_1_ed_minor_1_uap_table;
     table->table_pointer_expand = cat_15_ed_major_1_ed_minor_1_uap_table_expand;
   }
   else if (cat == 15 && ed == value_15_1_2 && uap == uap_15_1_2_uap)
   {
-    table->table_size = 25;
+    table->table_size = 26;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_15_ed_major_1_ed_minor_2_uap_table;
     table->table_pointer_expand = cat_15_ed_major_1_ed_minor_2_uap_table_expand;
   }
   else if (cat == 16 && ed == value_16_1_0 && uap == uap_16_1_0_uap)
   {
-    table->table_size = 10;
+    table->table_size = 11;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_16_ed_major_1_ed_minor_0_uap_table;
     table->table_pointer_expand = cat_16_ed_major_1_ed_minor_0_uap_table_expand;
   }
   else if (cat == 17 && ed == value_17_1_3 && uap == uap_17_1_3_uap)
   {
-    table->table_size = 20;
+    table->table_size = 21;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_17_ed_major_1_ed_minor_3_uap_table;
     table->table_pointer_expand = cat_17_ed_major_1_ed_minor_3_uap_table_expand;
   }
   else if (cat == 18 && ed == value_18_1_7 && uap == uap_18_1_7_uap)
   {
-    table->table_size = 34;
+    table->table_size = 35;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_18_ed_major_1_ed_minor_7_uap_table;
     table->table_pointer_expand = cat_18_ed_major_1_ed_minor_7_uap_table_expand;
   }
   else if (cat == 18 && ed == value_18_1_8 && uap == uap_18_1_8_uap)
   {
-    table->table_size = 34;
+    table->table_size = 35;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_18_ed_major_1_ed_minor_8_uap_table;
     table->table_pointer_expand = cat_18_ed_major_1_ed_minor_8_uap_table_expand;
   }
   else if (cat == 19 && ed == value_19_1_3 && uap == uap_19_1_3_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_19_ed_major_1_ed_minor_3_uap_table;
     table->table_pointer_expand = cat_19_ed_major_1_ed_minor_3_uap_table_expand;
   }
   else if (cat == 20 && ed == value_20_1_9 && uap == uap_20_1_9_uap)
   {
-    table->table_size = 27;
+    table->table_size = 28;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_20_ed_major_1_ed_minor_9_uap_table;
     table->table_pointer_expand = cat_20_ed_major_1_ed_minor_9_uap_table_expand;
   }
   else if (cat == 20 && ed == value_20_1_10 && uap == uap_20_1_10_uap)
   {
-    table->table_size = 27;
+    table->table_size = 28;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_20_ed_major_1_ed_minor_10_uap_table;
     table->table_pointer_expand = cat_20_ed_major_1_ed_minor_10_uap_table_expand;
   }
   else if (cat == 20 && ed == value_20_1_11 && uap == uap_20_1_11_uap)
   {
-    table->table_size = 27;
+    table->table_size = 28;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_20_ed_major_1_ed_minor_11_uap_table;
     table->table_pointer_expand = cat_20_ed_major_1_ed_minor_11_uap_table_expand;
   }
   else if (cat == 21 && ed == value_21_0_23 && uap == uap_21_0_23_uap)
   {
-    table->table_size = 34;
+    table->table_size = 35;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_21_ed_major_0_ed_minor_23_uap_table;
     table->table_pointer_expand = cat_21_ed_major_0_ed_minor_23_uap_table_expand;
   }
   else if (cat == 21 && ed == value_21_0_24 && uap == uap_21_0_24_uap)
   {
-    table->table_size = 34;
+    table->table_size = 35;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_21_ed_major_0_ed_minor_24_uap_table;
     table->table_pointer_expand = cat_21_ed_major_0_ed_minor_24_uap_table_expand;
   }
   else if (cat == 21 && ed == value_21_0_25 && uap == uap_21_0_25_uap)
   {
-    table->table_size = 34;
+    table->table_size = 35;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_21_ed_major_0_ed_minor_25_uap_table;
     table->table_pointer_expand = cat_21_ed_major_0_ed_minor_25_uap_table_expand;
   }
   else if (cat == 21 && ed == value_21_0_26 && uap == uap_21_0_26_uap)
   {
-    table->table_size = 34;
+    table->table_size = 35;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_21_ed_major_0_ed_minor_26_uap_table;
     table->table_pointer_expand = cat_21_ed_major_0_ed_minor_26_uap_table_expand;
   }
   else if (cat == 21 && ed == value_21_2_1 && uap == uap_21_2_1_uap)
   {
-    table->table_size = 48;
+    table->table_size = 49;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_21_ed_major_2_ed_minor_1_uap_table;
     table->table_pointer_expand = cat_21_ed_major_2_ed_minor_1_uap_table_expand;
   }
   else if (cat == 21 && ed == value_21_2_2 && uap == uap_21_2_2_uap)
   {
-    table->table_size = 48;
+    table->table_size = 49;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_21_ed_major_2_ed_minor_2_uap_table;
     table->table_pointer_expand = cat_21_ed_major_2_ed_minor_2_uap_table_expand;
   }
   else if (cat == 21 && ed == value_21_2_3 && uap == uap_21_2_3_uap)
   {
-    table->table_size = 48;
+    table->table_size = 49;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_21_ed_major_2_ed_minor_3_uap_table;
     table->table_pointer_expand = cat_21_ed_major_2_ed_minor_3_uap_table_expand;
   }
   else if (cat == 21 && ed == value_21_2_4 && uap == uap_21_2_4_uap)
   {
-    table->table_size = 48;
+    table->table_size = 49;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_21_ed_major_2_ed_minor_4_uap_table;
     table->table_pointer_expand = cat_21_ed_major_2_ed_minor_4_uap_table_expand;
   }
   else if (cat == 21 && ed == value_21_2_5 && uap == uap_21_2_5_uap)
   {
-    table->table_size = 48;
+    table->table_size = 49;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_21_ed_major_2_ed_minor_5_uap_table;
     table->table_pointer_expand = cat_21_ed_major_2_ed_minor_5_uap_table_expand;
   }
   else if (cat == 21 && ed == value_21_2_6 && uap == uap_21_2_6_uap)
   {
-    table->table_size = 48;
+    table->table_size = 49;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_21_ed_major_2_ed_minor_6_uap_table;
     table->table_pointer_expand = cat_21_ed_major_2_ed_minor_6_uap_table_expand;
   }
   else if (cat == 21 && ed == value_21_2_7 && uap == uap_21_2_7_uap)
   {
-    table->table_size = 48;
+    table->table_size = 49;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_21_ed_major_2_ed_minor_7_uap_table;
     table->table_pointer_expand = cat_21_ed_major_2_ed_minor_7_uap_table_expand;
   }
   else if (cat == 23 && ed == value_23_1_2 && uap == uap_23_1_2_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_23_ed_major_1_ed_minor_2_uap_table;
     table->table_pointer_expand = cat_23_ed_major_1_ed_minor_2_uap_table_expand;
   }
   else if (cat == 23 && ed == value_23_1_3 && uap == uap_23_1_3_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_23_ed_major_1_ed_minor_3_uap_table;
     table->table_pointer_expand = cat_23_ed_major_1_ed_minor_3_uap_table_expand;
   }
   else if (cat == 25 && ed == value_25_1_5 && uap == uap_25_1_5_uap)
   {
-    table->table_size = 12;
+    table->table_size = 13;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_25_ed_major_1_ed_minor_5_uap_table;
     table->table_pointer_expand = cat_25_ed_major_1_ed_minor_5_uap_table_expand;
   }
   else if (cat == 32 && ed == value_32_1_1 && uap == uap_32_1_1_uap)
   {
-    table->table_size = 20;
+    table->table_size = 21;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_32_ed_major_1_ed_minor_1_uap_table;
     table->table_pointer_expand = cat_32_ed_major_1_ed_minor_1_uap_table_expand;
   }
   else if (cat == 32 && ed == value_32_1_2 && uap == uap_32_1_2_uap)
   {
-    table->table_size = 20;
+    table->table_size = 21;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_32_ed_major_1_ed_minor_2_uap_table;
     table->table_pointer_expand = cat_32_ed_major_1_ed_minor_2_uap_table_expand;
   }
   else if (cat == 34 && ed == value_34_1_27 && uap == uap_34_1_27_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_34_ed_major_1_ed_minor_27_uap_table;
     table->table_pointer_expand = cat_34_ed_major_1_ed_minor_27_uap_table_expand;
   }
   else if (cat == 34 && ed == value_34_1_28 && uap == uap_34_1_28_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_34_ed_major_1_ed_minor_28_uap_table;
     table->table_pointer_expand = cat_34_ed_major_1_ed_minor_28_uap_table_expand;
   }
   else if (cat == 34 && ed == value_34_1_29 && uap == uap_34_1_29_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_34_ed_major_1_ed_minor_29_uap_table;
     table->table_pointer_expand = cat_34_ed_major_1_ed_minor_29_uap_table_expand;
   }
   else if (cat == 48 && ed == value_48_1_27 && uap == uap_48_1_27_uap)
   {
-    table->table_size = 27;
+    table->table_size = 28;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_48_ed_major_1_ed_minor_27_uap_table;
     table->table_pointer_expand = cat_48_ed_major_1_ed_minor_27_uap_table_expand;
   }
   else if (cat == 48 && ed == value_48_1_28 && uap == uap_48_1_28_uap)
   {
-    table->table_size = 27;
+    table->table_size = 28;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_48_ed_major_1_ed_minor_28_uap_table;
     table->table_pointer_expand = cat_48_ed_major_1_ed_minor_28_uap_table_expand;
   }
   else if (cat == 48 && ed == value_48_1_29 && uap == uap_48_1_29_uap)
   {
-    table->table_size = 27;
+    table->table_size = 28;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_48_ed_major_1_ed_minor_29_uap_table;
     table->table_pointer_expand = cat_48_ed_major_1_ed_minor_29_uap_table_expand;
   }
   else if (cat == 48 && ed == value_48_1_30 && uap == uap_48_1_30_uap)
   {
-    table->table_size = 27;
+    table->table_size = 28;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_48_ed_major_1_ed_minor_30_uap_table;
     table->table_pointer_expand = cat_48_ed_major_1_ed_minor_30_uap_table_expand;
   }
   else if (cat == 48 && ed == value_48_1_31 && uap == uap_48_1_31_uap)
   {
-    table->table_size = 27;
+    table->table_size = 28;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_48_ed_major_1_ed_minor_31_uap_table;
     table->table_pointer_expand = cat_48_ed_major_1_ed_minor_31_uap_table_expand;
   }
   else if (cat == 48 && ed == value_48_1_32 && uap == uap_48_1_32_uap)
   {
-    table->table_size = 27;
+    table->table_size = 28;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_48_ed_major_1_ed_minor_32_uap_table;
     table->table_pointer_expand = cat_48_ed_major_1_ed_minor_32_uap_table_expand;
   }
   else if (cat == 62 && ed == value_62_1_16 && uap == uap_62_1_16_uap)
   {
-    table->table_size = 34;
+    table->table_size = 35;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_62_ed_major_1_ed_minor_16_uap_table;
     table->table_pointer_expand = cat_62_ed_major_1_ed_minor_16_uap_table_expand;
   }
   else if (cat == 62 && ed == value_62_1_17 && uap == uap_62_1_17_uap)
   {
-    table->table_size = 34;
+    table->table_size = 35;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_62_ed_major_1_ed_minor_17_uap_table;
     table->table_pointer_expand = cat_62_ed_major_1_ed_minor_17_uap_table_expand;
   }
   else if (cat == 62 && ed == value_62_1_18 && uap == uap_62_1_18_uap)
   {
-    table->table_size = 34;
+    table->table_size = 35;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_62_ed_major_1_ed_minor_18_uap_table;
     table->table_pointer_expand = cat_62_ed_major_1_ed_minor_18_uap_table_expand;
   }
   else if (cat == 62 && ed == value_62_1_19 && uap == uap_62_1_19_uap)
   {
-    table->table_size = 34;
+    table->table_size = 35;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_62_ed_major_1_ed_minor_19_uap_table;
     table->table_pointer_expand = cat_62_ed_major_1_ed_minor_19_uap_table_expand;
   }
   else if (cat == 62 && ed == value_62_1_20 && uap == uap_62_1_20_uap)
   {
-    table->table_size = 34;
+    table->table_size = 35;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_62_ed_major_1_ed_minor_20_uap_table;
     table->table_pointer_expand = cat_62_ed_major_1_ed_minor_20_uap_table_expand;
   }
   else if (cat == 62 && ed == value_62_1_21 && uap == uap_62_1_21_uap)
   {
-    table->table_size = 34;
+    table->table_size = 35;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_62_ed_major_1_ed_minor_21_uap_table;
     table->table_pointer_expand = cat_62_ed_major_1_ed_minor_21_uap_table_expand;
   }
   else if (cat == 63 && ed == value_63_1_6 && uap == uap_63_1_6_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_63_ed_major_1_ed_minor_6_uap_table;
     table->table_pointer_expand = cat_63_ed_major_1_ed_minor_6_uap_table_expand;
   }
   else if (cat == 63 && ed == value_63_1_7 && uap == uap_63_1_7_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_63_ed_major_1_ed_minor_7_uap_table;
     table->table_pointer_expand = cat_63_ed_major_1_ed_minor_7_uap_table_expand;
   }
   else if (cat == 65 && ed == value_65_1_4 && uap == uap_65_1_4_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_65_ed_major_1_ed_minor_4_uap_table;
     table->table_pointer_expand = cat_65_ed_major_1_ed_minor_4_uap_table_expand;
   }
   else if (cat == 65 && ed == value_65_1_5 && uap == uap_65_1_5_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_65_ed_major_1_ed_minor_5_uap_table;
     table->table_pointer_expand = cat_65_ed_major_1_ed_minor_5_uap_table_expand;
   }
   else if (cat == 65 && ed == value_65_1_6 && uap == uap_65_1_6_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_65_ed_major_1_ed_minor_6_uap_table;
     table->table_pointer_expand = cat_65_ed_major_1_ed_minor_6_uap_table_expand;
   }
   else if (cat == 150 && ed == value_150_3_0 && uap == uap_150_3_0_uap)
   {
-    table->table_size = 27;
+    table->table_size = 28;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_150_ed_major_3_ed_minor_0_uap_table;
     table->table_pointer_expand = cat_150_ed_major_3_ed_minor_0_uap_table_expand;
   }
   else if (cat == 205 && ed == value_205_1_0 && uap == uap_205_1_0_uap)
   {
-    table->table_size = 21;
+    table->table_size = 22;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_205_ed_major_1_ed_minor_0_uap_table;
     table->table_pointer_expand = cat_205_ed_major_1_ed_minor_0_uap_table_expand;
   }
   else if (cat == 240 && ed == value_240_1_3 && uap == uap_240_1_3_uap)
   {
-    table->table_size = 13;
+    table->table_size = 14;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_240_ed_major_1_ed_minor_3_uap_table;
     table->table_pointer_expand = cat_240_ed_major_1_ed_minor_3_uap_table_expand;
   }
   else if (cat == 247 && ed == value_247_1_2 && uap == uap_247_1_2_uap)
   {
-    table->table_size = 6;
+    table->table_size = 7;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_247_ed_major_1_ed_minor_2_uap_table;
     table->table_pointer_expand = cat_247_ed_major_1_ed_minor_2_uap_table_expand;
   }
   else if (cat == 247 && ed == value_247_1_3 && uap == uap_247_1_3_uap)
   {
-    table->table_size = 6;
+    table->table_size = 7;
     snprintf(table->uap_name, sizeof(table->uap_name), "%s", "uap");
     table->table_pointer = cat_247_ed_major_1_ed_minor_3_uap_table;
     table->table_pointer_expand = cat_247_ed_major_1_ed_minor_3_uap_table_expand;

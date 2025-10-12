@@ -28,8 +28,8 @@
 
 #define HEADER_LENGTH 3
 #define ASTERIX_PORT 8600
-#define MAX_INTERPRETATIONS 200
-#define MAX_INTERPRETATION_LENGTH 200
+#define MAX_INTERPRETATIONS 100
+#define MAX_INTERPRETATION_DEPTH 30
 #define MAX_FSPEC_BIT_LENGTH 1024
 #define OCTAL_BIT_LENGTH 3
 #define ICAO_BIT_LENGTH 6
@@ -138,14 +138,13 @@ static void print_octal_string (tvbuff_t *tvb, unsigned offset, unsigned bit_off
     }
     unsigned count = bit_size / OCTAL_BIT_LENGTH;
     char buff[1024];
-    if (count > (1023))
+    if (count > (sizeof(buff) - 1))
     {
         return;
     }
     for (unsigned i = 0; i < count; i++)
     {
-        uint8_t value = tvb_get_uint8(tvb, offset);
-        value = tvb_get_bits8(tvb, offset * 8 + bit_offset, OCTAL_BIT_LENGTH);
+        uint8_t value = tvb_get_bits8(tvb, offset * 8 + bit_offset, OCTAL_BIT_LENGTH);
         bit_offset += OCTAL_BIT_LENGTH;
 
         buff[i] = value + 0x30;
@@ -181,14 +180,13 @@ static void print_icao_string (tvbuff_t *tvb, unsigned offset, unsigned bit_offs
     }
     unsigned count = bit_size / ICAO_BIT_LENGTH;
     char buff[1024];
-    if (count > (1023))
+    if (count > (sizeof(buff) - 1))
     {
         return;
     }
     for (unsigned i = 0; i < count; i++)
     {
-        uint8_t value = tvb_get_uint8(tvb, offset);
-        value = tvb_get_bits8(tvb, offset * 8 + bit_offset, ICAO_BIT_LENGTH);
+        uint8_t value = tvb_get_bits8(tvb, offset * 8 + bit_offset, ICAO_BIT_LENGTH);
         bit_offset += ICAO_BIT_LENGTH;
 
         buff[i] = decode_icao_char(value);
@@ -292,26 +290,22 @@ static unsigned asterix_parse_re_field (tvbuff_t *tvb, unsigned offset, proto_tr
 }
 
 unsigned int solution_count;
-int solutions[MAX_INTERPRETATIONS][MAX_INTERPRETATION_LENGTH];
+int solutions[MAX_INTERPRETATIONS][MAX_INTERPRETATION_DEPTH];
 
 static bool check_fspec_validity (tvbuff_t *tvb, unsigned offset, table_params *table)
 {
     unsigned i = 0;
     unsigned fs_index = 0;
-    while (i < MAX_FSPEC_BIT_LENGTH) {
+    while (fs_index < MAX_FSPEC_BIT_LENGTH && i < table->table_size) {
         if (((fs_index + 1) % 8) == 0) {
             if (!asterix_field_exists(tvb, offset, fs_index)) {
-                break;
-            }
-            if (i > table->table_size) {
-                // FSPEC value longer than defined
-                return false;
+                // FSPEC end, all fields may not have been present, but thats ok
+                return true;
             }
             fs_index++;
         }
         if (asterix_field_exists(tvb, offset, fs_index)) {
-            if (table->table_pointer[i] == NULL)
-            {
+            if (table->table_pointer[i] == NULL) {
                 // bit should not be set, FSPEC invalid
                 return false;
             }
@@ -319,7 +313,14 @@ static bool check_fspec_validity (tvbuff_t *tvb, unsigned offset, table_params *
         i++;
         fs_index++;
     }
-
+    if (fs_index >= MAX_FSPEC_BIT_LENGTH) {
+        return false;
+    }
+    unsigned fs_end_index = ((fs_index / 8) + 1) * 8 - 1;
+    if (asterix_field_exists(tvb, offset, fs_end_index)) {
+        // FSPEC should not go beyond current byte
+        return false;
+    }
     return true;
 }
 
@@ -344,7 +345,7 @@ static int probe_possible_record (tvbuff_t *tvb, unsigned offset, unsigned int c
     offset += asterix_dissect_fspec (tvb, offset, asterix_packet_tree);
     unsigned i = 0;
     unsigned fs_index = 0;
-    while (i <= table_p.table_size) {
+    while (i < table_p.table_size) {
         if (((fs_index + 1) % 8) == 0) {
             if (!asterix_field_exists(tvb, start_offset, fs_index)) {
                 break;
@@ -367,7 +368,6 @@ static int probe_possible_record (tvbuff_t *tvb, unsigned offset, unsigned int c
         i++;
         fs_index++;
     }
-
     return offset;
 }
 
@@ -402,7 +402,7 @@ static void probe_possible_records (tvbuff_t *tvb, packet_info *pinfo, int offse
             }
             else if (new_offset < datablock_end)
             {
-                if ((depth + 1) >= MAX_INTERPRETATION_LENGTH)
+                if ((depth + 1) >= MAX_INTERPRETATION_DEPTH)
                 {
                     THROW(BoundsError);
                 }
@@ -439,10 +439,10 @@ static int dissect_asterix_record (tvbuff_t *tvb, packet_info *pinfo, unsigned o
     }
     int start_offset = offset;
 
-    offset += asterix_dissect_fspec (tvb, offset, asterix_packet_tree);;
+    offset += asterix_dissect_fspec (tvb, offset, asterix_packet_tree);
     unsigned i = 0;
     unsigned fs_index = 0;
-    while (i <= table_p.table_size) {
+    while (i < table_p.table_size) {
         if (((fs_index + 1) % 8) == 0 && fs_index > 0) {
             if (!asterix_field_exists(tvb, start_offset, fs_index)) {
                 break;
@@ -499,7 +499,7 @@ static void dissect_asterix_records (tvbuff_t *tvb, packet_info *pinfo, int offs
 
     memset(solutions, -1, sizeof(solutions));
     solution_count = 0;
-    unsigned int stack[MAX_INTERPRETATION_LENGTH];
+    unsigned int stack[MAX_INTERPRETATION_DEPTH];
 
     uap_table_indexes indexes;
     get_uap_tables(cat, ed, &indexes);
@@ -590,7 +590,7 @@ static void dissect_asterix_data_blocks (tvbuff_t *tvb, packet_info *pinfo, prot
     int i = 0;
     int n = tvb_reported_length (tvb);
 
-    // Datablock parsing is strict. This means that all datablocks must be alligned with UDP datagram data. If not, no datablock is parsed.
+    // Datablock parsing is strict. This means that all datablocks must be aligned with UDP datagram data. If not, no datablock is parsed.
     // In future versions strictness level may be added as a configuration option.
     if (check_datagram_datablocks (tvb, pinfo, tree))
     {
