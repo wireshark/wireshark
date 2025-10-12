@@ -31,10 +31,10 @@ set( SRC_FILES
 )
 
 set( EXTRA_CNF
-        ../pkix1explicit/pkix1explicit_exp.cnf
-        ../pkix1implicit/pkix1implicit_exp.cnf
+	../pkix1explicit/pkix1explicit_exp.cnf
+	../pkix1implicit/pkix1implicit_exp.cnf
 )
 
-set( A2W_FLAGS -b )
+set( A2W_FLAGS -b -C )
 
 ASN2WRS()
