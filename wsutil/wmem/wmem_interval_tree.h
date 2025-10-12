@@ -42,30 +42,64 @@ struct _wmem_range_t {
     uint64_t max_edge;   /* max value among subtrees */
 };
 
+/**
+ * @brief Create a new interval tree using the specified memory allocator.
+ *
+ * Allocates and initializes a new `wmem_itree_t` structure for managing intervals.
+ * The tree is created using the provided `wmem_allocator_t`, which controls memory
+ * allocation and cleanup.
+ *
+ * @param allocator Pointer to the memory allocator to use for tree allocation.
+ * @return Pointer to the newly created interval tree.
+ */
 WS_DLL_PUBLIC
 wmem_itree_t *
 wmem_itree_new(wmem_allocator_t *allocator)
 G_GNUC_MALLOC;
 
 
-/** Returns true if the tree is empty (has no nodes). */
+/**
+ * @brief Check whether an interval tree is empty.
+ *
+ * Returns true if the tree is empty (has no nodes).
+ *
+ * @param tree Pointer to the interval tree to check.
+ * @return `true` if the tree has no nodes, `false` otherwise.
+ */
 WS_DLL_PUBLIC
 bool
 wmem_itree_is_empty(wmem_itree_t *tree);
 
 
-/** Inserts a range low-high indexed by "low" in O(log(n)).
- * As in wmem_tree, if a key "low" already exists, it will be overwritten with the new data
+/**
+ * @brief Insert an interval into the interval tree.
  *
+ * Inserts a range defined by `[low, high]` into the given `wmem_itree_t` in O(log(n)) time.
+ * The interval is indexed by its `low` value, and associated with the provided `data` pointer.
+ * If an interval with the same `low` value already exists, it will be overwritten.
+ *
+ * @param tree Pointer to the interval tree.
+ * @param low Lower bound of the interval (inclusive).
+ * @param high Upper bound of the interval (inclusive).
+ * @param data Pointer to user-defined data associated with the interval.
  */
 WS_DLL_PUBLIC
 void
 wmem_itree_insert(wmem_itree_t *tree, const uint64_t low, const uint64_t high, void *data);
 
 
-/*
- * Save results in a wmem_list with the scope passed as a parameter.
- * wmem_list_t is always allocated even if there is no result
+/**
+ * @brief Find all intervals overlapping a given range in an interval tree.
+ *
+ * Searches the specified `wmem_itree_t` for all intervals that overlap with the range
+ * `[low, high]`, and stores the results in a newly allocated `wmem_list_t` using the
+ * provided `allocator`. The list is always created, even if no matching intervals are found.
+ *
+ * @param tree Pointer to the interval tree to search.
+ * @param allocator Memory allocator used to allocate the result list.
+ * @param low Lower bound of the search range (inclusive).
+ * @param high Upper bound of the search range (inclusive).
+ * @return A pointer to a `wmem_list_t` containing all overlapping intervals.
  */
 WS_DLL_PUBLIC
 wmem_list_t *
@@ -73,7 +107,13 @@ wmem_itree_find_intervals(wmem_itree_t *tree, wmem_allocator_t *allocator, uint6
 
 
 /**
- * Print ranges along the tree
+ * @brief Print all intervals stored in the interval tree.
+ *
+ * Traverses the given `wmem_itree_t` and prints each stored interval range.
+ * This is typically used for debugging or inspection purposes to visualize
+ * the contents of the tree.
+ *
+ * @param tree Pointer to the interval tree to print.
  */
 void
 wmem_print_itree(wmem_itree_t *tree);
