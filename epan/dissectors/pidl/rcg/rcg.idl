@@ -119,8 +119,6 @@ interface rcg {
 		uint32 CredentialCount;
 		[size_is(CredentialCount)] SECPKG_SUPPLEMENTAL_CRED Credentials[*];
 	} SECPKG_SUPPLEMENTAL_CRED_ARRAY;
-	typedef struct SECPKG_SUPPLEMENTAL_CRED_ARRAY *PSECPKG_SUPPLEMENTAL_CRED_ARRAY;
-
 
 	typedef struct {
 		uint32 cbData;
@@ -162,7 +160,6 @@ interface rcg {
 		int32 KerbProtocolError;
 	} VerifyServiceTicketResp;
 
-	typedef struct RPC_UNICODE_STRING *PRPC_UNICODE_STRING;
 	typedef struct {
 		KERB_RPC_ENCRYPTION_KEY* EncryptionKey;
 		uint32 SequenceNumber;
@@ -280,7 +277,7 @@ interface rcg {
 	} DecryptPacCredentialsReq;
 
 	typedef struct {
-		PSECPKG_SUPPLEMENTAL_CRED_ARRAY Credentials;
+		SECPKG_SUPPLEMENTAL_CRED_ARRAY* Credentials;
 	} DecryptPacCredentialsResp;
 
 	typedef struct {
@@ -408,32 +405,36 @@ interface rcg {
 	} KerbCredIsoRemoteOutput;
 
 // ==================================== NTLM =============================================
+	#define MSV1_0_CREDENTIAL_KEY_LENGTH 20
+	#define MSV1_0_CHALLENGE_LENGTH 8
+	#define MSV1_0_RESPONSE_LENGTH 24
+	#define MSV1_0_NTLM3_RESPONSE_LENGTH 16
+	#define MSV1_0_USER_SESSION_KEY_LENGTH 16
+
 	typedef struct {
-	     // UCHAR Data[MSV1_0_RESPONSE_LENGTH];
+		UCHAR Data[MSV1_0_RESPONSE_LENGTH];
 	 } NT_RESPONSE;
 
 	typedef struct _NT_CHALLENGE{
-		//UCHAR Data[MSV1_0_CHALLENGE_LENGTH];
+		UCHAR Data[MSV1_0_CHALLENGE_LENGTH];
 	} NT_CHALLENGE;
-	typedef struct NT_CHALLENGE *PNT_CHALLENGE;
 
-	typedef NT_CHALLENGE LM_SESSION_KEY;
+        typedef struct _LM_SESSION_KEY{
+		UCHAR Data[MSV1_0_CHALLENGE_LENGTH];
+        } LM_SESSION_KEY;
 
 	typedef struct {
-		//UCHAR Response[MSV1_0_NTLM3_RESPONSE_LENGTH];
-		//UCHAR ChallengeFromClient[MSV1_0_CHALLENGE_LENGTH];
+		UCHAR Response[MSV1_0_NTLM3_RESPONSE_LENGTH];
+		UCHAR ChallengeFromClient[MSV1_0_CHALLENGE_LENGTH];
 	} MSV1_0_LM3_RESPONSE;
-	typedef struct MSV1_0_LM3_RESPONSE *PMSV1_0_LM3_RESPONSE;
 
 	typedef struct {
-		//UCHAR Data[MSV1_0_USER_SESSION_KEY_LENGTH];
+		UCHAR Data[MSV1_0_USER_SESSION_KEY_LENGTH];
 	} USER_SESSION_KEY;
-	typedef struct PUSER_SESSION_KEY *PUSER_SESSION_KEY;
 
 	typedef struct {
-		//UCHAR Data[MSV1_0_CREDENTIAL_KEY_LENGTH];
+		UCHAR Data[MSV1_0_CREDENTIAL_KEY_LENGTH];
 	} MSV1_0_CREDENTIAL_KEY;
-	typedef struct MSV1_0_CREDENTIAL_KEY* PMSV1_0_CREDENTIAL_KEY;
 
 	typedef struct _MSV1_0_REMOTE_ENCRYPTED_SECRETS	{
 		BOOL reserved1;
@@ -444,16 +445,15 @@ interface rcg {
 		uint32 reservedSize;
 		[size_is(reservedSize)] UCHAR* reserved6;
 	} MSV1_0_REMOTE_ENCRYPTED_SECRETS;
-	typedef struct MSV1_0_REMOTE_ENCRYPTED_SECRETS *PMSV1_0_REMOTE_ENCRYPTED_SECRETS;
 
 	// Use the provided credential and challenge to generate the
 	// NT and LM response for the NTLM v2 authentication protocol.
 	typedef struct {
-		PMSV1_0_REMOTE_ENCRYPTED_SECRETS Credential;
-		PRPC_UNICODE_STRING UserName;
-		PRPC_UNICODE_STRING LogonDomainName;
-		PRPC_UNICODE_STRING ServerName;
-		//UCHAR ChallengeToClient[MSV1_0_CHALLENGE_LENGTH];
+		MSV1_0_REMOTE_ENCRYPTED_SECRETS* Credential;
+		RPC_UNICODE_STRING* UserName;
+		RPC_UNICODE_STRING* LogonDomainName;
+		RPC_UNICODE_STRING* ServerName;
+		UCHAR ChallengeToClient[MSV1_0_CHALLENGE_LENGTH];
 	} Lm20GetNtlm3ChallengeResponseReq;
 
 	typedef struct {
@@ -465,8 +465,8 @@ interface rcg {
 	} Lm20GetNtlm3ChallengeResponseResp;
 
 	typedef struct {
-		PNT_CHALLENGE NtChallenge;
-		PMSV1_0_REMOTE_ENCRYPTED_SECRETS Credential;
+		NT_CHALLENGE* NtChallenge;
+		MSV1_0_REMOTE_ENCRYPTED_SECRETS* Credential;
 	} CalculateNtResponseReq;
 
 	typedef struct {
@@ -476,8 +476,8 @@ interface rcg {
 	// Use the provided credential and response to calculate
 	// a session key according to the NTLM v1 protocol.
 	typedef struct {
-		NT_RESPONSE *NtResponse;
-		PMSV1_0_REMOTE_ENCRYPTED_SECRETS Credential;
+		NT_RESPONSE* NtResponse;
+		MSV1_0_REMOTE_ENCRYPTED_SECRETS* Credential;
 	} CalculateUserSessionKeyNtReq;
 
 	typedef struct {
@@ -487,8 +487,8 @@ interface rcg {
 	// Compare the provided credentials to determine whether
 	// they're identical.
 	typedef struct	{
-		PMSV1_0_REMOTE_ENCRYPTED_SECRETS LhsCredential;
-		PMSV1_0_REMOTE_ENCRYPTED_SECRETS RhsCredential;
+		MSV1_0_REMOTE_ENCRYPTED_SECRETS* LhsCredential;
+		MSV1_0_REMOTE_ENCRYPTED_SECRETS* RhsCredential;
 	} CompareCredentialsReq;
 
 	typedef struct {

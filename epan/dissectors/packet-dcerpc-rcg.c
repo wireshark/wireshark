@@ -33,7 +33,6 @@ static int ett_rcg_RPC_UNICODE_STRING;
 static int ett_rcg_KERB_RPC_INTERNAL_NAME;
 static int ett_rcg_SECPKG_SUPPLEMENTAL_CRED;
 static int ett_rcg_SECPKG_SUPPLEMENTAL_CRED_ARRAY;
-static int ett_rcg_PSECPKG_SUPPLEMENTAL_CRED_ARRAY;
 static int ett_rcg_KERB_RPC_CRYPTO_API_BLOB;
 static int ett_rcg_NegotiateVersion;
 static int ett_rcg_LARGE_INTEGER;
@@ -42,7 +41,6 @@ static int ett_rcg_BuildAsReqAuthenticatorReq;
 static int ett_rcg_BuildAsReqAuthenticatorResp;
 static int ett_rcg_VerifyServiceTicketReq;
 static int ett_rcg_VerifyServiceTicketResp;
-static int ett_rcg_PRPC_UNICODE_STRING;
 static int ett_rcg_CreateApReqAuthenticatorReq;
 static int ett_rcg_CreateApReqAuthenticatorResp;
 static int ett_rcg_DecryptApReplyReq;
@@ -79,16 +77,11 @@ static int ett_rcg_KerbOutputUnion;
 static int ett_rcg_KerbCredIsoRemoteOutput;
 static int ett_rcg_NT_RESPONSE;
 static int ett_rcg_NT_CHALLENGE;
-static int ett_rcg_PNT_CHALLENGE;
 static int ett_rcg_LM_SESSION_KEY;
 static int ett_rcg_MSV1_0_LM3_RESPONSE;
-static int ett_rcg_PMSV1_0_LM3_RESPONSE;
 static int ett_rcg_USER_SESSION_KEY;
-static int ett_rcg_PUSER_SESSION_KEY;
 static int ett_rcg_MSV1_0_CREDENTIAL_KEY;
-static int ett_rcg_PMSV1_0_CREDENTIAL_KEY;
 static int ett_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS;
-static int ett_rcg_PMSV1_0_REMOTE_ENCRYPTED_SECRETS;
 static int ett_rcg_Lm20GetNtlm3ChallengeResponseReq;
 static int ett_rcg_Lm20GetNtlm3ChallengeResponseResp;
 static int ett_rcg_CalculateNtResponseReq;
@@ -239,6 +232,8 @@ static int hf_rcg_KeyAgreementGenerateNonceReq_KeyAgreementHandle;
 static int hf_rcg_KeyAgreementGenerateNonceResp_Nonce;
 static int hf_rcg_KeyAgreementGenerateNonceResp_NonceLen;
 static int hf_rcg_LARGE_INTEGER_QuadPart;
+static int hf_rcg_LM_SESSION_KEY_Data;
+static int hf_rcg_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient;
 static int hf_rcg_Lm20GetNtlm3ChallengeResponseReq_Credential;
 static int hf_rcg_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName;
 static int hf_rcg_Lm20GetNtlm3ChallengeResponseReq_ServerName;
@@ -248,6 +243,9 @@ static int hf_rcg_Lm20GetNtlm3ChallengeResponseResp_LmSessionKey;
 static int hf_rcg_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response;
 static int hf_rcg_Lm20GetNtlm3ChallengeResponseResp_Ntlm3ResponseLength;
 static int hf_rcg_Lm20GetNtlm3ChallengeResponseResp_UserSessionKey;
+static int hf_rcg_MSV1_0_CREDENTIAL_KEY_Data;
+static int hf_rcg_MSV1_0_LM3_RESPONSE_ChallengeFromClient;
+static int hf_rcg_MSV1_0_LM3_RESPONSE_Response;
 static int hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved1;
 static int hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved2;
 static int hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved3;
@@ -255,6 +253,8 @@ static int hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved4;
 static int hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved5;
 static int hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6;
 static int hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reservedSize;
+static int hf_rcg_NT_CHALLENGE_Data;
+static int hf_rcg_NT_RESPONSE_Data;
 static int hf_rcg_NegotiateVersion_MaxSupportedVersion;
 static int hf_rcg_NtlmCredInput_calculateNtResponse;
 static int hf_rcg_NtlmCredInput_calculateUserSessionKeyNt;
@@ -291,6 +291,7 @@ static int hf_rcg_SignS4UPreauthDataReq_UserId;
 static int hf_rcg_SignS4UPreauthDataResp_ChecksumSize;
 static int hf_rcg_SignS4UPreauthDataResp_ChecksumType;
 static int hf_rcg_SignS4UPreauthDataResp_ChecksumValue;
+static int hf_rcg_USER_SESSION_KEY_Data;
 static int hf_rcg_UnpackKdcReplyBodyReq_EncryptedData;
 static int hf_rcg_UnpackKdcReplyBodyReq_Key;
 static int hf_rcg_UnpackKdcReplyBodyReq_KeyUsage;
@@ -508,6 +509,7 @@ static int rcg_dissect_element_DecryptPacCredentialsReq_Data(tvbuff_t *tvb _U_, 
 static int rcg_dissect_element_DecryptPacCredentialsReq_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_DecryptPacCredentialsReq_Data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_DecryptPacCredentialsResp_Credentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_DecryptPacCredentialsResp_Credentials_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CreateECDHKeyAgreementReq_KeyBitLen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CreateECDHKeyAgreementResp_KeyAgreementHandle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CreateECDHKeyAgreementResp_KeyAgreementHandle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -600,6 +602,20 @@ static int rcg_dissect_element_KerbOutputUnion_finalizeKeyAgreement(tvbuff_t *tv
 static int rcg_dissect_element_KerbCredIsoRemoteOutput_CallId(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
 static int rcg_dissect_element_KerbCredIsoRemoteOutput_Status(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_KerbCredIsoRemoteOutput_callUnion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint16_t *CallId);
+static int rcg_dissect_element_NT_RESPONSE_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_NT_RESPONSE_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_NT_CHALLENGE_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_NT_CHALLENGE_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_LM_SESSION_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_LM_SESSION_KEY_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_USER_SESSION_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_USER_SESSION_KEY_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -610,9 +626,15 @@ static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6(tvbuff_
 static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved6__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3ResponseLength(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Ntlm3Response_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -621,14 +643,19 @@ static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_Lm3Response(tvb
 static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_UserSessionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_Lm20GetNtlm3ChallengeResponseResp_LmSessionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CalculateNtResponseReq_NtChallenge(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_CalculateNtResponseReq_NtChallenge_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CalculateNtResponseReq_Credential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_CalculateNtResponseReq_Credential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CalculateNtResponseResp_NtResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CalculateUserSessionKeyNtReq_NtResponse(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CalculateUserSessionKeyNtReq_NtResponse_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CalculateUserSessionKeyNtResp_UserSessionKey(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CompareCredentialsReq_LhsCredential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_CompareCredentialsReq_LhsCredential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CompareCredentialsReq_RhsCredential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static int rcg_dissect_element_CompareCredentialsReq_RhsCredential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CompareCredentialsResp_AreNtOwfsEqual(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CompareCredentialsResp_AreLmOwfsEqual(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int rcg_dissect_element_CompareCredentialsResp_AreShaOwfsEqual(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
@@ -1426,35 +1453,6 @@ rcg_dissect_struct_SECPKG_SUPPLEMENTAL_CRED_ARRAY(tvbuff_t *tvb _U_, int offset 
 }
 
 
-/* IDL: struct SECPKG_SUPPLEMENTAL_CRED_ARRAY { */
-/* IDL: } */
-
-int
-rcg_dissect_struct_PSECPKG_SUPPLEMENTAL_CRED_ARRAY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
-{
-	proto_item *item = NULL;
-	int old_offset;
-
-	ALIGN_TO_4_BYTES;
-
-	old_offset = offset;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
-	}
-
-
-	proto_item_set_len(item, offset-old_offset);
-
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
-	}
-
-	return offset;
-}
-
-
 /* IDL: struct { */
 /* IDL: 	uint32 cbData; */
 /* IDL: 	[ref] [size_is(cbData)] uint8 *pbData; */
@@ -1913,35 +1911,6 @@ rcg_dissect_struct_VerifyServiceTicketResp(tvbuff_t *tvb _U_, int offset _U_, pa
 
 	if (di->call_data->flags & DCERPC_IS_NDR64) {
 		ALIGN_TO_5_BYTES;
-	}
-
-	return offset;
-}
-
-
-/* IDL: struct RPC_UNICODE_STRING { */
-/* IDL: } */
-
-int
-rcg_dissect_struct_PRPC_UNICODE_STRING(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
-{
-	proto_item *item = NULL;
-	int old_offset;
-
-	ALIGN_TO_4_BYTES;
-
-	old_offset = offset;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
-	}
-
-
-	proto_item_set_len(item, offset-old_offset);
-
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
 	}
 
 	return offset;
@@ -3531,13 +3500,21 @@ rcg_dissect_struct_DecryptPacCredentialsReq(tvbuff_t *tvb _U_, int offset _U_, p
 
 
 /* IDL: struct { */
-/* IDL: 	PSECPKG_SUPPLEMENTAL_CRED_ARRAY Credentials; */
+/* IDL: 	[ref] SECPKG_SUPPLEMENTAL_CRED_ARRAY *Credentials; */
 /* IDL: } */
 
 static int
 rcg_dissect_element_DecryptPacCredentialsResp_Credentials(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = rcg_dissect_struct_PSECPKG_SUPPLEMENTAL_CRED_ARRAY(tvb,offset,pinfo,tree,di,drep,hf_rcg_DecryptPacCredentialsResp_Credentials,0);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_DecryptPacCredentialsResp_Credentials_, NDR_POINTER_REF, "Pointer to Credentials (SECPKG_SUPPLEMENTAL_CRED_ARRAY)",hf_rcg_DecryptPacCredentialsResp_Credentials);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_DecryptPacCredentialsResp_Credentials_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = rcg_dissect_struct_SECPKG_SUPPLEMENTAL_CRED_ARRAY(tvb,offset,pinfo,tree,di,drep,hf_rcg_DecryptPacCredentialsResp_Credentials,0);
 
 	return offset;
 }
@@ -3549,7 +3526,7 @@ rcg_dissect_struct_DecryptPacCredentialsResp(tvbuff_t *tvb _U_, int offset _U_, 
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3565,7 +3542,7 @@ rcg_dissect_struct_DecryptPacCredentialsResp(tvbuff_t *tvb _U_, int offset _U_, 
 
 
 	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
+		ALIGN_TO_5_BYTES;
 	}
 
 	return offset;
@@ -4927,19 +4904,42 @@ rcg_dissect_element_KerbCredIsoRemoteOutput_callUnion(tvbuff_t *tvb _U_, int off
 
 
 /* IDL: struct { */
+/* IDL: 	uint8 Data[24]; */
 /* IDL: } */
+
+static int
+rcg_dissect_element_NT_RESPONSE_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	int i;
+	for (i = 0; i < 24; i++)
+		offset = rcg_dissect_element_NT_RESPONSE_Data_(tvb, offset, pinfo, tree, di, drep);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_NT_RESPONSE_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_NT_RESPONSE_Data, 0);
+
+	return offset;
+}
 
 int
 rcg_dissect_struct_NT_RESPONSE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
+	proto_tree *tree = NULL;
 	int old_offset;
 
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_rcg_NT_RESPONSE);
 	}
+
+	offset = rcg_dissect_element_NT_RESPONSE_Data(tvb, offset, pinfo, tree, di, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -4950,12 +4950,32 @@ rcg_dissect_struct_NT_RESPONSE(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 
 /* IDL: struct _NT_CHALLENGE { */
+/* IDL: 	uint8 Data[8]; */
 /* IDL: } */
+
+static int
+rcg_dissect_element_NT_CHALLENGE_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	int i;
+	for (i = 0; i < 8; i++)
+		offset = rcg_dissect_element_NT_CHALLENGE_Data_(tvb, offset, pinfo, tree, di, drep);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_NT_CHALLENGE_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_NT_CHALLENGE_Data, 0);
+
+	return offset;
+}
 
 int
 rcg_dissect_struct_NT_CHALLENGE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
+	proto_tree *tree = NULL;
 	int old_offset;
 
 	ALIGN_TO_4_BYTES;
@@ -4964,7 +4984,10 @@ rcg_dissect_struct_NT_CHALLENGE(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_rcg_NT_CHALLENGE);
 	}
+
+	offset = rcg_dissect_element_NT_CHALLENGE_Data(tvb, offset, pinfo, tree, di, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -4978,208 +5001,212 @@ rcg_dissect_struct_NT_CHALLENGE(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 }
 
 
-/* IDL: struct NT_CHALLENGE { */
+/* IDL: struct _LM_SESSION_KEY { */
+/* IDL: 	uint8 Data[8]; */
 /* IDL: } */
 
-int
-rcg_dissect_struct_PNT_CHALLENGE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+static int
+rcg_dissect_element_LM_SESSION_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	proto_item *item = NULL;
-	int old_offset;
-
-	ALIGN_TO_4_BYTES;
-
-	old_offset = offset;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
-	}
-
-
-	proto_item_set_len(item, offset-old_offset);
-
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
-	}
+	int i;
+	for (i = 0; i < 8; i++)
+		offset = rcg_dissect_element_LM_SESSION_KEY_Data_(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
 
+static int
+rcg_dissect_element_LM_SESSION_KEY_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_LM_SESSION_KEY_Data, 0);
 
-
+	return offset;
+}
 
 int
 rcg_dissect_struct_LM_SESSION_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
+	proto_tree *tree = NULL;
 	int old_offset;
+
+	ALIGN_TO_4_BYTES;
 
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_rcg_LM_SESSION_KEY);
 	}
+
+	offset = rcg_dissect_element_LM_SESSION_KEY_Data(tvb, offset, pinfo, tree, di, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
 
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
 
 	return offset;
 }
 
 
 /* IDL: struct { */
+/* IDL: 	uint8 Response[16]; */
+/* IDL: 	uint8 ChallengeFromClient[8]; */
 /* IDL: } */
+
+static int
+rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	int i;
+	for (i = 0; i < 16; i++)
+		offset = rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response_(tvb, offset, pinfo, tree, di, drep);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_MSV1_0_LM3_RESPONSE_Response, 0);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	int i;
+	for (i = 0; i < 8; i++)
+		offset = rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient_(tvb, offset, pinfo, tree, di, drep);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_MSV1_0_LM3_RESPONSE_ChallengeFromClient, 0);
+
+	return offset;
+}
 
 int
 rcg_dissect_struct_MSV1_0_LM3_RESPONSE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
+	proto_tree *tree = NULL;
 	int old_offset;
 
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_rcg_MSV1_0_LM3_RESPONSE);
 	}
+
+	offset = rcg_dissect_element_MSV1_0_LM3_RESPONSE_Response(tvb, offset, pinfo, tree, di, drep);
+
+	offset = rcg_dissect_element_MSV1_0_LM3_RESPONSE_ChallengeFromClient(tvb, offset, pinfo, tree, di, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
 
-
-	return offset;
-}
-
-
-/* IDL: struct MSV1_0_LM3_RESPONSE { */
-/* IDL: } */
-
-int
-rcg_dissect_struct_PMSV1_0_LM3_RESPONSE(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
-{
-	proto_item *item = NULL;
-	int old_offset;
-
-	ALIGN_TO_4_BYTES;
-
-	old_offset = offset;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
-	}
-
-
-	proto_item_set_len(item, offset-old_offset);
-
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
-	}
 
 	return offset;
 }
 
 
 /* IDL: struct { */
+/* IDL: 	uint8 Data[16]; */
 /* IDL: } */
+
+static int
+rcg_dissect_element_USER_SESSION_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	int i;
+	for (i = 0; i < 16; i++)
+		offset = rcg_dissect_element_USER_SESSION_KEY_Data_(tvb, offset, pinfo, tree, di, drep);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_USER_SESSION_KEY_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_USER_SESSION_KEY_Data, 0);
+
+	return offset;
+}
 
 int
 rcg_dissect_struct_USER_SESSION_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
+	proto_tree *tree = NULL;
 	int old_offset;
 
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_rcg_USER_SESSION_KEY);
 	}
+
+	offset = rcg_dissect_element_USER_SESSION_KEY_Data(tvb, offset, pinfo, tree, di, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
 
-
-	return offset;
-}
-
-
-/* IDL: struct PUSER_SESSION_KEY { */
-/* IDL: } */
-
-int
-rcg_dissect_struct_PUSER_SESSION_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
-{
-	proto_item *item = NULL;
-	int old_offset;
-
-	ALIGN_TO_4_BYTES;
-
-	old_offset = offset;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
-	}
-
-
-	proto_item_set_len(item, offset-old_offset);
-
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
-	}
 
 	return offset;
 }
 
 
 /* IDL: struct { */
+/* IDL: 	uint8 Data[20]; */
 /* IDL: } */
+
+static int
+rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	int i;
+	for (i = 0; i < 20; i++)
+		offset = rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data_(tvb, offset, pinfo, tree, di, drep);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_MSV1_0_CREDENTIAL_KEY_Data, 0);
+
+	return offset;
+}
 
 int
 rcg_dissect_struct_MSV1_0_CREDENTIAL_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
 {
 	proto_item *item = NULL;
+	proto_tree *tree = NULL;
 	int old_offset;
 
 	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_rcg_MSV1_0_CREDENTIAL_KEY);
 	}
+
+	offset = rcg_dissect_element_MSV1_0_CREDENTIAL_KEY_Data(tvb, offset, pinfo, tree, di, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
 
-
-	return offset;
-}
-
-
-/* IDL: struct MSV1_0_CREDENTIAL_KEY { */
-/* IDL: } */
-
-int
-rcg_dissect_struct_PMSV1_0_CREDENTIAL_KEY(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
-{
-	proto_item *item = NULL;
-	int old_offset;
-
-	ALIGN_TO_4_BYTES;
-
-	old_offset = offset;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
-	}
-
-
-	proto_item_set_len(item, offset-old_offset);
-
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
-	}
 
 	return offset;
 }
@@ -5309,46 +5336,26 @@ rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvbuff_t *tvb _U_, int offset
 }
 
 
-/* IDL: struct MSV1_0_REMOTE_ENCRYPTED_SECRETS { */
-/* IDL: } */
-
-int
-rcg_dissect_struct_PMSV1_0_REMOTE_ENCRYPTED_SECRETS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
-{
-	proto_item *item = NULL;
-	int old_offset;
-
-	ALIGN_TO_4_BYTES;
-
-	old_offset = offset;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
-	}
-
-
-	proto_item_set_len(item, offset-old_offset);
-
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
-	}
-
-	return offset;
-}
-
-
 /* IDL: struct { */
-/* IDL: 	PMSV1_0_REMOTE_ENCRYPTED_SECRETS Credential; */
-/* IDL: 	PRPC_UNICODE_STRING UserName; */
-/* IDL: 	PRPC_UNICODE_STRING LogonDomainName; */
-/* IDL: 	PRPC_UNICODE_STRING ServerName; */
+/* IDL: 	[ref] MSV1_0_REMOTE_ENCRYPTED_SECRETS *Credential; */
+/* IDL: 	[ref] RPC_UNICODE_STRING *UserName; */
+/* IDL: 	[ref] RPC_UNICODE_STRING *LogonDomainName; */
+/* IDL: 	[ref] RPC_UNICODE_STRING *ServerName; */
+/* IDL: 	uint8 ChallengeToClient[8]; */
 /* IDL: } */
 
 static int
 rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = rcg_dissect_struct_PMSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseReq_Credential,0);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential_, NDR_POINTER_REF, "Pointer to Credential (MSV1_0_REMOTE_ENCRYPTED_SECRETS)",hf_rcg_Lm20GetNtlm3ChallengeResponseReq_Credential);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseReq_Credential,0);
 
 	return offset;
 }
@@ -5356,7 +5363,15 @@ rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_Credential(tvbuff_t *tvb _U
 static int
 rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = rcg_dissect_struct_PRPC_UNICODE_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseReq_UserName,0);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName_, NDR_POINTER_REF, "Pointer to UserName (RPC_UNICODE_STRING)",hf_rcg_Lm20GetNtlm3ChallengeResponseReq_UserName);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = rcg_dissect_struct_RPC_UNICODE_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseReq_UserName,0);
 
 	return offset;
 }
@@ -5364,7 +5379,15 @@ rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_UserName(tvbuff_t *tvb _U_,
 static int
 rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = rcg_dissect_struct_PRPC_UNICODE_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName,0);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName_, NDR_POINTER_REF, "Pointer to LogonDomainName (RPC_UNICODE_STRING)",hf_rcg_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = rcg_dissect_struct_RPC_UNICODE_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName,0);
 
 	return offset;
 }
@@ -5372,7 +5395,33 @@ rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName(tvbuff_t *t
 static int
 rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = rcg_dissect_struct_PRPC_UNICODE_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseReq_ServerName,0);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName_, NDR_POINTER_REF, "Pointer to ServerName (RPC_UNICODE_STRING)",hf_rcg_Lm20GetNtlm3ChallengeResponseReq_ServerName);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = rcg_dissect_struct_RPC_UNICODE_STRING(tvb,offset,pinfo,tree,di,drep,hf_rcg_Lm20GetNtlm3ChallengeResponseReq_ServerName,0);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	int i;
+	for (i = 0; i < 8; i++)
+		offset = rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient_(tvb, offset, pinfo, tree, di, drep);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, di, drep, hf_rcg_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient, 0);
 
 	return offset;
 }
@@ -5384,7 +5433,7 @@ rcg_dissect_struct_Lm20GetNtlm3ChallengeResponseReq(tvbuff_t *tvb _U_, int offse
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5401,12 +5450,14 @@ rcg_dissect_struct_Lm20GetNtlm3ChallengeResponseReq(tvbuff_t *tvb _U_, int offse
 
 	offset = rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ServerName(tvb, offset, pinfo, tree, di, drep);
 
+	offset = rcg_dissect_element_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient(tvb, offset, pinfo, tree, di, drep);
+
 
 	proto_item_set_len(item, offset-old_offset);
 
 
 	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
+		ALIGN_TO_5_BYTES;
 	}
 
 	return offset;
@@ -5516,14 +5567,22 @@ rcg_dissect_struct_Lm20GetNtlm3ChallengeResponseResp(tvbuff_t *tvb _U_, int offs
 
 
 /* IDL: struct { */
-/* IDL: 	PNT_CHALLENGE NtChallenge; */
-/* IDL: 	PMSV1_0_REMOTE_ENCRYPTED_SECRETS Credential; */
+/* IDL: 	[ref] NT_CHALLENGE *NtChallenge; */
+/* IDL: 	[ref] MSV1_0_REMOTE_ENCRYPTED_SECRETS *Credential; */
 /* IDL: } */
 
 static int
 rcg_dissect_element_CalculateNtResponseReq_NtChallenge(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = rcg_dissect_struct_PNT_CHALLENGE(tvb,offset,pinfo,tree,di,drep,hf_rcg_CalculateNtResponseReq_NtChallenge,0);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CalculateNtResponseReq_NtChallenge_, NDR_POINTER_REF, "Pointer to NtChallenge (NT_CHALLENGE)",hf_rcg_CalculateNtResponseReq_NtChallenge);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_CalculateNtResponseReq_NtChallenge_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = rcg_dissect_struct_NT_CHALLENGE(tvb,offset,pinfo,tree,di,drep,hf_rcg_CalculateNtResponseReq_NtChallenge,0);
 
 	return offset;
 }
@@ -5531,7 +5590,15 @@ rcg_dissect_element_CalculateNtResponseReq_NtChallenge(tvbuff_t *tvb _U_, int of
 static int
 rcg_dissect_element_CalculateNtResponseReq_Credential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = rcg_dissect_struct_PMSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_CalculateNtResponseReq_Credential,0);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CalculateNtResponseReq_Credential_, NDR_POINTER_REF, "Pointer to Credential (MSV1_0_REMOTE_ENCRYPTED_SECRETS)",hf_rcg_CalculateNtResponseReq_Credential);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_CalculateNtResponseReq_Credential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_CalculateNtResponseReq_Credential,0);
 
 	return offset;
 }
@@ -5543,7 +5610,7 @@ rcg_dissect_struct_CalculateNtResponseReq(tvbuff_t *tvb _U_, int offset _U_, pac
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5561,7 +5628,7 @@ rcg_dissect_struct_CalculateNtResponseReq(tvbuff_t *tvb _U_, int offset _U_, pac
 
 
 	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
+		ALIGN_TO_5_BYTES;
 	}
 
 	return offset;
@@ -5606,7 +5673,7 @@ rcg_dissect_struct_CalculateNtResponseResp(tvbuff_t *tvb _U_, int offset _U_, pa
 
 /* IDL: struct { */
 /* IDL: 	[ref] NT_RESPONSE *NtResponse; */
-/* IDL: 	PMSV1_0_REMOTE_ENCRYPTED_SECRETS Credential; */
+/* IDL: 	[ref] MSV1_0_REMOTE_ENCRYPTED_SECRETS *Credential; */
 /* IDL: } */
 
 static int
@@ -5628,7 +5695,15 @@ rcg_dissect_element_CalculateUserSessionKeyNtReq_NtResponse_(tvbuff_t *tvb _U_, 
 static int
 rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = rcg_dissect_struct_PMSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_CalculateUserSessionKeyNtReq_Credential,0);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential_, NDR_POINTER_REF, "Pointer to Credential (MSV1_0_REMOTE_ENCRYPTED_SECRETS)",hf_rcg_CalculateUserSessionKeyNtReq_Credential);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_CalculateUserSessionKeyNtReq_Credential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_CalculateUserSessionKeyNtReq_Credential,0);
 
 	return offset;
 }
@@ -5702,14 +5777,22 @@ rcg_dissect_struct_CalculateUserSessionKeyNtResp(tvbuff_t *tvb _U_, int offset _
 
 
 /* IDL: struct { */
-/* IDL: 	PMSV1_0_REMOTE_ENCRYPTED_SECRETS LhsCredential; */
-/* IDL: 	PMSV1_0_REMOTE_ENCRYPTED_SECRETS RhsCredential; */
+/* IDL: 	[ref] MSV1_0_REMOTE_ENCRYPTED_SECRETS *LhsCredential; */
+/* IDL: 	[ref] MSV1_0_REMOTE_ENCRYPTED_SECRETS *RhsCredential; */
 /* IDL: } */
 
 static int
 rcg_dissect_element_CompareCredentialsReq_LhsCredential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = rcg_dissect_struct_PMSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_CompareCredentialsReq_LhsCredential,0);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CompareCredentialsReq_LhsCredential_, NDR_POINTER_REF, "Pointer to LhsCredential (MSV1_0_REMOTE_ENCRYPTED_SECRETS)",hf_rcg_CompareCredentialsReq_LhsCredential);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_CompareCredentialsReq_LhsCredential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_CompareCredentialsReq_LhsCredential,0);
 
 	return offset;
 }
@@ -5717,7 +5800,15 @@ rcg_dissect_element_CompareCredentialsReq_LhsCredential(tvbuff_t *tvb _U_, int o
 static int
 rcg_dissect_element_CompareCredentialsReq_RhsCredential(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = rcg_dissect_struct_PMSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_CompareCredentialsReq_RhsCredential,0);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rcg_dissect_element_CompareCredentialsReq_RhsCredential_, NDR_POINTER_REF, "Pointer to RhsCredential (MSV1_0_REMOTE_ENCRYPTED_SECRETS)",hf_rcg_CompareCredentialsReq_RhsCredential);
+
+	return offset;
+}
+
+static int
+rcg_dissect_element_CompareCredentialsReq_RhsCredential_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = rcg_dissect_struct_MSV1_0_REMOTE_ENCRYPTED_SECRETS(tvb,offset,pinfo,tree,di,drep,hf_rcg_CompareCredentialsReq_RhsCredential,0);
 
 	return offset;
 }
@@ -5729,7 +5820,7 @@ rcg_dissect_struct_CompareCredentialsReq(tvbuff_t *tvb _U_, int offset _U_, pack
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5747,7 +5838,7 @@ rcg_dissect_struct_CompareCredentialsReq(tvbuff_t *tvb _U_, int offset _U_, pack
 
 
 	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
+		ALIGN_TO_5_BYTES;
 	}
 
 	return offset;
@@ -6330,6 +6421,10 @@ void proto_register_dcerpc_rcg(void)
 	  { "NonceLen", "rcg.KeyAgreementGenerateNonceResp.NonceLen", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_LARGE_INTEGER_QuadPart,
 	  { "QuadPart", "rcg.LARGE_INTEGER.QuadPart", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_rcg_LM_SESSION_KEY_Data,
+	  { "Data", "rcg.LM_SESSION_KEY.Data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_rcg_Lm20GetNtlm3ChallengeResponseReq_ChallengeToClient,
+	  { "ChallengeToClient", "rcg.Lm20GetNtlm3ChallengeResponseReq.ChallengeToClient", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_Lm20GetNtlm3ChallengeResponseReq_Credential,
 	  { "Credential", "rcg.Lm20GetNtlm3ChallengeResponseReq.Credential", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_Lm20GetNtlm3ChallengeResponseReq_LogonDomainName,
@@ -6348,6 +6443,12 @@ void proto_register_dcerpc_rcg(void)
 	  { "Ntlm3ResponseLength", "rcg.Lm20GetNtlm3ChallengeResponseResp.Ntlm3ResponseLength", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_Lm20GetNtlm3ChallengeResponseResp_UserSessionKey,
 	  { "UserSessionKey", "rcg.Lm20GetNtlm3ChallengeResponseResp.UserSessionKey", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_rcg_MSV1_0_CREDENTIAL_KEY_Data,
+	  { "Data", "rcg.MSV1_0_CREDENTIAL_KEY.Data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_rcg_MSV1_0_LM3_RESPONSE_ChallengeFromClient,
+	  { "ChallengeFromClient", "rcg.MSV1_0_LM3_RESPONSE.ChallengeFromClient", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_rcg_MSV1_0_LM3_RESPONSE_Response,
+	  { "Response", "rcg.MSV1_0_LM3_RESPONSE.Response", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved1,
 	  { "Reserved1", "rcg.MSV1_0_REMOTE_ENCRYPTED_SECRETS.reserved1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reserved2,
@@ -6362,6 +6463,10 @@ void proto_register_dcerpc_rcg(void)
 	  { "Reserved6", "rcg.MSV1_0_REMOTE_ENCRYPTED_SECRETS.reserved6", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS_reservedSize,
 	  { "ReservedSize", "rcg.MSV1_0_REMOTE_ENCRYPTED_SECRETS.reservedSize", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_rcg_NT_CHALLENGE_Data,
+	  { "Data", "rcg.NT_CHALLENGE.Data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_rcg_NT_RESPONSE_Data,
+	  { "Data", "rcg.NT_RESPONSE.Data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_NegotiateVersion_MaxSupportedVersion,
 	  { "MaxSupportedVersion", "rcg.NegotiateVersion.MaxSupportedVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_NtlmCredInput_calculateNtResponse,
@@ -6434,6 +6539,8 @@ void proto_register_dcerpc_rcg(void)
 	  { "ChecksumType", "rcg.SignS4UPreauthDataResp.ChecksumType", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_SignS4UPreauthDataResp_ChecksumValue,
 	  { "ChecksumValue", "rcg.SignS4UPreauthDataResp.ChecksumValue", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_rcg_USER_SESSION_KEY_Data,
+	  { "Data", "rcg.USER_SESSION_KEY.Data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_UnpackKdcReplyBodyReq_EncryptedData,
 	  { "EncryptedData", "rcg.UnpackKdcReplyBodyReq.EncryptedData", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_rcg_UnpackKdcReplyBodyReq_Key,
@@ -6488,7 +6595,6 @@ void proto_register_dcerpc_rcg(void)
 		&ett_rcg_KERB_RPC_INTERNAL_NAME,
 		&ett_rcg_SECPKG_SUPPLEMENTAL_CRED,
 		&ett_rcg_SECPKG_SUPPLEMENTAL_CRED_ARRAY,
-		&ett_rcg_PSECPKG_SUPPLEMENTAL_CRED_ARRAY,
 		&ett_rcg_KERB_RPC_CRYPTO_API_BLOB,
 		&ett_rcg_NegotiateVersion,
 		&ett_rcg_LARGE_INTEGER,
@@ -6497,7 +6603,6 @@ void proto_register_dcerpc_rcg(void)
 		&ett_rcg_BuildAsReqAuthenticatorResp,
 		&ett_rcg_VerifyServiceTicketReq,
 		&ett_rcg_VerifyServiceTicketResp,
-		&ett_rcg_PRPC_UNICODE_STRING,
 		&ett_rcg_CreateApReqAuthenticatorReq,
 		&ett_rcg_CreateApReqAuthenticatorResp,
 		&ett_rcg_DecryptApReplyReq,
@@ -6534,16 +6639,11 @@ void proto_register_dcerpc_rcg(void)
 		&ett_rcg_KerbCredIsoRemoteOutput,
 		&ett_rcg_NT_RESPONSE,
 		&ett_rcg_NT_CHALLENGE,
-		&ett_rcg_PNT_CHALLENGE,
 		&ett_rcg_LM_SESSION_KEY,
 		&ett_rcg_MSV1_0_LM3_RESPONSE,
-		&ett_rcg_PMSV1_0_LM3_RESPONSE,
 		&ett_rcg_USER_SESSION_KEY,
-		&ett_rcg_PUSER_SESSION_KEY,
 		&ett_rcg_MSV1_0_CREDENTIAL_KEY,
-		&ett_rcg_PMSV1_0_CREDENTIAL_KEY,
 		&ett_rcg_MSV1_0_REMOTE_ENCRYPTED_SECRETS,
-		&ett_rcg_PMSV1_0_REMOTE_ENCRYPTED_SECRETS,
 		&ett_rcg_Lm20GetNtlm3ChallengeResponseReq,
 		&ett_rcg_Lm20GetNtlm3ChallengeResponseResp,
 		&ett_rcg_CalculateNtResponseReq,
