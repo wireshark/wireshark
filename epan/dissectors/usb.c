@@ -24234,7 +24234,7 @@ static const value_string usb_products_vals[] = {
     { 0x25fb017f, "Pentax KP" },
     { 0x25fb210b, "Ricoh WG-M2" },
     { 0x25fb210f, "Ricoh GR III" },
-    { 0x25fb25fb, "Ricoh GR IIIx" },
+    { 0x25fb2115, "Ricoh GR IIIx" },
     { 0x26040012, "U12" },
     { 0x2626ea60, "UART Bridge Controller [cp210x]" },
     { 0x262a100e, "SA9027 Audio Streaming Controller" },
