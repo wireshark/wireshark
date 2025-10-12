@@ -119,7 +119,6 @@ static int ett_lsarpc_lsa_ForestTrustInformation2;
 /* Header field declarations */
 static int hf_lsarpc_String_name;
 static int hf_lsarpc_account_access_mask;
-static int hf_lsarpc_domain_access_mask;
 static int hf_lsarpc_efs_blob_len;
 static int hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_PRIVILEGES;
 static int hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_QUOTAS;
@@ -664,6 +663,7 @@ static int hf_lsarpc_policy_access_mask;
 static int hf_lsarpc_sec_desc_buf_len;
 static int hf_lsarpc_secret_access_mask;
 static int hf_lsarpc_status;
+static int hf_lsarpc_trusted_access_mask;
 
 static int proto_dcerpc_lsarpc;
 /* Version information */
@@ -1819,7 +1819,7 @@ lsarpc_secret_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint3
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, access_flags, access);
 }
 static void
-lsarpc_domain_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t access)
+lsarpc_trusted_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t access)
 {
 	static int* const access_flags[] = {
 		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_QUERY_AUTH,
@@ -1851,9 +1851,9 @@ static struct access_mask_info lsarpc_secret_access_mask_info = {
 	NULL,				/* Generic mapping table */
 	NULL				/* Standard mapping table */
 };
-static struct access_mask_info lsarpc_domain_access_mask_info = {
-	"LSA Domain",			/* Name of specific rights */
-	lsarpc_domain_specific_rights,	/* Dissection function */
+static struct access_mask_info lsarpc_trusted_access_mask_info = {
+	"LSA Trusted",			/* Name of specific rights */
+	lsarpc_trusted_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
 	NULL				/* Standard mapping table */
 };
@@ -1879,6 +1879,14 @@ lsarpc_dissect_bitmap_lsa_SecretAccessMask(tvbuff_t *tvb, int offset, packet_inf
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, di, drep, hf_lsarpc_secret_access_mask,
 		&lsarpc_secret_access_mask_info, NULL);
+	return offset;
+}
+int
+lsarpc_dissect_bitmap_lsa_TrustedAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_, uint32_t param _U_)
+{
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, di, drep, hf_lsarpc_trusted_access_mask,
+		&lsarpc_trusted_access_mask_info, NULL);
 	return offset;
 }
 static int
@@ -1914,7 +1922,7 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		ami=&lsarpc_secret_access_mask_info;
 		break;
 	case PIDL_POLHND_TYPE_LSA_DOMAIN:
-		ami=&lsarpc_domain_access_mask_info;
+		ami=&lsarpc_trusted_access_mask_info;
 		break;
 	}
 	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, true, len, ami);
@@ -2944,39 +2952,6 @@ lsarpc_dissect_struct_lsa_ObjectAttribute(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: 	LSA_TRUSTED_SET_AUTH =  0x00000020 , */
 /* IDL: 	LSA_TRUSTED_QUERY_AUTH =  0x00000040 , */
 /* IDL: } */
-
-int
-lsarpc_dissect_bitmap_lsa_TrustedAccessMask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
-{
-	proto_item *item;
-	static int * const lsarpc_lsa_TrustedAccessMask_fields[] = {
-		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_QUERY_DOMAIN_NAME,
-		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_QUERY_CONTROLLERS,
-		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_SET_CONTROLLERS,
-		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_QUERY_POSIX,
-		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_SET_POSIX,
-		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_SET_AUTH,
-		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_QUERY_AUTH,
-		NULL
-	};
-	uint32_t flags;
-	ALIGN_TO_4_BYTES;
-
-	item = proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_index,
-				ett_lsarpc_lsa_TrustedAccessMask, lsarpc_lsa_TrustedAccessMask_fields, DREP_ENC_INTEGER(drep), BMT_NO_FALSE);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, parent_tree, di, drep, -1, &flags);
-
-	if (!flags)
-		proto_item_append_text(item, ": (No values set)");
-
-	if (flags & (~0x0000007f)) {
-		flags &= (~0x0000007f);
-		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
-	}
-
-	return offset;
-}
 
 
 /* IDL: struct { */
@@ -16126,8 +16101,6 @@ void proto_register_dcerpc_lsarpc(void)
 	  { "String", "lsarpc.lsa.string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_account_access_mask,
 	  { "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_lsarpc_domain_access_mask,
-	  { "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_efs_blob_len,
 	  { "EFS blob size", "lsarpc.efs.blob_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_AccountAccessMask_LSA_ACCOUNT_ADJUST_PRIVILEGES,
@@ -17216,6 +17189,8 @@ void proto_register_dcerpc_lsarpc(void)
 	  { "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_status,
 	  { "NT Error", "lsarpc.status", FT_UINT32, BASE_HEX|BASE_EXT_STRING, &NT_errors_ext, 0, NULL, HFILL }},
+	{ &hf_lsarpc_trusted_access_mask,
+	  { "Access Mask", "lsarpc.policy.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	};
 
 

@@ -28,11 +28,11 @@ HF_FIELD hf_lsarpc_sec_desc_buf_len "Sec Desc Buf Len" "lsarpc.sec_desc_buf_len"
 MANUAL lsarpc_dissect_bitmap_lsa_PolicyAccessMask
 MANUAL lsarpc_dissect_bitmap_lsa_AccountAccessMask
 MANUAL lsarpc_dissect_bitmap_lsa_SecretAccessMask
-MANUAL lsarpc_dissect_bitmap_lsa_DomainAccessMask
+MANUAL lsarpc_dissect_bitmap_lsa_TrustedAccessMask
 HF_FIELD hf_lsarpc_policy_access_mask "Access Mask" "lsarpc.policy.access_mask" FT_UINT32 BASE_HEX NULL 0 "" "" ""
 HF_FIELD hf_lsarpc_account_access_mask "Access Mask" "lsarpc.policy.access_mask" FT_UINT32 BASE_HEX NULL 0 "" "" ""
 HF_FIELD hf_lsarpc_secret_access_mask "Access Mask" "lsarpc.policy.access_mask" FT_UINT32 BASE_HEX NULL 0 "" "" ""
-HF_FIELD hf_lsarpc_domain_access_mask "Access Mask" "lsarpc.policy.access_mask" FT_UINT32 BASE_HEX NULL 0 "" "" ""
+HF_FIELD hf_lsarpc_trusted_access_mask "Access Mask" "lsarpc.policy.access_mask" FT_UINT32 BASE_HEX NULL 0 "" "" ""
 
 HF_FIELD hf_lsarpc_String_name "String" "lsarpc.lsa.string" FT_STRING BASE_NONE NULL 0 "" "" ""
 
@@ -110,7 +110,7 @@ lsarpc_secret_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint3
 }
 
 static void
-lsarpc_domain_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t access)
+lsarpc_trusted_specific_rights(tvbuff_t *tvb, int offset, proto_tree *tree, uint32_t access)
 {
 	static int* const access_flags[] = {
 		&hf_lsarpc_lsa_TrustedAccessMask_LSA_TRUSTED_QUERY_AUTH,
@@ -148,9 +148,9 @@ static struct access_mask_info lsarpc_secret_access_mask_info = {
 	NULL				/* Standard mapping table */
 };
 
-static struct access_mask_info lsarpc_domain_access_mask_info = {
-	"LSA Domain",			/* Name of specific rights */
-	lsarpc_domain_specific_rights,	/* Dissection function */
+static struct access_mask_info lsarpc_trusted_access_mask_info = {
+	"LSA Trusted",			/* Name of specific rights */
+	lsarpc_trusted_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
 	NULL				/* Standard mapping table */
 };
@@ -179,6 +179,15 @@ lsarpc_dissect_bitmap_lsa_SecretAccessMask(tvbuff_t *tvb, int offset, packet_inf
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, di, drep, hf_lsarpc_secret_access_mask,
 		&lsarpc_secret_access_mask_info, NULL);
+	return offset;
+}
+
+int
+lsarpc_dissect_bitmap_lsa_TrustedAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_, uint32_t param _U_)
+{
+	offset = dissect_nt_access_mask(
+		tvb, offset, pinfo, tree, di, drep, hf_lsarpc_trusted_access_mask,
+		&lsarpc_trusted_access_mask_info, NULL);
 	return offset;
 }
 
@@ -218,7 +227,7 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		ami=&lsarpc_secret_access_mask_info;
 		break;
 	case PIDL_POLHND_TYPE_LSA_DOMAIN:
-		ami=&lsarpc_domain_access_mask_info;
+		ami=&lsarpc_trusted_access_mask_info;
 		break;
 	}
 
