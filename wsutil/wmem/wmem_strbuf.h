@@ -29,12 +29,21 @@ extern "C" {
  *    @{
  */
 
-/* Holds a wmem-allocated string-buffer.
- *  len is the length of the string (not counting the null-terminator) and
- *      should be the same as strlen(str) unless the string contains embedded
- *      nulls.
- *  alloc_size is the size of the raw buffer pointed to by str, regardless of
- *      what string is actually being stored (i.e. the buffer contents)
+/**
+ * @struct _wmem_strbuf_t
+ * @brief Internal structure representing a wmem-allocated string buffer.
+ *
+ * This structure holds a string buffer allocated via the wmem memory management system.
+ * It supports efficient string manipulation and resizing, including embedded NUL bytes.
+ *
+ * @var allocator
+ *      Pointer to the `wmem_allocator_t` used to manage memory for this buffer.
+ * @var str
+ *      Pointer to the raw character buffer containing the string. May include embedded NULs.
+ * @var len
+ *      Logical length of the string content, excluding the null terminator. May differ from `strlen(str)` if the string contains embedded NULs.
+ * @var alloc_size
+ *      Total size of the allocated buffer pointed to by `str`, regardless of actual string content.
  */
 struct _wmem_strbuf_t {
     /* read-only fields */
@@ -230,57 +239,171 @@ WS_DLL_PUBLIC
 void
 wmem_strbuf_append_unichar_validated(wmem_strbuf_t *strbuf, const gunichar c);
 
+/**
+ * @brief Append a hexadecimal representation of a byte to a wmem string buffer.
+ *
+ * Converts the given 8-bit unsigned integer into a two-character hexadecimal string
+ * and appends it to the specified `wmem_strbuf_t`. For example, passing the value
+ * `123` will append the string `"7B"` (in uppercase) to the buffer.
+ *
+ * @param strbuf Pointer to the `wmem_strbuf_t` to append to.
+ * @param ch The 8-bit unsigned integer to convert and append as hexadecimal.
+ */
 WS_DLL_PUBLIC
 void
-wmem_strbuf_append_hex(wmem_strbuf_t *strbuf, uint8_t);
+wmem_strbuf_append_hex(wmem_strbuf_t *strbuf, uint8_t ch);
 
-/* Returns the number of characters written (4, 6 or 10). */
+/**
+ * @brief Append a hexadecimal representation of a Unicode character to a wmem string buffer.
+ *
+ * Converts the given Unicode character (`gunichar`) into its hexadecimal representation
+ * and appends it to the specified `wmem_strbuf_t`.
+ *
+ * @param strbuf Pointer to the string buffer to append to.
+ * @param ch Unicode character to convert and append.
+ * @return Number of characters appended to the buffer (4, 6, or 10).
+ */
 WS_DLL_PUBLIC
 size_t
-wmem_strbuf_append_hex_unichar(wmem_strbuf_t *strbuf, gunichar);
+wmem_strbuf_append_hex_unichar(wmem_strbuf_t *strbuf, gunichar ch);
 
+/**
+ * @brief Truncate a wmem string buffer to a specified length.
+ *
+ * Reduces the length of the given `wmem_strbuf_t` to `len` characters. If the buffer
+ * currently contains more than `len` characters, the excess characters are removed.
+ * If the buffer contains fewer than `len` characters, no changes are made.
+ *
+ * @note This operation does not reallocate the buffer; it simply adjusts the logical length.
+ *
+ * @param strbuf Pointer to the string buffer to truncate.
+ * @param len The target length to truncate the buffer to.
+ */
 WS_DLL_PUBLIC
 void
 wmem_strbuf_truncate(wmem_strbuf_t *strbuf, const size_t len);
 
+/**
+ * @brief Retrieve the current string content from a wmem string buffer.
+ *
+ * Returns a pointer to the internal null-terminated string stored in the given
+ * `wmem_strbuf_t`. This string reflects all content appended to the buffer so far.
+ *
+ * @param strbuf Pointer to the string buffer to query.
+ * @return Pointer to the internal null-terminated string.
+ */
 WS_DLL_PUBLIC
 const char *
 wmem_strbuf_get_str(const wmem_strbuf_t *strbuf);
 
+/**
+ * @brief Retrieve the current length of a wmem string buffer.
+ *
+ * Returns the number of characters currently stored in the given `wmem_strbuf_t`,
+ * excluding the null terminator. This reflects the logical length of the string
+ * content in the buffer.
+ *
+ * @param strbuf Pointer to the string buffer to query.
+ * @return The length of the string content in the buffer.
+ */
 WS_DLL_PUBLIC
 size_t
 wmem_strbuf_get_len(const wmem_strbuf_t *strbuf);
 
+/**
+ * @brief Compare the contents of two wmem string buffers.
+ *
+ * Performs a string comparison between the contents of `sb1` and `sb2`, similar to `strcmp()`.
+ * Returns an integer less than, equal to, or greater than zero if the string in `sb1` is found,
+ * respectively, to be less than, to match, or be greater than the string in `sb2`.
+ *
+ * @note The comparison is case-sensitive and uses standard C string semantics.
+ *
+ * @param sb1 Pointer to the first `wmem_strbuf_t` to compare.
+ * @param sb2 Pointer to the second `wmem_strbuf_t` to compare.
+ * @return An integer indicating the lexical relationship between the two strings.
+ */
 WS_DLL_PUBLIC
 int
 wmem_strbuf_strcmp(const wmem_strbuf_t *sb1, const wmem_strbuf_t *sb2);
 
+/**
+ * @brief Search for a substring within a wmem string buffer.
+ *
+ * Searches for the contents of `needle` within the contents of `haystack`, both represented
+ * as `wmem_strbuf_t` structures. If the substring is found, a pointer to its first occurrence
+ * within the `haystack` string is returned. If not found, the function returns `NULL`.
+ *
+ * @param haystack Pointer to the string buffer to search within.
+ * @param needle Pointer to the string buffer containing the substring to search for.
+ * @return Pointer to the first occurrence of `needle` in `haystack`, or `NULL` if not found.
+ */
 WS_DLL_PUBLIC
 const char *
 wmem_strbuf_strstr(const wmem_strbuf_t *haystack, const wmem_strbuf_t *needle);
 
-/** Truncates the allocated memory down to the minimal amount, frees the header
- *  structure, and returns a non-const pointer to the raw string. The
- *  wmem_strbuf_t structure cannot be used after this is called. Basically a
- *  destructor for when you still need the underlying C-string.
+/**
+ * @brief Finalize a wmem string buffer and extract its raw string.
+ *
+ * Truncates the allocated memory of the given `wmem_strbuf_t` to the minimal required size,
+ * frees the internal buffer structure, and returns a non-const pointer to the resulting
+ * null-terminated C string. After this call, the original `wmem_strbuf_t` is no longer valid
+ * and must not be used.
+ *
+ * This function is typically used when the caller needs to retain ownership of the final
+ * string but no longer requires the dynamic buffer interface.
+ *
+ * @param strbuf Pointer to the string buffer to finalize.
+ * @return Pointer to the raw, null-terminated C string. The caller assumes ownership.
  */
 WS_DLL_PUBLIC
 char *
 wmem_strbuf_finalize(wmem_strbuf_t *strbuf);
 
+/**
+ * @brief Destroy a wmem string buffer and release its associated memory.
+ *
+ * Frees all memory allocated for the given `wmem_strbuf_t`, including its internal
+ * string storage. After this call, the buffer is no longer valid and must not be used.
+ *
+ * @note This function should be used when the buffer is no longer needed and its
+ *       contents do not need to be retained.
+ * @note If you need to keep the final string, use `wmem_strbuf_finalize()` instead.
+ *
+ * @param strbuf Pointer to the string buffer to destroy.
+ */
 WS_DLL_PUBLIC
 void
 wmem_strbuf_destroy(wmem_strbuf_t *strbuf);
 
-/* Validates the string buffer as UTF-8.
- * Unlike g_utf8_validate(), accepts embedded NUL bytes as valid UTF-8.
- * If endpptr is non-NULL, then the end of the valid range is stored there
- * (i.e. the first invalid character, or the end of the buffer otherwise).
+/**
+ * @brief Validate the contents of a wmem string buffer as UTF-8.
+ *
+ * Checks whether the contents of the given `wmem_strbuf_t` form a valid UTF-8 sequence.
+ * Unlike `g_utf8_validate()`, this function accepts embedded NUL (`\0`) bytes as valid.
+ * If `endptr` is non-NULL, it will be set to point to the first invalid byte in the buffer,
+ * or to the end of the buffer if the entire content is valid.
+ *
+ * @param strbuf Pointer to the string buffer to validate.
+ * @param endptr Optional pointer to receive the end of the valid range.
+ * @return `true` if the buffer contains valid UTF-8, `false` otherwise.
  */
 WS_DLL_PUBLIC
 bool
 wmem_strbuf_utf8_validate(wmem_strbuf_t *strbuf, const char **endptr);
 
+
+/**
+ * @brief Ensure the contents of a wmem string buffer are valid UTF-8.
+ *
+ * Replaces any invalid UTF-8 sequences in the given `wmem_strbuf_t`
+ * with the Unicode replacement character (`U+FFFD`). This guarantees that the resulting buffer
+ * contains only valid UTF-8.
+ *
+ * @note This function modifies the buffer in-place.
+ *
+ * @param strbuf Pointer to the string buffer to sanitize.
+ */
 WS_DLL_PUBLIC
 void
 wmem_strbuf_utf8_make_valid(wmem_strbuf_t *strbuf);
