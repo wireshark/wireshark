@@ -18,6 +18,20 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Initialize a fast block-based memory allocator.
+ *
+ * Sets up a `wmem_allocator_t` to use a fast block-based memory management strategy.
+ * This variant is optimized for performance and may use different allocation heuristics
+ * compared to the standard block allocator. It assigns function pointers for allocation,
+ * reallocation, freeing, and cleanup operations, and initializes internal block tracking
+ * structures.
+ *
+ * @param allocator Pointer to the allocator structure to initialize.
+ *
+ * @note After initialization, the allocator can be used for fast block-based memory operations.
+ *       The allocator must not be NULL.
+ */
 void
 wmem_block_fast_allocator_init(wmem_allocator_t *allocator);
 

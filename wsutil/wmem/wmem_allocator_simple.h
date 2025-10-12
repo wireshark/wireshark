@@ -19,6 +19,21 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Initialize a simple memory allocator.
+ *
+ * Sets up a `wmem_allocator_t` to use a simple allocation strategy that tracks
+ * allocated pointers in an internal array. This allocator is suitable for basic
+ * memory management tasks and provides cleanup and garbage collection support.
+ *
+ * Initializes function pointers for allocation, reallocation, freeing, and cleanup,
+ * and allocates an internal pointer array for tracking allocations.
+ *
+ * @param allocator Pointer to the allocator structure to initialize.
+ *
+ * @note After initialization, the allocator can be used for simple memory operations.
+ *       The allocator must not be NULL.
+ */
 void
 wmem_simple_allocator_init(wmem_allocator_t *allocator);
 

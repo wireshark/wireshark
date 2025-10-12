@@ -19,6 +19,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Initialize a block-based memory allocator.
+ *
+ * Sets up a `wmem_allocator_t` to use block-based memory management by assigning
+ * function pointers for allocation, reallocation, freeing, and cleanup operations.
+ * Internally, it creates a `wmem_block_allocator_t` structure to manage memory blocks
+ * and assigns it to the allocator's private data.
+ *
+ * @param allocator Pointer to the allocator structure to initialize.
+ *
+ * @note After initialization, the allocator can be used for block-based memory operations.
+ *       The allocator must not be NULL.
+ */
 void
 wmem_block_allocator_init(wmem_allocator_t *allocator);
 
