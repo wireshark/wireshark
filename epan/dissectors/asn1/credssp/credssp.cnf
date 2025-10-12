@@ -89,10 +89,10 @@ TSRequest
 #.TYPE_ATTR
 TSRemoteGuardPackageCred/packageName TYPE = FT_STRING DISPLAY = BASE_NONE STRINGS = NULL
 
-#.FN_BODY TSRemoteGuardPackageCred/packageName VAL_PTR = &pname
+#.FN_BODY TSRemoteGuardPackageCred/packageName VAL_PTR = &pname HF_INDEX = -1
 	tvbuff_t *pname = NULL;
 
-	offset = dissect_ber_octet_string(implicit_tag, actx, NULL, tvb, offset, hf_index, &pname);
+%(DEFAULT_BODY)s
 
 	if(pname != NULL) {
 		int nlen = tvb_captured_length(pname);

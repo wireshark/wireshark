@@ -230,7 +230,9 @@ static int
 dissect_credssp_T_packageName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	tvbuff_t *pname = NULL;
 
-	offset = dissect_ber_octet_string(implicit_tag, actx, NULL, tvb, offset, hf_index, &pname);
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, -1,
+                                       &pname);
+
 
 	if(pname != NULL) {
 		int nlen = tvb_captured_length(pname);
