@@ -1913,7 +1913,7 @@ pipe_read_block(GIOChannel *pipe_io, char *indicator, unsigned len, char *msg,
     /* read header (indicator and 3-byte length) */
     newly = pipe_read_bytes(pipe_io, header, 4, err_msg);
     if(newly != 4) {
-        if(newly != -1) {
+        if(newly == -1) {
             /*
              * Error; *err_msg has been set.
              */
