@@ -4156,8 +4156,8 @@ static void rtps_strlcpy(char *dest, const char *src, size_t dest_size)
 
 static int check_offset_addition(int offset, uint32_t value, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
-    int new_offset = offset + (int)value;
-    if (new_offset < offset) {
+    int new_offset;
+    if (ckd_add(&new_offset, offset, value)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_rtps_value_too_large, tvb, 0, 0, "Offset value too large: %u", value);
         THROW(ReportedBoundsError);
     }
@@ -16174,7 +16174,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, int offse
   int old_offset = offset;
   uint32_t wid;                  /* Writer EntityID */
   uint32_t status_info = 0xffffffff;
-  int32_t octetsToSLEncapsulationId;
+  uint32_t octetsToSLEncapsulationId;
   int32_t sampleListOffset;
   uint16_t encapsulation_id;
   bool try_dissection_from_type_object = false;
@@ -16262,8 +16262,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, int offse
   proto_tree_add_item_ret_uint(tree, hf_rtps_data_batch_octets_to_sl_encap_id, tvb,
                                offset, 4, encoding, &octetsToSLEncapsulationId);
   offset += 4;
-  sampleListOffset = offset + octetsToSLEncapsulationId;
-
+  sampleListOffset = check_offset_addition(offset, octetsToSLEncapsulationId, tree, pinfo, tvb);
 
   /* Sample info list */
   {
