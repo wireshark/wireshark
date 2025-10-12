@@ -2284,7 +2284,7 @@ dissect_ldap_AttributeValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   /* attr_type, should be set before calling this function */
 
   /* extract the value of the octetstring */
-  offset = dissect_ber_octet_string(false, actx, NULL, tvb, offset, hf_index, &next_tvb);
+  offset = dissect_ber_octet_string(false, actx, tree, tvb, offset, -1, &next_tvb);
 
   /* first check if we have a custom attribute type configured */
   if ((hf_id = get_hf_for_header (attr_type)) != NULL)
