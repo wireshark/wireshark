@@ -34,7 +34,6 @@ void proto_reg_handoff_x509if(void);
 /* Initialize the protocol and registered fields */
 static int proto_x509if;
 static int hf_x509if_object_identifier_id;
-static int hf_x509if_any_string;
 #include "packet-x509if-hf.c"
 
 /* Initialize the subtree pointers */
@@ -111,11 +110,7 @@ void proto_register_x509if(void) {
   static hf_register_info hf[] = {
     { &hf_x509if_object_identifier_id,
       { "Object Id", "x509if.oid", FT_OID, BASE_NONE, NULL, 0,
-	"Object identifier Id", HFILL }},
-    { &hf_x509if_any_string,
-      { "AnyString", "x509if.any.String", FT_BYTES, BASE_NONE,
-	    NULL, 0, "This is any String", HFILL }},
-
+        "Object identifier Id", HFILL }},
 #include "packet-x509if-hfarr.c"
   };
 

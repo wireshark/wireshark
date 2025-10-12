@@ -39,7 +39,6 @@ void proto_reg_handoff_x509if(void);
 /* Initialize the protocol and registered fields */
 static int proto_x509if;
 static int hf_x509if_object_identifier_id;
-static int hf_x509if_any_string;
 static int hf_x509if_DistinguishedName_PDU;       /* DistinguishedName */
 static int hf_x509if_SubtreeSpecification_PDU;    /* SubtreeSpecification */
 static int hf_x509if_HierarchyLevel_PDU;          /* HierarchyLevel */
@@ -728,7 +727,7 @@ dissect_x509if_T_atadv_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   actx->external.direct_reference = orig_oid;
 
   /* try and dissect as a string */
-  dissect_ber_octet_string(false, actx, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
+  dissect_ber_octet_string(false, actx, tree, tvb, old_offset, -1, &out_tvb);
 
   /* should also try and dissect as an OID and integer */
   /* of course, if I can look up the syntax .... */
@@ -2084,11 +2083,7 @@ void proto_register_x509if(void) {
   static hf_register_info hf[] = {
     { &hf_x509if_object_identifier_id,
       { "Object Id", "x509if.oid", FT_OID, BASE_NONE, NULL, 0,
-	"Object identifier Id", HFILL }},
-    { &hf_x509if_any_string,
-      { "AnyString", "x509if.any.String", FT_BYTES, BASE_NONE,
-	    NULL, 0, "This is any String", HFILL }},
-
+        "Object identifier Id", HFILL }},
     { &hf_x509if_DistinguishedName_PDU,
       { "DistinguishedName", "x509if.DistinguishedName",
         FT_UINT32, BASE_DEC, NULL, 0,
