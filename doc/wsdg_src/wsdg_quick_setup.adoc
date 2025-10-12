@@ -383,16 +383,21 @@ Visual Studio 2022 is also used to create official Wireshark builds for Windows,
 ===== Install Qt
 
 The main Wireshark application uses the Qt windowing toolkit. To install
-Qt, go to the https://www.qt.io/download[“Download Qt” page], select
-"Download open source", then "Download Qt Online Installer", and download
-"*Qt Online Installer for Windows*". When executing it, sign up or log in,
-and use Next button to proceed. When asked, select "*Custom installation*".
+Qt, go to the
+https://www.qt.io/download-qt-installer-oss["Download Qt for open source
+use” page],
+select "Download the Qt Online Installer" in the "Looking for Qt Binaries"
+section, select "Windows x86" or "Windows ARM64" as appropriate for your
+system, and download "Qt Online Installer for Windows (x64)" or "Qt
+Online Installer for Windows (ARM64)". When executing it, sign up or log in,
+and use Next button to proceed. When you are asked to select packages to be
+installed, select "*Custom installation*".
 
 In the "Select Components" page, select your desired Qt version. We recommend
 the latest LTS version, and the stable Windows installers currently ship with Qt {windows-qt6-lts-version}.
 Select the following components:
 
-* MSVC 2022 64-bit
+* MSVC 2022 64-bit or MSVC 2022 ARM64
 * Qt 5 Compatibility Module
 * Qt Debug Information Files (contains PDB files which can be used for debugging)
 * Under "Additional Libraries" select "Qt Multimedia" to support advanced
