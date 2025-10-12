@@ -127,17 +127,21 @@ log into your Qt account; if you don't have an account, select “Sign up“
 to create one.  The next page will require you to accept the LGPL (Lesser
 GNU Public License); do so.  Continue to the “Installation Folder“ page
 of the installer screen, and select the “Custom installation“ option.
-On the “Select Components“ screen of the installer, select, for the
-desired Qt version, the “macOS” component. For example, at the time of
-this writing the Qt {macos-qt6-lts-version} “macOS” component is used to build
-the official packages.  The “Qt Debug Information Files” component
-contains dSYM files which can be used for debugging. You can deselect
-all of the other the components such as “Qt Charts” or “Android xxxx”
-as they aren’t required.
+On the “Select Components“ screen of the installer, select your desired
+Qt version. We recommend using the same Qt version used to build the official
+Wireshark packages, which at the time of this writing is Qt {macos-qt-lts-version}.
+Select the following components:
 
-Qt 6 needs the "Qt 5 Compatibility Module" to be installed as well. Additionally, the module
-"Qt Multimedia" may be installed, to support advanced controls for playing back streams in the
-RTP Player dialog.
+* macOS
+* Qt 5 Compatibility Module
+* Qt Debug Information Files (contains dSYM files which can be used for debugging)
+
+Optionally, under "Additional Libraries" also select the following components:
+
+* Qt Multimedia (to support advanced controls for playing back streams in the RTP Player dialog)
+
+You can deselect all of the other the components such as “Qt Charts” or “Android xxxx”
+as they aren’t required.
 
 [#ChSetupUNIXBuild]
 
@@ -394,21 +398,25 @@ and use Next button to proceed. When you are asked to select packages to be
 installed, select "*Custom installation*".
 
 In the "Select Components" page, select your desired Qt version. We recommend
-the latest LTS version, and the stable Windows installers currently ship with Qt {windows-qt6-lts-version}.
+using the same Qt version shipped with the Windows installers for the current
+stable Wireshark release, which at the time of this writing is Qt {windows-qt6-lts-version}.
 Select the following components:
 
 * MSVC 2022 64-bit or MSVC 2022 ARM64
 * Qt 5 Compatibility Module
 * Qt Debug Information Files (contains PDB files which can be used for debugging)
-* Under "Additional Libraries" select "Qt Multimedia" to support advanced
-controls for playing back streams in the RTP Player dialog
-* You can deselect all of the other the components
-such as “Qt Charts” or “Android xxxx” as they aren’t required.
+
+Optionally, under "Additional Libraries" also select the following components:
+
+* Qt Multimedia (to support advanced controls for playing back streams in the RTP Player dialog)
+
+You can deselect all of the other the components such as “Qt Charts” or “Android xxxx”
+as they aren’t required.
 
 The CMake variable CMAKE_PREFIX_PATH (see `https://doc.qt.io/qt-6/cmake-get-started.html`) should be set as appropriate for your environment and should point to the Qt installation directory, e.g. _C:\Qt{backslash}{windows-qt6-lts-version}\msvc2022_64_
 Alternatively you can also use the environment variable WIRESHARK_QT6_PREFIX_PATH.
 
-Qt 6 is the default option for building Wireshark, but Wireshark has support for Qt 5.12 and later. To enable Wireshark to build with Qt 5 pass `-DUSE_qt6=OFF`
+Qt 6 is the default option for building Wireshark, but Wireshark has support for Qt 5.15 and later. To enable Wireshark to build with Qt 5 pass `-DUSE_qt6=OFF`
 to cmake.
 
 ====== Install Qt using AQt
@@ -665,10 +673,17 @@ Setting these variables could be added to a batch file to be run after you open
 the Visual Studio Tools Command Prompt.
 
 [TIP]
-.Use of Qt’s LTS branch
+.Qt’s LTS branch
 ====
-It is generally recommended to use a LTS ("long term support") version for Qt. The current LTS version for Qt 6 is
-{windows-qt6-lts-version}.
+As of of Qt 6, the Qt Company does not provide binary packages of Long Term Support (LTS)
+releases for open source use, and source packages are provided at a one year delay from
+the commercial LTS release. Thus the LTS branch is likely not an available option.
+
+To avoid unexpected bugs and regressions, we generally recommend using the same version of
+Qt used in the official Wireshark packages. For the current stable release at the time of
+this writing, that is {windows-qt6-lts-version}. If you use another version, note that the
+last patch release of a Qt minor version is generally more stable than the first release of
+the next minor version, e.g. Qt 6.9.3 vs 6.10.0.
 ====
 
 --
