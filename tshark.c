@@ -2961,7 +2961,6 @@ tshark_epan_new(capture_file *cf)
 static bool
 capture(void)
 {
-    volatile bool ret = true;
     GString          *str;
     GMainContext     *ctx;
 #ifndef _WIN32
@@ -3017,10 +3016,8 @@ capture(void)
     fflush(stderr);
     g_string_free(str, TRUE);
 
-    ret = sync_pipe_start(&global_capture_opts, capture_comments,
-            &global_capture_session, &global_info_data, NULL);
-
-    if (!ret)
+    if (!sync_pipe_start(&global_capture_opts, capture_comments,
+                         &global_capture_session, &global_info_data, NULL))
         return false;
 
     /*
@@ -3052,7 +3049,7 @@ capture(void)
         abort();
     }
     ENDTRY;
-    return ret;
+    return true;
 }
 
 /* capture child detected an error */
