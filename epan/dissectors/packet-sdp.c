@@ -358,7 +358,7 @@ static const value_string sdp_exchange_type_vs[] = {
     { 0, NULL }
 };
 
-static void sdp_dump_transport_info(const transport_info_t* info) {
+static void sdp_dump_transport_info(packet_info *pinfo, const transport_info_t* info) {
     int i;
     int count;
     DPRINT2(("transport_info contents:"));
