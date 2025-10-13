@@ -11,6 +11,10 @@ set( PROTOCOL_NAME sgp22 )
 
 set( PROTO_OPT )
 
+set( EXPORT_FILES
+	${PROTOCOL_NAME}-exp.cnf
+)
+
 set( EXT_ASN_FILE_LIST )
 
 set( ASN_FILE_LIST
