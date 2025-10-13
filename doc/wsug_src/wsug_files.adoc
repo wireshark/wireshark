@@ -677,7 +677,7 @@ former location. The defaults mentioned here might not apply.
 The following guides you to the right place where to look for Wireshark’s
 profile data.
 
-Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, and associated server editions::
+Windows 11, Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, and associated server editions::
 _C:\Users{backslash}**username**\AppData\Roaming\Wireshark_.
 
 Windows XP and Windows Server 2003 footnote:historical[No longer supported by Wireshark. For historical reference only.]::
@@ -705,7 +705,7 @@ files.
 Wireshark uses the folder which is set by the TMPDIR or TEMP environment
 variable. This variable will be set by the Windows installer.
 
-Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, and associated server editions::
+Windows 11, Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, and associated server editions::
 _C:\Users{backslash}**username**\AppData\Local\Temp_
 
 Windows XP and Windows Server 2003 footnote:historical[]::
