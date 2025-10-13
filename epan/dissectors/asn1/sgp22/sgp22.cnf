@@ -5,7 +5,7 @@ PKIX1Explicit88 pkix1explicit
 PKIX1Implicit88 pkix1implicit
 
 #.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
-#.INCLUDE ../pkix1implicit/pkix1implicit_exp.cnf
+#.INCLUDE ../pkix1implicit/pkix1implicit-exp.cnf
 
 #.OMIT_ASSIGNMENT
 Octet2

@@ -7,7 +7,7 @@ PKIX1Implicit88	pkix1implicit
 CryptographicMessageSyntax2004 cms
 
 #.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
-#.INCLUDE ../pkix1implicit/pkix1implicit_exp.cnf
+#.INCLUDE ../pkix1implicit/pkix1implicit-exp.cnf
 
 #.EXPORTS
 AttributeTypeAndValue

@@ -31,7 +31,7 @@ set( SRC_FILES
 
 set( EXTRA_CNF
 	../pkix1explicit/pkix1explicit_exp.cnf
-	../pkix1implicit/pkix1implicit_exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../pkix1implicit/pkix1implicit-exp.cnf"
 	"${CMAKE_CURRENT_BINARY_DIR}/../sgp22/sgp22-exp.cnf"
 )
 

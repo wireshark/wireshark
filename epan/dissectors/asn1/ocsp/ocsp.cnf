@@ -12,7 +12,7 @@ PKIX1Explicit88 pkix1explicit
 
 #.IMPORT ../x509af/x509af-exp.cnf
 #.IMPORT ../x509ce/x509ce-exp.cnf
-#.INCLUDE ../pkix1implicit/pkix1implicit_exp.cnf
+#.INCLUDE ../pkix1implicit/pkix1implicit-exp.cnf
 #.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
 
 #.EXPORTS
