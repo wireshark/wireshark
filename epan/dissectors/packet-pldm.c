@@ -198,21 +198,22 @@ static int hf_fwu_pend_comp_ver_str;
 
 
 static const value_string directions[] = {
-	{0, "response"},
-	{1, "reserved"},
-	{2, "request"},
-	{3, "async/unack"},
+	{0, "Response"},
+	{1, "Reserved"},
+	{2, "Request"},
+	{3, "Async/Unack"},
 	{0, NULL}
 };
 
 static const value_string pldm_types[] = {
-	{0, "PLDM Messaging and Discovery"},
+	{0, "PLDM Messaging Control and Discovery"},
 	{1, "PLDM for SMBIOS"},
-	{2, "PLDM Platform Monitoring and Control"},
+	{2, "PLDM for Platform Monitoring and Control"},
 	{3, "PLDM for BIOS Control and Configuration"},
 	{4, "PLDM for FRU Data"},
 	{5, "PLDM for Firmware Update"},
 	{6, "PLDM for Redfish Device Enablement"},
+	{7, "PLDM for File Transfer"},
 	{63, "OEM Specific"},
 	{0, NULL}
 };
@@ -1495,11 +1496,19 @@ static int dissect_pldm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	uint32_t direction;
 	uint32_t instID, pldm_type, offset;
 	int reported_length;
+
 	len = tvb_reported_length(tvb);
 	if (len < PLDM_MIN_LENGTH) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Packet length %u, minimum %u", len, PLDM_MIN_LENGTH);
 		return tvb_captured_length(tvb);
 	}
+
+	//Put PLDM packet summary to the INFO column
+	direction = tvb_get_uint8(tvb, 1) >> 6 & 0x3;
+	pldm_type = tvb_get_uint8(tvb, 2) & 0x7f;
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", val_to_str(pinfo->pool, (uint8_t)pldm_type, pldm_types,  "Unknown Type(0x%x)"),
+		val_to_str(pinfo->pool, (uint8_t)direction, directions,  "Unknown Rq D (0x%x)"));
+
 	if (tree) {
 		/* First byte is the MCTP msg type, it is 01 for PLDM over MCTP */
 		offset = 1;
