@@ -44,6 +44,7 @@
 #include <epan/expert.h>
 #include <epan/tfs.h>
 #include <epan/tvbuff-int.h>
+#include <epan/exceptions.h>
 #include <wsutil/array.h>
 #include "packet-tls-utils.h"
 #include "packet-tcp.h"
@@ -1208,11 +1209,11 @@ static unsigned
 get_v3_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
                tcpcl_dissect_ctx_t *ctx _U_)
 {
-    const int orig_offset = offset;
     uint64_t len;
     unsigned bytecount;
     uint8_t conv_hdr = tvb_get_uint8(tvb, offset);
     offset += 1;
+    unsigned msg_len = 1;
 
     switch (conv_hdr & TCPCLV3_TYPE_MASK)
     {
@@ -1223,7 +1224,7 @@ get_v3_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
             return 0;
         }
         const int len_clamp = get_clamped_length(len, NULL, NULL);
-        offset += bytecount + len_clamp;
+        msg_len += bytecount + (unsigned)len_clamp;
         break;
     }
     case TCPCLV3_ACK_SEGMENT:
@@ -1232,7 +1233,7 @@ get_v3_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
         if (bytecount == 0) {
             return 0;
         }
-        offset += bytecount;
+        msg_len += bytecount;
         break;
 
     case TCPCLV3_KEEP_ALIVE:
@@ -1241,10 +1242,10 @@ get_v3_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
         break;
     case TCPCLV3_SHUTDOWN:
         if (conv_hdr & TCPCLV3_SHUTDOWN_REASON) {
-            offset += 1;
+            msg_len += 1;
         }
         if (conv_hdr & TCPCLV3_SHUTDOWN_DELAY) {
-            offset += 2;
+            msg_len += 2;
         }
         break;
 
@@ -1254,7 +1255,7 @@ get_v3_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
         if (bytecount == 0) {
             return 0;
         }
-        offset += bytecount;
+        msg_len += bytecount;
         break;
 
     default:
@@ -1262,7 +1263,7 @@ get_v3_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
         return 0;
     }
 
-    return offset - orig_offset;
+    return msg_len;
 }
 
 static int
@@ -1458,20 +1459,21 @@ static unsigned get_v4_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset
     offset += 1;
     switch(msgtype) {
         case TCPCLV4_MSGTYPE_SESS_INIT: {
-            const int buflen = tvb_reported_length(tvb);
-            offset += 2 + 8 + 8;
-            if (buflen < offset + 2) {
+            if (tvb_reported_length_remaining(tvb, offset) < 2 + 8 + 8 + 2) {
                 return 0;
             }
+            offset += 2 + 8 + 8;
             uint16_t nodeid_len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             offset += 2;
-            offset += nodeid_len;
-            if (buflen < offset + 4) {
+            if (tvb_reported_length_remaining(tvb, offset) < nodeid_len + 4) {
                 return 0;
             }
+            offset += nodeid_len;
             uint32_t extlist_len = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
             offset += 4;
-            offset += extlist_len;
+            if (ckd_add(&offset, offset, extlist_len)) {
+                THROW(ReportedBoundsError);
+            }
             break;
         }
         case TCPCLV4_MSGTYPE_SESS_TERM: {
@@ -1479,28 +1481,32 @@ static unsigned get_v4_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset
             break;
         }
         case TCPCLV4_MSGTYPE_XFER_SEGMENT: {
-            const int buflen = tvb_reported_length(tvb);
-            if (buflen < offset + 1) {
+            if (tvb_reported_length_remaining(tvb, offset) < 1) {
                 return 0;
             }
             uint8_t flags = tvb_get_uint8(tvb, offset);
             offset += 1;
             offset += 8;
             if (flags & TCPCLV4_TRANSFER_FLAG_START) {
-                if (buflen < offset + 4) {
+                if (tvb_reported_length_remaining(tvb, offset) < 4) {
                     return 0;
                 }
                 uint32_t extlist_len = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
                 offset += 4;
+                if ((unsigned)tvb_reported_length_remaining(tvb, offset) < extlist_len) {
+                    return 0;
+                }
                 offset += extlist_len;
             }
-            if (buflen < offset + 8) {
+            if (tvb_reported_length_remaining(tvb, offset) < 8) {
                 return 0;
             }
             uint64_t data_len = tvb_get_uint64(tvb, offset, ENC_BIG_ENDIAN);
             offset += 8;
             const int data_len_clamp = get_clamped_length(data_len, NULL, NULL);
-            offset += data_len_clamp;
+            if (ckd_add(&offset, offset, data_len_clamp)) {
+                THROW(ReportedBoundsError);
+            }
             break;
         }
         case TCPCLV4_MSGTYPE_XFER_ACK: {
