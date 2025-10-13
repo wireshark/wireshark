@@ -17,7 +17,7 @@
 #include <tchar.h>
 #include <wchar.h>
 #include <shellapi.h>
-#include <shobjidl_core.h>
+#include <shobjidl.h>
 #include <wsutil/console_win32.h>
 #endif
 
