@@ -3719,7 +3719,7 @@ static const ber_sequence_t EuiccSigned1_sequence[] = {
   { &hf_sgp32_serverAddress , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_sgp32_UTF8String },
   { &hf_sgp32_serverChallenge, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_sgp22_Octet16 },
   { &hf_sgp32_euiccInfo2    , BER_CLASS_CON, 34, BER_FLAGS_IMPLTAG, dissect_sgp32_EUICCInfo2 },
-  { &hf_sgp32_ctxParams1    , BER_CLASS_ANY, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_sgp22_CtxParams1 },
+  { &hf_sgp32_ctxParams1    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_sgp22_CtxParams1 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -5811,8 +5811,8 @@ void proto_register_sgp32(void)
         FT_UINT32, BASE_DEC, VALS(sgp32_ProfileInfoListResponse_U_vals), 0,
         "ProfileInfoListResponse", HFILL }},
     { &hf_sgp32_getRATResult,
-      { "getRATResult", "sgp32.getRATResult_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "getRATResult", "sgp32.getRATResult",
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RulesAuthorisationTable", HFILL }},
     { &hf_sgp32_configureImmediateEnableResult,
       { "configureImmediateEnableResult", "sgp32.configureImmediateEnableResult",
