@@ -41,6 +41,7 @@
 #include <ws_exit_codes.h>
 #include <wsutil/clopts_common.h>
 #include <wsutil/wslog.h>
+#include <wsutil/report_message.h>
 
 #include "ui/failure_message.h"
 
@@ -162,7 +163,7 @@ main(int argc, char *argv[])
             if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT)
                 printf("%s: unknown\n", argv[i]);
             else {
-                cfile_open_failure_message(argv[i], err, err_info);
+                report_cfile_open_failure(argv[i], err, err_info);
                 overall_error_status = 2; /* remember that an error has occurred */
             }
         }

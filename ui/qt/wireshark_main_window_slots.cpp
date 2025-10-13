@@ -64,7 +64,6 @@ DIAG_ON(frame-larger-than=)
 #include <epan/wslua/init_wslua.h>
 #endif
 
-#include "ui/alert_box.h"
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_ui_utils.h"
 #endif

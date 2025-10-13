@@ -9,12 +9,12 @@
 
 #include "export_dissection_dialog.h"
 
-#include "ui/alert_box.h"
 #include "ui/help_url.h"
 #include "ui/util.h"
 
 #include <epan/print.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/report_message.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
 
@@ -157,7 +157,7 @@ void ExportDissectionDialog::dialogAccepted(const QStringList &selected)
         case export_type_text:      /* Text */
             print_args_.stream = print_stream_text_new(true, print_args_.file);
             if (print_args_.stream == NULL) {
-                open_failure_alert_box(print_args_.file, errno, true);
+                report_open_failure(print_args_.file, errno, true);
                 return;
             }
             status = cf_print_packets(cap_file_, &print_args_, true);
@@ -185,10 +185,10 @@ void ExportDissectionDialog::dialogAccepted(const QStringList &selected)
             case CF_PRINT_OK:
                 break;
             case CF_PRINT_OPEN_ERROR:
-                open_failure_alert_box(print_args_.file, errno, true);
+                report_open_failure(print_args_.file, errno, true);
                 break;
             case CF_PRINT_WRITE_ERROR:
-                write_failure_alert_box(print_args_.file, errno);
+                report_write_failure(print_args_.file, errno);
                 break;
         }
 

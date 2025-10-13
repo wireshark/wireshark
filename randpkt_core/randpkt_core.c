@@ -20,9 +20,8 @@
 #include <wsutil/array.h>
 #include <wsutil/file_util.h>
 #include <wsutil/wslog.h>
+#include <wsutil/report_message.h>
 #include <wiretap/wtap_opttypes.h>
-
-#include "ui/failure_message.h"
 
 #define INVALID_LEN 1
 #define WRITE_ERROR 2
@@ -619,14 +618,14 @@ void randpkt_loop(randpkt_example* example, uint64_t produce_count, uint64_t pac
 		}
 
 		if (!wtap_dump(example->dump, &rec, &err, &err_info)) {
-			cfile_write_failure_message(NULL,
+			report_cfile_write_failure(NULL,
 			    example->filename, err, err_info, 0,
 			    wtap_dump_file_type_subtype(example->dump));
 		}
 		if (packet_delay_ms) {
 			g_usleep(1000 * (unsigned long)packet_delay_ms);
 			if (!wtap_dump_flush(example->dump, &err)) {
-				cfile_write_failure_message(NULL,
+				report_cfile_write_failure(NULL,
 				    example->filename, err, NULL, 0,
 				    wtap_dump_file_type_subtype(example->dump));
 			}
@@ -643,7 +642,7 @@ bool randpkt_example_close(randpkt_example* example)
 	bool ok = true;
 
 	if (!wtap_dump_close(example->dump, NULL, &err, &err_info)) {
-		cfile_close_failure_message(example->filename, err, err_info);
+		report_cfile_close_failure(example->filename, err, err_info);
 		ok = false;
 	}
 
@@ -679,7 +678,7 @@ int randpkt_example_init(randpkt_example* example, char* produce_filename, int p
 		example->filename = produce_filename;
 	}
 	if (!example->dump) {
-		cfile_dump_open_failure_message(produce_filename,
+		report_cfile_dump_open_failure(produce_filename,
 			err, err_info, file_type_subtype);
 		return WRITE_ERROR;
 	}

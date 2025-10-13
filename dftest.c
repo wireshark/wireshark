@@ -41,8 +41,9 @@
 #include <wiretap/wtap.h>
 
 #include "ui/util.h"
-#include "wsutil/cmdarg_err.h"
 #include "ui/failure_message.h"
+#include "wsutil/cmdarg_err.h"
+#include "wsutil/report_message.h"
 #include "wsutil/version_info.h"
 #include "cli_main.h"
 
@@ -542,7 +543,7 @@ main(int argc, char **argv)
         } else {
             filter_p = ws_fopen(path, "r");
             if (filter_p == NULL) {
-                open_failure_message(path, errno, false);
+                report_open_failure(path, errno, false);
                 exit_status = WS_EXIT_INVALID_FILE;
                 goto out;
             }

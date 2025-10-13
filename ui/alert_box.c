@@ -22,26 +22,21 @@
 
 #include "ui/simple_dialog.h"
 
+static void
+open_failure_alert_box(const char *filename, int err, bool for_writing);
+static void
+write_failure_alert_box(const char *filename, int err);
+
 /*
- * Alert box for general errors.
+ * Alert boxes for general errors and warnings.
  */
-void
-failure_alert_box(const char *msg_format, ...)
-{
-    va_list ap;
-
-    va_start(ap, msg_format);
-    vsimple_error_message_box(msg_format, ap);
-    va_end(ap);
-}
-
-void
+static void
 vfailure_alert_box(const char *msg_format, va_list ap)
 {
     vsimple_error_message_box(msg_format, ap);
 }
 
-void
+static void
 vwarning_alert_box(const char *msg_format, va_list ap)
 {
     vsimple_warning_message_box(msg_format, ap);
@@ -59,7 +54,7 @@ vwarning_alert_box(const char *msg_format, va_list ap)
  * they're providing guidelines for people less sophisticated than the
  * typical Wireshark user is, but....
  */
-void
+static void
 cfile_open_failure_alert_box(const char *filename, int err, char *err_info)
 {
     char *display_basename;
@@ -185,7 +180,7 @@ cfile_open_failure_alert_box(const char *filename, int err, char *err_info)
  * they're providing guidelines for people less sophisticated than the
  * typical Wireshark user is, but....
  */
-void
+static void
 cfile_dump_open_failure_alert_box(const char *filename, int err,
                                   char *err_info, int file_type_subtype)
 {
@@ -269,7 +264,7 @@ cfile_dump_open_failure_alert_box(const char *filename, int err,
  * "err_info" is assumed to be a string giving further information for
  * some WTAP_ERR_ values.
  */
-void
+static void
 cfile_read_failure_alert_box(const char *filename, int err, char *err_info)
 {
     char *display_name;
@@ -365,7 +360,7 @@ cfile_read_failure_alert_box(const char *filename, int err, char *err_info)
  * is a WTAP_FILE_TYPE_SUBTYPE_ value for the type and subtype of file
  * being written.
  */
-void
+static void
 cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
                               int err, char *err_info, uint64_t framenum,
                               int file_type_subtype)
@@ -511,7 +506,7 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
  * they're providing guidelines for people less sophisticated than the
  * typical Wireshark user is, but....
  */
-void
+static void
 cfile_close_failure_alert_box(const char *filename, int err, char *err_info)
 {
     char *display_basename;
@@ -568,7 +563,7 @@ cfile_close_failure_alert_box(const char *filename, int err, char *err_info)
  * they're providing guidelines for people less sophisticated than the
  * typical Wireshark user is, but....
  */
-void
+static void
 open_failure_alert_box(const char *filename, int err, bool for_writing)
 {
     char *display_basename;
@@ -584,7 +579,7 @@ open_failure_alert_box(const char *filename, int err, bool for_writing)
  * Alert box for a failed attempt to read a file.
  * "err" is assumed to be a UNIX-style errno.
  */
-void
+static void
 read_failure_alert_box(const char *filename, int err)
 {
     char *display_basename;
@@ -606,7 +601,7 @@ read_failure_alert_box(const char *filename, int err)
  * they're providing guidelines for people less sophisticated than the
  * typical Wireshark user is, but....
  */
-void
+static void
 write_failure_alert_box(const char *filename, int err)
 {
     char *display_basename;
@@ -625,7 +620,7 @@ write_failure_alert_box(const char *filename, int err)
  * or both depends on the error and on what we find if we look for
  * one or both of them.
  */
-void
+static void
 rename_failure_alert_box(const char *old_filename, const char *new_filename,
                          int err)
 {

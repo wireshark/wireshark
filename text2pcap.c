@@ -82,6 +82,7 @@
 #include <wsutil/os_version_info.h>
 #include <wsutil/privileges.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/report_message.h>
 
 #include <glib.h>
 
@@ -907,7 +908,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         } else {
             input_file = ws_fopen(input_filename, "rb");
             if (!input_file) {
-                open_failure_message(input_filename, errno, false);
+                report_open_failure(input_filename, errno, false);
                 return WS_EXIT_OPEN_ERROR;
             }
         }
@@ -957,8 +958,8 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     }
 
     if (!wdh) {
-        cfile_dump_open_failure_message(output_filename, err, err_info,
-                                        file_type_subtype);
+        report_cfile_dump_open_failure(output_filename, err, err_info,
+                                       file_type_subtype);
         cleanup_dump_params(params);
         return WS_EXIT_OPEN_ERROR;
     }
@@ -1113,7 +1114,7 @@ clean_exit:
         int err;
         char *err_info;
         if (!wtap_dump_close(wdh, NULL, &err, &err_info)) {
-            cfile_close_failure_message(output_filename, err, err_info);
+            report_cfile_close_failure(output_filename, err, err_info);
             ret = 2;
         }
     }

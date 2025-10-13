@@ -61,6 +61,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/wslog.h>
+#include <wsutil/report_message.h>
 #include <wiretap/wtap_opttypes.h>
 
 #include "ui/failure_message.h"
@@ -2035,7 +2036,7 @@ main(int argc, char *argv[])
     wth = wtap_open_offline(argv[ws_optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, false);
 
     if (!wth) {
-        cfile_open_failure_message(argv[ws_optind], read_err, read_err_info);
+        report_cfile_open_failure(argv[ws_optind], read_err, read_err_info);
         ret = WS_EXIT_INVALID_FILE;
         goto clean_exit;
     }
@@ -2084,7 +2085,7 @@ main(int argc, char *argv[])
         if (read_err != 0) {
             /* Print a message noting that the read failed somewhere along the
              * line. */
-            cfile_read_failure_message(argv[ws_optind], read_err, read_err_info);
+            report_cfile_read_failure(argv[ws_optind], read_err, read_err_info);
         }
         goto clean_exit;
     }
@@ -2242,9 +2243,9 @@ main(int argc, char *argv[])
                                     &write_err_info, compression_type);
 
             if (pdh == NULL) {
-                cfile_dump_open_failure_message(filename,
-                                                write_err, write_err_info,
-                                                out_file_type_subtype);
+                report_cfile_dump_open_failure(filename,
+                                               write_err, write_err_info,
+                                               out_file_type_subtype);
                 ret = WS_EXIT_INVALID_FILE;
                 goto clean_exit;
             }
@@ -2254,10 +2255,10 @@ main(int argc, char *argv[])
          * Process whatever IDBs we haven't seen yet.
          */
         if (!process_new_idbs(wth, pdh, idbs_seen, &write_err, &write_err_info)) {
-            cfile_write_failure_message(argv[ws_optind], filename,
-                                        write_err, write_err_info,
-                                        read_count,
-                                        out_file_type_subtype);
+            report_cfile_write_failure(argv[ws_optind], filename,
+                                       write_err, write_err_info,
+                                       read_count,
+                                       out_file_type_subtype);
             ret = DUMP_ERROR;
 
             /*
@@ -2286,8 +2287,8 @@ main(int argc, char *argv[])
                      */
                     wtap_block_array_ref(params.dsbs_initial);
                     if (!wtap_dump_close(pdh, NULL, &write_err, &write_err_info)) {
-                        cfile_close_failure_message(filename, write_err,
-                                                    write_err_info);
+                        report_cfile_close_failure(filename, write_err,
+                                                   write_err_info);
                         ret = WRITE_ERROR;
                         goto clean_exit;
                     }
@@ -2304,10 +2305,10 @@ main(int argc, char *argv[])
                                             &write_err, &write_err_info, compression_type);
 
                     if (pdh == NULL) {
-                        cfile_dump_open_failure_message(filename,
-                                                        write_err,
-                                                        write_err_info,
-                                                        out_file_type_subtype);
+                        report_cfile_dump_open_failure(filename,
+                                                       write_err,
+                                                       write_err_info,
+                                                       out_file_type_subtype);
                         ret = WS_EXIT_INVALID_FILE;
                         goto clean_exit;
                     }
@@ -2324,8 +2325,8 @@ main(int argc, char *argv[])
                  */
                 wtap_block_array_ref(params.dsbs_initial);
                 if (!wtap_dump_close(pdh, NULL, &write_err, &write_err_info)) {
-                    cfile_close_failure_message(filename, write_err,
-                                                write_err_info);
+                    report_cfile_close_failure(filename, write_err,
+                                               write_err_info);
                     ret = WRITE_ERROR;
                     goto clean_exit;
                 }
@@ -2342,9 +2343,9 @@ main(int argc, char *argv[])
                 pdh = editcap_dump_open(filename, &params, idbs_seen,
                                         &write_err, &write_err_info, compression_type);
                 if (pdh == NULL) {
-                    cfile_dump_open_failure_message(filename,
-                                                    write_err, write_err_info,
-                                                    out_file_type_subtype);
+                    report_cfile_dump_open_failure(filename,
+                                                   write_err, write_err_info,
+                                                   out_file_type_subtype);
                     ret = WS_EXIT_INVALID_FILE;
                     goto clean_exit;
                 }
@@ -2624,10 +2625,10 @@ main(int argc, char *argv[])
 
             /* Attempt to dump out current frame to the output file */
             if (!wtap_dump(pdh, &read_rec, &write_err, &write_err_info)) {
-                cfile_write_failure_message(argv[ws_optind], filename,
-                                            write_err, write_err_info,
-                                            read_count,
-                                            out_file_type_subtype);
+                report_cfile_write_failure(argv[ws_optind], filename,
+                                           write_err, write_err_info,
+                                           read_count,
+                                           out_file_type_subtype);
                 ret = DUMP_ERROR;
 
                 /*
@@ -2651,7 +2652,7 @@ main(int argc, char *argv[])
     if (read_err != 0) {
         /* Print a message noting that the read failed somewhere along the
          * line. */
-        cfile_read_failure_message(argv[ws_optind], read_err, read_err_info);
+        report_cfile_read_failure(argv[ws_optind], read_err, read_err_info);
     }
 
     if (!pdh) {
@@ -2663,9 +2664,9 @@ main(int argc, char *argv[])
         pdh = editcap_dump_open(filename, &params, idbs_seen, &write_err,
                                 &write_err_info, compression_type);
         if (pdh == NULL) {
-            cfile_dump_open_failure_message(filename,
-                                            write_err, write_err_info,
-                                            out_file_type_subtype);
+            report_cfile_dump_open_failure(filename,
+                                           write_err, write_err_info,
+                                           out_file_type_subtype);
             ret = WS_EXIT_INVALID_FILE;
             goto clean_exit;
         }
@@ -2675,10 +2676,10 @@ main(int argc, char *argv[])
      * Process whatever IDBs we haven't seen yet.
      */
     if (!process_new_idbs(wth, pdh, idbs_seen, &write_err, &write_err_info)) {
-        cfile_write_failure_message(argv[ws_optind], filename,
-                                    write_err, write_err_info,
-                                    read_count,
-                                    out_file_type_subtype);
+        report_cfile_write_failure(argv[ws_optind], filename,
+                                   write_err, write_err_info,
+                                   read_count,
+                                   out_file_type_subtype);
         ret = DUMP_ERROR;
 
         /*
@@ -2691,7 +2692,7 @@ main(int argc, char *argv[])
     }
 
     if (!wtap_dump_close(pdh, NULL, &write_err, &write_err_info)) {
-        cfile_close_failure_message(filename, write_err, write_err_info);
+        report_cfile_close_failure(filename, write_err, write_err_info);
         ret = WRITE_ERROR;
         goto clean_exit;
     }

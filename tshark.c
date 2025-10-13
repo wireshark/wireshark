@@ -50,6 +50,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/report_message.h>
 #include <cli_main.h>
 #include <wsutil/version_info.h>
 #include <wiretap/wtap_opttypes.h>
@@ -2575,7 +2576,7 @@ main(int argc, char *argv[])
                 &err, &err_info);
         g_free(comment);
         if (!exp_pdu_status) {
-            cfile_dump_open_failure_message(exp_pdu_filename, err, err_info,
+            report_cfile_dump_open_failure(exp_pdu_filename, err, err_info,
                     out_file_type);
             exit_status = INVALID_EXPORT;
             goto clean_exit;
@@ -2668,7 +2669,7 @@ main(int argc, char *argv[])
 
         if (pdu_export_arg) {
             if (!exp_pdu_close(&exp_pdu_tap_data, &err, &err_info)) {
-                cfile_close_failure_message(exp_pdu_filename, err, err_info);
+                report_cfile_close_failure(exp_pdu_filename, err, err_info);
                 exit_status = 2;
             }
             g_free(pdu_export_arg);
@@ -4106,7 +4107,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
         if (pdh == NULL) {
             /* We couldn't set up to write to the capture file. */
-            cfile_dump_open_failure_message(save_file, err, err_info,
+            report_cfile_dump_open_failure(save_file, err, err_info,
                     out_file_type);
             status = PROCESS_FILE_NO_FILE_PROCESSED;
             goto out;
@@ -4240,7 +4241,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
             case PASS_READ_ERROR:
                 /* Read error. */
-                cfile_read_failure_message(cf->filename, err_pass1, err_info_pass1);
+                report_cfile_read_failure(cf->filename, err_pass1, err_info_pass1);
                 status = PROCESS_FILE_ERROR;
                 break;
 
@@ -4264,7 +4265,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
             case PASS_READ_ERROR:
                 /* Read error. */
-                cfile_read_failure_message(cf->filename, err, err_info);
+                report_cfile_read_failure(cf->filename, err, err_info);
                 status = PROCESS_FILE_ERROR;
                 break;
 
@@ -4272,7 +4273,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
                 /* Write error.
                    XXX - framenum is not necessarily the frame number in
                    the input file if there was a read filter. */
-                cfile_write_failure_message(cf->filename, save_file, err, err_info,
+                report_cfile_write_failure(cf->filename, save_file, err, err_info,
                         err_framenum, out_file_type);
                 status = PROCESS_FILE_ERROR;
                 break;
@@ -4313,7 +4314,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
             }
             /* Now close the capture file. */
             if (!wtap_dump_close(pdh, NULL, &err, &err_info)) {
-                cfile_close_failure_message(save_file, err, err_info);
+                report_cfile_close_failure(save_file, err, err_info);
                 status = PROCESS_FILE_ERROR;
             }
         } else {
@@ -4982,7 +4983,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile
     return CF_OK;
 
 fail:
-    cfile_open_failure_message(fname, *err, err_info);
+    report_cfile_open_failure(fname, *err, err_info);
     return CF_ERROR;
 }
 

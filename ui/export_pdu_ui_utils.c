@@ -24,10 +24,11 @@
 #include <wiretap/wtap.h>
 #include <wiretap/wtap_opttypes.h>
 
-#include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
 #include "tap_export_pdu.h"
 #include "export_pdu_ui_utils.h"
+
+#include <wsutil/report_message.h>
 
 void
 do_export_pdu(const char *filter, const char *temp_dir, const char *tap_name)
@@ -53,7 +54,7 @@ do_export_pdu(const char *filter, const char *temp_dir, const char *tap_name)
     GError *err_tempfile = NULL;
     import_file_fd = create_tempfile(temp_dir, &capfile_name, "Wireshark_PDU_", NULL, &err_tempfile);
     if (import_file_fd < 0) {
-        failure_alert_box("Temporary file could not be created: %s", err_tempfile->message);
+        report_failure("Temporary file could not be created: %s", err_tempfile->message);
         g_error_free(err_tempfile);
         g_free(capfile_name);
         return;
@@ -67,8 +68,8 @@ do_export_pdu(const char *filter, const char *temp_dir, const char *tap_name)
                           import_file_fd, comment, &err, &err_info);
     g_free(comment);
     if (!status) {
-        cfile_dump_open_failure_alert_box(capfile_name ? capfile_name : "temporary file",
-                                          err, err_info, file_type_subtype);
+        report_cfile_dump_open_failure(capfile_name ? capfile_name : "temporary file",
+                                       err, err_info, file_type_subtype);
         g_free(capfile_name);
         return;
     }
@@ -77,7 +78,7 @@ do_export_pdu(const char *filter, const char *temp_dir, const char *tap_name)
     cf_retap_packets(&cfile);
 
     if (!exp_pdu_close(&exp_pdu_tap_data, &err, &err_info)) {
-        cfile_close_failure_alert_box(capfile_name, err, err_info);
+        report_cfile_close_failure(capfile_name, err, err_info);
         /*
          * XXX - remove the temporary file and don't open it as
          * the current capture?

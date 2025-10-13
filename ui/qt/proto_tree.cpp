@@ -32,7 +32,6 @@
 #include <ui/qt/plot_action.h>
 #include <ui/qt/protocol_preferences_menu.h>
 #include <ui/all_files_wildcard.h>
-#include <ui/alert_box.h>
 #include <ui/urls.h>
 #include "main_application.h"
 

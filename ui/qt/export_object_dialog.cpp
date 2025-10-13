@@ -10,7 +10,6 @@
 #include "export_object_dialog.h"
 #include <ui_export_object_dialog.h>
 
-#include <ui/alert_box.h>
 #include <wsutil/utf8_entities.h>
 
 #include "main_application.h"

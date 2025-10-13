@@ -36,7 +36,6 @@ DIAG_ON(frame-larger-than=)
 #include <capture/capture_session.h>
 #endif
 
-#include "ui/alert_box.h"
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_ui_utils.h"
 #endif

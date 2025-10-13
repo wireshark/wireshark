@@ -63,6 +63,7 @@
 #include <wsutil/privileges.h>
 #include <cli_main.h>
 #include <wsutil/version_info.h>
+#include <wsutil/report_message.h>
 #include <wiretap/wtap_opttypes.h>
 
 #ifdef HAVE_PLUGINS
@@ -1105,7 +1106,7 @@ process_cap_file(const char *filename, bool need_separator)
 
     cf_info.wth = wtap_open_offline(filename, WTAP_TYPE_AUTO, &err, &err_info, false);
     if (!cf_info.wth) {
-        cfile_open_failure_message(filename, err, err_info);
+        report_cfile_open_failure(filename, err, err_info);
         return 2;
     }
 
@@ -1289,7 +1290,7 @@ process_cap_file(const char *filename, bool need_separator)
         fprintf(stderr,
                 "capinfos: An error occurred after reading %u packets from \"%s\".\n",
                 packet, filename);
-        cfile_read_failure_message(filename, err, err_info);
+        report_cfile_read_failure(filename, err, err_info);
         if (err == WTAP_ERR_SHORT_READ) {
             /* Don't give up completely with this one. */
             status = 1;

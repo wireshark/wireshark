@@ -25,6 +25,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
+#include <wsutil/report_message.h>
 #include <cli_main.h>
 #include <wsutil/version_info.h>
 #include <wiretap/wtap_opttypes.h>
@@ -95,7 +96,7 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
             fprintf(stderr,
                     "reordercap: An error occurred while re-reading \"%s\".\n",
                     infile);
-            cfile_read_failure_message(infile, err, err_info);
+            report_cfile_read_failure(infile, err, err_info);
             return false;
         }
     }
@@ -107,8 +108,8 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
 
     /* Dump frame to outfile */
     if (!wtap_dump(pdh, rec, &err, &err_info)) {
-        cfile_write_failure_message(infile, outfile, err, err_info, frame->num,
-                                    wtap_file_type_subtype(wth));
+        report_cfile_write_failure(infile, outfile, err, err_info, frame->num,
+                                   wtap_file_type_subtype(wth));
         return false;
     }
     wtap_rec_reset(rec);
@@ -247,7 +248,7 @@ main(int argc, char *argv[])
        open_routine reader to use, then the following needs to change. */
     wth = wtap_open_offline(infile, WTAP_TYPE_AUTO, &err, &err_info, true);
     if (wth == NULL) {
-        cfile_open_failure_message(infile, err, err_info);
+        report_cfile_open_failure(infile, err, err_info);
         ret = WS_EXIT_OPEN_ERROR;
         goto clean_exit;
     }
@@ -281,7 +282,7 @@ main(int argc, char *argv[])
     wtap_rec_cleanup(&rec);
     if (err != 0) {
       /* Print a message noting that the read failed somewhere along the line. */
-      cfile_read_failure_message(infile, err, err_info);
+      report_cfile_read_failure(infile, err, err_info);
     }
 
     printf("%u frames, %u out of order\n", frames->len, wrong_order_count);
@@ -309,8 +310,8 @@ main(int argc, char *argv[])
         params.idb_inf = NULL;
 
         if (pdh == NULL) {
-            cfile_dump_open_failure_message(outfile, err, err_info,
-                                            wtap_file_type_subtype(wth));
+            report_cfile_dump_open_failure(outfile, err, err_info,
+                                           wtap_file_type_subtype(wth));
             wtap_dump_params_cleanup(&params);
             ret = OUTPUT_FILE_ERROR;
             goto clean_exit;
@@ -334,7 +335,7 @@ main(int argc, char *argv[])
 
         /* Close outfile */
         if (!wtap_dump_close(pdh, NULL, &err, &err_info)) {
-            cfile_close_failure_message(outfile, err, err_info);
+            report_cfile_close_failure(outfile, err, err_info);
             wtap_dump_params_cleanup(&params);
             ret = OUTPUT_FILE_ERROR;
             goto clean_exit;

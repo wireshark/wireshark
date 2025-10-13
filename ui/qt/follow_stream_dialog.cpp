@@ -20,7 +20,6 @@
 #include "epan/epan_dissect.h"
 #include "epan/tap.h"
 
-#include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
 #include <ui/recent.h>
 #include <wsutil/utf8_entities.h>
@@ -29,6 +28,7 @@
 #include "wsutil/application_flavor.h"
 #include "wsutil/file_util.h"
 #include "wsutil/str_util.h"
+#include "wsutil/report_message.h"
 
 #include "ws_symbol_export.h"
 
@@ -316,7 +316,7 @@ void FollowStreamDialog::saveAs()
 
     QFile file(file_name);
     if (!file.open(QIODevice::WriteOnly)) {
-        open_failure_alert_box(file_name.toUtf8().constData(), errno, true);
+        report_open_failure(file_name.toUtf8().constData(), errno, true);
         return;
     }
 

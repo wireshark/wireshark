@@ -24,7 +24,7 @@
 /*
  * Generic error message.
  */
-void
+static void
 failure_message(const char *msg_format, va_list ap)
 {
     vcmdarg_err(msg_format, ap);
@@ -37,7 +37,7 @@ failure_message(const char *msg_format, va_list ap)
  * to be a UNIX-style errno; "for_writing" is true if we're opening
  * the file for writing and false if we're opening it for reading.
  */
-void
+static void
 open_failure_message(const char *filename, int err, bool for_writing)
 {
     cmdarg_err(file_open_error_message(err, for_writing), filename);
@@ -49,7 +49,7 @@ open_failure_message(const char *filename, int err, bool for_writing)
  * "filename" is the name of the file being read from; "err" is assumed
  * to be a UNIX-style errno.
  */
-void
+static void
 read_failure_message(const char *filename, int err)
 {
     cmdarg_err("An error occurred while reading from the file \"%s\": %s.",
@@ -62,7 +62,7 @@ read_failure_message(const char *filename, int err)
  * "filename" is the name of the file being written to; "err" is assumed
  * to be a UNIX-style errno.
  */
-void
+static void
 write_failure_message(const char *filename, int err)
 {
     cmdarg_err("An error occurred while writing to the file \"%s\": %s.",
@@ -76,7 +76,7 @@ write_failure_message(const char *filename, int err)
  * is the name to which it's being renamed; "err" is assumed to be a
  * UNIX-style errno.
  */
-void
+static void
 rename_failure_message(const char *old_filename, const char *new_filename,
                        int err)
 {
@@ -120,7 +120,7 @@ output_file_description(const char *fname)
  * to be a UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed
  * to be a string giving further information for some WTAP_ERR_ values.
  */
-void
+static void
 cfile_open_failure_message(const char *filename, int err, char *err_info)
 {
     if (err < 0) {
@@ -229,7 +229,7 @@ cfile_open_failure_message(const char *filename, int err, char *err_info)
  * "file_type_subtype" is a WTAP_FILE_TYPE_SUBTYPE_ value for the type
  * and subtype of file being opened.
  */
-void
+static void
 cfile_dump_open_failure_message(const char *filename, int err, char *err_info,
                                 int file_type_subtype)
 {
@@ -307,7 +307,7 @@ cfile_dump_open_failure_message(const char *filename, int err, char *err_info,
  * to be a UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed
  * to be a string giving further information for some WTAP_ERR_ values.
  */
-void
+static void
 cfile_read_failure_message(const char *filename, int err, char *err_info)
 {
     char *file_string;
@@ -388,7 +388,7 @@ cfile_read_failure_message(const char *filename, int err, char *err_info)
  * occurred; "file_type_subtype" is a WTAP_FILE_TYPE_SUBTYPE_ value
  * for the type and subtype of file being written.
  */
-void
+static void
 cfile_write_failure_message(const char *in_filename, const char *out_filename,
                             int err, char *err_info,
                             uint64_t framenum, int file_type_subtype)
@@ -532,7 +532,7 @@ cfile_write_failure_message(const char *in_filename, const char *out_filename,
  *
  * so we have to check for write errors here.
  */
-void
+static void
 cfile_close_failure_message(const char *filename, int err, char *err_info)
 {
     char *file_string;

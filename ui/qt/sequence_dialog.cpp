@@ -25,7 +25,6 @@
 #include "sequence_diagram.h"
 #include "main_application.h"
 #include <ui/qt/utils/variant_pointer.h>
-#include <ui/alert_box.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include <ui/voip_calls.h>
 #include "rtp_stream_dialog.h"
@@ -614,7 +613,7 @@ void SequenceDialog::exportDiagram()
         if (save_ok) {
             mainApp->setLastOpenDirFromFilename(file_name);
         } else {
-            open_failure_alert_box(file_name.toUtf8().constData(), errno, true);
+            report_open_failure(file_name.toUtf8().constData(), errno, true);
         }
     }
 }

@@ -28,6 +28,7 @@
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/exported_pdu_tlvs.h>
+#include <wsutil/report_message.h>
 
 #include "ui/failure_message.h"
 
@@ -471,12 +472,12 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     file_type_subtype = wtap_pcap_nsec_file_type_subtype();
     extcap_dumper.dumper.wtap = wtap_dump_open(fifo, file_type_subtype, WTAP_UNCOMPRESSED, &params, &err, &err_info);
     if (!extcap_dumper.dumper.wtap) {
-        cfile_dump_open_failure_message(fifo, err, err_info, file_type_subtype);
+        report_cfile_dump_open_failure(fifo, err, err_info, file_type_subtype);
         exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);
     }
     extcap_dumper.encap = encap;
     if (!wtap_dump_flush(extcap_dumper.dumper.wtap, &err)) {
-        cfile_dump_open_failure_message(fifo, err, NULL, file_type_subtype);
+        report_cfile_dump_open_failure(fifo, err, NULL, file_type_subtype);
         exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);
     }
 #endif
@@ -530,15 +531,15 @@ static bool extcap_dumper_dump(struct extcap_dumper extcap_dumper,
     ws_buffer_append(&rec.data, buffer, captured_length);
 
     if (!wtap_dump(extcap_dumper.dumper.wtap, &rec, &err, &err_info)) {
-        cfile_write_failure_message(NULL, fifo, err, err_info, 0,
-                                    wtap_dump_file_type_subtype(extcap_dumper.dumper.wtap));
+        report_cfile_write_failure(NULL, fifo, err, err_info, 0,
+                                   wtap_dump_file_type_subtype(extcap_dumper.dumper.wtap));
         wtap_rec_cleanup(&rec);
         return false;
     }
 
     if (!wtap_dump_flush(extcap_dumper.dumper.wtap, &err)) {
-        cfile_write_failure_message(NULL, fifo, err, NULL, 0,
-                                    wtap_dump_file_type_subtype(extcap_dumper.dumper.wtap));
+        report_cfile_write_failure(NULL, fifo, err, NULL, 0,
+                                   wtap_dump_file_type_subtype(extcap_dumper.dumper.wtap));
         wtap_rec_cleanup(&rec);
         return false;
     }
