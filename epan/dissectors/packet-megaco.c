@@ -69,6 +69,7 @@ static int hf_megaco_version;
 static int hf_megaco_transaction;
 static int hf_megaco_transid;
 static int hf_megaco_Context;
+static int hf_megaco_Context_generated;
 /* static int hf_megaco_command_line; */
 static int hf_megaco_command;
 static int hf_megaco_command_optional;
@@ -582,7 +583,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     int         tvb_command_start_offset, tvb_command_end_offset;
     int         tvb_descriptors_start_offset, tvb_descriptors_end_offset;
     int         tvb_transaction_end_offset;
-    proto_tree  *megaco_tree, *message_body_tree, *megaco_tree_command_line, *ti, *sub_ti;
+    proto_tree  *megaco_tree, *message_body_tree, *megaco_tree_command_line;
+    proto_item  *ti, *sub_ti;
 
     uint8_t     word[15];
     uint8_t     TermID[30];
@@ -988,6 +990,8 @@ nextcontext:
         }
 
         my_proto_tree_add_uint(megaco_tree, hf_megaco_Context, tvb, context_offset, context_length, ctx_id);
+        sub_ti = my_proto_tree_add_uint(megaco_tree, hf_megaco_Context_generated, tvb, context_offset, context_length, ctx_id);
+        proto_item_set_generated(sub_ti);
         col_append_fstr(pinfo->cinfo, COL_INFO, " |=%s", val_to_str(pinfo->pool, ctx_id, megaco_context_vals, "%d"));
 
         ctx = gcp_ctx(msg,trx,ctx_id,pinfo,keep_persistent_data);
@@ -3110,7 +3114,7 @@ dissect_megaco_LocalRemotedescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadesc
     /* Only fill in the info when we have valid contex */
     if ((context != 0) && (context < 0xfffffffe)) {
         setup_info = (sdp_setup_info_t){
-            .hf_id = hf_megaco_Context,
+            .hf_id = hf_megaco_Context_generated,
             .hf_type = SDP_TRACE_ID_HF_TYPE_UINT32,
             .trace_id.num = context,
         };
@@ -3701,6 +3705,9 @@ proto_register_megaco(void)
         { &hf_megaco_Context,
           { "Context", "megaco.context", FT_UINT32, BASE_CUSTOM, CF_FUNC(megaco_fmt_content), 0x0,
             "Context ID of this message", HFILL }},
+        { &hf_megaco_Context_generated,
+          { "Generated Context", "megaco.context.generated", FT_UINT32, BASE_CUSTOM, CF_FUNC(megaco_fmt_content), 0x0,
+            "Used to track Context ID across protocols", HFILL }},
         { &hf_megaco_digitmap_descriptor,
           { "DigitMap Descriptor", "megaco.digitmap", FT_STRING, BASE_NONE, NULL, 0x0,
             "DigitMap Descriptor of the megaco Command", HFILL }},
