@@ -1031,7 +1031,11 @@ bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, 
 
     memcpy(ssi->evt_storage + sizeof(scap_evt), payload_hdr, sizeof(payload_hdr));
     memcpy(ssi->evt_storage + sizeof(scap_evt) + sizeof(payload_hdr), evt_data, evt_datalen);
+#if SINSP_CHECK_VERSION(0, 22, 0)
+    ssi->evt->init_from_raw(ssi->evt_storage, 0);
+#else
     ssi->evt->init(ssi->evt_storage, 0);
+#endif
     ssi->evt->set_num(event_num);
 
     // Extract our field values.
