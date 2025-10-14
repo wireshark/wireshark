@@ -135,6 +135,10 @@ QT6_LIST="
 	qt6-tools-dev-tools
 	"
 
+# apt-get update must be called before calling add_package
+# otherwise available packages appear as unavailable
+apt-get update || exit 2
+
 # qt6-5compat-dev: Debian >= bookworm, Ubuntu >= 23.04
 # libqt6core5compat6-dev: Ubuntu 22.04
 add_package QT6_LIST qt6-5compat-dev ||
@@ -154,17 +158,8 @@ fi
 
 if [ $HAVE_ADD_QT -eq 0 ]
 then
-	# Try to select Qt version from distro
-	test -e /etc/os-release && os_release='/etc/os-release' || os_release='/usr/lib/os-release'
-	# shellcheck disable=SC1090
-	. "${os_release}"
-
-	# Ubuntu 22.04 (jammy) / Debian 12 (bookworm) or later
-	MAJOR=$(echo "$VERSION_ID" | cut -f1 -d.)
-	if [ "${ID:-linux}" = "ubuntu" ] && [ "${MAJOR:-0}" -ge "22" ]; then
-		echo "Installing Qt6."
-		BASIC_LIST="$BASIC_LIST $QT6_LIST"
-	elif [ "${ID:-linux}" = "debian" ] && [ "${MAJOR:-0}" -ge "12" ]; then
+	# The user didn't select a Qt version. Select Qt 6 if it's available, otherwise Qt 5.
+	if apt-cache show qt6-base-dev 2&> /dev/null ; then
 		echo "Installing Qt6."
 		BASIC_LIST="$BASIC_LIST $QT6_LIST"
 	else
@@ -229,10 +224,6 @@ TESTDEPS_LIST="
 	python3-pytest-xdist
 	softhsm2
 	"
-
-# apt-get update must be called before calling add_package
-# otherwise available packages appear as unavailable
-apt-get update || exit 2
 
 # libssh-gcrypt-dev: Debian < trixie, Ubuntu < 25.04
 # libssh-dev: All releases, but trixie and 25.04 has relicensed OpenSSH

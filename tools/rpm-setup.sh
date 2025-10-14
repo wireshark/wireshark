@@ -186,13 +186,9 @@ echo "Required package speexdsp-devel|speex-devel is unavailable" >&2
 
 if [ $HAVE_ADD_QT -eq 0 ]
 then
-	# Try to select Qt version from distro
-	test -e /etc/os-release && os_release='/etc/os-release' || os_release='/usr/lib/os-release'
-	# shellcheck disable=SC1090
-	. "${os_release}"
-
-	# Fedora 35 or later
-	if [ "${ID:-linux}" = "fedora" ] && [ "${VERSION_ID:-0}" -ge "35" ]; then
+	# The user didn't select a Qt version. Select Qt 6 if it's available, otherwise Qt 5.
+	# shellcheck disable=SC2086
+	if $PM $PM_SEARCH qt6-qtbase-devel 2&> /dev/null || $PM $PM_SEARCH qt6-base-devel 2&> /dev/null ; then
 		echo "Installing Qt6."
 		ADD_QT6=1
 	else
