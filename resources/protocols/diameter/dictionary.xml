@@ -3023,6 +3023,9 @@
 		<avp name="Security-Feature-Response" code="420" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
+		<avp name="TGPP-Service-Selection" code="493" mandatory="must" protected="mustnot" vendor-bit="mustnot" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
 
 		<!-- Note: The AVP codes from 421 to 499 are reserved for TS 29.109
 		<avp name="Reserved for TS 29.109" code="421" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
