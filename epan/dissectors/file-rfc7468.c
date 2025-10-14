@@ -43,7 +43,7 @@ line_is_eb(const unsigned char *line, int linelen, const char *prefix,
     int labellen;
 
     /*
-     * Is this line an encapulation boundary of the type specified by the
+     * Is this line an encapsulation boundary of the type specified by the
      * prefix?
      *
      * First, it must be big enough to include the prefix at the beginning
@@ -170,7 +170,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         line = tvb_get_ptr(tvb, offset, linelen);
 
         /*
-         * Is this line a pre-encapulation boundary?
+         * Is this line a pre-encapsulation boundary?
          */
         if (line_is_eb(line, linelen, preeb_prefix, sizeof preeb_prefix - 1,
                        &labelp, &labellen)) {
@@ -279,7 +279,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         line = tvb_get_ptr(tvb, offset, linelen);
 
         /*
-         * Is this line a post-encapulation boundary?
+         * Is this line a post-encapsulation boundary?
          */
         if (line_is_eb(line, linelen, posteb_prefix, sizeof posteb_prefix - 1,
                        &labelp, &labellen)) {

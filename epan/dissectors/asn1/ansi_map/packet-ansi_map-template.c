@@ -1,6 +1,6 @@
 /* packet-ansi_map.c
  * Routines for ANSI 41 Mobile Application Part (IS41 MAP) dissection
- * Specications from 3GPP2 (www.3gpp2.org)
+ * Specifications from 3GPP2 (www.3gpp2.org)
  * Based on the dissector by :
  * Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.

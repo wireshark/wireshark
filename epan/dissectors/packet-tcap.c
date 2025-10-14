@@ -2533,7 +2533,7 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /*
  * ANSI PART
- * Create the record identifiying the TCAP transaction
+ * Create the record identifying the TCAP transaction
  * When the identifier for the transaction is reused, check
  * the following criteria before to append a new record:
  * - a timeout corresponding to a message retransmission is detected,

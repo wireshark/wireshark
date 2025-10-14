@@ -2159,7 +2159,7 @@ dhcp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	 * https://www.ietf.org/archive/id/draft-tojens-dhcp-option-concat-considerations-00.html
 	 * which notes that real world DHCP implementations do not do this, and
 	 * that, especially in the case of fixed length option types, this is
-	 * less robust than actually used approaches of intepreting the options
+	 * less robust than actually used approaches of interpreting the options
 	 * separately, and choosing one option while discarding others.
 	 *
 	 * XXX - Perhaps we want a preference of which options to concatenate?

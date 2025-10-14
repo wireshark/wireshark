@@ -959,7 +959,7 @@ process_utp_payload(tvbuff_t *tvb, packet_info *pinfo,
 
     if ((offset != -1) && decode_utp(tvb, offset, pinfo, tree)) {
       /*
-       * We succeeded in handing off to bittorent.
+       * We succeeded in handing off to bittorrent.
        *
        * Is this a segment (so we're not desegmenting for whatever
        * reason)? Then at least do rudimentary PDU tracking.

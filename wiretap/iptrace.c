@@ -516,7 +516,7 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec,
 	 * unknown.
 	 *
 	 * It is better to display the data even for unknown interface
-	 * types, isntead of erroring out. In the future, it would be
+	 * types, instead of erroring out. In the future, it would be
 	 * nice to be able to flag which frames are shown as data
 	 * because their interface type is unknown, and also present
 	 * the interface type number to the user so that it can be

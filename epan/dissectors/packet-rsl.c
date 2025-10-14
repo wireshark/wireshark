@@ -1661,7 +1661,7 @@ dissect_rsl_phy_ctx_ab_rx_lvl_err_bits(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     offset++;
     return offset;
 }
-/* Physcial Context dissection*
+/* Physical Context dissection*
  * Ext RandAccess *
  *
  */

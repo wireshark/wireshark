@@ -15963,7 +15963,7 @@ static const value_string zbee_zcl_touchlink_keyid_names[] = {
 /* Function Bodies       */
 /*************************/
 
-/* Functions for Touchlink Comissionning hashtables. {{{ */
+/* Functions for Touchlink Commissioning hashtables. {{{ */
 static int
 zcl_touchlink_comissioning_equal (gconstpointer v, gconstpointer v2)
 {

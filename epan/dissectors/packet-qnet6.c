@@ -3591,7 +3591,7 @@ dissect_qnet6_kif(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * 
        */
       /*
        * connect_msgsend format: connect cred (optional, msgtype
-       * indicates it size=sizeof(connect)+optinal sizeof(cred)) msgsend
+       * indicates it size=sizeof(connect)+optional sizeof(cred)) msgsend
        * cred (optional)
        */
       /*

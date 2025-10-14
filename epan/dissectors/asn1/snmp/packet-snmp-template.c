@@ -587,7 +587,7 @@ dissect_snmp_variable_date_and_time(proto_tree *tree, packet_info *pinfo, int hf
 /*
  *  dissect_snmp_VarBind
  *  this routine dissects variable bindings, looking for the oid information in our oid repository
- *  to format and add the value adequatelly.
+ *  to format and add the value adequately.
  *
  * The choice to handwrite this code instead of using the asn compiler is to avoid having tons
  * of uses of global variables distributed in very different parts of the code.

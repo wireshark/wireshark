@@ -1679,7 +1679,7 @@ static const TLV_PARSER_ENTRY tlvMainTable[]  =
 	{ EID_MU_TUNNEL_PRIVATE_GROUP_ID_STRING, "MU Tunnel Private Group ID String", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_MU_USER_ID_STRING, "MU User ID String", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_MU_DEFENDED_STATE, "MU Defended State", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_MU_MOD_MASK, "MU Modulation Maske", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_MU_MOD_MASK, "MU Modulation Mask", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_LOCATOR_TRACKED, "Locator Tracked", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_PORT, "Port", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_RETRIES_COUNT, "Retries Count", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},

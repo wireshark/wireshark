@@ -1194,7 +1194,7 @@ nvme_add_cmd_cqe_to_done_list(struct nvme_q_ctx *q_ctx,
 
     nvme_build_done_frame_key(cmd_key, &key, &frame_num);
 
-    /* found matchng entry. Add entries to the matched table for both cmd and cqe.
+    /* found matching entry. Add entries to the matched table for both cmd and cqe.
      */
     frame_num = cmd_ctx->cqe_pkt_num;
     wmem_tree_insert32_array(q_ctx->done_cmds, cmd_key, (void*)cmd_ctx);

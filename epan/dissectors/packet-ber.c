@@ -19,7 +19,7 @@
  * update call_ber_oid_callback() accordingly.
  *
  * Since we don't pass the TAG/LENGTH from the CHOICE/SEQUENCE/SEQUENCE OF/
- * SET OF helpers through the callbacks to the next pabket-ber helper
+ * SET OF helpers through the callbacks to the next packet-ber helper
  * when the tags are IMPLICIT, this causes a problem when we also have
  * indefinite length at the same time as the tags are implicit.
  *

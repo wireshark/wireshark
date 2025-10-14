@@ -2068,7 +2068,7 @@ static const value_string pn_io_index[] = {
     { 0xF8F3, "Stream Renew using UNIRenewStreamReq and UNIRenewStreamRsp" },
     { 0xF900, "Security request using CIMSecurityServiceReq and CIMSecurityServiceRsp" },
     { 0xF901, "CIMDCPService" },
-    { 0xF902, "Read Aurditable Event using CIMAurditableEventServiceReq and CIMAuditableEventServiceRsp" },
+    { 0xF902, "Read Auditable Event using CIMAuditableEventServiceReq and CIMAuditableEventServiceRsp" },
     { 0xF920, "CIMElectricPowerReal" },
     { 0xFBFF, "Trigger index for RPC connection monitoring" },
     /*0xFC00 - 0xFFFF reserved for profiles */
@@ -2337,7 +2337,7 @@ static const value_string pn_io_channel_error_type[] = {
     { 0x919C, "Density change or displac config" },
     { 0x919D, "Sticking of torque or spring" },
     { 0x919E, "Displacer swinging freedomly" },
-    { 0x919F, "Displac mounting faulty" },
+    { 0x919F, "Displacer mounting faulty" },
     { 0x91A0, "Displacer blocked or bended" },
     { 0x91A1, "Displacer too light, corrosion" },
     { 0x91A2, "Displacer leakage" },
@@ -3627,8 +3627,8 @@ static const range_string pn_io_certificate_validity_period_check[] = {
 
 static const range_string pn_io_sack_degradation_threshold[] = {
     { 0x00, 0x00, "Preserve stored value" },
-    { 0x01, 0x3F, "SACKDegredationThresholdFactor" },
-    { 0xFF, 0xFF, "Disable SACKDegredationThresholdFactor Default Value" },
+    { 0x01, 0x3F, "SACKDegradationThresholdFactor" },
+    { 0xFF, 0xFF, "Disable SACKDegradationThresholdFactor Default Value" },
     { 0, 0, NULL }
 };
 
@@ -8375,7 +8375,7 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
     uint64_t     u64SecurityMode;
     uint64_t     u64CertificateValidityPeriodCheck;
     uint64_t     u64Reserved1;
-    uint64_t     u64SACKDegredationThreshold;
+    uint64_t     u64SACKDegradationThreshold;
     uint64_t     u64Reserved2;
 
     dcerpc_info di; /* fake dcerpc_info struct */
@@ -8501,9 +8501,9 @@ dissect_SecurityRequest_block(tvbuff_t* tvb, int offset,
                 dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
                     hf_pn_io_security_configuration_parameters_reserved1, &u64Reserved1);
 
-                /* SACKDegredationThreshold */
+                /* SACKDegradationThreshold */
                 dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
-                    hf_pn_io_sack_degradation_threshold, &u64SACKDegredationThreshold);
+                    hf_pn_io_sack_degradation_threshold, &u64SACKDegradationThreshold);
 
                 /* Reserved2 */
                 offset = dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
@@ -8555,7 +8555,7 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
     uint64_t     u64SecurityMode;
     uint64_t     u64CertificateValidityPeriodCheck;
     uint64_t     u64Reserved1;
-    uint64_t     u64SACKDegredationThreshold;
+    uint64_t     u64SACKDegradationThreshold;
     uint64_t     u64Reserved2;
 
     dcerpc_info di; /* fake dcerpc_info struct */
@@ -8679,9 +8679,9 @@ dissect_SecurityResponse_block(tvbuff_t* tvb, int offset,
                 dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
                     hf_pn_io_security_configuration_parameters_reserved1, &u64Reserved1);
 
-                /* SACKDegredationThreshold */
+                /* SACKDegradationThreshold */
                 dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
-                    hf_pn_io_sack_degradation_threshold, &u64SACKDegredationThreshold);
+                    hf_pn_io_sack_degradation_threshold, &u64SACKDegradationThreshold);
 
                 /* Reserved2 */
                 offset = dissect_dcerpc_uint64(tvb, offset, pinfo, configuration_tree, &di, drep,
@@ -15198,7 +15198,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
 
             /* Search the moduleID and subModuleID, find if PROFIsafe and also search for F-Par. Indexnumber
              * ---------------------------------------------------------------------------------------------
-             * Speical case: Module has several ModuleIdentNr. in one GSD-file
+             * Special case: Module has several ModuleIdentNr. in one GSD-file
              * Also with the given parameters of wireshark, some modules were completely equal. For this
              * special case a compromise for this problem has been made, to set the module name will
              * be more generally displayed.
@@ -21955,7 +21955,7 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },
     { &hf_pn_io_certificate_validity_period_check,
-    { "SecurityConfigurationParameters.CertificateVelidityPeriodCheck", "pn_io.security_configuration_parameters.certificate_validity_period_check",
+    { "SecurityConfigurationParameters.CertificateValidityPeriodCheck", "pn_io.security_configuration_parameters.certificate_validity_period_check",
         FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_certificate_validity_period_check), 0x000000000000000C,
         NULL, HFILL }
     },
@@ -21965,7 +21965,7 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },
     { &hf_pn_io_sack_degradation_threshold,
-    { "SecurityConfigurationParameters.SACKDegredationThreshold", "pn_io.security_configuration_parameters.SACKDegredationThreshold",
+    { "SecurityConfigurationParameters.SACKDegradationThreshold", "pn_io.security_configuration_parameters.SACKDegradationThreshold",
         FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_sack_degradation_threshold), 0x000000000000FF00,
         NULL, HFILL }
     },

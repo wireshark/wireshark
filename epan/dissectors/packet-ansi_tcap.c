@@ -2165,7 +2165,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
                 ansi_tcap_private.context=p_tcap_context;
 
                 /* If the current message is TCAP only,
-                 * save the Application contexte name for the next messages
+                 * save the Application context name for the next messages
                  */
                 if ( p_tcap_context && cur_oid && !p_tcap_context->oid_present ) {
                         /* Save the application context and the sub dissector */

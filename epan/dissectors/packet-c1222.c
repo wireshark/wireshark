@@ -888,7 +888,7 @@ keylookup(uint8_t *keybuff, uint8_t keyid)
  *
  * \param buffer points to a memory copy of the packet to be authenticated/decrypted
  *        and contains the decrypted value on successful return.
- * \param length lenth of input packet
+ * \param length length of input packet
  * \param decrypt true if packet is to be authenticated and decrypted; false if authentication only is requested
  * \returns true if the requested operation was successful; otherwise false
  */

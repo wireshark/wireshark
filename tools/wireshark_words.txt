@@ -3,6 +3,7 @@
 0x%08x
 10base
 10baset1s
+10gbase
 10gig
 16apsk
 1xrtt
@@ -173,6 +174,7 @@ athens
 atheros
 atime
 atlantic
+atmsnoop
 atomically
 atsss
 atten
@@ -313,11 +315,13 @@ bulleted
 bundler
 butype
 byte
+bytelen
 byteorder
 c1220func
 cablelabs
 caching
 cadenced
+caicos
 calib
 callback
 callid
@@ -417,6 +421,7 @@ chunked
 chunking
 cibcccame
 cicam
+cimsnmp
 cinfo
 ciphered
 ciphering
@@ -463,6 +468,7 @@ codeset
 codingrate
 codings
 codute
+colfmt
 colinfo
 collation
 collectd
@@ -605,6 +611,7 @@ datetime
 datum
 daysofweek
 dbprop
+dbrpc
 dbuild
 dccreq
 dcerpc
@@ -612,6 +619,7 @@ dcmake
 dcname
 dcomp
 dct3trace
+ddrio
 ddstlv
 ddutt
 deact
@@ -960,6 +968,7 @@ etwdump
 etype
 eucjpms
 euicc
+euresys
 europe
 eutra
 eutran
@@ -1711,6 +1720,7 @@ mp4ves
 mpath
 mpdcch
 mpeg4
+mplog
 mplstp
 mpquic
 mpsse
@@ -1932,6 +1942,7 @@ nvgre
 nvmeof
 nvram
 nxtpdu
+nytro
 oampdu
 obfuscated
 objectid
@@ -1940,6 +1951,7 @@ oblig
 obsoleted
 obsspd
 octal
+octeon
 octet
 octets
 octetstring
@@ -1984,6 +1996,7 @@ olympus
 om2000
 omniidl
 omron
+onboard
 onboarding
 onduration
 onoff
@@ -2006,10 +2019,12 @@ opmode
 opnum
 opreply
 optarg
+opterr
 optimisation
 optimised
 optimizations
 optimizer
+optind
 optiplex
 optoelectronics
 optreq
@@ -2031,6 +2046,7 @@ osmocom
 osmux
 osnma
 ospf6
+osversioninfoexw
 otdoa
 othersat
 outhdr
@@ -2038,6 +2054,7 @@ overlay1mask
 overlay2mask
 overridable
 p2pstar
+p8118z
 pacch
 packard
 packetcable
@@ -2119,6 +2136,7 @@ physcellid
 physlink
 phytype
 picmg
+picolo
 picosecond
 pinfo
 pixmap
@@ -2195,6 +2213,7 @@ prepend
 prepost
 preprocess
 preprocessor
+presario
 prescaler
 preshared
 prespecified
@@ -2214,6 +2233,7 @@ profidrive
 profienergy
 profinet
 profxchg
+progbar
 programmatic
 programmes
 promisc
@@ -2536,6 +2556,7 @@ rtitcp
 rtpdump
 rtpevent
 rtpfb
+rtpmap
 rtpmidi
 rtpmux
 rtpstream
@@ -2802,6 +2823,7 @@ strfunc
 stringified
 stringz
 stringzpad
+strix
 strlen
 strtoul
 struct
@@ -2873,6 +2895,7 @@ swisscom
 swissvoice
 switchinfo
 swout
+sybase
 sydney
 symantec
 symbian
@@ -2980,6 +3003,7 @@ toggled
 toggles
 toggling
 tokenized
+tokenlen
 tokyo
 tonedet
 toolbar
@@ -3209,6 +3233,7 @@ unreceived
 unrecognised
 unrecoverable
 unrecovered
+unref
 unregister
 unregistration
 unreportable
@@ -3270,6 +3295,7 @@ userinfo
 userlist
 userplane
 ushort
+ushortlen
 utf16le
 utf8mb
 utf8string
@@ -3343,6 +3369,7 @@ volid
 volser
 volsnap
 voltype
+vostro
 vrfid
 vserver
 vsomeip
@@ -3405,6 +3432,7 @@ wslua
 wsluarm
 wstring
 wsutil
+x10drw
 x32bit
 x509ce
 x509if
@@ -3426,6 +3454,7 @@ xhtml
 xiaomi
 xidlr
 xidxchg
+xilleon
 xinerama
 xinput
 xmlns

@@ -1794,7 +1794,7 @@ struct tds7_login_packet_hdr {
 /*
  * https://github.com/FreeTDS/freetds/blob/master/src/tds/gssapi.c
  * " There are some differences between this implementation and MS on
- * - MS use SPNEGO with 3 mechnisms (MS KRB5, KRB5, NTLMSSP..."
+ * - MS use SPNEGO with 3 mechanisms (MS KRB5, KRB5, NTLMSSP..."
  *
  * FreeTDS uses a GSS-API implementation, but MS uses SPNEGO (both
  * in 4.2 [MS-SSTDS] and 7.x and 8 [MS-TSD]) that is incompatible.
@@ -2152,7 +2152,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
                 proto_item_append_text(length_item, " (UNKNOWN_PLP_LEN)");
             }
             /*
-             * XXX - composite tvbuffs with no compontents aren't supported,
+             * XXX - composite tvbuffs with no components aren't supported,
              * so we create the tvbuff when the first non-terminator chunk
              * is found.
              */
@@ -2613,7 +2613,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
                         int64_t int64_value = 0;
                         /*
                          * XXX - this actually falls down if we have more than
-                         * 53 bits of significance. (Assuming IEEE 754 floating-piont.)
+                         * 53 bits of significance. (Assuming IEEE 754 floating-point.)
                          * This isn't likely to happen in practice.
                          * Decimal/numeric fields are intended to be used
                          * for precise integers/scaled integers. They would not
@@ -2667,7 +2667,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, unsigned *offset, packet_info *pinfo, pr
                         int64_t int64_value = 0;
                         /*
                          * XXX - this actually falls down if we have more than
-                         * 53 bits of significance. (Assuming IEEE 754 floating-piont.)
+                         * 53 bits of significance. (Assuming IEEE 754 floating-point.)
                          * This isn't likely to happen in practice.
                          * Decimal/numeric fields are intended to be used
                          * for precise integers/scaled integers. They would not
@@ -4617,7 +4617,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv
                 proto_tree_add_item(login_tree, login_hf, tvb, offset2, len,
                     ENC_UTF_16|ENC_LITTLE_ENDIAN);
             } else {
-                /* This field is the password.  It is an obfusticated Unicode
+                /* This field is the password.  It is an obfuscated Unicode
                  * string. This code assumes that the password is composed of
                  * the 8-bit subset of UCS-16. Retrieve it from the packet
                  * as a non-unicode string and then perform two operations on it

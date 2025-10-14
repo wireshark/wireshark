@@ -292,7 +292,7 @@ typedef struct {
 
     /* SRTP related info XXX note currently we only handle one crypto line in the SDP
     * We should probably handle offer/answer and session updates etc(SIP) quite possibly the whole handling of
-    * seting up the RTP conversations should be done by the signaling protocol(s) calling the SDP dissector
+    * setting up the RTP conversations should be done by the signaling protocol(s) calling the SDP dissector
     * and the SDP dissector just provide the relevant data.
     * YES! packet-sdp.c should be about SDP parsing... SDP *state* needs to be maintained by upper
     * protocols, because each one has different rules/semantics.
@@ -1247,7 +1247,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
     tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII));
 #endif
 
-    /* Look for an '=' within this string - RFC 4855 suggets that parameters
+    /* Look for an '=' within this string - RFC 4855 suggests that parameters
        be "parameter=value" pairs. We'll store them in a hash map from the
        parameter name to the value, as well as dissect some of them here,
        depending on the media type.
@@ -2235,7 +2235,7 @@ complete_descriptions(transport_info_t *transport_info, unsigned answer_offset)
     if (bundle_media_desc) {
         /* We have "bundling" of media, so now combine all the media bit masks
            and merge the rtp_dyn_payload so that the first media description
-           has all the data for every media desciption. */
+           has all the data for every media description. */
         for (unsigned i = answer_offset; i < media_count; i++) {
             media_description_t *media_desc = &media_descs[i];
 
@@ -2295,7 +2295,7 @@ complete_descriptions(transport_info_t *transport_info, unsigned answer_offset)
 /**
  * Given is a structure containing the parsed result from the SDP (including
  * protocol type (RTP, SRTP, T38, etc.), media info (payload type, etc.) and
- * connection info (address, port). Register the addresss+port such that the
+ * connection info (address, port). Register the address+port such that the
  * protocol will be invoked for this tuple with the media information.
  *
  * For use with SDP using the Offer/Answer model (such as SIP with INVITE and

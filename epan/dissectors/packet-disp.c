@@ -4,7 +4,7 @@
 /* asn2wrs.py -b -q -L -p disp -c ./disp.cnf -s ./packet-disp-template -D . -O ../.. disp.asn */
 
 /* packet-disp.c
- * Routines for X.525 (X.500 Directory Shadow Asbtract Service) and X.519 DISP packet dissection
+ * Routines for X.525 (X.500 Directory Shadow Abstract Service) and X.519 DISP packet dissection
  * Graeme Lunt 2005
  *
  * Wireshark - Network traffic analyzer

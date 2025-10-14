@@ -637,12 +637,12 @@ sctp_assoc_hash(const void *key)
  *    and a DATA in the same direction) require address matching. Otherwise
  *    we'll make likely spurious matches.
  * 6. Don't worry about odd possibilities like both sides of an association
- *    chosing the same vtag.
+ *    choosing the same vtag.
  * 7. We ought to track additional addresses given in INIT, INIT ACK, ASCONF.
  *    If we do, we could have an option of more strict association matching
  *    that uses the addresses in all cases and is more similar to what SCTP
  *    stacks actually do. We'd have to store a list/map/set of known source
- *    and destinatiion addresses instead of just one each. This would fail in
+ *    and destination addresses instead of just one each. This would fail in
  *    the case of multihoming and where we missed the configuration messages
  *    setting up multihoming.
  */
