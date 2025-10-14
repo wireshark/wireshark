@@ -65,6 +65,9 @@ enum attribute_type {
 typedef struct _tap_handles_t {
     uint32_t  handle;
     bluetooth_uuid_t uuid;
+    const char* uuid_str;
+    const char* numeric_uuid_str;
+
     enum attribute_type attribute_type;
 
     /** Store the service and characteristic declaration.

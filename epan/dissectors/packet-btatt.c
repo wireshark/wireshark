@@ -4391,6 +4391,8 @@ save_handle(packet_info *pinfo, bluetooth_uuid_t uuid, uint32_t handle,
         tap_handles = wmem_new(pinfo->pool, tap_handles_t);
         tap_handles->handle = handle;
         tap_handles->uuid = uuid;
+        tap_handles->uuid_str = print_bluetooth_uuid(pinfo->pool, &tap_handles->uuid);
+        tap_handles->numeric_uuid_str = print_numeric_bluetooth_uuid(pinfo->pool, &tap_handles->uuid);
         tap_handles->attribute_type = attribute_type;
 
         tap_handles->service_handle =
