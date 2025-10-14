@@ -253,6 +253,7 @@ struct _rtp_packet_info
     uint32_t frame_number;                           /**> the frame where this conversation is started */
     uint32_t media_types;
     rtp_dyn_payload_t *rtp_dyn_payload;             /**> the dynamic RTP payload info - see comments above */
+    const char* dyn_payload_encoding_name;          /**> Cached encoding name of the payload */
 
     uint32_t extended_seqno;                         /**> the sequence number, extended to a 32-bit
                                                      * int to guarantee it increasing monotonically
