@@ -110,6 +110,7 @@ Depends: ${shlibs:Depends},
          libqt6svg6,
          qt6-qpa-plugins
 # Recommends: libqt6multimedia6
+Suggests: falcosecurity-scap-dkms
 Description: system call and log analyzer - graphical and console interfaces
  Stratoshark is a system call and log analyzer. It can capture and analyze
  system calls on Linux and capture and analyze log data from other sources.
