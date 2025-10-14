@@ -287,8 +287,9 @@ Function .onInit
 
 ${If} ${AtMostWin8.1}
 ${OrIf} ${AtMostWin2012R2}
+${OrIfNot} ${AtLeastBuild} 17763
   MessageBox MB_OK \
-    "Windows 10, Server 2016, and later are required." /SD IDOK
+    "Windows 10, version 1809 or Server 2019 and later are required." /SD IDOK
   Quit
 ${EndIf}
 

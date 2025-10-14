@@ -14,6 +14,23 @@
          to ensure the entire fragment is included. -->
     <Property Id="IncludePrerequisites">1</Property>
 
+    <!-- The VersionNT variable was frozen. For later Windows versions, look
+         at the Build Number. Qt 6.2 and later are officially supported on
+         Windows 10, version 1809 (Build 17763) and later, which corresponds
+         with Server 2019. In practice, it seems that version 1607 (Build 14393)
+         & Server 2016 work on Qt versions before 6.8 but not on 6.8 and later.
+    -->
+
+    <Property Id="WINDOWSBUILDNUMBER" Secure="yes">
+      <RegistrySearch Id='WindowsBuildRegistrySearch'
+          Type='raw'
+          Root='HKLM'
+          Key='SOFTWARE\Microsoft\Windows NT\CurrentVersion'
+          Name='CurrentBuildNumber'
+          >
+      </RegistrySearch>
+    </Property>
+
     <!-- This should match the following:
          - The NTDDI_VERSION and _WIN32_WINNT parts of cmakeconfig.h.in
          - The <compatibility><application> section in resources\wireshark.exe.manifest.in
@@ -35,12 +52,16 @@
       <![CDATA[Installed OR (VersionNT < 600) OR (VersionNT > 600)]]>
     </Condition>
 
-    <Condition Message="Windows 7, 8, 8.1, Server 2008R2, and Server 2012 are no longer supported. Please install $(var.WiresharkName) 4.0 instead.">
-      <![CDATA[Installed OR (VersionNT < 601) OR (VersionNT > 602)]]>
+    <Condition Message="Windows 7, 8, 8.1, 10 version 1511, Server 2008R2, and Server 2012 are no longer supported. Please install $(var.WiresharkName) 4.0 instead.">
+      <![CDATA[Installed OR (VersionNT < 601) OR (WINDOWSBUILDNUMBER >= 14393)]]>
     </Condition>
 
-    <Condition Message="$(var.WiresharkName)$(var.WiresharkVersion) is only supported on Windows 10, Windows Server 2016, or higher.">
-      <![CDATA[Installed OR (VersionNT >= 603)]]>
+    <Condition Message="Windows 10 versions before 1809 and Server 2016 are no longer supported. Please install $(var.WiresharkName) 4.4 instead.">
+      <![CDATA[Installed OR (WINDOWSBUILDNUMBER < 14393) OR (WINDOWSBUILDNUMBER >= 17763)]]>
+    </Condition>
+
+    <Condition Message="$(var.WiresharkName)$(var.WiresharkVersion) is only supported on Windows 10, version 1809 or Windows Server 2019, or higher.">
+      <![CDATA[Installed OR (WINDOWSBUILDNUMBER >= 17763)]]>
     </Condition>
 
 <!--
