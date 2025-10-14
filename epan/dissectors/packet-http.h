@@ -31,8 +31,8 @@ dissector_handle_t http_upgrade_dissector(const char *protocol);
 /* Used for HTTP statistics */
 typedef struct _http_info_value_t {
 	uint32_t framenum;
-	char	*request_method;
 	unsigned	 response_code;
+	char	*request_method;
 	char    *http_host;
 	const char    *request_uri;
 	const char    *referer_uri;
@@ -52,28 +52,27 @@ typedef struct _http_req_res_t {
 	uint32_t req_framenum;
 	/** frame number of the corresponding response */
 	uint32_t res_framenum;
+	unsigned response_code;
 	/** timestamp of the request */
 	nstime_t req_ts;
-	unsigned response_code;
 	char    *request_method;
 	char    *http_host;
 	char    *request_uri;
 	char    *full_uri;
-	bool req_has_range;
-	bool resp_has_range;
-
 	/** private data used by http dissector */
 	void* private_data;
+	bool req_has_range;
+	bool resp_has_range;
 } http_req_res_t;
 
 /** Used for version-independent HTTP information for upgrade protocols */
 typedef struct _http_upgrade_info_t {
+	/** Lookup header value */
+	const char *(*get_header_value)(packet_info *, const char *, bool);
 	/** Server port. Can be used for protocol heuristics */
 	uint16_t    server_port;
 	/** HTTP version (1, 2 or 3) */
 	uint8_t     http_version;
-	/** Lookup header value */
-	const char *(*get_header_value)(packet_info *, const char *, bool);
 	/** Direction of the message */
 	bool	    from_server;
 } http_upgrade_info_t;
@@ -91,9 +90,6 @@ typedef struct _http_conv_t {
 	dissector_handle_t next_handle;	/* New protocol */
 	http_upgrade_info_t *upgrade_info; /* Data for new protocol */
 
-	/* Server address and port, known after first server response */
-	uint16_t server_port;
-	address server_addr;
 	/** the tail node of req_res */
 	http_req_res_t *req_res_tail;
 	/** Information from the last request or response can
@@ -102,14 +98,19 @@ typedef struct _http_conv_t {
 	 * startoffset on connections that have proxied/tunneled/Upgraded.
 	 */
 
+	/* Used for req/res matching */
+	GSList *req_list;
+        wmem_map_t *matches_table;
+
+	/* Server address and port, known after first server response */
+	address server_addr;
+	uint16_t server_port;
+
 	/* true means current message is chunked streaming, and not ended yet.
 	 * This is only meaningful during the first scan.
 	 */
 	bool message_ended;
 
-	/* Used for req/res matching */
-	GSList *req_list;
-        wmem_map_t *matches_table;
 
 } http_conv_t;
 
