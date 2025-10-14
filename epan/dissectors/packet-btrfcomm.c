@@ -730,7 +730,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                     val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci >> 1);
     if (dlci && (frame_type == FRAME_TYPE_SABM) && service_info) {
         if (service_info->uuid.size==16)
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(UUID128: %s) ", print_bluetooth_uuid(pinfo->pool, &service_info->uuid));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(UUID128: %s) ", print_bluetooth_uuid(&service_info->uuid));
         else
             col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
                     val_to_str_ext_const(service_info->uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
