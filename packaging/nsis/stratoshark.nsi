@@ -279,7 +279,7 @@ Function .onInit
 
   ; This should match the following:
   ; - The NTDDI_VERSION and _WIN32_WINNT parts of cmakeconfig.h.in
-  ; - The <compatibility><application> section in image\wireshark.exe.manifest.in
+  ; - The <compatibility><application> section in resources\stratoshark.exe.manifest.in
   ; - The VersionNT parts of packaging\wix\Prerequisites.wxi
 
   ; Uncomment to test.
