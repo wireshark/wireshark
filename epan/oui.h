@@ -51,6 +51,7 @@
 #define OUI_IEEE_802_3      0x00120F    /* IEEE 802.3 */
 #define OUI_MEDIA_ENDPOINT  0x0012BB    /* Media (TIA TR-41 Committee) */
 #define OUI_SONY_ERICSSON_4 0x0012EE    /* Sony Ericsson Mobile Communications AB */
+#define OUI_UBIQUITI        0x00156D    /* Ubiquiti Inc */
 #define OUI_ERICSSON_MOBILE 0x0015E0    /* Ericsson Mobile Platforms */
 #define OUI_SONY_ERICSSON_5 0x001620    /* Sony Ericsson Mobile Communications AB */
 #define OUI_SONY_ERICSSON_6 0x0016B8    /* Sony Ericsson Mobile Communications AB */

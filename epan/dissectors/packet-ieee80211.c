@@ -6929,6 +6929,10 @@ static int hf_ieee80211_vs_apple_subtype;
 static int hf_ieee80211_vs_apple_length;
 static int hf_ieee80211_vs_apple_data;
 
+static int hf_ieee80211_vs_ubiquiti_type;
+static int hf_ieee80211_vs_ubiquiti_ap_name;
+static int hf_ieee80211_vs_ubiquiti_data;
+
 static int hf_ieee80211_rsn_ie_ptk_keyid;
 
 static int hf_ieee80211_rsn_ie_gtk_kde_data_type;
@@ -21604,6 +21608,38 @@ dissect_vendor_ie_mist(proto_item *item _U_, proto_tree *ietree,
     }
 }
 
+#define UBIQUITI_APNAME 0x01
+static const value_string ieee80211_vs_ubiquiti_type_vals[] = {
+    { UBIQUITI_APNAME, "AP Name"},
+    { 0,           NULL }
+};
+static void
+dissect_vendor_ie_ubiquiti(proto_item *item _U_, proto_tree *ietree,
+                       tvbuff_t *tvb, int offset, uint32_t tag_len, packet_info *pinfo)
+{
+    uint32_t type, length;
+    const uint8_t* apname;
+
+    /* VS OUI Type */
+    type = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item(ietree, hf_ieee80211_vs_ubiquiti_type, tvb, offset, 1, ENC_NA);
+    proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_ubiquiti_type_vals, "Unknown"));
+    offset += 1;
+    tag_len -= 1;
+
+    switch(type){
+        case UBIQUITI_APNAME:
+            length = tag_len;
+            proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_ubiquiti_ap_name, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, &apname);
+            proto_item_append_text(item, " (%s)", apname);
+            break;
+
+        default:
+            proto_tree_add_item(ietree, hf_ieee80211_vs_ubiquiti_data, tvb, offset, tag_len, ENC_NA);
+            break;
+    }
+}
+
 #define RUCKUS_APNAME 3
 static const value_string ieee80211_vs_ruckus_type_vals[] = {
     { RUCKUS_APNAME, "AP Name"},
@@ -33892,6 +33928,9 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       break;
     case OUI_MIST:
       dissect_vendor_ie_mist(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
+      break;
+    case OUI_UBIQUITI:
+      dissect_vendor_ie_ubiquiti(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
       break;
     case OUI_RUCKUS:
       dissect_vendor_ie_ruckus(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
@@ -55121,6 +55160,21 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_vs_mist_data,
      {"Data", "wlan.vs.mist.data",
+       FT_BYTES, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_vs_ubiquiti_type,
+     {"Subtype", "wlan.vs.ubiquiti.type",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_vs_ubiquiti_type_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_ubiquiti_ap_name,
+     {"AP Name", "wlan.vs.ubiquiti.ap_name",
+       FT_STRING, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_vs_ubiquiti_data,
+     {"Data", "wlan.vs.ubiquiti.data",
        FT_BYTES, BASE_NONE, NULL, 0,
        NULL, HFILL }},
 
