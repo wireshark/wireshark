@@ -1148,11 +1148,15 @@ dissect_ntlmssp_string (tvbuff_t *tvb, wmem_allocator_t* allocator, int offset,
 {
   proto_tree *tree          = NULL;
   proto_item *tf            = NULL;
-  int16_t     string_length = tvb_get_letohs(tvb, offset);
-  int16_t     string_maxlen = tvb_get_letohs(tvb, offset+2);
-  int32_t     string_offset = tvb_get_letohl(tvb, offset+4);
+  uint16_t     string_length = tvb_get_letohs(tvb, offset);
+  uint16_t     string_maxlen = tvb_get_letohs(tvb, offset+2);
+  uint32_t     string_offset = tvb_get_letohl(tvb, offset+4);
 
-  *start = (string_offset > offset+8 ? string_offset : (signed)tvb_reported_length(tvb));
+  if (string_offset > (unsigned)(unicode_strings ? INT_MAX - 1 : INT_MAX)) {
+    THROW(ReportedBoundsError);
+  }
+
+  *start = ((int)string_offset > offset+8 ? (int)string_offset : (int)tvb_reported_length(tvb));
   if (0 == string_length) {
     *end = *start;
     if (ntlmssp_tree)
@@ -1204,6 +1208,10 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
   uint16_t    blob_length = tvb_get_letohs(tvb, offset);
   uint16_t    blob_maxlen = tvb_get_letohs(tvb, offset+2);
   uint32_t    blob_offset = tvb_get_letohl(tvb, offset+4);
+
+  if (blob_offset > (unsigned)INT_MAX) {
+    THROW(ReportedBoundsError);
+  }
 
   if (0 == blob_length) {
     *end                  = (blob_offset > ((unsigned)offset)+8 ? blob_offset : ((unsigned)offset)+8);
