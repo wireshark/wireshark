@@ -215,7 +215,7 @@ struct ptvcursor {
 			   so only report if different... */ \
 			if ((start_values[m].value == current->value) && \
 			    (strcmp(start_values[m].strptr, current->strptr) != 0)) { \
-				ws_warning("Field '%s' (%s) has a conflicting entry in its" \
+				ws_error("Field '%s' (%s) has a conflicting entry in its" \
 					  " value_string: %" spec " is at indices %u (%s) and %u (%s)", \
 					  hfinfo->name, hfinfo->abbrev, \
 					  current->value, m, start_values[m].strptr, n, current->strptr); \
