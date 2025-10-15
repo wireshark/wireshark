@@ -427,6 +427,7 @@ expert_register_field_init(expert_field_info *expinfo, expert_module_t *module)
 	expinfo->orig_severity = expinfo->severity;
 
 	/* save field name for lookup */
+	same_name_expinfo = NULL;
 	g_hash_table_replace(gpa_name_map, (void *)expinfo->name, expinfo);
 	if (same_name_expinfo) {
 		expinfo->same_name_next = same_name_expinfo;
