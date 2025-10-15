@@ -2186,6 +2186,9 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, uint32_t offset, 
 	uint64_t value;
 
 	out_tvb = tvb_new_octet_aligned(tvb, offset, length);
+	// XXX - If the bitstring is already aligned, i.e., offset % 8 == 0,
+	// then out_tvb will have the same ds_tvb as the original tvb.
+	// Do we really need to add the data source in that case?
 	add_new_data_source(actx->pinfo, out_tvb, "Bitstring tvb");
 
 	if (hfi) {
