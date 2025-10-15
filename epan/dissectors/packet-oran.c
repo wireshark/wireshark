@@ -11,12 +11,12 @@
  */
 
  /*
-   * Dissector for the O-RAN Fronthaul CUS protocol specification.
-   * See https://specifications.o-ran.org/specifications, WG4, Fronthaul Interfaces Workgroup
-   * The current implementation is based on the ORAN-WG4.CUS.0-v17.01 specification.
-   *   - haven't spotted any differences in v18.00
-   * Note that other eCPRI message types are handled in packet-ecpri.c
-   */
+  * Dissector for the O-RAN Fronthaul CUS protocol specification.
+  * See https://specifications.o-ran.org/specifications, WG4, Fronthaul Interfaces Workgroup
+  * The current implementation is based on the ORAN-WG4.CUS.0-v17.01 specification.
+  *   - haven't spotted any differences in v18.00
+  * Note that other eCPRI message types are handled in packet-ecpri.c
+  */
 
 #include <config.h>
 
@@ -46,6 +46,7 @@
  * - for section extensions, check more constraints (which other extension types appear with them, order)
  * - when some section extensions are present, some section header fields are effectively ignored - flag any remaining ("ignored, "shall")?
  * - re-order items (decl and hf definitions) to match spec order?
+ * - track energy-saving status, and identify TRX or ASM commands as 'Sleep extension'
  */
 
 /* Prototypes */
@@ -4126,7 +4127,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                        "SE24: have seen entry type %u, but no previous config (type 2 or 3) to inherit config from", entry_type);
 
                             }
-                            /* TODO: would be useful to repeat inherited config here? */
+                            /* TODO: would be useful to repeat whole inherited config here? */
                             break;
 
                         case 2:    /* transform precoding disabled */
