@@ -1148,7 +1148,7 @@ Darren New              <dnew[AT]san.rr.com> {
 }
 
 Pavel Mores             <pvl[AT]uh.cz> {
-	TCP time-sequence, round-trip time, and throughput graphs
+	TCP time-sequence, round-trip time, and I/O graphs
 }
 
 Bernd Becker            <bb[AT]bernd-becker.de> {
