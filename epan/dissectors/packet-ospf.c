@@ -4834,7 +4834,7 @@ proto_register_ospf(void)
          { "Auth Crypt Data Length", "ospf.auth.crypt.data_length", FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL }},
         {&hf_ospf_header_auth_crypt_seq_nbr,
-         { "Auth Crypt Sequence Number", "ospf.auth.crypt.seq_nbr", FT_UINT32, BASE_DEC, NULL, 0x0,
+         { "Auth Crypt Sequence Number", "ospf.auth.crypt.seq_nbr", FT_UINT32, BASE_HEX, NULL, 0x0,
            NULL, HFILL }},
         {&hf_ospf_header_auth_crypt_data,
          { "Auth Crypt Data", "ospf.auth.crypt.data", FT_BYTES, BASE_NONE, NULL, 0x0,
