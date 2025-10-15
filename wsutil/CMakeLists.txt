@@ -185,7 +185,6 @@ set(WSUTIL_COMMON_FILES
 	crc8.c
 	crc11.c
 	curve25519.c
-	dot11decrypt_wep.c
 	dtoa.c
 	eax.c
 	failure_message_simple.c

@@ -230,4 +230,27 @@ int Dot11DecryptTkipDecrypt(
 	size_t mpdu_len,
 	unsigned char TK[DOT11DECRYPT_TK_LEN]);
 
+/*
+ * Decrypt WEP-encrypted 802.11 payload using RC4 stream cipher.
+ *
+ * Performs WEP decryption on the provided `cypher_text` buffer using the RC4
+ * algorithm seeded with the specified initialization vector and WEP key.
+ * The decryption is done in-place, modifying `cypher_text` directly.
+ *
+ * This function assumes the input data is WEP-encrypted and that the seed
+ * contains both the IV and the shared WEP key. It verifies the ICV assumed
+ * to follow right after the cypher_text.
+ *
+ * @param seed        Pointer to the RC4 seed (IV + WEP key).
+ * @param seed_len    Length of the seed in bytes.
+ * @param cypher_text Pointer to the encrypted data buffer (will be decrypted in-place).
+ * @param data_len    Length of the encrypted data in bytes.
+ * @return            0 on success, non-zero on failure.
+ */
+WS_DLL_PUBLIC int Dot11DecryptWepDecrypt(
+	const unsigned char *seed,
+	size_t seed_len,
+	unsigned char *cypher_text,
+	size_t data_len);
+
 #endif
