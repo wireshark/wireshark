@@ -130,10 +130,10 @@ GNU Public License); do so.  Continue to the “Installation Folder“ page
 of the installer screen, and select the “Custom installation“ option.
 On the “Select Components“ screen of the installer, select your desired
 Qt version. We recommend using the same Qt version used to build the official
-Wireshark packages, which at the time of this writing is Qt {macos-qt-lts-version}.
+Wireshark packages, which at the time of this writing is Qt {macos-qt6-lts-version}.
 Select the following components:
 
-* macOS
+* Desktop
 * Qt 5 Compatibility Module
 * Qt Debug Information Files (contains dSYM files which can be used for debugging)
 
