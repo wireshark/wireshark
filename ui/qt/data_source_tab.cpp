@@ -280,11 +280,13 @@ void DataSourceTab::selectedFrameChanged(QList<int> frames)
         }
     }
 
-    /* We don't need to call clear() because Qt will remove the child widgets
-     * when they're deleted. We do want to hide the QTabWidget so that the
-     * QTabBar doesn't calculate the sizeHint for each tab remaining every
-     * time a tab is removed, instead deferring until later. */
+    /* We don't need to call clear() on Linux because Qt will remove the child
+     * widgets when they're deleted, but need to on MacOS and maybe Windows.
+     * We want to hide the QTabWidget so that the QTabBar doesn't calculate
+     * the sizeHint for each tab remaining every time a tab is removed, instead
+     * deferring until later. */
     setVisible(false);
+    clear();
     qDeleteAll(findChildren<BaseDataSourceView *>(QString(), Qt::FindDirectChildrenOnly));
     setVisible(true);
 
