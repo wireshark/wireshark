@@ -42,7 +42,7 @@
 #define DPAUXMON_VERSION_MINOR "1"
 #define DPAUXMON_VERSION_RELEASE "0"
 
-pcapio_writer* pcap_fp;
+ws_cwstream* pcap_fp;
 
 enum {
 	EXTCAP_BASE_OPTIONS_ENUM,
@@ -95,13 +95,13 @@ static int list_config(char *interface)
 	return EXIT_SUCCESS;
 }
 
-static int setup_dumpfile(const char* fifo, pcapio_writer** fp)
+static int setup_dumpfile(const char* fifo, ws_cwstream** fp)
 {
 	uint64_t bytes_written = 0;
 	int err;
 
 	if (!g_strcmp0(fifo, "-")) {
-		*fp = writecap_open_stdout(WTAP_UNCOMPRESSED, &err);
+		*fp = ws_cwstream_open_stdout(WS_FILE_UNCOMPRESSED, &err);
 		if (!(*fp)) {
 		    ws_warning("Error opening standard out: %s", g_strerror(errno));
 		    return EXIT_FAILURE;
@@ -110,7 +110,7 @@ static int setup_dumpfile(const char* fifo, pcapio_writer** fp)
 		return EXIT_SUCCESS;
 	}
 
-	*fp = writecap_fopen(fifo, WTAP_UNCOMPRESSED, &err);
+	*fp = ws_cwstream_open(fifo, WS_FILE_UNCOMPRESSED, &err);
 	if (!(*fp)) {
 		ws_warning("Error creating output file: %s", g_strerror(errno));
 		return EXIT_FAILURE;
@@ -121,12 +121,12 @@ static int setup_dumpfile(const char* fifo, pcapio_writer** fp)
 		return EXIT_FAILURE;
 	}
 
-        writecap_flush(*fp, &err);
+        ws_cwstream_flush(*fp, &err);
 
 	return EXIT_SUCCESS;
 }
 
-static int dump_packet(pcapio_writer* fp, const char* buf, const uint32_t buflen, uint64_t ts_usecs)
+static int dump_packet(ws_cwstream* fp, const char* buf, const uint32_t buflen, uint64_t ts_usecs)
 {
 	uint64_t bytes_written = 0;
 	int err;
@@ -137,7 +137,7 @@ static int dump_packet(pcapio_writer* fp, const char* buf, const uint32_t buflen
 		ret = EXIT_FAILURE;
 	}
 
-	writecap_flush(fp, &err);
+	ws_cwstream_flush(fp, &err);
 
 	return ret;
 }
@@ -473,7 +473,7 @@ err_out:
 free_out:
 	nl_socket_free(sock);
 close_out:
-	writecap_close(pcap_fp, NULL);
+	ws_cwstream_close(pcap_fp, NULL);
 }
 
 int main(int argc, char *argv[])

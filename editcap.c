@@ -51,6 +51,7 @@
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/file_compressed.h>
 #include <wsutil/plugins.h>
 #include <wsutil/privileges.h>
 #include <wsutil/strnatcmp.h>
@@ -226,11 +227,11 @@ fileset_get_filename_by_pattern(unsigned idx, const nstime_t *ts,
 }
 
 static bool
-fileset_extract_prefix_suffix(const char *fname, char **fprefix, char **fsuffix, wtap_compression_type *compression_typep)
+fileset_extract_prefix_suffix(const char *fname, char **fprefix, char **fsuffix, ws_compression_type *compression_typep)
 {
     char  *pfx, *last_pathsep;
     char *save_file;
-    wtap_compression_type compression_type;
+    ws_compression_type compression_type;
 
     save_file = g_strdup(fname);
     if (save_file == NULL) {
@@ -255,15 +256,15 @@ fileset_extract_prefix_suffix(const char *fname, char **fprefix, char **fsuffix,
          * ring buffer files have the specified suffix, i.e. put the
          * changing part of the name *before* the suffix. */
         pfx[0] = '\0';
-        compression_type = wtap_extension_to_compression_type(pfx + 1);
-        if (compression_type != WTAP_UNKNOWN_COMPRESSION) {
+        compression_type = ws_extension_to_compression_type(pfx + 1);
+        if (compression_type != WS_FILE_UNKNOWN_COMPRESSION) {
             char *pfx2 = strrchr(last_pathsep, '.');
             if (pfx2 != NULL) {
                 pfx[0] = '.';
                 pfx = pfx2;
                 pfx[0] = '\0';
             }
-            if (compression_typep && *compression_typep == WTAP_UNKNOWN_COMPRESSION) {
+            if (compression_typep && *compression_typep == WS_FILE_UNKNOWN_COMPRESSION) {
                 *compression_typep = compression_type;
             }
             /* XXX - What if there's an extension matching a compression type
@@ -1111,7 +1112,7 @@ list_output_compression_types(void) {
     GSList *output_compression_types;
 
     fprintf(stderr, "editcap: The available output compress type(s) for the \"--compress\" flag are:\n");
-    output_compression_types = wtap_get_all_output_compression_type_names_list();
+    output_compression_types = ws_get_all_output_compression_type_names_list();
     for (GSList *compression_type = output_compression_types;
         compression_type != NULL;
         compression_type = g_slist_next(compression_type)) {
@@ -1175,7 +1176,7 @@ framenum_compare(const void *a, const void *b, void *user_data _U_)
 static wtap_dumper *
 editcap_dump_open(const char *filename, const wtap_dump_params *params,
                   GArray *idbs_seen, int *err, char **err_info,
-                  wtap_compression_type compression_type)
+                  ws_compression_type compression_type)
 {
     wtap_dumper *pdh;
 
@@ -1455,7 +1456,7 @@ main(int argc, char *argv[])
     bool                         valid_seed = false;
     unsigned int                 seed = 0;
     bool                         edit_option_specified = false;
-    wtap_compression_type compression_type   = WTAP_UNKNOWN_COMPRESSION;
+    ws_compression_type compression_type   = WS_FILE_UNKNOWN_COMPRESSION;
 
     /* Set the program name. */
     g_set_prgname("editcap");
@@ -1634,8 +1635,8 @@ main(int argc, char *argv[])
 
         case LONGOPT_COMPRESS:
         {
-            compression_type = wtap_name_to_compression_type(ws_optarg);
-            if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
+            compression_type = ws_name_to_compression_type(ws_optarg);
+            if (compression_type == WS_FILE_UNKNOWN_COMPRESSION) {
                 cmdarg_err("\"%s\" isn't a valid output compression mode",
                             ws_optarg);
                 list_output_compression_types();
@@ -1981,28 +1982,28 @@ main(int argc, char *argv[])
             ret = CANT_EXTRACT_PREFIX;
             goto clean_exit;
         }
-    } else if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
+    } else if (compression_type == WS_FILE_UNKNOWN_COMPRESSION) {
         /* An explicitly specified compression type overrides filename
          * magic. (Should we allow specifying "no" compression with, e.g.
          * a ".gz" extension?) */
         const char *sfx = strrchr(argv[ws_optind+1], '.');
         if (sfx) {
-            compression_type = wtap_extension_to_compression_type(sfx + 1);
+            compression_type = ws_extension_to_compression_type(sfx + 1);
         }
     }
 
-    if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
-        compression_type = WTAP_UNCOMPRESSED;
+    if (compression_type == WS_FILE_UNKNOWN_COMPRESSION) {
+        compression_type = WS_FILE_UNCOMPRESSED;
     }
 
-    if (!wtap_can_write_compression_type(compression_type)) {
+    if (!ws_can_write_compression_type(compression_type)) {
         cmdarg_err("Output files can't be written as %s",
-                wtap_compression_type_description(compression_type));
+                ws_compression_type_description(compression_type));
         ret = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
 
-    if (compression_type != WTAP_UNCOMPRESSED && !wtap_dump_can_compress(out_file_type_subtype)) {
+    if (compression_type != WS_FILE_UNCOMPRESSED && !wtap_dump_can_compress(out_file_type_subtype)) {
         cmdarg_err("The file format %s can't be written to output compressed format",
             wtap_file_type_subtype_name(out_file_type_subtype));
         ret = WS_EXIT_INVALID_OPTION;
@@ -2075,7 +2076,7 @@ main(int argc, char *argv[])
             ret = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
-        if (compression_type != WTAP_UNCOMPRESSED) {
+        if (compression_type != WS_FILE_UNCOMPRESSED) {
             cmdarg_err("compression isn't supported for extracting secrets");
             ret = WS_EXIT_INVALID_OPTION;
             goto clean_exit;

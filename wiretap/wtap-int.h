@@ -117,7 +117,7 @@ struct wtap_dumper {
                                               * types rather than per-packet
                                               * encapsulation types
                                               */
-    wtap_compression_type   compression_type;
+    ws_compression_type     compression_type;
     bool                    needs_reload;    /* true if the file requires re-loading after saving with wtap */
     int64_t                 bytes_dumped;
 

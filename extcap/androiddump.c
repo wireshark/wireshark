@@ -470,7 +470,7 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     params.encap = encap;
     params.snaplen = PACKET_LENGTH;
     file_type_subtype = wtap_pcap_nsec_file_type_subtype();
-    extcap_dumper.dumper.wtap = wtap_dump_open(fifo, file_type_subtype, WTAP_UNCOMPRESSED, &params, &err, &err_info);
+    extcap_dumper.dumper.wtap = wtap_dump_open(fifo, file_type_subtype, WS_FILE_UNCOMPRESSED, &params, &err, &err_info);
     if (!extcap_dumper.dumper.wtap) {
         report_cfile_dump_open_failure(fifo, err, err_info, file_type_subtype);
         exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);

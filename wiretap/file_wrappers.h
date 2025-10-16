@@ -33,26 +33,4 @@ extern void file_fdclose(FILE_T file);
 extern bool file_fdreopen(FILE_T file, const char *path);
 extern void file_close(FILE_T file);
 
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG)
-typedef struct wtap_writer *GZWFILE_T;
-
-extern GZWFILE_T gzwfile_open(const char *path);
-extern GZWFILE_T gzwfile_fdopen(int fd);
-extern unsigned gzwfile_write(GZWFILE_T state, const void *buf, unsigned len);
-extern int gzwfile_flush(GZWFILE_T state);
-extern int gzwfile_close(GZWFILE_T state);
-extern int gzwfile_geterr(GZWFILE_T state);
-#endif /* HAVE_ZLIB */
-
-#ifdef HAVE_LZ4
-typedef struct lz4_writer *LZ4WFILE_T;
-
-extern LZ4WFILE_T lz4wfile_open(const char *path);
-extern LZ4WFILE_T lz4wfile_fdopen(int fd);
-extern size_t lz4wfile_write(LZ4WFILE_T state, const void *buf, size_t len);
-extern int lz4wfile_flush(LZ4WFILE_T state);
-extern int lz4wfile_close(LZ4WFILE_T state);
-extern int lz4wfile_geterr(LZ4WFILE_T state);
-#endif
-
 #endif /* __FILE_H__ */

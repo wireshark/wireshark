@@ -78,7 +78,7 @@ public:
 
     int mergeType();
     int selectedFileType();
-    wtap_compression_type compressionType();
+    ws_compression_type compressionType();
 
 private:
     capture_file *cap_file_;

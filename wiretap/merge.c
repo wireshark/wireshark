@@ -1246,7 +1246,7 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
                    const int file_type, const char *const *in_filenames,
                    const unsigned in_file_count, const bool do_append,
                    idb_merge_mode mode, unsigned snaplen,
-                   const char *app_name, merge_progress_callback_t* cb, wtap_compression_type compression_type)
+                   const char *app_name, merge_progress_callback_t* cb, ws_compression_type compression_type)
 {
     merge_in_file_t    *in_files = NULL;
     int                 frame_type = WTAP_ENCAP_PER_PACKET;
@@ -1492,7 +1492,7 @@ bool
 merge_files(const char* out_filename, const int file_type,
             const char *const *in_filenames, const unsigned in_file_count,
             const bool do_append, const idb_merge_mode mode,
-            unsigned snaplen, const char *app_name, merge_progress_callback_t* cb, const  wtap_compression_type compression_type)
+            unsigned snaplen, const char *app_name, merge_progress_callback_t* cb, const  ws_compression_type compression_type)
 {
     ws_assert(out_filename != NULL);
     ws_assert(in_file_count > 0);
@@ -1535,7 +1535,7 @@ merge_files_to_tempfile(const char *tmpdir, char **out_filenamep, const char *pf
 
     return merge_files_common(tmpdir, out_filenamep, pfx,
                               file_type, in_filenames, in_file_count,
-                              do_append, mode, snaplen, app_name, cb, WTAP_UNCOMPRESSED);
+                              do_append, mode, snaplen, app_name, cb, WS_FILE_UNCOMPRESSED);
 }
 
 /*
@@ -1548,7 +1548,7 @@ merge_files_to_stdout(const int file_type, const char *const *in_filenames,
                       const unsigned in_file_count, const bool do_append,
                       const idb_merge_mode mode, unsigned snaplen,
                       const char *app_name, merge_progress_callback_t* cb,
-                      wtap_compression_type compression_type)
+                      ws_compression_type compression_type)
 {
     return merge_files_common(NULL, NULL, NULL,
                               file_type, in_filenames, in_file_count,

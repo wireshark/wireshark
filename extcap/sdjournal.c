@@ -67,7 +67,7 @@ static const struct ws_option longopts[] = {
 #define ENTRY_BUF_LENGTH WTAP_MAX_PACKET_SIZE_STANDARD
 #define MAX_EXPORT_ENTRY_LENGTH (ENTRY_BUF_LENGTH - 4 - 4 - 4) // Block type - total length - total length
 
-static int sdj_dump_entries(sd_journal *jnl, pcapio_writer* fp)
+static int sdj_dump_entries(sd_journal *jnl, ws_cwstream* fp)
 {
 	int ret = EXIT_SUCCESS;
 	uint8_t *entry_buff = g_new(uint8_t, ENTRY_BUF_LENGTH);
@@ -179,7 +179,7 @@ static int sdj_dump_entries(sd_journal *jnl, pcapio_writer* fp)
 			break;
 		}
 
-		writecap_flush(fp, &err);
+		ws_cwstream_flush(fp, &err);
 	}
 
 end:
@@ -189,7 +189,7 @@ end:
 
 static int sdj_start_export(const int start_from_entries, const bool start_from_end, const char* fifo)
 {
-	pcapio_writer* fp = NULL;
+	ws_cwstream* fp = NULL;
 	uint64_t bytes_written = 0;
 	int err;
 	sd_journal *jnl = NULL;
@@ -203,13 +203,13 @@ static int sdj_start_export(const int start_from_entries, const bool start_from_
 
 	if (g_strcmp0(fifo, "-")) {
 		/* Open or create the output file */
-		fp = writecap_fopen(fifo, WTAP_UNCOMPRESSED, &err);
+		fp = ws_cwstream_open(fifo, WS_FILE_UNCOMPRESSED, &err);
 		if (fp == NULL) {
 			ws_warning("Error creating output file: %s (%s)", fifo, g_strerror(errno));
 			return EXIT_FAILURE;
 		}
 	} else {
-		fp = writecap_open_stdout(WTAP_UNCOMPRESSED, &err);
+		fp = ws_cwstream_open_stdout(WS_FILE_UNCOMPRESSED, &err);
 		if (fp == NULL) {
 			ws_warning("Error opening standard out: %s", g_strerror(errno));
 			return EXIT_FAILURE;
@@ -306,7 +306,7 @@ cleanup:
 	g_free(err_info);
 
 	/* clean up and exit */
-        writecap_close(fp, NULL);
+        ws_cwstream_close(fp, NULL);
 	return ret;
 }
 

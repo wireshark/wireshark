@@ -232,7 +232,7 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
     /* XXX - Check for an existing file, or the same file name as the current
      * capture file?
      */
-    d = wtap_dump_open(filename, filetype, WTAP_UNCOMPRESSED, &params, &err,
+    d = wtap_dump_open(filename, filetype, WS_FILE_UNCOMPRESSED, &params, &err,
                        &err_info);
 
     if (! d ) {
@@ -449,7 +449,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 
     encap = lua_pinfo->rec->rec_header.packet_header.pkt_encap;
     params.encap = encap;
-    d = wtap_dump_open(filename, filetype, WTAP_UNCOMPRESSED, &params, &err,
+    d = wtap_dump_open(filename, filetype, WS_FILE_UNCOMPRESSED, &params, &err,
                        &err_info);
 
     if (! d ) {

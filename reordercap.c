@@ -301,10 +301,10 @@ main(int argc, char *argv[])
         /* Open outfile (same filetype/encap as input file) */
         if (strcmp(outfile, "-") == 0) {
           pdh = wtap_dump_open_stdout(wtap_file_type_subtype(wth),
-                                      WTAP_UNCOMPRESSED, &params, &err, &err_info);
+                                      WS_FILE_UNCOMPRESSED, &params, &err, &err_info);
         } else {
           pdh = wtap_dump_open(outfile, wtap_file_type_subtype(wth),
-                               WTAP_UNCOMPRESSED, &params, &err, &err_info);
+                               WS_FILE_UNCOMPRESSED, &params, &err, &err_info);
         }
         g_free(params.idb_inf);
         params.idb_inf = NULL;

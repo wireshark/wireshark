@@ -14,29 +14,7 @@
 
 #pragma once
 
-#include <wiretap/wtap.h>
-
-typedef struct pcapio_writer pcapio_writer;
-
-extern pcapio_writer*
-writecap_fopen(const char *filename, wtap_compression_type ctype, int *err);
-
-extern pcapio_writer*
-writecap_fdopen(int fd, wtap_compression_type ctype, int *err);
-
-extern pcapio_writer*
-writecap_open_stdout(wtap_compression_type ctype, int *err);
-
-extern bool
-writecap_flush(pcapio_writer* pfile, int *err);
-
-/* Close open file handles and frees memory associated with pfile.
- *
- * Return true on success, returns false and sets err (optional) on failure.
- * err can be NULL, e.g. if closing after some other failure that is more
- * relevant to report, or when exiting a program. */
-extern bool
-writecap_close(pcapio_writer* pfile, int *err);
+#include <wsutil/file_compressed.h>
 
 /* Writing pcap files */
 
@@ -44,13 +22,13 @@ writecap_close(pcapio_writer* pfile, int *err);
    Returns true on success, false on failure.
    Sets "*err" to an error code, or 0 for a short write, on failure*/
 extern bool
-libpcap_write_file_header(pcapio_writer* pfile, int linktype, int snaplen,
+libpcap_write_file_header(ws_cwstream* pfile, int linktype, int snaplen,
                           bool ts_nsecs, uint64_t *bytes_written, int *err);
 
 /** Write a record for a packet to a dump file.
    Returns true on success, false on failure. */
 extern bool
-libpcap_write_packet(pcapio_writer* pfile,
+libpcap_write_packet(ws_cwstream* pfile,
                      time_t sec, uint32_t usec,
                      uint32_t caplen, uint32_t len,
                      const uint8_t *pd,
@@ -60,7 +38,7 @@ libpcap_write_packet(pcapio_writer* pfile,
 
 /* Write a pre-formatted pcapng block */
 extern bool
-pcapng_write_block(pcapio_writer* pfile,
+pcapng_write_block(ws_cwstream* pfile,
                    const uint8_t *data,
                    uint32_t block_total_length,
                    uint64_t *bytes_written,
@@ -70,7 +48,7 @@ pcapng_write_block(pcapio_writer* pfile,
  *
  */
 extern bool
-pcapng_write_section_header_block(pcapio_writer* pfile,  /**< Write information */
+pcapng_write_section_header_block(ws_cwstream* pfile,  /**< Write information */
                                   GPtrArray *comments,  /**< Comments on the section, Option 1 opt_comment
                                                          * UTF-8 strings containing comments that areassociated to the current block.
                                                          */
@@ -89,7 +67,7 @@ pcapng_write_section_header_block(pcapio_writer* pfile,  /**< Write information 
                                   );
 
 extern bool
-pcapng_write_interface_description_block(pcapio_writer* pfile,
+pcapng_write_interface_description_block(ws_cwstream* pfile,
                                          const char *comment,  /* OPT_COMMENT           1 */
                                          const char *name,     /* IDB_NAME              2 */
                                          const char *descr,    /* IDB_DESCRIPTION       3 */
@@ -104,7 +82,7 @@ pcapng_write_interface_description_block(pcapio_writer* pfile,
                                          int *err);
 
 extern bool
-pcapng_write_interface_statistics_block(pcapio_writer* pfile,
+pcapng_write_interface_statistics_block(ws_cwstream* pfile,
                                         uint32_t interface_id,
                                         uint64_t *bytes_written,
                                         const char *comment,   /* OPT_COMMENT           1 */
@@ -115,7 +93,7 @@ pcapng_write_interface_statistics_block(pcapio_writer* pfile,
                                         int *err);
 
 extern bool
-pcapng_write_enhanced_packet_block(pcapio_writer* pfile,
+pcapng_write_enhanced_packet_block(ws_cwstream* pfile,
                                    const char *comment,
                                    time_t sec, uint32_t usec,
                                    uint32_t caplen, uint32_t len,

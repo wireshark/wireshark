@@ -670,11 +670,11 @@ int randpkt_example_init(randpkt_example* example, char* produce_filename, int p
 	if (strcmp(produce_filename, "-") == 0) {
 		/* Write to the standard output. */
 		example->dump = wtap_dump_open_stdout(file_type_subtype,
-			WTAP_UNCOMPRESSED, &params, &err, &err_info);
+			WS_FILE_UNCOMPRESSED, &params, &err, &err_info);
 		example->filename = "the standard output";
 	} else {
 		example->dump = wtap_dump_open(produce_filename, file_type_subtype,
-			WTAP_UNCOMPRESSED, &params, &err, &err_info);
+			WS_FILE_UNCOMPRESSED, &params, &err, &err_info);
 		example->filename = produce_filename;
 	}
 	if (!example->dump) {

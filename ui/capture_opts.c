@@ -35,6 +35,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/ws_pipe.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/file_compressed.h>
 
 #ifdef _WIN32
 #include <wsutil/win32-utils.h>
@@ -1187,11 +1188,11 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
             cmdarg_err("--compress-type can be set only once");
             return 1;
         }
-        if (!wtap_can_write_compression_type(wtap_name_to_compression_type(optarg_str_p))) {
+        if (!ws_can_write_compression_type(ws_name_to_compression_type(optarg_str_p))) {
             cmdarg_err("\"%s\" isn't a valid output compression mode", optarg_str_p);
             cmdarg_err("The available output compression type(s) are:");
             GSList *output_compression_types;
-            output_compression_types = wtap_get_all_output_compression_type_names_list();
+            output_compression_types = ws_get_all_output_compression_type_names_list();
             for (GSList *compression_type = output_compression_types;
                 compression_type != NULL;
                 compression_type = g_slist_next(compression_type)) {

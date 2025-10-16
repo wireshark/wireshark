@@ -111,6 +111,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	exported_pdu_tlvs.h
 	failure_message_simple.h
 	feature_list.h
+	file_compressed.h
 	file_util.h
 	filesystem.h
 	g711.h
@@ -189,6 +190,7 @@ set(WSUTIL_COMMON_FILES
 	eax.c
 	failure_message_simple.c
 	feature_list.c
+	file_compressed.c
 	filesystem.c
 	filter_files.c
 	g711.c
@@ -419,6 +421,7 @@ target_link_libraries(wsutil
 		${M_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${ZLIBNG_LIBRARIES}
+		${LZ4_LIBRARIES}
 		$<IF:$<CONFIG:Debug>,${PCRE2_DEBUG_LIBRARIES},${PCRE2_LIBRARIES}>
 		${WIN_IPHLPAPI_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
@@ -435,6 +438,8 @@ target_include_directories(wsutil SYSTEM
 		${GMODULE2_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
 		${ZLIBNG_INCLUDE_DIRS}
+		${ZSTD_INCLUDE_DIRS}
+		${LZ4_INCLUDE_DIRS}
 		${PCRE2_INCLUDE_DIRS}
 )
 
@@ -479,6 +484,7 @@ target_link_libraries(wsutil_static
 		${XXHASH_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${ZLIBNG_LIBRARIES}
+		${LZ4_LIBRARIES}
 		$<IF:$<CONFIG:Debug>,${PCRE2_DEBUG_LIBRARIES},${PCRE2_LIBRARIES}>
 		${WIN_IPHLPAPI_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
@@ -495,6 +501,8 @@ target_include_directories(wsutil_static SYSTEM
 		${XXHASH_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
 		${ZLIBNG_INCLUDE_DIRS}
+		${ZSTD_INCLUDE_DIRS}
+		${LZ4_INCLUDE_DIRS}
 		${PCRE2_INCLUDE_DIRS}
 )
 

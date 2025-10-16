@@ -203,7 +203,7 @@ typedef enum {
     PROCESS_FILE_ERROR,
     PROCESS_FILE_INTERRUPTED
 } process_file_status_t;
-static process_file_status_t process_cap_file(capture_file *, char *, int, bool, int, int64_t, int, wtap_compression_type);
+static process_file_status_t process_cap_file(capture_file *, char *, int, bool, int, int64_t, int, ws_compression_type);
 
 static bool process_packet_single_pass(capture_file *cf,
         epan_dissect_t *edt, int64_t offset, wtap_rec *rec, unsigned tap_flags);
@@ -305,7 +305,7 @@ list_output_compression_types(void) {
     GSList *output_compression_types;
 
     cmdarg_err("The available output compression type(s) are:");
-    output_compression_types = wtap_get_all_output_compression_type_names_list();
+    output_compression_types = ws_get_all_output_compression_type_names_list();
     for (GSList *compression_type = output_compression_types;
         compression_type != NULL;
         compression_type = g_slist_next(compression_type)) {
@@ -940,7 +940,7 @@ main(int argc, char *argv[])
     exp_pdu_t             exp_pdu_tap_data;
     const char*           glossary = NULL;
     const char*           elastic_mapping_filter = NULL;
-    wtap_compression_type volatile compression_type = WTAP_UNKNOWN_COMPRESSION;
+    ws_compression_type   volatile compression_type = WS_FILE_UNKNOWN_COMPRESSION;
 
     /*
      * The leading + ensures that getopt_long() does not permute the argv[]
@@ -1698,8 +1698,8 @@ main(int argc, char *argv[])
                 /* already processed; just ignore it now */
                 break;
             case LONGOPT_COMPRESS:        /* compress type */
-                compression_type = wtap_name_to_compression_type(ws_optarg);
-                if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
+                compression_type = ws_name_to_compression_type(ws_optarg);
+                if (compression_type == WS_FILE_UNKNOWN_COMPRESSION) {
                     cmdarg_err("\"%s\" isn't a valid output compression mode",
                                ws_optarg);
                     list_output_compression_types();
@@ -1817,29 +1817,29 @@ main(int argc, char *argv[])
             exit_status = WS_EXIT_INVALID_OPTION;
             goto clean_exit;
         }
-        if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
+        if (compression_type == WS_FILE_UNKNOWN_COMPRESSION) {
             /* An explicitly specified compression type overrides filename
              * magic. (Should we allow a way to specify "no" compression
              * with, e.g. a ".gz" extension?) */
             const char *sfx = strrchr(save_file, '.');
             if (sfx) {
-                compression_type = wtap_extension_to_compression_type(sfx + 1);
+                compression_type = ws_extension_to_compression_type(sfx + 1);
             }
         }
     }
 
-    if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
-        compression_type = WTAP_UNCOMPRESSED;
+    if (compression_type == WS_FILE_UNKNOWN_COMPRESSION) {
+        compression_type = WS_FILE_UNCOMPRESSED;
     }
 
-    if (!wtap_can_write_compression_type(compression_type)) {
+    if (!ws_can_write_compression_type(compression_type)) {
         cmdarg_err("Output files can't be written as %s",
-                wtap_compression_type_description(compression_type));
+                ws_compression_type_description(compression_type));
         exit_status = WS_EXIT_INVALID_OPTION;
         goto clean_exit;
     }
 
-    if (compression_type != WTAP_UNCOMPRESSED && !wtap_dump_can_compress(out_file_type)) {
+    if (compression_type != WS_FILE_UNCOMPRESSED && !wtap_dump_can_compress(out_file_type)) {
         cmdarg_err("The file format %s can't be written to output compressed format",
                 wtap_file_type_subtype_name(out_file_type));
         exit_status = WS_EXIT_INVALID_OPTION;
@@ -1851,7 +1851,7 @@ main(int argc, char *argv[])
      * LONGOPT_COMPRESS doesn't set "capture_option_specified" because it can be
      * used when capturing or when not capturing.
      */
-    if (compression_type != WTAP_UNCOMPRESSED && is_capturing) {
+    if (compression_type != WS_FILE_UNCOMPRESSED && is_capturing) {
         capture_option_specified = true;
         arg_error = true;
     }
@@ -2152,7 +2152,7 @@ main(int argc, char *argv[])
             max_packet_count,
                 0,
                 0,
-                WTAP_UNCOMPRESSED);
+                WS_FILE_UNCOMPRESSED);
         }
         CATCH(OutOfMemoryError) {
             fprintf(stderr,
@@ -2938,7 +2938,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
 static process_file_status_t
 process_cap_file(capture_file *cf, char *save_file, int out_file_type,
         bool out_file_name_res, int max_packet_count, int64_t max_byte_count,
-        int max_write_packet_count, wtap_compression_type compression_type)
+        int max_write_packet_count, ws_compression_type compression_type)
 {
     process_file_status_t status = PROCESS_FILE_SUCCEEDED;
     wtap_dumper *pdh;

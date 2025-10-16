@@ -2557,12 +2557,10 @@
         ["WTAP_ERR_UNWRITABLE_REC_DATA"] = -25,
         ["WTAP_ERR_UNWRITABLE_REC_TYPE"] = -24,
         ["WTAP_FILE_TYPE_SUBTYPE_UNKNOWN"] = -1,
-        ["WTAP_GZIP_COMPRESSED"] = 1,
         ["WTAP_HAS_CAP_LEN"] = 2,
         ["WTAP_HAS_INTERFACE_ID"] = 4,
         ["WTAP_HAS_SECTION_NUMBER"] = 8,
         ["WTAP_HAS_TS"] = 1,
-        ["WTAP_LZ4_COMPRESSED"] = 3,
         ["WTAP_MAX_PACKET_SIZE_DBUS"] = 134217728,
         ["WTAP_MAX_PACKET_SIZE_EBHSCR"] = 33554432,
         ["WTAP_MAX_PACKET_SIZE_STANDARD"] = 262144,
@@ -2585,9 +2583,6 @@
         ["WTAP_TSPREC_UNKNOWN"] = -2,
         ["WTAP_TSPREC_USEC"] = 6,
         ["WTAP_TYPE_AUTO"] = 0,
-        ["WTAP_UNCOMPRESSED"] = 0,
-        ["WTAP_UNKNOWN_COMPRESSION"] = 4,
-        ["WTAP_ZSTD_COMPRESSED"] = 2
     },
     ["wtap_comments"] = {
         ["PER_INTERFACE"] = 2,

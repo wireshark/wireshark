@@ -1504,7 +1504,7 @@ bool WiresharkMainWindow::saveCaptureFile(capture_file *cf, bool dont_reopen) {
 bool WiresharkMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments, bool dont_reopen) {
     QString file_name = "";
     int file_type;
-    wtap_compression_type compression_type;
+    ws_compression_type compression_type;
     cf_write_status_t status;
     char    *dirname;
     bool discard_comments = false;
@@ -1622,7 +1622,7 @@ bool WiresharkMainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_
 void WiresharkMainWindow::exportSelectedPackets() {
     QString file_name = "";
     int file_type;
-    wtap_compression_type compression_type;
+    ws_compression_type compression_type;
     packet_range_t range;
     cf_write_status_t status;
     char    *dirname;

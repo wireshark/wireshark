@@ -355,7 +355,7 @@ typedef struct _loop_data {
     GArray   *saved_idbs;          /**< Array of saved_idb_t, written when we have a new section or output file. */
     GRWLock   saved_shb_idb_lock;  /**< Saved IDB RW mutex */
     /* output file(s) */
-    pcapio_writer* pdh;
+    ws_cwstream* pdh;
     int       save_file_fd;
     uint64_t  bytes_written;       /**< Bytes written for the current file. */
     /* autostop conditions */
@@ -3561,7 +3561,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
     if (capture_opts->multi_files_on) {
         ld->pdh = ringbuf_init_libpcap_fdopen(&err);
     } else {
-        ld->pdh = writecap_fdopen(ld->save_file_fd, wtap_name_to_compression_type(capture_opts->compress_type), &err);
+        ld->pdh = ws_cwstream_fdopen(ld->save_file_fd, ws_name_to_compression_type(capture_opts->compress_type), &err);
     }
     if (ld->pdh) {
         bool successful;
@@ -3579,7 +3579,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                                                 pcap_src->ts_nsec, &ld->bytes_written, &err);
         }
         if (!successful) {
-            writecap_close(ld->pdh, NULL);
+            ws_cwstream_close(ld->pdh, NULL);
             ld->pdh = NULL;
         }
     }
@@ -3644,7 +3644,7 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
                 }
             }
         }
-        success = writecap_close(ld->pdh, err_close);
+        success = ws_cwstream_close(ld->pdh, err_close);
         return success;
     }
 }
@@ -4012,7 +4012,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         } else {
             suffix = ".pcap";
         }
-        const char* compression_suffix = wtap_compression_type_extension(wtap_name_to_compression_type(capture_opts->compress_type));
+        const char* compression_suffix = ws_compression_type_extension(ws_name_to_compression_type(capture_opts->compress_type));
         /* If not compressed, compression_suffix is NULL and g_strjoin
          * handles the string list terminating early correctly.
          */
@@ -4099,7 +4099,7 @@ do_file_switch_or_stop(capture_options *capture_opts)
             }
 
             if (!successful) {
-                writecap_close(global_ld.pdh, NULL);
+                ws_cwstream_close(global_ld.pdh, NULL);
                 global_ld.pdh = NULL;
                 global_ld.go = false;
                 return false;
@@ -4110,7 +4110,7 @@ do_file_switch_or_stop(capture_options *capture_opts)
             if (global_ld.next_interval_time) {
                 global_ld.next_interval_time = get_next_time_interval(global_ld.interval_s);
             }
-            writecap_flush(global_ld.pdh, NULL);
+            ws_cwstream_flush(global_ld.pdh, NULL);
             if (global_ld.inpkts_to_sync_pipe) {
                 if (!quiet)
                     report_packet_count(global_ld.inpkts_to_sync_pipe);
@@ -4329,7 +4329,7 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
            message to our parent so that they'll open the capture file and
            update its windows to indicate that we have a live capture in
            progress. */
-        writecap_flush(global_ld.pdh, NULL);
+        ws_cwstream_flush(global_ld.pdh, NULL);
         report_new_capture_file(capture_opts->save_file);
     }
 
@@ -4422,7 +4422,7 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
 
         if (inpkts > 0) {
             if (capture_opts->output_to_pipe) {
-                writecap_flush(global_ld.pdh, NULL);
+                ws_cwstream_flush(global_ld.pdh, NULL);
             }
         } /* inpkts */
 
@@ -4452,7 +4452,7 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
             /* Let the parent process know. */
             if (global_ld.inpkts_to_sync_pipe) {
                 /* do sync here */
-                writecap_flush(global_ld.pdh, NULL);
+                ws_cwstream_flush(global_ld.pdh, NULL);
 
                 /* Send our parent a message saying we've written out
                    "global_ld.inpkts_to_sync_pipe" packets to the capture file. */
@@ -4500,7 +4500,7 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
                 break;
             }
             if (capture_opts->output_to_pipe) {
-                writecap_flush(global_ld.pdh, NULL);
+                ws_cwstream_flush(global_ld.pdh, NULL);
             }
         }
     }
@@ -4822,13 +4822,13 @@ capture_loop_wrote_one_packet(capture_src *pcap_src) {
 
     /* check -c NUM */
     if (global_capture_opts.has_autostop_packets && global_ld.packets_captured >= global_capture_opts.autostop_packets) {
-        writecap_flush(global_ld.pdh, NULL);
+        ws_cwstream_flush(global_ld.pdh, NULL);
         global_ld.go = false;
         return;
     }
     /* check -a packets:NUM (treat like -c NUM) */
     if (global_capture_opts.has_autostop_written_packets && global_ld.packets_captured >= global_capture_opts.autostop_written_packets) {
-        writecap_flush(global_ld.pdh, NULL);
+        ws_cwstream_flush(global_ld.pdh, NULL);
         global_ld.go = false;
         return;
     }
@@ -4892,7 +4892,7 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
                                        bh->block_total_length,
                                        &global_ld.bytes_written, &err);
 
-        writecap_flush(global_ld.pdh, NULL);
+        ws_cwstream_flush(global_ld.pdh, NULL);
         if (!successful) {
             global_ld.go = false;
             global_ld.err = err;

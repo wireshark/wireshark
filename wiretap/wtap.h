@@ -14,6 +14,7 @@
 #include <wsutil/buffer.h>
 #include <wsutil/nstime.h>
 #include <wsutil/inet_addr.h>
+#include <wsutil/file_compressed.h>
 #include "wtap_opttypes.h"
 
 #ifdef __cplusplus
@@ -2028,35 +2029,8 @@ WS_DLL_PUBLIC
 void wtap_setup_custom_block_rec(wtap_rec *rec, uint32_t pen,
                                  uint32_t payload_length, bool copy_allowed);
 
-/*
- * Types of compression for a file, including "none".
- */
-typedef enum {
-    WTAP_UNCOMPRESSED,
-    WTAP_GZIP_COMPRESSED,
-    WTAP_ZSTD_COMPRESSED,
-    WTAP_LZ4_COMPRESSED,
-    WTAP_UNKNOWN_COMPRESSION,
-} wtap_compression_type;
-
 WS_DLL_PUBLIC
-wtap_compression_type wtap_get_compression_type(wtap *wth);
-WS_DLL_PUBLIC
-wtap_compression_type wtap_name_to_compression_type(const char *name);
-WS_DLL_PUBLIC
-wtap_compression_type wtap_extension_to_compression_type(const char *ext);
-WS_DLL_PUBLIC
-const char *wtap_compression_type_description(wtap_compression_type compression_type);
-WS_DLL_PUBLIC
-const char *wtap_compression_type_extension(wtap_compression_type compression_type);
-WS_DLL_PUBLIC
-const char *wtap_compression_type_name(wtap_compression_type compression_type);
-WS_DLL_PUBLIC
-GSList *wtap_get_all_compression_type_extensions_list(void);
-WS_DLL_PUBLIC
-GSList *wtap_get_all_output_compression_type_names_list(void);
-WS_DLL_PUBLIC
-bool wtap_can_write_compression_type(wtap_compression_type compression_type);
+ws_compression_type wtap_get_compression_type(wtap *wth);
 
 /*** get various information snippets about the current file ***/
 
@@ -2364,7 +2338,7 @@ void wtap_dump_params_cleanup(wtap_dump_params *params);
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype,
-    wtap_compression_type compression_type, const wtap_dump_params *params,
+    ws_compression_type compression_type, const wtap_dump_params *params,
     int *err, char **err_info);
 
 /**
@@ -2385,7 +2359,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype,
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_tempfile(const char *tmpdir, char **filenamep,
     const char *pfx,
-    int file_type_subtype, wtap_compression_type compression_type,
+    int file_type_subtype, ws_compression_type compression_type,
     const wtap_dump_params *params, int *err, char **err_info);
 
 /**
@@ -2402,7 +2376,7 @@ wtap_dumper* wtap_dump_open_tempfile(const char *tmpdir, char **filenamep,
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype,
-    wtap_compression_type compression_type, const wtap_dump_params *params,
+    ws_compression_type compression_type, const wtap_dump_params *params,
     int *err, char **err_info);
 
 /**
@@ -2418,7 +2392,7 @@ wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype,
  */
 WS_DLL_PUBLIC
 wtap_dumper* wtap_dump_open_stdout(int file_type_subtype,
-    wtap_compression_type compression_type, const wtap_dump_params *params,
+    ws_compression_type compression_type, const wtap_dump_params *params,
     int *err, char **err_info);
 
 /*

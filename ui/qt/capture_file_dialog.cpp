@@ -243,7 +243,7 @@ QString CaptureFileDialog::fileExtensionType(int et, bool extension_globs)
     extensions_list = wtap_get_file_extension_type_extensions(et);
 
     // Get the list of compression-type extensions.
-    GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
+    GSList *compression_type_extensions = ws_get_all_compression_type_extensions_list();
 
     /* Construct the list of patterns. */
     for (extension = extensions_list; extension != NULL;
@@ -419,7 +419,7 @@ void CaptureFileDialog::fixFilenameExtension()
 
     // Fixup the new suffix based on whether we're compressing or not.
     // Strip off any compression suffix
-    GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
+    GSList *compression_type_extensions = ws_get_all_compression_type_extensions_list();
     for (GSList *compression_type_extension = compression_type_extensions;
         compression_type_extension != NULL;
         compression_type_extension = g_slist_next(compression_type_extension)) {
@@ -433,9 +433,9 @@ void CaptureFileDialog::fixFilenameExtension()
         }
     }
     g_slist_free(compression_type_extensions);
-    if (compressionType() != WTAP_UNCOMPRESSED) {
+    if (compressionType() != WS_FILE_UNCOMPRESSED) {
         // Compressing; append the appropriate compression suffix.
-        QString compressed_file_extension = QStringLiteral(".") + wtap_compression_type_extension(compressionType());
+        QString compressed_file_extension = QStringLiteral(".") + ws_compression_type_extension(compressionType());
         if (valid_extensions.contains(new_suffix + compressed_file_extension)) {
             new_suffix += compressed_file_extension;
         }
@@ -501,7 +501,7 @@ int CaptureFileDialog::selectedFileType() {
     return type_hash_.value(selectedNameFilter(), WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
-wtap_compression_type CaptureFileDialog::compressionType() {
+ws_compression_type CaptureFileDialog::compressionType() {
     return compress_group_box_.compressionType();
 }
 

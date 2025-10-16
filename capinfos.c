@@ -60,6 +60,7 @@
 
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/file_compressed.h>
 #include <wsutil/privileges.h>
 #include <cli_main.h>
 #include <wsutil/version_info.h>
@@ -184,7 +185,7 @@ typedef struct _pkt_cmt {
 typedef struct _capture_info {
     const char           *filename;
     uint16_t              file_type;
-    wtap_compression_type compression_type;
+    ws_compression_type   compression_type;
     int                   file_encap;
     int                   file_tsprec;
     wtap                 *wth;
@@ -484,7 +485,7 @@ print_stats(const char *filename, capture_info *cf_info)
     if (filename)           printf     ("File name:           %s\n", filename);
     if (cap_file_type) {
         const char *compression_type_description;
-        compression_type_description = wtap_compression_type_description(cf_info->compression_type);
+        compression_type_description = ws_compression_type_description(cf_info->compression_type);
         if (compression_type_description == NULL)
             printf     ("File type:           %s\n",
                     file_type_string);

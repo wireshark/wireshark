@@ -8,15 +8,8 @@
 #
 
 set(WRITECAP_SRC
-	${CMAKE_SOURCE_DIR}/wiretap/file_wrappers.c
 	pcapio.c
 )
-
-if(WIN32)
-	list(APPEND WRITECAP_SRC
-		${CMAKE_SOURCE_DIR}/wsutil/file_util.c
-	)
-endif()
 
 set_source_files_properties(
 	${WRITECAP_SRC}
@@ -43,17 +36,5 @@ target_compile_definitions(writecap
 target_link_libraries(writecap
 	PRIVATE
 		${GMODULE2_LIBRARIES}
-		${LZ4_LIBRARIES}
-		${ZLIB_LIBRARIES}
-		${ZLIBNG_LIBRARIES}
-		${ZSTD_LIBRARIES}
 		${WIN_WS2_32_LIBRARY}
-)
-
-target_include_directories(writecap SYSTEM
-	PRIVATE
-		${LZ4_INCLUDE_DIRS}
-		${ZLIB_INCLUDE_DIRS}
-		${ZLIBNG_INCLUDE_DIRS}
-		${ZSTD_INCLUDE_DIRS}
 )

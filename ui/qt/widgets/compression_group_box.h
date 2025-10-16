@@ -28,8 +28,8 @@ class CompressionGroupBox : public QGroupBox
 public:
     explicit CompressionGroupBox(QWidget *parent = 0);
     ~CompressionGroupBox();
-    wtap_compression_type compressionType() const;
-    void setCompressionType(wtap_compression_type type);
+    ws_compression_type compressionType() const;
+    void setCompressionType(ws_compression_type type);
 
 signals:
     void stateChanged();

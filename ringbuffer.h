@@ -28,8 +28,8 @@ int ringbuf_init(const char *capture_name, unsigned num_files, bool group_read_a
                  const char *compress_type, bool nametimenum);
 bool ringbuf_is_initialized(void);
 const char *ringbuf_current_filename(void);
-pcapio_writer* ringbuf_init_libpcap_fdopen(int *err);
-bool ringbuf_switch_file(pcapio_writer* *pdh, char **save_file, int *save_file_fd,
+ws_cwstream* ringbuf_init_libpcap_fdopen(int *err);
+bool ringbuf_switch_file(ws_cwstream* *pdh, char **save_file, int *save_file_fd,
                              int *err);
 bool ringbuf_libpcap_dump_close(char **save_file, int *err);
 void ringbuf_free(void);

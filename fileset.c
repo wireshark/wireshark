@@ -104,7 +104,7 @@ fileset_filename_match_pattern(const char *fname, char **prefix, char **suffix, 
     sfx = strrchr(filename, '.');
     if (sfx != NULL) {
         *sfx = '\0';
-        GSList *compression_type_extensions = wtap_get_all_compression_type_extensions_list();
+        GSList *compression_type_extensions = ws_get_all_compression_type_extensions_list();
         char *ext = g_ascii_strdown(sfx + 1, -1);
         for (GSList *compression_extension = compression_type_extensions;
                 compression_extension != NULL;

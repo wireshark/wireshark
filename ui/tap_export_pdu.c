@@ -164,10 +164,10 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, char *pathname,
     };
     if (fd == 1) {
         exp_pdu_tap_data->wdh = wtap_dump_open_stdout(file_type_subtype,
-                WTAP_UNCOMPRESSED, &params, err, err_info);
+                WS_FILE_UNCOMPRESSED, &params, err, err_info);
     } else {
         exp_pdu_tap_data->wdh = wtap_dump_fdopen(fd, file_type_subtype,
-                WTAP_UNCOMPRESSED, &params, err, err_info);
+                WS_FILE_UNCOMPRESSED, &params, err, err_info);
     }
     if (exp_pdu_tap_data->wdh == NULL)
         return false;

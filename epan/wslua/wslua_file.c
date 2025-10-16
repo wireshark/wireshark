@@ -474,7 +474,7 @@ static int File_get_compressed(lua_State* L) {
     if (file_is_reader(f)) {
         lua_pushboolean(L, file_iscompressed(f->file));
     } else {
-        lua_pushboolean(L, f->wdh->compression_type != WTAP_UNCOMPRESSED);
+        lua_pushboolean(L, f->wdh->compression_type != WS_FILE_UNCOMPRESSED);
     }
     return 1;
 }

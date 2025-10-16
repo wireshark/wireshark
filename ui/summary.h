@@ -60,7 +60,7 @@ typedef struct _summary_tally {
     char                  file_sha256[HASH_STR_SIZE];  /**< SHA256 hash of capture file */
     char                  file_sha1[HASH_STR_SIZE];    /**< SHA1 hash of capture file */
     int                   file_type;          /**< wiretap file type */
-    wtap_compression_type compression_type;   /**< compression type of file, or uncompressed */
+    ws_compression_type   compression_type;   /**< compression type of file, or uncompressed */
     int                   file_encap_type;    /**< wiretap encapsulation type for file */
     GArray               *packet_encap_types; /**< wiretap encapsulation types for packets */
     int                   snap;               /**< Maximum captured packet length; 0 if not known */

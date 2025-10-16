@@ -103,7 +103,7 @@ list_output_compression_types(void) {
     GSList *output_compression_types;
 
     fprintf(stderr, "mergecap: The available output compress type(s) for the \"--compress\" flag are:\n");
-    output_compression_types = wtap_get_all_output_compression_type_names_list();
+    output_compression_types = ws_get_all_output_compression_type_names_list();
     for (GSList *compression_type = output_compression_types;
         compression_type != NULL;
         compression_type = g_slist_next(compression_type)) {
@@ -200,7 +200,7 @@ main(int argc, char *argv[])
     char                  *out_filename    = NULL;
     bool                  status           = true;
     idb_merge_mode        mode             = IDB_MERGE_MODE_MAX;
-    wtap_compression_type compression_type = WTAP_UNKNOWN_COMPRESSION;
+    ws_compression_type   compression_type = WS_FILE_UNKNOWN_COMPRESSION;
     merge_progress_callback_t cb;
 
     /* Set the program name. */
@@ -301,8 +301,8 @@ main(int argc, char *argv[])
                 break;
 
             case LONGOPT_COMPRESS:
-                compression_type = wtap_name_to_compression_type(ws_optarg);
-                if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
+                compression_type = ws_name_to_compression_type(ws_optarg);
+                if (compression_type == WS_FILE_UNKNOWN_COMPRESSION) {
                     cmdarg_err("\"%s\" isn't a valid output compression mode",
                                 ws_optarg);
                     list_output_compression_types();
@@ -356,28 +356,28 @@ main(int argc, char *argv[])
         return 1;
     }
 
-    if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
+    if (compression_type == WS_FILE_UNKNOWN_COMPRESSION) {
         /* An explicitly specified compression type overrides filename
          * magic. (Should we allow specifying "no" compression with, e.g.
          * a ".gz" extension?) */
         const char *sfx = strrchr(out_filename, '.');
         if (sfx) {
-            compression_type = wtap_extension_to_compression_type(sfx + 1);
+            compression_type = ws_extension_to_compression_type(sfx + 1);
         }
     }
 
-    if (compression_type == WTAP_UNKNOWN_COMPRESSION) {
-        compression_type = WTAP_UNCOMPRESSED;
+    if (compression_type == WS_FILE_UNKNOWN_COMPRESSION) {
+        compression_type = WS_FILE_UNCOMPRESSED;
     }
 
-    if (!wtap_can_write_compression_type(compression_type)) {
+    if (!ws_can_write_compression_type(compression_type)) {
         cmdarg_err("Output files can't be written as %s",
-                wtap_compression_type_description(compression_type));
+                ws_compression_type_description(compression_type));
         status = false;
         goto clean_exit;
     }
 
-    if (compression_type != WTAP_UNCOMPRESSED && !wtap_dump_can_compress(file_type)) {
+    if (compression_type != WS_FILE_UNCOMPRESSED && !wtap_dump_can_compress(file_type)) {
         cmdarg_err("The file format %s can't be written to output compressed format",
             wtap_file_type_subtype_name(file_type));
         status = false;

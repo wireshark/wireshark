@@ -264,7 +264,7 @@ bool cf_has_unsaved_data(capture_file *cf);
  */
 cf_write_status_t cf_save_records(capture_file * cf, const char *fname,
                                   unsigned save_format,
-                                  wtap_compression_type compression_type,
+                                  ws_compression_type compression_type,
                                   bool discard_comments,
                                   bool dont_reopen);
 
@@ -286,7 +286,7 @@ cf_write_status_t cf_export_specified_packets(capture_file *cf,
                                               const char *fname,
                                               packet_range_t *range,
                                               unsigned save_format,
-                                              wtap_compression_type compression_type);
+                                              ws_compression_type compression_type);
 
 /**
  * Get a displayable name of the capture file.

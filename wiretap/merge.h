@@ -117,7 +117,7 @@ merge_files(const char* out_filename, const int file_type,
             const char *const *in_filenames, const unsigned in_file_count,
             const bool do_append, const idb_merge_mode mode,
             unsigned snaplen, const char *app_name, merge_progress_callback_t* cb,
-            wtap_compression_type compression_type);
+            ws_compression_type compression_type);
 
 /** Merge the given input files to a temporary file
  *
@@ -159,7 +159,7 @@ merge_files_to_stdout(const int file_type, const char *const *in_filenames,
                       const unsigned in_file_count, const bool do_append,
                       const idb_merge_mode mode, unsigned snaplen,
                       const char *app_name, merge_progress_callback_t* cb,
-                      wtap_compression_type compression_type);
+                      ws_compression_type compression_type);
 
 #ifdef __cplusplus
 }
