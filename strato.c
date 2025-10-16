@@ -69,6 +69,7 @@
 #include <epan/enterprises.h>
 #include <epan/manuf.h>
 #include <epan/services.h>
+#include <epan/secrets.h>
 #include "ui/taps.h"
 #include "ui/util.h"
 #include "ui/ws_ui_util.h"
@@ -78,7 +79,6 @@
 #include "ui/cli/tap-exportobject.h"
 #include "ui/tap_export_pdu.h"
 #include "ui/dissect_opts.h"
-#include "ui/ssl_key_export.h"
 #include "ui/failure_message.h"
 #include "ui/capture_opts.h"
 #if defined(HAVE_LIBSMI)
@@ -2221,9 +2221,12 @@ main(int argc, char *argv[])
         draw_tap_listeners(true);
 
     if (tls_session_keys_file) {
-        size_t keylist_length;
-        char *keylist = ssl_export_sessions(&keylist_length);
-        write_file_binary_mode(tls_session_keys_file, keylist, keylist_length);
+        size_t keylist_length = 0;
+        unsigned num_keys = 0;
+        char* keylist = NULL;
+        secrets_export_values ret = secrets_export("TLS", &keylist, &keylist_length, &num_keys);
+        if ((ret == SECRETS_EXPORT_SUCCESS) && (keylist_length > 0))
+            write_file_binary_mode(tls_session_keys_file, keylist, keylist_length);
         g_free(keylist);
     }
 

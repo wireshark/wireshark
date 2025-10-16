@@ -2669,7 +2669,13 @@ esp_print_record(void *key, void *value _U_, void *user_data)
   g_free(str);
 }
 
-bool
+static unsigned
+esp_export_secret_count(void)
+{
+  return wmem_map_size(esp_used_sa_map);
+}
+
+static bool
 esp_export_dsb(capture_file *cf)
 {
   wtap_block_t block;
@@ -2917,6 +2923,8 @@ proto_register_ipsec(void)
   register_decode_as(&ah_da);
 
   secrets_register_type(SECRETS_TYPE_ESP, esp_secrets_block_callback);
+  secrets_register_inject_type("ESP", esp_export_secret_count, esp_export_dsb, NULL);
+
   esp_used_sa_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 

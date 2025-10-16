@@ -17,6 +17,7 @@
 
 #include <glib.h>
 #include "ws_symbol_export.h"
+#include "cfile.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,6 +83,72 @@ typedef void (*secrets_block_callback_t)(const void *secrets, unsigned size);
  */
 WS_DLL_PUBLIC void
 secrets_register_type(uint32_t secrets_type, secrets_block_callback_t cb);
+
+typedef unsigned (*secret_inject_count_func)(void);
+typedef bool (*secret_inject_export_func)(capture_file* cf);
+typedef char* (*secret_export_func)(size_t* length);
+
+/**
+ * Registers a producer for pcapng Decryption Secrets Block (DSB).
+ *
+ * @param name Protocol abbreviation used by the UI to display secret type
+ * @param count_func Callback function to provide number of secrets
+ * @param inject_func Callback function to inject secrets into pcapng file
+ * @param export_func Callback funciton to provide a stringified version of the secrets
+ */
+WS_DLL_PUBLIC void
+secrets_register_inject_type(const char* name, secret_inject_count_func count_func, secret_inject_export_func inject_func, secret_export_func export_func);
+
+typedef enum {
+    SECRETS_EXPORT_SUCCESS = 0,
+    SECRETS_INVALID_CAPTURE_FILE,
+    SECRETS_UNKNOWN_PROTOCOL,
+    SECRETS_NO_SECRETS,
+    SECRETS_EXPORT_FAILED,
+} secrets_export_values;
+
+/**
+ * Return the current number of secrets from a single registered protocol
+ *
+ * @param name Registered protocol abbreviation
+ * @return Number of secrets registered to that protocol
+ */
+WS_DLL_PUBLIC unsigned
+secrets_get_count(const char* name);
+
+/**
+ * Export the data for a pcapng Decryption Secrets Block (DSB) from a single registered
+ * protocol.
+ *
+ * @param name Registered protocol abbreviation
+ * @param cf Capture file to export to
+ * @return Enumerated value for success or possible errors
+ */
+WS_DLL_PUBLIC secrets_export_values
+secrets_export_dsb(const char* name, capture_file* cf);
+
+/**
+ * Export the data for secrets as a character string from a single registered protocol.
+ *
+ * @param name Registered protocol abbreviation
+ * @param secrets Returned secret data. Caller is responsibile for g_ allocated memory returned
+ * @param secrets_len Returned length of secrets data
+ * @param num_secrets Number of secrets in the data
+ * @return Enumerated value for success or possible errors
+ */
+WS_DLL_PUBLIC secrets_export_values
+secrets_export(const char* name, char** secrets, size_t* secrets_len, unsigned* num_secrets);
+
+/**
+ * Iterate through all of the registered secret injection protocols and call
+ * callback
+ *
+ * @param func Function to be called on each injector
+ * @param param Optional data to be passed into the function as well
+ */
+WS_DLL_PUBLIC void
+secrets_inject_foreach(GHFunc func, void* param);
+
 
 #ifdef HAVE_LIBGNUTLS
 /**

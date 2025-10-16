@@ -28,6 +28,7 @@ DIAG_ON(frame-larger-than=)
 #include <epan/stats_tree_priv.h>
 #include <epan/plugin_if.h>
 #include <epan/export_object.h>
+#include <epan/secrets.h>
 
 #include "ui/iface_toolbar.h"
 
@@ -2425,10 +2426,7 @@ void WiresharkMainWindow::setMenusForCaptureFile(bool force_disable)
 
     main_ui_->actionFileExportPDU->setEnabled(enable);
     main_ui_->actionFileStripHeaders->setEnabled(enable);
-    /* XXX: "Export TLS Session Keys..." should be enabled only if
-     * ssl_session_key_count() > 0.
-     */
-    main_ui_->actionFileExportTLSSessionKeys->setEnabled(enable);
+    main_ui_->actionFileExportTLSSessionKeys->setEnabled(enable && secrets_get_count("TLS") > 0);
 
     foreach(QAction *eo_action, main_ui_->menuFileExportObjects->actions()) {
         eo_action->setEnabled(enable);

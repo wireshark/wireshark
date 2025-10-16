@@ -37,8 +37,6 @@
 #include <epan/column.h>
 #include <epan/column-info.h>
 
-#include <ui/ssl_key_export.h>
-
 #include <ui/io_graph_item.h>
 #include <epan/stats_tree_priv.h>
 #include <epan/stat_tap_ui.h>
@@ -50,6 +48,7 @@
 #include <epan/rtd_table.h>
 #include <epan/srt_table.h>
 #include <epan/to_str.h>
+#include <epan/secrets.h>
 
 #include <epan/dissectors/packet-h225.h>
 #include <ui/voip_calls.h>
@@ -5994,10 +5993,12 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
     }
     else if (!strcmp(tok_token, "ssl-secrets"))
     {
-        size_t str_len;
-        char *str = ssl_export_sessions(&str_len);
+        size_t str_len = 0;
+        unsigned num_keys = 0;
+        char* str = NULL;
+        secrets_export_values ret = secrets_export("TLS", &str, &str_len, &num_keys);
 
-        if (str)
+        if ((ret == SECRETS_EXPORT_SUCCESS) && (str_len > 0))
         {
             const char *mime     = "text/plain";
             const char *filename = "keylog.txt";

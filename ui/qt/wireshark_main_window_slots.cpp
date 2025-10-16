@@ -57,8 +57,8 @@ DIAG_ON(frame-larger-than=)
 #include "epan/plugin_if.h"
 #include "epan/uat.h"
 #include "epan/uat-int.h"
+#include "epan/secrets.h"
 #include <wsutil/value_string.h>
-#include "epan/dissectors/packet-ipsec.h"
 
 #ifdef HAVE_LUA
 #include <epan/wslua/init_wslua.h>
@@ -74,7 +74,6 @@ DIAG_ON(frame-larger-than=)
 #include "ui/preference_utils.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
-#include "ui/ssl_key_export.h"
 #include "ui/ws_ui_util.h"
 #include "ui/all_files_wildcard.h"
 #include "ui/qt/simple_dialog.h"
@@ -1995,36 +1994,43 @@ void WiresharkMainWindow::exportTLSSessionKeys()
 {
     QString file_name;
     QString save_title;
-    int keylist_len;
+    size_t keylist_len = 0;
+    unsigned num_keys = 0;
+    char* keylist = NULL;
 
-    keylist_len = ssl_session_key_count();
-    /* don't show up the dialog, if no data has to be saved */
-    if (keylist_len < 1) {
+    secrets_export_values ret = secrets_export("TLS", &keylist, &keylist_len, &num_keys);
+    switch (ret)
+    {
+    case SECRETS_NO_SECRETS:
+    {
         /* shouldn't happen as the menu item should have been greyed out */
         QMessageBox::warning(
-                    this,
-                    tr("No Keys"),
-                    tr("There are no TLS Session Keys to save."),
-                    QMessageBox::Ok
-                    );
+            this,
+            tr("No Keys"),
+            tr("There are no TLS Session Keys to save."),
+            QMessageBox::Ok
+        );
         return;
     }
+    case SECRETS_EXPORT_SUCCESS:
+        save_title.append(mainApp->windowTitleString(tr("Export TLS Session Keys (%Ln key(s))", "", num_keys)));
+        file_name = WiresharkFileDialog::getSaveFileName(this,
+            save_title,
+            mainApp->openDialogInitialDir().canonicalPath(),
+            tr("TLS Session Keys (*.keys *.txt);;All Files (" ALL_FILES_WILDCARD ")")
+        );
+        if (file_name.length() > 0) {
+            write_file_binary_mode(qUtf8Printable(file_name), keylist, keylist_len);
 
-    save_title.append(mainApp->windowTitleString(tr("Export TLS Session Keys (%Ln key(s))", "", keylist_len)));
-    file_name = WiresharkFileDialog::getSaveFileName(this,
-                                            save_title,
-                                            mainApp->openDialogInitialDir().canonicalPath(),
-                                            tr("TLS Session Keys (*.keys *.txt);;All Files (" ALL_FILES_WILDCARD ")")
-                                            );
-    if (file_name.length() > 0) {
-        size_t keylist_length;
-        char *keylist = ssl_export_sessions(&keylist_length);
-        write_file_binary_mode(qUtf8Printable(file_name), keylist, keylist_length);
-
-        /* Save the directory name for future file dialogs. */
-        mainApp->setLastOpenDirFromFilename(file_name);
-        g_free(keylist);
+            /* Save the directory name for future file dialogs. */
+            mainApp->setLastOpenDirFromFilename(file_name);
+        }
+        break;
+    default:
+        break;
     }
+
+    g_free(keylist);
 }
 
 void WiresharkMainWindow::printFile()
@@ -2171,10 +2177,10 @@ void WiresharkMainWindow::connectEditMenuActions()
             [this]() { deleteAllPacketComments(); }, Qt::QueuedConnection);
 
     connect(main_ui_->actionEditInjectTLSSecrets, &QAction::triggered, this,
-            [this]() { injectTLSSecrets(); }, Qt::QueuedConnection);
+            [this]() { injectSecrets("TLS", "TLS#tls-decryption"); }, Qt::QueuedConnection);
 
     connect(main_ui_->actionEditInjectESPSecrets, &QAction::triggered, this,
-            [this]() { injectESPSecrets(); }, Qt::QueuedConnection);
+            [this]() { injectSecrets("ESP", "ESP_Preferences#esp-preferences"); }, Qt::QueuedConnection);
 
     connect(main_ui_->actionEditDiscardAllSecrets, &QAction::triggered, this,
             [this]() { discardAllSecrets(); }, Qt::QueuedConnection);
@@ -2461,59 +2467,35 @@ void WiresharkMainWindow::deleteAllPacketCommentsFinished(int result)
     }
 }
 
-void WiresharkMainWindow::injectTLSSecrets()
+void WiresharkMainWindow::injectSecrets(const char* proto_name, const char* wiki_link)
 {
-    int keylist_len;
+    if (!capture_file_.isValid())
+        return;
 
-    keylist_len = ssl_session_key_count();
-    /* don't do anything if no data has to be saved */
-    if (keylist_len < 1) {
+    secrets_export_values ret = secrets_export_dsb(proto_name, capture_file_.capFile());
+    switch (ret)
+    {
+    case SECRETS_NO_SECRETS:
+    {
         QMessageBox::Button ret = QMessageBox::warning(
             this,
-            tr("No TLS Secrets"),
-            tr("There are no available secrets used to decrypt TLS traffic in the capture file.\
-  Would you like to view information about how to decrypt TLS traffic on the wiki?"),
+            tr("No %1 Secrets").arg(proto_name),
+            tr("There are no available secrets used to decrypt %1 traffic in the capture file.\
+  Would you like to view information about how to decrypt %2 traffic on the wiki?").arg(proto_name).arg(proto_name),
             QMessageBox::Yes | QMessageBox::No,
             QMessageBox::No);
 
         if (ret != QMessageBox::Yes) return;
 
-        QUrl wiki_url = QString(WS_WIKI_URL("TLS#tls-decryption"));
+        QUrl wiki_url = QString(WS_WIKI_URL("")) + QString(wiki_link);
         QDesktopServices::openUrl(wiki_url);
-        return;
+        break;
     }
-
-    if (!capture_file_.isValid())
-        return;
-
-    /* XXX: It would be nice to handle other types of secrets that
-     * can be written to a DSB, maybe have a proper dialog.
-     */
-    capture_file *cf = capture_file_.capFile();
-    tls_export_dsb(cf);
-    updateForUnsavedChanges();
-}
-
-void WiresharkMainWindow::injectESPSecrets()
-{
-    if (!capture_file_.isValid())
-        return;
-    capture_file *cf = capture_file_.capFile();
-    if (esp_export_dsb(cf)) {
+    case SECRETS_EXPORT_SUCCESS:
         updateForUnsavedChanges();
-    } else {
-        QMessageBox::Button ret = QMessageBox::warning(
-            this,
-            tr("No ESP Secrets"),
-            tr("There are no available secrets used to decrypt ESP traffic in the capture file.\
-               Would you like to view information about how to decrypt ESP traffic on the wiki?"),
-            QMessageBox::Yes | QMessageBox::No,
-            QMessageBox::No);
-
-        if (ret != QMessageBox::Yes) return;
-
-        QUrl wiki_url = QString(WS_WIKI_URL("ESP_Preferences#esp-preferences"));
-        QDesktopServices::openUrl(wiki_url);
+        break;
+    default:
+        break;
     }
 }
 

@@ -29,8 +29,6 @@ WS_DLL_PUBLIC void esp_sa_record_add_from_dissector(uint8_t protocol, const char
                                                     uint8_t authentication_algo,       /* values from esp_authentication_type_vals */
                                                     const char *authentication_key);
 
-WS_DLL_PUBLIC bool esp_export_dsb(capture_file *cf);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
