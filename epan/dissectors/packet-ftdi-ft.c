@@ -1738,8 +1738,7 @@ proto_register_ftdi_ft(void)
 void
 proto_reg_handoff_ftdi_ft(void)
 {
-    /* TODO: Add configuration option to specify VID and PID.
-     * The values below denote default VID/PID of FT converters (as of 2019)
+    /* The values below denote default VID/PID of FT converters (as of 2019)
      * The VID and PID can be changed by hardware vendor.
      */
     dissector_add_uint("usb.product", (0x0403 << 16) | 0x6001, ftdi_ft_handle);
@@ -1757,6 +1756,7 @@ proto_reg_handoff_ftdi_ft(void)
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x607c, ftdi_ft_handle); /* OpenVizsla USB sniffer/analyzer */
 
     dissector_add_for_decode_as("usb.device", ftdi_ft_handle);
+    dissector_add_for_decode_as_with_preference("usb.product", ftdi_ft_handle);
 
     ftdi_mpsse_handle = find_dissector_add_dependency("ftdi-mpsse", proto_ftdi_ft);
 }
