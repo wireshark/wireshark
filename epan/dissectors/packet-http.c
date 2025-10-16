@@ -2623,7 +2623,7 @@ dissecting_body:
 			conv_data->server_port = pinfo->srcport;
 			/* Prepare structure for upgrade protocol data */
 			conv_data->upgrade_info = wmem_new0(wmem_file_scope(), http_upgrade_info_t);
-			conv_data->upgrade_info->server_port = pinfo->destport;
+			conv_data->upgrade_info->server_port = pinfo->srcport;
 			conv_data->upgrade_info->http_version = 1;
 			conv_data->upgrade_info->get_header_value = http_get_header_value;
 		}
