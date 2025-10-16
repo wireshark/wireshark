@@ -281,10 +281,12 @@ void DataSourceTab::selectedFrameChanged(QList<int> frames)
     }
 
     /* We don't need to call clear() because Qt will remove the child widgets
-     * when they're deleted (calling clear() seems to fire leaveEvent() that
-     * isn't called if just deleted.) https://stackoverflow.com/a/76848495 */
-    clear();
-    qDeleteAll(findChildren<BaseDataSourceView *>());
+     * when they're deleted. We do want to hide the QTabWidget so that the
+     * QTabBar doesn't calculate the sizeHint for each tab remaining every
+     * time a tab is removed, instead deferring until later. */
+    setVisible(false);
+    qDeleteAll(findChildren<BaseDataSourceView *>(QString(), Qt::FindDirectChildrenOnly));
+    setVisible(true);
 
     /* only show the bytes for single selections */
     if (frames.count() == 1)
@@ -292,6 +294,12 @@ void DataSourceTab::selectedFrameChanged(QList<int> frames)
         if (! cap_file_ || ! cap_file_->edt)
             return;
 
+        /* Unfortunately in Qt 6.3 and later adding a tab still causes a
+         * relayout thanks to the following commit:
+         * https://github.com/qt/qtbase/commit/02164b292f002b051f34a88871145415fad94f32
+         * Filed: https://bugreports.qt.io/browse/QTBUG-141187
+         */
+        setVisible(false);
         /* This code relies on a dissection, which had happened somewhere else. It also does not
          * really check, if the dissection happened for the correct frame. In the future we might
          * rewrite this for directly calling the dissection engine here. */
@@ -304,6 +312,7 @@ void DataSourceTab::selectedFrameChanged(QList<int> frames)
             addTab(source_description, source);
             wmem_free(NULL, source_description);
         }
+        setVisible(true);
     }
     else
         addTab("PlaceHolder", 0);
