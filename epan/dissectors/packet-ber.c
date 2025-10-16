@@ -2863,7 +2863,9 @@ proto_tree_add_debug_text(tree, "CHOICE dissect_ber_choice(%s) entered len:%d\n"
     offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
     identifier_len = offset - identifier_offset;
     offset = get_ber_length(tvb, offset, &len, &ind);
-    end_offset = offset + len ;
+    if (ckd_add(&end_offset, offset, len)) {
+        THROW(ReportedBoundsError);
+    }
 
     /* Some sanity checks.
      * The hf field passed to us MUST be an integer type
