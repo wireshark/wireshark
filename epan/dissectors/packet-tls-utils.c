@@ -11184,6 +11184,14 @@ ssl_dissect_hnd_new_ses_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_i
                         tvb, offset, ticket_len, ENC_NA);
     /* save the session ticket to cache for ssl_finalize_decryption */
     if (ssl && !is_tls13) {
+        if (ssl->session.is_session_resumed) {
+            /* NewSessionTicket is received in ServerHello before ChangeCipherSpec
+             * (Abbreviated Handshake Using New Session Ticket).
+             * Restore the master key for this session ticket before saving
+             * it to the new session ticket. */
+            ssl_restore_master_key(ssl, "Session Ticket", false,
+                                   session_hash, &ssl->session_ticket);
+        }
         tvb_ensure_bytes_exist(tvb, offset, ticket_len);
         ssl->session_ticket.data = (unsigned char*)wmem_realloc(wmem_file_scope(),
                                     ssl->session_ticket.data, ticket_len);
