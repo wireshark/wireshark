@@ -11842,7 +11842,7 @@ proto_register_bthci_evt(void)
     static build_valid_func bthci_evt_vendor_da_build_value[1] = {bthci_evt_vendor_value};
     static decode_as_value_t bthci_evt_vendor_da_values = {bthci_evt_vendor_prompt, 1, bthci_evt_vendor_da_build_value};
     static decode_as_t bthci_evt_vendor_da = {"bthci_cmd", "bthci_cmd.vendor", 1, 0, &bthci_evt_vendor_da_values, NULL, NULL,
-            decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+            decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
 
     /* Register the protocol name and description */

@@ -4549,7 +4549,7 @@ proto_register_ber(void)
     static build_valid_func ber_da_build_value[1] = {ber_value};
     static decode_as_value_t ber_da_values = {ber_prompt, 1, ber_da_build_value};
     static decode_as_t ber_da = {"ber", "ber.syntax", 1, 0, &ber_da_values, NULL, NULL,
-                                ber_populate_list, ber_decode_as_reset, ber_decode_as_change, NULL};
+                                ber_populate_list, ber_decode_as_reset, ber_decode_as_change, NULL, NULL };
 
     module_t *ber_module;
     expert_module_t* expert_ber;

@@ -2861,7 +2861,7 @@ proto_register_btpa(void)
     static build_valid_func btpa_da_both_values[2] = {btpa_src_value, btpa_dst_value};
     static decode_as_value_t btpa_da_values[3] = {{btpa_src_prompt, 1, btpa_da_src_values}, {btpa_dst_prompt, 1, btpa_da_dst_values}, {btpa_both_prompt, 2, btpa_da_both_values}};
     static decode_as_t btpa_da = {"btpa", "btpa.port", 3, 2, btpa_da_values, "BTP-A", "port(s) as",
-                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     register_decode_as(&btpa_da);
 
@@ -2912,7 +2912,7 @@ proto_register_btpb(void)
     static build_valid_func btpb_da_build_value[1] = {btpb_dst_value};
     static decode_as_value_t btpb_da_values = {btpb_dst_prompt, 1, btpb_da_build_value};
     static decode_as_t btpb_da = {"btpb", "btpb.port", 1, 0, &btpb_da_values, NULL, NULL,
-                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     register_decode_as(&btpb_da);
 

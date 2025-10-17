@@ -19,7 +19,6 @@
 #include "wsutil/application_flavor.h"
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
-#include "epan/dissectors/packet-dcerpc.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -530,7 +529,12 @@ decode_clear_all(void)
     g_slist_free(dissector_reset_list);
     dissector_reset_list = NULL;
 
-    decode_dcerpc_reset_all();
+    for (GList* cur = decode_as_list; cur; cur = cur->next) {
+        decode_as_t* entry = (decode_as_t*)cur->data;
+        if (entry->reset_all != NULL) {
+            entry->reset_all();
+        }
+    }
 }
 
 void

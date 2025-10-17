@@ -3708,7 +3708,7 @@ proto_register_l2tp(void)
     static build_valid_func l2tp_da_build_value[1] = {l2tp_value};
     static decode_as_value_t l2tp_da_values = {l2tp_prompt, 1, l2tp_da_build_value};
     static decode_as_t l2tp_da = {"l2tp", "l2tp.pw_type", 1, 0, &l2tp_da_values, NULL, NULL,
-                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     proto_l2tp = proto_register_protocol("Layer 2 Tunneling Protocol", "L2TP", "l2tp");
     l2tp_udp_handle = register_dissector("lt2p_udp", dissect_l2tp_udp, proto_l2tp);

@@ -669,17 +669,17 @@ proto_register_mpls(void)
     static build_valid_func mpls_da_build_value[1] = {mpls_value};
     static decode_as_value_t mpls_da_values = {mpls_prompt, 1, mpls_da_build_value};
     static decode_as_t mpls_da = {"mpls", "mpls.label", 1, 0, &mpls_da_values, NULL, NULL,
-                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     static build_valid_func mpls_pfn_da_build_value[1] = {mpls_pfn_value};
     static decode_as_value_t mpls_pfn_da_values = {mpls_pfn_prompt, 1, mpls_pfn_da_build_value};
     static decode_as_t mpls_pfn_da = {"mpls", "mpls.pfn", 1, 0, &mpls_pfn_da_values, NULL, NULL,
-                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     static build_valid_func pw_ach_da_build_value[1] = {pw_ach_value};
     static decode_as_value_t pw_ach_da_values = {pw_ach_prompt, 1, pw_ach_da_build_value};
     static decode_as_t pw_ach_da = {"pwach", "pwach.channel_type", 1, 0, &pw_ach_da_values, NULL, NULL,
-                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     expert_module_t* expert_mpls;
     module_t * module_mpls;

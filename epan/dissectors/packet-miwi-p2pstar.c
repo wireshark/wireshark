@@ -1811,7 +1811,7 @@ void proto_register_miwi_p2pstar(void)
     static decode_as_t         miwi_da = {
         IEEE802154_PROTOABBREV_WPAN, IEEE802154_PROTOABBREV_WPAN_PANID,
         1, 0, &miwi_da_values, NULL, NULL,
-        decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change,NULL
+        decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change,NULL,NULL
     };
 
     module_t *miwi_p2pstar_module;

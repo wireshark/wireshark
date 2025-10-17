@@ -13703,7 +13703,7 @@ proto_register_amqp(void)
     static build_valid_func amqp_da_build_value[1] = {amqp_value};
     static decode_as_value_t amqp_da_values = {amqp_prompt, 1, amqp_da_build_value};
     static decode_as_t amqp_da = {"amqp", "amqp.version", 1, 0, &amqp_da_values, NULL, NULL,
-                                decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     proto_amqp = proto_register_protocol("Advanced Message Queuing Protocol", "AMQP", "amqp");
 

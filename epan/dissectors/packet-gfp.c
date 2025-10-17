@@ -550,7 +550,7 @@ proto_register_gfp(void)
     static build_valid_func gfp_da_build_value[1] = {gfp_value};
     static decode_as_value_t gfp_da_values = {gfp_prompt, 1, gfp_da_build_value};
     static decode_as_t gfp_da = {"gfp", "gfp.upi", 1, 0, &gfp_da_values, NULL, NULL,
-                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     /* module_t        *gfp_module; */
     expert_module_t *expert_gfp;

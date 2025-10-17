@@ -5389,7 +5389,7 @@ proto_register_http2(void)
     static build_valid_func http2_current_stream_values[1] = { http2_current_stream_id_value };
     static decode_as_value_t http2_da_stream_id_values[1] = { {http2_streamid_prompt, 1, http2_current_stream_values} };
     static decode_as_t http2_da_stream_id = { "http2", "http2.streamid", 1, 0, http2_da_stream_id_values, "HTTP2", "Stream ID as",
-                                       decode_as_http2_populate_list, decode_as_default_reset, decode_as_default_change, NULL };
+                                       decode_as_http2_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
     register_decode_as(&http2_da_stream_id);
 #endif
 

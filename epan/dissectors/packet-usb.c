@@ -1881,7 +1881,7 @@ static decode_as_t        usb_product_da = {
         "usb", "usb.product",
         1, 0, &usb_product_da_values, NULL, NULL,
         decode_as_default_populate_list, decode_as_default_reset,
-        decode_as_default_change, NULL};
+        decode_as_default_change, NULL, NULL };
 
 static build_valid_func   usb_device_da_build_value[1] = {usb_device_value};
 static decode_as_value_t  usb_device_da_values         = {usb_device_prompt, 1, usb_device_da_build_value};
@@ -1889,7 +1889,7 @@ static decode_as_t        usb_device_da = {
         "usb", "usb.device",
         1, 0, &usb_device_da_values, NULL, NULL,
         decode_as_default_populate_list, decode_as_default_reset,
-        decode_as_default_change, NULL};
+        decode_as_default_change, NULL, NULL };
 
 static build_valid_func   usb_protocol_da_build_value[1] = {usb_protocol_value};
 static decode_as_value_t  usb_protocol_da_values         = {usb_protocol_prompt, 1, usb_protocol_da_build_value};
@@ -1897,7 +1897,7 @@ static decode_as_t        usb_protocol_da = {
         "usb", "usb.protocol",
         1, 0, &usb_protocol_da_values, NULL, NULL,
         decode_as_default_populate_list, decode_as_default_reset,
-        decode_as_default_change, NULL};
+        decode_as_default_change, NULL, NULL };
 
 
 static usb_conv_info_t *

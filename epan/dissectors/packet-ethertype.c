@@ -414,7 +414,7 @@ proto_register_ethertype(void)
 	static build_valid_func eth_da_build_value[1] = {eth_value};
 	static decode_as_value_t eth_da_values = {eth_prompt, 1, eth_da_build_value};
 	static decode_as_t ethertype_da = {"ethertype", "ethertype", 1, 0, &eth_da_values, NULL, NULL,
-										decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+										decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
 
 	proto_ethertype = proto_register_protocol("Ethertype", "Ethertype", "ethertype");

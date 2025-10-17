@@ -590,7 +590,7 @@ proto_register_sll(void)
 	static build_valid_func sll_da_build_value[1] = {sll_value};
 	static decode_as_value_t sll_da_values = {sll_prompt, 1, sll_da_build_value};
 	static decode_as_t sll_da = {"sll.ltype", "sll.ltype", 1, 0, &sll_da_values, NULL, NULL,
-				decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+				decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
 	proto_sll = proto_register_protocol("Linux cooked-mode capture", "SLL", "sll" );
 	proto_register_field_array(proto_sll, hf, array_length(hf));

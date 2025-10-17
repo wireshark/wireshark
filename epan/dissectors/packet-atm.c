@@ -2000,7 +2000,7 @@ proto_register_atm(void)
   static build_valid_func atm_da_build_value[1] = {atm_value};
   static decode_as_value_t atm_da_values = {atm_prompt, 1, atm_da_build_value};
   static decode_as_t atm_da = {"atm", "atm.aal2.type", 1, 0, &atm_da_values, NULL, NULL,
-                                decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
   proto_atm    = proto_register_protocol("Asynchronous Transfer Mode", "ATM", "atm");
   proto_aal1   = proto_register_protocol("ATM AAL1", "AAL1", "aal1");

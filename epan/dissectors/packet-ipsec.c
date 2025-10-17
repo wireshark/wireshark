@@ -2818,7 +2818,7 @@ proto_register_ipsec(void)
   static build_valid_func ah_da_build_value[1] = {ah_value};
   static decode_as_value_t ah_da_values = {ah_prompt, 1, ah_da_build_value};
   static decode_as_t ah_da = {"ah", "ip.proto", 1, 0, &ah_da_values, NULL, NULL,
-                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
   module_t *ah_module;
   module_t *esp_module;

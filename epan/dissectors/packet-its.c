@@ -32260,7 +32260,7 @@ void proto_register_its(void)
     static build_valid_func its_da_build_value[1] = {its_msgid_value};
     static decode_as_value_t its_da_values = {its_msgid_prompt, 1, its_da_build_value};
     static decode_as_t its_da = {"its", "its.msg_id", 1, 0, &its_da_values, NULL, NULL,
-                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL};
 
     register_decode_as(&its_da);
 

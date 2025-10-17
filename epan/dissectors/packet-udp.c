@@ -1512,7 +1512,7 @@ proto_register_udp(void)
     static build_valid_func udp_da_both_values[2] = {udp_src_value, udp_dst_value};
     static decode_as_value_t udp_da_values[3] = {{udp_src_prompt, 1, udp_da_src_values}, {udp_dst_prompt, 1, udp_da_dst_values}, {udp_both_prompt, 2, udp_da_both_values}};
     static decode_as_t udp_da = {"udp", "udp.port", 3, 2, udp_da_values, "UDP", "port(s) as",
-                     decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                     decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     module_t *udp_module;
     module_t *udplite_module;

@@ -10716,7 +10716,7 @@ proto_register_tcp(void)
     static build_valid_func tcp_da_both_values[2] = {tcp_src_value, tcp_dst_value};
     static decode_as_value_t tcp_da_values[3] = {{tcp_src_prompt, 1, tcp_da_src_values}, {tcp_dst_prompt, 1, tcp_da_dst_values}, {tcp_both_prompt, 2, tcp_da_both_values}};
     static decode_as_t tcp_da = {"tcp", "tcp.port", 3, 2, tcp_da_values, "TCP", "port(s) as",
-                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     module_t *tcp_module;
     module_t *mptcp_module;

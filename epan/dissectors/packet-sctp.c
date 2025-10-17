@@ -5310,13 +5310,13 @@ proto_register_sctp(void)
   static build_valid_func sctp_da_both_values[2] = {sctp_src_value, sctp_dst_value};
   static decode_as_value_t sctp_da_port_values[3] = {{sctp_src_prompt, 1, sctp_da_src_values}, {sctp_dst_prompt, 1, sctp_da_dst_values}, {sctp_both_prompt, 2, sctp_da_both_values}};
   static decode_as_t sctp_da_port = {"sctp", "sctp.port", 3, 2, sctp_da_port_values, "SCTP", "port(s) as",
-                                     decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                     decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
   static build_valid_func sctp_da_ppi_build_value1[1] = {sctp_ppi_value1};
   static build_valid_func sctp_da_ppi_build_value2[1] = {sctp_ppi_value2};
   static decode_as_value_t sctp_da_ppi_values[2] = {{sctp_ppi_prompt1, 1, sctp_da_ppi_build_value1}, {sctp_ppi_prompt2, 1, sctp_da_ppi_build_value2}};
   static decode_as_t sctp_da_ppi = {"sctp", "sctp.ppi", 2, 0, sctp_da_ppi_values, "SCTP", NULL,
-                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
   /* UAT for header fields */
   static uat_field_t custom_types_uat_fields[] = {

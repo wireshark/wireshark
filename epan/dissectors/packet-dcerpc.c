@@ -852,7 +852,7 @@ dcerpc_decode_as_free(void *value)
 }
 
 /* removes all bindings */
-void
+static void
 decode_dcerpc_reset_all(void)
 {
     decode_dcerpc_bind_values_t *binding;
@@ -7249,7 +7249,7 @@ proto_register_dcerpc(void)
     static decode_as_value_t dcerpc_da_values = {dcerpc_prompt, 1, dcerpc_da_build_value};
     static decode_as_t dcerpc_da = {"dcerpc", "dcerpc.uuid",
                                     1, 0, &dcerpc_da_values, NULL, NULL,
-                                    dcerpc_populate_list, decode_dcerpc_binding_reset, dcerpc_decode_as_change, dcerpc_decode_as_free};
+                                    dcerpc_populate_list, decode_dcerpc_binding_reset, dcerpc_decode_as_change, dcerpc_decode_as_free, decode_dcerpc_reset_all };
 
     module_t *dcerpc_module;
     expert_module_t* expert_dcerpc;

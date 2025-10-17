@@ -4148,7 +4148,7 @@ proto_register_sccp(void)
   static build_valid_func sccp_da_build_value[1] = {sccp_value};
   static decode_as_value_t sccp_da_values = {sccp_prompt, 1, sccp_da_build_value};
   static decode_as_t sccp_da = {"sccp", "sccp.ssn", 1, 0, &sccp_da_values, NULL, NULL,
-                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
   module_t *sccp_module;
   expert_module_t* expert_sccp;

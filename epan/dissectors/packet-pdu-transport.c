@@ -454,7 +454,7 @@ proto_register_pdu_transport(void) {
 
     static decode_as_t pdu_transport_da = { "pdu_transport", "pdu_transport.id", 1, 0, &pdu_transport_da_values,
                                             NULL, NULL, decode_as_default_populate_list,
-                                            decode_as_default_reset, decode_as_default_change, NULL };
+                                            decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     proto_pdu_transport = proto_register_protocol("PDU Transport Protocol", PDU_TRANSPORT_NAME, "pdu_transport");
 

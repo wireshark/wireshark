@@ -17583,7 +17583,7 @@ proto_register_btatt(void)
     static decode_as_value_t btatt_handle_da_values = {btatt_handle_prompt, 1, btatt_handle_da_build_value};
     static decode_as_t btatt_handle_da = {"btatt", "btatt.handle",
             1, 0, &btatt_handle_da_values, NULL, NULL,
-            decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+            decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     /* Register the protocol name and description */
     proto_btatt = proto_register_protocol("Bluetooth Attribute Protocol", "BT ATT", "btatt");

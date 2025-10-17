@@ -1128,7 +1128,7 @@ proto_register_btrfcomm(void)
     static build_valid_func btrfcomm_directed_channel_da_build_value[1] = {btrfcomm_directed_channel_value};
     static decode_as_value_t btrfcomm_directed_channel_da_values = {btrfcomm_directed_channel_prompt, 1, btrfcomm_directed_channel_da_build_value};
     static decode_as_t btrfcomm_directed_channel_da = {"btrfcomm", "btrfcomm.dlci", 1, 0, &btrfcomm_directed_channel_da_values, NULL, NULL,
-                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     /* Register the protocol name and description */
     proto_btrfcomm = proto_register_protocol("Bluetooth RFCOMM Protocol", "BT RFCOMM", "btrfcomm");

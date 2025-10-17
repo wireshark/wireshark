@@ -3063,7 +3063,7 @@ proto_register_dtls(void)
   static build_valid_func dtls_da_both_values[2] = {dtls_src_value, dtls_dst_value};
   static decode_as_value_t dtls_da_values[3] = {{dtls_src_prompt, 1, dtls_da_src_values}, {dtls_dst_prompt, 1, dtls_da_dst_values}, {dtls_both_prompt, 2, dtls_da_both_values}};
   static decode_as_t dtls_da = {"dtls", "dtls.port", 3, 2, dtls_da_values, "UDP", "port(s) as",
-                               decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+                               decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
   expert_module_t* expert_dtls;
 

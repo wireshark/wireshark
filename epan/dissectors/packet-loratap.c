@@ -401,7 +401,7 @@ proto_register_loratap(void)
 	/* Register for decode as */
 	static build_valid_func loratap_da_build_value[1] = {loratap_value};
 	static decode_as_value_t loratap_da_values = {loratap_prompt, 1, loratap_da_build_value};
-	static decode_as_t loratap_da = {"loratap", "loratap.syncword", 1, 0, &loratap_da_values, NULL, NULL, decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+	static decode_as_t loratap_da = {"loratap", "loratap.syncword", 1, 0, &loratap_da_values, NULL, NULL, decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
 	/* Setup protocol subtree array */
 	static int *ett[] = {

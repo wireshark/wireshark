@@ -2473,7 +2473,7 @@ void proto_register_bpv7(void) {
         "bpv7", "bpv7.payload.dtn_serv",
         1, 0, dtn_serv_da_values, NULL, NULL,
         decode_as_default_populate_list, decode_as_default_reset,
-        decode_as_default_change, NULL
+        decode_as_default_change, NULL, NULL
     };
     register_decode_as(&dtn_serv_da);
 
@@ -2488,7 +2488,7 @@ void proto_register_bpv7(void) {
         "bpv7", "bpv7.payload.ipn_serv",
         1, 0, ipn_serv_da_values, NULL, NULL,
         decode_as_default_populate_list, decode_as_default_reset,
-        decode_as_default_change, NULL
+        decode_as_default_change, NULL, NULL
     };
     register_decode_as(&ipn_serv_da);
 

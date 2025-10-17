@@ -426,7 +426,7 @@ proto_register_mpeg_sect(void)
     /* Decode As handling */
     static build_valid_func mpeg_sect_da_build_value[1] = {mpeg_sect_value};
     static decode_as_value_t mpeg_sect_da_values = {mpeg_sect_prompt, 1, mpeg_sect_da_build_value};
-    static decode_as_t mpeg_sect_da = {"mpeg_sect", "mpeg_sect.tid", 1, 0, &mpeg_sect_da_values, NULL, NULL, decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+    static decode_as_t mpeg_sect_da = {"mpeg_sect", "mpeg_sect.tid", 1, 0, &mpeg_sect_da_values, NULL, NULL, decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL };
 
     module_t *mpeg_sect_module;
     expert_module_t* expert_mpeg_sect;
