@@ -229,16 +229,6 @@ static const true_false_string exthdr_tfs = {
   "Extended Header Absent"
 };
 
-
-static const value_string local_proto_checksum_vals[] = {
-  { PROTO_CHECKSUM_E_BAD,        "Bad"  },
-  { PROTO_CHECKSUM_E_GOOD,       "Good" },
-  { PROTO_CHECKSUM_E_UNVERIFIED, "Unverified" },
-  { PROTO_CHECKSUM_E_NOT_PRESENT, "Not present" },
-
-  { 0,        NULL }
-};
-
 static const true_false_string qind_tfs = {
   "Rate overrun",
   "Rate non-overrun"
@@ -1105,7 +1095,7 @@ proto_register_docsis (void)
     },
     { &hf_docsis_hcs_status,
      { "HCS Status", "docsis.hcs.status",
-       FT_UINT8, BASE_NONE, VALS(local_proto_checksum_vals), 0x0,
+       FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
        NULL, HFILL}
     },
     { &hf_docsis_bpi_en,
@@ -1180,7 +1170,7 @@ proto_register_docsis (void)
     },
     { &hf_docsis_frag_fcs_status,
      { "Fragment FCS Status", "docsis.frag.fcs.status",
-       FT_UINT8, BASE_NONE, VALS(local_proto_checksum_vals), 0x0,
+       FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
        NULL, HFILL}
     },
     { &hf_docsis_encrypted_payload,

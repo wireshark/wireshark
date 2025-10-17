@@ -88,15 +88,6 @@ static const value_string datatype_vals[] = {
 	{ 0, NULL }
 };
 
-/* Copied and renamed from proto.c because global value_strings don't work for plugins */
-static const value_string plugin_proto_checksum_vals[] = {
-	{ PROTO_CHECKSUM_E_BAD,        "Bad"  },
-	{ PROTO_CHECKSUM_E_GOOD,       "Good" },
-	{ PROTO_CHECKSUM_E_UNVERIFIED, "Unverified" },
-	{ PROTO_CHECKSUM_E_NOT_PRESENT, "Not present" },
-	{ 0, NULL }
-};
-
 static int* const rk512_measurement_data_fields[] = {
 	&hf_rk512_measurement_data_distance,
 	&hf_rk512_measurement_data_flags,
@@ -317,7 +308,7 @@ proto_register_rk512(void)
 		{ &hf_rk512_checksum,
 			{ "Checksum", "rk512.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 		{ &hf_rk512_checksum_status,
-			{ "CRC Status", "rk512.checksum_status", FT_UINT8, BASE_NONE, &plugin_proto_checksum_vals, 0x0, NULL, HFILL } },
+			{ "CRC Status", "rk512.checksum_status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0, NULL, HFILL } },
 
 	};
 

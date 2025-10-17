@@ -319,12 +319,6 @@ static const true_false_string codeword_tagging = {
   "this codeword is not included in the codeword counts reported by the CM in the OPT-RSP message"
 };
 
-static const value_string local_proto_checksum_vals[] = {
-  { PROTO_CHECKSUM_E_BAD, "Bad"},
-  { PROTO_CHECKSUM_E_GOOD, "Good"},
-  { 0, NULL}
-};
-
 static const value_string control_word_vals[] = {
   { 0, "I=128, J=1"},
   { 1, "I=128, J=1"},
@@ -1321,7 +1315,7 @@ proto_register_xra (void)
     },
     { &hf_docsis_segment_hcs_status,
      { "Segment HCS Status", "docsis_segment.hcs.status",
-       FT_UINT8, BASE_NONE, VALS(local_proto_checksum_vals), 0x0,
+       FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
        NULL, HFILL}
     },
     {&hf_docsis_segment_data,
