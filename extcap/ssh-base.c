@@ -128,7 +128,15 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 
 	/* Load the configurations already present in the system configuration file. */
 	/* They will be overwritten by the user-provided configurations. */
+#ifdef _WIN32
+	/* On Windows, do not try to read C:\etc\ssh\ssh_config.
+	 * libssh tries to read from /etc/ssh/ssh_config on all OSes by
+	 * default (i.e., if the second parameter is NULL.)
+	 */
+	if (ssh_options_parse_config(sshs, "%d/config") != 0) {
+#else
 	if (ssh_options_parse_config(sshs, NULL) != 0) {
+#endif
 		*err_info = g_strdup("Unable to load the configuration file");
 		goto failure;
 	}
