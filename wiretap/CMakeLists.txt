@@ -12,7 +12,6 @@ set(WIRETAP_PUBLIC_HEADERS
 	introspection.h
 	merge.h
 	pcap-encap.h
-	pcapng_module.h
 	secrets-types.h
 	wtap.h
 	wtap_modules.h

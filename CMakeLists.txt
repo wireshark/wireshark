@@ -4257,7 +4257,6 @@ endif()
 set(SHARK_PUBLIC_HEADERS
 	cfile.h
 	cli_main.h
-	file.h
 	${CMAKE_BINARY_DIR}/ws_version.h
 )
 
