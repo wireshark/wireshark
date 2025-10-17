@@ -56,6 +56,10 @@ static int hf_setup_hindex_baud_high;
 static int hf_setup_hindex_baud_clock_divide;
 static int hf_setup_wlength;
 static int hf_response_lat_timer;
+static int hf_response_pin_states;
+static int hf_setup_lindex_eeprom_addr;
+static int hf_setup_value_eeprom_word;
+static int hf_response_eeprom_word;
 static int hf_modem_status;
 static int hf_modem_status_fs_max_packet;
 static int hf_modem_status_hs_max_packet;
@@ -188,6 +192,12 @@ typedef struct _ftdi_fragment_key {
 #define REQUEST_SET_LAT_TIMER   0x09
 #define REQUEST_GET_LAT_TIMER   0x0A
 #define REQUEST_SET_BITMODE     0x0B
+#define REQUEST_GET_PINS        0x0C
+// EEPROM requests start from 0x90
+#define REQUEST_READ_EEPROM     0x90
+#define REQUEST_WRITE_EEPROM    0x91
+#define REQUEST_ERASE_EEPROM    0x92
+
 
 static const value_string request_vals[] = {
     {REQUEST_RESET,           "Reset"},
@@ -201,6 +211,10 @@ static const value_string request_vals[] = {
     {REQUEST_SET_LAT_TIMER,   "SetLatTimer"},
     {REQUEST_GET_LAT_TIMER,   "GetLatTimer"},
     {REQUEST_SET_BITMODE,     "SetBitMode"},
+    {REQUEST_GET_PINS,        "GetPins"},
+    {REQUEST_READ_EEPROM,     "ReadEEPROM"},
+    {REQUEST_WRITE_EEPROM,    "WriteEEPROM"},
+    {REQUEST_ERASE_EEPROM,    "EraseEEPROM"},
     {0, NULL}
 };
 static value_string_ext request_vals_ext  = VALUE_STRING_EXT_INIT(request_vals);
@@ -681,6 +695,105 @@ dissect_request_set_bitmode(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, p
     offset++;
 
     proto_tree_add_item(tree, hf_setup_lindex_port_abcd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_setup_hindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    return offset - offset_start;
+}
+
+static int
+dissect_request_get_pins(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree)
+{
+    int offset_start = offset;
+
+    proto_tree_add_item(tree, hf_setup_lvalue, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_setup_hvalue, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_setup_lindex_port_abcd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_setup_hindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    return offset - offset_start;
+}
+
+static int
+dissect_response_get_pins(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree)
+{
+    int offset_start = offset;
+
+    proto_tree_add_bits_item(tree, hf_response_pin_states, tvb, offset * 8, 8, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    return offset - offset_start;
+}
+
+static int
+dissect_request_read_eeprom(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree)
+{
+    int offset_start = offset;
+
+    proto_tree_add_item(tree, hf_setup_lvalue, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_setup_hvalue, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_setup_lindex_eeprom_addr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_setup_hindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    return offset - offset_start;
+}
+
+static int
+dissect_response_read_eeprom(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree)
+{
+    int offset_start = offset;
+
+    proto_tree_add_item(tree, hf_response_eeprom_word, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset - offset_start;
+}
+
+static int
+dissect_request_write_eeprom(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree)
+{
+    int offset_start = offset;
+
+    proto_tree_add_item(tree, hf_setup_value_eeprom_word, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_setup_lindex_eeprom_addr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_setup_hindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    return offset - offset_start;
+}
+
+static int
+dissect_request_erase_eeprom(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree)
+{
+    int offset_start = offset;
+
+    proto_tree_add_item(tree, hf_setup_lvalue, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_setup_hvalue, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_setup_lindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
     proto_tree_add_item(tree, hf_setup_hindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1203,6 +1316,18 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case REQUEST_SET_BITMODE:
                 bytes_dissected = dissect_request_set_bitmode(tvb, pinfo, offset, main_tree);
                 break;
+            case REQUEST_GET_PINS:
+                bytes_dissected = dissect_request_get_pins(tvb, pinfo, offset, main_tree);
+                break;
+            case REQUEST_READ_EEPROM:
+                bytes_dissected = dissect_request_read_eeprom(tvb, pinfo, offset, main_tree);
+                break;
+            case REQUEST_WRITE_EEPROM:
+                bytes_dissected = dissect_request_write_eeprom(tvb, pinfo, offset, main_tree);
+                break;
+            case REQUEST_ERASE_EEPROM:
+                bytes_dissected = dissect_request_erase_eeprom(tvb, pinfo, offset, main_tree);
+                break;
             default:
                 bytes_dissected = 0;
                 break;
@@ -1243,6 +1368,12 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     break;
                 case REQUEST_GET_LAT_TIMER:
                     offset += dissect_response_get_lat_timer(tvb, pinfo, offset, main_tree);
+                    break;
+                case REQUEST_GET_PINS:
+                    offset += dissect_response_get_pins(tvb, pinfo, offset, main_tree);
+                    break;
+                case REQUEST_READ_EEPROM:
+                    offset += dissect_response_read_eeprom(tvb, pinfo, offset, main_tree);
                     break;
                 case REQUEST_SET_BITMODE:
                     /* TODO: Record interface mode only if the control request has succeeded */
@@ -1539,6 +1670,26 @@ proto_register_ftdi_ft(void)
           { "Latency Time", "ftdi-ft.latency_time",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "Latency time in milliseconds", HFILL }
+        },
+        { &hf_response_pin_states,
+          { "Pin States", "ftdi-ft.pin_states",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "GPIO pin states", HFILL }
+        },
+        { &hf_setup_lindex_eeprom_addr,
+          { "EEPROM Address", "ftdi-ft.eeprom_addr",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "EEPROM word address", HFILL }
+        },
+        { &hf_setup_value_eeprom_word,
+          { "EEPROM Word Value", "ftdi-ft.eeprom_word_value",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            "EEPROM word value to write", HFILL }
+        },
+        { &hf_response_eeprom_word,
+          { "EEPROM Word", "ftdi-ft.eeprom_word",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            "EEPROM word value", HFILL }
         },
         { &hf_modem_status,
           { "Modem Status", "ftdi-ft.modem_status",
