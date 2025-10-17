@@ -9,9 +9,7 @@
 #ifndef QCP_SPACER_LEGEND_ITEM_H
 #define QCP_SPACER_LEGEND_ITEM_H
 
-#include <ws_attributes.h>  // _U_
-
-class QCPAbstractLegendItem;
+#include <ui/qt/widgets/qcustomplot.h>
 
 class QCPSpacerLegendItem : public QCPAbstractLegendItem
 {
@@ -25,7 +23,7 @@ public:
     void setIsHorizontal(bool horiz) { m_horiz = horiz; }
 
 protected:
-    virtual void draw(QCPPainter* painter _U_) override {}
+    virtual void draw(QCPPainter*) override {}
     virtual QSize minimumOuterSizeHint() const override;
 
 private:
