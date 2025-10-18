@@ -119,8 +119,8 @@ static text_import_info_t *info_p;
 
 /* Dummy Ethernet header */
 static bool hdr_ethernet;
-static uint8_t hdr_eth_dest_addr[6] = {0x20, 0x52, 0x45, 0x43, 0x56, 0x00};
-static uint8_t hdr_eth_src_addr[6]  = {0x20, 0x53, 0x45, 0x4E, 0x44, 0x00};
+static const uint8_t hdr_eth_dest_addr[6] = {0x20, 0x52, 0x45, 0x43, 0x56, 0x00};
+static const uint8_t hdr_eth_src_addr[6]  = {0x20, 0x53, 0x45, 0x4E, 0x44, 0x00};
 static uint32_t hdr_ethernet_proto;
 
 /* Dummy IP header */
@@ -129,12 +129,12 @@ static bool hdr_ipv6;
 static unsigned hdr_ip_proto;
 
 /* Destination and source addresses for IP header */
-static ws_in6_addr NO_IPv6_ADDRESS    = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+static const ws_in6_addr NO_IPv6_ADDRESS = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 /* These IPv6 default addresses are unique local addresses generated using
  * the pseudo-random method from Section 3.2.2 of RFC 4193
  */
-static ws_in6_addr IPv6_SRC = {{0xfd, 0xce, 0xd8, 0x62, 0x14, 0x1b, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01}};
-static ws_in6_addr IPv6_DST = {{0xfd, 0xce, 0xd8, 0x62, 0x14, 0x1b, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02}};
+static const ws_in6_addr IPv6_SRC = {{0xfd, 0xce, 0xd8, 0x62, 0x14, 0x1b, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01}};
+static const ws_in6_addr IPv6_DST = {{0xfd, 0xce, 0xd8, 0x62, 0x14, 0x1b, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02}};
 
 /* Dummy UDP header */
 static bool hdr_udp;
@@ -211,21 +211,23 @@ typedef enum {
 } parser_state_t;
 static parser_state_t state = INIT;
 
-static const char *state_str[] = {"Init",
-                           "Start-of-line",
-                           "Offset",
-                           "Byte",
-                           "Text"
+static const char * const state_str[] = {
+    "Init",
+    "Start-of-line",
+    "Offset",
+    "Byte",
+    "Text"
 };
 
-static const char *token_str[] = {"",
-                           "Byte",
-                           "Bytes",
-                           "Offset",
-                           "Directive",
-                           "Text",
-                           "End-of-line",
-                           "End-of-file"
+static const char * const token_str[] = {
+    "",
+    "Byte",
+    "Bytes",
+    "Offset",
+    "Directive",
+    "Text",
+    "End-of-line",
+    "End-of-file"
 };
 
 /* ----- Skeleton Packet Headers --------------------------------------------------*/
@@ -882,7 +884,7 @@ struct plain_decoding_data {
  */
 DIAG_OFF_INIT_TWICE
 
-const struct plain_decoding_data hex_decode_info = {
+static const struct plain_decoding_data hex_decode_info = {
     .chars_per_unit = 2,
     .bytes_per_unit = 1,
     .bits_per_char = 4,
@@ -896,7 +898,7 @@ const struct plain_decoding_data hex_decode_info = {
     }
 };
 
-const struct plain_decoding_data bin_decode_info = {
+static const struct plain_decoding_data bin_decode_info = {
     .chars_per_unit = 8,
     .bytes_per_unit = 1,
     .bits_per_char = 1,
@@ -907,7 +909,7 @@ const struct plain_decoding_data bin_decode_info = {
     }
 };
 
-const struct plain_decoding_data oct_decode_info = {
+static const struct plain_decoding_data oct_decode_info = {
     .chars_per_unit = 8,
     .bytes_per_unit = 3,
     .bits_per_char = 3,
@@ -918,7 +920,7 @@ const struct plain_decoding_data oct_decode_info = {
     }
 };
 
-const struct plain_decoding_data base64_decode_info = {
+static const struct plain_decoding_data base64_decode_info = {
     .chars_per_unit = 4,
     .bytes_per_unit = 3,
     .bits_per_char = 6,
