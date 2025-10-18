@@ -2051,11 +2051,10 @@ static float uncompressed_to_float(uint32_t h)
 }
 
 /* Decompress I/Q value, taking into account method, width, exponent, other input-specific methods */
-/* TODO: pass in info needed for Modulation methods (reMask, csf, mcScaler values) gleaned from SE 4,5,23 */
 static float decompress_value(uint32_t bits, uint32_t comp_method, uint8_t iq_width,
                               uint32_t exponent,
                               /* Modulation compression settings. N.B. should also pass in PRB + symbol? */
-                              mod_compr_params_t *mod_compr_params _U_, uint8_t re)
+                              mod_compr_params_t *m_c_p, uint8_t re)
 {
     switch (comp_method) {
         case COMP_NONE: /* no compression */
@@ -2094,15 +2093,43 @@ static float decompress_value(uint32_t bits, uint32_t comp_method, uint8_t iq_wi
         case COMP_MODULATION:
         case MOD_COMPR_AND_SELECTIVE_RE:
         {
-            /* TODO: work out which settings in mod_compr_params matches re */
-            if (re==0 || !mod_compr_params || mod_compr_params->num_configs == 0) {
-                /* TODO: set default values */
-            }
-            else {
-                /* TODO: Walk settings to find which mask covers this re */
+            /* Described in A.5 (with pseudo code) */
+            /* N.B., Applies to downlink data only - is not used for BFW */
+
+            /* Defaults if not overridden. TODO: what should these be? */
+            bool csf = false;
+            //double mcScaler = (double)(1 << 11);
+
+
+            /* Find csf + mcScaler to use. Non-default configs gleaned from SE 4,5,23 */
+            /* TODO: should ideally be filtering by symbol and PRB too (at least from SE23) */
+            if (re > 0 && m_c_p && m_c_p->num_configs > 0) {
+                for (unsigned c=0; c<m_c_p->num_configs; c++) {
+                    if (m_c_p->configs[c].mod_compr_re_mask & (1 << (12-re))) {
+                        /* Return first (should be only) found */
+                        csf = m_c_p->configs[c].mod_compr_csf;
+                        //mcScaler = m_c_p->configs[c].mod_compr_scaler;
+                        break;
+                    }
+                }
             }
 
-            /* TODO: do actual decompression using matched settings */
+
+            int32_t cPRB = bits;
+            //uint32_t scaler = 1 << exponent;  /* i.e. 2^exponent */
+
+            /* Check last bit, in case we need to flip to -ve */
+            if (cPRB >= (1<<(iq_width-1))) {
+                cPRB -= (1<<iq_width);
+            }
+
+            if (csf) {
+                /* TODO: unshift the constellation point */
+            }
+
+            /* TODO: scale the constellation point */
+
+            /* Not returning a calculated value yet */
             return 0.0;
         }
 
