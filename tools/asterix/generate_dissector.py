@@ -89,6 +89,12 @@ def get_value_map(content_table_id, content):
     value_map += "};\n"
     return add_value_map(content_table_id, value_map)
 
+def get_filter_name(data_field):
+    filter_name = data_field.strip()
+    filter_name = filter_name.split(':')[0].strip()
+    filter_name = filter_name.split('(')[0].strip()
+    return filter_name
+
 def add_field_array(db, data_field, data_field_code, content_table_id = None, field_type = None, field_format = None, size = None):
     global expansion_variable_index
     unit = ""
@@ -113,8 +119,12 @@ def add_field_array(db, data_field, data_field_code, content_table_id = None, fi
             field_type += str(size * 8)
             field_format = "BASE_DEC"
         elif content[0] == "ContentRaw":
-            field_type = "FT_UINT8"
-            field_format = "BASE_DEC"
+            if size > 4:
+                field_type = "FT_BYTES"
+                field_format = "BASE_NONE"
+            else:
+                field_type = "FT_UINT32"
+                field_format = "BASE_DEC"
         elif content[0] == "ContentQuantity":
             unit = " [" + content[1][2] + "]"
         elif content[0] == "ContentString":
@@ -137,7 +147,10 @@ def add_field_array(db, data_field, data_field_code, content_table_id = None, fi
         field_type = "FT_NONE"
     if field_format is None:
         field_format = "BASE_NONE"
-    field_array.append('{ &' + expansion_variable_name + ', { "' + data_field.strip() + unit + '", "asterix.' + data_field_code + '", ' + field_type + ', ' + field_format + ', ' + vals + ', 0x0, NULL, HFILL } }')
+    label = get_filter_name(data_field)
+    if field_type == "FT_NONE":
+        label = "label"
+    field_array.append('{ &' + expansion_variable_name + ', { "' + data_field.strip() + unit + '", "asterix.' + data_field_code + '_' + label + '", ' + field_type + ', ' + field_format + ', ' + vals + ', 0x0, NULL, HFILL } }')
     expansion_variables.insert(0, expansion_variable_name)
     expansion_variable_index = expansion_variable_index + 1
     return expansion_variable_name
@@ -184,14 +197,14 @@ def parse_group(db, group, var_name, bits_offset, sub_tree_name = "sub_tree", ad
                 if item_nonspare[1] != "":
                     description += " : " + item_nonspare[1]
                 rule_content = reverse_lookup(db.ruleContent, variation[1][2])
-                name = add_field_array(db, description, datafield_name + "_" + str(var), rule_content[1], size = int(math.ceil(variation[1][1] / 8)))
+                name = add_field_array(db, description, datafield_name, rule_content[1], size = int(math.ceil(variation[1][1] / 8)))
                 if add_sub_tree:
                     items += data_field_add_element(db, variation, group_name, name, False, bits_offset)
                 else:
                     items += data_field_add_element(db, variation, sub_tree_name, name, False, bits_offset)
                 bits_offset += variation[1][1]
             elif variation[0] == "Group":
-                var_name_tree = add_field_array(db, item_nonspare[0] + " : " + item_nonspare[1], datafield_name + "_" + str(var))
+                var_name_tree = add_field_array(db, item_nonspare[0] + " : " + item_nonspare[1], datafield_name)
                 res = parse_group(db, variation[1], var_name_tree, bits_offset, group_name, variable_counter = group_counter + 1, datafield_name = datafield_name)
                 items += res[0]
                 bits_offset = res[1]
@@ -215,12 +228,11 @@ def parse_group(db, group, var_name, bits_offset, sub_tree_name = "sub_tree", ad
     return ret, bits_offset, variable_counter
 
 def data_field_add_field_array(db, nonspare, variation, var_name):
-    var_name = var_name + '_' + variation[0].lower()
     if variation[0] == "Element":
         rule_content = reverse_lookup(db.ruleContent, variation[1][2])
         data_field_size = int(variation[1][1] / 8)
         if data_field_size == 0:
-            # length less that 8 bits
+            # length less than 8 bits
             data_field_size = 1
         var_name = add_field_array(db, nonspare[0] + " : " + nonspare[1], var_name, rule_content[1], size = data_field_size)
     else:
@@ -264,7 +276,7 @@ def data_field_add_element(db, variation, sub_tree_name, name, add_sub_tree, bit
     variable_name = "value_" + name
     if content[0] == "ContentQuantity":
         if data_field_size == 0:
-            # length less that 8 bits
+            # length less than 8 bits
             data_field_size = 1
         if content[0] == "ContentQuantity":
             if content[1][1] != 0 and content[1][1] != 1:
@@ -291,7 +303,10 @@ def data_field_add_element(db, variation, sub_tree_name, name, add_sub_tree, bit
                 ret += "  proto_tree_add_int (" + tree_name + ", " + expand_var + ", tvb, offset + " + str(byte_offset) + ", " + str(data_field_size) + ", " + variable_name + ");\n"
     elif content[0] == "ContentTable":
         if add_sub_tree:
-            ret += "  proto_tree_add_item(" + tree_name + ", " + expand_var + ", tvb, offset, " + str(data_field_size) + ", ENC_BIG_ENDIAN);\n"
+            ret += "  unsigned int " + variable_name + " = "
+            ret += "asterix_get_unsigned_value (tvb, offset + " + str(byte_offset) + ", " + str(data_field_size) + ");\n"
+            ret += add_bit_mask(variable_name, byte_start_bits_mask, bits, byte_end_bit_mask)
+            ret += "  proto_tree_add_uint (" + tree_name + ", " + expand_var + ", tvb, offset + " + str(byte_offset) + ", " + str(data_field_size) + ", " + variable_name + ");\n"
         else:
             ret += "  proto_tree_add_bits_item(" + tree_name + ", " + expand_var + ", tvb, (offset * 8) + " + str(bits_offset) + ", " + str(bits) + ", ENC_BIG_ENDIAN);\n"
     elif content[0] == "ContentInteger":
@@ -314,6 +329,13 @@ def data_field_add_element(db, variation, sub_tree_name, name, add_sub_tree, bit
             ret += "  print_icao_string (tvb, offset + " + str(byte_offset) + ", " + str(byte_start_bits_mask) + ", " + str(bits) + ", " + str(data_field_size) + ", " + tree_name + ", " + expand_var + ");\n"
     elif content[0] == "ContentBds":
         ret += "  proto_tree_add_item (" + tree_name + ", " + expand_var + ", tvb, offset + " + str(byte_offset) + ", " + str(data_field_size) + ", ENC_NA);\n"
+    elif content[0] == "ContentRaw":
+        if data_field_size > 4:
+            ret += "  proto_tree_add_item (" + tree_name + ", " + expand_var + ", tvb, offset + " + str(byte_offset) + ", " + str(data_field_size) + ", ENC_NA);\n"
+        else:
+            ret += "  unsigned int " + variable_name + " = asterix_get_unsigned_value (tvb, offset + " + str(byte_offset) + ", " + str(data_field_size) + ");\n"
+            ret += add_bit_mask(variable_name, byte_start_bits_mask, bits, byte_end_bit_mask)
+            ret += "  proto_tree_add_uint (" + tree_name + ", " + expand_var + ", tvb, offset + " + str(byte_offset) + ", " + str(data_field_size) + ", " + variable_name + ");\n"
     else:
         ret += "  unsigned int " + variable_name + " = asterix_get_unsigned_value (tvb, offset + " + str(byte_offset) + ", " + str(data_field_size) + ");\n"
         ret += add_bit_mask(variable_name, byte_start_bits_mask, bits, byte_end_bit_mask)
@@ -324,7 +346,7 @@ def generate_re_data_field_function(db, cat, ed_major, ed_minor, data_field, dat
     nonspare = get_non_spare_from_data_item(db, cat, ed_major, ed_minor, data_field)
     rule_variation = reverse_lookup(db.ruleVariation, nonspare[2])
     variation = reverse_lookup(db.variation, rule_variation[1])
-    var_name = cat + '_' + ed_major + '_' + ed_minor + '_' + str(data_field_index)
+    var_name = 'cat_' + cat + '_major_' + ed_major + '_minor_' + ed_minor
     var_name = data_field_add_field_array(db, nonspare, variation, var_name)
 
     ret = "static int "
@@ -366,9 +388,7 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
         rule_variation = reverse_lookup(db.ruleVariation, nonspare[2])
         variation = reverse_lookup(db.variation, rule_variation[1])
     uap_index += 1
-    data_filefield_name = cat + '_' + ed_major + '_' + ed_minor + '_' + data_field
-    if name_suffix is not None:
-        data_filefield_name += name_suffix
+    data_filefield_name = 'cat_' + cat + '_datafield_' + data_field
     var_name = data_field_add_field_array(db, nonspare, variation, data_filefield_name)
     ret += " //" + str(data_field) + " " + str(var_name) + "\n"
     ret += "{\n"
@@ -377,7 +397,6 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
         ret += '  return ' + existing_function[1] + '(tvb, offset, tree, expand_var);\n'
         ret += '}\n'
         return [ret, var_name]
-    data_filefield_name += '_' + variation[0].lower()
     if variation[0] == "Element":
         ret += data_field_add_element(db, variation, None, "expand_var", True, None)
         data_field_size = int(variation[1][1] / 8)
@@ -392,16 +411,22 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
         data_field_size = int(bits_offset / 8)
     elif variation[0] == "Repetitive":
         variant = reverse_lookup(db.variation, variation[1][1])
-        data_field = generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, data_field_index, uap_index, variant, "_rep" + str(repetitive_function_counter), nonspare)
-        if data_field[0] != "":
+        existing_function = get_variation_function(variant)
+        if existing_function is None:
+            data_field = generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, data_field_index, uap_index, variant, "_rep" + str(repetitive_function_counter), nonspare)
+            fun_name = data_field[2]
+            fun_var_name = data_field[1]
             pre_code += data_field[0]
+        else:
+            fun_name = existing_function[1]
+            fun_var_name = data_field_add_field_array(db, nonspare, variant, data_filefield_name)
         ret += '  int fun_len;\n'
         ret += '  unsigned offset_start = offset;\n'
         ret += '  proto_item *item = proto_tree_add_item (tree, expand_var, tvb, offset, 0, ENC_NA);\n'
         ret += '  proto_tree *sub_tree = proto_item_add_subtree (item, ett_asterix_subtree);\n'
         if variation[1][0] is None:
             ret += '  while (true) {\n'
-            ret += '    fun_len = dissect_cat_' + cat + '_ed_major_' + ed_major + '_ed_minor_' + ed_minor + '_datafield_' + str(data_field_index) + '_rep' + str(repetitive_function_counter) + '(tvb, offset, sub_tree, ' + str(data_field[1]) + ');\n'
+            ret += '    fun_len = ' + fun_name + '(tvb, offset, sub_tree, ' + fun_var_name + ');\n'
             ret += '    if (fun_len == -1) {\n'
             ret += '      return -1;\n'
             ret += '    };\n'
@@ -414,7 +439,7 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
             ret += '  offset+=' + str(variation[1][0]) + ';\n'
             ret += '  for (unsigned i = 0; i < repetitive_length; i++)\n'
             ret += '  {\n'
-            ret += '    fun_len = dissect_cat_' + cat + '_ed_major_' + ed_major + '_ed_minor_' + ed_minor + '_datafield_' + str(data_field_index) + '_rep' + str(repetitive_function_counter) + '(tvb, offset, sub_tree, ' + str(data_field[1]) + ');\n'
+            ret += '    fun_len = ' + fun_name + '(tvb, offset, sub_tree, ' + fun_var_name + ');\n'
             ret += '    if (fun_len == -1) {\n'
             ret += '      return -1;\n'
             ret += '    };\n'
@@ -446,7 +471,7 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
                         bytes_size = int(bits_size / 8)
                         if bytes_size == 0:
                             bytes_size = 1
-                        bit_name = data_filefield_name + "_" + extended_item_nonspare[0]
+                        bit_name = data_filefield_name
                         content_table_id = reverse_lookup(db.ruleContent, content2[1][2])[1]
                         description = ""
                         if extended_item_nonspare[1] != "":
@@ -466,8 +491,7 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
                     ret += "  check_spare_bits (tvb, (offset * 8) + " + str(bits_offset) + ", " + str(extended_item[1]) + ", " + spare_item_name + ");\n"
                     bits_offset += extended_item[1]
             else: #last extended item
-                bit_name = data_filefield_name + '_' + nonspare[0] + "_FX_" + str(bits_offset)
-                bit_name = add_field_array(db, "FX", bit_name, field_type="FT_UINT8", field_format="BASE_DEC")
+                bit_name = add_field_array(db, "FX", data_filefield_name, field_type="FT_UINT8", field_format="BASE_DEC")
                 ret += '  proto_tree_add_bits_item(' + sub_tree_name + ', ' + bit_name + ', tvb, (offset * 8) + ' + str(bits_offset) + ', 1, ENC_BIG_ENDIAN);\n'
                 bits_offset += 1
                 bytes_length = int(bits_offset / 8)
@@ -483,6 +507,13 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
                     ret += '    offset+=' + str(bytes_length) + ';\n'
                     ret += '    goto end;\n'
                     goto_used = True
+                    ret += '  }\n'
+                else:
+                    #check if FX is zero
+                    ret += '  if (!asterix_extended_end(tvb, offset + ' + str(bytes_length) + ' - 1))\n'
+                    ret += '  {\n'
+                    ret += '    expert_add_info_format(NULL, sub_tree, &hf_asterix_fx_error, "Extended end error.");\n'
+                    ret += '    return -1;\n'
                     ret += '  }\n'
                 ret += '  offset+=' + str(bytes_length) + ';\n'
                 bytes_offset += bytes_length
@@ -518,10 +549,16 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
                 nonspare = reverse_lookup(db.nonspare, item)
                 rule_variation = reverse_lookup(db.ruleVariation, nonspare[2])
                 compound_variation = reverse_lookup(db.variation, rule_variation[1])
-                fun_name = 'dissect_cat_' + cat + '_ed_major_' + ed_major + '_ed_minor_' + ed_minor + '_datafield_' + str(data_field_index) + "_" + str(item) + '_compound_' + str(item)
-                existing_function = generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, data_field_index, uap_index, compound_variation, "_" + str(item) + "_compound_" + str(item), nonspare)
-                pre_code += existing_function[0]
-                fun_var_name = existing_function[1]
+                existing_function = get_variation_function(compound_variation)
+                if existing_function is None:
+                    existing_function = generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, data_field_index, uap_index, compound_variation, "_" + str(item) + "_compound_" + str(item), nonspare)
+                    pre_code += existing_function[0]
+                    fun_var_name = existing_function[1]
+                    fun_name = existing_function[2]
+                else:
+                    fun_name = existing_function[1]
+                    data_filefield_name = 'cat_' + cat + '_datafield_' + data_field
+                    fun_var_name = data_field_add_field_array(db, nonspare, compound_variation, data_filefield_name)
                 compound += '  if (asterix_field_exists (tvb, offset_start, ' + str(bit_index) + '))\n'
                 compound += '  {\n'
                 compound += '    int fun_len = ' + fun_name + '(tvb, offset, asterix_packet_tree, ' + fun_var_name + ');\n'
@@ -538,16 +575,15 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
         ret += '  proto_item_set_len(ti, ' + str(data_field_size) + ');\n'
     elif variation[0] == "Explicit":
         ret += "  unsigned int bytes = asterix_get_unsigned_value(tvb , offset, 1);\n"
-        ret += "  int len = 1 + bytes;\n"
-        ret += '  proto_tree_add_item (tree, expand_var, tvb, offset, len, ENC_NA);\n'
-        data_field_size = 'len'
+        ret += '  proto_tree_add_item (tree, expand_var, tvb, offset, bytes, ENC_NA);\n'
+        data_field_size = 'bytes'
     #else:
         #print(variation[0])
         #raise Exception("Unknown type.")
     ret += "  return " + str(data_field_size) + ";\n"
     ret += "}\n"
     add_variation_function(variation, function_name, function_declaration, var_name)
-    return [pre_code + ret, var_name]
+    return [pre_code + ret, var_name, function_name]
 
 def get_fs_len(db, cat):
     latest = None
@@ -590,26 +626,35 @@ def generate_uap(db, cat, uap, ed_major, ed_minor):
     ret += "\n};\n"
     return ret
 
-def generate_table_entry(cat, ed_major, ed_minor, asterix, uap, first):
-    table = ""
-    line = "  "
-    if not first:
-        line += "else "
-    line += "if (cat == " + cat + " && ed == value_" + cat + "_" + ed_major + "_" + ed_minor
-    if uap is not None:
-        line += " && uap == uap_" + cat + "_" + ed_major + "_" + ed_minor + "_" + uap[0].lower()
-    else:
-        uap = ""
-    line += ")\n"
-    table += line
-    table += "  {\n"
-    table += "    table->table_size = " + str(len(uap[1])) + ";\n"
-    if uap is not None:
-        table += '    snprintf(table->uap_name, sizeof(table->uap_name), "%s", ' + '"' + uap[0].lower() + '");\n'
-    table += "    table->table_pointer = cat_" + cat + "_ed_major_" + str(asterix[1][1][0]) + "_ed_minor_" + str(asterix[1][1][1]) + "_" + uap[0].lower() + "_table;\n"
-    table += "    table->table_pointer_expand = cat_" + cat + "_ed_major_" + str(asterix[1][1][0]) + "_ed_minor_" + str(asterix[1][1][1]) + "_" + uap[0].lower() + "_table_expand;\n"
-    table += "  }\n"
+def generate_table_entry(cat, ed_major, ed_minor, asterix, uap):
+    table = "    if (ed == value_" + cat + "_" + ed_major + "_" + ed_minor + " && uap == uap_" + cat + "_" + ed_major + "_" + ed_minor + "_" + uap[0].lower() + ")\n"
+    table += "    {\n"
+    table += "      table->table_size = " + str(len(uap[1])) + ";\n"
+    table += '      snprintf(table->uap_name, sizeof(table->uap_name), "%s", ' + '"' + uap[0].lower() + '");\n'
+    table += "      table->table_pointer = cat_" + cat + "_ed_major_" + str(asterix[1][1][0]) + "_ed_minor_" + str(asterix[1][1][1]) + "_" + uap[0].lower() + "_table;\n"
+    table += "      table->table_pointer_expand = cat_" + cat + "_ed_major_" + str(asterix[1][1][0]) + "_ed_minor_" + str(asterix[1][1][1]) + "_" + uap[0].lower() + "_table_expand;\n"
+    table += "      return;\n"
+    table += "    }\n"
     return table
+
+def generate_table_entry_index(cat, ed_major, ed_minor, enum_index_start, enum_index_end):
+    index_table = "    if (ed == value_" + cat + "_" + ed_major + "_" + ed_minor + ")\n"
+    index_table += "    {\n"
+    index_table += "      indexes->start_index = " + str(enum_index_start) + ";\n"
+    index_table += "      indexes->end_index = " + str(enum_index_end) + ";\n"
+    index_table += "      return;\n"
+    index_table += "    }\n"
+    return index_table
+
+def generate_expanstion_entry(cat, ed_major, ed_minor, asterix):
+    expansion_table = "    if (ed == value_" + cat + "_" + ed_major + "_" + ed_minor + "_re)\n"
+    expansion_table += "    {\n"
+    expansion_table += "      table->table_size = " + str(len(asterix[1][3])) + ";\n"
+    expansion_table += "      table->table_pointer = cat_" + cat + "_ed_major_" + str(asterix[1][1][0]) + "_ed_minor_" + str(asterix[1][1][1]) + "_uap_table_expansion;\n"
+    expansion_table += "      table->table_pointer_expand = cat_" + cat + "_ed_major_" + str(asterix[1][1][0]) + "_ed_minor_" + str(asterix[1][1][1]) + "_uap_table_expansion_expand;\n"
+    expansion_table += "      return;\n"
+    expansion_table += "    }\n"
+    return expansion_table
 
 def generate_uaps(db):
     ret = ""
@@ -647,71 +692,73 @@ def generate_uaps(db):
             table_name += "\n};\n"
             ret += table_name
     expansion_table = "static void get_expansion_table(unsigned int cat, int ed, table_params *table)\n{\n"
+    expansion_table += "  switch (cat)\n  {\n"
     uaps_table = "static void get_uap_tables(unsigned int cat, int ed, uap_table_indexes *indexes)\n{\n"
+    uaps_table += "  switch (cat)\n  {\n"
     uaps_enums = "static const enum uaps_enums_e {\n"
     uap_table = "static void get_category_uap_table(unsigned int cat, int ed, int uap, table_params *table)\n{\n"
-    enum_index = 0
-    if_statement_index = 0
+    uap_table += "  switch (cat)\n  {\n"
+    enum_index_end = 0
 
-    first_element = True
+    last_cat = None
+    last_cat_expansion = None
     for asterix in db.asterix:
         cat = str(asterix[1][0])
         ed_major = str(asterix[1][1][0])
         ed_minor = str(asterix[1][1][1])
         uap = reverse_lookup(db.uap, asterix[1][3])
         if asterix[0] == 'AsterixBasic':
+            enum_index_start = enum_index_end
             if uap[0] == "Uaps":
-                enum_index_start = enum_index
                 for u in uap[1]:
-                    uap_table += generate_table_entry(cat, ed_major, ed_minor, asterix, u, first_element)
                     enum = "uap_" + cat + "_" + ed_major + "_" + ed_minor + "_" + u[0].lower()
                     uaps_enums += "  " + enum + ",\n"
-                    enum_index = enum_index + 1
-                    first_element = False
-                if if_statement_index == 0:
-                    uaps_table += "  if (cat == " + cat + " && ed == value_" + cat + "_" + ed_major + "_" + ed_minor + ")\n"
-                else:
-                    uaps_table += "  else if (cat == " + cat + " && ed == value_" + cat + "_" + ed_major + "_" + ed_minor + ")\n"
-                uaps_table += "  {\n"
-                uaps_table += "    indexes->start_index = " + str(enum_index_start) + ";\n"
-                uaps_table += "    indexes->end_index = " + str(enum_index - 1) + ";\n"
-                uaps_table += "  }\n"
+                    enum_index_end = enum_index_end + 1
+                    if cat != last_cat:
+                        if last_cat is not None:
+                            uaps_table += "    break;\n"
+                            uap_table += "    break;\n"
+                        uaps_table += "  case " + str(cat) + ":\n"
+                        uap_table += "  case " + str(cat) + ":\n"
+                    uap_table += generate_table_entry(cat, ed_major, ed_minor, asterix, u)
+                    last_cat = cat
+                uaps_table += generate_table_entry_index(cat, ed_major, ed_minor, enum_index_start, enum_index_end - 1)
             else:
-                uap_table += generate_table_entry(cat, ed_major, ed_minor, asterix, uap, first_element)
-                first_element = False
-                if if_statement_index == 0:
-                    uaps_table += "  if (cat == " + cat + " && ed == value_" + cat + "_" + ed_major + "_" + ed_minor + ")\n"
-                else:
-                    uaps_table += "  else if (cat == " + cat + " && ed == value_" + cat + "_" + ed_major + "_" + ed_minor + ")\n"
-                uaps_table += "  {\n"
-                uaps_table += "    indexes->start_index = " + str(enum_index) + ";\n"
-                uaps_table += "    indexes->end_index = " + str(enum_index) + ";\n"
+                if cat != last_cat:
+                    if last_cat is not None:
+                        uaps_table += "    break;\n"
+                        uap_table += "    break;\n"
+                    uaps_table += "  case " + str(cat) + ":\n"
+                    uap_table += "  case " + str(cat) + ":\n"
+                uap_table += generate_table_entry(cat, ed_major, ed_minor, asterix, uap)
+                uaps_table += generate_table_entry_index(cat, ed_major, ed_minor, enum_index_start, enum_index_end)
                 enum = "uap_" + cat + "_" + ed_major + "_" + ed_minor + "_uap"
                 uaps_enums += "  " + enum + ",\n"
-                uaps_table += "  }\n"
-                enum_index = enum_index + 1
-            if_statement_index = if_statement_index + 1
+                enum_index_end = enum_index_end + 1
+            last_cat = cat
         else:
-            expansion_table += "  if (cat == " + cat + " && ed == value_" + cat + "_" + ed_major + "_" + ed_minor + "_re)\n"
-            expansion_table += "  {\n"
-            expansion_table += "    table->table_size = " + str(len(asterix[1][3])) + ";\n"
-            expansion_table += "    table->table_pointer = cat_" + cat + "_ed_major_" + str(asterix[1][1][0]) + "_ed_minor_" + str(asterix[1][1][1]) + "_uap_table_expansion;\n"
-            expansion_table += "    table->table_pointer_expand = cat_" + cat + "_ed_major_" + str(asterix[1][1][0]) + "_ed_minor_" + str(asterix[1][1][1]) + "_uap_table_expansion_expand;\n"
-            expansion_table += "  }\n"
-            expansion_table += "  else\n"
-    expansion_table += "  {\n"
+            if cat != last_cat_expansion:
+                if last_cat_expansion is not None:
+                    expansion_table += "    break;\n"
+                expansion_table += "  case " + cat + ":\n"
+            expansion_table += generate_expanstion_entry(cat, ed_major, ed_minor, asterix)
+            last_cat_expansion = cat
+    expansion_table += "  break;\n"
+    expansion_table += "  default:\n"
     expansion_table += "    table->table_size = 0;\n"
     expansion_table += "    table->table_pointer = NULL;\n"
     expansion_table += "    table->table_pointer_expand = NULL;\n"
     expansion_table += "  }\n"
-    uap_table += "  else\n  {\n"
+    expansion_table += "}\n"
+    uap_table += "  break;\n"
+    uap_table += "  default:\n"
     uap_table += "    table->table_size = 0;\n"
     uap_table += "    table->table_pointer = NULL;\n"
     uap_table += "    table->table_pointer_expand = NULL;\n"
     uap_table += "  }\n"
     uap_table += "}\n"
-    expansion_table += "}"
-    uaps_table += "  else\n  {\n"
+    uaps_table += "  break;\n"
+    uaps_table += "  default:\n"
     uaps_table += "    indexes->start_index = 0;\n"
     uaps_table += "    indexes->end_index = 0;\n"
     uaps_table += "  }\n"

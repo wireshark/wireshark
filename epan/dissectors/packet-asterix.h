@@ -57,6 +57,7 @@ static void check_spare_bits (tvbuff_t *tvb, unsigned bit_offset, unsigned bit_s
 
 static expert_field ei_asterix_overflow;
 static expert_field hf_asterix_spare_error;
+static expert_field hf_asterix_fx_error;
 static expert_field hf_asterix_fspec_error;
 
 #endif /* __PACKET_ASTERIX_H__ */

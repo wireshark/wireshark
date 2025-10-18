@@ -371,8 +371,13 @@ static int probe_possible_record (tvbuff_t *tvb, unsigned offset, unsigned int c
     return offset;
 }
 
+/* possible return values:
+    0 success
+    -1 to many interpretations
+    -2 recursive depth limit breached
+*/
 // NOLINTNEXTLINE(misc-no-recursion)
-static void probe_possible_records (tvbuff_t *tvb, packet_info *pinfo, int offset, int datablock_end, unsigned int cat, unsigned int ed, uap_table_indexes *indexes, unsigned int *stack, unsigned int depth)
+static int probe_possible_records (tvbuff_t *tvb, packet_info *pinfo, int offset, int datablock_end, unsigned int cat, unsigned int ed, uap_table_indexes *indexes, unsigned int *stack, unsigned int depth)
 {
     for (volatile unsigned int i = indexes->start_index; i <= indexes->end_index; i++)
     {
@@ -397,19 +402,24 @@ static void probe_possible_records (tvbuff_t *tvb, packet_info *pinfo, int offse
                 solution_count++;
                 if (solution_count >= MAX_INTERPRETATIONS)
                 {
-                    THROW(BoundsError);
+                    return -1;
                 }
             }
             else if (new_offset < datablock_end)
             {
                 if ((depth + 1) >= MAX_INTERPRETATION_DEPTH)
                 {
-                    THROW(BoundsError);
+                    return -2;
                 }
-                probe_possible_records (tvb, pinfo, new_offset, datablock_end, cat, ed, indexes, stack, depth + 1);
+                int result = probe_possible_records (tvb, pinfo, new_offset, datablock_end, cat, ed, indexes, stack, depth + 1);
+                if (result != 0)
+                {
+                    return result;
+                }
             }
         }
     }
+    return 0;
 }
 
 /* possible return values:
@@ -507,12 +517,21 @@ static void dissect_asterix_records (tvbuff_t *tvb, packet_info *pinfo, int offs
     // if category unknown both start_index and end_index are 0
     if ((indexes.end_index - indexes.start_index) > 0)
     {
-        probe_possible_records (tvb, pinfo, offset, datablock_end, cat, ed, &indexes, stack, 0);
+        int result = probe_possible_records (tvb, pinfo, offset, datablock_end, cat, ed, &indexes, stack, 0);
+
         unsigned int backup_offset = offset;
 
         proto_item *possibilities_ti = proto_tree_add_item (tree, hf_asterix_possible_interpretations, tvb, offset, 0, ENC_NA);
         proto_tree *possibilities_tree = proto_item_add_subtree (possibilities_ti, ett_asterix_possible_interpretations);
         proto_item_append_text (possibilities_tree, " %u", solution_count);
+
+        if (result < 0) {
+            if (result == -1) {
+                expert_add_info_format(pinfo, possibilities_ti, &ei_asterix_overflow, "Interpretations number of solutions exceeded");
+            } else {
+                expert_add_info_format(pinfo, possibilities_ti, &ei_asterix_overflow, "Interpretations depth exceeded");
+            }
+        }
 
         if (solution_count == 0) {
             expert_add_info_format(pinfo, possibilities_ti, &ei_asterix_overflow, "No possible solution found");
@@ -664,6 +683,7 @@ void proto_register_asterix (void)
     static ei_register_info ei[] = {
         { &ei_asterix_overflow, { "asterix.overflow", PI_PROTOCOL, PI_ERROR, "Asterix overflow", EXPFILL }},
         { &hf_asterix_spare_error, { "asterix.spare_error", PI_PROTOCOL, PI_WARN, "Spare bit error", EXPFILL }},
+        { &hf_asterix_fx_error, { "asterix.fx_error", PI_PROTOCOL, PI_ERROR, "FX end bit error", EXPFILL }},
         { &hf_asterix_fspec_error, { "asterix.fspec_error", PI_PROTOCOL, PI_ERROR, "FSPEC error", EXPFILL }}
     };
 
