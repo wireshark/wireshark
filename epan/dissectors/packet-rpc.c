@@ -622,7 +622,7 @@ typedef struct _rpc_conv_info_t {
 
 /* we can not hang this off the conversation structure above since the context
    will be reused across all tcp connections between the client and the server.
-   a global tree for all contexts should still be unlikely to have collissions
+   a global tree for all contexts should still be unlikely to have collisions
    here.
 */
 wmem_tree_t *authgss_contexts;
@@ -1774,7 +1774,7 @@ new_conversation_for_reply(packet_info *pinfo)
  *
  * Record these in the same table as the direct calls
  * so we can find it when dissecting an indirect call reply.
- * (There should not be collissions between xid between direct and
+ * (There should not be collisions between xid between direct and
  * indirect calls.)
  */
 int

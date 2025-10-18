@@ -1417,7 +1417,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
          * There's an argument, per RFC 5761, for expanding the
          * excluded range to [FIRST_RTCP_CONFLICT_PAYLOAD_TYPE,
          * LAST_RTCP_CONFLICT_PAYLOAD_TYPE] in the heuristic dissector,
-         * leaving those values only when specificed by other means
+         * leaving those values only when specified by other means
          * (SDP, Decode As, etc.)
          */
         return false;

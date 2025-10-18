@@ -11128,7 +11128,7 @@ proto_register_bthci_cmd(void)
      * 5.4.1] in the case of P2P_DIR_SENT and as a HCI Event packet
      * [Ibid., 5.4.4] in the case of P2P_DIR_RECV. They are called whenever
      * a vendor-specific Command Opcode or Event Code is encountered; that
-     * includes when a vendor-specific Command Opcode is found in a Commmand
+     * includes when a vendor-specific Command Opcode is found in a Command
      * Complete or Command Status event. The entire HCI Event packet is sent
      * to the vendor dissector, which must read the Event Code to handle
      * the Vendor-Specific, Command Complete, and Command Status events

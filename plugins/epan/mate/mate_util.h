@@ -36,7 +36,7 @@ extern char* scs_subscribe_printf(SCS_collection* collection, char* fmt, ...)
 
 /******* AVPs & Co. *********/
 
-/* these are the defined oreators of avps */
+/* these are the defined operators of avps */
 #define AVP_OP_EQUAL		'='
 #define AVP_OP_NOTEQUAL		'!'
 #define AVP_OP_STARTS		'^'

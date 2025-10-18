@@ -1489,7 +1489,7 @@ smb_eo_cleanup(void)
 	bc -= len;
 
 /*
- * Macros for use in subrroutines dissecting transaction parameters or data
+ * Macros for use in subroutines dissecting transaction parameters or data
  */
 #define CHECK_BYTE_COUNT_TRANS_SUBR(len)	\
 	if (*bcp < len) return offset;
@@ -12752,7 +12752,7 @@ dissect_smb_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 								       refflags, bcp, unicode, &ucstring_end);
 				break;
 			case 4:
-				/* V4 is extactly same as V3, except the version number and
+				/* V4 is exactly same as V3, except the version number and
 				 * one more ReferralEntryFlags */
 				offset = dissect_dfs_referral_entry_v3(tvb, pinfo, rt, old_offset_2, offset,
 								       refflags, bcp, unicode, &ucstring_end);
@@ -15401,7 +15401,7 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/*
 	 * Figure out of there are enough bytes to display the whole entry.
-	 * This consistes of 22 bytes or 26 bytes if resume_keys, followed
+	 * This consists of 22 bytes or 26 bytes if resume_keys, followed
 	 * by a length byte and that many chars.
 	 */
 	bytes_needed = 23 + (resume_keys ? 4 : 0);
@@ -15504,7 +15504,7 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/*
 	 * Figure out of there are enough bytes to display the whole entry.
-	 * This consistes of 26 bytes or 30 bytes if resume_keys, followed
+	 * This consists of 26 bytes or 30 bytes if resume_keys, followed
 	 * by a length byte and that many chars.
 	 */
 	bytes_needed = 27 + (resume_keys ? 4 : 0);
@@ -18975,7 +18975,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	} else if (si->cmd == SMB_COM_NT_CANCEL)                  /* NT Cancel */
 		/* Ok, we got a special request type. This request is an
 		   an NT Cancel. We don't expect any responses to this packet.
-		   Anyway, we want to remembe0 this packet somehow and
+		   Anyway, we want to remember this packet somehow and
 		   remember which original request it is associated with so
 		   we can say nice things such as "This is a Cancellation to
 		   the request in frame x", but we don't want the

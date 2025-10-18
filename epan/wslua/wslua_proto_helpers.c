@@ -109,7 +109,7 @@ WSLUA_FUNCTION wslua_dissect_tcp_pdus(lua_State* L) {
        length. For such protocols, their protocol dissector function can invoke
        this `dissect_tcp_pdus()` function to make it easier to handle dissecting
        their protocol's messages (i.e., their protocol data unit (PDU)). This
-       function shouild not be used for protocols whose PDU length cannot be
+       function should not be used for protocols whose PDU length cannot be
        determined from a fixed minimum portion, such as HTTP or Telnet.
      */
 #define WSLUA_ARG_dissect_tcp_pdus_TVB 1 /* The Tvb buffer to dissect PDUs from. */

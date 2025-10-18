@@ -1757,7 +1757,7 @@ dissect_per_real(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *t
 	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_real_length, &val_length, NULL);
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
 	val_tvb = tvb_new_octet_aligned(tvb, offset, val_length * 8);
-	/* Add new data source if the offet was unaligned */
+	/* Add new data source if the offset was unaligned */
 	if ((offset & 7) != 0) {
 		add_new_data_source(actx->pinfo, val_tvb, "Unaligned OCTET STRING");
 	}
@@ -2481,7 +2481,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		val_start = offset>>3;
 		val_length = min_len;
 		out_tvb = tvb_new_octet_aligned(tvb, offset, val_length * 8);
-		/* Add new data source if the offet was unaligned */
+		/* Add new data source if the offset was unaligned */
 		if ((offset & 7) != 0) {
 			add_new_data_source(actx->pinfo, out_tvb, "Unaligned OCTET STRING");
 		}

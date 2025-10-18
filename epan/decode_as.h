@@ -64,7 +64,7 @@ typedef struct decode_as_value_s {
 /**
 Pulls everything together including the dissector (protocol) name, the
 "layer type" of the dissector, the dissector table name, the function pointer
-values as well as handlers for populating, applying and reseting the changes
+values as well as handlers for populating, applying and resetting the changes
 to the dissector table through Decode As GUI functionality. For dissector
 tables that are an integer or string type, the provided "default" handling
 functions should suffice.

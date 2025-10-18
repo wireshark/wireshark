@@ -8,12 +8,14 @@
 16apsk
 1xrtt
 20west
+2200p
 29west
 2bytes
 2encoded
 2string
 2subids
 32apsk
+3dnand
 3gpp2
 3pcap
 5views
@@ -23,6 +25,7 @@
 abbrev
 aborts
 accel
+accele
 accelerations
 accelerometer
 acceptor
@@ -153,6 +156,7 @@ aruba
 aruuid
 ascii
 asciidoc
+ascolab
 ashrae
 asn1
 asn1cnf
@@ -208,6 +212,7 @@ autosar
 available
 avantel
 avaya
+avpls
 avrcp
 axcor
 az3dd
@@ -266,6 +271,7 @@ bitrate
 bitstring
 bjorlykke
 blackhole
+blksize
 bluedroid
 bmaple
 bnode
@@ -356,6 +362,7 @@ categorization
 categorizes
 cattp
 cblock
+cc24xx
 ccache
 cccid
 ccitt
@@ -594,6 +601,7 @@ cyber
 cygwin
 cymru
 cyphering
+cypresscom
 cyrillic
 daintree
 dallas
@@ -1098,6 +1106,7 @@ g711u
 galileo
 gamepad
 ganss
+gappmeier
 gboolean
 gchar
 gcrypt
@@ -1509,6 +1518,7 @@ lexpos
 lextab
 lflags
 lfsck
+liant
 libcap
 libdir
 libgcrypt
@@ -1632,7 +1642,9 @@ mcinfo
 mcmemberrecord
 mcount
 mcptt
+mcscalermask
 mcsset
+mdsss
 measurability
 measurements
 measx
@@ -2054,6 +2066,7 @@ overlay1mask
 overlay2mask
 overridable
 p2pstar
+p8118e
 p8118z
 pacch
 packard
@@ -2698,6 +2711,7 @@ signaal
 signaling
 signon
 silabs
+silicom
 simplestatusbit
 simulcast
 simulcrypt

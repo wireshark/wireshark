@@ -2353,7 +2353,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (frag_msg) {
                 /* not the first fragment */
 
-                /* packet stream is guaranted to be sequence of fragments, one by one,
+                /* packet stream is guaranteed to be sequence of fragments, one by one,
                    so find last fragment for its offset and length */
                 for (frag = frag_msg->next; frag->next; frag = frag->next) {}
 

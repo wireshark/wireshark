@@ -1404,7 +1404,7 @@ extern AVPL* get_next_avpl(LoAL* loal,void** cookie) {
  * @param avpls_too whether avpls contained by the loal should be deleted as well
  * @param avps_too whether avps contained by the avpls should be also deleted
  *
- * Destroys a loal and eventually desstroys avpls and avps.
+ * Destroys a loal and eventually destroys avpls and avps.
  *
  **/
 extern void delete_loal(LoAL* loal, bool avpls_too, bool avps_too) {

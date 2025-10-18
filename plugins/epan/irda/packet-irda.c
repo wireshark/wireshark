@@ -65,7 +65,7 @@
 
 /*
  * XXX - the IrDA spec gives XID as 0x2c; HDLC (and other HDLC-derived
- * protocolc) use 0xAC.
+ * protocols) use 0xAC.
  */
 #define IRDA_XID_CMD   0x2c /* Exchange Station Identification */
 

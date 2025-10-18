@@ -53,7 +53,7 @@ void registerApplicationLayerTypes(int proto)
 }
 
 /** Decodes the service nodeid without modifying the tree or offset.
- * Service NodeIds are alsways numeric.
+ * Service NodeIds are always numeric.
  */
 int getServiceNodeId(tvbuff_t *tvb, int offset)
 {

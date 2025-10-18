@@ -517,7 +517,7 @@ static const char* ip_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e
 {
     /* addr type is AT_STRINGZ for subnets, as it is a very flexible format
      * XXX - create a new type when required, at this moment it's only used in
-     * conversation tables and is not justifed. See #19481.
+     * conversation tables and is not justified. See #19481.
      */
     if ((filter == CONV_FT_SRC_ADDRESS) && ((conv->src_address.type == AT_IPv4) ||
         (conv->src_address.type == AT_STRINGZ)))

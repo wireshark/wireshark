@@ -3032,7 +3032,7 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
     GSList      *current_ndr_pointer_list;
 
     /*
-     * pidl has a defficiency of unconditionally emitting calls
+     * pidl has a deficiency of unconditionally emitting calls
      * dissect_deferred_pointers() to the generated dissectors.
      */
     if (di->pointers.list_list == NULL) {
@@ -3103,7 +3103,7 @@ process_list:
                  *
                  * All dissect_ndr_<type> dissectors are already prepared
                  * for this and knows when it should eat data from the tvb
-                 * and when not to, so implementors of dissectors will
+                 * and when not to, so implementers of dissectors will
                  * normally not need to worry about this or even know about
                  * it. However, if a dissector for an aggregate type calls
                  * a subdissector from outside packet-dcerpc.c, such as

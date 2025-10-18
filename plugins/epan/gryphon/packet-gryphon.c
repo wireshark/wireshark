@@ -42,7 +42,7 @@ void proto_reg_handoff_gryphon(void);
 
 static dissector_handle_t gryphon_handle;
 
-#define GRYPHON_TCP_PORT 7000 /* Not IANA registed */
+#define GRYPHON_TCP_PORT 7000 /* Not IANA registered */
 
 static int proto_gryphon;
 

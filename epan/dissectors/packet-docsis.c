@@ -16,13 +16,13 @@
  * This code was updated to include DOCSIS 3.1 specification details available at:
  * http://www.cablelabs.com/wp-content/uploads/specdocs/CM-SP-MULPIv3.1-I09-160602.pdf
  *
- * Updates are backward compatible with previous DOCSIS spcifications.
+ * Updates are backward compatible with previous DOCSIS specifications.
  *
  * DOCSIS Captures can be facilitated using the Cable Monitor Feature
  * available on Cisco Cable Modem Termination Systems:
  * https://www.cisco.com/c/en/us/td/docs/cable/cmts/config_guide/b_cmts_security_and_cable_monitoring_features/b_cmts_security_and_cable_monitoring_features_chapter_010.html
  *
- * This dissector depends on the presence of a DOCSIS enapsulation type.
+ * This dissector depends on the presence of a DOCSIS encapsulation type.
  * There is no simple way to distinguish DOCSIS Frames from Ethernet frames,
  * since the frames are copied from the RF interface on the CMTS to
  * a Fast Ethernet interface; thus a preference was needed to enable

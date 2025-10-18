@@ -429,7 +429,7 @@ static void analyze_gop(mate_config* mc, mate_gop* gop) {
 
 static void analyze_pdu(mate_config* mc, mate_pdu* pdu) {
 	/* TODO:
-	return a g_boolean to tell we've destroyed the pdu when the pdu is unnassigned
+	return a g_boolean to tell we've destroyed the pdu when the pdu is unassigned
 	destroy the unassigned pdu
 	*/
 	const mate_cfg_gop* cfg = NULL;

@@ -2175,7 +2175,7 @@ dissect_ieee802154_nofcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
  * @param tvb pointer to buffer containing raw packet.
  * @param pinfo pointer to packet information fields
  * @param tree pointer to data tree wireshark uses to display packet.
- * @return new tvb subset if this is really ZBOSS dump, else oririnal tvb.
+ * @return new tvb subset if this is really ZBOSS dump, else original tvb.
  */
 static tvbuff_t *
 dissect_zboss_specific(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
