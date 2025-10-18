@@ -1968,6 +1968,7 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 {
     if (*bfw_comp_method == COMP_NONE) {
         /* Absent! */
+        *num_trx_entries = 0;
         *supported = true;
         return offset;
     }
@@ -3886,7 +3887,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             /* bfwCompParam */
                             bool compression_method_supported = false;
                             uint32_t exponent = 0;
-                            unsigned num_trx_entries;
+                            unsigned num_trx_entries = 0;
                             uint16_t *trx;
                             offset = dissect_bfwCompParam(tvb, port_tree, pinfo, offset, comp_meth_ti,
                                                           &bfwcomphdr_comp_meth, &exponent, &compression_method_supported,
