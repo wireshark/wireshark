@@ -496,7 +496,7 @@ sub SwitchType($$;$)
 	return $switch_type
 }
 
-sub Element($$$$$$)
+sub ElementCallCode($$$$$$)
 {
 	my ($self,$e,$pn,$ifname,$isoruseswitch,%switchvars) = @_;
 
@@ -540,6 +540,23 @@ sub Element($$$$$$)
 		$call_code = "offset = $dissectorname(tvb, offset, pinfo, tree, di, drep);";
 	}
 
+	if (property_matches($e, "flag", ".*LIBNDR_FLAG_ALIGN.*")) {
+		my $align_flag = $e->{PROPERTIES}->{flag};
+		if ($align_flag =~ m/LIBNDR_FLAG_ALIGN(\d+)/) {
+			$call_code = "ALIGN_TO_$1_BYTES; ".$call_code;
+		}
+	}
+
+	return $call_code, $param, $moreparam;
+}
+
+sub Element($$$$$$)
+{
+	my ($self,$e,$pn,$ifname,$isoruseswitch,%switchvars) = @_;
+
+	my $dissectorname = "$ifname\_dissect\_element\_".StripPrefixes($pn, $self->{conformance}->{strip_prefixes})."\_".StripPrefixes($e->{NAME}, $self->{conformance}->{strip_prefixes});
+
+	my ($call_code, $param, $moreparam) = $self->ElementCallCode($e, $pn, $ifname, $isoruseswitch, %switchvars);
 
 	my $type = $self->find_type($e->{TYPE});
 
@@ -560,12 +577,6 @@ sub Element($$$$$$)
 			FT_TYPE => "FT_STRING",
 			BASE_TYPE => "BASE_NONE"
 		};
-	}
-	if (property_matches($e, "flag", ".*LIBNDR_FLAG_ALIGN.*")) {
-		my $align_flag = $e->{PROPERTIES}->{flag};
-		if ($align_flag =~ m/LIBNDR_FLAG_ALIGN(\d+)/) {
-			$call_code = "ALIGN_TO_$1_BYTES; ".$call_code;
-		}
 	}
 
 	my $hf = $self->register_hf_field("hf_$ifname\_$pn\_$e->{NAME}", field2name($e->{NAME}), "$ifname.$pn.$e->{NAME}", $type->{FT_TYPE}, $type->{BASE_TYPE}, $type->{VALSSTRING}, $type->{MASK}, "");
@@ -849,11 +860,21 @@ sub Union($$$$)
 
 	$self->register_ett("ett_$ifname\_$name");
 
+	my %double_cases = ();
 	my $res = "";
 	foreach (@{$e->{ELEMENTS}}) {
 		$res.="\n\t\t$_->{CASE}:\n";
 		if ($_->{TYPE} ne "EMPTY") {
-			$res.="\t\t\t".$self->Element($_, $name, $ifname, undef, ())."\n";
+			my $double_type = $double_cases{"$_->{NAME}"};
+			if (not defined($double_type)) {
+				$res.="\t\t\t".$self->Element($_, $name, $ifname, undef, ())."\n";
+			} elsif ($_->{TYPE} eq $double_type) {
+				my ($call_code, $param, $moreparam) = $self->ElementCallCode($_, $name, $ifname, undef, ());
+				$res.="\t\t\t".$call_code."\n";
+			} else {
+				error($e->{ORIGINAL}, "Union elements with the same name `$_->{NAME}` and different types not supported.");
+			}
+			$double_cases{"$_->{NAME}"} = $_->{TYPE};
 		}
 		$res.="\t\tbreak;\n";
 	}
