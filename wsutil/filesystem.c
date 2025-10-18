@@ -277,17 +277,6 @@ static char *appbundle_dir;
  */
 static bool running_in_build_directory_flag;
 
-static char *configuration_environment_variable(const char *suffix) {
-    switch (get_application_flavor()) {
-    case APPLICATION_FLAVOR_WIRESHARK:
-        return g_strdup_printf("WIRESHARK_%s", suffix);
-    case APPLICATION_FLAVOR_STRATOSHARK:
-        return g_strdup_printf("STRATOSHARK_%s", suffix);
-    default:
-        ws_assert_not_reached();
-    }
-}
-
 #ifndef _WIN32
 /*
  * Get the pathname of the executable using various platform-
@@ -680,7 +669,7 @@ configuration_init_posix(const char* arg0)
      * set, causes us to look for plugins and the like in the build
      * directory.)
      */
-    char *run_from_envar = configuration_environment_variable("RUN_FROM_BUILD_DIRECTORY");
+    char *run_from_envar = application_configuration_environment_variable("RUN_FROM_BUILD_DIRECTORY");
     if (g_getenv(run_from_envar) != NULL && !started_with_special_privs()) {
         running_in_build_directory_flag = true;
     }
@@ -997,7 +986,7 @@ get_datafile_dir(void)
     if (datafile_dir != NULL)
         return datafile_dir;
 
-    char *data_dir_envar = configuration_environment_variable("DATA_DIR");
+    char *data_dir_envar = application_configuration_environment_variable("DATA_DIR");
     if (g_getenv(data_dir_envar) && !started_with_special_privs()) {
         /*
          * The user specified a different directory for data files
@@ -1167,7 +1156,7 @@ static char *extcap_pers_dir;
 static void
 init_plugin_dir(void)
 {
-    char *plugin_dir_envar = configuration_environment_variable("PLUGIN_DIR");
+    char *plugin_dir_envar = application_configuration_environment_variable("PLUGIN_DIR");
     if (g_getenv(plugin_dir_envar) && !started_with_special_privs()) {
         /*
          * The user specified a different directory for plugins
@@ -1304,7 +1293,7 @@ static char *extcap_dir;
 static void
 init_extcap_dir(void)
 {
-    char *extcap_dir_envar = configuration_environment_variable("EXTCAP_DIR");
+    char *extcap_dir_envar = application_configuration_environment_variable("EXTCAP_DIR");
     if (g_getenv(extcap_dir_envar) && !started_with_special_privs()) {
         /*
          * The user specified a different directory for extcap hooks
@@ -1358,12 +1347,7 @@ init_extcap_dir(void)
             application_flavor_name_lower(), (char *)NULL);
     }
     else {
-        if (g_path_is_absolute(EXTCAP_DIR)) {
-            extcap_dir = g_strdup(get_application_flavor() == APPLICATION_FLAVOR_WIRESHARK ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR);
-        } else {
-            extcap_dir = g_build_filename(install_prefix,
-                get_application_flavor() == APPLICATION_FLAVOR_WIRESHARK ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR, (char *)NULL);
-        }
+        extcap_dir = application_extcap_dir(install_prefix);
     }
 #endif // HAVE_MSYSTEM / _WIN32
     g_free(extcap_dir_envar);
@@ -1534,7 +1518,7 @@ get_persconffile_dir_no_profile(void)
     /*
      * See if the user has selected an alternate environment.
      */
-    char *config_dir_envar = configuration_environment_variable("CONFIG_DIR");
+    char *config_dir_envar = application_configuration_environment_variable("CONFIG_DIR");
     env = g_getenv(config_dir_envar);
     g_free(config_dir_envar);
 #ifdef _WIN32

@@ -5509,7 +5509,7 @@ main(int argc, char *argv[])
             exit_main();
             return EXIT_SUCCESS;
         case LONGOPT_APPLICATION_FLAVOR:
-            set_application_flavor(application_name_to_flavor(ws_optarg));
+            set_application_flavor_by_name(ws_optarg);
             break;
         /*** capture option specific ***/
         case 'a':        /* autostop criteria */

@@ -12,6 +12,7 @@
 #define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
 
 #include "application_flavor.h"
+#include "path_config.h"
 
 static enum application_flavor_e application_flavor = APPLICATION_FLAVOR_WIRESHARK;
 
@@ -20,13 +21,18 @@ void set_application_flavor(enum application_flavor_e flavor)
     application_flavor = flavor;
 }
 
-enum application_flavor_e get_application_flavor(void)
+void set_application_flavor_by_name(const char* app_name)
 {
-    return application_flavor;
+    if (g_ascii_strcasecmp(app_name, "stratoshark") == 0) {
+        application_flavor = APPLICATION_FLAVOR_STRATOSHARK;
+        return;
+    }
+
+    application_flavor = APPLICATION_FLAVOR_WIRESHARK;
 }
 
 const char *application_flavor_name_proper(void) {
-    switch (get_application_flavor()) {
+    switch (application_flavor) {
     case APPLICATION_FLAVOR_WIRESHARK:
         return "Wireshark";
     case APPLICATION_FLAVOR_STRATOSHARK:
@@ -37,7 +43,7 @@ const char *application_flavor_name_proper(void) {
 }
 
 const char *application_flavor_name_lower(void) {
-    switch (get_application_flavor()) {
+    switch (application_flavor) {
     case APPLICATION_FLAVOR_WIRESHARK:
         return "wireshark";
     case APPLICATION_FLAVOR_STRATOSHARK:
@@ -47,22 +53,35 @@ const char *application_flavor_name_lower(void) {
     }
 }
 
-enum application_flavor_e application_name_to_flavor(const char *name)
+char* application_configuration_environment_variable(const char* suffix)
 {
-    if (g_ascii_strcasecmp(name, "stratoshark") == 0) {
-        return APPLICATION_FLAVOR_STRATOSHARK;
+    switch (application_flavor) {
+    case APPLICATION_FLAVOR_WIRESHARK:
+        return g_strdup_printf("WIRESHARK_%s", suffix);
+    case APPLICATION_FLAVOR_STRATOSHARK:
+        return g_strdup_printf("STRATOSHARK_%s", suffix);
+    default:
+        ws_assert_not_reached();
     }
-    return APPLICATION_FLAVOR_WIRESHARK;
+}
+
+char* application_extcap_dir(const char* install_prefix)
+{
+    if (g_path_is_absolute(EXTCAP_DIR))
+        return g_strdup(application_flavor == APPLICATION_FLAVOR_WIRESHARK ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR);
+
+    return g_build_filename(install_prefix,
+        application_flavor == APPLICATION_FLAVOR_WIRESHARK ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR, (char*)NULL);
 }
 
 bool application_flavor_is_wireshark(void)
 {
-    return get_application_flavor() == APPLICATION_FLAVOR_WIRESHARK;
+    return (application_flavor == APPLICATION_FLAVOR_WIRESHARK);
 }
 
 bool application_flavor_is_stratoshark(void)
 {
-    return get_application_flavor() == APPLICATION_FLAVOR_STRATOSHARK;
+    return (application_flavor == APPLICATION_FLAVOR_STRATOSHARK);
 }
 
 /*
