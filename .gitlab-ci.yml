@@ -185,6 +185,7 @@ workflow:
     AQT_HOST: "windows"
     AQT_ARCH: "msvc2022_64"
     VCVARS_ARCH: "64"
+    WIRESHARK_BASE_DIR: "$CI_PROJECT_DIR\\.."
   stage: build
   retry: 1
   before_script:
@@ -194,8 +195,6 @@ workflow:
         & $env:TEMP\aqt.venv\Scripts\pip3.exe install aqtinstall ;
         & $env:TEMP\aqt.venv\Scripts\aqt.exe install-qt --outputdir C:\Qt $env:AQT_HOST desktop $env:WINDOWS_QT_VERSION "win64_$($env:AQT_ARCH)" --modules qt5compat qtmultimedia ;
       }
-    - if (-Not (Test-Path C:\Development)) { New-Item -Path C:\Development -ItemType "directory" }
-    - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
     - $env:Path += ";C:\Program Files\CMake\bin"
     - $env:CMAKE_PREFIX_PATH = "C:\Qt\$($env:WINDOWS_QT_VERSION)\$($env:AQT_ARCH)"
