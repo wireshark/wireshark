@@ -1177,7 +1177,7 @@
         <source>Created by Stratoshark %1
 
 </source>
-        <translation>Creat amb el Stratoshark %1
+        <translation>Creat amb l&apos;Stratoshark %1
 
 </translation>
     </message>
@@ -8322,7 +8322,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Stratoshark Plots: %1</source>
-        <translation>Gràfics del Stratoshark: %1</translation>
+        <translation>Gràfics de l&apos;Stratoshark: %1</translation>
     </message>
     <message>
         <source>Filtered packets</source>
@@ -13950,7 +13950,7 @@ a:hover {
     </message>
     <message>
         <source>You are sniffing the glue that holds your system together using Stratoshark </source>
-        <translation>Esteu esnifant el pegament que manté unit el vostre sistema fent servir el Stratoshark</translation>
+        <translation>Esteu esnifant el pegament que manté unit el vostre sistema fent servir l&apos;Stratoshark</translation>
     </message>
     <message>
         <source>You are running Stratoshark </source>
