@@ -2956,11 +2956,11 @@ ssl_common_dissect_t name
     }, \
     { & name .ei.hs_ext_cert_status_undecoded, \
         { prefix ".handshake.status_request.undecoded", PI_UNDECODED, PI_NOTE, \
-        "Responder ID list or Request Extensions are not implemented, contact Wireshark developers if you want this to be supported", EXPFILL } \
+        "Responder ID list or Request Extensions are not implemented", EXPFILL } \
     }, \
     { & name .ei.hs_ciphersuite_undecoded, \
         { prefix ".handshake.ciphersuite.undecoded", PI_UNDECODED, PI_NOTE, \
-        "Ciphersuite not implemented, contact Wireshark developers if you want this to be supported", EXPFILL } \
+        "Ciphersuite not implemented", EXPFILL } \
     }, \
     { & name .ei.hs_srv_keyex_illegal, \
         { prefix ".handshake.server_keyex_illegal", PI_PROTOCOL, PI_WARN, \

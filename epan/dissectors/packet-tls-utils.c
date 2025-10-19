@@ -12703,8 +12703,17 @@ ssl_dissect_hnd_cli_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         dissect_ssl3_hnd_cli_keyex_ecc_sm2(hf, tvb, tree, offset, length);
         break;
     default:
-        proto_tree_add_expert(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
-                              tvb, offset, length);
+        if (session->cipher == 0) {
+            proto_tree_add_expert_format(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
+                                  tvb, offset, length,
+                                  "Cipher Suite not found");
+        } else {
+            proto_tree_add_expert_format(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
+                                  tvb, offset, length,
+                                  "Cipher Suite 0x%04x is not implemented, "
+                                  "contact Wireshark developers if you want this to be supported",
+                                  session->cipher);
+        }
         break;
     }
 }
@@ -12769,8 +12778,17 @@ ssl_dissect_hnd_srv_keyex(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *
         dissect_ssl3_hnd_srv_keyex_ecjpake(hf, tvb, tree, offset, offset_end);
         break;
     default:
-        proto_tree_add_expert(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
-                              tvb, offset, offset_end - offset);
+        if (session->cipher == 0) {
+            proto_tree_add_expert_format(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
+                                  tvb, offset, offset_end - offset,
+                                  "Cipher Suite not found");
+        } else {
+            proto_tree_add_expert_format(tree, NULL, &hf->ei.hs_ciphersuite_undecoded,
+                                  tvb, offset, offset_end - offset,
+                                  "Cipher Suite 0x%04x is not implemented, "
+                                  "contact Wireshark developers if you want this to be supported",
+                                  session->cipher);
+        }
         break;
     }
 }
