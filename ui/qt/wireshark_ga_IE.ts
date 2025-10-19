@@ -1008,11 +1008,11 @@
     </message>
     <message>
         <source>Capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>Tús gabhála</translation>
     </message>
     <message>
         <source>Log start</source>
-        <translation type="unfinished"></translation>
+        <translation>Tús logála</translation>
     </message>
     <message>
         <source>First packet</source>
@@ -1032,11 +1032,11 @@
     </message>
     <message>
         <source>Capture end</source>
-        <translation type="unfinished"></translation>
+        <translation>Deireadh gabhála</translation>
     </message>
     <message>
         <source>Log end</source>
-        <translation type="unfinished"></translation>
+        <translation>Deireadh loga</translation>
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
@@ -1048,11 +1048,11 @@
     </message>
     <message>
         <source>Elapsed (first to last packet)</source>
-        <translation type="unfinished"></translation>
+        <translation>Imithe thart (an chéad phaicéad go dtí an pacáiste deireanach)</translation>
     </message>
     <message>
         <source>Elapsed capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>Gabháil caite</translation>
     </message>
     <message>
         <source>Section %1</source>
@@ -8389,7 +8389,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Multiple Value Axes</source>
-        <translation type="unfinished"></translation>
+        <translation>Aiseanna Illuacha</translation>
     </message>
     <message>
         <source>Plots</source>
@@ -15531,11 +15531,11 @@ a:hover {
     </message>
     <message>
         <source>Inject ESP Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Instealladh Rúin ESP</translation>
     </message>
     <message>
         <source>Embed used ESP secrets in the capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuir rúin ESP úsáidte isteach sa chomhad gabhála</translation>
     </message>
     <message>
         <source>Discard All Secrets</source>
@@ -16437,11 +16437,11 @@ a:hover {
     </message>
     <message>
         <source>No ESP Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Gan Rúin ESP</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation>Níl aon rúin ar fáil a úsáidtear chun trácht ESP a dhíchriptiú sa chomhad gabhála. Ar mhaith leat faisnéis a fheiceáil faoi conas trácht ESP a dhíchriptiú ar an vicí?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

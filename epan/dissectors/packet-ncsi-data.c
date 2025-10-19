@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2025.07.11
- * Date:    2025-07-11 03:15:02
+ * Version: 2025.10.18
+ * Date:    2025-10-18 03:15:01
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -33600,6 +33600,10 @@ static pci_id_t const pci_vid_1E95[] = {
 {0x1E95, 0x1007, 0xFFFF, 0xFFFF, "CL4-8D512 NVMe SSD M.2 (DRAM-less)(0x1007)"},
 {0x1E95, 0x1008, 0xFFFF, 0xFFFF, "CL5-8D512 NVMe SSD M.2 (DRAM-less)(0x1008)"},
 {0x1E95, 0x100C, 0xFFFF, 0xFFFF, "CL6 Series NVMe SSD M.2 (DRAM-less)(0x100C)"},
+{0x1E95, 0x100D, 0xFFFF, 0xFFFF, "PJ1 Series NVMe SSD(0x100D)"},
+{0x1E95, 0x100D, 0x1E95, 0x0001, "M.2 2280 960 GB(0x1E95-0x0001)"},
+{0x1E95, 0x100D, 0x1E95, 0x0002, "M.2 2280 1920 GB(0x1E95-0x0002)"},
+{0x1E95, 0x100D, 0x1E95, 0x100D, "M.2 2280 480 GB(0x1E95-0x100D)"},
 {0x1E95, 0x1010, 0xFFFF, 0xFFFF, "CX3 Series NVMe SSD(0x1010)"},
 {0x1E95, 0x1010, 0x1E95, 0x0000, "M.2 2280 480 GB(0x1E95-0x0000)"},
 {0x1E95, 0x1010, 0x1E95, 0x0001, "M.2 2280 960 GB(0x1E95-0x0001)"},
@@ -48942,7 +48946,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1E89, 3, pci_vid_1E89 },
 {0x1E93, 1, pci_vid_1E93 },
 {0x1E94, 1, pci_vid_1E94 },
-{0x1E95, 19, pci_vid_1E95 },
+{0x1E95, 23, pci_vid_1E95 },
 {0x1E96, 1, pci_vid_1E96 },
 {0x1E9F, 1, pci_vid_1E9F },
 {0x1EA0, 8, pci_vid_1EA0 },

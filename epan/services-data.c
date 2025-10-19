@@ -5871,6 +5871,7 @@ static const ws_services_entry_t global_tcp_services_table[] = {
     { 21212, "trinket-agent",   "Distributed artificial intelligence" },
     { 21213, "cohesity-agent",  "Cohesity backup agents" },
     { 21221, "aigairserver",    "Services for Air Server" },
+    { 21337, "xahaud",          "Xahau P2P network protocol" },
     { 21553, "rdm-tfs",         "Raima RDM TFS" },
     { 21801, "sal",             "Safe AutoLogon" },
     { 22125, "dcap",            "dCache Access Protocol" },
