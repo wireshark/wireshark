@@ -76,8 +76,6 @@ HexDataSourceView::HexDataSourceView(const QByteArray &data, packet_char_enc enc
     window()->winId(); // Required for screenChanged? https://phabricator.kde.org/D20171
     connect(window()->windowHandle(), &QWindow::screenChanged, viewport(), [=](const QScreen *) { viewport()->update(); });
 
-    createContextMenu();
-
     setMouseTracking(true);
 
 #ifdef Q_OS_MAC
@@ -389,6 +387,9 @@ void HexDataSourceView::leaveEvent(QEvent *event)
 
 void HexDataSourceView::contextMenuEvent(QContextMenuEvent *event)
 {
+    if (ctx_menu_.isEmpty()) {
+        createContextMenu();
+    }
     ctx_menu_.popup(event->globalPos());
 }
 
