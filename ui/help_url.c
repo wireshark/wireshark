@@ -19,7 +19,7 @@
 #include "urls.h"
 #include "wsutil/filesystem.h"
 #include <wsutil/ws_assert.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 // To do:
 // - Automatically generate part or all of this, e.g. by parsing

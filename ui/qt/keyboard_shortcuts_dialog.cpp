@@ -34,7 +34,7 @@
 #include <main_window.h>
 #include <main_application.h>
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/version_info.h>
 
 ShortcutListModel::ShortcutListModel(QObject *parent) :

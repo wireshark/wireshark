@@ -12,7 +12,7 @@
 #include <ui/qt/models/enabled_protocols_model.h>
 #include <epan/packet.h>
 #include <epan/disabled_protos.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include <ui/qt/utils/variant_pointer.h>
 #include "main_application.h"

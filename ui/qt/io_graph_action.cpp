@@ -16,7 +16,7 @@
 
 #include <ui/io_graph_item.h>
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include <QMenu>
 

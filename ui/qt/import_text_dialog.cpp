@@ -24,7 +24,7 @@
 #include "wsutil/inet_addr.h"
 #include "wsutil/time_util.h"
 #include "wsutil/filesystem.h"
-#include "wsutil/application_flavor.h"
+#include "app/application_flavor.h"
 #include "wsutil/report_message.h"
 #include <wsutil/array.h>
 

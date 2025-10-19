@@ -21,7 +21,7 @@
 #include <epan/decode_as.h>
 #include <epan/uat-int.h>
 #include <ui/recent.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_opts.h"

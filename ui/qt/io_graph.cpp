@@ -10,7 +10,7 @@
 #define WS_LOG_DOMAIN LOG_DOMAIN_QTUI
 #include "io_graph.h"
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/ws_assert.h>
 
 #include <ui/qt/widgets/qcustomplot.h>

@@ -33,7 +33,7 @@
 #include "ui/capture_opts.h"
 #include "ui/capture_globals.h"
 #include <ui/iface_lists.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/utf8_entities.h>
 #ifdef Q_OS_UNIX
 #include <unistd.h> /* for access() and X_OK */

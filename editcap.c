@@ -50,7 +50,7 @@
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/file_util.h>
 #include <wsutil/file_compressed.h>
 #include <wsutil/plugins.h>

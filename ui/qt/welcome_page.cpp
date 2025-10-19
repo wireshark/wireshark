@@ -14,7 +14,7 @@
 #include "ui/capture_globals.h"
 #include "ui/urls.h"
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/version_info.h>
 
 #include "welcome_page.h"

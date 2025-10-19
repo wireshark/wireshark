@@ -17,7 +17,7 @@
 
 #include "wsutil/filesystem.h"
 #include "wsutil/utf8_entities.h"
-#include "wsutil/application_flavor.h"
+#include "app/application_flavor.h"
 
 #include <ui/qt/models/profile_model.h>
 

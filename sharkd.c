@@ -31,7 +31,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/version_info.h>
 #include <wsutil/report_message.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wiretap/wtap_opttypes.h>
 
 #include <epan/decode_as.h>

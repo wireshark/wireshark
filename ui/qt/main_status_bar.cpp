@@ -14,7 +14,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/utf8_entities.h>
 

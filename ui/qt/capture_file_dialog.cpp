@@ -19,7 +19,7 @@
 
 #include <errno.h>
 #include "wsutil/filesystem.h"
-#include "wsutil/application_flavor.h"
+#include "app/application_flavor.h"
 #include "wsutil/nstime.h"
 #include "wsutil/str_util.h"
 #include "wsutil/utf8_entities.h"

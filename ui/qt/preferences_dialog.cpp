@@ -27,7 +27,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/color_utils.h>
 #include <ui/capture_globals.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 
 #include "main_application.h"

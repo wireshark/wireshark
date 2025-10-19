@@ -51,7 +51,7 @@
 #include <wsutil/ws_assert.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/report_message.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/path_config.h>
 #include <cli_main.h>
 #include <wsutil/version_info.h>

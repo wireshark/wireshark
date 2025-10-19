@@ -16,7 +16,7 @@
 
 #include <epan/uat-int.h>
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/report_message.h>
 #include <ui/preference_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>

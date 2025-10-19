@@ -23,7 +23,7 @@
 #include "epan/to_str.h"
 #include "ui/ws_ui_util.h"
 #include "ui/recent.h"
-#include "wsutil/application_flavor.h"
+#include "app/application_flavor.h"
 
 #include <QMessageBox>
 

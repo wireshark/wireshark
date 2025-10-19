@@ -29,7 +29,7 @@
 #include <wsutil/inet_addr.h>
 #include <wsutil/exported_pdu_tlvs.h>
 #include <wsutil/report_message.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include "ui/failure_message.h"
 

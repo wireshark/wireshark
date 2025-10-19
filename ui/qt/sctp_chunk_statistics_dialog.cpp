@@ -17,7 +17,7 @@
 
 #include <wsutil/strtoi.h>
 #include <wsutil/wslog.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include "ui/tap-sctp-analysis.h"
 #include <ui/qt/utils/qt_ui_utils.h>

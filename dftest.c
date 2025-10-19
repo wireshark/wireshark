@@ -37,7 +37,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_getopt.h>
 #include <wsutil/utf8_entities.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include <wiretap/wtap.h>
 

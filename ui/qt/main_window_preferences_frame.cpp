@@ -17,7 +17,7 @@
 #include <ui/qt/models/pref_models.h>
 #include <ui/qt/utils/color_utils.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QDebug>

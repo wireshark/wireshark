@@ -40,6 +40,7 @@ if(OSS_FUZZ)
 endif()
 set(fuzzshark_FILES
 	fuzzshark.c
+	../app/wireshark_flavor.c
 )
 set(FUZZ_LINK_FLAGS "${WS_LINK_FLAGS}")
 if(ENABLE_FUZZER)

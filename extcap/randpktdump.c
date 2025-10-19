@@ -22,7 +22,7 @@
 #include <wsutil/socket.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include <cli_main.h>
 #include <wsutil/cmdarg_err.h>

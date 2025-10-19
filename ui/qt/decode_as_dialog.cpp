@@ -16,7 +16,7 @@
 #include "ui/decode_as_utils.h"
 #include "ui/simple_dialog.h"
 #include "wsutil/filesystem.h"
-#include "wsutil/application_flavor.h"
+#include "app/application_flavor.h"
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/widgets/copy_from_profile_button.h>

@@ -2794,6 +2794,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		$<TARGET_OBJECTS:shark_common>
 		${WIRESHARK_SRC}
 		${PLATFORM_UI_RC_FILES}
+		app/wireshark_flavor.c
 	)
 	set_executable_resources(wireshark "Wireshark" UNIQUE_RC)
 endif()
@@ -2804,6 +2805,7 @@ if(BUILD_stratoshark AND QT_FOUND)
 		fileset.c
 		extcap.c
 		${PLATFORM_UI_SRC}
+		app/stratoshark_flavor.c
 	)
 	set(stratoshark_FILES
 		$<TARGET_OBJECTS:shark_common>
@@ -3234,6 +3236,7 @@ if(BUILD_tshark)
 		tshark-tap-register.c
 		tshark.c
 		extcap.c
+		app/wireshark_flavor.c
 		${TSHARK_TAP_SRC}
 	)
 
@@ -3263,6 +3266,7 @@ if(BUILD_strato)
 		$<TARGET_OBJECTS:shark_common>
 		strato.c
 		extcap.c
+		app/stratoshark_flavor.c
 		${STRATO_TAP_SRC}
 		strato-tap-register.c
 	)
@@ -3290,6 +3294,7 @@ if(BUILD_tfshark)
 		$<TARGET_OBJECTS:cli_main>
 		$<TARGET_OBJECTS:shark_common>
 		tfshark.c
+		app/wireshark_flavor.c
 		${TSHARK_TAP_SRC}
 	)
 	set_executable_resources(tfshark "TFShark")
@@ -3313,6 +3318,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		$<TARGET_OBJECTS:cli_main>
 		$<TARGET_OBJECTS:shark_common>
 		rawshark.c
+		app/wireshark_flavor.c
 	)
 	set_executable_resources(rawshark "Rawshark")
 	add_executable(rawshark ${rawshark_FILES})
@@ -3343,6 +3349,7 @@ if(BUILD_sharkd)
 		sharkd.c
 		sharkd_daemon.c
 		sharkd_session.c
+		app/wireshark_flavor.c
 		${TSHARK_TAP_SRC}
 	)
 	set_executable_resources(sharkd "SharkD")
@@ -3362,6 +3369,7 @@ if(BUILD_dftest)
 	)
 	set(dftest_FILES
 		$<TARGET_OBJECTS:cli_main>
+		app/wireshark_flavor.c
 		dftest.c
 	)
 	set_executable_resources(dftest "Dftest")
@@ -3386,6 +3394,7 @@ if(BUILD_randpkt)
 	)
 	set(randpkt_FILES
 		$<TARGET_OBJECTS:cli_main>
+		app/wireshark_flavor.c
 		randpkt.c
 	)
 	set_executable_resources(randpkt "Randpkt"
@@ -3412,6 +3421,7 @@ if(BUILD_text2pcap)
 	)
 	set(text2pcap_FILES
 		$<TARGET_OBJECTS:cli_main>
+		app/wireshark_flavor.c
 		text2pcap.c
 	)
 	set_executable_resources(text2pcap "Text2pcap"
@@ -3433,6 +3443,7 @@ if(BUILD_mergecap)
 	)
 	set(mergecap_FILES
 		$<TARGET_OBJECTS:cli_main>
+		app/wireshark_flavor.c
 		mergecap.c
 	)
 	set_executable_resources(mergecap "Mergecap")
@@ -3453,6 +3464,7 @@ if(BUILD_reordercap)
 	)
 	set(reordercap_FILES
 		$<TARGET_OBJECTS:cli_main>
+		app/wireshark_flavor.c
 		reordercap.c
 	)
 	set_executable_resources(reordercap "Reordercap")
@@ -3475,6 +3487,7 @@ if(BUILD_capinfos)
 	)
 	set(capinfos_FILES
 		$<TARGET_OBJECTS:cli_main>
+		app/wireshark_flavor.c
 		capinfos.c
 	)
 	set_executable_resources(capinfos "Capinfos")
@@ -3497,6 +3510,7 @@ if(BUILD_captype)
 	)
 	set(captype_FILES
 		$<TARGET_OBJECTS:cli_main>
+		app/wireshark_flavor.c
 		captype.c
 	)
 	set_executable_resources(captype "Captype")
@@ -3518,6 +3532,7 @@ if(BUILD_editcap)
 	)
 	set(editcap_FILES
 		$<TARGET_OBJECTS:cli_main>
+		app/wireshark_flavor.c
 		editcap.c
 	)
 	set_executable_resources(editcap "Editcap")

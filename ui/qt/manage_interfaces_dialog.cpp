@@ -24,7 +24,7 @@
 #include "capture/capture-pcap-util.h"
 #include "ui/recent.h"
 #include "wsutil/filesystem.h"
-#include "wsutil/application_flavor.h"
+#include "app/application_flavor.h"
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>

@@ -21,7 +21,7 @@
 #endif
 
 #include <ws_exit_codes.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>     //Stratoshark only
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <ui/urls.h>
@@ -562,7 +562,7 @@ int main(int argc, char *qt_argv[])
      * Attempt to get the pathname of the directory containing the
      * executable file.
      */
-    set_application_flavor(APPLICATION_FLAVOR_STRATOSHARK);
+
     /* configuration_init_error = */ configuration_init(argv[0], "stratoshark");
     /* ws_log(NULL, LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir()); */
 

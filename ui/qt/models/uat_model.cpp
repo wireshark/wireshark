@@ -15,7 +15,7 @@
 #include <epan/to_str.h>
 #include <epan/uat-int.h>
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <QFont>
 #include <QBrush>
 #include <QDebug>

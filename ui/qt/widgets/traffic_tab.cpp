@@ -15,7 +15,7 @@
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include <ui/qt/main_application.h>
 #include <ui/qt/filter_action.h>

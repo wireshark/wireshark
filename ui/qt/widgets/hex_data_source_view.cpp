@@ -14,7 +14,7 @@
 
 #include <wsutil/str_util.h>
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/utils/color_utils.h>

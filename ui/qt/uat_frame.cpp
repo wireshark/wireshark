@@ -20,7 +20,7 @@
 #include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <wsutil/report_message.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include <QLineEdit>
 #include <QKeyEvent>

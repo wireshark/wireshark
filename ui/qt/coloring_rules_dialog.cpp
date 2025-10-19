@@ -18,7 +18,7 @@
 #include <wsutil/utf8_entities.h>
 
 #include "wsutil/filesystem.h"
-#include "wsutil/application_flavor.h"
+#include "app/application_flavor.h"
 #include "epan/dfilter/dfilter.h"
 
 #include "main_application.h"

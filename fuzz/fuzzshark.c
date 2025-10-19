@@ -24,7 +24,7 @@
 #include <wsutil/cmdarg_err.h>
 #include <ui/failure_message.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/privileges.h>
 #include <wsutil/clopts_common.h>
 #include <wsutil/ws_getopt.h>

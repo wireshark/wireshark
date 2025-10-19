@@ -22,7 +22,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/wireshark_file_dialog.h>
 #include <wsutil/utf8_entities.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include "main_application.h"
 

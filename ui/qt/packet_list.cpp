@@ -33,7 +33,7 @@
 #include "ui/util.h"
 
 #include "wiretap/wtap_opttypes.h"
-#include "wsutil/application_flavor.h"
+#include "app/application_flavor.h"
 #include "wsutil/str_util.h"
 #include <wsutil/wslog.h>
 

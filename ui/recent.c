@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>

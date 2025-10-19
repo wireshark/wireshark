@@ -99,7 +99,7 @@
 
 #include <epan/funnel.h>
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>     //Stratoshark only
 #include <wsutil/path_config.h>
 #include <wsutil/str_util.h>
 #include <wsutil/utf8_entities.h>
@@ -1016,7 +1016,6 @@ main(int argc, char *argv[])
      * Attempt to get the pathname of the directory containing the
      * executable file.
      */
-    set_application_flavor(APPLICATION_FLAVOR_STRATOSHARK);
     err_msg = configuration_init(argv[0], "stratoshark");
     if (err_msg != NULL) {
         fprintf(stderr,

@@ -19,7 +19,7 @@
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/filesystem.h>
 
 #include "profile.h"

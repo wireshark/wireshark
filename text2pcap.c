@@ -88,7 +88,7 @@
 
 #include <ws_exit_codes.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/str_util.h>
 #include <wsutil/strnatcmp.h>
 #include <wsutil/wslog.h>

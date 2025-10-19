@@ -43,7 +43,7 @@
 #include "ui/simple_dialog.h"
 #include "ui/ws_ui_util.h"
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/str_util.h>
@@ -314,7 +314,7 @@ capture_input_read_all(capture_session *cap_session, bool is_tempfile,
 }
 
 static const char *
-cf_open_error_message(int err, char *err_info)
+cf_open_error_message(const char* app_name, int err, char *err_info)
 {
     const char *errmsg;
     static char errmsg_errno[1024 + 1];
@@ -331,14 +331,14 @@ cf_open_error_message(int err, char *err_info)
             /* Seen only when opening a capture file for reading. */
             snprintf(errmsg_errno, sizeof(errmsg_errno),
                 "The file \"%%s\" isn't a capture file in a format %s understands.",
-                application_flavor_name_proper());
+                app_name);
             errmsg = errmsg_errno;
             break;
 
         case WTAP_ERR_UNSUPPORTED:
             snprintf(errmsg_errno, sizeof(errmsg_errno),
                 "The file \"%%s\" contains record data that %s doesn't support.\n"
-                "(%s)", application_flavor_name_proper(),
+                "(%s)", app_name,
                 err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
             errmsg = errmsg_errno;
@@ -347,7 +347,7 @@ cf_open_error_message(int err, char *err_info)
         case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
             snprintf(errmsg_errno, sizeof(errmsg_errno),
                 "The file \"%%s\" is a capture for a network type that %s doesn't support.",
-                application_flavor_name_proper());
+                app_name);
             errmsg = errmsg_errno;
             break;
 
@@ -482,7 +482,7 @@ capture_input_new_file(capture_session *cap_session, char *new_file)
 
         cap_session->wtap = wtap_open_offline(new_file, WTAP_TYPE_AUTO, &err, &err_info, false, application_configuration_environment_prefix());
         if (!cap_session->wtap) {
-            err_msg = ws_strdup_printf(cf_open_error_message(err, err_info),
+            err_msg = ws_strdup_printf(cf_open_error_message(application_flavor_name_proper(), err, err_info),
                                       new_file);
             ws_warning("capture_input_new_file: %d (%s)", err, err_msg);
             g_free(err_msg);

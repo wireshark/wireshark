@@ -21,7 +21,7 @@
 #include <errno.h>
 
 #include "wsutil/filesystem.h"
-#include "wsutil/application_flavor.h"
+#include "app/application_flavor.h"
 
 #include "epan/addr_resolv.h"
 #include "epan/column-utils.h"

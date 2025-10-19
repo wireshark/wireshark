@@ -11,7 +11,7 @@
 
 #include <wsutil/filter_files.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include "filter_dialog.h"
 #include <ui_filter_dialog.h>

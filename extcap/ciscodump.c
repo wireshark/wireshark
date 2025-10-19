@@ -19,7 +19,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/please_report_bug.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/wslog.h>
 #include <extcap/ssh-base.h>
 #include <writecap/pcapio.h>

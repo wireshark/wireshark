@@ -46,7 +46,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/pint.h>
 #include <wsutil/exported_pdu_tlvs.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include <cli_main.h>
 

@@ -14,7 +14,7 @@
 #include <errno.h>
 
 #include "ui/ws_ui_util.h" //for color_filter_add_cb
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>

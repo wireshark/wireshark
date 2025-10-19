@@ -15,7 +15,7 @@
 
 #include <epan/epan_dissect.h>
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include "ui/io_graph_item.h"
 

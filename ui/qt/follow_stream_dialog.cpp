@@ -190,17 +190,17 @@ QString FollowStreamDialog::labelHint(int pkt)
 {
     QString hint;
 
-    if (pkt > 0) {
-        hint = tr("Packet %1. ").arg(pkt);
-    }
+        if (pkt > 0) {
+            hint = tr("Packet %1. ").arg(pkt);
+        }
 
-    hint += tr("%Ln <span style=\"color: %1; background-color:%2\">client</span> pkt(s), ", "", client_packet_count_)
-        .arg(ColorUtils::fromColorT(prefs.st_client_fg).name(),
-            ColorUtils::fromColorT(prefs.st_client_bg).name())
-        + tr("%Ln <span style=\"color: %1; background-color:%2\">server</span> pkt(s), ", "", server_packet_count_)
-        .arg(ColorUtils::fromColorT(prefs.st_server_fg).name(),
-            ColorUtils::fromColorT(prefs.st_server_bg).name())
-        + tr("%Ln turn(s).", "", turns_);
+        hint += tr("%Ln <span style=\"color: %1; background-color:%2\">client</span> pkt(s), ", "", client_packet_count_)
+                .arg(ColorUtils::fromColorT(prefs.st_client_fg).name(),
+                ColorUtils::fromColorT(prefs.st_client_bg).name())
+                + tr("%Ln <span style=\"color: %1; background-color:%2\">server</span> pkt(s), ", "", server_packet_count_)
+                .arg(ColorUtils::fromColorT(prefs.st_server_fg).name(),
+                ColorUtils::fromColorT(prefs.st_server_bg).name())
+                + tr("%Ln turn(s).", "", turns_);
 
     return hint;
 }

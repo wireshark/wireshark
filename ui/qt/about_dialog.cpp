@@ -31,7 +31,7 @@
 #include "ui/util.h"
 
 #include "wsutil/filesystem.h"
-#include "wsutil/application_flavor.h"
+#include "app/application_flavor.h"
 #include "wsutil/plugins.h"
 #include "wsutil/version_info.h"
 #include "wsutil/path_config.h"

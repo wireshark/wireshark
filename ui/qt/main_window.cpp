@@ -17,7 +17,7 @@
 
 #include "epan/dfilter/dfilter-translator.h"
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/version_info.h>
 

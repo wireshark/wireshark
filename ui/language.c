@@ -19,7 +19,7 @@
 
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include "ui/language.h"
 #include "ui/simple_dialog.h"

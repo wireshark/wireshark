@@ -19,7 +19,7 @@
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/ws_assert.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/report_message.h>
 #include <wsutil/nstime.h>
 #include <wsutil/to_str.h>

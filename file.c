@@ -21,7 +21,7 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 #include <wsutil/json_dumper.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>

@@ -16,7 +16,7 @@
 
 #include "cfile.h"
 
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include <main_application.h>
 

@@ -30,14 +30,13 @@
 #include <wsutil/privileges.h>
 #include <wsutil/socket.h>
 #include <wsutil/wslog.h>
-#include <wsutil/application_flavor.h>
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif
 #include <wsutil/please_report_bug.h>
 #include <wsutil/unicode-utils.h>
 #include <wsutil/version_info.h>
-#include <wsutil/application_flavor.h>
+#include <app/application_flavor.h>
 
 #include <epan/addr_resolv.h>
 #include <epan/ex-opt.h>
