@@ -136,7 +136,7 @@ function(update_artifacts)
       ${ARTIFACTS_DIR}/zstd-*-windows-ws
     )
     if (artifact_dirs)
-      file(REMOVE_RECURSE "${artifact_dirs}")
+      file(REMOVE_RECURSE ${artifact_dirs})
     endif()
   endif()
   download_artifacts(download_ok)
