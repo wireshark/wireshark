@@ -32,6 +32,7 @@
 JsonDataSourceView::JsonDataSourceView(const QByteArray &data, proto_node *root_node, QWidget *parent) :
     BaseDataSourceView(data, parent),
     layout_(new QTextLayout()),
+    layout_dirty_(false),
     show_offset_(false),
     em_width_(0),
     line_height_(0),
@@ -69,10 +70,13 @@ void JsonDataSourceView::setMonospaceFont(const QFont &mono_font)
     viewport()->setFont(mono_font);
     layout_->setFont(mono_font);
 
-    updateLayoutMetrics();
-
-    updateScrollbars();
-    viewport()->update();
+    if (isVisible()) {
+        updateLayoutMetrics();
+        updateScrollbars();
+        viewport()->update();
+    } else {
+        layout_dirty_ = true;
+    }
 }
 
 void JsonDataSourceView::markField(int start, int length, bool scroll_to)
@@ -176,6 +180,16 @@ void JsonDataSourceView::paintEvent(QPaintEvent *)
 void JsonDataSourceView::resizeEvent(QResizeEvent *)
 {
     updateScrollbars();
+}
+
+void JsonDataSourceView::showEvent(QShowEvent *)
+{
+    if (layout_dirty_) {
+        updateLayoutMetrics();
+        updateScrollbars();
+        viewport()->update();
+        layout_dirty_ = false;
+    }
 }
 
 void JsonDataSourceView::keyPressEvent(QKeyEvent *event)

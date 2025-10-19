@@ -49,6 +49,7 @@ Q_DECLARE_METATYPE(DataPrinter::DumpType)
 HexDataSourceView::HexDataSourceView(const QByteArray &data, packet_char_enc encoding, QWidget *parent) :
     BaseDataSourceView(data, parent),
     layout_(new QTextLayout()),
+    layout_dirty_(false),
     encoding_(encoding),
     hovered_byte_offset_(-1),
     marked_byte_offset_(-1),
@@ -238,10 +239,13 @@ void HexDataSourceView::setMonospaceFont(const QFont &mono_font)
     viewport()->setFont(int_font);
     layout_->setFont(int_font);
 
-    updateLayoutMetrics();
-
-    updateScrollbars();
-    viewport()->update();
+    if (isVisible()) {
+        updateLayoutMetrics();
+        updateScrollbars();
+        viewport()->update();
+    } else {
+        layout_dirty_ = true;
+    }
 }
 
 void HexDataSourceView::updateByteViewSettings()
@@ -332,6 +336,16 @@ void HexDataSourceView::paintEvent(QPaintEvent *)
 void HexDataSourceView::resizeEvent(QResizeEvent *)
 {
     updateScrollbars();
+}
+
+void HexDataSourceView::showEvent(QShowEvent *)
+{
+    if (layout_dirty_) {
+        updateLayoutMetrics();
+        updateScrollbars();
+        viewport()->update();
+        layout_dirty_ = false;
+    }
 }
 
 void HexDataSourceView::mousePressEvent (QMouseEvent *event) {
