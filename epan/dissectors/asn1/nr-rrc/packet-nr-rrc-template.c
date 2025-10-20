@@ -184,6 +184,8 @@ static int ett_nr_rrc_sl_MeasResultServingRelay_r17;
 static int ett_nr_rrc_ReferenceLocation_r17;
 static int ett_nr_rrc_wayPointLocation_r18;
 static int ett_nr_rrc_t1_Threshold_r17;
+static int ett_nr_rrc_t_Service_r17;
+static int ett_nr_rrc_t_ServiceStart_r18;
 
 static expert_field ei_nr_rrc_number_pages_le15;
 
@@ -1146,7 +1148,9 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_sl_MeasResultServingRelay_r17,
     &ett_nr_rrc_ReferenceLocation_r17,
     &ett_nr_rrc_wayPointLocation_r18,
-    &ett_nr_rrc_t1_Threshold_r17
+    &ett_nr_rrc_t1_Threshold_r17,
+    &ett_nr_rrc_t_Service_r17,
+    &ett_nr_rrc_t_ServiceStart_r18
   };
 
   static ei_register_info ei[] = {

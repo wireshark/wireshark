@@ -1631,6 +1631,34 @@ SIB9/timeInfo/localTimeOffset DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_localTi
   proto_tree_add_time(subtree, hf_nr_rrc_utc_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
   proto_tree_add_time(subtree, hf_nr_rrc_local_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
 
+#.FN_BODY SIB19-r17/t-Service-r17 VAL_PTR=&val
+  uint64_t val;
+  proto_tree *subtree;
+  nstime_t ts;
+  uint32_t old_offset = offset;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SIB19-r17/t-Service-r17
+  subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_t_Service_r17);
+  ts.secs = (time_t)(val/100)-EPOCH_DELTA_1900_01_01_00_00_00_UTC; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
+  ts.nsecs = (int)(val%100)*10000000;
+  proto_tree_add_time(subtree, hf_nr_rrc_utc_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
+  proto_tree_add_time(subtree, hf_nr_rrc_local_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
+
+#.FN_BODY SatSwitchWithReSync-r18/t-ServiceStart-r18 VAL_PTR=&val
+  uint64_t val;
+  proto_tree *subtree;
+  nstime_t ts;
+  uint32_t old_offset = offset;
+%(DEFAULT_BODY)s
+
+#.FN_FTR SatSwitchWithReSync-r18/t-ServiceStart-r18
+  subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_t_ServiceStart_r18);
+  ts.secs = (time_t)(val/100)-EPOCH_DELTA_1900_01_01_00_00_00_UTC; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
+  ts.nsecs = (int)(val%100)*10000000;
+  proto_tree_add_time(subtree, hf_nr_rrc_utc_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
+  proto_tree_add_time(subtree, hf_nr_rrc_local_time, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5, &ts);
+
 #.TYPE_ATTR
 CLI-RSSI-Range-r16 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSSI_Range_r16_fmt)
 
