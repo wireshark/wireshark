@@ -328,7 +328,17 @@ void DataSourceTab::selectedFrameChanged(QList<int> frames)
      * the sizeHint for each tab remaining every time a tab is removed, instead
      * deferring until later. */
     setVisible(false);
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 2)
+    /* Pick up this performance improvement from Qt 6.8.2:
+     * https://github.com/qt/qtbase/commit/8717c1752f9b72ac7c028b722f0a068e84e64eca
+     * https://github.com/qt/qtbase/commit/828ece4743a0d44f7f37f1a980dec076783a8abe
+     */
+    int c = count();
+    while (c)
+        removeTab(--c);
+#else
     clear();
+#endif
     qDeleteAll(findChildren<BaseDataSourceView *>(QString(), Qt::FindDirectChildrenOnly));
     setVisible(true);
 
