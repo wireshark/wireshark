@@ -210,7 +210,7 @@ static unsigned
 bluetooth_uuid_hash(const void* uuid)
 {
     const bluetooth_uuid_t* bt_uuid = (const bluetooth_uuid_t*)uuid;
-    return g_int64_hash((const int64_t*)bt_uuid->data);
+    return wmem_strong_hash(bt_uuid->data, bt_uuid->size);
 }
 
 static gboolean
