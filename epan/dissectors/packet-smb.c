@@ -3082,6 +3082,17 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 	switch(wc) {
 	case 13:
 		/*
+		 * We don't know how to decode the blob for this ancient dialect
+		 * and it is not documented in any of the MS documents.
+		 */
+		if (!strcmp(dialect_name, "Windows for Workgroups 3.1a")) {
+			proto_tree_add_item(tree, hf_smb_unknown, tvb,
+					    offset, -1, ENC_NA);
+			offset += tvb_reported_length_remaining(tvb, offset);
+			break;
+		}
+
+		/*
 		 * Server selected a dialect from LAN Manager 1.0 through
 		 * LAN Manager 2.1.
 		 */
