@@ -75,8 +75,6 @@
 
 #define DOT11DECRYPT_RSNA_MIN_TRAILER 8
 
-#define	DOT11DECRYPT_CRC_LEN	4
-
 /************************************************************************/
 /*      File includes                                                   */
 

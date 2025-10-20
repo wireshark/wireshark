@@ -11,7 +11,6 @@
 /*																										*/
 #include "dot11decrypt_debug.h"
 #include <wsutil/pint.h>
-#include <wsutil/crc32.h>
 #include "dot11decrypt_system.h"
 #include "dot11decrypt_int.h"
 
