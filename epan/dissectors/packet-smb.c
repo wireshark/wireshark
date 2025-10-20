@@ -4556,7 +4556,6 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
 		}
 	}
-	proto_tree_add_string(si->smbtree, hf_smb_file_name, tvb, offset, fn_len, fn);
 
 	END_OF_SMB
 
