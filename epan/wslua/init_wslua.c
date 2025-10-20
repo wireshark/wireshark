@@ -277,9 +277,13 @@ static void lua_resetthread_cb(void *user_data) {
     lua_State *L1 = (lua_State*)user_data;
 
     ws_debug("freeing thread: %p", L1);
+#if LUA_VERSION_NUM > 503
+    // Lua 5.3 and earlier doesn't have a way to close a thread, and
+    // relies on garbage collection only.
     // lua_closethread(..., NULL) was introduced in 5.4.6 to replace
     // lua_resetthread() but it's not mandatory yet (maybe in 5.5?)
     lua_resetthread(L1);
+#endif
     // The thread was pushed onto the global stack when created. Each thread
     // should be taken off the stack in order.
     ws_assert(L1 == lua_tothread(L, -1));
