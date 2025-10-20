@@ -145,6 +145,9 @@ my %APIs = (
                 'freopen',
                 'fstat',
                 'lseek',
+                # GnuTLS session APIs
+                # We use and configure GnuTLS for dissection only.
+                'gnutls_init',
                 # Misc
                 'tmpnam',       # use mkstemp
                 '_snwprintf'    # use StringCchPrintf
