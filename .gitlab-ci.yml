@@ -372,6 +372,7 @@ Debian Stable APT Test:
   image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
   stage: test
   script:
+    - DEBIAN_FRONTEND=noninteractive apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get install ./debian-packages/*.deb -y
     - tshark --version
   variables:
