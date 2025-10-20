@@ -354,6 +354,7 @@ def replace_proto_tree_add_STAR_format_value(fpath, make_replacements):
         format_arg = extract_arg_by_index(func_call_str, FORMAT_ARG_INDEX)
         if format_arg is None:
             # For whatever reason, there is no 6th argument:
+            sys.stderr.write(f"Failed to extract arg #{FORMAT_ARG_INDEX} from {fpath}: {func_call_str}\n")
             return func_call_str
         # Now that we have the 'format' arg, see if the format string only contains that single value:
         if not re.match(r'^"%l*[a-zA-Z]"', format_arg):
@@ -428,6 +429,7 @@ def replace_proto_tree_add_STAR_format(fpath, make_replacements):
 
         format_arg = extract_arg_by_index(func_call_str, FORMAT_ARG_INDEX)
         if format_arg is None:
+            sys.stderr.write(f"Failed to extract arg #{FORMAT_ARG_INDEX} from {fpath}: {func_call_str}\n")
             return func_call_str
         # Now that we have the 'format' arg, see if the format string contains a label (Label : Value):
         if ":" not in format_arg:
@@ -532,10 +534,11 @@ def main():
                 fpaths.append(line)
         for fpath in fpaths:
             replace_cnt += run_recursive(fpath, make_replacements)
-    if make_replacements:
-        print(f"Total replacements made: {replace_cnt}")
-    else:
-        print(f"Total suggested replacements: {replace_cnt}")
+    if replace_cnt > 0:
+        if make_replacements:
+            print(f"Total replacements made: {replace_cnt}")
+        else:
+            print(f"Total suggested replacements: {replace_cnt}")
 
 
 if __name__ == "__main__":
