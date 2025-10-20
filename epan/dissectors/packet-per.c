@@ -2186,10 +2186,11 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, uint32_t offset, 
 	uint64_t value;
 
 	out_tvb = tvb_new_octet_aligned(tvb, offset, length);
-	// XXX - If the bitstring is already aligned, i.e., offset % 8 == 0,
-	// then out_tvb will have the same ds_tvb as the original tvb.
-	// Do we really need to add the data source in that case?
-	add_new_data_source(actx->pinfo, out_tvb, "Bitstring tvb");
+	/* Add new data source if the data source is different (i.e.,
+	 * if not byte aligned or not an even number of bytes.) */
+	if (tvb_get_ds_tvb(tvb) != tvb_get_ds_tvb(out_tvb)) {
+		add_new_data_source(actx->pinfo, out_tvb, "Bitstring tvb");
+	}
 
 	if (hfi) {
 		actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, ENC_BIG_ENDIAN);
