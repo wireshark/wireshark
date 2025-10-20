@@ -500,7 +500,7 @@ dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_
 }
 
 /* get_first_bson_field returns the first field of the BSON document. Returned string is NULL terminated. Returns NULL on error. */
-static uint8_t* get_first_bson_field (tvbuff_t *tvb, packet_info *pinfo, unsigned offset)
+static uint8_t* get_first_bson_field(tvbuff_t *tvb, packet_info *pinfo, unsigned offset)
 {
   int32_t document_length = tvb_get_letohl(tvb, offset);
 
