@@ -691,6 +691,7 @@ reverse direction was zero.
 If the single data byte from a Zero Window Probe is dropped by the receiver (not
 ACKed), then a subsequent segment should not be flagged as retransmission if all
 of the following conditions are true for that segment:
+
 * The segment size is larger than one.
 * The next expected sequence number is one less than the current sequence number.
 
