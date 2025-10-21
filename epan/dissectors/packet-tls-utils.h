@@ -24,11 +24,6 @@
 #include <epan/unit_strings.h>
 #include <wsutil/wsgcrypt.h>
 
-#ifdef HAVE_LIBGNUTLS
-#include <gnutls/x509.h>
-#include <gnutls/pkcs12.h>
-#endif /* HAVE_LIBGNUTLS */
-
 /* TODO inline this now that Libgcrypt is mandatory? */
 #define SSL_CIPHER_CTX gcry_cipher_hd_t
 #define SSL_DECRYPT_DEBUG

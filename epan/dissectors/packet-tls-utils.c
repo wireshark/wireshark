@@ -47,6 +47,8 @@
 #include "packet-quic.h"
 #if defined(HAVE_LIBGNUTLS)
 #include <gnutls/abstract.h>
+#include <gnutls/x509.h>
+#include <gnutls/pkcs12.h>
 #endif
 
 /* JA3/JA3S calculations must ignore GREASE values
