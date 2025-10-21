@@ -528,7 +528,7 @@ ber_update_oids(void)
 }
 
 static void
-ber_check_length (uint32_t length, int32_t min_len, int32_t max_len, asn1_ctx_t *actx, proto_item *item, bool bit)
+ber_check_length(uint32_t length, int32_t min_len, int32_t max_len, asn1_ctx_t *actx, proto_item *item, bool bit)
 {
     if ((min_len != -1) && (length < (uint32_t)min_len)) {
         expert_add_info_format(
@@ -544,7 +544,7 @@ ber_check_length (uint32_t length, int32_t min_len, int32_t max_len, asn1_ctx_t 
 }
 
 static void
-ber_check_value64 (int64_t value, int64_t min_len, int64_t max_len, asn1_ctx_t *actx, proto_item *item)
+ber_check_value(int64_t value, int64_t min_len, int64_t max_len, asn1_ctx_t *actx, proto_item *item)
 {
     if ((min_len != -1) && (value < min_len)) {
         expert_add_info_format(
@@ -560,23 +560,7 @@ ber_check_value64 (int64_t value, int64_t min_len, int64_t max_len, asn1_ctx_t *
 }
 
 static void
-ber_check_value (uint32_t value, int32_t min_len, int32_t max_len, asn1_ctx_t *actx, proto_item *item)
-{
-    if ((min_len != -1) && (value < (uint32_t)min_len)) {
-        expert_add_info_format(
-            actx->pinfo, item, &ei_ber_size_constraint_value,
-            "Size constraint: value too small: %d (%d .. %d)",
-            value, min_len, max_len);
-    } else if ((max_len != -1) && (value > (uint32_t)max_len)) {
-        expert_add_info_format(
-            actx->pinfo, item, &ei_ber_size_constraint_value,
-            "Size constraint: value too big: %d (%d .. %d)",
-            value, min_len, max_len);
-    }
-}
-
-static void
-ber_check_items (int cnt, int32_t min_len, int32_t max_len, asn1_ctx_t *actx, proto_item *item)
+ber_check_items(int cnt, int32_t min_len, int32_t max_len, asn1_ctx_t *actx, proto_item *item)
 {
     if ((min_len != -1) && (cnt < min_len)) {
         expert_add_info_format(
@@ -2009,7 +1993,7 @@ dissect_ber_constrained_integer64(bool implicit_tag, asn1_ctx_t *actx, proto_tre
         *value = val;
     }
 
-    ber_check_value64 (val, min_len, max_len, actx, actx->created_item);
+    ber_check_value(val, min_len, max_len, actx, actx->created_item);
 
     return offset;
 }
@@ -2037,7 +2021,7 @@ dissect_ber_constrained_integer(bool implicit_tag, asn1_ctx_t *actx, proto_tree 
         *value = (uint32_t)val;
     }
 
-    ber_check_value ((uint32_t)val, min_len, max_len, actx, actx->created_item);
+    ber_check_value(val, min_len, max_len, actx, actx->created_item);
 
     return offset;
 }
@@ -3489,7 +3473,7 @@ proto_tree_add_debug_text(tree, "SQ OF dissect_ber_sq_of(%s) entered\n", name);
                     item = proto_tree_add_uint_format_value(parent_tree, hf_id, tvb, offset, lenx, cnt, "unknown number of items");
             }
             tree = proto_item_add_subtree(item, ett_id);
-            ber_check_items (cnt, min_len, max_len, actx, item);
+            ber_check_items(cnt, min_len, max_len, actx, item);
         }
     }
 
