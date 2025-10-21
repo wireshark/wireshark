@@ -255,6 +255,8 @@ wslua_filehandler_read_packet(wtap *wth, FILE_T wth_fh, wtap_rec *rec,
     wtap_block_unref(rec->block);
     rec->block = NULL;
 
+    wtap_setup_packet_rec(rec, wth->file_encap);
+
     fp = push_File(L, wth_fh);
     fc = push_CaptureInfo(L, wth, false);
     fi = push_FrameInfo(L, rec);
@@ -321,6 +323,8 @@ wslua_filehandler_seek_read_packet(wtap *wth, int64_t seek_off, wtap_rec *rec,
 
     wtap_block_unref(rec->block);
     rec->block = NULL;
+
+    wtap_setup_packet_rec(rec, wth->file_encap);
 
     fp = push_File(L, wth->random_fh);
     fc = push_CaptureInfo(L, wth, false);
