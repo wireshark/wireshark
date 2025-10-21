@@ -62,6 +62,7 @@ protected:
     // virtual bool event(QEvent *event);
     virtual void paintEvent(QPaintEvent *);
     virtual void resizeEvent(QResizeEvent *);
+    virtual void showEvent(QShowEvent *);
     virtual void keyPressEvent(QKeyEvent *event);
     virtual void mousePressEvent (QMouseEvent *event);
     virtual void mouseMoveEvent (QMouseEvent * event);
@@ -83,6 +84,7 @@ private:
     QTextLayout *layout_;
     QList<TextBlock> text_blocks_;
 
+    bool layout_dirty_;
     bool show_offset_;          // Should we show the byte offset?
     int em_width_;              // Single character width and text margin. NOTE: Use fontMetrics::width for multiple characters.
     int line_height_;           // Font line spacing

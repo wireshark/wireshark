@@ -56,6 +56,7 @@ public slots:
 protected:
     virtual void paintEvent(QPaintEvent *);
     virtual void resizeEvent(QResizeEvent *);
+    virtual void showEvent(QShowEvent *);
     virtual void mousePressEvent (QMouseEvent * event);
     virtual void mouseMoveEvent (QMouseEvent * event);
     virtual void leaveEvent(QEvent *event);
@@ -95,6 +96,8 @@ private:
     const QByteArray printableData() { return data_; }
 
     static const int separator_interval_;
+
+    bool layout_dirty_;
 
     // Colors
     QColor offset_normal_fg_;
