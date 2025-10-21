@@ -37,4 +37,5 @@ target_link_libraries(writecap
 	PRIVATE
 		${GMODULE2_LIBRARIES}
 		${WIN_WS2_32_LIBRARY}
+		wsutil
 )
