@@ -1,1 +1,1 @@
-TYPE lsa_StringLarge "offset=lsarpc_dissect_struct_lsa_StringLarge(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL NULL
+TYPE lsa_StringLarge "offset=lsarpc_dissect_struct_lsa_StringLarge(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL 0
