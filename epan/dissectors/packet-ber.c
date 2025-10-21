@@ -1165,7 +1165,9 @@ get_ber_identifier(tvbuff_t *tvb, int offset, int8_t *ber_class, bool *pc, int32
     uint8_t  id, t;
     int8_t   tmp_class;
     bool tmp_pc;
-    int32_t  tmp_tag;
+    uint32_t tmp_tag;
+    /* X.680 8.2 - "The [tag] number is a non-negative integer," so the function
+     * prototype should have an unsigned integer for the tag number. */
 
     id = tvb_get_uint8(tvb, offset);
     offset += 1;
@@ -1185,6 +1187,8 @@ ws_debug_printf("BER ID=%02x", id);
 ws_debug_printf(" %02x", t);
 #endif
             offset += 1;
+            /* XXX - What to do on overflow (which is almost certainly
+             * invalid data rather than a tag number > UINT32_MAX)? */
             tmp_tag <<= 7;
             tmp_tag |= t & 0x7F;
             if (!(t & 0x80))
@@ -1571,7 +1575,9 @@ proto_tree_add_debug_text(tree, "OCTET STRING dissect_ber_octet_string(%s) enter
         offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
         identifier_len = offset - identifier_offset;
         offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
-        end_offset = offset+len;
+        if (ckd_add(&end_offset, offset, len)) {
+            THROW(ReportedBoundsError);
+        }
 
         /* sanity check: we only handle Constructed Universal Sequences */
         if ((ber_class != BER_CLASS_APP) && (ber_class != BER_CLASS_PRI)) {
@@ -1599,7 +1605,9 @@ proto_tree_add_debug_text(tree, "OCTET STRING dissect_ber_octet_string(%s) enter
         get_last_ber_identifier(&ber_class, &pc, &tag);
         get_last_ber_length(&len, &ind, &len_tvb, &len_offset, &len_len);
 
-        end_offset = offset+len;
+        if (ckd_add(&end_offset, offset, len)) {
+            THROW(ReportedBoundsError);
+        }
 
         /* caller may have created new buffer for indefinite length data Verify via length */
         len_remain = (uint32_t)tvb_reported_length_remaining(tvb, offset);
