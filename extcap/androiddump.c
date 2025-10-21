@@ -361,8 +361,8 @@ static const char* interface_to_logbuf(char* interface)
 #ifdef _WIN32
 #define CONTINUE_ON_TIMEOUT(length) \
     if (length == SOCKET_ERROR) { \
-        int err = WSAGetLastError(); \
-        if (err == WSAETIMEDOUT || err == WSAEWOULDBLOCK) \
+        int last_err = WSAGetLastError(); \
+        if (last_err == WSAETIMEDOUT || last_err == WSAEWOULDBLOCK) \
             continue; \
     }
 #elif EWOULDBLOCK != EAGAIN
