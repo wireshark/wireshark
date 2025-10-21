@@ -14,8 +14,6 @@
 
 #include "main_application.h"
 
-#include <wsutil/application_flavor.h>
-
 #include <QDesktopServices>
 #include <QUrl>
 
@@ -299,27 +297,11 @@ AboutDialog::AboutDialog(QWidget *parent) :
     QFile f_acknowledgements;
     QFile f_license;
 
-    if (application_flavor_is_stratoshark()) {
-        setWindowTitle(tr("About Stratoshark"));
-        ui->tabWidget->setTabText(ui->tabWidget->indexOf(ui->tab_wireshark), tr("Stratoshark"));
-        ui->label_title->setText(tr("<h3>System Call and Event Log Analyzer</h3>"));
-    }
-
     /* Wireshark tab */
     updateWiresharkText();
 
     ui->pte_wireshark->setFrameStyle(QFrame::NoFrame);
     ui->pte_wireshark->viewport()->setAutoFillBackground(false);
-
-    if (application_flavor_is_stratoshark()) {
-        if (mainApp->devicePixelRatio() > 1.0) {
-            QPixmap pm = QPixmap(":/about/sssplash@2x.png");
-            pm.setDevicePixelRatio(2.0);
-            ui->label_logo->setPixmap(pm);
-        } else {
-            ui->label_logo->setPixmap(QPixmap(":/about/sssplash.png"));
-        }
-    }
 
     /* Authors */
     AuthorListModel * authorModel = new AuthorListModel(this);
@@ -446,6 +428,27 @@ AboutDialog::~AboutDialog()
     delete ui;
 }
 
+QLabel* AboutDialog::labelLogo() const
+{
+    return ui->label_logo;
+}
+
+QLabel* AboutDialog::labelTitle() const
+{
+    return ui->label_title;
+}
+
+QTabWidget* AboutDialog::tabWidget() const
+{
+    return ui->tabWidget;
+}
+
+QWidget* AboutDialog::tabWireshark() const
+{
+    return ui->tab_wireshark;
+}
+
+
 bool AboutDialog::event(QEvent *event)
 {
     switch (event->type()) {
@@ -491,9 +494,15 @@ void AboutDialog::showEvent(QShowEvent * event)
     QDialog::showEvent(event);
 }
 
+const char* AboutDialog::getVCSVersion()
+{
+    return get_ws_vcs_version_info();
+}
+
+
 void AboutDialog::updateWiresharkText()
 {
-    QString vcs_version_info_str = application_flavor_is_wireshark() ? get_ws_vcs_version_info() : get_ss_vcs_version_info();
+    QString vcs_version_info_str = getVCSVersion();
     QString copyright_info_str = get_copyright_info();
     QString license_info_str = get_license_info();
     QString comp_info_str = gstring_free_to_qbytearray(get_compiled_version_info(gather_wireshark_qt_compiled_info));

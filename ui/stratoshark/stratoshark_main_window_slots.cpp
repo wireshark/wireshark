@@ -85,7 +85,7 @@ DIAG_ON(frame-larger-than=)
 #include "ui/software_update.h"
 #endif
 
-#include "about_dialog.h"
+#include "stratoshark_about_dialog.h"
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
 #ifdef HAVE_LIBPCAP
@@ -3231,7 +3231,7 @@ void StratosharkMainWindow::connectToolsMenuActions()
 void StratosharkMainWindow::connectHelpMenuActions()
 {
     connect(main_ui_->actionHelpAbout, &QAction::triggered, this, [=]() {
-        AboutDialog *about_dialog = new AboutDialog(this);
+        StratosharkAboutDialog* about_dialog = new StratosharkAboutDialog(this);
 
         if (about_dialog->isMinimized() == true)
         {

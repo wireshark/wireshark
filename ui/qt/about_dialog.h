@@ -15,6 +15,8 @@
 #include <ui/qt/models/astringlist_list_model.h>
 
 #include <QDialog>
+#include <QLabel>
+#include <QTabWidget>
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QHash>
@@ -79,11 +81,18 @@ class AboutDialog : public QDialog
 
 public:
     explicit AboutDialog(QWidget *parent = 0);
-    ~AboutDialog();
+    virtual ~AboutDialog();
 
 protected:
     virtual bool event(QEvent *event);
     virtual void showEvent(QShowEvent *);
+    virtual const char* getVCSVersion();
+
+    // UI getters
+    QLabel* labelLogo() const;
+    QLabel* labelTitle() const;
+    QTabWidget* tabWidget() const;
+    QWidget* tabWireshark() const;
 
 private:
     void updateWiresharkText();
