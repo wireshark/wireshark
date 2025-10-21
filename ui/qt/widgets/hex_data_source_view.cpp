@@ -156,6 +156,9 @@ void HexDataSourceView::toggleHoverAllowed(bool checked)
 
 void HexDataSourceView::updateContextMenu()
 {
+    if (ctx_menu_.isEmpty()) {
+        return;
+    }
 
     action_allow_hover_selection_->setChecked(recent.gui_allow_hover_selection);
 
