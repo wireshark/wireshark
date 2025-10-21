@@ -301,7 +301,7 @@ static const value_string opsi_nas_port_type_code[] = {
 /* (first argument of the opsi_attribute_handle_t)	*/
 /* in ascending order 					*/
 /*							*/
-static opsi_attribute_handle_t opsi_attributes[] = {
+static const opsi_attribute_handle_t opsi_attributes[] = {
 	{ USER_NAME_ATTRIBUTE,		  /* 1 */
 	"User name attribute",		   &ett_opsi_user_name, &hf_user_name_att, decode_string_attribute },
 	{ USER_PASSWD_ATTRIBUTE,	  /* 2 */
@@ -410,7 +410,6 @@ static opsi_attribute_handle_t opsi_attributes[] = {
 	"OPSI application name attribute", &ett_opsi_application_name, &hf_opsi_application_name_att, decode_string_attribute },
 
 };
-#define OPSI_ATTRIBUTES_COUNT array_length(opsi_attributes)
 
 /* Desegmentation of OPSI (over TCP) */
 static bool opsi_desegment = true;
@@ -484,50 +483,35 @@ get_opsi_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
 }
 
 static int
-// NOLINTNEXTLINE(misc-no-recursion)
-get_opsi_attribute_index(packet_info *pinfo, int min, int max, int attribute_type)
+opsi_attribute_compar(const void *key, const void *member)
 {
-	int middle, at;
-
-	middle = (min+max)/2;
-	at = opsi_attributes[middle].attribute_type;
-	if (at == attribute_type) return middle;
-	int attr_idx;
-	increment_dissection_depth(pinfo);
-	if (attribute_type > at) {
-		attr_idx = (middle == max) ? -1 : get_opsi_attribute_index(pinfo, middle+1, max, attribute_type);
-	} else {
-		attr_idx = (middle == min) ? -1 : get_opsi_attribute_index(pinfo, min, middle-1, attribute_type);
-	}
-	decrement_dissection_depth(pinfo);
-	return attr_idx;
+	return *(const int *)key - ((const opsi_attribute_handle_t *)member)->attribute_type;
 }
-
 
 static void
 dissect_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *opsi_tree, int offset, int length)
 {
-	int i;
 	int attribute_type;
 	int attribute_length;
 	proto_item *ti;
 	proto_tree *ntree = NULL;
 
 	while (length >= 4) {
+		const opsi_attribute_handle_t *attr;
 		attribute_type 		= tvb_get_ntohs(tvb, offset);
 		attribute_length 	= tvb_get_ntohs(tvb, offset+2);
 		if (attribute_length > length) break;
 		/* We perform a standard log(n) lookup */
-		i = get_opsi_attribute_index(pinfo, 0, OPSI_ATTRIBUTES_COUNT-1, attribute_type);
-		if (i == -1) {
+
+		attr = bsearch(&attribute_type, opsi_attributes, array_length(opsi_attributes), sizeof opsi_attributes[0], opsi_attribute_compar);
+		if (attr == NULL) {
 			proto_tree_add_expert_format(opsi_tree, pinfo, &ei_opsi_unknown_attribute, tvb, offset, attribute_length,
 										"Unknown attribute (%d)", attribute_type);
-		}
-		else {
-			ntree = proto_tree_add_subtree_format(opsi_tree, tvb, offset, attribute_length, *opsi_attributes[i].tree_id, &ti,
-															"%s (%d)", opsi_attributes[i].tree_text, attribute_type);
+		} else {
+			ntree = proto_tree_add_subtree_format(opsi_tree, tvb, offset, attribute_length, *attr->tree_id, &ti,
+								"%s (%d)", attr->tree_text, attribute_type);
 			proto_tree_add_item(ntree, hf_opsi_attribute_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-			opsi_attributes[i].dissect(tvb, pinfo, ntree, ti, opsi_attributes[i].hf_type_attribute, offset, attribute_length);
+			attr->dissect(tvb, pinfo, ntree, ti, attr->hf_type_attribute, offset, attribute_length);
 		}
 		if (attribute_length < 4) {
 			/* Length must be at least 4, for the type and length. */
