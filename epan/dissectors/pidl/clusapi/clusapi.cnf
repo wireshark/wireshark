@@ -1,5 +1,5 @@
-TYPE winreg_Type "offset = misc_dissect_enum_winreg_Type(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL 0
-TYPE winreg_AccessMask "offset = winreg_dissect_bitmap_AccessMask(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL 0
+TYPE winreg_Type "offset = misc_dissect_enum_winreg_Type(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_UINT32 BASE_DEC 0 VALS(misc_winreg_Type_vals) 4
+TYPE winreg_AccessMask "offset = winreg_dissect_bitmap_AccessMask(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_UINT32 BASE_HEX 0 NULL 4
 
 #MANUAL clusapi_dissect_struct_PROPERTY_LIST
 #NOEMIT clusapi_dissect_element_PROPERTY_LIST_propertyValues_
