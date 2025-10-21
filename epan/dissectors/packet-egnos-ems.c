@@ -105,7 +105,7 @@ static int dissect_ems(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             nof_bits = (int) strtol(nof_bits_hex_str, NULL, 16);
 
             if (!errno) {
-                nof_hex_chars_len = 2 * ((nof_bits / 8) + (nof_bits % 8 ? 1 : 0));
+                nof_hex_chars_len = 2 * ((nof_bits / 8) + ((nof_bits % 8) ? 1 : 0));
                 proto_tree_add_bytes_item(ems_tree, hf_ems_nof, tvb, 40, nof_hex_chars_len, ENC_ASCII | ENC_STR_HEX | ENC_SEP_NONE, bytes, NULL, NULL);
             }
         }

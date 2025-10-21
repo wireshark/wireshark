@@ -236,7 +236,7 @@ enum {
 };
 
 /* Return the number of fragments of size 'b' in 'a' */
-#define NFRAGS(a,b) ((a)/(b) + ((a)%(b) ? 1: 0))
+#define NFRAGS(a,b) ((a)/(b) + (((a)%(b)) ? 1: 0))
 
 /*
  * Global variable set for every InfiniBand packet. This is used because
