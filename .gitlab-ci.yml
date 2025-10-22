@@ -530,7 +530,7 @@ Arch Linux :
 
 Windows x64 Package:
   variables:
-    FALCO_PLUGIN_DIR: "C:/Development/wireshark-x64-libs/falcosecurity-plugins-2025-09-09-1-x64-ws"
+    FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/wireshark-x64-libs/falcosecurity-plugins-2025-09-09-1-x64-ws"
   extends: .build-windows
   rules: !reference [.if-w-w-only-merged]
   tags:
@@ -578,7 +578,7 @@ Windows Arm64 Package:
     AQT_HOST: "windows_arm64"
     AQT_ARCH: "msvc2022_arm64"
     VCVARS_ARCH: "arm64"
-    FALCO_PLUGIN_DIR: "C:/Development/wireshark-arm64-libs/falcosecurity-plugins-2025-09-09-1-arm64-ws"
+    FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/wireshark-arm64-libs/falcosecurity-plugins-2025-09-09-1-arm64-ws"
   extends: .build-windows
   rules: !reference [.if-w-w-only-merged]
   tags:
