@@ -665,20 +665,18 @@ All subsequent operations take place in this Command Prompt window.
 --
 Set the following environment variables, using paths and values suitable for your installation:
 
-[subs="attributes+"]
+[source,cmd,subs="attributes+"]
 ----
-rem Let CMake determine the library download directory name under
-rem WIRESHARK_BASE_DIR.
-rem Set *one* of these.
-set WIRESHARK_BASE_DIR=C:\Development
+rem Let CMake determine the library download directory name under WIRESHARK_BASE_DIR.
+set WIRESHARK_BASE_DIR=C:\Development\wireshark-third-party
 rem Set the Qt installation directory
-set WIRESHARK_QT6_PREFIX_PATH=C:\Qt{backslash}{windows-qt6-lts-version}\msvc2022_64
+set CMAKE_PREFIX_PATH=C:\Qt{backslash}{windows-qt6-lts-version}\msvc2022_64
 rem Append a custom string to the package version. Optional.
 set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
 
-Setting these variables could be added to a batch file to be run after you open
-the Visual Studio Tools Command Prompt.
+Setting these variables could be added to a batch file to be run after you open the Visual Studio Tools Command Prompt.
+They can also be passed directly to CMake, e.g. `cmake -DWIRESHARK_BASE_DIR=...`
 
 [TIP]
 .Qt’s LTS branch
