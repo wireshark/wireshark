@@ -25,7 +25,6 @@
 #include <wsutil/utf8_entities.h>
 #include <wsutil/ws_assert.h>
 
-#include "wsutil/application_flavor.h"
 #include "wsutil/file_util.h"
 #include "wsutil/str_util.h"
 #include "wsutil/report_message.h"
@@ -187,35 +186,28 @@ void FollowStreamDialog::printStream()
 #endif
 }
 
-void FollowStreamDialog::fillHintLabel(int pkt)
+QString FollowStreamDialog::labelHint(int pkt)
 {
     QString hint;
 
-    if (application_flavor_is_stratoshark())  {
-        if (pkt > 0) {
-            hint = tr("Event %1. ").arg(pkt);
-        }
-
-        hint += tr("%Ln <span style=\"color: %1; background-color:%2\">reads</span>, ", "", client_packet_count_)
-                .arg(ColorUtils::fromColorT(prefs.st_client_fg).name(),
-                ColorUtils::fromColorT(prefs.st_client_bg).name())
-                + tr("%Ln <span style=\"color: %1; background-color:%2\">writes</span>, ", "", server_packet_count_)
-                .arg(ColorUtils::fromColorT(prefs.st_server_fg).name(),
-                ColorUtils::fromColorT(prefs.st_server_bg).name())
-                + tr("%Ln turn(s).", "", turns_);
-    } else {
-        if (pkt > 0) {
-            hint = tr("Packet %1. ").arg(pkt);
-        }
-
-        hint += tr("%Ln <span style=\"color: %1; background-color:%2\">client</span> pkt(s), ", "", client_packet_count_)
-                .arg(ColorUtils::fromColorT(prefs.st_client_fg).name(),
-                ColorUtils::fromColorT(prefs.st_client_bg).name())
-                + tr("%Ln <span style=\"color: %1; background-color:%2\">server</span> pkt(s), ", "", server_packet_count_)
-                .arg(ColorUtils::fromColorT(prefs.st_server_fg).name(),
-                ColorUtils::fromColorT(prefs.st_server_bg).name())
-                + tr("%Ln turn(s).", "", turns_);
+    if (pkt > 0) {
+        hint = tr("Packet %1. ").arg(pkt);
     }
+
+    hint += tr("%Ln <span style=\"color: %1; background-color:%2\">client</span> pkt(s), ", "", client_packet_count_)
+        .arg(ColorUtils::fromColorT(prefs.st_client_fg).name(),
+            ColorUtils::fromColorT(prefs.st_client_bg).name())
+        + tr("%Ln <span style=\"color: %1; background-color:%2\">server</span> pkt(s), ", "", server_packet_count_)
+        .arg(ColorUtils::fromColorT(prefs.st_server_fg).name(),
+            ColorUtils::fromColorT(prefs.st_server_bg).name())
+        + tr("%Ln turn(s).", "", turns_);
+
+    return hint;
+}
+
+void FollowStreamDialog::fillHintLabel(int pkt)
+{
+    QString hint = labelHint(pkt);
 
     if (pkt > 0) {
         hint.append(tr(" Click to select."));
@@ -952,11 +944,69 @@ DIAG_ON(stringop-overread)
     }
 }
 
+QString FollowStreamDialog::serverToClientString() const
+{
+    const char* hostname0 = NULL, * hostname1 = NULL;
+    char* port0 = NULL, * port1 = NULL;
+    QString ret;
+
+    hostname0 = address_to_name(&follow_info_.client_ip);
+    hostname1 = address_to_name(&follow_info_.server_ip);
+
+    port0 = get_follow_port_to_display(follower_)(NULL, follow_info_.client_port);
+    port1 = get_follow_port_to_display(follower_)(NULL, follow_info_.server_port);
+
+    ret = QStringLiteral("%1:%2 %3 %4:%5 (%6)")
+        .arg(hostname0, port0)
+        .arg(UTF8_RIGHTWARDS_ARROW)
+        .arg(hostname1, port1)
+        .arg(gchar_free_to_qstring(format_size(
+            follow_info_.bytes_written[0],
+            FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
+
+    wmem_free(NULL, port0);
+    wmem_free(NULL, port1);
+
+    return ret;
+}
+
+QString FollowStreamDialog::clientToServerString() const
+{
+    const char *hostname0 = NULL, *hostname1 = NULL;
+    char *port0 = NULL, *port1 = NULL;
+    QString ret;
+
+    hostname0 = address_to_name(&follow_info_.client_ip);
+    hostname1 = address_to_name(&follow_info_.server_ip);
+
+    port0 = get_follow_port_to_display(follower_)(NULL, follow_info_.client_port);
+    port1 = get_follow_port_to_display(follower_)(NULL, follow_info_.server_port);
+
+    ret = QStringLiteral("%1:%2 %3 %4:%5 (%6)")
+        .arg(hostname1, port1)
+        .arg(UTF8_RIGHTWARDS_ARROW)
+        .arg(hostname0, port0)
+        .arg(gchar_free_to_qstring(format_size(
+            follow_info_.bytes_written[1],
+            FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
+
+    wmem_free(NULL, port0);
+    wmem_free(NULL, port1);
+
+    return ret;
+}
+
+QString FollowStreamDialog::bothDirectionsString() const
+{
+    return tr("Entire conversation (%1)")
+        .arg(gchar_free_to_qstring(format_size(
+            follow_info_.bytes_written[0] + follow_info_.bytes_written[1],
+            FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
+}
+
 bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, unsigned stream_num, unsigned sub_stream_num)
 {
     QString             follow_filter;
-    const char          *hostname0 = NULL, *hostname1 = NULL;
-    char                *port0 = NULL, *port1 = NULL;
     QString             server_to_client_string;
     QString             client_to_server_string;
     QString             both_directions_string;
@@ -1090,56 +1140,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
 
     removeTapListeners();
 
-    if (application_flavor_is_stratoshark())  {
-        server_to_client_string =
-                tr("Read activity(%6)")
-                .arg(gchar_free_to_qstring(format_size(
-                                                follow_info_.bytes_written[0],
-                                            FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
-
-        client_to_server_string =
-                tr("Write activity(%6)")
-                .arg(gchar_free_to_qstring(format_size(
-                                                follow_info_.bytes_written[1],
-                                            FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
-
-        both_directions_string = tr("Entire I/O activity (%1)")
-                .arg(gchar_free_to_qstring(format_size(
-                                                follow_info_.bytes_written[0] + follow_info_.bytes_written[1],
-                        FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
-    } else {
-        hostname0 = address_to_name(&follow_info_.client_ip);
-        hostname1 = address_to_name(&follow_info_.server_ip);
-
-        port0 = get_follow_port_to_display(follower_)(NULL, follow_info_.client_port);
-        port1 = get_follow_port_to_display(follower_)(NULL, follow_info_.server_port);
-
-        server_to_client_string =
-                QStringLiteral("%1:%2 %3 %4:%5 (%6)")
-                .arg(hostname0, port0)
-                .arg(UTF8_RIGHTWARDS_ARROW)
-                .arg(hostname1, port1)
-                .arg(gchar_free_to_qstring(format_size(
-                                                follow_info_.bytes_written[0],
-                                            FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
-
-        client_to_server_string =
-                QStringLiteral("%1:%2 %3 %4:%5 (%6)")
-                .arg(hostname1, port1)
-                .arg(UTF8_RIGHTWARDS_ARROW)
-                .arg(hostname0, port0)
-                .arg(gchar_free_to_qstring(format_size(
-                                                follow_info_.bytes_written[1],
-                                            FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
-
-        wmem_free(NULL, port0);
-        wmem_free(NULL, port1);
-
-        both_directions_string = tr("Entire conversation (%1)")
-                .arg(gchar_free_to_qstring(format_size(
-                                                follow_info_.bytes_written[0] + follow_info_.bytes_written[1],
-                        FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
-    }
+    server_to_client_string = serverToClientString();
+    client_to_server_string = clientToServerString();
+    both_directions_string = bothDirectionsString();
 
     setWindowSubtitle(tr("Follow %1 Stream (%2)").arg(proto_get_protocol_short_name(find_protocol_by_id(get_follow_proto_id(follower_))),
                                                 follow_filter));

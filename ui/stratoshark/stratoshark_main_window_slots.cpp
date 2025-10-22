@@ -108,7 +108,7 @@ DIAG_ON(frame-larger-than=)
 #include "filter_action.h"
 #include "filter_dialog.h"
 #include "follow_stream_action.h"
-#include "follow_stream_dialog.h"
+#include "stratoshark_follow_stream_dialog.h"
 #include "funnel_statistics.h"
 #include "interface_toolbar.h"
 #include "io_graph_dialog.h"
@@ -3040,7 +3040,7 @@ void StratosharkMainWindow::applyConversationFilter()
 }
 
 void StratosharkMainWindow::openFollowStreamDialog(int proto_id, unsigned stream_num, unsigned sub_stream_num, bool use_stream_index) {
-    FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, proto_id);
+    FollowStreamDialog *fsd = new StratosharkFollowStreamDialog(*this, capture_file_, proto_id);
     connect(fsd, &FollowStreamDialog::updateFilter, this, &StratosharkMainWindow::filterPackets);
     connect(fsd, &FollowStreamDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
     fsd->addCodecs(text_codec_map_);

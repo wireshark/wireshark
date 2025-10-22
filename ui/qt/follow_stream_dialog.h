@@ -48,6 +48,17 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void captureFileClosed();
+    virtual QString labelHint(int pkt = 0);
+
+    int client_packet_count() const { return client_packet_count_; }
+    int server_packet_count() const { return server_packet_count_; }
+    int turns() const { return turns_; }
+    const follow_info_t& followInfo() const { return follow_info_; }
+
+    virtual QString serverToClientString() const;
+    virtual QString clientToServerString() const;
+    virtual QString bothDirectionsString() const;
+
 
 private slots:
     void cbCharsetCurrentIndexChanged(int idx);
