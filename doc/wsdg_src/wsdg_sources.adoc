@@ -64,10 +64,10 @@ Wireshark releases use the following branch naming conventions:
 Main feature development and odd-numbered development releases.
 
 .release-x.y.
-Stable release maintenance. For example, release-4.4 is used to manage the 4.4.x official releases.
+Stable release maintenance. For example, release-4.6 is used to manage the 4.6.x official releases.
 
-Tags for major Wireshark releases and release candidates consist of a “v” followed by a version number such as “v4.4.1” or “v4.4.3rc0”.
-Major releases additionally have a tag prefixed with “wireshark-” followed by a version number, such as “wireshark-4.4.0”.
+Tags for major Wireshark releases and release candidates consist of a “v” followed by a version number such as “v4.6.1” or “v4.6.3rc0”.
+Prior to October 2025, major releases additionally had a tag prefixed with “wireshark-” followed by a version number, such as “wireshark-4.4.0”.
 
 Tags for major Stratoshark releases and release candidates consist of an “ssv” followed by a version number such as “ssv1.2.3” or “ssv1.3.4rc0”.
 

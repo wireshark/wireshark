@@ -811,6 +811,7 @@ NSIS version 3 is required.
 
 If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again. Run
 
+[source,cmd]
 ----
 msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis_prep.vcxproj
 msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis.vcxproj
@@ -823,6 +824,7 @@ It should be autodetected by CMake, to always require signing set the -DENABLE_S
 
 Run
 
+[source,cmd,subs="attributes+"]
 ----
 packaging\nsis\wireshark-{wireshark-version}-myprotocol123-x64.exe
 ----
