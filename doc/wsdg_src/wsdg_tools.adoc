@@ -466,10 +466,9 @@ https://docs.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files[Red
 
 In all cases where _vc_redist.x64.exe_ or _vc_redist.arm64.exe_ is
 downloaded it should be downloaded to the directory into which the
-support libraries for Wireshark have been downloaded and installed. This
-directory is specified by the `WIRESHARK_BASE_DIR` or
-`WIRESHARK_LIB_DIR` environment variables. It need not, and should not,
-be run after being downloaded.
+support libraries for Wireshark have been downloaded and installed.
+This directory is specified by the `WIRESHARK_BASE_DIR` environment or CMake variable.
+It need not, and should not, be run after being downloaded.
 
 ==== Windows Platform SDK
 

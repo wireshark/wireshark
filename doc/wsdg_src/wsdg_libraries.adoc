@@ -45,7 +45,7 @@ The libraries are downloaded into the directory indicated by the environment
 variable WIRESHARK_BASE_DIR, this must be set appropriately for your environment.
 The libraries are downloaded and extracted into WIRESHARK_BASE_DIR\wireshark-x64-libs or WIRESHARK_BASE_DIR\wireshark-arm64-libs depending on your target platform.
 
-You may also set the library directory to a custom value with the environment variable WIRESHARK_LIB_DIR, but you may run into problems if you switch between major versions or target platforms.
+You may also set the library directory to a custom value with the environment variable WIRESHARK_LIB_DIR, but that is deprecated and support may be removed in the future.
 
 [#ChLibsQt]
 

@@ -217,12 +217,16 @@ if(WIN32)
 
 	# Determine where the 3rd party libraries will be
 	if(USE_REPOSITORY)
-		if( DEFINED ENV{WIRESHARK_LIB_DIR} )
-			# The buildbots set WIRESHARK_LIB_DIR but not WIRESHARK_BASE_DIR.
-			file( TO_CMAKE_PATH "$ENV{WIRESHARK_LIB_DIR}" _PROJECT_LIB_DIR )
-		elseif( DEFINED ENV{WIRESHARK_BASE_DIR} )
-			file( TO_CMAKE_PATH "$ENV{WIRESHARK_BASE_DIR}" _WS_BASE_DIR )
-			set( _PROJECT_LIB_DIR "${_WS_BASE_DIR}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" )
+		if( DEFINED ENV{WIRESHARK_BASE_DIR} AND NOT WIRESHARK_BASE_DIR)
+			set(WIRESHARK_BASE_DIR $ENV{WIRESHARK_BASE_DIR})
+		endif()
+		if(WIRESHARK_BASE_DIR)
+			file( TO_CMAKE_PATH ${WIRESHARK_BASE_DIR} _ws_base_dir )
+			set( _PROJECT_LIB_DIR "${_ws_base_dir}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" )
+			unset(_ws_base_dir)
+		elseif( DEFINED ENV{WIRESHARK_LIB_DIR} )
+			message(DEPRECATION "Support for the WIRESHARK_LIB_DIR environment variable will be removed in the future. Use WIRESHARK_BASE_DIR instead.")
+			file( TO_CMAKE_PATH $ENV{WIRESHARK_LIB_DIR} _PROJECT_LIB_DIR )
 		else()
 			# Don't know what to do
 			message(FATAL_ERROR "Neither WIRESHARK_BASE_DIR or WIRESHARK_LIB_DIR are defined")
