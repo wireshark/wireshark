@@ -90,7 +90,7 @@ static int dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     igrp_tree = proto_item_add_subtree(ti, ett_igrp);
 
-    version = (ver_and_opcode&0xf0)>>4 ; /* version is the fist half of the byte */
+    version = (ver_and_opcode&0xf0)>>4 ; /* version is the first half of the byte */
     opcode = ver_and_opcode&0x0f ;       /* opcode is the last half of the byte */
 
     ti = proto_tree_add_item(igrp_tree, hf_igrp_version, tvb, 0, 1, ENC_BIG_ENDIAN);

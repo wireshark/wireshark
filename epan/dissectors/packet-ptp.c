@@ -2863,7 +2863,7 @@ dissect_ptp_v2_tlv_org_fields(tvbuff_t *tvb, int offset_orig, proto_tree *ptp_tl
 }
 
 static int
-disect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti_root, proto_tree *ptp_tree, uint8_t ptp_v2_messageid, uint16_t ptp_v2_flags, bool is_802_1as) {
+dissect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti_root, proto_tree *ptp_tree, uint8_t ptp_v2_messageid, uint16_t ptp_v2_flags, bool is_802_1as) {
     int offset_orig = offset;
     proto_item *ti;
     proto_item *ti_tlv = ti_root;
@@ -4629,7 +4629,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_an_timesource, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
-                disect_ptp_v2_tlvs(tvb, offset, pinfo, ti_root, ptp_tree, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+                dissect_ptp_v2_tlvs(tvb, offset, pinfo, ti_root, ptp_tree, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
                 break;
             }
 
@@ -4647,7 +4647,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                     offset += 4;
                 }
 
-                disect_ptp_v2_tlvs(tvb, offset, pinfo, ti_root, ptp_tree, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+                dissect_ptp_v2_tlvs(tvb, offset, pinfo, ti_root, ptp_tree, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
                 if (ptp_analyze_messages) {
                     if (PTP_FRAME_INFO_SYNC_COMPLETE(frame_info)) {
@@ -4693,7 +4693,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_sdr_origintimestamp_nanoseconds, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
-                disect_ptp_v2_tlvs(tvb, offset, pinfo, ti_root, ptp_tree, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+                dissect_ptp_v2_tlvs(tvb, offset, pinfo, ti_root, ptp_tree, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
                 break;
             }
@@ -4711,7 +4711,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 proto_item_set_generated(ti_tstamp);
                 offset += 10;
 
-                disect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+                dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
                 if (ptp_analyze_messages) {
                     if (frame_info != NULL) {
@@ -4758,7 +4758,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_dr_requestingsourceportid, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                disect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+                dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
                 break;
             }
@@ -4778,7 +4778,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrq_reserved, tvb, offset, 10, ENC_NA);
                 offset += 10;
 
-                disect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+                dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
                 if (ptp_analyze_messages) {
                     if (frame_info != NULL) {
@@ -4815,7 +4815,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrs_requestingsourceportid, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                disect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+                dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
                 if (ptp_analyze_messages) {
                     if (frame_info != NULL) {
@@ -4856,7 +4856,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdfu_requestingsourceportid, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                disect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+                dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
                 if (ptp_analyze_messages) {
                     if (frame_info != NULL) {
@@ -4898,7 +4898,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_sig_targetportid, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                disect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+                dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
                 break;
             }
@@ -4923,7 +4923,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_reserved2, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
-                disect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+                dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
                 break;
             } /* case Management Message */

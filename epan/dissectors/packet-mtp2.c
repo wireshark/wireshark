@@ -625,7 +625,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, packet_info* pinfo, mtp2_mtp2_flag_search_t back
                 *found_data_buff_byte = NULL,                   /* buffer to store the found data_buff bytes till they are assembled to a tvb */
                 offset = 0,                                     /* offset of the tvb, needed to get the appropriate byte */
                 data_len = 0,                                   /* the length of the array where the data_buff's are stored */
-                flag_beginning_offset_for_align_check = 0;      /* this stores the offset of the fist bit in a flag */
+                flag_beginning_offset_for_align_check = 0;      /* this stores the offset of the first bit in a flag */
 #ifdef MTP2_BITSTREAM_DEBUG
   bool          zero_skip0 = 0,                                 /* needed for debug output */
                 zero_skip1 = 0,                                 /* needed for debug output */

@@ -12305,7 +12305,7 @@ dissect_smb2_comp_transform_header(packet_info *pinfo, proto_tree *tree,
 
 	  new "chained" compressed method:
 
-	  [fist 8 bytes of COMPRESS_TRANSFORM_HEADER with Flags=CHAINED]
+	  [first 8 bytes of COMPRESS_TRANSFORM_HEADER with Flags=CHAINED]
 	    [ sequence of
                [ COMPRESSION_PAYLOAD_HEADER ]
                [ COMPRESSED PAYLOAD ]

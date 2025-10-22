@@ -17968,7 +17968,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (dissector_try_heuristic(heur_pn_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL))
         return true;
 
-    /* TimeAwareness Information needed for dissecting RTC3 - RTSteam frames  */
+    /* TimeAwareness Information needed for dissecting RTC3 - RTStream frames  */
     conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
 
     if (conversation != NULL) {

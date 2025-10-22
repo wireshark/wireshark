@@ -1,5 +1,5 @@
 /* packet-hyperscsi.c
- * Routines for dissassembly of the Hyper SCSI protocol.
+ * Routines for disassembly of the Hyper SCSI protocol.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

@@ -3548,7 +3548,7 @@ static const value_string he_phy_nominal_packet_padding_vals[] = {
 };
 
 // MBO-OCE attributes
-#define MBO_AP_CAPABILTY_INDICATION     1
+#define MBO_AP_CAPABILITY_INDICATION    1
 #define MBO_NON_PREF_CHANNEL_REPORT     2
 #define MBO_CELLULAR_DATA_CAPABILITIES  3
 #define MBO_ASSOCIATION_DISALLOWED      4
@@ -3556,7 +3556,7 @@ static const value_string he_phy_nominal_packet_padding_vals[] = {
 #define MBO_TRANSITION_REASON           6
 #define MBO_TRANSITION_REJECTION_REASON 7
 #define MBO_ASSOCIATION_RETRY_DELAY     8
-#define OCE_CAPABILTY_INDICATION        101
+#define OCE_CAPABILITY_INDICATION       101
 #define OCE_RSSI_ASSOCIATION_REJECTION  102
 #define OCE_REDUCED_WAN_METRICS         103
 #define OCE_RNR_COMPLETENESS            104
@@ -3564,7 +3564,7 @@ static const value_string he_phy_nominal_packet_padding_vals[] = {
 #define OCE_PROBE_SUPPR_SSID            106
 
 static const value_string wfa_mbo_oce_attr_id_vals[] = {
-  { MBO_AP_CAPABILTY_INDICATION, "MBO AP Capability Indication"},
+  { MBO_AP_CAPABILITY_INDICATION, "MBO AP Capability Indication"},
   { MBO_NON_PREF_CHANNEL_REPORT, "Non-preferred Channel Report"},
   { MBO_CELLULAR_DATA_CAPABILITIES, "Cellular Data Capabilities"},
   { MBO_ASSOCIATION_DISALLOWED, "Association Disallowed"},
@@ -3572,7 +3572,7 @@ static const value_string wfa_mbo_oce_attr_id_vals[] = {
   { MBO_TRANSITION_REASON, "Transition Reason Code BTM Request"},
   { MBO_TRANSITION_REJECTION_REASON, "Transition Rejection Reason Code"},
   { MBO_ASSOCIATION_RETRY_DELAY, "Association Retry Delay"},
-  { OCE_CAPABILTY_INDICATION, "OCE Capability Indication" },
+  { OCE_CAPABILITY_INDICATION, "OCE Capability Indication" },
   { OCE_RSSI_ASSOCIATION_REJECTION, "RSSI-based (Re-)Association Rejection" },
   { OCE_REDUCED_WAN_METRICS, "Reduced WAN Metrics" },
   { OCE_RNR_COMPLETENESS, "RNR Completeness" },
@@ -3603,7 +3603,7 @@ static const value_string wfa_mbo_cellular_cap_vals[] = {
   { 0, NULL }
 };
 
-static const value_string wfa_mbo_assoc_dissallow_reason_vals[] = {
+static const value_string wfa_mbo_assoc_disallow_reason_vals[] = {
   { 1, "Unspecified reason"},
   { 2, "Maximum number of associated STAs reached"},
   { 3, "Air interface is overloaded"},
@@ -20464,7 +20464,7 @@ dissect_mbo_oce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     len -= 1;
 
     switch (attr_id) {
-    case MBO_AP_CAPABILTY_INDICATION:
+    case MBO_AP_CAPABILITY_INDICATION:
     {
       proto_item *cap_item;
       proto_tree *cap_tree;
@@ -20546,7 +20546,7 @@ dissect_mbo_oce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                           2, ENC_LITTLE_ENDIAN);
       break;
     }
-    case OCE_CAPABILTY_INDICATION:
+    case OCE_CAPABILITY_INDICATION:
     {
       proto_item *cap_item;
       proto_tree *cap_tree;
@@ -54333,7 +54333,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_wfa_ie_mbo_assoc_disallow_reason,
      {"Reason Code", "wlan.wfa.ie.mbo.assoc_disallow.reason",
-      FT_UINT8, BASE_DEC, VALS(wfa_mbo_assoc_dissallow_reason_vals),
+      FT_UINT8, BASE_DEC, VALS(wfa_mbo_assoc_disallow_reason_vals),
       0, NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_mbo_cellular_pref,

@@ -94,7 +94,7 @@ typedef char* (*secret_export_func)(size_t* length);
  * @param name Protocol abbreviation used by the UI to display secret type
  * @param count_func Callback function to provide number of secrets
  * @param inject_func Callback function to inject secrets into pcapng file
- * @param export_func Callback funciton to provide a stringified version of the secrets
+ * @param export_func Callback function to provide a stringified version of the secrets
  */
 WS_DLL_PUBLIC void
 secrets_register_inject_type(const char* name, secret_inject_count_func count_func, secret_inject_export_func inject_func, secret_export_func export_func);

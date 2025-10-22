@@ -3,7 +3,7 @@
 The HTTP3 dissector is a work in progress.
 
 At the moment, the following aspects of HTTP3 are supported:
-- Diseciton of different HTTP3 stream types
+- Dissection of different HTTP3 stream types
 - Dissection of different HTTP3 frame types
 - Dissection of HTTP header fields
 - Dissection of QPACK instructions

@@ -10,11 +10,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* The logic is based on the dissassembly of libwireshark.dll which was
+/* The logic is based on the disassembly of libwireshark.dll which was
  * part of wireshark-win64-1.10.3-spirent-2.exe, distributed by Spirent
  * to customers of their Spirent Test Center.
  * As the installer displays the normal GPLv2+ license the choice was
- * made to go with dissassembly instead of finding out who to ask for
+ * made to go with disassembly instead of finding out who to ask for
  * the source code.
  *
  * Please report errors or missing features when compared to the original.
@@ -63,7 +63,7 @@ static const true_false_string tfs_hard_soft = { "Hard", "Soft" };
 
 /*
  * For the last 20 bytes of the data section to be a Spirent Signature
- * the fist byte (offset 0) plus the 11th byte (offset 10) of the deocded
+ * the first byte (offset 0) plus the 11th byte (offset 10) of the decoded
  * signature must add up to 255
  */
 static bool

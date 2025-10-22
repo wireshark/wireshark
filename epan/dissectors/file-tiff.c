@@ -156,7 +156,7 @@ static int hf_tiff_gray_response_unit;
 #define TIFF_TAG_T6_OPTIONS 293
 static int hf_tiff_t6_options;
 static int hf_tiff_t6_unused;
-static int hf_tiff_t6_allow_uncompresed;
+static int hf_tiff_t6_allow_uncompressed;
 
 #define TIFF_TAG_RESOLUTION_UNIT 296
 static int hf_tiff_resolution_unit;
@@ -648,7 +648,7 @@ dissect_tiff_t6_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
     proto_item *t6_ti = proto_tree_add_item(tree, hf_tiff_t6_options, tvb, offset, 4, encoding);
     proto_tree *t6_tree = proto_item_add_subtree(t6_ti, ett_t6);
     proto_tree_add_item(t6_tree, hf_tiff_t6_unused, tvb, offset, 4, encoding);
-    proto_tree_add_item(t6_tree, hf_tiff_t6_allow_uncompresed, tvb, offset, 4, encoding);
+    proto_tree_add_item(t6_tree, hf_tiff_t6_allow_uncompressed, tvb, offset, 4, encoding);
 }
 
 static void
@@ -1046,7 +1046,7 @@ proto_register_tiff(void)
             FT_UINT32, BASE_HEX, NULL,
             0xFFFFFFFD, NULL, HFILL }
         },
-        { &hf_tiff_t6_allow_uncompresed,
+        { &hf_tiff_t6_allow_uncompressed,
             { "Allow Uncompressed", "tiff.t6.allow_uncompressed",
             FT_BOOLEAN, 32, TFS(&tfs_allowed_not_allowed),
             0x00000002, NULL, HFILL }

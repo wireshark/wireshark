@@ -86,7 +86,7 @@
   All functions in the Struct library are called as static member functions, not object methods,
   so they are invoked as "Struct.pack(...)" instead of "object:pack(...)".
 
-  The fist argument to several of the `Struct` functions is a format string, which describes
+  The first argument to several of the `Struct` functions is a format string, which describes
   the layout of the structure. The format string is a sequence of conversion elements, which
   respect the current endianness and the current alignment requirements. Initially, the
   current endianness is the machine's native endianness and the current alignment requirement

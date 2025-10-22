@@ -654,7 +654,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         case 0x0001: /* Write BDADDR */
             offset = dissect_bd_addr(hf_broadcom_bd_addr, pinfo, main_tree, tvb, offset, true, interface_id, adapter_id, bd_addr);
 
-/* TODO: This is command, but in respose (event Command Complete) there is a status for that,
+/* TODO: This is command, but in response (event Command Complete) there is a status for that,
          so write bdaddr can fail, but we store bdaddr as valid for now... */
             if (!pinfo->fd->visited && bluetooth_data) {
                 wmem_tree_key_t            key[4];

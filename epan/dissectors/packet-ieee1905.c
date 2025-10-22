@@ -677,7 +677,7 @@ static int hf_ieee1905_r2_btm_disassoc_imminent_flag;
 static int hf_ieee1905_r2_btm_abridged_flag;
 static int hf_ieee1905_r2_steering_req_reserved;
 static int hf_ieee1905_r2_steering_op_window;
-static int hf_ieee1905_r2_steering_btm_dissasoc_tmr;
+static int hf_ieee1905_r2_steering_btm_disassoc_tmr;
 static int hf_ieee1905_r2_steering_sta_count;
 static int hf_ieee1905_r2_steering_sta_mac;
 static int hf_ieee1905_r2_steering_target_count;
@@ -7255,7 +7255,7 @@ dissect_r2_steering_request(tvbuff_t *tvb, packet_info *pinfo _U_,
                         2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_ieee1905_r2_steering_btm_dissasoc_tmr, tvb,
+    proto_tree_add_item(tree, hf_ieee1905_r2_steering_btm_disassoc_tmr, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -12568,7 +12568,7 @@ proto_register_ieee1905(void)
             "ieee1905.r2_steering_request.steering_opportunity_window",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-        { &hf_ieee1905_r2_steering_btm_dissasoc_tmr,
+        { &hf_ieee1905_r2_steering_btm_disassoc_tmr,
           { "BTM Disassociation Timer",
             "ieee1905.r2_steering_request.btm_disassociation_timer",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},

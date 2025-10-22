@@ -593,7 +593,7 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         if (pnio_desegment)
         {
             uint32_t u32FragID;
-            uint32_t u32ReasembleID /*= 0xfedc ??*/;
+            uint32_t u32ReassembleID /*= 0xfedc ??*/;
             fragment_head *pdu_frag;
 
             u32FragID = (u16FrameID & 0xf);
@@ -604,10 +604,10 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                 /* store it in the array */
                 start_frag_OR_ID[u32FragID] = u32FrameKey;
             }
-            u32ReasembleID = start_frag_OR_ID[u32FragID];
+            u32ReassembleID = start_frag_OR_ID[u32FragID];
             /* use frame data instead of "pnio fraglen" which sets 8 octet steps */
             pdu_frag = fragment_add_seq(&pdu_reassembly_table, tvb, offset,
-                                        pinfo, u32ReasembleID, NULL, uFragNumber,
+                                        pinfo, u32ReassembleID, NULL, uFragNumber,
                                         (tvb_captured_length_remaining(tvb, offset))/*u8FragDataLength*8*/, bMoreFollows, 0);
 
             if (pdu_frag && !bMoreFollows) /* PDU is complete! and last fragment */
@@ -714,7 +714,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         return 0;
     }
 
-    /* TimeAwareness Information needed for differentiating RTC3 - RTSteam frames  */
+    /* TimeAwareness Information needed for differentiating RTC3 - RTStream frames  */
     conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, CONVERSATION_NONE, 0, 0, 0);
 
     if (conversation != NULL) {

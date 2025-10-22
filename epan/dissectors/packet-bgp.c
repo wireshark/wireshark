@@ -9109,7 +9109,7 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, int as_path_offset, int end_attr_
         k++;
         /* we get the length of the AS segment */
         length = tvb_get_uint8(tvb, k);
-        /* let's point to the fist byte of the AS segment */
+        /* let's point to the first byte of the AS segment */
         k++;
         /* we move to the next segment */
         k = k + (length*assumed_as_len);

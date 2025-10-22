@@ -73,7 +73,7 @@ struct _scs_collection {
 };
 
 /*
- * XXX: AFAIKT destroy_scs_collection() might be called only when reading a
+ * XXX: AFAICT destroy_scs_collection() might be called only when reading a
  *      mate config file. Since reading a new config file can apparently currently
  *      only be done once after starting Wireshark, in theory this fcn
  *      currently should never be called since there will never be an existing
@@ -122,7 +122,7 @@ static SCS_collection* scs_init(void) {
  * @param s a string
  *
  * Checks if the given string exists already and if so it increases the count of
- * subsscribers and returns a pointer to the stored string. If not it will copy
+ * subscribers and returns a pointer to the stored string. If not it will copy
  * the given string, store it in the hash, and return the pointer to the copy.
  * Remember, containment is handled internally, take care of your own strings.
  *

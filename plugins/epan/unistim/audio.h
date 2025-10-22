@@ -207,7 +207,7 @@ static const value_string stream_direction_codes[]={
 
 
 
-static const value_string source_descipts[]={
+static const value_string source_descripts[]={
  {0x00,"Information Not Available"},
  {0x01,"Canonical End-Point Identifier associated with the IT"},
  {0x02,"Name used to describe the IT e.g. Homer Does IT "},

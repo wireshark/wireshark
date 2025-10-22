@@ -520,7 +520,7 @@ User can use shortcuts:
 * kbd:[P] - Play audio
 * kbd:[S] - Stop playing
 * kbd:[Del] or kbd:[Ctrl + X] - Remove all selected streams from playlist
-* Inaudible steams
+* Inaudible streams
 ** kbd:[N] - Select all inaudible streams
 ** kbd:[Shift + N] - Deselect all inaudible streams
 

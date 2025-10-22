@@ -444,7 +444,7 @@ dissect_alp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             offset++;
 
             for(uint8_t i = 0; i < lmt_numplp; i++) {
-                /* Fist pass. Calculate PLP entry length */
+                /* First pass. Calculate PLP entry length */
                 int lmt_plp_length = 2;
                 uint8_t lmt_mc_nummc = tvb_get_uint8(tvb, offset + 1);
                 int plp_mc_len = 0;

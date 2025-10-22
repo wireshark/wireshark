@@ -107,7 +107,7 @@ extern "C" {
 #endif
 
 /**
- * It calculates the passphrase-to-PSK mapping reccomanded for use with
+ * It calculates the passphrase-to-PSK mapping recommended for use with
  * RSNAs. This implementation uses the PBKDF2 method defined in the RFC
  * 2898.
  * @param userPwd [IN] pointer to the struct containing a password

@@ -230,7 +230,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     /* XXX - If we're not reassembling, should we send it to the HTTP dissector
      * anyway so that it gets dissected as Continuation Data? (We wouldn't want
-     * to do that in a heuristic disector.)
+     * to do that in a heuristic dissector.)
      */
     if (is_http_header(first_linelen, first_line) && last == TAG_END_OF_ATTRIBUTES) {
         /* An individual ippusb packet with http header */

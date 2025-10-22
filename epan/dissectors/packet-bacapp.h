@@ -43,12 +43,12 @@ typedef enum BacappPresentValueType {
     BACAPP_PRESENT_VALUE_OBJECT_IDENTIFIER
 } BacappPresentValueType;
 
-/* used to disect the BSCVLC data / destination option token data */
+/* used to dissect the BSCVLC data / destination option token data */
 extern unsigned
 bacnet_dissect_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned offset, const char *lable);
 
-/* used to disect the BSCVLC data / destination option hint data */
+/* used to dissect the BSCVLC data / destination option hint data */
 extern unsigned
 bacnet_dissect_scope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned offset, const char *lable);

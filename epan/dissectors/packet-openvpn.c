@@ -1,5 +1,5 @@
 /* packet-openvpn.c
- * routines for openvpn packet dissasembly
+ * routines for openvpn packet disassembly
  * - http://www.openvpn.net
  * - http://fengnet.com/book/vpns%20illustrated%20tunnels%20%20vpnsand%20ipsec/ch08lev1sec5.html
  *

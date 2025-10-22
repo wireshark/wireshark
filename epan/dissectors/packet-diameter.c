@@ -172,9 +172,9 @@ typedef struct _address_avp_t {
 } address_avp_t;
 
 typedef enum {
-	REASEMBLE_NEVER = 0,
-	REASEMBLE_AT_END,
-	REASEMBLE_BY_LENGTH
+	REASSEMBLE_NEVER = 0,
+	REASSEMBLE_AT_END,
+	REASSEMBLE_BY_LENGTH
 } avp_reassemble_mode_t;
 
 typedef struct _proto_avp_t {
@@ -2014,7 +2014,7 @@ build_proto_avp(avp_constructor_data_t* constructor_data)
 
 	t->name = (char *)constructor_data->data;
 	t->handle = NULL;
-	t->reassemble_mode = REASEMBLE_NEVER;
+	t->reassemble_mode = REASSEMBLE_NEVER;
 
 	g_ptr_array_add(constructor_data->ett_array, ettp);
 

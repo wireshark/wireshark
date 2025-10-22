@@ -3662,7 +3662,7 @@ proto_register_unistim(void){
       },
       { &hf_audio_sdes_rpt_source_desc,
         {"Report Source Description","unistim.rpt.src.desc",FT_UINT8,
-         BASE_HEX,VALS(source_descipts),AUDIO_SDES_INFO_RPT_DESC,NULL,HFILL}
+         BASE_HEX,VALS(source_descripts),AUDIO_SDES_INFO_RPT_DESC,NULL,HFILL}
       },
       { &hf_audio_sdes_rpt_buk_id,
         {"Report RTCP Bucket ID","unistim.rpt.rtcp.buk.id",FT_UINT8,

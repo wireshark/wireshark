@@ -11,7 +11,7 @@ from typing import List
 import pytest
 
 
-def _thark_outputs(tshark: str, capture_file: Path) -> List[str]:
+def _tshark_outputs(tshark: str, capture_file: Path) -> List[str]:
     res = subprocess.run(
         (
             tshark,
@@ -67,7 +67,7 @@ class TestZabbix:
         it are compared to the tshark output.
         """
         expected_outputs = _get_output_file_contents(zabbix_capture_file)
-        tshark_outputs = _thark_outputs(cmd_tshark, zabbix_capture_file)
+        tshark_outputs = _tshark_outputs(cmd_tshark, zabbix_capture_file)
         assert len(expected_outputs) == len(tshark_outputs), "Output length mismatch"
         # Let's do the checks line by line to provide readable output in case of error
         for i in range(len(expected_outputs)):

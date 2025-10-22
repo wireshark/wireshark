@@ -107,7 +107,7 @@ class File:
 
         # Don't consider if mixed cases.
         if not (word.islower() or word.isupper()):
-            # But make an exception if only the fist letter is uppercase..
+            # But make an exception if only the first letter is uppercase.
             if not word == (word[0].upper() + word[1:]):
                 return False
 

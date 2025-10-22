@@ -784,7 +784,7 @@ dissect_zcl_appl_evtalt_alerts_struct(tvbuff_t *tvb, proto_tree *tree, unsigned 
 } /*dissect_zcl_appl_evtalt_alerts_struct*/
 
 /**
- *This function is called in order to decode the GetAlertsRespose payload
+ *This function is called in order to decode the GetAlertsResponse payload
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to data tree Wireshark uses to display packet.

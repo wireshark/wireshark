@@ -8339,7 +8339,7 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_dim_flag,
-          { "Dimension Flag",    "ndps.dim_falg",
+          { "Dimension Flag",    "ndps.dim_flag",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
