@@ -268,12 +268,10 @@ static int winreg_dissect_element_StringBuf_length(tvbuff_t *tvb _U_, int offset
 static int winreg_dissect_element_StringBuf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int winreg_dissect_element_StringBuf_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int winreg_dissect_element_StringBuf_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int winreg_dissect_element_StringBuf_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int winreg_dissect_element_ValNameBuf_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int winreg_dissect_element_ValNameBuf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int winreg_dissect_element_ValNameBuf_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int winreg_dissect_element_ValNameBuf_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
-static int winreg_dissect_element_ValNameBuf_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static const true_false_string winreg_NotifyChangeType_REG_NOTIFY_CHANGE_NAME_tfs = {
    "REG_NOTIFY_CHANGE_NAME is SET",
    "REG_NOTIFY_CHANGE_NAME is NOT SET",
@@ -967,15 +965,10 @@ winreg_dissect_element_StringBuf_name(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 winreg_dissect_element_StringBuf_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, winreg_dissect_element_StringBuf_name__);
+	char *data;
 
-	return offset;
-}
-
-static int
-winreg_dissect_element_StringBuf_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
-{
-	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_winreg_winreg_StringBuf_name, 0);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_winreg_winreg_StringBuf_name, false, &data);
+	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
@@ -1047,15 +1040,10 @@ winreg_dissect_element_ValNameBuf_name(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 winreg_dissect_element_ValNameBuf_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, winreg_dissect_element_ValNameBuf_name__);
+	char *data;
 
-	return offset;
-}
-
-static int
-winreg_dissect_element_ValNameBuf_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
-{
-	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_winreg_winreg_ValNameBuf_name, 0);
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_winreg_winreg_ValNameBuf_name, false, &data);
+	proto_item_append_text(tree, ": %s", data);
 
 	return offset;
 }
@@ -5037,7 +5025,7 @@ void proto_register_dcerpc_winreg(void)
 	{ &hf_winreg_winreg_StringBuf_length,
 	  { "Length", "winreg.winreg_StringBuf.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_winreg_winreg_StringBuf_name,
-	  { "Name", "winreg.winreg_StringBuf.name", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "Name", "winreg.winreg_StringBuf.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_winreg_winreg_StringBuf_size,
 	  { "Size", "winreg.winreg_StringBuf.size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_winreg_winreg_String_name,
@@ -5053,7 +5041,7 @@ void proto_register_dcerpc_winreg(void)
 	{ &hf_winreg_winreg_ValNameBuf_length,
 	  { "Length", "winreg.winreg_ValNameBuf.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_winreg_winreg_ValNameBuf_name,
-	  { "Name", "winreg.winreg_ValNameBuf.name", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "Name", "winreg.winreg_ValNameBuf.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_winreg_winreg_ValNameBuf_size,
 	  { "Size", "winreg.winreg_ValNameBuf.size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	};
