@@ -16,7 +16,6 @@
 #include <epan/proto.h>
 #include <epan/strutil.h>
 
-#include <wsutil/application_flavor.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/regex.h>
 
@@ -59,18 +58,6 @@ SearchFrame::SearchFrame(QWidget *parent) :
     }
 #endif
 
-    if (application_flavor_is_stratoshark()) {
-        sf_ui_->searchInComboBox->setItemText(0, tr("Event List"));
-        sf_ui_->searchInComboBox->setItemText(1, tr("Event Details"));
-        sf_ui_->searchInComboBox->setItemText(2, tr("Event Bytes"));
-        sf_ui_->searchInComboBox->setToolTip(tr("<html><head/><body>"
-                                                "<p>Search the Info column of the event list (summary pane), "
-                                                "decoded event display labels (tree view pane) or the "
-                                                "ASCII-converted event data (hex view pane).</p>"
-                                                "</body></html>"));
-    }
-
-
     applyRecentSearchSettings();
 
     updateWidgets();
@@ -82,6 +69,11 @@ SearchFrame::~SearchFrame()
         ws_regex_free(regex_);
     }
     delete sf_ui_;
+}
+
+QComboBox* SearchFrame::searchInComboBox() const
+{
+    return sf_ui_->searchInComboBox;
 }
 
 void SearchFrame::animatedShow()

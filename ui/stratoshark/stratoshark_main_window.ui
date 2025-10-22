@@ -108,7 +108,7 @@
      </widget>
     </item>
     <item>
-     <widget class="SearchFrame" name="searchFrame" native="true"/>
+     <widget class="StratosharkSearchFrame" name="searchFrame" native="true"/>
     </item>
     <item>
      <widget class="AddressEditorFrame" name="addressEditorFrame"/>
@@ -2262,9 +2262,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>SearchFrame</class>
-   <extends>QWidget</extends>
-   <header>search_frame.h</header>
+   <class>StratosharkSearchFrame</class>
+   <extends>SearchFrame</extends>
+   <header>stratoshark_search_frame.h</header>
   </customwidget>
   <customwidget>
    <class>ColumnEditorFrame</class>

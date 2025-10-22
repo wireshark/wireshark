@@ -16,6 +16,8 @@
 
 #include "cfile.h"
 
+#include <QComboBox>
+
 namespace Ui {
 class SearchFrame;
 }
@@ -26,7 +28,7 @@ class SearchFrame : public AccordionFrame
 
 public:
     explicit SearchFrame(QWidget *parent = 0);
-    ~SearchFrame();
+    virtual ~SearchFrame();
     void animatedShow();
     void findNext();
     void findPrevious();
@@ -39,11 +41,13 @@ public slots:
 protected:
     virtual void keyPressEvent(QKeyEvent *event);
     void changeEvent(QEvent* event);
+    void updateWidgets();
+    // UI getters
+    QComboBox* searchInComboBox() const;
 
 private:
     bool regexCompile();
     void applyRecentSearchSettings();
-    void updateWidgets();
 
     Ui::SearchFrame *sf_ui_;
     capture_file *cap_file_;
