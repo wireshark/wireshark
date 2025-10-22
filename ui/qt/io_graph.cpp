@@ -30,7 +30,7 @@
 // 2^25 = 16777216
 const int max_io_items_ = 1 << 25;
 
-IOGraph::IOGraph(QCustomPlot* parent) :
+IOGraph::IOGraph(QCustomPlot* parent, const char* type_unit_name) :
     Graph(parent),
     moving_avg_period_(0),
     tap_registered_(true),
@@ -40,6 +40,7 @@ IOGraph::IOGraph(QCustomPlot* parent) :
     hf_index_(-1),
     interval_(0),
     asAOT_(false),
+    type_unit_name_(type_unit_name),
     cur_idx_(-1)
 {
     GString* error_string;
@@ -97,7 +98,7 @@ bool IOGraph::setFilter(const QString& filter)
     }
 
     // Check our value unit + field combo.
-    error_string = check_field_unit(vu_field_.toUtf8().constData(), NULL, val_units_);
+    error_string = check_field_unit(vu_field_.toUtf8().constData(), NULL, val_units_, type_unit_name_);
     if (error_string) {
         config_err_ = error_string->str;
         g_string_free(error_string, true);

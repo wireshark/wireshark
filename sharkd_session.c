@@ -4734,7 +4734,7 @@ sharkd_session_process_iograph(char *buf, const jsmntok_t *tokens, int count)
         graph->interval = interval_us;
 
         graph->hf_index = -1;
-        graph->error = check_field_unit(field_name, &graph->hf_index, graph->calc_type);
+        graph->error = check_field_unit(field_name, &graph->hf_index, graph->calc_type, "Packets");
 
         graph->space_items = 0; /* TODO, can avoid realloc()s in sharkd_iograph_packet() by calculating: capture_time / interval */
         graph->num_items = 0;

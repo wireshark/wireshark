@@ -63,7 +63,7 @@ static const value_string y_axis_event_vs[] = {
 class IOGraph : public Graph {
     Q_OBJECT
 public:
-    explicit IOGraph(QCustomPlot* parent);
+    explicit IOGraph(QCustomPlot* parent, const char* type_unit_name);
     ~IOGraph();
     QString configError() const { return config_err_; }
     void setAOT(bool asAOT);
@@ -127,6 +127,7 @@ private:
     int hf_index_;
     int interval_;
     bool asAOT_; // Average Over Time interpretation
+    const char* type_unit_name_;
 
     // Cached data. We should be able to change the Y axis without retapping as
     // much as is feasible.

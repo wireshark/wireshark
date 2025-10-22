@@ -15,7 +15,6 @@
 #include "locale.h"
 
 #include <epan/stat_tap_ui.h>
-#include <epan/uat-int.h>
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/ws_assert.h>
@@ -78,19 +77,6 @@ const int min_zoom_pixels_ = 20;
 
 const int stat_update_interval_ = 200; // ms
 
-// Saved graph settings
-typedef struct _io_graph_settings_t {
-    bool enabled;
-    bool asAOT;
-    char* name;
-    char* dfilter;
-    unsigned color;
-    uint32_t style;
-    uint32_t yaxis;
-    char* yfield;
-    uint32_t sma_period;
-    double y_axis_factor;
-} io_graph_settings_t;
 
 static const value_string graph_style_vs[] = {
     { IOGraph::psLine, "Line" },
@@ -109,7 +95,7 @@ static const value_string graph_style_vs[] = {
     { 0, NULL }
 };
 
-static const value_string moving_avg_vs[] = {
+const value_string moving_avg_vs[] = {
     { 0, "None" },
     { 10, "10 interval SMA" },
     { 20, "20 interval SMA" },
@@ -138,47 +124,8 @@ static char *decimal_point;
 
 extern "C" {
 
-//Allow the enable/disable field to be a checkbox, but for backwards
-//compatibility with pre-2.6 versions, the strings are "Enabled"/"Disabled",
-//not "true"/"false". (Pre-4.4 versions require "true" to be all-caps.)
-#define UAT_BOOL_ENABLE_CB_DEF(basename,field_name,rec_t) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
-    char* tmp_str = g_strndup(buf,len); \
-    if (tmp_str && ((g_strcmp0(tmp_str, "Enabled") == 0) || \
-        (g_ascii_strcasecmp(tmp_str, "true") == 0))) \
-        ((rec_t*)rec)->field_name = 1; \
-    else \
-        ((rec_t*)rec)->field_name = 0; \
-    g_free(tmp_str); } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
-    *out_ptr = ws_strdup_printf("%s",((rec_t*)rec)->field_name ? "Enabled" : "Disabled"); \
-    *out_len = (unsigned)strlen(*out_ptr); }
-
-static bool uat_fld_chk_enable(void* u1 _U_, const char* strptr, unsigned len, const void* u2 _U_, const void* u3 _U_, char** err)
-{
-    char* str = g_strndup(strptr,len);
-
-    if (str &&
-       ((g_strcmp0(str, "Enabled") == 0) ||
-        (g_strcmp0(str, "Disabled") == 0) ||
-        (g_ascii_strcasecmp(str, "true") == 0) ||  //just for UAT functionality
-        (g_ascii_strcasecmp(str, "false") == 0))) {
-        *err = NULL;
-        g_free(str);
-        return true;
-    }
-
-    //User should never see this unless they are manually modifying UAT
-    *err = ws_strdup_printf("invalid value: %s (must be Enabled or Disabled)", str);
-    g_free(str);
-    return false;
-}
-
-#define UAT_FLD_BOOL_ENABLE(basename,field_name,title,desc) \
-{#field_name, title, PT_TXTMOD_BOOL,{uat_fld_chk_enable,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
-
 //"Custom" handler for sma_period enumeration for backwards compatibility
-static void io_graph_sma_period_set_cb(void* rec, const char* buf, unsigned len, const void* vs, const void* u2 _U_)
+void io_graph_sma_period_set_cb(void* rec, const char* buf, unsigned len, const void* vs, const void* u2 _U_)
 {
     unsigned i;
     char* str = g_strndup(buf,len);
@@ -208,7 +155,7 @@ static void io_graph_sma_period_set_cb(void* rec, const char* buf, unsigned len,
     g_free(str);
 }
 //Duplicated because macro covers both functions
-static void io_graph_sma_period_tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* vs, const void* u2 _U_)
+void io_graph_sma_period_tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* vs, const void* u2 _U_)
 {
     unsigned i;
     for (i=0;((const value_string*)vs)[i].strptr;i++) {
@@ -222,7 +169,7 @@ static void io_graph_sma_period_tostr_cb(void* rec, char** out_ptr, unsigned* ou
     *out_len = (unsigned)strlen("None");
 }
 
-static bool sma_period_chk_enum(void* u1 _U_, const char* strptr, unsigned len, const void* v, const void* u3 _U_, char** err) {
+bool sma_period_chk_enum(void* u1 _U_, const char* strptr, unsigned len, const void* v, const void* u3 _U_, char** err) {
     char *str = g_strndup(strptr,len);
     unsigned i;
     const value_string* vs = (const value_string *)v;
@@ -252,51 +199,6 @@ static bool sma_period_chk_enum(void* u1 _U_, const char* strptr, unsigned len, 
     g_free(str);
     return false;
 }
-
-#define UAT_FLD_SMA_PERIOD(basename,field_name,title,enum,desc) \
-    {#field_name, title, PT_TXTMOD_ENUM,{sma_period_chk_enum,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{&(enum),&(enum),&(enum)},&(enum),desc,FLDFILL}
-
-
-UAT_BOOL_ENABLE_CB_DEF(io_graph, enabled, io_graph_settings_t)
-UAT_CSTRING_CB_DEF(io_graph, name, io_graph_settings_t)
-UAT_DISPLAY_FILTER_CB_DEF(io_graph, dfilter, io_graph_settings_t)
-UAT_COLOR_CB_DEF(io_graph, color, io_graph_settings_t)
-UAT_VS_DEF(io_graph, style, io_graph_settings_t, uint32_t, 0, "Line")
-// XXX Need to use "Events" where appropriate.
-UAT_VS_DEF(io_graph, yaxis, io_graph_settings_t, uint32_t, 0, "Packets")
-UAT_PROTO_FIELD_CB_DEF(io_graph, yfield, io_graph_settings_t)
-UAT_DBL_CB_DEF(io_graph, y_axis_factor, io_graph_settings_t)
-UAT_BOOL_ENABLE_CB_DEF(io_graph, asAOT, io_graph_settings_t)
-
-static uat_field_t io_graph_packet_fields[] = {
-    UAT_FLD_BOOL_ENABLE(io_graph, enabled, "Enabled", "Graph visibility"),
-    UAT_FLD_CSTRING(io_graph, name, "Graph Name", "The name of the graph"),
-    UAT_FLD_DISPLAY_FILTER(io_graph, dfilter, "Display Filter", "Graph packets matching this display filter"),
-    UAT_FLD_COLOR(io_graph, color, "Color", "Graph color (#RRGGBB)"),
-    UAT_FLD_VS(io_graph, style, "Style", graph_style_vs, "Graph style (Line, Bars, etc.)"),
-    UAT_FLD_VS(io_graph, yaxis, "Y Axis", y_axis_packet_vs, "Y Axis units"),
-    UAT_FLD_PROTO_FIELD(io_graph, yfield, "Y Field", "Apply calculations to this field"),
-    UAT_FLD_SMA_PERIOD(io_graph, sma_period, "SMA Period", moving_avg_vs, "Simple moving average period"),
-    UAT_FLD_DBL(io_graph, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
-    UAT_FLD_BOOL_ENABLE(io_graph, asAOT, "Avg over Time", "Average over time interpretation"),
-
-    UAT_END_FIELDS
-};
-
-static uat_field_t io_graph_event_fields[] = {
-    UAT_FLD_BOOL_ENABLE(io_graph, enabled, "Enabled", "Graph visibility"),
-    UAT_FLD_CSTRING(io_graph, name, "Graph Name", "The name of the graph"),
-    UAT_FLD_DISPLAY_FILTER(io_graph, dfilter, "Display Filter", "Graph packets matching this display filter"),
-    UAT_FLD_COLOR(io_graph, color, "Color", "Graph color (#RRGGBB)"),
-    UAT_FLD_VS(io_graph, style, "Style", graph_style_vs, "Graph style (Line, Bars, etc.)"),
-    UAT_FLD_VS(io_graph, yaxis, "Y Axis", y_axis_event_vs, "Y Axis units"),
-    UAT_FLD_PROTO_FIELD(io_graph, yfield, "Y Field", "Apply calculations to this field"),
-    UAT_FLD_SMA_PERIOD(io_graph, sma_period, "SMA Period", moving_avg_vs, "Simple moving average period"),
-    UAT_FLD_DBL(io_graph, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
-    UAT_FLD_BOOL_ENABLE(io_graph, asAOT, "asAOT", "asAOT"),
-
-    UAT_END_FIELDS
-};
 
 static void* io_graph_copy_cb(void* dst_ptr, const void* src_ptr, size_t) {
     io_graph_settings_t* dst = (io_graph_settings_t *)dst_ptr;
@@ -333,8 +235,8 @@ static void io_graph_post_update_cb() {
 
 } // extern "C"
 
-IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFilter,
-        io_graph_item_unit_t value_units, QString yfield,
+IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, uat_field_t* io_graph_fields, const char* type_unit_name,
+        QString displayFilter, io_graph_item_unit_t value_units, QString yfield,
         bool is_sibling_dialog, QVector<QString> convFilters):
     WiresharkDialog(parent, cf),
     ui(new Ui::IOGraphDialog),
@@ -349,6 +251,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
     need_replot_(false),
     need_retap_(false),
     auto_axes_(true),
+    type_unit_name_(type_unit_name),
     number_ticker_(new QCPAxisTicker),
     datetime_ticker_(new QCPAxisTickerDateTime)
 {
@@ -488,7 +391,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
      * we will display from the Profile & Display Filter or from selected convs.
      * This distinction is brought by is_sibling_dialog (True for dialogs).
      */
-    loadProfileGraphs();
+    loadProfileGraphs(io_graph_fields);
     if (!is_sibling_dialog) {
         bool filterExists = false;
         if (uat_model_->rowCount() > 0) {
@@ -680,7 +583,7 @@ void IOGraphDialog::addGraph(bool copy_from_current)
 void IOGraphDialog::createIOGraph(int currentRow)
 {
     // XXX - Should IOGraph have its own list that has to sync with UAT?
-    ioGraphs_.insert(currentRow, new IOGraph(ui->ioPlot));
+    ioGraphs_.insert(currentRow, new IOGraph(ui->ioPlot, type_unit_name_));
     IOGraph* iog = ioGraphs_[currentRow];
 
     connect(this, &IOGraphDialog::recalcGraphData, iog, &IOGraph::recalcGraphData);
@@ -1547,14 +1450,9 @@ void IOGraphDialog::updateStatistics()
     }
 }
 
-void IOGraphDialog::loadProfileGraphs()
+void IOGraphDialog::loadProfileGraphs(uat_field_t* io_graph_fields)
 {
     if (iog_uat_ == NULL) {
-        uat_field_t *io_graph_fields = io_graph_packet_fields;
-        if (application_flavor_is_stratoshark()) {
-            io_graph_fields = io_graph_event_fields;
-        }
-
         iog_uat_ = uat_new("I/O Graphs",
                            sizeof(io_graph_settings_t),
                            "io_graphs",

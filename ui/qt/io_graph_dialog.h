@@ -15,6 +15,7 @@
 
 #include <epan/epan_dissect.h>
 #include <epan/prefs.h>
+#include <epan/uat-int.h>
 
 #include <wsutil/str_util.h>
 
@@ -42,6 +43,23 @@ class QCPItemTracer;
 class QCPAxisTicker;
 class QCPAxisTickerDateTime;
 
+// Saved graph settings
+typedef struct _io_graph_settings_t {
+    bool enabled;
+    bool asAOT;
+    char* name;
+    char* dfilter;
+    unsigned color;
+    uint32_t style;
+    uint32_t yaxis;
+    char* yfield;
+    uint32_t sma_period;
+    double y_axis_factor;
+} io_graph_settings_t;
+
+
+extern const value_string moving_avg_vs[];
+
 /* define I/O Graph specific UAT columns */
 enum UatColumnsIOG {colEnabled = 0, colName, colDFilter, colColor, colStyle, colYAxis, colYField, colSMAPeriod, colYAxisFactor, colAOT, colMaxNum};
 
@@ -54,7 +72,7 @@ class IOGraphDialog : public WiresharkDialog
     Q_OBJECT
 
 public:
-    explicit IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFilter = QString(),
+    explicit IOGraphDialog(QWidget &parent, CaptureFile &cf, uat_field_t* io_graph_fields, const char* type_unit_name, QString displayFilter = QString(),
                            io_graph_item_unit_t value_units = IOG_ITEM_UNIT_PACKETS,
                            QString yfield = QString(),
                            bool is_sibling_dialog = false,
@@ -120,6 +138,7 @@ private:
     bool need_retap_; // Heavy weight: re-read packet data
     bool auto_axes_;
     int precision_;
+    const char* type_unit_name_;
 
     QSharedPointer<QCPAxisTicker> number_ticker_;
     QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_;
@@ -136,7 +155,7 @@ private:
     void updateLegend();
     QRectF getZoomRanges(QRect zoom_rect);
     void createIOGraph(int currentRow);
-    void loadProfileGraphs();
+    void loadProfileGraphs(uat_field_t* io_graph_fields);
     void makeCsv(QTextStream &stream) const;
     bool saveCsv(const QString &file_name) const;
     IOGraph *currentActiveGraph() const;

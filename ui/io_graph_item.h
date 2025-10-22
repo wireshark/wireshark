@@ -174,10 +174,11 @@ int64_t get_io_graph_index(packet_info *pinfo, int interval);
  * @param hf_index [out] Assigned the header field index corresponding to field_name if valid.
  *                       Can be NULL.
  * @param item_unit [in] The type of unit to calculate. From IOG_ITEM_UNITS.
+ * @param type_unit_name [in] The name of the first unit type (i.e. Packets or Events)
  * @return NULL if compatible, otherwise an error string. The string must
  *         be freed by the caller.
  */
-GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_unit_t item_unit);
+GString *check_field_unit(const char *field_name, int *hf_index, io_graph_item_unit_t item_unit, const char* type_unit_name);
 
 /** Get the value at the given interval (idx) for the current value unit.
  *

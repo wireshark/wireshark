@@ -122,6 +122,7 @@ DIAG_ON(frame-larger-than=)
 #include "iax2_analysis_dialog.h"
 #include "interface_toolbar.h"
 #include "io_graph_dialog.h"
+#include "ui/io_graph_uat.h"
 #include "plot_dialog.h"
 #include <ui/qt/widgets/additional_toolbar.h>
 #include "lbm_stream_dialog.h"
@@ -3663,6 +3664,23 @@ void WiresharkMainWindow::statCommandIOGraph(const char *, void *)
     showIOGraphDialog(IOG_ITEM_UNIT_PACKETS, QString());
 }
 
+UAT_VS_DEF(io_graph, yaxis, io_graph_settings_t, uint32_t, 0, "Packets")
+
+static uat_field_t io_graph_packet_fields[] = {
+    UAT_FLD_BOOL_ENABLE(io_graph, enabled, "Enabled", "Graph visibility"),
+    UAT_FLD_CSTRING(io_graph, name, "Graph Name", "The name of the graph"),
+    UAT_FLD_DISPLAY_FILTER(io_graph, dfilter, "Display Filter", "Graph packets matching this display filter"),
+    UAT_FLD_COLOR(io_graph, color, "Color", "Graph color (#RRGGBB)"),
+    UAT_FLD_VS(io_graph, style, "Style", graph_style_vs, "Graph style (Line, Bars, etc.)"),
+    UAT_FLD_VS(io_graph, yaxis, "Y Axis", y_axis_packet_vs, "Y Axis units"),
+    UAT_FLD_PROTO_FIELD(io_graph, yfield, "Y Field", "Apply calculations to this field"),
+    UAT_FLD_SMA_PERIOD(io_graph, sma_period, "SMA Period", moving_avg_vs, "Simple moving average period"),
+    UAT_FLD_DBL(io_graph, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
+    UAT_FLD_BOOL_ENABLE(io_graph, asAOT, "Avg over Time", "Average over time interpretation"),
+
+    UAT_END_FIELDS
+};
+
 void WiresharkMainWindow::showIOGraphDialog(io_graph_item_unit_t value_units, QString yfield)
 {
     const DisplayFilterEdit *df_edit = qobject_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
@@ -3698,7 +3716,7 @@ void WiresharkMainWindow::showIOGraphDialog(io_graph_item_unit_t value_units, QS
 
     if (iog_dialog == nullptr) {
         QVector<QString> conv_filters;
-        iog_dialog = new IOGraphDialog(*this, capture_file_, displayFilter, value_units, yfield, false, conv_filters);
+        iog_dialog = new IOGraphDialog(*this, capture_file_, io_graph_packet_fields, "Packets", displayFilter, value_units, yfield, false, conv_filters);
         connect(iog_dialog, &IOGraphDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
         connect(this, &WiresharkMainWindow::reloadFields, iog_dialog, &IOGraphDialog::reloadFields);
     }
@@ -3768,7 +3786,7 @@ void WiresharkMainWindow::openIOGraph(bool filtered, QVector<uint> typed_conv_id
         }
     }
 
-    IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_, displayFilter, IOG_ITEM_UNIT_PACKETS, QString(), true, conv_filters);
+    IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_, io_graph_packet_fields, "Packets", displayFilter, IOG_ITEM_UNIT_PACKETS, QString(), true, conv_filters);
     connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
     iog_dialog->show();
 }
