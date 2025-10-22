@@ -1114,7 +1114,7 @@ void MainApplication::setInterfaceList(GList *if_list)
 }
 #endif
 
-void MainApplication::allSystemsGo()
+void MainApplication::allSystemsGo(const char* name_proper, const char* version)
 {
     QString display_filter = NULL;
     initialized_ = true;
@@ -1123,7 +1123,7 @@ void MainApplication::allSystemsGo()
         emit openCaptureFile(pending_open_files_.front(), display_filter, WTAP_TYPE_AUTO);
         pending_open_files_.pop_front();
     }
-    software_update_init();
+    software_update_init(name_proper, version);
 
 #ifdef HAVE_LIBPCAP
     int err;

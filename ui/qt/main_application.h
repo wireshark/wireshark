@@ -114,7 +114,7 @@ public:
     void clearAddedMenuGroupItems();
     void clearRemovedMenuGroupItems();
 
-    void allSystemsGo();
+    void allSystemsGo(const char* name_proper, const char* version);
     void emitLocalInterfaceEvent(const char *ifname, int added, int up);
 
     virtual void refreshLocalInterfaces();

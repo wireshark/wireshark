@@ -13,7 +13,6 @@
 #include "software_update.h"
 #include "language.h"
 #include "epan/prefs.h"
-#include "wsutil/application_flavor.h"
 
 /*
  * Version 0 of the update URI path has the following elements:
@@ -63,15 +62,9 @@
 #error HAVE_SOFTWARE_UPDATE can only be defined for x86-64 or x86 or arm64.
 #endif
 
-static char *get_appcast_update_url(software_update_channel_e chan) {
+static char *get_appcast_update_url(software_update_channel_e chan, const char* su_application, const char* su_version) {
     GString *update_url_str = g_string_new("");
     const char *chan_name;
-    const char *su_application = application_flavor_name_proper();
-    const char *su_version = VERSION;
-
-    if (application_flavor_is_stratoshark()) {
-        su_version = STRATOSHARK_VERSION;
-    }
 
     switch (chan) {
         case UPDATE_CHANNEL_DEVELOPMENT:
@@ -96,8 +89,8 @@ static char *get_appcast_update_url(software_update_channel_e chan) {
 /** Initialize software updates.
  */
 void
-software_update_init(void) {
-    const char *update_url = get_appcast_update_url(prefs.gui_update_channel);
+software_update_init(const char* su_application, const char* su_version) {
+    const char *update_url = get_appcast_update_url(prefs.gui_update_channel, su_application, su_version);
 
     /*
      * According to the WinSparkle 0.5 documentation these must be called
@@ -139,8 +132,8 @@ const char *software_update_info(void) {
 /** Initialize software updates.
  */
 void
-software_update_init(void) {
-    char *update_url = get_appcast_update_url(prefs.gui_update_channel);
+software_update_init(const char* su_application, const char* su_version) {
+    char *update_url = get_appcast_update_url(prefs.gui_update_channel, su_application, su_version);
 
     sparkle_software_update_init(update_url, prefs.gui_update_enabled, prefs.gui_update_interval);
 
@@ -169,7 +162,7 @@ const char *software_update_info(void) {
 /** Initialize software updates.
  */
 void
-software_update_init(void) {
+software_update_init(const char* su_application _U_, const char* su_version _U_) {
 }
 
 /** Force a software update check.

@@ -28,7 +28,7 @@ extern "C" {
  *
  * Does nothing on platforms that don't support software updates.
  */
-extern void software_update_init(void);
+extern void software_update_init(const char* su_application, const char* su_version);
 
 /** Force a software update check.
  *

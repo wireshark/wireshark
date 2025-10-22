@@ -928,7 +928,7 @@ int main(int argc, char *qt_argv[])
         g_free(err_msg);
     }
 
-    ssApp->allSystemsGo();
+    ssApp->allSystemsGo(application_flavor_name_proper(), STRATOSHARK_VERSION);
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Stratoshark is up and ready to go, elapsed time %.3fs", (float) (g_get_monotonic_time() - start_time) / 1000000);
     SimpleDialog::displayQueuedMessages(main_w);
 
