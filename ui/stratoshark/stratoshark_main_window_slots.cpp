@@ -120,7 +120,7 @@ DIAG_ON(frame-larger-than=)
 #include "packet_list.h"
 #include "preferences_dialog.h"
 #include "print_dialog.h"
-#include "profile_dialog.h"
+#include "stratoshark_profile_dialog.h"
 #include "protocol_hierarchy_dialog.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "resolved_addresses_dialog.h"
@@ -2213,7 +2213,7 @@ void StratosharkMainWindow::deleteAllPacketCommentsFinished(int result)
 
 void StratosharkMainWindow::editConfigurationProfiles()
 {
-    ProfileDialog *cp_dialog = new ProfileDialog(this);
+    StratosharkProfileDialog* cp_dialog = new StratosharkProfileDialog(this);
     cp_dialog->setWindowModality(Qt::ApplicationModal);
     cp_dialog->setAttribute(Qt::WA_DeleteOnClose);
     cp_dialog->show();

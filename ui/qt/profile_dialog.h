@@ -18,6 +18,7 @@
 
 #include <QPushButton>
 #include <QTreeWidgetItem>
+#include <QLabel>
 
 namespace Ui {
 class ProfileDialog;
@@ -34,7 +35,7 @@ public:
     };
 
     explicit ProfileDialog(QWidget *parent = Q_NULLPTR);
-    ~ProfileDialog();
+    virtual ~ProfileDialog();
     int execAction(ProfileAction profile_action);
 
     /**
@@ -49,6 +50,8 @@ public:
 
 protected:
     virtual void keyPressEvent(QKeyEvent *event);
+    // UI getters
+    QLabel* autoSwitchLimitLabel() const;
 
 private:
     Ui::ProfileDialog *pd_ui_;
