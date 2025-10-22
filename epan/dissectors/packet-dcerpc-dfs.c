@@ -653,8 +653,8 @@ netdfs_dissect_struct_dfs_Info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: 	DFS_VOLUME_STATE_INCONSISTENT =  0x2 , */
 /* IDL: 	DFS_VOLUME_STATE_OFFLINE =  0x4 , */
 /* IDL: 	DFS_VOLUME_STATE_ONLINE =  0x8 , */
-/* IDL: 	DFS_VOLUME_STATE_STANDALONE =  DFS_VOLUME_FLAVOR_STANDALONE , */
-/* IDL: 	DFS_VOLUME_STATE_AD_BLOB =  DFS_VOLUME_FLAVOR_AD_BLOB , */
+/* IDL: 	DFS_VOLUME_STATE_STANDALONE =  0x100 , */
+/* IDL: 	DFS_VOLUME_STATE_AD_BLOB =  0x200 , */
 /* IDL: } */
 
 int
@@ -681,8 +681,8 @@ netdfs_dissect_bitmap_dfs_VolumeState(tvbuff_t *tvb _U_, int offset _U_, packet_
 	if (!flags)
 		proto_item_append_text(item, ": (No values set)");
 
-	if (flags & (~0x000001cd)) {
-		flags &= (~0x000001cd);
+	if (flags & (~0x0000030f)) {
+		flags &= (~0x0000030f);
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
@@ -5124,7 +5124,7 @@ void proto_register_dcerpc_netdfs(void)
 	{ &hf_netdfs_dfs_UnknownStruct_unknown2,
 	  { "Unknown2", "netdfs.dfs_UnknownStruct.unknown2", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_AD_BLOB,
-	  { "DFS VOLUME STATE AD BLOB", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_AD_BLOB", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_AD_BLOB_tfs), ( DFS_VOLUME_FLAVOR_AD_BLOB ), NULL, HFILL }},
+	  { "DFS VOLUME STATE AD BLOB", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_AD_BLOB", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_AD_BLOB_tfs), ( 0x200 ), NULL, HFILL }},
 	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_INCONSISTENT,
 	  { "DFS VOLUME STATE INCONSISTENT", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_INCONSISTENT", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_INCONSISTENT_tfs), ( 0x2 ), NULL, HFILL }},
 	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_OFFLINE,
@@ -5134,7 +5134,7 @@ void proto_register_dcerpc_netdfs(void)
 	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_ONLINE,
 	  { "DFS VOLUME STATE ONLINE", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_ONLINE", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_ONLINE_tfs), ( 0x8 ), NULL, HFILL }},
 	{ &hf_netdfs_dfs_VolumeState_DFS_VOLUME_STATE_STANDALONE,
-	  { "DFS VOLUME STATE STANDALONE", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_STANDALONE", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_STANDALONE_tfs), ( DFS_VOLUME_FLAVOR_STANDALONE ), NULL, HFILL }},
+	  { "DFS VOLUME STATE STANDALONE", "netdfs.dfs_VolumeState.DFS_VOLUME_STATE_STANDALONE", FT_BOOLEAN, 32, TFS(&dfs_VolumeState_DFS_VOLUME_STATE_STANDALONE_tfs), ( 0x100 ), NULL, HFILL }},
 	{ &hf_netdfs_opnum,
 	  { "Operation", "netdfs.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_netdfs_werror,
