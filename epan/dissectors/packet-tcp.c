@@ -3189,6 +3189,9 @@ finished_checking_retransmission_type:
                     if(direction==0) {
                         direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
                     }
+                    else {
+                        direction = (direction > 0) ? 1 : -1;
+                    }
 
                     /* invert the direction and increment the counter */
                     if(direction != tcpd->flow_direction) {
