@@ -52,33 +52,51 @@ extern "C" {
 WSUTIL_EXPORT
 const int ws_utf8_seqlen[256];
 
-/** Given the first byte in an UTF-8 encoded code point,
- * return the length of the multibyte sequence, or *ZERO*
- * if the byte is invalid as the first byte in a multibyte
- * sequence.
+/**
+ * @brief Returns the length of a UTF-8 multibyte sequence from its first byte.
+ *
+ * Determines the expected number of bytes in a UTF-8 encoded code point
+ * based on the leading byte. Returns 0 if the byte is invalid as a UTF-8 starter.
+ *
+ * @param ch The first byte of a UTF-8 sequence.
+ * @return Length of the UTF-8 sequence (1–4), or 0 if invalid.
  */
 #define ws_utf8_char_len(ch)  (ws_utf8_seqlen[(ch)])
 
-/*
- * Given a wmem scope, a pointer, and a length, treat the string of bytes
- * referred to by the pointer and length as a UTF-8 string, and return a
- * pointer to a UTF-8 string, allocated using the wmem scope, with all
- * ill-formed sequences replaced with the Unicode REPLACEMENT CHARACTER
- * according to the recommended "best practices" given in the Unicode
- * Standard and specified by W3C/WHATWG.
+/**
+ * @brief Validates and sanitizes a UTF-8 byte sequence.
+ *
+ * Processes a raw byte string of length `length`, replacing any ill-formed
+ * UTF-8 sequences with the Unicode REPLACEMENT CHARACTER (U+FFFD).
+ * The result is allocated using the provided `wmem` scope.
+ *
+ * @param scope Memory allocator scope for the returned string.
+ * @param ptr Pointer to the input byte sequence.
+ * @param length Length of the input sequence.
+ * @return Pointer to a valid UTF-8 string, allocated via `scope`.
  */
 WS_DLL_PUBLIC uint8_t *
 ws_utf8_make_valid(wmem_allocator_t *scope, const uint8_t *ptr, ssize_t length);
 
-/*
- * Same as ws_utf8_make_valid() but returns a wmem_strbuf_t.
+/**
+ * @brief Validates a UTF-8 byte sequence and returns a string buffer.
+ *
+ * Similar to `ws_utf8_make_valid()`, but returns a `wmem_strbuf_t` object
+ * for easier manipulation and appending. Ill-formed sequences are replaced
+ * with the Unicode REPLACEMENT CHARACTER.
+ *
+ * @param scope Memory allocator scope for the returned buffer.
+ * @param ptr Pointer to the input byte sequence.
+ * @param length Length of the input sequence.
+ * @return Pointer to a valid UTF-8 string buffer.
  */
 WS_DLL_PUBLIC wmem_strbuf_t *
 ws_utf8_make_valid_strbuf(wmem_allocator_t *scope, const uint8_t *ptr, ssize_t length);
 
 #ifdef _WIN32
 
-/** Given a UTF-8 string, convert it to UTF-16.  This is meant to be used
+/**
+ * @brief Given a UTF-8 string, convert it to UTF-16.  This is meant to be used
  * to convert between GTK+ 2.x (UTF-8) to Windows (UTF-16).
  *
  * @param utf8str The string to convert.  May be NULL.
@@ -88,7 +106,8 @@ ws_utf8_make_valid_strbuf(wmem_allocator_t *scope, const uint8_t *ptr, ssize_t l
 WS_DLL_PUBLIC
 const wchar_t * utf_8to16(const char *utf8str);
 
-/** Create a UTF-16 string (in place) according to the format string.
+/**
+ * @brief Create a UTF-16 string (in place) according to the format string.
  *
  * @param utf16buf The buffer to return the UTF-16 string in.
  * @param utf16buf_len The size of the 'utf16buf' parameter
@@ -98,7 +117,8 @@ WS_DLL_PUBLIC
 void utf_8to16_snprintf(TCHAR *utf16buf, int utf16buf_len, const char* fmt, ...)
 G_GNUC_PRINTF(3, 4);
 
-/** Given a UTF-16 string, convert it to UTF-8.  This is meant to be used
+/**
+ * @brief Given a UTF-16 string, convert it to UTF-8.  This is meant to be used
  * to convert between GTK+ 2.x (UTF-8) to Windows (UTF-16).
  *
  * @param utf16str The string to convert.  May be NULL.
@@ -108,12 +128,19 @@ G_GNUC_PRINTF(3, 4);
 WS_DLL_PUBLIC
 char * utf_16to8(const wchar_t *utf16str);
 
-/** Convert the supplied program argument list from UTF-16 to UTF-8
- * return a pointer to the array of UTF-8 arguments. This is intended
- * to be used to normalize command line arguments at program startup.
+/**
+ * @brief Converts a UTF-16 argument list to UTF-8.
+ *
+ * Converts a program's command-line arguments from UTF-16 (typically used on Windows)
+ * to UTF-8 encoding. This is useful for normalizing input at startup to ensure consistent
+ * string handling across platforms and libraries.
+ *
+ * The returned array is allocated using standard memory allocation routines and must be
+ * freed by the caller. Each string in the array is individually allocated.
  *
  * @param argc The number of arguments.
- * @param wc_argv The argument values (vector).
+ * @param wc_argv Array of UTF-16 encoded argument strings.
+ * @return Pointer to an array of UTF-8 encoded strings, or NULL on failure.
  */
 WS_DLL_PUBLIC
 char **arg_list_utf_16to8(int argc, wchar_t *wc_argv[]);
