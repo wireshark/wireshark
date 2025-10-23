@@ -56,26 +56,35 @@
 extern "C" {
 #endif
 
-/*
- * Initialize sockets.
+/**
+ * @brief Initializes the socket subsystem.
  *
- * Returns NULL on success, a g_malloc()ed error message on failure.
+ * Performs any necessary platform-specific setup for socket operations.
+ *
+ * @return NULL on success, or a g_malloc()ed error message string on failure.
+ *         The caller is responsible for freeing the returned string.
  */
 WS_DLL_PUBLIC char *ws_init_sockets(void);
 
-/*
- * Clean up sockets.
+/**
+ * @brief Cleans up the socket subsystem.
+ *
+ * Performs any necessary platform-specific cleanup for socket operations.
  */
 WS_DLL_PUBLIC void ws_cleanup_sockets(void);
 
-/*
- * Convert the strings ipv4_address:port or [ipv6_address]:port to a
- * sockaddr object. Ports are optional. Receives default port
- * in host byte order.
+/**
+ * @brief Converts a string representation of an IP address and port into a sockaddr.
+ *
+ * Converts a string of the form `ipv4_address:port` or `[ipv6_address]:port`
+ * into a `sockaddr_storage` structure. If the port is omitted, `def_port` is used.
+ *
+ * @param dst Pointer to a sockaddr_storage structure to receive the parsed address.
+ * @param src The input string containing the address and optional port.
+ * @param def_port The default port to use if none is specified (in host byte order).
+ * @return 0 on success, or -1 on failure (e.g., invalid format or address).
  */
-WS_DLL_PUBLIC int
-ws_socket_ptoa(struct sockaddr_storage *dst, const char *src,
-			uint16_t def_port);
+WS_DLL_PUBLIC int ws_socket_ptoa(struct sockaddr_storage *dst, const char *src, uint16_t def_port);
 
 #ifdef	__cplusplus
 }
