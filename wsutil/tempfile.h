@@ -22,7 +22,7 @@ extern "C" {
  */
 
 /**
- * Create a tempfile with the given prefix (e.g. "wireshark"). The path
+ * @brief Create a tempfile with the given prefix (e.g. "wireshark"). The path
  * is created using g_file_open_tmp.
  *
  * @param tempdir [in] If not NULL, the directory in which to create the file.
@@ -37,7 +37,7 @@ extern "C" {
 WS_DLL_PUBLIC int create_tempfile(const char *tempdir, char **namebuf, const char *pfx, const char *sfx, GError **err);
 
 /**
- * Create a tempfile with the given parent directory (e.g. "/my/private/tmp"). The path
+ * @brief Create a tempfile with the given parent directory (e.g. "/my/private/tmp"). The path
  * is created using g_mkdtemp.
  *
  * @param parent_dir [in] If not NULL, the parent directory in which to create the subdirectory,
