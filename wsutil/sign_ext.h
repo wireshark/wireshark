@@ -18,6 +18,17 @@
 
 /* sign extension routines */
 
+/**
+ * @brief Sign-extends a 32-bit unsigned value from a given bit width.
+ *
+ * Interprets the input value as a signed integer of `no_of_bits` width and
+ * extends the sign bit to the full 32-bit range. This is useful when decoding
+ * signed fields packed into smaller bit widths.
+ *
+ * @param val The unsigned 32-bit value to sign-extend.
+ * @param no_of_bits The number of significant bits (0–32).
+ * @return The sign-extended 32-bit value.
+ */
 static inline uint32_t
 ws_sign_ext32(uint32_t val, int no_of_bits)
 {
@@ -38,6 +49,17 @@ ws_sign_ext32(uint32_t val, int no_of_bits)
 	return val;
 }
 
+/**
+ * @brief Sign-extends a 64-bit unsigned value from a given bit width.
+ *
+ * Interprets the input value as a signed integer of `no_of_bits` width and
+ * extends the sign bit to the full 64-bit range. This is useful when decoding
+ * signed fields packed into smaller bit widths.
+ *
+ * @param val The unsigned 64-bit value to sign-extend.
+ * @param no_of_bits The number of significant bits (0–64).
+ * @return The sign-extended 64-bit value.
+ */
 static inline uint64_t
 ws_sign_ext64(uint64_t val, int no_of_bits)
 {
