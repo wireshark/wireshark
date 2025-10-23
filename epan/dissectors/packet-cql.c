@@ -1771,16 +1771,13 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 						proto_tree_add_item_ret_uint(cql_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
 						offset += 2;
 						proto_tree_add_item(cql_subtree, hf_cql_error_write_type, tvb, offset, string_length, ENC_UTF_8);
-						offset += string_length;
 					} else if (error_code == CQL_ERROR_READ_TIMEOUT) {
 						proto_tree_add_item(cql_subtree, hf_cql_error_data_present, tvb, offset, 1, ENC_NA);
-						offset += 1;
 					} else if (error_code == CQL_ERROR_READ_FAILURE) {
 						/* FIXME - in protocol v5, there's a reason_map here instead of num failures as in previous protocols*/
 						proto_tree_add_item(cql_subtree, hf_cql_error_num_failures, tvb, offset, 4, ENC_BIG_ENDIAN);
 						offset += 4;
 						proto_tree_add_item(cql_subtree, hf_cql_error_data_present, tvb, offset, 1, ENC_NA);
-						offset += 1;
 					} else if (error_code == CQL_ERROR_WRITE_FAILURE) {
 						/* FIXME - in protocol v5, there's a reason_map here instead of num failures as in previous protocols*/
 						proto_tree_add_item(cql_subtree, hf_cql_error_num_failures, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1788,7 +1785,6 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 						proto_tree_add_item_ret_uint(cql_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
 						offset += 2;
 						proto_tree_add_item(cql_subtree, hf_cql_error_write_type, tvb, offset, string_length, ENC_UTF_8);
-						offset += string_length;
 					}
 				}
 				break;
