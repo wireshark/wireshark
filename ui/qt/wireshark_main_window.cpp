@@ -2515,12 +2515,14 @@ void WiresharkMainWindow::setForCapturedPackets(bool have_captured_packets)
     main_ui_->actionEditFindPrevious->setEnabled(have_captured_packets);
 
     main_ui_->actionGoGoToPacket->setEnabled(have_captured_packets);
-    main_ui_->actionGoPreviousPacket->setEnabled(have_captured_packets);
     main_ui_->actionGoNextPacket->setEnabled(have_captured_packets);
+    main_ui_->actionGoPreviousPacket->setEnabled(have_captured_packets);
     main_ui_->actionGoFirstPacket->setEnabled(have_captured_packets);
     main_ui_->actionGoLastPacket->setEnabled(have_captured_packets);
     main_ui_->actionGoNextConversationPacket->setEnabled(have_captured_packets);
     main_ui_->actionGoPreviousConversationPacket->setEnabled(have_captured_packets);
+    main_ui_->actionGoFirstConversationPacket->setEnabled(have_captured_packets);
+    main_ui_->actionGoLastConversationPacket->setEnabled(have_captured_packets);
 
     main_ui_->actionViewZoomIn->setEnabled(have_captured_packets);
     main_ui_->actionViewZoomOut->setEnabled(have_captured_packets);
