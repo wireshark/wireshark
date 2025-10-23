@@ -17,60 +17,110 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** Converts a broken down date representation, relative to UTC,
- * to a timestamp
+/**
+ * @brief Converts a UTC-based broken-down time to a timestamp.
+ *
+ * Converts a `struct tm` representing a UTC time into a `time_t` value.
+ * This is similar to `mktime()` but assumes the input is in UTC rather than local time.
+ *
+ * @param tm Pointer to a `struct tm` representing UTC time.
+ * @return The corresponding `time_t` value.
  */
 WS_DLL_PUBLIC
 time_t mktime_utc(struct tm *tm);
 
-/** Validate the values in a time_t.
- * Currently checks tm_year, tm_mon, tm_mday, tm_hour, tm_min, and tm_sec;
- * disregards tm_wday, tm_yday, and tm_isdst.
+/**
+ * @brief Validates the fields of a broken-down time structure.
  *
- * @param tm The struct tm to validate.
+ * Checks whether the values in a `struct tm` are within valid ranges.
+ * Only `tm_year`, `tm_mon`, `tm_mday`, `tm_hour`, `tm_min`, and `tm_sec` are validated.
+ * Fields `tm_wday`, `tm_yday`, and `tm_isdst` are ignored.
+ *
+ * @param tm Pointer to the `struct tm` to validate.
+ * @return true if the structure contains valid values, false otherwise.
  */
 WS_DLL_PUBLIC
 bool tm_is_valid(struct tm *tm);
 
-/** Fetch the process CPU time.
+/**
+ * @brief Retrieves the current process CPU usage.
  *
- * Fetch the current process user and system CPU times, convert them to
- * seconds, and store them in the provided parameters.
+ * Fetches the amount of time the process has spent in user and system (kernel) mode,
+ * and stores the values in seconds.
  *
- * @param user_time Seconds spent in user mode.
- * @param sys_time Seconds spent in system (kernel) mode.
+ * @param user_time Pointer to receive user-mode CPU time in seconds.
+ * @param sys_time Pointer to receive system-mode CPU time in seconds.
  */
 WS_DLL_PUBLIC
 void get_resource_usage(double *user_time, double *sys_time);
 
-/** Print the process CPU time followed by a log message.
+/**
+ * @brief Logs the process CPU usage along with a formatted message.
  *
- * Print the current process user and system CPU times along with the times
- * elapsed since the times were last reset.
+ * Prints the current user and system CPU times, and optionally resets the delta
+ * used for tracking elapsed time between measurements.
  *
- * @param reset_delta Reset the delta times. This will typically be true when
- * logging the first measurement and false thereafter.
- * @param format Printf-style format string. Passed to g_string_vprintf.
- * @param ... Parameters for the format string.
+ * @param reset_delta If true, resets the delta timer after logging.
+ * @param format Printf-style format string for the log message.
+ * @param ... Arguments for the format string.
  */
 WS_DLL_PUBLIC
 void log_resource_usage(bool reset_delta, const char *format, ...);
 
 /**
- * Fetch the number of microseconds since midnight (0 hour), January 1, 1970.
+ * @brief Fetches the number of microseconds since the Unix epoch.
+ *
+ * Returns the current time as a 64-bit unsigned integer representing
+ * microseconds since midnight (00:00:00), January 1, 1970 (UTC).
+ *
+ * @return The current timestamp in microseconds since the epoch.
  */
 WS_DLL_PUBLIC
 uint64_t create_timestamp(void);
 
+/**
+ * @brief Initializes or updates timezone settings.
+ *
+ * Calls the system-specific timezone setup routine (e.g., tzset()) to ensure
+ * local time conversions reflect the current environment.
+ */
 WS_DLL_PUBLIC
 void ws_tzset(void);
 
+/**
+ * @brief Retrieves the current real-time clock value.
+ *
+ * Fills the provided `timespec` structure with the current time from the system clock.
+ *
+ * @param ts Pointer to a `struct timespec` to receive the current time.
+ * @return Pointer to the same `ts` structure, or NULL on failure.
+ */
 WS_DLL_PUBLIC
 struct timespec *ws_clock_get_realtime(struct timespec *ts);
 
+/**
+ * @brief Converts a time value to local time.
+ *
+ * Thread-safe version of `localtime()`. Converts a `time_t` value to a `struct tm`
+ * representing local time. The result is stored in the caller-provided buffer.
+ *
+ * @param timep Pointer to the time value to convert.
+ * @param result Pointer to a `struct tm` to receive the result.
+ * @return Pointer to `result`, or NULL on failure.
+ */
 WS_DLL_PUBLIC
 struct tm *ws_localtime_r(const time_t *timep, struct tm *result);
 
+/**
+ * @brief Converts a time value to UTC (GMT).
+ *
+ * Thread-safe version of `gmtime()`. Converts a `time_t` value to a `struct tm`
+ * representing UTC time. The result is stored in the caller-provided buffer.
+ *
+ * @param timep Pointer to the time value to convert.
+ * @param result Pointer to a `struct tm` to receive the result.
+ * @return Pointer to `result`, or NULL on failure.
+ */
 WS_DLL_PUBLIC
 struct tm *ws_gmtime_r(const time_t *timep, struct tm *result);
 
