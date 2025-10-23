@@ -446,6 +446,14 @@ static int hf_netlogon_ticket_logon_claims;
 static int hf_netlogon_forest_trust_info_flags;
 static int hf_netlogon_forest_trust_info_flags_00000001;
 static int hf_netlogon_forest_trust_info;
+static int hf_netlogon_entry_count;
+static int hf_netlogon_sockaddr_len;
+static int hf_netlogon_sockaddr_address_family;
+static int hf_netlogon_sockaddr_port;
+static int hf_netlogon_sockaddr_ipv4;
+static int hf_netlogon_sockaddr_ipv6;
+static int hf_netlogon_sitename;
+static int hf_netlogon_subnetname;
 
 static int ett_nt_counted_longs_as_string;
 static int ett_dcerpc_netlogon;
@@ -462,8 +470,6 @@ static int ett_DOMAIN_CONTROLLER_INFO;
 static int ett_netr_CryptPassword;
 static int ett_NL_PASSWORD_VERSION;
 static int ett_NL_GENERIC_RPC_DATA;
-static int ett_TYPE_50;
-static int ett_TYPE_52;
 static int ett_DELTA_ID_UNION;
 static int ett_CAPABILITIES;
 static int ett_DELTA_UNION;
@@ -6452,6 +6458,12 @@ static const value_string dc_address_types[] = {
     { 0, NULL}
 };
 
+static const value_string sockaddr_address_family[] = {
+    { 0x0002,    "IPv4" },
+    { 0x0017,    "IPv6" },
+    { 0, NULL}
+};
+
 
 #define RQ_ROOT_FOREST              0x00000001
 #define RQ_DC_XFOREST               0x00000002
@@ -7516,65 +7528,6 @@ netlogon_dissect_netr_CryptPassword(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_element_844_byte(tvbuff_t *tvb, int offset,
-                                  packet_info *pinfo, proto_tree *tree,
-                                  dcerpc_info *di, uint8_t *drep)
-{
-    offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, di, drep,
-                               hf_netlogon_unknown_char, NULL);
-
-    return offset;
-}
-
-static int
-netlogon_dissect_element_844_array(tvbuff_t *tvb, int offset,
-                                   packet_info *pinfo, proto_tree *tree,
-                                   dcerpc_info *di, uint8_t *drep)
-{
-    offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_element_844_byte);
-
-    return offset;
-}
-
-static int
-netlogon_dissect_TYPE_50(tvbuff_t *tvb, int offset,
-                         packet_info *pinfo, proto_tree *parent_tree,
-                         dcerpc_info *di, uint8_t *drep)
-{
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
-    int old_offset=offset;
-
-    if(parent_tree){
-        tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
-                                   ett_TYPE_50, &item, "TYPE_50:");
-    }
-
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_unknown_long, NULL);
-
-    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_element_844_array, NDR_POINTER_UNIQUE,
-                                 "unknown", hf_netlogon_unknown_string);
-
-    proto_item_set_len(item, offset-old_offset);
-    return offset;
-}
-
-static int
-netlogon_dissect_TYPE_50_ptr(tvbuff_t *tvb, int offset,
-                             packet_info *pinfo, proto_tree *tree,
-                             dcerpc_info *di, uint8_t *drep)
-{
-    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_TYPE_50, NDR_POINTER_UNIQUE,
-                                 "TYPE_50 pointer: unknown_TYPE_50", -1);
-
-    return offset;
-}
-
-static int
 netlogon_dissect_DS_DOMAIN_TRUSTS(tvbuff_t *tvb, int offset,
                                   packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, uint8_t *drep)
 {
@@ -7628,91 +7581,6 @@ netlogon_dissect_DS_DOMAIN_TRUSTS_ARRAY(tvbuff_t *tvb, int offset,
 
     return offset;
 }
-
-static int
-netlogon_dissect_element_865_byte(tvbuff_t *tvb, int offset,
-                                  packet_info *pinfo, proto_tree *tree,
-                                  dcerpc_info *di, uint8_t *drep)
-{
-    offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, di, drep,
-                               hf_netlogon_unknown_char, NULL);
-
-    return offset;
-}
-
-static int
-netlogon_dissect_element_865_array(tvbuff_t *tvb, int offset,
-                                   packet_info *pinfo, proto_tree *tree,
-                                   dcerpc_info *di, uint8_t *drep)
-{
-    offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_element_865_byte);
-
-    return offset;
-}
-
-static int
-netlogon_dissect_element_866_byte(tvbuff_t *tvb, int offset,
-                                  packet_info *pinfo, proto_tree *tree,
-                                  dcerpc_info *di, uint8_t *drep)
-{
-    offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, di, drep,
-                               hf_netlogon_unknown_char, NULL);
-
-    return offset;
-}
-
-static int
-netlogon_dissect_element_866_array(tvbuff_t *tvb, int offset,
-                                   packet_info *pinfo, proto_tree *tree,
-                                   dcerpc_info *di, uint8_t *drep)
-{
-    offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_element_866_byte);
-
-    return offset;
-}
-
-static int
-netlogon_dissect_TYPE_52(tvbuff_t *tvb, int offset,
-                         packet_info *pinfo, proto_tree *parent_tree,
-                         dcerpc_info *di, uint8_t *drep)
-{
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
-    int old_offset=offset;
-
-    if(parent_tree){
-        tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
-                                   ett_TYPE_52, &item, "TYPE_52:");
-    }
-
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_unknown_long, NULL);
-
-    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_element_865_array, NDR_POINTER_UNIQUE,
-                                 "unknown", hf_netlogon_unknown_string);
-
-    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_element_866_array, NDR_POINTER_UNIQUE,
-                                 "unknown", hf_netlogon_unknown_string);
-
-    proto_item_set_len(item, offset-old_offset);
-    return offset;
-}
-
-static int
-netlogon_dissect_TYPE_52_ptr(tvbuff_t *tvb, int offset,
-                             packet_info *pinfo, proto_tree *tree,
-                             dcerpc_info *di, uint8_t *drep)
-{
-    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_TYPE_52, NDR_POINTER_UNIQUE,
-                                 "TYPE_52 pointer: unknown_TYPE_52", -1);
-    return offset;
-}
-
 
 static int
 netlogon_dissect_Capabilities(tvbuff_t *tvb, int offset,
@@ -8911,6 +8779,84 @@ netlogon_dissect_netrlogonsendtosam_reply(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/*
+ * typedef struct _NL_SOCKET_ADDRESS {
+ *   [size_is(iSockaddrLength)] UCHAR* lpSockaddr;
+ *   [range(0, 128)] ULONG iSockaddrLength;
+ * } NL_SOCKET_ADDRESS, * PNL_SOCKET_ADDRESS;
+*/
+static int
+netlogon_dissect_lpSockaddr(tvbuff_t *tvb, int offset, int length,
+                      packet_info *pinfo _U_ , proto_tree *tree,
+                      dcerpc_info *di _U_, uint8_t *drep _U_)
+{
+    uint16_t af;
+
+    offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep,
+                                hf_netlogon_sockaddr_address_family, &af);
+    offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep,
+                                hf_netlogon_sockaddr_port, NULL);
+
+    switch (af) {
+    case 0x0002:
+        proto_tree_add_item(tree, hf_netlogon_sockaddr_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        break;
+    case 0x0017:
+        offset += 4; /* FlowInfo is deprecated and mbz */
+        proto_tree_add_item(tree, hf_netlogon_sockaddr_ipv6, tvb, offset, 16, ENC_NA);
+        break;
+    }
+    offset += length;
+    return offset;
+}
+
+static int
+netlogon_dissect_lpSockaddr_array(tvbuff_t *tvb, int offset,
+                            packet_info *pinfo, proto_tree *tree,
+                            dcerpc_info *di, uint8_t *drep)
+{
+    offset = dissect_ndr_ucarray_block(tvb, offset, pinfo, tree, di, drep,
+                                       netlogon_dissect_lpSockaddr);
+
+    return offset;
+}
+static int
+netlogon_dissect_SOCKET_ADDRESS(tvbuff_t *tvb, int offset,
+                       packet_info *pinfo, proto_tree *tree,
+                       dcerpc_info *di, uint8_t *drep)
+{
+
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_lpSockaddr_array, NDR_POINTER_UNIQUE,
+                                 "SOCKET_ADDRESS", -1);
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                hf_netlogon_sockaddr_len, NULL);
+
+    return offset;
+}
+
+static int
+netlogon_dissect_SOCKET_ADDRESS_array(tvbuff_t *tvb, int offset,
+                       packet_info *pinfo, proto_tree *tree,
+                       dcerpc_info *di, uint8_t *drep)
+{
+    offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_SOCKET_ADDRESS);
+
+    return offset;
+}
+
+/*
+ * // Opnum 33
+ * NET_API_STATUS
+ * DsrAddressToSiteNamesW(
+ *   [in,unique,string] LOGONSRV_HANDLE ComputerName,
+ *   [in, range(0,4096)] DWORD EntryCount,
+ *   [in,size_is(EntryCount)] PNL_SOCKET_ADDRESS SocketAddresses,
+ *   [out] PNL_SITE_NAME_ARRAY* SiteNames
+ * );
+ */
+
 static int
 netlogon_dissect_dsraddresstositenamesw_rqst(tvbuff_t *tvb, int offset,
                                              packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
@@ -8919,11 +8865,59 @@ netlogon_dissect_dsraddresstositenamesw_rqst(tvbuff_t *tvb, int offset,
                                               pinfo, tree, di, drep);
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_unknown_long, NULL);
+                                hf_netlogon_entry_count, NULL);
 
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_BYTE_array, NDR_POINTER_UNIQUE,
-                                 "BYTE pointer: unknown_BYTE", -1);
+                                 netlogon_dissect_SOCKET_ADDRESS_array, NDR_POINTER_REF,
+                                 "Socket Address", -1);
+
+    return offset;
+}
+
+/*
+ * typedef struct _NL_SITE_NAME_ARRAY {
+ *   ULONG EntryCount;
+ *   [size_is(EntryCount)] PUNICODE_STRING SiteNames;
+ * } NL_SITE_NAME_ARRAY, * PNL_SITE_NAME_ARRAY;
+*/
+static int
+netlogon_dissect_SiteNames(tvbuff_t *tvb, int offset,
+                           packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+{
+    offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep,
+                                        hf_netlogon_sitename, 2);
+    return offset;
+}
+
+static int
+netlogon_dissect_SiteNames_array(tvbuff_t *tvb, int offset,
+                           packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+{
+    offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_SiteNames);
+
+    return offset;
+}
+
+static int
+netlogon_dissect_NL_SITE_NAME_ARRAY(tvbuff_t *tvb, int offset,
+                                        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+{
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                hf_netlogon_entry_count, NULL);
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_SiteNames_array, NDR_POINTER_UNIQUE,
+                                 "SiteNames", -1);
+    return offset;
+}
+
+static int
+netlogon_dissect_PNL_SITE_NAME_ARRAY(tvbuff_t *tvb, int offset,
+                                        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+{
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_NL_SITE_NAME_ARRAY, NDR_POINTER_UNIQUE,
+                                 "NL_SITE_NAME_ARRAY", -1);
 
     return offset;
 }
@@ -8934,9 +8928,8 @@ netlogon_dissect_dsraddresstositenamesw_reply(tvbuff_t *tvb, int offset,
                                               packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_TYPE_50_ptr, NDR_POINTER_UNIQUE,
-                                 "TYPE_50** pointer: unknown_TYPE_50", -1);
-
+                                 netlogon_dissect_PNL_SITE_NAME_ARRAY, NDR_POINTER_REF,
+                                 "PNL_SITE_NAME_ARRAY", -1);
     offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
                               hf_netlogon_rc, NULL);
 
@@ -9046,31 +9039,75 @@ netlogon_dissect_netrenumeratetrusteddomainsex_reply(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/*
+ * typedef struct _NL_SITE_NAME_EX_ARRAY {
+ *   ULONG EntryCount;
+ *   [size_is(EntryCount)] PUNICODE_STRING SiteNames;
+ *   [size_is(EntryCount)] PUNICODE_STRING SubnetNames;
+ * } NL_SITE_NAME_EX_ARRAY, * PNL_SITE_NAME_EX_ARRAY;
+*/
+
 static int
-netlogon_dissect_dsraddresstositenamesexw_rqst(tvbuff_t *tvb, int offset,
-                                               packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+netlogon_dissect_SubnetNames(tvbuff_t *tvb, int offset,
+                           packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
-    offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
-                                              pinfo, tree, di, drep);
-
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_unknown_long, NULL);
-
-    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_BYTE_array, NDR_POINTER_UNIQUE,
-                                 "BYTE pointer: unknown_BYTE", -1);
+    offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, di, drep,
+                                        hf_netlogon_subnetname, 2);
+    return offset;
+}
+static int
+netlogon_dissect_SubnetNames_array(tvbuff_t *tvb, int offset,
+                           packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+{
+    offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_SubnetNames);
 
     return offset;
 }
 
+static int
+netlogon_dissect_NL_SITE_NAME_EX_ARRAY(tvbuff_t *tvb, int offset,
+                                        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+{
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                hf_netlogon_entry_count, NULL);
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_SiteNames_array, NDR_POINTER_UNIQUE,
+                                 "SiteNames", -1);
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_SubnetNames_array, NDR_POINTER_UNIQUE,
+                                 "SubnetNames", -1);
+    return offset;
+}
 
+static int
+netlogon_dissect_PNL_SITE_NAME_EX_ARRAY(tvbuff_t *tvb, int offset,
+                                        packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
+{
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_NL_SITE_NAME_EX_ARRAY, NDR_POINTER_UNIQUE,
+                                 "NL_SITE_NAME_EX_ARRAY", -1);
+
+    return offset;
+}
+
+/*
+ * // Opnum 37
+ * NET_API_STATUS
+ * DsrAddressToSiteNamesExW(
+ *   [in,unique,string] LOGONSRV_HANDLE ComputerName,
+ *   [in, range(0,4096)] DWORD EntryCount,
+ *   [in,size_is(EntryCount)] PNL_SOCKET_ADDRESS SocketAddresses,
+ *   [out] PNL_SITE_NAME_EX_ARRAY* SiteNames
+ * );
+ */
 static int
 netlogon_dissect_dsraddresstositenamesexw_reply(tvbuff_t *tvb, int offset,
                                                 packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_TYPE_52_ptr, NDR_POINTER_UNIQUE,
-                                 "TYPE_52 pointer: unknown_TYPE_52", -1);
+                                 netlogon_dissect_PNL_SITE_NAME_EX_ARRAY, NDR_POINTER_REF,
+                                 "PNL_SITE_NAME_EX_ARRAY", -1);
 
     offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
                               hf_netlogon_rc, NULL);
@@ -9895,7 +9932,7 @@ static const dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
       netlogon_dissect_netrenumeratetrusteddomainsex_rqst,
       netlogon_dissect_netrenumeratetrusteddomainsex_reply },
     { NETLOGON_DSRADDRESSTOSITENAMESEXW, "DsrAddressToSiteNamesExW",
-      netlogon_dissect_dsraddresstositenamesexw_rqst,
+      netlogon_dissect_dsraddresstositenamesw_rqst,
       netlogon_dissect_dsraddresstositenamesexw_reply },
     { NETLOGON_DSRGETDCSITECOVERAGEW, "DsrGetDcSiteCoverageW",
       netlogon_dissect_dsrgetdcsitecoveragew_rqst,
@@ -11898,6 +11935,30 @@ proto_register_dcerpc_netlogon(void)
         { &hf_netlogon_forest_trust_info,
           { "Forest Trust Info", "netlogon.forest_trust_info",
             FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_netlogon_entry_count,
+          { "Entry Count", "netlogon.entry_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_netlogon_sockaddr_len,
+          { "Sockaddr Len", "netlogon.sockaddr_len",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_netlogon_sockaddr_address_family,
+          { "Address Family", "netlogon.sockaddr.address_family", FT_UINT16, BASE_DEC,
+            VALS(sockaddr_address_family), 0, NULL, HFILL }},
+        { &hf_netlogon_sockaddr_port,
+          { "Port", "netlogon.sockaddr.port", FT_UINT16, BASE_DEC,
+            NULL, 0, NULL, HFILL }},
+        { &hf_netlogon_sockaddr_ipv4,
+          { "IPv4 Address", "netlogon.sockaddr.ipv4", FT_IPv4, BASE_NONE,
+            NULL, 0, NULL, HFILL }},
+        { &hf_netlogon_sockaddr_ipv6,
+          { "IPv6 Address", "netlogon.sockaddr.ipv6", FT_IPv6, BASE_NONE,
+            NULL, 0, NULL, HFILL }},
+        { &hf_netlogon_sitename,
+          { "SiteName", "netlogon.sockaddr.sitename", FT_STRING, BASE_NONE,
+            NULL, 0, NULL, HFILL }},
+        { &hf_netlogon_subnetname,
+          { "SubnetName", "netlogon.sockaddr.subnetname", FT_STRING, BASE_NONE,
+            NULL, 0, NULL, HFILL }},
 
     };
 
@@ -11913,8 +11974,6 @@ proto_register_dcerpc_netlogon(void)
         &ett_netr_CryptPassword,
         &ett_NL_PASSWORD_VERSION,
         &ett_NL_GENERIC_RPC_DATA,
-        &ett_TYPE_50,
-        &ett_TYPE_52,
         &ett_DELTA_ID_UNION,
         &ett_CAPABILITIES,
         &ett_DELTA_UNION,
