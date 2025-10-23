@@ -365,44 +365,104 @@ WS_DLL_PUBLIC const char *get_hostname(const unsigned addr);
  */
 WS_DLL_PUBLIC char *get_hostname_wmem(wmem_allocator_t *allocator, const unsigned addr);
 
-/* get_hostname6 returns the host name, or numeric addr if not found.
+/**
+ * @brief Resolves an IPv6 address to a hostname or numeric string.
+ *
+ * get_hostname6 returns the host name, or numeric addr if not found.
  * The string does not have to be freed; it will be freed when the
  * address hashtables are emptied (e.g., when preferences change or
  * upon redissection.) However, this increases persistent memory usage
  * even when host name lookups are off.
  *
  * This might get deprecated in the future for get_hostname6_wmem.
+ *
+ * @param ad Pointer to the IPv6 address.
+ * @return Hostname or numeric address string.
  */
 WS_DLL_PUBLIC const char *get_hostname6(const ws_in6_addr *ad);
 
-/* get_hostname6 returns the host name, or numeric addr if not found.
- * The returned string is allocated according to the wmem scope allocator. */
+/**
+ * @brief Resolves an IPv6 address to a hostname using a memory allocator.
+ *
+ * Returns a newly allocated string representing the hostname or numeric address
+ * for the given IPv6 address.
+ *
+ * @param allocator Memory allocator scope.
+ * @param ad Pointer to the IPv6 address.
+ * @return Allocated hostname or numeric address string.
+ */
 WS_DLL_PUBLIC char *get_hostname6_wmem(wmem_allocator_t *allocator, const ws_in6_addr *ad);
 
-/* get_ether_name returns the logical name if found in ethers files else
-   "<vendor>_%02x:%02x:%02x" if the vendor code is known else
-   "%02x:%02x:%02x:%02x:%02x:%02x" */
+/**
+ * @brief Resolves an Ethernet address to a logical name or vendor string.
+ *
+ * Returns a logical name if found in ethers files, or a vendor-prefixed string
+ * if the vendor is known, or a full MAC address string otherwise.
+ *
+ * For example:
+ * "<vendor>_%02x:%02x:%02x" if the vendor code is known else
+ * "%02x:%02x:%02x:%02x:%02x:%02x"
+ *
+ * @param addr Pointer to the 6-byte Ethernet address.
+ * @return Resolved name or formatted MAC string:
+ * "<vendor>_%02x:%02x:%02x" if the vendor code is known else
+ * "%02x:%02x:%02x:%02x:%02x:%02x".
+ */
 WS_DLL_PUBLIC const char *get_ether_name(const uint8_t *addr);
 
-/* get_hostname_ss7pc returns the logical name if found in ss7pcs file else
-   '\0' on the first call or the unresolved Point Code in the subsequent calls */
+/**
+ * @brief Resolves an SS7 Point Code to a hostname.
+ *
+ * Returns a logical name if found, or a formatted Point Code string.
+ *
+ * @param ni Network Indicator.
+ * @param pc Point Code.
+ * @return Hostname if in the ss7pcs file or '\0' on the first call or the
+ * unresolved Point Code in the subsequent calls.
+ */
 const char *get_hostname_ss7pc(const uint8_t ni, const uint32_t pc);
 
-/* fill_unresolved_ss7pc initializes the unresolved Point Code Address string in the hashtable */
+/**
+ * @brief Initializes unresolved SS7 Point Code entries in the hashtable.
+ *
+ * Adds a placeholder entry for an unresolved SS7 Point Code.
+ *
+ * @param pc_addr String representation of the Point Code.
+ * @param ni Network Indicator.
+ * @param pc Point Code.
+ */
 void fill_unresolved_ss7pc(const char * pc_addr, const uint8_t ni, const uint32_t pc);
 
-
-/* Same as get_ether_name with tvb support */
+/**
+ * @brief Resolves an Ethernet address from a tvbuff.
+ *
+ * Returns a logical name or vendor string for the Ethernet address at the given offset.
+ *
+ * @note This is the same as get_ether_name with tvb support
+ *
+ * @param tvb Pointer to the tvbuff.
+ * @param offset Offset of the Ethernet address.
+ * @return Resolved name or formatted MAC string.
+ */
 WS_DLL_PUBLIC const char *tvb_get_ether_name(tvbuff_t *tvb, int offset);
 
-/* get_ether_name_if_known returns the logical name if an exact match is
- * found (in ethers files or from ARP) else NULL.
+/**
+ * @brief Resolves an Ethernet address only if an exact match is known.
+ *
+ * Returns a logical name if the full address is known from the ethers
+ * file or ARP, otherwise returns NULL.
+ *
  * @note: It returns NULL for addresses if only a prefix can be resolved
  * into a manufacturer name.
+ *
+ * @param addr Pointer to the 6-byte Ethernet address.
+ * @return Resolved name or NULL.
  */
 const char *get_ether_name_if_known(const uint8_t *addr);
 
-/*
+/**
+ * @brief Resolves a 3-octet OUI to a short vendor name.
+ *
  * Given a sequence of 3 octets containing an OID, get_manuf_name()
  * returns an abbreviated form of the vendor name, or "%02x:%02x:%02x"
  * if not known. (The short form of the name is roughly similar in length
@@ -411,10 +471,16 @@ const char *get_ether_name_if_known(const uint8_t *addr);
  * CID table), not the MA-M and MA-S tables. The hex byte string is
  * returned for sequences registered to the IEEE Registration Authority
  * for the purposes of being subdivided into MA-M and MA-S.
+ *
+ * @param addr Pointer to the OUI bytes.
+ * @param size Number of bytes (typically 3).
+ * @return Short vendor name or hex string.
  */
 extern const char *get_manuf_name(const uint8_t *addr, size_t size);
 
-/*
+/**
+ * @brief Resolves an OUI to a full vendor name if known.
+ *
  * Given a sequence of 3 or more octets containing an OUI,
  * get_manuf_name_if_known() returns the vendor name, or NULL if not known.
  * @note Unlike get_manuf_name() above, this returns the full vendor name.
@@ -423,18 +489,29 @@ extern const char *get_manuf_name(const uint8_t *addr, size_t size);
  * not returned.) If size is less than 6, only the 24 bit tables are searched,
  * and NULL is returned for sequences registered to the IEEE Registration
  * Authority for purposes of being subdivided into MA-M and MA-S.
+ *
+ * @param addr Pointer to the OUI bytes.
+ * @param size Number of bytes (≥3).
+ * @return Full vendor name or NULL.
  */
 WS_DLL_PUBLIC const char *get_manuf_name_if_known(const uint8_t *addr, size_t size);
 
-/*
+/**
+ * @brief Resolves a 24-bit OUI integer to a vendor name.
+ *
  * Given an integer containing a 24-bit OUI (or CID),
  * uint_get_manuf_name_if_known() returns the vendor name, or NULL if not known.
  * @note NULL is returned for sequences registered to the IEEE Registration
  * Authority for purposes of being subdivided into MA-M and MA-S.
+ *
+ * @param oid 24-bit OUI or CID.
+ * @return Full vendor name or NULL.
  */
 extern const char *uint_get_manuf_name_if_known(const uint32_t oid);
 
-/*
+/**
+ * @brief Resolves a 3-octet OUI from a tvbuff to a short vendor name.
+ *
  * Given a tvbuff and an offset in that tvbuff for a 3-octet OID,
  * tvb_get_manuf_name() returns an abbreviated vendor name, or "%02x:%02x:%02x"
  * if not known.
@@ -442,143 +519,356 @@ extern const char *uint_get_manuf_name_if_known(const uint32_t oid);
  * CID table), not the MA-M and MA-S tables. The hex byte string is
  * returned for sequences registered to the IEEE Registration Authority
  * for the purposes of being subdivided into MA-M and MA-S.
+ *
+ * @param tvb Pointer to the tvbuff.
+ * @param offset Offset of the OUI.
+ * @return Short vendor name or hex string.
  */
 WS_DLL_PUBLIC const char *tvb_get_manuf_name(tvbuff_t *tvb, int offset);
 
-/*
+/**
+ * @brief Resolves a 3-octet OUI from a tvbuff to a full vendor name.
+ *
  * Given a tvbuff and an offset in that tvbuff for a 3-octet OID,
  * tvb_get_manuf_name_if_known() returns the full vendor name, or NULL
  * if not known.
  * @note NULL is returned for sequences registered to the IEEE Registration
  * Authority for purposes of being subdivided into MA-M and MA-S.
+ *
+ * @param tvb Pointer to the tvbuff.
+ * @param offset Offset of the OUI.
+ * @return Full vendor name or NULL.
  */
 WS_DLL_PUBLIC const char *tvb_get_manuf_name_if_known(tvbuff_t *tvb, int offset);
 
-/* get_eui64_name returns the logical name if found in ethers files else
+/**
+ * @brief Resolves an EUI-64 address to a logical name or vendor string.
+ *
+ * Returns a logical name, vendor-prefixed string, or full EUI-64 hex string.
+ * get_eui64_name returns the logical name if found in ethers files else
  * "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the vendor code is known
  * (or as appropriate for MA-M and MA-S), and if not,
  * "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x"
-*/
+ *
+ * @param addr Pointer to the 8-byte EUI-64 address.
+ * @return Resolved name or formatted EUI-64 string.
+ */
 extern const char *get_eui64_name(const uint8_t *addr);
 
-/* eui64_to_display returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the
+/**
+ * @brief Converts a uint64_t EUI-64 address to a display string.
+ *
+ * Returns a vendor-prefixed or full hex string using the given allocator.
+ *
+ * eui64_to_display returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the
  * vendor code is known (or as appropriate for MA-M and MA-S), and if not,
  * "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x". Gives the same results
  * as address_to_display, but for when the EUI-64 address is a host endian
  * uint64_t instead of bytes / an AT_EUI64 address.
-*/
+ *
+ * @param allocator Memory allocator scope.
+ * @param addr EUI-64 address as uint64_t.
+ * @return Allocated display string.
+ */
 extern char *eui64_to_display(wmem_allocator_t *allocator, const uint64_t addr);
 
-/* get_ipxnet_name returns the logical name if found in an ipxnets file,
- * or a string formatted with "%X" if not */
+/**
+ * @brief Resolves an IPX network number to a name.
+ *
+ * Returns a logical name or formatted hex string.
+ *
+ * get_ipxnet_name returns the logical name if found in an ipxnets file,
+ * or a string formatted with "%X" if not.
+ *
+ * @param allocator Memory allocator scope.
+ * @param addr IPX network number.
+ * @return Allocated name or hex string.
+ */
 extern char *get_ipxnet_name(wmem_allocator_t *allocator, const uint32_t addr);
 
-/* get_vlan_name returns the logical name if found in a vlans file,
- * or the VLAN ID itself as a string if not found*/
+/**
+ * @brief Resolves a VLAN ID to a name.
+ *
+ * Returns a logical name or the VLAN ID as a string.
+ *
+ * get_vlan_name returns the logical name if found in a vlans file,
+ * or the VLAN ID itself as a string if not found
+ *
+ * @param allocator Memory allocator scope.
+ * @param id VLAN identifier.
+ * @return Allocated name or ID string.
+ */
 extern char *get_vlan_name(wmem_allocator_t *allocator, const uint16_t id);
 
+/**
+ * @brief Gets the status code for a resolved Ethernet entry.
+ *
+ * @param ether Pointer to the Ethernet hash entry.
+ * @return Status code.
+ */
 WS_DLL_PUBLIC unsigned get_hash_ether_status(hashether_t* ether);
+
+/**
+ * @brief Checks if an Ethernet hash entry was used.
+ *
+ * @param ether Pointer to the Ethernet hash entry.
+ * @return true if used, false otherwise.
+ */
 WS_DLL_PUBLIC bool get_hash_ether_used(hashether_t* ether);
+
+/**
+ * @brief Gets the hex string representation of an Ethernet address.
+ *
+ * @param ether Pointer to the Ethernet hash entry.
+ * @return Hex string of the address.
+ */
 WS_DLL_PUBLIC char* get_hash_ether_hexaddr(hashether_t* ether);
+
+/**
+ * @brief Gets the resolved name for an Ethernet hash entry.
+ *
+ * @param ether Pointer to the Ethernet hash entry.
+ * @return Resolved name string.
+ */
 WS_DLL_PUBLIC char* get_hash_ether_resolved_name(hashether_t* ether);
 
+/**
+ * @brief Checks if a manufacturer hash entry was used.
+ *
+ * @param manuf Pointer to the manufacturer hash entry.
+ * @return true if used, false otherwise.
+ */
 WS_DLL_PUBLIC bool get_hash_manuf_used(hashmanuf_t* manuf);
+
+/**
+ * @brief Gets the resolved name for a manufacturer hash entry.
+ *
+ * @param manuf Pointer to the manufacturer hash entry.
+ * @return Resolved name string.
+ */
 WS_DLL_PUBLIC char* get_hash_manuf_resolved_name(hashmanuf_t* manuf);
 
+/**
+ * @brief Checks if a WKA hash entry was used.
+ *
+ * @param wka Pointer to the WKA hash entry.
+ * @return true if used, false otherwise.
+ */
 WS_DLL_PUBLIC bool get_hash_wka_used(hashwka_t* wka);
+
+/**
+ * @brief Gets the resolved name for a WKA hash entry.
+ *
+ * @param wka Pointer to the WKA hash entry.
+ * @return Resolved name string.
+ */
 WS_DLL_PUBLIC char* get_hash_wka_resolved_name(hashwka_t* wka);
 
-/* adds a hostname/IPv4 in the hash table */
+/**
+ * @brief Adds a static or dynamic IPv4 name mapping.
+ *
+ * Inserts a hostname for the given IPv4 address into the resolution table.
+ *
+ * @param addr IPv4 address in host byte order.
+ * @param name Hostname to associate.
+ * @param static_entry true if the entry is static.
+ */
 WS_DLL_PUBLIC void add_ipv4_name(const unsigned addr, const char *name, const bool static_entry);
 
-/* adds a hostname/IPv6 in the hash table */
+/**
+ * @brief Adds a Hostname/IPv4 in the hash table.
+ *
+ * Inserts a hostname for the given IPv6 address into the resolution table.
+ *
+ * @param addr Pointer to the IPv6 address.
+ * @param name Hostname to associate.
+ * @param static_entry true if the entry is static.
+ */
 WS_DLL_PUBLIC void add_ipv6_name(const ws_in6_addr *addr, const char *name, const bool static_entry);
 
-/** Add an additional "hosts" file for IPv4 and IPv6 name resolution.
+/**
+ * @brief Adds an additional "hosts" file for IPv4 and IPv6 name resolution.
  *
- * The file can be added before host_name_lookup_init() is called and
- * will be re-read each time host_name_lookup_init() is called.
+ * Registers a user-specified hosts file to be used for resolving IP addresses.
+ * The file can be added before `host_name_lookup_init()` is called and will be
+ * re-read each time that function is invoked.
  *
  * @param hosts_file Absolute path to the hosts file.
- *
- * @return true if the hosts file can be read.
+ * @return true if the file was successfully read, false otherwise.
  */
-WS_DLL_PUBLIC bool add_hosts_file (const char *hosts_file);
+WS_DLL_PUBLIC bool add_hosts_file(const char *hosts_file);
 
-/* adds a hostname in the hash table */
-WS_DLL_PUBLIC bool add_ip_name_from_string (const char *addr, const char *name);
+/**
+ * @brief Adds a hostname mapping for a given IP address string.
+ *
+ * Inserts a user-defined name for an IP address into the resolution table.
+ * The address string may represent either an IPv4 or IPv6 address.
+ *
+ * @param addr IP address string (e.g., "192.168.0.1" or "2001:db8::1").
+ * @param name Hostname to associate with the address.
+ * @return true if the entry was successfully added, false otherwise.
+ */
+WS_DLL_PUBLIC bool add_ip_name_from_string(const char *addr, const char *name);
 
-/* Get the user defined name, for a given address */
+/**
+ * @brief Retrieves the user-defined name for a given address.
+ *
+ * Returns a pointer to a `resolved_name_t` structure containing the custom name
+ * associated with the given address, if one exists.
+ *
+ * @param addr IP address string.
+ * @return Pointer to the resolved name structure, or NULL if not found.
+ */
 WS_DLL_PUBLIC resolved_name_t* get_edited_resolved_name(const char* addr);
 
-
-/** Get lists of host name to address mappings we know about.
+/**
+ * @brief Retrieves known host-to-address mappings.
  *
- * The struct contains two g_lists one with hashipv4_t entries and one with hashipv6_t entries.
+ * Returns a structure containing two GLists: one with `hashipv4_t` entries
+ * for IPv4 mappings and one with `hashipv6_t` entries for IPv6 mappings.
  *
- * @return a struct with lists of known addresses(IPv4 and IPv6). May be NULL.
+ * @return Pointer to an `addrinfo_lists_t` structure, or NULL if no mappings are available.
  */
 WS_DLL_PUBLIC addrinfo_lists_t *get_addrinfo_list(void);
 
-/* add ethernet address / name corresponding to IP address  */
+/**
+ * @brief Associates an Ethernet (MAC) address / name to an IPv4 address.
+ *
+ * Adds a mapping between the given IPv4 address and its corresponding Ethernet address.
+ * Used for name resolution and display purposes.
+ *
+ * @param ip IPv4 address in host byte order.
+ * @param eth Pointer to a 6-byte Ethernet address.
+ */
 extern void add_ether_byip(const unsigned ip, const uint8_t *eth);
 
-/** Translates a string representing a hostname or dotted-decimal IPv4 address
- *  into a numeric IPv4 address value in network byte order. If compiled with
- *  c-ares, the request will wait a maximum of 250ms for the request to finish.
- *  Otherwise the wait time will be system-dependent, usually much longer.
- *  Immediately returns false for hostnames if network name resolution is
- *  disabled.
+/**
+ * @brief Resolves a hostname or IPv4 string to a numeric IPv4 address.
  *
- * @param[in] host The hostname.
- * @param[out] addrp The numeric IPv4 address in network byte order.
- * @return true on success, false on failure, timeout.
+ * Translates a string representing a hostname or dotted-decimal IPv4 address
+ * into a numeric IPv4 address value in network byte order. If compiled with
+ * c-ares, the request will wait a maximum of 250ms for the request to finish.
+ * Otherwise the wait time will be system-dependent, usually much longer.
+ * Immediately returns false for hostnames if network name resolution is
+ * disabled.
+ *
+ * @param[in] host The hostname or IPv4 string to resolve.
+ * @param[out] addrp Pointer to receive the resolved IPv4 address in network byte order.
+ * @return true on success, false on failure or timeout.
  */
 WS_DLL_PUBLIC
 bool get_host_ipaddr(const char *host, uint32_t *addrp);
 
-/** Translates a string representing a hostname or colon-hex IPv6 address
- *  into a numeric IPv6 address value in network byte order. If compiled with
- *  c-ares, the request will wait a maximum of 250ms for the request to finish.
- *  Otherwise the wait time will be system-dependent, usually much longer.
- *  Immediately returns false for hostnames if network name resolution is
- *  disabled.
+/**
+ * @brief Resolves a hostname or IPv6 string to a numeric IPv6 address.
  *
- * @param[in] host The hostname.
- * @param[out] addrp The numeric IPv6 address in network byte order.
+ * Translates a string representing a hostname or colon-hex IPv6 address
+ * into a numeric IPv6 address value in network byte order. If compiled with
+ * c-ares, the request will wait a maximum of 250ms for the request to finish.
+ * Otherwise the wait time will be system-dependent, usually much longer.
+ * Immediately returns false for hostnames if network name resolution is
+ * disabled.
+ *
+ * @param[in] host The hostname or IPv6 string to resolve.
+ * @param[out] addrp Pointer to receive the resolved IPv6 address in network byte order.
  * @return true on success, false on failure or timeout.
  */
 WS_DLL_PUBLIC
 bool get_host_ipaddr6(const char *host, ws_in6_addr *addrp);
 
+/**
+ * @brief Retrieves the manufacturer hashtable.
+ *
+ * Returns a pointer to the hashtable mapping MAC address prefixes to manufacturer names.
+ *
+ * @return Pointer to the manufacturer hashtable.
+ */
 WS_DLL_PUBLIC
 wmem_map_t *get_manuf_hashtable(void);
 
+/**
+ * @brief Retrieves the well-known address (WKA) hashtable.
+ *
+ * Returns a pointer to the hashtable mapping protocol-specific well-known addresses to names.
+ *
+ * @return Pointer to the WKA hashtable.
+ */
 WS_DLL_PUBLIC
 wmem_map_t *get_wka_hashtable(void);
 
+/**
+ * @brief Retrieves the Ethernet address hashtable.
+ *
+ * Returns a pointer to the hashtable mapping full Ethernet (MAC) addresses to resolved names.
+ *
+ * @return Pointer to the Ethernet address hashtable.
+ */
 WS_DLL_PUBLIC
 wmem_map_t *get_eth_hashtable(void);
 
+/**
+ * @brief Retrieves the service port hashtable.
+ *
+ * Returns a pointer to the hashtable mapping TCP/UDP port numbers to service names.
+ *
+ * @return Pointer to the service port hashtable.
+ */
 WS_DLL_PUBLIC
 wmem_map_t *get_serv_port_hashtable(void);
 
+/**
+ * @brief Retrieves the IPX network hashtable.
+ *
+ * Returns a pointer to the hashtable mapping IPX network numbers to resolved names.
+ *
+ * @return Pointer to the IPX network hashtable.
+ */
 WS_DLL_PUBLIC
 wmem_map_t *get_ipxnet_hash_table(void);
 
+/**
+ * @brief Retrieves the VLAN ID hashtable.
+ *
+ * Returns a pointer to the hashtable mapping VLAN identifiers to resolved names.
+ *
+ * @return Pointer to the VLAN hashtable.
+ */
 WS_DLL_PUBLIC
 wmem_map_t *get_vlan_hash_table(void);
 
+/**
+ * @brief Retrieves the IPv4 address hashtable.
+ *
+ * Returns a pointer to the hashtable mapping IPv4 addresses to resolved hostnames.
+ *
+ * @return Pointer to the IPv4 address hashtable.
+ */
 WS_DLL_PUBLIC
 wmem_map_t *get_ipv4_hash_table(void);
 
+/**
+ * @brief Retrieves the IPv6 address hashtable.
+ *
+ * Returns a pointer to the hashtable mapping IPv6 addresses to resolved hostnames.
+ *
+ * @return Pointer to the IPv6 address hashtable.
+ */
 WS_DLL_PUBLIC
 wmem_map_t *get_ipv6_hash_table(void);
+
 
 /*
  * XXX - if we ever have per-session host name etc. information, we
  * should probably have the "resolve synchronously or asynchronously"
  * flag be per-session, set with an epan API.
+ */
+/**
+ * @brief Sets the resolution mode to synchronous or asynchronous.
+ *
+ * Controls whether name/address resolution is performed synchronously or deferred.
+ * Intended for global configuration; future versions may support per-session control.
+ *
+ * @param synchronous If true, resolution is performed synchronously.
  */
 WS_DLL_PUBLIC
 void set_resolution_synchrony(bool synchronous);
@@ -587,31 +877,101 @@ void set_resolution_synchrony(bool synchronous);
  * private functions (should only be called by epan directly)
  */
 
+/**
+ * @brief Initializes the name resolution subsystem.
+ *
+ * Sets up internal state for hostname and address resolution.
+ * Intended for internal use by the epan core only.
+ */
 WS_DLL_LOCAL
 void name_resolver_init(void);
 
-/* Reinitialize hostname resolution subsystem */
+/**
+ * @brief Reinitialize hostname resolution subsystem.
+ *
+ * Clears any cached hostname resolution results.
+ * Intended for internal use by the epan core only.
+ */
 WS_DLL_LOCAL
 void host_name_lookup_reset(void);
 
+/**
+ * @brief Initializes the address resolution subsystem.
+ *
+ * Prepares internal structures for resolving network addresses.
+ * Intended for internal use by the epan core only.
+ */
 WS_DLL_LOCAL
 void addr_resolv_init(void);
 
+/**
+ * @brief Cleans up the address resolution subsystem.
+ *
+ * Frees resources and resets state related to address resolution.
+ * Intended for internal use by the epan core only.
+ */
 WS_DLL_LOCAL
 void addr_resolv_cleanup(void);
 
+/**
+ * @brief Parses a string as an IPv4 address.
+ *
+ * Converts a dotted-decimal IPv4 string into a binary representation.
+ *
+ * @param str The input string (e.g., "192.168.0.1").
+ * @param dst Pointer to a buffer to receive the parsed address (e.g., `uint32_t*`).
+ * @return true if parsing succeeds, false otherwise.
+ */
 WS_DLL_PUBLIC
 bool str_to_ip(const char *str, void *dst);
 
+/**
+ * @brief Parses a string as an IPv6 address.
+ *
+ * Converts a colon-separated IPv6 string into a binary representation.
+ *
+ * @param str The input string (e.g., "2001:db8::1").
+ * @param dst Pointer to a buffer to receive the parsed address (e.g., `struct in6_addr*`).
+ * @return true if parsing succeeds, false otherwise.
+ */
 WS_DLL_PUBLIC
 bool str_to_ip6(const char *str, void *dst);
 
+/**
+ * @brief Parses a string as an Ethernet (MAC) address.
+ *
+ * Converts a colon- or dash-separated MAC address string into a 6-byte array.
+ * Intended for internal use by the epan core only.
+ *
+ * @param str The input string (e.g., "00:11:22:33:44:55").
+ * @param eth_bytes Pointer to a 6-byte buffer to receive the parsed address.
+ * @return true if parsing succeeds, false otherwise.
+ */
 WS_DLL_LOCAL
 bool str_to_eth(const char *str, char *eth_bytes);
 
+/**
+ * @brief Computes a hash value for an IPv6 address using OAT hashing.
+ *
+ * Generates a hash suitable for use in hash tables.
+ * Intended for internal use by the epan core only.
+ *
+ * @param key Pointer to the IPv6 address (e.g., `struct in6_addr*`).
+ * @return Hash value.
+ */
 WS_DLL_LOCAL
 unsigned ipv6_oat_hash(const void *key);
 
+/**
+ * @brief Compares two IPv6 addresses for equality.
+ *
+ * Performs a byte-wise comparison of two IPv6 addresses.
+ * Intended for internal use by the epan core only.
+ *
+ * @param v1 Pointer to the first IPv6 address.
+ * @param v2 Pointer to the second IPv6 address.
+ * @return TRUE if equal, FALSE otherwise.
+ */
 WS_DLL_LOCAL
 gboolean ipv6_equal(const void *v1, const void *v2);
 
