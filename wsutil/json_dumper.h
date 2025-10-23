@@ -68,54 +68,145 @@ typedef struct json_dumper {
     uint8_t state[JSON_DUMPER_MAX_DEPTH];
 } json_dumper;
 
+/**
+ * @brief Begins a new JSON object.
+ *
+ * Starts a JSON object context. Must be paired with a call to json_dumper_end_object().
+ *
+ * @param dumper The JSON dumper context.
+ */
 WS_DLL_PUBLIC void
 json_dumper_begin_object(json_dumper *dumper);
 
+/**
+ * @brief Sets the name of the next member in a JSON object.
+ *
+ * Specifies the key for the next value to be written inside an open JSON object.
+ *
+ * @param dumper The JSON dumper context.
+ * @param name The name of the member key.
+ */
 WS_DLL_PUBLIC void
 json_dumper_set_member_name(json_dumper *dumper, const char *name);
 
+/**
+ * @brief Ends the current JSON object.
+ *
+ * Closes the current object context started by json_dumper_begin_object().
+ *
+ * @param dumper The JSON dumper context.
+ */
 WS_DLL_PUBLIC void
 json_dumper_end_object(json_dumper *dumper);
 
+/**
+ * @brief Begins a new JSON array.
+ *
+ * Starts a JSON array context. Must be paired with a call to json_dumper_end_array().
+ *
+ * @param dumper The JSON dumper context.
+ */
 WS_DLL_PUBLIC void
 json_dumper_begin_array(json_dumper *dumper);
 
+/**
+ * @brief Ends the current JSON array.
+ *
+ * Closes the current array context started by json_dumper_begin_array().
+ *
+ * @param dumper The JSON dumper context.
+ */
 WS_DLL_PUBLIC void
 json_dumper_end_array(json_dumper *dumper);
 
+/**
+ * @brief Writes a string value to the JSON output.
+ *
+ * Adds a properly escaped string value to the current object or array.
+ *
+ * @param dumper The JSON dumper context.
+ * @param value The string value to write.
+ */
 WS_DLL_PUBLIC void
 json_dumper_value_string(json_dumper *dumper, const char *value);
 
+/**
+ * @brief Writes a double-precision numeric value to the JSON output.
+ *
+ * Adds a floating-point number to the current object or array.
+ *
+ * @param dumper The JSON dumper context.
+ * @param value The double value to write.
+ */
 WS_DLL_PUBLIC void
 json_dumper_value_double(json_dumper *dumper, double value);
 
 /**
- * Dump number, "true", "false" or "null" values.
+ * @brief Writes a formatted literal value to the JSON output.
+ *
+ * Dumps a literal value such as a number, "true", "false", or "null" using printf-style formatting.
+ *
+ * @param dumper The JSON dumper context.
+ * @param format The format string for the value.
+ * @param ... Additional arguments for formatting.
  */
 WS_DLL_PUBLIC void
 json_dumper_value_anyf(json_dumper *dumper, const char *format, ...)
 G_GNUC_PRINTF(2, 3);
 
 /**
- * Dump literal values (like json_dumper_value_anyf), but taking a va_list
- * as parameter. String values MUST be properly quoted by the caller, no
- * escaping occurs. Do not use with untrusted data.
+ * @brief Writes a formatted literal value using a va_list.
+ *
+ * Similar to json_dumper_value_anyf(), but accepts a va_list for formatting.
+ * String values must be properly quoted and escaped by the caller.
+ * Not safe for untrusted input.
+ *
+ * @param dumper The JSON dumper context.
+ * @param format The format string for the value.
+ * @param ap The va_list of arguments.
  */
 WS_DLL_PUBLIC void
 json_dumper_value_va_list(json_dumper *dumper, const char *format, va_list ap);
 
+/**
+ * @brief Begins a base64-encoded data block.
+ *
+ * Starts a base64 encoding context for binary data. Must be paired with json_dumper_end_base64().
+ *
+ * @param dumper The JSON dumper context.
+ */
 WS_DLL_PUBLIC void
 json_dumper_begin_base64(json_dumper *dumper);
 
+/**
+ * @brief Ends a base64-encoded data block.
+ *
+ * Closes the base64 encoding context started by json_dumper_begin_base64().
+ *
+ * @param dumper The JSON dumper context.
+ */
 WS_DLL_PUBLIC void
 json_dumper_end_base64(json_dumper *dumper);
 
+/**
+ * @brief Writes binary data in base64 format.
+ *
+ * Encodes and writes the given binary data as base64 within an active base64 context.
+ *
+ * @param dumper The JSON dumper context.
+ * @param data Pointer to the binary data.
+ * @param len Length of the binary data in bytes.
+ */
 WS_DLL_PUBLIC void
 json_dumper_write_base64(json_dumper *dumper, const unsigned char *data, size_t len);
 
 /**
- * Finishes dumping data. Returns true if everything is okay and false if
- * something went wrong (open/close mismatch, missing values, etc.).
+ * @brief Finalizes the JSON output.
+ *
+ * Completes the JSON dump and checks for structural correctness (e.g., matching open/close calls).
+ *
+ * @param dumper The JSON dumper context.
+ * @return true if the output is valid and complete, false if errors occurred.
  */
 WS_DLL_PUBLIC bool
 json_dumper_finish(json_dumper *dumper);
