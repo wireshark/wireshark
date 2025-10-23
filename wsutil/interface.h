@@ -16,7 +16,15 @@
 #include <glib.h>
 #include "ws_symbol_export.h"
 
-/* Return a list of IPv4/IPv6 addresses for local interfaces */
+/**
+ * @brief Retrieves a list of local network interface IP addresses.
+ *
+ * Enumerates all active local network interfaces and returns a list of their associated
+ * IPv4 and IPv6 addresses.
+ *
+ * @return A GSList containing string representations of IP addresses (IPv4 and IPv6).
+ *         The list must be freed by the caller using g_slist_free() and g_free() for each element.
+ */
 WS_DLL_PUBLIC
 GSList* local_interfaces_to_list(void);
 
