@@ -27,8 +27,14 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*
- * Register those routines with the report_message mechanism.
+/**
+ * @brief Registers routines with the report_message mechanism.
+ *
+ * This function initializes the failure message reporting system
+ * using the provided program name for user-friendly output.
+ *
+ * @param friendly_program_name A human-readable name of the program
+ *                              to include in failure messages.
  */
 extern void init_report_failure_message_simple(const char *friendly_program_name);
 
