@@ -327,6 +327,11 @@ void DataSourceTab::selectedFrameChanged(QList<int> frames)
      * We want to hide the QTabWidget so that the QTabBar doesn't calculate
      * the sizeHint for each tab remaining every time a tab is removed, instead
      * deferring until later. */
+    /* !isHidden and isVisible are different; during startup this widget might
+     * not be visible because its parent is not (i.e., the Welcome Screen is
+     * being shown instead), but whether it's hidden or not is set by the layout
+     * regardless. */
+    bool save_hidden = isHidden();
     setVisible(false);
 #if QT_VERSION < QT_VERSION_CHECK(6, 8, 2)
     /* Pick up this performance improvement from Qt 6.8.2:
@@ -340,7 +345,7 @@ void DataSourceTab::selectedFrameChanged(QList<int> frames)
     clear();
 #endif
     qDeleteAll(findChildren<BaseDataSourceView *>(QString(), Qt::FindDirectChildrenOnly));
-    setVisible(true);
+    setVisible(!save_hidden);
 
     /* only show the bytes for single selections */
     if (frames.count() == 1)
@@ -366,7 +371,7 @@ void DataSourceTab::selectedFrameChanged(QList<int> frames)
             addTab(source_description, source);
             wmem_free(NULL, source_description);
         }
-        setVisible(true);
+        setVisible(!save_hidden);
     }
     else
         addTab("PlaceHolder", 0);
