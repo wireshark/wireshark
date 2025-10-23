@@ -60,24 +60,110 @@ struct mpa {
 	(mpa)->emphasis   = MPA_UNMARSHAL_EMPHASIS(n);   \
 	} while (0)
 
-WS_DLL_PUBLIC
-int mpa_version(const struct mpa *);
-WS_DLL_PUBLIC
-int mpa_layer(const struct mpa *);
-WS_DLL_PUBLIC
-unsigned int mpa_samples(const struct mpa *);
-WS_DLL_PUBLIC
-unsigned int mpa_bitrate(const struct mpa *);
-WS_DLL_PUBLIC
-unsigned int mpa_frequency(const struct mpa *);
-WS_DLL_PUBLIC
-unsigned int mpa_padding(const struct mpa *);
-WS_DLL_PUBLIC
-uint32_t decode_synchsafe_int(uint32_t);
+/**
+ * @brief Extracts the MPEG audio version from the given header.
+ *
+ * Parses the MPEG audio header and returns the version identifier (e.g., MPEG-1, MPEG-2).
+ *
+ * @param mpa Pointer to the MPEG audio header structure.
+ * @return The MPEG version as an integer code.
+ */
+WS_DLL_PUBLIC int mpa_version(const struct mpa *mpa);
 
+/**
+ * @brief Extracts the MPEG audio layer from the given header.
+ *
+ * Parses the MPEG audio header and returns the layer identifier (e.g., Layer I, II, III).
+ *
+ * @param mpa Pointer to the MPEG audio header structure.
+ * @return The MPEG layer as an integer code.
+ */
+WS_DLL_PUBLIC int mpa_layer(const struct mpa *mpa);
+
+/**
+ * @brief Returns the number of audio samples per frame.
+ *
+ * Determines the sample count based on MPEG version and layer.
+ *
+ * @param mpa Pointer to the MPEG audio header structure.
+ * @return The number of samples per frame.
+ */
+WS_DLL_PUBLIC unsigned int mpa_samples(const struct mpa *mpa);
+
+/**
+ * @brief Extracts the bitrate from the MPEG audio header.
+ *
+ * Parses the header to determine the encoded bitrate in kilobits per second.
+ *
+ * @param mpa Pointer to the MPEG audio header structure.
+ * @return The bitrate in kbps.
+ */
+WS_DLL_PUBLIC unsigned int mpa_bitrate(const struct mpa *mpa);
+
+/**
+ * @brief Extracts the sampling frequency from the MPEG audio header.
+ *
+ * Parses the header to determine the sample rate in Hz.
+ *
+ * @param mpa Pointer to the MPEG audio header structure.
+ * @return The sampling frequency in Hz.
+ */
+WS_DLL_PUBLIC unsigned int mpa_frequency(const struct mpa *mpa);
+
+/**
+ * @brief Checks whether padding is present in the MPEG audio frame.
+ *
+ * Determines if the frame includes padding bits used to adjust frame size.
+ *
+ * @param mpa Pointer to the MPEG audio header structure.
+ * @return 1 if padding is present, 0 otherwise.
+ */
+WS_DLL_PUBLIC unsigned int mpa_padding(const struct mpa *mpa);
+
+/**
+ * @brief Decodes a synchsafe integer from ID3 metadata.
+ *
+ * Converts a 32-bit synchsafe integer (used in ID3v2 tags) to its raw integer value.
+ * Synchsafe integers avoid false MPEG syncs by ensuring no byte has all bits set.
+ *
+ * @param val The synchsafe encoded 32-bit integer.
+ * @return The decoded raw integer value.
+ */
+WS_DLL_PUBLIC uint32_t decode_synchsafe_int(uint32_t val);
+
+/**
+ * @def MPA_DATA_BYTES(mpa)
+ * @brief Calculates the number of data bytes in an MPEG audio frame.
+ *
+ * Computes the size of the audio payload (excluding padding) based on bitrate,
+ * sample count, and sampling frequency.
+ *
+ * @param mpa Pointer to the MPEG audio header structure.
+ * @return The number of data bytes in the frame.
+ */
 #define MPA_DATA_BYTES(mpa) (mpa_bitrate(mpa) * mpa_samples(mpa) \
 		/ mpa_frequency(mpa) / 8)
+
+/**
+ * @def MPA_BYTES(mpa)
+ * @brief Calculates the total number of bytes in an MPEG audio frame.
+ *
+ * Includes both the audio payload and any padding bytes.
+ *
+ * @param mpa Pointer to the MPEG audio header structure.
+ * @return The total number of bytes in the frame.
+ */
 #define MPA_BYTES(mpa) (MPA_DATA_BYTES(mpa) + mpa_padding(mpa))
+
+/**
+ * @def MPA_DURATION_NS(mpa)
+ * @brief Calculates the duration of an MPEG audio frame in nanoseconds.
+ *
+ * Uses the sample count and sampling frequency to compute the frame duration.
+ *
+ * @param mpa Pointer to the MPEG audio header structure.
+ * @return The duration of the frame in nanoseconds.
+ */
 #define MPA_DURATION_NS(mpa) \
 	(1000000000 / mpa_frequency(mpa) * mpa_samples(mpa))
 
