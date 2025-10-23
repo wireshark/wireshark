@@ -17,12 +17,12 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
-  * Represents a 32-bit IPv4 address in network byte order.
+  * @brief Represents a 32-bit IPv4 address in network byte order.
  */
 typedef uint32_t ws_in4_addr;
 
 /**
-  * Represents a 128-bit IPv6 address.
+  * @brief Represents a 128-bit IPv6 address.
  */
 typedef struct e_in6_addr {
     uint8_t bytes[16]; /**< Raw bytes of the IPv6 address. */
