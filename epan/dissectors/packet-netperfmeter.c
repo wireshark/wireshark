@@ -23,11 +23,14 @@
 #include <wsutil/array.h>
 
 #include "packet-sctp.h"
+#include "packet-tcp.h"
 
 void proto_register_npm(void);
 void proto_reg_handoff_npm(void);
 
 static dissector_handle_t npm_handle;
+
+static bool npm_desegment = true;
 
 static int proto_npm;
 static int tap_npm                = -1;
@@ -306,9 +309,9 @@ static void
 dissect_npm_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_item *flags_item)
 {
   uint32_t     retranstrials;
-  proto_item*  onoffitem;
-  proto_tree*  onofftree;
-  proto_tree*  flags_tree;
+  proto_item   *onoffitem;
+  proto_tree   *onofftree;
+  proto_tree   *flags_tree;
   uint16_t     onoffevents;
   uint32_t     onoffvalue;
   unsigned int i;
@@ -395,7 +398,7 @@ dissect_npm_identify_flow_message(tvbuff_t *message_tvb, proto_tree *message_tre
 static void
 dissect_npm_data_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_item *flags_item)
 {
-  proto_tree*   flags_tree;
+  proto_tree    *flags_tree;
   const uint16_t message_length = tvb_get_ntohs(message_tvb, 2);
   uint64_t      timestamp;
   nstime_t      t;
@@ -461,16 +464,30 @@ dissect_npm_results_message(tvbuff_t *message_tvb, proto_tree *message_tree, pro
 }
 
 
-static void
-dissect_npm_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *npm_tree)
+static int
+dissect_npm_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  proto_tree* flags_tree;
+  proto_tree     *flags_tree;
+  proto_item     *npm_item;
+  proto_tree     *npm_tree;
+  const uint8_t  type   = tvb_get_uint8(message_tvb, 0);
+  const uint16_t length = tvb_get_ntohs(message_tvb, 2);
 
   tap_npm_rec_t* tap_rec = wmem_new0(pinfo->pool, tap_npm_rec_t);
-  tap_rec->type        = tvb_get_uint8(message_tvb, 0);
-  tap_rec->size        = tvb_get_ntohs(message_tvb, 2);
+  tap_rec->type        = type;
+  tap_rec->size        = length;
   tap_rec->type_string = val_to_str_const(tap_rec->type, message_type_values, "Unknown NetPerfMeter message type");
   tap_queue_packet(tap_npm, pinfo, tap_rec);
+
+  /* In the interest of speed, if "tree" is NULL, don't do any work not
+      necessary to generate protocol tree items. */
+  if (tree) {
+    /* create the npm protocol tree */
+    npm_item = proto_tree_add_item(tree, proto_npm, message_tvb, 0, -1, ENC_NA);
+    npm_tree = proto_item_add_subtree(npm_item, ett_npm);
+  } else {
+    npm_tree = NULL;
+  };
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", tap_rec->type_string);
 
@@ -504,28 +521,24 @@ dissect_npm_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *npm_t
       dissect_npm_results_message(message_tvb, npm_tree, flags_tree);
      break;
   }
+  return length;
+}
+
+static unsigned
+get_npm_message_length(packet_info *pinfo _U_, tvbuff_t *tvb,
+                       int offset _U_, void *data _U_)
+{
+   return tvb_get_ntohs(tvb, 2);
 }
 
 static int
-dissect_npm(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_npm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  proto_item *npm_item;
-  proto_tree *npm_tree;
-
   col_append_sep_fstr(pinfo->cinfo, COL_PROTOCOL, NULL, "NetPerfMeter");
 
-  /* In the interest of speed, if "tree" is NULL, don't do any work not
-     necessary to generate protocol tree items. */
-  if (tree) {
-    /* create the npm protocol tree */
-    npm_item = proto_tree_add_item(tree, proto_npm, message_tvb, 0, -1, ENC_NA);
-    npm_tree = proto_item_add_subtree(npm_item, ett_npm);
-  } else {
-    npm_tree = NULL;
-  };
-  /* dissect the message */
-  dissect_npm_message(message_tvb, pinfo, npm_tree);
-  return true;
+  tcp_dissect_pdus(tvb, pinfo, tree, npm_desegment,
+                   4, get_npm_message_length, dissect_npm_message, data);
+  return tvb_captured_length(tvb);
 }
 
 
@@ -646,16 +659,16 @@ static void npm_stat_init(stat_tap_table_ui* new_stat)
 static tap_packet_status
 npm_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* data, tap_flags_t flags _U_)
 {
-  stat_data_t*              stat_data = (stat_data_t*)tapdata;
-  const tap_npm_rec_t*      tap_rec   = (const tap_npm_rec_t*)data;
-  stat_tap_table*           table;
-  stat_tap_table_item_type* msg_data;
-  int                       idx;
-  uint64_t                  messages;
-  uint64_t                  bytes;
-  int                       i         = 0;
-  double                    firstSeen = -1.0;
-  double                    lastSeen  = -1.0;
+  stat_data_t              *stat_data = (stat_data_t*)tapdata;
+  const tap_npm_rec_t      *tap_rec   = (const tap_npm_rec_t*)data;
+  stat_tap_table           *table;
+  stat_tap_table_item_type *msg_data;
+  int                      idx;
+  uint64_t                 messages;
+  uint64_t                 bytes;
+  int                      i         = 0;
+  double                   firstSeen = -1.0;
+  double                   lastSeen  = -1.0;
 
   idx = str_to_val_idx(tap_rec->type_string, message_type_values);
   if (idx < 0)
@@ -836,6 +849,13 @@ proto_register_npm(void)
   tap_npm = register_tap("npm");
 
   register_stat_tap_table_ui(&npm_stat_table);
+
+  module_t *npm_module = prefs_register_protocol(proto_npm, NULL);
+  prefs_register_bool_preference(npm_module, "desegment",
+    "Reassemble NetPerfMeter messages spanning multiple TCP segments",
+    "Whether the NetPerfMeter dissector should reassemble messages spanning multiple TCP segments."
+    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+    &npm_desegment);
 
   /* Register the dissector */
   npm_handle = register_dissector("netperfmeter", dissect_npm, proto_npm);
