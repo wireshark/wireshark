@@ -42,18 +42,73 @@ extern "C" {
 #define OPTSTRING_READ_CAPTURE_COMMON \
     "r:"
 
+/**
+ * @brief Parses a string as a natural (non-negative) 32-bit integer.
+ *
+ * Attempts to convert the input string to an `int32_t` value ≥ 0.
+ * If successful, stores the result in `number` and returns true.
+ *
+ * @param string The input string to parse.
+ * @param name Contextual name used for error reporting.
+ * @param number Pointer to receive the parsed value.
+ * @return true if parsing succeeds and value is ≥ 0, false otherwise.
+ */
 WS_DLL_PUBLIC bool
 get_natural_int(const char *string, const char *name, int32_t* number);
 
+/**
+ * @brief Parses a string as a strictly positive 32-bit integer.
+ *
+ * Attempts to convert the input string to an `int32_t` value > 0.
+ * If successful, stores the result in `number` and returns true.
+ *
+ * @param string The input string to parse.
+ * @param name Contextual name used for error reporting.
+ * @param number Pointer to receive the parsed value.
+ * @return true if parsing succeeds and value is > 0, false otherwise.
+ */
 WS_DLL_PUBLIC bool
 get_positive_int(const char *string, const char *name, int32_t* number);
 
+/**
+ * @brief Parses a string as a natural (non-negative) 64-bit integer.
+ *
+ * Attempts to convert the input string to an `int64_t` value ≥ 0.
+ * If successful, stores the result in `number` and returns true.
+ *
+ * @param string The input string to parse.
+ * @param name Contextual name used for error reporting.
+ * @param number Pointer to receive the parsed value.
+ * @return true if parsing succeeds and value is ≥ 0, false otherwise.
+ */
 WS_DLL_PUBLIC bool
 get_natural_int64(const char* string, const char* name, int64_t* number);
 
+/**
+ * @brief Parses a string as a strictly positive 64-bit integer.
+ *
+ * Attempts to convert the input string to an `int64_t` value > 0.
+ * If successful, stores the result in `number` and returns true.
+ *
+ * @param string The input string to parse.
+ * @param name Contextual name used for error reporting.
+ * @param number Pointer to receive the parsed value.
+ * @return true if parsing succeeds and value is > 0, false otherwise.
+ */
 WS_DLL_PUBLIC bool
 get_positive_int64(const char* string, const char* name, int64_t* number);
 
+/**
+ * @brief Parses a string as an unsigned 32-bit integer.
+ *
+ * Attempts to convert the input string to a `uint32_t` value.
+ * If successful, stores the result in `number` and returns true.
+ *
+ * @param string The input string to parse.
+ * @param name Contextual name used for error reporting.
+ * @param number Pointer to receive the parsed value.
+ * @return true if parsing succeeds, false otherwise.
+ */
 WS_DLL_PUBLIC bool
 get_uint32(const char *string, const char *name, uint32_t* number);
 
@@ -65,6 +120,18 @@ get_guint32(const char *string, const char *name) {
     return number;
 }
 
+/**
+ * @brief Parses a string as a non-zero unsigned 32-bit integer.
+ *
+ * Attempts to convert the input string to a `uint32_t` value.
+ * If successful and the value is not zero, stores the result in `number` and returns true.
+ * Returns false if the string is invalid or the parsed value is zero.
+ *
+ * @param string The input string to parse.
+ * @param name Contextual name used for error reporting.
+ * @param number Pointer to receive the parsed value.
+ * @return true if parsing succeeds and value is > 0, false otherwise.
+ */
 WS_DLL_PUBLIC bool
 get_nonzero_uint32(const char *string, const char *name, uint32_t* number);
 
@@ -76,12 +143,45 @@ get_nonzero_guint32(const char *string, const char *name) {
     return number;
 }
 
+/**
+ * @brief Parses a string as an unsigned 64-bit integer.
+ *
+ * Attempts to convert the input string to a `uint64_t` value.
+ * If successful, stores the result in `number` and returns true.
+ *
+ * @param string The input string to parse.
+ * @param name Contextual name used for error reporting.
+ * @param number Pointer to receive the parsed value.
+ * @return true if parsing succeeds, false otherwise.
+ */
 WS_DLL_PUBLIC bool
 get_uint64(const char *string, const char *name, uint64_t* number);
 
+/**
+ * @brief Parses a string as a non-zero unsigned 64-bit integer.
+ *
+ * Attempts to convert the input string to a `uint64_t` value.
+ * If successful and the value is not zero, stores the result in `number` and returns true.
+ *
+ * @param string The input string to parse.
+ * @param name Contextual name used for error reporting.
+ * @param number Pointer to receive the parsed value.
+ * @return true if parsing succeeds and value is > 0, false otherwise.
+ */
 WS_DLL_PUBLIC bool
 get_nonzero_uint64(const char *string, const char *name, uint64_t* number);
 
+/**
+ * @brief Parses a string as a strictly positive double-precision floating-point number.
+ *
+ * Attempts to convert the input string to a `double` value.
+ * If successful and the value is greater than zero, stores the result in `number` and returns true.
+ *
+ * @param string The input string to parse.
+ * @param name Contextual name used for error reporting.
+ * @param number Pointer to receive the parsed value.
+ * @return true if parsing succeeds and value is > 0.0, false otherwise.
+ */
 WS_DLL_PUBLIC bool
 get_positive_double(const char *string, const char *name, double* number);
 
