@@ -147,7 +147,7 @@ as they aren’t required.
 If you don't want register for the Qt Online Installer for macOS, you can install Qt from the command line using https://github.com/miurahr/aqtinstall/releases[Another (unofficial) Qt CLI Installer].
 The AQt command to install Qt and the modules recommended above would look something like the following:
 
-[subs="attributes+"]
+[source,sh,subs="attributes+"]
 ----
 aqt install-qt mac desktop {macos-qt6-lts-version} clang_64 --modules qt5compat qtmultimedia debug_info
 ----
@@ -161,16 +161,16 @@ Before building:
 On macOS, you will need to set the Qt installation directory in the
 environment:
 
-[subs="attributes+"]
+[source,sh,subs="attributes+"]
 ----
-WIRESHARK_QT6_PREFIX_PATH=~/Qt/{macos-qt6-lts-version}/macos
-export WIRESHARK_QT6_PREFIX_PATH
+CMAKE_PREFIX_PATH=/Users/your_username/Qt/{macos-qt6-lts-version}/macos
+export CMAKE_PREFIX_PATH
 ----
 
 If you want to append a custom string to the package version, run the
 command
 
-[subs="attributes+"]
+[source,sh,subs="attributes+"]
 ----
 WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 export WIRESHARK_VERSION_EXTRA
@@ -186,12 +186,14 @@ If that directory is a subdirectory of the top-level source directory,
 to generate the build files, change to the build directory and enter the
 following command:
 
+[source,sh]
 ----
 cmake ..
 ----
 
 to use make as the build tool or
 
+[source,sh]
 ----
 cmake -G Ninja ..
 ----
@@ -203,12 +205,14 @@ same directory that contains the top-level Wireshark source directory,
 to generate the build files, change to the build directory and enter the
 following command:
 
+[source,sh]
 ----
 cmake ../{source directory}
 ----
 
 to use make as the build tool or
 
+[source,sh]
 ----
 cmake -G Ninja ../{source directory}
 ----
@@ -228,6 +232,7 @@ to see what options you have.
 
 You can then run Ninja or make to build Wireshark.
 
+[source,sh]
 ----
 ninja
 # or
@@ -241,6 +246,7 @@ by entering `run/wireshark`.
 
 Install Wireshark in its final destination:
 
+[source,sh]
 ----
 make install
 ----
@@ -331,6 +337,9 @@ Windows. There are https://chocolatey.org/packages[packages] for most of
 the software listed below. Along with traditional Windows packages it
 supports the Python Package Index.
 
+One caveat is that Chocolatey https://github.com/chocolatey/choco/issues/1803[will not install Arm64 packages].
+If you're running on Arm64 you might want to install the native CMake, Git, and Python packages by hand.
+
 Chocolatey tends to install packages into its own path (%ChocolateyInstall%), although packages are free to use their own preferences.
 You can install Chocolatey packages using the command `choco install` (or its shorthand, `cinst`), e.g.
 
@@ -365,6 +374,7 @@ all the optional components other than
 You can alternatively use Chocolatey to install Visual Studio, using the Visual Studio Community and Native Desktop workload packages.
 Note that this includes Visual Studio’s CMake component.
 
+[source,cmd]
 ----
 choco install -y visualstudio2022community visualstudio2022-workload-nativedesktop
 ----
@@ -425,9 +435,6 @@ as they aren’t required.
 The CMake variable CMAKE_PREFIX_PATH (see `https://doc.qt.io/qt-6/cmake-get-started.html`) should be set as appropriate for your environment and should point to the Qt installation directory, e.g. _C:\Qt{backslash}{windows-qt6-lts-version}\msvc2022_64_
 Alternatively you can also use the environment variable WIRESHARK_QT6_PREFIX_PATH.
 
-Qt 6 is the default option for building Wireshark, but Wireshark has support for Qt 5.15 and later. To enable Wireshark to build with Qt 5 pass `-DUSE_qt6=OFF`
-to cmake.
-
 ====== Install Qt using AQt
 
 If you don't want register for the Qt Online Installer for Windows, an alternate possibility can be to use https://github.com/miurahr/aqtinstall/releases[Another (unofficial) Qt CLI Installer].
@@ -436,7 +443,7 @@ To achieve the recommended configuration above, download the latest release and 
 
 Then just run the following command to launch the installation.
 
-[subs="attributes+"]
+[source,cmd,subs="attributes+"]
 ----
 .\aqt.exe install-qt windows desktop {windows-qt6-lts-version} win64_msvc2022_64 -m qt5compat debug_info qtmultimedia
 ----
@@ -452,6 +459,7 @@ _C:\Users{backslash}**username**\AppData\Local\Programs\Python\Python310_, _C:\P
 
 Alternatively you can install Python using Chocolatey:
 
+[source,cmd]
 ----
 choco install -y python3
 ----
@@ -504,6 +512,7 @@ https://tortoisegit.org/download/.
 ====== Command Line client via Chocolatey
 
 The command line client can be installed (and updated) using Chocolatey:
+[source,cmd]
 ----
 choco install -y git
 ----
@@ -529,6 +538,7 @@ Ensure the directory containing cmake.exe is added to your path.
 
 Alternatively you can install it using Chocolatey:
 
+[source,cmd]
 ----
 choco install -y cmake
 ----
@@ -546,6 +556,7 @@ Asciidoctor, xsltproc, and DocBook are required to build the documentation.
 CMake will download a pre-built version of Asciidoctor and DocBook on Windows, but xsltproc must be installed manually.
 You can install it using Chocolatey:
 
+[source,cmd]
 ----
 choco install -y xsltproc
 ----
@@ -561,6 +572,7 @@ Ensure the directory containing win_flex.exe is on your path.
 
 Alternatively you can install Winflexbison using Chocolatey:
 
+[source,cmd]
 ----
 choco install -y winflexbison3
 ----
@@ -581,6 +593,7 @@ and install it into the default location.
 
 Alternatively you can install Perl using Chocolatey:
 
+[source,cmd]
 ----
 choco install -y strawberryperl
 # ...or...
@@ -605,6 +618,7 @@ _C:\Development\wireshark_ using either the command line or Git Extensions:
 
 Using the command line:
 
+[source,cmd]
 ----
 cd C:\Development
 git clone https://gitlab.com/wireshark/wireshark.git
@@ -647,7 +661,7 @@ If you're working from a PowerShell prompt you need to ensure that any environme
 
 // https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
 // https://gitlab.kitware.com/cmake/cmake/-/blob/master/.gitlab/ci/vcvarsall.ps1
-[subs="attributes+"]
+[source,cmd,subs="attributes+"]
 ----
 cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsarm64.bat`" && set" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
 ----
@@ -701,6 +715,7 @@ Create (if required) and change to the appropriate build directory.
 +
 --
 // XXX Our CI builds are in-tree in <src dir>/build.
+[source,cmd]
 ----
 mkdir C:\Development\wsbuild64
 cd C:\Development\wsbuild64
@@ -726,6 +741,7 @@ builds will regenerate the build files as required.
 If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
 
 To generate the build files enter the following at the Visual Studio command prompt:
+[source,cmd]
 ----
 cmake -G "Visual Studio 17 2022" -A x64 ..\wireshark
 ----
@@ -760,6 +776,7 @@ Now it’s time to build Wireshark!
 . Run
 +
 --
+[source,cmd,subs="attributes+"]
 ----
 msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln
 ----

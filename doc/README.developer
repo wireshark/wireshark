@@ -423,24 +423,20 @@ available on all platforms we support. These are optimized better than
 the gnulib (GLib) implementation and on hot codepaths that can be a
 noticeable difference in execution speed.
 
-tmpnam() -> mkstemp()
-tmpnam is insecure and should not be used any more. Wireshark brings its
-own mkstemp implementation for use on platforms that lack mkstemp.
-Note: mkstemp does not accept NULL as a parameter.
-
 Wireshark requires minimum versions of each of the libraries it uses, in
-particular GLib 2.54.0 and Qt 5.15.0 or newer. If you require a mechanism
-that is available only in a newer version of a library then use its
-version detection macros, e.g. "#if GLIB_CHECK_VERSION(...)" and "#if
-QT_VERSION_CHECK(...)" to conditionally compile code using that
-mechanism.
+particular GLib 2.54.0 and Qt 5.15 or newer, although Qt 6 is recommended.
+If you require a mechanism that is available only in a newer version of
+a library then use its version detection macros, e.g.
+"#if GLIB_CHECK_VERSION(...)" and "#if QT_VERSION_CHECK(...)" to
+conditionally compile code using that mechanism.
 
 When different code must be used on UN*X and Win32, use a #if or #ifdef
 that tests _WIN32, not WIN32.  Try to write code portably whenever
 possible, however; note that there are some routines in Wireshark with
 platform-dependent implementations and platform-independent APIs, such
 as the routines in epan/filesystem.c, allowing the code that calls it to
-be written portably without #ifdefs.
+be written portably without #ifdefs. You can find a list of pre-defined
+compiler macros at https://github.com/cpredef/predef.
 
 We support building on Windows using MinGW-w64 (experimental) so be mindful
 of the difference between an #ifdef on _WIN32 and _MSC_VER. The first tests
