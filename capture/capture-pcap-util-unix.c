@@ -31,6 +31,7 @@
 #ifdef HAVE_PCAP_REMOTE
 GList *
 get_remote_interface_list(const char *hostname, const char *port,
+			  bool wireshark_remote _U_,
 			  int auth_type, const char *username,
 			  const char *passwd, int *err, char **err_str)
 {
@@ -40,9 +41,15 @@ get_remote_interface_list(const char *hostname, const char *port,
 #endif
 
 GList *
-get_interface_list(int *err, char **err_str)
+get_interface_list_ws(int *err, char **err_str)
 {
-	return get_interface_list_findalldevs(err, err_str);
+	return get_interface_list_findalldevs(true, err, err_str);
+}
+
+GList*
+get_interface_list_ss(int* err, char** err_str)
+{
+	return get_interface_list_findalldevs(false, err, err_str);
 }
 
 /*

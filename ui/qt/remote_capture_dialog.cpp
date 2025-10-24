@@ -23,6 +23,7 @@
 #include "epan/to_str.h"
 #include "ui/ws_ui_util.h"
 #include "ui/recent.h"
+#include "wsutil/application_flavor.h"
 
 #include <QMessageBox>
 
@@ -119,6 +120,7 @@ void RemoteCaptureDialog::apply_remote()
 
     GList *rlist = get_remote_interface_list(global_remote_opts.remote_host_opts.remote_host,
                                               global_remote_opts.remote_host_opts.remote_port,
+                                              application_flavor_is_wireshark(),
                                               global_remote_opts.remote_host_opts.auth_type,
                                               global_remote_opts.remote_host_opts.auth_username,
                                               global_remote_opts.remote_host_opts.auth_password,

@@ -24,6 +24,7 @@
 #include "capture/capture-pcap-util.h"
 #include "ui/recent.h"
 #include "wsutil/filesystem.h"
+#include "wsutil/application_flavor.h"
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -104,6 +105,7 @@ void ManageInterfacesDialog::addRemote(const QVariantMap&& remoteHostMap)
 
     GList* rlist = get_remote_interface_list(global_remote_opts.remote_host_opts.remote_host,
         global_remote_opts.remote_host_opts.remote_port,
+        application_flavor_is_wireshark(),
         global_remote_opts.remote_host_opts.auth_type,
         global_remote_opts.remote_host_opts.auth_username,
         global_remote_opts.remote_host_opts.auth_password,

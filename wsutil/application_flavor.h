@@ -37,17 +37,6 @@ enum application_flavor_e {
 WS_DLL_PUBLIC void set_application_flavor(enum application_flavor_e flavor);
 
 /**
- * @brief Initialize our application flavor by name
- *
- * Set our application flavor, which determines the top-level
- * configuration directory name and environment variable prefixes.
- * Default is APPLICATION_FLAVOR_WIRESHARK.
- *
- * @param app_name Application name to determine flavor.
- */
-WS_DLL_PUBLIC void set_application_flavor_by_name(const char* app_name);
-
-/**
  * @brief Get the proper (capitalized) application name, suitable for user
  * presentation.
  *

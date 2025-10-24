@@ -36,9 +36,11 @@ extern "C" {
  */
 #define MIN_PACKET_SIZE 1	/* minimum amount of packet data we can read */
 
-GList *get_interface_list(int *err, char **err_str);
+GList *get_interface_list_ws(int *err, char **err_str);
+GList* get_interface_list_ss(int* err, char** err_str);
 #ifdef HAVE_PCAP_REMOTE
 GList *get_remote_interface_list(const char *hostname, const char *port,
+                                 bool wireshark_remote,
                                  int auth_type, const char *username,
                                  const char *passwd, int *err, char **err_str);
 #endif /* HAVE_PCAP_REMOTE */

@@ -20,7 +20,7 @@ extern GList *get_interface_list_findalldevs_ex(const char *hostname,
     const char *port, int auth_type, const char *username, const char *passwd,
     int *err, char **err_str);
 #endif /* HAVE_PCAP_REMOTE */
-extern GList *get_interface_list_findalldevs(int *err, char **err_str);
+extern GList *get_interface_list_findalldevs(bool wire_interface, int *err, char **err_str);
 
 extern if_capabilities_t *get_if_capabilities_local(interface_options *interface_opts,
     cap_device_open_status *status, char **status_str);

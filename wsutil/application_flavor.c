@@ -21,16 +21,6 @@ void set_application_flavor(enum application_flavor_e flavor)
     application_flavor = flavor;
 }
 
-void set_application_flavor_by_name(const char* app_name)
-{
-    if (g_ascii_strcasecmp(app_name, "stratoshark") == 0) {
-        application_flavor = APPLICATION_FLAVOR_STRATOSHARK;
-        return;
-    }
-
-    application_flavor = APPLICATION_FLAVOR_WIRESHARK;
-}
-
 const char *application_flavor_name_proper(void) {
     switch (application_flavor) {
     case APPLICATION_FLAVOR_WIRESHARK:

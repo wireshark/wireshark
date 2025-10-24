@@ -28,7 +28,6 @@
 #include <signal.h>
 #include <errno.h>
 
-#include <wsutil/application_flavor.h>
 #include <wsutil/array.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/report_message.h>
@@ -128,6 +127,7 @@ static int64_t pcap_queue_packet_limit;
 
 static bool capture_child; /* false: standalone call, true: this is an Wireshark capture child */
 static const char *report_capture_filename; /* capture child file name */
+static char* app_flavor_name = "wireshark";
 #ifdef _WIN32
 static char *sig_pipe_name;
 static HANDLE sig_pipe_handle;
@@ -996,7 +996,7 @@ print_statistics_loop(bool machine_readable)
     char        errbuf[PCAP_ERRBUF_SIZE];
     struct pcap_stat ps;
 
-    if_list = get_interface_list(&err, &err_str);
+    if_list = global_capture_opts.get_iface_list(&err, &err_str);
     if (if_list == NULL) {
         if (err == 0) {
             cmdarg_err("There are no interfaces on which a capture can be done");
@@ -5487,7 +5487,11 @@ main(int argc, char *argv[])
 
     /* Set the initial values in the capture options. This might be overwritten
        by the command line parameters. */
-    capture_opts_init(&global_capture_opts, application_flavor_name_lower(), get_interface_list);
+    if (strcmp(app_flavor_name, "stratoshark") == 0) {
+        capture_opts_init(&global_capture_opts, app_flavor_name, get_interface_list_ss);
+    } else {
+        capture_opts_init(&global_capture_opts, app_flavor_name, get_interface_list_ws);
+    }
     /* We always save to a file - if no file was specified, we save to a
        temporary file. */
     global_capture_opts.saving_to_file      = true;
@@ -5509,7 +5513,7 @@ main(int argc, char *argv[])
             exit_main();
             return EXIT_SUCCESS;
         case LONGOPT_APPLICATION_FLAVOR:
-            set_application_flavor_by_name(ws_optarg);
+            app_flavor_name = ws_strdup(ws_optarg);
             break;
         /*** capture option specific ***/
         case 'a':        /* autostop criteria */
@@ -5790,7 +5794,7 @@ main(int argc, char *argv[])
         int    err;
         char *err_str;
 
-        if_list = get_interface_list(&err, &err_str);
+        if_list = global_capture_opts.get_iface_list(&err, &err_str);
         if (if_list == NULL) {
             if (err == 0) {
                 /*

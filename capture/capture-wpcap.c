@@ -26,7 +26,6 @@
 
 #include "capture/capture-wpcap.h"
 #include <wsutil/feature_list.h>
-#include <wsutil/application_flavor.h>
 
 bool has_npcap;
 
@@ -763,10 +762,11 @@ int pcap_next_ex(pcap_t *a, struct pcap_pkthdr **b, const u_char **c)
 #ifdef HAVE_PCAP_REMOTE
 GList *
 get_remote_interface_list(const char *hostname, const char *port,
+			  bool wireshark_remote,
 			  int auth_type, const char *username,
 			  const char *passwd, int *err, char **err_str)
 {
-	if (!has_npcap && application_flavor_is_wireshark()) {
+	if (!has_npcap && wireshark_remote) {
 		/*
 		 * We don't have Npcap, so we can't get a list of interfaces.
 		 */
@@ -782,9 +782,9 @@ get_remote_interface_list(const char *hostname, const char *port,
 #endif
 
 GList *
-get_interface_list(int *err, char **err_str)
+get_interface_list_ws(int *err, char **err_str)
 {
-	if (!has_npcap && application_flavor_is_wireshark()) {
+	if (!has_npcap) {
 		/*
 		 * We don't have Npcap, so we can't get a list of interfaces.
 		 */
@@ -794,7 +794,13 @@ get_interface_list(int *err, char **err_str)
 		return NULL;
 	}
 
-	return get_interface_list_findalldevs(err, err_str);
+	return get_interface_list_findalldevs(true, err, err_str);
+}
+
+GList*
+get_interface_list_ss(int* err, char** err_str)
+{
+	return get_interface_list_findalldevs(false, err, err_str);
 }
 
 /*
