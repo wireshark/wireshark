@@ -17,6 +17,7 @@
  * Copyright 2024, Martin Ostertag <martin.ostertag@zhaw.ch>
  *                 Aurel Hess <hesu@zhaw.ch>
  * Copyright 2025, Alex Gebhard <alexander.gebhard@marquette.edu>
+ * Copyright 2025, Prashant Tripathi <prashant.tripathi@selinc.com>
  *
  * Revisions:
  * - Markus Seehofer 09.08.2005 <mseehofe@nt.hirschmann.de>
@@ -57,6 +58,8 @@
  * - Erez Geva 30-04-2025 <ErezGeva2@gmail.com>
  *   - Fix wrong PTPv2 Management IDs
  *   - Add missing PTPv2 Management TLVs dissection
+ * - Prashant Tripathi 23-10-2025 <prashant_tripathi@selinc.com>
+ *   - Fix the parsing of organizationSubType field in C37_238 2017 TLV
 
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -3778,9 +3781,6 @@ dissect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *t
                 case PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C372382017TLV: {
                     proto_tree *ptp_tlv_tree = proto_tree_add_subtree(ptp_tree, tvb, offset, tlv_length + PTP_V2_TLV_HEADER_LENGTH, ett_ptp_v2_tlv, &ti_tlv, "IEEE_C37_238 2017 TLV");
                     offset += dissect_ptp_v2_tlv_org_fields(tvb, offset, ptp_tlv_tree, hf_ptp_tlv_oe_organizationsubtype);
-
-                    proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_oe_tlv_ieee_c37_238_2017_organizationsubtype, tvb, offset, 3, ENC_BIG_ENDIAN);
-                    offset += 3;
 
                     proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmasterid, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
