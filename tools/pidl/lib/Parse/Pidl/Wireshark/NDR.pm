@@ -414,13 +414,19 @@ sub ElementLevel($$$$$$$$)
 					$t = $l->{DATA_TYPE};
 				}
 
+				if ($param ne 0) {
+					$self->{conformance}->{dissectorparams}->{$myname}->{USED} = 1;
+				}
 				$self->pidl_code("offset = $ifname\_dissect_struct_" . $t . "(tvb,offset,pinfo,tree,di,drep,$hf,$param);");
 
 				return;
 			}
 
 			$call =~ s/\@HF\@/$hf/g;
-			$call =~ s/\@PARAM\@/$param/g;
+			my $replacements = ($call =~ s/\@PARAM\@/$param/g);
+			if ($param ne 0 and $replacements ne 0) {
+				$self->{conformance}->{dissectorparams}->{$myname}->{USED} = 1;
+			}
 			$self->pidl_code($call);
 		}
 	} elsif ($_->{TYPE} eq "SUBCONTEXT") {
@@ -449,6 +455,7 @@ sub ElementLevel($$$$$$$$)
 
 		$self->pidl_code("subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);");
 		if ($param ne 0) {
+			$self->{conformance}->{dissectorparams}->{$myname}->{USED} = 1;
 			$self->pidl_code("$myname\_(subtvb, 0, pinfo, tree, di, drep, $param);");
 		} else {
 			$self->pidl_code("$myname\_(subtvb, 0, pinfo, tree, di, drep);");
