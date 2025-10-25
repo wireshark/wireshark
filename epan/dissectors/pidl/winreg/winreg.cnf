@@ -3,7 +3,7 @@ TYPE winreg_Type "offset=misc_dissect_enum_winreg_Type(tvb, offset, pinfo, tree,
 IMPORT security_secinfo 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_winreg_winreg_GetKeySecurity_sec_info, NULL);
 
 #
-# Make all instances of an access mask use the same hf field display filter 
+# Make all instances of an access mask use the same hf field display filter
 # name
 #
 HF_FIELD hf_winreg_access_mask "Access Mask" "winreg.access_mask" FT_UINT32 BASE_HEX NULL 0 "" "" ""
@@ -100,16 +100,16 @@ PARAM_VALUE winreg_dissect_element_CloseKey_handle_ PIDL_POLHND_CLOSE
 #
 # Create a new type to handle winreg_String so that we can get nice and
 # pretty dissection of the strings contained within winreg
-TYPE winreg_String "offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4 
+TYPE winreg_String "offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
 #
 #
 #
 PARAM_VALUE winreg_dissect_element_CreateKey_name 2|PIDL_SET_COL_INFO
 PARAM_VALUE winreg_dissect_element_DeleteKey_key 2|PIDL_SET_COL_INFO
-PARAM_VALUE winreg_dissect_element_LoadKey_keyname 2|PIDL_SET_COL_INFO
+PARAM_VALUE winreg_dissect_element_LoadKey_keyname_ 2|PIDL_SET_COL_INFO
 PARAM_VALUE winreg_dissect_element_OpenKey_keyname 2|PIDL_SET_COL_INFO|PIDL_STR_SAVE
-PARAM_VALUE winreg_dissect_element_QueryValue_value_name 2|PIDL_SET_COL_INFO
-PARAM_VALUE winreg_dissect_element_SaveKey_filename 2|PIDL_SET_COL_INFO
+PARAM_VALUE winreg_dissect_element_QueryValue_value_name_ 2|PIDL_SET_COL_INFO
+PARAM_VALUE winreg_dissect_element_SaveKey_filename_ 2|PIDL_SET_COL_INFO
 PARAM_VALUE winreg_dissect_element_SetValue_name 2|PIDL_SET_COL_INFO
 
 #
@@ -215,7 +215,7 @@ cnf_dissect_winreg_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	if (parent_tree) {
 		tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 0, ett_winreg_winreg_String, &item, "%s: ", hf_info->name);
 	}
-	
+
 	offset = winreg_dissect_element_String_name_len(tvb, offset, pinfo, tree, di, drep);
 
 	offset = winreg_dissect_element_String_name_size(tvb, offset, pinfo, tree, di, drep);
