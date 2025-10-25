@@ -1915,6 +1915,7 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t length
             count++;
             DISSECTOR_ASSERT_HINT(count < MAX_LOOP_ITERATIONS, "MAX_LOOP_ITERATIONS exceeded");
         }
+        ret = composite_tvb != NULL;
 
     } else {
 
@@ -1924,9 +1925,9 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t length
             goto end;
         }
         *decompressed_offset = 0;
+        ret = true;
 
     }
-    ret = true;
 end:
     if (composite_tvb) {
         tvb_composite_finalize(composite_tvb);
