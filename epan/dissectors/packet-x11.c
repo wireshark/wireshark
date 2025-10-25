@@ -1419,55 +1419,77 @@ static void listOfByte(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 }
 
 static void listOfCard16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
-                         int hf_item, int length, unsigned byte_order)
+                         int hf_item, unsigned num_items, unsigned byte_order)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 2, byte_order);
+      int length;
+      if (ckd_mul(&length, num_items, 2)) {
+            // hf is a FT_NONE, so this will mean "to the end of the tvbuff"
+            // An exception will be thrown at some point when adding an item.
+            length = INT_MAX;
+      }
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length, byte_order);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
-      while(length--) {
+      while(num_items--) {
             proto_tree_add_item(tt, hf_item, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
       }
 }
 
 static void listOfInt16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
-                         int hf_item, int length, unsigned byte_order)
+                         int hf_item, unsigned num_items, unsigned byte_order)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 2, byte_order);
+      int length;
+      if (ckd_mul(&length, num_items, 2)) {
+            length = INT_MAX;
+      }
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length, byte_order);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
-      while(length--) {
+      while(num_items--) {
             proto_tree_add_item(tt, hf_item, tvb, *offsetp, 2, byte_order);
             *offsetp += 2;
       }
 }
 
 static void listOfCard32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
-                         int hf_item, int length, unsigned byte_order)
+                         int hf_item, unsigned num_items, unsigned byte_order)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, byte_order);
+      int length;
+      if (ckd_mul(&length, num_items, 4)) {
+            length = INT_MAX;
+      }
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length, byte_order);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
-      while(length--) {
+      while(num_items--) {
             proto_tree_add_item(tt, hf_item, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
       }
 }
 
 static void listOfInt32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
-                         int hf_item, int length, unsigned byte_order)
+                         int hf_item, unsigned num_items, unsigned byte_order)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, byte_order);
+      int length;
+      if (ckd_mul(&length, num_items, 4)) {
+            length = INT_MAX;
+      }
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length, byte_order);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
-      while(length--) {
+      while(num_items--) {
             proto_tree_add_item(tt, hf_item, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
       }
 }
 
 static void listOfCard64(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
-                         int hf_item, int length, unsigned byte_order)
+                         int hf_item, unsigned num_items, unsigned byte_order)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, byte_order);
+      int length;
+      if (ckd_mul(&length, num_items, 8)) {
+            length = INT_MAX;
+      }
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length, byte_order);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
-      while(length--) {
+      while(num_items--) {
             proto_tree_add_item(tt, hf_item, tvb, *offsetp, 8, byte_order);
             *offsetp += 8;
       }
@@ -1475,11 +1497,15 @@ static void listOfCard64(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
 #if 0 /* Not yet used by any extension */
 static void listOfInt64(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
-                         int hf_item, int length, unsigned byte_order)
+                         int hf_item, unsigned num_items, unsigned byte_order)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, byte_order);
+      int length;
+      if (ckd_mul(&length, num_items, 8)) {
+            length = INT_MAX;
+      }
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length, byte_order);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
-      while(length--) {
+      while(num_items--) {
             proto_tree_add_item(tt, hf_item, tvb, *offsetp, 8, byte_order);
             *offsetp += 8;
       }
@@ -1487,22 +1513,30 @@ static void listOfInt64(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 #endif
 
 static void listOfFloat(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
-                         int hf_item, int length, unsigned byte_order)
+                         int hf_item, unsigned num_items, unsigned byte_order)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, byte_order);
+      int length;
+      if (ckd_mul(&length, num_items, 4)) {
+            length = INT_MAX;
+      }
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length, byte_order);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_float);
-      while(length--) {
+      while(num_items--) {
             proto_tree_add_item(tt, hf_item, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
       }
 }
 
 static void listOfDouble(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
-                         int hf_item, int length, unsigned byte_order)
+                         int hf_item, unsigned num_items, unsigned byte_order)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, byte_order);
+      int length;
+      if (ckd_mul(&length, num_items, 8)) {
+            length = INT_MAX;
+      }
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length, byte_order);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_double);
-      while(length--) {
+      while(num_items--) {
             proto_tree_add_item(tt, hf_item, tvb, *offsetp, 8, byte_order);
             *offsetp += 8;
       }
@@ -3826,11 +3860,11 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             case 16:
                 if (v32)
-                    LISTofCARD16(data16, v32 * 2);
+                    listOfCard16(tvb, offsetp, t, hf_x11_data16, hf_x11_data16_item, v32, byte_order);
                 break;
             case 32:
                 if (v32)
-                    LISTofCARD32(data32, v32 * 4);
+                    listOfCard32(tvb, offsetp, t, hf_x11_data32, hf_x11_data32_item, v32, byte_order);
                 break;
             default:
                 expert_add_info(pinfo, ti, &ei_x11_invalid_format);
