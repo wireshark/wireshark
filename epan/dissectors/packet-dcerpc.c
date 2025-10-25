@@ -1740,6 +1740,7 @@ dcerpc_init_from_handle(int proto, e_guid_t *uuid, uint16_t ver,
     value.proto_id = proto;
     value.ett      = -1;
     value.name     = proto_get_protocol_short_name(value.proto);
+    value.procs    = NULL;
     value.opnum_hf = 0;
 
     if (uuid_type_remove_if_present(dcerpc_uuid_id, &key)) {
