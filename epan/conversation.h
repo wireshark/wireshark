@@ -337,6 +337,14 @@ WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_by_id(const uint32_
 WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_err_pkts(const uint32_t setup_frame, const conversation_type ctype, const uint32_t id, const uint32_t rid);
 
 /**
+ * Returns the Deinterlacing support status
+ *
+ * @param pinfo Packet info.
+ * @return true if deinterlacing is supported and enabled by the user pref, false otherwise
+ */
+WS_DLL_PUBLIC bool is_deinterlacing_supported(const packet_info *pinfo);
+
+/**
  *
  */
 WS_DLL_PUBLIC WS_RETNONNULL conversation_t *conversation_new_deinterlaced(const uint32_t setup_frame, const address *addr1, const address *addr2,

@@ -3099,6 +3099,20 @@ find_conversation_pinfo_deinterlaced(const packet_info *pinfo, const uint32_t an
     return conv;
 }
 
+/*
+ * Returns true when deinterlacing is supported (file format) and enabled (user pref)
+ */
+bool
+is_deinterlacing_supported(const packet_info *pinfo)
+{
+    if( (pinfo->pseudo_header != NULL)
+        && (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ETHERNET)
+        && (prefs.conversation_deinterlacing_key>0)) {
+        return true;
+    }
+    return false;
+}
+
 conversation_t *
 find_conversation_pinfo_strat(const packet_info *pinfo, const unsigned options)
 {

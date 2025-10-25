@@ -179,7 +179,17 @@ extern wmem_map_t* session_imsi;
 /* Relation between <teid,ip> -> frame */
 extern wmem_map_t* frame_map;
 
+/* Relation between <teid,convid,ip> -> frame,
+ * similar to frame_map but involved when deinterlacing is enabled
+ */
+extern wmem_map_t* frame_map_deint;
+
 uint32_t get_frame(address ip, uint32_t teid, uint32_t *frame);
+
+/* Similar to get_frame() but relies on the deinterlacer Map (frame_map_deint)
+ * XXX - For now GTP ignores deinterlacing, and GTPv2 supports it.
+ */
+uint32_t get_gtp_session_frame(address ip, uint32_t teid, uint32_t convid, uint32_t *frame, bool ignore_conv);
 
 void remove_frame_info(uint32_t f);
 
@@ -189,7 +199,10 @@ bool teid_exists(uint32_t teid, wmem_list_t *teid_list);
 
 bool ip_exists(address ip, wmem_list_t *ip_list);
 
-void fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame);
+/**
+ * Fills the frame_map or frame_map_deint according to the deinterlacing mode
+ */
+void fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame, uint32_t convid, bool ignore_conv);
 
 bool is_cause_accepted(uint8_t cause, uint32_t version);
 

@@ -1542,6 +1542,7 @@ typedef struct gtpv2_msg_hash_entry {
     uint32_t rep_frame;      /*frame with reply */
     int seq_nr;            /*sequence number*/
     unsigned msgtype;          /*messagetype*/
+    uint32_t conv_id;      /*IP conversation ID, for handling deinterlacing*/
 } gtpv2_msg_hash_t;
 
 static unsigned
@@ -9164,6 +9165,7 @@ static gtpv2_msg_hash_t *
 gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int seq_nr, unsigned msgtype, gtpv2_conv_info_t *gtpv2_info, uint8_t last_cause)
 {
     gtpv2_msg_hash_t   gcr, *gcrp = NULL;
+    conversation_t *conv;
     uint32_t session;
 
     gcr.seq_nr = seq_nr;
@@ -9192,6 +9194,10 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int
         gcr.is_request = true;
         gcr.req_frame = pinfo->num;
         gcr.rep_frame = 0;
+
+        conv = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
+        gcr.conv_id = conv->conv_index;
+
         break;
     case GTPV2_CREATE_SESSION_RESPONSE:
     case GTPV2_CREATE_BEARER_RESPONSE:
@@ -9216,11 +9222,16 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int
         gcr.is_request = false;
         gcr.req_frame = 0;
         gcr.rep_frame = pinfo->num;
+
+        conv = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
+        gcr.conv_id = conv->conv_index;
+
         break;
     default:
         gcr.is_request = false;
         gcr.req_frame = 0;
         gcr.rep_frame = 0;
+        gcr.conv_id = 0;
         break;
     }
 
@@ -9267,6 +9278,10 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int
             gcrp->rep_frame = 0;
             gcrp->msgtype = msgtype;
             gcrp->is_request = true;
+
+            conv = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
+            gcrp->conv_id = conv->conv_index;
+
             wmem_map_insert(gtpv2_info->unmatched, gcrp, gcrp);
             return NULL;
         case GTPV2_CREATE_SESSION_RESPONSE:
@@ -9297,6 +9312,10 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int
                     wmem_map_remove(gtpv2_info->unmatched, gcrp);
                     gcrp->rep_frame = pinfo->num;
                     gcrp->is_request = false;
+
+                    conv = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
+                    gcrp->conv_id = conv->conv_index;
+
                     wmem_map_insert(gtpv2_info->matched, gcrp, gcrp);
                 }
             }
@@ -9376,35 +9395,78 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
             else if (gtpv2_hdr->message != GTPV2_CREATE_SESSION_RESPONSE) {
                 /* We have to check if its teid == teid_cp and ip.dst == gsn_ipv4 from the lists, if that is the case then we have to assign
                 the corresponding session ID */
-                if ((get_frame(pinfo->dst, (uint32_t)gtpv2_hdr->teid, &frame_teid_cp) == 1)) {
-                    /* Then we have to set its session ID */
-                    session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
-                    if (session) {
-                        /* We add the corresponding session to the list so that when a response came we can associate its session ID*/
-                        add_gtp_session(pinfo->num, session);
+
+                /* Handle deinterlacing case */
+                if(is_deinterlacing_supported(pinfo)) {
+                    conversation_t  *conversation;
+                    conversation = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
+
+                    if ((get_gtp_session_frame(pinfo->dst, (uint32_t)gtpv2_hdr->teid, conversation->conv_index, &frame_teid_cp, 0) == 1)) {
+
+                        /* Then we have to set its session ID */
+                        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
+                        if (session) {
+                            /* We add the corresponding session to the list so that when a response came we can associate its session ID*/
+                            add_gtp_session(pinfo->num, session);
+
+                            if (args->imsi) {
+                                imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                                wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
+                            }
+                        }
+                    }
+                    else if (gtpv2_hdr->message == GTPV2_MODIFY_BEARER_REQUEST) {
+                        /* If MBEAREQ and not already in the list then we create a new session*/
+                        add_gtp_session(pinfo->num, gtp_session_count);
 
                         if (args->imsi) {
                             imsi = wmem_strdup(wmem_file_scope(), args->imsi);
-                            wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
+                            wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count++), imsi);
+                        } else {
+                            /* If handover from 5G, look up referenceid from earlier HTTP2 streams */
+                            static char to_str_back_buf[32];
+                            #define BACK_PTR (&to_str_back_buf[31]) /* pointer to NUL string terminator */
+
+                            char* referenceid = uint_to_str_back(BACK_PTR, (uint32_t)gtpv2_hdr->teid);
+                            imsi = http2_get_imsi_from_location(referenceid);
+                            if(imsi) {
+                                wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count++), imsi);
+                            }
                         }
                     }
                 }
-                else if (gtpv2_hdr->message == GTPV2_MODIFY_BEARER_REQUEST) {
-                    /* If MBEAREQ and not already in the list then we create a new session*/
-                    add_gtp_session(pinfo->num, gtp_session_count);
 
-                    if (args->imsi) {
-                        imsi = wmem_strdup(wmem_file_scope(), args->imsi);
-                        wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count++), imsi);
-                    } else {
-                        /* If handover from 5G, look up location from earlier HTTP2 streams */
-                        static char to_str_back_buf[32];
-                        #define BACK_PTR (&to_str_back_buf[31]) /* pointer to NUL string terminator */
+                else { // no deinterlacing supported/asked
+                    if ((get_frame(pinfo->dst, (uint32_t)gtpv2_hdr->teid, &frame_teid_cp) == 1)) {
+                        /* Then we have to set its session ID */
+                        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
+                        if (session) {
+                            /* We add the corresponding session to the list so that when a response came we can associate its session ID*/
+                            add_gtp_session(pinfo->num, session);
 
-                        char* location = uint_to_str_back(BACK_PTR, (uint32_t)gtpv2_hdr->teid);
-                        imsi = http2_get_imsi_from_location(location);
-                        if(imsi) {
+                            if (args->imsi) {
+                                imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                                wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
+                            }
+                        }
+                    }
+                    else if (gtpv2_hdr->message == GTPV2_MODIFY_BEARER_REQUEST) {
+                        /* If MBEAREQ and not already in the list then we create a new session*/
+                        add_gtp_session(pinfo->num, gtp_session_count);
+
+                        if (args->imsi) {
+                            imsi = wmem_strdup(wmem_file_scope(), args->imsi);
                             wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count++), imsi);
+                        } else {
+                            /* If handover from 5G, look up location from earlier HTTP2 streams */
+                            static char to_str_back_buf[32];
+                            #define BACK_PTR (&to_str_back_buf[31]) /* pointer to NUL string terminator */
+
+                            char* location = uint_to_str_back(BACK_PTR, (uint32_t)gtpv2_hdr->teid);
+                            imsi = http2_get_imsi_from_location(location);
+                            if(imsi) {
+                                wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count++), imsi);
+                            }
                         }
                     }
                 }
@@ -9586,7 +9648,11 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     /*
     * Do we have a conversation for this connection?
     */
-    conversation = find_or_create_conversation(pinfo);
+    conversation = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
+    if(conversation == NULL) {
+        // XXX - very unlikely this is needed as we're carried over IP
+        conversation_new_strat(pinfo, CONVERSATION_IP, NO_PORTS);
+    }
 
     /*
     * Do we already know this conversation?
@@ -9689,7 +9755,13 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     cause_aux = 16; /* Cause accepted by default. Only used when args is NULL */
     if (args && !PINFO_FD_VISITED(pinfo)) {
         /* We insert the lists inside the table*/
-        fill_map(args->teid_list, args->ip_list, pinfo->num);
+        if(is_deinterlacing_supported(pinfo)) {
+            fill_map(args->teid_list, args->ip_list, pinfo->num, conversation->conv_index, 0);
+        }
+        else {
+            // no deinterlacing supported/asked
+            fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1);
+        }
         cause_aux = args->last_cause;
     }
     gcrp = gtpv2_match_response(tvb, pinfo, gtpv2_tree, seq_no, message_type, gtpv2_info, cause_aux);
