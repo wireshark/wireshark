@@ -502,7 +502,7 @@ sub Element($$$$$$)
 
 	my ($call_code, $moreparam);
 	my $param = 0;
-	if (defined $isoruseswitch) {
+	if (defined $isoruseswitch and @$isoruseswitch) {
 		my $type = $isoruseswitch->[0];
 		my $name = $isoruseswitch->[1];
 
@@ -754,6 +754,9 @@ sub Struct($$$$)
 		if (has_property($_, "switch_is")) {
 			my $varswitch = $_->{PROPERTIES}->{switch_is};
 			$switch_info = $varswitchs->{$varswitch};
+                        if (not @$switch_info) {
+                                warning($_->{ORIGINAL}, "`$v' switch_is discriminant `$varswitch' not found. (Only single identifiers are supported, not expressions as in MIDL.)");
+                        }
 		}
 
 		$res.="\t".$self->Element($_, $name, $ifname, $switch_info, %switch_hash)."\n\n";
