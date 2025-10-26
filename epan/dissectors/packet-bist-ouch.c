@@ -118,7 +118,7 @@ typedef struct order_group_t_ {
 } order_group_t;
 
 typedef struct ob_frame_idx_t_ {
-    uint32_t       index;        /* per-group incremental index */
+    uint32_t       idx;          /* per-group incremental index */
     uint32_t       global_index; /* capture-wide OUCH ordinal */
     order_group_t *group;        /* root group pointer */
     uint32_t       prev_frame;   /* immediate previous frame in this order chain */
@@ -523,13 +523,13 @@ ob_track_and_annotate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, proto_i
                 root->tail_frame = pinfo->fd->num;
                 root->last_frame = pinfo->fd->num;
             }
-            pd->index = root ? root->next_index++ : 0;
+            pd->idx = root ? root->next_index++ : 0;
             if (root) root->total = root->next_index - 1;
             pd->group = root;
         }
     }
 
-    const uint32_t idx  = pd ? pd->index : 0;
+    const uint32_t idx  = pd ? pd->idx : 0;
     const uint32_t gidx = pd ? pd->global_index : 0;
     const uint32_t gid  = (pd && pd->group) ? pd->group->group_id : 0;
 
