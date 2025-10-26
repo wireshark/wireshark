@@ -46,18 +46,44 @@ struct report_message_routines {
 	void (*report_cfile_close_failure)(const char *, int, char *);
 };
 
+/**
+ * @brief Initialize the report message system with program context and output routines.
+ *
+ * This function sets up the global reporting mechanism used for error, warning,
+ * and informational messages. It registers the program name and the set of
+ * callback routines that handle message output.
+ *
+ * @param friendly_program_name A human-readable name for the program (e.g., "Wireshark").
+ *                              This name may be included in formatted messages.
+ * @param routines Pointer to a structure containing function pointers for handling
+ *                 different types of report messages (e.g., errors, warnings, debug).
+ *
+ * @note This function should be called early during application initialization,
+ * before any report messages are emitted.
+ */
 WS_DLL_PUBLIC void init_report_message(const char *friendly_program_name,
-    const struct report_message_routines *routines);
+                                       const struct report_message_routines *routines);
 
-/*
- * Report a general error.
+/**
+ * @brief Report a general error message.
+ *
+ * Formats and emits an error message using the global reporting system.
+ *
+ * @param msg_format `printf`-style format string.
+ * @param ... Arguments matching the format string.
  */
 WS_DLL_PUBLIC void report_failure(const char *msg_format, ...) G_GNUC_PRINTF(1, 2);
 
-/*
- * Report a general warning.
+/**
+ * @brief Report a general warning message.
+ *
+ * Formats and emits a warning message using the global reporting system.
+ *
+ * @param msg_format `printf`-style format string.
+ * @param ... Arguments matching the format string.
  */
 WS_DLL_PUBLIC void report_warning(const char *msg_format, ...) G_GNUC_PRINTF(1, 2);
+
 
 /*
  * Report an error when trying to open a file.
@@ -118,8 +144,8 @@ WS_DLL_PUBLIC void report_cfile_write_failure(const char *in_filename,
 WS_DLL_PUBLIC void report_cfile_close_failure(const char *filename,
     int err, char *err_info);
 
-/*
- * Return the "friendly" program name.
+/**
+ * @brief Return the "friendly" program name.
  */
 WS_DLL_PUBLIC const char *get_friendly_program_name(void);
 

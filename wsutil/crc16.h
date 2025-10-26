@@ -39,6 +39,7 @@ WS_DLL_PUBLIC uint16_t crc16_ccitt(const uint8_t *buf, unsigned len);
  @brief Compute CRC16 X.25 CCITT checksum of a buffer of data.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
+ @param seed The seed to use.
  @return The CRC16 X.25 CCITT checksum. */
 WS_DLL_PUBLIC uint16_t crc16_x25_ccitt_seed(const uint8_t *buf, unsigned len, uint16_t seed);
 

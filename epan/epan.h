@@ -21,10 +21,22 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** Global variable holding the content of the corresponding environment variable
- * to save fetching it repeatedly.
+/**
+ * @brief Controls whether Wireshark should abort on a dissector bug.
+ *
+ * This global variable reflects the value of the corresponding environment variable,
+ * allowing Wireshark to avoid repeatedly querying the environment.
+ * If set to true, Wireshark will abort when a dissector bug is detected.
  */
 extern bool wireshark_abort_on_dissector_bug;
+
+/**
+ * @brief Controls whether Wireshark should abort when too many items are added to a tree.
+ *
+ * This global variable reflects the value of the corresponding environment variable,
+ * allowing Wireshark to avoid repeatedly querying the environment.
+ * If set to true, Wireshark will abort when the protocol tree exceeds a safety threshold.
+ */
 extern bool wireshark_abort_on_too_many_items;
 
 /**
@@ -39,8 +51,8 @@ WS_DLL_PUBLIC void ws_dissector_bug(const char *format, ...)
 /**
  * @brief Report a dissector OOPS (and optionally abort).
  *
- * @param format  printf-like format string literal.
- * @param ...     printf-like parameters.
+ * @param _fmt  printf-like format string literal.
+ * @param ...   printf-like parameters.
  */
 #define ws_dissector_oops(_fmt, ...) ws_dissector_bug("OOPS: " _fmt, __VA_ARGS__)
 
@@ -70,15 +82,90 @@ struct packet_provider_data;
  * information about packets, interfaces, or processes during packet processing.
  */
 struct packet_provider_funcs {
-	const nstime_t *(*get_frame_ts)(struct packet_provider_data *prov, uint32_t frame_num);
-	const nstime_t *(*get_start_ts)(struct packet_provider_data *prov);
-	const nstime_t *(*get_end_ts)(struct packet_provider_data *prov);
-	const char *(*get_interface_name)(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
-	const char *(*get_interface_description)(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
-	wtap_block_t (*get_modified_block)(struct packet_provider_data *prov, const frame_data *fd);
-	int32_t(*get_process_id)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number);
-	const char *(*get_process_name)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number);
-	const uint8_t *(*get_process_uuid)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, size_t *uuid_size);
+    /**
+     * @brief Get the timestamp of a specific frame.
+     *
+     * @param prov Packet provider context.
+     * @param frame_num Frame number to query.
+     * @return Pointer to the timestamp, or NULL if unavailable.
+     */
+    const nstime_t *(*get_frame_ts)(struct packet_provider_data *prov, uint32_t frame_num);
+
+    /**
+     * @brief Get the start timestamp of the capture session.
+     *
+     * @param prov Packet provider context.
+     * @return Pointer to the start timestamp, or NULL if unavailable.
+     */
+    const nstime_t *(*get_start_ts)(struct packet_provider_data *prov);
+
+    /**
+     * @brief Get the end timestamp of the capture session.
+     *
+     * @param prov Packet provider context.
+     * @return Pointer to the end timestamp, or NULL if unavailable.
+     */
+    const nstime_t *(*get_end_ts)(struct packet_provider_data *prov);
+
+    /**
+     * @brief Get the name of a capture interface.
+     *
+     * @param prov Packet provider context.
+     * @param interface_id Interface identifier.
+     * @param section_number Capture section number.
+     * @return Interface name string, or NULL if unavailable.
+     */
+    const char *(*get_interface_name)(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
+
+    /**
+     * @brief Get the description of a capture interface.
+     *
+     * @param prov Packet provider context.
+     * @param interface_id Interface identifier.
+     * @param section_number Capture section number.
+     * @return Interface description string, or NULL if unavailable.
+     */
+    const char *(*get_interface_description)(struct packet_provider_data *prov, uint32_t interface_id, unsigned section_number);
+
+    /**
+     * @brief Get a modified WTAP block for a given frame.
+     *
+     * @param prov Packet provider context.
+     * @param fd Frame metadata.
+     * @return Modified WTAP block, or NULL if unchanged.
+     */
+    wtap_block_t (*get_modified_block)(struct packet_provider_data *prov, const frame_data *fd);
+
+    /**
+     * @brief Get the process ID associated with a packet.
+     *
+     * @param prov Packet provider context.
+     * @param process_info_id Process info identifier.
+     * @param section_number Capture section number.
+     * @return Process ID, or -1 if unavailable.
+     */
+    int32_t (*get_process_id)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number);
+
+    /**
+     * @brief Get the name of the process associated with a packet.
+     *
+     * @param prov Packet provider context.
+     * @param process_info_id Process info identifier.
+     * @param section_number Capture section number.
+     * @return Process name string, or NULL if unavailable.
+     */
+    const char *(*get_process_name)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number);
+
+    /**
+     * @brief Get the UUID of the process associated with a packet.
+     *
+     * @param prov Packet provider context.
+     * @param process_info_id Process info identifier.
+     * @param section_number Capture section number.
+     * @param uuid_size Output parameter for the size of the UUID.
+     * @return Pointer to the UUID byte array, or NULL if unavailable.
+     */
+    const uint8_t *(*get_process_uuid)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, size_t *uuid_size);
 };
 
 /**
@@ -135,15 +222,59 @@ WS_DLL_PUBLIC
 void epan_cleanup(void);
 
 
+/**
+ * @struct epan_plugin
+ * @brief Plugin interface for EPAN modules.
+ *
+ * Defines the lifecycle and registration hooks for EPAN plugins. Each function
+ * pointer corresponds to a specific initialization or registration phase.
+ */
 typedef struct {
-	void (*init)(void);		/* Called before proto_init() */
-	void (*post_init)(void);	/* Called at the end of epan_init() */
-	void (*dissect_init)(epan_dissect_t *);
-	void (*dissect_cleanup)(epan_dissect_t *);
-	void (*cleanup)(void);
-	void (*register_all_protocols)(register_cb, void *);
-	void (*register_all_handoffs)(register_cb, void *);
-	void (*register_all_tap_listeners)(void);
+    /**
+     * @brief Called before `proto_init()`.
+     */
+    void (*init)(void);
+
+    /**
+     * @brief Called at the end of `epan_init()`.
+     */
+    void (*post_init)(void);
+
+    /**
+     * @brief Called before each dissection begins.
+     */
+    void (*dissect_init)(epan_dissect_t *);
+
+    /**
+     * @brief Called after each dissection completes.
+     */
+    void (*dissect_cleanup)(epan_dissect_t *);
+
+    /**
+     * @brief Called during EPAN shutdown.
+     */
+    void (*cleanup)(void);
+
+    /**
+     * @brief Register all protocols with the core.
+     *
+     * @param cb Callback used for registration.
+     * @param user_data Optional user data passed to the callback.
+     */
+    void (*register_all_protocols)(register_cb cb, void *user_data);
+
+    /**
+     * @brief Register all protocol handoffs.
+     *
+     * @param cb Callback used for registration.
+     * @param user_data Optional user data passed to the callback.
+     */
+    void (*register_all_handoffs)(register_cb cb, void *user_data);
+
+    /**
+     * @brief Register all tap listeners.
+     */
+    void (*register_all_tap_listeners)(void);
 } epan_plugin;
 
 /**
@@ -637,7 +768,7 @@ epan_dissect_packet_contains_field(epan_dissect_t* edt,
  * attached to the given `epan_dissect_t` context.
  *
  * @note This does **not** free the `epan_dissect_t` pointer itself—use
- * @ref `epan_dissect_free()` for full teardown.
+ * `epan_dissect_free()` for full teardown.
  *
  * @param edt  The dissection context to clean up.
  *

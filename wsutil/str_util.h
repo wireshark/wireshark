@@ -18,21 +18,49 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Concatenate multiple strings into a single newly allocated string.
+ *
+ * Appends all non-NULL strings passed as variadic arguments into a single buffer.
+ * No separator is added between strings.
+ *
+ * @param allocator Memory allocator to use for the returned string.
+ * @param first The first string to concatenate.
+ * @param ... Additional strings to concatenate, ending with NULL.
+ * @return A newly allocated null-terminated string containing the concatenated result.
+ *
+ * @note The returned string is allocated using `allocator` and should be freed appropriately.
+ */
 WS_DLL_PUBLIC
 char *
 wmem_strconcat(wmem_allocator_t *allocator, const char *first, ...)
 G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
 
+/**
+ * @brief Join multiple strings using a separator into a single newly allocated string.
+ *
+ * Inserts the specified separator between each non-NULL string in the variadic list.
+ *
+ * @param allocator Memory allocator to use for the returned string.
+ * @param separator Separator string to insert between each element.
+ * @param first The first string to join.
+ * @param ... Additional strings to join, ending with NULL.
+ * @return A newly allocated null-terminated string containing the joined result.
+ *
+ * @note The returned string is allocated using `allocator` and should be freed appropriately.
+ */
 WS_DLL_PUBLIC
 char *
 wmem_strjoin(wmem_allocator_t *allocator,
              const char *separator, const char *first, ...)
 G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
 
+
 /**
- * As g_strjoinv, with the returned string wmem allocated.
- * Joins a number of strings together to form one long string,
+ * @brief Joins a number of strings together to form one long string,
  * with the optional separator inserted between each of them.
+ *
+ * As g_strjoinv, with the returned string wmem allocated.
  *
  * @param allocator  The wmem scope to use to allocate the returned string
  * @param separator A string to insert between each of the strings, or NULL.
@@ -49,8 +77,10 @@ wmem_strjoinv(wmem_allocator_t *allocator,
 G_GNUC_MALLOC;
 
 /**
- * Splits a string into a maximum of max_tokens pieces, using the given
- * delimiter. If max_tokens is reached, the remainder of string is appended
+ * @brief Splits a string into a maximum of max_tokens pieces, using the given
+ * delimiter.
+ *
+ * If max_tokens is reached, the remainder of string is appended
  * to the last token. Successive tokens are not folded and will instead result
  * in an empty string as element.
  *
@@ -65,15 +95,14 @@ wmem_strsplit(wmem_allocator_t *allocator, const char *src,
         const char *delimiter, int max_tokens);
 
 /**
- * wmem_ascii_strdown:
+ * @brief Converts all upper case ASCII letters to lower case ASCII letters.
+ *
  * Based on g_ascii_strdown
  * @param allocator  An enumeration of the different types of available allocators.
  * @param str a string.
  * @param len length of str in bytes, or -1 if str is nul-terminated.
  *
- * Converts all upper case ASCII letters to lower case ASCII letters.
- *
- * Return value: a newly-allocated string, with all the upper case
+ * @return a newly-allocated string, with all the upper case
  *               characters in str converted to lower case, with
  *               semantics that exactly match g_ascii_tolower(). (Note
  *               that this is unlike the old g_strdown(), which modified
@@ -83,7 +112,10 @@ WS_DLL_PUBLIC
 char*
 wmem_ascii_strdown(wmem_allocator_t *allocator, const char *str, ssize_t len);
 
-/** Convert all upper-case ASCII letters to their ASCII lower-case
+/**
+ *  @brief In-place converstion of upper-case ASCII letters to lower-case.
+ *
+ *  Convert all upper-case ASCII letters to their ASCII lower-case
  *  equivalents, in place, with a simple non-locale-dependent
  *  ASCII mapping (A-Z -> a-z).
  *  All other characters are left unchanged, as the mapping to
@@ -101,7 +133,10 @@ wmem_ascii_strdown(wmem_allocator_t *allocator, const char *str, ssize_t len);
 WS_DLL_PUBLIC
 char *ascii_strdown_inplace(char *str);
 
-/** Convert all lower-case ASCII letters to their ASCII upper-case
+/**
+ *  @brief In-place converstion of lower-case ASCII letters to upper-case.
+ *
+ * Convert all lower-case ASCII letters to their ASCII upper-case
  *  equivalents, in place, with a simple non-locale-dependent
  *  ASCII mapping (a-z -> A-Z).
  *  All other characters are left unchanged, as the mapping to
@@ -119,7 +154,8 @@ char *ascii_strdown_inplace(char *str);
 WS_DLL_PUBLIC
 char *ascii_strup_inplace(char *str);
 
-/** Check if an entire string consists of printable characters
+/**
+ * @brief Check if an entire string consists of printable characters
  *
  * @param str    The string to be checked
  * @return       true if the entire string is printable, otherwise false
@@ -156,7 +192,8 @@ bool isprint_string(const char *str);
 WS_DLL_PUBLIC
 bool isprint_utf8_string(const char *str, const unsigned length);
 
-/** Check if an entire string consists of digits
+/**
+ * @brief Check if an entire string consists of digits
  *
  * @param str    The string to be checked
  * @return       true if the entire string is digits, otherwise false
@@ -193,19 +230,59 @@ const char *ws_ascii_strcasestr(const char *haystack, const char *needle);
 WS_DLL_PUBLIC
 const uint8_t *ws_memrchr(const void *haystack, int ch, size_t n);
 
+/**
+ * @brief Escape a null-terminated string for safe display or output.
+ *
+ * Converts control characters, quotes, and other non-printable bytes into
+ * escaped sequences (e.g., `\n`, `\\`, `\"`) suitable for logging or serialization.
+ * Optionally wraps the result in double quotes.
+ *
+ * @param alloc Memory allocator to use for the returned string.
+ * @param string Null-terminated input string to escape.
+ * @param add_quotes If true, the result will be wrapped in double quotes.
+ * @return A newly allocated escaped string, or NULL on failure.
+ */
 WS_DLL_PUBLIC
 char *ws_escape_string(wmem_allocator_t *alloc, const char *string, bool add_quotes);
 
+/**
+ * @brief Escape a string of specified length for safe display or output.
+ *
+ * Similar to `ws_escape_string()`, but allows escaping of strings that are not
+ * null-terminated or contain embedded nulls. Useful for binary-safe formatting.
+ *
+ * @param alloc Memory allocator to use for the returned string.
+ * @param string Pointer to the input buffer to escape.
+ * @param len Number of bytes to process from `string`.
+ * @param add_quotes If true, the result will be wrapped in double quotes.
+ * @return A newly allocated escaped string, or NULL on failure.
+ */
 WS_DLL_PUBLIC
 char *ws_escape_string_len(wmem_allocator_t *alloc, const char *string, ssize_t len, bool add_quotes);
 
-/* Replace null bytes with "\0". */
+/**
+ * @brief Escape null bytes in a string for safe display or logging.
+ *
+ * Scans the input buffer and replaces each null byte (`\0`) with the literal string `"\\0"`,
+ * making the result printable and distinguishable in output. Optionally wraps the result
+ * in double quotes.
+ *
+ * @param alloc Memory allocator to use for the returned string.
+ * @param string Pointer to the input buffer.
+ * @param len Number of bytes to process from `string`.
+ * @param add_quotes If true, the result will be wrapped in double quotes.
+ * @return A newly allocated null-terminated string with escaped nulls, or NULL on failure.
+ *
+ * @note The returned string is allocated using `alloc` and must be freed appropriately.
+ * @note This function is binary-safe and does not rely on null termination in the input.
+ */
 WS_DLL_PUBLIC
 char *ws_escape_null(wmem_allocator_t *alloc, const char *string, size_t len, bool add_quotes);
 
-/* Escape as in a number of CSV dialects.
+/**
+ * @brief Escape as in a number of CSV dialects.
  *
- * @param allocator  The wmem scope to use to allocate the returned string
+ * @param alloc  The wmem scope to use to allocate the returned string
  * @param string  The input string to escape
  * @param add_quotes  Whether to surround the string with quote_char
  * @param quote_char  The quote character, always escaped in some way.
@@ -225,9 +302,28 @@ char *ws_escape_null(wmem_allocator_t *alloc, const char *string, size_t len, bo
 WS_DLL_PUBLIC
 char *ws_escape_csv(wmem_allocator_t *alloc, const char *string, bool add_quotes, char quote_char, bool double_quote, bool escape_whitespace);
 
+/**
+ * @brief Convert a hexadecimal character to its numeric value.
+ *
+ * Converts a single ASCII character representing a hexadecimal digit
+ * ('0'–'9', 'a'–'f', 'A'–'F') into its corresponding integer value (0–15).
+ *
+ * @param ch The character to convert.
+ * @return The numeric value of the hex digit, or -1 if `ch` is not a valid hex character.
+ */
 WS_DLL_PUBLIC
 int ws_xton(char ch);
 
+/**
+ * @brief Unit types used by `format_size_wmem()` for formatting size values.
+ *
+ * Specifies the base unit to append to a formatted size string. Some units adapt
+ * their suffix depending on whether a prefix (e.g., "K", "Mi") is applied.
+ * For example, "bytes" becomes "B" when prefixed, and "bits/s" becomes "bps".
+ *
+ * These values are used in conjunction with formatting flags to control output
+ * from functions like `format_size_wmem()` and `format_size()`.
+ */
 typedef enum {
     FORMAT_SIZE_UNIT_NONE,          /**< No unit will be appended. You must supply your own. */
     /* XXX - This does not append a trailing space if there is no prefix.
@@ -259,7 +355,9 @@ typedef enum {
  * prefixes are SI-only) are currently supported. Values outside that
  * range will use scientific notation.
  *
+ * @param allocator memory allocator to use for the returned string.
  * @param size The size value
+ * @param unit The base unit to use (e.g., bytes, bits), specified by `format_size_units_e`.
  * @param flags Flags to control the output (unit of measurement,
  * SI vs IEC, etc). Unit and prefix flags may be ORed together.
  * @param precision Maximum number of digits to appear after the
@@ -276,7 +374,9 @@ char *format_units(wmem_allocator_t *allocator, double size,
  *
  * Prefixes up to "T/Ti" (tera, tebi) are currently supported.
  *
+ * @param allocator memory allocator to use for the returned string.
  * @param size The size value
+ * @param unit The base unit to use (e.g., bytes, bits), specified by `format_size_units_e`.
  * @param flags Flags to control the output (unit of measurement,
  * SI vs IEC, etc). Unit and prefix flags may be ORed together.
  * @return A newly-allocated string representing the value.
@@ -285,15 +385,60 @@ WS_DLL_PUBLIC
 char *format_size_wmem(wmem_allocator_t *allocator, int64_t size,
                         format_size_units_e unit, uint16_t flags);
 
+/**
+ * @brief Convenience macro for formatting a size value using the NULL allocator.
+ *
+ * This macro wraps `format_size_wmem()` with a NULL allocator.
+ *
+ * @param size The size value to format.
+ * @param unit The base unit to use (e.g., bytes, bits), specified by `format_size_units_e`.
+ * @param flags Flags to control formatting behavior (e.g., SI vs IEC, unit suffixes). Unit and prefix flags may be ORed together.
+ * @return A newly allocated null-terminated string representing the formatted size, or NULL on failure.
+ */
 #define format_size(size, unit, flags) \
     format_size_wmem(NULL, size, unit, flags)
 
+/**
+ * @brief Return a printable character or '.' if non-printable.
+ *
+ * Converts the input character to itself if it is printable,
+ * or returns '.' if it is a control or non-printable character.
+ *
+ * @param c The character to evaluate.
+ * @return A printable character or '.'.
+ */
 WS_DLL_PUBLIC
 char printable_char_or_period(char c);
 
+/**
+ * @brief Return the symbolic name of an error code.
+ *
+ * Converts a numeric error code (typically from `errno`) to its symbolic name
+ * (e.g., `"EINVAL"`, `"ENOMEM"`), storing the result in `buf`.
+ *
+ * @param errnum The error code to translate.
+ * @param buf Buffer to store the symbolic name.
+ * @param buf_size Size of the buffer in bytes.
+ * @return Pointer to `buf`, containing the symbolic name or a fallback string.
+ *
+ * @note The returned pointer is always non-NULL.
+ */
 WS_DLL_PUBLIC WS_RETNONNULL
 const char *ws_strerrorname_r(int errnum, char *buf, size_t buf_size);
 
+/**
+ * @brief Create a string of underscores for visual alignment or highlighting.
+ *
+ * Allocates a string consisting of `len` underscores (`_`), optionally offset
+ * by `offset` spaces. Useful for underlining or aligning output in diagnostics.
+ *
+ * @param allocator Memory allocator to use for the returned string.
+ * @param offset Number of leading spaces before the underscores.
+ * @param len Number of underscores to generate.
+ * @return A newly allocated null-terminated string, or NULL on failure.
+ *
+ * @note The returned string is allocated using `allocator` and must be freed appropriately.
+ */
 WS_DLL_PUBLIC
 char *ws_strdup_underline(wmem_allocator_t *allocator, long offset, size_t len);
 
@@ -413,40 +558,128 @@ char *format_char(wmem_allocator_t *allocator, char c);
 WS_DLL_PUBLIC
 char* ws_utf8_truncate(char *string, size_t len);
 
+/**
+ * @brief Convert a buffer of EBCDIC-encoded bytes to ASCII in-place.
+ *
+ * This function modifies the given buffer by converting each byte from EBCDIC
+ * to its corresponding ASCII representation. The conversion is done in-place.
+ *
+ * @param buf Pointer to the buffer containing EBCDIC-encoded bytes.
+ * @param bytes Number of bytes in the buffer to convert.
+ */
 WS_DLL_PUBLIC
 void EBCDIC_to_ASCII(uint8_t *buf, unsigned bytes);
 
+/**
+ * @brief Convert a single EBCDIC-encoded byte to its ASCII equivalent.
+ *
+ * @param c EBCDIC-encoded byte.
+ * @return The corresponding ASCII-encoded byte.
+ */
 WS_DLL_PUBLIC
 uint8_t EBCDIC_to_ASCII1(uint8_t c);
 
-/* Types of character encodings */
+/**
+ * @enum hex_dump_enc
+ * @brief Character encoding types supported by hex dump formatting.
+ *
+ * Specifies the encoding used when rendering the ASCII portion of a hex dump.
+ * This affects how byte values are interpreted and displayed in the printable column.
+ */
 typedef enum {
-    HEXDUMP_ENC_ASCII     = 0, /* ASCII */
-    HEXDUMP_ENC_EBCDIC    = 1  /* EBCDIC */
+    HEXDUMP_ENC_ASCII = 0,   /**< Interpret bytes as standard ASCII characters. */
+    HEXDUMP_ENC_EBCDIC = 1   /**< Interpret bytes using EBCDIC encoding. */
 } hex_dump_enc;
 
 /*
  * Hexdump options for ASCII:
  */
 
+/**
+ * @brief Bitmask for extracting ASCII display options from a hexdump configuration.
+ */
 #define HEXDUMP_ASCII_MASK            (0x0003U)
+
+/**
+ * @brief Extract the ASCII display option from a hexdump flags value.
+ *
+ * @param option The full hexdump option bitfield.
+ * @return The masked ASCII option value.
+ */
 #define HEXDUMP_ASCII_OPTION(option)  ((option) & HEXDUMP_ASCII_MASK)
 
-#define HEXDUMP_ASCII_INCLUDE         (0x0000U) /* include ASCII section no delimiters (legacy tshark behavior) */
-#define HEXDUMP_ASCII_DELIMIT         (0x0001U) /* include ASCII section with delimiters, useful for reliable detection of last hexdata */
-#define HEXDUMP_ASCII_EXCLUDE         (0x0002U) /* exclude ASCII section from hexdump reports, if we really don't want or need it */
+/**
+ * @brief Include ASCII section in hexdump output without delimiters.
+ *
+ * This reflects legacy `tshark` behavior, where the ASCII portion is appended
+ * directly after the hex bytes.
+ */
+#define HEXDUMP_ASCII_INCLUDE (0x0000U)
 
+/**
+ * @brief Include ASCII section with delimiters for reliable parsing.
+ *
+ * Useful when post-processing or detecting the end of hex data programmatically.
+ */
+#define HEXDUMP_ASCII_DELIMIT (0x0001U)
+
+/**
+ * @brief Exclude ASCII section from hexdump output entirely.
+ *
+ * Use this when the ASCII portion is unnecessary or undesired in reports.
+ */
+#define HEXDUMP_ASCII_EXCLUDE (0x0002U)
+
+/**
+ * @brief Generate a formatted hex dump of a byte buffer.
+ *
+ * This function produces a hex dump of the given buffer `cp`, formatting it
+ * according to the specified encoding and ASCII display options. Each formatted
+ * line is passed to the user-supplied `print_line` callback.
+ *
+ * @param print_line Callback function to receive each formatted line of output.
+ *                   It should return true to continue dumping, or false to abort early.
+ * @param fp User-defined context pointer passed to `print_line` (e.g., a file handle or buffer).
+ * @param cp Pointer to the byte buffer to be dumped.
+ * @param length Number of bytes in the buffer.
+ * @param encoding Encoding style for the hex dump (e.g., canonical, compact).
+ * @param ascii_option ASCII display mode (e.g., include, exclude, delimit), masked via `HEXDUMP_ASCII_OPTION()`.
+ * @return true if the entire buffer was dumped successfully; false if aborted early by `print_line`.
+ *
+ * @note This function does not write directly to stdout or a file; output is routed through `print_line`.
+ */
 WS_DLL_PUBLIC
 bool hex_dump_buffer(bool (*print_line)(void *, const char *), void *fp,
                                     const unsigned char *cp, unsigned length,
                                     hex_dump_enc encoding,
                                     unsigned ascii_option);
 
-/* To pass one of two strings, singular or plural */
+/**
+ * @brief Selects a singular or plural string based on a count.
+ *
+ * Useful for formatting messages that depend on quantity.
+ *
+ * @param d The numeric count.
+ * @param s The singular form of the string.
+ * @param p The plural form of the string.
+ * @return `s` if `d == 1`, otherwise `p`.
+ */
 #define plurality(d,s,p) ((d) == 1 ? (s) : (p))
 
+/**
+ * @brief Converts a boolean value to a string literal.
+ *
+ * @param val Boolean expression.
+ * @return `"TRUE"` if `val` is non-zero, `"FALSE"` otherwise.
+ */
 #define true_or_false(val) ((val) ? "TRUE" : "FALSE")
 
+/**
+ * @brief Returns a string or a placeholder if NULL.
+ *
+ * @param val Pointer to a string.
+ * @return `val` if non-NULL, otherwise `"[NULL]"`.
+ */
 #define string_or_null(val) ((val) ? (val) : "[NULL]")
 
 #ifdef __cplusplus

@@ -26,16 +26,22 @@
 
 #include "ws_symbol_export.h"
 
+/**
+ * @brief Internal state structure for the Sober128 pseudorandom number generator.
+ *
+ * This structure holds the working state and configuration for the Sober128 stream cipher,
+ * used for cryptographic pseudorandom number generation. It includes shift register contents,
+ * buffering state, and flags for entropy initialization.
+ */
 typedef struct _sober128_prng {
-    unsigned long      R[17],          /* Working storage for the shift register */
-                 initR[17],      /* saved register contents */
-                 konst,          /* key dependent constant */
-                 sbuf;           /* partial word encryption buffer */
+    unsigned long R[17];     /**< Working storage for the shift register. */
+    unsigned long initR[17]; /**< Saved copy of the register contents. */
+    unsigned long konst;     /**< Key-dependent constant used in the cipher. */
+    unsigned long sbuf;      /**< Partial word encryption buffer. */
 
-    int          nbuf,           /* number of part-word stream bits buffered */
-                 flag,           /* first add_entropy call or not? */
-                 set;            /* did we call add_entropy to set key? */
-
+    int nbuf;  /**< Number of buffered bits from a partial stream word. */
+    int flag;  /**< Indicates whether `add_entropy()` has been called for the first time. */
+    int set;   /**< Indicates whether entropy has been added to initialize the key. */
 } sober128_prng;
 
 /**
