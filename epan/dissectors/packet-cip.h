@@ -92,6 +92,15 @@
 #define SC_CCO_CHANGE_COMPLETE       0x51
 #define SC_CCO_AUDIT_CHANGE          0x52
 
+/* Process Device Diagnostics Object services */
+#define SC_PDD_RESET_DIAGNOSTICS_COUNTER              0x4B
+#define SC_PDD_GET_NEXT_ACTIVE_INSTANCE               0x4C
+#define SC_PDD_GET_ACTIVE_INSTANCES                   0x4D
+#define SC_PDD_GET_INSTANCES_BY_USER_DIAG_GRP         0x4E
+#define SC_PDD_GET_ACTIVE_INSTANCES_BY_STATUS_SIGNAL  0x4F
+#define SC_PDD_GET_INSTANCES_BY_COMPONENT             0x50
+
+
 /* CIP General status codes */
 #define CI_GRC_SUCCESS              0x00
 #define CI_GRC_FAILURE              0x01
@@ -460,6 +469,7 @@ enum cip_datatype {
    cip_string2,
    cip_stringi,
    cip_byte,
+   cip_byte_array,
    cip_word,
    cip_dword,
    cip_lword,
@@ -467,6 +477,7 @@ enum cip_datatype {
    cip_time_of_day,
    cip_date_and_time,
    cip_dissector_func,
+   cip_engunit,
    cip_stringN,
 };
 
