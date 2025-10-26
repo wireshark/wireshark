@@ -16293,6 +16293,14 @@ a:hover {
         <translation>Sei sicuro di voler rimuovere tutti i commenti dei pacchetti?</translation>
     </message>
     <message>
+        <source>No %1 Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no available secrets used to decrypt %1 traffic in the capture file.  Would you like to view information about how to decrypt %2 traffic on the wiki?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unable to build conversation filter.</source>
         <translation>Impossibile creare il filtro di conversazione.</translation>
     </message>
@@ -16387,19 +16395,19 @@ a:hover {
     </message>
     <message>
         <source>No TLS Secrets</source>
-        <translation>Nessun segreto TLS</translation>
+        <translation type="vanished">Nessun segreto TLS</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation>Non sono disponibili segreti utilizzati per decifrare il traffico TLS nel file di cattura. Desideri visualizzare informazioni su come decifrare il traffico TLS sul wiki?</translation>
+        <translation type="vanished">Non sono disponibili segreti utilizzati per decifrare il traffico TLS nel file di cattura. Desideri visualizzare informazioni su come decifrare il traffico TLS sul wiki?</translation>
     </message>
     <message>
         <source>No ESP Secrets</source>
-        <translation>Nessun segreto ESP</translation>
+        <translation type="vanished">Nessun segreto ESP</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation>Non sono disponibili segreti utilizzati per decifrare il traffico ESP nel file di cattura. Desideri visualizzare informazioni su come decifrare il traffico ESP sul wiki?</translation>
+        <translation type="vanished">Non sono disponibili segreti utilizzati per decifrare il traffico ESP nel file di cattura. Desideri visualizzare informazioni su come decifrare il traffico ESP sul wiki?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

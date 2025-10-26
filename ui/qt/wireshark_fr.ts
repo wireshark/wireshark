@@ -16219,6 +16219,14 @@ a:hover {
         <translation>Voulez-vous vraiment supprimer tous les commentaires sur les paquets ?</translation>
     </message>
     <message>
+        <source>No %1 Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no available secrets used to decrypt %1 traffic in the capture file.  Would you like to view information about how to decrypt %2 traffic on the wiki?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unable to build conversation filter.</source>
         <translation>Impossible de construire un filtre de conversation.</translation>
     </message>
@@ -16313,19 +16321,11 @@ a:hover {
     </message>
     <message>
         <source>No TLS Secrets</source>
-        <translation>Pas de Secrets TLS</translation>
+        <translation type="vanished">Pas de Secrets TLS</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation>Il n’existe aucun secret disponible utilisé pour déchiffrer le trafic TLS dans le fichier de capture. Souhaitez-vous consulter des informations sur la façon de déchiffrer le trafic TLS sur le wiki ?</translation>
-    </message>
-    <message>
-        <source>No ESP Secrets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Il n’existe aucun secret disponible utilisé pour déchiffrer le trafic TLS dans le fichier de capture. Souhaitez-vous consulter des informations sur la façon de déchiffrer le trafic TLS sur le wiki ?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

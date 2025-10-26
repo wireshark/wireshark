@@ -16252,6 +16252,14 @@ a:hover {
         <translation>Är du säker på att du vill ta bort alla paketkommentarer?</translation>
     </message>
     <message>
+        <source>No %1 Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no available secrets used to decrypt %1 traffic in the capture file.  Would you like to view information about how to decrypt %2 traffic on the wiki?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unable to build conversation filter.</source>
         <translation>Kan inte bygga ett konversationsfilter.</translation>
     </message>
@@ -16346,19 +16354,11 @@ a:hover {
     </message>
     <message>
         <source>No TLS Secrets</source>
-        <translation>Inga TLS-hemligheter</translation>
+        <translation type="vanished">Inga TLS-hemligheter</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation>Det finns inga tillgängliga hemligheter att använda för att dekryptera TLS-trafiken i fångstfilen. Vill du se information om hur man kan dektryptera TLS-trafik i wiki:n?</translation>
-    </message>
-    <message>
-        <source>No ESP Secrets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Det finns inga tillgängliga hemligheter att använda för att dekryptera TLS-trafiken i fångstfilen. Vill du se information om hur man kan dektryptera TLS-trafik i wiki:n?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

@@ -16293,6 +16293,14 @@ a:hover {
         <translation>Esteu segur que voleu traure tots els comentaris dels paquets?</translation>
     </message>
     <message>
+        <source>No %1 Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no available secrets used to decrypt %1 traffic in the capture file.  Would you like to view information about how to decrypt %2 traffic on the wiki?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unable to build conversation filter.</source>
         <translation>El filtre de conversa no s&apos;ha pogut compilar.</translation>
     </message>
@@ -16387,19 +16395,19 @@ a:hover {
     </message>
     <message>
         <source>No TLS Secrets</source>
-        <translation>No hi ha secrets TLS</translation>
+        <translation type="vanished">No hi ha secrets TLS</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation>No hi ha secrets disponibles fets servir per a desencriptar el trànsit TLS del fitxer de captura. Voleu veure informació sobre com desencriptar el trànsit TLS a la wiki?</translation>
+        <translation type="vanished">No hi ha secrets disponibles fets servir per a desencriptar el trànsit TLS del fitxer de captura. Voleu veure informació sobre com desencriptar el trànsit TLS a la wiki?</translation>
     </message>
     <message>
         <source>No ESP Secrets</source>
-        <translation>No hi ha secrets ESP</translation>
+        <translation type="vanished">No hi ha secrets ESP</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation>No hi ha secrets disponibles fets servir per a desencriptar el trànsit ESP del fitxer de captura.
+        <translation type="vanished">No hi ha secrets disponibles fets servir per a desencriptar el trànsit ESP del fitxer de captura.
 Voleu veure informació sobre com desencriptar el trànsit ESP a la wiki?</translation>
     </message>
     <message>

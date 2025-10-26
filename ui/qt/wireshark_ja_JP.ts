@@ -16255,6 +16255,14 @@ a:hover {
         <translation>本当にすべてのパケットコメントを削除してよいですか？</translation>
     </message>
     <message>
+        <source>No %1 Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no available secrets used to decrypt %1 traffic in the capture file.  Would you like to view information about how to decrypt %2 traffic on the wiki?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unable to build conversation filter.</source>
         <translation>会話フィルタを作成できません</translation>
     </message>
@@ -16347,19 +16355,19 @@ a:hover {
     </message>
     <message>
         <source>No TLS Secrets</source>
-        <translation>TLSシークレットなし</translation>
+        <translation type="vanished">TLSシークレットなし</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation>キャプチャファイルにはTLSトラフィックを復号化するために用いられる利用可能なシークレットはありません。WikiでTLSトラフィックを復号する方法についての情報をご覧になりますか？</translation>
+        <translation type="vanished">キャプチャファイルにはTLSトラフィックを復号化するために用いられる利用可能なシークレットはありません。WikiでTLSトラフィックを復号する方法についての情報をご覧になりますか？</translation>
     </message>
     <message>
         <source>No ESP Secrets</source>
-        <translation>ESPシークレットなし</translation>
+        <translation type="vanished">ESPシークレットなし</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation>キャプチャファイルにはESPトラフィックを復号化するのに用いられる利用可能なシークレットはありません。WikiでESPトラフィックを復号する方法についての情報をご覧になりますか？</translation>
+        <translation type="vanished">キャプチャファイルにはESPトラフィックを復号化するのに用いられる利用可能なシークレットはありません。WikiでESPトラフィックを復号する方法についての情報をご覧になりますか？</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

@@ -16263,6 +16263,14 @@ a:hover {
         <translation>Удалить все комментарии к пакету?</translation>
     </message>
     <message>
+        <source>No %1 Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no available secrets used to decrypt %1 traffic in the capture file.  Would you like to view information about how to decrypt %2 traffic on the wiki?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unable to build conversation filter.</source>
         <translation>Не удалось построить фильтр диалога.</translation>
     </message>
@@ -16359,19 +16367,11 @@ a:hover {
     </message>
     <message>
         <source>No TLS Secrets</source>
-        <translation>Нет секретов TLS</translation>
+        <translation type="vanished">Нет секретов TLS</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation>В файле захвата нет доступных секретов, используемых для расшифровки трафика TLS. Вы хотите просмотреть информацию о расшифровке трафика TLS в вики?</translation>
-    </message>
-    <message>
-        <source>No ESP Secrets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">В файле захвата нет доступных секретов, используемых для расшифровки трафика TLS. Вы хотите просмотреть информацию о расшифровке трафика TLS в вики?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

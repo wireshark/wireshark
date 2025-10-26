@@ -16181,6 +16181,14 @@ a:hover {
         <translation>모든 패킷 주석을 삭제하시겠습니까?</translation>
     </message>
     <message>
+        <source>No %1 Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no available secrets used to decrypt %1 traffic in the capture file.  Would you like to view information about how to decrypt %2 traffic on the wiki?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unable to build conversation filter.</source>
         <translation>대화 필터를 구축할 수 없습니다.</translation>
     </message>
@@ -16273,19 +16281,11 @@ a:hover {
     </message>
     <message>
         <source>No TLS Secrets</source>
-        <translation>TLS 비밀 정보 없음</translation>
+        <translation type="vanished">TLS 비밀 정보 없음</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation>캡처 파일의 TLS 트래픽을 복호화하는 데 필요한 비밀 정보가 없습니다. 위키에서 TLS 트래픽 복호화에 대한 정보를 보시겠습니까?</translation>
-    </message>
-    <message>
-        <source>No ESP Secrets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">캡처 파일의 TLS 트래픽을 복호화하는 데 필요한 비밀 정보가 없습니다. 위키에서 TLS 트래픽 복호화에 대한 정보를 보시겠습니까?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

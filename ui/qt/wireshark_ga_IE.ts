@@ -16333,6 +16333,14 @@ a:hover {
         <translation>An bhfuil tú cinnte go bhfuil fonn ort gach trácht paicéad a bhaint?</translation>
     </message>
     <message>
+        <source>No %1 Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no available secrets used to decrypt %1 traffic in the capture file.  Would you like to view information about how to decrypt %2 traffic on the wiki?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unable to build conversation filter.</source>
         <translation>Ní féidir scagaire comhrá a thógáil.</translation>
     </message>
@@ -16429,19 +16437,19 @@ a:hover {
     </message>
     <message>
         <source>No TLS Secrets</source>
-        <translation>Gan Rúin TLS</translation>
+        <translation type="vanished">Gan Rúin TLS</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation>Níl aon rúin ar fáil a úsáidtear chun trácht TLS a dhíchriptiú sa chomhad gabhála.  Ar mhaith leat féachaint ar fhaisnéis faoi conas trácht TLS a dhíchriptiú ar an vicí?</translation>
+        <translation type="vanished">Níl aon rúin ar fáil a úsáidtear chun trácht TLS a dhíchriptiú sa chomhad gabhála.  Ar mhaith leat féachaint ar fhaisnéis faoi conas trácht TLS a dhíchriptiú ar an vicí?</translation>
     </message>
     <message>
         <source>No ESP Secrets</source>
-        <translation>Gan Rúin ESP</translation>
+        <translation type="vanished">Gan Rúin ESP</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation>Níl aon rúin ar fáil a úsáidtear chun trácht ESP a dhíchriptiú sa chomhad gabhála. Ar mhaith leat faisnéis a fheiceáil faoi conas trácht ESP a dhíchriptiú ar an vicí?</translation>
+        <translation type="vanished">Níl aon rúin ar fáil a úsáidtear chun trácht ESP a dhíchriptiú sa chomhad gabhála. Ar mhaith leat faisnéis a fheiceáil faoi conas trácht ESP a dhíchriptiú ar an vicí?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

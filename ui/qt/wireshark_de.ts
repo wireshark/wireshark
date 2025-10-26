@@ -16252,6 +16252,14 @@ a:hover {
         <translation>Wollen Sie alle Paketkommentare löschen?</translation>
     </message>
     <message>
+        <source>No %1 Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no available secrets used to decrypt %1 traffic in the capture file.  Would you like to view information about how to decrypt %2 traffic on the wiki?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unable to build conversation filter.</source>
         <translation>Verbindungsfilter kann nicht erstellt werden.</translation>
     </message>
@@ -16346,19 +16354,11 @@ a:hover {
     </message>
     <message>
         <source>No TLS Secrets</source>
-        <translation>Keine TLS-Secrets</translation>
+        <translation type="vanished">Keine TLS-Secrets</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation>In der Aufzeichnungsdatei sind keine Secrets zur Entschlüsselung von TLS-Datenverkehr vorhanden. Möchten Sie weitere Informationen zum Entschlüsseln von TLS-Datenverkehr im Wiki anzeigen?</translation>
-    </message>
-    <message>
-        <source>No ESP Secrets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">In der Aufzeichnungsdatei sind keine Secrets zur Entschlüsselung von TLS-Datenverkehr vorhanden. Möchten Sie weitere Informationen zum Entschlüsseln von TLS-Datenverkehr im Wiki anzeigen?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>
