@@ -5412,6 +5412,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0F9A,   "Eiritsu Electronics Industry Co., Ltd." },
     { 0x0F9B,   "Hanshow Technology Co.,Ltd." },
     { 0x0F9C,   "WePower Technologies LLC" },
+    { 0x0F9D,   "IRTrans GmbH" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
