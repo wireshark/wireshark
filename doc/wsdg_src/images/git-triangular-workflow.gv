@@ -1,4 +1,4 @@
-// dot -Tsvg -o doc/wsdg_graphics/git-triangular-workflow.svg doc/wsdg_graphics/git-triangular-workflow.gv
+// dot -Tsvg -o doc/wsdg_src/images/git-triangular-workflow.svg doc/wsdg_src/images/git-triangular-workflow.gv
 
 digraph G {
     // XXX Integrate ws.css. Match it manually for now.
@@ -40,20 +40,20 @@ digraph G {
 
     // :nw adds needed space
     main_repo -> your_fork:nw [
-        label = "Fork (once)",
+        label = "1. Fork (once)",
         style = dashed
     ]
 
     main_repo -> your_repo [
-        label = "Pull"
+        label = "2. Pull"
     ]
 
     your_repo -> your_fork [
-        label = "Push"
+        label = "3. Push"
     ]
 
     your_fork -> main_repo [
-        label = "Merge Request"
+        label = "4. Merge Request"
     ]
 
 }

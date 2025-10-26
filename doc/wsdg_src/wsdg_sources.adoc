@@ -681,10 +681,10 @@ $ git remote add downstream git@gitlab.com:henry.perry/wireshark.git
 [source,sh]
 ----
 $ git remote -v
-$ downstream	git@gitlab.com:henry.perry/wireshark.git (fetch)
-$ downstream	git@gitlab.com:henry.perry/wireshark.git (push)
-$ upstream	git@gitlab.com:wireshark/wireshark.git (fetch)
-$ upstream	git@gitlab.com:wireshark/wireshark.git (push)
+downstream	git@gitlab.com:henry.perry/wireshark.git (fetch)
+downstream	git@gitlab.com:henry.perry/wireshark.git (push)
+upstream	git@gitlab.com:wireshark/wireshark.git (fetch)
+upstream	git@gitlab.com:wireshark/wireshark.git (push)
 ----
 --
 
@@ -913,6 +913,8 @@ This is required by various formatting tools and helpful to humans.
 Break paragraphs where needed.
 Limit each line to 80 characters.
 
+Keep in mind that the commit's diffs will show precisely _what_ was changed.  The most useful commit messages provide a concise _overview_, explain _why_ the change was made (if it is not obvious), and give more in-depth explanation _where needed_.
+
 You can also reference and close issues in a commit message by prefixing the issue number with a https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically[number sign].
 For example, “closes #5” will close issue number 5.
 
@@ -1033,7 +1035,7 @@ all of us do this in our spare time.
 [#ChSrcBackport]
 ==== Backporting A Change
 
-:example-branch: master-3.2
+:example-branch: release-4.6
 When a bug is fixed in the master branch it’s sometimes desirable or necessary to backport the fix to a release branch.
 You can do this in Git by cherry-picking the change from one branch to another.
 Suppose you want to backport change 1ab2c3d4 from the master branch to {example-branch}.
@@ -1044,7 +1046,7 @@ You can do so as follows:
 # Create a new topic branch for the backport.
 $ git checkout -b backport-1ab2c3d4 upstream/{example-branch}
 
-# Cherry-pick the change. Include a "cherry picked from..." line.
+# Cherry-pick the change. "-x" adds the "cherry picked from..." line to the commit message.
 $ git cherry-pick -x 1ab2c3d4
 
 # If there are conflicts, fix them.
@@ -1062,6 +1064,8 @@ git commit --amend -a
 # Push the change to your working repository.
 git push downstream HEAD
 ----
+
+In the GitLab web UI for creating the Merge Request, use the *Change branches* control near the top of the page to ensure that your MR is targeted at the intended release branch.  Confirm by verifying under *Commits* that only the one cherry-picked commit is selected for the merge.
 
 You can also cherry-pick changes in the https://docs.gitlab.com/ee/user/project/merge_requests/cherry_pick_changes.html[GitLab web UI].
 
