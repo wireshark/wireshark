@@ -100,7 +100,7 @@ PARAM_VALUE winreg_dissect_element_CloseKey_handle_ PIDL_POLHND_CLOSE
 #
 # Create a new type to handle winreg_String so that we can get nice and
 # pretty dissection of the strings contained within winreg
-TYPE winreg_String "offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
+TYPE winreg_String "offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
 #
 #
 #
@@ -207,7 +207,7 @@ cnf_dissect_winreg_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	int old_offset;
 	header_field_info *hf_info;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 	hf_info=proto_registrar_get_nth(hfindex);
