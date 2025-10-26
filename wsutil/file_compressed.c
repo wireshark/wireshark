@@ -15,6 +15,8 @@
 
 #include <wireshark.h>
 
+#include <errno.h>
+
 /*
  * XXX - this is included only to get some libwiretap error codes;
  * we should fix this to have its own error codes for those cases
