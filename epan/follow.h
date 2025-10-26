@@ -25,15 +25,26 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* Show Stream */
+/**
+ * @brief Indicates the direction of a network stream for display purposes.
+ *
+ * Used to filter or label stream data based on its origin.
+ */
 typedef enum {
-    FROM_CLIENT,
-    FROM_SERVER,
-    BOTH_HOSTS
+    FROM_CLIENT, /**< Data originating from the client. */
+    FROM_SERVER, /**< Data originating from the server. */
+    BOTH_HOSTS   /**< Data from client or server. */
 } show_stream_t;
 
+/**
+ * @brief Represents an IP address for a stream, supporting both IPv4 and IPv6.
+ *
+ * This union allows flexible storage of either an IPv4 or IPv6 address
+ * for stream identification or filtering.
+ */
 typedef union _stream_addr {
-  uint32_t ipv4;
-  ws_in6_addr ipv6;
+    uint32_t ipv4;     /**< IPv4 address. */
+    ws_in6_addr ipv6;  /**< IPv6 address structure. */
 } stream_addr;
 
 struct _follow_info;

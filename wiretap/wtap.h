@@ -803,16 +803,26 @@ struct ieee_802_11be {
 };
 
 
+/**
+ * @brief Union representing physical layer information for IEEE 802.11 variants.
+ *
+ * This union encapsulates PHY-specific metadata for various 802.11 standards,
+ * allowing parsers or analyzers to interpret modulation, channel, and timing
+ * details based on the active wireless technology.
+ *
+ * Each member corresponds to a specific PHY type, such as FHSS, DSSS, OFDM,
+ * or advanced MIMO schemes used in newer standards.
+ */
 union ieee_802_11_phy_info {
-    struct ieee_802_11_fhss info_11_fhss;
-    struct ieee_802_11b info_11b;
-    struct ieee_802_11a info_11a;
-    struct ieee_802_11g info_11g;
-    struct ieee_802_11n info_11n;
-    struct ieee_802_11ac info_11ac;
-    struct ieee_802_11ad info_11ad;
-    struct ieee_802_11ax info_11ax;
-    struct ieee_802_11be info_11be;
+    struct ieee_802_11_fhss info_11_fhss; /**< Frequency-Hopping Spread Spectrum (802.11-1997). */
+    struct ieee_802_11b    info_11b;      /**< Direct Sequence Spread Spectrum (802.11b). */
+    struct ieee_802_11a    info_11a;      /**< OFDM-based PHY (802.11a). */
+    struct ieee_802_11g    info_11g;      /**< Extended OFDM PHY (802.11g). */
+    struct ieee_802_11n    info_11n;      /**< High Throughput PHY (802.11n). */
+    struct ieee_802_11ac   info_11ac;     /**< Very High Throughput PHY (802.11ac). */
+    struct ieee_802_11ad   info_11ad;     /**< 60 GHz PHY (802.11ad). */
+    struct ieee_802_11ax   info_11ax;     /**< High Efficiency PHY (802.11ax). */
+    struct ieee_802_11be   info_11be;     /**< Extremely High Throughput PHY (802.11be). */
 };
 
 struct ieee_802_11_phdr {
@@ -940,15 +950,31 @@ struct mtp2_phdr {
     uint16_t link_number;
 };
 
-/* Packet "pseudo-header" for K12 files. */
-
+/**
+ * @brief Pseudo-header metadata for packets in K12 capture files.
+ *
+ * This union provides additional per-packet context for K12-formatted captures,
+ * typically used in telecom and voice-over-circuit environments. It supports
+ * both ATM and DS0-based framing.
+ */
 typedef union {
+    /**
+     * @brief ATM-specific channel identifiers.
+     *
+     * Used when the packet is associated with an ATM virtual circuit.
+     */
     struct {
-        uint16_t vp;
-        uint16_t vc;
-        uint16_t cid;
+        uint16_t vp;  /**< Virtual Path Identifier (VPI). */
+        uint16_t vc;  /**< Virtual Channel Identifier (VCI). */
+        uint16_t cid; /**< Channel Identifier. */
     } atm;
 
+    /**
+     * @brief DS0 channel bitmask.
+     *
+     * Used when the packet is associated with a TDM (Time Division Multiplexing)
+     * DS0 channel. Each bit represents an active timeslot.
+     */
     uint32_t ds0mask;
 } k12_input_info_t;
 
@@ -967,22 +993,34 @@ struct k12_phdr {
 #define K12_PORT_DS1       0x00100008
 #define K12_PORT_ATMPVC    0x01020000
 
+/**
+ * @brief LAPD pseudo-header for packet metadata.
+ *
+ * This structure provides minimal metadata for LAPD (Link Access Procedure for the D channel)
+ * packets, typically used in ISDN signaling. It may be used to distinguish packet types
+ * and network direction.
+ */
 struct lapd_phdr {
-    uint16_t pkttype;    /* packet type */
-    uint8_t we_network;
+    uint16_t pkttype;    /**< LAPD packet type identifier. */
+    uint8_t we_network;  /**< Direction flag: true if packet is from the network side. */
 };
 
-struct wtap;
-struct catapult_dct2000_phdr
-{
-    union
-    {
-        struct isdn_phdr isdn;
-        struct atm_phdr  atm;
-        struct p2p_phdr  p2p;
+/**
+ * @brief Pseudo-header for Catapult DCT2000 captures.
+ *
+ * This structure wraps protocol-specific pseudo-headers for ISDN, ATM, or P2P traffic,
+ * along with file offset and capture context. It is used to interpret packets in
+ * Catapult DCT2000 trace files.
+ */
+struct catapult_dct2000_phdr {
+    union {
+        struct isdn_phdr isdn; /**< ISDN-specific pseudo-header. */
+        struct atm_phdr  atm;  /**< ATM-specific pseudo-header. */
+        struct p2p_phdr  p2p;  /**< Point-to-point pseudo-header. */
     } inner_pseudo_header;
-    int64_t      seek_off;
-    struct wtap *wth;
+
+    int64_t seek_off;     /**< File offset of the packet within the capture. */
+    struct wtap *wth;     /**< Pointer to the capture context (Wiretap handle). */
 };
 
 /*
@@ -1013,14 +1051,28 @@ struct wtap_erf_eth_hdr {
     uint8_t pad;
 };
 
+/**
+ * @brief Extended pseudo-header for ERF multi-channel (MC) packet records.
+ *
+ * This structure builds on the basic ERF header to support multi-channel
+ * packet formats, including optional extended headers and protocol-specific
+ * subheaders. It is used in advanced ERF capture scenarios such as DAG cards
+ * with multiple input streams or specialized framing.
+ */
 struct erf_mc_phdr {
-    struct erf_phdr phdr;
-    struct erf_ehdr ehdr_list[MAX_ERF_EHDR];
-    union
-    {
-        struct wtap_erf_eth_hdr eth_hdr;
-        uint32_t mc_hdr;
-        uint32_t aal2_hdr;
+    struct erf_phdr phdr; /**< Base ERF header containing timestamp, type, and length metadata. */
+
+    struct erf_ehdr ehdr_list[MAX_ERF_EHDR]; /**< Array of extended ERF headers (e.g., channel, color, hash). */
+
+    /**
+     * @brief Protocol-specific subheader union.
+     *
+     * Contains additional metadata depending on the ERF record type.
+     */
+    union {
+        struct wtap_erf_eth_hdr eth_hdr; /**< Ethernet-specific subheader. */
+        uint32_t mc_hdr;                 /**< Multi-channel header value. */
+        uint32_t aal2_hdr;               /**< AAL2-specific header value. */
     } subhdr;
 };
 
@@ -1179,17 +1231,29 @@ struct logcat_phdr {
     int version;
 };
 
-/* Packet "pseudo-header" information for header data from NetMon files. */
-
+/**
+ * @brief Pseudo-header metadata for packets captured in NetMon (Network Monitor) files.
+ *
+ * This structure provides supplemental information for each packet in a NetMon capture,
+ * including user-defined comments and protocol-specific subheaders. It is used to
+ * enrich packet display and analysis in tools that support NetMon format.
+ */
 struct netmon_phdr {
-    uint8_t* title;          /* Comment title, as a null-terminated UTF-8 string */
-    uint32_t descLength;     /* Number of bytes in the comment description */
-    uint8_t* description;    /* Comment description, in ASCII RTF */
-    unsigned sub_encap;        /* "Real" encap value for the record that will be used once pseudo header data is display */
+    uint8_t* title;       /**< Comment title, stored as a null-terminated UTF-8 string. */
+    uint32_t descLength;  /**< Length in bytes of the comment description. */
+    uint8_t* description; /**< Comment description, formatted in ASCII RTF. */
+
+    unsigned sub_encap;   /**< Actual encapsulation type used for the packet (e.g., Ethernet, ATM). */
+
+    /**
+     * @brief Protocol-specific subheader union.
+     *
+     * Contains metadata relevant to the encapsulated protocol.
+     */
     union sub_wtap_pseudo_header {
-        struct eth_phdr     eth;
-        struct atm_phdr     atm;
-        struct ieee_802_11_phdr ieee_802_11;
+        struct eth_phdr eth;               /**< Ethernet pseudo-header. */
+        struct atm_phdr atm;               /**< ATM pseudo-header. */
+        struct ieee_802_11_phdr ieee_802_11; /**< IEEE 802.11 wireless pseudo-header. */
     } subheader;
 };
 

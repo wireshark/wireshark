@@ -75,12 +75,19 @@ enum except_stacktype {
     XCEPT_CLEANUP, XCEPT_CATCHER
 };
 
+/**
+ * @brief Represents a node in the exception handling stack.
+ *
+ * This structure is used to manage exception frames during execution.
+ * Each node corresponds to either a catch or cleanup handler and links
+ * to the next node in the stack.
+ */
 struct except_stacknode {
-    struct except_stacknode *except_down;
-    enum except_stacktype except_type;
+    struct except_stacknode *except_down; /**< Pointer to the next node in the exception stack. */
+    enum except_stacktype except_type;    /**< Type of exception frame (e.g., catch or cleanup). */
     union {
-        struct except_catch *except_catcher;
-        struct except_cleanup *except_cleanup;
+        struct except_catch *except_catcher;   /**< Pointer to catch handler data. */
+        struct except_cleanup *except_cleanup; /**< Pointer to cleanup handler data. */
     } except_info;
 };
 

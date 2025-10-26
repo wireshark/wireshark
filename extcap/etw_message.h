@@ -31,12 +31,18 @@ typedef struct Property_Key_Value
     WCHAR value[MAX_LOG_LINE_LENGTH];
 } PROPERTY_KEY_VALUE;
 
+/**
+ * @brief Represents an IPv6 address in binary format.
+ *
+ * This structure provides access to the 128-bit IPv6 address either as
+ * an array of 16 bytes or as 8 16-bit words.
+ */
 typedef struct in6_addr {
     union {
-        UCHAR       Byte[16];
-        USHORT      Word[8];
+        UCHAR  Byte[16]; /**< IPv6 address as an array of 16 bytes. */
+        USHORT Word[8];  /**< IPv6 address as an array of 8 16-bit words. */
     } u;
-} IN6_ADDR, * PIN6_ADDR, FAR* LPIN6_ADDR;
+} IN6_ADDR, *PIN6_ADDR, FAR* LPIN6_ADDR;
 
 VOID format_message(WCHAR* lpszMessage, PROPERTY_KEY_VALUE* propArray, DWORD dwPropertyCount, WCHAR* lpszOutBuffer, DWORD dwOutBufferCount);
 BOOL get_event_information(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO* pInfo);

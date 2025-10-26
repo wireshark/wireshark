@@ -95,28 +95,40 @@ typedef struct {
     int number;
 } pbl_enum_value_descriptor_t;
 
-/* like google::protobuf::FieldDescriptor of protobuf cpp library */
+/**
+ * @brief Describes a field in a Protocol Buffer message, similar to `google::protobuf::FieldDescriptor`.
+ *
+ * This structure holds metadata about a field, including its type, number, repetition status,
+ * default value, and any associated options. It supports scalar types, strings, enums, and more.
+ */
 typedef struct {
-    pbl_node_t basic_info;
-    int number;
-    int type; /* refer to PROTOBUF_TYPE_XXX of protobuf-helper.h */
-    char* type_name;
-    pbl_node_t* options_node;
-    bool is_repeated;
-    bool is_required;
-    bool has_default_value; /* Does this field have an explicitly-declared default value? */
-    char* orig_default_value;
-    int string_or_bytes_default_value_length;
+    pbl_node_t basic_info; /**< Basic metadata node (e.g., name, documentation). */
+    int number;            /**< Field number as defined in the .proto schema. */
+    int type;              /**< Field type identifier (see PROTOBUF_TYPE_XXX in protobuf-helper.h). */
+    char* type_name;       /**< Optional type name for message or enum fields. */
+    pbl_node_t* options_node; /**< Pointer to options metadata node, if present. */
+
+    bool is_repeated;      /**< True if the field is repeated. */
+    bool is_required;      /**< True if the field is required. */
+    bool has_default_value; /**< True if a default value is explicitly declared. */
+    char* orig_default_value; /**< Original default value string from the schema. */
+    int string_or_bytes_default_value_length; /**< Length of string or bytes default value, if applicable. */
+
+    /**
+     * @brief Union holding the parsed default value for the field.
+     *
+     * The actual member used depends on the field type.
+     */
     union {
-        int32_t i32;
-        int64_t i64;
-        uint32_t u32;
-        uint64_t u64;
-        float f;
-        double d;
-        bool b;
-        char* s;
-        const pbl_enum_value_descriptor_t* e;
+        int32_t i32;   /**< Default value for int32 fields. */
+        int64_t i64;   /**< Default value for int64 fields. */
+        uint32_t u32;  /**< Default value for uint32 fields. */
+        uint64_t u64;  /**< Default value for uint64 fields. */
+        float f;       /**< Default value for float fields. */
+        double d;      /**< Default value for double fields. */
+        bool b;        /**< Default value for bool fields. */
+        char* s;       /**< Default value for string or bytes fields. */
+        const pbl_enum_value_descriptor_t* e; /**< Default enum value descriptor. */
     } default_value;
 } pbl_field_descriptor_t;
 

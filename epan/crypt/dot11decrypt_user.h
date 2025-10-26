@@ -93,6 +93,8 @@ typedef struct _DOT11DECRYPT_KEY_ITEM {
 	uint8_t KeyType;
 
 	/**
+	 * @brief Union representing key data for various 802.11 decryption algorithms.
+	 *
 	 * Key data.
 	 * This field can be used for the following decryptographic
 	 * algorithms: WEP-40, with a key of 40 bits (10 hex-digits);

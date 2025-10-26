@@ -86,55 +86,76 @@ typedef enum  {
 } until_mode_t;
 
 
+/**
+ * @brief Describes a parsing rule or expectation for a tvbuff parser.
+ *
+ * This structure defines a unit of parsing logic used by the tvbparse engine.
+ * It specifies conditions, control parameters, length constraints, and optional
+ * pre/post actions to guide how data is extracted from a tvbuff.
+ */
 struct _tvbparse_wanted_t {
-    int id;
-    tvbparse_condition_t condition;
+    int id; /**< Unique identifier for the parsing rule. */
 
+    tvbparse_condition_t condition; /**< Condition that determines when this rule applies. */
+
+    /**
+     * @brief Control parameters for the parsing rule.
+     *
+     * The active member depends on the parsing strategy. This union supports
+     * string matching, numeric values, nested rules, hash-based dispatch,
+     * and other advanced parsing constructs.
+     */
     union {
-        const char* str;
-        struct _tvbparse_wanted_t** handle;
+        const char* str; /**< String to match. */
+        struct _tvbparse_wanted_t** handle; /**< Pointer to a rule handle array. */
         struct {
             union {
-                int64_t i;
-                uint64_t u;
-                double f;
+                int64_t i;     /**< Signed integer value. */
+                uint64_t u;    /**< Unsigned integer value. */
+                double f;      /**< Floating-point value. */
             } value;
-        } number;
-        enum ftenum ftenum;
+        } number; /**< Numeric value to match. */
+        enum ftenum ftenum; /**< Field type enum for typed parsing. */
         struct {
-            until_mode_t mode;
-            const tvbparse_wanted_t* subelem;
+            until_mode_t mode; /**< Mode for "until" parsing (e.g., until match or delimiter). */
+            const tvbparse_wanted_t* subelem; /**< Sub-element to parse until. */
         } until;
         struct {
-            wmem_map_t* table;
-            struct _tvbparse_wanted_t* key;
-            struct _tvbparse_wanted_t* other;
+            wmem_map_t* table; /**< Lookup table for dispatching based on key. */
+            struct _tvbparse_wanted_t* key; /**< Key to use for lookup. */
+            struct _tvbparse_wanted_t* other; /**< Fallback rule if key not found. */
         } hash;
-        GPtrArray* elems;
-        const tvbparse_wanted_t* subelem;
-        void* p;
+        GPtrArray* elems; /**< Array of sub-elements to parse. */
+        const tvbparse_wanted_t* subelem; /**< Single sub-element reference. */
+        void* p; /**< Generic pointer for custom control data. */
     } control;
 
-    int len;
+    int len; /**< Expected length of the parsed element (if fixed). */
 
-    unsigned min;
-    unsigned max;
+    unsigned min; /**< Minimum length constraint. */
+    unsigned max; /**< Maximum length constraint. */
 
-    const void* data;
+    const void* data; /**< Optional user-defined data associated with the rule. */
 
-    tvbparse_action_t before;
-    tvbparse_action_t after;
+    tvbparse_action_t before; /**< Action to perform before parsing this element. */
+    tvbparse_action_t after;  /**< Action to perform after parsing this element. */
 };
 
-/* an instance of a per packet parser */
+/**
+ * @brief Represents an instance of a per-packet parser for tvbuff data.
+ *
+ * This structure encapsulates the state and context for parsing a single packet buffer
+ * using tvbparse rules. It tracks memory scope, parsing boundaries, recursion depth,
+ * and optional control data.
+ */
 struct _tvbparse_t {
-    wmem_allocator_t* scope;
-    tvbuff_t* tvb;
-    int offset;
-    int end_offset;
-    void* data;
-    const tvbparse_wanted_t* ignore;
-    int recursion_depth;
+    wmem_allocator_t* scope;              /**< Memory allocator used for parser allocations. */
+    tvbuff_t* tvb;                        /**< Pointer to the tvbuff being parsed. */
+    int offset;                           /**< Current offset within the tvbuff. */
+    int end_offset;                       /**< Parsing boundary (exclusive end offset). */
+    void* data;                           /**< Optional user-defined parser context data. */
+    const tvbparse_wanted_t* ignore;      /**< Optional rule to ignore during parsing. */
+    int recursion_depth;                  /**< Current recursion depth for nested parsing. */
 };
 
 

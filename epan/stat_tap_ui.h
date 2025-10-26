@@ -65,27 +65,43 @@ typedef enum {
     TABLE_ITEM_ENUM
 } stat_tap_table_item_enum;
 
+/**
+ * @brief Represents a single item in a statistics tap table.
+ *
+ * This structure holds a typed value used in statistical reporting, such as counters,
+ * labels, or computed metrics. It also includes a scratchpad area (`user_data`) for
+ * dissector-specific temporary storage or extended metadata.
+ */
 typedef struct _stat_tap_table_item_type
 {
-    stat_tap_table_item_enum type;
-    union
-    {
-        unsigned uint_value;
-        int   int_value;
-        const char* string_value;
-        double float_value;
-        int enum_value;
+    stat_tap_table_item_enum type; /**< Type of the item (e.g., integer, float, string). */
+
+    /**
+     * @brief The primary value of the item.
+     *
+     * The actual field used depends on the `type` member.
+     */
+    union {
+        unsigned uint_value;     /**< Unsigned integer value. */
+        int int_value;           /**< Signed integer value. */
+        const char* string_value;/**< String value. */
+        double float_value;      /**< Floating-point value. */
+        int enum_value;          /**< Enumerated value. */
     } value;
-    /* Scratch space for the dissector. Alternatively we could also add support
-     * for hidden columns. */
-    union
-    {
-        unsigned uint_value;
-        int   int_value;
-        const char* string_value;
-        double float_value;
-        int enum_value;
-        void* ptr_value;
+
+    /**
+     * @brief Scratch space for dissector use.
+     *
+     * This union provides temporary storage for dissectors to associate
+     * auxiliary data with the item. It can also be used to support hidden columns.
+     */
+    union {
+        unsigned uint_value;     /**< Unsigned integer scratch value. */
+        int int_value;           /**< Signed integer scratch value. */
+        const char* string_value;/**< String scratch value. */
+        double float_value;      /**< Floating-point scratch value. */
+        int enum_value;          /**< Enumerated scratch value. */
+        void* ptr_value;         /**< Generic pointer for custom data. */
     } user_data;
 } stat_tap_table_item_type;
 

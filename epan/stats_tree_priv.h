@@ -52,51 +52,60 @@ struct _burst_bucket {
 	double			start_time;
 };
 
+/**
+ * @brief Represents a node in a hierarchical statistics tree.
+ *
+ * Each node tracks statistical data such as counters, totals, min/max values,
+ * and burst rates. Nodes may have children and siblings, forming a tree structure
+ * used for organizing and displaying protocol or performance statistics.
+ */
 struct _stat_node {
-	char*				name;
-	int					id;
-	stat_node_datatype	datatype;
+	char* name;                     /**< Name of the statistic node. */
+	int id;                         /**< Unique identifier for the node. */
+	stat_node_datatype datatype;    /**< Type of data tracked (e.g., integer, float). */
 
-	/** the counter it keeps */
-	int			counter;
-	/** total of all values submitted - for computing averages */
+	/** Counter value maintained by the node. */
+	int counter;
+
+	/** Total of all submitted values, used for computing averages. */
 	union {
-		int64_t	int_total;
-		double	float_total;
+		int64_t int_total;          /**< Total for integer values. */
+		double float_total;         /**< Total for floating-point values. */
 	} total;
+
+	/** Minimum value observed. */
 	union {
-		int	int_min;
-		float	float_min;
+		int int_min;                /**< Minimum integer value. */
+		float float_min;            /**< Minimum float value. */
 	} minvalue;
+
+	/** Maximum value observed. */
 	union {
-		int	int_max;
-		float	float_max;
+		int int_max;                /**< Maximum integer value. */
+		float float_max;            /**< Maximum float value. */
 	} maxvalue;
 
-	int			st_flags;
+	int st_flags;                   /**< Flags controlling node behavior or display. */
 
-	/** fields for burst rate calculation */
-	int			bcount;
-	burst_bucket	*bh, *bt;
-	int			max_burst;
-	double			burst_time;
+	/** Burst rate tracking fields. */
+	int bcount;                     /**< Burst count. */
+	burst_bucket *bh;               /**< Head of burst bucket list. */
+	burst_bucket *bt;               /**< Tail of burst bucket list. */
+	int max_burst;                  /**< Maximum burst count observed. */
+	double burst_time;              /**< Time span of the burst. */
 
-	/** children nodes by name */
-	GHashTable		*hash;
+	GHashTable *hash;               /**< Child nodes indexed by name. */
 
-	/** the owner of this node */
-	stats_tree		*st;
+	stats_tree *st;                 /**< Pointer to the owning statistics tree. */
 
-	/** relatives */
-	stat_node		*parent;
-	stat_node		*children;
-	stat_node		*next;
+	/** Tree relationships. */
+	stat_node *parent;              /**< Pointer to parent node. */
+	stat_node *children;            /**< Pointer to first child node. */
+	stat_node *next;                /**< Pointer to next sibling node. */
 
-	/** used to check if value is within range */
-	range_pair_t		*rng;
+	range_pair_t *rng;              /**< Optional range constraint for value filtering. */
 
-	/** node presentation data */
-	st_node_pres		*pr;
+	st_node_pres *pr;               /**< Presentation metadata for display formatting. */
 };
 
 struct _stats_tree {

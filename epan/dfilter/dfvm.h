@@ -33,19 +33,26 @@ typedef enum {
 	PCRE,
 } dfvm_value_type_t;
 
+/**
+ * @brief Represents a typed value used in display filter virtual machine (DFVM) operations.
+ *
+ * This structure encapsulates a single value of a specific type, used during
+ * display filter evaluation. The value may be numeric, a range, a field reference,
+ * a function definition, or a compiled regular expression.
+ */
 typedef struct {
-	dfvm_value_type_t	type;
+	dfvm_value_type_t type; /**< Type of the value (e.g., numeric, range, regex). */
 
 	union {
-		GPtrArray		*fvalue_p; /* Always has length == 1 */
-		uint32_t		numeric;
-		drange_t		*drange;
-		header_field_info	*hfinfo;
-		df_func_def_t		*funcdef;
-		ws_regex_t		*pcre;
+		GPtrArray *fvalue_p;           /**< Pointer to a array of fvalue. */
+		uint32_t numeric;              /**< Numeric value. */
+		drange_t *drange;              /**< Pointer to a display range. */
+		header_field_info *hfinfo;     /**< Pointer to header field metadata. */
+		df_func_def_t *funcdef;        /**< Pointer to a display filter function definition. */
+		ws_regex_t *pcre;              /**< Pointer to a compiled regular expression. */
 	} value;
 
-	int ref_count;
+	int ref_count; /**< Reference count for memory management. */
 } dfvm_value_t;
 
 #define dfvm_value_get_fvalue(val) ((val)->value.fvalue_p->pdata[0])

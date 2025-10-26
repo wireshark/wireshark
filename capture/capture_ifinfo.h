@@ -69,19 +69,27 @@ typedef struct {
 	if_capabilities_t *caps;
 } if_info_t;
 
-/*
- * An address in the "addrs" list.
+/**
+ * @brief Enumeration of supported interface address types.
+ *
+ * Used to indicate whether an address is IPv4 or IPv6.
  */
 typedef enum {
-	IF_AT_IPv4,
-	IF_AT_IPv6
+	IF_AT_IPv4, /**< IPv4 address (4 bytes). */
+	IF_AT_IPv6  /**< IPv6 address (16 bytes). */
 } if_address_type;
 
+/**
+ * @brief Represents an IP address in an interface address list.
+ *
+ * This structure holds either an IPv4 or IPv6 address, along with a type indicator.
+ * It is typically used to store addresses associated with network interfaces.
+ */
 typedef struct {
-	if_address_type ifat_type;
+	if_address_type ifat_type; /**< Type of address (IPv4 or IPv6). */
 	union {
-		uint32_t ip4_addr;   /*  4 byte IP V4 address, or */
-		uint8_t ip6_addr[16];/* 16 byte IP V6 address */
+		uint32_t ip4_addr;     /**< IPv4 address in network byte order. */
+		uint8_t ip6_addr[16];  /**< IPv6 address in network byte order. */
 	} addr;
 } if_addr_t;
 

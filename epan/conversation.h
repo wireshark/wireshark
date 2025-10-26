@@ -207,20 +207,20 @@ typedef enum {
  * it's not.
  */
 typedef struct conversation_element {
-    conversation_element_type type;
+    conversation_element_type type; /**< Type of the conversation element. */
     union {
-        conversation_type conversation_type_val;
-        address addr_val;
-        unsigned int port_val;
-        const char *str_val;
-        unsigned int uint_val;
-        uint64_t uint64_val;
-        int int_val;
-        int64_t int64_val;
+        conversation_type conversation_type_val; /**< Conversation type marker. */
+        address addr_val;                        /**< Network address (IPv4, IPv6, etc.). */
+        unsigned int port_val;                   /**< Port number. */
+        const char *str_val;                     /**< String identifier. */
+        unsigned int uint_val;                   /**< Unsigned integer value. */
+        uint64_t uint64_val;                     /**< 64-bit unsigned integer value. */
+        int int_val;                             /**< Signed integer value. */
+        int64_t int64_val;                       /**< 64-bit signed integer value. */
         struct {
-            const uint8_t *val;
-            size_t len;
-        } blob;
+            const uint8_t *val;                  /**< Pointer to binary blob. */
+            size_t len;                          /**< Length of the blob. */
+        } blob;                                  /**< Arbitrary binary data. */
     };
 } conversation_element_t;
 
