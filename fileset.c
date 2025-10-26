@@ -68,8 +68,11 @@ fileset_filename_match_pattern(const char *fname, char **prefix, char **suffix, 
     fileset_match_t ret = FILESET_NO_MATCH;
     static char *pattern = "(?P<prefix>.*)_\\d{5}_(?P<time>\\d{14})$";
     static char *pattern2 = "(?P<prefix>.*)_(?P<time>\\d{14})_\\d{5}$";
+    // Falco capture recordings: "falco_" +  nanoseconds + "_" + event number + ".scap"
+    static char *pattern3 = "(?P<prefix>.*)_(?P<time>\\d{14})\\d{6}_\\d{20}$";
     static GRegex *regex = NULL;
     static GRegex *regex2 = NULL;
+    static GRegex *regex3 = NULL;
 
     if (regex == NULL) {
         GError *gerr = NULL;
@@ -93,6 +96,19 @@ fileset_filename_match_pattern(const char *fname, char **prefix, char **suffix, 
                 ws_warning("failed to compile regex: %s", gerr->message);
                 g_error_free(gerr);
                 regex2 = NULL;
+                return ret;
+        }
+    }
+
+    if (regex3 == NULL) {
+        GError *gerr = NULL;
+        regex3 = g_regex_new(pattern3,
+                        (GRegexCompileFlags)(G_REGEX_OPTIMIZE | G_REGEX_ANCHORED),
+                        G_REGEX_MATCH_ANCHORED, &gerr);
+        if (gerr) {
+                ws_warning("failed to compile regex: %s", gerr->message);
+                g_error_free(gerr);
+                regex3 = NULL;
                 return ret;
         }
     }
@@ -143,6 +159,23 @@ fileset_filename_match_pattern(const char *fname, char **prefix, char **suffix, 
 
     if (ret == FILESET_NO_MATCH) {
         g_regex_match(regex2, filename, 0, &match_info);
+        if (g_match_info_matches(match_info)) {
+            if (prefix) {
+                *prefix = g_match_info_fetch_named(match_info, "prefix");
+            }
+            if (time) {
+                *time = g_match_info_fetch_named(match_info, "time");
+            }
+            if (suffix) {
+                *suffix = g_strdup(sfx);
+            }
+            ret = FILESET_TIME_NUM;
+        }
+        g_match_info_free(match_info);
+    }
+
+    if (ret == FILESET_NO_MATCH) {
+        g_regex_match(regex3, filename, 0, &match_info);
         if (g_match_info_matches(match_info)) {
             if (prefix) {
                 *prefix = g_match_info_fetch_named(match_info, "prefix");
