@@ -379,9 +379,17 @@ void PlotDialog::loadProfileGraphs()
 
         char* err = NULL;
         if (!uat_load(plot_uat_, NULL, &err)) {
-            report_failure("Error while loading %s: %s. Default plot values will be used.", plot_uat_->name, err);
-            g_free(err);
-            uat_clear(plot_uat_);
+            // Some errors are non-fatal (records were added but failed
+            // validation.) Since field names sometimes change between
+            // versions, don't erase all the existing plots.
+            if (plot_uat_->raw_data->len) {
+                report_failure("Error while loading %s: %s.", plot_uat_->name, err);
+                g_free(err);
+            } else {
+                report_failure("Error while loading %s: %s. Default plot values will be used.", plot_uat_->name, err);
+                g_free(err);
+                uat_clear(plot_uat_);
+            }
         }
 
         static_uat_model_ = new UatModel(mainApp, plot_uat_);
@@ -422,6 +430,10 @@ void PlotDialog::copyFromProfile(const QString& filename)
     else {
         report_failure("Error while loading %s: %s", plot_uat_->name, err);
         g_free(err);
+        // On failure, uat_load does not call the post update cb.
+        // Some errors are non-fatal (a record was still added but failed
+        // validation.)
+        uat_model_->reloadUat();
     }
 }
 

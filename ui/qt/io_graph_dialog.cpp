@@ -590,6 +590,10 @@ void IOGraphDialog::copyFromProfile(QString filename)
     } else {
         report_failure("Error while loading %s: %s", iog_uat_->name, err);
         g_free(err);
+        // On failure, uat_load does not call the post update cb.
+        // Some errors are non-fatal (a record was added but failed
+        // validation.)
+        uat_model_->reloadUat();
     }
 }
 
@@ -1570,9 +1574,17 @@ void IOGraphDialog::loadProfileGraphs()
 
         char* err = NULL;
         if (!uat_load(iog_uat_, NULL, &err)) {
-            report_failure("Error while loading %s: %s.  Default graph values will be used", iog_uat_->name, err);
-            g_free(err);
-            uat_clear(iog_uat_);
+            // Some errors are non-fatils (records were added but failed
+            // validation.) Since field names sometimes change between
+            // verseions, don't erase all the existing graphs.
+            if (iog_uat_->raw_data->len) {
+                report_failure("Error while loading %s: %s.", iog_uat_->name, err);
+                g_free(err);
+            } else {
+                report_failure("Error while loading %s: %s.  Default graph values will be used", iog_uat_->name, err);
+                g_free(err);
+                uat_clear(iog_uat_);
+            }
         }
 
         static_uat_model_ = new UatModel(mainApp, iog_uat_);
