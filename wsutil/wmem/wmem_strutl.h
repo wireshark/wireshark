@@ -46,6 +46,14 @@ char *
 wmem_strdup(wmem_allocator_t *allocator, const char *src)
 G_GNUC_MALLOC;
 
+/**
+ * @brief Convenience macro for duplicating a string using the NULL allocator.
+ *
+ * This macro wraps `wmem_strdup()` with a NULL allocator.
+ *
+ * @param src Null-terminated string to duplicate.
+ * @return Pointer to the duplicated string, or NULL on failure.
+ */
 #define ws_strdup(src) wmem_strdup(NULL, src)
 
 /**
@@ -66,6 +74,15 @@ char *
 wmem_strndup(wmem_allocator_t *allocator, const char *src, const size_t len)
 G_GNUC_MALLOC;
 
+/**
+ * @brief Convenience macro for duplicating a string up to a specified length using the NULL allocator.
+ *
+ * This macro wraps `wmem_strndup()` with a NULL allocator.
+ *
+ * @param src Null-terminated source string to duplicate.
+ * @param len Maximum number of characters to copy from the source string.
+ * @return Pointer to the newly allocated string, or NULL on failure.
+ */
 #define ws_strndup(src, len) wmem_strndup(NULL, src, len)
 
 /**
@@ -86,6 +103,14 @@ char *
 wmem_strdup_printf(wmem_allocator_t *allocator, const char *fmt, ...)
 G_GNUC_MALLOC G_GNUC_PRINTF(2, 3);
 
+/**
+ * @brief Convenience macro for formatting a string using the NULL allocator.
+ *
+ * This macro wraps `wmem_strdup_printf()` with a NULL allocator.
+ *
+ * @param ... Format string and arguments (as used in printf).
+ * @return Pointer to the newly allocated formatted string, or NULL on failure.
+ */
 #define ws_strdup_printf(...) wmem_strdup_printf(NULL, __VA_ARGS__)
 
 /**
@@ -106,6 +131,15 @@ char *
 wmem_strdup_vprintf(wmem_allocator_t *allocator, const char *fmt, va_list ap)
 G_GNUC_MALLOC;
 
+/**
+ * @brief Convenience macro for formatting a string using a va_list and the NULL allocator.
+ *
+ * This macro wraps `wmem_strdup_vprintf()` with a NULL allocator.
+ *
+ * @param fmt Format string (as used in printf).
+ * @param ap va_list containing the arguments to format into the string.
+ * @return Pointer to the newly allocated formatted string, or NULL on failure.
+ */
 #define ws_strdup_vprintf(fmt, ap) wmem_strdup_vprintf(NULL, fmt, ap)
 
 /**

@@ -21,6 +21,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * @brief Invoke registered callbacks for a given allocator and event.
+ *
+ * Triggers all callbacks associated with the specified `allocator` for the given
+ * `event`. This mechanism allows external components to respond to lifecycle
+ * changes or memory events within the wmem system.
+ *
+ * @param allocator Pointer to the `wmem_allocator_t` whose callbacks should be invoked.
+ * @param event The `wmem_cb_event_t` indicating the type of event to dispatch.
+ *
+ * @note This function is internal and typically used by the wmem subsystem to
+ * propagate allocator events. It is not intended for general use.
+ */
 WS_DLL_LOCAL
 void
 wmem_call_callbacks(wmem_allocator_t *allocator, wmem_cb_event_t event);

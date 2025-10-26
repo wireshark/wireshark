@@ -32,6 +32,13 @@ extern "C" {
 
 struct _wmem_array_t;
 
+/**
+ * @brief Opaque type representing a dynamically resizable array in the wmem system.
+ *
+ * `wmem_array_t` is a flexible container for storing elements of fixed size,
+ * managed by a `wmem_allocator_t`. It supports efficient appending, resizing,
+ * and memory-safe access patterns.
+ */
 typedef struct _wmem_array_t wmem_array_t;
 
 /**
@@ -118,6 +125,15 @@ WS_DLL_PUBLIC
 void
 wmem_array_append(wmem_array_t *array, const void *in, unsigned count);
 
+/**
+ * @brief Append a single element to a wmem array.
+ *
+ * This macro wraps `wmem_array_append()` to simplify appending one item.
+ * It automatically takes the address of the value and sets the count to 1.
+ *
+ * @param ARRAY Pointer to the `wmem_array_t` to append to.
+ * @param VAL   Value to append; its address will be passed to the underlying function.
+ */
 #define wmem_array_append_one(ARRAY, VAL) \
     wmem_array_append((ARRAY), &(VAL), 1)
 

@@ -34,6 +34,18 @@ extern "C" {
  */
 
 struct _wmem_tree_t;
+
+/**
+ * @typedef wmem_tree_t
+ * @brief Opaque type representing a red-black tree in the wmem system.
+ *
+ * `wmem_tree_t` provides efficient key-based storage using a self-balancing
+ * red-black tree. It guarantees O(log n) lookup, insertion, and deletion times,
+ * making it suitable for high-performance, scoped memory operations.
+ *
+ * Use API functions such as `wmem_tree_insert32()`, `wmem_tree_lookup32()`,
+ * and `wmem_tree_insert32_array()` to interact with this structure.
+ */
 typedef struct _wmem_tree_t wmem_tree_t;
 
 /**
@@ -275,6 +287,13 @@ WS_DLL_PUBLIC
 void *
 wmem_tree_remove_string(wmem_tree_t* tree, const char* key, uint32_t flags);
 
+/**
+ * @brief Represents a key used in a wmem tree.
+ *
+ * This structure defines a variable-length key used for indexing and lookup
+ * in a `wmem_tree_t`. Keys are composed of one or more 32-bit words, allowing
+ * for hierarchical or compound key structures.
+ */
 typedef struct _wmem_tree_key_t {
     uint32_t length;    /**< length in uint32_t words */
     uint32_t *key;      /**< Pointer to the key data. */

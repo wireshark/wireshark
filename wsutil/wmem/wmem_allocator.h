@@ -22,26 +22,33 @@ extern "C" {
 
 struct _wmem_user_cb_container_t;
 
-/* See section "4. Internal Design" of doc/README.wmem for details
- * on this structure */
+/**
+ * @brief Internal memory allocator interface used by the wmem subsystem.
+ *
+ * This structure defines the contract between the wmem core and a specific
+ * allocator implementation. It includes consumer-facing allocation functions,
+ * producer-side lifecycle management, and internal state tracking.
+ *
+ * For design details, see section "4. Internal Design" of `doc/README.wmem`.
+ */
 struct _wmem_allocator_t {
     /* Consumer functions */
-    void *(*walloc)(void *private_data, const size_t size);
-    void  (*wfree)(void *private_data, void *ptr);
-    void *(*wrealloc)(void *private_data, void *ptr, const size_t size);
+    void *(*walloc)(void *private_data, const size_t size); /**< Allocate memory of given size. */
+    void  (*wfree)(void *private_data, void *ptr);          /**< Free previously allocated memory. */
+    void *(*wrealloc)(void *private_data, void *ptr, const size_t size); /**< Resize an existing allocation. */
 
     /* Producer/Manager functions */
-    void  (*free_all)(void *private_data);
-    void  (*gc)(void *private_data);
-    void  (*cleanup)(void *private_data);
+    void  (*free_all)(void *private_data); /**< Free all allocations managed by this allocator. */
+    void  (*gc)(void *private_data);       /**< Perform garbage collection or cleanup. */
+    void  (*cleanup)(void *private_data);  /**< Final cleanup before allocator destruction. */
 
     /* Callback List */
-    struct _wmem_user_cb_container_t *callbacks;
+    struct _wmem_user_cb_container_t *callbacks; /**< Optional user-defined callbacks for lifecycle events. */
 
     /* Implementation details */
-    void                        *private_data;
-    enum _wmem_allocator_type_t  type;
-    bool                         in_scope;
+    void *private_data; /**< Allocator-specific internal state. */
+    enum _wmem_allocator_type_t type; /**< Allocator type (e.g., scope, file-backed, slab). */
+    bool in_scope; /**< Indicates whether the allocator is currently active in a scope. */
 };
 
 #ifdef __cplusplus

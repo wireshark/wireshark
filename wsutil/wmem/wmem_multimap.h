@@ -47,6 +47,18 @@ extern "C" {
  *    @{
  */
 
+/**
+ * @typedef wmem_multimap_t
+ * @brief Opaque type representing a hash multimap in the wmem system.
+ *
+ * `wmem_multimap_t` stores multiple values per hash key using a red-black tree
+ * indexed by 32-bit integers. It is optimized for use cases like request/response
+ * matching, where the same protocol ID may appear multiple times in a capture,
+ * and frame numbers are used to distinguish and order entries.
+ *
+ * Use functions such as `wmem_multimap_insert32()` and `wmem_multimap_lookup32_le()`
+ * to interact with this structure.
+ */
 typedef struct _wmem_multimap_t wmem_multimap_t;
 
 /**

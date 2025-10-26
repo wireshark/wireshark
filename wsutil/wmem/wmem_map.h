@@ -35,6 +35,14 @@ extern "C" {
  */
 
 struct _wmem_map_t;
+
+/**
+ * @typedef wmem_map_t
+ * @brief Opaque type representing a wmem-managed hash map.
+ *
+ * Use API functions such as `wmem_map_insert()`, `wmem_map_lookup()`, and
+ * `wmem_map_delete()` to interact with this structure.
+ */
 typedef struct _wmem_map_t wmem_map_t;
 
 /**
@@ -241,6 +249,7 @@ wmem_map_size(const wmem_map_t *map);
  * map grows.
  *
  * @param map The map to use
+ * @param capacity Minimum number of elements to reserve space for.
  * @return the number of buckets actually reserved
  *
  * @note This value persists on reset for autoreset maps. Passing 0 for the

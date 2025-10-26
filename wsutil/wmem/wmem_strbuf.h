@@ -30,28 +30,33 @@ extern "C" {
  */
 
 /**
- * @struct _wmem_strbuf_t
  * @brief Internal structure representing a wmem-allocated string buffer.
  *
  * This structure holds a string buffer allocated via the wmem memory management system.
  * It supports efficient string manipulation and resizing, including embedded NUL bytes.
- *
- * @var allocator
- *      Pointer to the `wmem_allocator_t` used to manage memory for this buffer.
- * @var str
- *      Pointer to the raw character buffer containing the string. May include embedded NULs.
- * @var len
- *      Logical length of the string content, excluding the null terminator. May differ from `strlen(str)` if the string contains embedded NULs.
- * @var alloc_size
- *      Total size of the allocated buffer pointed to by `str`, regardless of actual string content.
  */
 struct _wmem_strbuf_t {
-    /* read-only fields */
+    /**
+     * Pointer to the `wmem_allocator_t` used to manage memory for this buffer.
+     */
     wmem_allocator_t *allocator;
+
+    /**
+     * Pointer to the raw character buffer containing the string.
+     * May include embedded NULs.
+     */
     char *str;
+
+    /**
+     * Logical length of the string content, excluding the null terminator.
+     * May differ from `strlen(str)` if the string contains embedded NULs.
+     */
     size_t len;
 
-    /* private fields */
+    /**
+     * Total size of the allocated buffer pointed to by `str`,
+     * regardless of actual string content.
+     */
     size_t alloc_size;
 };
 
@@ -87,6 +92,16 @@ wmem_strbuf_t *
 wmem_strbuf_new(wmem_allocator_t *allocator, const char *str)
 G_GNUC_MALLOC;
 
+
+/**
+ * @brief Create a new wmem string buffer initialized with an empty string.
+ *
+ * This macro wraps `wmem_strbuf_new()` with an empty string as the initial value.
+ *
+ * @param allocator The `wmem_allocator_t` used to manage memory for the buffer.
+ *
+ * @return A pointer to the newly created `wmem_strbuf_t`.
+ */
 #define wmem_strbuf_create(allocator) \
     wmem_strbuf_new(allocator, "")
 
@@ -221,6 +236,14 @@ WS_DLL_PUBLIC
 void
 wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c);
 
+/**
+ * @brief Append the Unicode replacement character (U+FFFD) to a wmem string buffer.
+ *
+ * This macro appends the standard Unicode replacement character to the given
+ * `wmem_strbuf_t`, typically used to indicate an unknown or invalid character.
+ *
+ * @param buf Pointer to the `wmem_strbuf_t` to append to.
+ */
 #define wmem_strbuf_append_unichar_repl(buf) \
             wmem_strbuf_append_unichar(buf, UNICODE_REPLACEMENT_CHARACTER)
 

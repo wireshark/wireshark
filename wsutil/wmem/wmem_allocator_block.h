@@ -35,7 +35,18 @@ extern "C" {
 void
 wmem_block_allocator_init(wmem_allocator_t *allocator);
 
-/* Exposed only for testing purposes */
+/**
+ * @brief Verifies internal consistency of a wmem block allocator.
+ *
+ * This function performs integrity checks on the internal state of a block-based
+ * `wmem_allocator_t`. It is intended for use in unit tests or debugging scenarios
+ * to detect memory corruption, invalid pointers, or unexpected allocator behavior.
+ *
+ * @param allocator Pointer to the block allocator to verify.
+ *
+ * @note This function is exposed only for testing purposes and should not be used
+ *       in production code.
+ */
 void
 wmem_block_verify(wmem_allocator_t *allocator);
 

@@ -87,10 +87,16 @@ G_GNUC_ALLOC_SIZE(2);
 #define wmem_new(allocator, type) \
     ((type*)wmem_alloc((allocator), sizeof(type)))
 
-/*
- * Overflow-safe multiplication of the size of a type by a number of
- * items of that type, returning 0 if the result would overflow (or
- * if the number of elements is negative), and the product otherwise.
+/**
+ * @brief Overflow-safe multiplication of the size of a type by a number of items.
+ *
+ * Returns 0 if the multiplication would overflow or if the number of elements is negative.
+ * Otherwise, returns the product of sizeof(type) and num.
+ *
+ * @param type The data type whose size is to be multiplied.
+ * @param num  The number of elements of that type.
+ *
+ * @return The total size in bytes, or 0 on overflow or invalid input.
  */
 #define wmem_safe_mult_type_size(type, num) \
     ((((num) <= 0) || ((size_t)sizeof(type) > (G_MAXSSIZE / (size_t)(num)))) ? 0 : (sizeof(type) * (num)))

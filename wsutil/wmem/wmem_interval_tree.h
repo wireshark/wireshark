@@ -34,13 +34,29 @@ extern "C" {
  */
 
 struct _wmem_tree_t;
+
+/**
+ * @typedef wmem_itree_t
+ * @brief Alias for a wmem interval tree.
+ *
+ * `wmem_itree_t` is an alias for `wmem_tree_t`, used when the tree stores
+ * interval-based keys (e.g., ranges or spans). It supports efficient lookup
+ * and insertion of overlapping intervals, commonly used in range-based indexing.
+ */
 typedef struct _wmem_tree_t wmem_itree_t;
 
+/**
+ * @brief Represents a numeric range used in wmem's internal range tree.
+ *
+ * This structure defines a half-open interval [low, high] and is used as a node
+ * in a binary range tree. It supports efficient range queries and overlap detection.
+ */
 struct _wmem_range_t {
-    uint64_t low;        /* low is used as the key in the binary tree */
-    uint64_t high;       /* Max value of the range */
-    uint64_t max_edge;   /* max value among subtrees */
+    uint64_t low;       /**< Lower bound of the range; used as the tree key. */
+    uint64_t high;      /**< Upper bound of the range . */
+    uint64_t max_edge;  /**< Maximum high value among all descendant nodes in the subtree. */
 };
+
 
 /**
  * @brief Create a new interval tree using the specified memory allocator.

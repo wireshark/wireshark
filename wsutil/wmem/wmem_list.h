@@ -33,7 +33,20 @@ extern "C" {
 struct _wmem_list_t;
 struct _wmem_list_frame_t;
 
-typedef struct _wmem_list_t       wmem_list_t;
+/**
+ * @typedef wmem_list_t
+ * @brief Opaque type representing a scoped, doubly-linked list in the wmem system.
+ *
+ * `wmem_list_t` is a memory-managed doubly-linked list structure.
+ */
+typedef struct _wmem_list_t wmem_list_t;
+
+/**
+ * @typedef wmem_list_frame_t
+ * @brief Opaque type representing a frame within a `wmem_list_t`.
+ *
+ * `wmem_list_frame_t` tracks a logical item in a list.
+ */
 typedef struct _wmem_list_frame_t wmem_list_frame_t;
 
 /**
