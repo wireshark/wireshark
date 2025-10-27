@@ -300,9 +300,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
     /* Wireshark tab */
     updateWiresharkText();
 
-    ui->pte_wireshark->setFrameStyle(QFrame::NoFrame);
-    ui->pte_wireshark->viewport()->setAutoFillBackground(false);
-
     /* Authors */
     AuthorListModel * authorModel = new AuthorListModel(this);
     AStringListListSortFilterProxyModel * authorProxyModel = new AStringListListSortFilterProxyModel(this);
