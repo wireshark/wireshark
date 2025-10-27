@@ -9651,7 +9651,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     conversation = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
     if(conversation == NULL) {
         // XXX - very unlikely this is needed as we're carried over IP
-        conversation_new_strat(pinfo, CONVERSATION_IP, NO_PORTS);
+        conversation = conversation_new_strat(pinfo, CONVERSATION_IP, NO_PORTS);
     }
 
     /*
