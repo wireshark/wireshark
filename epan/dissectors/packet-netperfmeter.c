@@ -226,7 +226,7 @@ static hf_register_info hf[] = {
    { &hf_addflow_description,        { "Description",           "netperfmeter.addflow_description",        FT_STRING,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_ordered,            { "Ordered",               "netperfmeter.addflow_ordered",            FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_reliable,           { "Reliable",              "netperfmeter.addflow_reliable",           FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_retranstrials,      { "Retransmission Trials", "netperfmeter.addflow_retranstrials",      FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_retranstrials,      { "Retransmission Trials", "netperfmeter.addflow_retranstrials",      FT_UINT32,  BASE_CUSTOM, NULL,                    0x0, NULL, HFILL } },
    { &hf_addflow_frameraterng,       { "Frame Rate RNG",        "netperfmeter.addflow_frameraterng",       FT_UINT8,   BASE_DEC,  VALS(rng_type_values),     0x0, NULL, HFILL } },
    { &hf_addflow_framerate1,         { "Frame Rate 1",          "netperfmeter.addflow_framerate1",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_framerate2,         { "Frame Rate 2",          "netperfmeter.addflow_framerate2",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
@@ -338,8 +338,18 @@ dissect_npm_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree, pr
                                      100.0 * tvb_get_ntohl(message_tvb, 56) / (double)0xffffffff);
 
   retranstrials = tvb_get_ntohl(message_tvb, 60);
+  const char* retranstrials_format;
+  if((retranstrials & 0x7fffffff) == 0x7fffffff) {
+    retranstrials_format = "default";
+  }
+  else if(retranstrials & (1U << 31)) {
+    retranstrials_format = "%u ms";   // value is ms
+  }
+  else {
+    retranstrials_format = "%u trials";
+  }
   proto_tree_add_uint_format_value(message_tree, hf_addflow_retranstrials, message_tvb, 60, 4,
-                                   retranstrials, (retranstrials & (1U << 31)) ? "%u ms" : "%u trials",
+                                   retranstrials, retranstrials_format,
                                    retranstrials &~ (1U << 31));
 
   proto_tree_add_item(message_tree, hf_addflow_frameraterng,  message_tvb, 128, 1, ENC_BIG_ENDIAN);
