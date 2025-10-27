@@ -1147,10 +1147,7 @@ conversation_new_strat(const packet_info *pinfo, const conversation_type ctype, 
     conversation_t *conversation = NULL;
     bool is_ordinary_conv = true;
 
-    /* deinterlacing is only supported for the Ethernet wtap for now */
-    if( (pinfo->pseudo_header != NULL)
-        && (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ETHERNET)
-        && (prefs.conversation_deinterlacing_key>0)) {
+    if(is_deinterlacing_supported(pinfo)) {
         conversation_t *underlying_conv = find_conversation_deinterlacer_pinfo(pinfo);
         if(underlying_conv) {
             is_ordinary_conv = false;
@@ -1173,10 +1170,7 @@ conversation_new_strat_xtd(const packet_info *pinfo, const uint32_t setup_frame,
     conversation_t *conversation = NULL;
     bool is_ordinary_conv = true;
 
-    /* deinterlacing is only supported for the Ethernet wtap for now */
-    if( (pinfo->pseudo_header != NULL)
-        && (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ETHERNET)
-        && (prefs.conversation_deinterlacing_key>0)) {
+    if(is_deinterlacing_supported(pinfo)) {
         conversation_t *underlying_conv = find_conversation_deinterlacer_pinfo(pinfo);
         if(underlying_conv) {
             is_ordinary_conv = false;
@@ -2963,10 +2957,7 @@ conversation_t *
 find_conversation_strat(const packet_info *pinfo, const conversation_type ctype, const unsigned options, const bool direction)
 {
   conversation_t *conv=NULL;
-  /* deinterlacing is only supported for the Ethernet wtap for now */
-  if( (pinfo->pseudo_header != NULL)
-      && (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ETHERNET)
-      && (prefs.conversation_deinterlacing_key>0)) {
+  if(is_deinterlacing_supported(pinfo)) {
     conversation_t *underlying_conv = find_conversation_deinterlacer_pinfo(pinfo);
     if(underlying_conv) {
         if(direction) { // reverse flow (dst to src)
@@ -2994,10 +2985,7 @@ find_conversation_strat_xtd(const packet_info *pinfo, const uint32_t frame_num, 
      const conversation_type ctype, const uint32_t port_a, const uint32_t port_b, const unsigned options)
 {
   conversation_t *conv=NULL;
-  /* deinterlacing is only supported for the Ethernet wtap for now */
-  if( (pinfo->pseudo_header != NULL)
-      && (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ETHERNET)
-      && (prefs.conversation_deinterlacing_key>0)) {
+  if(is_deinterlacing_supported(pinfo)) {
     conversation_t *underlying_conv = find_conversation_deinterlacer_pinfo(pinfo);
     if(underlying_conv) {
         conv = find_conversation_deinterlaced(frame_num, addr_a, addr_b, ctype, port_a, port_b, underlying_conv->conv_index, options);
@@ -3101,6 +3089,7 @@ find_conversation_pinfo_deinterlaced(const packet_info *pinfo, const uint32_t an
 
 /*
  * Returns true when deinterlacing is supported (file format) and enabled (user pref)
+ * Deinterlacing is only supported for the Ethernet wtap for now.
  */
 bool
 is_deinterlacing_supported(const packet_info *pinfo)
@@ -3118,11 +3107,7 @@ find_conversation_pinfo_strat(const packet_info *pinfo, const unsigned options)
 {
   conversation_t *conv=NULL;
 
-  /* deinterlacing is only supported for the Ethernet wtap for now */
-  // XXX - a Boolean returning function could be appropriate for this test
-  if( (pinfo->pseudo_header != NULL)
-      && (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ETHERNET)
-      && (prefs.conversation_deinterlacing_key>0)) {
+  if(is_deinterlacing_supported(pinfo)) {
 
     conversation_t *underlying_conv = find_conversation_deinterlacer_pinfo(pinfo);
 
@@ -3211,9 +3196,7 @@ find_conversation_pinfo_ro(const packet_info *pinfo, const unsigned options)
              * in the deinterlaced version of the "addr_port" table.
              * XXX - as this check is becoming redundant, isolate it in a function ?
              */
-            if( (pinfo->pseudo_header != NULL)
-              && (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ETHERNET)
-              && (prefs.conversation_deinterlacing_key>0)) {
+            if(is_deinterlacing_supported(pinfo)) {
                 tsconv = wmem_map_find(conversation_hashtable_exact_addr_port_anc, find_conversation_by_index, GUINT_TO_POINTER(conv_index));
             }
             else {
@@ -3296,12 +3279,7 @@ find_or_create_conversation_strat(const packet_info *pinfo)
 {
     conversation_t *conv=NULL;
 
-    /* deinterlacing is only supported for the Ethernet wtap for now */
-    // XXX - a Boolean returning function could be appropriate for this test
-    if( (pinfo->pseudo_header != NULL)
-        && (pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_ETHERNET)
-        && (prefs.conversation_deinterlacing_key>0)) {
-
+    if(is_deinterlacing_supported(pinfo)) {
         conversation_t *underlying_conv = find_conversation_deinterlacer_pinfo(pinfo);
         if(underlying_conv) {
             conv = find_or_create_conversation_deinterlaced(pinfo, underlying_conv->conv_index);
