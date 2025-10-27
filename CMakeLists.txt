@@ -1394,7 +1394,7 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Zc:__cplusplus")
 		endif()
 
-		find_package(Qt6 REQUIRED
+		find_package(Qt6 6.2 REQUIRED
 			COMPONENTS
 				Core
 				Gui
