@@ -211,7 +211,7 @@ static hf_register_info hf[] = {
    { &hf_message_flags,              { "Flags",                 "netperfmeter.message_flags",              FT_UINT8,   BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_message_length,             { "Length",                "netperfmeter.message_length",             FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
 
-   { &hf_acknowledge_flowid,         { "Flow ID",               "netperfmeter.acknowledge_flowid",         FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_acknowledge_flowid,         { "Flow ID",               "netperfmeter.acknowledge_flowid",         FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_acknowledge_measurementid,  { "Measurement ID",        "netperfmeter.acknowledge_measurementid",  FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
    { &hf_acknowledge_streamid,       { "Stream ID",             "netperfmeter.acknowledge_streamid",       FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
 #if 0
@@ -219,7 +219,7 @@ static hf_register_info hf[] = {
 #endif
    { &hf_acknowledge_status,         { "Status",                "netperfmeter.acknowledge_status",         FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
 
-   { &hf_addflow_flowid,             { "Flow ID",               "netperfmeter.addflow_flowid",             FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_flowid,             { "Flow ID",               "netperfmeter.addflow_flowid",             FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_measurementid,      { "Measurement ID",        "netperfmeter.addflow_measurementid",      FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_streamid,           { "Stream ID",             "netperfmeter.addflow_streamid",           FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_protocol,           { "Protocol",              "netperfmeter.addflow_protocol",           FT_UINT16,  BASE_DEC,  VALS(proto_type_values),   0x0, NULL, HFILL } },
@@ -248,18 +248,18 @@ static hf_register_info hf[] = {
    { &hf_addflow_flag_nodelay,       { "No Delay",              "netperfmeter.addflow_flags.nodelay",      FT_BOOLEAN, 8, TFS(&tfs_set_notset), NPMAFF_NODELAY,     NULL, HFILL } },
    { &hf_addflow_flag_repeatonoff,   { "Repeat On/Off",         "netperfmeter.addflow_flags.repeatonoff",  FT_BOOLEAN, 8, TFS(&tfs_set_notset), NPMAFF_REPEATONOFF, NULL, HFILL } },
 
-   { &hf_removeflow_flowid,          { "Flow ID",               "netperfmeter.removeflow_flowid",          FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_removeflow_flowid,          { "Flow ID",               "netperfmeter.removeflow_flowid",          FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_removeflow_measurementid,   { "Measurement ID",        "netperfmeter.removeflow_measurementid",   FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
    { &hf_removeflow_streamid,        { "Stream ID",             "netperfmeter.removeflow_streamid",        FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
 
-   { &hf_identifyflow_flowid,        { "Flow ID",               "netperfmeter.identifyflow_flowid",        FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_identifyflow_flowid,        { "Flow ID",               "netperfmeter.identifyflow_flowid",        FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_identifyflow_magicnumber,   { "Magic Number",          "netperfmeter.identifyflow_magicnumber",   FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
    { &hf_identifyflow_measurementid, { "Measurement ID",        "netperfmeter.identifyflow_measurementid", FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
    { &hf_identifyflow_streamid,      { "Stream ID",             "netperfmeter.identifyflow_streamid",      FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_identifyflow_flag_compress_vectors, { "Compress Vectors", "netperfmeter.dentifyflow_flags.compress_vectors", FT_BOOLEAN, 8, TFS(&tfs_set_notset), NPMIF_COMPRESS_VECTORS, NULL, HFILL } },
    { &hf_identifyflow_flag_no_vectors,       { "No Vectors", "netperfmeter.dentifyflow_flags.no_vectors",             FT_BOOLEAN, 8, TFS(&tfs_set_notset), NPMIF_NO_VECTORS,       NULL, HFILL } },
 
-   { &hf_data_flowid,                { "Flow ID",               "netperfmeter.data_flowid",                FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_data_flowid,                { "Flow ID",               "netperfmeter.data_flowid",                FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_data_measurementid,         { "Measurement ID",        "netperfmeter.data_measurementid",         FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
    { &hf_data_streamid,              { "Stream ID",             "netperfmeter.data_streamid",              FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_data_padding,               { "Padding",               "netperfmeter.data_padding",               FT_UINT16,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
