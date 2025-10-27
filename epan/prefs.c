@@ -2268,7 +2268,6 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
     case PREF_UAT:
         if (pref->varp.uat && pref->varp.uat->changed) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
-            pref->varp.uat->changed = false;
         }
         break;
     case PREF_STATIC_TEXT:

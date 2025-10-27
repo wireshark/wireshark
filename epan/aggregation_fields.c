@@ -81,6 +81,7 @@ void apply_aggregation_prefs(void) {
             prefs.aggregation_fields = g_list_append(prefs.aggregation_fields, field);
     }
     prefs.aggregation_fields_num = g_list_length(prefs.aggregation_fields);
+    uat_aggregation->changed = false;
 }
 
 /*
