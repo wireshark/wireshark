@@ -491,10 +491,10 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
     timestamp_set_seconds_type (recent.gui_seconds_format);
     tap_update_timer_.setInterval(prefs.tap_update_interval);
 
-    prefs_to_capture_opts();
+    prefs_to_capture_opts(&global_capture_opts);
     prefs_apply_all();
 #ifdef HAVE_LIBPCAP
-    update_local_interfaces();
+    update_local_interfaces(&global_capture_opts);
 #endif
 
     setMonospaceFont(prefs.gui_font_name);

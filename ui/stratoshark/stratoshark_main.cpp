@@ -783,10 +783,10 @@ int main(int argc, char *qt_argv[])
      * applied last to take precedence (at least until the user saves
      * preferences, or switches profiles.)
      */
-    prefs_to_capture_opts();
+    prefs_to_capture_opts(&global_capture_opts);
 
     /* Now get our remaining args */
-    commandline_other_options(argc, argv, true);
+    commandline_other_options(&global_capture_opts, argc, argv, true);
 
     /* Convert some command-line parameters to QStrings */
     cf_name = QString(commandline_get_cf_name());

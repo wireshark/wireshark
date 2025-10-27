@@ -24,25 +24,25 @@
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_opts.h"
-#include "ui/capture_globals.h"
 #endif
+#include "ui/capture_globals.h"
 
 #include "ui/preference_utils.h"
 #include "ui/simple_dialog.h"
 
 /* Fill in capture options with values from the preferences */
 void
-prefs_to_capture_opts(void)
+prefs_to_capture_opts(capture_options* capture_opts _U_)
 {
 #ifdef HAVE_LIBPCAP
     /* Set promiscuous mode from the preferences setting. */
     /* the same applies to other preferences settings as well. */
-    global_capture_opts.default_options.promisc_mode = prefs.capture_prom_mode;
-    global_capture_opts.default_options.monitor_mode = prefs.capture_monitor_mode;
-    global_capture_opts.use_pcapng                   = prefs.capture_pcap_ng;
-    global_capture_opts.show_info                    = prefs.capture_show_info;
-    global_capture_opts.real_time_mode               = prefs.capture_real_time;
-    global_capture_opts.update_interval              = prefs.capture_update_interval;
+    capture_opts->default_options.promisc_mode = prefs.capture_prom_mode;
+    capture_opts->default_options.monitor_mode = prefs.capture_monitor_mode;
+    capture_opts->use_pcapng                   = prefs.capture_pcap_ng;
+    capture_opts->show_info                    = prefs.capture_show_info;
+    capture_opts->real_time_mode               = prefs.capture_real_time;
+    capture_opts->update_interval              = prefs.capture_update_interval;
 #endif /* HAVE_LIBPCAP */
 }
 
@@ -112,7 +112,7 @@ prefs_store_ext(const char * module_name, const char *pref_name, const char *pre
     {
         prefs_main_write();
         prefs_apply_all();
-        prefs_to_capture_opts();
+        prefs_to_capture_opts(&global_capture_opts);
         return changed_flags;
     }
 
@@ -149,7 +149,7 @@ prefs_store_ext_multiple(const char * module, GHashTable * pref_values)
     {
         prefs_main_write();
         prefs_apply_all();
-        prefs_to_capture_opts();
+        prefs_to_capture_opts(&global_capture_opts);
     }
 
     return true;

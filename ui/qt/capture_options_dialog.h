@@ -60,7 +60,7 @@ public:
     explicit CaptureOptionsDialog(QWidget *parent = 0);
     ~CaptureOptionsDialog();
 
-    void updateInterfaces();
+    void updateInterfaces(capture_options* capture_opts);
 
 public slots:
     void interfaceSelected();
@@ -117,7 +117,7 @@ private:
     InterfaceTreeDelegate interface_item_delegate_;
 
     interface_t *getDeviceByName(const QString device_name);
-    bool saveOptionsToPreferences();
+    bool saveOptionsToPreferences(capture_options* capture_opts);
     void updateSelectedFilter();
 
     void updateGlobalDeviceSelections();

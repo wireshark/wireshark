@@ -72,6 +72,7 @@
 #include "ui/dissect_opts.h"
 #include "ui/commandline.h"
 #include "ui/capture_ui_utils.h"
+#include "ui/capture_globals.h"
 #include "ui/preference_utils.h"
 #include "ui/software_update.h"
 #include "ui/taps.h"
@@ -845,7 +846,7 @@ int main(int argc, char *qt_argv[])
      * applied last to take precedence (at least until the user saves
      * preferences, or switches profiles.)
      */
-    prefs_to_capture_opts();
+    prefs_to_capture_opts(&global_capture_opts);
 
     /* Now get our remaining args */
 
@@ -862,7 +863,7 @@ int main(int argc, char *qt_argv[])
      * to do it if we don't need to.
      */
 
-    commandline_other_options(argc, argv, true);
+    commandline_other_options(&global_capture_opts, argc, argv, true);
 
     /* Convert some command-line parameters to QStrings */
     cf_name = QString(commandline_get_cf_name());

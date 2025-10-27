@@ -13,6 +13,7 @@
 #define __COMMANDLINE_H__
 
 #include "cfile.h" /* For search_direction */
+#include "ui/capture_opts.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,7 +28,7 @@ extern const char* commandline_optstring(void);
 
 extern void commandline_override_prefs(int argc, char *argv[], bool opt_reset);
 
-extern void commandline_other_options(int argc, char *argv[], bool opt_reset);
+extern void commandline_other_options(capture_options* capture_opts, int argc, char *argv[], bool opt_reset);
 
 extern void commandline_options_drop(const char *module_name, const char *pref_name);
 

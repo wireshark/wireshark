@@ -22,35 +22,35 @@ extern "C" {
  * Get the global interface list.  Generate it if we haven't
  * done so already.
  */
-extern void fill_in_local_interfaces(void(*update_cb)(void));
+extern void fill_in_local_interfaces(capture_options* capture_opts, void(*update_cb)(void));
 
 /*
  * Get the global interface list.  Generate it if we haven't
  * done so already.
  * @param allowed_types only fill in types provided by the list
  */
-extern void fill_in_local_interfaces_filtered(GList * allowed_types, void(*update_cb)(void));
+extern void fill_in_local_interfaces_filtered(capture_options* capture_opts, GList * allowed_types, void(*update_cb)(void));
 
 /*
  * Update the global interface list.
  */
-extern void scan_local_interfaces(void (*update_cb)(void));
+extern void scan_local_interfaces(capture_options* capture_opts, void (*update_cb)(void));
 
 /*
  * Update the global interface list.
  * @param allowed_types only fill in types provided by the list
  */
-extern void scan_local_interfaces_filtered(GList * allowed_types, void (*update_cb)(void));
+extern void scan_local_interfaces_filtered(capture_options* capture_opts, GList * allowed_types, void (*update_cb)(void));
 
 /*
  * Hide the interfaces
  */
-extern void hide_interface(char* new_hide);
+extern void hide_interface(capture_options* capture_opts, char* new_hide);
 
 /*
  * Update the global interface list from preferences.
  */
-extern void update_local_interfaces(void);
+extern void update_local_interfaces(capture_options* capture_opts);
 
 #endif /* HAVE_LIBPCAP */
 

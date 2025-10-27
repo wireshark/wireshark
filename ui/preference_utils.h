@@ -13,6 +13,7 @@
 #define __PREFERENCE_UTILS_H__
 
 #include <glib.h>
+typedef struct capture_options_tag capture_options;
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,7 +30,7 @@ extern bool auto_scroll_live;
 
 /** Fill in capture options with values from the preferences
  */
-extern void prefs_to_capture_opts(void);
+extern void prefs_to_capture_opts(capture_options* capture_opts);
 
 /** Save all preferences
  */

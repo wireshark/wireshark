@@ -542,7 +542,7 @@ void commandline_override_prefs(int argc, char *argv[], bool opt_reset)
 
 }
 
-void commandline_other_options(int argc, char *argv[], bool opt_reset)
+void commandline_other_options(capture_options* capture_opts _U_, int argc, char *argv[], bool opt_reset)
 {
     int opt;
     bool arg_error = false;
@@ -823,7 +823,7 @@ void commandline_other_options(int argc, char *argv[], bool opt_reset)
             exit_application(1);
         }
         /* No - did they specify a ring buffer option? */
-        if (global_capture_opts.multi_files_on) {
+        if (capture_opts->multi_files_on) {
             cmdarg_err("Ring buffer requested, but a capture isn't being done.");
             exit_application(1);
         }
@@ -838,21 +838,21 @@ void commandline_other_options(int argc, char *argv[], bool opt_reset)
 
         /* No - was the ring buffer option specified and, if so, does it make
            sense? */
-        if (global_capture_opts.multi_files_on) {
+        if (capture_opts->multi_files_on) {
             /* Ring buffer works only under certain conditions:
              a) ring buffer does not work with temporary files;
              b) real_time_mode and multi_files_on are mutually exclusive -
              real_time_mode takes precedence;
              c) it makes no sense to enable the ring buffer if the maximum
              file size is set to "infinite". */
-            if (global_capture_opts.save_file == NULL) {
+            if (capture_opts->save_file == NULL) {
                 cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
-                global_capture_opts.multi_files_on = false;
+                capture_opts->multi_files_on = false;
             }
-            if (!global_capture_opts.has_autostop_filesize &&
-                !global_capture_opts.has_file_duration &&
-                !global_capture_opts.has_file_interval &&
-                !global_capture_opts.has_file_packets) {
+            if (!capture_opts->has_autostop_filesize &&
+                !capture_opts->has_file_duration &&
+                !capture_opts->has_file_interval &&
+                !capture_opts->has_file_packets) {
                 cmdarg_err("Ring buffer requested, but no maximum capture file size, duration, interval or packets were specified.");
                 /* XXX - this must be redesigned as the conditions changed */
             }

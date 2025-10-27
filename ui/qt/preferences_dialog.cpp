@@ -26,6 +26,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/color_utils.h>
+#include <ui/capture_globals.h>
 
 #include "main_application.h"
 
@@ -425,7 +426,7 @@ void PreferencesDialog::apply()
     prefs_apply_all();
 
     /* Fill in capture options with values from the preferences */
-    prefs_to_capture_opts();
+    prefs_to_capture_opts(&global_capture_opts);
     mainApp->emitAppSignal(MainApplication::AggregationVisiblity);
     if (redissect_flags & PREF_EFFECT_AGGREGATION) {
         mainApp->emitAppSignal(MainApplication::AggregationChanged);

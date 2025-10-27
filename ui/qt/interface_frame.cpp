@@ -227,7 +227,7 @@ void InterfaceFrame::scanLocalInterfaces(GList *filter_list)
         }
         mainApp->setInterfaceList(if_list);
         free_interface_list(if_list);
-        scan_local_interfaces_filtered(filter_list, main_window_update);
+        scan_local_interfaces_filtered(&global_capture_opts, filter_list, main_window_update);
         mainApp->emitAppSignal(MainApplication::LocalInterfacesChanged);
         scan_mutex.unlock();
     } else {

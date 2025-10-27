@@ -3185,7 +3185,7 @@ void WiresharkMainWindow::showCaptureOptionsDialog()
         connect(capture_options_dialog_, &CaptureOptionsDialog::showExtcapOptions,
                 this, &WiresharkMainWindow::showExtcapOptionsDialog);
     }
-    capture_options_dialog_->updateInterfaces();
+    capture_options_dialog_->updateInterfaces(&global_capture_opts);
 
     if (capture_options_dialog_->isMinimized()) {
         capture_options_dialog_->showNormal();

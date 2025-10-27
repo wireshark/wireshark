@@ -74,7 +74,7 @@ private slots:
     void on_remoteList_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
     void on_remoteList_itemClicked(QTreeWidgetItem *item, int column);
     void addRemoteInterfaces(GList *rlist, remote_options *roptions);
-    void updateRemoteInterfaceList(GList *rlist, remote_options *roptions);
+    void updateRemoteInterfaceList(capture_options* capture_opts, GList *rlist, remote_options *roptions);
     void setRemoteSettings(interface_t *iface);
     void remoteSelectionChanged(QTreeWidgetItem* item, int col);
     void on_remoteSettings_clicked();
