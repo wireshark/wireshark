@@ -1741,6 +1741,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tsp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tte-pcf.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tte.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ttl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tsdns.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-trueconf.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-turbocell.c
