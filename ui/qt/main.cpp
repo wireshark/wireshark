@@ -36,6 +36,7 @@
 #include <wsutil/please_report_bug.h>
 #include <wsutil/unicode-utils.h>
 #include <wsutil/version_info.h>
+#include <wsutil/application_flavor.h>
 
 #include <epan/addr_resolv.h>
 #include <epan/ex-opt.h>
@@ -450,12 +451,12 @@ capture_opts_get_interface_list(int *err, char **err_str)
     if (mainApp) {
         GList *if_list = mainApp->getInterfaceList();
         if (if_list == NULL) {
-            if_list = capture_interface_list(err, err_str, main_window_update);
+            if_list = capture_interface_list(global_capture_opts.app_name, err, err_str, main_window_update);
             mainApp->setInterfaceList(if_list);
         }
         return if_list;
     }
-    return capture_interface_list(err, err_str, main_window_update);
+    return capture_interface_list(global_capture_opts.app_name, err, err_str, main_window_update);
 }
 #endif
 
@@ -747,7 +748,7 @@ int main(int argc, char *qt_argv[])
 #ifdef HAVE_LIBPCAP
     /* Set the initial values in the capture options. This might be overwritten
        by preference settings and then again by the command line parameters. */
-    capture_opts_init(&global_capture_opts, capture_opts_get_interface_list);
+    capture_opts_init(&global_capture_opts, application_flavor_name_lower(), capture_opts_get_interface_list);
 #endif
 
     /*
@@ -921,7 +922,7 @@ int main(int argc, char *qt_argv[])
             if_cap_queries = g_list_prepend(if_cap_queries, if_cap_query);
         }
         if_cap_queries = g_list_reverse(if_cap_queries);
-        capability_hash = capture_get_if_list_capabilities(if_cap_queries, &err_str, &err_str_secondary, NULL);
+        capability_hash = capture_get_if_list_capabilities(global_capture_opts.app_name, if_cap_queries, &err_str, &err_str_secondary, NULL);
         g_list_free_full(if_cap_queries, g_free);
         for (i = 0; i < global_capture_opts.ifaces->len; i++) {
             interface_options *interface_opts;

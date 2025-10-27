@@ -101,7 +101,7 @@ extern GList *deserialize_interface_list(char *data, int *err, char **err_str);
  * Local interfaces are fetched by running dumpcap.
  * The remote and extcap interfaces are appended to the list after that.
  */
-extern GList *capture_interface_list(int *err, char **err_str, void (*update_cb)(void));
+extern GList *capture_interface_list(const char* app_name, int *err, char **err_str, void (*update_cb)(void));
 
 /* Error values from "get_interface_list()/capture_interface_list()". */
 #define	CANT_GET_INTERFACE_LIST	1	/* error getting list */
@@ -163,7 +163,7 @@ typedef struct {
  * Fetch the linktype list for the specified interface from a child process.
  */
 extern if_capabilities_t *
-capture_get_if_capabilities(const char *devname, bool monitor_mode,
+capture_get_if_capabilities(const char* app_name, const char *devname, bool monitor_mode,
                             const char *auth_string,
                             char **err_primary_msg, char **err_secondary_msg,
                             void (*update_cb)(void));
@@ -172,7 +172,7 @@ capture_get_if_capabilities(const char *devname, bool monitor_mode,
  * Fetch the linktype list for the specified interface from a child process.
  */
 extern GHashTable *
-capture_get_if_list_capabilities(GList *if_cap_queries,
+capture_get_if_list_capabilities(const char* app_name, GList *if_cap_queries,
                             char **err_primary_msg, char **err_secondary_msg,
                             void (*update_cb)(void));
 

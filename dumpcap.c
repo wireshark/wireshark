@@ -5487,7 +5487,7 @@ main(int argc, char *argv[])
 
     /* Set the initial values in the capture options. This might be overwritten
        by the command line parameters. */
-    capture_opts_init(&global_capture_opts, get_interface_list);
+    capture_opts_init(&global_capture_opts, application_flavor_name_lower(), get_interface_list);
     /* We always save to a file - if no file was specified, we save to a
        temporary file. */
     global_capture_opts.saving_to_file      = true;

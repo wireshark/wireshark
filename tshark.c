@@ -51,6 +51,7 @@
 #include <wsutil/ws_assert.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/report_message.h>
+#include <wsutil/application_flavor.h>
 #include <cli_main.h>
 #include <wsutil/version_info.h>
 #include <wiretap/wtap_opttypes.h>
@@ -1029,7 +1030,7 @@ capture_opts_get_interface_list(int *err, char **err_str)
         /*
          * This isn't a GUI tool, so no need for a callback.
          */
-        cached_if_list = capture_interface_list(err, err_str, NULL);
+        cached_if_list = capture_interface_list(global_capture_opts.app_name, err, err_str, NULL);
     }
     /*
      * Routines expect to free the returned interface list, so return
@@ -1339,7 +1340,7 @@ main(int argc, char *argv[])
     init_report_failure_message("TShark");
 
 #ifdef HAVE_LIBPCAP
-    capture_opts_init(&global_capture_opts, capture_opts_get_interface_list);
+    capture_opts_init(&global_capture_opts, application_flavor_name_lower(), capture_opts_get_interface_list);
     capture_session_init(&global_capture_session, &cfile,
             capture_input_new_file, capture_input_new_packets,
             capture_input_drops, capture_input_error,
@@ -1492,7 +1493,7 @@ main(int argc, char *argv[])
             case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
                 exit_status = EXIT_SUCCESS;
-                if_list = capture_interface_list(&err, &err_str,NULL);
+                if_list = capture_interface_list(global_capture_opts.app_name, &err, &err_str,NULL);
                 if (err != 0) {
                     /*
                      * An error occurred when fetching the local
@@ -2725,7 +2726,7 @@ main(int argc, char *argv[])
                 if_cap_queries = g_list_prepend(if_cap_queries, if_cap_query);
             }
             if_cap_queries = g_list_reverse(if_cap_queries);
-            capability_hash = capture_get_if_list_capabilities(if_cap_queries, &err_str, &err_str_secondary, NULL);
+            capability_hash = capture_get_if_list_capabilities(global_capture_opts.app_name, if_cap_queries, &err_str, &err_str_secondary, NULL);
             g_list_free_full(if_cap_queries, g_free);
             for (i = 0; i < global_capture_opts.ifaces->len; i++) {
                 interface_options *interface_opts;

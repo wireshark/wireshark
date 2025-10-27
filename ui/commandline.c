@@ -366,7 +366,7 @@ int commandline_early_options(int argc, char *argv[])
             case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
                 exit_status = WS_EXIT_NOW;
-                if_list = capture_interface_list(&err, &err_str, NULL);
+                if_list = capture_interface_list(global_capture_opts.app_name, &err, &err_str, NULL);
                 if (err != 0) {
                     /*
                      * An error occurred when fetching the local

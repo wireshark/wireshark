@@ -919,7 +919,7 @@ capture_stat_start(capture_options *capture_opts)
      * mechanism, so opening all the devices and presenting packet
      * counts might not always be a good idea.
      */
-    if (sync_interface_stats_open(&stat_fd, &fork_child, NULL, &msg, NULL) == 0) {
+    if (sync_interface_stats_open(capture_opts->app_name, &stat_fd, &fork_child, NULL, &msg, NULL) == 0) {
         sc->stat_fd = stat_fd;
         sc->fork_child = fork_child;
 
@@ -941,7 +941,7 @@ capture_stat_start(capture_options *capture_opts)
 }
 
 if_stat_cache_t *
-capture_interface_stat_start(capture_options *capture_opts _U_, GList **if_list)
+capture_interface_stat_start(capture_options *capture_opts, GList **if_list)
 {
     int stat_fd;
     ws_process_id fork_child;
@@ -977,7 +977,7 @@ capture_interface_stat_start(capture_options *capture_opts _U_, GList **if_list)
      */
     int status;
     iface_mon_enable(false);
-    status = sync_interface_stats_open(&stat_fd, &fork_child, &data, &msg, NULL);
+    status = sync_interface_stats_open(capture_opts->app_name, &stat_fd, &fork_child, &data, &msg, NULL);
     iface_mon_enable(true);
     /* In order to initialize the stat cache (below), we need to have
      * filled in capture_opts->all_ifaces

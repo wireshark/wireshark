@@ -18,6 +18,10 @@
 #include <capture/ws80211_utils.h>
 
 #include "ui/ws_ui_util.h"
+#include "ui/capture_opts.h"
+#if defined(HAVE_LIBNL) && defined(HAVE_NL80211) && defined(HAVE_LIBPCAP)
+#include "ui/capture_globals.h"
+#endif
 #include <wsutil/utf8_entities.h>
 #include <wsutil/802_11-utils.h>
 #include "main_application.h"
@@ -477,7 +481,7 @@ void WirelessFrame::setInterfaceInfo()
         center_freq_s = qstring_strdup(QString::number(center_freq));
     }
 
-    ret = sync_interface_set_80211_chan(cur_iface.toUtf8().constData(),
+    ret = sync_interface_set_80211_chan(global_capture_opts.app_name, cur_iface.toUtf8().constData(),
                                         QString::number(frequency).toUtf8().constData(), chan_type_s,
                                         center_freq_s, NULL,
                                         &data, &primary_msg, &secondary_msg, main_window_update);

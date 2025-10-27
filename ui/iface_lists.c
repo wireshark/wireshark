@@ -210,7 +210,7 @@ scan_local_interfaces_filtered(capture_options* capture_opts, GList * allowed_ty
         if_cap_queries = g_list_prepend(if_cap_queries, if_cap_query);
     }
     if_cap_queries = g_list_reverse(if_cap_queries);
-    capability_hash = capture_get_if_list_capabilities(if_cap_queries, NULL, NULL, update_cb);
+    capability_hash = capture_get_if_list_capabilities(capture_opts->app_name, if_cap_queries, NULL, NULL, update_cb);
     /* The if_info->name are not copied, so we can just free the
      * if_cap_query_t's and not their members. */
     g_list_free_full(if_cap_queries, g_free);
@@ -419,7 +419,7 @@ scan_local_interfaces_filtered(capture_options* capture_opts, GList * allowed_ty
                 /* On Linux, if libpcap has been compiled with libnl support, this
                  * can cause an infinite loop because of creating a new interface.
                  */
-                caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL, NULL, NULL, update_cb);
+                caps = capture_get_if_capabilities(capture_opts->app_name, if_info->name, monitor_mode, NULL, NULL, NULL, update_cb);
                 if (caps) {
                     g_hash_table_replace(capability_hash, g_strdup(if_info->name), caps);
                     lt_list = (device.monitor_mode_enabled) ? caps->data_link_types_rfmon : caps->data_link_types;

@@ -23,7 +23,6 @@
 
 #include <ws_exit_codes.h>
 
-#include <wsutil/application_flavor.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/pint.h>
@@ -241,7 +240,7 @@ sync_pipe_handle_log_msg(const char *buffer) {
 
 /* Initialize an argument list and add dumpcap to it. */
 static char **
-init_pipe_args(int *argc) {
+init_pipe_args(const char* app_name, int *argc) {
     char *exename;
     char **argv;
 
@@ -273,7 +272,7 @@ init_pipe_args(int *argc) {
     }
 
     argv = sync_pipe_add_arg(argv, argc, "--application-flavor");
-    argv = sync_pipe_add_arg(argv, argc, application_flavor_name_lower());
+    argv = sync_pipe_add_arg(argv, argc, app_name);
 
     /* sync_pipe_add_arg strdupes exename, so we should free our copy */
     g_free(exename);
@@ -703,7 +702,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
         return false;
     }
 
-    argv = init_pipe_args(&argc);
+    argv = init_pipe_args(capture_opts->app_name, &argc);
     if (!argv) {
         /* We don't know where to find dumpcap. */
         report_failure("We don't know where to find dumpcap.");
@@ -1330,7 +1329,7 @@ sync_pipe_run_command(char **argv, char **data, char **primary_msg,
 
 
 int
-sync_interface_set_80211_chan(const char *iface, const char *freq, const char *type,
+sync_interface_set_80211_chan(const char* app_name, const char *iface, const char *freq, const char *type,
                               const char *center_freq1, const char *center_freq2,
                               char **data, char **primary_msg,
                               char **secondary_msg, void (*update_cb)(void))
@@ -1339,7 +1338,7 @@ sync_interface_set_80211_chan(const char *iface, const char *freq, const char *t
     char **argv;
     char *opt;
 
-    argv = init_pipe_args(&argc);
+    argv = init_pipe_args(app_name, &argc);
 
     if (!argv) {
         *primary_msg = g_strdup("We don't know where to find dumpcap.");
@@ -1381,7 +1380,7 @@ sync_interface_set_80211_chan(const char *iface, const char *freq, const char *t
  * must be freed with g_free().
  */
 int
-sync_if_bpf_filter_open(const char *ifname, const char* filter, int linktype,
+sync_if_bpf_filter_open(const char* app_name, const char *ifname, const char* filter, int linktype,
                         bool optimize, char **data, char **primary_msg,
                         char **secondary_msg, void (*update_cb)(void))
 {
@@ -1401,7 +1400,7 @@ sync_if_bpf_filter_open(const char *ifname, const char* filter, int linktype,
         }
     }
 
-    argv = init_pipe_args(&argc);
+    argv = init_pipe_args(app_name, &argc);
 
     if (!argv) {
         *primary_msg = g_strdup("We don't know where to find dumpcap.");
@@ -1443,7 +1442,7 @@ sync_if_bpf_filter_open(const char *ifname, const char* filter, int linktype,
  * must be freed with g_free().
  */
 int
-sync_interface_list_open(char **data, char **primary_msg,
+sync_interface_list_open(const char* app_name, char **data, char **primary_msg,
                          char **secondary_msg, void (*update_cb)(void))
 {
     int argc;
@@ -1452,7 +1451,7 @@ sync_interface_list_open(char **data, char **primary_msg,
 
     ws_debug("sync_interface_list_open");
 
-    argv = init_pipe_args(&argc);
+    argv = init_pipe_args(app_name, &argc);
 
     if (!argv) {
         *primary_msg = g_strdup("We don't know where to find dumpcap..");
@@ -1481,7 +1480,7 @@ sync_interface_list_open(char **data, char **primary_msg,
  * must be freed with g_free().
  */
 int
-sync_if_capabilities_open(const char *ifname, bool monitor_mode, const char* auth,
+sync_if_capabilities_open(const char* app_name, const char *ifname, bool monitor_mode, const char* auth,
                           char **data, char **primary_msg,
                           char **secondary_msg, void (*update_cb)(void))
 {
@@ -1491,7 +1490,7 @@ sync_if_capabilities_open(const char *ifname, bool monitor_mode, const char* aut
 
     ws_debug("sync_if_capabilities_open");
 
-    argv = init_pipe_args(&argc);
+    argv = init_pipe_args(app_name, &argc);
 
     if (!argv) {
         *primary_msg = g_strdup("We don't know where to find dumpcap.");
@@ -1517,7 +1516,7 @@ sync_if_capabilities_open(const char *ifname, bool monitor_mode, const char* aut
 }
 
 int
-sync_if_list_capabilities_open(GList *if_queries,
+sync_if_list_capabilities_open(const char* app_name, GList *if_queries,
                           char **data, char **primary_msg,
                           char **secondary_msg, void (*update_cb)(void))
 {
@@ -1528,7 +1527,7 @@ sync_if_list_capabilities_open(GList *if_queries,
 
     ws_debug("sync_if_list_capabilities_open");
 
-    argv = init_pipe_args(&argc);
+    argv = init_pipe_args(app_name, &argc);
 
     if (!argv) {
         *primary_msg = g_strdup("We don't know where to find dumpcap.");
@@ -1569,7 +1568,7 @@ sync_if_list_capabilities_open(GList *if_queries,
  * serialization of the list of local interfaces and their capabilities.
  */
 int
-sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **data, char **msg, void (*update_cb)(void))
+sync_interface_stats_open(const char* app_name, int *data_read_fd, ws_process_id *fork_child, char **data, char **msg, void (*update_cb)(void))
 {
     int argc;
     char **argv;
@@ -1588,7 +1587,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **d
 
     ws_debug("sync_interface_stats_open");
 
-    argv = init_pipe_args(&argc);
+    argv = init_pipe_args(app_name, &argc);
 
     if (!argv) {
         *msg = g_strdup("We don't know where to find dumpcap.");

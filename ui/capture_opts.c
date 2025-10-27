@@ -48,9 +48,10 @@ static bool capture_opts_output_to_pipe(const char *save_file, bool *is_pipe);
 
 
 void
-capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *, char **))
+capture_opts_init(capture_options *capture_opts, const char* app_name, GList *(*get_iface_list)(int *, char **))
 {
     capture_opts->get_iface_list                  = get_iface_list;
+    capture_opts->app_name                        = app_name;
     capture_opts->ifaces                          = g_array_new(FALSE, FALSE, sizeof(interface_options));
     capture_opts->all_ifaces                      = g_array_new(FALSE, FALSE, sizeof(interface_t));
     capture_opts->num_selected                    = 0;
@@ -235,6 +236,8 @@ capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_op
 #endif
         ws_log(log_domain, log_level, "Timestamp type [%02d] : %s", i, interface_opts->timestamp_type);
     }
+
+    ws_log(log_domain, log_level, "Application name  : %s", capture_opts->app_name ? capture_opts->app_name : "(unspecified)");
     ws_log(log_domain, log_level, "Interface name[df]  : %s", capture_opts->default_options.name ? capture_opts->default_options.name : "(unspecified)");
     ws_log(log_domain, log_level, "Interface Descr[df] : %s", capture_opts->default_options.descr ? capture_opts->default_options.descr : "(unspecified)");
     ws_log(log_domain, log_level, "Interface Hardware Descr[df] : %s", capture_opts->default_options.hardware ? capture_opts->default_options.hardware : "(unspecified)");
@@ -635,16 +638,16 @@ capture_opts_generate_display_name(const char *friendly_name,
 #endif
 
 static void
-fill_in_interface_opts_defaults(interface_options *interface_opts, const capture_options *capture_opts)
+fill_in_interface_opts_defaults(interface_options *interface_opts, const interface_options* if_from_capture_opts)
 {
 
-    interface_opts->cfilter = g_strdup(capture_opts->default_options.cfilter);
-    interface_opts->optimize = capture_opts->default_options.optimize;
-    interface_opts->snaplen = capture_opts->default_options.snaplen;
-    interface_opts->has_snaplen = capture_opts->default_options.has_snaplen;
-    interface_opts->linktype = capture_opts->default_options.linktype;
-    interface_opts->promisc_mode = capture_opts->default_options.promisc_mode;
-    interface_opts->extcap_fifo = g_strdup(capture_opts->default_options.extcap_fifo);
+    interface_opts->cfilter = g_strdup(if_from_capture_opts->cfilter);
+    interface_opts->optimize = if_from_capture_opts->optimize;
+    interface_opts->snaplen = if_from_capture_opts->snaplen;
+    interface_opts->has_snaplen = if_from_capture_opts->has_snaplen;
+    interface_opts->linktype = if_from_capture_opts->linktype;
+    interface_opts->promisc_mode = if_from_capture_opts->promisc_mode;
+    interface_opts->extcap_fifo = g_strdup(if_from_capture_opts->extcap_fifo);
     interface_opts->extcap_args = NULL;
     interface_opts->extcap_pid = WS_INVALID_PID;
     interface_opts->extcap_pipedata = NULL;
@@ -656,26 +659,26 @@ fill_in_interface_opts_defaults(interface_options *interface_opts, const capture
     interface_opts->extcap_control_in_h = INVALID_HANDLE_VALUE;
     interface_opts->extcap_control_out_h = INVALID_HANDLE_VALUE;
 #endif
-    interface_opts->extcap_control_in = g_strdup(capture_opts->default_options.extcap_control_in);
-    interface_opts->extcap_control_out = g_strdup(capture_opts->default_options.extcap_control_out);
-    interface_opts->buffer_size = capture_opts->default_options.buffer_size;
-    interface_opts->monitor_mode = capture_opts->default_options.monitor_mode;
+    interface_opts->extcap_control_in = g_strdup(if_from_capture_opts->extcap_control_in);
+    interface_opts->extcap_control_out = g_strdup(if_from_capture_opts->extcap_control_out);
+    interface_opts->buffer_size = if_from_capture_opts->buffer_size;
+    interface_opts->monitor_mode = if_from_capture_opts->monitor_mode;
 #ifdef HAVE_PCAP_REMOTE
-    interface_opts->src_type = capture_opts->default_options.src_type;
-    interface_opts->remote_host = g_strdup(capture_opts->default_options.remote_host);
-    interface_opts->remote_port = g_strdup(capture_opts->default_options.remote_port);
-    interface_opts->auth_type = capture_opts->default_options.auth_type;
-    interface_opts->auth_username = g_strdup(capture_opts->default_options.auth_username);
-    interface_opts->auth_password = g_strdup(capture_opts->default_options.auth_password);
-    interface_opts->datatx_udp = capture_opts->default_options.datatx_udp;
-    interface_opts->nocap_rpcap = capture_opts->default_options.nocap_rpcap;
-    interface_opts->nocap_local = capture_opts->default_options.nocap_local;
+    interface_opts->src_type = if_from_capture_opts->src_type;
+    interface_opts->remote_host = g_strdup(if_from_capture_opts->remote_host);
+    interface_opts->remote_port = g_strdup(if_from_capture_opts->remote_port);
+    interface_opts->auth_type = if_from_capture_opts->auth_type;
+    interface_opts->auth_username = g_strdup(if_from_capture_opts->auth_username);
+    interface_opts->auth_password = g_strdup(if_from_capture_opts->auth_password);
+    interface_opts->datatx_udp = if_from_capture_opts->datatx_udp;
+    interface_opts->nocap_rpcap = if_from_capture_opts->nocap_rpcap;
+    interface_opts->nocap_local = if_from_capture_opts->nocap_local;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
-    interface_opts->sampling_method = capture_opts->default_options.sampling_method;
-    interface_opts->sampling_param  = capture_opts->default_options.sampling_param;
+    interface_opts->sampling_method = if_from_capture_opts->sampling_method;
+    interface_opts->sampling_param  = if_from_capture_opts->sampling_param;
 #endif
-    interface_opts->timestamp_type  = g_strdup(capture_opts->default_options.timestamp_type);
+    interface_opts->timestamp_type  = g_strdup(if_from_capture_opts->timestamp_type);
 }
 
 static void
@@ -964,7 +967,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
         free_interface_list(if_list);
     }
 
-    fill_in_interface_opts_defaults(&interface_opts, capture_opts);
+    fill_in_interface_opts_defaults(&interface_opts, &capture_opts->default_options);
 
     g_array_append_val(capture_opts->ifaces, interface_opts);
 
@@ -1514,7 +1517,7 @@ interface_opts_from_if_info(capture_options *capture_opts, const if_info_t *if_i
     interface_options *interface_opts = g_new(interface_options, 1);
 
     fill_in_interface_opts_from_ifinfo(interface_opts, if_info);
-    fill_in_interface_opts_defaults(interface_opts, capture_opts);
+    fill_in_interface_opts_defaults(interface_opts, &capture_opts->default_options);
 
     return interface_opts;
 }

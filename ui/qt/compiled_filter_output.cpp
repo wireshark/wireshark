@@ -19,6 +19,7 @@
 #include <wiretap/wtap.h>
 #include <capture/capture_sync.h>
 #include <ui/capture_opts.h>
+#include <ui/capture_globals.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/stock_icon.h>
 
@@ -154,7 +155,7 @@ void CompiledFilterOutput::compileFilters()
             // See if dumpcap can compile the filter. This is more accurate
             // because BPF extensions might need to be used for a particular
             // device.
-            if (sync_if_bpf_filter_open(current->name, current->cfilter, current->active_dlt, current->optimize, &data, &primary_msg, &secondary_msg, NULL)) {
+            if (sync_if_bpf_filter_open(global_capture_opts.app_name, current->name, current->cfilter, current->active_dlt, current->optimize, &data, &primary_msg, &secondary_msg, NULL)) {
                 compile_results.insert(QString(current->display_name), gchar_free_to_qstring(primary_msg));
                 g_free(secondary_msg);
                 success = false;
