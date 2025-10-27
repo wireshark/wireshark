@@ -86,7 +86,8 @@ if args.file_list:
                     dissectors.append(f)
 
 def is_dissector_file(filename):
-    p = re.compile(r'.*(packet|file)-.*\.c')
+    # TODO: also check directory?
+    p = re.compile(r'.*(packet|file)-.*\.c$')
     return p.match(filename)
 
 if args.open:
@@ -95,18 +96,15 @@ if args.open:
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Filter files.
-    # TODO: should filter here (and below) with a better check for dissectors
-    dissectors = list(filter(lambda f : is_dissector_file, files))
+    dissectors = [f for f in files if is_dissector_file(f)]
 
     # Staged changes.
     command = ['git', 'diff', '--staged', '--name-only']
     files_staged = [f.decode('utf-8')
                     for f in subprocess.check_output(command).splitlines()]
-    # Filter files.  TODO: also check directory?
-    files_staged = list(filter(lambda f : f.endswith('.c'), files_staged))
-    for f in files_staged:
-        if f not in files:
-            dissectors.append(f)
+    # Filter files.
+    staged_dissectors = [f for f in files_staged if f not in dissectors and is_dissector_file(f)]
+    dissectors.extend(staged_dissectors)
 
 if args.commits:
     # Get files affected by specified number of commits.

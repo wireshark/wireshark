@@ -490,6 +490,9 @@ static int hf_oran_u_section_ul_symbol_frames;
 static int hf_oran_u_section_ul_symbol_first_frame;
 static int hf_oran_u_section_ul_symbol_last_frame;
 
+static int hf_oran_cd_scg_size;
+static int hf_oran_cd_scg_phase_step;
+
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
 static int hf_oran_refa;
@@ -893,6 +896,19 @@ static const value_string entry_type_vals[] = {
     { 0, NULL}
 };
 
+/* Table 7.7.29.3-1 */
+static const range_string cd_scg_size_vals[] = {
+    { 0, 0,  "1 subcarrier" },
+    { 1, 1,  "1 RB x N subcarriers" },
+    { 2, 2,  "2 RB x N subcarriers" },
+    { 3, 3,  "4 RB x N subcarriers" },
+    { 4, 4,  "8 RB x N subcarriers" },
+    { 5, 5,  "16 RB x N subcarriers" },
+    { 6, 6,  "32 RB x N subcarriers" },
+    { 7, 15, "reserved"},
+    { 0, 0, NULL}
+};
+
 
 /* Table 7.6.1-1 */
 static const value_string exttype_vals[] = {
@@ -925,6 +941,7 @@ static const value_string exttype_vals[] = {
     {26,    "Frequency offset feedback"},
     {27,    "O-DU controlled dimensionality reduction"},
     {28,    "O-DU controlled frequency resolution for SINR reporting"},
+    {29,    "Cyclic delay adjustment"},
     {0, NULL}
 };
 
@@ -971,6 +988,7 @@ static AllowedCTs_t ext_cts[HIGHEST_EXTTYPE] = {
     { false, false, false, true,  false, false, false},   // SE 26     (5)
     { false, false, false, true,  false, false, false},   // SE 27     (5)
     { false, false, false, true,  false, false, false},   // SE 28     (5)
+    { false, true,  true,  true,  false, false, false},   // SE 29     (1,3,5)
 };
 
 static bool se_allowed_in_st(unsigned se, unsigned ct)
@@ -4627,6 +4645,18 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
                 break;
             }
+
+            case 29: /* SE 29: Cyclic delay adjustment */
+                /* reserved (4 bits) */
+                proto_tree_add_item(extension_tree, hf_oran_reserved_4bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* cdScgSize (4 bits) */
+                proto_tree_add_item(extension_tree, hf_oran_cd_scg_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+
+                /* cdScgPhaseStep */
+                proto_tree_add_item(extension_tree, hf_oran_cd_scg_phase_step, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                break;
 
 
             default:
@@ -9498,6 +9528,23 @@ proto_register_oran(void)
             FT_STRING, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL}
+        },
+
+        /* 7.7.29.3 */
+        { &hf_oran_cd_scg_size,
+          {"cdScgSize", "oran_fh_cus.cdScgSize",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(cd_scg_size_vals), 0x0f,
+            "Cyclic delay subcarrier group size",
+            HFILL}
+        },
+        /* 7.7.29.4 */
+        { &hf_oran_cd_scg_phase_step,
+          {"cdScgPhaseStep", "oran_fh_cus.cdScgPhaseStep",
+            FT_INT8, BASE_DEC,
+            NULL, 0x0,
+            "Cyclic delay subcarrier group phase step",
+            HFILL}
         },
 
         { &hf_oran_c_section_common,

@@ -898,7 +898,7 @@ class ValueString:
                     if not excepted and len(label)>2:
                         previous_values =  [ str(v) for v in self.parsed_vals if self.parsed_vals[v] == label ]
                         print('Warning:', self.file, ': value_string', self.name, '- label', label, 'repeated, value now', value,
-                              'previously', ','.join(previous_values))
+                              'previously', ','.join(previous_values[:-1]))
                         warnings_found += 1
                 else:
                     self.seen_labels.add(label)
