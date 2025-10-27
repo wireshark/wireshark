@@ -1346,7 +1346,7 @@ dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     ti = proto_tree_add_item(tree, hf_latitude, tvb, offset, end_of_field_offset - offset, ENC_ASCII);
     if (end_of_field_offset - offset == 0)
     {
-        proto_item_append_text(ti, "[empty]");
+        proto_item_append_text(ti, ": [empty]");
 
         end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
     }
@@ -1396,7 +1396,7 @@ dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     ti = proto_tree_add_item(tree, hf_longitude, tvb, offset, end_of_field_offset - offset, ENC_ASCII);
     if (end_of_field_offset - offset == 0)
     {
-        proto_item_append_text(ti, "[empty]");
+        proto_item_append_text(ti, ": [empty]");
 
         end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
     }
