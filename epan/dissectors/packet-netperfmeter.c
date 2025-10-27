@@ -180,6 +180,9 @@ static const value_string rng_type_values[] = {
   { 0, "Constant" },
   { 1, "Uniform" },
   { 2, "Neg. Exponential" },
+  { 3, "Pareto" },
+  { 4, "Normal" },
+  { 5, "Truncated Normal" },
   { 0, NULL }
 };
 
