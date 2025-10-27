@@ -141,6 +141,10 @@ extern "C" {
 #define ETHERTYPE_EPL_V1		0x3E3F
 #endif
 
+#ifndef ETHERTYPE_TTL
+#define ETHERTYPE_TTL                   0x4040  /* TTX Logger (TTL) format from TTTech Computertechnik AG */
+#endif
+
 #ifndef ETHERTYPE_C15_CH
 #define ETHERTYPE_C15_CH		0x4742
 #endif

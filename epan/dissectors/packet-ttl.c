@@ -18,6 +18,7 @@
 #include <epan/expert.h>
 #include <epan/tvbuff.h>
 #include <epan/tfs.h>
+#include <epan/etypes.h>
 
 #include <wiretap/ttl.h>
 
@@ -737,6 +738,7 @@ static int* const ttl_trace_data_entry_status_info_fr_pulse_flags[] = {
 };
 
 void proto_register_ttl(void);
+void proto_reg_handoff_ttl(void);
 
 static int
 dissect_ttl_dest_addr_ret(proto_tree* tree, tvbuff_t* tvb, int offset, uint16_t* ret) {
@@ -1051,7 +1053,7 @@ dissect_ttl_flexray_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_
 
 static int
 dissect_ttl_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, int size,
-    proto_item* root, proto_tree* status_tree, int status_pos, uint16_t src) {
+    proto_item* root, proto_tree* status_tree, int status_pos, uint16_t src, bool ttl_over_eth) {
     int         orig_offset = offset;
 
     proto_tree_add_item(tree, hf_ttl_trace_data_entry_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN | ENC_TIME_USECS);
@@ -1060,22 +1062,27 @@ dissect_ttl_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
     switch (ttl_get_address_iface_type(src)) {
     case WTAP_ENCAP_ETHERNET:
         proto_item_append_text(root, " (Ethernet)");
+        if (ttl_over_eth) col_append_str(pinfo->cinfo, COL_INFO, " (Ethernet)");
         offset += dissect_ttl_eth_bus_data_entry(tvb, pinfo, tree, offset, size - (offset - orig_offset), status_tree, status_pos, src);
         break;
     case WTAP_ENCAP_SOCKETCAN:
         proto_item_append_text(root, " (CAN)");
+        if (ttl_over_eth) col_append_str(pinfo->cinfo, COL_INFO, " (CAN)");
         offset += dissect_ttl_can_bus_data_entry(tvb, pinfo, tree, offset, size - (offset - orig_offset), status_tree, status_pos);
         break;
     case WTAP_ENCAP_LIN:
         proto_item_append_text(root, " (LIN)");
+        if (ttl_over_eth) col_append_str(pinfo->cinfo, COL_INFO, " (LIN)");
         offset += dissect_ttl_lin_bus_data_entry(tvb, pinfo, tree, offset, size - (offset - orig_offset), status_tree, status_pos);
         break;
     case WTAP_ENCAP_FLEXRAY:
         proto_item_append_text(root, " (FlexRay)");
+        if (ttl_over_eth) col_append_str(pinfo->cinfo, COL_INFO, " (FlexRay)");
         offset += dissect_ttl_flexray_bus_data_entry(tvb, pinfo, tree, offset, size - (offset - orig_offset), status_tree, status_pos);
         break;
     default:
         proto_item_append_text(root, " (Unsupported)");
+        if (ttl_over_eth) col_append_str(pinfo->cinfo, COL_INFO, " (Unsupported)");
         break;
     }
 
@@ -1083,7 +1090,7 @@ dissect_ttl_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
 }
 
 static int
-dissect_ttl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
+dissect_ttl_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, bool ttl_over_eth) {
     proto_tree* entry_subtree, * status_subtree;
     proto_item* ti, * root_ti;
     int         offset = 0;
@@ -1097,8 +1104,18 @@ dissect_ttl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
     type = entry_size_type >> 12;
     size = entry_size_type & TTL_SIZE_MASK;
 
-    root_ti = proto_tree_add_item(tree, hf_ttl_trace_data_entry, tvb, offset, size, ENC_NA);
-    proto_item_append_text(root_ti, " - %s", val_to_str_const(type, hf_ttl_trace_data_entry_type_vals, "Unknown Entry"));
+    if (ttl_over_eth) {
+        root_ti = proto_tree_add_protocol_format(tree, proto_ttl, tvb, offset, size,
+            "TTL - %s", val_to_str_const(type, hf_ttl_trace_data_entry_type_vals, "Unknown Entry"));
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "TTL");
+        col_add_fstr(pinfo->cinfo, COL_INFO, "TTL - %s",
+            val_to_str_const(type, hf_ttl_trace_data_entry_type_vals, "Unknown Entry"));
+    }
+    else {
+        root_ti = proto_tree_add_item(tree, hf_ttl_trace_data_entry, tvb, offset, size, ENC_NA);
+        proto_item_append_text(root_ti, " - %s", val_to_str_const(type, hf_ttl_trace_data_entry_type_vals, "Unknown Entry"));
+    }
+
     entry_subtree = proto_item_add_subtree(root_ti, ett_ttl_trace_data_entry);
 
     proto_tree_add_item(entry_subtree, hf_ttl_trace_data_entry_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1122,7 +1139,7 @@ dissect_ttl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
         switch (type) {
         case TTL_BUS_DATA_ENTRY:
             offset += dissect_ttl_bus_data_entry(tvb, pinfo, entry_subtree, offset, (int)size - offset,
-                root_ti, status_subtree, 6, src_addr);
+                root_ti, status_subtree, 6, src_addr, ttl_over_eth);
             break;
         case TTL_COMMAND_ENTRY:
         case TTL_JOURNAL_ENTRY:
@@ -1142,6 +1159,16 @@ dissect_ttl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
     }
 
     return offset;
+}
+
+static int
+dissect_ttl_over_eth(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
+    return dissect_ttl_common(tvb, pinfo, tree, true);
+}
+
+static int
+dissect_ttl_from_file(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
+    return dissect_ttl_common(tvb, pinfo, tree, false);
 }
 
 void
@@ -1416,7 +1443,13 @@ proto_register_ttl(void) {
     proto_register_field_array(proto_ttl, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("ttl", dissect_ttl, proto_ttl);
+    register_dissector("ttl", dissect_ttl_from_file, proto_ttl);
+}
+
+void
+proto_reg_handoff_ttl(void) {
+    dissector_handle_t ttl_in_eth_handle = create_dissector_handle(dissect_ttl_over_eth, proto_ttl);
+    dissector_add_uint("ethertype", ETHERTYPE_TTL, ttl_in_eth_handle);
 }
 
 /*

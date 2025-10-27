@@ -46,6 +46,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_WOL,                  "Wake on LAN" },
 	{ ETHERTYPE_WMX_M2M,              "WiMax Mac-to-Mac" },
 	{ ETHERTYPE_EPL_V1,               "EPL_V1" },
+	{ ETHERTYPE_TTL,                  "TTX Logger (TTL)" },
 	{ ETHERTYPE_REVARP,               "RARP" },
 	{ ETHERTYPE_DEC_LB,               "DEC LanBridge" },
 	{ ETHERTYPE_ATALK,                "AppleTalk LLAP bridging" },
