@@ -563,7 +563,7 @@ Set when all of the following are true:
 * This is not a keepalive packet.
 * In the forward direction, the segment size is greater than zero or the SYN or FIN is set.
 * The next expected sequence number is greater than the current sequence number.
-* We have at least two duplicate ACKs in the reverse direction.
+* We have at least two duplicate ACKs in the reverse direction, or more than 2 MSS have been jumped over
 * The current sequence number equals the next expected acknowledgment number.
 * We saw the last acknowledgment less than 20ms ago.
 

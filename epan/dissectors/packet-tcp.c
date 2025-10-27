@@ -2030,6 +2030,8 @@ init_tcp_conversation_data(packet_info *pinfo, int direction)
     {
         tcpd->flow1.tcp_analyze_seq_info = wmem_new0(wmem_file_scope(), struct tcp_analyze_seq_flow_info_t);
         tcpd->flow2.tcp_analyze_seq_info = wmem_new0(wmem_file_scope(), struct tcp_analyze_seq_flow_info_t);
+        tcpd->flow1.tcp_analyze_seq_info->num_sack_ranges = 0;
+        tcpd->flow2.tcp_analyze_seq_info->num_sack_ranges = 0;
         tcpd->flow1.tcp_analyze_seq_info->num_contiguous_ranges = 0;
         tcpd->flow2.tcp_analyze_seq_info->num_contiguous_ranges = 0;
     }
@@ -2770,8 +2772,21 @@ tcp_analyze_sequence_number(packet_info *pinfo, uint32_t seq, uint32_t ack, uint
             tcpd->ta->dupack_num=tcpd->fwd->tcp_analyze_seq_info->dupacknum;
             tcpd->ta->dupack_frame=tcpd->fwd->tcp_analyze_seq_info->lastnondupack;
        }
+       goto finished_fwd;
     }
 
+    /* Broom Wagon for DUP ACKs not identified by the Sequence Analysis,
+     * which still need to have a ta structure prepared for when the
+     * SACK options will be processed, eventually.
+     */
+    if( seglen==0
+    &&  window
+    &&  ack>=tcpd->fwd->tcp_analyze_seq_info->lastack
+    &&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ) {
+        if(!tcpd->ta) {
+            tcp_analyze_get_acked_struct(pinfo->num, seq, ack, true, tcpd);
+        }
+    }
 
 
 finished_fwd:
@@ -2944,6 +2959,40 @@ finished_fwd:
                         }
                         tcpd->ta->flags|=TCP_A_FAST_RETRANSMISSION;
                         goto finished_checking_retransmission_type;
+                    }
+
+                    /* RFC 6675 suggests to also compare how many bytes were SACKed with 2*SMSS.
+                     * Multiple packets may be sent during the recovery phase as stated:
+                     * 'the sender SHOULD transmit one or more segments as follows'
+                     *
+                     * Note that during the recovery (ACK is increasing properly), if SACK data
+                     * isn't changing then we aren't classifying ACKs as Dup ACKs but we are still
+                     * classifying these retransmissions as Fast Retransmissions.
+                     *
+                     * XXX - lastack<=seq would tolerate unordered retransmissions to be
+                     * classified as Fast Retransmissions.
+                     */
+                    if( t<20000000
+                    &&  tcpd->rev->tcp_analyze_seq_info->num_sack_ranges > 0
+                    &&  tcpd->rev->tcp_analyze_seq_info->lastack==seq) {
+
+                        int count_sacked = 0;
+                        bool is_sacked = true;
+                        for(int i = 0; i<tcpd->rev->tcp_analyze_seq_info->num_sack_ranges; i++) {
+                            count_sacked += (tcpd->rev->tcp_analyze_seq_info->sack_right_edge[i] -
+                                             tcpd->rev->tcp_analyze_seq_info->sack_left_edge[i]);
+
+                            is_sacked = is_sacked && ((seq >= tcpd->rev->tcp_analyze_seq_info->sack_left_edge[i])
+                                        && (nextseq <= tcpd->rev->tcp_analyze_seq_info->sack_right_edge[i]));
+                        }
+
+                        if(!is_sacked && (count_sacked > 2*tcpd->rev->mss)) {
+                            if(!tcpd->ta) {
+                                tcp_analyze_get_acked_struct(pinfo->num, seq, ack, true, tcpd);
+                            }
+                            tcpd->ta->flags|=TCP_A_FAST_RETRANSMISSION;
+                            goto finished_checking_retransmission_type;
+                        }
                     }
 
                     /* Look for this segment in reported SACK ranges,
@@ -6202,6 +6251,10 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     int offset = 0;
     int sackoffset;
     int optlen = tvb_reported_length(tvb);
+    uint8_t saved_sack_ranges = 0;
+    uint32_t saved_left_edge[MAX_TCP_SACK_RANGES];
+    uint32_t saved_right_edge[MAX_TCP_SACK_RANGES];
+    bool has_new_sack = false, is_new_sack = true;
 
     /*
      * SEQ analysis is the condition for both relative analysis obviously,
@@ -6222,8 +6275,16 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
              * updated some lines later
              */
             if (tcp_track_bytes_in_flight && tcpd->fwd->tcp_analyze_seq_info) {
+                saved_sack_ranges = tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges;
                 tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = 0;
             }
+
+            /* keep a copy of the previous bloks, if any */
+            for(uint8_t i = 0; i< saved_sack_ranges; i++) {
+                saved_left_edge[i] = tcpd->fwd->tcp_analyze_seq_info->sack_left_edge[i];
+                saved_right_edge[i] = tcpd->fwd->tcp_analyze_seq_info->sack_right_edge[i];
+            }
+
         }
     }
 
@@ -6292,11 +6353,11 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         tcp_info_append_uint(pinfo, "SLE", leftedge);
         tcp_info_append_uint(pinfo, "SRE", rightedge);
 
-        /* Store blocks for BiF analysis */
-        if (tcp_analyze_seq && tcpd && tcpd->fwd->tcp_analyze_seq_info && tcp_track_bytes_in_flight && num_sack_ranges < MAX_TCP_SACK_RANGES) {
+        /* Store blocks for BiF analysis and DUP ACK late discovery */
+        if (tcp_analyze_seq && tcpd && tcpd->fwd->tcp_analyze_seq_info && num_sack_ranges < MAX_TCP_SACK_RANGES) {
             tcpd->fwd->tcp_analyze_seq_info->sack_left_edge[num_sack_ranges] = leftedge;
-            tcpd->fwd->tcp_analyze_seq_info->sack_right_edge[num_sack_ranges++] = rightedge;
-            tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = num_sack_ranges;
+            tcpd->fwd->tcp_analyze_seq_info->sack_right_edge[num_sack_ranges] = rightedge;
+            tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = ++num_sack_ranges;
         }
 
         /* Update tap info */
@@ -6340,6 +6401,66 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             "D-SACK Right Edge = %u%s", rightedge, (tcp_analyze_seq && tcp_relative_seq) ? " (relative)" : "");
         proto_item_set_generated(tf);
         proto_tree_add_expert(field_tree, pinfo, &ei_tcp_option_sack_dsack, tvb, sackoffset, 8);
+
+        /* Exclude D-SACKs from the late DUP ACK discovery as they should already be marked,
+         * otherwise we could have false positives */
+        is_new_sack = false;
+    }
+
+    /* Loop over all new SACK ranges, and check if we've already seen them.
+     * If there is new data, keep track of it with has_new_sack boolean.
+     *
+     * XXX - What's the meaning of 2 exactly identical successive ACK packets
+     * containing SACK options ?
+     * It's either a network packet duplicate, * or a D-SACK (of ACK or SACK),
+     * in both cases already marked before.
+     *
+     * Note that :
+     *   - D-SACK aren't necessarily matching these conditions, and if not
+     *   already marked as DUP ACKs, they still should not be marked.
+     *   - very discontiguous traffic (including capture missing the
+     *   beginning of a conversation) with missing ACKs and isolated
+     *   SACKs will end with these SACKs matching and be marked by
+     *   default, except for isolated D-SACKs
+     */
+    if(is_new_sack && tcp_analyze_seq && tcpd
+        && tcpd->fwd->tcp_analyze_seq_info
+        && num_sack_ranges < MAX_TCP_SACK_RANGES) {
+
+        has_new_sack = false;
+
+        bool blok_seen = false;
+        for(unsigned i=0; i<num_sack_ranges; i++) {
+            blok_seen = false;
+
+            for(unsigned j=0; j<saved_sack_ranges; j++) {
+                if( (tcpd->fwd->tcp_analyze_seq_info->sack_left_edge[i] == saved_left_edge[j])
+                    && (tcpd->fwd->tcp_analyze_seq_info->sack_right_edge[i] == saved_right_edge[j]) ) {
+
+                    blok_seen = true;
+                    break;
+                }
+            }
+            if(!blok_seen) {
+                has_new_sack = true;
+                break;
+            }
+        }
+    }
+
+    /* Classify accordingly by adding the DUP flag,
+     * only if it's not already flagged in any way (such as Keep-Alive ACK w/ SACK).
+     * It's marked as a DUP of itself and with occurence = 1
+     */
+    if(has_new_sack && tcp_analyze_seq && tcpd
+       && tcpd->ta
+       && tcpd->ta->flags == 0) {
+
+        tcpd->ta->flags |= TCP_A_DUPLICATE_ACK;
+        tcpd->ta->dupack_num = 1;
+        tcpd->ta->dupack_frame=tcpd->fwd->tcp_analyze_seq_info->lastnondupack;
+        tcpd->fwd->tcp_analyze_seq_info->dupacknum = 1;
+
     }
 
     return tvb_captured_length(tvb);
@@ -8611,11 +8732,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * to callback functions (essentially conversation following events in GUI)
          */
         pinfo->stream_id = tcpd->stream;
-
-        /* initialize the SACK blocks seen to 0 */
-        if(tcp_analyze_seq && tcpd->fwd->tcp_analyze_seq_info) {
-            tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = 0;
-        }
 
         /* Follow-up of the conversation over ICMP errors.
          * When coming over an error packet (typically ICMP), we want to save the
