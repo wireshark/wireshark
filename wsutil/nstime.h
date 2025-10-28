@@ -28,6 +28,31 @@ typedef struct {
 	int	nsecs;
 } nstime_t;
 
+/*
+ * Compute the minimum and maximum time_t values.
+ * (Note: this does not guarantee that any particular C standard library
+ * function taking a time_t will return a valid result with these values;
+ * e.g., asctime has undefined behavior if the year exceeds 4 digits or
+ * is less than 1000, the struct tm tm_year member is defined as an int,
+ * Windows defines _MAX__TIME64_T and its localtime only allows dates
+ * through Jan 3001, etc.)
+ *
+ * This code is based on the Samba code:
+ *
+ *  Unix SMB/Netbios implementation.
+ *  Version 1.9.
+ *  time handling functions
+ *  Copyright (C) Andrew Tridgell 1992-1998
+ */
+
+#ifndef TIME_T_MIN
+#define TIME_T_MIN ((time_t) ((time_t)0 < (time_t) -1 ? (time_t) 0 \
+                    : (time_t) (~0ULL << (sizeof (time_t) * CHAR_BIT - 1))))
+#endif
+#ifndef TIME_T_MAX
+#define TIME_T_MAX ((time_t) (~ (time_t) 0 - TIME_T_MIN))
+#endif
+
 /* Macros that expand to nstime_t initializers */
 
 /* Initialize to zero */
@@ -49,7 +74,7 @@ typedef struct {
 #define NSTIME_INIT_SECS(secs)			{secs, 0}
 
 /* Initialize to the maximum possible value */
-#define NSTIME_INIT_MAX	{sizeof(time_t) > sizeof(int) ? LONG_MAX : INT_MAX, INT_MAX}
+#define NSTIME_INIT_MAX	{TIME_T_MAX, INT_MAX}
 
 /* functions */
 

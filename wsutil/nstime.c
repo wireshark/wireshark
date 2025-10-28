@@ -217,25 +217,6 @@ void nstime_rounded(nstime_t *a, const nstime_t *b, ws_tsprec_e prec)
     a->nsecs = (a->nsecs / dv) * dv;
 }
 
-/*
- * Compute the minimum and maximum time_t values.
- *
- * This code is based on the Samba code:
- *
- *  Unix SMB/Netbios implementation.
- *  Version 1.9.
- *  time handling functions
- *  Copyright (C) Andrew Tridgell 1992-1998
- */
-
-#ifndef TIME_T_MIN
-#define TIME_T_MIN ((time_t) ((time_t)0 < (time_t) -1 ? (time_t) 0 \
-                    : (time_t) (~0ULL << (sizeof (time_t) * CHAR_BIT - 1))))
-#endif
-#ifndef TIME_T_MAX
-#define TIME_T_MAX ((time_t) (~ (time_t) 0 - TIME_T_MIN))
-#endif
-
 static bool
 common_filetime_to_nstime(nstime_t *nstime, uint64_t ftsecs, int nsecs)
 {
