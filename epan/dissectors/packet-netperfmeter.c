@@ -890,6 +890,10 @@ proto_reg_handoff_npm(void)
   dissector_add_string("quic.proto",          ALPN_NETPERFMETER_DATA,    npm_handle);
   dissector_add_string("quic.proto.datagram", ALPN_NETPERFMETER_DATA,    npm_handle);
 
+  /* NetPerfMeter "Decode As" */
+  dissector_add_for_decode_as_with_preference("tcp.port", npm_handle);
+  dissector_add_for_decode_as_with_preference("udp.port", npm_handle);
+
   /* Heuristic dissector for TCP, UDP and DCCP */
   heur_dissector_add("tcp",  dissect_npm_heur, "NetPerfMeter over TCP",  "netperfmeter_tcp",  proto_npm, HEURISTIC_ENABLE);
   heur_dissector_add("udp",  dissect_npm_heur, "NetPerfMeter over UDP",  "netperfmeter_udp",  proto_npm, HEURISTIC_ENABLE);
