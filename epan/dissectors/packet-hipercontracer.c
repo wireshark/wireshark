@@ -26,6 +26,7 @@ void proto_reg_handoff_hipercontracer(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_hipercontracer;
+static dissector_handle_t hipercontracer_handle;
 
 /* Initialize the subtree pointers */
 static int ett_hipercontracer;
@@ -162,12 +163,17 @@ proto_register_hipercontracer(void)
   proto_register_field_array(proto_hipercontracer, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("hipercontracer", heur_dissect_hipercontracer, proto_hipercontracer);
+  /* Register the dissector */
+  hipercontracer_handle = register_dissector("hipercontracer", heur_dissect_hipercontracer, proto_hipercontracer);
 }
 
 void
 proto_reg_handoff_hipercontracer(void)
 {
+  /* HiPerConTracer "Decode As" */
+  dissector_add_for_decode_as_with_preference("udp.port", hipercontracer_handle);
+  dissector_add_for_decode_as_with_preference("tcp.port", hipercontracer_handle);
+
   /* Heuristic dissector for ICMP/ICMPv6 */
   heur_dissector_add("icmp",   heur_dissect_hipercontracer_heur, "HiPerConTracer over ICMP",   "hipercontracer_icmp",   proto_hipercontracer, HEURISTIC_ENABLE);
   heur_dissector_add("icmpv6", heur_dissect_hipercontracer_heur, "HiPerConTracer over ICMPv6", "hipercontracer_icmpv6", proto_hipercontracer, HEURISTIC_ENABLE);
