@@ -8,7 +8,6 @@
  */
 
 #include "config.h"
-#define WS_LOG_DOMAIN "MModule"
 
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
@@ -223,7 +222,7 @@ static int dissect_m_module(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item_ret_uint(subtree, hf_ood, tvb, 0x28, 4, ENC_LITTLE_ENDIAN, &entsz);
     proto_tree_add_item(subtree, hf_cksm, tvb, 0x2c, 4, ENC_NA);
 
-    struct mentry_info * mentry = (struct mentry_info *) wmem_alloc(pinfo->pool, sizeof(struct mentry_info));
+    struct mentry_info * mentry = wmem_new(pinfo->pool, struct mentry_info);
 
     for (uint32_t i = 0; i<nentries; i++){
         offset += entsz;
@@ -301,9 +300,6 @@ void proto_reg_handoff_m_module(void)
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_MMODULE, mm_handle);
 
-    dissector_add_string("media_type", "application/x-executable", mm_handle);
-    dissector_add_string("media_type", "application/x-object", mm_handle);
-    dissector_add_string("media_type", "application/octet-stream", mm_handle);
     // Returned when serving over python's http.server
     dissector_add_string("media_type", "application/vnd.wolfram.mathematica.package", mm_handle);
 
