@@ -24,6 +24,9 @@
 
 static int proto_ttl;
 
+static bool pref_dissect_next_layer;
+static dissector_handle_t eth_handle;
+
 static int hf_ttl_trace_data_entry;
 static int hf_ttl_trace_data_entry_size;
 static int hf_ttl_trace_data_entry_type;
@@ -889,7 +892,7 @@ dissect_ttl_src_addr_ret(proto_tree* tree, tvbuff_t* tvb, int offset, uint16_t* 
 }
 
 static int
-dissect_ttl_eth_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset, int size,
+dissect_ttl_eth_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset, int size,
     proto_tree* status_tree, int status_pos, uint16_t src) {
     proto_item* ti;
     proto_tree* subtree, * payload_subtree;
@@ -934,6 +937,10 @@ dissect_ttl_eth_bus_data_entry(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree
         }
     }
     else {
+        if (pref_dissect_next_layer && eth_handle) {
+            tvbuff_t* new_tvb = tvb_new_subset_length(tvb, offset, size);
+            call_dissector(eth_handle, new_tvb, pinfo, payload_subtree);
+        }
         offset += size;
     }
 
@@ -1173,6 +1180,7 @@ dissect_ttl_from_file(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void*
 
 void
 proto_register_ttl(void) {
+    module_t* module;
     expert_module_t* expert_ttl;
 
     static hf_register_info hf[] = {
@@ -1444,12 +1452,19 @@ proto_register_ttl(void) {
     proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector("ttl", dissect_ttl_from_file, proto_ttl);
+
+    module = prefs_register_protocol(proto_ttl, NULL);
+    prefs_register_bool_preference(module, "dissect_next_layer",
+        "Dissect next layer",
+        "Dissect next layer",
+        &pref_dissect_next_layer);
 }
 
 void
 proto_reg_handoff_ttl(void) {
     dissector_handle_t ttl_in_eth_handle = create_dissector_handle(dissect_ttl_over_eth, proto_ttl);
     dissector_add_uint("ethertype", ETHERTYPE_TTL, ttl_in_eth_handle);
+    eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_ttl);
 }
 
 /*
