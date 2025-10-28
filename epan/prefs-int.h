@@ -55,12 +55,6 @@ typedef struct {
     FILE     *pf;
 } write_pref_arg_t;
 
-/**
- * Module used for protocol preferences.
- * With MSVC and a libwireshark.dll, we need a special declaration.
- */
-WS_DLL_PUBLIC module_t *protocols_module;
-
 typedef void (*pref_custom_free_cb) (pref_t* pref);
 typedef void (*pref_custom_reset_cb) (pref_t* pref);
 typedef prefs_set_pref_e (*pref_custom_set_cb) (pref_t* pref, const char* value, unsigned int* changed_flags);

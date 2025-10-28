@@ -62,6 +62,7 @@
 #include "srt_table.h"
 #include "stats_tree.h"
 #include "secrets.h"
+#include "uat-int.h"
 #include "funnel.h"
 #include "wscbor.h"
 #include "read_keytab_file.h"
@@ -334,6 +335,7 @@ epan_init(register_cb cb, void *client_data, bool load_plugins)
 	TRY {
 		export_pdu_init();
 		tap_init();
+		proto_pre_init();
 		prefs_init();
 		expert_init();
 		packet_init();
@@ -356,6 +358,7 @@ epan_init(register_cb cb, void *client_data, bool load_plugins)
 		wslua_init(cb, client_data);
 #endif
 		g_slist_foreach(epan_plugins, epan_plugin_post_init, NULL);
+		uat_load_all();
 	}
 	CATCH(DissectorError) {
 		/*

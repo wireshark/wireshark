@@ -69,7 +69,7 @@ static void prefs_register_modules(void);
 static module_t *prefs_find_module_alias(const char *name);
 static prefs_set_pref_e set_pref(char*, const char*, void *, bool);
 static void free_col_info(GList *);
-static void pre_init_prefs(void);
+static void prefs_set_global_defaults(void);
 static bool prefs_is_column_visible(const char *cols_hidden, int col);
 static bool prefs_is_column_fmt_visible(const char *cols_hidden, fmt_data *cfmt);
 static unsigned prefs_module_list_foreach(wmem_tree_t *module_list, module_cb callback,
@@ -79,7 +79,6 @@ static int find_val_for_string(const char *needle, const enum_val_t *haystack, i
 #define PF_NAME         "preferences"
 #define OLD_GPF_NAME    "wireshark.conf" /* old name for global preferences file */
 
-static bool prefs_initialized;
 static char *gpf_path;
 static char *cols_hidden_list;
 static char *cols_hidden_fmt_list;
@@ -327,6 +326,9 @@ prefs_init(void)
     prefs_modules = wmem_tree_new(wmem_epan_scope());
     prefs_top_level_modules = wmem_tree_new(wmem_epan_scope());
     prefs_module_aliases = wmem_tree_new(wmem_epan_scope());
+
+    prefs_set_global_defaults();
+    prefs_register_modules();
 }
 
 /*
@@ -625,25 +627,12 @@ prefs_register_module_alias(const char *name, module_t *module)
 /*
  * Register that a protocol has preferences.
  */
-module_t *protocols_module;
+static module_t *protocols_module;
 
 module_t *
 prefs_register_protocol(int id, void (*apply_cb)(void))
 {
-    protocol_t *protocol;
-
-    /*
-     * Have we yet created the "Protocols" subtree?
-     */
-    if (protocols_module == NULL) {
-        /*
-         * No.  Register Protocols subtree as well as any preferences
-         * for non-dissector modules.
-         */
-        pre_init_prefs();
-        prefs_register_modules();
-    }
-    protocol = find_protocol_by_id(id);
+    protocol_t *protocol = find_protocol_by_id(id);
     if (protocol == NULL)
         ws_error("Protocol preferences being registered with an invalid protocol ID");
     return prefs_register_module(protocols_module,
@@ -670,20 +659,6 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
     module_t   *subtree_module;
     module_t   *new_module;
     char       *sep = NULL, *ptr = NULL, *orig = NULL;
-
-    /*
-     * Have we yet created the "Protocols" subtree?
-     * XXX - can we just do this by registering Protocols/{subtree}?
-     * If not, why not?
-     */
-    if (protocols_module == NULL) {
-        /*
-         * No.  Register Protocols subtree as well as any preferences
-         * for non-dissector modules.
-         */
-        pre_init_prefs();
-        prefs_register_modules();
-    }
 
     subtree_module = protocols_module;
 
@@ -733,20 +708,7 @@ module_t *
 prefs_register_protocol_obsolete(int id)
 {
     module_t *module;
-    protocol_t *protocol;
-
-    /*
-     * Have we yet created the "Protocols" subtree?
-     */
-    if (protocols_module == NULL) {
-        /*
-         * No.  Register Protocols subtree as well as any preferences
-         * for non-dissector modules.
-         */
-        pre_init_prefs();
-        prefs_register_modules();
-    }
-    protocol = find_protocol_by_id(id);
+    protocol_t *protocol = find_protocol_by_id(id);
     if (protocol == NULL)
         ws_error("Protocol being registered with an invalid protocol ID");
     module = prefs_register_module(protocols_module,
@@ -773,18 +735,6 @@ module_t *
 prefs_register_stat(const char *name, const char *title,
                     const char *description, void (*apply_cb)(void))
 {
-    /*
-     * Have we yet created the "Statistics" subtree?
-     */
-    if (stats_module == NULL) {
-        /*
-         * No.  Register Statistics subtree as well as any preferences
-         * for non-dissector modules.
-         */
-        pre_init_prefs();
-        prefs_register_modules();
-    }
-
     return prefs_register_module(stats_module, name, title, description, NULL,
                                  apply_cb, true);
 }
@@ -805,18 +755,6 @@ module_t *
 prefs_register_codec(const char *name, const char *title,
                      const char *description, void (*apply_cb)(void))
 {
-    /*
-     * Have we yet created the "Codecs" subtree?
-     */
-    if (codecs_module == NULL) {
-        /*
-         * No.  Register Codecs subtree as well as any preferences
-         * for non-dissector modules.
-         */
-        pre_init_prefs();
-        prefs_register_modules();
-    }
-
     return prefs_register_module(codecs_module, name, title, description, NULL,
                                  apply_cb, true);
 }
@@ -4266,31 +4204,6 @@ print.file: /a/very/long/path/
  *
  */
 
-/* Initialize non-dissector preferences to wired-in default values Called
- * at program startup and any time the profile changes. (The dissector
- * preferences are assumed to be set to those values by the dissectors.)
- * They may be overridden by the global preferences file or the user's
- * preferences file.
- */
-static void
-init_prefs(void)
-{
-    if (prefs_initialized)
-        return;
-
-    uat_load_all();
-
-    /*
-     * Ensure the "global" preferences have been initialized so the
-     * preference API has the proper default values to work from
-     */
-    pre_init_prefs();
-
-    prefs_register_modules();
-
-    prefs_initialized = true;
-}
-
 /*
  * Initialize non-dissector preferences used by the "register preference" API
  * to default values so the default values can be used when registered.
@@ -4299,7 +4212,7 @@ init_prefs(void)
  * be g_mallocated.
  */
 static void
-pre_init_prefs(void)
+prefs_set_global_defaults(void)
 {
     int         i;
     char        *col_name;
@@ -4642,7 +4555,6 @@ reset_module_prefs(const void *key _U_, void *value, void *data _U_)
 void
 prefs_reset(void)
 {
-    prefs_initialized = false;
     g_free(prefs.saved_at_version);
     prefs.saved_at_version = NULL;
 
@@ -4657,9 +4569,13 @@ prefs_reset(void)
     oids_cleanup();
 
     /*
+     * Reload all UAT preferences.
+     */
+    uat_load_all();
+    /*
      * Reset the non-dissector preferences.
      */
-    init_prefs();
+    prefs_set_global_defaults();
 
     /*
      * Reset the non-UAT dissector preferences.
@@ -4757,8 +4673,6 @@ read_prefs(void)
 
     /* clean up libsmi structures before reading prefs */
     oids_cleanup();
-
-    init_prefs();
 
 #ifdef _WIN32
     read_registry();
@@ -7182,9 +7096,6 @@ write_prefs(char **pf_path_return)
     char        *pf_path;
     FILE        *pf;
     write_gui_pref_arg_t write_gui_pref_info;
-
-    /* Needed for "-G defaultprefs" */
-    init_prefs();
 
 #ifdef _WIN32
     write_registry();

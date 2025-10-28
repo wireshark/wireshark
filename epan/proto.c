@@ -573,6 +573,31 @@ call_plugin_register_handoff(void *data, void *user_data _U_)
 	}
 }
 
+void proto_pre_init(void)
+{
+	saved_dir_queue = g_queue_new();
+
+	proto_names = g_hash_table_new(wmem_str_hash, g_str_equal);
+	proto_short_names = g_hash_table_new(wmem_str_hash, g_str_equal);
+	proto_filter_names = g_hash_table_new(wmem_str_hash, g_str_equal);
+
+	proto_reserved_filter_names = g_hash_table_new(wmem_str_hash, g_str_equal);
+	for (const char** ptr = reserved_filter_names; *ptr != NULL; ptr++) {
+		/* GHashTable has no key destructor so the cast is safe. */
+		g_hash_table_add(proto_reserved_filter_names, *(char**)ptr);
+	}
+
+	gpa_hfinfo.len = 0;
+	gpa_hfinfo.allocated_len = 0;
+	gpa_hfinfo.hfi = NULL;
+	gpa_name_map = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+	wmem_map_reserve(gpa_name_map, PROTO_PRE_ALLOC_HF_FIELDS_MEM);
+	gpa_protocol_aliases = g_hash_table_new(wmem_str_hash, g_str_equal);
+	deregistered_fields = g_ptr_array_new();
+	deregistered_data = g_ptr_array_new();
+	deregistered_slice = g_ptr_array_new();
+}
+
 /* initialize data structures and register protocols and fields */
 void
 proto_init(GSList *register_all_plugin_protocols_list,
@@ -580,29 +605,6 @@ proto_init(GSList *register_all_plugin_protocols_list,
 	   register_cb cb,
 	   void *client_data)
 {
-	proto_cleanup_base();
-	saved_dir_queue = g_queue_new();
-
-	proto_names        = g_hash_table_new(wmem_str_hash, g_str_equal);
-	proto_short_names  = g_hash_table_new(wmem_str_hash, g_str_equal);
-	proto_filter_names = g_hash_table_new(wmem_str_hash, g_str_equal);
-
-	proto_reserved_filter_names = g_hash_table_new(wmem_str_hash, g_str_equal);
-	for (const char **ptr = reserved_filter_names; *ptr != NULL; ptr++) {
-		/* GHashTable has no key destructor so the cast is safe. */
-		g_hash_table_add(proto_reserved_filter_names, *(char **)ptr);
-	}
-
-	gpa_hfinfo.len           = 0;
-	gpa_hfinfo.allocated_len = 0;
-	gpa_hfinfo.hfi           = NULL;
-	gpa_name_map             = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
-	wmem_map_reserve(gpa_name_map, PROTO_PRE_ALLOC_HF_FIELDS_MEM);
-	gpa_protocol_aliases     = g_hash_table_new(wmem_str_hash, g_str_equal);
-	deregistered_fields      = g_ptr_array_new();
-	deregistered_data        = g_ptr_array_new();
-	deregistered_slice       = g_ptr_array_new();
-
 	/* Initialize the ftype subsystem */
 	ftypes_initialize();
 
