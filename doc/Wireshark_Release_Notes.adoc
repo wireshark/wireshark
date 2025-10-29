@@ -50,6 +50,8 @@ The following bugs have been fixed:
 // Bugs with the {notable} attribute show up in the "What's Changed" box on the download page.
 //* Wireshark contains traces of nuts. What kind of nuts? The kind you're allergic to. wsbuglink:5000[] {notable}
 
+* Writing to an LZ4-compressed output file might fail. wsbuglink:20779[].
+
 // == Known Bugs
 
 // === New and Updated Features
