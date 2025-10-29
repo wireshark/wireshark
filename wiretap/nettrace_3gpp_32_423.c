@@ -43,11 +43,6 @@
  * the null byte at the end.
  */
 #define CLEN(x) (sizeof(x)-1)
-static const unsigned char c_xml_magic[] = "<?xml";
-static const unsigned char c_file_header[] = "<fileHeader";
-static const unsigned char c_file_format_version[] = "fileFormatVersion=\"";
-static const unsigned char c_threegpp_doc_no[] = "32.423";
-static const unsigned char c_begin_time[] = "<traceCollec beginTime=\"";
 static const unsigned char c_s_msg[] = "<msg";
 static const unsigned char c_e_msg[] = "</msg>";
 
@@ -700,60 +695,77 @@ nettrace_close(wtap *wth)
  * Set in file_access.c as the function to be called for this file type.
  */
 wtap_open_return_val
-nettrace_3gpp_32_423_file_open(wtap *wth, int *err, char **err_info)
+nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
 {
-	char magic_buf[MAGIC_BUF_SIZE+1];
-	int bytes_read;
-	const char *curr_pos;
 	nstime_t start_time;
 	nettrace_3gpp_32_423_file_info_t *file_info;
-	int64_t start_offset;
+	xmlDocPtr doc;
+	xmlNodePtr root_element = NULL;
 
-	start_offset = file_tell(wth->fh); // Most likely 0 but doesn't hurt to check
-	bytes_read = file_read(magic_buf, MAGIC_BUF_SIZE, wth->fh);
-
-	if (bytes_read < 0) {
-		*err = file_error(wth->fh, err_info);
-		return WTAP_OPEN_ERROR;
-	}
-	if (bytes_read == 0){
+	doc = xmlReadFile(wth->pathname, NULL, XML_PARSE_NOENT | XML_PARSE_NONET);
+	if (doc == NULL) {
 		return WTAP_OPEN_NOT_MINE;
 	}
 
-	if (memcmp(magic_buf, c_xml_magic, CLEN(c_xml_magic)) != 0){
+	root_element = xmlDocGetRootElement(doc);
+	if (root_element == NULL) {
+		xmlFreeDoc(doc);
 		return WTAP_OPEN_NOT_MINE;
 	}
 
-	curr_pos = g_strstr_len(magic_buf, bytes_read, c_file_header);
-	if (!curr_pos) {
+	//Sanity check
+	if (xmlStrcmp(root_element->name, (const xmlChar*)"traceCollecFile") != 0) {
+		xmlFreeDoc(doc);
 		return WTAP_OPEN_NOT_MINE;
 	}
-	curr_pos = g_strstr_len(curr_pos, bytes_read-(curr_pos-magic_buf), c_file_format_version);
-	if (!curr_pos) {
+
+	if (root_element->children == NULL) {
+		xmlFreeDoc(doc);
 		return WTAP_OPEN_NOT_MINE;
 	}
-	curr_pos += CLEN(c_file_format_version);
-	if (memcmp(curr_pos, c_threegpp_doc_no, CLEN(c_threegpp_doc_no)) != 0){
-		return WTAP_OPEN_NOT_MINE;
-	}
-	/* Next we expect something like <traceCollec beginTime="..."/> */
-	curr_pos = g_strstr_len(curr_pos, bytes_read-(curr_pos-magic_buf), c_begin_time);
-	if (!curr_pos) {
-		return WTAP_OPEN_NOT_MINE;
-	}
-	curr_pos += CLEN(c_begin_time);
-	/* Next we expect an ISO 8601-format time */
-	curr_pos = iso8601_to_nstime(&start_time, curr_pos, ISO8601_DATETIME);
-	if (!curr_pos) {
-		return WTAP_OPEN_NOT_MINE;
+
+	for (xmlNodePtr cur = root_element->children; cur != NULL; cur = cur->next) {
+		if (cur->type == XML_ELEMENT_NODE) {
+			if (xmlStrcmp(cur->name, (const xmlChar*)"fileHeader") == 0) {
+				/* Walk the attributes of the fileHeader */
+				for (xmlAttrPtr attr = cur->properties; attr; attr = attr->next) {
+					if (xmlStrcmp(attr->name, (const xmlChar*)"fileFormatVersion") == 0) {
+						xmlChar* str_fileformatversion = xmlNodeListGetString(cur->doc, attr->children, 1);
+						if (str_fileformatversion != NULL) {
+							if (strncmp(str_fileformatversion, "32.423", strlen("32.423")) != 0)
+								return WTAP_OPEN_NOT_MINE;
+						} else {
+							xmlFreeDoc(doc);
+							return WTAP_OPEN_NOT_MINE;
+						}
+					}
+				}
+				/* Check the children of the fileHeader root */
+				for (xmlNodePtr fileHeader_node = cur->children; fileHeader_node != NULL; fileHeader_node = fileHeader_node->next) {
+					if (fileHeader_node->type == XML_ELEMENT_NODE) {
+						if (xmlStrcmp(fileHeader_node->name, (const xmlChar*)"traceCollec") == 0) {
+							/* Walk the attributes of the fileHeader */
+							for (xmlAttrPtr attr = cur->properties; attr; attr = attr->next) {
+								if (xmlStrcmp(attr->name, (const xmlChar*)"beginTime") == 0) {
+									xmlChar* str_begintime = xmlNodeListGetString(cur->doc, attr->children, 1);
+									if (str_begintime != NULL) {
+										iso8601_to_nstime(&start_time, str_begintime, ISO8601_DATETIME);
+										xmlFree(str_begintime);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/* Ok it's our file. From here we'll need to free memory */
 	file_info = g_new0(nettrace_3gpp_32_423_file_info_t, 1);
 	file_info->start_time = start_time;
-	file_info->start_offset = start_offset + (curr_pos - magic_buf);
+	file_info->start_offset = 0;
 	file_info->buffer = g_byte_array_sized_new(RINGBUFFER_START_SIZE);
-	g_byte_array_append(file_info->buffer, curr_pos, (unsigned)(bytes_read - (curr_pos - magic_buf)));
 
 	wth->file_type_subtype = nettrace_3gpp_32_423_file_type_subtype;
 	wth->file_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
