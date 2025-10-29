@@ -146,6 +146,9 @@ WS_DLL_PUBLIC void nstime_copy(nstime_t *a, const nstime_t *b);
  * Computes the difference between two time values, allowing for negative results.
  * The result is stored in the `delta` structure as `delta = b - a`.
  * It is safe for any of the arguments to refer to the same structure.
+ * If the result does not fit in a nstime_t, delta is clamped to the largest or
+ * smallest valid value as appropriate, and errno is set to ERANGE. errno can
+ * be set to EINVAL if a->nsecs or b->nsecs is outside the valid range.
  *
  * @param delta Pointer to the destination nstime_t structure to store the result.
  * @param b Pointer to the later (or second) time value.
@@ -158,6 +161,9 @@ WS_DLL_PUBLIC void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime
  *
  * Adds two time values together and stores the result in the `sum` structure as `sum = a + b`.
  * It is safe for any of the arguments to refer to the same structure.
+ * If the result does not fit in a nstime_t, sum is clamped to the largest or
+ * smallest valid value as appropriate, and errno is set to ERANGE. errno can
+ * be set to EINVAL if a->nsecs or b->nsecs is outside the valid range.
  *
  * @param sum Pointer to the destination nstime_t structure to store the result.
  * @param a Pointer to the first time value.
