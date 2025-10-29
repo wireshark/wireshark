@@ -32,8 +32,9 @@ warnings_found = 0
 errors_found = 0
 
 def name_has_one_of(name, substring_list):
+    name_lower = name.lower()
     for word in substring_list:
-        if name.lower().find(word) != -1:
+        if word in name_lower:
             return True
     return False
 
@@ -224,7 +225,7 @@ class EncodingCheckerBasic:
         type = self.type
 
         # Doesn't even really have an encoding type..
-        if call.function_name.find('_add_none') != -1:
+        if '_add_none' in call.function_name:
             return
 
         # Are more encodings allowed?
@@ -238,7 +239,7 @@ class EncodingCheckerBasic:
         # Is this encoding allowed for this type?
         if encoding not in self.allowed_encodings:
             # Have an exemption for UINT fields if the length is only 1.
-            if encoding == 'ENC_NA' and item.item_type.find('FT_UINT') != -1 and call.length == 1:
+            if encoding == 'ENC_NA' and 'FT_UINT' in item.item_type and call.length == 1:
                 return
 
 
@@ -266,7 +267,7 @@ def check_call_enc_matches_item(items_defined, call, api_check):
     if call.enc is None:
         return
 
-    if call.enc.find('|') != -1:
+    if '|' in call.enc:
         encs = call.enc.split('|')
         encs = [enc.strip() for enc in encs]
     else:
@@ -299,7 +300,7 @@ class APICheck:
         if fun_name.startswith('ptvcursor'):
             # RE captures function name + 1st 2 args (always ptvc + hfindex)
             self.p = re.compile('[^\n]*' +  self.fun_name + r'\s*\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+)')
-        elif fun_name.find('add_bitmask') == -1:
+        elif 'add_bitmask' not in fun_name:
             # Normal case.
             # RE captures function name + 1st 2 args (always tree + hfindex + length)
             self.p = re.compile('[^\n]*' +  self.fun_name + r'\s*\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+)')
@@ -311,62 +312,59 @@ class APICheck:
 
         self.file = None
         self.mask_allowed = True
-        if fun_name.find('proto_tree_add_bits_') != -1:
+        if 'proto_tree_add_bits_' in fun_name:
             self.mask_allowed = False
 
 
-    def find_calls(self, file, macros):
+    def find_calls(self, file, contents, lines, macros):
         self.file = file
         self.calls = []
 
-        with open(file, 'r', encoding="utf8") as f:
-            contents = f.read()
-            lines = contents.splitlines()
-            total_lines = len(lines)
-            for line_number,line in enumerate(lines):
-                # Want to check this, and next few lines
-                to_check = lines[line_number-1] + '\n'
-                # Nothing to check if function name isn't in it
-                if to_check.find(self.fun_name) != -1:
-                    # Ok, add the next file lines before trying RE
-                    for i in range(1, 4):
-                        if to_check.find(';') != -1:
-                            break
-                        elif line_number+i < total_lines:
-                            to_check += (lines[line_number-1+i] + '\n')
-                    m = self.p.search(to_check)
-                    if m:
-                        fields = None
-                        length = None
+        total_lines = len(lines)
+        for line_number,line in enumerate(lines):
+            # Want to check this, and next few lines
+            to_check = lines[line_number-1] + '\n'
+            # Nothing to check if function name isn't in it
+            if self.fun_name in to_check:
+                # Ok, add the next file lines before trying RE
+                for i in range(1, 4):
+                    if ';' in to_check:
+                        break
+                    elif line_number+i < total_lines:
+                        to_check += (lines[line_number-1+i] + '\n')
+                m = self.p.search(to_check)
+                if m:
+                    fields = None
+                    length = None
 
-                        if self.fun_name.find('add_bitmask') != -1:
-                            fields = m.group(3)
-                        else:
-                            if self.p.groups == 3:
-                                length = m.group(3)
+                    if 'add_bitmask' in self.fun_name:
+                        fields = m.group(3)
+                    else:
+                        if self.p.groups == 3:
+                            length = m.group(3)
 
-                        # Look for encoding arg
-                        # N.B. REs often won't extend to end of call, so may not include any encoding args..  TODO: extend them to );
-                        enc = None
-                        enc_start_index = to_check.find('ENC_')
-                        if enc_start_index != -1:
-                            enc_to_end = to_check[enc_start_index:]
+                    # Look for encoding arg
+                    # N.B. REs often won't extend to end of call, so may not include any encoding args..  TODO: extend them to );
+                    enc = None
+                    enc_start_index = to_check.find('ENC_')
+                    if enc_start_index != -1:
+                        enc_to_end = to_check[enc_start_index:]
 
-                            p = re.compile(r'(ENC_[A-Z_0-9\|\s]*)')
-                            enc_m = p.match(enc_to_end)
+                        p = re.compile(r'(ENC_[A-Z_0-9\|\s]*)')
+                        enc_m = p.match(enc_to_end)
 
-                            if enc_m:
-                                enc = enc_m.group(1)
-                                #print(enc_m.group(1))
+                        if enc_m:
+                            enc = enc_m.group(1)
+                            #print(enc_m.group(1))
 
-                        # Add call. We have length if re had 3 groups.
-                        self.calls.append(Call(self.fun_name,
-                                               m.group(2),
-                                               macros,
-                                               line_number=line_number,
-                                               length=length,
-                                               fields=fields,
-                                               enc=enc))
+                    # Add call. We have length if re had 3 groups.
+                    self.calls.append(Call(self.fun_name,
+                                           m.group(2),
+                                           macros,
+                                           line_number=line_number,
+                                           length=length,
+                                           fields=fields,
+                                           enc=enc))
 
     # Return true if bit position n is set in value.
     def check_bit(self, value, n):
@@ -392,11 +390,11 @@ class APICheck:
         for call in self.calls:
 
             # Check lengths, but for now only for APIs that have length in bytes.
-            if self.fun_name.find('add_bits') == -1 and call.hf_name in items_defined:
+            if 'add_bits' not in self.fun_name and call.hf_name in items_defined:
                 if call.length and items_defined[call.hf_name].item_type in item_lengths:
                     if item_lengths[items_defined[call.hf_name].item_type] < call.length:
                         # Don't warn if adding value - value is unlikely to just be bytes value
-                        if self.fun_name.find('_add_uint') == -1:
+                        if '_add_uint' not in self.fun_name:
                             print('Warning:', self.file + ':' + str(call.line_number),
                                 self.fun_name + ' called for', call.hf_name, ' - ',
                                 'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
@@ -425,7 +423,7 @@ class APICheck:
                           ' with mask ' + items_defined[call.hf_name].mask + '    (must be zero!)\n')
                     errors_found += 1
 
-            if self.fun_name.find('add_bitmask') != -1 and call.hf_name in items_defined and field_arrays:
+            if 'add_bitmask' in self.fun_name and call.hf_name in items_defined and field_arrays:
                 if call.fields in field_arrays:
                     if (items_defined[call.hf_name].mask_value and
                         field_arrays[call.fields][1] != 0 and items_defined[call.hf_name].mask_value != field_arrays[call.fields][1]):
@@ -469,69 +467,66 @@ class ProtoTreeAddItemCheck(APICheck):
             self.p = re.compile('[^\n]*' + self.fun_name + r'\s*\([^,.]+?,\s*([^,.]+?),\s*([^,.]+?),\s*([a-zA-Z0-9_\-\>]+)')
 
 
-    def find_calls(self, file, macros):
+    def find_calls(self, file, contents, lines, macros):
         self.file = file
         self.calls = []
-        with open(file, 'r', encoding="utf8") as f:
 
-            contents = f.read()
-            lines = contents.splitlines()
-            total_lines = len(lines)
-            for line_number,line in enumerate(lines):
-                # Want to check this, and next few lines
-                to_check = lines[line_number-1] + '\n'
-                # Nothing to check if function name isn't in it
-                fun_idx = to_check.find(self.fun_name)
-                if fun_idx != -1:
-                    # Ok, add the next file lines before trying RE
-                    for i in range(1, 5):
-                        if to_check.find(';') != -1:
-                            break
-                        elif line_number+i < total_lines:
-                            to_check += (lines[line_number-1+i] + '\n')
-                    # Lose anything before function call itself.
-                    to_check = to_check[fun_idx:]
-                    m = self.p.search(to_check)
-                    if m:
-                        # Throw out if parens not matched
-                        if m.group(0).count('(') != m.group(0).count(')'):
-                            continue
+        total_lines = len(lines)
+        for line_number,line in enumerate(lines):
+            # Want to check this, and next few lines
+            to_check = lines[line_number-1] + '\n'
+            # Nothing to check if function name isn't in it
+            fun_idx = to_check.find(self.fun_name)
+            if fun_idx != -1:
+                # Ok, add the next file lines before trying RE
+                for i in range(1, 5):
+                    if to_check.find(';') != -1:
+                        break
+                    elif line_number+i < total_lines:
+                        to_check += (lines[line_number-1+i] + '\n')
+                # Lose anything before function call itself.
+                to_check = to_check[fun_idx:]
+                m = self.p.search(to_check)
+                if m:
+                    # Throw out if parens not matched
+                    if m.group(0).count('(') != m.group(0).count(')'):
+                        continue
 
-                        enc = m.group(4)
-                        hf_name = m.group(1)
-                        if not enc.startswith('ENC_') and enc.lower().find('endian') == -1:
-                            if enc not in { 'encoding', 'enc', 'client_is_le', 'cigi_byte_order', 'endian', 'endianess', 'machine_encoding', 'byte_order', 'bLittleEndian',
-                                            'p_mq_parm->mq_str_enc', 'p_mq_parm->mq_int_enc',
-                                            'iEnc', 'strid_enc', 'iCod', 'nl_data->encoding',
-                                            'argp->info->encoding', 'gquic_info->encoding', 'writer_encoding',
-                                            'tds_get_int2_encoding(tds_info)',
-                                            'tds_get_int4_encoding(tds_info)',
-                                            'tds_get_char_encoding(tds_info)',
-                                            'info->encoding',
-                                            'item->encoding',
-                                            'DREP_ENC_INTEGER(drep)', 'string_encoding', 'item', 'type',
-                                            'dvb_enc_to_item_enc(encoding)',
-                                            'packet->enc',
-                                            'IS_EBCDIC(uCCS) ? ENC_EBCDIC : ENC_ASCII',
-                                            'DREP_ENC_INTEGER(hdr->drep)',
-                                            'payload_le',
-                                            'local_encoding',
-                                            'hf_data_encoding',
-                                            'IS_EBCDIC(eStr) ? ENC_EBCDIC : ENC_ASCII',
-                                            'pdu_info->sbc', 'pdu_info->mbc',
-                                            'seq_info->txt_enc | ENC_NA',
-                                            'BASE_SHOW_UTF_8_PRINTABLE',
-                                            'is_mdns ? ENC_UTF_8|ENC_NA : ENC_ASCII|ENC_NA',
-                                            'xl_encoding',
-                                            'my_frame_data->encoding_client', 'my_frame_data->encoding_results',
-                                            'seq_info->txt_enc'
-                                          }:
-                                global warnings_found
+                    enc = m.group(4)
+                    hf_name = m.group(1)
+                    if not enc.startswith('ENC_') and 'endian' not in enc.lower():
+                        if enc not in { 'encoding', 'enc', 'client_is_le', 'cigi_byte_order', 'endian', 'endianess', 'machine_encoding', 'byte_order', 'bLittleEndian',
+                                        'p_mq_parm->mq_str_enc', 'p_mq_parm->mq_int_enc',
+                                        'iEnc', 'strid_enc', 'iCod', 'nl_data->encoding',
+                                        'argp->info->encoding', 'gquic_info->encoding', 'writer_encoding',
+                                        'tds_get_int2_encoding(tds_info)',
+                                        'tds_get_int4_encoding(tds_info)',
+                                        'tds_get_char_encoding(tds_info)',
+                                        'info->encoding',
+                                        'item->encoding',
+                                        'DREP_ENC_INTEGER(drep)', 'string_encoding', 'item', 'type',
+                                        'dvb_enc_to_item_enc(encoding)',
+                                        'packet->enc',
+                                        'IS_EBCDIC(uCCS) ? ENC_EBCDIC : ENC_ASCII',
+                                        'DREP_ENC_INTEGER(hdr->drep)',
+                                        'payload_le',
+                                        'local_encoding',
+                                        'hf_data_encoding',
+                                        'IS_EBCDIC(eStr) ? ENC_EBCDIC : ENC_ASCII',
+                                        'pdu_info->sbc', 'pdu_info->mbc',
+                                        'seq_info->txt_enc | ENC_NA',
+                                        'BASE_SHOW_UTF_8_PRINTABLE',
+                                        'is_mdns ? ENC_UTF_8|ENC_NA : ENC_ASCII|ENC_NA',
+                                        'xl_encoding',
+                                        'my_frame_data->encoding_client', 'my_frame_data->encoding_results',
+                                        'seq_info->txt_enc'
+                                      }:
+                            global warnings_found
 
-                                print('Warning:', self.file + ':' + str(line_number),
-                                      self.fun_name + ' called for "' + hf_name + '"',  'check last/enc param:', enc, '?')
-                                warnings_found += 1
-                        self.calls.append(Call(self.fun_name, hf_name, macros, line_number=line_number, offset=m.group(2), length=m.group(3), fields=None, enc=enc))
+                            print('Warning:', self.file + ':' + str(line_number),
+                                  self.fun_name + ' called for "' + hf_name + '"',  'check last/enc param:', enc, '?')
+                            warnings_found += 1
+                    self.calls.append(Call(self.fun_name, hf_name, macros, line_number=line_number, offset=m.group(2), length=m.group(3), fields=None, enc=enc))
 
     def check_against_items(self, items_defined, items_declared, items_declared_extern,
                             check_missing_items=False, field_arrays=None):
@@ -548,7 +543,7 @@ class ProtoTreeAddItemCheck(APICheck):
                     if item_lengths[items_defined[call.hf_name].item_type] < call.length:
                         # On balance, it is not worth complaining about these - the value is unlikely to be
                         # just the value found in these bytes..
-                        if self.fun_name.find('_add_uint') == -1:
+                        if '_add_uint' not in self.fun_name:
                             print('Warning:', self.file + ':' + str(call.line_number),
                                 self.fun_name + ' called for', call.hf_name, ' - ',
                                 'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
@@ -583,28 +578,25 @@ class TVBGetBits:
         self.calls = []
         pass
 
-    def find_calls(self, file, macros):
+    def find_calls(self, file, contents, lines, macros):
         self.file = file
         self.calls = []
-        with open(file, 'r', encoding="utf8") as f:
-            contents = f.read()
-            matches = re.finditer(self.name + r'\([a-zA-Z0-9_]+\s*,\s*(.*?)\s*,\s*([0-9a-zA-Z_]+)', contents)
-            for m in matches:
-                try:
-                    length = int(m.group(2))
-                except Exception:
-                    # Not parsable as literal decimal, so ignore
-                    # TODO: could subst macros if e.g., do check in check_against_items() 
-                    continue
+        matches = re.finditer(self.name + r'\([a-zA-Z0-9_]+\s*,\s*(.*?)\s*,\s*([0-9a-zA-Z_]+)', contents)
+        for m in matches:
+            try:
+                length = int(m.group(2))
+            except Exception:
+                # Not parsable as literal decimal, so ignore
+                # TODO: could subst macros if e.g., do check in check_against_items()
+                continue
 
-                if length > self.maxlen:
-                    # Error if some bits would get chopped off.
-                    global errors_found
-                    print('Error: ' + file + ' ' + m.group(0) + '...  has length of ' + m.group(2) + ', which is > API limit of ' + str(self.maxlen))
-                    errors_found += 1
-                elif self.maxlen > 8 and length <= self.maxlen/2:
-                    print('Note: ' + file + ' ' +  m.group(0) + '...  has length of ' + m.group(2) + ', could have used smaller version of function?')
-
+            if length > self.maxlen:
+                # Error if some bits would get chopped off.
+                global errors_found
+                print('Error: ' + file + ' ' + m.group(0) + '...  has length of ' + m.group(2) + ', which is > API limit of ' + str(self.maxlen))
+                errors_found += 1
+            elif self.maxlen > 8 and length <= self.maxlen/2:
+                print('Note: ' + file + ' ' +  m.group(0) + '...  has length of ' + m.group(2) + ', could have used smaller version of function?')
 
         return []
 
@@ -891,7 +883,7 @@ class ValueString:
                                    'tbd' ]
                     excepted = False
                     for ex in exceptions:
-                        if label.lower().find(ex) != -1:
+                        if ex in label.lower():
                             excepted = True
                             break
 
@@ -924,7 +916,7 @@ class ValueString:
         # Do most of the labels match the number?
         matching_label_entries = set()
         for val in self.parsed_vals:
-            if self.parsed_vals[val].find(str(val)) != -1:
+            if str(val) in self.parsed_vals[val]:
                 # TODO: pick out multiple values rather than concat into wrong number
                 parsed_value = int(''.join(d for d in self.parsed_vals[val] if d.isdecimal()))
                 if val == parsed_value:
@@ -1131,7 +1123,7 @@ class StringString:
 
 
 # Look for value_string entries in a dissector file.  Return a dict name -> ValueString
-def findValueStrings(filename, macros, do_extra_checks=False):
+def findValueStrings(filename, contents, macros, do_extra_checks=False):
     vals_found = {}
 
     #static const value_string radio_type_vals[] =
@@ -1141,22 +1133,16 @@ def findValueStrings(filename, macros, do_extra_checks=False):
     #    { 0, NULL }
     #};
 
-    with open(filename, 'r', encoding="utf8") as f:
-        contents = f.read()
-
-        # Remove comments so as not to trip up RE.
-        contents = removeComments(contents)
-
-        matches =   re.finditer(r'.*const value_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9_\-\*\#\.:\/\(\)\'\s\"]*)\};', contents)
-        for m in matches:
-            name = m.group(1)
-            vals = m.group(2)
-            vals_found[name] = ValueString(filename, name, vals, macros, do_extra_checks)
+    matches =   re.finditer(r'.*const value_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9_\-\*\#\.:\/\(\)\'\s\"]*)\};', contents)
+    for m in matches:
+        name = m.group(1)
+        vals = m.group(2)
+        vals_found[name] = ValueString(filename, name, vals, macros, do_extra_checks)
 
     return vals_found
 
 # Look for range_string entries in a dissector file.  Return a dict name -> RangeString
-def findRangeStrings(filename, macros, do_extra_checks=False):
+def findRangeStrings(filename, contents, macros, do_extra_checks=False):
     vals_found = {}
 
     #static const range_string symbol_table_shndx_rvals[] = {
@@ -1165,22 +1151,16 @@ def findRangeStrings(filename, macros, do_extra_checks=False):
     #    { 0, 0, NULL }
     #};
 
-    with open(filename, 'r', encoding="utf8") as f:
-        contents = f.read()
-
-        # Remove comments so as not to trip up RE.
-        contents = removeComments(contents)
-
-        matches =   re.finditer(r'.*const range_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9_\-\*\#\.:\/\(\)\'\s\"]*)\};', contents)
-        for m in matches:
-            name = m.group(1)
-            vals = m.group(2)
-            vals_found[name] = RangeString(filename, name, vals, macros, do_extra_checks)
+    matches =   re.finditer(r'.*const range_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9_\-\*\#\.:\/\(\)\'\s\"]*)\};', contents)
+    for m in matches:
+        name = m.group(1)
+        vals = m.group(2)
+        vals_found[name] = RangeString(filename, name, vals, macros, do_extra_checks)
 
     return vals_found
 
 # Look for string_string entries in a dissector file.  Return a dict name -> StringString
-def findStringStrings(filename, macros, do_extra_checks=False):
+def findStringStrings(filename, contents, macros, do_extra_checks=False):
     vals_found = {}
 
     #static const string_string ice_candidate_types[] = {
@@ -1189,102 +1169,79 @@ def findStringStrings(filename, macros, do_extra_checks=False):
     #    { 0, NULL }
     #};
 
-    with open(filename, 'r', encoding="utf8") as f:
-        contents = f.read()
-
-        # Remove comments so as not to trip up RE.
-        contents = removeComments(contents)
-
-        matches =   re.finditer(r'.*const string_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9_\-\*\#\.:\/\(\)\'\s\"]*)\};', contents)
-        for m in matches:
-            name = m.group(1)
-            vals = m.group(2)
-            vals_found[name] = StringString(filename, name, vals, macros, do_extra_checks)
+    matches =   re.finditer(r'.*const string_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9_\-\*\#\.:\/\(\)\'\s\"]*)\};', contents)
+    for m in matches:
+        name = m.group(1)
+        vals = m.group(2)
+        vals_found[name] = StringString(filename, name, vals, macros, do_extra_checks)
 
     return vals_found
 
 
 # Look for expert entries in a dissector file.  Return ExpertEntries object
-def findExpertItems(filename, macros):
-    with open(filename, 'r', encoding="utf8") as f:
-        contents = f.read()
+def findExpertItems(filename, contents, macros):
+    # Look for array of definitions. Looks something like this
+    #static ei_register_info ei[] = {
+    #    { &ei_oran_unsupported_bfw_compression_method, { "oran_fh_cus.unsupported_bfw_compression_method", PI_UNDECODED, PI_WARN, "Unsupported BFW Compression Method", EXPFILL }},
+    #    { &ei_oran_invalid_sample_bit_width, { "oran_fh_cus.invalid_sample_bit_width", PI_UNDECODED, PI_ERROR, "Unsupported sample bit width", EXPFILL }},
+    #};
 
-        # Remove comments so as not to trip up RE.
-        contents = removeComments(contents)
+    expertEntries = ExpertEntries(filename)
 
-        # Look for array of definitions. Looks something like this
-        #static ei_register_info ei[] = {
-        #    { &ei_oran_unsupported_bfw_compression_method, { "oran_fh_cus.unsupported_bfw_compression_method", PI_UNDECODED, PI_WARN, "Unsupported BFW Compression Method", EXPFILL }},
-        #    { &ei_oran_invalid_sample_bit_width, { "oran_fh_cus.invalid_sample_bit_width", PI_UNDECODED, PI_ERROR, "Unsupported sample bit width", EXPFILL }},
-        #};
+    definition_matches = re.finditer(r'static ei_register_info\s*([a-zA-Z0-9_]*)\s*\[\]\s*=\s*\{(.*?)\};', contents, re.MULTILINE|re.DOTALL)
+    for d in definition_matches:
+        entries = d.group(2)
 
-        expertEntries = ExpertEntries(filename)
+        # Now separate out each entry
+        matches = re.finditer(r'\{\s*&([a-zA-Z0-9_]*)\s*\,\s*\{\s*\"(.*?)\"\s*\,\s*([A-Z_]*)\,\s*([A-Z_]*)\,\s*\"(.*?)\"\s*\,\s*EXPFILL\s*\}\s*\}',
+                                entries, re.MULTILINE|re.DOTALL)
+        for match in matches:
+            expertEntry = ExpertEntry(filename, name=match.group(1), filter=match.group(2), group=match.group(3),
+                                        severity=match.group(4), summary=match.group(5))
+            expertEntries.AddEntry(expertEntry)
 
-        definition_matches = re.finditer(r'static ei_register_info\s*([a-zA-Z0-9_]*)\s*\[\]\s*=\s*\{(.*?)\};', contents, re.MULTILINE|re.DOTALL)
-        for d in definition_matches:
-            entries = d.group(2)
+    return expertEntries
 
-            # Now separate out each entry
-            matches = re.finditer(r'\{\s*&([a-zA-Z0-9_]*)\s*\,\s*\{\s*\"(.*?)\"\s*\,\s*([A-Z_]*)\,\s*([A-Z_]*)\,\s*\"(.*?)\"\s*\,\s*EXPFILL\s*\}\s*\}',
-                                    entries, re.MULTILINE|re.DOTALL)
-            for match in matches:
-                expertEntry = ExpertEntry(filename, name=match.group(1), filter=match.group(2), group=match.group(3),
-                                            severity=match.group(4), summary=match.group(5))
-                expertEntries.AddEntry(expertEntry)
-
-        return expertEntries
-
-def findDeclaredTrees(filename):
+def findDeclaredTrees(filename, contents):
     trees = []
-    with open(filename, 'r', encoding="utf8") as f:
-        contents = f.read()
 
-        # Remove comments so as not to trip up RE.
-        contents = removeComments(contents)
-
-        definition_matches = re.finditer(r'static int\s*\s*(ett_[a-zA-Z0-9_]*)\s*;', contents, re.MULTILINE|re.DOTALL)
-        for d in definition_matches:
-            trees.append(d.group(1))
+    definition_matches = re.finditer(r'static int\s*\s*(ett_[a-zA-Z0-9_]*)\s*;', contents, re.MULTILINE|re.DOTALL)
+    for d in definition_matches:
+        trees.append(d.group(1))
 
     return trees
 
-def findDefinedTrees(filename, declared):
-    with open(filename, 'r', encoding="utf8") as f:
-        contents = f.read()
+def findDefinedTrees(filename, contents, declared):
+    # Look for array of definitions. Looks something like this
+    # static int *ett[] = {
+    #    &ett_oran,
+    #    &ett_oran_ecpri_pcid,
+    #    &ett_oran_ecpri_rtcid,
+    #    &ett_oran_ecpri_seqid
+    # };
 
-        # Remove comments so as not to trip up RE.
-        contents = removeComments(contents)
+    trees = set()
 
-        # Look for array of definitions. Looks something like this
-        # static int *ett[] = {
-        #    &ett_oran,
-        #    &ett_oran_ecpri_pcid,
-        #    &ett_oran_ecpri_rtcid,
-        #    &ett_oran_ecpri_seqid
-        # };
+    # Not insisting that this array is static..
+    definition_matches = re.finditer(r'int\s*\*\s*(?:const|)\s*[a-zA-Z0-9_]*?ett[a-zA-Z0-9_]*\s*\[\]\s*=\s*\{(.*?)\};', contents, re.MULTILINE|re.DOTALL)
+    for d in definition_matches:
+        entries = d.group(1)
 
-        trees = set()
+        # Now separate out each entry
+        matches = re.finditer(r'\&(ett_[a-zA-Z0-9_]+)',
+                              entries, re.MULTILINE|re.DOTALL)
+        for match in matches:
+            ett = match.group(1)
 
-        # Not insisting that this array is static..
-        definition_matches = re.finditer(r'int\s*\*\s*(?:const|)\s*[a-zA-Z0-9_]*?ett[a-zA-Z0-9_]*\s*\[\]\s*=\s*\{(.*?)\};', contents, re.MULTILINE|re.DOTALL)
-        for d in definition_matches:
-            entries = d.group(1)
+            if ett not in declared:
+                # N.B., this check will avoid matches with arrays (which won't match 'declared' re)
+                continue
 
-            # Now separate out each entry
-            matches = re.finditer(r'\&(ett_[a-zA-Z0-9_]+)',
-                                  entries, re.MULTILINE|re.DOTALL)
-            for match in matches:
-                ett = match.group(1)
-
-                if ett not in declared:
-                    # N.B., this check will avoid matches with arrays (which won't match 'declared' re)
-                    continue
-
-                # Don't think this can happen..
-                #if ett in trees:
-                #    print('Warning:', filename, ett, 'appears twice!!!')
-                trees.add(match.group(1))
-        return trees
+            # Don't think this can happen..
+            #if ett in trees:
+            #    print('Warning:', filename, ett, 'appears twice!!!')
+            trees.add(match.group(1))
+    return trees
 
 def checkExpertCalls(filename, expertEntries):
         with open(filename, 'r', encoding="utf8") as f:
@@ -1345,14 +1302,14 @@ class ExpertEntry:
         if summary.endswith(' '):
             print('Warning:', filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'ends with space')
             warnings_found += 1
-        if summary.find('  ') != -1:
+        if '  ' in summary:
             print('Warning:', filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'has a double space')
             warnings_found += 1
 
 
 
         # The summary field is shown in the expert window without substituting args..
-        if summary.find('%') != -1:
+        if '%' in summary:
             print('Warning:', filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'has format specifiers in it?')
             warnings_found += 1
 
@@ -1472,12 +1429,12 @@ class Item:
                 self.check_digits_all_zeros(self.mask)
 
         # N.B. these checks are already done by checkApis.pl
-        if strings.find('RVALS') != -1 and display.find('BASE_RANGE_STRING') == -1:
+        if 'RVALS' in strings and 'BASE_RANGE_STRING' not in display:
             print('Warning: ' + filename, hf, 'filter "' + filter + ' strings has RVALS but display lacks BASE_RANGE_STRING')
             warnings_found += 1
 
         # For RVALS, is BASE_RANGE_STRING also set (checked by checkApis.pl)?
-        if strings.find('VALS_EXT_PTR') != -1 and display.find('BASE_EXT_STRING') == -1:
+        if 'VALS_EXT_PTR' in strings and 'BASE_EXT_STRING' not in display:
             print('Warning: ' + filename, hf, 'filter "' + filter + ' strings has VALS_EXT_PTR but display lacks BASE_EXT_STRING')
             warnings_found += 1
 
@@ -1520,8 +1477,8 @@ class Item:
             if item_type == 'FT_UINT16' and not display.startswith('BASE_PT_') and display != 'BASE_CUSTOM':
                 desc = str(self).lower()
                 # TODO: use re to avoid matching 'transport' ?
-                if desc.lower().find('port') != -1:
-                    if desc.find('udp') != -1 or desc.find('tcp') != -1 or desc.find('sctp') -1:
+                if 'port' in desc.lower():
+                    if 'udp' in desc or 'tcp' in desc or 'sctp' in desc:
                         print('Warning: ' + filename, hf, 'filter "' + filter + '" label "' + label + '" field might be a transport port - should use e.g., BASE_PT_UDP as display??')
                         print(self)
                         warnings_found += 1
@@ -1545,7 +1502,7 @@ class Item:
             label.count('[') != label.count(']') or
             label.count('{') != label.count('}')):
             # Ignore if includes quotes, as may be unbalanced.
-            if label.find("'") == -1:
+            if "'" not in label:
                 print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter + '"', label_name, '"' + label + '"', 'has unbalanced parens/braces/brackets')
                 warnings_found += 1
         if self.item_type != 'FT_NONE' and label.endswith(':'):
@@ -1831,7 +1788,7 @@ class Item:
     def check_full_mask(self, mask, field_arrays):
         if self.item_type == "FT_BOOLEAN":
             return
-        if self.label.lower().find('mask') != -1 or self.label.lower().find('flag') != -1 or self.label.lower().find('bitmap') != -1:
+        if 'mask' in self.label.lower() or 'flag' in self.label.lower() or 'bitmap' in self.label.lower():
             return
         if mask.startswith('0x') and len(mask) > 3:
             width_in_bits = self.get_field_width_in_bits()
@@ -1935,7 +1892,7 @@ class Item:
     def check_string_display(self):
         global warnings_found
         if self.item_type in { 'FT_STRING', 'FT_STRINGZ', 'FT_UINT_STRING'}:
-            if self.display.find('BASE_NONE')==-1 and self.display.find('BASE_STR_WSP')==-1:
+            if 'BASE_NONE' not in self.display and 'BASE_STR_WSP' not in self.display:
                 print('Warning:', self.filename, self.hf, 'type is', self.item_type, 'display must be BASE_NONE or BASE_STR_WSP, is instead', self.display)
                 warnings_found += 1
 
@@ -1964,6 +1921,7 @@ class CombinedCallsCheck:
         # Sort by line number.
         self.all_calls.sort(key=lambda x:x.line_number)
 
+    # Not currently called
     def check_consecutive_item_calls(self):
         lines = open(self.file, 'r', encoding="utf8").read().splitlines()
 
@@ -1979,7 +1937,7 @@ class CombinedCallsCheck:
                 if call.line_number>prev.line_number and call.line_number-prev.line_number <= 4:
                     scope_different = False
                     for no in range(prev.line_number, call.line_number-1):
-                        if lines[no].find('{') != -1 or lines[no].find('}') != -1 or lines[no].find('else') != -1 or lines[no].find('break;') != -1 or lines[no].find('if ') != -1:
+                        if '{' in lines[no] or '}' in lines[no] or 'else' in lines[no] or 'break;' in lines[no] or 'if ' in lines[no]:
                             scope_different = True
                             break
                     # Also more compelling if check for and scope changes { } in lines in-between?
@@ -2107,15 +2065,15 @@ def isGeneratedFile(filename):
         if lines_tested > 10:
             f_read.close()
             return False
-        if (line.find('Generated automatically') != -1 or
-            line.find('Generated Automatically') != -1 or
-            line.find('Autogenerated from') != -1 or
-            line.find('is autogenerated') != -1 or
-            line.find('automatically generated by Pidl') != -1 or
-            line.find('Created by: The Qt Meta Object Compiler') != -1 or
-            line.find('This file was generated') != -1 or
-            line.find('This filter was automatically generated') != -1 or
-            line.find('This file is auto generated, do not edit!') != -1):
+        if ('Generated automatically' in line or
+            'Generated Automatically' in line or
+            'Autogenerated from' in line or
+            'is autogenerated' in line or
+            'automatically generated by Pidl' in line or
+            'Created by: The Qt Meta Object Compiler' in line or
+            'This file was generated' in line or
+            'This filter was automatically generated' in line or
+            'This file is auto generated, do not edit!' in line):
 
             f_read.close()
             return True
@@ -2127,7 +2085,7 @@ def isGeneratedFile(filename):
 
 
 # Looking for simple #define macros or enumerations.
-def find_macros(filename):
+def find_macros(filename, contents):
     # Pre-populate with some useful values..
     macros = { 'BASE_NONE' : 0,  'BASE_DEC' : 1 }
 
@@ -2140,59 +2098,58 @@ def find_macros(filename):
     # TODO: also/instead look for directly included files of form packet-xxx.h ?
 
     for file in files_to_check:
-        with open(file, 'r', encoding="utf8") as f:
-            contents = f.read()
-            # Remove comments so as not to trip up RE.
-            contents = removeComments(contents)
+        if file == filename:
+            contents_to_check = contents
+        else:
+            with open(file, 'r', encoding="utf8") as f:
+                contents_to_check = f.read()
+                # Remove comments so as not to trip up RE.
+                contents_to_check = removeComments(contents_to_check)
 
-            # Allowing optional parenthesis around value part.
-            matches = re.finditer( r'#define\s*([A-Za-z0-9_]*)\s*\(?([0-9xa-fA-F]*)\)?\s*\n', contents)
-            for m in matches:
-                # Store this mapping.
-                macros[m.group(1)] = m.group(2)
+        # Allowing optional parenthesis around value part.
+        matches = re.finditer( r'#define\s*([A-Za-z0-9_]*)\s*\(?([0-9xa-fA-F]*)\)?\s*\n', contents_to_check)
+        for m in matches:
+            # Store this mapping.
+            macros[m.group(1)] = m.group(2)
 
-            # Also look for what could be enumeration assignments
-            matches = re.finditer( r'\s*([A-Za-z0-9_]*)\s*=\s*([0-9xa-fA-F]*)\s*,?\n', contents)
-            for m in matches:
-                # Store this mapping.
-                macros[m.group(1)] = m.group(2)
+        # Also look for what could be enumeration assignments
+        matches = re.finditer( r'\s*([A-Za-z0-9_]*)\s*=\s*([0-9xa-fA-F]*)\s*,?\n', contents_to_check)
+        for m in matches:
+            # Store this mapping.
+            macros[m.group(1)] = m.group(2)
 
     return macros
 
 
 # Look for hf items (i.e. full item to be registered) in a dissector file.
-def find_items(filename, macros, value_strings, range_strings,
+def find_items(filename, contents, macros, value_strings, range_strings,
                check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
     is_generated = isGeneratedFile(filename)
     items = {}
-    with open(filename, 'r', encoding="utf8") as f:
-        contents = f.read()
-        # Remove comments so as not to trip up RE.
-        contents = removeComments(contents)
 
-        # N.B. re extends all the way to HFILL to avoid greedy matching
-        # TODO: fix a problem where re can't cope with mask that involve a macro with commas in it...
-        matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*([0-9A-Z_\|\s]*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*([a-zA-Z0-9\W\s_\u00f6\u00e4]*?)\s*,\s*HFILL', contents)
-        for m in matches:
-            # Store this item.
-            hf = m.group(1)
+    # N.B. re extends all the way to HFILL to avoid greedy matching
+    # TODO: fix a problem where re can't cope with mask that involve a macro with commas in it...
+    matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*([0-9A-Z_\|\s]*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*([a-zA-Z0-9\W\s_\u00f6\u00e4]*?)\s*,\s*HFILL', contents)
+    for m in matches:
+        # Store this item.
+        hf = m.group(1)
 
-            blurb = m.group(8)
-            if blurb.startswith('"'):
-                blurb = blurb[1:-1]
+        blurb = m.group(8)
+        if blurb.startswith('"'):
+            blurb = blurb[1:-1]
 
-            items[hf] = Item(filename, hf, filter=m.group(3), label=m.group(2), item_type=m.group(4),
-                             display=m.group(5),
-                             strings=m.group(6),
-                             macros=macros,
-                             value_strings=value_strings,
-                             range_strings=range_strings,
-                             mask=m.group(7),
-                             blurb=blurb,
-                             check_mask=check_mask,
-                             mask_exact_width=mask_exact_width,
-                             check_label=check_label,
-                             check_consecutive=(not is_generated and check_consecutive))
+        items[hf] = Item(filename, hf, filter=m.group(3), label=m.group(2), item_type=m.group(4),
+                         display=m.group(5),
+                         strings=m.group(6),
+                         macros=macros,
+                         value_strings=value_strings,
+                         range_strings=range_strings,
+                         mask=m.group(7),
+                         blurb=blurb,
+                         check_mask=check_mask,
+                         mask_exact_width=mask_exact_width,
+                         check_label=check_label,
+                         check_consecutive=(not is_generated and check_consecutive))
     return items
 
 
@@ -2200,91 +2157,83 @@ def find_items(filename, macros, value_strings, range_strings,
 # TODO: some dissectors have similar-looking hf arrays for other reasons, so need to cross-reference with
 # the 6th arg of ..add_bitmask_..() calls...
 # TODO: return items (rather than local checks) from here so can be checked against list of calls for given filename
-def find_field_arrays(filename, all_fields, all_hf):
+def find_field_arrays(filename, contents, all_fields, all_hf):
     field_entries = {}
     global warnings_found
-    with open(filename, 'r', encoding="utf8") as f:
-        contents = f.read()
-        # Remove comments so as not to trip up RE.
-        contents = removeComments(contents)
 
-        # Find definition of hf array
-        matches = re.finditer(r'static\s*g?int\s*\*\s*const\s+([a-zA-Z0-9_]*)\s*\[\]\s*\=\s*\{([a-zA-Z0-9,_\&\s]*)\}', contents)
-        for m in matches:
-            name = m.group(1)
-            # Ignore if not used in a call to an _add_bitmask_ API
-            if name not in all_fields:
-                continue
+    # Find definition of hf array
+    matches = re.finditer(r'static\s*g?int\s*\*\s*const\s+([a-zA-Z0-9_]*)\s*\[\]\s*\=\s*\{([a-zA-Z0-9,_\&\s]*)\}', contents)
+    for m in matches:
+        name = m.group(1)
+        # Ignore if not used in a call to an _add_bitmask_ API
+        if name not in all_fields:
+            continue
 
-            fields_text = m.group(2)
-            fields_text = fields_text.replace('&', '')
-            fields_text = fields_text.replace(',', '')
+        fields_text = m.group(2)
+        fields_text = fields_text.replace('&', '')
+        fields_text = fields_text.replace(',', '')
 
-            # Get list of each hf field in the array
-            fields = fields_text.split()
+        # Get list of each hf field in the array
+        fields = fields_text.split()
 
-            if fields[0].startswith('ett_'):
-                continue
-            if fields[-1].find('NULL') == -1 and fields[-1] != '0':
-                print('Warning:', filename, name, 'is not NULL-terminated - {', ', '.join(fields), '}')
+        if fields[0].startswith('ett_'):
+            continue
+        if 'NULL' not in fields[-1] and fields[-1] != '0':
+            print('Warning:', filename, name, 'is not NULL-terminated - {', ', '.join(fields), '}')
+            warnings_found += 1
+            continue
+
+        # Do any hf items reappear?
+        seen_fields = set()
+        for f in fields:
+            if f in seen_fields:
+                print(filename, name, f, 'already added!')
                 warnings_found += 1
-                continue
+            seen_fields.add(f)
 
-            # Do any hf items reappear?
-            seen_fields = set()
-            for f in fields:
-                if f in seen_fields:
-                    print(filename, name, f, 'already added!')
+        # Check for duplicated flags among entries..
+        combined_mask = 0x0
+        for f in fields[0:-1]:
+            if f in all_hf:
+                # Don't use invalid mask.
+                new_mask = all_hf[f].mask_value if not all_hf[f].mask_value_invalid else 0
+                if new_mask & combined_mask:
+                    print('Warning:', filename, name, 'has overlapping mask - {', ', '.join(fields), '} combined currently', hex(combined_mask), f, 'adds', hex(new_mask))
                     warnings_found += 1
-                seen_fields.add(f)
+                combined_mask |= new_mask
 
-            # Check for duplicated flags among entries..
-            combined_mask = 0x0
-            for f in fields[0:-1]:
-                if f in all_hf:
-                    # Don't use invalid mask.
-                    new_mask = all_hf[f].mask_value if not all_hf[f].mask_value_invalid else 0
-                    if new_mask & combined_mask:
-                        print('Warning:', filename, name, 'has overlapping mask - {', ', '.join(fields), '} combined currently', hex(combined_mask), f, 'adds', hex(new_mask))
-                        warnings_found += 1
-                    combined_mask |= new_mask
+        # Make sure all entries have the same width
+        set_field_width = None
+        for f in fields[0:-1]:
+            if f in all_hf:
+                new_field_width = all_hf[f].get_field_width_in_bits()
+                if set_field_width is not None and new_field_width != set_field_width:
+                    # Its not uncommon for fields to be used in multiple sets, some of which can be different widths..
+                    print('Note:', filename, name, 'set items not all same width - {', ', '.join(fields), '} seen', set_field_width, 'now', new_field_width)
+                set_field_width = new_field_width
 
-            # Make sure all entries have the same width
-            set_field_width = None
-            for f in fields[0:-1]:
-                if f in all_hf:
-                    new_field_width = all_hf[f].get_field_width_in_bits()
-                    if set_field_width is not None and new_field_width != set_field_width:
-                        # Its not uncommon for fields to be used in multiple sets, some of which can be different widths..
-                        print('Note:', filename, name, 'set items not all same width - {', ', '.join(fields), '} seen', set_field_width, 'now', new_field_width)
-                    set_field_width = new_field_width
-
-            # Add entry to table
-            field_entries[name] = (fields[0:-1], combined_mask)
+        # Add entry to table
+        field_entries[name] = (fields[0:-1], combined_mask)
 
     return field_entries
 
-def find_item_declarations(filename):
+def find_item_declarations(filename, lines):
     items = set()
 
-    with open(filename, 'r', encoding="utf8") as f:
-        lines = f.read().splitlines()
-        p = re.compile(r'^static int (hf_[a-zA-Z0-9_]*)\s*\=\s*-1;')
-        for line in lines:
-            m = p.search(line)
-            if m:
-                items.add(m.group(1))
+    p = re.compile(r'^static int (hf_[a-zA-Z0-9_]*)\s*\=\s*-1;')
+    for line in lines:
+        m = p.search(line)
+        if m:
+            items.add(m.group(1))
     return items
 
-def find_item_extern_declarations(filename):
+def find_item_extern_declarations(filename, lines):
     items = set()
-    with open(filename, 'r', encoding="utf8") as f:
-        lines = f.read().splitlines()
-        p = re.compile(r'^\s*(hf_[a-zA-Z0-9_]*)\s*\=\s*proto_registrar_get_id_byname\s*\(')
-        for line in lines:
-            m = p.search(line)
-            if m:
-                items.add(m.group(1))
+    p = re.compile(r'^\s*(hf_[a-zA-Z0-9_]*)\s*\=\s*proto_registrar_get_id_byname\s*\(')
+    for line in lines:
+        m = p.search(line)
+        if m:
+            items.add(m.group(1))
     return items
 
 
@@ -2323,42 +2272,49 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         print(filename, 'does not exist!')
         return
 
+    # Get file contents with and without comments, and pass into functions below
+    with open(filename, 'r', encoding="utf8") as f:
+        contents = f.read()
+        # Remove comments so as not to trip up RE.
+        contents_no_comments = removeComments(contents)
+        lines = contents.splitlines()
+
     # Find simple macros so can substitute into items and calls.
-    macros = find_macros(filename)
+    macros = find_macros(filename, contents_no_comments)
 
     # Find (and sanity-check) value_strings
-    value_strings = findValueStrings(filename, macros, do_extra_checks=extra_value_string_checks)
+    value_strings = findValueStrings(filename, contents_no_comments, macros, do_extra_checks=extra_value_string_checks)
     if extra_value_string_checks:
         for name in value_strings:
             value_strings[name].extraChecks()
 
     # Find (and sanity-check) range_strings
-    range_strings = findRangeStrings(filename, macros, do_extra_checks=extra_value_string_checks)
+    range_strings = findRangeStrings(filename, contents_no_comments, macros, do_extra_checks=extra_value_string_checks)
     if extra_value_string_checks:
         for name in range_strings:
             range_strings[name].extraChecks()
 
     # Find (and sanity-check) string_strings
-    string_strings = findStringStrings(filename, macros, do_extra_checks=extra_value_string_checks)
+    string_strings = findStringStrings(filename, contents_no_comments, macros, do_extra_checks=extra_value_string_checks)
     if extra_value_string_checks:
         for name in string_strings:
             string_strings[name].extraChecks()
 
     # Find expert items
     if check_expert_items:
-        expert_items = findExpertItems(filename, macros)
+        expert_items = findExpertItems(filename, contents_no_comments, macros)
         checkExpertCalls(filename, expert_items)
 
     # Find important parts of items.
-    items_defined = find_items(filename, macros, value_strings, range_strings,
+    items_defined = find_items(filename, contents_no_comments, macros, value_strings, range_strings,
                                check_mask, mask_exact_width, check_label, check_consecutive)
     items_extern_declared = {}
 
 
     # Check that ett_ variables are registered
     if check_subtrees:
-        ett_declared = findDeclaredTrees(filename)
-        ett_defined =  findDefinedTrees(filename, ett_declared)
+        ett_declared = findDeclaredTrees(filename, contents_no_comments)
+        ett_defined =  findDefinedTrees(filename, contents_no_comments, ett_declared)
         for d in ett_declared:
             if d not in ett_defined:
                 global warnings_found
@@ -2368,13 +2324,13 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     items_declared = {}
     if check_missing_items:
         items_declared = find_item_declarations(filename)
-        items_extern_declared = find_item_extern_declarations(filename)
+        items_extern_declared = find_item_extern_declarations(filename, lines)
 
     fields = set()
 
     # Get 'fields' out of calls
     for c in apiChecks:
-        c.find_calls(filename, macros)
+        c.find_calls(filename, contents, lines, macros)
         for call in c.calls:
             # From _add_bitmask() calls
             if call.fields:
@@ -2383,7 +2339,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     # Checking for lists of fields for add_bitmask calls
     field_arrays = {}
     if check_bitmask_fields:
-        field_arrays = find_field_arrays(filename, fields, items_defined)
+        field_arrays = find_field_arrays(filename, contents_no_comments, fields, items_defined)
 
     if check_mask and check_bitmask_fields:
         for i in items_defined:
