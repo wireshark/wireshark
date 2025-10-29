@@ -47,7 +47,7 @@
 static bool
 frame_delta_abs_time(const struct epan_session *epan, const frame_data *fdata, uint32_t prev_num, nstime_t *delta)
 {
-  const nstime_t *prev_abs_ts = (prev_num) ? epan_get_frame_ts(epan, prev_num) : NULL;
+  const nstime_t *prev_abs_ts;
 
   if (!fdata->has_ts) {
     /* We don't have a time stamp for this packet. Set the delta time
