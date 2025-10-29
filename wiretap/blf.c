@@ -5000,7 +5000,7 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
                 ws_warning("Only Meta Data can be broken into smaller chunks!");
             }
 
-            uint32_t chunk_size = payload_len;
+            uint32_t chunk_size;
             bool last_round = false;
             do {
                 if (payload_len > 2048 && apptext_header.source == BLF_APPTEXT_METADATA) {
