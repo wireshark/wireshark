@@ -308,19 +308,6 @@ static int hf_dnr_auth_domain_name_len;
 static int hf_dnr_auth_domain_name;
 static int hf_dnr_addrs_len;
 static int hf_dnr_addrs;
-static int hf_dnr_svcparams;
-static int hf_dnr_svcparams_key;
-static int hf_dnr_svcparams_length;
-static int hf_dnr_svcparams_value;
-static int hf_dnr_svcparams_mandatory_key;
-static int hf_dnr_svcparams_alpn_length;
-static int hf_dnr_svcparams_alpn;
-static int hf_dnr_svcparams_port;
-static int hf_dnr_svcparams_ipv4hint_ip;
-static int hf_dnr_svcparams_ipv6hint_ip;
-static int hf_dnr_svcparams_dohpath;
-static int hf_dnr_svcparams_odohconfig;
-
 
 static int hf_dhcpv6_non_dns_encoded_name;
 static int hf_dhcpv6_domain_field_len_exceeded;
@@ -347,7 +334,6 @@ static int ett_dhcpv6_s46_rule_flags;
 static int ett_dhcpv6_failover_connect_flags;
 static int ett_dhcpv6_failover_dns_flags;
 static int ett_dhcpv6_failover_server_flags;
-static int ett_dhcpv6_dnr_svcparams;
 static int ett_dhcpv6_homenet_transport_flags;
 static int ett_clientfqdn_flags;
 static int ett_clientfqdn_expert;
@@ -371,6 +357,7 @@ static expert_field ei_dhcpv6_invalid_type;
 static expert_field ei_dhcpv6_error_hopcount;
 static expert_field ei_dhcpv6_clientfqdn_bad_msgtype;
 static expert_field ei_dhcpv6_s_bit_should_be_zero;
+static expert_field ei_dhcpv6_dnr_adn_only_mode;
 
 
 static int hf_dhcpv6_bulk_leasequery_size;
@@ -387,6 +374,7 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type;
 static dissector_handle_t dhcpv6_handle;
 static dissector_handle_t dhcpv6_cablelabs_handle;
 static dissector_handle_t dhcpv4_handle;
+static dissector_handle_t svc_params_handle;
 
 static dissector_table_t dhcpv6_enterprise_opts_dissector_table;
 
@@ -1287,48 +1275,6 @@ static int * const dhcpv6_s46_rule_flags_fields[] = {
     &hf_option_s46_rule_reserved_flag,
     &hf_option_s46_rule_fmr_flag,
     NULL
-};
-
-
-/**
- * Service Parameters, defined in RFC9460. Now IANA maintains registry
- * for it, available at https://www.iana.org/assignments/dns-svcb/dns-svcb.xhtml.
- * The initial entries were defined in https://datatracker.ietf.org/doc/html/rfc9460#section-14.3.2,
- * but there are now more RFCs that added to that list. The IANA registry
- * is the ultimate, up to date source.
- *
- * These are used in DNS, but also in DHCPv4 and DHCPv6 DNR options.
- * NOTE: Not all values are permitted in DHCP. The RFC9463 only mentions
- * alpn, port, and dohpath. ipv4hint and ipv6hint are explicitly forbidden
- * (there's dedicated field in the DHCP options for them).
- */
-
-#define DNR_SVCPARAMS_KEY_MANDATORY        0 /* RFC 9460 */
-#define DNR_SVCPARAMS_KEY_ALPN             1 /* RFC 9460 */
-#define DNR_SVCPARAMS_KEY_NOALPN           2 /* RFC 9460 */
-#define DNR_SVCPARAMS_KEY_PORT             3 /* RFC 9460 */
-#define DNR_SVCPARAMS_KEY_IPV4HINT         4 /* RFC 9460 */
-#define DNR_SVCPARAMS_KEY_ECH              5 /* RFC 9460, but really waiting for draft-ietf-tls-svcb-ech */
-#define DNR_SVCPARAMS_KEY_IPV6HINT         6 /* RFC 9460 */
-#define DNR_SVCPARAMS_KEY_DOHPATH          7 /* RFC 9461 */
-#define DNR_SVCPARAMS_KEY_OHTTP            8 /* RFC 9540 */
-#define DNR_SVCPARAMS_KEY_RESERVED     65535
-
-/**
- * Service parameters Parameter Registry.
- */
-static const value_string dnr_svcparams_key_vals[] = {
-  { DNR_SVCPARAMS_KEY_MANDATORY,     "mandatory" },
-  { DNR_SVCPARAMS_KEY_ALPN,          "alpn" },
-  { DNR_SVCPARAMS_KEY_NOALPN,        "no-default-alpn" },
-  { DNR_SVCPARAMS_KEY_PORT,          "port" },
-  { DNR_SVCPARAMS_KEY_IPV4HINT,      "ipv4hint" },
-  { DNR_SVCPARAMS_KEY_ECH,           "ech" },
-  { DNR_SVCPARAMS_KEY_IPV6HINT,      "ipv6hint" },
-  { DNR_SVCPARAMS_KEY_DOHPATH,       "dohpath" },
-  { DNR_SVCPARAMS_KEY_OHTTP,         "ohttp" },
-  { DNR_SVCPARAMS_KEY_RESERVED,      "key65535" },
-  { 0,                          NULL }
 };
 
 
@@ -3398,13 +3344,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         int addrs_len = 0;
         // off is an offset from the beginning of a DHCPv6 packet. It is NOT zero when we start.
         int offset = 0; // offset within the DNR option. This starts at zero.
-        uint32_t svcparams_key = 0;
-        uint32_t svcparams_length = 0;
-        uint32_t svcparams_alpn_length = 0;
-        uint32_t svcparams_port = 0;
-
-        proto_item   *svcparams_ti = NULL;
-        proto_tree   *svcparams_tree = NULL;
+        tvbuff_t *next_tvb;
 
         if (optlen < 6) {
             // At the very least svcpriority, an empty auth-domain-name, and empty address list is
@@ -3429,6 +3369,13 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         dhcpv6_domain(subtree, ti, pinfo, hf_dnr_auth_domain_name, tvb, off+offset, adn_len);
         offset += adn_len;
+
+        if (optlen == offset) {
+          // A DNR option with only a service priority and authentication-domain-name (ADN) is in ADN-only mode,
+          // see RFC9463, Section 3.1.6.
+          proto_tree_add_expert(subtree, pinfo, &ei_dhcpv6_dnr_adn_only_mode, tvb, off, optlen);
+          break;
+        }
 
         // Parse Addresses list (length + actual list)
         if (optlen < offset + 2) {
@@ -3457,53 +3404,14 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         offset += addrs_len;
 
-        // Parse the service parameters
-        if (offset < optlen) {
-            while (offset < optlen) {
-            svcparams_ti = proto_tree_add_item(subtree, hf_dnr_svcparams, tvb, off + offset, -1, ENC_NA);
-            svcparams_tree = proto_item_add_subtree(svcparams_ti, ett_dhcpv6_dnr_svcparams);
-
-            proto_tree_add_item_ret_uint(svcparams_tree, hf_dnr_svcparams_key, tvb, off + offset, 2, ENC_BIG_ENDIAN, &svcparams_key);
-            offset += 2;
-
-            proto_tree_add_item_ret_uint(svcparams_tree, hf_dnr_svcparams_length, tvb, off + offset, 2, ENC_BIG_ENDIAN, &svcparams_length);
-            offset += 2;
-
-            proto_item_append_text(svcparams_ti, ": %s", val_to_str(pinfo->pool, svcparams_key, dnr_svcparams_key_vals, "key%u"));
-            proto_item_set_len(svcparams_ti, svcparams_length + 4);
-
-            switch(svcparams_key) {
-                // There are other service parameters, but only ALPN and PORT use special encoding. Everything else
-                // is a simple string encoding.
-                case DNR_SVCPARAMS_KEY_ALPN:
-                    for (uint32_t svcparams_offset = 0; svcparams_offset < svcparams_length; ) {
-                        const uint8_t *alpn = 0;
-                        proto_tree_add_item_ret_uint(svcparams_tree, hf_dnr_svcparams_alpn_length, tvb, off+offset+svcparams_offset, 1, ENC_BIG_ENDIAN, &svcparams_alpn_length);
-                        proto_tree_add_item_ret_string(svcparams_tree, hf_dnr_svcparams_alpn, tvb, off+offset + 1 +svcparams_offset, svcparams_alpn_length, ENC_ASCII|ENC_NA, pinfo->pool, &alpn);
-                        proto_item_append_text(svcparams_ti, "%c%s", (svcparams_offset == 0 ? '=' : ','), alpn);
-                        svcparams_offset += 1 + svcparams_alpn_length;
-                    }
-                    offset += svcparams_length;
-                    break;
-                case DNR_SVCPARAMS_KEY_PORT:
-                    proto_tree_add_item_ret_uint(svcparams_tree, hf_dnr_svcparams_port, tvb, off+offset, 2, ENC_BIG_ENDIAN, &svcparams_port);
-                    proto_item_append_text(svcparams_ti, "=%u", svcparams_port);
-                    offset += 2;
-                    break;
-                default:
-                    if (svcparams_length > 0) {
-                        proto_tree_add_item(svcparams_tree, hf_dnr_svcparams_value, tvb, off+offset, svcparams_length, ENC_NA);
-                        proto_item_append_text(svcparams_ti, "=%s", tvb_format_text(pinfo->pool, tvb, off+offset, svcparams_length));
-                        offset += svcparams_length;
-                    }
-                break;
-            }
-            }
-
-        } else {
-            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option,
+        if (optlen <= offset) {
+          expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option,
                 "DNR v6 error: truncated option (missing service parameters)");
         }
+
+        // Parse the service parameters
+        next_tvb = tvb_new_subset_length(tvb, off + offset, optlen - offset);
+        offset += call_dissector(svc_params_handle, next_tvb, pinfo, subtree);
 
         break;
     }
@@ -4169,26 +4077,6 @@ proto_register_dhcpv6(void)
           {"DNR addresses list length", "dhcpv6.dnr.addrs.len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}},
         { &hf_dnr_addrs,
           {"DNR address", "dhcpv6.dnr.addrs", FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL}},
-        { &hf_dnr_svcparams,
-          {"DNR service parameters", "dhcpv6.dnr.svcparams", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}},
-        { &hf_dnr_svcparams_key,
-          { "SvcParamKey", "dhcpv6.dnr.svcparams.key", FT_UINT16, BASE_DEC, VALS(dnr_svcparams_key_vals), 0x0, NULL, HFILL }},
-        { &hf_dnr_svcparams_length,
-          { "SvcParamValue length", "dhcpv6.dnr.svcparams.value.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_dnr_svcparams_value,
-          { "SvcParamValue", "dhcpv6.dnr.svcparams.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_dnr_svcparams_mandatory_key,
-          { "Mandatory key", "dhcpv6.dnr.svcparams.mandatory.key", FT_UINT16, BASE_DEC, VALS(dnr_svcparams_key_vals), 0x0, "Mandatory keys in this RR", HFILL }},
-        { &hf_dnr_svcparams_alpn_length,
-          { "ALPN length", "dhcpv6.dnr.svcparams.alpn.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_dnr_svcparams_alpn,
-          { "ALPN", "dhcpv6.dnr.svcparams.alpn", FT_STRING, BASE_NONE, NULL, 0x0, "Additional supported protocols", HFILL }},
-        { &hf_dnr_svcparams_port,
-          { "Port", "dhcpv6.dnr.svcparams.port", FT_UINT16, BASE_DEC, NULL, 0x0, "Port for alternative endpoint", HFILL }},
-        { &hf_dnr_svcparams_ipv4hint_ip, { "IP", "dhcpv6.dnr.svcparams.ipv4hint.ip", FT_IPv4, BASE_NONE, NULL, 0x0, "IPv4 address hints", HFILL }},
-        { &hf_dnr_svcparams_ipv6hint_ip, { "IP", "dhcpv6.dnr.svcparams.ipv6hint.ip", FT_IPv6, BASE_NONE, NULL, 0x0, "IPv6 address hints", HFILL }},
-        { &hf_dnr_svcparams_dohpath, { "DoH path", "dhcpv6.dnr.svcparams.dohpath", FT_STRING, BASE_NONE, NULL, 0x0, "DoH URI template", HFILL}},
-        { &hf_dnr_svcparams_odohconfig, { "ODoHConfig", "dhcpv6.dnr.svcparams.odohconfig", FT_BYTES, BASE_NONE, NULL, 0x0, "Oblivious DoH keys", HFILL }},
     };
 
     static int *ett[] = {
@@ -4211,7 +4099,6 @@ proto_register_dhcpv6(void)
         &ett_dhcpv6_failover_server_flags,
         &ett_clientfqdn_flags,
         &ett_clientfqdn_expert,
-        &ett_dhcpv6_dnr_svcparams,
         &ett_dhcpv6_homenet_transport_flags
     };
 
@@ -4229,6 +4116,8 @@ proto_register_dhcpv6(void)
                                     "This message type is not permitted to use OPTION_CLIENT_FQDN", EXPFILL }},
         { &ei_dhcpv6_s_bit_should_be_zero, { "dhcpv6.s_bit_should_be_zero", PI_PROTOCOL, PI_ERROR,
                                     "ERROR: When the N-bit is set, the S-bit must be reset", EXPFILL }},
+        { &ei_dhcpv6_dnr_adn_only_mode, { "dhcpv6.expert.dnr_adn_only_mode", PI_COMMENTS_GROUP, PI_CHAT,
+                                    "This DNR option is in ADN-only mode", EXPFILL }},
         /*
          * FQDN-related errors in dhcpv6_domain() */
         { &ei_dhcpv6_non_dns_encoded_name, { "dhcpv6.expert.name_not_dns_encoded", PI_PROTOCOL, PI_ERROR,
@@ -4315,6 +4204,7 @@ proto_reg_handoff_dhcpv6(void)
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_DHCPV6_UPSTREAM, find_dissector("dhcpv6.bulk_leasequery"));
 
     dhcpv4_handle = find_dissector_add_dependency("dhcp", proto_dhcpv6);
+    svc_params_handle = find_dissector("svc_params");
 }
 
 /*
