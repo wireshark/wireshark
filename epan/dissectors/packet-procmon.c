@@ -396,7 +396,7 @@ static bool dissect_procmon_process_event(tvbuff_t* tvb, packet_info* pinfo, pro
             proto_tree_add_item(process_tree, hf_procmon_process_kernel_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
             proto_tree_add_item(process_tree, hf_procmon_process_user_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            offset += 8;
+            /* offset += 8; */
             break;
         }
         case PROCMON_PROCESS_OPERATION_LOAD_IMAGE:
@@ -851,7 +851,7 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
                 hf_procmon_registry_key_size, hf_procmon_registry_key_is_ascii, hf_procmon_registry_key_char_count, ett_procmon_registry_key,
                 &is_value_ascii, &value_char_count);
             offset += 2;
-            offset = dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
+            /* offset = */ dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
             break;
 
         case PROCMON_REGISTRY_OPERATION_QUERY_KEY:
@@ -930,7 +930,7 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
             offset += 4;
             proto_tree_add_item_ret_uint(registry_tree, hf_procmon_registry_value_information_class, tvb, offset, 4, ENC_LITTLE_ENDIAN, &information_class);
             offset += 4;
-            offset = dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_value);
+            /* offset = */  dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_value);
             if (tvb_reported_length(extra_details_tvb) > 0)
                 extra_offset += procmon_registry_query_or_enum_value_extra_details(registry_tree, pinfo, extra_details_tvb, information_class);
             break;
