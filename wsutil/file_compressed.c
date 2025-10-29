@@ -775,14 +775,6 @@ lz4wfile_fdopen(int fd)
     state->fd = fd;
     state->size_out = 0;         /* no buffer allocated yet */
     state->want = LZ4BUFSIZE;    /* max input size (a block) */
-    state->want_out = LZ4F_compressBound(state->want, &state->lz4_prefs);
-    /*
-     * This size guarantees that we will always have enough room to
-     * write the result of LZ4F_compressUpdate (or Flush or End),
-     * so long as the output buffer is empty (i.e., we immediately
-     * write to the output file anything the compressor hands back
-     * instead of buffering.)
-     */
 
     memset(&state->lz4_prefs, 0, sizeof(LZ4F_preferences_t));
     /* Use the same prefs as the lz4 command line utility defaults. */
@@ -801,6 +793,15 @@ lz4wfile_fdopen(int fd)
      * We could provide an API call or perhaps two or three preset options.
      */
     state->lz4_prefs.compressionLevel = 1;
+
+    state->want_out = LZ4F_compressBound(state->want, &state->lz4_prefs);
+    /*
+     * This size guarantees that we will always have enough room to
+     * write the result of LZ4F_compressUpdate (or Flush or End),
+     * so long as the output buffer is empty (i.e., we immediately
+     * write to the output file anything the compressor hands back
+     * instead of buffering.)
+     */
 
     /* initialize stream */
     state->err = 0;              /* clear error */
