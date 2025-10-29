@@ -426,7 +426,7 @@ static const value_string E164_International_Networks_882_vals[] = {
 	{ 34,	"BebbiCell AG"},
 	{ 35,	"Jasper System"},
 	{ 36,	"Jersey Telecom"},
-	{ 37,	"Cingular Wireless netwok"},
+	{ 37,	"Cingular Wireless network"},
 	{ 39,	"Vodafone Malta"},
 	{ 40,	"Oy Communications"},
 	{ 41,	"Intermatica"},

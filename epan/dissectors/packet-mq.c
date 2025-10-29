@@ -4258,7 +4258,7 @@ void proto_register_mq(void)
         {&hf_mq_fapmqcno_retconntag, {"retcontag", "mq.fapmqcno.retcontag", FT_BYTES, BASE_NONE, NULL, 0x0, "FAPMQCNO restry connection tag", HFILL} },
         {&hf_mq_fapmqcno_type, {"type.....", "mq.fapmqcno.type", FT_UINT32, BASE_DEC, NULL, 0x0, "FAPMQCNO Type", HFILL} },
         {&hf_mq_fapmqcno_timeout, {"timeout..", "mq.fapmqcno.timeout", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FAPMQCNO Timeout", HFILL} },
-        {&hf_mq_fapmqcno_balopts, {"balopt...", "mq.fapmqcno.balopts", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FAPMQCNO balance oprtions", HFILL} },
+        {&hf_mq_fapmqcno_balopts, {"balopt...", "mq.fapmqcno.balopts", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FAPMQCNO balance options", HFILL} },
 
         {&hf_mq_fcno_StructID, {"structid..", "mq.fcno.structid", FT_STRING, BASE_NONE, NULL, 0x0, "FCNO structure id", HFILL}},
         {&hf_mq_fcno_version, {"version...", "mq.fcno.version", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FCNO version", HFILL}},

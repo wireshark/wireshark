@@ -658,7 +658,7 @@ size_t nstime_to_iso8601(char *buf, size_t buf_size, const nstime_t *nstime)
     }
 
     /* Some platforms (MinGW-w64) do not support %F or %T. */
-    /* Returns number of bytes, excluding terminaning null, placed in
+    /* Returns number of bytes, excluding terminating null, placed in
      * buf, or zero if there is not enough space for the whole string. */
     len = strftime(buf, buf_size, "%Y-%m-%dT%H:%M:%S", tm);
     if (len == 0) {

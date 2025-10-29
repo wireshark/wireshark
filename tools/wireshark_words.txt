@@ -160,6 +160,7 @@ ascolab
 ashrae
 asn1
 asn1cnf
+asn2c
 asn2deb
 asn2wrs
 assembler
@@ -237,6 +238,7 @@ bblog
 bcast
 bcmcs
 bcntime
+bcolors
 beamformed
 beamformee
 beamformer
@@ -439,6 +441,7 @@ cipso
 circularly
 citic
 citrix
+cjt1sp
 cksum
 clasportinfo
 classifiers
@@ -549,6 +552,7 @@ copycss
 copyfile
 corba
 corbin
+coreset
 corosync
 correl
 correlator
@@ -591,6 +595,7 @@ ctxinst
 ctype
 cumulated
 cumulatively
+currfile
 curvezmq
 customizable
 customization
@@ -708,6 +713,7 @@ dependencies
 deprecate
 deprecated
 deprecates
+deprioritisation
 deprotection
 dequeue
 dequeued
@@ -826,6 +832,7 @@ dot12in
 dot1q
 dot3stats
 dot5stats
+dotall
 dotnet
 double
 downlink
@@ -858,6 +865,7 @@ dzgre
 düsseldorf
 e2node
 eadata
+eapache
 eapol
 earcfn
 earfcn
@@ -890,6 +898,7 @@ ellipsoid
 elsif
 emlmr
 emlsr
+emption
 emulates
 emule
 enablement
@@ -1069,6 +1078,7 @@ fortigate
 fortinet
 foshan
 fournier
+fpath
 fpiur
 fprintf
 fraghdr
@@ -1485,7 +1495,9 @@ krb5kdc
 krb5krb
 ksumtype
 kubernetes
+kukosa
 l1sync
+l2attr
 l2cap
 l2vpn
 l3vpn
@@ -1710,6 +1722,7 @@ mmpdu
 modality
 modbus
 mode01
+mode3a
 mode7
 modepage
 modespecificinfo
@@ -1785,6 +1798,7 @@ multiframes
 multihop
 multilateration
 multileg
+multimap
 multipacket
 multipart
 multipath
@@ -1800,6 +1814,7 @@ multirate
 multislot
 multistate
 mumbai
+musim
 mutex
 muting
 muxed
@@ -1889,6 +1904,7 @@ noalign
 noascii
 noauth
 nodeid
+nodeset
 nodiscriminant
 noemit
 noexpandtab
@@ -2204,6 +2220,7 @@ preambles
 preauth
 preauthentication
 precisions
+precoder
 precoding
 precompilation
 precompiled
@@ -2264,11 +2281,14 @@ protos
 proxied
 proxying
 proxykey
+pscch
 pscell
 psecs
 pseudowire
+psfch
 psname
 psnip
+pssch
 pssiae
 ptime
 ptlrpc
@@ -2309,6 +2329,7 @@ quadruplets
 qualcomm
 quals
 quantifiers
+quantin
 quantization
 quantized
 queryhit
@@ -2361,6 +2382,7 @@ realise
 realloc
 realtek
 realtime
+reass
 reassembles
 reassemblies
 reassembly
@@ -2428,6 +2450,7 @@ refactored
 refactoring
 referer
 referrer
+refref
 regex
 regexp
 regid
@@ -2562,6 +2585,7 @@ rpcap
 rpcsec
 rpmbuild
 rrggbb
+rsharpe
 rsocket
 rsrvd
 rsrvn
@@ -2622,6 +2646,10 @@ schweiz
 scoped
 scpsflags
 scrollbar
+scs15kh
+scs30kh
+scs60kh
+sctpprim
 sczdx
 sdcch
 sdjournal
@@ -2782,11 +2810,13 @@ spoofing
 spooled
 spooler
 spoolss
+sprintf
 sqdlighting
 sqlite
 sqlwarn
 srbid
 srcaddr
+srcdir
 srcdst
 srcip
 srcport
@@ -2942,7 +2972,9 @@ tabular
 taiwan
 tallinn
 tanzania
+tarray
 tbilisi
+tblcfg
 tclas
 tclass
 tcpcc
@@ -3089,8 +3121,13 @@ txpwr
 txsta
 txtmod
 type1
+type1mp
+type1sp
 type2
+type2cjt
 type2mimo
+type2ps
+type2r
 type3
 typedef
 typeof
@@ -3489,9 +3526,11 @@ zbncp
 zboss
 ze3dd
 zeroes
+zhalf
 zigbee
 zlibng
 zoneset
+zquarter
 zsssr
 zugtyp
 zürich

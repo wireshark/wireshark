@@ -745,7 +745,7 @@ static bool find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offset,
 
 /* Dissect a UMTS RLC frame by:
    - parsing the primitive header
-   - passing those values + outhdeader to dissector
+   - passing those values + outheader to dissector
    - calling the UMTS RLC dissector */
 static void dissect_rlc_umts(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
@@ -3287,7 +3287,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     }
 
 
-                    /* Set source and dest columns now (will be overwriiten if
+                    /* Set source and dest columns now (will be overwritten if
                        src and dst IP addresses set) */
                     if (source_addr_offset) {
                         col_append_fstr(pinfo->cinfo, COL_DEF_SRC,

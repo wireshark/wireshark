@@ -5243,7 +5243,7 @@ decode_gtp_pkt_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
 
 /* GPRS:        not present
  * UMTS:        29.060 v4.0, chapter 7.7.23, page 53
- * TODO: Differenciate these uints?
+ * TODO: Differentiate these uints?
  */
 static int
 decode_gtp_chrg_char(tvbuff_t* tvb, int offset, packet_info* pinfo _U_, proto_tree* tree, session_args_t* args _U_)

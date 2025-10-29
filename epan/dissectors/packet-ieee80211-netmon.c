@@ -169,7 +169,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
      * with the Protect bit set (because they were encrypted on the air)
      * but that aren't encrypted (because they've been decrypted before
      * being written to the file).  This wasn't done in monitor mode, as
-     * the "monitor mode" flag wasn't set, so supporess treating the
+     * the "monitor mode" flag wasn't set, so suppress treating the
      * Protect flag as an indication that the frame was encrypted.
      */
     phdr.decrypted = true;

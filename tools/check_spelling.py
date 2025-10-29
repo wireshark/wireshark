@@ -68,6 +68,41 @@ def camelCaseSplit(identifier):
     return [m.group(0) for m in matches]
 
 
+# Build this translation table only once.
+replacements = str.maketrans({'.' : ' ',
+                                ',' : ' ',
+                                '`' : ' ',
+                                ':' : ' ',
+                                ';' : ' ',
+                                '"' : ' ',
+                                '\\' : ' ',
+                                '+' : ' ',
+                                '|' : ' ',
+                                '(' : ' ',
+                                ')' : ' ',
+                                '[' : ' ',
+                                ']' : ' ',
+                                '{' : ' ',
+                                '}' : ' ',
+                                '<' : ' ',
+                                '>' : ' ',
+                                '_' : ' ',
+                                '-' : ' ',
+                                '/' : ' ',
+                                '!' : ' ',
+                                '?' : ' ',
+                                '=' : ' ',
+                                '*' : ' ',
+                                '%' : ' ',
+                                '#' : ' ',
+                                '&' : ' ',
+                                '@' : ' ',
+                                '$' : ' ',
+                                '^' : ' ',
+                                "'" : ' ',
+                                '~' : ' '})
+
+
 # A File object contains all of the strings to be checked for a given file.
 class File:
     def __init__(self, file):
@@ -79,29 +114,13 @@ class File:
         self.code_file = extension in {'.c', '.cpp', '.h', '.cnf' }
 
 
-        with open(file, 'r', encoding="utf8") as f:
-            contents = f.read()
-
-            if self.code_file:
-                # Remove comments so as not to trip up RE.
-                contents = removeComments(contents)
-
-            # Find protocol name and add to dict.
-            # N.B. doesn't work when a variable is used instead of a literal for the protocol name...
-            matches = re.finditer(r'proto_register_protocol\s*\([\n\r\s]*\"(.*)\",[\n\r\s]*\"(.*)\",[\n\r\s]*\"(.*)\"', contents)
-            for m in matches:
-                protocol = m.group(3)
-                # Add to dict.
-                spell.word_frequency.load_words([protocol])
-                spell.known([protocol])
-                print('Protocol is: ' + bcolors.BOLD +  protocol + bcolors.ENDC)
-
     # Add a string found in this file.
     def add(self, value):
         self.values.append(value.encode('utf-8') if sys.platform.startswith('win') else value)
 
     # Whole word is not recognised, but is it 2 words concatenated (without camelcase) ?
     def checkMultiWords(self, word):
+        length = len(word)
         if len(word) < 6:
             return False
 
@@ -113,7 +132,6 @@ class File:
 
         # Try splitting into 2 words recognised at various points.
         # Allow 3-letter words.
-        length = len(word)
         for idx in range(3, length-3):
             word1 = word[0:idx]
             word2 = word[idx:]
@@ -139,7 +157,7 @@ class File:
         for idx in range(4, length+1):
             w = word[0:idx]
             if not spell.unknown([w]):
-                if idx == len(word):
+                if idx == length:
                     return True
                 else:
                     if self.checkMultiWordsRecursive(word[idx:]):
@@ -155,7 +173,6 @@ class File:
                                        "khz", "km", "ms", "usec", "sec", "gbe", "ns", "ksps", "qam", "mm" }:
                 return True
         return False
-
 
     # Check the spelling of all the words we have found
     def spellCheck(self):
@@ -181,43 +198,14 @@ class File:
             original = str(v)
 
             # Replace most punctuation with spaces, and eliminate common format specifiers.
-            v = v.replace('.', ' ')
-            v = v.replace(',', ' ')
-            v = v.replace('`', ' ')
-            v = v.replace(':', ' ')
-            v = v.replace(';', ' ')
-            v = v.replace('"', ' ')
-            v = v.replace('\\', ' ')
-            v = v.replace('+', ' ')
-            v = v.replace('|', ' ')
-            v = v.replace('(', ' ')
-            v = v.replace(')', ' ')
-            v = v.replace('[', ' ')
-            v = v.replace(']', ' ')
-            v = v.replace('{', ' ')
-            v = v.replace('}', ' ')
-            v = v.replace('<', ' ')
-            v = v.replace('>', ' ')
-            v = v.replace('_', ' ')
-            v = v.replace('-', ' ')
-            v = v.replace('/', ' ')
-            v = v.replace('!', ' ')
-            v = v.replace('?', ' ')
-            v = v.replace('=', ' ')
-            v = v.replace('*', ' ')
             v = v.replace('%u', '')
             v = v.replace('%d', '')
             v = v.replace('%s', '')
-            v = v.replace('%', ' ')
-            v = v.replace('#', ' ')
-            v = v.replace('&', ' ')
-            v = v.replace('@', ' ')
-            v = v.replace('$', ' ')
-            v = v.replace('^', ' ')
-            v = v.replace('®', '')
-            v = v.replace("'", ' ')
-            v = v.replace('"', ' ')
-            v = v.replace('~', ' ')
+            v = v.translate(replacements)
+            v = v.replace('®' , '')
+            # Quote marks found in some of the docs...
+            v = v.replace('“', '')
+            v = v.replace('”', '')
 
             # Split into words.
             value_words = v.split()
@@ -231,9 +219,6 @@ class File:
                 # Strip trailing digits from word.
                 word = word.rstrip('1234567890')
 
-                # Quote marks found in some of the docs...
-                word = word.replace('“', '')
-                word = word.replace('”', '')
 
                 # Single and collective possession
                 if word.endswith("’s"):
@@ -364,6 +349,17 @@ def findStrings(filename, check_comments=False):
             contents = removeComments(contents)
             contents = removeWhitespaceControl(contents)
 
+            # Find protocol name and add to dict.
+            # N.B. doesn't work when a variable is used instead of a literal for the protocol name...
+            matches = re.finditer(r'proto_register_protocol\s*\([\n\r\s]*\"(.*)\",[\n\r\s]*\"(.*)\",[\n\r\s]*\"(.*)\"', contents)
+            for m in matches:
+                protocol = m.group(3)
+                # Add to dict.
+                spell.word_frequency.load_words([protocol])
+                spell.known([protocol])
+                print('Protocol is: ' + bcolors.BOLD +  protocol + bcolors.ENDC)
+
+
             # Code so only checking strings.
             matches = re.finditer(r'\"([^\"]*)\"', contents)
             for m in matches:
@@ -389,7 +385,7 @@ def isGeneratedFile(filename):
     if filename.endswith('pci-ids.c') or filename.endswith('services-data.c') or filename.endswith('manuf-data.c'):
         return True
 
-    if filename.endswith('packet-woww.c'):
+    if filename.endswith('packet-woww.c') or filename.endswith('packet-ncsi-data.c'):
         return True
 
     # Open file
@@ -615,7 +611,7 @@ if not args.file and not args.open and not args.commits and not args.glob and no
 print('Examining:')
 if args.file or args.folder or args.commits or args.open or args.glob:
     if files:
-        print(' '.join(files), '\n')
+        print(' '.join(files), '(', len(files), 'files )\n')
     else:
         print('No files to check.\n')
 else:

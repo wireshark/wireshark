@@ -7653,7 +7653,7 @@ dissect_gtpv2_node_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         6.4.12 MME-Realm
         The MME-Realm AVP is of type DiameterIdentity...see IETF RFC 6733
 
-    If the Node Identifer contains a 3GPP AAA Server Identifier then:
+    If the Node Identifier contains a 3GPP AAA Server Identifier then:
     - the Node Name shall be coded as the 3GPP-AAA-Server-Name as defined in subclause 8.2.3.24 of 3GPP TS 29.273 [68] and;
         8.2.3.24    3GPP-AAA-Server-Name
         The 3GPP-AAA-Server-Name AVP is of type DiameterIdentity

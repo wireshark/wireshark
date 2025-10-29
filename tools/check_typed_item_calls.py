@@ -2466,7 +2466,7 @@ if args.all_checks:
     args.label_vs_filter = True
     #args.extra_value_string_checks = True
     args.check_expert_items = True
-    #args.check_subtrees = Truue
+    #args.check_subtrees = True
 
 if args.check_bitmask_fields:
     args.mask = True

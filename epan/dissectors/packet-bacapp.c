@@ -91,7 +91,7 @@ fConfirmedRequestPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
  * @param pinfo the packet info of the current data
  * @param tree the tree to append this item to
  * @param offset the offset in the tvb
- * @param ack - indocates whether working on request or ack
+ * @param ack - indicates whether working on request or ack
  * @param svc - output variable to return service choice
  * @param tt  - output varable to return service choice item
  * @return modified offset
@@ -1003,7 +1003,7 @@ fVtDataAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 /**
  * Authenticate-Request ::= SEQUENCE {
  *  pseudoRandomNumber     [0] Unsigned32,
- *  excpectedInvokeID      [1] Unsigned8 OPTIONAL,
+ *  expectedInvokeID       [1] Unsigned8 OPTIONAL,
  *  operatorName           [2] CharacterString OPTIONAL,
  *  operatorPassword       [3] CharacterString (SIZE(1..20)) OPTIONAL,
  *  startEncypheredSession [4] BOOLEAN OPTIONAL
@@ -1457,7 +1457,7 @@ fDailySchedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned off
  * BACnetHealth ::= SEQUENCE {
  *  timestamp                   [0] BACnetDateTime,
  *  result                      [1] Error,
- *  property                    [2] BACnetPropertiyIdentifier OPTIONAL,
+ *  property                    [2] BACnetPropertyIdentifier OPTIONAL,
  *  details                     [3] CharacterString OPTIONAL
  * }
  * @param tvb the tv buffer of the current data
@@ -1610,7 +1610,7 @@ fDestination(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offse
  * BACnetDeviceObjectPropertyReference ::= SEQUENCE {
  *  objectIdentifier    [0] BACnetObjectIdentifier,
  *  propertyIdentifier  [1] BACnetPropertyIdentifier,
- *  propertyArrayIndex  [2] Unsigend OPTIONAL,
+ *  propertyArrayIndex  [2] Unsigned OPTIONAL,
  *  deviceIdentifier    [3] BACnetObjectIdentifier OPTIONAL
  * }
  * @param tvb the tv buffer of the current data
@@ -1626,7 +1626,7 @@ fDeviceObjectPropertyReference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  * BACnetObjectPropertyReference ::= SEQUENCE {
  *  objectIdentifier    [0] BACnetObjectIdentifier,
  *  propertyIdentifier  [1] BACnetPropertyIdentifier,
- *  propertyArrayIndex  [2] Unsigend OPTIONAL,
+ *  propertyArrayIndex  [2] Unsigned OPTIONAL,
  * }
  * @param tvb the tv buffer of the current data
  * @param pinfo the packet info of the current data
@@ -2209,7 +2209,7 @@ static unsigned
 fTagNo(tvbuff_t *tvb, unsigned offset);
 
 /**
- * splits Tag Header coresponding to 20.2.1 General Rules For BACnet Tags
+ * splits Tag Header corresponding to 20.2.1 General Rules For BACnet Tags
  * @param tvb the tv buffer of the current data = "TestyVirtualBuffer"
  * @param pinfo the packet info of the current data = packet info
  * @param offset the offset in the tvb = offset in actual tvb
@@ -2372,7 +2372,7 @@ fPropertyArrayIndex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
  *  objectIdentifier        [0] BACnetObjectIdentifier,
  *  eventState              [1] BACnetEventState,
  *  acknowledgedTransitions [2] BACnetEventTransitionBits,
- *  eventTimeStamps         [3] SEQURNCE SIZE (3) OF BACnetTimeStamps,
+ *  eventTimeStamps         [3] SEQUENCE SIZE (3) OF BACnetTimeStamps,
  *  notifyType              [4] BACnetNotifyType,
  *  eventEnable             [5] BACnetEventTransitionBits,
  *  eventPriorities         [6] SEQUENCE SIZE (3) OF Unsigned
@@ -9744,7 +9744,7 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
         case 23: /* date-list */
             offset = fCalendarEntry(tvb, pinfo, tree, offset);
             break;
-        case 116: /* time-sychronization-recipients */
+        case 116: /* time-synchronization-recipients */
         case 206: /* utc-time-synchronization-recipients */
         case 202: /* restart-notification-recipients */
             offset = fRecipient(tvb, pinfo, tree, offset);
@@ -10644,7 +10644,7 @@ fDailySchedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, unsigned 
  * BACnetHealth ::= SEQUENCE {
  *  timestamp                   [0] BACnetDateTime,
  *  result                      [1] Error,
- *  property                    [2] BACnetPropertiyIdentifier OPTIONAL,
+ *  property                    [2] BACnetPropertyIdentifier OPTIONAL,
  *  details                     [3] CharacterString OPTIONAL
  * }
  * @param tvb the tv buffer of the current data
