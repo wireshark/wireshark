@@ -871,7 +871,7 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
             if (try_val_to_str(information_class, registry_key_information_class_vals) == NULL)
                 expert_add_info_format(pinfo, info_item, &ei_procmon_unknown_operation, "Unknown Registry Key Information Class: %u", information_class);
             offset += 4;
-            offset = dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
+            /* offset = */ dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
             if (tvb_reported_length(extra_details_tvb) > 0)
                 extra_offset += procmon_registry_query_or_enum_key_extra_details(registry_tree, extra_details_tvb, information_class);
             break;
@@ -910,7 +910,7 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
             offset += 4;
             proto_tree_add_item_ret_uint(registry_tree, hf_procmon_registry_key_information_class, tvb, offset, 4, ENC_LITTLE_ENDIAN, &information_class);
             offset += 4;
-            offset = dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
+            /* offset = */ dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
             if (tvb_reported_length(extra_details_tvb) > 0)
                 extra_offset += procmon_registry_query_or_enum_key_extra_details(registry_tree, extra_details_tvb, information_class);
             break;
@@ -950,7 +950,7 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
             offset += 4;
             proto_tree_add_item(registry_tree, hf_procmon_registry_data_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            offset = dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_value);
+            /* offset = */ dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_value);
             if (tvb_reported_length(extra_details_tvb) > 0)
                 extra_offset += procmon_read_registry_data(registry_tree, pinfo, extra_details_tvb, extra_offset, type, tvb_reported_length(extra_details_tvb));
             break;
@@ -1006,7 +1006,7 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
                 hf_procmon_registry_key_size, hf_procmon_registry_key_is_ascii, hf_procmon_registry_key_char_count, ett_procmon_registry_key,
                 &is_value_ascii, &value_char_count);
             offset += 2;
-            offset = dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
+            /* offset = */ dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
             break;
 
         case PROCMON_REGISTRY_OPERATION_DELETE_VALUE:
@@ -1015,7 +1015,7 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
                 &is_value_ascii, &value_char_count);
             offset += 2;
 
-            offset = dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_value);
+            /* offset = */ dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_value);
             break;
 
         case PROCMON_REGISTRY_OPERATION_LOAD_KEY:
@@ -1028,7 +1028,7 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
                 hf_procmon_registry_new_key_size, hf_procmon_registry_new_key_is_ascii, hf_procmon_registry_new_key_char_count, ett_procmon_registry_new_key,
                 &is_new_value_ascii, &new_value_char_count);
             offset += 2;
-            offset = dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
+            /* offset = */ dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
             extra_offset += dissect_procmon_detail_string(extra_details_tvb, registry_tree, extra_offset, is_new_value_ascii, new_value_char_count, hf_procmon_registry_new_key);
             break;
 
@@ -1038,7 +1038,7 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
                 &is_value_ascii, &value_char_count);
             offset += 2;
 
-            offset = dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_value);
+            /* offset = */ dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_value);
             break;
 
         case PROCMON_REGISTRY_OPERATION_SET_KEY_SECURITY:
@@ -1046,7 +1046,7 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
                 hf_procmon_registry_key_size, hf_procmon_registry_key_is_ascii, hf_procmon_registry_key_char_count, ett_procmon_registry_key,
                 &is_value_ascii, &value_char_count);
             offset += 2;
-            offset = dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
+            /* offset = */ dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
             break;
 
         case PROCMON_REGISTRY_OPERATION_QUERY_KEY_SECURITY:
@@ -1054,7 +1054,7 @@ static bool dissect_procmon_registry_event(tvbuff_t* tvb, packet_info* pinfo, pr
                 hf_procmon_registry_key_size, hf_procmon_registry_key_is_ascii, hf_procmon_registry_key_char_count, ett_procmon_registry_key,
                 &is_value_ascii, &value_char_count);
             offset += 2;
-            offset = dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
+            /* offset = */ dissect_procmon_detail_string(tvb, registry_tree, offset, is_value_ascii, value_char_count, hf_procmon_registry_key);
             break;
     }
 
