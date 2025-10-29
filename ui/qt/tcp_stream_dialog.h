@@ -15,6 +15,7 @@
 #include <file.h>
 
 #include <epan/dissectors/packet-tcp.h>
+#include <epan/follow.h>
 #include <wsutil/str_util.h>
 
 #include "ui/tap-tcp-stream.h"
@@ -90,6 +91,7 @@ private:
     bool si_units_;
     bool legend_visible_;
     struct tcp_graph graph_;
+    follow_stream_count_func get_stream_count_;
     QCPTextElement *title_;
     QString stream_desc_;
     QCPGraph *base_graph_; // Clickable packets
@@ -122,7 +124,7 @@ private:
             reset_axes_(false) {}
         void triggerUpdate(int timeout, bool reset_axes = false);
         void clearPendingUpdate();
-        void doUpdate();
+        void doUpdate(follow_stream_count_func get_count);
         bool hasPendingUpdate() { return graph_update_timer_ != NULL; }
     private:
         TCPStreamDialog *dialog_;

@@ -259,6 +259,9 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     // Watch for captureEvents before the first time we tap
     connect(&cap_file_, &CaptureFile::captureEvent, this, &TCPStreamDialog::captureEvent);
 
+    register_follow_t* tcp_follow = get_follow_by_name("TCP");
+    get_stream_count_ = get_follow_stream_count_func(tcp_follow);
+
     graph_.type = graph_type;
     graph_.stream = th_stream;
     findStream();
@@ -266,7 +269,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     showWidgetsForGraphType();
 
     ui->streamNumberSpinBox->blockSignals(true);
-    ui->streamNumberSpinBox->setMaximum(get_tcp_stream_count() - 1);
+    ui->streamNumberSpinBox->setMaximum(get_stream_count_() - 1);
     ui->streamNumberSpinBox->setValue(graph_.stream);
     ui->streamNumberSpinBox->blockSignals(false);
 
@@ -2277,12 +2280,12 @@ void TCPStreamDialog::on_resetButton_clicked()
 
 void TCPStreamDialog::updateGraph()
 {
-    graph_updater_.doUpdate();
+    graph_updater_.doUpdate(get_stream_count_);
 }
 
 void TCPStreamDialog::on_streamNumberSpinBox_valueChanged(int new_stream)
 {
-    if (new_stream >= 0 && new_stream < int(get_tcp_stream_count())) {
+    if (new_stream >= 0 && new_stream < int(get_stream_count_())) {
         graph_updater_.triggerUpdate(1000, /*reset_axes =*/true);
     }
 }
@@ -2501,7 +2504,7 @@ void TCPStreamDialog::on_actionMoveDown1_triggered()
 
 void TCPStreamDialog::on_actionNextStream_triggered()
 {
-    if (int(graph_.stream) < int(get_tcp_stream_count()) - 1) {
+    if (int(graph_.stream) < int(get_stream_count_()) - 1) {
         ui->streamNumberSpinBox->setValue(graph_.stream + 1);
         updateGraph();
     }
@@ -2614,7 +2617,7 @@ void TCPStreamDialog::GraphUpdater::clearPendingUpdate()
     }
 }
 
-void TCPStreamDialog::GraphUpdater::doUpdate()
+void TCPStreamDialog::GraphUpdater::doUpdate(follow_stream_count_func get_count)
 {
     if (hasPendingUpdate()) {
         bool reset_axes = reset_axes_;
@@ -2624,7 +2627,7 @@ void TCPStreamDialog::GraphUpdater::doUpdate()
         // is correct even if the stream has not changed.
         int new_stream = dialog_->ui->streamNumberSpinBox->value();
         if ((int(dialog_->graph_.stream) != new_stream) &&
-            (new_stream >= 0 && new_stream < int(get_tcp_stream_count()))) {
+            (new_stream >= 0 && new_stream < int(get_count()))) {
             dialog_->graph_.stream = new_stream;
             dialog_->findStream();
             // findStream() will retap and fill the graph when it finishes.
