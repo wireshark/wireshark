@@ -4230,7 +4230,6 @@ prefs_set_global_defaults(void)
             "No.",              "%m",
             "Time",             "%t",
             "Event name",       "%Cus:sysdig.event_name:0:R",
-            "Dir",              "%Cus:evt.dir:0:R",
             "Proc Name",        "%Cus:proc.name:0:R",
             "PID",              "%Cus:proc.pid:0:R",
             "TID",              "%Cus:thread.tid:0:R",
@@ -4241,7 +4240,7 @@ prefs_set_global_defaults(void)
             "Info",             "%i"
             };
         col_fmt = col_fmt_logs;
-        num_cols = 12;
+        num_cols = 11;
     }
 
     prefs.restore_filter_after_following_stream = false;

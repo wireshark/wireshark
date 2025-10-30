@@ -6,7 +6,7 @@
 "TRUE","File // Reads/Writes","evt.category==\x22file\x22 && evt.is_io == True",""
 "TRUE","File // Writes","evt.category==\x22file\x22 && evt.is_io == True  && evt.is_io_write == True",""
 "FALSE","File // Opens W","(evt.type == \x22open\x22 || evt.type == \x22openat\x22 || evt.type == \x22openat2\x22) && (evt.is_open_write == True)","Display file open events (open, openat...) where the file has been open with \x22write\x22 flags"
-"TRUE","File // File Deletions","(evt.type == \x22unlink\x22 || evt.type == \x22unlinkat\x22 || evt.type == \x22rmdir\x22) && evt.dir == \x22<\x22",""
+"TRUE","File // File Deletions","evt.type == \x22unlink\x22 || evt.type == \x22unlinkat\x22 || evt.type == \x22rmdir\x22",""
 "TRUE","File // Symlink Creation","(evt.type == \x22symlink\x22 || evt.type == \x22symlinkat\x22) && evt.dir == \x22<\x22",""
 "TRUE","Network // All Network Activity","evt.category==\x22net\x22","Display activity on the network"
 "TRUE","Network // Reads/Writes","evt.category==\x22net\x22 && evt.is_io == True",""
