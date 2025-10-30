@@ -1672,8 +1672,8 @@ typedef struct wtap_wslua_file_info {
     void* wslua_data;                           /* holds the wslua data */
 } wtap_wslua_file_info_t;
 
-/*
- * For registering extensions used for file formats.
+/**
+ * @brief For registering extensions used for file formats.
  *
  * These items are used in dialogs for opening files, so that
  * the user can ask to see all capture files (as identified
@@ -1711,18 +1711,13 @@ typedef struct wtap_wslua_file_info {
  * extensions for those entries.
  */
 struct file_extension_info {
-    /* the file type description */
-    const char *name;
-
-    /* true if this is a capture file type */
-    bool is_capture_file;
-
-    /* a semicolon-separated list of file extensions used for this type */
-    const char *extensions;
+    const char *name;       /**< Human-readable description of the file type. */
+    bool is_capture_file;   /**< True if this is a capture file format. */
+    const char *extensions; /**< Semicolon-separated list of file extensions. */
 };
 
-/*
- * For registering file types that we can open.
+/**
+ * @brief For registering file types that we can open.
  *
  * Each file type has an open routine.
  *
@@ -1748,15 +1743,17 @@ struct file_extension_info {
  * and will likely just overwrite the pointer.
  */
 typedef enum {
-    WTAP_OPEN_NOT_MINE = 0,
-    WTAP_OPEN_MINE = 1,
-    WTAP_OPEN_ERROR = -1
+    WTAP_OPEN_NOT_MINE = 0, /**< File isn't handled by this module. */
+    WTAP_OPEN_MINE = 1,     /**< File is handled by this module. */
+    WTAP_OPEN_ERROR = -1    /**< I/O error occurred while opening the file. */
 } wtap_open_return_val;
 
 typedef wtap_open_return_val (*wtap_open_routine_t)(struct wtap*, int *,
     char **);
 
-/*
+/**
+ * @brief Strategy used to identify a file format.
+ *
  * Some file formats have defined magic numbers at fixed offsets from
  * the beginning of the file; those routines should return 1 if and
  * only if the file has the magic number at that offset.  (pcapng
@@ -1775,16 +1772,22 @@ typedef wtap_open_return_val (*wtap_open_routine_t)(struct wtap*, int *,
  * might be recognized by the heuristics for a different file type.
  */
 typedef enum {
-    OPEN_INFO_MAGIC = 0,
-    OPEN_INFO_HEURISTIC = 1
+    OPEN_INFO_MAGIC = 0,    /**< Format identified by a fixed magic number at a known offset. */
+    OPEN_INFO_HEURISTIC = 1 /**< Format identified by heuristic inspection of file contents. */
 } wtap_open_type;
 
 WS_DLL_PUBLIC void init_open_routines(void);
 
+/**
+ * @brief Clean up registered file open routines.
+ *
+ * Frees any resources or state associated with wiretap module open handlers.
+ * Typically called during shutdown or module unloading.
+ */
 void cleanup_open_routines(void);
 
-/*
- * Information about a given file type that applies to all subtypes of
+/**
+ * @brief Information about a given file type that applies to all subtypes of
  * the file type.
  *
  * Each file type has:
@@ -1810,44 +1813,86 @@ void cleanup_open_routines(void);
  * as it will not be used for any purpose (no such hinting is done).
  */
 struct open_info {
-    const char *name;                 /* Description */
-    wtap_open_type type;              /* Open routine type */
-    wtap_open_routine_t open_routine; /* Open routine */
-    const char *extensions;           /* List of extensions used for this file type */
-    char **extensions_set;           /* Array of those extensions; populated using extensions member during initialization */
-    void* wslua_data;                 /* Data for Lua file readers */
+    const char *name;                 /**< Description */
+    wtap_open_type type;              /**< Open routine type */
+    wtap_open_routine_t open_routine; /**< Open routine */
+    const char *extensions;           /**< List of extensions used for this file type */
+    char **extensions_set;            /**< Array of those extensions; populated using extensions member during initialization */
+    void* wslua_data;                 /**< Data for Lua file readers */
 };
+
+/**
+ * @brief Table of registered wiretap file open handlers.
+ *
+ * Each entry describes how to recognize and open a supported file format.
+ * Populated during wiretap module initialization.
+ */
 WS_DLL_PUBLIC struct open_info *open_routines;
 
 /*
  * Types of comments.
  */
+ /**
+ * @brief Comment applies to the entire file or file section.
+ *
+ * Used for global annotations such as capture metadata or session notes.
+ */
 #define WTAP_COMMENT_PER_SECTION        0x00000001      /* per-file/per-file-section */
+
+/**
+ * @brief Comment applies to a specific interface.
+ *
+ * Useful for describing interface-specific settings or observations.
+ */
 #define WTAP_COMMENT_PER_INTERFACE      0x00000002      /* per-interface */
+
+/**
+ * @brief Comment applies to an individual packet.
+ *
+ * Enables fine-grained annotations such as decoding notes or anomalies.
+ */
 #define WTAP_COMMENT_PER_PACKET         0x00000004      /* per-packet */
 
-/*
+/**
+ * @brief Indicates how a file format supports a given option type.
+ *
+ * Used to describe whether a block type can include zero, one, or multiple instances
+ * of a specific option type.
+ *
  * For a given option type in a certain block type, does a file format
  * not support it, support only one such option, or support multiple
  * such options?
  */
 typedef enum {
-    OPTION_NOT_SUPPORTED,
-    ONE_OPTION_SUPPORTED,
-    MULTIPLE_OPTIONS_SUPPORTED
+    OPTION_NOT_SUPPORTED,      /**< The option type is not supported in this block. */
+    ONE_OPTION_SUPPORTED,      /**< Only one instance of the option type is supported. */
+    MULTIPLE_OPTIONS_SUPPORTED /**< Multiple instances of the option type are supported. */
 } option_support_t;
 
-/*
- * Entry in a table of supported option types.
+/**
+ * @brief Entry describing support level for a specific option type.
+ *
+ * Indicates whether a block type supports zero, one, or multiple instances
+ * of a given option. Used in format capability tables.
  */
 struct supported_option_type {
-    unsigned opt;
-    option_support_t support; /* OPTION_NOT_SUPPORTED allowed, equivalent to absence */
+    unsigned opt;                  /**< Option type identifier. */
+    option_support_t support;     /**< Support level for this option type. */
 };
 
+/**
+ * @brief Declare supported option types for a block.
+ *
+ * Expands to the length of the option type array and the array itself.
+ */
 #define OPTION_TYPES_SUPPORTED(option_type_array) \
     array_length(option_type_array), option_type_array
 
+/**
+ * @brief Declare that no option types are supported for a block.
+ *
+ * Expands to zero and NULL, indicating absence of supported options.
+ */
 #define NO_OPTIONS_SUPPORTED \
     0, NULL
 
@@ -1948,8 +1993,12 @@ struct file_type_subtype_info {
 WS_DLL_PUBLIC
 void wtap_init(bool load_wiretap_plugins);
 
-/** On failure, "wtap_open_offline()" returns NULL, and puts into the
- * "int" pointed to by its second argument:
+/**
+ * @brief Open a capture file for offline analysis.
+ *
+ * Attempts to open the specified file using either automatic format detection
+ * or an explicitly chosen format. On failure, returns NULL and stores error details
+ * into the "int" pointed to by its second argument:
  *
  * @param filename Name of the file to open
  * @param type WTAP_TYPE_AUTO for automatic recognize file format or explicit choose format type
@@ -1965,37 +2014,93 @@ struct wtap* wtap_open_offline(const char *filename, unsigned int type, int *err
     char **err_info, bool do_random);
 
 /**
- * If we were compiled with zlib and we're at EOF, unset EOF so that
- * wtap_read/gzread has a chance to succeed. This is necessary if
- * we're tailing a file.
+ * @brief Clear EOF status for a wiretap file.
+ *
+ * If compiled with zlib and the file is at EOF, this resets the EOF flag
+ * to allow continued reading. Useful when tailing a file that may grow.
+ *
+ * @param wth Wiretap file handle.
  */
 WS_DLL_PUBLIC
 void wtap_cleareof(wtap *wth);
 
 /**
- * Set callback functions to add new hostnames. Currently pcapng-only.
- * MUST match add_ipv4_name and add_ipv6_name in addr_resolv.c.
+ * @brief Callback type for registering new IPv4 hostnames.
+ *
+ * Used to associate an IPv4 address with a hostname during file parsing.
+ * Must match the signature of add_ipv4_name in addr_resolv.c.
+ *
+ * @param addr IPv4 address in host byte order.
+ * @param name Hostname to associate.
+ * @param static_entry True if the entry is static; false if dynamic.
  */
 typedef void (*wtap_new_ipv4_callback_t) (const unsigned addr, const char *name, const bool static_entry);
+
+/**
+ * @brief Set the callback for adding new IPv4 hostnames.
+ *
+ * Registers a function to be called when new IPv4 addresses are discovered.
+ * Currently used only for pcapng files.
+ *
+ * @param wth Wiretap file handle.
+ * @param add_new_ipv4 Callback function to register.
+ */
 WS_DLL_PUBLIC
 void wtap_set_cb_new_ipv4(wtap *wth, wtap_new_ipv4_callback_t add_new_ipv4);
 
+/**
+ * @brief Callback type for registering new IPv6 hostnames.
+ *
+ * Used to associate an IPv6 address with a hostname during file parsing.
+ * Must match the signature of add_ipv6_name in addr_resolv.c.
+ *
+ * @param addrp Pointer to IPv6 address.
+ * @param name Hostname to associate.
+ * @param static_entry True if the entry is static; false if dynamic.
+ */
 typedef void (*wtap_new_ipv6_callback_t) (const ws_in6_addr *addrp, const char *name, const bool static_entry);
+
+/**
+ * @brief Set the callback for adding new IPv6 hostnames.
+ *
+ * Registers a function to be called when new IPv6 addresses are discovered.
+ * Currently used only for pcapng files.
+ *
+ * @param wth Wiretap file handle.
+ * @param add_new_ipv6 Callback function to register.
+ */
 WS_DLL_PUBLIC
 void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6);
 
 /**
- * Set callback function to receive new decryption secrets for a particular
- * secrets type (as defined in secrets-types.h). Currently pcapng-only.
+ * @brief Callback type for receiving new decryption secrets.
+ *
+ * Used to register secrets (e.g., TLS keys) discovered during file parsing.
+ * The secrets type is defined in secrets-types.h. Currently used only for pcapng.
+ *
+ * @param secrets_type Type identifier for the secrets.
+ * @param secrets Pointer to the secrets data.
+ * @param size Size of the secrets data in bytes.
  */
 typedef void (*wtap_new_secrets_callback_t)(uint32_t secrets_type, const void *secrets, unsigned size);
+
+/**
+ * @brief Set the callback for receiving new decryption secrets.
+ *
+ * Registers a function to be called when decryption secrets are discovered.
+ * Currently used only for pcapng files.
+ *
+ * @param wth Wiretap file handle.
+ * @param add_new_secrets Callback function to register.
+ */
 WS_DLL_PUBLIC
 void wtap_set_cb_new_secrets(wtap *wth, wtap_new_secrets_callback_t add_new_secrets);
 
-/** Read the next record in the file, filling in *phdr and *buf.
+/**
+ * @brief Read the next record in the file, filling in *phdr and *buf.
  *
- * @wth a wtap * returned by a call that opened a file for reading.
- * @rec a pointer to a wtap_rec, filled in with information about the
+ * @param wth a wtap * returned by a call that opened a file for reading.
+ * @param rec a pointer to a wtap_rec, filled in with information about the
  * record and the data from the record.
  * @param err a positive "errno" value, or a negative number indicating
  * the type of error, if the read failed.
@@ -2010,14 +2115,15 @@ WS_DLL_PUBLIC
 bool wtap_read(wtap *wth, wtap_rec *rec, int *err, char **err_info,
     int64_t *offset);
 
-/** Read the record at a specified offset in a capture file, filling in
+/**
+ * @brief Read the record at a specified offset in a capture file, filling in
  * *phdr and *buf.
  *
- * @wth a wtap * returned by a call that opened a file for random-access
+ * @param wth a wtap * returned by a call that opened a file for random-access
  * reading.
- * @seek_off a int64_t giving an offset value returned by a previous
+ * @param seek_off a int64_t giving an offset value returned by a previous
  * wtap_read() call.
- * @rec a pointer to a struct wtap_rec, filled in with information
+ * @param rec a pointer to a struct wtap_rec, filled in with information
  * about the record and the data from the record.
  * @param err a positive "errno" value, or a negative number indicating
  * the type of error, if the read failed.
@@ -2029,91 +2135,232 @@ WS_DLL_PUBLIC
 bool wtap_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     int *err, char **err_info);
 
-/*** initialize a wtap_rec structure ***/
+/**
+ * @brief Initialize a wtap_rec structure.
+ *
+ * Allocates internal space and prepares the record for use.
+ *
+ * @param rec Pointer to the wtap_rec structure.
+ * @param space Size of internal allocation.
+ */
 WS_DLL_PUBLIC
 void wtap_rec_init(wtap_rec *rec, gsize space);
 
-/*** Apply a snapshot value ***/
+/**
+ * @brief Apply a snapshot length to a wtap_rec.
+ *
+ * Sets the maximum captured packet length for the record.
+ *
+ * @param rec Pointer to the wtap_rec structure.
+ * @param snaplen Snapshot length in bytes.
+ */
 WS_DLL_PUBLIC
 void wtap_rec_apply_snapshot(wtap_rec *rec, uint32_t snaplen);
 
-/*** Re-initialize a wtap_rec structure ***/
+/**
+ * @brief Re-initialize a wtap_rec structure.
+ *
+ * Clears existing content and resets the record for reuse.
+ *
+ * @param rec Pointer to the wtap_rec structure.
+ */
 WS_DLL_PUBLIC
 void wtap_rec_reset(wtap_rec *rec);
 
-/*** clean up a wtap_rec structure, freeing what wtap_rec_init() allocated */
+/**
+ * @brief Clean up a wtap_rec structure.
+ *
+ * Frees any memory allocated by wtap_rec_init().
+ *
+ * @param rec Pointer to the wtap_rec structure.
+ */
 WS_DLL_PUBLIC
 void wtap_rec_cleanup(wtap_rec *rec);
 
 /**
- * Return an error string for WTAP_ERR_UNWRITABLE_REC_TYPE.
+ * @brief Return an error string for WTAP_ERR_UNWRITABLE_REC_TYPE.
+ *
+ * Provides a human-readable explanation for why a given record type
+ * cannot be written to a file.
+ *
+ * @param rec Pointer to the wtap_rec structure.
+ * @return Error string describing the issue.
  */
 WS_DLL_PUBLIC
 char *wtap_unwritable_rec_type_err_string(const wtap_rec *rec);
 
 /**
- * Set up a wtap_rec for a packet (REC_TYPE_PACKET).
+ * @brief Set up a wtap_rec for a packet (REC_TYPE_PACKET).
+ *
+ * Initializes the record type and encapsulation for a packet record.
+ *
+ * @param rec Pointer to the wtap_rec structure.
+ * @param encap Encapsulation type (WTAP_ENCAP_...).
  */
 WS_DLL_PUBLIC
 void wtap_setup_packet_rec(wtap_rec *rec, int encap);
 
 /**
- * Set up a wtap_rec for a file-type specific event
- * (REC_TYPE_FT_SPECIFIC_EVENT);
+ * @brief Set up a wtap_rec for a file-type specific event.
+ *
+ * Initializes the record as REC_TYPE_FT_SPECIFIC_EVENT with the given subtype and record type.
+ *
+ * @param rec Pointer to the wtap_rec structure.
+ * @param file_type_subtype Format-specific subtype identifier.
+ * @param record_type Format-specific record type identifier.
  */
 WS_DLL_PUBLIC
 void wtap_setup_ft_specific_event_rec(wtap_rec *rec, int file_type_subtype,
                                       unsigned record_type);
 
 /**
- * Set up a wtap_rec for a file-type specific report
- * (REC_TYPE_FT_SPECIFIC_REPORT);
+ * @brief Set up a wtap_rec for a file-type specific report.
+ *
+ * Initializes the record as REC_TYPE_FT_SPECIFIC_REPORT with the given subtype and record type.
+ *
+ * @param rec Pointer to the wtap_rec structure.
+ * @param file_type_subtype Format-specific subtype identifier.
+ * @param record_type Format-specific record type identifier.
  */
 WS_DLL_PUBLIC
 void wtap_setup_ft_specific_report_rec(wtap_rec *rec, int file_type_subtype,
                                        unsigned record_type);
 
 /**
- * Set up a wtap_rec for a system call (REC_TYPE_SYSCALL).
+ * @brief Set up a wtap_rec for a system call.
+ *
+ * Initializes the record as REC_TYPE_SYSCALL for syscall trace data.
+ *
+ * @param rec Pointer to the wtap_rec structure.
  */
 WS_DLL_PUBLIC
 void wtap_setup_syscall_rec(wtap_rec *rec);
 
 /**
- * Set up a wtap_rec for a systemd journal export entry
- * (REC_TYPE_SYSTEMD_JOURNAL_EXPORT).
+ * @brief Set up a wtap_rec for a systemd journal export entry.
+ *
+ * Initializes the record as REC_TYPE_SYSTEMD_JOURNAL_EXPORT for journal export data.
+ *
+ * @param rec Pointer to the wtap_rec structure.
  */
 WS_DLL_PUBLIC
 void wtap_setup_systemd_journal_export_rec(wtap_rec *rec);
 
 /**
- * Set up a wtap_rec for a custom block (REC_TYPE_CUSTOM_BLOCK).
+ * @brief Set up a wtap_rec for a custom block.
+ *
+ * Initializes the record as REC_TYPE_CUSTOM_BLOCK with the given Private Enterprise Number (PEN),
+ * payload length, and copy permission flag.
+ *
+ * @param rec Pointer to the wtap_rec structure.
+ * @param pen Private Enterprise Number identifying the block owner.
+ * @param payload_length Length of the custom block payload in bytes.
+ * @param copy_allowed True if copying the block is permitted; false otherwise.
  */
 WS_DLL_PUBLIC
 void wtap_setup_custom_block_rec(wtap_rec *rec, uint32_t pen,
                                  uint32_t payload_length, bool copy_allowed);
 
+/**
+ * @brief Get the compression type used for the capture file.
+ *
+ * Returns the compression method applied to the file, if any.
+ *
+ * @param wth Wiretap file handle.
+ * @return Compression type (e.g., none, gzip).
+ */
 WS_DLL_PUBLIC
 ws_compression_type wtap_get_compression_type(wtap *wth);
 
 /*** get various information snippets about the current file ***/
 
-/** Return an approximation of the amount of data we've read sequentially
- * from the file so far. */
+/**
+ * @brief Return an approximation of the amount of data read sequentially.
+ *
+ * Provides a rough estimate of how many bytes have been read from the file so far,
+ * useful for progress tracking or tailing scenarios.
+ *
+ * @param wth Wiretap file handle.
+ * @return Number of bytes read sequentially.
+ */
 WS_DLL_PUBLIC
 int64_t wtap_read_so_far(wtap *wth);
+
+/**
+ * @brief Get the size of the capture file.
+ *
+ * Returns the total file size in bytes. On failure, sets an error code.
+ *
+ * @param wth Wiretap file handle.
+ * @param err Pointer to an error code variable.
+ * @return File size in bytes, or -1 on error.
+ */
 WS_DLL_PUBLIC
 int64_t wtap_file_size(wtap *wth, int *err);
+
+/**
+ * @brief Get the snapshot length for the capture file.
+ *
+ * Returns the maximum number of bytes captured per packet.
+ *
+ * @param wth Wiretap file handle.
+ * @return Snapshot length in bytes.
+ */
 WS_DLL_PUBLIC
-unsigned wtap_snapshot_length(wtap *wth); /* per file */
+unsigned wtap_snapshot_length(wtap *wth);
+
+/**
+ * @brief Get the file type subtype.
+ *
+ * Returns the format-specific subtype identifier for the capture file.
+ *
+ * @param wth Wiretap file handle.
+ * @return File type subtype.
+ */
 WS_DLL_PUBLIC
 int wtap_file_type_subtype(wtap *wth);
+
+/**
+ * @brief Get the encapsulation type for the capture file.
+ *
+ * Returns the WTAP_ENCAP_... value used for packet encapsulation.
+ *
+ * @param wth Wiretap file handle.
+ * @return Encapsulation type.
+ */
 WS_DLL_PUBLIC
 int wtap_file_encap(wtap *wth);
+
+/**
+ * @brief Get the timestamp precision for the capture file.
+ *
+ * Returns the WTAP_TSPREC_... value indicating timestamp resolution.
+ *
+ * @param wth Wiretap file handle.
+ * @return Timestamp precision.
+ */
 WS_DLL_PUBLIC
 int wtap_file_tsprec(wtap *wth);
+
+/**
+ * @brief Get the start timestamp of the capture file.
+ *
+ * Returns a pointer to the first packet's timestamp, if available.
+ *
+ * @param wth Wiretap file handle.
+ * @return Pointer to start timestamp, or NULL if unavailable.
+ */
 WS_DLL_PUBLIC
 const nstime_t* wtap_file_start_ts(wtap *wth);
+
+/**
+ * @brief Get the end timestamp of the capture file.
+ *
+ * Returns a pointer to the last packet's timestamp, if available.
+ *
+ * @param wth Wiretap file handle.
+ * @return Pointer to end timestamp, or NULL if unavailable.
+ */
 WS_DLL_PUBLIC
 const nstime_t* wtap_file_end_ts(wtap *wth);
 
@@ -2279,8 +2526,8 @@ WS_DLL_PUBLIC
 void wtap_file_add_decryption_secrets(wtap *wth, const wtap_block_t dsb);
 
 /**
- * Remove any decryption secret information from the per-file information;
- * used if we're stripping decryption secrets while the file is open
+ * @brief Remove any decryption secret information from the per-file information;
+ * used if we're stripping decryption secrets while the file is open.
  *
  * @param wth The wiretap session from which to remove the
  * decryption secrets.
@@ -2289,50 +2536,101 @@ void wtap_file_add_decryption_secrets(wtap *wth, const wtap_block_t dsb);
 WS_DLL_PUBLIC
 bool wtap_file_discard_decryption_secrets(wtap *wth);
 
-/*** close the file descriptors for the current file ***/
+/**
+ * @brief Close all file descriptors for the current wiretap file.
+ *
+ * Releases both sequential and random-access file handles.
+ *
+ * @param wth Wiretap file handle.
+ */
 WS_DLL_PUBLIC
 void wtap_fdclose(wtap *wth);
 
-/*** reopen the random file descriptor for the current file ***/
+/**
+ * @brief Reopen the random-access file descriptor for the current file.
+ *
+ * Useful when switching access modes or recovering from descriptor loss.
+ *
+ * @param wth Wiretap file handle.
+ * @param filename Path to the file to reopen.
+ * @param err Pointer to an error code variable.
+ * @return True on success; false on failure.
+ */
 WS_DLL_PUBLIC
 bool wtap_fdreopen(wtap *wth, const char *filename, int *err);
 
-/** Close only the sequential side, freeing up memory it uses. */
+/**
+ * @brief Close the sequential-access side of the file.
+ *
+ * Frees memory associated with buffered reads while retaining random-access capability.
+ *
+ * @param wth Wiretap file handle.
+ */
 WS_DLL_PUBLIC
 void wtap_sequential_close(wtap *wth);
 
-/** Closes any open file handles and frees the memory associated with wth. */
+/**
+ * @brief Fully close the wiretap file and release all resources.
+ *
+ * Closes any open file handles and frees memory associated with the wiretap handle.
+ *
+ * @param wth Wiretap file handle.
+ */
 WS_DLL_PUBLIC
 void wtap_close(wtap *wth);
 
-/*** dump packets into a capture file ***/
+/**
+ * @brief Check if a file type can be opened for dumping.
+ *
+ * Determines whether the specified file type supports writing packet data.
+ *
+ * @param filetype File type identifier.
+ * @return True if dumping is supported; false otherwise.
+ */
 WS_DLL_PUBLIC
 bool wtap_dump_can_open(int filetype);
 
 /**
- * Given a GArray of WTAP_ENCAP_ types, return the per-file encapsulation
- * type that would be needed to write out a file with those types.
+ * @brief Determine the required per-file encapsulation type.
+ *
+ * Given an array of WTAP_ENCAP_ types, returns the appropriate per-file encapsulation
+ * type needed to write a file containing all of them. May return WTAP_ENCAP_PER_PACKET
+ * if multiple types are present and the format supports it.
+ *
+ * @param file_encaps GArray of WTAP_ENCAP_ values.
+ * @return Required per-file encapsulation type.
  */
 WS_DLL_PUBLIC
 int wtap_dump_required_file_encap_type(const GArray *file_encaps);
 
 /**
- * Return true if we can write this encapsulation type in this
- * capture file type/subtype, false if not.
+ * @brief Check if a file type/subtype supports writing a given encapsulation.
+ *
+ * Returns true if the specified encapsulation type can be written in the given
+ * file format; false otherwise.
+ *
+ * @param file_type_subtype File type/subtype identifier.
+ * @param encap Encapsulation type (WTAP_ENCAP_...).
+ * @return True if supported; false if not.
  */
 WS_DLL_PUBLIC
 bool wtap_dump_can_write_encap(int file_type_subtype, int encap);
 
 /**
- * Return true if we can write this capture file type/subtype out in
- * compressed form, false if not.
+ * @brief Check if a file type/subtype supports compression.
+ *
+ * Returns true if the specified file format can be written in compressed form.
+ *
+ * @param file_type_subtype File type/subtype identifier.
+ * @return True if compression is supported; false otherwise.
  */
 WS_DLL_PUBLIC
 bool wtap_dump_can_compress(int file_type_subtype);
 
 /**
- * Initialize the per-file information based on an existing file. Its
- * contents must be freed according to the requirements of wtap_dump_params.
+ * @brief Initialize the per-file information based on an existing file.
+ *
+ * Its contents must be freed according to the requirements of wtap_dump_params.
  * If wth does not remain valid for the duration of the session, dsbs_growing
  * MUST be cleared after this function.
  *
@@ -2343,8 +2641,10 @@ WS_DLL_PUBLIC
 void wtap_dump_params_init(wtap_dump_params *params, wtap *wth);
 
 /**
- * Initialize the per-file information based on an existing file, but
- * don't copy over the interface information. Its contents must be freed
+ * @brief Initialize the per-file information based on an existing file, but
+ * don't copy over the interface information.
+ *
+ * Its contents must be freed
  * according to the requirements of wtap_dump_params.
  * If wth does not remain valid for the duration of the session, dsbs_growing
  * MUST be cleared after this function.
@@ -2360,7 +2660,7 @@ WS_DLL_PUBLIC
 void wtap_dump_params_init_no_idbs(wtap_dump_params *params, wtap *wth);
 
 /**
- * Remove any name resolution information from the per-file information;
+ * @brief Remove any name resolution information from the per-file information;
  * used if we're stripping name resolution as we write the file.
  *
  * @param params The parameters for wtap_dump_* from which to remove the
@@ -2370,7 +2670,7 @@ WS_DLL_PUBLIC
 void wtap_dump_params_discard_name_resolution(wtap_dump_params *params);
 
 /**
- * Remove any decryption secret information from the per-file information;
+ * @brief Remove any decryption secret information from the per-file information;
  * used if we're stripping decryption secrets as we write the file.
  *
  * @param params The parameters for wtap_dump_* from which to remove the
@@ -2380,7 +2680,7 @@ WS_DLL_PUBLIC
 void wtap_dump_params_discard_decryption_secrets(wtap_dump_params *params);
 
 /**
- * Free memory associated with the wtap_dump_params when it is no longer in
+ * @brief Free memory associated with the wtap_dump_params when it is no longer in
  * use by wtap_dumper.
  *
  * @param params The parameters as initialized by wtap_dump_params_init.
@@ -2459,8 +2759,8 @@ wtap_dumper* wtap_dump_open_stdout(int file_type_subtype,
     ws_compression_type compression_type, const wtap_dump_params *params,
     int *err, char **err_info);
 
-/*
- * Add an IDB to the list of IDBs for a file we're writing.
+/**
+ * @brief Add an IDB to the list of IDBs for a file we're writing.
  * Makes a copy of the IDB, so it can be freed after this call is made.
  *
  * @param wdh handle for the file we're writing.
@@ -2514,15 +2814,28 @@ bool wtap_dump_close(wtap_dumper *wdh, bool *needs_reload,
     int *err, char **err_info);
 
 /**
- * Return true if we can write a file out with the given GArray of file
- * encapsulations and the given bitmask of comment types.
+ * @brief Determine whether a capture file can be written with the specified options.
+ *
+ * Returns true if a capture file can be created that supports all encapsulation
+ * types listed in @p file_encaps and supports all comment types indicated by
+ * the @p required_comment_types bitmask.
+ *
+ * The encapsulation list is a GArray of WTAP_ENCAP_ values. The comment types
+ * bitmask uses WTAP_COMMENT_TYPE_ flags that indicate which comment features
+ * (per-packet, per-file, per-block, etc.) must be supported by the output format.
+ *
+ * @param file_encaps GArray of WTAP_ENCAP_ values representing packet encapsulations required.
+ * @param required_comment_types Bitmask of required comment type flags.
+ * @return True if at least one file format/subtype can be written that satisfies
+ *         both the encapsulation requirements and the comment type requirements; false otherwise.
  */
 WS_DLL_PUBLIC
 bool wtap_dump_can_write(const GArray *file_encaps, uint32_t required_comment_types);
 
 /**
- * Generates arbitrary packet data in "exported PDU" format
+ * @brief Generates arbitrary packet data in "exported PDU" format
  * and appends it to buf.
+ *
  * For filetype readers to transform non-packetized data.
  * Calls ws_buffer_asssure_space() for you and handles padding
  * to 4-byte boundary.
@@ -2536,7 +2849,7 @@ WS_DLL_PUBLIC
 void wtap_buffer_append_epdu_tag(Buffer *buf, uint16_t epdu_tag, const uint8_t *data, uint16_t data_len);
 
 /**
- * Generates packet data for an unsigned integer in "exported PDU" format.
+ * @brief Generates packet data for an unsigned integer in "exported PDU" format.
  * For filetype readers to transform non-packetized data.
  *
  * @param[in,out] buf   Buffer into which to write field
@@ -2547,7 +2860,7 @@ WS_DLL_PUBLIC
 void wtap_buffer_append_epdu_uint(Buffer *buf, uint16_t epdu_tag, uint32_t val);
 
 /**
- * Generates packet data for a string in "exported PDU" format.
+ * @brief Generates packet data for a string in "exported PDU" format.
  * For filetype readers to transform non-packetized data.
  *
  * @param[in,out] buf   Buffer into which to write field
@@ -2558,7 +2871,7 @@ WS_DLL_PUBLIC
 void wtap_buffer_append_epdu_string(Buffer *buf, uint16_t epdu_tag, const char *val);
 
 /**
- * Close off a set of "exported PDUs" added to the buffer.
+ * @brief Close off a set of "exported PDUs" added to the buffer.
  * For filetype readers to transform non-packetized data.
  *
  * @param[in,out] buf   Buffer into which to write field
@@ -2577,9 +2890,20 @@ typedef enum {
 } ft_sort_order;
 
 /**
+ * @brief Get savable file type/subtype candidates for saving a capture file.
+ *
  * Get a GArray of file type/subtype values for file types/subtypes
  * that can be used to save a file of a given type with a given GArray of
  * WTAP_ENCAP_ types and the given bitmask of comment types.
+ *
+ * The returned GArray contains int values (file type/subtype identifiers)
+ * and must be freed with g_array_unref() by the caller.
+ *
+ * @param file_type_subtype File type/subtype identifier of the source file.
+ * @param file_encaps GArray of WTAP_ENCAP_ values representing required encapsulations.
+ * @param required_comment_types Bitmask of required comment type flags.
+ * @param sort_order Ordering to apply to the returned list (ft_sort_order).
+ * @return GArray* of int file type/subtype values, or NULL if none are available.
  */
 WS_DLL_PUBLIC
 GArray *wtap_get_savable_file_types_subtypes_for_file(int file_type_subtype,
@@ -2587,42 +2911,113 @@ GArray *wtap_get_savable_file_types_subtypes_for_file(int file_type_subtype,
     ft_sort_order sort_order);
 
 /**
- * Get a GArray of all writable file type/subtype values.
+ * @brief Get a list of all writable file type/subtype values.
+ *
+ * Returns a GArray containing all registered file type/subtype identifiers
+ * that support writing (dumping) capture files. The array elements are
+ * int values representing file type/subtype identifiers and must be freed
+ * with g_array_unref() by the caller.
+ *
+ * @param sort_order Ordering to apply to the returned list (ft_sort_order).
+ * @return GArray* of int file type/subtype values, or NULL if none are available.
  */
 WS_DLL_PUBLIC
 GArray *wtap_get_writable_file_types_subtypes(ft_sort_order sort_order);
 
 /*** various file type/subtype functions ***/
+/**
+ * @brief Get a human-readable description for a file type/subtype.
+ *
+ * Returns a descriptive string suitable for UI display or logs that describes
+ * the given file type/subtype.
+ *
+ * @param file_type_subtype File type/subtype identifier.
+ * @return Pointer to a static string describing the file type/subtype, or NULL if unknown.
+ */
 WS_DLL_PUBLIC
 const char *wtap_file_type_subtype_description(int file_type_subtype);
+
+/**
+ * @brief Get a short name for a file type/subtype.
+ *
+ * Returns a concise, programmer-friendly name for the given file type/subtype.
+ *
+ * @param file_type_subtype File type/subtype identifier.
+ * @return Pointer to a static string containing the short name, or NULL if unknown.
+ */
 WS_DLL_PUBLIC
 const char *wtap_file_type_subtype_name(int file_type_subtype);
+
+/**
+ * @brief Convert a file type/subtype name to its identifier.
+ *
+ * Parses a short name (as returned by wtap_file_type_subtype_name) and returns
+ * the corresponding file type/subtype identifier.
+ *
+ * @param name Short name string for the file type/subtype.
+ * @return File type/subtype identifier on success, or -1 if the name is not recognized.
+ */
 WS_DLL_PUBLIC
 int wtap_name_to_file_type_subtype(const char *name);
+
+/**
+ * @brief Get the file type/subtype identifier for classic pcap (microsecond timestamps).
+ *
+ * @return File type/subtype identifier for pcap.
+ */
 WS_DLL_PUBLIC
 int wtap_pcap_file_type_subtype(void);
+
+/**
+ * @brief Get the file type/subtype identifier for pcap with nanosecond timestamps.
+ *
+ * @return File type/subtype identifier for pcap with nanosecond precision.
+ */
 WS_DLL_PUBLIC
 int wtap_pcap_nsec_file_type_subtype(void);
+
+/**
+ * @brief Get the file type/subtype identifier for pcapng.
+ *
+ * @return File type/subtype identifier for pcapng.
+ */
 WS_DLL_PUBLIC
 int wtap_pcapng_file_type_subtype(void);
 
 /**
- * Return an indication of whether this capture file format supports
- * the block in question.
+ * @brief Determine whether a capture file format supports a given block type.
+ *
+ * Returns how the specified file type/subtype handles the supplied block type,
+ * indicating whether the block is supported, optional, required, or not supported.
+ *
+ * @param file_type_subtype File type/subtype identifier.
+ * @param type Block type to query (wtap_block_type_t).
+ * @return block_support_t value describing support level for the block in the format.
  */
 WS_DLL_PUBLIC
 block_support_t wtap_file_type_subtype_supports_block(int file_type_subtype,
     wtap_block_type_t type);
 
 /**
- * Return an indication of whether this capture file format supports
- * the option in question for the block in question.
+ * @brief Determine whether a capture file format supports a specific option for a block.
+ *
+ * Queries the support level for the given option type within the specified block
+ * for a particular file type/subtype.
+ *
+ * The returned value indicates whether the option is supported, optional,
+ * required, or not supported in that file format/subtype.
+ *
+ * @param file_type_subtype File type/subtype identifier.
+ * @param type Block type to query (wtap_block_type_t).
+ * @param opttype Option type identifier (option type number).
+ * @return option_support_t value describing the support level for the option.
  */
 WS_DLL_PUBLIC
 option_support_t wtap_file_type_subtype_supports_option(int file_type_subtype,
     wtap_block_type_t type, unsigned opttype);
 
-/* Return a list of all extensions that are used by all capture file
+/**
+ *@brief Return a list of all extensions that are used by all capture file
  * types, including compressed extensions, e.g. not just "pcap" but
  * also "pcap.gz" if we can read gzipped files.
  *
@@ -2641,11 +3036,14 @@ option_support_t wtap_file_type_subtype_supports_option(int file_type_subtype,
  *
  * This is used to generate a list of extensions to look for if the user
  * chooses "All Capture Files" in a file open dialog.
+ *
+ * @return GSList* of char* strings containing file extensions; NULL if none are known.
  */
 WS_DLL_PUBLIC
 GSList *wtap_get_all_capture_file_extensions_list(void);
 
-/* Return a list of all extensions that are used by all file types that
+/**
+ * @brief Return a list of all extensions that are used by all file types that
  * we can read, including compressed extensions, e.g. not just "pcap" but
  * also "pcap.gz" if we can read gzipped files.
  *
@@ -2656,26 +3054,45 @@ GSList *wtap_get_all_capture_file_extensions_list(void);
  *
  * All strings in the list are allocated with g_malloc() and must be freed
  * with g_free().
+ *
+ * @return GSList* of char* strings containing file extensions; NULL if none are known.
  */
 WS_DLL_PUBLIC
 GSList *wtap_get_all_file_extensions_list(void);
 
-/*
- * Free a list returned by wtap_get_file_extension_type_extensions(),
- * wtap_get_all_capture_file_extensions_list, wtap_get_file_extensions_list(),
- * or wtap_get_all_file_extensions_list().
+/**
+ * @brief Free a list of file extension strings returned by extension helpers.
+ *
+ * Frees the GSList and each string it contains. The list must have been
+ * returned by one of:
+ * - wtap_get_file_extension_type_extensions()
+ * - wtap_get_all_capture_file_extensions_list()
+ * - wtap_get_file_extensions_list()
+ * - wtap_get_all_file_extensions_list()
+ *
+ * Each string in the list is freed with g_free() before the list itself is freed.
+ *
+ * @param extensions GSList of char* strings to free; may be NULL.
  */
 WS_DLL_PUBLIC
 void wtap_free_extensions_list(GSList *extensions);
 
-/*
- * Return the default file extension to use with the specified file type
- * and subtype; that's just the extension, without any ".".
+/**
+ * @brief Get the default file extension for a file type/subtype.
+ *
+ * Returns the canonical, unprefixed extension (without a leading ".") to use
+ * when saving files of the specified file type/subtype.
+ *
+ * The returned string is owned by the library and must not be freed by the caller.
+ *
+ * @param file_type_subtype File type/subtype identifier.
+ * @return Pointer to a static string containing the default extension, or NULL if unknown.
  */
 WS_DLL_PUBLIC
 const char *wtap_default_file_extension(int file_type_subtype);
 
-/* Return a list of file extensions that are used by the specified file type
+/**
+ * @brief Return a list of file extensions that are used by the specified file type
  * and subtype.
  *
  * If include_compressed is true, the list will include compressed
@@ -2684,74 +3101,255 @@ const char *wtap_default_file_extension(int file_type_subtype);
  *
  * All strings in the list are allocated with g_malloc() and must be freed
  * with g_free().
+ *
+ * @param file_type_subtype File type/subtype identifier.
+ * @param include_compressed True to include compressed extensions; false to include only uncompressed ones.
+ * @return GSList* of char* strings containing file extensions; NULL if none are known.
  */
 WS_DLL_PUBLIC
 GSList *wtap_get_file_extensions_list(int file_type_subtype, bool include_compressed);
 
+/**
+ * @brief Get a short name for an encapsulation type.
+ *
+ * Returns a short, programmer-friendly name for the given WTAP_ENCAP_ value.
+ *
+ * @param encap Encapsulation type (WTAP_ENCAP_...).
+ * @return Pointer to a static string containing the short name, or NULL if unknown.
+ */
 WS_DLL_PUBLIC
 const char *wtap_encap_name(int encap);
+
+/**
+ * @brief Get a human-readable description for an encapsulation type.
+ *
+ * Returns a descriptive string suitable for UI display or logs describing the encapsulation.
+ *
+ * @param encap Encapsulation type (WTAP_ENCAP_...).
+ * @return Pointer to a static string containing the description, or NULL if unknown.
+ */
 WS_DLL_PUBLIC
 const char *wtap_encap_description(int encap);
+
+/**
+ * @brief Convert a short encapsulation name to its WTAP_ENCAP_ value.
+ *
+ * Parses a short encap name (as returned by wtap_encap_name) and returns the corresponding
+ * encapsulation constant.
+ *
+ * @param short_name Short encap name string.
+ * @return WTAP_ENCAP_ value on success, or -1 if the name is not recognized.
+ */
 WS_DLL_PUBLIC
 int wtap_name_to_encap(const char *short_name);
 
+/**
+ * @brief Convert a timestamp precision constant to a string.
+ *
+ * Returns a short string describing the timestamp precision (e.g., "microsecond", "nanosecond").
+ *
+ * @param tsprec Timestamp precision constant (WTAP_TSPREC_...).
+ * @return Pointer to a static string describing the precision, or NULL if unknown.
+ */
 WS_DLL_PUBLIC
 const char* wtap_tsprec_string(int tsprec);
 
+/**
+ * @brief Return a human-readable error string for a WTAP error code.
+ *
+ * Maps wiretap error codes to descriptive strings for logging and diagnostics.
+ *
+ * @param err WTAP error code.
+ * @return Pointer to a static string describing the error, or a generic message if unknown.
+ */
 WS_DLL_PUBLIC
 const char *wtap_strerror(int err);
 
+
 /*** get available number of file types and encapsulations ***/
+/**
+ * @brief Return the number of registered file type extension groups.
+ *
+ * Returns the count of known file type extension entries (the number of
+ * different file type / extension groups the library knows about).
+ *
+ * @return Number of file type extension entries.
+ */
 WS_DLL_PUBLIC
 int wtap_get_num_file_type_extensions(void);
+
+/**
+ * @brief Return the number of known encapsulation types.
+ *
+ * Returns the count of WTAP_ENCAP_ values the library recognizes.
+ *
+ * @return Number of encapsulation types.
+ */
 WS_DLL_PUBLIC
 int wtap_get_num_encap_types(void);
 
 /*** get information for file type extension ***/
+
+/**
+ * @brief Get the short name for a file extension type.
+ *
+ * Returns a short, programmer-friendly name for the given file extension
+ * type identifier (for example, a canonical key used in UI lists).
+ *
+ * The returned string is owned by the library and must not be freed by the caller.
+ *
+ * @param extension_type File extension type identifier.
+ * @return Pointer to a static string containing the short name, or NULL if unknown.
+ */
 WS_DLL_PUBLIC
 const char *wtap_get_file_extension_type_name(int extension_type);
+
+/**
+ * @brief Get the list of extensions for a file extension type.
+ *
+ * Returns a GSList of strings containing the file extensions associated with
+ * the specified extension type. Each string is allocated with g_malloc() and
+ * must be freed with g_free() by the caller. The list itself should be freed
+ * with wtap_free_extensions_list().
+ *
+ * @param extension_type File extension type identifier.
+ * @return GSList* of char* strings containing extensions (without leading '.'), or NULL if none are known.
+ */
 WS_DLL_PUBLIC
 GSList *wtap_get_file_extension_type_extensions(unsigned extension_type);
 
 /*** dynamically register new file types and encapsulations ***/
+
+/**
+ * @brief Register file extension information for a file type.
+ *
+ * Dynamically registers a new file type's extension metadata so the library
+ * can recognize and present the extensions in UI lists and file dialogs.
+ *
+ * The caller retains ownership of @p ei; the function will copy or reference
+ * the data as needed according to the library's registration semantics.
+ *
+ * @param ei Pointer to a file_extension_info structure describing the file type's extensions.
+ */
 WS_DLL_PUBLIC
 void wtap_register_file_type_extension(const struct file_extension_info *ei);
 
+/**
+ * @brief Plugin registration callback table.
+ *
+ * Implementations of wiretap modules should populate this structure and pass
+ * it to wtap_register_plugin to have their registration routine invoked at
+ * library initialization or plugin registration time.
+ *
+ * @field register_wtap_module Function pointer called to register the wiretap module.
+ *                            May be NULL if the plugin has no registration routine.
+ */
 typedef struct {
-	void (*register_wtap_module)(void);  /* routine to call to register a wiretap module */
+    void (*register_wtap_module)(void);
 } wtap_plugin;
 
+/**
+ * @brief Register a wiretap plugin.
+ *
+ * Registers a plugin with the library. If the plugin provides a
+ * register_wtap_module callback, that callback will be invoked to perform
+ * module-specific registrations (file formats, encapsulations, extensions, etc.).
+ *
+ * The caller retains ownership of @p plug.
+ *
+ * @param plug Pointer to a wtap_plugin describing the plugin's registration callback(s).
+ */
 WS_DLL_PUBLIC
 void wtap_register_plugin(const wtap_plugin *plug);
 
-/** Returns_
- *     0 if plugins can be loaded for libwiretap (file type).
- *     1 if plugins are not supported by the platform.
- *    -1 if plugins were disabled in the build configuration.
+
+/**
+ * @brief Query whether libwiretap plugin loading is available.
+ *
+ * Returns a status code indicating whether libwiretap can load plugins on
+ * the current platform and build configuration.
+ *
+ * Return values:
+ *   0  Plugins can be loaded for libwiretap (file type).
+ *   1  Plugins are not supported by the platform.
+ *  -1  Plugins were disabled in the build configuration.
+ *
+ * @return int status code as described above.
  */
 WS_DLL_PUBLIC
 int wtap_plugins_supported(void);
 
+/* Registration and open-info */
+
+/**
+ * @brief Register an open_info probe/open handler.
+ * @param oi Pointer to open_info descriptor.
+ * @param first_routine If true, insert at front of probe list.
+ */
 WS_DLL_PUBLIC
 void wtap_register_open_info(struct open_info *oi, const bool first_routine);
+
+/**
+ * @brief Check if an open_info handler with the given name is registered.
+ * @param name Short name of the handler.
+ * @return true if registered, false otherwise.
+ */
 WS_DLL_PUBLIC
 bool wtap_has_open_info(const char *name);
+
+/**
+ * @brief Check whether a wtap handle uses a Lua-based file handler.
+ * @param wth Pointer to wtap handle.
+ * @return true if backed by a Lua filehandler, false otherwise.
+ */
 WS_DLL_PUBLIC
 bool wtap_uses_lua_filehandler(const wtap* wth);
+
+/**
+ * @brief Deregister an open_info handler by name.
+ * @param name Short name of the handler to remove.
+ */
 WS_DLL_PUBLIC
 void wtap_deregister_open_info(const char *name);
 
+/* Type mapping and registration */
+
+/**
+ * @brief Convert an open_info short name to its numeric type.
+ * @param name Short name.
+ * @return Unsigned type identifier (implementation-defined sentinel if not found).
+ */
 WS_DLL_PUBLIC
 unsigned int open_info_name_to_type(const char *name);
+
+/**
+ * @brief Register a file type/subtype.
+ * @param fi Pointer to file_type_subtype_info.
+ * @return non-negative file_type_subtype id on success, negative on failure.
+ */
 WS_DLL_PUBLIC
 int wtap_register_file_type_subtype(const struct file_type_subtype_info* fi);
+
+/**
+ * @brief Deregister a previously registered file type/subtype.
+ * @param file_type_subtype Identifier returned by registration.
+ */
 WS_DLL_PUBLIC
 void wtap_deregister_file_type_subtype(const int file_type_subtype);
 
+/* Encapsulation and cleanup */
+/**
+ * @brief Register a new packet encapsulation type.
+ * @param description Human-readable description.
+ * @param name Short canonical name.
+ * @return Encapsulation id on success, negative on failure.
+ */
 WS_DLL_PUBLIC
 int wtap_register_encap_type(const char *description, const char *name);
 
-/*** Cleanup the internal library structures */
+/**
+ * @brief Clean up libwiretap internal registrations and plugin state.
+ */
 WS_DLL_PUBLIC
 void wtap_cleanup(void);
 
