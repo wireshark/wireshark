@@ -539,9 +539,9 @@ dissect_npm_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree,
 
 static unsigned
 get_npm_message_length(packet_info *pinfo _U_, tvbuff_t *tvb,
-                       int offset _U_, void *data _U_)
+                       int offset, void *data _U_)
 {
-   return tvb_get_ntohs(tvb, 2);
+   return tvb_get_ntohs(tvb, offset + 2);
 }
 
 static int
