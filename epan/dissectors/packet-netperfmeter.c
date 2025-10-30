@@ -413,8 +413,6 @@ dissect_npm_data_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_
 {
   proto_tree    *flags_tree;
   const uint16_t message_length = tvb_get_ntohs(message_tvb, 2);
-  uint64_t      timestamp;
-  nstime_t      t;
 
   flags_tree = proto_item_add_subtree(flags_item, ett_data_flags);
   proto_tree_add_item(flags_tree, hf_data_flag_frame_begin, message_tvb, 1, 1, ENC_BIG_ENDIAN);
@@ -427,12 +425,7 @@ dissect_npm_data_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_
   proto_tree_add_item(message_tree, hf_data_frameid,         message_tvb, 20, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(message_tree, hf_data_packetseqnumber, message_tvb, 24, 8, ENC_BIG_ENDIAN);
   proto_tree_add_item(message_tree, hf_data_byteseqnumber,   message_tvb, 32, 8, ENC_BIG_ENDIAN);
-
-  timestamp = tvb_get_ntoh64(message_tvb, 40);
-  t.secs  = (time_t)(timestamp / 1000000);
-  t.nsecs = (int)((timestamp - 1000000 * t.secs) * 1000);
-
-  proto_tree_add_time(message_tree, hf_data_timestamp, message_tvb, 40, 8, &t);
+  proto_tree_add_item(message_tree, hf_data_timestamp,       message_tvb, 40, 8, ENC_TIME_USECS|ENC_BIG_ENDIAN);
 
   if (message_length > 4) {
     proto_tree_add_item(message_tree, hf_data_payload, message_tvb, 48, message_length - 48, ENC_NA);
