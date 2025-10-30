@@ -17,6 +17,8 @@
 
 #include "config.h"
 
+#include "math.h"
+
 #include <epan/packet.h>
 #include <epan/uat.h>
 #include <epan/expert.h>
@@ -227,6 +229,65 @@ static int hf_cmp_flexray_frame_crc;
 static int hf_cmp_flexray_reserved_2;
 static int hf_cmp_flexray_data_len;
 
+/* Digital */
+#define CMP_DIGITAL_FLAG_TRIGGER_PRESENT 0x0001
+#define CMP_DIGITAL_FLAG_SAMPLE_PRESENT 0x0002
+
+static int hf_cmp_digital_flags;
+
+static int hf_cmp_digital_flag_trig_present;
+static int hf_cmp_digital_flag_sampl_present;
+static int hf_cmp_digital_flag_reserved;
+
+static int hf_cmp_digital_reserved;
+static int hf_cmp_digital_pin_count;
+
+static int hf_cmp_digital_trig_pattern;
+static int hf_cmp_digital_trig_pin;
+static int hf_cmp_digital_flag_reserved2;
+
+static int hf_cmp_digital_sample_interval;
+static int hf_cmp_digital_sample_count;
+
+static int hf_cmp_digital_sample;
+
+/* define 32 Pins for now */
+static int hf_cmp_digital_sample_pin_0;
+static int hf_cmp_digital_sample_pin_1;
+static int hf_cmp_digital_sample_pin_2;
+static int hf_cmp_digital_sample_pin_3;
+static int hf_cmp_digital_sample_pin_4;
+static int hf_cmp_digital_sample_pin_5;
+static int hf_cmp_digital_sample_pin_6;
+static int hf_cmp_digital_sample_pin_7;
+
+static int hf_cmp_digital_sample_pin_8;
+static int hf_cmp_digital_sample_pin_9;
+static int hf_cmp_digital_sample_pin_10;
+static int hf_cmp_digital_sample_pin_11;
+static int hf_cmp_digital_sample_pin_12;
+static int hf_cmp_digital_sample_pin_13;
+static int hf_cmp_digital_sample_pin_14;
+static int hf_cmp_digital_sample_pin_15;
+
+static int hf_cmp_digital_sample_pin_16;
+static int hf_cmp_digital_sample_pin_17;
+static int hf_cmp_digital_sample_pin_18;
+static int hf_cmp_digital_sample_pin_19;
+static int hf_cmp_digital_sample_pin_20;
+static int hf_cmp_digital_sample_pin_21;
+static int hf_cmp_digital_sample_pin_22;
+static int hf_cmp_digital_sample_pin_23;
+
+static int hf_cmp_digital_sample_pin_24;
+static int hf_cmp_digital_sample_pin_25;
+static int hf_cmp_digital_sample_pin_26;
+static int hf_cmp_digital_sample_pin_27;
+static int hf_cmp_digital_sample_pin_28;
+static int hf_cmp_digital_sample_pin_29;
+static int hf_cmp_digital_sample_pin_30;
+static int hf_cmp_digital_sample_pin_31;
+
 /* UART/RS-232 */
 #define CMP_UART_DATA_DATA_MASK     0x01FF
 
@@ -274,6 +335,36 @@ static int hf_cmp_eth_flag_reserved;
 
 static int hf_cmp_eth_reserved;
 static int hf_cmp_eth_payload_length;
+
+/* SPI */
+static int hf_cmp_spi_flags;
+
+static int hf_cmp_spi_flag_reserved;
+
+static int hf_cmp_spi_reserved;
+static int hf_cmp_spi_cipo_length;
+static int hf_cmp_spi_cipo;
+static int hf_cmp_spi_copi_length;
+static int hf_cmp_spi_copi;
+
+/* I2C */
+static int hf_cmp_i2c_flags;
+static int hf_cmp_i2c_flag_dir;
+static int hf_cmp_i2c_flag_addr_len;
+static int hf_cmp_i2c_flag_addr_ack;
+static int hf_cmp_i2c_flag_addr_err;
+static int hf_cmp_i2c_flag_stop_cond;
+static int hf_cmp_i2c_flag_start_cond;
+static int hf_cmp_i2c_flag_reserved;
+
+static int hf_cmp_i2c_reserved;
+static int hf_cmp_i2c_addr;
+static int hf_cmp_i2c_data_entry_count;
+static int hf_cmp_i2c_data;
+static int hf_cmp_i2c_data_byte;
+static int hf_cmp_i2c_data_control_ack;
+static int hf_cmp_i2c_data_control_res;
+
 
 /* Control Message Payload Fields */
 /* Data Sink Ready */
@@ -399,8 +490,10 @@ static int ett_asam_cmp_payload_flags;
 static int ett_asam_cmp_lin_pid;
 static int ett_asam_cmp_can_id;
 static int ett_asam_cmp_can_crc;
+static int ett_asam_cmp_digital_sample;
 static int ett_asam_cmp_uart_data;
 static int ett_asam_cmp_analog_sample;
+static int ett_asam_cmp_i2c_data_entry;
 static int ett_asam_cmp_status_cm_flags;
 static int ett_asam_cmp_status_cm_uptime;
 static int ett_asam_cmp_status_timeloss_flags;
@@ -444,7 +537,7 @@ static int ett_asam_cmp_status_stream_ids;
 #define CMP_T_PATTERN_FALLING               0x00
 #define CMP_T_PATTERN_RISING                0x01
 
-/* CMP Digital Data Message DL Values */
+/* CMP UART Data Message DL Values */
 #define CMP_UART_CL_5                       0x00
 #define CMP_UART_CL_6                       0x01
 #define CMP_UART_CL_7                       0x02
@@ -541,6 +634,11 @@ static const true_false_string canfd_act_pas = {
     "Error passive"
 };
 
+static const value_string digital_trigger_pattern[] = {
+    {0,                                     "Falling edge"},
+    {1,                                     "Rising edge"},
+    {0, NULL}
+};
 
 static const value_string uart_cl_names[] = {
     {CMP_UART_CL_5,                         "5 Bits"},
@@ -557,6 +655,36 @@ static const value_string analog_sample_dt[] = {
     {CMP_ANALOG_DATA_MSG_DL_RES1,           "Reserved"},
     {CMP_ANALOG_DATA_MSG_DL_RES2,           "Reserved"},
     {0, NULL}
+};
+
+static const true_false_string i2c_read_write = {
+    "Read",
+    "Write"
+};
+
+static const true_false_string i2c_addr_length = {
+    "10 Bit Address",
+    "7 Bit Address"
+};
+
+static const true_false_string i2c_nack_ack = {
+    "NACK",
+    "ACK"
+};
+
+static const true_false_string i2c_ack_err = {
+    "Error",
+    "No Error"
+};
+
+static const true_false_string i2c_stop_repeated_start = {
+    "Stop",
+    "Repeated-Start"
+};
+
+static const true_false_string i2c_repeated_start_start = {
+    "Repeated-Start",
+    "Start"
 };
 
 static const value_string ctrl_msg_type_names[] = {
@@ -1022,6 +1150,13 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         NULL
     };
 
+    static int * const asam_cmp_digital_flags[] = {
+        &hf_cmp_digital_flag_reserved,
+        &hf_cmp_digital_flag_sampl_present,
+        &hf_cmp_digital_flag_trig_present,
+        NULL
+    };
+
     static int * const asam_cmp_uart_flags[] = {
         &hf_cmp_uart_flag_reserved,
         &hf_cmp_uart_flag_cl,
@@ -1053,6 +1188,22 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         &hf_cmp_eth_flag_tx_down,
         &hf_cmp_eth_flag_short_err,
         &hf_cmp_eth_flag_fcs_err,
+        NULL
+    };
+
+    static int * const asam_cmp_spi_flags[] = {
+        &hf_cmp_spi_flag_reserved,
+    NULL
+    };
+
+    static int * const asam_cmp_i2c_flags[] = {
+        &hf_cmp_i2c_flag_reserved,
+        &hf_cmp_i2c_flag_start_cond,
+        &hf_cmp_i2c_flag_stop_cond,
+        &hf_cmp_i2c_flag_addr_err,
+        &hf_cmp_i2c_flag_addr_ack,
+        &hf_cmp_i2c_flag_addr_len,
+        &hf_cmp_i2c_flag_dir,
         NULL
     };
 
@@ -1394,6 +1545,110 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         break;
     }
 
+    case CMP_DATA_MSG_DIGITAL: {
+        col_append_str(pinfo->cinfo, COL_INFO, " (Digital)");
+        proto_item_append_text(ti_msg_payload, " %s", "(Digital)");
+
+        uint64_t flags;
+        proto_tree_add_bitmask_ret_uint64(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_digital_flags, ett_asam_cmp_payload_flags, asam_cmp_digital_flags, ENC_BIG_ENDIAN, &flags);
+        offset += 2;
+
+        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_digital_reserved, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        uint32_t pin_count;
+        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_digital_pin_count, tvb, offset, 1, ENC_NA, &pin_count);
+        offset += 1;
+
+        if ((flags & CMP_DIGITAL_FLAG_TRIGGER_PRESENT) == CMP_DIGITAL_FLAG_TRIGGER_PRESENT) {
+            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_digital_trig_pattern, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_digital_trig_pin, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_digital_flag_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        }
+
+        if ((flags & CMP_DIGITAL_FLAG_SAMPLE_PRESENT) == CMP_DIGITAL_FLAG_SAMPLE_PRESENT) {
+            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_digital_sample_interval, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+
+            uint32_t sample_count;
+            proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_digital_sample_count, tvb, offset, 1, ENC_NA, &sample_count);
+            offset += 1;
+
+            uint32_t sample_byte_count = (uint32_t)floor((pin_count + 7) / 8);
+
+            for (uint32_t i = 0; i < sample_count; i++) {
+
+                ti = proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_digital_sample, tvb, offset, sample_byte_count, ENC_NA);
+                proto_item_append_text(ti, " [%d] ", i);
+                proto_tree *sample_tree = proto_item_add_subtree(ti, ett_asam_cmp_digital_sample);
+
+                /* we are supporting 32 pins for the beginning */
+                if (4 < sample_byte_count) {
+                    /* skip unsupported pins */
+                    offset += sample_byte_count - 4;
+                }
+                if (4 <= sample_byte_count) {
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_31, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_30, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_29, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_28, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_27, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_26, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_25, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_24, tvb, offset, 1, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(tvb, offset));
+                    offset += 1;
+                }
+
+                if (3 <= sample_byte_count) {
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_23, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_22, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_21, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_20, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_19, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_18, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_17, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_16, tvb, offset, 1, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(tvb, offset));
+                    offset += 1;
+                }
+
+                if (2 <= sample_byte_count) {
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_15, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_14, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_13, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_12, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_11, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_10, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_9, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_8, tvb, offset, 1, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(tvb, offset));
+                    offset += 1;
+                }
+
+                if (1 <= sample_byte_count) {
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_7, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_6, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_5, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_4, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_3, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_2, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_1, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_0, tvb, offset, 1, ENC_NA);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(tvb, offset));
+                    offset += 1;
+                }
+             }
+        }
+
+        break;
+    }
+
     case CMP_DATA_MSG_UART_RS_232: {
         col_append_str(pinfo->cinfo, COL_INFO, " (UART/RS-232)");
         proto_item_append_text(ti_msg_payload, " %s", "(UART/RS-232)");
@@ -1530,6 +1785,69 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
 
         proto_item_set_end(ti_msg_payload, tvb, offset);
         break;
+
+    case CMP_DATA_MSG_SPI: {
+        col_append_str(pinfo->cinfo, COL_INFO, " (SPI)");
+        proto_item_append_text(ti_msg_payload, " %s", "(SPI)");
+
+        proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_spi_flags, ett_asam_cmp_payload_flags, asam_cmp_spi_flags, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_spi_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        uint32_t cipo_length;
+        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_spi_cipo_length, tvb, offset, 2, ENC_BIG_ENDIAN, &cipo_length);
+        offset += 2;
+
+        if (cipo_length > 0) {
+            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_spi_cipo, tvb, offset, cipo_length, ENC_NA);
+            offset += cipo_length;
+        }
+
+        uint32_t copi_length;
+        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_spi_copi_length, tvb, offset, 2, ENC_BIG_ENDIAN, &copi_length);
+        offset += 2;
+
+        if (copi_length > 0) {
+            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_spi_copi, tvb, offset, copi_length, ENC_NA);
+            offset += copi_length;
+        }
+
+        break;
+    }
+
+    case CMP_DATA_MSG_I2C: {
+        col_append_str(pinfo->cinfo, COL_INFO, " (I2C)");
+        proto_item_append_text(ti_msg_payload, " %s", "(I2C)");
+
+        proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_i2c_flags, ett_asam_cmp_payload_flags, asam_cmp_i2c_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+        offset += 2;
+
+        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_i2c_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_i2c_addr, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        uint32_t data_entry_count;
+        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_i2c_data_entry_count, tvb, offset, 2, ENC_BIG_ENDIAN, &data_entry_count);
+        offset += 2;
+
+        static int * const asam_cmp_i2c_data[] = {
+            &hf_cmp_i2c_data_control_res,
+            &hf_cmp_i2c_data_control_ack,
+            &hf_cmp_i2c_data_byte,
+            NULL
+        };
+
+        for (uint32_t i = 0; i < data_entry_count; i++) {
+            proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_i2c_data, ett_asam_cmp_i2c_data_entry, asam_cmp_i2c_data, ENC_BIG_ENDIAN);
+            offset += 2;
+        }
+
+        break;
+    }
 
     case CMP_DATA_MSG_USER_DEFINED:
         col_append_str(pinfo->cinfo, COL_INFO, " (User defined)");
@@ -2371,6 +2689,59 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_flexray_flag_cas,                 { "Collision avoidance Symbol (CAS)", "asam-cmp.msg.flexray.flags.cas", FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL } },
         { &hf_cmp_flexray_flag_reserved,            { "Reserved", "asam-cmp.msg.flexray.flags.reserved", FT_UINT16, BASE_HEX, NULL, 0xFF00, NULL, HFILL } },
 
+        /* Digital */
+        { &hf_cmp_digital_flags,                    { "Flags", "asam-cmp.msg.digital.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_digital_reserved,                 { "Reserved", "asam-cmp.msg.digital.res", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_digital_pin_count,                { "Pin Count", "asam-cmp.msg.digital.pin_count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_cmp_digital_trig_pattern,             { "Trigger Pattern", "asam-cmp.msg.digital.trigger.pattern", FT_UINT8, BASE_DEC, VALS(digital_trigger_pattern), 0x0, NULL, HFILL}},
+        { &hf_cmp_digital_trig_pin,                 { "Trigger Pin", "asam-cmp.msg.digital.trigger.pin", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        { &hf_cmp_digital_flag_reserved2,           { "Reserved", "asam-cmp.msg.digital.trigger.reserved2", FT_UINT16, BASE_HEX, NULL, 0x0 , NULL, HFILL } },
+
+        { &hf_cmp_digital_sample_interval,          { "Sample Interval", "asam-cmp.msg.digital.sample.interval", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_digital_sample_count,             { "Sample Count", "asam-cmp.msg.digital.sample.count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_digital_sample,                   { "Sample", "asam-cmp.msg.digital.sample", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_cmp_digital_sample_pin_0,             { "GPIO 0", "asam-cmp.msg.digital.sample.pin_0", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x01, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_1,             { "GPIO 1", "asam-cmp.msg.digital.sample.pin_1", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x02, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_2,             { "GPIO 2", "asam-cmp.msg.digital.sample.pin_2", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x04, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_3,             { "GPIO 3", "asam-cmp.msg.digital.sample.pin_3", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x08, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_4,             { "GPIO 4", "asam-cmp.msg.digital.sample.pin_4", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x10, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_5,             { "GPIO 5", "asam-cmp.msg.digital.sample.pin_5", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x20, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_6,             { "GPIO 6", "asam-cmp.msg.digital.sample.pin_6", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x40, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_7,             { "GPIO 7", "asam-cmp.msg.digital.sample.pin_7", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x80, NULL, HFILL } },
+
+        { &hf_cmp_digital_sample_pin_8,             { "GPIO 8", "asam-cmp.msg.digital.sample.pin_8", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x01, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_9,             { "GPIO 9", "asam-cmp.msg.digital.sample.pin_9", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x02, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_10,            { "GPIO 10", "asam-cmp.msg.digital.sample.pin_10", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x04, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_11,            { "GPIO 11", "asam-cmp.msg.digital.sample.pin_11", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x08, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_12,            { "GPIO 12", "asam-cmp.msg.digital.sample.pin_12", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x10, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_13,            { "GPIO 13", "asam-cmp.msg.digital.sample.pin_13", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x20, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_14,            { "GPIO 14", "asam-cmp.msg.digital.sample.pin_14", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x40, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_15,            { "GPIO 15", "asam-cmp.msg.digital.sample.pin_15", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x80, NULL, HFILL } },
+
+        { &hf_cmp_digital_sample_pin_16,            { "GPIO 16", "asam-cmp.msg.digital.sample.pin_16", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x01, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_17,            { "GPIO 17", "asam-cmp.msg.digital.sample.pin_17", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x02, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_18,            { "GPIO 18", "asam-cmp.msg.digital.sample.pin_18", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x04, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_19,            { "GPIO 19", "asam-cmp.msg.digital.sample.pin_19", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x08, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_20,            { "GPIO 20", "asam-cmp.msg.digital.sample.pin_20", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x10, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_21,            { "GPIO 21", "asam-cmp.msg.digital.sample.pin_21", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x20, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_22,            { "GPIO 22", "asam-cmp.msg.digital.sample.pin_22", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x40, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_23,            { "GPIO 23", "asam-cmp.msg.digital.sample.pin_23", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x80, NULL, HFILL } },
+
+        { &hf_cmp_digital_sample_pin_24,            { "GPIO 24", "asam-cmp.msg.digital.sample.pin_24", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x01, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_25,            { "GPIO 25", "asam-cmp.msg.digital.sample.pin_25", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x02, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_26,            { "GPIO 26", "asam-cmp.msg.digital.sample.pin_26", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x04, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_27,            { "GPIO 27", "asam-cmp.msg.digital.sample.pin_27", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x08, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_28,            { "GPIO 28", "asam-cmp.msg.digital.sample.pin_28", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x10, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_29,            { "GPIO 29", "asam-cmp.msg.digital.sample.pin_29", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x20, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_30,            { "GPIO 30", "asam-cmp.msg.digital.sample.pin_30", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x40, NULL, HFILL } },
+        { &hf_cmp_digital_sample_pin_31,            { "GPIO 31", "asam-cmp.msg.digital.sample.pin_31", FT_BOOLEAN, 8, TFS(&tfs_high_low), 0x80, NULL, HFILL } },
+
+        { &hf_cmp_digital_flag_trig_present,        { "Trigger Information Present", "asam-cmp.msg.digital.flags.trigger_present",  FT_UINT16, BASE_HEX, NULL, 0x0001, NULL, HFILL } },
+        { &hf_cmp_digital_flag_sampl_present,       { "Sampling Information Present", "asam-cmp.msg.digital.flags.sampling_present",  FT_UINT16, BASE_HEX, NULL, 0x0002, NULL, HFILL } },
+        { &hf_cmp_digital_flag_reserved,            { "Reserved", "asam-cmp.msg.digital.flags.reserved", FT_UINT16, BASE_HEX, NULL, 0xFFFC, NULL, HFILL } },
+
         /* UART/RS-232 */
         { &hf_cmp_uart_flags,                       { "Flags", "asam-cmp.msg.uart.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_cmp_uart_reserved,                    { "Reserved", "asam-cmp.msg.uart.reserved", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
@@ -2414,12 +2785,40 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_eth_flag_fcs_supported,           { "FCS supported", "asam-cmp.msg.eth.flags.fcs_supported", FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL } },
         { &hf_cmp_eth_flag_reserved,                { "Reserved", "asam-cmp.msg.eth.flags.reserved", FT_UINT16, BASE_HEX, NULL, 0xFF00, NULL, HFILL } },
 
+        /* SPI */
+        { &hf_cmp_spi_flags,                        { "Flags", "asam-cmp.msg.spi.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_spi_reserved,                     { "Reserved", "asam-cmp.msg.spi.res", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_spi_cipo_length,                  { "Controller In Peripheral Out Length", "asam-cmp.msg.spi.cipo_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_spi_cipo,                         { "Controller In Peripheral Out (CIPO)", "asam-cmp.msg.spi.cipo", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_spi_copi_length,                  { "Controller Out Peripheral In Length", "asam-cmp.msg.spi.copi_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_spi_copi,                         { "Controller Out Peripheral In (COPI)", "asam-cmp.msg.spi.copi", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_cmp_spi_flag_reserved,                { "Reserved", "asam-cmp.msg.spi.flags.reserved", FT_UINT16, BASE_HEX, NULL, 0xFFFF, NULL, HFILL } },
+
+        /* I2C */
+        { &hf_cmp_i2c_flags,                        { "Flags", "asam-cmp.msg.i2c.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_i2c_reserved,                     { "Reserved", "asam-cmp.msg.i2c.res", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_i2c_addr,                         { "Address", "asam-cmp.msg.i2c.addr", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_i2c_data_entry_count,             { "Data Entry Count", "asam-cmp.msg.i2c.data_entry_count", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_i2c_data,                         { "Data Entry", "asam-cmp.msg.i2c.data_entry", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_i2c_data_byte,                    { "Data Byte", "asam-cmp.msg.i2c.data_entry.data", FT_UINT16, BASE_HEX, NULL, 0x00FF, NULL, HFILL } },
+        { &hf_cmp_i2c_data_control_ack,             { "Ack", "asam-cmp.msg.i2c.data_entry.control.ack", FT_BOOLEAN, 16, TFS(&i2c_nack_ack), 0x0100, NULL, HFILL } },
+        { &hf_cmp_i2c_data_control_res,             { "Reserved", "asam-cmp.msg.i2c.data_entry.control.reserved", FT_UINT16, BASE_HEX, NULL, 0xFE00, NULL, HFILL } },
+
+        { &hf_cmp_i2c_flag_dir,                     { "Direction", "asam-cmp.msg.i2c.flags.dir", FT_BOOLEAN, 16, TFS(&i2c_read_write), 0x0001, NULL, HFILL}},
+        { &hf_cmp_i2c_flag_addr_len,                { "Address Length", "asam-cmp.msg.i2c.flags.addr_len", FT_BOOLEAN, 16, TFS(&i2c_addr_length), 0x0002, NULL, HFILL } },
+        { &hf_cmp_i2c_flag_addr_ack,                { "Address Ack", "asam-cmp.msg.i2c.flags.addr_ack", FT_BOOLEAN, 16, TFS(&i2c_nack_ack), 0x0004, NULL, HFILL } },
+        { &hf_cmp_i2c_flag_addr_err,                { "Ack Error", "asam-cmp.msg.i2c.flags.ack_err", FT_BOOLEAN, 16, TFS(&i2c_ack_err), 0x0008, NULL, HFILL } },
+        { &hf_cmp_i2c_flag_stop_cond,               { "Stop Condition", "asam-cmp.msg.i2c.flags.stop_cond", FT_BOOLEAN, 16, TFS(&i2c_stop_repeated_start), 0x0010, NULL, HFILL } },
+        { &hf_cmp_i2c_flag_start_cond,              { "Start Condition", "asam-cmp.msg.i2c.flags.start_cond", FT_BOOLEAN, 16, TFS(&i2c_repeated_start_start), 0x0020, NULL, HFILL } },
+        { &hf_cmp_i2c_flag_reserved,                { "Reserved", "asam-cmp.msg.i2c.flags.reserved", FT_UINT16, BASE_HEX, NULL, 0xFFC0, NULL, HFILL } },
+
         /* Control Message Payloads */
         /* Data Sink Ready */
-        { &hf_cmp_ctrl_msg_device_id,               { "Device ID", "asam-cmp.msg.dsr.device_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_ctrl_msg_device_id,               { "Device ID", "asam-cmp.msg.dsr.device_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
          /* User Event */
-        { &hf_cmp_ctrl_msg_event_id,                { "Event ID", "asam-cmp.msg.ue.event_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_ctrl_msg_event_id,                { "Event ID", "asam-cmp.msg.ue.event_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
          /* Vendor specific */
         { &hf_cmp_ctrl_msg_vendor_id,               { "Vendor ID", "asam-cmp.msg.vs.vendor_id", FT_UINT16, BASE_HEX, VALS(vendor_ids), 0x0, NULL, HFILL } },
@@ -2536,8 +2935,10 @@ proto_register_asam_cmp(void) {
         &ett_asam_cmp_lin_pid,
         &ett_asam_cmp_can_id,
         &ett_asam_cmp_can_crc,
+        &ett_asam_cmp_digital_sample,
         &ett_asam_cmp_uart_data,
         &ett_asam_cmp_analog_sample,
+        &ett_asam_cmp_i2c_data_entry,
         &ett_asam_cmp_status_cm_flags,
         &ett_asam_cmp_status_cm_uptime,
         &ett_asam_cmp_status_timeloss_flags,
