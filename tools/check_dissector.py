@@ -171,6 +171,6 @@ if len(dissectors):
             (not tool[1] or (tool[1] and args.build_folder))):   # Have --build-folder if needed?
 
             # Run it.
-            run_check(tool, dissectors, tool[0].find('.py') != -1)
+            run_check(tool, dissectors, '.py' in tool[0])
 else:
     print('No dissectors selected')

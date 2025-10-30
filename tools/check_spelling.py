@@ -417,7 +417,7 @@ def isGeneratedFile(filename):
 
 def isAppropriateFile(filename):
     file, extension = os.path.splitext(filename)
-    if filename.find('CMake') != -1:
+    if 'CMake' in filename:
         return False
     # TODO: add , '.lua' ?
     return extension in { '.adoc', '.c', '.h', '.cpp', '.pod', '.txt' } or file.endswith('README')

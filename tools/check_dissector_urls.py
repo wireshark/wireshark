@@ -141,7 +141,7 @@ def find_links_in_file(filename):
                     continue
 
                 # Don't fetch this internal link..
-                if url.find('www.wireshark.org/tools/modelines') != -1:
+                if 'www.wireshark.org/tools/modelines' in url:
                     continue
 
                 global links, all_urls

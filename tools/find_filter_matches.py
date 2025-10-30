@@ -142,7 +142,7 @@ for filenum,file in enumerate(files):
             #print('oops, exception', e)
             # Check for WS_EXIT_INVALID_FILTER (4)
             # TODO: other errors possible, e.g., bad profile name..
-            if str(e).find("exit status 4") != -1:
+            if "exit status 4" in str(e):
                 print('Please use a valid display filter!')
                 exit(4)
 
