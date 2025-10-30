@@ -20,13 +20,6 @@
 #include <QLineEdit>
 #include <QTreeView>
 
-typedef struct _dissector_info_t {
-    QString             proto_name;
-    dissector_handle_t  dissector_handle;
-} dissector_info_t;
-
-Q_DECLARE_METATYPE(dissector_info_t *)
-
 DecodeAsDelegate::DecodeAsDelegate(QObject *parent, capture_file *cf)
  : QStyledItemDelegate(parent),
     cap_file_(cf)
@@ -117,18 +110,31 @@ bool DecodeAsDelegate::isSelectorCombo(DecodeAsItem* item) const
     return false;
 }
 
+typedef struct _decode_add_protocol_data_t
+{
+    QList<dissector_info_t*> protocols;
+    DecodeAsItem* item;
+} decode_add_protocol_data_t;
+
 void DecodeAsDelegate::decodeAddProtocol(const char *, const char *proto_name, void *value, void *user_data)
 {
-    QList<dissector_info_t*>* proto_list = (QList<dissector_info_t*>*)user_data;
+    decode_add_protocol_data_t* proto_data = (decode_add_protocol_data_t*)user_data;
 
-    if (!proto_list)
+    if (!proto_data)
         return;
 
     dissector_info_t  *dissector_info = new dissector_info_t();
     dissector_info->proto_name = proto_name;
-    dissector_info->dissector_handle = (dissector_handle_t) value;
 
-    proto_list->append(dissector_info);
+    if (strcmp(proto_data->item->tableName(), DCERPC_TABLE_NAME) == 0) {
+        memcpy(&dissector_info->dcerpc_uuid, value, sizeof(dissector_info->dcerpc_uuid));
+        dissector_table_t sub_dissectors = find_dissector_table(DCERPC_TABLE_NAME);
+        dissector_info->dissector_handle = dissector_get_guid_handle(sub_dissectors, &dissector_info->dcerpc_uuid);
+    } else {
+        dissector_info->dissector_handle = (dissector_handle_t)value;
+    }
+
+    proto_data->protocols.append(dissector_info);
 }
 
 QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptionViewItem &option,
@@ -249,27 +255,28 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
     case DecodeAsModel::colProtocol:
         {
         QComboBox *cb_editor = new QComboBox(parentWidget);
-        QList<dissector_info_t*> protocols;
+        decode_add_protocol_data_t protocol_data;
+        protocol_data.item = item;
 
         cb_editor->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
         for (GList *cur = decode_as_list; cur; cur = cur->next) {
             decode_as_t *entry = (decode_as_t *) cur->data;
             if (g_strcmp0(item->tableName(), entry->table_name) == 0) {
-                entry->populate_list(entry->table_name, decodeAddProtocol, &protocols);
+                entry->populate_list(entry->table_name, decodeAddProtocol, &protocol_data);
                 break;
             }
         }
 
         // Sort by description in a human-readable way (case-insensitive, etc)
-        std::sort(protocols.begin(), protocols.end(), [](dissector_info_t* d1, dissector_info_t* d2) {
+        std::sort(protocol_data.protocols.begin(), protocol_data.protocols.end(), [](dissector_info_t* d1, dissector_info_t* d2) {
             return d1->proto_name.localeAwareCompare(d2->proto_name) < 0;
         });
 
         cb_editor->addItem(DECODE_AS_NONE);
         cb_editor->insertSeparator(cb_editor->count());
 
-        for (dissector_info_t* protocol : protocols)
+        for (dissector_info_t* protocol : protocol_data.protocols)
         {
             // Make it easy to reset to the default dissector
             if (protocol->proto_name == item->defaultDissector()) {
@@ -367,11 +374,8 @@ void DecodeAsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
         //set the dissector handle
         QVariant var = combobox->itemData(combobox->currentIndex());
         dissector_info_t* dissector_info = VariantPointer<dissector_info_t>::asPtr(var);
-        if (dissector_info != NULL) {
-            model->setData(index, VariantPointer<dissector_handle>::asQVariant(dissector_info->dissector_handle), Qt::EditRole);
-        } else {
-            model->setData(index, QVariant(), Qt::EditRole);
-        }
+
+        model->setData(index, VariantPointer<dissector_info_t>::asQVariant(dissector_info), Qt::EditRole);
         break;
         }
     default:

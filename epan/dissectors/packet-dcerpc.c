@@ -940,11 +940,12 @@ decode_dcerpc_add_to_list(void *key, void *value, void *user_data)
 {
     struct dcerpc_decode_as_populate* populate = (struct dcerpc_decode_as_populate*)user_data;
 
-    /*guid_key *k = key;*/
+    /* Make it more obvious the the key type is a guid_key */
+    guid_key *k = key;
     dcerpc_uuid_value *v = (dcerpc_uuid_value *)value;
 
     if (strcmp(v->name, "(none)"))
-        populate->add_to_list("DCE-RPC", v->name, key, populate->ui_element);
+        populate->add_to_list("DCE-RPC", v->name, k, populate->ui_element);
 }
 
 static void
@@ -1017,8 +1018,8 @@ dcerpc_decode_as_change(const char *name, const void *pattern, const void *handl
     decode_dcerpc_bind_values_t *stored_binding;
     const guid_key     *key = (const guid_key *)handle;
 
-    /* remove a probably existing old binding */
-    decode_dcerpc_binding_reset(name, binding);
+    if (binding == NULL)
+        return false;
 
     /*
      * Clone the new binding, update the changing parts, and append it
@@ -1031,6 +1032,9 @@ dcerpc_decode_as_change(const char *name, const void *pattern, const void *handl
     stored_binding->ifname = g_string_new(list_name);
     stored_binding->uuid = key->guid;
     stored_binding->ver = key->ver;
+
+    /* remove a probably existing old binding */
+    decode_dcerpc_binding_reset(name, binding);
 
     decode_dcerpc_bindings = g_slist_append (decode_dcerpc_bindings, stored_binding);
 
@@ -1683,7 +1687,7 @@ dcerpc_init_finalize(dissector_handle_t guid_handle, guid_key *key, dcerpc_uuid_
     uuid_type_insert(dcerpc_uuid_id, perm_key, perm_value);
 
     /* Register the GUID with the dissector table */
-    dissector_add_guid( "dcerpc.uuid", perm_key, guid_handle );
+    dissector_add_guid(DCERPC_TABLE_NAME, perm_key, guid_handle );
 
     /* add this GUID to the global name resolving */
     guids_add_guid(&perm_key->guid, proto_get_protocol_short_name(perm_value->proto));
@@ -7228,7 +7232,7 @@ proto_register_dcerpc(void)
     /* Decode As handling */
     static build_valid_func dcerpc_da_build_value[1] = {dcerpc_value};
     static decode_as_value_t dcerpc_da_values = {dcerpc_prompt, 1, dcerpc_da_build_value};
-    static decode_as_t dcerpc_da = {"dcerpc", "dcerpc.uuid",
+    static decode_as_t dcerpc_da = {"dcerpc", DCERPC_TABLE_NAME,
                                     1, 0, &dcerpc_da_values, NULL, NULL,
                                     dcerpc_populate_list, decode_dcerpc_binding_reset, dcerpc_decode_as_change, dcerpc_decode_as_free, decode_dcerpc_reset_all };
 

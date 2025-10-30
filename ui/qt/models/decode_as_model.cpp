@@ -88,6 +88,7 @@ void DecodeAsItem::init(const char* table_name, const void *selector)
         /* Special handling for DCE/RPC dissectors */
         if (strcmp(tableName_, DCERPC_TABLE_NAME) == 0) {
             selectorDCERPC_ = (decode_dcerpc_bind_values_t*)(selector);
+            memset(&selectorUUID_, 0, sizeof(selectorUUID_));
         }
     }
 
@@ -142,6 +143,12 @@ void DecodeAsItem::setDissectorHandle(dissector_handle_t handle)
         current_dissector_ = dissector_handle_get_description(handle);
     }
 }
+
+void DecodeAsItem::setUUID(const guid_key& key)
+{
+    memcpy(&selectorUUID_, &key, sizeof(guid_key));
+}
+
 
 void DecodeAsItem::updateHandles()
 {
@@ -376,8 +383,17 @@ bool DecodeAsModel::setData(const QModelIndex &cur_index, const QVariant &value,
         break;
     case DecodeAsModel::colProtocol:
     {
-        dissector_handle_t handle = VariantPointer<dissector_handle>::asPtr(value);
-        item->setDissectorHandle(handle);
+        dissector_info_t* dissector_info = VariantPointer<dissector_info_t>::asPtr(value);
+        if (dissector_info != NULL)
+        {
+            item->setDissectorHandle(dissector_info->dissector_handle);
+            if (strcmp(item->tableName(), DCERPC_TABLE_NAME) == 0)
+                item->setUUID(dissector_info->dcerpc_uuid);
+        }
+        else
+        {
+            item->setDissectorHandle(NULL);
+        }
         break;
     }
     case DecodeAsModel::colSelector:
@@ -686,6 +702,7 @@ void DecodeAsModel::buildDceRpcChangedList(void *data, void *user_data)
     guid_val.ver = binding->ver;
     guid_val.guid = binding->uuid;
     item->setDissectorHandle(dissector_get_guid_handle(sub_dissectors, &guid_val));
+    item->setUUID(guid_val);
 
     model->decode_as_items_ << item;
 }
@@ -835,11 +852,21 @@ void DecodeAsModel::applyChanges()
                     }
                     break;
                 } else {
-                    decode_as_entry->change_value(decode_as_entry->table_name, selector_value, item->dissectorHandle(), item->currentDissector().toUtf8().constData());
-                    sub_dissectors = find_dissector_table(decode_as_entry->table_name);
+
+                    if (strcmp(item->tableName(), DCERPC_TABLE_NAME) == 0)
+                    {
+                        decode_as_entry->change_value(decode_as_entry->table_name, selector_value, item->selectorUUID(), item->currentDissector().toUtf8().constData());
+                    }
+                    else
+                    {
+                        decode_as_entry->change_value(decode_as_entry->table_name, selector_value, item->dissectorHandle(), item->currentDissector().toUtf8().constData());
+                    }
 
                     /* For now, only numeric dissector tables can use preferences */
                     if (item->dissectorHandle() != NULL) {
+
+                        sub_dissectors = find_dissector_table(decode_as_entry->table_name);
+
                         if (FT_IS_UINT(dissector_table_get_type(sub_dissectors))) {
                             module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(item->dissectorHandle())));
                             pref_value = prefs_find_preference(module, QByteArray(decode_as_entry->table_name).append(dissector_handle_get_pref_suffix(item->dissectorHandle())));

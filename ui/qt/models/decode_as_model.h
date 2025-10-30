@@ -35,12 +35,14 @@ public:
     uint selectorUint() const { return selectorUint_; }
     QString selectorString() const { return selectorString_; }
     decode_dcerpc_bind_values_t* selectorDCERPC() const { return selectorDCERPC_; }
+    const guid_key* selectorUUID() const { return &selectorUUID_; }
     QString defaultDissector() const { return default_dissector_; }
     QString currentDissector() const { return current_dissector_; }
     dissector_handle_t dissectorHandle() const { return dissector_handle_; }
     void setTable(const decode_as_t *entry);
     void setSelector(const QString &value);
     void setDissectorHandle(dissector_handle_t handle);
+    void setUUID(const guid_key& key);
 
     void updateHandles();
 
@@ -54,12 +56,23 @@ private:
     //between (lack of) persistent data in GUI and underlying data
     uint selectorUint_;
     QString selectorString_;
-    decode_dcerpc_bind_values_t* selectorDCERPC_; //for special handling of DCE/RPC
+
+    //for special handling of DCE/RPC
+    decode_dcerpc_bind_values_t* selectorDCERPC_;
+    guid_key                     selectorUUID_;
 
     QString default_dissector_;
     QString current_dissector_;
     dissector_handle_t dissector_handle_;
 };
+
+typedef struct _dissector_info_t {
+    QString             proto_name;
+    guid_key            dcerpc_uuid;
+    dissector_handle_t  dissector_handle;
+} dissector_info_t;
+
+Q_DECLARE_METATYPE(dissector_info_t*)
 
 class DecodeAsModel : public QAbstractTableModel
 {
