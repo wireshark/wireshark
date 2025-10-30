@@ -25,6 +25,10 @@ THE SOFTWARE.
 #define __JSMN_H_
 
 #include "ws_symbol_export.h"
+/* Defining JSMN_PARENT_LINKS configures jsmn to have each node store a link
+   to its parent node. This greatly improve parsing performance for large files
+   while only consuming an extra 'int' per node. */
+#define JSMN_PARENT_LINKS
 
 #include <stddef.h>
 
