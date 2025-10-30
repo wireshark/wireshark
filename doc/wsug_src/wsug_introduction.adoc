@@ -196,7 +196,16 @@ party libraries on which we depend or due to necessary features that are only
 present in newer versions of Windows such as hardened security or memory
 management.
 
-* Wireshark 4.2 was the last release branch to officially support Windows 10.
+// Qt6 6.2 and later officially only supports Windows 10 1809 or later,
+// which also means Windows Server 2019 or later.
+// https://doc.qt.io/archives/qt-6.2/supported-platforms.html
+// https://doc.qt.io/qt-6.9/supported-platforms.html
+// In practice, it seems that Qt 6.2 and 6.5 will run on Windows 10 1607 /
+// Windows Server 2016 (but not Windows 10 1507), but Qt 6.8 and later will not
+// without compiling Qt oneself while setting a special flag:
+// https://bugreports.qt.io/browse/QTBUG-134075
+
+* Wireshark 4.4 was the last release branch to officially support Windows 10, version 1607 and Windows Server 2016.
 * Wireshark 4.0 was the last release branch to officially support Windows 8.1 and Windows Server 2012.
 * Wireshark 3.6 was the last release branch to officially support 32-bit Windows.
 * Wireshark 3.2 was the last release branch to officially support Windows 7 and Windows Server 2008 R2.
