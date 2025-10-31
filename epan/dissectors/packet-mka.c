@@ -746,7 +746,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
 
     /* Unwrap the key with the KEK. */
     uint8_t *sak = key->saks[distributed_an];
-    if (gcry_cipher_decrypt(hd, sak, key->kek_len, wrappedkey, (key->kek_len + 8)) ) {
+    if (gcry_cipher_decrypt(hd, sak, wrappedlen - WRAPPED_KEY_IV_LEN, wrappedkey, wrappedlen) ) {
       ws_info("failed to unwrap SAK");
       memset(sak, 0, MKA_MAX_SAK_LEN);
       gcry_cipher_close(hd);
@@ -757,7 +757,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     gcry_cipher_close(hd);
 
     if (ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG)) {
-      if (AES256_KEY_LEN == key->kek_len) {
+      if (WRAPPED_KEY_LEN(AES256_KEY_LEN) == wrappedlen) {
         ws_debug("unwrapped sak: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                         sak[0], sak[1], sak[2], sak[3], sak[4], sak[5], sak[6], sak[7],
                         sak[8], sak[9], sak[10], sak[11], sak[12], sak[13], sak[14], sak[15],
@@ -771,7 +771,7 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     }
 
     /* Add the unwrapped SAK to the output. */
-    proto_tree_add_bytes_with_length(distributed_sak_tree, hf_mka_aes_key_wrap_unwrapped_sak, tvb, offset, 0, sak, key->kek_len);  //works, no highlights
+    proto_tree_add_bytes_with_length(distributed_sak_tree, hf_mka_aes_key_wrap_unwrapped_sak, tvb, offset, 0, sak, wrappedlen - WRAPPED_KEY_IV_LEN);  //works, no highlights
   }
   else
   {
