@@ -13,7 +13,7 @@
 
 #include <glib.h>
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "pcapng.h"
 #include "pcapng_module.h"
 #include "wtap_opttypes.h"

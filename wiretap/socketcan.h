@@ -12,8 +12,7 @@
 #ifndef SOCKETCAN_H__
 #define SOCKETCAN_H__
 
-#include <gmodule.h>
-#include <wtap-int.h>
+#include <wiretap/wtap_module.h>
 
 #define CAN_MAX_DLEN   8
 #define CANFD_MAX_DLEN 64

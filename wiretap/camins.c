@@ -57,7 +57,7 @@
 #include <glib.h>
 #include <string.h>
 #include <wsutil/pint.h>
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 
 

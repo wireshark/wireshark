@@ -36,13 +36,14 @@
 
 #include <glib.h>
 
+#include <wsutil/array.h>
 #include <wsutil/crc32.h>
 #include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/glib-compat.h>
 #include <wsutil/ws_padding_to.h>
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 #include "erf_record.h"
 #include "erf-common.h"

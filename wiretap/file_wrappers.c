@@ -23,7 +23,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include "wtap-int.h"
+#include "wtap_module.h"
 
 #include <wsutil/file_util.h>
 #include <wsutil/zlib_compat.h>

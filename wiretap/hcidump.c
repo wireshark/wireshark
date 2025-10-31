@@ -8,7 +8,7 @@
 #include "config.h"
 #include "hcidump.h"
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 
 static int hcidump_file_type_subtype = -1;

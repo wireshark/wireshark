@@ -17,7 +17,7 @@
 
 #include "wslua.h"
 #include <wiretap/wtap_opttypes.h>
-#include <wiretap/wtap-int.h>
+#include <wiretap/wtap_module.h>
 
 /* this is way overkill for this one member, but in case we need to add
    more in the future, the plumbing will be here */

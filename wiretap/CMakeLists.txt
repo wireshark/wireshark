@@ -15,6 +15,7 @@ set(WIRETAP_PUBLIC_HEADERS
 	pcapng_module.h
 	secrets-types.h
 	wtap.h
+	wtap_module.h
 	wtap_modules.h
 	wtap_opttypes.h
 )

@@ -91,7 +91,7 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "wtap.h"
 #include "file_wrappers.h"
 #include <wsutil/buffer.h>

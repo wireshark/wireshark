@@ -10,10 +10,11 @@
 #include "snoop.h"
 
 #include <string.h>
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 #include "atm.h"
 #include <wsutil/802_11-utils.h>
+#include <wsutil/array.h>
 #include <wsutil/ws_roundup.h>
 #include <wsutil/pint.h>
 

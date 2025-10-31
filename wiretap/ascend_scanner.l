@@ -55,7 +55,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "ascendtext.h"
 #include "ascend-int.h"
 #include "ascend_parser.h"

@@ -34,6 +34,7 @@
 
 #include <string.h>
 #include "wtap_opttypes.h"
+#include "wtap_module.h"
 #include "wtap-int.h"
 
 #include <wsutil/filesystem.h>

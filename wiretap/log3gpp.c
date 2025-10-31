@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 
 #define MAX_FIRST_LINE_LENGTH      200

@@ -24,7 +24,7 @@
 #include "autosar_dlt.h"
 
 #include "file_wrappers.h"
-#include "wtap-int.h"
+#include "wtap_module.h"
 
 static const uint8_t dlt_magic[] = { 'D', 'L', 'T', 0x01 };
 

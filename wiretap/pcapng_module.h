@@ -9,7 +9,7 @@
 #ifndef __PCAP_MODULE_H__
 #define __PCAP_MODULE_H__
 
-#include <wiretap/wtap-int.h>
+#include <wiretap/wtap_module.h>
 
 #include "ws_symbol_export.h"
 #include "pcapng.h"

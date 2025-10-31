@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include "file_wrappers.h"
-#include "wtap-int.h"
+#include "wtap_module.h"
 
 static const uint8_t mp4_magic[] = { 'f', 't', 'y', 'p' };
 static const uint8_t mp4_magic_sidx[] = { 's', 'i', 'd', 'x' };

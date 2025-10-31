@@ -12,7 +12,7 @@
 
 #include <wsutil/pint.h>
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 
 static int logcat_file_type_subtype = -1;

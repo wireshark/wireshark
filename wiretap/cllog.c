@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include <wsutil/array.h>
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
 

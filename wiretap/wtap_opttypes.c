@@ -15,7 +15,7 @@
 #include <string.h>
 
 #include "wtap.h"
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "pcapng_module.h"
 #include <wsutil/ws_assert.h>
 

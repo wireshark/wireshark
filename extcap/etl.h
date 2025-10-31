@@ -14,10 +14,13 @@
 
 #include "wiretap/wtap.h"
 #include "ws_symbol_export.h"
-#include "wiretap/wtap-int.h"
+#include "wiretap/wtap_module.h"
 
 #include <glib.h>
 #include <stdlib.h>
+
+#include <windows.h>
+#include <winsock2.h>
 #include <tdh.h>
 #include <guiddef.h>
 

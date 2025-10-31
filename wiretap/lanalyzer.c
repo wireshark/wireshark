@@ -16,7 +16,7 @@
 
 #include <wsutil/pint.h>
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 
 /* The LANalyzer format is documented (at least in part) in Novell document
