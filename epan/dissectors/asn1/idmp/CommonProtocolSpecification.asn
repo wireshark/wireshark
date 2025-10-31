@@ -1,119 +1,113 @@
--- http://www.itu.int/ITU-T/formal-language/itu-t/x/x519/2005/CommonProtocolSpecification.asn
--- Module CommonProtocolSpecification (X.519:08/2005)
-CommonProtocolSpecification {joint-iso-itu-t ds(5) module(1)
-  commonProtocolSpecification(35) 5} DEFINITIONS ::=
+-- https://www.itu.int/ITU-T/formal-language/itu-t/x/x519/2019/CommonProtocolSpecification.html
+-- Module CommonProtocolSpecification (X.519:10/2019)
+CommonProtocolSpecification
+  {joint-iso-itu-t ds(5) module(1) commonProtocolSpecification(35) 10} 
+DEFINITIONS ::=
 BEGIN
 
--- EXPORTS All 
--- The types and values defined in this module are exported for use in the
--- other ASN.1 modules contained within the Directory Specifications, and for
--- the use of other applications which will use them to access Directory
--- services. Other applications may use them for their own purposes, but this
--- will not constrain extensions and modifications needed to maintain or
--- improve the Directory service.
+-- EXPORTS All
+/*
+The types and values defined in this module are exported for use in the
+other ASN.1 modules contained within the Directory Specifications, and for
+the use of other applications which will use them to access Directory
+services. Other applications may use them for their own purposes, but this
+will not constrain extensions and modifications needed to maintain or
+improve the Directory service.
+*/
 IMPORTS
-  -- from ITU-T Rec. X.501 | ISO/IEC 9594-2
-  opBindingManagement
-    FROM UsefulDefinitions {joint-iso-itu-t ds(5) module(1)
-      usefulDefinitions(0) 5}
+
+  -- from Rec. ITU-T X.501 | ISO/IEC 9594-2
+
   establishOperationalBinding, modifyOperationalBinding,
-    terminateOperationalBinding
-    FROM OperationalBindingManagement opBindingManagement;
+  terminateOperationalBinding
+    FROM OperationalBindingManagement
+      {joint-iso-itu-t ds(5) module(1) opBindingManagement(18) 10} WITH SUCCESSORS ;
+
 
 OPERATION ::= CLASS {
   &ArgumentType   OPTIONAL,
   &ResultType     OPTIONAL,
   &Errors         ERROR OPTIONAL,
-  &operationCode  Code UNIQUE OPTIONAL
-}
+  &operationCode  Code UNIQUE OPTIONAL }
 WITH SYNTAX {
-  [ARGUMENT &ArgumentType]
-  [RESULT &ResultType]
-  [ERRORS &Errors]
-  [CODE &operationCode]
-}
+  [ARGUMENT       &ArgumentType]
+  [RESULT         &ResultType]
+  [ERRORS         &Errors]
+  [CODE           &operationCode] }
 
-ERROR ::= CLASS {&ParameterType  ,
-                 &errorCode      Code UNIQUE OPTIONAL
-}WITH SYNTAX {PARAMETER &ParameterType
-              [CODE &errorCode]
-}
+ERROR ::= CLASS {
+  &ParameterType,
+  &errorCode      Code UNIQUE OPTIONAL }
+WITH SYNTAX {
+  PARAMETER       &ParameterType
+  [CODE           &errorCode] }
 
-Code ::= CHOICE {local   INTEGER,
-                 global  OBJECT IDENTIFIER
-}
+Code ::= CHOICE {
+  local   INTEGER,
+  global  OBJECT IDENTIFIER,
+  ... }
 
-InvokeId ::= CHOICE {present  INTEGER,
-                     absent   NULL
-}
+--InvokeId ::= CHOICE {
+--  present  INTEGER,
+--  absent   NULL,
+--  ... }
 
 --  operation codes for DAP and DSP
-id-opcode-read Code ::= local:1
 
-id-opcode-compare Code ::= local:2
-
-id-opcode-abandon Code ::= local:3
-
-id-opcode-list Code ::= local:4
-
-id-opcode-search Code ::= local:5
-
-id-opcode-addEntry Code ::= local:6
-
-id-opcode-removeEntry Code ::= local:7
-
-id-opcode-modifyEntry Code ::= local:8
-
-id-opcode-modifyDN Code ::= local:9
+id-opcode-read                    Code ::= local:1
+id-opcode-compare                 Code ::= local:2
+id-opcode-abandon                 Code ::= local:3
+id-opcode-list                    Code ::= local:4
+id-opcode-search                  Code ::= local:5
+id-opcode-addEntry                Code ::= local:6
+id-opcode-removeEntry             Code ::= local:7
+id-opcode-modifyEntry             Code ::= local:8
+id-opcode-modifyDN                Code ::= local:9
+id-opcode-changePassword          Code ::= local:10
+id-opcode-administerPassword      Code ::= local:11
+id-opcode-ldapTransport           Code ::= local:12
+id-opcode-linkedLDAP              Code ::= local:13
 
 --  operation codes for DISP
-id-opcode-requestShadowUpdate Code ::= local:1
 
-id-opcode-updateShadow Code ::= local:2
-
-id-opcode-coordinateShadowUpdate Code ::= local:3
+id-opcode-requestShadowUpdate     Code ::= local:1
+id-opcode-updateShadow            Code ::= local:2
+id-opcode-coordinateShadowUpdate  Code ::= local:3
 
 --  operation codes for DOP
+
 id-op-establishOperationalBinding Code ::= local:100
-
-id-op-modifyOperationalBinding Code ::= local:102
-
+id-op-modifyOperationalBinding    Code ::= local:102
 id-op-terminateOperationalBinding Code ::= local:101
 
 -- error codes for DAP and DSP
-id-errcode-attributeError Code ::= local:1
 
-id-errcode-nameError Code ::= local:2
-
-id-errcode-serviceError Code ::= local:3
-
-id-errcode-referral Code ::= local:4
-
-id-errcode-abandoned Code ::= local:5
-
-id-errcode-securityError Code ::= local:6
-
-id-errcode-abandonFailed Code ::= local:7
-
-id-errcode-updateError Code ::= local:8
-
-id-errcode-dsaReferral Code ::= local:9
+id-errcode-attributeError         Code ::= local:1
+id-errcode-nameError              Code ::= local:2
+id-errcode-serviceError           Code ::= local:3
+id-errcode-referral               Code ::= local:4
+id-errcode-abandoned              Code ::= local:5
+id-errcode-securityError          Code ::= local:6
+id-errcode-abandonFailed          Code ::= local:7
+id-errcode-updateError            Code ::= local:8
+id-errcode-dsaReferral            Code ::= local:9
 
 -- error code for DISP
-id-errcode-shadowError Code ::= local:1
+
+id-errcode-shadowError            Code ::= local:1
 
 -- error code for DOP
-id-err-operationalBindingError Code ::= local:100
+
+id-err-operationalBindingError    Code ::= local:100
 
 DOP-Invokable OPERATION ::=
-  {establishOperationalBinding | modifyOperationalBinding |
+  {establishOperationalBinding | 
+   modifyOperationalBinding |
    terminateOperationalBinding}
 
 DOP-Returnable OPERATION ::=
-  {establishOperationalBinding | modifyOperationalBinding |
+  {establishOperationalBinding |
+   modifyOperationalBinding |
    terminateOperationalBinding}
 
 END -- CommonProtocolSpecification
-
--- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
-

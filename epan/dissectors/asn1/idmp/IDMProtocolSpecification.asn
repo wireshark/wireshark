@@ -1,41 +1,52 @@
--- http://www.itu.int/ITU-T/formal-language/itu-t/x/x519/2005/IDMProtocolSpecification.asn
--- Module IDMProtocolSpecification (X.519:08/2005)
-IDMProtocolSpecification {joint-iso-itu-t ds(5) module(1)
-  iDMProtocolSpecification(30) 5} DEFINITIONS ::=
+-- https://www.itu.int/ITU-T/formal-language/itu-t/x/x519/2019/IDMProtocolSpecification.html
+-- Module IDMProtocolSpecification (X.519:10/2019)
+IDMProtocolSpecification
+  {joint-iso-itu-t ds(5) module(1) iDMProtocolSpecification(30) 10}
+DEFINITIONS ::=
 BEGIN
 
--- EXPORTS All 
--- The types and values defined in this module are exported for use in the other ASN.1 modules contained 
--- within the Directory Specifications, and for the use of other applications which will use them to access Directory
--- services. Other applications may use them for their own purposes, but this will not constrain extensions
--- and modifications needed to maintain or improve the Directory service.
+-- EXPORTS All
+/*
+The types and values defined in this module are exported for use in the other ASN.1
+modules contained within these Directory Specifications, and for the use of other
+applications which will use them to access Directory services. Other applications may
+use them for their own purposes, but this will not constrain extensions and
+modifications needed to maintain or improve the Directory service.
+*/
 IMPORTS
-  -- from ITU-T Rec. X.501 | ISO/IEC 9594-2
-  certificateExtensions, commonProtocolSpecification, directoryAbstractService,
-    directoryIDMProtocols, enhancedSecurity
-    FROM UsefulDefinitions {joint-iso-itu-t ds(5) module(1)
-      usefulDefinitions(0) 5}
-  -- from ITU-T Rec. X.509 | ISO/IEC 9594-8
-  GeneralName
-    FROM CertificateExtensions certificateExtensions
-  -- from ITU-T Rec. X.511 | ISO/IEC 9594-3
-  SecurityProblem, ServiceProblem, Versions
-    FROM DirectoryAbstractService directoryAbstractService
-  -- from ITU-T Rec. X.519 | ISO/IEC 9594-5
-  InvokeId, OPERATION
-    FROM CommonProtocolSpecification commonProtocolSpecification;
 
--- IDM-protocol information object class 
+   -- from Rec. ITU-T X.509 | ISO/IEC 9594-8
+
+  GeneralName
+    FROM CertificateExtensions
+      {joint-iso-itu-t ds(5) module(1) certificateExtensions(26) 10} WITH SUCCESSORS
+
+  -- from Rec. ITU-T X.511 | ISO/IEC 9594-3
+
+  SecurityProblem, ServiceProblem, Versions
+    FROM DirectoryAbstractService
+      {joint-iso-itu-t ds(5) module(1) directoryAbstractService(2) 10} WITH SUCCESSORS
+
+  -- from Rec. ITU-T X.519 | ISO/IEC 9594-5
+
+  OPERATION
+    FROM CommonProtocolSpecification
+      {joint-iso-itu-t ds(5) module(1) commonProtocolSpecification(35) 9}
+       WITH SUCCESSORS ;
+
+       -- IDM-protocol information object class 
+
 IDM-PROTOCOL ::= CLASS {
   &bind-operation  OPERATION,
   &Operations      OPERATION,
-  &id              OBJECT IDENTIFIER UNIQUE
-}WITH SYNTAX {BIND-OPERATION &bind-operation
-              OPERATIONS &Operations
-              ID &id
-}
+  &id              OBJECT IDENTIFIER UNIQUE }
+WITH SYNTAX {
+  BIND-OPERATION   &bind-operation
+  OPERATIONS       &Operations
+  ID               &id }
 
 -- IDM protocol 
+
 IDM-PDU{IDM-PROTOCOL:protocol} ::= CHOICE {
   bind         [0]  IdmBind{{protocol}},
   bindResult   [1]  IdmBindResult{{protocol}},
@@ -47,78 +58,94 @@ IDM-PDU{IDM-PROTOCOL:protocol} ::= CHOICE {
   unbind       [7]  Unbind,
   abort        [8]  Abort,
   startTLS     [9]  StartTLS,
-  tLSResponse  [10]  TLSResponse
-}
+  tLSResponse  [10] TLSResponse,
+  ... }
 
 IdmBind{IDM-PROTOCOL:Protocols} ::= SEQUENCE {
-  protocolID      IDM-PROTOCOL.&id({Protocols}),
+  protocolID           IDM-PROTOCOL.&id({Protocols}),
   callingAETitle  [0]  GeneralName OPTIONAL,
   calledAETitle   [1]  GeneralName OPTIONAL,
-  argument
-    [2]  IDM-PROTOCOL.&bind-operation.&ArgumentType({Protocols}{@protocolID})
-}
+  argument        [2]  IDM-PROTOCOL.&bind-operation.&ArgumentType
+                         ({Protocols}{@protocolID}),
+  ... }
 
 IdmBindResult{IDM-PROTOCOL:Protocols} ::= SEQUENCE {
-  protocolID         IDM-PROTOCOL.&id({Protocols}),
+  protocolID              IDM-PROTOCOL.&id({Protocols}),
   respondingAETitle  [0]  GeneralName OPTIONAL,
-  result
-    [1]  IDM-PROTOCOL.&bind-operation.&ResultType({Protocols}{@protocolID})
-}
+  result             [1]  IDM-PROTOCOL.&bind-operation.&ResultType
+                            ({Protocols}{@protocolID}),
+  ... }
 
 IdmBindError{IDM-PROTOCOL:Protocols} ::= SEQUENCE {
-  protocolID         IDM-PROTOCOL.&id({Protocols}),
-  errcode
-    IDM-PROTOCOL.&bind-operation.&Errors.&errorCode({Protocols}{@protocolID}),
+  protocolID              IDM-PROTOCOL.&id({Protocols}),
+--errcode                 IDM-PROTOCOL.&bind-operation.&Errors.&errorCode OPTIONAL
   respondingAETitle  [0]  GeneralName OPTIONAL,
-  aETitleError
-    ENUMERATED {callingAETitleNotAccepted(0), calledAETitleNotRecognized(1)}
-      OPTIONAL,
-  error
-    [1]  IDM-PROTOCOL.&bind-operation.&Errors.&ParameterType
-           ({Protocols}{@protocolID, @errcode})
-}
-
-Unbind ::= NULL
+  aETitleError            ENUMERATED {
+    callingAETitleNotAccepted  (0),
+    calledAETitleNotRecognized (1),
+    ...} OPTIONAL,
+  error              [1]  IDM-PROTOCOL.&bind-operation.&Errors.&ParameterType
+                            ({Protocols}{@protocolID}),
+  ... }
 
 Request{OPERATION:Operations} ::= SEQUENCE {
   invokeID  INTEGER,
   opcode    OPERATION.&operationCode({Operations}),
-  argument  OPERATION.&ArgumentType({Operations}{@opcode})
-}
+  argument  OPERATION.&ArgumentType({Operations}{@opcode}),
+  ... }
 
 IdmResult{OPERATION:Operations} ::= SEQUENCE {
-  invokeID  InvokeId,
+  invokeID  INTEGER,
   opcode    OPERATION.&operationCode({Operations}),
-  result    OPERATION.&ResultType({Operations}{@opcode})
-}
+  result    OPERATION.&ResultType({Operations}{@opcode}),
+  ... }
 
 Error{OPERATION:Operations} ::= SEQUENCE {
   invokeID  INTEGER,
   errcode   OPERATION.&Errors.&errorCode({Operations}),
-  error     OPERATION.&Errors.&ParameterType({Operations}{@errcode})
-}
+  error     OPERATION.&Errors.&ParameterType({Operations}{@errcode}),
+  ... }
 
 IdmReject ::= SEQUENCE {
   invokeID  INTEGER,
-  reason
-    ENUMERATED {mistypedPDU(0), duplicateInvokeIDRequest(1),
-                unsupportedOperationRequest(2), unknownOperationRequest(3),
-                mistypedArgumentRequest(4), resourceLimitationRequest(5),
-                unknownInvokeIDResult(6), mistypedResultRequest(7),
-                unknownInvokeIDError(8), unknownError(9),
-                mistypedParameterError(10)}
-}
+  reason    ENUMERATED {
+    mistypedPDU                 (0),
+    duplicateInvokeIDRequest    (1),
+    unsupportedOperationRequest (2),
+    unknownOperationRequest     (3),
+    mistypedArgumentRequest     (4),
+    resourceLimitationRequest   (5),
+    unknownInvokeIDResult       (6),
+    mistypedResultRequest       (7),
+    unknownInvokeIDError        (8),
+    unknownError                (9),
+    mistypedParameterError      (10),
+    unsupportedIdmVersion       (11),
+    unsuitableIdmVersion        (12),
+    invalidIdmVersion           (13), 
+    ...},
+  ... }
+
+Unbind ::= NULL
 
 Abort ::= ENUMERATED {
-  mistypedPDU(0), unboundRequest(1), invalidPDU(2), resourceLimitation(3),
-  connectionFailed(4), invalidProtocol(5), reasonNotSpecified(6)}
+  mistypedPDU         (0),
+  unboundRequest      (1),
+  invalidPDU          (2),
+  resourceLimitation  (3),
+  connectionFailed    (4),
+  invalidProtocol     (5),
+  reasonNotSpecified  (6),
+  ...}
 
 StartTLS ::= NULL
 
 TLSResponse ::= ENUMERATED {
-  success(0), operationsError(1), protocolError(2), unavailable(3)}
+  success         (0),
+  operationsError (1),
+  protocolError   (2),
+  unavailable     (3),
+  ...}
 
 END -- IDMProtocolSpecification
-
--- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
 
