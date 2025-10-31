@@ -31,9 +31,10 @@ extern "C" {
  * so before calling this.
  *
  * @param arg0 Executable name hint. Should be argv[0].
+ * @param app_flavor_lower "Main" application associated with the configuration ("wireshark" or "stratoshark")
  * @return NULL on success, and a g_mallocated string containing an error on failure.
  */
-WS_DLL_PUBLIC char *configuration_init(const char *arg0);
+WS_DLL_PUBLIC char *configuration_init(const char *arg0, const char* app_flavor_lower);
 
 /**
  * @brief Get the directory in which the main (Wireshark, TShark, Stratoshark, etc)

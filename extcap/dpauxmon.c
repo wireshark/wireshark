@@ -501,7 +501,7 @@ int main(int argc, char *argv[])
 	 * Attempt to get the pathname of the directory containing the
 	 * executable file.
 	 */
-	configuration_init_error = configuration_init(argv[0]);
+	configuration_init_error = configuration_init(argv[0], "wireshark");
 	if (configuration_init_error != NULL) {
 		ws_warning("Can't get pathname of directory containing the extcap program: %s.",
 			configuration_init_error);

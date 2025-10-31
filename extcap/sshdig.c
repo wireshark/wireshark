@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
      * executable file.
      */
     set_application_flavor(APPLICATION_FLAVOR_STRATOSHARK);
-    err_msg = configuration_init(argv[0]);
+    err_msg = configuration_init(argv[0], "stratoshark");
     if (err_msg != NULL) {
         ws_warning("Can't get pathname of directory containing the extcap program: %s.",
                 err_msg);

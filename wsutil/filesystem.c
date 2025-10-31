@@ -469,7 +469,7 @@ get_current_executable_path(void)
 
 /* Extcap executables are in their own subdirectory. This trims that off and
  * reduces progfile_dir to the common program file directory. */
-static void trim_progfile_dir(void)
+static void trim_progfile_dir(const char* app_flavor_lower _U_)
 {
     char *progfile_last_dir = find_last_pathname_separator(progfile_dir);
 
@@ -478,7 +478,7 @@ static void trim_progfile_dir(void)
      * Check the flavor of our extcap subdirectory.
      * XXX - Do we only need to do this on Windows, or on other platforms too?
      */
-    if (progfile_last_dir && strncmp(progfile_last_dir + 1, application_flavor_name_lower(), strlen(application_flavor_name_lower())) == 0) {
+    if (progfile_last_dir && strncmp(progfile_last_dir + 1, app_flavor_lower, strlen(app_flavor_lower)) == 0) {
         char* flavor_last_dir = find_last_pathname_separator(progfile_dir);
         char flavor_sep = *flavor_last_dir;
         *flavor_last_dir = '\0';
@@ -553,7 +553,7 @@ get_executable_path(const char *program_name)
  */
 #ifdef _WIN32
 static char *
-configuration_init_w32(const char* arg0 _U_)
+configuration_init_w32(const char* app_flavor, const char* arg0 _U_)
 {
     TCHAR prog_pathname_w[_MAX_PATH+2];
     char *prog_pathname;
@@ -579,7 +579,7 @@ configuration_init_w32(const char* arg0 _U_)
         progfile_dir = g_path_get_dirname(prog_pathname);
         if (progfile_dir != NULL) {
             /* We succeeded. */
-            trim_progfile_dir();
+            trim_progfile_dir(app_flavor);
             /* Now try to figure out if we're running in a build directory. */
             char *wsutil_lib = g_build_filename(progfile_dir, "wsutil.lib", (char *)NULL);
             if (file_exists(wsutil_lib)) {
@@ -644,7 +644,7 @@ configuration_init_w32(const char* arg0 _U_)
 #else /* !_WIN32 */
 
 static char *
-configuration_init_posix(const char* arg0)
+configuration_init_posix(const char* app_flavor, const char* arg0)
 {
     const char *execname;
     char *prog_pathname;
@@ -867,7 +867,7 @@ configuration_init_posix(const char* arg0)
          * OK, we have the path we want.
          */
         progfile_dir = prog_pathname;
-        trim_progfile_dir();
+        trim_progfile_dir(app_flavor);
     } else {
         /*
          * This "shouldn't happen"; we apparently
@@ -900,12 +900,12 @@ configuration_init_posix(const char* arg0)
 #endif /* ?_WIN32 */
 
 char *
-configuration_init(const char* arg0)
+configuration_init(const char* arg0, const char* app_flavor_lower)
 {
 #ifdef _WIN32
-    return configuration_init_w32(arg0);
+    return configuration_init_w32(app_flavor_lower, arg0);
 #else
-    return configuration_init_posix(arg0);
+    return configuration_init_posix(app_flavor_lower, arg0);
 #endif
 }
 
