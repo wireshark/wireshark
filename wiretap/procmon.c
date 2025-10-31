@@ -249,6 +249,30 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
         return WTAP_OPEN_NOT_MINE;
     }
 
+#if G_BYTE_ORDER == G_BIG_ENDIAN
+    header->version = GUINT32_SWAP_LE_BE(header->version);
+    header->system_bitness = GUINT32_SWAP_LE_BE(header->system_bitness);
+    header->num_events = GUINT32_SWAP_LE_BE(header->num_events);
+    header->start_events_offset = GUINT64_SWAP_LE_BE(header->start_events_offset);
+    header->array_offsets_offset = GUINT64_SWAP_LE_BE(header->array_offsets_offset);
+    header->process_array_offset = GUINT64_SWAP_LE_BE(header->process_array_offset);
+    header->string_array_offset = GUINT64_SWAP_LE_BE(header->string_array_offset);
+    header->icon_array_offset = GUINT64_SWAP_LE_BE(header->icon_array_offset);
+    header->maximum_user_address = GUINT64_SWAP_LE_BE(header->maximum_user_address);
+    header->os_version_info_size = GUINT32_SWAP_LE_BE(header->os_version_info_size);
+    header->major_version = GUINT32_SWAP_LE_BE(header->major_version);
+    header->minor_version = GUINT32_SWAP_LE_BE(header->minor_version);
+    header->build_number = GUINT32_SWAP_LE_BE(header->build_number);
+    header->platform_id = GUINT32_SWAP_LE_BE(header->platform_id);
+    header->service_pack_major = GUINT16_SWAP_LE_BE(header->service_pack_major);
+    header->service_pack_minor = GUINT16_SWAP_LE_BE(header->service_pack_minor);
+    header->suite_mask = GUINT16_SWAP_LE_BE(header->suite_mask);
+    header->num_processors = GUINT32_SWAP_LE_BE(header->num_processors);
+    header->total_physical_memory = GUINT64_SWAP_LE_BE(header->total_physical_memory);
+    header->start_events_offset_dup = GUINT64_SWAP_LE_BE(header->start_events_offset_dup);
+    header->host_port_array_offset = GUINT64_SWAP_LE_BE(header->host_port_array_offset);
+#endif
+
     wth->meta_events = g_array_new(false, false, sizeof(wtap_block_t));
 
     wth->priv = header;
