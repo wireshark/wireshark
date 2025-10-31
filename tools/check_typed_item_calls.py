@@ -640,7 +640,10 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'hf_h223_mux_mpl',
                                 'rdp.flags.pkt',
                                 'erf.flags.if_raw',  # confirmed by Stephen Donnelly
-                                'oran_fh_cus.sReSMask'
+                                'oran_fh_cus.sReSMask',
+                                'ttl.trace_data.entry.status_info.can_flags',
+                                'ttl.trace_data.entry.status_info.fr_flags',
+                                'ttl.trace_data.entry.status_info.fr_pulse_flags'
                               }
 ##################################################################################################
 
