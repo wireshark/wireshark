@@ -122,13 +122,19 @@ if( GLIB2_FOUND )
 			set(_glib2_static_libraries ${PC_GLIB2_STATIC_LIBRARIES})
 			list(REMOVE_ITEM _glib2_static_libraries glib-2.0 libglib-2.0)
 			foreach(_lib IN LISTS _glib2_static_libraries)
-				string(MAKE_C_IDENTIFIER "GLIB2_STATIC_${_lib}_LIBRARY" _libvar)
-				find_library(${_libvar} ${_lib}
-					HINTS ${PC_GLIB2_STATIC_LIBRARY_DIRS}
-				)
-				set(_libpath ${${_libvar}})
-				if(_libpath)
-					list(APPEND GLIB2_STATIC_LIBRARIES ${_libpath})
+				if(_lib STREQUAL "m")
+					# Don't link statically with libm, because that fails
+					# when the C runtime is not statically linked as well
+					list(APPEND GLIB2_STATIC_LIBRARIES ${_lib})
+				else()
+					string(MAKE_C_IDENTIFIER "GLIB2_STATIC_${_lib}_LIBRARY" _libvar)
+					find_library(${_libvar} ${_lib}
+						HINTS ${PC_GLIB2_STATIC_LIBRARY_DIRS}
+					)
+					set(_libpath ${${_libvar}})
+					if(_libpath)
+						list(APPEND GLIB2_STATIC_LIBRARIES ${_libpath})
+					endif()
 				endif()
 			endforeach()
 			list(APPEND GLIB2_LIBRARIES ${GLIB2_STATIC_LIBRARIES})
