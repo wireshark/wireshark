@@ -379,9 +379,10 @@ bool ws_log_is_wslog_arg(int arg);
  * by misconfigured environment variables.
  *
  * @param vcmdarg_err  Optional callback for reporting initialization errors.
+ * @param console_title String title if/when console is launched
  */
 WS_DLL_PUBLIC
-void ws_log_init(void (*vcmdarg_err)(const char *, va_list ap));
+void ws_log_init(void (*vcmdarg_err)(const char *, va_list ap), const char* console_title);
 
 
 /**
@@ -392,10 +393,11 @@ void ws_log_init(void (*vcmdarg_err)(const char *, va_list ap));
  *
  * @param writer        Callback function to handle log output, or NULL for default.
  * @param vcmdarg_err   Optional callback for reporting initialization errors.
+ * @param console_title String title if/when console is launched
  */
 WS_DLL_PUBLIC
 void ws_log_init_with_writer(ws_log_writer_cb *writer,
-                        void (*vcmdarg_err)(const char *, va_list ap));
+                        void (*vcmdarg_err)(const char *, va_list ap), const char* console_title);
 
 
 /**
@@ -409,12 +411,13 @@ void ws_log_init_with_writer(ws_log_writer_cb *writer,
  * @param user_data      Pointer to user-defined data passed to the writer.
  * @param free_user_data Optional callback to free user_data during cleanup.
  * @param vcmdarg_err    Optional callback for reporting initialization errors.
+ * @param console_title String title if/when console is launched
  */
 WS_DLL_PUBLIC
 void ws_log_init_with_writer_and_data(ws_log_writer_cb *writer,
                         void *user_data,
                         ws_log_writer_free_data_cb *free_user_data,
-                        void (*vcmdarg_err)(const char *, va_list ap));
+                        void (*vcmdarg_err)(const char *, va_list ap), const char* console_title);
 
 
 /**

@@ -20,15 +20,18 @@ extern "C" {
 
 #ifdef _WIN32
 
+#include <tchar.h>
+
 /** @file
  * Win32 specific console.
  */
 
 /**
  * @brief Create Windows console.
+ * @param console_title String title if/when console is launched
  */
 WS_DLL_PUBLIC
-void create_console(void);
+void create_console(const char* console_title);
 
 /**
  * @brief Connect to stdio if available.

@@ -149,7 +149,7 @@ main(int argc, char *argv[])
     cmdarg_err_init(stderr_cmdarg_err, stderr_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init(vcmdarg_err);
+    ws_log_init(vcmdarg_err, "SharkD Debug Console");
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, sharkd_optstring(), sharkd_long_options(), vcmdarg_err, SHARKD_INIT_FAILED);

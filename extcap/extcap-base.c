@@ -177,7 +177,7 @@ void extcap_base_set_running_with(extcap_parameters * extcap, const char *fmt, .
 
 void extcap_log_init(void)
 {
-    ws_log_init(NULL);
+    ws_log_init(NULL, "Extcap Debug Console");
     /* extcaps cannot write debug information to parent on stderr. */
     ws_log_console_writer_set_use_stdout(true);
     ws_noisy("Extcap log initialization finished");

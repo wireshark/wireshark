@@ -88,7 +88,12 @@ commandline_print_usage(bool for_help_option) {
     FILE *output;
 
 #ifdef _WIN32
-    create_console();
+    if (application_flavor_is_wireshark()) {
+        create_console("Wireshark Debug Console");
+    }
+    else {
+        create_console("Stratoshark Debug Console");
+    }
 #endif
 
     if (for_help_option) {
@@ -373,7 +378,12 @@ int commandline_early_options(int argc, char *argv[])
                      * interfaces.  Report it.
                      */
 #ifdef _WIN32
-                    create_console();
+                    if (application_flavor_is_wireshark()) {
+                        create_console("Wireshark Debug Console");
+                    }
+                    else {
+                        create_console("Stratoshark Debug Console");
+                    }
 #endif /* _WIN32 */
                     cmdarg_err("%s", err_str);
                     g_free(err_str);
@@ -392,7 +402,12 @@ int commandline_early_options(int argc, char *argv[])
                     return exit_status;
                 }
 #ifdef _WIN32
-                create_console();
+                if (application_flavor_is_wireshark()) {
+                    create_console("Wireshark Debug Console");
+                }
+                else {
+                    create_console("Stratoshark Debug Console");
+                }
 #endif /* _WIN32 */
                 capture_opts_print_interfaces(if_list);
                 free_interface_list(if_list);
@@ -421,7 +436,12 @@ int commandline_early_options(int argc, char *argv[])
                 break;
             case 'v':        /* Show version and exit */
 #ifdef _WIN32
-                create_console();
+                if (application_flavor_is_wireshark()) {
+                    create_console("Wireshark Debug Console");
+                }
+                else {
+                    create_console("Stratoshark Debug Console");
+                }
 #endif
                 show_version();
 #ifdef _WIN32

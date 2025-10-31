@@ -904,7 +904,7 @@ int main(int argc, char **argv)
     /* Set the program name. */
     g_set_prgname(PROGNAME);
 
-    ws_log_init(NULL);
+    ws_log_init(NULL, "Test Logging Debug Console");
 
     g_test_init(&argc, &argv, NULL);
 

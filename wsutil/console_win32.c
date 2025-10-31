@@ -16,7 +16,6 @@
 
 #include <glib.h>
 
-#include <wsutil/application_flavor.h>
 #include <wsutil/file_util.h>
 
 #include "console_win32.h"
@@ -100,7 +99,7 @@ needs_redirection(int std_handle)
  * would go, create one.
  */
 void
-create_console(void)
+create_console(const char* console_title)
 {
     bool must_redirect_stdin;
     bool must_redirect_stdout;
@@ -161,13 +160,12 @@ to bugs introduced by a security patch.  To work around this, we
 do a FreeConsole() first. */
         FreeConsole();
         if (AllocConsole()) {
+            wchar_t* console_title_w = g_utf8_to_utf16(console_title, -1, NULL, NULL, NULL);
+
             /* That succeeded. */
             console_wait = true;
-            if (application_flavor_is_wireshark()) {
-                SetConsoleTitle(_T("Wireshark Debug Console"));
-            } else {
-                SetConsoleTitle(_T("Stratoshark Debug Console"));
-            }
+            SetConsoleTitle(console_title_w);
+            g_free(console_title_w);
         } else {
             /* On Windows XP, this still fails; FreeConsole() apparently
                 doesn't clear the state, as it does on Windows 7. */

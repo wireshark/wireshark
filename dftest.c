@@ -358,7 +358,7 @@ main(int argc, char **argv)
     cmdarg_err_init(stderr_cmdarg_err, stderr_cmdarg_err_cont);
 
     /* Initialize log handler early for startup. */
-    ws_log_init(vcmdarg_err);
+    ws_log_init(vcmdarg_err, "DFTest Debug Console");
 
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, optstring, long_options, vcmdarg_err, WS_EXIT_INVALID_OPTION);
