@@ -12,7 +12,7 @@
 
 #include <string.h>
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 
 static int ruby_marshal_file_type_subtype = -1;

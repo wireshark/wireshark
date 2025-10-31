@@ -11,6 +11,7 @@
 
 #include <wireshark.h>
 #include <time.h>
+#include <wsutil/array.h>
 #include <wsutil/buffer.h>
 #include <wsutil/nstime.h>
 #include <wsutil/inet_addr.h>
@@ -379,13 +380,12 @@ extern "C" {
  *
  * NOTE: do not use pseudo-header structures to hold information
  * used by the code to read a particular capture file type; to
- * keep that sort of state information, add a new structure for
- * that private information to "wtap-int.h", add a pointer to that
- * type of structure to the "capture" member of the "struct wtap"
- * structure, and allocate one of those structures and set that member
- * in the "open" routine for that capture file type if the open
- * succeeds.  See various other capture file type handlers for examples
- * of that.
+ * keep that sort of state information, define a private structure
+ * to hold that information in your code, and allocate one of those
+ * structures and set the "priv" member of the wth strucure to
+ * point to the allocated structure in the "open" routine for that
+ * capture file type if the open succeeds.  See various other capture
+ * file type handlers for examples of that.
  */
 
 

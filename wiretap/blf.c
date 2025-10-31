@@ -41,7 +41,7 @@
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include "file_wrappers.h"
-#include "wtap-int.h"
+#include "wtap_module.h"
 
 static const uint8_t blf_magic[] = { 'L', 'O', 'G', 'G' };
 static const uint8_t blf_obj_magic[] = { 'L', 'O', 'B', 'J' };

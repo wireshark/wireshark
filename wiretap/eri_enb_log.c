@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include "file_wrappers.h"
-#include "wtap-int.h"
+#include "wtap_module.h"
 
 static const char eri_enb_log_magic[] = "com_ericsson";
 

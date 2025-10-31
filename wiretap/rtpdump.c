@@ -49,7 +49,7 @@
 #include "config.h"
 #include "rtpdump.h"
 
-#include <wtap-int.h>
+#include <wtap_module.h>
 #include <file_wrappers.h>
 #include <wsutil/exported_pdu_tlvs.h>
 #include <wsutil/inet_addr.h>

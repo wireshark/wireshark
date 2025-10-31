@@ -9,7 +9,7 @@
 #include "config.h"
 #include "ascendtext.h"
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "ascend-int.h"
 #include "file_wrappers.h"
 

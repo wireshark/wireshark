@@ -17,7 +17,7 @@
 #include <unistd.h>
 #endif
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include <wsutil/buffer.h>
 #include <wsutil/pint.h>
 #include "file_wrappers.h"

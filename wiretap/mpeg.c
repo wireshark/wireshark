@@ -28,7 +28,7 @@
 
 #include "wsutil/mpeg-audio.h"
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include <wsutil/buffer.h>
 #include "file_wrappers.h"
 #include <stdlib.h>

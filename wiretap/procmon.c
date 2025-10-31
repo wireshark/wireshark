@@ -14,7 +14,7 @@
 
 #include "procmon.h"
 #include "file_wrappers.h"
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "pcapng_module.h"
 
 #include <wsutil/buffer.h>

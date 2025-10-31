@@ -41,7 +41,7 @@
 
 #include <wsutil/pint.h>
 
-#include <wtap-int.h>
+#include <wtap_module.h>
 #include <file_wrappers.h>
 
 /* the block types */

@@ -34,7 +34,7 @@
 #include <wsutil/ws_padding_to.h>
 #include <wsutil/unicode-utils.h>
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 #include "required_file_handlers.h"
 #include "pcap-common.h"

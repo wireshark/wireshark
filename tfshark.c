@@ -61,7 +61,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/ex-opt.h>
 
-#include <wiretap/wtap-int.h>
+#include <wiretap/wtap_module.h>
 #include <wiretap/file_wrappers.h>
 
 #include <epan/funnel.h>

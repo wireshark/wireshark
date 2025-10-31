@@ -29,8 +29,9 @@
 #include <string.h>
 #include <time.h>
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
+#include <wsutil/array.h>
 #include <wsutil/buffer.h>
 
 typedef struct {

@@ -10,7 +10,7 @@
 #define WS_LOG_DOMAIN "MModuleFile"
 #include "mmodule.h"
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 
 static int mmodule_file_type_subtype = -1;

@@ -23,9 +23,10 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 #include <wsutil/802_11-utils.h>
+#include <wsutil/array.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/pint.h>
 #include <libxml/tree.h>

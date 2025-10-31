@@ -15,12 +15,13 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 #include "atm.h"
 #include "erf_record.h"
 #include "pcap-encap.h"
 
+#include <wsutil/array.h>
 #include <wsutil/ws_roundup.h>
 #include <wsutil/pint.h>
 

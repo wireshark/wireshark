@@ -16,7 +16,7 @@
 #include "config.h"
 #include "stanag4607.h"
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 #include <wsutil/buffer.h>
 #include <wsutil/pint.h>

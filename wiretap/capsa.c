@@ -10,7 +10,7 @@
 #include "capsa.h"
 
 #include <string.h>
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 #include <wsutil/ws_assert.h>
 
