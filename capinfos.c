@@ -1523,7 +1523,7 @@ main(int argc, char *argv[])
     }
 
     /* Initialize the version information. */
-    ws_init_version_info("Capinfos", NULL, NULL);
+    ws_init_version_info("Capinfos", NULL, get_ws_vcs_version_info, NULL, NULL);
 
     init_report_failure_message("capinfos");
 

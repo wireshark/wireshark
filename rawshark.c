@@ -486,7 +486,7 @@ main(int argc, char *argv[])
     }
 
     /* Initialize the version information. */
-    ws_init_version_info("Rawshark",
+    ws_init_version_info("Rawshark", NULL, get_ws_vcs_version_info,
                          epan_gather_compile_info,
                          NULL);
 

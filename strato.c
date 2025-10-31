@@ -1026,7 +1026,7 @@ main(int argc, char *argv[])
 #endif /* _WIN32 */
 
     /* Initialize the version information. */
-    ws_init_version_info("strato",
+    ws_init_version_info("strato", application_flavor_name_proper(), get_ss_vcs_version_info,
             gather_strato_compile_info, gather_strato_runtime_info);
 
     /* Fail sometimes. Useful for testing fuzz scripts. */

@@ -29,8 +29,12 @@ extern "C" {
  * if possible.
  *
  * @param appname A string that appears at the beginning of the information;
- * it should be the application name. If the program isn't Wireshark,
- * "(Wireshark)" will be added.
+ * it should be the application name.
+ *
+ * @param appflavor Optional additional string for the "parent" program.
+ * If NULL, "(Wireshark)" will be added.
+ *
+ * @param version_func Required callback to get version information.
  *
  * @param gather_compile Optional callback (if non-null) called to add build-time
  * information.
@@ -42,6 +46,8 @@ extern "C" {
  */
 WS_DLL_PUBLIC
 void ws_init_version_info(const char *appname,
+		const char* appflavor,
+		get_version_func version_func,
 		gather_feature_func gather_compile,
 		gather_feature_func gather_runtime);
 

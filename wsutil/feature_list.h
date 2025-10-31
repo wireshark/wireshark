@@ -47,6 +47,13 @@ typedef GList **feature_list;
 typedef void(*gather_feature_func)(feature_list l);
 
 /**
+ * @brief Pointer to a function which gets a version string.
+ */
+typedef const char* (*get_version_func)(void);
+
+
+
+/**
  * @brief Mark a feature as present in the provided list.
  *
  * @param l   Mutable feature list to update.

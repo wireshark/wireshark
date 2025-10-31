@@ -42,7 +42,6 @@
 
 #include "vcs_version.h"
 
-#include <wsutil/application_flavor.h>
 #include <wsutil/cpu_info.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/crash_info.h>
@@ -60,6 +59,8 @@ static void get_mem_info(GString *str);
 
 void
 ws_init_version_info(const char *appname,
+		const char* appflavor,
+		get_version_func version_func,
 		gather_feature_func gather_compile,
 		gather_feature_func gather_runtime)
 {
@@ -80,16 +81,16 @@ ws_init_version_info(const char *appname,
 	 * version - including the VCS version, for a build from
 	 * a checkout.
 	 */
-	if (strstr(appname, application_flavor_name_proper()) != NULL) {
+	appname_with_version = ws_strdup_printf("%s %s",
+			appname, version_func());
+	if ((appflavor != NULL) && strstr(appname, appflavor) != NULL) {
 		appname_with_version = ws_strdup_printf("%s %s",
-			appname,
-			application_flavor_is_wireshark() ? get_ws_vcs_version_info() : get_ss_vcs_version_info());
+			appname, version_func());
 	}
 	/* Include our application flavor. The default is "Wireshark" */
 	else {
 		appname_with_version = ws_strdup_printf("%s (%s) %s",
-			appname, application_flavor_name_proper(),
-			application_flavor_is_wireshark() ? get_ws_vcs_version_info() : get_ss_vcs_version_info());
+			appname, (appflavor != NULL) ? appflavor : "Wireshark", version_func());
 	}
 
 	/* Get the compile-time version information string */

@@ -5337,7 +5337,7 @@ main(int argc, char *argv[])
 #endif
 
     /* Initialize the version information. */
-    ws_init_version_info("Dumpcap", gather_dumpcap_compiled_info,
+    ws_init_version_info("Dumpcap", NULL, get_ws_vcs_version_info, gather_dumpcap_compiled_info,
                          gather_dumpcap_runtime_info);
 
     /* Initialize the pcaps list and IDBs */
