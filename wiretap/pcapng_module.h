@@ -12,7 +12,6 @@
 #include <wiretap/wtap_module.h>
 
 #include "ws_symbol_export.h"
-#include "pcapng.h"
 
 #ifdef __cplusplus
 extern "C" {
