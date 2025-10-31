@@ -1812,12 +1812,14 @@ class Item:
     # An item that appears in a bitmask set, needs to have a non-zero mask.
     def check_mask_if_in_field_array(self, mask, field_arrays):
         # Work out if this item appears in a field array
+        found = False
         for arr in field_arrays:
             list = field_arrays[arr][0]
             if self.hf in list:
                 # These need to have a mask - don't judge for being 0
+                found = True
                 break
-        else:
+        if found:
             # It needs to have a non-zero mask.
             if self.mask_read and self.mask_value == 0:
                 print('Error:', self.filename, self.hf, 'is in fields array', arr, 'but has a zero mask - this is not allowed')
