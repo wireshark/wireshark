@@ -492,6 +492,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-mbtcp.h
 	packet-media-type.h
 	packet-mgcp.h
+	packet-midi-sysex-id.h
 	packet-mle.h
 	packet-mms.h
 	packet-mount.h
@@ -1541,6 +1542,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-meta.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-metamako.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mgcp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-midi-sysex-id.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mih.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mikey.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mime-encap.c

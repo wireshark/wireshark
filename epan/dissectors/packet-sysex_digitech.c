@@ -14,7 +14,7 @@
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 
-#define SYSEX_MANUFACTURER_DOD 0x000010
+#include <packet-midi-sysex-id.h>
 
 void proto_register_sysex_digitech(void);
 
@@ -1321,7 +1321,7 @@ proto_register_sysex_digitech(void)
 void
 proto_reg_handoff_sysex_digitech(void)
 {
-    dissector_add_uint("sysex.manufacturer", SYSEX_MANUFACTURER_DOD, sysex_digitech_handle);
+    dissector_add_uint("sysex.manufacturer", MIDI_SYSEX_ID_DOD_ELECTRONICS_CORP, sysex_digitech_handle);
 }
 
 /*
