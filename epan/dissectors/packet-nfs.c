@@ -2763,11 +2763,11 @@ dissect_fhandle(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *
 	/* are we snooping fh to filenames ?*/
 	if ((!pinfo->fd->visited) && nfs_file_name_snooping) {
 
-		/* NFS v2 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
+		/* NFS v2 LOOKUP, CREATE, MKDIR, SYMLINK calls might give us a mapping*/
 		if ( (civ->prog == 100003)
 		  &&(civ->vers == 2)
 		  &&(!civ->request)
-		  &&((civ->proc == 4)||(civ->proc == 9)||(civ->proc == 14))
+		  &&((civ->proc == 4)||(civ->proc == 9)||(civ->proc == 13)||(civ->proc == 14))
 		) {
 			nfs_name_snoop_add_fh(civ->xid, tvb,
 				offset, 32);
@@ -3102,12 +3102,12 @@ dissect_diropargs(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree
 
 	/* are we snooping fh to filenames ?*/
 	if ((!pinfo->fd->visited) && nfs_file_name_snooping) {
-		/* v2 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
+		/* v2 LOOKUP, CREATE, MKDIR, SYMLINK calls might give us a mapping*/
 
 		if ( (civ->prog == 100003)
 		  &&(civ->vers == 2)
 		  &&(civ->request)
-		  &&((civ->proc == 4)||(civ->proc == 9)||(civ->proc == 14))
+		  &&((civ->proc == 4)||(civ->proc == 9)||(civ->proc == 13)||(civ->proc == 14))
 		) {
 			nfs_name_snoop_add_name(civ->xid, tvb,
 				offset+36, tvb_get_ntohl(tvb, offset+32),
@@ -3874,12 +3874,12 @@ dissect_nfs3_fh(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *
 
 	/* are we snooping fh to filenames ?*/
 	if ((!pinfo->fd->visited) && nfs_file_name_snooping) {
-		/* NFS v3 LOOKUP, CREATE, MKDIR
+		/* NFS v3 LOOKUP, CREATE, MKDIR, SYMLINK, MKNOD
 			calls might give us a mapping*/
 		if ( ((civ->prog == 100003)
 		  &&((civ->vers == 3)
 		  &&(!civ->request)
-		  &&((civ->proc == 3)||(civ->proc == 8)||(civ->proc == 9))))
+		  &&((civ->proc == 3)||(civ->proc == 8)||(civ->proc == 9)||(civ->proc == 10)||(civ->proc == 11))))
 		|| civ->vers == 4
 		) {
 			fh_length = tvb_get_ntohl(tvb, offset);
@@ -4494,11 +4494,11 @@ dissect_diropargs3(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tre
 
 	/* are we snooping fh to filenames ?*/
 	if ((!pinfo->fd->visited) && nfs_file_name_snooping) {
-		/* v3 LOOKUP, CREATE, MKDIR calls might give us a mapping*/
+		/* v3 LOOKUP, CREATE, MKDIR, SYMLINK, MKNOD calls might give us a mapping*/
 		if ( (civ->prog == 100003)
 		  &&(civ->vers == 3)
 		  &&(civ->request)
-		  &&((civ->proc == 3)||(civ->proc == 8)||(civ->proc == 9))
+		  &&((civ->proc == 3)||(civ->proc == 8)||(civ->proc == 9)||(civ->proc == 10)||(civ->proc == 11))
 		) {
 			nfs_name_snoop_add_name(civ->xid, tvb,
 				name_offset, name_len,
