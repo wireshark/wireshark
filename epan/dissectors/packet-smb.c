@@ -3123,9 +3123,10 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		 * For LAN Manager 1 and 2.0, byte count have been
 		 * already processed because the original value of chl
 		 * was zero and it was changed to bc.
+		 * Always in ASCII as LAN Manager dialects do not support UNICODE.
 		 */
 		dn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
-			si->unicode, &dn_len, false, false, &bc);
+			false, &dn_len, false, false, &bc);
 		if (dn == NULL)
 			goto endofcommand;
 		proto_tree_add_string(tree, hf_smb_primary_domain, tvb,
