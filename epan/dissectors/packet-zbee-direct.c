@@ -1026,12 +1026,12 @@ static int dissect_zb_direct_dump_info(tvbuff_t    *tvb,
             tvb_memcpy(tvb, key_record.zvd_ieee, offset, sizeof(key_record.zdd_ieee));
             offset += 8;
 
-            key_record.frame_num = pinfo->num;
-            key_record.label = g_strdup_printf("Key reported over air in packet #%d", pinfo->num);
-
             /* Check if this key was already added */
             if (zbee_pc_keyring == NULL || keyrec(zbee_pc_keyring)->frame_num < pinfo->num)
             {
+                key_record.frame_num = pinfo->num;
+                key_record.label = g_strdup_printf("Key reported over air in packet #%d", pinfo->num);
+
                 /* store the keys in order: latest <- ... <- first <- (UAT: top <- ... <- bottom) */
                 zbee_pc_keyring = g_slist_prepend(zbee_pc_keyring,
                                                   g_memdup2(&key_record, sizeof(zb_direct_key_record_t)));
@@ -1591,6 +1591,7 @@ static void zb_direct_cleanup(void)
     {
         GSList *element = zbee_pc_keyring;
 
+        zbd_free_key_record(element->data);
         zbee_pc_keyring = g_slist_delete_link(zbee_pc_keyring, element);
     }
 }
