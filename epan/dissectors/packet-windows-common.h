@@ -5752,6 +5752,7 @@ extern value_string_ext HRES_errors_ext;
     XXX( SMBE_DOS_badshare,                         32, "Share mode on file conflict with open mode") \
     XXX( SMBE_DOS_lock,                             33, "Lock request conflicts with existing lock") \
     XXX( SMBE_DOS_unsup,                            50, "Request unsupported, returned by Win 95") /* RJS 20Jun98 */ \
+    XXX( SMBE_DOS_dupnamenet,                       52, "Duplicate name on network") /* returned by SMB TreeConnectAndX */ \
     XXX( SMBE_DOS_netnamedel,                       64, "Network name deleted or not available") \
     XXX( SMBE_DOS_noipc,                            66, "Don't support ipc")   \
     XXX( SMBE_DOS_nosuchshare,                      67, "Requested share does not exist") \
