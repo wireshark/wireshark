@@ -203,7 +203,7 @@
 #define NL4_NETADDR 3
 
 extern bool nfs_file_name_snooping;
-extern void nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, unsigned name_offset, unsigned name_len,
+extern void nfs_name_snoop_add_name(uint64_t id, tvbuff_t *tvb, unsigned name_offset, unsigned name_len,
 	unsigned parent_offset, unsigned parent_len, const char *name);
 extern bool nfs_fhandle_reqrep_matching;
 extern unsigned dissect_fhandle(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree,

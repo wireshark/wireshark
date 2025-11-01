@@ -1171,25 +1171,6 @@ nfs_name_snoop_matched_hash(const void *k)
 }
 
 
-static int
-nfs_name_snoop_unmatched_equal(const void *k1, const void *k2)
-{
-	uint32_t key1 = GPOINTER_TO_UINT(k1);
-	uint32_t key2 = GPOINTER_TO_UINT(k2);
-
-	return key1 == key2;
-}
-
-
-static unsigned
-nfs_name_snoop_unmatched_hash(const void *k)
-{
-	uint32_t key = GPOINTER_TO_UINT(k);
-
-	return key;
-}
-
-
 static void
 nfs_name_snoop_value_destroy(void *value)
 {
@@ -1207,12 +1188,12 @@ static void
 nfs_name_snoop_init(void)
 {
 	nfs_name_snoop_readdir =
-		g_hash_table_new_full(nfs_name_snoop_unmatched_hash,
-		nfs_name_snoop_unmatched_equal,
+		g_hash_table_new_full(g_int64_hash,
+		g_int64_equal,
 		NULL, nfs_name_snoop_value_destroy);
 	nfs_name_snoop_unmatched =
-		g_hash_table_new_full(nfs_name_snoop_unmatched_hash,
-		nfs_name_snoop_unmatched_equal,
+		g_hash_table_new_full(g_int64_hash,
+		g_int64_equal,
 		NULL, nfs_name_snoop_value_destroy);
 	nfs_name_snoop_matched =
 		g_hash_table_new_full(nfs_name_snoop_matched_hash,
@@ -1230,11 +1211,12 @@ nfs_name_snoop_cleanup(void)
 
 
 void
-nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, unsigned name_offset, unsigned name_len, unsigned parent_offset,
+nfs_name_snoop_add_name(uint64_t id, tvbuff_t *tvb, unsigned name_offset, unsigned name_len, unsigned parent_offset,
 	unsigned parent_len, const char *name)
 {
 	nfs_name_snoop_t *nns;
 	const char	 *ptr;
+	uint64_t	 *key;
 
 	if (name_len <= 0) {
 		/* Do we need some way to signal an error here? This could be
@@ -1288,19 +1270,22 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, unsigned name_offset, unsigned n
 	nns->fs_cycle = false;
 
 	/* any old entry will be deallocated and removed */
-	g_hash_table_insert(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid), nns);
+	key = g_new0(uint64_t, 1);
+	*key = id;
+	g_hash_table_insert(nfs_name_snoop_unmatched, key, nns);
 }
 
 
 static void
-nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
+nfs_name_snoop_add_fh(uint64_t id, tvbuff_t *tvb, int fh_offset, int fh_length)
 {
 	unsigned char	     *fh;
 	nfs_name_snoop_t     *nns;
 	nfs_name_snoop_key_t *key;
+	gpointer             stolen_key;
 
 	/* find which request we correspond to */
-	nns = (nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
+	nns = (nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_unmatched, &id);
 	if (!nns) {
 		/* oops couldn't find matching request, bail out */
 		return;
@@ -1321,15 +1306,17 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	key->fh_length = nns->fh_length;
 	key->fh = nns->fh;
 
-	g_hash_table_steal(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
+	g_hash_table_steal_extended(nfs_name_snoop_unmatched, &id, &stolen_key, NULL);
+	g_free(stolen_key);
 	g_hash_table_replace(nfs_name_snoop_matched, key, nns);
 }
 
 static void
-nfs_name_snoop_readdir_add_parent_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
+nfs_name_snoop_readdir_add_parent_fh(uint64_t id, tvbuff_t *tvb, int fh_offset, int fh_length)
 {
 	nfs_name_snoop_t     *nns;
 	unsigned char        *fh;
+	uint64_t             *key;
 
 	fh = (unsigned char *)tvb_memdup(NULL, tvb, fh_offset, fh_length);
 
@@ -1337,11 +1324,13 @@ nfs_name_snoop_readdir_add_parent_fh(int xid, tvbuff_t *tvb, int fh_offset, int 
 	nns->parent_len = fh_length;
 	nns->parent = fh;
 
-	g_hash_table_insert(nfs_name_snoop_readdir, GINT_TO_POINTER(xid), nns);
+	key = g_new0(uint64_t, 1);
+	*key = id;
+	g_hash_table_insert(nfs_name_snoop_readdir, key, nns);
 }
 
 static void
-nfs_name_snoop_readdir_add_child_fh_name(int xid, tvbuff_t *tvb, int fh_offset, int fh_length, const char *name)
+nfs_name_snoop_readdir_add_child_fh_name(uint64_t id, tvbuff_t *tvb, int fh_offset, int fh_length, const char *name)
 {
 	nfs_name_snoop_t     *readdir_nns;
 	unsigned char        *fh;
@@ -1351,7 +1340,7 @@ nfs_name_snoop_readdir_add_child_fh_name(int xid, tvbuff_t *tvb, int fh_offset, 
 	if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
 		return;
 
-	readdir_nns = (nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_readdir, GINT_TO_POINTER(xid));
+	readdir_nns = (nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_readdir, &id);
 	if (!readdir_nns)
 		return;
 
