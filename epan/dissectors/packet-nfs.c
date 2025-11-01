@@ -19,6 +19,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 #include <epan/proto_data.h>
 #include <epan/to_str.h>
 #include <epan/decode_as.h>
@@ -900,6 +901,9 @@ static int ett_nfs4_maxops;
 static int ett_nfs4_maxreqs;
 static int ett_nfs4_streamchanattrs;
 static int ett_nfs4_rdmachanattrs;
+static int ett_nfs4_sec_parms_array;
+static int ett_nfs4_sec_parms_item;
+static int ett_nfs4_gids;
 static int ett_nfs4_machinename;
 static int ett_nfs4_flavor;
 static int ett_nfs4_stamp;
@@ -9652,28 +9656,42 @@ dissect_rpc_nfs_impl_id4(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, pro
 
 
 static unsigned
-dissect_rpc_secparms4(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, proto_tree *tree)
+dissect_rpc_secparms4(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, proto_tree *parent_tree)
 {
 	unsigned count, i;
+	int array_offset;
+	proto_tree *array_tree;
+	proto_item *array_item;
+
+	array_offset = offset;
+	array_tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0, ett_nfs4_sec_parms_array, &array_item, "cb_sec_parms");
 
 	count = tvb_get_ntohl(tvb, offset);
 	offset += 4;
 
 	for (i = 0; i < count; i++) {
+		proto_item *item;
+		int item_offset = offset;
+		proto_tree *tree = proto_tree_add_subtree(array_tree, tvb, offset, 0, ett_nfs4_sec_parms_item, &item, "entry");
 		unsigned j, flavor = tvb_get_ntohl(tvb, offset);
 		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_flavor, offset);
 
 		switch (flavor) {
+		case AUTH_NULL:
+			break;
 		case AUTH_UNIX: {
 			unsigned count2;
+			proto_tree *tree2;
 			offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_stamp, offset);
 			offset = dissect_nfs_utf8string(tvb, pinfo, offset, tree, hf_nfs4_machinename, NULL);
 			offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_uid, offset);
 			offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_gid, offset);
 			count2 = tvb_get_ntohl(tvb, offset);
+			tree2 = proto_tree_add_subtree_format(tree, tvb, offset,
+					4+count2*4, ett_nfs4_gids, NULL, "auxiliary gids (%u)", count2);
 			offset += 4;
 			for (j = 0; j < count2; j++) {
-				offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_gid, offset);
+				offset = dissect_rpc_uint32(tvb, tree2, hf_nfs4_gid, offset);
 			}
 			break;
 		}
@@ -9685,9 +9703,16 @@ dissect_rpc_secparms4(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, proto_
 			offset = dissect_nfsdata(tvb, pinfo, offset, tree, hf_nfs_data);
 			break;
 		default:
-			break;
+			/* Report fatal error as it is not possible to figure out item length and therefore
+			 * not possible to continue parsing next item or continue parsing next packet. */
+			THROW(ReportedBoundsError);
 		}
+
+		proto_item_set_len(item, offset - item_offset);
 	}
+
+	proto_item_set_len(array_item, offset - array_offset);
+
 	return offset;
 }
 
@@ -14199,7 +14224,7 @@ proto_register_nfs(void)
 			VALS(rpc_auth_flavor), 0, NULL, HFILL }},
 
 		{ &hf_nfs4_stamp, {
-			"stamp", "nfs.stamp4", FT_UINT32, BASE_DEC,
+			"stamp", "nfs.stamp4", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_uid, {
@@ -15139,6 +15164,9 @@ proto_register_nfs(void)
 		&ett_nfs4_maxreqs,
 		&ett_nfs4_streamchanattrs,
 		&ett_nfs4_rdmachanattrs,
+		&ett_nfs4_sec_parms_array,
+		&ett_nfs4_sec_parms_item,
+		&ett_nfs4_gids,
 		&ett_nfs4_machinename,
 		&ett_nfs4_flavor,
 		&ett_nfs4_stamp,
