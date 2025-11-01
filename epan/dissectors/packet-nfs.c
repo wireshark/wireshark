@@ -963,7 +963,6 @@ static int ett_nfs4_nfstime;
 
 static expert_field ei_nfs_too_many_ops;
 static expert_field ei_nfs_not_vnx_file;
-static expert_field ei_protocol_violation;
 static expert_field ei_nfs_too_many_bitmaps;
 static expert_field ei_nfs_bitmap_no_dissector;
 static expert_field ei_nfs_bitmap_skip_value;
@@ -6414,11 +6413,6 @@ dissect_nfs4_bitmap(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tr
 		 * under this main tree */
 		name_tree = proto_tree_add_subtree(tree, tvb, offset, end_offset - offset,
 							ett_nfs4_bitmap, NULL, name);
-	}
-
-	if (type == NFS4_BITMAP_VALUES && num_bitmaps == 0) {
-		expert_add_info(pinfo, name_tree, &ei_protocol_violation);
-		return end_offset;
 	}
 
 	if (num_bitmaps > MAX_BITMAPS) {
@@ -15244,8 +15238,6 @@ proto_register_nfs(void)
 	static ei_register_info ei[] = {
 		{ &ei_nfs_too_many_ops, { "nfs.too_many_ops", PI_PROTOCOL, PI_NOTE, "Too many operations", EXPFILL }},
 		{ &ei_nfs_not_vnx_file, { "nfs.not_vnx_file", PI_UNDECODED, PI_WARN, "Not a Celerra|VNX file handle", EXPFILL }},
-		{ &ei_protocol_violation, { "nfs.protocol_violation", PI_PROTOCOL, PI_WARN,
-			"Per RFCs 3530 and 5661 an attribute mask is required but was not provided.", EXPFILL }},
 		{ &ei_nfs_too_many_bitmaps, { "nfs.too_many_bitmaps", PI_PROTOCOL, PI_NOTE, "Too many bitmap array items", EXPFILL }},
 		{ &ei_nfs_bitmap_no_dissector, { "nfs.bitmap_no_dissector", PI_PROTOCOL, PI_WARN,
 			"Unknown dissector for bitmap attribute", EXPFILL }},
