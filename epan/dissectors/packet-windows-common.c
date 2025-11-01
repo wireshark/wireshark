@@ -3859,8 +3859,8 @@ static const true_false_string tfs_sec_desc_type_dacl_trusted = {
 	"Dacl trusted is FALSE"
 };
 static const true_false_string tfs_sec_desc_type_server_security = {
-	"SERVER SECURITY is TRUE",
-	"Server security is FALSE"
+	"DACL SERVER SECURITY is TRUE",
+	"DACL server security is FALSE"
 };
 static const true_false_string tfs_sec_desc_type_dacl_auto_inherit_req = {
 	"DACL has AUTO INHERIT REQUIRED",
@@ -4181,8 +4181,8 @@ proto_do_register_windows_common(int proto_smb)
 		    TFS(&tfs_sec_desc_type_dacl_trusted), 0x0040, "Does this SecDesc have DACL TRUSTED set?", HFILL }},
 
 		{ &hf_nt_sec_desc_type_server_security,
-		  { "Server Security", "nt.sec_desc.type.server_security", FT_BOOLEAN, 16,
-		    TFS(&tfs_sec_desc_type_server_security), 0x0080, "Does this SecDesc have SERVER SECURITY set?", HFILL }},
+		  { "DACL Server Security", "nt.sec_desc.type.server_security", FT_BOOLEAN, 16,
+		    TFS(&tfs_sec_desc_type_server_security), 0x0080, "Does this SecDesc have DACL SERVER SECURITY set?", HFILL }},
 
 		{ &hf_nt_sec_desc_type_sacl_auto_inherit_req,
 		  { "SACL Auto Inherit Required", "nt.sec_desc.type.sacl_auto_inherit_req", FT_BOOLEAN, 16,
