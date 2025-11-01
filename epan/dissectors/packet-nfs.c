@@ -7090,7 +7090,26 @@ dissect_nfs4_fattr_fs_charset_cap(tvbuff_t *tvb, unsigned offset, proto_tree *tr
 static unsigned
 dissect_nfs4_mode(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
-	return dissect_nfs2_mode(tvb, offset, tree);
+	static int * const modes[] = {
+		&hf_nfs2_mode_set_user_id,
+		&hf_nfs2_mode_set_group_id,
+		&hf_nfs2_mode_save_swap_text,
+		&hf_nfs2_mode_read_owner,
+		&hf_nfs2_mode_write_owner,
+		&hf_nfs2_mode_exec_owner,
+		&hf_nfs2_mode_read_group,
+		&hf_nfs2_mode_write_group,
+		&hf_nfs2_mode_exec_group,
+		&hf_nfs2_mode_read_other,
+		&hf_nfs2_mode_write_other,
+		&hf_nfs2_mode_exec_other,
+		NULL
+	};
+
+	proto_tree_add_bitmask(tree, tvb, offset, hf_nfs2_mode, ett_nfs2_mode, modes, ENC_BIG_ENDIAN);
+
+	offset += 4;
+	return offset;
 }
 
 #define FH4_PERSISTENT         0x00000000
