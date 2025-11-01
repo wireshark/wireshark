@@ -8344,10 +8344,18 @@ dissect_nfs4_state_protect_ops(tvbuff_t *tvb, unsigned offset,
 
 
 static int
+dissect_oid(tvbuff_t *tvb, unsigned int offset, packet_info *pinfo _U_, proto_tree* tree, void* data _U_)
+{
+	int length = tvb_reported_length(tvb);
+	proto_tree_add_item(tree, hf_nfs4_sec_oid, tvb, 0, length, ENC_NA);
+	return offset + 4 + length + (4 - length%4) % 4;
+}
+
+static int
 dissect_nfs4_sec_oid(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	return dissect_rpc_opaque_data(tvb, offset, tree, pinfo,
-				hf_nfs4_sec_oid, false, 0, false, NULL, NULL);
+				hf_nfs4_sec_oid, false, 0, false, NULL, dissect_oid);
 }
 
 static unsigned
@@ -13647,7 +13655,7 @@ proto_register_nfs(void)
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs4_sec_oid, {
-			"oid", "nfs.secinfo.flavor_info.rpcsec_gss_info.oid", FT_BYTES, BASE_NONE,
+			"oid", "nfs.secinfo.flavor_info.rpcsec_gss_info.oid", FT_OID, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_qop, {
