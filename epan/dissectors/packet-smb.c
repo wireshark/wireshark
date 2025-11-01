@@ -18644,25 +18644,27 @@ VALUE_STRING_ENUM(HRD_errors);
 VALUE_STRING_ARRAY(HRD_errors);
 static value_string_ext HRD_errors_ext = VALUE_STRING_EXT_INIT(HRD_errors);
 
-static const char *decode_smb_error(wmem_allocator_t* pool, uint8_t errcls, uint16_t errcode)
+static const char *decode_smb_error(wmem_allocator_t* pool, uint8_t errcls, uint16_t errcode, bool show_unknown_errcode)
 {
 
 	switch (errcls) {
 
-	case SMB_SUCCESS:
-		return "No Error";   /* No error ??? */
-
 	case SMB_ERRDOS:
-		return val_to_str_ext(pool, errcode, &DOS_errors_ext, "Unknown DOS error (%x)");
+		return val_to_str_ext(pool, errcode, &DOS_errors_ext, show_unknown_errcode ? "Unknown DOS error (0x%04X)" : "Unknown DOS error");
 
 	case SMB_ERRSRV:
-		return val_to_str_ext(pool, errcode, &SRV_errors_ext, "Unknown SRV error (%x)");
+		return val_to_str_ext(pool, errcode, &SRV_errors_ext, show_unknown_errcode ? "Unknown SRV error (0x%04X)" : "Unknown SRV error");
 
 	case SMB_ERRHRD:
-		return val_to_str_ext(pool, errcode, &HRD_errors_ext, "Unknown HRD error (%x)");
+		return val_to_str_ext(pool, errcode, &HRD_errors_ext, show_unknown_errcode ? "Unknown HRD error (0x%04X)" : "Unknown HRD error");
+
+	case SMB_SUCCESS:
+		if (errcode == 0)
+			return "No Error";
+		/* fallthrough */
 
 	default:
-		return "Unknown error class!";
+		return show_unknown_errcode ? wmem_strdup_printf(pool, "Unknown error (0x%04X)", errcode) : "Unknown error";
 	}
 
 }
@@ -19290,13 +19292,14 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 
 		/* error code */
 		/* XXX - the type of this field depends on the value of
-		 * "errcls", so there is isn't a single value_string array
+		 * "errcls", so there isn't a single value_string array
 		 * fo it, so there can't be a single field for it.
+		 * therefore it is needed to manually print errcode value.
 		 */
 		errcode = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint_format_value(htree, hf_smb_error_code, tvb,
-			offset, 2, errcode, "%s",
-			decode_smb_error(pinfo->pool, errclass, errcode));
+			offset, 2, errcode, "%s (0x%04X)",
+			decode_smb_error(pinfo->pool, errclass, errcode, false), (unsigned)errcode);
 		offset += 2;
 	}
 
@@ -19436,7 +19439,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 				 */
 				col_append_fstr(
 					pinfo->cinfo, COL_INFO, ", Error: %s",
-					decode_smb_error(pinfo->pool, errclass, errcode));
+					decode_smb_error(pinfo->pool, errclass, errcode, true));
 			}
 		}
 	}
