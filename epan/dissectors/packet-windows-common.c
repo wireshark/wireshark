@@ -3171,6 +3171,7 @@ dissect_nt_conditional_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16
 */
 static int ett_nt_access_mask;
 static int ett_nt_access_mask_generic;
+static int ett_nt_access_mask_other;
 static int ett_nt_access_mask_standard;
 static int ett_nt_access_mask_specific;
 
@@ -3253,7 +3254,7 @@ dissect_nt_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		       struct access_mask_info *ami, uint32_t *perms)
 {
 	proto_item *item;
-	proto_tree *subtree, *generic_tree, *standard_tree, *specific_tree;
+	proto_tree *subtree, *generic_tree, *other_tree, *standard_tree, *specific_tree;
 	uint32_t access;
 
 	static int * const generic_access_flags[] = {
@@ -3261,6 +3262,10 @@ dissect_nt_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		&hf_access_generic_write,
 		&hf_access_generic_execute,
 		&hf_access_generic_all,
+		NULL
+	};
+
+	static int * const other_access_flags[] = {
 		&hf_access_maximum_allowed,
 		&hf_access_system_security,
 		NULL
@@ -3330,6 +3335,14 @@ dissect_nt_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				   access & GENERIC_RIGHTS_MASK);
 
 	proto_tree_add_bitmask_list_value(generic_tree, tvb, offset - 4, 4, generic_access_flags, access);
+
+	/* Other access rights */
+
+	other_tree = proto_tree_add_subtree_format(subtree, tvb, offset - 4, 4,
+				   ett_nt_access_mask_other, NULL, "Other rights: 0x%08x",
+				   access & 0x0F000000);
+
+	proto_tree_add_bitmask_list_value(other_tree, tvb, offset - 4, 4, other_access_flags, access);
 
 	/* Standard access rights */
 
@@ -4653,6 +4666,7 @@ proto_do_register_windows_common(int proto_smb)
 		&ett_nt_ace_object_flags,
 		&ett_nt_access_mask,
 		&ett_nt_access_mask_generic,
+		&ett_nt_access_mask_other,
 		&ett_nt_access_mask_standard,
 		&ett_nt_access_mask_specific,
 		&ett_nt_security_information,
