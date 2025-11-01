@@ -3179,6 +3179,7 @@ static int hf_access_generic_read;
 static int hf_access_generic_write;
 static int hf_access_generic_execute;
 static int hf_access_generic_all;
+static int hf_access_system_security;
 static int hf_access_standard_delete;
 static int hf_access_standard_read_control;
 static int hf_access_standard_synchronise;
@@ -3261,6 +3262,7 @@ dissect_nt_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		&hf_access_generic_execute,
 		&hf_access_generic_all,
 		&hf_access_maximum_allowed,
+		&hf_access_system_security,
 		NULL
 	};
 
@@ -4336,6 +4338,11 @@ proto_do_register_windows_common(int proto_smb)
 		  { "Maximum allowed", "nt.access_mask.maximum_allowed",
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
 		    MAXIMUM_ALLOWED_ACCESS, NULL, HFILL }},
+
+		{ &hf_access_system_security,
+		  { "System security", "nt.access_mask.system_security",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
+		    SYSTEM_SECURITY_ACCESS, NULL, HFILL }},
 
 		{ &hf_access_standard_read_control,
 		  { "Read control", "nt.access_mask.read_control",
