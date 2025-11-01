@@ -10985,7 +10985,12 @@ dissect_nfs4_response_op(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, pro
 
 		case NFS4_OP_CLOSE:
 			ti = proto_tree_add_item(newftree, hf_nfs4_stateid, tvb, offset, 16, ENC_NA);
-			expert_add_info(pinfo, ti, &ei_nfs4_stateid_deprecated);
+			/*
+			 * RFC8881 18.2.4. CLOSE IMPLEMENTATION: The server SHOULD return the invalid special stateid
+			 * (the "other" value is zero and the "seqid" field is NFS4_UINT32_MAX).
+			 */
+			if (memcmp(tvb_get_ptr(tvb, offset, 16), "\xFF\xFF\xFF\xFF\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 16) != 0)
+				expert_add_info(pinfo, ti, &ei_nfs4_stateid_deprecated);
 			offset += 16;
 			break;
 
