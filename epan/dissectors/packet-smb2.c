@@ -1187,7 +1187,7 @@ static const value_string smb2_transport_ctx_flags_vals[] = {
 #define REPARSE_TAG_DFSR               0x80000012 /* Used by the DFS filter. */
 #define REPARSE_TAG_NFS                0x80000014 /* Used by the Network File System (NFS) component. */
 #define REPARSE_TAG_LX_SYMLINK         0xA000001D /* WSL symbolic link */
-#define REPARSE_TAG_AF_UNIX            0x80000023 /* WSL unix socket */
+#define REPARSE_TAG_AF_UNIX            0x80000023 /* Used for AF_UNIX socket support (WinAPI and WSL). */
 #define REPARSE_TAG_LX_FIFO            0x80000024 /* WSL fifo pipe */
 #define REPARSE_TAG_LX_CHR             0x80000025 /* WSL char device */
 #define REPARSE_TAG_LX_BLK             0x80000026 /* WSL block device */
