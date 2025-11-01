@@ -13,7 +13,6 @@
 #include "packet-rpc.h"
 
 #define NFS_PROGRAM 100003
-#define NFS_CB_PROGRAM 0x40000000
 
 #define FHSIZE 32
 

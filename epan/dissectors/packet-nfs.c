@@ -1084,6 +1084,8 @@ static unsigned dissect_nfsdata_reduced(rdma_reduce_type_t rtype, tvbuff_t *tvb,
 
 static unsigned dissect_nfs4_stateid(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint16_t *hash);
 
+static void nfs4_cb_register_prog(tvbuff_t *tvb, int offset);
+
 static void nfs_prompt(packet_info *pinfo _U_, char* result)
 {
 	snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode NFS file handles as");
@@ -7945,6 +7947,7 @@ dissect_nfs4_cb_client4(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, prot
 	proto_item *fitem;
 	unsigned    old_offset;
 
+	nfs4_cb_register_prog(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_cb_program, offset);
 	old_offset = offset;
 	cb_location = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_clientaddr, &fitem, "cb_location");
@@ -10493,6 +10496,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, prot
 
 			/* Minor Version 1 */
 		case NFS4_OP_BACKCHANNEL_CTL:
+			nfs4_cb_register_prog(tvb, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_cb_program, offset);
 			offset = dissect_rpc_secparms4(tvb, pinfo, offset, newftree);
 			break;
@@ -10525,6 +10529,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, prot
 				hf_nfs4_create_session_flags_csa);
 			offset = dissect_rpc_chanattrs4(tvb, offset, newftree, "csa_fore_chan_attrs");
 			offset = dissect_rpc_chanattrs4(tvb, offset, newftree, "csa_back_chan_attrs");
+			nfs4_cb_register_prog(tvb, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_cb_program, offset);
 			offset = dissect_rpc_secparms4(tvb, pinfo, offset, newftree);
 			break;
@@ -12340,6 +12345,35 @@ nfsstat_init(struct register_srt* srt _U_, GArray* srt_array)
 	}
 }
 
+/* Hash table with NFS4 CB program numbers */
+static GHashTable *nfs4_cb_progs;
+
+static void
+nfs4_cb_init(void)
+{
+	nfs4_cb_progs = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+}
+
+static void
+nfs4_cb_cleanup(void)
+{
+	g_hash_table_destroy(nfs4_cb_progs);
+}
+
+static void
+nfs4_cb_register_prog(tvbuff_t *tvb, int offset)
+{
+	uint32_t prog = tvb_get_ntohl(tvb, offset);
+
+	if (g_hash_table_lookup(nfs4_cb_progs, GUINT_TO_POINTER(prog)) != NULL)
+		return;
+
+	g_hash_table_insert(nfs4_cb_progs, GUINT_TO_POINTER(prog), GUINT_TO_POINTER(1));
+
+	/* Register the CB protocol as RPC */
+	rpc_init_prog(proto_nfs_cb, prog, ett_nfs, G_N_ELEMENTS(nfs_cb_vers_info), nfs_cb_vers_info);
+}
+
 static tap_packet_status
 nfsstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv, tap_flags_t flags _U_)
 {
@@ -12358,7 +12392,7 @@ nfsstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 	if (ri->prog == NFS_PROGRAM) {
 		nfs_srt_table = g_array_index(data->srt_array, srt_stat_table*, NFS4_SRT_TABLE_INDEX);
 		nfs_main_op_srt_table = g_array_index(data->srt_array, srt_stat_table*, NFS4_MAIN_OP_SRT_TABLE_INDEX);
-	} else if (ri->prog == NFS_CB_PROGRAM) {
+	} else if (g_hash_table_lookup(nfs4_cb_progs, GUINT_TO_POINTER(ri->prog)) != NULL) {
 		nfs_srt_table = g_array_index(data->srt_array, srt_stat_table*, NFS4_CB_SRT_TABLE_INDEX);
 		nfs_main_op_srt_table = NULL;
 	} else {
@@ -15323,6 +15357,8 @@ proto_register_nfs(void)
 	nfs_fhandle_frame_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 	register_init_routine(nfs_name_snoop_init);
 	register_cleanup_routine(nfs_name_snoop_cleanup);
+	register_init_routine(nfs4_cb_init);
+	register_cleanup_routine(nfs4_cb_cleanup);
 
 	nfs_fhandle_table = register_decode_as_next_proto(proto_nfs, "nfs_fhandle.type",
 								"NFS File Handle types", nfs_prompt);
@@ -15341,10 +15377,6 @@ proto_reg_handoff_nfs(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nfs, NFS_PROGRAM, ett_nfs,
 	    G_N_ELEMENTS(nfs_vers_info), nfs_vers_info);
-
-	/* Register the CB protocol as RPC */
-	rpc_init_prog(proto_nfs_cb, NFS_CB_PROGRAM, ett_nfs,
-	    G_N_ELEMENTS(nfs_cb_vers_info), nfs_cb_vers_info);
 
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_SVR4, proto_nfs_svr4);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
