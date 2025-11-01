@@ -3880,7 +3880,6 @@ dissect_nfs3_fh(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *
 		  &&((civ->vers == 3)
 		  &&(!civ->request)
 		  &&((civ->proc == 3)||(civ->proc == 8)||(civ->proc == 9)||(civ->proc == 10)||(civ->proc == 11))))
-		|| civ->vers == 4
 		) {
 			fh_length = tvb_get_ntohl(tvb, offset);
 			fh_offset = offset+4;
@@ -10385,12 +10384,6 @@ dissect_nfs4_request_op(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, prot
 		case NFS4_OP_LOOKUP:
 			/*name_offset = offset;*/
 			offset = dissect_nfs_utf8string(tvb, pinfo, offset, newftree, hf_nfs4_component, &name);
-			if (nfs_file_name_snooping) {
-				nfs_name_snoop_add_name(civ->xid, tvb,
-										/*name_offset, strlen(name), */
-										0, 0,
-										0, 0, name);
-			}
 			wmem_strbuf_append_printf (op_summary[ops_counter].optext, " ");
 			if (last_fh_hash != 0)
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext, "DH: 0x%08x/", last_fh_hash);
