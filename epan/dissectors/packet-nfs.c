@@ -4664,6 +4664,29 @@ dissect_nfs3_lookup_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 }
 
 
+static gchar*
+proto_item_get_text(wmem_allocator_t *pool, proto_item *item)
+{
+	field_info *fi = NULL;
+	gchar *result;
+
+	if (item == NULL)
+		return NULL;
+
+	fi = PITEM_FINFO(item);
+
+	if (fi == NULL)
+		return NULL;
+
+	if (fi->rep == NULL) {
+		fi->rep = wmem_new(PNODE_POOL(item), item_label_t);
+		proto_item_fill_label(fi, fi->rep->representation, NULL);
+	}
+
+	result = wmem_strdup(pool, fi->rep->representation);
+	return result;
+}
+
 static const value_string accvs[] = {
 	{ 0x001,	"RD" },
 	{ 0x002,	"LU" },
@@ -4682,7 +4705,7 @@ static const true_false_string tfs_access_rights = {"allowed", "*Access Denied*"
 
 proto_tree*
 display_access_items(tvbuff_t* tvb, unsigned offset, packet_info* pinfo, proto_tree *tree,
-		     uint32_t amask, char mtype, int version, wmem_strbuf_t* optext, const char *label)
+		     uint32_t amask, uint32_t rmask, char mtype, int version, wmem_strbuf_t* optext, const char *label)
 {
 	bool        nfsv3	   = ((version == 3) ? true : false);
 	proto_item *access_item	   = NULL;
@@ -4729,8 +4752,7 @@ display_access_items(tvbuff_t* tvb, unsigned offset, packet_info* pinfo, proto_t
 	}
 
 	for (itype=0; itype < 9; itype++) {
-		if (amask & accvs[itype].value) {
-			if (mtype != 'S' && mtype != 'R')	{
+			if (mtype != 'S' && mtype != 'R' && (amask & accvs[itype].value))	{
 				/* List access type in Info column and tree */
 				if (nfsv3) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, " %s", accvs[itype].strptr);
@@ -4773,24 +4795,36 @@ display_access_items(tvbuff_t* tvb, unsigned offset, packet_info* pinfo, proto_t
 							tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 					case 6:
+						if (nfsv3) access_subitem = NULL; else
 						access_subitem = proto_tree_add_item (access_subtree,
 							(mtype == 'S' ? hf_nfs_access_supp_xattr_read : hf_nfs_access_xattr_read),
 							tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 					case 7:
+						if (nfsv3) access_subitem = NULL; else
 						access_subitem = proto_tree_add_item (access_subtree,
 							(mtype == 'S' ? hf_nfs_access_supp_xattr_write : hf_nfs_access_xattr_write),
 							tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 					case 8:
+						if (nfsv3) access_subitem = NULL; else
 						access_subitem = proto_tree_add_item (access_subtree,
 							(mtype == 'S' ? hf_nfs_access_supp_xattr_list : hf_nfs_access_xattr_list),
 							tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
+					default:
+						access_subitem = NULL;
+						break;
 				}
-				if (mtype == 'C') proto_item_append_text(access_subitem, "?" );
+				if (!(rmask & accvs[itype].value) && access_subitem) {
+					const char* text_start = proto_item_get_text(pinfo->pool, access_subitem);
+					const char* text_end = text_start ? strrchr(text_start, ':') : NULL;
+					if (text_start && text_end)
+						proto_item_set_text(access_subitem, "%.*s: %s", (int)(text_end - text_start), text_start, mtype == 'C' ? "not asked" : "unknown");
+				} else if (mtype == 'C' && access_subitem) {
+					proto_item_append_text(access_subitem, "?" );
+				}
 			}
-		}
 	}
 	if (mtype != 'S' && mtype != 'R') {
 		if (nfsv3) {
@@ -4815,6 +4849,7 @@ dissect_access_reply(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_t
 	uint32_t	    mask_not_supp;
 	uint32_t	    mask_denied;
 	uint32_t	    mask_allowed;
+	uint32_t	    mask_result;
 	uint32_t	    e_check, e_rights;
 	bool        nfsv3	  = ((version == 3) ? true : false);
 	bool        nfsv4	  = ((version == 4) ? true : false);
@@ -4847,6 +4882,11 @@ dissect_access_reply(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_t
 	else
 		mask_not_supp = 0;
 
+	if (acc_req)
+		mask_result = *acc_req;
+	else
+		mask_result = acc_supp;
+
 	e_check = acc_supp;
 	e_rights = acc_supp & acc_rights;  /* guard against broken implementations */
 	mask_denied =  e_check ^ e_rights;
@@ -4854,26 +4894,26 @@ dissect_access_reply(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_t
 
 	if (nfsv4) {
 		if (mask_not_supp > 0) {
-			display_access_items(tvb, offset, pinfo, tree, mask_not_supp, 'N', 4,
+			display_access_items(tvb, offset, pinfo, tree, mask_not_supp, mask_result, 'N', 4,
 				optext, "NOT Supported") ;
 		}
-		display_access_items(tvb, offset, pinfo, tree, acc_supp, 'S', 4,
+		display_access_items(tvb, offset, pinfo, tree, acc_supp, mask_result, 'S', 4,
 			optext, "Supported");
 		offset+=4;
 	}
 	if (mask_denied > 0) {
-		display_access_items(tvb, offset, pinfo, tree, mask_denied, 'D', version,
+		display_access_items(tvb, offset, pinfo, tree, mask_denied, mask_result, 'D', version,
 			optext, "Access Denied") ;
 	}
 	if (mask_allowed > 0) {
-		display_access_items(tvb, offset, pinfo, tree, mask_allowed, 'A', version,
+		display_access_items(tvb, offset, pinfo, tree, mask_allowed, mask_result, 'A', version,
 			optext, "Allowed") ;
 	}
 	/* Pass the OR'd masks rather than acc_rights so that display_access_items will
 	   process types that have been denied access. Since proto_tree_add_item uses the
 	   mask in the tvb (not the passed mask), the correct (denied) access is displayed. */
 	access_tree = display_access_items(tvb, offset, pinfo, tree,
-		(mask_allowed | mask_denied), 'R', version, optext, NULL) ;
+		(mask_allowed | mask_denied), mask_result, 'R', version, optext, NULL) ;
 
 	ditem = proto_tree_add_boolean(access_tree, hf_nfs_access_denied, tvb,
 				offset, 4, (mask_denied > 0 ? true : false ));
@@ -4902,7 +4942,7 @@ dissect_nfs3_access_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", FH: 0x%08x", fhhash);
 	proto_item_append_text(tree, ", ACCESS Call, FH: 0x%08x", fhhash);
 
-	display_access_items(tvb, offset, pinfo, tree, amask, 'C', 3, NULL, "Check") ;
+	display_access_items(tvb, offset, pinfo, tree, amask, amask, 'C', 3, NULL, "Check") ;
 
 	offset+=4;
 	return offset;
@@ -10083,7 +10123,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, prot
 				civ->private_data = acc_request;
 
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext, " FH: 0x%08x", last_fh_hash);
-				display_access_items(tvb, offset, pinfo, fitem, amask, 'C', 4,
+				display_access_items(tvb, offset, pinfo, fitem, amask, amask, 'C', 4,
 					op_summary[ops_counter].optext, "Check") ;
 				offset+=4;
 			}
@@ -14156,109 +14196,109 @@ proto_register_nfs(void)
 		},
 		{ &hf_nfs_access_supp_read,
 			{ "0x001 READ", "nfs.access_supp_read",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_READ,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_lookup,
 			{ "0x002 LOOKUP", "nfs.access_supp_lookup",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_LOOKUP,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_modify,
 			{ "0x004 MODIFY", "nfs.access_supp_modify",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_MODIFY,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_extend,
 			{ "0x008 EXTEND", "nfs.access_supp_extend",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_EXTEND,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_delete,
 			{ "0x010 DELETE", "nfs.access_supp_delete",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_DELETE,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_execute,
 			{ "0x020 EXECUTE", "nfs.access_supp_execute",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_EXECUTE,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_xattr_read,
 			{ "0x040 XATTR READ", "nfs.access_supp_xattr_read",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_XATTR_READ,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_xattr_write,
 			{ "0x080 XATTR WRITE", "nfs.access_supp_xattr_write",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_XATTR_WRITE,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_supp_xattr_list,
 			{ "0x100 XATTR LIST", "nfs.access_supp_xattr_list",
-			FT_BOOLEAN, 16,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_supp), NFS_ACCESS_MASK_XATTR_LIST,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_read,
 			{ "0x001 READ", "nfs.access_read",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_READ,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_lookup,
 			{ "0x002 LOOKUP", "nfs.access_lookup",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_LOOKUP,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_modify,
 			{ "0x004 MODIFY", "nfs.access_modify",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_MODIFY,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_extend,
 			{ "0x008 EXTEND", "nfs.access_extend",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_EXTEND,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_delete,
 			{ "0x010 DELETE", "nfs.access_delete",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_DELETE,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_execute,
 			{ "0x020 EXECUTE", "nfs.access_execute",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_EXECUTE,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_xattr_read,
 			{ "0x040 XATTR READ", "nfs.access_xattr_read",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_XATTR_READ,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_xattr_write,
 			{ "0x080 XATTR WRITE", "nfs.access_xattr_write",
-			FT_BOOLEAN, 8,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_XATTR_WRITE,
 			NULL, HFILL }
 		},
 		{ &hf_nfs_access_xattr_list,
 			{ "0x100 XATTR LIST", "nfs.access_xattr_list",
-			FT_BOOLEAN, 16,
+			FT_BOOLEAN, 32,
 			TFS(&tfs_access_rights), NFS_ACCESS_MASK_XATTR_LIST,
 			NULL, HFILL }
 		},

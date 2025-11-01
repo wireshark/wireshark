@@ -288,7 +288,7 @@ dissect_nfsacl2_access_call(tvbuff_t *tvb, packet_info *pinfo _U_,
 	acc_request = (uint32_t *)wmem_memdup(wmem_file_scope(), &amask, sizeof(uint32_t));
 	civ->private_data = acc_request;
 
-	display_access_items(tvb, offset, pinfo, tree, amask, 'C', 3, NULL, "Check") ;
+	display_access_items(tvb, offset, pinfo, tree, amask, amask, 'C', 3, NULL, "Check") ;
 
 	offset+=4;
 	return offset;
