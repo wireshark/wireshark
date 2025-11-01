@@ -3010,6 +3010,8 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		 * first 2 of 4 reserved bytes; the LAN Manager 2.1
 		 * spec says it's a 2-byte encryption key (challenge)
 		 * length.
+		 * Encryption key length for LAN Manager 1 and 2.0
+		 * is stored in byte count.
 		 */
 		chl = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_smb_challenge_length, tvb, offset, 2, chl);
@@ -3099,6 +3101,14 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		 * LAN Manager 2.1.
 		 */
 
+		/*
+		 * Encryption key (challenge) length field (chl) for
+		 * LAN Manager 1 and 2.0 is zero (reserved) and the
+		 * real length is stored in byte count field.
+		 */
+		if (chl == 0)
+			chl = bc;
+
 		/* encrypted challenge/response data */
 		if (chl) {
 			CHECK_BYTE_COUNT(chl);
@@ -3108,17 +3118,11 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 		/*
 		 * Primary domain.
-		 *
-		 * XXX - not present if negotiated dialect isn't
-		 * "DOS LANMAN 2.1" or "LANMAN2.1", but we'd either
-		 * have to see the request, or assume what dialect strings
-		 * were sent, to determine that.
-		 *
-		 * Is this something other than a primary domain if the
-		 * negotiated dialect is Windows for Workgroups 3.1a?
-		 * It appears to be 8 bytes of binary data in at least
-		 * one capture - is that an encryption key or something
-		 * such as that?
+		 * Not present if negotiated dialect isn't
+		 * "DOS LANMAN 2.1" or "LANMAN2.1".
+		 * For LAN Manager 1 and 2.0, byte count have been
+		 * already processed because the original value of chl
+		 * was zero and it was changed to bc.
 		 */
 		dn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
 			si->unicode, &dn_len, false, false, &bc);
