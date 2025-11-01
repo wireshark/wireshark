@@ -47,6 +47,14 @@ static int ett_asterix_possible_interpretation;
 static int ett_asterix_possible_interpretations;
 static int ett_asterix_spare_error;
 
+/* With invalid data (e.g. fuzz tests), to great of interpretation depth can cause "freezes",
+   where search for interpretations can last a long time. By default depth is set to 15,
+   which should never be a problem for random data. Users can select a higher depth.
+*/
+static unsigned selected_interpretations_depth = depth_15;
+
+static unsigned int solution_count;
+static int solutions[MAX_INTERPRETATIONS][MAX_INTERPRETATION_DEPTH + 1];
 
 static unsigned asterix_get_unsigned_value(tvbuff_t *tvb, unsigned offset, unsigned bytes)
 {
@@ -120,7 +128,7 @@ static bool asterix_extended_end (tvbuff_t *tvb, unsigned offset)
   }
 }
 
-// test specifix FSPEC bit
+// test FSPEC bit
 static bool asterix_field_exists (tvbuff_t *tvb, unsigned offset, unsigned bit_index)
 {
     unsigned int byte_index = bit_index / 8;
@@ -289,9 +297,6 @@ static unsigned asterix_parse_re_field (tvbuff_t *tvb, unsigned offset, proto_tr
     return offset - start_offset;
 }
 
-unsigned int solution_count;
-int solutions[MAX_INTERPRETATIONS][MAX_INTERPRETATION_DEPTH];
-
 static bool check_fspec_validity (tvbuff_t *tvb, unsigned offset, table_params *table)
 {
     unsigned i = 0;
@@ -407,7 +412,7 @@ static int probe_possible_records (tvbuff_t *tvb, packet_info *pinfo, int offset
             }
             else if (new_offset < datablock_end)
             {
-                if ((depth + 1) >= MAX_INTERPRETATION_DEPTH)
+                if ((depth + 1) >= selected_interpretations_depth)
                 {
                     return -2;
                 }
@@ -704,6 +709,10 @@ void proto_register_asterix (void)
         dialog_cat_struct cat = asterix_properties[i];
         prefs_register_enum_preference(asterix_module, cat.cat_name, cat.cat_name, NULL, cat.cat_default_value, cat.cat_enums, FALSE);
     }
+
+    prefs_register_enum_preference(asterix_module, "interpretations_depth", "Interpretations depth",
+                                   "Interpretations depth for categories with multiple possible UAPs",
+                                   &selected_interpretations_depth, interpretations_level_enum_vals, false);
 }
 
 void proto_reg_handoff_asterix (void)

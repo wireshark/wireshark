@@ -60,4 +60,21 @@ static expert_field hf_asterix_spare_error;
 static expert_field hf_asterix_fx_error;
 static expert_field hf_asterix_fspec_error;
 
+enum interpretations_depth_e {
+  depth_10 = 10,
+  depth_15 = 15,
+  depth_20 = 20,
+  depth_25 = 25,
+  depth_30 = 30
+};
+
+static const enum_val_t interpretations_level_enum_vals[] = {
+  {"interpretations_depth_10", "depth 10", depth_10},
+  {"interpretations_depth_15", "depth 15", depth_15},
+  {"interpretations_depth_20", "depth 20", depth_20},
+  {"interpretations_depth_25", "depth 25", depth_25},
+  {"interpretations_depth_30", "depth 30", depth_30},
+  {NULL, NULL, 0}
+};
+
 #endif /* __PACKET_ASTERIX_H__ */
