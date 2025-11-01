@@ -3180,7 +3180,12 @@ static int hf_access_generic_read;
 static int hf_access_generic_write;
 static int hf_access_generic_execute;
 static int hf_access_generic_all;
+static int hf_access_other_3;
+static int hf_access_other_2;
 static int hf_access_system_security;
+static int hf_access_standard_7;
+static int hf_access_standard_6;
+static int hf_access_standard_5;
 static int hf_access_standard_delete;
 static int hf_access_standard_read_control;
 static int hf_access_standard_synchronise;
@@ -3266,12 +3271,17 @@ dissect_nt_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	};
 
 	static int * const other_access_flags[] = {
+		&hf_access_other_3,
+		&hf_access_other_2,
 		&hf_access_maximum_allowed,
 		&hf_access_system_security,
 		NULL
 	};
 
 	static int * const standard_access_flags[] = {
+		&hf_access_standard_7,
+		&hf_access_standard_6,
+		&hf_access_standard_5,
 		&hf_access_standard_synchronise,
 		&hf_access_standard_write_owner,
 		&hf_access_standard_write_dac,
@@ -4347,6 +4357,16 @@ proto_do_register_windows_common(int proto_smb)
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
 		    GENERIC_ALL_ACCESS, NULL, HFILL }},
 
+		{ &hf_access_other_3,
+		  { "Other access, bit 3", "nt.access_mask.other_3",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
+		    0x08000000, NULL, HFILL }},
+
+		{ &hf_access_other_2,
+		  { "Other access, bit 2", "nt.access_mask.other_2",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
+		    0x04000000, NULL, HFILL }},
+
 		{ &hf_access_maximum_allowed,
 		  { "Maximum allowed", "nt.access_mask.maximum_allowed",
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
@@ -4356,6 +4376,21 @@ proto_do_register_windows_common(int proto_smb)
 		  { "System security", "nt.access_mask.system_security",
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
 		    SYSTEM_SECURITY_ACCESS, NULL, HFILL }},
+
+		{ &hf_access_standard_7,
+		  { "Standard access, bit 7", "nt.access_mask.standard_7",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
+		    0x00800000, NULL, HFILL }},
+
+		{ &hf_access_standard_6,
+		  { "Standard access, bit 6", "nt.access_mask.standard_6",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
+		    0x00400000, NULL, HFILL }},
+
+		{ &hf_access_standard_5,
+		  { "Standard access, bit 5", "nt.access_mask.standard_5",
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
+		    0x00200000, NULL, HFILL }},
 
 		{ &hf_access_standard_read_control,
 		  { "Read control", "nt.access_mask.read_control",
