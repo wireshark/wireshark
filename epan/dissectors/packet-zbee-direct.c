@@ -807,23 +807,6 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
     return offset;
 }
 
-/* 6.4.3. CCM Nonce */
-typedef struct
-#if defined(_MSC_VER)
-# pragma pack(push, 1)
-#else
-__attribute__((__packed__))
-#endif
-    zb_secur_ccm_nonce_s
-{
-    uint8_t  source_address[8];
-    uint32_t frame_counter;
-    uint8_t  secur_control;
-} zb_secur_ccm_nonce_t;
-#ifdef _MSC_VER
-# pragma pack(pop)
-#endif
-
 /**
  * Creates an auth string.
  *
@@ -875,22 +858,26 @@ static bool decrypt_data(const uint8_t *serv_uuid,
     const uint8_t *encrypted_data     = in + sizeof(uint32_t);
     uint16_t      encrypted_data_len = *len - sizeof(uint32_t);
 
+    /* 6.4.3. CCM Nonce */
     /* Form the nonce */
-    zb_secur_ccm_nonce_t nonce = (zb_secur_ccm_nonce_t)
-    {
-        .secur_control = ZIGBEE_DIRECT_SECUR_CONTROL
-    };
+    uint8_t nonce[ZBEE_SEC_CONST_NONCE_LEN];
 
-    /* Fetch counter from the packet (don't check) */
-    memcpy(&nonce.frame_counter, in, sizeof(uint32_t));
-    memcpy(&nonce.source_address, to_zdd ? zvd_ieee : zdd_ieee, 8);
+    /* First 8 bytes are the source address. (Little-Endian) */
+    memcpy(nonce, to_zdd ? zvd_ieee : zdd_ieee, 8);
+
+    /* Fetch counter from the packet (don't check),
+     * in Little-Endian order as transmitted.  */
+    memcpy(&nonce[8], in, 4);
+
+    /* Last byte is the security control field. */
+    nonce[12] = ZIGBEE_DIRECT_SECUR_CONTROL;
 
     if (*len < 8) return false;
 
     create_auth_string(serv_uuid, char_uuid, auth_str);
 
     success = zbee_sec_ccm_decrypt(key,
-                                   (uint8_t*)&nonce,
+                                   nonce,
                                    auth_str,
                                    encrypted_data,
                                    decrypted_data,
