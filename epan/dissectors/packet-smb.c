@@ -427,6 +427,7 @@ static int hf_smb_nt_trans_subcmd;
 static int hf_smb_nt_ioctl_isfsctl;
 static int hf_smb_nt_ioctl_flags_completion_filter;
 static int hf_smb_nt_ioctl_flags_root_handle;
+static int hf_smb_nt_ioctl_data_length;
 static int hf_smb_nt_notify_action;
 static int hf_smb_nt_notify_watch_tree;
 static int hf_smb_nt_notify_completion_filter;
@@ -10328,6 +10329,8 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
 				int len, smb_info_t *si)
 {
 	smb_nt_transact_info_t *nti;
+	proto_tree *tree;
+	proto_item *item = NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -10338,7 +10341,7 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (parent_tree) {
 		if (nti != NULL) {
-			proto_tree_add_bytes_format(parent_tree, hf_smb_nt_transaction_setup, tvb, offset, len,
+			item = proto_tree_add_bytes_format(parent_tree, hf_smb_nt_transaction_setup, tvb, offset, len,
 				NULL, "%s Setup",
 				val_to_str_ext(pinfo->pool, nti->subcmd, &nt_cmd_vals_ext, "Unknown NT Transaction (%u)"));
 		} else {
@@ -10358,6 +10361,11 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
 	case NT_TRANS_CREATE:
 		break;
 	case NT_TRANS_IOCTL:
+		if (item != NULL && len >= 2) {
+			tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
+			/* data length */
+			proto_tree_add_item(tree, hf_smb_nt_ioctl_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		}
 		break;
 	case NT_TRANS_SSD:
 		/* NT SET SECURITY DESC	*/
@@ -20690,6 +20698,10 @@ proto_register_smb(void)
 	{ &hf_smb_nt_ioctl_flags_root_handle,
 		{ "Root Handle", "smb.nt.ioctl.flags.root_handle", FT_BOOLEAN, 8,
 		TFS(&tfs_nt_ioctl_flags_root_handle), NT_IOCTL_FLAGS_ROOT_HANDLE, "Apply to this share or root Dfs share", HFILL }},
+
+	{ &hf_smb_nt_ioctl_data_length,
+		{ "Data Length", "smb.nt.ioctl.data_length", FT_UINT16, BASE_DEC,
+		NULL, 0, "IOCTL response output data buffer length", HFILL }},
 
 	{ &hf_smb_nt_notify_action,
 		{ "Action", "smb.nt.notify.action", FT_UINT32, BASE_DEC,
