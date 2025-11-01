@@ -4405,47 +4405,47 @@ proto_do_register_windows_common(int proto_smb)
 		    0x00000200, NULL, HFILL }},
 
 		{ &hf_access_specific_8,
-		  { "Specific access, bit 8", "nt.access_mask.specific_8",
+		  { "Write attributes", "nt.access_mask.specific_8",
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
 		    0x00000100, NULL, HFILL }},
 
 		{ &hf_access_specific_7,
-		  { "Specific access, bit 7", "nt.access_mask.specific_7",
+		  { "Read attributes", "nt.access_mask.specific_7",
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
 		    0x00000080, NULL, HFILL }},
 
 		{ &hf_access_specific_6,
-		  { "Specific access, bit 6", "nt.access_mask.specific_6",
+		  { "Delete child", "nt.access_mask.specific_6",
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
 			0x00000040, NULL, HFILL }},
 
 		{ &hf_access_specific_5,
-		  { "Specific access, bit 5", "nt.access_mask.specific_5",
+		  { "Execute file / Traverse directory", "nt.access_mask.specific_5",
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
 		    0x00000020, NULL, HFILL }},
 
 		{ &hf_access_specific_4,
-		  { "Specific access, bit 4", "nt.access_mask.specific_4",
+		  { "Write extended attributes", "nt.access_mask.specific_4",
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
 		    0x00000010, NULL, HFILL }},
 
 		{ &hf_access_specific_3,
-		  { "Specific access, bit 3", "nt.access_mask.specific_3",
+		  { "Read extended attributes", "nt.access_mask.specific_3",
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
 		    0x00000008, NULL, HFILL }},
 
 		{ &hf_access_specific_2,
-		  { "Specific access, bit 2", "nt.access_mask.specific_2",
+		  { "Append data to file / Add subdirectory / Create pipe instance", "nt.access_mask.specific_2",
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
 		    0x00000004, NULL, HFILL }},
 
 		{ &hf_access_specific_1,
-		  { "Specific access, bit 1", "nt.access_mask.specific_1",
+		  { "Write data to file / Add file to directory", "nt.access_mask.specific_1",
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
 		    0x00000002, NULL, HFILL }},
 
 		{ &hf_access_specific_0,
-		  { "Specific access, bit 0", "nt.access_mask.specific_0",
+		  { "Read data file / List directory", "nt.access_mask.specific_0",
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
 		    0x00000001, NULL, HFILL }},
 
