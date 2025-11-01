@@ -9636,7 +9636,7 @@ dissect_rpc_secparms4(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, proto_
 		offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_flavor, offset);
 
 		switch (flavor) {
-		case 1: { /* AUTH_SYS */
+		case AUTH_UNIX: {
 			unsigned count2;
 			offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_stamp, offset);
 			offset = dissect_nfs_utf8string(tvb, pinfo, offset, tree, hf_nfs4_machinename, NULL);
@@ -9649,7 +9649,7 @@ dissect_rpc_secparms4(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, proto_
 			}
 			break;
 		}
-		case 6: /* RPCSEC_GSS */
+		case RPCSEC_GSS:
 			offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_service, offset);
 			proto_item_append_text(tree, ", Handle from server");
 			offset = dissect_nfsdata(tvb, pinfo, offset, tree, hf_nfs_data);
