@@ -3535,7 +3535,8 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		offset = mysql_dissect_server_status(tvb, offset, tree, &server_status);
 
 		/* 4.1+ protocol only: 2 bytes number of warnings */
-		if (conn_data->clnt_caps & conn_data->srv_caps & MYSQL_CAPS_CU) {
+		/* Warning count is not present in response from MySQL 4.1 servers */
+		if (tvb_reported_length_remaining(tvb, offset) >= 2 && (conn_data->clnt_caps & conn_data->srv_caps & MYSQL_CAPS_CU)) {
 			proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			lenstr = tvb_get_ntohs(tvb, offset);
 			offset += 2;
@@ -3983,9 +3984,13 @@ mysql_dissect_response_prepare(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	}
 
 	offset += 2;
-	/* Filler */
-	offset += 1;
-	proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+	/* Filler and warning count is not present in response from MySQL 4.1 servers */
+	if (tvb_reported_length_remaining(tvb, offset) >= 3) {
+		/* Filler */
+		offset += 1;
+		proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	}
 
 	if (stmt_num_params > 0) {
 		mysql_set_remaining_field_packet_count(pinfo, conn_data, stmt_num_params);
@@ -4328,9 +4333,12 @@ static int
 mysql_dissect_eof(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *pi _U_, int offset, proto_tree *tree, mysql_conn_data_t *conn_data _U_)
 {
 	uint16_t server_status = 0;
-	proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
-	offset = mysql_dissect_server_status(tvb, offset, tree, &server_status);
+	/* Warning count is not present in response from MySQL 4.1 servers */
+	if (tvb_reported_length_remaining(tvb, offset) >= 4) {
+		proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+		offset = mysql_dissect_server_status(tvb, offset, tree, &server_status);
+	}
 	return offset + tvb_reported_length_remaining(tvb, offset);
 }
 
