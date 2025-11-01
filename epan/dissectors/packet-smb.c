@@ -2941,7 +2941,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		break;
 	case 13:
 		/*
-		 * Server selected a dialect from LAN Manager 1.0 through
+		 * Server selected CorePlus dialect or a dialect from LAN Manager 1.0 through
 		 * LAN Manager 2.1.
 		 */
 		proto_tree_add_uint_format_value(tree, hf_smb_dialect_index,
@@ -2966,7 +2966,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 	switch(wc) {
 	case 13:
 		/*
-		 * Server selected a dialect from LAN Manager 1.0 through
+		 * Server selected CorePlus dialect or a dialect from LAN Manager 1.0 through
 		 * LAN Manager 2.1.
 		 */
 
@@ -3095,7 +3095,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		}
 
 		/*
-		 * Server selected a dialect from LAN Manager 1.0 through
+		 * Server selected CorePlus dialect or a dialect from LAN Manager 1.0 through
 		 * LAN Manager 2.1.
 		 */
 
