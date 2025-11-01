@@ -13446,7 +13446,7 @@ dissect_qfi_SMB_FILE_PIPE_REMOTE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 */
 int
 dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, uint16_t *bcp, bool *trunc, bool unicode)
+    int offset, uint16_t *bcp, bool *trunc)
 {
 	unsigned    fn_len;
 	const char *fn;
@@ -13456,8 +13456,8 @@ dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	proto_tree_add_item_ret_uint(tree, hf_smb_file_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &fn_len);
 	COUNT_BYTES_SUBR(4);
 
-	/* file name */
-	fn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, unicode, (int*)&fn_len, true, true, bcp);
+	/* file name, in response it is always in UNICODE */
+	fn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, true, (int*)&fn_len, true, true, bcp);
 
 	CHECK_STRING_SUBR(fn);
 
@@ -14310,7 +14310,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	case 0x0104:	/*Query File Name Info*/
 	case 1009:	/* SMB_FILE_NAME_INFORMATION */
 		offset = dissect_qfi_SMB_FILE_NAME_INFO(tvb, pinfo, tree, offset, bcp,
-		    &trunc, si->unicode);
+		    &trunc);
 		break;
 	case 1014:	/* SMB_FILE_POSITION_INFORMATION */
 		offset = dissect_qsfi_SMB_FILE_POSITION_INFO(tvb, pinfo, tree, offset, bcp,
@@ -14340,7 +14340,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	case 0x0108:	/*Query File Alt File Info*/
 	case 1021:	/* SMB_FILE_ALTERNATE_NAME_INFORMATION */
 		offset = dissect_qfi_SMB_FILE_NAME_INFO(tvb, pinfo, tree, offset, bcp,
-		    &trunc, si->unicode);
+		    &trunc);
 		break;
 	case 1022:	/* SMB_FILE_STREAM_INFORMATION */
 		si->unicode = true;
