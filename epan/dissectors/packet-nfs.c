@@ -460,6 +460,7 @@ static int hf_nfs4_length;
 static int hf_nfs4_changeid;
 static int hf_nfs4_changeid_before;
 static int hf_nfs4_changeid_after;
+static int hf_nfs4_time;
 static int hf_nfs4_time_seconds;
 static int hf_nfs4_time_nseconds;
 static int hf_nfs4_fsid_major;
@@ -954,6 +955,7 @@ static int ett_nfs4_cb_notify_attr4_child;
 static int ett_nfs4_cb_notify_remove4;
 static int ett_nfs4_cb_notify_add4;
 static int ett_nfs4_cb_notify_rename4;
+static int ett_nfs4_nfstime;
 
 static expert_field ei_nfs_too_many_ops;
 static expert_field ei_nfs_not_vnx_file;
@@ -6669,6 +6671,13 @@ dissect_nfs4_pathname(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, proto_
 static unsigned
 dissect_nfs4_nfstime(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
+	nstime_t ts;
+	proto_item *item;
+
+	ts.secs = tvb_get_ntoh64(tvb, offset+0);
+	ts.nsecs = tvb_get_ntohl(tvb, offset+8);
+	item = proto_tree_add_time(tree, hf_nfs4_time, tvb, offset, 12, &ts);
+	tree = proto_item_add_subtree(item, ett_nfs4_nfstime);
 	offset = dissect_rpc_uint64(tvb, tree, hf_nfs4_time_seconds, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_time_nseconds, offset);
 
@@ -13310,6 +13319,10 @@ proto_register_nfs(void)
 			"changeid (after)", "nfs.changeid4.after", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs4_time, {
+			"nfstime4", "nfs.nfstime4", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+			NULL, 0, NULL, HFILL }},
+
 		{ &hf_nfs4_time_seconds, {
 			"seconds", "nfs.nfstime4.seconds", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
@@ -15177,7 +15190,8 @@ proto_register_nfs(void)
 		&ett_nfs4_cb_notify_attr4_child,
 		&ett_nfs4_cb_notify_remove4,
 		&ett_nfs4_cb_notify_add4,
-		&ett_nfs4_cb_notify_rename4
+		&ett_nfs4_cb_notify_rename4,
+		&ett_nfs4_nfstime,
 	};
 
 	static ei_register_info ei[] = {
