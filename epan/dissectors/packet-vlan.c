@@ -367,6 +367,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
   }
+  p_set_proto_depth(pinfo, proto_vlan, vlan_nested_count - 1);
   return tvb_captured_length(tvb);
 }
 
