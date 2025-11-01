@@ -61,6 +61,7 @@ void proto_register_rpc(void);
 void proto_reg_handoff_rpc(void);
 
 #define RPC_TCP_PORT 111
+#define NFS4_TCP_PORT 2049
 
 #define RPC_UDP 0
 #define RPC_TCP 1
@@ -4447,6 +4448,9 @@ proto_reg_handoff_rpc(void)
 	dissector_add_uint_with_preference("tcp.port", RPC_TCP_PORT, rpc_tcp_handle);
 	dissector_add_uint_with_preference("udp.port", RPC_TCP_PORT, rpc_handle);
 	dissector_add_string("tls.alpn", "sunrpc", rpc_tls_handle);
+
+	/* tcp port 2049 is used by NFS4, it is onc-rpc service, but does not use portmapper */
+	dissector_add_uint_with_preference("tcp.port", NFS4_TCP_PORT, rpc_tcp_handle);
 
 	heur_dissector_add("tcp", dissect_rpc_tcp_heur, "RPC over TCP", "rpc_tcp", proto_rpc, HEURISTIC_ENABLE);
 	heur_dissector_add("udp", dissect_rpc_heur, "RPC over UDP", "rpc_udp", proto_rpc, HEURISTIC_ENABLE);
