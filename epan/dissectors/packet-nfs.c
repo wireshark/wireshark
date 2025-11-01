@@ -13504,7 +13504,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_fattr_mounted_on_fileid, {
-			"fileid", "nfs.fattr4.mounted_on_fileid", FT_UINT64, BASE_HEX,
+			"fileid", "nfs.fattr4.mounted_on_fileid", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_fattr_layout_blksize, {
