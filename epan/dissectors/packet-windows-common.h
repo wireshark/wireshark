@@ -5871,7 +5871,6 @@ int dissect_nt_sid_ret_item(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 /* Misc/reserved */
 
-#define ACCESS_SACL_ACCESS     0x00800000
 #define SYSTEM_SECURITY_ACCESS 0x01000000
 #define MAXIMUM_ALLOWED_ACCESS 0x02000000
 

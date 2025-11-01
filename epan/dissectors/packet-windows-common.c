@@ -3174,7 +3174,6 @@ static int ett_nt_access_mask_generic;
 static int ett_nt_access_mask_standard;
 static int ett_nt_access_mask_specific;
 
-static int hf_access_sacl;
 static int hf_access_maximum_allowed;
 static int hf_access_generic_read;
 static int hf_access_generic_write;
@@ -3262,7 +3261,6 @@ dissect_nt_access_mask(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		&hf_access_generic_execute,
 		&hf_access_generic_all,
 		&hf_access_maximum_allowed,
-		&hf_access_sacl,
 		NULL
 	};
 
@@ -4338,11 +4336,6 @@ proto_do_register_windows_common(int proto_smb)
 		  { "Maximum allowed", "nt.access_mask.maximum_allowed",
 		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
 		    MAXIMUM_ALLOWED_ACCESS, NULL, HFILL }},
-
-		{ &hf_access_sacl,
-		  { "Access SACL", "nt.access_mask.access_sacl",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset),
-		    ACCESS_SACL_ACCESS, NULL, HFILL }},
 
 		{ &hf_access_standard_read_control,
 		  { "Read control", "nt.access_mask.read_control",
