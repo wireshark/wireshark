@@ -2152,16 +2152,22 @@ LocTimeDiff(time_t lt)
 }
 
 static int
-dissect_smb_UTIME(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
+dissect_smb_UTIME(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date, const char *name_0, const char *name_ffffffff)
 {
 	uint32_t timeval;
 	nstime_t ts;
 
 	ts.secs = timeval = tvb_get_letohl(tvb, offset);
 	ts.nsecs = 0;
-	if (timeval == 0xffffffff) {
+	if (timeval == 0 && name_0 != NULL) {
 		proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 4, &ts,
-		    "No time specified (0xffffffff)");
+		    "%s (0)", name_0);
+		offset += 4;
+		return offset;
+	}
+	if (timeval == 0xffffffff && name_ffffffff != NULL) {
+		proto_tree_add_time_format_value(tree, hf_date, tvb, offset, 4, &ts,
+		    "%s (0xffffffff)", name_ffffffff);
 		offset += 4;
 		return offset;
 	}
@@ -4331,7 +4337,7 @@ dissect_open_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset = dissect_file_attributes(tvb, tree, offset);
 
 	/* last write time */
-	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
+	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time, "No time specified", NULL);
 
 	/* File Size */
 	proto_tree_add_item(tree, hf_smb_file_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -4551,7 +4557,7 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset = dissect_file_attributes(tvb, tree, offset);
 
 	/* creation time */
-	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_create_time);
+	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_create_time, "Use current server time", NULL);
 
 	BYTE_COUNT;
 
@@ -4618,7 +4624,7 @@ dissect_close_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* last write time */
-	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
+	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time, "Do not change time", "Do not change time");
 
 	/* Keep the path length limit short enough for the user to notice that there
 	* are multiple requests in this packet if any. */
@@ -4882,7 +4888,7 @@ dissect_query_information_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	offset = dissect_file_attributes(tvb, tree, offset);
 
 	/* Last Write Time */
-	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
+	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time, "No time specified", NULL);
 
 	/* File Size */
 	proto_tree_add_item(tree, hf_smb_file_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -4916,7 +4922,7 @@ dissect_set_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset = dissect_file_attributes(tvb, tree, offset);
 
 	/* last write time */
-	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
+	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time, "Do not change time", NULL);
 
 	/* 10 reserved bytes */
 	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 10, ENC_NA);
@@ -5405,7 +5411,7 @@ dissect_create_temporary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	offset += 2;
 
 	/* Creation time */
-	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_create_time);
+	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_create_time, "Use current server time", NULL);
 
 	BYTE_COUNT;
 
@@ -5673,7 +5679,7 @@ dissect_write_and_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset += 4;
 
 	/* last write time */
-	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
+	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time, "Set to current server time", NULL);
 
 	if (wc == 12) {
 		/* 12 reserved bytes */
@@ -7031,7 +7037,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset = dissect_file_attributes(tvb, tree, offset);
 
 	/* creation time */
-	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_create_time);
+	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_create_time, "Use current server time", NULL);
 
 	/* open function */
 	offset = dissect_open_function(tvb, tree, offset);
@@ -7195,7 +7201,7 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset = dissect_file_attributes(tvb, tree, offset);
 
 	/* last write time */
-	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
+	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time, "No time specified", NULL);
 
 	/* File Size */
 	/* We store the file_size in the fid_info */
