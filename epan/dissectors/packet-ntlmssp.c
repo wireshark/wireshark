@@ -2100,6 +2100,9 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
+  if (!ntlmssph->domain_name[0] && !ntlmssph->acct_name[0])
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "User: anonymous");
+  else
   col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "User: %s\\%s",
                   ntlmssph->domain_name, ntlmssph->acct_name);
 
