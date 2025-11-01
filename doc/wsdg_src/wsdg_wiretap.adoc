@@ -70,7 +70,7 @@ Now we're ready to begin working on `dumb.c`. At minimum, it requires a few func
 
 #include <string.h>
 
-#include "wtap-int.h"
+#include "wtap_module.h"
 #include "file_wrappers.h"
 
 #define MAGIC_SIZE	4
