@@ -14118,7 +14118,7 @@ proto_register_nfs(void)
 
 		{ &hf_nfs4_flavor, {
 			"flavor", "nfs.flavor4", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+			VALS(rpc_auth_flavor), 0, NULL, HFILL }},
 
 		{ &hf_nfs4_stamp, {
 			"stamp", "nfs.stamp4", FT_UINT32, BASE_DEC,
@@ -14133,8 +14133,8 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_service, {
-			"gid", "nfs.service4", FT_UINT32, BASE_DEC,
-			NULL, 0, NULL, HFILL }},
+			"service", "nfs.service4", FT_UINT32, BASE_DEC,
+			VALS(rpc_authgss_svc), 0, NULL, HFILL }},
 
 		{ &hf_nfs_access_check,
 			{ "Check access", "nfs.access_check",
