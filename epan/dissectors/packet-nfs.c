@@ -12234,8 +12234,9 @@ static const value_string nfs_cb_proc_vals[] = {
 };
 
 /*
- * The version should be 4, but some Linux kernels set this field to 1.
- * "Temporarily" accommodate these servers.
+ * NFS Callback version 1 is used by NFSv4.0 protocol and
+ * NFS Callback version 4 is used by NFSv4.1 and NFSv4.2 protocols.
+ * Other versions (including 2 and 3) are not defined nor used yet.
  */
 static const rpc_prog_vers_info nfs_cb_vers_info[] = {
 	{ 1, nfs_cb_proc, &hf_nfs4_cb_procedure },
