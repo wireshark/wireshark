@@ -1061,6 +1061,7 @@ typedef struct nfs_name_snoop_key {
 	const unsigned char *fh;
 } nfs_name_snoop_key_t;
 
+static GHashTable *nfs_name_snoop_readdir;
 static GHashTable *nfs_name_snoop_unmatched;
 
 static GHashTable *nfs_name_snoop_matched;
@@ -1205,6 +1206,10 @@ nfs_name_snoop_value_destroy(void *value)
 static void
 nfs_name_snoop_init(void)
 {
+	nfs_name_snoop_readdir =
+		g_hash_table_new_full(nfs_name_snoop_unmatched_hash,
+		nfs_name_snoop_unmatched_equal,
+		NULL, nfs_name_snoop_value_destroy);
 	nfs_name_snoop_unmatched =
 		g_hash_table_new_full(nfs_name_snoop_unmatched_hash,
 		nfs_name_snoop_unmatched_equal,
@@ -1218,6 +1223,7 @@ nfs_name_snoop_init(void)
 static void
 nfs_name_snoop_cleanup(void)
 {
+	g_hash_table_destroy(nfs_name_snoop_readdir);
 	g_hash_table_destroy(nfs_name_snoop_unmatched);
 	g_hash_table_destroy(nfs_name_snoop_matched);
 }
@@ -1317,6 +1323,60 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 
 	g_hash_table_steal(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
 	g_hash_table_replace(nfs_name_snoop_matched, key, nns);
+}
+
+static void
+nfs_name_snoop_readdir_add_parent_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
+{
+	nfs_name_snoop_t     *nns;
+	unsigned char        *fh;
+
+	fh = (unsigned char *)tvb_memdup(NULL, tvb, fh_offset, fh_length);
+
+	nns = g_new0(nfs_name_snoop_t, 1);
+	nns->parent_len = fh_length;
+	nns->parent = fh;
+
+	g_hash_table_insert(nfs_name_snoop_readdir, GINT_TO_POINTER(xid), nns);
+}
+
+static void
+nfs_name_snoop_readdir_add_child_fh_name(int xid, tvbuff_t *tvb, int fh_offset, int fh_length, const char *name)
+{
+	nfs_name_snoop_t     *readdir_nns;
+	unsigned char        *fh;
+	nfs_name_snoop_t     *nns;
+	nfs_name_snoop_key_t *key;
+
+	if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
+		return;
+
+	readdir_nns = (nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_readdir, GINT_TO_POINTER(xid));
+	if (!readdir_nns)
+		return;
+
+	fh = (unsigned char *)tvb_memdup(NULL, tvb, fh_offset, fh_length);
+
+	nns = g_new(nfs_name_snoop_t, 1);
+	nns->fh_length = fh_length;
+	nns->fh = fh;
+	nns->parent_len = readdir_nns->parent_len;
+	nns->parent = g_malloc(readdir_nns->parent_len);
+	memcpy(nns->parent, readdir_nns->parent, readdir_nns->parent_len);
+	nns->name_len = (int)strlen(name);
+	nns->name = g_strdup(name);
+	nns->full_name_len = 0;
+	nns->full_name = NULL;
+	nns->fs_cycle = false;
+
+	key = wmem_new(wmem_file_scope(), nfs_name_snoop_key_t);
+	key->key = 0;
+	key->fh_length = nns->fh_length;
+	key->fh = nns->fh;
+
+	g_hash_table_replace(nfs_name_snoop_matched, key, nns);
+
+	/* do not remove entry from the nfs_name_snoop_readdir as it is used for more child names, not just this one */
 }
 
 #define NFS_MAX_FS_DEPTH 100
@@ -3814,18 +3874,29 @@ dissect_nfs3_fh(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *
 
 	/* are we snooping fh to filenames ?*/
 	if ((!pinfo->fd->visited) && nfs_file_name_snooping) {
-		/* NFS v3 LOOKUP, CREATE, MKDIR, READDIRPLUS
+		/* NFS v3 LOOKUP, CREATE, MKDIR
 			calls might give us a mapping*/
 		if ( ((civ->prog == 100003)
 		  &&((civ->vers == 3)
 		  &&(!civ->request)
-		  &&((civ->proc == 3)||(civ->proc == 8)||(civ->proc == 9)||(civ->proc == 17))))
+		  &&((civ->proc == 3)||(civ->proc == 8)||(civ->proc == 9))))
 		|| civ->vers == 4
 		) {
 			fh_length = tvb_get_ntohl(tvb, offset);
 			fh_offset = offset+4;
 			nfs_name_snoop_add_fh(civ->xid, tvb, fh_offset,
 					      fh_length);
+		}
+
+		/* NFS v3 READDIRPLUS calls might give us a mapping */
+		if ( (civ->prog == 100003)
+		  &&(civ->vers == 3)
+		  &&(civ->request)
+		  &&((civ->proc == 17))
+		) {
+			fh_length = tvb_get_ntohl(tvb, offset);
+			fh_offset = offset+4;
+			nfs_name_snoop_readdir_add_parent_fh(civ->xid, tvb, fh_offset, fh_length);
 		}
 
 		/* MOUNT v3 MNT replies might give us a filehandle */
@@ -5696,6 +5767,10 @@ dissect_nfs3_entryplus(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto
 {
 	proto_item *entry_item;
 	proto_tree *entry_tree;
+	int fh_follows_offset;
+	bool fh_follows;
+	int fh_offset;
+	int fh_length;
 	unsigned    old_offset = offset;
 	const char *name       = NULL;
 	rpc_call_info_value *civ = (rpc_call_info_value *)data;
@@ -5707,20 +5782,6 @@ dissect_nfs3_entryplus(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto
 
 	offset = dissect_nfs3_filename(tvb, pinfo, offset, entry_tree,	hf_nfs3_readdirplus_entry_name, &name);
 
-	/* are we snooping fh to filenames ?*/
-	if ((!pinfo->fd->visited) && nfs_file_name_snooping) {
-		/* v3 READDIRPLUS replies will give us a mapping */
-		if ( (civ->prog == 100003)
-		  &&(civ->vers == 3)
-		  &&(!civ->request)
-		  &&((civ->proc == 17))
-		) {
-			nfs_name_snoop_add_name(civ->xid, tvb, 0, 0,
-				0/*parent offset*/, 0/*parent len*/,
-				name);
-		}
-	}
-
 	proto_item_set_text(entry_item, "Entry: name %s", name);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name);
@@ -5729,6 +5790,24 @@ dissect_nfs3_entryplus(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto
 		offset);
 
 	offset = dissect_nfs3_post_op_attr(tvb, offset, pinfo, entry_tree, "name_attributes");
+
+	/* are we snooping fh to filenames ?*/
+	if ((!pinfo->fd->visited) && nfs_file_name_snooping) {
+		/* v3 READDIRPLUS replies might give us a mapping */
+		if ( (civ->prog == 100003)
+		  &&(civ->vers == 3)
+		  &&(!civ->request)
+		  &&((civ->proc == 17))
+		) {
+			fh_follows_offset = offset;
+			fh_follows = tvb_get_ntohl(tvb, fh_follows_offset);
+			if (fh_follows == true) {
+				fh_length = tvb_get_ntohl(tvb, fh_follows_offset+4);
+				fh_offset = fh_follows_offset+4+4;
+				nfs_name_snoop_readdir_add_child_fh_name(civ->xid, tvb, fh_offset, fh_length, name);
+			}
+		}
+	}
 
 	offset = dissect_nfs3_post_op_fh(tvb, offset, pinfo, entry_tree, "name_handle", civ);
 
