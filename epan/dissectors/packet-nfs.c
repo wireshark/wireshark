@@ -1480,7 +1480,7 @@ nfs_fmt_fsid( char *result, uint32_t revision )
 	fsid_major = ( revision>>18 ) &  0x3fff; /* 14 bits */
 	fsid_minor = ( revision     ) & 0x3ffff; /* 18 bits */
 
-   snprintf( result, ITEM_LABEL_LENGTH, "%d,%d", fsid_major, fsid_minor);
+   snprintf( result, ITEM_LABEL_LENGTH, "%u,%u", fsid_major, fsid_minor);
 }
 
 /* SVR4: checked with ReliantUNIX (5.43, 5.44, 5.45), OpenSolaris (build 101a) */
@@ -1679,7 +1679,7 @@ dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto
 
 			fsid_tree = proto_tree_add_subtree_format(tree, tvb,
 							offset+12, 4, ett_nfs_fh_fsid, NULL,
-							"file system ID: %d,%d",
+							"file system ID: %u,%u",
 							fsid_major, fsid_minor);
 			proto_tree_add_item(fsid_tree, hf_nfs_fh_fsid_major16_mask, tvb, offset+12, 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(fsid_tree, hf_nfs_fh_fsid_minor16_mask, tvb, offset+12, 2, ENC_LITTLE_ENDIAN);
@@ -1691,7 +1691,7 @@ dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto
 
 			xfsid_tree = proto_tree_add_subtree_format(tree, tvb,
 							 offset+16, 4, ett_nfs_fh_xfsid, NULL,
-							 "exported file system ID: %d,%d", xfsid_major, xfsid_minor);
+							 "exported file system ID: %u,%u", xfsid_major, xfsid_minor);
 			proto_tree_add_item(xfsid_tree, hf_nfs_fh_xfsid_major, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(xfsid_tree, hf_nfs_fh_xfsid_minor, tvb, offset+16, 2, ENC_LITTLE_ENDIAN);
 		}
@@ -3241,9 +3241,9 @@ dissect_nfs2_read_call(tvbuff_t *tvb, packet_info *pinfo,
 		offset+8, 4, ENC_BIG_ENDIAN, &totalcount);
 	offset += 12;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO,	", FH: 0x%08x Offset: %d Count: %d TotalCount: %d",
+	col_append_fstr(pinfo->cinfo, COL_INFO,	", FH: 0x%08x Offset: %u Count: %u TotalCount: %u",
 		hash, offset_value, count, totalcount);
-	proto_item_append_text(tree, ", READ Call FH: 0x%08x Offset: %d Count: %d TotalCount: %d",
+	proto_item_append_text(tree, ", READ Call FH: 0x%08x Offset: %u Count: %u TotalCount: %u",
 		hash, offset_value, count, totalcount);
 
 	return offset;
@@ -3298,9 +3298,9 @@ dissect_nfs2_write_call(tvbuff_t *tvb, packet_info *pinfo,
 		offset+8, 4, ENC_BIG_ENDIAN, &totalcount);
 	offset += 12;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", FH: 0x%08x BeginOffset: %d Offset: %d TotalCount: %d",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", FH: 0x%08x BeginOffset: %u Offset: %u TotalCount: %u",
 		hash, beginoffset, offset_value, totalcount);
-	proto_item_append_text(tree, ", WRITE Call FH: 0x%08x BeginOffset: %d Offset: %d TotalCount: %d",
+	proto_item_append_text(tree, ", WRITE Call FH: 0x%08x BeginOffset: %u Offset: %u TotalCount: %u",
 		hash, beginoffset, offset_value, totalcount);
 
 	offset = dissect_nfsdata(tvb, pinfo, offset, tree, hf_nfs_data);
@@ -3968,13 +3968,13 @@ dissect_nfs_fattr3(packet_info *pinfo, tvbuff_t *tvb, unsigned offset,
 	if (levels & COL_INFO_LEVEL) {
 		levels &= (~COL_INFO_LEVEL);
 		col_append_fstr(pinfo->cinfo, COL_INFO,
-				"  %s mode: %04o uid: %d gid: %d",
+				"  %s mode: %04o uid: %u gid: %u",
 				val_to_str_ext(pinfo->pool, type, &names_nfs_ftype3_ext, "Unknown Type: 0x%x"),
 				mode&0x0fff, uid, gid);
 	}
 	/* populate the expansion lines with some nice useable info */
 	while ( fattr3_tree && levels-- ) {
-		proto_item_append_text(fattr3_tree, "  %s mode: %04o uid: %d gid: %d",
+		proto_item_append_text(fattr3_tree, "  %s mode: %04o uid: %u gid: %u",
 				val_to_str_ext(pinfo->pool, type, &names_nfs_ftype3_ext, "Unknown Type: 0x%x"),
 				mode&0x0fff, uid, gid);
 		fattr3_tree = fattr3_tree->parent;
@@ -5074,8 +5074,8 @@ dissect_nfs3_read_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 				offset);
 			offset = dissect_rpc_bool(tvb, tree, hf_nfs3_read_eof,
 				offset);
-			col_append_fstr(pinfo->cinfo, COL_INFO, " Len: %d", len);
-			proto_item_append_text(tree, ", READ Reply Len: %d", len);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " Len: %u", len);
+			proto_item_append_text(tree, ", READ Reply Len: %u", len);
 			offset = dissect_nfsdata_reduced(R_NFSDATA, tvb, pinfo, offset, tree, hf_nfs_data, NULL);
 		break;
 		default:
@@ -5168,8 +5168,8 @@ dissect_nfs3_write_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 			offset = dissect_nfs3_write_verf(tvb, offset, tree);
 
 			str_stable = val_to_str(pinfo->pool, stable, names_stable_how, "Stable: %u");
-			col_append_fstr(pinfo->cinfo, COL_INFO, " Len: %d %s", len, str_stable);
-			proto_item_append_text(tree, ", WRITE Reply Len: %d %s", len, str_stable);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " Len: %u %s", len, str_stable);
+			proto_item_append_text(tree, ", WRITE Reply Len: %u %s", len, str_stable);
 		break;
 		default:
 			offset = dissect_wcc_data(tvb, offset, pinfo, tree, "file_wcc");
@@ -10130,7 +10130,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, prot
 	ftree = proto_item_add_subtree(fitem, ett_nfs4_request_op);
 
 	if (ops)
-		proto_item_append_text(proto_tree_get_parent(tree), ", Ops(%d):", ops);
+		proto_item_append_text(proto_tree_get_parent(tree), ", Ops(%u):", ops);
 
 	for (ops_counter=0; ops_counter<ops; ops_counter++)
 	{
@@ -10977,7 +10977,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, pro
 
 	ftree = proto_item_add_subtree(fitem, ett_nfs4_response_op);
 
-	proto_item_append_text(tree, ", Ops(%d):", ops);
+	proto_item_append_text(tree, ", Ops(%u):", ops);
 
 	for (ops_counter = 0; ops_counter < ops; ops_counter++)
 	{
