@@ -6439,11 +6439,18 @@ dissect_nfs4_bitmap(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tr
 	/* Set the offset to the first value */
 	offset = opaque_offset;
 
-	/* Show mask label when the number of bitmap masks is zero */
-	if (num_bitmaps == 0 && name == NULL && name_tree && bitmap_info->hf_mask_label) {
+	/* set i to num_bitmaps if each bitmap is zero */
+	for (i = 0; i < num_bitmaps; i++) {
+		bitmap = tvb_get_ntohl(tvb, mask_offset + 4*i);
+		if (bitmap)
+			break;
+	}
+
+	/* Show mask label when the number of bitmap masks is zero or each bitmap is zero */
+	if (num_bitmaps == i && name == NULL && name_tree && bitmap_info->hf_mask_label) {
 		/* Get header field to add the mask index to the field name */
 		hfinfo = proto_registrar_get_nth(*bitmap_info->hf_mask_label);
-		bitmap_tree = proto_tree_add_subtree_format(name_tree, tvb, mask_offset, 0,
+		bitmap_tree = proto_tree_add_subtree_format(name_tree, tvb, mask_offset-4, 4 + 4*num_bitmaps,
 						ett_nfs4_bitmap, NULL, "%s:", hfinfo->name);
 	}
 
