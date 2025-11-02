@@ -2856,8 +2856,8 @@ wimaxasncp_dictionary_process_file(const char* filename, GSList** tlvs)
                             if (g_regex_match_full(regex, str_code, -1, 0, 0, &match_info, NULL))
                             {
                                 unsigned bit_value = 0, bit_shift = 0;
-                                gchar* bit_value_str = g_match_info_fetch(match_info, 2);
-                                gchar* parenthesized_value_str = g_match_info_fetch(match_info, 3);
+                                char* bit_value_str = g_match_info_fetch(match_info, 2);
+                                char* parenthesized_value_str = g_match_info_fetch(match_info, 3);
 
                                 ws_strtou32(bit_value_str, NULL, &bit_value);
                                 g_free(bit_value_str);

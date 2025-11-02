@@ -964,7 +964,7 @@ dissect_PNIO_RSI_with_security(tvbuff_t* tvb, int offset,
     else if (u8ProtectionMode == 0x01) // Authenticated encryption
     {
         /* SecurityData */
-        gchar szFieldSummary[100];
+        char szFieldSummary[100];
         u16LengthSecurityData = tvb_captured_length_remaining(tvb, offset);
         proto_tree_add_item(rta_tree, hf_pn_rsi_security_data, tvb, offset, u16LengthSecurityData, ENC_NA);
         offset += u16LengthSecurityData;

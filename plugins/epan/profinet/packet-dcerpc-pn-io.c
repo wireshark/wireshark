@@ -15543,7 +15543,7 @@ dissect_CIMSNMPAdjust_block(tvbuff_t *tvb, int offset,
 /* CIMSNMPReal */
 static int
 dissect_CIMSNMPReal_block(tvbuff_t* tvb, int offset,
-    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint8_t* drep, uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow)
 {
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
