@@ -81,15 +81,15 @@
     </message>
     <message>
         <source>About Stratoshark</source>
-        <translation>Informazioni su Stratoshark</translation>
+        <translation type="vanished">Informazioni su Stratoshark</translation>
     </message>
     <message>
         <source>Stratoshark</source>
-        <translation>Stratoshark</translation>
+        <translation type="vanished">Stratoshark</translation>
     </message>
     <message>
         <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Analizzatore delle chiamate di sistema e del registro degli eventi&lt;/h3&gt;</translation>
+        <translation type="vanished">&lt;h3&gt;Analizzatore delle chiamate di sistema e del registro degli eventi&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -3713,18 +3713,18 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Event %1. </source>
-        <translation>Evento %1.</translation>
+        <translation type="vanished">Evento %1.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;letti&lt;/span&gt;,</numerusform>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;letti&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;scritture&lt;/span&gt;,</numerusform>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;scritture&lt;/span&gt;,</numerusform>
         </translation>
@@ -3763,15 +3763,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Read activity(%6)</source>
-        <translation>Attività di lettura(%6)</translation>
+        <translation type="vanished">Attività di lettura(%6)</translation>
     </message>
     <message>
         <source>Write activity(%6)</source>
-        <translation>Attività di scrittura(%6)</translation>
+        <translation type="vanished">Attività di scrittura(%6)</translation>
     </message>
     <message>
         <source>Entire I/O activity (%1)</source>
-        <translation>Intera attività I/O (%1)</translation>
+        <translation type="vanished">Intera attività I/O (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8747,7 +8747,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Auto switch event limit</source>
-        <translation>Limite eventi per commutazione automatica</translation>
+        <translation type="vanished">Limite eventi per commutazione automatica</translation>
     </message>
     <message>
         <source>Import</source>
@@ -11884,19 +11884,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Event List</source>
-        <translation>Elenco eventi</translation>
+        <translation type="vanished">Elenco eventi</translation>
     </message>
     <message>
         <source>Event Details</source>
-        <translation>Dettagli evento</translation>
+        <translation type="vanished">Dettagli evento</translation>
     </message>
     <message>
         <source>Event Bytes</source>
-        <translation>Byte evento</translation>
+        <translation type="vanished">Byte evento</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; Cerca nella colonna Info dell&apos;elenco degli eventi (pannello di riepilogo), etichette di visualizzazione degli eventi decodificati (pannello della vista ad albero) o i dati dell&apos;evento convertiti in ASCII (pannello della vista esadecimale).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; Cerca nella colonna Info dell&apos;elenco degli eventi (pannello di riepilogo), etichette di visualizzazione degli eventi decodificati (pannello della vista ad albero) o i dati dell&apos;evento convertiti in ASCII (pannello della vista esadecimale).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -16294,11 +16294,11 @@ a:hover {
     </message>
     <message>
         <source>No %1 Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun segreto %1</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt %1 traffic in the capture file.  Would you like to view information about how to decrypt %2 traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation>Non ci sono segreti disponibili utilizzati per decifrare il traffico %1 nel file di acquisizione. Desideri visualizzare informazioni su come decifrare il traffico %2 sul wiki?</translation>
     </message>
     <message>
         <source>Unable to build conversation filter.</source>
@@ -16392,22 +16392,6 @@ a:hover {
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Chiavi di sessione TLS (*.keys *.txt);;Tutti i file (</translation>
-    </message>
-    <message>
-        <source>No TLS Secrets</source>
-        <translation type="vanished">Nessun segreto TLS</translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation type="vanished">Non sono disponibili segreti utilizzati per decifrare il traffico TLS nel file di cattura. Desideri visualizzare informazioni su come decifrare il traffico TLS sul wiki?</translation>
-    </message>
-    <message>
-        <source>No ESP Secrets</source>
-        <translation type="vanished">Nessun segreto ESP</translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation type="vanished">Non sono disponibili segreti utilizzati per decifrare il traffico ESP nel file di cattura. Desideri visualizzare informazioni su come decifrare il traffico ESP sul wiki?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

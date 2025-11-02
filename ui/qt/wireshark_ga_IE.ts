@@ -81,15 +81,15 @@
     </message>
     <message>
         <source>About Stratoshark</source>
-        <translation>Faoi Stratoshark</translation>
+        <translation type="vanished">Faoi Stratoshark</translation>
     </message>
     <message>
         <source>Stratoshark</source>
-        <translation>Stratoshark</translation>
+        <translation type="vanished">Stratoshark</translation>
     </message>
     <message>
         <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Anailíseoir Logghlao Córais agus Imeachta&lt;/h3&gt;</translation>
+        <translation type="vanished">&lt;h3&gt;Anailíseoir Logghlao Córais agus Imeachta&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -3729,11 +3729,11 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Event %1. </source>
-        <translation>Teagmhas %1. </translation>
+        <translation type="vanished">Teagmhas %1. </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>&lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Léann&lt;/span&gt; %Ln,</numerusform>
             <numerusform>&lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Léann&lt;/span&gt; %Ln,</numerusform>
             <numerusform>&lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Léann&lt;/span&gt; %Ln,</numerusform>
@@ -3741,7 +3741,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>&lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Scríobhann&lt;/span&gt; %Ln,</numerusform>
             <numerusform>&lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Scríobhann&lt;/span&gt; %Ln,</numerusform>
             <numerusform>&lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Scríobhann&lt;/span&gt; %Ln,</numerusform>
@@ -3781,15 +3781,15 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Read activity(%6)</source>
-        <translation>Léigh gníomhaíocht(% 6)</translation>
+        <translation type="vanished">Léigh gníomhaíocht(% 6)</translation>
     </message>
     <message>
         <source>Write activity(%6)</source>
-        <translation>Scríobh gníomhaíocht(%6)</translation>
+        <translation type="vanished">Scríobh gníomhaíocht(%6)</translation>
     </message>
     <message>
         <source>Entire I/O activity (%1)</source>
-        <translation>Gníomhaíocht iomlán I/O (%1)</translation>
+        <translation type="vanished">Gníomhaíocht iomlán I/O (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8774,7 +8774,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Auto switch event limit</source>
-        <translation>Teorainn teagmhais lasctha uathoibríoch</translation>
+        <translation type="vanished">Teorainn teagmhais lasctha uathoibríoch</translation>
     </message>
     <message>
         <source>Import</source>
@@ -11918,19 +11918,19 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Event List</source>
-        <translation>Liosta Imeachtaí</translation>
+        <translation type="vanished">Liosta Imeachtaí</translation>
     </message>
     <message>
         <source>Event Details</source>
-        <translation>Sonraí an Imeachta</translation>
+        <translation type="vanished">Sonraí an Imeachta</translation>
     </message>
     <message>
         <source>Event Bytes</source>
-        <translation>Bearta Imeachta</translation>
+        <translation type="vanished">Bearta Imeachta</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cuardaigh an colún Info den liosta imeachtaí (pána achoimre), lipéid taispeána teagmhas díchódaithe (pána amharc crainn) nó sonraí teagmhais tiontaithe ASCII (pána amharc heicsidheachúlach).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cuardaigh an colún Info den liosta imeachtaí (pána achoimre), lipéid taispeána teagmhas díchódaithe (pána amharc crainn) nó sonraí teagmhais tiontaithe ASCII (pána amharc heicsidheachúlach).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -16434,22 +16434,6 @@ a:hover {
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Eochracha Seisiúin TLS (*.keys *.txt);; Gach Comhad (</translation>
-    </message>
-    <message>
-        <source>No TLS Secrets</source>
-        <translation type="vanished">Gan Rúin TLS</translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation type="vanished">Níl aon rúin ar fáil a úsáidtear chun trácht TLS a dhíchriptiú sa chomhad gabhála.  Ar mhaith leat féachaint ar fhaisnéis faoi conas trácht TLS a dhíchriptiú ar an vicí?</translation>
-    </message>
-    <message>
-        <source>No ESP Secrets</source>
-        <translation type="vanished">Gan Rúin ESP</translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation type="vanished">Níl aon rúin ar fáil a úsáidtear chun trácht ESP a dhíchriptiú sa chomhad gabhála. Ar mhaith leat faisnéis a fheiceáil faoi conas trácht ESP a dhíchriptiú ar an vicí?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

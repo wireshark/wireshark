@@ -81,15 +81,15 @@
     </message>
     <message>
         <source>About Stratoshark</source>
-        <translation>Über Stratoshark</translation>
+        <translation type="vanished">Über Stratoshark</translation>
     </message>
     <message>
         <source>Stratoshark</source>
-        <translation>Stratoshark</translation>
+        <translation type="vanished">Stratoshark</translation>
     </message>
     <message>
         <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;System Call- und Ereignis-Analysesoftware&lt;/h3&gt;</translation>
+        <translation type="vanished">&lt;h3&gt;System Call- und Ereignis-Analysesoftware&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -3713,18 +3713,18 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Event %1. </source>
-        <translation>Ereignis %1.</translation>
+        <translation type="vanished">Ereignis %1.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Lesevorgang&lt;/span&gt;, </numerusform>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Lesevorgänge&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Schreibvorgang&lt;/span&gt;, </numerusform>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Schreibvorgänge&lt;/span&gt;, </numerusform>
         </translation>
@@ -3763,15 +3763,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Read activity(%6)</source>
-        <translation>Leseaktivität(%6)</translation>
+        <translation type="vanished">Leseaktivität(%6)</translation>
     </message>
     <message>
         <source>Write activity(%6)</source>
-        <translation>Schreibaktivität(%6)</translation>
+        <translation type="vanished">Schreibaktivität(%6)</translation>
     </message>
     <message>
         <source>Entire I/O activity (%1)</source>
-        <translation>Gesamte E/A Aktivität (%1)</translation>
+        <translation type="vanished">Gesamte E/A Aktivität (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8746,7 +8746,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Auto switch event limit</source>
-        <translation>Autoswitch-Ereignislimit</translation>
+        <translation type="vanished">Autoswitch-Ereignislimit</translation>
     </message>
     <message>
         <source>Import</source>
@@ -11883,19 +11883,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Event List</source>
-        <translation>Ereignisliste</translation>
+        <translation type="vanished">Ereignisliste</translation>
     </message>
     <message>
         <source>Event Details</source>
-        <translation>Ereignisdetails</translation>
+        <translation type="vanished">Ereignisdetails</translation>
     </message>
     <message>
         <source>Event Bytes</source>
-        <translation>Ereignis-Bytes</translation>
+        <translation type="vanished">Ereignis-Bytes</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Durchsuchen der Informationsspalte der Ereignisliste (Übersichtsfenster), der dekodierten Ereignisanzeigebeschriftungen (Baumansicht) oder der ASCII-konvertierten Ereignisdaten (Hex-Ansicht).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Durchsuchen der Informationsspalte der Ereignisliste (Übersichtsfenster), der dekodierten Ereignisanzeigebeschriftungen (Baumansicht) oder der ASCII-konvertierten Ereignisdaten (Hex-Ansicht).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -16351,14 +16351,6 @@ a:hover {
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>TLS Sitzungsschlüssel (*.keys *.txt);; Alle Dateien (</translation>
-    </message>
-    <message>
-        <source>No TLS Secrets</source>
-        <translation type="vanished">Keine TLS-Secrets</translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation type="vanished">In der Aufzeichnungsdatei sind keine Secrets zur Entschlüsselung von TLS-Datenverkehr vorhanden. Möchten Sie weitere Informationen zum Entschlüsseln von TLS-Datenverkehr im Wiki anzeigen?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

@@ -93,6 +93,7 @@ ncp.desegment: FALSE
 ndmp.desegment: FALSE
 ndps.desegment_tcp: FALSE
 ndps.desegment_spx: FALSE
+netperfmeter.desegment: FALSE
 netsync.desegment_netsync_messages: FALSE
 nmf.reassemble_nmf: FALSE
 opa.mad.reassemble_rmpp: FALSE

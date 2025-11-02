@@ -81,15 +81,11 @@
     </message>
     <message>
         <source>About Stratoshark</source>
-        <translation>À propos de Stratoshark</translation>
+        <translation type="vanished">À propos de Stratoshark</translation>
     </message>
     <message>
         <source>Stratoshark</source>
-        <translation>Stratoshark</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Stratoshark</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -3711,18 +3707,18 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Event %1. </source>
-        <translation>Événement %1.</translation>
+        <translation type="vanished">Événement %1.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;lecture&lt;/span&gt;, </numerusform>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;lectures&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;écriture&lt;/span&gt;, </numerusform>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;écritures&lt;/span&gt;, </numerusform>
         </translation>
@@ -3761,15 +3757,15 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Read activity(%6)</source>
-        <translation>Activité de lecture(%6)</translation>
+        <translation type="vanished">Activité de lecture(%6)</translation>
     </message>
     <message>
         <source>Write activity(%6)</source>
-        <translation>Activité d&apos;écriture(%6)</translation>
+        <translation type="vanished">Activité d&apos;écriture(%6)</translation>
     </message>
     <message>
         <source>Entire I/O activity (%1)</source>
-        <translation>Activité E/S complète (%1)</translation>
+        <translation type="vanished">Activité E/S complète (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8716,7 +8712,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Auto switch event limit</source>
-        <translation>Limite d&apos;événements pour commutation automatique</translation>
+        <translation type="vanished">Limite d&apos;événements pour commutation automatique</translation>
     </message>
     <message>
         <source>Import</source>
@@ -11852,19 +11848,19 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Event List</source>
-        <translation>Liste d&apos;événements</translation>
+        <translation type="vanished">Liste d&apos;événements</translation>
     </message>
     <message>
         <source>Event Details</source>
-        <translation>Détails de l&apos;événement</translation>
+        <translation type="vanished">Détails de l&apos;événement</translation>
     </message>
     <message>
         <source>Event Bytes</source>
-        <translation>Octets de l&apos;événement</translation>
+        <translation type="vanished">Octets de l&apos;événement</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rechercher dans la colonne Info de la liste des événements (vue résumé), dans les étiquettes d&apos;affichage des événements décodés (vue arborescence) ou dans les données d&apos;événement converties en ASCII (vue hexa).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rechercher dans la colonne Info de la liste des événements (vue résumé), dans les étiquettes d&apos;affichage des événements décodés (vue arborescence) ou dans les données d&apos;événement converties en ASCII (vue hexa).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -16318,14 +16314,6 @@ a:hover {
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Clés de session TLS (*.keys *.txt);;Tous les fichiers (</translation>
-    </message>
-    <message>
-        <source>No TLS Secrets</source>
-        <translation type="vanished">Pas de Secrets TLS</translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation type="vanished">Il n’existe aucun secret disponible utilisé pour déchiffrer le trafic TLS dans le fichier de capture. Souhaitez-vous consulter des informations sur la façon de déchiffrer le trafic TLS sur le wiki ?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

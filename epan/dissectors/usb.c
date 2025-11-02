@@ -8135,6 +8135,7 @@ static const value_string usb_products_vals[] = {
     { 0x04b0032f, "Nikon Coolpix L810" },
     { 0x04b00334, "Nikon Coolpix S3200" },
     { 0x04b00337, "Nikon Coolpix S01" },
+    { 0x04b0033b, "Nikon Coolpix S3500" },
     { 0x04b0033f, "Nikon Coolpix S2700" },
     { 0x04b00343, "Nikon Coolpix L27" },
     { 0x04b00346, "Nikon Coolpix S02" },

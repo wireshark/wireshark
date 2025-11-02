@@ -80,18 +80,6 @@
         <translation>Ліцензія</translation>
     </message>
     <message>
-        <source>About Stratoshark</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stratoshark</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
         <translation>Директорія не існує</translation>
     </message>
@@ -3696,26 +3684,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message>
-        <source>Event %1. </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message>
         <source> Click to select.</source>
         <translation>Клікніть для вибору.</translation>
     </message>
@@ -3745,18 +3713,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1 stream not found on the selected packet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Read activity(%6)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Write activity(%6)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Entire I/O activity (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8656,10 +8612,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Профілі Конфігурації</translation>
     </message>
     <message>
-        <source>Auto switch event limit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Import</source>
         <comment>noun</comment>
         <translation type="unfinished"></translation>
@@ -11775,22 +11727,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invalid filter.</source>
         <translation>Некоректний фільтр.</translation>
-    </message>
-    <message>
-        <source>Event List</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event Details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event Bytes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

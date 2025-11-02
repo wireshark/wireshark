@@ -81,15 +81,15 @@
     </message>
     <message>
         <source>About Stratoshark</source>
-        <translation>Quant a l&apos;Stratoshark</translation>
+        <translation type="vanished">Quant a l&apos;Stratoshark</translation>
     </message>
     <message>
         <source>Stratoshark</source>
-        <translation>Stratoshark</translation>
+        <translation type="vanished">Stratoshark</translation>
     </message>
     <message>
         <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Analitzador de crides al sistema i registre d&apos;esdeveniments&lt;/h3&gt;</translation>
+        <translation type="vanished">&lt;h3&gt;Analitzador de crides al sistema i registre d&apos;esdeveniments&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -3713,18 +3713,18 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Event %1. </source>
-        <translation>Esdeveniment %1. </translation>
+        <translation type="vanished">Esdeveniment %1. </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;lectura&lt;/span&gt;, </numerusform>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;lectures&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;escriptura&lt;/span&gt;, </numerusform>
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;escriptures&lt;/span&gt;, </numerusform>
         </translation>
@@ -3763,15 +3763,15 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Read activity(%6)</source>
-        <translation>Llegeix l&apos;activitat (%6)</translation>
+        <translation type="vanished">Llegeix l&apos;activitat (%6)</translation>
     </message>
     <message>
         <source>Write activity(%6)</source>
-        <translation>Escriu l&apos;activitat (%6)</translation>
+        <translation type="vanished">Escriu l&apos;activitat (%6)</translation>
     </message>
     <message>
         <source>Entire I/O activity (%1)</source>
-        <translation>Activitat d&apos;E/S sencera (%1)</translation>
+        <translation type="vanished">Activitat d&apos;E/S sencera (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8746,7 +8746,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Auto switch event limit</source>
-        <translation>Canvia automàticament el límit d&apos;esdeveniments</translation>
+        <translation type="vanished">Canvia automàticament el límit d&apos;esdeveniments</translation>
     </message>
     <message>
         <source>Import</source>
@@ -11883,19 +11883,19 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Event List</source>
-        <translation>Llista d&apos;esdeveniments</translation>
+        <translation type="vanished">Llista d&apos;esdeveniments</translation>
     </message>
     <message>
         <source>Event Details</source>
-        <translation>Detalls de l&apos;esdeveniment</translation>
+        <translation type="vanished">Detalls de l&apos;esdeveniment</translation>
     </message>
     <message>
         <source>Event Bytes</source>
-        <translation>Bytes de l&apos;esdeveniment</translation>
+        <translation type="vanished">Bytes de l&apos;esdeveniment</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cerca a la columna d&apos;informació de la llista d&apos;esdeveniments (panell de resum), a les etiquetes de visualització d&apos;esdeveniments descodificats (panell de vista en arbre) o a les dades d&apos;esdeveniments convertides a ASCII (panell de vista hexadecimal).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cerca a la columna d&apos;informació de la llista d&apos;esdeveniments (panell de resum), a les etiquetes de visualització d&apos;esdeveniments descodificats (panell de vista en arbre) o a les dades d&apos;esdeveniments convertides a ASCII (panell de vista hexadecimal).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -16294,11 +16294,11 @@ a:hover {
     </message>
     <message>
         <source>No %1 Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha secrets %1</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt %1 traffic in the capture file.  Would you like to view information about how to decrypt %2 traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation>No hi ha secrets disponibles fets servir per a desencriptar el trànsit %1 del fitxer de captura. Voleu veure informació sobre com desencriptar el trànsit %1 a la wiki?</translation>
     </message>
     <message>
         <source>Unable to build conversation filter.</source>
@@ -16392,23 +16392,6 @@ a:hover {
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Claus de sessió TLS (*.keys *.txt);;Tots els fitxers (</translation>
-    </message>
-    <message>
-        <source>No TLS Secrets</source>
-        <translation type="vanished">No hi ha secrets TLS</translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation type="vanished">No hi ha secrets disponibles fets servir per a desencriptar el trànsit TLS del fitxer de captura. Voleu veure informació sobre com desencriptar el trànsit TLS a la wiki?</translation>
-    </message>
-    <message>
-        <source>No ESP Secrets</source>
-        <translation type="vanished">No hi ha secrets ESP</translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation type="vanished">No hi ha secrets disponibles fets servir per a desencriptar el trànsit ESP del fitxer de captura.
-Voleu veure informació sobre com desencriptar el trànsit ESP a la wiki?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>

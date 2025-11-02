@@ -80,18 +80,6 @@
         <translation>Lisans</translation>
     </message>
     <message>
-        <source>About Stratoshark</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stratoshark</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
         <translation>Dizin mevcut değil</translation>
     </message>
@@ -3696,17 +3684,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Event %1. </source>
-        <translation>Etkinlik %1.</translation>
+        <translation type="vanished">Etkinlik %1.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;okur&lt;/span&gt;,</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;yazar&lt;/span&gt;,</numerusform>
         </translation>
     </message>
@@ -3744,15 +3732,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Read activity(%6)</source>
-        <translation>Etkinliği oku(%6)</translation>
+        <translation type="vanished">Etkinliği oku(%6)</translation>
     </message>
     <message>
         <source>Write activity(%6)</source>
-        <translation>Etkinlik yaz (%6)</translation>
+        <translation type="vanished">Etkinlik yaz (%6)</translation>
     </message>
     <message>
         <source>Entire I/O activity (%1)</source>
-        <translation>Tüm G/Ç etkinliği (%1)</translation>
+        <translation type="vanished">Tüm G/Ç etkinliği (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8687,10 +8675,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Yapılandırma Profilleri</translation>
     </message>
     <message>
-        <source>Auto switch event limit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Import</source>
         <comment>noun</comment>
         <translation>İçe Aktar</translation>
@@ -11814,22 +11798,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invalid filter.</source>
         <translation>Geçersiz filtre.</translation>
-    </message>
-    <message>
-        <source>Event List</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event Details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event Bytes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

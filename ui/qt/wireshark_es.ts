@@ -80,18 +80,6 @@
         <translation>Licencia</translation>
     </message>
     <message>
-        <source>About Stratoshark</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stratoshark</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
         <translation>El directorio no existe</translation>
     </message>
@@ -3671,24 +3659,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         </translation>
     </message>
     <message>
-        <source>Event %1. </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message>
         <source> Click to select.</source>
         <translation>Clic para seleccionar.</translation>
     </message>
@@ -3718,18 +3688,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>%1 stream not found on the selected packet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Read activity(%6)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Write activity(%6)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Entire I/O activity (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8648,10 +8606,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Configuración de perfiles</translation>
     </message>
     <message>
-        <source>Auto switch event limit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Import</source>
         <comment>noun</comment>
         <translation>Importar</translation>
@@ -11771,22 +11725,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Invalid filter.</source>
         <translation>Filtro no valido.</translation>
-    </message>
-    <message>
-        <source>Event List</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event Details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event Bytes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

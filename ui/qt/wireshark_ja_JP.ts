@@ -81,15 +81,15 @@
     </message>
     <message>
         <source>About Stratoshark</source>
-        <translation>Stratosharkについて</translation>
+        <translation type="vanished">Stratosharkについて</translation>
     </message>
     <message>
         <source>Stratoshark</source>
-        <translation>Stratoshark</translation>
+        <translation type="vanished">Stratoshark</translation>
     </message>
     <message>
         <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;システムコールとイベントログのアナライザ&lt;/h3&gt;</translation>
+        <translation type="vanished">&lt;h3&gt;システムコールとイベントログのアナライザ&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -3697,17 +3697,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Event %1. </source>
-        <translation>イベント %1 </translation>
+        <translation type="vanished">イベント %1 </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;読み取り&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation>
+        <translation type="vanished">
             <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;書き込み&lt;/span&gt;, </numerusform>
         </translation>
     </message>
@@ -3745,15 +3745,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Read activity(%6)</source>
-        <translation>読み取りアクティビティ(%6)</translation>
+        <translation type="vanished">読み取りアクティビティ(%6)</translation>
     </message>
     <message>
         <source>Write activity(%6)</source>
-        <translation>書き込みアクティビティ(%6)</translation>
+        <translation type="vanished">書き込みアクティビティ(%6)</translation>
     </message>
     <message>
         <source>Entire I/O activity (%1)</source>
-        <translation>全体のI/Oアクティビティ(%1)</translation>
+        <translation type="vanished">全体のI/Oアクティビティ(%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8722,7 +8722,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Auto switch event limit</source>
-        <translation>自動スイッチイベント限度</translation>
+        <translation type="vanished">自動スイッチイベント限度</translation>
     </message>
     <message>
         <source>Import</source>
@@ -11852,19 +11852,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Event List</source>
-        <translation>イベントリスト</translation>
+        <translation type="vanished">イベントリスト</translation>
     </message>
     <message>
         <source>Event Details</source>
-        <translation>イベント詳細</translation>
+        <translation type="vanished">イベント詳細</translation>
     </message>
     <message>
         <source>Event Bytes</source>
-        <translation>イベントバイト数</translation>
+        <translation type="vanished">イベントバイト数</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;イベント一覧(概要部分)やデコードされたイベント表示ラベル(ツリー表示部分)やアスキー変換されたイベントデータ(16進数表示部分)を検索します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;イベント一覧(概要部分)やデコードされたイベント表示ラベル(ツリー表示部分)やアスキー変換されたイベントデータ(16進数表示部分)を検索します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
@@ -16352,22 +16352,6 @@ a:hover {
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>TLSセッション鍵 (*.keys *.txt);;すべてのファイル (</translation>
-    </message>
-    <message>
-        <source>No TLS Secrets</source>
-        <translation type="vanished">TLSシークレットなし</translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
-        <translation type="vanished">キャプチャファイルにはTLSトラフィックを復号化するために用いられる利用可能なシークレットはありません。WikiでTLSトラフィックを復号する方法についての情報をご覧になりますか？</translation>
-    </message>
-    <message>
-        <source>No ESP Secrets</source>
-        <translation type="vanished">ESPシークレットなし</translation>
-    </message>
-    <message>
-        <source>There are no available secrets used to decrypt ESP traffic in the capture file.               Would you like to view information about how to decrypt ESP traffic on the wiki?</source>
-        <translation type="vanished">キャプチャファイルにはESPトラフィックを復号化するのに用いられる利用可能なシークレットはありません。WikiでESPトラフィックを復号する方法についての情報をご覧になりますか？</translation>
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>
