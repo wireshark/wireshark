@@ -839,9 +839,9 @@
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln dygn</numerusform>
+            <numerusform>%Ln dygn</numerusform>
         </translation>
     </message>
     <message>
@@ -1058,9 +1058,9 @@
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln dygn</numerusform>
+            <numerusform>%Ln dygn</numerusform>
         </translation>
     </message>
     <message>
