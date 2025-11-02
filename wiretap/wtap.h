@@ -1259,8 +1259,13 @@ struct netmon_phdr {
 
 /* Record "pseudo-header" information for header data from MS ProcMon files. */
 
+struct procmon_process_t;
 struct procmon_phdr {
-	bool system_bitness;     /* System bitness: 1 if the system is 64 bit, 0 otherwise. */
+    uint32_t *process_index_map;                /* Map of process index to process array index */
+    size_t process_index_map_size;
+    struct procmon_process_t *process_array;    /* Array of processes */
+    size_t process_array_size;
+    bool system_bitness;                        /* System bitness: 1 if the system is 64 bit, 0 otherwise. */
 };
 
 /* File "pseudo-header" for BER data files. */

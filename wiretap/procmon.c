@@ -19,6 +19,10 @@
 
 #include <wsutil/buffer.h>
 
+// To do:
+// - Figure out module timestamps
+// - Read hosts and ports information
+
 #pragma pack(push,1)
 typedef struct procmon_header_s {
     uint32_t signature;                 // Magic Signature - 'PML_'
@@ -29,7 +33,7 @@ typedef struct procmon_header_s {
     uint32_t num_events;                // Total number of events in the log file.
     uint64_t unused;                    // ? (seems to be unused)
     uint64_t start_events_offset;       // File offset to the start of the events array.
-    uint64_t array_offsets_offset;      // File offset to an array of offsets to all the events.
+    uint64_t event_offsets_array_offset;// File offset to an array of offsets to all the events.
     uint64_t process_array_offset;      // File offset to the array of processes.
     uint64_t string_array_offset;       // File offset to the array of strings.
     uint64_t icon_array_offset;         // File offset to the icons array.
@@ -49,7 +53,6 @@ typedef struct procmon_header_s {
     uint64_t total_physical_memory;     // MEMORYSTATUSEX.ullTotalPhys: Total physical memory (in bytes).
     uint64_t start_events_offset_dup;   // File offset to the start of the events array (again).
     uint64_t host_port_array_offset;    // File offset to hosts and ports arrays.
-
 } procmon_header_t;
 
 typedef enum {
@@ -78,13 +81,101 @@ typedef struct procmon_event_header_s {
 } procmon_event_header_t;
 #pragma pack(pop)
 
-#define COMMON_EVENT_STRUCT_SIZE        52
+typedef struct {
+    uint32_t process_index;
+    uint32_t process_id;
+    uint32_t parent_process_id;
+    uint32_t parent_process_index;
+    uint64_t authentication_id;
+    uint32_t session_number;
+    uint32_t unknown1;
+    uint64_t start_time;    // FILETIME
+    uint64_t end_time;      // FILETIME
+    uint32_t is_virtualized;
+    uint32_t is_64_bit;
+    uint32_t integrity_si;
+    uint32_t user_name_si;
+    uint32_t process_name_si;
+    uint32_t image_path_si;
+    uint32_t command_line_si;
+    uint32_t company_si;
+    uint32_t version_si;
+    uint32_t description_si;
+    uint32_t icon_index_big;
+    uint32_t icon_index_small;
+} procmon_raw_process_t;
+
+typedef struct {
+    uint32_t unknown1;
+    uint32_t base_address;
+    uint32_t size;
+    uint32_t image_path_si;
+    uint32_t version_si;
+    uint32_t company_si;
+    uint32_t description_si;
+    uint32_t timestamp;
+    uint64_t unknown2[3];
+} procmon_raw_module_32_t;
+
+typedef struct {
+    uint64_t unknown1;
+    uint64_t base_address;
+    uint32_t size;
+    uint32_t image_path_si;
+    uint32_t version_si;
+    uint32_t company_si;
+    uint32_t description_si;
+    uint32_t timestamp;
+    uint64_t unknown2[3];
+} procmon_raw_module_64_t;
+
+typedef struct {
+    procmon_header_t header;
+    uint32_t *event_offsets;
+    uint32_t cur_event;
+    const char **string_array;
+    size_t string_array_size;
+    uint32_t *process_index_map; /* Map of process index to process array index */
+    size_t process_index_map_size;/* Size of the process index map */
+    struct procmon_process_t *process_array; /* Array of processes */
+    size_t process_array_size; /* Size of the process array */
+} procmon_file_info_t;
+
+#define COMMON_EVENT_STRUCT_SIZE 52
+// Most of these are arbitrary
+#define MAX_PROCMON_EVENTS (500 * 1000 * 1000)
+#define MAX_PROCMON_STRINGS (1000 * 1000)
+#define MAX_PROCMON_STRING_LENGTH 8192
+#define MAX_PROCMON_PROCESSES (500 * 1000)
+#define MAX_PROCMON_MODULES 1000
 
 static int procmon_file_type_subtype = -1;
 
 void register_procmon(void);
 
-static bool procmon_read_event(FILE_T fh, wtap_rec* rec, procmon_header_t* header, int* err, char** err_info)
+static void file_info_cleanup(procmon_file_info_t* file_info)
+{
+    g_free(file_info->event_offsets);
+    g_free(file_info->string_array);
+    g_free(file_info->process_index_map);
+    if (file_info->process_array) {
+        for (size_t idx = 0; idx < file_info->process_array_size; idx++) {
+            g_free(file_info->process_array[idx].modules);
+        }
+        g_free(file_info->process_array);
+    }
+    g_free(file_info);
+}
+
+static const char *procmon_string(procmon_file_info_t* file_info, uint32_t str_index)
+{
+    if (str_index >= file_info->string_array_size) {
+        return "<unknown>";
+    }
+    return file_info->string_array[str_index];
+}
+
+static bool procmon_read_event(FILE_T fh, wtap_rec* rec, procmon_file_info_t* file_info, int* err, char** err_info)
 {
     wtapng_block_t wblock;
     procmon_event_header_t event_header;
@@ -106,10 +197,9 @@ static bool procmon_read_event(FILE_T fh, wtap_rec* rec, procmon_header_t* heade
     ws_buffer_append(&wblock.rec->data, (const uint8_t*)&event_header, sizeof event_header);
 
     wblock.rec->presence_flags |= WTAP_HAS_TS;
-    filetime_to_nstime(&wblock.rec->ts, event_header.timestamp);
 
     /* Read stack trace data */
-    uint32_t sizeof_stacktrace = event_header.stack_trace_depth * (header->system_bitness ? 8 : 4);
+    uint32_t sizeof_stacktrace = event_header.stack_trace_depth * (file_info->header.system_bitness ? 8 : 4);
 
     /* Append the size of the stack trace data so the dissector doesn't need to know about system bitness */
     ws_buffer_append(&wblock.rec->data, (const uint8_t*)&sizeof_stacktrace, sizeof sizeof_stacktrace);
@@ -163,7 +253,11 @@ static bool procmon_read_event(FILE_T fh, wtap_rec* rec, procmon_header_t* heade
      */
     wtap_setup_ft_specific_event_rec(wblock.rec, procmon_file_type_subtype, event_header.event_class);
     wblock.rec->rec_header.ft_specific_header.record_len = (uint32_t)ws_buffer_length(&wblock.rec->data);
-    wblock.rec->rec_header.ft_specific_header.pseudo_header.procmon.system_bitness = (header->system_bitness != 0);
+    wblock.rec->rec_header.ft_specific_header.pseudo_header.procmon.process_index_map = file_info->process_index_map;
+    wblock.rec->rec_header.ft_specific_header.pseudo_header.procmon.process_index_map_size = file_info->process_index_map_size;
+    wblock.rec->rec_header.ft_specific_header.pseudo_header.procmon.process_array = file_info->process_array;
+    wblock.rec->rec_header.ft_specific_header.pseudo_header.procmon.process_array_size = file_info->process_array_size;
+    wblock.rec->rec_header.ft_specific_header.pseudo_header.procmon.system_bitness = (file_info->header.system_bitness != 0);
     wblock.internal = false;
 
     /*
@@ -180,31 +274,38 @@ static bool procmon_read_event(FILE_T fh, wtap_rec* rec, procmon_header_t* heade
 static bool procmon_read(wtap *wth, wtap_rec *rec,
     int *err, char **err_info, int64_t *data_offset)
 {
-    procmon_header_t* header = (procmon_header_t*)wth->priv;
+    procmon_file_info_t* file_info = (procmon_file_info_t*)wth->priv;
 
-    *data_offset = file_tell(wth->fh);
-    ws_noisy("data_offset is %" PRId64, *data_offset);
+    *data_offset = file_info->event_offsets[file_info->cur_event];
+    ws_noisy("file offset is %" PRId64 " array offset is %" PRId64, file_tell(wth->fh), *data_offset);
 
-    /* Stop processing one offset reaches past events */
-    if (*data_offset >= (int64_t)header->array_offsets_offset)
+    if (file_seek(wth->fh, *data_offset, SEEK_SET, err) == -1)
+    {
+        ws_debug("Failed to seek to event %u at offsets %" PRId64, file_info->cur_event, *data_offset);
+        return false;
+    }
+
+    /* Stop processing once offset reaches past events */
+    if (file_info->cur_event >= file_info->header.num_events)
     {
         ws_debug("end of events");
         return false;
     }
+    file_info->cur_event++;
 
-    if (*data_offset+COMMON_EVENT_STRUCT_SIZE >= (int64_t)header->array_offsets_offset) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = ws_strdup_printf("procmon: No enough room for event content at offset %"  PRIi64, *data_offset);
-        return false;
-    }
+    // if (*data_offset+COMMON_EVENT_STRUCT_SIZE >= (int64_t)file_info->header.event_offsets_array_offset) {
+    //     *err = WTAP_ERR_BAD_FILE;
+    //     *err_info = ws_strdup_printf("procmon: Not enough room for event content at offset %"  PRIi64, *data_offset);
+    //     return false;
+    // }
 
-    return procmon_read_event(wth->fh, rec, header, err, err_info);
+    return procmon_read_event(wth->fh, rec, file_info, err, err_info);
 }
 
 static bool procmon_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     int *err, char **err_info)
 {
-    procmon_header_t* header = (procmon_header_t*)wth->priv;
+    procmon_file_info_t* file_info = (procmon_file_info_t*)wth->priv;
 
     /* seek to the right file position */
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) < 0) {
@@ -212,14 +313,15 @@ static bool procmon_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
     }
     ws_noisy("reading at offset %" PRIu64, seek_off);
 
-    return procmon_read_event(wth->random_fh, rec, header, err, err_info);
+    return procmon_read_event(wth->random_fh, rec, file_info, err, err_info);
 }
 
 static const uint8_t procmon_magic[] = { 'P', 'M', 'L', '_' };
 
 wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
 {
-    procmon_header_t* header = g_new(procmon_header_t, 1);
+    procmon_file_info_t* file_info = g_new0(procmon_file_info_t, 1);
+    procmon_header_t* header = &file_info->header;
 
     ws_debug("opening file");
     /*
@@ -227,7 +329,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
      */
     if (!wtap_read_bytes_or_eof(wth->fh, header, sizeof(procmon_header_t), err, err_info))
     {
-        g_free(header);
+        file_info_cleanup(file_info);
         ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
         if (*err == 0 || *err == WTAP_ERR_SHORT_READ) {
             /*
@@ -245,7 +347,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
 
     if (memcmp(&header->signature, procmon_magic, sizeof(procmon_magic)))
     {
-        g_free(header);
+        file_info_cleanup(file_info);
         return WTAP_OPEN_NOT_MINE;
     }
 
@@ -254,7 +356,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
     header->system_bitness = GUINT32_SWAP_LE_BE(header->system_bitness);
     header->num_events = GUINT32_SWAP_LE_BE(header->num_events);
     header->start_events_offset = GUINT64_SWAP_LE_BE(header->start_events_offset);
-    header->array_offsets_offset = GUINT64_SWAP_LE_BE(header->array_offsets_offset);
+    header->event_offsets_array_offset = GUINT64_SWAP_LE_BE(header->event_offsets_array_offset);
     header->process_array_offset = GUINT64_SWAP_LE_BE(header->process_array_offset);
     header->string_array_offset = GUINT64_SWAP_LE_BE(header->string_array_offset);
     header->icon_array_offset = GUINT64_SWAP_LE_BE(header->icon_array_offset);
@@ -273,9 +375,374 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
     header->host_port_array_offset = GUINT64_SWAP_LE_BE(header->host_port_array_offset);
 #endif
 
+    if (header->num_events > MAX_PROCMON_EVENTS) {
+        ws_debug("Truncating events from %u to %u", header->num_events, MAX_PROCMON_EVENTS);
+        header->num_events = MAX_PROCMON_EVENTS;
+    }
+
+    // Read the event offsets array, which we use in procmon_read(). It's not clear
+    // if we really need this; in a test capture here the offsets in the array were
+    // identical to the file positions we end up with if we just read sequentially.
+    if (file_seek(wth->fh, header->event_offsets_array_offset, SEEK_SET, err) == -1)
+    {
+        ws_debug("Failed to locate event offsets data");
+        return WTAP_OPEN_NOT_MINE;
+    }
+    file_info->event_offsets = g_new(uint32_t, header->num_events);
+    for (unsigned idx = 0; idx < header->num_events; idx++) {
+        uint32_t event_offset;
+        // Each offset entry is a uint32_t offset followed by a uint8_t maybe-flags
+        if (!wtap_read_bytes_or_eof(wth->fh, &event_offset, sizeof(event_offset), err, err_info))
+        {
+            file_info_cleanup(file_info);
+            ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+            if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+            {
+                // Short read or EOF.
+                *err = 0;
+                g_free(*err_info);
+                *err_info = NULL;
+            }
+            return WTAP_OPEN_NOT_MINE;
+        }
+        if (file_seek(wth->fh, 1, SEEK_CUR, err) == -1)
+        {
+            file_info_cleanup(file_info);
+            ws_debug("Failed to skip flags");
+            return WTAP_OPEN_NOT_MINE;
+        }
+        file_info->event_offsets[idx] = GUINT32_FROM_LE(event_offset);
+    }
+
+    if (file_seek(wth->fh, header->string_array_offset, SEEK_SET, err) == -1)
+    {
+        ws_debug("Failed to locate procmon string data");
+        return WTAP_OPEN_NOT_MINE;
+    }
+
+    uint32_t num_strings;
+    if (!wtap_read_bytes_or_eof(wth->fh, &num_strings, sizeof(num_strings), err, err_info))
+    {
+        file_info_cleanup(file_info);
+        ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+        if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+        {
+            // Short read or EOF.
+            *err = 0;
+            g_free(*err_info);
+            *err_info = NULL;
+        }
+        return WTAP_OPEN_NOT_MINE;
+    }
+#if G_BYTE_ORDER == G_BIG_ENDIAN
+    num_strings = GUINT32_SWAP_LE_BE(num_strings);
+#endif
+    if (num_strings > MAX_PROCMON_STRINGS) {
+        ws_debug("Truncating strings from %u to %u", num_strings, MAX_PROCMON_STRINGS);
+        num_strings = MAX_PROCMON_STRINGS;
+    }
+
+    // Strings aren't necessarily contiguous (or even in order?)
+    uint32_t *str_offsets = g_new(uint32_t, num_strings);
+    if (!wtap_read_bytes_or_eof(wth->fh, str_offsets, sizeof(uint32_t) * num_strings, err, err_info))
+    {
+        file_info_cleanup(file_info);
+        ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+        if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+        {
+            // Short read or EOF.
+            *err = 0;
+            g_free(*err_info);
+            *err_info = NULL;
+        }
+        return WTAP_OPEN_NOT_MINE;
+    }
+#if G_BYTE_ORDER == G_BIG_ENDIAN
+    for (unsigned idx = 0; idx < num_strings; idx++)
+    {
+        str_offsets[idx] = GUINT32_SWAP_LE_BE(str_offsets[idx]);
+    }
+#endif
+
+    file_info->string_array_size = num_strings;
+    file_info->string_array = g_new0(const char *, num_strings);
+    gunichar2 *cur_str = g_new(gunichar2, MAX_PROCMON_STRING_LENGTH);
+    for (unsigned idx = 0; idx < num_strings; idx++) {
+        if (file_seek(wth->fh, header->string_array_offset + str_offsets[idx], SEEK_SET, err) == -1)
+        {
+            file_info_cleanup(file_info);
+            g_free(str_offsets);
+            g_free(cur_str);
+            ws_debug("Failed to locate procmon string %u", idx);
+            return WTAP_OPEN_NOT_MINE;
+        }
+
+        uint32_t cur_str_size;
+        if (!wtap_read_bytes_or_eof(wth->fh, &cur_str_size, sizeof(cur_str_size), err, err_info))
+        {
+            file_info_cleanup(file_info);
+            g_free(str_offsets);
+            g_free(cur_str);
+            ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+            if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+            {
+                // Short read or EOF.
+                *err = 0;
+                g_free(*err_info);
+                *err_info = NULL;
+            }
+            return WTAP_OPEN_NOT_MINE;
+        }
+#if G_BYTE_ORDER == G_BIG_ENDIAN
+        cur_str_size = GUINT32_SWAP_LE_BE(cur_str_size);
+#endif
+        // XXX check cur_str_size
+        if (cur_str_size > MAX_PROCMON_STRING_LENGTH) {
+            ws_debug("Truncating string %u from %u bytes to %u", idx, cur_str_size, MAX_PROCMON_STRING_LENGTH);
+            cur_str_size = MAX_PROCMON_STRING_LENGTH;
+        }
+        if (!wtap_read_bytes_or_eof(wth->fh, cur_str, sizeof(gunichar2) * (unsigned)cur_str_size, err, err_info))
+        {
+            file_info_cleanup(file_info);
+            g_free(str_offsets);
+            g_free(cur_str);
+            ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+            if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+            {
+                // Short read or EOF.
+                *err = 0;
+                g_free(*err_info);
+                *err_info = NULL;
+            }
+            return WTAP_OPEN_NOT_MINE;
+        }
+        file_info->string_array[idx] = g_utf16_to_utf8(cur_str, cur_str_size, NULL, NULL, NULL);
+    }
+    g_free(str_offsets);
+    g_free(cur_str);
+
+    if (file_seek(wth->fh, header->process_array_offset, SEEK_SET, err) == -1)
+    {
+        ws_debug("Failed to locate procmon process data");
+        return false;
+    }
+
+    uint32_t num_processes;
+    if (!wtap_read_bytes_or_eof(wth->fh, &num_processes, sizeof(num_processes), err, err_info))
+    {
+        file_info_cleanup(file_info);
+        ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+        if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+        {
+            // Short read or EOF.
+            *err = 0;
+            g_free(*err_info);
+            *err_info = NULL;
+        }
+        return WTAP_OPEN_NOT_MINE;
+    }
+#if G_BYTE_ORDER == G_BIG_ENDIAN
+    num_processes = GUINT32_SWAP_LE_BE(num_processes);
+#endif
+    if (num_processes > MAX_PROCMON_PROCESSES) {
+        ws_debug("Truncating processes from %u to %u", num_processes, MAX_PROCMON_PROCESSES);
+        num_processes = MAX_PROCMON_PROCESSES;
+    }
+
+    uint32_t *process_indices = g_new(uint32_t, num_processes);
+    if (!wtap_read_bytes_or_eof(wth->fh, process_indices, sizeof(uint32_t) * num_processes, err, err_info))
+    {
+        file_info_cleanup(file_info);
+        ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+        if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+        {
+            // Short read or EOF.
+            *err = 0;
+            g_free(*err_info);
+            *err_info = NULL;
+        }
+        return WTAP_OPEN_NOT_MINE;
+    }
+
+    uint32_t max_process_index = 0;
+    for (unsigned idx = 0; idx < num_processes; idx++) {
+    #if G_BYTE_ORDER == G_BIG_ENDIAN
+        process_indices[idx] = GUINT32_SWAP_LE_BE(process_indices[idx]);
+    #endif
+        max_process_index = MAX(max_process_index, process_indices[idx]);
+    }
+    g_free(process_indices);
+    if (max_process_index > MAX_PROCMON_PROCESSES * 2) {
+        ws_debug("Truncating max process index from %u to %u", max_process_index, MAX_PROCMON_PROCESSES * 2);
+        max_process_index = MAX_PROCMON_PROCESSES * 2;
+    }
+    file_info->process_index_map = g_new(uint32_t, max_process_index + 1);
+    // Try to make invalid entries obvious.
+    memset(file_info->process_index_map, 0xff, sizeof(uint32_t) * (max_process_index + 1));
+    file_info->process_index_map_size = max_process_index + 1;
+
+    uint32_t *proc_offsets = g_new(uint32_t, num_processes);
+    if (!wtap_read_bytes_or_eof(wth->fh, proc_offsets, sizeof(uint32_t) * num_processes, err, err_info))
+    {
+        file_info_cleanup(file_info);
+        ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+        if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+        {
+            // Short read or EOF.
+            *err = 0;
+            g_free(*err_info);
+            *err_info = NULL;
+        }
+        return WTAP_OPEN_NOT_MINE;
+    }
+
+    file_info->process_array = g_new(procmon_process_t, num_processes);
+    file_info->process_array_size = num_processes;
+    for (unsigned idx = 0; idx < num_processes; idx++) {
+        if (file_seek(wth->fh, header->process_array_offset + proc_offsets[idx], SEEK_SET, err) == -1)
+        {
+            file_info_cleanup(file_info);
+            g_free(proc_offsets);
+            ws_debug("Failed to locate procmon process %u", idx);
+            return WTAP_OPEN_NOT_MINE;
+        }
+        procmon_raw_process_t cur_raw_process;
+        if (!wtap_read_bytes_or_eof(wth->fh, &cur_raw_process, sizeof(cur_raw_process), err, err_info))
+        {
+            file_info_cleanup(file_info);
+            g_free(proc_offsets);
+            ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+            if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+            {
+                // Short read or EOF.
+                *err = 0;
+                g_free(*err_info);
+                *err_info = NULL;
+            }
+            return WTAP_OPEN_NOT_MINE;
+        }
+        uint32_t process_index = GUINT32_FROM_LE(cur_raw_process.process_index);
+        if (process_index <= max_process_index) {
+            file_info->process_index_map[process_index] = idx;
+        } else {
+            ws_debug("Process %u index %u exceeds max process index %u", idx, process_index, max_process_index);
+        }
+        procmon_process_t *cur_process = &file_info->process_array[idx];
+        cur_raw_process.start_time = GUINT64_FROM_LE(cur_raw_process.start_time);
+        cur_raw_process.end_time = GUINT64_FROM_LE(cur_raw_process.end_time);
+        uint64_t filetime = GUINT64_FROM_LE(cur_raw_process.start_time);
+        filetime_to_nstime(&cur_process->start_time, filetime);
+        filetime = GUINT64_FROM_LE(cur_raw_process.end_time);
+        filetime_to_nstime(&cur_process->end_time, filetime);
+
+        cur_process->process_id = GUINT32_FROM_LE(cur_raw_process.process_id);
+        cur_process->parent_process_id = GUINT32_FROM_LE(cur_raw_process.parent_process_id);
+        cur_process->parent_process_index = MAX(GUINT32_FROM_LE(cur_raw_process.parent_process_index), max_process_index);
+        cur_process->authentication_id = GUINT64_FROM_LE(cur_raw_process.authentication_id);
+        cur_process->session_number = GUINT32_FROM_LE(cur_raw_process.session_number);
+        cur_process->is_virtualized = cur_raw_process.is_virtualized != 0;
+        cur_process->is_64_bit = cur_raw_process.is_64_bit != 0;
+        cur_process->integrity = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_process.integrity_si));
+        cur_process->user_name = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_process.user_name_si));
+        cur_process->process_name = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_process.process_name_si));
+        cur_process->image_path = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_process.image_path_si));
+        cur_process->command_line = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_process.command_line_si));
+        cur_process->company = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_process.company_si));
+        cur_process->version = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_process.version_si));
+        cur_process->description = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_process.description_si));
+        if (file_seek(wth->fh, header->system_bitness ? 8 : 4, SEEK_CUR, err) == -1)
+        {
+            file_info_cleanup(file_info);
+            g_free(proc_offsets);
+            ws_debug("Failed to locate number of modules %u", idx);
+            return false;
+        }
+        uint32_t num_modules;
+        if (!wtap_read_bytes_or_eof(wth->fh, &num_modules, sizeof(num_modules), err, err_info))
+        {
+            file_info_cleanup(file_info);
+            g_free(proc_offsets);
+            ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+            if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+            {
+                // Short read or EOF.
+                *err = 0;
+                g_free(*err_info);
+                *err_info = NULL;
+            }
+            return WTAP_OPEN_NOT_MINE;
+        }
+
+        cur_process->num_modules = MIN(GUINT32_FROM_LE(num_modules), MAX_PROCMON_MODULES);
+        if (cur_process->num_modules > 0) {
+            cur_process->modules = g_new(procmon_module_t, cur_process->num_modules);
+            for (unsigned mod_idx = 0; mod_idx < cur_process->num_modules; mod_idx++) {
+                if (cur_process->is_64_bit) {
+                procmon_raw_module_64_t cur_raw_module;
+                    if (!wtap_read_bytes_or_eof(wth->fh, &cur_raw_module, sizeof(cur_raw_module), err, err_info)) {
+                        file_info_cleanup(file_info);
+                        g_free(proc_offsets);
+                        g_free(cur_process->modules);
+                        ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+                        if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+                        {
+                            // Short read or EOF.
+                            *err = 0;
+                            g_free(*err_info);
+                            *err_info = NULL;
+                        }
+                        return WTAP_OPEN_NOT_MINE;
+                    }
+                    procmon_module_t *cur_module = &cur_process->modules[mod_idx];
+                    cur_module->base_address = GUINT64_FROM_LE(cur_raw_module.base_address);
+                    cur_module->size = GUINT32_FROM_LE(cur_raw_module.size);
+                    cur_module->image_path = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_module.image_path_si));
+                    cur_module->version = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_module.version_si));
+                    cur_module->company = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_module.company_si));
+                    cur_module->description = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_module.description_si));
+                    // filetime = GUINT64_FROM_LE(cur_raw_module.timestamp);
+                    // filetime_to_nstime(&cur_module->timestamp, filetime);
+                } else {
+                    procmon_raw_module_32_t cur_raw_module;
+                    if (!wtap_read_bytes_or_eof(wth->fh, &cur_raw_module, sizeof(cur_raw_module), err, err_info)) {
+                        file_info_cleanup(file_info);
+                        g_free(proc_offsets);
+                        g_free(cur_process->modules);
+                        ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+                        if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
+                        {
+                            // Short read or EOF.
+                            *err = 0;
+                            g_free(*err_info);
+                            *err_info = NULL;
+                        }
+                        return WTAP_OPEN_NOT_MINE;
+                    }
+                    procmon_module_t *cur_module = &cur_process->modules[mod_idx];
+                    cur_module->base_address = GUINT32_FROM_LE(cur_raw_module.base_address);
+                    cur_module->size = GUINT32_FROM_LE(cur_raw_module.size);
+                    cur_module->image_path = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_module.image_path_si));
+                    cur_module->version = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_module.version_si));
+                    cur_module->company = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_module.company_si));
+                    cur_module->description = procmon_string(file_info, GUINT32_FROM_LE(cur_raw_module.description_si));
+                    // filetime = GUINT64_FROM_LE(cur_raw_module.timestamp);
+                    // filetime_to_nstime(&cur_module->timestamp, filetime);
+                }
+            }
+        } else {
+            cur_process->modules = NULL;
+        }
+    }
+
+    if (file_seek(wth->fh, header->start_events_offset, SEEK_SET, err) == -1)
+    {
+        ws_debug("Failed to locate procmon events data");
+        return false;
+    }
+
     wth->meta_events = g_array_new(false, false, sizeof(wtap_block_t));
 
-    wth->priv = header;
+    wth->priv = file_info;
     wth->file_type_subtype = procmon_file_type_subtype;
     wth->file_encap = WTAP_ENCAP_PROCMON;
 

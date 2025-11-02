@@ -15,8 +15,12 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <wiretap/procmon.h>
 #include <wiretap/wtap.h>
 #include "packet-ipv6.h"
+
+// To do:
+// - Add a preference for the maximum number of modules to display?
 
 #define PNAME  "MS Procmon Event"
 #define PSNAME "MS Procmon"
@@ -29,6 +33,31 @@ void proto_register_procmon(void);
 static int proto_procmon;
 
 static int hf_procmon_process_index;
+static int hf_procmon_process_id;
+static int hf_procmon_process_name;
+static int hf_procmon_process_parent_name;
+static int hf_procmon_process_image_path;
+static int hf_procmon_process_command_line;
+static int hf_procmon_process_user_name;
+static int hf_procmon_process_start_time;
+static int hf_procmon_process_end_time;
+static int hf_procmon_process_session_number;
+static int hf_procmon_process_authentication_id;
+static int hf_procmon_process_integrity;
+static int hf_procmon_process_company;
+static int hf_procmon_process_version;
+static int hf_procmon_process_description;
+static int hf_procmon_process_is_virtualized;
+static int hf_procmon_process_is_64_bit;
+
+static int hf_procmon_module_base_address;
+static int hf_procmon_module_size;
+static int hf_procmon_module_image_path;
+static int hf_procmon_module_version;
+static int hf_procmon_module_company;
+static int hf_procmon_module_description;
+static int hf_procmon_module_timestamp;
+
 static int hf_procmon_thread_id;
 static int hf_procmon_event_class;
 static int hf_procmon_operation_type;
@@ -195,6 +224,7 @@ static int ett_procmon;
 static int ett_procmon_header;
 static int ett_procmon_stack_trace;
 static int ett_procmon_process_event;
+static int ett_procmon_process_modules;
 static int ett_procmon_process_path;
 static int ett_procmon_process_commandline;
 static int ett_procmon_process_curdir;
@@ -214,6 +244,7 @@ static int ett_procmon_network_flags;
 
 static expert_field ei_procmon_unknown_event_class;
 static expert_field ei_procmon_unknown_operation;
+static expert_field ei_procmon_unknown_index;
 
 static dissector_handle_t procmon_handle;
 
@@ -2482,15 +2513,30 @@ static bool dissect_procmon_network_event(tvbuff_t* tvb, packet_info* pinfo, pro
     return false;
 }
 
+procmon_process_t *get_procmon_process(packet_info *pinfo, uint32_t process_index)
+{
+    if (process_index > pinfo->pseudo_header->procmon.process_index_map_size)
+    {
+        return NULL;
+    }
+
+    uint32_t proc_array_idx = pinfo->pseudo_header->procmon.process_index_map[process_index];
+    if (proc_array_idx >= pinfo->pseudo_header->procmon.process_array_size)
+    {
+        return NULL;
+    }
+
+    return &pinfo->pseudo_header->procmon.process_array[proc_array_idx];
+}
+
 static int
 dissect_procmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti, *ti_event, *ti_operation;
     proto_tree *procmon_tree, *header_tree, *stack_trace_tree;
     int         offset = 0;
-    int         size_of_pointer;
     uint32_t event_class, operation;
-    uint32_t stack_trace_size, details_size, extra_details_offset;
+    uint32_t details_size, extra_details_offset;
     nstime_t timestamp;
     uint16_t extra_details_size = 0;
     int hf_operation;
@@ -2507,7 +2553,50 @@ dissect_procmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     header_tree = proto_tree_add_subtree(procmon_tree, tvb, offset, 52, ett_procmon_header, NULL, "Event Header");
 
-    proto_tree_add_item(header_tree, hf_procmon_process_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    uint32_t process_index = tvb_get_letohl(tvb, offset);
+    procmon_process_t *proc = get_procmon_process(pinfo, process_index);
+    if (proc) {
+        proto_tree_add_uint(header_tree, hf_procmon_process_id, tvb, offset, 4, proc->process_id);
+        proto_tree_add_string(header_tree, hf_procmon_process_name, tvb, offset, 4, proc->process_name);
+        proto_tree_add_uint(header_tree, hf_procmon_process_parent_pid, tvb, offset, 4, proc->parent_process_id);
+        procmon_process_t *parent_proc = get_procmon_process(pinfo, proc->parent_process_index);
+        if (parent_proc) {
+            proto_tree_add_string(header_tree, hf_procmon_process_parent_name, tvb, offset, 4, parent_proc->process_name);
+        }
+        proto_tree_add_string(header_tree, hf_procmon_process_image_path, tvb, offset, 4, proc->image_path);
+        proto_tree_add_string(header_tree, hf_procmon_process_command_line, tvb, offset, 4, proc->command_line);
+        proto_tree_add_string(header_tree, hf_procmon_process_user_name, tvb, offset, 4, proc->user_name);
+        proto_tree_add_time(header_tree, hf_procmon_process_start_time, tvb, offset, 4, &proc->start_time);
+        proto_tree_add_time(header_tree, hf_procmon_process_end_time, tvb, offset, 4, &proc->end_time);
+        proto_tree_add_uint(header_tree, hf_procmon_process_session_number, tvb, offset, 4, proc->session_number);
+        proto_tree_add_uint64(header_tree, hf_procmon_process_authentication_id, tvb, offset, 4, proc->authentication_id);
+        proto_tree_add_string(header_tree, hf_procmon_process_integrity, tvb, offset, 4, proc->integrity);
+        proto_tree_add_string(header_tree, hf_procmon_process_company, tvb, offset, 4, proc->company);
+        proto_tree_add_string(header_tree, hf_procmon_process_version, tvb, offset, 4, proc->version);
+        proto_tree_add_string(header_tree, hf_procmon_process_description, tvb, offset, 4, proc->description);
+        proto_tree_add_boolean(header_tree, hf_procmon_process_is_virtualized, tvb, offset, 4, proc->is_virtualized);
+        proto_tree_add_boolean(header_tree, hf_procmon_process_is_64_bit, tvb, offset, 4, proc->is_64_bit);
+        col_clear(pinfo->cinfo, COL_INFO);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", proc->process_name);
+        col_set_fence(pinfo->cinfo, COL_INFO);
+
+        if (proc->num_modules > 0) {
+            for (uint32_t idx = 0; idx < proc->num_modules; idx++) {
+                proto_tree *modules_tree = proto_tree_add_subtree_format(header_tree, tvb, offset, 4, ett_procmon_process_modules, NULL, "Module %u: %s", idx + 1, proc->modules[idx].image_path);
+                proto_tree_add_uint64(modules_tree, hf_procmon_module_base_address, tvb, offset, 4, proc->modules[idx].base_address);
+                proto_tree_add_uint(modules_tree, hf_procmon_module_size, tvb, offset, 4, proc->modules[idx].size);
+                proto_tree_add_string(modules_tree, hf_procmon_module_image_path, tvb, offset, 4, proc->modules[idx].image_path);
+                proto_tree_add_string(modules_tree, hf_procmon_module_version, tvb, offset, 4, proc->modules[idx].version);
+                proto_tree_add_string(modules_tree, hf_procmon_module_company, tvb, offset, 4, proc->modules[idx].company);
+                proto_tree_add_string(modules_tree, hf_procmon_module_description, tvb, offset, 4, proc->modules[idx].description);
+                // proto_tree_add_time(modules_tree, hf_procmon_module_timestamp, tvb, offset, 4, &proc->modules[idx].timestamp);
+            }
+        }
+    } else {
+        proto_item *index_item = proto_tree_add_item(header_tree, hf_procmon_process_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        expert_add_info_format(pinfo, index_item, &ei_procmon_unknown_index, "Unknown process index: %u", process_index);
+    }
+
     offset += 4;
     proto_tree_add_item(header_tree, hf_procmon_thread_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -2577,26 +2666,25 @@ dissect_procmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     offset += 4;
 
     //Stack trace size part of the record
-    stack_trace_size = tvb_get_letohl(tvb, offset);
+#define PROCMON_MAX_STACK_TRACE_COUNT 100 // Arbitrary.
+    unsigned full_stack_trace_size = tvb_get_letohl(tvb, offset);
+    int size_of_pointer = pinfo->pseudo_header->procmon.system_bitness ? 8 : 4;
+    unsigned max_stack_trace_size = PROCMON_MAX_STACK_TRACE_COUNT * size_of_pointer;
+    unsigned stack_trace_size = MIN(full_stack_trace_size, max_stack_trace_size);
+
     offset += 4;
+    int stack_offset = offset;
     if (stack_trace_size > 0)
     {
         stack_trace_tree = proto_tree_add_subtree(procmon_tree, tvb, offset, stack_trace_size, ett_procmon_stack_trace, NULL, "Stack Trace");
-        if (pinfo->pseudo_header->procmon.system_bitness)
-        {
-            size_of_pointer = 8;
-        }
-        else
-        {
-            size_of_pointer = 4;
-        }
         for (uint32_t i = 0; i < stack_trace_size; i += size_of_pointer)
         {
             proto_tree_add_item(stack_trace_tree, hf_procmon_stack_trace_address, tvb, offset, size_of_pointer, ENC_LITTLE_ENDIAN);
             offset += size_of_pointer;
         }
     }
-
+    // XXX Add truncation / mismatched size expert item
+    offset = stack_offset + full_stack_trace_size;
 
     details_tvb = tvb_new_subset_length(tvb, offset, details_size);
     offset += details_size;
@@ -2648,7 +2736,99 @@ proto_register_procmon(void)
     static hf_register_info hf[] = {
         { &hf_procmon_process_index,
           { "Process Index", "procmon.process_index",
-            FT_UINT32, BASE_DEC_HEX, NULL, 0, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_id,
+          { "Process ID", "procmon.process.id",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_name,
+          { "Process Name", "procmon.process.name",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_parent_name,
+          { "Parent Process Name", "procmon.process.parent_name",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_image_path,
+          { "Image Path", "procmon.process.image_path",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_command_line,
+          { "Command Line", "procmon.process.command_line",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_user_name,
+          { "User Name", "procmon.process.user_name",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_start_time,
+          { "Process Start Time", "procmon.process.start_time",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_end_time,
+          { "Process End Time", "procmon.process.end_time",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_session_number,
+          { "Process Session Number", "procmon.process.session_number",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_authentication_id,
+          { "Process Authentication ID", "procmon.process.authentication_id",
+            FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_integrity,
+          { "Process Integrity", "procmon.process.integrity",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_company,
+          { "Process Company", "procmon.process.company",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_version,
+          { "Process Version", "procmon.process.version",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_description,
+          { "Process Description", "procmon.process.description",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_is_virtualized,
+          { "Process Is Virtualized", "procmon.process.is_virtualized",
+            FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_process_is_64_bit,
+          { "Process Is 64-bit", "procmon.process.is_64_bit",
+            FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_module_base_address,
+          { "Module Base Address", "procmon.module.base_address",
+            FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_module_size,
+          { "Module Size", "procmon.module.size",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_module_image_path,
+          { "Module Image Path", "procmon.module.image_path",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_module_version,
+          { "Module Version", "procmon.module.version",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_module_company,
+          { "Module Company", "procmon.module.company",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_module_description,
+          { "Module Description", "procmon.module.description",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_procmon_module_timestamp,
+          { "Module Timestamp", "procmon.module.timestamp",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_thread_id,
           { "Thread ID", "procmon.thread_id",
@@ -2712,7 +2892,7 @@ proto_register_procmon(void)
         },
         { &hf_procmon_process_path_size,
           { "Path Size", "procmon.process.path.size",
-            FT_UINT16, BASE_DEC_HEX, NULL, 0, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_process_path_is_ascii,
           { "Is ASCII", "procmon.process.path.is_ascii",
@@ -2728,7 +2908,7 @@ proto_register_procmon(void)
         },
         { &hf_procmon_process_commandline_size,
           { "Commandline Size", "procmon.process.commandline.size",
-            FT_UINT16, BASE_DEC_HEX, NULL, 0, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_process_commandline_is_ascii,
           { "Is ASCII", "procmon.process.commandline.is_ascii",
@@ -2780,7 +2960,7 @@ proto_register_procmon(void)
         },
         { &hf_procmon_process_parent_pid,
           { "Parent PID", "procmon.process.parent_pid",
-            FT_UINT32, BASE_DEC_HEX, NULL, 0, NULL, HFILL }
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_process_curdir,
           { "Current Directory", "procmon.process.curdir",
@@ -2788,7 +2968,7 @@ proto_register_procmon(void)
         },
         { &hf_procmon_process_curdir_size,
           { "Current Directory Size", "procmon.process.curdir.size",
-            FT_UINT16, BASE_DEC_HEX, NULL, 0, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_process_curdir_is_ascii,
           { "Is ASCII", "procmon.process.curdir.is_ascii",
@@ -3028,7 +3208,7 @@ proto_register_procmon(void)
         },
         { &hf_procmon_filesystem_path_size,
           { "Path Size", "procmon.filesystem.path.size",
-            FT_UINT16, BASE_DEC_HEX, NULL, 0, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_filesystem_path_is_ascii,
           { "Is ASCII", "procmon.filesystem.path.is_ascii",
@@ -3144,7 +3324,7 @@ proto_register_procmon(void)
         },
         { &hf_procmon_filesystem_directory_size,
           { "Directory Size", "procmon.filesystem.directory.size",
-            FT_UINT16, BASE_DEC_HEX, NULL, 0, NULL, HFILL }
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_procmon_filesystem_directory_is_ascii,
           { "Is ASCII", "procmon.filesystem.directory.is_ascii",
@@ -3295,6 +3475,7 @@ proto_register_procmon(void)
         &ett_procmon_header,
         &ett_procmon_stack_trace,
         &ett_procmon_process_event,
+        &ett_procmon_process_modules,
         &ett_procmon_process_path,
         &ett_procmon_process_commandline,
         &ett_procmon_process_curdir,
@@ -3315,6 +3496,7 @@ proto_register_procmon(void)
     static ei_register_info ei[] = {
             { &ei_procmon_unknown_event_class, { "procmon.event_class.unknown", PI_UNDECODED, PI_WARN, "Unknown event class", EXPFILL }},
             { &ei_procmon_unknown_operation, { "procmon.operation_type.unknown", PI_UNDECODED, PI_WARN, "Unknown event operation", EXPFILL }},
+            { &ei_procmon_unknown_index, { "procmon.index.unknown", PI_UNDECODED, PI_WARN, "Unknown index", EXPFILL }},
     };
 
     expert_module_t* expert_procmon;
