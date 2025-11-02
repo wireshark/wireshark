@@ -884,7 +884,7 @@ Ubuntu Qt5 Build:
     - job: "Commit Check"
       optional: true
   script:
-    - ../tools/debian-setup.sh --install-qt5-deps
+    - ../tools/debian-setup.sh --install-qt5-deps --yes --no-install-recommends
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -G Ninja -DENABLE_CCACHE=ON -DENABLE_WERROR=ON -DUSE_qt6=OFF ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
