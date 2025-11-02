@@ -73,9 +73,9 @@ void
 separate_features(feature_list l, feature_list with_list, feature_list without_list)
 {
     GList *iter;
-    gchar *data;
+    char *data;
     for (iter = *l; iter != NULL; iter = iter->next) {
-        data = (gchar *)iter->data;
+        data = (char *)iter->data;
         if (data[0] == '+')
             *with_list = g_list_prepend(*with_list, g_strdup(data));
         else
