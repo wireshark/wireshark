@@ -2567,7 +2567,7 @@ static const char *get_mac_lte_rapid_description(uint8_t rapid)
 static void
 get_mac_lte_ue_ext_bsr_sizes(mac_lte_info *p_mac_lte_info)
 {
-    gpointer p_orig_key, p_ue_params;
+    void *p_orig_key, *p_ue_params;
 
     /* Use the _extended function to check the key presence and avoid overriding a
        value already set by the framing protocol while no RRC value is configured */
@@ -2584,7 +2584,7 @@ get_mac_lte_ue_ext_bsr_sizes(mac_lte_info *p_mac_lte_info)
 static void
 get_mac_lte_ue_simult_pucch_pusch(mac_lte_info *p_mac_lte_info)
 {
-    gpointer p_orig_key, p_ue_params;
+    void *p_orig_key, *p_ue_params;
 
     /* Use the _extended function to check the key presence and avoid overriding a
        value already set by the framing protocol while no RRC value is configured */

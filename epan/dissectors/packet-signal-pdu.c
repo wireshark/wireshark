@@ -1185,7 +1185,7 @@ post_update_spdu_signal_value_names_read_in_data(spdu_signal_value_name_uat_t* d
 }
 
 static void
-destroy_notify_signal_value_names(gpointer data) {
+destroy_notify_signal_value_names(void *data) {
     spdu_signal_value_name_t *list = (spdu_signal_value_name_t *)data;
 
     for (unsigned i = 0; i < list->num_of_items; i++) {

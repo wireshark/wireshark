@@ -706,7 +706,7 @@ calc_bitrate_ext2(uint8_t value) {
 int ett_nas_eps_common_elem[NUM_NAS_EPS_COMMON_ELEM];
 
 static tvbuff_t *
-deciphering_eea2_msg(packet_info *pinfo, tvbuff_t *tvb, gint offset, gint len)
+deciphering_eea2_msg(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
 {
     gcry_cipher_hd_t cipher;
     gcry_error_t err = 0;
@@ -726,7 +726,7 @@ deciphering_eea2_msg(packet_info *pinfo, tvbuff_t *tvb, gint offset, gint len)
     uint8_t seqn = tvb_get_uint8(tvb, offset);
     offset++;
 
-    guint8 siv[AES_BLOCK_LEN] = {0};
+    uint8_t siv[AES_BLOCK_LEN] = {0};
 
     siv[0] = 0x00;
     siv[1] = 0x00; // Missing calculation of overflow
@@ -754,7 +754,7 @@ deciphering_eea2_msg(packet_info *pinfo, tvbuff_t *tvb, gint offset, gint len)
 
     decipher_msg = g_byte_array_sized_new(len);
     g_byte_array_set_size(decipher_msg, len);
-    const guint8 *ciphered_msg = tvb_get_ptr(tvb, offset, len);
+    const uint8_t *ciphered_msg = tvb_get_ptr(tvb, offset, len);
     err = gcry_cipher_decrypt(cipher, decipher_msg->data, decipher_msg->len, ciphered_msg, len);
     if (gcry_err_code(err))
     {
@@ -763,7 +763,7 @@ deciphering_eea2_msg(packet_info *pinfo, tvbuff_t *tvb, gint offset, gint len)
         return NULL;
     }
     clear_tvb = tvb_new_child_real_data(tvb,
-                                        (const guint8 *)decipher_msg->data, decipher_msg->len, decipher_msg->len);
+                                        (const uint8_t *)decipher_msg->data, decipher_msg->len, decipher_msg->len);
     gcry_cipher_close(cipher);
     return clear_tvb;
 }

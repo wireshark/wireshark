@@ -2012,7 +2012,7 @@ static int dissect_active_beamspace_coefficient_mask(tvbuff_t *tvb, proto_tree *
     };
 
     *num_trx_entries = 0;
-    guint64 val;
+    uint64_t val;
     for (unsigned n=0; n < k_octets; n++) {
         proto_tree_add_bitmask_ret_uint64(tree, tvb, offset,
                                           hf_oran_activeBeamspaceCoefficientMask,

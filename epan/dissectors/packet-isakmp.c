@@ -2252,9 +2252,9 @@ generate_iv(const void *b1, size_t b1_len,
  * The caller owns the result and does not need to copy it.
  * This function may return NULL.
  */
-static gpointer
+static void *
 get_iv(uint32_t message_id, decrypt_data_t *decr) {
-  gpointer iv, iv1;
+  void *iv, *iv1;
   size_t cipher_blklen;
   void *msgid_key;
   uint32_t msgid_net;

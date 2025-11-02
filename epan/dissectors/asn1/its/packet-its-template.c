@@ -764,7 +764,7 @@ dsrc_delta_time_fmt(char *s, uint32_t v)
 }
 
 static void
-cpm_general_confidence_fmt(gchar* s, guint32 v)
+cpm_general_confidence_fmt(char* s, uint32_t v)
 {
     if (v == 0) {
         snprintf(s, ITEM_LABEL_LENGTH, "unknown (%u)", v);
@@ -778,14 +778,14 @@ cpm_general_confidence_fmt(gchar* s, guint32 v)
 }
 
 static void
-cpm_distance_value_fmt(gchar* s, guint32 v)
+cpm_distance_value_fmt(char* s, uint32_t v)
 {
-    gint32 sv = (gint32)v;
+    int32_t sv = (int32_t)v;
     snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", sv * 0.01, sv);
 }
 
 static void
-cpm_distance_confidence_fmt(gchar* s, guint32 v)
+cpm_distance_confidence_fmt(char* s, uint32_t v)
 {
     if (v == 102) {
         snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
@@ -799,9 +799,9 @@ cpm_distance_confidence_fmt(gchar* s, guint32 v)
 }
 
 static void
-cpm_speed_value_ext_fmt(gchar* s, guint32 v)
+cpm_speed_value_ext_fmt(char* s, uint32_t v)
 {
-    gint32 sv = (gint32)v;
+    int32_t sv = (int32_t)v;
     if (sv == 0) {
         snprintf(s, ITEM_LABEL_LENGTH, "standstill (%d)", sv);
     }
@@ -816,7 +816,7 @@ cpm_speed_value_ext_fmt(gchar* s, guint32 v)
 }
 
 static void
-cpm_cartesian_angle_value_fmt(gchar* s, guint32 v)
+cpm_cartesian_angle_value_fmt(char* s, uint32_t v)
 {
     if (v == 3601) {
         snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
@@ -827,7 +827,7 @@ cpm_cartesian_angle_value_fmt(gchar* s, guint32 v)
 }
 
 static void
-cpm_angle_confidence_fmt(gchar* s, guint32 v)
+cpm_angle_confidence_fmt(char* s, uint32_t v)
 {
     if (v == 127) {
         snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);

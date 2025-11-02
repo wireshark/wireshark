@@ -8139,7 +8139,7 @@ static int rtps_util_dissect_annotation_parameter_value(
       LONG_ALIGN(offset);
       const int64_t int64_value = tvb_get_int64(tvb, offset, ENC_LITTLE_ENDIAN);
       proto_tree_add_int64_format(tree, hf_rtps_dissection_int64,
-        tvb, offset, sizeof(int64_t), int64_value, "%s: %" G_GINT64_FORMAT, label_prefix,
+        tvb, offset, sizeof(int64_t), int64_value, "%s: %" PRId64, label_prefix,
         int64_value);
       offset += sizeof(int64_t);
       break;
@@ -8150,7 +8150,7 @@ static int rtps_util_dissect_annotation_parameter_value(
       const uint64_t uint64_value = tvb_get_uint64(tvb, offset,
         ENC_LITTLE_ENDIAN);
       proto_tree_add_uint64_format(tree, hf_rtps_dissection_uint64,
-        tvb, offset, sizeof(uint64_t), uint64_value, "%s: %" G_GUINT64_FORMAT, label_prefix,
+        tvb, offset, sizeof(uint64_t), uint64_value, "%s: %" PRIu64, label_prefix,
         uint64_value);
       offset += sizeof(uint64_t);
       break;

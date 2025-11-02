@@ -1123,7 +1123,7 @@ get_parameter_config(uint16_t serviceid, uint16_t methodid, uint8_t version, uin
 }
 
 static void *
-get_generic_config(GHashTable *ht, gpointer id) {
+get_generic_config(GHashTable *ht, void *id) {
     if (ht == NULL) {
         return NULL;
     }

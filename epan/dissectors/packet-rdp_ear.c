@@ -105,7 +105,7 @@ dissect_rdpear_packagePayload(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 	offset += 16;
 
 	dcerpc_info di = { 0 };
-	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00};
+	uint8_t drep[4] = { 0x10, 0x00, 0x00, 0x00};
 
 	dcerpc_call_value call_data = { 0 };
 	di.conformant_run = 0;

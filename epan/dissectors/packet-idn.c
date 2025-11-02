@@ -115,8 +115,8 @@ typedef struct {
 	int sample_size;
 	int *count;
 	int *base;
-	guint8 audio_format;
-	guint8 audio_channels;
+	uint8_t audio_format;
+	uint8_t audio_channels;
 } configuration_info;
 
 void proto_register_idn(void);
@@ -1050,7 +1050,7 @@ static int dissect_idn_audio_category_8(tvbuff_t *tvb, int offset, proto_tree *i
 		&hf_idn_8bit_channels,
 		NULL
 	};
-	guint8 channels = tvb_get_int8(tvb, offset);
+	uint8_t channels = tvb_get_int8(tvb, offset);
 	cinfo->audio_format = channels & 0x0F;
 	channels &= 0x00FF;
 	cinfo->audio_channels = channels;
@@ -1070,8 +1070,8 @@ static int dissect_idn_audio_category_6(tvbuff_t *tvb, int offset, proto_tree *i
 		&hf_idn_4bit_channels,
 		NULL
 	};
-	guint8 channels = tvb_get_int8(tvb, offset);
-	guint8 audio_format = channels;
+	uint8_t channels = tvb_get_int8(tvb, offset);
+	uint8_t audio_format = channels;
 	audio_format = audio_format & 0x0F;
 	cinfo->audio_format = audio_format;
 	channels &= 0x0F;
@@ -1082,8 +1082,8 @@ static int dissect_idn_audio_category_6(tvbuff_t *tvb, int offset, proto_tree *i
 }
 
 static int dissect_idn_audio_dictionary(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *idn_tree, configuration_info *config){
-	gint8 det_category;
-	gint16 current_tag;
+	int8_t det_category;
+	int16_t current_tag;
 	int tag_count = config->word_count;
 	tag_count *= 2;
 	proto_item *dictionary_tree = proto_tree_add_subtree(idn_tree, tvb, offset, tag_count, ett_dic_tree, NULL, "Dictionary");

@@ -8989,7 +8989,7 @@ proto_deregister_field (const int parent, int hf_id)
 
 /* Deregister all registered fields starting with a prefix. Use for dynamic registered fields only! */
 void
-proto_deregister_all_fields_with_prefix(const int parent, const gchar *prefix)
+proto_deregister_all_fields_with_prefix(const int parent, const char *prefix)
 {
 	header_field_info *hfinfo;
 	protocol_t        *proto;
@@ -8999,7 +8999,7 @@ proto_deregister_all_fields_with_prefix(const int parent, const gchar *prefix)
 
 	proto = find_protocol_by_id(parent);
 	if (proto && proto->fields && proto->fields->len > 0) {
-		guint i = proto->fields->len;
+		unsigned i = proto->fields->len;
 		do {
 			i--;
 

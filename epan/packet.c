@@ -1596,7 +1596,7 @@ void dissector_delete_all(const char *name, dissector_handle_t handle)
 }
 
 static void
-dissector_delete_from_table(gpointer key _U_, gpointer value, gpointer user_data)
+dissector_delete_from_table(void *key _U_, void *value, void *user_data)
 {
 	dissector_table_t sub_dissectors = (dissector_table_t) value;
 	ws_assert (sub_dissectors);
@@ -4133,7 +4133,7 @@ dissector_dump_dissectors(void)
 	GHashTableIter iter;
 	struct dissector_info *dissectors_info;
 	unsigned num_protocols;
-	gpointer key, value;
+	void *key, *value;
 	unsigned proto_index;
 
 	g_hash_table_iter_init(&iter, registered_dissectors);

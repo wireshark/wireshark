@@ -2072,7 +2072,7 @@ static value_string_ext pfcp_ie_type_ext = VALUE_STRING_EXT_INIT(pfcp_ie_type);
 
 /* PFCP Session funcs*/
 static unsigned
-pfcp_info_hash(gconstpointer key)
+pfcp_info_hash(const void *key)
 {
     const pfcp_info_t *k = (const pfcp_info_t *)key;
 
@@ -2081,7 +2081,7 @@ pfcp_info_hash(gconstpointer key)
 }
 
 static gboolean
-pfcp_info_equal(gconstpointer key1, gconstpointer key2)
+pfcp_info_equal(const void *key1, const void *key2)
 {
     const pfcp_info_t *a = (const pfcp_info_t *)key1;
     const pfcp_info_t *b = (const pfcp_info_t *)key2;
@@ -2231,7 +2231,7 @@ typedef struct pfcp_msg_hash_entry {
 } pfcp_msg_hash_t;
 
 static unsigned
-pfcp_sn_hash(gconstpointer k)
+pfcp_sn_hash(const void *k)
 {
     const pfcp_msg_hash_t *key = (const pfcp_msg_hash_t *)k;
 
@@ -2239,7 +2239,7 @@ pfcp_sn_hash(gconstpointer k)
 }
 
 static gboolean
-pfcp_sn_equal_matched(gconstpointer k1, gconstpointer k2)
+pfcp_sn_equal_matched(const void *k1, const void *k2)
 {
     const pfcp_msg_hash_t *key1 = (const pfcp_msg_hash_t *)k1;
     const pfcp_msg_hash_t *key2 = (const pfcp_msg_hash_t *)k2;
@@ -2266,7 +2266,7 @@ pfcp_sn_equal_matched(gconstpointer k1, gconstpointer k2)
 }
 
 static gboolean
-pfcp_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
+pfcp_sn_equal_unmatched(const void *k1, const void *k2)
 {
     const pfcp_msg_hash_t *key1 = (const pfcp_msg_hash_t *)k1;
     const pfcp_msg_hash_t *key2 = (const pfcp_msg_hash_t *)k2;
@@ -12555,7 +12555,7 @@ static pfcp_generic_ie_t pfcp_travelping_ies[] = {
 static int
 dissect_pfcp_jnpr_cp_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    guint len = tvb_reported_length(tvb);
+    unsigned len = tvb_reported_length(tvb);
 
     proto_tree_add_item(tree, hf_pfcp_jnpr_cp_id_opaque_string, tvb, 0, len, ENC_ASCII);
 
@@ -12565,7 +12565,7 @@ dissect_pfcp_jnpr_cp_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static int
 dissect_pfcp_jnpr_filter_var(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    guint offset = 0;
+    unsigned offset = 0;
     uint32_t filter_len;
 
     proto_tree_add_item_ret_uint(tree, hf_pfcp_jnpr_filter_length, tvb, offset, 2, ENC_BIG_ENDIAN, &filter_len);
@@ -12580,7 +12580,7 @@ dissect_pfcp_jnpr_filter_var(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 static int dissect_pfcp_jnpr_filter_service_object(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    guint offset = 0;
+    unsigned offset = 0;
     uint32_t filter_data_len;
 
     proto_tree_add_item_ret_uint(tree, hf_pfcp_jnpr_filter_service_info_len, tvb, offset, 2, ENC_BIG_ENDIAN, &filter_data_len);
@@ -12595,7 +12595,7 @@ static int dissect_pfcp_jnpr_filter_service_object(tvbuff_t *tvb, packet_info *p
 
 static int dissect_pfcp_jnpr_sgrp_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    guint sgrp_name_len = tvb_reported_length(tvb);
+    unsigned sgrp_name_len = tvb_reported_length(tvb);
 
     proto_tree_add_item(tree, hf_pfcp_jnpr_sgrp_name, tvb, 0, sgrp_name_len, ENC_ASCII);
 
@@ -12604,9 +12604,9 @@ static int dissect_pfcp_jnpr_sgrp_name(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
 static int dissect_pfcp_jnpr_logical_port_address_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    guint data_len = tvb_reported_length(tvb);
+    unsigned data_len = tvb_reported_length(tvb);
 
-    for(guint offset = 0; offset + 4 <= data_len; offset += 4) {
+    for(unsigned offset = 0; offset + 4 <= data_len; offset += 4) {
         proto_tree_add_item(tree, hf_pfcp_jnpr_logical_port_address, tvb, offset, 4, ENC_BIG_ENDIAN);
     }
 
@@ -12628,13 +12628,13 @@ static int dissect_pfcp_jnpr_accounting_type_final(tvbuff_t *tvb, packet_info *p
 
 static int dissect_pfcp_jnpr_error_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    guint data_len = tvb_reported_length(tvb);
+    unsigned data_len = tvb_reported_length(tvb);
 
     uint32_t error_event_id;
     proto_tree_add_item_ret_uint(tree, hf_pfcp_jnpr_error_event_id, tvb, 0, 4, ENC_BIG_ENDIAN, &error_event_id);
 
     if (data_len >= 6) {
-        guint32 error_event_len;
+        uint32_t error_event_len;
         proto_tree_add_item_ret_uint(tree, hf_pfcp_jnpr_error_event_len, tvb, 4, 2, ENC_BIG_ENDIAN, &error_event_len);
 
         if (error_event_len > 0 && data_len >= (6 + error_event_len)) {
@@ -12668,7 +12668,7 @@ static int dissect_pfcp_jnpr_dbng_inet_tcp_addr(tvbuff_t *tvb, packet_info *pinf
 
 static int dissect_pfcp_jnpr_cpri_port_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    guint len = tvb_reported_length(tvb);
+    unsigned len = tvb_reported_length(tvb);
 
     if (len >= 2)  proto_tree_add_item(tree, hf_pfcp_jnpr_hi_prio_port,       tvb, 0,  2, ENC_BIG_ENDIAN);
     if (len >= 4)  proto_tree_add_item(tree, hf_pfcp_jnpr_med_hi_prio_port,   tvb, 2,  2, ENC_BIG_ENDIAN);
@@ -12683,9 +12683,9 @@ static int dissect_pfcp_jnpr_cpri_port_info(tvbuff_t *tvb, packet_info *pinfo _U
 
 static int dissect_pfcp_jnpr_cos_forwarding_class(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    guint offset = 0;
+    unsigned offset = 0;
     uint32_t info_len;
-    guint len = tvb_reported_length(tvb);
+    unsigned len = tvb_reported_length(tvb);
 
     proto_tree_add_item_ret_uint(tree, hf_pfcp_jnpr_cos_fwd_len, tvb, offset, 2, ENC_BIG_ENDIAN, &info_len);
     offset += 2;
@@ -12728,7 +12728,7 @@ static int dissect_pfcp_jnpr_li_service_id(tvbuff_t *tvb, packet_info *pinfo _U_
 
 static int dissect_pfcp_jnpr_li_md_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    guint length = tvb_reported_length(tvb);
+    unsigned length = tvb_reported_length(tvb);
 
     proto_tree_add_item(tree, hf_pfcp_jnpr_li_md_header, tvb, 0, length, ENC_NA);
 

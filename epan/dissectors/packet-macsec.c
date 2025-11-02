@@ -138,7 +138,7 @@ copy_psk_config_cb(void *n, const void *o, size_t size _U_) {
     psk_config_t *new_rec = (psk_config_t *)n;
     const psk_config_t *old_rec = (const psk_config_t *)o;
 
-    new_rec->keydata.key = (guchar *)g_memdup2(old_rec->keydata.key, old_rec->keydata.key_len);
+    new_rec->keydata.key = (unsigned char *)g_memdup2(old_rec->keydata.key, old_rec->keydata.key_len);
     new_rec->keydata.key_len = old_rec->keydata.key_len;
 
     new_rec->name = g_strdup(old_rec->name);
@@ -621,7 +621,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     } else if (PROTO_CHECKSUM_E_GOOD == icv_check_success) {
         tvbuff_t *plain_tvb;
 
-        plain_tvb = tvb_new_child_real_data(next_tvb, (guint8 *)wmem_memdup(pinfo->pool, macsec_payload, macsec_payload_len),
+        plain_tvb = tvb_new_child_real_data(next_tvb, (uint8_t *)wmem_memdup(pinfo->pool, macsec_payload, macsec_payload_len),
                                             macsec_payload_len, macsec_payload_len);
         ethertype_data.etype = tvb_get_ntohs(plain_tvb, 0);
 

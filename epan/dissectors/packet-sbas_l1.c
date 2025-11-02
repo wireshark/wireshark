@@ -1671,7 +1671,7 @@ static int dissect_sbas_l1_mt17(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 /* Dissect SBAS L1 MT 18 */
 static int dissect_sbas_l1_mt18(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    guint32 band_id;
+    uint32_t band_id;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBAS L1 MT18");
     col_clear(pinfo->cinfo, COL_INFO);

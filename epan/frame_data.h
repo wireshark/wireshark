@@ -45,7 +45,7 @@ typedef enum {
 } packet_char_enc;
 
 typedef struct _aggregation_key {
-  gchar*  field;
+  char*  field;
   GSList* values;
   int     values_num;
 } aggregation_key;
@@ -116,7 +116,7 @@ WS_DLL_PUBLIC void frame_data_reset(frame_data *fdata);
 
 WS_DLL_PUBLIC void frame_data_destroy(frame_data *fdata);
 
-WS_DLL_PUBLIC void free_aggregation_key(gpointer key);
+WS_DLL_PUBLIC void free_aggregation_key(void *key);
 
 WS_DLL_PUBLIC void frame_data_aggregation_free(frame_data *fdata);
 

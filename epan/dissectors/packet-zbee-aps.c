@@ -1075,7 +1075,7 @@ dissect_zbee_aps_no_endpt:
         uint32_t        num_blocks;
         fragment_head   *frag_msg = NULL;
         tvbuff_t        *new_tvb;
-        guint32         counter;
+        uint32_t        counter;
 
         /* Set the fragmented flag. */
         pinfo->fragmented = true;

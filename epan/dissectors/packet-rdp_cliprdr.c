@@ -226,7 +226,7 @@ dissect_rdp_cliprdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tr
             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(formatId, knownFormats_vals, "Unknown format"));
             break;
 	case CB_CLIP_CAPS: {
-            guint32 cCapabilitiesSets;
+            uint32_t cCapabilitiesSets;
             proto_tree_add_item_ret_uint(tree, hf_cliprdr_cCapabilitiesSets, tvb, offset, 2, ENC_LITTLE_ENDIAN, &cCapabilitiesSets);
             offset += 2;
 
@@ -234,9 +234,9 @@ dissect_rdp_cliprdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tr
             offset += 2;
 
             proto_tree *sets_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rdp_cliprdr_capa_sets, NULL, "Capability sets");
-            for (guint32 i = 0; i < cCapabilitiesSets; i++) {
-                guint16 capaType = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
-                guint16 capaLen = tvb_get_uint16(tvb, offset + 2, ENC_LITTLE_ENDIAN);
+            for (uint32_t i = 0; i < cCapabilitiesSets; i++) {
+                uint16_t capaType = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                uint16_t capaLen = tvb_get_uint16(tvb, offset + 2, ENC_LITTLE_ENDIAN);
 
                 const char *capaName = "Unknown";
                 if (capaType == CB_CAPSTYPE_GENERAL)
@@ -250,7 +250,7 @@ dissect_rdp_cliprdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tr
                 offset += 2;
 
                 if (capaType == CB_CAPSTYPE_GENERAL) {
-                    guint64 flags;
+                    uint64_t flags;
 
                     proto_tree_add_item(set_tree, hf_cliprdr_capaSet_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                     offset += 4;

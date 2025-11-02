@@ -208,13 +208,13 @@ static const value_string rdp_drdynvc_cmd_vals[] = {
 	{   0x0, NULL},
 };
 
-static guint channel_hashFunc(gconstpointer key) {
+static unsigned channel_hashFunc(const void *key) {
 	uint32_t *intPtr = (uint32_t *)key;
 
 	return *intPtr;
 }
 
-static gboolean channel_equalFunc(gconstpointer a, gconstpointer b) {
+static gboolean channel_equalFunc(const void *a, const void *b) {
 	uint32_t *aPtr = (uint32_t *)a;
 	uint32_t *bPtr = (uint32_t *)b;
 

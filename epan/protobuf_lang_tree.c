@@ -791,7 +791,7 @@ void
 pbl_foreach_message(const pbl_descriptor_pool_t* pool, void (*cb)(const pbl_message_descriptor_t*, void*), void* userdata)
 {
     GHashTableIter it;
-    gpointer key, value;
+    void *key, *value;
     g_hash_table_iter_init (&it, pool->packages);
     while (g_hash_table_iter_next (&it, &key, &value)) {
         pbl_traverse_sub_tree((const pbl_node_t*)value, cb, userdata);

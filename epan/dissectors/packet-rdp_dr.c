@@ -188,13 +188,13 @@ typedef struct {
   wmem_multimap_t *channels;
 } rdpdr_conv_info_t;
 
-static guint idptr_hashFunc(gconstpointer key) {
+static unsigned idptr_hashFunc(const void *key) {
 	uint32_t *intPtr = (uint32_t *)key;
 
 	return *intPtr;
 }
 
-static gboolean idptr_equalFunc(gconstpointer a, gconstpointer b) {
+static gboolean idptr_equalFunc(const void *a, const void *b) {
 	uint32_t *aPtr = (uint32_t *)a;
 	uint32_t *bPtr = (uint32_t *)b;
 

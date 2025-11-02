@@ -1409,7 +1409,7 @@ ek_write_attr(GSList *attr_instances, write_json_data *pdata)
 }
 
 // NOLINTNEXTLINE(misc-no-recursion)
-void process_ek_attrs(gpointer key _U_, gpointer value, gpointer pdata)
+void process_ek_attrs(void *key _U_, void *value, void *pdata)
 {
     GSList *attr_instances = (GSList *) value;
     ek_write_attr(attr_instances, pdata);
@@ -1422,7 +1422,7 @@ proto_tree_write_node_ek(proto_node *node, write_json_data *pdata)
 {
     GHashTable *attr_table  = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
     GHashTableIter iter;
-    gpointer key, value;
+    void *key, *value;
     ek_fill_attr(node, attr_table, pdata);
 
     // Print attributes

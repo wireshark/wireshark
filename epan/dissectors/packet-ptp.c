@@ -3728,8 +3728,8 @@ dissect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *t
                     offset += 6;
 
                     /* Converting the fractionalNanoseconds to a double */
-                    guint32 nanoseconds = tvb_get_ntohl(tvb, offset);
-                    guint16 fractional_nanoseconds = tvb_get_ntohs(tvb, offset + 4);
+                    uint32_t nanoseconds = tvb_get_ntohl(tvb, offset);
+                    uint16_t fractional_nanoseconds = tvb_get_ntohs(tvb, offset + 4);
                     double combined_timestamp = nanoseconds + (fractional_nanoseconds / (double)(1 << 16));
                     proto_tree_add_double(ptp_tlv_tree, hf_ptp_as_dt_tlv_sync_egress_timestamp_fractional_nanoseconds, tvb, offset, 6, combined_timestamp);
                     offset += 6;

@@ -423,7 +423,7 @@ call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 }
 
 static int
-krb5_frame_compare(gconstpointer a, gconstpointer b)
+krb5_frame_compare(const void *a, const void *b)
 {
 	kerberos_frame_t *fa = (kerberos_frame_t *)a;
 	kerberos_frame_t *fb = (kerberos_frame_t *)b;

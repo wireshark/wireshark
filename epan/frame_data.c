@@ -249,7 +249,7 @@ frame_data_aggregation_values_compare(GSList* list1, GSList* list2) {
 }
 
 void
-free_aggregation_key(gpointer data) {
+free_aggregation_key(void *data) {
   aggregation_key* key = (aggregation_key*)data;
   if (!key) return;
 

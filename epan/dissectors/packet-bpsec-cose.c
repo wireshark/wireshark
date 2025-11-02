@@ -82,14 +82,14 @@ static int dissect_param_scope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     if (!wscbor_skip_if_errors(pinfo->pool, tvb, &offset, chunk_aad_map)) {
         proto_tree *tree_aad_map = proto_item_add_subtree(item_aad_map, ett_aad_scope);
 
-        for (guint64 ix = 0; ix < chunk_aad_map->head_value; ++ix) {
+        for (uint64_t ix = 0; ix < chunk_aad_map->head_value; ++ix) {
             wscbor_chunk_t *chunk_blknum = wscbor_chunk_read(pinfo->pool, tvb, &offset);
             int64_t *blknum = wscbor_require_int64(pinfo->pool, chunk_blknum);
             proto_item *item_blknum = proto_tree_add_cbor_int64(tree_aad_map, hf_aad_blknum, pinfo, tvb, chunk_blknum, blknum);
             proto_tree *tree_blknum = proto_item_add_subtree(item_blknum, ett_aad_blknum);
 
             wscbor_chunk_t *chunk_flags = wscbor_chunk_read(pinfo->pool, tvb, &offset);
-            guint64 *flags = wscbor_require_uint64(pinfo->pool, chunk_flags);
+            uint64_t *flags = wscbor_require_uint64(pinfo->pool, chunk_flags);
             proto_tree_add_cbor_bitmask(tree_blknum, hf_aad_flags, ett_aad_flags, aad_flags, pinfo, tvb, chunk_flags, flags);
         }
     }

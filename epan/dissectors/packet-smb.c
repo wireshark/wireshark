@@ -18882,12 +18882,12 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 		(pinfo->fd->visited && pdata && pdata->frame_num == pinfo->fd->num)) {
 
 		/* Remove NBT "Session message" if present */
-		const gchar *info = col_get_text(pinfo->cinfo, COL_INFO);
+		const char *info = col_get_text(pinfo->cinfo, COL_INFO);
 		if (info && strstr(info, "Session message")) {
-			const gchar *session_pos = strstr(info, "Session message");
-			gsize before_len = session_pos - info;
-			const gchar *after_pos = session_pos + strlen("Session message");
-			gchar *cleaned = wmem_strdup_printf(wmem_file_scope(), "%.*s%s",
+			const char *session_pos = strstr(info, "Session message");
+			size_t before_len = session_pos - info;
+			const char *after_pos = session_pos + strlen("Session message");
+			char *cleaned = wmem_strdup_printf(wmem_file_scope(), "%.*s%s",
 						(int)before_len, info, after_pos);
 			col_set_str(pinfo->cinfo, COL_INFO, cleaned);
 		}

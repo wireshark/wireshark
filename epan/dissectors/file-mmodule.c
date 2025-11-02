@@ -197,7 +197,7 @@ static void setup_mentry_table_content(proto_tree *subtree, tvbuff_t *tvb , pack
 static int dissect_m_module(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
-    gint len = tvb_captured_length(tvb);
+    int len = tvb_captured_length(tvb);
     uint32_t nentries, entsz;
 
     if (len < RECORD_SIZE_DEFAULT) {

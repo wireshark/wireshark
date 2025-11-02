@@ -1006,7 +1006,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 {
     struct rlc_channel  ch_lookup;
     struct rlc_frag     frag_lookup, *frag = NULL;
-    gpointer            orig_key = NULL, value = NULL;
+    void               *orig_key = NULL, *value = NULL;
     struct rlc_sdu     *sdu = NULL;
     struct rlc_frag ** frags = NULL;
     struct rlc_seqlist * endlist = NULL;
@@ -1210,7 +1210,7 @@ get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
              proto_tree *tree, uint16_t seq, uint16_t num_li,
              struct atm_phdr *atm)
 {
-    gpointer         orig_frag, orig_sdu;
+    void            *orig_frag, *orig_sdu;
     struct rlc_sdu  *sdu;
     struct rlc_frag  lookup, *frag;
 

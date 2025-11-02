@@ -44,7 +44,7 @@ int uuid_type_dissector_register(const char* name,
 
     DISSECTOR_ASSERT(num_dissector_uuid_type < MAX_UUID_TYPE_VALUE);
 
-    if (wmem_map_insert(all_uuids, (gpointer)name, table_data) != NULL)
+    if (wmem_map_insert(all_uuids, (void *)name, table_data) != NULL)
         return 0;
 
     num_dissector_uuid_type++;

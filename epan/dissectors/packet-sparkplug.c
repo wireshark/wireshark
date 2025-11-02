@@ -56,7 +56,7 @@ dissect_sparkplugb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
     proto_item *ti;
     proto_tree *sparkplugb_tree, *namespace_tree;
-    gchar **topic_elements, **current_element;
+    char **topic_elements, **current_element;
     char *topic = (char *)data;
 
     /* Confirm the expected topic data is present */

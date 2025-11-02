@@ -143,10 +143,10 @@ typedef struct {
 } smb_transact2_info_t;
 
 typedef struct {
-    guint    frame_num;
-    guint    command_count;
+    unsigned frame_num;
+    unsigned command_count;
     gboolean multi_cmds;
-    guint    cmd_index;
+    unsigned cmd_index;
 } multi_cmds_t;
 
 /*

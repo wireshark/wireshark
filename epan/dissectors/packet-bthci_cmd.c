@@ -11224,9 +11224,9 @@ static void *bluetooth_eir_ad_tds_organization_id_value(packet_info *pinfo)
 
 /* Helper function to dissect Zigbee Direct advertisement data. */
 static void
-dissect_zigbee_direct_adv_data(proto_tree *tree, tvbuff_t *tvb, const gint start, gint length)
+dissect_zigbee_direct_adv_data(proto_tree *tree, tvbuff_t *tvb, const int start, int length)
 {
-    guint offset = start;
+    unsigned offset = start;
 
     static int * const zd_adv_data[] = {
         &hf_btcommon_eir_ad_zd_ext_zd_version,

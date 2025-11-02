@@ -15965,7 +15965,7 @@ static const value_string zbee_zcl_touchlink_keyid_names[] = {
 
 /* Functions for Touchlink Commissioning hashtables. {{{ */
 static int
-zcl_touchlink_comissioning_equal (gconstpointer v, gconstpointer v2)
+zcl_touchlink_comissioning_equal (const void *v, const void *v2)
 {
     if (v == NULL || v2 == NULL) {
         return 0;
@@ -15983,7 +15983,7 @@ zcl_touchlink_comissioning_equal (gconstpointer v, gconstpointer v2)
 }
 
 static unsigned
-zcl_touchlink_comissioning_hash (gconstpointer v)
+zcl_touchlink_comissioning_hash (const void *v)
 {
     unsigned hash;
     const unsigned * id;
