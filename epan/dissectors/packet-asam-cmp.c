@@ -990,7 +990,7 @@ ht_interface_config_to_bus_id(unsigned int identifier) {
         return 0;
     }
 
-    return tmp->bus_id;
+    return (uint16_t)tmp->bus_id;
 }
 
 static void
@@ -1486,7 +1486,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
             tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, msg_payload_type_length);
 
             lin_info.bus_id = ht_interface_config_to_bus_id(interface_id);
-            lin_info.len = msg_payload_type_length;
+            lin_info.len = (uint16_t)msg_payload_type_length;
 
             dissect_lin_message(sub_tvb, pinfo, tree, &lin_info);
             offset += (int)msg_payload_type_length;
@@ -1757,6 +1757,9 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
                     offset += 4;
                 }
                 break;
+            default:
+                /* Other types are reserved as of now, so we do not know how to parse them. Just ignore. */
+                break;
             }
         }
 
@@ -1879,7 +1882,7 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
 }
 
 static int
-dissect_asam_cmp_ctrl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree _U_, proto_tree *tree, unsigned offset_orig) {
+dissect_asam_cmp_ctrl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset_orig) {
 
     proto_item *ti = NULL;
     proto_item *ti_msg_header = NULL;
@@ -1968,7 +1971,7 @@ dissect_asam_cmp_ctrl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         offset += 2;
         asam_cmp_ctrl_msg_payload_length -= 2;
 
-        if ((asam_cmp_ctrl_msg_payload_length) > 0) {
+        if (asam_cmp_ctrl_msg_payload_length > 0) {
             tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, asam_cmp_ctrl_msg_payload_length);
             call_data_dissector(sub_tvb, pinfo, tree);
             offset += (int)asam_cmp_ctrl_msg_payload_length;
@@ -1995,7 +1998,7 @@ dissect_asam_cmp_ctrl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
 }
 
 static int
-dissect_asam_cmp_status_interface_support_mask(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset_orig, uint8_t interface_type) {
+dissect_asam_cmp_status_interface_support_mask(tvbuff_t *tvb, proto_tree *tree, unsigned offset_orig, uint8_t interface_type) {
     unsigned offset = offset_orig;
     uint64_t temp = 0;
 
@@ -2066,7 +2069,7 @@ dissect_asam_cmp_status_interface_support_mask(tvbuff_t *tvb, packet_info *pinfo
 }
 
 static int
-dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree _U_, proto_tree *tree, unsigned offset_orig) {
+dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset_orig) {
     proto_item *ti = NULL;
     proto_item *ti_msg_header = NULL;
     proto_item *ti_msg_payload = NULL;
@@ -2191,7 +2194,7 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
         proto_tree_add_item_ret_uint(asam_cmp_status_msg_payload_tree, hf_cmp_status_dev_desc_length, tvb, offset, 2, ENC_BIG_ENDIAN, &asam_cmp_status_msg_cm_dev_desc_length);
         offset += 2;
 
-        if ((asam_cmp_status_msg_cm_dev_desc_length) > 0) {
+        if (asam_cmp_status_msg_cm_dev_desc_length > 0) {
             asam_cmp_status_msg_cm_dev_desc_length += (asam_cmp_status_msg_cm_dev_desc_length % 2); /* padding to 16bit */
             proto_tree_add_item(asam_cmp_status_msg_payload_tree, hf_cmp_status_dev_desc, tvb, offset, asam_cmp_status_msg_cm_dev_desc_length, ENC_UTF_8);
             offset += (int)asam_cmp_status_msg_cm_dev_desc_length;
@@ -2200,7 +2203,7 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
         proto_tree_add_item_ret_uint(asam_cmp_status_msg_payload_tree, hf_cmp_status_sn_length, tvb, offset, 2, ENC_BIG_ENDIAN, &asam_cmp_status_msg_cm_sn_length);
         offset += 2;
 
-        if ((asam_cmp_status_msg_cm_sn_length) > 0) {
+        if (asam_cmp_status_msg_cm_sn_length > 0) {
             asam_cmp_status_msg_cm_sn_length += (asam_cmp_status_msg_cm_sn_length % 2); /* padding to 16bit */
             proto_tree_add_item(asam_cmp_status_msg_payload_tree, hf_cmp_status_sn, tvb, offset, asam_cmp_status_msg_cm_sn_length, ENC_UTF_8);
             offset += (int)asam_cmp_status_msg_cm_sn_length;
@@ -2209,7 +2212,7 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
         proto_tree_add_item_ret_uint(asam_cmp_status_msg_payload_tree, hf_cmp_status_hw_ver_length, tvb, offset, 2, ENC_BIG_ENDIAN, &asam_cmp_status_msg_cm_hw_ver_length);
         offset += 2;
 
-        if ((asam_cmp_status_msg_cm_hw_ver_length) > 0) {
+        if (asam_cmp_status_msg_cm_hw_ver_length > 0) {
             asam_cmp_status_msg_cm_hw_ver_length += (asam_cmp_status_msg_cm_hw_ver_length % 2); /* padding to 16bit */
             proto_tree_add_item(asam_cmp_status_msg_payload_tree, hf_cmp_status_hw_ver, tvb, offset, asam_cmp_status_msg_cm_hw_ver_length, ENC_UTF_8);
             offset += (int)asam_cmp_status_msg_cm_hw_ver_length;
@@ -2218,7 +2221,7 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
         proto_tree_add_item_ret_uint(asam_cmp_status_msg_payload_tree, hf_cmp_status_sw_ver_length, tvb, offset, 2, ENC_BIG_ENDIAN, &asam_cmp_status_msg_cm_sw_ver_length);
         offset += 2;
 
-        if ((asam_cmp_status_msg_cm_sw_ver_length) > 0) {
+        if (asam_cmp_status_msg_cm_sw_ver_length > 0) {
             asam_cmp_status_msg_cm_sw_ver_length += (asam_cmp_status_msg_cm_sw_ver_length % 2); /* padding to 16bit */
             proto_tree_add_item(asam_cmp_status_msg_payload_tree, hf_cmp_status_sw_ver, tvb, offset, asam_cmp_status_msg_cm_sw_ver_length, ENC_UTF_8);
             offset += (int)asam_cmp_status_msg_cm_sw_ver_length;
@@ -2227,7 +2230,7 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
         proto_tree_add_item_ret_uint(asam_cmp_status_msg_payload_tree, hf_cmp_status_vendor_data_length, tvb, offset, 2, ENC_BIG_ENDIAN, &asam_cmp_status_msg_vendor_data_length);
         offset += 2;
 
-        if ((asam_cmp_status_msg_vendor_data_length) > 0) {
+        if (asam_cmp_status_msg_vendor_data_length > 0) {
             proto_tree_add_item(asam_cmp_status_msg_payload_tree, hf_cmp_status_vendor_data, tvb, offset, asam_cmp_status_msg_vendor_data_length, ENC_NA);
             offset += (int)asam_cmp_status_msg_vendor_data_length;
         }
@@ -2285,12 +2288,12 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
             proto_tree_add_item(subtree, hf_cmp_iface_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            offset += dissect_asam_cmp_status_interface_support_mask(tvb, pinfo, subtree, offset, (uint8_t)ifacetype);
+            offset += dissect_asam_cmp_status_interface_support_mask(tvb, subtree, offset, (uint8_t)ifacetype);
 
             proto_tree_add_item_ret_uint(subtree, hf_cmp_iface_stream_id_cnt, tvb, offset, 2, ENC_BIG_ENDIAN, &asam_cmp_status_msg_iface_stream_id_count);
             offset += 2;
 
-            if ((asam_cmp_status_msg_iface_stream_id_count) > 0) {
+            if (asam_cmp_status_msg_iface_stream_id_count > 0) {
                 ti_stream_ids = proto_tree_add_item(subtree, hf_cmp_iface_stream_ids, tvb, offset, asam_cmp_status_msg_iface_stream_id_count, ENC_NA);
                 stream_ids_subtree = proto_item_add_subtree(ti_stream_ids, ett_asam_cmp_status_stream_ids);
 
@@ -2304,7 +2307,7 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
             proto_tree_add_item_ret_uint(subtree, hf_cmp_iface_vendor_data_len, tvb, offset, 2, ENC_BIG_ENDIAN, &asam_cmp_status_msg_vendor_data_length);
             offset += 2;
 
-            if ((asam_cmp_status_msg_vendor_data_length) > 0) {
+            if (asam_cmp_status_msg_vendor_data_length > 0) {
                 proto_tree_add_item(subtree, hf_cmp_iface_vendor_data, tvb, offset, asam_cmp_status_msg_vendor_data_length, ENC_NA);
                 offset += (int)asam_cmp_status_msg_vendor_data_length;
             }
@@ -2317,7 +2320,7 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
         col_append_str(pinfo->cinfo, COL_INFO, " (Configuration)");
         proto_item_append_text(ti_msg_payload, " %s", "(Configuration)");
 
-        if ((asam_cmp_status_msg_payload_length) > 0) {
+        if (asam_cmp_status_msg_payload_length > 0) {
             proto_tree_add_item(asam_cmp_status_msg_payload_tree, hf_cmp_status_msg_config, tvb, offset, asam_cmp_status_msg_payload_length, ENC_NA);
             offset += (int)asam_cmp_status_msg_payload_length;
         }
@@ -2364,7 +2367,7 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
         col_append_str(pinfo->cinfo, COL_INFO, " (Vendor specific)");
         proto_item_append_text(ti_msg_payload, " %s", "(Vendor specific)");
 
-        if ((asam_cmp_status_msg_payload_length) > 0) {
+        if (asam_cmp_status_msg_payload_length > 0) {
             proto_tree_add_item(asam_cmp_status_msg_payload_tree, hf_cmp_status_msg_vendor_specific, tvb, offset, asam_cmp_status_msg_payload_length, ENC_NA);
             offset += (int)asam_cmp_status_msg_payload_length;
         }
@@ -2388,7 +2391,7 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_
 }
 
 static int
-dissect_asam_cmp_vendor_msg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *root_tree _U_, proto_tree *tree, unsigned offset_orig) {
+dissect_asam_cmp_vendor_msg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset_orig) {
     proto_item *ti = NULL;
     proto_item *ti_msg_header = NULL;
     proto_item *ti_msg_payload = NULL;
@@ -2439,7 +2442,7 @@ dissect_asam_cmp_vendor_msg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *r
     ti_msg_payload = proto_tree_add_item(tree, hf_cmp_msg_payload, tvb, offset, asam_cmp_vendor_msg_payload_length, ENC_BIG_ENDIAN);
     proto_item_append_text(ti_msg_payload, " %s", "- Vendor-Defined Message");
 
-    if ((asam_cmp_vendor_msg_payload_length) > 0) {
+    if (asam_cmp_vendor_msg_payload_length > 0) {
         offset += (int)asam_cmp_vendor_msg_payload_length;
         proto_item_set_end(ti_msg_payload, tvb, offset);
     }
@@ -2475,7 +2478,7 @@ dissect_asam_cmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset += 1;
 
     ti = proto_tree_add_item_ret_uint(asam_cmp_header_tree, hf_cmp_device_id, tvb, offset, 2, ENC_BIG_ENDIAN, &device_id);
-    add_device_id_text(ti, device_id);
+    add_device_id_text(ti, (uint16_t)device_id);
     offset += 2;
 
     proto_tree_add_item_ret_uint(asam_cmp_header_tree, hf_cmp_msg_type, tvb, offset, 1, ENC_NA, &msg_type);
@@ -2487,21 +2490,21 @@ dissect_asam_cmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_tree_add_item(asam_cmp_header_tree, hf_cmp_stream_seq_ctr, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_item_append_text(ti_root, ", Device: 0x%04x, Type: %s", device_id, val_to_str(pinfo->pool, msg_type, msg_type_names, "Unknown (0x%x)"));
+    proto_item_append_text(ti_root, ", Device: 0x%04x, Type: %s", (uint16_t)device_id, val_to_str(pinfo->pool, msg_type, msg_type_names, "Unknown (0x%x)"));
 
     while (tvb_reported_length_remaining(tvb, offset) >= 16) {
         switch (msg_type) {
         case CMP_MSG_TYPE_CTRL_MSG:
             col_append_str(pinfo->cinfo, COL_INFO, ", Control Msg");
-            offset += dissect_asam_cmp_ctrl_msg(tvb, pinfo, tree, asam_cmp_tree, offset);
+            offset += dissect_asam_cmp_ctrl_msg(tvb, pinfo, asam_cmp_tree, offset);
             break;
         case CMP_MSG_TYPE_STATUS_MSG:
             col_append_str(pinfo->cinfo, COL_INFO, ", Status Msg");
-            offset += dissect_asam_cmp_status_msg(tvb, pinfo, tree, asam_cmp_tree, offset);
+            offset += dissect_asam_cmp_status_msg(tvb, pinfo, asam_cmp_tree, offset);
             break;
         case CMP_MSG_TYPE_VENDOR:
             col_append_str(pinfo->cinfo, COL_INFO, ", Vendor Msg");
-            offset += dissect_asam_cmp_vendor_msg(tvb, pinfo, tree, asam_cmp_tree, offset);
+            offset += dissect_asam_cmp_vendor_msg(tvb, pinfo, asam_cmp_tree, offset);
             break;
         case CMP_MSG_TYPE_DATA_MSG:
             col_append_str(pinfo->cinfo, COL_INFO, ", Data Msg");
