@@ -36,7 +36,7 @@ patterns = [
 ]
 
 def replace_file(fpath):
-    with open(fpath, 'r') as fh:
+    with open(fpath, 'r', encoding='utf-8') as fh:
         fdata_orig = fh.read()
     fdata = fdata_orig
     for pattern, replacewith in patterns:
