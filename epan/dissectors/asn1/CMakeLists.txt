@@ -12,7 +12,6 @@ ADD_CUSTOM_CMAKE_INCLUDE()
 project(Asn1 NONE)
 
 set(ASN1_SRC_DIRS
-	lix2
 	HI2Operations
 	acp133
 	acse
@@ -70,6 +69,7 @@ set(ASN1_SRC_DIRS
 	kpm-v2
 	lcsap
 	ldap
+	lix2
 	llc-v1
 	lnpdqp
 	logotypecertextn
