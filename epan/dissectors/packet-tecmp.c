@@ -54,7 +54,6 @@ static int proto_tecmp;
 static int proto_tecmp_payload;
 
 static dissector_handle_t eth_handle;
-static int proto_vlan;
 
 static bool heuristic_first;
 static bool analog_samples_are_signed_int = true;
@@ -2281,9 +2280,6 @@ dissect_ethernet_payload(tvbuff_t *sub_tvb, uint32_t offset, uint32_t length, pa
 
     tvbuff_t *payload_tvb = tvb_new_subset_length(sub_tvb, offset, length);
 
-    /* resetting VLAN count since this is another embedded Ethernet packet. */
-    p_set_proto_depth(pinfo, proto_vlan, 0);
-
     int32_t len_saved = pinfo->fd->pkt_len;
     pinfo->fd->pkt_len = length;
 
@@ -3416,7 +3412,6 @@ proto_register_tecmp_payload(void) {
 void
 proto_reg_handoff_tecmp_payload(void) {
     eth_handle = find_dissector("eth_withfcs");
-    proto_vlan = proto_get_id_by_filter_name("vlan");
 }
 
 void
