@@ -4447,14 +4447,14 @@ split_msp(packet_info *pinfo, struct tcp_multisegment_pdu *msp, struct tcp_analy
     /* The fragment list is sorted in offset order, but not nec. frame order
      * or end offset order due to out of order reassembly and possible overlap.
      * fd_i->offset < split_offset - some bytes are before the split
-     * fd_i->offset + fd_i->len >= split_offset - some bytes are after split
+     * fd_i->offset + fd_i->len > split_offset - some bytes are after split
      * Look through all the fragments that have some data before the split point.
      */
     for (fd_i = fd_head->next; fd_i && (fd_i->offset < split_offset); fd_i = fd_i->next) {
         if (last_frame < fd_i->frame) {
             last_frame = fd_i->frame;
         }
-        if (fd_i->offset + fd_i->len >= split_offset) {
+        if (fd_i->offset + fd_i->len > split_offset) {
             if (first_frag == NULL) {
                 first_frag = fd_i;
                 first_frame = fd_i->frame;
@@ -4469,25 +4469,31 @@ split_msp(packet_info *pinfo, struct tcp_multisegment_pdu *msp, struct tcp_analy
      */
     for (; fd_i; fd_i = fd_i->next) {
         uint32_t frag_end = fd_i->offset + fd_i->len;
-        if (split_offset <= frag_end && fd_i->frame < first_frame) {
-            first_frame = fd_i->frame;
+        if (split_offset <= frag_end) {
+            if (first_frag == NULL) {
+                first_frag = fd_i;
+                first_frame = fd_i->frame;
+            } else if (fd_i->frame < first_frame) {
+                first_frame = fd_i->frame;
+            }
         }
     }
 
     /* We only call this when the frame the fragments were reassembled in
      * (which is the current frame) includes some data before the split
      * point, so that it won't change and we can be consistent dissecting
-     * between passes. We also should have at least some data after the
-     * split point (because the subdissector claimed there was undissected
-     * data.)
+     * between passes. There's a few cases where there's no data after the
+     * split, e.g. HTTP with no Content-Length and REASSEMBLE_UNTIL_FIN.
      */
     DISSECTOR_ASSERT(fd_head->reassembled_in == last_frame);
-    DISSECTOR_ASSERT(first_frag != NULL);
 
     uint32_t new_seq = msp->seq + pinfo->desegment_offset;
     struct tcp_multisegment_pdu *newmsp;
     newmsp = pdu_store_sequencenumber_of_next_pdu(pinfo, new_seq,
         new_seq+1, tcpd->fwd->multisegment_pdus);
+    if (first_frame == 0) {
+        newmsp->flags |= MSP_FLAGS_MISSING_FIRST_SEGMENT;
+    }
     newmsp->first_frame = first_frame;
     newmsp->nxtpdu = msp->nxtpdu;
 

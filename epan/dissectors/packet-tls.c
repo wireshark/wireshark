@@ -1095,6 +1095,20 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                  * later and trying to decrypt the records again.
                  * (XXX: An alternative would be checking for already decrypted
                  * records before trying to decrypt on the first pass.)
+                 *
+                 * XXX - TLS says that parties MUST send a close_notify before
+                 * closing its write side of the connection (RFC 5246 7.2.1,
+                 * RFC 8446 6.1), so we could do nothing here and assume that
+                 * the TCP dissector will call us on the close_notify Alert.
+                 * There may be implementations that don't and only close the
+                 * connection with a TCP FIN, though. Setting this means that
+                 * the TCP dissection won't call the TLS dissector again until
+                 * TCP FIN. The TCP dissector doesn't support "continue calling
+                 * the payload dissector normally, but also call it at FIN in
+                 * case a TLS close_notify wasn't received."
+                 *
+                 * The effect here is that the desegmentation is done on the
+                 * TCP FIN instead of the frame with the close_notify.
                  */
                 pinfo->desegment_offset = tvb_captured_length(tvb);
                 pinfo->desegment_len = DESEGMENT_UNTIL_FIN;
