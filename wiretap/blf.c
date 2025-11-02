@@ -3036,7 +3036,7 @@ blf_parse_xml_port(const xmlChar* str, char** name, uint16_t* hwchannel, bool* s
 
     if (str == NULL) return false;
 
-    char** tokens = g_strsplit_set((const gchar*)str, ";", -1);
+    char** tokens = g_strsplit_set((const char*)str, ";", -1);
     if (tokens == NULL) {
         ws_debug("cannot split XML port data");
         return false;

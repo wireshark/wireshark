@@ -96,9 +96,9 @@ static const peak_trc_column_map_t colmap[] = {
 void register_peak_trc(void);
 
 static wtap_open_return_val
-peak_trc_parse(wtap* wth, peak_trc_state_t* state, gint64* offset, int* err, char** err_info)
+peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, char** err_info)
 {
-    gint64 seek_off = 0;
+    int64_t seek_off = 0;
     bool found_timestamp = false;
     char line_buffer[PEAK_TRC_MAX_LINE_SIZE];
 
@@ -249,7 +249,7 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, gint64* offset, int* err, cha
                 Value: Integral part = Number of days that have passed since 30. December 1899.
                 Fractional Part = Fraction of a 24-hour day that has elapsed, resolution is 1 millisecond. */
 
-            gchar** parts = g_strsplit(line_buffer, "=", 2);
+            char** parts = g_strsplit(line_buffer, "=", 2);
             if (parts[1] == NULL)
             {
                 /* At this point, the file is probably a PEAK file that is poorly formatted, so bail with an error */
@@ -273,7 +273,7 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, gint64* offset, int* err, cha
         }
         else if (g_str_has_prefix(line_buffer, ";$COLUMNS="))
         {
-            gchar** parts = g_strsplit(line_buffer, "=", 2);
+            char** parts = g_strsplit(line_buffer, "=", 2);
             if (parts[1] == NULL)
             {
                 /* At this point, the file is probably a PEAK file that is poorly formatted, so bail with an error */
@@ -282,9 +282,9 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, gint64* offset, int* err, cha
                 return WTAP_OPEN_ERROR;
             }
 
-            gchar** columns = g_strsplit(parts[1], ",", 0);
+            char** columns = g_strsplit(parts[1], ",", 0);
             int column_index = 0;
-            for (gchar** iter = columns; *iter != NULL; iter++)
+            for (char** iter = columns; *iter != NULL; iter++)
             {
                 size_t col_length = strlen(*iter);
                 if (col_length > 1) {
@@ -375,7 +375,7 @@ static bool peak_trc_read_packet_v1(wtap* wth, peak_trc_state_t* state, wtap_can
         if (state->column_positions[col] >= column_count || state->column_positions[col] == Col_Invalid)
             continue;
 
-        gchar* column_text = g_match_info_fetch(match_info, state->column_positions[col]);
+        char* column_text = g_match_info_fetch(match_info, state->column_positions[col]);
         if (column_text == NULL)
         {
             g_match_info_free(match_info);
@@ -398,7 +398,7 @@ static bool peak_trc_read_packet_v1(wtap* wth, peak_trc_state_t* state, wtap_can
             }
             break;
         case Col_CanId:
-            peak_msg->id = (guint32)g_ascii_strtoull(column_text, NULL, 16);
+            peak_msg->id = (uint32_t)g_ascii_strtoull(column_text, NULL, 16);
             break;
         case Col_ErrorOrRtr_v1p0:
             if (state->file_version_minor == 1 && strcmp(column_text, "RTR") == 0)
@@ -411,8 +411,8 @@ static bool peak_trc_read_packet_v1(wtap* wth, peak_trc_state_t* state, wtap_can
         {
             double tsd = g_ascii_strtod(column_text, NULL) / 1000.0; // parse to seconds
             tsd += state->trace_start;
-            peak_msg->ts.secs = (guint64)tsd;
-            peak_msg->ts.nsecs = (int)((tsd - (guint64)tsd) * 1000000000);
+            peak_msg->ts.secs = (uint64_t)tsd;
+            peak_msg->ts.nsecs = (int)((tsd - (uint64_t)tsd) * 1000000000);
         }
         break;
         case Col_DLC:
@@ -429,8 +429,8 @@ static bool peak_trc_read_packet_v1(wtap* wth, peak_trc_state_t* state, wtap_can
         case Col_Data:
         case Col_Data_v1_0:
         {
-            gchar* err_or_rtr = g_match_info_fetch(match_info, state->column_positions[Col_ErrorOrRtr_v1p0]);
-            gchar** bytes = g_strsplit(g_strstrip(column_text), " ", CAN_MAX_DLEN);
+            char* err_or_rtr = g_match_info_fetch(match_info, state->column_positions[Col_ErrorOrRtr_v1p0]);
+            char** bytes = g_strsplit(g_strstrip(column_text), " ", CAN_MAX_DLEN);
             // 1.0 format has an ERROR prefix in the data bytes, 1.1 has a separate columns for message type
             if ((g_str_has_prefix(err_or_rtr, "ERROR")) ||
                 (state->file_version_minor == 1 && peak_msg->type == MSG_TYPE_ERR))
@@ -442,7 +442,7 @@ static bool peak_trc_read_packet_v1(wtap* wth, peak_trc_state_t* state, wtap_can
                 /* Clear the data of the message to populate it with SocketCAN meta data */
                 memset(peak_msg->data.data, 0, CAN_MAX_DLEN);
 
-                guint32 old_id = peak_msg->id;
+                uint32_t old_id = peak_msg->id;
                 peak_msg->id = 0;
                 // ID: Type of Error Frame
                 switch (old_id)
@@ -537,7 +537,7 @@ static bool peak_trc_read_packet_v2(wtap* wth, peak_trc_state_t* state, wtap_can
             if (!last_char_is_ws)
             {
                 // column closed -> process data
-                gchar* column_text = g_utf8_substring(line_buffer, column_start, i);
+                char* column_text = g_utf8_substring(line_buffer, column_start, i);
 
                 ws_debug("Column %d: %s\n", current_column, column_text);
 
@@ -558,7 +558,7 @@ static bool peak_trc_read_packet_v2(wtap* wth, peak_trc_state_t* state, wtap_can
                     }
                     else
                     {
-                        gchar** bytes = g_strsplit(g_strstrip(column_text), " ", CANFD_MAX_DLEN);
+                        char** bytes = g_strsplit(g_strstrip(column_text), " ", CANFD_MAX_DLEN);
                         int byte_i = 0;
                         while (byte_i < CANFD_MAX_DLEN) {
                             if (bytes[byte_i] == 0)
@@ -570,17 +570,17 @@ static bool peak_trc_read_packet_v2(wtap* wth, peak_trc_state_t* state, wtap_can
                     break;
                 }
                 case Col_CanId:
-                    peak_msg->id = (guint)g_ascii_strtoull(column_text, NULL, 16);
+                    peak_msg->id = (unsigned)g_ascii_strtoull(column_text, NULL, 16);
                     break;
                 case Col_DLC:
-                    peak_msg->data.length = (guint)g_ascii_strtoull(column_text, NULL, 10);
+                    peak_msg->data.length = (unsigned)g_ascii_strtoull(column_text, NULL, 10);
                     break;
                 case Col_TimeOffset:
                 {
                     double tsd = g_ascii_strtod(column_text, NULL) / 1000.0; // parse to seconds
                     tsd += state->trace_start;
-                    peak_msg->ts.secs = (guint64)tsd;
-                    peak_msg->ts.nsecs = (int)((tsd - (guint64)tsd) * 1000000000);
+                    peak_msg->ts.secs = (uint64_t)tsd;
+                    peak_msg->ts.nsecs = (int)((tsd - (uint64_t)tsd) * 1000000000);
                     break;
                 }
                 case Col_MessageType:
@@ -674,8 +674,8 @@ static bool peak_trc_read_packet_v2(wtap* wth, peak_trc_state_t* state, wtap_can
 
 static bool
 peak_trc_read_packet(wtap *wth, FILE_T fh, peak_trc_state_t* state,
-                     wtap_rec *rec, int *err, gchar **err_info,
-                     gint64 *data_offset)
+                     wtap_rec *rec, int *err, char **err_info,
+                     int64_t *data_offset)
 {
     wtap_can_msg_t peak_msg = {0};
     char line_buffer[PEAK_TRC_MAX_LINE_SIZE];
@@ -786,7 +786,7 @@ peak_trc_close(void* tap_data)
 wtap_open_return_val
 peak_trc_open(wtap* wth, int* err, char** err_info)
 {
-    gint64 data_offset = 0;
+    int64_t data_offset = 0;
     peak_trc_state_t* trc_state = g_new0(peak_trc_state_t, 1);
 
     /* wth->priv stores a pointer to the general file properties.

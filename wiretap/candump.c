@@ -76,7 +76,7 @@ static bool
 candump_parse(wtap *wth, FILE_T fh, wtap_can_msg_t *msg, int64_t *offset,
               int *err, char **err_info)
 {
-    gint64 seek_off = 0;
+    int64_t seek_off = 0;
     char line_buffer[CANDUMP_MAX_LINE_SIZE];
     char** tokens = NULL;
     char* data_start;

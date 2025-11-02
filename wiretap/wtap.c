@@ -1992,7 +1992,7 @@ wtap_read_so_far(wtap *wth)
 
 /* Perform global/initial initialization */
 void
-wtap_rec_init(wtap_rec *rec, gsize space)
+wtap_rec_init(wtap_rec *rec, size_t space)
 {
 	memset(rec, 0, sizeof *rec);
 	ws_buffer_init(&rec->options_buf, 0);

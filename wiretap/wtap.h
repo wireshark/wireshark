@@ -2144,7 +2144,7 @@ bool wtap_seek_read(wtap *wth, int64_t seek_off, wtap_rec *rec,
  * @param space Size of internal allocation.
  */
 WS_DLL_PUBLIC
-void wtap_rec_init(wtap_rec *rec, gsize space);
+void wtap_rec_init(wtap_rec *rec, size_t space);
 
 /**
  * @brief Apply a snapshot length to a wtap_rec.
