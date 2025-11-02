@@ -296,7 +296,7 @@ header file on which they're declared on your platform.
 Don't use "tvb_get_ptr()".  If you must use it, keep in mind that the pointer
 returned by a call to "tvb_get_ptr()" is not guaranteed to be aligned on any
 particular byte boundary; this means that you cannot safely cast it to any
-data type other than a pointer to "char", "unsigned char", "guint8", or other
+data type other than a pointer to "char", "unsigned char", "uint8_t", or other
 one-byte data types.  Casting a pointer returned by tvb_get_ptr() into any
 multi-byte data type or structure may cause crashes on some platforms (even
 if it does not crash on x86-based PCs).  Even if such mis-aligned accesses
@@ -382,10 +382,10 @@ in a fashion such as this:
         ...
 
     static const value_string foo_vals[] = {
-        { 0,        "Red" },
-        { 1,        "Green" },
-        { 2,        "Blue" },
-        { 0,        NULL }
+        { 0, "Red" },
+        { 1, "Green" },
+        { 2, "Blue" },
+        { 0, NULL }
     };
 
 as some compilers will reject the first of those statements.  Instead,
@@ -468,24 +468,24 @@ string "(NULL)", but most will not.
 When using a buffer to create a string, do not use a buffer stored on the stack.
 I.e. do not use a buffer declared as
 
-   char buffer[1024];
+    char buffer[1024];
 
 instead allocate a buffer dynamically using the string-specific or plain wmem
 routines (see README.wmem) such as
 
-   wmem_strbuf_t *strbuf;
-   strbuf = wmem_strbuf_new(pinfo->pool, "");
-   wmem_strbuf_append_printf(strbuf, ...
+    wmem_strbuf_t *strbuf;
+    strbuf = wmem_strbuf_new(pinfo->pool, "");
+    wmem_strbuf_append_printf(strbuf, ...);
 
 or
 
-   char *buffer=NULL;
-   ...
-   #define MAX_BUFFER 1024
-   buffer=wmem_alloc(pinfo->pool, MAX_BUFFER);
-   buffer[0]='\0';
-   ...
-   snprintf(buffer, MAX_BUFFER, ...
+    char *buffer = NULL;
+    ...
+    #define MAX_BUFFER 1024
+    buffer = wmem_alloc(pinfo->pool, MAX_BUFFER);
+    buffer[0] = '\0';
+    ...
+    snprintf(buffer, MAX_BUFFER, ...);
 
 This avoids the stack from being corrupted in case there is a bug in your code
 that accidentally writes beyond the end of the buffer.
@@ -499,28 +499,30 @@ pass a pointer to a pointer to the function and return a pointer to a
 wmem-allocated buffer that will be automatically freed. (see README.wmem)
 
 I.e. do not write code such as
+
   static void
-  foo_to_str(char *string, ... ){
-     <fill in string>
+  foo_to_str(char *string, ... ) {
+    <fill in string>
   }
   ...
-     char buffer[1024];
-     ...
-     foo_to_str(buffer, ...
-     proto_tree_add_string(... buffer ...
+    char buffer[1024];
+    ...
+    foo_to_str(buffer, ...);
+    proto_tree_add_string(... buffer ...);
 
 instead write the code as
+
   static void
-  foo_to_str(char **buffer, ...
+  foo_to_str(char **buffer, ...) {
     #define MAX_BUFFER x
-    *buffer=wmem_alloc(pinfo->pool, MAX_BUFFER);
+    *buffer = wmem_alloc(pinfo->pool, MAX_BUFFER);
     <fill in *buffer>
   }
   ...
     char *buffer;
     ...
-    foo_to_str(&buffer, ...
-    proto_tree_add_string(... *buffer ...
+    foo_to_str(&buffer, ...);
+    proto_tree_add_string(... *buffer ...);
 
 Use wmem_ allocated buffers. They are very fast and nice. These buffers are all
 automatically free()d when the dissection of the current packet ends so you
@@ -572,12 +574,13 @@ otherwise the program may behave inconsistently.
 Use ws_assert_not_reached() instead of g_assert_not_reached() for
 unreachable error conditions. For example if (and only if) you know
 'myvar' can only have the values 1 and 2 do:
+
     switch(myvar) {
     case 1:
-        (...)
+        ...
         break;
     case 2:
-        (...)
+        ...
         break;
     default:
         ws_assert_not_reached();
