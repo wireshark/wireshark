@@ -37,6 +37,7 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
+
 # Command-line args
 parser = argparse.ArgumentParser(description="Run gamut of tests on dissector(s)")
 parser.add_argument('--file', action='append',
@@ -56,10 +57,26 @@ if not args.file and not args.file_list and not args.open and not args.commits:
     print('Need to specify --file, --file-list or --open or --commits')
     exit(1)
 
+
 # TODO: verify build-folder if set.
 
 # Get list of files to check.
 dissectors = []
+
+def is_dissector_file(filename):
+    if not filename.endswith('.c'):
+        return False
+
+    abs_path = os.path.abspath(filename)
+    if os.path.join('plugins', 'epan') in abs_path:
+        return True
+    elif os.path.join('epan', 'dissectors') in abs_path:
+        p = re.compile(r'.*(packet|file)-.*\.c$')
+        return p.match(filename)
+    else:
+        return False
+
+
 
 # Individually-selected files
 if args.file:
@@ -68,7 +85,8 @@ if args.file:
                 print('Chosen file', f, 'does not exist.')
                 exit(1)
             else:
-                dissectors.append(f)
+                if is_dissector_file(f):
+                    dissectors.append(f)
 
 # List of dissectors stored in a file
 if args.file_list:
@@ -85,10 +103,6 @@ if args.file_list:
                 else:
                     dissectors.append(f)
 
-def is_dissector_file(filename):
-    # TODO: also check directory?
-    p = re.compile(r'.*(packet|file)-.*\.c$')
-    return p.match(filename)
 
 if args.open:
     # Unstaged changes.

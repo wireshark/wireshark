@@ -424,7 +424,8 @@ static const value_string sn_rep_msg[] =
 static int hf_mac_header_generic_mesh_subheader;
 
 /* Fragmentation Subheader (table 8) */
-#define FRAGMENTATION_SUBHEADER_FC_MASK         0xC000	/*0x0003*/
+#define FRAGMENTATION_SUBHEADER_FC_MASK         0xC0	/*0x0003*/
+#define FRAGMENTATION_SUBHEADER_FC_EXT_MASK     0xC000	/*0x0003*/
 #define FRAGMENTATION_SUBHEADER_BSN_MASK        0x3FF8	/*0x1FFC*/
 #define FRAGMENTATION_SUBHEADER_RSV_EXT_MASK    0x0007	/*0xE000*/
 #define FRAGMENTATION_SUBHEADER_FSN_MASK        0x38	/*0x1C*/
@@ -457,7 +458,9 @@ static const value_string frag_types[] =
 };
 
 /* Packing Subheader (table 11) */
-#define PACKING_SUBHEADER_FC_MASK           0xC00000
+#define PACKING_SUBHEADER_FC_MASK           0xC000
+#define PACKING_SUBHEADER_FC_EXT_MASK       0xC00000
+
 #define PACKING_SUBHEADER_BSN_MASK          0x3FF800
 #define PACKING_SUBHEADER_FSN_MASK          0x38
 #define PACKING_SUBHEADER_LENGTH_MASK       0x07FF
@@ -1858,7 +1861,7 @@ void wimax_proto_register_mac_header_generic(void)
 			&hf_mac_header_generic_frag_subhd_fc_ext,
 			{
 				"Fragment Type", "wmx.genericFragSubhd.FcExt",
-				FT_UINT16, BASE_DEC, VALS(frag_types), FRAGMENTATION_SUBHEADER_FC_MASK,
+				FT_UINT16, BASE_DEC, VALS(frag_types), FRAGMENTATION_SUBHEADER_FC_EXT_MASK,
 				NULL, HFILL
 			}
 		},
@@ -1919,7 +1922,7 @@ void wimax_proto_register_mac_header_generic(void)
 			&hf_mac_header_generic_packing_subhd_fc_ext,
 			{
 				"Fragment Type", "wmx.genericPackSubhd.FcExt",
-				FT_UINT24, BASE_HEX, VALS(frag_types), PACKING_SUBHEADER_FC_MASK,
+				FT_UINT24, BASE_HEX, VALS(frag_types), PACKING_SUBHEADER_FC_EXT_MASK,
 				NULL, HFILL
 			}
 		},

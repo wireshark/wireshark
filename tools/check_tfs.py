@@ -358,18 +358,29 @@ def find_macros(filename):
 
 
 def is_dissector_file(filename):
-    p = re.compile(r'.*(packet|file)-.*\.c')
-    return p.match(filename)
+    if not filename.endswith('.c'):
+        return False
+
+    abs_path = os.path.abspath(filename)
+    if os.path.join('plugins', 'epan') in abs_path:
+        return True
+    elif os.path.join('epan', 'dissectors') in abs_path:
+        p = re.compile(r'.*(packet|file)-.*\.c$')
+        return p.match(filename)
+    else:
+        return False
 
 def findDissectorFilesInFolder(folder):
+    print('look in', folder)
     files = set()
 
-    for path, tmp_unused, names in os.walk(folder):
+    for path, _, names in os.walk(folder):
         for f in names:
             if should_exit:
                 return
-            if is_dissector_file(f):
-                files.add(os.path.join(path, f))
+            full_path = os.path.join(path, f)
+            if is_dissector_file(full_path):
+                files.add(full_path)
 
     return files
 
@@ -557,8 +568,8 @@ elif args.open:
     for f in files_staged:
         files.add(f)
 else:
-    # Find all dissector files from folder.
-    files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
+    # Find all dissector files from folders.
+    files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors')) | findDissectorFilesInFolder(os.path.join('plugins', 'epan'))
 
 
 # If scanning a subset of files, list them here.

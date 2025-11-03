@@ -2858,14 +2858,14 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 		{
 			&hf_dlmap_phy_fdur_ms,
 			{
-				"Frame Duration", "wmx.dlmap.phy_fdur",
+				"Frame Duration", "wmx.dlmap.phy_fdur_ms",
 				FT_UINT8, BASE_HEX, VALS(frame_duration), 0x00, NULL, HFILL
 			}
 		},
 		{
 			&hf_dlmap_phy_fdur_per_sec,
 			{
-				"Frames per second", "wmx.dlmap.phy_fdur",
+				"Frames per second", "wmx.dlmap.phy_fdur_persec",
 				FT_UINT8, BASE_HEX, VALS(frames_per_second), 0x00, NULL, HFILL
 			}
 		},

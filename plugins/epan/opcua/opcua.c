@@ -609,7 +609,7 @@ static int dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             if (mode == UA_MessageMode_MaybeEncrypted) {
                 /* try to parse ServiceId */
                 iServiceId = getServiceNodeId(tvb, offset + 8); /* skip 4 byte SeqNo and 4 byte RequestId */
-                const char *szServiceName = val_to_str(pinfo->pool, (uint32_t)iServiceId, g_requesttypes, "not found");
+                const char *szServiceName = val_to_str_const((uint32_t)iServiceId, g_requesttypes, "not found");
                 if (strcmp(szServiceName, "not found") == 0) {
                     mode = UA_MessageMode_SignAndEncrypt;
                 } else {

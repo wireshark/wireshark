@@ -627,7 +627,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 			&hf_rng_rsp_ho_process_optimization,
 			{
 				"HO Process Optimization", "wmx.rng_rsp.ho_process_optimization",
-				FT_UINT16, BASE_HEX, NULL, 0x0000, NULL, HFILL
+				FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{

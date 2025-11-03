@@ -73,8 +73,17 @@ def removeComments(code_string):
 
 
 def is_dissector_file(filename):
-    p = re.compile(r'.*(packet|file)-.*\.c')
-    return p.match(filename)
+    if not filename.endswith('.c'):
+        return False
+
+    abs_path = os.path.abspath(filename)
+    if os.path.join('plugins', 'epan') in abs_path:
+        return True
+    elif os.path.join('epan', 'dissectors') in abs_path:
+        p = re.compile(r'.*(packet|file)-.*\.c$')
+        return p.match(filename)
+    else:
+        return False
 
 def findDissectorFilesInFolder(folder, recursive=False):
     dissector_files = []
@@ -179,13 +188,13 @@ files = []
 if args.file:
     # Add specified file(s)
     for f in args.file:
-        if not os.path.isfile(f) and not f.startswith('epan'):
-            f = os.path.join('epan', 'dissectors', f)
-        if not os.path.isfile(f):
+        if os.path.isfile(f):
+            if is_dissector_file(f):
+                files.append(f)
+        else:
             print('Chosen file', f, 'does not exist.')
             exit(1)
-        else:
-            files.append(f)
+
 elif args.commits:
     # Get files affected by specified number of commits.
     command = ['git', 'diff', '--name-only', 'HEAD~' + args.commits]

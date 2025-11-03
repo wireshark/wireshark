@@ -1635,7 +1635,7 @@ void wimax_proto_register_wimax_compact_ulmap_ie(void)
 		},
 		{
 			&hf_culmap_uiuc_num_of_subchannels_7_1,
-			{"Number Of Subchannels", "wmx.compact_ulmap.uiuc_num_of_subchannels", FT_UINT32, BASE_DEC, NULL, 0x000003F80, NULL, HFILL}
+			{"Number Of Subchannels", "wmx.compact_ulmap.uiuc_num_of_subchannels", FT_UINT32, BASE_DEC, NULL, 0x00003F80, NULL, HFILL}
 		},
 		{
 			&hf_culmap_uiuc_ranging_method_1,
@@ -2004,11 +2004,11 @@ void wimax_proto_register_wimax_compact_ulmap_ie(void)
 		},
 		{
 			&hf_extended_uiuc_ie_mini_subchannel_alloc_cid_1,
-			{"CID", "wmx.extended_uiuc_ie.mini_subchannel_alloc.cid", FT_UINT24, BASE_HEX, NULL, MINI_SUBCHANNEL_CID_MASK_1, NULL, HFILL }
+			{"CID", "wmx.extended_uiuc_ie.mini_subchannel_alloc.cid", FT_UINT32, BASE_HEX, NULL, MINI_SUBCHANNEL_CID_MASK_1, NULL, HFILL }
 		},
 		{
 			&hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_1,
-			{"UIUC", "wmx.extended_uiuc_ie.mini_subchannel_alloc.uiuc", FT_UINT24, BASE_HEX, NULL, MINI_SUBCHANNEL_UIUC_MASK_1, NULL, HFILL }
+			{"UIUC", "wmx.extended_uiuc_ie.mini_subchannel_alloc.uiuc", FT_UINT32, BASE_HEX, NULL, MINI_SUBCHANNEL_UIUC_MASK_1, NULL, HFILL }
 		},
 		{
 			&hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_1,
@@ -2016,11 +2016,11 @@ void wimax_proto_register_wimax_compact_ulmap_ie(void)
 		},
 		{
 			&hf_extended_uiuc_ie_mini_subchannel_alloc_cid_2,
-			{"CID", "wmx.extended_uiuc_ie.mini_subchannel_alloc.cid", FT_UINT24, BASE_HEX, NULL, MINI_SUBCHANNEL_CID_MASK_2, NULL, HFILL }
+			{"CID", "wmx.extended_uiuc_ie.mini_subchannel_alloc.cid", FT_UINT32, BASE_HEX, NULL, MINI_SUBCHANNEL_CID_MASK_2, NULL, HFILL }
 		},
 		{
 			&hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_2,
-			{"UIUC", "wmx.extended_uiuc_ie.mini_subchannel_alloc.uiuc", FT_UINT24, BASE_HEX, NULL, MINI_SUBCHANNEL_UIUC_MASK_2, NULL, HFILL }
+			{"UIUC", "wmx.extended_uiuc_ie.mini_subchannel_alloc.uiuc", FT_UINT32, BASE_HEX, NULL, MINI_SUBCHANNEL_UIUC_MASK_2, NULL, HFILL }
 		},
 		{
 			&hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_2,
@@ -2028,11 +2028,11 @@ void wimax_proto_register_wimax_compact_ulmap_ie(void)
 		},
 		{
 			&hf_extended_uiuc_ie_mini_subchannel_alloc_cid_3,
-			{"CID", "wmx.extended_uiuc_ie.mini_subchannel_alloc.cid", FT_UINT24, BASE_HEX, NULL, MINI_SUBCHANNEL_CID_MASK_3, NULL, HFILL }
+			{"CID", "wmx.extended_uiuc_ie.mini_subchannel_alloc.cid", FT_UINT32, BASE_HEX, NULL, MINI_SUBCHANNEL_CID_MASK_3, NULL, HFILL }
 		},
 		{
 			&hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_3,
-			{"UIUC", "wmx.extended_uiuc_ie.mini_subchannel_alloc.uiuc", FT_UINT24, BASE_HEX, NULL, MINI_SUBCHANNEL_UIUC_MASK_2, NULL, HFILL }
+			{"UIUC", "wmx.extended_uiuc_ie.mini_subchannel_alloc.uiuc", FT_UINT32, BASE_HEX, NULL, MINI_SUBCHANNEL_UIUC_MASK_2, NULL, HFILL }
 		},
 		{
 			&hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_3,
