@@ -407,9 +407,12 @@ WS_DLL_PUBLIC int tvb_captured_length_remaining(const tvbuff_t *tvb, const int o
  * @return The number of bytes remaining to the end of the buffer from the given offset.
  *
  * @throws Exception if the offset is beyond the captured length.
+ *
+ * @note This function never returns 0. An offset that is just past the end
+ * of the captured data will throw an exception.
  */
 WS_DLL_PUBLIC unsigned tvb_ensure_captured_length_remaining(const tvbuff_t *tvb,
-    const int offset);
+    const unsigned offset);
 
 /**
  * @brief Check that the specified bytes exist in the tvbuff without throwing an exception.
@@ -496,14 +499,18 @@ WS_DLL_PUBLIC int tvb_reported_length_remaining(const tvbuff_t *tvb,
  * @brief Same as @ref tvb_reported_length_remaining but throws an exception if the offset is out of bounds.
  *
  * @param tvb    The tvbuff to query.
- * @param offset The offset from which to compute remaining bytes (can be negative).
+ * @param offset The offset from which to compute remaining bytes.
  *
  * @return The number of bytes remaining to the end of the buffer from the given offset.
  *
  * @throws ReportedBoundsError if the offset is out of bounds.
+ *
+ * @note An offset that is just past the end of the reported data is not
+ * out of bounds; this function will return 0 in that case. Contrast with
+ * tvb_ensure_captured_length_remaining, which never returns 0.
  */
 WS_DLL_PUBLIC unsigned tvb_ensure_reported_length_remaining(const tvbuff_t *tvb,
-    const int offset);
+    const unsigned offset);
 
 /**
  * @brief Set a tvbuff's reported_length to a given value.

@@ -575,16 +575,18 @@ tvb_captured_length_remaining(const tvbuff_t *tvb, const int offset)
 }
 
 unsigned
-tvb_ensure_captured_length_remaining(const tvbuff_t *tvb, const int offset)
+tvb_ensure_captured_length_remaining(const tvbuff_t *tvb, const unsigned offset)
 {
-	unsigned abs_offset = 0, rem_length = 0;
+	unsigned rem_length = 0;
 	int   exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
+	exception = validate_offset(tvb, offset);
 	if (exception)
 		THROW(exception);
+
+	rem_length = tvb->length - offset;
 
 	if (rem_length == 0) {
 		/*
@@ -592,11 +594,11 @@ tvb_ensure_captured_length_remaining(const tvbuff_t *tvb, const int offset)
 		 * There aren't any bytes available, so throw the appropriate
 		 * exception.
 		 */
-		if (abs_offset < tvb->contained_length) {
+		if (offset < tvb->contained_length) {
 			THROW(BoundsError);
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			THROW(FragmentBoundsError);
-		} else if (abs_offset < tvb->reported_length) {
+		} else if (offset < tvb->reported_length) {
 			THROW(ContainedBoundsError);
 		} else {
 			THROW(ReportedBoundsError);
@@ -779,19 +781,18 @@ tvb_reported_length_remaining(const tvbuff_t *tvb, const int offset)
 }
 
 unsigned
-tvb_ensure_reported_length_remaining(const tvbuff_t *tvb, const int offset)
+tvb_ensure_reported_length_remaining(const tvbuff_t *tvb, const unsigned offset)
 {
-	unsigned abs_offset = 0;
 	int   exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset(tvb, offset, &abs_offset);
+	exception = validate_offset(tvb, offset);
 	if (exception)
 		THROW(exception);
 
-	if (tvb->reported_length >= abs_offset)
-		return tvb->reported_length - abs_offset;
+	if (tvb->reported_length >= offset)
+		return tvb->reported_length - offset;
 	else
 		THROW(ReportedBoundsError);
 }
