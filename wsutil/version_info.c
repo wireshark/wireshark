@@ -81,8 +81,6 @@ ws_init_version_info(const char *appname,
 	 * version - including the VCS version, for a build from
 	 * a checkout.
 	 */
-	appname_with_version = ws_strdup_printf("%s %s",
-			appname, version_func());
 	if ((appflavor != NULL) && strstr(appname, appflavor) != NULL) {
 		appname_with_version = ws_strdup_printf("%s %s",
 			appname, version_func());
