@@ -24,6 +24,7 @@
 #include <wsutil/interface.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/privileges.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_padding_to.h>
@@ -368,7 +369,7 @@ int main(int argc, char **argv)
 		g_free(configuration_init_error);
 	}
 
-	help_url = data_file_url("sdjournal.html");
+	help_url = data_file_url("sdjournal.html", application_configuration_environment_prefix());
 	extcap_base_set_util_info(extcap_conf, argv[0], SDJOURNAL_VERSION_MAJOR, SDJOURNAL_VERSION_MINOR,
 			SDJOURNAL_VERSION_RELEASE, help_url);
 	g_free(help_url);

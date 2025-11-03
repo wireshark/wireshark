@@ -102,7 +102,7 @@ dfilter_resolve_unparsed(const char *name, GPtrArray *deprecated)
 
 /* Initialize the dfilter module */
 void
-dfilter_init(void)
+dfilter_init(const char* app_env_var_prefix)
 {
 	if (ParserObj) {
 		ws_message("I expected ParserObj to be NULL\n");
@@ -116,7 +116,7 @@ dfilter_init(void)
 	sttype_init();
 
 	df_func_init();
-	dfilter_macro_init();
+	dfilter_macro_init(app_env_var_prefix);
 	dfilter_plugins_init();
 }
 

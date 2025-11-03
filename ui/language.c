@@ -19,6 +19,7 @@
 
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/application_flavor.h>
 
 #include "ui/language.h"
 #include "ui/simple_dialog.h"
@@ -61,7 +62,7 @@ read_language_prefs(void)
     char       *rf_path;
     FILE       *rf;
 
-    rf_path = get_persconffile_path(LANGUAGE_FILE_NAME, false);
+    rf_path = get_persconffile_path(LANGUAGE_FILE_NAME, false, application_configuration_environment_prefix());
 
     if ((rf = ws_fopen(rf_path, "r")) != NULL) {
         read_prefs_file(rf_path, rf, read_language_pref, NULL);
@@ -87,7 +88,7 @@ write_language_prefs(void)
 
     /* Create the directory that holds personal configuration files, if
         necessary.  */
-    if (create_persconffile_dir(&pf_dir_path) == -1) {
+    if (create_persconffile_dir(application_configuration_environment_prefix(), &pf_dir_path) == -1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         "Can't create directory\n\"%s\"\nfor language file: %s.", pf_dir_path,
         g_strerror(errno));
@@ -95,7 +96,7 @@ write_language_prefs(void)
         return false;
     }
 
-    rf_path = get_persconffile_path(LANGUAGE_FILE_NAME, false);
+    rf_path = get_persconffile_path(LANGUAGE_FILE_NAME, false, application_configuration_environment_prefix());
     if ((rf = ws_fopen(rf_path, "w")) == NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         "Can't open recent file\n\"%s\": %s.", rf_path,

@@ -74,11 +74,12 @@ typedef struct {
  * On error, a message is reported via the UI.
  *
  * @param list_type The type of filter list to read.
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the personal config directory.
  * @return A pointer to the loaded filter list. Never returns NULL.
  */
 WS_DLL_PUBLIC
 WS_RETNONNULL
-filter_list_t *ws_filter_list_read(filter_list_type_t list_type);
+filter_list_t *ws_filter_list_read(filter_list_type_t list_type, const char* app_env_var_prefix);
 
 /**
  * @brief Adds a new filter to the end of a filter list.
@@ -123,9 +124,10 @@ bool ws_filter_list_remove(filter_list_t *list, const char *name);
  * Saves the current filter list to disk or configuration. On error, a message is reported via the UI.
  *
  * @param list The filter list to write.
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the personal config directory.
  */
 WS_DLL_PUBLIC
-void ws_filter_list_write(filter_list_t *list);
+void ws_filter_list_write(filter_list_t *list, const char* app_env_var_prefix);
 
 /**
  * @brief Frees all memory associated with a filter list.

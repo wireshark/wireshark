@@ -15,6 +15,7 @@
 
 #include <wsutil/utf8_entities.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 
 #include <ui/qt/main_application.h>
 #include <ui/qt/filter_action.h>
@@ -674,11 +675,11 @@ TrafficTab::writeGeoIPMapFile(QFile * fp, bool json_only, TrafficDataFilterProxy
     QTextStream out(fp);
 
     if (!json_only) {
-        QFile ipmap(get_datafile_path("ipmap.html"));
+        QFile ipmap(get_datafile_path("ipmap.html", application_configuration_environment_prefix()));
 
         if (!ipmap.open(QIODevice::ReadOnly)) {
             QMessageBox::warning(this, tr("Map file error"), tr("Could not open base file %1 for reading: %2")
-                .arg(get_datafile_path("ipmap.html"), g_strerror(errno))
+                .arg(get_datafile_path("ipmap.html", application_configuration_environment_prefix()), g_strerror(errno))
             );
             return false;
         }

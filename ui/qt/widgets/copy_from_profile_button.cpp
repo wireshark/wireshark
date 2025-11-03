@@ -10,6 +10,7 @@
 #include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/models/profile_model.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -110,7 +111,7 @@ QAction * CopyFromProfileButton::systemDefault(QString filename)
 {
     QAction * data = Q_NULLPTR;
 
-    QDir dataDir(get_datafile_dir());
+    QDir dataDir(get_datafile_dir(application_configuration_environment_prefix()));
     QString path = dataDir.filePath(filename);
     if (QFile::exists(path))
     {

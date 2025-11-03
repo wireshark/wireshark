@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
         g_free(err_msg);
     }
 
-    help_url = data_file_url("sshdig.html");
+    help_url = data_file_url("sshdig.html", application_configuration_environment_prefix());
     extcap_base_set_util_info(extcap_conf, argv[0], SSHDIG_VERSION_MAJOR, SSHDIG_VERSION_MINOR,
             SSHDIG_VERSION_RELEASE, help_url);
     g_free(help_url);

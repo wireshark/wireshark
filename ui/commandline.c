@@ -340,19 +340,19 @@ int commandline_early_options(int argc, char *argv[])
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case 'C':        /* Configuration Profile */
-                if (profile_exists (ws_optarg, false)) {
+                if (profile_exists (application_configuration_environment_prefix(), ws_optarg, false)) {
                     set_profile_name (ws_optarg);
-                } else if (profile_exists (ws_optarg, true)) {
+                } else if (profile_exists (application_configuration_environment_prefix(), ws_optarg, true)) {
                     char  *pf_dir_path, *pf_dir_path2, *pf_filename;
                     /* Copy from global profile */
-                    if (create_persconffile_profile(ws_optarg, &pf_dir_path) == -1) {
+                    if (create_persconffile_profile(application_configuration_environment_prefix(), ws_optarg, &pf_dir_path) == -1) {
                         cmdarg_err("Can't create directory\n\"%s\":\n%s.",
                             pf_dir_path, g_strerror(errno));
 
                         g_free(pf_dir_path);
                         return WS_EXIT_INVALID_FILE;
                     }
-                    if (copy_persconffile_profile(ws_optarg, ws_optarg, true, &pf_filename,
+                    if (copy_persconffile_profile(application_configuration_environment_prefix(), ws_optarg, ws_optarg, true, &pf_filename,
                             &pf_dir_path, &pf_dir_path2) == -1) {
                         cmdarg_err("Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
                             pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));

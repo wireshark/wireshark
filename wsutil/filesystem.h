@@ -70,9 +70,10 @@ WS_DLL_PUBLIC char *get_executable_path(const char *filename);
  * before configuration_init() is called, as they might be stored in a
  * subdirectory of the program file directory.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get plugin directory.
  * @return A pointer to a statically allocated string containing the plugin directory path.
  */
-WS_DLL_PUBLIC const char *get_plugins_dir(void);
+WS_DLL_PUBLIC const char *get_plugins_dir(const char* app_env_var_prefix);
 
 /**
  * @brief Append VERSION_MAJOR.VERSION_MINOR to the plugin dir.
@@ -80,18 +81,20 @@ WS_DLL_PUBLIC const char *get_plugins_dir(void);
  * Constructs the full plugin directory path by appending the current
  * major and minor version numbers to the base plugin directory.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get plugin directory.
  * @return A pointer to a statically allocated string containing the versioned plugin directory path.
  */
-WS_DLL_PUBLIC const char *get_plugins_dir_with_version(void);
+WS_DLL_PUBLIC const char *get_plugins_dir_with_version(const char* app_env_var_prefix);
 
 /**
  * @brief Gets the personal plugin directory.
  *
  * Returns the path to the user's personal plugin directory.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get personal plugin directory.
  * @return A pointer to a statically allocated string containing the personal plugin directory path.
  */
-WS_DLL_PUBLIC const char *get_plugins_pers_dir(void);
+WS_DLL_PUBLIC const char *get_plugins_pers_dir(const char* app_env_var_prefix);
 
 /**
  * @brief Appends VERSION_MAJOR.VERSION_MINOR to the personal plugin directory path.
@@ -99,9 +102,10 @@ WS_DLL_PUBLIC const char *get_plugins_pers_dir(void);
  * Constructs the full path to the user's personal plugin directory by appending
  * the current Wireshark major and minor version numbers.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get personal plugin directory.
  * @return A pointer to a statically allocated string containing the versioned personal plugin directory path.
  */
-WS_DLL_PUBLIC const char *get_plugins_pers_dir_with_version(void);
+WS_DLL_PUBLIC const char *get_plugins_pers_dir_with_version(const char* app_env_var_prefix);
 
 /**
  * @brief Gets the directory in which extcap hooks are stored.
@@ -110,9 +114,11 @@ WS_DLL_PUBLIC const char *get_plugins_pers_dir_with_version(void);
  * It must not be called before configuration_init(), as the directory
  * may be located in a subdirectory of the program file directory.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the extcap directory.
+ * @param dir_extcap String of the path to extcap directory
  * @return A pointer to a statically allocated string containing the extcap directory path.
  */
-WS_DLL_PUBLIC const char *get_extcap_dir(void);
+WS_DLL_PUBLIC const char *get_extcap_dir(const char* app_env_var_prefix, const char* dir_extcap);
 
 /**
  * @brief Gets the personal extcap directory.
@@ -120,9 +126,10 @@ WS_DLL_PUBLIC const char *get_extcap_dir(void);
  * Returns the path to the user's personal extcap directory, typically located
  * within their home or configuration directory.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the personal extcap directory.
  * @return A pointer to a statically allocated string containing the personal extcap directory path.
  */
-WS_DLL_PUBLIC const char *get_extcap_pers_dir(void);
+WS_DLL_PUBLIC const char *get_extcap_pers_dir(const char* app_env_var_prefix);
 
 /**
  * @brief Indicates whether Wireshark is running from a build directory.
@@ -140,9 +147,10 @@ WS_DLL_PUBLIC bool running_in_build_directory(void);
  * Returns the path to the directory containing global configuration files,
  * typically shared across all users and installations.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the global configuration directory.
  * @return A pointer to a statically allocated string containing the global configuration directory path.
  */
-WS_DLL_PUBLIC const char *get_datafile_dir(void);
+WS_DLL_PUBLIC const char *get_datafile_dir(const char* app_env_var_prefix);
 
 /**
  * @brief Constructs the full path to a global configuration file.
@@ -154,9 +162,10 @@ WS_DLL_PUBLIC const char *get_datafile_dir(void);
  * when no longer needed.
  *
  * @param filename The name of the configuration file.
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the global configuration directory.
  * @return A g_malloc()'d string containing the full path to the file.
  */
-WS_DLL_PUBLIC char *get_datafile_path(const char *filename);
+WS_DLL_PUBLIC char *get_datafile_path(const char *filename, const char* app_env_var_prefix);
 
 /**
  * @brief Gets the directory in which global documentation files are stored.
@@ -164,9 +173,10 @@ WS_DLL_PUBLIC char *get_datafile_path(const char *filename);
  * Returns the path to the directory containing global documentation files,
  * typically shared across all users and installations.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the global configuration directory.
  * @return A pointer to a statically allocated string containing the documentation directory path.
  */
-WS_DLL_PUBLIC const char *get_doc_dir(void);
+WS_DLL_PUBLIC const char *get_doc_dir(const char* app_env_var_prefix);
 
 /**
  * @brief Constructs the full path to a global documentation file.
@@ -178,9 +188,10 @@ WS_DLL_PUBLIC const char *get_doc_dir(void);
  * when no longer needed.
  *
  * @param filename The name of the documentation file.
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the global configuration directory.
  * @return A g_malloc()'d string containing the full path to the file.
  */
-WS_DLL_PUBLIC char *get_docfile_path(const char *filename);
+WS_DLL_PUBLIC char *get_docfile_path(const char *filename, const char* app_env_var_prefix);
 
 /**
  * @brief Constructs the URL path to a global documentation file.
@@ -192,9 +203,10 @@ WS_DLL_PUBLIC char *get_docfile_path(const char *filename);
  * when no longer needed.
  *
  * @param filename The name of the documentation file.
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the global configuration directory.
  * @return A g_malloc()'d string containing the full URL path to the file.
  */
-WS_DLL_PUBLIC char *doc_file_url(const char *filename);
+WS_DLL_PUBLIC char *doc_file_url(const char *filename, const char* app_env_var_prefix);
 
 /**
  * @brief Gets the directory in which system files are stored.
@@ -203,9 +215,10 @@ WS_DLL_PUBLIC char *doc_file_url(const char *filename);
  * On Windows, where such directories do not exist, the files are retrieved from
  * the Wireshark global configuration and data file directory instead.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get system files directory.
  * @return A pointer to a statically allocated string containing the system file directory path.
  */
-WS_DLL_PUBLIC const char *get_systemfile_dir(void);
+WS_DLL_PUBLIC const char *get_systemfile_dir(const char* app_env_var_prefix);
 
 /**
  * @brief Sets the configuration profile name for storing personal configuration files.
@@ -243,9 +256,10 @@ WS_DLL_PUBLIC bool is_default_profile(void);
  * Determines if any global (system-wide) configuration profiles are present
  * and accessible to the application.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the profiles directory.
  * @return true if global profiles are available, false otherwise.
  */
-WS_DLL_PUBLIC bool has_global_profiles(void);
+WS_DLL_PUBLIC bool has_global_profiles(const char* app_env_var_prefix);
 
 /**
  * @brief Gets the directory used to store configuration profile directories.
@@ -253,9 +267,10 @@ WS_DLL_PUBLIC bool has_global_profiles(void);
  * Returns the path to the base directory where configuration profiles are stored.
  * The caller is responsible for freeing the returned string using g_free().
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the profiles directory.
  * @return A g_malloc()'d string containing the configuration profiles directory path.
  */
-WS_DLL_PUBLIC char *get_profiles_dir(void);
+WS_DLL_PUBLIC char *get_profiles_dir(const char* app_env_var_prefix);
 
 /**
  * @brief Gets the directory used to store configuration files for a given profile.
@@ -266,11 +281,12 @@ WS_DLL_PUBLIC char *get_profiles_dir(void);
  *
  * The returned string is allocated with g_malloc() and must be freed with g_free() when no longer needed.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the profiles directory.
  * @param profilename The name of the configuration profile.
  * @param is_global true if the profile is global, false if it is personal.
  * @return A g_malloc()'d string containing the full path to the profile's configuration directory.
  */
-WS_DLL_PUBLIC char *get_profile_dir(const char *profilename, bool is_global);
+WS_DLL_PUBLIC char *get_profile_dir(const char* app_env_var_prefix, const char *profilename, bool is_global);
 
 /**
  * @brief Creates the directory used to store configuration profile directories.
@@ -282,10 +298,11 @@ WS_DLL_PUBLIC char *get_profile_dir(const char *profilename, bool is_global);
  * The returned string is allocated with g_malloc() and must be freed with g_free()
  * when no longer needed.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the profiles directory.
  * @param pf_dir_path_return Pointer to a location where the directory path string will be stored.
  * @return 0 on success, or a non-zero error code on failure.
  */
-WS_DLL_PUBLIC int create_profiles_dir(char **pf_dir_path_return);
+WS_DLL_PUBLIC int create_profiles_dir(const char* app_env_var_prefix, char **pf_dir_path_return);
 
 /**
  * @brief Gets the directory used to store global configuration profile directories.
@@ -293,9 +310,10 @@ WS_DLL_PUBLIC int create_profiles_dir(char **pf_dir_path_return);
  * Returns the path to the base directory where global (system-wide) configuration profiles are stored.
  * The caller is responsible for freeing the returned string using g_free().
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the global profiles directory.
  * @return A g_malloc()'d string containing the global profiles directory path.
  */
-WS_DLL_PUBLIC char *get_global_profiles_dir(void);
+WS_DLL_PUBLIC char *get_global_profiles_dir(const char* app_env_var_prefix);
 
 /**
  * @brief Enables or disables tracking of personal configuration file names for profile duplication.
@@ -324,11 +342,12 @@ WS_DLL_PUBLIC void profile_register_persconffile(const char *filename);
  * Determines if the specified configuration profile is present either in the
  * global or personal profile directories.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the profiles directory.
  * @param profilename The name of the configuration profile to check.
  * @param global true to check in the global profiles directory, false to check in the personal profiles directory.
  * @return true if the profile exists, false otherwise.
  */
-WS_DLL_PUBLIC bool profile_exists(const char *profilename, bool global);
+WS_DLL_PUBLIC bool profile_exists(const char* app_env_var_prefix, const char *profilename, bool global);
 
 /**
  * @brief Creates a directory for the given configuration profile.
@@ -339,11 +358,12 @@ WS_DLL_PUBLIC bool profile_exists(const char *profilename, bool global);
  * is allocated with g_malloc() and must be freed with g_free() by the caller.
  * On success, the function returns 0.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the profiles directory.
  * @param profilename The name of the configuration profile.
  * @param pf_dir_path_return Pointer to receive the g_malloc()'d path of the failed directory, if any.
  * @return 0 on success, -1 on failure.
  */
-WS_DLL_PUBLIC int create_persconffile_profile(const char *profilename,
+WS_DLL_PUBLIC int create_persconffile_profile(const char* app_env_var_prefix, const char *profilename,
 				       char **pf_dir_path_return);
 
 /**
@@ -367,11 +387,12 @@ WS_DLL_PUBLIC const GHashTable *allowed_profile_filenames(void);
  * g_malloc() and must be freed with g_free() by the caller.
  * On success, the function returns 0.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the profiles directory.
  * @param profilename The name of the configuration profile to delete.
  * @param pf_dir_path_return Pointer to receive the g_malloc()'d path of the failed directory, if any.
  * @return 0 on success, -1 on failure.
  */
-WS_DLL_PUBLIC int delete_persconffile_profile(const char *profilename,
+WS_DLL_PUBLIC int delete_persconffile_profile(const char* app_env_var_prefix, const char *profilename,
                                               char **pf_dir_path_return);
 
 /**
@@ -384,13 +405,14 @@ WS_DLL_PUBLIC int delete_persconffile_profile(const char *profilename,
  * and must be freed with g_free() by the caller.
  * On success, the function returns 0.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the profiles directory.
  * @param fromname The current name of the configuration profile.
  * @param toname The new name to assign to the configuration profile.
  * @param pf_from_dir_path_return Pointer to receive the g_malloc()'d source directory path if the rename fails.
  * @param pf_to_dir_path_return Pointer to receive the g_malloc()'d destination directory path if the rename fails.
  * @return 0 on success, -1 on failure.
  */
-WS_DLL_PUBLIC int rename_persconffile_profile(const char *fromname, const char *toname,
+WS_DLL_PUBLIC int rename_persconffile_profile(const char* app_env_var_prefix, const char *fromname, const char *toname,
 				       char **pf_from_dir_path_return,
 				       char **pf_to_dir_path_return);
 
@@ -403,6 +425,7 @@ WS_DLL_PUBLIC int rename_persconffile_profile(const char *fromname, const char *
  * and must be freed with g_free() by the caller.
  * On success, the function returns 0.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the profiles directory.
  * @param toname The name of the destination configuration profile.
  * @param fromname The name of the source configuration profile.
  * @param from_global true if the source profile is global, false if it is personal.
@@ -411,7 +434,7 @@ WS_DLL_PUBLIC int rename_persconffile_profile(const char *fromname, const char *
  * @param pf_from_dir_path_return Pointer to receive the g_malloc()'d source directory path, if applicable.
  * @return 0 on success, -1 on failure.
  */
-WS_DLL_PUBLIC int copy_persconffile_profile(const char *toname, const char *fromname,
+WS_DLL_PUBLIC int copy_persconffile_profile(const char* app_env_var_prefix, const char *toname, const char *fromname,
 				     bool from_global,
 				     char **pf_filename_return,
 				     char **pf_to_dir_path_return,
@@ -426,10 +449,11 @@ WS_DLL_PUBLIC int copy_persconffile_profile(const char *toname, const char *from
  * The returned string is allocated with g_malloc() and must be freed with g_free()
  * by the caller. On success, the function returns 0.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the profiles directory.
  * @param pf_dir_path_return Pointer to receive the g_malloc()'d path of the failed directory, if any.
  * @return 0 on success, -1 on failure.
  */
-WS_DLL_PUBLIC int create_persconffile_dir(char **pf_dir_path_return);
+WS_DLL_PUBLIC int create_persconffile_dir(const char* app_env_var_prefix, char **pf_dir_path_return);
 
 /**
  * @brief Constructs the full path name of a personal configuration file.
@@ -442,9 +466,10 @@ WS_DLL_PUBLIC int create_persconffile_dir(char **pf_dir_path_return);
  *
  * @param filename The name of the configuration file.
  * @param from_profile true to use the profile-specific directory, false to use the default personal config directory.
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the personal config directory.
  * @return A g_malloc()'d string containing the full path to the configuration file.
  */
-WS_DLL_PUBLIC char *get_persconffile_path(const char *filename, bool from_profile);
+WS_DLL_PUBLIC char *get_persconffile_path(const char *filename, bool from_profile, const char* app_env_var_prefix);
 
 /**
  * @brief Sets the path of the personal configuration file directory.
@@ -686,10 +711,11 @@ WS_DLL_PUBLIC bool copy_file_binary_mode(const char *from_filename,
  * This is useful for generating standardized URLs for accessing local resources.
  *
  * @param filename A file name or path. Relative paths will be prefixed with the datafile directory path.
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the datafile directory.
  * @return A newly allocated string containing the filesystem URL, or NULL on failure.
  *         The returned string must be freed using g_free().
  */
-WS_DLL_PUBLIC char* data_file_url(const char *filename);
+WS_DLL_PUBLIC char* data_file_url(const char *filename, const char* app_env_var_prefix);
 
 /**
  * @brief Frees internal program directory structures.

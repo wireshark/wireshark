@@ -26,6 +26,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/report_message.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/application_flavor.h>
 
 #include <wsutil/filesystem.h>
 #include <epan/packet.h>
@@ -250,9 +251,9 @@ void uat_move_index(uat_t * uat, unsigned old_idx, unsigned new_idx)
 char* uat_get_actual_filename(uat_t* uat, bool for_writing) {
     char *pers_fname = NULL;
 
-    pers_fname =  get_persconffile_path(uat->filename, uat->from_profile);
+    pers_fname =  get_persconffile_path(uat->filename, uat->from_profile, application_configuration_environment_prefix());
     if ((! for_writing ) && (! file_exists(pers_fname) )) {
-        char* data_fname = get_datafile_path(uat->filename);
+        char* data_fname = get_datafile_path(uat->filename, application_configuration_environment_prefix());
 
         if (file_exists(data_fname)) {
             g_free(pers_fname);
@@ -405,7 +406,7 @@ bool uat_save(uat_t* uat, char** error) {
     if (!fp && errno == ENOENT) {
         /* Parent directory does not exist, try creating first */
         char *pf_dir_path = NULL;
-        if (create_persconffile_dir(&pf_dir_path) != 0) {
+        if (create_persconffile_dir(application_configuration_environment_prefix(), &pf_dir_path) != 0) {
             *error = ws_strdup_printf("uat_save: error creating '%s'", pf_dir_path);
             g_free (pf_dir_path);
             return false;

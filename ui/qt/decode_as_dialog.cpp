@@ -16,6 +16,7 @@
 #include "ui/decode_as_utils.h"
 #include "ui/simple_dialog.h"
 #include "wsutil/filesystem.h"
+#include "wsutil/application_flavor.h"
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/widgets/copy_from_profile_button.h>
@@ -65,7 +66,7 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
 
     setWindowTitle(mainApp->windowTitleString(tr("Decode As…")));
 
-    QString abs_path = gchar_free_to_qstring(get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true));
+    QString abs_path = gchar_free_to_qstring(get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, application_configuration_environment_prefix()));
     if (file_exists(abs_path.toUtf8().constData())) {
         ui->pathLabel->setText(abs_path);
         ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());

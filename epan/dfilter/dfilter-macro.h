@@ -32,10 +32,10 @@ void macro_parse(dfilter_macro_t *m);
 /* applies all macros to the given text and returns the resulting string or NULL on failure */
 char* dfilter_macro_apply(const char* text, df_error_t** error);
 
-void dfilter_macro_init(void);
+void dfilter_macro_init(const char* app_env_var_prefix);
 
 WS_DLL_PUBLIC
-void dfilter_macro_reload(void);
+void dfilter_macro_reload(const char* app_env_var_prefix);
 
 void dfilter_macro_cleanup(void);
 

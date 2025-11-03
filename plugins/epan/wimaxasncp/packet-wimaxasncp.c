@@ -31,6 +31,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/ws_padding_to.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/application_flavor.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
@@ -3269,7 +3270,7 @@ register_wimaxasncp_fields(const char* unused _U_)
      * load the XML dictionary
      * ------------------------------------------------------------------------
      */
-    char* dir = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "wimaxasncp" G_DIR_SEPARATOR_S "dictionary.xml", get_datafile_dir());
+    char* dir = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "wimaxasncp" G_DIR_SEPARATOR_S "dictionary.xml", get_datafile_dir(application_configuration_environment_prefix()));
     bool success = wimaxasncp_dictionary_process_file(dir, &all_tlvs);
     g_free(dir);
 

@@ -99,7 +99,7 @@ getc_crlf(FILE *ff)
 }
 
 filter_list_t *
-ws_filter_list_read(filter_list_type_t list_type)
+ws_filter_list_read(filter_list_type_t list_type, const char* app_env_var_prefix)
 {
     const char *ff_name, *ff_description;
     char       *ff_path;
@@ -137,7 +137,7 @@ ws_filter_list_read(filter_list_type_t list_type)
     }
 
     /* try to open personal "cfilters"/"dfilters" file */
-    ff_path = get_persconffile_path(ff_name, true);
+    ff_path = get_persconffile_path(ff_name, true, app_env_var_prefix);
     if ((ff = ws_fopen(ff_path, "r")) == NULL) {
         /*
          * Did that fail because the file didn't exist?
@@ -156,7 +156,7 @@ ws_filter_list_read(filter_list_type_t list_type)
          * Yes. Try to open the global "cfilters/dfilters" file.
          */
         g_free(ff_path);
-        ff_path = get_datafile_path(ff_name);
+        ff_path = get_datafile_path(ff_name, app_env_var_prefix);
         if ((ff = ws_fopen(ff_path, "r")) == NULL) {
             /*
              * Well, that didn't work, either.  Just give up.
@@ -371,7 +371,7 @@ ws_filter_list_remove(filter_list_t *list, const char *name)
  * On error, report the error via the UI.
  */
 void
-ws_filter_list_write(filter_list_t *list)
+ws_filter_list_write(filter_list_t *list, const char* app_env_var_prefix)
 {
     char        *pf_dir_path;
     const char *ff_name, *ff_description;
@@ -407,14 +407,14 @@ ws_filter_list_write(filter_list_t *list)
 
     /* Create the directory that holds personal configuration files,
        if necessary.  */
-    if (create_persconffile_dir(&pf_dir_path) == -1) {
+    if (create_persconffile_dir(app_env_var_prefix, &pf_dir_path) == -1) {
         report_failure("Can't create directory\n\"%s\"\nfor filter files: %s.",
                 pf_dir_path, g_strerror(errno));
         g_free(pf_dir_path);
         return;
     }
 
-    ff_path = get_persconffile_path(ff_name, true);
+    ff_path = get_persconffile_path(ff_name, true, app_env_var_prefix);
 
     /* Write to "XXX.new", and rename if that succeeds.
        That means we don't trash the file if we fail to write it out

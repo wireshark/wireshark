@@ -11,6 +11,7 @@
 
 #include <wsutil/filter_files.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 
 #include "filter_dialog.h"
 #include <ui_filter_dialog.h>
@@ -93,7 +94,7 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
 
     connect(ui->filterTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FilterDialog::selectionChanged);
 
-    QString abs_path = gchar_free_to_qstring(get_persconffile_path(filename, true));
+    QString abs_path = gchar_free_to_qstring(get_persconffile_path(filename, true, application_configuration_environment_prefix()));
     if (file_exists(abs_path.toUtf8().constData())) {
         ui->pathLabel->setText(abs_path);
         ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());

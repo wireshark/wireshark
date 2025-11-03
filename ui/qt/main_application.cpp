@@ -21,6 +21,7 @@
 #include <errno.h>
 
 #include "wsutil/filesystem.h"
+#include "wsutil/application_flavor.h"
 
 #include "epan/addr_resolv.h"
 #include "epan/column-utils.h"
@@ -408,16 +409,17 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
     char  *rf_path;
     int    rf_open_errno;
     char *err_msg = NULL;
+    const char* env_prefix = application_configuration_environment_prefix();
 
     bool prev_capture_no_interface_load;
     bool prev_capture_no_extcap;
 
     /* First check if profile exists */
-    if (!profile_exists(profile_name, false)) {
-        if (profile_exists(profile_name, true)) {
+    if (!profile_exists(env_prefix, profile_name, false)) {
+        if (profile_exists(env_prefix, profile_name, true)) {
             char  *pf_dir_path, *pf_dir_path2, *pf_filename;
             /* Copy from global profile */
-            if (create_persconffile_profile(profile_name, &pf_dir_path) == -1) {
+            if (create_persconffile_profile(env_prefix, profile_name, &pf_dir_path) == -1) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Can't create directory\n\"%s\":\n%s.",
                     pf_dir_path, g_strerror(errno));
@@ -425,7 +427,7 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
                 g_free(pf_dir_path);
             }
 
-            if (copy_persconffile_profile(profile_name, profile_name, true, &pf_filename,
+            if (copy_persconffile_profile(env_prefix, profile_name, profile_name, true, &pf_filename,
                     &pf_dir_path, &pf_dir_path2) == -1) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
@@ -452,7 +454,7 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
     /* Get the current geometry, before writing it to disk */
     emit profileChanging();
 
-    if (write_recent_file && profile_exists(get_profile_name(), false))
+    if (write_recent_file && profile_exists(env_prefix, get_profile_name(), false))
     {
         /* Write recent file for profile we are leaving, if it still exists */
         write_profile_recent();
@@ -1212,6 +1214,7 @@ void MainApplication::loadLanguage(const QString newLanguage)
 {
     QLocale locale;
     QString localeLanguage;
+    const char* env_prefix = application_configuration_environment_prefix();
 
     if (newLanguage.isEmpty() || newLanguage == USE_SYSTEM_LANGUAGE) {
         locale = QLocale::system();
@@ -1225,21 +1228,21 @@ void MainApplication::loadLanguage(const QString newLanguage)
     switchTranslator(mainApp->translator,
             QStringLiteral("wireshark_%1.qm").arg(localeLanguage), QStringLiteral(":/i18n/"));
     if (QFile::exists(QStringLiteral("%1/%2/wireshark_%3.qm")
-            .arg(get_datafile_dir()).arg("languages").arg(localeLanguage)))
+            .arg(get_datafile_dir(env_prefix)).arg("languages").arg(localeLanguage)))
         switchTranslator(mainApp->translator,
-                QStringLiteral("wireshark_%1.qm").arg(localeLanguage), QStringLiteral("%1/languages").arg(get_datafile_dir()));
+                QStringLiteral("wireshark_%1.qm").arg(localeLanguage), QStringLiteral("%1/languages").arg(get_datafile_dir(env_prefix)));
     if (QFile::exists(QStringLiteral("%1/wireshark_%3.qm")
-            .arg(gchar_free_to_qstring(get_persconffile_path("languages", false))).arg(localeLanguage)))
+            .arg(gchar_free_to_qstring(get_persconffile_path("languages", false, env_prefix))).arg(localeLanguage)))
         switchTranslator(mainApp->translator,
-                QStringLiteral("wireshark_%1.qm").arg(localeLanguage), gchar_free_to_qstring(get_persconffile_path("languages", false)));
+                QStringLiteral("wireshark_%1.qm").arg(localeLanguage), gchar_free_to_qstring(get_persconffile_path("languages", false, env_prefix)));
     if (QFile::exists(QStringLiteral("%1/qt_%2.qm")
-            .arg(get_datafile_dir()).arg(localeLanguage))) {
+            .arg(get_datafile_dir(env_prefix)).arg(localeLanguage))) {
         switchTranslator(mainApp->translatorQt,
-                QStringLiteral("qt_%1.qm").arg(localeLanguage), QString(get_datafile_dir()));
+                QStringLiteral("qt_%1.qm").arg(localeLanguage), QString(get_datafile_dir(env_prefix)));
     } else if (QFile::exists(QStringLiteral("%1/qt_%2.qm")
-            .arg(get_datafile_dir()).arg(localeLanguage.left(localeLanguage.lastIndexOf('_'))))) {
+            .arg(get_datafile_dir(env_prefix)).arg(localeLanguage.left(localeLanguage.lastIndexOf('_'))))) {
         switchTranslator(mainApp->translatorQt,
-                QStringLiteral("qt_%1.qm").arg(localeLanguage.left(localeLanguage.lastIndexOf('_'))), QString(get_datafile_dir()));
+                QStringLiteral("qt_%1.qm").arg(localeLanguage.left(localeLanguage.lastIndexOf('_'))), QString(get_datafile_dir(env_prefix)));
     } else {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         QString translationPath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
@@ -1444,7 +1447,7 @@ void MainApplication::gotoFrame(int frame)
 
 void MainApplication::reloadDisplayFilterMacros()
 {
-    dfilter_macro_reload();
+    dfilter_macro_reload(application_configuration_environment_prefix());
     // The signal is needed when the display filter grammar changes for
     // any reason (not just "fields".)
     mainApp->emitAppSignal(MainApplication::FieldsChanged);

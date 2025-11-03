@@ -36,6 +36,7 @@
 #include <wsutil/ws_pipe.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/file_compressed.h>
+#include <wsutil/application_flavor.h>
 
 #ifdef _WIN32
 #include <wsutil/win32-utils.h>
@@ -380,7 +381,7 @@ static bool get_filter_arguments(capture_options* capture_opts, const char* arg)
                 GList* filterItem;
 
                 if (capture_opts->capture_filters_list == NULL)
-                    capture_opts->capture_filters_list = ws_filter_list_read(CFILTER_LIST);
+                    capture_opts->capture_filters_list = ws_filter_list_read(CFILTER_LIST, application_configuration_environment_prefix());
                 filterItem = capture_opts->capture_filters_list->list;
                 while (filterItem != NULL) {
                     filter_def* filterDef;

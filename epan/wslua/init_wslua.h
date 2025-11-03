@@ -17,7 +17,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 WS_DLL_PUBLIC int wslua_count_plugins(void);
-WS_DLL_PUBLIC void wslua_reload_plugins (register_cb cb, void *client_data);
+WS_DLL_PUBLIC void wslua_reload_plugins (register_cb cb, void *client_data, const char* app_env_var_prefix);
 
 typedef void (*wslua_plugin_description_callback)(const char *, const char *,
                                                   const char *, const char *,

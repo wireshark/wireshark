@@ -17,6 +17,7 @@
 #include <ui/qt/models/pref_models.h>
 #include <ui/qt/utils/color_utils.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QDebug>
@@ -66,8 +67,8 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     QIcon language_icon = QIcon(li_path);
     ui->languageComboBox->setItemIcon(0, language_icon);
 
-    QString globalLanguagesPath(QStringLiteral("%1/languages/").arg(get_datafile_dir()));
-    QString userLanguagesPath(gchar_free_to_qstring(get_persconffile_path("languages/", false)));
+    QString globalLanguagesPath(QStringLiteral("%1/languages/").arg(get_datafile_dir(application_configuration_environment_prefix())));
+    QString userLanguagesPath(gchar_free_to_qstring(get_persconffile_path("languages/", false, application_configuration_environment_prefix())));
 
     QStringList filenames = QDir(":/i18n/").entryList(QStringList("wireshark_*.qm"));
     filenames += QDir(globalLanguagesPath).entryList(QStringList("wireshark_*.qm"));

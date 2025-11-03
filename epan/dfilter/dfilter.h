@@ -52,7 +52,7 @@ df_error_free(df_error_t **ep);
 
 /* Module-level initialization */
 void
-dfilter_init(void);
+dfilter_init(const char* app_env_var_prefix);
 
 /* Module-level cleanup */
 void

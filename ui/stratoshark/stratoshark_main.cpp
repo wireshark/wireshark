@@ -557,7 +557,7 @@ int main(int argc, char *qt_argv[])
     init_report_alert_box("Stratoshark");
 
     /* Create the user profiles directory */
-    if (create_profiles_dir(&rf_path) == -1) {
+    if (create_profiles_dir(application_configuration_environment_prefix(), &rf_path) == -1) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
                       "Could not create profiles directory\n\"%s\": %s.",
                       rf_path, g_strerror(errno));
@@ -714,7 +714,7 @@ int main(int argc, char *qt_argv[])
 #endif
 
     /* Register all audio codecs. */
-    codecs_init();
+    codecs_init(application_configuration_environment_prefix());
 
     // Read the dynamic part of the recent file. This determines whether or
     // not the recent list appears in the main window so the earlier we can

@@ -36,6 +36,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/version_info.h>
+#include <wsutil/application_flavor.h>
 
 #include "conversation.h"
 #include "except.h"
@@ -295,7 +296,7 @@ epan_init(register_cb cb, void *client_data, bool load_plugins)
 
 	if (load_plugins) {
 #ifdef HAVE_PLUGINS
-		libwireshark_plugins = plugins_init(WS_PLUGIN_EPAN);
+		libwireshark_plugins = plugins_init(WS_PLUGIN_EPAN, application_configuration_environment_prefix());
 #endif
 	}
 
@@ -349,13 +350,13 @@ epan_init(register_cb cb, void *client_data, bool load_plugins)
 		proto_init(epan_plugin_register_all_procotols, epan_plugin_register_all_handoffs, cb, client_data);
 		g_slist_foreach(epan_plugins, epan_plugin_register_all_tap_listeners, NULL);
 		packet_cache_proto_handles();
-		dfilter_init();
+		dfilter_init(application_configuration_environment_prefix());
 		wscbor_init();
 		final_registration_all_protocols();
 		print_cache_field_handles();
 		expert_packet_init();
 #ifdef HAVE_LUA
-		wslua_init(cb, client_data);
+		wslua_init(cb, client_data, application_configuration_environment_prefix());
 #endif
 		g_slist_foreach(epan_plugins, epan_plugin_post_init, NULL);
 		uat_load_all();

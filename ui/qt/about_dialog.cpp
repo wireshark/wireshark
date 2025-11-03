@@ -31,8 +31,10 @@
 #include "ui/util.h"
 
 #include "wsutil/filesystem.h"
+#include "wsutil/application_flavor.h"
 #include "wsutil/plugins.h"
 #include "wsutil/version_info.h"
+#include "wsutil/path_config.h"
 
 #include "ui/capture_globals.h"
 
@@ -211,6 +213,9 @@ QStringList ShortcutListModel::headerColumns() const
 FolderListModel::FolderListModel(QObject * parent):
         AStringListListModel(parent)
 {
+    const char* env_prefix = application_configuration_environment_prefix();
+    const char* extcap_dir = application_flavor_is_wireshark() ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR;
+
     /* "file open" */
     appendRow(QStringList() << tr("\"File\" dialog location") << get_open_dialog_initial_dir() << tr("Capture files"));
 
@@ -220,41 +225,41 @@ FolderListModel::FolderListModel(QObject * parent):
 
     /* pers conf */
     appendRow(QStringList() << tr("Personal configuration")
-            << gchar_free_to_qstring(get_persconffile_path("", false))
+            << gchar_free_to_qstring(get_persconffile_path("", false, env_prefix))
             << tr("Preferences, profiles, manuf, …"));
 
     /* global conf */
-    QString dirPath = get_datafile_dir();
+    QString dirPath = get_datafile_dir(env_prefix);
     if (! dirPath.isEmpty()) {
         appendRow (QStringList() << tr("Global configuration") << dirPath
                 << tr("Preferences, profiles, manuf, …"));
     }
 
     /* system */
-    appendRow(QStringList() << tr("System") << get_systemfile_dir() << tr("ethers, ipxnets"));
+    appendRow(QStringList() << tr("System") << get_systemfile_dir(env_prefix) << tr("ethers, ipxnets"));
 
     /* program */
     appendRow(QStringList() << tr("Program") << get_progfile_dir() << tr("Program files"));
 
 #ifdef HAVE_PLUGINS
     /* pers plugins */
-    appendRow(QStringList() << tr("Personal Plugins") << get_plugins_pers_dir_with_version() << tr("Binary plugins"));
+    appendRow(QStringList() << tr("Personal Plugins") << get_plugins_pers_dir_with_version(env_prefix) << tr("Binary plugins"));
 
     /* global plugins */
-    appendRow(QStringList() << tr("Global Plugins") << get_plugins_dir_with_version() << tr("Binary plugins"));
+    appendRow(QStringList() << tr("Global Plugins") << get_plugins_dir_with_version(env_prefix) << tr("Binary plugins"));
 #endif
 
 #ifdef HAVE_LUA
     /* pers plugins */
-    appendRow(QStringList() << tr("Personal Lua Plugins") << get_plugins_pers_dir() << tr("Lua scripts"));
+    appendRow(QStringList() << tr("Personal Lua Plugins") << get_plugins_pers_dir(env_prefix) << tr("Lua scripts"));
 
     /* global plugins */
-    appendRow(QStringList() << tr("Global Lua Plugins") << get_plugins_dir() << tr("Lua scripts"));
+    appendRow(QStringList() << tr("Global Lua Plugins") << get_plugins_dir(env_prefix) << tr("Lua scripts"));
 #endif
 
     /* Extcap */
-    appendRow(QStringList() << tr("Personal Extcap path") << QString(get_extcap_pers_dir()) << tr("External capture (extcap) plugins"));
-    appendRow(QStringList() << tr("Global Extcap path") << QString(get_extcap_dir()) << tr("External capture (extcap) plugins"));
+    appendRow(QStringList() << tr("Personal Extcap path") << QString(get_extcap_pers_dir(env_prefix)) << tr("External capture (extcap) plugins"));
+    appendRow(QStringList() << tr("Global Extcap path") << QString(get_extcap_dir(env_prefix, extcap_dir)) << tr("External capture (extcap) plugins"));
 
 #ifdef HAVE_MAXMINDDB
     /* MaxMind DB */

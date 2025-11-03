@@ -141,7 +141,7 @@ char *apply_profile_changes(void)
         profile1 = (profile_def *) fl1->data;
         g_strstrip(profile1->name);
         if (profile1->status == PROF_STAT_COPY) {
-            if (create_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
+            if (create_persconffile_profile(application_configuration_environment_prefix(), profile1->name, &pf_dir_path) == -1) {
                 err_msg = ws_strdup_printf("Can't create directory\n\"%s\":\n%s.",
                         pf_dir_path, g_strerror(errno));
 
@@ -151,7 +151,7 @@ char *apply_profile_changes(void)
             profile1->status = PROF_STAT_EXISTS;
 
             if (profile1->reference) {
-                if (copy_persconffile_profile(profile1->name, profile1->reference, profile1->from_global,
+                if (copy_persconffile_profile(application_configuration_environment_prefix(), profile1->name, profile1->reference, profile1->from_global,
                             &pf_filename, &pf_dir_path, &pf_dir_path2) == -1) {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                             "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
@@ -178,7 +178,7 @@ char *apply_profile_changes(void)
         if (profile1->status == PROF_STAT_NEW) {
             /* We do not create a directory for the default profile */
             if (strcmp(profile1->name, DEFAULT_PROFILE)!=0  && ! profile1->is_import) {
-                if (create_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
+                if (create_persconffile_profile(application_configuration_environment_prefix(), profile1->name, &pf_dir_path) == -1) {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                             "Can't create directory\n\"%s\":\n%s.",
                             pf_dir_path, g_strerror(errno));
@@ -199,7 +199,7 @@ char *apply_profile_changes(void)
         } else if (profile1->status == PROF_STAT_CHANGED) {
             if (strcmp(profile1->reference, profile1->name)!=0) {
                 /* Rename old profile directory to new */
-                if (rename_persconffile_profile(profile1->reference, profile1->name,
+                if (rename_persconffile_profile(application_configuration_environment_prefix(), profile1->reference, profile1->name,
                             &pf_dir_path, &pf_dir_path2) == -1) {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                             "Can't rename directory\n\"%s\" to\n\"%s\":\n%s.",
@@ -237,7 +237,7 @@ char *apply_profile_changes(void)
         }
         if (!found) {
             /* Exists in existing list and not in edited, this is a deleted profile */
-            if (delete_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
+            if (delete_persconffile_profile(application_configuration_environment_prefix(), profile1->name, &pf_dir_path) == -1) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                         "Can't delete profile directory\n\"%s\":\n%s.",
                         pf_dir_path, g_strerror(errno));
@@ -352,7 +352,7 @@ init_profile_list(void)
     load_profile_settings((profile_def *)item->data);
 
     /* Local (user) profiles */
-    profiles_dir = get_profiles_dir();
+    profiles_dir = get_profiles_dir(application_configuration_environment_prefix());
     if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
             name = ws_dir_get_name(file);
@@ -376,7 +376,7 @@ init_profile_list(void)
     g_list_free_full(local_profiles, g_free);
 
     /* Global profiles */
-    profiles_dir = get_global_profiles_dir();
+    profiles_dir = get_global_profiles_dir(application_configuration_environment_prefix());
     if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
             name = ws_dir_get_name(file);
@@ -448,8 +448,8 @@ bool delete_current_profile(void) {
     const char *name = get_profile_name();
     char        *pf_dir_path;
 
-    if (profile_exists(name, false) && strcmp (name, DEFAULT_PROFILE) != 0) {
-        if (delete_persconffile_profile(name, &pf_dir_path) == -1) {
+    if (profile_exists(application_configuration_environment_prefix(), name, false) && strcmp (name, DEFAULT_PROFILE) != 0) {
+        if (delete_persconffile_profile(application_configuration_environment_prefix(), name, &pf_dir_path) == -1) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Can't delete profile directory\n\"%s\":\n%s.",
                     pf_dir_path, g_strerror(errno));
@@ -469,7 +469,7 @@ bool delete_current_profile(void) {
 
 static char *get_profile_settings_path(const char *profile_name, bool is_global) {
     char *profile_settings_path;
-    char *profile_dir = get_profile_dir(profile_name, is_global);
+    char *profile_dir = get_profile_dir(application_configuration_environment_prefix(), profile_name, is_global);
     profile_settings_path = g_build_filename(profile_dir, PROFILE_SETTINGS_FILENAME, NULL);
     g_free(profile_dir);
 

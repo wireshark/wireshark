@@ -21,6 +21,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
+#include <wsutil/application_flavor.h>
 
 #include <cli_main.h>
 #include <wsutil/cmdarg_err.h>
@@ -322,7 +323,7 @@ int main(int argc, char* argv[])
         g_free(err_msg);
     }
 
-    help_url = data_file_url("etwdump.html");
+    help_url = data_file_url("etwdump.html", application_configuration_environment_prefix());
     extcap_base_set_util_info(extcap_conf, argv[0], ETWDUMP_VERSION_MAJOR, ETWDUMP_VERSION_MINOR,
         ETWDUMP_VERSION_RELEASE, help_url);
     g_free(help_url);

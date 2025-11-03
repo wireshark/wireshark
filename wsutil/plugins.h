@@ -35,7 +35,7 @@ typedef enum {
 #define WS_PLUGIN_DESC_TAP_LISTENER (1UL << 4)
 #define WS_PLUGIN_DESC_DFILTER      (1UL << 5)
 
-WS_DLL_PUBLIC plugins_t *plugins_init(plugin_type_e type);
+WS_DLL_PUBLIC plugins_t *plugins_init(plugin_type_e type, const char* app_env_var_prefix);
 
 typedef void (*plugin_description_callback)(const char *name, const char *version,
                                             uint32_t flags, const char *filename,

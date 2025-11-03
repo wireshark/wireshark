@@ -31,6 +31,7 @@
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_getopt.h>
+#include <wsutil/application_flavor.h>
 
 #ifndef _WIN32
 #include <sys/un.h>
@@ -313,7 +314,7 @@ sharkd_init(int argc, char **argv)
 
             switch (opt) {
                 case 'C':        /* Configuration Profile */
-                    if (profile_exists(ws_optarg, false)) {
+                    if (profile_exists(application_configuration_environment_prefix(), ws_optarg, false)) {
                         set_profile_name(ws_optarg);  // In Daemon Mode, we may need to do this again in the child process
                     }
                     else {

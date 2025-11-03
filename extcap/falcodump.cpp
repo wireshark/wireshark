@@ -291,8 +291,8 @@ static void load_plugins(sinsp &inspector) {
     char *plugin_paths[] = {
         // XXX Falco plugins should probably be installed in a path that reflects
         // the Falco version or its plugin API version.
-        g_build_filename(get_plugins_dir(), "falco", NULL),
-        g_build_filename(get_plugins_pers_dir(), "falco", NULL)
+        g_build_filename(get_plugins_dir(application_configuration_environment_prefix()), "falco", NULL),
+        g_build_filename(get_plugins_pers_dir(application_configuration_environment_prefix()), "falco", NULL)
     };
 
     for (size_t idx = 0; idx < 2; idx++) {
@@ -858,7 +858,7 @@ int main(int argc, char **argv)
         goto end;
     }
 
-    help_url = data_file_url("falcodump.html");
+    help_url = data_file_url("falcodump.html", application_configuration_environment_prefix());
     extcap_base_set_util_info(extcap_conf, argv[0], FALCODUMP_VERSION_MAJOR, FALCODUMP_VERSION_MINOR,
             FALCODUMP_VERSION_RELEASE, help_url);
     g_free(help_url);

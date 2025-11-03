@@ -43,25 +43,16 @@ const char *application_flavor_name_lower(void) {
     }
 }
 
-char* application_configuration_environment_variable(const char* suffix)
+const char* application_configuration_environment_prefix(void)
 {
     switch (application_flavor) {
     case APPLICATION_FLAVOR_WIRESHARK:
-        return g_strdup_printf("WIRESHARK_%s", suffix);
+        return "WIRESHARK";
     case APPLICATION_FLAVOR_STRATOSHARK:
-        return g_strdup_printf("STRATOSHARK_%s", suffix);
+        return "STRATOSHARK";
     default:
         ws_assert_not_reached();
     }
-}
-
-char* application_extcap_dir(const char* install_prefix)
-{
-    if (g_path_is_absolute(EXTCAP_DIR))
-        return g_strdup(application_flavor == APPLICATION_FLAVOR_WIRESHARK ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR);
-
-    return g_build_filename(install_prefix,
-        application_flavor == APPLICATION_FLAVOR_WIRESHARK ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR, (char*)NULL);
 }
 
 bool application_flavor_is_wireshark(void)

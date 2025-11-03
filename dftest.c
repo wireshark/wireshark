@@ -37,6 +37,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_getopt.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/application_flavor.h>
 
 #include <wiretap/wtap.h>
 
@@ -404,7 +405,7 @@ main(int argc, char **argv)
                 opt_show_types = 1;
                 break;
             case 'C':   /* Configuration Profile */
-                if (profile_exists (ws_optarg, false)) {
+                if (profile_exists (application_configuration_environment_prefix(), ws_optarg, false)) {
                     set_profile_name (ws_optarg);
                 } else {
                     cmdarg_err("Configuration Profile \"%s\" does not exist", ws_optarg);

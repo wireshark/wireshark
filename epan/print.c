@@ -28,6 +28,7 @@
 #include <wsutil/array.h>
 #include <wsutil/json_dumper.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/str_util.h>
 #include <wsutil/ws_assert.h>
@@ -273,7 +274,7 @@ write_pdml_preamble(FILE *fh, const char *filename)
 
     fprintf(fh, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
     fprintf(fh, "<?xml-stylesheet type=\"text/xsl\" href=\"" PDML2HTML_XSL "\"?>\n");
-    fprintf(fh, "<!-- You can find " PDML2HTML_XSL " in %s or at "PDML2HTML_URL PDML2HTML_XSL ". -->\n", get_doc_dir());
+    fprintf(fh, "<!-- You can find " PDML2HTML_XSL " in %s or at "PDML2HTML_URL PDML2HTML_XSL ". -->\n", get_doc_dir(application_configuration_environment_prefix()));
     fprintf(fh, "<pdml version=\"" PDML_VERSION "\" creator=\"%s/%s\" time=\"%s\" capture_file=\"", PACKAGE, VERSION, ts);
     if (filename) {
         /* \todo filename should be converted to UTF-8. */

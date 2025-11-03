@@ -14,6 +14,7 @@
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/models/filter_list_model.h>
 #include <ui/qt/models/profile_model.h>
+#include <wsutil/application_flavor.h>
 
 #include <QFile>
 #include <QTextStream>
@@ -64,9 +65,9 @@ void FilterListModel::reload()
     }
 
     /* Try personal config file first */
-    QString fileName = gchar_free_to_qstring(get_persconffile_path(cfile, true));
+    QString fileName = gchar_free_to_qstring(get_persconffile_path(cfile, true, application_configuration_environment_prefix()));
     if (fileName.length() <= 0 || ! QFileInfo::exists(fileName))
-        fileName = gchar_free_to_qstring(get_datafile_path(cfile));
+        fileName = gchar_free_to_qstring(get_datafile_path(cfile, application_configuration_environment_prefix()));
     if (fileName.length() <= 0 || ! QFileInfo::exists(fileName))
         return;
 

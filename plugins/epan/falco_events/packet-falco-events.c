@@ -57,6 +57,7 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/report_message.h>
 #include <wsutil/strtoi.h>
@@ -1876,8 +1877,8 @@ proto_register_falcoplugin(void)
     char *filename;
     // XXX Falco plugins should probably be installed in a path that reflects
     // the Falco version or its plugin API version.
-    char *spdname = g_build_filename(get_plugins_dir(), "falco", NULL);
-    char *ppdname = g_build_filename(get_plugins_pers_dir(), "falco", NULL);
+    char *spdname = g_build_filename(get_plugins_dir(application_configuration_environment_prefix()), "falco", NULL);
+    char *ppdname = g_build_filename(get_plugins_pers_dir(application_configuration_environment_prefix()), "falco", NULL);
 
     /*
      * We scan the plugins directory twice. The first time we count how many

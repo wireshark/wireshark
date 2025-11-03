@@ -52,6 +52,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/report_message.h>
 #include <wsutil/application_flavor.h>
+#include <wsutil/path_config.h>
 #include <cli_main.h>
 #include <wsutil/version_info.h>
 #include <wiretap/wtap_opttypes.h>
@@ -778,6 +779,7 @@ about_folders(void)
     char                 *path;
     int                   i;
     char                **resultArray;
+    const char           *env_prefix = application_configuration_environment_prefix();
 
     /* "file open" */
 
@@ -796,18 +798,18 @@ about_folders(void)
     printf("%-21s\t%s\n", "Temp:", constpath);
 
     /* pers conf */
-    path = get_persconffile_path("", false);
+    path = get_persconffile_path("", false, env_prefix);
     printf("%-21s\t%s\n", "Personal configuration:", path);
     g_free(path);
 
     /* global conf */
-    constpath = get_datafile_dir();
+    constpath = get_datafile_dir(env_prefix);
     if (constpath != NULL) {
         printf("%-21s\t%s\n", "Global configuration:", constpath);
     }
 
     /* system */
-    constpath = get_systemfile_dir();
+    constpath = get_systemfile_dir(env_prefix);
     printf("%-21s\t%s\n", "System:", constpath);
 
     /* program */
@@ -816,22 +818,22 @@ about_folders(void)
 
 #ifdef HAVE_PLUGINS
     /* pers plugins */
-    printf("%-21s\t%s\n", "Personal Plugins:", get_plugins_pers_dir_with_version());
+    printf("%-21s\t%s\n", "Personal Plugins:", get_plugins_pers_dir_with_version(env_prefix));
 
     /* global plugins */
-    printf("%-21s\t%s\n", "Global Plugins:", get_plugins_dir_with_version());
+    printf("%-21s\t%s\n", "Global Plugins:", get_plugins_dir_with_version(env_prefix));
 #endif
 
 #ifdef HAVE_LUA
     /* pers lua plugins */
-    printf("%-21s\t%s\n", "Personal Lua Plugins:", get_plugins_pers_dir());
+    printf("%-21s\t%s\n", "Personal Lua Plugins:", get_plugins_pers_dir(env_prefix));
 
     /* global lua plugins */
-    printf("%-21s\t%s\n", "Global Lua Plugins:", get_plugins_dir());
+    printf("%-21s\t%s\n", "Global Lua Plugins:", get_plugins_dir(env_prefix));
 #endif
 
     /* Personal Extcap */
-    constpath = get_extcap_pers_dir();
+    constpath = get_extcap_pers_dir(env_prefix);
 
     resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
     for(i = 0; resultArray[i]; i++)
@@ -840,7 +842,7 @@ about_folders(void)
     g_strfreev(resultArray);
 
     /* Global Extcap */
-    constpath = get_extcap_dir();
+    constpath = get_extcap_dir(env_prefix, EXTCAP_DIR);
 
     resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
     for(i = 0; resultArray[i]; i++)
@@ -943,7 +945,7 @@ dump_glossary(const char* glossary, const char* elastic_mapping_filter)
         global_services_dump(stdout);
     else if (strcmp(glossary, "plugins") == 0) {
 #ifdef HAVE_PLUGINS
-        codecs_init();
+        codecs_init(application_configuration_environment_prefix());
         plugins_dump_all();
 #endif
 #ifdef HAVE_LUA
@@ -1225,7 +1227,7 @@ main(int argc, char *argv[])
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case LONGOPT_GLOBAL_PROFILE:
-                    set_persconffile_dir(get_datafile_dir());
+                    set_persconffile_dir(get_datafile_dir(application_configuration_environment_prefix()));
                     break;
             default:
                 break;
@@ -1242,12 +1244,12 @@ main(int argc, char *argv[])
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case 'C':        /* Configuration Profile */
-                if (profile_exists (ws_optarg, false)) {
+                if (profile_exists(application_configuration_environment_prefix(), ws_optarg, false)) {
                     set_profile_name (ws_optarg);
-                } else if (profile_exists (ws_optarg, true)) {
+                } else if (profile_exists(application_configuration_environment_prefix(), ws_optarg, true)) {
                     char  *pf_dir_path, *pf_dir_path2, *pf_filename;
                     /* Copy from global profile */
-                    if (create_persconffile_profile(ws_optarg, &pf_dir_path) == -1) {
+                    if (create_persconffile_profile(application_configuration_environment_prefix(), ws_optarg, &pf_dir_path) == -1) {
                         cmdarg_err("Can't create directory\n\"%s\":\n%s.",
                             pf_dir_path, g_strerror(errno));
 
@@ -1255,7 +1257,7 @@ main(int argc, char *argv[])
                         exit_status = WS_EXIT_INVALID_FILE;
                         goto clean_exit;
                     }
-                    if (copy_persconffile_profile(ws_optarg, ws_optarg, true, &pf_filename,
+                    if (copy_persconffile_profile(application_configuration_environment_prefix(), ws_optarg, ws_optarg, true, &pf_filename,
                             &pf_dir_path, &pf_dir_path2) == -1) {
                         cmdarg_err("Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
                             pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));

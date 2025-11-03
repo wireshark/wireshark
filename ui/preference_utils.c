@@ -21,6 +21,7 @@
 #include <epan/decode_as.h>
 #include <epan/uat-int.h>
 #include <ui/recent.h>
+#include <wsutil/application_flavor.h>
 
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_opts.h"
@@ -55,7 +56,7 @@ prefs_main_write(void)
 
     /* Create the directory that holds personal configuration files, if
        necessary.  */
-    if (create_persconffile_dir(&pf_dir_path) == -1) {
+    if (create_persconffile_dir(application_configuration_environment_prefix(), &pf_dir_path) == -1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "Can't create directory\n\"%s\"\nfor preferences file: %s.", pf_dir_path,
                 g_strerror(errno));

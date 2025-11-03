@@ -858,7 +858,7 @@ write_recent(void)
 
     /* Create the directory that holds personal configuration files, if
        necessary.  */
-    if (create_persconffile_dir(&pf_dir_path) == -1) {
+    if (create_persconffile_dir(application_configuration_environment_prefix(), &pf_dir_path) == -1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "Can't create directory\n\"%s\"\nfor recent file: %s.", pf_dir_path,
                 g_strerror(errno));
@@ -866,7 +866,7 @@ write_recent(void)
         return false;
     }
 
-    rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, false);
+    rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, false, application_configuration_environment_prefix());
     if ((rf = ws_fopen(rf_path, "w")) == NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "Can't open recent file\n\"%s\": %s.", rf_path,
@@ -1003,7 +1003,7 @@ write_profile_recent(void)
 
     /* Create the directory that holds personal configuration files, if
        necessary.  */
-    if (create_persconffile_dir(&pf_dir_path) == -1) {
+    if (create_persconffile_dir(application_configuration_environment_prefix(), &pf_dir_path) == -1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "Can't create directory\n\"%s\"\nfor recent file: %s.", pf_dir_path,
                 g_strerror(errno));
@@ -1011,7 +1011,7 @@ write_profile_recent(void)
         return false;
     }
 
-    rf_path = get_persconffile_path(RECENT_FILE_NAME, true);
+    rf_path = get_persconffile_path(RECENT_FILE_NAME, true, application_configuration_environment_prefix());
     if ((rf = ws_fopen(rf_path, "w")) == NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "Can't open recent file\n\"%s\": %s.", rf_path,
@@ -1300,7 +1300,7 @@ read_set_recent_common_pair_static(char *key, const char *value,
         g_free(recent.gui_geometry_main);
         recent.gui_geometry_main = g_strdup(value);
     } else if (strcmp(key, RECENT_LAST_USED_PROFILE) == 0) {
-        if ((strcmp(value, DEFAULT_PROFILE) != 0) && profile_exists (value, false)) {
+        if ((strcmp(value, DEFAULT_PROFILE) != 0) && profile_exists(application_configuration_environment_prefix(), value, false)) {
             set_profile_name (value);
         }
     } else if (strcmp(key, RECENT_PROFILE_SWITCH_CHECK_COUNT) == 0) {
@@ -1633,7 +1633,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_fileopen_remembered_dir = NULL;
 
     /* Construct the pathname of the user's recent common file. */
-    rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, false);
+    rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, false, application_configuration_environment_prefix());
 
     /* Read the user's recent common file, if it exists. */
     *rf_path_return = NULL;
@@ -1731,7 +1731,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     }
 
     /* Construct the pathname of the user's profile recent file. */
-    rf_path = get_persconffile_path(RECENT_FILE_NAME, true);
+    rf_path = get_persconffile_path(RECENT_FILE_NAME, true, application_configuration_environment_prefix());
 
     /* Read the user's recent file, if it exists. */
     *rf_path_return = NULL;
@@ -1748,7 +1748,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
          *  know what's supposed to happen at this point.
          *  ToDo: Determine if the "recent common file" should be read at this point
          */
-        rf_common_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, false);
+        rf_common_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, false, application_configuration_environment_prefix());
         if (!file_exists(rf_common_path)) {
             /* Read older common settings from recent file */
             rf = ws_fopen(rf_path, "r");
@@ -1779,11 +1779,11 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
 
 
     /* Construct the pathname of the user's recent common file. */
-    rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, false);
+    rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, false, application_configuration_environment_prefix());
     if (!file_exists (rf_path)) {
         /* Recent common file does not exist, read from default recent */
         g_free (rf_path);
-        rf_path = get_persconffile_path(RECENT_FILE_NAME, false);
+        rf_path = get_persconffile_path(RECENT_FILE_NAME, false, application_configuration_environment_prefix());
     }
 
     /* Read the user's recent file, if it exists. */

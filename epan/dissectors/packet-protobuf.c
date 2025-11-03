@@ -42,6 +42,7 @@
 #include <wsutil/pint.h>
 #include <epan/ws_printf.h>
 #include <wsutil/report_message.h>
+#include <wsutil/application_flavor.h>
 
 #include "protobuf-helper.h"
 #include "epan/dissectors/packet-http.h"
@@ -2177,8 +2178,8 @@ protobuf_reinit(int target)
         source_paths = g_new0(char *, num_proto_paths + 1);
 
         /* Load the files in the global and personal config dirs */
-        source_paths[0] = get_datafile_path("protobuf");
-        source_paths[1] = get_persconffile_path("protobuf", true);
+        source_paths[0] = get_datafile_path("protobuf", application_configuration_environment_prefix());
+        source_paths[1] = get_persconffile_path("protobuf", true, application_configuration_environment_prefix());
 
         for (i = 0; i < num_protobuf_search_paths; ++i) {
             source_paths[i + 2] = protobuf_search_paths[i].path;

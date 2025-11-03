@@ -292,7 +292,7 @@ load_decode_as_entries(void)
 
     decode_clear_all();
 
-    daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true);
+    daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, application_configuration_environment_prefix());
     if ((daf = ws_fopen(daf_path, "r")) != NULL) {
         /* Store saved entries for better range processing */
         GHashTable* processed_entries = g_hash_table_new(g_str_hash, g_str_equal);
@@ -397,14 +397,14 @@ save_decode_as_entries(char** err)
     FILE *da_file;
     GList *decode_as_rows_list = NULL;
 
-    if (create_persconffile_dir(&pf_dir_path) == -1) {
+    if (create_persconffile_dir(application_configuration_environment_prefix(), &pf_dir_path) == -1) {
         *err = ws_strdup_printf("Can't create directory\n\"%s\"\nfor recent file: %s.",
                                 pf_dir_path, g_strerror(errno));
         g_free(pf_dir_path);
         return -1;
     }
 
-    daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true);
+    daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, application_configuration_environment_prefix());
     if ((da_file = ws_fopen(daf_path, "w")) == NULL) {
         *err = ws_strdup_printf("Can't open decode_as_entries file\n\"%s\": %s.",
                                 daf_path, g_strerror(errno));

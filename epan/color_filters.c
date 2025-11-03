@@ -27,6 +27,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/application_flavor.h>
 
 #include <epan/packet.h>
 #include "color_filters.h"
@@ -325,7 +326,7 @@ color_filters_get(char** err_msg, color_filter_add_cb_func add_cb)
      * Get the path for the file that would have their filters, and
      * try to open it.
      */
-    path = get_persconffile_path(COLORFILTERS_FILE_NAME, true);
+    path = get_persconffile_path(COLORFILTERS_FILE_NAME, true, application_configuration_environment_prefix());
     if ((f = ws_fopen(path, "r")) == NULL) {
         if (errno != ENOENT) {
             /* Error trying to open the file; give up. */
@@ -771,7 +772,7 @@ color_filters_read_globals(void *user_data, char** err_msg, color_filter_add_cb_
      * Get the path for the file that would have the global filters, and
      * try to open it.
      */
-    path = get_datafile_path(COLORFILTERS_FILE_NAME);
+    path = get_datafile_path(COLORFILTERS_FILE_NAME, application_configuration_environment_prefix());
     if ((f = ws_fopen(path, "r")) == NULL) {
         if (errno != ENOENT) {
             /* Error trying to open the file; give up. */
@@ -881,14 +882,14 @@ color_filters_write(GSList *cfl, char** err_msg)
 
     /* Create the directory that holds personal configuration files,
        if necessary.  */
-    if (create_persconffile_dir(&pf_dir_path) == -1) {
+    if (create_persconffile_dir(application_configuration_environment_prefix(), &pf_dir_path) == -1) {
         *err_msg = ws_strdup_printf("Can't create directory\n\"%s\"\nfor color files: %s.",
                       pf_dir_path, g_strerror(errno));
         g_free(pf_dir_path);
         return false;
     }
 
-    path = get_persconffile_path(COLORFILTERS_FILE_NAME, true);
+    path = get_persconffile_path(COLORFILTERS_FILE_NAME, true, application_configuration_environment_prefix());
     if ((f = ws_fopen(path, "w+")) == NULL) {
         *err_msg = ws_strdup_printf("Could not open\n%s\nfor writing: %s.",
                       path, g_strerror(errno));

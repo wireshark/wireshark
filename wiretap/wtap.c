@@ -29,6 +29,7 @@
 #include <wsutil/pint.h>
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
+#include <wsutil/application_flavor.h>
 #endif
 
 #ifdef HAVE_PLUGINS
@@ -2282,7 +2283,7 @@ wtap_init(bool load_wiretap_plugins)
 	wtap_init_file_type_subtypes();
 	if (load_wiretap_plugins) {
 #ifdef HAVE_PLUGINS
-		libwiretap_plugins = plugins_init(WS_PLUGIN_WIRETAP);
+		libwiretap_plugins = plugins_init(WS_PLUGIN_WIRETAP, application_configuration_environment_prefix());
 #endif
 		g_slist_foreach(wtap_plugins, call_plugin_register_wtap_module, NULL);
 	}

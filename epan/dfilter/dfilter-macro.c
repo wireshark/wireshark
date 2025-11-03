@@ -502,9 +502,9 @@ dfilter_macro_t *macro_new(const char *name, const char *text) {
 	return m;
 }
 
-void dfilter_macro_init(void) {
+void dfilter_macro_init(const char* app_env_var_prefix) {
 	macros_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)macro_free);
-	dfilter_macro_reload();
+	dfilter_macro_reload(app_env_var_prefix);
 }
 
 static bool check_macro(const char *name, const char *text, const char **errp)
@@ -530,7 +530,7 @@ static bool check_macro(const char *name, const char *text, const char **errp)
 	return true;
 }
 
-void dfilter_macro_reload(void) {
+void dfilter_macro_reload(const char* app_env_var_prefix) {
 
 	/* Check if we need to convert an old dfilter_macro configuration file.
 	 * We do so only if a new one doesn't exist. We need to do this check
@@ -539,7 +539,7 @@ void dfilter_macro_reload(void) {
 
 	g_hash_table_remove_all(macros_table);
 
-	filter_list_t *list = ws_filter_list_read(DMACROS_LIST);
+	filter_list_t *list = ws_filter_list_read(DMACROS_LIST, app_env_var_prefix);
 	const char *err;
 
 	for (GList *l = list->list; l != NULL; l = l->next) {

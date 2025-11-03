@@ -24,6 +24,7 @@
 #include "wsutil/inet_addr.h"
 #include "wsutil/time_util.h"
 #include "wsutil/filesystem.h"
+#include "wsutil/application_flavor.h"
 #include "wsutil/report_message.h"
 #include <wsutil/array.h>
 
@@ -183,7 +184,7 @@ ImportTextDialog::~ImportTextDialog()
 
 void ImportTextDialog::loadSettingsFile()
 {
-    QFileInfo fileInfo(gchar_free_to_qstring(get_profile_dir(get_profile_name(), false)), QString(SETTINGS_FILE));
+    QFileInfo fileInfo(gchar_free_to_qstring(get_profile_dir(application_configuration_environment_prefix(), get_profile_name(), false)), QString(SETTINGS_FILE));
     QFile loadFile(fileInfo.filePath());
 
     if (!fileInfo.exists() || !fileInfo.isFile()) {
@@ -200,7 +201,7 @@ void ImportTextDialog::loadSettingsFile()
 
 void ImportTextDialog::saveSettingsFile()
 {
-    QFileInfo fileInfo(gchar_free_to_qstring(get_profile_dir(get_profile_name(), false)), QString(SETTINGS_FILE));
+    QFileInfo fileInfo(gchar_free_to_qstring(get_profile_dir(application_configuration_environment_prefix(), get_profile_name(), false)), QString(SETTINGS_FILE));
     QFile saveFile(fileInfo.filePath());
 
     if (fileInfo.exists() && !fileInfo.isFile()) {

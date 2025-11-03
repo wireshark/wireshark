@@ -339,7 +339,7 @@ int main(int argc, char **argv)
         goto end;
     }
 
-    help_url = data_file_url("dumpcalls.html");
+    help_url = data_file_url("dumpcalls.html", application_configuration_environment_prefix());
     extcap_base_set_util_info(extcap_conf, argv[0], DUMPCALLS_VERSION_MAJOR, DUMPCALLS_VERSION_MINOR,
             DUMPCALLS_VERSION_RELEASE, help_url);
     g_free(help_url);

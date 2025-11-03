@@ -24,6 +24,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
+#include <wsutil/application_flavor.h>
 
 #include <errno.h>
 #include <string.h>
@@ -555,7 +556,7 @@ int main(int argc, char *argv[])
 		g_free(err_msg);
 	}
 
-	help_url = data_file_url("wifidump.html");
+	help_url = data_file_url("wifidump.html", application_configuration_environment_prefix());
 	extcap_base_set_util_info(extcap_conf, argv[0], WIFIDUMP_VERSION_MAJOR, WIFIDUMP_VERSION_MINOR,
 		WIFIDUMP_VERSION_RELEASE, help_url);
 	g_free(help_url);

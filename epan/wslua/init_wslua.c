@@ -52,6 +52,7 @@ struct _wslua_treeitem* lua_tree;
 tvbuff_t* lua_tvb;
 int lua_dissectors_table_ref = LUA_NOREF;
 int lua_heur_dissectors_table_ref = LUA_NOREF;
+const char* lua_app_env_var_prefix;
 
 static int proto_lua;
 
@@ -967,7 +968,7 @@ static int lua_load_plugins(const char *dirname, register_cb cb, void *client_da
 static int lua_load_global_plugins(register_cb cb, void *client_data,
                                     bool count_only)
 {
-    return lua_load_plugins(get_plugins_dir(), cb, client_data, count_only, false, NULL, 0);
+    return lua_load_plugins(get_plugins_dir(lua_app_env_var_prefix), cb, client_data, count_only, false, NULL, 0);
 }
 
 static int lua_load_pers_plugins(register_cb cb, void *client_data,
@@ -984,11 +985,11 @@ static int lua_load_pers_plugins(register_cb cb, void *client_data,
     GHashTable *loaded_user_scripts = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 
     /* load user scripts */
-    plugins_counter += lua_load_plugins(get_plugins_pers_dir(), cb, client_data, count_only, true, loaded_user_scripts, 0);
+    plugins_counter += lua_load_plugins(get_plugins_pers_dir(lua_app_env_var_prefix), cb, client_data, count_only, true, loaded_user_scripts, 0);
 
     /* for backward compatibility check old plugin directory */
-    char *old_path = get_persconffile_path("plugins", false);
-    if (strcmp(get_plugins_pers_dir(), old_path) != 0) {
+    char *old_path = get_persconffile_path("plugins", false, lua_app_env_var_prefix);
+    if (strcmp(get_plugins_pers_dir(lua_app_env_var_prefix), old_path) != 0) {
         plugins_counter += lua_load_plugins(old_path, cb, client_data, count_only, true, loaded_user_scripts, 0);
     }
     g_free(old_path);
@@ -1496,13 +1497,13 @@ void wslua_add_useful_constants(void)
     WSLUA_REG_GLOBAL_BOOL(L,"GUI_ENABLED",ops && ops->new_dialog);
 
     /* DATA_DIR has a trailing directory separator. */
-    path = get_datafile_path("");
+    path = get_datafile_path("", lua_app_env_var_prefix);
     lua_pushfstring(L, "%s"G_DIR_SEPARATOR_S, path);
     g_free(path);
     lua_setglobal(L, "DATA_DIR");
 
     /* USER_DIR has a trailing directory separator. */
-    path = get_persconffile_path("", false);
+    path = get_persconffile_path("", false, lua_app_env_var_prefix);
     lua_pushfstring(L, "%s"G_DIR_SEPARATOR_S, path);
     g_free(path);
     lua_setglobal(L, "USER_DIR");
@@ -1514,7 +1515,7 @@ void wslua_add_useful_constants(void)
     lua_setglobal(L, "typeof");
 }
 
-void wslua_init(register_cb cb, void *client_data) {
+void wslua_init(register_cb cb, void *client_data, const char* app_env_var_prefix) {
     char* filename;
     bool enable_lua = true;
     bool run_anyway = false;
@@ -1664,6 +1665,7 @@ void wslua_init(register_cb cb, void *client_data) {
         proto_register_subtree_array(ett, array_length(ett));
         expert_lua = expert_register_protocol(proto_lua);
         expert_register_field_array(expert_lua, ei, array_length(ei));
+        lua_app_env_var_prefix = app_env_var_prefix;
     }
 
     lua_atpanic(L,wslua_panic);
@@ -1741,11 +1743,11 @@ void wslua_init(register_cb cb, void *client_data) {
     /* wslua_dofile / wslua_get_actual_filename look in the datafile dir.
      * Should we add that to the path for require() as well, for consistency?
      */
-    prepend_path(get_datafile_dir());
+    prepend_path(get_datafile_dir(lua_app_env_var_prefix));
 #endif
     /* Add the global plugins path for require */
-    prepend_path(get_plugins_dir());
-    filename = g_build_filename(get_plugins_dir(), "init.lua", (char *)NULL);
+    prepend_path(get_plugins_dir(lua_app_env_var_prefix));
+    filename = g_build_filename(get_plugins_dir(lua_app_env_var_prefix), "init.lua", (char *)NULL);
     if (file_exists(filename)) {
         ws_debug("Loading init.lua file: %s", filename);
         lua_load_internal_script(filename);
@@ -1759,18 +1761,18 @@ void wslua_init(register_cb cb, void *client_data) {
         /* wslua_dofile / wslua_get_actual_filename look in the personal configuration
          * directory. Should we add that to the path for require() as well, for consistency?
          */
-        profile_dir = get_profile_dir(NULL, false);
+        profile_dir = get_profile_dir(lua_app_env_var_prefix, NULL, false);
         prepend_path(profile_dir);
         g_free(profile_dir);
 #endif
         /* Add the personal plugins path(s) for require() */
-        char *old_path = get_persconffile_path("plugins", false);
-        if (strcmp(get_plugins_pers_dir(), old_path) != 0) {
+        char *old_path = get_persconffile_path("plugins", false, lua_app_env_var_prefix);
+        if (strcmp(get_plugins_pers_dir(lua_app_env_var_prefix), old_path) != 0) {
             prepend_path(old_path);
         }
         g_free(old_path);
-        prepend_path(get_plugins_pers_dir());
-        filename = g_build_filename(get_plugins_pers_dir(), "init.lua", (char *)NULL);
+        prepend_path(get_plugins_pers_dir(lua_app_env_var_prefix));
+        filename = g_build_filename(get_plugins_pers_dir(lua_app_env_var_prefix), "init.lua", (char *)NULL);
         if (file_exists(filename)) {
             ws_debug("Loading init.lua file: %s", filename);
             lua_load_internal_script(filename);
@@ -1778,7 +1780,7 @@ void wslua_init(register_cb cb, void *client_data) {
         g_free(filename);
 
         /* For backward compatibility also load it from the configuration directory. */
-        filename = get_persconffile_path("init.lua", false);
+        filename = get_persconffile_path("init.lua", false, lua_app_env_var_prefix);
         if (file_exists(filename)) {
             ws_message("Loading init.lua file from deprecated path: %s", filename);
             lua_load_internal_script(filename);
@@ -1898,7 +1900,7 @@ void wslua_early_cleanup(void) {
     wslua_deregister_protocols(L);
 }
 
-void wslua_reload_plugins (register_cb cb, void *client_data) {
+void wslua_reload_plugins (register_cb cb, void *client_data, const char* app_env_var_prefix) {
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 
     if (cb)
@@ -1917,7 +1919,7 @@ void wslua_reload_plugins (register_cb cb, void *client_data) {
     wslua_clear_plugin_list();
 
     wslua_cleanup();
-    wslua_init(cb, client_data);    /* reinitialize */
+    wslua_init(cb, client_data, app_env_var_prefix);    /* reinitialize */
 }
 
 void wslua_cleanup(void) {

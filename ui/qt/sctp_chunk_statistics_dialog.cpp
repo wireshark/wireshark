@@ -14,6 +14,7 @@
 
 #include <wsutil/strtoi.h>
 #include <wsutil/wslog.h>
+#include <wsutil/application_flavor.h>
 
 #include "ui/tap-sctp-analysis.h"
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -229,7 +230,7 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
 
     if (!fp && errno == ENOENT) {
         char *pf_dir_path = NULL;
-        if (create_persconffile_dir(&pf_dir_path) != 0) {
+        if (create_persconffile_dir(application_configuration_environment_prefix(), &pf_dir_path) != 0) {
             g_free (pf_dir_path);
             return;
         }

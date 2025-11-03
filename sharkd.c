@@ -31,6 +31,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/version_info.h>
 #include <wsutil/report_message.h>
+#include <wsutil/application_flavor.h>
 #include <wiretap/wtap_opttypes.h>
 
 #include <epan/decode_as.h>
@@ -208,7 +209,7 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
-    codecs_init();
+    codecs_init(application_configuration_environment_prefix());
 
     /* Load libwireshark settings from the current profile. */
     prefs_p = epan_load_settings();

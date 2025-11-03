@@ -236,7 +236,7 @@ DIAG_ON_PEDANTIC
  * Scan for plugins.
  */
 plugins_t *
-plugins_init(plugin_type_e type)
+plugins_init(plugin_type_e type, const char* app_env_var_prefix)
 {
     if (!g_module_supported())
         return NULL; /* nothing to do */
@@ -246,7 +246,7 @@ plugins_init(plugin_type_e type)
     /*
      * Scan the global plugin directory.
      */
-    scan_plugins_dir(plugins_module, get_plugins_dir_with_version(), type, true);
+    scan_plugins_dir(plugins_module, get_plugins_dir_with_version(app_env_var_prefix), type, true);
 
     /*
      * If the program wasn't started with special privileges,
@@ -256,8 +256,8 @@ plugins_init(plugin_type_e type)
      * if we need privileges to start capturing, we'd need to
      * reclaim them before each time we start capturing.)
      */
-    if (!started_with_special_privs() && !files_identical(get_plugins_dir_with_version(), get_plugins_pers_dir_with_version())) {
-        scan_plugins_dir(plugins_module, get_plugins_pers_dir_with_version(), type, true);
+    if (!started_with_special_privs() && !files_identical(get_plugins_dir_with_version(app_env_var_prefix), get_plugins_pers_dir_with_version(app_env_var_prefix))) {
+        scan_plugins_dir(plugins_module, get_plugins_pers_dir_with_version(app_env_var_prefix), type, true);
     }
 
     plugins_module_list = g_slist_prepend(plugins_module_list, plugins_module);

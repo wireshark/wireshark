@@ -28,6 +28,7 @@
 #include "wsutil/filesystem.h"
 #include "dissectors/packet-ber.h"
 #include <wsutil/ws_assert.h>
+#include <wsutil/application_flavor.h>
 
 #ifdef HAVE_LIBSMI
 #include <smi.h>
@@ -1289,11 +1290,11 @@ oid_get_default_mib_path(void) {
 		return g_string_free(path_str, FALSE);
 	}
 #ifdef _WIN32
-	path = get_datafile_path("snmp\\mibs");
+	path = get_datafile_path("snmp\\mibs", application_configuration_environment_prefix());
 	g_string_append_printf(path_str, "%s;", path);
 	g_free (path);
 
-	path = get_persconffile_path("snmp\\mibs", false);
+	path = get_persconffile_path("snmp\\mibs", false, application_configuration_environment_prefix());
 	g_string_append_printf(path_str, "%s", path);
 	g_free (path);
 #else

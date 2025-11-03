@@ -19,6 +19,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/please_report_bug.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/wslog.h>
 #include <extcap/ssh-base.h>
 #include <writecap/pcapio.h>
@@ -2324,7 +2325,7 @@ int main(int argc, char *argv[])
 		g_free(err_msg);
 	}
 
-	help_url = data_file_url("ciscodump.html");
+	help_url = data_file_url("ciscodump.html", application_configuration_environment_prefix());
 	extcap_base_set_util_info(extcap_conf, argv[0], CISCODUMP_VERSION_MAJOR, CISCODUMP_VERSION_MINOR,
 		CISCODUMP_VERSION_RELEASE, help_url);
 	add_libssh_info(extcap_conf);

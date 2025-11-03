@@ -26,6 +26,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
+#include <wsutil/application_flavor.h>
 
 #define ENABLED_PROTOCOLS_FILE_NAME     "enabled_protos"
 #define DISABLED_PROTOCOLS_FILE_NAME    "disabled_protos"
@@ -184,7 +185,7 @@ save_protos_list(char **pref_path_return, int *errno_return, const char* filenam
 
   *pref_path_return = NULL;     /* assume no error */
 
-  ff_path = get_persconffile_path(filename, true);
+  ff_path = get_persconffile_path(filename, true, application_configuration_environment_prefix());
 
   /* Write to "XXX.new", and rename if that succeeds.
      That means we don't trash the file if we fail to write it out
@@ -405,7 +406,7 @@ read_protos_list(char **gpath_return, int *gopen_errno_return,
   FILE       *ff;
 
   /* Construct the pathname of the global disabled protocols file. */
-  gff_path = get_datafile_path(filename);
+  gff_path = get_datafile_path(filename, application_configuration_environment_prefix());
 
   /* If we already have a list of protocols, discard it. */
   discard_existing_list (global_protos_list);
@@ -437,7 +438,7 @@ read_protos_list(char **gpath_return, int *gopen_errno_return,
   }
 
   /* Construct the pathname of the user's disabled protocols file. */
-  ff_path = get_persconffile_path(filename, true);
+  ff_path = get_persconffile_path(filename, true, application_configuration_environment_prefix());
 
   /* If we already have a list of protocols, discard it. */
   discard_existing_list (protos_list);
@@ -727,7 +728,7 @@ read_heur_dissector_list(char **gpath_return, int *gopen_errno_return,
   heur_discard_existing_list(&global_disabled_heuristics);
 
   /* Construct the pathname of the global disabled heuristic dissectors file. */
-  gff_path = get_datafile_path(HEURISTICS_FILE_NAME);
+  gff_path = get_datafile_path(HEURISTICS_FILE_NAME, application_configuration_environment_prefix());
 
   /* Read the global disabled protocols file, if it exists. */
   *gpath_return = NULL;
@@ -757,7 +758,7 @@ read_heur_dissector_list(char **gpath_return, int *gopen_errno_return,
   }
 
   /* Construct the pathname of the user's disabled protocols file. */
-  ff_path = get_persconffile_path(HEURISTICS_FILE_NAME, true);
+  ff_path = get_persconffile_path(HEURISTICS_FILE_NAME, true, application_configuration_environment_prefix());
 
   /* If we already have a list of protocols, discard it. */
   heur_discard_existing_list (&disabled_heuristics);
@@ -831,7 +832,7 @@ save_disabled_heur_dissector_list(char **pref_path_return, int *errno_return)
 
   *pref_path_return = NULL;     /* assume no error */
 
-  ff_path = get_persconffile_path(HEURISTICS_FILE_NAME, true);
+  ff_path = get_persconffile_path(HEURISTICS_FILE_NAME, true, application_configuration_environment_prefix());
 
   /* Write to "XXX.new", and rename if that succeeds.
      That means we don't trash the file if we fail to write it out
@@ -1057,7 +1058,7 @@ save_enabled_and_disabled_lists(void)
 
   /* Create the directory that holds personal configuration files, if
      necessary.  */
-  if (create_persconffile_dir(&pf_dir_path) == -1) {
+  if (create_persconffile_dir(application_configuration_environment_prefix(), &pf_dir_path) == -1) {
     report_failure("Can't create directory\n\"%s\"\nfor disabled protocols file: %s.",
                    pf_dir_path, g_strerror(errno));
     g_free(pf_dir_path);

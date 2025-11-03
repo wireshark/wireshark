@@ -4624,14 +4624,14 @@ prefs_read_module(const char *module)
 
     /* Construct the pathname of the user's preferences file for the module. */
     char *pf_name = wmem_strdup_printf(NULL, "%s.cfg", module);
-    pf_path = get_persconffile_path(pf_name, true);
+    pf_path = get_persconffile_path(pf_name, true, application_configuration_environment_prefix());
     wmem_free(NULL, pf_name);
 
     /* Read the user's module preferences file, if it exists and is not a dir. */
     if (!test_for_regular_file(pf_path) || ((pf = ws_fopen(pf_path, "r")) == NULL)) {
         g_free(pf_path);
         /* Fall back to the user's generic preferences file. */
-        pf_path = get_persconffile_path(PF_NAME, true);
+        pf_path = get_persconffile_path(PF_NAME, true, application_configuration_environment_prefix());
         pf = ws_fopen(pf_path, "r");
     }
 
@@ -4686,13 +4686,13 @@ read_prefs(void)
          * We don't have the path; try the new path first, and, if that
          * file doesn't exist, try the old path.
          */
-        gpf_path = get_datafile_path(PF_NAME);
+        gpf_path = get_datafile_path(PF_NAME, application_configuration_environment_prefix());
         if ((pf = ws_fopen(gpf_path, "r")) == NULL && errno == ENOENT) {
             /*
              * It doesn't exist by the new name; try the old name.
              */
             g_free(gpf_path);
-            gpf_path = get_datafile_path(OLD_GPF_NAME);
+            gpf_path = get_datafile_path(OLD_GPF_NAME, application_configuration_environment_prefix());
             pf = ws_fopen(gpf_path, "r");
         }
     } else {
@@ -4735,7 +4735,7 @@ read_prefs(void)
     }
 
     /* Construct the pathname of the user's preferences file. */
-    pf_path = get_persconffile_path(PF_NAME, true);
+    pf_path = get_persconffile_path(PF_NAME, true, application_configuration_environment_prefix());
 
     /* Read the user's preferences file, if it exists. */
     if ((pf = ws_fopen(pf_path, "r")) != NULL) {
@@ -7107,7 +7107,7 @@ write_prefs(char **pf_path_return)
      */
 
     if (pf_path_return != NULL) {
-        pf_path = get_persconffile_path(PF_NAME, true);
+        pf_path = get_persconffile_path(PF_NAME, true, application_configuration_environment_prefix());
         if ((pf = ws_fopen(pf_path, "w")) == NULL) {
             *pf_path_return = pf_path;
             return errno;
@@ -7133,7 +7133,7 @@ write_prefs(char **pf_path_return)
 
         module_t *extcap_module = prefs_find_module("extcap");
         if (extcap_module && !prefs.capture_no_extcap) {
-            char *ext_path = get_persconffile_path("extcap.cfg", true);
+            char *ext_path = get_persconffile_path("extcap.cfg", true, application_configuration_environment_prefix());
             FILE *extf;
             if ((extf = ws_fopen(ext_path, "w")) == NULL) {
                 if (errno != EISDIR) {

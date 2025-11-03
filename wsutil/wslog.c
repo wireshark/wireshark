@@ -33,7 +33,6 @@
 #include "time_util.h"
 #include "to_str.h"
 #include "strtoi.h"
-#include "application_flavor.h"
 #ifdef _WIN32
 #include "console_win32.h"
 #endif

@@ -23,6 +23,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/application_flavor.h>
 #include <epan/wmem_scopes.h>
 #include "packet-acdr.h"
 #include "packet-tcp.h"
@@ -930,7 +931,7 @@ init_tpncp_db(void)
     FILE *file;
 
     snprintf(tpncp_dat_file_path, MAX_TPNCP_DB_ENTRY_LEN,
-               "%s" G_DIR_SEPARATOR_S "tpncp" G_DIR_SEPARATOR_S "tpncp.dat", get_datafile_dir());
+               "%s" G_DIR_SEPARATOR_S "tpncp" G_DIR_SEPARATOR_S "tpncp.dat", get_datafile_dir(application_configuration_environment_prefix()));
 
     /* Open file with TPNCP data. */
     if ((file = ws_fopen(tpncp_dat_file_path, "r")) == NULL)

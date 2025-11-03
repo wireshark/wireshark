@@ -392,7 +392,7 @@ char* wslua_get_actual_filename(const char* fname) {
         return g_strdup(fname_clean);
     }
 
-    filename = get_persconffile_path(fname_clean,false);
+    filename = get_persconffile_path(fname_clean,false,lua_app_env_var_prefix);
 
     if ( file_exists(filename) ) {
         return filename;
@@ -404,7 +404,7 @@ char* wslua_get_actual_filename(const char* fname) {
      * installations. For executions from the build dir, it will look for files
      * copied to DATAFILE_DIR.
      */
-    filename = get_datafile_path(fname_clean);
+    filename = get_datafile_path(fname_clean,lua_app_env_var_prefix);
     if ( file_exists(filename) ) {
         return filename;
     }

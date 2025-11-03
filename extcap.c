@@ -42,6 +42,8 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/version_info.h>
+#include <wsutil/application_flavor.h>
+#include <wsutil/path_config.h>
 
 #include "capture/capture_session.h"
 #include "ui/capture_opts.h"
@@ -271,13 +273,13 @@ extcap_get_extcap_paths_from_dir(GSList * list, const char * dirname)
  * to destroy the list.
  */
 static GSList *
-extcap_get_extcap_paths(void)
+extcap_get_extcap_paths(const char* app_env_var_prefix, const char* dir_extcap)
 {
     GSList *paths = NULL;
 
-    paths = extcap_get_extcap_paths_from_dir(paths, get_extcap_pers_dir());
-    if (!files_identical(get_extcap_pers_dir(), get_extcap_dir())) {
-        paths = extcap_get_extcap_paths_from_dir(paths, get_extcap_dir());
+    paths = extcap_get_extcap_paths_from_dir(paths, get_extcap_pers_dir(app_env_var_prefix));
+    if (!files_identical(get_extcap_pers_dir(app_env_var_prefix), get_extcap_dir(app_env_var_prefix, dir_extcap))) {
+        paths = extcap_get_extcap_paths_from_dir(paths, get_extcap_dir(app_env_var_prefix, dir_extcap));
     }
 
     return paths;
@@ -412,7 +414,8 @@ static void
 extcap_run_one(const extcap_interface *interface, GList *arguments, extcap_cb_t cb, void *user_data, char **err_str,
     const char* option_name, const char* option_value)
 {
-    const char *dirname = get_extcap_dir();
+    const char* extcap_dir = application_flavor_is_wireshark() ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR;
+    const char *dirname = get_extcap_dir(application_configuration_environment_prefix(), extcap_dir);
     char **args = extcap_convert_arguments_to_array(arguments);
     int cnt = g_list_length(arguments);
     char *command_output;
@@ -438,7 +441,8 @@ extcap_thread_callback(void *data, void *user_data)
 {
     extcap_run_task_t *task = (extcap_run_task_t *)data;
     thread_pool_t *pool = (thread_pool_t *)user_data;
-    const char *dirname = get_extcap_dir();
+    const char* extcap_dir = application_flavor_is_wireshark() ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR;
+    const char *dirname = get_extcap_dir(application_configuration_environment_prefix(), extcap_dir);
 
     char *command_output;
     if (ws_pipe_spawn_sync(dirname, task->extcap_path, g_strv_length(task->argv), task->argv, &command_output)) {
@@ -473,8 +477,9 @@ extcap_run_all(const char *argv[], extcap_run_cb_t output_cb, size_t data_size, 
 {
     /* Need enough space for at least 'extcap_path'. */
     ws_assert(data_size >= sizeof(char *));
+    const char* extcap_dir = application_flavor_is_wireshark() ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR;
 
-    GSList *paths = extcap_get_extcap_paths();
+    GSList *paths = extcap_get_extcap_paths(application_configuration_environment_prefix(), extcap_dir);
     int i = 0;
     int max_threads = (int)g_get_num_processors();
 
@@ -1273,8 +1278,9 @@ extcap_cleanup_postkill(const char* ifname)
     if (interface)
     {
         ws_info("(extcap_cleanup_postkill) Extcap path %s", interface->extcap_path);
+        const char* extcap_dir = application_flavor_is_wireshark() ? EXTCAP_DIR : STRATOSHARK_EXTCAP_DIR;
 
-        dirname = get_extcap_dir();
+        dirname = get_extcap_dir(application_configuration_environment_prefix(), extcap_dir);
         args = g_strdup(EXTCAP_ARGUMENT_CLEANUP_POSTKILL);
 
         char* command_output;

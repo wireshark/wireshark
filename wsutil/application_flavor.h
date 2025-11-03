@@ -52,20 +52,11 @@ WS_DLL_PUBLIC const char *application_flavor_name_proper(void);
 WS_DLL_PUBLIC const char *application_flavor_name_lower(void);
 
 /**
- * @brief Get the application specific environment variable used to retrieve configuration.
+ * @brief Get the prefix for the application specific environment variable used to retrieve various configurations.
  *
- * @param suffix The suffix appended to the application specific environment variable
- * @return The application name. Must be freed.
+ * @return The application prefix.
  */
-WS_DLL_PUBLIC char* application_configuration_environment_variable(const char* suffix);
-
-/**
- * @brief Get the application specific directory where extcaps can be found
- *
- * @param install_prefix The prefix prepended to the extcap directory
- * @return The application directory name. Must be freed.
- */
-WS_DLL_PUBLIC char* application_extcap_dir(const char* install_prefix);
+WS_DLL_PUBLIC const char* application_configuration_environment_prefix(void);
 
 /**
  * @brief Convenience routine for checking the application flavor.

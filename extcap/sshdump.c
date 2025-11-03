@@ -22,6 +22,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
+#include <wsutil/application_flavor.h>
 
 #include <errno.h>
 #include <string.h>
@@ -449,7 +450,7 @@ int main(int argc, char *argv[])
 		g_free(err_msg);
 	}
 
-	help_url = data_file_url("sshdump.html");
+	help_url = data_file_url("sshdump.html", application_configuration_environment_prefix());
 	extcap_base_set_util_info(extcap_conf, argv[0], SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR,
 		SSHDUMP_VERSION_RELEASE, help_url);
 	g_free(help_url);

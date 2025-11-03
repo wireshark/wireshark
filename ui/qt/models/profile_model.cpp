@@ -17,6 +17,7 @@
 
 #include "wsutil/filesystem.h"
 #include "wsutil/utf8_entities.h"
+#include "wsutil/application_flavor.h"
 
 #include <ui/qt/models/profile_model.h>
 
@@ -529,16 +530,16 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
     {
     case PROF_STAT_DEFAULT:
         if (!reset_default_)
-            return gchar_free_to_qstring(get_persconffile_path("", false));
+            return gchar_free_to_qstring(get_persconffile_path("", false, application_configuration_environment_prefix()));
         else
             return tr("Resetting to default");
     case PROF_STAT_EXISTS:
         {
             QString profile_path;
             if (prof->is_global) {
-                profile_path = gchar_free_to_qstring(get_global_profiles_dir());
+                profile_path = gchar_free_to_qstring(get_global_profiles_dir(application_configuration_environment_prefix()));
             } else {
-                profile_path = gchar_free_to_qstring(get_profiles_dir());
+                profile_path = gchar_free_to_qstring(get_profiles_dir(application_configuration_environment_prefix()));
             }
             profile_path.append("/").append(prof->name);
             return QDir::toNativeSeparators(profile_path);
@@ -574,7 +575,7 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
                 QString appendix;
 
                 /* A global profile is neither deleted or removed, only system provided is allowed as appendix */
-                if (profile_exists(prof->reference, true) && prof->from_global)
+                if (profile_exists(application_configuration_environment_prefix(), prof->reference, true) && prof->from_global)
                     appendix = tr("system provided");
                 /* A default model as reference can neither be deleted or renamed, so skip if the reference was one */
                 else  if (! index.data(ProfileModel::DATA_IS_DEFAULT).toBool())
@@ -1141,7 +1142,7 @@ bool ProfileModel::exportProfiles(QString filename, QModelIndexList items, QStri
         return false;
     }
 
-    if (WiresharkZipHelper::zip(filename, files, gchar_free_to_qstring(get_profiles_dir()) + "/") )
+    if (WiresharkZipHelper::zip(filename, files, gchar_free_to_qstring(get_profiles_dir(application_configuration_environment_prefix())) + "/") )
         return true;
 
     return false;
@@ -1192,7 +1193,7 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
 {
     int count = 0;
     int skipped = 0;
-    QDir profileDir(gchar_free_to_qstring(get_profiles_dir()));
+    QDir profileDir(gchar_free_to_qstring(get_profiles_dir(application_configuration_environment_prefix())));
     QDir dir(dirname);
 
     if (skippedCnt)
@@ -1284,7 +1285,7 @@ bool ProfileModel::clearImported(QString *msg)
     for (int cnt = 0; cnt < rows.count() && result; cnt++)
     {
         int row = rows.at(cnt);
-        if (delete_persconffile_profile (index(row, ProfileModel::COL_NAME).data().toString().toUtf8().constData(), &ret_path) != 0)
+        if (delete_persconffile_profile(application_configuration_environment_prefix(), index(row, ProfileModel::COL_NAME).data().toString().toUtf8().constData(), &ret_path) != 0)
         {
             if (msg)
             {
