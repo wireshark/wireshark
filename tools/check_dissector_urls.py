@@ -12,7 +12,7 @@ import os
 import re
 import shutil
 import signal
-import subprocess
+from check_common import *
 
 # This utility scans the dissector code for URLs, then attempts to
 # fetch the links.  The results are shown in stdout, but also, at
@@ -217,13 +217,7 @@ parser.add_argument('--verbose', action='store_true',
 parser.add_argument('--docs', action='store_true',
                     help='when enabled, also check document folders')
 
-
 args = parser.parse_args()
-
-
-def is_dissector_file(filename):
-    p = re.compile(r'.*(packet|file)-.*\.c')
-    return p.match(filename)
 
 
 # Get files from wherever command-line args indicate.
@@ -240,30 +234,14 @@ if args.file:
             find_links_in_file(f)
 elif args.commits:
     # Get files affected by specified number of commits.
-    command = ['git', 'diff', '--name-only', 'HEAD~' + args.commits]
-    files = [f.decode('utf-8')
-             for f in subprocess.check_output(command).splitlines()]
-    # Fetch links from files (dissectors files only)
-    files = list(filter(is_dissector_file, files))
+    files = getFilesFromCommits(args.commits)
     for f in files:
         find_links_in_file(f)
 elif args.open:
     # Unstaged changes.
-    command = ['git', 'diff', '--name-only']
-    files = [f.decode('utf-8')
-             for f in subprocess.check_output(command).splitlines()]
-    files = list(filter(is_dissector_file, files))
-    # Staged changes.
-    command = ['git', 'diff', '--staged', '--name-only']
-    files_staged = [f.decode('utf-8')
-                    for f in subprocess.check_output(command).splitlines()]
-    files_staged = list(filter(is_dissector_file, files_staged))
+    files = getFilesFromOpen()
     for f in files:
         find_links_in_file(f)
-    for f in files_staged:
-        if f not in files:
-            find_links_in_file(f)
-            files.append(f)
 elif args.docs:
     # Find links from doc folder(s)
     find_links_in_folder(os.path.join(os.path.dirname(__file__), '..', 'doc'))

@@ -50,6 +50,7 @@ import argparse
 import os
 import re
 import sys
+from check_common import *
 
 
 def replace_file(fpath, make_replacements):
@@ -480,6 +481,9 @@ def replace_proto_tree_add_STAR_format(fpath, make_replacements):
 
 
 def run_specific_file(fpath, make_replacements):
+    if not isDissectorFile(fpath):
+        #print(fpath, 'is not a dissector')
+        return 0
     replace_cnt = 0
     if (fpath.endswith('.c') or fpath.endswith('.cpp')):
         replace_cnt += replace_file(fpath, make_replacements)

@@ -148,7 +148,6 @@ for filenum,file in enumerate(files):
 
             break
 
-
         if len(output):
             sys.stdout.write('\n')
             sys.stdout.flush()
@@ -167,7 +166,6 @@ for filenum,file in enumerate(files):
             for filter in args.filter:
                 for line in lines_matching[filter]:
                     print(file, ':', filter, ':', line.decode('utf-8'))
-
 
 
 # Show results if get to end

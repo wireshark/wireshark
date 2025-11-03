@@ -289,7 +289,7 @@ typedef enum {
 	CQL_QUERY_FLAG_DEFAULT_TIMESTAMP = 0x20,
 	CQL_QUERY_FLAG_VALUE_NAMES = 0x40,
 	CQL_QUERY_FLAG_WITH_KEYSPACE = 0x80,
-	CQL_QUERY_FLAG_NOW_IN_SECONDS = 0x100
+	CQL_QUERY_FLAG_NOW_IN_SECONDS =	0x100
 } cql_query_flags;
 
 
@@ -493,7 +493,7 @@ dissect_cql_query_parameters(proto_tree* cql_subtree, tvbuff_t* tvb, int offset,
 		NULL
 	};
 
-		static int * const cql5_query_bitmaps[] = {
+	static int * const cql5_query_bitmaps[] = {
 		&hf_cql_query_v5_flags_values,
 		&hf_cql_query_v5_flags_skip_metadata,
 		&hf_cql_query_v5_flags_page_size,
@@ -2764,7 +2764,7 @@ proto_register_cql(void)
 				"Error Block For", "cql.error_block_for",
 				FT_UINT32, BASE_DEC,
 				NULL, 0x0,
-				"Number of replica responss required to achieve CL", HFILL
+				"Number of replica responses required to achieve CL", HFILL
 			}
 		},
 		{ &hf_cql_error_num_failures,
