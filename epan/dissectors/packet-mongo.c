@@ -45,9 +45,6 @@ dissect_opcode_types(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_t
 /* This is not IANA assigned nor registered */
 #define TCP_PORT_MONGO 27017
 
-/* the code can reasonably attempt to decompress buffer up to 20MB */
-#define MAX_UNCOMPRESSED_SIZE (20 * 1024 * 1024)
-
 /* All opcodes other than OP_COMPRESSED and OP_MSG were removed
  * in MongoDB 5.1 (December 2021)
  */
@@ -295,7 +292,6 @@ static expert_field ei_mongo_document_length_bad;
 static expert_field ei_mongo_section_size_bad;
 static expert_field ei_mongo_unknown;
 static expert_field ei_mongo_unsupported_compression;
-static expert_field ei_mongo_too_large_compressed;
 static expert_field ei_mongo_msg_checksum;
 
 static int
@@ -770,40 +766,13 @@ dissect_mongo_op_compressed(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, 
 
 #ifdef HAVE_SNAPPY
   case MONGO_COMPRESSOR_SNAPPY: {
-    unsigned char *decompressed_buffer = NULL;
-    size_t orig_size = 0;
-    snappy_status ret;
-    tvbuff_t* compressed_tvb = NULL;
+    tvbuff_t* uncompressed_tvb = tvb_child_uncompress_snappy(tvb, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+    if (uncompressed_tvb) {
+        add_new_data_source(pinfo, uncompressed_tvb, "Decompressed Data");
 
-    /* get the raw data length */
-    ret = snappy_uncompressed_length(tvb_get_ptr(tvb, offset, -1),
-      tvb_captured_length_remaining(tvb, offset),
-      &orig_size);
-    /* if we get the length and it's reasonably short to allocate a buffer for it
-     * proceed to try decompressing the data
-     */
-    if (ret == SNAPPY_OK && orig_size <= MAX_UNCOMPRESSED_SIZE) {
-      decompressed_buffer = (unsigned char*)wmem_alloc(pinfo->pool, orig_size);
-
-      ret = snappy_uncompress(tvb_get_ptr(tvb, offset, -1),
-        tvb_captured_length_remaining(tvb, offset),
-        decompressed_buffer,
-        &orig_size);
-
-      if (ret == SNAPPY_OK) {
-        compressed_tvb = tvb_new_child_real_data(tvb, decompressed_buffer, (uint32_t)orig_size, (uint32_t)orig_size);
-        add_new_data_source(pinfo, compressed_tvb, "Decompressed Data");
-
-        dissect_opcode_types(compressed_tvb, pinfo, 0, tree, opcode, effective_opcode, command_name);
-      } else {
-        expert_add_info_format(pinfo, ti, &ei_mongo_unsupported_compression, "Error uncompressing snappy data");
-      }
+        dissect_opcode_types(uncompressed_tvb, pinfo, 0, tree, opcode, effective_opcode, command_name);
     } else {
-      if (orig_size > MAX_UNCOMPRESSED_SIZE) {
-        expert_add_info_format(pinfo, ti, &ei_mongo_too_large_compressed, "Uncompressed size too large");
-      } else {
-        expert_add_info_format(pinfo, ti, &ei_mongo_unsupported_compression, "Error uncompressing snappy data");
-      }
+      expert_add_info_format(pinfo, ti, &ei_mongo_unsupported_compression, "Error uncompressing snappy data");
     }
 
     offset = tvb_reported_length(tvb);
@@ -827,9 +796,7 @@ dissect_mongo_op_compressed(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, 
 #endif
 
   case MONGO_COMPRESSOR_ZLIB: {
-    tvbuff_t* compressed_tvb = NULL;
-
-    compressed_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+    tvbuff_t* compressed_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, tvb_captured_length_remaining(tvb, offset));
 
     if (compressed_tvb) {
       add_new_data_source(pinfo, compressed_tvb, "Decompressed Data");
@@ -1623,7 +1590,6 @@ proto_register_mongo(void)
      { &ei_mongo_section_size_bad, { "mongo.msg.sections.section.size.bad",  PI_MALFORMED, PI_ERROR, "Bogus Mongo message section size", EXPFILL }},
      { &ei_mongo_unknown, { "mongo.unknown.expert", PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)", EXPFILL }},
      { &ei_mongo_unsupported_compression, { "mongo.unsupported_compression.expert", PI_UNDECODED, PI_WARN, "This packet was compressed with an unsupported compressor", EXPFILL }},
-     { &ei_mongo_too_large_compressed, { "mongo.too_large_compressed.expert", PI_UNDECODED, PI_WARN, "The size of the uncompressed packet exceeded the maximum allowed value", EXPFILL }},
      { &ei_mongo_msg_checksum, { "mongo.bad_checksum.expert", PI_UNDECODED, PI_ERROR, "Bad checksum", EXPFILL }},
   };
 
