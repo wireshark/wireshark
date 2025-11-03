@@ -39,6 +39,10 @@ set( EXTRA_CNF
 	"${CMAKE_CURRENT_BINARY_DIR}/../pkix1implicit/pkix1implicit-exp.cnf"
 )
 
+set( EXPORT_DEPENDS
+	"${CMAKE_CURRENT_BINARY_DIR}/../pkix1implicit/pkix1implicit-exp.cnf"
+)
+
 set( A2W_FLAGS -b )
 
 ASN2WRS()
