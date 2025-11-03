@@ -3006,6 +3006,9 @@ proto_tree_add_debug_text(tree, "CHOICE dissect_ber_choice(%s) trying again\n", 
                     }
                 }
             }
+            /* Make sure the end_offset reported isn't out of bounds.
+             * (If it is, that's something bogus with the encoding.) */
+            tvb_ensure_reported_length_remaining(tvb, end_offset);
             return end_offset;
         }
         ch++;
