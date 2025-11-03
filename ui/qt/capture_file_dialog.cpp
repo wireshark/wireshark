@@ -19,6 +19,7 @@
 
 #include <errno.h>
 #include "wsutil/filesystem.h"
+#include "wsutil/application_flavor.h"
 #include "wsutil/nstime.h"
 #include "wsutil/str_util.h"
 #include "wsutil/utf8_entities.h"
@@ -807,7 +808,7 @@ void CaptureFileDialog::preview(const QString & path)
         return;
     }
 
-    wth = wtap_open_offline(path.toUtf8().data(), WTAP_TYPE_AUTO, &err, &err_info, true);
+    wth = wtap_open_offline(path.toUtf8().data(), WTAP_TYPE_AUTO, &err, &err_info, true, application_configuration_environment_prefix());
     if (wth == NULL) {
         if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
             preview_format_.setText(tr("unknown file format"));

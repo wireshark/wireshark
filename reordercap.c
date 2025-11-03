@@ -23,6 +23,7 @@
 
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
@@ -168,6 +169,8 @@ main(int argc, char *argv[])
     int file_count;
     char *infile;
     const char *outfile;
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
 
     /* Set the program name. */
     g_set_prgname("reordercap");
@@ -204,7 +207,8 @@ main(int argc, char *argv[])
 
     init_report_failure_message("reordercap");
 
-    wtap_init(true);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
 
     /* Process the options first */
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
@@ -246,7 +250,7 @@ main(int argc, char *argv[])
     /* Open infile */
     /* TODO: if reordercap is ever changed to give the user a choice of which
        open_routine reader to use, then the following needs to change. */
-    wth = wtap_open_offline(infile, WTAP_TYPE_AUTO, &err, &err_info, true);
+    wth = wtap_open_offline(infile, WTAP_TYPE_AUTO, &err, &err_info, true, application_configuration_environment_prefix());
     if (wth == NULL) {
         report_cfile_open_failure(infile, err, err_info);
         ret = WS_EXIT_OPEN_ERROR;

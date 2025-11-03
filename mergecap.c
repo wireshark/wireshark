@@ -27,6 +27,7 @@
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #include <wsutil/strnatcmp.h>
@@ -202,6 +203,8 @@ main(int argc, char *argv[])
     idb_merge_mode        mode             = IDB_MERGE_MODE_MAX;
     ws_compression_type   compression_type = WS_FILE_UNKNOWN_COMPRESSION;
     merge_progress_callback_t cb;
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
 
     /* Set the program name. */
     g_set_prgname("mergecap");
@@ -242,7 +245,8 @@ main(int argc, char *argv[])
 
     init_report_failure_message("mergecap");
 
-    wtap_init(true);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
 
     /* Process the options first */
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
@@ -406,13 +410,13 @@ main(int argc, char *argv[])
         status = merge_files_to_stdout(file_type,
                 (const char *const *) &argv[ws_optind],
                 in_file_count, do_append, mode, snaplen,
-                get_appname_and_version(),
+                get_appname_and_version(), application_configuration_environment_prefix(),
                 verbose ? &cb : NULL, compression_type);
     } else {
         /* merge the files to the outfile */
         status = merge_files(out_filename, file_type,
                 (const char *const *) &argv[ws_optind], in_file_count,
-                do_append, mode, snaplen, get_appname_and_version(),
+                do_append, mode, snaplen, get_appname_and_version(), application_configuration_environment_prefix(),
                 verbose ? &cb : NULL, compression_type);
     }
 

@@ -46,6 +46,7 @@
 #include <wsutil/array.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/file_util.h>
 #include <wsutil/socket.h>
 #include <wsutil/privileges.h>
@@ -429,6 +430,8 @@ main(int argc, char *argv[])
 #define OPTSTRING_INIT OPTSTRING_DISSECT_COMMON OPTSTRING_READ_CAPTURE_COMMON "F:hlm:o:psS:v"
 
     static const char    optstring[] = OPTSTRING_INIT;
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
 
     /* Set the program name. */
     g_set_prgname("rawshark");
@@ -506,7 +509,8 @@ main(int argc, char *argv[])
      * file-type-dependent blocks can register using the file
      * type/subtype value for the file type.
      */
-    wtap_init(false);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(false, application_configuration_environment_prefix(), file_extensions, num_extensions);
 
     /* Register all dissectors; we must do this before checking for the
        "-G" flag, as the "-G" flag dumps information registered by the

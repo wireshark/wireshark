@@ -25,7 +25,6 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/pint.h>
-#include <wsutil/application_flavor.h>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
@@ -2578,15 +2577,15 @@ ttl_parse_masters_pref_file(ttl_t* ttl, const char* path) {
  * independent interface for the logger and coupled interface for the taps).
  */
 static bool
-ttl_init_masters_from_pref_file(ttl_t* ttl) {
+ttl_init_masters_from_pref_file(ttl_t* ttl, const char* app_env_var_prefix) {
     char*   pref_file;
     bool    ret;
 
-    pref_file = get_persconffile_path(TTL_ADDRESS_MASTER_PREFS, true, application_configuration_environment_prefix());
+    pref_file = get_persconffile_path(TTL_ADDRESS_MASTER_PREFS, true, app_env_var_prefix);
     ret = ttl_parse_masters_pref_file(ttl, pref_file);
     g_free(pref_file);
     if (!ret) {
-        pref_file = get_persconffile_path(TTL_ADDRESS_MASTER_PREFS, false, application_configuration_environment_prefix());
+        pref_file = get_persconffile_path(TTL_ADDRESS_MASTER_PREFS, false, app_env_var_prefix);
         ret = ttl_parse_masters_pref_file(ttl, pref_file);
         g_free(pref_file);
     }
@@ -2652,15 +2651,15 @@ ttl_parse_names_pref_file(ttl_t* ttl, const char* path) {
  * ttl_add_interface_name() starting from the interface address.
  */
 static bool
-ttl_init_names_from_pref_file(ttl_t* ttl) {
+ttl_init_names_from_pref_file(ttl_t* ttl, const char* app_env_var_prefix) {
     char*   pref_file;
     bool    ret;
 
-    pref_file = get_persconffile_path(TTL_ADDRESS_NAME_PREFS, true, application_configuration_environment_prefix());
+    pref_file = get_persconffile_path(TTL_ADDRESS_NAME_PREFS, true, app_env_var_prefix);
     ret = ttl_parse_names_pref_file(ttl, pref_file);
     g_free(pref_file);
     if (!ret) {
-        pref_file = get_persconffile_path(TTL_ADDRESS_NAME_PREFS, false, application_configuration_environment_prefix());
+        pref_file = get_persconffile_path(TTL_ADDRESS_NAME_PREFS, false, app_env_var_prefix);
         ret = ttl_parse_names_pref_file(ttl, pref_file);
         g_free(pref_file);
     }
@@ -2790,8 +2789,8 @@ ttl_open(wtap* wth, int* err, char** err_info) {
         }
     }
 
-    ttl_init_masters_from_pref_file(ttl);
-    ttl_init_names_from_pref_file(ttl);
+    ttl_init_masters_from_pref_file(ttl, wth->app_env_var_prefix);
+    ttl_init_names_from_pref_file(ttl, wth->app_env_var_prefix);
 
     wth->priv = (void*)ttl;
     wth->file_encap = WTAP_ENCAP_NONE;

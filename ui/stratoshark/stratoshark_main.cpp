@@ -429,6 +429,8 @@ int main(int argc, char *qt_argv[])
 #ifdef HAVE_LIBPCAP
     int                  caps_queries = 0;
 #endif
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
     /* Start time in microseconds */
     uint64_t start_time = g_get_monotonic_time();
 
@@ -692,7 +694,8 @@ int main(int argc, char *qt_argv[])
      * dissection-time handlers for file-type-dependent blocks can
      * register using the file type/subtype value for the file type.
      */
-    wtap_init(true);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
 
     splash_update(RA_DISSECTORS, NULL, NULL);
 #ifdef DEBUG_STARTUP_TIME

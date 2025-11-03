@@ -25,7 +25,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include <wsutil/application_flavor.h>
 #include <wsutil/wslog.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/glib-compat.h>
@@ -6580,12 +6579,21 @@ static const struct file_type_subtype_info stratoshark_pcapng_info = {
     pcapng_dump_can_write_encap, pcapng_dump_open, NULL
 };
 
-void register_pcapng(void)
+void register_pcapng(const char* app_env_var_prefix)
 {
-    if (application_flavor_is_wireshark()) {
-        pcapng_file_type_subtype = wtap_register_file_type_subtype(&wireshark_pcapng_info);
-    } else {
-        pcapng_file_type_subtype = wtap_register_file_type_subtype(&stratoshark_pcapng_info);
+    if (app_env_var_prefix != NULL) {
+        /* XXX - It would be great if this could be refactored out of the wiretap library,
+          but dependencies currently look daunting */
+
+        if (strcmp(app_env_var_prefix, "WIRESHARK") == 0)
+            pcapng_file_type_subtype = wtap_register_file_type_subtype(&wireshark_pcapng_info);
+        else if (strcmp(app_env_var_prefix, "STRATOSHARK") == 0)
+            pcapng_file_type_subtype = wtap_register_file_type_subtype(&stratoshark_pcapng_info);
+        else
+        {
+            /* XXX - Allow support of applications that use wiretap, but not pcapNG */
+            return;
+        }
     }
 
     wtap_register_backwards_compatibility_lua_name("PCAPNG",

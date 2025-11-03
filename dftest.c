@@ -342,6 +342,8 @@ main(int argc, char **argv)
         { NULL,       0,                0,  0   }
     };
     int opt;
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
 
     /* Set the program name. */
     g_set_prgname("dftest");
@@ -503,7 +505,9 @@ main(int argc, char **argv)
      * dissection-time handlers for file-type-dependent blocks can
      * register using the file type/subtype value for the file type.
      */
-    wtap_init(true);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
+
 
     /* Register all dissectors; we must do this before checking for the
        "-g" flag, as the "-g" flag dumps a list of fields registered

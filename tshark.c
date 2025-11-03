@@ -1103,6 +1103,8 @@ main(int argc, char *argv[])
     const char*           glossary = NULL;
     const char*           elastic_mapping_filter = NULL;
     ws_compression_type   volatile compression_type = WS_FILE_UNKNOWN_COMPRESSION;
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
 
     /*
      * The leading + ensures that getopt_long() does not permute the argv[]
@@ -1358,7 +1360,8 @@ main(int argc, char *argv[])
      * dissection-time handlers for file-type-dependent blocks can
      * register using the file type/subtype value for the file type.
      */
-    wtap_init(true);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
 
     /* Register all dissectors; we must do this before checking for the
        "-G" flag, as the "-G" flag dumps information registered by the
@@ -4945,7 +4948,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile
     wtap  *wth;
     char *err_info;
 
-    wth = wtap_open_offline(fname, type, err, &err_info, perform_two_pass_analysis);
+    wth = wtap_open_offline(fname, type, err, &err_info, perform_two_pass_analysis, application_configuration_environment_prefix());
     if (wth == NULL)
         goto fail;
 

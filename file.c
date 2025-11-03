@@ -21,6 +21,7 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/json_dumper.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
@@ -253,7 +254,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile
     wtap  *wth;
     char *err_info;
 
-    wth = wtap_open_offline(fname, type, err, &err_info, true);
+    wth = wtap_open_offline(fname, type, err, &err_info, true, application_configuration_environment_prefix());
     if (wth == NULL)
         goto fail;
 
@@ -1481,7 +1482,7 @@ cf_merge_files_to_tempfile(void *pd_window, const char *temp_dir, char **out_fil
             in_filenames,
             in_file_count, do_append,
             IDB_MERGE_MODE_ALL_SAME, 0 /* snaplen */,
-            "Wireshark", &cb);
+            "Wireshark", "WIRESHARK", & cb);
 
     g_free(cb.data);
 
@@ -5383,7 +5384,7 @@ rescan_file(capture_file *cf, const char *fname, bool is_tempfile)
        reader to use (only which format to save it in), so doing this makes
        sense for now. (XXX: Now it is also used when saving a changed file,
        e.g. comments or time-shifted frames.) */
-    cf->provider.wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, &err, &err_info, true);
+    cf->provider.wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, &err, &err_info, true, application_configuration_environment_prefix());
     if (cf->provider.wth == NULL) {
         report_cfile_open_failure(fname, err, err_info);
         return CF_READ_ERROR;

@@ -23,6 +23,7 @@
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/privileges.h>
 #include <cli_main.h>
 
@@ -121,6 +122,8 @@ main(int argc, char *argv[])
     };
 #define OPTSTRING "b:c:F:ht:rv"
     static const char optstring[] = OPTSTRING;
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
 
     /* Set the program name. */
     g_set_prgname("randpkt");
@@ -154,7 +157,8 @@ main(int argc, char *argv[])
 
     init_report_failure_message("randpkt");
 
-    wtap_init(true);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
 
 #ifdef _WIN32
     create_app_running_mutex();

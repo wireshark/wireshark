@@ -14,8 +14,18 @@
 
 /**
  * @brief Initialize file type subtypes for wiretap.
+ *
+ * @param app_env_var_prefix The prefix for the application to determine what pcapNG behavior to use
  */
-void wtap_init_file_type_subtypes(void);
+void wtap_init_file_type_subtypes(const char* app_env_var_prefix);
+
+/**
+ * @brief Initialize the extensions array
+ *
+ * @param file_extensions Array of file extension info structures
+ * @param num_extensions Number of extensions in the array
+ */
+void wtap_init_file_type_extensions(const struct file_extension_info* file_extensions, unsigned num_extensions);
 
 /**
  * @struct backwards_compatibiliity_lua_name

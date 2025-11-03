@@ -176,7 +176,7 @@ raise_limit(int resource, unsigned add)
  */
 static unsigned
 merge_open_in_files(unsigned in_file_count, const char *const *in_file_names,
-                    merge_in_file_t **out_files, merge_progress_callback_t* cb,
+                    merge_in_file_t **out_files, merge_progress_callback_t* cb, const char* app_env_var_prefix,
                     int *err, char **err_info, unsigned *err_fileno)
 {
     unsigned i = 0;
@@ -193,7 +193,7 @@ merge_open_in_files(unsigned in_file_count, const char *const *in_file_names,
 
     while (i < in_file_count) {
         files[i].filename    = in_file_names[i];
-        files[i].wth         = wtap_open_offline(in_file_names[i], WTAP_TYPE_AUTO, err, err_info, false);
+        files[i].wth         = wtap_open_offline(in_file_names[i], WTAP_TYPE_AUTO, err, err_info, false, app_env_var_prefix);
         files[i].state       = RECORD_NOT_PRESENT;
         files[i].packet_num  = 0;
 
@@ -1247,7 +1247,7 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
                    const int file_type, const char *const *in_filenames,
                    const unsigned in_file_count, const bool do_append,
                    idb_merge_mode mode, unsigned snaplen,
-                   const char *app_name, merge_progress_callback_t* cb, ws_compression_type compression_type)
+                   const char *app_name, const char* app_env_var_prefix, merge_progress_callback_t* cb, ws_compression_type compression_type)
 {
     merge_in_file_t    *in_files = NULL;
     int                 frame_type = WTAP_ENCAP_PER_PACKET;
@@ -1289,7 +1289,7 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
         }
 
         /* open the input files */
-        open_file_count = merge_open_in_files(in_file_count - total_file_count, &in_filenames[total_file_count], &in_files, cb, &err, &err_info, &err_fileno);
+        open_file_count = merge_open_in_files(in_file_count - total_file_count, &in_filenames[total_file_count], &in_files, cb, app_env_var_prefix, &err, &err_info, &err_fileno);
         if (open_file_count == 0) {
             ws_debug("merge_open_in_files() failed with err=%d", err);
             report_cfile_open_failure(in_filenames[err_fileno], err, err_info);
@@ -1476,7 +1476,7 @@ merge_files_common(const char* out_filename, /* filename in normal output mode,
         // We recurse here, but we're limited by MAX_MERGE_FILES
         status = merge_files_common(out_filename, out_filenamep, pfx,
                     file_type, (const char**)temp_files->pdata,
-                    temp_files->len, do_append, mode, snaplen, app_name, cb, compression_type);
+                    temp_files->len, do_append, mode, snaplen, app_name, app_env_var_prefix, cb, compression_type);
         /* If that failed, it has already reported an error */
         g_ptr_array_free(temp_files, true);
     }
@@ -1493,7 +1493,8 @@ bool
 merge_files(const char* out_filename, const int file_type,
             const char *const *in_filenames, const unsigned in_file_count,
             const bool do_append, const idb_merge_mode mode,
-            unsigned snaplen, const char *app_name, merge_progress_callback_t* cb, const  ws_compression_type compression_type)
+            unsigned snaplen, const char *app_name, const char* app_env_var_prefix,
+            merge_progress_callback_t* cb, const  ws_compression_type compression_type)
 {
     ws_assert(out_filename != NULL);
     ws_assert(in_file_count > 0);
@@ -1514,7 +1515,7 @@ merge_files(const char* out_filename, const int file_type,
 
     return merge_files_common(out_filename, NULL, NULL,
                               file_type, in_filenames, in_file_count,
-                              do_append, mode, snaplen, app_name, cb, compression_type);
+                              do_append, mode, snaplen, app_name, app_env_var_prefix, cb, compression_type);
 }
 
 /*
@@ -1527,7 +1528,7 @@ merge_files_to_tempfile(const char *tmpdir, char **out_filenamep, const char *pf
                         const int file_type, const char *const *in_filenames,
                         const unsigned in_file_count, const bool do_append,
                         const idb_merge_mode mode, unsigned snaplen,
-                        const char *app_name, merge_progress_callback_t* cb)
+                        const char *app_name, const char* app_env_var_prefix, merge_progress_callback_t* cb)
 {
     ws_assert(out_filenamep != NULL);
 
@@ -1536,7 +1537,7 @@ merge_files_to_tempfile(const char *tmpdir, char **out_filenamep, const char *pf
 
     return merge_files_common(tmpdir, out_filenamep, pfx,
                               file_type, in_filenames, in_file_count,
-                              do_append, mode, snaplen, app_name, cb, WS_FILE_UNCOMPRESSED);
+                              do_append, mode, snaplen, app_name, app_env_var_prefix, cb, WS_FILE_UNCOMPRESSED);
 }
 
 /*
@@ -1548,12 +1549,12 @@ bool
 merge_files_to_stdout(const int file_type, const char *const *in_filenames,
                       const unsigned in_file_count, const bool do_append,
                       const idb_merge_mode mode, unsigned snaplen,
-                      const char *app_name, merge_progress_callback_t* cb,
+                      const char *app_name, const char* app_env_var_prefix, merge_progress_callback_t* cb,
                       ws_compression_type compression_type)
 {
     return merge_files_common(NULL, NULL, NULL,
                               file_type, in_filenames, in_file_count,
-                              do_append, mode, snaplen, app_name, cb, compression_type);
+                              do_append, mode, snaplen, app_name, app_env_var_prefix, cb, compression_type);
 }
 
 /*

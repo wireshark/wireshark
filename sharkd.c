@@ -143,6 +143,8 @@ main(int argc, char *argv[])
     char                *err_msg = NULL;
     e_prefs             *prefs_p;
     int                  ret = EXIT_SUCCESS;
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
 
     /* Set the program name. */
     g_set_prgname("sharkd");
@@ -198,7 +200,8 @@ main(int argc, char *argv[])
      * dissection-time handlers for file-type-dependent blocks can
      * register using the file type/subtype value for the file type.
      */
-    wtap_init(true);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
 
     /* Register all dissectors; we must do this before checking for the
        "-G" flag, as the "-G" flag dumps information registered by the
@@ -422,7 +425,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile
     wtap  *wth;
     char *err_info;
 
-    wth = wtap_open_offline(fname, type, err, &err_info, true);
+    wth = wtap_open_offline(fname, type, err, &err_info, true, application_configuration_environment_prefix());
     if (wth == NULL)
         goto fail;
 

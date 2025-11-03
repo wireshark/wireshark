@@ -423,6 +423,9 @@ int main(int argc, char* argv[])
 
     if (extcap_conf->capture) {
 
+        const struct file_extension_info* file_extensions;
+        unsigned num_extensions;
+
         if (g_strcmp0(extcap_conf->interface, ETW_EXTCAP_INTERFACE)) {
             ws_warning("ERROR: invalid interface");
             goto end;
@@ -434,7 +437,8 @@ int main(int argc, char* argv[])
             goto end;
         }
 
-        wtap_init(false);
+        application_file_extensions(&file_extensions, &num_extensions);
+        wtap_init(false, application_configuration_environment_prefix(), file_extensions, num_extensions);
 
         switch(etw_dump(etlfile, extcap_conf->fifo, params, &ret, &err_msg))
         {

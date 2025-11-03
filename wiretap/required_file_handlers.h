@@ -21,7 +21,7 @@ extern "C" {
  * These are for use within libwiretap only; they are not exported.
  */
 extern void register_pcap(void);
-extern void register_pcapng(void);
+extern void register_pcapng(const char* app_env_var_prefix);
 
 extern int pcap_file_type_subtype;	/* regular pcap */
 extern int pcap_nsec_file_type_subtype;	/* pcap with nanosecond resolution */

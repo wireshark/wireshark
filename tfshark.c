@@ -281,6 +281,8 @@ main(int argc, char *argv[])
     df_error_t          *df_err;
     e_prefs             *prefs_p;
     char                *output_only = NULL;
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
 
     /*
      * The leading + ensures that getopt_long() does not permute the argv[]
@@ -455,7 +457,9 @@ main(int argc, char *argv[])
      * capture files, but that mechanism should support plugins for
      * other files, too, if *their* formats are extensible.
      */
-    wtap_init(true);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
+
 
     /* Register all dissectors; we must do this before checking for the
        "-G" flag, as the "-G" flag dumps information registered by the

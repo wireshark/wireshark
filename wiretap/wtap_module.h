@@ -71,6 +71,7 @@ struct wtap {
     GArray                      *dpibs;                 /**< An array of DPIBs (of type wtap_block_t), or NULL if not supported. */
     unsigned                    next_dpib_id;           /**< Next DPIB id  */
     char                        *pathname;              /**< File pathname; might just be "-" */
+    const char                  *app_env_var_prefix;    /**< Application specific environment variable prefix, used to determine certain behavior */
 
     void                        *priv;                  /**< Stores per-file state and is free'd automatically by wtap_close() */
     void                        *wslua_data;            /**< Stores wslua state info and is not free'd */

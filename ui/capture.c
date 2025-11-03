@@ -480,7 +480,7 @@ capture_input_new_file(capture_session *cap_session, char *new_file)
             wtap_close(cap_session->wtap);
         }
 
-        cap_session->wtap = wtap_open_offline(new_file, WTAP_TYPE_AUTO, &err, &err_info, false);
+        cap_session->wtap = wtap_open_offline(new_file, WTAP_TYPE_AUTO, &err, &err_info, false, application_configuration_environment_prefix());
         if (!cap_session->wtap) {
             err_msg = ws_strdup_printf(cf_open_error_message(err, err_info),
                                       new_file);

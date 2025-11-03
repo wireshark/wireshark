@@ -50,6 +50,7 @@
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/file_util.h>
 #include <wsutil/file_compressed.h>
 #include <wsutil/plugins.h>
@@ -1457,6 +1458,8 @@ main(int argc, char *argv[])
     unsigned int                 seed = 0;
     bool                         edit_option_specified = false;
     ws_compression_type compression_type   = WS_FILE_UNKNOWN_COMPRESSION;
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
 
     /* Set the program name. */
     g_set_prgname("editcap");
@@ -1497,7 +1500,9 @@ main(int argc, char *argv[])
 
     init_report_failure_message("editcap");
 
-    wtap_init(true);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
+
 
     /* Process the options */
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
@@ -2034,7 +2039,7 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
-    wth = wtap_open_offline(argv[ws_optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, false);
+    wth = wtap_open_offline(argv[ws_optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, false, application_configuration_environment_prefix());
 
     if (!wth) {
         report_cfile_open_failure(argv[ws_optind], read_err, read_err_info);

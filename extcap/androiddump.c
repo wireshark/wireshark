@@ -465,8 +465,11 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     int file_type_subtype;
     int err = 0;
     char *err_info = NULL;
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
 
-    wtap_init(false);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(false, application_configuration_environment_prefix(), file_extensions, num_extensions);
 
     params.encap = encap;
     params.snaplen = PACKET_LENGTH;

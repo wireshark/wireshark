@@ -11,6 +11,7 @@
 #pragma once
 
 #include <wireshark.h>
+#include <wiretap/wtap.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,6 +58,14 @@ WS_DLL_PUBLIC const char *application_flavor_name_lower(void);
  * @return The application prefix.
  */
 WS_DLL_PUBLIC const char* application_configuration_environment_prefix(void);
+
+/**
+ * @brief Get the list of application supported file extensions
+ *
+ * @param file_extensions Returned array of extensions supported by the application
+ * @param num_extensions Returned number of extensions supported by the application
+ */
+WS_DLL_PUBLIC void application_file_extensions(const struct file_extension_info** file_extensions, unsigned* num_extensions);
 
 /**
  * @brief Convenience routine for checking the application flavor.

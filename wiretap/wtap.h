@@ -1989,9 +1989,12 @@ struct file_type_subtype_info {
  * @brief Initialize the Wiretap library.
  *
  * @param load_wiretap_plugins Load Wiretap plugins when initializing library.
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the personal config directory.
+ * @param file_extensions Array of file extensions supported by the application
+ * @param num_extensions Number of file extensions supported by the application
 */
 WS_DLL_PUBLIC
-void wtap_init(bool load_wiretap_plugins);
+void wtap_init(bool load_wiretap_plugins, const char* app_env_var_prefix, const struct file_extension_info* file_extensions, unsigned num_extensions);
 
 /**
  * @brief Open a capture file for offline analysis.
@@ -2007,11 +2010,12 @@ void wtap_init(bool load_wiretap_plugins);
  * @param[out] err_info for some errors, a string giving more details of
  * the error
  * @param do_random true if random access to the file will be done,
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the personal config directory.
  * false if not
  */
 WS_DLL_PUBLIC
 struct wtap* wtap_open_offline(const char *filename, unsigned int type, int *err,
-    char **err_info, bool do_random);
+    char **err_info, bool do_random, const char* app_env_var_prefix);
 
 /**
  * @brief Clear EOF status for a wiretap file.

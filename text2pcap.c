@@ -88,6 +88,7 @@
 
 #include <ws_exit_codes.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/str_util.h>
 #include <wsutil/strnatcmp.h>
 #include <wsutil/wslog.h>
@@ -1044,6 +1045,8 @@ main(int argc, char *argv[])
     text_import_info_t info;
     wtap_dump_params params;
     uint64_t bytes_written;
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
 
     /* Set the program name. */
     g_set_prgname("text2pcap");
@@ -1075,7 +1078,8 @@ main(int argc, char *argv[])
     }
 
     init_report_failure_message("text2pcap");
-    wtap_init(true);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
 
     memset(&info, 0, sizeof(info));
     wtap_dump_params_init(&params, NULL);

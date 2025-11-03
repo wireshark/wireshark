@@ -60,6 +60,7 @@
 
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/file_compressed.h>
 #include <wsutil/privileges.h>
 #include <cli_main.h>
@@ -1105,7 +1106,7 @@ process_cap_file(const char *filename, bool need_separator)
 
     pkt_cmt *pc = NULL, *prev = NULL;
 
-    cf_info.wth = wtap_open_offline(filename, WTAP_TYPE_AUTO, &err, &err_info, false);
+    cf_info.wth = wtap_open_offline(filename, WTAP_TYPE_AUTO, &err, &err_info, false, application_configuration_environment_prefix());
     if (!cf_info.wth) {
         report_cfile_open_failure(filename, err, err_info);
         return 2;
@@ -1469,6 +1470,8 @@ main(int argc, char *argv[])
         LONGOPT_WSLOG
         {0, 0, 0, 0 }
     };
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
 
 #define OPTSTRING "abcdehiklmnopqrstuvxyzABCDEFHIKLMNPQRST"
     static const char optstring[] = OPTSTRING;
@@ -1527,7 +1530,8 @@ main(int argc, char *argv[])
 
     init_report_failure_message("capinfos");
 
-    wtap_init(true);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
 
     /* Process the options */
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) !=-1) {

@@ -29,6 +29,7 @@
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/application_flavor.h>
 #include <wsutil/privileges.h>
 #include <cli_main.h>
 #include <wsutil/version_info.h>
@@ -74,6 +75,8 @@ main(int argc, char *argv[])
     };
 #define OPTSTRING "hv"
     static const char optstring[] = OPTSTRING;
+    const struct file_extension_info* file_extensions;
+    unsigned num_extensions;
 
     /* Set the program name. */
     g_set_prgname("captype");
@@ -124,7 +127,8 @@ main(int argc, char *argv[])
 
     init_report_failure_message("captype");
 
-    wtap_init(true);
+    application_file_extensions(&file_extensions, &num_extensions);
+    wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
 
     /* Process the options */
     while ((opt = ws_getopt_long(argc, argv, optstring, long_options, NULL)) !=-1) {
@@ -154,7 +158,7 @@ main(int argc, char *argv[])
     overall_error_status = 0;
 
     for (i = 1; i < argc; i++) {
-        wth = wtap_open_offline(argv[i], WTAP_TYPE_AUTO, &err, &err_info, false);
+        wth = wtap_open_offline(argv[i], WTAP_TYPE_AUTO, &err, &err_info, false, application_configuration_environment_prefix());
 
         if(wth) {
             printf("%s: %s\n", argv[i], wtap_file_type_subtype_name(wtap_file_type_subtype(wth)));
