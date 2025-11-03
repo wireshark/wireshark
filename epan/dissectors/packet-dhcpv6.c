@@ -3411,7 +3411,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
         // Parse the service parameters
         next_tvb = tvb_new_subset_length(tvb, off + offset, optlen - offset);
-        offset += call_dissector(svc_params_handle, next_tvb, pinfo, subtree);
+        call_dissector(svc_params_handle, next_tvb, pinfo, subtree);
 
         break;
     }
