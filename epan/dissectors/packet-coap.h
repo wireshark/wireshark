@@ -37,8 +37,9 @@ typedef struct {
 	unsigned block_option;                     /* Indicates Block1 or Block2 option */
 	unsigned block_number;
 	unsigned block_mflag;
-	wmem_strbuf_t *uri_str_strbuf;		/* the maximum is 1024 > 510 = Uri-Host:255 + Uri-Path:255 x 2 */
-	wmem_strbuf_t *uri_query_strbuf;	/* the maximum is 1024 >         765 = Uri-Query:255 x 3 */
+	wmem_strbuf_t *uri_host_strbuf;
+	wmem_strbuf_t *uri_path_strbuf;
+	wmem_strbuf_t *uri_query_strbuf;
 	bool is_coap_for_tmf;		/* CoAP for Thread Management Framework */
 	bool object_security;
 	oscore_info_t *oscore_info;		/* OSCORE data needed to decrypt */
@@ -52,7 +53,8 @@ typedef struct {
 /* CoAP Transaction tracking information */
 typedef struct {
 	wmem_map_t    *req_rsp;
-	wmem_strbuf_t *uri_str_strbuf;
+	wmem_strbuf_t *uri_host_strbuf;
+	wmem_strbuf_t *uri_path_strbuf;
 	oscore_info_t *oscore_info;		/* OSCORE transaction to decrypt response */
 } coap_transaction;
 
