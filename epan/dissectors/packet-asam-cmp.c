@@ -3052,7 +3052,7 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_mipi_csi2_flags,                  { "Flags", "asam-cmp.msg.mipi_csi2.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_reserved,               { "Reserved", "asam-cmp.msg.mipi_csi2.res", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_frame_counter,          { "Frame Counter", "asam-cmp.msg.mipi_csi2.frame_counter", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_cmp_mipi_csi2_line_counter,           { "Line Counter", "asam-cmp.msg.mipi_csi2.frame_counter", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_mipi_csi2_line_counter,           { "Line Counter", "asam-cmp.msg.mipi_csi2.line_counter", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_dt,                     { "Data Type", "asam-cmp.msg.mipi_csi2.data_type", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_dt_res,                 { "Reserved", "asam-cmp.msg.mipi_csi2.data_type.res", FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_dt_dt,                  { "Data Type", "asam-cmp.msg.mipi_csi2.data_type.data_type", FT_UINT8, BASE_HEX, VALS(mipi_csi2_data_type_names), MIPI_CSI2_DT_BITS, NULL, HFILL}},
@@ -3065,7 +3065,7 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_mipi_csi2_ecc_res,                { "Reserved", "asam-cmp.msg.mipi_csi2.ecc.res", FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_ecc_ecc,                { "ECC", "asam-cmp.msg.mipi_csi2.ecc.ecc", FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_cs,                     { "Checksum", "asam-cmp.msg.mipi_csi2.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-        { &hf_cmp_mipi_csi2_wc,                     { "Word Count", "asam-cmp.msg.mipi_csi2.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_mipi_csi2_wc,                     { "Word Count", "asam-cmp.msg.mipi_csi2.word_count", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_short_packet_data,      { "Short Packet Data Field", "asam-cmp.msg.mipi_csi2.short_packet_data_field", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_data,                   { "Data", "asam-cmp.msg.mipi_csi2.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
@@ -3075,7 +3075,7 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_mipi_csi2_flag_ecc_fmt,           { "ECC Format", "asam-cmp.msg.mipi_csi2.flags.ecc_fmt", FT_BOOLEAN, 16, TFS(&mipi_csi2_ecc_noecc), 0x0008, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_flag_frame_ctr_src,     { "Frame Counter Source", "asam-cmp.msg.mipi_csi2.flags.frame_counter_source", FT_BOOLEAN, 16, TFS(&mipi_csi2_cmcounter_csicounter), 0x0010, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_flag_line_ctr_src,      { "Line Counter Source", "asam-cmp.msg.mipi_csi2.flags.line_counter_source", FT_BOOLEAN, 16, TFS(&mipi_csi2_cmcounter_csicounter), 0x0020, NULL, HFILL } },
-        { &hf_cmp_mipi_csi2_flag_cs_support,        { "CS Support", "asam-cmp.msg.mipi_csi2.flags.line_counter_source", FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0040, NULL, HFILL } },
+        { &hf_cmp_mipi_csi2_flag_cs_support,        { "Checksum Support", "asam-cmp.msg.mipi_csi2.flags.checksum_support", FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0040, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_flag_reserved,          { "Reserved", "asam-cmp.msg.mipi_csi2.flags.reserved", FT_UINT16, BASE_HEX, NULL, 0xFF80, NULL, HFILL } },
 
         /* Control Message Payloads */
