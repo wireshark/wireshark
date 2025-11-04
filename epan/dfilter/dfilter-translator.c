@@ -21,7 +21,7 @@
 // name: DFTranslator
 static GHashTable *registered_translators_;
 
-static void cleanup_hash_table_key(gpointer data)
+static void cleanup_hash_table_key(void * data)
 {
     g_free(data);
 }

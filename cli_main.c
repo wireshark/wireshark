@@ -60,7 +60,7 @@ wmain(int argc, wchar_t *wc_argv[])
 	}
 
 	argv_user = (char **)g_malloc((argc + 1) * sizeof(char *));
-	for (guint i = 0; i < argv->len; i++) {
+	for (unsigned i = 0; i < argv->len; i++) {
 		argv_user[i] = argv->pdata[i];
 	}
 	argv_user[argc] = NULL;

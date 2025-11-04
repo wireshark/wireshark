@@ -49,13 +49,13 @@ GuiHandler * GuiHandler::getInstance()
     return instance;
 }
 
-void GuiHandler::showAboutDialog(ext_menubar_gui_type gui_type _U_, gpointer gui_data _U_)
+void GuiHandler::showAboutDialog(ext_menubar_gui_type gui_type _U_, void *gui_data _U_)
 {
     PluginIFDemo_About * mainwindow = new PluginIFDemo_About();
     executeDialog((QDialog*)mainwindow);
 }
 
-void GuiHandler::showMainDialog(ext_menubar_gui_type gui_type _U_, gpointer gui_data _U_)
+void GuiHandler::showMainDialog(ext_menubar_gui_type gui_type _U_, void *gui_data _U_)
 {
     PluginIFDemo_Main * mainwindow = new PluginIFDemo_Main();
     mainwindow->setToolbar(_toolbar);

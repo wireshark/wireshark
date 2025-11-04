@@ -198,7 +198,7 @@ oran_stat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     return TAP_PACKET_REDRAW;
 }
 
-static int compare_flows(gpointer a, gpointer b)
+static int compare_flows(void *a, void *b)
 {
     oran_row_data *flow_a = (oran_row_data*)a;
     oran_row_data *flow_b = (oran_row_data*)b;

@@ -44,7 +44,7 @@ G_GNUC_ALLOC_SIZE(3);
 /**
  * @brief Generic GCompareFunc to compare two signed integers.
  *
- * Casts both `a` and `b` to `const gint*` and returns the result of their comparison.
+ * Casts both `a` and `b` to `const int*` and returns the result of their comparison.
  * This function is suitable for use with sorting or searching routines that accept
  * a `GCompareFunc`.
  *
@@ -59,7 +59,7 @@ wmem_compare_int(const void *a, const void *b);
 /**
  * @brief Generic GCompareFunc to compare two unsigned integers.
  *
- * Casts both `a` and `b` to `const guint*` and returns the result of their comparison.
+ * Casts both `a` and `b` to `const unsigned*` and returns the result of their comparison.
  * This function is suitable for use with sorting or searching routines that accept
  * a `GCompareFunc`.
  *

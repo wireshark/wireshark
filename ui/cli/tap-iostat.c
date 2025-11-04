@@ -138,7 +138,7 @@ iostat_io_free(io_stat_t *io)
         iostat_item_reset(&io->items[i]);
     }
     g_free(io->items);
-    g_free((gpointer)io->filters);
+    g_free((void *)io->filters);
     g_free(io->max_vals);
     g_free(io->max_frame);
     g_free(io->hf_indexes);

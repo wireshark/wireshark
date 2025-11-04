@@ -677,7 +677,7 @@ dfilter_macro_table_iter_next(struct dfilter_macro_table_iter *iter,
 	const char *key;
 	dfilter_macro_t *m;
 
-	if (!g_hash_table_iter_next(&iter->iter, (gpointer *)&key, (gpointer *)&m))
+	if (!g_hash_table_iter_next(&iter->iter, (void **)&key, (void **)&m))
 		return false;
 	if (name_ptr)
 		*name_ptr = key;

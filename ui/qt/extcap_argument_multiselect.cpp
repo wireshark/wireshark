@@ -476,7 +476,7 @@ extcap_format_external_arguments(GHashTable* extcap_args)
     QString command_line;
 
     GHashTableIter iter;
-    gpointer key, value;
+    void *key, *value;
     g_hash_table_iter_init(&iter, extcap_args);
     while (g_hash_table_iter_next(&iter, &key, &value)) {
         if (key != NULL)

@@ -734,8 +734,8 @@ df_func_register(df_func_def_t *func)
         return false;
     }
 
-    g_ptr_array_add(registered_names, (gpointer)func->name);
-    return g_hash_table_insert(registered_functions, (gpointer)func->name, func);
+    g_ptr_array_add(registered_names, (void *)func->name);
+    return g_hash_table_insert(registered_functions, (void *)func->name, func);
 }
 
 bool

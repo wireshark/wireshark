@@ -156,7 +156,7 @@ void PluginIFDemo_Main::on_btnSendButtonText_clicked()
     QString entryText = ui->txtButtonName->text();
     bool silent = ui->chkSilent->checkState() == Qt::Checked ? true : false;
 
-    ext_toolbar_update_value(item, (gpointer) entryText.toStdString().c_str(), silent);
+    ext_toolbar_update_value(item, (void *) entryText.toStdString().c_str(), silent);
 }
 
 void PluginIFDemo_Main::on_btnSendText_clicked()
@@ -171,7 +171,7 @@ void PluginIFDemo_Main::on_btnSendText_clicked()
     QString entryText = ui->txtEdit->text();
     bool silent = ui->chkSilent->checkState() == Qt::Checked ? true : false;
 
-    ext_toolbar_update_value(item, (gpointer) entryText.toStdString().c_str(), silent);
+    ext_toolbar_update_value(item, (void *) entryText.toStdString().c_str(), silent);
 }
 
 void PluginIFDemo_Main::on_chkTestCheckbox_stateChanged(int newState)
@@ -345,7 +345,7 @@ void PluginIFDemo_Main::on_btnSendUpdateItem_clicked()
     bool silent = ui->chkSilent->checkState() == Qt::Checked ? true : false;
 
     ext_toolbar_update_data_by_index(item,
-            (gpointer) displayValue.toStdString().c_str(), (gpointer) cmbIndexText.toStdString().c_str(), silent );
+            (void *) displayValue.toStdString().c_str(), (void *) cmbIndexText.toStdString().c_str(), silent );
 }
 
 void PluginIFDemo_Main::on_lstItems_clicked(const QModelIndex &idx)

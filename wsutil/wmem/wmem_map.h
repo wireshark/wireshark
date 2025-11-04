@@ -324,7 +324,7 @@ wmem_str_hash(const void *key);
  * Prefer this over `g_int64_hash` when the input data may come from untrusted sources,
  * such as external files, network traffic, or user input.
  *
- * @param key Pointer to a 64-bit integer (`gint64`) to hash.
+ * @param key Pointer to a 64-bit integer (`int64_t`) to hash.
  * @return A 32-bit unsigned integer hash value.
  */
 WS_DLL_PUBLIC

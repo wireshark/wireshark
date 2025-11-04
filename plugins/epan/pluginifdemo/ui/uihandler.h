@@ -29,8 +29,8 @@ public:
 
     static GuiHandler * getInstance();
 
-    void showAboutDialog(ext_menubar_gui_type gui_type, gpointer gui_data);
-    void showMainDialog(ext_menubar_gui_type gui_type, gpointer gui_data);
+    void showAboutDialog(ext_menubar_gui_type gui_type, void *gui_data);
+    void showMainDialog(ext_menubar_gui_type gui_type, void *gui_data);
 
     void doReset();
 
@@ -63,9 +63,9 @@ private:
 extern "C" {
 #endif
 
-extern void pluginifdemo_ui_about(ext_menubar_gui_type gui_type, gpointer gui_data);
-extern void pluginifdemo_ui_main(ext_menubar_gui_type gui_type, gpointer gui_data);
-extern void pluginifdemo_toolbar_log(const gchar * message);
+extern void pluginifdemo_ui_about(ext_menubar_gui_type gui_type, void *gui_data);
+extern void pluginifdemo_ui_main(ext_menubar_gui_type gui_type, void *gui_data);
+extern void pluginifdemo_toolbar_log(const char * message);
 
 extern void pluginifdemo_toolbar_register(ext_toolbar_t * toolbar);
 

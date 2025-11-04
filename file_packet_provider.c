@@ -196,7 +196,7 @@ cap_get_darwin_process_uuid(struct packet_provider_data *prov, uint32_t dpib_id,
 {
     wtap_block_t    dpib              = NULL;
     GBytes          *uuid_data        = NULL;
-    gsize           uuid_data_size    = 0;
+    size_t          uuid_data_size    = 0;
 
     if (!cap_file_provider_get_dpib(prov, dpib_id, section_number, &dpib))
         return false;

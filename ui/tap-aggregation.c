@@ -103,7 +103,7 @@ bool register_tap_listener_aggregation(void) {
         return false;
     }
 
-    gchar* filter = NULL;
+    char* filter = NULL;
     GList* node;
     char* field;
 
@@ -112,7 +112,7 @@ bool register_tap_listener_aggregation(void) {
         node = g_list_nth(prefs.aggregation_fields, i);
         field = g_strdup((char*)node->data);
         if (filter) {
-            gchar* old_filter = filter;
+            char* old_filter = filter;
             filter = g_strdup_printf("%s && %s", old_filter, field);
             g_free(old_filter);
         } else {
