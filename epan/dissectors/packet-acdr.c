@@ -937,7 +937,6 @@ dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
 {
     tvbuff_t *next_tvb = NULL;
     int32_t offset = 0;
-    int remaining;
     const bool is_incoming = trace_point == Host2Pstn || trace_point == DspIncoming;
 
     proto_tree_add_item(tree, hf_acdr_signaling_opcode, tvb, HEADER_FIELD_SIG_OPCODE_BYTE_NO,
@@ -956,10 +955,9 @@ dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
         offset += HEADER_FIELD_SIG_TIME_BYTE_COUNT;
     }
 
-    remaining = tvb_reported_length_remaining(tvb, offset);
-    if (remaining == 0)
+    if (tvb_reported_length_remaining(tvb, offset) == 0)
         return tvb_reported_length(tvb);
-    next_tvb = tvb_new_subset_length_caplen(tvb, offset, remaining, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
 
     return call_data_dissector(next_tvb, pinfo, tree);
 }

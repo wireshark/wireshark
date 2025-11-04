@@ -1063,7 +1063,7 @@ dissect_eigrp_metric_flags (proto_tree *tree, tvbuff_t *tvb, int offset, int lim
 
     /* Decode the route flags field */
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, limit, ett_eigrp_metric_flags, NULL, "Flags");
-    sub_tvb = tvb_new_subset_length_caplen(tvb, offset, limit, -1);
+    sub_tvb = tvb_new_subset_length(tvb, offset, limit);
 
     /* just care about 'flags' byte, there are no MP flags for now */
     proto_tree_add_item(sub_tree, hf_eigrp_metric_flags_srcwd, sub_tvb, 0, 1,
@@ -1281,7 +1281,7 @@ dissect_eigrp_services (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 
     remaining = tvb_captured_length_remaining(tvb, offset);
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, remaining, ett_eigrp_tlv_metric, &sub_ti, "SAF Service ");
-    sub_tvb = tvb_new_subset_length_caplen(tvb, offset, remaining, -1);
+    sub_tvb = tvb_new_subset_length(tvb, offset, remaining);
     sub_offset = 0;
 
     for (; tvb_reported_length_remaining(sub_tvb, sub_offset) > 0; ) {
@@ -1411,7 +1411,7 @@ dissect_eigrp_legacy_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
     tvbuff_t   *sub_tvb;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_eigrp_tlv_metric, NULL, "Legacy Metric");
-    sub_tvb = tvb_new_subset_length_caplen(tvb, offset, 16, -1);
+    sub_tvb = tvb_new_subset_length(tvb, offset, 16);
 
     proto_tree_add_item(sub_tree, hf_eigrp_legacy_metric_delay, sub_tvb,
                         0, 4, ENC_BIG_ENDIAN);
@@ -1472,7 +1472,7 @@ dissect_eigrp_ipx_extdata (proto_tree *tree, tvbuff_t *tvb, int offset)
     int         sub_offset = 0;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 20, ett_eigrp_tlv_extdata, NULL, "External Data");
-    sub_tvb = tvb_new_subset_length_caplen(tvb, offset, 20, -1);
+    sub_tvb = tvb_new_subset_length(tvb, offset, 20);
 
     /* Decode the external route source info */
     proto_tree_add_item(sub_tree, hf_eigrp_ipx_extdata_routerid, sub_tvb,
@@ -1539,7 +1539,7 @@ dissect_eigrp_extdata (proto_tree *tree, tvbuff_t *tvb, int offset)
     int         sub_offset = 0;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 20, ett_eigrp_tlv_extdata, NULL, "External Data");
-    sub_tvb = tvb_new_subset_length_caplen(tvb, offset, 20, -1);
+    sub_tvb = tvb_new_subset_length(tvb, offset, 20);
 
     /* Decode the external route source info */
     proto_tree_add_item(sub_tree, hf_eigrp_extdata_origrid, sub_tvb,
@@ -2129,7 +2129,7 @@ dissect_eigrp_wide_metric_attr (proto_tree *tree, tvbuff_t *tvb,
     limit *= 2;   /* words to bytes */
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, limit, ett_eigrp_tlv_attr, NULL, "Attributes");
-    sub_tvb    = tvb_new_subset_length_caplen(tvb, offset, limit, -1);
+    sub_tvb    = tvb_new_subset_length(tvb, offset, limit);
     sub_offset = 0;
 
     while (limit > 0) {
@@ -2236,7 +2236,7 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
     uint64_t    big_num;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 24, ett_eigrp_tlv_metric, NULL, "Wide Metric");
-    sub_tvb = tvb_new_subset_length_caplen(tvb, offset, 24, -1);
+    sub_tvb = tvb_new_subset_length(tvb, offset, 24);
 
     attr_size = tvb_get_uint8(sub_tvb, 0);
 

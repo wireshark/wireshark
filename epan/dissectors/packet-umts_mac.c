@@ -803,7 +803,7 @@ static tvbuff_t * add_to_tree(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
         }
         return new_tvb;
     } else {
-        new_tvb = tvb_new_subset_length_caplen(tvb, offset, maclength, -1);
+        new_tvb = tvb_new_subset_length(tvb, offset, maclength);
         switch (type) {
             case MAC_IS_HEAD:
                 proto_tree_add_expert(tree, pinfo, &ei_mac_macis_sdu_first, new_tvb, 0, -1);
@@ -915,7 +915,7 @@ static tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, pr
         /* If our SDU is not fragmented. */
         } else {
             DISSECTOR_ASSERT((sdu_no == 0) ? (ss&1) == 0 : ((sdu_no == no_sdus-1) ? (ss&2) == 0 : true));
-            return tvb_new_subset_length_caplen(tvb, offset, maclength, -1);
+            return tvb_new_subset_length(tvb, offset, maclength);
         }
     /* If clicking on a packet. */
     } else {
@@ -941,7 +941,7 @@ static tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, pr
                 return add_to_tree(tvb, pinfo, tree, sdu, offset, maclength, MAC_IS_HEAD);
             }
         } else {
-            new_tvb = tvb_new_subset_length_caplen(tvb, offset, maclength, -1);
+            new_tvb = tvb_new_subset_length(tvb, offset, maclength);
             proto_tree_add_expert(tree, pinfo, &ei_mac_macis_sdu_complete, new_tvb, 0, -1);
             proto_tree_add_item(tree, hf_mac_edch_type2_sdu_data, new_tvb, 0, -1, ENC_NA);
             return new_tvb;
