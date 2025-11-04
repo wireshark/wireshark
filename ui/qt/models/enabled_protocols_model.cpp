@@ -12,6 +12,7 @@
 #include <ui/qt/models/enabled_protocols_model.h>
 #include <epan/packet.h>
 #include <epan/disabled_protos.h>
+#include <wsutil/application_flavor.h>
 
 #include <ui/qt/utils/variant_pointer.h>
 #include "main_application.h"
@@ -333,7 +334,7 @@ void EnabledProtocolsModel::disableProtocol(struct _protocol *protocol)
 void EnabledProtocolsModel::saveChanges(bool writeChanges)
 {
     if (writeChanges) {
-        save_enabled_and_disabled_lists();
+        save_enabled_and_disabled_lists(application_configuration_environment_prefix());
     }
     mainApp->emitAppSignal(MainApplication::PacketDissectionChanged);
 }

@@ -52,10 +52,10 @@ typedef struct _color_filter {
 typedef void (*color_filter_add_cb_func)(color_filter_t *colorf, void *user_data);
 
 /** Init the color filters (incl. initial read from file). */
-WS_DLL_PUBLIC bool color_filters_init(char** err_msg, color_filter_add_cb_func add_cb);
+WS_DLL_PUBLIC bool color_filters_init(char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix);
 
 /** Reload the color filters */
-WS_DLL_PUBLIC bool color_filters_reload(char** err_msg, color_filter_add_cb_func add_cb);
+WS_DLL_PUBLIC bool color_filters_reload(char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix);
 
 /** Cleanup remaining color filter zombies */
 WS_DLL_PUBLIC void color_filters_cleanup(void);
@@ -159,9 +159,10 @@ WS_DLL_PUBLIC bool color_filters_import(const char *path, void *user_data, char 
  * @param user_data will be returned by each call to color_filter_add_cb()
  * @param err_msg a string with error message
  * @param add_cb the callback function to add color filter
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the global configuration directory.
  * @return true, if read succeeded
  */
-WS_DLL_PUBLIC bool color_filters_read_globals(void *user_data, char** err_msg, color_filter_add_cb_func add_cb);
+WS_DLL_PUBLIC bool color_filters_read_globals(void *user_data, char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix);
 
 
 /** Apply a changed filter list.
@@ -176,9 +177,11 @@ WS_DLL_PUBLIC bool color_filters_apply(GSList *tmp_cfl, GSList *edit_cfl, char**
  *
  * @param cfl the filter list to write
  * @param err_msg a string with error message
+ * @param app_name Proper name of the application (used in comment strings)
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the global configuration directory.
  * @return true if write succeeded
  */
-WS_DLL_PUBLIC bool color_filters_write(GSList *cfl, char** err_msg);
+WS_DLL_PUBLIC bool color_filters_write(GSList *cfl, const char* app_name, const char* app_env_var_prefix, char** err_msg);
 
 /** Save filters (export) to some other filter file.
  *
@@ -186,9 +189,10 @@ WS_DLL_PUBLIC bool color_filters_write(GSList *cfl, char** err_msg);
  * @param cfl the filter list to write
  * @param only_selected true if only the selected filters should be saved
  * @param err_msg a string with error message
+ * @param app_name Proper name of the application (used in comment strings)
  * @return true, if write succeeded
  */
-WS_DLL_PUBLIC bool color_filters_export(const char *path, GSList *cfl, bool only_selected, char** err_msg);
+WS_DLL_PUBLIC bool color_filters_export(const char *path, GSList *cfl, bool only_selected, const char* app_name, char** err_msg);
 
 /** Create a new color filter (g_malloc'ed).
  *

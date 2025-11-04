@@ -270,7 +270,7 @@ FolderListModel::FolderListModel(QObject * parent):
 
 #ifdef HAVE_LIBSMI
     /* SMI MIBs/PIBs */
-    char *default_mib_path = oid_get_default_mib_path();
+    char *default_mib_path = oid_get_default_mib_path(application_configuration_environment_prefix());
     QStringList smiPaths = QString(default_mib_path).split(G_SEARCHPATH_SEPARATOR_S, Qt::SkipEmptyParts);
     g_free(default_mib_path);
     foreach(QString path, smiPaths)

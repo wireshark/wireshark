@@ -893,7 +893,7 @@ void name_resolver_init(void);
  * Intended for internal use by the epan core only.
  */
 WS_DLL_LOCAL
-void host_name_lookup_reset(void);
+void host_name_lookup_reset(const char* app_env_var_prefix);
 
 /**
  * @brief Initializes the address resolution subsystem.
@@ -902,7 +902,7 @@ void host_name_lookup_reset(void);
  * Intended for internal use by the epan core only.
  */
 WS_DLL_LOCAL
-void addr_resolv_init(void);
+void addr_resolv_init(const char* app_env_var_prefix);
 
 /**
  * @brief Cleans up the address resolution subsystem.

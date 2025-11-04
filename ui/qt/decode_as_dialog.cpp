@@ -217,7 +217,7 @@ void DecodeAsDialog::on_buttonBox_clicked(QAbstractButton *button)
         char* err = NULL;
 
         applyChanges();
-        if (save_decode_as_entries(&err) < 0) {
+        if (save_decode_as_entries(application_flavor_name_proper(), application_configuration_environment_prefix(), &err) < 0) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
             g_free(err);
         }

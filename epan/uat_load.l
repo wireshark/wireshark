@@ -382,7 +382,7 @@ comment #[^\n]*\n
 DIAG_ON_FLEX()
 
 bool
-uat_load(uat_t *uat, const char *filename, char **errx)
+uat_load(uat_t *uat, const char *filename, const char* app_env_var_prefix, char **errx)
 {
 	char *fname;
 	FILE *in;
@@ -392,7 +392,7 @@ uat_load(uat_t *uat, const char *filename, char **errx)
 	if (filename) {
 		fname = g_strdup(filename);
 	} else {
-		fname = uat_get_actual_filename(uat, false);
+		fname = uat_get_actual_filename(uat, false, app_env_var_prefix);
 	}
 
 	if (!fname) {

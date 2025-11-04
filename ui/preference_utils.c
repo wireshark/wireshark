@@ -309,7 +309,7 @@ void save_migrated_uat(const char *uat_name, bool *old_pref)
 {
     char *err = NULL;
 
-    if (!uat_save(uat_get_table_by_name(uat_name), &err)) {
+    if (!uat_save(uat_get_table_by_name(uat_name), application_configuration_environment_prefix(), &err)) {
         ws_warning("Unable to save %s: %s", uat_name, err);
         g_free(err);
         return;

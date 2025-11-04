@@ -369,14 +369,14 @@ register_shutdown_routine(void (*func)(void))
 
 /* Initialize all data structures used for dissection. */
 void
-init_dissection(void)
+init_dissection(const char* app_env_var_prefix)
 {
 	/*
 	 * Reinitialize resolution information. Don't leak host entries from
 	 * one file to another (e.g. embarrassing-host-name.example.com from
 	 * file1.pcapng into a name resolution block in file2.pcapng).
 	 */
-	host_name_lookup_reset();
+	host_name_lookup_reset(app_env_var_prefix);
 
 	wmem_enter_file_scope();
 

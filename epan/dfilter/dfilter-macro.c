@@ -535,7 +535,7 @@ void dfilter_macro_reload(const char* app_env_var_prefix) {
 	/* Check if we need to convert an old dfilter_macro configuration file.
 	 * We do so only if a new one doesn't exist. We need to do this check
 	 * for every reload because the configuration profile might have changed. */
-	convert_old_uat_file();
+	convert_old_uat_file(app_env_var_prefix);
 
 	g_hash_table_remove_all(macros_table);
 

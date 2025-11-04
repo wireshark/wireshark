@@ -27,6 +27,8 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/color_utils.h>
 #include <ui/capture_globals.h>
+#include <wsutil/application_flavor.h>
+
 
 #include "main_application.h"
 
@@ -410,7 +412,7 @@ void PreferencesDialog::apply()
     mainApp->emitAppSignal(MainApplication::FilterExpressionsChanged);
 
     prefs_main_write();
-    if (save_decode_as_entries(&err) < 0)
+    if (save_decode_as_entries(application_flavor_name_proper(), application_configuration_environment_prefix(), &err) < 0)
     {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
         g_free(err);

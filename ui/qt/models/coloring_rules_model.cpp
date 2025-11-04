@@ -14,6 +14,7 @@
 #include <errno.h>
 
 #include "ui/ws_ui_util.h" //for color_filter_add_cb
+#include <wsutil/application_flavor.h>
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -163,7 +164,7 @@ bool ColoringRulesModel::exportColors(QString filename, QString& err)
     GSList *cfl = createColorFilterList();
     bool success = true;
     char* err_msg = NULL;
-    if (!color_filters_export(filename.toUtf8().constData(), cfl, false, &err_msg)) {
+    if (!color_filters_export(filename.toUtf8().constData(), cfl, false, application_flavor_name_proper(), &err_msg)) {
         err = gchar_free_to_qstring(err_msg);
         success = false;
     }
@@ -181,7 +182,7 @@ bool ColoringRulesModel::writeColors(QString& err)
         err = gchar_free_to_qstring(err_msg);
         success = false;
     }
-    if (!color_filters_write(cfl, &err_msg)) {
+    if (!color_filters_write(cfl, application_flavor_name_proper(), application_configuration_environment_prefix(), &err_msg)) {
         err = tr("Unable to save coloring rules: %1").arg(g_strerror(errno));
         success = false;
         g_free(err_msg);

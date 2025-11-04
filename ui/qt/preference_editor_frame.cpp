@@ -22,6 +22,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/wireshark_file_dialog.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/application_flavor.h>
 
 #include "main_application.h"
 
@@ -272,7 +273,7 @@ void PreferenceEditorFrame::on_buttonBox_accepted()
         prefs_main_write();
 
         char* err = NULL;
-        if (save_decode_as_entries(&err) < 0)
+        if (save_decode_as_entries(application_flavor_name_proper(), application_configuration_environment_prefix(), &err) < 0)
         {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err);
             g_free(err);

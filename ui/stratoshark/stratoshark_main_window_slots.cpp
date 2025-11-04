@@ -1465,7 +1465,7 @@ void StratosharkMainWindow::checkDisplayFilter()
 void StratosharkMainWindow::fieldsChanged()
 {
     char *err_msg = NULL;
-    if (!color_filters_reload(&err_msg, color_filter_add_cb)) {
+    if (!color_filters_reload(&err_msg, color_filter_add_cb, application_configuration_environment_prefix())) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
     }

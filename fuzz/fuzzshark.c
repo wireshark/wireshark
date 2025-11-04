@@ -286,7 +286,7 @@ fuzz_init(int argc, char **argv)
 	/* Load libwireshark settings from the current profile. */
 	prefs_p = epan_load_settings();
 
-	if (!color_filters_init(&err_msg, NULL))
+	if (!color_filters_init(&err_msg, NULL, application_configuration_environment_prefix()))
 	{
 		fprintf(stderr, "%s\n", err_msg);
 		g_free(err_msg);

@@ -320,12 +320,13 @@ void uat_cleanup(void);
  *
  * @param uat_in Pointer to a uat. Must not be NULL.
  * @param filename Filename to load, NULL to fetch from current profile.
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the personal config directory.
  * @param err Upon failure, points to an error string.
  *
  * @return true on success, false on failure.
  */
 WS_DLL_PUBLIC
-bool uat_load(uat_t* uat_in, const char *filename, char** err);
+bool uat_load(uat_t* uat_in, const char *filename, const char* app_env_var_prefix, char** err);
 
 /** Create or update a single UAT entry using a string.
  *

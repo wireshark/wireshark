@@ -14,6 +14,7 @@
 #include "ui/qt/io_graph_dialog.h"
 #include <epan/to_str.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <wsutil/application_flavor.h>
 #include <QFont>
 #include <QBrush>
 #include <QDebug>
@@ -75,7 +76,7 @@ bool UatModel::applyChanges(QString &error)
     if (uat_->changed) {
         char *err = NULL;
 
-        if (!uat_save(uat_, &err)) {
+        if (!uat_save(uat_, application_configuration_environment_prefix(), &err)) {
             error = QStringLiteral("Error while saving %1: %2").arg(uat_->name).arg(err);
             g_free(err);
         }
@@ -103,7 +104,7 @@ bool UatModel::revertChanges(QString &error)
     if (uat_->changed) {
         char *err = NULL;
         uat_clear(uat_);
-        if (!uat_load(uat_, NULL, &err)) {
+        if (!uat_load(uat_, NULL, application_configuration_environment_prefix(), &err)) {
             error = QStringLiteral("Error while loading %1: %2").arg(uat_->name).arg(err);
             g_free(err);
         }

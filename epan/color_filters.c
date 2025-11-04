@@ -21,13 +21,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <wsutil/application_flavor.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
-#include <wsutil/application_flavor.h>
 
 #include <epan/packet.h>
 #include "color_filters.h"
@@ -311,7 +309,7 @@ color_filter_list_clone(GSList *cfl)
 }
 
 static bool
-color_filters_get(char** err_msg, color_filter_add_cb_func add_cb)
+color_filters_get(char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix)
 {
     char     *path;
     FILE     *f;
@@ -326,7 +324,7 @@ color_filters_get(char** err_msg, color_filter_add_cb_func add_cb)
      * Get the path for the file that would have their filters, and
      * try to open it.
      */
-    path = get_persconffile_path(COLORFILTERS_FILE_NAME, true, application_configuration_environment_prefix());
+    path = get_persconffile_path(COLORFILTERS_FILE_NAME, true, app_env_var_prefix);
     if ((f = ws_fopen(path, "r")) == NULL) {
         if (errno != ENOENT) {
             /* Error trying to open the file; give up. */
@@ -337,7 +335,7 @@ color_filters_get(char** err_msg, color_filter_add_cb_func add_cb)
 	}
         /* They don't have any filters; try to read the global filters */
         g_free(path);
-        return color_filters_read_globals(&color_filter_list, err_msg, add_cb);
+        return color_filters_read_globals(&color_filter_list, err_msg, add_cb, app_env_var_prefix);
     }
 
     /*
@@ -360,17 +358,17 @@ color_filters_get(char** err_msg, color_filter_add_cb_func add_cb)
 
 /* Initialize the filter structures (reading from file) for general running, including app startup */
 bool
-color_filters_init(char** err_msg, color_filter_add_cb_func add_cb)
+color_filters_init(char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix)
 {
     /* delete all currently existing filters */
     color_filter_list_delete(&color_filter_list);
 
     /* now try to construct the filters list */
-    return color_filters_get(err_msg, add_cb);
+    return color_filters_get(err_msg, add_cb, app_env_var_prefix);
 }
 
 bool
-color_filters_reload(char** err_msg, color_filter_add_cb_func add_cb)
+color_filters_reload(char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix)
 {
     /* "move" old entries to the deleted list
      * we must keep them until the dissection no longer needs them */
@@ -378,7 +376,7 @@ color_filters_reload(char** err_msg, color_filter_add_cb_func add_cb)
     color_filter_list = NULL;
 
     /* now try to construct the filters list */
-    return color_filters_get(err_msg, add_cb);
+    return color_filters_get(err_msg, add_cb, app_env_var_prefix);
 }
 
 void
@@ -760,7 +758,7 @@ read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_c
 
 /* read filters from the filter file */
 bool
-color_filters_read_globals(void *user_data, char** err_msg, color_filter_add_cb_func add_cb)
+color_filters_read_globals(void *user_data, char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix)
 {
     char     *path;
     FILE     *f;
@@ -772,7 +770,7 @@ color_filters_read_globals(void *user_data, char** err_msg, color_filter_add_cb_
      * Get the path for the file that would have the global filters, and
      * try to open it.
      */
-    path = get_datafile_path(COLORFILTERS_FILE_NAME, application_configuration_environment_prefix());
+    path = get_datafile_path(COLORFILTERS_FILE_NAME, app_env_var_prefix);
     if ((f = ws_fopen(path, "r")) == NULL) {
         if (errno != ENOENT) {
             /* Error trying to open the file; give up. */
@@ -860,21 +858,21 @@ write_filter(void *filter_arg, void *data_arg)
 
 /* save filters in a filter file */
 static bool
-write_filters_file(GSList *cfl, FILE *f, bool only_selected)
+write_filters_file(GSList *cfl, FILE *f, bool only_selected, const char* app_name)
 {
     struct write_filter_data data;
 
     data.f = f;
     data.only_selected = only_selected;
 
-    fprintf(f,"# This file was created by %s. Edit with care.\n", application_flavor_name_proper());
+    fprintf(f,"# This file was created by %s. Edit with care.\n", app_name);
     g_slist_foreach(cfl, write_filter, &data);
     return true;
 }
 
 /* save filters in users filter file */
 bool
-color_filters_write(GSList *cfl, char** err_msg)
+color_filters_write(GSList *cfl, const char* app_name, const char* app_env_var_prefix, char** err_msg)
 {
     char *pf_dir_path;
     char *path;
@@ -882,14 +880,14 @@ color_filters_write(GSList *cfl, char** err_msg)
 
     /* Create the directory that holds personal configuration files,
        if necessary.  */
-    if (create_persconffile_dir(application_configuration_environment_prefix(), &pf_dir_path) == -1) {
+    if (create_persconffile_dir(app_env_var_prefix, &pf_dir_path) == -1) {
         *err_msg = ws_strdup_printf("Can't create directory\n\"%s\"\nfor color files: %s.",
                       pf_dir_path, g_strerror(errno));
         g_free(pf_dir_path);
         return false;
     }
 
-    path = get_persconffile_path(COLORFILTERS_FILE_NAME, true, application_configuration_environment_prefix());
+    path = get_persconffile_path(COLORFILTERS_FILE_NAME, true, app_env_var_prefix);
     if ((f = ws_fopen(path, "w+")) == NULL) {
         *err_msg = ws_strdup_printf("Could not open\n%s\nfor writing: %s.",
                       path, g_strerror(errno));
@@ -897,14 +895,14 @@ color_filters_write(GSList *cfl, char** err_msg)
         return false;
     }
     g_free(path);
-    write_filters_file(cfl, f, false);
+    write_filters_file(cfl, f, false, app_name);
     fclose(f);
     return true;
 }
 
 /* save filters in some other filter file (export) */
 bool
-color_filters_export(const char *path, GSList *cfl, bool only_marked, char** err_msg)
+color_filters_export(const char *path, GSList *cfl, bool only_marked, const char* app_name, char** err_msg)
 {
     FILE *f;
 
@@ -913,7 +911,7 @@ color_filters_export(const char *path, GSList *cfl, bool only_marked, char** err
                       path, g_strerror(errno));
         return false;
     }
-    write_filters_file(cfl, f, only_marked);
+    write_filters_file(cfl, f, only_marked, app_name);
     fclose(f);
     return true;
 }

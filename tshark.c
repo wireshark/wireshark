@@ -863,7 +863,7 @@ about_folders(void)
 
 #ifdef HAVE_LIBSMI
     /* SMI MIBs/PIBs */
-    path = oid_get_default_mib_path();
+    path = oid_get_default_mib_path(application_configuration_environment_prefix());
 
     resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 20);
 
@@ -2018,7 +2018,7 @@ main(int argc, char *argv[])
     }
 
     if (dissect_color) {
-        if (!color_filters_init(&err_msg, NULL)) {
+        if (!color_filters_init(&err_msg, NULL, application_configuration_environment_prefix())) {
             fprintf(stderr, "%s\n", err_msg);
             g_free(err_msg);
         }
@@ -4480,7 +4480,7 @@ write_preamble(capture_file *cf)
 
         case WRITE_XML:
             if (print_details)
-                write_pdml_preamble(stdout, cf->filename);
+                write_pdml_preamble(stdout, cf->filename, get_doc_dir(application_configuration_environment_prefix()));
             else
                 write_psml_preamble(&cf->cinfo, stdout);
             return !ferror(stdout);

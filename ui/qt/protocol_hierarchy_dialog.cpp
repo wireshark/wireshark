@@ -17,6 +17,7 @@
 #include <ui/qt/utils/variant_pointer.h>
 
 #include <wsutil/utf8_entities.h>
+#include <wsutil/application_flavor.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "main_application.h"
@@ -446,7 +447,7 @@ void ProtocolHierarchyDialog::on_actionDisableProtos_triggered()
 void ProtocolHierarchyDialog::on_actionRevertProtos_triggered()
 {
     proto_reenable_all();
-    read_enabled_and_disabled_lists();
+    read_enabled_and_disabled_lists(application_configuration_environment_prefix());
 
     proto_revert_->setEnabled(enabled_protos_unsaved_changes());
     QString hint = "<small><i>"

@@ -100,7 +100,7 @@ WS_DLL_PUBLIC bool proto_tree_print(print_dissections_e print_dissections,
 
 WS_DLL_PUBLIC bool print_hex_data(print_stream_t *stream, epan_dissect_t *edt, unsigned hexdump_options);
 
-WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const char* filename);
+WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const char* filename, const char* doc_dir);
 WS_DLL_PUBLIC void write_pdml_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_info *cinfo, FILE *fh, bool use_color);
 WS_DLL_PUBLIC void write_pdml_finale(FILE *fh);
 

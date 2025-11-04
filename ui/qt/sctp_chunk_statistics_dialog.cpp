@@ -95,7 +95,7 @@ void SCTPChunkStatisticsDialog::fillTable(bool all, const sctp_assoc_info_t *sel
         return;
     }
     uat_t *uat = prefs_get_uat_value(pref);
-    char* fname = uat_get_actual_filename(uat,true);
+    char* fname = uat_get_actual_filename(uat,true,application_configuration_environment_prefix());
     bool init = false;
 
     if (!fname) {
@@ -221,7 +221,7 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
 
     uat_t *uat = prefs_get_uat_value(pref);
 
-    char* fname = uat_get_actual_filename(uat,true);
+    char* fname = uat_get_actual_filename(uat,true,application_configuration_environment_prefix());
 
     if (!fname) {
         return;
@@ -299,7 +299,7 @@ void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
     uat_t *uat = prefs_get_uat_value(pref);
     uat_clear(uat);
 
-    if (!uat_load(uat, NULL, &err)) {
+    if (!uat_load(uat, NULL, application_configuration_environment_prefix(), &err)) {
         /* XXX - report this through the GUI */
         ws_log(LOG_DOMAIN_QTUI, LOG_LEVEL_WARNING, "Error loading table '%s': %s", uat->name, err);
         g_free(err);

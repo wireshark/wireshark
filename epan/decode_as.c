@@ -16,7 +16,6 @@
 #include <epan/packet.h>
 #include "prefs.h"
 #include "prefs-int.h"
-#include "wsutil/application_flavor.h"
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
 #include <stdio.h>
@@ -285,14 +284,14 @@ read_set_decode_as_entries(char *key, const char *value,
 }
 
 void
-load_decode_as_entries(void)
+load_decode_as_entries(const char* app_env_var_prefix)
 {
     char   *daf_path;
     FILE   *daf;
 
     decode_clear_all();
 
-    daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, application_configuration_environment_prefix());
+    daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, app_env_var_prefix);
     if ((daf = ws_fopen(daf_path, "r")) != NULL) {
         /* Store saved entries for better range processing */
         GHashTable* processed_entries = g_hash_table_new(g_str_hash, g_str_equal);
@@ -390,21 +389,21 @@ decode_as_print_rows(void *data, void *user_data)
 
 }
 int
-save_decode_as_entries(char** err)
+save_decode_as_entries(const char* app_name, const char* app_env_var_prefix, char** err)
 {
     char *pf_dir_path;
     char *daf_path;
     FILE *da_file;
     GList *decode_as_rows_list = NULL;
 
-    if (create_persconffile_dir(application_configuration_environment_prefix(), &pf_dir_path) == -1) {
+    if (create_persconffile_dir(app_env_var_prefix, &pf_dir_path) == -1) {
         *err = ws_strdup_printf("Can't create directory\n\"%s\"\nfor recent file: %s.",
                                 pf_dir_path, g_strerror(errno));
         g_free(pf_dir_path);
         return -1;
     }
 
-    daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, application_configuration_environment_prefix());
+    daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, true, app_env_var_prefix);
     if ((da_file = ws_fopen(daf_path, "w")) == NULL) {
         *err = ws_strdup_printf("Can't open decode_as_entries file\n\"%s\": %s.",
                                 daf_path, g_strerror(errno));
@@ -417,7 +416,7 @@ save_decode_as_entries(char** err)
         "# This file is regenerated each time \"Decode As\" preferences\n"
         "# are saved within %s. Making manual changes should be safe,\n"
         "# however.\n",
-        application_flavor_name_proper(), application_flavor_name_proper());
+        app_name, app_name);
 
     dissector_all_tables_foreach_changed(decode_as_write_entry, &decode_as_rows_list);
 

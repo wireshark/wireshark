@@ -803,7 +803,7 @@ WS_DLL_PUBLIC void register_cleanup_routine(void (*func)(void));
 WS_DLL_PUBLIC void register_shutdown_routine(void (*func)(void));
 
 /* Initialize all data structures used for dissection. */
-void init_dissection(void);
+void init_dissection(const char* app_env_var_prefix);
 
 /* Free data structures allocated for dissection. */
 void cleanup_dissection(void);

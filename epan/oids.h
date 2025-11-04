@@ -100,7 +100,7 @@ typedef struct _oid_info_t {
 } oid_info_t;
 
 /** init function called from prefs.c */
-WS_DLL_PUBLIC void oids_init(void);
+WS_DLL_PUBLIC void oids_init(const char* app_env_var_prefix);
 extern void oid_pref_init(module_t *nameres);
 
 /** init function called from epan.h */
@@ -173,7 +173,7 @@ WS_DLL_PUBLIC void oid_add_from_string(const char* name, const char *oid_str);
  * @return A string containing the default MIB/PIB path.  It must be
  * g_free()d by the caller.
  */
-WS_DLL_PUBLIC char *oid_get_default_mib_path(void);
+WS_DLL_PUBLIC char *oid_get_default_mib_path(const char* app_env_var_prefix);
 
 /* macros for legacy oid functions */
 #define subid_t uint32_t

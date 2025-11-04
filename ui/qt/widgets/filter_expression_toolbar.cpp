@@ -17,6 +17,7 @@
 
 #include <epan/filter_expressions.h>
 #include <ui/preference_utils.h>
+#include <wsutil/application_flavor.h>
 
 #include <QApplication>
 #include <QFrame>
@@ -194,7 +195,7 @@ void FilterExpressionToolBar::onActionMoved(QAction* action, int oldPos, int new
     {
         uat_t * table = uat_get_table_by_name("Display expressions");
         uat_move_index(table, oldPos, newPos);
-        uat_save(table, &err);
+        uat_save(table, application_configuration_environment_prefix(), &err);
 
         g_free(err);
     }

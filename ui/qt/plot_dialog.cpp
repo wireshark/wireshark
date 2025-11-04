@@ -378,7 +378,7 @@ void PlotDialog::loadProfileGraphs()
         uat_set_default_values(plot_uat_, plot_uat_defaults_);
 
         char* err = NULL;
-        if (!uat_load(plot_uat_, NULL, &err)) {
+        if (!uat_load(plot_uat_, NULL, application_configuration_environment_prefix(), &err)) {
             // Some errors are non-fatal (records were added but failed
             // validation.) Since field names sometimes change between
             // versions, don't erase all the existing plots.
@@ -422,7 +422,7 @@ void PlotDialog::copyFromProfile(const QString& filename)
     // We should let the UatModel handle it, and have the UatModel
     // call beginInsertRows() and endInsertRows(), so that we can
     // just add the new rows instead of resetting the information.
-    if (uat_load(plot_uat_, filename.toUtf8().constData(), &err)) {
+    if (uat_load(plot_uat_, filename.toUtf8().constData(), application_configuration_environment_prefix(), &err)) {
         plot_uat_->changed = true;
         // uat_load calls the post update cb, which reloads the Uat.
         //uat_model_->reloadUat();

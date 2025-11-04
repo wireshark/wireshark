@@ -65,7 +65,7 @@ struct epan_uat {
 };
 
 WS_DLL_PUBLIC
-char* uat_get_actual_filename(uat_t* uat, bool for_writing);
+char* uat_get_actual_filename(uat_t* uat, bool for_writing, const char* app_env_var_prefix);
 
 /**
  * Clones the given record and stores it internally in the UAT. If it is
@@ -127,12 +127,12 @@ void uat_clear(uat_t *uat);
  * (which must be freed using g_free).
  */
 WS_DLL_PUBLIC
-bool uat_save(uat_t *uat, char **error);
+bool uat_save(uat_t *uat, const char* app_env_var_prefix, char **error);
 
 /**
  * Loads the records for all registered UATs from file.
  */
-void uat_load_all(void);
+void uat_load_all(const char* app_env_var_prefix);
 
 /**
  * Dump given UAT record to string in form which can be later loaded with uat_load_str().

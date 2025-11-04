@@ -822,7 +822,7 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
                     break;
                 case PREF_UAT:
                     {
-                        uat_load_all();
+                        uat_load_all(lua_app_env_var_prefix);
                         uat_t* get_uat = NULL;
                         if (prefs_p->info.uat_field_list_info.uat_field_list == NULL) {
                             // get uat by pref label in case of existent uat reading.

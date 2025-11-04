@@ -67,14 +67,14 @@ proto_disable_heuristic_by_name(const char *name);
  * disable protocols in the PHS GUI to re-enable them.
  */
 WS_DLL_PUBLIC void
-read_enabled_and_disabled_lists(void);
+read_enabled_and_disabled_lists(const char* app_env_var_prefix);
 
 /*
  * Write out the lists of enabled and disabled protocols and heuristic
  * dissectors to the corresponding files.  Report errors through the UI.
  */
 WS_DLL_PUBLIC void
-save_enabled_and_disabled_lists(void);
+save_enabled_and_disabled_lists(const char* app_env_var_prefix);
 
 /*
  * Free the internal structures

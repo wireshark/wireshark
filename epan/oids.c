@@ -28,7 +28,6 @@
 #include "wsutil/filesystem.h"
 #include "dissectors/packet-ber.h"
 #include <wsutil/ws_assert.h>
-#include <wsutil/application_flavor.h>
 
 #ifdef HAVE_LIBSMI
 #include <smi.h>
@@ -536,7 +535,7 @@ static void restart_needed_warning(void) {
 		report_failure("Wireshark needs to be restarted for these changes to take effect");
 }
 
-static void register_mibs(void) {
+static void register_mibs(const char* app_env_var_prefix) {
 	SmiModule *smiModule;
 	SmiNode *smiNode;
 	unsigned i;
@@ -566,7 +565,7 @@ static void register_mibs(void) {
 	smi_errors = g_string_new("");
 	smiSetErrorHandler(smi_error_handler);
 
-	path_str = oid_get_default_mib_path();
+	path_str = oid_get_default_mib_path(app_env_var_prefix);
 	ws_info("SMI Path: '%s'",path_str);
 
 	smiSetPath(path_str);
@@ -859,10 +858,10 @@ void oid_pref_init(module_t *nameres)
 #endif
 }
 
-void oids_init(void) {
+void oids_init(const char* app_env_var_prefix _U_) {
 	prepopulate_oids();
 #ifdef HAVE_LIBSMI
-	register_mibs();
+	register_mibs(app_env_var_prefix);
 #else
 	ws_info("libsmi disabled oid resolution not enabled");
 #endif
@@ -1276,8 +1275,8 @@ void oid_both_from_string(wmem_allocator_t *scope, const char *oid_str, char** r
 /**
  * Fetch the default OID path.
  */
-extern char *
-oid_get_default_mib_path(void) {
+char *
+oid_get_default_mib_path(const char* app_env_var_prefix _U_) {
 #ifdef HAVE_LIBSMI
 	GString* path_str;
 	char *path;
@@ -1290,11 +1289,11 @@ oid_get_default_mib_path(void) {
 		return g_string_free(path_str, FALSE);
 	}
 #ifdef _WIN32
-	path = get_datafile_path("snmp\\mibs", application_configuration_environment_prefix());
+	path = get_datafile_path("snmp\\mibs", app_env_var_prefix);
 	g_string_append_printf(path_str, "%s;", path);
 	g_free (path);
 
-	path = get_persconffile_path("snmp\\mibs", false, application_configuration_environment_prefix());
+	path = get_persconffile_path("snmp\\mibs", false, app_env_var_prefix);
 	g_string_append_printf(path_str, "%s", path);
 	g_free (path);
 #else

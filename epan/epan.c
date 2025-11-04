@@ -288,7 +288,7 @@ epan_init(register_cb cb, void *client_data, bool load_plugins)
 	guids_init();
 
 	/* initialize name resolution (addr_resolv.c) */
-	addr_resolv_init();
+	addr_resolv_init(application_configuration_environment_prefix());
 
 	except_init();
 
@@ -359,7 +359,7 @@ epan_init(register_cb cb, void *client_data, bool load_plugins)
 		wslua_init(cb, client_data, application_configuration_environment_prefix());
 #endif
 		g_slist_foreach(epan_plugins, epan_plugin_post_init, NULL);
-		uat_load_all();
+		uat_load_all(application_configuration_environment_prefix());
 	}
 	CATCH(DissectorError) {
 		/*
@@ -392,7 +392,7 @@ epan_load_settings(void)
 	e_prefs *prefs_p;
 
 	/* load the decode as entries of the current profile */
-	load_decode_as_entries();
+	load_decode_as_entries(application_configuration_environment_prefix());
 
 	prefs_p = read_prefs();
 
@@ -400,7 +400,7 @@ epan_load_settings(void)
 	 * Read the files that enable and disable protocols and heuristic
 	 * dissectors.
 	 */
-	read_enabled_and_disabled_lists();
+	read_enabled_and_disabled_lists(application_configuration_environment_prefix());
 
 	return prefs_p;
 }
@@ -495,7 +495,7 @@ epan_new(struct packet_provider_data *prov,
 	session->funcs = *funcs;
 
 	/* XXX, it should take session as param */
-	init_dissection();
+	init_dissection(application_configuration_environment_prefix());
 
 	return session;
 }

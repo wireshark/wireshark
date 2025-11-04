@@ -126,11 +126,11 @@ WS_DLL_PUBLIC GList *decode_as_list;
  * This is called by epan_load_settings(); programs should call that
  * rather than individually calling the routines it calls.
  */
-extern void load_decode_as_entries(void);
+extern void load_decode_as_entries(const char* app_env_var_prefix);
 
 /** Write out the "decode as" entries of the current profile.
  */
-WS_DLL_PUBLIC int save_decode_as_entries(char** err);
+WS_DLL_PUBLIC int save_decode_as_entries(const char* app_name, const char* app_env_var_prefix, char** err);
 
 /** Clear all "decode as" settings.
  */

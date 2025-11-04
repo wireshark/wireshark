@@ -26,7 +26,6 @@
 #include <wsutil/str_util.h>
 #include <wsutil/report_message.h>
 #include <wsutil/ws_assert.h>
-#include <wsutil/application_flavor.h>
 
 #include <wsutil/filesystem.h>
 #include <epan/packet.h>
@@ -248,12 +247,12 @@ void uat_move_index(uat_t * uat, unsigned old_idx, unsigned new_idx)
 }
 
 /* The returned filename was g_malloc()'d so the caller must free it */
-char* uat_get_actual_filename(uat_t* uat, bool for_writing) {
+char* uat_get_actual_filename(uat_t* uat, bool for_writing, const char* app_env_var_prefix) {
     char *pers_fname = NULL;
 
-    pers_fname =  get_persconffile_path(uat->filename, uat->from_profile, application_configuration_environment_prefix());
+    pers_fname =  get_persconffile_path(uat->filename, uat->from_profile, app_env_var_prefix);
     if ((! for_writing ) && (! file_exists(pers_fname) )) {
-        char* data_fname = get_datafile_path(uat->filename, application_configuration_environment_prefix());
+        char* data_fname = get_datafile_path(uat->filename, app_env_var_prefix);
 
         if (file_exists(data_fname)) {
             g_free(pers_fname);
@@ -394,9 +393,9 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
     g_free(fld_ptr);
 }
 
-bool uat_save(uat_t* uat, char** error) {
+bool uat_save(uat_t* uat, const char* app_env_var_prefix, char** error) {
     unsigned i;
-    char* fname = uat_get_actual_filename(uat,true);
+    char* fname = uat_get_actual_filename(uat,true, app_env_var_prefix);
     FILE* fp;
 
     if (! fname ) return false;
@@ -406,7 +405,7 @@ bool uat_save(uat_t* uat, char** error) {
     if (!fp && errno == ENOENT) {
         /* Parent directory does not exist, try creating first */
         char *pf_dir_path = NULL;
-        if (create_persconffile_dir(application_configuration_environment_prefix(), &pf_dir_path) != 0) {
+        if (create_persconffile_dir(app_env_var_prefix, &pf_dir_path) != 0) {
             *error = ws_strdup_printf("uat_save: error creating '%s'", pf_dir_path);
             g_free (pf_dir_path);
             return false;
@@ -613,7 +612,7 @@ void uat_foreach_table(uat_cb_t cb,void* user_data) {
 
 }
 
-void uat_load_all(void) {
+void uat_load_all(const char* app_env_var_prefix) {
     unsigned i;
     char* err;
 
@@ -622,7 +621,7 @@ void uat_load_all(void) {
 
         if (!u->loaded) {
             err = NULL;
-            if (!uat_load(u, NULL, &err)) {
+            if (!uat_load(u, NULL, app_env_var_prefix, &err)) {
                 report_failure("Error loading table '%s': %s",u->name,err);
                 g_free(err);
             }

@@ -15,6 +15,7 @@
 #include "epan/uat-int.h"
 #include "ui/help_url.h"
 #include <wsutil/report_message.h>
+#include <wsutil/application_flavor.h>
 
 #include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -102,7 +103,7 @@ void UatDialog::setUat(epan_uat *uat)
             connect(copy_button, &CopyFromProfileButton::copyProfile, this, &UatDialog::copyFromProfile);
         }
 
-        QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, false));
+        QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, false, application_configuration_environment_prefix()));
         if (abs_path.length() > 0) {
             ui->pathLabel->setText(abs_path);
             ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
@@ -145,7 +146,7 @@ void UatDialog::setUat(epan_uat *uat)
 void UatDialog::copyFromProfile(QString filename)
 {
     char *err = NULL;
-    if (uat_load(uat_, filename.toUtf8().constData(), &err)) {
+    if (uat_load(uat_, filename.toUtf8().constData(), application_configuration_environment_prefix(), &err)) {
         uat_->changed = true;
         uat_model_->reloadUat();
     } else {

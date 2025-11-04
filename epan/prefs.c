@@ -4570,7 +4570,7 @@ prefs_reset(void)
     /*
      * Reload all UAT preferences.
      */
-    uat_load_all();
+    uat_load_all(application_configuration_environment_prefix());
     /*
      * Reset the non-dissector preferences.
      */
@@ -4767,7 +4767,7 @@ read_prefs(void)
     }
 
     /* load SMI modules if needed */
-    oids_init();
+    oids_init(application_configuration_environment_prefix());
 
     return &prefs;
 }
@@ -7125,7 +7125,7 @@ write_prefs(char **pf_path_return)
         if (prefs.filter_expressions_old) {
             char *err = NULL;
             prefs.filter_expressions_old = false;
-            if (!uat_save(uat_get_table_by_name("Display expressions"), &err)) {
+            if (!uat_save(uat_get_table_by_name("Display expressions"), application_configuration_environment_prefix(), &err)) {
                 ws_warning("Unable to save Display expressions: %s", err);
                 g_free(err);
             }
