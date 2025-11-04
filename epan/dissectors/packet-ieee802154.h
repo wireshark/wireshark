@@ -29,6 +29,11 @@
 #define IEEE802154_MAX_FRAME_LEN            127
 #define IEEE802154_FCS_LEN                  2
 
+/* FCS Types used by user configuration */
+#define IEEE802154_CC24XX_METADATA 0 /* Not an FCS, but TI CC24xx metadata */
+#define IEEE802154_FCS_16_BIT      1 /* ITU-T CRC16 */
+#define IEEE802154_FCS_32_BIT      2 /* ITU-T CRC32 */
+
 /*  Command Frame Identifier Types Definitions */
 #define IEEE802154_CMD_ASSOC_REQ                0x01
 #define IEEE802154_CMD_ASSOC_RSP                0x02

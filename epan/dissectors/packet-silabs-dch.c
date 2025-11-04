@@ -30,6 +30,7 @@
 #include <epan/packet.h> /* Required dissection API header */
 #include <epan/expert.h> /* Include only as needed */
 #include <epan/prefs.h>  /* Include only as needed */
+#include "packet-ieee802154.h"
 #include "packet-tls.h"
 
 #define WS_LOG_DOMAIN "silabs_dch"
@@ -197,6 +198,7 @@ typedef enum
 static dissector_handle_t silabs_dch_handle;
 
 /* Handoff dissector handles */
+static dissector_handle_t ieee802154_handle;
 static dissector_handle_t ieee802154nofcs_handle;
 
 // Function declarations
@@ -548,8 +550,6 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   // Adjust offset and ota_payload_len after PHR
   offset += phr_len;
   ota_payload_len -= phr_len;
-  // Adjust ota_payload_len for crc
-  ota_payload_len = (ota_payload_len > 0) ? (ota_payload_len - crc_len) : ota_payload_len;
 
   // create next tvb for ota payload
   next_tvb = tvb_new_subset_length(tvb, offset, ota_payload_len);
@@ -563,7 +563,15 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     case 5: // Zigbee on RAIL
     case 7: // Wi-SUN on RAIL
     case 8: // Custom on 802.15.4 built-in PHY
-      call_dissector(ieee802154nofcs_handle, next_tvb, pinfo, tree);
+      if (crc_len > 0)
+      {
+        int fcs_type = crc_len == 2 ? IEEE802154_FCS_16_BIT : IEEE802154_FCS_32_BIT;
+        call_dissector_with_data(ieee802154_handle, next_tvb, pinfo, tree, &fcs_type);
+      }
+      else
+      {
+        call_dissector(ieee802154nofcs_handle, next_tvb, pinfo, tree);
+      }
       break;
     default:
       proto_tree_add_expert_format(efr32_tree, pinfo, &ei_silabs_dch_unsupported_protocol, tvb, offset, -1, "Protocol - %s not supported yet", protocol->title);
@@ -577,9 +585,6 @@ static int dissect_silabs_efr32(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     }
     offset += ota_payload_len;
   }
-
-  // account for CRC if present
-  offset = (ota_payload_len > 0) ? offset + crc_len : offset;
 
   // decode hw end, add to subtree
   proto_tree_add_item(efr32_tree, hf_efr32_hwend, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1319,6 +1324,7 @@ void proto_register_silabs_dch(void)
  */
 void proto_reg_handoff_silabs_dch(void)
 {
+  ieee802154_handle = find_dissector("wpan");
   ieee802154nofcs_handle = find_dissector("wpan_nofcs");
   // Register top-level handoff, so that the toplevel WTAP will be
   // decoded by the silabs dch dissector.

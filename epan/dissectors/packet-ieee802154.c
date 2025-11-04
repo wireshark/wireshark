@@ -124,11 +124,6 @@ void proto_reg_handoff_ieee802154(void);
 /* ethertype for 802.15.4 tag - encapsulating an Ethernet packet */
 static unsigned int ieee802154_ethertype = 0x809A;
 
-/* FCS Types used by user configuration */
-#define IEEE802154_CC24XX_METADATA 0 /* Not an FCS, but TI CC24xx metadata */
-#define IEEE802154_FCS_16_BIT      1 /* ITU-T CRC16 */
-#define IEEE802154_FCS_32_BIT      2 /* ITU-T CRC32 */
-
 static int ieee802154_fcs_type = IEEE802154_FCS_16_BIT;
 
 /* 802.15.4 TAP Fields */
@@ -2125,18 +2120,22 @@ ieee802154_fcs_type_len(unsigned i)
  * @param tvb pointer to buffer containing raw packet.
  * @param pinfo pointer to packet information fields.
  * @param tree pointer to data tree wireshark uses to display packet.
+ * @param data optional int pointer to fcs type to override user config.
  */
 static int
-dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tvbuff_t *new_tvb = dissect_zboss_specific(tvb, pinfo, tree);
     unsigned options = 0;
     unsigned fcs_len;
+    int fcs_type;
+
+    fcs_type = data ? *(int *)data : ieee802154_fcs_type;
 
     /* Set the default FCS length based on the FCS type in the configuration */
-    fcs_len = ieee802154_fcs_type_len(ieee802154_fcs_type);
+    fcs_len = ieee802154_fcs_type_len(fcs_type);
 
-    if (ieee802154_fcs_type == IEEE802154_CC24XX_METADATA) {
+    if (fcs_type == IEEE802154_CC24XX_METADATA) {
         options = DISSECT_IEEE802154_OPTION_CC24xx;
     }
 
