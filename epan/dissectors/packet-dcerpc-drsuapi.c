@@ -6844,7 +6844,7 @@ drsuapi_dissect_element_DsGetNCChangesMSZIPCtr1_ts_(tvbuff_t *tvb _U_, int offse
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsGetNCChangesMSZIPCtr1_ts_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		drsuapi_dissect_element_DsGetNCChangesMSZIPCtr1_ts__(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -6936,7 +6936,7 @@ drsuapi_dissect_element_DsGetNCChangesMSZIPCtr6_ts_(tvbuff_t *tvb _U_, int offse
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsGetNCChangesMSZIPCtr6_ts_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		drsuapi_dissect_element_DsGetNCChangesMSZIPCtr6_ts__(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -7028,7 +7028,7 @@ drsuapi_dissect_element_DsGetNCChangesWIN2K3_LZ77_DIRECT2Ctr1_ts_(tvbuff_t *tvb 
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsGetNCChangesWIN2K3_LZ77_DIRECT2Ctr1_ts_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		drsuapi_dissect_element_DsGetNCChangesWIN2K3_LZ77_DIRECT2Ctr1_ts__(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -7120,7 +7120,7 @@ drsuapi_dissect_element_DsGetNCChangesWIN2K3_LZ77_DIRECT2Ctr6_ts_(tvbuff_t *tvb 
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_drsuapi_drsuapi_DsGetNCChangesWIN2K3_LZ77_DIRECT2Ctr6_ts_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		drsuapi_dissect_element_DsGetNCChangesWIN2K3_LZ77_DIRECT2Ctr6_ts__(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;

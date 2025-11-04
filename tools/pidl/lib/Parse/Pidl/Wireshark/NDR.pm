@@ -453,7 +453,7 @@ sub ElementLevel($$$$$$$$)
 		# continue to dissect handmarshalled stuff with pidl
 		$self->pidl_code("di->call_data->flags &= ~DCERPC_IS_NDR64;");
 
-		$self->pidl_code("subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);");
+		$self->pidl_code("subtvb = tvb_new_subset_length(tvb, offset, (const int)size);");
 		if ($param ne 0) {
 			$self->{conformance}->{dissectorparams}->{$myname}->{USED} = 1;
 			$self->pidl_code("$myname\_(subtvb, 0, pinfo, tree, di, drep, $param);");

@@ -738,7 +738,7 @@ frsrpc_dissect_element_CommPktChunkGuidName_guid(tvbuff_t *tvb _U_, int offset _
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_CommPktChunkGuidName_guid_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_CommPktChunkGuidName_guid_(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -766,7 +766,7 @@ frsrpc_dissect_element_CommPktChunkGuidName_name(tvbuff_t *tvb _U_, int offset _
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_CommPktChunkGuidName_name_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_CommPktChunkGuidName_name_(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -2149,7 +2149,7 @@ frsrpc_dissect_element_CommPktChunkData_join_guid(tvbuff_t *tvb _U_, int offset 
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_CommPktChunkData_join_guid_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_CommPktChunkData_join_guid_(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -2185,7 +2185,7 @@ frsrpc_dissect_element_CommPktChunkData_vvector(tvbuff_t *tvb _U_, int offset _U
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_CommPktChunkData_vvector_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_CommPktChunkData_vvector_(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -2213,7 +2213,7 @@ frsrpc_dissect_element_CommPktChunkData_join_time(tvbuff_t *tvb _U_, int offset 
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_CommPktChunkData_join_time_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_CommPktChunkData_join_time_(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -2241,7 +2241,7 @@ frsrpc_dissect_element_CommPktChunkData_replica_version_guid(tvbuff_t *tvb _U_, 
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_CommPktChunkData_replica_version_guid_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_CommPktChunkData_replica_version_guid_(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -2309,7 +2309,7 @@ frsrpc_dissect_element_CommPktChunkData_gvsn(tvbuff_t *tvb _U_, int offset _U_, 
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_CommPktChunkData_gvsn_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_CommPktChunkData_gvsn_(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -2337,7 +2337,7 @@ frsrpc_dissect_element_CommPktChunkData_co_guid(tvbuff_t *tvb _U_, int offset _U
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_CommPktChunkData_co_guid_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_CommPktChunkData_co_guid_(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -2373,7 +2373,7 @@ frsrpc_dissect_element_CommPktChunkData_remote_co(tvbuff_t *tvb _U_, int offset 
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_CommPktChunkData_remote_co_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_CommPktChunkData_remote_co_(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -2401,7 +2401,7 @@ frsrpc_dissect_element_CommPktChunkData_co_ext_win2k(tvbuff_t *tvb _U_, int offs
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_CommPktChunkData_co_ext_win2k_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_CommPktChunkData_co_ext_win2k_(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -2574,7 +2574,7 @@ frsrpc_dissect_element_CommPktChunk_data(tvbuff_t *tvb _U_, int offset _U_, pack
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_CommPktChunk_data_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_CommPktChunk_data_(subtvb, 0, pinfo, tree, di, drep, type);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -2724,7 +2724,7 @@ frsrpc_dissect_element_FrsSendCommPktReq_ctr_(tvbuff_t *tvb _U_, int offset _U_,
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_FrsSendCommPktReq_ctr_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_FrsSendCommPktReq_ctr__(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -3159,7 +3159,7 @@ frsrpc_dissect_element_FrsStartPromotionParent_connection_guid_(tvbuff_t *tvb _U
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_FrsStartPromotionParent_connection_guid_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_FrsStartPromotionParent_connection_guid__(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -3195,7 +3195,7 @@ frsrpc_dissect_element_FrsStartPromotionParent_partner_guid_(tvbuff_t *tvb _U_, 
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_FrsStartPromotionParent_partner_guid_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_FrsStartPromotionParent_partner_guid__(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
@@ -3231,7 +3231,7 @@ frsrpc_dissect_element_FrsStartPromotionParent_parent_guid_(tvbuff_t *tvb _U_, i
 		uint32_t saved_flags = di->call_data->flags;
 		offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep, hf_frsrpc_frsrpc_FrsStartPromotionParent_parent_guid_, &size);
 		di->call_data->flags &= ~DCERPC_IS_NDR64;
-		subtvb = tvb_new_subset_length_caplen(tvb, offset, (const int)size, -1);
+		subtvb = tvb_new_subset_length(tvb, offset, (const int)size);
 		frsrpc_dissect_element_FrsStartPromotionParent_parent_guid__(subtvb, 0, pinfo, tree, di, drep);
 		offset += (int)size;
 		di->call_data->flags = saved_flags;
