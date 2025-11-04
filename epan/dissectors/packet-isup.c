@@ -2788,6 +2788,11 @@ static int hf_bicc_cic;
 static int isup_tap;
 
 static int hf_isup_message_type;
+static int hf_isup_message_type_ansi;
+static int hf_isup_message_type_french;
+static int hf_isup_message_type_israeli;
+static int hf_isup_message_type_russian;
+static int hf_isup_message_type_japan;
 static int hf_isup_parameter_type;
 static int hf_isup_parameter_value;
 static int hf_isup_mand_parameter_type;
@@ -9735,7 +9740,8 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
   proto_tree *pass_along_tree;
   proto_item *type_item;
   int         offset, bufferlength;
-  uint8_t     message_type, opt_parameter_pointer;
+  uint32_t    message_type;
+  uint8_t     opt_parameter_pointer;
   bool        opt_part_possible = false; /* default setting - for message types allowing optional
                                             params explicitly set to true in case statement */
   tap_calling_number            = NULL;
@@ -9745,10 +9751,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
   increment_dissection_depth(pinfo);
 
   /* Extract message type field */
-  message_type = tvb_get_uint8(message_tvb, 0);
-
-  type_item = proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type, "Message type: %s (%u)",
-                             val_to_str_ext_const(message_type, &ansi_isup_message_type_value_ext, "reserved"), message_type);
+  type_item = proto_tree_add_item_ret_uint(isup_tree, hf_isup_message_type_ansi, message_tvb, 0, MESSAGE_TYPE_LENGTH, ENC_NA, &message_type);
 
   offset +=  MESSAGE_TYPE_LENGTH;
 
@@ -10012,7 +10015,8 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
   proto_tree *pass_along_tree;
   proto_item *type_item = NULL;
   int         offset, bufferlength;
-  uint8_t     message_type, opt_parameter_pointer;
+  uint32_t    message_type;
+  uint8_t     opt_parameter_pointer;
   bool        opt_part_possible = false; /* default setting - for message types allowing optional
                                              params explicitly set to true in case statement */
   tap_calling_number            = NULL;
@@ -10022,41 +10026,26 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
   increment_dissection_depth(pinfo);
 
   /* Extract message type field */
-  message_type = tvb_get_uint8(message_tvb, 0);
-
   switch (itu_isup_variant) {
     case ISUP_ITU_STANDARD_VARIANT:
-      type_item = proto_tree_add_uint_format_value(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
-                                 "%s (%u)",
-                                 val_to_str_ext_const(message_type, &isup_message_type_value_ext, "reserved"),
-                                 message_type);
+      type_item = proto_tree_add_item_ret_uint(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, ENC_NA, &message_type);
       break;
     case ISUP_FRENCH_VARIANT:
-      type_item = proto_tree_add_uint_format_value(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
-                                 "%s (%u)",
-                                 val_to_str_ext_const(message_type, &french_isup_message_type_value_ext, "reserved"),
-                                 message_type);
+      type_item = proto_tree_add_item_ret_uint(isup_tree, hf_isup_message_type_french, message_tvb, 0, MESSAGE_TYPE_LENGTH, ENC_NA, &message_type);
       break;
     case ISUP_ISRAELI_VARIANT:
-      type_item = proto_tree_add_uint_format_value(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
-                                 "%s (%u)",
-                                 val_to_str_ext_const(message_type, &israeli_isup_message_type_value_ext, "reserved"),
-                                 message_type);
+      type_item = proto_tree_add_item_ret_uint(isup_tree, hf_isup_message_type_israeli, message_tvb, 0, MESSAGE_TYPE_LENGTH, ENC_NA, &message_type);
       break;
     case ISUP_RUSSIAN_VARIANT:
-      type_item = proto_tree_add_uint_format_value(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
-                                 "%s (%u)",
-                                 val_to_str_ext_const(message_type, &russian_isup_message_type_value_ext, "reserved"),
-                                 message_type);
+      type_item = proto_tree_add_item_ret_uint(isup_tree, hf_isup_message_type_russian, message_tvb, 0, MESSAGE_TYPE_LENGTH, ENC_NA, &message_type);
       break;
   case ISUP_JAPAN_VARIANT:
   /* Fall through */
   case ISUP_JAPAN_TTC_VARIANT:
-      type_item = proto_tree_add_uint_format_value(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
-                                 "%s (%u)",
-                                 val_to_str_ext_const(message_type, &japan_isup_message_type_value_ext, "reserved"),
-                                 message_type);
+      type_item = proto_tree_add_item_ret_uint(isup_tree, hf_isup_message_type_japan, message_tvb, 0, MESSAGE_TYPE_LENGTH, ENC_NA, &message_type);
       break;
+  default:
+      DISSECTOR_ASSERT_NOT_REACHED();
   }
 
   offset +=  MESSAGE_TYPE_LENGTH;
@@ -10733,7 +10722,32 @@ proto_register_isup(void)
 
     { &hf_isup_message_type,
       { "Message Type",  "isup.message_type",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &isup_message_type_value_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_isup_message_type_ansi,
+      { "Message Type",  "isup.message_type",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ansi_isup_message_type_value_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_isup_message_type_french,
+      { "Message Type",  "isup.message_type",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &french_isup_message_type_value_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_isup_message_type_israeli,
+      { "Message Type",  "isup.message_type",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &israeli_isup_message_type_value_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_isup_message_type_russian,
+      { "Message Type",  "isup.message_type",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &russian_isup_message_type_value_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_isup_message_type_japan,
+      { "Message Type",  "isup.message_type",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &japan_isup_message_type_value_ext, 0x0,
         NULL, HFILL }},
 
     { &hf_isup_parameter_type,
