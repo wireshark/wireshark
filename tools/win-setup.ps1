@@ -73,7 +73,7 @@ $ErrorActionPreference = "Stop"
 $X64Archives = @{
     "AirPcap/AirPcap_Devpack_4_1_0_1622.zip" = "09d637f28a79b1d2ecb09f35436271a90c0f69bd0a1ee82b803abaaf63c18a69";
     "bcg729/bcg729-1.0.4-win64ws.zip" = "9a095fda4c39860d96f0c568830faa6651cd17635f68e27aa6de46c689aa0ee2";
-    "brotli/brotli-1.0.9-1-win64ws.zip" = "3f8d24aec8668201994327ff8d8542fe507d1d468a500a1aec50d0415f695aab";
+    "brotli/brotli-1.2.0-1-x64-windows-ws.7z" = "938114d56814dbfd028d7ff78c4936e0b305032ab153cd78a57b78d2b0accbbd";
     "c-ares/c-ares-1.28.1-1-x64-windows-ws.zip" = "6509df8e15ed67e87fac84a3b0acaa7b804b59f272fdf9decfb6157d241e73da";
     "falcosecurity-libs/falcosecurity-libs-0.17.1-1-x64-ws.zip" = "371278147543e4b92dc404040b01aeacf221347f434f7b67143acd474555eecf";
     "falcosecurity-libs/falcosecurity-plugins-2024-06-05-1-x64-ws.zip" = "3d19595f4ef9de77fef2ec2233000432b7b1e5a0f9353f6c8d99859205e113f8";
@@ -106,7 +106,7 @@ $X64Archives = @{
 
 $Arm64Archives = @{
     "bcg729/bcg729-1.1.1-1-win64armws.zip" = "f4d76b9acf0d0e12e87a020e9805d136a0e8775e061eeec23910a10828153625";
-    "brotli/brotli-1.0.9-1-win64armws.zip" = "5ba1b62ebc514d55c3eae85a00ff107e587b6e7cb1275e2d33fcddcd49f8e2af";
+    "brotli/brotli-1.2.0-1-arm64-windows-ws.7z" = "24fd2c27ea14b0732f6153aa048b15256d6369f854ac3bde7b93b12fd706a664";
     "c-ares/c-ares-1.28.1-1-arm64-windows-ws.zip" = "84954f593d02d1af0ff5c7af1646b0fec5af3260fecda6cda7bbc84f9e343e10";
     "falcosecurity-libs/falcosecurity-libs-0.17.1-2-arm64-ws.zip" = "c9a2e0ae1636b53fd843c87bb136eebe24595d658eb7a82ca9aff2d25b185902";
     "falcosecurity-libs/falcosecurity-plugins-2024-06-05-1-arm64-ws.zip" = "81f7b5a918c3b4cd1c0e08d8e2fadd6859363897d9d6a48f8b408aa67f072b5c";
