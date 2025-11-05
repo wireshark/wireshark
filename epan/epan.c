@@ -165,6 +165,11 @@ epan_get_environment_prefix(void)
 	return epan_env_prefix_cache;
 }
 
+bool epan_supports_packets(void)
+{
+	return application_flavor_is_wireshark();
+}
+
 #if defined(_WIN32) && GCRYPT_VERSION_NUMBER < 0x010b00
 // Libgcrypt prints all log messages to stderr by default. This is noisier
 // than we would like on Windows. In particular slow_gatherer tends to print

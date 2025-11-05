@@ -516,6 +516,15 @@ WS_DLL_PUBLIC void epan_get_version_number(int *major, int *minor, int *micro);
  */
 WS_DLL_PUBLIC const char* epan_get_environment_prefix(void);
 
+/**
+ * @brief TEMPORARY HACK to indicate whether epan supports packet dissection.
+ *
+ * This is a workaround to not have "application flavor" APIs within dissectors
+ * This should be removed once application flavor is fully integrated.
+ *
+ * @return true if packet dissection is supported; false otherwise (i.e. events).
+ */
+bool epan_supports_packets(void);
 
 /**
  * @brief Set or unset the tree to always be visible when epan_dissect_init() is called.

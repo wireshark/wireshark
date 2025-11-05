@@ -27,7 +27,6 @@
 #include <epan/proto_data.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
-#include <wsutil/application_flavor.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/str_util.h>
 #include <wsutil/wslog.h>
@@ -1608,7 +1607,7 @@ proto_register_frame(void)
 	}
 
 	proto_frame = proto_register_protocol("Frame", "Frame", "frame");
-	if (application_flavor_is_wireshark()) {
+	if (epan_supports_packets()) {
 		proto_pkt_comment = proto_register_protocol_in_name_only("Packet comments", "Pkt_Comment", "pkt_comment", proto_frame, FT_PROTOCOL);
 		proto_register_alias(proto_pkt_comment, "evt_comment");
 	} else {
