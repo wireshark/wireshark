@@ -344,7 +344,7 @@ WSLUA_FUNCTION wslua_reset_preference(lua_State *L) {
 WSLUA_FUNCTION wslua_apply_preferences(lua_State *L) {
     /* Write preferences to file and apply changes. */
     char *pf_path = NULL;
-    int err = write_prefs(&pf_path);
+    int err = write_prefs(lua_app_env_var_prefix, &pf_path);
 
     if (err) {
         /* Make a copy of pf_path because luaL_error() will return */

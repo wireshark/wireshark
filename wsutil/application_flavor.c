@@ -144,14 +144,60 @@ void application_file_extensions(const struct file_extension_info** file_extensi
     }
 }
 
+const char** application_columns(void)
+{
+    switch (application_flavor) {
+    case APPLICATION_FLAVOR_WIRESHARK:
+    {
+        static const char* col_fmt_packets[] = {
+            "No.",         "%m",
+            "Time",        "%t",
+            "Source",      "%s",
+            "Destination", "%d",
+            "Protocol",    "%p",
+            "Length",      "%L",
+            "Info",        "%i"
+        };
+        return col_fmt_packets;
+    }
+    case APPLICATION_FLAVOR_STRATOSHARK:
+    {
+        static const char* col_fmt_logs[] = {
+            "No.",              "%m",
+            "Time",             "%t",
+            "Event name",       "%Cus:sysdig.event_name:0:R",
+            "Proc Name",        "%Cus:proc.name:0:R",
+            "PID",              "%Cus:proc.pid:0:R",
+            "TID",              "%Cus:thread.tid:0:R",
+            "FD",               "%Cus:fd.num:0:R",
+            "FD Name",          "%Cus:fd.name:0:R",
+            "Container Name",   "%Cus:container.name:0:R",
+            "Arguments",        "%Cus:evt.args:0:R",
+            "Info",             "%i"
+        };
+
+        return col_fmt_logs;
+    }
+    default:
+        ws_assert_not_reached();
+    }
+}
+
+unsigned application_num_columns(void)
+{
+    switch (application_flavor) {
+    case APPLICATION_FLAVOR_WIRESHARK:
+        return 7;
+    case APPLICATION_FLAVOR_STRATOSHARK:
+        return 11;
+    default:
+        ws_assert_not_reached();
+    }
+}
+
 bool application_flavor_is_wireshark(void)
 {
     return (application_flavor == APPLICATION_FLAVOR_WIRESHARK);
-}
-
-bool application_flavor_is_stratoshark(void)
-{
-    return (application_flavor == APPLICATION_FLAVOR_STRATOSHARK);
 }
 
 /*

@@ -899,13 +899,13 @@ dump_glossary(const char* glossary, const char* elastic_mapping_filter)
     if (strcmp(glossary, "column-formats") == 0)
         column_dump_column_formats();
     else if (strcmp(glossary, "currentprefs") == 0) {
-        write_prefs(NULL);
+        write_prefs(application_configuration_environment_prefix(), NULL);
     }
     else if (strcmp(glossary, "decodes") == 0) {
         dissector_dump_decodes();
     } else if (strcmp(glossary, "defaultprefs") == 0) {
-        prefs_reset();
-        write_prefs(NULL);
+        prefs_reset(application_configuration_environment_prefix(), application_columns(), application_num_columns());
+        write_prefs(application_configuration_environment_prefix(), NULL);
     } else if (strcmp(glossary, "dissector-tables") == 0)
         dissector_dump_dissector_tables();
     else if (strcmp(glossary, "dissectors") == 0)

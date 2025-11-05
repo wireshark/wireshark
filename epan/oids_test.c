@@ -18,7 +18,6 @@
 
 #include "oids.h"
 #include <epan/wmem_scopes.h>
-#include <wsutil/application_flavor.h>
 
 #include <ws_diag_control.h>
 
@@ -513,7 +512,7 @@ main(int argc, char **argv)
 
     wmem_init_scopes();
     test_scope = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
-    oids_init(application_configuration_environment_prefix());
+    oids_init("WIRESHARK");
     result = g_test_run();
     oids_cleanup();
     wmem_destroy_allocator(test_scope);

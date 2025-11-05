@@ -23,7 +23,6 @@
 #include <glib.h>
 
 #include <stdio.h>
-#include <wsutil/application_flavor.h>
 #include <wsutil/filesystem.h>
 #include <epan/addr_resolv.h>
 #include <epan/oids.h>
@@ -69,7 +68,7 @@ static void prefs_register_modules(void);
 static module_t *prefs_find_module_alias(const char *name);
 static prefs_set_pref_e set_pref(char*, const char*, void *, bool);
 static void free_col_info(GList *);
-static void prefs_set_global_defaults(void);
+static void prefs_set_global_defaults(const char** col_fmt, int num_cols);
 static bool prefs_is_column_visible(const char *cols_hidden, int col);
 static bool prefs_is_column_fmt_visible(const char *cols_hidden, fmt_data *cfmt);
 static unsigned prefs_module_list_foreach(wmem_tree_t *module_list, module_cb callback,
@@ -320,14 +319,14 @@ static wmem_tree_t *prefs_module_aliases;
 
 /** Sets up memory used by proto routines. Called at program startup */
 void
-prefs_init(void)
+prefs_init(const char** col_fmt, int num_cols)
 {
     memset(&prefs, 0, sizeof(prefs));
     prefs_modules = wmem_tree_new(wmem_epan_scope());
     prefs_top_level_modules = wmem_tree_new(wmem_epan_scope());
     prefs_module_aliases = wmem_tree_new(wmem_epan_scope());
 
-    prefs_set_global_defaults();
+    prefs_set_global_defaults(col_fmt, num_cols);
     prefs_register_modules();
 }
 
@@ -4212,36 +4211,11 @@ print.file: /a/very/long/path/
  * be g_mallocated.
  */
 static void
-prefs_set_global_defaults(void)
+prefs_set_global_defaults(const char** col_fmt, int num_cols)
 {
     int         i;
     char        *col_name;
     fmt_data    *cfmt;
-    static const char *col_fmt_packets[] = {
-        "No.",      "%m", "Time",        "%t",
-        "Source",   "%s", "Destination", "%d",
-        "Protocol", "%p", "Length",      "%L",
-        "Info",     "%i" };
-    static const char **col_fmt = col_fmt_packets;
-    int num_cols = 7;
-
-    if (application_flavor_is_stratoshark()) {
-        static const char *col_fmt_logs[] = {
-            "No.",              "%m",
-            "Time",             "%t",
-            "Event name",       "%Cus:sysdig.event_name:0:R",
-            "Proc Name",        "%Cus:proc.name:0:R",
-            "PID",              "%Cus:proc.pid:0:R",
-            "TID",              "%Cus:thread.tid:0:R",
-            "FD",               "%Cus:fd.num:0:R",
-            "FD Name",          "%Cus:fd.name:0:R",
-            "Container Name",   "%Cus:container.name:0:R",
-            "Arguments",        "%Cus:evt.args:0:R",
-            "Info",             "%i"
-            };
-        col_fmt = col_fmt_logs;
-        num_cols = 11;
-    }
 
     prefs.restore_filter_after_following_stream = false;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
@@ -4552,7 +4526,7 @@ reset_module_prefs(const void *key _U_, void *value, void *data _U_)
 
 /* Reset preferences */
 void
-prefs_reset(void)
+prefs_reset(const char* app_env_var_prefix, const char** col_fmt, int num_cols)
 {
     g_free(prefs.saved_at_version);
     prefs.saved_at_version = NULL;
@@ -4570,11 +4544,12 @@ prefs_reset(void)
     /*
      * Reload all UAT preferences.
      */
-    uat_load_all(application_configuration_environment_prefix());
+    uat_load_all(app_env_var_prefix);
+
     /*
      * Reset the non-dissector preferences.
      */
-    prefs_set_global_defaults();
+    prefs_set_global_defaults(col_fmt, num_cols);
 
     /*
      * Reset the non-UAT dissector preferences.
@@ -4611,7 +4586,7 @@ read_registry(void)
 #endif
 
 void
-prefs_read_module(const char *module)
+prefs_read_module(const char *module, const char* app_env_var_prefix)
 {
     int         err;
     char        *pf_path;
@@ -4624,14 +4599,14 @@ prefs_read_module(const char *module)
 
     /* Construct the pathname of the user's preferences file for the module. */
     char *pf_name = wmem_strdup_printf(NULL, "%s.cfg", module);
-    pf_path = get_persconffile_path(pf_name, true, application_configuration_environment_prefix());
+    pf_path = get_persconffile_path(pf_name, true, app_env_var_prefix);
     wmem_free(NULL, pf_name);
 
     /* Read the user's module preferences file, if it exists and is not a dir. */
     if (!test_for_regular_file(pf_path) || ((pf = ws_fopen(pf_path, "r")) == NULL)) {
         g_free(pf_path);
         /* Fall back to the user's generic preferences file. */
-        pf_path = get_persconffile_path(PF_NAME, true, application_configuration_environment_prefix());
+        pf_path = get_persconffile_path(PF_NAME, true, app_env_var_prefix);
         pf = ws_fopen(pf_path, "r");
     }
 
@@ -4664,7 +4639,7 @@ prefs_read_module(const char *module)
    If we got an error (other than "it doesn't exist") we report it through
    the UI. */
 e_prefs *
-read_prefs(void)
+read_prefs(const char* app_env_var_prefix)
 {
     int         err;
     char        *pf_path;
@@ -4686,13 +4661,13 @@ read_prefs(void)
          * We don't have the path; try the new path first, and, if that
          * file doesn't exist, try the old path.
          */
-        gpf_path = get_datafile_path(PF_NAME, application_configuration_environment_prefix());
+        gpf_path = get_datafile_path(PF_NAME, app_env_var_prefix);
         if ((pf = ws_fopen(gpf_path, "r")) == NULL && errno == ENOENT) {
             /*
              * It doesn't exist by the new name; try the old name.
              */
             g_free(gpf_path);
-            gpf_path = get_datafile_path(OLD_GPF_NAME, application_configuration_environment_prefix());
+            gpf_path = get_datafile_path(OLD_GPF_NAME, app_env_var_prefix);
             pf = ws_fopen(gpf_path, "r");
         }
     } else {
@@ -4735,7 +4710,7 @@ read_prefs(void)
     }
 
     /* Construct the pathname of the user's preferences file. */
-    pf_path = get_persconffile_path(PF_NAME, true, application_configuration_environment_prefix());
+    pf_path = get_persconffile_path(PF_NAME, true, app_env_var_prefix);
 
     /* Read the user's preferences file, if it exists. */
     if ((pf = ws_fopen(pf_path, "r")) != NULL) {
@@ -4767,7 +4742,7 @@ read_prefs(void)
     }
 
     /* load SMI modules if needed */
-    oids_init(application_configuration_environment_prefix());
+    oids_init(app_env_var_prefix);
 
     return &prefs;
 }
@@ -7090,7 +7065,7 @@ write_registry(void)
    If we got an error, stuff a pointer to the path of the preferences file
    into "*pf_path_return", and return the errno. */
 int
-write_prefs(char **pf_path_return)
+write_prefs(const char* app_env_var_prefix, char **pf_path_return)
 {
     char        *pf_path;
     FILE        *pf;
@@ -7107,7 +7082,7 @@ write_prefs(char **pf_path_return)
      */
 
     if (pf_path_return != NULL) {
-        pf_path = get_persconffile_path(PF_NAME, true, application_configuration_environment_prefix());
+        pf_path = get_persconffile_path(PF_NAME, true, app_env_var_prefix);
         if ((pf = ws_fopen(pf_path, "w")) == NULL) {
             *pf_path_return = pf_path;
             return errno;
@@ -7125,7 +7100,7 @@ write_prefs(char **pf_path_return)
         if (prefs.filter_expressions_old) {
             char *err = NULL;
             prefs.filter_expressions_old = false;
-            if (!uat_save(uat_get_table_by_name("Display expressions"), application_configuration_environment_prefix(), &err)) {
+            if (!uat_save(uat_get_table_by_name("Display expressions"), app_env_var_prefix, &err)) {
                 ws_warning("Unable to save Display expressions: %s", err);
                 g_free(err);
             }
@@ -7133,7 +7108,7 @@ write_prefs(char **pf_path_return)
 
         module_t *extcap_module = prefs_find_module("extcap");
         if (extcap_module && !prefs.capture_no_extcap) {
-            char *ext_path = get_persconffile_path("extcap.cfg", true, application_configuration_environment_prefix());
+            char *ext_path = get_persconffile_path("extcap.cfg", true, app_env_var_prefix);
             FILE *extf;
             if ((extf = ws_fopen(ext_path, "w")) == NULL) {
                 if (errno != EISDIR) {

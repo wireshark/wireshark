@@ -337,7 +337,7 @@ epan_init(register_cb cb, void *client_data, bool load_plugins)
 		export_pdu_init();
 		tap_init();
 		proto_pre_init();
-		prefs_init();
+		prefs_init(application_columns(), application_num_columns());
 		expert_init();
 		packet_init();
 		secrets_init();
@@ -394,7 +394,7 @@ epan_load_settings(void)
 	/* load the decode as entries of the current profile */
 	load_decode_as_entries(application_configuration_environment_prefix());
 
-	prefs_p = read_prefs();
+	prefs_p = read_prefs(application_configuration_environment_prefix());
 
 	/*
 	 * Read the files that enable and disable protocols and heuristic

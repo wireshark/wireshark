@@ -2343,7 +2343,7 @@ extcap_load_interface_list(void)
 
     if (prefs_registered)
     {
-        prefs_read_module("extcap");
+        prefs_read_module("extcap", application_configuration_environment_prefix());
     }
 }
 

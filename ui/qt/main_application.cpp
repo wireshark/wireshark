@@ -1148,7 +1148,7 @@ _e_prefs *MainApplication::readConfigurationFiles(bool reset)
         // heuristic dissectors before reading.
         // (Needed except when this is called at startup.)
         //
-        prefs_reset();
+        prefs_reset(application_configuration_environment_prefix(), application_columns(), application_num_columns());
         proto_reenable_all();
     }
 

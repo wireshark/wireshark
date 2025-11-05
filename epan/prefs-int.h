@@ -261,7 +261,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
  */
 WS_DLL_PUBLIC
 void
-prefs_read_module(const char *name);
+prefs_read_module(const char *name, const char* app_env_var_prefix);
 
 WS_DLL_PUBLIC
 bool

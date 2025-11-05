@@ -500,12 +500,12 @@ main(int argc, char *argv[])
                 column_dump_column_formats();
             else if (strcmp(argv[2], "currentprefs") == 0) {
                 epan_load_settings();
-                write_prefs(NULL);
+                write_prefs(application_configuration_environment_prefix(), NULL);
             }
             else if (strcmp(argv[2], "decodes") == 0)
                 dissector_dump_decodes();
             else if (strcmp(argv[2], "defaultprefs") == 0)
-                write_prefs(NULL);
+                write_prefs(application_configuration_environment_prefix(), NULL);
             else if (strcmp(argv[2], "dissector-tables") == 0)
                 dissector_dump_dissector_tables();
             else if (strcmp(argv[2], "fields") == 0)

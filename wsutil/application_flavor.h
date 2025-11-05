@@ -68,16 +68,20 @@ WS_DLL_PUBLIC const char* application_configuration_environment_prefix(void);
 WS_DLL_PUBLIC void application_file_extensions(const struct file_extension_info** file_extensions, unsigned* num_extensions);
 
 /**
+ * @brief Get the default columns for the application
+ */
+WS_DLL_PUBLIC const char** application_columns(void);
+
+/**
+ * @brief Get the default number of columns for the application
+ */
+WS_DLL_PUBLIC unsigned application_num_columns(void);
+
+/**
  * @brief Convenience routine for checking the application flavor.
  * @return true if the application flavor is APPLICATION_FLAVOR_WIRESHARK.
  */
 WS_DLL_PUBLIC bool application_flavor_is_wireshark(void);
-
-/**
- * @brief Convenience routine for checking the application flavor.
- * @return true if the application flavor is APPLICATION_FLAVOR_STRATOSHARK.
- */
-WS_DLL_PUBLIC bool application_flavor_is_stratoshark(void);
 
 #ifdef __cplusplus
 }

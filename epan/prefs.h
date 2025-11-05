@@ -313,10 +313,10 @@ struct pref_custom_cbs;
 typedef struct pref_module module_t;
 
 /** Sets up memory used by proto routines. Called at program startup */
-void prefs_init(void);
+void prefs_init(const char** col_fmt, int num_cols);
 
 /** Reset preferences to default values.  Called at profile change */
-WS_DLL_PUBLIC void prefs_reset(void);
+WS_DLL_PUBLIC void prefs_reset(const char* app_env_var_prefix, const char** col_fmt, int num_cols);
 
 /** Frees memory used by proto routines. Called at program shutdown */
 void prefs_cleanup(void);
@@ -970,9 +970,10 @@ bool prefs_is_preference_obsolete(pref_t *pref);
  * This is called by epan_load_settings(); programs should call that
  * rather than individually calling the routines it calls.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the global configuration directory.
  * @return a pointer to the filled in prefs object
 */
-extern e_prefs *read_prefs(void);
+extern e_prefs *read_prefs(const char* app_env_var_prefix);
 
 /**
  * Write out "prefs" to the user's preferences file, and return 0.
@@ -980,10 +981,11 @@ extern e_prefs *read_prefs(void);
  * If we got an error, stuff a pointer to the path of the preferences file
  * into "*pf_path_return", and return the errno.
  *
+ * @param app_env_var_prefix The prefix for the application environment variable used to get the global configuration directory.
  * @param pf_path_return The path to write preferences to or NULL for stdout
  * @return 0 if success, otherwise errno
 */
-WS_DLL_PUBLIC int write_prefs(char **pf_path_return);
+WS_DLL_PUBLIC int write_prefs(const char* app_env_var_prefix, char **pf_path_return);
 
 /**
  * Result of setting a preference.

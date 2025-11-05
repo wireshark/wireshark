@@ -63,7 +63,7 @@ prefs_main_write(void)
         g_free(pf_dir_path);
     } else {
         /* Write the preferences out. */
-        err = write_prefs(&pf_path);
+        err = write_prefs(application_configuration_environment_prefix(), &pf_path);
         if (err != 0) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     "Can't open preferences file\n\"%s\": %s.", pf_path,
