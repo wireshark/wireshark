@@ -1666,8 +1666,8 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo,
         */
         return offset;
       }
-      gssapi_encrypt->gssapi_encrypted_tvb = tvb_new_subset_length_caplen(
-          tvb, offset, len, len);
+      gssapi_encrypt->gssapi_encrypted_tvb = tvb_new_subset_length(
+          tvb, offset, len);
     }
 
     if (gssapi_encrypt->gssapi_data_encrypted) {

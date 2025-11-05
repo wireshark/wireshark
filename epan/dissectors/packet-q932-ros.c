@@ -271,7 +271,7 @@ dissect_q932_ros_Invoke(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
     (void) g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
 
   if (!arg_next_tvb) {  /* empty argument */
-    arg_next_tvb = tvb_new_subset_length_caplen(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
+    arg_next_tvb = tvb_new_subset_length(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0);
   }
 
   call_dissector_with_data((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree, actx->rose_ctx);
@@ -359,7 +359,7 @@ dissect_q932_ros_ReturnResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   if (actx->rose_ctx->d.code != -1) {
     if (!res_next_tvb) {  /* empty result */
-      res_next_tvb = tvb_new_subset_length_caplen(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
+      res_next_tvb = tvb_new_subset_length(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0);
     }
 
     call_dissector_with_data((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree, actx->rose_ctx);
@@ -432,7 +432,7 @@ dissect_q932_ros_ReturnError(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
     (void) g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
 
   if (!err_next_tvb) {  /* empty error */
-    err_next_tvb = tvb_new_subset_length_caplen(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
+    err_next_tvb = tvb_new_subset_length(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0);
   }
 
   call_dissector_with_data((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree, actx->rose_ctx);
