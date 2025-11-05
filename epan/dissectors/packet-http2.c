@@ -294,6 +294,7 @@ typedef struct http2_follow_tap_data {
 typedef struct http2_adjust_window {
     int32_t windowSizeDiff;
     uint32_t flow_index;
+    bool overflow;
 } http2_adjust_window_t;
 
 #ifdef HAVE_NGHTTP2
@@ -537,6 +538,7 @@ static expert_field ei_http2_header_size;
 static expert_field ei_http2_header_lines;
 static expert_field ei_http2_body_decompression_failed;
 static expert_field ei_http2_reassembly_error;
+static expert_field ei_http2_window_size;
 
 static int ett_http2;
 static int ett_http2_header;
@@ -3752,11 +3754,13 @@ http2_get_header_value(packet_info *pinfo _U_, const char* name _U_, bool the_ot
 /* Increment or decrement the accumulated connection and/or stream window
  * sizes based on the flow direction, stream ID and increaseWindow parameter.
  * In other words, if increaseWindow is true, then we're processing a
- * WINDOW_UPDATE frame; otherwise, we're processing a DATA frame.
+ * WINDOW_UPDATE frame; otherwise, we're processing a DATA frame. (Window
+ * size changes from a SETTINGS frame are handled in adjust_existing_window.)
  */
 static void
 adjust_window_size(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* http2_session, proto_tree *http2_tree, int32_t adjustment, bool increaseWindow)
 {
+    proto_item *ti;
     uint32_t flow_index = select_http2_flow_index(pinfo, http2_session);
     int32_t finalAdjustment = ((increaseWindow ? 1 : -1) * adjustment);
 
@@ -3765,27 +3769,53 @@ adjust_window_size(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* http2_ses
         flow_index ^= 1;
     }
 
+    /* "The sender MUST NOT send a flow-controlled frame with a length that
+     * exceeds the space available in either of the flow-control windows...
+     * A sender MUST NOT allow a flow-control window to exceed 2^31-1 octets."
+     * https://datatracker.ietf.org/doc/html/rfc9113#section-6.9.1
+     * "A sender MUST track the negative flow-control window [from a SETTINGS
+     * frame with SETTINGS_INITIAL_WINDOW_SIZE] and MUST NOT send new
+     * flow-controlled frames until.. the flow-control window... become[s]
+     * positive."
+     * https://datatracker.ietf.org/doc/html/rfc9113#section-6.9.2
+     */
+
     /* Always decrease the connection window after sending data,
      * but only increase the connection window for a WINDOW_UPDATE on stream 0 (the connection). */
     if (!increaseWindow || http2_session->current_stream_id == 0) {
         int32_t* window_size_connection_before = p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZE_CONNECTION_BEFORE);
         int32_t window_size_connection_after;
+        bool window_size_overflow = false;
 
         if (!window_size_connection_before) {
             /* There may be multiple passes, so we must use proto_data to keep state */
             window_size_connection_before = wmem_new0(wmem_file_scope(), int32_t);
             (*window_size_connection_before) = http2_session->current_connection_window_size[flow_index];
-            http2_session->current_connection_window_size[flow_index] += finalAdjustment;
+            if (ckd_add(&http2_session->current_connection_window_size[flow_index], http2_session->current_connection_window_size[flow_index], finalAdjustment)) {
+                /* Overflow in the negative direction is unlikely, but check. */
+                http2_session->current_connection_window_size[flow_index] = increaseWindow ? INT32_MAX : INT32_MIN;
+            }
             p_add_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZE_CONNECTION_BEFORE, window_size_connection_before);
         }
 
         proto_item_set_generated(proto_tree_add_int(http2_tree, hf_http2_calculated_window_size_connection_before,
                                                     tvb, 0, 0, (*window_size_connection_before)));
 
-        window_size_connection_after = (*window_size_connection_before) + finalAdjustment;
+        if (ckd_add(&window_size_connection_after, *window_size_connection_before, finalAdjustment)) {
+            window_size_connection_after = increaseWindow ? INT32_MAX : INT32_MIN;
+            window_size_overflow = true;
+        }
 
-        proto_item_set_generated(proto_tree_add_int(http2_tree, hf_http2_calculated_window_size_connection_after,
-                                                    tvb, 0, 0, window_size_connection_after));
+        ti = proto_tree_add_int(http2_tree, hf_http2_calculated_window_size_connection_after,
+                                                    tvb, 0, 0, window_size_connection_after);
+
+        proto_item_set_generated(ti);
+
+        if (window_size_overflow) {
+            expert_add_info(pinfo, ti, &ei_http2_window_size);
+        } else if (window_size_connection_after < 0) {
+            expert_add_info_format(pinfo, ti, &ei_http2_window_size, "Flow-controlled frame received with length that exceeds the calculated connection window size");
+        }
     }
 
 #ifdef HAVE_NGHTTP2
@@ -3795,22 +3825,35 @@ adjust_window_size(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* http2_ses
         http2_stream_info_t *http2_stream_info = get_stream_info(pinfo, http2_session, increaseWindow);
         int32_t* window_size_stream_before = p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZE_STREAM_BEFORE);
         int32_t window_size_stream_after;
+        bool window_size_overflow = false;
 
         if (!window_size_stream_before) {
             /* There may be multiple passes, so we must use proto_data to keep state */
             window_size_stream_before = wmem_new0(wmem_file_scope(), int32_t);
             (*window_size_stream_before) = http2_stream_info->oneway_stream_info[flow_index].current_window_size;
-            http2_stream_info->oneway_stream_info[flow_index].current_window_size += finalAdjustment;
+            if (ckd_add(&http2_stream_info->oneway_stream_info[flow_index].current_window_size, http2_stream_info->oneway_stream_info[flow_index].current_window_size, finalAdjustment)) {
+                http2_session->current_connection_window_size[flow_index] = increaseWindow ? INT32_MAX : INT32_MIN;
+            }
             p_add_proto_data(wmem_file_scope(), pinfo, proto_http2, PROTO_DATA_KEY_WINDOW_SIZE_STREAM_BEFORE, window_size_stream_before);
         }
 
         proto_item_set_generated(proto_tree_add_int(http2_tree, hf_http2_calculated_window_size_stream_before, tvb, 0, 0,
                                                     (*window_size_stream_before)));
 
-        window_size_stream_after = (*window_size_stream_before) + finalAdjustment;
+        if (ckd_add(&window_size_stream_after, *window_size_stream_before, finalAdjustment)) {
+            window_size_stream_after = increaseWindow ? INT32_MAX : INT32_MIN;
+            window_size_overflow = true;
+        }
 
-        proto_item_set_generated(proto_tree_add_int(http2_tree, hf_http2_calculated_window_size_stream_after, tvb, 0, 0,
-                                                    window_size_stream_after));
+        ti = proto_tree_add_int(http2_tree, hf_http2_calculated_window_size_stream_after, tvb, 0, 0,
+                                                    window_size_stream_after);
+
+        proto_item_set_generated(ti);
+        if (window_size_overflow) {
+            expert_add_info(pinfo, ti, &ei_http2_window_size);
+        } else if (window_size_stream_after < 0) {
+            expert_add_info_format(pinfo, ti, &ei_http2_window_size, "Flow-controlled frame received with length that exceeds the calculated stream window size");
+        }
     }
 #endif
 }
@@ -3970,11 +4013,21 @@ dissect_http2_rst_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http
 
 #ifdef HAVE_NGHTTP2
 static void
-adjust_existing_window(void *key _U_, void *value, void *userData _U_)
+adjust_existing_window(void *key _U_, void *value, void *userData)
 {
     http2_stream_info_t *stream_info = (http2_stream_info_t *)value;
     http2_adjust_window_t *adjustWindow = (http2_adjust_window_t *)userData;
-    stream_info->oneway_stream_info[adjustWindow->flow_index].current_window_size += adjustWindow->windowSizeDiff;
+    /* "A change to SETTINGS_INITIAL_WINDOW_SIZE can cause the available space
+     * in a flow-control window to become negative," so do not add an expert
+     * info here for becoming negative, but do later if a flow-controlled frame
+     * is sent before the calculated window becomes positive.
+     * https://datatracker.ietf.org/doc/html/rfc9113#section-6.9.2
+     *
+     * This can overflow in extremely unusual situations.
+     */
+    if (ckd_add(&stream_info->oneway_stream_info[adjustWindow->flow_index].current_window_size, stream_info->oneway_stream_info[adjustWindow->flow_index].current_window_size, adjustWindow->windowSizeDiff)) {
+        adjustWindow->overflow = true;
+    }
 }
 #endif
 
@@ -4032,8 +4085,20 @@ dissect_http2_settings(tvbuff_t* tvb, packet_info* pinfo _U_, http2_session_t* h
             case HTTP2_SETTINGS_INITIAL_WINDOW_SIZE:
                 {
                     uint32_t newInitialWindowSize;
+                    proto_item *ti;
 
-                    proto_tree_add_item_ret_uint(settings_tree, hf_http2_settings_initial_window_size, tvb, offset, 4, ENC_BIG_ENDIAN, &newInitialWindowSize);
+                    ti = proto_tree_add_item_ret_uint(settings_tree, hf_http2_settings_initial_window_size, tvb, offset, 4, ENC_BIG_ENDIAN, &newInitialWindowSize);
+                    if (newInitialWindowSize > INT32_MAX) {
+                        /* The value here explicitly is 32-bits and can exceed
+                         * the maximum value (which is a connection error),
+                         * unlike the WINDOW UPDATE frame where it is a 31-bit
+                         * value with a reserved bit and bitmask.
+                         * https://datatracker.ietf.org/doc/html/rfc9113#SETTINGS_INITIAL_WINDOW_SIZE
+                         */
+                        expert_add_info_format(pinfo, ti, &ei_http2_window_size, "Initial window size exceeds maximum size (" G_STRINGIFY(INT32_MAX) ")");
+                        /* Prevent windowSizeDiff from overflowing. */
+                        newInitialWindowSize = INT32_MAX;
+                    }
 
                     if (h2session) {
                         uint32_t flow_index = select_http2_flow_index(pinfo, h2session);
@@ -4061,8 +4126,12 @@ dissect_http2_settings(tvbuff_t* tvb, packet_info* pinfo _U_, http2_session_t* h
 
                                 userData.windowSizeDiff = windowSizeDiff;
                                 userData.flow_index = flow_index;
+                                userData.overflow = false;
 
                                 wmem_map_foreach(h2session->per_stream_info, adjust_existing_window, &userData);
+                                if (userData.overflow) {
+                                    expert_add_info(pinfo, ti, &ei_http2_window_size);
+                                }
                             }
                         }
 #endif
@@ -4238,12 +4307,20 @@ dissect_http2_goaway(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tr
 
 /* Window Update */
 static int
-dissect_http2_window_update(tvbuff_t *tvb, packet_info *pinfo _U_, http2_session_t* http2_session, proto_tree *http2_tree, unsigned offset, uint8_t flags _U_)
+dissect_http2_window_update(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* http2_session, proto_tree *http2_tree, unsigned offset, uint8_t flags _U_)
 {
     int32_t wsi;
+    proto_item *ti;
 
     proto_tree_add_item(http2_tree, hf_http2_window_update_r, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item_ret_uint(http2_tree, hf_http2_window_update_window_size_increment, tvb, offset, 4, ENC_BIG_ENDIAN, &wsi);
+    ti = proto_tree_add_item_ret_uint(http2_tree, hf_http2_window_update_window_size_increment, tvb, offset, 4, ENC_BIG_ENDIAN, &wsi);
+    if (wsi == 0) {
+        /* "A receiver MUST treat the receipt of a WINDOW_UPDATE frame with a
+         * flow-control window increment of 0 as a stream error of type
+         * PROTOCOL_ERROR."
+         * https://datatracker.ietf.org/doc/html/rfc9113#section-6.9 */
+        expert_add_info_format(pinfo, ti, &ei_http2_window_size, "Window increment value of 0");
+    }
     offset += 4;
 
     adjust_window_size(tvb, pinfo, http2_session, http2_tree, wsi, true);
@@ -5271,6 +5348,10 @@ proto_register_http2(void)
         { &ei_http2_reassembly_error,
           { "http2.reassembly_error", PI_UNDECODED, PI_WARN,
             "Reassembly failed", EXPFILL }
+        },
+        { &ei_http2_window_size,
+          { "http2.window_size_exceeded", PI_PROTOCOL, PI_WARN,
+            "Calculated window size exceeded maximum size (" G_STRINGIFY(INT32_MAX) ")", EXPFILL }
         }
     };
 
