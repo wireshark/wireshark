@@ -58,7 +58,6 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wsgcrypt.h>
-#include <wsutil/application_flavor.h>
 
 
 #include "packet-radius.h"
@@ -2855,10 +2854,10 @@ register_radius_fields(const char *unused _U_)
 	wmem_array_append(ri.ett, base_ett, array_length(base_ett));
 
 
-	dir = get_datafile_path("radius", application_configuration_environment_prefix());
+	dir = get_datafile_path("radius", epan_get_environment_prefix());
 	_radius_load_dictionary(dir);
 	g_free(dir);
-	dir = get_persconffile_path("radius", false, application_configuration_environment_prefix());
+	dir = get_persconffile_path("radius", false, epan_get_environment_prefix());
 	_radius_load_dictionary(dir);
 	g_free(dir);
 

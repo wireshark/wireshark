@@ -33,7 +33,6 @@
 #include <wsutil/report_message.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/array.h>
-#include <wsutil/application_flavor.h>
 #include "packet-kerberos.h"
 
 #include <libxml/parser.h>
@@ -1923,12 +1922,12 @@ static void init_xml_names(void)
 
     xml_new_namespace(xmpli_names, "xml", "version", "encoding", "standalone", NULL);
 
-    dirname = get_persconffile_path("dtds", false, application_configuration_environment_prefix());
+    dirname = get_persconffile_path("dtds", false, epan_get_environment_prefix());
 
     if (test_for_directory(dirname) != EISDIR) {
         /* Although dir isn't a directory it may still use memory */
         g_free(dirname);
-        dirname = get_datafile_path("dtds", application_configuration_environment_prefix());
+        dirname = get_datafile_path("dtds", epan_get_environment_prefix());
     }
 
     if (test_for_directory(dirname) == EISDIR) {

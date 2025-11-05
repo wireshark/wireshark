@@ -54,7 +54,6 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
 #include <wsutil/ws_padding_to.h>
-#include <wsutil/application_flavor.h>
 
 #include <libxml/tree.h>
 #include <libxml/parser.h>
@@ -2922,7 +2921,7 @@ ddictionary_load(wmem_array_t* hf_array, GPtrArray* ett_array)
 	}
 
 	/* load the dictionary */
-	dir = wmem_strdup_printf(NULL, "%s" G_DIR_SEPARATOR_S "diameter", get_datafile_dir(application_configuration_environment_prefix()));
+	dir = wmem_strdup_printf(NULL, "%s" G_DIR_SEPARATOR_S "diameter", get_datafile_dir(epan_get_environment_prefix()));
 	bool success = ddictionary_process_file(dir, "./dictionary.xml", &all_data);
 	wmem_free(NULL, dir);
 

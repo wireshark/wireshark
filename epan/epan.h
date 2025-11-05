@@ -507,6 +507,17 @@ WS_DLL_PUBLIC const char* epan_get_version(void);
 WS_DLL_PUBLIC void epan_get_version_number(int *major, int *minor, int *micro);
 
 /**
+ * @brief Retrieve the environment prefix string used by epan.
+ *
+ * This provides a "local copy" of the environment prefix used by the application
+ * when epan is initialized and aids in encapsulation.
+ *
+ * @return A pointer to a constant string containing the environment prefix.
+ */
+WS_DLL_PUBLIC const char* epan_get_environment_prefix(void);
+
+
+/**
  * @brief Set or unset the tree to always be visible when epan_dissect_init() is called.
  *
  * This state change persists until explicitly cleared, rather than being applied per function call.
