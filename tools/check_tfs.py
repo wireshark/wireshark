@@ -477,8 +477,8 @@ elif args.open:
 
 else:
     # Find all dissector files from folders.
-    files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors')) | findDissectorFilesInFolder(os.path.join('plugins', 'epan'))
-
+    files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors')) + \
+                findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True)
 
 # If scanning a subset of files, list them here.
 print('Examining:')
