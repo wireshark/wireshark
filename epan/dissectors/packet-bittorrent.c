@@ -750,7 +750,7 @@ proto_register_bittorrent(void)
         { "Message Length", "bittorrent.msg.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_bittorrent_msg_type,
-        { "Message Type", "bittorrent.msg.type", FT_UINT8, BASE_DEC, VALS(bittorrent_messages), 0x0, NULL, HFILL }
+        { "Message Type", "bittorrent.msg.type", FT_UINT16, BASE_DEC, VALS(bittorrent_messages), 0x0, NULL, HFILL }
       },
       { &hf_azureus_msg,
         { "Azureus Message", "bittorrent.azureus_msg", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }

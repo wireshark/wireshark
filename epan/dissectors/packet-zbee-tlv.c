@@ -959,7 +959,7 @@ dissect_zdp_rsp_security_challenge_local_tlv (tvbuff_t *tvb, packet_info *pinfo 
            offset += 4;
 
            /* TODO: should this really be shown as big endian? */
-           proto_tree_add_item(tree, hf_zbee_tlv_mic64, tvb, offset, 8, ENC_NA);
+           proto_tree_add_item(tree, hf_zbee_tlv_mic64, tvb, offset, 8, ENC_BIG_ENDIAN);
            offset += 8;
            break;
        }

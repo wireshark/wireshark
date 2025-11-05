@@ -298,7 +298,7 @@ static const value_string kademlia_tags[] = {
     { KADEMLIA_TAG_PORT              ,"TAG_PORT"         },
     { KADEMLIA_TAG_PREFERENCE        ,"TAG_PREFERENCE"   },
     { KADEMLIA_TAG_PRIORITY          ,"TAG_PRIORITY"     },
-    { KADEMLIA_TAG_QTIME             ,"TAG_QTIME"        },
+//    { KADEMLIA_TAG_QTIME             ,"TAG_QTIME"        }, Duplicated value
     { KADEMLIA_TAG_SERVERIP          ,"TAG_SERVERIP"     },
     { KADEMLIA_TAG_SERVERPORT        ,"TAG_SERVERPORT"   },
     { KADEMLIA_TAG_SOURCEIP          ,"TAG_SOURCEIP"     },
@@ -3387,7 +3387,7 @@ void proto_register_edonkey(void) {
                 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_edonkey_tcp_obfuscation_port, 
             { "TCP Obfuscation Port", "edonkey.tcp_obfuscation_port", 
-                FT_UINT16, BASE_PT_TCP, NULL, 0x0, NULL, HFILL }},
+                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_edonkey_udp_obfuscation_port, 
             { "UDP Obfuscation Port", "edonkey.udp_obfuscation_port", 
                 FT_UINT16, BASE_PT_UDP, NULL, 0x0, NULL, HFILL }},

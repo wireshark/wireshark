@@ -2204,7 +2204,7 @@ static void dissect_server_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
   }
 
-  proto_item *ti = proto_tree_add_item(tree, hf_key, tvb, offset, keylen, ENC_UTF_8 | ENC_STR_HEX);
+  proto_item *ti = proto_tree_add_item(tree, hf_key, tvb, offset, keylen, ENC_UTF_8);
 
   switch (opcode) {
     case SERVER_OPCODE_CLUSTERMAP_CHANGE_NOTIFICATION:
@@ -2288,7 +2288,7 @@ dissect_client_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_uint(cid_tree, hf_collection_key_id, tvb, offset,
                             (ok - offset), cid);
         proto_tree_add_item(cid_tree, hf_collection_key_logical, tvb,
-                            ok, keylen - (ok - offset), ENC_UTF_8 | ENC_STR_HEX);
+                            ok, keylen - (ok - offset), ENC_UTF_8);
       }
     }
     offset += keylen;

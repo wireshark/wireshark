@@ -1866,14 +1866,14 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
             if (parameter_length > 0) {
                 switch (parameter_id) {
                 case 0x00: /* Identifier */
-                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_appl_parameter_id, tvb, offset, parameter_length, ENC_STRING);
+                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_appl_parameter_id, tvb, offset, parameter_length, ENC_ASCII);
                     break;
                 case 0x01: /* Enable */
                     proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_appl_parameter_enable, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
                     break;
                 case 0x02: /* URL */
                 {
-                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_appl_parameter_url, tvb, offset, parameter_length, ENC_STRING);
+                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_appl_parameter_url, tvb, offset, parameter_length, ENC_ASCII);
                     break;
                 }
                 default:

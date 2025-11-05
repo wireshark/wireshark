@@ -441,17 +441,17 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint
     /* Height, Speed, Heading */
 
     // height step 1m. Range: -100m...+4500m
-    t_val = tvb_get_bits32(tvb, bit_offset, 13, ENC_BIG_ENDIAN) - 100;
+    t_val = tvb_get_bits16(tvb, bit_offset, 13, ENC_BIG_ENDIAN) - 100;
     proto_tree_add_int(sub_tree, hf_gsm_r_uus1_elda_height, tvb, curr_offset, 4, t_val);
     bit_offset += 13;
 
     // speed step 10 km/h
-    t_val = tvb_get_bits32(tvb, bit_offset, 6, ENC_BIG_ENDIAN) * 10;
+    t_val = tvb_get_bits8(tvb, bit_offset, 6) * 10;
     proto_tree_add_uint(sub_tree, hf_gsm_r_uus1_elda_speed, tvb, curr_offset, 4, t_val);
     bit_offset += 6;
 
     // heading step 10 deg
-    t_val = tvb_get_bits32(tvb, bit_offset, 6, ENC_BIG_ENDIAN) * 10;
+    t_val = tvb_get_bits8(tvb, bit_offset, 6) * 10;
     proto_tree_add_uint(sub_tree, hf_gsm_r_uus1_elda_heading, tvb, curr_offset, 4, t_val);
     bit_offset += 6;
 
@@ -460,22 +460,22 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint
     /* Elapsed Time, Distance, Scale, Spare */
 
     // time step 1 second. Range: 0...2047
-    t_val = tvb_get_bits32(tvb, bit_offset, 11, ENC_BIG_ENDIAN);
+    t_val = tvb_get_bits16(tvb, bit_offset, 11, ENC_BIG_ENDIAN);
     proto_tree_add_uint(sub_tree, hf_gsm_r_uus1_elda_e_time, tvb, curr_offset, 4, t_val);
     bit_offset += 11;
 
     // distance step = 10 cm, 1 m or 10 m depending on the parameter Scale
-    t_val = tvb_get_bits32(tvb, bit_offset, 14, ENC_BIG_ENDIAN);
+    t_val = tvb_get_bits16(tvb, bit_offset, 14, ENC_BIG_ENDIAN);
     proto_tree_add_uint(sub_tree, hf_gsm_r_uus1_elda_distance, tvb, curr_offset, 4, t_val);
     bit_offset += 14;
 
     // scale
-    t_val = tvb_get_bits32(tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    t_val = tvb_get_bits8(tvb, bit_offset, 2);
     proto_tree_add_uint(sub_tree, hf_gsm_r_uus1_elda_scale, tvb, curr_offset, 4, t_val);
     bit_offset += 2;
 
     // spare
-    t_val = tvb_get_bits32(tvb, bit_offset, 5, ENC_BIG_ENDIAN);
+    t_val = tvb_get_bits8(tvb, bit_offset, 5);
     proto_tree_add_uint(sub_tree, hf_gsm_r_uus1_elda_spare, tvb, curr_offset, 4, t_val);
 
     return 16;

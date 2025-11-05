@@ -1837,7 +1837,7 @@ dissect_zbee_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 ie_tvb = tvb_new_subset_length(tvb, offset, ZBEE_NWK_BEACON_LENGTH);
                 offset += dissect_zbee_beacon(ie_tvb, pinfo, subtree, NULL); /* Legacy ZigBee Beacon */
                 dissect_ieee802154_superframe(tvb, pinfo, subtree, &offset);
-                proto_tree_add_item(subtree, hf_ieee802154_zigbee_ie_source_addr, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(subtree, hf_ieee802154_zigbee_ie_source_addr, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 break;
 

@@ -5296,7 +5296,7 @@ static int dissect_segment_symbolic(tvbuff_t *tvb, packet_info* pinfo, proto_tre
       }
       else
       {
-         proto_tree_add_item(path_seg_tree, hf_cip_symbol_ascii, tvb, offset + 1, symbol_size, ENC_ASCII | ENC_NA);
+         proto_tree_add_item(path_seg_tree, hf_cip_symbol_ascii, tvb, offset + 1, symbol_size, ENC_ASCII);
       }
 
       proto_item_append_text(epath_item, "%s", symbol_name);
@@ -5508,7 +5508,7 @@ static int dissect_segment_port(tvbuff_t* tvb, packet_info* pinfo, int offset, b
       else
       {
          proto_tree_add_item(path_seg_tree, hf_cip_link_address_size, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-         proto_tree_add_item(path_seg_tree, hf_cip_link_address_string, tvb, offset + offset_link_address, opt_link_size, ENC_ASCII | ENC_NA);
+         proto_tree_add_item(path_seg_tree, hf_cip_link_address_string, tvb, offset + offset_link_address, opt_link_size, ENC_ASCII);
       }
 
       proto_item_append_text(epath_item, ", Address: %s", tvb_format_text(pinfo->pool, tvb, offset + offset_link_address, opt_link_size));
@@ -5831,7 +5831,7 @@ static int dissect_segment_ansi_extended_symbol(packet_info* pinfo, tvbuff_t* tv
          proto_item_set_generated(it);
       }
       else
-         proto_tree_add_item(path_seg_tree, hf_cip_symbol, tvb, offset + 2, seg_size, ENC_ASCII | ENC_NA);
+         proto_tree_add_item(path_seg_tree, hf_cip_symbol, tvb, offset + 2, seg_size, ENC_ASCII);
 
       proto_item_append_text(epath_item, "%s", symbol_name);
 
@@ -6532,13 +6532,13 @@ int dissect_cip_string_type(packet_info *pinfo, proto_tree *tree, proto_item *it
     {
     case CIP_SHORT_STRING_TYPE:
         string_size = tvb_get_uint8(tvb, offset);
-        string_encoding = ENC_ASCII | ENC_NA;
+        string_encoding = ENC_ASCII;
         string_size_field_len = 1;
         break;
 
     case CIP_STRING_TYPE:
         string_size = tvb_get_letohs(tvb, offset);
-        string_encoding = ENC_ASCII | ENC_NA;
+        string_encoding = ENC_ASCII;
         string_size_field_len = 2;
         break;
 
@@ -6575,7 +6575,7 @@ static int dissect_cip_stringi(packet_info *pinfo, proto_tree *tree, proto_item 
 
     for (uint32_t i = 0; i < num_char; ++i)
     {
-        proto_tree_add_item(tree, hf_stringi_language_char, tvb, offset + 1, 3, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(tree, hf_stringi_language_char, tvb, offset + 1, 3, ENC_ASCII);
 
         uint32_t char_string_type = 0;
         proto_tree_add_item_ret_uint(tree, hf_stringi_char_string_struct, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN, &char_string_type);

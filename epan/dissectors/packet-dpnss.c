@@ -1539,7 +1539,7 @@ proto_register_dpnss(void)
         },
         { &hf_dpnss_sic_oct2_data_type,
             { "Data Type",           "dpnss.sic_oct2_data_type",
-            FT_UINT8, BASE_DEC, VALS(dpnss_sic_oct2_data_type_vals), 0x03,
+            FT_UINT8, BASE_DEC, VALS(dpnss_sic_oct2_data_type_vals), 0x07,
             NULL, HFILL }
         },
         { &hf_dpnss_sic_oct2_duplex,

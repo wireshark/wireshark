@@ -6582,7 +6582,7 @@ static int dissect_c15ch_inc_gwe_subs_chg_hndl(tvbuff_t *tvb, packet_info *pinfo
                             tvb, 4, 4, ENC_BIG_ENDIAN);
 
         ti = proto_tree_add_item(c15ch_inc_gwe_subs_chg_hndl_tree, hf_c15ch_inc_gwe_subs_chg_hndl_ip_gwe_med_ni_tn,
-                            tvb, 8, 16, ENC_BIG_ENDIAN);
+                            tvb, 8, 8, ENC_BIG_ENDIAN);
         sub_ni_tn_tree = proto_item_add_subtree (ti, ett_c15ch_third_level_inc_gwe_sub1);
         proto_tree_add_item(sub_ni_tn_tree, hf_c15ch_inc_gwe_subs_chg_hndl_ip_gwe_med_ni,
                             tvb, 8, 4, ENC_BIG_ENDIAN);

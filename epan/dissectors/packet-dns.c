@@ -2981,7 +2981,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           && tvb_get_uint32(tvb, txt_offset, ENC_BIG_ENDIAN) == DNSCRYPT_CERT_MAGIC){
           dissect_dnscrypt(rr_tree, tvb, txt_offset, txt_len);
         } else {
-            proto_tree_add_item(rr_tree, hf_dns_txt, tvb, txt_offset, txt_len, is_mdns ? ENC_UTF_8 : ENC_ASCII);
+            proto_tree_add_item(rr_tree, hf_dns_txt, tvb, txt_offset, txt_len, ENC_UTF_8);
         }
         txt_offset +=  txt_len;
         rr_len     -= txt_len;

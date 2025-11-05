@@ -13252,7 +13252,7 @@ dissect_zcl_device_management_request_new_password_response(proto_tree *tree, tv
 
     /* Duration in minutes */
     /* TODO: if really big endian, should use ENC_BIG_ENDIAN.. */
-    proto_tree_add_item(tree, hf_zbee_zcl_device_management_request_new_password_duration_in_minutes, tvb, *offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_request_new_password_duration_in_minutes, tvb, *offset, 2, ENC_BIG_ENDIAN);
     *offset += 2;
 
     /* Password Type */
@@ -14985,7 +14985,7 @@ dissect_zcl_ke_suite2_certificate(tvbuff_t *tvb, proto_tree *tree, unsigned *off
     proto_tree_add_item(tree, hf_zbee_zcl_ke_cert_type, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    proto_tree_add_item(tree, hf_zbee_zcl_ke_cert_serialno, tvb, *offset, 8, ENC_NA);
+    proto_tree_add_item(tree, hf_zbee_zcl_ke_cert_serialno, tvb, *offset, 8, ENC_BIG_ENDIAN);
     *offset += 8;
 
     proto_tree_add_item(tree, hf_zbee_zcl_ke_cert_curve, tvb, *offset, 1, ENC_NA);
