@@ -25,13 +25,10 @@
 #include <ui/qt/widgets/hex_data_source_view.h>
 #include <ui/qt/widgets/json_data_source_view.h>
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
-// Short-circuit minimumTabSizeHint and tabSizeHint if the TabBar is not
+#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0) && QT_VERSION < QT_VERSION_CHECK(6, 10, 1)
+// Short-circuit minimumTabSizeHint and tabSizeHint if the TabBar is not visible
 // to workaround https://bugreports.qt.io/browse/QTBUG-141187
-// The real fix still needs to be done in Qt - there's still an unneeded
-// O(N^2) number of layoutTabs() calls, but at least the ones where it's
-// not visible are much faster. The functions that most need fixing are
-// not virtual and can't be overridden, unlike these two.
+// The real fix is in Qt 6.10.1 and later.
 class DataSourceTabBar : public QTabBar
 {
     Q_OBJECT
@@ -71,7 +68,7 @@ DataSourceTab::DataSourceTab(QWidget *parent, epan_dissect_t *edt_fixed) :
     edt_(edt_fixed),
     disable_hover_(false)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0) && QT_VERSION < QT_VERSION_CHECK(6, 10, 1)
     setTabBar(new DataSourceTabBar(this));
 #endif
     if (application_flavor_is_wireshark()) {
@@ -467,6 +464,6 @@ void DataSourceTab::captureFileClosing()
     emit detachData();
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0) && QT_VERSION < QT_VERSION_CHECK(6, 10, 1)
 #include "data_source_tab.moc"
 #endif
