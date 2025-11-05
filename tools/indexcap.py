@@ -51,7 +51,7 @@ def extract_protos_from_file(tshark, num_procs, max_files, cap_files, cap_hash, 
     try:
         for (cur_item_idx,result_async) in enumerate(results):
             file_result = result_async.get()
-            action = "SKIPPED" if file_result[1] is {} else "PROCESSED"
+            action = "SKIPPED" if file_result[1] == {} else "PROCESSED"
             print("%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result[0], os.path.getsize(file_result[0])))
             cap_hash.update(dict([file_result]))
     except KeyboardInterrupt:

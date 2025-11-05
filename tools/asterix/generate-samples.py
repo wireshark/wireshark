@@ -21,11 +21,11 @@
 # wireshark samples.pcap
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-from typing import *
-from binascii import hexlify, unhexlify
-from dataclasses import dataclass
+#from typing import *
+from binascii import hexlify
+#from dataclasses import dataclass
 
-from asterix.base import *
+#from asterix.base import *
 import asterix.generated as gen
 
 # Select particular asterix categories and editions

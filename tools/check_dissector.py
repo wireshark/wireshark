@@ -9,8 +9,7 @@ import sys
 import os
 import signal
 import argparse
-import re
-from check_common import *
+from check_common import isDissectorFile, getFilesFromOpen, getFilesFromCommits, bcolors
 
 # Run battery of tests on one or more dissectors.
 

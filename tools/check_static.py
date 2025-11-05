@@ -10,7 +10,7 @@ import re
 import subprocess
 import argparse
 import signal
-from check_common import *
+from check_common import findDissectorFilesInFolder, getFilesFromOpen, getFilesFromCommits, isGeneratedFile
 
 # Look for dissector symbols that could/should be static.
 # This will not run on Windows, unless/until we check the platform

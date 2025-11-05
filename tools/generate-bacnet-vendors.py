@@ -15,7 +15,9 @@ based on work by Anish Bhatt <anish@chelsio.com>
 '''
 
 import sys
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 from bs4 import BeautifulSoup
 
 def exit_msg(msg=None, status=1):
@@ -25,8 +27,9 @@ def exit_msg(msg=None, status=1):
     sys.exit(status)
 
 req_headers = { 'User-Agent': 'Wireshark generate-bacnet-vendors' }
+url = "https://bacnet.org/assigned-vendor-ids/"
 try:
-    req = urllib.request.Request("https://bacnet.org/assigned-vendor-ids/", headers=req_headers)
+    req = urllib.request.Request(url, headers=req_headers)
     response = urllib.request.urlopen(req)
     lines = response.read().decode()
     response.close()
@@ -35,7 +38,7 @@ except urllib.error.HTTPError as err:
 except urllib.error.URLError as err:
     exit_msg("URL error fetching {0}: {1}".format(url, err.reason))
 except OSError as err:
-    exit_msg("OS error fetching {0}".format(url, err.strerror))
+    exit_msg("OS error fetching {0}: {1}".format(url, err.strerror))
 except Exception:
     exit_msg("Unexpected error:", sys.exc_info()[0])
 

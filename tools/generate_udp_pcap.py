@@ -10,8 +10,6 @@ SPDX-License-Identifier: LGPL-2.1-or-later
 '''
 
 from argparse import ArgumentParser
-from io import BytesIO
-import scapy
 from scapy.layers.l2 import Ether
 from scapy.layers.inet import IP, UDP
 from scapy.packet import Raw

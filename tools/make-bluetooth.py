@@ -14,7 +14,9 @@ and processes the YAML into human-readable strings to go into packet-bluetooth-d
 '''
 
 import sys
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import yaml
 
 base_url = "https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/"

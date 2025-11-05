@@ -40,7 +40,7 @@ def check_lua_script(cmd_tshark, features, dirs, capture_file, test_env):
         if check_passed:
             logging.info(tshark_proc.stdout)
             logging.info(tshark_proc.stderr)
-            if not 'All tests passed!' in tshark_proc.stdout:
+            if 'All tests passed!' not in tshark_proc.stdout:
                 pytest.fail("Some test failed, check the logs (eg: pytest --lf --log-cli-level=info)")
 
         return tshark_proc
@@ -101,7 +101,7 @@ def check_lua_script_locale(cmd_tshark, features, dirs, capture_file, test_env):
         if check_passed:
             logging.info(tshark_proc.stdout)
             logging.info(tshark_proc.stderr)
-            if not 'All tests passed!' in tshark_proc.stdout:
+            if 'All tests passed!' not in tshark_proc.stdout:
                 pytest.fail("Some test failed, check the logs (eg: pytest --lf --log-cli-level=info)")
 
         return tshark_proc

@@ -16,7 +16,7 @@ class MatchAny(object):
         self.type = type
 
     def __eq__(self, other):
-        return self.type is None or self.type == type(other)
+        return self.type is None or self.type is type(other)
 
     def __repr__(self):
         return '<MatchAny type=%s>' % (self.type.__name__,)
@@ -60,7 +60,7 @@ class MatchRegExp(object):
         self.pattern = pattern
 
     def __eq__(self, other):
-        return type(other) == str and re.match(self.pattern, other)
+        return type(other) is str and re.match(self.pattern, other)
 
     def __repr__(self):
         return '<MatchRegExp pattern=%r>' % (self.pattern)

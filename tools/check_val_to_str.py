@@ -16,7 +16,7 @@ import os
 import re
 import argparse
 import signal
-from check_common import *
+from check_common import findDissectorFilesInFolder, getFilesFromCommits, getFilesFromOpen, isDissectorFile, isGeneratedFile, removeComments
 
 
 # Try to exit soon after Ctrl-C is pressed.

@@ -10,7 +10,7 @@ import re
 import argparse
 import signal
 from pathlib import Path
-from check_common import *
+from check_common import getFilesFromOpen, findDissectorFilesInFolder, getFilesFromCommits, removeComments, isGeneratedFile
 
 
 # This utility scans the dissector code for various issues.

@@ -19,7 +19,12 @@ Extcap for UBX messages from an u-blox GNSS receiver.
 Tested with UBX protocol version 18. 
 """
 
-import argparse, serial.tools.list_ports, serial, struct, sys, time
+import argparse
+import serial.tools.list_ports
+import serial
+import struct
+import sys
+import time
 from threading import Thread
 
 VERSION  = "0.1"

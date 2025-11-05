@@ -14,7 +14,7 @@ import os
 import socket
 import subprocess
 import subprocesstest
-from subprocesstest import cat_dhcp_command, cat_cap_file_command, count_output, grep_output, check_packet_count
+from subprocesstest import cat_dhcp_command, cat_cap_file_command, grep_output, check_packet_count
 from suite_text2pcap import check_capinfos_info
 import sys
 import threading
@@ -75,7 +75,7 @@ def wireshark_k(wireshark_command):
 
 def capture_command(*args, shell=False, quoted=False):
     cmd_args = list(args)
-    if type(cmd_args[0]) != str:
+    if type(cmd_args[0]) is not str:
         # Assume something like ['wireshark', '-k']
         cmd_args = list(cmd_args[0]) + list(cmd_args)[1:]
     if shell:
@@ -162,7 +162,7 @@ def check_capture_stdin(cmd_capinfos, result_file):
             '-a', 'duration:{}'.format(capture_duration),
             shell=True
         )
-        is_gui = type(cmd) != str and '-k' in cmd[0]
+        is_gui = type(cmd) is not str and '-k' in cmd[0]
         if is_gui:
             capture_cmd += ' --log-level=info'
         if sysconfig.get_platform().startswith('mingw'):
@@ -360,7 +360,8 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
             # If a previous test left its fifo laying around, e.g. from a failure, remove it.
             try:
                 os.unlink(fifo_file)
-            except Exception: pass
+            except Exception:
+                pass
             os.mkfifo(fifo_file)
             cat_cmd = cat_cap_file_command(in_files)
             fifo_procs.append(subprocess.Popen(('{0} > {1}'.format(cat_cmd, fifo_file)), shell=True))
@@ -409,7 +410,8 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, cmd_capinfos, capture
         capture_cmd = capture_command(cmd_dumpcap, *capture_cmd_args)
 
         subprocesstest.check_run(capture_cmd, env=env)
-        for fifo_proc in fifo_procs: fifo_proc.kill()
+        for fifo_proc in fifo_procs:
+            fifo_proc.kill()
 
         rb_files = []
         if multi_output:

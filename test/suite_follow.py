@@ -8,7 +8,6 @@
 '''Follow Stream tests'''
 
 import subprocess
-import pytest
 
 
 class TestFollowTcp:

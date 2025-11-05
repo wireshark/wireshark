@@ -231,11 +231,11 @@ def py_generator(d, r, frame_name='frame_raw', frame_position=0):
                     for _v in v:
                         h = _v[0]
                         p = _v[1]
-                        l = _v[2] * 2
+                        length = _v[2] * 2
                         b = _v[3]
                         t = _v[4]
-                        if (len(h) != l):
-                            l = len(h)
+                        if (len(h) != length):
+                            length = len(h)
 
                         p = p - frame_position
 
@@ -246,18 +246,18 @@ def py_generator(d, r, frame_name='frame_raw', frame_position=0):
                         fn = frame_name.replace('.', '_')
                         if (fn == key):
                             fn = None
-                        value = [fn, h, p, l, b, t]
+                        value = [fn, h, p, length, b, t]
 
                         r[key] = value
 
                 else:
                     h = v[0]
                     p = v[1]
-                    l = v[2] * 2
+                    length = v[2] * 2
                     b = v[3]
                     t = v[4]
-                    if (len(h) != l):
-                        l = len(h)
+                    if (len(h) != length):
+                        length = len(h)
 
                     p = p - frame_position
 
@@ -268,7 +268,7 @@ def py_generator(d, r, frame_name='frame_raw', frame_position=0):
                     fn = frame_name.replace('.', '_')
                     if (fn == key):
                         fn = None
-                    value = [fn , h, p, l, b, t]
+                    value = [fn , h, p, length, b, t]
 
                     r[key] = value
 
@@ -342,20 +342,20 @@ def multiply_strings(original_string, new_string, mask):
 # b - bitmask
 # t - type
 # frame_amask - optional, anonymization mask (00 - not anonymized byte, ff - anonymized byte)
-def rewrite_frame(frame_raw, h, p, l, b, t, frame_amask=None):
-    if p < 0 or l < 0 or h is None:
+def rewrite_frame(frame_raw, h, p, length, b, t, frame_amask=None):
+    if p < 0 or length < 0 or h is None:
         return frame_raw
 
     # no bitmask
     if(b == 0):
-        if (len(h) != l):
-            l = len(h)
-        frame_raw_new = frame_raw[:p] + h + frame_raw[p + l:]
+        if (len(h) != length):
+            length = len(h)
+        frame_raw_new = frame_raw[:p] + h + frame_raw[p + length:]
         return multiply_strings(frame_raw, frame_raw_new, frame_amask)
     # bitmask
     else:
         # get hex string from frame which will be replaced
-        _h = frame_raw[p:p + l]
+        _h = frame_raw[p:p + length]
 
         # add 0 padding to have correct length
         if (len(_h) % 2 == 1):
@@ -403,12 +403,11 @@ def rewrite_frame(frame_raw, h, p, l, b, t, frame_amask=None):
         masked_h = binascii.hexlify(_H)
         masked_h = masked_h.decode('ascii')
 
-        frame_raw_new = frame_raw[:p] + str(masked_h) + frame_raw[p + l:]
+        frame_raw_new = frame_raw[:p] + str(masked_h) + frame_raw[p + length:]
         return multiply_strings(frame_raw, frame_raw_new, frame_amask)
 
 
 def assemble_frame(d, frame_time):
-    input = d['frame_raw'][1]
     isFlat = False
     linux_cooked_header = False
     while not isFlat:
@@ -417,7 +416,7 @@ def assemble_frame(d, frame_time):
         for key, val in _d.items():
             h = str(val[1])     # hex
             p = val[2] * 2      # position
-            l = val[3] * 2      # length
+            length = val[3] * 2      # length
             b = val[4]          # bitmask
             t = val[5]          # type
 
@@ -433,7 +432,7 @@ def assemble_frame(d, frame_time):
                     break
 
             if not isParent and val[0] is not None:
-                d[val[0]][1] = rewrite_frame(d[val[0]][1], h, p, l, b, t)
+                d[val[0]][1] = rewrite_frame(d[val[0]][1], h, p, length, b, t)
                 del d[key]
 
     output = d['frame_raw'][1]
@@ -611,7 +610,7 @@ if args.python is False:
             if len(raw) >= 6:
                 h = str(raw[0])  # hex
                 p = raw[1] * 2   # position
-                l = raw[2] * 2   # length
+                length = raw[2] * 2   # length
                 b = raw[3]       # bitmask
                 t = raw[4]       # type
                 # raw[5]         # data source
@@ -622,7 +621,7 @@ if args.python is False:
                 if (raw[-1] in anonymize):
                     [h, h_mask] = anonymize[raw[-1]].anonymize_field(h, t, salt)
 
-                if (isinstance(p, (list, tuple)) or isinstance(l, (list, tuple))):
+                if (isinstance(p, (list, tuple)) or isinstance(length, (list, tuple))):
                     for r in raw:
                         _h = str(r[0])  # hex
                         _p = r[1] * 2   # position
@@ -646,11 +645,11 @@ if args.python is False:
 
                 else:
                     # print("Debug: " + str(raw))
-                    frame_raw = rewrite_frame(frame_raw, h, p, l, b, t, frame_amask)
+                    frame_raw = rewrite_frame(frame_raw, h, p, length, b, t, frame_amask)
 
                     # update anonymization mask
                     if (raw[-1] in anonymize):
-                        frame_amask = rewrite_frame(frame_amask, h_mask, p, l, b, t)
+                        frame_amask = rewrite_frame(frame_amask, h_mask, p, length, b, t)
 
         # for Linux cooked header replace dest MAC and remove two bytes to reconstruct normal frame using text2pcap
         if (linux_cooked_header):

@@ -8,7 +8,6 @@
 '''NetPerfMeter tests'''
 
 import subprocess
-import pytest
 
 
 class TestNetperfmeter:

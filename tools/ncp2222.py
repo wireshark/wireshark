@@ -57,7 +57,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 import os
 import sys
-import string
 import getopt
 import traceback
 
@@ -258,7 +257,7 @@ class PTVC(NamedList):
             # the field has an integer telling us how long the string is.
             # Fields that don't have a length determinable at run-time
             # cannot be variable-length.
-            if type(ptvc_rec.Length()) == type(()):
+            if type(ptvc_rec.Length()) is tuple:
                 if isinstance(ptvc_rec.Field(), nstring):
                     expected_offset = -1
                     pass
@@ -388,7 +387,7 @@ class PTVCRecord:
 
         length = None
 
-        if type(self.length) == type(0):
+        if type(self.length) is int:
             length = self.length
         else:
             # This is for cases where a length is needed
@@ -542,7 +541,7 @@ class NCP:
             return
         min = size
         max = size
-        if type(size) == type(()):
+        if type(size) is tuple:
             min = size[0]
             max = size[1]
 
@@ -553,7 +552,7 @@ class NCP:
             rec_size = record[REC_LENGTH]
             rec_lower = rec_size
             rec_upper = rec_size
-            if type(rec_size) == type(()):
+            if type(rec_size) is tuple:
                 rec_lower = rec_size[0]
                 rec_upper = rec_size[1]
 
@@ -843,7 +842,7 @@ class struct(PTVC, Type):
                 var = NO_VAR
                 repeat = NO_REPEAT
                 req_cond = NO_REQ_COND
-            elif type(item) == type([]):
+            elif type(item) is list:
                 field = item[REC_FIELD]
                 length = item[REC_LENGTH]
                 endianness = item[REC_ENDIANNESS]
@@ -1038,7 +1037,6 @@ class val_string(Type):
         value_repr = self.value_format % 0
         result = result + "    { %s, NULL },\n" % (value_repr)
         result = result + "};\n"
-        REC_VAL_STRING_RES = self.value_format % value
         return result
 
     def ValuesCName(self):
@@ -6686,7 +6684,7 @@ static expert_field ei_ncp_value_too_large;
         # Make sure the record for error = 0x00 comes last.
         print("static const error_equivalency %s[] = {" % (compcodes.Name()))
         for error in errors:
-            error_in_packet = error >> 8;
+            error_in_packet = error >> 8
             ncp_error_index = errors_used_hash[error]
             print("    { 0x%02x, %d }, /* 0x%04x */" % (error_in_packet,
                     ncp_error_index, error))

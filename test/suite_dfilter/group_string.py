@@ -3,8 +3,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import pytest
-from suite_dfilter.dfiltertest import *
+# from suite_dfilter.dfiltertest import *
 
 
 class TestDfilterString:
@@ -97,14 +96,6 @@ class TestDfilterString:
     def test_slice_8(self, checkDFilterCount):
         dfilter = 'http.request.method[-2] == "D"'
         checkDFilterCount(dfilter, 0)
-
-    def xxxtest_stringz_1(self):
-            return self.DFilterCount(pkt_tftp,
-                    'tftp.type == "octet"', 1)
-
-    def xxxtest_stringz_2(self):
-            return self.DFilterCount(pkt_tftp,
-                    'tftp.type == "junk"', 0)
 
     def test_contains_1(self, checkDFilterCount):
         dfilter = 'http.request.method contains "E"'

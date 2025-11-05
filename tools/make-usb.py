@@ -8,7 +8,9 @@
 
 import re
 import sys
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 
 MODE_IDLE           = 0
 MODE_VENDOR_PRODUCT = 1

@@ -10,7 +10,7 @@ import inspect
 import pytest
 
 # Wireshark modules
-from suite_dissectors.dissectorstest import *
+# from suite_dissectors.dissectorstest import *
 
 
 class TestAsterix:
@@ -497,24 +497,6 @@ class TestCategory019:
             "asterix.019_552",
             {
                 "asterix.counter": "3",
-                "asterix.019_552":
-                {
-                    "asterix.019_552_RSI": "18",
-                    "asterix.019_552_RS1090": "0",
-                    "asterix.019_552_TX1030": "1",
-                    "asterix.019_552_TX1090": "1",
-                    "asterix.019_552_RSS": "0",
-                    "asterix.019_552_RSO": "1"
-                },
-                "asterix.019_552":
-                {
-                    "asterix.019_552_RSI": "86",
-                    "asterix.019_552_RS1090": "1",
-                    "asterix.019_552_TX1030": "1",
-                    "asterix.019_552_TX1090": "1",
-                    "asterix.019_552_RSS": "1",
-                    "asterix.019_552_RSO": "0"
-                },
                 "asterix.019_552":
                 {
                     "asterix.019_552_RSI": "0x9a",
@@ -1073,13 +1055,6 @@ class _disabled_TestCategory034:
             "asterix.034_070",
             {
                 "asterix.counter": "3",
-                "asterix.034_070":
-                dict_local(x_070, "034_070", "TYPE", "16"),
-                "asterix.034_070":
-                {
-                    "asterix.034_070_TYP": "16",
-                    "asterix.034_070_COUNT": "2047"
-                },
                 "asterix.034_070":
                 dict_local(x_070, "034_070", "COUNT", "2047"),
             }
@@ -2176,10 +2151,6 @@ class TestCategory048:
                 "asterix.048_120_RDS":
                 {
                     "asterix.counter": "3",
-                    "asterix.048_120_RDS":
-                    dict_local(x_120_RDS, "048_120_RDS", "DOP", "-32768"),
-                    "asterix.048_120_RDS":
-                    dict_local(x_120_RDS, "048_120_RDS", "AMB", "65535"),
                     "asterix.048_120_RDS":
                     dict_local(x_120_RDS, "048_120_RDS", "FRQ", "65535")
                 }

@@ -6,7 +6,9 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-import argparse, codecs, os, sys
+import argparse
+import codecs
+import sys
 
 parser = argparse.ArgumentParser()
 

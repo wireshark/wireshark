@@ -9,7 +9,7 @@ import os
 import re
 import argparse
 import signal
-from check_common import *
+from check_common import isGeneratedFile, findDissectorFilesInFolder, getFilesFromCommits, getFilesFromOpen, removeComments
 
 # This utility scans for tfs items, and works out if standard ones
 # could have been used instead (from epan/tfs.c)

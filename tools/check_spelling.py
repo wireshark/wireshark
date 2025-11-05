@@ -8,7 +8,6 @@
 import os
 import sys
 import re
-import subprocess
 import argparse
 import signal
 import glob
@@ -17,7 +16,7 @@ from spellchecker import SpellChecker
 from collections import Counter
 from html.parser import HTMLParser
 import urllib.request
-from check_common import *
+from check_common import bcolors, getFilesFromOpen, getFilesFromCommits, isGeneratedFile, removeComments
 
 # Looks for spelling errors among strings found in source or documentation files.
 # N.B.,

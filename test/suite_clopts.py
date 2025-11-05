@@ -14,7 +14,6 @@ import os.path
 import subprocess
 import subprocesstest
 from subprocesstest import ExitCodes, grep_output, count_output
-import shutil
 import pytest
 
 #glossaries = ('fields', 'protocols', 'values', 'decodes', 'defaultprefs', 'currentprefs')

@@ -786,8 +786,8 @@ def generate_field_array_table():
     ret += '{ &hf_asterix_possible_interpretations,   { "Possible interpretations:", "asterix.possible_interpretations", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },\n'
     ret += '{ &hf_asterix_spare,   { "Spare bits", "asterix.spare_bit", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },\n'
 
-    for l in field_array:
-        ret += l + ',\n'
+    for entry in field_array:
+        ret += entry + ',\n'
 
     ret = ret[:-2]
     ret += '\n'

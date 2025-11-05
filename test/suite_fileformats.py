@@ -123,9 +123,9 @@ def check_pcapng_dsb_fields(request, cmd_tshark):
         output = proc_stdout.strip()
         actual = list(zip(*[x.split(",") for x in output.split('\t')]))
         def format_field(field):
-            t, l, v = field
+            t, length, v = field
             v_hex = ''.join('%02x' % c for c in v)
-            return ('0x%08x' % t, str(l), v_hex)
+            return ('0x%08x' % t, str(length), v_hex)
         fields = [format_field(field) for field in fields]
         assert fields == actual
     return check_dsb_fields_real

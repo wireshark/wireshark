@@ -8,7 +8,7 @@
 #
 
 import argparse
-from base64 import b64decode, b64encode
+from base64 import b64decode
 from enum import Enum
 import itertools
 import os

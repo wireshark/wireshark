@@ -2,8 +2,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import pytest
-from suite_dfilter.dfiltertest import *
+# from suite_dfilter.dfiltertest import *
 
 
 class TestDfilterSyntax:
@@ -133,7 +132,7 @@ class TestDfilterSyntax:
         dfilter = "tcp.flags.push == True"
         checkDFilterCount(dfilter, 1)
 
-    def test_bool_2(self, checkDFilterCount):
+    def test_bool_3(self, checkDFilterCount):
         dfilter = "tcp.flags.push == FALSE"
         checkDFilterCount(dfilter, 0)
 

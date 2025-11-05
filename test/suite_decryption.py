@@ -1441,7 +1441,7 @@ class TestDecryptSmb2:
     def check_partial(home_path, cmd_tshark, full_cap, pkt_skip, tree, sesid, s2ckey, c2skey, env=None):
         # generate a trace without NegProt and SessionSetup
         partial_cap = os.path.join(home_path, 'short.pcap')
-        stdout = subprocess.check_output((cmd_tshark,
+        subprocess.check_output((cmd_tshark,
                         '-r', full_cap,
                         '-Y', 'frame.number >= %d'%pkt_skip,
                         '-w', partial_cap,

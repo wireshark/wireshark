@@ -8,7 +8,6 @@
 '''Follow DCCP Stream tests'''
 
 import subprocess
-import pytest
 
 
 class TestFollowDCCP:

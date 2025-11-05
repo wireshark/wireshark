@@ -50,7 +50,7 @@ import argparse
 import os
 import re
 import sys
-from check_common import *
+from check_common import isDissectorFile
 
 
 def replace_file(fpath, make_replacements):

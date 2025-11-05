@@ -11,7 +11,7 @@
 import json
 import subprocess
 import pytest
-from matchers import *
+from matchers import MatchAny, MatchList, MatchObject, MatchRegExp
 
 
 @pytest.fixture(scope='session')
@@ -140,7 +140,7 @@ class TestSharkd:
                                         "sip", "sdp", "rtp"], "first":1105725482.965944, "last": 1105725491.490081}},
         ))
 
-    def test_sharkd_req_load_with_byte_limit(self, check_sharkd_session, capture_file):
+    def test_sharkd_req_load_with_byte_limit2(self, check_sharkd_session, capture_file):
         check_sharkd_session((
             {"jsonrpc":"2.0", "id": 1, "method":"load",
              "params":{"file":capture_file('sip-rtp.pcapng'), "max_bytes":8000}

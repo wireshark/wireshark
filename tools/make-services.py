@@ -14,7 +14,9 @@ import getopt
 import csv
 import re
 import collections
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import codecs
 
 iana_svc_url = 'https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv'

@@ -561,7 +561,7 @@ class TestDissectHttp2:
         # Stream ID 1 bytes, decrypted and uncompressed, human readable
         assert grep_output(stdout, '00000000  3a 6d 65 74 68 6f 64 3a')
 
-class TestDissectHttp2:
+class TestDissectHttp3:
     def test_http3_qpack_reassembly(self, cmd_tshark, features, dirs, capture_file, test_env):
         '''HTTP/3 QPACK encoder stream reassembly'''
         if not features.have_nghttp3:

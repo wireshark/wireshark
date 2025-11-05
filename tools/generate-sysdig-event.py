@@ -20,7 +20,9 @@ import logging
 import os
 import os.path
 import re
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 import sys
 
 sysdig_repo_pfx = 'https://raw.githubusercontent.com/falcosecurity/libs/master/'

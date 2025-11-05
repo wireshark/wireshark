@@ -12,7 +12,7 @@ import os
 import re
 import shutil
 import signal
-from check_common import *
+from check_common import getFilesFromCommits, getFilesFromOpen
 
 # This utility scans the dissector code for URLs, then attempts to
 # fetch the links.  The results are shown in stdout, but also, at

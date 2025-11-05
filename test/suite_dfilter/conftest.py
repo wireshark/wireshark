@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import subprocesstest
-from subprocesstest import count_output, grep_output
+from subprocesstest import count_output
 import pytest
 import logging
 

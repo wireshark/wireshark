@@ -11,7 +11,6 @@
 '''EPAN unit tests'''
 
 import subprocess
-import pytest
 
 
 class TestUnitTests:
@@ -93,7 +92,7 @@ class TestUnitFtSanity:
 
         lines = tshark_proc.stdout.splitlines()
         # XXX We don't currently check protos.
-        protos = [Proto(x) for x in lines if x[0] == "P"]
+        # protos = [Proto(x) for x in lines if x[0] == "P"]
         fields = [Field(x) for x in lines if x[0] == "F"]
 
         err_list = []

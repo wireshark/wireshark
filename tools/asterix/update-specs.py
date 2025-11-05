@@ -250,7 +250,6 @@ def save_item(obj):
             ix = save_nonspare(cont)
             return insert(ix)
         case 'Spare':
-            o = int(bit_offset)
             n = int(cont)
             bit_offset += n
             return insert(n)
@@ -349,7 +348,8 @@ def main():
     # read and json-decode input files
     specs = [Obj(json.loads(i)) for i in load_files(args.paths)]
     specs = sorted(specs, key = compare_asterix)
-    refs = [save_asterix(i) for i in specs]
+    # Note: Unclear if this has any side effects, so keeping.
+    [save_asterix(i) for i in specs]
 
     # print(db.db.keys())
     # [print(i) for i in db.content]

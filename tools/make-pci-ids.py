@@ -15,7 +15,9 @@
 
 import string
 import sys
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 
 OUTPUT_FILE = "epan/dissectors/packet-ncsi-data.c"
 

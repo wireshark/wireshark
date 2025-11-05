@@ -16,7 +16,9 @@ import ipaddress
 import os
 import re
 import sys
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 
 def exit_msg(msg=None, status=1):
     if msg is not None:

@@ -2,8 +2,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import pytest
-from suite_dfilter.dfiltertest import *
+# from suite_dfilter.dfiltertest import *
 
 
 class TestDfilterRange:
@@ -29,7 +28,7 @@ class TestDfilterRange:
         dfilter = "ipx.src.node[1] == 0xbb"
         checkDFilterCount(dfilter, 0)
 
-    def test_slice_2_pos(self, checkDFilterCount):
+    def test_slice_2_pos2(self, checkDFilterCount):
         dfilter = "ipx.src.node[3:2] == a3:e3"
         checkDFilterCount(dfilter, 1)
 

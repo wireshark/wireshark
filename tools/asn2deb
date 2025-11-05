@@ -13,7 +13,11 @@
 
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-import getopt, os, string, sys, time
+import getopt
+import os
+import string
+import sys
+import time
 
 scriptinfo = """asn2deb version 2004-02-17
 Copyright 2004, W. Borgert
@@ -98,7 +102,8 @@ def get_wrs_version():
     deb = os.popen(
         "dpkg-query -W --showformat='${Version}' wireshark-dev").read()
     debv = string.find(deb, "-")
-    if debv == -1: debv = len(deb)
+    if debv == -1:
+        debv = len(deb)
     version = deb[string.find(deb, ":")+1:debv]
     return version, deb
 
