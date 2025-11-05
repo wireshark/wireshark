@@ -1105,6 +1105,7 @@ main(int argc, char *argv[])
     ws_compression_type   volatile compression_type = WS_FILE_UNKNOWN_COMPRESSION;
     const struct file_extension_info* file_extensions;
     unsigned num_extensions;
+    epan_app_data_t app_data;
 
     /*
      * The leading + ensures that getopt_long() does not permute the argv[]
@@ -1367,7 +1368,11 @@ main(int argc, char *argv[])
        "-G" flag, as the "-G" flag dumps information registered by the
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
-    if (!epan_init(NULL, NULL, true)) {
+    app_data.env_var_prefix = application_configuration_environment_prefix();
+    app_data.col_fmt = application_columns();
+    app_data.num_cols = application_num_columns();
+    app_data.supports_packets = application_flavor_is_wireshark();
+    if (!epan_init(NULL, NULL, true, &app_data)) {
         exit_status = WS_EXIT_INIT_FAILED;
         goto clean_exit;
     }

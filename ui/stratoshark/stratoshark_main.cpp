@@ -431,6 +431,8 @@ int main(int argc, char *qt_argv[])
 #endif
     const struct file_extension_info* file_extensions;
     unsigned num_extensions;
+    epan_app_data_t app_data;
+
     /* Start time in microseconds */
     uint64_t start_time = g_get_monotonic_time();
 
@@ -705,7 +707,11 @@ int main(int argc, char *qt_argv[])
        "-G" flag, as the "-G" flag dumps information registered by the
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
-    if (!epan_init(splash_update, NULL, true)) {
+    app_data.env_var_prefix = application_configuration_environment_prefix();
+    app_data.col_fmt = application_columns();
+    app_data.num_cols = application_num_columns();
+    app_data.supports_packets = application_flavor_is_wireshark();
+    if (!epan_init(splash_update, NULL, true, &app_data)) {
         SimpleDialog::displayQueuedMessages(main_w);
         ret_val = WS_EXIT_INIT_FAILED;
         goto clean_exit;

@@ -344,6 +344,7 @@ main(int argc, char **argv)
     int opt;
     const struct file_extension_info* file_extensions;
     unsigned num_extensions;
+    epan_app_data_t app_data;
 
     /* Set the program name. */
     g_set_prgname("dftest");
@@ -513,7 +514,11 @@ main(int argc, char **argv)
        "-g" flag, as the "-g" flag dumps a list of fields registered
        by the dissectors, and we must do it before we read the preferences,
        in case any dissectors register preferences. */
-    if (!epan_init(NULL, NULL, true))
+    app_data.env_var_prefix = application_configuration_environment_prefix();
+    app_data.col_fmt = application_columns();
+    app_data.num_cols = application_num_columns();
+    app_data.supports_packets = application_flavor_is_wireshark();
+    if (!epan_init(NULL, NULL, true, &app_data))
         goto out;
 
     /* Load libwireshark settings from the current profile. */

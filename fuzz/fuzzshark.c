@@ -152,6 +152,7 @@ fuzz_init(int argc, char **argv)
 	};
         const struct file_extension_info* file_extensions;
         unsigned num_extensions;
+        epan_app_data_t app_data;
 
 	const char *fuzz_target =
 #if defined(FUZZ_DISSECTOR_TARGET)
@@ -277,7 +278,11 @@ fuzz_init(int argc, char **argv)
 	   "-G" flag, as the "-G" flag dumps information registered by the
 	   dissectors, and we must do it before we read the preferences, in
 	   case any dissectors register preferences. */
-	if (!epan_init(NULL, NULL, false))
+        app_data.env_var_prefix = application_configuration_environment_prefix();
+        app_data.col_fmt = application_columns();
+        app_data.num_cols = application_num_columns();
+        app_data.supports_packets = application_flavor_is_wireshark();
+	if (!epan_init(NULL, NULL, false, &app_data))
 	{
 		ret = EPAN_INIT_FAIL;
 		goto clean_exit;

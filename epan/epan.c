@@ -36,7 +36,6 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 #include <wsutil/version_info.h>
-#include <wsutil/application_flavor.h>
 
 #include "conversation.h"
 #include "except.h"
@@ -115,6 +114,7 @@ static GSList *epan_plugin_register_all_handoffs;
 
 static wmem_allocator_t *pinfo_pool_cache;
 static char* epan_env_prefix_cache;
+static bool supports_packets = true;
 
 /* Global variables holding the content of the corresponding environment variable
  * to save fetching it repeatedly.
@@ -167,7 +167,7 @@ epan_get_environment_prefix(void)
 
 bool epan_supports_packets(void)
 {
-	return application_flavor_is_wireshark();
+	return supports_packets;
 }
 
 #if defined(_WIN32) && GCRYPT_VERSION_NUMBER < 0x010b00
@@ -268,10 +268,11 @@ static void epan_plugin_register_all_tap_listeners(void *data, void *user_data _
 }
 
 bool
-epan_init(register_cb cb, void *client_data, bool load_plugins)
+epan_init(register_cb cb, void *client_data, bool load_plugins, epan_app_data_t* app_data)
 {
 	volatile bool status = true;
-	epan_env_prefix_cache = g_strdup(application_configuration_environment_prefix());
+	epan_env_prefix_cache = g_strdup(app_data->env_var_prefix);
+	supports_packets = app_data->supports_packets;
 
 	/* Get the value of some environment variables and set corresponding globals for performance reasons*/
 	/* If the WIRESHARK_ABORT_ON_DISSECTOR_BUG environment variable is set,
@@ -350,7 +351,7 @@ epan_init(register_cb cb, void *client_data, bool load_plugins)
 		export_pdu_init();
 		tap_init();
 		proto_pre_init();
-		prefs_init(application_columns(), application_num_columns());
+		prefs_init(app_data->col_fmt, app_data->num_cols);
 		expert_init();
 		packet_init();
 		secrets_init();

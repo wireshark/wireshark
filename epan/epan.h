@@ -191,6 +191,16 @@ Display-Filters - the display filter engine at epan/dfilter
 */
 
 /**
+ * @brief Information about the application that wants to use epan.
+ */
+typedef struct {
+	const char* env_var_prefix;		/**< The prefix for the application environment variable used to get the configuration directories. */
+	const char** col_fmt;			/**< Array of columns and their formats */
+	int num_cols;				/**< Number of columns in the list above */
+	bool supports_packets;			/**< true if packet dissection is supported; false otherwise (i.e. events).  This should be TEMPORARY */
+} epan_app_data_t;
+
+/**
  * @brief Initialize the entire epan module.
  *
  * This function must be called only once in a program to set up the module.
@@ -202,7 +212,7 @@ Display-Filters - the display filter engine at epan/dfilter
  * @return true if initialization succeeds, false otherwise.
  */
 WS_DLL_PUBLIC
-bool epan_init(register_cb cb, void *client_data, bool load_plugins);
+bool epan_init(register_cb cb, void *client_data, bool load_plugins, epan_app_data_t* app_data);
 
 /**
  * @brief Load all settings from the current profile that affect epan.
