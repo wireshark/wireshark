@@ -17605,7 +17605,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
     { &hf_ansi_map_pagingFrameClass,
       { "pagingFrameClass", "ansi_map.pagingFrameClass",
-        FT_UINT8, BASE_DEC, VALS(ansi_map_PagingFrameClass_vals), 0x03,
+        FT_UINT8, BASE_DEC, VALS(ansi_map_PagingFrameClass_vals), 0,
         NULL, HFILL }},
     { &hf_ansi_map_pSID_RSIDList,
       { "pSID-RSIDList", "ansi_map.pSID_RSIDList_element",

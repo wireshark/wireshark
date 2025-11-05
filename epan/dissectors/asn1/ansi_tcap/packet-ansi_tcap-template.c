@@ -1556,7 +1556,7 @@ proto_register_ansi_tcap(void)
         { &hf_ansi_tcap_parameter_look_ahead_for_busy_location_field,
           { "Location",
             "ansi_tcap.look_ahead_for_busy_location",
-            FT_UINT8, BASE_HEX, VALS(ansi_tcap_national_parameter_look_ahead_for_busy_location_field), 0x03,
+            FT_UINT8, BASE_HEX, VALS(ansi_tcap_national_parameter_look_ahead_for_busy_location_field), 0x0f,
             NULL, HFILL }
         },
         { &hf_ansi_tcap_parameter_acg_control_cause_indicator,

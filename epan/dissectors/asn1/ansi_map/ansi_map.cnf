@@ -516,7 +516,7 @@ SSDUpdateReport   TYPE = FT_UINT16  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map
 ReauthenticationReport   TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_ReauthenticationReport_vals)
 MSIDUsage TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x03 STRINGS = VALS(ansi_MSIDUsage_m_or_i_vals)
 BSMCStatus  TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x03 STRINGS = VALS(ansi_map_BSMCStatus_vals)
-PagingFrameClass   TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x03 STRINGS = VALS(ansi_map_PagingFrameClass_vals)
+PagingFrameClass   TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(ansi_map_PagingFrameClass_vals)
 ServicesResult TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x03 STRINGS = VALS(ansi_map_ServicesResult_ppr_vals)
 SOCStatus TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x03 STRINGS = VALS(ansi_map_SOCStatus_vals)
 #.END
