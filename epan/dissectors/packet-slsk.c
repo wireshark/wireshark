@@ -269,7 +269,7 @@ static bool check_slsk_format(tvbuff_t *tvb, packet_info *pinfo, int offset, con
     break;
     case 's':
       if (tvb_captured_length_remaining(tvb, offset) < 4) return false;
-      if (tvb_captured_length_remaining(tvb, offset) < (int)tvb_get_letohl(tvb, offset)+4) return false;
+      if ((unsigned)tvb_captured_length_remaining(tvb, offset + 4) < tvb_get_letohl(tvb, offset)) return false;
       offset += tvb_get_letohl(tvb, offset)+4;
     break;
     case '*':
