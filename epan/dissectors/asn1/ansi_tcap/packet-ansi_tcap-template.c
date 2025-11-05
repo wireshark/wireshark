@@ -381,7 +381,7 @@ static const value_string ansi_tcap_national_parameter_generic_name_type_of_name
  { 1, "Calling name" },
  { 2, "Original called name" },
  { 3, "Redirected name" },
- { 4, "Redirected name" },
+ { 4, "Connected name" },
  { 5, "Spare" },
  { 6, "Spare" },
  { 7, "Spare" },
