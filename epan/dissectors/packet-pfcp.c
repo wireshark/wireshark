@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V18.9.0 (2025-03-14)
+ * Ref 3GPP TS 29.244 V19.3.0 (2025-09-28)
  */
 #include "config.h"
 
@@ -2063,7 +2063,52 @@ static const value_string pfcp_ie_type[] = {
     { 351, "N6 Routing Information"},                               /* Extendable / Clause 8.2.243 */
     { 352, "URI"},                                                  /* Variable Length / Clause 8.2.244 */
     { 353, "UE Level Measurements Configuration"},                  /* Extendable / Clause 8.2.245 */
-    //354 to 32767 Spare. For future use.
+    { 354, "N6 Delay Measurement Protocols"},                       /* 	Extendable / Clause 8.2.246	1 */
+    { 355, "N6 Delay Measurement Control Information"},             /* 	Extendable / Table 7.4.4.1.4-1	Not Applicable */
+    { 356, "N6 Delay Measurement Report (PFCP Node Report Request)"},       /* 	Extendable / Table 7.4.5.1.8-1	Not Applicable */
+    { 357, "N6 Delay Measurement Information"},                     /* 	Extendable / Clause 8.2.247	1 */
+    { 358, "Measurement Endpoint Address"},                         /* 	Extendable / Clause 8.2.248	1 */
+    { 359, "Operator Configurable UPF Capability"},                 /* 	Variable / Clause 8.2.249	Not Applicable */
+    { 360, "Packet Inspection functionality"},                      /* 	Extendable / Clause 8.2.250	1 */
+    { 361, "Header Handling Control Rule"},                         /* 	Extendable / Table 7.5.2.3-7	Not Applicable */
+    { 362, "Header Handling Reporting Control Info"},               /* 	Extendable / Table 7.5.2.3-8	Not Applicable */
+    { 363, "Header Handling Control information"},                  /* 	Extendable / Table  7.5.2.3-9	Not Applicable */
+    { 364, "Header Detection Reference"},                           /* 	Variable Length / Clause 8.2.251	Not Applicable */
+    { 365, "Header Detection Support Information"},                 /* 	Variable Length / Clause 8.2.252	Not Applicable */
+    { 366, "Reporting Endpoint ID"},                                /* 	Fixed / Clause 8.2.253	1 */
+    { 367, "Header Handling Control Reference"},                    /* 	Variable Length / Clause 8.2.254	Not Applicable */
+    { 368, "Header Handling Action"},                               /* 	Fixed Length / Clause 8.2.255	1 */
+    { 369, "Header Information"},                                   /* 	Variable Length / Clause 8.2.256	Not Applicable */
+    { 370, "Header Value"},                                         /* 	Variable Length / Clause 8.2.257	Not Applicable */
+    { 371, "Header Handling Condition"},                            /* 	Fixed / Clause 8.2.258	1 */
+    { 372, "Header Handling Control ID"},                           /* 	Fixed / Clause 8.2.259	1 */
+    { 373, "Header Handling Control Rule ID"},                      /* 	Fixed / Clause 8.2.260	1 */
+    { 374, "On-path N6 Connection Information"},                    /* 	Extendable / Clause 8.2.261	1 */
+    { 375, "Measurement Reporting Type"},                           /* 	Extendable / Clause 8.2.262	1 */
+    { 376, "N6 Delay Measurement Failure Information"},             /* 	Extendable / Clause 8.2.263	1 */
+    { 377, "N6 Delay Measurement Control Information ID"},          /* 	Fixed / Clause 8.2.264	2 */
+    { 378, "Protocol Specific Configuration Parameters"},           /* 	Extendable / Table 7.4.4.1.4-2	1 */
+    { 379, "Measurement Endpoint Port Number"},                     /* 	Fixed Length / Clause 8.2.265	2 */
+    { 380, "Header Handling Reporting Indication"},                 /* 	Extendable / Clause 8.2.266	1 */
+    { 381, "Can be used	"},                                         /* */
+    { 382, "SMF Change Reason"},                                    /* 	Extendable / Clause 8.2.267	1 */
+    { 383, "Extended Transport Level Marking"},                     /* 	Extendable / Table 7.5.2.3-10	Not Applicable */
+    { 384, "PDU Set Importance"},                                   /* 	Fixed / Clause 8.2.268	2 */
+    { 385, "MoQ Control Information"},                              /* 	Extendable / Clause 8.2.269	 */
+    { 386, "MoQ Information"},                                      /* 	Extendable / Table 7.3.5.1-6	Not Applicable */
+    { 387, "MoQ Relay IP Address"},                                 /* 	Extendable / Clause 8.2.270	1 */
+    { 388, "Media Related Information Transfer Info"},              /* 	Extendable / Clause 8.2.271	1 */
+    { 389, "Reporting Control Information"},                        /* 	Extendable / Clause 8.2.272	1 */
+    { 390, "Security Mode (STAMP)"},                                /* 	Fixed / Clause 8.2.273	1 */
+    { 391, "HMAC Key (STAMP)"},                                     /* 	Variable Length / Clause 8.2.274	Not Applicable */
+    { 392, "Security Mode (OWAMP or TWAMP)"},                       /* 	Fixed / Clause 8.2.275	4 */
+    { 393, "Key ID and Shared Secret (OWAMP or TWAMP)"},            /* 	Extendable / Clause 8.2.276	1 */
+    { 394, "Remaining Data Reporting Indication"},                  /* 	Extendable / Clause 8.2.277	1 */
+    { 395, "Expedited Transfer Indication"},                        /* 	Fixed / Clause 8.2.278	1 */
+    { 396, "Session Reflector Mode (STAMP)"},                       /* 	Fixed / Clause 8.2.279	1 */
+    { 397, "PFD Partial Failure Information"},                      /*  Extendable / Table 7.4.3.2-2	Not Applicable */
+    { 398, "Transport Level Marking Indications"},                  /* 	Fixed / Clause 8.2.280	1 */
+    //399 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -10644,6 +10689,12 @@ dissect_pfcp_update_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     proto_item_append_text(item, ": SRR ID: %u", args->last_rule_ids.srr);
 }
 
+static void
+dissect_pfcp_ie_not_decoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint16_t length _U_, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, 0, -1);
+}
+
 /* Array of functions to dissect IEs
 * (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type, pfcp_session_args_t *args)
 */
@@ -11006,6 +11057,51 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    351 */    { dissect_pfcp_n6_routing_information },                        /* N6 Routing Information                           Extendable / Clause 8.2.243 */
 /*    352 */    { dissect_pfcp_uri },                                           /* URI                                              Variable Length / Clause 8.2.244 */
 /*    353 */    { dissect_pfcp_ue_level_measurements_configuration },           /* UE Level Measurements Configuration              Extendable / Clause 8.2.245 */
+/*    354 */    { dissect_pfcp_ie_not_decoded },                                /* N6 Delay Measurement Protocols                   Extendable / Clause 8.2.246	1 */
+/*    355 */    { dissect_pfcp_ie_not_decoded },                                /* N6 Delay Measurement Control Information         Extendable / Table 7.4.4.1.4-1	Not Applicable */
+/*    356 */    { dissect_pfcp_ie_not_decoded },                                /* N6 Delay Measurement Report (PFCP Node Report Request)   Extendable / Table 7.4.5.1.8-1	Not Applicable */
+/*    357 */    { dissect_pfcp_ie_not_decoded },                                /* N6 Delay Measurement Information                 Extendable / Clause 8.2.247	1 */
+/*    358 */    { dissect_pfcp_ie_not_decoded },                                /* Measurement Endpoint Address                     Extendable / Clause 8.2.248	1 */
+/*    359 */    { dissect_pfcp_ie_not_decoded },                                /* Operator Configurable UPF Capability             Variable / Clause 8.2.249	Not Applicable */
+/*    360 */    { dissect_pfcp_ie_not_decoded },                                /* Packet Inspection functionality                  Extendable / Clause 8.2.250	1 */
+/*    361 */    { dissect_pfcp_ie_not_decoded },                                /* Header Handling Control Rule                     Extendable / Table 7.5.2.3-7	Not Applicable */
+/*    362 */    { dissect_pfcp_ie_not_decoded },                                /* Header Handling Reporting Control Info           Extendable / Table 7.5.2.3-8	Not Applicable */
+/*    363 */    { dissect_pfcp_ie_not_decoded },                                /* Header Handling Control information              Extendable / Table  7.5.2.3-9	Not Applicable */
+/*    364 */    { dissect_pfcp_ie_not_decoded },                                /* Header Detection Reference                     	Variable Length / Clause 8.2.251	Not Applicable */
+/*    365 */    { dissect_pfcp_ie_not_decoded },                                /* Header Detection Support Information             Variable Length / Clause 8.2.252	Not Applicable */
+/*    366 */    { dissect_pfcp_ie_not_decoded },                                /* Reporting Endpoint ID                     	    Fixed / Clause 8.2.253	1 */
+/*    367 */    { dissect_pfcp_ie_not_decoded },                                /* Header Handling Control Reference                Variable Length / Clause 8.2.254	Not Applicable */
+/*    368 */    { dissect_pfcp_ie_not_decoded },                                /* Header Handling Action                     	    Fixed Length / Clause 8.2.255	1 */
+/*    369 */    { dissect_pfcp_ie_not_decoded },                                /* Header Information                     	        Variable Length / Clause 8.2.256	Not Applicable */
+/*    370 */    { dissect_pfcp_ie_not_decoded },                                /* Header Value                     	            Variable Length / Clause 8.2.257	Not Applicable */
+/*    371 */    { dissect_pfcp_ie_not_decoded },                                /* Header Handling Condition                     	Fixed / Clause 8.2.258	1 */
+/*    372 */    { dissect_pfcp_ie_not_decoded },                                /* Header Handling Control ID                     	Fixed / Clause 8.2.259	1 */
+/*    373 */    { dissect_pfcp_ie_not_decoded },                                /* Header Handling Control Rule ID                  Fixed / Clause 8.2.260	1 */
+/*    374 */    { dissect_pfcp_ie_not_decoded },                                /* On-path N6 Connection Information                Extendable / Clause 8.2.261	1 */
+/*    375 */    { dissect_pfcp_ie_not_decoded },                                /* Measurement Reporting Type                     	Extendable / Clause 8.2.262	1 */
+/*    376 */    { dissect_pfcp_ie_not_decoded },                                /* N6 Delay Measurement Failure Information         Extendable / Clause 8.2.263	1 */
+/*    377 */    { dissect_pfcp_ie_not_decoded },                                /* N6 Delay Measurement Control Information ID      Fixed / Clause 8.2.264	2 */
+/*    378 */    { dissect_pfcp_ie_not_decoded },                                /* Protocol Specific Configuration Parameters       Extendable / Table 7.4.4.1.4-2	1 */
+/*    379 */    { dissect_pfcp_ie_not_decoded },                                /* Measurement Endpoint Port Number                 Fixed Length / Clause 8.2.265	2 */
+/*    380 */    { dissect_pfcp_ie_not_decoded },                                /* Header Handling Reporting Indication             Extendable / Clause 8.2.266	1 */
+/*    381 */    { dissect_pfcp_ie_not_decoded },                                /* Can be used	                                    */
+/*    382 */    { dissect_pfcp_ie_not_decoded },                                /* SMF Change Reason                     	        Extendable / Clause 8.2.267	1 */
+/*    383 */    { dissect_pfcp_ie_not_decoded },                                /* Extended Transport Level Marking                 Extendable / Table 7.5.2.3-10	Not Applicable */
+/*    384 */    { dissect_pfcp_ie_not_decoded },                                /* PDU Set Importance                     	        Fixed / Clause 8.2.268	2 */
+/*    385 */    { dissect_pfcp_ie_not_decoded },                                /* MoQ Control Information                     	    Extendable / Clause 8.2.269	 */
+/*    386 */    { dissect_pfcp_ie_not_decoded },                                /* MoQ Information                     	            Extendable / Table 7.3.5.1-6	Not Applicable */
+/*    387 */    { dissect_pfcp_ie_not_decoded },                                /* MoQ Relay IP Address                     	    Extendable / Clause 8.2.270	1 */
+/*    388 */    { dissect_pfcp_ie_not_decoded },                                /* Media Related Information Transfer Info          Extendable / Clause 8.2.271	1 */
+/*    389 */    { dissect_pfcp_ie_not_decoded },                                /* Reporting Control Information                    Extendable / Clause 8.2.272	1 */
+/*    390 */    { dissect_pfcp_ie_not_decoded },                                /* Security Mode (STAMP)                     	    Fixed / Clause 8.2.273	1 */
+/*    391 */    { dissect_pfcp_ie_not_decoded },                                /* HMAC Key (STAMP)                     	        Variable Length / Clause 8.2.274	Not Applicable */
+/*    392 */    { dissect_pfcp_ie_not_decoded },                                /* Security Mode (OWAMP or TWAMP)                   Fixed / Clause 8.2.275	4 */
+/*    393 */    { dissect_pfcp_ie_not_decoded },                                /* Key ID and Shared Secret (OWAMP or TWAMP)        Extendable / Clause 8.2.276	1 */
+/*    394 */    { dissect_pfcp_ie_not_decoded },                                /* Remaining Data Reporting Indication              Extendable / Clause 8.2.277	1 */
+/*    395 */    { dissect_pfcp_ie_not_decoded },                                /* Expedited Transfer Indication                    Fixed / Clause 8.2.278	1 */
+/*    396 */    { dissect_pfcp_ie_not_decoded },                                /* Session Reflector Mode (STAMP)                   Fixed / Clause 8.2.279	1 */
+/*    397 */    { dissect_pfcp_ie_not_decoded },                                /* PFD Partial Failure Information                  Extendable / Table 7.4.3.2-2	Not Applicable */
+/*    398 */    { dissect_pfcp_ie_not_decoded },                                /* Transport Level Marking Indications              Fixed / Clause 8.2.280	1 */
 //354 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
