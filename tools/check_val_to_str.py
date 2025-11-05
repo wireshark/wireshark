@@ -22,6 +22,7 @@ from check_common import *
 # Try to exit soon after Ctrl-C is pressed.
 should_exit = False
 
+
 def signal_handler(sig, frame):
     global should_exit
     should_exit = True
@@ -31,6 +32,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 warnings_found = 0
 errors_found = 0
+
 
 # Check the given dissector file.
 def checkFile(filename, generated):
@@ -48,7 +50,7 @@ def checkFile(filename, generated):
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
 
-        matches =   re.finditer(r'(?<!try_)(?<!char_)(?<!bytes)(r?val_to_str(?:_ext|)(?:_const|))\(.*?,.*?,\s*(".*?\")\s*\)', contents)
+        matches = re.finditer(r'(?<!try_)(?<!char_)(?<!bytes)(r?val_to_str(?:_ext|)(?:_const|))\(.*?,.*?,\s*(".*?\")\s*\)', contents)
         for m in matches:
             function = m.group(1)
             format_string = m.group(2)
@@ -87,7 +89,6 @@ def checkFile(filename, generated):
                     errors_found += 1
 
 
-
 #################################################################
 # Main logic.
 
@@ -124,7 +125,7 @@ elif args.open:
     files = getFilesFromOpen()
 else:
     # Find all dissector files from folder.
-    files =  findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
+    files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
     files += findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True)
     files += findDissectorFilesInFolder(os.path.join('epan', 'dissectors', 'asn1'), recursive=True)
 

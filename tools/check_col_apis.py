@@ -17,6 +17,7 @@ from check_common import *
 # Try to exit soon after Ctrl-C is pressed.
 should_exit = False
 
+
 def signal_handler(sig, frame):
     global should_exit
     should_exit = True
@@ -26,6 +27,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 warnings_found = 0
 errors_found = 0
+
 
 class ColCall:
     def __init__(self, file, line_number, name, last_args, generated, verbose):
@@ -110,7 +112,7 @@ class ColCall:
                 # Should contain at least one format specifier!
                 format_string = m.group(1)
                 if '%' not in format_string:
-                    print('Warning:', self.issue_prefix(), 'with no format specifiers  - "' + format_string + '" - use str() version instead')
+                    print('Warning:', self.issue_prefix(), 'with no format specifiers  - "' + format_string + '" - use _str() version instead')
                     warnings_found += 1
 
 
@@ -131,7 +133,8 @@ def checkFile(filename, generated, verbose=False):
         contents = removeComments(full_contents)
 
         # Look for all calls in this file
-        matches = re.finditer(r'(col_set_str|col_add_str|col_add_fstr|col_append_str|col_append_fstr)\((.*?)\)\s*\;', contents, re.MULTILINE|re.DOTALL)
+        matches = re.finditer(r'(col_set_str|col_add_str|col_add_fstr|col_append_str|col_append_fstr)\((.*?)\)\s*\;',
+                              contents, re.MULTILINE | re.DOTALL)
         col_calls = []
 
         last_line_number = 1
@@ -145,7 +148,7 @@ def checkFile(filename, generated, verbose=False):
             # Make search partial to:
             # - avoid finding an earlier identical call
             # - speed up searching by making it shorter
-            remaining_lines_text =  full_contents[last_char_offset:]
+            remaining_lines_text = full_contents[last_char_offset:]
             match_offset = remaining_lines_text.find(m.group(0))
             if match_offset != -1:
                 match_in_lines = len(remaining_lines_text[0:match_offset].splitlines())
@@ -162,7 +165,6 @@ def checkFile(filename, generated, verbose=False):
         # Check them all
         for call in col_calls:
             call.check()
-
 
 
 #################################################################
@@ -204,7 +206,7 @@ elif args.open:
     files = getFilesFromOpen()
 else:
     # Find all dissector files from folder.
-    files =  findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
+    files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
     files += findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True)
     files += findDissectorFilesInFolder(os.path.join('epan', 'dissectors', 'asn1'), recursive=True)
 

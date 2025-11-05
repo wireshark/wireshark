@@ -17,6 +17,7 @@ from check_common import *
 # Try to exit soon after Ctrl-C is pressed.
 should_exit = False
 
+
 def signal_handler(sig, frame):
     global should_exit
     should_exit = True
@@ -26,7 +27,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 # Command-line args
-parser = argparse.ArgumentParser(description="Run gamut of tests on dissector(s)")
+parser = argparse.ArgumentParser(description="Run checks on dissector(s)")
 parser.add_argument('--file', action='append',
                     help='specify individual dissector file to test')
 parser.add_argument('--file-list', action='store',
@@ -81,7 +82,7 @@ elif args.commits:
     dissectors = getFilesFromCommits(args.commits)
 
 # Ensure that all dissectors exist (i.e., cope with deletes/renames)
-dissectors = [ d for d in dissectors if os.path.exists(d) ]
+dissectors = [d for d in dissectors if os.path.exists(d)]
 
 # Tools that should be run on selected files.
 # Boolean arg is for whether build-dir is needed in order to run it.
@@ -90,7 +91,7 @@ tools = [
     ('tools/check_spelling.py --comments --no-wikipedia', False,  True),
     ('tools/check_tfs.py --check-value-strings',          False,  True),
     ('tools/check_typed_item_calls.py --all-checks ' +
-      '--extra-value-string-checks --check-expert-items', False,  True),
+     '--extra-value-string-checks --check-expert-items',  False,  True),
     ('tools/check_static.py',                             True,   False),
     ('tools/check_dissector_urls.py',                     False,  True),
     ('tools/check_val_to_str.py',                         False,  True),
@@ -132,8 +133,8 @@ if len(dissectors):
     for tool in tools:
         if should_exit:
             exit(1)
-        if ((not sys.platform.startswith('win') or tool[2]) and # Supported on this platform?
-            (not tool[1] or (tool[1] and args.build_folder))):   # Have --build-folder if needed?
+        if ((not sys.platform.startswith('win') or tool[2]) and
+                (not tool[1] or (tool[1] and args.build_folder))):
 
             # Run it.
             run_check(tool, dissectors, '.py' in tool[0])

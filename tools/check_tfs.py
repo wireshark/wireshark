@@ -22,6 +22,7 @@ from check_common import *
 # Try to exit soon after Ctrl-C is pressed.
 should_exit = False
 
+
 def signal_handler(sig, frame):
     global should_exit
     should_exit = True
@@ -30,10 +31,11 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 
-
 # Keep track of custom entries that might appear in multiple dissectors,
 # so we can consider adding them to tfs.c
 custom_tfs_entries = {}
+
+
 def AddCustomEntry(true_val, false_val, file):
     global custom_tfs_entries
     if (true_val, false_val) in custom_tfs_entries:
@@ -56,9 +58,9 @@ class TFS:
         if not len(true_val) or not len(false_val):
             print('Warning:', file, name, 'has an empty field', self)
             warnings_found += 1
-        #else:
+        # else:
             # Strange if one begins with capital but other doesn't?
-            #if true_val[0].isalpha() and false_val[0].isalpha():
+            # if true_val[0].isalpha() and false_val[0].isalpha():
             #    if true_val[0].isupper() != false_val[0].isupper():
             #        print(file, name, 'one starts lowercase and the other upper', self)
 
@@ -83,7 +85,6 @@ class TFS:
             print('Warning:', file, name, 'Period found in string', self)
             warnings_found += 1
 
-
     def __str__(self):
         return '{' + '"' + self.true_val + '", "' + self.false_val + '"}'
 
@@ -97,7 +98,7 @@ class ValueString:
         self.parsed_vals = {}
         self.looks_like_tfs = True
 
-        no_lines =  self.raw_vals.count('{')
+        no_lines = self.raw_vals.count('{')
         if no_lines != 3:
             self.looks_like_tfs = False
             return
@@ -126,27 +127,25 @@ class ValueString:
 
 
 field_widths = {
-    'FT_BOOLEAN' : 64,   # TODO: Width depends upon 'display' field
-    'FT_CHAR'    : 8,
-    'FT_UINT8'   : 8,
-    'FT_INT8'    : 8,
-    'FT_UINT16'  : 16,
-    'FT_INT16'   : 16,
-    'FT_UINT24'  : 24,
-    'FT_INT24'   : 24,
-    'FT_UINT32'  : 32,
-    'FT_INT32'   : 32,
-    'FT_UINT40'  : 40,
-    'FT_INT40'   : 40,
-    'FT_UINT48'  : 48,
-    'FT_INT48'   : 48,
-    'FT_UINT56'  : 56,
-    'FT_INT56'   : 56,
-    'FT_UINT64'  : 64,
-    'FT_INT64'   : 64
+    'FT_BOOLEAN': 64,   # TODO: Width depends upon 'display' field
+    'FT_CHAR':    8,
+    'FT_UINT8':   8,
+    'FT_INT8':    8,
+    'FT_UINT16':  16,
+    'FT_INT16':   16,
+    'FT_UINT24':  24,
+    'FT_INT24':   24,
+    'FT_UINT32':  32,
+    'FT_INT32':   32,
+    'FT_UINT40':  40,
+    'FT_INT40':   40,
+    'FT_UINT48':  48,
+    'FT_INT48':   48,
+    'FT_UINT56':  56,
+    'FT_INT56':   56,
+    'FT_UINT64':  64,
+    'FT_INT64':   64
 }
-
-
 
 
 # Simplified version of class that is in check_typed_item_calls.py
@@ -202,11 +201,9 @@ class Item:
             self.mask_read = False
             self.mask_value = 0
 
-
     # Return true if bit position n is set in value.
     def check_bit(self, value, n):
         return (value & (0x1 << n)) != 0
-
 
     def get_field_width_in_bits(self):
         if self.item_type == 'FT_BOOLEAN':
@@ -227,7 +224,6 @@ class Item:
                 # Lookup fixed width for this type
                 return field_widths[self.item_type]
             else:
-                #print('returning 0 for', self)
                 return 0
 
 
@@ -242,7 +238,7 @@ def findTFS(filename):
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
 
-        matches =   re.finditer(r'\sconst\s*true_false_string\s*([a-zA-Z0-9_]*)\s*=\s*{\s*\"([a-zA-Z_0-9/:! ]*)\"\s*,\s*\"([a-zA-Z_0-9/:! ]*)\"', contents)
+        matches = re.finditer(r'\sconst\s*true_false_string\s*([a-zA-Z0-9_]*)\s*=\s*{\s*\"([a-zA-Z_0-9/:! ]*)\"\s*,\s*\"([a-zA-Z_0-9/:! ]*)\"', contents)
         for m in matches:
             name = m.group(1)
             true_val = m.group(2)
@@ -252,16 +248,17 @@ def findTFS(filename):
 
     return tfs_found
 
+
 # Look for value_string entries in a dissector file.
 def findValueStrings(filename):
     vals_found = {}
 
-    #static const value_string radio_type_vals[] =
-    #{
-    #    { 0,      "FDD"},
-    #    { 1,      "TDD"},
-    #    { 0, NULL }
-    #};
+    # static const value_string radio_type_vals[] =
+    # {
+    #     { 0,      "FDD"},
+    #     { 1,      "TDD"},
+    #     { 0, NULL }
+    # };
 
     with open(filename, 'r', encoding="utf8", errors="ignore") as f:
         contents = f.read()
@@ -269,13 +266,14 @@ def findValueStrings(filename):
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
 
-        matches =   re.finditer(r'.*const value_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9\s\"]*)\};', contents)
+        matches = re.finditer(r'.*const value_string\s*([a-zA-Z0-9_]*)\s*\[\s*\]\s*\=\s*\{([\{\}\d\,a-zA-Z0-9\s\"]*)\};', contents)
         for m in matches:
             name = m.group(1)
             vals = m.group(2)
             vals_found[name] = ValueString(filename, name, vals)
 
     return vals_found
+
 
 # Look for hf items (i.e. full item to be registered) in a dissector file.
 def find_items(filename, macros, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
@@ -286,7 +284,7 @@ def find_items(filename, macros, check_mask=False, mask_exact_width=False, check
         contents = removeComments(contents)
 
         # N.B. re extends all the way to HFILL to avoid greedy matching
-        matches = re.finditer( r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*([0-9A-Z_\|\s]*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*([a-zA-Z0-9\W\s_\u00f6\u00e4]*?)\s*,\s*HFILL', contents)
+        matches = re.finditer(r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.*?)\"\s*,\s*\"(.*?)\"\s*,\s*(.*?)\s*,\s*([0-9A-Z_\|\s]*?)\s*,\s*(.*?)\s*,\s*(.*?)\s*,\s*([a-zA-Z0-9\W\s_\u00f6\u00e4]*?)\s*,\s*HFILL', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)
@@ -297,6 +295,7 @@ def find_items(filename, macros, check_mask=False, mask_exact_width=False, check
                              mask=m.group(7))
     return items
 
+
 def find_macros(filename):
     macros = {}
     with open(filename, 'r', encoding="utf8", errors="ignore") as f:
@@ -304,7 +303,7 @@ def find_macros(filename):
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
 
-        matches = re.finditer( r'#define\s*([A-Z0-9_]*)\s*([0-9xa-fA-F]*)\n', contents)
+        matches = re.finditer(r'#define\s*([A-Z0-9_]*)\s*([0-9xa-fA-F]*)\n', contents)
         for m in matches:
             # Store this mapping.
             macros[m.group(1)] = m.group(2)
@@ -379,7 +378,6 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
         # Also get hf items
         items = find_items(filename, macros, check_mask=True)
 
-
         for v in vs:
             if vs[v].looks_like_tfs:
                 found = False
@@ -433,7 +431,6 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                         common_usage[c] = 1
                     else:
                         common_usage[c] += 1
-
 
 
 #################################################################
@@ -527,7 +524,7 @@ if args.common_usage:
             actual_usage.append((c, 0))
 
     # Show in order sorted by usage
-    actual_usage.sort(reverse=True, key=lambda e : e[1])
+    actual_usage.sort(reverse=True, key=lambda e: e[1])
     for use in actual_usage:
         emphasis = '**' if use[1] == 0 else ''
         print(emphasis, use[0], 'used in', use[1], 'dissectors', emphasis)

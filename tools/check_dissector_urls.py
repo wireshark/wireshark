@@ -121,6 +121,7 @@ links = []
 files = []
 all_urls = set()
 
+
 def find_links_in_file(filename):
     if os.path.isdir(filename) or not os.path.exists(filename):
         return
@@ -152,7 +153,7 @@ def find_links_in_file(filename):
 # Scan the given folder for links to test. Recurses.
 def find_links_in_folder(folder):
     files_to_check = []
-    for root,subfolders,files in os.walk(folder):
+    for root, subfolders, files in os.walk(folder):
         for f in files:
             if should_exit:
                 return
@@ -163,7 +164,6 @@ def find_links_in_folder(folder):
     # Deal with files in sorted order.
     for file in sorted(files_to_check):
         find_links_in_file(file)
-
 
 
 async def populate_cache(sem, session, url):

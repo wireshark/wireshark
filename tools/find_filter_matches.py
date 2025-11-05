@@ -16,11 +16,13 @@ import time
 
 # Search for capture files that match a given filter (or filters)
 
+
 def show_progress(filenum, num_files, filename, num_matching):
     print('')
     print('=== Progress: checking', filename, '-', filenum, 'of', num_files, 'files -', num_matching, 'matching so far ===')
     print('=== Press Ctrl-C again within 5 seconds to really exit ===')
     time.sleep(1.5)
+
 
 def show_results(complete):
     print('------------------------------')
@@ -33,11 +35,11 @@ def show_results(complete):
     exit(0)
 
 
-
 # When Ctrl-C is pressed, show summary of progress - a 2nd press soon afterwards will cause exit
 previous_interrupt_time = datetime.datetime.now()
 should_exit = False
 should_show_progress = False
+
 
 def signal_handler(sig, frame):
     global should_exit
@@ -65,8 +67,10 @@ signal.signal(signal.SIGINT, signal_handler)
 # TODO: others?
 capture_exts = set(['.pcap', '.pcapng', '.out', '.cap'])
 
+
 def isCaptureFile(filename):
     return pathlib.Path(filename).suffix in capture_exts
+
 
 def findFilesInFolder(folder):
     files_to_check = []
@@ -102,8 +106,8 @@ args = parser.parse_args()
 
 # Make sure there is a usable tshark
 try:
-    version_info = subprocess.check_output([ args.tshark, '--version']).decode('utf-8')
-    #print(version_info)
+    version_info = subprocess.check_output([args.tshark, '--version']).decode('utf-8')
+    # print(version_info)
 except Exception as e:
     print(e)
     print('Could not run tshark(', args.tshark, ') - please specify a working version using --tshark <path-to-tshark>')
@@ -118,7 +122,7 @@ print('Checking', len(files), 'files...')
 # Check files
 files_matching = []
 
-for filenum,file in enumerate(files):
+for filenum, file in enumerate(files):
     if should_exit:
         exit(1)
 
@@ -131,7 +135,7 @@ for filenum,file in enumerate(files):
     lines_matching = {}
     for filter in args.filter:
         # TODO: Other args could usefully set?
-        command = [ args.tshark, '-r', file, '-Y', filter ]
+        command = [args.tshark, '-r', file, '-Y', filter]
         if args.profile:
             command.extend(['-C', args.profile])
         if args.max_packets:
@@ -139,7 +143,7 @@ for filenum,file in enumerate(files):
         try:
             output = subprocess.check_output(command)
         except Exception as e:
-            #print('oops, exception', e)
+            # print('oops, exception', e)
             # Check for WS_EXIT_INVALID_FILTER (4)
             # TODO: other errors possible, e.g., bad profile name..
             if "exit status 4" in str(e):
@@ -170,4 +174,3 @@ for filenum,file in enumerate(files):
 
 # Show results if get to end
 show_results(True)
-

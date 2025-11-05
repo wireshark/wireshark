@@ -22,6 +22,7 @@ from check_common import *
 # Try to exit soon after Ctrl-C is pressed.
 should_exit = False
 
+
 def signal_handler(sig, frame):
     global should_exit
     should_exit = True
@@ -56,7 +57,6 @@ class CalledSymbols:
                 object_file = os.path.join(build_folder, os.path.dirname(file), 'CMakeFiles', last_dir + '.dir', os.path.basename(file) + '.o')
         if not os.path.exists(object_file):
             # Not built for whatever reason..
-            #print('Warning -', object_file, 'does not exist')
             return
 
         # Run command to check symbols.
@@ -81,14 +81,14 @@ class CalledSymbols:
 
 # header-file -> contents for files that will be checked often.
 common_mismatched_header_contents = {}
-common_mismatched_headers = [ os.path.join('epan', 'dissectors', 'packet-ncp-int.h'),
-                              os.path.join('epan', 'dissectors', 'packet-mq.h'),
-                              os.path.join('epan', 'dissectors', 'packet-ip.h'),
-                              os.path.join('epan', 'dissectors', 'packet-gsm_a_common.h'),
-                              os.path.join('epan', 'dissectors', 'packet-epl.h'),
-                              os.path.join('epan', 'dissectors', 'packet-bluetooth.h'),
-                              os.path.join('epan', 'dissectors', 'packet-dcerpc.h'),
-                              os.path.join('epan', 'ip_opts.h')]
+common_mismatched_headers = [os.path.join('epan', 'dissectors', 'packet-ncp-int.h'),
+                             os.path.join('epan', 'dissectors', 'packet-mq.h'),
+                             os.path.join('epan', 'dissectors', 'packet-ip.h'),
+                             os.path.join('epan', 'dissectors', 'packet-gsm_a_common.h'),
+                             os.path.join('epan', 'dissectors', 'packet-epl.h'),
+                             os.path.join('epan', 'dissectors', 'packet-bluetooth.h'),
+                             os.path.join('epan', 'dissectors', 'packet-dcerpc.h'),
+                             os.path.join('epan', 'ip_opts.h')]
 for h in common_mismatched_headers:
     with open(h, 'r') as f:
         common_mismatched_header_contents[h] = f.read()
@@ -110,14 +110,12 @@ class DefinedSymbols:
             plugin_base_name = os.path.basename(plugin_base_dir)
             object_file = os.path.join(build_folder, plugin_base_dir, 'CMakeFiles', plugin_base_name + '.dir', os.path.basename(file) + '.o')
         else:
-            #print("Warning - can't determine object file for ", self.filename)
             return
         if not os.path.exists(object_file):
-            #print('Warning -', object_file, 'does not exist')
             return
 
         # Get header file contents if available
-        header_file= file.replace('.c', '.h')
+        header_file = file.replace('.c', '.h')
         try:
             f = open(header_file, 'r')
             self.header_file_contents = f.read()
@@ -176,7 +174,6 @@ class DefinedSymbols:
                       '(' + fun + ')',
                       'is not referred to so could be static?', '(declared in header but not referred to)' if mentioned_in_header else '')
                 issues_found += 1
-
 
 
 # Helper functions.
@@ -246,7 +243,7 @@ else:
                                        recursive=False, include_generated=True)
 
 # Ensure that all source files exist (i.e., cope with deletes/renames)
-files = [ f for f in files if os.path.exists(f) ]
+files = [f for f in files if os.path.exists(f)]
 
 
 # If scanning a subset of files, list them here.
