@@ -5869,7 +5869,7 @@ tlv_dissect:
 	offset = dissect_wassp_tlv(wassp_tree, tvb, pinfo, offset, ru_msg_type);
 data_dissect:
 	/* Call data dissector on any remaining bytes */
-	call_dissector(data_handle, tvb_new_subset_length(tvb, offset, -1), pinfo, wassp_tree);
+	call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, wassp_tree);
 }
 
 
@@ -6007,7 +6007,7 @@ static int dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		else
 		{
 			col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment %u)", seq_number);
-			next_tvb = tvb_new_subset_length(tvb, WASSP_HDR_LEN, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, WASSP_HDR_LEN);
 		}
 	}
 

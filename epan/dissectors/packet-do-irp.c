@@ -978,7 +978,7 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                     expert_add_info(pinfo, do_irp_body_tree, &ei_do_irp_digest_unknown);
                     /* We are now unable to dissect further because the fields now have variable length */
                     call_data_dissector(
-                        tvb_new_subset_length(tvb, offset, -1), pinfo, do_irp_body_tree);
+                        tvb_new_subset_remaining(tvb, offset), pinfo, do_irp_body_tree);
                     return tvb_captured_length(tvb);
 
             }

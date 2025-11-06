@@ -180,29 +180,19 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
        treat it similarly, by constructing a tvbuff containing only
        the data specified by the length field. */
 
+    payload_tvb = tvb_new_subset_length(tvb, 14, length);
     TRY {
-      payload_tvb = tvb_new_subset_length(tvb, 14, length);
       trailer_tvb = tvb_new_subset_remaining(tvb, 14 + length);
     }
     CATCH_BOUNDS_ERRORS {
-      /* Either:
+      /* This can only happen if the packet has less than "length" bytes worth
+         of captured data left in it, so the offset 14 + length is out of
+         bounds. (If there are exactly "length" bytes left, it will return a
+         zero-length tvbuff, not an exception. XXX - Maybe a NULL trailer_tvb
+         is better in that case?)
 
-          the packet doesn't have "length" bytes worth of
-          captured data left in it - or it may not even have
-          "length" bytes worth of data in it, period -
-          so the "tvb_new_subset_length_caplen()" creating "payload_tvb"
-          threw an exception
-
-         or
-
-          the packet has exactly "length" bytes worth of
-          captured data left in it, so the "tvb_new_subset_remaining()"
-          creating "trailer_tvb" threw an exception.
-
-         In either case, this means that all the data in the frame
-         is within the length value, so we give all the data to the
-         next protocol and have no trailer. */
-      payload_tvb = tvb_new_subset_length_caplen(tvb, 14, -1, length);
+         This means that all the data in the frame is within the length value,
+         so we give all the data to the next protocol and have no trailer. */
       trailer_tvb = NULL;
     }
     ENDTRY;

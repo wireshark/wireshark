@@ -7718,7 +7718,7 @@ dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                    ett_its_ItsPduHeader, its_ItsPduHeader_sequence);
 
   tap_queue_packet(its_tap, actx->pinfo, actx->private_data);
-  tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset >> 3, -1);
+  tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset >> 3);
   its_header_t *its_hdr = its_get_private_data(actx->pinfo);
   int data_offset = dissector_try_uint(its_msgid_subdissector_table, (its_hdr->version << 16)+its_hdr->msgId, next_tvb, actx->pinfo, tree);
   if (!data_offset) {

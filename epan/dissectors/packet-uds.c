@@ -2329,7 +2329,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16
     service = sid & UDS_SID_MASK;
 
     if (service < UDS_SERVICES_MIN && uds_dissect_small_sids_with_obd_ii && (obd_ii_handle != NULL)) {
-        return call_dissector(obd_ii_handle, tvb_new_subset_length_caplen(tvb, offset, -1, -1), pinfo, tree);
+        return call_dissector(obd_ii_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     }
 
     service_name = val_to_str_ext(pinfo->pool, service, &uds_services_ext, "Unknown (0x%02x)");

@@ -2090,7 +2090,7 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
     offset += 4+2*1;
-    mac = tvb_new_subset_length_caplen(tvb,offset,-1, phr & IEEE802154_PHY_LENGTH_MASK);
+    mac = tvb_new_subset_length(tvb,offset, phr & IEEE802154_PHY_LENGTH_MASK);
 
     /* These always have the FCS at the end. */
 

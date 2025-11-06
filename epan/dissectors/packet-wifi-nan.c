@@ -2491,7 +2491,7 @@ dissect_attr_vendor_specific(proto_tree* attr_tree, tvbuff_t* tvb, int offset, u
     }
 
     unsigned sub_offset = offset + 3;
-    tvbuff_t* ie_tvb = tvb_new_subset_length(tvb, sub_offset, -1);
+    tvbuff_t* ie_tvb = tvb_new_subset_remaining(tvb, sub_offset);
     ieee80211_tagged_field_data_t field_data = { 0 };
     field_data.item_tag = attr_tree;
     dissector_try_uint_with_data(ie_handle_table, TAG_VENDOR_SPECIFIC_IE, ie_tvb, pinfo, attr_tree, true, &field_data);

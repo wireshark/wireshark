@@ -2114,7 +2114,7 @@ static int dissect_iec60870_asdu_segment(tvbuff_t *tvb, packet_info *pinfo, prot
 		case S_AR_NA_1: /* 83    Aggressive mode authentication request */
 			encapsulated_type = tvb_get_uint8(tvb, offset);
 			encapsulated_length = 1 + 1 + parms->cot_len + parms->asdu_addr_len + parms->ioa_len + get_TypeIdLength(encapsulated_type);
-			encapsulated_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, encapsulated_length);
+			encapsulated_tvb = tvb_new_subset_length(tvb, offset, encapsulated_length);
 			dissect_iec60870_asdu(encapsulated_tvb, pinfo, it_segment_tree, parms);
 			offset = tvb_reported_length(encapsulated_tvb);
 			get_CSQ(tvb, &offset, it_segment_tree);
@@ -2749,7 +2749,7 @@ static int dissect_iec60870_104(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 				parms.asdu_addr_len = 2;
 				parms.ioa_len = 3;
 
-				call_dissector_with_data(iec60870_asdu_handle, tvb_new_subset_length_caplen(tvb, Off + APCI_LEN, -1, len - APCI_DATA_LEN), pinfo, tree, &parms);
+				call_dissector_with_data(iec60870_asdu_handle, tvb_new_subset_length(tvb, Off + APCI_LEN, len - APCI_DATA_LEN), pinfo, tree, &parms);
 			}
 			/* Don't search more the APCI_START */
 			break;

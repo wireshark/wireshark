@@ -737,7 +737,7 @@ add_diagnostic_message_fields(proto_tree *doip_tree, tvbuff_t *tvb, packet_info 
     doip_info.target_address = tmp;
 
     if (uds_handle != 0) {
-        call_dissector_with_data(uds_handle, tvb_new_subset_length(tvb, DOIP_DIAG_MESSAGE_DATA_OFFSET, -1), pinfo, parent_tree, &doip_info);
+        call_dissector_with_data(uds_handle, tvb_new_subset_remaining(tvb, DOIP_DIAG_MESSAGE_DATA_OFFSET), pinfo, parent_tree, &doip_info);
     } else if (tvb_reported_length_remaining(tvb, DOIP_DIAG_MESSAGE_DATA_OFFSET) > 0) {
         proto_tree_add_item(doip_tree, hf_data, tvb, DOIP_DIAG_MESSAGE_DATA_OFFSET, tvb_reported_length_remaining(tvb, DOIP_DIAG_MESSAGE_DATA_OFFSET), ENC_NA);
     }
@@ -884,7 +884,7 @@ dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             doip_info_t doip_info;
             doip_info.source_address = tvb_get_uint16(tvb, DOIP_DIAG_COMMON_SOURCE_OFFSET, ENC_BIG_ENDIAN);
             doip_info.target_address = tvb_get_uint16(tvb, DOIP_DIAG_COMMON_TARGET_OFFSET, ENC_BIG_ENDIAN);
-            call_dissector_with_data(uds_handle, tvb_new_subset_length(tvb, DOIP_DIAG_MESSAGE_DATA_OFFSET, -1), pinfo, NULL, &doip_info);
+            call_dissector_with_data(uds_handle, tvb_new_subset_remaining(tvb, DOIP_DIAG_MESSAGE_DATA_OFFSET), pinfo, NULL, &doip_info);
         }
     }
 }

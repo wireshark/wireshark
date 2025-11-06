@@ -633,7 +633,7 @@ dissect_um_voice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree_add_item(tree, hf_um_voice_type, tvb, 0, 1, ENC_NA);
 
-	payload_tvb = tvb_new_subset_length(tvb, 1, tvb_reported_length(tvb)-1);
+	payload_tvb = tvb_new_subset_remaining(tvb, 1);
 	call_dissector(sub_handles[GSMTAP_SUB_DATA], payload_tvb, pinfo, tree);
 }
 

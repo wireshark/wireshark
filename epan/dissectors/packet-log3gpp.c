@@ -622,7 +622,7 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
         if (protocol_handle != 0)
         {
             /* Dissect the remainder of the frame using chosen protocol handle */
-            next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, tvb_reported_length(tvb) - offset);
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
 
             /* This part is optional, only for dissector that need pseudo header information */
             if (func_ptr != NULL && strlen(protocol_option) != 0)

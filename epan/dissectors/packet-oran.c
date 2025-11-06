@@ -6196,7 +6196,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Dissect each C section */
     for (uint32_t i = 0; i < nSections; ++i) {
-        tvbuff_t *section_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
+        tvbuff_t *section_tvb = tvb_new_subset_remaining(tvb, offset);
         offset += dissect_oran_c_section(section_tvb, oran_tree, pinfo, state, sectionType, tap_info,
                                          protocol_item,
                                          subframeId, slotId,

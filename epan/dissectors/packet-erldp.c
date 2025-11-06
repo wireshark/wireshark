@@ -984,7 +984,7 @@ static int dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       break;
 
     case VERSION_MAGIC:
-      next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, 4 + msg_len - offset);
+      next_tvb = tvb_new_subset_length(tvb, offset, 4 + msg_len - offset);
       dissect_etf_pdu(next_tvb, pinfo, erldp_tree, "DistributionHeader");
      break;
 

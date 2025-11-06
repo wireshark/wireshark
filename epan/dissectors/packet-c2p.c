@@ -2588,7 +2588,7 @@ static int dissect_c2p(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
     proto_item_set_len(c2p_tst_tree, 8);
 
     /* Dissect the rest depending on type */
-    tvbuff_t* next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
+    tvbuff_t* next_tvb = tvb_new_subset_remaining(tvb, offset);
 
     static uint8_t C2P_VERSION_0 = 0U;
     static uint8_t C2P_VERSION_1 = 1U;
