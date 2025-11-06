@@ -3435,10 +3435,11 @@ static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   proto_tree_add_item(couchbase_tree, hf_total_bodylength, tvb, 8, 4, ENC_BIG_ENDIAN);
 
   /*
-   * use little endian (network) encoding for the opaque as this is an opaque
-   * field the client could use for whatever they want
+   * The opaque field uses network byte order (big-endian) like all other
+   * multi-byte fields in the protocol header. This allows clients to
+   * correlate requests with responses.
    */
-  proto_tree_add_item(couchbase_tree, hf_opaque, tvb, 12, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(couchbase_tree, hf_opaque, tvb, 12, 4, ENC_BIG_ENDIAN);
 
   // Finally we've got the CAS (which observe has a special use for)
   if (opcode == CLIENT_OPCODE_OBSERVE) {
