@@ -40,7 +40,7 @@ dissect_802_3(volatile int length, bool is_802_2, tvbuff_t *tvb,
   tvbuff_t   *volatile next_tvb = NULL;
   tvbuff_t   *trailer_tvb = NULL;
   const char *saved_proto;
-  int         captured_length, reported_length;
+  int         reported_length;
 
   length_it = proto_tree_add_uint(fh_tree, length_id, tvb,
                                   offset_after_length - 2, 2, length);
@@ -63,10 +63,7 @@ dissect_802_3(volatile int length, bool is_802_2, tvbuff_t *tvb,
   }
 
   /* Give the next dissector only 'length' number of bytes. */
-  captured_length = tvb_captured_length_remaining(tvb, offset_after_length);
-  if (captured_length > length)
-    captured_length = length;
-  next_tvb = tvb_new_subset_length_caplen(tvb, offset_after_length, captured_length, length);
+  next_tvb = tvb_new_subset_length(tvb, offset_after_length, length);
 
   /* Dissect the payload either as IPX or as an LLC frame.
      Catch non-fatal exceptions, so that if the reported length

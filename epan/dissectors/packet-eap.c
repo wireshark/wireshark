@@ -2117,16 +2117,11 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         if (size > 0) {
 
           tvbuff_t *next_tvb = NULL;
-          int       tvb_len;
           bool      save_fragmented;
-
-          tvb_len = tvb_captured_length_remaining(tvb, offset);
-          if (size < tvb_len)
-            tvb_len = size;
 
           /* If this is a retransmission, do not save the fragment. */
           if (is_duplicate_id) {
-            next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len, size);
+            next_tvb = tvb_new_subset_length(tvb, offset, size);
             call_data_dissector(next_tvb, pinfo, eap_tree);
             break;
           }
@@ -2305,7 +2300,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             pinfo->fragmented = save_fragmented;
 
           } else { /* this data is NOT fragmented */
-            next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len, size);
+            next_tvb = tvb_new_subset_length(tvb, offset, size);
           }
 
           if (next_tvb) {
@@ -2522,19 +2517,13 @@ skip_tls_dissector:
 
         if (size > 0) {
           tvbuff_t* next_tvb = NULL;
-          int       tvb_len;
-
-          tvb_len = tvb_captured_length_remaining(tvb, offset);
-          if (size < tvb_len) {
-            tvb_len = size;
-          }
 
           if (has_length || more_fragments) {
             /* TODO: Add fragmentation support
              * Length of integrity check data needs to be determined in case of fragmentation. Chosen INTEG transform?
              */
           } else {
-            next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len, size);
+            next_tvb = tvb_new_subset_length(tvb, offset, size);
             unsigned tmp = call_dissector(isakmp_handle, next_tvb, pinfo, eap_tree);
             size -= tmp;
             offset += tmp;

@@ -369,7 +369,7 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             length = tvb_captured_length_remaining(tvb, offset);
         }
 
-        next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
+        next_tvb = tvb_new_subset_length(tvb, offset, length);
         call_dissector_with_data(bthci_iso_data_handle, next_tvb, pinfo, tree, &iso_data_info);
     } else if (fragmented && iso_reassembly) {
         multi_fragment_pdu_t *mfp = NULL;

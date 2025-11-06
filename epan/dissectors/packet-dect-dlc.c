@@ -153,7 +153,6 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item *dlc_ti, *addr_ti, *length_ti;
 	bool is_response = false;
 	bool m;
-	int available_length;
 	int control;
 	tvbuff_t *payload;
 	uint8_t cr, sapi, length, len, n_s;
@@ -191,9 +190,8 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_uint(length_tree, hf_dect_dlc_el, tvb, 2, 1, length);
 	len = length >> 2;
 
-	available_length = tvb_captured_length(tvb) - 3;
-	if (available_length > 0) {
-		payload = tvb_new_subset_length_caplen(tvb, 3, MIN(len, available_length), len);
+	if (tvb_captured_length_remaining(tvb, 3)) {
+		payload = tvb_new_subset_length(tvb, 3, len);
 
 		/* Potentially segmented I frame */
 		if( (control & XDLC_I_MASK) == XDLC_I && reassemble_dect_dlc && !pinfo->flags.in_error_pkt )

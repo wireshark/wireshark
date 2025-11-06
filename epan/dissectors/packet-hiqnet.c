@@ -1090,16 +1090,12 @@ dissect_hiqnet_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     tvbuff_t *next_tvb;
     int       offset_before;
     unsigned  plen;
-    unsigned  captured_length;
 
     /* loop on (possibly multiple) hiqnet PDUs in UDP payload */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         plen = get_hiqnet_pdu_len(pinfo, tvb, offset, NULL);
-        captured_length = tvb_captured_length_remaining(tvb, offset);
 
-        if (captured_length > plen)
-            captured_length = plen;
-        next_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_length, plen);
+        next_tvb = tvb_new_subset_length(tvb, offset, plen);
 
         dissect_hiqnet_pdu(next_tvb, pinfo, tree, data);
 

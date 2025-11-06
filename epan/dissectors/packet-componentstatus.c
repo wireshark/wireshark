@@ -201,9 +201,7 @@ dissect_componentstatusprotocol_cspreport_message(tvbuff_t *message_tvb, proto_t
   while(tvb_reported_length_remaining(message_tvb, offset) >= 24) {
      association_tree = proto_tree_add_subtree_format(message_tree, message_tvb, offset, 24,
          ett_association, NULL, "Association #%d", association++);
-     association_tvb  = tvb_new_subset_length_caplen(message_tvb, offset,
-                           MIN(24, tvb_reported_length_remaining(message_tvb, offset)),
-                           24);
+     association_tvb  = tvb_new_subset_length(message_tvb, offset, 24);
 
      dissect_componentstatusprotocol_cspreport_association(association_tvb, association_tree);
      offset += 24;

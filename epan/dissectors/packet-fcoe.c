@@ -128,7 +128,6 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     unsigned    version;
     const char *ver;
     uint16_t    len_sof;
-    int         bytes_remaining;
     uint8_t     sof          = 0;
     uint8_t     eof          = 0;
     const char *eof_str;
@@ -205,10 +204,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCoE");
     crc_offset = header_len + frame_len;
 
-    bytes_remaining = tvb_captured_length_remaining(tvb, header_len);
-    if (bytes_remaining > frame_len)
-        bytes_remaining = frame_len;        /* backing length */
-    next_tvb = tvb_new_subset_length_caplen(tvb, header_len, bytes_remaining, frame_len);
+    next_tvb = tvb_new_subset_length(tvb, header_len, frame_len);
 
     /*
      * Check the CRC.

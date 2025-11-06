@@ -133,7 +133,6 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
   proto_item *ti, *hidden_item;
   volatile uint8_t type;
   volatile uint16_t length;
-  int captured_length;
   tvbuff_t *volatile payload_tvb = NULL;
   tvbuff_t *volatile next_tvb;
   tvbuff_t *volatile trailer_tvb = NULL;
@@ -234,14 +233,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
          dissecting what's left as an Ethernet frame. */
       length -= 12;
 
-      /* Trim the captured length. */
-      captured_length = tvb_captured_length_remaining(payload_tvb, 12);
-
-      /* Make sure it's not bigger than the actual length. */
-      if (captured_length > length)
-        captured_length = length;
-
-      next_tvb = tvb_new_subset_length_caplen(payload_tvb, 12, captured_length, length);
+      next_tvb = tvb_new_subset_length(payload_tvb, 12, length);
 
       /* Dissect the payload as an Ethernet frame.
 

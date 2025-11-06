@@ -2847,7 +2847,7 @@ dissect_iec60870_101(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		parms.asdu_addr_len = global_iec60870_asdu_addr_len;
 		parms.ioa_len = global_iec60870_ioa_len;
 
-		call_dissector_with_data(iec60870_asdu_handle, tvb_new_subset_length_caplen(tvb, offset, -1, data_len), pinfo, tree, &parms);
+		call_dissector_with_data(iec60870_asdu_handle, tvb_new_subset_length(tvb, offset, data_len), pinfo, tree, &parms);
 		offset += data_len;
 	}
 
