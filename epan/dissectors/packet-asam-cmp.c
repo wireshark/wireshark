@@ -403,6 +403,11 @@ static int hf_cmp_mipi_csi2_wc;
 static int hf_cmp_mipi_csi2_short_packet_data;
 static int hf_cmp_mipi_csi2_data;
 
+/* Vendor Defined */
+static int hf_cmp_vendor_def_vendor_id;
+static int hf_cmp_vendor_def_vendor_payload_type;
+static int hf_cmp_vendor_def_vendor_payload_data;
+
 /* Control Message Payload Fields */
 /* Data Sink Ready */
 static int hf_cmp_ctrl_msg_device_id;
@@ -568,7 +573,7 @@ static int ett_asam_cmp_status_stream_ids;
 #define CMP_DATA_MSG_I2C                    0x0A
 #define CMP_DATA_MSG_GIGEVISION             0x0B
 #define CMP_DATA_MSG_MIPI_CSI2              0x0C
-#define CMP_DATA_MSG_USER_DEFINED           0xFF
+#define CMP_DATA_MSG_VENDOR_DATA_MSG        0xFF
 
 /* CMP Digital Trigger Pattern Values */
 #define CMP_T_PATTERN_FALLING               0x00
@@ -591,7 +596,7 @@ static int ett_asam_cmp_status_stream_ids;
 #define CMP_CTRL_MSG_INVALID                0x00
 #define CMP_CTRL_MSG_DSR_CTRL_MSG           0x01
 #define CMP_CTRL_MSG_USER_EVENT_CTRL_MSG    0xFE
-#define CMP_CTRL_MSG_VENDOR                 0xFF
+#define CMP_CTRL_MSG_VENDOR_CTRL_MSG        0xFF
 
 /* CMP Status Message Payload Type Names */
 #define CMP_STATUS_MSG_INVALID              0x00
@@ -642,7 +647,7 @@ static const value_string data_msg_type_names[] = {
     {CMP_DATA_MSG_I2C,                      "I2C"},
     {CMP_DATA_MSG_GIGEVISION,               "Gigevision"},
     {CMP_DATA_MSG_MIPI_CSI2,                "MIPI CSI-2"},
-    {CMP_DATA_MSG_USER_DEFINED,             "User defined"},
+    {CMP_DATA_MSG_VENDOR_DATA_MSG,          "Vendor-specific Data Message"},
     {0, NULL}
 };
 
@@ -809,7 +814,7 @@ static const value_string ctrl_msg_type_names[] = {
     {CMP_CTRL_MSG_INVALID,                  "Invalid"},
     {CMP_CTRL_MSG_DSR_CTRL_MSG,             "Data Sink ready to receive Control Message"},
     {CMP_CTRL_MSG_USER_EVENT_CTRL_MSG,      "User Event Message"},
-    {CMP_CTRL_MSG_VENDOR,                   "Vendor Specific Control Message"},
+    {CMP_CTRL_MSG_VENDOR_CTRL_MSG,          "Vendor-specific Control Message"},
     {0, NULL}
 };
 
@@ -820,7 +825,7 @@ static const value_string status_msg_type_names[] = {
     {CMP_STATUS_MSG_CONF_STAT_MSG,          "Configuration Status"},
     {CMP_STATUS_MSG_DLE_STAT_MSG,           "Data Lost Status"},
     {CMP_STATUS_MSG_TSLE_STAT_MSG,          "Time Sync Lost Status"},
-    {CMP_STATUS_MSG_VENDOR_STAT_MSG,        "Vendor specific Status"},
+    {CMP_STATUS_MSG_VENDOR_STAT_MSG,        "Vendor-specific Status Message"},
     {0, NULL}
 };
 
@@ -1173,31 +1178,9 @@ add_interface_id_text(proto_item *ti, uint32_t interface_id) {
     }
 }
 
-static int
-dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, proto_tree *tree, unsigned offset_orig) {
-    proto_item *ti = NULL;
-    proto_item *ti_msg_header = NULL;
-    proto_item *ti_msg_payload = NULL;
-    proto_tree *asam_cmp_data_msg_header_tree = NULL;
-    proto_tree *asam_cmp_data_msg_payload_tree = NULL;
-    proto_tree *subtree = NULL;
-    unsigned offset = offset_orig;
-
-    unsigned msg_payload_type = 0;
-    unsigned msg_payload_length = 0;
-    unsigned msg_payload_type_length = 0;
-    unsigned interface_id = 0;
-
-    static int * const asam_cmp_common_flags[] = {
-        &hf_cmp_common_flag_reserved,
-        &hf_cmp_common_flag_err_in_payload,
-        &hf_cmp_common_flag_overflow,
-        &hf_cmp_common_flag_dir_on_if,
-        &hf_cmp_common_flag_seg,
-        &hf_cmp_common_flag_insync,
-        &hf_cmp_common_flag_recal,
-        NULL
-    };
+static uint32_t
+dissect_asam_cmp_data_msg_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned interface_id) {
+    uint32_t offset = 0;
 
     static int * const asam_cmp_can_flags[] = {
         &hf_cmp_can_flag_reserved,
@@ -1215,6 +1198,102 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         &hf_cmp_can_flag_crc_err,
         NULL
     };
+
+    static int * const asam_cmp_can_id_field_11bit[] = {
+        &hf_cmp_can_id_ide,
+        &hf_cmp_can_id_rtr,
+        &hf_cmp_can_id_res,
+        &hf_cmp_can_id_11bit,
+        NULL
+    };
+
+    static int * const asam_cmp_can_id_field_11bit_old[] = {
+        &hf_cmp_can_id_ide,
+        &hf_cmp_can_id_rtr,
+        &hf_cmp_can_id_res,
+        &hf_cmp_can_id_11bit_old,
+        NULL
+    };
+
+    static int * const asam_cmp_can_id_field_29bit[] = {
+        &hf_cmp_can_id_ide,
+        &hf_cmp_can_id_rtr,
+        &hf_cmp_can_id_res,
+        &hf_cmp_can_id_29bit,
+        NULL
+    };
+
+    static int * const asam_cmp_can_crc_field[] = {
+        &hf_cmp_can_crc_crc_support,
+        &hf_cmp_can_crc_res,
+        &hf_cmp_can_crc_crc,
+        NULL
+    };
+
+    uint16_t can_flags = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_cmp_can_flags, ett_asam_cmp_payload_flags, asam_cmp_can_flags, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_can_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    uint32_t can_id_field = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
+    bool can_id_29bit = (can_id_field & CMP_CAN_ID_IDE) == CMP_CAN_ID_IDE;
+    uint32_t can_id = 0;
+    if (can_id_29bit) {
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_cmp_can_id, ett_asam_cmp_can_id, asam_cmp_can_id_field_29bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
+        can_id = can_id_field & (CMP_CAN_ID_29BIT_MASK | CMP_CAN_ID_RTR | CMP_CAN_ID_IDE);
+    } else {
+        if (old_11bit_canid_encoding) {
+            proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_cmp_can_id, ett_asam_cmp_can_id, asam_cmp_can_id_field_11bit_old, ENC_BIG_ENDIAN, BMT_NO_FALSE);
+            can_id = can_id_field & (CMP_CAN_ID_RTR | CMP_CAN_ID_IDE | CMP_CAN_ID_11BIT_MASK_OLD);
+        } else {
+            proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_cmp_can_id, ett_asam_cmp_can_id, asam_cmp_can_id_field_11bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
+            can_id = (can_id_field & (CMP_CAN_ID_RTR | CMP_CAN_ID_IDE)) + ((can_id_field & CMP_CAN_ID_11BIT_MASK) >> CMP_CAN_ID_11BIT_SHIFT);
+        }
+    }
+    offset += 4;
+
+    uint64_t tmp64;
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_cmp_can_crc, ett_asam_cmp_can_crc, asam_cmp_can_crc_field, ENC_BIG_ENDIAN, BMT_NO_FALSE, &tmp64);
+    if ((tmp64 & CMP_CAN_CRC_CRC_SUPP) == 0 && (tmp64 & CMP_CAN_CRC_CRC) != 0) {
+        proto_tree_add_expert(tree, pinfo, &ei_asam_cmp_unsupported_crc_not_zero, tvb, offset, 4);
+    }
+    offset += 4;
+
+    uint32_t err_pos = 0;
+    proto_tree_add_item_ret_uint(tree, hf_cmp_can_err_pos, tvb, offset, 2, ENC_BIG_ENDIAN, &err_pos);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_can_dlc, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    uint32_t msg_payload_type_length;
+    proto_tree_add_item_ret_uint(tree, hf_cmp_can_data_len, tvb, offset, 1, ENC_NA, &msg_payload_type_length);
+    offset += 1;
+
+    if (msg_payload_type_length > 0) {
+        tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, msg_payload_type_length);
+
+        if ((can_flags & CMP_CAN_FLAGS_ERRORS) != 0) {
+            can_id = can_id | CAN_ERR_FLAG;
+        }
+
+        struct can_info can_info = { .id = can_id, .len = msg_payload_type_length, .fd = CAN_TYPE_CAN_CLASSIC, .bus_id = ht_interface_config_to_bus_id(interface_id) };
+        if (!socketcan_call_subdissectors(sub_tvb, pinfo, tree, &can_info, heuristic_first)) {
+            call_data_dissector(sub_tvb, pinfo, tree);
+        }
+
+        offset += msg_payload_type_length;
+    }
+
+    return offset;
+
+}
+
+static uint32_t
+dissect_asam_cmp_data_msg_canfd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned interface_id) {
+    uint32_t offset = 0;
 
     static int * const asam_cmp_canfd_flags[] = {
         &hf_cmp_canfd_flag_reserved,
@@ -1234,6 +1313,116 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         &hf_cmp_canfd_flag_crc_err,
         NULL
     };
+
+    static int * const asam_cmp_canfd_id_field_11bit[] = {
+            &hf_cmp_canfd_id_ide,
+            &hf_cmp_canfd_id_rrs,
+            &hf_cmp_canfd_id_res,
+            &hf_cmp_canfd_id_11bit,
+            NULL
+    };
+
+    static int * const asam_cmp_canfd_id_field_11bit_old[] = {
+        &hf_cmp_canfd_id_ide,
+        &hf_cmp_canfd_id_rrs,
+        &hf_cmp_canfd_id_res,
+        &hf_cmp_canfd_id_11bit_old,
+        NULL
+    };
+
+    static int * const asam_cmp_canfd_id_field_29bit[] = {
+        &hf_cmp_canfd_id_ide,
+        &hf_cmp_canfd_id_rrs,
+        &hf_cmp_canfd_id_res,
+        &hf_cmp_canfd_id_29bit,
+        NULL
+    };
+
+    static int * const asam_cmp_canfd_crc_field_17bit[] = {
+        &hf_cmp_canfd_crc_crc_support,
+        &hf_cmp_canfd_crc_sbc_support,
+        &hf_cmp_canfd_crc_res,
+        &hf_cmp_canfd_crc_sbc_parity,
+        &hf_cmp_canfd_crc_sbc,
+        &hf_cmp_canfd_crc_crc17,
+        NULL
+    };
+
+    static int * const asam_cmp_canfd_crc_field_21bit[] = {
+        &hf_cmp_canfd_crc_crc_support,
+        &hf_cmp_canfd_crc_sbc_support,
+        &hf_cmp_canfd_crc_res,
+        &hf_cmp_canfd_crc_sbc_parity,
+        &hf_cmp_canfd_crc_sbc,
+        &hf_cmp_canfd_crc_crc21,
+        NULL
+    };
+
+    uint16_t canfd_flags = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_cmp_canfd_flags, ett_asam_cmp_payload_flags, asam_cmp_canfd_flags, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_canfd_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    uint32_t can_id_field = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
+    bool can_id_29bit = (can_id_field & CMP_CANFD_ID_IDE) == CMP_CANFD_ID_IDE;
+    uint32_t can_id = 0;
+    if (can_id_29bit) {
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_cmp_canfd_id, ett_asam_cmp_can_id, asam_cmp_canfd_id_field_29bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
+        can_id = can_id_field & (CMP_CAN_ID_29BIT_MASK | CMP_CANFD_ID_IDE);
+    } else {
+        if (old_11bit_canid_encoding) {
+            proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_cmp_canfd_id, ett_asam_cmp_can_id, asam_cmp_canfd_id_field_11bit_old, ENC_BIG_ENDIAN, BMT_NO_FALSE);
+            can_id = can_id_field & (CMP_CANFD_ID_IDE | CMP_CAN_ID_11BIT_MASK_OLD);
+        } else {
+            proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_cmp_canfd_id, ett_asam_cmp_can_id, asam_cmp_canfd_id_field_11bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
+            can_id = (can_id_field & CMP_CANFD_ID_IDE) + ((can_id_field & CMP_CAN_ID_11BIT_MASK) >> CMP_CAN_ID_11BIT_SHIFT);
+        }
+    }
+    offset += 4;
+
+    /* We peek ahead to find out the DLC. 0..10: 17bit CRC, 11..15: 21bit CRC. */
+    if (tvb_get_uint8(tvb, offset + 6) <= 10) {
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_cmp_canfd_crc, ett_asam_cmp_can_crc, asam_cmp_canfd_crc_field_17bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
+    } else {
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_cmp_canfd_crc, ett_asam_cmp_can_crc, asam_cmp_canfd_crc_field_21bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
+    }
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_cmp_canfd_err_pos, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_canfd_dlc, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    uint32_t msg_payload_type_length;
+    proto_tree_add_item_ret_uint(tree, hf_cmp_canfd_data_len, tvb, offset, 1, ENC_NA, &msg_payload_type_length);
+    offset += 1;
+
+    if (msg_payload_type_length > 0) {
+        tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, msg_payload_type_length);
+
+        if ((canfd_flags & CMP_CANFD_FLAGS_ERRORS) != 0) {
+            can_id = can_id | CAN_ERR_FLAG;
+        }
+
+        struct can_info can_info = { .id = can_id, .len = msg_payload_type_length, .fd = CAN_TYPE_CAN_FD, .bus_id = ht_interface_config_to_bus_id(interface_id) };
+        if (!socketcan_call_subdissectors(sub_tvb, pinfo, tree, &can_info, heuristic_first)) {
+            call_data_dissector(sub_tvb, pinfo, tree);
+        }
+
+        offset += msg_payload_type_length;
+    }
+
+    return offset;
+}
+
+static uint32_t
+dissect_asam_cmp_data_msg_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned interface_id) {
+    uint32_t offset = 0;
+
+    lin_info_t lin_info = { 0, 0, 0 };
 
     static int * const asam_cmp_lin_pid[] = {
         &hf_cmp_lin_pid_parity,
@@ -1255,6 +1444,45 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         NULL
     };
 
+    proto_tree_add_bitmask(tree, tvb, offset, hf_cmp_lin_flags, ett_asam_cmp_payload_flags, asam_cmp_lin_flags, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_lin_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    lin_info.id = tvb_get_uint8(tvb, offset) & CMP_CANFD_PID_ID_MASK;
+    proto_tree_add_bitmask(tree, tvb, offset, hf_cmp_lin_pid, ett_asam_cmp_lin_pid, asam_cmp_lin_pid, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_cmp_lin_reserved_2, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_cmp_lin_checksum, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    uint32_t msg_payload_type_length;
+    proto_tree_add_item_ret_uint(tree, hf_cmp_lin_data_len, tvb, offset, 1, ENC_NA, &msg_payload_type_length);
+    offset += 1;
+
+    if (msg_payload_type_length > 0) {
+        lin_info.bus_id = ht_interface_config_to_bus_id(interface_id);
+        lin_info.len = (uint16_t)msg_payload_type_length;
+
+        tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, msg_payload_type_length);
+        dissect_lin_message(sub_tvb, pinfo, tree, &lin_info);
+        offset += msg_payload_type_length;
+    }
+
+    return offset;
+}
+
+static uint32_t
+dissect_asam_cmp_data_msg_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned interface_id) {
+    uint32_t offset = 0;
+
+    flexray_info_t fr_info = { 0, 0, 0, 0 };
+    uint32_t tmp;
+
     static int * const asam_cmp_flexray_flags[] = {
         &hf_cmp_flexray_flag_reserved,
         &hf_cmp_flexray_flag_cas,
@@ -1268,12 +1496,163 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         NULL
     };
 
+    uint16_t flags = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_cmp_flexray_flags, ett_asam_cmp_payload_flags, asam_cmp_flexray_flags, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_flexray_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_flexray_header_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item_ret_uint(tree, hf_cmp_flexray_frame_id, tvb, offset, 2, ENC_BIG_ENDIAN, &tmp);
+    fr_info.id = (uint16_t)tmp;
+    offset += 2;
+
+    proto_tree_add_item_ret_uint(tree, hf_cmp_flexray_cycle, tvb, offset, 1, ENC_NA, &tmp);
+    fr_info.cc = (uint8_t)tmp;
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_cmp_flexray_frame_crc, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(tree, hf_cmp_flexray_reserved_2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    uint32_t msg_payload_type_length;
+    proto_tree_add_item_ret_uint(tree, hf_cmp_flexray_data_len, tvb, offset, 1, ENC_NA, &msg_payload_type_length);
+    offset += 1;
+
+    if (msg_payload_type_length > 0 && (flags & CMP_FLEXRAY_FLAGS_NF) == 0) {
+        fr_info.bus_id = ht_interface_config_to_bus_id(interface_id);
+        fr_info.ch = 0; /* Assuming A! Could this be B? */
+
+        tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, msg_payload_type_length);
+        if (!flexray_call_subdissectors(sub_tvb, pinfo, tree, &fr_info, heuristic_first)) {
+            call_data_dissector(sub_tvb, pinfo, tree);
+        }
+    }
+
+    offset += msg_payload_type_length;
+
+    return offset;
+}
+
+static uint32_t
+dissect_asam_cmp_data_msg_digital(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+    uint32_t offset = 0;
+
     static int * const asam_cmp_digital_flags[] = {
         &hf_cmp_digital_flag_reserved,
         &hf_cmp_digital_flag_sampl_present,
         &hf_cmp_digital_flag_trig_present,
         NULL
     };
+
+    uint64_t flags;
+    proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_cmp_digital_flags, ett_asam_cmp_payload_flags, asam_cmp_digital_flags, ENC_BIG_ENDIAN, &flags);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_digital_reserved, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    uint32_t pin_count;
+    proto_tree_add_item_ret_uint(tree, hf_cmp_digital_pin_count, tvb, offset, 1, ENC_NA, &pin_count);
+    offset += 1;
+
+    if ((flags & CMP_DIGITAL_FLAG_TRIGGER_PRESENT) == CMP_DIGITAL_FLAG_TRIGGER_PRESENT) {
+        proto_tree_add_item(tree, hf_cmp_digital_trig_pattern, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_cmp_digital_trig_pin, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_cmp_digital_flag_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+
+    if ((flags & CMP_DIGITAL_FLAG_SAMPLE_PRESENT) == CMP_DIGITAL_FLAG_SAMPLE_PRESENT) {
+        proto_tree_add_item(tree, hf_cmp_digital_sample_interval, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        uint32_t sample_count;
+        proto_tree_add_item_ret_uint(tree, hf_cmp_digital_sample_count, tvb, offset, 1, ENC_NA, &sample_count);
+        offset += 1;
+
+        uint32_t sample_byte_count = (uint32_t)floor((pin_count + 7) / 8);
+
+        for (uint32_t i = 0; i < sample_count; i++) {
+
+            proto_item *ti = proto_tree_add_item(tree, hf_cmp_digital_sample, tvb, offset, sample_byte_count, ENC_NA);
+            proto_item_append_text(ti, " [%d] ", i);
+            proto_tree *sample_tree = proto_item_add_subtree(ti, ett_asam_cmp_digital_sample);
+
+            /* we are supporting 32 pins for the beginning */
+            if (4 < sample_byte_count) {
+                /* skip unsupported pins */
+                offset += sample_byte_count - 4;
+            }
+            if (4 <= sample_byte_count) {
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_31, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_30, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_29, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_28, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_27, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_26, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_25, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_24, tvb, offset, 1, ENC_NA);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(tvb, offset));
+                offset += 1;
+            }
+
+            if (3 <= sample_byte_count) {
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_23, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_22, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_21, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_20, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_19, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_18, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_17, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_16, tvb, offset, 1, ENC_NA);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(tvb, offset));
+                offset += 1;
+            }
+
+            if (2 <= sample_byte_count) {
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_15, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_14, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_13, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_12, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_11, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_10, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_9, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_8, tvb, offset, 1, ENC_NA);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(tvb, offset));
+                offset += 1;
+            }
+
+            if (1 <= sample_byte_count) {
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_7, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_6, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_5, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_4, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_3, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_2, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_1, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_0, tvb, offset, 1, ENC_NA);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(tvb, offset));
+                offset += 1;
+            }
+        }
+    }
+
+    return offset;
+}
+
+static uint32_t
+dissect_asam_cmp_data_msg_uart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+    uint32_t offset = 0;
 
     static int * const asam_cmp_uart_flags[] = {
         &hf_cmp_uart_flag_reserved,
@@ -1290,11 +1669,138 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         NULL
     };
 
+    uint64_t char_len;
+    proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_cmp_uart_flags, ett_asam_cmp_payload_flags, asam_cmp_uart_flags, ENC_BIG_ENDIAN, &char_len);
+    char_len = char_len & 0x07;
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_uart_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    uint32_t msg_payload_type_length;
+    proto_tree_add_item_ret_uint(tree, hf_cmp_uart_data_len, tvb, offset, 2, ENC_BIG_ENDIAN, &msg_payload_type_length);
+    offset += 2;
+
+    for (unsigned i = 0; i < msg_payload_type_length; i++) {
+        uint8_t *buf = NULL;
+        proto_item *ti = proto_tree_add_bitmask(tree, tvb, offset, hf_cmp_uart_data, ett_asam_cmp_uart_data, asam_cmp_uart_data, ENC_BIG_ENDIAN);
+        if (char_len == CMP_UART_CL_7 || char_len == CMP_UART_CL_8) {
+            buf = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, 1, ENC_ASCII | ENC_NA);
+
+            /* sanitizing buffer */
+            if (buf[0] > 0x00 && buf[0] < 0x20) {
+                buf[0] = 0x20;
+            } else {
+                proto_item_append_text(ti, ": %s", buf);
+            }
+        }
+        offset += 2;
+    }
+
+    return offset;
+}
+
+static uint32_t
+dissect_asam_cmp_data_msg_analog(tvbuff_t *tvb, proto_tree *tree) {
+    uint32_t offset = 0;
+
     static int * const asam_cmp_analog_flags[] = {
         &hf_cmp_analog_flag_reserved,
         &hf_cmp_analog_flag_sample_dt,
         NULL
     };
+
+    uint64_t flags;
+    proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_cmp_analog_flags, ett_asam_cmp_payload_flags, asam_cmp_analog_flags, ENC_BIG_ENDIAN, &flags);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_analog_reserved, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    unsigned analog_unit;
+    proto_tree_add_item_ret_uint(tree, hf_cmp_analog_unit, tvb, offset, 1, ENC_NA, &analog_unit);
+    const char *unit_symbol;
+    unit_symbol = try_val_to_str(analog_unit, analog_units);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_cmp_analog_sample_interval, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    float sample_offset;
+    proto_tree_add_item(tree, hf_cmp_analog_sample_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
+    sample_offset = tvb_get_ieee_float(tvb, offset, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    float sample_scalar;
+    proto_tree_add_item(tree, hf_cmp_analog_sample_scalar, tvb, offset, 4, ENC_BIG_ENDIAN);
+    sample_scalar = tvb_get_ieee_float(tvb, offset, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    int data_width;
+    switch (flags & 0x03) {
+    case 0: /* INT16 */
+        data_width = 2;
+        break;
+    case 1: /* INT32 */
+        data_width = 4;
+        break;
+    default:
+        data_width = 0;
+    }
+
+    int data_left = tvb_captured_length(tvb) - offset;
+
+    while (data_width != 0 && data_left > data_width) {
+        switch (flags & 0x03) {
+        case 0: {
+            /* INT16 */
+            double sample_value = ((double)tvb_get_int16(tvb, offset, ENC_BIG_ENDIAN) * sample_scalar + sample_offset);
+            proto_item *ti = proto_tree_add_double(tree, hf_cmp_analog_sample, tvb, offset, 2, sample_value);
+            if (unit_symbol == NULL) {
+                proto_item_append_text(ti, " (%.9f)", sample_value);
+            } else {
+                proto_item_append_text(ti, "%s (%.9f%s)", unit_symbol, sample_value, unit_symbol);
+            }
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            proto_tree *sample_tree = proto_item_add_subtree(ti, ett_asam_cmp_analog_sample);
+            ti = proto_tree_add_item(sample_tree, hf_cmp_analog_sample_raw, tvb, offset, 2, ENC_BIG_ENDIAN);
+            PROTO_ITEM_SET_HIDDEN(ti);
+
+            data_left -= 2;
+            offset += 2;
+            break;
+        }
+        case 1: { /* INT32 */
+            double sample_value = ((double)tvb_get_int32(tvb, offset, ENC_BIG_ENDIAN) * sample_scalar + sample_offset);
+            proto_item *ti = proto_tree_add_double(tree, hf_cmp_analog_sample, tvb, offset, 4, sample_value);
+            if (unit_symbol == NULL) {
+                proto_item_append_text(ti, " (%.9f)", sample_value);
+            } else {
+                proto_item_append_text(ti, "%s (%.9f%s)", unit_symbol, sample_value, unit_symbol);
+            }
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            proto_tree *sample_tree = proto_item_add_subtree(ti, ett_asam_cmp_analog_sample);
+            ti = proto_tree_add_item(sample_tree, hf_cmp_analog_sample_raw, tvb, offset, 4, ENC_BIG_ENDIAN);
+            PROTO_ITEM_SET_HIDDEN(ti);
+
+            data_left -= 4;
+            offset += 4;
+            break;
+        }
+        default:
+            /* Other types are reserved as of now, so we do not know how to parse them. Just ignore. */
+            break;
+        }
+    }
+
+    return offset;
+}
+
+static uint32_t
+dissect_asam_cmp_data_msg_ethernet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *root_tree) {
+    uint32_t offset = 0;
 
     static int * const asam_cmp_ethernet_flags[] = {
         &hf_cmp_eth_flag_reserved,
@@ -1309,10 +1815,64 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         NULL
     };
 
+    proto_tree_add_bitmask(tree, tvb, offset, hf_cmp_eth_flags, ett_asam_cmp_payload_flags, asam_cmp_ethernet_flags, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_eth_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    uint32_t msg_payload_type_length;
+    proto_tree_add_item_ret_uint(tree, hf_cmp_eth_payload_length, tvb, offset, 2, ENC_BIG_ENDIAN, &msg_payload_type_length);
+    offset += 2;
+
+    if (msg_payload_type_length > 0) {
+        tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, (int)msg_payload_type_length);
+        call_dissector(eth_handle, sub_tvb, pinfo, root_tree);
+        offset += msg_payload_type_length;
+    }
+
+    return offset;
+}
+
+static uint32_t
+dissect_asam_cmp_data_msg_spi(tvbuff_t *tvb, proto_tree *tree) {
+    uint32_t offset = 0;
+
     static int * const asam_cmp_spi_flags[] = {
         &hf_cmp_spi_flag_reserved,
         NULL
     };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_cmp_spi_flags, ett_asam_cmp_payload_flags, asam_cmp_spi_flags, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_spi_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    uint32_t cipo_length;
+    proto_tree_add_item_ret_uint(tree, hf_cmp_spi_cipo_length, tvb, offset, 2, ENC_BIG_ENDIAN, &cipo_length);
+    offset += 2;
+
+    if (cipo_length > 0) {
+        proto_tree_add_item(tree, hf_cmp_spi_cipo, tvb, offset, cipo_length, ENC_NA);
+        offset += cipo_length;
+    }
+
+    uint32_t copi_length;
+    proto_tree_add_item_ret_uint(tree, hf_cmp_spi_copi_length, tvb, offset, 2, ENC_BIG_ENDIAN, &copi_length);
+    offset += 2;
+
+    if (copi_length > 0) {
+        proto_tree_add_item(tree, hf_cmp_spi_copi, tvb, offset, copi_length, ENC_NA);
+        offset += copi_length;
+    }
+
+    return offset;
+}
+
+static uint32_t
+dissect_asam_cmp_data_msg_i2c(tvbuff_t *tvb, proto_tree *tree) {
+    uint32_t offset = 0;
 
     static int * const asam_cmp_i2c_flags[] = {
         &hf_cmp_i2c_flag_reserved,
@@ -1325,10 +1885,64 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         NULL
     };
 
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_cmp_i2c_flags, ett_asam_cmp_payload_flags, asam_cmp_i2c_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_i2c_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_i2c_addr, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    uint32_t data_entry_count;
+    proto_tree_add_item_ret_uint(tree, hf_cmp_i2c_data_entry_count, tvb, offset, 2, ENC_BIG_ENDIAN, &data_entry_count);
+    offset += 2;
+
+    static int * const asam_cmp_i2c_data[] = {
+        &hf_cmp_i2c_data_control_res,
+        &hf_cmp_i2c_data_control_ack,
+        &hf_cmp_i2c_data_byte,
+        NULL
+    };
+
+    for (uint32_t i = 0; i < data_entry_count; i++) {
+        proto_tree_add_bitmask(tree, tvb, offset, hf_cmp_i2c_data, ett_asam_cmp_i2c_data_entry, asam_cmp_i2c_data, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+
+    return offset;
+}
+
+static uint32_t
+dissect_asam_cmp_data_msg_gige_vision(tvbuff_t *tvb, proto_tree *tree) {
+    uint32_t offset = 0;
+
     static int * const asam_cmp_gige_flags[] = {
         &hf_cmp_gige_flag_reserved,
         NULL
     };
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_cmp_gige_flags, ett_asam_cmp_payload_flags, asam_cmp_gige_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_gige_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    uint32_t msg_payload_type_length;
+    proto_tree_add_item_ret_uint(tree, hf_cmp_gige_payload_length, tvb, offset, 2, ENC_BIG_ENDIAN, &msg_payload_type_length);
+    offset += 2;
+
+    if (msg_payload_type_length > 0) {
+        proto_tree_add_item(tree, hf_cmp_gige_payload, tvb, offset, msg_payload_type_length, ENC_NA);
+        offset += msg_payload_type_length;
+    }
+
+    return offset;
+}
+
+static uint32_t
+dissect_asam_cmp_data_msg_mipi_csi2(tvbuff_t *tvb, proto_tree *tree) {
+    uint32_t offset = 0;
 
     static int * const asam_cmp_mipi_csi2_flags[] = {
         &hf_cmp_mipi_csi2_flag_reserved,
@@ -1339,6 +1953,111 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
         &hf_cmp_mipi_csi2_flag_ecc_err_uc,
         &hf_cmp_mipi_csi2_flag_ecc_err_c,
         &hf_cmp_mipi_csi2_flag_crc_err,
+        NULL
+    };
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_cmp_mipi_csi2_flags, ett_asam_cmp_payload_flags, asam_cmp_mipi_csi2_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_mipi_csi2_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_mipi_csi2_frame_counter, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_mipi_csi2_line_counter, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    static int * const asam_cmp_mipi_dt[] = {
+        &hf_cmp_mipi_csi2_dt_res,
+        &hf_cmp_mipi_csi2_dt_dt,
+        NULL
+    };
+
+    uint64_t mipi_csi2_dt_flags;
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_cmp_mipi_csi2_dt, ett_asam_cmp_payload_flags, asam_cmp_mipi_dt, ENC_NA, BMT_NO_APPEND, &mipi_csi2_dt_flags);
+    offset += 1;
+
+    bool asam_cmp_mipi_csi_short_packet = (mipi_csi2_dt_flags & MIPI_CSI2_DT_BITS) <= MIPI_CSI2_DT_SHORT_END;
+
+    static int * const asam_cmp_mipi_vci[] = {
+        &hf_cmp_mipi_csi2_vci_res,
+        &hf_cmp_mipi_csi2_vci_vcx,
+        &hf_cmp_mipi_csi2_vci_vci,
+        NULL
+    };
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_cmp_mipi_csi2_vci, ett_asam_cmp_payload_flags, asam_cmp_mipi_vci, ENC_NA, BMT_NO_APPEND);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_cmp_mipi_csi2_reserved2, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    static int * const asam_cmp_mipi_ecc[] = {
+        &hf_cmp_mipi_csi2_ecc_res,
+        &hf_cmp_mipi_csi2_ecc_ecc,
+        NULL
+    };
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_cmp_mipi_csi2_ecc, ett_asam_cmp_payload_flags, asam_cmp_mipi_ecc, ENC_NA, BMT_NO_APPEND);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_cmp_mipi_csi2_cs, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    if (asam_cmp_mipi_csi_short_packet) {
+        proto_tree_add_item(tree, hf_cmp_mipi_csi2_short_packet_data, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    } else {
+        uint32_t word_count;
+        proto_tree_add_item_ret_uint(tree, hf_cmp_mipi_csi2_wc, tvb, offset, 2, ENC_BIG_ENDIAN, &word_count);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_cmp_mipi_csi2_data, tvb, offset, word_count, ENC_NA);
+        offset += word_count;
+    }
+
+    return offset;
+}
+
+static uint32_t
+dissect_asam_cmp_data_msg_user_defined(tvbuff_t *tvb, proto_tree *tree) {
+    uint32_t offset = 0;
+
+    proto_tree_add_item(tree, hf_cmp_vendor_def_vendor_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_vendor_def_vendor_payload_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_cmp_vendor_def_vendor_payload_data, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
+    offset += tvb_captured_length_remaining(tvb, offset);
+
+    return offset;
+}
+
+static int
+dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, proto_tree *tree, unsigned offset_orig) {
+    proto_item *ti = NULL;
+    proto_item *ti_msg_header = NULL;
+    proto_item *ti_msg_payload = NULL;
+    proto_tree *asam_cmp_data_msg_header_tree = NULL;
+    proto_tree *asam_cmp_data_msg_payload_tree = NULL;
+    proto_tree *subtree = NULL;
+    unsigned offset = offset_orig;
+
+    unsigned msg_payload_type = 0;
+    unsigned msg_payload_length = 0;
+    unsigned interface_id = 0;
+
+    static int * const asam_cmp_common_flags[] = {
+        &hf_cmp_common_flag_reserved,
+        &hf_cmp_common_flag_err_in_payload,
+        &hf_cmp_common_flag_overflow,
+        &hf_cmp_common_flag_dir_on_if,
+        &hf_cmp_common_flag_seg,
+        &hf_cmp_common_flag_insync,
+        &hf_cmp_common_flag_recal,
         NULL
     };
 
@@ -1373,727 +2092,112 @@ dissect_asam_cmp_data_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tr
     asam_cmp_data_msg_payload_tree = proto_item_add_subtree(ti_msg_payload, ett_asam_cmp_header);
     proto_item_append_text(ti_msg_payload, " %s", "- Data Message");
 
+    tvbuff_t *payload_tvb = tvb_new_subset_length(tvb, offset, msg_payload_length);
+
     switch (msg_payload_type) {
-    case CMP_DATA_MSG_INVALID: {
+    case CMP_DATA_MSG_INVALID:
         col_append_str(pinfo->cinfo, COL_INFO, " (Invalid)");
         proto_item_append_text(ti_msg_payload, " %s", "(Invalid)");
 
         if (msg_payload_length > 0) {
-            tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, msg_payload_length);
-            call_data_dissector(sub_tvb, pinfo, tree);
-            offset += (int)msg_payload_length;
+            call_data_dissector(payload_tvb, pinfo, asam_cmp_data_msg_payload_tree);
+            offset += tvb_captured_length(payload_tvb);
         }
-
-        proto_item_set_end(ti_msg_payload, tvb, offset);
-
         break;
-    }
 
-    case CMP_DATA_MSG_CAN: {
-        static int *const asam_cmp_can_id_field_11bit[] = {
-            &hf_cmp_can_id_ide,
-            &hf_cmp_can_id_rtr,
-            &hf_cmp_can_id_res,
-            &hf_cmp_can_id_11bit,
-            NULL
-        };
-
-        static int *const asam_cmp_can_id_field_11bit_old[] = {
-            &hf_cmp_can_id_ide,
-            &hf_cmp_can_id_rtr,
-            &hf_cmp_can_id_res,
-            &hf_cmp_can_id_11bit_old,
-            NULL
-        };
-
-        static int *const asam_cmp_can_id_field_29bit[] = {
-            &hf_cmp_can_id_ide,
-            &hf_cmp_can_id_rtr,
-            &hf_cmp_can_id_res,
-            &hf_cmp_can_id_29bit,
-            NULL
-        };
-
-        static int *const asam_cmp_can_crc_field[] = {
-            &hf_cmp_can_crc_crc_support,
-            &hf_cmp_can_crc_res,
-            &hf_cmp_can_crc_crc,
-            NULL
-        };
-
+    case CMP_DATA_MSG_CAN:
         col_append_str(pinfo->cinfo, COL_INFO, " (CAN)");
         proto_item_append_text(ti_msg_payload, " %s", "(CAN)");
 
-        uint16_t can_flags = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
-        proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_can_flags, ett_asam_cmp_payload_flags, asam_cmp_can_flags, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_can_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        uint32_t can_id_field = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
-        bool can_id_29bit = (can_id_field & CMP_CAN_ID_IDE) == CMP_CAN_ID_IDE;
-        uint32_t can_id = 0;
-        if (can_id_29bit) {
-            proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_can_id, ett_asam_cmp_can_id, asam_cmp_can_id_field_29bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
-            can_id = can_id_field & (CMP_CAN_ID_29BIT_MASK | CMP_CAN_ID_RTR | CMP_CAN_ID_IDE);
-        } else {
-            if (old_11bit_canid_encoding) {
-                proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_can_id, ett_asam_cmp_can_id, asam_cmp_can_id_field_11bit_old, ENC_BIG_ENDIAN, BMT_NO_FALSE);
-                can_id = can_id_field & (CMP_CAN_ID_RTR | CMP_CAN_ID_IDE | CMP_CAN_ID_11BIT_MASK_OLD);
-            } else {
-                proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_can_id, ett_asam_cmp_can_id, asam_cmp_can_id_field_11bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
-                can_id = (can_id_field & (CMP_CAN_ID_RTR | CMP_CAN_ID_IDE)) + ((can_id_field & CMP_CAN_ID_11BIT_MASK) >> CMP_CAN_ID_11BIT_SHIFT);
-            }
-        }
-        offset += 4;
-
-        uint64_t tmp64;
-        proto_tree_add_bitmask_with_flags_ret_uint64(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_can_crc, ett_asam_cmp_can_crc, asam_cmp_can_crc_field, ENC_BIG_ENDIAN, BMT_NO_FALSE, &tmp64);
-        if ((tmp64 & CMP_CAN_CRC_CRC_SUPP) == 0 && (tmp64 & CMP_CAN_CRC_CRC) != 0) {
-            proto_tree_add_expert(asam_cmp_data_msg_payload_tree, pinfo, &ei_asam_cmp_unsupported_crc_not_zero, tvb, offset, 4);
-        }
-        offset += 4;
-
-        uint32_t err_pos = 0;
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_can_err_pos, tvb, offset, 2, ENC_BIG_ENDIAN, &err_pos);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_can_dlc, tvb, offset, 1, ENC_NA);
-        offset += 1;
-
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_can_data_len, tvb, offset, 1, ENC_NA, &msg_payload_type_length);
-        offset += 1;
-
-        if (msg_payload_type_length > 0) {
-            tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, msg_payload_type_length);
-
-            if ((can_flags & CMP_CAN_FLAGS_ERRORS) != 0) {
-                can_id = can_id | CAN_ERR_FLAG;
-            }
-
-            struct can_info can_info = { .id = can_id, .len = msg_payload_type_length, .fd = CAN_TYPE_CAN_CLASSIC, .bus_id = ht_interface_config_to_bus_id(interface_id) };
-            if (!socketcan_call_subdissectors(sub_tvb, pinfo, tree, &can_info, heuristic_first)) {
-                call_data_dissector(sub_tvb, pinfo, tree);
-            }
-
-            offset += (int)msg_payload_type_length;
-        }
-
-        proto_item_set_end(ti_msg_payload, tvb, offset);
+        offset += dissect_asam_cmp_data_msg_can(payload_tvb, pinfo, asam_cmp_data_msg_payload_tree, interface_id);
         break;
-    }
 
-    case CMP_DATA_MSG_CANFD: {
-        static int * const asam_cmp_canfd_id_field_11bit[] = {
-            &hf_cmp_canfd_id_ide,
-            &hf_cmp_canfd_id_rrs,
-            &hf_cmp_canfd_id_res,
-            &hf_cmp_canfd_id_11bit,
-            NULL
-        };
-
-        static int * const asam_cmp_canfd_id_field_11bit_old[] = {
-            &hf_cmp_canfd_id_ide,
-            &hf_cmp_canfd_id_rrs,
-            &hf_cmp_canfd_id_res,
-            &hf_cmp_canfd_id_11bit_old,
-            NULL
-        };
-
-        static int * const asam_cmp_canfd_id_field_29bit[] = {
-            &hf_cmp_canfd_id_res,
-            &hf_cmp_canfd_id_rrs,
-            &hf_cmp_canfd_id_ide,
-            &hf_cmp_canfd_id_29bit,
-            NULL
-        };
-
-        static int * const asam_cmp_canfd_crc_field_17bit[] = {
-            &hf_cmp_canfd_crc_crc_support,
-            &hf_cmp_canfd_crc_sbc_support,
-            &hf_cmp_canfd_crc_res,
-            &hf_cmp_canfd_crc_sbc_parity,
-            &hf_cmp_canfd_crc_sbc,
-            &hf_cmp_canfd_crc_crc17,
-            NULL
-        };
-
-        static int * const asam_cmp_canfd_crc_field_21bit[] = {
-            &hf_cmp_canfd_crc_crc_support,
-            &hf_cmp_canfd_crc_sbc_support,
-            &hf_cmp_canfd_crc_res,
-            &hf_cmp_canfd_crc_sbc_parity,
-            &hf_cmp_canfd_crc_sbc,
-            &hf_cmp_canfd_crc_crc21,
-            NULL
-        };
-
+    case CMP_DATA_MSG_CANFD:
         col_append_str(pinfo->cinfo, COL_INFO, " (CAN FD)");
         proto_item_append_text(ti_msg_payload, " %s", "(CAN FD)");
 
-        uint16_t canfd_flags = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
-        proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_canfd_flags, ett_asam_cmp_payload_flags, asam_cmp_canfd_flags, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_canfd_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        uint32_t can_id_field = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
-        bool can_id_29bit = (can_id_field & CMP_CANFD_ID_IDE) == CMP_CANFD_ID_IDE;
-        uint32_t can_id = 0;
-        if (can_id_29bit) {
-            proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_canfd_id, ett_asam_cmp_can_id, asam_cmp_canfd_id_field_29bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
-            can_id = can_id_field & (CMP_CAN_ID_29BIT_MASK | CMP_CANFD_ID_IDE);
-        } else {
-            if (old_11bit_canid_encoding) {
-                proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_canfd_id, ett_asam_cmp_can_id, asam_cmp_canfd_id_field_11bit_old, ENC_BIG_ENDIAN, BMT_NO_FALSE);
-                can_id = can_id_field & (CMP_CANFD_ID_IDE | CMP_CAN_ID_11BIT_MASK_OLD);
-            } else {
-                proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_canfd_id, ett_asam_cmp_can_id, asam_cmp_canfd_id_field_11bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
-                can_id = (can_id_field & CMP_CANFD_ID_IDE) + ((can_id_field & CMP_CAN_ID_11BIT_MASK) >> CMP_CAN_ID_11BIT_SHIFT);
-            }
-        }
-        offset += 4;
-
-        /* We peek ahead to find out the DLC. 0..10: 17bit CRC, 11..15: 21bit CRC. */
-        if (tvb_get_uint8(tvb, offset + 6) <= 10) {
-            proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_canfd_crc, ett_asam_cmp_can_crc, asam_cmp_canfd_crc_field_17bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
-        } else {
-            proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_canfd_crc, ett_asam_cmp_can_crc, asam_cmp_canfd_crc_field_21bit, ENC_BIG_ENDIAN, BMT_NO_FALSE);
-        }
-        offset += 4;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_canfd_err_pos, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_canfd_dlc, tvb, offset, 1, ENC_NA);
-        offset += 1;
-
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_canfd_data_len, tvb, offset, 1, ENC_NA, &msg_payload_type_length);
-        offset += 1;
-
-        if (msg_payload_type_length > 0) {
-            tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, msg_payload_type_length);
-
-            if ((canfd_flags & CMP_CANFD_FLAGS_ERRORS) != 0) {
-                can_id = can_id | CAN_ERR_FLAG;
-            }
-
-            struct can_info can_info = { .id = can_id, .len = msg_payload_type_length, .fd = CAN_TYPE_CAN_FD, .bus_id = ht_interface_config_to_bus_id(interface_id) };
-            if (!socketcan_call_subdissectors(sub_tvb, pinfo, tree, &can_info, heuristic_first)) {
-                call_data_dissector(sub_tvb, pinfo, tree);
-            }
-
-            offset += (int)msg_payload_type_length;
-        }
-
-        proto_item_set_end(ti_msg_payload, tvb, offset);
+        offset += dissect_asam_cmp_data_msg_canfd(payload_tvb, pinfo, asam_cmp_data_msg_payload_tree, interface_id);
         break;
-    }
 
-    case CMP_DATA_MSG_LIN: {
-        lin_info_t lin_info = {0, 0, 0};
-
+    case CMP_DATA_MSG_LIN:
         col_append_str(pinfo->cinfo, COL_INFO, " (LIN)");
         proto_item_append_text(ti_msg_payload, " %s", "(LIN)");
 
-        proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_lin_flags, ett_asam_cmp_payload_flags, asam_cmp_lin_flags, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_lin_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        lin_info.id = tvb_get_uint8(tvb, offset) & CMP_CANFD_PID_ID_MASK;
-        proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_lin_pid, ett_asam_cmp_lin_pid, asam_cmp_lin_pid, ENC_BIG_ENDIAN);
-        offset += 1;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_lin_reserved_2, tvb, offset, 1, ENC_NA);
-        offset += 1;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_lin_checksum, tvb, offset, 1, ENC_NA);
-        offset += 1;
-
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_lin_data_len, tvb, offset, 1, ENC_NA, &msg_payload_type_length);
-        offset += 1;
-
-        if (msg_payload_type_length > 0) {
-            tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, msg_payload_type_length);
-
-            lin_info.bus_id = ht_interface_config_to_bus_id(interface_id);
-            lin_info.len = (uint16_t)msg_payload_type_length;
-
-            dissect_lin_message(sub_tvb, pinfo, tree, &lin_info);
-            offset += (int)msg_payload_type_length;
-        }
-
-        proto_item_set_end(ti_msg_payload, tvb, offset);
+        offset += dissect_asam_cmp_data_msg_lin(payload_tvb, pinfo, asam_cmp_data_msg_payload_tree, interface_id);
         break;
-    }
 
-    case CMP_DATA_MSG_FLEXRAY: {
-        flexray_info_t fr_info = {0, 0, 0, 0};
-        uint32_t tmp;
-
+    case CMP_DATA_MSG_FLEXRAY:
         col_append_str(pinfo->cinfo, COL_INFO, " (FlexRay)");
         proto_item_append_text(ti_msg_payload, " %s", "(FlexRay)");
 
-        uint16_t flags = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
-        proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_flexray_flags, ett_asam_cmp_payload_flags, asam_cmp_flexray_flags, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_flexray_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_flexray_header_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_flexray_frame_id, tvb, offset, 2, ENC_BIG_ENDIAN, &tmp);
-        fr_info.id = (uint16_t)tmp;
-        offset += 2;
-
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_flexray_cycle, tvb, offset, 1, ENC_NA, &tmp);
-        fr_info.cc= (uint8_t)tmp;
-        offset += 1;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_flexray_frame_crc, tvb, offset, 3, ENC_BIG_ENDIAN);
-        offset += 3;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_flexray_reserved_2, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_flexray_data_len, tvb, offset, 1, ENC_NA, &msg_payload_type_length);
-        offset += 1;
-
-        if (msg_payload_type_length > 0 && (flags & CMP_FLEXRAY_FLAGS_NF) == 0) {
-            fr_info.bus_id = ht_interface_config_to_bus_id(interface_id);
-            fr_info.ch = 0; /* Assuming A! Could this be B? */
-
-            tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, msg_payload_type_length);
-            if (!flexray_call_subdissectors(sub_tvb, pinfo, tree, &fr_info, heuristic_first)) {
-                call_data_dissector(sub_tvb, pinfo, tree);
-            }
-        }
-        offset += (int)msg_payload_type_length;
-
-        proto_item_set_end(ti_msg_payload, tvb, offset);
+        offset += dissect_asam_cmp_data_msg_flexray(payload_tvb, pinfo, asam_cmp_data_msg_payload_tree, interface_id);
         break;
-    }
 
-    case CMP_DATA_MSG_DIGITAL: {
+    case CMP_DATA_MSG_DIGITAL:
         col_append_str(pinfo->cinfo, COL_INFO, " (Digital)");
         proto_item_append_text(ti_msg_payload, " %s", "(Digital)");
 
-        uint64_t flags;
-        proto_tree_add_bitmask_ret_uint64(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_digital_flags, ett_asam_cmp_payload_flags, asam_cmp_digital_flags, ENC_BIG_ENDIAN, &flags);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_digital_reserved, tvb, offset, 1, ENC_NA);
-        offset += 1;
-
-        uint32_t pin_count;
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_digital_pin_count, tvb, offset, 1, ENC_NA, &pin_count);
-        offset += 1;
-
-        if ((flags & CMP_DIGITAL_FLAG_TRIGGER_PRESENT) == CMP_DIGITAL_FLAG_TRIGGER_PRESENT) {
-            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_digital_trig_pattern, tvb, offset, 1, ENC_NA);
-            offset += 1;
-
-            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_digital_trig_pin, tvb, offset, 1, ENC_NA);
-            offset += 1;
-
-            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_digital_flag_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-        }
-
-        if ((flags & CMP_DIGITAL_FLAG_SAMPLE_PRESENT) == CMP_DIGITAL_FLAG_SAMPLE_PRESENT) {
-            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_digital_sample_interval, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-
-            uint32_t sample_count;
-            proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_digital_sample_count, tvb, offset, 1, ENC_NA, &sample_count);
-            offset += 1;
-
-            uint32_t sample_byte_count = (uint32_t)floor((pin_count + 7) / 8);
-
-            for (uint32_t i = 0; i < sample_count; i++) {
-
-                ti = proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_digital_sample, tvb, offset, sample_byte_count, ENC_NA);
-                proto_item_append_text(ti, " [%d] ", i);
-                proto_tree *sample_tree = proto_item_add_subtree(ti, ett_asam_cmp_digital_sample);
-
-                /* we are supporting 32 pins for the beginning */
-                if (4 < sample_byte_count) {
-                    /* skip unsupported pins */
-                    offset += sample_byte_count - 4;
-                }
-                if (4 <= sample_byte_count) {
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_31, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_30, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_29, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_28, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_27, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_26, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_25, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_24, tvb, offset, 1, ENC_NA);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(tvb, offset));
-                    offset += 1;
-                }
-
-                if (3 <= sample_byte_count) {
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_23, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_22, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_21, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_20, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_19, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_18, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_17, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_16, tvb, offset, 1, ENC_NA);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(tvb, offset));
-                    offset += 1;
-                }
-
-                if (2 <= sample_byte_count) {
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_15, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_14, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_13, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_12, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_11, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_10, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_9, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_8, tvb, offset, 1, ENC_NA);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(tvb, offset));
-                    offset += 1;
-                }
-
-                if (1 <= sample_byte_count) {
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_7, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_6, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_5, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_4, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_3, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_2, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_1, tvb, offset, 1, ENC_NA);
-                    proto_tree_add_item(sample_tree, hf_cmp_digital_sample_pin_0, tvb, offset, 1, ENC_NA);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " 0x%02x", tvb_get_uint8(tvb, offset));
-                    offset += 1;
-                }
-             }
-        }
-
+        offset += dissect_asam_cmp_data_msg_digital(payload_tvb, pinfo, asam_cmp_data_msg_payload_tree);
         break;
-    }
 
-    case CMP_DATA_MSG_UART_RS_232: {
+    case CMP_DATA_MSG_UART_RS_232:
         col_append_str(pinfo->cinfo, COL_INFO, " (UART/RS-232)");
         proto_item_append_text(ti_msg_payload, " %s", "(UART/RS-232)");
 
-        uint64_t char_len;
-        proto_tree_add_bitmask_ret_uint64(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_uart_flags, ett_asam_cmp_payload_flags, asam_cmp_uart_flags, ENC_BIG_ENDIAN, &char_len);
-        char_len = char_len & 0x07;
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_uart_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_uart_data_len, tvb, offset, 2, ENC_BIG_ENDIAN, &msg_payload_type_length);
-        offset += 2;
-
-        if (msg_payload_type_length > 0) {
-            for (unsigned i = 0; i < msg_payload_type_length; i++) {
-                uint8_t *buf = NULL;
-                ti = proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_uart_data, ett_asam_cmp_uart_data, asam_cmp_uart_data, ENC_BIG_ENDIAN);
-                if (char_len == CMP_UART_CL_7 || char_len == CMP_UART_CL_8) {
-                    buf = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, 1, ENC_ASCII | ENC_NA);
-
-                    /* sanitizing buffer */
-                    if (buf[0] > 0x00 && buf[0] < 0x20) {
-                        buf[0] = 0x20;
-                    } else {
-                        proto_item_append_text(ti, ": %s", buf);
-                    }
-                }
-                offset += 2;
-            }
-        }
-
-        proto_item_set_end(ti_msg_payload, tvb, offset);
+        offset += dissect_asam_cmp_data_msg_uart(payload_tvb, pinfo, asam_cmp_data_msg_payload_tree);
         break;
-    }
 
-    case CMP_DATA_MSG_ANALOG: {
+    case CMP_DATA_MSG_ANALOG:
         col_append_str(pinfo->cinfo, COL_INFO, " (Analog)");
         proto_item_append_text(ti_msg_payload, " %s", "(Analog)");
 
-        uint64_t flags;
-        proto_tree_add_bitmask_ret_uint64(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_analog_flags, ett_asam_cmp_payload_flags, asam_cmp_analog_flags, ENC_BIG_ENDIAN, &flags);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_analog_reserved, tvb, offset, 1, ENC_NA);
-        offset += 1;
-
-        unsigned analog_unit;
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_analog_unit, tvb, offset, 1, ENC_NA, &analog_unit);
-        const char *unit_symbol;
-        unit_symbol = try_val_to_str(analog_unit, analog_units);
-        offset += 1;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_analog_sample_interval, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        float sample_offset;
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_analog_sample_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
-        sample_offset = tvb_get_ieee_float(tvb, offset, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        float sample_scalar;
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_analog_sample_scalar, tvb, offset, 4, ENC_BIG_ENDIAN);
-        sample_scalar = tvb_get_ieee_float(tvb, offset, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        int data_left = msg_payload_length - 16;
-        if (data_left > 0) {
-            switch (flags & 0x03) {
-            case 0: /* INT16 */
-                while (data_left >= 2) {
-                    double sample_value = ((double)tvb_get_int16(tvb, offset, ENC_BIG_ENDIAN) * sample_scalar + sample_offset);
-                    ti = proto_tree_add_double(asam_cmp_data_msg_payload_tree, hf_cmp_analog_sample, tvb, offset, 2, sample_value);
-                    if (unit_symbol == NULL) {
-                        proto_item_append_text(ti, " (%.9f)", sample_value);
-                    } else {
-                        proto_item_append_text(ti, "%s (%.9f%s)", unit_symbol, sample_value, unit_symbol);
-                    }
-                    PROTO_ITEM_SET_GENERATED(ti);
-
-                    proto_tree *sample_tree = proto_item_add_subtree(ti, ett_asam_cmp_analog_sample);
-                    ti = proto_tree_add_item(sample_tree, hf_cmp_analog_sample_raw, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    PROTO_ITEM_SET_HIDDEN(ti);
-
-                    data_left -= 2;
-                    offset += 2;
-                }
-                break;
-            case 1: /* INT32 */
-                while (data_left >= 4) {
-                    double sample_value = ((double)tvb_get_int32(tvb, offset, ENC_BIG_ENDIAN) * sample_scalar + sample_offset);
-                    ti = proto_tree_add_double(asam_cmp_data_msg_payload_tree, hf_cmp_analog_sample, tvb, offset, 4, sample_value);
-                    if (unit_symbol == NULL) {
-                        proto_item_append_text(ti, " (%.9f)", sample_value);
-                    } else {
-                        proto_item_append_text(ti, "%s (%.9f%s)", unit_symbol, sample_value, unit_symbol);
-                    }
-                    PROTO_ITEM_SET_GENERATED(ti);
-
-                    proto_tree *sample_tree = proto_item_add_subtree(ti, ett_asam_cmp_analog_sample);
-                    ti = proto_tree_add_item(sample_tree, hf_cmp_analog_sample_raw, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    PROTO_ITEM_SET_HIDDEN(ti);
-
-                    data_left -= 4;
-                    offset += 4;
-                }
-                break;
-            default:
-                /* Other types are reserved as of now, so we do not know how to parse them. Just ignore. */
-                break;
-            }
-        }
-
-        proto_item_set_end(ti_msg_payload, tvb, offset);
+        offset += dissect_asam_cmp_data_msg_analog(payload_tvb, asam_cmp_data_msg_payload_tree);
         break;
-    }
 
     case CMP_DATA_MSG_ETHERNET:
         col_append_str(pinfo->cinfo, COL_INFO, " (Ethernet)");
         proto_item_append_text(ti_msg_payload, " %s", "(Ethernet)");
 
-        proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_eth_flags, ett_asam_cmp_payload_flags, asam_cmp_ethernet_flags, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_eth_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_eth_payload_length, tvb, offset, 2, ENC_BIG_ENDIAN, &msg_payload_type_length);
-        offset += 2;
-
-        if (msg_payload_type_length > 0) {
-            tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, (int)msg_payload_type_length);
-            call_dissector(eth_handle, sub_tvb, pinfo, root_tree);
-        }
-        offset += (int)msg_payload_type_length;
-
-        proto_item_set_end(ti_msg_payload, tvb, offset);
+        offset += dissect_asam_cmp_data_msg_ethernet(payload_tvb, pinfo, asam_cmp_data_msg_payload_tree, root_tree);
         break;
 
-    case CMP_DATA_MSG_SPI: {
+    case CMP_DATA_MSG_SPI:
         col_append_str(pinfo->cinfo, COL_INFO, " (SPI)");
         proto_item_append_text(ti_msg_payload, " %s", "(SPI)");
 
-        proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_spi_flags, ett_asam_cmp_payload_flags, asam_cmp_spi_flags, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_spi_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        uint32_t cipo_length;
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_spi_cipo_length, tvb, offset, 2, ENC_BIG_ENDIAN, &cipo_length);
-        offset += 2;
-
-        if (cipo_length > 0) {
-            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_spi_cipo, tvb, offset, cipo_length, ENC_NA);
-            offset += cipo_length;
-        }
-
-        uint32_t copi_length;
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_spi_copi_length, tvb, offset, 2, ENC_BIG_ENDIAN, &copi_length);
-        offset += 2;
-
-        if (copi_length > 0) {
-            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_spi_copi, tvb, offset, copi_length, ENC_NA);
-            offset += copi_length;
-        }
-
+        offset += dissect_asam_cmp_data_msg_spi(payload_tvb, asam_cmp_data_msg_payload_tree);
         break;
-    }
 
-    case CMP_DATA_MSG_I2C: {
+    case CMP_DATA_MSG_I2C:
         col_append_str(pinfo->cinfo, COL_INFO, " (I2C)");
         proto_item_append_text(ti_msg_payload, " %s", "(I2C)");
 
-        proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_i2c_flags, ett_asam_cmp_payload_flags, asam_cmp_i2c_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_i2c_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_i2c_addr, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        uint32_t data_entry_count;
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_i2c_data_entry_count, tvb, offset, 2, ENC_BIG_ENDIAN, &data_entry_count);
-        offset += 2;
-
-        static int * const asam_cmp_i2c_data[] = {
-            &hf_cmp_i2c_data_control_res,
-            &hf_cmp_i2c_data_control_ack,
-            &hf_cmp_i2c_data_byte,
-            NULL
-        };
-
-        for (uint32_t i = 0; i < data_entry_count; i++) {
-            proto_tree_add_bitmask(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_i2c_data, ett_asam_cmp_i2c_data_entry, asam_cmp_i2c_data, ENC_BIG_ENDIAN);
-            offset += 2;
-        }
-
+        offset += dissect_asam_cmp_data_msg_i2c(payload_tvb, asam_cmp_data_msg_payload_tree);
         break;
-    }
 
-    case CMP_DATA_MSG_GIGEVISION: {
+    case CMP_DATA_MSG_GIGEVISION:
         col_append_str(pinfo->cinfo, COL_INFO, " (GigE Vision)");
         proto_item_append_text(ti_msg_payload, " %s", "(GigE Vision)");
 
-        proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_gige_flags, ett_asam_cmp_payload_flags, asam_cmp_gige_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_gige_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_gige_payload_length, tvb, offset, 2, ENC_BIG_ENDIAN, &msg_payload_type_length);
-        offset += 2;
-
-        if (msg_payload_type_length > 0) {
-            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_gige_payload, tvb, offset, msg_payload_type_length, ENC_NA);
-            offset += msg_payload_type_length;
-        }
-
+        offset += dissect_asam_cmp_data_msg_gige_vision(payload_tvb, asam_cmp_data_msg_payload_tree);
         break;
-    }
 
-    case CMP_DATA_MSG_MIPI_CSI2: {
+    case CMP_DATA_MSG_MIPI_CSI2:
         col_append_str(pinfo->cinfo, COL_INFO, " (MIPI CSI-2 D-PHY)");
         proto_item_append_text(ti_msg_payload, " %s", "(MIPI CSI-2 D-PHY)");
 
-        proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_mipi_csi2_flags, ett_asam_cmp_payload_flags, asam_cmp_mipi_csi2_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_mipi_csi2_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_mipi_csi2_frame_counter, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_mipi_csi2_line_counter, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        static int * const asam_cmp_mipi_dt[] = {
-            &hf_cmp_mipi_csi2_dt_res,
-            &hf_cmp_mipi_csi2_dt_dt,
-            NULL
-        };
-
-        uint64_t mipi_csi2_dt_flags;
-        proto_tree_add_bitmask_with_flags_ret_uint64(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_mipi_csi2_dt, ett_asam_cmp_payload_flags, asam_cmp_mipi_dt, ENC_NA, BMT_NO_APPEND, &mipi_csi2_dt_flags);
-        offset += 1;
-
-        bool asam_cmp_mipi_csi_short_packet = (mipi_csi2_dt_flags & MIPI_CSI2_DT_BITS) <= MIPI_CSI2_DT_SHORT_END;
-
-        static int * const asam_cmp_mipi_vci[] = {
-            &hf_cmp_mipi_csi2_vci_res,
-            &hf_cmp_mipi_csi2_vci_vcx,
-            &hf_cmp_mipi_csi2_vci_vci,
-            NULL
-        };
-
-        proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_mipi_csi2_vci, ett_asam_cmp_payload_flags, asam_cmp_mipi_vci, ENC_NA, BMT_NO_APPEND);
-        offset += 1;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_mipi_csi2_reserved2, tvb, offset, 1, ENC_NA);
-        offset += 1;
-
-        static int * const asam_cmp_mipi_ecc[] = {
-            &hf_cmp_mipi_csi2_ecc_res,
-            &hf_cmp_mipi_csi2_ecc_ecc,
-            NULL
-        };
-
-        proto_tree_add_bitmask_with_flags(asam_cmp_data_msg_payload_tree, tvb, offset, hf_cmp_mipi_csi2_ecc, ett_asam_cmp_payload_flags, asam_cmp_mipi_ecc, ENC_NA, BMT_NO_APPEND);
-        offset += 1;
-
-        proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_mipi_csi2_cs, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        if (asam_cmp_mipi_csi_short_packet) {
-            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_mipi_csi2_short_packet_data, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-        } else {
-            uint32_t word_count;
-            proto_tree_add_item_ret_uint(asam_cmp_data_msg_payload_tree, hf_cmp_mipi_csi2_wc, tvb, offset, 2, ENC_BIG_ENDIAN, &word_count);
-            offset += 2;
-
-            proto_tree_add_item(asam_cmp_data_msg_payload_tree, hf_cmp_mipi_csi2_data, tvb, offset, word_count, ENC_NA);
-            offset += word_count;
-        }
-
+        offset += dissect_asam_cmp_data_msg_mipi_csi2(payload_tvb, asam_cmp_data_msg_payload_tree);
         break;
-    }
 
-    case CMP_DATA_MSG_USER_DEFINED:
-        col_append_str(pinfo->cinfo, COL_INFO, " (User defined)");
+    case CMP_DATA_MSG_VENDOR_DATA_MSG:
+        col_append_str(pinfo->cinfo, COL_INFO, " (Vendor-specific)");
+        proto_item_append_text(ti_msg_payload, " %s", "(Vendor-specific)");
 
-        if (msg_payload_length > 0) {
-            tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, msg_payload_length);
-            call_data_dissector(sub_tvb, pinfo, tree);
-            offset += (int)msg_payload_length;
-        }
-
-        proto_item_set_end(ti_msg_payload, tvb, offset);
+        offset += dissect_asam_cmp_data_msg_user_defined(payload_tvb, asam_cmp_data_msg_payload_tree);
         break;
 
     default:
-        if (msg_payload_length > 0) {
-            offset += (int)msg_payload_length;
-        }
-
-        proto_item_set_end(ti_msg_payload, tvb, offset);
+        offset += tvb_captured_length(payload_tvb);
         break;
     }
 
@@ -2183,7 +2287,7 @@ dissect_asam_cmp_ctrl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 
         break;
 
-    case CMP_CTRL_MSG_VENDOR:
+    case CMP_CTRL_MSG_VENDOR_CTRL_MSG:
         col_append_str(pinfo->cinfo, COL_INFO, " (Vendor specific)");
         proto_item_append_text(ti_msg_payload, " %s", "(Vendor specific)");
 
@@ -2736,13 +2840,11 @@ dissect_asam_cmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             break;
         default:
             proto_item_set_end(ti_root, tvb, offset);
-            proto_item_set_end(ti_header, tvb, offset);
             return offset;
         }
     }
 
     proto_item_set_end(ti_root, tvb, offset);
-    proto_item_set_end(ti_header, tvb, offset);
     return offset;
 }
 
@@ -3077,6 +3179,11 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_mipi_csi2_flag_line_ctr_src,      { "Line Counter Source", "asam-cmp.msg.mipi_csi2.flags.line_counter_source", FT_BOOLEAN, 16, TFS(&mipi_csi2_cmcounter_csicounter), 0x0020, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_flag_cs_support,        { "Checksum Support", "asam-cmp.msg.mipi_csi2.flags.checksum_support", FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0040, NULL, HFILL } },
         { &hf_cmp_mipi_csi2_flag_reserved,          { "Reserved", "asam-cmp.msg.mipi_csi2.flags.reserved", FT_UINT16, BASE_HEX, NULL, 0xFF80, NULL, HFILL } },
+
+        /* User-Defined */
+        { &hf_cmp_vendor_def_vendor_id,             { "Vendor ID", "asam-cmp.msg.vendor_def.vendor_id", FT_UINT16, BASE_HEX, VALS(vendor_ids), 0x0, NULL, HFILL } },
+        { &hf_cmp_vendor_def_vendor_payload_type,   { "Vendor Payload Type", "asam-cmp.msg.vendor_def.payload_type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_vendor_def_vendor_payload_data,   { "Vendor Payload", "asam-cmp.msg.vendor_def.payload", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
         /* Control Message Payloads */
         /* Data Sink Ready */
