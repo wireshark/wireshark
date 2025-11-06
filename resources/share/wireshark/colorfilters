@@ -12,7 +12,7 @@
 @IPv6 hop limit low or unexpected@(ipv6.dst != ff00::/8 && ipv6.hlim < 5 && !( ospf|| bgp || tcp.port==179)) || (ipv6.dst==ff00::/8 && ipv6.hlim not in {1, 64, 255})@[42148,0,0][60652,61680,60395]
 @Checksum Errors@eth.fcs.status=="Bad" || ip.checksum.status=="Bad" || tcp.checksum.status=="Bad" || udp.checksum.status=="Bad" || sctp.checksum.status=="Bad" || mstp.checksum.status=="Bad" || cdp.checksum.status=="Bad" || edp.checksum.status=="Bad" || wlan.fcs.status=="Bad" || stt.checksum.status=="Bad"@[4718,10030,11796][63479,34695,34695]
 @SMB@smb || nbss || nbns || netbios@[65278,65535,53456][4718,10030,11796]
-@HTTP@http || tcp.port == 80 || http2@[58596,65535,51143][4718,10030,11796]
+@HTTP@http || tcp.port == 80 || http2 || http3@[58596,65535,51143][4718,10030,11796]
 @DCERPC@dcerpc@[51199,38706,65533][4718,10030,11796]
 @Routing@hsrp || eigrp || ospf || bgp || cdp || vrrp || carp || gvrp || igmp || ismp@[65534,62325,54808][4718,10030,11796]
 @TCP SYN/FIN@tcp.flags & 0x02 || tcp.flags.fin == 1@[41026,41026,41026][4718,10030,11796]
