@@ -300,9 +300,11 @@ get_compiled_version_info(gather_feature_func gather_compile)
 	separate_features(&l, &with_list, &without_list);
 	free_features(&l);
 
-	g_string_append(str, " With:\n");
-	features_to_columns(&with_list, str);
-	free_features(&with_list);
+	if (with_list != NULL) {
+		g_string_append(str, " With:\n");
+		features_to_columns(&with_list, str);
+		free_features(&with_list);
+	}
 	if (without_list != NULL) {
 		g_string_append(str, " Without:\n");
 		features_to_columns(&without_list, str);
@@ -605,9 +607,11 @@ get_runtime_version_info(gather_feature_func gather_runtime)
 	separate_features(&l, &with_list, &without_list);
 	free_features(&l);
 
-	g_string_append(str, " With:\n");
-	features_to_columns(&with_list, str);
-	free_features(&with_list);
+	if (with_list != NULL) {
+		g_string_append(str, " With:\n");
+		features_to_columns(&with_list, str);
+		free_features(&with_list);
+	}
 	if (without_list != NULL) {
 		g_string_append(str, " Without:\n");
 		features_to_columns(&without_list, str);
