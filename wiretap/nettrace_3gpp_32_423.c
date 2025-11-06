@@ -439,15 +439,6 @@ nettrace_msg_to_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, i
 					}
 				}
 
-				raw_content = xmlNodeGetContent(raw_node);
-				if ((raw_content == NULL) || (raw_content[0] == '\0')) {
-					xmlFree(raw_content);
-					*err = WTAP_ERR_BAD_FILE;
-					*err_info = ws_strdup("nettrace_3gpp_32_423: No raw data bytes");
-					status = false;
-					goto end;
-				}
-
 				/* Fill packet buff */
 				ws_buffer_clean(&rec->data);
 				if (use_proto_table == false) {
@@ -510,38 +501,41 @@ nettrace_msg_to_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, i
 				}
 
 				/* Add end of options */
-				size_t raw_data_len = strlen(raw_content);
 				int exp_pdu_tags_len = wtap_buffer_append_epdu_end(&rec->data);
 
 				/* Convert the hex raw msg data to binary and write to the packet buf*/
-				size_t pkt_data_len = raw_data_len / 2;
-				ws_buffer_assure_space(&rec->data, pkt_data_len);
-				uint8_t* packet_buf = ws_buffer_end_ptr(&rec->data);
+				raw_content = xmlNodeGetContent(raw_node);
+				size_t raw_data_len = raw_content ? strlen(raw_content) : 0;
+				if (raw_data_len > 0) {
+					size_t pkt_data_len = raw_data_len / 2;
+					ws_buffer_assure_space(&rec->data, pkt_data_len);
+					uint8_t* packet_buf = ws_buffer_end_ptr(&rec->data);
 
-				const char* curr_pos = raw_content;
-				for (size_t i = 0; i < pkt_data_len; i++) {
-					char chr1, chr2;
-					int val1, val2;
+					const char* curr_pos = raw_content;
+					for (size_t i = 0; i < pkt_data_len; i++) {
+						char chr1, chr2;
+						int val1, val2;
 
-					chr1 = *curr_pos++;
-					chr2 = *curr_pos++;
-					val1 = g_ascii_xdigit_value(chr1);
-					val2 = g_ascii_xdigit_value(chr2);
-					if ((val1 != -1) && (val2 != -1)) {
-						*packet_buf++ = ((uint8_t)val1 * 16) + val2;
+						chr1 = *curr_pos++;
+						chr2 = *curr_pos++;
+						val1 = g_ascii_xdigit_value(chr1);
+						val2 = g_ascii_xdigit_value(chr2);
+						if ((val1 != -1) && (val2 != -1)) {
+							*packet_buf++ = ((uint8_t)val1 * 16) + val2;
+						}
+						else {
+							/* Something wrong, bail out */
+							*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Could not parse hex data, bufsize %zu index %zu %c%c",
+								(pkt_data_len + exp_pdu_tags_len),
+								i, chr1, chr2);
+							*err = WTAP_ERR_BAD_FILE;
+							xmlFree(raw_content);
+							status = false;
+							goto end;
+						}
 					}
-					else {
-						/* Something wrong, bail out */
-						*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Could not parse hex data, bufsize %zu index %zu %c%c",
-							(pkt_data_len + exp_pdu_tags_len),
-							i, chr1, chr2);
-						*err = WTAP_ERR_BAD_FILE;
-						xmlFree(raw_content);
-						status = false;
-						goto end;
-					}
+					ws_buffer_increase_length(&rec->data, pkt_data_len);
 				}
-				ws_buffer_increase_length(&rec->data, pkt_data_len);
 
 				rec->rec_header.packet_header.caplen = (uint32_t)ws_buffer_length(&rec->data);
 				rec->rec_header.packet_header.len = (uint32_t)ws_buffer_length(&rec->data);
