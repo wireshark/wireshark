@@ -753,12 +753,11 @@ static const value_string status_type_info_values[] = {
 static void
 dissect_status_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  uint16_t status_type, status_info;
+  uint32_t status_type, status_info;
 
-  status_type = tvb_get_ntohs(parameter_tvb, STATUS_TYPE_OFFSET);
   status_info = tvb_get_ntohs(parameter_tvb, STATUS_INFO_OFFSET);
 
-  proto_tree_add_item(parameter_tree, hf_sua_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(parameter_tree, hf_sua_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN, &status_type);
   proto_tree_add_uint_format_value(parameter_tree, hf_sua_status_info, parameter_tvb, STATUS_INFO_OFFSET, STATUS_INFO_LENGTH,
                              status_info, "%s (%u)", val_to_str_const(status_type * 256 * 256 + status_info, status_type_info_values, "unknown"), status_info);
 
