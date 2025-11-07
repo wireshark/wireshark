@@ -74,7 +74,10 @@ typedef struct peektagged_section_header {
 } peektagged_section_header_t;
 
 /* Size of the "header" sections */
-#define MAX_SECTION_SIZE    4096
+/* XXX - What is the maximum practical size here? If this increases much
+ * more, we'll have to allocate on the heap instead of stack.
+ */
+#define MAX_SECTION_SIZE    16384
 #define SECTION_CONST_VALUE 0x00000200
 /*
  * Network subtype values.
