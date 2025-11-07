@@ -644,6 +644,9 @@ static int pref_iqCompressionSINR = COMP_BLOCK_FP;
 static int pref_includeUdCompHeaderUplink = 2;     /* start heuristic */
 static int pref_includeUdCompHeaderDownlink = 2;   /* start heuristic */
 
+/* Are we ignoring UL C-Plane udCompHdr? */
+static bool pref_override_ul_compression = false;
+
 static unsigned pref_data_plane_section_total_rbs = 273;
 static unsigned pref_num_bf_antennas = 32;
 static bool pref_showIQSampleValues = true;
@@ -6573,7 +6576,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     bool ud_cmp_hdr_cplane = false;
     if (cplane_state && direction == 0) {
         /* Initialise settings from udpCompHdr from C-Plane */
-        if (cplane_state->ul_ud_comp_hdr_set) {
+        if (cplane_state->ul_ud_comp_hdr_set && !pref_override_ul_compression) {
             sample_bit_width = cplane_state->ul_ud_comp_hdr_bit_width;
             compression =      cplane_state->ul_ud_comp_hdr_compression;
             ud_cmp_hdr_cplane = true;
@@ -9725,6 +9728,8 @@ proto_register_oran(void)
         "configuration of the O-RU. This preference instructs the dissector to expect "
         "this field to be present in uplink messages",
         &pref_includeUdCompHeaderUplink, udcomphdr_present_options, false);
+    prefs_register_bool_preference(oran_module, "oran.ignore_cplane_ul_udcomphdr", "Ignore compression settings from C-plane",
+        "When set, override udCompHdr from UL C-Plane with compression method and width configured here", &pref_override_ul_compression);
     prefs_register_uint_preference(oran_module, "oran.ul_slot_us_limit", "Microseconds allowed for UL tx in symbol",
         "Maximum number of microseconds allowed for UL slot transmission before expert warning (zero to disable).  N.B. timing relative to first frame seen for same symbol",
         10, &us_allowed_for_ul_in_symbol);
