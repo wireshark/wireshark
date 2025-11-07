@@ -136,9 +136,12 @@ register_all_tap_listeners(tap_reg_t const *tap_reg_listeners)
          * by stats_tree_stat.c and need to registered before that */
 	g_slist_foreach(tap_plugins, call_plugin_register_tap_listener, NULL);
 
-	/* Register all builtin listeners. */
-	for (tap_reg_t const *t = &tap_reg_listeners[0]; t->cb_func != NULL; t++) {
-		t->cb_func();
+	if (tap_reg_listeners != NULL)
+	{
+		/* Register all builtin listeners. */
+		for (tap_reg_t const *t = &tap_reg_listeners[0]; t->cb_func != NULL; t++) {
+			t->cb_func();
+		}
 	}
 }
 

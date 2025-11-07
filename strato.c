@@ -970,6 +970,9 @@ main(int argc, char *argv[])
 
     static const char    optstring[] = OPTSTRING;
 
+    /* Future proof by zeroing out all data */
+    memset(&app_data, 0, sizeof(app_data));
+
     /* Set the program name. */
     g_set_prgname("strato");
 
@@ -1200,16 +1203,12 @@ main(int argc, char *argv[])
     app_data.env_var_prefix = application_configuration_environment_prefix();
     app_data.col_fmt = application_columns();
     app_data.num_cols = application_num_columns();
+    app_data.tap_reg_listeners = tap_reg_listener;
     app_data.supports_packets = application_flavor_is_wireshark();
     if (!epan_init(NULL, NULL, true, &app_data)) {
         exit_status = WS_EXIT_INIT_FAILED;
         goto clean_exit;
     }
-
-    /* Register all tap listeners; we do this before we parse the arguments,
-       as the "-z" argument can specify a registered tap. */
-
-    register_all_tap_listeners(tap_reg_listener);
 
     /* Register extcap preferences only when needed. */
     if (has_extcap_options || is_capturing) {

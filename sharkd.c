@@ -147,6 +147,9 @@ main(int argc, char *argv[])
     unsigned num_extensions;
     epan_app_data_t app_data;
 
+    /* Future proof by zeroing out all data */
+    memset(&app_data, 0, sizeof(app_data));
+
     /* Set the program name. */
     g_set_prgname("sharkd");
 

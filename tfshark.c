@@ -308,6 +308,9 @@ main(int argc, char *argv[])
 
     static const char    optstring[] = OPTSTRING;
 
+    /* Future proof by zeroing out all data */
+    memset(&app_data, 0, sizeof(app_data));
+
     /* Set the program name. */
     g_set_prgname("tfshark");
 
@@ -481,11 +484,6 @@ main(int argc, char *argv[])
     /* we register the plugin taps before the other taps because
        stats_tree taps plugins will be registered as tap listeners
        by stats_tree_stat.c and need to registered before that */
-
-    /* XXX Disable tap registration for now until we can get tfshark set up with
-     * its own set of taps and the necessary registration function etc.
-     register_all_tap_listeners();
-     */
 
     /* If invoked with the "-G" flag, we dump out information based on
        the argument to the "-G" flag; if no argument is specified,

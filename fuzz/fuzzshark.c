@@ -172,6 +172,9 @@ fuzz_init(int argc, char **argv)
 #if !defined(FUZZ_DISSECTOR_TABLE) && !defined(FUZZ_DISSECTOR_TARGET)
 	const char *fuzz_table = getenv("FUZZSHARK_TABLE");
 
+        /* Future proof by zeroing out all data */
+        memset(&app_data, 0, sizeof(app_data));
+
 	/*
 	 * Set the pogram name.
 	 *

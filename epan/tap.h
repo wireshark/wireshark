@@ -88,11 +88,8 @@ typedef struct _tap_reg {
  * For all taps, call their register routines.
  * Must be called after plugins_init(), if plugins are supported,
  * and must be called only once in a program.
- *
- * XXX - should probably be handled by epan_init(), as the tap mechanism
- * is part of libwireshark.
  */
-WS_DLL_PUBLIC void register_all_tap_listeners(tap_reg_t const *tap_reg_listeners);
+extern void register_all_tap_listeners(tap_reg_t const *tap_reg_listeners);
 
 extern void tap_init(void);
 
