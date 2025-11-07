@@ -114,6 +114,7 @@ static int hf_rdpudp2_logWindow;
 static int hf_rdpudp2_AckSeq;
 static int hf_rdpudp2_AckTs;
 static int hf_rdpudp2_AckSendTimeGap;
+static int hf_rdpudp2_AckedRange;
 static int hf_rdpudp2_ndelayedAcks;
 static int hf_rdpudp2_delayedTimeScale;
 static int hf_rdpudp2_delayedAcks;
@@ -247,17 +248,24 @@ rdp_isServerAddressTarget(packet_info *pinfo)
 	if (!conv)
 		return false;
 
-	rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conv, proto_rdp);
-	if (rdp_info) {
-		rdp_server_address_t *server = &rdp_info->serverAddr;
-		return addresses_equal(&server->addr, &pinfo->dst) && (pinfo->destport == server->port);
+	if (pinfo->ptype == PT_UDP) {
+		rdpudp_info = (rdpudp_conv_info_t *)conversation_get_proto_data(conv, proto_rdpudp);
+		if (!rdpudp_info) {
+			printf("%d: no proto_rdpudp info found, returning false\n", pinfo->num);
+			return false;
+		}
+
+		return addresses_equal(&rdpudp_info->server_addr, &pinfo->dst) && (rdpudp_info->server_port == pinfo->destport);
 	}
 
-	rdpudp_info = (rdpudp_conv_info_t *)conversation_get_proto_data(conv, proto_rdpudp);
-	if (!rdpudp_info)
+	rdp_info = (rdp_conv_info_t *)conversation_get_proto_data(conv, proto_rdp);
+	if (!rdp_info) {
+		printf("%d: no proto_rdp info found, returning false\n", pinfo->num);
 		return false;
+	}
 
-	return addresses_equal(&rdpudp_info->server_addr, &pinfo->dst) && (rdpudp_info->server_port == pinfo->destport);
+	rdp_server_address_t *server = &rdp_info->serverAddr;
+	return addresses_equal(&server->addr, &pinfo->dst) && (pinfo->destport == server->port);
 }
 
 bool
@@ -430,8 +438,9 @@ unwrap_udp_v2(tvbuff_t *tvb, packet_info *pinfo)
 	return tvb_new_child_real_data(tvb, buffer, len, len);
 }
 
+
 static uint64_t
-computeAndUpdateSeqContext(rdpudp_seq_context_t *context, uint16_t seq)
+computeAndUpdateSeqContextEx(rdpudp_seq_context_t *context, uint16_t seq, gboolean doUpdate)
 {
 	uint16_t diff = (context->last_received > seq) ? (context->last_received - seq) : (seq - context->last_received);
 
@@ -444,7 +453,7 @@ computeAndUpdateSeqContext(rdpudp_seq_context_t *context, uint16_t seq)
 		 *             |
 		 *           last
 		 */
-		if (seq > context->last_received)
+		if (doUpdate && seq > context->last_received)
 			context->last_received = seq;
 		return (context->current_base + seq);
 	}
@@ -461,9 +470,13 @@ computeAndUpdateSeqContext(rdpudp_seq_context_t *context, uint16_t seq)
 		 * so the new sequence number is in fact after last_received: we've just
 		 * switched the base
 		 */
-		context->last_received = seq;
-		context->current_base += 0x10000;
-		return (context->current_base + seq);
+		if (doUpdate) {
+			context->last_received = seq;
+			context->current_base += 0x10000;
+
+			return (context->current_base + seq);
+		}
+		return (context->current_base + 0x10000 + seq);
 	}
 
 	/* this is a sequence number from the previous base
@@ -474,6 +487,13 @@ computeAndUpdateSeqContext(rdpudp_seq_context_t *context, uint16_t seq)
 	 */
 	return (context->current_base + seq - 0x10000);
 }
+
+static uint64_t
+computeAndUpdateSeqContext(rdpudp_seq_context_t *context, uint16_t seq)
+{
+	return computeAndUpdateSeqContextEx(context, seq, true);
+}
+
 
 static int
 dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_conv_info_t *rdpudp)
@@ -503,16 +523,26 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 	flags = tvb_get_uint16(tvb2, offset, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
+	bool is_server_target = rdp_isServerAddressTarget(pinfo);
+	rdpudp_seq_context_t *target_seq_context = is_server_target ? &rdpudp->client_data_seq : &rdpudp->server_data_seq;
+
 	if (flags & RDPUDP2_ACK) {
 		uint8_t nacks = tvb_get_uint8(tvb, offset + 6) & 0xf;
 		subtree = proto_tree_add_subtree(tree, tvb2, offset, 7 + nacks, ett_rdpudp2_ack, NULL, "Ack");
-		proto_tree_add_item(subtree, hf_rdpudp2_AckSeq, tvb2, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
+		uint32_t ackBase;
+		proto_tree_add_item_ret_uint(subtree, hf_rdpudp2_AckSeq, tvb2, offset, 2, ENC_LITTLE_ENDIAN, &ackBase);
+		offset += 2;
 		proto_tree_add_item(subtree, hf_rdpudp2_AckTs, tvb2, offset, 3, ENC_LITTLE_ENDIAN); offset += 3;
 		proto_tree_add_item(subtree, hf_rdpudp2_AckSendTimeGap, tvb2, offset, 1, ENC_LITTLE_ENDIAN); offset++;
 
 		proto_tree_add_item(subtree, hf_rdpudp2_ndelayedAcks, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(subtree, hf_rdpudp2_delayedTimeScale, tvb2, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
+
+		proto_item_set_generated(
+			proto_tree_add_string_format_value(subtree, hf_rdpudp2_AckedRange, tvb2, offset-7, 2, NULL,
+					"[0x%x - 0x%x]", ackBase-nacks, ackBase)
+		);
 
 		offset += nacks;
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "ACK");
@@ -546,8 +576,6 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 	if (flags & RDPUDP2_DATA) {
 		uint32_t rawSeq;
 		uint64_t *seqPtr;
-		bool is_server_target = rdp_isServerAddressTarget(pinfo);
-		rdpudp_seq_context_t *target_seq_context = is_server_target ? &rdpudp->client_data_seq : &rdpudp->server_data_seq;
 
 		bool isDummy = !!(packet_type == 0x8);
 		data_tree = proto_tree_add_subtree(tree, tvb2, offset, 1, ett_rdpudp2_data, NULL, isDummy ? "Dummy data" : "Data");
@@ -644,14 +672,13 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 		tvbuff_t *chunk;
 		uint32_t rawSeq;
 		uint64_t *seqPtr;
-		bool is_server_target = rdp_isServerAddressTarget(pinfo);
 		wmem_tree_t *targetTree = is_server_target ? rdpudp->client_chunks : rdpudp->server_chunks;
-		rdpudp_seq_context_t *target_seq_context = is_server_target ? &rdpudp->client_channel_seq : &rdpudp->server_channel_seq;
+		rdpudp_seq_context_t *channel_seq_context = is_server_target ? &rdpudp->client_channel_seq : &rdpudp->server_channel_seq;
 
 		proto_tree_add_item_ret_uint(data_tree, hf_rdpudp2_DataChannelSeqNumber, tvb2, offset, 2, ENC_LITTLE_ENDIAN, &rawSeq);
 		if (!PINFO_FD_VISITED(pinfo)) {
 			seqPtr = wmem_alloc(wmem_file_scope(), sizeof(*seqPtr));
-			*seqPtr = computeAndUpdateSeqContext(target_seq_context, rawSeq);
+			*seqPtr = computeAndUpdateSeqContext(channel_seq_context, rawSeq);
 
 			p_set_proto_data(wmem_file_scope(), pinfo, proto_rdpudp, RDPUDP_FULL_CHANNEL_SEQ_KEY, seqPtr);
 		} else {
@@ -665,8 +692,10 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 		chunk = wmem_tree_lookup32(targetTree, (uint32_t)*seqPtr);
 		data_tvb = tvb_new_composite();
 
-		if (chunk)
+		if (chunk) {
+			//printf("%d: %ld preappending %d bytes\n", pinfo->num, *seqPtr, tvb_captured_length_remaining(chunk, 0));
 			tvb_composite_prepend(data_tvb, chunk);
+		}
 
 		subtvb = tvb_new_subset_length(tvb2, offset, tvb_captured_length_remaining(tvb2, offset));
 		tvb_composite_append(data_tvb, subtvb);
@@ -674,21 +703,28 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 
 		add_new_data_source(pinfo, data_tvb, "SSL fragment");
 		pinfo->can_desegment = 2;
+		pinfo->desegment_offset = 0;
+		pinfo->desegment_len = 0;
 
 		call_dissector(tls_handle, data_tvb, pinfo, data_tree);
 
 		if (!PINFO_FD_VISITED(pinfo) && pinfo->desegment_len) {
-			int remaining = tvb_captured_length_remaining(subtvb, pinfo->desegment_offset);
+			int remaining = tvb_captured_length_remaining(data_tvb, pinfo->desegment_offset);
 			/* Something went wrong if seqPtr didn't advance.
 			 * XXX: Should we ignore this or free the old chunk and
 			 * use the new one?
 			 */
-			chunk = (tvbuff_t*)wmem_tree_lookup32(targetTree, (uint32_t)(*seqPtr + 1));
-			if (chunk) {
-				tvb_free(chunk);
+			if (remaining) {
+				chunk = (tvbuff_t*)wmem_tree_lookup32(targetTree, (uint32_t)(*seqPtr + 1));
+				if (chunk) {
+					tvb_free(chunk);
+				}
+				chunk = tvb_clone_offset_len(data_tvb, pinfo->desegment_offset, remaining);
+				wmem_tree_insert32(targetTree, (uint32_t)(*seqPtr + 1), chunk);
+				//printf("%d: %ld inserting new chunk len=%d for %ld\n", pinfo->num, *seqPtr, tvb_captured_length_remaining(chunk, 0), *seqPtr + 1);
+			} else {
+				printf("%d: 0 bytes remaining but pinfo->desegment_len=%d\n", pinfo->num, pinfo->desegment_len);
 			}
-			chunk = tvb_clone_offset_len(data_tvb, pinfo->desegment_offset, remaining);
-			wmem_tree_insert32(targetTree, (uint32_t)(*seqPtr + 1), chunk);
 		}
 
 		offset = tvb_captured_length(tvb2);
@@ -893,6 +929,9 @@ proto_register_rdpudp(void) {
 	  },
 	  { &hf_rdpudp2_delayedAck,
 		{"Delayed ack", "rdpudp.ack.delayedAck", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
+	  },
+	  {	&hf_rdpudp2_AckedRange,
+		{"Acked range", "rdpudp.ack.ackedRange", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL}
 	  },
 	  { &hf_rdpudp2_OverHeadSize,
 		{"Overhead size", "rdpudp.overheadsize", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}

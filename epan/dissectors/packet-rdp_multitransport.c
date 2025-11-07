@@ -122,7 +122,7 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 		tvb_memcpy(tvb, cookie, offset, 16);
 		offset += 4;
 
-		rdp_transport_set_udp_conversation(&pinfo->dst, pinfo->destport, rdpudp_is_reliable_transport(pinfo), reqId, cookie, conv);
+		rdp_transport_set_udp_conversation(pinfo, rdpudp_is_reliable_transport(pinfo), reqId, cookie, conv);
 		break;
 	}
 	case RDPMT_TUNNEL_CREATE_RESP:

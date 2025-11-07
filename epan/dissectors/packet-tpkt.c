@@ -700,9 +700,9 @@ proto_reg_handoff_tpkt(void)
      * use the heuristic dissector by default just on the RDP port, and
      * if rejected the TLS heuristic dissector will be tried.
      */
-    dissector_add_uint("tls.port", TCP_PORT_RDP, tpkt_handle);
     dissector_add_uint("tcp.port", TCP_PORT_RDP, create_dissector_handle(dissect_tpkt_tcp, proto_tpkt_heur));
     heur_dissector_add("tcp", dissect_tpkt_heur, "TPKT over TCP", "tpkt_tcp", proto_tpkt, HEURISTIC_DISABLE);
+    heur_dissector_add("tls", dissect_tpkt_heur, "TPKT over TLS", "tpkt_tls", proto_tpkt, HEURISTIC_ENABLE);
 
     /*
     tpkt_ascii_handle = create_dissector_handle(dissect_ascii_tpkt, proto_tpkt);

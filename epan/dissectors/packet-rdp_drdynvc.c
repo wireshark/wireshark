@@ -255,18 +255,11 @@ drdynvc_find_channel_type(const char *name)
 static drdynvc_conv_info_t *
 drdynvc_get_conversation_data(packet_info *pinfo)
 {
-	conversation_t  *conversation, *conversation_tcp;
-	drdynvc_conv_info_t *info;
+	conversation_t *conversation = rdp_find_main_conversation(pinfo);
+	if (!conversation)
+		return NULL;
 
-	conversation = find_or_create_conversation(pinfo);
-
-	info = (drdynvc_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp_drdynvc);
-	if (!info) {
-		conversation_tcp = rdp_find_tcp_conversation_from_udp(conversation);
-		if (conversation_tcp)
-			info = (drdynvc_conv_info_t *)conversation_get_proto_data(conversation_tcp, proto_rdp_drdynvc);
-	}
-
+	drdynvc_conv_info_t *info = (drdynvc_conv_info_t *)conversation_get_proto_data(conversation, proto_rdp_drdynvc);
 	if (info == NULL) {
 		info = wmem_new0(wmem_file_scope(), drdynvc_conv_info_t);
 		info->channels = wmem_multimap_new(wmem_file_scope(), channel_hashFunc, channel_equalFunc);
@@ -380,29 +373,32 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 	proto_tree_add_item(tree, hf_rdp_drdynvc_cbId, tvb, offset, 1, ENC_NA);
 	if (havePri)
-		proto_tree_add_item(tree, hf_rdp_drdynvc_pri, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_rdp_drdynvc_pri, tvb, offset, 1, ENC_NA);
 	else
-		proto_tree_add_item(tree, hf_rdp_drdynvc_sp, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_rdp_drdynvc_sp, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_rdp_drdynvc_cmd, tvb, offset, 1, ENC_NA);
 
 	offset++;
 
 	info = drdynvc_get_conversation_data(pinfo);
-	if (haveChannelId) {
-		offset += dissect_rdp_vlength(tvb, hf_rdp_drdynvc_channelId, offset, cbId, tree, &channelId);
+	if (!info)
+		return offset;
 
-		channel = wmem_multimap_lookup32_le(info->channels, &channelId, pinfo->num);
+	if (haveChannelId) {
+            offset += dissect_rdp_vlength(tvb, hf_rdp_drdynvc_channelId, offset, cbId, tree, &channelId);
+
+            channel = wmem_multimap_lookup32_le(info->channels, &channelId, pinfo->num);
 #if 0
-		if (channel)
-			printf("%d: channels=%p haveChannelId and channel (0x%x) %s\n", pinfo->num, info->channels, channelId, channel->name);
-		else
-			printf("%d: channels=%p haveChannelId and no channel for 0x%x\n", pinfo->num, info->channels, channelId);
+            if (channel)
+                    printf("%d: channels=%p haveChannelId and channel (0x%x) %s\n", pinfo->num, info->channels, channelId, channel->name);
+            else
+                    printf("%d: channels=%p haveChannelId and no channel for 0x%x\n", pinfo->num, info->channels, channelId);
 #endif
 	}
 
 	if (haveLen) {
-		Len = (cbIdSpCmd >> 2) & 0x3;
-		offset += dissect_rdp_vlength(tvb, hf_rdp_drdynvc_length, offset, Len, tree, &fullPduLen);
+            Len = (cbIdSpCmd >> 2) & 0x3;
+            offset += dissect_rdp_vlength(tvb, hf_rdp_drdynvc_length, offset, Len, tree, &fullPduLen);
 	}
 
 	switch (cmdId) {

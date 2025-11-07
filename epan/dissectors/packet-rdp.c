@@ -1353,8 +1353,6 @@ static const value_string rdp_wMonth_vals[] = {
 static wmem_map_t *rdp_transport_links;
 
 typedef struct {
-	address serverAddr;
-	uint16_t serverPort;
 	bool reliable;
 	uint32_t requestId;
 	uint8_t securityCookie[16];
@@ -1376,8 +1374,7 @@ rdp_udp_conversation_hash(const void *k)
 	int i;
 	const rdp_transports_key_t *key = (const rdp_transports_key_t *)k;
 
-	h = key->serverPort + key->reliable + key->requestId;
-	h = add_address_to_hash(h, &key->serverAddr);
+	h = key->reliable + key->requestId;
 	for (i = 0; i < 16; i++)
 		h += key->securityCookie[i];
 
@@ -1390,11 +1387,9 @@ rdp_udp_conversation_equal_matched(const void *k1, const void *k2)
 	const rdp_transports_key_t *key1 = (const rdp_transports_key_t *)k1;
 	const rdp_transports_key_t *key2 = (const rdp_transports_key_t *)k2;
 
-	return addresses_equal(&key1->serverAddr, &key2->serverAddr) &&
-			(key1->serverPort == key2->serverPort) &&
-			(key1->reliable == key2->reliable) &&
-			(key1->requestId == key2->requestId) &&
-			memcmp(key1->securityCookie, key2->securityCookie, 16) == 0;
+	return 	(key1->reliable == key2->reliable) &&
+		(key1->requestId == key2->requestId) &&
+		memcmp(key1->securityCookie, key2->securityCookie, 16) == 0;
 }
 
 /*
@@ -2296,7 +2291,7 @@ dissect_rdp_bandwidth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 
 void
-rdp_transport_set_udp_conversation(const address *serverAddr, uint16_t serverPort, bool reliable, uint32_t reqId, uint8_t *cookie, conversation_t *conv)
+rdp_transport_set_udp_conversation(const packet_info *pinfo, bool reliable, uint32_t reqId, uint8_t *cookie, conversation_t *conv)
 {
 	rdp_transports_key_t key;
 	rdp_transports_link_t *transport_link;
@@ -2304,39 +2299,50 @@ rdp_transport_set_udp_conversation(const address *serverAddr, uint16_t serverPor
 	key.reliable = reliable;
 	key.requestId = reqId;
 	memcpy(key.securityCookie, cookie, 16);
-	copy_address_shallow(&key.serverAddr, serverAddr);
-	key.serverPort = serverPort;
 
 	transport_link = (rdp_transports_link_t *)wmem_map_lookup(rdp_transport_links, &key);
 	if (!transport_link) {
+		printf("%d: strange, TCP conversation was not existing when adding UDP part\n", pinfo->num);
 		transport_link = wmem_new(wmem_file_scope(), rdp_transports_link_t);
 
 		memcpy(&transport_link->key, &key, sizeof(key));
-		copy_address_wmem(wmem_file_scope(), &key.serverAddr, serverAddr);
 	}
 
 	transport_link->udp_conversation = conv;
 }
 
-typedef struct {
-	conversation_t *udp;
-	conversation_t *result;
-} find_tcp_conversation_t;
 
-static void
-map_find_tcp_conversation_fn(rdp_transports_key_t *key _U_, rdp_transports_link_t *transport, find_tcp_conversation_t *criteria)
+static gboolean
+transport_link_find_from_udp(gpointer key _U_, gpointer value, gpointer user_data)
 {
-	if (criteria->udp == transport->udp_conversation)
-		criteria->result = transport->tcp_conversation;
+	rdp_transports_link_t *transportLink = (rdp_transports_link_t *)value;
+
+	return (transportLink->udp_conversation == user_data);
 }
 
 conversation_t *
 rdp_find_tcp_conversation_from_udp(conversation_t *udp)
 {
-	find_tcp_conversation_t criteria = { udp, NULL };
+	rdp_transports_link_t *transportLink = (rdp_transports_link_t *)wmem_map_find(rdp_transport_links, transport_link_find_from_udp, udp);
+	if (!transportLink)
+		return NULL;
 
-	wmem_map_foreach(rdp_transport_links, (GHFunc)map_find_tcp_conversation_fn, &criteria);
-	return criteria.result;
+	return transportLink->tcp_conversation;
+}
+
+conversation_t *
+rdp_find_main_conversation(const packet_info *pinfo)
+{
+	conversation_t *conversation = find_or_create_conversation(pinfo);
+
+	if (pinfo->ptype == PT_UDP) {
+		conversation = rdp_find_tcp_conversation_from_udp(conversation);
+		if (!conversation) {
+			printf("%d: unable to find TCP connection for UDP counterpart\n", pinfo->num);
+		}
+	}
+
+	return conversation;
 }
 
 static int
@@ -2382,12 +2388,10 @@ dissect_rdp_MessageChannelData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		};
 		col_append_sep_str(pinfo->cinfo, COL_INFO, " ",	"MultiTransportRequest");
 
+		transport_key.requestId = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 		reqProto = tvb_get_uint16(tvb, offset + 4, ENC_LITTLE_ENDIAN);
 
 		transport_key.reliable = !!(reqProto & INITITATE_REQUEST_PROTOCOL_UDPFECR);
-		transport_key.requestId = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
-		copy_address_shallow(&transport_key.serverAddr, &pinfo->src);
-		transport_key.serverPort = pinfo->srcport;
 		tvb_memcpy(tvb, transport_key.securityCookie, offset + 8, 16);
 
 		transport_link = (rdp_transports_link_t *)wmem_map_lookup(rdp_transport_links, &transport_key);
@@ -2395,7 +2399,6 @@ dissect_rdp_MessageChannelData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			transport_link = wmem_new(wmem_file_scope(), rdp_transports_link_t);
 
 			memcpy(&transport_link->key, &transport_key, sizeof(transport_key));
-			copy_address_wmem(wmem_file_scope(), &transport_key.serverAddr, &pinfo->src);
 			transport_link->tcp_conversation = find_or_create_conversation(pinfo);
 
 			wmem_map_insert(rdp_transport_links, &transport_link->key , transport_link);

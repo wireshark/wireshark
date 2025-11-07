@@ -76,8 +76,11 @@ typedef struct _rdp_conv_info_t {
 } rdp_conv_info_t;
 
 int dissect_rdp_bandwidth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bool from_server);
-void rdp_transport_set_udp_conversation(const address *serverAddr, uint16_t serverPort, bool reliable, uint32_t reqId,
+void rdp_transport_set_udp_conversation(const packet_info *pinfo, bool reliable, uint32_t reqId,
 		uint8_t *cookie, conversation_t *conv);
 conversation_t *rdp_find_tcp_conversation_from_udp(conversation_t *udp);
+
+conversation_t *rdp_find_main_conversation(const packet_info *pinfo);
+
 
 #endif /* __PACKET_RDP_H__ */
