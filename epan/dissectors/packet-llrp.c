@@ -279,6 +279,7 @@ static int hf_llrp_impinj_peak_rssi_mode;
 static int hf_llrp_impinj_gps_coordinates_mode;
 static int hf_llrp_impinj_tid;
 static int hf_llrp_phase_angle;
+static int hf_llrp_doppler_frequency;
 static int hf_llrp_rssi;
 static int hf_llrp_latitude;
 static int hf_llrp_longitude;
@@ -1018,6 +1019,7 @@ static value_string_ext impinj_msg_subtype_ext = VALUE_STRING_EXT_INIT(impinj_ms
 #define LLRP_IMPINJ_PARAM_ENABLE_OPTIM_READ                        65
 #define LLRP_IMPINJ_PARAM_ACCESS_SPEC_ORDERING                     66
 #define LLRP_IMPINJ_PARAM_ENABLE_RF_DOPPLER_FREQ                   67
+#define LLRP_IMPINJ_PARAM_RF_DOPPLER_FREQ                          68
 #define LLRP_IMPINJ_PARAM_ARRAY_VERSION                            1520
 #define LLRP_IMPINJ_PARAM_HUB_VERSIONS                             1537
 #define LLRP_IMPINJ_PARAM_HUB_CONFIGURATION                        1538
@@ -1070,6 +1072,7 @@ static const value_string impinj_param_type[] = {
     { LLRP_IMPINJ_PARAM_ENABLE_OPTIM_READ,                       "Enable optimized read"                    },
     { LLRP_IMPINJ_PARAM_ACCESS_SPEC_ORDERING,                    "AccessSpec ordering"                      },
     { LLRP_IMPINJ_PARAM_ENABLE_RF_DOPPLER_FREQ,                  "Enable RF doppler frequency"              },
+    { LLRP_IMPINJ_PARAM_RF_DOPPLER_FREQ,                         "RF Doppler frequency"                     },
     { LLRP_IMPINJ_PARAM_ARRAY_VERSION,                           "Array specific HW and version info"       },
     { LLRP_IMPINJ_PARAM_HUB_VERSIONS,                            "Hub specific HW and version info"         },
     { LLRP_IMPINJ_PARAM_HUB_CONFIGURATION,                       "Hub connection and fault state"           },
@@ -1742,6 +1745,10 @@ dissect_llrp_impinj_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
         break;
     case LLRP_IMPINJ_PARAM_RF_PHASE_ANGLE:
         proto_tree_add_item(param_tree, hf_llrp_phase_angle, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+        suboffset += 2;
+        break;
+    case LLRP_IMPINJ_PARAM_RF_DOPPLER_FREQ:
+        proto_tree_add_item(param_tree, hf_llrp_doppler_frequency, tvb, suboffset, 2, ENC_BIG_ENDIAN);
         suboffset += 2;
         break;
     case LLRP_IMPINJ_PARAM_PEAK_RSSI:
@@ -3929,6 +3936,10 @@ proto_register_llrp(void)
 
         { &hf_llrp_phase_angle,
         { "Phase angle", "llrp.param.phase_angle", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+        { &hf_llrp_doppler_frequency,
+        { "Doppler frequency", "llrp.param.doppler_frequency", FT_INT16, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
         { &hf_llrp_rssi,
