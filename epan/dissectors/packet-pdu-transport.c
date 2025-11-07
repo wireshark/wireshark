@@ -375,12 +375,11 @@ dissect_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     tvbuff_t *subtvb = NULL;
     if ((int)length <= tmp) {
         proto_tree_add_item(pdu_transport_tree, hf_pdu_transport_payload, tvb, offset, length, ENC_NA);
-        subtvb = tvb_new_subset_length_caplen(tvb, offset, length, length);
     } else {
         proto_tree_add_item(pdu_transport_tree, hf_pdu_transport_payload, tvb, offset, tmp, ENC_NA);
-        subtvb = tvb_new_subset_length_caplen(tvb, offset, tmp, length);
         expert_add_info(pinfo, ti_top, &ei_pdu_transport_message_truncated);
     }
+    subtvb = tvb_new_subset_length(tvb, offset, length);
     if (subtvb != NULL) {
         pdu_transport_info_t pdu_t_info;
         pdu_t_info.id = pdu_id;

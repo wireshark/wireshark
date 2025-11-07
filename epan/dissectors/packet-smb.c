@@ -9395,7 +9395,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		break;
 	case NT_TRANS_IOCTL:
 		/* ioctl data */
-		ioctl_tvb = tvb_new_subset_length_caplen(tvb, offset, MIN((int)bc, tvb_reported_length_remaining(tvb, offset)), bc);
+		ioctl_tvb = tvb_new_subset_length(tvb, offset, bc);
 		if (nti) {
 			dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree_global, nti->ioctl_function, true, NULL);
 		}
@@ -10023,7 +10023,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	case NT_TRANS_IOCTL:
 		/* ioctl data */
-		ioctl_tvb = tvb_new_subset_length_caplen(tvb, offset, MIN((int)len, tvb_reported_length_remaining(tvb, offset)), len);
+		ioctl_tvb = tvb_new_subset_length(tvb, offset, len);
 		dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree_global, nti->ioctl_function, false, NULL);
 
 		offset += len;
@@ -15251,29 +15251,17 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			tvbuff_t *sp_tvb, *pd_tvb;
 
 			if (pc > 0) {
-				if (pc>tvb_reported_length_remaining(tvb, po)) {
-					p_tvb = tvb_new_subset_length_caplen(tvb, po, tvb_reported_length_remaining(tvb, po), pc);
-				} else {
-					p_tvb = tvb_new_subset_length(tvb, po, pc);
-				}
+				p_tvb = tvb_new_subset_length(tvb, po, pc);
 			} else {
 				p_tvb = NULL;
 			}
 			if (dc > 0) {
-				if (dc>tvb_reported_length_remaining(tvb, od)) {
-					d_tvb = tvb_new_subset_length_caplen(tvb, od, tvb_reported_length_remaining(tvb, od), dc);
-				} else {
-					d_tvb = tvb_new_subset_length(tvb, od, dc);
-				}
+				d_tvb = tvb_new_subset_length(tvb, od, dc);
 			} else {
 				d_tvb = NULL;
 			}
 			if (sl) {
-				if (sl>tvb_reported_length_remaining(tvb, so)) {
-					s_tvb = tvb_new_subset_length_caplen(tvb, so, tvb_reported_length_remaining(tvb, so), sl);
-				} else {
-					s_tvb = tvb_new_subset_length(tvb, so, sl);
-				}
+				s_tvb = tvb_new_subset_length(tvb, so, sl);
 			} else {
 				s_tvb = NULL;
 			}
@@ -17810,11 +17798,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* if there were any setup bytes, put them in a tvb for later */
 	if (sc) {
-		if ((2*sc) > tvb_reported_length_remaining(tvb, offset)) {
-			s_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_reported_length_remaining(tvb, offset), 2*sc);
-		} else {
-			s_tvb = tvb_new_subset_length(tvb, offset, 2*sc);
-		}
+		s_tvb = tvb_new_subset_length(tvb, offset, 2*sc);
 		sp_tvb = tvb_new_subset_remaining(tvb, offset);
 	} else {
 		s_tvb  = NULL;
@@ -17923,17 +17907,14 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		 * (and maybe only) packet.
 		 */
 		if ( (pd == 0) && (dd == 0) ) {
-			int min;
 			int reported_min;
-			min = MIN(pc, tvb_reported_length_remaining(tvb, po));
 			reported_min = MIN(pc, tvb_reported_length_remaining(tvb, po));
-			if (min && reported_min) {
-				p_tvb = tvb_new_subset_length_caplen(tvb, po, min, reported_min);
+			if (reported_min) {
+				p_tvb = tvb_new_subset_length(tvb, po, reported_min);
 			}
-			min = MIN(dc, tvb_reported_length_remaining(tvb, od));
 			reported_min = MIN(dc, tvb_reported_length_remaining(tvb, od));
-			if (min && reported_min) {
-				d_tvb = tvb_new_subset_length_caplen(tvb, od, min, reported_min);
+			if (reported_min) {
+				d_tvb = tvb_new_subset_length(tvb, od, reported_min);
 			}
 			/*
 			 * A tvbuff containing the parameters

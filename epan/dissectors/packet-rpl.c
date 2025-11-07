@@ -89,7 +89,7 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *rpl_container_tree;
 	uint16_t offset;
 	int ett_type;
-	int length, reported_length;
+	int reported_length;
 
 	len = tvb_get_ntohs(tvb, 0);
 	proto_tree_add_item(tree, hf_rpl_len, tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -127,15 +127,12 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					val_to_str_const(subtyp,
 						rpl_type_vals,
 						"Unknown Type"));
-				length = tvb_captured_length_remaining(tvb, offset);
-				if (length > sublen)
-					length = sublen;
 				reported_length = tvb_reported_length_remaining(tvb, offset);
 				if (reported_length > sublen)
 					reported_length = sublen;
-				if ( length > 0) {
-				  dissect_rpl_container(tvb_new_subset_length_caplen(tvb,
-					offset, length, reported_length),
+				if ( reported_length > 0) {
+				  dissect_rpl_container(tvb_new_subset_length(tvb,
+					offset, reported_length),
 					pinfo, rpl_container_tree);
 				  offset += reported_length;
 				} else {

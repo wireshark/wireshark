@@ -219,17 +219,13 @@ static void
 dissect_scsi_payload_databuffer(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t data_transfer_length, bool request)
 {
     tvbuff_t *data_tvb = NULL;
-    int tvb_len, tvb_rlen;
-
-    tvb_len = tvb_captured_length_remaining(tvb, offset);
-    if (tvb_len > (int)data_transfer_length)
-        tvb_len = data_transfer_length;
+    int tvb_rlen;
 
     tvb_rlen = tvb_reported_length_remaining(tvb, offset);
     if (tvb_rlen > (int)data_transfer_length)
         tvb_rlen = data_transfer_length;
 
-    data_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len, tvb_rlen);
+    data_tvb = tvb_new_subset_length(tvb, offset, tvb_rlen);
 
     if (rsvd_conv_data->task && rsvd_conv_data->task->itlq) {
         rsvd_conv_data->task->itlq->task_flags = SCSI_DATA_READ |
@@ -342,10 +338,9 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset += 4;
 
         /* CDBBuffer */
-        scsi_cdb = tvb_new_subset_length_caplen(tvb,
+        scsi_cdb = tvb_new_subset_length(tvb,
                                   offset,
-                                  cdb_length,
-                                  tvb_reported_length_remaining(tvb, offset));
+                                  cdb_length);
         proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_cdb, tvb, offset, cdb_length, ENC_NA);
         offset += cdb_length;
         if (cdb_length < 16) {

@@ -2168,7 +2168,7 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 		return;
 	}
 
-	sub_tvb = tvb_new_subset_length_caplen(tvb, off, MIN((int)len, tvb_captured_length_remaining(tvb, off)), len);
+	sub_tvb = tvb_new_subset_length(tvb, off, len);
 
 	dissector(sub_tvb, pinfo, sub_tree, si);
 }
@@ -7390,7 +7390,6 @@ dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *t
 	const smb2_info_t *si = (const smb2_info_t *)data;
 	bool result=false;
 	bool save_fragmented;
-	int remaining;
 	unsigned reported_len;
 	const smb2_fid_info_t *file = NULL;
 	uint32_t id;
@@ -7404,11 +7403,7 @@ dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *t
 	file = smb2_pipe_get_fid_info(si);
 	id = (uint32_t)(GPOINTER_TO_UINT(file) & UINT32_MAX);
 
-	remaining = tvb_captured_length_remaining(raw_tvb, offset);
-
-	tvb = tvb_new_subset_length_caplen(raw_tvb, offset,
-			     MIN((int)datalen, remaining),
-			     datalen);
+	tvb = tvb_new_subset_length(raw_tvb, offset, datalen);
 
 	/*
 	 * Offer desegmentation service to Named Pipe subdissectors (e.g. DCERPC)

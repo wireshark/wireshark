@@ -1457,7 +1457,6 @@ dissect_usb_vid_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     int    offset = 0;
     uint8_t descriptor_len;
     uint8_t descriptor_type;
-    int    bytes_available;
     urb_info_t  *urb = (urb_info_t *)data;
 
     tvbuff_t         *desc_tvb;
@@ -1465,8 +1464,7 @@ dissect_usb_vid_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     descriptor_len  = tvb_get_uint8(tvb, offset);
     descriptor_type = tvb_get_uint8(tvb, offset+1);
 
-    bytes_available = tvb_captured_length_remaining(tvb, offset);
-    desc_tvb = tvb_new_subset_length_caplen(tvb, 0, bytes_available, descriptor_len);
+    desc_tvb = tvb_new_subset_length(tvb, 0, descriptor_len);
 
     if (descriptor_type == CS_ENDPOINT)
     {

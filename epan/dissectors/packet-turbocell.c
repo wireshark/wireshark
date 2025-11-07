@@ -200,7 +200,7 @@ dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
                 msdu_offset += 0x02;
                 remaining_length -= 0x02;
-                msdu_tvb = tvb_new_subset_length_caplen(next_tvb, msdu_offset, (msdu_length>remaining_length)?remaining_length:msdu_length, msdu_length);
+                msdu_tvb = tvb_new_subset_length(next_tvb, msdu_offset, msdu_length);
                 call_dissector(eth_handle, msdu_tvb, pinfo, subframe_tree);
                 msdu_offset += msdu_length;
                 remaining_length -= msdu_length;

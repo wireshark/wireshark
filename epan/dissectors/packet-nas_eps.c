@@ -4316,7 +4316,7 @@ de_esm_user_data_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         tvbuff_t *user_data_cont_tvb;
         volatile dissector_handle_t handle;
 
-        user_data_cont_tvb = tvb_new_subset_length_caplen(tvb, offset, len, len);
+        user_data_cont_tvb = tvb_new_subset_length(tvb, offset, len);
         if (g_nas_eps_decode_user_data_container_as == DECODE_USER_DATA_AS_IP) {
             uint8_t first_byte = tvb_get_uint8(user_data_cont_tvb, 0);
             if (first_byte >= 0x45 && first_byte <= 0x4f && len > 20)

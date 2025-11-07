@@ -1345,15 +1345,12 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (cdb_len != 0) {
 		tvbuff_t *cdb_tvb;
-		int tvb_len, tvb_rlen;
+		int tvb_rlen;
 
-		tvb_len=tvb_captured_length_remaining(tvb, offset);
-		if(tvb_len>16)
-			tvb_len=16;
 		tvb_rlen=tvb_reported_length_remaining(tvb, offset);
 		if(tvb_rlen>16)
 			tvb_rlen=16;
-		cdb_tvb=tvb_new_subset_length_caplen(tvb, offset, tvb_len, tvb_rlen);
+		cdb_tvb=tvb_new_subset_length(tvb, offset, tvb_rlen);
 
 		if(ndmp_conv_data->task && !ndmp_conv_data->task->itlq){
 			ndmp_conv_data->task->itlq=wmem_new(wmem_file_scope(), itlq_nexus_t);
@@ -1398,15 +1395,12 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 	if ((int) payload_len > 0) {
 		tvbuff_t *data_tvb;
-		int tvb_len, tvb_rlen;
+		int tvb_rlen;
 
-		tvb_len=tvb_captured_length_remaining(tvb, offset);
-		if(tvb_len>(int)payload_len)
-			tvb_len=payload_len;
 		tvb_rlen=tvb_reported_length_remaining(tvb, offset);
 		if(tvb_rlen>(int)payload_len)
 			tvb_rlen=payload_len;
-		data_tvb=tvb_new_subset_length_caplen(tvb, offset, tvb_len, tvb_rlen);
+		data_tvb=tvb_new_subset_length(tvb, offset, tvb_rlen);
 
 		if(ndmp_conv_data->task && ndmp_conv_data->task->itlq){
 			/* ndmp conceptually always send both read and write
