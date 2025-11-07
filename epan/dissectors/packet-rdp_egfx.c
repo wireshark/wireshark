@@ -487,7 +487,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			}
 
 			if (PINFO_FD_VISITED(pinfo) && frame->ackNum != -1) {
-				pi = proto_tree_add_uint(tree, hf_egfx_start_acked_in, tvb, 0, 0, frame->ackNum);
+				pi = proto_tree_add_uint(tree, hf_egfx_start_acked_in, tvb, offset, 4, frame->ackNum);
 				proto_item_set_generated(pi);
 			}
 			break;
@@ -511,7 +511,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			frame->endNum = pinfo->num;
 
 			if (PINFO_FD_VISITED(pinfo) && frame->ackNum != -1) {
-				pi = proto_tree_add_uint(tree, hf_egfx_end_acked_in, tvb, 0, 0, frame->ackNum);
+				pi = proto_tree_add_uint(tree, hf_egfx_end_acked_in, tvb, offset, 4, frame->ackNum);
 				proto_item_set_generated(pi);
 			}
 
@@ -544,12 +544,12 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			frame->ackNum = pinfo->num;
 
 			if (PINFO_FD_VISITED(pinfo) && frame->startNum != -1) {
-				pi = proto_tree_add_uint(tree, hf_egfx_ack_frame_start, tvb, 0, 0, frame->startNum);
+				pi = proto_tree_add_uint(tree, hf_egfx_ack_frame_start, tvb, offset - 4, 4, frame->startNum);
 				proto_item_set_generated(pi);
 			}
 
 			if (PINFO_FD_VISITED(pinfo) && frame->endNum != -1) {
-				pi = proto_tree_add_uint(tree, hf_egfx_ack_frame_end, tvb, 0, 0, frame->endNum);
+				pi = proto_tree_add_uint(tree, hf_egfx_ack_frame_end, tvb, offset - 4, 4, frame->endNum);
 				proto_item_set_generated(pi);
 			}
 			break;
@@ -806,12 +806,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			break;
 		}
 
-		if (offset < nextOffset)
-		{
-			expert_add_info(pinfo, item, &ei_egfx_invalid_offset);
-			offset = nextOffset;
-		}
-
+		offset = nextOffset;
 	}
 	return offset;
 }
