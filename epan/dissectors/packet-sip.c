@@ -4810,7 +4810,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     message_body_tree = proto_item_add_subtree(ti_a, ett_sip_message_body);
                 }
             } else {
-                next_tvb = tvb_new_subset_length_caplen(tvb, offset, datalen, reported_datalen);
+                next_tvb = tvb_new_subset_length(tvb, offset, reported_datalen);
                 if(sip_tree) {
                     ti_a = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
                                          ENC_NA);
@@ -4818,7 +4818,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                 }
             }
         }else{
-            next_tvb = tvb_new_subset_length_caplen(tvb, offset, datalen, reported_datalen);
+            next_tvb = tvb_new_subset_length(tvb, offset, reported_datalen);
             if(sip_tree) {
                 ti_a = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
                                      ENC_NA);

@@ -5429,7 +5429,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
         }
 
         /* Create a tvbuff for the plaintext. This might result in a zero-length tvbuff. */
-        ptext_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_len, reported_len);
+        ptext_tvb = tvb_new_subset_length(tvb, offset, reported_len);
         *decrypt_info->status = DECRYPT_PACKET_SUCCEEDED;
     }
 

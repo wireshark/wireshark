@@ -319,7 +319,7 @@ mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
   /*
    * Do we have the entire packet, and does it include a 2-byte FCS?
    */
-  len = tvb_reported_length_remaining(tvb, proto_offset);
+  len = tvb_captured_length_remaining(tvb, proto_offset);
   reported_len = tvb_reported_length_remaining(tvb, proto_offset);
   if (reported_len < 2 || len < 0) {
     /*
@@ -338,9 +338,7 @@ mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
      * length.
      */
     reported_len -= 2;
-    if (len > reported_len)
-      len = reported_len;
-    next_tvb = tvb_new_subset_length_caplen(tvb, proto_offset, len, reported_len);
+    next_tvb = tvb_new_subset_length(tvb, proto_offset, reported_len);
   } else {
     /*
      * We have the entire packet, and it includes a 2-byte FCS.
@@ -348,7 +346,7 @@ mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
      */
     len -= 2;
     reported_len -= 2;
-    next_tvb = tvb_new_subset_length_caplen(tvb, proto_offset, len, reported_len);
+    next_tvb = tvb_new_subset_length(tvb, proto_offset, reported_len);
 
     /*
      * Compute the FCS and put it into the tree.

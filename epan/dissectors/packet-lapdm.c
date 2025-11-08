@@ -301,14 +301,14 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     sapi = (addr & LAPDM_SAPI) >> LAPDM_SAPI_SHIFT;
     n_s = (control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT;
-    available_length = tvb_captured_length(tvb) - header_len;
+    available_length = tvb_captured_length_remaining(tvb, header_len);
 
     /* No point in doing anything if no payload
      */
     if( !MIN(len, available_length) )
         return 2;
 
-    payload = tvb_new_subset_length_caplen(tvb, header_len, MIN(len,available_length), len);
+    payload = tvb_new_subset_length(tvb, header_len, len);
 
     /* Potentially segmented I frame
      */

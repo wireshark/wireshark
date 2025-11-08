@@ -1293,7 +1293,7 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     int offset = 0;    /* Current Offset */
     int ib_offset = 0; /* Offset to track if IB packet */
-    int captured_length, reported_length;
+    int reported_length;
     uint8_t lnh_val = 0;
     bool bthFollows = false;
     bool parsePayload = false;
@@ -1496,18 +1496,15 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
         if (parsePayload) {
             /* Pass to OPA MAD dissector */
-            captured_length = tvb_captured_length_remaining(tvb, offset);
             reported_length = tvb_reported_length_remaining(tvb, offset);
 
             if (reported_length >= 4)
                 reported_length -= 4;
-            if (captured_length > reported_length)
-                captured_length = reported_length;
 
-            if (captured_length > 0) {
-                opa_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_length, reported_length);
+            if (reported_length > 0) {
+                opa_tvb = tvb_new_subset_length(tvb, offset, reported_length);
                 call_dissector(opa_mad_handle, opa_tvb, pinfo, tree);
-                offset += captured_length;
+                offset += reported_length;
             }
         }
     } /* END: if(bthFollows) */

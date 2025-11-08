@@ -325,7 +325,7 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     switch (proxy_sar){
         case PROXY_COMPLETE_MESSAGE:
             packet_completed = true;
-            next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, tvb_captured_length(tvb) - offset);
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
             col_append_str(pinfo->cinfo, COL_INFO," (Complete)");
 
         break;

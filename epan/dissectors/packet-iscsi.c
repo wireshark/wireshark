@@ -1645,18 +1645,14 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
             offset+=2;
             if(snsl){
                 tvbuff_t *data_tvb;
-                int tvb_len, tvb_rlen;
+                int tvb_rlen;
 
-                tvb_len=tvb_captured_length_remaining(tvb, offset);
-                if(tvb_len>snsl)
-                    tvb_len=snsl;
                 tvb_rlen=tvb_reported_length_remaining(tvb, offset);
                 if(tvb_rlen>snsl)
                     tvb_rlen=snsl;
-                data_tvb=tvb_new_subset_length_caplen(tvb, offset, tvb_len, tvb_rlen);
-                dissect_scsi_snsinfo (data_tvb, pinfo, tree, 0,
-                                      tvb_len,
-                                      &cdata->itlq, itl);
+                data_tvb=tvb_new_subset_length(tvb, offset, tvb_rlen);
+                dissect_scsi_snsinfo(data_tvb, pinfo, tree, 0,
+                                     tvb_rlen, &cdata->itlq, itl);
 
                 offset+=snsl;
             }
@@ -1847,10 +1843,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
                   ~(X_BIT | I_BIT) :
                   ~I_BIT)) == ISCSI_OPCODE_SCSI_COMMAND) {
         tvbuff_t *cdb_tvb, *data_tvb;
-        int tvb_len, tvb_rlen;
+        int tvb_rlen;
 
         /* SCSI Command */
-        tvb_len=tvb_captured_length_remaining(tvb, cdb_offset);
         tvb_rlen=tvb_reported_length_remaining(tvb, cdb_offset);
         if(ahs_cdb_length && ahs_cdb_length<1024){
             uint8_t *cdb_buf;
@@ -1870,13 +1865,10 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
 
             add_new_data_source(pinfo, cdb_tvb, "CDB+AHS");
         } else {
-            if(tvb_len>16){
-                tvb_len=16;
-            }
             if(tvb_rlen>16){
                 tvb_rlen=16;
             }
-            cdb_tvb=tvb_new_subset_length_caplen(tvb, cdb_offset, tvb_len, tvb_rlen);
+            cdb_tvb=tvb_new_subset_length(tvb, cdb_offset, tvb_rlen);
         }
         dissect_scsi_cdb(cdb_tvb, pinfo, tree, SCSI_DEV_UNKNOWN, &cdata->itlq, itl);
         /* we don't want the immediate below to overwrite our CDB info */
@@ -1885,17 +1877,14 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
         /* where there any ImmediateData ? */
         if(immediate_data_length){
             /* Immediate Data TVB */
-            tvb_len=tvb_captured_length_remaining(tvb, immediate_data_offset);
-            if(tvb_len>(int)immediate_data_length)
-                tvb_len=immediate_data_length;
             tvb_rlen=tvb_reported_length_remaining(tvb, immediate_data_offset);
             if(tvb_rlen>(int)immediate_data_length)
                 tvb_rlen=immediate_data_length;
-            data_tvb=tvb_new_subset_length_caplen(tvb, immediate_data_offset, tvb_len, tvb_rlen);
-            dissect_scsi_payload (data_tvb, pinfo, tree,
-                                  true,
-                                  &cdata->itlq, itl,
-                                  0);
+            data_tvb=tvb_new_subset_length(tvb, immediate_data_offset, tvb_rlen);
+            dissect_scsi_payload(data_tvb, pinfo, tree,
+                                 true,
+                                 &cdata->itlq, itl,
+                                 0);
         }
     }
     else if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
@@ -1909,18 +1898,15 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
                 offset += 2;
                 if(senseLen > 0){
                     tvbuff_t *data_tvb;
-                    int tvb_len, tvb_rlen;
+                    int tvb_rlen;
 
-                    tvb_len=tvb_captured_length_remaining(tvb, offset);
-                    if(tvb_len>senseLen)
-                        tvb_len=senseLen;
                     tvb_rlen=tvb_reported_length_remaining(tvb, offset);
                     if(tvb_rlen>senseLen)
                         tvb_rlen=senseLen;
-                    data_tvb=tvb_new_subset_length_caplen(tvb, offset, tvb_len, tvb_rlen);
-                    dissect_scsi_snsinfo (data_tvb, pinfo, tree, 0,
-                                          tvb_len,
-                                          &cdata->itlq, itl);
+                    data_tvb=tvb_new_subset_length(tvb, offset, tvb_rlen);
+                    dissect_scsi_snsinfo(data_tvb, pinfo, tree, 0,
+                                         tvb_rlen,
+                                         &cdata->itlq, itl);
                 }
             }
         }
@@ -1931,16 +1917,13 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
     else if ((opcode == ISCSI_OPCODE_SCSI_DATA_IN) ||
              (opcode == ISCSI_OPCODE_SCSI_DATA_OUT)) {
         tvbuff_t *data_tvb;
-        int tvb_len, tvb_rlen;
+        int tvb_rlen;
 
         /* offset is setup correctly by the iscsi code for response above */
-        tvb_len=tvb_captured_length_remaining(tvb, offset);
-        if(tvb_len>(int)data_segment_len)
-            tvb_len=data_segment_len;
         tvb_rlen=tvb_reported_length_remaining(tvb, offset);
         if(tvb_rlen>(int)data_segment_len)
             tvb_rlen=data_segment_len;
-        data_tvb=tvb_new_subset_length_caplen(tvb, offset, tvb_len, tvb_rlen);
+        data_tvb=tvb_new_subset_length(tvb, offset, tvb_rlen);
         dissect_scsi_payload (data_tvb, pinfo, tree,
                               (opcode==ISCSI_OPCODE_SCSI_DATA_OUT),
                               &cdata->itlq, itl,

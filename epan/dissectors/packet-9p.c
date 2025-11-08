@@ -1673,7 +1673,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		len = tvb_reported_length_remaining(tvb, offset);
 		reportedlen = ((int)u32&0xffff) > len ? len : (int)u32&0xffff;
-		next_tvb = tvb_new_subset_length_caplen(tvb, offset, len, reportedlen);
+		next_tvb = tvb_new_subset_length(tvb, offset, reportedlen);
 		call_data_dissector(next_tvb, pinfo, tree);
 		offset += len;
 
@@ -1694,7 +1694,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		offset += 4;
 		len = tvb_reported_length_remaining(tvb, offset);
 		reportedlen = ((int)u32&0xffff) > len ? len : (int)u32&0xffff;
-		next_tvb = tvb_new_subset_length_caplen(tvb, offset, len, reportedlen);
+		next_tvb = tvb_new_subset_length(tvb, offset, reportedlen);
 		call_data_dissector(next_tvb, pinfo, tree);
 		offset += len;
 

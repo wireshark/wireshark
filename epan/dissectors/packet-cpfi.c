@@ -298,7 +298,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   tvbuff_t   *header_tvb, *body_tvb, *footer_tvb;
   proto_item *cpfi_item = NULL;
   proto_tree *cpfi_tree = NULL;
-  int         length, reported_length, body_length, reported_body_length;
+  int         length, reported_length, reported_body_length;
   uint8_t     frame_type;
   fc_data_t fc_data;
 
@@ -325,11 +325,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   /* Length of packet, minus the footer. */
   reported_body_length = reported_length - 8;
   /* How much of that do we have in the tvbuff? */
-  body_length = length;
-  if (body_length > reported_body_length)
-    body_length = reported_body_length;
-
-  length = tvb_captured_length_remaining(message_tvb, 8+body_length);
+  length = tvb_captured_length_remaining(message_tvb, 8 + reported_body_length);
   if (length < 0)
   {
     /* The footer wasn't captured at all.
@@ -357,7 +353,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   header_tvb = tvb_new_subset_length(message_tvb, 0, 8);
   dissect_cpfi_header(header_tvb, pinfo, cpfi_tree);
 
-  body_tvb = tvb_new_subset_length_caplen(message_tvb, 8, body_length, reported_body_length);
+  body_tvb = tvb_new_subset_length(message_tvb, 8, reported_body_length);
   fc_data.ethertype = ETHERTYPE_UNK;
   call_dissector_with_data(fc_handle, body_tvb, pinfo, tree, &fc_data);
 
@@ -366,7 +362,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   col_prepend_fstr(pinfo->cinfo, COL_INFO, direction_and_port_string, left, arrow, right);
 
   /* Do the footer */
-  footer_tvb = tvb_new_subset_length_caplen(message_tvb, 8+body_length, length, 8);
+  footer_tvb = tvb_new_subset_length(message_tvb, 8 + reported_body_length, 8);
   dissect_cpfi_footer(footer_tvb, cpfi_tree);
 
   return tvb_reported_length(message_tvb);
