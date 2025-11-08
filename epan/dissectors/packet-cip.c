@@ -796,12 +796,12 @@ static const value_string cip_sc_vals_cm[] = {
 
    /* Some class specific services */
    { SC_CM_FWD_CLOSE,            "Forward Close" },
-   { SC_CM_FWD_OPEN,             "Forward Open" },
    { SC_CM_UNCON_SEND,           "Unconnected Send" },
-   { SC_CM_LARGE_FWD_OPEN,       "Large Forward Open" },
+   { SC_CM_FWD_OPEN,             "Forward Open" },
    { SC_CM_GET_CONN_DATA,        "Get Connection Data" },
    { SC_CM_SEARCH_CONN_DATA,     "Search Connection Data" },
    { SC_CM_GET_CONN_OWNER,       "Get Connection Owner" },
+   { SC_CM_LARGE_FWD_OPEN,       "Large Forward Open" },
    { SC_CM_CONCURRENT_FWD_OPEN,  "Concurrent Forward Open" },
    { SC_CM_CONCURRENT_FWD_CLOSE, "Concurrent Forward Close" },
 

@@ -834,8 +834,15 @@ class ValueString:
         self.min_value = 99999
         self.max_value = -99999
 
+        out_of_order = False
+        previous_value = -99999
+        previous_label = ''
+
+        global warnings_found
+
         # Now parse out each entry in the value_string
         matches = re.finditer(r'\{\s*([0-9_A-Za-z]*)\s*,\s*(".*?")\s*}\s*,', self.raw_vals)
+
         for m in matches:
             value, label = m.group(1), m.group(2)
             if value in macros:
@@ -857,7 +864,15 @@ class ValueString:
             except Exception:
                 return
 
-            global warnings_found
+            # Are the entries not in strict ascending order?
+            if do_extra_checks and not out_of_order:
+                if value <= previous_value:
+                    print('Warning:', self.file, ': value_string', self.name, 'not in ascending order - label',
+                          label, 'with value', value, 'comes after', previous_label, 'with value', previous_value)
+                    warnings_found += 1
+                    out_of_order = True
+                previous_value = value
+                previous_label = label
 
             # Check for value conflict before inserting
             if do_extra_checks and value in self.parsed_vals and label == self.parsed_vals[value]:

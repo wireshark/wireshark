@@ -112,9 +112,9 @@ static const value_string messageidnames[] = {
     { HIQNET_PARMSETPCT_MSG, "ParamSetPercent" },
     { HIQNET_MULTPARMGET_MSG, "MultiParamGet" },
     { HIQNET_GETATTR_MSG, "GetAttributes" },
+    { HIQNET_SETATTR_MSG, "SetAttribute" }, /* Reverse engineered. Not part of the official spec. */
     { HIQNET_MULTPARMSUB_MSG, "MultiParamSubscribe" },
     { HIQNET_PARMSUBPCT_MSG, "ParamSubscribePercent" },
-    { HIQNET_SETATTR_MSG, "SetAttribute" }, /* Reverse engineered. Not part of the official spec. */
     { HIQNET_MULTPARMUNSUB_MSG, "MultiParamUnsubscribe" },
     { HIQNET_PARMSUBALL_MSG, "ParameterSubscribeAll" },
     { HIQNET_PARMUNSUBALL_MSG, "ParameterUnSubscribeAll" },

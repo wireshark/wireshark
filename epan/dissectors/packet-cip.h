@@ -65,8 +65,8 @@
 #define SC_CM_FWD_OPEN              0x54
 #define SC_CM_GET_CONN_DATA         0x56
 #define SC_CM_SEARCH_CONN_DATA      0x57
-#define SC_CM_LARGE_FWD_OPEN        0x5B
 #define SC_CM_GET_CONN_OWNER        0x5A
+#define SC_CM_LARGE_FWD_OPEN        0x5B
 #define SC_CM_CONCURRENT_FWD_OPEN   0x5C
 #define SC_CM_CONCURRENT_FWD_CLOSE  0x5E
 
