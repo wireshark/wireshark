@@ -9,6 +9,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/*
+ * https://www.cisco.com/en/US/docs/storage/san_switches/mds9000/hw/paa/installation/note/FPAA2.pdf
+ * https://www.cisco.com/en/US/docs/storage/san_switches/mds9000/hw/paa/installation/note/FPAA2.html
+ */
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -282,21 +287,29 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         if ((error & BRDWLK_HAS_PLEN) && tree) {
             /* In newer Boardwalks, if this bit is set, the actual frame length
              * is also provided. This length is the size between SOF & EOF
-             * including FC CRC.
+             * including FC CRC, measured in words.
+             *
+             * XXX - It should be between 12 (36 bytes) and 528 (2112 bytes).
              */
-            plen = tvb_get_ntohl(tvb, offset-4);
+            plen = tvb_get_ntohs(tvb, offset-4);
             plen *= 4;
             proto_tree_add_uint(brdwlk_tree, hf_brdwlk_plen, tvb, offset-4,
-                                4, plen);
+                                2, plen);
 
-#if 0
-            /* XXX - this would throw an exception if it would increase
-             * the reported length.
-             */
             if (error & BRDWLK_TRUNCATED_BIT) {
+#if 0
+                /* XXX - this would throw an exception if it would increase
+                 * the reported length. If it would decrease the reported
+                 * length, tvb_set_reported_length is used to help the Ethernet
+                 * dissector find a trailer - except that wouldn't work because
+                 * the EOF is located from the end of the frame, i.e. trailer
+                 * heuristics never work with this dissector.
+                 */
                 tvb_set_reported_length(tvb, plen);
-            }
 #endif
+                /* Set the reported length for the FC subset tvb. */
+                reported_len = plen;
+            }
         }
     }
 

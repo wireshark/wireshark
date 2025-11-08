@@ -1154,7 +1154,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
         wmem_tree_insert32(fc_conv_data->luns, fchdr->oxid, GUINT_TO_POINTER((unsigned)fchdr->lun));
     }
 
-    exchange_key = ((fchdr->oxid & 0xFFFF) | ((fchdr->lun << 16) & 0xFFFF0000));
+    exchange_key = ((fchdr->oxid & 0xFFFF) | (((uint32_t)fchdr->lun << 16) & 0xFFFF0000));
 
     /* set up the exchange data */
     /* XXX we should come up with a way to handle when the 16bit oxid wraps
