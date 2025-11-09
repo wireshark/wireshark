@@ -824,9 +824,10 @@ def is_ignored_consecutive_filter(filter):
 
 
 class ValueString:
-    def __init__(self, file, name, vals, macros, do_extra_checks=False):
+    def __init__(self, file, name, vals, macros, ext, do_extra_checks=False):
         self.file = file
         self.name = name
+        self.ext = ext
         self.raw_vals = vals
         self.parsed_vals = {}
         self.seen_labels = set()
@@ -834,7 +835,7 @@ class ValueString:
         self.min_value = 99999
         self.max_value = -99999
 
-        out_of_order = False
+        self.out_of_order = False
         previous_value = -99999
         previous_label = ''
 
@@ -865,12 +866,12 @@ class ValueString:
                 return
 
             # Are the entries not in strict ascending order?
-            if do_extra_checks and not out_of_order:
+            if do_extra_checks and not self.out_of_order:
                 if value <= previous_value:
                     print('Warning:', self.file, ': value_string', self.name, 'not in ascending order - label',
                           label, 'with value', value, 'comes after', previous_label, 'with value', previous_value)
                     warnings_found += 1
-                    out_of_order = True
+                    self.out_of_order = True
                 previous_value = value
                 previous_label = label
 
@@ -925,7 +926,8 @@ class ValueString:
         if num_items > 4 and span > num_items and (span-num_items <= 1):
             for val in range(self.min_value, self.max_value):
                 if val not in self.parsed_vals:
-                    print('Warning:', self.file, ': value_string', self.name, '- value', val, 'missing?', '(', num_items, 'entries )')
+                    print('Warning:', self.file, ': value_string', self.name, '- value', val, 'missing?', '(', num_items, 'entries )',
+                          'USED AS EXT!' if self.name in self.ext else '')
                     global warnings_found
                     warnings_found += 1
 
@@ -1139,6 +1141,12 @@ class StringString:
 def findValueStrings(filename, contents, macros, do_extra_checks=False):
     vals_found = {}
 
+    # Find value_strings that are used as ext
+    ext = set()
+    matches = re.finditer(r'value_string_ext\s*([a-zA-Z0_9]+)\s*\=\s*VALUE_STRING_EXT_INIT\((.*)\)', contents)
+    for m in matches:
+        ext.add(m.group(2))
+
     # static const value_string radio_type_vals[] =
     # {
     #    { 0,      "FDD"},
@@ -1150,7 +1158,7 @@ def findValueStrings(filename, contents, macros, do_extra_checks=False):
     for m in matches:
         name = m.group(1)
         vals = m.group(2)
-        vals_found[name] = ValueString(filename, name, vals, macros, do_extra_checks)
+        vals_found[name] = ValueString(filename, name, vals, macros, ext, do_extra_checks)
 
     return vals_found
 

@@ -947,6 +947,8 @@ static const value_string exttype_vals[] = {
     {29,    "Cyclic delay adjustment"},
     {0, NULL}
 };
+static value_string_ext exttype_vals_ext = VALUE_STRING_EXT_INIT(exttype_vals);
+
 
 /**************************************************************************************/
 /* Keep track for each Section Extension, which section types are allowed to carry it */
@@ -2894,7 +2896,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         offset++;
         proto_item_append_text(sectionHeading, " (ext-%u)", exttype);
 
-        proto_item_append_text(extension_ti, " (ext-%u: %s)", exttype, val_to_str_const(exttype, exttype_vals, "Reserved"));
+        proto_item_append_text(extension_ti, " (ext-%u: %s)", exttype, val_to_str_ext_const(exttype, &exttype_vals_ext, "Reserved"));
 
         /* Don't tap if out of range. */
         if (exttype > 0 && exttype <= HIGHEST_EXTTYPE) {
@@ -2905,7 +2907,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         if (!se_allowed_in_st(exttype, sectionType)) {
             expert_add_info_format(pinfo, extension_tree, &ei_oran_se_on_unsupported_st,
                                    "SE %u (%s) should not appear in ST %u (%s)!",
-                                   exttype, val_to_str_const(exttype, exttype_vals, "Reserved"),
+                                   exttype, val_to_str_ext_const(exttype, &exttype_vals_ext, "Reserved"),
                                    sectionType, rval_to_str_const(sectionType, section_types, "Unknown"));
         }
 
@@ -4666,7 +4668,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* Other/unexpected extension types */
                 expert_add_info_format(pinfo, exttype_ti, &ei_oran_unhandled_se,
                                        "SE %u (%s) not supported by dissector",
-                                       exttype, val_to_str_const(exttype, exttype_vals, "Reserved"));
+                                       exttype, val_to_str_ext_const(exttype, &exttype_vals_ext, "Reserved"));
                 ext_unhandled = true;
                 break;
         }
@@ -7318,8 +7320,8 @@ proto_register_oran(void)
         /* Section 7.6.2.1 */
         { &hf_oran_exttype,
           { "extType", "oran_fh_cus.extType",
-            FT_UINT8, BASE_DEC,
-            VALS(exttype_vals), 0x7f,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING,
+            &exttype_vals_ext, 0x7f,
             "The extension type, which provides additional parameters specific to subject data extension", HFILL}
         },
 

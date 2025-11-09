@@ -47,6 +47,7 @@ static const value_string netlink_family_vals[] = {
 	{ WS_NETLINK_DNRTMSG,        "DECnet routing messages" },
 	{ WS_NETLINK_KOBJECT_UEVENT, "Kernel messages to userspace" },
 	{ WS_NETLINK_GENERIC,        "Generic" },
+	{ 17,                        "DM Events?" },
 	{ WS_NETLINK_SCSITRANSPORT,  "SCSI Transports" },
 	{ WS_NETLINK_ECRYPTFS,       "ecryptfs" },
 	{ WS_NETLINK_RDMA,           "RDMA" },

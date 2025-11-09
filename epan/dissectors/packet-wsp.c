@@ -3405,6 +3405,7 @@ static const value_string parameter_type_vals[] = {
     { 0x01,         "Well-known-charset" },
     { 0x02,         "Level: Version-value" },
     { 0x03,         "Integer-value" },
+    { 0x04,         "Untyped-value" },
     { 0x05,         "Name (Text-string)" },
     { 0x06,         "Filename (Text-string)" },
     { 0x07,         "Differences" },

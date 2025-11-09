@@ -1722,6 +1722,7 @@ static const value_string gmpls_sonet_signal_type_str[] = {
     { 17, "STSG-48  / AUG-16"},
     { 18, "STSG-192 / AUG-64"},
     { 19, "STSG-768 / AUG-256"},
+    { 20, "Unassigned"},
 
     /* Other SONEt signal types */
     { 21, "STS-12c SPE / VC-4-4c"},
