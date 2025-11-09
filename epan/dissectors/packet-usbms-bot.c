@@ -183,7 +183,7 @@ dissect_usbms_bot_cbw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
     proto_tree *tree = create_usbms_bot_protocol_tree(tvb, parent_tree);
     tvbuff_t *cdb_tvb;
     int offset=0;
-    int cdbrlen, cdblen;
+    int cdbrlen;
     uint8_t lun, flags;
     uint32_t datalen;
     itl_nexus_t *itl;
@@ -252,12 +252,8 @@ dissect_usbms_bot_cbw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
     cdbrlen=tvb_get_uint8(tvb, offset)&0x1f;
     offset+=1;
 
-    cdblen=cdbrlen;
-    if(cdblen>tvb_captured_length_remaining(tvb, offset)){
-        cdblen=tvb_captured_length_remaining(tvb, offset);
-    }
-    if(cdblen){
-        cdb_tvb=tvb_new_subset_length_caplen(tvb, offset, cdblen, cdbrlen);
+    if(cdbrlen){
+        cdb_tvb=tvb_new_subset_length(tvb, offset, cdbrlen);
         dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, itlq, itl);
     }
     return tvb_captured_length(tvb);

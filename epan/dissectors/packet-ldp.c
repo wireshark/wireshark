@@ -3394,7 +3394,6 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     volatile int        offset = 0;
     int                 length_remaining;
     uint16_t            plen;
-    int                 length;
     tvbuff_t *volatile  next_tvb;
     while (tvb_reported_length_remaining(tvb, offset) != 0) {
         length_remaining = tvb_captured_length_remaining(tvb, offset);
@@ -3480,23 +3479,8 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
          * Construct a tvbuff containing the amount of the payload
          * we have available.  Make its reported length the
          * amount of data in the DNS-over-TCP packet.
-         *
-         * XXX - if reassembly isn't enabled. the subdissector
-         * will throw a BoundsError exception, rather than a
-         * ReportedBoundsError exception.  We really want
-         * a tvbuff where the length is "length", the reported
-         * length is "plen + 4", and the "if the snapshot length
-         * were infinite" length is the minimum of the
-         * reported length of the tvbuff handed to us and "plen+4",
-         * with a new type of exception thrown if the offset is
-         * within the reported length but beyond that third length,
-         * with that exception getting the "Unreassembled Packet"
-         * error.
          */
-        length = length_remaining;
-        if (length > plen + 4)
-            length = plen + 4;
-        next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, plen + 4);
+        next_tvb = tvb_new_subset_length(tvb, offset, plen + 4);
 
         /*
          * Dissect the LDP packet.

@@ -6471,7 +6471,7 @@ static int dissect_dnp_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
             /* If there isn't a length specified then use the packet size. */
             if (dnp_length_length == 0)
-                length = tvb_reported_length(tvb) - offset;
+                length = tvb_reported_length_remaining(tvb, offset);
 
             encapsulated_length = length;
 
@@ -6549,7 +6549,7 @@ static int dissect_dnp_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
         /* We have a packet. */
         {
-            tvbuff_t *next_tvb = tvb_new_subset_length_caplen(tvb, offset, encapsulated_length, tvb_reported_length(tvb) - offset);
+            tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, encapsulated_length);
             offset += dof_dissect_dpp_common(next_tvb, pinfo, proto_item_get_parent(tree), data);
         }
     }

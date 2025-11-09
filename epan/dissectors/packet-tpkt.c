@@ -212,12 +212,10 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti = NULL;
     proto_tree *tpkt_tree = NULL;
     volatile int offset = 0;
-    int length_remaining;
     int data_len;
     volatile int mgcp_packet_len = 0;
     int mgcp_version = 0;
     int mgcp_reserved = 0;
-    volatile int length;
     tvbuff_t *volatile next_tvb;
     const char *saved_proto;
     uint8_t string[4];
@@ -258,8 +256,6 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
             return;
         }
-
-        length_remaining = tvb_captured_length_remaining(tvb, offset);
 
         /*
          * Get the length from the TPKT header.
@@ -317,11 +313,8 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Skip the TPKT header. */
         offset += TEXT_LAYER_LENGTH;
-        length = length_remaining - TEXT_LAYER_LENGTH;
-        if (length > data_len)
-            length = data_len;
 
-        next_tvb = tvb_new_subset_length_caplen(tvb, offset,length, data_len);
+        next_tvb = tvb_new_subset_length(tvb, offset, data_len);
 
         /*
          * Call the subdissector.

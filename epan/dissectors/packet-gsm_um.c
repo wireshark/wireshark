@@ -185,12 +185,11 @@ dissect_gsm_um(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		case GSM_UM_CHANNEL_AGCH:
 			if( !pinfo->pseudo_header->gsm_um.uplink ) {
 				tvbuff_t *next_tvb;
-				uint8_t pseudo_len, len_left, len_byte;
+				uint8_t pseudo_len, len_byte;
 
-				len_left = tvb_reported_length(tvb);
 				len_byte = tvb_get_uint8(tvb, 0);
 				pseudo_len = len_byte >> 2;
-				next_tvb = tvb_new_subset_length_caplen(tvb, 1, MIN(len_left, pseudo_len), -1);
+				next_tvb = tvb_new_subset_length(tvb, 1, pseudo_len);
 
 				if (tree) {
 					proto_tree_add_uint(gsm_um_tree, hf_gsm_um_l2_pseudo_len, tvb, 0, 1,

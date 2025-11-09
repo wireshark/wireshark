@@ -915,7 +915,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t
     }
 
     /* Build a new tvb containing just the data payload   */
-    next_tvb = tvb_new_subset_length_caplen(tvb, payload_start, payload_len, reported_len);
+    next_tvb = tvb_new_subset_length(tvb, payload_start, payload_len);
 
     switch ( function_code ) {
         case READ_COILS:

@@ -118,16 +118,14 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (len > TURNCHANNEL_HDR_LEN) {
 	  tvbuff_t *next_tvb;
-	  unsigned reported_len, new_len;
+	  unsigned reported_len;
 
-	  new_len = tvb_captured_length_remaining(tvb, TURNCHANNEL_HDR_LEN);
 	  reported_len = tvb_reported_length_remaining(tvb,
 						       TURNCHANNEL_HDR_LEN);
 	  if (data_len < reported_len) {
 	    reported_len = data_len;
 	  }
-	  next_tvb = tvb_new_subset_length_caplen(tvb, TURNCHANNEL_HDR_LEN, new_len,
-				    reported_len);
+	  next_tvb = tvb_new_subset_length(tvb, TURNCHANNEL_HDR_LEN, reported_len);
 
 
 	  if (!dissector_try_heuristic(heur_subdissector_list,

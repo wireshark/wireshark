@@ -3539,7 +3539,7 @@ static int dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pro
               config_data_tree = proto_item_add_subtree(ti_config_data, ett_reload_configupdatereq_config_data);
               proto_tree_add_item(config_data_tree, hf_reload_length_uint24, tvb, offset+local_offset, 3, ENC_BIG_ENDIAN);
               call_dissector_only(xml_handle,
-                                  tvb_new_subset_length_caplen(tvb, offset+local_offset+3, config_length, length-offset-local_offset-3),
+                                  tvb_new_subset_length(tvb, offset+local_offset+3, config_length),
                                   pinfo, config_data_tree, NULL);
             }
           }
@@ -3576,9 +3576,8 @@ static int dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pro
                 proto_tree_add_item(kinddescription_tree, hf_reload_length_uint16,
                                     tvb, offset+local_offset+kinds_offset, 2, ENC_BIG_ENDIAN);
                 call_dissector(xml_handle,
-                               tvb_new_subset_length_caplen(tvb, offset+local_offset+kinds_offset+2,
-                                              local_increment,
-                                              length-(offset+local_offset+kinds_offset+2)),
+                               tvb_new_subset_length(tvb, offset+local_offset+kinds_offset+2,
+                                              local_increment),
                                pinfo, kinddescription_tree);
               }
               local_increment += 2;

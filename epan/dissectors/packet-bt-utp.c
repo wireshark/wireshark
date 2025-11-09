@@ -484,7 +484,6 @@ utp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   int offset_before;
   unsigned captured_length_remaining;
   volatile unsigned plen;
-  unsigned length;
   tvbuff_t *next_tvb;
   proto_item *item=NULL;
   const char *saved_proto;
@@ -627,11 +626,7 @@ utp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * Construct a tvbuff containing the amount of the payload we have
      * available.  Make its reported length the amount of data in the PDU.
      */
-    length = captured_length_remaining;
-    if (length > plen) {
-      length = plen;
-    }
-    next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, plen);
+    next_tvb = tvb_new_subset_length(tvb, offset, plen);
     if (!(proto_desegment && pinfo->can_desegment)) {
       /* If we can't do reassembly, give a hint that bounds errors
        * are probably fragment errors. */

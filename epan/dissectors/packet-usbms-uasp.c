@@ -300,7 +300,7 @@ dissect_uasp_iu(tvbuff_t *tvb, packet_info *pinfo,
     uint16_t           tag;
     uint16_t           lun;
     uasp_itlq_nexus_t *uitlq = NULL;
-    int                rlen, len;
+    int                rlen;
     tvbuff_t          *cdb_tvb;
 
     /* an IU header is 4 bytes */
@@ -327,13 +327,8 @@ dissect_uasp_iu(tvbuff_t *tvb, packet_info *pinfo,
         uitlq = create_itlq_nexus(pinfo, uasp_conv_info, lun, tag);
 
         rlen = 16 + tvb_get_uint8(tvb, 6);
-        len = rlen;
-
-        if (len > tvb_captured_length_remaining(tvb, 16))
-            len = tvb_captured_length_remaining(tvb, 16);
-
-        if (len) {
-            cdb_tvb = tvb_new_subset_length_caplen(tvb, 16, len, rlen);
+        if (rlen) {
+            cdb_tvb = tvb_new_subset_length(tvb, 16, rlen);
             dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN,
                              &uitlq->itlq, uitlq->itl);
         }
