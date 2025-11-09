@@ -80,18 +80,6 @@
         <translation>라이선스</translation>
     </message>
     <message>
-        <source>About Stratoshark</source>
-        <translation type="vanished">Stratoshark 정보</translation>
-    </message>
-    <message>
-        <source>Stratoshark</source>
-        <translation type="vanished">Stratoshark</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="vanished">&lt;h3&gt;시스템 호출 및 이벤트 분석기&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
         <translation>디렉터리가 존재하지 않음</translation>
     </message>
@@ -3697,22 +3685,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message>
-        <source>Event %1. </source>
-        <translation type="vanished">이벤트 %1개. </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>&lt;span style=&quot;color: %1; background-color:%2&quot;&gt;읽기&lt;/span&gt; %Ln개, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>&lt;span style=&quot;color: %1; background-color:%2&quot;&gt;쓰기&lt;/span&gt; %Ln개, </numerusform>
-        </translation>
-    </message>
-    <message>
         <source> Click to select.</source>
         <translation> 클릭하면 선택합니다.</translation>
     </message>
@@ -3743,18 +3715,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>%1 stream not found on the selected packet.</source>
         <translation>선택한 패킷에서 %1 스트림을 찾을 수 없습니다.</translation>
-    </message>
-    <message>
-        <source>Read activity(%6)</source>
-        <translation type="vanished">읽기 활동(%6)</translation>
-    </message>
-    <message>
-        <source>Write activity(%6)</source>
-        <translation type="vanished">쓰기 활동(%6)</translation>
-    </message>
-    <message>
-        <source>Entire I/O activity (%1)</source>
-        <translation type="vanished">전체 I/O 활동(%M)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8689,10 +8649,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>설정 프로필</translation>
     </message>
     <message>
-        <source>Auto switch event limit</source>
-        <translation type="vanished">자동 전환 이벤트 제한</translation>
-    </message>
-    <message>
         <source>Import</source>
         <comment>noun</comment>
         <translation>가져오기</translation>
@@ -11816,22 +11772,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invalid filter.</source>
         <translation>잘못된 필터입니다.</translation>
-    </message>
-    <message>
-        <source>Event List</source>
-        <translation type="vanished">이벤트 목록</translation>
-    </message>
-    <message>
-        <source>Event Details</source>
-        <translation type="vanished">이벤트 자세한 정보</translation>
-    </message>
-    <message>
-        <source>Event Bytes</source>
-        <translation type="vanished">이벤트 바이트</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;이벤트 목록의 정보 열(요약 패널), 디코드된 이벤트 표시 이름표(트리 보기 패널), ASCII로 변환된 이벤트 데이터(16진수 보기 패널) 중에서 검색합니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

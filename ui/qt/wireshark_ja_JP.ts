@@ -80,18 +80,6 @@
         <translation>ライセンス</translation>
     </message>
     <message>
-        <source>About Stratoshark</source>
-        <translation type="vanished">Stratosharkについて</translation>
-    </message>
-    <message>
-        <source>Stratoshark</source>
-        <translation type="vanished">Stratoshark</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="vanished">&lt;h3&gt;システムコールとイベントログのアナライザ&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
         <translation>ディレクトリがありません</translation>
     </message>
@@ -3696,22 +3684,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message>
-        <source>Event %1. </source>
-        <translation type="vanished">イベント %1 </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;読み取り&lt;/span&gt;, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;書き込み&lt;/span&gt;, </numerusform>
-        </translation>
-    </message>
-    <message>
         <source> Click to select.</source>
         <translation>クリックして選択します</translation>
     </message>
@@ -3742,18 +3714,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>%1 stream not found on the selected packet.</source>
         <translation>選択したパケットに %1 ストリームは見つかりませんでした</translation>
-    </message>
-    <message>
-        <source>Read activity(%6)</source>
-        <translation type="vanished">読み取りアクティビティ(%6)</translation>
-    </message>
-    <message>
-        <source>Write activity(%6)</source>
-        <translation type="vanished">書き込みアクティビティ(%6)</translation>
-    </message>
-    <message>
-        <source>Entire I/O activity (%1)</source>
-        <translation type="vanished">全体のI/Oアクティビティ(%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8721,10 +8681,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>設定プロファイル</translation>
     </message>
     <message>
-        <source>Auto switch event limit</source>
-        <translation type="vanished">自動スイッチイベント限度</translation>
-    </message>
-    <message>
         <source>Import</source>
         <comment>noun</comment>
         <translation>インポート</translation>
@@ -11849,22 +11805,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invalid filter.</source>
         <translation>無効なフィルタです</translation>
-    </message>
-    <message>
-        <source>Event List</source>
-        <translation type="vanished">イベントリスト</translation>
-    </message>
-    <message>
-        <source>Event Details</source>
-        <translation type="vanished">イベント詳細</translation>
-    </message>
-    <message>
-        <source>Event Bytes</source>
-        <translation type="vanished">イベントバイト数</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;イベント一覧(概要部分)やデコードされたイベント表示ラベル(ツリー表示部分)やアスキー変換されたイベントデータ(16進数表示部分)を検索します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

@@ -80,18 +80,6 @@
         <translation>Licenza</translation>
     </message>
     <message>
-        <source>About Stratoshark</source>
-        <translation type="vanished">Informazioni su Stratoshark</translation>
-    </message>
-    <message>
-        <source>Stratoshark</source>
-        <translation type="vanished">Stratoshark</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="vanished">&lt;h3&gt;Analizzatore delle chiamate di sistema e del registro degli eventi&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
         <translation>La cartella non esiste</translation>
     </message>
@@ -3712,24 +3700,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         </translation>
     </message>
     <message>
-        <source>Event %1. </source>
-        <translation type="vanished">Evento %1.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;letti&lt;/span&gt;,</numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;letti&lt;/span&gt;, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;scritture&lt;/span&gt;,</numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;scritture&lt;/span&gt;,</numerusform>
-        </translation>
-    </message>
-    <message>
         <source> Click to select.</source>
         <translation> Fai clic per selezionare.</translation>
     </message>
@@ -3760,18 +3730,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>%1 stream not found on the selected packet.</source>
         <translation>Flussi %1 non trovati nel pacchetto selezionato.</translation>
-    </message>
-    <message>
-        <source>Read activity(%6)</source>
-        <translation type="vanished">Attività di lettura(%6)</translation>
-    </message>
-    <message>
-        <source>Write activity(%6)</source>
-        <translation type="vanished">Attività di scrittura(%6)</translation>
-    </message>
-    <message>
-        <source>Entire I/O activity (%1)</source>
-        <translation type="vanished">Intera attività I/O (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8746,10 +8704,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Profili di configurazione</translation>
     </message>
     <message>
-        <source>Auto switch event limit</source>
-        <translation type="vanished">Limite eventi per commutazione automatica</translation>
-    </message>
-    <message>
         <source>Import</source>
         <comment>noun</comment>
         <translation>Importa</translation>
@@ -11881,22 +11835,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Invalid filter.</source>
         <translation>Filtro non valido.</translation>
-    </message>
-    <message>
-        <source>Event List</source>
-        <translation type="vanished">Elenco eventi</translation>
-    </message>
-    <message>
-        <source>Event Details</source>
-        <translation type="vanished">Dettagli evento</translation>
-    </message>
-    <message>
-        <source>Event Bytes</source>
-        <translation type="vanished">Byte evento</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; Cerca nella colonna Info dell&apos;elenco degli eventi (pannello di riepilogo), etichette di visualizzazione degli eventi decodificati (pannello della vista ad albero) o i dati dell&apos;evento convertiti in ASCII (pannello della vista esadecimale).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

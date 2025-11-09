@@ -80,18 +80,6 @@
         <translation>Lizenzen</translation>
     </message>
     <message>
-        <source>About Stratoshark</source>
-        <translation type="vanished">Über Stratoshark</translation>
-    </message>
-    <message>
-        <source>Stratoshark</source>
-        <translation type="vanished">Stratoshark</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="vanished">&lt;h3&gt;System Call- und Ereignis-Analysesoftware&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
         <translation>Das Verzeichnis existiert nicht</translation>
     </message>
@@ -3712,24 +3700,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         </translation>
     </message>
     <message>
-        <source>Event %1. </source>
-        <translation type="vanished">Ereignis %1.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Lesevorgang&lt;/span&gt;, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Lesevorgänge&lt;/span&gt;, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Schreibvorgang&lt;/span&gt;, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;Schreibvorgänge&lt;/span&gt;, </numerusform>
-        </translation>
-    </message>
-    <message>
         <source> Click to select.</source>
         <translation> Zur Auswahl anklicken.</translation>
     </message>
@@ -3760,18 +3730,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>%1 stream not found on the selected packet.</source>
         <translation>%1 Stream in ausgewähltem Paket nicht gefunden.</translation>
-    </message>
-    <message>
-        <source>Read activity(%6)</source>
-        <translation type="vanished">Leseaktivität(%6)</translation>
-    </message>
-    <message>
-        <source>Write activity(%6)</source>
-        <translation type="vanished">Schreibaktivität(%6)</translation>
-    </message>
-    <message>
-        <source>Entire I/O activity (%1)</source>
-        <translation type="vanished">Gesamte E/A Aktivität (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8745,10 +8703,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Profile konfigurieren</translation>
     </message>
     <message>
-        <source>Auto switch event limit</source>
-        <translation type="vanished">Autoswitch-Ereignislimit</translation>
-    </message>
-    <message>
         <source>Import</source>
         <comment>noun</comment>
         <translation>Importieren</translation>
@@ -11880,22 +11834,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Invalid filter.</source>
         <translation>Ungültiger Filter.</translation>
-    </message>
-    <message>
-        <source>Event List</source>
-        <translation type="vanished">Ereignisliste</translation>
-    </message>
-    <message>
-        <source>Event Details</source>
-        <translation type="vanished">Ereignisdetails</translation>
-    </message>
-    <message>
-        <source>Event Bytes</source>
-        <translation type="vanished">Ereignis-Bytes</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Durchsuchen der Informationsspalte der Ereignisliste (Übersichtsfenster), der dekodierten Ereignisanzeigebeschriftungen (Baumansicht) oder der ASCII-konvertierten Ereignisdaten (Hex-Ansicht).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

@@ -80,18 +80,6 @@
         <translation>Лицензия</translation>
     </message>
     <message>
-        <source>About Stratoshark</source>
-        <translation type="vanished">О Stratoshark</translation>
-    </message>
-    <message>
-        <source>Stratoshark</source>
-        <translation type="vanished">Stratoshark</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="vanished">&lt;h3&gt;Анализатор системных вызовов и журналов событий&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
         <translation>Каталог отсутствует</translation>
     </message>
@@ -3727,26 +3715,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message>
-        <source>Event %1. </source>
-        <translation type="vanished">Событие %1. </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;чтение&lt;/span&gt;, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;чтения&lt;/span&gt;, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;чтений&lt;/span&gt;, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;запись&lt;/span&gt;, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;записи&lt;/span&gt;, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;записей&lt;/span&gt;, </numerusform>
-        </translation>
-    </message>
-    <message>
         <source> Click to select.</source>
         <translation> Щёлкните для выбора.</translation>
     </message>
@@ -3777,18 +3745,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>%1 stream not found on the selected packet.</source>
         <translation>Поток %1 не найден в выбранном пакете.</translation>
-    </message>
-    <message>
-        <source>Read activity(%6)</source>
-        <translation type="vanished">Активность чтения(%6)</translation>
-    </message>
-    <message>
-        <source>Write activity(%6)</source>
-        <translation type="vanished">Письменная активность(%6)</translation>
-    </message>
-    <message>
-        <source>Entire I/O activity (%1)</source>
-        <translation type="vanished">Вся активность ввода/вывода (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8743,10 +8699,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Профили конфигурации</translation>
     </message>
     <message>
-        <source>Auto switch event limit</source>
-        <translation type="vanished">Предел события автоматического переключения</translation>
-    </message>
-    <message>
         <source>Import</source>
         <comment>noun</comment>
         <translation>Импорт</translation>
@@ -11885,22 +11837,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invalid filter.</source>
         <translation>Недопустимый фильтр.</translation>
-    </message>
-    <message>
-        <source>Event List</source>
-        <translation type="vanished">Список событий</translation>
-    </message>
-    <message>
-        <source>Event Details</source>
-        <translation type="vanished">Детали события</translation>
-    </message>
-    <message>
-        <source>Event Bytes</source>
-        <translation type="vanished">Байты событий</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Поиск в колонке &quot;Информация&quot; списка событий (панель сводки), в декодированных метках отображения событий (панель древовидного представления) или в преобразованных в ASCII данных события (панель шестнадцатеричного представления).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

@@ -80,18 +80,6 @@
         <translation>Licens</translation>
     </message>
     <message>
-        <source>About Stratoshark</source>
-        <translation type="vanished">Om Stratoshark</translation>
-    </message>
-    <message>
-        <source>Stratoshark</source>
-        <translation type="vanished">Stratoshark</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="vanished">&lt;h3&gt;Analysator för systemanrop och händelselogg&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
         <translation>Katalogen finns inte</translation>
     </message>
@@ -3712,24 +3700,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         </translation>
     </message>
     <message>
-        <source>Event %1. </source>
-        <translation type="vanished">Händelse %1</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;läsning&lt;/span&gt;.</numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;läsningar&lt;/span&gt;.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;skrivning&lt;/span&gt;.</numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;skrivningar&lt;/span&gt;.</numerusform>
-        </translation>
-    </message>
-    <message>
         <source> Click to select.</source>
         <translation>Klicka för att välja.</translation>
     </message>
@@ -3760,18 +3730,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>%1 stream not found on the selected packet.</source>
         <translation>%1-strömmar fanns inte i det valda paketet.</translation>
-    </message>
-    <message>
-        <source>Read activity(%6)</source>
-        <translation type="vanished">Läsaktivitet(%6)</translation>
-    </message>
-    <message>
-        <source>Write activity(%6)</source>
-        <translation type="vanished">Skrivaktivitet(%6)</translation>
-    </message>
-    <message>
-        <source>Entire I/O activity (%1)</source>
-        <translation type="vanished">Fullständig I/O-aktivitet (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8745,10 +8703,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Konfigurationsprofiler</translation>
     </message>
     <message>
-        <source>Auto switch event limit</source>
-        <translation type="vanished">Händelsegräns för autobyte</translation>
-    </message>
-    <message>
         <source>Import</source>
         <comment>noun</comment>
         <translation>Import</translation>
@@ -11880,22 +11834,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Invalid filter.</source>
         <translation>Felaktigt filter.</translation>
-    </message>
-    <message>
-        <source>Event List</source>
-        <translation type="vanished">Händelselista</translation>
-    </message>
-    <message>
-        <source>Event Details</source>
-        <translation type="vanished">Händelsedetaljer</translation>
-    </message>
-    <message>
-        <source>Event Bytes</source>
-        <translation type="vanished">Händelsebyte</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sök i infokolumnen i händelselistan (sammanfattningspanel), avkodade händelsevisningsetiketter (trädvypanelen) eller den ASCII-konverterade händelsedatan (hexvypanelen).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

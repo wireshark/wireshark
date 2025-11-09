@@ -80,18 +80,6 @@
         <translation>Licencja</translation>
     </message>
     <message>
-        <source>About Stratoshark</source>
-        <translation type="vanished">O Stratoshark</translation>
-    </message>
-    <message>
-        <source>Stratoshark</source>
-        <translation type="vanished">Stratoshark</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="vanished">&lt;h3&gt;Analizator wywołań systemowych i dziennika zdarzeń&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
         <translation>Katalog nie istnieje.</translation>
     </message>
@@ -3724,10 +3712,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message>
-        <source>Event %1. </source>
-        <translation type="vanished">Zdarzenie %1.</translation>
-    </message>
-    <message>
         <source> Click to select.</source>
         <translation>Kliknij by wybrać.</translation>
     </message>
@@ -3758,18 +3742,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>%1 stream not found on the selected packet.</source>
         <translation>Nie znaleziono strumienia %1 w wybranym pakiecie.</translation>
-    </message>
-    <message>
-        <source>Read activity(%6)</source>
-        <translation type="vanished">Aktywność odczytu(%6)</translation>
-    </message>
-    <message>
-        <source>Write activity(%6)</source>
-        <translation type="vanished">Aktywność zapisu(%6)</translation>
-    </message>
-    <message>
-        <source>Entire I/O activity (%1)</source>
-        <translation type="vanished">Cała aktywność we/wy (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>

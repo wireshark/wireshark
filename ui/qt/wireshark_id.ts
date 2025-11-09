@@ -80,18 +80,6 @@
         <translation>Lisensi</translation>
     </message>
     <message>
-        <source>About Stratoshark</source>
-        <translation type="vanished">Tentang Stratoshark</translation>
-    </message>
-    <message>
-        <source>Stratoshark</source>
-        <translation type="vanished">Stratoshark</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="vanished">&lt;h3&gt;Penganalisis Log Kejadian dan Pemanggilan Sistem&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
         <translation>Direktori tidak ada</translation>
     </message>
@@ -3697,22 +3685,6 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         </translation>
     </message>
     <message>
-        <source>Event %1. </source>
-        <translation type="vanished">Kejadian %1. </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;baca&lt;/span&gt;, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;tulis&lt;/span&gt;, </numerusform>
-        </translation>
-    </message>
-    <message>
         <source> Click to select.</source>
         <translation> Klik untuk memilih.</translation>
     </message>
@@ -3743,18 +3715,6 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>%1 stream not found on the selected packet.</source>
         <translation>Stream %1 tidak ditemukan pada paket yang dipilih.</translation>
-    </message>
-    <message>
-        <source>Read activity(%6)</source>
-        <translation type="vanished">Aktivitas baca(%6)</translation>
-    </message>
-    <message>
-        <source>Write activity(%6)</source>
-        <translation type="vanished">Aktivitas tulis(%6)</translation>
-    </message>
-    <message>
-        <source>Entire I/O activity (%1)</source>
-        <translation type="vanished">Seluruh aktivitas I/O (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8718,10 +8678,6 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
         <translation>Profil Konfigurasi</translation>
     </message>
     <message>
-        <source>Auto switch event limit</source>
-        <translation type="vanished">Beralih otomatis batas kejadian</translation>
-    </message>
-    <message>
         <source>Import</source>
         <comment>noun</comment>
         <translation>Impor</translation>
@@ -11842,18 +11798,6 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Invalid filter.</source>
         <translation>Filter tidak valid.</translation>
-    </message>
-    <message>
-        <source>Event List</source>
-        <translation type="vanished">Daftar Kejadian</translation>
-    </message>
-    <message>
-        <source>Event Details</source>
-        <translation type="vanished">Rincian Kejadian</translation>
-    </message>
-    <message>
-        <source>Event Bytes</source>
-        <translation type="vanished">Byte Kejadian</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

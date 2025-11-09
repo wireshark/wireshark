@@ -21,7 +21,7 @@
     </message>
     <message>
         <source>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Network Protocol Analyzer&lt;/span&gt;</source>
-        <translation>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Analitzador del protocol de xarxa&lt;/span&gt;</translation>
+        <translation>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Analitzador dels protocols de xarxes&lt;/span&gt;</translation>
     </message>
     <message>
         <source>Copy the version information to the clipboard</source>
@@ -78,18 +78,6 @@
     <message>
         <source>License</source>
         <translation>Llicència</translation>
-    </message>
-    <message>
-        <source>About Stratoshark</source>
-        <translation type="vanished">Quant a l&apos;Stratoshark</translation>
-    </message>
-    <message>
-        <source>Stratoshark</source>
-        <translation type="vanished">Stratoshark</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;System Call and Event Log Analyzer&lt;/h3&gt;</source>
-        <translation type="vanished">&lt;h3&gt;Analitzador de crides al sistema i registre d&apos;esdeveniments&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
@@ -3712,24 +3700,6 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         </translation>
     </message>
     <message>
-        <source>Event %1. </source>
-        <translation type="vanished">Esdeveniment %1. </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;lectura&lt;/span&gt;, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;lectures&lt;/span&gt;, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;escriptura&lt;/span&gt;, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;escriptures&lt;/span&gt;, </numerusform>
-        </translation>
-    </message>
-    <message>
         <source> Click to select.</source>
         <translation>Feu clic per a seleccionar-ho.</translation>
     </message>
@@ -3760,18 +3730,6 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>%1 stream not found on the selected packet.</source>
         <translation>El flux %1 no s&apos;ha trobat al paquet seleccionat.</translation>
-    </message>
-    <message>
-        <source>Read activity(%6)</source>
-        <translation type="vanished">Llegeix l&apos;activitat (%6)</translation>
-    </message>
-    <message>
-        <source>Write activity(%6)</source>
-        <translation type="vanished">Escriu l&apos;activitat (%6)</translation>
-    </message>
-    <message>
-        <source>Entire I/O activity (%1)</source>
-        <translation type="vanished">Activitat d&apos;E/S sencera (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -7134,7 +7092,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>The Stratoshark System Call and Log Analyzer</source>
-        <translation>L&apos;analitzador de l&apos;Stratoshark de registres i crides de sistema</translation>
+        <translation>L&apos;analitzador de registres i crides de sistema Stratoshark</translation>
     </message>
     <message>
         <source>Capturing from %1</source>
@@ -8743,10 +8701,6 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Configuration Profiles</source>
         <translation>Perfils de configuració</translation>
-    </message>
-    <message>
-        <source>Auto switch event limit</source>
-        <translation type="vanished">Canvia automàticament el límit d&apos;esdeveniments</translation>
     </message>
     <message>
         <source>Import</source>
@@ -11880,22 +11834,6 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Invalid filter.</source>
         <translation>Filtre no vàlid.</translation>
-    </message>
-    <message>
-        <source>Event List</source>
-        <translation type="vanished">Llista d&apos;esdeveniments</translation>
-    </message>
-    <message>
-        <source>Event Details</source>
-        <translation type="vanished">Detalls de l&apos;esdeveniment</translation>
-    </message>
-    <message>
-        <source>Event Bytes</source>
-        <translation type="vanished">Bytes de l&apos;esdeveniment</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cerca a la columna d&apos;informació de la llista d&apos;esdeveniments (panell de resum), a les etiquetes de visualització d&apos;esdeveniments descodificats (panell de vista en arbre) o a les dades d&apos;esdeveniments convertides a ASCII (panell de vista hexadecimal).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>

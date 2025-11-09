@@ -80,14 +80,6 @@
         <translation>Licence</translation>
     </message>
     <message>
-        <source>About Stratoshark</source>
-        <translation type="vanished">À propos de Stratoshark</translation>
-    </message>
-    <message>
-        <source>Stratoshark</source>
-        <translation type="vanished">Stratoshark</translation>
-    </message>
-    <message>
         <source>The directory does not exist</source>
         <translation>Le dossier n&apos;existe pas</translation>
     </message>
@@ -3706,24 +3698,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         </translation>
     </message>
     <message>
-        <source>Event %1. </source>
-        <translation type="vanished">Événement %1.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;reads&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;lecture&lt;/span&gt;, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;lectures&lt;/span&gt;, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;writes&lt;/span&gt;, </source>
-        <translation type="vanished">
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;écriture&lt;/span&gt;, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;écritures&lt;/span&gt;, </numerusform>
-        </translation>
-    </message>
-    <message>
         <source> Click to select.</source>
         <translation>Cliquez pour sélectionner</translation>
     </message>
@@ -3754,18 +3728,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>%1 stream not found on the selected packet.</source>
         <translation>%1 flux introuvable dans le paquet sélectionné.</translation>
-    </message>
-    <message>
-        <source>Read activity(%6)</source>
-        <translation type="vanished">Activité de lecture(%6)</translation>
-    </message>
-    <message>
-        <source>Write activity(%6)</source>
-        <translation type="vanished">Activité d&apos;écriture(%6)</translation>
-    </message>
-    <message>
-        <source>Entire I/O activity (%1)</source>
-        <translation type="vanished">Activité E/S complète (%1)</translation>
     </message>
     <message>
         <source>Entire conversation (%1)</source>
@@ -8711,10 +8673,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Profils de configuration</translation>
     </message>
     <message>
-        <source>Auto switch event limit</source>
-        <translation type="vanished">Limite d&apos;événements pour commutation automatique</translation>
-    </message>
-    <message>
         <source>Import</source>
         <comment>noun</comment>
         <translation>Importer</translation>
@@ -11845,22 +11803,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Invalid filter.</source>
         <translation>Filtre Invalide.</translation>
-    </message>
-    <message>
-        <source>Event List</source>
-        <translation type="vanished">Liste d&apos;événements</translation>
-    </message>
-    <message>
-        <source>Event Details</source>
-        <translation type="vanished">Détails de l&apos;événement</translation>
-    </message>
-    <message>
-        <source>Event Bytes</source>
-        <translation type="vanished">Octets de l&apos;événement</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the event list (summary pane), decoded event display labels (tree view pane) or the ASCII-converted event data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rechercher dans la colonne Info de la liste des événements (vue résumé), dans les étiquettes d&apos;affichage des événements décodés (vue arborescence) ou dans les données d&apos;événement converties en ASCII (vue hexa).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>That filter doesn&apos;t test anything.</source>
