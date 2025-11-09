@@ -429,11 +429,6 @@ const dcerpc_sub_dissector *dcerpc_get_proto_sub_dissector(e_guid_t *uuid, uint1
 
 value_string *value_string_from_subdissectors(const dcerpc_sub_dissector *sd);
 
-/* Decode As... functionality */
-typedef void (*decode_add_show_list_func)(void *data, void *user_data);
-WS_DLL_PUBLIC void decode_dcerpc_add_show_list(decode_add_show_list_func func, void *user_data);
-
-
 typedef struct _dcerpc_uuid_value {
     protocol_t *proto;
     int proto_id;

@@ -867,9 +867,8 @@ decode_dcerpc_reset_all(void)
     }
 }
 
-
-void
-decode_dcerpc_add_show_list(decode_add_show_list_func func, void *user_data)
+static void
+decode_dcerpc_add_show_list(decode_as_add_changed_list_func func, void *user_data)
 {
     g_slist_foreach(decode_dcerpc_bindings, func, user_data);
 }
@@ -7209,7 +7208,7 @@ proto_register_dcerpc(void)
     static decode_as_value_t dcerpc_da_values = {dcerpc_prompt, 1, dcerpc_da_build_value};
     static decode_as_t dcerpc_da = {"dcerpc", DCERPC_TABLE_NAME,
                                     1, 0, &dcerpc_da_values, NULL, NULL,
-                                    dcerpc_populate_list, decode_dcerpc_binding_reset, dcerpc_decode_as_change, dcerpc_decode_as_free, decode_dcerpc_reset_all };
+                                    dcerpc_populate_list, decode_dcerpc_binding_reset, dcerpc_decode_as_change, dcerpc_decode_as_free, decode_dcerpc_reset_all, decode_dcerpc_add_show_list };
 
     module_t *dcerpc_module;
     expert_module_t* expert_dcerpc;

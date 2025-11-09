@@ -658,7 +658,12 @@ void DecodeAsModel::fillTable()
     beginResetModel();
 
     dissector_all_tables_foreach_changed(buildChangedList, this);
-    decode_dcerpc_add_show_list(buildDceRpcChangedList, this);
+    //Currently this is just for DCE/RPC "special handling" of Decode As
+    for (GList* cur = decode_as_list; cur; cur = cur->next) {
+        decode_as_t* entry = (decode_as_t*)cur->data;
+        if (entry->build_changed_list != NULL)
+            entry->build_changed_list(buildDceRpcChangedList, this);
+    }
 
     endResetModel();
 }

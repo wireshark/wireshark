@@ -42,6 +42,7 @@ typedef void * (*build_valid_func)(packet_info *pinfo);
 typedef void (*decode_as_add_to_list_func)(const char *table_name, const char *proto_name, void *value, void *user_data);
 typedef void (*decode_as_populate_list_func)(const char *table_name, decode_as_add_to_list_func add_to_list, void *ui_element);
 typedef void (*decode_as_free_func)(void *value);
+typedef void (*decode_as_add_changed_list_func)(void* data, void* user_data);
 
 /** callback function definition: Clear value from dissector table */
 typedef bool (*decode_as_reset_func)(const char *name, const void *pattern);
@@ -49,6 +50,8 @@ typedef bool (*decode_as_reset_func)(const char *name, const void *pattern);
 typedef bool (*decode_as_change_func)(const char *name, const void *pattern, const void *handle, const char *list_name);
 /** callback function definition: Remove all protocol specific bindings */
 typedef void (*decode_as_reset_all_func)(void);
+/** callback function definition: Special building of a decode as dissector list */
+typedef void (*decode_as_build_changed_list_func)(decode_as_add_changed_list_func func, void* user_data);
 
 /**
 Contains all of the function pointers (typically just 1) that
@@ -80,9 +83,10 @@ typedef struct decode_as_s {
     const char* post_value_str;                     /**< String to append the value, NULL if none */
     decode_as_populate_list_func populate_list;     /**< function pointer to the function used to populate the list, NULL if none */
     decode_as_reset_func reset_value;               /**< function pointer to the function used resetting the value, NULL if none */
-    decode_as_change_func change_value;             /**< function pointer to the function used resetting the value, NULL if none */
+    decode_as_change_func change_value;             /**< function pointer to the function used when changing value, NULL if none */
     decode_as_free_func free_func;                  /**< function pointer to the function used freeing the entry, NULL if none */
     decode_as_reset_all_func reset_all;             /**< function pointer to the function used remove all protocol specific bindings, NULL if none */
+    decode_as_build_changed_list_func build_changed_list;    /**< function pointer for special building of a decode as dissector list (currently only done for DCE/RPC), NULL if none */
 
 } decode_as_t;
 
