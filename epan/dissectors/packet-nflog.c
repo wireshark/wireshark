@@ -14,6 +14,7 @@
 #include <wiretap/wtap.h>
 #include <wsutil/ws_roundup.h>
 
+#include "packet-arp.h"
 #include "packet-netlink.h"
 
 void proto_register_nflog(void);
@@ -38,7 +39,9 @@ enum ws_nfulnl_attr_type {
     WS_NFULA_GID,                /* group id of socket */
     WS_NFULA_HWTYPE,             /* hardware type */
     WS_NFULA_HWHEADER,           /* hardware header */
-    WS_NFULA_HWLEN               /* hardware header length */
+    WS_NFULA_HWLEN,              /* hardware header length */
+    WS_NFULA_CT,                 /* nfnetlink_conntrack.h */
+    WS_NFULA_CT_INFO,            /* enum ip_conntrack_info */
 };
 
 static const value_string nflog_tlv_vals[] = {
@@ -60,16 +63,22 @@ static const value_string nflog_tlv_vals[] = {
     { WS_NFULA_HWTYPE,             "NFULA_HWTYPE" },
     { WS_NFULA_HWHEADER,           "NFULA_HWHEADER" },
     { WS_NFULA_HWLEN,              "NFULA_HWLEN" },
+    { WS_NFULA_CT,                 "NFULA_CT" },
+    { WS_NFULA_CT_INFO,            "NFULA_CT_INFO" },
     { 0, NULL }
 };
 
 static int proto_nflog;
 
+static int hf_nflog_tlv_ct;
+static int hf_nflog_tlv_ct_info;
 static int hf_nflog_family;
 static int hf_nflog_resid;
 static int hf_nflog_tlv;
 static int hf_nflog_tlv_gid;
 static int hf_nflog_tlv_hook;
+static int hf_nflog_tlv_hw_type;
+static int hf_nflog_tlv_hwheader_len;
 static int hf_nflog_tlv_hwprotocol;
 static int hf_nflog_tlv_ifindex_indev;
 static int hf_nflog_tlv_ifindex_outdev;
@@ -88,6 +97,7 @@ static int ett_nflog_tlv;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ip6_handle;
+static dissector_handle_t eth_handle;
 static dissector_table_t ethertype_table;
 static dissector_handle_t nflog_handle;
 
@@ -101,7 +111,11 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     int offset = 0;
 
-    tvbuff_t *next_tvb = NULL;
+    struct {
+        proto_tree *parent;
+        tvbuff_t   *buffer;
+    } payload = {NULL, NULL}, hwheader = {NULL, NULL};
+
     int pf;
     uint16_t hw_protocol = 0;
 
@@ -160,6 +174,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                     tvb, offset + 4, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(tlv_tree, hf_nflog_tlv_hook,
                                     tvb, offset + 6, 1, ENC_NA);
+                        hw_protocol = tvb_get_ntohs(tvb, offset + 4);
                         handled = true;
                     }
                     break;
@@ -193,6 +208,8 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                     break;
 
                 case WS_NFULA_PAYLOAD:
+                    payload.buffer = tvb_new_subset_length(tvb, offset + 4, value_len);
+                    payload.parent = tlv_tree;
                     handled = true;
                     break;
 
@@ -234,36 +251,72 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                         handled = true;
                     }
                     break;
-            }
+                case WS_NFULA_HWTYPE:
+                    if (value_len == 2) {
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_hw_type,
+                                    tvb, offset + 4, value_len, ENC_HOST_ENDIAN);
+                        handled = true;
+                    }
+                    break;
+                case WS_NFULA_HWHEADER:
+                    hwheader.buffer = tvb_new_subset_length(tvb, offset + 4, value_len);
+                    hwheader.parent = tlv_tree;
+                    handled = true;
+                    break;
+                case WS_NFULA_HWLEN:
+                    if (value_len == 2 || value_len == 4) {
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_hwheader_len,
+                                    tvb, offset + 4, value_len, ENC_HOST_ENDIAN);
+                        handled = true;
+                    }
+                    break;
+                case WS_NFULA_CT:
+                    if (value_len > 0) {
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_ct,
+                                    tvb, offset + 4, value_len, ENC_ASCII);
+                        handled = true;
+                    }
+                    break;
+                case WS_NFULA_CT_INFO:
+                    if (value_len == 4) {
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_ct_info,
+                                    tvb, offset + 4, value_len, ENC_HOST_ENDIAN);
+                        handled = true;
+                    }
+                    break;
+             }
 
             if (!handled)
                     proto_tree_add_item(tlv_tree, hf_nflog_tlv_unknown,
                                         tvb, offset + 4, value_len, ENC_NA);
         }
-
-        if (tlv_type == WS_NFULA_PACKET_HDR && value_len == 4)
-            hw_protocol = tvb_get_ntohs(tvb, offset + 4);
-        if (tlv_type == WS_NFULA_PAYLOAD)
-            next_tvb = tvb_new_subset_length(tvb, offset + 4, value_len);
-
         offset += WS_ROUNDUP_4(tlv_len); /* next TLV aligned to 4B */
     }
 
-    if (next_tvb && hw_protocol) {
-        if (!dissector_try_uint(ethertype_table, hw_protocol, next_tvb, pinfo, tree))
-            call_data_dissector(next_tvb, pinfo, tree);
-    } else if (next_tvb) {
+    if (hwheader.buffer && eth_handle) {
+        // for others it is not guaranteed to be full, just for avoiding errors
+        if (hw_protocol == ETHERTYPE_IP) {
+            call_dissector(eth_handle, hwheader.buffer, pinfo, hwheader.parent);
+        } else {
+            call_data_dissector(hwheader.buffer, pinfo, hwheader.parent);
+        }
+    }
+
+    if (payload.buffer && hw_protocol) {
+        if (!dissector_try_uint(ethertype_table, hw_protocol, payload.buffer, pinfo, payload.parent))
+            call_data_dissector(payload.buffer, pinfo, payload.parent);
+    } else if (payload.buffer) {
         switch (pf) {
             /* Note: NFPROTO_INET is not supposed to appear here, it is mapped
              * to NFPROTO_IPV4 or NFPROTO_IPV6 */
             case WS_NFPROTO_IPV4:
-                call_dissector(ip_handle, next_tvb, pinfo, tree);
+                call_dissector(ip_handle, payload.buffer, pinfo, payload.parent);
                 break;
             case WS_NFPROTO_IPV6:
-                call_dissector(ip6_handle, next_tvb, pinfo, tree);
+                call_dissector(ip6_handle, payload.buffer, pinfo, payload.parent);
                 break;
             default:
-                call_data_dissector(next_tvb, pinfo, tree);
+                call_data_dissector(payload.buffer, pinfo, payload.parent);
                 break;
         }
     }
@@ -308,6 +361,15 @@ proto_register_nflog(void)
             { "HW protocol", "nflog.protocol",
               FT_UINT16, BASE_HEX, VALS(etype_vals), 0x00,
               NULL, HFILL }
+        },
+        { &hf_nflog_tlv_hw_type,
+            { "HW Type", "nflog.hwtype",
+              FT_UINT16, BASE_DEC, VALS(arp_hrd_vals), 0x00,
+              NULL, HFILL }
+        },
+        { &hf_nflog_tlv_hwheader_len,
+            { "Hardware header length", "nflog.hwhdr_len",
+              FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
         { &hf_nflog_tlv_hook,
             { "Netfilter hook", "nflog.hook",
@@ -354,6 +416,16 @@ proto_register_nflog(void)
               FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
               "TLV Timestamp Value", HFILL }
         },
+        { &hf_nflog_tlv_ct_info,
+            { "CT INFO", "nflog.ctinfo",
+              FT_INT32, BASE_DEC, VALS(nfq_ctinfo_vals), 0x00,
+              "TLV CT INFO", HFILL }
+        },
+        { &hf_nflog_tlv_ct,
+            { "CT", "nflog.ct",
+              FT_STRINGZ, BASE_NONE, NULL, 0x00,
+              "TLV CT", HFILL }
+        },
         { &hf_nflog_tlv_unknown,
             { "Value", "nflog.tlv_value",
               FT_BYTES, BASE_NONE, NULL, 0x00,
@@ -378,8 +450,9 @@ proto_register_nflog(void)
 void
 proto_reg_handoff_nflog(void)
 {
-    ip_handle   = find_dissector_add_dependency("ip", proto_nflog);
-    ip6_handle  = find_dissector_add_dependency("ipv6", proto_nflog);
+    ip_handle  = find_dissector_add_dependency("ip", proto_nflog);
+    ip6_handle = find_dissector_add_dependency("ipv6", proto_nflog);
+    eth_handle = find_dissector_add_dependency("eth_header_no_fcs", proto_nflog);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_NFLOG, nflog_handle);
     ethertype_table = find_dissector_table("ethertype");

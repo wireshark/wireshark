@@ -1105,7 +1105,7 @@ const value_string nfproto_family_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string nfq_ctinfo_vals[] = {
+const value_string nfq_ctinfo_vals[] = {
 	{ WS_IP_CT_ESTABLISHED,         "ESTABLISHED" },
 	{ WS_IP_CT_RELATED,             "RELATED" },
 	{ WS_IP_CT_NEW,                 "NEW" },

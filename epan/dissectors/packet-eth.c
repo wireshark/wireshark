@@ -111,6 +111,7 @@ static heur_dissector_list_t heur_subdissector_list;
 static heur_dissector_list_t eth_trailer_subdissector_list;
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t eth_maybefcs_handle;
+static dissector_handle_t eth_header_no_fcs_handle;
 
 
 static int eth_tap;
@@ -409,7 +410,7 @@ get_eth_conversation_data(conversation_t *conv, packet_info *pinfo)
 
 static proto_tree *
 dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
-    int fcs_len)
+    int fcs_len, bool header_only)
 {
   proto_item        *ti = NULL;
   eth_hdr           *ehdr;
@@ -586,6 +587,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
     needs_dissector_with_data = true;
   }
+  if (header_only)
+    return fh_tree;
 
   /* if we still did not leave the dissection, try identifying any ETH conversation
    * When deinterlacing was asked and an interface is known, create an _IN conv,
@@ -1004,14 +1007,14 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     next_tvb = tvb_new_subset_length_caplen(real_tvb, 0,
                               tvb_captured_length(real_tvb) - total_trailer_length,
                               tvb_reported_length(real_tvb) - total_trailer_length);
-    fh_tree = dissect_eth_common(next_tvb, pinfo, tree, 0);
+    fh_tree = dissect_eth_common(next_tvb, pinfo, tree, 0, false);
 
     /* Now handle the ethernet trailer and optional FCS */
     next_tvb = tvb_new_subset_remaining(real_tvb, tvb_captured_length(real_tvb) - total_trailer_length);
     add_ethernet_trailer(pinfo, tree, fh_tree, hf_eth_trailer, real_tvb, next_tvb,
                          fcs_len, ETH_HEADER_SIZE);
   } else {
-    dissect_eth_common(real_tvb, pinfo, tree, fcs_len);
+    dissect_eth_common(real_tvb, pinfo, tree, fcs_len, false);
   }
   return tvb_captured_length(tvb);
 }
@@ -1021,7 +1024,16 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 static int
 dissect_eth_withoutfcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  dissect_eth_common(tvb, pinfo, tree, 0);
+  dissect_eth_common(tvb, pinfo, tree, 0, false);
+  return tvb_captured_length(tvb);
+}
+
+
+/* Called by other dissectors  This one's for Ethernet packet headers */
+static int
+dissect_eth_header_no_fsc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  dissect_eth_common(tvb, pinfo, tree, 0, true);
   return tvb_captured_length(tvb);
 }
 
@@ -1029,7 +1041,7 @@ dissect_eth_withoutfcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 static int
 dissect_eth_withfcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  dissect_eth_common(tvb, pinfo, tree, 4);
+  dissect_eth_common(tvb, pinfo, tree, 4, false);
   return tvb_captured_length(tvb);
 }
 
@@ -1037,7 +1049,7 @@ dissect_eth_withfcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 static int
 dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  dissect_eth_common(tvb, pinfo, tree, eth_fcs);
+  dissect_eth_common(tvb, pinfo, tree, eth_fcs, false);
   return tvb_captured_length(tvb);
 }
 
@@ -1268,6 +1280,7 @@ proto_register_eth(void)
                                  "Set the condition that must be true for the CCSDS dissector to be called",
                                  &ccsds_heuristic_bit);
 
+  eth_header_no_fcs_handle = register_dissector("eth_header_no_fcs", dissect_eth_header_no_fsc, proto_eth);
   eth_withoutfcs_handle = register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
   register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);
   eth_maybefcs_handle = register_dissector("eth_maybefcs", dissect_eth_maybefcs, proto_eth);

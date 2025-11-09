@@ -91,6 +91,7 @@ enum ws_nfproto {
 };
 extern const value_string nfproto_family_vals[];
 extern const value_string netfilter_hooks_vals[];
+extern const value_string nfq_ctinfo_vals[];
 
 #define PACKET_NETLINK_MAGIC 0x4A5ACCCE
 
