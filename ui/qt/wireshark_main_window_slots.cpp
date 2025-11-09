@@ -3398,7 +3398,6 @@ void WiresharkMainWindow::applyExportObject()
         return;
 
     ExportObjectDialog* export_dialog = new ExportObjectDialog(*this, capture_file_, export_action->exportObject());
-    export_dialog->setWindowModality(Qt::ApplicationModal);
     export_dialog->setAttribute(Qt::WA_DeleteOnClose);
     export_dialog->show();
 }
