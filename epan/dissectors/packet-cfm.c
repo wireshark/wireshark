@@ -1217,7 +1217,7 @@ static int dissect_cfm_gnm_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 static int dissect_cfm_gnm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	uint8_t cfm_gnm_pdu_type = tvb_get_uint8(tvb, offset + 4);
+	uint8_t cfm_gnm_pdu_type = tvb_get_uint8(tvb, offset + 2);
 
 	switch (cfm_gnm_pdu_type) {
 	case BNM:
