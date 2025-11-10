@@ -149,10 +149,10 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg)
      */
     error_string = register_tap_listener("tcp", tg, "tcp", 0, tapall_tcpip_reset, tapall_tcpip_packet, NULL, NULL);
     if (error_string) {
-        fprintf(stderr, "wireshark: Couldn't register tcp_graph tap: %s\n",
-                error_string->str);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+            "wireshark: Couldn't register tcp_graph tap: %s\n", error_string->str);
         g_string_free(error_string, TRUE);
-        exit(1);   /* XXX: fix this */
+        return;
     }
     cf_retap_packets(cf);
     remove_tap_listener(tg);

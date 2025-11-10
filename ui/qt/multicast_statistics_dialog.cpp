@@ -261,7 +261,6 @@ MulticastStatisticsDialog::MulticastStatisticsDialog(QWidget &parent, CaptureFil
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                         "%s", error_string->str);
         g_string_free(error_string, TRUE);
-        exit(1);
     }
 
     updateWidgets();

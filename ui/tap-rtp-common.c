@@ -229,7 +229,7 @@ register_tap_listener_rtpstream(rtpstream_tapinfo_t *tapinfo, const char *fstrin
                 tap_error(error_string);
             }
             g_string_free(error_string, TRUE);
-            exit(1);
+            return;
         }
 
         tapinfo->is_registered = true;
