@@ -5,6 +5,8 @@
  *     RFC 9052: https://tools.ietf.org/html/rfc9052
  *     RFC 9053: https://tools.ietf.org/html/rfc9053
  *     RFC 9360: https://tools.ietf.org/html/rfc9360
+ *     RFC 9459: https://tools.ietf.org/html/rfc9459
+ *     RFC 9861: https://tools.ietf.org/html/rfc9861
  *
  * Copyright 2019-2021, Brian Sipos <brian.sipos@gmail.com>
  *
@@ -68,13 +70,36 @@ static dissector_table_t table_keyparam;
 
 static const val64_string alg_vals[] = {
     {-65535, "RS1"},
+    {-65534, "A128CTR"},
+    {-65533, "A192CTR"},
+    {-65532, "A256CTR"},
+    {-65531, "A128CBC"},
+    {-65530, "A192CBC"},
+    {-65529, "A256CBC"},
+    {-268, "ESB512"},
+    {-267, "ESB384"},
+    {-266, "ESB320"},
+    {-265, "ESB256"},
+    {-264, "KT256"},
+    {-263, "KT128"},
+    {-260, "WalnutDSA"},
     {-259, "RS512"},
     {-258, "RS384"},
     {-257, "RS256"},
+    {-53, "Ed448"},
+    {-52, "ESP512"},
+    {-51, "ESP384"},
+    {-50, "ML-DSA-87"},
+    {-49, "ML-DSA-65"},
+    {-48, "ML-DSA-44"},
     {-47, "ES256K"},
+    {-46, "HSS-LMS"},
     {-45, "SHAKE256"},
     {-44, "SHA-512"},
     {-43, "SHA-384"},
+    {-42, "RSAES-OAEP w/ SHA-512"},
+    {-41, "RSAES-OAEP w/ SHA-256"},
+    {-40, "RSAES-OAEP w/ SHA-1"},
     {-39, "PS512"},
     {-38, "PS384"},
     {-37, "PS256"},
@@ -90,6 +115,7 @@ static const val64_string alg_vals[] = {
     {-27, "ECDH-SS + HKDF-256"},
     {-26, "ECDH-ES + HKDF-512"},
     {-25, "ECDH-ES + HKDF-256"},
+    {-19, "Ed25519"},
     {-18, "SHAKE128"},
     {-17, "SHA-512/256"},
     {-16, "SHA-256"},
@@ -99,6 +125,7 @@ static const val64_string alg_vals[] = {
     {-12, "direct+HKDF-AES-128"},
     {-11, "direct+HKDF-SHA-512"},
     {-10, "direct+HKDF-SHA-256"},
+    {-9, "ESP256"},
     {-8, "EdDSA"},
     {-7, "ES256"},
     {-6, "direct"},
@@ -137,6 +164,8 @@ static const val64_string kty_vals[] = {
     {3, "RSA"},
     {4, "Symmetric"},
     {5, "HSS-LMS"},
+    {6, "WalnutDSA"},
+    {7, "AKP"},
     {0, NULL},
 };
 
@@ -215,6 +244,8 @@ static int hf_keyparam_xcoord;
 static int hf_keyparam_ycoord;
 static int hf_keyparam_dcoord;
 static int hf_keyparam_k;
+static int hf_keyparam_pub;
+static int hf_keyparam_priv;
 
 /// Field definitions
 static hf_register_info fields[] = {
@@ -269,6 +300,8 @@ static hf_register_info fields[] = {
     {&hf_keyparam_ycoord, {"Y-coordinate", "cose.key.ycoord", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_keyparam_dcoord, {"Private Key", "cose.key.dcoord", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_keyparam_k, {"Key", "cose.key.k", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_keyparam_pub, {"Public key", "cose.key.pub", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_keyparam_priv, {"Private key", "cose.key.priv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 };
 
 static int ett_msg;
@@ -1188,10 +1221,11 @@ static int dissect_header_x5u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int dissect_cose_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     int offset = 0;
 
-    proto_item *item_msg = proto_tree_add_item(tree, proto_cose, tvb, 0, -1, ENC_NA);
-    proto_item_append_text(item_msg, ": COSE_Key");
+    proto_item *item_key = proto_tree_add_item(tree, proto_cose, tvb, 0, -1, ENC_NA);
+    proto_item_append_text(item_key, ": COSE_Key");
+    proto_tree *tree_key = proto_item_add_subtree(item_key, ett_key);
 
-    dissect_value_cose_key(tvb, pinfo, tree, &offset);
+    dissect_value_cose_key(tvb, pinfo, tree_key, &offset);
 
     return offset;
 }
@@ -1356,6 +1390,26 @@ static int dissect_keyparam_k(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return offset;
 }
 
+static int dissect_keyparam_pub(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    int offset = 0;
+
+    wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+    wscbor_require_bstr(pinfo->pool, chunk);
+    proto_tree_add_cbor_bstr(tree, hf_keyparam_pub, pinfo, tvb, chunk);
+
+    return offset;
+}
+
+static int dissect_keyparam_priv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    int offset = 0;
+
+    wscbor_chunk_t *chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+    wscbor_require_bstr(pinfo->pool, chunk);
+    proto_tree_add_cbor_bstr(tree, hf_keyparam_priv, pinfo, tvb, chunk);
+
+    return offset;
+}
+
 /** Register a message dissector.
  */
 static void register_msg_dissector(dissector_handle_t dis_h, uint64_t tag_int, const char *media_subtype) {
@@ -1492,6 +1546,7 @@ void proto_reg_handoff_cose(void) {
 
     // RFC 9053 header labels
     register_header_dissector(dissect_header_salt, g_variant_new_int64(-20), "salt");
+    register_header_dissector(dissect_header_kid, g_variant_new_int64(-3), "static kid");
     register_header_dissector(dissect_header_static_key, g_variant_new_int64(-2), "static key");
     register_header_dissector(dissect_header_ephem_key, g_variant_new_int64(-1), "ephemeral key");
     register_header_dissector(dissect_header_alg, g_variant_new_int64(1), "alg");
@@ -1501,6 +1556,9 @@ void proto_reg_handoff_cose(void) {
     register_header_dissector(dissect_header_iv, g_variant_new_int64(5), "IV");
     register_header_dissector(dissect_header_piv, g_variant_new_int64(6), "Partial IV");
     // RFC 9360 header labels
+    register_header_dissector(dissect_header_x5chain, g_variant_new_int64(-29), "x5chain-sender");
+    register_header_dissector(dissect_header_x5u, g_variant_new_int64(-28), "x5u-sender");
+    register_header_dissector(dissect_header_x5t, g_variant_new_int64(-27), "x5t-sender");
     register_header_dissector(dissect_header_x5bag, g_variant_new_int64(32), "x5bag");
     register_header_dissector(dissect_header_x5chain, g_variant_new_int64(33), "x5chain");
     register_header_dissector(dissect_header_x5t, g_variant_new_int64(34), "x5t");
@@ -1533,6 +1591,17 @@ void proto_reg_handoff_cose(void) {
     {
         GVariant *kty = g_variant_new_int64(4);
         register_keyparam_dissector(dissect_keyparam_k, kty, g_variant_new_int64(-1), "k");
+        g_variant_unref(kty);
+    }
+    {
+        GVariant *kty = g_variant_new_int64(5);
+        register_keyparam_dissector(dissect_keyparam_pub, kty, g_variant_new_int64(-1), "pub");
+        g_variant_unref(kty);
+    }
+    {
+        GVariant *kty = g_variant_new_int64(7);
+        register_keyparam_dissector(dissect_keyparam_pub, kty, g_variant_new_int64(-1), "pub");
+        register_keyparam_dissector(dissect_keyparam_priv, kty, g_variant_new_int64(-2), "priv");
         g_variant_unref(kty);
     }
 
