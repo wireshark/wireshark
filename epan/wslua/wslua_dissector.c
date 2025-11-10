@@ -26,6 +26,7 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include <epan/dissectors/packet-dcerpc.h>
+#include <epan/uuid_types.h>
 #include <string.h>
 
 
@@ -468,6 +469,41 @@ WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
     WSLUA_RETURN(1); /* The <<lua_class_DissectorTable,`DissectorTable`>> reference if found, otherwise `nil`. */
 }
 
+static void
+lua_handle_dcerpc_dissector(e_guid_t* uuid, dissector_handle_t guid_handle)
+{
+    guid_key key;
+    dcerpc_uuid_value value;
+
+    key.guid = *uuid;
+    key.ver = 0;
+
+    value.proto_id = dissector_handle_get_protocol_index(guid_handle);
+    value.proto = find_protocol_by_id(value.proto_id);
+    value.ett = -1;
+    value.name = proto_get_protocol_short_name(value.proto);
+    value.procs = NULL;
+    value.opnum_hf = 0;
+
+    int uuid_id = uuid_type_get_id_by_name(DCERPC_TABLE_NAME);
+    if (uuid_type_remove_if_present(uuid_id, &key)) {
+        guids_delete_guid(uuid);
+    }
+
+    /* Duplicates dcerpc_init_finalize() to reduce dependency on specific dissector code */
+
+    guid_key* perm_key = wmem_memdup(wmem_epan_scope(), &key, sizeof(guid_key));
+    dcerpc_uuid_value* perm_value = wmem_memdup(wmem_epan_scope(), &value, sizeof(dcerpc_uuid_value));
+
+    uuid_type_insert(uuid_id, perm_key, perm_value);
+
+    /* Register the GUID with the dissector table */
+    dissector_add_guid("dcerpc.uuid", perm_key, guid_handle);
+
+    /* add this GUID to the global name resolving */
+    guids_add_guid(&perm_key->guid, proto_get_protocol_short_name(perm_value->proto));
+}
+
 WSLUA_METHOD DissectorTable_add (lua_State *L) {
     /*
      Add a <<lua_class_Proto,`Proto`>> with a dissector function or a <<lua_class_Dissector,`Dissector`>> object to the dissector table.
@@ -515,7 +551,7 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
         if(strcmp(DCERPC_TABLE_NAME, dt->name) == 0) {
             e_guid_t uuid;
             memcpy(&uuid, guid, sizeof(e_guid_t));
-            dcerpc_init_from_handle(dissector_handle_get_protocol_index(handle), &uuid, 0, handle);
+            lua_handle_dcerpc_dissector(&uuid, handle);
         } else {
             dissector_add_guid(dt->name, &gk, handle);
             guids_add_guid(guid, dissector_handle_get_protocol_short_name(handle));
@@ -635,7 +671,7 @@ WSLUA_METHOD DissectorTable_set (lua_State *L) {
         if(strcmp(DCERPC_TABLE_NAME, dt->name) == 0) {
             e_guid_t uuid;
             memcpy(&uuid, guid, sizeof(e_guid_t));
-            dcerpc_init_from_handle(dissector_handle_get_protocol_index(handle), &uuid, 0, handle);
+            lua_handle_dcerpc_dissector(&uuid, handle);
         } else {
             dissector_add_guid(dt->name, &gk, handle);
             guids_add_guid(guid, dissector_handle_get_protocol_short_name(handle));

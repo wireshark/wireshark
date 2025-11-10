@@ -1721,30 +1721,6 @@ dcerpc_init_uuid(int proto, int ett, e_guid_t *uuid, uint16_t ver,
     dcerpc_init_finalize(guid_handle, &key, &value);
 }
 
-void
-dcerpc_init_from_handle(int proto, e_guid_t *uuid, uint16_t ver,
-                dissector_handle_t guid_handle)
-{
-    guid_key key;
-    dcerpc_uuid_value value;
-
-    key.guid = *uuid;
-    key.ver = ver;
-
-    value.proto    = find_protocol_by_id(proto);
-    value.proto_id = proto;
-    value.ett      = -1;
-    value.name     = proto_get_protocol_short_name(value.proto);
-    value.procs    = NULL;
-    value.opnum_hf = 0;
-
-    if (uuid_type_remove_if_present(dcerpc_uuid_id, &key)) {
-        guids_delete_guid(uuid);
-    }
-
-    dcerpc_init_finalize(guid_handle, &key, &value);
-}
-
 /* Function to find the name of a registered protocol
  * or NULL if the protocol/version is not known to wireshark.
  */
