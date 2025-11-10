@@ -34,6 +34,11 @@ struct register_follow {
 
 static wmem_tree_t *registered_followers;
 
+void follow_init(void)
+{
+    registered_followers = wmem_tree_new(wmem_epan_scope());
+}
+
 void register_follow_stream(const int proto_id, const char* tap_listener,
                             follow_conv_filter_func conv_filter, follow_index_filter_func index_filter, follow_address_filter_func address_filter,
                             follow_port_to_display_func port_to_display, tap_packet_cb tap_handler,
@@ -58,9 +63,6 @@ void register_follow_stream(const int proto_id, const char* tap_listener,
   follower->tap_handler    = tap_handler;
   follower->stream_count   = stream_count;
   follower->sub_stream_id  = sub_stream_id;
-
-  if (registered_followers == NULL)
-    registered_followers = wmem_tree_new(wmem_epan_scope());
 
   wmem_tree_insert_string(registered_followers, proto_get_protocol_short_name(find_protocol_by_id(proto_id)), follower, 0);
 }

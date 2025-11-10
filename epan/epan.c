@@ -59,6 +59,7 @@
 #include "conversation_filter.h"
 #include "conversation_table.h"
 #include "reassemble.h"
+#include "rtd_table.h"
 #include "srt_table.h"
 #include "stats_tree.h"
 #include "secrets.h"
@@ -360,6 +361,11 @@ epan_init(register_cb cb, void *client_data, bool load_plugins, epan_app_data_t*
 		capture_dissector_init();
 		reassembly_tables_init();
 		conversation_filters_init();
+		conversation_table_init();
+		export_object_init();
+		follow_init();
+		rtd_table_init();
+		srt_table_init();
 		g_slist_foreach(epan_plugins, epan_plugin_init, NULL);
 		proto_init(epan_plugin_register_all_procotols, epan_plugin_register_all_handoffs, cb, client_data);
 		g_slist_foreach(epan_plugins, epan_plugin_register_all_tap_listeners, NULL);

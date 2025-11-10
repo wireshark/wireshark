@@ -77,6 +77,10 @@ typedef struct _follow_info {
 struct register_follow;
 typedef struct register_follow register_follow_t;
 
+/** Initialize the follow conversation/stream system.
+ */
+extern void follow_init(void);
+
 typedef char* (*follow_conv_filter_func)(epan_dissect_t *edt, packet_info *pinfo, unsigned *stream, unsigned *sub_stream);
 typedef char* (*follow_index_filter_func)(unsigned stream, unsigned sub_stream);
 typedef char* (*follow_address_filter_func)(address* src_addr, address* dst_addr, int src_port, int dst_port);

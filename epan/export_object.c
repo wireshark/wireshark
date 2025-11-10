@@ -25,6 +25,11 @@ struct register_eo {
 
 static wmem_tree_t *registered_eo_tables;
 
+void export_object_init(void)
+{
+    registered_eo_tables = wmem_tree_new(wmem_epan_scope());
+}
+
 int
 register_export_object(const int proto_id, tap_packet_cb export_packet_func, export_object_gui_reset_cb reset_cb)
 {
@@ -37,9 +42,6 @@ register_export_object(const int proto_id, tap_packet_cb export_packet_func, exp
     table->tap_listen_str = wmem_strdup_printf(wmem_epan_scope(), "%s_eo", proto_get_protocol_filter_name(proto_id));
     table->eo_func = export_packet_func;
     table->reset_cb = reset_cb;
-
-    if (registered_eo_tables == NULL)
-        registered_eo_tables = wmem_tree_new(wmem_epan_scope());
 
     wmem_tree_insert_string(registered_eo_tables, proto_get_protocol_filter_name(proto_id), table, 0);
     return register_tap(table->tap_listen_str);

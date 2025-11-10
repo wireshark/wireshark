@@ -56,6 +56,11 @@ const value_string* get_rtd_value_string(register_rtd_t* rtd)
 
 static wmem_tree_t *registered_rtd_tables;
 
+void rtd_table_init(void)
+{
+    registered_rtd_tables = wmem_tree_new(wmem_epan_scope());
+}
+
 void
 register_rtd_table(const int proto_id, const char* tap_listener, unsigned num_tables, unsigned num_timestats, const value_string* vs_type,
                    tap_packet_cb rtd_packet_func, rtd_filter_check_cb filter_check_cb)
@@ -75,9 +80,6 @@ register_rtd_table(const int proto_id, const char* tap_listener, unsigned num_ta
     table->num_timestats = num_timestats;
     table->vs_type = vs_type;
     table->filter_check = filter_check_cb;
-
-    if (registered_rtd_tables == NULL)
-        registered_rtd_tables = wmem_tree_new(wmem_epan_scope());
 
     wmem_tree_insert_string(registered_rtd_tables, proto_get_protocol_filter_name(proto_id), table, 0);
 }

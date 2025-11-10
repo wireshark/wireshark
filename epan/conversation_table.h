@@ -193,6 +193,10 @@ typedef endpoint_item_t hostlist_talker_t;
 
 #define ENDPOINT_TAP_PREFIX     "endpoints"
 
+/** Initialize the conversation table system.
+ */
+extern void conversation_table_init(void);
+
 /** Register the conversation table for the conversation and endpoint windows.
  *
  * @param proto_id is the protocol with conversation

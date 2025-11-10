@@ -135,6 +135,11 @@ register_ct_t* get_conversation_by_proto_id(int proto_id)
     return (register_ct_t*)wmem_tree_lookup_string(registered_ct_tables, proto_get_protocol_short_name(find_protocol_by_id(proto_id)), 0);
 }
 
+void conversation_table_init(void)
+{
+    registered_ct_tables = wmem_tree_new(wmem_epan_scope());
+}
+
 void
 register_conversation_table(const int proto_id, bool hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb endpoint_packet_func)
 {
@@ -148,9 +153,6 @@ register_conversation_table(const int proto_id, bool hide_ports, tap_packet_cb c
     table->endpoint_func = endpoint_packet_func;
     table->conv_gui_init = NULL;
     table->endpoint_gui_init = NULL;
-
-    if (registered_ct_tables == NULL)
-        registered_ct_tables = wmem_tree_new(wmem_epan_scope());
 
     wmem_tree_insert_string(registered_ct_tables, proto_get_protocol_short_name(find_protocol_by_id(proto_id)), table, 0);
 }

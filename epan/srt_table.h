@@ -54,6 +54,10 @@ typedef struct _srt_data_t {
 /** Structure for information about a registered service response table */
 typedef struct register_srt register_srt_t;
 
+/** Initialize the service response time system.
+ */
+extern void srt_table_init(void);
+
 /** Register the service response time table for the srt windows.
  *
  * @param proto_id is the protocol with conversation

@@ -48,6 +48,10 @@ typedef struct _rtd_data_t {
 struct register_rtd;
 typedef struct register_rtd register_rtd_t;
 
+/** Initialize the response time delay system.
+ */
+extern void rtd_table_init(void);
+
 typedef void (*rtd_gui_init_cb)(rtd_stat_table* rtd, void* gui_data);
 typedef void (*rtd_filter_check_cb)(const char *opt_arg, const char **filter, char** err);
 

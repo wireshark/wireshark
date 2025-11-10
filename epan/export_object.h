@@ -52,6 +52,10 @@ and called when tap reset or windows closes occurs. If no function is needed
 a NULL value should be passed instead */
 typedef void (*export_object_gui_reset_cb)(void);
 
+/** Initialize the export object system.
+ */
+extern void export_object_init(void);
+
 /** Register the export object handler for the Export Object windows.
  *
  * @param proto_id is the protocol with objects to export
