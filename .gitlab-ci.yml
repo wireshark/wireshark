@@ -1004,6 +1004,12 @@ Windows Build:
 macOS Build:
   extends: .build-macos
   rules: !reference [.if-w-w-only-merge-request]
+  allow_failure: true
+  timeout: 1 hour
+  retry:
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
   artifacts:
     when: always
     reports:
