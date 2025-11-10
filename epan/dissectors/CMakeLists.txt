@@ -1869,6 +1869,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtps-virtual-transport.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtps-processed.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rtsp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-rttrp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rudp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rwall.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rx.c

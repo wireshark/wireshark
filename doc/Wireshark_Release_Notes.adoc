@@ -65,6 +65,7 @@ The following features are either new or have been significantly updated since v
 [commaize]
 --
 TrueConf Protocol (TrueConf)
+Real-Time Tracking Protocol (RTTrP)
 --
 
 === Updated Protocol Support
