@@ -4154,8 +4154,8 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 proto_item_append_text(iface_item, ": %s", uuid_name);
                 proto_item_append_text(ctx_item, ", %s", uuid_name);
             } else {
-                proto_tree_add_guid_format(iface_tree, hf_dcerpc_cn_bind_if_id, tvb,
-                                           offset, 16, (e_guid_t *) &if_id, "Interface UUID: %s", uuid_str);
+                proto_tree_add_guid_format_value(iface_tree, hf_dcerpc_cn_bind_if_id, tvb,
+                                           offset, 16, (e_guid_t *) &if_id, "%s", uuid_str);
                 proto_item_append_text(iface_item, ": %s", uuid_str);
                 proto_item_append_text(ctx_item, ", %s", uuid_str);
             }
@@ -4358,9 +4358,8 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, int offset, packet_info *pinfo,
             if (! uuid_name) {
                 uuid_name = guid_to_str(pinfo->pool, (e_guid_t *) &trans_id);
             }
-            proto_tree_add_guid_format(ctx_tree, hf_dcerpc_cn_ack_trans_id, tvb,
-                                       offset, 16, (e_guid_t *) &trans_id, "Transfer Syntax: %s",
-                                       uuid_name);
+            proto_tree_add_guid_format_value(ctx_tree, hf_dcerpc_cn_ack_trans_id, tvb,
+                                       offset, 16, (e_guid_t *) &trans_id, "%s", uuid_name);
             proto_item_append_text(ctx_item, " %s, %s", result_str, uuid_name);
         }
         offset += 16;
@@ -6613,15 +6612,15 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
                                        offset, 16, (e_guid_t *) &hdr.if_id, "Interface: %s UUID: %s", uuid_name, uuid_str);
         } else {
-            proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
-                                       offset, 16, (e_guid_t *) &hdr.if_id, "Interface UUID: %s", uuid_str);
+            proto_tree_add_guid_format_value(dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
+                                       offset, 16, (e_guid_t *) &hdr.if_id, "%s", uuid_str);
         }
     }
     offset += 16;
 
     if (tree) {
-        proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_dg_act_id, tvb,
-                                   offset, 16, (e_guid_t *) &hdr.act_id, "Activity: %s",
+        proto_tree_add_guid_format_value(dcerpc_tree, hf_dcerpc_dg_act_id, tvb,
+                                   offset, 16, (e_guid_t *) &hdr.act_id, "%s",
                                    guid_to_str(pinfo->pool, (e_guid_t *) &hdr.act_id));
     }
     offset += 16;
@@ -6989,7 +6988,7 @@ proto_register_dcerpc(void)
         { &hf_dcerpc_obj_id,
           { "Object", "dcerpc.obj_id", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_dg_if_id,
-          { "Interface", "dcerpc.dg_if_id", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { "Interface UUID", "dcerpc.dg_if_id", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_dg_act_id,
           { "Activity", "dcerpc.dg_act_id", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_opnum,
