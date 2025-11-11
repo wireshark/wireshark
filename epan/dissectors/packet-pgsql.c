@@ -212,6 +212,7 @@ static const value_string be_messages[] = {
     { 'V', "Function call response" },
     { 'G', "CopyIn response" },
     { 'H', "CopyOut response" },
+    { 'W', "CopyBoth response" },
     { 'd', "Copy data" },
     { 'c', "Copy completion" },
     { 'v', "Negotiate protocol version" },
@@ -1296,9 +1297,10 @@ static void dissect_pgsql_be_msg(unsigned char type, unsigned length, tvbuff_t *
             proto_tree_add_item(tree, hf_text, tvb, n, siz, ENC_ASCII);
         break;
 
-    /* Copy in/out */
+    /* Copy in/out/both */
     case 'G':
     case 'H':
+    case 'W':
         proto_tree_add_item(tree, hf_format, tvb, n, 1, ENC_BIG_ENDIAN);
         n += 1;
         i = tvb_get_ntohs(tvb, n);
