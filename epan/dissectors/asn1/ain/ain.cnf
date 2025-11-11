@@ -21,6 +21,10 @@ DisplayInformation/notificationIndicator displayInformation_notificationIndicato
 Reject/problem/invoke invokeproblem
 Action8/invoke action8_invoke
 
+#.USE_VALS_EXT
+Parms
+#.END
+
 #.OMIT_ASSIGNMENT Remote-Operations-Information-Objects
 Bind
 Unbind

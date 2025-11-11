@@ -3121,6 +3121,8 @@ static const value_string mpeg_descr_ssb_sb_leak_rate_vals[] = {
     { 63, "DVB_reserved" },
     { 0, NULL }
 };
+static value_string_ext mpeg_descr_ssb_sb_leak_rate_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_ssb_sb_leak_rate_vals);
+
 
 static void
 proto_mpeg_descriptor_dissect_short_smoothing_buffer(tvbuff_t *tvb, unsigned offset, unsigned len, proto_tree *tree)
@@ -6134,7 +6136,7 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_short_smoothing_buffer_sb_leak_rate, {
             "SB Leak Rate", "mpeg_descr.ssb.sb_leak_rate",
-            FT_UINT8, BASE_HEX, VALS(mpeg_descr_ssb_sb_leak_rate_vals),
+            FT_UINT8, BASE_HEX|BASE_EXT_STRING, &mpeg_descr_ssb_sb_leak_rate_vals_ext,
             MPEG_DESCR_SHORT_SMOOTHING_BUFFER_SB_LEAK_RATE_MASK, NULL, HFILL
         } },
 

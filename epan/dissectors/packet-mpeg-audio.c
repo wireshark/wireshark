@@ -381,6 +381,8 @@ static const value_string mpeg_audio_T_genre_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext mpeg_audio_T_genre_vals_ext = VALUE_STRING_EXT_INIT(mpeg_audio_T_genre_vals);
+
 
 static int
 dissect_mpeg_audio_T_genre(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -662,7 +664,7 @@ proto_register_mpeg_audio(void)
         "INTEGER_0_255", HFILL }},
     { &hf_mpeg_audio_genre,
       { "genre", "mpeg-audio.genre",
-        FT_UINT32, BASE_DEC, VALS(mpeg_audio_T_genre_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &mpeg_audio_T_genre_vals_ext, 0,
         NULL, HFILL }},
 		{ &hf_mpeg_audio_header,
 			{ "Frame Header", "mpeg-audio.header",

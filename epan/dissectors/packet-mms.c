@@ -5381,6 +5381,8 @@ static const value_string mms_ConfirmedServiceRequest_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext mms_ConfirmedServiceRequest_vals_ext = VALUE_STRING_EXT_INIT(mms_ConfirmedServiceRequest_vals);
+
 static const ber_choice_t ConfirmedServiceRequest_choice[] = {
   {   0, &hf_mms_status          , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_Status_Request },
   {   1, &hf_mms_getNameList     , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_GetNameList_Request },
@@ -8755,7 +8757,7 @@ void proto_register_mms(void) {
         NULL, HFILL }},
     { &hf_mms_confirmedServiceRequest,
       { "confirmedServiceRequest", "mms.confirmedServiceRequest",
-        FT_UINT32, BASE_DEC, VALS(mms_ConfirmedServiceRequest_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &mms_ConfirmedServiceRequest_vals_ext, 0,
         NULL, HFILL }},
     { &hf_mms_cs_request_detail,
       { "cs-request-detail", "mms.cs_request_detail",

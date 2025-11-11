@@ -14,6 +14,10 @@
   ProtectedGroundPDUs
 #.END
 
+#.USE_VALS_EXT
+ATCUplinkMsgElementId
+ATCDownlinkMsgElementId
+#.END
 
 #.FIELD_RENAME
 AircraftPDUs/send aircraftpdus_send

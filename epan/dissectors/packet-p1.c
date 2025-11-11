@@ -3586,6 +3586,8 @@ const value_string p1_NonDeliveryDiagnosticCode_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext p1_NonDeliveryDiagnosticCode_vals_ext = VALUE_STRING_EXT_INIT(p1_NonDeliveryDiagnosticCode_vals);
+
 
 int
 dissect_p1_NonDeliveryDiagnosticCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -9857,7 +9859,7 @@ void proto_register_p1(void) {
         "NonDeliveryReasonCode", HFILL }},
     { &hf_p1_non_delivery_diagnostic_code,
       { "non-delivery-diagnostic-code", "p1.non_delivery_diagnostic_code",
-        FT_UINT32, BASE_DEC, VALS(p1_NonDeliveryDiagnosticCode_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &p1_NonDeliveryDiagnosticCode_vals_ext, 0,
         "NonDeliveryDiagnosticCode", HFILL }},
     { &hf_p1_ContentTypes_item,
       { "ContentType", "p1.ContentType",

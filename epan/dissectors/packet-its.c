@@ -6590,6 +6590,8 @@ static const value_string its_CauseCodeChoice_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext its_CauseCodeChoice_vals_ext = VALUE_STRING_EXT_INIT(its_CauseCodeChoice_vals);
+
 static const per_choice_t its_CauseCodeChoice_choice[] = {
   {   0, &hf_its_reserved0       , ASN1_NO_EXTENSIONS     , dissect_its_SubCauseCodeType },
   {   1, &hf_its_trafficCondition1, ASN1_NO_EXTENSIONS     , dissect_its_TrafficConditionSubCauseCode },
@@ -23909,7 +23911,7 @@ void proto_register_its(void)
         "SubCauseCodeType", HFILL }},
     { &hf_its_ccAndScc,
       { "ccAndScc", "its.ccAndScc",
-        FT_UINT32, BASE_DEC, VALS(its_CauseCodeChoice_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &its_CauseCodeChoice_vals_ext, 0,
         "CauseCodeChoice", HFILL }},
     { &hf_its_protectedZoneLatitude,
       { "protectedZoneLatitude", "its.protectedZoneLatitude",

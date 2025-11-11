@@ -7849,6 +7849,8 @@ static const value_string ain_Parms_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext ain_Parms_vals_ext = VALUE_STRING_EXT_INIT(ain_Parms_vals);
+
 static const ber_choice_t Parms_choice[] = {
   {   0, &hf_ain_accessCode      , BER_CLASS_CON, 1, BER_FLAGS_NOOWNTAG, dissect_ain_AccessCode },
   {   1, &hf_ain_aCGEncountered  , BER_CLASS_CON, 2, BER_FLAGS_NOOWNTAG, dissect_ain_ACGEncountered },
@@ -10742,7 +10744,7 @@ void proto_register_ain(void) {
         NULL, HFILL }},
     { &hf_ain_InvParms_item,
       { "Parms", "ain.Parms",
-        FT_UINT32, BASE_DEC, VALS(ain_Parms_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &ain_Parms_vals_ext, 0,
         NULL, HFILL }},
     { &hf_ain_oDTMFNumberofDigits,
       { "oDTMFNumberofDigits", "ain.oDTMFNumberofDigits",

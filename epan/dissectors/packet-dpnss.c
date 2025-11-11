@@ -893,6 +893,9 @@ static const value_string dpnss_sup_serv_par_str_vals[] = {
     { DPNSS_CAUSE,                  "Cause"},
     { 0,    NULL }
 };
+static value_string_ext dpnss_sup_serv_par_str_vals_ext = VALUE_STRING_EXT_INIT(dpnss_sup_serv_par_str_vals);
+
+
 
 static void
 dissect_dpnns_sup_str_par(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree, int par_type_num, int par_start_offset, int par_end_offset)
@@ -1025,7 +1028,7 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree, 
         par_data = tvb_format_text(pinfo->pool, tvb,par_start_offset, par_len);
         /* Used to print all pars without any special handling */
         proto_tree_add_string_format(tree, hf_dpnss_parameter, tvb, par_start_offset, par_len, par_data, "Parameter %s: %s",
-            val_to_str(pinfo->pool, par_type_num, dpnss_sup_serv_par_str_vals, "Unknown (%d)" ), par_data);
+            val_to_str_ext(pinfo->pool, par_type_num, &dpnss_sup_serv_par_str_vals_ext, "Unknown (%d)" ), par_data);
         break;
     }
 

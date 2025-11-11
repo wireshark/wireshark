@@ -1778,6 +1778,8 @@ static const value_string h282_DeviceAttribute_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext h282_DeviceAttribute_vals_ext = VALUE_STRING_EXT_INIT(h282_DeviceAttribute_vals);
+
 static const per_choice_t DeviceAttribute_choice[] = {
   {   0, &hf_h282_deviceStateSupported, ASN1_EXTENSION_ROOT    , dissect_h282_NULL },
   {   1, &hf_h282_deviceDateSupported, ASN1_EXTENSION_ROOT    , dissect_h282_NULL },
@@ -5914,7 +5916,7 @@ void proto_register_h282(void) {
         "SET_OF_DeviceAttribute", HFILL }},
     { &hf_h282_deviceAttributeList_item,
       { "DeviceAttribute", "h282.DeviceAttribute",
-        FT_UINT32, BASE_DEC, VALS(h282_DeviceAttribute_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &h282_DeviceAttribute_vals_ext, 0,
         NULL, HFILL }},
     { &hf_h282_result_02,
       { "result", "h282.result",

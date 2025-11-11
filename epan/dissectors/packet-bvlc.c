@@ -544,6 +544,9 @@ BACnetErrorCode[] = {
    Enumerated values 256-65535 may be used by others subject to the
    procedures and constraints described in Clause 23. */
 };
+static value_string_ext BACnetErrorCode_ext = VALUE_STRING_EXT_INIT(BACnetErrorCode);
+
+
 
 static int * const bscvlc_control_flags[] = {
 	&hf_bscvlc_control_data_option,
@@ -1672,7 +1675,7 @@ proto_register_bvlc(void)
 		},
 		{ &hf_bscvlc_error_code,
 			{ "Error Code",		"bscvlc.error_code",
-			FT_UINT32, BASE_DEC, VALS(BACnetErrorCode), 0, NULL, HFILL }
+			FT_UINT32, BASE_DEC|BASE_EXT_STRING, &BACnetErrorCode_ext, 0, NULL, HFILL }
 		},
 		{ &hf_bscvlc_result_data,
 			{ "Result Data",	"bscvlc.result_data",

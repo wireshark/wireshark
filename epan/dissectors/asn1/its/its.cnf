@@ -79,6 +79,11 @@ $ETSI-ITS-CDD$VehicleHeight
 #.NO_EMIT
 Code-Units WITHOUT_VALS
 
+#.USE_VALS_EXT
+CauseCodeChoice
+#.END
+
+
 
 #.MODULE
 CAMv1-PDU-Descriptions					camv1

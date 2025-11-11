@@ -9612,6 +9612,8 @@ static const value_string nbap_CauseRadioNetwork_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext nbap_CauseRadioNetwork_vals_ext = VALUE_STRING_EXT_INIT(nbap_CauseRadioNetwork_vals);
+
 
 static int
 dissect_nbap_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -60002,7 +60004,7 @@ void proto_register_nbap(void)
         "C_ID", HFILL }},
     { &hf_nbap_radioNetwork,
       { "radioNetwork", "nbap.radioNetwork",
-        FT_UINT32, BASE_DEC, VALS(nbap_CauseRadioNetwork_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &nbap_CauseRadioNetwork_vals_ext, 0,
         "CauseRadioNetwork", HFILL }},
     { &hf_nbap_transport,
       { "transport", "nbap.transport",

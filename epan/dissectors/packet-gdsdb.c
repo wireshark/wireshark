@@ -378,6 +378,8 @@ static const value_string gdsdb_opcode[] = {
 	{ op_cancel,                 "cancel" },
 	{ 0, NULL }
 };
+static value_string_ext gdsdb_opcode_ext = VALUE_STRING_EXT_INIT(gdsdb_opcode);
+
 
 static const value_string gdsdb_architectures[] = {
 	{  1, "Generic" },
@@ -1408,7 +1410,7 @@ dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 			return 0;
 
 		col_append_sep_str(pinfo->cinfo, COL_INFO, ", ",
-				val_to_str(pinfo->pool, opcode, gdsdb_opcode, "Unknown opcode %u"));
+				val_to_str_ext(pinfo->pool, opcode, &gdsdb_opcode_ext, "Unknown opcode %u"));
 
 		ti = proto_tree_add_item(tree, proto_gdsdb, tvb, offset, -1, ENC_NA);
 		gdsdb_tree = proto_item_add_subtree(ti, ett_gdsdb);
@@ -1439,14 +1441,14 @@ proto_register_gdsdb(void)
 	static hf_register_info hf[] = {
 		{ &hf_gdsdb_opcode,
 			{ "Opcode", "gdsdb.opcode",
-			FT_UINT32, BASE_DEC, VALS(gdsdb_opcode), 0x0,
+			FT_UINT32, BASE_DEC|BASE_EXT_STRING, &gdsdb_opcode_ext, 0x0,
 			NULL, HFILL }
 		},
 		/* gdsdb_dummy */
 		/* gdsdb_connect */
 		{ &hf_gdsdb_connect_operation,
 			{ "Operation", "gdsdb.connect.operation",
-			FT_UINT32, BASE_DEC, VALS(gdsdb_opcode), 0x0,
+			FT_UINT32, BASE_DEC|BASE_EXT_STRING, &gdsdb_opcode_ext, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_gdsdb_connect_version,

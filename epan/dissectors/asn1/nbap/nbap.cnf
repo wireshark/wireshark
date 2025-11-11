@@ -31,6 +31,7 @@ TDD-ChannelisationCode
 TDD-ChannelisationCode768
 Process-Memory-Size
 DiscardTimer
+CauseRadioNetwork
 
 #.TYPE_RENAME
 ProcedureID/ddMode DdMode

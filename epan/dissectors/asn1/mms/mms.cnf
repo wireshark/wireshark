@@ -13,6 +13,10 @@ MMSpdu
 
 #.NO_EMIT
 
+#.USE_VALS_EXT
+ConfirmedServiceRequest
+#.END
+
 #.TYPE_RENAME
 ObjectName/domain-specific/itemId                       ObjectName_domain_specific_itemid
 

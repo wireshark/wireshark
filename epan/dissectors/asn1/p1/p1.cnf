@@ -57,6 +57,10 @@ AdditionalActions
 NonBasicParameters
 #.END
 
+#.USE_VALS_EXT
+NonDeliveryDiagnosticCode
+#.END
+
 #.EXPORTS
 EXTENSION
 Content

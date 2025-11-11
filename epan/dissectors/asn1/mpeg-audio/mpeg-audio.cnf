@@ -9,3 +9,7 @@ ID3v1/album TYPE=FT_STRING
 ID3v1/year TYPE=FT_STRING
 ID3v1/comment TYPE=FT_STRING
 #.END
+
+#.USE_VALS_EXT
+ID3v1/genre
+#.END

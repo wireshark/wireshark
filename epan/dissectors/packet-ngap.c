@@ -3505,7 +3505,7 @@ struct ngap_tap_t {
 #define MTYPE_DOWNLINK_RIM_INFORMATION_TRANSFER           131
 
 
-/* Value Strings. TODO: ext? */
+/* Value Strings. */
 static const value_string mtype_names[] = {
     { MTYPE_AMF_CONFIGURATION_UPDATE,                    "AMFConfigurationUpdate" },
     { MTYPE_AMF_CONFIGURATION_UPDATE_ACK,                "AMFConfigurationUpdateAcknowledge" },
@@ -3640,6 +3640,8 @@ static const value_string mtype_names[] = {
     { MTYPE_DOWNLINK_RIM_INFORMATION_TRANSFER,           "DownlinkRIMInformationTransfer" },
     { 0,  NULL }
 };
+static value_string_ext mtype_names_ext = VALUE_STRING_EXT_INIT(mtype_names);
+
 
 
 typedef struct _ngap_ctx_t {
@@ -3740,7 +3742,7 @@ static proto_tree *top_tree;
 
 static void set_message_label(asn1_ctx_t *actx, int type)
 {
-  const char *label = val_to_str_const(type, mtype_names, "Unknown");
+  const char *label = val_to_str_ext_const(type, &mtype_names_ext, "Unknown");
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, label);
   /* N.B. would like to be able to use actx->subTree.top_tree, but not easy to set.. */
   proto_item_append_text(top_tree, " (%s)", label);
@@ -31176,8 +31178,8 @@ ngap_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
 
     tick_stat_node(st, st_str_packets, 0, false);
     stats_tree_tick_pivot(st, st_node_packet_types,
-                          val_to_str(pinfo->pool, pi->ngap_mtype, mtype_names,
-                                     "Unknown packet type (%d)"));
+                          val_to_str_ext(pinfo->pool, pi->ngap_mtype, &mtype_names_ext,
+                                         "Unknown packet type (%d)"));
     return TAP_PACKET_REDRAW;
 }
 

@@ -1826,6 +1826,8 @@ static const value_string file_information_class_vals[] = {
         {75, "SeTimeZonePrivilege"},
         { 0, NULL }
 };
+static value_string_ext file_information_class_vals_ext = VALUE_STRING_EXT_INIT(file_information_class_vals);
+
 
 static bool dissect_procmon_filesystem_event(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint32_t operation, tvbuff_t* extra_details_tvb)
 {
@@ -3154,7 +3156,7 @@ proto_register_procmon(void)
         },
         { &hf_procmon_filesystem_directory_control_file_information_class,
           { "File Information Class", "procmon.filesystem.directory_control.file_information_class",
-            FT_UINT32, BASE_DEC, VALS(file_information_class_vals), 0, NULL, HFILL }
+            FT_UINT32, BASE_DEC|BASE_EXT_STRING, &file_information_class_vals_ext, 0, NULL, HFILL }
         },
         { &hf_procmon_filesystem_directory_control_notify_change_flags,
           { "Notify Change Flags", "procmon.filesystem.directory_control.notify_change_flags",

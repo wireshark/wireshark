@@ -3451,6 +3451,8 @@ static const value_string atn_cpdlc_ATCUplinkMsgElementId_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext atn_cpdlc_ATCUplinkMsgElementId_vals_ext = VALUE_STRING_EXT_INIT(atn_cpdlc_ATCUplinkMsgElementId_vals);
+
 static const per_choice_t ATCUplinkMsgElementId_choice[] = {
   {   0, &hf_atn_cpdlc_uM0NULL   , ASN1_EXTENSION_ROOT    , dissect_atn_cpdlc_NULL },
   {   1, &hf_atn_cpdlc_uM1NULL   , ASN1_EXTENSION_ROOT    , dissect_atn_cpdlc_NULL },
@@ -4786,6 +4788,8 @@ static const value_string atn_cpdlc_ATCDownlinkMsgElementId_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext atn_cpdlc_ATCDownlinkMsgElementId_vals_ext = VALUE_STRING_EXT_INIT(atn_cpdlc_ATCDownlinkMsgElementId_vals);
+
 static const per_choice_t ATCDownlinkMsgElementId_choice[] = {
   {   0, &hf_atn_cpdlc_dM0NULL   , ASN1_EXTENSION_ROOT    , dissect_atn_cpdlc_NULL },
   {   1, &hf_atn_cpdlc_dM1NULL   , ASN1_EXTENSION_ROOT    , dissect_atn_cpdlc_NULL },
@@ -5638,7 +5642,7 @@ void proto_register_atn_cpdlc (void)
         "SEQUENCE_SIZE_1_5_OF_ATCUplinkMsgElementId", HFILL }},
     { &hf_atn_cpdlc_atcuplinkmessagedata_elementids_item,
       { "ATCUplinkMsgElementId", "atn-cpdlc.ATCUplinkMsgElementId",
-        FT_UINT32, BASE_DEC, VALS(atn_cpdlc_ATCUplinkMsgElementId_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &atn_cpdlc_ATCUplinkMsgElementId_vals_ext, 0,
         NULL, HFILL }},
     { &hf_atn_cpdlc_atcuplinkmessagedata_constraineddata,
       { "constrainedData", "atn-cpdlc.atcuplinkmessagedata_constraineddata_element",
@@ -5662,7 +5666,7 @@ void proto_register_atn_cpdlc (void)
         "SEQUENCE_SIZE_1_5_OF_ATCDownlinkMsgElementId", HFILL }},
     { &hf_atn_cpdlc_atcdownlinkmessagedata_elementids_item,
       { "ATCDownlinkMsgElementId", "atn-cpdlc.ATCDownlinkMsgElementId",
-        FT_UINT32, BASE_DEC, VALS(atn_cpdlc_ATCDownlinkMsgElementId_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &atn_cpdlc_ATCDownlinkMsgElementId_vals_ext, 0,
         NULL, HFILL }},
     { &hf_atn_cpdlc_atcdownlinkmessagedata_constraineddata,
       { "constrainedData", "atn-cpdlc.atcdownlinkmessagedata_constraineddata_element",
