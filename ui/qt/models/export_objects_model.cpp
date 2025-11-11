@@ -208,6 +208,9 @@ void ExportObjectModel::resetObjects()
     export_object_gui_reset_cb reset_cb = get_eo_reset_func(eo_);
 
     beginResetModel();
+    foreach (QVariant v, objects_) {
+        eo_free_entry(VariantPointer<export_object_entry_t>::asPtr(v));
+    }
     objects_.clear();
     endResetModel();
 
