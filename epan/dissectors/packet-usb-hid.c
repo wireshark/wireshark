@@ -4665,6 +4665,9 @@ typedef struct _usb_setup_dissector_table_t {
     usb_setup_dissector dissector;
 } usb_setup_dissector_table_t;
 
+/* USBHID 1.11, Chapter 7.1 Standard Requests */
+#define USB_STD_SETUP_GET_DESCRIPTOR  0x06
+
 
 /* USBHID 1.11, Chapter 7.2 Class-Specific Requests */
 #define USB_HID_SETUP_GET_REPORT      0x01
@@ -4686,12 +4689,13 @@ static const usb_setup_dissector_table_t setup_dissectors[] = {
 };
 
 static const value_string setup_request_names_vals[] = {
-    { USB_HID_SETUP_GET_REPORT,   "GET_REPORT" },
-    { USB_HID_SETUP_GET_IDLE,     "GET_IDLE" },
-    { USB_HID_SETUP_GET_PROTOCOL, "GET_PROTOCOL" },
-    { USB_HID_SETUP_SET_REPORT,   "SET_REPORT" },
-    { USB_HID_SETUP_SET_IDLE,     "SET_IDLE" },
-    { USB_HID_SETUP_SET_PROTOCOL, "SET_PROTOCOL" },
+    { USB_STD_SETUP_GET_DESCRIPTOR, "GET_DESCRIPTOR" },
+    { USB_HID_SETUP_GET_REPORT,     "GET_REPORT" },
+    { USB_HID_SETUP_GET_IDLE,       "GET_IDLE" },
+    { USB_HID_SETUP_GET_PROTOCOL,   "GET_PROTOCOL" },
+    { USB_HID_SETUP_SET_REPORT,     "SET_REPORT" },
+    { USB_HID_SETUP_SET_IDLE,       "SET_IDLE" },
+    { USB_HID_SETUP_SET_PROTOCOL,   "SET_PROTOCOL" },
     { 0, NULL }
 };
 
@@ -5007,6 +5011,7 @@ dissect_usb_hid_control_std_intf(tvbuff_t *tvb, packet_info *pinfo,
         req = tvb_get_uint8(tvb, offset);
         if (req != USB_SETUP_GET_DESCRIPTOR)
             return offset;
+        proto_tree_add_item(tree, hf_usb_hid_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         col_clear(pinfo->cinfo, COL_INFO);
         col_append_str(pinfo->cinfo, COL_INFO, "GET DESCRIPTOR Request");
         offset += 1;
