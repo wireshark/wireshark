@@ -409,18 +409,7 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree_add_item(rtspframe_tree, hf_rtsp_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /*
-     * We set the actual length of the tvbuff for the interleaved
-     * stuff to the minimum of what's left in the tvbuff and the
-     * length in the header.
-     *
-     * XXX - what if there's nothing left in the tvbuff?
-     * We'd want a BoundsError exception to be thrown, so
-     * that a Short Frame would be reported.
-     */
-    if (length_remaining > rf_len)
-        length_remaining = rf_len;
-    next_tvb = tvb_new_subset_length_caplen(tvb, offset, length_remaining, rf_len);
+    next_tvb = tvb_new_subset_length(tvb, offset, rf_len);
 
     conv = find_conversation_pinfo_strat(pinfo, 0);
 

@@ -925,7 +925,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             else /* we found a suitable dissector */
             {
                 /* skip over the ppi_fieldheader, and pass it off to the dedicated GPS dissector */
-                next_tvb = tvb_new_subset_length_caplen(tvb, offset + 4, data_len - 4 , -1);
+                next_tvb = tvb_new_subset_length(tvb, offset + 4, data_len - 4);
                 call_dissector(ppi_gps_handle, next_tvb, pinfo, ppi_tree);
             }
             break;
@@ -938,7 +938,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             else /* we found a suitable dissector */
             {
                 /* skip over the ppi_fieldheader, and pass it off to the dedicated VECTOR dissector */
-                next_tvb = tvb_new_subset_length_caplen(tvb, offset + 4, data_len - 4 , -1);
+                next_tvb = tvb_new_subset_length(tvb, offset + 4, data_len - 4);
                 call_dissector(ppi_vector_handle, next_tvb, pinfo, ppi_tree);
             }
             break;
@@ -951,7 +951,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             else /* we found a suitable dissector */
             {
                 /* skip over the ppi_fieldheader, and pass it off to the dedicated SENSOR dissector */
-                next_tvb = tvb_new_subset_length_caplen(tvb, offset + 4, data_len - 4 , -1);
+                next_tvb = tvb_new_subset_length(tvb, offset + 4, data_len - 4);
                 call_dissector(ppi_sensor_handle, next_tvb, pinfo, ppi_tree);
             }
             break;
@@ -964,7 +964,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             else /* we found a suitable dissector */
             {
                 /* skip over the ppi_fieldheader, and pass it off to the dedicated ANTENNA dissector */
-                next_tvb = tvb_new_subset_length_caplen(tvb, offset + 4, data_len - 4 , -1);
+                next_tvb = tvb_new_subset_length(tvb, offset + 4, data_len - 4);
                 call_dissector(ppi_antenna_handle, next_tvb, pinfo, ppi_tree);
             }
             break;
@@ -977,7 +977,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             else /* we found a suitable dissector */
             {
                 /* skip over the ppi_fieldheader, and pass it off to the dedicated FNET dissector */
-                next_tvb = tvb_new_subset_length_caplen(tvb, offset + 4, data_len - 4 , -1);
+                next_tvb = tvb_new_subset_length(tvb, offset + 4, data_len - 4);
                 call_dissector(ppi_fnet_handle, next_tvb, pinfo, ppi_tree);
             }
             break;

@@ -767,7 +767,7 @@ dissect_data_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, 
 
         if (len > 0)
         {
-                payload_tvb = tvb_new_subset_length_caplen(tvb, off, len, tvb_reported_length_remaining(tvb, offset) );
+                payload_tvb = tvb_new_subset_length(tvb, off, len);
                 if ( ! dissector_try_heuristic(heur_opensafety_spdo_subdissector_list, payload_tvb, pinfo, epl_tree, &hdtbl_entry, &msgType))
                         call_dissector(data_dissector, payload_tvb, pinfo, epl_tree);
 
@@ -2047,7 +2047,6 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
     bool                handled, dissectorCalled, call_sub_dissector, markAsMalformed;
     uint8_t             type, found, tempByte, previous_msg_id;
     uint16_t            frameStart1, frameStart2, byte_offset;
-    int                 reported_len;
     dissector_handle_t  protocol_dissector = NULL;
     proto_item         *opensafety_item;
     proto_tree         *opensafety_tree;
@@ -2078,8 +2077,6 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
             protocol_dissector = data_dissector;
     }
 
-    reported_len = tvb_reported_length_remaining(given_tvb, 0);
-
     /* This will swap the bytes according to MBTCP encoding */
     if ( do_byte_swap == true && global_mbtcp_big_endian == true )
     {
@@ -2099,7 +2096,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
             tempByte = swbytes [ 2 * i ]; swbytes [ 2 * i ] = swbytes [ 2 * i + 1 ]; swbytes [ 2 * i + 1 ] = tempByte;
         }
 
-        message_tvb = tvb_new_real_data(swbytes, length, reported_len);
+        message_tvb = tvb_new_real_data(swbytes, length, length);
     } else {
         message_tvb = given_tvb;
     }
@@ -2133,7 +2130,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
              * check in findSafetyFrame for the msg id (this happens later in this routine)
              * frameLength is calculated/read directly from the dissected data. If frameLength and frameOffset together
              * are bigger than the reported length, the package is not really an openSAFETY package */
-            if ( packet->msg_id == 0 || ( frameOffset + frameLength ) > (unsigned)reported_len )
+            if ( packet->msg_id == 0 || ( frameOffset + frameLength ) > length )
                 break;
 
             found++;
@@ -2301,14 +2298,14 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
             if ( global_display_intergap_data == true && gapStart != frameOffset )
             {
                 /* Storing the gap data in subset, and calling the data dissector to display it */
-                gap_tvb = tvb_new_subset_length_caplen(message_tvb, gapStart, (frameOffset - gapStart), reported_len);
+                gap_tvb = tvb_new_subset_length(message_tvb, gapStart, frameOffset - gapStart);
                 call_dissector(data_dissector, gap_tvb, pinfo, tree);
             }
             /* Setting the gap to the next offset */
             gapStart = frameOffset + frameLength;
 
             /* Adding second data source */
-            next_tvb = tvb_new_subset_length_caplen ( message_tvb, frameOffset, frameLength, reported_len );
+            next_tvb = tvb_new_subset_length(message_tvb, frameOffset, frameLength);
 
             /* Adding a visual aid to the dissector tree */
             add_new_data_source(pinfo, next_tvb, "openSAFETY Frame");
@@ -2394,7 +2391,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
         if ( frameOffset < length && global_display_intergap_data == true && gapStart != frameOffset )
         {
             /* Storing the gap data in subset, and calling the data dissector to display it */
-            gap_tvb = tvb_new_subset_length_caplen(message_tvb, gapStart, (length - gapStart), reported_len);
+            gap_tvb = tvb_new_subset_length(message_tvb, gapStart, length - gapStart);
             call_dissector(data_dissector, gap_tvb, pinfo, tree);
         }
     }

@@ -1344,7 +1344,7 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
 			  packet_info *pinfo, int hfindex)
 {
 	uint32_t opaque_length, rounded_length;
-	int len_consumed, length, reported_length;
+	int len_consumed, reported_length;
 	tvbuff_t *new_tvb;
 
 	proto_item *gitem;
@@ -1360,15 +1360,10 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
 	offset += 4;
 
 	if (opaque_length != 0) {
-		length = tvb_captured_length_remaining(tvb, offset);
 		reported_length = tvb_reported_length_remaining(tvb, offset);
-		if (length > reported_length)
-			length = reported_length;
-		if ((uint32_t)length > opaque_length)
-			length = opaque_length;
 		if ((uint32_t)reported_length > opaque_length)
 			reported_length = opaque_length;
-		new_tvb = tvb_new_subset_length_caplen(tvb, offset, length, reported_length);
+		new_tvb = tvb_new_subset_length(tvb, offset, reported_length);
 		len_consumed = call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
 		offset += len_consumed;
 	}
@@ -3342,19 +3337,16 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	if (tvb_len < (int)len) {
 		/*  We don't have all the data for this fragment. */
 		can_defragment = false;
-	}if (tvb_len > (int)len) {
-		tvb_len = len;
 	}
 
-	frag_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len,
-	    tvb_reported_len);
+	frag_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_len);
 
 	/*
 	 * If we're not defragmenting, just hand this to the
 	 * disssector.
 	 *
 	 * We defragment only if we should (rpc_defragment true) *and* we
-	 * can (tvb_len <= len, so that we have all the data in the fragment).
+	 * can (tvb_len >= len, so that we have all the data in the fragment).
 	 */
 	if (!can_defragment) {
 		/*

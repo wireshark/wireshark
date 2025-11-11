@@ -1316,7 +1316,7 @@ dissect_eigrp_services (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
          */
         reach_tree = proto_tree_add_subtree(sub_tree, sub_tvb, sub_offset, 22,
                                        ett_eigrp_saf_reachability, NULL, "Reachability");
-        reach_tvb = tvb_new_subset_length_caplen(sub_tvb, sub_offset, 22, -1);
+        reach_tvb = tvb_new_subset_length(sub_tvb, sub_offset, 22);
 
         afi = tvb_get_ntohs(reach_tvb, 0);
         proto_tree_add_item(reach_tree, hf_eigrp_saf_reachability_afi,
@@ -2161,7 +2161,7 @@ dissect_eigrp_wide_metric_attr (proto_tree *tree, tvbuff_t *tvb,
 
         case EIGRP_ATTR_COMM:
             dissect_eigrp_metric_comm(sub_tree,
-                                      tvb_new_subset_length_caplen(sub_tvb, sub_offset, 8, -1),
+                                      tvb_new_subset_length(sub_tvb, sub_offset, 8),
                                       sub_offset, limit);
             break;
 

@@ -10009,7 +10009,7 @@ tvbuff_t *rtps_util_get_uncompressed_tvb_zlib(
 #if defined(HAVE_ZLIB) || defined(HAVE_ZLIBNG)
     /* If ZLIB is available always try to decompress. */
     *tried_to_decompress = true;
-    uncompressed_tvb = tvb_new_subset_length_caplen(tvb, offset, compressed_size, -1);
+    uncompressed_tvb = tvb_new_subset_length(tvb, offset, compressed_size);
     uncompressed_tvb = tvb_child_uncompress_zlib(uncompressed_tvb, uncompressed_tvb, 0, compressed_size);
 #else
     *tried_to_decompress = false;

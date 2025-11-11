@@ -1150,36 +1150,36 @@ dissect_optional(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		switch(type) {
 			case 0x0d:
-				dissect_optional_0d(tvb_new_subset_length_caplen(tvb, offset,
-				    len << 2, -1), sub_tree);
+				dissect_optional_0d(tvb_new_subset_length(tvb, offset,
+				    len << 2), sub_tree);
 				break;
 			case 0x0e:
-				dissect_optional_0e(tvb_new_subset_length_caplen(tvb, offset,
-				    len << 2, -1), pinfo, sub_tree);
+				dissect_optional_0e(tvb_new_subset_length(tvb, offset,
+				    len << 2), pinfo, sub_tree);
 				break;
 			case 0x0f:
-				dissect_optional_0f(tvb_new_subset_length_caplen(tvb, offset,
-				    len << 2, -1), pinfo, sub_tree);
+				dissect_optional_0f(tvb_new_subset_length(tvb, offset,
+				    len << 2), pinfo, sub_tree);
 				break;
 			case 0x10:
-				dissect_optional_10(tvb_new_subset_length_caplen(tvb, offset,
-				    len << 2, -1), pinfo, sub_tree);
+				dissect_optional_10(tvb_new_subset_length(tvb, offset,
+				    len << 2), pinfo, sub_tree);
 				break;
 			case 0x12:
-				dissect_optional_12(tvb_new_subset_length_caplen(tvb, offset,
-				    len << 2, -1), sub_tree);
+				dissect_optional_12(tvb_new_subset_length(tvb, offset,
+				    len << 2), sub_tree);
 				break;
 			case 0x14:
-				dissect_optional_14(tvb_new_subset_length_caplen(tvb, offset,
-				    len << 2, -1), pinfo, sub_tree);
+				dissect_optional_14(tvb_new_subset_length(tvb, offset,
+				    len << 2), pinfo, sub_tree);
 				break;
 			case 0x22:
-				dissect_optional_22(tvb_new_subset_length_caplen(tvb, offset,
-				    len << 2, -1), pinfo, sub_tree);
+				dissect_optional_22(tvb_new_subset_length(tvb, offset,
+				    len << 2), pinfo, sub_tree);
 				break;
 			default:
-				call_data_dissector(tvb_new_subset_length_caplen(tvb, offset,
-				    len << 2, -1), pinfo, sub_tree);
+				call_data_dissector(tvb_new_subset_length(tvb, offset,
+				    len << 2), pinfo, sub_tree);
 		}
 		offset += (len << 2);
 	}
@@ -1324,15 +1324,15 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (tvb_get_uint8(tvb, indx+subindx+1) == 5)
 			dissect_sna_control(tvb, indx + subindx, counter+2, nlp_tree, 1, LT);
 		else
-			call_data_dissector(tvb_new_subset_length_caplen(tvb, indx + subindx, counter+2,
-			    -1), pinfo, nlp_tree);
+			call_data_dissector(tvb_new_subset_length(tvb, indx + subindx, counter+2),
+			    pinfo, nlp_tree);
 
 		subindx += (counter+2);
 	}
 	if ((thdr_9 & 0x04) && ((thdr_len << 2) > subindx))
 		dissect_optional(
-		    tvb_new_subset_length_caplen(tvb, indx + subindx,
-		    (thdr_len << 2) - subindx, -1),
+		    tvb_new_subset_length(tvb, indx + subindx,
+		    (thdr_len << 2) - subindx),
 		    pinfo, nlp_tree);
 
 	indx += (thdr_len << 2);
@@ -1527,20 +1527,20 @@ dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			case 0:
 				break;
 			case 1:
-				dissect_xid1(tvb_new_subset_length_caplen(tvb, 6, len-6, -1),
+				dissect_xid1(tvb_new_subset_length(tvb, 6, len-6),
 				    tree);
 				break;
 			case 2:
-				dissect_xid2(tvb_new_subset_length_caplen(tvb, 6, len-6, -1),
+				dissect_xid2(tvb_new_subset_length(tvb, 6, len-6),
 				    tree);
 				break;
 			case 3:
-				dissect_xid3(tvb_new_subset_length_caplen(tvb, 6, len-6, -1),
+				dissect_xid3(tvb_new_subset_length(tvb, 6, len-6),
 				    tree);
 				break;
 			default:
 				/* external standards organizations */
-				call_data_dissector(tvb_new_subset_length_caplen(tvb, 6, len-6, -1),
+				call_data_dissector(tvb_new_subset_length(tvb, 6, len-6),
 				    pinfo, tree);
 		}
 	}
@@ -2294,18 +2294,11 @@ dissect_sna_control(tvbuff_t *parent_tvb, int offset, int control_len,
 		proto_tree *tree, int hpr, enum parse parse)
 {
 	tvbuff_t	*tvb;
-	int		length, reported_length;
 	proto_tree	*sub_tree;
 	int		len, key;
 	int		ett;
 
-	length = tvb_captured_length_remaining(parent_tvb, offset);
-	reported_length = tvb_reported_length_remaining(parent_tvb, offset);
-	if (control_len < length)
-		length = control_len;
-	if (control_len < reported_length)
-		reported_length = control_len;
-	tvb = tvb_new_subset_length_caplen(parent_tvb, offset, length, reported_length);
+	tvb = tvb_new_subset_length(parent_tvb, offset, control_len);
 
 	sub_tree = NULL;
 
