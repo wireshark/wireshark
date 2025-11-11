@@ -4191,6 +4191,7 @@ BACnetErrorCode [] = {
    Enumerated values 256-65535 may be used by others subject to the
    procedures and constraints described in Clause 23. */
 };
+static value_string_ext BACnetErrorCode_ext = VALUE_STRING_EXT_INIT(BACnetErrorCode);
 
 static const value_string
 BACnetPropertyIdentifier [] = {
@@ -18095,7 +18096,7 @@ proto_register_bacapp(void)
         },
         { &hf_bacapp_error_code,
           { "Error Code", "bacapp.error_code",
-            FT_UINT32, BASE_DEC, VALS(BACnetErrorCode), 0, NULL, HFILL }
+            FT_UINT32, BASE_DEC|BASE_EXT_STRING, &BACnetErrorCode_ext, 0, NULL, HFILL }
         },
         { &hf_bacapp_present_value_null,
           { "Present Value (null)", "bacapp.present_value.null",

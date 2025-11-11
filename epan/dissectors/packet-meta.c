@@ -201,9 +201,9 @@ static value_string_ext meta_id_vals_ext = VALUE_STRING_EXT_INIT(meta_id_vals);
 #define META_AAL5PROTO_NBAP     6
 static const value_string meta_aal5proto_vals[] = {
     { META_AAL5PROTO_MTP3,  "SSCOP MTP3" },
+    { META_AAL5PROTO_NS,    "GPRS NS" },
     { META_AAL5PROTO_ALCAP, "SSCOP ALCAP" },
     { META_AAL5PROTO_NBAP,  "SSCOP NBAP" },
-    { META_AAL5PROTO_NS,    "GPRS NS" },
     { 0, NULL }
 };
 

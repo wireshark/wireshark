@@ -239,9 +239,9 @@ static const value_string route_policy_tlv_policy_class_typevals[] = {
 
 static const value_string bmpv4_tlv_typevals[] = {
     { BMPv4_TLV_TYPE_STATELESS_PARSING,      "Stateless Parsing" },
+    { BMPv4_TLV_TYPE_GROUP,                  "Group" },
     { BMPv4_TLV_TYPE_VRF_TABLE_NAME,         "VRF/Table Name" },
     { BMPv4_TLV_TYPE_BGP_MSG,                "BGP Message" },
-    { BMPv4_TLV_TYPE_GROUP,                  "Group" },
     { BMPv4_TLV_TYPE_BGP_PATH_STATUS,        "BGP Path Status" },
     { 0, NULL }
 };

@@ -2181,6 +2181,7 @@ static const value_string v10_barracuda_logop[] = {
     { 28, "IntermediateReport" },
     { 0, NULL }
 };
+static value_string_ext v10_barracuda_logop_ext = VALUE_STRING_EXT_INIT(v10_barracuda_logop);
 
 static const value_string v10_barracuda_traffictype[] = {
     { 0, "Forwarding" },
@@ -2237,6 +2238,7 @@ static const value_string v10_cisco_waas_passthrough_reason[] = {
     { 33, "PT_RTSP_ALG" },
     {  0, NULL }
 };
+static value_string_ext v10_cisco_waas_passthrough_reason_ext = VALUE_STRING_EXT_INIT(v10_cisco_waas_passthrough_reason);
 
 static const value_string v10_template_types_fastip[] = {
     { 0, "METER_VERSION"},
@@ -21253,7 +21255,7 @@ proto_register_netflow(void)
         /* Barracuda, 10704 / 2 */
         {&hf_pie_barracuda_logop,
          {"LogOp", "cflow.pie.barracuda.logop",
-          FT_UINT8, BASE_DEC, VALS(v10_barracuda_logop), 0x0,
+          FT_UINT8, BASE_DEC|BASE_EXT_STRING, &v10_barracuda_logop_ext, 0x0,
           NULL, HFILL}
         },
         /* Barracuda, 10704 / 3 */
@@ -22294,7 +22296,7 @@ proto_register_netflow(void)
         /* Cisco, 9 / 9253 */
         {&hf_pie_cisco_services_waas_passthrough_reason,
          {"Services WAAS Passthrough-reason", "cflow.pie.cisco.services_waas_passthrough-reason",
-          FT_UINT8, BASE_DEC, VALS(v10_cisco_waas_passthrough_reason), 0x0,
+          FT_UINT8, BASE_DEC|BASE_EXT_STRING, &v10_cisco_waas_passthrough_reason_ext, 0x0,
           NULL, HFILL}
         },
         /* Cisco, 9 / 9357 */

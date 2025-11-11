@@ -2462,7 +2462,7 @@ static const aim_subtype aim_fnac_family_generic[] = {
 /***********************************************************************************************************
  * AIM ICQ
  ***********************************************************************************************************/
-#define ICQ_CLI_OFFLINE_MESSAGE_REQ 	0x003c
+#define ICQ_CLI_OFFLINE_MESSAGE_REQ	0x003c
 #define ICQ_CLI_DELETE_OFFLINE_MSGS	0x003e
 #define ICQ_SRV_OFFLINE_MSGS		0x0041
 #define ICQ_SRV_END_OF_OFFLINE_MSGS	0x0042
@@ -2471,9 +2471,9 @@ static const aim_subtype aim_fnac_family_generic[] = {
 
 static const value_string aim_icq_data_types[] = {
 	{ ICQ_CLI_OFFLINE_MESSAGE_REQ, "Offline Message Request" },
+	{ ICQ_CLI_DELETE_OFFLINE_MSGS, "Delete Offline Messages Request" },
 	{ ICQ_SRV_OFFLINE_MSGS,        "Offline Messages Reply" },
 	{ ICQ_SRV_END_OF_OFFLINE_MSGS, "End Of Offline Messages Reply" },
-	{ ICQ_CLI_DELETE_OFFLINE_MSGS, "Delete Offline Messages Request" },
 	{ ICQ_CLI_META_INFO_REQ,       "Metainfo Request" },
 	{ ICQ_SRV_META_INFO_REPL,      "Metainfo Reply" },
 	{ 0, NULL }

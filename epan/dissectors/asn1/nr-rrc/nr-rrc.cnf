@@ -53,6 +53,9 @@ T-Reassembly
 T-StatusProhibit
 UL-DataSplitThreshold
 UTRA-FDD-Q-OffsetRange-r16
+PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item
+SL-PosSIB-ReqInfo-r18/posSibType-r18
+PosSIB-ReqInfo-r16/posSibType-r16
 
 #.EXPORTS
 BandCombinationIndex_PDU

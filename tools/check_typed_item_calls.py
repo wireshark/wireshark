@@ -931,6 +931,12 @@ class ValueString:
                     global warnings_found
                     warnings_found += 1
 
+        # N.B., arbitrary threshold for suggesting value_string_ext
+        ext_threshold = 64
+        if not self.out_of_order and span >= ext_threshold and span == len(self.parsed_vals) and self.name not in self.ext:
+            #print(self.ext)
+            print('Note:', self.file, ': value_string', self.name, 'has', span, 'consecutive entries - possible candidate for value_string_ext?')
+
         # Do most of the labels match the number?
         matching_label_entries = set()
         for val in self.parsed_vals:
@@ -1143,7 +1149,7 @@ def findValueStrings(filename, contents, macros, do_extra_checks=False):
 
     # Find value_strings that are used as ext
     ext = set()
-    matches = re.finditer(r'value_string_ext\s*([a-zA-Z0_9]+)\s*\=\s*VALUE_STRING_EXT_INIT\((.*)\)', contents)
+    matches = re.finditer(r'value_string_ext\s*([a-zA-Z0-9_]+)\s*\=\s*VALUE_STRING_EXT_INIT\((.*)\)', contents)
     for m in matches:
         ext.add(m.group(2))
 
