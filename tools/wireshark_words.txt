@@ -917,6 +917,7 @@ encryptionkey
 encrypts
 enctype
 endace
+endcond
 endian
 endianness
 endif
@@ -1376,6 +1377,7 @@ intcon
 intel
 intensities
 interchangibly
+interface1d
 interferer
 interleaving
 internacional
@@ -2178,6 +2180,7 @@ plcinterface
 plessey
 plixer
 plmnid
+plottable1d
 plugin
 pluginize
 plugins
@@ -2317,6 +2320,7 @@ qnet6
 qnsview
 qosinfo
 qpack
+qproperties
 qsearch
 qstring
 qtbase
@@ -2596,8 +2600,10 @@ rtpfb
 rtpmap
 rtpmidi
 rtpmux
+rtpproxy
 rtpstream
 ruleset
+ruoff
 russian
 russwin
 rwanda
@@ -2663,6 +2669,7 @@ sectigo
 sectorization
 sectorized
 secur
+seebaseclassmethod
 seg1a
 seg2a
 seg3a
@@ -3375,6 +3382,7 @@ vcpkg
 vcredist
 vcxproj
 vdisplay
+vector2d
 vector3d
 venusmngr
 verbose

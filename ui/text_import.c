@@ -877,7 +877,7 @@ struct plain_decoding_data {
  * Some compilers warn about initializing the same subobject
  * more than once with designated initializers.
  *
- * We're doing that - INVALID_INIT iniitalizes everything to
+ * We're doing that - INVALID_INIT initializes everything to
  * INVALID_VALUE, but then we override selected elements -
  * but we know what we're doing, so just suppress that
  * warning.

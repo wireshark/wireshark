@@ -2840,7 +2840,7 @@ finished_fwd:
                 }
 
                 /* Only look at what happens above the current ACK value,
-                 * as what happened before is definetely ACKed here and can be
+                 * as what happened before is definitely ACKed here and can be
                  * safely ignored. */
                 if(GE_SEQ(ual->seq,ack)) {
 
@@ -5368,7 +5368,7 @@ again:
                         tcpd->fwd->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
                         /* This is not the first segment, and we thought the
                          * reassembly would be done now, but now know we must
-                         * desgement until FIN. (E.g., HTTP Response with headers
+                         * desegment until FIN. (E.g., HTTP Response with headers
                          * split across segments, and no Content-Length or
                          * Transfer-Encoding (RFC 7230, Section 3.3.3, case 7.)
                          * For the same reasons as below when we encounter

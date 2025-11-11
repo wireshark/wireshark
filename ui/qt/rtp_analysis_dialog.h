@@ -72,7 +72,7 @@ public:
     static RtpAnalysisDialog *openRtpAnalysisDialog(QWidget &parent, CaptureFile &cf, PacketList *packet_list);
 
     /**
-     * Should not be clonnable and assignable
+     * Should not be cloneable and assignable
      */
     RtpAnalysisDialog(RtpAnalysisDialog &other) = delete;
     void operator=(const RtpAnalysisDialog &) = delete;

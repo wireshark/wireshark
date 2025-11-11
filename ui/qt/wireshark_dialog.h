@@ -55,17 +55,17 @@ protected:
      * endRetapPackets is called.
      *
      * This is automatically called when tapping begins, but might need to be
-     * called explicilty if any member functions are called or variables are
+     * called explicitly if any member functions are called or variables are
      * accessed after tapping is finished.
      */
 
     void beginRetapPackets();
     /**
      * @brief Mark the end of a code block that retaps packets. If the user
-     * has closed the dialog it will be desroyed at this point.
+     * has closed the dialog it will be destroyed at this point.
      *
      * This is automatically called when tapping ends, but might need to be
-     * called explicilty if any member functions are called or variables are
+     * called explicitly if any member functions are called or variables are
      * accessed after tapping is finished.
      */
     virtual void endRetapPackets();

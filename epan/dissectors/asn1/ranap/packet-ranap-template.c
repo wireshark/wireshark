@@ -147,7 +147,7 @@ static dissector_handle_t ranap_handle;
  * SuccessfulOutcome
  * UnsuccessfulOutcome
  * Outcome
- * As a workarond a value is added to the IE:id in the .cnf file.
+ * As a workaround a value is added to the IE:id in the .cnf file.
  * Example:
  * ResetResourceList                N rnsap.ies IMSG||id-IuSigConIdList  # no spaces are allowed in value as a space is delimiter
  * PDU type is stored in a global variable and can is used in the IE decoding section.
@@ -323,7 +323,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   /* Is it a ranap packet?
    *
    * 4th octet should be the length of the rest of the message.
-   * 3th octed is the Criticality field
+   * 3th octet is the Criticality field
    * 2nd octet is the message-type e Z[0, 28]
    * 1st octet is the PDU type (with the extension bit)
    * (obviously there must be at least four octets)

@@ -2343,7 +2343,7 @@ h245dg_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
         }
     } else {
         /* Tunnel is ON, so we save the label info to use it into h225 or q931 tap. OR may be
-           tunnel OFF but we did not matched the h245 add, in this case nobady will set this label
+           tunnel OFF but we did not matched the h245 add, in this case nobody will set this label
            since the frame_num will not match */
 
         h245_add_label(tapinfo, pinfo->num, pi->frame_label, pi->comment);

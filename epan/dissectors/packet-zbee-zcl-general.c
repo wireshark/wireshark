@@ -15997,7 +15997,7 @@ zcl_touchlink_comissioning_hash (const void *v)
 
     return hash;
 }
-/* Functions for Touchlink Comissionning hashtables. }}} */
+/* Functions for Touchlink Commissioning hashtables. }}} */
 
 /**
  *This function decodes the Scan Request payload.
@@ -16535,7 +16535,7 @@ dissect_zcl_touchlink_endpoint_list_response(tvbuff_t *tvb, proto_tree *tree, un
 } /* dissect_zcl_touchlink_endpoint_list_response */
 
 /**
- *ZigBee ZCL Touchlink Commissioining cluster dissector for wireshark.
+ *ZigBee ZCL Touchlink Commissioning cluster dissector for wireshark.
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param pinfo pointer to packet information fields

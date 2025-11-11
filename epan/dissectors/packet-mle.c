@@ -4,7 +4,7 @@
  * Colin O'Flynn <coflynn@newae.com>
  *
  * The entire security section of this is lifted from the IEEE 802.15.4
- * dissectory, as this is done the same way. Should eventually make the
+ * dissector, as this is done the same way. Should eventually make the
  * two use some common functions or something. But that section is:
  * By Owen Kirby <osk@exegin.com>
  * Copyright 2007 Exegin Technologies Limited

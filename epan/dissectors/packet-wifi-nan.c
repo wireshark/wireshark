@@ -264,7 +264,7 @@ static int hf_nan_attr_ndpe_ctrl_confirm;
 static int hf_nan_attr_ndpe_ctrl_security_pres;
 static int hf_nan_attr_ndpe_ctrl_publish_id_pres;
 static int hf_nan_attr_ndpe_ctrl_responder_ndi_pres;
-static int hf_nan_attr_ndpe_ctrl_gtk_requried;
+static int hf_nan_attr_ndpe_ctrl_gtk_required;
 static int hf_nan_attr_ndp_control;
 static int hf_nan_attr_ndpe_control;
 static int hf_nan_attr_ndp_responder_ndi;
@@ -379,7 +379,7 @@ static int hf_nan_attr_pairing_bootstrapping_dialog_token;
 static int hf_nan_attr_pairing_bootstrapping_type_status;
 static int hf_nan_attr_pairing_bootstrapping_type;
 static int hf_nan_attr_pairing_bootstrapping_status;
-static int hf_nan_attr_pairing_bootstrapping_resaon_code;
+static int hf_nan_attr_pairing_bootstrapping_reason_code;
 static int hf_nan_attr_pairing_bootstrapping_comeback_after;
 static int hf_nan_attr_pairing_bootstrapping_comeback_cookie_len;
 static int hf_nan_attr_pairing_bootstrapping_comeback_cookie;
@@ -1584,7 +1584,7 @@ dissect_attr_ndpe(proto_tree* attr_tree, tvbuff_t* tvb, int offset, uint16_t att
         &hf_nan_attr_ndpe_ctrl_security_pres,
         &hf_nan_attr_ndpe_ctrl_publish_id_pres,
         &hf_nan_attr_ndpe_ctrl_responder_ndi_pres,
-        &hf_nan_attr_ndpe_ctrl_gtk_requried,
+        &hf_nan_attr_ndpe_ctrl_gtk_required,
         NULL
     };
 
@@ -2578,11 +2578,11 @@ dissect_attr_nan_pairing_bootstrapping(proto_tree* attr_tree, tvbuff_t* tvb, int
         ett_nan_pairing_bootstrapping_type_status, type_and_status_fields, ENC_LITTLE_ENDIAN);
     npba_local_offset += 1;
 
-    /* Resaon code
+    /* reason code
      * Indicate the reject reason when Type = 2 (Response) and Status = 1 (Rejected); otherwise, reserved */
     if ((type == 2) && (status == 1))
     {
-        proto_tree_add_item(attr_tree, hf_nan_attr_pairing_bootstrapping_resaon_code, tvb,
+        proto_tree_add_item(attr_tree, hf_nan_attr_pairing_bootstrapping_reason_code, tvb,
             npba_local_offset, 1, ENC_LITTLE_ENDIAN);
     }
     else
@@ -2592,9 +2592,9 @@ dissect_attr_nan_pairing_bootstrapping(proto_tree* attr_tree, tvbuff_t* tvb, int
     }
     npba_local_offset += 1;
 
-    /* Comeback, if any. Presetned if,
+    /* Comeback, if any. Presented if,
      * a) type is 2 and status is 2, or
-     * b) type is 1 and status is 2, and cookie is requried (based on attribute length)
+     * b) type is 1 and status is 2, and cookie is required (based on attribute length)
      */
     bool comeback_presented = (attr_len > NAN_PAIRING_BOOTSTRAPPING_LEN);
 
@@ -3871,7 +3871,7 @@ proto_register_nan(void)
              FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL
              }
         },
-        { &hf_nan_attr_ndpe_ctrl_gtk_requried,
+        { &hf_nan_attr_ndpe_ctrl_gtk_required,
              {
              "GTK Required",
              "wifi_nan.ndpe.ctrl.gtk_required",

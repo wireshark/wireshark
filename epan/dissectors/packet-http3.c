@@ -210,7 +210,7 @@ static int ett_http3_datagram_stream_id;
 /**
  * HTTP3 header constants.
  * The below constants are used for dissecting the
- * code. This is not an exahustive list.
+ * code. This is not an exhaustive list.
  */
 #define HTTP3_HEADER_NAME_CONTENT_ENCODING  "content-encoding"
 #define HTTP3_HEADER_NAME_CONTENT_TYPE      "content-type"
@@ -549,7 +549,7 @@ typedef struct _http3_file_local_ctx {
  * @function http3_get_file_local_ctx
  * @abstract  Will create a new instance for the first time
  *            the file is visited.
- *            This function is not intended to be invked directly,
+ *            This function is not intended to be invoked directly,
  *            but should be used via the `HTTP3_CONN_INFO_MAP` et. al. below.
  * @returns file-local context.
  */

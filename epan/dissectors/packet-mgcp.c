@@ -247,7 +247,7 @@ static const value_string mgcp_reason_code_vals[] = {
 
 /*
  * Define the trees for mgcp
- * We need one for MGCP itself, one for the MGCP paramters and one
+ * We need one for MGCP itself, one for the MGCP parameters and one
  * for each of the dissected parameters
  */
 static int ett_mgcp;
@@ -685,7 +685,7 @@ static bool is_mgcp_verb(tvbuff_t *tvb, int offset, int maxlength, const char **
 
 	/* This function is used for checking if a packet is actually an
 	   mgcp packet. Make sure that we do not throw an exception
-	   during such a check. If we did throw an exeption, we could
+	   during such a check. If we did throw an exception, we could
 	   not refuse the packet and give other dissectors the chance to
 	   look at it. */
 	if (tvb_captured_length_remaining(tvb, offset) < (int)sizeof(word))

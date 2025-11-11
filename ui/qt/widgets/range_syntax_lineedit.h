@@ -1,6 +1,6 @@
 /** @file
  *
- * Delegates for editing prefereneces.
+ * Delegates for editing preferences.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
