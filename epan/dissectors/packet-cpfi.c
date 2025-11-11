@@ -314,7 +314,6 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   if (pinfo->dst.type != AT_ETHER || pinfo->src.type != AT_ETHER)
     return 0;
 
-  length = tvb_captured_length_remaining(message_tvb, 8);
   reported_length = tvb_reported_length_remaining(message_tvb, 8);
   if (reported_length < 8)
   {
