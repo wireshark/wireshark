@@ -756,7 +756,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 			tvbuff_t *datatvb;
 
 			if (client_id == 2) {
-				add_sdnv64_to_tree(ltp_data_tree, new_tvb, pinfo, frame_offset+parse_offset, hf_ltp_data_sda_clid, &sda_client_id, &sdnv_length);
+				add_sdnv64_to_tree(block_tree, new_tvb, pinfo, parse_offset, hf_ltp_data_sda_clid, &sda_client_id, &sdnv_length);
 				parse_offset += sdnv_length;
 				if (parse_offset == parse_length) {
 					col_set_str(pinfo->cinfo, COL_INFO, "CCSDS LTP SDA Protocol Error");
@@ -1981,7 +1981,7 @@ proto_register_ltp(void)
 	  },
 	  {&hf_ltp_data_sda_clid,
 		  {"Client service ID", "ltp.data.sda.client.id",
-		  FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+		  FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(client_service_id_info), 0x0, NULL, HFILL}
 	  }
 	};
 
