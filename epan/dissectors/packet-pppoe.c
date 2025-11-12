@@ -1058,7 +1058,7 @@ static int dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	reported_payload_length = tvb_get_ntohs(tvb, 4);
 	actual_payload_length = tvb_reported_length_remaining(tvb, 6);
 
-	if (tree)
+/*	if (tree) */
 	{
 		ti = proto_tree_add_item(tree, proto_pppoes, tvb, 0, 6, ENC_NA);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoe);
