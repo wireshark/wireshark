@@ -19,6 +19,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/crc16-tvb.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/decode_as.h>
@@ -123,6 +124,7 @@ static int hf_btl2cap_ext_control_supervisory;
 static int hf_btl2cap_control_type;
 static int hf_btl2cap_ext_control_type;
 static int hf_btl2cap_fcs;
+static int hf_btl2cap_fcs_status;
 static int hf_btl2cap_sdulength;
 static int hf_btl2cap_continuation_to;
 static int hf_btl2cap_reassembled_in;
@@ -168,6 +170,7 @@ static int ett_btl2cap_le_sdu_fragments;
 static expert_field ei_btl2cap_parameter_mismatch;
 static expert_field ei_btl2cap_sdulength_bad;
 static expert_field ei_btl2cap_length_bad;
+static expert_field ei_btl2cap_fcs_bad;
 static expert_field ei_btl2cap_unknown_command_code;
 
 /* Initialize dissector table */
@@ -2731,7 +2734,10 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
     offset += tvb_reported_length_remaining(tvb, offset) - 2;
-    proto_tree_add_item(btl2cap_tree, hf_btl2cap_fcs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_checksum(btl2cap_tree, tvb, offset, hf_btl2cap_fcs,
+        hf_btl2cap_fcs_status, &ei_btl2cap_fcs_bad, pinfo,
+        crc16_plain_tvb_offset(tvb, 0, offset), ENC_LITTLE_ENDIAN,
+        PROTO_CHECKSUM_VERIFY);
     offset +=  2;
     return offset;
 }
@@ -2785,8 +2791,6 @@ dissect_s_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, proto_t
         };
         proto_tree_add_bitmask(btl2cap_tree, tvb, offset, hf_btl2cap_ext_control_field, ett_btl2cap_control, fields, ENC_LITTLE_ENDIAN);
         offset += 4;
-        proto_tree_add_item(btl2cap_tree, hf_btl2cap_fcs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        offset += 2;
     } else {
         if (ctl_format == L2CAP_IFRAME_CONTROL_FIELD_ENHANCED) {
             static int * const fields[] = {
@@ -2809,10 +2813,13 @@ dissect_s_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, proto_t
             proto_tree_add_bitmask(btl2cap_tree, tvb, offset, hf_btl2cap_control_field, ett_btl2cap_control, fields, ENC_LITTLE_ENDIAN);
         }
         offset += 2;
-        proto_tree_add_item(btl2cap_tree, hf_btl2cap_fcs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        offset += 2;
     }
 
+    proto_tree_add_checksum(btl2cap_tree, tvb, offset, hf_btl2cap_fcs,
+        hf_btl2cap_fcs_status, &ei_btl2cap_fcs_bad, pinfo,
+        crc16_plain_tvb_offset(tvb, 0, offset), ENC_LITTLE_ENDIAN,
+        PROTO_CHECKSUM_VERIFY);
+    offset += 2;
     return offset;
 }
 
@@ -3149,7 +3156,11 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 };
                 proto_tree_add_bitmask(btl2cap_tree, tvb, offset, hf_btl2cap_control_field, ett_btl2cap_control, fields, ENC_LITTLE_ENDIAN);
                 offset += 2;
-                proto_tree_add_item(btl2cap_tree, hf_btl2cap_fcs, tvb, tvb_reported_length(tvb) - 2, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_checksum(btl2cap_tree, tvb, tvb_reported_length(tvb) - 2, hf_btl2cap_fcs,
+                    hf_btl2cap_fcs_status, &ei_btl2cap_fcs_bad, pinfo,
+                    crc16_plain_tvb_offset(tvb, 0, offset), ENC_LITTLE_ENDIAN,
+                    PROTO_CHECKSUM_VERIFY);
+                offset += 2;
 
                 next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset)-2, length);
             }
@@ -3722,6 +3733,11 @@ proto_register_btl2cap(void)
             FT_UINT16, BASE_HEX, NULL, 0,
             "Frame Check Sequence", HFILL }
         },
+        { &hf_btl2cap_fcs_status,
+          { "FCS Status",    "btl2cap.fcs.status",
+            FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+            NULL, HFILL }
+        },
         { &hf_btl2cap_sdulength,
           { "SDU Length",           "btl2cap.sdulength",
             FT_UINT16, BASE_DEC, NULL, 0,
@@ -3876,6 +3892,7 @@ proto_register_btl2cap(void)
         { &ei_btl2cap_parameter_mismatch, { "btl2cap.parameter_mismatch", PI_PROTOCOL, PI_WARN, "Parameter mismatch", EXPFILL }},
         { &ei_btl2cap_sdulength_bad, { "btl2cap.sdulength.bad", PI_MALFORMED, PI_WARN, "SDU length bad", EXPFILL }},
         { &ei_btl2cap_length_bad, { "btl2cap.length.bad", PI_MALFORMED, PI_WARN, "Length too short", EXPFILL }},
+        { &ei_btl2cap_fcs_bad, { "btl2cap.fcs.bad", PI_CHECKSUM, PI_WARN, "Bad FCS", EXPFILL }},
         { &ei_btl2cap_unknown_command_code, { "btl2cap.unknown_command_code", PI_PROTOCOL, PI_WARN, "Unknown Command Code", EXPFILL }},
     };
 
