@@ -923,18 +923,28 @@ init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, unsigned 
 
 /*---------------------------------------------------------------------------*/
 
+static FILE *
+open_tpncp_dat(const char *base_dir, const char *subdir)
+{
+    char tpncp_dat_file_path[MAX_TPNCP_DB_ENTRY_LEN];
+    snprintf(tpncp_dat_file_path, MAX_TPNCP_DB_ENTRY_LEN,
+             "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "tpncp.dat",
+             base_dir, subdir);
+    return ws_fopen(tpncp_dat_file_path, "r");
+}
+
 static int
 init_tpncp_db(void)
 {
-    char tpncp_dat_file_path[MAX_TPNCP_DB_ENTRY_LEN];
     FILE *file;
-
-    snprintf(tpncp_dat_file_path, MAX_TPNCP_DB_ENTRY_LEN,
-               "%s" G_DIR_SEPARATOR_S "tpncp" G_DIR_SEPARATOR_S "tpncp.dat", get_datafile_dir(epan_get_environment_prefix()));
+    const char *env_prefix = epan_get_environment_prefix();
 
     /* Open file with TPNCP data. */
-    if ((file = ws_fopen(tpncp_dat_file_path, "r")) == NULL)
+    if ((file = open_tpncp_dat(get_plugins_pers_dir_with_version(env_prefix), "epan")) == NULL &&
+        (file = open_tpncp_dat(get_plugins_dir_with_version(env_prefix), "epan")) == NULL &&
+        (file = open_tpncp_dat(get_datafile_dir(env_prefix), "tpncp")) == NULL) {
         return (-1);
+    }
     fill_tpncp_id_vals(&tpncp_events_id_vals, file);
     fill_tpncp_id_vals(&tpncp_commands_id_vals, file);
     fill_enums_id_vals(&tpncp_enums_name_vals, &tpncp_enums_id_vals, file);
