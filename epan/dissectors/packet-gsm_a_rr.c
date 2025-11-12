@@ -7521,6 +7521,8 @@ static const value_string gsm_a_rr_cell_reselect_offset_vals[] = {
     {63, "126 dB"},
     { 0, NULL }
 };
+static value_string_ext gsm_a_rr_cell_reselect_offset_vals_ext = VALUE_STRING_EXT_INIT(gsm_a_rr_cell_reselect_offset_vals);
+
 
 static const value_string gsm_a_rr_penalty_time_vals[] = {
     { 0, "20 s"},
@@ -13528,7 +13530,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_cell_reselect_offset,
               { "Cell Reselect Offset", "gsm_a.rr.cell_reselect_offset",
-                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_cell_reselect_offset_vals), 0x00,
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_cell_reselect_offset_vals_ext, 0x00,
                 "Offset to the C2 reselection criterion (Cell Reselect Offset)", HFILL }
             },
             { &hf_gsm_a_rr_temporary_offset,

@@ -3605,6 +3605,7 @@ BACnetObjectType [] = {
    Enumerated values 128-1023 may be used by others subject to
    the procedures and constraints described in Clause 23. */
 };
+static value_string_ext BACnetObjectType_ext = VALUE_STRING_EXT_INIT(BACnetObjectType);
 
 static const value_string
 BACnetObjectTypeAbbrev[] = {
@@ -7831,8 +7832,9 @@ fEnumeratedTagSplit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (fUnsigned32(tvb, offset+tag_len, lvt, &val)) {
         if (vs)
             subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
-                ett_bacapp_tag, NULL, "%s %s (%u)", label, val_to_split_str(pinfo->pool, val, split_val, vs,
-                ASHRAE_Reserved_Fmt, Vendor_Proprietary_Fmt), val);
+                ett_bacapp_tag, NULL, "%s %s (%u)", label,
+                val_to_split_str(pinfo->pool, val, split_val, vs,
+                                 ASHRAE_Reserved_Fmt, Vendor_Proprietary_Fmt), val);
         else
             subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
                 ett_bacapp_tag, NULL, "%s %u", label, val);
@@ -8009,10 +8011,8 @@ fPresentValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offs
                     subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len, ett_bacapp_tag, NULL,
                         "Present Value (enum value): %s",
                         val_to_split_str(pinfo->pool, enum_index,
-                        split_val,
-                        vs,
-                        ASHRAE_Reserved_Fmt,
-                        Vendor_Proprietary_Fmt));
+                                         split_val, vs,
+                                         ASHRAE_Reserved_Fmt, Vendor_Proprietary_Fmt));
                     proto_tree_add_uint(subtree, hf_bacapp_present_value_enum_index, tvb, offset, lvt+tag_len, enum_index);
                     fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 } else {
@@ -8033,10 +8033,9 @@ fPresentValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offs
             subtree = proto_tree_add_subtree_format(tree, tvb, offset, tag_len + 4, ett_bacapp_tag, NULL,
                 "Present Value (enum value): %s",
                 val_to_split_str(pinfo->pool, object_type,
-                128,
-                BACnetObjectType,
-                ASHRAE_Reserved_Fmt,
-                Vendor_Proprietary_Fmt));
+                                 128, BACnetObjectType,
+                                 ASHRAE_Reserved_Fmt,
+                                 Vendor_Proprietary_Fmt));
             proto_tree_add_uint(subtree, hf_bacapp_present_value_enum_index, tvb, offset, lvt+tag_len, object_type);
             fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
             curr_offset += tag_len + lvt;
@@ -8549,8 +8548,8 @@ fObjectIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
     updateBacnetInfoValue(BACINFO_OBJECTID,
                   wmem_strdup(pinfo->pool,
                     val_to_split_str(pinfo->pool, object_type, 128,
-                    BACnetObjectType, ASHRAE_Reserved_Fmt,
-                    Vendor_Proprietary_Fmt)));
+                                     BACnetObjectType, ASHRAE_Reserved_Fmt,
+                                     Vendor_Proprietary_Fmt)));
     updateBacnetInfoValue(BACINFO_INSTANCEID,
                   wmem_strdup_printf(pinfo->pool,
                     "Instance ID: %u",
@@ -8886,14 +8885,14 @@ fPropertyIdentifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
             ett_bacapp_tag, NULL,
             "%s: %s (%u)", label,
             val_to_split_str(pinfo->pool, propertyIdentifier, 512,
-                BACnetPropertyIdentifier,
-                ASHRAE_Reserved_Fmt,
-                Vendor_Proprietary_Fmt), propertyIdentifier);
+                             BACnetPropertyIdentifier,
+                             ASHRAE_Reserved_Fmt,
+                             Vendor_Proprietary_Fmt), propertyIdentifier);
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
                 val_to_split_str(pinfo->pool, propertyIdentifier, 512,
-                    BACnetPropertyIdentifier,
-                    ASHRAE_Reserved_Fmt,
-                    Vendor_Proprietary_Fmt));
+                                 BACnetPropertyIdentifier,
+                                 ASHRAE_Reserved_Fmt,
+                                 Vendor_Proprietary_Fmt));
     } else {
         /* property identifiers cannot be larger than 22-bits */
         return offset;
@@ -18032,7 +18031,7 @@ proto_register_bacapp(void)
         },
         { &hf_bacapp_objectType,
           { "Object Type",           "bacapp.objectType",
-            FT_UINT32, BASE_DEC, VALS(BACnetObjectType), 0xffc00000, NULL, HFILL }
+            FT_UINT32, BASE_DEC|BASE_EXT_STRING, &BACnetObjectType_ext, 0xffc00000, NULL, HFILL }
         },
         { &hf_bacapp_object_name,
           { "Object Name",           "bacapp.object_name",

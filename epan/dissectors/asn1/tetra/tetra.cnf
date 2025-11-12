@@ -1,5 +1,5 @@
-# umac.cnf
-# umac conformation file
+# tetra.cnf
+# tetra conformation file
 
 #.OPT
 -u
@@ -12,6 +12,15 @@ ExtendCarrier
 SPEECHMODE
 DATAMODE
 CALLMODE
+
+#.USE_VALS_EXT
+Colour-Code
+LengthIndicationMacData
+LengthIndOrReservationReq
+LengthIndicationMacEndDl
+LengthIndicationMacResource
+Multiple-Frame-Number
+#.END
 
 #.EXPORTS
 

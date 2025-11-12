@@ -257,6 +257,7 @@ static const value_string header_type_vals[] = {
     { 0,    NULL }
 };
 
+
 /* Initialize the protocol and registered fields */
 static int proto_mrcpv2;
 static int hf_mrcpv2_Request_Line;
@@ -421,7 +422,6 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     HEADER_TYPE header_type;
     int colon_offset;
     int content_length;
-    const value_string *p = NULL;
     proto_item *line_item = NULL;
     proto_item *request_line_item = NULL;
     proto_item *response_line_item = NULL;
@@ -632,15 +632,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             header_value = tvb_get_string_enc(pinfo->pool, tvb, value_offset, offset + linelen - value_offset, ENC_ASCII);
 
             /* find out header type */
-            header_type = UNKNOWN;
-            for (p = header_type_vals; p->strptr != NULL; ++p)
-            {
-                if (strncmp(p->strptr, header_name, strlen(p->strptr)) == 0)
-                {
-                    header_type = (HEADER_TYPE)p->value;
-                    break;
-                }
-            }
+            header_type = (HEADER_TYPE)str_to_val(header_name, header_type_vals, UNKNOWN);
 
             /* add header type and value into the tree */
             switch (header_type)

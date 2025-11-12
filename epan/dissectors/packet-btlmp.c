@@ -327,6 +327,7 @@ static const value_string errorcode_vals[] = {
     { 0x45, "Packet Too Long" },
     { 0x00, NULL }
 };
+static value_string_ext errorcode_vals_ext = VALUE_STRING_EXT_INIT(errorcode_vals);
 
 static const value_string afh_mode_vals[] = {
     { 0x00, "AFH disabled" },
@@ -1186,7 +1187,7 @@ proto_register_btlmp(void)
         },
         {  &hf_errorcode,
             { "Error Code",                                     "btlmp.errorcode",
-            FT_UINT8, BASE_DEC_HEX, VALS(errorcode_vals), 0x00,
+            FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &errorcode_vals_ext, 0x00,
             NULL, HFILL }
         },
         {  &hf_param_feature_page0_byte0[0],

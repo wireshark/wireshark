@@ -1139,6 +1139,8 @@ static const value_string tetra_Colour_Code_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext tetra_Colour_Code_vals_ext = VALUE_STRING_EXT_INIT(tetra_Colour_Code_vals);
+
 
 static int
 dissect_tetra_Colour_Code(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -1280,6 +1282,8 @@ static const value_string tetra_Multiple_Frame_Number_vals[] = {
   {  63, "reserved" },
   { 0, NULL }
 };
+
+static value_string_ext tetra_Multiple_Frame_Number_vals_ext = VALUE_STRING_EXT_INIT(tetra_Multiple_Frame_Number_vals);
 
 
 static int
@@ -4747,6 +4751,8 @@ static const value_string tetra_LengthIndicationMacData_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext tetra_LengthIndicationMacData_vals_ext = VALUE_STRING_EXT_INIT(tetra_LengthIndicationMacData_vals);
+
 
 static int
 dissect_tetra_LengthIndicationMacData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -4935,6 +4941,8 @@ static const value_string tetra_LengthIndOrReservationReq_vals[] = {
   {  63, "more-than-68" },
   { 0, NULL }
 };
+
+static value_string_ext tetra_LengthIndOrReservationReq_vals_ext = VALUE_STRING_EXT_INIT(tetra_LengthIndOrReservationReq_vals);
 
 
 static int
@@ -5164,6 +5172,8 @@ static const value_string tetra_LengthIndicationMacEndDl_vals[] = {
   {  63, "reserved-63" },
   { 0, NULL }
 };
+
+static value_string_ext tetra_LengthIndicationMacEndDl_vals_ext = VALUE_STRING_EXT_INIT(tetra_LengthIndicationMacEndDl_vals);
 
 
 static int
@@ -5700,6 +5710,8 @@ static const value_string tetra_LengthIndicationMacResource_vals[] = {
   {  63, "start-frag" },
   { 0, NULL }
 };
+
+static value_string_ext tetra_LengthIndicationMacResource_vals_ext = VALUE_STRING_EXT_INIT(tetra_LengthIndicationMacResource_vals);
 
 
 static int
@@ -9988,7 +10000,7 @@ void proto_register_tetra (void)
         NULL, HFILL }},
     { &hf_tetra_colour_code,
       { "colour-code", "tetra.colour_code",
-        FT_UINT32, BASE_DEC, VALS(tetra_Colour_Code_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &tetra_Colour_Code_vals_ext, 0,
         NULL, HFILL }},
     { &hf_tetra_timeslot_number,
       { "timeslot-number", "tetra.timeslot_number",
@@ -10000,7 +10012,7 @@ void proto_register_tetra (void)
         NULL, HFILL }},
     { &hf_tetra_multiple_frame_number,
       { "multiple-frame-number", "tetra.multiple_frame_number",
-        FT_UINT32, BASE_DEC, VALS(tetra_Multiple_Frame_Number_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &tetra_Multiple_Frame_Number_vals_ext, 0,
         NULL, HFILL }},
     { &hf_tetra_sharing_mod,
       { "sharing-mod", "tetra.sharing_mod",
@@ -10520,7 +10532,7 @@ void proto_register_tetra (void)
         "T_lengthIndicationOrCapacityRequest_01", HFILL }},
     { &hf_tetra_lengthIndication_01,
       { "lengthIndication", "tetra.lengthIndication",
-        FT_UINT32, BASE_DEC, VALS(tetra_LengthIndicationMacData_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &tetra_LengthIndicationMacData_vals_ext, 0,
         "LengthIndicationMacData", HFILL }},
     { &hf_tetra_capacityRequest_01,
       { "capacityRequest", "tetra.capacityRequest_element",
@@ -10540,7 +10552,7 @@ void proto_register_tetra (void)
         "BIT_STRING_SIZE_120", HFILL }},
     { &hf_tetra_lengthInd_ReservationReq,
       { "lengthInd-ReservationReq", "tetra.lengthInd_ReservationReq",
-        FT_UINT32, BASE_DEC, VALS(tetra_LengthIndOrReservationReq_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &tetra_LengthIndOrReservationReq_vals_ext, 0,
         "LengthIndOrReservationReq", HFILL }},
     { &hf_tetra_tm_sdu_bit_str_02,
       { "tm-sdu", "tetra.tm_sdu_bit_str",
@@ -10572,7 +10584,7 @@ void proto_register_tetra (void)
         NULL, HFILL }},
     { &hf_tetra_lengthIndication_02,
       { "lengthIndication", "tetra.lengthIndication",
-        FT_UINT32, BASE_DEC, VALS(tetra_LengthIndicationMacEndDl_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &tetra_LengthIndicationMacEndDl_vals_ext, 0,
         "LengthIndicationMacEndDl", HFILL }},
     { &hf_tetra_slot_granting,
       { "slot-granting", "tetra.slot_granting",
@@ -10700,7 +10712,7 @@ void proto_register_tetra (void)
         NULL, HFILL }},
     { &hf_tetra_lengthIndication_03,
       { "lengthIndication", "tetra.lengthIndication",
-        FT_UINT32, BASE_DEC, VALS(tetra_LengthIndicationMacResource_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &tetra_LengthIndicationMacResource_vals_ext, 0,
         "LengthIndicationMacResource", HFILL }},
     { &hf_tetra_address_01,
       { "address", "tetra.address",

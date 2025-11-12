@@ -431,6 +431,8 @@ static const value_string QTCarrierNumber_vals[]=
 	{63, "RF Carrier 63"},
 	{0, NULL}
 };
+static value_string_ext QTCarrierNumber_vals_ext = VALUE_STRING_EXT_INIT(QTCarrierNumber_vals);
+
 
 /* ETSI EN 300 175-3 V2.3.0  7.2.3.2.12 */
 static const value_string QTScanCarrierNum_vals[]=
@@ -2149,7 +2151,7 @@ proto_register_dect(void)
 			0xC0, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_0_Cn,
-		{"CN", "dect.afield.tail.Qt.CN", FT_UINT8, BASE_DEC, VALS(QTCarrierNumber_vals),
+		{"CN", "dect.afield.tail.Qt.CN", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &QTCarrierNumber_vals_ext,
 			0x3F, NULL, HFILL}},
 
 	/* Byte 4 */
@@ -2525,7 +2527,7 @@ proto_register_dect(void)
 			0xC0, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Pt_Bearer_Cn,
-		{"CN", "dect.afield.tail.Pt.CN", FT_UINT8, BASE_DEC, VALS(QTCarrierNumber_vals),
+		{"CN", "dect.afield.tail.Pt.CN", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &QTCarrierNumber_vals_ext,
 			0x3F, NULL, HFILL}},
 
 	/* ***** R-CRC ***** */

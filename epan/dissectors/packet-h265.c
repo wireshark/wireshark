@@ -496,6 +496,8 @@ static const value_string h265_type_values[] = {
 	{ 63,  "UNSPEC63 - Unspecified" },
 	{ 0, NULL }
 };
+static value_string_ext h265_type_values_ext = VALUE_STRING_EXT_INIT(h265_type_values);
+
 
 static const value_string h265_type_summary_values[] = {
 	{ 0,   "TRAIL_N" },
@@ -3074,7 +3076,7 @@ proto_register_h265(void)
 		},
 		{ &hf_h265_type,
         { "Type", "h265.type",
-		FT_UINT16, BASE_DEC, VALS(h265_type_values), 0x7E00,
+		FT_UINT16, BASE_DEC|BASE_EXT_STRING, &h265_type_values_ext, 0x7E00,
 		NULL, HFILL }
 		},
 		{ &hf_h265_nuh_layer_id,
@@ -3099,7 +3101,7 @@ proto_register_h265(void)
 		},
 		{ &hf_h265_nal_unit_type,
 		{ "Nal_unit_type", "h265.nal_unit_type",
-		FT_UINT8, BASE_DEC, VALS(h265_type_values), 0x1f,
+		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &h265_type_values_ext, 0x1f,
 		NULL, HFILL }
 		},
 		{ &hf_h265_rbsp_stop_bit,
