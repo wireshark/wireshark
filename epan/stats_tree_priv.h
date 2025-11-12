@@ -222,7 +222,7 @@ WS_DLL_PUBLIC char *stats_tree_node_to_str(const stat_node *node,
 /** get the display name for the stats_tree (or node name) based on the
     st_sort_showfullname preference. If not set remove everything before
     last unescaped backslash. Caller must free the result */
-WS_DLL_PUBLIC char* stats_tree_get_displayname (char* fullname);
+WS_DLL_PUBLIC char* stats_tree_get_displayname (const char* fullname);
 
 /** returns the column number of the default column to sort on */
 WS_DLL_PUBLIC int stats_tree_get_default_sort_col (stats_tree *st);

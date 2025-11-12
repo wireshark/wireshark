@@ -30,6 +30,8 @@ typedef struct _stat_cmd_arg {
 } stat_cmd_arg;
 
 static wmem_list_t *stat_cmd_arg_list;
+static wmem_tree_t* registered_stat_tables;
+
 
 /* structure to keep track of what stats have been specified on the
    command line.
@@ -56,13 +58,16 @@ sort_by_name(const void *a, const void *b)
     return strcmp(((const stat_cmd_arg *)a)->cmd, ((const stat_cmd_arg *)b)->cmd);
 }
 
+void stat_tap_init(void)
+{
+    stat_cmd_arg_list = wmem_list_new(wmem_epan_scope());
+    registered_stat_tables = wmem_tree_new(wmem_epan_scope());
+}
+
 void
 register_stat_tap_ui(stat_tap_ui *ui, void *userdata)
 {
     stat_cmd_arg *newsca;
-
-    if (stat_cmd_arg_list == NULL)
-        stat_cmd_arg_list = wmem_list_new(wmem_epan_scope());
 
     /* Key is already present */
     if (wmem_list_find_custom(stat_cmd_arg_list, ui->cli_string, search_duplicate))
@@ -144,13 +149,8 @@ start_requested_stats(void)
     return success;
 }
 
-static wmem_tree_t *registered_stat_tables;
-
 void register_stat_tap_table_ui(stat_tap_table_ui *ui)
 {
-    if (registered_stat_tables == NULL)
-        registered_stat_tables = wmem_tree_new(wmem_epan_scope());
-
     wmem_tree_insert_string(registered_stat_tables, ui->cli_string, ui, 0);
 }
 

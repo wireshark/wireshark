@@ -366,6 +366,8 @@ epan_init(register_cb cb, void *client_data, bool load_plugins, epan_app_data_t*
 		follow_init();
 		rtd_table_init();
 		srt_table_init();
+		stats_tree_init();
+		stat_tap_init();
 		g_slist_foreach(epan_plugins, epan_plugin_init, NULL);
 		proto_init(epan_plugin_register_all_procotols, epan_plugin_register_all_handoffs, cb, client_data);
 		g_slist_foreach(epan_plugins, epan_plugin_register_all_tap_listeners, NULL);

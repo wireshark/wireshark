@@ -77,6 +77,10 @@ typedef enum _stat_node_datatype {
 
 typedef struct _stats_tree_cfg stats_tree_cfg;
 
+/** Initialize the stats tree system.
+ */
+extern void stats_tree_init(void);
+
 /**
  * Registers a new stats tree with default group REGISTER_STAT_GROUP_UNSORTED.
  * @param abbr tree abbr (used for tshark -z option)

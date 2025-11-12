@@ -161,6 +161,7 @@ typedef struct _stat_data_t {
     void        *user_data;       /**< "GUI" specifics (if necessary) */
 } stat_data_t;
 
+extern void stat_tap_init(void);
 
 /** Register UI information for a tap.
  *
