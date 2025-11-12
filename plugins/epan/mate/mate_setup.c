@@ -13,7 +13,6 @@
 #include "config.h"
 
 #include "mate.h"
-#include <wsutil/application_flavor.h>
 
 /* appends the formatted string to the current error log */
 static void report_error(mate_config* mc, const char* fmt, ...) {
@@ -578,7 +577,7 @@ extern mate_config* mate_make_config(const char* filename, int mate_hfid) {
 
 	mc->dbg_facility = NULL;
 
-	mc->mate_lib_path = ws_strdup_printf("%s%c%s%c",get_datafile_dir(application_configuration_environment_prefix()),DIR_SEP,DEFAULT_MATE_LIB_PATH,DIR_SEP);
+	mc->mate_lib_path = ws_strdup_printf("%s%c%s%c",get_datafile_dir(epan_get_environment_prefix()),DIR_SEP,DEFAULT_MATE_LIB_PATH,DIR_SEP);
 
 	mc->pducfgs = g_hash_table_new(g_str_hash,g_str_equal);
 	mc->gopcfgs = g_hash_table_new(g_str_hash,g_str_equal);
