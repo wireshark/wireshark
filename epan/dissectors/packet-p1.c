@@ -2667,14 +2667,14 @@ dissect_p1_PerMessageIndicators(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_p1_Time(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	tvbuff_t *arrival = NULL;
+	char *arrival = NULL;
 	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
-	  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, NULL, NULL);
+	  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, &arrival, NULL);
 
 
 	if(arrival && ctx && ctx->do_address)
-		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(actx->pinfo->pool, arrival, 0, tvb_reported_length(arrival)));
+		proto_item_append_text(actx->subtree.tree, " %s", arrival);
 
 
   return offset;

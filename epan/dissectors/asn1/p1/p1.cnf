@@ -1149,13 +1149,13 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	VAL_PTR = &arrival
 
 #.FN_BODY Time
-	tvbuff_t *arrival = NULL;
+	char *arrival = NULL;
 	p1_address_ctx_t* ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;
 
 	%(DEFAULT_BODY)s
 
 	if(arrival && ctx && ctx->do_address)
-		proto_item_append_text(actx->subtree.tree, " %%s", tvb_format_text(actx->pinfo->pool, arrival, 0, tvb_reported_length(arrival)));
+		proto_item_append_text(actx->subtree.tree, " %%s", arrival);
 
 #.FN_PARS RoutingAction
 	VAL_PTR = &action

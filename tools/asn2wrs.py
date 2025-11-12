@@ -5593,7 +5593,7 @@ class UTCTime (RestrictedCharacterStringType):
     def eth_type_default_body(self, ectx, tname):
         if (ectx.Ber()):
             body = ectx.eth_fn_call('dissect_%(ER)s_%(STRING_TYPE)s', ret='offset',
-                                    par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s', 'NULL', 'NULL'),))
+                                    par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s', '%(VAL_PTR)s', 'NULL'),))
             return body
         else:
             return RestrictedCharacterStringType.eth_type_default_body(self, ectx, tname)

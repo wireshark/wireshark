@@ -269,13 +269,14 @@ dissect_x509af_AlgorithmIdentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_x509af_T_utcTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   char *outstr, *newstr;
-  uint32_t tvblen;
+  int old_offset = offset;
 
   /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
-  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, &outstr, &tvblen);
+  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, -1, &outstr, NULL);
+
   if (hf_index > 0 && outstr) {
     newstr = wmem_strconcat(actx->pinfo->pool, outstr[0] < '5' ? "20": "19", outstr, NULL);
-    proto_tree_add_string(tree, hf_index, tvb, offset - tvblen, tvblen, newstr);
+    proto_tree_add_string(tree, hf_index, tvb, old_offset, offset - old_offset, newstr);
   }
 
 
