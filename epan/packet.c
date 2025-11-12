@@ -240,6 +240,8 @@ packet_init(void)
 	registered_dissectors = g_hash_table_new_full(g_str_hash, g_str_equal,
 			NULL, NULL);
 
+	postdissectors = g_array_sized_new(false, false, (unsigned)sizeof(postdissector), 1);
+
 	depend_dissector_lists = g_hash_table_new_full(g_str_hash, g_str_equal,
 			g_free, destroy_depend_dissector_list);
 
@@ -4159,9 +4161,6 @@ void
 register_postdissector(dissector_handle_t handle)
 {
 	postdissector p;
-
-	if (!postdissectors)
-		postdissectors = g_array_sized_new(false, false, (unsigned)sizeof(postdissector), 1);
 
 	p.handle = handle;
 	p.wanted_hfids = NULL;
