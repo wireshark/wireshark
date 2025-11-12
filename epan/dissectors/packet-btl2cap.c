@@ -2634,8 +2634,8 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             mfp->last_frame  = 0;
             mfp->tot_len     = sdulen;
             mfp->reassembled = (uint8_t *) wmem_alloc(wmem_file_scope(), sdulen);
-            tvb_memcpy(tvb, mfp->reassembled, offset, sdulen);
-            mfp->cur_off     = sdulen;
+            tvb_memcpy(tvb, mfp->reassembled, offset, length);
+            mfp->cur_off     = length;
             wmem_tree_insert32(config_data->start_fragments, pinfo->num, mfp);
         } else {
             mfp              = (sdu_reassembly_t *)wmem_tree_lookup32(config_data->start_fragments, pinfo->num);
