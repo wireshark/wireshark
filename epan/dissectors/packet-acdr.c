@@ -878,7 +878,7 @@ dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint8_t 
             // add the length & offset fields to the RTP payload
             rtp_data_tree = tree->last_child->last_child; // the rtp subtree->the payload field
 
-            if (rtp_data_tree) {
+            if (rtp_data_tree && PITEM_FINFO(rtp_data_tree)) {
                 proto_item_set_text(rtp_data_tree, "RTP Data (%d bytes, offset %d)",
                                     rtp_data_tree->finfo->length, rtp_data_tree->finfo->start);
             }
