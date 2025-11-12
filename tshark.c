@@ -1465,7 +1465,7 @@ main(int argc, char *argv[])
             case LONGOPT_UPDATE_INTERVAL:      /* sync pipe update interval */
                 /* These are options only for packet capture. */
 #ifdef HAVE_LIBPCAP
-                exit_status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
+                exit_status = capture_opts_add_opt(application_configuration_environment_prefix(), &global_capture_opts, opt, ws_optarg);
                 if (exit_status != 0) {
                     goto clean_exit;
                 }
@@ -1476,7 +1476,7 @@ main(int argc, char *argv[])
                 break;
             case 'c':        /* Stop after x packets */
 #ifdef HAVE_LIBPCAP
-                exit_status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
+                exit_status = capture_opts_add_opt(application_configuration_environment_prefix(), &global_capture_opts, opt, ws_optarg);
                 if (exit_status != 0) {
                     goto clean_exit;
                 }
@@ -1490,7 +1490,7 @@ main(int argc, char *argv[])
             case 'w':        /* Write to file x */
                 output_file_name = g_strdup(ws_optarg);
 #ifdef HAVE_LIBPCAP
-                exit_status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
+                exit_status = capture_opts_add_opt(application_configuration_environment_prefix(), &global_capture_opts, opt, ws_optarg);
                 if (exit_status != 0) {
                     goto clean_exit;
                 }
@@ -1636,7 +1636,7 @@ main(int argc, char *argv[])
                 /* Set the update-interval to 0 so that dumpcap reports packets
                  * as soon as available instead of buffering them.
                  */
-                exit_status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
+                exit_status = capture_opts_add_opt(application_configuration_environment_prefix(), &global_capture_opts, opt, ws_optarg);
                 if (exit_status != 0) {
                     goto clean_exit;
                 }
@@ -2124,7 +2124,7 @@ main(int argc, char *argv[])
      */
     if (compression_type != WS_FILE_UNCOMPRESSED && is_capturing) {
 #ifdef HAVE_LIBPCAP
-        exit_status = capture_opts_add_opt(&global_capture_opts, LONGOPT_COMPRESS_TYPE, ws_compression_type_name(compression_type));
+        exit_status = capture_opts_add_opt(application_configuration_environment_prefix(), &global_capture_opts, LONGOPT_COMPRESS_TYPE, ws_compression_type_name(compression_type));
         if (exit_status != 0) {
             goto clean_exit;
         }

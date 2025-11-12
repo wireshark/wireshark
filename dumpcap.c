@@ -5544,12 +5544,16 @@ main(int argc, char *argv[])
         case LONGOPT_COMPRESS_TYPE:        /* compress type */
         case LONGOPT_CAPTURE_TMPDIR:       /* capture temp directory */
         case LONGOPT_UPDATE_INTERVAL:      /* sync pipe update interval */
-            status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
+        {
+            char* app_prefix = g_ascii_strup(app_flavor_name, -1);
+            status = capture_opts_add_opt(app_prefix, &global_capture_opts, opt, ws_optarg);
+            g_free(app_prefix);
             if (status != 0) {
                 exit_main();
                 return status;
             }
             break;
+        }
             /*** hidden option: Wireshark child mode (using binary output messages) ***/
         case LONGOPT_IFNAME:
             if (global_capture_opts.ifaces->len > 0) {

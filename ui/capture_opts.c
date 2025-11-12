@@ -363,7 +363,7 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
     return true;
 }
 
-static bool get_filter_arguments(capture_options* capture_opts, const char* arg)
+static bool get_filter_arguments(const char* app_env_var_prefix, capture_options* capture_opts, const char* arg)
 {
     char* colonp = NULL;
     char* val;
@@ -381,7 +381,7 @@ static bool get_filter_arguments(capture_options* capture_opts, const char* arg)
                 GList* filterItem;
 
                 if (capture_opts->capture_filters_list == NULL)
-                    capture_opts->capture_filters_list = ws_filter_list_read(CFILTER_LIST, application_configuration_environment_prefix());
+                    capture_opts->capture_filters_list = ws_filter_list_read(CFILTER_LIST, app_env_var_prefix);
                 filterItem = capture_opts->capture_filters_list->list;
                 while (filterItem != NULL) {
                     filter_def* filterDef;
@@ -977,7 +977,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
 
 
 int
-capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_str_p)
+capture_opts_add_opt(const char* app_env_var_prefix, capture_options *capture_opts, int opt, const char *optarg_str_p)
 {
     int status, snaplen;
     ws_statb64 fstat;
@@ -1025,7 +1025,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
             return 1;
         break;
     case 'f':        /* capture filter */
-        get_filter_arguments(capture_opts, optarg_str_p);
+        get_filter_arguments(app_env_var_prefix, capture_opts, optarg_str_p);
         break;
     case 'F':        /* capture file type */
         if (get_file_type_argument(capture_opts, optarg_str_p) == false) {

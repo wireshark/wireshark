@@ -638,7 +638,7 @@ void commandline_other_options(capture_options* capture_opts _U_, int argc, char
             case 'B':        /* Buffer size */
             case LONGOPT_NO_OPTIMIZE: /* Don't optimize capture filter */
 #ifdef HAVE_LIBPCAP
-                status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
+                status = capture_opts_add_opt(application_configuration_environment_prefix(), &global_capture_opts, opt, ws_optarg);
                 if(status != 0) {
                     exit_application(status);
                 }
