@@ -16,7 +16,6 @@ Trap-PDU/_untag/specific-trap   SpecificTrap
 
 #.FIELD_RENAME
 Messagev2u/datav2u/plaintext v2u_plaintext
-BulkPDU/request-id bulkPDU_request-id
 
 #.FN_HDR SMUX-PDUs
 
