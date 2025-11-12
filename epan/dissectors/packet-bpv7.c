@@ -2452,7 +2452,7 @@ void proto_register_bpv7(void) {
     expert_module_t *expert = expert_register_protocol(proto_bp);
     expert_register_field_array(expert, expertitems, array_length(expertitems));
 
-    register_dissector("bpv7", dissect_bp, proto_bp);
+    register_dissector_with_description("bpv7", "Bundle Protocol Version 7", dissect_bp, proto_bp);
 
     eid_dissectors = register_dissector_table("bpv7.eid", "BPv7 EID Scheme-Specific Part", proto_bp, FT_UINT32, 0);
     block_dissectors = register_custom_dissector_table("bpv7.block_type", "BPv7 Block", proto_bp, g_int64_hash, g_int64_equal, g_free);

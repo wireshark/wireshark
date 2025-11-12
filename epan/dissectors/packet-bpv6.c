@@ -2571,8 +2571,8 @@ proto_register_bpv6(void)
     expert_module_t *expert_bundle;
 
     proto_bundle  = proto_register_protocol("Bundle Protocol", "BP", "bundle");
-    bpv6_handle = register_dissector("bpv6", dissect_bpv6, proto_bundle);
-    bundle_handle = register_dissector("bundle", dissect_bundle, proto_bundle);
+    bpv6_handle = register_dissector_with_description("bpv6", "Bundle Protocol Version 6", dissect_bpv6, proto_bundle);
+    bundle_handle = register_dissector_with_description("bundle", "Bundle Protocol (any version)", dissect_bundle, proto_bundle);
 
     proto_register_field_array(proto_bundle, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
