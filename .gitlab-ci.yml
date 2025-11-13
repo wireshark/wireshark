@@ -1004,8 +1004,8 @@ Windows Build:
 macOS Build:
   extends: .build-macos
   rules: !reference [.if-w-w-only-merge-request]
-  allow_failure: true
-  timeout: 1 hour
+  # allow_failure: true
+  timeout: 90 minutes
   retry:
     when:
       - runner_system_failure
