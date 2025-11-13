@@ -291,7 +291,7 @@ static int hf_snmp_request_id;                    /* T_request_id */
 static int hf_snmp_error_status;                  /* T_error_status */
 static int hf_snmp_error_index;                   /* INTEGER */
 static int hf_snmp_variable_bindings;             /* VarBindList */
-static int hf_snmp_bulkPDU_request_id;            /* Integer32 */
+static int hf_snmp_request_id_01;                 /* Integer32 */
 static int hf_snmp_non_repeaters;                 /* INTEGER_0_2147483647 */
 static int hf_snmp_max_repetitions;               /* INTEGER_0_2147483647 */
 static int hf_snmp_enterprise;                    /* EnterpriseOID */
@@ -2394,7 +2394,7 @@ dissect_snmp_INTEGER_0_2147483647(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static const ber_sequence_t BulkPDU_sequence[] = {
-  { &hf_snmp_bulkPDU_request_id, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_snmp_Integer32 },
+  { &hf_snmp_request_id_01  , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_snmp_Integer32 },
   { &hf_snmp_non_repeaters  , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_snmp_INTEGER_0_2147483647 },
   { &hf_snmp_max_repetitions, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_snmp_INTEGER_0_2147483647 },
   { &hf_snmp_variable_bindings, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_snmp_VarBindList },
@@ -3898,8 +3898,8 @@ void proto_register_snmp(void) {
       { "variable-bindings", "snmp.variable_bindings",
         FT_UINT32, BASE_DEC, NULL, 0,
         "VarBindList", HFILL }},
-    { &hf_snmp_bulkPDU_request_id,
-      { "request-id", "snmp.bulkPDU_request_id",
+    { &hf_snmp_request_id_01,
+      { "request-id", "snmp.request_id",
         FT_INT32, BASE_DEC, NULL, 0,
         "Integer32", HFILL }},
     { &hf_snmp_non_repeaters,
