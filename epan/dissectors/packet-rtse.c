@@ -327,11 +327,11 @@ dissect_rtse_CallingSSuserReference(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_rtse_CommonReference(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  tvbuff_t *string = NULL;
-    offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, NULL, NULL);
+  char *string = NULL;
+    offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, &string, NULL);
 
   if(open_request && string)
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", tvb_format_text(actx->pinfo->pool, string, 0, tvb_reported_length(string)));
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", string);
 
 
   return offset;

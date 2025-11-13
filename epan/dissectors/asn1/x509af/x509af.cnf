@@ -160,15 +160,15 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
-#.FN_BODY Time/utcTime
+#.FN_BODY Time/utcTime HF_INDEX = -1 VAL_PTR = &outstr
   char *outstr, *newstr;
-  uint32_t tvblen;
+  int old_offset = offset;
 
   /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
-  offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, &outstr, &tvblen);
+%(DEFAULT_BODY)s
   if (hf_index > 0 && outstr) {
     newstr = wmem_strconcat(actx->pinfo->pool, outstr[0] < '5' ? "20": "19", outstr, NULL);
-    proto_tree_add_string(tree, hf_index, tvb, offset - tvblen, tvblen, newstr);
+    proto_tree_add_string(tree, hf_index, tvb, old_offset, offset - old_offset, newstr);
   }
 
 #.FN_BODY SubjectName
