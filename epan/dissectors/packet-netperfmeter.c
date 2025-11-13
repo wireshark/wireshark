@@ -427,7 +427,7 @@ dissect_npm_data_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_
   proto_tree_add_item(message_tree, hf_data_byteseqnumber,   message_tvb, 32, 8, ENC_BIG_ENDIAN);
   proto_tree_add_item(message_tree, hf_data_timestamp,       message_tvb, 40, 8, ENC_TIME_USECS|ENC_BIG_ENDIAN);
 
-  if (message_length > 4) {
+  if (message_length > 48) {
     proto_tree_add_item(message_tree, hf_data_payload, message_tvb, 48, message_length - 48, ENC_NA);
   }
 }
