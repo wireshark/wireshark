@@ -631,6 +631,220 @@ WSLUA_CONSTRUCTOR Field_list(lua_State *L) {
     WSLUA_RETURN(1); /* The array table of field filter names */
 }
 
+WSLUA_FUNCTION wslua_request_fields(lua_State *L) {
+    /*
+       Request one or multiple fields by their filter names.
+
+       This function tells Wireshark to populate the specified fields during dissection.
+       For performance reasons, Wireshark dissectors don't add all possible fields to the
+       dissection tree by default - they only add fields that are explicitly requested
+       (e.g., via display filters, taps, or this function). This significantly reduces
+       memory usage and improves dissection speed, especially for fields that are expensive
+       to compute or rarely needed.
+
+       Without calling this function (or Field.new()), fields may exist in the protocol
+       but won't be available in the dissection tree when you try to access them via
+       all_field_infos() or other field extraction methods.
+
+       This function must be called outside of callback functions (dissectors, taps, etc.).
+
+       [discrete]
+       ====== Example
+
+       [source,lua]
+       ----
+       -- Request a single field
+       request_fields("ip.src")
+
+       -- Request multiple fields
+       request_fields({"ip.src", "ip.dst", "tcp.port"})
+       ----
+
+       @param fieldnames A string or table (array) of field filter names to request (e.g. "ip.src" or {"ip.src", "tcp.port"})
+       @since 4.7.0
+     */
+#define WSLUA_ARG_request_fields_FIELDNAMES 1 /* String or table of field filter names */
+
+    if (!wanted_fields) {
+        WSLUA_ERROR(request_fields, "This function must be called before Taps or Dissectors get called");
+        return 0;
+    }
+
+    /* Handle single string argument: request_fields("ip.src") */
+    if (lua_isstring(L, WSLUA_ARG_request_fields_FIELDNAMES)) {
+        const char *name = lua_tostring(L, WSLUA_ARG_request_fields_FIELDNAMES);
+
+        /* Check if field exists in protocol registry or is a Lua-created field */
+        if (proto_registrar_get_byname(name) || wslua_is_field_available(L, name)) {
+            /* Create and register the field request */
+            Field f = (Field)g_new0(struct _wslua_header_field_info, 1);
+            f->name = g_strdup(name);
+            g_ptr_array_add(wanted_fields, f);
+        }
+
+        return 0;
+    }
+
+    /* Handle table argument: request_fields({"ip.src", "ip.dst"}) */
+    if (!lua_istable(L, WSLUA_ARG_request_fields_FIELDNAMES)) {
+        WSLUA_ARG_ERROR(request_fields, FIELDNAMES, "must be a string or table");
+        return 0;
+    }
+
+    size_t len = lua_rawlen(L, WSLUA_ARG_request_fields_FIELDNAMES);
+
+    /* Iterate through all table entries (Lua arrays are 1-indexed) */
+    for (size_t i = 1; i <= len; i++) {
+        /* Get the i-th element from the table and push it onto the stack */
+        lua_rawgeti(L, WSLUA_ARG_request_fields_FIELDNAMES, i);
+
+        /* Skip non-string entries */
+        if (!lua_isstring(L, -1)) {
+            lua_pop(L, 1);
+            continue;
+        }
+
+        const char *name = lua_tostring(L, -1);
+
+        /* Skip invalid field names */
+        if (!proto_registrar_get_byname(name) && !wslua_is_field_available(L, name)) {
+            lua_pop(L, 1);
+            continue;
+        }
+
+        /* Create and register the field request */
+        Field f = (Field)g_new0(struct _wslua_header_field_info, 1);
+        f->name = g_strdup(name);
+        g_ptr_array_add(wanted_fields, f);
+
+        lua_pop(L, 1);  /* Remove the field name from the stack */
+    }
+
+    return 0;
+}
+
+static bool wslua_add_protocol_fields(const char *proto_name) {
+    void *cookie;
+    header_field_info *hfinfo;
+    int proto_id = proto_get_id_by_filter_name(proto_name);
+
+    if (proto_id == -1) {
+        return false;
+    }
+
+    /* Iterate through all fields registered for this protocol */
+    for (hfinfo = proto_get_first_protocol_field(proto_id, &cookie);
+         hfinfo != NULL;
+         hfinfo = proto_get_next_protocol_field(proto_id, &cookie)) {
+
+        if (hfinfo->same_name_prev_id != -1) {
+            continue; /* Skip duplicate names */
+        }
+
+        /* Create and register a field request for each protocol field */
+        Field f = (Field)g_new0(struct _wslua_header_field_info, 1);
+        f->name = g_strdup(hfinfo->abbrev);
+        g_ptr_array_add(wanted_fields, f);
+    }
+
+    return true;
+}
+
+WSLUA_FUNCTION wslua_request_protocol_fields(lua_State *L) {
+    /*
+       Request all fields from one or more specified protocols.
+
+       This function tells Wireshark to populate all fields from the specified protocol(s)
+       during dissection. Normally, Wireshark dissectors use a "lazy" approach and only add
+       fields to the dissection tree when they are actually needed (e.g., when a display
+       filter references them, or when Field.new() explicitly requests them). This optimization
+       dramatically improves performance and reduces memory consumption, especially for protocols
+       with many fields or computationally expensive field values.
+
+       By calling this function, you're telling Wireshark: "I need ALL fields from protocol X,
+       so please populate them all during dissection, even if they're not otherwise needed."
+
+       Use this function carefully with protocols that have many fields, as it can impact
+       performance. For better performance, prefer request_fields() to request only specific
+       fields you actually need.
+
+       This function must be called outside of callback functions (dissectors, taps, etc.).
+
+       Returns a table (array) of protocol names that were successfully requested.
+       Unknown protocol names are ignored.
+
+       [discrete]
+       ====== Example
+
+       [source,lua]
+       ----
+       -- Request all fields from a single protocol
+       request_protocol_fields("http")
+
+       -- Request all fields from multiple protocols
+       request_protocol_fields({"ip", "tcp", "udp"})
+       ----
+
+       @param protocols A string or table (array) of protocol names (e.g. "ip" or {"ip", "tcp", "http"})
+       @since 4.7.0
+     */
+
+#define WSLUA_ARG_request_protocol_fields_PROTOCOLS 1 /* String or table of protocol names */
+
+    if (!wanted_fields) {
+        WSLUA_ERROR(request_protocol_fields, "This function must be called before Taps or Dissectors get called");
+        return 0;
+    }
+
+    lua_newtable(L);
+    int result_count = 0;
+
+    /* Handle single string argument: request_protocol_fields("http") */
+    if (lua_type(L, WSLUA_ARG_request_protocol_fields_PROTOCOLS) == LUA_TSTRING) {
+        const char *proto_name = lua_tostring(L, WSLUA_ARG_request_protocol_fields_PROTOCOLS);
+        if (wslua_add_protocol_fields(proto_name)) {
+            lua_pushstring(L, proto_name);
+            lua_rawseti(L, -2, ++result_count);
+        }
+        return 1;
+    }
+
+    /* Handle table argument: request_protocol_fields({"ip", "tcp"}) */
+    if (!lua_istable(L, WSLUA_ARG_request_protocol_fields_PROTOCOLS)) {
+        WSLUA_ARG_ERROR(request_protocol_fields, PROTOCOLS, "must be a string or table");
+        return 0;
+    }
+
+    size_t len = lua_rawlen(L, WSLUA_ARG_request_protocol_fields_PROTOCOLS);
+
+    /* Iterate through all table entries (Lua arrays are 1-indexed) */
+    for (size_t i = 1; i <= len; i++) {
+        lua_rawgeti(L, WSLUA_ARG_request_protocol_fields_PROTOCOLS, i);
+        if (lua_type(L, -1) != LUA_TSTRING) {
+            lua_pop(L, 1);
+            WSLUA_ARG_ERROR(request_protocol_fields, PROTOCOLS, "must be a string or table of strings");
+            return 0;
+        }
+        lua_pop(L, 1);
+    }
+
+    /* Iterate through all table entries (Lua arrays are 1-indexed) */
+    for (size_t i = 1; i <= len; i++) {
+        /* Get the i-th element from the table and push it onto the stack */
+        lua_rawgeti(L, WSLUA_ARG_request_protocol_fields_PROTOCOLS, i);
+
+        const char *proto_name = lua_tostring(L, -1);
+        if (wslua_add_protocol_fields(proto_name)) {
+            lua_pushstring(L, proto_name);
+            lua_rawseti(L, -3, ++result_count);
+        }
+
+        lua_pop(L, 1);  /* Remove the protocol name from the stack */
+    }
+
+    return 1;
+}
+
 /* the following is used in Field_get_xxx functions later. If called early
  * (wanted_fields is not NULL), it will try to retrieve information directly.
  * Otherwise it uses a cached field that was loaded in lua_prime_all_fields. */
@@ -772,6 +986,10 @@ int Field_register(lua_State* L) {
     wanted_fields = g_ptr_array_new();
 
     WSLUA_REGISTER_CLASS_WITH_ATTRS(Field);
+
+    WSLUA_REGISTER_FUNCTION(request_fields);
+    WSLUA_REGISTER_FUNCTION(request_protocol_fields);
+
     if (outstanding_FieldInfo != NULL) {
         g_ptr_array_unref(outstanding_FieldInfo);
     }
