@@ -145,7 +145,7 @@ static wmem_array_t *hf_arr;
 static GArray *ett_arr;
 static GRegex* encoding_pattern;
 
-static const char *default_media_types[] = {
+static const char * const default_media_types[] = {
     "text/xml",
     "text/vnd.wap.wml",
     "text/vnd.wap.si",

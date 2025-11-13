@@ -3075,7 +3075,7 @@ static int * const r3_nvramclearoptions[] = {
 /*
  *  Mapping table so dissect_r3_cmd_setconfig() knows what the configuration item type is
  */
-static configType_e configMap [] =
+static const configType_e configMap [] =
 {
   /* CONFIGITEM_SERIAL_NUMBER */               CONFIGTYPE_STRING,
   /* CONFIGITEM_CRYPT_KEY */                   CONFIGTYPE_STRING,
@@ -4299,10 +4299,9 @@ dissect_r3_upstreammfgfield_checkpointlog (tvbuff_t *tvb, uint32_t start_offset,
     proto_tree  *cpe_tree;
     unsigned     resettype;
     const char *desc;
-    static const char *resets [] = { "Stack underflow", "Stack overflow", "Power-On",
-                                      "Software", "Brown-out", "MCLR in sleep", "WDT",
-                                      "Normal", "[Unknown Reset Type]" };
-
+    static const char * const resets [] = { "Stack underflow", "Stack overflow", "Power-On",
+                                           "Software", "Brown-out", "MCLR in sleep", "WDT",
+                                           "Normal", "[Unknown Reset Type]" };
 
     cpe_tree = proto_tree_add_subtree_format(cpl_tree, tvb, i + 0, 2, ett_r3checkpointlogentry, &cpe_item,
                             "Checkpoint Log Entry %u", counter);

@@ -2061,7 +2061,7 @@ cfgparam_15(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree)
 	proto_tree_add_bitmask_text(tree, tvb, 10, 1, NULL, NULL, ett_ipmi_se_cp15_byte11, byte11, ENC_LITTLE_ENDIAN, 0);
 }
 
-static struct {
+static const struct {
 	void (*intrp)(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree);
 	const char *name;
 } conf_params[] = {

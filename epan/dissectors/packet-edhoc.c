@@ -192,7 +192,7 @@ typedef struct edhoc_cs_s {
 } edhoc_cs_t;
 
 /// Defined suites
-static edhoc_cs_t edhoc_cs_list[] = {
+static const edhoc_cs_t edhoc_cs_list[] = {
     // Cipher Suites from RFC 9528
     // 0: AES-CCM-16-64-128, SHA-256, 8, X25519, EdDSA, AES-CCM-16-64-128, SHA-256
     {0, 10, -16, 8, 4, -8, 10, -16},
@@ -1527,9 +1527,9 @@ void proto_register_edhoc(void) {
     register_shutdown_routine(&edhoc_shutdown);
     edhoc_secrets_init(&uat_secrets, wmem_epan_scope());
     edhoc_cs_table = g_hash_table_new(g_int64_hash, g_int64_equal);
-    for (edhoc_cs_t *suite = edhoc_cs_list; suite < edhoc_cs_list + array_length(edhoc_cs_list);
+    for (edhoc_cs_t const *suite = edhoc_cs_list; suite < edhoc_cs_list + array_length(edhoc_cs_list);
          ++suite) {
-        g_hash_table_insert(edhoc_cs_table, &(suite->value), suite);
+        g_hash_table_insert(edhoc_cs_table, (int64_t *)&(suite->value), (void *)suite);
     }
 
     /// Field definitions

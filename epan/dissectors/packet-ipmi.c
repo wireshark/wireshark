@@ -841,7 +841,7 @@ parse_binary(char *p, tvbuff_t *tvb, unsigned offs, unsigned len)
 	}
 }
 
-static struct ipmi_parse_typelen ptl_binary = {
+static const struct ipmi_parse_typelen ptl_binary = {
 	get_len_binary, parse_binary, "Binary"
 };
 
@@ -873,7 +873,7 @@ parse_bcdplus(char *p, tvbuff_t *tvb, unsigned offs, unsigned len)
 	}
 }
 
-static struct ipmi_parse_typelen ptl_bcdplus = {
+static const struct ipmi_parse_typelen ptl_bcdplus = {
 	get_len_bcdplus, parse_bcdplus, "BCD+"
 };
 
@@ -924,7 +924,7 @@ parse_6bit_ascii(char *p, tvbuff_t *tvb, unsigned offs, unsigned len)
 	}
 }
 
-static struct ipmi_parse_typelen ptl_6bit_ascii = {
+static const struct ipmi_parse_typelen ptl_6bit_ascii = {
 	get_len_6bit_ascii, parse_6bit_ascii, "6-bit ASCII"
 };
 
@@ -961,7 +961,7 @@ parse_8bit_ascii(char *p, tvbuff_t *tvb, unsigned offs, unsigned len)
 	}
 }
 
-static struct ipmi_parse_typelen ptl_8bit_ascii = {
+static const struct ipmi_parse_typelen ptl_8bit_ascii = {
 	get_len_8bit_ascii, parse_8bit_ascii, "ASCII+Latin1"
 };
 
@@ -992,7 +992,7 @@ parse_unicode(char *p, tvbuff_t *tvb, unsigned offs, unsigned len)
 	}
 }
 
-static struct ipmi_parse_typelen ptl_unicode = {
+static const struct ipmi_parse_typelen ptl_unicode = {
 	get_len_unicode, parse_unicode, "Unicode"
 };
 
@@ -1000,16 +1000,16 @@ void
 ipmi_add_typelen(packet_info *pinfo, proto_tree *tree, int hf_string, int hf_type, int hf_length, tvbuff_t *tvb,
 		unsigned offs, bool is_fru)
 {
-	static struct ipmi_parse_typelen *fru_eng[4] = {
+	static const struct ipmi_parse_typelen * const fru_eng[4] = {
 		&ptl_binary, &ptl_bcdplus, &ptl_6bit_ascii, &ptl_8bit_ascii
 	};
-	static struct ipmi_parse_typelen *fru_noneng[4] = {
+	static const struct ipmi_parse_typelen * const fru_noneng[4] = {
 		&ptl_binary, &ptl_bcdplus, &ptl_6bit_ascii, &ptl_unicode
 	};
-	static struct ipmi_parse_typelen *ipmi[4] = {
+	static const struct ipmi_parse_typelen * const ipmi[4] = {
 		&ptl_unicode, &ptl_bcdplus, &ptl_6bit_ascii, &ptl_8bit_ascii
 	};
-	struct ipmi_parse_typelen *ptr;
+	const struct ipmi_parse_typelen *ptr;
 	proto_tree *s_tree;
 	unsigned type, msk, clen, blen, len;
 	const char *unit;

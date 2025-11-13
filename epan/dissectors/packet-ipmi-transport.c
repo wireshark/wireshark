@@ -1309,7 +1309,7 @@ lan_80(tvbuff_t *tvb, proto_tree *tree)
 	}
 }
 
-static struct {
+static const struct {
 	void (*intrp)(tvbuff_t *tvb, proto_tree *tree);
 	const char *name;
 } lan_options[] = {
@@ -2100,7 +2100,7 @@ serial_53(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_trn_serial53_chan_name, tvb, 1, 16, ENC_NA);
 }
 
-static struct {
+static const struct {
 	void (*intrp)(tvbuff_t *tvb, proto_tree *tree);
 	const char *name;
 } serial_options[] = {

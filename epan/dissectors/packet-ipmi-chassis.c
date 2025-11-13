@@ -400,7 +400,7 @@ bootopt_07(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *tree)
 }
 
 
-static struct {
+static const struct {
 	void (*intrp)(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree);
 	const char *name;
 } boot_options[] = {

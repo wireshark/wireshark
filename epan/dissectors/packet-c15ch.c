@@ -62,7 +62,7 @@ void proto_reg_handoff_c15ch(void);
 
 #define HEADER_SZ 36 /* length of complete c15ch header in bytes */
 
-static const char * C15_LABEL = "C15";
+static const char * const C15_LABEL = "C15";
 /* Heartbeat Protocol : distinct from normal c15 type */
 static int proto_c15ch_hbeat;
 
@@ -1551,7 +1551,7 @@ static int hf_c15ch_cp_event_subpm_agl_splrg;
 
 /*static const uint32_t MIN_PM_VAL = 0; */
 static const uint32_t MAX_PM_VAL = 77;
-static int * subpm_table[] = {
+static const int * const subpm_table[] = {
     /* one entry for each PM type */
     &hf_c15ch_cp_event_subpm_orig,            /* MIN_PM_VAL */
     &hf_c15ch_cp_event_subpm_disc_time,
@@ -1639,7 +1639,7 @@ static const uint32_t DIG_CKT_TEST_PM_VALUE = 40;
 /* this table is indexed by trunk pm numbers */
 /*static const uint32_t MIN_DIG_CKT_TEST_TRKPM_VAL = 0; */
 static const uint32_t MAX_DIG_CKT_TEST_TRKPM_VAL = 5;
-static int * dig_ckt_test_subpm_table[] = {
+static const int * const dig_ckt_test_subpm_table[] = {
     /* one entry for each TRKPM value in the expected range */
     &hf_c15ch_cp_event_dig_ckt_test_subpm_sp,            /* MIN_DIG_CKT_TEST_TRKPM_VAL */
     &hf_c15ch_cp_event_dig_ckt_test_subpm_mp,
@@ -1744,7 +1744,7 @@ static const value_string dig_ckt_test_subpm_disc_types[] = {
     {0, NULL}
 };
 
-static const value_string * dig_ckt_test_subpm_name_tables[] = {
+static const value_string * const dig_ckt_test_subpm_name_tables[] = {
     /* one entry for each TRKPM value in the expected range */
     dig_ckt_test_subpm_sp_types,
     dig_ckt_test_subpm_mp_types,
@@ -2649,7 +2649,7 @@ static const value_string subpm_agl_splrg_types[] = {
     {0, NULL}
 };
 
-static const value_string * subpm_name_tables[] = {
+static const value_string * const subpm_name_tables[] = {
     subpm_orig_types,
     subpm_disc_time_types,
     subpm_revert_types,
@@ -3019,7 +3019,7 @@ static int hf_c15ch_inc_gwe_datatype;
 /* labels */
 
 
-static int * fiatid_table[] = {
+static int * const fiatid_table[] = {
     /* one entry for each Task type */
     &hf_c15ch_inc_gwe_fiatid_invalid,
     &hf_c15ch_inc_gwe_fiatid_bc,
@@ -3157,7 +3157,7 @@ static const value_string c15inc_gwe_admn_fiat_types[] = {
     { 0, NULL }
 };
 
-static const value_string * fiat_name_tables[] = {
+static const value_string * const fiat_name_tables[] = {
     /* correspond to members of c15inc_gwe_task_types */
     NULL, /* corresponds to c15inc_gwe_task_types[0] i.e. GWE_TK_INVALID */
     c15inc_gwe_bc_fiat_types,
@@ -7446,7 +7446,7 @@ static int dissect_c15ch_tone_tone_control(tvbuff_t *tvb, packet_info *pinfo _U_
 }
 
 /* Second level for new Generic Messages */
-/* Generic Message 1 is for a 1232 character ASCII string */ 
+/* Generic Message 1 is for a 1232 character ASCII string */
 static int dissect_c15ch_c15_generic_msg_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
@@ -7505,7 +7505,7 @@ static int dissect_c15ch_c15_generic_msg_1(tvbuff_t *tvb, packet_info *pinfo, pr
     return length;
 }
 
-/* Generic Message 2 is for a 1232 hex bytes */ 
+/* Generic Message 2 is for a 1232 hex bytes */
 static int dissect_c15ch_c15_generic_msg_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
@@ -7564,7 +7564,7 @@ static int dissect_c15ch_c15_generic_msg_2(tvbuff_t *tvb, packet_info *pinfo, pr
     return length;
 }
 
-/* Generic Message 3 is for a 616 character string - 616 hex bytes  */ 
+/* Generic Message 3 is for a 616 character string - 616 hex bytes  */
 static int dissect_c15ch_c15_generic_msg_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
@@ -7625,7 +7625,7 @@ static int dissect_c15ch_c15_generic_msg_3(tvbuff_t *tvb, packet_info *pinfo, pr
     return length;
 }
 
-/* Generic Message 4 is for a 924 character string - 308 hex bytes  */ 
+/* Generic Message 4 is for a 924 character string - 308 hex bytes  */
 static int dissect_c15ch_c15_generic_msg_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
@@ -7686,7 +7686,7 @@ static int dissect_c15ch_c15_generic_msg_4(tvbuff_t *tvb, packet_info *pinfo, pr
     return length;
 }
 
-/* Generic Message 5 is for a 308 character string - 924 hex bytes  */ 
+/* Generic Message 5 is for a 308 character string - 924 hex bytes  */
 static int dissect_c15ch_c15_generic_msg_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
@@ -7747,7 +7747,7 @@ static int dissect_c15ch_c15_generic_msg_5(tvbuff_t *tvb, packet_info *pinfo, pr
     return length;
 }
 
-/* CORRELATE MSG */ 
+/* CORRELATE MSG */
 static int dissect_c15ch_c15_correlate_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item * ti = NULL;
@@ -8782,7 +8782,7 @@ void proto_register_c15ch(void)
             FT_STRINGZ, BASE_NONE,
             NULL,
             0x0, NULL, HFILL}
-        },		
+        },
         { &hf_c15ch_nitnxlate_tg_num,
             { "Target Group Num", "c15.nitnxlate.tg_num",
             FT_UINT32, BASE_DEC,
@@ -10945,7 +10945,7 @@ void proto_register_c15ch(void)
             FT_UINT32, BASE_HEX,
             NULL,
             0x0, NULL, HFILL }
-        },		
+        },
         { &hf_c15ch_c15_generic_msg_gen_msg_field_1,
             { "Generic Message Field 1", "c15.gen_msg_field_1",
             FT_UINT32, BASE_DEC,
@@ -13092,23 +13092,23 @@ void proto_reg_handoff_c15ch(void)
 
     c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_c15_info, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_INFO, c15ch_second_level_handle);
-	
+
     /* Second level for new Generic Messages, Correlate Messages, Alarm Messages, and TTY Messages */
     c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_c15_generic_msg_1, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_GENERIC_MSG_1, c15ch_second_level_handle);
 
     c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_c15_generic_msg_2, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_GENERIC_MSG_2, c15ch_second_level_handle);
-	
+
     c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_c15_generic_msg_3, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_GENERIC_MSG_3, c15ch_second_level_handle);
-	
+
     c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_c15_generic_msg_4, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_GENERIC_MSG_4, c15ch_second_level_handle);
-	
+
     c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_c15_generic_msg_5, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_GENERIC_MSG_5, c15ch_second_level_handle);
-	
+
     c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_c15_correlate_msg, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_CORRELATE_MSG, c15ch_second_level_handle);
 

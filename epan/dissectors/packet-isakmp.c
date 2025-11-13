@@ -1975,7 +1975,7 @@ typedef struct _ikev2_encr_alg_spec {
 #define IKEV2_ENCR_AES_CCM_256_12  119
 
 
-static ikev2_encr_alg_spec_t ikev2_encr_algs[] = {
+static const ikev2_encr_alg_spec_t ikev2_encr_algs[] = {
   {IKEV2_ENCR_NULL, 0, 1, 0, GCRY_CIPHER_NONE, GCRY_CIPHER_MODE_NONE, 0, 0},
   {IKEV2_ENCR_3DES, 24, 8, 8, GCRY_CIPHER_3DES, GCRY_CIPHER_MODE_CBC, 0, 0},
   {IKEV2_ENCR_AES_CBC_128, 16, 16, 16, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC, 0, 0},
@@ -2049,7 +2049,7 @@ typedef struct _ikev2_auth_alg_spec {
 #define IKEV2_AUTH_HMAC_MD5_128  14
 #define IKEV2_AUTH_HMAC_SHA1_160 15
 
-static ikev2_auth_alg_spec_t ikev2_auth_algs[] = {
+static const ikev2_auth_alg_spec_t ikev2_auth_algs[] = {
 /*{number, output_len, key_len, trunc_len, gcry_alg, gcry_flag}*/
   {IKEV2_AUTH_NONE, 0, 0, 0, GCRY_MD_NONE, 0},
   {IKEV2_AUTH_HMAC_MD5_96, 16, 16, 12, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC},
@@ -2073,8 +2073,8 @@ static ikev2_auth_alg_spec_t ikev2_auth_algs[] = {
 typedef struct _ikev2_decrypt_data {
   unsigned char *encr_key;
   unsigned char *auth_key;
-  ikev2_encr_alg_spec_t *encr_spec;
-  ikev2_auth_alg_spec_t *auth_spec;
+  const ikev2_encr_alg_spec_t *encr_spec;
+  const ikev2_auth_alg_spec_t *auth_spec;
 } ikev2_decrypt_data_t;
 
 typedef struct _ikev2_uat_data_key {
@@ -2096,8 +2096,8 @@ typedef struct _ikev2_uat_data {
   unsigned sk_ai_len;
   unsigned char *sk_ar;
   unsigned sk_ar_len;
-  ikev2_encr_alg_spec_t *encr_spec;
-  ikev2_auth_alg_spec_t *auth_spec;
+  const ikev2_encr_alg_spec_t *encr_spec;
+  const ikev2_auth_alg_spec_t *auth_spec;
 } ikev2_uat_data_t;
 
 static ikev2_uat_data_t* ikev2_uat_data;
@@ -2166,8 +2166,8 @@ static const value_string vs_ikev2_auth_algs[] = {
   {0, NULL}
 };
 
-static ikev2_encr_alg_spec_t* ikev2_decrypt_find_encr_spec(unsigned num) {
-  ikev2_encr_alg_spec_t *e;
+static const ikev2_encr_alg_spec_t* ikev2_decrypt_find_encr_spec(unsigned num) {
+  const ikev2_encr_alg_spec_t *e;
 
   for (e = ikev2_encr_algs; e->number != 0; e++) {
     if (e->number == num) {
@@ -2177,8 +2177,8 @@ static ikev2_encr_alg_spec_t* ikev2_decrypt_find_encr_spec(unsigned num) {
   return NULL;
 }
 
-static ikev2_auth_alg_spec_t* ikev2_decrypt_find_auth_spec(unsigned num) {
-  ikev2_auth_alg_spec_t *a;
+static const ikev2_auth_alg_spec_t* ikev2_decrypt_find_auth_spec(unsigned num) {
+  const ikev2_auth_alg_spec_t *a;
 
   for (a = ikev2_auth_algs; a->number != 0; a++) {
     if (a->number == num) {
@@ -6487,8 +6487,8 @@ ikev2_uat_data_copy_cb(void *dest, const void *source, size_t len _U_)
   d->sk_ar = (unsigned char *)g_memdup2(o->sk_ar, o->sk_ar_len);
   d->sk_ar_len = o->sk_ar_len;
 
-  d->encr_spec = (ikev2_encr_alg_spec_t *)g_memdup2(o->encr_spec, sizeof(ikev2_encr_alg_spec_t));
-  d->auth_spec = (ikev2_auth_alg_spec_t *)g_memdup2(o->auth_spec, sizeof(ikev2_auth_alg_spec_t));
+  d->encr_spec = (const ikev2_encr_alg_spec_t *)g_memdup2(o->encr_spec, sizeof(ikev2_encr_alg_spec_t));
+  d->auth_spec = (const ikev2_auth_alg_spec_t *)g_memdup2(o->auth_spec, sizeof(ikev2_auth_alg_spec_t));
 
   return dest;
 }

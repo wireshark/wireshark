@@ -1751,7 +1751,7 @@ static const value_string sti_types[STI_TYPE_LAST + 1] = {
 
 
 /** STI parameters to hf_index mapping */
-static int* sti_params[STI_TYPE_LAST] = {
+static const int* const sti_params[STI_TYPE_LAST] = {
     [STI_TRANSMISSION_STATE] = &hf_c2p_sti_value_transmission_state_desc,
     [STI_STEERING_WHEEL_ANGLE] = &hf_c2p_sti_value_angle_desc,
     [STI_STEERING_WHEEL_ANGLE_CONF] = &hf_c2p_sti_value_angle_desc,
@@ -2590,9 +2590,9 @@ static int dissect_c2p(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
     /* Dissect the rest depending on type */
     tvbuff_t* next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    static uint8_t C2P_VERSION_0 = 0U;
-    static uint8_t C2P_VERSION_1 = 1U;
-    static uint8_t C2P_VERSION_2 = 2U;
+    static const uint8_t C2P_VERSION_0 = 0U;
+    static const uint8_t C2P_VERSION_1 = 1U;
+    static const uint8_t C2P_VERSION_2 = 2U;
 
     (void)C2P_VERSION_0;
 
@@ -3642,9 +3642,9 @@ void proto_register_c2p(void)
         &ett_c2p
     };
 
-    static const char* C2P_PROTOCOL_NAME = "C2P (Commsignia Capture Protocol)";
-    static const char* C2P_PROTOCOL_SHORT_NAME = "C2P";
-    static const char* C2P_FILTER_NAME = "c2p";
+    static const char* const C2P_PROTOCOL_NAME = "C2P (Commsignia Capture Protocol)";
+    static const char* const C2P_PROTOCOL_SHORT_NAME = "C2P";
+    static const char* const C2P_FILTER_NAME = "c2p";
 
     proto_desc = proto_register_protocol(C2P_PROTOCOL_NAME,
                                          C2P_PROTOCOL_SHORT_NAME,
@@ -3663,7 +3663,7 @@ void proto_reg_handoff_c2p(void)
     ieee80211_handle = find_dissector_add_dependency("wlan", proto_desc);
 
     static const uint32_t C2P_PORT = 7943UL;
-    static const char* UDP_PORT_NAME = "udp.port";
+    static const char* const UDP_PORT_NAME = "udp.port";
 
     dissector_add_uint(UDP_PORT_NAME, C2P_PORT, c2p_handle);
 }

@@ -2490,7 +2490,7 @@ static const aim_tlv icq_tlv[] = {
 };
 
 
-static struct
+static const struct
 {
 	uint16_t subtype;
 	const char *name;

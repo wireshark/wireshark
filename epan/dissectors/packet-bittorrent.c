@@ -181,7 +181,7 @@ struct client_information {
    const char *name;      /* NULL means array entry terminates the array */
 };
 
-static struct client_information peer_id[] = {
+static const struct client_information peer_id[] = {
    {"-AG",  4, "Ares"},
    {"-A~",  4, "Ares"},
    {"-AR",  4, "Arctic"},
