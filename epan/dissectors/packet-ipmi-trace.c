@@ -324,6 +324,7 @@ dissect_ipmi_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		proto_tree * trace_tree;
 		proto_tree * stamp_tree;
 		nstime_t timestamp;
+		int millisecs;
 
 		/* add protocol label */
 		ti = proto_tree_add_item(tree, proto_ipmi_trace, tvb, 0, -1, ENC_NA);
@@ -340,7 +341,13 @@ dissect_ipmi_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		timestamp.secs = tvb_get_letohl(tvb, 1);
 
 		/* get milliseconds part */
-		timestamp.nsecs = (int) tvb_get_letohs(tvb, 5) * 1000000;
+		millisecs = tvb_get_letohs(tvb, 5);
+		if (millisecs < 1000) {
+			timestamp.nsecs = millisecs * 1000000;
+		} else {
+			/* invalid */
+			timestamp.nsecs = 0;
+		}
 
 		/* add timestamp */
 		ti = proto_tree_add_time(trace_tree, hf_trace_timestamp, tvb, 1,
