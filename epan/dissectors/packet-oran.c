@@ -494,6 +494,7 @@ static int hf_oran_cd_scg_size;
 static int hf_oran_cd_scg_phase_step;
 
 static int hf_oran_sinr_prb;
+static int hf_oran_oru_control_sinr_slot_mask_id;
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
@@ -5618,9 +5619,10 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                                            num_sinr_per_prb);
             }
 
-            /* reserved (13 bits) */
-            proto_tree_add_item(section_tree, hf_oran_reserved_last_5bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* oruControlSinrSlotMaskId (5 bits) */
+            proto_tree_add_item(section_tree, hf_oran_oru_control_sinr_slot_mask_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
+            /* reserved (8 bits) */
             proto_tree_add_item(section_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             break;
@@ -9567,6 +9569,14 @@ proto_register_oran(void)
             FT_STRING, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL}
+        },
+        /* 7.5.2.20 */
+        { &hf_oran_oru_control_sinr_slot_mask_id,
+          {"oruControlSinrSlotMaskId", "oran_fh_cus.oruControlSinrSlotMaskId",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x1f,
+            "SINR time resolution",
+            HFILL}
         },
 
 
