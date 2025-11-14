@@ -495,6 +495,7 @@ static int hf_oran_cd_scg_phase_step;
 
 static int hf_oran_sinr_prb;
 static int hf_oran_oru_control_sinr_slot_mask_id;
+static int hf_oran_pos_meas;
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
@@ -1335,6 +1336,11 @@ static const true_false_string repetition_se19_tfs = {
   "per port info present in the extension"
 };
 
+static const true_false_string tfs_report_no_report_pos_meas =
+{
+    "Report MEAS_UE_POS for UE",
+    "Do not report UE_POS for UE"
+};
 
 
 /* Forward declaration */
@@ -2659,7 +2665,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_item_set_text(freq_offset_item, "Frequency offset: %d \u0394f", freqOffset);
                 offset += 3;
 
-                /* reserved */
+                /* reserved (8 bits) */
                 proto_tree_add_item(c_section_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
@@ -3136,7 +3142,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* crsSymNum (4 bits) */
                 proto_tree_add_item(extension_tree, hf_oran_crs_symnum, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
-                /* reserved */
+                /* reserved (8 bits) */
                 proto_tree_add_item(extension_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 
@@ -4427,8 +4433,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                             /* ueIdReset (1 bit) */
                             proto_tree_add_item(entry_tree, hf_oran_ueid_reset, tvb, offset, 1, ENC_BIG_ENDIAN);
-                            /* reserved (1 bit) */
-                            proto_tree_add_item(entry_tree, hf_oran_reserved_bit1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            /* posMeas (1 bit) */
+                            proto_tree_add_item(entry_tree, hf_oran_pos_meas, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                             /* dmrsSymbolMask (14 bits) */
                             static int * const  dmrs_symbol_mask_flags[] = {
@@ -5906,7 +5912,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                     /* log2MaskBits (4 bits) */
                     unsigned log2maskbits;
                     proto_tree_add_item_ret_uint(command_tree, hf_oran_log2maskbits, tvb, offset, 1, ENC_BIG_ENDIAN, &log2maskbits);
-                    /* sleepMode */
+                    /* sleepMode (2 bits) */
                     uint32_t sleep_mode;
                     proto_tree_add_item_ret_uint(command_tree, hf_oran_sleepmode_trx, tvb, offset, 1, ENC_BIG_ENDIAN, &sleep_mode);
                     offset += 1;
@@ -9578,7 +9584,14 @@ proto_register_oran(void)
             "SINR time resolution",
             HFILL}
         },
-
+        /* 7.7.24.21 */
+        { &hf_oran_pos_meas,
+          {"posMeas", "oran_fh_cus.posMeas",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_report_no_report_pos_meas), 0x40,
+            "Positioning measurement report request",
+            HFILL}
+        },
 
         { &hf_oran_c_section_common,
           { "Common Section", "oran_fh_cus.c-plane.section.common",
