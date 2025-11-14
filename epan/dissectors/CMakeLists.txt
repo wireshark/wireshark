@@ -1767,6 +1767,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-protobuf.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-proxy.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-prp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-psn.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ptp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ptpip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pulse.c
