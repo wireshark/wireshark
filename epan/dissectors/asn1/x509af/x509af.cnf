@@ -167,8 +167,16 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
 %(DEFAULT_BODY)s
   if (hf_index > 0 && outstr) {
+    nstime_t time_val;
     newstr = wmem_strconcat(actx->pinfo->pool, outstr[0] < '5' ? "20": "19", outstr, NULL);
-    proto_tree_add_string(tree, hf_index, tvb, old_offset, offset - old_offset, newstr);
+
+    iso8601_to_nstime(&time_val, newstr, ISO8601_DATETIME_AUTO);
+
+    /* move past TLV */
+    old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);
+    old_offset = get_ber_length(tvb, old_offset, NULL, NULL);
+
+    proto_tree_add_time(tree, hf_index, tvb, old_offset, offset - old_offset, &time_val);
   }
 
 #.FN_BODY SubjectName
@@ -188,6 +196,7 @@ CertificateSerialNumber TYPE = FT_BYTES  DISPLAY = BASE_NONE
 DSS-Params/p TYPE = FT_BYTES  DISPLAY = BASE_NONE
 DSS-Params/q TYPE = FT_BYTES  DISPLAY = BASE_NONE
 DSS-Params/g TYPE = FT_BYTES  DISPLAY = BASE_NONE
+Time/utcTime TYPE = FT_ABSOLUTE_TIME DISPLAY = ABSOLUTE_TIME_UTC
 
 # This INTEGER can be up to 20 octets, so extract the bytes manually
 

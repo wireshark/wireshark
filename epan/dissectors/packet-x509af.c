@@ -275,8 +275,16 @@ dissect_x509af_T_utcTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
   offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, -1, &outstr, NULL);
 
   if (hf_index > 0 && outstr) {
+    nstime_t time_val;
     newstr = wmem_strconcat(actx->pinfo->pool, outstr[0] < '5' ? "20": "19", outstr, NULL);
-    proto_tree_add_string(tree, hf_index, tvb, old_offset, offset - old_offset, newstr);
+
+    iso8601_to_nstime(&time_val, newstr, ISO8601_DATETIME_AUTO);
+
+    /* move past TLV */
+    old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);
+    old_offset = get_ber_length(tvb, old_offset, NULL, NULL);
+
+    proto_tree_add_time(tree, hf_index, tvb, old_offset, offset - old_offset, &time_val);
   }
 
 
@@ -1195,7 +1203,7 @@ void proto_register_x509af(void) {
         NULL, HFILL }},
     { &hf_x509af_utcTime,
       { "utcTime", "x509af.utcTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
         NULL, HFILL }},
     { &hf_x509af_generalizedTime,
       { "generalizedTime", "x509af.generalizedTime",

@@ -376,6 +376,9 @@ XDayOf/fifth				fifth_dayof
 
 #.END
 
+#.TYPE_ATTR
+SyntaxUTCTime TYPE=FT_ABSOLUTE_TIME DISPLAY=ABSOLUTE_TIME_UTC
+
 #.FN_BODY SyntaxUTCTime HF_INDEX = -1 VAL_PTR = &outstr
   char *outstr, *newstr;
   int old_offset = offset;
@@ -383,8 +386,16 @@ XDayOf/fifth				fifth_dayof
   /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
 %(DEFAULT_BODY)s
   if (hf_index > 0 && outstr) {
+    nstime_t time_val;
     newstr = wmem_strconcat(actx->pinfo->pool, outstr[0] < '5' ? "20": "19", outstr, NULL);
-    proto_tree_add_string(tree, hf_index, tvb, old_offset, offset - old_offset, newstr);
+
+    iso8601_to_nstime(&time_val, newstr, ISO8601_DATETIME_AUTO);
+
+    /* move past TLV */
+    old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);
+    old_offset = get_ber_length(tvb, old_offset, NULL, NULL);
+
+    proto_tree_add_time(tree, hf_index, tvb, old_offset, offset - old_offset, &time_val);
   }
 
 #.FN_BODY GUID

@@ -3744,7 +3744,8 @@ dissect_ber_GeneralizedTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tre
 int
 dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id, char **datestrptr, uint32_t *tvblen)
 {
-    char         *outstr, *outstrptr;
+    wmem_strbuf_t *outstrbuf;
+    char         *outstr;
     const uint8_t *instr;
     int8_t        ber_class;
     bool      pc;
@@ -3757,7 +3758,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
     proto_tree   *error_tree;
     const char   *error_str = NULL;
 
-    outstrptr = outstr = (char *)wmem_alloc(actx->pinfo->pool, 29);
+    outstrbuf = wmem_strbuf_create(actx->pinfo->pool);
 
     if (datestrptr) *datestrptr = NULL; /* mark invalid */
     if (tvblen) *tvblen = 0;
@@ -3806,8 +3807,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
             goto malformed;
         }
     }
-    snprintf(outstrptr, 15, "%.2s-%.2s-%.2s %.2s:%.2s", instr, instr+2, instr+4, instr+6, instr+8);
-    outstrptr+= 14;
+    wmem_strbuf_append_printf(outstrbuf, "%.2s-%.2s-%.2s %.2s:%.2s", instr, instr+2, instr+4, instr+6, instr+8);
 
     /* (ss)? */
     if (len >= 12) {
@@ -3815,8 +3815,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
             i++;
             if ((instr[i] >= '0') && (instr[i] <= '9')) {
                 i++;
-                snprintf(outstrptr, 4, ":%.2s", instr+10);
-                outstrptr+=3;
+                wmem_strbuf_append_printf(outstrbuf, ":%.2s", instr+10);
             } else {
                 error_str = "BER Error: malformed UTCTime encoding, "
                         "if 11th octet is a digit for seconds, "
@@ -3834,7 +3833,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
                         "there must be no further octets after \'Z\'";
             goto malformed;
         }
-        snprintf(outstrptr, 7, " (UTC)");
+        wmem_strbuf_append_c(outstrbuf, 'Z');
         i++;
         break;
     case '-':
@@ -3851,8 +3850,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
                 goto malformed;
             }
         }
-        snprintf(outstrptr, 12, " (UTC%c%.4s)", instr[i], instr+i+1);
-        i+=5;
+        wmem_strbuf_append_len(outstrbuf, &instr[i], 5);
         break;
     default:
         error_str = wmem_strdup_printf(actx->pinfo->pool,
@@ -3871,6 +3869,8 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
             i);
         goto malformed;
     }
+
+    outstr = wmem_strbuf_finalize(outstrbuf);
 
     if (datestrptr) {
        *datestrptr = outstr; /* mark as valid */
@@ -4006,7 +4006,6 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
         }
         offset++;
         len--;
-        bit_len -= 8;
         if (hf_id > 0) {
             item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, ENC_NA);
             actx->created_item = item;
