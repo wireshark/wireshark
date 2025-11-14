@@ -172,6 +172,7 @@ blf_date_to_sec(const blf_date_t *date) {
 static uint64_t
 blf_data_to_ns(const blf_date_t *date) {
     if (date != NULL &&
+        (date->year < 2484) &&  /* max_uint64 / ns_per_year */
         (date->month >= 1 && date->month <= 12) &&
         (date->day >= 1 && date->day <= 31) &&
         (date->hour <= 23) && (date->mins <= 59) &&
