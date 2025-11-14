@@ -742,7 +742,8 @@ typedef struct _dns_conv_info_t {
 #define UDP_PORT_MDNS           5353
 #define UDP_PORT_LLMNR          5355
 #define TCP_PORT_DNS_TLS         853
-#define UDP_PORT_DNS_DTLS        853
+/* Disable experimental feature conflicting with DNS over QUIC */
+#define UDP_PORT_DNS_DTLS          0
 #if 0
 /* PPID used for DNS/SCTP (will be changed when IANA assigned) */
 #define DNS_PAYLOAD_PROTOCOL_ID 1000
