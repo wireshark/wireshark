@@ -7295,7 +7295,6 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                 proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
 
-                col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
                 proto_tree_add_item(nas_eps_tree, hf_nas_eps_ciphered_msg, tvb, offset, len - 6, ENC_NA);
 
                 /* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
@@ -7303,6 +7302,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                 /* No decipher mechanism selected, returning without trying to decipher */
                 if (!g_nas_eps_null_decipher)
                 {
+                    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
                     return tvb_captured_length(tvb);
                 }
                 /* Force deciphering with EEA2*/
@@ -7312,11 +7312,13 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
                     if (!tvb_deciphered)
                     {
+                        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
                         return tvb_captured_length(tvb);
                     }
                     uint32_t pd_deciphered = tvb_get_uint8(tvb_deciphered, 0);
                     if ((pd_deciphered != 7) && (pd_deciphered != 15) && ((pd_deciphered & 0x0f) != 2))
                     {
+                        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
                         return tvb_captured_length(tvb);
                     }
                     len = tvb_reported_length(tvb_deciphered);
