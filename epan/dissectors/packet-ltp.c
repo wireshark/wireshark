@@ -879,7 +879,7 @@ ltp_dissect_client_service_id_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		}
 
 		tvbuff_t *sub_tvb = tvb_new_subset_remaining(tvb, parse_offset);
-		int sub_len = dissector_try_uint_with_data(ltp_client_service, (uint32_t)sda_client_id, sub_tvb, pinfo, tree, false, &csd);
+		int sub_len = dissector_try_uint_with_data(ltp_client_service, (uint32_t)sda_client_id, sub_tvb, pinfo, tree, false, csd);
 		if(sub_len <= 0) {
 			/*Couldn't parse sub-service */
 			col_set_str(pinfo->cinfo, COL_INFO, "Dissection Failed");
