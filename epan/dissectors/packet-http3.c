@@ -191,6 +191,7 @@ static expert_field ei_http3_header_encoded_state;
 static expert_field ei_http3_header_decoding_failed;
 static expert_field ei_http3_header_decoding_blocked;
 static expert_field ei_http3_header_decoding_no_output;
+static expert_field ei_http3_header_size;
 /* HTTP3 datagram prefix EIs */
 static expert_field ei_http3_datagram_invalid_stream_id;
 
@@ -390,6 +391,22 @@ static http3_session_info_t *http3_session_lookup_or_create(packet_info *pinfo);
 #define QPACK_MAX_DTABLE_SIZE   65536   /**< Max size of the QPACK dynamic table. */
 #define QPACK_MAX_BLOCKED       512     /**< Upper limit on number of streams blocked on QPACK updates. */
 
+/**
+ * Limit the maximum header size to handle legitimate use cases while
+ * protecting against hostile traffic (in practice, decompression bombs,
+ * as libnghttp3 puts a limit on the compressed size of a single header.)
+ *
+ * Note that server limits tend to be lower than those supported by clients;
+ * some clients have supported hundreds of MiB of headers (?!) at least in
+ * the past. Chrome has had a consistent limit of 256 KiB. This is more than
+ * enough, but still reasonably fast. We shouldn't need to limit the number
+ * of headers after speeding up tvb_composite.
+ *
+ * https://stackoverflow.com/questions/686217/maximum-on-http-header-values
+ * https://stackoverflow.com/questions/1097651/is-there-a-practical-http-header-length-limit/
+ * https://stackoverflow.com/questions/3326210/can-http-headers-be-too-big-for-browsers
+ */
+#define QPACK_MAX_HEADER_SIZE   1048576 /**< Max size of decompressed headers (1 MiB) */
 
 /**
  * Header caching scheme
@@ -481,6 +498,7 @@ typedef struct _http3_header_data {
     wmem_array_t *              header_fields; /**< List of header fields contained in the header block. */
     header_block_encoded_iter_t encoded;       /**< Used for dissection, not allocated. */
     struct _http3_header_data * next;          /**< Next pointer in the chain. */
+    bool                        header_size_exceeded; /**< True if decoding halted due to excessive size. */
 } http3_header_data_t;
 
 
@@ -1007,7 +1025,7 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
     http3_header_data_t           *header_data;         /* The decoded header data block; populated on the first pass. */
     http3_session_info_t          *http3_session;       /* The corresponding HTTP/3 session. */
     tvbuff_t                      *header_tvb;          /* Composite TVB containing the decoded header fields. */
-    int                           header_len;           /* Total length of the decoded header fields. */
+    unsigned                      header_len;           /* Total length of the decoded header fields. */
     int                           hoffset;              /* Offset of a decoded header in the decoded TVB */
     proto_item                    *ti;                  /* Temporary tree item; used in multiple ways when constructing proto trees. */
     http3_pseudo_header_fields_t  pseudo_headers;       /* Pseudo-header values; populated when building proto trees; used when creating column info. */
@@ -1051,6 +1069,8 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
         ws_debug("Header data: %p %d %d", header_data->encoded.bytes, header_data->encoded.pos,
                                 header_data->encoded.len);
 
+        header_len = 0;
+
         /*
          * Attempt to decode headers.
          *
@@ -1060,6 +1080,11 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
         while (HEADER_BLOCK_ENC_ITER_REMAINING(header_data)) {
             nghttp3_qpack_nv nv;
             uint8_t          flags;
+
+            if (header_len >= QPACK_MAX_HEADER_SIZE) {
+                header_data->header_size_exceeded = true;
+                break;
+            }
 
             ws_noisy("%p %p:%d decode decoder=%p sctx=%p", header_data->encoded.bytes,
                                     HEADER_BLOCK_ENC_ITER_PTR(header_data),
@@ -1115,6 +1140,9 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
                     header_data->header_fields = wmem_array_new(wmem_file_scope(), sizeof(http3_header_field_t));
                 }
                 wmem_array_append(header_data->header_fields, out, 1);
+
+                header_len += out->decoded.len;
+
             } else {
                 proto_tree_add_expert_format(tree, pinfo, &ei_http3_header_decoding_no_output, tvb, tvb_offset, 0,
                                              "QPACK - nothing emitted decoder %p ctx %p flags %" PRIu8 " error %d (%s)",
@@ -1191,6 +1219,9 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 
     ti = proto_tree_add_uint(tree, hf_http3_headers_decoded_length, header_tvb, hoffset, 1, header_len);
     proto_item_set_generated(ti);
+    if (header_data->header_size_exceeded) {
+        expert_add_info(pinfo, ti, &ei_http3_header_size);
+    }
 
     ti = proto_tree_add_uint(tree, hf_http3_headers_count, header_tvb, hoffset, 1,
                              wmem_array_get_count(header_data->header_fields));
@@ -3100,6 +3131,12 @@ proto_register_http3(void)
         { &ei_http3_header_decoding_no_output,
           { "http3.expert.header_decoding.no_output", PI_UNDECODED, PI_NOTE,
             "Failed to decode HTTP3 header name/value (QPACK decoder no emission)", EXPFILL}
+        },
+        /* Stopping due to excessive headers is possibly PI_SECURITY
+         * (decompression bomb or other dangerous implemention). */
+        { &ei_http3_header_size,
+          { "http3.expert.header_decoding.header_size_exceeded", PI_UNDECODED, PI_WARN,
+            "QPACK decompression stopped after " G_STRINGIFY(QPACK_MAX_HEADER_SIZE) " bytes", EXPFILL}
         },
         { &ei_http3_datagram_invalid_stream_id,
           { "http3.expert.datagram.invalid_stream_id", PI_UNDECODED, PI_WARN,
