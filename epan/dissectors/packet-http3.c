@@ -477,7 +477,7 @@ typedef struct _http3_header_data {
     uint32_t                    offset;        /**< Offset of the headers block in the pinfo TVB. */
     uint32_t                    ds_idx;        /**< Index of the data source tvb in the pinfo. */
     uint16_t                    state;         /**< See HTTP3_HD_DECODER_XXX above */
-    uint16_t                    error;         /**< Decoding error code if any. */
+    int16_t                     error;         /**< Decoding error code if any. */
     wmem_array_t *              header_fields; /**< List of header fields contained in the header block. */
     header_block_encoded_iter_t encoded;       /**< Used for dissection, not allocated. */
     struct _http3_header_data * next;          /**< Next pointer in the chain. */
