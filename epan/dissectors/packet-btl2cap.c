@@ -3162,7 +3162,6 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     hf_btl2cap_fcs_status, &ei_btl2cap_fcs_bad, pinfo,
                     crc16_plain_tvb_offset(tvb, 0, offset), ENC_LITTLE_ENDIAN,
                     PROTO_CHECKSUM_VERIFY);
-                offset += 2;
 
                 next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset)-2, length);
             }
