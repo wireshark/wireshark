@@ -2680,7 +2680,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     /*pass up to higher layer if we have a complete packet*/
     if (segment == 0x00) {
-        next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset) - 2, length);
+        next_tvb = tvb_new_subset_length(tvb, offset, length);
     }
     if (next_tvb) {
         if (psm) {
@@ -2735,7 +2735,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, next_tvb, 0, tvb_reported_length(next_tvb), ENC_NA);
         }
     }
-    offset += tvb_reported_length_remaining(tvb, offset) - 2;
+    offset += length;
     proto_tree_add_checksum(btl2cap_tree, tvb, offset, hf_btl2cap_fcs,
         hf_btl2cap_fcs_status, &ei_btl2cap_fcs_bad, pinfo,
         crc16_plain_tvb_offset(tvb, 0, offset), ENC_LITTLE_ENDIAN,
@@ -2870,10 +2870,12 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     length  = tvb_get_letohs(tvb, offset);
     length_item = proto_tree_add_item(btl2cap_tree, hf_btl2cap_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    if (tvb_captured_length_remaining(tvb, offset) < length) {
+    /* Note this is captured length - some code later around fragments,
+     * FCS would have to be changed if this were reported length. */
+    if (tvb_captured_length_remaining(tvb, offset + 4) < length) {
         expert_add_info(pinfo, length_item, &ei_btl2cap_length_bad);
-        /* Try to dissect as more as possible */
-        length = tvb_captured_length_remaining(tvb, offset) - 4;
+        /* Try to dissect as much as possible */
+        length = tvb_captured_length_remaining(tvb, offset + 4);
     }
 
     offset += 2;
@@ -3156,14 +3158,20 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     &hf_btl2cap_control_type,
                     NULL
                 };
+                if (length <= 4) {
+                    expert_add_info_format(pinfo, length_item, &ei_btl2cap_length_bad,
+                            "Control / FCS length too short: %u", length);
+                    THROW(ReportedBoundsError);
+                }
+                length -= 4; /*Control, FCS*/
                 proto_tree_add_bitmask(btl2cap_tree, tvb, offset, hf_btl2cap_control_field, ett_btl2cap_control, fields, ENC_LITTLE_ENDIAN);
                 offset += 2;
-                proto_tree_add_checksum(btl2cap_tree, tvb, tvb_reported_length(tvb) - 2, hf_btl2cap_fcs,
+                proto_tree_add_checksum(btl2cap_tree, tvb, offset + length, hf_btl2cap_fcs,
                     hf_btl2cap_fcs_status, &ei_btl2cap_fcs_bad, pinfo,
                     crc16_plain_tvb_offset(tvb, 0, offset), ENC_LITTLE_ENDIAN,
                     PROTO_CHECKSUM_VERIFY);
 
-                next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset)-2, length);
+                next_tvb = tvb_new_subset_length(tvb, offset, length);
             }
         }
         else {
