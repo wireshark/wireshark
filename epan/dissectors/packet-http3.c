@@ -469,7 +469,11 @@ typedef struct _header_block_encoded_iter {
  * will be identified by the `offset' field.
  */
 typedef struct _http3_header_data {
+#if 0
+    /* XXX - This doesn't seem to be used. Would this be any different
+     * than encoded.len ? */
     uint32_t                    len;           /**< Length of the encoded headers block. */
+#endif
     uint32_t                    offset;        /**< Offset of the headers block in the pinfo TVB. */
     uint32_t                    ds_idx;        /**< Index of the data source tvb in the pinfo. */
     uint16_t                    state;         /**< See HTTP3_HD_DECODER_XXX above */
@@ -1100,7 +1104,7 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
                 out = wmem_new0(wmem_file_scope(), http3_header_field_t);
 
                 /* Populate the `encoded' portion. */
-                out->encoded.len    = header_data->len;
+                out->encoded.len    = nread;
                 out->encoded.offset = header_data->encoded.pos;
 
                 /* Populate the `decoded' portion. */
