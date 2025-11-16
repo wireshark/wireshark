@@ -178,6 +178,8 @@ def main():
             if idx != -1:
                 name = name[0:idx]
             name = name.rstrip()
+            # Remove any double quotes from name
+            name = name.replace('"', '')
             # Add
             c_file.addMapping(int(num), name)
 
