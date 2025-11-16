@@ -880,6 +880,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C2F,   "Cooking Zone Perceived Power" },
     { 0x2C30,   "Kitchen Appliance Airflow" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC47,   "Shanghai Ingeek Technology Co., Ltd." },
     { 0xFC48,   "Michelin" },
     { 0xFC49,   "Golioth, Inc." },
     { 0xFC4A,   "Shenzhen Shokz Co.,Ltd." },
@@ -5449,6 +5450,13 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0FAF,   "Terasite Technologies" },
     { 0x0FB0,   "General Resistance, LLC" },
     { 0x0FB1,   "Avivomed Inc." },
+    { 0x0FB2,   "PLAUD Inc." },
+    { 0x0FB3,   "Hooked Society Oy Ltd" },
+    { 0x0FB4,   "StoneDevices" },
+    { 0x0FB5,   "Hangzhou Nano IC Technologies Co,. Ltd" },
+    { 0x0FB6,   "TQ-Systems GmbH" },
+    { 0x0FB7,   "Hapn Holdings, LLC" },
+    { 0x0FB8,   "SITERWELL ELECTRONICS CO.,LIMITED" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6208,6 +6216,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c2f,   "Bluetooth GATT Attribute Cooking Zone Perceived Power (UUID 0x2c2f)", "BT GATT Cooking Zone Perceived Power (UUID 0x2c2f)", "btgatt.uuid0x2c2f" },
     { 0x2c30,   "Bluetooth GATT Attribute Kitchen Appliance Airflow (UUID 0x2c30)", "BT GATT Kitchen Appliance Airflow (UUID 0x2c30)", "btgatt.uuid0x2c30" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc47,   "Bluetooth GATT Attribute Shanghai Ingeek Technology Co., Ltd. (UUID 0xfc47)", "BT GATT Shanghai Ingeek Technology Co., Ltd. (UUID 0xfc47)", "btgatt.uuid0xfc47" },
     { 0xfc48,   "Bluetooth GATT Attribute Michelin (UUID 0xfc48)", "BT GATT Michelin (UUID 0xfc48)", "btgatt.uuid0xfc48" },
     { 0xfc49,   "Bluetooth GATT Attribute Golioth, Inc. (UUID 0xfc49)", "BT GATT Golioth, Inc. (UUID 0xfc49)", "btgatt.uuid0xfc49" },
     { 0xfc4a,   "Bluetooth GATT Attribute Shenzhen Shokz Co.,Ltd. (UUID 0xfc4a)", "BT GATT Shenzhen Shokz Co.,Ltd. (UUID 0xfc4a)", "btgatt.uuid0xfc4a" },
