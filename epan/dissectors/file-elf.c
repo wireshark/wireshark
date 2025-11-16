@@ -6,6 +6,7 @@
  * https://refspecs.linuxfoundation.org/
  * https://refspecs.linuxfoundation.org/LSB_4.1.0/LSB-Core-generic/LSB-Core-generic/ehframechpt.html
  * http://dwarfstd.org/doc/DWARF4.pdf
+ * https://man7.org/linux/man-pages/man5/elf.5.html
  *
  * Copyright 2013, Michal Labedzki for Tieto Corporation
  * Copyright (C) 2019 Peter Wu <peter@lekensteyn.nl>
@@ -172,6 +173,11 @@ static int hf_dwarf_omit;
 static int hf_dwarf_upper;
 static int hf_dwarf_format;
 
+static expert_field ei_invalid_class;
+static expert_field ei_invalid_data_encoding;
+static expert_field ei_invalid_header_size;
+static expert_field ei_invalid_phent_size;
+static expert_field ei_invalid_shent_size;
 static expert_field ei_invalid_segment_size;
 static expert_field ei_invalid_entry_size;
 static expert_field ei_cfi_extraneous_data;
@@ -199,6 +205,121 @@ static int ett_symbol_table_info;
 
 #define REGISTER_32_SIZE  4
 #define REGISTER_64_SIZE  8
+
+/*
+ * e_ehsize, e_phentsize, and e_shentsize are present in the ELF header,
+ * but in practice must refer to one of the sets of the standard structs:
+ *
+ * #define EI_NIDENT 16
+ *
+ *  typedef struct {
+ *          unsigned char e_ident[EI_NIDENT];
+ *          uint16_t      e_type;
+ *          uint16_t      e_machine;
+ *          uint32_t      e_version;
+ *          uint32_t      e_entry;
+ *          uint32_t      e_phoff;
+ *          uint32_t      e_shoff;
+ *          uint32_t      e_flags;
+ *          uint16_t      e_ehsize;
+ *          uint16_t      e_phentsize;
+ *          uint16_t      e_phnum;
+ *          uint16_t      e_shentsize;
+ *          uint16_t      e_shnum;
+ *          uint16_t      e_shstrndx;
+ *  } Elf32_Ehdr;
+ *
+ *  typedef struct {
+ *          unsigned char e_ident[EI_NIDENT];
+ *          uint16_t      e_type;
+ *          uint16_t      e_machine;
+ *          uint32_t      e_version;
+ *          uint64_t      e_entry;
+ *          uint64_t      e_phoff;
+ *          uint64_t      e_shoff;
+ *          uint32_t      e_flags;
+ *          uint16_t      e_ehsize;
+ *          uint16_t      e_phentsize;
+ *          uint16_t      e_phnum;
+ *          uint16_t      e_shentsize;
+ *          uint16_t      e_shnum;
+ *          uint16_t      e_shstrndx;
+ *  } Elf64_Ehdr;
+ *
+ * typedef struct {
+ *          uint32_t	p_type;
+ *          uint32_t	p_offset;
+ *          uint32_t	p_vaddr;
+ *          uint32_t	p_paddr;
+ *          uint32_t	p_filesz;
+ *          uint32_t	p_memsz;
+ *          uint32_t	p_flags;
+ *          uint32_t	p_align;
+ *  } Elf32_Phdr;
+ *
+ *  typedef struct {
+ *          uint32_t	p_type;
+ *          uint32_t	p_flags;
+ *          uint64_t	p_offset;
+ *          uint64_t	p_vaddr;
+ *          uint64_t	p_paddr;
+ *          uint64_t	p_filesz;
+ *          uint64_t	p_memsz;
+ *          uint64_t	p_align;
+ *  } Elf64_Phdr;
+ *
+ * typedef struct {
+ *          uint32_t	sh_name;
+ *          uint32_t	sh_type;
+ *          uint32_t	sh_flags;
+ *          uint32_t	sh_addr;
+ *          uint32_t	sh_offset;
+ *          uint32_t	sh_size;
+ *          uint32_t	sh_link;
+ *          uint32_t	sh_info;
+ *          uint32_t	sh_addralign;
+ *          uint32_t	sh_entsize;
+ *  } Elf32_Shdr;
+ *
+ *  typedef struct {
+ *          uint32_t	sh_name;
+ *          uint32_t	sh_type;
+ *          uint64_t	sh_flags;
+ *          uint64_t	sh_addr;
+ *          uint64_t	sh_offset;
+ *          uint64_t	sh_size;
+ *          uint32_t	sh_link;
+ *          uint32_t	sh_info;
+ *          uint64_t	sh_addralign;
+ *          uint64_t	sh_entsize;
+ *  } Elf64_Shdr;
+ *
+ * Note that some header values can be mangled in ELF headers intentionally
+ * in order to frustrate analysis tools while still allowing execution. See:
+ * E. Cozzi, M. Graziano, Y. Fratantonio and D. Balzarotti, “Understanding
+ * Linux Malware,” 2018 IEEE Symposium on Security and Privacy (SP), San
+ * Francisco, CA, USA, 2018, pp. 161-175, doi: 10.1109/SP.2018.00054
+ * https://reyammer.io/publications/2018_oakland_linuxmalware.pdf
+ *
+ * This works because the values are overdetermined. The EI_CLASS byte within
+ * e_ident determines whether the 32 or 64 bit structures are selected, but
+ * the e_machine member can also be used to deduce this based on the machine
+ * type. readelf uses the former (obviating the need to know anything about
+ * how machine types map to architecture size), but the loader depends only
+ * on e_machine (as machine type compatibility is necessary to execute the
+ * file anyway.) Both ignore e_ehsize and use the deduced value instead,
+ * though interestingly they rely on correct values for e_phentsize and,
+ * for readelf, e_shentsize (section header information is unnecessary for
+ * execution.)
+ * https://cylab.be/blog/405/elf-header-manipulation
+ */
+
+#define EHSIZE_32 52
+#define EHSIZE_64 64
+#define PHENTSIZE_32 32
+#define PHENTSIZE_64 56
+#define SHENTSIZE_32 40
+#define SHENTSIZE_64 64
 
 static const value_string class_vals[] = {
     { 0x00,  "Invalid class" },
@@ -1179,18 +1300,19 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree      *blackhole_tree;
     proto_item      *entry_item;
     proto_tree      *entry_tree;
+    uint32_t         class, data_encoding;
     unsigned         machine_encoding = ENC_NA;
     int              register_size = 4;
-    uint16_t         phentsize;
-    uint16_t         phnum;
-    uint16_t         shentsize;
-    uint16_t         shnum;
+    uint32_t         phentsize, phentsize_nominal;
+    uint32_t         phnum;
+    uint32_t         shentsize, shentsize_nominal;
+    uint32_t         shnum;
     uint64_t         phoff;
     uint64_t         shoff;
     uint16_t         i_16;
     uint32_t         p_type;
     uint32_t         sh_type;
-    uint16_t         shstrndx;
+    uint32_t         shstrndx;
     uint64_t         shstrtab_offset;
     uint32_t         sh_name;
     const char      *section_name;
@@ -1199,7 +1321,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     uint64_t         segment_size;
     uint64_t         file_size;
     uint64_t         p_offset;
-    int              ehsize;
+    uint32_t         ehsize, ehsize_nominal;
     unsigned         area_counter = 0;
     segment_info_t  *segment_info;
     unsigned         i;
@@ -1210,7 +1332,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     uint64_t         strtab_offset = 0;
     uint64_t         dynstr_offset = 0;
 
-    if (tvb_captured_length(tvb) < 52)
+    if (tvb_captured_length(tvb) < EHSIZE_32)
         return 0;
 
     if (tvb_memeql(tvb, 0, magic, sizeof(magic)) != 0)
@@ -1219,21 +1341,40 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     main_item = proto_tree_add_item(tree, proto_elf, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_elf);
 
-    header_tree = proto_tree_add_subtree(main_tree, tvb, offset, 1, ett_elf_header, &header_item, "Header");
+    header_tree = proto_tree_add_subtree(main_tree, tvb, offset, EHSIZE_32, ett_elf_header, &header_item, "Header");
 
     /* e_ident */
     proto_tree_add_item(header_tree, hf_elf_magic_bytes, tvb, offset, sizeof(magic), ENC_NA);
     offset += (int)sizeof(magic);
 
-    proto_tree_add_item(header_tree, hf_elf_file_class, tvb, offset, 1, ENC_NA);
-    register_size *= tvb_get_uint8(tvb, offset);
+    ti = proto_tree_add_item_ret_uint(header_tree, hf_elf_file_class, tvb, offset, 1, ENC_NA, &class);
+    switch (class) {
+    case 1:
+    case 2:
+        register_size *= class;
+        break;
+    default:
+        expert_add_info(pinfo, ti, &ei_invalid_class);
+        register_size = sizeof(void *);
+    }
     offset += 1;
 
-    proto_tree_add_item(header_tree, hf_elf_data_encoding, tvb, offset, 1, ENC_NA);
-    if (tvb_get_uint8(tvb, offset) == 1)
+    proto_tree_add_item_ret_uint(header_tree, hf_elf_data_encoding, tvb, offset, 1, ENC_NA, &data_encoding);
+    switch (data_encoding) {
+    case 1:
         machine_encoding = ENC_LITTLE_ENDIAN;
-    else
+        break;
+    case 2:
         machine_encoding = ENC_BIG_ENDIAN;
+        break;
+    default:
+        expert_add_info(pinfo, ti, &ei_invalid_data_encoding);
+#if G_BYTE_ORDER == G_BIG_ENDIAN
+        machine_encoding = ENC_BIG_ENDIAN;
+#else
+        machine_encoding = ENC_LITTLE_ENDIAN;
+#endif
+    }
     offset += 1;
 
     proto_tree_add_item(header_tree, hf_elf_file_version, tvb, offset, 1, ENC_NA);
@@ -1295,30 +1436,35 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_tree_add_item(header_tree, hf_elf_flags, tvb, offset, 4, machine_encoding);
     offset += 4;
 
-    proto_tree_add_item(header_tree, hf_elf_ehsize, tvb, offset, 2, machine_encoding);
-    ehsize =  (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohs(tvb, offset) : tvb_get_letohs(tvb, offset);
+    ehsize = (register_size == REGISTER_32_SIZE) ? EHSIZE_32 : EHSIZE_64;
+    ti = proto_tree_add_item_ret_uint(header_tree, hf_elf_ehsize, tvb, offset, 2, machine_encoding, &ehsize_nominal);
+    if (ehsize_nominal != ehsize) {
+        expert_add_info(pinfo, ti, &ei_invalid_header_size);
+    }
     proto_item_set_len(header_item, ehsize);
     offset += 2;
 
-    proto_tree_add_item(header_tree, hf_elf_phentsize, tvb, offset, 2, machine_encoding);
-    phentsize = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohs(tvb, offset) : tvb_get_letohs(tvb, offset);
+    phentsize = (register_size == REGISTER_32_SIZE) ? PHENTSIZE_32 : PHENTSIZE_64;
+    proto_tree_add_item_ret_uint(header_tree, hf_elf_phentsize, tvb, offset, 2, machine_encoding, &phentsize_nominal);
+    if (phentsize_nominal != phentsize) {
+        expert_add_info(pinfo, ti, &ei_invalid_phent_size);
+    }
     offset += 2;
 
-    proto_tree_add_item(header_tree, hf_elf_phnum, tvb, offset, 2, machine_encoding);
-    phnum = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohs(tvb, offset) : tvb_get_letohs(tvb, offset);
+    proto_tree_add_item_ret_uint(header_tree, hf_elf_phnum, tvb, offset, 2, machine_encoding, &phnum);
     offset += 2;
 
-    proto_tree_add_item(header_tree, hf_elf_shentsize, tvb, offset, 2, machine_encoding);
-    shentsize = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohs(tvb, offset) : tvb_get_letohs(tvb, offset);
+    shentsize = (register_size == REGISTER_32_SIZE) ? SHENTSIZE_32 : SHENTSIZE_64;
+    proto_tree_add_item_ret_uint(header_tree, hf_elf_shentsize, tvb, offset, 2, machine_encoding, &shentsize_nominal);
+    if (shentsize_nominal != shentsize) {
+        expert_add_info(pinfo, ti, &ei_invalid_shent_size);
+    }
     offset += 2;
 
-    proto_tree_add_item(header_tree, hf_elf_shnum, tvb, offset, 2, machine_encoding);
-    shnum = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohs(tvb, offset) : tvb_get_letohs(tvb, offset);
+    proto_tree_add_item_ret_uint(header_tree, hf_elf_shnum, tvb, offset, 2, machine_encoding, &shnum);
     offset += 2;
 
-    proto_tree_add_item(header_tree, hf_elf_shstrndx, tvb, offset, 2, machine_encoding);
-    shstrndx = (machine_encoding == ENC_BIG_ENDIAN) ?
-            tvb_get_ntohs(tvb, offset) : tvb_get_letohs(tvb, offset);
+    proto_tree_add_item_ret_uint(header_tree, hf_elf_shstrndx, tvb, offset, 2, machine_encoding, &shstrndx);
     /*offset += 2;*/
 
     program_header_tree = proto_tree_add_subtree_format(main_tree, tvb, value_guard(phoff),
@@ -1327,7 +1473,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     section_header_tree = proto_tree_add_subtree_format(main_tree, tvb, value_guard(shoff),
             shnum * shentsize, ett_elf_section_header, NULL, "Section Header Table [%d entries]", shnum);
 
-    file_size = ehsize + (uint32_t)phnum * (uint32_t)phentsize + (uint32_t)shnum * (uint32_t)shentsize;
+    file_size = ehsize + phnum * phentsize + shnum * shentsize;
 
     /* Collect infos for blackholes */
     segment_info = (segment_info_t *) wmem_alloc(pinfo->pool, sizeof(segment_info_t) * (shnum + phnum + 3));
@@ -1339,14 +1485,14 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     if (phoff) {
         segment_info[area_counter].offset = phoff;
-        segment_info[area_counter].size = (uint32_t)phnum * (uint32_t)phentsize;
+        segment_info[area_counter].size = phnum * phentsize;
         segment_info[area_counter].name = "ProgramHeader";
         area_counter += 1;
     }
 
     if (shoff) {
         segment_info[area_counter].offset = shoff;
-        segment_info[area_counter].size = (uint32_t)shnum * (uint32_t)shentsize;
+        segment_info[area_counter].size = shnum * shentsize;
         segment_info[area_counter].name = "SectionHeader";
         area_counter += 1;
     }
@@ -1470,7 +1616,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         offset += 4;
 
-        length = shoff + (uint32_t)shstrndx * (uint32_t)shentsize + 2 * 4 + 2 * register_size;
+        length = shoff + shstrndx * shentsize + 2 * 4 + 2 * register_size;
         if (register_size == REGISTER_32_SIZE) {
             shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
                     tvb_get_ntohl(tvb, value_guard(length)) : tvb_get_letohl(tvb, value_guard(length));
@@ -1515,6 +1661,11 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     }
 
 /* Sections */
+    /* XXX - The Section header table is at the end of the file, after the
+     * sections. This means that the idle detection in proto.c new_field_info()
+     * doesn't work properly, as the start offset goes backwards to dissect the
+     * sections within each entry.
+     */
     offset = value_guard(shoff);
 
     i_16 = shnum;
@@ -1545,7 +1696,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         }
         offset += 4;
 
-        length = shoff + (uint32_t)shstrndx * (uint32_t)shentsize + 2 * 4 + 2 * register_size;
+        length = shoff + shstrndx * shentsize + 2 * 4 + 2 * register_size;
         if (register_size == REGISTER_32_SIZE) {
             shstrtab_offset = (machine_encoding == ENC_BIG_ENDIAN) ?
                     tvb_get_ntohl(tvb, value_guard(length)) : tvb_get_letohl(tvb, value_guard(length));
@@ -2473,8 +2624,13 @@ proto_register_elf(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_invalid_segment_size, { "elf.invalid_segment_size", PI_PROTOCOL, PI_WARN, "Segment size is different then currently parsed bytes", EXPFILL }},
-        { &ei_invalid_entry_size,   { "elf.invalid_entry_size", PI_PROTOCOL, PI_WARN, "Entry size is different then currently parsed bytes", EXPFILL }},
+        { &ei_invalid_class, { "elf.file_class.invalid", PI_PROTOCOL, PI_WARN, "Class is invalid or unknown; assuming native pointer size", EXPFILL }},
+        { &ei_invalid_data_encoding, { "elf.data_encoding.invalid", PI_PROTOCOL, PI_WARN, "Data encoding is invalid or unknown; assuming native endianness", EXPFILL }},
+        { &ei_invalid_header_size, { "elf.ehsize.invalid", PI_PROTOCOL, PI_WARN, "Header size is different than expected based on class", EXPFILL }},
+        { &ei_invalid_phent_size, { "elf.phentsize.invalid", PI_PROTOCOL, PI_WARN, "Progam header entry size is different than expected based on class", EXPFILL }},
+        { &ei_invalid_shent_size, { "elf.shentsize.invalid", PI_PROTOCOL, PI_WARN, "Section header entry size is different than expected based on class", EXPFILL }},
+        { &ei_invalid_segment_size, { "elf.invalid_segment_size", PI_PROTOCOL, PI_WARN, "Segment size is different than currently parsed bytes", EXPFILL }},
+        { &ei_invalid_entry_size,   { "elf.invalid_entry_size", PI_PROTOCOL, PI_WARN, "Entry size is different than currently parsed bytes", EXPFILL }},
         { &ei_cfi_extraneous_data,  { "elf.cfi_extraneous_data", PI_PROTOCOL, PI_WARN, "Segment size is larger than CFI records combined", EXPFILL }},
         { &ei_invalid_cie_length,   { "elf.invalid_cie_length", PI_PROTOCOL, PI_ERROR, "CIE length is too small or larger than segment size", EXPFILL }},
     };
