@@ -24,7 +24,6 @@ typedef struct _funnel_menu_t {
     void *callback_data;
     funnel_menu_callback_data_free callback_data_free;
     bool retap;
-    struct _funnel_menu_t* next;
 } funnel_menu_t;
 
 typedef struct _console_menu {
@@ -35,13 +34,6 @@ typedef struct _console_menu {
     void *user_data;
     funnel_console_data_free_cb_t data_free_cb;
 } funnel_console_menu_t;
-
-/* XXX This assumes one main window and one capture file. */
-static const funnel_ops_t* ops;
-static funnel_menu_t* registered_menus;
-static funnel_menu_t* added_menus;
-static funnel_menu_t* removed_menus;
-static bool menus_registered;
 
 /**
  * Represents a single packet menu entry and callback
@@ -57,79 +49,63 @@ typedef struct _funnel_packet_menu_t {
                                                function */
     bool retap;                           /**< Whether or not to rescan the
                                                capture file's packets */
-    struct _funnel_packet_menu_t* next;   /**< Pointer to the next
-                                               _funnel_packet_menu_t for the
-                                               singly-linked list
-                                               implementation */
 } funnel_packet_menu_t;
+
+
+/* XXX This assumes one main window and one capture file. */
+static const funnel_ops_t* ops;
+static GSList* registered_menus;
+static GSList* added_menus;
+static GSList* removed_menus;
+static bool menus_registered;
 
 /*
  * List of all registered funnel_packet_menu_t's
  */
-static funnel_packet_menu_t* registered_packet_menus;
+static GSList* registered_packet_menus;
 
-static GSList *registered_console_menus;
+static GSList* registered_console_menus;
 
 /*
  * true if the packet menus were modified since the last registration
  */
 static bool packet_menus_modified;
-static void funnel_clear_packet_menu (funnel_packet_menu_t** menu_list);
+
+static void free_funnel_packet_menu(gpointer data, gpointer user_data);
 
 const funnel_ops_t* funnel_get_funnel_ops(void) { return ops;  }
 void funnel_set_funnel_ops(const funnel_ops_t* o) { ops = o; }
 
-static void funnel_clear_console_menu(void);
-
-static void funnel_insert_menu (funnel_menu_t** menu_list, funnel_menu_t *menu)
-{
-    if (!(*menu_list))  {
-        *menu_list = menu;
-    } else {
-        funnel_menu_t* c;
-        for (c = *menu_list; c->next; c = c->next);
-        c->next = menu;
+static void free_funnel_menu(gpointer data, gpointer user_data _U_) {
+    funnel_menu_t* m = (funnel_menu_t*)data;
+    g_free(m->name);
+    if (m->callback_data_free) {
+        m->callback_data_free(m->callback_data);
     }
+    g_free(m);
 }
 
-static void funnel_remove_menu (funnel_menu_t ** menu_list, funnel_menu_t *menu)
+static void funnel_remove_menu (GSList** menu_list, funnel_menu_t *menu)
 {
-    funnel_menu_t *m = *menu_list, *p = NULL;
-
-    while (m) {
-        if (m->callback == menu->callback) {
-            if (p) {
-                p->next = m->next;
-            } else {
-                *menu_list = m->next;
-            }
-            g_free(m->name);
-            if (m->callback_data_free) {
-                m->callback_data_free(m->callback_data);
-            }
-            g_free(m);
-            if (p) {
-                m = p->next;
-            } else {
-                m = *menu_list;
-            }
-        } else {
-            p = m;
-            m = m->next;
+    GSList* current = *menu_list;
+    while (current != NULL)
+    {
+        GSList* next = current->next; // Store the next pointer BEFORE potentially removing current
+        funnel_menu_t* m = (funnel_menu_t*)current->data;
+        if (m->callback == menu->callback)
+        {
+            free_funnel_menu(m, NULL);
+            *menu_list = g_slist_remove(*menu_list, current->data);
         }
+
+        current = next; // Move to the stored next pointer
     }
 }
 
-static void funnel_clear_menu (funnel_menu_t** menu_list)
+static void funnel_clear_menu (GSList** menu_list, GFunc free_func)
 {
-    funnel_menu_t *m;
-
-    while (*menu_list) {
-        m = *menu_list;
-        *menu_list = m->next;
-        g_free(m->name);
-        g_free(m);
-    }
+    g_slist_foreach(*menu_list, free_func, NULL);
+    g_slist_free(*menu_list);
     *menu_list = NULL;
 }
 
@@ -147,13 +123,12 @@ void funnel_register_menu(const char *name,
     m->callback_data = callback_data;
     m->callback_data_free = callback_data_free;
     m->retap = retap;
-    m->next = NULL;
 
-    funnel_insert_menu(&registered_menus, m);
+    registered_menus = g_slist_append(registered_menus, m);
     if (menus_registered) {
         funnel_menu_t* m_r = (funnel_menu_t *)g_memdup2(m, sizeof *m);
         m_r->name = g_strdup(name);
-        funnel_insert_menu(&added_menus, m_r);
+        added_menus = g_slist_append(added_menus, m_r);
     }
 }
 
@@ -163,17 +138,18 @@ void funnel_deregister_menus(funnel_menu_callback callback)
     m->callback = callback;
 
     funnel_remove_menu(&registered_menus, m);
-    funnel_insert_menu(&removed_menus, m);
+    removed_menus = g_slist_append(removed_menus, m);
 
     // Clear and free memory of packet menus
-    funnel_clear_packet_menu(&registered_packet_menus);
+    funnel_clear_menu(&registered_packet_menus, free_funnel_packet_menu);
     packet_menus_modified = true;
 }
 
 void funnel_register_all_menus(funnel_registration_cb_t r_cb)
 {
-    funnel_menu_t* c;
-    for (c = registered_menus; c; c = c->next) {
+    for (GSList* l = registered_menus; l; l = l->next)
+    {
+        funnel_menu_t* c = (funnel_menu_t*)l->data;
         r_cb(c->name,c->group,c->callback,c->callback_data,c->retap);
     }
     menus_registered = true;
@@ -182,34 +158,20 @@ void funnel_register_all_menus(funnel_registration_cb_t r_cb)
 void funnel_reload_menus(funnel_deregistration_cb_t d_cb,
                          funnel_registration_cb_t r_cb)
 {
-    funnel_menu_t* c;
-    for (c = removed_menus; c; c = c->next) {
+    GSList* l;
+    for (l = removed_menus; l; l = l->next)
+    {
+        funnel_menu_t* c = (funnel_menu_t*)l->data;
         d_cb(c->callback);
     }
-    for (c = added_menus; c; c = c->next) {
+    for (l = added_menus; l; l = l->next)
+    {
+        funnel_menu_t* c = (funnel_menu_t*)l->data;
         r_cb(c->name,c->group,c->callback,c->callback_data,c->retap);
     }
 
-    funnel_clear_menu(&removed_menus);
-    funnel_clear_menu(&added_menus);
-}
-
-
-/*
- * Inserts a funnel_packet_menu_t into a list of funnel_packet_menu_t's
- *
- * @param menu_list the list of menus that the menu will be added to
- * @param menu the menu to add to the list of menus
- */
-static void funnel_insert_packet_menu (funnel_packet_menu_t** menu_list, funnel_packet_menu_t *menu)
-{
-    if (!(*menu_list))  {
-        *menu_list = menu;
-    } else {
-        funnel_packet_menu_t* c;
-        for (c = *menu_list; c->next; c = c->next);
-        c->next = menu;
-    }
+    funnel_clear_menu(&removed_menus, free_funnel_menu);
+    funnel_clear_menu(&added_menus, free_funnel_menu);
 }
 
 /**
@@ -232,32 +194,20 @@ void funnel_register_packet_menu(const char *name,
     m->callback = callback;
     m->callback_data = callback_data;
     m->retap = retap;
-    m->next = NULL;
 
-    funnel_insert_packet_menu(&registered_packet_menus, m);
+    registered_packet_menus = g_slist_append(registered_packet_menus, m);
+
     packet_menus_modified = true;
 }
 
-/**
- * Clears a list of funnel_packet_menu_t's and free()s all associated memory
- *
- * @param menu_list the list of menus to clear
- */
-static void funnel_clear_packet_menu (funnel_packet_menu_t** menu_list)
-{
-    funnel_packet_menu_t *m;
-
-    while (*menu_list) {
-        m = *menu_list;
-        *menu_list = m->next;
-        g_free(m->name);
-        g_free(m->required_fields);
-        if (m->callback_data) {
-            g_free(m->callback_data);
-        }
-        g_free(m);
+static void free_funnel_packet_menu(gpointer data, gpointer user_data _U_) {
+    funnel_packet_menu_t* m = (funnel_packet_menu_t*)data;
+    g_free(m->name);
+    g_free(m->required_fields);
+    if (m->callback_data) {
+        g_free(m->callback_data);
     }
-    *menu_list = NULL;
+    g_free(m);
 }
 
 /**
@@ -270,9 +220,10 @@ static void funnel_clear_packet_menu (funnel_packet_menu_t** menu_list)
  */
 void funnel_register_all_packet_menus(funnel_registration_packet_cb_t r_cb)
 {
-    funnel_packet_menu_t* c;
-    for (c = registered_packet_menus; c; c = c->next) {
-        r_cb(c->name,c->required_fields,c->callback,c->callback_data,c->retap);
+    for (GSList* l = registered_packet_menus; l; l = l->next)
+    {
+        funnel_packet_menu_t* c = (funnel_packet_menu_t*)l->data;
+        r_cb(c->name, c->required_fields, c->callback, c->callback_data, c->retap);
     }
     packet_menus_modified = false;
 }
@@ -285,13 +236,6 @@ void funnel_register_all_packet_menus(funnel_registration_packet_cb_t r_cb)
 bool funnel_packet_menus_modified(void)
 {
     return packet_menus_modified;
-}
-
-void funnel_cleanup(void)
-{
-    funnel_clear_menu(&registered_menus);
-    funnel_clear_packet_menu(&registered_packet_menus);
-    funnel_clear_console_menu();
 }
 
 /**
@@ -324,20 +268,21 @@ void funnel_register_all_console_menus(funnel_registration_console_cb_t r_cb)
     }
 }
 
-static void funnel_clear_console_menu(void)
+static void free_funnel_console_menu(gpointer data, gpointer user_data _U_)
 {
-    GSList *l;
-    for (l = registered_console_menus; l != NULL; l = l->next) {
-        funnel_console_menu_t *m = l->data;
-        g_free(m->name);
-        if (m->data_free_cb && m->user_data) {
-            m->data_free_cb(m->user_data);
-        }
-        g_free(l->data);
-        l->data = NULL;
+    funnel_console_menu_t* m = data;
+    g_free(m->name);
+    if (m->data_free_cb) {
+        m->data_free_cb(m->user_data);
     }
-    g_slist_free(registered_console_menus);
-    registered_console_menus = NULL;
+    g_free(m);
+}
+
+void funnel_cleanup(void)
+{
+    funnel_clear_menu(&registered_menus, free_funnel_menu);
+    funnel_clear_menu(&registered_packet_menus, free_funnel_packet_menu);
+    funnel_clear_menu(&registered_console_menus, free_funnel_console_menu);
 }
 
 /*
