@@ -22,6 +22,15 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
+def isBinaryFile(filename):
+    abs_path = os.path.abspath(filename)
+    if os.path.join('test', 'captures') in abs_path:
+        return True
+    # TODO: other paths or file extensions that won't be textual?
+    else:
+        return False
+
+
 def isDissectorFile(filename):
     if not filename.endswith('.c'):
         return False
@@ -100,7 +109,7 @@ def findDissectorFilesInFolder(folder, recursive=False, include_generated=True):
             dissector_files.append(filename)
 
     return [x for x in dissector_files if
-            isDissectorFile(x) and
+            isDissectorFile(x) and not isBinaryFile(x) and
             (include_generated or not isGeneratedFile(x))]
 
 
@@ -109,6 +118,8 @@ def getFilesFromCommits(commits, onlyDissectors=True):
     command = ['git', 'diff', '--name-only', '--diff-filter=d', 'HEAD~' + commits]
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
+    files = list(filter(lambda f: not isBinaryFile(f), files))
+
     # Only interested in dissector files?
     if onlyDissectors:
         files = list(filter(lambda f: isDissectorFile(f), files))
@@ -129,7 +140,7 @@ def getFilesFromOpen(onlyDissectors=True):
     for f in files_staged:
         if f not in files:
             files.append(f)
-
+    files = list(filter(lambda f: not isBinaryFile(f), files))
     # Only interested in dissector files?
     if onlyDissectors:
         files = list(filter(lambda f: isDissectorFile(f), files))
