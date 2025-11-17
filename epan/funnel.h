@@ -96,7 +96,8 @@ WS_DLL_PUBLIC void funnel_register_menu(const char *name,
                                  void *callback_data,
                                  funnel_menu_callback_data_free callback_data_free,
                                  bool retap);
-void funnel_deregister_menus(void (*callback)(void *));
+
+void funnel_deregister_menus(funnel_menu_callback callback);
 
 typedef void (*funnel_registration_cb_t)(const char *name,
                                          register_stat_group_t group,
@@ -211,10 +212,6 @@ typedef void (*funnel_registration_console_cb_t)(const char *name,
  * @param r_cb function which will be called to register each console menu entry
  */
 WS_DLL_PUBLIC void funnel_register_all_console_menus(funnel_registration_console_cb_t r_cb);
-
-extern void initialize_funnel_ops(void);
-
-extern void funnel_dump_all_text_windows(void);
 
 #ifdef __cplusplus
 }

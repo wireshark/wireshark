@@ -18,5 +18,7 @@ extern void init_endpoints(struct register_ct* ct, const char *filter);
 extern bool register_srt_tables(const void *key, void *value, void *userdata);
 extern bool register_rtd_tables(const void *key, void *value, void *userdata);
 extern bool register_simple_stat_tables(const void *key, void *value, void *userdata);
+extern void initialize_funnel_ops(void);
+extern void funnel_dump_all_text_windows(void);
 
 #endif /* __TSHARK_TAP_H__ */

@@ -18,12 +18,6 @@
 #include <epan/funnel.h>
 #include <stdio.h>
 
-#include "ws_attributes.h"
-
-#include <wsutil/wslog.h>
-
-void register_tap_listener_funnel(void);
-
 struct _funnel_text_window_t {
     char *title;
     GString *text;
@@ -121,67 +115,4 @@ void funnel_dump_all_text_windows(void) {
         g_string_free(tw->text, TRUE);
         g_free(tw);
     }
-}
-
-#if 0
-
-GHashTable *menus;
-typedef struct _menu_cb_t {
-    void (*callback)(void *);
-    void *callback_data;
-} menu_cb_t;
-
-
-static void  init_funnel_cmd(const char *opt_arg, void *data ) {
-    char **args = g_strsplit(opt_arg, ",", 0);
-    char **arg;
-    menu_cb_t *mcb = data;
-
-    for (arg = args; *arg ; arg++) {
-        g_strstrip(*arg);
-    }
-
-    if (mcb->callback) {
-        mcb->callback(mcb->callback_data);
-    }
-
-}
-
-static void register_menu_cb(const char *name,
-                             register_stat_group_t group _U_,
-                             void (*callback)(void *),
-                             void *callback_data,
-                             bool retap _U_) {
-    menu_cb_t* mcb = g_new(menu_cb_t, 1);
-    stat_tap_ui ui_info;
-
-    mcb->callback = callback;
-    mcb->callback_data = callback_data;
-
-    if (!menus)
-        menus = g_hash_table_new(g_str_hash, g_str_equal);
-
-    g_hash_table_insert(menus, g_strdup(name), mcb);
-
-    ui_info.group = REGISTER_STAT_GROUP_GENERIC;
-    ui_info.title = NULL;
-    ui_info.cli_string = name;
-    ui_info.tap_init_cb = init_funnel_cmd;
-    ui_info.nparams = 0;
-    ui_info.params = NULL;
-    register_stat_tap_ui(&ui_info, mcb);
-}
-
-void initialize_funnel_ops(void) {
-    funnel_set_funnel_ops(&funnel_ops);
-}
-
-#endif
-void
-register_tap_listener_funnel(void)
-{
-#if 0
-    /* #if 0 at least since Revision Rev 17396 */
-    funnel_register_all_menus(register_menu_cb);
-#endif
 }

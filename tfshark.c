@@ -66,6 +66,7 @@
 #include <wiretap/file_wrappers.h>
 
 #include <epan/funnel.h>
+#include "ui/cli/tshark-tap.h"
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
