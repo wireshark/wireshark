@@ -6992,6 +6992,7 @@ void proto_reg_handoff_sgp32(void)
   sgp22_response_dissector_table = find_dissector_table("sgp22.response");
 
   dissector_add_string("media_type", "application/x-gsma-rsp-asn1", sgp32_handle);
+  dissector_add_string("coap_uri_path", "/gsma/rsp2/asn1", sgp32_handle);
 
   dissector_add_uint("sgp32.request", 0xE1, create_dissector_handle(dissect_ISDRProprietaryApplicationTemplateIoT_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF2B, create_dissector_handle(dissect_RetrieveNotificationsListRequest_PDU, proto_sgp32));

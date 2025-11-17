@@ -193,6 +193,7 @@ void proto_reg_handoff_sgp32(void)
   sgp22_response_dissector_table = find_dissector_table("sgp22.response");
 
   dissector_add_string("media_type", "application/x-gsma-rsp-asn1", sgp32_handle);
+  dissector_add_string("coap_uri_path", "/gsma/rsp2/asn1", sgp32_handle);
 
 #include "packet-sgp32-dis-tab.c"
 }
