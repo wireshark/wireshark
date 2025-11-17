@@ -60,8 +60,6 @@ tvb_comp_off_compare(const void *a, const void *b, void *user_data)
 typedef struct {
 	GSequence	*tvbs;
 
-	unsigned	recursion_depth;
-
 } tvb_comp_t;
 
 struct tvb_composite {
@@ -239,7 +237,6 @@ tvb_new_composite(void)
 	tvb_comp_t *composite = &composite_tvb->composite;
 
 	composite->tvbs		 = g_sequence_new(g_free);
-	composite->recursion_depth = 0;
 
 	return tvb;
 }
