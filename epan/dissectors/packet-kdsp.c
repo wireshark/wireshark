@@ -24,6 +24,7 @@ static dissector_handle_t kdsp_handle;
 #define KDSP_PORT 2502 /* Not IANA registered */
 #define FRAME_HEADER_LEN 12
 
+#define CMD_NULL   0
 #define HELLO      1
 #define STRING     2
 #define CAPPACKET  3
@@ -276,6 +277,8 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
   switch(command)
   {
+  case CMD_NULL:
+    break;
   case HELLO:
     proto_tree_add_item(kdsp_tree, hf_kdsp_version,  tvb, offset, 4, ENC_BIG_ENDIAN);
     offset +=4;
@@ -565,13 +568,13 @@ proto_register_kdsp(void)
     },
     { &hf_kdsp_server_version,
       { "Server Version", "kdsp.server.version",
-        FT_STRING, BASE_NONE,
+        FT_STRINGZTRUNC, BASE_NONE,
         NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_kdsp_hostname,
       { "Hostname", "kdsp.hostname",
-        FT_STRING, BASE_NONE,
+        FT_STRINGZTRUNC, BASE_NONE,
         NULL, 0x0,
         NULL, HFILL }
     },
