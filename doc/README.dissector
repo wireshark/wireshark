@@ -1611,9 +1611,14 @@ encodings that are currently supported are:
         NTP time). It's used by the Object Management Group's Real-Time
         Publish-Subscribe Wire Protocol for the Data Distribution Service.
 
-    ENC_TIME_SECS_USECS - 8 bytes; the first 4 bytes are seconds since the
-        UN*X epoch and the next 4 bytes are microseconds since that
-        second. (I.e., a UN*X struct timeval with a 4-byte time_t.)
+    ENC_TIME_SECS_USECS - 8, 12, or 16 bytes. For 8 bytes, the first 4
+        bytes are seconds and the next 4 bytes are microseconds; for 12
+        bytes, the first 8 bytes are seconds and the next 4 bytes are
+        microseconds; for 16 bytes, the first 8 bytes are seconds and
+        the next 8 bytes are microseconds. The seconds are seconds
+        since the UN*X epoch. (I.e., a POSIX struct timeval with a 4-byte
+        time_t and a 4-byte suseconds_t, or an 8-byte time_t and either
+        a 4-byte or 8-byte suseconds_t.)
 
     ENC_TIME_SECS - 4 to 8 bytes, representing a value in seconds since
         the UN*X epoch.
