@@ -3220,7 +3220,7 @@ dissect_thread_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     /* Reject the packet if not CoAP */
     if (!coinfo) return 0;
 
-    uri = wmem_strbuf_get_str(coinfo->uri_str_strbuf);
+    uri = wmem_strbuf_get_str(coinfo->uri_path_strbuf);
 
     tokens = wmem_strsplit(pinfo->pool, uri, "/", 3);
     if (g_strv_length(tokens) == 3) {
