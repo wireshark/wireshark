@@ -371,7 +371,6 @@ epan_init(register_cb cb, void *client_data, bool load_plugins, epan_app_data_t*
 		g_slist_foreach(epan_plugins, epan_plugin_init, NULL);
 		proto_init(epan_plugin_register_all_procotols, epan_plugin_register_all_handoffs, cb, client_data);
 		g_slist_foreach(epan_plugins, epan_plugin_register_all_tap_listeners, NULL);
-		register_all_tap_listeners(app_data->tap_reg_listeners);
 		packet_cache_proto_handles();
 		dfilter_init(epan_env_prefix_cache);
 		wscbor_init();
@@ -382,6 +381,7 @@ epan_init(register_cb cb, void *client_data, bool load_plugins, epan_app_data_t*
 		wslua_init(cb, client_data, epan_env_prefix_cache);
 #endif
 		g_slist_foreach(epan_plugins, epan_plugin_post_init, NULL);
+		register_all_tap_listeners(app_data->tap_reg_listeners);
 		uat_load_all(epan_env_prefix_cache);
 	}
 	CATCH(DissectorError) {
