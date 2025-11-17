@@ -96,7 +96,7 @@ static const funnel_ops_t funnel_ops = {
 
 
 void initialize_funnel_ops(void) {
-    funnel_set_funnel_ops(&funnel_ops);
+    funnel_ops_init(&funnel_ops, NULL, NULL);
 }
 
 

@@ -114,6 +114,7 @@ public:
 
     CaptureFile *captureFile() { return &capture_file_; }
 
+    void setFunnelMenus(void);
     void removeAdditionalToolbar(QString toolbarName);
 
     void addInterfaceToolbar(const iface_toolbar *toolbar_entry);

@@ -44,6 +44,7 @@ public:
     void emitApplyDisplayFilter();
     void emitOpenCaptureFile(QString cf_path, QString filter);
     static const QString &actionName() { return action_name_; }
+    void loadInitFunnelMenus();
 
 signals:
     void openCaptureFile(QString cf_path, QString filter);
@@ -119,7 +120,6 @@ private:
 extern "C" {
     void funnel_statistics_reload_menus(void);
     void funnel_statistics_load_packet_menus(void);
-    void funnel_statistics_load_console_menus(void);
     bool funnel_statistics_packet_menus_modified(void);
 } // extern "C"
 

@@ -2698,6 +2698,11 @@ void StratosharkMainWindow::addPluginIFStructures()
         tbMenu->menuAction()->setVisible(true);
 }
 
+void StratosharkMainWindow::setFunnelMenus(void)
+{
+    funnel_statistics_->loadInitFunnelMenus();
+}
+
 void StratosharkMainWindow::removeAdditionalToolbar(QString toolbarName)
 {
     if (toolbarName.length() == 0)

@@ -624,10 +624,6 @@ int main(int argc, char *qt_argv[])
     /* Create The Stratoshark app */
     StratosharkApplication ss_app(argc, qt_argv);
 
-    /* initialize the funnel mini-api */
-    // xxx qtshark
-    //initialize_funnel_ops();
-
     Dot11DecryptInitContext(&dot11decrypt_ctx);
 
     QString cf_name;
@@ -750,6 +746,9 @@ int main(int argc, char *qt_argv[])
 //    srt_table_iterate_tables(register_service_response_tables, NULL);
 //    rtd_table_iterate_tables(register_response_time_delay_tables, NULL);
     stat_tap_iterate_tables(register_simple_stat_tables, NULL);
+
+    /* initialize the funnel mini-api */
+    main_w->setFunnelMenus();
 
     if (ex_opt_count("read_format") > 0) {
         char *name = ex_opt_get_next("read_format");

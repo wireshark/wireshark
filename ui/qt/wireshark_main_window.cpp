@@ -2962,6 +2962,11 @@ void WiresharkMainWindow::addPluginIFStructures()
         tbMenu->menuAction()->setVisible(true);
 }
 
+void WiresharkMainWindow::setFunnelMenus(void)
+{
+    funnel_statistics_->loadInitFunnelMenus();
+}
+
 void WiresharkMainWindow::removeAdditionalToolbar(QString toolbarName)
 {
     if (toolbarName.length() == 0)
