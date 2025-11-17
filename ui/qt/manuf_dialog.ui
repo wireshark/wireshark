@@ -35,7 +35,7 @@
      <item>
       <widget class="QRadioButton" name="vendorRadioButton">
        <property name="toolTip">
-        <string>Search vendor name using a case-insentitive regular expression.</string>
+        <string>Search vendor name using a case-insensitive regular expression.</string>
        </property>
        <property name="text">
         <string>Vendor Name</string>

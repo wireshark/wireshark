@@ -2627,7 +2627,7 @@ proto_register_elf(void)
         { &ei_invalid_class, { "elf.file_class.invalid", PI_PROTOCOL, PI_WARN, "Class is invalid or unknown; assuming native pointer size", EXPFILL }},
         { &ei_invalid_data_encoding, { "elf.data_encoding.invalid", PI_PROTOCOL, PI_WARN, "Data encoding is invalid or unknown; assuming native endianness", EXPFILL }},
         { &ei_invalid_header_size, { "elf.ehsize.invalid", PI_PROTOCOL, PI_WARN, "Header size is different than expected based on class", EXPFILL }},
-        { &ei_invalid_phent_size, { "elf.phentsize.invalid", PI_PROTOCOL, PI_WARN, "Progam header entry size is different than expected based on class", EXPFILL }},
+        { &ei_invalid_phent_size, { "elf.phentsize.invalid", PI_PROTOCOL, PI_WARN, "Program header entry size is different than expected based on class", EXPFILL }},
         { &ei_invalid_shent_size, { "elf.shentsize.invalid", PI_PROTOCOL, PI_WARN, "Section header entry size is different than expected based on class", EXPFILL }},
         { &ei_invalid_segment_size, { "elf.invalid_segment_size", PI_PROTOCOL, PI_WARN, "Segment size is different than currently parsed bytes", EXPFILL }},
         { &ei_invalid_entry_size,   { "elf.invalid_entry_size", PI_PROTOCOL, PI_WARN, "Entry size is different than currently parsed bytes", EXPFILL }},
