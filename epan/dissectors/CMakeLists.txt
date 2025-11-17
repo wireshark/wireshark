@@ -504,6 +504,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-msrp.h
 	packet-mstp.h
 	packet-mtp3.h
+	packet-nats.h
 	packet-nbap.h
 	packet-ncp-int.h
 	packet-ncp-nmas.h
@@ -1610,6 +1611,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nasdaq-itch.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nasdaq-soup.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nat-pmp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-nats.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-navitrol.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nb_rtpmux.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-nbd.c
