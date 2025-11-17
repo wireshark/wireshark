@@ -827,10 +827,7 @@ Here is how the frame "protocol" is registered.
 
         int proto_frame;
 
-        proto_frame = proto_register_protocol (
-                /* name */            "Frame",
-                /* short name */      "Frame",
-                /* abbrev */          "frame" );
+        proto_frame = proto_register_protocol("Frame", "Frame", "frame"); /* name, short name, abbreviation */
 
 A header field is also registered with its name and abbreviation, but
 information about its data type is needed. It helps to look at

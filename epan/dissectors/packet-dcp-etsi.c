@@ -884,10 +884,7 @@ proto_register_dcp_etsi (void)
 
   expert_module_t* expert_dcp_etsi;
 
-  proto_dcp_etsi = proto_register_protocol ("ETSI Distribution & Communication Protocol (for DRM)",     /* name */
-                                            "DCP (ETSI)",       /* short name */
-                                            "dcp-etsi"  /* abbrev */
-    );
+  proto_dcp_etsi = proto_register_protocol ("ETSI Distribution & Communication Protocol (for DRM)", "DCP (ETSI)", "dcp-etsi"); /* name, short name, abbreviation */
   proto_af = proto_register_protocol ("DCP Application Framing Layer", "DCP-AF", "dcp-af");
   proto_pft = proto_register_protocol ("DCP Protection, Fragmentation & Transport Layer", "DCP-PFT", "dcp-pft");
   proto_tpl = proto_register_protocol ("DCP Tag Packet Layer", "DCP-TPL", "dcp-tpl");

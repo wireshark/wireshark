@@ -1606,7 +1606,7 @@ proto_register_frame(void)
 		arr[encap_count].strptr = NULL;
 	}
 
-	proto_frame = proto_register_protocol("Frame", "Frame", "frame");
+	proto_frame = proto_register_protocol("Frame", "Frame", "frame"); /* name, short name, abbreviation */
 	if (epan_supports_packets()) {
 		proto_pkt_comment = proto_register_protocol_in_name_only("Packet comments", "Pkt_Comment", "pkt_comment", proto_frame, FT_PROTOCOL);
 		proto_register_alias(proto_pkt_comment, "evt_comment");

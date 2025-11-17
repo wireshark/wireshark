@@ -1366,9 +1366,7 @@ void proto_register_ecpri(void)
     module_t* ecpri_module;
 
     /* Register the protocol name and description */
-    proto_ecpri = proto_register_protocol("evolved Common Public Radio Interface",    /* Protoname */
-                                          "eCPRI",                                    /* Proto Shortname */
-                                          "ecpri");                                   /* Proto Abbrev */
+    proto_ecpri = proto_register_protocol("evolved Common Public Radio Interface", "eCPRI", "ecpri"); /* name, short name, abbreviation */
     ecpri_handle = register_dissector("ecpri", dissect_ecpri, proto_ecpri);
 
 

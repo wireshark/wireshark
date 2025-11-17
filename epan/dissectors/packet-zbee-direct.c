@@ -1782,9 +1782,7 @@ void proto_register_zb_direct(void)
 
     expert_module_t *expert_zb_direct;
 
-    proto_zb_direct = proto_register_protocol("ZigBee Direct", /* name        */
-                                              "ZBD",           /* short_name  */
-                                              "zbd");          /* filter_name */
+    proto_zb_direct = proto_register_protocol("ZigBee Direct", "ZBD", "zbd"); /* name, short name, abbreviation */
 
     proto_register_field_array(proto_zb_direct, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
