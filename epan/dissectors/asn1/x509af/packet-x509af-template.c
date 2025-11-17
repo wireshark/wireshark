@@ -14,6 +14,7 @@
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/export_object.h>
 #include <epan/proto_data.h>
@@ -54,6 +55,9 @@ static int hf_x509af_subjectPublicKey_rsa;
 static int ett_pkix_crl;
 static int ett_x509af_SubjectPublicKey;
 #include "packet-x509af-ett.c"
+
+static expert_field ei_x509af_certificate_invalid;
+
 static const char *algorithm_id;
 static void
 x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
@@ -63,6 +67,31 @@ typedef struct _x509af_eo_t {
   char *serialnum;
   tvbuff_t *payload;
 } x509af_eo_t;
+
+typedef struct _x509af_private_data_t {
+  nstime_t last_time;
+  nstime_t not_before;
+  nstime_t not_after;
+#if 0
+  // TODO: Move static global algorithm_id here.
+  // (Why is the algorithm_id string wmem_file_scope()? That makes
+  // no sense as a global common to all conversations.)
+  const char *algorithm_id;
+#endif
+} x509af_private_data_t;
+
+static x509af_private_data_t *
+x509af_get_private_data(packet_info *pinfo)
+{
+  x509af_private_data_t *x509af_data = (x509af_private_data_t*)p_get_proto_data(pinfo->pool, pinfo, proto_x509af, 0);
+  if (!x509af_data) {
+    x509af_data = wmem_new0(pinfo->pool, x509af_private_data_t);
+    nstime_set_unset(&x509af_data->not_before);
+    nstime_set_unset(&x509af_data->not_after);
+    p_add_proto_data(pinfo->pool, pinfo, proto_x509af, 0, x509af_data);
+  }
+  return x509af_data;
+}
 
 #include "packet-x509af-fn.c"
 
@@ -178,12 +207,21 @@ void proto_register_x509af(void) {
 #include "packet-x509af-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+    { &ei_x509af_certificate_invalid, { "x509af.signedCertificate.invalid", PI_SECURITY, PI_WARN, "Invalid certificate", EXPFILL }},
+  };
+
+  expert_module_t *expert_x509af;
+
   /* Register protocol */
   proto_x509af = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_x509af, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  expert_x509af = expert_register_protocol(proto_x509af);
+  expert_register_field_array(expert_x509af, ei, array_length(ei));
 
   x509af_eo_tap = register_export_object(proto_x509af, x509af_eo_packet, NULL);
 

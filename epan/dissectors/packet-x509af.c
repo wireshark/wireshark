@@ -19,6 +19,7 @@
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/export_object.h>
 #include <epan/proto_data.h>
@@ -76,8 +77,8 @@ static int hf_x509af_encrypted;                   /* BIT_STRING */
 static int hf_x509af_rdnSequence;                 /* RDNSequence */
 static int hf_x509af_algorithmId;                 /* T_algorithmId */
 static int hf_x509af_parameters;                  /* T_parameters */
-static int hf_x509af_notBefore;                   /* Time */
-static int hf_x509af_notAfter;                    /* Time */
+static int hf_x509af_notBefore;                   /* T_notBefore */
+static int hf_x509af_notAfter;                    /* T_notAfter */
 static int hf_x509af_algorithm;                   /* AlgorithmIdentifier */
 static int hf_x509af_subjectPublicKey;            /* T_subjectPublicKey */
 static int hf_x509af_utcTime;                     /* T_utcTime */
@@ -165,6 +166,9 @@ static int ett_x509af_AttributeCertificateAssertion;
 static int ett_x509af_AssertionSubject;
 static int ett_x509af_SET_OF_AttributeType;
 static int ett_x509af_DSS_Params;
+
+static expert_field ei_x509af_certificate_invalid;
+
 static const char *algorithm_id;
 static void
 x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
@@ -174,6 +178,31 @@ typedef struct _x509af_eo_t {
   char *serialnum;
   tvbuff_t *payload;
 } x509af_eo_t;
+
+typedef struct _x509af_private_data_t {
+  nstime_t last_time;
+  nstime_t not_before;
+  nstime_t not_after;
+#if 0
+  // TODO: Move static global algorithm_id here.
+  // (Why is the algorithm_id string wmem_file_scope()? That makes
+  // no sense as a global common to all conversations.)
+  const char *algorithm_id;
+#endif
+} x509af_private_data_t;
+
+static x509af_private_data_t *
+x509af_get_private_data(packet_info *pinfo)
+{
+  x509af_private_data_t *x509af_data = (x509af_private_data_t*)p_get_proto_data(pinfo->pool, pinfo, proto_x509af, 0);
+  if (!x509af_data) {
+    x509af_data = wmem_new0(pinfo->pool, x509af_private_data_t);
+    nstime_set_unset(&x509af_data->not_before);
+    nstime_set_unset(&x509af_data->not_after);
+    p_add_proto_data(pinfo->pool, pinfo, proto_x509af, 0, x509af_data);
+  }
+  return x509af_data;
+}
 
 
 const value_string x509af_Version_vals[] = {
@@ -271,6 +300,8 @@ dissect_x509af_T_utcTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
   char *outstr, *newstr;
   int old_offset = offset;
 
+  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+
   /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
   offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, -1, &outstr, NULL);
 
@@ -285,6 +316,8 @@ dissect_x509af_T_utcTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
     old_offset = get_ber_length(tvb, old_offset, NULL, NULL);
 
     proto_tree_add_time(tree, hf_index, tvb, old_offset, offset - old_offset, &time_val);
+
+    nstime_copy(&x509af_data->last_time, &time_val);
   }
 
 
@@ -315,6 +348,9 @@ static const ber_choice_t Time_choice[] = {
 
 int
 dissect_x509af_Time(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+  nstime_set_unset(&x509af_data->last_time);
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Time_choice, hf_index, ett_x509af_Time,
                                  NULL);
@@ -323,9 +359,43 @@ dissect_x509af_Time(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
+
+static int
+dissect_x509af_T_notBefore(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_x509af_Time(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+  nstime_copy(&x509af_data->not_before, &x509af_data->last_time);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509af_T_notAfter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_x509af_Time(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+  nstime_copy(&x509af_data->not_after, &x509af_data->last_time);
+  if (actx->pinfo->presence_flags & PINFO_HAS_TS &&
+      !nstime_is_unset(&x509af_data->not_before) &&
+      !nstime_is_unset(&x509af_data->not_after)) {
+
+    if (nstime_cmp(&x509af_data->not_before, &x509af_data->not_after) > 0) {
+      expert_add_info_format(actx->pinfo, proto_tree_get_parent(tree), &ei_x509af_certificate_invalid, "Invalid certificate (notBefore time is after notAfter time)");
+    } else if ((nstime_cmp(&x509af_data->not_before, &actx->pinfo->abs_ts) > 0) || (nstime_cmp(&actx->pinfo->abs_ts, &x509af_data->not_after) > 0)) {
+      expert_add_info_format(actx->pinfo, proto_tree_get_parent(tree), &ei_x509af_certificate_invalid, "Invalid certificate (frame arrival time %s not in valid interval)", abs_time_to_str(actx->pinfo->pool, &actx->pinfo->abs_ts, ABSOLUTE_TIME_UTC, true));
+    }
+  }
+
+  return offset;
+}
+
+
 static const ber_sequence_t Validity_sequence[] = {
-  { &hf_x509af_notBefore    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x509af_Time },
-  { &hf_x509af_notAfter     , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x509af_Time },
+  { &hf_x509af_notBefore    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x509af_T_notBefore },
+  { &hf_x509af_notAfter     , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x509af_T_notAfter },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1188,11 +1258,11 @@ void proto_register_x509af(void) {
     { &hf_x509af_notBefore,
       { "notBefore", "x509af.notBefore",
         FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
-        "Time", HFILL }},
+        NULL, HFILL }},
     { &hf_x509af_notAfter,
       { "notAfter", "x509af.notAfter",
         FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
-        "Time", HFILL }},
+        NULL, HFILL }},
     { &hf_x509af_algorithm,
       { "algorithm", "x509af.algorithm_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1437,12 +1507,21 @@ void proto_register_x509af(void) {
     &ett_x509af_DSS_Params,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_x509af_certificate_invalid, { "x509af.signedCertificate.invalid", PI_SECURITY, PI_WARN, "Invalid certificate", EXPFILL }},
+  };
+
+  expert_module_t *expert_x509af;
+
   /* Register protocol */
   proto_x509af = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_x509af, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  expert_x509af = expert_register_protocol(proto_x509af);
+  expert_register_field_array(expert_x509af, ei, array_length(ei));
 
   x509af_eo_tap = register_export_object(proto_x509af, x509af_eo_packet, NULL);
 

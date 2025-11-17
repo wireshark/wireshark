@@ -160,9 +160,33 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
+#.FN_FTR Validity/notBefore
+  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+  nstime_copy(&x509af_data->not_before, &x509af_data->last_time);
+
+#.FN_FTR Validity/notAfter
+  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+  nstime_copy(&x509af_data->not_after, &x509af_data->last_time);
+  if (actx->pinfo->presence_flags & PINFO_HAS_TS &&
+      !nstime_is_unset(&x509af_data->not_before) &&
+      !nstime_is_unset(&x509af_data->not_after)) {
+
+    if (nstime_cmp(&x509af_data->not_before, &x509af_data->not_after) > 0) {
+      expert_add_info_format(actx->pinfo, proto_tree_get_parent(tree), &ei_x509af_certificate_invalid, "Invalid certificate (notBefore time is after notAfter time)");
+    } else if ((nstime_cmp(&x509af_data->not_before, &actx->pinfo->abs_ts) > 0) || (nstime_cmp(&actx->pinfo->abs_ts, &x509af_data->not_after) > 0)) {
+      expert_add_info_format(actx->pinfo, proto_tree_get_parent(tree), &ei_x509af_certificate_invalid, "Invalid certificate (frame arrival time %s not in valid interval)", abs_time_to_str(actx->pinfo->pool, &actx->pinfo->abs_ts, ABSOLUTE_TIME_UTC, true));
+    }
+  }
+
+#.FN_HDR Time
+  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+  nstime_set_unset(&x509af_data->last_time);
+
 #.FN_BODY Time/utcTime HF_INDEX = -1 VAL_PTR = &outstr
   char *outstr, *newstr;
   int old_offset = offset;
+
+  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
 
   /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
 %(DEFAULT_BODY)s
@@ -177,6 +201,8 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
     old_offset = get_ber_length(tvb, old_offset, NULL, NULL);
 
     proto_tree_add_time(tree, hf_index, tvb, old_offset, offset - old_offset, &time_val);
+
+    nstime_copy(&x509af_data->last_time, &time_val);
   }
 
 #.FN_BODY SubjectName
