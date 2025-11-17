@@ -5746,7 +5746,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
 
 /* Updates the conversation info of a PCH stream based on information parsed in the current frame*/
 static void
-update_pch_coversation_info(umts_fp_conversation_info_t *p_conv_data, packet_info *pinfo, struct fp_info *p_fp_info)
+update_pch_conversation_info(umts_fp_conversation_info_t *p_conv_data, packet_info *pinfo, struct fp_info *p_fp_info)
 {
     fp_pch_channel_info_t* fp_pch_channel_info;
     /* The channel type MUST be set to PCH */
@@ -5960,7 +5960,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         case CHANNEL_PCH:
             dissect_pch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info,
                                      data);
-            update_pch_coversation_info(p_conv_data, pinfo, p_fp_info);
+            update_pch_conversation_info(p_conv_data, pinfo, p_fp_info);
             break;
         case CHANNEL_CPCH:
             dissect_cpch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
