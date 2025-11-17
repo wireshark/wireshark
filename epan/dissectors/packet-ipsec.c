@@ -893,8 +893,8 @@ get_full_ipv6_addr(wmem_allocator_t* scope, char* ipv6_addr_expanded, char *ipv6
 static bool
 get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
 {
-  char addr_byte_string_tmp[4];
-  char addr_byte_string[4];
+  char addr_byte_string_tmp[12];
+  char addr_byte_string[12];
 
   unsigned addr_byte = 0;
   unsigned i = 0;
@@ -948,9 +948,9 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
             return false;
 
           if(addr_byte < 16)
-            snprintf(addr_byte_string,4,"0%X",addr_byte);
+            snprintf(addr_byte_string,11,"0%X",addr_byte);
           else
-            snprintf(addr_byte_string,4,"%X",addr_byte);
+            snprintf(addr_byte_string,11,"%X",addr_byte);
           for(i = 0; i < strlen(addr_byte_string); i++)
           {
             ipv4_address_expanded[cpt] = addr_byte_string[i];
@@ -977,9 +977,9 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
             return false;
 
           if(addr_byte < 16)
-            snprintf(addr_byte_string,4,"0%X",addr_byte);
+            snprintf(addr_byte_string,11,"0%X",addr_byte);
           else
-            snprintf(addr_byte_string,4,"%X",addr_byte);
+            snprintf(addr_byte_string,11,"%X",addr_byte);
           for(i = 0; i < strlen(addr_byte_string); i++)
           {
             ipv4_address_expanded[cpt] = addr_byte_string[i];

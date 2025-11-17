@@ -19104,7 +19104,7 @@ static const value_string ieee80211_rsn_keymgmt_vals[] = {
   {0, NULL}
 };
 
-#define OUIBASELEN (MAXNAMELEN + 12)
+#define OUIBASELEN (MAXNAMELEN + 20)
 
 static void
 oui_base_custom(char *result, uint32_t oui)
@@ -19124,8 +19124,10 @@ oui_base_custom(char *result, uint32_t oui)
     snprintf(result, OUIBASELEN, "%02x:%02x:%02x", p_oui[0], p_oui[1], p_oui[2]);
   }
   else {
+   char name[MAXNAMELEN+2];
+   snprintf(name, MAXNAMELEN+1, "%.*s", MAXNAMELEN, manuf_name);
    /* Found an address string. */
-    snprintf(result, OUIBASELEN, "%02x:%02x:%02x (%.*s)", p_oui[0], p_oui[1], p_oui[2], MAXNAMELEN, manuf_name);
+    snprintf(result, OUIBASELEN, "%02x:%02x:%02x (%s)", p_oui[0], p_oui[1], p_oui[2], name);
   }
 }
 
