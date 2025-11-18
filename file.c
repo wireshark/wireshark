@@ -3557,7 +3557,7 @@ cf_find_packet_data(capture_file *cf, const uint8_t *string, size_t string_size,
         search_direction dir, bool multiple)
 {
     cbs_t  info;
-    uint8_t needles[3];
+    char needles[3];
     ws_mempbrk_pattern pattern = {0};
     ws_match_function match_function;
 
@@ -3571,7 +3571,7 @@ cf_find_packet_data(capture_file *cf, const uint8_t *string, size_t string_size,
     } else if (cf->string) {
         /* String search - what type of string? */
         if (cf->case_type) {
-            needles[0] = string[0];
+            needles[0] = (char)string[0];
             needles[1] = g_ascii_tolower(needles[0]);
             needles[2] = '\0';
             ws_mempbrk_compile(&pattern, needles);

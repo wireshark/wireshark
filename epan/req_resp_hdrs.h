@@ -55,7 +55,7 @@ starts_with_chunk_size(tvbuff_t* tvb, const int offset, packet_info* pinfo)
 	if (linelen < 0)
 		return false;
 
-	char* chunk_string = tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
+	char* chunk_string = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
 	char* c = chunk_string;
 
 	/* ignore extensions, including optional BWS ("bad whitespace")

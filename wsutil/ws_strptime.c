@@ -504,11 +504,11 @@ literal:
 				time_t sse;
 
 				/* Extract the seconds as a 64-bit signed number. */
-				if (!ws_strtoi64(bp, &endptr, &secs)) {
+				if (!ws_strtoi64((const char*)bp, &endptr, &secs)) {
 					bp = NULL;
 					continue;
 				}
-				bp = endptr;
+				bp = (const unsigned char*)endptr;
 
 				/* For now, reject times before the Epoch. */
 				if (secs < 0) {

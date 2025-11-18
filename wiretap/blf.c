@@ -3069,19 +3069,19 @@ static int
 blf_get_xml_pkt_encap(const xmlChar* str) {
     if (str == NULL) return 0;
 
-    if (xmlStrcmp(str, "CAN") == 0) {
+    if (xmlStrcmp(str, (const xmlChar*)"CAN") == 0) {
         return WTAP_ENCAP_SOCKETCAN;
     }
-    if (xmlStrcmp(str, "FlexRay") == 0) {
+    if (xmlStrcmp(str, (const xmlChar*)"FlexRay") == 0) {
         return WTAP_ENCAP_FLEXRAY;
     }
-    if (xmlStrcmp(str, "LIN") == 0) {
+    if (xmlStrcmp(str, (const xmlChar*)"LIN") == 0) {
         return WTAP_ENCAP_LIN;
     }
-    if (xmlStrcmp(str, "Ethernet") == 0) {
+    if (xmlStrcmp(str, (const xmlChar*)"Ethernet") == 0) {
         return WTAP_ENCAP_ETHERNET;
     }
-    if (xmlStrcmp(str, "WLAN") == 0) {    /* Not confirmed with a real capture */
+    if (xmlStrcmp(str, (const xmlChar*)"WLAN") == 0) {    /* Not confirmed with a real capture */
         return WTAP_ENCAP_IEEE_802_11;
     }
 
@@ -3170,7 +3170,7 @@ blf_set_xml_channels(blf_params_t* params, const char* text, size_t len) {
                 if (xmlStrcmp(attr->name, (const xmlChar*)"number") == 0) {
                     xmlChar* str_channel = xmlNodeListGetString(current_channel_node->doc, attr->children, 1);
                     if (str_channel != NULL) {
-                        ws_strtou16(str_channel, NULL, &channel);
+                        ws_strtou16((const char*)str_channel, NULL, &channel);
                         xmlFree(str_channel);
                     }
                 } else if (xmlStrcmp(attr->name, (const xmlChar*)"type") == 0) {
@@ -3360,7 +3360,7 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
             metadata_info->payload_start = params->rec->data.first_free;
         }
 
-        ws_buffer_append(&params->rec->data, text, apptextheader.textLength);
+        ws_buffer_append(&params->rec->data, (const uint8_t*)text, apptextheader.textLength);
         g_free(text);
 
         if ((apptextheader.reservedAppText1 & 0x00ffffff) > apptextheader.textLength) {
@@ -3369,7 +3369,7 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
         }
 
         if (((apptextheader.reservedAppText1 >> 24) & 0xff) == BLF_APPTEXT_XML_CHANNELS) {
-            blf_set_xml_channels(params, params->rec->data.data + metadata_info->payload_start, params->rec->data.first_free - metadata_info->payload_start);
+            blf_set_xml_channels(params, (const char*)(params->rec->data.data + metadata_info->payload_start), params->rec->data.first_free - metadata_info->payload_start);
         }
 
         /* Override the timestamp with 0 for metadata objects. Thay can only occur at the beginning of the file, and they usually already have a timestamp of 0. */
@@ -3401,7 +3401,7 @@ blf_read_apptextmessage(blf_params_t *params, int *err, char **err_info, int64_t
         wtap_buffer_append_epdu_end(&params->rec->data);
 
         size_t text_length = strlen(text);  /* The string can contain '\0' before textLength bytes */
-        ws_buffer_append(&params->rec->data, text, text_length);    /* The dissector doesn't need NULL-terminated strings */
+        ws_buffer_append(&params->rec->data, (const uint8_t*)text, text_length);    /* The dissector doesn't need NULL-terminated strings */
 
         /* We'll write this as a WS UPPER PDU packet with a text blob */
         blf_init_rec(params, flags, object_timestamp, WTAP_ENCAP_WIRESHARK_UPPER_PDU, 0, UINT16_MAX, (uint32_t)ws_buffer_length(&params->rec->data), (uint32_t)ws_buffer_length(&params->rec->data));
@@ -4958,8 +4958,8 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
         col_info_len -= 1;
     }
 
-    if (tag_diss_len == strlen(BLF_APPTEXT_TAG_DISS_DEFAULT) && 0 == strncmp(BLF_APPTEXT_TAG_DISS_DEFAULT, &pd[tag_diss_pos], tag_diss_len)) {
-        if (col_proto_len == strlen(BLF_APPTEXT_COL_PROT_TEXT) && 0 == strncmp(BLF_APPTEXT_COL_PROT_TEXT, &pd[col_proto_pos], col_proto_len)) {
+    if (tag_diss_len == strlen(BLF_APPTEXT_TAG_DISS_DEFAULT) && 0 == strncmp(BLF_APPTEXT_TAG_DISS_DEFAULT, (const char*)&pd[tag_diss_pos], tag_diss_len)) {
+        if (col_proto_len == strlen(BLF_APPTEXT_COL_PROT_TEXT) && 0 == strncmp(BLF_APPTEXT_COL_PROT_TEXT, (const char*)&pd[col_proto_pos], col_proto_len)) {
             blf_apptext_t apptext_header;
             apptext_header.source = BLF_APPTEXT_METADATA;
             apptext_header.reservedAppText1 = 0;
@@ -4969,15 +4969,15 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
 
             /* Metadata */
             /* tags: BLF_APPTEXT_TAG_DISS_DEFAULT, BLF_APPTEXT_COL_PROT_TEXT, BLF_APPTEXT_COL_INFO_TEXT_... */
-            if (col_info_len == strlen(BLF_APPTEXT_COL_INFO_TEXT_GENERAL) && 0 == strncmp(BLF_APPTEXT_COL_INFO_TEXT_GENERAL, &pd[col_info_pos], col_info_len)) {
+            if (col_info_len == strlen(BLF_APPTEXT_COL_INFO_TEXT_GENERAL) && 0 == strncmp(BLF_APPTEXT_COL_INFO_TEXT_GENERAL, (const char*)&pd[col_info_pos], col_info_len)) {
                 /* BLF_APPTEXT_METADATA: BLF_APPTEXT_XML_GENERAL */
                 apptext_header.reservedAppText1 = (BLF_APPTEXT_XML_GENERAL << 24) | (0xffffff & payload_len);
-            } else if (col_info_len == strlen(BLF_APPTEXT_COL_INFO_TEXT_CHANNELS) && 0 == strncmp(BLF_APPTEXT_COL_INFO_TEXT_CHANNELS, &pd[col_info_pos], col_info_len)) {
+            } else if (col_info_len == strlen(BLF_APPTEXT_COL_INFO_TEXT_CHANNELS) && 0 == strncmp(BLF_APPTEXT_COL_INFO_TEXT_CHANNELS, (const char*)&pd[col_info_pos], col_info_len)) {
                 /* BLF_APPTEXT_METADATA: BLF_APPTEXT_XML_CHANNELS */
                     if (writer_data->iface_to_channel_names_recovered) {
                     apptext_header.reservedAppText1 = (BLF_APPTEXT_XML_CHANNELS << 24) | (0xffffff & payload_len);
                 }
-            } else if (col_info_len == strlen(BLF_APPTEXT_COL_INFO_TEXT_IDENTITY) && 0 == strncmp(BLF_APPTEXT_COL_INFO_TEXT_IDENTITY, &pd[col_info_pos], col_info_len)) {
+            } else if (col_info_len == strlen(BLF_APPTEXT_COL_INFO_TEXT_IDENTITY) && 0 == strncmp(BLF_APPTEXT_COL_INFO_TEXT_IDENTITY, (const char*)&pd[col_info_pos], col_info_len)) {
                 /* BLF_APPTEXT_METADATA: BLF_APPTEXT_XML_IDENTITY */
                 apptext_header.reservedAppText1 = (BLF_APPTEXT_XML_IDENTITY << 24) | (0xffffff & payload_len);
 

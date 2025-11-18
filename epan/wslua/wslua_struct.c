@@ -636,7 +636,7 @@ WSLUA_CONSTRUCTOR Struct_tohex (lua_State *L) {
   lowercase = wslua_optbool(L,WSLUA_OPTARG_Struct_tohex_LOWERCASE,false);
   sep = luaL_optstring(L,WSLUA_OPTARG_Struct_tohex_SEPARATOR,NULL);
 
-  wslua_bin2hex(L, s, (unsigned)len, lowercase, sep);
+  wslua_bin2hex(L, (const uint8_t*)s, (unsigned)len, lowercase, sep);
   WSLUA_RETURN(1); /* The Lua hex-ascii string */
 }
 

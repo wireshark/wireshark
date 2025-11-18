@@ -66,7 +66,7 @@ ws_mempbrk_exec(const uint8_t* haystack, size_t haystacklen, const ws_mempbrk_pa
 {
 #ifdef HAVE_SSE4_2
     if (haystacklen >= 16 && pattern->use_sse42)
-        return ws_mempbrk_sse42_exec(haystack, haystacklen, pattern, found_needle);
+        return (const uint8_t*)ws_mempbrk_sse42_exec((const char*)haystack, haystacklen, pattern, found_needle);
 #endif
 
     return ws_mempbrk_portable_exec(haystack, haystacklen, pattern, found_needle);

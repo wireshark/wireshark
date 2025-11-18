@@ -1217,7 +1217,7 @@ char *
 format_text(wmem_allocator_t *allocator,
                         const char *string, size_t len)
 {
-    return format_text_internal(allocator, string, len, false);
+    return format_text_internal(allocator, (const uint8_t*)string, len, false);
 }
 
 /** Given a wmem scope and a null-terminated string, expected to be in
@@ -1241,7 +1241,7 @@ format_text(wmem_allocator_t *allocator,
 char *
 format_text_string(wmem_allocator_t* allocator, const char *string)
 {
-    return format_text_internal(allocator, string, strlen(string), false);
+    return format_text_internal(allocator, (const uint8_t*)string, strlen(string), false);
 }
 
 /*
@@ -1253,7 +1253,7 @@ format_text_string(wmem_allocator_t* allocator, const char *string)
 char *
 format_text_wsp(wmem_allocator_t* allocator, const char *string, size_t len)
 {
-    return format_text_internal(allocator, string, len, true);
+    return format_text_internal(allocator, (const uint8_t*)string, len, true);
 }
 
 /*

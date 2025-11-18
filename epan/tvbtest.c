@@ -701,7 +701,7 @@ varint_tests(void)
 	tvb_free_chain(tvb_parent);  /* should free all tvb's and associated data */
 }
 
-#define DATA_AND_LEN(X) .data = X, .len = sizeof(X) - 1
+#define DATA_AND_LEN(X) .data = (const uint8_t*)X, .len = sizeof(X) - 1
 
 static void
 zstd_tests (void) {
@@ -726,7 +726,7 @@ zstd_tests (void) {
 		},
 		{
 			.desc = "Uncompressing too short length",
-			.data = "\x28\xb5\x2f\xfd\x20\x07\x39\x00\x00\x66\x6f\x6f\x62\x61\x72\x00",
+			.data = (const uint8_t*)"\x28\xb5\x2f\xfd\x20\x07\x39\x00\x00\x66\x6f\x6f\x62\x61\x72\x00",
 			.len = 1,
 			.expect = NULL
 		},
@@ -744,7 +744,7 @@ zstd_tests (void) {
 			// data is two frames of compressed data with compression level 1.
 			// the first frame is the string "foo" with no null terminator.
 			// the second frame is the string "bar" with a null terminator.
-			.data ="\x28\xb5\x2f\xfd\x20\x03\x19\x00\x00\x66\x6f\x6f"
+			.data = (const uint8_t*)"\x28\xb5\x2f\xfd\x20\x03\x19\x00\x00\x66\x6f\x6f"
 			       "\x28\xb5\x2f\xfd\x20\x04\x21\x00\x00\x62\x61\x72\x00",
 			.len = 13,
 			.expect = NULL
@@ -760,7 +760,7 @@ zstd_tests (void) {
 		},
 		{
 			.desc = "Uncompressing no data",
-			.data = "\0",
+			.data = (const uint8_t*)"\0",
 			.len = 0,
 			.expect = ""
 		},
@@ -786,7 +786,7 @@ zstd_tests (void) {
 				failed = true;
 				return;
 			}
-			char * got_str = tvb_get_string_enc (NULL, got, 0, tvb_reported_length (got), ENC_ASCII);
+			char * got_str = (char*)tvb_get_string_enc (NULL, got, 0, tvb_reported_length (got), ENC_ASCII);
 			if (0 != strcmp (got_str, t->expect)) {
 				printf ("ZSTD test: %s ... FAIL: Expected \"%s\", got \"%s\".\n", t->desc, t->expect, got_str);
 				failed = true;

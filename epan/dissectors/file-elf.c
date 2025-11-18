@@ -831,7 +831,7 @@ get_section_name_offset(wmem_allocator_t *scope, tvbuff_t *tvb, uint64_t shoff, 
 
     offset = value_guard(shoff + (uint32_t)shndx * (uint32_t)shentsize);
     sh_name = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
-    return tvb_get_stringz_enc(scope, tvb, value_guard(shstrtab_offset + sh_name), NULL, ENC_ASCII);
+    return (const char*)tvb_get_stringz_enc(scope, tvb, value_guard(shstrtab_offset + sh_name), NULL, ENC_ASCII);
 }
 
 #define MAX_TAG_TO_TYPE 34
@@ -940,7 +940,7 @@ dissect_symbol_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *entry_tree, 
     pitem = proto_tree_add_item(entry_tree, hf_elf_symbol_table_name_index, tvb, offset, 4, machine_encoding);
     if (strtab_offset) {
         name_index = (machine_encoding == ENC_BIG_ENDIAN) ? tvb_get_ntohl(tvb, offset) : tvb_get_letohl(tvb, offset);
-        name = tvb_get_stringz_enc(pinfo->pool, tvb, value_guard(strtab_offset + name_index), NULL, ENC_ASCII);
+        name = (const char*)tvb_get_stringz_enc(pinfo->pool, tvb, value_guard(strtab_offset + name_index), NULL, ENC_ASCII);
         if (name) {
             proto_item_append_text(pitem, ": %s", name);
             proto_item_append_text(entry_item, ": %s", name);
@@ -1223,7 +1223,7 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *segment_tree,
                                 tvb, offset, 1, machine_encoding);
             offset += 1;
 
-            augmentation_string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &size, ENC_ASCII);
+            augmentation_string = (const char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &size, ENC_ASCII);
             proto_tree_add_item(entry_tree, hf_elf_eh_frame_augmentation_string,
                                 tvb, offset, size, machine_encoding);
             offset += size;
@@ -1625,7 +1625,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     tvb_get_ntoh64(tvb, value_guard(length)) : tvb_get_letoh64(tvb, value_guard(length));
         }
 
-        section_name = tvb_get_stringz_enc(pinfo->pool, tvb, value_guard(shstrtab_offset + sh_name), NULL, ENC_ASCII);
+        section_name = (const char*)tvb_get_stringz_enc(pinfo->pool, tvb, value_guard(shstrtab_offset + sh_name), NULL, ENC_ASCII);
 
         if (register_size == REGISTER_64_SIZE && machine_encoding == ENC_BIG_ENDIAN) {
             offset += 4;
@@ -1705,7 +1705,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                     tvb_get_ntoh64(tvb, value_guard(length)) : tvb_get_letoh64(tvb, value_guard(length));
         }
 
-        section_name = tvb_get_stringz_enc(pinfo->pool, tvb, value_guard(shstrtab_offset + sh_name), NULL, ENC_ASCII);
+        section_name = (const char*)tvb_get_stringz_enc(pinfo->pool, tvb, value_guard(shstrtab_offset + sh_name), NULL, ENC_ASCII);
         if (section_name)
             proto_item_append_text(sh_entry_item, ": %s", section_name);
 

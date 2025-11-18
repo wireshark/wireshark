@@ -532,7 +532,7 @@ static bool extcap_dumper_dump(struct extcap_dumper extcap_dumper,
     rec.rec_header.packet_header.caplen = (uint32_t) captured_length;
     rec.rec_header.packet_header.len = (uint32_t) reported_length;
 
-    ws_buffer_append(&rec.data, buffer, captured_length);
+    ws_buffer_append(&rec.data, (const uint8_t*)buffer, captured_length);
 
     if (!wtap_dump(extcap_dumper.dumper.wtap, &rec, &err, &err_info)) {
         report_cfile_write_failure(NULL, fifo, err, err_info, 0,
@@ -1690,7 +1690,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
     uint64_t                      *timestamp;
     char                          *packet = buffer + BLUEDROID_TIMESTAMP_SIZE - sizeof(own_pcap_bluetooth_h4_header); /* skip timestamp (8 bytes) and reuse its space for header */
     own_pcap_bluetooth_h4_header  *h4_header;
-    uint8_t                       *payload = packet + sizeof(own_pcap_bluetooth_h4_header);
+    uint8_t                       *payload = (uint8_t*)(packet + sizeof(own_pcap_bluetooth_h4_header));
     const char                    *adb_tcp_bluedroid_external_parser_template = "tcp:%05u";
     socklen_t                      slen;
     ssize_t                        length;

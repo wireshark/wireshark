@@ -95,7 +95,7 @@ get_ascii_string(wmem_allocator_t *scope, const uint8_t *ptr, int length)
             valid_bytes++;
         } else {
             if (valid_bytes) {
-                wmem_strbuf_append_len(str, prev, valid_bytes);
+                wmem_strbuf_append_len(str, (const char*)prev, valid_bytes);
                 valid_bytes = 0;
             }
             prev = ptr;
@@ -104,7 +104,7 @@ get_ascii_string(wmem_allocator_t *scope, const uint8_t *ptr, int length)
         length--;
     }
     if (valid_bytes) {
-        wmem_strbuf_append_len(str, prev, valid_bytes);
+        wmem_strbuf_append_len(str, (const char*)prev, valid_bytes);
     }
 
     return (uint8_t *) wmem_strbuf_finalize(str);

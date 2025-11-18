@@ -247,7 +247,7 @@ static int FrameInfo_set_data (lua_State* L) {
         const char* s = luaL_checklstring(L,2,&len);
 
         /* Make sure we have enough room for the packet */
-        ws_buffer_append(&fi->rec->data, s, len);
+        ws_buffer_append(&fi->rec->data, (const uint8_t*)s, len);
         fi->rec->rec_header.packet_header.caplen = (uint32_t) len;
         fi->rec->rec_header.packet_header.len = (uint32_t) len;
     }
@@ -260,7 +260,7 @@ static int FrameInfo_set_data (lua_State* L) {
 static int FrameInfo_get_data (lua_State* L) {
     FrameInfo fi = checkFrameInfo(L,1);
 
-    lua_pushlstring(L, ws_buffer_start_ptr(&fi->rec->data), ws_buffer_length(&fi->rec->data));
+    lua_pushlstring(L, (const char*)ws_buffer_start_ptr(&fi->rec->data), ws_buffer_length(&fi->rec->data));
 
     WSLUA_RETURN(1); /* A Lua string of the frame record's data. */
 }
@@ -445,7 +445,7 @@ static int FrameInfoConst_get_data (lua_State* L) {
 
     if (!fi->pd || !fi->rec) return 0;
 
-    lua_pushlstring(L, fi->pd, fi->rec->rec_header.packet_header.caplen);
+    lua_pushlstring(L, (const char*)fi->pd, fi->rec->rec_header.packet_header.caplen);
 
     return 1;
 }

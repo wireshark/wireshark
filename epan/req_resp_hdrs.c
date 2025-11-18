@@ -169,7 +169,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				/*
 				 * Check if we've found Content-Length.
 				 */
-				line = tvb_get_string_enc(pinfo->pool, tvb, next_offset_sav, linelen, ENC_UTF_8|ENC_NA);
+				line = (char*)tvb_get_string_enc(pinfo->pool, tvb, next_offset_sav, linelen, ENC_UTF_8|ENC_NA);
 				if (g_ascii_strncasecmp(line, "Content-Length:", 15) == 0) {
 					/* SSTP sets 2^64 as length, but does not really have such a
 					 * large payload. Since the current tvb APIs are limited to
@@ -312,7 +312,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					*last_chunk_offset = next_offset - offset;
 				}
 
-				chunk_string = tvb_get_string_enc(pinfo->pool, tvb, next_offset,
+				chunk_string = (char*)tvb_get_string_enc(pinfo->pool, tvb, next_offset,
 				    linelen, ENC_ASCII);
 				c = chunk_string;
 
@@ -399,7 +399,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					return true;
 				}
 				/* Following sizeof will return the length of the string + \0 we need to not count it*/
-				tmp = tvb_get_string_enc(pinfo->pool, tvb, 0, sizeof("RPC_OUT_DATA") - 1, ENC_ASCII);
+				tmp = (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, sizeof("RPC_OUT_DATA") - 1, ENC_ASCII);
 				if ((strncmp(tmp, "RPC_IN_DATA", sizeof("RPC_IN_DATA") - 1) == 0) ||
 				    (strncmp(tmp, "RPC_OUT_DATA", sizeof("RPC_OUT_DATA") - 1) == 0)) {
 					return true;

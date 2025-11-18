@@ -24,7 +24,7 @@ struct _ws_regex {
 static char *
 get_error_msg(int errorcode)
 {
-    char *buffer;
+    uint8_t *buffer;
 
     /*
      * We have to provide a buffer and we don't know how long the
@@ -38,7 +38,7 @@ get_error_msg(int errorcode)
     pcre2_get_error_message(errorcode, buffer, ERROR_MAXLEN_IN_CODE_UNITS);
     /* One more at the end for good luck. */
     buffer[ERROR_MAXLEN_IN_CODE_UNITS-1] = '\0';
-    return buffer;
+    return (char*)buffer;
 }
 
 
@@ -116,7 +116,7 @@ match_pcre2(pcre2_code *code, const char *subject, ssize_t subj_length,
         length = (PCRE2_SIZE)subj_length;
 
     rc = pcre2_match(code,
-                    subject,
+                    (const uint8_t*)subject,
                     length,
                     (PCRE2_SIZE)subj_offset,
                     0,          /* default options */

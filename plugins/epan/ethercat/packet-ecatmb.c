@@ -370,7 +370,7 @@ static void FoeFormatter(tvbuff_t *tvb, wmem_allocator_t *scope, int offset, cha
    case ECAT_FOE_OPMODE_WRQ:
    case ECAT_FOE_OPMODE_ERR:
       if ( foe_length > ETHERCAT_FOE_HEADER_LEN ) {
-         tmp = tvb_get_string_enc(scope, tvb, offset+ETHERCAT_FOE_HEADER_LEN, MIN(foe_length-ETHERCAT_FOE_HEADER_LEN, 49), ENC_ASCII);
+         tmp = (char*)tvb_get_string_enc(scope, tvb, offset+ETHERCAT_FOE_HEADER_LEN, MIN(foe_length-ETHERCAT_FOE_HEADER_LEN, 49), ENC_ASCII);
       }
       break;
    }

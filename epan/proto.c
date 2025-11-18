@@ -1203,7 +1203,7 @@ format_bytes_hfinfo_maxlen(wmem_allocator_t *scope, const header_field_info *hfi
 			 * bytes as a string - in quotes to indicate that it's
 			 * a string.
 			 */
-			if (isprint_utf8_string(bytes, length)) {
+			if (isprint_utf8_string((const char*)bytes, length)) {
 				str = wmem_strdup_printf(scope, "\"%.*s\"",
 				    (int)length, bytes);
 				return str;
@@ -3092,7 +3092,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_STRING:
-			stringval = get_string_value(PNODE_POOL(tree),
+			stringval = (const char*)get_string_value(PNODE_POOL(tree),
 			    tvb, start, length, &length, encoding);
 			proto_tree_set_string(new_fi, stringval);
 
@@ -3109,7 +3109,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_STRINGZ:
-			stringval = get_stringz_value(PNODE_POOL(tree),
+			stringval = (const char*)get_stringz_value(PNODE_POOL(tree),
 			    tree, tvb, start, length, &length, encoding);
 			proto_tree_set_string(new_fi, stringval);
 
@@ -3140,7 +3140,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding == true)
 				encoding = ENC_ASCII|ENC_LITTLE_ENDIAN;
-			stringval = get_uint_string_value(PNODE_POOL(tree),
+			stringval = (const char*)get_uint_string_value(PNODE_POOL(tree),
 			    tree, tvb, start, length, &length, encoding);
 			proto_tree_set_string(new_fi, stringval);
 
@@ -3157,7 +3157,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_STRINGZPAD:
-			stringval = get_stringzpad_value(PNODE_POOL(tree),
+			stringval = (const char*)get_stringzpad_value(PNODE_POOL(tree),
 			    tvb, start, length, &length, encoding);
 			proto_tree_set_string(new_fi, stringval);
 
@@ -3174,7 +3174,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_STRINGZTRUNC:
-			stringval = get_stringztrunc_value(PNODE_POOL(tree),
+			stringval = (const char*)get_stringztrunc_value(PNODE_POOL(tree),
 			    tvb, start, length, &length, encoding);
 			proto_tree_set_string(new_fi, stringval);
 
@@ -3757,7 +3757,7 @@ proto_tree_add_item_ret_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	}
 	/* I believe it's ok if this is called with a NULL tree */
 	if (encoding & ENC_VARINT_MASK) {
-		tvb_get_varint(tvb, start, length, &value, encoding);
+		tvb_get_varint(tvb, start, length, (uint64_t*)&value, encoding);
 	}
 	else {
 		value = get_int64_value(tree, tvb, start, length, encoding);
@@ -4148,7 +4148,7 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
 
 	new_fi = new_field_info(tree, hfinfo, tvb, start, *lenretval);
 
-	proto_tree_set_string(new_fi, value);
+	proto_tree_set_string(new_fi, (const char*)value);
 
 	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
 
@@ -4163,7 +4163,7 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
 		break;
 
 	case FT_STRING:
-		detect_trailing_stray_characters(encoding, value, length, pi);
+		detect_trailing_stray_characters(encoding, (const char*)value, length, pi);
 		break;
 
 	default:
@@ -4257,7 +4257,7 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 	case FT_UINT_STRING:
 	case FT_STRINGZPAD:
 	case FT_STRINGZTRUNC:
-		proto_tree_set_string(new_fi, value);
+		proto_tree_set_string(new_fi, (const char*)value);
 		break;
 
 	case FT_BYTES:
@@ -4285,7 +4285,7 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 		break;
 
 	case FT_STRING:
-		detect_trailing_stray_characters(encoding, value, length, pi);
+		detect_trailing_stray_characters(encoding, (const char*)value, length, pi);
 		break;
 
 	case FT_BYTES:
@@ -7009,14 +7009,14 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 		}
 
 		/* put in the hf name */
-		name_pos = ret = label_concat(fi->rep->representation, ret, hf->name);
+		name_pos = ret = label_concat(fi->rep->representation, ret, (const uint8_t*)hf->name);
 
-		ret = label_concat(fi->rep->representation, ret, ": ");
+		ret = label_concat(fi->rep->representation, ret, (const uint8_t*)": ");
 		/* If possible, Put in the value of the string */
 		str = wmem_strdup_vprintf(PNODE_POOL(pi), format, ap);
 		WS_UTF_8_CHECK(str, -1);
 		fi->rep->value_pos = ret;
-		ret = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, ret, str, 0);
+		ret = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, ret, (const uint8_t*)str, 0);
 		if (ret >= ITEM_LABEL_LENGTH) {
 			/* Uh oh, we don't have enough room.  Tell the user
 			 * that the field is truncated.
@@ -7045,7 +7045,7 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 		str = wmem_strdup_vprintf(PNODE_POOL(pi), format, ap);
 		WS_UTF_8_CHECK(str, -1);
 		fi->rep->value_pos = proto_find_value_pos(fi->hfinfo, str);
-		ret = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, 0, str, 0);
+		ret = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, 0, (const uint8_t*)str, 0);
 		if (ret >= ITEM_LABEL_LENGTH) {
 			/* Uh oh, we don't have enough room.  Tell the user that the field is truncated. */
 			size_t name_pos = label_find_name_pos(fi->rep);
@@ -7374,7 +7374,7 @@ proto_item_fill_display_label(const field_info *finfo, char *display_label_str, 
 		case FT_STRINGZPAD:
 		case FT_STRINGZTRUNC:
 			str = fvalue_get_string(finfo->value);
-			label_len = (int)ws_label_strcpy(display_label_str, label_str_size, 0, str, label_strcat_flags(hfinfo));
+			label_len = (int)ws_label_strcpy(display_label_str, label_str_size, 0, (const uint8_t*)str, label_strcat_flags(hfinfo));
 			if (label_len >= label_str_size) {
 				/* Truncation occurred. Get the real length
 				 * copied (not including '\0') */
@@ -7461,7 +7461,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, int occurrence, bool displ
 						expr[offset_e++] = ',';
 					offset_r += proto_strlcpy(result+offset_r, str, size-offset_r);
 					// col_{add,append,set}_* calls ws_label_strcpy
-					offset_e = (int) ws_label_strcpy(expr, size, offset_e, str, 0);
+					offset_e = (int) ws_label_strcpy(expr, size, offset_e, (const uint8_t*)str, 0);
 
 					g_free(str);
 				}
@@ -7602,7 +7602,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, int occurrence, bool displ
 				} else {
 					str = fvalue_to_string_repr(NULL, finfo->value, FTREPR_RAW, finfo->hfinfo->display);
 					// col_{add,append,set}_* calls ws_label_strcpy
-					offset_e = (int) ws_label_strcpy(expr, size, offset_e, str, 0);
+					offset_e = (int) ws_label_strcpy(expr, size, offset_e, (const uint8_t*)str, 0);
 					wmem_free(NULL, str);
 				}
 				i++;
@@ -7857,7 +7857,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 				va_end(ap);
 				WS_UTF_8_CHECK(str, -1);
 				/* Keep fi->rep->value_pos */
-				curlen = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, curlen, str, 0);
+				curlen = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, curlen, (const uint8_t*)str, 0);
 				if (curlen >= ITEM_LABEL_LENGTH) {
 					/* Uh oh, we don't have enough room.  Tell the user that the field is truncated. */
 					size_t name_pos = label_find_name_pos(fi->rep);
@@ -7902,8 +7902,8 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 		va_end(ap);
 		WS_UTF_8_CHECK(str, -1);
 		fi->rep->value_pos += strlen(str);
-		pos = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, 0, str, 0);
-		pos = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, pos, representation, 0);
+		pos = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, 0, (const uint8_t*)str, 0);
+		pos = ws_label_strcpy(fi->rep->representation, ITEM_LABEL_LENGTH, pos, (const uint8_t*)representation, 0);
 		/* XXX: As above, if the old representation is close to the label
 		 * length, it might already be marked as truncated. */
 		if (pos >= ITEM_LABEL_LENGTH && (strlen(representation) + 4) <= ITEM_LABEL_LENGTH) {
@@ -10075,13 +10075,13 @@ label_fill(char *label_str, size_t pos, const header_field_info *hfinfo, const c
 	size_t name_pos;
 
 	/* "%s: %s", hfinfo->name, text */
-	name_pos = pos = label_concat(label_str, pos, hfinfo->name);
+	name_pos = pos = label_concat(label_str, pos, (const uint8_t*)hfinfo->name);
 	if (!(hfinfo->display & BASE_NO_DISPLAY_VALUE)) {
-		pos = label_concat(label_str, pos, ": ");
+		pos = label_concat(label_str, pos, (const uint8_t*)": ");
 		if (value_pos) {
 			*value_pos = pos;
 		}
-		pos = ws_label_strcpy(label_str, ITEM_LABEL_LENGTH, pos, text ? text : "(null)", label_strcat_flags(hfinfo));
+		pos = ws_label_strcpy(label_str, ITEM_LABEL_LENGTH, pos, (const uint8_t*)(text ? text : "(null)"), label_strcat_flags(hfinfo));
 	}
 
 	if (pos >= ITEM_LABEL_LENGTH) {
@@ -10098,20 +10098,20 @@ label_fill_descr(char *label_str, size_t pos, const header_field_info *hfinfo, c
 	size_t name_pos;
 
 	/* "%s: %s (%s)", hfinfo->name, text, descr */
-	name_pos = pos = label_concat(label_str, pos, hfinfo->name);
+	name_pos = pos = label_concat(label_str, pos, (const uint8_t*)hfinfo->name);
 	if (!(hfinfo->display & BASE_NO_DISPLAY_VALUE)) {
-		pos = label_concat(label_str, pos, ": ");
+		pos = label_concat(label_str, pos, (const uint8_t*)": ");
 		if (value_pos) {
 			*value_pos = pos;
 		}
 		if (hfinfo->display & BASE_UNIT_STRING) {
-			pos = label_concat(label_str, pos, descr ? descr : "(null)");
-			pos = label_concat(label_str, pos, text ? text : "(null)");
+			pos = label_concat(label_str, pos, (const uint8_t*)(descr ? descr : "(null)"));
+			pos = label_concat(label_str, pos, (const uint8_t*)(text ? text : "(null)"));
 		} else {
-			pos = label_concat(label_str, pos, text ? text : "(null)");
-			pos = label_concat(label_str, pos, " (");
-			pos = label_concat(label_str, pos, descr ? descr : "(null)");
-			pos = label_concat(label_str, pos, ")");
+			pos = label_concat(label_str, pos, (const uint8_t*)(text ? text : "(null)"));
+			pos = label_concat(label_str, pos, (const uint8_t*)" (");
+			pos = label_concat(label_str, pos, (const uint8_t*)(descr ? descr : "(null)"));
+			pos = label_concat(label_str, pos, (const uint8_t*)")");
 		}
 	}
 
@@ -10956,14 +10956,14 @@ fill_display_label_ieee_11073_float(const field_info *fi, char *label_str, const
 
 	display = FIELD_DISPLAY(fi->hfinfo->display);
 	tmp_str = fvalue_to_string_repr(NULL, fi->value, FTREPR_DISPLAY, display);
-	pos = label_concat(label_str, pos, tmp_str);
+	pos = label_concat(label_str, pos, (const uint8_t*)tmp_str);
 	wmem_free(NULL, tmp_str);
 
 	if ((fi->hfinfo->strings) && (fi->hfinfo->display & BASE_UNIT_STRING)) {
 		const char *hf_str_val;
 		fvalue_to_double(fi->value, &value);
 		hf_str_val = unit_name_string_get_double(value, (const struct unit_name_string*)fi->hfinfo->strings);
-		pos = label_concat(label_str, pos, hf_str_val);
+		pos = label_concat(label_str, pos, (const uint8_t*)hf_str_val);
 	}
 	if ((int)pos > label_str_size) {
 		ws_warning("label length too small");

@@ -746,7 +746,7 @@ IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len)
 
     for (i = 0, j = 0; j < len;  j++) {
         buf = char_def_ia5_alphabet_decode(src[j]);
-        i += g_unichar_to_utf8(buf,&(dest[i]));
+        i += g_unichar_to_utf8(buf,(char*)&(dest[i]));
     }
     dest[i]=0;
 }
@@ -835,14 +835,14 @@ ws_label_strcpy(char *label_str, size_t buf_size, size_t pos,
 
     ws_return_val_if(str == NULL, pos);
     idx = 0;
-    src_len = strlen(str);
+    src_len = strlen((const char*)str);
     free_len = buf_size - pos - 1;
 
     while (idx < src_len) {
         chlen = ws_utf8_char_len(str[idx]);
         if (chlen <= 0) {
             /* We were passed invalid UTF-8. This is an error. Complain and do... something. */
-            ws_log_utf8(str, -1, NULL);
+            ws_log_utf8((char*)str, -1, NULL);
             /*
              * XXX If we are going to return here instead of trying to recover maybe the log level should
              * be higher than DEBUG.

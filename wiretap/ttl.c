@@ -2313,7 +2313,7 @@ ttl_xml_node_get_number(xmlNodePtr node, xmlXPathContextPtr ctx, double *ret) {
         return false;
     }
 
-    result = xmlXPathNodeEval(node, "./Number[1]/text()", ctx);
+    result = xmlXPathNodeEval(node, (const xmlChar*)"./Number[1]/text()", ctx);
     if (result && result->type == XPATH_NODESET && !xmlXPathNodeSetIsEmpty(result->nodesetval)) {
         val = xmlXPathCastToNumber(result);
         if (!xmlXPathIsNaN(val)) {
@@ -2337,10 +2337,10 @@ ttl_xml_node_get_string(xmlNodePtr node, xmlXPathContextPtr ctx, const char* nam
 
     str = ws_strdup_printf("./%s[1]/text()", name);
 
-    result = xmlXPathNodeEval(node, str, ctx);
+    result = xmlXPathNodeEval(node, (const xmlChar*)str, ctx);
     g_free(str);
     if (result && result->type == XPATH_NODESET && !xmlXPathNodeSetIsEmpty(result->nodesetval)) {
-        str = xmlXPathCastToString(result);
+        str = (char*)xmlXPathCastToString(result);
         *ret = ws_strdup(str);
         xmlFree(str);
         return true;
@@ -2370,20 +2370,20 @@ ttl_process_xml_config(ttl_t* ttl, const char* text, int size) {
     }
 
     ctx = xmlXPathNewContext(doc);
-    cascades = xmlXPathEvalExpression("/LoggerConfiguration/HWList/Cascades/Cascade", ctx);
+    cascades = xmlXPathEvalExpression((const xmlChar*)"/LoggerConfiguration/HWList/Cascades/Cascade", ctx);
     if (cascades && cascades->type == XPATH_NODESET && !xmlXPathNodeSetIsEmpty(cascades->nodesetval)) {
         for (i = 0; i < cascades->nodesetval->nodeNr; i++) {
             if (ttl_xml_node_get_number(cascades->nodesetval->nodeTab[i], ctx, &val) && val >= 0 && val <= 7) {
                 cascade = (uint16_t)val;
                 if (val == 0) { /* Only the configuration of the logger is inside the TTL file. The TAPs have their own configuration */
 
-                    devices = xmlXPathNodeEval(cascades->nodesetval->nodeTab[i], "./Devices/Device", ctx);
+                    devices = xmlXPathNodeEval(cascades->nodesetval->nodeTab[i], (const xmlChar*)"./Devices/Device", ctx);
                     if (devices && devices->type == XPATH_NODESET && !xmlXPathNodeSetIsEmpty(devices->nodesetval)) {
                         for (j = 0; j < devices->nodesetval->nodeNr; j++) {
                             if (ttl_xml_node_get_number(devices->nodesetval->nodeTab[j], ctx, &val) && val >= 0 && val <= 15) {
                                 device = (uint16_t)val;
 
-                                functions = xmlXPathNodeEval(devices->nodesetval->nodeTab[j], "./Functions/Function", ctx);
+                                functions = xmlXPathNodeEval(devices->nodesetval->nodeTab[j], (const xmlChar*)"./Functions/Function", ctx);
                                 if (functions && functions->type == XPATH_NODESET && !xmlXPathNodeSetIsEmpty(functions->nodesetval)) {
                                     for (k = 0; k < functions->nodesetval->nodeNr; k++) {
                                         if (ttl_xml_node_get_number(functions->nodesetval->nodeTab[k], ctx, &val) && val >= 0 && val <= 63) {
@@ -2761,7 +2761,7 @@ ttl_open(wtap* wth, int* err, char** err_info) {
             offset += TTL_LOGFILE_INFO_SIZE;
             unsigned int xml_len = header.header_size - offset;
             if (xml_len != 0) {
-                unsigned char* xml = g_try_malloc(xml_len);
+                char* xml = g_try_malloc(xml_len);
                 if (xml == NULL) {
                     *err = WTAP_ERR_INTERNAL;
                     *err_info = ws_strdup("ttl: cannot allocate memory");

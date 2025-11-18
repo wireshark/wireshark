@@ -1338,7 +1338,7 @@ cmd_ioctl_details(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt,
         break;
     case GLINDELSCHED:
         {
-        string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
+        string = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
         /*proto_tree_add_debug_text(pt, "cmd_ioctl_details() debug offset=%d length=%d string='%s'",offset,length,string); */
         if(string[0] == '\0') {
             proto_tree_add_string(pt, hf_gryphon_ldf_schedule_name, tvb, offset, 32, "All schedules");
@@ -2442,7 +2442,7 @@ cmd_ldf_get_frame_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
     char *string;
     int length;
     uint8_t id;
-    string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
+    string = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
     if(length > 1) {
         proto_tree_add_string(pt, hf_gryphon_ldf_get_frame, tvb, offset, length, string);
         offset += length;
@@ -2517,7 +2517,7 @@ resp_ldf_do_encoding_block(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
     char *string;
     int length;
     /* encoding */
-    string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
+    string = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
     proto_tree_add_string(pt, hf_gryphon_ldf_signal_encoding_type, tvb, offset, 12, string);
     offset += 12;
     if(string[0] == 'l') {
@@ -2629,7 +2629,7 @@ cmd_ldf_emulate_nodes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
     for(i=0;i<nnodes;i++) {
         /* first, find the end of the string, then use that string len to build a subtree */
 
-        string = tvb_get_stringz_enc(pinfo->pool, tvb, offset+1, &length, ENC_ASCII);
+        string = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset+1, &length, ENC_ASCII);
 
         tree2 = proto_tree_add_subtree_format(pt, tvb, offset, 1+length, ett_gryphon_lin_emulate_node, NULL, "Node %u", node_numb);
 
@@ -2967,7 +2967,7 @@ cmd_start(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt)
     msglen = tvb_reported_length_remaining(tvb, offset);
     offset = cmd_delete(tvb, offset, pt);       /* decode the name */
     if (offset < msglen + hdr_stuff) {
-        string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
+        string = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
         if (length > 1) {
             proto_tree_add_string(pt, hf_gryphon_start_arguments, tvb, offset,
                 length, string);
@@ -4217,7 +4217,8 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, boo
     proto_tree      *gryphon_tree;
     proto_item      *ti, *type_item;
     proto_tree      *header_tree, *body_tree;
-    int             msgend, msglen, msgpad;
+    int             msgend, msgpad;
+    unsigned        msglen;
     int             offset = 0;
     uint32_t        src, dest, i, frmtyp, flags;
 

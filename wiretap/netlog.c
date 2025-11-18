@@ -395,7 +395,7 @@ static bool netlog_read_packet(const wtap* wth, wtap_rec* rec, GHashTable *json_
         return false;
     }
 
-    int num_tokens = json_parse_len(filebuf, json_packet->length, NULL, 0);
+    int num_tokens = json_parse_len((const char*)filebuf, json_packet->length, NULL, 0);
     if (num_tokens < 0) {
         g_free(filebuf);
         return false;
@@ -405,7 +405,7 @@ static bool netlog_read_packet(const wtap* wth, wtap_rec* rec, GHashTable *json_
         g_free(filebuf);
         return false;
     }
-    int json_parse_result = json_parse_len(filebuf, json_packet->length, json_tokens, num_tokens);
+    int json_parse_result = json_parse_len((const char*)filebuf, json_packet->length, json_tokens, num_tokens);
     if (json_parse_result < 0){
         g_free(json_tokens);
         g_free(filebuf);
@@ -413,7 +413,7 @@ static bool netlog_read_packet(const wtap* wth, wtap_rec* rec, GHashTable *json_
     }
 
     jsmntok_t* params_entry = json_tokens;
-    const char* base64_bytes = json_get_string(filebuf, params_entry, "bytes");
+    const char* base64_bytes = json_get_string((char*)filebuf, params_entry, "bytes");
     if (base64_bytes == NULL){
         g_free(json_tokens);
         g_free(filebuf);
@@ -737,7 +737,7 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
         return false;
     }
 
-    int num_tokens = json_parse_len(filebuf, bytes_read, NULL, 0);
+    int num_tokens = json_parse_len((const char*)filebuf, bytes_read, NULL, 0);
     if (num_tokens < 0) {
         g_free(filebuf);
         return false;
@@ -749,7 +749,7 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
         return false;
     }
 
-    if (json_parse_len(filebuf, bytes_read, json_tokens, num_tokens) < 0){
+    if (json_parse_len((const char*)filebuf, bytes_read, json_tokens, num_tokens) < 0){
         g_free(json_tokens);
         g_free(filebuf);
         return false;
@@ -762,7 +762,7 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
     jsmntok_t* root_json_token = json_tokens;
 
     NetLogEventConstants netlog_event_constants = {0};
-    if (!parse_log_event_constants(filebuf, root_json_token, &netlog_event_constants)) {
+    if (!parse_log_event_constants((char*)filebuf, root_json_token, &netlog_event_constants)) {
         ws_debug("Failed to parse one or more netlog event constants.");
         g_free(json_tokens);
         g_free(filebuf);
@@ -772,9 +772,9 @@ static bool netlog_parse_entirety(wtap *wth, FILE_T fh, int *err, char **err_inf
     /* At this point, we have all of the constants needed within 'json_logevent_constants'
        We can now begin parsing the events to extract the data!
     */
-    jsmntok_t* json_events = json_get_array(filebuf, root_json_token, "events");
+    jsmntok_t* json_events = json_get_array((const char*)filebuf, root_json_token, "events");
 
-    if (!parse_json_events(filebuf, netlog_event_constants, json_events, json_packets_ht)){
+    if (!parse_json_events((char*)filebuf, netlog_event_constants, json_events, json_packets_ht)){
         g_free(json_tokens);
         g_free(filebuf);
         return false;

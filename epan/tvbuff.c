@@ -2793,7 +2793,7 @@ tvb_format_text(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, const 
 	len = (size > 0) ? size : 0;
 
 	ptr = ensure_contiguous(tvb, offset, size);
-	return format_text(scope, ptr, len);
+	return format_text(scope, (const char*)ptr, len);
 }
 
 /*
@@ -2808,7 +2808,7 @@ tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const int offset
 	len = (size > 0) ? size : 0;
 
 	ptr = ensure_contiguous(tvb, offset, size);
-	return format_text_wsp(allocator, ptr, len);
+	return format_text_wsp(allocator, (const char*)ptr, len);
 }
 
 /**
@@ -2827,7 +2827,7 @@ tvb_format_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, 
 	ptr = ensure_contiguous(tvb, offset, size);
 	for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
 		;
-	return format_text(scope, ptr, stringlen);
+	return format_text(scope, (const char*)ptr, stringlen);
 }
 
 /*
@@ -2846,7 +2846,7 @@ tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const int 
 	ptr = ensure_contiguous(tvb, offset, size);
 	for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
 		;
-	return format_text_wsp(allocator, ptr, stringlen);
+	return format_text_wsp(allocator, (const char*)ptr, stringlen);
 }
 
 /*
@@ -3063,7 +3063,7 @@ tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, i
 	const uint8_t *ptr;
 
 	ptr = ensure_contiguous(tvb, offset, length);
-	return get_ucs_4_string(scope, ptr, length, encoding);
+	return (char*)get_ucs_4_string(scope, ptr, length, encoding);
 }
 
 char *
@@ -3077,7 +3077,7 @@ tvb_get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope, tvbuff_t *tvb,
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	ptr = ensure_contiguous(tvb, in_offset, length);
-	return get_ts_23_038_7bits_string_packed(scope, ptr, bit_offset, no_of_chars);
+	return (char*)get_ts_23_038_7bits_string_packed(scope, ptr, bit_offset, no_of_chars);
 }
 
 char *
@@ -3089,7 +3089,7 @@ tvb_get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *scope, tvbuff_t *tvb,
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	ptr = ensure_contiguous(tvb, offset, length);
-	return get_ts_23_038_7bits_string_unpacked(scope, ptr, length);
+	return (char*)get_ts_23_038_7bits_string_unpacked(scope, ptr, length);
 }
 
 char *
@@ -3101,7 +3101,7 @@ tvb_get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	ptr = ensure_contiguous(tvb, offset, length);
-	return get_etsi_ts_102_221_annex_a_string(scope, ptr, length);
+	return (char*)get_etsi_ts_102_221_annex_a_string(scope, ptr, length);
 }
 
 char *
@@ -3115,7 +3115,7 @@ tvb_get_ascii_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	ptr = ensure_contiguous(tvb, in_offset, length);
-	return get_ascii_7bits_string(scope, ptr, bit_offset, no_of_chars);
+	return (char*)get_ascii_7bits_string(scope, ptr, bit_offset, no_of_chars);
 }
 
 /*
@@ -3339,7 +3339,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
 		break;
 
 	case ENC_UCS_4:
-		strptr = tvb_get_ucs_4_string(scope, tvb, offset, length,
+		strptr = (uint8_t*)tvb_get_ucs_4_string(scope, tvb, offset, length,
 		    encoding & (ENC_LITTLE_ENDIAN|ENC_BOM));
 		break;
 
@@ -3444,7 +3444,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
 		{
 			int bit_offset  = offset << 3;
 			int no_of_chars = (length << 3) / 7;
-			strptr = tvb_get_ts_23_038_7bits_string_packed(scope, tvb, bit_offset, no_of_chars);
+			strptr = (uint8_t*)tvb_get_ts_23_038_7bits_string_packed(scope, tvb, bit_offset, no_of_chars);
 		}
 		break;
 
@@ -3452,7 +3452,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
 		{
 			int bit_offset  = offset << 3;
 			int no_of_chars = (length << 3) / 7;
-			strptr = tvb_get_ascii_7bits_string(scope, tvb, bit_offset, no_of_chars);
+			strptr = (uint8_t*)tvb_get_ascii_7bits_string(scope, tvb, bit_offset, no_of_chars);
 		}
 		break;
 
@@ -3489,7 +3489,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
 		 */
 		odd = (encoding & ENC_BCD_ODD_NUM_DIG) >> 16;
 		skip_first = (encoding & ENC_BCD_SKIP_FIRST) >> 17;
-		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt0_9_bcd, skip_first, odd, !(encoding & ENC_LITTLE_ENDIAN));
+		strptr = (uint8_t*)tvb_get_bcd_string(scope, tvb, offset, length, &Dgt0_9_bcd, skip_first, odd, !(encoding & ENC_LITTLE_ENDIAN));
 		break;
 
 	case ENC_KEYPAD_ABC_TBCD:
@@ -3499,7 +3499,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
 		 */
 		odd = (encoding & ENC_BCD_ODD_NUM_DIG) >> 16;
 		skip_first = (encoding & ENC_BCD_SKIP_FIRST) >> 17;
-		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_keypad_abc_tbcd, skip_first, odd, !(encoding & ENC_LITTLE_ENDIAN));
+		strptr = (uint8_t*)tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_keypad_abc_tbcd, skip_first, odd, !(encoding & ENC_LITTLE_ENDIAN));
 		break;
 
 	case ENC_KEYPAD_BC_TBCD:
@@ -3509,15 +3509,15 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
 		 */
 		odd = (encoding & ENC_BCD_ODD_NUM_DIG) >> 16;
 		skip_first = (encoding & ENC_BCD_SKIP_FIRST) >> 17;
-		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_ansi_tbcd, skip_first, odd, !(encoding & ENC_LITTLE_ENDIAN));
+		strptr = (uint8_t*)tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_ansi_tbcd, skip_first, odd, !(encoding & ENC_LITTLE_ENDIAN));
 		break;
 
 	case ENC_3GPP_TS_23_038_7BITS_UNPACKED:
-		strptr = tvb_get_ts_23_038_7bits_string_unpacked(scope, tvb, offset, length);
+		strptr = (uint8_t*)tvb_get_ts_23_038_7bits_string_unpacked(scope, tvb, offset, length);
 		break;
 
 	case ENC_ETSI_TS_102_221_ANNEX_A:
-		strptr = tvb_get_etsi_ts_102_221_annex_a_string(scope, tvb, offset, length);
+		strptr = (uint8_t*)tvb_get_etsi_ts_102_221_annex_a_string(scope, tvb, offset, length);
 		break;
 
 	case ENC_GB18030:
@@ -3543,7 +3543,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
 		 */
 		odd = (encoding & ENC_BCD_ODD_NUM_DIG) >> 16;
 		skip_first = (encoding & ENC_BCD_SKIP_FIRST) >> 17;
-		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_dect_standard_4bits_tbcd, skip_first, odd, false);
+		strptr = (uint8_t*)tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_dect_standard_4bits_tbcd, skip_first, odd, false);
 		break;
 	}
 	return strptr;
@@ -3683,7 +3683,7 @@ tvb_get_ucs_2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, 
 	/* XXX, conversion between signed/unsigned integer */
 	if (lengthp)
 		*lengthp = size;
-	return get_ucs_2_string(scope, ptr, size, encoding);
+	return (char*)get_ucs_2_string(scope, ptr, size, encoding);
 }
 
 static char *
@@ -3697,7 +3697,7 @@ tvb_get_utf_16_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
 	/* XXX, conversion between signed/unsigned integer */
 	if (lengthp)
 		*lengthp = size;
-	return get_utf_16_string(scope, ptr, size, encoding);
+	return (char*)get_utf_16_string(scope, ptr, size, encoding);
 }
 
 static char *
@@ -3718,7 +3718,7 @@ tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, 
 	/* XXX, conversion between signed/unsigned integer */
 	if (lengthp)
 		*lengthp = size;
-	return get_ucs_4_string(scope, ptr, size, encoding);
+	return (char*)get_ucs_4_string(scope, ptr, size, encoding);
 }
 
 static uint8_t *
@@ -3825,17 +3825,17 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, in
 		break;
 
 	case ENC_UTF_16:
-		strptr = tvb_get_utf_16_stringz(scope, tvb, offset, lengthp,
+		strptr = (uint8_t*)tvb_get_utf_16_stringz(scope, tvb, offset, lengthp,
 		    encoding & (ENC_LITTLE_ENDIAN|ENC_BOM));
 		break;
 
 	case ENC_UCS_2:
-		strptr = tvb_get_ucs_2_stringz(scope, tvb, offset, lengthp,
+		strptr = (uint8_t*)tvb_get_ucs_2_stringz(scope, tvb, offset, lengthp,
 		    encoding & (ENC_LITTLE_ENDIAN|ENC_BOM));
 		break;
 
 	case ENC_UCS_4:
-		strptr = tvb_get_ucs_4_stringz(scope, tvb, offset, lengthp,
+		strptr = (uint8_t*)tvb_get_ucs_4_stringz(scope, tvb, offset, lengthp,
 		    encoding & (ENC_LITTLE_ENDIAN|ENC_BOM));
 		break;
 
@@ -4012,7 +4012,8 @@ _tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const int offset, const unsigned bu
 {
 	int      stringlen;
 	unsigned abs_offset = 0;
-	int      limit, len = 0;
+	int      limit;
+	unsigned len = 0;
 	bool     decreased_max = false;
 
 	/* Only read to end of tvbuff, w/o throwing exception. */
@@ -4033,11 +4034,6 @@ _tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const int offset, const unsigned bu
 	if (len == 0) {
 		THROW(ReportedBoundsError);
 	}
-
-	/* This should not happen because check_offset_length() would
-	 * have already thrown an exception if 'offset' were out-of-bounds.
-	 */
-	DISSECTOR_ASSERT(len != -1);
 
 	/*
 	 * If we've been passed a negative number, bufsize will
@@ -4153,7 +4149,7 @@ tvb_utf_8_isprint(tvbuff_t *tvb, const int offset, const int length)
 		compute_offset_and_remaining(tvb, offset, &abs_offset, &abs_length);
 	}
 
-	return isprint_utf8_string(buf, abs_length);
+	return isprint_utf8_string((const char*)buf, abs_length);
 }
 
 bool

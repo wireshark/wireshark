@@ -2606,9 +2606,9 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
              * displays one. For now just overwrite the comment as we won't
              * pick up all of them yet due to the gen_time check above */
             if (wtap_block_get_nth_string_option_value(shb_hdr, OPT_COMMENT, 0, &existing_comment) == WTAP_OPTTYPE_SUCCESS) {
-              wtap_block_set_nth_string_option_value(shb_hdr, OPT_COMMENT, 0, tag.value, tag.length);
+              wtap_block_set_nth_string_option_value(shb_hdr, OPT_COMMENT, 0, (const char*)tag.value, tag.length);
             } else {
-              wtap_block_add_string_option(shb_hdr, OPT_COMMENT, tag.value, tag.length);
+              wtap_block_add_string_option(shb_hdr, OPT_COMMENT, (const char*)tag.value, tag.length);
             }
             break;
           }
@@ -2635,7 +2635,7 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
             descr = g_strndup((char*) tag.value, tag.length);
             break;
           case ERF_META_TAG_os:
-            wtap_block_set_string_option_value(shb_hdr, OPT_SHB_OS, tag.value, tag.length);
+            wtap_block_set_string_option_value(shb_hdr, OPT_SHB_OS, (const char*)tag.value, tag.length);
             break;
           case ERF_META_TAG_app_name:
             g_free(app_name);
@@ -2931,7 +2931,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
         }
         break;
       case ERF_META_TAG_comment:
-        wtap_block_add_string_option(int_data, OPT_COMMENT, tag.value, tag.length);
+        wtap_block_add_string_option(int_data, OPT_COMMENT, (const char*)tag.value, tag.length);
         break;
       case ERF_META_TAG_filter:
         if_filter.type = if_filter_pcap;

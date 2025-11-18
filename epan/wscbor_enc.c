@@ -100,7 +100,7 @@ void wscbor_enc_tstr(GByteArray *buf, const char *ptr) {
     const size_t len = ptr ? strlen(ptr) : 0;
     wscbor_enc_head(buf, CBOR_TYPE_STRING, len);
     if (len && (len < UINT_MAX)) {
-        g_byte_array_append(buf, ptr, (unsigned)len);
+        g_byte_array_append(buf, (const uint8_t*)ptr, (unsigned)len);
     }
 }
 

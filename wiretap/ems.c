@@ -160,7 +160,7 @@ static bool ems_read_message(wtap *wth, FILE_T fh, wtap_rec *rec,
     if (parse(&line, &msg)) {
         char ts[NSTIME_ISO8601_BUFSIZE + 1];
 
-        ws_buffer_append(&rec->data, line, end - line);
+        ws_buffer_append(&rec->data, (const uint8_t*)line, end - line);
 
         wtap_setup_packet_rec(rec, wth->file_encap);
         rec->block = wtap_block_create(WTAP_BLOCK_PACKET);

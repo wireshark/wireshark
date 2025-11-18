@@ -132,7 +132,7 @@ static int dump_packet(ws_cwstream* fp, const char* buf, const uint32_t buflen, 
 	int err;
 	int ret = EXIT_SUCCESS;
 
-	if (!libpcap_write_packet(fp, ts_usecs / 1000000, ts_usecs % 1000000, buflen, buflen, buf, &bytes_written, &err)) {
+	if (!libpcap_write_packet(fp, ts_usecs / 1000000, ts_usecs % 1000000, buflen, buflen, (const uint8_t*)buf, &bytes_written, &err)) {
 		ws_warning("Can't write packet");
 		ret = EXIT_FAILURE;
 	}
@@ -356,7 +356,7 @@ static int handle_data(struct nl_cache_ops *unused _U_, struct genl_cmd *cmd _U_
 
 	memcpy(&packet[2], data, data_size);
 
-	if (dump_packet(pcap_fp, packet, data_size + 2, ts) == EXIT_FAILURE)
+	if (dump_packet(pcap_fp, (const char*)packet, data_size + 2, ts) == EXIT_FAILURE)
 		extcap_end_application = true;
 
 	return NL_OK;

@@ -277,7 +277,7 @@ WSLUA_METHOD Tvb_raw(lua_State* L) {
         return false;
     }
 
-    lua_pushlstring(L, tvb_get_ptr(tvb->ws_tvb, offset, len), len);
+    lua_pushlstring(L, (const char*)tvb_get_ptr(tvb->ws_tvb, offset, len), len);
 
     WSLUA_RETURN(1); /* A Lua string of the binary bytes in the <<lua_class_Tvb,`Tvb`>>. */
 }
@@ -293,8 +293,8 @@ WSLUA_METAMETHOD Tvb__eq(lua_State* L) {
     /* it is not an error if their ds_tvb are different... they're just not equal */
     if (len_l == len_r)
     {
-        const char* lp = tvb_get_ptr(tvb_l->ws_tvb, 0, len_l);
-        const char* rp = tvb_get_ptr(tvb_r->ws_tvb, 0, len_r);
+        const char* lp = (const char*)tvb_get_ptr(tvb_l->ws_tvb, 0, len_l);
+        const char* rp = (const char*)tvb_get_ptr(tvb_r->ws_tvb, 0, len_r);
         int i = 0;
 
         for (; i < len_l; ++i) {
@@ -1676,7 +1676,7 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
         return false;
     }
 
-    lua_pushlstring(L, tvb_get_ptr(tvbr->tvb->ws_tvb, tvbr->offset+offset, len), len);
+    lua_pushlstring(L, (const char*)tvb_get_ptr(tvbr->tvb->ws_tvb, tvbr->offset+offset, len), len);
 
     WSLUA_RETURN(1); /* A Lua string of the binary bytes in the <<lua_class_TvbRange,`TvbRange`>>. */
 }
@@ -1691,8 +1691,8 @@ WSLUA_METAMETHOD TvbRange__eq(lua_State* L) {
         tvb_l->len <= tvb_captured_length_remaining(tvb_l->tvb->ws_tvb, tvb_l->offset) &&
         tvb_r->len <= tvb_captured_length_remaining(tvb_r->tvb->ws_tvb, tvb_r->offset))
     {
-        const char* lp = tvb_get_ptr(tvb_l->tvb->ws_tvb, tvb_l->offset, tvb_l->len);
-        const char* rp = tvb_get_ptr(tvb_r->tvb->ws_tvb, tvb_r->offset, tvb_r->len);
+        const char* lp = (const char*)tvb_get_ptr(tvb_l->tvb->ws_tvb, tvb_l->offset, tvb_l->len);
+        const char* rp = (const char*)tvb_get_ptr(tvb_r->tvb->ws_tvb, tvb_r->offset, tvb_r->len);
         int i = 0;
 
         for (; i < tvb_r->len; ++i) {

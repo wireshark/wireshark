@@ -67,10 +67,10 @@ WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) {
         if (ishex) {
             wslua_hex2bin(L, s, (unsigned)len, sep);   /* this pushes a new string on top of stack */
             s = luaL_checklstring(L, -1, &len);     /* get the new binary string */
-            g_byte_array_append(ba,s,(unsigned)len);   /* copy it into ByteArray */
+            g_byte_array_append(ba,(const uint8_t*)s,(unsigned)len);   /* copy it into ByteArray */
             lua_pop(L,1);                           /* pop the newly created string */
         } else {
-            g_byte_array_append(ba,s,(unsigned)len);
+            g_byte_array_append(ba,(const uint8_t*)s,(unsigned)len);
         }
     }
 
@@ -581,19 +581,19 @@ WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
     /* Obtain a Base64 decoded <<lua_class_ByteArray,`ByteArray`>>. */
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2;
-    char *data;
+    uint8_t *data;
     size_t len = WS_ROUNDUP_4(ba->len);
 
     ba2 = g_byte_array_new();
     if (ba->len > 1) {
-        data = (char*)g_malloc(len + 1);
+        data = (uint8_t*)g_malloc(len + 1);
         memcpy(data, ba->data, ba->len);
         if (len > ba->len) {
             memcpy(data + ba->len, "====", len - ba->len);
         }
         data[len] = '\0';
 
-        g_base64_decode_inplace(data, &len);
+        g_base64_decode_inplace((char*)data, &len);
         g_byte_array_append(ba2, data, (int)len);
         g_free(data);
     }
@@ -620,7 +620,7 @@ WSLUA_METHOD ByteArray_raw(lua_State* L) {
     if ((len < 0) || ((unsigned)len > (ba->len - offset)))
         len = ba->len - offset;
 
-    lua_pushlstring(L, &(ba->data[offset]), len);
+    lua_pushlstring(L, (const char*)&(ba->data[offset]), len);
 
     WSLUA_RETURN(1); /* A Lua string of the binary bytes in the ByteArray. */
 }

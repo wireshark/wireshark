@@ -42,7 +42,7 @@ tvb_uncompress_snappy(tvbuff_t *tvb, const int offset, int comprlen)
     if (ret == SNAPPY_OK) {
         decompressed_buffer = (unsigned char *)g_malloc(orig_size);
 
-        ret = snappy_uncompress(compr_ptr, comprlen, decompressed_buffer, &orig_size);
+        ret = snappy_uncompress(compr_ptr, comprlen, (char*)decompressed_buffer, &orig_size);
 
         if (ret == SNAPPY_OK) {
             uncompr_tvb = tvb_new_real_data(decompressed_buffer, (uint32_t)orig_size, (uint32_t)orig_size);

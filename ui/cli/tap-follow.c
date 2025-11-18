@@ -295,7 +295,7 @@ static void follow_draw(void *contextp)
       buffer[ii++] = '\n';
       buffer[ii] = 0;
       if (cli_follow_info->show_type == SHOW_EBCDIC) {
-        EBCDIC_to_ASCII(buffer, ii);
+        EBCDIC_to_ASCII((uint8_t*)buffer, ii);
       }
       printf("%s", buffer);
       g_free(buffer);

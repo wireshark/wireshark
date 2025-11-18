@@ -124,7 +124,7 @@ ws_mempbrk_sse42_exec(const char *haystack, size_t haystacklen, const ws_mempbrk
       if (idx < 16 - offset)
       {
          /* found NUL @ 'idx', need to switch to slower mempbrk */
-         return ws_mempbrk_portable_exec(haystack + idx + 1, haystacklen - idx - 1, pattern, found_needle); /* haystacklen is bigger than 16 & idx < 16 so no underflow here */
+         return (const char*)ws_mempbrk_portable_exec((const uint8_t*)(haystack + idx + 1), haystacklen - idx - 1, pattern, found_needle); /* haystacklen is bigger than 16 & idx < 16 so no underflow here */
       }
       aligned += 16;
       haystacklen -= (16 - offset);
@@ -148,14 +148,14 @@ ws_mempbrk_sse42_exec(const char *haystack, size_t haystacklen, const ws_mempbrk
       if (zflag)
       {
          /* found NUL, need to switch to slower mempbrk */
-         return ws_mempbrk_portable_exec(aligned, haystacklen, pattern, found_needle);
+         return (const char*)ws_mempbrk_portable_exec((const uint8_t*)aligned, haystacklen, pattern, found_needle);
       }
       aligned += 16;
       haystacklen -= 16;
     }
 
     /* XXX, use mempbrk_slow here? */
-    return ws_mempbrk_portable_exec(aligned, haystacklen, pattern, found_needle);
+    return (const char*)ws_mempbrk_portable_exec((const uint8_t*)aligned, haystacklen, pattern, found_needle);
 }
 
 #endif /* HAVE_SSE4_2 */

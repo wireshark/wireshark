@@ -1669,7 +1669,7 @@ parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
         return -1;
 
     /* First try to match the common format for the large ethers file. */
-    if (!parse_ether_address_fast(cp, eth, mask, accept_mask)) {
+    if (!parse_ether_address_fast((const uint8_t*)cp, eth, mask, accept_mask)) {
         /* Fallback for the well-known addresses (wka) file. */
         if (!parse_ether_address(cp, eth, mask, accept_mask))
             return -1;

@@ -116,7 +116,7 @@ WSLUA_METHOD GcryptCipher_info(lua_State* L) {
     GcryptCipher gcry_cipher = checkGcryptCipher(L, 1);
     int what = (int)luaL_checkinteger(L, WSLUA_ARG_GcryptCipher_info_WHAT);
     size_t *pnbytes = NULL;
-    char* pbuffer = NULL;
+    uint8_t* pbuffer = NULL;
     ByteArray ba = g_byte_array_new();
     size_t nbytes = 0;
     if (lua_isinteger(L, WSLUA_ARG_GcryptCipher_info_BUFFER_SIZE)) {
@@ -168,8 +168,8 @@ WSLUA_METHOD GcryptCipher_encrypt(lua_State* L) {
 #define WSLUA_ARG_GcryptCipher_encrypt_OUT 2 /* <<lua_class_ByteArray,`ByteArray`>> with data for in-place encryption or NULL */
 #define WSLUA_OPTARG_GcryptCipher_encrypt_IN 3 /* <<lua_class_ByteArray,`ByteArray`>> with data or NULL */
     GcryptCipher gcry_cipher = checkGcryptCipher(L, 1);
-    char* pin = NULL;
-    char* pout = NULL;
+    uint8_t* pin = NULL;
+    uint8_t* pout = NULL;
     size_t in_length = 0;
     size_t out_length = 0;
     ByteArray bain = NULL;
@@ -240,8 +240,8 @@ WSLUA_METHOD GcryptCipher_decrypt(lua_State* L) {
         !isByteArray(L, WSLUA_ARG_GcryptCipher_decrypt_OUT)) {
         return lua_error(L);
     }
-    char* pin = NULL;
-    char* pout = NULL;
+    uint8_t* pin = NULL;
+    uint8_t* pout = NULL;
     size_t in_length = 0;
     size_t out_length = 0;
     ByteArray bain = NULL;
@@ -423,7 +423,7 @@ WSLUA_METHOD GcryptCipher_setctr(lua_State* L) {
 #define WSLUA_ARG_GcryptCipher_setctr_CTR 2 /* <<lua_class_ByteArray,`ByteArray`>> with ctr or NULL */
 #define WSLUA_ARG_GcryptCipher_setctr_CTRLEN 3 /* CTR Length */
     GcryptCipher gcry_cipher = checkGcryptCipher(L, 1);
-    char* pctr = NULL;
+    uint8_t* pctr = NULL;
     ByteArray ba = NULL;
     int ctrlen = 0;
     if (isByteArray(L, WSLUA_ARG_GcryptCipher_setctr_CTR)) {
@@ -468,7 +468,7 @@ WSLUA_FUNCTION wslua_gcry_cipher_algo_info(lua_State* L) {
     int algo = (int)luaL_checkinteger(L, WSLUA_ARG_gcry_cipher_algo_info_ALGORITHM);
     int what = (int)luaL_checkinteger(L, WSLUA_ARG_gcry_cipher_algo_info_WHAT);
     size_t *pnbytes = NULL;
-    char* pbuffer = NULL;
+    uint8_t* pbuffer = NULL;
     ByteArray ba = g_byte_array_new();
     size_t nbytes = 0;
     if (lua_isinteger(L, WSLUA_OPTARG_gcry_cipher_algo_info_BUFFER_SIZE)) {

@@ -704,9 +704,9 @@ format_fractional_part_nsecs(char *buf, size_t buflen, uint32_t nsecs, const cha
 	int num_bytes;
 	size_t decimal_point_len;
 	uint32_t frac_part;
-	int8_t num_buf[CHARS_NANOSECONDS];
-	int8_t *num_end = &num_buf[CHARS_NANOSECONDS];
-	int8_t *num_ptr;
+	char num_buf[CHARS_NANOSECONDS];
+	char *num_end = &num_buf[CHARS_NANOSECONDS];
+	char *num_ptr;
 	size_t num_len;
 
 	ws_assert(precision != WS_TSPREC_SEC);
@@ -895,9 +895,9 @@ display_signed_time(char *buf, size_t buflen, const nstime_t *ns, int precision)
 {
 	int nsecs;
 	/* this buffer is not NUL terminated */
-	int8_t num_buf[CHARS_64_BIT_SIGNED];
-	int8_t *num_end = &num_buf[CHARS_64_BIT_SIGNED];
-	int8_t *num_ptr;
+	char num_buf[CHARS_64_BIT_SIGNED];
+	char *num_end = &num_buf[CHARS_64_BIT_SIGNED];
+	char *num_ptr;
 	size_t num_len;
 
 	if (buflen < 1)

@@ -371,7 +371,7 @@ wmem_strbuf_strcmp(const wmem_strbuf_t *sb1, const wmem_strbuf_t *sb2)
 const char *
 wmem_strbuf_strstr(const wmem_strbuf_t *haystack, const wmem_strbuf_t *needle)
 {
-    return ws_memmem(haystack->str, haystack->len, needle->str, needle->len);
+    return (const char*)ws_memmem(haystack->str, haystack->len, needle->str, needle->len);
 }
 
 /* Truncates the allocated memory down to the minimal amount, frees the header
@@ -445,7 +445,7 @@ wmem_strbuf_utf8_validate(wmem_strbuf_t *strbuf, const char **endpptr)
 void
 wmem_strbuf_utf8_make_valid(wmem_strbuf_t *strbuf)
 {
-    wmem_strbuf_t *tmp = ws_utf8_make_valid_strbuf(strbuf->allocator, strbuf->str, strbuf->len);
+    wmem_strbuf_t *tmp = ws_utf8_make_valid_strbuf(strbuf->allocator, (const uint8_t*)strbuf->str, strbuf->len);
 
     wmem_free(strbuf->allocator, strbuf->str);
     strbuf->str = tmp->str;

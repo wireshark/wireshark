@@ -1269,7 +1269,7 @@ main(int argc, char *argv[])
                     cmdarg_err("-M does not support two-pass analysis.");
                     arg_error=true;
                 }
-                if (!get_positive_int(ws_optarg, "epan reset count", &epan_auto_reset_count))
+                if (!get_uint32(ws_optarg, "epan reset count", &epan_auto_reset_count))
                     arg_error = true;
                 epan_auto_reset = true;
                 break;

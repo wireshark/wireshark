@@ -604,8 +604,8 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
             char   *attr_name = (char *) tvb_get_string_enc(pinfo->pool, tvb, offset + 1 + 1 + clen + 1, alen, ENC_ASCII|ENC_NA);
 
             col_add_fstr(pinfo->cinfo, COL_INFO, "GetValueByClass: \"%s\" \"%s\"",
-                format_text(pinfo->pool, (unsigned char *) class_name, strlen(class_name)),
-                format_text(pinfo->pool, (unsigned char *) attr_name, strlen(attr_name)));
+                format_text(pinfo->pool, class_name, strlen(class_name)),
+                format_text(pinfo->pool, attr_name, strlen(attr_name)));
 
             /* Dissect IAP query if it is new */
             if (iap_conv)
@@ -1681,7 +1681,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
                 if (have_encoding)
                 {
                     name = (char *) tvb_get_string_enc(pinfo->pool, tvb, offset, name_len, encoding);
-                    col_append_fstr(pinfo->cinfo, COL_INFO, ", \"%s\"", format_text(pinfo->pool, (unsigned char *) name, strlen(name)));
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", \"%s\"", format_text(pinfo->pool, name, strlen(name)));
                     if (root)
                         proto_tree_add_item(lmp_tree, hf_lmp_xid_name, tvb, offset,
                                             -1, encoding);
@@ -1723,7 +1723,7 @@ static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
         else if (length > 1 && buf[length-2] == '\n')
             buf[length-2] = 0;
 
-        col_add_str(pinfo->cinfo, COL_INFO, format_text(pinfo->pool, (unsigned char *) buf, strlen(buf)));
+        col_add_str(pinfo->cinfo, COL_INFO, format_text(pinfo->pool, buf, strlen(buf)));
     }
 
     if (root)

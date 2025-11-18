@@ -137,7 +137,7 @@ static bool
 xml_get_int(const char* name, xmlChar* str, int* val, int* err, char** err_info)
 {
 	if (str != NULL) {
-		if (!ws_strtoi32(str, NULL, val)) {
+		if (!ws_strtoi32((const char*)str, NULL, val)) {
 			*err = WTAP_ERR_BAD_FILE;
 			if (errno == ERANGE) {
 				if (*val < 0)
@@ -191,7 +191,7 @@ dct3trace_get_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, int
 		if (xmlStrcmp(attr->name, (const xmlChar*)"direction") == 0) {
 			xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
 			if (str != NULL) {
-				rec->rec_header.packet_header.pseudo_header.gsm_um.uplink = !strstr(str, "down");
+				rec->rec_header.packet_header.pseudo_header.gsm_um.uplink = !strstr((const char*)str, "down");
 				xmlFree(str);
 			}
 		}
@@ -215,7 +215,7 @@ dct3trace_get_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, int
 		else if (xmlStrcmp(attr->name, (const xmlChar*)"data") == 0) {
 			have_data = true; /* Found data */
 			xmlChar* str = xmlNodeListGetString(root_element->doc, attr->children, 1);
-			local_len = hex2bin(bufp, &databuf[MAX_PACKET_LEN], str);
+			local_len = hex2bin(bufp, &databuf[MAX_PACKET_LEN], (char*)str);
 			xmlFree(str);
 			if (local_len == -1)
 			{
@@ -312,7 +312,7 @@ dct3trace_get_packet(wtap* wth, wtap_rec* rec, const char* text, size_t len, int
 						bufp += local_len;
 
 						xmlChar* str = xmlNodeListGetString(cur->doc, attr->children, 1);
-						data_len = hex2bin(bufp, &databuf[MAX_PACKET_LEN], str);
+						data_len = hex2bin(bufp, &databuf[MAX_PACKET_LEN], (char*)str);
 						xmlFree(str);
 						if (data_len == -1)
 						{
@@ -366,7 +366,7 @@ read_until(GByteArray* buffer, const unsigned char* needle, FILE_T fh, int* err,
 	uint8_t* found_it;
 	int bytes_read = 0;
 
-	while (NULL == (found_it = g_strstr_len(buffer->data, buffer->len, needle))) {
+	while (NULL == (found_it = (uint8_t*)g_strstr_len((const char*)buffer->data, buffer->len, (const char*)needle))) {
 		bytes_read = file_read(read_buffer, RINGBUFFER_CHUNK_SIZE, fh);
 		if (bytes_read < 0) {
 			*err = file_error(fh, err_info);
@@ -392,7 +392,7 @@ static bool dct3trace_read(wtap *wth, wtap_rec *rec,
 	bool status = false;
 
 	/* Make sure we have a start and end of message in our buffer -- end first */
-	msg_end = read_until(file_info->buffer, dct3trace_magic_record_end, wth->fh, err, err_info);
+	msg_end = read_until(file_info->buffer, (const uint8_t*)dct3trace_magic_record_end, wth->fh, err, err_info);
 	if (msg_end == NULL) {
 		goto end;
 	}
@@ -401,7 +401,7 @@ static bool dct3trace_read(wtap *wth, wtap_rec *rec,
 	/* Now search backwards for the message start
 	 * (doing it this way should skip over any empty "<msg ... />" tags we have)
 	 */
-	msg_start = g_strrstr_len(buf_start, (unsigned)(msg_end - buf_start), dct3trace_magic_record_start);
+	msg_start = (uint8_t*)g_strrstr_len((const char*)buf_start, (unsigned)(msg_end - buf_start), dct3trace_magic_record_start);
 	if (msg_start == NULL || msg_start > msg_end) {
 		*err_info = ws_strdup_printf("dct3trace: Found \"%s\" without matching \"%s\"", dct3trace_magic_record_end, dct3trace_magic_record_start);
 		*err = WTAP_ERR_BAD_FILE;
@@ -417,7 +417,7 @@ static bool dct3trace_read(wtap *wth, wtap_rec *rec,
 	*data_offset = file_info->start_offset + msg_offset;
 
 	/* pass all of <l1....</l1> to dct3trace_get_packet() */
-	status = dct3trace_get_packet(wth, rec, msg_start, msg_len, err, err_info);
+	status = dct3trace_get_packet(wth, rec, (const char*)msg_start, msg_len, err, err_info);
 
 	/* Finally, shift our buffer to the end of this message to get ready for the next one.
 	 * Re-use msg_len to get the length of the data we're done with.
@@ -453,14 +453,14 @@ static bool dct3trace_seek_read(wtap *wth, int64_t seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return false;
 
-	msg_end = read_until(file_info->buffer, dct3trace_magic_record_end, wth->random_fh, err, err_info);
+	msg_end = read_until(file_info->buffer, (const uint8_t*)dct3trace_magic_record_end, wth->random_fh, err, err_info);
 	if (msg_end == NULL) {
 		return false;
 	}
 	msg_end += CLEN(dct3trace_magic_record_end);
 	msg_len = (unsigned)(msg_end - file_info->buffer->data);
 
-	status = dct3trace_get_packet(wth, rec, file_info->buffer->data, msg_len, err, err_info);
+	status = dct3trace_get_packet(wth, rec, (const char*)file_info->buffer->data, msg_len, err, err_info);
 	g_byte_array_set_size(file_info->buffer, 0);
 	return status;
 }
@@ -513,7 +513,7 @@ wtap_open_return_val dct3trace_open(wtap* wth, int* err, char** err_info)
 	file_info = g_new0(dct3trace_file_info_t, 1);
 	file_info->start_offset = start_offset + (curr_pos - magic_buf);
 	file_info->buffer = g_byte_array_sized_new(RINGBUFFER_START_SIZE);
-	g_byte_array_append(file_info->buffer, curr_pos, (unsigned)(bytes_read - (curr_pos - magic_buf)));
+	g_byte_array_append(file_info->buffer, (const uint8_t*)curr_pos, (unsigned)(bytes_read - (curr_pos - magic_buf)));
 
 	wth->file_type_subtype = dct3trace_file_type_subtype;
 	wth->file_encap = WTAP_ENCAP_GSM_UM;

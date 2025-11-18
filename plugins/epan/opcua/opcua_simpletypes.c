@@ -653,7 +653,7 @@ proto_item* parseString_ret_string_and_length(proto_tree *tree, tvbuff_t *tvb, p
     iOffset+=4;
 
     if (retval) {
-        *retval = "";
+        *retval = (const uint8_t*)"";
     }
     if (lenretval) {
         *lenretval = iLen;

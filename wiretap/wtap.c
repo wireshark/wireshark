@@ -2253,7 +2253,7 @@ wtap_buffer_append_epdu_string(Buffer *buf, uint16_t epdu_tag, const char *val)
 	 */
 	if (string_len > UINT16_MAX)
 		string_len = UINT16_MAX;
-	wtap_buffer_append_epdu_tag(buf, epdu_tag, val, (uint16_t) string_len);
+	wtap_buffer_append_epdu_tag(buf, epdu_tag, (const uint8_t*)val, (uint16_t) string_len);
 }
 
 int

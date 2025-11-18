@@ -252,7 +252,7 @@ get_pkcs11_token_uris(void)
 
     for (unsigned i = 0; ; i++) {
         char *uri = NULL;
-        int flags;
+        unsigned flags;
         int ret = gnutls_pkcs11_token_get_url(i, GNUTLS_PKCS11_URL_GENERIC, &uri);
         if (ret == GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE) {
             break;

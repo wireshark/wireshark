@@ -1032,7 +1032,7 @@ fd_tap_listener(void *tapdata, packet_info *pinfo,
     follow_record->packet_num = pinfo->fd->num;
     follow_record->abs_ts = pinfo->fd->abs_ts;
     follow_record->data = g_byte_array_append(g_byte_array_new(),
-                                              tap_info->data,
+                                              (const uint8_t*)tap_info->data,
                                               tap_info->datalen);
 
     follow_info->bytes_written[is_server] += follow_record->data->len;
@@ -1479,7 +1479,7 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
                         bytes_offset = event_param_data->data_bytes_offset;
                         bytes_length = event_param_data->data_bytes_length;
                     }
-                    proto_tree_add_bytes_with_length(parent_tree, bi->hf_ids[hf_idx], tvb, bytes_offset, bytes_length, sinsp_fields[sf_idx].res.str, sinsp_fields[sf_idx].res_len);
+                    proto_tree_add_bytes_with_length(parent_tree, bi->hf_ids[hf_idx], tvb, bytes_offset, bytes_length, (uint8_t*)sinsp_fields[sf_idx].res.str, sinsp_fields[sf_idx].res_len);
                 } else {
                     // XXX Need to differentiate between src and dest. Falco libs supply client vs server and local vs remote.
                     const mmdb_lookup_t *lookup = NULL;

@@ -106,7 +106,7 @@ composite_get_ptr(tvbuff_t *tvb, unsigned abs_offset, unsigned abs_length)
 	/* special case */
 	if (g_sequence_iter_is_end(iter)) {
 		DISSECTOR_ASSERT(abs_offset == tvb->length && abs_length == 0);
-		return "";
+		return (const uint8_t*)"";
 	}
 
 	member = (tvb_comp_member_t *)g_sequence_get(iter);

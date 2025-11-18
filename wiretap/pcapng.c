@@ -760,12 +760,12 @@ void
 pcapng_process_string_option(wtapng_block_t *wblock, uint16_t option_code,
                              uint16_t option_length, const uint8_t *option_content)
 {
-    const char *opt = (const char *)option_content;
+    const uint8_t *opt = (const uint8_t*)option_content;
     size_t optlen = option_length;
     char *str;
 
     /* Validate UTF-8 encoding. */
-    str = ws_utf8_make_valid(NULL, opt, optlen);
+    str = (char*)ws_utf8_make_valid(NULL, opt, optlen);
 
     /*
      * If this option can appear only once in a block, this call
@@ -781,7 +781,7 @@ void
 pcapng_process_bytes_option(wtapng_block_t *wblock, uint16_t option_code,
                             uint16_t option_length, const uint8_t *option_content)
 {
-    wtap_block_add_bytes_option(wblock->block, option_code, (const char *)option_content, option_length);
+    wtap_block_add_bytes_option(wblock->block, option_code, option_content, option_length);
 }
 
 static bool
@@ -847,7 +847,7 @@ pcapng_process_custom_string_option(wtapng_block_t *wblock,
                                              &pen, err, err_info)) {
         return false;
     }
-    ret = wtap_block_add_custom_string_option(wblock->block, option_code, pen, option_content + 4, option_length - 4) == WTAP_OPTTYPE_SUCCESS;
+    ret = wtap_block_add_custom_string_option(wblock->block, option_code, pen, (const char*)(option_content + 4), option_length - 4) == WTAP_OPTTYPE_SUCCESS;
     ws_debug("returning %d", ret);
     return ret;
 }

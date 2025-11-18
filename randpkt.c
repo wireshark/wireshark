@@ -110,7 +110,7 @@ main(int argc, char *argv[])
     int produce_count = 1000;
     int file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
     randpkt_example *example;
-    uint8_t* type = NULL;
+    char* type = NULL;
     bool allrandom = false;
     wtap_dumper *savedump;
     int ret = EXIT_SUCCESS;

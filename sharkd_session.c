@@ -3017,7 +3017,8 @@ sharkd_session_process_tap_eo_cb(void *tapdata)
     struct sharkd_export_object_list *object_list = (struct sharkd_export_object_list *) tap_object->gui_data;
     GSList *slist;
     int i = 0;
-    char sha1sum_bytes[HASH_SHA1_LENGTH], *sha1sum_str;
+    char *sha1sum_str;
+    uint8_t sha1sum_bytes[HASH_SHA1_LENGTH];
 
     json_dumper_begin_object(&dumper);
     sharkd_json_value_string("tap", object_list->type);
@@ -4500,7 +4501,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
         }
         else
         {
-            sharkd_json_value_base64("bytes", "", 0);
+            sharkd_json_value_base64("bytes", (const uint8_t*)"", 0);
         }
 
         data_src = data_src->next;
@@ -4535,7 +4536,7 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
             }
             else
             {
-                sharkd_json_value_base64("bytes", "", 0);
+                sharkd_json_value_base64("bytes", (const uint8_t*)"", 0);
             }
 
             json_dumper_end_object(&dumper);
@@ -5743,7 +5744,7 @@ sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
         {
             uint32_t tmp32;
             uint16_t tmp16;
-            char wav_hdr[44];
+            uint8_t wav_hdr[44];
 
             /* First non-zero wins */
             audio_out_rate_ = sample_rate;
@@ -5822,7 +5823,7 @@ sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
         }
 
         /* Write the decoded, possibly-resampled audio */
-        json_dumper_write_base64(&dumper, write_buff, write_bytes);
+        json_dumper_write_base64(&dumper, (const uint8_t*)write_buff, write_bytes);
 
         g_free(decode_buff);
     }
@@ -6006,7 +6007,7 @@ sharkd_session_process_download(char *buf, const jsmntok_t *tokens, int count)
             sharkd_json_result_prologue(rpcid);
             sharkd_json_value_string("file", filename);
             sharkd_json_value_string("mime", mime);
-            sharkd_json_value_base64("data", str, str_len);
+            sharkd_json_value_base64("data", (const uint8_t*)str, str_len);
             sharkd_json_result_epilogue();
         }
         g_free(str);

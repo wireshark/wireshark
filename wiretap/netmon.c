@@ -364,7 +364,7 @@ utf_16_to_utf_8(const uint8_t *in, uint32_t length)
 			if (IS_TRAIL_SURROGATE(uchar2)) {
 				/* Trail surrogate. */
 				uchar = SURROGATE_VALUE(lead_surrogate, uchar2);
-				out += g_unichar_to_utf8(uchar, out);
+				out += g_unichar_to_utf8(uchar, (char*)out);
 			} else {
 				/*
 				 * Not a trail surrogate.
@@ -387,7 +387,7 @@ utf_16_to_utf_8(const uint8_t *in, uint32_t length)
 				/*
 				 * Non-surrogate; just count it.
 				 */
-				out += g_unichar_to_utf8(uchar2, out);
+				out += g_unichar_to_utf8(uchar2, (char*)out);
 			}
 		}
 	}

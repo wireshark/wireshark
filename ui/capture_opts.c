@@ -1233,7 +1233,7 @@ capture_opts_add_opt(const char* app_env_var_prefix, capture_options *capture_op
         capture_opts->temp_dir = g_strdup(optarg_str_p);
         break;
     case LONGOPT_UPDATE_INTERVAL:  /* capture update interval */
-        if (!get_natural_int(optarg_str_p, "update interval", &capture_opts->update_interval))
+        if (!get_uint32(optarg_str_p, "update interval", &capture_opts->update_interval))
             return false;
         break;
     default:

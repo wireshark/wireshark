@@ -188,7 +188,7 @@ peektagged_get_file_version(xmlDocPtr doc)
             if (str_version == NULL)
                 return 0;
 
-            if (!ws_strtou32(str_version, NULL, &value)) {
+            if (!ws_strtou32((const char*)str_version, NULL, &value)) {
                 xmlFree(str_version);
                 return 0;
             }
@@ -219,7 +219,7 @@ peektagged_get_media_info(xmlDocPtr doc, uint32_t *mediaType, uint32_t* mediaSub
         if (cur->type == XML_ELEMENT_NODE && xmlStrcmp(cur->name, (const xmlChar*)"MediaType") == 0) {
             xmlChar* str_type = xmlNodeGetContent(cur);
             if (str_type != NULL) {
-                if (ws_strtou32(str_type, NULL, mediaType))
+                if (ws_strtou32((const char*)str_type, NULL, mediaType))
                     found_media_type = true;
 
                 xmlFree(str_type);
@@ -229,7 +229,7 @@ peektagged_get_media_info(xmlDocPtr doc, uint32_t *mediaType, uint32_t* mediaSub
             xmlChar* str_type = xmlNodeGetContent(cur);
 
             if (str_type != NULL) {
-                if (ws_strtou32(str_type, NULL, mediaSubType))
+                if (ws_strtou32((const char*)str_type, NULL, mediaSubType))
                     found_media_subtype = true;
 
                 xmlFree(str_type);
@@ -798,7 +798,7 @@ wtap_open_return_val peektagged_open(wtap* wth, int* err, char** err_info)
     sectionData[length] = 0;
 
     /* Now section data can be parsed into a proper structure */
-    doc = xmlParseMemory(sectionData, (int)length);
+    doc = xmlParseMemory((const char*)sectionData, (int)length);
     if (doc == NULL)
         return WTAP_OPEN_NOT_MINE;
 
@@ -850,7 +850,7 @@ wtap_open_return_val peektagged_open(wtap* wth, int* err, char** err_info)
     sectionData[length] = 0;
 
     /* Now section data can be parsed into a proper structure */
-    doc = xmlParseMemory(sectionData, (int)length);
+    doc = xmlParseMemory((const char*)sectionData, (int)length);
     if (doc == NULL) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup("peektagged: session section XML couldn't be parsed");

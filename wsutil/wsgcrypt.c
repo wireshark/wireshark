@@ -323,9 +323,9 @@ hpke_expand(uint16_t kdf_id, const uint8_t *prk, const uint8_t *suite_id, const 
             return GPG_ERR_DIGEST_ALGO;
     }
     g_byte_array_append(labeled_info, (uint8_t *)&out_len_be, 2);
-    g_byte_array_append(labeled_info, HPKE_VERSION_ID, sizeof(HPKE_VERSION_ID) - 1);
+    g_byte_array_append(labeled_info, (const uint8_t*)HPKE_VERSION_ID, sizeof(HPKE_VERSION_ID) - 1);
     g_byte_array_append(labeled_info, suite_id, HPKE_SUIT_ID_LEN);
-    g_byte_array_append(labeled_info, label, (unsigned)strlen(label));
+    g_byte_array_append(labeled_info, (const uint8_t*)label, (unsigned)strlen(label));
     g_byte_array_append(labeled_info, info, (unsigned)(1 + hpke_hkdf_len(kdf_id) * 2));
     result = hkdf_expand(hashalgo, prk, (unsigned)hpke_hkdf_len(kdf_id), labeled_info->data, labeled_info->len, out, out_len);
     g_byte_array_free(labeled_info, TRUE);

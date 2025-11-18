@@ -228,7 +228,7 @@ static int read_output_bytes(ssh_channel channel, int bytes, char* outbuf)
  *   READ_LINE_TIMEOUT - reading ended with timeout, line/len contains \0 terminate prompt
  *   READ_LINE_TOO_LONG - buffer is full with no EOLN nor PROMPT found, line is filled with NOT \0 terminated data
  */
-static int ssh_channel_read_line_timeout(ssh_channel channel, char *line, int *len, int max_len) {
+static int ssh_channel_read_line_timeout(ssh_channel channel, char *line, uint32_t* len, uint32_t max_len) {
 	char chr;
 	int rlen = 0;
 
@@ -1384,7 +1384,7 @@ static void ssh_loop_read(ssh_channel channel, ws_cwstream* fp, const uint32_t c
 static int detect_host_prompt(ssh_channel channel)
 {
 	char line[SSH_READ_BLOCK_SIZE + 1];
-	int len = 0;
+	uint32_t len = 0;
 	char prompt_2[SSH_READ_BLOCK_SIZE + 1];
 
 	/* Discard any login message */

@@ -66,7 +66,7 @@ static bool rfc7468_read_line(FILE_T fh, enum line_type *line_type,
             return false;
         }
 
-        ws_buffer_append(buf, line_chunk, line_chunk_len);
+        ws_buffer_append(buf, (const uint8_t*)line_chunk, line_chunk_len);
 
         if (line_chunk_end[-1] == '\n' || file_eof(fh))
             break;

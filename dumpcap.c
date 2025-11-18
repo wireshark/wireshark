@@ -309,7 +309,7 @@ typedef struct _capture_src {
 #endif
     int                          cap_pipe_fd;            /**< the file descriptor of the capture pipe */
     bool                         cap_pipe_modified;      /**< true if data in the pipe uses modified pcap headers */
-    char *                       cap_pipe_databuf;       /**< Pointer to the data buffer we've allocated */
+    uint8_t*                     cap_pipe_databuf;       /**< Pointer to the data buffer we've allocated */
     size_t                       cap_pipe_databuf_size;  /**< Current size of the data buffer */
     unsigned                     cap_pipe_max_pkt_size;  /**< Maximum packet size allowed */
 #if defined(_WIN32)
@@ -1493,11 +1493,11 @@ cap_pipe_adjust_pcap_header(bool byte_swapped, struct pcap_hdr *hdr, struct pcap
  * or just read().
  */
 static ssize_t
-cap_pipe_read(int pipe_fd, char *buf, size_t sz, bool from_socket _U_)
+cap_pipe_read(int pipe_fd, uint8_t *buf, size_t sz, bool from_socket _U_)
 {
 #ifdef _WIN32
     if (from_socket) {
-        return recv(pipe_fd, buf, (int)sz, 0);
+        return recv(pipe_fd, (char*)buf, (int)sz, 0);
     } else {
         return -1;
     }
@@ -2007,7 +2007,7 @@ cap_pipe_open_live(char *pipename,
      * large enough for most regular network packets.  We increase it,
      * up to the maximum size we allow, as necessary.
      */
-    pcap_src->cap_pipe_databuf = (char*)g_malloc(2048);
+    pcap_src->cap_pipe_databuf = (uint8_t*)g_malloc(2048);
     pcap_src->cap_pipe_databuf_size = 2048;
 
     /*
@@ -2040,7 +2040,7 @@ cap_pipe_open_live(char *pipename,
                            g_strerror(errno));
                 goto error;
             } else if (sel_ret > 0) {
-                b = cap_pipe_read(fd, ((char *)&magic)+bytes_read,
+                b = cap_pipe_read(fd, ((uint8_t*)&magic)+bytes_read,
                                   sizeof magic-bytes_read,
                                   pcap_src->from_cap_socket);
                 /* jump messaging, if extcap had an error, stderr will provide the correct message */
@@ -2191,7 +2191,7 @@ pcap_pipe_open_live(int fd,
                            g_strerror(errno));
                 goto error;
             } else if (sel_ret > 0) {
-                b = cap_pipe_read(fd, ((char *)hdr)+bytes_read,
+                b = cap_pipe_read(fd, ((uint8_t*)hdr)+bytes_read,
                                   sizeof(struct pcap_hdr) - bytes_read,
                                   pcap_src->from_cap_socket);
                 if (b <= 0) {
@@ -2651,7 +2651,7 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
         if (pcap_src->from_cap_socket)
 #endif
         {
-            b = cap_pipe_read(pcap_src->cap_pipe_fd, ((char *)&pcap_info->rechdr)+pcap_src->cap_pipe_bytes_read,
+            b = cap_pipe_read(pcap_src->cap_pipe_fd, ((uint8_t*)&pcap_info->rechdr)+pcap_src->cap_pipe_bytes_read,
                  pcap_src->cap_pipe_bytes_to_read - pcap_src->cap_pipe_bytes_read, pcap_src->from_cap_socket);
             if (b <= 0) {
                 if (b == 0)
@@ -2797,7 +2797,7 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
             new_bufsize |= new_bufsize >> 8;
             new_bufsize |= new_bufsize >> 16;
             new_bufsize++;
-            pcap_src->cap_pipe_databuf = (char*)g_realloc(pcap_src->cap_pipe_databuf, new_bufsize);
+            pcap_src->cap_pipe_databuf = (uint8_t*)g_realloc(pcap_src->cap_pipe_databuf, new_bufsize);
             pcap_src->cap_pipe_databuf_size = new_bufsize;
         }
 
@@ -3057,7 +3057,7 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
             new_bufsize |= new_bufsize >> 8;
             new_bufsize |= new_bufsize >> 16;
             new_bufsize++;
-            pcap_src->cap_pipe_databuf = (unsigned char*)g_realloc(pcap_src->cap_pipe_databuf, new_bufsize);
+            pcap_src->cap_pipe_databuf = (uint8_t*)g_realloc(pcap_src->cap_pipe_databuf, new_bufsize);
             pcap_src->cap_pipe_databuf_size = new_bufsize;
         }
 

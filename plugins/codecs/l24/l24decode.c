@@ -76,7 +76,7 @@ codec_l24_decode(codec_context_t *ctx _U_,
                  void *outputSamples, size_t *outputSamplesSize)
 {
     const sample24_t    *dataIn  = (const sample24_t *)inputBytes;
-    uint16_t            *dataOut = (int16_t *)outputSamples;
+    uint16_t            *dataOut = (uint16_t*)outputSamples;
     size_t              i;
     unsigned            channels = ctx->channels ? ctx->channels : 1;
     if (!outputSamples || !outputSamplesSize)

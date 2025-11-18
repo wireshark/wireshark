@@ -126,7 +126,7 @@ typedef struct _DOT11DECRYPT_CONTEXT {
 	GHashTable *sa_hash;
 	DOT11DECRYPT_KEY_ITEM keys[DOT11DECRYPT_MAX_KEYS_NR];
 	size_t keys_nr;
-	char pkt_ssid[DOT11DECRYPT_WPA_SSID_MAX_LEN];
+	uint8_t pkt_ssid[DOT11DECRYPT_WPA_SSID_MAX_LEN];
 	size_t pkt_ssid_len;
 } DOT11DECRYPT_CONTEXT, *PDOT11DECRYPT_CONTEXT;
 

@@ -134,7 +134,7 @@ rtpdump_open(wtap *wth, int *err, char **err_info)
             ? WTAP_OPEN_NOT_MINE
             : WTAP_OPEN_ERROR;
     }
-    if (strncmp(buf_magic, RTP_MAGIC, RTP_MAGIC_LEN) != 0) {
+    if (strncmp((const char*)buf_magic, RTP_MAGIC, RTP_MAGIC_LEN) != 0) {
         return WTAP_OPEN_NOT_MINE;
     }
 

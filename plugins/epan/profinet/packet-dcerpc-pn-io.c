@@ -4346,7 +4346,7 @@ pnio_load_gsd_device_modules(const xmlNodePtr deviceNode, xmlXPathContextPtr xpa
      * XXX - The same ModuleIdentNumber can be used with multiple
      * TextIDs.
      */
-    result = xmlXPathEvalExpression(".//*[@ModuleIdentNumber]", xpathCtx);
+    result = xmlXPathEvalExpression((const xmlChar*)".//*[@ModuleIdentNumber]", xpathCtx);
     if (!result) {
         return modules;
     }
@@ -4358,8 +4358,8 @@ pnio_load_gsd_device_modules(const xmlNodePtr deviceNode, xmlXPathContextPtr xpa
     gsm_dev_module_t *module;
     for (int i=0; i < id_size; i++) {
         moduleNode = xmlXPathNodeSetItem(nodeset, i);
-        moduleIdentStr = xmlGetProp(moduleNode, "ModuleIdentNumber");
-        if (ws_basestrtou32(moduleIdentStr, NULL, &moduleIdentNr, 0)) {
+        moduleIdentStr = xmlGetProp(moduleNode, (const xmlChar*)"ModuleIdentNumber");
+        if (ws_basestrtou32((const char*)moduleIdentStr, NULL, &moduleIdentNr, 0)) {
 
             /* Is this a duplicate entry? */
             module = wmem_map_lookup(modules, GUINT_TO_POINTER(moduleIdentNr));
@@ -4370,7 +4370,7 @@ pnio_load_gsd_device_modules(const xmlNodePtr deviceNode, xmlXPathContextPtr xpa
             }
 
             /* Find the TextId for this module */
-            result2 = xmlXPathNodeEval(moduleNode, "dev:ModuleInfo/dev:Name[@TextId]", xpathCtx);
+            result2 = xmlXPathNodeEval(moduleNode, (const xmlChar*)"dev:ModuleInfo/dev:Name[@TextId]", xpathCtx);
             if (!result2) {
                 xmlFree(moduleIdentStr);
                 continue;
@@ -4386,7 +4386,7 @@ pnio_load_gsd_device_modules(const xmlNodePtr deviceNode, xmlXPathContextPtr xpa
                 xmlFree(moduleIdentStr);
                 continue;
             }
-            moduleNameStr = xmlGetProp(moduleNameNode, "TextId");
+            moduleNameStr = xmlGetProp(moduleNameNode, (const xmlChar*)"TextId");
 
             /* Find the Text (friendly name) for this module from the
              * ExternalTextList section of the GSD file.
@@ -4412,7 +4412,7 @@ pnio_load_gsd_device_modules(const xmlNodePtr deviceNode, xmlXPathContextPtr xpa
                 xmlFree(moduleNameStr);
                 continue;
             }
-            xmlChar *moduleText = xmlGetProp(moduleNameNode, "Value");
+            xmlChar *moduleText = xmlGetProp(moduleNameNode, (const xmlChar*)"Value");
             if (!moduleText) {
                 xmlFree(moduleIdentStr);
                 xmlFree(moduleNameStr);
@@ -4420,8 +4420,8 @@ pnio_load_gsd_device_modules(const xmlNodePtr deviceNode, xmlXPathContextPtr xpa
             }
             module = wmem_new0(pnio_pref_scope, gsm_dev_module_t);
             module->amountInGSDML = 1;
-            module->text_id = wmem_strdup(pnio_pref_scope, moduleIdentStr);
-            module->text = wmem_strdup(pnio_pref_scope, moduleText);
+            module->text_id = wmem_strdup(pnio_pref_scope, (const char*)moduleIdentStr);
+            module->text = wmem_strdup(pnio_pref_scope, (const char*)moduleText);
             wmem_map_insert(modules, GUINT_TO_POINTER(moduleIdentNr), module);
 
             xmlFree(moduleText);
@@ -4447,7 +4447,7 @@ pnio_load_gsd_device_submodules(const xmlNodePtr deviceNode, xmlXPathContextPtr 
      * those to SubmoduleIdentNumbers on a per-module basis. All we care
      * for right now is whether PROFIsafe is supported.
      */
-    result = xmlXPathNodeEval(deviceNode, ".//*[@SubmoduleIdentNumber]", xpathCtx);
+    result = xmlXPathNodeEval(deviceNode, (const xmlChar*)".//*[@SubmoduleIdentNumber]", xpathCtx);
     if (!result) {
         return submodules;
     }
@@ -4459,16 +4459,16 @@ pnio_load_gsd_device_submodules(const xmlNodePtr deviceNode, xmlXPathContextPtr 
     gsm_dev_submodule_t *submodule;
     for (int i=0; i < id_size; i++) {
         submoduleNode = xmlXPathNodeSetItem(nodeset, i);
-        submoduleIdentStr = xmlGetProp(submoduleNode, "SubmoduleIdentNumber");
-        if (ws_basestrtou32(submoduleIdentStr, NULL, &submoduleIdentNr, 0)) {
+        submoduleIdentStr = xmlGetProp(submoduleNode, (const xmlChar*)"SubmoduleIdentNumber");
+        if (ws_basestrtou32((const char*)submoduleIdentStr, NULL, &submoduleIdentNr, 0)) {
 
-            xmlChar *profisafeStr = xmlGetProp(submoduleNode, "PROFIsafeSupported");
-            bool profisafe = g_strcmp0(profisafeStr, "true") == 0;
+            xmlChar *profisafeStr = xmlGetProp(submoduleNode, (const xmlChar*)"PROFIsafeSupported");
+            bool profisafe = g_strcmp0((const char*)profisafeStr, "true") == 0;
 
             uint32_t fParameterIndexNr = 0;
             if (profisafe) {
                 /* Look for the F_ParameterRecordDataItem index. */
-                result2 = xmlXPathNodeEval(submoduleNode, "//dev:F_ParameterRecordDataItem", xpathCtx);
+                result2 = xmlXPathNodeEval(submoduleNode, (const xmlChar*)"//dev:F_ParameterRecordDataItem", xpathCtx);
                 if (!result2) {
                     xmlFree(submoduleIdentStr);
                     continue;
@@ -4486,8 +4486,8 @@ pnio_load_gsd_device_submodules(const xmlNodePtr deviceNode, xmlXPathContextPtr 
                     continue;
                 }
                 xmlChar *fParameterIndexStr;
-                fParameterIndexStr = xmlGetProp(fParameterNode, "Index");
-                if (ws_basestrtou32(fParameterIndexStr, NULL, &fParameterIndexNr, 0)) {
+                fParameterIndexStr = xmlGetProp(fParameterNode, (const xmlChar*)"Index");
+                if (ws_basestrtou32((const char*)fParameterIndexStr, NULL, &fParameterIndexNr, 0)) {
                     ws_debug("F_Parameter Index: %u", fParameterIndexNr);
                 }
                 xmlFree(fParameterIndexStr);
@@ -4519,7 +4519,7 @@ pnio_load_gsd_device_profile(xmlNodePtr deviceNode, xmlXPathContextPtr xpathCtx,
 
     xmlXPathSetContextNode(deviceNode, xpathCtx);
 
-    result = xmlXPathEvalExpression("dev:DeviceIdentity", xpathCtx);
+    result = xmlXPathEvalExpression((const xmlChar*)"dev:DeviceIdentity", xpathCtx);
 
     if (!result) {
         return;
@@ -4538,10 +4538,10 @@ pnio_load_gsd_device_profile(xmlNodePtr deviceNode, xmlXPathContextPtr xpathCtx,
     xmlXPathFreeObject(result);
     xmlChar *vendorStr, *deviceStr;
     uint32_t vendor_id, device_id;
-    vendorStr = xmlGetProp(deviceIdentity, "VendorID");
-    deviceStr = xmlGetProp(deviceIdentity, "DeviceID");
-    if (!ws_basestrtou32(vendorStr, NULL, &vendor_id, 0) ||
-        !ws_basestrtou32(deviceStr, NULL, &device_id, 0)) {
+    vendorStr = xmlGetProp(deviceIdentity, (const xmlChar*)"VendorID");
+    deviceStr = xmlGetProp(deviceIdentity, (const xmlChar*)"DeviceID");
+    if (!ws_basestrtou32((const char*)vendorStr, NULL, &vendor_id, 0) ||
+        !ws_basestrtou32((const char*)deviceStr, NULL, &device_id, 0)) {
 
         ws_warning("Failed to convert VendorID or DeviceID to number");
         xmlFree(vendorStr);
@@ -4621,7 +4621,7 @@ pnio_load_gsd_files(void)
                 }
 
                 xmlXPathObjectPtr result;
-                result = xmlXPathEvalExpression("/dev:ISO15745Profile/dev:ProfileBody[dev:DeviceIdentity]", xpathCtx);
+                result = xmlXPathEvalExpression((const xmlChar*)"/dev:ISO15745Profile/dev:ProfileBody[dev:DeviceIdentity]", xpathCtx);
                 if (result) {
                     xmlNodeSetPtr nodeset = result->nodesetval;
                     int size = nodeset ? nodeset->nodeNr : 0;

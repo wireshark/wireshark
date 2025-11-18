@@ -467,7 +467,7 @@ tvbparse_wanted_t* tvbparse_set_oneof(const int id,
 
 static int cond_hash(tvbparse_t* tt, const int offset, const tvbparse_wanted_t* wanted, tvbparse_elem_t** tok) {
     int key_len;
-    char* key = NULL;
+    uint8_t* key = NULL;
     tvbparse_elem_t* key_elem = NULL;
     tvbparse_wanted_t* value_wanted = NULL;
     int value_len;

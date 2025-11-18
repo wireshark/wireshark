@@ -262,8 +262,8 @@ double asn1_get_real(const uint8_t *real_ptr, int len) {
       case 0x02: val = NAN; break;
     }
   } else {  /* decimal encoding */
-    buf = g_strndup(p, len);
-    val = g_ascii_strtod(buf, NULL);
+    buf = (uint8_t*)g_strndup((const char*)p, len);
+    val = g_ascii_strtod((const char*)buf, NULL);
     g_free(buf);
   }
 

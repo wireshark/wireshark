@@ -206,7 +206,7 @@ ws_utf8_make_valid_strbuf(wmem_allocator_t *scope, const uint8_t *ptr, ssize_t l
         size_t valid_bytes = utf_8_validate(prev, length, &ptr);
 
         if (valid_bytes) {
-            wmem_strbuf_append_len(str, prev, valid_bytes);
+            wmem_strbuf_append_len(str, (const char*)prev, valid_bytes);
         }
         length -= ptr - prev;
         prev += valid_bytes;
@@ -222,7 +222,7 @@ uint8_t *
 ws_utf8_make_valid(wmem_allocator_t *scope, const uint8_t *ptr, ssize_t length)
 {
     wmem_strbuf_t *str = ws_utf8_make_valid_strbuf(scope, ptr, length);
-    return wmem_strbuf_finalize(str);
+    return (uint8_t*)wmem_strbuf_finalize(str);
 }
 
 #ifdef _WIN32

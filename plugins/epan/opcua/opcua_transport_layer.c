@@ -219,7 +219,7 @@ void get_encryption_info(packet_info *pinfo, enum ua_message_mode *mode, uint8_t
  *
  * @return 0 if equal, -1 if not.
  */
-static int opcua_string_compare(const char *text, int text_len, const char *ref_text)
+static int opcua_string_compare(const uint8_t *text, int text_len, const char *ref_text)
 {
     int len = (int)strlen(ref_text);
     if (text_len == len && memcmp(text, ref_text, len) == 0) return 0;

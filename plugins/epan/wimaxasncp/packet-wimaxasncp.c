@@ -488,7 +488,7 @@ static const enum_val_t wimaxasncp_nwg_versions[] = {
 
 /* NWG version */
 #define WIMAXASNCP_DEF_NWGVER       WIMAXASNCP_NWGVER_R10_V121
-static unsigned global_wimaxasncp_nwg_ver = WIMAXASNCP_DEF_NWGVER;
+static int global_wimaxasncp_nwg_ver = WIMAXASNCP_DEF_NWGVER;
 
 /* ========================================================================= */
 
@@ -538,7 +538,7 @@ wimaxasncp_find_tlv_info(void* data, void* user_data)
     if (tlv->type == info_data->type)
     {
         /* if the TLV is defined for current NWG version */
-        if (tlv->since <= global_wimaxasncp_nwg_ver)
+        if (tlv->since <= (unsigned)global_wimaxasncp_nwg_ver)
         {
             /* if the current TLV is newer than last found TLV, save it */
             if ((info_data->res == NULL) || (tlv->since > info_data->res->since))
@@ -832,7 +832,7 @@ static void wimaxasncp_dissect_tlv_value(
     {
         if (tree)
         {
-            const char   *s = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
+            const char   *s = (const char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
 
             proto_tree_add_string_format(
                 tree, tlv_info->hf_value,
@@ -1927,7 +1927,7 @@ static unsigned dissect_wimaxasncp_backend(
     unsigned  offset = 0;
     uint16_t  ui16;
     uint32_t  ui32;
-    const uint8_t *pmsid;
+    char *pmsid;
     uint16_t  tid    = 0;
     bool      dbit_show;
 
@@ -2800,26 +2800,26 @@ wimaxasncp_dictionary_process_file(const char* filename, GSList** tlvs)
             xmlChar* str_type = xmlGetProp(current_node, (const xmlChar*)"type");
             if (str_type != NULL)
             {
-                if (g_ascii_strncasecmp(str_type, "0x", 2) == 0)
+                if (g_ascii_strncasecmp((const char*)str_type, "0x", 2) == 0)
                 {
-                    ws_hexstrtou16(str_type, NULL, &element->type);
+                    ws_hexstrtou16((const char*)str_type, NULL, &element->type);
                 }
                 else
                 {
-                    ws_strtou16(str_type, NULL, &element->type);
+                    ws_strtou16((const char*)str_type, NULL, &element->type);
                 }
                 xmlFree(str_type);
             }
             xmlChar* str_since = xmlGetProp(current_node, (const xmlChar*)"since");
             if (str_since != NULL)
             {
-                ws_strtou32(str_since, NULL, &element->since);
+                ws_strtou32((const char*)str_since, NULL, &element->since);
                 xmlFree(str_since);
             }
             xmlChar* str_decoder = xmlGetProp(current_node, (const xmlChar*)"decoder");
             if (str_decoder != NULL)
             {
-                element->decoder = wimaxasncp_decode_type(str_decoder);
+                element->decoder = wimaxasncp_decode_type((const char*)str_decoder);
                 xmlFree(str_decoder);
             }
 
@@ -2835,13 +2835,13 @@ wimaxasncp_dictionary_process_file(const char* filename, GSList** tlvs)
                     xmlChar* str_code = xmlGetProp(tlv_children, (const xmlChar*)"code");
                     if (str_code != NULL)
                     {
-                        if (g_ascii_strncasecmp(str_code, "0x", 2) == 0)
+                        if (g_ascii_strncasecmp((const char*)str_code, "0x", 2) == 0)
                         {
-                            ws_hexstrtou32(str_code, NULL, &tlv_enum->code);
+                            ws_hexstrtou32((const char*)str_code, NULL, &tlv_enum->code);
                         }
                         else if (g_ascii_isdigit(str_code[0]))
                         {
-                            ws_strtou32(str_code, NULL, &tlv_enum->code);
+                            ws_strtou32((const char*)str_code, NULL, &tlv_enum->code);
                         }
                         else
                         {
@@ -2853,7 +2853,7 @@ wimaxasncp_dictionary_process_file(const char* filename, GSList** tlvs)
                                     G_REGEX_DEFAULT, 0, NULL);
                             }
 
-                            if (g_regex_match_full(regex, str_code, -1, 0, 0, &match_info, NULL))
+                            if (g_regex_match_full(regex, (const char*)str_code, -1, 0, 0, &match_info, NULL))
                             {
                                 unsigned bit_value = 0, bit_shift = 0;
                                 char* bit_value_str = g_match_info_fetch(match_info, 2);
@@ -2903,7 +2903,7 @@ wimaxasncp_dict_enum_process(void* data, void* user_data)
     wimaxasncp_dict_tlv_enum_t* dict_enum = (wimaxasncp_dict_tlv_enum_t*)data;
     wmem_array_t* array = (wmem_array_t*)user_data;
 
-    value_string item = { dict_enum->code, wmem_strdup(wmem_epan_scope(), dict_enum->name) };
+    value_string item = { dict_enum->code, wmem_strdup(wmem_epan_scope(), (const char*)dict_enum->name) };
     wmem_array_append_one(array, item);
 }
 
@@ -2915,8 +2915,8 @@ wimaxasncp_dict_process(void* data, void* user_data)
     wimaxasncp_tlv_new_t* tlv = wmem_new0(wmem_epan_scope(), wimaxasncp_tlv_new_t);
 
     tlv->type = dict_tlv->type;
-    tlv->name = wmem_strdup(wmem_epan_scope(), dict_tlv->name);
-    tlv->description = wmem_strdup(wmem_epan_scope(), dict_tlv->description);
+    tlv->name = wmem_strdup(wmem_epan_scope(), (const char*)dict_tlv->name);
+    tlv->description = wmem_strdup(wmem_epan_scope(), (const char*)dict_tlv->description);
     tlv->decoder = dict_tlv->decoder;
     tlv->since = dict_tlv->since;
 

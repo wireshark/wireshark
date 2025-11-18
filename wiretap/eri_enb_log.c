@@ -69,7 +69,7 @@ static bool eri_enb_log_get_packet(wtap *wth, FILE_T fh, wtap_rec* rec,
 		*err = 0;
 
 		/* Append data to the packet buffer */
-		ws_buffer_append(&rec->data, eri_enb->line, rec->rec_header.packet_header.caplen);
+		ws_buffer_append(&rec->data, (const uint8_t*)eri_enb->line, rec->rec_header.packet_header.caplen);
 
 		return true;
 

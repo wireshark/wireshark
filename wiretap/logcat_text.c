@@ -183,7 +183,7 @@ static void get_time(char *string, wtap_rec *rec) {
 
 static bool logcat_text_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         int file_type) {
-    int8_t *pd;
+    uint8_t *pd;
     char *cbuff;
     char *ret = NULL;
 
@@ -511,16 +511,16 @@ static bool logcat_text_dump_text(wtap_dumper *wdh, const wtap_rec *rec,
             msg_payload = (const uint8_t *) (log_entry + 1);
 
             priority = get_priority(msg_payload[0]);
-            tag = msg_payload + 1;
+            tag = (const char*)(msg_payload + 1);
             msg_pre_skip = 1 + (int) strlen(tag) + 1;
-            msg_begin = msg_payload + msg_pre_skip;
+            msg_begin = (const char*)(msg_payload + msg_pre_skip);
         } else if (logcat_version == 2) {
             msg_payload = (const uint8_t *) (log_entry_v2 + 1);
 
             priority = get_priority(msg_payload[0]);
-            tag = msg_payload + 1;
+            tag = (const char*)(msg_payload + 1);
             msg_pre_skip = 1 + (int) strlen(tag) + 1;
-            msg_begin = msg_payload + msg_pre_skip;
+            msg_begin = (const char*)(msg_payload + msg_pre_skip);
         } else {
             *err = WTAP_ERR_UNWRITABLE_REC_DATA;
             *err_info = ws_strdup_printf("logcat: version %d isn't supported",

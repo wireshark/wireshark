@@ -487,7 +487,7 @@ col_append_lstr(column_info *cinfo, const int el, const char *str1, ...)
           str = "(null)";
         }
         WS_UTF_8_CHECK(str, -1);
-        pos = ws_label_strcpy(col_item->col_buf, max_len, pos, str, 0);
+        pos = ws_label_strcpy(col_item->col_buf, max_len, pos, (const uint8_t*)str, 0);
 
       } while (pos < max_len && (str = va_arg(ap, const char *)) != COL_ADD_LSTR_TERMINATOR);
       va_end(ap);
@@ -571,7 +571,7 @@ col_do_append_fstr(column_info *cinfo, const int el, const char *separator, cons
        * If we have a separator, append it if the column isn't empty.
        */
       if (sep_len != 0 && len != 0) {
-        (void) ws_label_strcat(col_item->col_buf, max_len, separator, 0);
+        (void) ws_label_strcat(col_item->col_buf, max_len, (const uint8_t*)separator, 0);
         len += sep_len;
       }
 
@@ -585,7 +585,7 @@ col_do_append_fstr(column_info *cinfo, const int el, const char *separator, cons
           ws_utf8_truncate(tmp, max_len - 1);
         }
         WS_UTF_8_CHECK(tmp, -1);
-        ws_label_strcpy(col_item->col_buf, max_len, len, tmp, 0);
+        ws_label_strcpy(col_item->col_buf, max_len, len, (const uint8_t*)tmp, 0);
       }
     }
   }
@@ -662,7 +662,7 @@ col_prepend_fstr(column_info *cinfo, const int el, const char *format, ...)
         ws_utf8_truncate(tmp, max_len - 1);
       }
       WS_UTF_8_CHECK(tmp, -1);
-      pos = ws_label_strcpy(col_item->col_buf, max_len, 0, tmp, 0);
+      pos = ws_label_strcpy(col_item->col_buf, max_len, 0, (const uint8_t*)tmp, 0);
 
       /*
        * Move the fence, unless it's at the beginning of the string.
@@ -678,7 +678,7 @@ col_prepend_fstr(column_info *cinfo, const int el, const char *format, ...)
       /*
        * Append the original data.
        */
-      ws_label_strcpy(col_item->col_buf, max_len, pos, orig, 0);
+      ws_label_strcpy(col_item->col_buf, max_len, pos, (const uint8_t*)orig, 0);
       col_item->col_data = col_item->col_buf;
     }
   }
@@ -719,7 +719,7 @@ col_prepend_fence_fstr(column_info *cinfo, const int el, const char *format, ...
         ws_utf8_truncate(tmp, max_len - 1);
       }
       WS_UTF_8_CHECK(tmp, -1);
-      pos = ws_label_strcpy(col_item->col_buf, max_len, 0, tmp, 0);
+      pos = ws_label_strcpy(col_item->col_buf, max_len, 0, (const uint8_t*)tmp, 0);
 
       /*
        * Move the fence if it exists, else create a new fence at the
@@ -733,7 +733,7 @@ col_prepend_fence_fstr(column_info *cinfo, const int el, const char *format, ...
       /*
        * Append the original data.
        */
-      ws_label_strcpy(col_item->col_buf, max_len, pos, orig, 0);
+      ws_label_strcpy(col_item->col_buf, max_len, pos, (const uint8_t*)orig, 0);
       col_item->col_data = col_item->col_buf;
     }
   }
@@ -772,7 +772,7 @@ col_add_str(column_info *cinfo, const int el, const char* str)
         col_item->col_data = col_item->col_buf;
       }
       WS_UTF_8_CHECK(str, -1);
-      (void) ws_label_strcpy(col_item->col_buf, max_len, col_item->col_fence, str, 0);
+      (void) ws_label_strcpy(col_item->col_buf, max_len, col_item->col_fence, (const uint8_t*)str, 0);
     }
   }
 }
@@ -860,7 +860,7 @@ col_add_lstr(column_info *cinfo, const int el, const char *str1, ...)
           str = "(null)";
         }
         WS_UTF_8_CHECK(str, -1);
-        pos = ws_label_strcpy(col_item->col_buf, max_len, pos, str, 0);
+        pos = ws_label_strcpy(col_item->col_buf, max_len, pos, (const uint8_t*)str, 0);
 
       } while (pos < max_len && (str = va_arg(ap, const char *)) != COL_ADD_LSTR_TERMINATOR);
       va_end(ap);
@@ -908,7 +908,7 @@ col_add_fstr(column_info *cinfo, const int el, const char *format, ...)
         ws_utf8_truncate(tmp, max_len - 1);
       }
       WS_UTF_8_CHECK(tmp, -1);
-      ws_label_strcpy(col_item->col_buf, max_len, col_item->col_fence, tmp, 0);
+      ws_label_strcpy(col_item->col_buf, max_len, col_item->col_fence, (const uint8_t*)tmp, 0);
     }
   }
 }
@@ -941,11 +941,11 @@ col_do_append_str(column_info *cinfo, const int el, const char* separator,
        */
       if (separator != NULL) {
         if (len != 0) {
-          (void) ws_label_strcat(col_item->col_buf, max_len, separator, 0);
+          (void) ws_label_strcat(col_item->col_buf, max_len, (const uint8_t*)separator, 0);
         }
       }
       WS_UTF_8_CHECK(str, -1);
-      (void) ws_label_strcat(col_item->col_buf, max_len, str, 0);
+      (void) ws_label_strcat(col_item->col_buf, max_len, (const uint8_t*)str, 0);
     }
   }
 }

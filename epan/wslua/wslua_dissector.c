@@ -155,7 +155,7 @@ WSLUA_METHOD Dissector_decrypt(lua_State* L) {
             const int offset = 0;
 
             len = tvb_reported_length(tvb_decrypted);
-            decrypted = (uint8_t *)wmem_alloc(scope, len + 1);
+            decrypted = (char*)wmem_alloc(scope, len + 1);
             tvb_memcpy(tvb_decrypted, decrypted, offset, len);
             decrypted[len] = '\0';
         }

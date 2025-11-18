@@ -99,8 +99,8 @@ typedef struct _fd_hash_t {
 #define MAX_DUP_DEPTH     1000000   /* the maximum window (and actual size of fd_hash[]) for de-duplication */
 
 static fd_hash_t fd_hash[MAX_DUP_DEPTH];
-static int       dup_window    = DEFAULT_DUP_DEPTH;
-static int       cur_dup_entry;
+static unsigned  dup_window    = DEFAULT_DUP_DEPTH;
+static unsigned  cur_dup_entry;
 
 static uint32_t  ignored_bytes;  /* Used with -I */
 
@@ -671,7 +671,6 @@ static bool
 is_duplicate(wtap_rec *rec) {
     uint8_t* fd = ws_buffer_start_ptr(&rec->data);
     uint32_t len = rec->rec_header.packet_header.caplen;
-    int i;
     const struct ieee80211_radiotap_header* tap_header;
 
     /*Hint to ignore some bytes at the start of the frame for the digest calculation(-I option) */
@@ -704,7 +703,7 @@ is_duplicate(wtap_rec *rec) {
     fd_hash[cur_dup_entry].len = len;
 
     /* Look for duplicates */
-    for (i = 0; i < dup_window; i++) {
+    for (unsigned i = 0; i < dup_window; i++) {
         if (i == cur_dup_entry)
             continue;
 
@@ -774,7 +773,7 @@ is_duplicate_rel_time(wtap_rec *rec, const nstime_t *current) {
         if (i < 0)
             i = dup_window - 1;
 
-        if (i == cur_dup_entry) {
+        if (i == (int)cur_dup_entry) {
             /*
              * We've decremented back to where we started.
              * Check no more!
@@ -2164,7 +2163,7 @@ main(int argc, char *argv[])
             dsb = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(block);
             dsb->secrets_type = secrets_type_id;
             dsb->secrets_len = (unsigned)data_len;
-            dsb->secrets_data = data;
+            dsb->secrets_data = (uint8_t*)data;
             if (params.dsbs_initial == NULL) {
                 params.dsbs_initial = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
             }
@@ -2205,10 +2204,10 @@ main(int argc, char *argv[])
         max_packet_number = UINT64_MAX;
 
     if (dup_detect || dup_detect_by_time) {
-        for (i = 0; i < dup_window; i++) {
-            memset(&fd_hash[i].digest, 0, 16);
-            fd_hash[i].len = 0;
-            nstime_set_unset(&fd_hash[i].frame_time);
+        for (unsigned u = 0; u < dup_window; u++) {
+            memset(&fd_hash[u].digest, 0, 16);
+            fd_hash[u].len = 0;
+            nstime_set_unset(&fd_hash[u].frame_time);
         }
     }
 

@@ -34,7 +34,7 @@ int text_import_regex(const text_import_info_t* info) {
     GMappedFile* file = g_mapped_file_ref(info->regex.import_text_GMappedFile);
     GError* gerror = NULL;
     size_t f_size = g_mapped_file_get_length(file);
-    unsigned char* f_content = g_mapped_file_get_contents(file);
+    unsigned char* f_content = (unsigned char*)g_mapped_file_get_contents(file);
 
     // Regex result dissecting
     bool re_time, re_dir, re_seqno;
@@ -56,7 +56,7 @@ int text_import_regex(const text_import_info_t* info) {
     ws_debug("regex has %s%s%s", re_dir ? "dir, " : "",
                                  re_time ? "time, " : "",
                                  re_seqno ? "seqno, " : "");
-    g_regex_match_full(info->regex.format, f_content, f_size, 0, G_REGEX_MATCH_NOTEMPTY, &match, &gerror);
+    g_regex_match_full(info->regex.format, (const char*)f_content, f_size, 0, G_REGEX_MATCH_NOTEMPTY, &match, &gerror);
     while (g_match_info_matches(match)) {
         /* parse the data */
         if (g_match_info_fetch_named_pos(match, "data", &field_start, &field_end)) {
