@@ -230,7 +230,8 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	if (length == reported_length) {
 		/*
 		 * There's no snapshot length cutting off any of the
-		 * packet.
+		 * packet. Calculate the checksum and add it to the
+		 * tree.
 		 */
 		checksum_offset = reported_length - 2;
 		checksum_calculated = crc16_ccitt_tvb(tvb, checksum_offset);
@@ -238,39 +239,13 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 		proto_tree_add_checksum(v5dl_tree, tvb, checksum_offset, hf_v5dl_checksum, hf_v5dl_checksum_status, &ei_v5dl_checksum,
 								pinfo, checksum_calculated, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
-		/*
-		 * Remove the V5DL header *and* the checksum.
-		 */
-		next_tvb = tvb_new_subset_length_caplen(tvb, v5dl_header_len,
-		    tvb_captured_length_remaining(tvb, v5dl_header_len) - 2,
-		    tvb_reported_length_remaining(tvb, v5dl_header_len) - 2);
-	} else {
-		/*
-		 * Some or all of the packet is cut off by a snapshot
-		 * length.
-		 */
-		if (length == reported_length - 1) {
-			/*
-			 * One byte is cut off, so there's only one
-			 * byte of checksum in the captured data.
-			 * Remove that byte from the captured length
-			 * and both bytes from the reported length.
-			 */
-			next_tvb = tvb_new_subset_length_caplen(tvb, v5dl_header_len,
-			    tvb_captured_length_remaining(tvb, v5dl_header_len) - 1,
-			    tvb_reported_length_remaining(tvb, v5dl_header_len) - 2);
-		} else {
-			/*
-			 * Two or more bytes are cut off, so there are
-			 * no bytes of checksum in the captured data.
-			 * Just remove the checksum from the reported
-			 * length.
-			 */
-			next_tvb = tvb_new_subset_length_caplen(tvb, v5dl_header_len,
-			    tvb_captured_length_remaining(tvb, v5dl_header_len),
-			    tvb_reported_length_remaining(tvb, v5dl_header_len) - 2);
-		}
 	}
+	/*
+	 * Remove the checksum from the reported length.
+	 * The captured length is automatically trimmed appropriately.
+	 */
+	next_tvb = tvb_new_subset_length(tvb, v5dl_header_len,
+	    tvb_reported_length_remaining(tvb, v5dl_header_len) - 2);
 #else
 	next_tvb = tvb_new_subset_remaining(tvb, v5dl_header_len);
 #endif
