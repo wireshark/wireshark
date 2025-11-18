@@ -2707,9 +2707,7 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             if (pdu_real_len <= 0)
                 return offset;
-            if (pdu_real_len > pdu_len)
-                pdu_real_len = pdu_len;
-            pdu_tvb = tvb_new_subset_length_caplen(tvb, offset, pdu_real_len, pdu_len);
+            pdu_tvb = tvb_new_subset_length(tvb, offset, pdu_len);
             dissect_smpp_pdu(pdu_tvb, pinfo, tree, data);
             offset += pdu_len;
         }

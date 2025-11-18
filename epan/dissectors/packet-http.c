@@ -2176,8 +2176,7 @@ dissecting_body:
 		 * which, if no content length was specified,
 		 * is -1, i.e. "to the end of the frame.
 		 */
-		next_tvb = tvb_new_subset_length_caplen(tvb, offset, datalen,
-		    reported_datalen);
+		next_tvb = tvb_new_subset_length(tvb, offset, reported_datalen);
 
 		/*
 		 * Handle *transfer* encodings.
@@ -2205,10 +2204,6 @@ dissecting_body:
 				 * Add a new data source for the
 				 * de-chunked data.
 				 */
-#if 0 /* Handled in chunked_encoding_dissector() */
-				tvb_set_child_real_data_tvbuff(tvb,
-					next_tvb);
-#endif
 				add_new_data_source(pinfo, next_tvb,
 					"De-chunked entity body");
 				/* chunked-body might be smaller than
