@@ -457,15 +457,15 @@ dissect_payload_and_padding(
 	int                    dissected;
 	tvbuff_t             * tvb_2;
 
+	tvbuff_t* payload_tvb = tvb_new_subset_length(tvb, 0, payload_size);
 	for(dissected = 0, pd->pw_cell_number = 0;
-		payload_size > dissected;
+		tvb_reported_length_remaining(payload_tvb, dissected);
 		++(pd->pw_cell_number))
 	{
-		tvb_2 = tvb_new_subset_remaining(tvb, dissected);
+		tvb_2 = tvb_new_subset_remaining(payload_tvb, dissected);
 		dissected += call_dissector_with_data(dh_cell_header, tvb_2, pinfo, tree, pd);
 
-		tvb_2 = tvb_new_subset_remaining(tvb, dissected);
-
+		tvb_2 = tvb_new_subset_remaining(payload_tvb, dissected);
 		/*dissect as oam for specific vci/pti, just like atm dissector does*/
 		if ((pd->vci >= 0) && (pd->pti >=0))
 		{
@@ -478,15 +478,13 @@ dissect_payload_and_padding(
 		if (pd->cell_mode_oam)
 		{
 			struct pw_atm_phdr ph;
-			tvbuff_t* tvb_3;
 			int bytes_to_dissect;
 			/* prepare buffer for old-style dissector */
-			/* oam cell is always 48 bytes, but payload_size maybe too small */
-			if ((payload_size - dissected) >= SIZEOF_ATM_CELL_PAYLOAD)
+			/* oam cell is always 48 bytes, but payload_size may be too small */
+			bytes_to_dissect = tvb_reported_length_remaining(payload_tvb, dissected);
+			if (bytes_to_dissect >= SIZEOF_ATM_CELL_PAYLOAD)
 				bytes_to_dissect = SIZEOF_ATM_CELL_PAYLOAD;
-			else
-				bytes_to_dissect = (payload_size - dissected);
-			tvb_3 = tvb_new_subset_length_caplen(tvb_2, 0, bytes_to_dissect, -1);
+			tvb_2 = tvb_new_subset_length(payload_tvb, dissected, bytes_to_dissect);
 			/*aal5_sdu: disable filling columns after 1st (valid) oam cell*/
 			if (pd->mode == PWATM_MODE_AAL5_SDU && (pd->pw_cell_number > 0))
 				ph.enable_fill_columns_by_atm_dissector = false;
@@ -495,7 +493,7 @@ dissect_payload_and_padding(
 			/* prepare atm pseudo header for atm OAM cell decoding */
 			prepare_pseudo_header_atm(&ph.info, pd, AAL_OAMCELL);
 
-			call_dissector_with_data(dh_atm_oam_cell, tvb_3, pinfo, tree, &ph);
+			call_dissector_with_data(dh_atm_oam_cell, tvb_2, pinfo, tree, &ph);
 			dissected += bytes_to_dissect;
 		}
 		else
@@ -506,7 +504,7 @@ dissect_payload_and_padding(
 
 	if (padding_size != 0)
 	{
-		tvb_2 = tvb_new_subset_remaining(tvb, -padding_size);
+		tvb_2 = tvb_new_subset_length(tvb, payload_size, padding_size);
 		call_dissector(dh_padding, tvb_2, pinfo, tree);
 	}
 	return;
@@ -930,7 +928,7 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
 			if (padding_size != 0)
 			{
 				tvbuff_t* tvb_3;
-				tvb_3 = tvb_new_subset_length_caplen(tvb_2, payload_size, padding_size, -1);
+				tvb_3 = tvb_new_subset_length(tvb_2, payload_size, padding_size);
 				call_dissector(dh_padding, tvb_3, pinfo, tree);
 			}
 		}
@@ -1672,7 +1670,7 @@ dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data
 		proto_tree* tree2;
 		tvbuff_t* tvb_d;
 		tree2 = proto_item_add_subtree(item, ett_cell);
-		tvb_d = tvb_new_subset_length_caplen(tvb, 0, dissect_size, -1);
+		tvb_d = tvb_new_subset_length(tvb, 0, dissect_size);
 		call_data_dissector(tvb_d, pinfo, tree2);
 		item = proto_tree_add_int(tree2, hf_cell_payload_len, tvb, 0, 0, dissect_size);
 		proto_item_set_hidden(item);
