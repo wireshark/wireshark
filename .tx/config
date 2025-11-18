@@ -2,6 +2,7 @@
 host = https://www.transifex.com
 
 [o:wireshark:p:wireshark:r:po-44]
+resource_name          = Qt .ts, 4.4 branch
 file_filter            = packaging/debian/po/<lang>.po
 source_file            = packaging/debian/po/templates.pot
 source_lang            = en
@@ -10,6 +11,7 @@ replace_edited_strings = false
 keep_translations      = false
 
 [o:wireshark:p:wireshark:r:qt-44]
+resource_name          = Gettext .po, 4.4 branch
 file_filter            = ui/qt/wireshark_<lang>.ts
 source_file            = ui/qt/wireshark_en.ts
 source_lang            = en
