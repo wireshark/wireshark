@@ -645,6 +645,14 @@ static int hf_dhcp_option_portparams_offset;			/* 159 */
 static int hf_dhcp_option_portparams_psid_length;			/* 159 */
 static int hf_dhcp_option_portparams_psid;				/* 159 */
 static int hf_dhcp_option_mudurl;					/* 161 */
+static int hf_dhcp_dnr_instance;				/* 162 */
+static int hf_dhcp_dnr_instance_len;				/* 162 */
+static int hf_dhcp_dnr_svcpriority;				/* 162 */
+static int hf_dhcp_dnr_auth_domain_name_len;			/* 162 */
+static int hf_dhcp_dnr_auth_domain_name;			/* 162 */
+static int hf_dhcp_dnr_addrs_len;				/* 162 */
+static int hf_dhcp_dnr_addrs;					/* 162 */
+static int hf_dhcp_dnr_addrs_ip;				/* 162 */
 static int hf_dhcp_option_pxe_config_file;				/* 209 */
 static int hf_dhcp_option_pxe_path_prefix;				/* 210 */
 static int hf_dhcp_option_pxe_reboot_time;				/* 211 */
@@ -716,6 +724,8 @@ static int ett_dhcp_o43_bsdp_image_desc_list;
 static int ett_dhcp_o43_bsdp_image_desc;
 static int ett_dhcp_o43_bsdp_attributes_flags;
 static int ett_dhcp_option158_pcp_list;
+static int ett_dhcp_dnr_instance;
+static int ett_dhcp_dnr_instance_addrs;
 
 static expert_field ei_dhcp_bad_length;
 static expert_field ei_dhcp_bad_bitfield;
@@ -746,6 +756,7 @@ static expert_field ei_dhcp_option_isns_ignored_bitfield;
 static expert_field ei_dhcp_option242_avaya_l2qvlan_invalid;
 static expert_field ei_dhcp_option242_avaya_vlantest_invalid;
 static expert_field ei_dhcp_option93_client_arch_ambiguous;
+static expert_field ei_dhcp_option_dnr_adn_only_mode;
 
 static dissector_table_t dhcp_option_table;
 static dissector_table_t dhcp_enterprise_class_table;
@@ -754,6 +765,7 @@ static heur_dissector_list_t dhcp_vendor_id_subdissector;
 static heur_dissector_list_t dhcp_vendor_info_subdissector;
 static dissector_handle_t dhcp_handle;
 static dissector_handle_t dhcpopt_basic_handle;
+static dissector_handle_t svc_params_handle;
 
 typedef struct dhcp_option_data
 {
@@ -1593,7 +1605,7 @@ static const struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 159 */ { "Portparams",				special, NULL },
 /* 160 */ { "Unassigned (ex DHCP Captive-Portal)",	special, NULL }, /* Previously assigned by [RFC7710]; known to also be used by Polycom. */
 /* 161 */ { "Manufacturer Usage Description",		string, &hf_dhcp_option_mudurl},
-/* 162 */ { "Unassigned",				opaque, NULL },
+/* 162 */ { "Discovery of Network DNS Resolvers",	special, NULL },
 /* 163 */ { "Unassigned",				opaque, NULL },
 /* 164 */ { "Unassigned",				opaque, NULL },
 /* 165 */ { "Unassigned",				opaque, NULL },
@@ -3295,6 +3307,111 @@ dissect_dhcpopt_dhcp_captive_portal(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 	proto_item_set_url(ti_cp);
 
 	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_dhcpopt_dnr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	int offset = 0;
+	int offset_end = tvb_captured_length(tvb);
+	int instance_id = 0;
+	int instance_offset = 0;
+	int instance_len;
+	int adn_len;
+	int adn_parsed_len;
+	const unsigned char *adn;
+	int addrs_len;
+	proto_item *dnr_instance_ti;
+	proto_tree *dnr_instance_tree;
+	proto_item *dnr_instance_addrs_ti;
+	proto_tree *dnr_instance_addrs_tree;
+	int i;
+	tvbuff_t *next_tvb;
+
+	if (offset + 2 >= offset_end) {
+		expert_add_info_format(pinfo, tree, &ei_dhcp_bad_length, "DNR: truncated option (no DNR instance present)");
+		return offset_end;
+	}
+
+	while (offset + 2 <= offset_end) {
+		// Handling a single DNR Instance
+		instance_id++;
+
+		dnr_instance_ti = proto_tree_add_item(tree, hf_dhcp_dnr_instance, tvb, offset, -1, ENC_NA);
+		dnr_instance_tree = proto_item_add_subtree(dnr_instance_ti, ett_dhcp_dnr_instance);
+
+		proto_tree_add_item_ret_uint(dnr_instance_tree, hf_dhcp_dnr_instance_len, tvb, offset, 2, ENC_BIG_ENDIAN, &instance_len);
+		offset += 2;
+		instance_offset = 0;
+
+		if (instance_len < 3) {
+			expert_add_info_format(pinfo, dnr_instance_tree, &ei_dhcp_bad_length, "DNR: truncated option (instance length %d too short)", instance_len);
+			break;
+		}
+
+		if (offset + instance_len > offset_end) {
+			expert_add_info_format(pinfo, dnr_instance_tree, &ei_dhcp_bad_length, "DNR: truncated option (instance length %d larger than option)", instance_len);
+			break;
+		}
+
+		proto_item_append_text(dnr_instance_ti, " %d", instance_id);
+		proto_item_set_len(dnr_instance_ti, instance_len + 2);
+
+		proto_tree_add_item(dnr_instance_tree, hf_dhcp_dnr_svcpriority, tvb, offset + instance_offset, 2, ENC_BIG_ENDIAN);
+		instance_offset += 2;
+
+		proto_tree_add_item_ret_uint(dnr_instance_tree, hf_dhcp_dnr_auth_domain_name_len, tvb, offset + instance_offset, 1, ENC_BIG_ENDIAN, &adn_len);
+		instance_offset++;
+
+		if (instance_offset + adn_len > instance_len) {
+			expert_add_info_format(pinfo, dnr_instance_tree, &ei_dhcp_bad_length, "DNR: truncated option (adn_len %d larger than option)", adn_len);
+			break;
+		}
+
+		get_dns_name(pinfo->pool, tvb, offset + instance_offset, adn_len,
+				offset + instance_offset, (const char **)&adn, &adn_parsed_len);
+		proto_tree_add_string(dnr_instance_tree, hf_dhcp_dnr_auth_domain_name, tvb, offset + instance_offset,
+				adn_len, format_text(pinfo->pool, adn, adn_parsed_len));
+
+		instance_offset += adn_len;
+
+		if (instance_offset == instance_len) {
+			// A DNR instance with only a service priority and authentication-domain-name (ADN) is in ADN-only mode,
+			// see RFC9463, Section 3.1.6.
+			proto_tree_add_expert(dnr_instance_tree, pinfo, &ei_dhcp_option_dnr_adn_only_mode, tvb, offset, instance_len);
+
+			offset += instance_len;
+			continue;
+		}
+
+		proto_tree_add_item_ret_uint(dnr_instance_tree, hf_dhcp_dnr_addrs_len, tvb, offset + instance_offset, 1, ENC_BIG_ENDIAN, &addrs_len);
+		instance_offset++;
+
+		if (addrs_len == 0 || addrs_len % 4 != 0) {
+			expert_add_info_format(pinfo, dnr_instance_tree, &ei_dhcp_bad_length, "DNR: invalid addrs_len %d (not divisible by 4)", addrs_len);
+			break;
+		}
+
+		dnr_instance_addrs_ti = proto_tree_add_item(dnr_instance_tree, hf_dhcp_dnr_addrs, tvb, offset + instance_offset, addrs_len, ENC_NA);
+		dnr_instance_addrs_tree = proto_item_add_subtree(dnr_instance_addrs_ti, ett_dhcp_dnr_instance_addrs);
+
+		proto_item_append_text(dnr_instance_addrs_ti, ":");
+
+		for (i = 0; i < addrs_len; i += 4) {
+			proto_tree_add_item(dnr_instance_addrs_tree, hf_dhcp_dnr_addrs_ip, tvb, offset + instance_offset + i, 4, ENC_NA);
+			proto_item_append_text(dnr_instance_addrs_ti, "%c%s", (i == 0 ? ' ' : ','), tvb_ip_to_str(pinfo->pool, tvb, offset + instance_offset + i));
+		}
+
+		instance_offset += addrs_len;
+
+		// Parse the service parameters
+		next_tvb = tvb_new_subset_length(tvb, offset + instance_offset, instance_len - instance_offset);
+		call_dissector(svc_params_handle, next_tvb, pinfo, dnr_instance_tree);
+
+		offset += instance_len;
+	}
+
+	return offset_end;
 }
 
 static int
@@ -10178,6 +10295,46 @@ proto_register_dhcp(void)
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Option 161: MUDURL", HFILL  }},
 
+		{ &hf_dhcp_dnr_instance,
+		  { "Instance", "dhcp.option.dnr",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    "Option 162: DNR instance", HFILL }},
+
+		{ &hf_dhcp_dnr_instance_len,
+		  { "Instance length", "dhcp.option.dnr.length",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Option 162: DNR instance length", HFILL }},
+
+		{ &hf_dhcp_dnr_svcpriority,
+		  { "Service priority", "dhcp.option.dnr.svcpriority",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Option 162: DNR service priority", HFILL }},
+
+		{ &hf_dhcp_dnr_auth_domain_name_len,
+		  { "Authentication domain name length", "dhcp.option.dnr.adn_len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Option 162: DNR authentication domain name length", HFILL }},
+
+		{ &hf_dhcp_dnr_auth_domain_name,
+		  { "Authentication domain name", "dhcp.option.dnr.adn",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Option 162: DNR authentication domain name", HFILL }},
+
+		{ &hf_dhcp_dnr_addrs_len,
+		  { "Addresses length", "dhcp.option.dnr.addrs_len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Option 162: DNR addresses length", HFILL }},
+
+		{ &hf_dhcp_dnr_addrs,
+		  { "Addresses", "dhcp.option.dnr.addrs",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    "Option 162: DNR addresses", HFILL }},
+
+		{ &hf_dhcp_dnr_addrs_ip,
+		  { "Address", "dhcp.option.dnr.addrs.ip",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    "Option 162: DNR address", HFILL }},
+
 		{ &hf_dhcp_option_pxe_config_file,
 		  { "PXELINUX configuration file", "dhcp.option.pxe_config_file",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
@@ -10498,6 +10655,8 @@ proto_register_dhcp(void)
 		&ett_dhcp_o43_bsdp_image_desc,
 		&ett_dhcp_o43_bsdp_attributes_flags,
 		&ett_dhcp_option158_pcp_list,
+		&ett_dhcp_dnr_instance,
+		&ett_dhcp_dnr_instance_addrs,
 	};
 
 	static ei_register_info ei[] = {
@@ -10530,6 +10689,7 @@ proto_register_dhcp(void)
 		{ &ei_dhcp_option242_avaya_l2qvlan_invalid, { "dhcp.option.vendor.avaya.l2qvlan.invalid", PI_PROTOCOL, PI_ERROR, "Option 242 (L2QVLAN) invalid", EXPFILL }},
 		{ &ei_dhcp_option242_avaya_vlantest_invalid, { "dhcp.option.vendor.avaya.vlantest.invalid", PI_PROTOCOL, PI_ERROR, "Option 242 (avaya vlantest) invalid", EXPFILL }},
 		{ &ei_dhcp_option93_client_arch_ambiguous, { "dhcp.option.client_architecture.ambiguous", PI_PROTOCOL, PI_WARN, "Client Architecture ID may be ambiguous", EXPFILL }},
+		{ &ei_dhcp_option_dnr_adn_only_mode, { "dhcp.option.dnr.adn_only_mode", PI_COMMENTS_GROUP, PI_CHAT, "This DNR instance is in ADN-only mode", EXPFILL }},
 	};
 
 	static tap_param dhcp_stat_params[] = {
@@ -10690,6 +10850,7 @@ proto_reg_handoff_dhcp(void)
 	dissector_add_uint("dhcp.option", 158, create_dissector_handle( dissect_dhcpopt_pcp_server, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 159, create_dissector_handle( dissect_dhcpopt_portparams, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 160, create_dissector_handle( dissect_dhcpopt_dhcp_captive_portal, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 162, create_dissector_handle( dissect_dhcpopt_dnr, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 212, create_dissector_handle( dissect_dhcpopt_6RD_option, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 242, create_dissector_handle( dissect_dhcpopt_avaya_ip_telephone, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 249, create_dissector_handle( dissect_dhcpopt_classless_static_route, proto_dhcp ));
@@ -10718,6 +10879,8 @@ proto_reg_handoff_dhcp(void)
 	/* Create dissection function handles for DHCP Enterprise dissection */
 	dissector_add_uint("dhcp.enterprise", 4491, create_dissector_handle( dissect_vendor_cl_suboption, proto_dhcp ));
 	dissector_add_uint("dhcp.enterprise", 3561, create_dissector_handle( dissect_vendor_tr111_suboption, proto_dhcp ));
+
+	svc_params_handle = find_dissector("svc_params");
 }
 
 /*
