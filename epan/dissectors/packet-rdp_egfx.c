@@ -148,6 +148,7 @@ enum {
 	RDPGFX_CMDID_CACHEIMPORTREPLY 		= 0x0011,
 	RDPGFX_CMDID_CAPSADVERTISE 			= 0x0012,
 	RDPGFX_CMDID_CAPSCONFIRM 			= 0x0013,
+	RDPGFX_CMDID_DIAGNOSTIC				= 0x0014,
 	RDPGFX_CMDID_MAPSURFACETOWINDOW 	= 0x0015,
 	RDPGFX_CMDID_QOEFRAMEACKNOWLEDGE 	= 0x0016,
 	RDPGFX_CMDID_MAPSURFACETOSCALEDOUTPUT = 0x0017,
@@ -707,8 +708,7 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Delete Surface");
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_deletesurface, NULL, "Delete surface");
 			proto_tree_add_item(subtree, hf_egfx_surfaceid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset += 2;
-
+			//offset += 2;
 			break;
 
 		case RDPGFX_CMDID_CACHEIMPORTOFFER:
