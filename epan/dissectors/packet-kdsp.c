@@ -173,6 +173,7 @@ static int hf_kdsp_cpt_dc_flag_usec;
 static int hf_kdsp_cpt_dc_flag_dlt;
 static int hf_kdsp_cpt_uuid;
 static int hf_kdsp_cpt_packet_len;
+static int hf_kdsp_cpt_tv;
 static int hf_kdsp_cpt_tv_sec;
 static int hf_kdsp_cpt_tv_usec;
 static int hf_kdsp_cpt_dlt;
@@ -224,6 +225,7 @@ static int hf_kdsp_report_hop_tm_usec;
 static int ett_kdsp_pdu;
 static int ett_cpt_bitmap;
 static int ett_cpt_data_content_bitmap;
+static int ett_cpt_tv;
 static int ett_ch_bitmap;
 static int ett_ch_data;
 static int ett_sub_fcs;
@@ -399,12 +401,26 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         reported_payload_len = tvb_get_ntohs(tvb, offset);
         offset += 2;
       }
+      switch (cptbitmap & (DATA_TVSEC_FLAG | DATA_TVUSEC_FLAG)) {
+      case DATA_TVSEC_FLAG | DATA_TVUSEC_FLAG:
+        subsub_item = proto_tree_add_item(sub_tree, hf_kdsp_cpt_tv,         tvb, offset, 16, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
+        break;
+      case DATA_TVSEC_FLAG:
+        subsub_item = proto_tree_add_item(sub_tree, hf_kdsp_cpt_tv,         tvb, offset, 8, ENC_TIME_SECS|ENC_BIG_ENDIAN);
+        break;
+      case DATA_TVUSEC_FLAG:
+        subsub_item = proto_tree_add_item(sub_tree, hf_kdsp_cpt_tv,         tvb, offset, 8, ENC_TIME_USECS|ENC_BIG_ENDIAN);
+        break;
+      default:
+        break;
+      }
+      subsub_tree = proto_item_add_subtree(subsub_item, ett_cpt_tv);
       if (cptbitmap & DATA_TVSEC_FLAG) {
-        proto_tree_add_item(sub_tree, hf_kdsp_cpt_tv_sec,     tvb, offset, 8, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subsub_tree, hf_kdsp_cpt_tv_sec,  tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
       }
       if (cptbitmap & DATA_TVUSEC_FLAG) {
-        proto_tree_add_item(sub_tree, hf_kdsp_cpt_tv_usec,    tvb, offset, 8, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subsub_tree, hf_kdsp_cpt_tv_usec, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
       }
       if (cptbitmap & DATA_DLT_FLAG) {
@@ -830,6 +846,12 @@ proto_register_kdsp(void)
         NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_kdsp_cpt_tv,
+      { "Packet Timeval", "kdsp.cpt.tv",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+        NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_kdsp_cpt_tv_sec,
       { "TV sec", "kdsp.cpt.tv_sec",
         FT_UINT64, BASE_DEC,
@@ -1102,6 +1124,7 @@ proto_register_kdsp(void)
     &ett_kdsp_pdu,
     &ett_cpt_bitmap,
     &ett_cpt_data_content_bitmap,
+    &ett_cpt_tv,
     &ett_ch_bitmap,
     &ett_ch_data,
     &ett_sub_fcs,
