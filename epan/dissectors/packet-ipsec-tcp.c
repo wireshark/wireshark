@@ -20,6 +20,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 #include "packet-ndmp.h"
 
 void proto_register_tcpencap(void);
@@ -101,9 +103,16 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	uint32_t reported_length = tvb_reported_length(tvb);
 	uint32_t offset;
 	uint8_t protocol;
+	const char *volatile saved_proto;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCPENCAP");
 	col_clear(pinfo->cinfo, COL_INFO);
+
+	/* This is either satisfied by the heuristics or else the user
+	 * manually set the port preference to TCPENCAP, so throw an
+	 * error instead of returning 0. */
+	THROW_ON(reported_length < TRAILERLENGTH + 4, ReportedBoundsError);
+	offset = reported_length - TRAILERLENGTH;
 
 	/* If the first 4 bytes are 0x01f401f4 (udp src and dst port = 500)
 	   we most likely have UDP (isakmp) traffic */
@@ -114,35 +123,50 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 		protocol = TCP_ENCAP_P_ESP;
 	}
 
-	if (tree) {
-		tree_item = proto_tree_add_item(tree, proto_tcpencap, tvb, 0, -1, ENC_NA);
-		tcpencap_tree = proto_item_add_subtree(tree_item, ett_tcpencap);
-
-		/* Dissect the trailer following the encapsulated IPSEC/ISAKMP packet */
-		offset = reported_length - TRAILERLENGTH;
-		unknown_item = proto_tree_add_item(tcpencap_tree, hf_tcpencap_unknown, tvb,
-			offset, TRAILERLENGTH, ENC_NA);
-		/* Try to guess the contents of the trailer */
-		tcpencap_unknown_tree = proto_item_add_subtree(unknown_item, ett_tcpencap_unknown);
-		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_zero, tvb, offset + 0, 4, ENC_NA);
-		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_seq, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-		if (protocol == TCP_ENCAP_P_UDP) {
-			proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_ike_direction, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
-		} else {
-			proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_esp_zero, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
-		}
-		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_magic, tvb, offset + 8, 5, ENC_NA);
-		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_proto, tvb, offset + 13, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_magic2, tvb, offset + 14, 2, ENC_NA);
-	}
-
+	tree_item = proto_tree_add_item(tree, proto_tcpencap, tvb, offset, TRAILERLENGTH, ENC_NA);
 	/* Create the tvbuffer for the next dissector */
-	next_tvb = tvb_new_subset_length_caplen(tvb, 0, reported_length - TRAILERLENGTH , -1);
-	if (protocol == TCP_ENCAP_P_UDP) {
-		call_dissector(udp_handle, next_tvb, pinfo, tree);
-	} else { /* Hopefully ESP */
-		call_dissector(esp_handle, next_tvb, pinfo, tree);
+	next_tvb = tvb_new_subset_length(tvb, 0, offset);
+
+	saved_proto = pinfo->current_proto;
+	TRY {
+		/* Dissect the encapsulated protocol before the trailer;
+		 * we will throw an exception on the trailer if the captured
+		 * length was truncated compared to reported length. */
+		if (protocol == TCP_ENCAP_P_UDP) {
+			call_dissector(udp_handle, next_tvb, pinfo, tree);
+		} else { /* Hopefully ESP */
+			call_dissector(esp_handle, next_tvb, pinfo, tree);
+		}
+
 	}
+	CATCH_NONFATAL_ERRORS {
+		/* There was a problem dissecting the payload. Show the
+		 * exception and continue on to show the trailer. */
+		show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+
+		/* Restore the protocol, so that if there's an exception
+		 * dissecting the trailer it will be reported correctly. */
+		pinfo->current_proto = saved_proto;
+	}
+	ENDTRY;
+
+	/* Dissect the trailer following the encapsulated IPSEC/ISAKMP packet */
+	tcpencap_tree = proto_item_add_subtree(tree_item, ett_tcpencap);
+
+	unknown_item = proto_tree_add_item(tcpencap_tree, hf_tcpencap_unknown, tvb,
+		offset, TRAILERLENGTH, ENC_NA);
+	/* Try to guess the contents of the trailer */
+	tcpencap_unknown_tree = proto_item_add_subtree(unknown_item, ett_tcpencap_unknown);
+	proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_zero, tvb, offset + 0, 4, ENC_NA);
+	proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_seq, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+	if (protocol == TCP_ENCAP_P_UDP) {
+		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_ike_direction, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+	} else {
+		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_esp_zero, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+	}
+	proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_magic, tvb, offset + 8, 5, ENC_NA);
+	proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_proto, tvb, offset + 13, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_magic2, tvb, offset + 14, 2, ENC_NA);
 
 	return tvb_captured_length(tvb);
 }
