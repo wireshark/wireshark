@@ -3056,6 +3056,11 @@ static const uint8_t VID_FORTINET_EXCHANGE_INTERFACE_IP[] = { /* Exchange Interf
         0xE8, 0xB4, 0x99, 0xE3, 0x36, 0xC7, 0x6E, 0xE6
 };
 
+static const uint8_t VID_FORTINET_FORTICLIENT_EAP_EXTENSION[] = { /* Forticlient EAP Extension (Fortinet) */
+        0xC1, 0xDC, 0x43, 0x50, 0x47, 0x6B, 0x98, 0xA4,
+        0x29, 0xB9, 0x17, 0x81, 0x91, 0x4C, 0xA4, 0x3E
+};
+
 static const bytes_string vendor_id[] = {
   { VID_SSH_IPSEC_EXPRESS_1_1_0, sizeof(VID_SSH_IPSEC_EXPRESS_1_1_0), "Ssh Communications Security IPSEC Express version 1.1.0" },
   { VID_SSH_IPSEC_EXPRESS_1_1_1, sizeof(VID_SSH_IPSEC_EXPRESS_1_1_1), "Ssh Communications Security IPSEC Express version 1.1.1" },
@@ -3171,6 +3176,7 @@ static const bytes_string vendor_id[] = {
   { VID_FORTINET_AUTODISCOVERY_RECEIVER, sizeof(VID_FORTINET_AUTODISCOVERY_RECEIVER), "Auto-Discovery Receiver (Fortinet)" },
   { VID_FORTINET_AUTODISCOVERY_SENDER, sizeof(VID_FORTINET_AUTODISCOVERY_SENDER), "Auto-Discovery Sender (Fortinet)" },
   { VID_FORTINET_EXCHANGE_INTERFACE_IP, sizeof(VID_FORTINET_EXCHANGE_INTERFACE_IP), "Exchange Interface IP (Fortinet)" },
+  { VID_FORTINET_FORTICLIENT_EAP_EXTENSION, sizeof(VID_FORTINET_FORTICLIENT_EAP_EXTENSION), "Forticlient EAP Extension (Fortinet)" },
   { 0, 0, NULL }
 };
 
