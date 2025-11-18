@@ -11,10 +11,10 @@
 
 
 /* This code is based on the DOCSIS 1.1 specification available at:
- * http://www.cablelabs.com/wp-content/uploads/specdocs/CM-SP-RFIv1.1-C01-050907.pdf
+ * https://www.cablelabs.com/specifications/radio-frequency-interface-specification
  *
  * This code was updated to include DOCSIS 3.1 specification details available at:
- * http://www.cablelabs.com/wp-content/uploads/specdocs/CM-SP-MULPIv3.1-I09-160602.pdf
+ * https://www.cablelabs.com/specifications/CM-SP-MULPIv3.1
  *
  * Updates are backward compatible with previous DOCSIS specifications.
  *
