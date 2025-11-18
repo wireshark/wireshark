@@ -472,7 +472,7 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 			proto_tree_add_item(tree, hf_tacplus_chap_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_BIG_ENDIAN);
 			if( val ) {
 				proto_tree *pt;
-				uint8_t chal_len=val-(1+16); /* Response field alwayes 16 octets */
+				uint8_t chal_len=val-(1+16); /* Response field always 16 octets */
 				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "CHAP Data" );
 				proto_tree_add_item(pt, hf_tacplus_chap_id, tvb, var_off, 1, ENC_BIG_ENDIAN);
 				var_off++;
@@ -485,7 +485,7 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 			proto_tree_add_item(tree, hf_tacplus_mschap_data_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_BIG_ENDIAN);
 			if( val ) {
 				proto_tree *pt;
-				uint8_t chal_len=val-(1+49);  /* Response field alwayes 49 octets */
+				uint8_t chal_len=val-(1+49);  /* Response field always 49 octets */
 				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "MSCHAP Data" );
 				proto_tree_add_item(pt, hf_tacplus_mschap_id, tvb, var_off, 1, ENC_BIG_ENDIAN);
 				var_off++;

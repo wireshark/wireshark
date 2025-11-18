@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* AI genertaed comment:
+/* AI generated comment:
  * AllJoyn was an open-source discovery and communication framework for the Internet of Things (IoT)
  * that enabled devices to find and interact with each other. It allowed for remote method calls and
  * one-way signals between applications on a distributed bus, making it possible for devices from

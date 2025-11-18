@@ -6285,7 +6285,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                 tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = 0;
             }
 
-            /* keep a copy of the previous bloks, if any */
+            /* keep a copy of the previous blocks, if any */
             for(uint8_t i = 0; i< saved_sack_ranges; i++) {
                 saved_left_edge[i] = tcpd->fwd->tcp_analyze_seq_info->sack_left_edge[i];
                 saved_right_edge[i] = tcpd->fwd->tcp_analyze_seq_info->sack_right_edge[i];
@@ -6456,7 +6456,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     /* Classify accordingly by adding the DUP flag,
      * only if it's not already flagged in any way (such as Keep-Alive ACK w/ SACK).
-     * It's marked as a DUP of itself and with occurence = 1
+     * It's marked as a DUP of itself and with occurrence = 1
      */
     if(has_new_sack && tcp_analyze_seq && tcpd
        && tcpd->ta

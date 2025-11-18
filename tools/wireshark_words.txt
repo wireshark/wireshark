@@ -1,4 +1,5 @@
 0f1a2c
+0ksection
 0x%02x
 0x%08x
 10base
@@ -103,6 +104,7 @@ ampdu
 amperage
 ampere
 amperes
+amrnb
 amsdu
 amsterdam
 anacap
@@ -128,9 +130,11 @@ apname
 appcheader
 appcontainer
 appdata
+appdir
 append
 apphdr
 appid
+appimage
 appkey
 applctrl
 applevtalt
@@ -264,6 +268,7 @@ biflow
 bifuel
 bigint
 bigtk
+bindir
 binlog
 bispdu
 bitfield
@@ -417,6 +422,7 @@ chipset
 chksum
 chlauth
 chmod
+chmodbpf
 choco
 chocolatey
 chooser
@@ -612,12 +618,14 @@ daintree
 dallas
 daoack
 darwin
+datadir
 datagram
 datagrams
 dataitem
 datalen
 dataln
 datarate
+datarootdir
 dataset
 datastate
 datetime
@@ -628,6 +636,7 @@ dbrpc
 dbuild
 dccreq
 dcerpc
+dcinfo
 dcmake
 dcname
 dcomp
@@ -805,6 +814,7 @@ diversifications
 diversifier
 divisor
 djiuav
+dladdr
 dlctrl
 dlmap
 dlmapc
@@ -895,6 +905,7 @@ elektronik
 elided
 elink
 ellipsoid
+elseif
 elsif
 emlmr
 emlsr
@@ -918,6 +929,7 @@ encrypts
 enctype
 endace
 endcond
+endforeach
 endian
 endianness
 endif
@@ -1009,6 +1021,7 @@ extcap
 extcaps
 extcomm
 extcopy
+extdata
 extensibility
 extensible
 extern
@@ -1070,6 +1083,7 @@ flowspec
 fmconfig
 fmdata
 fname
+foconfig
 foffset
 followup
 fondelli
@@ -1096,6 +1110,7 @@ freebsd
 friday
 frontend
 fruid
+fsanitize
 fsctl
 fsinfo
 fstst
@@ -1108,6 +1123,7 @@ funcdesc
 functionalities
 funkt
 furuno
+futex
 fuzzed
 fuzzer
 fuzzing
@@ -1375,6 +1391,7 @@ instrmt
 instrumented
 int32t
 intcon
+intdir
 intel
 intensities
 interchangibly
@@ -1642,9 +1659,11 @@ mathieson
 matrixes
 matsushita
 maxbytes
+maxcpucount
 maxlen
 maxlength
 maxmind
+maxminddb
 maxnoof
 maxof
 maybefcs
@@ -1700,6 +1719,7 @@ microbit
 midamble
 middlebox
 migratable
+mikey
 milano
 milli
 millimeters
@@ -1713,6 +1733,7 @@ miniport
 minislot
 minislots
 minizip
+minizipng
 minmax
 minus1
 mirrorlink
@@ -1785,6 +1806,7 @@ msgsend
 msgtype
 msisdn
 msm7627a
+msystem
 mtftp
 mtime
 mtrace
@@ -2084,6 +2106,7 @@ othersat
 outhdr
 overlay1mask
 overlay2mask
+overnet
 overridable
 p2pstar
 p8118e
@@ -2095,6 +2118,7 @@ packetization
 packetized
 pacman
 pagings
+pakid
 panamá
 panasonic
 parallelism
@@ -2126,6 +2150,7 @@ pathbuf
 pathconf
 paxos
 pbcch
+pblock
 pbx2dev
 pbx2pbx
 pcapng
@@ -2316,6 +2341,7 @@ pytest
 qam16
 qam64
 qcustomplot
+qmake
 qmgmt
 qmopt
 qnet6
@@ -2324,9 +2350,11 @@ qosinfo
 qpack
 qproperties
 qsearch
+qspectre
 qstring
 qtbase
 qtbug
+qtver
 quadlet
 quadrature
 quadro
@@ -2532,6 +2560,7 @@ resized
 resolvable
 resolver
 resolvers
+respdata
 restofline
 resub
 resubmission
@@ -2587,6 +2616,7 @@ rotterdam
 routable
 routererr
 rowfmt
+rpath
 rpcap
 rpcsec
 rpmbuild
@@ -2645,6 +2675,7 @@ scalable
 scaleout
 scaler
 scannable
+scard
 scdma
 scell
 sched
@@ -2872,6 +2903,7 @@ strbuf
 strcmp
 strdup
 streamid
+strequal
 strfunc
 stringified
 stringz
@@ -2892,6 +2924,7 @@ subchannel
 subchannelization
 subcode
 subdevice
+subdir
 subdissector
 subdissectors
 subdoc
@@ -3380,6 +3413,7 @@ varint
 vbucket
 vbuckets
 vcard
+vcinstalldir
 vcpkg
 vcredist
 vcxproj
@@ -3418,6 +3452,7 @@ virtualized
 vlans
 vldbentry
 vmods
+vmotion
 vmware
 vnode
 vocoder
@@ -3461,10 +3496,12 @@ wikis
 wimax
 wimaxasncp
 win2k
+windeployqt
 winflexbison
 winget
 winnt
 winpcap
+winreg
 winspool
 wiphy
 wirelen
@@ -3495,6 +3532,7 @@ wstring
 wsutil
 x10drw
 x32bit
+x509af
 x509ce
 x509if
 x509sat
@@ -3527,6 +3565,7 @@ xsltproc
 xtension
 xtest
 xtreme
+xxhash
 yyextra
 yyscanner
 yyterminate

@@ -1087,7 +1087,7 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /* This function is called from PIDL generated dissectors to dissect a
- * NT style policy handle (contect handle).
+ * NT style policy handle (connect handle).
  *
  * param can be used to specify where policy handles are opened and closed
  * by setting PARAM_VALUE to
@@ -1869,7 +1869,7 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset,
 /* This might be some sort of header that MIDL generates when creating
  * marshalling/unmarshalling code for blobs that are not to be transported
  * ontop of DCERPC and where the DREP fields specifying things such as
- * endianess and similar are not available.
+ * endianness and similar are not available.
  */
 int
 nt_dissect_MIDL_NDRHEADERBLOB(proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint8_t *drep)
@@ -1879,7 +1879,7 @@ nt_dissect_MIDL_NDRHEADERBLOB(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 
 	tree=proto_tree_add_subtree(parent_tree, tvb, offset, 16, ett_nt_MIDL_BLOB, NULL, "MES header");
 
-	/* modified DREP field that is used for stuff that is transporetd ontop
+	/* modified DREP field that is used for stuff that is transported ontop
 	 * of non dcerpc
 	 */
 	proto_tree_add_item(tree, hf_nt_midl_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);

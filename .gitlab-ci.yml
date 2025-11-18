@@ -793,7 +793,7 @@ Commit Check:
     - cd ..
     - git status
     # We have the following options for displaying information in a merge request
-    # from a pipleline job:
+    # from a pipeline job:
     #
     # - The Notes API, which requires a valid GitLab CI_JOB_TOKEN variable, which
     #   isn't available for outside projects:

@@ -1787,7 +1787,7 @@ static void dissect_edonkey_tcp_message(uint8_t msg_type,
             /* Client to Server: <Client Info> */
             /* Client to Client: 0x10 <Client Info> <Server address> */
             /* If Hello is sent to server 0x10 before UserHash is skipped,
-               but UserHash might starts with 0x10. To decrease posibility
+               but UserHash might starts with 0x10. To decrease possibility
                of mistake, we check also 6th and 15h byte of UserHash -
                they have constant value. The best way would be to process
                whole packet to check it. */

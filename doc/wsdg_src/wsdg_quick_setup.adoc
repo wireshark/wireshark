@@ -116,7 +116,7 @@ It supports the following options:
 * `-p` specify the installation prefix; _/usr/local_ is the default
 * `-u` uninstall packages
 
-We recommend setting `WIRESHARK_BASE_DIR` to install libraries, since it's easy and it's what we use to create the offical packages.
+We recommend setting `WIRESHARK_BASE_DIR` to install libraries, since it's easy and it's what we use to create the official packages.
 If you're using Homebrew we recommend using `tools/macos-setup-brew.sh` with no options to install CMake and Ninja.
 
 You will also have to install Qt 6. To install

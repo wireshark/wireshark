@@ -745,7 +745,7 @@ static const true_false_string mipi_csi2_cmcounter_csicounter = {
 };
 
 /*
- * Based on what is publically available:
+ * Based on what is publicly available:
  *   https://elixir.bootlin.com/linux/v5.19.17/source/include/media/mipi-csi2.h
  *   https://www.nxp.com/docs/en/application-note/AN5305.pdf
  *   https://www.efinixinc.com/docs/mipi-csi2-rx-core-ug-v3.2.pdf

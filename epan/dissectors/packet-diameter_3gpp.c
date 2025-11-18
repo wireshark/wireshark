@@ -1862,7 +1862,7 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         offset += 1;
     }
 
-    /* Ext3-QoS-Susbcribed:: SIZE(1..2)
+    /* Ext3-QoS-Subscribed:: SIZE(1..2)
     * 1-2   Octets are coded according to 3GPP TS 24.008 Quality of Service Octets 17-18
     */
     if (length >= 16) {

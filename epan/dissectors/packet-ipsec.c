@@ -1533,7 +1533,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   int esp_pad_len = 0;
 
 
-  /* Variables for decryption and authentication checking used for libgrypt */
+  /* Variables for decryption and authentication checking used for libgcrypt */
   gcry_md_hd_t md_hd;
   int md_len = 0;
   gcry_error_t err = 0;

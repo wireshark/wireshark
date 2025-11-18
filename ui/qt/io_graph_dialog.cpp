@@ -1454,7 +1454,7 @@ void IOGraphDialog::loadProfileGraphs(uat_field_t* io_graph_fields)
 
         char* err = NULL;
         if (!uat_load(iog_uat_, NULL, application_configuration_environment_prefix(), &err)) {
-            // Some errors are non-fatils (records were added but failed
+            // Some errors are non-fatals (records were added but failed
             // validation.) Since field names sometimes change between
             // verseions, don't erase all the existing graphs.
             if (iog_uat_->raw_data->len) {

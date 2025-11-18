@@ -253,7 +253,7 @@ static bool zbd_parse_uat_hexline(const char *str,
 
     /**
      * Attempt to parse the hex string. The hex string must
-     * be at least 16 pairs of hexidecimal digits with the
+     * be at least 16 pairs of hexadecimal digits with the
      * following optional separators: ':', '-', " ", or 16
      * alphanumeric characters after a double-quote.
      */
@@ -447,7 +447,7 @@ static void zbd_free_key_record(void *ptr)
 }
 
 /**
- * Deletes all existing keys in zbee_pc_keyrig and adds new ones
+ * Deletes all existing keys in zbee_pc_keyring and adds new ones
  * from uat_key_records.
  */
 static void uat_key_record_post_update(void)
@@ -1372,7 +1372,7 @@ static int dissect_zb_direct_permit_join(tvbuff_t    *tvb,
 }
 
 /**
- * Dissector for Leave Networ.
+ * Dissector for Leave Network.
  *
  * @param  tvb     pointer to buffer containing raw packet
  * @param  pinfo   pointer to packet information fields
