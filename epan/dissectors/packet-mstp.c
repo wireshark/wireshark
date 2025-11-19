@@ -24,6 +24,7 @@
 #include <epan/expert.h>
 #include <epan/address_types.h>
 #include <epan/to_str.h>
+#include <epan/crc16-tvb.h>
 #include "packet-mstp.h"
 
 void proto_register_mstp(void);
@@ -109,27 +110,6 @@ CRC_Calc_Header(
 
 	/* Combine bits shifted out left hand end */
 	return (crc & 0xfe) ^ ((crc >> 8) & 1);
-}
-#endif
-
-#if defined(BACNET_MSTP_CHECKSUM_VALIDATE)
-/* Accumulate "dataValue" into the CRC in crcValue. */
-/*  Return value is updated CRC */
-/*  The ^ operator means exclusive OR. */
-/* Note: This function is copied directly from the BACnet standard. */
-static uint16_t
-CRC_Calc_Data(
-	uint8_t dataValue,
-	uint16_t crcValue)
-{
-	uint16_t crcLow;
-
-	crcLow = (crcValue & 0xff) ^ dataValue;     /* XOR C7..C0 with D7..D0 */
-
-	/* Exclusive OR the terms in the table (top down) */
-	return (crcValue >> 8) ^ (crcLow << 8) ^ (crcLow << 3)
-		^ (crcLow << 12) ^ (crcLow >> 4)
-		^ (crcLow & 0x0f) ^ ((crcLow & 0x0f) << 7);
 }
 #endif
 
@@ -370,6 +350,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		uint16_t decoded_len = mstp_frame_pdu_len;
 
 		decode_base = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, mstp_frame_pdu_len + 2);
+		/* XXX - Add the decoded CRC-32K to the tree, pass or fail? */
 		decoded_len = (uint16_t)cobs_frame_decode(decode_base, decode_base, decoded_len + 2);
 		if (decoded_len > 0) {
 			decoded_tvb = tvb_new_real_data(decode_base, decoded_len, decoded_len);
@@ -380,12 +361,9 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/* Unknown function - dissect the payload as data */
 				call_data_dissector(decoded_tvb, pinfo, tree);
 			}
-
-			proto_tree_add_checksum(subtree, tvb, offset + mstp_frame_pdu_len, hf_mstp_frame_crc16, hf_mstp_frame_checksum_status, &ei_mstp_frame_checksum_bad, pinfo, tvb_get_ntohs(tvb, offset + mstp_frame_pdu_len), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		} else {
 			next_tvb = tvb_new_subset_length(tvb, offset, mstp_tvb_pdu_len);
 			call_data_dissector(next_tvb, pinfo, tree);
-			proto_tree_add_checksum(subtree, tvb, offset + mstp_frame_pdu_len, hf_mstp_frame_crc16, hf_mstp_frame_checksum_status, &ei_mstp_frame_checksum_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 		}
 	}
 	else if (mstp_tvb_pdu_len > 2) {
@@ -416,11 +394,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #if defined(BACNET_MSTP_CHECKSUM_VALIDATE)
 		/* 16-bit checksum - calculate to validate */
 		max_len = MIN(mstp_frame_pdu_len, mstp_tvb_pdu_len);
-		for (i = 0; i < max_len; i++) {
-			crcdata = tvb_get_uint8(tvb, offset+i);
-			crc16 = CRC_Calc_Data(crcdata, crc16);
-		}
-		crc16 = ~crc16;
+		crc16 = crc16_ccitt_tvb_offset(tvb, offset, max_len);
 		/* convert it to on-the-wire format */
 		crc16 = g_htons(crc16);
 
