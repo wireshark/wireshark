@@ -293,7 +293,7 @@ proto_reg_handoff_caneth(void)
 {
     dissector_add_uint_with_preference("udp.port", CANETH_UDP_PORT, caneth_handle);
 
-    heur_dissector_add("udp", dissect_caneth_heur_udp, "CAN-ETH over UDP", "caneth_udp", proto_caneth, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_caneth_heur_udp, "CAN-ETH over UDP", "caneth_udp", proto_caneth, HEURISTIC_DISABLE);
 
     proto_can = proto_get_id_by_filter_name("can");
 }
