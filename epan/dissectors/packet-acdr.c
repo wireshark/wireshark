@@ -12,6 +12,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/*
+ * The "AC DR" protocol is AudioCodes Debug Recording, a proprietary protocol used to send diagnostic data
+ * from AudioCodes devices to a server or application like Wireshark for troubleshooting purposes.
+ * It captures information such as SIP signaling, syslog messages, and optionally media (RTP/RTCP) and PCM data.
+ * The default port for ACDR is 925
+ */
 #include "config.h"
 
 #include <epan/packet.h>
