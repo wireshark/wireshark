@@ -598,7 +598,7 @@ proto_register_bt_tracker(void)
 void
 proto_reg_handoff_bt_tracker(void)
 {
-  heur_dissector_add("udp", dissect_bt_tracker_heur, "BitTorrent Tracker over UDP", "bt_tracker_udp", proto_bt_tracker, HEURISTIC_ENABLE);
+  heur_dissector_add("udp", dissect_bt_tracker_heur, "BitTorrent Tracker over UDP", "bt_tracker_udp", proto_bt_tracker, HEURISTIC_DISABLE);
 
   bt_tracker_handle = create_dissector_handle(dissect_bt_tracker, proto_bt_tracker);
   dissector_add_for_decode_as_with_preference("udp.port", bt_tracker_handle);
