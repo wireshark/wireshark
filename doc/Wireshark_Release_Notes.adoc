@@ -78,16 +78,16 @@ The following bugs have been fixed:
 * Writing to an LZ4-compressed output file might fail. wsbuglink:20779[].
 * endian.h conflics with libc for building plugins. wsbuglink:20786[].
 * TShark crash caused by Lua plugin. wsbuglink:20794[].
-* Wireshark stalls for a few seconds when selecting specific messages. wsbuglink:20797[].
+* Wireshark stalls for a few seconds when selecting specific messages. wsbuglink:20797[]. {notable}
 * TLS Abbreviated Handshake Using New Session Ticket. wsbuglink:20802[].
 * Custom websocket dissector does not run. wsbuglink:20803[].
 * WINREG QueryValue triggers dissector bug in packet-dcerpc.c. wsbuglink:20813[].
 * Lua: FileHandler causing crash when reading packets. wsbuglink:20817[].
 * Apply As Filter for field with FT_NONE and BASE_NONE for a single byte does not use the hex value. wsbuglink:20818[].
 * Layout preference Pane 3 problem with selecting Packet Diagram or None. wsbuglink:20819[].
-* TCP dissector creates invalid packet diagram. wsbuglink:20820[].
+* TCP dissector creates invalid packet diagram. wsbuglink:20820[]. {notable}
 * Too many nested VLAN tags when opening as File Format. wsbuglink:20831[].
-* Omnipeek files not working in 4.6.0. wsbuglink:20842[].
+* Omnipeek files not working in 4.6.0. wsbuglink:20842[]. {notable}
 * Support UTF-16 strings in the IsoBus dissector for the string operations. wsbuglink:20845[].
 * SNMP getBulkRequest request-id does not get filtered for correctly. wsbuglink:20849[].
 * Fuzz job issue: fuzz-2025-11-12-12064814316.pcap. wsbuglink:20852[].
@@ -108,7 +108,7 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.6.0.. | rg packet- | sort -u)
+// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.6.1.. | rg packet- | sort -u)
 [commaize]
 --
 802.11 Radiotap
