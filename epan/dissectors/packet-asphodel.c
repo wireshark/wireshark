@@ -12,6 +12,9 @@
 
 /*
  * Asphodel: https://bitbucket.org/suprocktech/asphodel
+ * The "Asphodel protocol" is a communication protocol for streaming real-time data from industrial sensors,
+ * primarily developed by Suprock Technologies LLC.
+ * It is used for communicating with both USB and TCP devices
  */
 
 #include <config.h>
@@ -775,7 +778,7 @@ void
 proto_reg_handoff_asphodel(void)
 {
     heur_dissector_add("udp", dissect_asphodel_heur_udp, "Asphodel over UDP",
-                       "asphodel_inquiry", proto_asphodel, HEURISTIC_ENABLE);
+                       "asphodel_inquiry", proto_asphodel, HEURISTIC_DISABLE);
     dissector_add_for_decode_as("udp.port", asphodel_response_handle);
     dissector_add_for_decode_as("tcp.port", asphodel_tcp_handle);
 }
