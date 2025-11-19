@@ -114,7 +114,7 @@ static GHashTable* hash_packet;
 #define NTLMSSP_NEGOTIATE_ANONYMOUS                0x00000800 // J
 #define NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED      0x00001000 // K
 #define NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED 0x00002000 // L
-#define NTLMSSP_UNUSED_00004000                    0x00004000 // r7
+#define NTLMSSP_NEGOTIATE_LOCAL_CALL               0x00004000 // r7
 #define NTLMSSP_NEGOTIATE_ALWAYS_SIGN              0x00008000 // M
 #define NTLMSSP_TARGET_TYPE_DOMAIN                 0x00010000 // N
 #define NTLMSSP_TARGET_TYPE_SERVER                 0x00020000 // O
@@ -3122,8 +3122,8 @@ proto_register_ntlmssp(void)
         NULL, HFILL }
     },
     { &hf_ntlmssp_negotiate_flags_4000,
-      { "Negotiate 0x00004000", "ntlmssp.unused00004000",
-        FT_BOOLEAN, 32, TFS (&tfs_set_notset), NTLMSSP_UNUSED_00004000,
+      { "Negotiate Local Call", "ntlmssp.negotiatelocalcall",
+        FT_BOOLEAN, 32, TFS (&tfs_set_notset), NTLMSSP_NEGOTIATE_LOCAL_CALL,
         NULL, HFILL }
     },
     { &hf_ntlmssp_negotiate_flags_8000,
