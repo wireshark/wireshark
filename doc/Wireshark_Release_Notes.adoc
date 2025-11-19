@@ -32,28 +32,6 @@ https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 // The following vulnerabilities have been fixed:
 
-* wssalink:2025-05[] {notable}
-BPv7 dissector crash.
-wsbuglink:20770[].
-// cveidlink:2025-xxx[].
-// Fixed in master: 8d0b2e248a
-// Fixed in release-4.6: b3295ac628
-// Fixed in release-4.4: N/A
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-824
-// * Fuzz job crash: fuzz-2025-10-09-11658662894.pcap. wsbuglink:20770[].
-
-* wssalink:2025-06[] {notable}
-Kafka dissector crash.
-wsbuglink:20823[].
-// cveidlink:2025-xxx[].
-// Fixed in master: 49137f8ce9
-// Fixed in release-4.6: 158ed1e98b
-// Fixed in release-4.4: e180152d3d
-// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H
-// CWE-824
-// * Fuzz job crash: fuzz-2025-10-24-11832086494.pcap. wsbuglink:20823[].
-
 // * wssalink:2025-07[] {notable}
 // Foo dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
@@ -72,26 +50,6 @@ The following bugs have been fixed:
 // Bugs with the {notable} attribute show up in the "What's Changed" box on the download page.
 //* Wireshark contains traces of nuts. What kind of nuts? The kind you're allergic to. wsbuglink:5000[] {notable}
 
-* L2CAP dissector doesn't understand retransmission mode. wsbuglink:2241[].
-* DNS HIP dissector labels PK algorithm as HIT length. wsbuglink:20768[].
-* clang-cl error in "packet-zbee-direct.c" wsbuglink:20776[].
-* Writing to an LZ4-compressed output file might fail. wsbuglink:20779[].
-* endian.h conflics with libc for building plugins. wsbuglink:20786[].
-* TShark crash caused by Lua plugin. wsbuglink:20794[].
-* Wireshark stalls for a few seconds when selecting specific messages. wsbuglink:20797[]. {notable}
-* TLS Abbreviated Handshake Using New Session Ticket. wsbuglink:20802[].
-* Custom websocket dissector does not run. wsbuglink:20803[].
-* WINREG QueryValue triggers dissector bug in packet-dcerpc.c. wsbuglink:20813[].
-* Lua: FileHandler causing crash when reading packets. wsbuglink:20817[].
-* Apply As Filter for field with FT_NONE and BASE_NONE for a single byte does not use the hex value. wsbuglink:20818[].
-* Layout preference Pane 3 problem with selecting Packet Diagram or None. wsbuglink:20819[].
-* TCP dissector creates invalid packet diagram. wsbuglink:20820[]. {notable}
-* Too many nested VLAN tags when opening as File Format. wsbuglink:20831[].
-* Omnipeek files not working in 4.6.0. wsbuglink:20842[]. {notable}
-* Support UTF-16 strings in the IsoBus dissector for the string operations. wsbuglink:20845[].
-* SNMP getBulkRequest request-id does not get filtered for correctly. wsbuglink:20849[].
-* Fuzz job issue: fuzz-2025-11-12-12064814316.pcap. wsbuglink:20852[].
-* UDP Port 853 (DoQ) should be decoded as QUIC. wsbuglink:20856[].
 
 // == Known Bugs
 
@@ -177,6 +135,35 @@ There is no new or updated file format support in this release.
 // === Major API Changes
 
 == Prior Versions
+
+Wireshark 4.6.1 included the following changes.
+See the
+https://www.wireshark.org/docs/relnotes/wireshark-4.6.1.html[release notes]
+for details:
+
+* wssalink:2025-05[] BPv7 dissector crash. wsbuglink:20770[].
+* wssalink:2025-06[] Kafka dissector crash. wsbuglink:20823[].
+
+* L2CAP dissector doesn't understand retransmission mode. wsbuglink:2241[].
+* DNS HIP dissector labels PK algorithm as HIT length. wsbuglink:20768[].
+* clang-cl error in "packet-zbee-direct.c" wsbuglink:20776[].
+* Writing to an LZ4-compressed output file might fail. wsbuglink:20779[].
+* endian.h conflics with libc for building plugins. wsbuglink:20786[].
+* TShark crash caused by Lua plugin. wsbuglink:20794[].
+* Wireshark stalls for a few seconds when selecting specific messages. wsbuglink:20797[]. {notable}
+* TLS Abbreviated Handshake Using New Session Ticket. wsbuglink:20802[].
+* Custom websocket dissector does not run. wsbuglink:20803[].
+* WINREG QueryValue triggers dissector bug in packet-dcerpc.c. wsbuglink:20813[].
+* Lua: FileHandler causing crash when reading packets. wsbuglink:20817[].
+* Apply As Filter for field with FT_NONE and BASE_NONE for a single byte does not use the hex value. wsbuglink:20818[].
+* Layout preference Pane 3 problem with selecting Packet Diagram or None. wsbuglink:20819[].
+* TCP dissector creates invalid packet diagram. wsbuglink:20820[]. {notable}
+* Too many nested VLAN tags when opening as File Format. wsbuglink:20831[].
+* Omnipeek files not working in 4.6.0. wsbuglink:20842[]. {notable}
+* Support UTF-16 strings in the IsoBus dissector for the string operations. wsbuglink:20845[].
+* SNMP getBulkRequest request-id does not get filtered for correctly. wsbuglink:20849[].
+* Fuzz job issue: fuzz-2025-11-12-12064814316.pcap. wsbuglink:20852[].
+* UDP Port 853 (DoQ) should be decoded as QUIC. wsbuglink:20856[].
 
 Wireshark 4.6.0 included the following changes.
 See the
