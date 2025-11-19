@@ -22,7 +22,7 @@ If you or your organization would like to contribute or become a sponsor, please
 
 // The following vulnerabilities have been fixed:
 
-* wssalink:2025-06[] {notable}
+* wssalink:2025-06[]
 Kafka dissector crash.
 wsbuglink:20823[].
 // cveidlink:2025-xxx[].
@@ -74,7 +74,7 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 // Add one protocol per line between the -- delimiters.
-// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.10.. | rg packet- | sort -u)
+// rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.11.. | rg packet- | sort -u)
 [commaize]
 --
 AC DR

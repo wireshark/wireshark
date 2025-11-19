@@ -1,0 +1,371 @@
+commit 9609d3e373
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Nov 18 10:04:23 2025 -0800
+
+    Transifex: Set our resource names in the config file
+
+commit 28670176f8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Nov 17 13:50:45 2025 -0800
+
+    Prep for 4.4.11
+
+commit 3911b2958d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Nov 14 20:20:44 2025 -0500
+
+    epan: Use a GSequence for tvb_composite and make it non-recursive
+
+    To speed up tvb_composites consisting of many child tvbuffs,
+    use a GSequence. This is a data structure that internally has
+    a balanced binary tree. It differs from GTree in that one can
+    do initial insertions without sorting. In our case, the ordering
+    at the time of tvb_composite_finalize is *the* ordering, and is
+    the same ordering that comparing according to the calculated
+    end offsets will have, so this is faster on insert than a GTree.
+
+    Like a GTree, it is much faster O(log N) vs O(N) on lookup to find
+    the location of the TVB with end offset greater than or equal to
+    the desired offset than using a GQueue.
+
+    Also, make composite_memcpy iterative instead of recursive, which
+    removes the current hard limit of 500 without causing stack overflow
+    with very large numbers of child TVBs.
+
+    The file in #20860 works fine now but there could still be limits
+    imposed (at least on the total number of bytes?) for a compression
+    bomb more similar to the file found in #12077.
+
+    (backported from commit 9139917bd8e2c80a5db7079993d5528db74e3519)
+
+commit 06fa08a798
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 16 10:18:20 2025 +0000
+
+    [Automatic update for 2025-11-16]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 74d1bd0c69
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Thu Nov 13 09:33:57 2025 +0100
+
+    BT L2CAP: Don't add incomplete reassemblies
+
+    If mfp->cur_off != mfp->tot_len there was missing data or other
+    reassembly issues.
+
+    Fix #20852
+
+    (cherry picked from commit 2497f40704a3c26b0fcd9282a3b39f55ec84c78b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 5947d8daae
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Wed Nov 12 19:35:17 2025 +0100
+
+    ACDR: Fix crash when filtering acdr && !rtp
+
+    (cherry picked from commit 66f50b4ff1c31191f8fcc34637a0973a95b97c9c)
+
+    Co-authored-by: Orgad Shaneh <orgad.shaneh@audiocodes.com>
+
+commit 5b83e42bcd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Nov 12 14:54:55 2025 +0000
+
+    BT L2CAP: Fix reassembly of I-Frames
+
+    For the first fragment, [try to] copy only what is in the fragment,
+    not the entire reassembled SDU length, which will fail. (It will
+    fail on only the first pass, creating a mysterious expert info that
+    doesn't show up in the Expert Info dialog.)
+
+    Fixes reassembly of the I-frame SDUs beginning in frames 76 and 79
+    on the capture file in issue #2241; they are ultimately reassembled
+    into one OBEX packet in frame 81 which is correctly dissected now.
+
+    Fixup 7950fc1c941b92beb23fd29f7fed90eac9ba8c89
+
+    (cherry picked from commit 36bd1936adde3696cd168ef80e3da9bedecf01b2)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a84ee69c2d
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Wed Nov 12 07:35:26 2025 +0100
+
+    LTP: Fix SDA offset for each sub-ID
+
+    (cherry picked from commit a12019300764c07e629db818a983103216583365)
+
+    Co-authored-by: Brian Sipos <brian.sipos@gmail.com>
+
+commit 3bab6e8f98
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sun Nov 9 12:45:57 2025 +0100
+
+    Fix Ethernet CFM BNM PDU dissection
+
+    (cherry picked from commit 48c1203fd01c62628dcb2853e96cff131f6f477a)
+
+    Co-authored-by: mikkle <mikkel@troest.dk>
+
+commit dea81a8937
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Nov 9 12:37:44 2025 +0000
+
+    ISOBUS VT: Fix UTF-16 endianness
+
+    If the first two bytes of a string buffer, retrieved in Little Endian
+    order, are 0xFEFF (BOM), then the string is UCS-2 or UTF-16 in Little
+    Endian order, not Big Endian.
+
+    FIx #20845
+
+    (cherry picked from commit 5b77cfb3392345b0491eae0dba25cc2416918ca3)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit c708244664
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 9 10:16:55 2025 +0000
+
+    [Automatic update for 2025-11-09]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 7e2acea1e0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Nov 5 14:51:00 2025 +0100
+
+    Windows: Update brotli to 1.2.0
+
+commit 02fe6e9517
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 2 10:16:55 2025 +0000
+
+    [Automatic update for 2025-11-02]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit f0eb6f8125
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 26 10:17:04 2025 +0000
+
+    [Automatic update for 2025-10-26]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit e180152d3d
+Author: Darius Davis <darius-wireshark@free-range.com.au>
+Date:   Sat Oct 25 15:01:34 2025 +1000
+
+    Kafka: Fix decompress_snappy with no xerial chunks.
+
+    Instead of returning true without setting outputs, report a failure to
+    decompress and return false to the caller.
+
+    Fix #20823
+
+    (cherry picked from commit 49137f8ce93c9f7ac55b69c8e089ba6a422f633e)
+
+commit d56f03e096
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Oct 25 13:35:51 2025 +0000
+
+    DFS: Fix VolumeState bitmap
+
+    pidl, or at least the Wireshark module, doesn't handle a bitmap using
+    values from a enum defined elsewhere in the IDL. It's been incorrectly
+    interpreted "DFS_..." as the hexstring "DF" and then bailing out with
+    errors at the "S":
+    Illegal hexadecimal digit 'S' ignored at /builds/wireshark/wireshark/tools/pidl/lib/Parse/Pidl/Wireshark/NDR.pm line 253.
+
+    Fix that by using the actual value.
+
+    (cherry picked from commit ba0da02a1c30dd7a13414a494f411fd419489272)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 821a898257
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sat Oct 25 09:16:28 2025 +0000
+
+    EPAN: Have proto_tree_add_bits functions set correct FI bit offset
+
+    Proto_tree_add_bits functions have their offset in bits, rather than
+    bytes. During tree item creation a field_info is created with start at
+    the first byte of the bit field. Therefore the bit offset to set in the
+    field info should be the remaining bits in the byte, rather than the
+    full bit_offset. Therefore pass bit_offset mod 8 to FI_BITS_OFFSET.
+
+    Followup on b0d9cba7
+    Fixes #20820
+
+    (cherry picked from commit 4748d8c21ebcd20431a03973981ae16873a08ac1)
+
+    Co-authored-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+
+commit 9687f5d2cd
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Oct 20 09:35:59 2025 -0400
+
+    GitLab CI: Build the Rocky 9 packages with Qt 6
+
+    Qt 6 is available in EPEL for Rocky 9, so that's what we're
+    installing in the container now.
+
+    (backported from commit b1c31489a64d6a4f8f9090a73af8cb339dfdb85d)
+
+commit ab448639e9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Oct 23 16:55:26 2025 +0000
+
+    GitLab CI: Fix the Debian Stable APT Test job
+
+    Make sure we can install dependencies.
+
+    (cherry picked from commit b2759ef7a13dcbe93cc123f6b6ce9c121118a2bd)
+
+    Co-authored-by: Gerald Combs <gerald@wireshark.org>
+
+commit 6c6e6a2726
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Oct 23 14:15:21 2025 +0000
+
+    pidl: Use has_property to avoid comparing undef with the empty string
+
+    Prevents a bunch of (harmless) warnings when compiling:
+
+    Use of uninitialized value in string eq at /builds/wireshark/wireshark/tools/pidl/lib/Parse/Pidl/Wireshark/NDR.pm line 521.
+
+    (cherry picked from commit 8dee8601776175a6132bef7ab19f36ee3d589d06)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit e60f1d8c1c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Oct 23 13:32:40 2025 +0000
+
+    epan: Generate the filter for a FT_NONE frame bytes fallback better
+
+    Use the internal ftypes function bytes_to_dfilter_repr to generate
+    the dfilter representation of the frame bytes fallback for a
+    FT_NONE field instead of re-implementing it. This eliminates a
+    snprintf call, and fixes the case where the byte string is exactly
+    length 1 (see 881dec9b90aec4e4c4b7ad25e86ee6b61eac4913 and
+    f37c7c4062db513bd4dc6fffa36a0c90c74a4339) by making it consistent
+    with other dfilter uses and automatically update if FT_BYTES has
+    any future changes.
+
+    Fix #20818. (The filter documentation still needs to be updated,
+    though.)
+
+    (cherry picked from commit 2215b6862a10c1c3d06c75b0f403b3df9438bd3f)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit dc8b7d330e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 19 10:18:54 2025 +0000
+
+    [Automatic update for 2025-10-19]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 358a8ef944
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sat Oct 18 09:49:56 2025 +0000
+
+    tls: Abbreviated Handshake Using New Session Ticket
+
+    When the ServerHello contains a NewSessionTicket the stored
+    master secret for the SessionTicket used in ClientHello must be
+    restored to be able to save it with the NewSessionTicket.
+
+    Fixes #20802
+
+    (cherry picked from commit 8ded5ea9e4b53d751b4ca1814e0bbd2a5c896329)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
+
+commit 92cc42bede
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Mon Oct 13 08:34:00 2025 +0200
+
+    win32-utils: fetch exception descriptions from ntdll.dll.
+
+    Instead of supplying our own descriptions, and not having a description
+    for every exception, load ntdll.dll and get the exception string from
+    there with FormatMessageW() and convert it to UTF-8.
+
+    This also means we don't use a static buffer, so win32strexception() is
+    thread-safe.
+
+    (cherry picked from commit 560fa04c9022db5ae2ac29c315159ee4236104b8)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit ac7e949c43
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Oct 12 10:17:42 2025 +0000
+
+    [Automatic update for 2025-10-12]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 4d4d217f17
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Oct 12 10:47:32 2025 +0000
+
+    tshark: clean up call to sync_pipe_start().
+
+    No need to save its return value, just check it when the call is made.
+
+    (cherry picked from commit 3399d2082c343ba6d412c6f195501571f9778345)
+
+    Co-authored-by: Guy Harris <gharris@sonic.net>
+
+commit b88f0cd92c
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Thu Oct 9 21:33:44 2025 +0200
+
+    DNS: fix HIP PK algo field name
+
+    Related: #20768
+
+    (cherry picked from commit 65fb8a629b76f955d88e5e8495e21641d8945bd3)
+
+    Co-authored-by: Uli Heilmeier <uh@heilmeier.eu>
+
+commit e01a1a9658
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Wed Oct 8 21:50:59 2025 +0200
+
+    DNS: fix field name for HIP HIT algo
+
+    Fixes: #20768
+
+    (cherry picked from commit 07bba19c48e6d8a899badd4b083835351abe3806)
+
+    Co-authored-by: Uli Heilmeier <uh@heilmeier.eu>
+
+commit 8421ec9610
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Oct 9 09:03:32 2025 -0700
+
+    Version: 4.4.10 → 4.4.11 [skip ci]
+
+commit b58c2a1564
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Thu Oct 9 09:05:07 2025 +0200
+
+    wslua: Add length check in TreeItem_set_len
+
+    Add a check in TreeItem_set_len() for illegal length values.
+
+    (cherry picked from commit 63dc61bf810c9ab37b86eab3cb503932c0edabde)
+
+    Co-authored-by: Stig Bjørlykke <stig@bjorlykke.org>
