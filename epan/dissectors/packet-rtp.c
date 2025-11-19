@@ -1601,9 +1601,8 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
  */
 static void
 dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-         proto_tree *rtp_tree, int offset, unsigned int data_len,
-         unsigned int data_reported_len, unsigned int payload_type,
-         struct _rtp_info *rtp_info)
+         proto_tree *rtp_tree, int offset, unsigned int data_reported_len,
+         unsigned int payload_type, struct _rtp_info *rtp_info)
 {
     tvbuff_t *newtvb;
     struct _rtp_packet_info *p_packet_data;
@@ -1619,9 +1618,9 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if(p_packet_data != NULL)
         finfo = p_packet_data->rtp_conv_info;
 
-    if(finfo == NULL || !desegment_rtp) {
+    if(finfo == NULL || !desegment_rtp || !tvb_bytes_exist(tvb, offset, data_reported_len)) {
         /* Hand the whole lot off to the subdissector */
-        newtvb = tvb_new_subset_length_caplen(tvb, offset, data_len, data_reported_len);
+        newtvb = tvb_new_subset_length(tvb, offset, data_reported_len);
         process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type, rtp_info);
         return;
     }
@@ -1661,7 +1660,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         fd_head = fragment_add_seq(&rtp_reassembly_table,
                        tvb, offset, pinfo, fid, NULL,
-                       seqno-msp->startseq, data_len,
+                       seqno-msp->startseq, data_reported_len,
                        false, 0);
 
         newtvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled RTP", fd_head,
@@ -1712,7 +1711,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #ifdef DEBUG_FRAGMENTS
         ws_debug("\tRTP non-fragment payload");
 #endif
-        newtvb = tvb_new_subset_length_caplen( tvb, offset, data_len, data_reported_len );
+        newtvb = tvb_new_subset_length(tvb, offset, data_reported_len);
 
         /* Hand off to the subdissector */
         process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type, rtp_info);
@@ -1918,7 +1917,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         }
         const char *saved_proto = pinfo->current_proto;
         TRY {
-            dissect_rtp_data(tvb, pinfo, tree, rfc2198_tree, hdr_last->offset, hdr_last->len, hdr_last->len, hdr_last->pt, &rfc2198_rtp_info);
+            dissect_rtp_data(tvb, pinfo, tree, rfc2198_tree, hdr_last->offset, hdr_last->len, hdr_last->pt, &rfc2198_rtp_info);
         }
         CATCH_NONFATAL_ERRORS {
             show_exception(tvb, pinfo, rfc2198_tree, EXCEPT_CODE, GET_MESSAGE);
@@ -2439,8 +2438,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         proto_tree_add_boolean( rtp_tree, hf_rtp_marker, tvb, offset,
             1, octet2 );
 
-        proto_tree_add_uint_format( rtp_tree, hf_rtp_payload_type, tvb,
-            offset, 1, octet2, "Payload type: %s (%u)", pt, payload_type);
+        proto_tree_add_uint_format_value( rtp_tree, hf_rtp_payload_type, tvb,
+            offset, 1, octet2, "%s (%u)", pt, payload_type);
 
         offset++;
 
@@ -2604,7 +2603,6 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 dissect_rtp_data( tvb, pinfo, tree, rtp_tree,
                     offset,
                     data_len,
-                    data_len,
                     payload_type,
                     rtp_info);
             } CATCH_ALL {
@@ -2687,7 +2685,6 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             /* Ensure that tap is called after packet dissection, even in case of exception */
             TRY {
                 dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
-                          tvb_captured_length_remaining( tvb, offset ),
                           tvb_reported_length_remaining( tvb, offset ),
                           payload_type, rtp_info);
             } CATCH_ALL {
@@ -2802,8 +2799,8 @@ dissect_rtp_shim_header(tvbuff_t *tvb, int start, packet_info *pinfo _U_, proto_
 
         pt = val_to_str_ext(pinfo->pool, payload_type, &rtp_payload_type_vals_ext, "Unknown (%u)");
 
-        proto_tree_add_uint_format( rtp_tree, hf_rtp_payload_type, tvb,
-            offset, 1, octet2, "Payload type: %s (%u)", pt, payload_type);
+        proto_tree_add_uint_format_value( rtp_tree, hf_rtp_payload_type, tvb,
+            offset, 1, octet2, "%s (%u)", pt, payload_type);
 
         offset++;
 
