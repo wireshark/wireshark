@@ -7,8 +7,6 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is the first release of the 4.6 branch.
-
 == What is Wireshark?
 
 Wireshark is the world’s most popular network protocol analyzer.
