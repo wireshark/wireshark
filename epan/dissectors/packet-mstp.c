@@ -25,6 +25,7 @@
 #include <epan/address_types.h>
 #include <epan/to_str.h>
 #include <epan/crc16-tvb.h>
+#include <epan/exceptions.h>
 #include "packet-mstp.h"
 
 void proto_register_mstp(void);
@@ -287,8 +288,8 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *subtree, int offset)
 {
 	uint8_t mstp_frame_type = 0;
-	uint16_t mstp_frame_pdu_len = 0;
-	uint16_t mstp_tvb_pdu_len = 0;
+	uint32_t mstp_frame_pdu_len = 0; /* PDU length reported in the header */
+	uint16_t mstp_tvb_pdu_len = 0; /* Reported space in parent tvb for PDU */
 	uint16_t vendorid = 0;
 	tvbuff_t *next_tvb = NULL;
 	proto_item *item;
@@ -298,13 +299,11 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	uint16_t crc16 = 0xFFFF;
 	uint8_t crcdata;
 	uint16_t i; /* loop counter */
-	uint16_t max_len = 0;
 #endif
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet");
 	col_set_str(pinfo->cinfo, COL_INFO, "BACnet MS/TP");
 	mstp_frame_type = tvb_get_uint8(tvb, offset);
-	mstp_frame_pdu_len = tvb_get_ntohs(tvb, offset+3);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
 			mstp_frame_type_text(pinfo->pool, mstp_frame_type));
 
@@ -315,12 +314,13 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset+1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(subtree, hf_mstp_frame_source, tvb,
 			offset+2, 1, ENC_LITTLE_ENDIAN);
-	item = proto_tree_add_item(subtree, hf_mstp_frame_pdu_len, tvb,
-			offset+3, 2, ENC_BIG_ENDIAN);
+	item = proto_tree_add_item_ret_uint(subtree, hf_mstp_frame_pdu_len, tvb,
+			offset+3, 2, ENC_BIG_ENDIAN, &mstp_frame_pdu_len);
 	mstp_tvb_pdu_len = tvb_reported_length_remaining(tvb, offset+6);
 	/* check the length - which does not include the crc16 checksum */
-	if (mstp_tvb_pdu_len > 2) {
-		if (mstp_frame_pdu_len > (mstp_tvb_pdu_len-2)) {
+	if (mstp_frame_pdu_len > 0) {
+		if (mstp_frame_pdu_len + 2 > mstp_tvb_pdu_len) {
+			/* We should get a ContainedBoundsError later. */
 			expert_add_info(pinfo, item, &ei_mstp_frame_pdu_len);
 		}
 	}
@@ -347,11 +347,18 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   be 'decoded' first */
 		uint8_t *decode_base;
 		tvbuff_t *decoded_tvb;
-		uint16_t decoded_len = mstp_frame_pdu_len;
 
-		decode_base = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, mstp_frame_pdu_len + 2);
+	       /* For COBS-encoded frames, the encoded CRC-32K is always 5
+		* octets long, but the length field is two octets less than
+		* the sum of the encoded data and encoded CRC-32K to maintain
+		* backward compatibility with devices that do not know about
+		* extended frames. (They can skip the frames as unknown.) */
+		uint32_t encoded_len = mstp_frame_pdu_len + 2;
+		uint32_t decoded_len = 0;
+
+		decode_base = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, encoded_len);
 		/* XXX - Add the decoded CRC-32K to the tree, pass or fail? */
-		decoded_len = (uint16_t)cobs_frame_decode(decode_base, decode_base, decoded_len + 2);
+		decoded_len = (uint32_t)cobs_frame_decode(decode_base, decode_base, encoded_len);
 		if (decoded_len > 0) {
 			decoded_tvb = tvb_new_real_data(decode_base, decoded_len, decoded_len);
 			tvb_set_child_real_data_tvbuff(tvb, decoded_tvb);
@@ -362,17 +369,16 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				call_data_dissector(decoded_tvb, pinfo, tree);
 			}
 		} else {
-			next_tvb = tvb_new_subset_length(tvb, offset, mstp_tvb_pdu_len);
+			next_tvb = tvb_new_subset_length(tvb, offset, encoded_len);
 			call_data_dissector(next_tvb, pinfo, tree);
 		}
 	}
-	else if (mstp_tvb_pdu_len > 2) {
-		/* remove the 16-bit crc checksum bytes */
-		mstp_tvb_pdu_len -= 2;
+	else if (mstp_frame_pdu_len) {
+		/* frame_pdu_len does not include the 16-bit crc bytes */
 		if (mstp_frame_type < 128) {
 			vendorid = 0;
 			next_tvb = tvb_new_subset_length(tvb, offset,
-				mstp_tvb_pdu_len);
+				mstp_frame_pdu_len);
 		} else {
 			/* With Vendor ID */
 			vendorid = tvb_get_ntohs(tvb, offset);
@@ -381,9 +387,14 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_item(subtree, hf_mstp_frame_vendor_id, tvb,
 				offset, 2, ENC_BIG_ENDIAN);
 
+			if (mstp_frame_pdu_len < 2) {
+				expert_add_info_format(pinfo, item, &ei_mstp_frame_pdu_len, "Length field value is not large enough for Vendor ID");
+				/* Remaining length can't be negative. */
+				THROW(ReportedBoundsError);
+			}
 			/* NPDU - call the Vendor specific dissector */
-			next_tvb = tvb_new_subset_length_caplen(tvb, offset+2,
-				mstp_tvb_pdu_len-2, mstp_frame_pdu_len);
+			next_tvb = tvb_new_subset_length(tvb, offset+2,
+				mstp_frame_pdu_len - 2);
 		}
 
 		if (!(dissector_try_uint(subdissector_table, (vendorid<<16) + mstp_frame_type,
@@ -393,8 +404,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 #if defined(BACNET_MSTP_CHECKSUM_VALIDATE)
 		/* 16-bit checksum - calculate to validate */
-		max_len = MIN(mstp_frame_pdu_len, mstp_tvb_pdu_len);
-		crc16 = crc16_ccitt_tvb_offset(tvb, offset, max_len);
+		crc16 = crc16_ccitt_tvb_offset(tvb, offset, mstp_frame_pdu_len);
 		/* convert it to on-the-wire format */
 		crc16 = g_htons(crc16);
 
