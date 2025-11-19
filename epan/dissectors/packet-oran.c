@@ -2720,7 +2720,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_item_set_generated(sinr_comp_meth_item);
 
                 /* Add SINR entries for each PRB */
-                for (unsigned prb=0; prb < numPrbu; prb++) {
+                for (unsigned prb=startPrbu; prb < startPrbu+numPrbu; prb++) {
                     /* Create a subtree for each PRB */
                     proto_item *prb_ti = proto_tree_add_string_format(c_section_tree, hf_oran_sinr_prb,
                                                                 tvb, offset, 0, "", "PRB %3u (", prb);
@@ -2756,13 +2756,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         /* Show here which subcarriers share which values (they all divide 12..) */
                         if (num_sinr_per_prb == 12) {
                             proto_item_append_text(val_ti, " (PRB=%u, subcarrier %u)",
-                                               startPrbu+(prb*(rb+1)),
-                                               n*(12/num_sinr_per_prb));
+                                                   startPrbu+((prb-startPrbu)*(rb+1)), n*(12/num_sinr_per_prb));
                         }
                         else {
                             proto_item_append_text(val_ti, " (PRB=%u, subcarriers %u-%u)",
-                                               startPrbu+(prb*(rb+1)),
-                                               n*(12/num_sinr_per_prb), (n+1)*(12/num_sinr_per_prb)-1);
+                                                   startPrbu+((prb-startPrbu)*(rb+1)),
+                                                   n*(12/num_sinr_per_prb), (n+1)*(12/num_sinr_per_prb)-1);
                         }
                         bit_offset += pref_sample_bit_width_sinr;
                     }
