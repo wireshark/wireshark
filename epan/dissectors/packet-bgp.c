@@ -58,6 +58,7 @@
  * RFC8365 A Network Virtualization Overlay Solution Using Ethernet VPN (EVPN)
  * draft-abraitis-bgp-version-capability-13
  * draft-ietf-idr-bgp-bfd-strict-mode
+ * RFC8654 Extended Message Support for BGP
 
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -92,6 +93,7 @@ static dissector_handle_t bgp_handle;
 
 /* some handy things to know */
 #define BGP_MAX_PACKET_SIZE            4096
+#define BGP_MAX_PACKET_SIZE_EXTENDED  65535
 #define BGP_MARKER_SIZE                  16    /* size of BGP marker */
 #define BGP_HEADER_SIZE                  19    /* size of BGP header, including marker */
 #define BGP_MIN_OPEN_MSG_SIZE            29
@@ -3478,6 +3480,7 @@ static expert_field ei_bgp_mup_nlri_addr_len_err;
 
 /* desegmentation */
 static bool bgp_desegment = true;
+static bool bgp_ext_msg = true;
 
 static int bgp_asn_len;
 
@@ -11682,11 +11685,45 @@ example 2
     }
 }
 
+static bool
+bgp_length_is_valid (uint8_t bgp_type, uint32_t bgp_len)
+{
+    switch (bgp_type) {
+    case BGP_OPEN:
+    case BGP_CAPABILITY:
+        if (bgp_len < BGP_HEADER_SIZE || bgp_len > BGP_MAX_PACKET_SIZE)
+            return false;
+        break;
+    case BGP_KEEPALIVE:
+        if (bgp_len != BGP_HEADER_SIZE)
+            return false;
+        break;
+    case BGP_UPDATE:
+    case BGP_NOTIFICATION:
+    case BGP_ROUTE_REFRESH_CISCO:
+    case BGP_ROUTE_REFRESH:
+    default:
+        if (bgp_len < BGP_HEADER_SIZE)
+            return false;
+        if (bgp_ext_msg) {
+            if (bgp_len > BGP_MAX_PACKET_SIZE_EXTENDED)
+                return false;
+        } else {
+            if (bgp_len > BGP_MAX_PACKET_SIZE)
+                return false;
+        }
+        break;
+    }
+
+    /* length is valid */
+    return true;
+}
+
 static int
 dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 void *data _U_)
 {
-    uint16_t      bgp_len;          /* Message length             */
+    uint32_t      bgp_len;          /* Message length             */
     uint8_t       bgp_type;         /* Message type               */
     const char    *typ;             /* Message type (string)      */
     proto_item    *ti = NULL;
@@ -11744,7 +11781,7 @@ dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ti_len = proto_tree_add_item(bgp_tree, hf_bgp_length, tvb, 16, 2, ENC_BIG_ENDIAN);
     }
 
-    if (bgp_len < BGP_HEADER_SIZE || bgp_len > BGP_MAX_PACKET_SIZE) {
+    if (! bgp_length_is_valid (bgp_type, bgp_len)) {
         expert_add_info_format(pinfo, ti_len, &ei_bgp_length_invalid, "Length is invalid %u", bgp_len);
         return tvb_captured_length(tvb);
     }
@@ -14667,6 +14704,10 @@ proto_register_bgp(void)
       "Whether the BGP dissector should reassemble messages spanning multiple TCP segments."
       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
       &bgp_desegment);
+    prefs_register_bool_preference(bgp_module, "ext_msg",
+      "Allow BGP Extended Messages",
+      "Whether the BGP dissector should allow pakets with a length exceeding 4096 octets.",
+      &bgp_ext_msg);
     prefs_register_enum_preference(bgp_module, "asn_len",
       "Length of the AS number",
       "BGP dissector detect the length of the AS number in AS_PATH attributes automatically or manually (NOTE: Automatic detection is not 100% accurate)",
