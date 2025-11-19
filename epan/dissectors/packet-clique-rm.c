@@ -461,7 +461,7 @@ proto_register_clique_rm(void)
 void
 proto_reg_handoff_clique_rm(void)
 {
-  heur_dissector_add("udp", dissect_clique_rm_heur, "Clique RM over UDP", "clique_rm_udp", proto_clique_rm, HEURISTIC_ENABLE);
+  heur_dissector_add("udp", dissect_clique_rm_heur, "Clique RM over UDP", "clique_rm_udp", proto_clique_rm, HEURISTIC_DISABLE);
 }
 
 /*
