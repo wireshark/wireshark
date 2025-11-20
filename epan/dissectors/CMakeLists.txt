@@ -2336,6 +2336,16 @@ set_target_properties(dissectors PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
+# -Wpointer-sign is enabled with -Wall on Clang and GCC.
+# Most of the cases are conversions between pointers to plain char
+# and pointers to uint8_t (aka unsigned char) and harmless.
+check_c_compiler_flag(-Wno-pointer-sign C_Wno_pointer_sign_VALID)
+if(C_Wno_pointer_sign_VALID)
+	target_compile_options(dissectors PUBLIC
+		$<$<COMPILE_LANGUAGE:C>:-Wno-pointer-sign>
+	)
+endif()
+
 install(FILES ${DISSECTOR_PUBLIC_HEADERS}
 	DESTINATION "${PROJECT_INSTALL_INCLUDEDIR}/epan/dissectors"
 	COMPONENT "Development"

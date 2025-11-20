@@ -906,9 +906,6 @@ else() # ! MSVC
 			#
 			-Wno-format-nonliteral	# Enabled with -Wformat=2
 		)
-		list(APPEND WIRESHARK_C_ONLY_FLAGS
-			-Wno-pointer-sign # Enabled with -Wall
-		)
 	endif()
 
 	#
