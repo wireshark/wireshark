@@ -11,6 +11,16 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/*
+ * What happened to Yahoo Messenger?
+ * Original service discontinued: The original Yahoo Messenger service was shut down in phases.
+ *  The legacy version was discontinued in 2016, and the new version was shut down entirely in July 2018.
+ * Alternative introduced: Yahoo directed users to its group messaging app, Squirrel, as an alternative at the time of the shutdown.
+ * Yahoo! Squirrel was a group messaging app launched in 2018, intended to replace Yahoo! Messenger.
+ *  It was an invite-only application for iOS and Android that focused on private group chats,
+ *  but it was discontinued in April 2019.
+ */
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -285,6 +295,8 @@ proto_register_yhoo(void)
 	proto_register_field_array(proto_yhoo, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
+
+	proto_disable_by_default(proto_yhoo);
 }
 
 void
@@ -297,7 +309,7 @@ proto_reg_handoff_yhoo(void)
 	 * Just register as a heuristic TCP dissector, and reject stuff
 	 * not to or from that port.
 	 */
-	heur_dissector_add("tcp", dissect_yhoo, "Yahoo Messenger over TCP", "yhoo_tcp", proto_yhoo, HEURISTIC_ENABLE);
+	heur_dissector_add("tcp", dissect_yhoo, "Yahoo Messenger over TCP", "yhoo_tcp", proto_yhoo, HEURISTIC_DISABLE);
 }
 
 /*
