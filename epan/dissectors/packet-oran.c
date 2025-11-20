@@ -1848,7 +1848,7 @@ write_channel_section_info(proto_item *section_heading, packet_info *pinfo,
 
 /* Add a reserved field, and warn if value isn't 0 */
 /* TODO: maybe add a pref not to output expert warning if becomes too annoying? */
-void add_reserved_field(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int len)
+static void add_reserved_field(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int len)
 {
     uint32_t reserved;
     proto_item *res_ti = proto_tree_add_item_ret_uint(tree, hf, tvb, offset, len, ENC_NA, &reserved);
