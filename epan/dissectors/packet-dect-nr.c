@@ -2736,6 +2736,7 @@ static int dissect_association_request_msg(tvbuff_t *tvb, packet_info *pinfo, pr
 	uint32_t setup_cause;
 	uint32_t num_flows;
 	bool ft_mode_field;
+	bool current_field;
 
 	proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_a_req_msg, tvb, offset, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_dect_nr_a_req_msg);
@@ -2746,7 +2747,7 @@ static int dissect_association_request_msg(tvbuff_t *tvb, packet_info *pinfo, pr
 	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_a_req_ft_mode_field, tvb, offset, 1, ENC_BIG_ENDIAN, &ft_mode_field);
 	offset++;
 
-	proto_tree_add_item(tree, hf_dect_nr_a_req_current, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_boolean(tree, hf_dect_nr_a_req_current, tvb, offset, 1, ENC_BIG_ENDIAN, &current_field);
 	dect_tree_add_reserved_item(tree, hf_dect_nr_a_req_res1, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 	offset++;
 
@@ -2775,12 +2776,16 @@ static int dissect_association_request_msg(tvbuff_t *tvb, packet_info *pinfo, pr
 		proto_tree_add_item(tree, hf_dect_nr_a_req_cb_period, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
+		dect_tree_add_reserved_item(tree, hf_dect_nr_a_req_res3, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_a_req_next_cl_chan, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		proto_tree_add_item(tree, hf_dect_nr_a_req_time_to_next, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
+	}
 
+	if (current_field) {
+		dect_tree_add_reserved_item(tree, hf_dect_nr_a_req_res4, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_a_req_curr_cl_chan, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
@@ -3393,7 +3398,7 @@ static int dissect_neighbouring_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	}
 
 	if (next_channel_field) {
-		dect_tree_add_reserved_item(tree, hf_dect_nr_n_res2, tvb, offset, 2, pinfo, ENC_BIG_ENDIAN);
+		dect_tree_add_reserved_item(tree, hf_dect_nr_n_res2, tvb, offset, 1, pinfo, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_dect_nr_n_next_cl_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
@@ -4638,7 +4643,7 @@ void proto_register_dect_nr(void)
 		},
 		{ &hf_dect_nr_a_req_next_cl_chan,
 			{ "Next Cluster Channel", "dect_nr.mac.areq.next_cl_chan", FT_UINT16, BASE_DEC,
-			  NULL, 0x0, NULL, HFILL }
+			  NULL, 0x1FFF, NULL, HFILL }
 		},
 		{ &hf_dect_nr_a_req_time_to_next,
 			{ "Time to next", "dect_nr.mac.areq.ttn", FT_UINT32, BASE_DEC|BASE_UNIT_STRING,
@@ -5297,8 +5302,8 @@ void proto_register_dect_nr(void)
 			  VALS(long_rd_id_address_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_n_res2,
-			{ "Reserved", "dect_nr.mac.n.res2", FT_UINT16, BASE_DEC,
-			  NULL, 0xE000, NULL, HFILL }
+			{ "Reserved", "dect_nr.mac.n.res2", FT_UINT8, BASE_DEC,
+			  NULL, 0xE0, NULL, HFILL }
 		},
 		{ &hf_dect_nr_n_next_cl_channel,
 			{ "Next Cluster Channel", "dect_nr.mac.n.next_cl_channel", FT_UINT16, BASE_DEC,
