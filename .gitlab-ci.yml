@@ -568,7 +568,7 @@ Windows x64 Package:
     - $stratosharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Stratoshark-*-x64.exe).Hash.ToLower()
     - Set-Content -Path stratoshark-release-info-$($stratosharkVersion)-windows-x64.ini -Value ("[DEFAULT]`nnsis_sha256 = $stratosharkNsisSha256")
     - if (Test-Path env:MC_DESTINATION_RELEASE) { C:\gitlab-builds\bin\mc --quiet cp $(Get-ChildItem "*shark-release-info-*-windows-*.ini") "$env:MC_DESTINATION_RELEASE/" }
-    - C:\Windows\py.exe -m pytest
+    - C:\Windows\py.exe -m pytest --enable-release
   artifacts:
     paths:
       - build/*shark-release-info-*-windows-*.ini
@@ -611,7 +611,7 @@ Windows Arm64 Package:
     - $stratosharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Stratoshark-*-arm64.exe).Hash.ToLower()
     - Set-Content -Path stratoshark-release-info-$($stratosharkVersion)-windows-arm64.ini -Value ("[DEFAULT]`nnsis_sha256 = $stratosharkNsisSha256")
     - if (Test-Path env:MC_DESTINATION_RELEASE) { C:\gitlab-builds\bin\mc --quiet cp $(Get-ChildItem "*shark-release-info-*-windows-*.ini") "$env:MC_DESTINATION_RELEASE/" }
-    - C:\Windows\py.exe -m pytest
+    - C:\Windows\py.exe -m pytest --enable-release
   artifacts:
     paths:
       - build/*shark-release-info-*-windows-*.ini
