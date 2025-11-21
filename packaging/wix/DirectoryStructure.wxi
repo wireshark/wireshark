@@ -47,24 +47,24 @@
           </Directory>
         </Directory>
       </Directory>
-    </Directory>
 
-    <!-- Create a dummy configuraton directory for libgcrypt -->
-    <Directory Id="CommonAppDataFolder">
-      <Directory Id="GnuDataFolder" Name="GNU">
-        <Directory Id="GnuEtcFolder" Name="etc">
-          <Directory Id="GcryptDataFolder" Name="gcrypt">
-            <Component Id="gpg4win_etc_gcrypt" KeyPath="yes"
-                        Guid="7F122F29-AA33-4DE5-9DD2-0DAF1A24B630">
-              <CreateFolder>
-                <Permission User="Administrators" GenericAll="yes" />
-                <Permission User="Everyone" Read="yes" ReadAttributes="yes" ReadExtendedAttributes="yes" ReadPermission="yes" GenericExecute="yes" />
-              </CreateFolder>
-            </Component>
+      <!-- Create a dummy configuraton directory for libgcrypt -->
+      <Directory Id="CommonAppDataFolder">
+        <Directory Id="GnuDataFolder" Name="GNU">
+          <Directory Id="GnuEtcFolder" Name="etc">
+            <Directory Id="GcryptDataFolder" Name="gcrypt">
+              <Component Id="gpg4win_etc_gcrypt" KeyPath="yes"
+                          Guid="7F122F29-AA33-4DE5-9DD2-0DAF1A24B630">
+                <CreateFolder>
+                  <Permission User="Administrators" GenericAll="yes" />
+                  <Permission User="Everyone" Read="yes" ReadAttributes="yes" ReadExtendedAttributes="yes" ReadPermission="yes" GenericExecute="yes" />
+                </CreateFolder>
+              </Component>
+            </Directory>
           </Directory>
         </Directory>
       </Directory>
-    </Directory>
 
+    </Directory>
   </Fragment>
 </Include>
