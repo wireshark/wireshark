@@ -188,6 +188,8 @@ enum ws_nl80211_commands {
     WS_NL80211_CMD_SET_TID_TO_LINK_MAPPING,
     WS_NL80211_CMD_ASSOC_MLO_RECONF,
     WS_NL80211_CMD_EPCS_CFG,
+    WS_NL80211_CMD_NAN_NEXT_DW_NOTIFICATION,
+    WS_NL80211_CMD_NAN_CLUSTER_JOINED,
 };
 
 enum ws_nl80211_attrs {
@@ -530,6 +532,13 @@ enum ws_nl80211_attrs {
     WS_NL80211_ATTR_EPCS,
     WS_NL80211_ATTR_ASSOC_MLD_EXT_CAPA_OPS,
     WS_NL80211_ATTR_WIPHY_RADIO_INDEX,
+    WS_NL80211_ATTR_S1G_LONG_BEACON_PERIOD,
+    WS_NL80211_ATTR_S1G_SHORT_BEACON,
+    WS_NL80211_ATTR_BSS_PARAM,
+    WS_NL80211_ATTR_NAN_CONFIG,
+    WS_NL80211_ATTR_NAN_NEW_CLUSTER,
+    WS_NL80211_ATTR_NAN_CAPABILITIES,
+    WS_NL80211_ATTR_S1G_PRIMARY_2MHZ,
 };
 
 enum ws_nl80211_iftype {
@@ -823,6 +832,9 @@ enum ws_nl80211_frequency_attr {
     WS_NL80211_FREQUENCY_ATTR_CAN_MONITOR,
     WS_NL80211_FREQUENCY_ATTR_ALLOW_6GHZ_VLP_AP,
     WS_NL80211_FREQUENCY_ATTR_ALLOW_20MHZ_ACTIVITY,
+    WS_NL80211_FREQUENCY_ATTR_NO_4MHZ,
+    WS_NL80211_FREQUENCY_ATTR_NO_8MHZ,
+    WS_NL80211_FREQUENCY_ATTR_NO_16MHZ,
 };
 
 enum ws_nl80211_bitrate_attr {
@@ -1145,6 +1157,9 @@ enum ws_nl80211_tx_rate_attributes {
     WS_NL80211_TXRATE_HE,
     WS_NL80211_TXRATE_HE_GI,
     WS_NL80211_TXRATE_HE_LTF,
+    WS_NL80211_TXRATE_EHT,
+    WS_NL80211_TXRATE_EHT_GI,
+    WS_NL80211_TXRATE_EHT_LTF,
 };
 
 enum ws_nl80211_txrate_gi {
@@ -1454,6 +1469,7 @@ enum ws_nl80211_ext_feature_index {
     WS_NL80211_EXT_FEATURE_OWE_OFFLOAD_AP,
     WS_NL80211_EXT_FEATURE_DFS_CONCURRENT,
     WS_NL80211_EXT_FEATURE_SPP_AMSDU_SUPPORT,
+    WS_NL80211_EXT_FEATURE_BEACON_RATE_EHT,
 };
 
 enum ws_nl80211_probe_resp_offload_support_attr {
@@ -1843,6 +1859,22 @@ enum ws_nl80211_wiphy_radio_freq_range {
     WS_NL80211_WIPHY_RADIO_FREQ_ATTR_END,
 };
 
+enum ws_nl80211_s1g_short_beacon_attrs {
+    WS___NL80211_S1G_SHORT_BEACON_ATTR_INVALID,
+    WS_NL80211_S1G_SHORT_BEACON_ATTR_HEAD,
+    WS_NL80211_S1G_SHORT_BEACON_ATTR_TAIL,
+};
+
+enum ws_nl80211_nan_capabilities {
+    WS___NL80211_NAN_CAPABILITIES_INVALID,
+    WS_NL80211_NAN_CAPA_CONFIGURABLE_SYNC,
+    WS_NL80211_NAN_CAPA_USERSPACE_DE,
+    WS_NL80211_NAN_CAPA_OP_MODE,
+    WS_NL80211_NAN_CAPA_NUM_ANTENNAS,
+    WS_NL80211_NAN_CAPA_MAX_CHANNEL_SWITCH_TIME,
+    WS_NL80211_NAN_CAPA_CAPABILITIES,
+};
+
 static const value_string ws_nl80211_commands_vals[] = {
     { WS_NL80211_CMD_UNSPEC,                "NL80211_CMD_UNSPEC" },
     { WS_NL80211_CMD_GET_WIPHY,             "NL80211_CMD_GET_WIPHY" },
@@ -2002,6 +2034,8 @@ static const value_string ws_nl80211_commands_vals[] = {
     { WS_NL80211_CMD_SET_TID_TO_LINK_MAPPING, "NL80211_CMD_SET_TID_TO_LINK_MAPPING" },
     { WS_NL80211_CMD_ASSOC_MLO_RECONF,      "NL80211_CMD_ASSOC_MLO_RECONF" },
     { WS_NL80211_CMD_EPCS_CFG,              "NL80211_CMD_EPCS_CFG" },
+    { WS_NL80211_CMD_NAN_NEXT_DW_NOTIFICATION, "NL80211_CMD_NAN_NEXT_DW_NOTIFICATION" },
+    { WS_NL80211_CMD_NAN_CLUSTER_JOINED,    "NL80211_CMD_NAN_CLUSTER_JOINED" },
     { 0, NULL }
 };
 static value_string_ext ws_nl80211_commands_vals_ext = VALUE_STRING_EXT_INIT(ws_nl80211_commands_vals);
@@ -2346,6 +2380,13 @@ static const value_string ws_nl80211_attrs_vals[] = {
     { WS_NL80211_ATTR_EPCS,                 "NL80211_ATTR_EPCS" },
     { WS_NL80211_ATTR_ASSOC_MLD_EXT_CAPA_OPS, "NL80211_ATTR_ASSOC_MLD_EXT_CAPA_OPS" },
     { WS_NL80211_ATTR_WIPHY_RADIO_INDEX,    "NL80211_ATTR_WIPHY_RADIO_INDEX" },
+    { WS_NL80211_ATTR_S1G_LONG_BEACON_PERIOD, "NL80211_ATTR_S1G_LONG_BEACON_PERIOD" },
+    { WS_NL80211_ATTR_S1G_SHORT_BEACON,     "NL80211_ATTR_S1G_SHORT_BEACON" },
+    { WS_NL80211_ATTR_BSS_PARAM,            "NL80211_ATTR_BSS_PARAM" },
+    { WS_NL80211_ATTR_NAN_CONFIG,           "NL80211_ATTR_NAN_CONFIG" },
+    { WS_NL80211_ATTR_NAN_NEW_CLUSTER,      "NL80211_ATTR_NAN_NEW_CLUSTER" },
+    { WS_NL80211_ATTR_NAN_CAPABILITIES,     "NL80211_ATTR_NAN_CAPABILITIES" },
+    { WS_NL80211_ATTR_S1G_PRIMARY_2MHZ,     "NL80211_ATTR_S1G_PRIMARY_2MHZ" },
     { 0, NULL }
 };
 static value_string_ext ws_nl80211_attrs_vals_ext = VALUE_STRING_EXT_INIT(ws_nl80211_attrs_vals);
@@ -2677,6 +2718,9 @@ static const value_string ws_nl80211_frequency_attr_vals[] = {
     { WS_NL80211_FREQUENCY_ATTR_CAN_MONITOR, "NL80211_FREQUENCY_ATTR_CAN_MONITOR" },
     { WS_NL80211_FREQUENCY_ATTR_ALLOW_6GHZ_VLP_AP, "NL80211_FREQUENCY_ATTR_ALLOW_6GHZ_VLP_AP" },
     { WS_NL80211_FREQUENCY_ATTR_ALLOW_20MHZ_ACTIVITY, "NL80211_FREQUENCY_ATTR_ALLOW_20MHZ_ACTIVITY" },
+    { WS_NL80211_FREQUENCY_ATTR_NO_4MHZ,    "NL80211_FREQUENCY_ATTR_NO_4MHZ" },
+    { WS_NL80211_FREQUENCY_ATTR_NO_8MHZ,    "NL80211_FREQUENCY_ATTR_NO_8MHZ" },
+    { WS_NL80211_FREQUENCY_ATTR_NO_16MHZ,   "NL80211_FREQUENCY_ATTR_NO_16MHZ" },
     { 0, NULL }
 };
 static value_string_ext ws_nl80211_frequency_attr_vals_ext = VALUE_STRING_EXT_INIT(ws_nl80211_frequency_attr_vals);
@@ -3059,6 +3103,9 @@ static const value_string ws_nl80211_tx_rate_attributes_vals[] = {
     { WS_NL80211_TXRATE_HE,                 "NL80211_TXRATE_HE" },
     { WS_NL80211_TXRATE_HE_GI,              "NL80211_TXRATE_HE_GI" },
     { WS_NL80211_TXRATE_HE_LTF,             "NL80211_TXRATE_HE_LTF" },
+    { WS_NL80211_TXRATE_EHT,                "NL80211_TXRATE_EHT" },
+    { WS_NL80211_TXRATE_EHT_GI,             "NL80211_TXRATE_EHT_GI" },
+    { WS_NL80211_TXRATE_EHT_LTF,            "NL80211_TXRATE_EHT_LTF" },
     { 0, NULL }
 };
 static value_string_ext ws_nl80211_tx_rate_attributes_vals_ext = VALUE_STRING_EXT_INIT(ws_nl80211_tx_rate_attributes_vals);
@@ -3420,6 +3467,7 @@ static const value_string ws_nl80211_ext_feature_index_vals[] = {
     { WS_NL80211_EXT_FEATURE_OWE_OFFLOAD_AP, "NL80211_EXT_FEATURE_OWE_OFFLOAD_AP" },
     { WS_NL80211_EXT_FEATURE_DFS_CONCURRENT, "NL80211_EXT_FEATURE_DFS_CONCURRENT" },
     { WS_NL80211_EXT_FEATURE_SPP_AMSDU_SUPPORT, "NL80211_EXT_FEATURE_SPP_AMSDU_SUPPORT" },
+    { WS_NL80211_EXT_FEATURE_BEACON_RATE_EHT, "NL80211_EXT_FEATURE_BEACON_RATE_EHT" },
     { 0, NULL }
 };
 static value_string_ext ws_nl80211_ext_feature_index_vals_ext = VALUE_STRING_EXT_INIT(ws_nl80211_ext_feature_index_vals);
@@ -3905,6 +3953,26 @@ static const value_string ws_nl80211_wiphy_radio_freq_range_vals[] = {
 };
 static value_string_ext ws_nl80211_wiphy_radio_freq_range_vals_ext = VALUE_STRING_EXT_INIT(ws_nl80211_wiphy_radio_freq_range_vals);
 
+static const value_string ws_nl80211_s1g_short_beacon_attrs_vals[] = {
+    { WS___NL80211_S1G_SHORT_BEACON_ATTR_INVALID, "__NL80211_S1G_SHORT_BEACON_ATTR_INVALID" },
+    { WS_NL80211_S1G_SHORT_BEACON_ATTR_HEAD, "NL80211_S1G_SHORT_BEACON_ATTR_HEAD" },
+    { WS_NL80211_S1G_SHORT_BEACON_ATTR_TAIL, "NL80211_S1G_SHORT_BEACON_ATTR_TAIL" },
+    { 0, NULL }
+};
+static value_string_ext ws_nl80211_s1g_short_beacon_attrs_vals_ext = VALUE_STRING_EXT_INIT(ws_nl80211_s1g_short_beacon_attrs_vals);
+
+static const value_string ws_nl80211_nan_capabilities_vals[] = {
+    { WS___NL80211_NAN_CAPABILITIES_INVALID, "__NL80211_NAN_CAPABILITIES_INVALID" },
+    { WS_NL80211_NAN_CAPA_CONFIGURABLE_SYNC, "NL80211_NAN_CAPA_CONFIGURABLE_SYNC" },
+    { WS_NL80211_NAN_CAPA_USERSPACE_DE,     "NL80211_NAN_CAPA_USERSPACE_DE" },
+    { WS_NL80211_NAN_CAPA_OP_MODE,          "NL80211_NAN_CAPA_OP_MODE" },
+    { WS_NL80211_NAN_CAPA_NUM_ANTENNAS,     "NL80211_NAN_CAPA_NUM_ANTENNAS" },
+    { WS_NL80211_NAN_CAPA_MAX_CHANNEL_SWITCH_TIME, "NL80211_NAN_CAPA_MAX_CHANNEL_SWITCH_TIME" },
+    { WS_NL80211_NAN_CAPA_CAPABILITIES,     "NL80211_NAN_CAPA_CAPABILITIES" },
+    { 0, NULL }
+};
+static value_string_ext ws_nl80211_nan_capabilities_vals_ext = VALUE_STRING_EXT_INIT(ws_nl80211_nan_capabilities_vals);
+
 static int hf_nl80211_commands;
 static int hf_nl80211_attrs;
 static int hf_nl80211_iftype;
@@ -4029,6 +4097,8 @@ static int hf_nl80211_mbssid_config_attributes;
 static int hf_nl80211_ap_settings_flags;
 static int hf_nl80211_wiphy_radio_attrs;
 static int hf_nl80211_wiphy_radio_freq_range;
+static int hf_nl80211_s1g_short_beacon_attrs;
+static int hf_nl80211_nan_capabilities;
 
 static int ett_nl80211_commands;
 static int ett_nl80211_attrs;
@@ -4154,6 +4224,8 @@ static int ett_nl80211_mbssid_config_attributes;
 static int ett_nl80211_ap_settings_flags;
 static int ett_nl80211_wiphy_radio_attrs;
 static int ett_nl80211_wiphy_radio_freq_range;
+static int ett_nl80211_s1g_short_beacon_attrs;
+static int ett_nl80211_nan_capabilities;
 /* }}} */
 
 
@@ -5364,6 +5436,18 @@ proto_register_netlink_nl80211(void)
               VALS_EXT_PTR(&ws_nl80211_wiphy_radio_freq_range_vals_ext), 0x00,
               NULL, HFILL },
         },
+        { &hf_nl80211_s1g_short_beacon_attrs,
+            { "Attribute Type", "nl80211.s1g_short_beacon_attrs",
+              FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+              VALS_EXT_PTR(&ws_nl80211_s1g_short_beacon_attrs_vals_ext), 0x00,
+              NULL, HFILL },
+        },
+        { &hf_nl80211_nan_capabilities,
+            { "Attribute Type", "nl80211.nan_capabilities",
+              FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+              VALS_EXT_PTR(&ws_nl80211_nan_capabilities_vals_ext), 0x00,
+              NULL, HFILL },
+        },
 /* }}} */
     };
 
@@ -5497,6 +5581,8 @@ proto_register_netlink_nl80211(void)
         &ett_nl80211_ap_settings_flags,
         &ett_nl80211_wiphy_radio_attrs,
         &ett_nl80211_wiphy_radio_freq_range,
+        &ett_nl80211_s1g_short_beacon_attrs,
+        &ett_nl80211_nan_capabilities,
 /* }}} */
     };
 
