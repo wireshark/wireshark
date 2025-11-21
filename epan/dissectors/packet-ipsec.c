@@ -2505,9 +2505,11 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   */
   if(!g_esp_enable_encryption_decode && g_esp_enable_authentication_check && sad_is_present)
   {
-    next_tvb = tvb_new_subset_length_caplen(tvb, ESP_HEADER_LEN, esp_packet_len - ESP_HEADER_LEN - esp_icv_len, -1);
-    export_ipsec_pdu(data_handle, pinfo, next_tvb);
-    call_dissector(data_handle, next_tvb, pinfo, esp_tree);
+    if ((esp_packet_len - ESP_HEADER_LEN) > esp_icv_len) {
+      next_tvb = tvb_new_subset_length(tvb, ESP_HEADER_LEN, esp_packet_len - ESP_HEADER_LEN - esp_icv_len);
+      export_ipsec_pdu(data_handle, pinfo, next_tvb);
+      call_dissector(data_handle, next_tvb, pinfo, esp_tree);
+    }
   }
   /* The packet does not belong to a security association and the field g_esp_enable_null_encryption_decode_heuristic is set */
   else if(null_encryption_decode_heuristic)

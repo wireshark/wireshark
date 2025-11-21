@@ -128,8 +128,8 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root, void* data _U_)
 		} else {
 			unsigned preamble_len = bof_offset - offset;
 			int data_offset = bof_offset + 1;
-			tvbuff_t* next_tvb = tvb_new_subset_length_caplen(tvb,
-				data_offset, eof_offset - data_offset, -1);
+			tvbuff_t* next_tvb = tvb_new_subset_length(tvb,
+				data_offset, eof_offset - data_offset);
 			next_tvb = unescape_data(next_tvb, pinfo);
 			if (root) {
 				unsigned data_len = tvb_reported_length(next_tvb) < 2 ? 0 :

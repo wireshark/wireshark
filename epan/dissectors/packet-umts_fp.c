@@ -862,8 +862,8 @@ dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         p_fp_info->cur_tb = pdu;    /*Set TB (PDU) index correctly*/
         if (preferences_call_mac_dissectors) {
             tvbuff_t *next_tvb;
-            next_tvb = tvb_new_subset_length_caplen(tvb, offset + bit_offset/8,
-                                      ((bit_offset % 8) + length + 7)/8, -1);
+            next_tvb = tvb_new_subset_length(tvb, offset + bit_offset/8,
+                                      ((bit_offset % 8) + length + 7)/8);
             call_dissector_with_data(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree, data);
             dissected = true;
         }
@@ -1525,8 +1525,8 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Propagation delay */
             encoded = tvb_get_uint8(tvb, offset);
             propagation_delay = encoded * 3;
-            propagation_delay_ti = proto_tree_add_uint_format(tree, hf_fp_propagation_delay, tvb, offset, 1,
-                                               propagation_delay, "Propagation Delay: %u chips (%u)",
+            propagation_delay_ti = proto_tree_add_uint_format_value(tree, hf_fp_propagation_delay, tvb, offset, 1,
+                                               propagation_delay, "%u chips (%u)",
                                                propagation_delay, encoded);
             offset++;
         }
