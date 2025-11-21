@@ -4242,10 +4242,12 @@ static int hf_nl80211_ifname;
 static int hf_nl80211_mac;
 static int hf_nl80211_alpha2;
 static int hf_nl80211_dbm;
+static int hf_nl80211_mlo_links;
 
 static int ett_nl80211;
 static int ett_nl80211_frame;
 static int ett_nl80211_tag;
+static int ett_nl80211_mlo_links;
 
 static int
 dissect_nl80211_generic(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type _U_, int offset, int len)
@@ -4528,6 +4530,7 @@ dissect_nl80211_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_
         { WS_NL80211_ATTR_WIPHY_TXQ_PARAMS, &hf_nl80211_txq_attr, &ett_nl80211_txq_attr, NULL },
         { WS_NL80211_ATTR_WIPHY_BANDS, &hf_nl80211_band_attr, &ett_nl80211_band_attr, dissect_nl80211_band_attr },
         { WS_NL80211_ATTR_REG_RULES, &hf_nl80211_reg_rule_attr, &ett_nl80211_reg_rule_attr, NULL },
+        { WS_NL80211_ATTR_MLO_LINKS, &hf_nl80211_mlo_links, &ett_nl80211_mlo_links, NULL },
         { 0, NULL, NULL, NULL }
     };
     static const struct attr_lookup values[] = {
@@ -4689,6 +4692,12 @@ proto_register_netlink_nl80211(void)
             { "dBm", "nl80211.dbm",
               FT_INT32, BASE_DEC, NULL, 0x00,
               NULL, HFILL }
+        },
+        { &hf_nl80211_mlo_links,
+            { "Attribute Type", "nl80211.mlo_links",
+              FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+              VALS_EXT_PTR(&ws_nl80211_attrs_vals_ext), 0x00,
+              NULL, HFILL },
         },
 /* Extracted using tools/generate-nl80211-fields.py */
 /* Definitions from linux/nl80211.h {{{ */
@@ -5455,6 +5464,7 @@ proto_register_netlink_nl80211(void)
         &ett_nl80211,
         &ett_nl80211_frame,
         &ett_nl80211_tag,
+        &ett_nl80211_mlo_links,
 /* Extracted using tools/generate-nl80211-fields.py */
 /* Definitions from linux/nl80211.h {{{ */
         &ett_nl80211_commands,
