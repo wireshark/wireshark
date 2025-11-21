@@ -152,6 +152,8 @@ EXPORT_ENUMS = {
     'nl80211_ap_settings_flags': (None, None, None),
     'nl80211_wiphy_radio_attrs': (None, None, None),
     'nl80211_wiphy_radio_freq_range': (None, None, None),
+    'nl80211_s1g_short_beacon_attrs': (None, None, None),
+    'nl80211_nan_capabilities': (None, None, None),
 }
 # File to be patched
 SOURCE_FILE = "epan/dissectors/packet-netlink-nl80211.c"
