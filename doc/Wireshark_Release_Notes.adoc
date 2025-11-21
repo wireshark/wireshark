@@ -67,6 +67,7 @@ The following features are either new or have been significantly updated since v
 TrueConf Protocol (TrueConf)
 Real-Time Tracking Protocol (RTTrP)
 PosiStageNet (PSN)
+Object Transform Protocol (OTP)
 --
 
 === Updated Protocol Support

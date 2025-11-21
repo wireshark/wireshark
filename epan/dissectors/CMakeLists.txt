@@ -1718,6 +1718,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-osmo_trx.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ospf.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ossp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-otp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ouch.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-p_mul.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pa-hbbackup.c
