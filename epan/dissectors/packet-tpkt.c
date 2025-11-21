@@ -356,10 +356,11 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *tpkt_tree = NULL;
     volatile int offset = 0;
     int length_remaining;
-    int data_len;
+    volatile int data_len;
     volatile int length;
     tvbuff_t *volatile next_tvb;
     const char *saved_proto;
+    bool save_fragmented;
     heur_dtbl_entry_t *hdtbl_entry;
 
     /*
@@ -436,6 +437,15 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         data_len = tvb_get_ntohs(tvb, offset + 2);
 
+        if (data_len < 4) {
+            /*
+             * The length includes the TPKT header, so this is bogus.
+             * Report this as a bounds error.
+             */
+            show_reported_bounds_error(tvb, pinfo, tree);
+            return;
+        }
+
         /*
          * Can we do reassembly?
          */
@@ -507,26 +517,19 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         data_len -= 4;
 
         /*
-         * Construct a tvbuff containing the amount of the payload
-         * we have available.  Make its reported length the
+         * Construct a tvbuff with reported length the amount
          * amount of data in this TPKT packet.
          *
-         * XXX - if reassembly isn't enabled. the subdissector
-         * will throw a BoundsError exception, rather than a
-         * ReportedBoundsError exception.  We really want
-         * a tvbuff where the length is "length", the reported
-         * length is "plen + 2", and the "if the snapshot length
-         * were infinite" length were the minimum of the
-         * reported length of the tvbuff handed to us and "plen+2",
-         * with a new type of exception thrown if the offset is
-         * within the reported length but beyond that third length,
-         * with that exception getting the "Unreassembled Packet"
-         * error.
+         * If reassembly isn't enabled, and we don't have all the
+         * payload, mark the packet as fragmented, so that
+         * FragmentBoundsError is thrown instead of ReportedBoundsError.
          */
+        save_fragmented = pinfo->fragmented;
         length = length_remaining - 4;
-        if (length > data_len)
-            length = data_len;
-        next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, data_len);
+        if (length > data_len) {
+            pinfo->fragmented = true;
+        }
+        next_tvb = tvb_new_subset_length(tvb, offset, data_len);
 
         /*
          * Call the subdissector.
@@ -550,10 +553,12 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         ENDTRY;
 
+        pinfo->fragmented = save_fragmented;
+
         /*
          * Skip the payload.
          */
-        offset += length;
+        offset += data_len;
     }
 }
 
