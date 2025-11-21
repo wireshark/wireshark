@@ -57,6 +57,12 @@
 #include <wsutil/crash_info.h>
 #include <wsutil/epochs.h>
 
+static const value_string prot_group_vals[] = {
+    { PROTOCOL_GROUP_NONE,       "" }, /* Not in a group - empty string */
+    { PROTOCOL_GROUP_GAMES,      "Games" },
+    { 0, NULL },
+};
+
 /* Ptvcursor limits */
 #define SUBTREE_ONCE_ALLOCATION_NUMBER 8
 #define SUBTREE_MAX_LEVELS 256
@@ -405,21 +411,22 @@ static header_field_info hfi_text_only =
 	{ "Text item",	"text", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
 int hf_text_only;
 
-/* Structure for information about a protocol */
+/** Structure for information about a protocol */
 struct _protocol {
-	const char *name;               /* long description */
-	const char *short_name;         /* short description */
-	const char *filter_name;        /* name of this protocol in filters */
-	GPtrArray  *fields;             /* fields for this protocol */
-	int         proto_id;           /* field ID for this protocol */
-	bool        is_enabled;         /* true if protocol is enabled */
-	bool        enabled_by_default; /* true if protocol is enabled by default */
-	bool        can_toggle;         /* true if is_enabled can be changed */
-	int         parent_proto_id;    /* Used to identify "pino"s (Protocol In Name Only).
+	const char *name;               /**< long description */
+	const char *short_name;         /**< short description */
+	const char *filter_name;        /**< name of this protocol in filters */
+	GPtrArray  *fields;             /**< fields for this protocol */
+	int         proto_id;           /**< field ID for this protocol */
+	protocol_group_t group; /**< group of this protocol*/
+	bool        is_enabled;         /**< true if protocol is enabled */
+	bool        enabled_by_default; /**< true if protocol is enabled by default */
+	bool        can_toggle;         /**< true if is_enabled can be changed */
+	int         parent_proto_id;    /**< Used to identify "pino"s (Protocol In Name Only).
 	                                   For dissectors that need a protocol name so they
 	                                   can be added to a dissector table, but use the
 	                                   parent_proto_id for things like enable/disable */
-	GList      *heur_list;          /* Heuristic dissectors associated with this protocol */
+	GList      *heur_list;          /**< Heuristic dissectors associated with this protocol */
 };
 
 /* List of all protocols */
@@ -8605,8 +8612,7 @@ check_protocol_filter_name_or_fail(const char *filter_name)
 }
 
 int
-proto_register_protocol(const char *name, const char *short_name,
-			const char *filter_name)
+proto_register_protocol_and_group(const char *name, const char *short_name, const char *filter_name, protocol_group_t group)
 {
 	protocol_t *protocol;
 	header_field_info *hfinfo;
@@ -8621,6 +8627,12 @@ proto_register_protocol(const char *name, const char *short_name,
 	protocol->name = name;
 	protocol->short_name = short_name;
 	protocol->filter_name = filter_name;
+	if (group < PROTOCOL_GROUP_MAX) {
+		protocol->group = group;
+	} else {
+		protocol->group = PROTOCOL_GROUP_NONE;
+		REPORT_DISSECTOR_BUG("Protocol Group is not defined %u", group);
+	}
 	protocol->fields = NULL; /* Delegate until actually needed */
 	protocol->is_enabled = true; /* protocol is enabled by default */
 	protocol->enabled_by_default = true; /* see previous comment */
@@ -8667,6 +8679,12 @@ proto_register_protocol(const char *name, const char *short_name,
 	return protocol->proto_id;
 }
 
+int
+proto_register_protocol(const char* name, const char* short_name,
+	const char* filter_name)
+{
+	return proto_register_protocol_and_group(name, short_name, filter_name, PROTOCOL_GROUP_NONE);
+}
 int
 proto_register_protocol_in_name_only(const char *name, const char *short_name, const char *filter_name, int parent_proto, enum ftenum field_type)
 {
@@ -9073,6 +9091,23 @@ bool
 proto_is_pino(const protocol_t *protocol)
 {
 	return (protocol->parent_proto_id != -1);
+}
+
+int
+proto_get_group(const protocol_t* protocol)
+{
+	if (protocol == NULL)
+		return 0;
+	return protocol->group;
+}
+
+
+const char*
+proto_get_group_name(const protocol_t* protocol)
+{
+	if (protocol == NULL)
+		return 0;
+	return val_to_str_const(protocol->group, prot_group_vals, "Unknown");
 }
 
 bool

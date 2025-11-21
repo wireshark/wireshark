@@ -1604,8 +1604,8 @@ proto_register_steam_ihs_discovery(void)
     };
 
     /* Register the protocol name and description */
-    proto_steam_ihs_discovery = proto_register_protocol("Steam In-Home Streaming Discovery Protocol",
-            "Steam IHS Discovery", "steam_ihs_discovery");
+    proto_steam_ihs_discovery = proto_register_protocol_and_group("Steam In-Home Streaming Discovery Protocol",
+            "Steam IHS Discovery", "steam_ihs_discovery", PROTOCOL_GROUP_GAMES);
 
     /* Register the dissector handle */
     steam_ihs_discovery_handle = register_dissector("steam_ihs_discovery", dissect_steam_ihs_discovery, proto_steam_ihs_discovery);

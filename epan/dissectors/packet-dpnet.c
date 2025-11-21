@@ -11,6 +11,14 @@
  *
  */
 
+/* AI Generated
+ * The DirectPlay 8 protocol is a network communication protocol for multiplayer games that uses the User Datagram Protocol (UDP)
+ * to achieve low-latency communication between peers. It is designed to provide reliable and unreliable message transport,
+ * using a system of sequence numbers, acknowledgments (ACKs), and a sliding window to manage data flow and error checking.
+ * Key features include packet acknowledgments (either bundled with other traffic or sent via a separate command frame)
+ *  and the ability to handle host migration if the host disconnects.
+ */
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -866,7 +874,7 @@ proto_register_dpnet(void)
 
     expert_module_t *expert_dpnet;
 
-    proto_dpnet = proto_register_protocol ("DirectPlay 8 protocol", "DPNET", "dpnet");
+    proto_dpnet = proto_register_protocol_and_group("DirectPlay 8 protocol", "DPNET", "dpnet", PROTOCOL_GROUP_GAMES);
 
     proto_register_field_array(proto_dpnet, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

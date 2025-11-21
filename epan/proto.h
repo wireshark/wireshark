@@ -99,6 +99,31 @@ struct _protocol;
 /** Structure for information about a protocol */
 typedef struct _protocol protocol_t;
 
+
+/**
+ * Protocol group enum used to group protoclols with a similar purpose together.
+ * Primary usage to be able to dissable/enable a group of protocols
+ * as not beeing relevant for a type of trace. E.g game protocol is of no use to you
+ * in a production network. Unless looking for gamers...
+ */
+
+typedef enum {
+    PROTOCOL_GROUP_NONE = 0,     /**< Not grouped*/
+    PROTOCOL_GROUP_GAMES,        /**< Protocols used by games */
+    PROTOCOL_GROUP_MAX,
+} protocol_group_t;
+
+
+/** Function to get the group of a protocol
+ * @param protocol the protocol in question
+*/
+WS_DLL_PUBLIC int proto_get_group(const protocol_t* protocol);
+
+/** Function to get the group name of a protocol group
+ * @param protocol the protocol in question
+*/
+WS_DLL_PUBLIC const char* proto_get_group_name(const protocol_t* protocol);
+
 /** Function used for reporting errors in dissectors; it throws a
  * DissectorError exception, with a string generated from the format
  * and arguments to the format, as the message for the exception, so
@@ -2886,6 +2911,15 @@ proto_item_fill_display_label(const field_info *fi, char *display_label_str, con
  @return the new protocol handle */
 WS_DLL_PUBLIC int
 proto_register_protocol(const char *name, const char *short_name, const char *filter_name);
+
+/** Register a new protocol.
+ @param name the full name of the new protocol
+ @param short_name abbreviated name of the new protocol
+ @param filter_name protocol name used for a display filter string
+ @param group The protocol group of the protocol e.g game communication protocol.
+ @return the new protocol handle */
+WS_DLL_PUBLIC int
+proto_register_protocol_and_group(const char* name, const char* short_name, const char* filter_name, protocol_group_t group);
 
 /** Register a "helper" protocol (pino - protocol in name only).
  This is for dissectors that need distinguishing names and don't need the other

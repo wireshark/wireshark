@@ -10,6 +10,13 @@
  *
  */
 
+/* AI Generated:
+ * The DirectPlay protocol is a legacy networking protocol primarily used for low-latency,
+ * peer-to-peer communication in older multiplayer PC games. It handles message delivery,
+ *  session management, and player-related functions like enumeration and data exchange.
+ * Key features include reliable and unreliable message delivery, congestion control,
+ *  and support for both UDP and newer features like IP v6
+*/
 #include "config.h"
 
 
@@ -1638,7 +1645,7 @@ void proto_register_dplay(void)
 
     expert_module_t *expert_dplay;
 
-    proto_dplay = proto_register_protocol ("DirectPlay Protocol", "DPLAY", "dplay");
+    proto_dplay = proto_register_protocol_and_group("DirectPlay Protocol", "DPLAY", "dplay", PROTOCOL_GROUP_GAMES);
     proto_register_field_array(proto_dplay, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_dplay = expert_register_protocol(proto_dplay);

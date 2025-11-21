@@ -541,7 +541,7 @@ proto_register_quake3(void)
 	};
 	module_t *quake3_module;
 
-	proto_quake3 = proto_register_protocol("Quake III Arena Network Protocol", "QUAKE3", "quake3");
+	proto_quake3 = proto_register_protocol_and_group("Quake III Arena Network Protocol", "QUAKE3", "quake3", PROTOCOL_GROUP_GAMES);
 	proto_register_field_array(proto_quake3, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

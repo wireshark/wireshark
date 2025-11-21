@@ -23,7 +23,8 @@ class ProtocolTreeItem : public EnabledProtocolItem
 {
 public:
     ProtocolTreeItem(protocol_t* proto, EnabledProtocolItem* parent)
-        : EnabledProtocolItem(proto_get_protocol_short_name(proto), proto_get_protocol_long_name(proto), proto_is_protocol_enabled(proto), parent),
+        : EnabledProtocolItem(proto_get_protocol_short_name(proto),proto_get_group_name(proto),
+            proto_get_protocol_long_name(proto), proto_is_protocol_enabled(proto), parent),
         proto_(proto)
     {
 
@@ -48,7 +49,7 @@ class HeuristicTreeItem : public EnabledProtocolItem
 {
 public:
     HeuristicTreeItem(heur_dtbl_entry_t *heuristic, EnabledProtocolItem* parent)
-        : EnabledProtocolItem(heuristic->short_name, heuristic->display_name, heuristic->enabled, parent),
+        : EnabledProtocolItem(heuristic->short_name, "", heuristic->display_name, heuristic->enabled, parent),
         heuristic_table_(heuristic)
     {
         type_ = EnabledProtocolItem::Heuristic;
@@ -67,9 +68,10 @@ private:
 };
 
 
-EnabledProtocolItem::EnabledProtocolItem(QString name, QString description, bool enabled, EnabledProtocolItem* parent) :
+EnabledProtocolItem::EnabledProtocolItem(QString name, QString group, QString description, bool enabled, EnabledProtocolItem* parent) :
     ModelHelperTreeItem<EnabledProtocolItem>(parent),
     name_(name),
+    group_(group),
     description_(description),
     enabled_(enabled),
     enabledInit_(enabled),
@@ -139,6 +141,8 @@ QVariant EnabledProtocolsModel::headerData(int section, Qt::Orientation orientat
         switch ((enum EnabledProtocolsColumn)section) {
         case colProtocol:
             return tr("Protocol");
+        case colGroup:
+            return tr("Group");
         case colDescription:
             return tr("Description");
         default:
@@ -223,6 +227,8 @@ QVariant EnabledProtocolsModel::data(const QModelIndex &index, int role) const
         {
         case colProtocol:
             return item->name();
+        case colGroup:
+                return item->group();
         case colDescription:
             return item->description();
         default:
@@ -359,6 +365,8 @@ bool EnabledProtocolsProxyModel::lessThan(const QModelIndex &left, const QModelI
 
         if (left.column() == EnabledProtocolsModel::colProtocol)
             compare_ret = left_item->name().compare(right_item->name(), Qt::CaseInsensitive);
+        else if (left.column() == EnabledProtocolsModel::colGroup)
+            compare_ret = left_item->group().compare(right_item->group(), Qt::CaseInsensitive);
         else if (left.column() == EnabledProtocolsModel::colDescription)
             compare_ret = left_item->description().compare(right_item->description(), Qt::CaseInsensitive);
 

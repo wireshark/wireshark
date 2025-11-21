@@ -43,7 +43,7 @@ public:
      * @param enabled True if the protocol is enabled.
      * @param parent The parent item in the tree.
      */
-    EnabledProtocolItem(QString name, QString description, bool enabled, EnabledProtocolItem* parent);
+    EnabledProtocolItem(QString name, QString group, QString description, bool enabled, EnabledProtocolItem * parent);
 
     /**
      * @brief Destroys the EnabledProtocolItem.
@@ -55,6 +55,8 @@ public:
      * @return The protocol name.
      */
     QString name() const {return name_;}
+
+    QString group() const { return group_; }
 
     /**
      * @brief Retrieves the description of the protocol.
@@ -96,6 +98,9 @@ protected:
     /** The protocol name. */
     QString name_;
 
+    /** The protocol group. */
+    QString group_;
+
     /** The protocol description. */
     QString description_;
 
@@ -133,6 +138,7 @@ public:
      */
     enum EnabledProtocolsColumn {
         colProtocol = 0,    /**< Protocol name column. */
+        colGroup,
         colDescription,     /**< Protocol description column. */
         colLast            /**< End of columns marker. */
     };

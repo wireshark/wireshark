@@ -23897,8 +23897,7 @@ proto_register_woww(void)
         &ett_character
     };
 
-    proto_woww = proto_register_protocol("World of Warcraft World",
-            "WOWW", "woww");
+    proto_woww = proto_register_protocol_and_group("World of Warcraft World", "WOWW", "woww", PROTOCOL_GROUP_GAMES);
     woww_handle = register_dissector("woww", dissect_woww, proto_woww);
 
     proto_register_field_array(proto_woww, hf, array_length(hf));

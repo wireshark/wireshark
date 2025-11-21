@@ -818,7 +818,7 @@ proto_register_quake2(void)
         &ett_quake2_game_clc_cmd_move_bitfield
     };
 
-    proto_quake2 = proto_register_protocol("Quake II Network Protocol", "QUAKE2", "quake2");
+    proto_quake2 = proto_register_protocol_and_group("Quake II Network Protocol", "QUAKE2", "quake2", PROTOCOL_GROUP_GAMES);
     proto_register_field_array(proto_quake2, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

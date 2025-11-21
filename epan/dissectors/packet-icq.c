@@ -15,6 +15,14 @@
  * appropriate place with the code itself.
  */
 
+/* AI generated comment
+ * The ICQ protocol was a proprietary instant messaging protocol developed by Mirabilis, which was later owned by AOL and then VK (formerly Mail.Ru Group).
+ * It primarily used a combination of UDP and TCP, with UDP for server connection and status, and TCP for direct conversations and file transfers.
+ * Later versions of the ICQ client began using a modified version of the OSCAR protocol,
+ * which is now the recommended way to connect to the network.
+ *
+ * Shutdown: The ICQ service was shut down on June 26, 2024, and the protocol is no longer in use for its intended service.
+ */
 #include "config.h"
 
 #include <epan/packet.h>

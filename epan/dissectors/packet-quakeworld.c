@@ -807,7 +807,7 @@ proto_register_quakeworld(void)
 			PI_MALFORMED, PI_ERROR, "Invalid connectionless command", EXPFILL }}
 	};
 
-	proto_quakeworld = proto_register_protocol("QuakeWorld Network Protocol", "QUAKEWORLD", "quakeworld");
+	proto_quakeworld = proto_register_protocol_and_group("QuakeWorld Network Protocol", "QUAKEWORLD", "quakeworld", PROTOCOL_GROUP_GAMES);
 	proto_register_field_array(proto_quakeworld, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

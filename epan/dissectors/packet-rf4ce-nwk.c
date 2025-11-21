@@ -9,6 +9,13 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/* AI Generated comment
+ * RF4CE is a low-power, low-latency wireless protocol developed by the Connectivity Standards Alliance (formerly Zigbee Alliance)
+ * for remote controls and simple consumer electronics. It is built on the IEEE 802.15.4 standard and allows for bidirectional communication,
+ * eliminating the need for line-of-sight and providing features like on-remote information display.
+ * Its primary goal is to offer a robust and easy-to-implement alternative to infrared (IR) remotes for devices such as TVs,
+ *  set-top boxes, and keyless entry systems.
+ */
 #include <stdbool.h>
 #include "config.h"
 #include <epan/packet.h>

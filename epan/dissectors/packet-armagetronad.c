@@ -9,6 +9,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/* AI Generated:
+ * The Armagetron Advanced protocol is a network protocol based on UDP for online multiplayer games,
+ * typically using port 4534 by default. Players connect to a server, and the game uses a client-server model
+ * with server-side logic to handle game state, movement, and other rules.
+ * Authentication, if enabled, can use an MD5-based hashing protocol to verify player identity.
+ */
 #include "config.h"
 
 #include <epan/packet.h>
@@ -288,7 +294,7 @@ void proto_register_armagetronad(void)
 		&ett_message
 	};
 
-	proto_armagetronad = proto_register_protocol("The Armagetron Advanced OpenGL Tron clone", "Armagetronad", "armagetronad");
+	proto_armagetronad = proto_register_protocol_and_group("The Armagetron Advanced OpenGL Tron clone", "Armagetronad", "armagetronad", PROTOCOL_GROUP_GAMES);
 
 	proto_register_field_array(proto_armagetronad, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

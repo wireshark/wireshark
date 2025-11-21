@@ -15,6 +15,11 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
+/* AI generated comment
+ * The Minecraft Pocket Edition (now Bedrock Edition) protocol uses UDP over the standard TCP used by Java Edition.
+ * It relies on the RakNet networking library for transport, which helps mitigate some of the typical issues with UDP like lost packets,
+ *  and uses the default UDP port 19132 for IPv4 communication.
+ */
 #include "config.h"
 
 #include <epan/conversation.h>
@@ -663,7 +668,7 @@ proto_register_mcpe(void)
     /*
      * Register the protocol with wireshark.
      */
-    proto_mcpe = proto_register_protocol ("Minecraft Pocket Edition", "MCPE", "mcpe");
+    proto_mcpe = proto_register_protocol_and_group("Minecraft Pocket Edition", "MCPE", "mcpe", PROTOCOL_GROUP_GAMES);
 
     /*
      * Register expert support.
@@ -680,12 +685,9 @@ proto_register_mcpe(void)
     /*
      * Register dissectors.
      */
-    mcpe_handle =
-        register_dissector("mcpe", dissect_mcpe, proto_mcpe);
+    mcpe_handle = register_dissector("mcpe", dissect_mcpe, proto_mcpe);
 
-    mcpe_packet_dissectors =
-        register_dissector_table("mcpe.packet.id", "MCPE packets",
-                                 proto_mcpe, FT_UINT8, BASE_HEX);
+    mcpe_packet_dissectors = register_dissector_table("mcpe.packet.id", "MCPE packets", proto_mcpe, FT_UINT8, BASE_HEX);
 
     /* Register a configuration option for UDP port */
     mcpe_module =

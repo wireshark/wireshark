@@ -1385,8 +1385,7 @@ proto_register_wow(void)
         &ett_message,
 	};
 
-	proto_wow = proto_register_protocol("World of Warcraft",
-					    "WOW", "wow");
+	proto_wow = proto_register_protocol_and_group("World of Warcraft", "WOW", "wow", PROTOCOL_GROUP_GAMES);
 
 	proto_register_field_array(proto_wow, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

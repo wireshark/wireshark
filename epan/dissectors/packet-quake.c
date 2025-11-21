@@ -570,7 +570,7 @@ proto_register_quake(void)
 		&ett_quake_flags,
 	};
 
-	proto_quake = proto_register_protocol("Quake Network Protocol", "QUAKE", "quake");
+	proto_quake = proto_register_protocol_and_group("Quake Network Protocol", "QUAKE", "quake", PROTOCOL_GROUP_GAMES);
 	proto_register_field_array(proto_quake, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
