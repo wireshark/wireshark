@@ -66,7 +66,7 @@ const QString PacketListRecord::columnString(capture_file *cap_file, int column,
     // packet_list_store.c:packet_list_get_value
     Q_ASSERT(fdata_);
 
-    if (!cap_file || column < 0 || column >= cap_file->cinfo.num_cols) {
+    if (!cap_file || column < 0 || (unsigned)column >= cap_file->cinfo.num_cols) {
         return QString();
     }
 
@@ -97,7 +97,7 @@ void PacketListRecord::resetColumns(column_info *cinfo)
     }
 
     cinfo_column_.clear();
-    int i, j;
+    unsigned i, j;
     for (i = 0, j = 0; i < cinfo->num_cols; i++) {
         if (!col_based_on_frame_data(cinfo, i)) {
             cinfo_column_[i] = j;
@@ -218,7 +218,7 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
     lines_ = 1;
     line_count_changed_ = false;
 
-    for (int column = 0; column < cinfo->num_cols; ++column) {
+    for (unsigned column = 0; column < cinfo->num_cols; ++column) {
         int col_lines = 1;
 
         QString col_str;

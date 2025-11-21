@@ -111,7 +111,7 @@ void PacketListModel::setCaptureFile(capture_file *cf)
 // Packet list records have no children (for now, at least).
 QModelIndex PacketListModel::index(int row, int column, const QModelIndex &) const
 {
-    if (row >= visible_rows_.count() || row < 0 || !cap_file_ || column >= prefs.num_cols)
+    if (row >= visible_rows_.count() || row < 0 || !cap_file_ || (unsigned)column >= prefs.num_cols)
         return QModelIndex();
 
     PacketListRecord *record = visible_rows_[row];
@@ -926,7 +926,7 @@ QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
 {
     if (!cap_file_) return QVariant();
 
-    if (orientation == Qt::Horizontal && section < prefs.num_cols) {
+    if ((orientation == Qt::Horizontal) && ((unsigned)section < prefs.num_cols)) {
         switch (role) {
         case Qt::DisplayRole:
             return QVariant::fromValue(QString(get_column_title(section)));

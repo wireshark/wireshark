@@ -61,7 +61,7 @@ typedef struct {
 /** Column info */
 struct epan_column_info {
   const struct epan_session *epan;
-  int                 num_cols;             /**< Number of columns */
+  unsigned            num_cols;             /**< Number of columns */
   col_item_t         *columns;              /**< All column data */
   int                *col_first;            /**< First column number with a given format */
   int                *col_last;             /**< Last column number with a given format */
@@ -110,7 +110,7 @@ void col_custom_prime_edt(struct epan_dissect *edt, column_info *cinfo);
 /** Get a filter expression for a custom column. This string must be g_free'd.
  */
 WS_DLL_PUBLIC
-char* col_custom_get_filter(struct epan_dissect *edt, column_info *cinfo, const int col);
+char* col_custom_get_filter(struct epan_dissect *edt, column_info *cinfo, const unsigned col);
 
 WS_DLL_PUBLIC
 bool have_custom_cols(column_info *cinfo);
@@ -119,10 +119,10 @@ WS_DLL_PUBLIC
 bool have_field_extractors(void);
 
 WS_DLL_PUBLIC
-bool col_has_time_fmt(column_info *cinfo, const int col);
+bool col_has_time_fmt(column_info *cinfo, const unsigned col);
 
 WS_DLL_PUBLIC
-bool col_based_on_frame_data(column_info *cinfo, const int col);
+bool col_based_on_frame_data(column_info *cinfo, const unsigned col);
 
 void
 col_register_protocol(void);

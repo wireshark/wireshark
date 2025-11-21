@@ -276,7 +276,7 @@ void AddressEditorFrame::on_buttonBox_rejected()
 
 bool AddressEditorFrame::isAddressColumn(epan_column_info *cinfo, int column)
 {
-    if (!cinfo || column < 0 || column >= cinfo->num_cols) return false;
+    if (!cinfo || column < 0 || (unsigned)column >= cinfo->num_cols) return false;
 
     if (((cinfo->columns[column].col_fmt == COL_DEF_SRC) ||
          (cinfo->columns[column].col_fmt == COL_RES_SRC) ||

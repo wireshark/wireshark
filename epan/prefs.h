@@ -173,7 +173,7 @@ typedef enum {
 
 typedef struct _e_prefs {
   GList       *col_list;
-  int          num_cols;
+  unsigned     num_cols;
   color_t      st_client_fg, st_client_bg, st_server_fg, st_server_bg;
   color_t      gui_filter_valid_fg, gui_filter_invalid_fg, gui_filter_deprecated_fg;
   color_t      gui_filter_valid_bg, gui_filter_invalid_bg, gui_filter_deprecated_bg;
@@ -262,8 +262,8 @@ typedef struct _e_prefs {
   bool         cols_hide_new; /* true if the new (index-based) gui.column.hide preference was loaded. */
   bool         gui_update_enabled;
   software_update_channel_e gui_update_channel;
-  int          gui_update_interval;
-  int          gui_debounce_timer;
+  unsigned     gui_update_interval;
+  unsigned     gui_debounce_timer;
   char        *saved_at_version;
   bool         unknown_prefs; /* unknown or obsolete pref(s) */
   bool         gui_packet_list_separator;
@@ -278,16 +278,16 @@ typedef struct _e_prefs {
   bool         gui_packet_list_show_minimap;
   bool         gui_packet_list_sortable;
   unsigned     gui_packet_list_cached_rows_max;
-  int          gui_decimal_places1; /* Used for type 1 calculations */
-  int          gui_decimal_places2; /* Used for type 2 calculations */
-  int          gui_decimal_places3; /* Used for type 3 calculations */
+  unsigned     gui_decimal_places1; /* Used for type 1 calculations */
+  unsigned     gui_decimal_places2; /* Used for type 2 calculations */
+  unsigned     gui_decimal_places3; /* Used for type 3 calculations */
   bool         gui_rtp_player_use_disk1;
   bool         gui_rtp_player_use_disk2;
   unsigned     flow_graph_max_export_items;
   bool         st_enable_burstinfo;
   bool         st_burst_showcount;
-  int          st_burst_resolution;
-  int          st_burst_windowlen;
+  unsigned     st_burst_resolution;
+  unsigned     st_burst_windowlen;
   bool         st_sort_casesensitve;
   bool         st_sort_rng_fixorder;
   bool         st_sort_rng_nameonly;

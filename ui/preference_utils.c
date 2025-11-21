@@ -212,7 +212,7 @@ column_prefs_has_custom(const char *custom_field)
     fmt_data *cfmt;
     int colnr = -1;
 
-    for (int i = 0; i < prefs.num_cols; i++) {
+    for (unsigned i = 0; i < prefs.num_cols; i++) {
         clp = g_list_nth(prefs.col_list, i);
         if (clp == NULL) /* Sanity check, invalid column requested */
             continue;

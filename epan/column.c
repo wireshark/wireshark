@@ -1138,7 +1138,7 @@ const char*
 get_column_text(column_info *cinfo, const int col)
 {
   ws_assert(cinfo);
-  ws_assert(col < cinfo->num_cols);
+  ws_assert((unsigned)col < cinfo->num_cols);
 
   if ((get_column_display_format(col) == COLUMN_DISPLAY_VALUES) && cinfo->col_expr.col_expr_val[col]) {
       /* Use the unresolved value in col_expr_val */
@@ -1151,7 +1151,7 @@ get_column_text(column_info *cinfo, const int col)
 void
 col_finalize(column_info *cinfo)
 {
-  int i;
+  unsigned i;
   col_item_t* col_item;
   dfilter_t *dfilter;
 
@@ -1229,7 +1229,7 @@ col_finalize(column_info *cinfo)
 void
 build_column_format_array(column_info *cinfo, const int num_cols, const bool reset_fences)
 {
-  int i;
+  unsigned i;
   col_item_t* col_item;
 
   /* Build the column format array */

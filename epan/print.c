@@ -1171,7 +1171,7 @@ ek_check_protocolfilter(wmem_map_t *protocolfilter, const char *str, pf_flags *f
 static void
 write_ek_summary(column_info *cinfo, write_json_data* pdata)
 {
-    int i;
+    unsigned i;
 
     for (i = 0; i < cinfo->num_cols; i++) {
         if (!get_column_visible(i))
@@ -1515,7 +1515,7 @@ write_pdml_finale(FILE *fh)
 void
 write_psml_preamble(column_info *cinfo, FILE *fh)
 {
-    int i;
+    unsigned i;
 
     fprintf(fh, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
     fprintf(fh, "<psml version=\"" PSML_VERSION "\" creator=\"%s/%s\">\n", PACKAGE, VERSION);
@@ -1535,7 +1535,7 @@ write_psml_preamble(column_info *cinfo, FILE *fh)
 void
 write_psml_columns(epan_dissect_t *edt, FILE *fh, bool use_color)
 {
-    int i;
+    unsigned i;
     const color_filter_t *cfp = edt->pi.fd->color_filter;
 
     if (use_color && (cfp != NULL)) {
@@ -1602,7 +1602,7 @@ static void csv_write_str(const char *str, char sep, FILE *fh, bool print_separa
 void
 write_csv_column_titles(column_info *cinfo, FILE *fh)
 {
-    int i;
+    unsigned i;
     bool print_separator = false;
     // Avoid printing separator for first column
 
@@ -1620,7 +1620,7 @@ write_csv_column_titles(column_info *cinfo, FILE *fh)
 void
 write_csv_columns(epan_dissect_t *edt, FILE *fh)
 {
-    int i;
+    unsigned i;
     bool print_separator = false;
     // Avoid printing separator for first column
 

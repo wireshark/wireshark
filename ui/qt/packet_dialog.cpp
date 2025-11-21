@@ -113,7 +113,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     }
 
     QStringList col_parts;
-    for (int i = 0; i < cap_file_.capFile()->cinfo.num_cols; ++i) {
+    for (unsigned i = 0; i < cap_file_.capFile()->cinfo.num_cols; ++i) {
         // ElidedLabel doesn't support rich text / HTML
         col_parts << QStringLiteral("%1: %2")
                      .arg(get_column_title(i))

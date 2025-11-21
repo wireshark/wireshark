@@ -105,7 +105,7 @@ col_custom_fields_ids_free(GSList** custom_fields_id)
 void
 col_cleanup(column_info *cinfo)
 {
-  int i;
+  unsigned i;
   col_item_t* col_item;
 
   if (!cinfo)
@@ -143,7 +143,7 @@ col_cleanup(column_info *cinfo)
 void
 col_init(column_info *cinfo, const struct epan_session *epan)
 {
-  int i;
+  unsigned i;
   col_item_t* col_item;
 
   if (!cinfo)
@@ -433,7 +433,7 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 }
 
 char*
-col_custom_get_filter(epan_dissect_t *edt, column_info *cinfo, const int col)
+col_custom_get_filter(epan_dissect_t *edt, column_info *cinfo, const unsigned col)
 {
   col_item_t* col_item;
 
@@ -974,7 +974,7 @@ col_append_sep_str(column_info *cinfo, const int el, const char* separator,
 
 /* --------------------------------- */
 bool
-col_has_time_fmt(column_info *cinfo, const int col)
+col_has_time_fmt(column_info *cinfo, const unsigned col)
 {
   col_item_t* col_item = &cinfo->columns[col];
   return ((col_item->fmt_matx[COL_CLS_TIME]) ||
@@ -1920,7 +1920,7 @@ col_set_port(packet_info *pinfo, const int col, const bool is_res, const bool is
 }
 
 bool
-col_based_on_frame_data(column_info *cinfo, const int col)
+col_based_on_frame_data(column_info *cinfo, const unsigned col)
 {
   ws_assert(cinfo);
   ws_assert(col < cinfo->num_cols);
@@ -2030,7 +2030,7 @@ col_fill_in_frame_data(const frame_data *fd, column_info *cinfo, const int col, 
 void
 col_fill_in(packet_info *pinfo, const bool fill_col_exprs, const bool fill_fd_colums)
 {
-  int i;
+  unsigned i;
   col_item_t* col_item;
 
   if (!pinfo->cinfo)
@@ -2148,7 +2148,7 @@ col_fill_in(packet_info *pinfo, const bool fill_col_exprs, const bool fill_fd_co
 void
 col_fill_in_error(column_info *cinfo, frame_data *fdata, const bool fill_col_exprs, const bool fill_fd_colums)
 {
-  int i;
+  unsigned i;
   col_item_t* col_item;
 
   if (!cinfo)
@@ -2219,7 +2219,7 @@ col_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_cols, tvb, 0, 0, ENC_NA);
     proto_item_set_hidden(ti);
     col_tree = proto_item_add_subtree(ti, ett_cols);
-    for (int i = 0; i < cinfo->num_cols; ++i) {
+    for (unsigned i = 0; i < cinfo->num_cols; ++i) {
       if (cinfo->columns[i].hf_id > 0) {
         if (cinfo->columns[i].col_fmt == COL_CUSTOM) {
           ti = proto_tree_add_string_format(col_tree, cinfo->columns[i].hf_id, tvb, 0, 0, get_column_text(cinfo, i), "%s: %s", get_column_title(i), get_column_text(cinfo, i));

@@ -172,7 +172,7 @@ void PacketListHeader::mouseMoveEvent(QMouseEvent *e)
 void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
 {
     int sectionIdx = logicalIndexAt(event->pos());
-    if (sectionIdx < 0 || sectionIdx >= prefs.num_cols)
+    if (sectionIdx < 0 || ((unsigned)sectionIdx >= prefs.num_cols))
         return;
 
     char xalign = recent_get_column_xalign(sectionIdx);
@@ -243,7 +243,7 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     contextMenu->addActions(displayActions->actions());
     contextMenu->addSeparator();
 
-    for (int cnt = 0; cnt < prefs.num_cols; cnt++) {
+    for (unsigned cnt = 0; cnt < prefs.num_cols; cnt++) {
         QString title(get_column_title(cnt));
         QString detail;
         if (get_column_format(cnt) == COL_CUSTOM) {

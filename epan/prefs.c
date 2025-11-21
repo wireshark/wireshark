@@ -3347,7 +3347,7 @@ prefs_register_modules(void)
     prefs_register_enum_preference(gui_module, "fileopen.style",
                        "Where to start the File Open dialog box",
                        "Where to start the File Open dialog box",
-                       &prefs.gui_fileopen_style, gui_fileopen_style, false);
+                       (int*)&prefs.gui_fileopen_style, gui_fileopen_style, false);
 
     prefs_register_uint_preference(gui_module, "recent_files_count.max",
                                    "The max. number of items in the open recent files list",
@@ -3573,7 +3573,7 @@ prefs_register_modules(void)
     prefs_register_enum_preference(gui_layout_module, "packet_dialog_layout",
                                    "Packet Dialog layout",
                                    "Packet Dialog layout",
-                                   (unsigned*)(void*)(&prefs.gui_packet_dialog_layout), gui_packet_dialog_layout, false);
+                                   (int*)(&prefs.gui_packet_dialog_layout), gui_packet_dialog_layout, false);
 
     prefs_register_enum_preference(gui_module, "packet_list_elide_mode",
                        "Elide mode",

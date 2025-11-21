@@ -2640,8 +2640,8 @@ cf_print_packets(capture_file *cf, print_args_t *print_args,
     print_callback_args_t callback_args;
     int           data_width;
     char         *cp;
-    int           i, cp_off, column_len, line_len;
-    int           num_visible_col = 0, last_visible_col = 0, visible_col_count;
+    unsigned      i, cp_off, column_len, line_len, last_visible_col = 0;
+    int           num_visible_col = 0, visible_col_count;
     psp_return_t  ret;
     GList        *clp;
     fmt_data     *cfmt;
@@ -2723,13 +2723,13 @@ cf_print_packets(capture_file *cf, print_args_t *print_args,
 
             /* Find the length of the string for this column. */
             column_len = (int) strlen(cf->cinfo.columns[i].col_title);
-            if (callback_args.col_widths[visible_col_count] > column_len)
+            if ((unsigned)callback_args.col_widths[visible_col_count] > column_len)
                 column_len = callback_args.col_widths[visible_col_count];
 
             /* Make sure there's room in the line buffer for the column; if not,
                double its length. */
             line_len += column_len + 1;   /* "+1" for space */
-            if (line_len > callback_args.header_line_buf_len) {
+            if (line_len > (unsigned)callback_args.header_line_buf_len) {
                 cp_off = (int) (cp - callback_args.header_line_buf);
                 callback_args.header_line_buf_len = 2 * line_len;
                 callback_args.header_line_buf = (char *)g_realloc(callback_args.header_line_buf,
@@ -3468,7 +3468,7 @@ match_summary_line(capture_file *cf, frame_data *fdata,
     const char     *info_column;
     size_t          info_column_len;
     match_result    result     = MR_NOTMATCHED;
-    int             colx;
+    unsigned        colx;
     uint32_t        i, i_restart;
     uint8_t         c_char;
     size_t          c_match    = 0;
