@@ -107,8 +107,8 @@ ws_filter_list_read(filter_list_type_t list_type, const char* app_env_var_prefix
     GList      *flp = NULL;
     int         c;
     char       *filt_name, *filt_expr;
-    int         filt_name_len, filt_expr_len;
-    int         filt_name_index, filt_expr_index;
+    size_t      filt_name_len, filt_expr_len;
+    size_t      filt_name_index, filt_expr_index;
     int         line = 1;
 
     filter_list_t *list = g_new(filter_list_t, 1);

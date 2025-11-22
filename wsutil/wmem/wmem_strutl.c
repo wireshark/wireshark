@@ -98,7 +98,10 @@ wmem_strdup_vprintf(wmem_allocator_t *allocator, const char *fmt, va_list ap)
     needed_len = vsnprintf(buf, sizeof(buf), fmt, ap2);
     va_end(ap2);
 
-    new_buf_size = needed_len + 1;
+    if (needed_len < 0) {
+        return wmem_strdup(allocator, "vsnprintf() failed");
+    }
+    new_buf_size = (size_t)needed_len + 1;
     new_buf = wmem_alloc(allocator, new_buf_size);
 
     if (new_buf_size <= WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER) {

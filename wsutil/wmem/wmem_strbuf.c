@@ -167,7 +167,7 @@ int _strbuf_vsnprintf(wmem_strbuf_t *strbuf, const char *format, va_list ap)
     }
     if ((size_t)want_len < buffer_size) {
         /* Success. */
-        strbuf->len += want_len;
+        strbuf->len += (size_t)want_len;
         return 0;
     }
 
