@@ -10,14 +10,14 @@
  */
 
 /*
- * https://github.com/hyperboria/cjdns
+ * https://github.com/cjdelisle/cjdns
+ * https://github.com/fc00/spec
  */
 
 #include <config.h>
 
 #include <epan/expert.h>
 #include <epan/packet.h>
-#include <wsutil/base32.h>
 
 /* Prototypes */
 /* (Required to prevent [-Wmissing-prototypes] warnings */
@@ -128,12 +128,15 @@ dissect_cryptoauth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         proto_tree *key_tree;
 
         uint8_t *raw_key    = (uint8_t*)wmem_alloc(pinfo->pool, PUBLIC_KEY_LEN);
+#if 0
+        // This key is encoded according to a custom Base32 variant that
+        // uses the alphabet "0123456789bcdfghjklmnpqrstuvwxyz" instead
+        // of that in RFC 4648.
         char *encoded_key = (char*)wmem_alloc(pinfo->pool, 53);
+#endif
         uint8_t *ip_buf    = (uint8_t*)wmem_alloc(pinfo->pool, digest_len);
 
         tvb_memcpy(tvb, raw_key, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN);
-
-        ws_base32_decode((uint8_t*)encoded_key, 53, raw_key, PUBLIC_KEY_LEN);
 
         g_checksum_update(hash, (unsigned char*)raw_key, PUBLIC_KEY_LEN);
         g_checksum_get_digest(hash, ip_buf, &digest_len);
@@ -144,7 +147,7 @@ dissect_cryptoauth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         g_checksum_get_digest(hash, ip_buf, &digest_len);
         g_checksum_free(hash);
 
-        ti = proto_tree_add_none_format(fc00_tree, hf_fc00_public_key, tvb, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN, "Public Key: %s.k", encoded_key);
+        ti = proto_tree_add_item(fc00_tree, hf_fc00_public_key, tvb, PUBLIC_KEY_OFF, PUBLIC_KEY_LEN, ENC_NA);
 
         key_tree = proto_item_add_subtree(ti, ett_fc00_key);
 
@@ -227,7 +230,7 @@ proto_register_fc00(void)
 
         { &hf_fc00_public_key,
           { "Permanent Public Key", "fc00.public_key",
-            FT_NONE, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             "Base32 encoded public key", HFILL }
         },
 
@@ -263,6 +266,8 @@ proto_register_fc00(void)
         &ett_fc00_key
     };
 
+    /* XXX - What is the relationship between Cjdns and Fc00? Should one
+     * of them be an alias? */
     proto_fc00 = proto_register_protocol("Fc00 CryptoAuth", "Fc00", "fc00");
 
     proto_register_field_array(proto_fc00, hf, array_length(hf));
