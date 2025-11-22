@@ -48,10 +48,12 @@ gcry_error_t ws_cmac_buffer(int algo, void *digest, const void *buffer, size_t l
 	return result;
 }
 
-void crypt_des_ecb(uint8_t *output, const uint8_t *buffer, const uint8_t *key56)
+gcry_error_t
+crypt_des_ecb(uint8_t *output, const uint8_t *buffer, const uint8_t *key56)
 {
 	uint8_t key64[8];
 	gcry_cipher_hd_t handle;
+	gcry_error_t err;
 
 	memset(output, 0x00, 8);
 
@@ -65,15 +67,16 @@ void crypt_des_ecb(uint8_t *output, const uint8_t *buffer, const uint8_t *key56)
 	key64[6] = (key56[5] << 2) | (key56[6] >> 6);
 	key64[7] = (key56[6] << 1);
 
-	if (gcry_cipher_open(&handle, GCRY_CIPHER_DES, GCRY_CIPHER_MODE_ECB, 0)) {
-		return;
+	if ((err = gcry_cipher_open(&handle, GCRY_CIPHER_DES, GCRY_CIPHER_MODE_ECB, 0))) {
+		return err;
 	}
-	if (gcry_cipher_setkey(handle, key64, 8)) {
+	if ((err = gcry_cipher_setkey(handle, key64, 8))) {
 		gcry_cipher_close(handle);
-		return;
+		return err;
 	}
-	gcry_cipher_encrypt(handle, output, 8, buffer, 8);
+	err = gcry_cipher_encrypt(handle, output, 8, buffer, 8);
 	gcry_cipher_close(handle);
+	return err;
 }
 
 size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t pk, bool pkcs1_padding, char **err)
@@ -185,7 +188,11 @@ hkdf_expand(int hashalgo, const uint8_t *prk, unsigned prk_len, const uint8_t *i
 
 	for (unsigned offset = 0; offset < out_len; offset += hash_len) {
 		gcry_md_reset(h);
-		gcry_md_setkey(h, prk, prk_len);                    /* Set PRK */
+		err = gcry_md_setkey(h, prk, prk_len);              /* Set PRK */
+		if (err) {
+		    gcry_md_close(h);
+		    return err;
+		}
 		if (offset > 0) {
 			gcry_md_write(h, lastoutput, hash_len);     /* T(1..N) */
 		}

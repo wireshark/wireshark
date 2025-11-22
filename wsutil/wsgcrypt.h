@@ -97,8 +97,9 @@ WS_DLL_PUBLIC gcry_error_t ws_cmac_buffer(int algo, void *digest,
  * @param output   Destination buffer for encrypted data (must be ≥ 8 bytes).
  * @param buffer   Source buffer containing 8 bytes of plaintext.
  * @param key56    56-bit DES key (expanded internally to 64 bits).
+ * @return         GPG error code (0 on success).
  */
-WS_DLL_PUBLIC void crypt_des_ecb(uint8_t *output, const uint8_t *buffer, const uint8_t *key56);
+WS_DLL_PUBLIC gcry_error_t crypt_des_ecb(uint8_t *output, const uint8_t *buffer, const uint8_t *key56);
 
 
 /**
