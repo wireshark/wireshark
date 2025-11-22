@@ -1243,7 +1243,7 @@ static int dlms_get_type_description_length(tvbuff_t* tvb, packet_info* pinfo, i
     }
     else if (choice == 2) { // structure
         int end_offset = offset + 1;
-        int sequence_of = dlms_get_length(tvb, &end_offset);
+        unsigned sequence_of = dlms_get_length(tvb, &end_offset);
         while (sequence_of--) {
             end_offset += dlms_get_type_description_length(tvb, pinfo, end_offset);
         }
