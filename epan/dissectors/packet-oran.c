@@ -26,8 +26,8 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-
 #include <epan/tfs.h>
+#include <epan/reassemble.h>
 
 #include <wsutil/ws_roundup.h>
 #include <wsutil/ws_padding_to.h>
@@ -509,7 +509,23 @@ static int hf_oran_zero_prb;
 
 static int hf_oran_ul_cplane_ud_comp_hdr_frame;
 
-/* Initialize the subtree pointers */
+/* For reassembly */
+static int hf_oran_fragments;
+static int hf_oran_fragment;
+static int hf_oran_fragment_overlap;
+static int hf_oran_fragment_overlap_conflict;
+static int hf_oran_fragment_multiple_tails;
+static int hf_oran_fragment_too_long_fragment;
+static int hf_oran_fragment_error;
+static int hf_oran_fragment_count;
+static int hf_oran_reassembled_in;
+static int hf_oran_reassembled_length;
+static int hf_oran_reassembled_data;
+
+static int hf_oran_payload;
+
+
+/* Subtrees */
 static int ett_oran;
 static int ett_oran_ecpri_rtcid;
 static int ett_oran_ecpri_pcid;
@@ -553,6 +569,59 @@ static int ett_oran_symbol_mask;
 static int ett_oran_active_beamspace_coefficient_mask;
 static int ett_oran_sinr_prb;
 
+static int ett_oran_fragment;
+static int ett_oran_fragments;
+
+/* Reassembly table. */
+static reassembly_table oran_reassembly_table;
+
+static void *oran_temporary_key(const packet_info *pinfo _U_, const uint32_t id _U_, const void *data)
+{
+    return (void *)data;
+}
+
+static void *oran_persistent_key(const packet_info *pinfo _U_, const uint32_t id _U_,
+                                     const void *data)
+{
+    return (void *)data;
+}
+
+static void oran_free_temporary_key(void *ptr _U_)
+{
+}
+
+static void oran_free_persistent_key(void *ptr _U_)
+{
+}
+
+static reassembly_table_functions oran_reassembly_table_functions =
+{
+    g_direct_hash,
+    g_direct_equal,
+    oran_temporary_key,
+    oran_persistent_key,
+    oran_free_temporary_key,
+    oran_free_persistent_key
+};
+
+static const fragment_items oran_frag_items = {
+  &ett_oran_fragment,
+  &ett_oran_fragments,
+  &hf_oran_fragments,
+  &hf_oran_fragment,
+  &hf_oran_fragment_overlap,
+  &hf_oran_fragment_overlap_conflict,
+  &hf_oran_fragment_multiple_tails,
+  &hf_oran_fragment_too_long_fragment,
+  &hf_oran_fragment_error,
+  &hf_oran_fragment_count,
+  &hf_oran_reassembled_in,
+  &hf_oran_reassembled_length,
+  &hf_oran_reassembled_data,
+  "O-RAN FH CUS fragments"
+};
+
+
 
 /* Don't want all extensions to open and close together. Use extType-1 entry */
 static int ett_oran_c_section_extension[HIGHEST_EXTTYPE];
@@ -591,7 +660,6 @@ static expert_field ei_oran_uplane_unexpected_sequence_number_dl;
 static expert_field ei_oran_acknack_no_request;
 static expert_field ei_oran_udpcomphdr_should_be_zero;
 static expert_field ei_oran_radio_fragmentation_c_plane;
-static expert_field ei_oran_radio_fragmentation_u_plane;
 static expert_field ei_oran_lastRbdid_out_of_range;
 static expert_field ei_oran_rbgMask_beyond_last_rbdid;
 static expert_field ei_oran_unexpected_measTypeId;
@@ -670,6 +738,9 @@ static bool show_unscaled_values = false;
 
 /* Initialized off. Timing is in microseconds. */
 static unsigned us_allowed_for_ul_in_symbol = 0;
+
+/* Reassemble U-Plane (at Radio Transport layer) */
+static bool do_radio_transport_layer_reassembly = true;
 
 static const enum_val_t dl_compression_options[] = {
     { "COMP_NONE",                             "No Compression",                                                             COMP_NONE },
@@ -1905,18 +1976,24 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, int hf, uint16_t *eAx
     proto_item_set_generated(pi);
 }
 
+/* Uniquely identify the U-plane stream that may need to be reassembled */
+static uint32_t make_reassembly_id(uint32_t seqid, uint32_t direction, uint16_t eAxC)
+{
+    return (seqid << 24) | (direction << 16) | eAxC;
+}
+
 /* 5.1.3.2.8  ecpriSeqid (message identifier) */
+/* Return out info that may be used for sequence number analysis and reassembly */
 static int
-addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, int plane, uint8_t *seq_id, proto_item **seq_id_ti, packet_info *pinfo)
+addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, int plane, uint32_t *seq_id, proto_item **seq_id_ti, packet_info *pinfo,
+         uint32_t *subseqid, uint32_t *e)
 {
     /* Subtree */
     proto_item *seqIdItem = proto_tree_add_item(oran_tree, hf_oran_ecpri_seqid, tvb, offset, 2, ENC_NA);
     proto_tree *oran_seqid_tree = proto_item_add_subtree(seqIdItem, ett_oran_ecpri_seqid);
-    uint32_t seqId, subSeqId, e = 0;
 
     /* Sequence ID (8 bits) */
-    *seq_id_ti = proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_sequence_id, tvb, offset, 1, ENC_NA, &seqId);
-    *seq_id = seqId;
+    *seq_id_ti = proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_sequence_id, tvb, offset, 1, ENC_NA, seq_id);
     offset += 1;
 
     /* Show link back to previous sequence ID, if set */
@@ -1927,26 +2004,20 @@ addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, int plane, uint8_t *s
     }
 
     /* E bit */
-    proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_e_bit, tvb, offset, 1, ENC_NA, &e);
+    proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_e_bit, tvb, offset, 1, ENC_NA, e);
     /* Subsequence ID (7 bits) */
-    proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_subsequence_id, tvb, offset, 1, ENC_NA, &subSeqId);
+    proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_subsequence_id, tvb, offset, 1, ENC_NA, subseqid);
     offset += 1;
 
     /* radio-transport fragmentation not allowed for C-Plane messages */
     if (plane == ORAN_C_PLANE) {
-        if (e !=1 || subSeqId != 0) {
+        if (*e !=1 || *subseqid != 0) {
             expert_add_info(NULL, seqIdItem, &ei_oran_radio_fragmentation_c_plane);
-        }
-    }
-    else {
-        if (e !=1 || subSeqId != 0) {
-            /* TODO: Re-assembly of any radio-fragmentation on U-Plane */
-            expert_add_info(NULL, seqIdItem, &ei_oran_radio_fragmentation_u_plane);
         }
     }
 
     /* Summary */
-    proto_item_append_text(seqIdItem, " (SeqId: %3d, E: %d, SubSeqId: %d)", seqId, e, subSeqId);
+    proto_item_append_text(seqIdItem, " (SeqId: %3d, E: %d, SubSeqId: %d)", *seq_id, *e, *subseqid);
     return offset;
 }
 
@@ -5279,9 +5350,9 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     flow_state_t* state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
 
     /* Message identifier */
-    uint8_t seq_id;
+    uint32_t seq_id, sub_seq_id, e;
     proto_item *seq_id_ti;
-    offset = addSeqid(tvb, oran_tree, offset, ORAN_C_PLANE, &seq_id, &seq_id_ti, pinfo);
+    offset = addSeqid(tvb, oran_tree, offset, ORAN_C_PLANE, &seq_id, &seq_id_ti, pinfo, &sub_seq_id, &e);
 
     /* Section common subtree */
     int section_tree_offset = offset;
@@ -6419,9 +6490,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     flow_state_t* state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
 
     /* Message identifier */
-    uint8_t seq_id;
-    proto_item *seq_id_ti;
-    offset = addSeqid(tvb, oran_tree, offset, ORAN_U_PLANE, &seq_id, &seq_id_ti, pinfo);
+    proto_item *seqIdItem;
+    uint32_t seqId, subSeqId, e;
+    offset = addSeqid(tvb, oran_tree, offset, ORAN_U_PLANE, &seqId, &seqIdItem, pinfo, &subSeqId, &e);
 
     /* Common header for time reference */
     proto_item *timingHeader = proto_tree_add_string_format(oran_tree, hf_oran_timing_header,
@@ -6487,8 +6558,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             wmem_tree_insert32(flow_states_table, key, state);
         }
 
-        /* Check sequence analysis status */
-        if (state->last_frame_seen[direction] && (seq_id != state->next_expected_sequence_number[direction])) {
+        /* Check sequence analysis status (but not if later part of radio layer fragmentation) */
+        if (state->last_frame_seen[direction] && (subSeqId==0) && (seqId != state->next_expected_sequence_number[direction])) {
             /* Store this result */
             flow_result_t *result = wmem_new0(wmem_file_scope(), flow_result_t);
             result->unexpected_seq_number = true;
@@ -6499,20 +6570,20 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Update sequence analysis state */
         state->last_frame[direction] = pinfo->num;
         state->last_frame_seen[direction] = true;
-        state->next_expected_sequence_number[direction] = (seq_id+1) % 256;
+        state->next_expected_sequence_number[direction] = (seqId+1) % 256;
     }
 
     /* Show any issues associated with this frame number */
     flow_result_t *result = wmem_tree_lookup32(flow_results_table, pinfo->num);
     if (result) {
         if (result->unexpected_seq_number) {
-            expert_add_info_format(pinfo, seq_id_ti,
+            expert_add_info_format(pinfo, seqIdItem,
                                    (direction == DIR_UPLINK) ?
                                         &ei_oran_uplane_unexpected_sequence_number_ul :
                                         &ei_oran_uplane_unexpected_sequence_number_dl,
                                    "Sequence number %u expected, but got %u",
-                                   result->expected_sequence_number, seq_id);
-            tap_info->missing_sns = (256 + seq_id - result->expected_sequence_number) % 256;
+                                   result->expected_sequence_number, seqId);
+            tap_info->missing_sns = (256 + seqId - result->expected_sequence_number) % 256;
             /* TODO: could add previous/next frame (in seqId tree?) ? */
         }
     }
@@ -6707,6 +6778,52 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item_set_generated(cplane_ti);
             }
         }
+
+        /* Consider fragmentation after first section header */
+        if (do_radio_transport_layer_reassembly && (number_of_sections == 0) && (e !=1 || subSeqId!= 0)) {
+
+            /* Set fragmented flag. */
+            bool save_fragmented = pinfo->fragmented;
+            pinfo->fragmented = true;
+            fragment_head *fh;
+            unsigned frag_data_len = tvb_reported_length_remaining(tvb, offset);
+
+            /* Add this fragment into reassembly table */
+            uint32_t reassembly_id = make_reassembly_id(seqId, direction, eAxC);
+            fh = fragment_add_seq(&oran_reassembly_table, tvb, offset, pinfo,
+                                        reassembly_id,                                 /* id */
+                                        GUINT_TO_POINTER(reassembly_id),               /* data */
+                                        subSeqId,                                      /* frag_number */
+                                        frag_data_len,                                 /* frag_data_len */
+                                        !e,                                             /* more_frags */
+                                        0);
+
+            bool update_col_info = true;
+
+            /* See if this completes an SDU */
+            tvbuff_t *original_tvb = tvb;
+            tvbuff_t *next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled O-RAN FH CUS Payload",
+                                                          fh, &oran_frag_items,
+                                                          &update_col_info, oran_tree);
+            if (next_tvb) {
+                /* Have reassembled data */
+                proto_tree_add_item(oran_tree, hf_oran_payload, next_tvb, 0, -1, ENC_NA);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  Reassembled Data (%u bytes)", tvb_reported_length(next_tvb));
+                /* Dissection should resume at start of reassembled tvb */
+                offset = 0;
+            }
+            /* Will continue with either reassembled tvb or NULL */
+            tvb = next_tvb;
+
+            /* Restore fragmented flag */
+            pinfo->fragmented = save_fragmented;
+
+            /* Don't dissect any more if not complete yet.. */
+            if (tvb == NULL) {
+                return tvb_captured_length(original_tvb);
+            }
+        }
+
 
         /* Not supported! TODO: other places where comp method is looked up (e.g., bfw?) */
         switch (compression) {
@@ -9636,6 +9753,48 @@ proto_register_oran(void)
             FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
             NULL, HFILL}
         },
+
+        /* Reassembly */
+        { &hf_oran_fragment,
+          { "Fragment", "oran_fh_cus.fragment", FT_FRAMENUM, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
+        { &hf_oran_fragments,
+          { "Fragments", "oran_fh_cus.fragments", FT_BYTES, BASE_NONE,
+            NULL, 0x0, NULL, HFILL }},
+        { &hf_oran_fragment_overlap,
+          { "Fragment overlap", "oran_fh_cus.fragment.overlap", FT_BOOLEAN, BASE_NONE,
+            NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
+        { &hf_oran_fragment_overlap_conflict,
+          { "Conflicting data in fragment overlap", "oran_fh_cus.fragment.overlap.conflict",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Overlapping fragments contained conflicting data", HFILL }},
+        { &hf_oran_fragment_multiple_tails,
+          { "Multiple tail fragments found", "oran_fh_cus.fragment.multipletails",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Several tails were found when defragmenting the packet", HFILL }},
+        { &hf_oran_fragment_too_long_fragment,
+          { "Fragment too long", "oran_fh_cus.fragment.toolongfragment",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Fragment contained data past end of packet", HFILL }},
+        { &hf_oran_fragment_error,
+          { "Defragmentation error", "oran_fh_cus.fragment.error", FT_FRAMENUM, BASE_NONE,
+            NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
+        { &hf_oran_fragment_count,
+          { "Fragment count", "oran_fh_cus.fragment.count", FT_UINT32, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }},
+        { &hf_oran_reassembled_in,
+          { "Reassembled payload in frame", "oran_fh_cus.reassembled_in", FT_FRAMENUM, BASE_NONE,
+          NULL, 0x0, "This payload packet is reassembled in this frame", HFILL }},
+        { &hf_oran_reassembled_length,
+          { "Reassembled payload length", "oran_fh_cus.reassembled.length", FT_UINT32, BASE_DEC,
+            NULL, 0x0, "The total length of the reassembled payload", HFILL }},
+        { &hf_oran_reassembled_data,
+          { "Reassembled data", "oran_fh_cus.reassembled.data", FT_BYTES, BASE_NONE,
+            NULL, 0x0, "The reassembled payload", HFILL }},
+
+        { &hf_oran_payload,
+          { "Payload", "oran_fh_cus.payload", FT_BYTES, BASE_SHOW_ASCII_PRINTABLE,
+            NULL, 0x0, "Complete or reassembled payload", HFILL }},
     };
 
     /* Setup protocol subtree array */
@@ -9681,7 +9840,10 @@ proto_register_oran(void)
         &ett_oran_dmrs_symbol_mask,
         &ett_oran_symbol_mask,
         &ett_oran_active_beamspace_coefficient_mask,
-        &ett_oran_sinr_prb
+        &ett_oran_sinr_prb,
+
+        &ett_oran_fragment,
+        &ett_oran_fragments
     };
 
     static int *ext_ett[HIGHEST_EXTTYPE];
@@ -9725,7 +9887,6 @@ proto_register_oran(void)
         { &ei_oran_acknack_no_request, { "oran_fh_cus.acknack_no_request", PI_SEQUENCE, PI_WARN, "Have ackNackId response, but no request", EXPFILL }},
         { &ei_oran_udpcomphdr_should_be_zero, { "oran_fh_cus.udcomphdr_should_be_zero", PI_MALFORMED, PI_WARN, "C-Plane udCompHdr in DL should be set to 0", EXPFILL }},
         { &ei_oran_radio_fragmentation_c_plane, { "oran_fh_cus.radio_fragmentation_c_plane", PI_MALFORMED, PI_ERROR, "Radio fragmentation not allowed in C-PLane", EXPFILL }},
-        { &ei_oran_radio_fragmentation_u_plane, { "oran_fh_cus.radio_fragmentation_u_plane", PI_UNDECODED, PI_WARN, "Radio fragmentation in C-PLane not yet supported", EXPFILL }},
         { &ei_oran_lastRbdid_out_of_range, { "oran_fh_cus.lastrbdid_out_of_range", PI_MALFORMED, PI_WARN, "SE 6 has bad rbgSize", EXPFILL }},
         { &ei_oran_rbgMask_beyond_last_rbdid, { "oran_fh_cus.rbgmask_beyond_lastrbdid", PI_MALFORMED, PI_WARN, "rbgMask has bits set beyond lastRbgId", EXPFILL }},
         { &ei_oran_unexpected_measTypeId, { "oran_fh_cus.unexpected_meastypeid", PI_MALFORMED, PI_WARN, "unexpected measTypeId", EXPFILL }},
@@ -9764,6 +9925,8 @@ proto_register_oran(void)
     expert_oran = expert_register_protocol(proto_oran);
     expert_register_field_array(expert_oran, ei, array_length(ei));
 
+
+    /* Preferences */
     module_t * oran_module = prefs_register_protocol(proto_oran, NULL);
 
     /* prefs_register_static_text_preference(oran_module, "oran.stream", "", ""); */
@@ -9850,6 +10013,10 @@ proto_register_oran(void)
     prefs_register_bool_preference(oran_module, "oran.unscaled_iq", "Show unscaled I/Q values",
         "", &show_unscaled_values);
 
+    prefs_register_bool_preference(oran_module, "oran.attempt_reassembly",
+                                   "Attempt Radio Transport layer reassembly", "",
+                                   &do_radio_transport_layer_reassembly);
+
     prefs_register_obsolete_preference(oran_module, "oran.k_antenna_ports");
 
 
@@ -9858,6 +10025,10 @@ proto_register_oran(void)
     ul_symbol_timing = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     register_init_routine(&oran_init_protocol);
+
+    /* Register reassembly table. */
+    reassembly_table_register(&oran_reassembly_table,
+                              &oran_reassembly_table_functions);
 }
 
 /* Simpler form of proto_reg_handoff_oran which can be used if there are
