@@ -78,10 +78,10 @@ void crypt_des_ecb(uint8_t *output, const uint8_t *buffer, const uint8_t *key56)
 
 size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t pk, bool pkcs1_padding, char **err)
 {
-	int         rc = 0;
-	size_t      decr_len = 0, i = 0;
-	gcry_sexp_t s_data = NULL, s_plain = NULL;
-	gcry_mpi_t  encr_mpi = NULL, text = NULL;
+	gcry_error_t rc = 0;
+	size_t       decr_len = 0, i = 0, pad_len;
+	gcry_sexp_t  s_data = NULL, s_plain = NULL;
+	gcry_mpi_t   encr_mpi = NULL, text = NULL;
 
 	*err = NULL;
 
@@ -142,16 +142,16 @@ size_t rsa_decrypt_inplace(const unsigned len, unsigned char* data, gcry_sexp_t 
 
 	if (pkcs1_padding) {
 		/* strip the padding*/
-		rc = 0;
+		pad_len = 0;
 		for (i = 1; i < decr_len; i++) {
 			if (data[i] == 0) {
-				rc = (int) i+1;
+				pad_len = i+1;
 				break;
 			}
 		}
 
-		decr_len -= rc;
-		memmove(data, data+rc, decr_len);
+		decr_len -= pad_len;
+		memmove(data, data+pad_len, decr_len);
 	}
 
 out:

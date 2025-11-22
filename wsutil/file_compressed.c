@@ -678,8 +678,8 @@ DIAG_ON(cast-qual)
             return 0;
     }
 
-    /* input was all buffered or compressed (put will fit in int) */
-    return (int)put;
+    /* input was all buffered or compressed */
+    return put;
 }
 
 /* Flush out what we've written so far.  Returns -1, and sets state->err,

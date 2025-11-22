@@ -333,7 +333,8 @@ get_mem_info(GString *str)
 #elif __linux__
 	struct sysinfo info;
 	if (sysinfo(&info) == 0)
-		memsize = info.totalram * info.mem_unit;
+		if (ckd_mul(&memsize, info.totalram, info.mem_unit))
+			memsize = 0;
 #endif
 
 	if (memsize > 0)
@@ -526,7 +527,7 @@ gather_pcre2_runtime_info(feature_list l)
 		without_feature(l, "PCRE2 (error querying)");
 		return;
 	}
-	buf_pcre2 = g_malloc(size + 1);
+	buf_pcre2 = g_malloc((size_t)size + 1);
 	pcre2_config(PCRE2_CONFIG_VERSION, buf_pcre2);
 	buf_pcre2[size] = '\0';
 	with_feature(l, "PCRE2 %s", buf_pcre2);

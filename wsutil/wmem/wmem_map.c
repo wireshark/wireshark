@@ -591,7 +591,7 @@ wmem_map_reserve(wmem_map_t *map, uint64_t capacity)
 {
     ws_return_val_if(!capacity, ((size_t)1) << map->min_capacity);
 
-    map->min_capacity = ws_ilog2(capacity) + 1;
+    map->min_capacity = (unsigned)ws_ilog2(capacity) + 1;
 
     map->min_capacity = MAX(map->min_capacity, WMEM_MAP_DEFAULT_CAPACITY);
 

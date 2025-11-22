@@ -192,7 +192,7 @@ wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const char *fmt, va_list ap)
         return;
 
     /* Resize buffer and try again. */
-    wmem_strbuf_grow(strbuf, want_len);
+    wmem_strbuf_grow(strbuf, (size_t)want_len);
     want_len = _strbuf_vsnprintf(strbuf, fmt, ap);
     /* Second time must succeed or error out. */
     ws_assert(want_len <= 0);
@@ -235,7 +235,7 @@ wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c)
     char buf[6];
     size_t charlen;
 
-    charlen = g_unichar_to_utf8(c, buf);
+    charlen = (size_t)g_unichar_to_utf8(c, buf);
 
     wmem_strbuf_grow(strbuf, charlen);
 

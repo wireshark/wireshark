@@ -714,8 +714,8 @@ configuration_init_posix(const char* app_flavor, const char* arg0)
             return ws_strdup_printf("pathconf failed: %s\n",
                 g_strerror(errno));
         }
-        curdir = (char *)g_malloc(path_max);
-        if (getcwd(curdir, path_max) == NULL) {
+        curdir = (char *)g_malloc((size_t)path_max);
+        if (getcwd(curdir, (size_t)path_max) == NULL) {
             /*
              * It failed - give up, and just stick
              * with DATA_DIR.
@@ -741,7 +741,7 @@ configuration_init_posix(const char* app_flavor, const char* arg0)
                 path_end = strchr(path_start, ':');
                 if (path_end == NULL)
                     path_end = path_start + strlen(path_start);
-                path_component_len = path_end - path_start;
+                path_component_len = (size_t)(path_end - path_start);
                 path_len = path_component_len + 1
                     + strlen(execname) + 1;
                 path = (char *)g_malloc(path_len);
@@ -2591,7 +2591,7 @@ write_file_binary_mode(const char *filename, const void *content, size_t content
             ws_close(fd);
             return false;
         }
-        bytes_left -= bytes_written;
+        bytes_left -= (size_t)bytes_written;
         ptr += bytes_written;
     }
 
@@ -2637,7 +2637,7 @@ copy_file_binary_mode(const char *from_filename, const char *to_filename)
 #define FS_READ_SIZE 65536
     pd = (uint8_t *)g_malloc(FS_READ_SIZE);
     while ((nread = ws_read(from_fd, pd, FS_READ_SIZE)) > 0) {
-        nwritten = ws_write(to_fd, pd, nread);
+        nwritten = ws_write(to_fd, pd, (size_t)nread);
         if (nwritten < nread) {
             if (nwritten < 0)
                 err = errno;

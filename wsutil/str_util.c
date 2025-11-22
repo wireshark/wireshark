@@ -219,13 +219,13 @@ char*
 wmem_ascii_strdown(wmem_allocator_t *allocator, const char *str, ssize_t len)
 {
     char *result, *s;
+    size_t abs_len;
 
     g_return_val_if_fail (str != NULL, NULL);
 
-    if (len < 0)
-        len = strlen (str);
+    abs_len = (len < 0) ? strlen(str) : (size_t)len;
 
-    result = wmem_strndup(allocator, str, len);
+    result = wmem_strndup(allocator, str, abs_len);
     for (s = result; *s; s++)
         *s = g_ascii_tolower (*s);
 
@@ -441,7 +441,7 @@ static void truncate_numeric_strbuf(wmem_strbuf_t *strbuf, int n) {
         if (*p != decimal_point[0]) {
             p++;
         }
-        wmem_strbuf_truncate(strbuf, p - s);
+        wmem_strbuf_truncate(strbuf, (size_t)(p - s));
     }
 }
 
@@ -716,13 +716,11 @@ escape_string_len(wmem_allocator_t *alloc, const char *string, ssize_t len,
 {
     char c, r;
     wmem_strbuf_t *buf;
-    size_t alloc_size;
-    ssize_t i;
+    size_t abs_len, alloc_size, i;
 
-    if (len < 0)
-        len = strlen(string);
+    abs_len = (len < 0) ? strlen(string) : (size_t)len;
 
-    alloc_size = len;
+    alloc_size = abs_len;
     if (add_quotes)
         alloc_size += 2;
 
@@ -731,7 +729,7 @@ escape_string_len(wmem_allocator_t *alloc, const char *string, ssize_t len,
     if (add_quotes && quote_char != '\0')
         wmem_strbuf_append_c(buf, quote_char);
 
-    for (i = 0; i < len; i++) {
+    for (i = 0; i < abs_len; i++) {
         c = string[i];
         if ((escape_func(c, &r))) {
             wmem_strbuf_append_c(buf, '\\');

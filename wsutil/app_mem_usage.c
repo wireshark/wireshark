@@ -106,9 +106,9 @@ linux_get_memory(size_t *ptotal, size_t *prss)
 		return false;
 
 	if (ptotal)
-		*ptotal = pagesize * (size_t) total;
+		*ptotal = (size_t) pagesize * (size_t) total;
 	if (prss)
-		*prss = pagesize * (size_t) rss;
+		*prss = (size_t) pagesize * (size_t) rss;
 
 	return true;
 }
