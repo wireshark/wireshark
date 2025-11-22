@@ -84,7 +84,6 @@ set(WSUTIL_PUBLIC_HEADERS
 	app_mem_usage.h
 	application_flavor.h
 	array.h
-	base32.h
 	bits_count_ones.h
 	bits_ctz.h
 	bitswap.h
@@ -168,7 +167,6 @@ set(WSUTIL_COMMON_FILES
 	adler32.c
 	app_mem_usage.c
 	application_flavor.c
-	base32.c
 	bitswap.c
 	buffer.c
 	clopts_common.c
