@@ -380,6 +380,7 @@ hpke_set_nonce(gcry_cipher_hd_t cipher, uint64_t seq, uint8_t *base_nonce, size_
 {
     size_t i;
     uint8_t *nonce = (uint8_t *)wmem_alloc0(NULL, nonce_len);
+    gcry_error_t err;
 
     for (i = 1; i < 9; i++) {
         nonce[nonce_len - i] = seq & 255;
@@ -388,7 +389,9 @@ hpke_set_nonce(gcry_cipher_hd_t cipher, uint64_t seq, uint8_t *base_nonce, size_
     for (i = 0; i < nonce_len; i++) {
         nonce[i] ^= base_nonce[i];
     }
-    return gcry_cipher_setiv(cipher, nonce, nonce_len);
+    err = gcry_cipher_setiv(cipher, nonce, nonce_len);
+    wmem_free(NULL, nonce);
+    return err;
 }
 
 /*
