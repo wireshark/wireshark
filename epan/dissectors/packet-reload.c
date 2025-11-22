@@ -1023,7 +1023,8 @@ dissect_opaque_string_or_data(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree
   proto_tree *opaque_tree;
   proto_item *ti_anchor;
   int         length_index     = -1;
-  int32_t     length           = -1;
+  uint32_t    length           = 0;
+  int         total_length     = -1;
   int         hf               = hf_reload_opaque;
   int         hf_data          = hf_reload_opaque_data;
   unsigned    hf_data_encoding = ENC_NA;
@@ -1040,38 +1041,54 @@ dissect_opaque_string_or_data(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree
   switch (length_size) {
   case 1:
     length_index = hf_reload_length_uint8;
-    length = (int32_t)tvb_get_uint8(tvb,offset);
     break;
   case 2:
     length_index = hf_reload_length_uint16;
-    length = (int32_t)tvb_get_ntohs(tvb, offset);
     break;
   case 3:
     length_index = hf_reload_length_uint24;
-    length = ((int32_t) (tvb_get_ntohs(tvb, offset) <<8) + (tvb_get_uint8(tvb, offset+2)));
     break;
   case 4:
     length_index = hf_reload_length_uint32;
-    length = (int32_t)tvb_get_ntohl(tvb, offset);
     break;
 
   default:
+    // XXX - DISSECTOR_ASSERT_NOT_REACHED() instead of just returning
+    // below? Looks like a dissector bug if this happens.
     break;
   }
 
   if (length_index < 0) return 0;
 
-  ti_anchor = proto_tree_add_item(tree, hf, tvb, offset, length_size + length, ENC_NA);
-
-  if (max_field_length > 0) {
-    if ((length + length_size) > max_field_length) {
-      expert_add_info(pinfo, ti_anchor, &ei_reload_computed_len_too_big);
-      length = max_field_length - length_size;
-    }
-  }
+  // hf is a FT_NONE, so it's more straightforward to set the length later.
+  ti_anchor = proto_tree_add_item(tree, hf, tvb, offset, length_size, ENC_NA);
 
   opaque_tree = proto_item_add_subtree(ti_anchor, ett_reload_opaque);
-  proto_tree_add_uint(opaque_tree, length_index, tvb, offset, length_size, (unsigned)length);
+  proto_tree_add_item_ret_uint(opaque_tree, length_index, tvb, offset, length_size, ENC_BIG_ENDIAN, &length);
+
+  // max_field_length is the maximum allowable sum of length_size and length
+  if (max_field_length > 0) {
+    if (max_field_length < length_size) {
+      expert_add_info_format(pinfo, ti_anchor, &ei_reload_computed_len_too_big, "Length size %i > max_field length %i", length_size, max_field_length);
+      max_field_length = length_size;
+    }
+  } else {
+    max_field_length = INT_MAX;
+  }
+
+  if (ckd_add(&total_length, length_size, length)) {
+    // Overflow
+    expert_add_info_format(pinfo, ti_anchor, &ei_reload_computed_len_too_big, "Computed length overflows an int");
+    total_length = max_field_length;
+    length = max_field_length - length_size;
+  } else if (total_length > max_field_length) {
+    expert_add_info(pinfo, ti_anchor, &ei_reload_computed_len_too_big);
+    total_length = max_field_length;
+    length = max_field_length - length_size;
+  }
+
+  proto_item_set_len(ti_anchor, total_length);
+
   if (length) {
     proto_tree_add_item(opaque_tree, hf_data, tvb, offset + length_size, length, hf_data_encoding);
   }
@@ -1082,7 +1099,7 @@ dissect_opaque_string_or_data(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree
     proto_item_append_text(ti_anchor, "<%d>", length);
   }
 
-  return (length_size + length);
+  return total_length;
 }
 
 static int
