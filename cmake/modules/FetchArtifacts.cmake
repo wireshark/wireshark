@@ -82,18 +82,10 @@ function(download_artifacts download_ok)
       message(FATAL_ERROR "Unable to download ${archive_file}")
       return()
     endif()
-    if(archive_file MATCHES "\.(7z|tar.gz|tar.xz|zip)$")
-      # Extract any archives
-      file(ARCHIVE_EXTRACT
-        INPUT ${DOWNLOAD_DIR}/${archive_file}
-        DESTINATION ${ARTIFACTS_DIR}/${destination_subdir}
-      )
-    else()
-      # Just copy anything else
-      file(COPY ${DOWNLOAD_DIR}/${archive_file}
-        DESTINATION ${ARTIFACTS_DIR}/${destination_subdir}
-      )
-    endif()
+    file(ARCHIVE_EXTRACT
+      INPUT ${DOWNLOAD_DIR}/${archive_file}
+      DESTINATION ${ARTIFACTS_DIR}/${destination_subdir}
+    )
   endforeach()
   set(download_ok ${download_ok} PARENT_SCOPE)
 endfunction()
@@ -135,13 +127,11 @@ function(update_artifacts)
       ${ARTIFACTS_DIR}/lz4-*-windows-ws
       ${ARTIFACTS_DIR}/minizip-*-windows-ws
       ${ARTIFACTS_DIR}/nghttp?-*-windows-ws
-      ${ARTIFACTS_DIR}/npcap-*.exe
       ${ARTIFACTS_DIR}/opencore-amr-*-ws
       ${ARTIFACTS_DIR}/opus-*-windows-ws
       ${ARTIFACTS_DIR}/sbc-*-windows-ws
       ${ARTIFACTS_DIR}/snappy-*-windows-ws
       ${ARTIFACTS_DIR}/speexdsp-*-windows-ws
-      ${ARTIFACTS_DIR}/USBPcapSetup-*.exe
       ${ARTIFACTS_DIR}/vcpkg-export-*-windows-ws
       ${ARTIFACTS_DIR}/WinSparkle-*
       ${ARTIFACTS_DIR}/xxhash-*-windows-ws
@@ -203,20 +193,6 @@ if(APPLE)
     add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-09-09-1-macos-universal.tar.xz f30b20896c5483811762f8fbb772094fc5c2efbffb71760f00dffd7c4dc4377d)
   endif()
 elseif(WIN32)
-  # Common artifacts
-  add_artifact(asciidoctor/asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws.7z d1dae73dd61ded005b8f1f2d7d19bd08e6edbeed216428e8ab898267229d150b)
-  add_external_artifact(https://docbook.org/xml/5.0.1/docbook-5.0.1.zip 7af9df452410e035a3707883e43039b4062f09dc2f49f2e986da3e4c0386e3c7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
-  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-1.79.2.zip 853dce096f5b32fe0b157d8018d8fecf92022e9c79b5947a98b365679c7e31d7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
-  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-nons-1.79.2.zip ba41126fbf4021e38952f3074dc87cdf1e50f3981280c7a619f88acf31456822 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
-
-  set(NPCAP_VERSION "1.83")
-  set(NPCAP_VERSION "${NPCAP_VERSION}" PARENT_SCOPE)
-  add_artifact(Npcap/npcap-${NPCAP_VERSION}.exe 1bf58936296992d6b03e6c36621ca8239a786c13b89d761d210fa21731567ac0)
-
-  set(USBPCAP_VERSION "1.5.4.0")
-  set(USBPCAP_VERSION "${USBPCAP_VERSION}" PARENT_SCOPE)
-  add_artifact(USBPcap/USBPcapSetup-${USBPCAP_VERSION}.exe 87a7edf9bbbcf07b5f4373d9a192a6770d2ff3add7aa1e276e82e38582ccb622)
-
   if(WIRESHARK_TARGET_PLATFORM STREQUAL "x64")
     add_artifact(bcg729/bcg729-1.0.4-win64ws.zip 9a095fda4c39860d96f0c568830faa6651cd17635f68e27aa6de46c689aa0ee2)
     add_artifact(brotli/brotli-1.2.0-1-x64-windows-ws.7z 938114d56814dbfd028d7ff78c4936e0b305032ab153cd78a57b78d2b0accbbd)
@@ -282,6 +258,10 @@ elseif(WIN32)
       add_artifact(falcosecurity-libs/falcosecurity-plugins-2025-09-09-1-arm64-ws.7z 06ae3eb92bc01d9ec2d9eeb4bcfa3b0556e68420a0ba1ba6d6ecfe69bea98077)
     endif()
   endif()
+  add_artifact(asciidoctor/asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws.7z d1dae73dd61ded005b8f1f2d7d19bd08e6edbeed216428e8ab898267229d150b)
+  add_external_artifact(https://docbook.org/xml/5.0.1/docbook-5.0.1.zip 7af9df452410e035a3707883e43039b4062f09dc2f49f2e986da3e4c0386e3c7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
+  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-1.79.2.zip 853dce096f5b32fe0b157d8018d8fecf92022e9c79b5947a98b365679c7e31d7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
+  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-nons-1.79.2.zip ba41126fbf4021e38952f3074dc87cdf1e50f3981280c7a619f88acf31456822 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
 endif()
 
 update_artifacts()

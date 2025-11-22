@@ -293,6 +293,9 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 			EXCLUDE_FROM_DEFAULT_BUILD True
 		)
 
+		# Make sure required blobs are available
+		FetchContent_MakeAvailable(Npcap USBPcap)
+
 		# Dump the installer into
 		# ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis
 		# Note that executables and DLLs *must* be built separately
