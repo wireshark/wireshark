@@ -204,19 +204,10 @@ reset_interface_config_cb(void) {
  * - interface_name matches and interface_id = 0xffffffff
  * - interface_name = ""    and interface_id matches
  */
-
 static unsigned
-get_bus_id(packet_info *pinfo) {
-    if (!(pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)) {
-        return 0;
-    }
-
-    uint32_t            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
-    unsigned            section_number = pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0;
-    const char         *interface_name = epan_get_interface_name(pinfo->epan, interface_id, section_number);
-
+get_bus_id_common(const char* interface_name, uint32_t interface_id) {
     if (interface_name != NULL && interface_name[0] != 0) {
-        interface_config_t *tmp = NULL;
+        interface_config_t* tmp = NULL;
 
         if (data_lin_interfaces_by_name != NULL) {
             tmp = g_hash_table_lookup(data_lin_interfaces_by_name, interface_name);
@@ -239,6 +230,24 @@ get_bus_id(packet_info *pinfo) {
 
     /* we found nothing */
     return 0;
+}
+
+static unsigned
+get_bus_id(packet_info *pinfo) {
+    if (!(pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)) {
+        return 0;
+    }
+
+    uint32_t    interface_id = pinfo->rec->rec_header.packet_header.interface_id;
+    unsigned    section_number = pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0;
+    const char* interface_name = epan_get_interface_name(pinfo->epan, interface_id, section_number);
+
+    return get_bus_id_common(interface_name, interface_id);
+}
+
+unsigned
+lin_get_bus_id_from_interface_name(const char* interface_name) {
+    return get_bus_id_common(interface_name, 0xffffffff);
 }
 
 /* Senders and Receivers UAT */

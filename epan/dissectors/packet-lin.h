@@ -49,8 +49,8 @@ struct lin_info {
 
 typedef struct lin_info lin_info_t;
 
+unsigned lin_get_bus_id_from_interface_name(const char* interface_name);
 bool lin_set_source_and_destination_columns(packet_info* pinfo, lin_info_t *lininfo);
-
 int dissect_lin_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, lin_info_t *lininfo);
 
 #endif /* __PACKET_LIN_H__ */
