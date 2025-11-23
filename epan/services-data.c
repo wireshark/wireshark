@@ -1610,7 +1610,7 @@ static const ws_services_entry_t global_tcp_udp_services_table[] = {
     { 1977, "tcoaddressbook",   "TCO Address Book" },
     { 1978, "unisql",           "UniSQL" },
     { 1979, "unisql-java",      "UniSQL Java" },
-    { 1980, "pearldoc-xact",    "PearlDoc XACT" },
+    { 1980, "panquest-xact",    "PanQuest XACT" },
     { 1981, "p2pq",             "p2pQ" },
     { 1982, "estamp",           "Evidentiary Timestamp" },
     { 1983, "lhtp",             "Loophole Test Protocol" },

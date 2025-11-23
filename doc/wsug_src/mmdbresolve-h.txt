@@ -1,4 +1,4 @@
-mmdbresolve (Wireshark) 4.6.1 (v4.6.1rc0-8-g239e58a64041)
+mmdbresolve (Wireshark) 4.6.2 (v4.6.2rc0-6-g18f9b98abb17)
 Read IPv4 and IPv6 addresses on stdin and print their IP geolocation information on stdout.
 See https://www.wireshark.org for more information.
 

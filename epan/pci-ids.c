@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2025.11.16
- * Date:    2025-11-16 03:15:02
+ * Version: 2025.11.22
+ * Date:    2025-11-22 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -995,6 +995,7 @@ static pci_id_t const pci_vid_1000[] = {
 {0x1000, 0x00A5, 0x15D9, 0x1D03, "AOC-S4116L-H16IR (16DD/96DD) RAID Adapter(0x15D9-0x1D03)"},
 {0x1000, 0x00A5, 0x15D9, 0x1D07, "AOC-S4016L-L16IT Storage Adapter(0x15D9-0x1D07)"},
 {0x1000, 0x00A5, 0x15D9, 0x1D08, "AOC-S4016L-L16IR Storage Adapter(0x15D9-0x1D08)"},
+{0x1000, 0x00A5, 0x17AA, 0x7855, "ThinkSystem RAID 950W-16i 8GB Flash PCIe Gen4 24Gb Adapter(0x17AA-0x7855)"},
 {0x1000, 0x00A5, 0x1D49, 0x020A, "ThinkSystem 450W-16e SAS/SATA PCIe Gen4 24Gb HBA(0x1D49-0x020A)"},
 {0x1000, 0x00AB, 0xFFFF, 0xFFFF, "SAS3516 Fusion-MPT Tri-Mode RAID On Chip (ROC)(0x00AB)"},
 {0x1000, 0x00AB, 0x1000, 0x3040, "HBA 9400-8i8e(0x1000-0x3040)"},
@@ -1030,6 +1031,7 @@ static pci_id_t const pci_vid_1000[] = {
 {0x1000, 0x00B3, 0x1028, 0x23CB, "PERC H975i Front(0x1028-0x23CB)"},
 {0x1000, 0x00B3, 0x1028, 0x23CD, "PERC H975i Adapter(0x1028-0x23CD)"},
 {0x1000, 0x00B3, 0x1028, 0x2446, "PERC H976i Front(0x1028-0x2446)"},
+{0x1000, 0x00B3, 0x17AA, 0x784C, "ThinkSystem RAID 960W PCIe Gen5 Adapter(0x17AA-0x784C)"},
 {0x1000, 0x00B3, 0x1D49, 0x020B, "ThinkSystem 460-16e SAS/SATA PCIe Gen5 24Gb HBA(0x1D49-0x020B)"},
 {0x1000, 0x00B4, 0xFFFF, 0xFFFF, "Fusion-MPT 24G SAS/PCIe SAS50xx/SAS51xx(0x00B4)"},
 {0x1000, 0x00B5, 0xFFFF, 0xFFFF, "Fusion-MPT 24G SAS/PCIe SAS50xx/SAS51xx(0x00B5)"},
@@ -1043,6 +1045,7 @@ static pci_id_t const pci_vid_1000[] = {
 {0x1000, 0x00B5, 0x1028, 0x22D3, "PERC H975i Adapter - Virtual(0x1028-0x22D3)"},
 {0x1000, 0x00B5, 0x1028, 0x23CB, "PERC H975i Front - Virtual(0x1028-0x23CB)"},
 {0x1000, 0x00B5, 0x1028, 0x23CD, "PERC H975i Adapter - Virtual(0x1028-0x23CD)"},
+{0x1000, 0x00B5, 0x17AA, 0x784C, "ThinkSystem RAID 960W PCIe Gen5 Adapter(0x17AA-0x784C)"},
 {0x1000, 0x00B6, 0xFFFF, 0xFFFF, "Fusion-MPT 24G SAS/PCIe SAS50xx/SAS51xx(0x00B6)"},
 {0x1000, 0x00B6, 0x1000, 0x5000, "MegaRAID 9760W-32i 24G SAS/PCIe Storage Adapter(0x1000-0x5000)"},
 {0x1000, 0x00B6, 0x1000, 0x5001, "MegaRAID 9760W-16i 24G SAS/PCIe Storage Adapter(0x1000-0x5001)"},
@@ -13940,6 +13943,7 @@ static pci_id_t const pci_vid_10DE[] = {
 {0x10DE, 0x22EB, 0xFFFF, 0xFFFF, "GB206 High Definition Audio Controller(0x22EB)"},
 {0x10DE, 0x22EC, 0xFFFF, 0xFFFF, "GB207 High Definition Audio Controller(0x22EC)"},
 {0x10DE, 0x2302, 0xFFFF, 0xFFFF, "GH100(0x2302)"},
+{0x10DE, 0x230C, 0xFFFF, 0xFFFF, "GH100 [H20 NVL16](0x230C)"},
 {0x10DE, 0x230E, 0xFFFF, 0xFFFF, "GH100 [H20 NVL16](0x230E)"},
 {0x10DE, 0x2313, 0xFFFF, 0xFFFF, "GH100 [H100 CNX](0x2313)"},
 {0x10DE, 0x2321, 0xFFFF, 0xFFFF, "GH100 [H100L 94GB](0x2321)"},
@@ -14188,7 +14192,7 @@ static pci_id_t const pci_vid_10DE[] = {
 {0x10DE, 0x2F80, 0xFFFF, 0xFFFF, "GB205 High Definition Audio Controller(0x2F80)"},
 {0x10DE, 0x3180, 0xFFFF, 0xFFFF, "GB110 [Reserved Dev ID A](0x3180)"},
 {0x10DE, 0x3182, 0xFFFF, 0xFFFF, "GB110 [B300 SXM6 AC](0x3182)"},
-{0x10DE, 0x31A1, 0xFFFF, 0xFFFF, "GB110(0x31A1)"},
+{0x10DE, 0x31A1, 0xFFFF, 0xFFFF, "GB110 [GB300 MaxQ](0x31A1)"},
 {0x10DE, 0x31C0, 0xFFFF, 0xFFFF, "GB110 [Reserved Dev ID B](0x31C0)"},
 {0x10DE, 0x31C2, 0xFFFF, 0xFFFF, "GB110 [GB300](0x31C2)"},
 {0x10DE, 0x31FE, 0xFFFF, 0xFFFF, "GB110(0x31FE)"},
@@ -27176,6 +27180,7 @@ static pci_id_t const pci_vid_15CE[] = {
 static pci_id_t const pci_vid_15CF[] = {
 {0x15CF, 0xFFFF, 0xFFFF, 0xFFFF, "Hilscher Gesellschaft für Systemautomation mbH(0x15CF)"},
 {0x15CF, 0x0000, 0xFFFF, 0xFFFF, "CIFX PCI/PCIe(0x0000)"},
+{0x15CF, 0x0090, 0xFFFF, 0xFFFF, "CIFX PCI/PCIe(0x0090)"},
 }; /* pci_vid_15CF[] */
 
 static pci_id_t const pci_vid_15D1[] = {
@@ -34767,6 +34772,19 @@ static pci_id_t const pci_vid_1F99[] = {
 {0x1F99, 0x1608, 0xFFFF, 0xFFFF, "PCIe Gen4 x4 M.2 2280(0x1608)"},
 {0x1F99, 0x1F88, 0xFFFF, 0xFFFF, "TE3420 PCIe Gen3 x4 M.2 2280(0x1F88)"},
 {0x1F99, 0x3420, 0xFFFF, 0xFFFF, "PCIe Gen3 x4 M.2 2280(0x3420)"},
+{0x1F99, 0x6100, 0xFFFF, 0xFFFF, "TE3420 Series NVMe PCIe Gen3x4 SSD(0x6100)"},
+{0x1F99, 0x6101, 0xFFFF, 0xFFFF, "XE3420 Series NVMe PCIe Gen3x4 SSD(0x6101)"},
+{0x1F99, 0x6102, 0xFFFF, 0xFFFF, "TE4407 Series NVMe PCIe Gen4x4 SSD(0x6102)"},
+{0x1F99, 0x6103, 0xFFFF, 0xFFFF, "XE4407 Series NVMe PCIe Gen4x4 SSD(0x6103)"},
+{0x1F99, 0x6104, 0xFFFF, 0xFFFF, "TE4408 Series NVMe PCIe Gen4x4 SSD(0x6104)"},
+{0x1F99, 0x6105, 0xFFFF, 0xFFFF, "XE4408 Series NVMe PCIe Gen4x4 SSD(0x6105)"},
+{0x1F99, 0x6106, 0xFFFF, 0xFFFF, "TE4402 Series NVMe PCIe Gen4x4 SSD(0x6106)"},
+{0x1F99, 0x6107, 0xFFFF, 0xFFFF, "XE4402 Series NVMe PCIe Gen4x4 SSD(0x6107)"},
+{0x1F99, 0x6108, 0xFFFF, 0xFFFF, "TE4405 Series NVMe PCIe Gen4x4 SSD(0x6108)"},
+{0x1F99, 0x6109, 0xFFFF, 0xFFFF, "XE4405 Series NVMe PCIe Gen4x4 SSD(0x6109)"},
+{0x1F99, 0x610A, 0xFFFF, 0xFFFF, "TE4406 Series NVMe PCIe Gen4x4 SSD(0x610A)"},
+{0x1F99, 0x610B, 0xFFFF, 0xFFFF, "XE4406 Series NVMe PCIe Gen4x4 SSD(0x610B)"},
+{0x1F99, 0x610C, 0xFFFF, 0xFFFF, "TE3410 Series NVMe PCIe Gen3x4 SSD(0x610C)"},
 }; /* pci_vid_1F99[] */
 
 static pci_id_t const pci_vid_1F9D[] = {
@@ -34774,6 +34792,10 @@ static pci_id_t const pci_vid_1F9D[] = {
 {0x1F9D, 0x1100, 0xFFFF, 0xFFFF, "Metis AIPU (rev 02)(0x1100)"},
 {0x1F9D, 0x11AA, 0xFFFF, 0xFFFF, "Metis AIPU (rev 01)(0x11AA)"},
 }; /* pci_vid_1F9D[] */
+
+static pci_id_t const pci_vid_1FA4[] = {
+{0x1FA4, 0xFFFF, 0xFFFF, 0xFFFF, "Shandong SinoChip Semiconductors Co., Ltd(0x1FA4)"},
+}; /* pci_vid_1FA4[] */
 
 static pci_id_t const pci_vid_1FAA[] = {
 {0x1FAA, 0xFFFF, 0xFFFF, 0xFFFF, "Hexaflake (Shanghai) Information Technology Co., Ltd.(0x1FAA)"},
@@ -35298,6 +35320,11 @@ static pci_id_t const pci_vid_20D8[] = {
 {0x20D8, 0x1201, 0x20D8, 0x1211, "TUNAN-7 2x100GbE Controller(0x20D8-0x1211)"},
 {0x20D8, 0x2201, 0xFFFF, 0xFFFF, "TUNAN-7 2x25GbE Controller(0x2201)"},
 {0x20D8, 0x2201, 0x20D8, 0x2201, "TUNAN-7 2x25GbE Controller(0x20D8-0x2201)"},
+{0x20D8, 0x2201, 0x20D8, 0x2211, "TUNAN-7V 2x25GbE Controller(0x20D8-0x2211)"},
+{0x20D8, 0x3201, 0xFFFF, 0xFFFF, "TUNAN-7 2x200GbE Controller(0x3201)"},
+{0x20D8, 0x3201, 0x20D8, 0x3201, "TUNAN-7 2x200GbE Controller(0x20D8-0x3201)"},
+{0x20D8, 0x4201, 0xFFFF, 0xFFFF, "TUNAN-7 1x400GbE Controller(0x4201)"},
+{0x20D8, 0x4201, 0x20D8, 0x4201, "TUNAN-7V 1x400GbE Controller(0x20D8-0x4201)"},
 }; /* pci_vid_20D8[] */
 
 static pci_id_t const pci_vid_20DC[] = {
@@ -47651,7 +47678,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x0E55, 1, pci_vid_0E55 },
 {0x0EAC, 2, pci_vid_0EAC },
 {0x0F62, 1, pci_vid_0F62 },
-{0x1000, 835, pci_vid_1000 },
+{0x1000, 838, pci_vid_1000 },
 {0x1001, 10, pci_vid_1001 },
 {0x1002, 3293, pci_vid_1002 },
 {0x1003, 2, pci_vid_1003 },
@@ -47865,7 +47892,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x10DB, 1, pci_vid_10DB },
 {0x10DC, 6, pci_vid_10DC },
 {0x10DD, 3, pci_vid_10DD },
-{0x10DE, 3425, pci_vid_10DE },
+{0x10DE, 3426, pci_vid_10DE },
 {0x10DF, 133, pci_vid_10DF },
 {0x10E0, 7, pci_vid_10E0 },
 {0x10E1, 5, pci_vid_10E1 },
@@ -49098,7 +49125,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x15CC, 1, pci_vid_15CC },
 {0x15CD, 1, pci_vid_15CD },
 {0x15CE, 1, pci_vid_15CE },
-{0x15CF, 2, pci_vid_15CF },
+{0x15CF, 3, pci_vid_15CF },
 {0x15D1, 1, pci_vid_15D1 },
 {0x15D2, 1, pci_vid_15D2 },
 {0x15D3, 1, pci_vid_15D3 },
@@ -49721,8 +49748,9 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x1F7A, 2, pci_vid_1F7A },
 {0x1F82, 3, pci_vid_1F82 },
 {0x1F90, 3, pci_vid_1F90 },
-{0x1F99, 5, pci_vid_1F99 },
+{0x1F99, 18, pci_vid_1F99 },
 {0x1F9D, 3, pci_vid_1F9D },
+{0x1FA4, 1, pci_vid_1FA4 },
 {0x1FAA, 5, pci_vid_1FAA },
 {0x1FAB, 7, pci_vid_1FAB },
 {0x1FB0, 25, pci_vid_1FB0 },
@@ -49781,7 +49809,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0x20C1, 2, pci_vid_20C1 },
 {0x20D0, 2, pci_vid_20D0 },
 {0x20D2, 2, pci_vid_20D2 },
-{0x20D8, 9, pci_vid_20D8 },
+{0x20D8, 14, pci_vid_20D8 },
 {0x20DC, 2, pci_vid_20DC },
 {0x20E1, 4, pci_vid_20E1 },
 {0x20E3, 1, pci_vid_20E3 },
@@ -50074,7 +50102,7 @@ static pci_vid_index_t const pci_vid_index[] = {
 {0xFFFD, 2, pci_vid_FFFD },
 {0xFFFE, 2, pci_vid_FFFE },
 {0xFFFF, 1, pci_vid_FFFF },
-}; /* We have 2471 VIDs */
+}; /* We have 2472 VIDs */
 
 static int vid_search(const void *key, const void *tbl_entry)
 {
