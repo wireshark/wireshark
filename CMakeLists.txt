@@ -1390,6 +1390,9 @@ if(BUILD_wireshark OR BUILD_logray)
 	endif(USE_qt6)
 
 	set(QT_FOUND ON)
+	if(WIN32)
+		ws_find_package(WinSparkle ENABLE_WINSPARKLE HAVE_SOFTWARE_UPDATE)
+	endif()
 	if(APPLE)
 		ws_find_package(Sparkle ENABLE_SPARKLE HAVE_SOFTWARE_UPDATE 2)
 	endif()
@@ -1505,9 +1508,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	ws_find_package(CAP ENABLE_CAP HAVE_LIBCAP)
 	find_package(SETCAP)
 endif()
-
-# Windows version updates
-ws_find_package(WinSparkle ENABLE_WINSPARKLE HAVE_SOFTWARE_UPDATE)
 
 find_package( Asciidoctor 1.5 )
 find_package( XSLTPROC )
