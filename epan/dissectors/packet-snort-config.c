@@ -591,7 +591,10 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
     name[0] = '\0';
     value[0] = '\0';
     int value_length = 0;
-    uint32_t value32 = 0;
+    int32_t value_i32 = 0;
+    uint32_t value_u32 = 0;
+    uint16_t value_u16 = 0;
+    const char *endptr; // Just to ignore trailing whitespace
     int spaces_after_colon = 0;
 
     if (colon_offset != 0) {
@@ -608,10 +611,6 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
         (void) g_strlcpy(name, options+option_start_offset, options_end_offset-option_start_offset);
     }
 
-    /* Some rule options expect a number, parse it now. Note that any space
-     * after the value will currently result in the number being ignored. */
-    ws_strtoi32(value, NULL, &value32);
-
     /* Think this is space at end of all options - don't compare with option names */
     if (name[0] == '\0') {
         return;
@@ -622,10 +621,18 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
         rule->msg = g_strdup(value);
     }
     else if (strcmp(name, "sid") == 0) {
-        rule->sid = value32;
+        if (!ws_strtou32(value, &endptr, &value_u32)) {
+            ws_info("failed to parse %s argument", name);
+            return;
+        }
+        rule->sid = value_u32;
     }
     else if (strcmp(name, "rev") == 0) {
-        rule->rev = value32;
+        if (!ws_strtou32(value, &endptr, &value_u32)) {
+            ws_info("failed to parse %s argument", name);
+            return;
+        }
+        rule->rev = value_u32;
     }
     else if (strcmp(name, "content") == 0) {
         int value_start = 0;
@@ -684,16 +691,36 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
         rule_set_content_nocase(rule);
     }
     else if (strcmp(name, "offset") == 0) {
-        rule_set_content_offset(rule, value32);
+        // Allows values from -65535 to 65535
+        if (!ws_strtoi32(value, &endptr, &value_i32)) {
+            ws_info("failed to parse %s argument", name);
+            return;
+        }
+        rule_set_content_offset(rule, value_i32);
     }
     else if (strcmp(name, "depth") == 0) {
-        rule_set_content_depth(rule, value32);
+        // Max value is 65535
+        if (!ws_strtou16(value, &endptr, &value_u16)) {
+            ws_info("failed to parse %s argument", name);
+            return;
+        }
+        rule_set_content_depth(rule, value_u16);
     }
     else if (strcmp(name, "within") == 0) {
-        rule_set_content_within(rule, value32);
+        // Max value is 65535
+        if (!ws_strtou16(value, &endptr, &value_u16)) {
+            ws_info("failed to parse %s argument", name);
+            return;
+        }
+        rule_set_content_within(rule, value_u16);
     }
     else if (strcmp(name, "distance") == 0) {
-        rule_set_content_distance(rule, value32);
+        // Allows values from -65535 to 65535
+        if (!ws_strtoi32(value, &endptr, &value_i32)) {
+            ws_info("failed to parse %s argument", name);
+            return;
+        }
+        rule_set_content_distance(rule, value_i32);
     }
     else if (strcmp(name, "fast_pattern") == 0) {
         rule_set_content_fast_pattern(rule);
