@@ -359,8 +359,9 @@ ntlmssp_sessions_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t eve
   It's in fact 3 susbsequent call to crypt_des_ecb with a 7-byte key.
   Missing bytes for the key are replaced by 0;
   Returns output in response, which is expected to be 24 bytes.
+  Returns true on success, false on failure (unlikely).
 */
-static int
+static bool
 crypt_des_ecb_long(uint8_t *response,
                    const uint8_t *key,
                    const uint8_t *data)
@@ -370,19 +371,23 @@ crypt_des_ecb_long(uint8_t *response,
   memcpy(pw21, key, 16);
 
   memset(response, 0, 24);
-  crypt_des_ecb(response, data, pw21);
-  crypt_des_ecb(response + 8, data, pw21 + 7);
-  crypt_des_ecb(response + 16, data, pw21 + 14);
+  if (crypt_des_ecb(response, data, pw21))
+    return false;
+  if (crypt_des_ecb(response + 8, data, pw21 + 7))
+    return false;
+  if (crypt_des_ecb(response + 16, data, pw21 + 14))
+    return false;
 
-  return 1;
+  return true;
 }
 
 /*
   Generate a challenge response, given an eight byte challenge and
   either the NT or the Lan Manager password hash (16 bytes).
   Returns output in response, which is expected to be 24 bytes.
+  Return true on success, false on failure (unlikely).
 */
-static int
+static bool
 ntlmssp_generate_challenge_response(uint8_t *response,
                                     const uint8_t *passhash,
                                     const uint8_t *challenge)
@@ -394,11 +399,14 @@ ntlmssp_generate_challenge_response(uint8_t *response,
 
   memset(response, 0, 24);
 
-  crypt_des_ecb(response, challenge, pw21);
-  crypt_des_ecb(response + 8, challenge, pw21 + 7);
-  crypt_des_ecb(response + 16, challenge, pw21 + 14);
+  if (crypt_des_ecb(response, challenge, pw21))
+    return false;
+  if (crypt_des_ecb(response + 8, challenge, pw21 + 7))
+    return false;
+  if (crypt_des_ecb(response + 16, challenge, pw21 + 14))
+    return false;
 
-  return 1;
+  return true;
 }
 
 
