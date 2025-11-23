@@ -72,7 +72,7 @@ codec_iLBC_decode(codec_context_t *ctx,
 {
     int16_t speechType; // Not used in Wireshark code
 #ifdef LIBILBC_VERSION_MAJOR
-    int8_t *dataIn  = (int8_t *)inputBytes;
+    uint8_t *dataIn  = (uint8_t *)inputBytes;
 #else
     int16_t *dataIn  = (int16_t *)inputBytes;
 #endif
