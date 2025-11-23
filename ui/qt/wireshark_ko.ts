@@ -7267,8 +7267,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>MAC 주소</translation>
     </message>
     <message>
-        <source>Search vendor name using a case-insentitive regular expression.</source>
-        <translation>대소문자를 구분하지 않는 정규 표현식으로 제조사 이름을 검색합니다.</translation>
+        <source>Search vendor name using a case-insensitive regular expression.</source>
+        <oldsource>Search vendor name using a case-insentitive regular expression.</oldsource>
+        <translation type="unfinished">대소문자를 구분하지 않는 정규 표현식으로 제조사 이름을 검색합니다.</translation>
     </message>
     <message>
         <source>Vendor Name</source>

@@ -7289,8 +7289,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>MAC Adresse</translation>
     </message>
     <message>
-        <source>Search vendor name using a case-insentitive regular expression.</source>
-        <translation>Suche nach Hersteller mit regulärem Ausdruck (Groß-/Kleinschreibung irrelevant).</translation>
+        <source>Search vendor name using a case-insensitive regular expression.</source>
+        <oldsource>Search vendor name using a case-insentitive regular expression.</oldsource>
+        <translation type="unfinished">Suche nach Hersteller mit regulärem Ausdruck (Groß-/Kleinschreibung irrelevant).</translation>
     </message>
     <message>
         <source>Vendor Name</source>

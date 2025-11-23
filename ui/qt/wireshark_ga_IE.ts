@@ -7312,8 +7312,9 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Seoladh MAC</translation>
     </message>
     <message>
-        <source>Search vendor name using a case-insentitive regular expression.</source>
-        <translation>Cuardaigh ainm an díoltóra ag baint úsáide as slonn ionadaíochta cás-insentidive.</translation>
+        <source>Search vendor name using a case-insensitive regular expression.</source>
+        <oldsource>Search vendor name using a case-insentitive regular expression.</oldsource>
+        <translation type="unfinished">Cuardaigh ainm an díoltóra ag baint úsáide as slonn ionadaíochta cás-insentidive.</translation>
     </message>
     <message>
         <source>Vendor Name</source>
@@ -16270,11 +16271,11 @@ a:hover {
     </message>
     <message>
         <source>No %1 Secrets</source>
-        <translation type="unfinished"></translation>
+        <translation>Gan Rúin %1</translation>
     </message>
     <message>
         <source>There are no available secrets used to decrypt %1 traffic in the capture file.  Would you like to view information about how to decrypt %2 traffic on the wiki?</source>
-        <translation type="unfinished"></translation>
+        <translation>Níl aon rúin ar fáil a úsáidtear chun trácht %1 a dhíchriptiú sa chomhad gabhála. Ar mhaith leat faisnéis a fheiceáil faoi conas trácht %2 a dhíchriptiú ar an vicí?</translation>
     </message>
     <message>
         <source>Unable to build conversation filter.</source>

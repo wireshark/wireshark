@@ -2278,7 +2278,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation>MIME形式データ(application/octet-stream)としてパケットバイト列をコピー</translation>
+        <translation>パケットバイトを application/octet-stream MIMEタイプデータとしてコピー</translation>
     </message>
 </context>
 <context>
@@ -2560,7 +2560,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>DissectorSyntaxLineEdit</name>
     <message>
         <source>Dissector entry</source>
-        <translation>ダイセクタ登録</translation>
+        <translation>ダイセクタエントリ</translation>
     </message>
     <message>
         <source>Enter a dissector %1</source>
@@ -2579,7 +2579,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Dissector Tables</source>
-        <translation>ダイセクター表</translation>
+        <translation>ダイセクタテーブル</translation>
     </message>
 </context>
 <context>
@@ -3651,7 +3651,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Raw</source>
-        <translation>Raw(無加工)形式</translation>
+        <translation>Raw (生データ)</translation>
     </message>
     <message>
         <source>Save as…</source>
@@ -4160,16 +4160,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
-&lt;h3&gt;価値のあり、すばらしく、時間を節約するキーボードショートカット&lt;/h3&gt;
+&lt;h3&gt;価値があり、驚くほど時間を節約できるキーボードショートカット&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
-&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;ズームイン&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;ズームアウト&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X軸のズーム&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X軸のズームアウト&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y軸のズーム&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y軸のズームアウト&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;初期状態にグラフをリセット&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X軸を拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X軸を縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y軸を拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y軸を縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;グラフを初期状態にリセット&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
@@ -4182,9 +4182,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソル下のパケットへ移動&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグ/ズーム(切替)&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャ/セッション(切替)&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;十字カーソル(切替)&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグ / ズームを切り替え&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャ / セッション時間原点を切り替え&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;十字線を切り替え&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -4923,7 +4923,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>;;Raw (*.raw)</source>
-        <translation>;;Raw(無加工)形式 (*.raw)</translation>
+        <translation>;;Raw (生データ) 形式 (*.raw)</translation>
     </message>
     <message>
         <source>Warning</source>
@@ -6483,16 +6483,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 &lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
-&lt;h3&gt;価値のあり、すばらしく、時間を節約するキーボードショートカット&lt;/h3&gt;
+&lt;h3&gt;価値があり、驚くほど時間を節約できるキーボードショートカット&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
-&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;ズームイン&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;ズームアウト&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X軸のズーム&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X軸のズームアウト&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y軸のズーム&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y軸のズームアウト&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;初期状態にグラフをリセット&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;拡大&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;縮小&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;グラフを初期状態にリセット&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;右に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;左に10ピクセル移動&lt;/td&gt;&lt;/th&gt;
@@ -6505,9 +6501,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;カーソル下のパケットへ移動&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグ/ズーム(切替)&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャ/セッション(切替)&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;十字カーソル(切替)&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;マウスドラッグ / ズームを切り替え&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;キャプチャ / セッション時間原点を切り替え&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;十字線を切り替え&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -7100,7 +7096,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>This folder:</source>
-        <translation>このフォルダ:（（</translation>
+        <translation>このフォルダ:</translation>
     </message>
     <message>
         <source>Browse…</source>
@@ -7270,8 +7266,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>MACアドレス</translation>
     </message>
     <message>
-        <source>Search vendor name using a case-insentitive regular expression.</source>
-        <translation>大文字小文字を区別した正規表現を用いてベンダ名を検索します</translation>
+        <source>Search vendor name using a case-insensitive regular expression.</source>
+        <oldsource>Search vendor name using a case-insentitive regular expression.</oldsource>
+        <translation type="unfinished">大文字小文字を区別した正規表現を用いてベンダ名を検索します</translation>
     </message>
     <message>
         <source>Vendor Name</source>
@@ -7738,7 +7735,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>As displa&amp;yed</source>
-        <translation>表示された通り(&amp;y)</translation>
+        <translation>表示されたとおり(&amp;y)</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export all packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -10294,7 +10291,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open the analysis window for the selected stream(s)</source>
-        <translation>&#x3000;選択したストリームの分析ウインドウを開きます</translation>
+        <translation>選択したストリームの分析ウィンドウを開く</translation>
     </message>
     <message>
         <source>Add new set to existing list in RTP Analysis Dialog</source>
@@ -10721,7 +10718,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>I&amp;naudible streams</source>
-        <translation>音声のないストリーム(&amp;n)</translation>
+        <translation>聴取不可のストリーム(&amp;n)</translation>
     </message>
     <message>
         <source>Select/Deselect inaudible streams</source>
@@ -12395,7 +12392,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>SplashOverlay</name>
     <message>
         <source>Initializing dissectors</source>
-        <translation>ダイセクターを初期化中</translation>
+        <translation>ダイセクタを初期化中</translation>
     </message>
     <message>
         <source>Initializing tap listeners</source>
@@ -12407,7 +12404,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Registering dissectors</source>
-        <translation>ダイセクターを登録中</translation>
+        <translation>ダイセクタを登録中</translation>
     </message>
     <message>
         <source>Registering plugins</source>
@@ -12416,7 +12413,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Handing off dissectors</source>
-        <translation>ダイセクターを除去中</translation>
+        <translation>ダイセクタをハンドオフしています</translation>
     </message>
     <message>
         <source>Handing off plugins</source>
@@ -15139,7 +15136,7 @@ a:hover {
     </message>
     <message>
         <source>Show each dissector table and its entries</source>
-        <translation>各々のダイセクター表とそのエントリを表示します</translation>
+        <translation>各ダイセクタテーブルとそのエントリを表示</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
@@ -15695,11 +15692,11 @@ a:hover {
     </message>
     <message>
         <source>&amp;Conversation Hash Tables</source>
-        <translation>対話ハッシュ表(&amp;C)</translation>
+        <translation>会話ハッシュテーブル(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Dissector Tables</source>
-        <translation>ダイセクター表(&amp;D)</translation>
+        <translation>ダイセクタテーブル(&amp;D)</translation>
     </message>
     <message>
         <source>&amp;Supported Protocols</source>
@@ -15841,7 +15838,7 @@ a:hover {
     </message>
     <message>
         <source>&amp;Unmark All Displayed</source>
-        <translation>表示されているものすべてをマーク解除(&amp;U)</translation>
+        <translation>表示されているすべてのマークを解除(&amp;U)</translation>
     </message>
     <message>
         <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456Z)</source>
@@ -15894,7 +15891,7 @@ a:hover {
     </message>
     <message>
         <source>Auto Scroll in Li&amp;ve Capture</source>
-        <translation>生のキャプチャを自動スクロール(&amp;v)</translation>
+        <translation>ライブキャプチャ中の自動スクロール(&amp;v)</translation>
     </message>
     <message>
         <source>Automatically scroll to the last packet during a live capture.</source>
@@ -16110,12 +16107,12 @@ a:hover {
     <message>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
-        <translation>保存しないで停止して終了(&amp;w)</translation>
+        <translation>保存せずに停止して終了(&amp;w)</translation>
     </message>
     <message>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
-        <translation>保存しないで終了(&amp;w)</translation>
+        <translation>保存せずに終了(&amp;w)</translation>
     </message>
     <message>
         <source>USB CDC Data</source>
@@ -16184,7 +16181,7 @@ a:hover {
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
-        <translation>Raw(無加工)データ形式 (*.bin *.dat *.raw);;すべてのファイル(</translation>
+        <translation>Raw (無加工) データ形式 (*.bin *.dat *.raw);;すべてのファイル (</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
@@ -16269,11 +16266,11 @@ a:hover {
     </message>
     <message>
         <source> before reloading Lua plugins</source>
-        <translation>Lua プラグインの再読込前</translation>
+        <translation>Lua プラグインを再読み込みする前に</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
-        <translation>Wiresharkが初期化している間お待ちください…</translation>
+        <translation>Wiresharkの初期化中です。しばらくお待ちください…</translation>
     </message>
     <message>
         <source> before updating</source>
@@ -16286,7 +16283,7 @@ a:hover {
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
         <translation>
-            <numerusform>TLSセッション鍵をエクスポート (%Ln keys)</numerusform>
+            <numerusform>TLSセッション鍵をエクスポート (%Ln 個)</numerusform>
         </translation>
     </message>
     <message>
@@ -16295,7 +16292,7 @@ a:hover {
     </message>
     <message>
         <source>Are you sure you want to discard all decryption secrets?</source>
-        <translation>本当にすべての復号化シークレットを破棄されますか？</translation>
+        <translation>すべての復号シークレットを破棄してもよろしいですか？</translation>
     </message>
     <message>
         <source>No filter available. Try another %1.</source>
@@ -16327,7 +16324,7 @@ a:hover {
     </message>
     <message>
         <source> before restarting the capture</source>
-        <translation>キャプチャを再スタートする前に</translation>
+        <translation>キャプチャを再開する前に</translation>
     </message>
     <message>
         <source>Wiki Page for %1</source>
@@ -16335,7 +16332,7 @@ a:hover {
     </message>
     <message>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation>&lt;p&gt;ワイヤーシャークWikiはコミュニティによって運営されています &lt;/p&gt;&lt;p&gt;いま見ているページはすばらしかったり、不完全だったり、間違っていたり、存在しないかもしれません。&lt;/p&gt;&lt;p&gt;Wikiに移動しますか？&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Wireshark Wikiはコミュニティによって運営されています &lt;/p&gt;&lt;p&gt;ロードしようとしているページは素晴らしいかもしれませんが、不完全、誤り、または存在しないかもしれません。&lt;/p&gt;&lt;p&gt;Wikiに移動しますか？&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Loading</source>
@@ -16347,7 +16344,7 @@ a:hover {
     </message>
     <message>
         <source>Rescanning</source>
-        <translation>再スキャニング中</translation>
+        <translation>再スキャン中</translation>
     </message>
 </context>
 <context>

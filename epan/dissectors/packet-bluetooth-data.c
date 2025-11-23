@@ -5457,6 +5457,12 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0FB6,   "TQ-Systems GmbH" },
     { 0x0FB7,   "Hapn Holdings, LLC" },
     { 0x0FB8,   "SITERWELL ELECTRONICS CO.,LIMITED" },
+    { 0x0FB9,   "Shenzhen Mutual Technology Co., Ltd" },
+    { 0x0FBA,   "Cosonic Intelligent Technologies Co., Ltd." },
+    { 0x0FBB,   "Rollease Acmeda, Inc." },
+    { 0x0FBC,   "ATANS TECHNOLOGY INC." },
+    { 0x0FBD,   "Locus Robotics Corp." },
+    { 0x0FBE,   "Locus TaigaIoT" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };

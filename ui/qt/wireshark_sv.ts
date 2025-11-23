@@ -7289,8 +7289,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>MAC-adress</translation>
     </message>
     <message>
-        <source>Search vendor name using a case-insentitive regular expression.</source>
-        <translation>Sök leverantörsnamn med ett skiftlägesokänsligt reguljärt uttryck.</translation>
+        <source>Search vendor name using a case-insensitive regular expression.</source>
+        <oldsource>Search vendor name using a case-insentitive regular expression.</oldsource>
+        <translation type="unfinished">Sök leverantörsnamn med ett skiftlägesokänsligt reguljärt uttryck.</translation>
     </message>
     <message>
         <source>Vendor Name</source>

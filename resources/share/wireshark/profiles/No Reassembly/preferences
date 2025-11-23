@@ -96,6 +96,7 @@ ndps.desegment_spx: FALSE
 netperfmeter.desegment: FALSE
 netsync.desegment_netsync_messages: FALSE
 nmf.reassemble_nmf: FALSE
+oran_fh_cus.oran.attempt_reassembly: FALSE
 opa.mad.reassemble_rmpp: FALSE
 openflow.desegment: FALSE
 openwire.desegment: FALSE

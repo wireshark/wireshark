@@ -7289,8 +7289,9 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Adreça MAC</translation>
     </message>
     <message>
-        <source>Search vendor name using a case-insentitive regular expression.</source>
-        <translation>Cerca el nom del proveïdor fent servir una expressió regular no sensible a majúscules i minúscules.</translation>
+        <source>Search vendor name using a case-insensitive regular expression.</source>
+        <oldsource>Search vendor name using a case-insentitive regular expression.</oldsource>
+        <translation type="unfinished">Cerca el nom del proveïdor fent servir una expressió regular no sensible a majúscules i minúscules.</translation>
     </message>
     <message>
         <source>Vendor Name</source>

@@ -7290,8 +7290,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Indirizzo MAC</translation>
     </message>
     <message>
-        <source>Search vendor name using a case-insentitive regular expression.</source>
-        <translation>Cerca il nome del produttore utilizzando un&apos;espressione regolare senza distinzione tra maiuscole e minuscole.</translation>
+        <source>Search vendor name using a case-insensitive regular expression.</source>
+        <oldsource>Search vendor name using a case-insentitive regular expression.</oldsource>
+        <translation type="unfinished">Cerca il nome del produttore utilizzando un&apos;espressione regolare senza distinzione tra maiuscole e minuscole.</translation>
     </message>
     <message>
         <source>Vendor Name</source>
