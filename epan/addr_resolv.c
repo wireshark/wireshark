@@ -4281,7 +4281,7 @@ str_to_ip6(const char *str, void *dst)
  * eth_bytes is a buffer >= 6 bytes that was allocated by the caller
  */
 bool
-str_to_eth(const char *str, char *eth_bytes)
+str_to_eth(const char *str, uint8_t (*eth_bytes)[6])
 {
     ether_t eth;
     unsigned mask;

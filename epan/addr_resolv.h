@@ -948,7 +948,7 @@ bool str_to_ip6(const char *str, void *dst);
  * @return true if parsing succeeds, false otherwise.
  */
 WS_DLL_LOCAL
-bool str_to_eth(const char *str, char *eth_bytes);
+bool str_to_eth(const char *str, uint8_t (*eth_bytes)[6]);
 
 /**
  * @brief Computes a hash value for an IPv6 address using OAT hashing.

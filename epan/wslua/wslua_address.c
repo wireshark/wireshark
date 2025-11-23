@@ -66,9 +66,9 @@ WSLUA_CONSTRUCTOR Address_ether(lua_State *L) {
 #define WSLUA_ARG_Address_ether_ETH 1 /* The Ethernet address. */
     Address addr = (Address)g_malloc(sizeof(address));
     const char *name = luaL_checkstring(L, WSLUA_ARG_Address_ether_ETH);
-    char eth_buf[6];
+    uint8_t eth_buf[6];
 
-    if(!str_to_eth(name, eth_buf))
+    if(!str_to_eth(name, &eth_buf))
         memset(eth_buf, 0, sizeof(eth_buf));
 
     alloc_address_wmem(NULL, addr, AT_ETHER, sizeof(eth_buf), eth_buf);
