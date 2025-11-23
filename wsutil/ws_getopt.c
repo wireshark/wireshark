@@ -121,7 +121,7 @@ int ws_getopt(int argc, char * const argv[], const char *optstring)
 	if (d != c || c == ':') {
 		ws_optopt = c;
 		if (optstring[0] != ':' && ws_opterr)
-			__getopt_msg(g_get_prgname(), ": unrecognized option: ", optchar, k);
+			__getopt_msg(g_get_prgname(), ": unrecognized option: ", optchar, (size_t)k);
 		return '?';
 	}
 	if (optstring[i] == ':') {
@@ -135,7 +135,7 @@ int ws_getopt(int argc, char * const argv[], const char *optstring)
 			if (optstring[0] == ':') return ':';
 			if (ws_opterr) __getopt_msg(g_get_prgname(),
 				": option requires an argument: ",
-				optchar, k);
+				optchar, (size_t)k);
 			return '?';
 		}
 	}

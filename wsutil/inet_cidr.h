@@ -52,10 +52,10 @@ uint32_t ws_ipv4_get_subnet_mask(const uint32_t mask_length);
  *
  * @param dst Pointer to the destination structure to initialize.
  * @param src_addr The IPv4 address to use.
- * @param src_bits The number of bits in the subnet mask.
+ * @param src_bits The number of bits in the subnet mask (must be <= 32).
  */
 WS_DLL_PUBLIC
-void ws_ipv4_addr_and_mask_init(ipv4_addr_and_mask *dst, ws_in4_addr src_addr, int src_bits);
+void ws_ipv4_addr_and_mask_init(ipv4_addr_and_mask *dst, ws_in4_addr src_addr, unsigned src_bits);
 
 /**
  * @brief Checks whether an IPv4 address is contained within a subnet.

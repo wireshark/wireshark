@@ -46,7 +46,7 @@ compare_ipv4(const ipv4_addr_and_mask *a, const ipv4_addr_and_mask *b)
 }
 
 void
-ws_ipv4_addr_and_mask_init(ipv4_addr_and_mask *dst, ws_in4_addr src_addr, int src_bits)
+ws_ipv4_addr_and_mask_init(ipv4_addr_and_mask *dst, ws_in4_addr src_addr, unsigned src_bits)
 {
     dst->addr = g_ntohl(src_addr);
     dst->nmask = ws_ipv4_get_subnet_mask(src_bits);

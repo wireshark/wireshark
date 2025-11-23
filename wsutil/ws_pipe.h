@@ -47,7 +47,7 @@ typedef struct _ws_pipe_t {
  * @param [OUT] command_output If not NULL, receives a copy of the command output. Must be g_freed.
  * @return true on success or false on failure.
  */
-WS_DLL_PUBLIC bool ws_pipe_spawn_sync(const char * working_directory, const char * command, int argc, char ** args, char ** command_output);
+WS_DLL_PUBLIC bool ws_pipe_spawn_sync(const char * working_directory, const char * command, unsigned argc, char ** args, char ** command_output);
 
 /**
  * @brief Initialize a ws_pipe_t struct. Sets .pid to WS_INVALID_PID and all other members to 0 or NULL.
@@ -66,7 +66,7 @@ static inline bool ws_pipe_valid(ws_pipe_t *ws_pipe)
 /**
  * @brief Start a process using g_spawn_sync on UNIX and Linux, and CreateProcess on Windows.
  * @param ws_pipe The process PID, stdio descriptors, etc.
- * @param args The command to run along with its arguments.
+ * @param args The command to run along with its arguments. Must be NULL-terminated.
  * @return A valid PID on success, otherwise WS_INVALID_PID.
  */
 WS_DLL_PUBLIC GPid ws_pipe_spawn_async (ws_pipe_t * ws_pipe, GPtrArray * args );

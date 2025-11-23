@@ -164,19 +164,19 @@ ws_pipe_create_overlapped_read(HANDLE *read_pipe_handle, HANDLE *write_pipe_hand
  * array, suitable for g_spawn_sync and friends. Free with g_strfreev.
  */
 static char **
-convert_to_argv(const char *command, int args_count, char *const *args)
+convert_to_argv(const char *command, unsigned args_count, char *const *args)
 {
-    char **argv = g_new(char *, args_count + 2);
+    char **argv = g_new(char *, (size_t)args_count + 2);
     // The caller does not seem to modify this, but g_spawn_sync uses 'char **'
     // as opposed to 'const char **', so just to be sure clone it.
     argv[0] = g_strdup(command);
-    for (int i = 0; i < args_count; i++) {
+    for (unsigned i = 0; i < args_count; i++) {
         // Empty arguments may indicate a bug in Wireshark. Extcap for example
         // omits arguments when their string value is empty. On Windows, empty
         // arguments would silently be ignored because protect_arg returns an
         // empty string, therefore we print a warning here.
         if (!*args[i]) {
-            ws_warning("Empty argument %d in arguments list", i);
+            ws_warning("Empty argument %u in arguments list", i);
         }
         argv[1 + i] = g_strdup(args[i]);
     }
@@ -226,7 +226,7 @@ convert_to_command_line(char **argv)
     return g_string_free(command_line, FALSE);
 }
 
-bool ws_pipe_spawn_sync(const char *working_directory, const char *command, int argc, char **args, char **command_output)
+bool ws_pipe_spawn_sync(const char *working_directory, const char *command, unsigned argc, char **args, char **command_output)
 {
     bool status = false;
     bool result = false;
@@ -256,7 +256,7 @@ bool ws_pipe_spawn_sync(const char *working_directory, const char *command, int 
 
     ws_debug("command line: %s", command_line);
 
-    uint64_t start_time = g_get_monotonic_time();
+    int64_t start_time = g_get_monotonic_time();
 
 #ifdef _WIN32
     /* Setup overlapped structures. Create Manual Reset events, initially not signalled */
@@ -539,7 +539,17 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     // XXX harmonize handling of command arguments for the sync/async functions
     // and make them const? This array ends with a trailing NULL by the way.
     char **args_array = (char **)args->pdata;
-    char **argv = convert_to_argv(args_array[0], args->len - 2, args_array + 1);
+
+    // args must include command itself
+    ws_return_val_if(args->len < 1, WS_INVALID_PID);
+    ws_return_val_if(!args_array[0], WS_INVALID_PID);
+
+    unsigned args_count = args->len - 2;
+    if (args_array[args->len - 1] != NULL) {
+        ws_warning("args should be NULL-terminated");
+        args_count = args->len - 1;
+    }
+    char **argv = convert_to_argv(args_array[0], args_count, args_array + 1);
     char *command_line = convert_to_command_line(argv);
 
     ws_debug("command line: %s", command_line);
