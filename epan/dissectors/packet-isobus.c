@@ -789,7 +789,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
             ti = proto_tree_add_item(isobus_tree, hf_isobus_datetime_response, tvb, 0, 8, ENC_NA);
             datetime_tree = proto_item_add_subtree(ti, ett_isobus_datetime_response);
 
-            proto_tree_add_item(datetime_tree, hf_isobus_datetime_year, tvb, 0, 1, ENC_NA);
+            proto_tree_add_item(datetime_tree, hf_isobus_datetime_year, tvb, 5, 1, ENC_NA);
             proto_tree_add_item(datetime_tree, hf_isobus_datetime_month, tvb, 3, 1, ENC_NA);
             proto_tree_add_item(datetime_tree, hf_isobus_datetime_day, tvb, 4, 1, ENC_NA);
 
