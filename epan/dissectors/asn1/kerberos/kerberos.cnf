@@ -656,12 +656,12 @@ EncryptionKey/keytype STRINGS = VALS(kerberos_ENCTYPE_vals)
     break;
   }
 
-#.FN_BODY PA-SPAKE VAL_PTR=&(private_data->padata_type)
-  kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+#.FN_BODY PA-SPAKE VAL_PTR=&choice
+  int choice;
 %(DEFAULT_BODY)s
 #.FN_FTR PA-SPAKE
-  if(tree){
+  if(tree && choice != -1){
     proto_item_append_text(tree, " %s",
-      val_to_str(actx->pinfo->pool, private_data->padata_type, kerberos_PA_SPAKE_vals,
+      val_to_str(actx->pinfo->pool, (uint32_t)choice, kerberos_PA_SPAKE_vals,
       "Unknown:%d"));
   }

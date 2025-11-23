@@ -8361,15 +8361,15 @@ static const ber_choice_t PA_SPAKE_choice[] = {
 
 static int
 dissect_kerberos_PA_SPAKE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+  int choice;
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  PA_SPAKE_choice, hf_index, ett_kerberos_PA_SPAKE,
-                                 &(private_data->padata_type));
+                                 &choice);
 
 
-  if(tree){
+  if(tree && choice != -1){
     proto_item_append_text(tree, " %s",
-      val_to_str(actx->pinfo->pool, private_data->padata_type, kerberos_PA_SPAKE_vals,
+      val_to_str(actx->pinfo->pool, (uint32_t)choice, kerberos_PA_SPAKE_vals,
       "Unknown:%d"));
   }
   return offset;

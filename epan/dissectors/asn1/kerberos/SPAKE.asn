@@ -1,5 +1,5 @@
 -- Adapted from
--- https://tools.ietf.org/id/draft-ietf-kitten-krb-spake-preauth-09.txt
+-- https://datatracker.ietf.org/doc/rfc9588/
 -- Appendix A.
 
 -- Copyright (c) 2019 IETF Trust and the persons identified as authors of the
