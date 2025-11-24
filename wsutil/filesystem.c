@@ -558,7 +558,7 @@ configuration_init_w32(const char* app_flavor, const char* arg0 _U_)
     char *prog_pathname;
     DWORD error;
     TCHAR *msg_w;
-    unsigned char *msg;
+    char *msg;
     size_t msglen;
 
     /*
