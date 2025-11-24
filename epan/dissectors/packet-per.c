@@ -98,7 +98,7 @@ printf("#%u  %s   tvb:0x%08x\n",actx->pinfo->num,x,(int)tvb);
 #define DEBUG_ENTRY(x) \
 	;
 
-#define BLEN(old_offset, offset) (((offset)>>3)!=((old_offset)>>3)?((offset)>>3)-((old_offset)>>3):1)
+#define BLEN(old_offset, offset) (((offset)==(old_offset))?0:(((offset+7)>>3)-((old_offset)>>3)))
 
 /* whether the PER helpers should put the internal PER fields into the tree
    or not.
@@ -590,7 +590,7 @@ DEBUG_ENTRY("dissect_per_sequence_of_helper");
 		ltree=proto_tree_add_subtree_format(tree, tvb, offset>>3, 0, ett_per_sequence_of_item, &litem, "Item %d", i);
 
 		offset=(*func)(tvb, offset, actx, ltree, hf_index);
-		proto_item_set_len(litem, (offset>>3)!=(lold_offset>>3)?(offset>>3)-(lold_offset>>3):1);
+		proto_item_set_len(litem, BLEN(lold_offset, offset));
 		if (i >= PER_SEQUENCE_OF_MAX_NULLS-1 && offset <= old_offset) {
 			dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "too many nulls in sequence");
 		}
@@ -625,8 +625,7 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 
 	offset=dissect_per_sequence_of_helper(tvb, offset, actx, tree, seq->func, *seq->p_id, length);
 
-
-	proto_item_set_len(item, (offset>>3)!=(old_offset>>3)?(offset>>3)-(old_offset>>3):1);
+	proto_item_set_len(item, BLEN(old_offset, offset));
 	return offset;
 }
 
@@ -783,7 +782,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	str_len = (int)wmem_strbuf_get_len(buf);
 	str = wmem_strbuf_finalize(buf);
 	/* Note that str can contain embedded nulls. Length claims any bytes partially used.  */
-	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), ((offset+7)>>3)-(old_offset>>3), str);
+	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), BLEN(old_offset, offset), str);
 	if (value_tvb) {
 		*value_tvb = tvb_new_child_real_data(tvb, str, str_len, str_len);
 	}
@@ -1028,14 +1027,7 @@ call_sohelper:
 	old_offset = offset;
 	offset=dissect_per_sequence_of_helper(tvb, offset, actx, tree, seq->func, *seq->p_id, length);
 
-	if (offset == old_offset)
-		length = 0;
-	else if (offset >> 3 == old_offset >> 3)
-			length = 1;
-		else
-			length = (offset >> 3) - (old_offset >> 3);
-
-	proto_item_set_len(item, length);
+	proto_item_set_len(item, BLEN(old_offset, offset));
 	return offset;
 }
 
@@ -2112,7 +2104,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 		}
 	}
 
-	proto_item_set_len(item, (offset>>3)!=(old_offset>>3)?(offset>>3)-(old_offset>>3):1);
+	proto_item_set_len(item, BLEN(old_offset, offset));
 	actx->created_item = item;
 	return offset;
 }
