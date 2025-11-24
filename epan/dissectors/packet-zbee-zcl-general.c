@@ -16396,8 +16396,6 @@ dissect_zcl_touchlink_device_info_response(tvbuff_t *tvb, proto_tree *tree, unsi
     proto_tree *list_tree;
     uint8_t count, idx;
 
-    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_transaction_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-    *offset += 4;
     proto_tree_add_item(tree, hf_zbee_zcl_touchlink_sub_devices, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
     proto_tree_add_item(tree, hf_zbee_zcl_touchlink_start_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
