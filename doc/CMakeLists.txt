@@ -450,6 +450,7 @@ set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_pref.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_proto_expert.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_proto_field.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_proto_helpers.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_tree.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_tvb.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_byte_array.c

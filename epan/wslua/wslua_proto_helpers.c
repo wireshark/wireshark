@@ -16,6 +16,7 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-tls-utils.h>
 
+/* WSLUA_CONTINUE_MODULE Proto */
 
 static unsigned
 wslua_dissect_tcp_get_pdu_len(packet_info* pinfo, tvbuff_t* tvb,
