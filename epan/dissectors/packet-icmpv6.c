@@ -265,6 +265,16 @@ static int hf_icmpv6_opt_captive_portal;
 static int hf_icmpv6_opt_pref64_scaled_lifetime;
 static int hf_icmpv6_opt_pref64_plc;
 static int hf_icmpv6_opt_pref64_prefix;
+static int hf_icmpv6_opt_dnr_svcpriority;
+static int hf_icmpv6_opt_dnr_lifetime;
+static int hf_icmpv6_opt_dnr_auth_domain_name_len;
+static int hf_icmpv6_opt_dnr_auth_domain_name;
+static int hf_icmpv6_opt_dnr_addrs_len;
+static int hf_icmpv6_opt_dnr_addrs;
+static int hf_icmpv6_opt_dnr_addrs_ip;
+static int hf_icmpv6_opt_dnr_svc_params_len;
+static int hf_icmpv6_opt_dnr_padding;
+
 /* RFC 2710: Multicast Listener Discovery for IPv6 */
 static int hf_icmpv6_mld_mrd;
 static int hf_icmpv6_mld_multicast_address;
@@ -661,9 +671,11 @@ static int ett_icmpv6_opt_name;
 static int ett_icmpv6_cga_param_name;
 static int ett_icmpv6_mpl_seed_info;
 static int ett_icmpv6_mpl_seed_info_bm;
+static int ett_icmpv6_opt_dnr_addrs;
 
 static expert_field ei_icmpv6_type_error;
 static expert_field ei_icmpv6_invalid_option_length;
+static expert_field ei_icmpv6_opt_dnr_adn_only_mode;
 static expert_field ei_icmpv6_undecoded_option;
 static expert_field ei_icmpv6_unknown_data;
 static expert_field ei_icmpv6_undecoded_rpl_option;
@@ -682,6 +694,7 @@ static dissector_handle_t icmpv6_handle;
 
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t icmp_extension_handle;
+static dissector_handle_t svc_params_handle;
 
 /* Cached protocol identifier */
 static int proto_ieee802154;
@@ -1019,6 +1032,7 @@ static const true_false_string tfs_ni_flag_a = {
 #define ND_OPT_NDP_SIGNATURE            40
 #define ND_OPT_RESOURCE_DIR_ADDRESS     41
 #define ND_OPT_CONSISTENT_UPTIME        42
+#define ND_OPT_ENCRYPTED_DNS           144
 
 static const value_string option_vals[] = {
 /*  1 */   { ND_OPT_SOURCE_LINKADDR,           "Source link-layer address" },
@@ -1067,7 +1081,7 @@ static const value_string option_vals[] = {
    { 138,                              "CARD Request" },                           /* [RFC4065] */
    { 139,                              "CARD Reply" },                             /* [RFC4065] */
 /* 140-143 Unassigned */
-   { 144,                              "Encrypted DNS Option" },                   /* [RFC9463] */
+/* 144 */  { ND_OPT_ENCRYPTED_DNS,             "Encrypted DNS Option" },                   /* [RFC9463] */
 /* 145-252 Unassigned */
    { 253,                              "RFC3692-style Experiment 1" },             /* [RFC4727] */
    { 254,                              "RFC3692-style Experiment 2" },             /* [RFC4727] */
@@ -2807,6 +2821,110 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                         break;
                 }
                 opt_offset += 12;
+            }
+            break;
+            case ND_OPT_ENCRYPTED_DNS: /* Encrypted DNS Option (144) */
+            {
+                int opt_start = opt_offset;
+                int opt_end = opt_offset + opt_len - 2;
+                uint32_t lifetime;
+                int adn_len = 0;
+                int adn_parsed_len;
+                const unsigned char *adn;
+                int addrs_len = 0;
+                int svc_params_len = 0;
+                int i;
+                tvbuff_t *next_tvb;
+	              proto_tree *dnr_addrs_tree;
+                int padding_len;
+
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_dnr_svcpriority, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                opt_offset += 2;
+
+                ti_opt = proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_dnr_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN, &lifetime);
+                if (lifetime != LIFETIME_INFINITY) {
+                    proto_item_append_text(ti_opt, " (%s)", unsigned_time_secs_to_str(pinfo->pool, lifetime));
+                }
+                opt_offset += 4;
+
+                if (opt_offset + 2 > opt_end) {
+                    expert_add_info_format(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "DNR: truncated option (no ADN length)");
+                    break;
+                }
+
+                proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_dnr_auth_domain_name_len, tvb, opt_offset, 2, ENC_BIG_ENDIAN, &adn_len);
+                opt_offset += 2;
+
+                if (opt_offset + adn_len > opt_end) {
+                    expert_add_info_format(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "DNR: truncated option (ADN too long)");
+                    break;
+                }
+
+                get_dns_name(pinfo->pool, tvb, opt_offset, adn_len, opt_offset, (const char **)&adn, &adn_parsed_len);
+                proto_tree_add_string(icmp6opt_tree, hf_icmpv6_opt_dnr_auth_domain_name, tvb, opt_offset, adn_len, format_text(pinfo->pool, adn, adn_parsed_len));
+                opt_offset += adn_len;
+
+                // If a DNR option ends after the authentication-domain-name (ADN), it is in ADN-only mode (see RFC 9463, Section 3.1.6).
+                // However, since ND options must be a multiple of 8 bytes, there could be padding. Technically in order for the DNR
+                // option to be valid and not in ADN-only mode, there must be at least 20 bytes after the ADN (2 bytes addrs_len + 16
+                // bytes IPv6 address + 2 bytes svc_params_len), but just assume here that ADN-only mode will reach to the next 8 byte
+                // boundary.
+                if ((opt_end - opt_offset) < 8) {
+                    proto_tree_add_expert(icmp6opt_tree, pinfo, &ei_icmpv6_opt_dnr_adn_only_mode, tvb, opt_start - 2, opt_len);
+
+                    padding_len = opt_end - opt_offset;
+                    if (padding_len > 0) {
+                        proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_dnr_padding, tvb, opt_offset, padding_len, ENC_NA);
+                    }
+
+                    opt_offset += padding_len;
+
+                    break;
+                }
+
+                proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_dnr_addrs_len, tvb, opt_offset, 2, ENC_BIG_ENDIAN, &addrs_len);
+                opt_offset += 2;
+
+                if (opt_offset + addrs_len > opt_end) {
+                    expert_add_info_format(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "DNR: truncated option (addrs_len too long)");
+                    break;
+                }
+
+                if (addrs_len == 0 || addrs_len % 16 != 0) {
+                    expert_add_info_format(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "DNR: invalid addrs_len %d (not divisible by 16)", addrs_len);
+                    break;
+                }
+
+                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_dnr_addrs, tvb, opt_offset, addrs_len, ENC_NA);
+                dnr_addrs_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_opt_dnr_addrs);
+
+                proto_item_append_text(ti_opt, ":");
+
+                for (i = 0; i < addrs_len; i += 16) {
+                    proto_tree_add_item(dnr_addrs_tree, hf_icmpv6_opt_dnr_addrs_ip, tvb, opt_offset + i, 16, ENC_NA);
+                    proto_item_append_text(ti_opt, "%c%s", (i == 0 ? ' ' : ','), tvb_ip6_to_str(pinfo->pool, tvb, opt_offset + i));
+                }
+
+                opt_offset += addrs_len;
+
+                // Handle the service parameters.
+                proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_dnr_svc_params_len, tvb, opt_offset, 2, ENC_BIG_ENDIAN, &svc_params_len);
+                opt_offset += 2;
+
+                if (opt_offset + svc_params_len > opt_end) {
+                    expert_add_info_format(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "DNR: truncated option (svc_params_len too long)");
+                    break;
+                }
+
+                next_tvb = tvb_new_subset_length(tvb, opt_offset, svc_params_len);
+                opt_offset += call_dissector(svc_params_handle, next_tvb, pinfo, icmp6opt_tree);
+
+                padding_len = opt_end - opt_offset;
+                if (padding_len > 0) {
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_dnr_padding, tvb, opt_offset, padding_len, ENC_NA);
+
+                    opt_offset += padding_len;
+                }
             }
             break;
             default :
@@ -5645,6 +5763,33 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_pref64_prefix,
           { "Prefix", "icmpv6.opt.pref64.prefix", FT_IPv6, BASE_NONE, NULL, 0x00,
             "NAT64 Prefix", HFILL }},
+        { &hf_icmpv6_opt_dnr_svcpriority,
+          { "Service priority", "icmpv6.opt.dnr.svcpriority", FT_UINT16, BASE_DEC, NULL, 0x00,
+            "DNR service priority", HFILL }},
+        { &hf_icmpv6_opt_dnr_lifetime,
+          { "Lifetime", "icmpv6.opt.dnr.lifetime", FT_UINT32, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_infinity), 0x00,
+            "DNR lifetime in seconds", HFILL }},
+        { &hf_icmpv6_opt_dnr_auth_domain_name_len,
+          { "Authentication domain name length", "icmpv6.opt.dnr.adn_len", FT_UINT16, BASE_DEC, NULL, 0x00,
+            "DNR authentication domain name length", HFILL }},
+        { &hf_icmpv6_opt_dnr_auth_domain_name,
+          { "Authentication domain name", "icmpv6.opt.dnr.adn", FT_STRING, BASE_NONE, NULL, 0x00,
+            "DNR authentication domain name", HFILL }},
+        { &hf_icmpv6_opt_dnr_addrs_len,
+          { "Addresses length", "icmpv6.opt.dnr.addrs_len", FT_UINT16, BASE_DEC, NULL, 0x00,
+            "DNR addresses length", HFILL }},
+        { &hf_icmpv6_opt_dnr_addrs,
+          { "Addresses", "icmpv6.opt.dnr.addrs", FT_NONE, BASE_NONE, NULL, 0x00,
+            "DNR address", HFILL }},
+        { &hf_icmpv6_opt_dnr_addrs_ip,
+          { "Address", "icmpv6.opt.dnr.addrs.ip", FT_IPv6, BASE_NONE, NULL, 0x00,
+            "DNR address", HFILL }},
+        { &hf_icmpv6_opt_dnr_svc_params_len,
+          { "SVC params length", "icmpv6.opt.dnr.svc_params_len", FT_UINT16, BASE_DEC, NULL, 0x00,
+            "DNR SVC params length", HFILL }},
+        { &hf_icmpv6_opt_dnr_padding,
+          { "Padding", "icmpv6.opt.dnr.padding", FT_BYTES, BASE_NONE, NULL, 0x00,
+            "DNR padding", HFILL }},
 
         /* RFC2710:  Multicast Listener Discovery for IPv6 */
         { &hf_icmpv6_mld_mrd,
@@ -6630,12 +6775,14 @@ proto_register_icmpv6(void)
         &ett_icmpv6_opt_name,
         &ett_icmpv6_cga_param_name,
         &ett_icmpv6_mpl_seed_info,
-        &ett_icmpv6_mpl_seed_info_bm
+        &ett_icmpv6_mpl_seed_info_bm,
+        &ett_icmpv6_opt_dnr_addrs
     };
 
     static ei_register_info ei[] = {
         { &ei_icmpv6_type_error, { "icmpv6.type.error", PI_RESPONSE_CODE, PI_NOTE, "Type indicates an error", EXPFILL }},
         { &ei_icmpv6_invalid_option_length, { "icmpv6.invalid_option_length", PI_MALFORMED, PI_ERROR, "Invalid Option Length", EXPFILL }},
+        { &ei_icmpv6_opt_dnr_adn_only_mode, { "icmpv6.opt.dnr.adn_only_mode", PI_COMMENTS_GROUP, PI_CHAT, "This DNR option is in ADN-only mode", EXPFILL }},
         { &ei_icmpv6_undecoded_option, { "icmpv6.undecoded.option", PI_UNDECODED, PI_NOTE, "Undecoded option", EXPFILL }},
         { &ei_icmpv6_unknown_data, { "icmpv6.unknown_data.expert", PI_MALFORMED, PI_ERROR, "Unknown Data (not interpreted)", EXPFILL }},
         { &ei_icmpv6_undecoded_rpl_option, { "icmpv6.undecoded.rpl_option", PI_UNDECODED, PI_NOTE, "Undecoded RPL Option", EXPFILL }},
@@ -6680,6 +6827,7 @@ proto_reg_handoff_icmpv6(void)
      */
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_icmpv6);
     icmp_extension_handle = find_dissector("icmp_extension");
+    svc_params_handle = find_dissector("svc_params");
 
     proto_ieee802154 = proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN);
 }
