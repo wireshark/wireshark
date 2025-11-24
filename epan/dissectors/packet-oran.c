@@ -1977,9 +1977,14 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, int hf, uint16_t *eAx
 }
 
 /* Uniquely identify the U-plane stream that may need to be reassembled */
-static uint32_t make_reassembly_id(uint32_t seqid, uint32_t direction, uint16_t eAxC)
+static uint32_t make_reassembly_id(uint32_t seqid, uint32_t direction, uint16_t eAxC,
+                                   uint8_t frameid, uint8_t subframeid,
+                                   uint8_t slotid,  uint8_t symbolid)
 {
-    return (seqid << 24) | (direction << 16) | eAxC;
+    /* N.B., no room in 32-bits for all of this info, so cut down some of the fields
+       and hope for no collisions */
+    return (seqid << 24) | (direction << 23) | (slotid << 22) | (subframeid << 18) |
+           (frameid << 9) | (symbolid << 6) | (eAxC & 0x3f);
 }
 
 /* 5.1.3.2.8  ecpriSeqid (message identifier) */
@@ -6789,7 +6794,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             unsigned frag_data_len = tvb_reported_length_remaining(tvb, offset);
 
             /* Add this fragment into reassembly table */
-            uint32_t reassembly_id = make_reassembly_id(seqId, direction, eAxC);
+            uint32_t reassembly_id = make_reassembly_id(seqId, direction, eAxC,
+                                                        frameId, subframeId, slotId, symbolId);
             fh = fragment_add_seq(&oran_reassembly_table, tvb, offset, pinfo,
                                         reassembly_id,                                 /* id */
                                         GUINT_TO_POINTER(reassembly_id),               /* data */
