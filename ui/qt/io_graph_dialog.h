@@ -67,6 +67,23 @@ namespace Ui {
 class IOGraphDialog;
 }
 
+static const value_string io_graph_style_vs[] = {
+    { IOGraph::psLine, "Line" },
+    { IOGraph::psDotLine, "Dot Line" },
+    { IOGraph::psStepLine, "Step Line" },
+    { IOGraph::psDotStepLine, "Dot Step Line" },
+    { IOGraph::psImpulse, "Impulse" },
+    { IOGraph::psBar, "Bar" },
+    { IOGraph::psStackedBar, "Stacked Bar" },
+    { IOGraph::psDot, "Dot" },
+    { IOGraph::psSquare, "Square" },
+    { IOGraph::psDiamond, "Diamond" },
+    { IOGraph::psCross, "Cross" },
+    { IOGraph::psCircle, "Circle" },
+    { IOGraph::psPlus, "Plus" },
+    { 0, NULL }
+};
+
 class IOGraphDialog : public WiresharkDialog
 {
     Q_OBJECT

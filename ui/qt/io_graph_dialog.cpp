@@ -77,24 +77,6 @@ const int min_zoom_pixels_ = 20;
 
 const int stat_update_interval_ = 200; // ms
 
-
-static const value_string graph_style_vs[] = {
-    { IOGraph::psLine, "Line" },
-    { IOGraph::psDotLine, "Dot Line" },
-    { IOGraph::psStepLine, "Step Line" },
-    { IOGraph::psDotStepLine, "Dot Step Line" },
-    { IOGraph::psImpulse, "Impulse" },
-    { IOGraph::psBar, "Bar" },
-    { IOGraph::psStackedBar, "Stacked Bar" },
-    { IOGraph::psDot, "Dot" },
-    { IOGraph::psSquare, "Square" },
-    { IOGraph::psDiamond, "Diamond" },
-    { IOGraph::psCross, "Cross" },
-    { IOGraph::psCircle, "Circle" },
-    { IOGraph::psPlus, "Plus" },
-    { 0, NULL }
-};
-
 const value_string moving_avg_vs[] = {
     { 0, "None" },
     { 10, "10 interval SMA" },
@@ -510,7 +492,7 @@ void IOGraphDialog::addGraph(bool checked, bool asAOT, QString name, QString dfi
     newRowData.append(name);
     newRowData.append(dfilter);
     newRowData.append(QColor(color_idx));
-    newRowData.append(val_to_str_const(style, graph_style_vs, "None"));
+    newRowData.append(val_to_str_const(style, io_graph_style_vs, "None"));
     if (application_flavor_is_wireshark()) {
         newRowData.append(val_to_str_const(value_units, y_axis_packet_vs, "Packets"));
     } else {
@@ -662,7 +644,7 @@ void IOGraphDialog::syncGraphSettings(int row)
 
     iog->setColor(uat_model_->data(uat_model_->index(row, colColor), Qt::DecorationRole).value<QColor>().rgb());
     data_str = uat_model_->data(uat_model_->index(row, colStyle)).toString();
-    iog->setPlotStyle((IOGraph::PlotStyles) str_to_val(qUtf8Printable(data_str), graph_style_vs, 0));
+    iog->setPlotStyle((IOGraph::PlotStyles) str_to_val(qUtf8Printable(data_str), io_graph_style_vs, 0));
 
     data_str = uat_model_->data(uat_model_->index(row, colSMAPeriod)).toString();
     iog->moving_avg_period_ = str_to_val(qUtf8Printable(data_str), moving_avg_vs, 0);
@@ -994,7 +976,7 @@ void IOGraphDialog::getGraphInfo()
                 if (graph && (!base_graph_ || iog == selectedGraph)) {
                     base_graph_ = graph;
                 } else if (bars &&
-                           (uat_model_->data(uat_model_->index(row, colStyle), Qt::DisplayRole).toString().compare(graph_style_vs[IOGraph::psStackedBar].strptr) == 0) &&
+                           (uat_model_->data(uat_model_->index(row, colStyle), Qt::DisplayRole).toString().compare(io_graph_style_vs[IOGraph::psStackedBar].strptr) == 0) &&
                            iog->visible()) {
                     bars->moveBelow(NULL); // Remove from existing stack
                     bars->moveBelow(prev_bars);

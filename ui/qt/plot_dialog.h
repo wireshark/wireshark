@@ -57,7 +57,7 @@ typedef struct _plot_settings_t {
     double y_axis_factor;
 } plot_settings_t;
 
-static const value_string graph_style_vs[] = {
+static const value_string plot_graph_style_vs[] = {
     { Graph::psLine, "Line" },
     { Graph::psDotLine, "Dot Line" },
     { Graph::psStepLine, "Step Line" },

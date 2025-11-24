@@ -70,7 +70,7 @@ extern "C" {
         UAT_FLD_CSTRING(plot, name, "Plot Name", "The name of the plot"),
         UAT_FLD_DISPLAY_FILTER(plot, dfilter, "Display Filter", "Plot packets matching this display filter"),
         UAT_FLD_COLOR(plot, color, "Color", "Plot color (#RRGGBB)"),
-        UAT_FLD_VS(plot, style, "Style", graph_style_vs, "Plot style"),
+        UAT_FLD_VS(plot, style, "Style", plot_graph_style_vs, "Plot style"),
         UAT_FLD_PROTO_FIELD(plot, yfield, "Y Field", "Field to plot"),
         UAT_FLD_DBL(plot, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
 
@@ -83,7 +83,7 @@ extern "C" {
         UAT_FLD_CSTRING(plot, name, "Plot Name", "The name of the plot"),
         UAT_FLD_DISPLAY_FILTER(plot, dfilter, "Display Filter", "Plot events matching this display filter"),
         UAT_FLD_COLOR(plot, color, "Color", "Plot color (#RRGGBB)"),
-        UAT_FLD_VS(plot, style, "Style", graph_style_vs, "Plot style"),
+        UAT_FLD_VS(plot, style, "Style", plot_graph_style_vs, "Plot style"),
         UAT_FLD_PROTO_FIELD(plot, yfield, "Y Field", "Field to plot"),
         UAT_FLD_DBL(plot, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
 
@@ -554,7 +554,7 @@ void PlotDialog::syncPlotSettings(int row)
     Plot::setAxisColor(plot->graph()->valueAxis(),
         !ui->actionEnableMultiYAxes->isChecked() ? QPen(Qt::black) : QPen(color));
     QString data_str = uat_model_->data(uat_model_->index(row, plotColStyle)).toString();
-    plot->setPlotStyle((Graph::PlotStyles)str_to_val(qUtf8Printable(data_str), graph_style_vs, 0));
+    plot->setPlotStyle((Graph::PlotStyles)str_to_val(qUtf8Printable(data_str), plot_graph_style_vs, 0));
     plot->setYAxisFactor(uat_model_->data(uat_model_->index(row, plotColYAxisFactor)).toDouble());
     plot->setAbsoluteTime(abs_time_);
 
@@ -596,7 +596,7 @@ void PlotDialog::addPlot(bool checked, const QString& name, const QString& dfilt
     newRowData.append(name);
     newRowData.append(dfilter);
     newRowData.append(QColor(color_idx));
-    newRowData.append(val_to_str_const(style, graph_style_vs, "None"));
+    newRowData.append(val_to_str_const(style, plot_graph_style_vs, "None"));
     newRowData.append(yfield);
     newRowData.append(y_axis_factor);
 
