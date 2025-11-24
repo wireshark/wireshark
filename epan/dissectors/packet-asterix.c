@@ -51,7 +51,7 @@ static int ett_asterix_spare_error;
    where search for interpretations can last a long time. By default depth is set to 15,
    which should never be a problem for random data. Users can select a higher depth.
 */
-static unsigned selected_interpretations_depth = depth_15;
+static int selected_interpretations_depth = depth_15;
 
 static unsigned int solution_count;
 static int solutions[MAX_INTERPRETATIONS][MAX_INTERPRETATION_DEPTH + 1];
@@ -412,7 +412,7 @@ static int probe_possible_records (tvbuff_t *tvb, packet_info *pinfo, int offset
             }
             else if (new_offset < datablock_end)
             {
-                if ((depth + 1) >= selected_interpretations_depth)
+                if ((depth + 1) >= (unsigned)selected_interpretations_depth)
                 {
                     return -2;
                 }

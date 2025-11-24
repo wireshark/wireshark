@@ -21,8 +21,8 @@ module_t *asterix_module;
 expert_module_t* expert_asterix;
 typedef struct {
     unsigned cat;
-    unsigned *cat_enum;
-    unsigned *cat_default_value;
+    int *cat_enum; //!< Pointer to the enum (unused)
+    int *cat_default_value; //!< Pointer to pref variable holding enum value
     const enum_val_t *cat_enums;
     const char *cat_name;
     bool cat_basic;
