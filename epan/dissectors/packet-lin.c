@@ -379,11 +379,11 @@ dissect_lin_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, lin_inf
     int ret = 0;
     if (!ignore_lin_payload) {
         uint32_t bus_frame_id = lininfo->id | (lininfo->bus_id << 16);
-        ret = dissector_try_uint_with_data(subdissector_table, bus_frame_id, tvb, pinfo, tree, true, &lininfo);
+        ret = dissector_try_uint_with_data(subdissector_table, bus_frame_id, tvb, pinfo, tree, true, lininfo);
         if (ret == 0) {
-            ret = dissector_try_uint_with_data(subdissector_table, lininfo->id, tvb, pinfo, tree, true, &lininfo);
+            ret = dissector_try_uint_with_data(subdissector_table, lininfo->id, tvb, pinfo, tree, true, lininfo);
             if (ret == 0) {
-                ret = dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, &lininfo);
+                ret = dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, lininfo);
             }
         }
     }
