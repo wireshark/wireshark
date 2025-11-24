@@ -54,6 +54,7 @@ static int hf_rtpdump_pkt_data;
 static int ett_rtpdump;
 static int ett_rtpdump_text_header;
 static int ett_rtpdump_binary_header;
+static int ett_rtpdump_ts;
 static int ett_rtpdump_pkt;
 
 static expert_field ei_rtpdump_unknown_program;
@@ -79,7 +80,7 @@ static expert_field ei_rtpdump_caplen;
 static int
 dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
-    proto_tree *tree, *subtree;
+    proto_tree *tree, *subtree, *timetree;
     proto_item *ti;
     int tvb_len = tvb_captured_length(tvb);
     unsigned pkt_num = 1;
@@ -91,16 +92,15 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     int slash = 0;
     int eol = 0;
     int space = 0;
-    uint8_t *str = NULL;
+    const char *str = NULL;
     uint16_t txt_port = 0;
     uint32_t bin_port = 0;
     ws_in4_addr txt_ipv4 = 0;
     ws_in6_addr txt_ipv6 = {0};
     ws_in4_addr bin_ipv4 = 0;
     bool txt_is_ipv6 = false;
-    nstime_t start_time = NSTIME_INIT_ZERO;
-    int pkt_length;
-    int data_length;
+    uint32_t pkt_length;
+    uint32_t data_length;
 
     if (tvb_len < RTP_HEADER_MIN_LEN)
         return 0;
@@ -141,7 +141,7 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 
     /* Get the text IP */
     offset = space + 1;
-    str = tvb_get_string_enc(pinfo->pool, tvb, offset, slash-offset, ENC_ASCII);
+    str = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, slash-offset, ENC_ASCII);
     if (ws_inet_pton4(str, &txt_ipv4)) {
         proto_tree_add_ipv4(subtree, hf_rtpdump_txt_ipv4, tvb, offset, slash-offset, txt_ipv4);
     }
@@ -156,7 +156,7 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 
     /* Get the text port */
     offset = slash + 1;
-    str = tvb_get_string_enc(pinfo->pool, tvb, offset, eol-offset, ENC_ASCII);
+    str = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, eol-offset, ENC_ASCII);
     if (ws_strtou16(str, NULL, &txt_port)) {
         proto_tree_add_uint(subtree, hf_rtpdump_txt_port, tvb, offset, eol-offset, txt_port);
     }
@@ -170,13 +170,10 @@ dissect_rtpdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     ti = proto_tree_add_item(tree, hf_rtpdump_binary_header, tvb, offset, 16, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_rtpdump_binary_header);
 
-    proto_tree_add_item_ret_uint(subtree, hf_rtpdump_ts_sec, tvb, offset, 4, ENC_BIG_ENDIAN,
-                                 (uint32_t *)&start_time.secs);
-    proto_tree_add_item_ret_uint(subtree, hf_rtpdump_ts_usec, tvb, offset+4, 4, ENC_BIG_ENDIAN,
-                                 &start_time.nsecs);
-    start_time.nsecs *= 1000;
-    ti = proto_tree_add_time(subtree, hf_rtpdump_ts, tvb, offset, 8, &start_time);
-    proto_item_set_generated(ti);
+    ti = proto_tree_add_item(subtree, hf_rtpdump_ts, tvb, offset, 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
+    timetree = proto_item_add_subtree(ti, ett_rtpdump_ts);
+    proto_tree_add_item(timetree, hf_rtpdump_ts_sec, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(timetree, hf_rtpdump_ts_usec, tvb, offset+4, 4, ENC_BIG_ENDIAN);
     offset += 8;
 
     ti = proto_tree_add_item(subtree, hf_rtpdump_bin_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -337,6 +334,7 @@ proto_register_rtpdump(void)
         &ett_rtpdump,
         &ett_rtpdump_text_header,
         &ett_rtpdump_binary_header,
+        &ett_rtpdump_ts,
         &ett_rtpdump_pkt,
     };
 
