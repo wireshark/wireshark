@@ -49,8 +49,6 @@
 #include "ui/dissect_opts.h"
 #include "ui/commandline.h"
 
-#include <wsutil/application_flavor.h>
-
 
  /* Command-line options that don't have direct API calls to handle the data */
 typedef struct commandline_param_info
@@ -84,24 +82,15 @@ static commandline_param_info_t commandline_info;
 capture_options global_capture_opts;
 
 static void
-commandline_print_usage(bool for_help_option) {
+commandline_print_usage(commandline_usage_app_data_t* app_data, bool for_help_option) {
     FILE *output;
 
 #ifdef _WIN32
-    if (application_flavor_is_wireshark()) {
-        create_console("Wireshark Debug Console");
-    }
-    else {
-        create_console("Stratoshark Debug Console");
-    }
+    create_console(app_data->console_name);
 #endif
 
     if (for_help_option) {
-        if (application_flavor_is_wireshark()) {
-            show_help_header("Interactively dump and analyze network traffic.");
-        } else {
-            show_help_header("Interactively dump and analyze system calls and log messages.");
-        }
+        show_help_header(app_data->help_header);
         output = stdout;
     } else {
         output = stderr;
@@ -111,34 +100,15 @@ commandline_print_usage(bool for_help_option) {
     fprintf(output, "\n");
 
 #ifdef HAVE_LIBPCAP
-    if (application_flavor_is_wireshark()) {
-        fprintf(output, "Capture interface:\n");
-        fprintf(output, "  -i <interface>, --interface <interface>\n");
-        fprintf(output, "                           name or idx of interface (def: first non-loopback)\n");
-        fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
-    } else {
-        fprintf(output, "Capture source:\n");
-        fprintf(output, "  -i <source>, --source <source>\n");
-        fprintf(output, "                           name or idx of source (def: first source listed by -D or --list-sources)\n");
-        fprintf(output, "  -f <capture filter>      filter in libsinsp/libscap filter syntax\n");
-    }
-    if (application_flavor_is_wireshark()) {
-        fprintf(output, "  -s <snaplen>, --snapshot-length <snaplen>\n");
-        fprintf(output, "                           packet snapshot length (def: appropriate maximum)\n");
-        fprintf(output, "  -p, --no-promiscuous-mode\n");
-        fprintf(output, "                           don't capture in promiscuous mode\n");
-        fprintf(output, "  -I, --monitor-mode       capture in monitor mode, if available\n");
-        fprintf(output, "  -B <buffer size>, --buffer-size <buffer size>\n");
-        fprintf(output, "                           size of kernel buffer in MiB (def: %dMiB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
-    }
+    if (app_data->capture_interface_options != NULL)
+        app_data->capture_interface_options(output);
+
     fprintf(output, "  -y <link type>, --linktype <link type>\n");
     fprintf(output, "                           link layer type (def: first appropriate)\n");
     fprintf(output, "  --time-stamp-type <type> timestamp method for interface\n");
-    if (application_flavor_is_wireshark()) {
-        fprintf(output, "  -D, --list-interfaces    print list of interfaces and exit\n");
-    } else {
-        fprintf(output, "  -D, --list-sources       print list of sources and exit\n");
-    }
+    if (app_data->list_interface_options != NULL)
+        app_data->list_interface_options(output);
+
     fprintf(output, "  -L, --list-data-link-types\n");
     fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
@@ -154,25 +124,12 @@ commandline_print_usage(bool for_help_option) {
     fprintf(output, "                           duration:NUM - stop after NUM seconds\n");
     fprintf(output, "                           filesize:NUM - stop this file after NUM KB\n");
     fprintf(output, "                              files:NUM - stop after NUM files\n");
-    if (application_flavor_is_wireshark()) {
-        fprintf(output, "                            packets:NUM - stop after NUM packets\n");
-    } else {
-        fprintf(output, "                             events:NUM - stop after NUM packets\n");
-    }
+    fprintf(output, "                            %s:NUM - stop after NUM %s\n", app_data->item_name, app_data->item_name);
+
     /*fprintf(output, "\n");*/
-    // XXX libscap and libsinsp don't support this, so we should probably omit this if our flavor is Stratoshark.
-    fprintf(output, "Capture output:\n");
-    fprintf(output, "  -b <ringbuffer opt.> ..., --ring-buffer <ringbuffer opt.>\n");
-    fprintf(output, "                           duration:NUM - switch to next file after NUM secs\n");
-    fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
-    fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
-    if (application_flavor_is_wireshark()) {
-        fprintf(output, "                            packets:NUM - switch to next file after NUM packets\n");
-    } else {
-        fprintf(output, "                             events:NUM - switch to next file after NUM events\n");
-    }
-    fprintf(output, "                           interval:NUM - switch to next file when the time is\n");
-    fprintf(output, "                                          an exact multiple of NUM secs\n");
+    if (app_data->capture_output_options != NULL)
+        app_data->capture_output_options(output);
+
 #endif  /* HAVE_LIBPCAP */
 #ifdef HAVE_PCAP_REMOTE
     fprintf(output, "RPCAP options:\n");
@@ -291,7 +248,7 @@ static void print_no_capture_support_error(void)
 }
 #endif
 
-int commandline_early_options(int argc, char *argv[])
+int commandline_early_options(int argc, char *argv[], commandline_usage_app_data_t* app_data)
 {
     int opt;
 #ifdef HAVE_LIBPCAP
@@ -378,12 +335,7 @@ int commandline_early_options(int argc, char *argv[])
                      * interfaces.  Report it.
                      */
 #ifdef _WIN32
-                    if (application_flavor_is_wireshark()) {
-                        create_console("Wireshark Debug Console");
-                    }
-                    else {
-                        create_console("Stratoshark Debug Console");
-                    }
+                    create_console(app_data->console_name);
 #endif /* _WIN32 */
                     cmdarg_err("%s", err_str);
                     g_free(err_str);
@@ -402,12 +354,7 @@ int commandline_early_options(int argc, char *argv[])
                     return exit_status;
                 }
 #ifdef _WIN32
-                if (application_flavor_is_wireshark()) {
-                    create_console("Wireshark Debug Console");
-                }
-                else {
-                    create_console("Stratoshark Debug Console");
-                }
+                create_console(app_data->console_name);
 #endif /* _WIN32 */
                 capture_opts_print_interfaces(if_list);
                 free_interface_list(if_list);
@@ -420,7 +367,7 @@ int commandline_early_options(int argc, char *argv[])
 #endif /* HAVE_LIBPCAP */
                 break;
             case 'h':        /* Print help and exit */
-                commandline_print_usage(true);
+                commandline_print_usage(app_data, true);
                 return WS_EXIT_NOW;
 #ifdef _WIN32
             case 'i':
@@ -436,12 +383,7 @@ int commandline_early_options(int argc, char *argv[])
                 break;
             case 'v':        /* Show version and exit */
 #ifdef _WIN32
-                if (application_flavor_is_wireshark()) {
-                    create_console("Wireshark Debug Console");
-                }
-                else {
-                    create_console("Stratoshark Debug Console");
-                }
+                create_console(app_data->console_name);
 #endif
                 show_version();
 #ifdef _WIN32
@@ -471,7 +413,7 @@ int commandline_early_options(int argc, char *argv[])
 #ifndef HAVE_LIBPCAP
     if (capture_option_specified) {
         print_no_capture_support_error();
-        commandline_print_usage(false);
+        commandline_print_usage(app_data, false);
         return WS_EXIT_NOW;
     }
 #endif
@@ -562,7 +504,7 @@ void commandline_override_prefs(int argc, char *argv[], bool opt_reset)
 
 }
 
-void commandline_other_options(capture_options* capture_opts _U_, int argc, char *argv[], bool opt_reset)
+void commandline_other_options(capture_options* capture_opts _U_, int argc, char *argv[], commandline_usage_app_data_t* app_data, bool opt_reset)
 {
     int opt;
     bool arg_error = false;
@@ -823,7 +765,7 @@ void commandline_other_options(capture_options* capture_opts _U_, int argc, char
             print_no_capture_support_error();
         }
 #endif
-        commandline_print_usage(false);
+        commandline_print_usage(app_data, false);
         exit_application(1);
     }
 

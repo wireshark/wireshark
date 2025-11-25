@@ -459,6 +459,42 @@ capture_opts_get_interface_list(int *err, char **err_str)
     }
     return capture_interface_list(global_capture_opts.app_name, err, err_str, main_window_update);
 }
+
+static void
+commandline_capture_interface_options(FILE* const output)
+{
+    fprintf(output, "Capture interface:\n");
+    fprintf(output, "  -i <interface>, --interface <interface>\n");
+    fprintf(output, "                           name or idx of interface (def: first non-loopback)\n");
+    fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
+    fprintf(output, "  -s <snaplen>, --snapshot-length <snaplen>\n");
+    fprintf(output, "                           packet snapshot length (def: appropriate maximum)\n");
+    fprintf(output, "  -p, --no-promiscuous-mode\n");
+    fprintf(output, "                           don't capture in promiscuous mode\n");
+    fprintf(output, "  -I, --monitor-mode       capture in monitor mode, if available\n");
+    fprintf(output, "  -B <buffer size>, --buffer-size <buffer size>\n");
+    fprintf(output, "                           size of kernel buffer in MiB (def: %dMiB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
+}
+
+static void
+commandline_list_interface_options(FILE* const output)
+{
+    fprintf(output, "  -D, --list-interfaces    print list of interfaces and exit\n");
+}
+
+static void
+commandline_capture_output_options(FILE* const output)
+{
+    fprintf(output, "Capture output:\n");
+    fprintf(output, "  -b <ringbuffer opt.> ..., --ring-buffer <ringbuffer opt.>\n");
+    fprintf(output, "                           duration:NUM - switch to next file after NUM secs\n");
+    fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
+    fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
+    fprintf(output, "                            packets:NUM - switch to next file after NUM packets\n");
+    fprintf(output, "                           interval:NUM - switch to next file when the time is\n");
+    fprintf(output, "                                          an exact multiple of NUM secs\n");
+
+}
 #endif
 
 /* And now our feature presentation... [ fade to music ] */
@@ -642,7 +678,18 @@ int main(int argc, char *qt_argv[])
         g_free(rf_path);
     }
 
-    ret_val = commandline_early_options(argc, argv);
+    commandline_usage_app_data_t commandline_app_data = {
+        "events",
+        "Wireshark Debug Console",
+        "Interactively dump and analyze network traffic."
+#ifdef HAVE_LIBPCAP
+        ,
+        commandline_capture_interface_options,
+        commandline_list_interface_options,
+        commandline_capture_output_options
+#endif
+    };
+    ret_val = commandline_early_options(argc, argv, &commandline_app_data);
     if (ret_val != EXIT_SUCCESS) {
         if (ret_val == WS_EXIT_NOW) {
             return 0;
@@ -875,7 +922,7 @@ int main(int argc, char *qt_argv[])
      * to do it if we don't need to.
      */
 
-    commandline_other_options(&global_capture_opts, argc, argv, true);
+    commandline_other_options(&global_capture_opts, argc, argv, &commandline_app_data, true);
 
     /* Convert some command-line parameters to QStrings */
     cf_name = QString(commandline_get_cf_name());

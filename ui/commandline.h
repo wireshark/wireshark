@@ -19,7 +19,22 @@
 extern "C" {
 #endif /* __cplusplus */
 
-extern int commandline_early_options(int argc, char *argv[]);
+typedef void (*commandline_usage_output_cb_t)(FILE* const output);
+
+typedef struct commandline_usage_app_data
+{
+    const char* item_name;
+    const char* console_name;
+    const char* help_header;
+#ifdef HAVE_LIBPCAP
+    commandline_usage_output_cb_t capture_interface_options;
+    commandline_usage_output_cb_t list_interface_options;
+    commandline_usage_output_cb_t capture_output_options;
+#endif
+
+} commandline_usage_app_data_t;
+
+extern int commandline_early_options(int argc, char *argv[], commandline_usage_app_data_t* app_data);
 
 
 extern const struct ws_option* commandline_long_options(void);
@@ -28,7 +43,7 @@ extern const char* commandline_optstring(void);
 
 extern void commandline_override_prefs(int argc, char *argv[], bool opt_reset);
 
-extern void commandline_other_options(capture_options* capture_opts, int argc, char *argv[], bool opt_reset);
+extern void commandline_other_options(capture_options* capture_opts, int argc, char *argv[], commandline_usage_app_data_t* app_data, bool opt_reset);
 
 extern void commandline_options_drop(const char *module_name, const char *pref_name);
 
