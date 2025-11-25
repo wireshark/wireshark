@@ -2205,6 +2205,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-zcl-lighting.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-zcl-meas-sensing.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-zcl-misc.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-zcl-proto-iface.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-zcl-sas.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-zcl-se.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zbee-zdp.c

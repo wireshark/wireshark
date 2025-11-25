@@ -1697,6 +1697,7 @@
 #define ZBEE_PROTOABBREV_ZCL_BALLAST_CONFIG    "zbee_zcl_lighting.ballast_ctrl"
 #define ZBEE_PROTOABBREV_ZCL_TOUCHLINK         "zbee_zcl_general.touchlink"
 #define ZBEE_PROTOABBREV_ZCL_GP                "zbee_zcl_general.gp"
+#define ZBEE_PROTOABBREV_ZCL_GENERIC_TUNNEL    "zbee_zcl_proto_iface.generic_tunnel"
 
 /* ZigBee Vendor Sub IE Fields */
 #define ZBEE_ZIGBEE_IE_ID_MASK                      0xFFC0
