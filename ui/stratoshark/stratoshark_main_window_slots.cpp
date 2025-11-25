@@ -88,7 +88,7 @@ DIAG_ON(frame-larger-than=)
 
 #include "stratoshark_about_dialog.h"
 #include "capture_file_dialog.h"
-#include "capture_file_properties_dialog.h"
+#include "stratoshark_capture_file_properties_dialog.h"
 #ifdef HAVE_LIBPCAP
 #include "capture_options_dialog.h"
 #endif
@@ -3081,7 +3081,7 @@ void StratosharkMainWindow::statCommandExpertInfo(const char *, void *)
 void StratosharkMainWindow::connectStatisticsMenuActions()
 {
     connect(main_ui_->actionStatisticsCaptureFileProperties, &QAction::triggered, this, [=]() {
-        CaptureFilePropertiesDialog *capture_file_properties_dialog = new CaptureFilePropertiesDialog(*this, capture_file_);
+        StratosharkCaptureFilePropertiesDialog *capture_file_properties_dialog = new StratosharkCaptureFilePropertiesDialog(*this, capture_file_);
         connect(capture_file_properties_dialog, &CaptureFilePropertiesDialog::captureCommentChanged,
                 this, &StratosharkMainWindow::updateForUnsavedChanges);
         capture_file_properties_dialog->show();
