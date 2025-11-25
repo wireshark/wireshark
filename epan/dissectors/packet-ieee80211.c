@@ -17669,7 +17669,7 @@ init_eht_scidx(struct scidx_ctx *ctx, uint8_t ru_index,
 /* What about the special 20MHz ones? */
 /* Figure out the next SCIDX */
 static bool
-next_eht_scidx(struct scidx_ctx *ctx, int *scidx)
+next_eht_scidx(struct scidx_ctx *ctx, unsigned *scidx)
 {
   if (ctx->just_inited) {
     ctx->last_val = ctx->scidx_array->start_val;
@@ -23756,7 +23756,7 @@ dissect_ssid_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
 
   while (offset + 1 <= tag_len) {
     uint8_t len = tvb_get_uint8(tvb, offset + 1);
-    uint8_t *str;
+    char *str;
 
     if (offset + 2 + len > tag_len)
       break;
@@ -36099,7 +36099,7 @@ ieee80211_tag_mesh_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
   proto_tree_add_item_ret_string(tree, hf_ieee80211_mesh_id, tvb, offset, tag_len, ENC_ASCII|ENC_NA, pinfo->pool, &mesh_id);
   if (tag_len > 0) {
-    char* s = format_text(pinfo->pool, mesh_id, tag_len);
+    char* s = format_text(pinfo->pool, (const char*)mesh_id, tag_len);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", MESHID=%s", s);
     proto_item_append_text(field_data->item_tag, ": %s", s);
   }

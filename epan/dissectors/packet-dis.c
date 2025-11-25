@@ -16926,18 +16926,18 @@ static int hf_appearance_landform_interior_lights;
 static int hf_appearance_landform_surrender_state;
 static int hf_appearance_landform_masked_cloaked;
 static int hf_appearance_airform_paint_scheme;
-static int hf_appearance_airform_propulsion_killed; 
+static int hf_appearance_airform_propulsion_killed;
 static int hf_appearance_airform_nvg_mode;
 static int hf_appearance_airform_damage;
 static int hf_appearance_airform_is_smoke_emanating;
 static int hf_appearance_airform_is_engine_emitting_smoke;
 static int hf_appearance_airform_trailing_effects;
-static int hf_appearance_airform_canopy_troop_door; 
+static int hf_appearance_airform_canopy_troop_door;
 static int hf_appearance_airform_landing_lights_on;
 static int hf_appearance_airform_navigation_lights_on;
 static int hf_appearance_airform_anti_collision_lights_on;
 static int hf_appearance_airform_is_flaming;
-static int hf_appearance_airform_afterburner_on; 
+static int hf_appearance_airform_afterburner_on;
 static int hf_appearance_airform_lower_anti_collision_light_on;
 static int hf_appearance_airform_upper_anti_collision_light_on;
 static int hf_appearance_airform_anti_collision_light_day_night;
@@ -17718,7 +17718,7 @@ static int parse_Link16_Message_Data(proto_tree *tree, tvbuff_t *tvb, int offset
         memset(&state, 0, sizeof(state));
 
         for (i = 0; i < (encodingScheme & 0x3FFF); i++) {
-            int8_t *word = (int8_t *)wmem_alloc(pinfo->pool, 10);
+            uint8_t *word = (uint8_t *)wmem_alloc(pinfo->pool, 10);
             if (!(i & 1)) {
                 word[0] = (cache >> 16) & 0xFF;
                 word[1] = (cache >> 24) & 0xFF;
@@ -18028,7 +18028,7 @@ static int dissect_DIS_FIELDS_VR_DATA_QUERY(tvbuff_t *tvb, proto_tree *tree, int
 
 
 static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
-{    
+{
     uint8_t entityKind;
     uint8_t entityDomain;
     static uint32_t entitySite;
@@ -18069,7 +18069,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
         context = wmem_new0(wmem_file_scope(), packet_context_t);
         context->entity_kind = entityKind;
         context->entity_domain = entityDomain;
-        
+
         wmem_map_insert(packet_context_map, GUINT_TO_POINTER(entityid), context);
     }
 
@@ -18139,19 +18139,19 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
     {
         static int * const entity_appearance_domain_air_bitmask[] =
         {
-            &hf_appearance_airform_paint_scheme, 
-            &hf_appearance_airform_propulsion_killed, 
+            &hf_appearance_airform_paint_scheme,
+            &hf_appearance_airform_propulsion_killed,
             &hf_appearance_airform_nvg_mode,
             &hf_appearance_airform_damage,
             &hf_appearance_airform_is_smoke_emanating,
             &hf_appearance_airform_is_engine_emitting_smoke,
             &hf_appearance_airform_trailing_effects,
-            &hf_appearance_airform_canopy_troop_door, 
+            &hf_appearance_airform_canopy_troop_door,
             &hf_appearance_airform_landing_lights_on,
             &hf_appearance_airform_navigation_lights_on,
             &hf_appearance_airform_anti_collision_lights_on,
             &hf_appearance_airform_is_flaming,
-            &hf_appearance_airform_afterburner_on, 
+            &hf_appearance_airform_afterburner_on,
             &hf_appearance_airform_lower_anti_collision_light_on,
             &hf_appearance_airform_upper_anti_collision_light_on,
             &hf_appearance_airform_anti_collision_light_day_night,
@@ -18315,7 +18315,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info
 
     packet_context_t *context = wmem_map_lookup(packet_context_map, GUINT_TO_POINTER(entityid));
     if (context != NULL)
-    { 
+    {
         //look for the previous EntityStatePDU in order to get the EntityKind and EntityDomain
         if ((context->entity_kind == DIS_ENTITYKIND_PLATFORM) &&
             (context->entity_domain == DIS_DOMAIN_LAND))
@@ -18358,18 +18358,18 @@ static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info
             static int * const entity_appearance_domain_air_bitmask[] =
             {
                 &hf_appearance_airform_paint_scheme,
-                &hf_appearance_airform_propulsion_killed, 
+                &hf_appearance_airform_propulsion_killed,
                 &hf_appearance_airform_nvg_mode,
                 &hf_appearance_airform_damage,
                 &hf_appearance_airform_is_smoke_emanating,
                 &hf_appearance_airform_is_engine_emitting_smoke,
                 &hf_appearance_airform_trailing_effects,
-                &hf_appearance_airform_canopy_troop_door, 
+                &hf_appearance_airform_canopy_troop_door,
                 &hf_appearance_airform_landing_lights_on,
                 &hf_appearance_airform_navigation_lights_on,
                 &hf_appearance_airform_anti_collision_lights_on,
                 &hf_appearance_airform_is_flaming,
-                &hf_appearance_airform_afterburner_on, 
+                &hf_appearance_airform_afterburner_on,
                 &hf_appearance_airform_lower_anti_collision_light_on,
                 &hf_appearance_airform_upper_anti_collision_light_on,
                 &hf_appearance_airform_anti_collision_light_day_night,
@@ -18414,14 +18414,14 @@ static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info
         else
         {
             proto_tree_add_item(tree, hf_entity_appearance, tvb, offset, 4, ENC_BIG_ENDIAN);
-        }     
+        }
     }
     else
     {
         sub_tree = proto_tree_add_item(tree, hf_entity_appearance, tvb, offset, 4, ENC_BIG_ENDIAN);
         expert_add_info(pinfo, sub_tree, &ei_entityidentifier_not_yet_received);
     }
-    
+
     offset += 4;
 
     for (i = 0; i < numVariable; i++)

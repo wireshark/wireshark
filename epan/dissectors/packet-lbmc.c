@@ -6028,13 +6028,13 @@ typedef struct
     bool set;
     uint32_t stream_id;
     uint32_t sqn;
-    char ctxinst[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
+    uint8_t ctxinst[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
 } lbmc_stream_info_t;
 
 typedef struct
 {
     bool set;
-    char ctxinst[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
+    uint8_t ctxinst[LBM_CONTEXT_INSTANCE_BLOCK_SZ];
 } lbmc_ctxinst_info_t;
 
 typedef struct
@@ -10094,14 +10094,14 @@ static int dissect_nhdr_extopt(tvbuff_t * tvb, int offset, packet_info * pinfo, 
         if (reassembly->reassembly_in_progress)
         {
             tvbuff_t * reassembly_tvb;
-            char * buf;
+            uint8_t* buf;
             proto_item * pi = NULL;
 
             if ((reassembly->len + fragment_offset + data_len) < LBMC_EXTOPT_REASSEMBLED_DATA_MAX_LEN)
             {
                 tvb_memcpy(tvb, reassembly->data + fragment_offset, data_offset, data_len);
                 reassembly->len += data_len;
-                buf = (char *) wmem_memdup(pinfo->pool, reassembly->data, reassembly->len);
+                buf = (uint8_t*)wmem_memdup(pinfo->pool, reassembly->data, reassembly->len);
                 reassembly_tvb = tvb_new_real_data(buf, reassembly->len, reassembly->len);
                 add_new_data_source(pinfo, reassembly_tvb, "Reassembled EXTOPT fragment data");
             }
@@ -11499,10 +11499,10 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                     proto_item * pi = NULL;
                     bool first_item = true;
                     lbmc_fragment_entry_t * cur = NULL;
-                    char * buf = NULL;
+                    uint8_t * buf = NULL;
 
                     /* Create a new real data tvb of the reassembled data. */
-                    buf = (char *)wmem_alloc(pinfo->pool, (size_t)msg->total_len);
+                    buf = (uint8_t*)wmem_alloc(pinfo->pool, (size_t)msg->total_len);
                     cur = msg->entry;
                     while (cur != NULL)
                     {

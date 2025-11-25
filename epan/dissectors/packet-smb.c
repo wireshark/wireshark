@@ -1789,7 +1789,7 @@ unicode_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *us_lenp,
 {
 	int len;
 	if (exactlen) {
-		return tvb_get_string_enc(scope, tvb, offset, *us_lenp, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		return (char*)tvb_get_string_enc(scope, tvb, offset, *us_lenp, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	} else {
 		/* Handle the odd cases where Windows 2000 has a Unicode
 		 * string followed by a single NUL byte when the string
@@ -1799,10 +1799,10 @@ unicode_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *us_lenp,
 		if (len == -1) {
 			if (bc % 2 == 1	&& tvb_get_uint8(tvb, offset + bc - 1) == 0) {
 				*us_lenp = bc;
-				return tvb_get_string_enc(scope, tvb, offset, bc - 1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+				return (char*)tvb_get_string_enc(scope, tvb, offset, bc - 1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 			}
 		}
-		return tvb_get_stringz_enc(scope, tvb, offset, us_lenp, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		return (char*)tvb_get_stringz_enc(scope, tvb, offset, us_lenp, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -1869,9 +1869,9 @@ smb_get_unicode_or_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, int *off
 				copylen = INT_MAX;
 			}
 
-			return tvb_get_string_enc(scope, tvb, *offsetp, copylen, ENC_ASCII);
+			return (char*)tvb_get_string_enc(scope, tvb, *offsetp, copylen, ENC_ASCII);
 		} else {
-			return tvb_get_stringz_enc(scope, tvb, *offsetp, len, ENC_ASCII);
+			return (char*)tvb_get_stringz_enc(scope, tvb, *offsetp, len, ENC_ASCII);
 		}
 	}
 
@@ -2845,7 +2845,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 	while (bc) {
 		int len;
-		const uint8_t *str;
+		const char *str;
 		proto_item *dit = NULL;
 		proto_tree *dtr = NULL;
 
@@ -2859,7 +2859,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                  *
                  * There could be a dissector preference for local code page.
                  */
-		str = tvb_get_stringz_enc(pinfo->pool, tvb, offset+1, &len, ENC_ASCII);
+		str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset+1, &len, ENC_ASCII);
 
 		if (tr) {
 			dit = proto_tree_add_string(tr, hf_smb_dialect, tvb, offset, len+1, str);
@@ -3344,8 +3344,7 @@ dissect_old_dir_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		if (dn) {
 			if (strlen(dn) <= 40) {
 				col_append_fstr(pinfo->cinfo, COL_INFO, ", Dir: %s",
-					format_text(pinfo->pool,
-					(const unsigned char *)dn, strlen(dn)));
+					format_text(pinfo->pool, dn, strlen(dn)));
 			} else {
 				col_append_str(pinfo->cinfo, COL_INFO, ", Dir: [See Packet Detail]");
 			}
@@ -3493,7 +3492,7 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	COUNT_BYTES(an_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(pinfo->pool, (const unsigned char*)an, strlen(an)));
+		    format_text(pinfo->pool, an, strlen(an)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -3775,11 +3774,11 @@ dissect_move_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-		fn_len,	fn, "Old File Name: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		fn_len,	fn, "Old File Name: %s", format_text(pinfo->pool, fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s",
-		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -3792,11 +3791,11 @@ dissect_move_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-		fn_len,	fn, "New File Name: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		fn_len,	fn, "New File Name: %s", format_text(pinfo->pool, fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", New Name: %s",
-		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -3839,11 +3838,11 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-		fn_len, fn, "Source File Name: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		fn_len, fn, "Source File Name: %s", format_text(pinfo->pool, fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source Name: %s",
-		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -3857,10 +3856,10 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
 		fn_len, fn, "Destination File Name: %s",
-		format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		format_text(pinfo->pool, fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Destination Name: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Destination Name: %s", format_text(pinfo->pool, fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -3962,7 +3961,7 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	if (pdata && !pdata->multi_cmds) {
 		if (strlen(fn) <= 40) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-				format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+				format_text(pinfo->pool, fn, strlen(fn)));
 		} else {
 			col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
 		}
@@ -4581,7 +4580,7 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (pdata && !pdata->multi_cmds) {
 		if (strlen(fn) <= 40) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-				format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+				format_text(pinfo->pool, fn, strlen(fn)));
 		} else {
 			col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
 		}
@@ -4623,7 +4622,7 @@ dissect_close_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 			if (strlen(fid_info->fsi->filename) <= 40) {
 				col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
 					format_text(pinfo->pool,
-					(const unsigned char*)fid_info->fsi->filename, strlen(fid_info->fsi->filename)));
+					fid_info->fsi->filename, strlen(fid_info->fsi->filename)));
 			} else {
 				col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
 			}
@@ -4678,7 +4677,7 @@ dissect_delete_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (strlen(fn) <= 40) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-			format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+			format_text(pinfo->pool, fn, strlen(fn)));
 	} else {
 		col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
 	}
@@ -4722,7 +4721,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s",
-		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -4740,7 +4739,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", New Name: %s",
-		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -4795,7 +4794,7 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s",
-		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -4812,7 +4811,7 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", New Name: %s",
-		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, fn, strlen(fn)));
 
 	END_OF_SMB
 
@@ -4854,7 +4853,7 @@ dissect_query_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	if (pdata && !pdata->multi_cmds) {
 		if (strlen(fn) <= 40) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-				format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+				format_text(pinfo->pool, fn, strlen(fn)));
 		} else {
 			col_append_str(pinfo->cinfo, COL_INFO, ", Path: [See Packet Detail]");
 		}
@@ -4939,7 +4938,7 @@ dissect_set_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		if (fn) {
 			if (strlen(fn)<=40 ){
 				col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
-					format_text(pinfo->pool,(const unsigned char*)fn,strlen(fn)));
+					format_text(pinfo->pool, fn,strlen(fn)));
 			} else{
 				col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
 			}
@@ -5429,7 +5428,7 @@ dissect_create_temporary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		if (fn) {
 			if (strlen(fn)<=40){
 				col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
-					format_text(pinfo->pool,(const unsigned char*)fn,strlen(fn)));
+					format_text(pinfo->pool, fn,strlen(fn)));
 			} else{
 				col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
 			}
@@ -6349,7 +6348,7 @@ dissect_search_find_request(tvbuff_t *tvb, packet_info *pinfo,
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-		    format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		    format_text(pinfo->pool, fn, strlen(fn)));
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
@@ -7075,7 +7074,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 		if (fn) {
 			if (strlen(fn)<=40){
 				col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
-					format_text(pinfo->pool,(const unsigned char*)fn,strlen(fn)));
+					format_text(pinfo->pool, fn,strlen(fn)));
 			} else{
 				col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
 			}
@@ -8072,8 +8071,8 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 						smb_uid = wmem_new(wmem_file_scope(), smb_uid_t);
 						smb_uid->logged_in  = -1;
 						smb_uid->logged_out = -1;
-						smb_uid->domain  = wmem_strdup(wmem_file_scope(), ntlmssph->domain_name);
-						smb_uid->account = wmem_strdup(wmem_file_scope(), ntlmssph->acct_name);
+						smb_uid->domain  = wmem_strdup(wmem_file_scope(), (const char*)ntlmssph->domain_name);
+						smb_uid->account = wmem_strdup(wmem_file_scope(), (const char*)ntlmssph->acct_name);
 
 						si->sip->extra_info = smb_uid;
 						si->sip->extra_info_type = SMB_EI_UID;
@@ -8214,8 +8213,8 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		else
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 					"%s\\%s",
-					format_text(pinfo->pool, (const unsigned char*)dn, strlen(dn)),
-					format_text(pinfo->pool, (const unsigned char*)an, strlen(an)));
+					format_text(pinfo->pool, dn, strlen(dn)),
+					format_text(pinfo->pool, an, strlen(an)));
 
 		/* OS */
 		an = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset,
@@ -8579,7 +8578,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(pinfo->pool, (const unsigned char*)an, strlen(an)));
+		    format_text(pinfo->pool, an, strlen(an)));
 
 	/*
 	 * NOTE: the Service string is always ASCII, even if the
@@ -11136,7 +11135,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		if (fn)	{
 			if (strlen(fn) <= 40) {
 				col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
-					format_text(pinfo->pool,(const unsigned char*)fn,strlen(fn)));
+					format_text(pinfo->pool, fn,strlen(fn)));
 			} else {
 				col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
 			}
@@ -11818,7 +11817,7 @@ dissect_smb_get_dfs_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		if (fn)	{
 			if (strlen(fn) <= 40) {
 				col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
-					format_text(pinfo->pool,(const unsigned char*)fn,strlen(fn)));
+					format_text(pinfo->pool, fn,strlen(fn)));
 			} else {
 				col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
 			}
@@ -11911,7 +11910,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			if (fn)	{
 				if (strlen(fn) <= 40) {
 					col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
-						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
+						format_text(pinfo->pool, fn, strlen(fn)));
 				} else {
 					col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
 				}
@@ -11964,7 +11963,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			if (fn) {
 				if (strlen(fn) <= 40){
 					col_append_fstr(pinfo->cinfo,COL_INFO,", Pattern: %s",
-						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
+						format_text(pinfo->pool, fn, strlen(fn)));
 				} else {
 					col_append_str(pinfo->cinfo,COL_INFO,", Pattern: [See Packet Detail]");
 				}
@@ -12018,7 +12017,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 				 * are, if any, multiple requests in this packet. */
 				if (strlen(fn) <= 40) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, ", Continue after: %s",
-						format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+						format_text(pinfo->pool, fn, strlen(fn)));
 				} else {
 					col_append_str(pinfo->cinfo, COL_INFO, ", Continue after: [See Packet Detail]");
 				}
@@ -12073,7 +12072,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(4);
 
 		/* file name */
-		fn = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &fn_len, (si->unicode ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_ASCII|ENC_NA));
+		fn = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &fn_len, (si->unicode ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_ASCII|ENC_NA));
 
 		CHECK_STRING_TRANS(fn);
 		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
@@ -12087,7 +12086,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			if (fn) {
 				if (strlen(fn) <= 40){
 					col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
-						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
+						format_text(pinfo->pool, fn, strlen(fn)));
 				} else {
 					col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
 				}
@@ -12119,7 +12118,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			if (fn) {
 				if (strlen(fn) <= 40){
 					col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
-						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
+						format_text(pinfo->pool, fn, strlen(fn)));
 				} else {
 					col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
 				}
@@ -12271,7 +12270,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			if (fn) {
 				if (strlen(fn) <= 40){
 					col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
-						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
+						format_text(pinfo->pool, fn, strlen(fn)));
 				} else {
 					col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
 				}
@@ -12308,7 +12307,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			if (fn) {
 				if (strlen(fn) <= 40){
 					col_append_fstr(pinfo->cinfo,COL_INFO,", Dir: %s",
-						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
+						format_text(pinfo->pool, fn, strlen(fn)));
 				} else {
 					col_append_str(pinfo->cinfo,COL_INFO,", Dir: [See Packet Detail]");
 				}
@@ -12333,7 +12332,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 			if (fn) {
 				if (strlen(fn) <= 40){
 					col_append_fstr(pinfo->cinfo,COL_INFO,", Path: %s",
-						format_text(pinfo->pool,(const unsigned char*)fn, strlen(fn)));
+						format_text(pinfo->pool, fn, strlen(fn)));
 				} else {
 					col_append_str(pinfo->cinfo,COL_INFO,", Path: [See Packet Detail]");
 				}
@@ -13604,7 +13603,7 @@ dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			fn);
 		COUNT_BYTES_SUBR(fn_len);
 
-		proto_item_append_text(item, ": %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+		proto_item_append_text(item, ": %s", format_text(pinfo->pool, fn, strlen(fn)));
 		proto_item_set_len(item, offset-old_offset);
 
 		if (neo == 0)
@@ -15459,7 +15458,7 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
 
-	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -15562,7 +15561,7 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
-	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, fn, strlen(fn)));
 
 	/*
 	 * To quote the footnote for FileName in Section 2.2.8.1.2:
@@ -15682,7 +15681,7 @@ dissect_4_3_4_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		fn);
 	COUNT_BYTES_SUBR(fn_len);
 
-	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	return offset;
@@ -15779,7 +15778,7 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -15883,7 +15882,7 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -16013,7 +16012,7 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -16133,7 +16132,7 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -16273,7 +16272,7 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -16351,7 +16350,7 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, (const unsigned char*)fn, strlen(fn)));
+	proto_item_append_text(item, " File: %s", format_text(pinfo->pool, fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = false;
@@ -16854,7 +16853,9 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		/* volume label length, only one byte here */
 		CHECK_BYTE_COUNT_TRANS_SUBR(1);
-		proto_tree_add_item_ret_uint(tree, hf_smb_volume_label_len, tvb, offset, 1, ENC_LITTLE_ENDIAN, &fn_len);
+		uint32_t tmp_fn_len;
+		proto_tree_add_item_ret_uint(tree, hf_smb_volume_label_len, tvb, offset, 1, ENC_LITTLE_ENDIAN, &tmp_fn_len);
+		fn_len = (int)tmp_fn_len;
 		COUNT_BYTES_TRANS_SUBR(1);
 
 		/* label - not aligned! */
