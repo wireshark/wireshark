@@ -11,6 +11,13 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/* AI generated comment:
+ * AIM Instant Messenger was a popular instant messaging service launched by America Online (AOL) in 1997
+ *  that used the proprietary OSCAR protocol to enable real-time communication.
+ * The OSCAR (Open System for CommunicAtion in Realtime) protocol handled user login,
+ * buddy lists, and instant messages, and was also used by ICQ.
+ * The service was discontinued on December 15, 2017.
+ */
 #include "config.h"
 
 

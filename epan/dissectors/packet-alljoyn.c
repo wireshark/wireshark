@@ -9,6 +9,22 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/* AI genertaed comment:
+ * AllJoyn was an open-source discovery and communication framework for the Internet of Things (IoT)
+ * that enabled devices to find and interact with each other. It allowed for remote method calls and
+ * one-way signals between applications on a distributed bus, making it possible for devices from
+ * different brands and types to work together. Although it was sponsored by the AllSeen Alliance,
+ * the framework is now deprecated and the "Windows.Devices.AllJoyn" namespace is considered legacy.
+ * Current status
+ *          Deprecated: AllJoyn is no longer actively maintained as a primary IoT protocol.
+ *                      The namespace in Windows is deprecated.
+ * Successor protocols:
+ *                      Alternatives like Project CHIP (now Matter) and IoTivity have emerged
+ *                      to take its place in the IoT ecosystem.
+ * Wikipedia:
+ * "In 2018, development ended after the source and documentation were copied to GitHub."
+ */
+
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
