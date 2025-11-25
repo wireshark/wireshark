@@ -79,8 +79,11 @@ class PlotDialog : public WiresharkDialog
     Q_OBJECT
 
 public:
-    explicit PlotDialog(QWidget& parent, CaptureFile& cf, bool show_default = true);
-    ~PlotDialog();
+    explicit PlotDialog(QWidget& parent, CaptureFile& cf);
+    virtual ~PlotDialog();
+    // Initialize the dialog after construction to allow polymorphic behavior.
+    void initialize(QWidget& parent, uat_field_t* plot_fields, bool show_default = true);
+
     /* Add plot with default name, style, color and scale. */
     void addPlot(bool checked, const QString& dfilter, const QString& yfield);
 
@@ -93,6 +96,14 @@ protected:
     void captureFileClosing() override;
     void keyPressEvent(QKeyEvent* event) override;
     void reject() override;
+    virtual QString getFilteredName() const;
+    virtual QString getYAxisName() const;
+    virtual QString getHintText(unsigned num_items) const;
+    /* Add one of the two (four) default plots. */
+    virtual void addDefaultPlot(bool enabled, bool filtered);
+    /* Add plot with all defined parameters. */
+    void addPlot(bool checked, const QString& name, const QString& dfilter, QRgb color_idx,
+        Graph::PlotStyles style, const QString& yfield, double y_axis_factor = Graph::default_y_axis_factor_);
 
 protected slots:
     void modelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles);
@@ -106,15 +117,10 @@ signals:
     void updateMarker(const int size, const double xCoord, const int);
     void setPosMarker(const double xCoord, const int selectMPos, const int posMPos);
 private:
-    void loadProfileGraphs();
+    void loadProfileGraphs(uat_field_t* plot_fields);
     void createPlot(int currentRow);
     void syncPlotSettings(int row);
     int getLastPlotIdx();
-    /* Add plot with all defined parameters. */
-    void addPlot(bool checked, const QString& name, const QString& dfilter, QRgb color_idx,
-        Graph::PlotStyles style, const QString& yfield, double y_axis_factor = Graph::default_y_axis_factor_);
-    /* Add one of the two (four) default plots. */
-    void addDefaultPlot(bool enabled, bool filtered);
 
     bool graphIsEnabled(int row) const;
     Plot* currentActiveGraph() const;

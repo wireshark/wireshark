@@ -125,6 +125,7 @@ DIAG_ON(frame-larger-than=)
 #include "io_graph_dialog.h"
 #include "ui/io_graph_uat.h"
 #include "plot_dialog.h"
+#include "ui/plot_graph_uat.h"
 #include <ui/qt/widgets/additional_toolbar.h>
 #include "lbm_stream_dialog.h"
 #include "lbm_lbtrm_transport_dialog.h"
@@ -3799,8 +3800,20 @@ void WiresharkMainWindow::openIOGraph(bool filtered, QVector<uint> typed_conv_id
     iog_dialog->show();
 }
 
+static uat_field_t plot_packet_fields[] = {
+    UAT_FLD_BOOL(plot, enabled, "Enabled", "Graph visibility"),
+    UAT_FLD_DEC(plot, group, "Group #", "Which group the plot belongs to"),
+    UAT_FLD_CSTRING(plot, name, "Plot Name", "The name of the plot"),
+    UAT_FLD_DISPLAY_FILTER(plot, dfilter, "Display Filter", "Plot packets matching this display filter"),
+    UAT_FLD_COLOR(plot, color, "Color", "Plot color (#RRGGBB)"),
+    UAT_FLD_VS(plot, style, "Style", plot_graph_style_vs, "Plot style"),
+    UAT_FLD_PROTO_FIELD(plot, yfield, "Y Field", "Field to plot"),
+    UAT_FLD_DBL(plot, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
+
+    UAT_END_FIELDS
+};
+
 // Plot Dialog
-// XXX - The code here is identical on Stratoshark's side. Can we unify the two?
 void WiresharkMainWindow::showPlotDialog(const QString& y_field, bool filtered)
 {
     PlotDialog* dialog = nullptr;
@@ -3825,7 +3838,8 @@ void WiresharkMainWindow::showPlotDialog(const QString& y_field, bool filtered)
 
     if (dialog == nullptr) {
         bool showDefault = y_field.isEmpty();   /* Don't generate default plots if we already have a field to plot. */
-        dialog = new PlotDialog(*this, capture_file_, showDefault);
+        dialog = new PlotDialog(*this, capture_file_);
+        dialog->initialize(*this, plot_packet_fields, showDefault);
         connect(dialog, &PlotDialog::goToPacket, packet_list_, &PacketList::goToPacket);
     }
 

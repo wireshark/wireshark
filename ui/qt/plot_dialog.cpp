@@ -57,40 +57,6 @@ static const int stat_update_interval_ = 200;   // ms
 #define MAX_PLOT_NUM    20
 
 extern "C" {
-    UAT_BOOL_CB_DEF(plot, enabled, plot_settings_t)
-    UAT_DEC_CB_DEF(plot, group, plot_settings_t)
-    UAT_CSTRING_CB_DEF(plot, name, plot_settings_t)
-    UAT_DISPLAY_FILTER_CB_DEF(plot, dfilter, plot_settings_t)
-    UAT_COLOR_CB_DEF(plot, color, plot_settings_t)
-    UAT_VS_DEF(plot, style, plot_settings_t, uint32_t, 0, "Line")
-    UAT_PROTO_FIELD_CB_DEF(plot, yfield, plot_settings_t)
-    UAT_DBL_CB_DEF(plot, y_axis_factor, plot_settings_t)
-
-    static uat_field_t plot_packet_fields[] = {
-        UAT_FLD_BOOL(plot, enabled, "Enabled", "Graph visibility"),
-        UAT_FLD_DEC(plot, group, "Group #", "Which group the plot belongs to"),
-        UAT_FLD_CSTRING(plot, name, "Plot Name", "The name of the plot"),
-        UAT_FLD_DISPLAY_FILTER(plot, dfilter, "Display Filter", "Plot packets matching this display filter"),
-        UAT_FLD_COLOR(plot, color, "Color", "Plot color (#RRGGBB)"),
-        UAT_FLD_VS(plot, style, "Style", plot_graph_style_vs, "Plot style"),
-        UAT_FLD_PROTO_FIELD(plot, yfield, "Y Field", "Field to plot"),
-        UAT_FLD_DBL(plot, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
-
-        UAT_END_FIELDS
-    };
-
-    static uat_field_t plot_event_fields[] = {
-        UAT_FLD_BOOL(plot, enabled, "Enabled", "Graph visibility"),
-        UAT_FLD_DEC(plot, group, "Group #", "Which group the plot belongs to"),
-        UAT_FLD_CSTRING(plot, name, "Plot Name", "The name of the plot"),
-        UAT_FLD_DISPLAY_FILTER(plot, dfilter, "Display Filter", "Plot events matching this display filter"),
-        UAT_FLD_COLOR(plot, color, "Color", "Plot color (#RRGGBB)"),
-        UAT_FLD_VS(plot, style, "Style", plot_graph_style_vs, "Plot style"),
-        UAT_FLD_PROTO_FIELD(plot, yfield, "Y Field", "Field to plot"),
-        UAT_FLD_DBL(plot, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
-
-        UAT_END_FIELDS
-    };
 
     static void* plot_copy_cb(void* dst_ptr, const void* src_ptr, size_t) {
         plot_settings_t* dst = (plot_settings_t*)dst_ptr;
@@ -134,7 +100,7 @@ extern "C" {
     }
 } // extern "C"
 
-PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf, bool show_default) :
+PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf) :
     WiresharkDialog(parent, cf),
     ui(new Ui::PlotDialog),
     uat_model_(nullptr),
@@ -274,11 +240,7 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf, bool show_default) :
     // We add the title for the entire plot as label to the top x axis, to use
     // the available space as best as we can (and to always have the number of
     // rows in the layout equal to the number of Axis Rects).
-    if (application_flavor_is_wireshark()) {
-        plot->xAxis2->setLabel(tr("Wireshark Plots: %1").arg(cap_file_.fileDisplayName()));
-    } else {
-        plot->xAxis2->setLabel(tr("Stratoshark Plots: %1").arg(cap_file_.fileDisplayName()));
-    }
+    plot->xAxis2->setLabel(tr("%1 Plots: %2").arg(application_flavor_name_proper()).arg(cap_file_.fileDisplayName()));
 
     // Step 2: Create the bottom "degenerate" plot, consisting only of the
     // bottom axis, and do the same as above.
@@ -307,8 +269,13 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf, bool show_default) :
     rubber_band_ = new QRubberBand(QRubberBand::Rectangle, plot);
     rubber_band_->setVisible(false);
     tracer_ = new QCPItemTracer(plot);
+}
 
-    loadProfileGraphs();
+void PlotDialog::initialize(QWidget& parent, uat_field_t* plot_fields, bool show_default)
+{
+    QCustomPlot* plot = ui->plot;
+
+    loadProfileGraphs(plot_fields);
     if (uat_model_->rowCount() > 0) {
         for (int i = 0; i < uat_model_->rowCount(); i++) {
             createPlot(i);
@@ -357,11 +324,9 @@ PlotDialog::~PlotDialog()
     ui = nullptr;
 }
 
-void PlotDialog::loadProfileGraphs()
+void PlotDialog::loadProfileGraphs(uat_field_t* plot_fields)
 {
     if (!plot_uat_) {
-        uat_field_t* plot_fields = application_flavor_is_wireshark() ? plot_packet_fields : plot_event_fields;
-
         plot_uat_ = uat_new("Plots",
             sizeof(plot_settings_t),
             "plots",
@@ -613,6 +578,17 @@ void PlotDialog::addPlot(bool checked, const QString& name, const QString& dfilt
     // will eventually be called.
 }
 
+
+QString PlotDialog::getFilteredName() const
+{
+    return tr("Filtered packets");
+}
+
+QString PlotDialog::getYAxisName() const
+{
+    return tr("All packets");
+}
+
 void PlotDialog::addPlot(bool checked, const QString& dfilter, const QString& yfield)
 {
     if (!uat_model_) return;
@@ -620,10 +596,10 @@ void PlotDialog::addPlot(bool checked, const QString& dfilter, const QString& yf
     QString graph_name;
     if (yfield.isEmpty()) {
         if (!dfilter.isEmpty()) {
-            graph_name = application_flavor_is_wireshark() ? tr("Filtered packets") : tr("Filtered events");
+            graph_name = getFilteredName();
         }
         else {
-            graph_name = application_flavor_is_wireshark() ? tr("All packets") : tr("All events");
+            graph_name = getYAxisName();
         }
     }
     else {
@@ -635,12 +611,7 @@ void PlotDialog::addPlot(bool checked, const QString& dfilter, const QString& yf
 void PlotDialog::addDefaultPlot(bool enabled, bool filtered)
 {
     if (filtered) {
-        if (application_flavor_is_wireshark()) {
-            addPlot(enabled, tr("Seq. num."), "tcp.srcport == 80", ColorUtils::graphColor(0), Graph::psDotStepLine, "tcp.seq");
-        }
-        else {
-            addPlot(enabled, tr("Event latency"), "evt.type == \"read\"", ColorUtils::graphColor(0), Graph::psDotStepLine, "evt.latency");
-        }
+        addPlot(enabled, tr("Seq. num."), "tcp.srcport == 80", ColorUtils::graphColor(0), Graph::psDotStepLine, "tcp.seq");
     }
     else {
         addPlot(enabled, tr("Frame num."), QString(), ColorUtils::graphColor(4), Graph::psLine, "frame.number");
@@ -935,6 +906,14 @@ void PlotDialog::getGraphInfo()
     updateLegend();
 }
 
+QString PlotDialog::getHintText(unsigned num_items) const
+{
+    return QStringLiteral("%1 %2")
+        .arg(!file_closed_ ? tr("Click to select packet") : tr("Packet"))
+        .arg(num_items);
+
+}
+
 void PlotDialog::updateHint()
 {
     QString hint;
@@ -973,18 +952,8 @@ void PlotDialog::updateHint()
             hint += tr("Select a plot for details.");
         }
         else {
-            QString msg;
+            QString msg = getHintText(packet_num_);
             QString val = QStringLiteral(" = %1").arg(tracer_->position->value(), 0, 'g', QLocale::FloatingPointShortest);
-            if (application_flavor_is_wireshark()) {
-                msg = QStringLiteral("%1 %2")
-                    .arg(!file_closed_ ? tr("Click to select packet") : tr("Packet"))
-                    .arg(packet_num_);
-            }
-            else {
-                msg = QStringLiteral("%1 %2")
-                    .arg(!file_closed_ ? tr("Click to select event") : tr("Event"))
-                    .arg(packet_num_);
-            }
             hint += tr("%1 (%2s%3).").arg(msg).arg(QString::number(tracer_->position->key(), 'f', 9)).arg(val);
         }
         ui->plot->replot(QCustomPlot::rpQueuedReplot);
