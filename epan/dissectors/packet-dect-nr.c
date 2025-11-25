@@ -2285,7 +2285,8 @@ static int dissect_mac_common_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	sublen = dissector_try_uint_with_data(mac_hdr_dissector_table, mac_hdr_type, tvb, pinfo, parent_tree, false, ctx);
 
 	if (!PINFO_FD_VISITED(pinfo) && ctx->conv_info) {
-		if (ctx->psn == 0 || ctx->psn < get_last_psn(ctx)) {
+		/* Check if PSN is 0 or significantly less than the last PSN */
+		if (ctx->psn == 0 || (ctx->psn + 0x7FF) < get_last_psn(ctx)) {
 			const dect_nr_sec_info_t *sec_info;
 
 			/* 5.9.1.3 Ciphering
