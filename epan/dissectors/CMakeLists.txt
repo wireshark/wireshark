@@ -2346,7 +2346,8 @@ set_target_properties(dissectors PROPERTIES
 # and pointers to uint8_t (aka unsigned char) and harmless.
 check_c_compiler_flag(-Wno-pointer-sign C_Wno_pointer_sign_VALID)
 if(C_Wno_pointer_sign_VALID)
-	target_compile_options(dissectors PUBLIC
+	set_source_files_properties(${ASN1_DISSECTOR_SRC} PROPERTIES
+		COMPILE_OPTIONS
 		$<$<COMPILE_LANGUAGE:C>:-Wno-pointer-sign>
 	)
 endif()
