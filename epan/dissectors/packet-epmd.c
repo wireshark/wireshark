@@ -223,7 +223,7 @@ dissect_epmd_response_names(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, p
             continue;
         }
         uint16_t portnum;
-        char *port_str = tvb_get_string_enc(pinfo->pool, tvb, pos_port, port_len, ENC_ASCII);
+        char *port_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, pos_port, port_len, ENC_ASCII);
         if (!ws_strtou16(port_str, NULL, &portnum)){
             expert_add_info_format(pinfo, node_tree, &ei_epmd_malformed_names_line, "Invalid or missing port number");
             continue;

@@ -464,7 +464,7 @@ decode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, i
     uint32_t len = tvb_get_int32(tvb, offset, ENC_BIG_ENDIAN);
     proto_item *ti;
 
-    const char *text = tvb_get_string_enc(pinfo->pool, tvb, offset+4, len, ENC_UTF_8);
+    const char *text = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+4, len, ENC_UTF_8);
 
     if(len) {
         ti = proto_tree_add_string_format_value(tree, hf, tvb, offset, len + 4, text, "%s, Len: %u", text, len);

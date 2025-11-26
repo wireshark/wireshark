@@ -71,7 +71,7 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree_add_item_ret_uint(fsso_tree, hf_fsso_payload_length, tvb, offset, 2, ENC_BIG_ENDIAN, &payload_length);
     offset += 2;
 
-    string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &string_length, ENC_ASCII);
+    string = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &string_length, ENC_ASCII);
     proto_tree_add_item(fsso_tree, hf_fsso_string, tvb, offset, string_length, ENC_ASCII);
     col_set_str(pinfo->cinfo, COL_INFO, string);
 

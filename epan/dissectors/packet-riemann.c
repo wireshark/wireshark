@@ -214,7 +214,7 @@ riemann_get_uint64(tvbuff_t *tvb, unsigned offset, unsigned *len)
     return num;
 }
 
-static uint8_t *
+static char *
 riemann_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset)
 {
     uint64_t size;
@@ -222,7 +222,7 @@ riemann_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset)
 
     size = riemann_get_uint64(tvb, offset, &len);
     offset += len;
-    return tvb_get_string_enc(scope, tvb, offset, (int)size, ENC_ASCII);
+    return (char*)tvb_get_string_enc(scope, tvb, offset, (int)size, ENC_ASCII);
 }
 
 static unsigned

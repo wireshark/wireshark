@@ -179,7 +179,7 @@ static vstring_t read_vstring(wmem_allocator_t *scope, tvbuff_t *tvb, int offset
     string_starting_offset = offset + vstring.vint_length.length;
     string_length = vstring.vint_length.value;
 
-    vstring.value = tvb_get_string_enc(scope, tvb, string_starting_offset, string_length, ENC_UTF_8);
+    vstring.value = (char*)tvb_get_string_enc(scope, tvb, string_starting_offset, string_length, ENC_UTF_8);
     vstring.length = string_length + vstring.vint_length.length;
 
     return vstring;

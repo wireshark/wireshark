@@ -7812,7 +7812,7 @@ static int dissect_c15ch_c15_sip_reg_subs_report(tvbuff_t *tvb, packet_info *pin
 
         /* report type */
         str_start = 0;
-        report_type = tvb_get_stringz_enc(pinfo->pool, tvb, str_start, &report_type_str_len, ENC_ASCII);
+        report_type = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, str_start, &report_type_str_len, ENC_ASCII);
 
         add_string_field(c15ch_c15_sip_reg_subs_report_tree, pinfo, tvb, 0, 12,
 			             hf_c15ch_c15_sip_report_type);

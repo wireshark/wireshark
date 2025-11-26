@@ -159,7 +159,7 @@ static const value_string bcp_cmds[] = {
  * return: nothing
  */
 static void
-dissect_bcp_connect_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb, int flags)
+dissect_bcp_connect_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb, unsigned flags)
 {
     proto_tree *bcp_subtree = NULL;
     unsigned offset = 0;
@@ -215,7 +215,7 @@ dissect_bcp_connect_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb
  * return: nothing
  */
 static void
-dissect_bcp_search_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb, int flags)
+dissect_bcp_search_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb, unsigned flags)
 {
     proto_tree *bcp_subtree = NULL;
     unsigned type = 0;
@@ -456,7 +456,7 @@ dissect_bcp_block_header(proto_tree *bcp_tree, tvbuff_t *tvb, unsigned offset,
  */
 static unsigned
 dissect_bcp_protocol_header(proto_tree *bcp_tree, tvbuff_t *tvb,
-                            unsigned offset, int *flags, unsigned *blocknb,
+                            unsigned offset, unsigned *flags, unsigned *blocknb,
                             unsigned *segcode)
 {
     proto_tree *bcp_subtree = NULL;

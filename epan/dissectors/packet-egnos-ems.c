@@ -52,7 +52,7 @@ static dissector_handle_t  ems_handle;
 static int dissect_ems(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     GByteArray *bytes = g_byte_array_new();
 
-    const uint8_t *nof_bits_hex_str;
+    const char *nof_bits_hex_str;
     int nof_bits_hex_str_len;
     int nof_bits;
     int nof_hex_chars_len;
@@ -96,7 +96,7 @@ static int dissect_ems(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     else { // L5 or non-standard message encoding
         proto_tree_add_item(ems_tree, hf_ems_second, tvb, 19, 9, ENC_ASCII);
         proto_tree_add_item_ret_string(ems_tree, hf_ems_svc_flag, tvb, 29, 2, ENC_ASCII, pinfo->pool, (const uint8_t **) &svc_flag);
-        proto_tree_add_item_ret_string_and_length(ems_tree, hf_ems_nof_bits, tvb, 32, 4, ENC_ASCII, pinfo->pool, &nof_bits_hex_str, &nof_bits_hex_str_len);
+        proto_tree_add_item_ret_string_and_length(ems_tree, hf_ems_nof_bits, tvb, 32, 4, ENC_ASCII, pinfo->pool, (const uint8_t**)&nof_bits_hex_str, &nof_bits_hex_str_len);
         proto_tree_add_item(ems_tree, hf_ems_mt, tvb, 37, 2, ENC_ASCII);
 
         // dissect NOF with a number of bits given by NOF bits

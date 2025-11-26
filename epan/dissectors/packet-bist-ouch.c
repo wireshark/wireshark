@@ -285,7 +285,7 @@ ob_get_ascii_token(tvbuff_t *tvb, int offset, int len, wmem_allocator_t *scope)
 {
     if (offset < 0 || len <= 0) return NULL;
     if (tvb_captured_length_remaining(tvb, offset) < len) return NULL;
-    return tvb_get_string_enc(scope, tvb, offset, len, ENC_ASCII);
+    return (const char*)tvb_get_string_enc(scope, tvb, offset, len, ENC_ASCII);
 }
 
 /* Union-Find helpers (iterative find; compresses path so all nodes point to root) */

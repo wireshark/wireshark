@@ -365,7 +365,7 @@ dissect_beep_int(tvbuff_t *tvb, packet_info *pinfo, int offset,
   int ival, ind = 0;
   unsigned int len = num_len(tvb, offset);
 
-  ival = (int)strtol(tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII), NULL, 10);
+  ival = (int)strtol((char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII), NULL, 10);
   proto_tree_add_uint(tree, hf, tvb, offset, len, ival);
 
   while (hfa[ind]) {

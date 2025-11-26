@@ -8118,7 +8118,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     uint8_t flags = 0;
     uint16_t item_id = 0;
     uint16_t app;
-    unsigned app_len;
+    int app_len;
 
     oap_1_packet_data *oap_packet = NULL;
 
@@ -8150,7 +8150,7 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     ti = proto_tree_add_uint(oap_tree, hf_2008_1_app_version, tvb, 0, app_len, app);
     validate_c2(pinfo, ti, app, app_len);
 
-    if (app_len == tvb_captured_length(tvb))
+    if ((unsigned)app_len == tvb_captured_length(tvb))
     {
         col_append_str(pinfo->cinfo, COL_INFO, "OAP [nop]");
         expert_add_info(pinfo, oap_tree, &ei_implicit_no_op);

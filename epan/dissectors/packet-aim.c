@@ -586,13 +586,13 @@ static const aim_family
 }
 
 static int
-aim_get_buddyname(wmem_allocator_t *pool, uint8_t **name, tvbuff_t *tvb, int offset)
+aim_get_buddyname(wmem_allocator_t *pool, char **name, tvbuff_t *tvb, int offset)
 {
 	uint8_t buddyname_length;
 
 	buddyname_length = tvb_get_uint8(tvb, offset);
 
-	*name = tvb_get_string_enc(pool, tvb, offset + 1, buddyname_length, ENC_UTF_8|ENC_NA);
+	*name = (char *)tvb_get_string_enc(pool, tvb, offset + 1, buddyname_length, ENC_UTF_8|ENC_NA);
 
 	return buddyname_length;
 }
@@ -1191,11 +1191,11 @@ dissect_aim_tlv_value_dcinfo(proto_item *ti, uint16_t valueid _U_, tvbuff_t *tvb
 static int
 dissect_aim_tlv_value_string (proto_item *ti, uint16_t valueid _U_, tvbuff_t *tvb, packet_info *pinfo)
 {
-	uint8_t *buf;
+	const char *buf;
 	int string_len;
 
 	string_len = tvb_reported_length(tvb);
-	buf = tvb_get_string_enc(pinfo->pool, tvb, 0, string_len, ENC_UTF_8|ENC_NA);
+	buf = (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, string_len, ENC_UTF_8|ENC_NA);
 	proto_item_set_text(ti, "Value: %s", format_text(pinfo->pool, buf, string_len));
 
 	return string_len;
@@ -1260,7 +1260,7 @@ static int
 dissect_aim_tlv_value_messageblock (proto_item *ti, uint16_t valueid _U_, tvbuff_t *tvb, packet_info *pinfo)
 {
 	proto_tree *entry;
-	uint8_t *buf;
+	const char *buf;
 	uint16_t featurelen;
 	uint32_t blocklen;
 	proto_item* len_item;
@@ -1313,7 +1313,7 @@ dissect_aim_tlv_value_messageblock (proto_item *ti, uint16_t valueid _U_, tvbuff
 		offset += 2;
 
 		/* The actual message */
-		buf = tvb_get_string_enc(pinfo->pool, tvb, offset, blocklen - 4, ENC_ASCII|ENC_NA);
+		buf = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, blocklen - 4, ENC_ASCII|ENC_NA);
 		proto_item_append_text(ti, "Message: %s ",
 				    format_text(pinfo->pool, buf, blocklen - 4));
 		proto_tree_add_item(entry, hf_aim_messageblock_message, tvb,
@@ -1875,7 +1875,7 @@ static int dissect_aim_buddylist_reject(tvbuff_t *tvb, packet_info *pinfo, proto
 
 static int dissect_aim_buddylist_oncoming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *buddy_tree)
 {
-	uint8_t *buddyname;
+	char  *buddyname;
 	int    offset           = 0;
 	int    buddyname_length = aim_get_buddyname( pinfo->pool, &buddyname, tvb, offset );
 
@@ -1898,7 +1898,7 @@ static int dissect_aim_buddylist_oncoming(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_aim_buddylist_offgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *buddy_tree)
 {
 
-	uint8_t *buddyname;
+	char  *buddyname;
 	int    offset           = 0;
 	int    buddyname_length = aim_get_buddyname( pinfo->pool, &buddyname, tvb, offset );
 
@@ -1974,7 +1974,7 @@ static int dissect_aim_chat_userinfo_list(tvbuff_t *tvb, packet_info *pinfo, pro
 
 static int dissect_aim_chat_outgoing_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *chat_tree _U_)
 {
-	uint8_t *buddyname;
+	char *buddyname;
 	unsigned char *msg;
 	int buddyname_length;
 
@@ -1993,7 +1993,7 @@ static int dissect_aim_chat_outgoing_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 
 static int dissect_aim_chat_incoming_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *chat_tree)
 {
-	uint8_t *buddyname;
+	char *buddyname;
 	unsigned char *msg;
 	/* channel message to client */
 	int buddyname_length;
@@ -3018,7 +3018,7 @@ dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree
 	int offset = 0;
 	const aim_tlv *aim_ch_tlvs = NULL;
 	uint16_t channel_id;
-	uint8_t *buddyname;
+	char *buddyname;
 	int buddyname_length;
 
 	/* ICBM Cookie */
@@ -3392,7 +3392,7 @@ static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
 {
 	uint8_t buddyname_length = 0;
 	int offset = 0;
-	uint8_t *buddyname;
+	char *buddyname;
 
 	/* Info Type */
 	proto_tree_add_item(tree, hf_aim_infotype, tvb, offset, 2, ENC_BIG_ENDIAN);

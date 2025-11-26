@@ -381,7 +381,7 @@ save_local_device_name_from_eir_ad(tvbuff_t *tvb, int offset, packet_info *pinfo
         switch(tvb_get_uint8(tvb, offset + i + 1)) {
         case 0x08: /* Device Name, shortened */
         case 0x09: /* Device Name, full */
-            name = tvb_get_string_enc(pinfo->pool, tvb, offset + i + 2, length - 1, ENC_ASCII);
+            name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + i + 2, length - 1, ENC_ASCII);
 
             k_interface_id = bluetooth_data->interface_id;
             k_adapter_id = bluetooth_data->adapter_id;

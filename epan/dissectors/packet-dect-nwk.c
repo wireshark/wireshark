@@ -1829,7 +1829,7 @@ static proto_item* add_dect_nwk_dect_charset_tree_item(proto_tree *tree, packet_
 	gunichar current_char;
 	wmem_strbuf_t *keypad_information;
 
-	keypad_string = tvb_get_string_enc(pinfo->pool, tvb, start, length, ENC_DECT_STANDARD_8BITS);
+	keypad_string = (char*)tvb_get_string_enc(pinfo->pool, tvb, start, length, ENC_DECT_STANDARD_8BITS);
 	current_char_ptr = keypad_string;
 
 	keypad_information = wmem_strbuf_new_sized(pinfo->pool, length);

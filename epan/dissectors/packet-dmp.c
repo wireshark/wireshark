@@ -1641,7 +1641,7 @@ static const char *dissect_7bit_string (tvbuff_t *tvb, wmem_allocator_t* allocat
     *byte_rest = rest;
   }
 
-  return decoded;
+  return (const char*)decoded;
 }
 
 static const char *dissect_thales_mts_id (tvbuff_t *tvb, wmem_allocator_t* allocator, int offset, int length, unsigned char *byte_rest)

@@ -287,7 +287,7 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
    */
   memset(keys, 0, sizeof(keys));
   sober128_start(&keygen_prng_state);
-  sober128_add_entropy(private_key,
+  sober128_add_entropy((uint8_t*)private_key,
                        (unsigned long)private_key_len, &keygen_prng_state);
   sober128_add_entropy(salt, SALT_SIZE, &keygen_prng_state);
   sober128_read(keys, sizeof (keys), &keygen_prng_state);
