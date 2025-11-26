@@ -616,7 +616,7 @@ static tvbuff_t *add_ib_fragment(tvbuff_t *tvb,
 static void add_iwarp_padding(tvbuff_t *tvb, int offset,
         uint32_t msgid, uint32_t msgno, packet_info *pinfo)
 {
-    char *pbuf;
+    uint8_t *pbuf;
     tvbuff_t *pad_tvb;
     /* Size of payload data for current iWarp Read/Write */
     uint32_t bsize = tvb_reported_length_remaining(tvb, offset);
@@ -625,7 +625,7 @@ static void add_iwarp_padding(tvbuff_t *tvb, int offset,
 
     if (padding != 0) {
         /* Allocate buffer for the number of padding bytes that will be added */
-        pbuf = (char *)wmem_alloc(pinfo->pool, padding);
+        pbuf = (uint8_t *)wmem_alloc(pinfo->pool, padding);
         memset(pbuf, 0, padding);
         /* Create tvb buffer */
         pad_tvb = tvb_new_real_data(pbuf, padding, padding);

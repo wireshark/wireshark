@@ -812,7 +812,7 @@ static int dissect_rf4ce_nwk_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     if (success)
     {
-        unsigned decrypted_offset = 0;
+        int decrypted_offset = 0;
 
         /* On decryption success: replace the tvb, make offset point to its beginning */
         tvb = tvb_new_child_real_data(tvb, decrypted, size, size);

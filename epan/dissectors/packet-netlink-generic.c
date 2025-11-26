@@ -330,7 +330,7 @@ dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void 
 	 * Do not allow overwriting our control protocol.
 	 */
 	if (info.family_id && info.family_id != WS_GENL_ID_CTRL && info.family_name) {
-		wmem_map_insert(genl_family_map, GUINT_TO_POINTER(info.family_id), wmem_strdup(wmem_file_scope(), info.family_name));
+		wmem_map_insert(genl_family_map, GUINT_TO_POINTER(info.family_id), wmem_strdup(wmem_file_scope(), (char*)info.family_name));
 	}
 
 	return tvb_captured_length(tvb);

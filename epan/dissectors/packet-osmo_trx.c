@@ -721,7 +721,8 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 			 proto_tree *tree, void *data _U_)
 {
 	int offset = 0, msg_len, end_verb, end_status;
-	const uint8_t *msg_str, *msg_type_str;
+	const uint8_t *msg_type_str;
+	const char *msg_str;
 	proto_item *ti, *gi, *delim_item;
 	proto_tree *otrxc_tree;
 	uint32_t delimiter;
@@ -730,7 +731,7 @@ static int dissect_otrxc(tvbuff_t *tvb, packet_info *pinfo,
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	msg_len = tvb_reported_length(tvb);
-	msg_str = tvb_get_string_enc(pinfo->pool, tvb, 0, msg_len, ENC_ASCII);
+	msg_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, msg_len, ENC_ASCII);
 	col_add_str(pinfo->cinfo, COL_INFO, msg_str);
 
 	ti = proto_tree_add_item(tree, proto_otrxc, tvb, 0, msg_len, ENC_ASCII);

@@ -771,10 +771,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
     case PROTOBUF_TYPE_BYTES:
         if (field_desc && dumper) {
             json_dumper_begin_base64(dumper);
-            buf = (char*) tvb_memdup(wmem_file_scope(), tvb, offset, length);
+            buf = (char*) tvb_memdup(pinfo->pool, tvb, offset, length);
             if (buf) {
-                json_dumper_write_base64(dumper, buf, length);
-                wmem_free(wmem_file_scope(), buf);
+                json_dumper_write_base64(dumper, (uint8_t*)buf, length);
             }
             json_dumper_end_base64(dumper);
         }
@@ -1244,7 +1243,8 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, unsigned offset, packet_in
         proto_item_set_generated(ti_field_name);
         ti_field_type = proto_tree_add_int(field_tree, hf_protobuf_field_type, tvb, offset, 0, field_type);
         proto_item_set_generated(ti_field_type);
-        ti_field_number = proto_tree_add_uint64_format(field_tree, hf_protobuf_field_number, tvb, offset, 0, field_number << 3, "Field Number: %" PRIu64, field_number);
+        // XXX - Why multiply the field_number by 8 here?
+        ti_field_number = proto_tree_add_uint64_format_value(field_tree, hf_protobuf_field_number, tvb, offset, 0, field_number << 3, "%" PRIu64, field_number);
         proto_item_set_generated(ti_field_number);
 
         hf_id_ptr = NULL;

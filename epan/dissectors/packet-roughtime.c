@@ -228,15 +228,15 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
         map = (roughtime_map_t*)wmem_array_index(map_arr, tag);
 
         type = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
-        const uint8_t *type_str;
+        const char *type_str;
 
         // If we reached the PAD-tag which is terminated by 0xFF, read only 3 octets and extend the item length.
         // All other 3-char tags are null-terminated.
         if(type == TAG_TYPE_PAD) {
-            pi = proto_tree_add_item_ret_string(tree, hf_roughtime_tag, tvb, offset, 3, ENC_ASCII, pinfo->pool, &type_str);
+            pi = proto_tree_add_item_ret_string(tree, hf_roughtime_tag, tvb, offset, 3, ENC_ASCII, pinfo->pool, (const uint8_t**)&type_str);
             proto_item_set_len(pi, 4);
         } else {
-            proto_tree_add_item_ret_string(tree, hf_roughtime_tag, tvb, offset, 4, ENC_ASCII, pinfo->pool, &type_str);
+            proto_tree_add_item_ret_string(tree, hf_roughtime_tag, tvb, offset, 4, ENC_ASCII, pinfo->pool, (const uint8_t**)&type_str);
         }
 
         col_append_sep_str(pinfo->cinfo, COL_INFO, " ", type_str);

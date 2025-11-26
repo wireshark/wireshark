@@ -1334,7 +1334,7 @@ add_avp_to_tree(proto_tree *avp_tree, proto_item *avp_item, packet_info *pinfo, 
 					break;
 				}
 				/* decrypted data is same length as encrypted data */
-				buffer = (char *)wmem_alloc(pinfo->pool, avp_length - 2);
+				buffer = (uint8_t *)wmem_alloc(pinfo->pool, avp_length - 2);
 				uint8_t salt[2];
 
 				tvb_memcpy(tvb, salt, offset, 2);

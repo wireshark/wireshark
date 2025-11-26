@@ -204,7 +204,7 @@ dissect_ppcap_payload_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppcap
 	msg_len = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item( ppcap_tree1, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset  = offset + 2;
-	string = tvb_get_string_enc(pinfo->pool, tvb, offset, msg_len, ENC_UTF_8|ENC_NA);
+	string = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, msg_len, ENC_UTF_8|ENC_NA);
 	if (strcmp(string,"mtp3") == 0) {
 		*payload_type = PPCAP_MTP3;
 	}else if (strcmp(string,"tcap")  == 0) {

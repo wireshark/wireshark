@@ -224,7 +224,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             int remaining_len;
             uint32_t pt_len;
             int pt_string_len;
-            uint8_t* pt_str;
+            char* pt_str;
 
             remaining_len = tvb_captured_length_remaining(tvb, offset);
             if (remaining_len == 0) {
@@ -255,9 +255,9 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 pt_len = pt_string_len + 1;
             }
 
-            pt_str = tvb_get_string_enc(pinfo->pool, tvb, offset, pt_string_len, ENC_ASCII);
-            proto_tree_add_string_format_value(sap_tree, hf_sap_payload_type, tvb, offset, pt_len,
-                pt_str, "%s", pt_str);
+            pt_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, pt_string_len, ENC_ASCII);
+            proto_tree_add_string(sap_tree, hf_sap_payload_type, tvb, offset, pt_len,
+                pt_str);
             offset += pt_len;
         }
     }

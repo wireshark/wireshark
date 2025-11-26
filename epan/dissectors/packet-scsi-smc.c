@@ -245,14 +245,14 @@ static void
 dissect_scsi_smc_volume_tag (tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *tree, unsigned offset, int hf_vol_id, int hf_vol_seq_num)
 {
-    uint8_t *volid;
+    char *volid;
     int length;
     for (length = 32; length > 0; length--) {
         if (tvb_get_uint8(tvb, offset + length - 1) != ' ')
             break;
     }
 
-    volid = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
+    volid = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
     proto_tree_add_string(tree, hf_vol_id, tvb, offset, 32, volid);
     proto_tree_add_item(tree, hf_vol_seq_num, tvb, offset+34, 2, ENC_BIG_ENDIAN);
 }

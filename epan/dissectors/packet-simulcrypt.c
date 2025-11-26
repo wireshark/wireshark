@@ -41,7 +41,7 @@ void proto_register_simulcrypt(void);
  */
 typedef struct Tecm_interpretation
 {
-	int ca_system_id;
+	unsigned ca_system_id;
 	const char *protocol_name;
 	dissector_handle_t protocol_handle;
 	unsigned ecmg_port;
@@ -68,7 +68,7 @@ static int proto_simulcrypt;
 static dissector_handle_t simulcrypt_handle;
 
 /* Preferences (with default values) */
-static int ca_system_id_mikey = CA_SYSTEM_ID_MIKEY; /* MIKEY ECM CA_system_ID */
+static unsigned ca_system_id_mikey = CA_SYSTEM_ID_MIKEY; /* MIKEY ECM CA_system_ID */
 
 /* MIKEY payload start bytes */
 /*unsigned char mikey_start[3]={0x01,0x00,0x15};
@@ -767,7 +767,7 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 	proto_tree *simulcrypt_ecm_datagram_tree;
 	tvbuff_t   *next_tvb;
 	uint32_t    pvaluedec;    /* parameter decimal value */
-	int         ca_system_id;
+	unsigned    ca_system_id;
 	unsigned    i;
 
 	switch (ptype) {
@@ -954,7 +954,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 	proto_tree *simulcrypt_ecm_group_tree;
 	proto_tree *simulcrypt_activation_time_tree;
 	uint32_t    pvaluedec;    /* parameter decimal value */
-	int         ca_system_id;
+	unsigned    ca_system_id;
 	unsigned    i;
 
 	switch (ptype) {

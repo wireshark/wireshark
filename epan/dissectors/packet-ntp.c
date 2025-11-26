@@ -1590,7 +1590,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 		buff = wmem_strdup_printf(pinfo->pool, "Unidentified Kiss-o\'-Death message '%s'",
 			tvb_get_string_enc(pinfo->pool, tvb, 12, 4, ENC_ASCII));
 		for (i = 0; kod_messages[i].id; i++) {
-			if (tvb_memeql(tvb, 12, kod_messages[i].id, 4) == 0) {
+			if (tvb_strneql(tvb, 12, kod_messages[i].id, 4) == 0) {
 				buff = wmem_strdup(pinfo->pool, kod_messages[i].data);
 				break;
 			}

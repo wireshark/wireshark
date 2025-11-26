@@ -704,7 +704,7 @@ static void dissect_dlm_query_region(proto_tree *tree, packet_info* pinfo, tvbuf
 				     unsigned offset)
 {
 	uint32_t i, num_regions;
-	unsigned char *region;
+	char *region;
 
 	/* qr_node */
 	proto_tree_add_item(tree, hf_dlm_qr_node, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -727,7 +727,7 @@ static void dissect_dlm_query_region(proto_tree *tree, packet_info* pinfo, tvbuf
 
 	/* qr_regions */
 	for (i = 0; i < num_regions; i++, offset += O2HB_MAX_REGION_NAME_LEN) {
-		region = tvb_get_string_enc(pinfo->pool, tvb, offset, O2HB_MAX_REGION_NAME_LEN, ENC_ASCII);
+		region = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, O2HB_MAX_REGION_NAME_LEN, ENC_ASCII);
 		proto_tree_add_string_format(tree, hf_dlm_qr_region, tvb, offset, 1,
 					   region, "Region%d: %s", i + 1, region);
 	}

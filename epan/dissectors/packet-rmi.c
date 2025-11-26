@@ -258,7 +258,7 @@ get_rmi_type(tvbuff_t *tvb, int offset, int datalen)
         }
     }
     if (datalen >= 4) {
-        if(strncmp(data, RMI_MAGIC, 4) == 0) {
+        if(memcmp(data, RMI_MAGIC, 4) == 0) {
             return RMI_OUTPUTSTREAM;
         }
     }

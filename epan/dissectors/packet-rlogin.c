@@ -278,7 +278,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		slash_offset = tvb_find_uint8(tvb, offset, -1, '/');
 		if (slash_offset != -1)
 		{
-			uint8_t* str = NULL;
+			const char* str = NULL;
 			uint32_t term_len = 0;
 			bool term_len_valid;
 			proto_item* pi = NULL;
@@ -290,7 +290,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 
 			/* Terminal speed */
 			str_len = tvb_strsize(tvb, offset);
-			str = tvb_get_string_enc(pinfo->pool, tvb, offset, str_len,
+			str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, str_len,
 				ENC_NA|ENC_ASCII);
 			term_len_valid = ws_strtou32(str, NULL, &term_len);
 			pi = proto_tree_add_uint(user_info_tree,

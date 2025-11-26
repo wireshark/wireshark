@@ -1161,7 +1161,7 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
 
     /* Get AI Channel Details */
     for (count = 0; count < num_ai; count++) {
-        ai_name = tvb_get_string_enc(pinfo->pool, tvb, offset, 6, ENC_ASCII);
+        ai_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 6, ENC_ASCII);
 
         fmconfig_ai_tree = proto_tree_add_subtree_format(fmconfig_tree, tvb, offset, 10,
                     ett_selfm_fmconfig_ai, NULL, "Analog Channel: %s", ai_name);

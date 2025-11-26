@@ -1002,7 +1002,7 @@ sctp_adler32(tvbuff_t *tvb, unsigned int len)
 
   result = update_adler32(result, buf, SOURCE_PORT_LENGTH + DESTINATION_PORT_LENGTH + VERIFICATION_TAG_LENGTH);
   /* handle four 0 bytes as checksum */
-  result = update_adler32(result, "\0\0\0\0", 4);
+  result = update_adler32(result, (const uint8_t*)"\0\0\0\0", 4);
   result = update_adler32(result, buf+COMMON_HEADER_LENGTH, len-COMMON_HEADER_LENGTH);
 
   return result;

@@ -769,7 +769,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	}
 
 	if (string_data) {
-		string_buffer = tvb_get_string_enc(pinfo->pool, tvb, data_offset, string_length_copy, ENC_ASCII);
+		string_buffer = (char*)tvb_get_string_enc(pinfo->pool, tvb, data_offset, string_length_copy, ENC_ASCII);
 	} else {
 		bytes_buffer = tvb_memcpy(tvb, wmem_alloc(pinfo->pool, string_length_copy), data_offset, string_length_copy);
 	}
