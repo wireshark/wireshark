@@ -2099,14 +2099,18 @@ get_persdatafile_dir(void)
         return persdatafile_dir;
 
 #ifdef _WIN32
-    PWSTR pszPath = NULL;
-    persdatafile_dir = "";
+    TCHAR tszPath[MAX_PATH];
 
-    if (SHGetKnownFolderPath(&FOLDERID_Documents, 0, NULL, &pszPath) == S_OK) {
-        persdatafile_dir = g_utf16_to_utf8(pszPath, -1, NULL, NULL, NULL);
+    /*
+     * We should SHGetKnownFolderPath instead, but that appears to require
+     * a desktop session.
+     */
+    if (SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL, false)) {
+        persdatafile_dir = g_utf16_to_utf8(tszPath, -1, NULL, NULL, NULL);
+        return persdatafile_dir;
+    } else {
+        return "";
     }
-    CoTaskMemFree(pszPath);
-    return persdatafile_dir;
 #else
     /*
      * Get the current directory.
