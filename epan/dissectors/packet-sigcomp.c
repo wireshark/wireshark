@@ -951,7 +951,7 @@ static int udvm_state_access(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     uint16_t buf_size_real;
     uint16_t byte_copy_right;
     uint16_t byte_copy_left;
-    char     partial_state[STATE_BUFFER_SIZE]; /* Size is 6 - 20 */
+    uint8_t  partial_state[STATE_BUFFER_SIZE]; /* Size is 6 - 20 */
     uint8_t *state_buff;
     char    *partial_state_str;
 
@@ -1092,7 +1092,7 @@ static int udvm_state_access(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 static void udvm_state_create(uint8_t *state_buff,uint8_t *state_identifier,uint16_t p_id_length) {
 
-    char   partial_state[STATE_BUFFER_SIZE];
+    uint8_t   partial_state[STATE_BUFFER_SIZE];
     unsigned  i;
     char *partial_state_str;
     char *dummy_buff;

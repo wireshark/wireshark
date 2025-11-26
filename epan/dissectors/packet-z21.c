@@ -1429,7 +1429,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                     proto_tree_add_string(z21_tree, hf_z21_booster_name, tvb, offset, 32, "");
                 }
                 else {
-                    proto_tree_add_string(z21_tree, hf_z21_booster_name, tvb, offset, 32, buf);
+                    proto_tree_add_string(z21_tree, hf_z21_booster_name, tvb, offset, 32, (char*)buf);
                 }
                 offset += 32;
             }
@@ -1447,7 +1447,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                     proto_tree_add_string(z21_tree, hf_z21_decoder_name, tvb, offset, 32, "");
                 }
                 else {
-                    proto_tree_add_string(z21_tree, hf_z21_decoder_name, tvb, offset, 32, buf);
+                    proto_tree_add_string(z21_tree, hf_z21_decoder_name, tvb, offset, 32, (char*)buf);
                 }
                 offset += 32;
             }

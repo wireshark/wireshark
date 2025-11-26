@@ -931,7 +931,7 @@ dissect_digitech_procedure(uint8_t procedure, const int offset,
     tvbuff_t *data_tvb;
     int data_offset;
     int data_len;
-    uint8_t *tmp_string;
+    const char *tmp_string;
     unsigned str_size;
     uint16_t count;
     uint8_t digitech_helper;
@@ -1014,7 +1014,7 @@ dissect_digitech_procedure(uint8_t procedure, const int offset,
 
             while ((count > 0) && (str_size = tvb_strsize(data_tvb, data_offset)))
             {
-                tmp_string = tvb_get_string_enc(pinfo->pool, data_tvb, data_offset, str_size - 1, ENC_ASCII);
+                tmp_string = (char*)tvb_get_string_enc(pinfo->pool, data_tvb, data_offset, str_size - 1, ENC_ASCII);
                 proto_tree_add_string(tree, hf_digitech_preset_name, data_tvb, data_offset, str_size, tmp_string);
                 data_offset += (int)str_size;
                 count--;
@@ -1038,7 +1038,7 @@ dissect_digitech_procedure(uint8_t procedure, const int offset,
 
             /* Preset name (NULL-terminated) */
             str_size = tvb_strsize(data_tvb, data_offset);
-            tmp_string = tvb_get_string_enc(pinfo->pool, data_tvb, data_offset, str_size - 1, ENC_ASCII);
+            tmp_string = (char*)tvb_get_string_enc(pinfo->pool, data_tvb, data_offset, str_size - 1, ENC_ASCII);
             proto_tree_add_string(tree, hf_digitech_preset_name, data_tvb, data_offset, str_size, tmp_string);
             data_offset += (int)str_size;
 

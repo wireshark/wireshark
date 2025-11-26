@@ -82,8 +82,8 @@ dissect_rdpear_ber_packageName(bool implicit_tag, tvbuff_t *tvb, int offset, asn
 
 	rcg->lastPackage = RCG_PACKAGE_UNKNOWN;
 	if (packageName) {
-		char kerb[] = {'K', 0, 'e', 0, 'r', 0, 'b', 0, 'e', 0, 'r', 0, 'o', 0, 's', 0 };
-		char ntlm[] = {'N', 0, 'T', 0, 'L', 0, 'M', 0 };
+		uint8_t kerb[] = {'K', 0, 'e', 0, 'r', 0, 'b', 0, 'e', 0, 'r', 0, 'o', 0, 's', 0 };
+		uint8_t ntlm[] = {'N', 0, 'T', 0, 'L', 0, 'M', 0 };
 
 		if (tvb_memeql(packageName, 0, kerb, sizeof(kerb)) == 0)
 			rcg->lastPackage = RCG_PACKAGE_KERBEROS;

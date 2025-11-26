@@ -504,11 +504,11 @@ dissect_wmio_encoded_string(tvbuff_t *tvb, int offset, int hfindex, packet_info 
         if (encoded_string_flags == 0){
             /* ASCII */
             proto_tree_add_item_ret_length(sub_tree, hfindex, tvb, offset, -1, ENC_ASCII, &fn_len);
-            s = tvb_get_string_enc(pinfo->pool, tvb, offset, fn_len, ENC_ASCII);
+            s = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, fn_len, ENC_ASCII);
         } else if (encoded_string_flags == 1){
             /* UNICODE */
             proto_tree_add_item_ret_length(sub_tree, hfindex, tvb, offset, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN, &fn_len);
-            s = tvb_get_string_enc(pinfo->pool, tvb, offset, fn_len, ENC_UTF_16);
+            s = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, fn_len, ENC_UTF_16);
         }
         offset += fn_len;
 

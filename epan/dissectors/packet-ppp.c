@@ -2407,7 +2407,7 @@ dissect_lcp_auth_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 {
     proto_tree *field_tree;
     proto_item *tf;
-    uint32_t id_len;
+    int id_len;
     int offset = 0;
     int length;
 
@@ -2419,7 +2419,7 @@ dissect_lcp_auth_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree_add_item_ret_length(field_tree, hf_lcp_opt_id, tvb, offset, 1, ENC_BIG_ENDIAN, &id_len);
 
     length = tvb_reported_length_remaining(tvb, offset);
-    if ((int)id_len < length) {
+    if (id_len < length) {
         length -= id_len;
         offset += id_len;
         proto_tree_add_item(field_tree, hf_lcp_opt_data, tvb, offset,
@@ -4516,7 +4516,7 @@ dissect_vsncp_apname_opt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         while (i < (length - 2)) {
             lengthofapn = tvb_get_uint8(tvb, off++);
             proto_tree_add_string_format(field_tree, hf_vsncp_access_point_name, tvb, off, lengthofapn,
-                tvb_get_string_enc(pinfo->pool, tvb, off, lengthofapn, ENC_ASCII),
+                (char*)tvb_get_string_enc(pinfo->pool, tvb, off, lengthofapn, ENC_ASCII),
                 "Label%d (%d byte%s): %s", j++, lengthofapn,
                 plurality(lengthofapn, "", "s"),
                 tvb_format_text(pinfo->pool, tvb, off, lengthofapn));

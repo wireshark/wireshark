@@ -510,7 +510,7 @@ t30_get_string_numbers(wmem_allocator_t *pool, tvbuff_t *tvb, int offset, int le
     buf[LENGTH_T30_NUM] = '\0';
 
     char *s = g_strstrip(buf);
-    return get_utf_8_string(pool, s, (int)strlen(s));
+    return (char*)get_utf_8_string(pool, (uint8_t*)s, (int)strlen(s));
 
 }
 
@@ -651,8 +651,7 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     proto_tree_add_uint(tree, hf_t30_partial_page_request_frame_count, tvb, offset, 1, frame_count);
     if (buf_top > buf+1) {
         buf_top[-2] = '\0';
-        proto_tree_add_string_format_value(tree, hf_t30_partial_page_request_frames, tvb, start_offset, offset - start_offset,
-                                     buf, "%s", buf);
+        proto_tree_add_string(tree, hf_t30_partial_page_request_frames, tvb, start_offset, offset - start_offset, buf);
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - %d frames", frame_count);

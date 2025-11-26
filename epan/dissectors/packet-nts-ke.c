@@ -248,8 +248,8 @@ nts_cookie_t*
 nts_new_cookie(tvbuff_t *tvb, uint16_t aead, packet_info *pinfo)
 {
     unsigned int cookie_len = tvb_reported_length(tvb);
-    unsigned char *key_c2s = (char *)wmem_alloc0(pinfo->pool, NTS_KE_TLS13_KEY_MAX_LEN);
-    unsigned char *key_s2c = (char *)wmem_alloc0(pinfo->pool, NTS_KE_TLS13_KEY_MAX_LEN);
+    uint8_t *key_c2s = (uint8_t *)wmem_alloc0(pinfo->pool, NTS_KE_TLS13_KEY_MAX_LEN);
+    uint8_t *key_s2c = (uint8_t *)wmem_alloc0(pinfo->pool, NTS_KE_TLS13_KEY_MAX_LEN);
     uint8_t *tvb_bytes;
     nts_cookie_t *cookie;
     uint32_t strong_hash;

@@ -784,7 +784,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	/* Note that str can contain embedded nulls. Length claims any bytes partially used.  */
 	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), BLEN(old_offset, offset), str);
 	if (value_tvb) {
-		*value_tvb = tvb_new_child_real_data(tvb, str, str_len, str_len);
+		*value_tvb = tvb_new_child_real_data(tvb, (const uint8_t*)str, str_len, str_len);
 	}
 	return offset;
 }

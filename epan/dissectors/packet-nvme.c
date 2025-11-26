@@ -3759,7 +3759,7 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
 {
     proto_tree *cmd_tree;
     proto_item *ti;
-    const uint8_t *str_opcode;
+    const char *str_opcode;
     uint32_t off;
 
     off = (PINFO_FD_VISITED(pinfo)) ? nvme_lookup_data_tr_off(q_ctx, pinfo->num) : cmd_ctx->tr_bytes;

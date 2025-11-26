@@ -5435,7 +5435,7 @@ add_post_variable (proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned
     char *variableBuffer;
     char *valueBuffer;
 
-    variableBuffer = tvb_get_string_enc(pinfo->pool, tvb, variableStart, variableLength, ENC_ASCII);
+    variableBuffer = (char*)tvb_get_string_enc(pinfo->pool, tvb, variableStart, variableLength, ENC_ASCII);
 
     if (valueEnd < valueStart)
     {
@@ -5446,7 +5446,7 @@ add_post_variable (proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, unsigned
     else
     {
         valueLength = valueEnd-valueStart;
-        valueBuffer = tvb_get_string_enc(pinfo->pool, tvb, valueStart, valueLength, ENC_ASCII);
+        valueBuffer = (char*)tvb_get_string_enc(pinfo->pool, tvb, valueStart, valueLength, ENC_ASCII);
     }
 
     /* Check for variables with no value */

@@ -352,7 +352,7 @@ static uint16_t
 de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
     unsigned   name_len;
-    uint8_t *fqdn = NULL;
+    char *fqdn = NULL;
 
     /* The MME name information element specifies the MME name and is coded as shown in figure 9.4.13.1. Octets 3
      * through n contain the name in the form of a fully qualified domain name (FQDN) as specified in 3GPP TS 23.003 [3].
@@ -363,9 +363,9 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint3
         name_len = tvb_get_uint8(tvb, offset);
 
         if (name_len < 0x20) {
-            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_APN_STR);
+            fqdn = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_APN_STR);
         } else{
-            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
+            fqdn = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
         }
         proto_tree_add_string(tree, hf_sgsap_mme_name, tvb, offset, len, fqdn);
         if (add_string)
@@ -547,7 +547,7 @@ static uint16_t
 de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
 {
     unsigned  name_len;
-    uint8_t *fqdn = NULL;
+    char *fqdn = NULL;
 
     /* The VLR name information element specifies the VLR name and is coded as shown in figure 9.4.22.1.
      * Octets 3 through n contain the VLR name in the form of a fully qualified domain name (FQDN)
@@ -557,9 +557,9 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint3
         name_len = tvb_get_uint8(tvb, offset);
 
         if (name_len < 0x20) {
-            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_APN_STR);
+            fqdn = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_APN_STR);
         } else{
-            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
+            fqdn = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
         }
         proto_tree_add_string(tree, hf_sgsap_vlr_name, tvb, offset, len, fqdn);
         if (add_string)
