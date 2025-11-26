@@ -125,9 +125,9 @@ ws_pipe_create_overlapped_read(HANDLE *read_pipe_handle, HANDLE *write_pipe_hand
                                SECURITY_ATTRIBUTES *sa, DWORD suggested_buffer_size)
 {
     HANDLE read_pipe, write_pipe;
-    unsigned char *name = ws_strdup_printf("\\\\.\\Pipe\\WiresharkWsPipe.%08lx.%08lx",
+    char *name = ws_strdup_printf("\\\\.\\Pipe\\WiresharkWsPipe.%08lx.%08lx",
                                    GetCurrentProcessId(),
-                                   InterlockedIncrement(&pipe_serial_number));
+                                   InterlockedIncrement((LONG*)&pipe_serial_number));
     gunichar2 *wname = g_utf8_to_utf16(name, -1, NULL, NULL, NULL);
 
     g_free(name);

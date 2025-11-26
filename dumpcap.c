@@ -313,7 +313,7 @@ typedef struct _capture_src {
     size_t                       cap_pipe_databuf_size;  /**< Current size of the data buffer */
     unsigned                     cap_pipe_max_pkt_size;  /**< Maximum packet size allowed */
 #if defined(_WIN32)
-    char *                       cap_pipe_buf;           /**< Pointer to the buffer we read into */
+    uint8_t*                     cap_pipe_buf;           /**< Pointer to the buffer we read into */
     DWORD                        cap_pipe_bytes_to_read; /**< Used by cap_pipe_dispatch */
     DWORD                        cap_pipe_bytes_read;    /**< Used by cap_pipe_dispatch */
 #else
@@ -1622,7 +1622,7 @@ static void *cap_thread_read(void *arg)
 void
 pipe_read_sync(capture_src *pcap_src, void *buf, DWORD nbytes)
 {
-    pcap_src->cap_pipe_buf = (char *) buf;
+    pcap_src->cap_pipe_buf = (uint8_t *) buf;
     pcap_src->cap_pipe_bytes_read = 0;
     pcap_src->cap_pipe_bytes_to_read = nbytes;
     /* We don't have to worry about cap_pipe_read_mtx here */
@@ -2639,7 +2639,7 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
             pcap_src->cap_pipe_bytes_read = 0;
 
 #ifdef _WIN32
-            pcap_src->cap_pipe_buf = (char *) &pcap_info->rechdr;
+            pcap_src->cap_pipe_buf = (uint8_t *) &pcap_info->rechdr;
             g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
             g_mutex_unlock(pcap_src->cap_pipe_read_mtx);
         }
