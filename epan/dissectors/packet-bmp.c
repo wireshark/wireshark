@@ -646,6 +646,7 @@ static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, int offset, pack
             case BMPv4_TLV_TYPE_VRF_TABLE_NAME: {
                 proto_item *ti = proto_tree_add_item(tlv_tree, hf_bmpv4_tlv_value_string, tvb, offset, tlv.length,
                                                    ENC_ASCII);
+                offset += tlv.length;
 
                 if (tlv.length == 0 || tlv.length > BMPv4_TLV_LENGTH_VRF_TABLE_NAME_MAX_LENGTH) {
                     expert_add_info(pinfo, ti, &ei_bmpv4_tlv_string_bad_length);
@@ -670,7 +671,9 @@ static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, int offset, pack
                 proto_item *ti = proto_tree_add_item(tlv_tree, hf_bmpv4_tlv_value_bytes, tvb, offset, tlv.length, ENC_NA);
                 proto_tree *subtree = proto_item_add_subtree(ti, ett_bmpv4_tlv_value);
 
-                call_dissector(dissector_bgp, tvb_new_subset_length(tvb, offset, tlv.length), pinfo, subtree);
+                const int consumed = call_dissector(dissector_bgp, tvb_new_subset_length(tvb, offset, tlv.length), pinfo, subtree);
+                offset += consumed;
+
                 break;
             }
             default:
@@ -2121,7 +2124,7 @@ proto_register_bmp(void)
         },
         { &ei_bmpv4_tlv_not_fully_parsed,
           { "bmp.tlv.not_fully_parsed", PI_MALFORMED, PI_ERROR,
-            "Bad string length (should be in range [1; 255])", EXPFILL }
+            "TLV not fully parsed", EXPFILL }
         },
     };
 
