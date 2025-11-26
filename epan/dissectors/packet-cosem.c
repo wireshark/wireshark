@@ -2078,8 +2078,9 @@ static int dlms_get_type_description_length(tvbuff_t* tvb, packet_info* pinfo, i
     else if (choice == 2) { // structure
         int end_offset = offset + 1;
         unsigned sequence_of = dlms_get_length(tvb, &end_offset);
-        while (sequence_of--) {
+        while (sequence_of != 0) {
             end_offset += dlms_get_type_description_length(tvb, pinfo, end_offset);
+            sequence_of--;
         }
         pinfo->dissection_depth -= 2;
         decrement_dissection_depth(pinfo);
@@ -2116,12 +2117,13 @@ static proto_item* dlms_dissect_compact_array_content(tvbuff_t* tvb, packet_info
         }
     }
     else if (choice == 2) { /* structure */
-        uint32_t elements = dlms_get_length(tvb, &description_offset);
+        unsigned elements = dlms_get_length(tvb, &description_offset);
         proto_item_set_text(item, "Structure");
         subtree = proto_item_add_subtree(item, ett_dlms_composite_data);
-        while (elements--) {
+        while (elements != 0) {
             dlms_dissect_compact_array_content(tvb, pinfo, subtree, description_offset, content_offset);
             description_offset += dlms_get_type_description_length(tvb, pinfo, description_offset);
+            elements--;
         }
     }
     else { /* planar type */
