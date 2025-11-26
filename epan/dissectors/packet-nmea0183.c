@@ -14,6 +14,10 @@
 #include <epan/expert.h>
 
 
+/*
+ * null-terminated sentence prefix string "UdPbC"
+ */
+#define UDPBC "UdPbC"
 
 static int hf_nmea0183_talker_id;
 static int hf_nmea0183_sentence_id;
@@ -27,6 +31,15 @@ static int hf_nmea0183_dpt_max_range;
 
 static int hf_nmea0183_hdt_heading;
 static int hf_nmea0183_hdt_unit;
+
+static int hf_nmea0183_alr_time;
+static int hf_nmea0183_alr_time_hour;
+static int hf_nmea0183_alr_time_minute;
+static int hf_nmea0183_alr_time_second;
+static int hf_nmea0183_alr_alarm_id;
+static int hf_nmea0183_alr_alarm_cond;
+static int hf_nmea0183_alr_alarm_ack_st;
+static int hf_nmea0183_alr_alarm_desc_txt;
 
 static int hf_nmea0183_gga_time;
 static int hf_nmea0183_gga_time_hour;
@@ -79,6 +92,10 @@ static int hf_nmea0183_gst_altitude_sd;
 
 static int hf_nmea0183_rot_rate_of_turn;
 static int hf_nmea0183_rot_valid;
+static int hf_nmea0183_txt_num;
+static int hf_nmea0183_txt_sent_num;
+static int hf_nmea0183_txt_id;
+static int hf_nmea0183_txt_msg;
 
 static int hf_nmea0183_vbw_water_speed_longitudinal;
 static int hf_nmea0183_vbw_water_speed_transverse;
@@ -129,10 +146,14 @@ static int hf_nmea0183_zda_date_year;
 static int hf_nmea0183_zda_local_zone_hour;
 static int hf_nmea0183_zda_local_zone_minute;
 
+static int hf_nmea0183_sentence_prefix;
+static int hf_nmea0183_tag_block;
+
 static int ett_nmea0183;
 static int ett_nmea0183_checksum;
 static int ett_nmea0183_sentence;
 static int ett_nmea0183_zda_time;
+static int ett_nmea0183_alr_time;
 static int ett_nmea0183_gga_time;
 static int ett_nmea0183_gga_latitude;
 static int ett_nmea0183_gga_longitude;
@@ -140,6 +161,7 @@ static int ett_nmea0183_gll_time;
 static int ett_nmea0183_gll_latitude;
 static int ett_nmea0183_gll_longitude;
 static int ett_nmea0183_gst_time;
+static int ett_nmea0183_tag_block;
 
 static expert_field ei_nmea0183_invalid_first_character;
 static expert_field ei_nmea0183_missing_checksum_character;
@@ -309,10 +331,12 @@ static const string_string known_sentence_ids[] = {
     {"ALA", "Set Detail Alarm Condition"},
     {"ALM", "GPS Almanac Data"},
     {"ALR", "Set Alarm State"},
+    {"ARC", "Alert Command Refused"},
     {"APA", "Autopilot Sentence A"},
     {"APB", "Autopilot Sentence B"},
     {"ASD", "Autopilot System Data"},
     {"ASN", "Preparation and Initiation of an AIS Base Station Broadcast of Assignment VDL (Message 16)"},
+    {"BBM", "AIS Broadcast BinaryMessage"},
     {"BCG", "Base Station Configuration, General Command"},
     {"BCL", "Base Station Configuration, Location Command"},
     {"BEC", "Bearing & Distance to Waypoint - Dead Reckoning"},
@@ -1273,8 +1297,10 @@ dissect_nmea0183_field_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Dissect a single field containing a dimensionless value. Returns length including separator */
 static int
-dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf, const char *suffix)
+dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf, const char *suffix, const string_string *str_str)
 {
+    const uint8_t* field_str = NULL;
+
     if (offset > (int)tvb_captured_length(tvb))
     {
         proto_tree_add_missing_field(tree, pinfo, hf, tvb, tvb_captured_length(tvb));
@@ -1283,7 +1309,7 @@ dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
     proto_item *ti = NULL;
     int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
-    ti = proto_tree_add_item(tree, hf, tvb, offset, end_of_field_offset - offset, ENC_ASCII);
+    ti = proto_tree_add_item_ret_string(tree, hf, tvb, offset, end_of_field_offset - offset,  ENC_ASCII, pinfo->pool, &field_str);
     if (end_of_field_offset - offset == 0)
     {
         proto_item_append_text(ti, "[empty]");
@@ -1291,6 +1317,9 @@ dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     else if (suffix != NULL)
     {
         proto_item_append_text(ti, " %s", suffix);
+    }
+    if ((str_str)&&(field_str)) {
+        proto_item_append_text(ti, " - %s", str_to_str_wmem(pinfo->pool, field_str, str_str, " "));
     }
     return end_of_field_offset - offset + 1;
 }
@@ -1540,6 +1569,46 @@ dissect_nmea0183_field_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return end_of_field_offset - offset + 1;
 }
 
+/* Dissect a ALR sentence. */
+/*
+ * $--ALR,hhmmss.ss,xxx,A,A,c--c*hh<CR><LF>
+*/
+static const string_string alarm_condition_str[] = {
+    {"A", "Threshold exceeded"},
+    {"V", "Threshold not exceeded"},
+    { NULL, NULL},
+};
+
+static const string_string alarm_ack_state_str[] = {
+    {"A", "Acknowledged"},
+    {"V", "Unacknowledged"},
+    { NULL, NULL},
+};
+
+static int
+dissect_nmea0183_sentence_alr(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
+{
+    int offset = 0;
+
+    proto_tree* subtree = proto_tree_add_subtree(tree, tvb, offset,
+        tvb_captured_length(tvb), ett_nmea0183_sentence, NULL, "ALR sentence - Set Alarm State");
+
+    /* hhmmss.ss */
+    offset += dissect_nmea0183_field_time(tvb, pinfo, subtree, offset, hf_nmea0183_alr_time,
+        hf_nmea0183_alr_time_hour, hf_nmea0183_alr_time_minute,
+        hf_nmea0183_alr_time_second, ett_nmea0183_alr_time);
+    /* xxx Unique alarm number (identifier) at alarm source */
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_alr_alarm_id, NULL, NULL);
+    /* Alarm condition (A = threshold exceeded, V = not exceeded)  */
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_alr_alarm_cond, NULL, alarm_condition_str);
+    /* Alarm’s acknowledge state, A= acknowledged, V= unacknowledged*/
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_alr_alarm_ack_st, NULL, alarm_ack_state_str);
+    /* c--c Alarm’s description text*/
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_alr_alarm_desc_txt, NULL, NULL);
+
+    return tvb_captured_length(tvb);
+}
+
 /* Dissect a DPT sentence. */
 static int
 dissect_nmea0183_sentence_dpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1549,11 +1618,11 @@ dissect_nmea0183_sentence_dpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree *subtree = proto_tree_add_subtree(tree, tvb, offset,
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence, NULL, "DPT sentence - Depth of Water");
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_dpt_depth, "meter");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_dpt_depth, "meter", NULL);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_dpt_offset, "meter");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_dpt_offset, "meter", NULL);
 
-    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_dpt_max_range, "meter");
+    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_dpt_max_range, "meter", NULL);
 
     return tvb_captured_length(tvb);
 }
@@ -1582,23 +1651,23 @@ dissect_nmea0183_sentence_gga(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     offset += dissect_nmea0183_field_gps_quality(tvb, pinfo, subtree, offset, hf_nmea0183_gga_quality);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_number_satellites, NULL);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_number_satellites, NULL, NULL);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_horizontal_dilution, "meter");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_horizontal_dilution, "meter", NULL);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_altitude, "meter");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_altitude, "meter", NULL);
 
     offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_gga_altitude_unit,
                                                 "M", &ei_nmea0183_gga_altitude_unit_incorrect);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_geoidal_separation, "meter");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_geoidal_separation, "meter", NULL);
 
     offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_gga_geoidal_separation_unit,
                                                 "M", &ei_nmea0183_gga_geoidal_separation_unit_incorrect);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_age_dgps, "second");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_age_dgps, "second", NULL);
 
-    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_dgps_station, NULL);
+    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gga_dgps_station, NULL, NULL);
 
     return tvb_captured_length(tvb);
 }
@@ -1646,15 +1715,15 @@ dissect_nmea0183_sentence_gst(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                           hf_nmea0183_gst_time_hour, hf_nmea0183_gst_time_minute,
                                           hf_nmea0183_gst_time_second, ett_nmea0183_gst_time);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_rms_total_sd, "");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_rms_total_sd, NULL, NULL);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_ellipse_major_sd, "meter");
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_ellipse_minor_sd, "meter");
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_ellipse_orientation, "degree (true north)");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_ellipse_major_sd, "meter", NULL);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_ellipse_minor_sd, "meter", NULL);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_ellipse_orientation, "degree (true north)", NULL);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_latitude_sd, "meter");
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_longitude_sd, "meter");
-    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_altitude_sd, "meter");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_latitude_sd, "meter", NULL);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_longitude_sd, "meter", NULL);
+    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_gst_altitude_sd, "meter", NULL);
 
     return tvb_captured_length(tvb);
 }
@@ -1669,7 +1738,7 @@ dissect_nmea0183_sentence_hdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
                                                  NULL, "HDT sentence - True Heading");
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_hdt_heading, "degree");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_hdt_heading, "degree", NULL);
 
     dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_hdt_unit,
                                       "T", &ei_nmea0183_hdt_unit_incorrect);
@@ -1687,12 +1756,35 @@ dissect_nmea0183_sentence_rot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
                                                  NULL, "ROT sentence - Rate Of Turn");
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_rot_rate_of_turn, "degree per minute");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_rot_rate_of_turn, "degree per minute", NULL);
 
     dissect_nmea0183_field_status(tvb, pinfo, subtree, offset, hf_nmea0183_rot_valid);
 
     return tvb_captured_length(tvb);
 }
+
+/* Dissect a TXT sentence */
+static int
+dissect_nmea0183_sentence_txt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
+{
+    int offset = 0;
+
+    proto_tree* subtree = proto_tree_add_subtree(tree, tvb, offset,
+        tvb_captured_length(tvb), ett_nmea0183_sentence,
+        NULL, "TXT sentence - Text Transmission");
+
+    /* Total number of sentences, 01 to 99  */
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_txt_num, NULL, NULL);
+    /* Sentence number */
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_txt_sent_num, NULL, NULL);
+    /* Text identifier */
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_txt_id, NULL, NULL);
+    /* Text message */
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_txt_msg, NULL, NULL);
+
+    return tvb_captured_length(tvb);
+}
+
 
 /* Dissect a VHW sentence. */
 static int
@@ -1704,22 +1796,22 @@ dissect_nmea0183_sentence_vhw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
                                                  NULL, "VHW sentence - Water speed and heading");
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_true_heading, "degree");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_true_heading, "degree", NULL);
 
     offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_true_heading_unit,
                                                 "T", &ei_nmea0183_vhw_true_heading_unit_incorrect);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_magnetic_heading, "degree");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_magnetic_heading, "degree", NULL);
 
     offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_magnetic_heading_unit,
                                                 "M", &ei_nmea0183_vhw_magnetic_heading_unit_incorrect);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_water_speed_knot, "knot");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_water_speed_knot, "knot", NULL);
 
     offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_water_speed_knot_unit,
                                                 "N", &ei_nmea0183_vhw_water_speed_knot_unit_incorrect);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_water_speed_kilometer, "kilometer per hour");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_water_speed_kilometer, "kilometer per hour", NULL);
 
     dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vhw_water_speed_kilometer_unit,
                                       "K", &ei_nmea0183_vhw_water_speed_kilometer_unit_incorrect);
@@ -1737,18 +1829,18 @@ dissect_nmea0183_sentence_vbw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
                                                  NULL, "VBW sentence - Dual Ground/Water Speed");
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_water_speed_longitudinal, "knot");
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_water_speed_transverse, "knot");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_water_speed_longitudinal, "knot", NULL);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_water_speed_transverse, "knot", NULL);
     offset += dissect_nmea0183_field_status(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_water_speed_valid);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_ground_speed_longitudinal, "knot");
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_ground_speed_transverse, "knot");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_ground_speed_longitudinal, "knot", NULL);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_ground_speed_transverse, "knot", NULL);
     offset += dissect_nmea0183_field_status(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_ground_speed_valid);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_stern_water_speed, "knot");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_stern_water_speed, "knot", NULL);
     offset += dissect_nmea0183_field_status(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_stern_water_speed_valid);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_stern_ground_speed, "knot");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_stern_ground_speed, "knot", NULL);
     dissect_nmea0183_field_status(tvb, pinfo, subtree, offset, hf_nmea0183_vbw_stern_ground_speed_valid);
 
     return tvb_captured_length(tvb);
@@ -1764,22 +1856,22 @@ dissect_nmea0183_sentence_vlw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
                                                  NULL, "VLW sentence - Distance Traveled through Water");
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_cumulative_water, "nautical miles");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_cumulative_water, "nautical miles", NULL);
 
     offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_cumulative_water_unit,
                                                 "N", &ei_nmea0183_vlw_cumulative_water_unit_incorrect);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_trip_water, "nautical miles");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_trip_water, "nautical miles", NULL);
 
     offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_trip_water_unit,
                                                 "N", &ei_nmea0183_vlw_trip_water_unit_incorrect);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_cumulative_ground, "nautical miles");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_cumulative_ground, "nautical miles", NULL);
 
     offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_cumulative_ground_unit,
                                                 "N", &ei_nmea0183_vlw_cumulative_ground_unit_incorrect);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_trip_ground, "nautical miles");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_trip_ground, "nautical miles", NULL);
 
     dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vlw_trip_ground_unit,
                                       "N", &ei_nmea0183_vlw_trip_ground_unit_incorrect);
@@ -1797,22 +1889,22 @@ dissect_nmea0183_sentence_vtg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                                  tvb_captured_length(tvb), ett_nmea0183_sentence,
                                                  NULL, "VTG sentence - Track made good and Ground speed");
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vtg_true_course, "degree");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vtg_true_course, "degree", NULL);
 
     offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vtg_true_course_unit,
                                                 "T", &ei_nmea0183_vtg_true_course_unit_incorrect);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vtg_magnetic_course, "degree");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vtg_magnetic_course, "degree", NULL);
 
     offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vtg_magnetic_course_unit,
                                                 "M", &ei_nmea0183_vtg_magnetic_course_unit_incorrect);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vtg_ground_speed_knot, "knot");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vtg_ground_speed_knot, "knot", NULL);
 
     offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vtg_ground_speed_knot_unit,
                                                 "N", &ei_nmea0183_vtg_ground_speed_knot_unit_incorrect);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vtg_ground_speed_kilometer, "kilometer per hour");
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_vtg_ground_speed_kilometer, "kilometer per hour", NULL);
 
     offset += dissect_nmea0183_field_fixed_text(tvb, pinfo, subtree, offset, hf_nmea0183_vtg_ground_speed_kilometer_unit,
                                                 "K", &ei_nmea0183_vtg_ground_speed_kilometer_unit_incorrect);
@@ -1835,15 +1927,15 @@ dissect_nmea0183_sentence_zda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                           hf_nmea0183_zda_time_hour, hf_nmea0183_zda_time_minute,
                                           hf_nmea0183_zda_time_second, ett_nmea0183_zda_time);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_day, NULL);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_day, NULL, NULL);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_month, NULL);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_month, NULL, NULL);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_year, NULL);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_date_year, NULL, NULL);
 
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_local_zone_hour, NULL);
+    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_local_zone_hour, NULL, NULL);
 
-    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_local_zone_minute, NULL);
+    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_zda_local_zone_minute, NULL, NULL);
 
     return tvb_captured_length(tvb);
 }
@@ -1873,10 +1965,33 @@ dissect_nmea0183_sentence_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     return tvb_captured_length(tvb);
 }
 
+
+/* <tag block 1>,<tagblock2>, … <tagblock n>*<tagblocks CS> */
+//static void
+//dissect_nmea0183_tag_block(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
+//{
+//    int offset = 0, chk_sum_off, comma_off;
+//
+//    chk_sum_off = tvb_find_uint8(tvb, offset, -1, '*');
+//    if (chk_sum_off == -1) {
+//        /* No checksum ??*/
+//        return;
+//    }
+//    while (offset < chk_sum_off) {
+//        comma_off = tvb_find_uint8(tvb, offset, -1, ',');
+//        if (comma_off == -1) {
+//
+//        }
+//
+//    }
+//
+//}
+
 static int
 dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
+    int start_offset;
     int start_checksum_offset = 0;
     const uint8_t *talker_id = NULL;
     const uint8_t *sentence_id = NULL;
@@ -1890,6 +2005,32 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_item *ti = proto_tree_add_item(tree, proto_nmea0183, tvb, 0, -1, ENC_NA);
     proto_tree *nmea0183_tree = proto_item_add_subtree(ti, ett_nmea0183);
 
+    /* UdPbC\<tag block 1>,<tagblock2>, … <tagblock n>*<tagblocks CS>\<NMEA message>*/
+    if (tvb_memeql(tvb, 0, UDPBC, sizeof(UDPBC)) == 0) {
+        proto_tree_add_item(nmea0183_tree, hf_nmea0183_sentence_prefix, tvb, offset, 6, ENC_ASCII);
+        offset += 6;
+        start_offset = offset;
+        offset = tvb_find_uint8(tvb, offset, -1, '$');
+        if (offset == -1) {
+            offset = tvb_find_uint8(tvb, offset, -1, '!');
+        }if (offset == -1) {
+            offset = start_offset;
+        } else {
+            /* TAG block as defined in NMEA 0183 V.4.0. ????*/
+            /*ti = */proto_tree_add_item(nmea0183_tree, hf_nmea0183_tag_block, tvb, start_offset, offset-start_offset, ENC_ASCII);
+            //proto_tree* nmea0183_tree = proto_item_add_subtree(ti, ett_nmea0183_tag_block);
+            ///* look for "\" */
+            //start_delimiter = tvb_get_uint8(tvb, start_offset);
+            //if (start_delimiter == '\\') {
+            //    start_offset++;
+            //    int end_offset = tvb_find_uint8(tvb, start_offset, -1, '\\');
+            //    if (end_offset != -1) {
+            //        tvbuff_t* new_tvb = tvb_new_subset_length(tvb, start_offset, end_offset - start_offset);
+            //        dissect_nmea0183_tag_block(new_tvb, pinfo, nmea0183_tree);
+            //    }
+            //}
+        }
+    }
     /* Start delimiter */
     start_delimiter = tvb_get_uint8(tvb, offset);
     if ((start_delimiter != '$') && (start_delimiter != '!'))
@@ -1897,7 +2038,7 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         expert_add_info(pinfo, nmea0183_tree, &ei_nmea0183_invalid_first_character);
     }
     offset += 1;
-
+    start_offset = offset;
     /* Talker id */
     ti = proto_tree_add_item_ret_string(nmea0183_tree, hf_nmea0183_talker_id,
                                         tvb, offset, 2, ENC_ASCII,
@@ -1905,7 +2046,7 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     proto_item_append_text(ti, " (%s)", str_to_str_wmem(pinfo->pool, talker_id, known_talker_ids, "Unknown talker ID"));
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Talker %s", talker_id);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Talker %s", str_to_str_wmem(pinfo->pool, talker_id, known_talker_ids, "Unknown talker ID"));
 
     offset += 2;
 
@@ -1916,7 +2057,7 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     proto_item_append_text(ti, " (%s)", str_to_str_wmem(pinfo->pool, sentence_id, known_sentence_ids, "Unknown sentence ID"));
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", Sentence %s", sentence_id);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Sentence %s", str_to_str_wmem(pinfo->pool, sentence_id, known_sentence_ids, "Unknown sentence ID"));
 
     offset += 3;
 
@@ -1931,7 +2072,11 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     /* Data */
     offset += 1;
     tvbuff_t *data_tvb = tvb_new_subset_length(tvb, offset, start_checksum_offset - offset);
-    if (g_ascii_strcasecmp(sentence_id, "DPT") == 0)
+    if (g_ascii_strcasecmp(sentence_id, "ALR") == 0)
+    {
+        offset += dissect_nmea0183_sentence_alr(data_tvb, pinfo, nmea0183_tree);
+    }
+    else if (g_ascii_strcasecmp(sentence_id, "DPT") == 0)
     {
         offset += dissect_nmea0183_sentence_dpt(data_tvb, pinfo, nmea0183_tree);
     }
@@ -1954,6 +2099,10 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     else if (g_ascii_strcasecmp(sentence_id, "ROT") == 0)
     {
         offset += dissect_nmea0183_sentence_rot(data_tvb, pinfo, nmea0183_tree);
+    }
+    else if (g_ascii_strcasecmp(sentence_id, "TXT") == 0)
+    {
+        offset += dissect_nmea0183_sentence_txt(data_tvb, pinfo, nmea0183_tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "VBW") == 0)
     {
@@ -1987,7 +2136,11 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                                         pinfo->pool, &checksum);
 
     uint8_t received_checksum = (uint8_t)strtol(checksum, NULL, 16);
-    uint8_t calculated_checksum = calculate_checksum(tvb, 1, offset - 2);
+    uint8_t calculated_checksum;
+
+    //calculated_checksum  = calculate_checksum(tvb, 1, offset - 2);
+    calculated_checksum = calculate_checksum(tvb, start_offset, (offset - start_offset-1));
+
     if (received_checksum == calculated_checksum)
     {
         proto_item_append_text(ti, " [correct]");
@@ -2002,6 +2155,7 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_item *checksum_tree = proto_item_add_subtree(ti, ett_nmea0183_checksum);
     ti = proto_tree_add_uint(checksum_tree, hf_nmea0183_checksum_calculated,
                              tvb, offset, 2, calculated_checksum);
+
     proto_item_set_generated(ti);
 
     offset += 2;
@@ -2038,6 +2192,10 @@ static bool dissect_nmea0183_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
      * '*' delimeter byte, 2-bytes for checksum, and 2-bytes for EOM "\r\n" */
     if(tvb_reported_length(tvb) < 11 || tvb_captured_length(tvb) < 5){
         return false;
+    }
+    /* See if we have a UDP brodcast message */
+    if (tvb_memeql(tvb, 0, UDPBC, sizeof(UDPBC)) == 0) {
+        return true;
     }
     /* Grab the first byte and check the first character */
     sent_type = tvb_get_string_enc(pinfo->pool, tvb, 0, 1, ENC_ASCII);
@@ -2117,6 +2275,46 @@ void proto_register_nmea0183(void)
           FT_STRING, BASE_NONE,
           NULL, 0x0,
           "NMEA 0183 DPT Maximum range scale in use (NMEA 3.0 and above)", HFILL}},
+        {&hf_nmea0183_alr_time,
+         {"UTC Time of alarm condition change", "nmea0183.alr_time",
+          FT_NONE, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_alr_time_hour,
+         {"Hour", "nmea0183.alr_time_hour",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_alr_time_minute,
+         {"Minute", "nmea0183.alr_time_minute",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_alr_time_second,
+         {"Second", "nmea0183.alr_time_second",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_alr_alarm_id,
+         {"Alarm id", "nmea0183.alr_id",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_alr_alarm_cond,
+         {"Alarm condition", "nmea0183.alr_alarm_cond",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_alr_alarm_ack_st,
+         {"Alarm’s acknowledge state", "nmea0183.alr_alarm_ack_st",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
+        {&hf_nmea0183_alr_alarm_desc_txt,
+         {"Alarm’s description text", "nmea0183.alr_alarm_desc_txt",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL}},
         {&hf_nmea0183_gga_time,
          {"UTC Time of position", "nmea0183.gga_time",
           FT_NONE, BASE_NONE,
@@ -2362,6 +2560,26 @@ void proto_register_nmea0183(void)
           FT_STRING, BASE_NONE,
           NULL, 0x0,
           "NMEA 0183 ROT Rate Of Turn, degrees per minute, negative value means bow turns to port", HFILL}},
+        { &hf_nmea0183_txt_num,
+         {"Total number of sentences", "nmea0183.txt.num",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL} },
+        { &hf_nmea0183_txt_sent_num,
+         {"Sentence number", "nmea0183.txt.sent_num",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL} },
+        { &hf_nmea0183_txt_id,
+         {"Text identifier", "nmea0183.txt.id",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL} },
+        { &hf_nmea0183_txt_msg,
+         {"Text message", "nmea0183.txt.msg",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL} },
         {&hf_nmea0183_rot_valid,
          {"Validity", "nmea0183.rot_valid",
           FT_STRING, BASE_NONE,
@@ -2582,11 +2800,23 @@ void proto_register_nmea0183(void)
           FT_STRING, BASE_NONE,
           NULL, 0x0,
           NULL, HFILL}},
-        {&hf_nmea0183_zda_local_zone_minute,
+        { &hf_nmea0183_zda_local_zone_minute,
          {"Local zone minute", "nmea0183.zda_local_zone_minute",
           FT_STRING, BASE_NONE,
           NULL, 0x0,
-          NULL, HFILL}}};
+          NULL, HFILL}},
+        { &hf_nmea0183_sentence_prefix,
+         { "Sentence prefix", "nmea0183.sentence_prefix",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_nmea0183_tag_block,
+         { "Tag block", "nmea0183.sentence_prefix",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL }
+    },
+};
 
     /* Setup protocol subtree array */
     static int *ett[] = {
@@ -2594,13 +2824,16 @@ void proto_register_nmea0183(void)
         &ett_nmea0183_checksum,
         &ett_nmea0183_sentence,
         &ett_nmea0183_zda_time,
+        &ett_nmea0183_alr_time,
         &ett_nmea0183_gga_time,
         &ett_nmea0183_gga_latitude,
         &ett_nmea0183_gga_longitude,
         &ett_nmea0183_gll_time,
         &ett_nmea0183_gll_latitude,
         &ett_nmea0183_gll_longitude,
-        &ett_nmea0183_gst_time};
+        &ett_nmea0183_gst_time,
+        &ett_nmea0183_tag_block
+    };
 
     static ei_register_info ei[] = {
         {&ei_nmea0183_invalid_first_character,
