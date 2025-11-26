@@ -48,7 +48,7 @@ static int hf_tdmop_Compression_mask;
 
 static dissector_handle_t lapd_handle;
 
-static int pref_tdmop_d_channel      = 16;
+static unsigned pref_tdmop_d_channel      = 16;
 static uint32_t pref_tdmop_mask        = 0xFFFFFFFFUL;
 static uint32_t pref_tdmop_ethertype   = ETHERTYPE_TDMOP;
 
@@ -139,7 +139,6 @@ static int dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         {
             proto_tree *currentblock = proto_tree_add_subtree_format(tdmop_tree, tvb, 0, 0, ett_tdmop_channel, 0, "Block %d", blockid);
             uint32_t mask;
-            int i;
             int j;
             blockid++;
             mask = pref_tdmop_mask; /*default mask is for timeslots 1-32*/
@@ -150,7 +149,7 @@ static int dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 proto_tree_add_uint(currentblock, hf_tdmop_Compression_mask, tvb, offset, 4, mask);
                 offset+=4;
             }
-            for (i=0; i<32; i++)
+            for (unsigned i=0; i<32; i++)
             {
                 if (mask & (1UL<<i))
                 {

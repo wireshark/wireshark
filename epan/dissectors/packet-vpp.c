@@ -205,7 +205,7 @@ dissect_vpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     tvbuff_t *metadata_tvb, *opaque_tvb, *opaque2_tvb, *eth_tvb, *trace_tvb;
     int offset = 0;
     uint8_t major_version, minor_version, string_count, protocol_hint;
-    uint8_t *name;
+    char *name;
     unsigned len;
     uint8_t maybe_protocol_id;
     dissector_handle_t use_this_dissector;
@@ -278,7 +278,7 @@ dissect_vpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     /* Nodename */
     len = tvb_strsize(tvb, offset);
-    name = tvb_get_string_enc(pinfo->pool, tvb, offset, len,
+    name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len,
                               ENC_ASCII);
     proto_tree_add_string(tree, hf_vpp_nodename, tvb, offset, len, name);
     offset += len;

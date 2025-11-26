@@ -388,12 +388,12 @@ dissect_tacplus_args_list( tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, 
 {
 	int i;
 	int len;
-	uint8_t *value;
+	char *value;
 	for(i=0;i<arg_cnt;i++){
 		len=tvb_get_uint8(tvb,len_off+i);
 		proto_tree_add_uint_format(tree, hf_tacplus_arg_length, tvb, len_off+i, 1, len,
 									"Arg[%d] length: %d", i, len);
-		value=tvb_get_string_enc(pinfo->pool, tvb, data_off, len, ENC_ASCII|ENC_NA);
+		value=(char*)tvb_get_string_enc(pinfo->pool, tvb, data_off, len, ENC_ASCII|ENC_NA);
 		proto_tree_add_string_format(tree, hf_tacplus_arg_value, tvb, data_off, len, value,
 									"Arg[%d] value: %s", i, value);
 		data_off+=len;

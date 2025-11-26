@@ -166,7 +166,7 @@ dissect_synergy_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     if (tree) {
         int offset=0;
-        const uint8_t* packet_type;
+        const char* packet_type;
         proto_item *ti = NULL;
         proto_tree *synergy_tree = NULL;
         ti = proto_tree_add_protocol_format(tree, proto_synergy, tvb, 0, -1,"Synergy Protocol");
@@ -185,7 +185,7 @@ dissect_synergy_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         }
 
         /* No, so the first 4 bytes of the payload should be a packet type */
-        packet_type = tvb_get_string_enc(pinfo->pool, tvb, offset+4, 4, ENC_ASCII);
+        packet_type = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+4, 4, ENC_ASCII);
         proto_tree_add_string_format_value(synergy_tree,hf_synergy_packet_type,tvb,offset+4,4, packet_type, "%s (%s)", str_to_str_wmem(pinfo->pool, packet_type, packet_type_vals, "Unknown"), packet_type);
 
         if(strncmp(packet_type,"CNOP",4)==0) {

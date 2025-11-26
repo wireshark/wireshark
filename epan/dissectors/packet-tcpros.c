@@ -90,9 +90,9 @@ dissect_ros_connection_header_field(tvbuff_t *tvb, proto_tree *tree, packet_info
 
 		/** If we find a separator, then split field name and value */
 		if( sep > 0 ) {
-			const uint8_t* field;
+			const char* field;
 			field_tree = proto_item_add_subtree(ti, ett_tcpros);
-			proto_tree_add_item_ret_string(field_tree, hf_tcpros_connection_header_field_name, tvb, offset, sep, ENC_UTF_8|ENC_NA, pinfo->pool, &field);
+			proto_tree_add_item_ret_string(field_tree, hf_tcpros_connection_header_field_name, tvb, offset, sep, ENC_UTF_8|ENC_NA, pinfo->pool, (const uint8_t**)&field);
 			proto_tree_add_item(field_tree, hf_tcpros_connection_header_field_value, tvb, offset+sep+1, fLen - sep - 1, ENC_UTF_8);
 
 			col_append_str(pinfo->cinfo, COL_INFO, field);

@@ -2797,7 +2797,7 @@ static const value_string param_subcategory_vals[] = {
 static inline const char *format_param_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int len) {
     char *param_str;
 
-    param_str = tvb_get_string_enc(scope, tvb, offset, len, ENC_UTF_8|ENC_NA);
+    param_str = (char*)tvb_get_string_enc(scope, tvb, offset, len, ENC_UTF_8|ENC_NA);
 
     if (len < 2) {
         return param_str;

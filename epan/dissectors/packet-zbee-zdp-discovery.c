@@ -1026,7 +1026,7 @@ dissect_zbee_zdp_rsp_user_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
     else user_length = 0;
 
-    user = tvb_get_string_enc(pinfo->pool, tvb, offset, user_length, ENC_ASCII);
+    user = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, user_length, ENC_ASCII);
     if (tree) {
         proto_tree_add_string(tree, hf_zbee_zdp_user, tvb, offset, user_length, user);
     }

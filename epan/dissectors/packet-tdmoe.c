@@ -41,7 +41,7 @@ static int ett_tdmoe_flags;
 
 static dissector_handle_t lapd_handle;
 
-static int pref_tdmoe_d_channel = 24;
+static unsigned pref_tdmoe_d_channel = 24;
 
 static int
 dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -53,7 +53,6 @@ dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	uint16_t    subaddress;
 	int32_t offset = 0;
 	static int * const flags[] = { &hf_tdmoe_yellow_alarm, &hf_tdmoe_sig_bits_present, NULL };
-	int         chan;
 
 	/* Check that there's enough data */
 	if (tvb_captured_length(tvb) < 8)
@@ -103,7 +102,7 @@ dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	}
 
 	/* The rest is SAMPLES * CHANNELS bytes of channel data */
-	for (chan = 1; chan <= channels; chan++) {
+	for (unsigned chan = 1; chan <= channels; chan++) {
 		next_client = tvb_new_subset_length(tvb, offset + ((chan - 1) * 8), 8);
 		if (chan == pref_tdmoe_d_channel) {
 			call_dissector(lapd_handle, next_client, pinfo, tree);

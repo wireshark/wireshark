@@ -345,9 +345,9 @@ add_cstring(ptvcursor_t* ptv, const int* hf) {
 
 static void
 add_string(ptvcursor_t* ptv, const int* hf) {
-    int32_t len = 0;
+    uint32_t len = 0;
     ptvcursor_add_ret_uint(ptv, hf_wow_string_length, 1, ENC_NA, &len);
-    ptvcursor_add(ptv, *hf, len, ENC_UTF_8);
+    ptvcursor_add(ptv, *hf, (int)len, ENC_UTF_8);
 }
 
 static unsigned

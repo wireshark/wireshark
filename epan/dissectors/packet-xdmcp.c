@@ -112,7 +112,7 @@ static int xdmcp_add_string(proto_tree *tree, packet_info* pinfo, int hf,
   unsigned len;
 
   len = tvb_get_ntohs(tvb, offset);
-  str = tvb_get_string_enc(pinfo->pool, tvb, offset+2, len, ENC_ASCII);
+  str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+2, len, ENC_ASCII);
   proto_tree_add_string(tree, hf, tvb, offset, len+2, str);
 
   return len+2;

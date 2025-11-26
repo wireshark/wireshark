@@ -39,7 +39,7 @@ typedef struct _whois_transaction_t {
     uint32_t req_frame;
     uint32_t rep_frame;
     nstime_t req_time;
-    uint8_t*  query;
+    char*  query;
 } whois_transaction_t;
 
 static int
@@ -75,7 +75,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         linelen = tvb_find_line_end(tvb, 0, -1, NULL, false);
         if (linelen != -1)
-            whois_trans->query = tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_ASCII|ENC_NA);
+            whois_trans->query = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_ASCII|ENC_NA);
         conversation_add_proto_data(conversation, proto_whois, whois_trans);
     }
 

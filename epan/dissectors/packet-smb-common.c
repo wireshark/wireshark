@@ -48,7 +48,7 @@ int display_ms_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
 	/* display a string from the tree and return the new offset */
 
-	str = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
+	str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
 	proto_tree_add_string(tree, hf_index, tvb, offset, len, str);
 
 	/* Return a copy of the string if requested */

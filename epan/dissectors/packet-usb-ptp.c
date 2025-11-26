@@ -235,7 +235,7 @@ usb_ptp_add_uint_string(packet_info* pinfo, proto_tree *tree, int hf, tvbuff_t *
     /* First byte is the number of characters in UCS-2, including the terminating NULL */
     length = tvb_get_uint8(tvb, offset) * 2;
     offset += 1;
-    str = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_LITTLE_ENDIAN | ENC_UCS_2);
+    str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_LITTLE_ENDIAN | ENC_UCS_2);
     proto_tree_add_string(tree, hf, tvb, offset, length, str);
     offset += length;
 

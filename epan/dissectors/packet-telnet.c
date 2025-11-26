@@ -746,7 +746,7 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
     if (len == 0) {
       proto_tree_add_string_format(tree, hf_telnet_comport_subopt_signature, tvb, offset, 1, "", "%s Requests Signature", source);
     } else {
-      uint8_t *sig = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, len, ENC_ASCII);
+      char *sig = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, len, ENC_ASCII);
       proto_tree_add_string_format(tree, hf_telnet_comport_subopt_signature, tvb, offset, 1 + len, sig,
                                          "%s Signature: %s",source, sig);
     }

@@ -1581,7 +1581,7 @@ static void qname_host_and_domain(char* name, int name_len, char* host, char* do
       if (name[i] == '.') {
         host[i] = '\0';
         if (i < name_len)
-          ws_label_strcpy(domain, 256, 0, &name[i + 1], 0);
+          ws_label_strcpy(domain, 256, 0, (uint8_t*)&name[i + 1], 0);
         break;
       }
       else {
@@ -1958,7 +1958,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
    * The name might contain octets that aren't printable characters,
    * format it for display.
    */
-  name_out = format_text(pinfo->pool, (const unsigned char *)name, name_len);
+  name_out = format_text(pinfo->pool, name, name_len);
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s %s", type_name, name_out);
   if (is_mdns) {
@@ -2551,7 +2551,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
    * The name might contain octets that aren't printable characters,
    * format it for display.
    */
-  name_out = format_text(pinfo->pool, (const unsigned char*)name, name_len);
+  name_out = format_text(pinfo->pool, name, name_len);
   if (dns_type != T_OPT) {
     rr_tree = proto_tree_add_subtree_format(dns_tree, tvb, offsetx,
                               (data_offset - data_start) + data_len,
@@ -2611,7 +2611,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           uint32_t ch_addr;
 
           used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &domain_name, &domain_name_len);
-          name_out = format_text(pinfo->pool, (const unsigned char*)domain_name, domain_name_len);
+          name_out = format_text(pinfo->pool, domain_name, domain_name_len);
           col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
           proto_item_append_text(trr, ", domain/addr %s", name_out);
           proto_tree_add_string(rr_tree, hf_dns_a_ch_domain, tvb, cur_offset, used_bytes, name_out);
@@ -2641,7 +2641,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int ns_name_len;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &ns_name, &ns_name_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)ns_name, ns_name_len);
+      name_out = format_text(pinfo->pool, ns_name, ns_name_len);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
       proto_item_append_text(trr, ", ns %s", name_out);
       proto_tree_add_string(rr_tree, hf_dns_ns, tvb, cur_offset, used_bytes, name_out);
@@ -2657,7 +2657,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &hostname_str, &hostname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)hostname_str, hostname_len);
+      name_out = format_text(pinfo->pool, hostname_str, hostname_len);
       proto_tree_add_string(rr_tree, hf_dns_md, tvb, cur_offset, used_bytes, name_out);
     }
     break;
@@ -2670,7 +2670,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &hostname_str, &hostname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)hostname_str, hostname_len);
+      name_out = format_text(pinfo->pool, hostname_str, hostname_len);
       proto_tree_add_string(rr_tree, hf_dns_mf, tvb, cur_offset, used_bytes, name_out);
     }
     break;
@@ -2681,7 +2681,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int cname_len;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &cname, &cname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)cname, cname_len);
+      name_out = format_text(pinfo->pool, cname, cname_len);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
       proto_item_append_text(trr, ", cname %s", name_out);
       proto_tree_add_string(rr_tree, hf_dns_cname, tvb, cur_offset, used_bytes, name_out);
@@ -2699,14 +2699,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_item   *ti_soa;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &mname, &mname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)mname, mname_len);
+      name_out = format_text(pinfo->pool, mname, mname_len);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
       proto_item_append_text(trr, ", mname %s", name_out);
       proto_tree_add_string(rr_tree, hf_dns_soa_mname, tvb, cur_offset, used_bytes, name_out);
       cur_offset += used_bytes;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &rname, &rname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)rname, rname_len);
+      name_out = format_text(pinfo->pool, rname, rname_len);
       proto_tree_add_string(rr_tree, hf_dns_soa_rname, tvb, cur_offset, used_bytes, name_out);
       name_out_formatted = make_local_part_domain(pinfo->pool, name_out);
       ti_soa = proto_tree_add_string(rr_tree, hf_dns_soa_rname_name, tvb, cur_offset, used_bytes, name_out_formatted);
@@ -2741,7 +2741,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &hostname_str, &hostname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)hostname_str, hostname_len);
+      name_out = format_text(pinfo->pool, hostname_str, hostname_len);
       proto_tree_add_string(rr_tree, hf_dns_mb, tvb, cur_offset, used_bytes, name_out);
     }
     break;
@@ -2754,7 +2754,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &hostname_str, &hostname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)hostname_str, hostname_len);
+      name_out = format_text(pinfo->pool, hostname_str, hostname_len);
       proto_tree_add_string(rr_tree, hf_dns_mg, tvb, cur_offset, used_bytes, name_out);
     }
     break;
@@ -2767,7 +2767,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &hostname_str, &hostname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)hostname_str, hostname_len);
+      name_out = format_text(pinfo->pool, hostname_str, hostname_len);
       proto_tree_add_string(rr_tree, hf_dns_mr, tvb, cur_offset, used_bytes, name_out);
     }
     break;
@@ -2850,7 +2850,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int           pname_len;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &pname, &pname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)pname, pname_len);
+      name_out = format_text(pinfo->pool, pname, pname_len);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
       proto_item_append_text(trr, ", %s", name_out);
       proto_tree_add_string(rr_tree, hf_dns_ptr_domain_name, tvb, cur_offset, used_bytes, name_out);
@@ -2932,12 +2932,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &rmailbx_str, &rmailbx_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)rmailbx_str, rmailbx_len);
+      name_out = format_text(pinfo->pool, rmailbx_str, rmailbx_len);
       proto_tree_add_string(rr_tree, hf_dns_minfo_r_mailbox, tvb, cur_offset, used_bytes, name_out);
       cur_offset += used_bytes;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &emailbx_str, &emailbx_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)emailbx_str, emailbx_len);
+      name_out = format_text(pinfo->pool, emailbx_str, emailbx_len);
       proto_tree_add_string(rr_tree, hf_dns_minfo_e_mailbox, tvb, cur_offset, used_bytes, name_out);
     }
     break;
@@ -2951,7 +2951,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       preference = tvb_get_ntohs(tvb, cur_offset);
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset + 2, 0, dns_data_offset, &mx_name, &mx_name_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)mx_name, mx_name_len);
+      name_out = format_text(pinfo->pool, mx_name, mx_name_len);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %u %s", preference, name_out);
       proto_item_append_text(trr, ", preference %u, mx %s",
                              preference, name_out);
@@ -2998,12 +2998,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &mbox_dname, &mbox_dname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)mbox_dname, mbox_dname_len);
+      name_out = format_text(pinfo->pool, mbox_dname, mbox_dname_len);
       proto_tree_add_string(rr_tree, hf_dns_rp_mailbox, tvb, cur_offset, used_bytes, name_out);
       cur_offset += used_bytes;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &txt_dname, &txt_dname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)txt_dname, txt_dname_len);
+      name_out = format_text(pinfo->pool, txt_dname, txt_dname_len);
       proto_tree_add_string(rr_tree, hf_dns_rp_txt_rr, tvb, cur_offset, used_bytes, name_out);
     }
     break;
@@ -3016,7 +3016,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset + 2, 0, dns_data_offset, &host_name, &host_name_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)host_name, host_name_len);
+      name_out = format_text(pinfo->pool, host_name, host_name_len);
 
       proto_tree_add_item(rr_tree, hf_dns_afsdb_subtype, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
@@ -3074,7 +3074,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset + 2, 0, dns_data_offset, &host_name, &host_name_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)host_name, host_name_len);
+      name_out = format_text(pinfo->pool, host_name, host_name_len);
 
       proto_tree_add_item(rr_tree, hf_dns_rt_preference, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
       cur_offset += 2;
@@ -3098,7 +3098,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &nsap_ptr_owner, &nsap_ptr_owner_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)nsap_ptr_owner, nsap_ptr_owner_len);
+      name_out = format_text(pinfo->pool, nsap_ptr_owner, nsap_ptr_owner_len);
       proto_tree_add_string(rr_tree, hf_dns_nsap_ptr_owner, tvb, cur_offset, used_bytes, name_out);
     }
     break;
@@ -3161,12 +3161,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 2;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &px_map822_dnsname, &px_map822_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)px_map822_dnsname, px_map822_len);
+      name_out = format_text(pinfo->pool, px_map822_dnsname, px_map822_len);
       proto_tree_add_string(rr_tree, hf_dns_px_map822, tvb, cur_offset, used_bytes, name_out);
       cur_offset += used_bytes;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &px_mapx400_dnsname, &px_mapx400_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)px_mapx400_dnsname, px_mapx400_len);
+      name_out = format_text(pinfo->pool, px_mapx400_dnsname, px_mapx400_len);
       proto_tree_add_string(rr_tree, hf_dns_px_mapx400, tvb, cur_offset, used_bytes, name_out);
       /*cur_offset += used_bytes;*/
     }
@@ -3266,7 +3266,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset,
                                 &next_domain_name, &next_domain_name_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)next_domain_name, next_domain_name_len);
+      name_out = format_text(pinfo->pool, next_domain_name, next_domain_name_len);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
       proto_item_append_text(trr, ", next domain name %s", name_out);
       proto_tree_add_string(rr_tree, hf_dns_nxt_next_domain_name, tvb, cur_offset, used_bytes, name_out);
@@ -3297,7 +3297,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 2;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &target, &target_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)target, target_len);
+      name_out = format_text(pinfo->pool, target, target_len);
 
       proto_tree_add_string(rr_tree, hf_dns_srv_target, tvb, cur_offset, used_bytes, name_out);
 
@@ -3354,7 +3354,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       /* Replacement */
       used_bytes = get_dns_name(pinfo->pool, tvb, offset, 0, dns_data_offset, &replacement, &replacement_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)replacement, replacement_len);
+      name_out = format_text(pinfo->pool, replacement, replacement_len);
       ti_len = proto_tree_add_uint(rr_tree, hf_dns_naptr_replacement_length, tvb, offset, 0, replacement_len);
       proto_item_set_generated(ti_len);
 
@@ -3373,7 +3373,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int           kx_name_len;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset + 2, 0, dns_data_offset, &kx_name, &kx_name_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)kx_name, kx_name_len);
+      name_out = format_text(pinfo->pool, kx_name, kx_name_len);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %u %s", tvb_get_ntohs(tvb, cur_offset), name_out);
       proto_item_append_text(trr, ", preference %u, kx %s",
                              tvb_get_ntohs(tvb, cur_offset), name_out);
@@ -3437,7 +3437,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         pname = "";
         pname_len = 0;
       }
-      name_out = format_text(pinfo->pool, (const unsigned char*)pname, pname_len);
+      name_out = format_text(pinfo->pool, pname, pname_len);
 
       set_address(&suffix_addr, AT_IPv6, 16, suffix.bytes);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %d %s %s",
@@ -3468,7 +3468,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset,
                                &dname, &dname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)dname, dname_len);
+      name_out = format_text(pinfo->pool, dname, dname_len);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
       proto_item_append_text(trr, ", dname %s", name_out);
       proto_tree_add_string(rr_tree, hf_dns_dname, tvb, cur_offset, used_bytes, name_out);
@@ -3653,7 +3653,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
             used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset,
                                     &dname, &dname_len);
-            name_out = format_text(pinfo->pool, (const unsigned char*)dname, dname_len);
+            name_out = format_text(pinfo->pool, dname, dname_len);
             proto_tree_add_string(rropt_tree, hf_dns_opt_agent_domain, tvb, cur_offset, used_bytes, name_out);
 
             cur_offset += used_bytes;
@@ -3831,7 +3831,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         case 3:
         {
           used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &gw, &gw_name_len);
-          name_out = format_text(pinfo->pool, (const unsigned char*)gw, gw_name_len);
+          name_out = format_text(pinfo->pool, gw, gw_name_len);
           proto_tree_add_string(rr_tree, hf_dns_ipseckey_gateway_dns, tvb, cur_offset, used_bytes, name_out);
 
           cur_offset += used_bytes;
@@ -3888,7 +3888,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       rr_len     -= 2;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &signer_name, &signer_name_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)signer_name, signer_name_len);
+      name_out = format_text(pinfo->pool, signer_name, signer_name_len);
       proto_tree_add_string(rr_tree, hf_dns_rrsig_signers_name, tvb, cur_offset, used_bytes, name_out);
       cur_offset += used_bytes;
       rr_len     -= used_bytes;
@@ -3907,7 +3907,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset,
                                           &next_domain_name, &next_domain_name_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)next_domain_name, next_domain_name_len);
+      name_out = format_text(pinfo->pool, next_domain_name, next_domain_name_len);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
       proto_item_append_text(trr, ", next domain name %s", name_out);
       proto_tree_add_string(rr_tree, hf_dns_nsec_next_domain_name, tvb, cur_offset, used_bytes, name_out);
@@ -4096,7 +4096,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       while (rr_len > 1) {
         used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &rend_server_dns_name, &rendezvous_len);
-        name_out = format_text(pinfo->pool, (const unsigned char*)rend_server_dns_name, rendezvous_len);
+        name_out = format_text(pinfo->pool, rend_server_dns_name, rendezvous_len);
         proto_tree_add_string(rr_tree, hf_dns_hip_rendezvous_server, tvb, cur_offset, used_bytes, name_out);
         cur_offset += used_bytes;
         rr_len     -= used_bytes;
@@ -4153,7 +4153,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 2;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &target, &target_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)target, target_len);
+      name_out = format_text(pinfo->pool, target, target_len);
 
       proto_tree_add_string(rr_tree, hf_dns_svcb_target, tvb, cur_offset, used_bytes, name_out);
       cur_offset += used_bytes;
@@ -4175,7 +4175,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree_add_item(rr_tree, hf_dns_dsync_target_port, tvb, cur_offset + 3, 2, ENC_BIG_ENDIAN);
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset + 5, 0, dns_data_offset, &dsync_name, &dsync_name_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)dsync_name, dsync_name_len);
+      name_out = format_text(pinfo->pool, dsync_name, dsync_name_len);
       proto_tree_add_string(rr_tree, hf_dns_dsync_target_name, tvb, cur_offset + 5, used_bytes, name_out);
 
     }
@@ -4239,7 +4239,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 2;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &lp_str, &lp_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)lp_str, lp_len);
+      name_out = format_text(pinfo->pool, lp_str, lp_len);
       proto_tree_add_string(rr_tree, hf_dns_ilnp_locatorfqdn, tvb, cur_offset, used_bytes, name_out);
       /*cur_offset += used_bytes;*/
     }
@@ -4269,7 +4269,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_item *key_item;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &tkey_algname, &tkey_algname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)tkey_algname, tkey_algname_len);
+      name_out = format_text(pinfo->pool, tkey_algname, tkey_algname_len);
       proto_tree_add_string(rr_tree, hf_dns_tkey_algo_name, tvb, cur_offset, used_bytes, name_out);
       cur_offset += used_bytes;
 
@@ -4351,7 +4351,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_item    *ti;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &tsig_algname, &tsig_algname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)tsig_algname, tsig_algname_len);
+      name_out = format_text(pinfo->pool, tsig_algname, tsig_algname_len);
       proto_tree_add_string(rr_tree, hf_dns_tsig_algorithm_name, tvb, cur_offset, used_bytes, name_out);
       cur_offset += used_bytes;
 
@@ -4438,7 +4438,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       uint8_t tag_len;
       const char *tag;
       uint16_t value_len;
-      const unsigned char *value;
+      const char *value;
       int cur_hf = -1;
 
       caa_item = proto_tree_add_item(rr_tree, hf_dns_caa_flags, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
@@ -4450,9 +4450,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       tag = (const char*)tvb_get_string_enc(pinfo->pool, tvb, cur_offset + 1, tag_len, ENC_ASCII|ENC_NA);
 
       value_len = data_len - (tag_len + 2);
-      value = (unsigned char*)tvb_get_string_enc(pinfo->pool, tvb, cur_offset + 1 + tag_len, value_len, ENC_ASCII|ENC_NA);
+      value = (const char*)tvb_get_string_enc(pinfo->pool, tvb, cur_offset + 1 + tag_len, value_len, ENC_ASCII|ENC_NA);
 
-      value = (unsigned char*)format_text(pinfo->pool, value, value_len);
+      value = format_text(pinfo->pool, value, value_len);
 
       if (strncmp(tag, "issue", tag_len) == 0) {
         cur_hf = hf_dns_caa_issue;
@@ -4464,12 +4464,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         cur_hf = hf_dns_caa_unknown;
       }
 
-      caa_item = proto_tree_add_string(rr_tree, cur_hf, tvb, cur_offset, 1 + tag_len + value_len, (const char*)value);
+      caa_item = proto_tree_add_string(rr_tree, cur_hf, tvb, cur_offset, 1 + tag_len + value_len, value);
       caa_tree = proto_item_add_subtree(caa_item, ett_caa_data);
 
       proto_tree_add_uint(caa_tree, hf_dns_caa_tag_length, tvb, cur_offset, 1, tag_len);
       proto_tree_add_string(caa_tree, hf_dns_caa_tag, tvb, cur_offset + 1, tag_len, tag);
-      proto_tree_add_string(caa_tree, hf_dns_caa_value, tvb, cur_offset + 1 + tag_len, value_len, (const char*)value);
+      proto_tree_add_string(caa_tree, hf_dns_caa_value, tvb, cur_offset + 1 + tag_len, value_len, value);
     }
     break;
 
@@ -4509,7 +4509,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         case 3:
         {
           used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &relay_name, &relay_name_len);
-          name_out = format_text(pinfo->pool, (const unsigned char *)relay_name, relay_name_len);
+          name_out = format_text(pinfo->pool, relay_name, relay_name_len);
           proto_tree_add_string(rr_tree, hf_dns_amtrelay_relay_dns, tvb, cur_offset, used_bytes, name_out);
         }
         break;
@@ -4568,7 +4568,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 4;
 
       used_bytes = get_dns_name(pinfo->pool, tvb, cur_offset, 0, dns_data_offset, &dname, &dname_len);
-      name_out = format_text(pinfo->pool, (const unsigned char*)dname, dname_len);
+      name_out = format_text(pinfo->pool, dname, dname_len);
       proto_tree_add_string(rr_tree, hf_dns_winsr_name_result_domain, tvb, cur_offset, used_bytes, name_out);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
       proto_item_append_text(trr, ", name result domain %s", name_out);
@@ -5172,7 +5172,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (quest > 0) {
       dns_stats->qname_len = name_len;
       dns_stats->qname_labels = qname_labels_count(name, name_len);
-      dns_stats->qname = format_text(pinfo->pool, (const unsigned char *)name, name_len);
+      dns_stats->qname = format_text(pinfo->pool, name, name_len);
       // split into host and domain
       qname_host_and_domain(dns_stats->qname, name_len, dns_stats->qhost, dns_stats->qdomain);
       // queries could also be retransmitted
@@ -5200,7 +5200,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       ip6_to_str_buf(pinfo->src.data, dns_stats->source, sizeof(dns_stats->source));
     }
     else {
-      ws_label_strcpy(dns_stats->source, sizeof(dns_stats->source), 0, "n/a",0);
+      ws_label_strcpy(dns_stats->source, sizeof(dns_stats->source), 0, (const uint8_t*)"n/a", 0);
     }
     // resetting to zero for the next response
     dns_qr_r_ra_ttl_index = 0;

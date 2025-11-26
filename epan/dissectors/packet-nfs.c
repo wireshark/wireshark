@@ -2133,7 +2133,7 @@ dissect_fhandle_data_GLUSTER(tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree
 	if (fhlen != 36)
 		return tvb_captured_length(tvb);
 
-	ident = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
+	ident = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
 	if (strncmp(":OGL", ident, 4))
 		return 4;
 	offset += 4;
@@ -8175,7 +8175,7 @@ dissect_nfs4_dirlist(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			* Get the entry name and create subtree of field nfs.name
 			*/
-			name = tvb_get_string_enc(pinfo->pool, tvb, offset + 16, name_len, ENC_UTF_8);
+			name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 16, name_len, ENC_UTF_8);
 
 			eitem = proto_tree_add_string_format(
 				dirlist_tree, hf_nfs_name, tvb, offset, -1, name, "Entry: %s", name);
