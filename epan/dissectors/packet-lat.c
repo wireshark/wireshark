@@ -1064,7 +1064,7 @@ dissect_lat_status(tvbuff_t *tvb, int offset, proto_tree *tree,
     packet_info *pinfo)
 {
 	uint32_t entries_counter;
-	uint32_t subj_node_name_len;
+	int subj_node_name_len;
 	unsigned i;
 
 	proto_tree_add_item(tree, hf_lat_prtcl_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);

@@ -12407,7 +12407,7 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (!json_tvb || !content_info || !content_info->content_id)
         return 0;
 
-    json_data = tvb_get_string_enc(pinfo->pool, json_tvb, 0, tvb_reported_length(json_tvb), ENC_UTF_8|ENC_NA);
+    json_data = (char*)tvb_get_string_enc(pinfo->pool, json_tvb, 0, tvb_reported_length(json_tvb), ENC_UTF_8|ENC_NA);
     ret = json_parse(json_data, NULL, 0);
     if (ret <= 0)
         return 0;

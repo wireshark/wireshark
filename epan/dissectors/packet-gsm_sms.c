@@ -665,7 +665,7 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *of
                                                  (addrlength > MAX_ADDR_SIZE) ? MAX_ADDR_SIZE : addrlength);
         break;
     default:
-        addrstr = tvb_get_string_enc(pinfo->pool, tvb, offset, numdigocts, ENC_KEYPAD_ABC_TBCD|ENC_LITTLE_ENDIAN);
+        addrstr = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, numdigocts, ENC_KEYPAD_ABC_TBCD|ENC_LITTLE_ENDIAN);
         break;
     }
 

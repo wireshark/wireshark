@@ -16,11 +16,10 @@
 
 #include "config.h"
 
-#include <stdio.h>    /* for sscanf() */
-
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <wsutil/strtoi.h>
 #include "packet-tcp.h"
 
 void proto_register_git(void);
@@ -78,9 +77,9 @@ static bool git_desegment = true;
 static bool get_packet_length(tvbuff_t *tvb, packet_info* pinfo, int offset,
                                   uint16_t *length)
 {
-  uint8_t *lenstr = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
+  char *lenstr = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII);
 
-  return (sscanf(lenstr, "%hx", length) == 1);
+  return ws_hexstrtou16(lenstr, NULL, length);
 }
 
 static unsigned

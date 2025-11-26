@@ -351,7 +351,7 @@ dissect_hsms_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_tree *hsms_tree, *hsms_header_tree, *hsms_header_stream_tree;
 
     /* Other misc. local variables. */
-    unsigned    offset = 0;
+    int offset = 0;
 
     unsigned sessionId = -1;
     unsigned byte2 = -1;

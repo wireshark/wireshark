@@ -585,7 +585,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             int passwordlen = linelen - (username_next_token - offset);
             int password_offset = username_next_token;
             int password_tokenlen = tvb_get_token_len(tvb, username_next_token, passwordlen, NULL, false);
-            const char* password = tvb_get_string_enc(pinfo->pool, tvb, password_offset + 1, password_tokenlen - 2, ENC_ASCII | ENC_NA);
+            const char* password = (char*)tvb_get_string_enc(pinfo->pool, tvb, password_offset + 1, password_tokenlen - 2, ENC_ASCII | ENC_NA);
             proto_tree_add_string(reqresp_tree, hf_imap_request_password, tvb, password_offset, password_tokenlen, password);
 
             tap_credential_t* auth = wmem_new0(pinfo->pool, tap_credential_t);

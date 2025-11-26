@@ -172,8 +172,8 @@ static void add_split_lines(packet_info *pinfo, tvbuff_t *tvb, int tvb_offset, p
 			break;
 		}
 
-		char *line = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_UTF_8);
-		proto_tree_add_string_format_value(tree, hf, tvb, offset, (next_offset - offset), line, "%s", line);
+		char *line = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_UTF_8);
+		proto_tree_add_string(tree, hf, tvb, offset, (next_offset - offset), line);
 		offset = next_offset;
 	}
 }

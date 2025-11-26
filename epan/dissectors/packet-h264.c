@@ -1233,9 +1233,9 @@ dissect_h265_unescap_nal_unit(tvbuff_t *tvb, packet_info *pinfo, int offset)
     int       length         = tvb_reported_length_remaining(tvb, offset);
     int       NumBytesInRBSP = 0;
     int       i;
-    char     *buff;
+    uint8_t  *buff;
 
-    buff = (char *)wmem_alloc(pinfo->pool, length);
+    buff = (uint8_t *)wmem_alloc(pinfo->pool, length);
     for (i = 0; i < length; i++) {
         if ((i + 2 < length) && (tvb_get_ntoh24(tvb, offset) == 0x000003)) {
             buff[NumBytesInRBSP++] = tvb_get_uint8(tvb, offset);

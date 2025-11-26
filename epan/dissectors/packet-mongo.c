@@ -898,7 +898,7 @@ dissect_mongo_op_msg(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_t
     &hf_mongo_msg_flags_exhaustallowed,
     NULL
   };
-  int64_t op_msg_flags;
+  uint64_t op_msg_flags;
   bool checksum_present = false;
 
   proto_tree_add_bitmask_ret_uint64 (tree, tvb, offset, hf_mongo_msg_flags, ett_mongo_msg_flags, mongo_msg_flags, ENC_LITTLE_ENDIAN, &op_msg_flags);

@@ -397,7 +397,7 @@ dissect_jdwp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   int packet_type;
 
   /* length */
-  int32_t hlen = 0;
+  uint32_t hlen = 0;
 
   /* flag can take 2 values (0, 128) */
   uint32_t flags;

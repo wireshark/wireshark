@@ -153,8 +153,8 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             proto_tree_add_item(attr_tree, hf_li5g_attrType, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(attr_tree, hf_li5g_attrLen, tvb, offset+2, 2, ENC_BIG_ENDIAN);
             if (attrType == 17 || attrType == 18) {
-                const uint8_t* supi_str;
-                proto_tree_add_item_ret_string(attr_tree, hf_attr, tvb, offset+4, attrLen, ENC_UTF_8 | ENC_NA, pinfo->pool, &supi_str);
+                const char* supi_str;
+                proto_tree_add_item_ret_string(attr_tree, hf_attr, tvb, offset+4, attrLen, ENC_UTF_8 | ENC_NA, pinfo->pool, (const uint8_t**)&supi_str);
 
                 /* 3GPP Supi look up */
                 GMatchInfo *match_info_imsi;

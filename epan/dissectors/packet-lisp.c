@@ -564,7 +564,7 @@ get_addr_str(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16_t afi, uint16
             return addr_str;
         case AFNUM_DISTNAME:
             *addr_len = tvb_strsize(tvb, offset);
-            addr_str  = tvb_get_stringz_enc(pinfo->pool, tvb, offset, NULL, ENC_ASCII);
+            addr_str  = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, NULL, ENC_ASCII);
             return addr_str;
         default:
             return NULL;

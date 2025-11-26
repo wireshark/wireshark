@@ -3252,7 +3252,7 @@ dissect_radiotap_db_antnoise(tvbuff_t *tvb, packet_info *pinfo _U_,
 static void
 dissect_radiotap_rx_flags(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, int offset, proto_item **hdr_fcs_ti,
-	int *hdr_fcs_offset, int *sent_fcs)
+	int *hdr_fcs_offset, uint32_t *sent_fcs)
 {
 	if (radiotap_bit14_fcs) {
 		if (tree) {

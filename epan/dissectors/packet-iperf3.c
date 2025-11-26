@@ -356,7 +356,7 @@ dissect_iperf3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         if (tvb_get_raw_bytes_as_stringz(tvb, 0, COOKIE_SIZE, cookie) == COOKIE_SIZE-1) {
             if (!wmem_map_contains(cookiejar, cookie)) {
                 // This is a new control connection (or a data connection for which the control connection has not been seen, fail)
-                char *cookie_save = wmem_strndup(wmem_file_scope(), cookie, COOKIE_SIZE);
+                char *cookie_save = wmem_strndup(wmem_file_scope(), (char*)cookie, COOKIE_SIZE);
                 if (wmem_map_insert(cookiejar, cookie_save, NULL)) {  // No value to store, only the cookie
                     // We insert a new cookie in the jar, which now says there's already one.
                     DISSECTOR_ASSERT_NOT_REACHED();

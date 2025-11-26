@@ -172,9 +172,9 @@ mcpe_dissect_string(packet_info *pinfo, proto_tree *tree, int hf, tvbuff_t *tvb,
     }
 
     if (encoding & ENC_UTF_8) {
-        uint8_t *string;
+        const char *string;
 
-        string = tvb_get_string_enc(pinfo->pool, tvb, *offset + length_width, length, ENC_UTF_8);
+        string = (char*)tvb_get_string_enc(pinfo->pool, tvb, *offset + length_width, length, ENC_UTF_8);
 
         ti = proto_tree_add_string(tree, hf, tvb, *offset, length + length_width, string);
         string_tree = proto_item_add_subtree(ti, ett_mcpe_string);

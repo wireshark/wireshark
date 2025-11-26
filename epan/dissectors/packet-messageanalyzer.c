@@ -430,8 +430,8 @@ dissect_ma_wfp_capture_auth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
 	proto_item *ti;
 	proto_tree *wfp_tree;
-	int offset = 0;
-	uint32_t length, ip_proto;
+	int offset = 0, length;
+	uint32_t ip_proto;
 
 	ti = proto_tree_add_item(tree, proto, tvb, 0, -1, ENC_NA);
 	wfp_tree = proto_item_add_subtree(ti, ett_ma_wfp_capture_auth);

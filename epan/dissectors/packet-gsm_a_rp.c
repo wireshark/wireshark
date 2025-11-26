@@ -504,7 +504,7 @@ dissect_nf_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, media
 	json_tvb = (tvbuff_t*)p_get_proto_data(pinfo->pool, pinfo, proto_json, 0);
 	if (!json_tvb)
 		return 0;
-	json_data = tvb_get_string_enc(pinfo->pool, json_tvb, 0, tvb_reported_length(json_tvb), ENC_UTF_8|ENC_NA);
+	json_data = (char*)tvb_get_string_enc(pinfo->pool, json_tvb, 0, tvb_reported_length(json_tvb), ENC_UTF_8|ENC_NA);
 	ret = json_parse(json_data, NULL, 0);
 	if (ret <= 0)
 		return 0;

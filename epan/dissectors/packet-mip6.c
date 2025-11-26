@@ -2523,7 +2523,7 @@ dissect_mip6_opt_ssm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_item* ti;
     int option_len = tvb_reported_length(tvb)-2;
     int offset = 2;
-    uint8_t *apn = NULL;
+    const char *apn = NULL;
     int     name_len;
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_ssm, ett_mip6_opt_ssm, &ti, option_len, MIP6_SSM_MINLEN);
@@ -2560,10 +2560,10 @@ dissect_mip6_opt_ssm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
          * otherwise interpret as a string.
          */
         if (name_len < 0x20) {
-            apn = tvb_get_string_enc(pinfo->pool, tvb, offset, option_len, ENC_APN_STR);
+            apn = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, option_len, ENC_APN_STR);
         }
         else {
-            apn = tvb_get_string_enc(pinfo->pool, tvb, offset, option_len, ENC_UTF_8);
+            apn = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, option_len, ENC_UTF_8);
         }
         proto_tree_add_string(opt_tree, hf_mip6_opt_ss_identifier, tvb, offset, option_len, apn);
     }

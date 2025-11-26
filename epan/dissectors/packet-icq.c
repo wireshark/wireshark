@@ -665,7 +665,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
                     sz_local = left;
                     last = true;
                 }
-                contact = tvb_get_string_enc(pinfo->pool, tvb, sep_offset_prev + 1, sz_local, ENC_ASCII);
+                contact = (char*)tvb_get_string_enc(pinfo->pool, tvb, sep_offset_prev + 1, sz_local, ENC_ASCII);
                 proto_tree_add_string_format(subtree, hf_icq_msg_contact, tvb, offset, sz_local + svsz,
                             contact, "%s: %s",
                             tvb_get_string_enc(pinfo->pool, tvb, offset, svsz, ENC_ASCII),
