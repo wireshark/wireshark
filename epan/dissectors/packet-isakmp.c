@@ -379,6 +379,8 @@ static int hf_isakmp_cfg_attr_xauth_status;
 static int hf_isakmp_cfg_attr_xauth_next_pin;
 static int hf_isakmp_cfg_attr_xauth_answer;
 static int hf_isakmp_cfg_attr_unity_banner;
+static int hf_isakmp_cfg_attr_unity_save_passwd;
+static int hf_isakmp_cfg_attr_unity_split_exclude;
 static int hf_isakmp_cfg_attr_unity_def_domain;
 
 static int hf_isakmp_sak_next_payload;
@@ -1676,7 +1678,12 @@ static const range_string vs_v2_cfgattr[] = {
   { 21,21,       "P_CSCF_IP6_ADDRESS" },
   { 22,22,       "FTT_KAT" },
   { 23,16383,    "RESERVED TO IANA"},
-  { 16384,32767, "PRIVATE USE"},
+  { 16384,28671, "PRIVATE USE"},
+  { 28672,28672, "UNITY_BANNER" }, /* Fortinet use UNITY for IKEv2 too...*/
+  { 28673,28673, "UNITY_SAVE_PASSWD" }, /* Fortinet use UNITY for IKEv2 too...*/
+  { 28674,28677, "PRIVATE USE"},
+  { 28678,28678, "UNITY_SPLIT_EXCLUDE" }, /* Fortinet use UNITY for IKEv2 too...*/
+  { 28679,32767, "PRIVATE USE"},
   { 0,0,          NULL },
   };
 
@@ -5515,6 +5522,12 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       proto_tree_add_item_ret_string(attr_tree, hf_isakmp_cfg_attr_unity_banner, tvb, offset, value_len, ENC_ASCII|ENC_NA, pinfo->pool, &str);
       proto_item_append_text(attr_item, ": %s", str);
       break;
+    case UNITY_SAVE_PASSWD: /* 28673 */
+      proto_tree_add_item(attr_tree, hf_isakmp_cfg_attr_unity_save_passwd, tvb, offset, 2, ENC_BIG_ENDIAN);
+      break;
+    case UNITY_SPLIT_EXCLUDE: /* 28678 */
+      proto_tree_add_item(attr_tree, hf_isakmp_cfg_attr_unity_split_exclude, tvb, offset, 2, ENC_BIG_ENDIAN);
+      break;
     case UNITY_DEF_DOMAIN: /* 28674 */
       proto_tree_add_item_ret_string(attr_tree, hf_isakmp_cfg_attr_unity_def_domain, tvb, offset, value_len, ENC_ASCII|ENC_NA, pinfo->pool, &str);
       proto_item_append_text(attr_item, ": %s", str);
@@ -7816,6 +7829,14 @@ proto_register_isakmp(void)
     { &hf_isakmp_cfg_attr_unity_banner,
       { "UNITY BANNER", "isakmp.cfg.attr.unity.banner",
         FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_cfg_attr_unity_save_passwd,
+      { "UNITY SAVE PASSWD", "isakmp.cfg.attr.unity.save_passwd",
+        FT_BOOLEAN, 16, NULL, 0x0001,
+        NULL, HFILL }},
+    { &hf_isakmp_cfg_attr_unity_split_exclude,
+      { "UNITY SPLIT EXCLUDE", "isakmp.cfg.attr.unity.split_exclude",
+        FT_BOOLEAN, 16, NULL, 0x0001,
         NULL, HFILL }},
     { &hf_isakmp_cfg_attr_unity_def_domain,
       { "UNITY DEF DOMAIN", "isakmp.cfg.attr.unity.def_domain",
