@@ -204,22 +204,14 @@ static uint64_t
 riemann_get_uint64(tvbuff_t *tvb, unsigned offset, unsigned *len)
 {
     uint64_t num   = 0;
-    unsigned   shift = 0;
-    *len = 0;
-    while (1) {
-        uint8_t b;
-        if (shift >= 64) {
-            return 0;
-        }
-        b = tvb_get_uint8(tvb, offset++);
-        num |= ((uint64_t)(b & 0x7f) << shift);
-        shift += 7;
-        (*len)++;
-        if ((b & 0x80) == 0) {
-            return num;
-        }
+
+    *len = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &num, ENC_VARINT_PROTOBUF);
+    if (*len == 0) {
+        *len = FT_VARINT_MAX_LEN;
+        num = 0;
+        // XXX - Add some failure expert info
     }
-    return 0;
+    return num;
 }
 
 static uint8_t *
@@ -247,16 +239,14 @@ riemann_dissect_int64(proto_tree *riemann_tree, tvbuff_t *tvb, unsigned offset, 
 static unsigned
 riemann_dissect_sint64(proto_tree *riemann_tree, tvbuff_t *tvb, unsigned offset, int hf_index)
 {
-    uint64_t num;
     int64_t snum;
     unsigned len = 0;
 
-    num = riemann_get_uint64(tvb, offset, &len);
-    /* zigzag decoding */
-    if (num & 1) {
-        snum = -((int64_t)(num >> 1)) - 1;
-    } else {
-        snum = (int64_t)(num >> 1);
+    len = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, (uint64_t*)&snum, ENC_VARINT_ZIGZAG);
+    if (!len) {
+        len = FT_VARINT_MAX_LEN;
+        snum = 0;
+        // XXX - Add some failure expert info
     }
 
     proto_tree_add_int64(riemann_tree, hf_index, tvb, offset, len, snum);
