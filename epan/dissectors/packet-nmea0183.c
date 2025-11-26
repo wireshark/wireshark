@@ -2811,7 +2811,7 @@ void proto_register_nmea0183(void)
           NULL, 0x0,
           NULL, HFILL }},
         { &hf_nmea0183_tag_block,
-         { "Tag block", "nmea0183.sentence_prefix",
+         { "Tag block", "nmea0183.tag_block",
           FT_STRING, BASE_NONE,
           NULL, 0x0,
           NULL, HFILL }
