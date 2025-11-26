@@ -205,7 +205,7 @@ def features(cmd_tshark, make_env):
     return types.SimpleNamespace(
         have_x64='Compiler info: 64-bit' in tshark_v,
         have_lua='+Lua' in tshark_v,
-        have_lua_unicode='(with UfW patches)' in tshark_v,
+        have_lua_unicode='(UfW patched)' in tshark_v,
         have_nghttp2='+nghttp2' in tshark_v,
         have_nghttp3='+nghttp3' in tshark_v,
         have_kerberos='+Kerberos' in tshark_v,
