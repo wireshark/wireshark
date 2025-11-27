@@ -1749,7 +1749,7 @@ save_remote_device_name(tvbuff_t *tvb, int offset, packet_info *pinfo,
         switch(tvb_get_uint8(tvb, offset + i + 1)) {
         case 0x08: /* Device Name, shortened */
         case 0x09: /* Device Name, full */
-            name = tvb_get_string_enc(pinfo->pool, tvb, offset + i + 2, length - 1, ENC_UTF_8);
+            name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + i + 2, length - 1, ENC_UTF_8);
 
             frame_number = pinfo->num;
             bd_addr_oui = bd_addr[0] << 16 | bd_addr[1] << 8 | bd_addr[2];
@@ -2261,7 +2261,7 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset,
         char            *name;
         device_name_t   *device_name;
 
-        name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, 248, ENC_UTF_8);
+        name = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset, 248, ENC_UTF_8);
         interface_id = bluetooth_data->interface_id;
         adapter_id   = bluetooth_data->adapter_id;
         frame_number = pinfo->num;
@@ -2299,7 +2299,7 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset,
         tap_device->has_bd_addr = true;
         tap_device->is_local = false;
         tap_device->type = BLUETOOTH_DEVICE_NAME;
-        tap_device->data.name = tvb_get_string_enc(pinfo->pool, tvb, offset, 248, ENC_UTF_8);
+        tap_device->data.name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 248, ENC_UTF_8);
         tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
     }
 
@@ -5094,7 +5094,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
                 char                    *name;
                 localhost_name_entry_t  *localhost_name_entry;
 
-                name = tvb_get_string_enc(pinfo->pool, tvb, offset, 248, ENC_UTF_8);
+                name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 248, ENC_UTF_8);
 
                 key[0].length = 1;
                 key[0].key    = &interface_id;
@@ -5127,7 +5127,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
                 tap_device->has_bd_addr = false;
                 tap_device->is_local = true;
                 tap_device->type = BLUETOOTH_DEVICE_NAME;
-                tap_device->data.name = tvb_get_string_enc(pinfo->pool, tvb, offset, 248, ENC_UTF_8);
+                tap_device->data.name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 248, ENC_UTF_8);
                 tap_queue_packet(bluetooth_device_tap, pinfo, tap_device);
             }
             offset += 248;

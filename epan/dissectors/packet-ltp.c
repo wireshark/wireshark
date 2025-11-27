@@ -937,8 +937,8 @@ ltp_check_reception_gap(proto_tree *ltp_rpt_tree, packet_info *pinfo,
 	if (gap_len <= 0) {
 		return;
 	}
-	proto_item *gap_item = proto_tree_add_uint64_format(ltp_rpt_tree, hf_ltp_rpt_gap, NULL, 0, 0, gap_len,
-		"Reception gap: %" PRIu64 "-%" PRIu64 " (%" PRIu64 " bytes)",
+	proto_item *gap_item = proto_tree_add_uint64_format_value(ltp_rpt_tree, hf_ltp_rpt_gap, NULL, 0, 0, gap_len,
+		"%" PRIu64 "-%" PRIu64 " (%" PRIu64 " bytes)",
 		prec_lst + 1, next_fst - 1, gap_len
 	);
 	PROTO_ITEM_SET_GENERATED(gap_item);
@@ -978,8 +978,8 @@ ltp_check_reception_gap(proto_tree *ltp_rpt_tree, packet_info *pinfo,
 static int
 dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, int frame_offset, ltp_tap_info_t *tap) {
 	ltp_session_data_t *session = tap->session;
-	int64_t rpt_sno;
-	int64_t chkp_sno;
+	uint64_t rpt_sno;
+	uint64_t chkp_sno;
 	uint64_t upper_bound;
 	uint64_t lower_bound;
 	uint64_t rcpt_clm_cnt;
@@ -1167,7 +1167,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 static int
 dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int frame_offset, ltp_tap_info_t *tap){
 	ltp_session_data_t *session = tap->session;
-	int64_t rpt_sno;
+	uint64_t rpt_sno;
 	int rpt_sno_size;
 	int segment_offset = 0;
 
@@ -1239,7 +1239,7 @@ dissect_cancel_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pin
 
 static int
 dissect_header_extn(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int frame_offset,int hdr_extn_cnt){
-	int64_t length;
+	uint64_t length;
 	int length_size;
 
 	int extn_offset = 0;
@@ -1260,6 +1260,7 @@ dissect_header_extn(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int
 		add_sdnv64_to_tree(ltp_hdr_extn_tree, tvb, pinfo, frame_offset + extn_offset, hf_ltp_hdr_extn_len, &length, &length_size);
 		extn_offset += length_size;
 
+		THROW_ON(length > (uint64_t)INT_MAX, ReportedBoundsError);
 		proto_tree_add_item(ltp_hdr_extn_tree, hf_ltp_hdr_extn_val, tvb, frame_offset + extn_offset, (int)length, ENC_NA);
 		extn_offset += (int)length;
 	}
@@ -1270,7 +1271,7 @@ dissect_header_extn(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int
 
 static int
 dissect_trailer_extn(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, int frame_offset,int trl_extn_cnt){
-	int64_t length;
+	uint64_t length;
 	int length_size;
 
 	int extn_offset = 0;
@@ -1287,6 +1288,7 @@ dissect_trailer_extn(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, in
 		add_sdnv64_to_tree(ltp_trl_extn_tree, tvb, pinfo, frame_offset + extn_offset, hf_ltp_hdr_extn_len, &length, &length_size);
 		frame_offset += length_size;
 
+		THROW_ON(length > (uint64_t)INT_MAX, ReportedBoundsError);
 		proto_tree_add_item(ltp_trl_extn_tree, hf_ltp_trl_extn_val, tvb, frame_offset + extn_offset, (int)length, ENC_NA);
 		frame_offset += (int)length;
 	}

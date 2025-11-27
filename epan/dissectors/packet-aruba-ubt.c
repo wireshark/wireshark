@@ -525,7 +525,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
             /* adding User Role as proto_item to the tree */
             proto_tree_add_item(message_subtree2, hf_ubt_dt_userrole, tvb, offset, optlen, ENC_ASCII);
-            char* userrole = tvb_get_string_enc(pinfo->pool, tvb, offset, optlen, ENC_ASCII);
+            char* userrole = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, optlen, ENC_ASCII);
             proto_item_append_text(tlv, ": %s", userrole);
 
             /* appending to info column */

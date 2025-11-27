@@ -38,7 +38,7 @@ static expert_field ei_lsd_field;
 static bool
 parse_string_field(proto_tree *tree, int hf, packet_info *pinfo, tvbuff_t *tvb, int offset, int* next_offset, int* linelen)
 {
-  uint8_t *str;
+  const char *str;
   header_field_info* hf_info = proto_registrar_get_nth(hf);
   char **field_and_value;
   proto_item* ti;
@@ -48,7 +48,7 @@ parse_string_field(proto_tree *tree, int hf, packet_info *pinfo, tvbuff_t *tvb, 
   if (*linelen < 0)
     return false;
 
-  str = tvb_get_string_enc(pinfo->pool, tvb, offset, *linelen, ENC_ASCII);
+  str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, *linelen, ENC_ASCII);
   if (g_ascii_strncasecmp(str, hf_info->name, strlen(hf_info->name)) == 0)
   {
       field_and_value = wmem_strsplit(pinfo->pool, str, ":", 2);
@@ -60,7 +60,7 @@ parse_string_field(proto_tree *tree, int hf, packet_info *pinfo, tvbuff_t *tvb, 
         return true;
       }
   }
-  ti = proto_tree_add_string_format(tree, hf, tvb, offset, *linelen, str, "%s", str);
+  ti = proto_tree_add_string(tree, hf, tvb, offset, *linelen, str);
   expert_add_info_format(pinfo, ti, &ei_lsd_field, "%s field malformed", hf_info->name);
 
   return true;
@@ -72,7 +72,7 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   proto_item *ti = NULL;
   proto_tree *lsd_tree;
   int offset = 0, next_offset = 0, linelen;
-  uint8_t *str;
+  const char *str;
   char **field_and_value;
   uint16_t port;
   bool valid;
@@ -98,7 +98,7 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
   if (linelen < 0)
       return offset+linelen;
-  str = tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
+  str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
   if (g_ascii_strncasecmp(str, "Port", strlen("Port")) == 0)
   {
     field_and_value = wmem_strsplit(pinfo->pool, str, ":", 2);

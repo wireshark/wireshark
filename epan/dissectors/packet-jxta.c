@@ -828,7 +828,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     col_set_str(pinfo->cinfo, COL_INFO, "Welcome");
 
     {
-        char *welcomeline = tvb_get_string_enc(pinfo->pool, tvb, offset, first_linelen, ENC_ASCII);
+        char *welcomeline = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, first_linelen, ENC_ASCII);
         char **current_token;
         unsigned token_offset = offset;
         proto_item *jxta_welcome_tree_item = NULL;
@@ -1053,7 +1053,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
 
         if (content_type && (sizeof("content-type") - 1) == headername_len) {
             if (0 == tvb_strncaseeql(tvb, headername_offset, "content-type", sizeof("content-type") - 1)) {
-                *content_type = tvb_get_string_enc(pinfo->pool, tvb, headervalue_offset, headervalue_len, ENC_ASCII);
+                *content_type = (char*)tvb_get_string_enc(pinfo->pool, tvb, headervalue_offset, headervalue_len, ENC_ASCII);
             }
         }
 
@@ -1412,7 +1412,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         for (each_name = 0; each_name < msg_names_count; each_name++) {
             uint16_t name_len = tvb_get_ntohs(tvb, tree_offset);
 
-            names_table[2 + each_name] = tvb_get_string_enc(pinfo->pool, tvb, tree_offset + 2, name_len, ENC_ASCII);
+            names_table[2 + each_name] = (char*)tvb_get_string_enc(pinfo->pool, tvb, tree_offset + 2, name_len, ENC_ASCII);
             proto_tree_add_item(jxta_msg_tree, hf_jxta_message_names_name, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
             tree_offset += 2 + name_len;
         }
@@ -1665,7 +1665,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
         proto_tree_add_item(jxta_elem_tree, hf_jxta_element_type, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
         tree_offset += 2;
 
-        mediatype = tvb_get_string_enc(pinfo->pool, tvb, tree_offset, type_len, ENC_ASCII);
+        mediatype = (char*)tvb_get_string_enc(pinfo->pool, tvb, tree_offset, type_len, ENC_ASCII);
 
         tree_offset += type_len;
     }

@@ -139,7 +139,7 @@ static int hf_nasdaq_itch_cross;
 static int
 order_ref_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int offset)
 {
-  const char *str_value = tvb_get_string_enc(pinfo->pool, tvb, offset, 9, ENC_ASCII);
+  const char *str_value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 9, ENC_ASCII);
   uint32_t    value     = (uint32_t)strtoul(str_value, NULL, 10);
 
   proto_tree_add_uint(nasdaq_itch_tree, hf_nasdaq_itch_order_reference, tvb, offset, 9, value);
@@ -156,7 +156,7 @@ time_stamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int 
   if (nasdaq_itch_tree) {
       uint32_t    ms, val;
       const char *display   = "";
-      const char *str_value = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
+      const char *str_value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
 
       ms = val = (uint32_t)strtoul(str_value, NULL, 10);
       switch (size) {
@@ -181,7 +181,7 @@ static int
 number_of_shares(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int id, int offset, int big)
 {
   int size = (big) ? 10 : 6;
-  const char *str_value = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
+  const char *str_value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
 
   uint32_t value = (uint32_t)strtoul(str_value, NULL, 10);
 
@@ -197,7 +197,7 @@ price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int id, i
 {
   int size = (big) ? 19 : 10;
 
-  const char *str_value = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
+  const char *str_value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
   double      value     = uint64_to_double(g_ascii_strtoull(str_value, NULL, 10))/((big)?1000000.0:10000.0);
 
   proto_tree_add_double(nasdaq_itch_tree, id, tvb, offset, size, value);
@@ -210,7 +210,7 @@ price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int id, i
 static int
 stock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int offset)
 {
-  char *stock_p = tvb_get_string_enc(pinfo->pool, tvb, offset, 6, ENC_ASCII);
+  char *stock_p = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 6, ENC_ASCII);
 
   proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_stock, tvb, offset, 6, ENC_ASCII);
   col_append_fstr(pinfo->cinfo, COL_INFO, "<%s> ", stock_p);

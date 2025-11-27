@@ -281,7 +281,7 @@ static int * const req_attributes[] = {
 };
 
 typedef struct ajp13_conv_data {
-  int content_length;
+  uint32_t content_length;
   bool was_get_body_chunk;  /* XXX - not used */
 } ajp13_conv_data;
 
@@ -406,9 +406,8 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
 
         hval = ajp13_get_nstring(pinfo->pool, tvb, pos, &hval_len);
 
-        proto_tree_add_string_format_value(ajp13_tree, *rsp_headers[hid],
-                                       tvb, hpos, 2+hval_len+2, hval,
-                                       "%s", hval);
+        proto_tree_add_string(ajp13_tree, *rsp_headers[hid],
+                              tvb, hpos, 2+hval_len+2, hval);
         pos+=hval_len+2;
 #if 0
         /* TODO: Content-Length header (encoded by 0x08) is special */
@@ -655,9 +654,8 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       hval = ajp13_get_nstring(pinfo->pool, tvb, pos, &hval_len);
 
 
-      pi = proto_tree_add_string_format_value(ajp13_tree, *req_headers[hid],
-                                              tvb, hpos, 2+hval_len+2, hval,
-                                              "%s", hval);
+      pi = proto_tree_add_string(ajp13_tree, *req_headers[hid],
+                                 tvb, hpos, 2+hval_len+2, hval);
 
       if (hid == 0x08 && !ws_strtou32(hval, NULL, &cd->content_length)) {
         expert_add_info(pinfo, pi, &ei_ajp13_content_length_invalid);
@@ -728,9 +726,8 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       aval = ajp13_get_nstring(pinfo->pool, tvb, pos, &aval_len);
       pos+=aval_len+2;
 
-      proto_tree_add_string_format_value(ajp13_tree, *req_attributes[aid],
-                                     tvb, apos, 1+aval_len+2, aval,
-                                     "%s", aval);
+      proto_tree_add_string(ajp13_tree, *req_attributes[aid],
+                            tvb, apos, 1+aval_len+2, aval);
     }
   }
 }

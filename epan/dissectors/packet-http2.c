@@ -332,8 +332,8 @@ struct HTTP2Tap {
 static int http2_tap;
 static int http2_follow_tap;
 
-static const uint8_t* st_str_http2 = "HTTP2";
-static const uint8_t* st_str_http2_type = "Type";
+static const char* st_str_http2 = "HTTP2";
+static const char* st_str_http2_type = "Type";
 
 static int st_node_http2 = -1;
 static int st_node_http2_type = -1;
@@ -2529,11 +2529,11 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, p
                    to get length in 4 bytes, we have to copy it to
                    uint32_t. */
                 len = (uint32_t)nv.namelen;
-                phtonu32(&http2_header_pstr[0], len);
+                phtonu32((uint8_t*)&http2_header_pstr[0], len);
                 memcpy(&http2_header_pstr[4], nv.name, nv.namelen);
 
                 len = (uint32_t)nv.valuelen;
-                phtonu32(&http2_header_pstr[4 + nv.namelen], len);
+                phtonu32((uint8_t*)&http2_header_pstr[4 + nv.namelen], len);
                 memcpy(&http2_header_pstr[4 + nv.namelen + 4], nv.value, nv.valuelen);
 
                 cached_pstr = (char *)wmem_map_lookup(http2_hdrcache_map, http2_header_pstr);
@@ -2608,7 +2608,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, p
         header_len += in->table.data.datalen;
 
         /* Now setup the tvb buffer to have the new data */
-        next_tvb = tvb_new_child_real_data(tvb, in->table.data.data, in->table.data.datalen, in->table.data.datalen);
+        next_tvb = tvb_new_child_real_data(tvb, (uint8_t*)in->table.data.data, in->table.data.datalen, in->table.data.datalen);
         if (!header_tvb) {
             header_tvb = tvb_new_composite();
         }

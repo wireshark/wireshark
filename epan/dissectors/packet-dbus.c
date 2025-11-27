@@ -561,12 +561,12 @@ add_uint(dbus_packet_t *packet, int hf) {
 	return value;
 }
 
-static const uint8_t *
+static const char *
 add_dbus_string(dbus_packet_t *packet, int hf, int uint_length) {
-	const uint8_t *string;
+	const char *string;
 	int start_offset = ptvcursor_current_offset(packet->cursor);
 	proto_item *pi = ptvcursor_add_ret_string(packet->cursor, hf, uint_length,
-			packet->enc | ENC_UTF_8, packet->pinfo->pool, &string);
+			packet->enc | ENC_UTF_8, packet->pinfo->pool, (const uint8_t**)&string);
 	int item_length = ptvcursor_current_offset(packet->cursor) - start_offset;
 	uint8_t term_byte = tvb_get_uint8(ptvcursor_tvbuff(packet->cursor), ptvcursor_current_offset(packet->cursor));
 	proto_item_set_len(pi, item_length + 1);

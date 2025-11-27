@@ -1130,7 +1130,7 @@ usbll_set_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_item     *sub_item;
     usbll_address_t *src_addr, *dst_addr;
-    uint8_t *str_src_addr, *str_dst_addr;
+    const char *str_src_addr, *str_dst_addr;
 
     src_addr = wmem_new0(pinfo->pool, usbll_address_t);
     dst_addr = wmem_new0(pinfo->pool, usbll_address_t);

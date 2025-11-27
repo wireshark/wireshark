@@ -733,14 +733,13 @@ static void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, pro
     offset += 4;
 
     /* Extract and show the string in tree and info column */
-    transport_info = tvb_get_string_enc(pinfo->pool, tvb, offset, length_remaining - 20, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+    transport_info = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length_remaining - 20, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
-    proto_tree_add_string_format(tree, hf_msmms_command_client_transport_info, tvb,
-                                 offset, length_remaining-20,
-                                 transport_info, "Transport: (%s)", transport_info);
+    proto_tree_add_string(tree, hf_msmms_command_client_transport_info, tvb,
+                                 offset, length_remaining-20, transport_info);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                    format_text_string(pinfo->pool, (const unsigned char*)transport_info));
+                    format_text_string(pinfo->pool, transport_info));
 
 
     /* Try to extract details from this string */
@@ -789,7 +788,7 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     uint32_t      tool_version_length;
     uint32_t      download_update_player_length;
     uint32_t      password_encryption_type_length;
-    const uint8_t *server_version;
+    const char   *server_version;
 
     /* ErrorCode */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_error, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -834,10 +833,10 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         /* Server version string */
         proto_tree_add_item_ret_string(tree, hf_msmms_command_server_version, tvb,
                             offset, server_version_length*2,
-                            ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &server_version);
+                            ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, (const uint8_t**)&server_version);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " (version='%s')",
-                    format_text_string(pinfo->pool, (const unsigned char*)server_version));
+                    format_text_string(pinfo->pool, server_version));
     }
     offset += (server_version_length*2);
 
@@ -874,7 +873,7 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                        unsigned offset, unsigned length_remaining)
 {
-    const uint8_t *player_info;
+    const char *player_info;
 
     /* Flags */
     proto_tree_add_item(tree, hf_msmms_command_prefix1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -888,10 +887,10 @@ static void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_
     /* Extract and show the string in tree and info column */
     proto_tree_add_item_ret_string(tree, hf_msmms_command_client_player_info, tvb,
                         offset, length_remaining-12,
-                        ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &player_info);
+                        ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, (const uint8_t**)&player_info);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                    format_text_string(pinfo->pool, (const unsigned char*)player_info));
+                    format_text_string(pinfo->pool, player_info));
 }
 
 /* Dissect info about where client wants to start playing from */
@@ -949,7 +948,7 @@ static void dissect_timing_test_response(tvbuff_t *tvb, proto_tree *tree, unsign
 static void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         unsigned offset, unsigned length_remaining)
 {
-    const uint8_t *server_file;
+    const char *server_file;
 
     /* Command Level */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_command_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -963,10 +962,10 @@ static void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto
     /* File path on server */
     proto_tree_add_item_ret_string(tree, hf_msmms_command_server_file, tvb,
                         offset, length_remaining-16,
-                        ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &server_file);
+                        ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, (const uint8_t**)&server_file);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                    format_text_string(pinfo->pool, (const unsigned char*)server_file));
+                    format_text_string(pinfo->pool, server_file));
 }
 
 /* Dissect media details from server */
@@ -1351,7 +1350,7 @@ void proto_register_msmms(void)
         {
             &hf_msmms_command_client_transport_info,
             {
-                "Client transport info",
+                "Transport",
                 "msmms.command.client-transport-info",
                 FT_STRING,
                 BASE_NONE,

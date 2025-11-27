@@ -3444,7 +3444,7 @@ static int dissect_lbmr_tmr(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     tmr_flags = tvb_get_uint8(tvb, offset + O_LBMR_TMR_T_FLAGS);
     name_offset = offset + L_LBMR_TMR_T;
 
-    name = tvb_get_stringz_enc(pinfo->pool, tvb, name_offset, &namelen, ENC_ASCII);
+    name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, name_offset, &namelen, ENC_ASCII);
 
     switch (tmr_type)
     {
@@ -4107,7 +4107,7 @@ static int dissect_lbmr_tir_entry(tvbuff_t * tvb, int offset, packet_info * pinf
     int curr_offset;
     proto_item * transport_len_item = NULL;
 
-    name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &namelen, ENC_ASCII);
+    name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &namelen, ENC_ASCII);
     reclen += namelen;
     curr_offset = offset + namelen;
     tinfo_offset = curr_offset;
@@ -4169,7 +4169,7 @@ static int dissect_lbmr_qqr(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     unsigned reclen = 0;
     char * name = NULL;
 
-    name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &namelen, ENC_ASCII);
+    name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &namelen, ENC_ASCII);
     reclen += namelen;
     add_contents_qqr(pinfo->pool, contents, name);
     proto_tree_add_item(tree, hf_lbmr_qqr_name, tvb, offset, namelen, ENC_ASCII);
@@ -4271,11 +4271,11 @@ static int dissect_lbmr_qir_entry(tvbuff_t * tvb, int offset, packet_info * pinf
     */
     curr_offset = offset;
     qnameoffset = curr_offset;
-    qname = tvb_get_stringz_enc(pinfo->pool, tvb, qnameoffset, &qnamelen, ENC_ASCII);
+    qname = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, qnameoffset, &qnamelen, ENC_ASCII);
     curr_offset += qnamelen;
     reclen += qnamelen;
     tnameoffset = curr_offset;
-    tname = tvb_get_stringz_enc(pinfo->pool, tvb, tnameoffset, &tnamelen, ENC_ASCII);
+    tname = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, tnameoffset, &tnamelen, ENC_ASCII);
     curr_offset += tnamelen;
     reclen += tnamelen;
     queue_id = tvb_get_ntohl(tvb, curr_offset + O_LBMR_QIR_T_QUEUE_ID);

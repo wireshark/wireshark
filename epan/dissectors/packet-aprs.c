@@ -945,7 +945,7 @@ aprs_item( wmem_allocator_t *scope, proto_tree *aprs_tree, tvbuff_t *tvb, int of
 	 * XXX - ASCII or UTF-8?
 	 * See http://www.aprs.org/aprs12/utf-8.txt
 	 */
-	info_buffer = tvb_get_string_enc( scope, tvb, offset, data_len, ENC_ASCII|ENC_NA );
+	info_buffer = (char *)tvb_get_string_enc( scope, tvb, offset, data_len, ENC_ASCII|ENC_NA );
 
 	ch_ptr = strchr( info_buffer, '!' );
 	if ( ch_ptr != NULL )

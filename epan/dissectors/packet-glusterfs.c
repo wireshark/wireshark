@@ -520,7 +520,7 @@ gluster_rpc_dissect_dict(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, in
 		offset += 4;
 
 		/* read the key, '\0' terminated */
-		key = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &key_len, ENC_ASCII);
+		key = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &key_len, ENC_ASCII);
 		start_offset2 = offset;
 		offset += key_len;
 
@@ -548,7 +548,7 @@ gluster_rpc_dissect_dict(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, in
 					tvb_get_letohl(tvb, offset + 4),
 					tvb_get_letohl(tvb, offset + 8));
 		} else {
-			value = tvb_get_string_enc(pinfo->pool, tvb, offset, value_len, ENC_ASCII);
+			value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, value_len, ENC_ASCII);
 			dict_item = proto_tree_add_string_format(subtree, hf_gluster_dict_value, tvb, offset, value_len, value, "%s: %s",
 					key, value);
 		}
@@ -680,7 +680,7 @@ gluster_rpc4_0_dissect_dict(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
 		offset += 4;
 
 		/* read the key, '\0' terminated */
-		key = tvb_get_string_enc(pinfo->pool, tvb, offset, key_len, ENC_ASCII);
+		key = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, key_len, ENC_ASCII);
 		start_offset2 = offset;
 		offset += key_len;
 
@@ -706,7 +706,7 @@ gluster_rpc4_0_dissect_dict(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
 			val_len = tvb_get_ntohl(tvb, offset);
 			val_len = rpc_roundup(val_len);
 			offset += 4;
-			value = tvb_get_string_enc(pinfo->pool, tvb, offset, val_len, ENC_ASCII);
+			value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, val_len, ENC_ASCII);
 			dict_item = proto_tree_add_string_format(subtree, hf_gluster_dict_value, tvb, offset, val_len, value, "%s: %s",
 								key, value);
 		} else if (val_type == 8) {
@@ -744,7 +744,7 @@ gluster_rpc4_0_dissect_dict(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
 						tvb_get_letohl(tvb, offset + 4),
 						tvb_get_letohl(tvb, offset + 8));
 			} else {
-				value = tvb_get_string_enc(pinfo->pool, tvb, offset, val_len, ENC_ASCII);
+				value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, val_len, ENC_ASCII);
 				dict_item = proto_tree_add_string_format(subtree, hf_gluster_dict_value, tvb, offset, val_len, value, "%s: %s",
 						key, value);
 			}

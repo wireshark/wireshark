@@ -10630,7 +10630,7 @@ ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *e
     const ansi_a_tap_rec_t      *data_p = (const ansi_a_tap_rec_t *)data;
     stat_tap_table_item_type* dtap_data;
     stat_tap_table* table;
-    unsigned idx;
+    int idx;
 
     if (data_p->pdu_type == BSSAP_PDU_TYPE_DTAP)
     {
@@ -10639,9 +10639,9 @@ ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *e
 
         table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
 
-        dtap_data = stat_tap_get_field_data(table, idx, COUNT_COLUMN);
+        dtap_data = stat_tap_get_field_data(table, (unsigned)idx, COUNT_COLUMN);
         dtap_data->value.uint_value++;
-        stat_tap_set_field_data(table, idx, COUNT_COLUMN, dtap_data);
+        stat_tap_set_field_data(table, (unsigned)idx, COUNT_COLUMN, dtap_data);
 
         return TAP_PACKET_REDRAW;
     }
@@ -10709,7 +10709,7 @@ ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *
     const ansi_a_tap_rec_t      *data_p = (const ansi_a_tap_rec_t *)data;
     stat_tap_table_item_type* dtap_data;
     stat_tap_table* table;
-    unsigned idx;
+    int idx;
 
     if (data_p->pdu_type == BSSAP_PDU_TYPE_BSMAP)
     {
@@ -10718,9 +10718,9 @@ ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *
 
         table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
 
-        dtap_data = stat_tap_get_field_data(table, idx, COUNT_COLUMN);
+        dtap_data = stat_tap_get_field_data(table, (unsigned)idx, COUNT_COLUMN);
         dtap_data->value.uint_value++;
-        stat_tap_set_field_data(table, idx, COUNT_COLUMN, dtap_data);
+        stat_tap_set_field_data(table, (unsigned)idx, COUNT_COLUMN, dtap_data);
 
         return TAP_PACKET_REDRAW;
     }

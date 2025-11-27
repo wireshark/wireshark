@@ -46,7 +46,7 @@ static int ett_nge_ensemble;
 static void
 dissect_nge_esemble(tvbuff_t *tvb,proto_tree *tree, int offset)
 {
-    unsigned strLen=0;
+    int strLen=0;
 
     uint32_t length = tvb_get_uint32(tvb, offset,ENC_BIG_ENDIAN);
     proto_tree *ensemble_tree = proto_tree_add_subtree(tree, tvb, offset, length+4, ett_nge_ensemble, NULL,"Ensemble");

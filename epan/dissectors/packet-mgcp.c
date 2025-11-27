@@ -1092,7 +1092,7 @@ static int tvb_parse_param(tvbuff_t* tvb, packet_info* pinfo, int offset, int le
 
 			/* set the observedEvents or signalReq used in Voip Calls analysis */
 			if (buf != NULL) {
-				*buf = tvb_get_string_enc(pinfo->pool, tvb, tvb_current_offset, (len - tvb_current_offset + offset), ENC_ASCII);
+				*buf = (char*)tvb_get_string_enc(pinfo->pool, tvb, tvb_current_offset, (len - tvb_current_offset + offset), ENC_ASCII);
 			}
 		}
 	}
@@ -1597,7 +1597,7 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, packet_info* pinfo, tvbuf
 
 	/* The P: line */
 	offset += param_type_len; /* skip the P: */
-	tokenline = tvb_get_string_enc(pinfo->pool, tvb, offset, param_val_len, ENC_ASCII);
+	tokenline = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, param_val_len, ENC_ASCII);
 
 	/* Split into type=value pairs separated by comma */
 	tokens = wmem_strsplit(pinfo->pool, tokenline, ",", -1);
@@ -1699,7 +1699,7 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, packet_info* pinfo,
 
 	/* The L: line */
 	offset += param_type_len; /* skip the L: */
-	tokenline = tvb_get_string_enc(pinfo->pool, tvb, offset, param_val_len, ENC_ASCII);
+	tokenline = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, param_val_len, ENC_ASCII);
 
 	/* Split into type=value pairs separated by comma */
 	tokens = wmem_strsplit(pinfo->pool, tokenline, ",", -1);
@@ -1862,7 +1862,7 @@ dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvbu
 
 	/* The XRM/LVM: line */
 	offset += 9; /* skip the XRM/LVM: */
-	tokenline = tvb_get_string_enc(pinfo->pool, tvb, offset, param_val_len - 9, ENC_ASCII);
+	tokenline = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, param_val_len - 9, ENC_ASCII);
 
 	/* Split into type=value pairs separated by comma and WSP */
 	tokens = wmem_strsplit(pinfo->pool, tokenline, ",", -1);
@@ -2013,7 +2013,7 @@ dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvb
 
 	/* The XRM/RVM: line */
 	offset += 9; /* skip the XRM/RVM: */
-	tokenline = tvb_get_string_enc(pinfo->pool, tvb, offset, param_val_len - 9, ENC_ASCII);
+	tokenline = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, param_val_len - 9, ENC_ASCII);
 
 	/* Split into type=value pairs separated by comma and WSP */
 	tokens = wmem_strsplit(pinfo->pool, tokenline, ",", -1);

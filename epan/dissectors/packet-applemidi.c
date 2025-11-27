@@ -107,7 +107,7 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 	proto_item *ti;
 	uint16_t		 seq_num;
 	uint8_t		 count;
-	uint8_t		*name;
+	const char	*name;
 	int		 offset			= 0;
 	int		 len;
 	int		 string_size;
@@ -150,7 +150,7 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 
 		/* Name is optional */
 		if ( len > 0 ) {
-			name = tvb_get_string_enc( pinfo->pool, tvb, offset, len, ENC_UTF_8|ENC_NA );
+			name = (char *)tvb_get_string_enc( pinfo->pool, tvb, offset, len, ENC_UTF_8|ENC_NA );
 			string_size = (int)( strlen( name ) + 1 );
 			proto_tree_add_item( applemidi_tree, hf_applemidi_name, tvb, offset, string_size, ENC_UTF_8 );
 			col_append_fstr( pinfo->cinfo, COL_INFO, ": peer = \"%s\"", name );
