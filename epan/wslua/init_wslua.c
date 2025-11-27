@@ -281,9 +281,30 @@ static void lua_resetthread_cb(void *user_data) {
 #if LUA_VERSION_NUM > 503
     // Lua 5.3 and earlier doesn't have a way to close a thread, and
     // relies on garbage collection only.
-    // lua_closethread(..., NULL) was introduced in 5.4.6 to replace
-    // lua_resetthread() but it's not mandatory yet (maybe in 5.5?)
+    //
+    // Lua 5.4 introduced lua_resetthread().
+    //
+    // Lua 5.4.5 added a second argument to lua_resethread() to
+    // take a second argument. Fedora backported that change to
+    // some releases that have a pre-5.4.5 Lua 5.4, but didn't
+    // change LUA_VERSION_RELEASE_NUM, so we can't use a check for
+    // LUA_VERSION_RELEASE_NUM == 50404 to test for that, so we
+    // do a check in CMake.
+    //
+    // See the thread starting at
+    //
+    //    https://lists.wireshark.org/archives/wireshark-dev/202511/msg00031.html
+    //
+    //
+    // Lua 5.4.6 revers that change, and introdues lua_closethread(..., NULL)
+    // to replacelua_resetthread(), but it's not yet mandatory to use
+    // lua_closethread() (maybe in 5.5?)
+    //
+  #ifdef HAVE_TWO_ARGUMENT_LUA_RESETTHREAD
+    lua_resetthread(L1, NULL);
+  #else
     lua_resetthread(L1);
+  #endif
 #endif
     // The thread was pushed onto the global stack when created. Each thread
     // should be taken off the stack in order.

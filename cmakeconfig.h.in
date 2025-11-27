@@ -198,6 +198,9 @@
 /* The size of the lua_Integer type, if we have Lua. */
 #cmakedefine LUA_INTEGER_SIZE ${LUA_INTEGER_SIZE}
 
+/* Whether the Lua library has a two-argument lua_resetthread(). */
+#cmakedefine HAVE_TWO_ARGUMENT_LUA_RESETTHREAD 1
+
 /* Define to use MIT kerberos */
 #cmakedefine HAVE_MIT_KERBEROS 1
 
