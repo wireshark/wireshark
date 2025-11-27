@@ -4745,18 +4745,25 @@ static int hf_artnet_poll_reply_node_report_response_counter;
 static int hf_artnet_poll_reply_node_report_status_string;
 
 static int ett_artnet_poll_reply_status;
+static int ett_artnet_poll_reply_port_info;
+static int ett_artnet_poll_reply_port_types;
+static int ett_artnet_poll_reply_good_input;
 static int ett_artnet_poll_reply_good_input_1;
 static int ett_artnet_poll_reply_good_input_2;
 static int ett_artnet_poll_reply_good_input_3;
 static int ett_artnet_poll_reply_good_input_4;
+static int ett_artnet_poll_reply_good_output;
 static int ett_artnet_poll_reply_good_output_1;
 static int ett_artnet_poll_reply_good_output_2;
 static int ett_artnet_poll_reply_good_output_3;
 static int ett_artnet_poll_reply_good_output_4;
+static int ett_artnet_poll_reply_good_output_b;
 static int ett_artnet_poll_reply_good_output_b_1;
 static int ett_artnet_poll_reply_good_output_b_2;
 static int ett_artnet_poll_reply_good_output_b_3;
 static int ett_artnet_poll_reply_good_output_b_4;
+static int ett_artnet_poll_reply_swin;
+static int ett_artnet_poll_reply_swout;
 static int ett_artnet_poll_reply_swmacro;
 static int ett_artnet_poll_reply_swremote;
 static int ett_artnet_poll_reply_status2;
@@ -4919,6 +4926,8 @@ static int hf_artnet_address_sacnprio;
 static int hf_artnet_address_command;
 
 static int ett_artnet_address_netswitch;
+static int ett_artnet_address_swin;
+static int ett_artnet_address_swout;
 static int ett_artnet_address_subswitch;
 
 static int * const artnet_address_netswitch_fields[] = {
@@ -4950,6 +4959,7 @@ static int hf_artnet_input_input_3;
 static int hf_artnet_input_input_4;
 static int hf_artnet_input_input_disabled;
 
+static int ett_artnet_input_input;
 static int ett_artnet_input_input_1;
 static int ett_artnet_input_input_2;
 static int ett_artnet_input_input_3;
@@ -5291,6 +5301,8 @@ static const value_string vals_artnet_nzs_vlc_lang_code[] = {
 
 /* Define the tree for artnet */
 static int ett_artnet;
+static int ett_artnet_header;
+static int ett_artnet_data;
 
 /* A static handle for the rdm dissector */
 static dissector_handle_t rdm_handle;
@@ -5451,7 +5463,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
                            ARTNET_POLL_REPLY_PORT_INFO_LENGTH,
                            ENC_NA);
 
-  si = proto_item_add_subtree(hi, ett_artnet);
+  si = proto_item_add_subtree(hi, ett_artnet_poll_reply_port_info);
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " Ports=%d", tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN));
   proto_tree_add_item(si, hf_artnet_poll_reply_num_ports, tvb,
@@ -5465,7 +5477,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
                            ARTNET_POLL_REPLY_PORT_TYPES_LENGTH,
                            ENC_NA);
 
-  ti = proto_item_add_subtree(hi, ett_artnet);
+  ti = proto_item_add_subtree(hi, ett_artnet_poll_reply_port_types);
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_port_types_1, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
@@ -5490,7 +5502,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
                            ARTNET_POLL_REPLY_GOOD_INPUT_LENGTH,
                            ENC_NA);
 
-  ti = proto_item_add_subtree(hi, ett_artnet);
+  ti = proto_item_add_subtree(hi, ett_artnet_poll_reply_good_input);
 
   proto_tree_add_bitmask(ti, tvb, offset, hf_artnet_poll_reply_good_input_1,
                          ett_artnet_poll_reply_good_input_1,
@@ -5520,7 +5532,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
                            ARTNET_POLL_REPLY_GOOD_OUTPUT_LENGTH,
                            ENC_NA);
 
-  ti = proto_item_add_subtree(hi, ett_artnet);
+  ti = proto_item_add_subtree(hi, ett_artnet_poll_reply_good_output);
 
   proto_tree_add_bitmask(ti, tvb, offset, hf_artnet_poll_reply_good_output_1,
                          ett_artnet_poll_reply_good_output_1,
@@ -5550,7 +5562,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
                            ARTNET_POLL_REPLY_SWIN_LENGTH,
                            ENC_NA);
 
-  ti = proto_item_add_subtree(hi, ett_artnet);
+  ti = proto_item_add_subtree(hi, ett_artnet_poll_reply_swin);
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swin_1, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
@@ -5592,7 +5604,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
                            ARTNET_POLL_REPLY_SWOUT_LENGTH,
                            ENC_NA);
 
-  ti = proto_item_add_subtree(hi, ett_artnet);
+  ti = proto_item_add_subtree(hi, ett_artnet_poll_reply_swout);
 
   proto_tree_add_item(ti, hf_artnet_poll_reply_swout_1, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
@@ -5697,7 +5709,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, unsigned offset, proto_tree *tree, pack
                            ARTNET_POLL_REPLY_GOOD_OUTPUT_B_LENGTH,
                            ENC_NA);
 
-  ti = proto_item_add_subtree(hi, ett_artnet);
+  ti = proto_item_add_subtree(hi, ett_artnet_poll_reply_good_output_b);
 
   proto_tree_add_bitmask(ti, tvb, offset, hf_artnet_poll_reply_good_output_b_1,
                          ett_artnet_poll_reply_good_output_b_1,
@@ -5978,7 +5990,7 @@ dissect_artnet_address(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_
                            ARTNET_ADDRESS_SWIN_LENGTH,
                            ENC_NA);
 
-  ti = proto_item_add_subtree(hi, ett_artnet);
+  ti = proto_item_add_subtree(hi, ett_artnet_address_swin);
 
   proto_tree_add_item(ti, hf_artnet_address_swin_1, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
@@ -6003,7 +6015,7 @@ dissect_artnet_address(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_
                            ARTNET_ADDRESS_SWOUT_LENGTH,
                            ENC_NA);
 
-  si = proto_item_add_subtree(hi, ett_artnet);
+  si = proto_item_add_subtree(hi, ett_artnet_address_swout);
 
   proto_tree_add_item(si, hf_artnet_address_swout_1, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
@@ -6071,7 +6083,7 @@ dissect_artnet_input(tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_in
                            ARTNET_INPUT_INPUT_LENGTH,
                            ENC_NA);
 
-  si = proto_item_add_subtree(hi, ett_artnet);
+  si = proto_item_add_subtree(hi, ett_artnet_input_input);
 
   proto_tree_add_bitmask(si, tvb, offset, hf_artnet_input_input_1,
                          ett_artnet_input_input_1,
@@ -6972,7 +6984,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
   hi = proto_tree_add_item(artnet_tree, hf_artnet_header, tvb,
                              offset, ARTNET_HEADER_LENGTH, ENC_NA);
-  artnet_header_tree = proto_item_add_subtree(hi, ett_artnet);
+  artnet_header_tree = proto_item_add_subtree(hi, ett_artnet_header);
 
   proto_tree_add_item_ret_string(artnet_header_tree, hf_artnet_header_id,
                         tvb, offset, 8, ENC_ASCII|ENC_NA, pinfo->pool, &header);
@@ -7012,7 +7024,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_poll( tvb, offset, si, pinfo );
       size -= offset;
@@ -7031,7 +7043,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_poll_reply( tvb, offset, si, pinfo);
       size -= offset;
@@ -7049,7 +7061,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA );
-      si = proto_item_add_subtree(hi, ett_artnet );
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_poll_fp_reply( tvb, offset, si );
       size -= offset;
@@ -7067,7 +7079,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA );
-      si = proto_item_add_subtree(hi, ett_artnet );
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_diag_data( tvb, offset, si );
       size -= offset;
@@ -7085,7 +7097,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA );
-      si = proto_item_add_subtree(hi, ett_artnet );
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_command( tvb, offset, si );
       size -= offset;
@@ -7103,7 +7115,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA );
-      si = proto_item_add_subtree(hi, ett_artnet );
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_data_request( tvb, offset, si );
       size -= offset;
@@ -7121,7 +7133,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA );
-      si = proto_item_add_subtree(hi, ett_artnet );
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_data_reply( tvb, offset, si );
       size -= offset;
@@ -7139,7 +7151,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                  0,
                                  ENC_NA);
 
-        si = proto_item_add_subtree(hi, ett_artnet);
+        si = proto_item_add_subtree(hi, ett_artnet_data);
 
         size  = dissect_artnet_output( tvb, offset, si, pinfo, tree);
         size -= offset;
@@ -7157,7 +7169,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_sync( tvb, offset, si );
       size -= offset;
@@ -7177,7 +7189,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_address( tvb, offset, si, pinfo );
       size -= offset;
@@ -7196,7 +7208,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_input( tvb, offset, si, pinfo );
       size -= offset;
@@ -7215,7 +7227,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_tod_request( tvb, offset, si, pinfo );
       size -= offset;
@@ -7234,7 +7246,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet );
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_tod_data( tvb, offset, si, pinfo );
       size -= offset;
@@ -7252,7 +7264,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA );
-      si = proto_item_add_subtree(hi, ett_artnet );
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_tod_control( tvb, offset, si, pinfo );
       size -= offset;
@@ -7269,7 +7281,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                  offset,
                                  0,
                                  ENC_NA);
-        si = proto_item_add_subtree(hi, ett_artnet);
+        si = proto_item_add_subtree(hi, ett_artnet_data);
         size  = dissect_artnet_rdm(tvb, offset, si, pinfo, tree);
         size -= offset;
 
@@ -7285,7 +7297,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_rdm_sub( tvb, offset, si, pinfo );
       size -= offset;
@@ -7303,7 +7315,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_media( tvb, offset, si);
       size -= offset;
@@ -7321,7 +7333,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_media_patch( tvb, offset, si);
       size -= offset;
@@ -7339,7 +7351,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_media_control( tvb, offset, si);
       size -= offset;
@@ -7357,7 +7369,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_media_control_reply( tvb, offset, si);
       size -= offset;
@@ -7375,7 +7387,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_time_code( tvb, offset, si);
       size -= offset;
@@ -7393,7 +7405,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_time_sync( tvb, offset, si);
       size -= offset;
@@ -7411,7 +7423,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_nzs( tvb, offset, si, pinfo, tree);
       size -= offset;
@@ -7429,7 +7441,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_trigger( tvb, offset, si);
       size -= offset;
@@ -7447,7 +7459,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_directory( tvb, offset, si);
       size -= offset;
@@ -7465,7 +7477,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_directory_reply( tvb, offset, si);
       size -= offset;
@@ -7485,7 +7497,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_video_setup( tvb, offset, si );
       size -= offset;
@@ -7504,7 +7516,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_video_palette( tvb, offset, si );
       size -= offset;
@@ -7523,7 +7535,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_video_data( tvb, offset, si );
       size -= offset;
@@ -7542,7 +7554,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_mac_master( tvb, offset, si );
       size -= offset;
@@ -7561,7 +7573,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_mac_slave( tvb, offset, si );
       size -= offset;
@@ -7580,7 +7592,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_firmware_master( tvb, offset, si );
       size -= offset;
@@ -7599,7 +7611,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 0,
                                 ENC_NA);
 
-      si = proto_item_add_subtree(hi, ett_artnet);
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_firmware_reply( tvb, offset, si );
       size -= offset;
@@ -7617,7 +7629,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet );
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_file_tn_master( tvb, offset, si);
       size -= offset;
@@ -7635,7 +7647,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet );
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_file_fn_master( tvb, offset, si);
       size -= offset;
@@ -7653,7 +7665,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet );
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_file_fn_reply( tvb, offset, si);
       size -= offset;
@@ -7671,7 +7683,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet );
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_ip_prog( tvb,offset, si);
       size -= offset;
@@ -7689,7 +7701,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                 offset,
                                 0,
                                 ENC_NA);
-      si = proto_item_add_subtree(hi, ett_artnet );
+      si = proto_item_add_subtree(hi, ett_artnet_data);
 
       size  = dissect_artnet_ip_prog_reply( tvb, offset, si );
       size -= offset;
@@ -9922,20 +9934,29 @@ proto_register_artnet(void) {
 
   static int *ett[] = {
     &ett_artnet,
+    &ett_artnet_header,
+    &ett_artnet_data,
     &ett_artnet_poll_talktome,
     &ett_artnet_poll_reply_status,
+    &ett_artnet_poll_reply_port_info,
+    &ett_artnet_poll_reply_port_types,
+    &ett_artnet_poll_reply_good_input,
     &ett_artnet_poll_reply_good_input_1,
     &ett_artnet_poll_reply_good_input_2,
     &ett_artnet_poll_reply_good_input_3,
     &ett_artnet_poll_reply_good_input_4,
+    &ett_artnet_poll_reply_good_output,
     &ett_artnet_poll_reply_good_output_1,
     &ett_artnet_poll_reply_good_output_2,
     &ett_artnet_poll_reply_good_output_3,
     &ett_artnet_poll_reply_good_output_4,
+    &ett_artnet_poll_reply_good_output_b,
     &ett_artnet_poll_reply_good_output_b_1,
     &ett_artnet_poll_reply_good_output_b_2,
     &ett_artnet_poll_reply_good_output_b_3,
     &ett_artnet_poll_reply_good_output_b_4,
+    &ett_artnet_poll_reply_swin,
+    &ett_artnet_poll_reply_swout,
     &ett_artnet_poll_reply_swmacro,
     &ett_artnet_poll_reply_swremote,
     &ett_artnet_poll_reply_status2,
@@ -9943,7 +9964,10 @@ proto_register_artnet(void) {
     &ett_artnet_ip_prog_command,
     &ett_artnet_ip_prog_reply_status,
     &ett_artnet_address_netswitch,
+    &ett_artnet_address_swin,
+    &ett_artnet_address_swout,
     &ett_artnet_address_subswitch,
+    &ett_artnet_input_input,
     &ett_artnet_input_input_1,
     &ett_artnet_input_input_2,
     &ett_artnet_input_input_3,
