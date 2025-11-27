@@ -992,9 +992,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	uint8_t bvlc_result;
 	uint8_t hdr_byte;
 	uint8_t option;
-	int8_t mac_buffer[16];
 	unsigned bvlc_message_id;
-	unsigned idx;
 	bool bMustSegment;
 	bool bMoreFlag;
 	bool bDataFlag;
@@ -1121,9 +1119,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	if ((bvlc_control & BSCVLC_CONTROL_ORIG_ADDRESS) != 0)
 	{
-		for(idx = 0; idx < 6; idx++)
-			snprintf(&mac_buffer[idx * 2], sizeof(mac_buffer) - (idx * 2), "%02X", tvb_get_uint8(tvb, offset + idx));
-		col_append_fstr(pinfo->cinfo, COL_INFO, " SMAC %s", mac_buffer);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " SMAC %s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 6));
 
 		proto_tree_add_item(bvlc_tree, hf_bscvlc_orig_vmac, tvb, offset, 6, ENC_NA);
 		offset += 6;
@@ -1131,9 +1127,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	if ((bvlc_control & BSCVLC_CONTROL_DEST_ADDRESS) != 0)
 	{
-		for(idx = 0; idx < 6; idx++)
-			snprintf(&mac_buffer[idx * 2],  sizeof(mac_buffer) - (idx * 2), "%02X", tvb_get_uint8(tvb, offset + idx));
-		col_append_fstr(pinfo->cinfo, COL_INFO, " DMAC %s", mac_buffer);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " DMAC %s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 6));
 
 		proto_tree_add_item(bvlc_tree, hf_bscvlc_dest_vmac, tvb, offset, 6, ENC_NA);
 		offset += 6;
