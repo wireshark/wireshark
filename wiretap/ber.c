@@ -57,7 +57,7 @@ wtap_open_return_val ber_open(wtap *wth, int *err, char **err_info)
   uint8_t oct, ntb = 0, nlb = 0;
   int len = 0;
   int64_t file_size;
-  int offset = 0, i;
+  size_t offset = 0;
 
   if (!wtap_read_bytes(wth->fh, &bytes, BER_BYTES_TO_CHECK, err, err_info)) {
     if (*err != WTAP_ERR_SHORT_READ)
@@ -95,10 +95,12 @@ wtap_open_return_val ber_open(wtap *wth, int *err, char **err_info)
     else {
       nlb = oct & 0x7F; /* number of length bytes */
 
-      if((nlb > 0) && (nlb <= (BER_BYTES_TO_CHECK - 2))) {
+      if(nlb > 0) {
+        if (nlb + offset >= sizeof(bytes)) {
+            return WTAP_OPEN_NOT_MINE;
+        }
         /* not indefinite length and we have read enough bytes to compute the length */
-        i = nlb;
-        while(i--) {
+        for(int i = 0; i < nlb; i++) {
           oct = bytes[offset++];
           len = (len<<8) + oct;
         }
