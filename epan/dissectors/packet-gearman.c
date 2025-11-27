@@ -71,8 +71,8 @@ static bool gearman_desegment  = true;
 
 static const int GEARMAN_COMMAND_HEADER_SIZE = 12;
 static const int GEARMAN_PORT = 4730;
-static const unsigned char *GEARMAN_MAGIC_CODE_REQUEST = "\0REQ";
-static const unsigned char *GEARMAN_MAGIC_CODE_RESPONSE = "\0RES";
+static const unsigned char *GEARMAN_MAGIC_CODE_REQUEST = (uint8_t*)"\0REQ";
+static const unsigned char *GEARMAN_MAGIC_CODE_RESPONSE = (uint8_t*)"\0RES";
 
 static const char *GEARMAN_MGR_CMDS[] = {
   "workers",
@@ -198,7 +198,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gearman");
   col_clear(pinfo->cinfo,COL_INFO);
 
-  magic_code = tvb_get_string_enc(pinfo->pool, tvb, 1, 3, ENC_ASCII);
+  magic_code = (char*)tvb_get_string_enc(pinfo->pool, tvb, 1, 3, ENC_ASCII);
   type = tvb_get_ntohl(tvb, 4);
   size = tvb_get_ntohl(tvb, 8);
 
@@ -583,7 +583,7 @@ dissect_management_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       else
       {
-        col_append_sep_str(pinfo->cinfo, COL_INFO, ",", tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII));
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ",", (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII));
       }
     }
 

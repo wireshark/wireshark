@@ -733,10 +733,10 @@ static const true_false_string tfs_summer_standard_time = { "Summer time", "Stan
 static const true_false_string tfs_coi_i = { "Initialisation after change of local parameters", "Initialisation with unchanged local parameters" };
 static const true_false_string tfs_adjusted_not_adjusted = { "Adjusted", "Not Adjusted" };
 
-static unsigned global_iec60870_link_addr_len = 1;
-static unsigned global_iec60870_cot_len = 1;
-static unsigned global_iec60870_asdu_addr_len = 1;
-static unsigned global_iec60870_ioa_len = 2;
+static int global_iec60870_link_addr_len = 1;
+static int global_iec60870_cot_len = 1;
+static int global_iec60870_asdu_addr_len = 1;
+static int global_iec60870_ioa_len = 2;
 
 /* Protocol fields to be filtered */
 static int hf_apdulen;

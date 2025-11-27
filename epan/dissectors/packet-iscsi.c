@@ -592,7 +592,7 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
         }
 
         ws_in6_addr *ip6_addr = wmem_new(pinfo->pool, ws_in6_addr);
-        ip_str = tvb_get_string_enc(pinfo->pool, tvb, offset, end_offset - offset, ENC_ASCII);
+        ip_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, end_offset - offset, ENC_ASCII);
         if (ws_inet_pton6(ip_str, ip6_addr)) {
             /* looks like a ipv6 address */
             set_address(&addr, AT_IPv6, sizeof(ws_in6_addr), ip6_addr);
@@ -600,7 +600,7 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
 
     } else {
         /* This is either a ipv4 address or a dns name */
-        ip_str = tvb_get_string_enc(pinfo->pool, tvb, offset, colon_offset - offset, ENC_ASCII);
+        ip_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, colon_offset - offset, ENC_ASCII);
         ws_in4_addr *ip4_addr = wmem_new(pinfo->pool, ws_in4_addr);
         if (ws_inet_pton4(ip_str, ip4_addr)) {
             /* looks like a ipv4 address */
@@ -619,7 +619,7 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
     } else {
         port_len = end_offset - (colon_offset + 1);
     }
-    port_str = tvb_get_string_enc(pinfo->pool, tvb, colon_offset + 1, port_len, ENC_ASCII);
+    port_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, colon_offset + 1, port_len, ENC_ASCII);
     if (!ws_strtou16(port_str, NULL, &port)) {
         proto_tree_add_expert_format(tree, pinfo, &ei_iscsi_keyvalue_invalid,
             tvb, colon_offset + 1, port_len, "Invalid port: %s", port_str);
@@ -659,7 +659,7 @@ addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, int offset, uint3
             break;
         }
         value_offset++;
-        value = tvb_get_string_enc(pinfo->pool, keyvalue_tvb, value_offset, len - value_offset, ENC_ASCII);
+        value = (char*)tvb_get_string_enc(pinfo->pool, keyvalue_tvb, value_offset, len - value_offset, ENC_ASCII);
 
         if (tvb_strneql(keyvalue_tvb, 0, "AuthMethod=", strlen("AuthMethod=")) == 0) {
             proto_tree_add_string(tt, hf_iscsi_Login_AuthMethod, keyvalue_tvb, 0, len, value);

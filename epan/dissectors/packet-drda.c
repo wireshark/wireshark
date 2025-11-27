@@ -1075,7 +1075,7 @@ drda_packet_from_server(packet_info *pinfo, uint32_t command, uint8_t dsstyp)
 }
 
 static int
-dissect_fdoca_integer(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,int length, const drda_pdu_info_t *pdu_info, uint32_t *value)
+dissect_fdoca_integer(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,int length, const drda_pdu_info_t *pdu_info, int32_t *value)
 {
     unsigned endian;
     switch (pdu_info->typdefnam) {
@@ -1095,7 +1095,7 @@ dissect_fdoca_integer(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_fdoca_integer64(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,int length, const drda_pdu_info_t *pdu_info, uint64_t *value)
+dissect_fdoca_integer64(proto_tree *tree, int hf_index, tvbuff_t *tvb, int offset,int length, const drda_pdu_info_t *pdu_info, int64_t *value)
 {
     unsigned endian;
     switch (pdu_info->typdefnam) {
@@ -1175,16 +1175,16 @@ static int
 dissect_drda_typdefnam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
-    const uint8_t *typdefnam;
+    const char *typdefnam;
 
-    proto_tree_add_item_ret_string(tree, hf_drda_typdefnam, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8, pinfo->pool, &typdefnam);
+    proto_tree_add_item_ret_string(tree, hf_drda_typdefnam, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8, pinfo->pool, (const uint8_t**)&typdefnam);
     for (int i = 0; typdefnam_vals[i].name != NULL; i++) {
         if (strcmp(typdefnam_vals[i].name, typdefnam) == 0) {
             pdu_info->typdefnam = typdefnam_vals[i].value;
             break;
         }
     }
-    proto_tree_add_item_ret_string(tree, hf_drda_typdefnam, tvb, 0, tvb_reported_length(tvb), ENC_EBCDIC_CP500, pinfo->pool, &typdefnam);
+    proto_tree_add_item_ret_string(tree, hf_drda_typdefnam, tvb, 0, tvb_reported_length(tvb), ENC_EBCDIC_CP500, pinfo->pool, (const uint8_t**)&typdefnam);
     for (int i = 0; typdefnam_vals[i].name != NULL; i++) {
         if (strcmp(typdefnam_vals[i].name, typdefnam) == 0) {
             pdu_info->typdefnam = typdefnam_vals[i].value;
@@ -1848,7 +1848,7 @@ dissect_drda_sqldard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
     int offset = 0;
     drda_pdu_info_t *pdu_info = (drda_pdu_info_t*)data;
 
-    uint32_t numrows;
+    int32_t numrows;
 
     offset = dissect_drda_sqlcard(tvb, pinfo, tree, data);
 
@@ -1856,7 +1856,7 @@ dissect_drda_sqldard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
         offset += dissect_drda_sqldhgrp(tvb_new_subset_remaining(tvb, offset), pinfo, tree, data);
     }
     offset = dissect_fdoca_integer(tree, hf_drda_sqlnum, tvb, offset, 2, pdu_info, &numrows);
-    for (uint32_t i = 0; i < numrows; ++i) {
+    for (int32_t i = 0; i < numrows; ++i) {
         offset += dissect_drda_sqldagrp(tvb_new_subset_remaining(tvb, offset), pinfo, tree, data);
     }
     return offset;

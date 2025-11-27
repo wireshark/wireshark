@@ -471,11 +471,11 @@ fcswils_hash(const void *v)
     return val;
 }
 
-static uint8_t *
+static char *
 zonenm_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset)
 {
     int len = tvb_get_uint8(tvb, offset);
-    return tvb_get_string_enc(scope, tvb, offset+4, len, ENC_ASCII);
+    return (char*)tvb_get_string_enc(scope, tvb, offset+4, len, ENC_ASCII);
 }
 
 /* Offset points to the start of the zone object */

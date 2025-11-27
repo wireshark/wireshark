@@ -853,7 +853,7 @@ ucp_handle_IRAstring(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int fi
     }
     bytes = g_byte_array_sized_new(len);
     if (tvb_get_string_bytes(tvb, *offset, len, ENC_ASCII|ENC_STR_HEX|ENC_SEP_NONE, bytes, &tmpoff)) {
-        strval = get_ts_23_038_7bits_string_unpacked(pinfo->pool, bytes->data, bytes->len);
+        strval = (char*)get_ts_23_038_7bits_string_unpacked(pinfo->pool, bytes->data, bytes->len);
     }
     strbuf = wmem_strbuf_new(pinfo->pool, strval);
     while ((tmpoff + 1) < idx) {
@@ -862,7 +862,7 @@ ucp_handle_IRAstring(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int fi
         if ((tmpoff + 1) >= idx) break;
         bytes = g_byte_array_set_size(bytes, 0);
         if (tvb_get_string_bytes(tvb, tmpoff, idx-tmpoff, ENC_ASCII|ENC_STR_HEX|ENC_SEP_NONE, bytes, &tmpoff)) {
-            strval = get_ts_23_038_7bits_string_unpacked(pinfo->pool, bytes->data, bytes->len);
+            strval = (char*)get_ts_23_038_7bits_string_unpacked(pinfo->pool, bytes->data, bytes->len);
             wmem_strbuf_append(strbuf, strval);
         }
     }
@@ -908,7 +908,7 @@ ucp_handle_int(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, i
         tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
         len = idx - *offset;
-    strval = tvb_get_string_enc(pinfo->pool, tvb, *offset, len, ENC_ASCII);
+    strval = (char*)tvb_get_string_enc(pinfo->pool, tvb, *offset, len, ENC_ASCII);
     if (len > 0) {
         intval_valid = ws_strtou32(strval, NULL, &intval);
         pi = proto_tree_add_uint(tree, field, tvb, *offset, len, intval);
@@ -937,7 +937,7 @@ ucp_handle_time(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int field, 
         tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
         len = idx - *offset;
-    strval = tvb_get_string_enc(pinfo->pool, tvb, *offset, len, ENC_ASCII);
+    strval = (char*)tvb_get_string_enc(pinfo->pool, tvb, *offset, len, ENC_ASCII);
     if (len > 0) {
         tval = ucp_mktime(len, strval);
         tmptime.secs  = tval;
@@ -1090,7 +1090,7 @@ ucp_handle_alphanum_OAdC(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, in
             proto_tree_add_expert(tree, pinfo, &ei_ucp_short_data, tvb, *offset, len);
             no_of_chars = ((bytes->len - 1) << 3) / 7;
         }
-        strval = get_ts_23_038_7bits_string_packed(pinfo->pool, &bytes->data[1], 0, no_of_chars);
+        strval = (char*)get_ts_23_038_7bits_string_packed(pinfo->pool, &bytes->data[1], 0, no_of_chars);
     }
     g_byte_array_free(bytes, true);
     ti = proto_tree_add_string(tree, field, tvb, *offset,

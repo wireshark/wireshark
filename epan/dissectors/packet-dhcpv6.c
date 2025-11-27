@@ -1389,7 +1389,7 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
               tvbuff_t *tvb, int dn_field_off, uint16_t dn_field_len)
 {
     int      final_field_off;        /* Last offset of in DN field */
-    uint8_t *label_str;
+    const char *label_str;
     uint8_t  label_len;
     int      remlen;                 /* The number of remaining octets in a domain field */
     uint8_t  num_labels;
@@ -1491,7 +1491,7 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
              */
             wmem_strbuf_append_c(decoded_name_buf, '.');
             total_label_ascii_len++;
-            label_str = tvb_get_string_enc(pinfo->pool, tvb, offset, label_len, ENC_ASCII);
+            label_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, label_len, ENC_ASCII);
             wmem_strbuf_append(decoded_name_buf, label_str);
             offset += label_len;
             total_label_ascii_len += label_len;
@@ -1573,7 +1573,7 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
          * for more info.
          */
         if (offset + label_len - 1 == final_field_off) {
-            label_str = tvb_get_string_enc(pinfo->pool, tvb, first_lab_off + 1, label_len, ENC_ASCII);
+            label_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, first_lab_off + 1, label_len, ENC_ASCII);
             wmem_strbuf_append(decoded_name_buf, label_str);
             total_label_ascii_len += label_len;
             num_labels++;
@@ -1618,7 +1618,7 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
             wmem_strbuf_append_c(decoded_name_buf, '.');
             total_label_ascii_len++;
         }
-        label_str = tvb_get_string_enc(pinfo->pool, tvb, offset, label_len, ENC_ASCII);
+        label_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, label_len, ENC_ASCII);
         wmem_strbuf_append(decoded_name_buf, label_str);
         offset += label_len;
         remlen -= label_len;
@@ -1808,7 +1808,7 @@ dissect_cablelabs_specific_opts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 opt_len = tlv_len;
                 field_len = tlv_len;
 
-                device_type = tvb_get_string_enc(pinfo->pool, tvb, sub_off, field_len, ENC_ASCII);
+                device_type = (char*)tvb_get_string_enc(pinfo->pool, tvb, sub_off, field_len, ENC_ASCII);
 
                 if ((device_type == NULL) || (strlen(device_type) == 0)) {
                     proto_item_append_text(ti, "Packet does not contain Device Type.");
@@ -2834,8 +2834,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                 && ((flags & 0x5)==0 || (flags & 0x5)==1))
                     suffix = "]\n[Server has overridden the client's S bit]";
             }
-            fi = proto_tree_add_uint_format(subtree, hf_clientfqdn_flags, tvb, off, 1, flags,
-                    "Flags: 0x%02x  %s%s", flags, flags_str, suffix);
+            fi = proto_tree_add_uint_format_value(subtree, hf_clientfqdn_flags, tvb, off, 1, flags,
+                    "0x%02x  %s%s", flags, flags_str, suffix);
             flags_tree = proto_item_add_subtree(fi, ett_clientfqdn_flags);
 
         if (is_client) {

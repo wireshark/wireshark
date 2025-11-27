@@ -968,7 +968,7 @@ static void process_pwd_success(ftp_conversation_t *conv, tvbuff_t *tvb,
                                 proto_item *pi)
 {
     wmem_strbuf_t *output;
-    const char *line = tvb_get_ptr(tvb, offset, linelen);
+    const char *line = (const char*)tvb_get_ptr(tvb, offset, linelen);
     bool outputStarted = false;
 
     /* Line must start with quotes */
@@ -1152,7 +1152,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 is_eprt_request = true;
             else if (tvb_strneql(tvb, 0, "USER", tokenlen) == 0) {
                 if (p_ftp_conv && !p_ftp_conv->username && linelen - tokenlen > 1) {
-                    p_ftp_conv->username = tvb_get_string_enc(wmem_file_scope(), tvb, tokenlen + 1, linelen - tokenlen - 1, ENC_UTF_8);
+                    p_ftp_conv->username = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, tokenlen + 1, linelen - tokenlen - 1, ENC_UTF_8);
                     p_ftp_conv->username_pkt_num = pinfo->num;
                 }
             } else if (tvb_strneql(tvb, 0, "PASS", tokenlen) == 0) {
@@ -1172,7 +1172,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* If there is an ftp data conversation that doesn't have a
            command yet, attempt to update here */
         if (p_ftp_conv) {
-            p_ftp_conv->last_command = tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_UTF_8);
+            p_ftp_conv->last_command = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_UTF_8);
             p_ftp_conv->last_command_frame = pinfo->num;
 
             if ( (linelen == 8) && ! tvb_strneql(tvb, 0, "AUTH TLS", 8) )
@@ -1190,7 +1190,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                   cmd_resp_is_data(p_ftp_conv->last_command))) {
 
                 /* Store command and frame where it happened */
-                p_ftp_conv->current_data_conv->command = tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_UTF_8);
+                p_ftp_conv->current_data_conv->command = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, 0, linelen, ENC_UTF_8);
                 p_ftp_conv->current_data_conv->command_frame = pinfo->num;
 
                 /* Add to table so ftp-data response can be shown with this frame on later passes */

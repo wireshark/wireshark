@@ -405,7 +405,7 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
 
     /* peek/read path */
     path_offset = offset;
-    path = tvb_get_stringz_enc(pinfo->pool, tvb, path_offset, &path_len, ENC_ASCII);
+    path = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, path_offset, &path_len, ENC_ASCII);
     if( (rem = path_len%4) ) path_len += 4-rem;
 
     if(!is_valid_path(path))
@@ -413,7 +413,7 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
 
     /* peek/read fmt */
     format_offset = path_offset + path_len;
-    format = tvb_get_stringz_enc(pinfo->pool, tvb, format_offset, &format_len, ENC_ASCII);
+    format = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, format_offset, &format_len, ENC_ASCII);
     if( (rem = format_len%4) ) format_len += 4-rem;
 
     if(!is_valid_format(format))
@@ -1056,7 +1056,7 @@ dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         /* XXX: this check is a bit expensive; Consider: use UDP port pref ? */
         TRY {
             slen = tvb_strsize(tvb, offset);
-            if(is_valid_path(tvb_get_ptr(tvb, offset, slen))) {
+            if(is_valid_path((const char*)tvb_get_ptr(tvb, offset, slen))) {
 
                 /* skip path */
                 if( (rem = slen%4) ) slen += 4-rem;
@@ -1066,7 +1066,7 @@ dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 slen = tvb_strsize(tvb, offset);
 
                 /* check for valid format */
-                if(is_valid_format(tvb_get_ptr(tvb, offset, slen)))
+                if(is_valid_format((const char*)tvb_get_ptr(tvb, offset, slen)))
                     valid = true;
             }
         }

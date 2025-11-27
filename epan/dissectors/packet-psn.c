@@ -221,7 +221,7 @@ static int dissect_psn_data_tracker(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_tree *track_tree = dissect_psn_chunk_header(tvb, tree, &track_item, &offset, &chunk_end,
         &track_id, &track_data_len, hf_psn_tracker_data_chunk, ett_psn_tracker_data_chunk, hf_psn_tracker_data_chunk_id);
 
-    const uint8_t* tracker_name = val_to_str_const(track_id, psn_tracker_data_names, "Unknown");
+    const char* tracker_name = val_to_str_const(track_id, psn_tracker_data_names, "Unknown");
     proto_item_append_text(track_item, ": %s", tracker_name);
 
     switch (track_id) {
@@ -564,13 +564,13 @@ dissect_psn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             proto_item_set_len(ti, offset);
             return offset;
         case PSN_V1_INFO_PACKET:
-            if (tvb_memeql(tvb, 0, "<PSN>", 5) == 0) {
+            if (tvb_strneql(tvb, 0, "<PSN>", 5) == 0) {
                 proto_item_append_text(ti, ", V1 Info Packet");
                 col_set_str(pinfo->cinfo, COL_INFO, "PSN V1 Info");
-            } else if (tvb_memeql(tvb, 0, "<PSN_config>", 12) == 0) {
+            } else if (tvb_strneql(tvb, 0, "<PSN_config>", 12) == 0) {
                 proto_item_append_text(ti, ", V1 Config Packet");
                 col_set_str(pinfo->cinfo, COL_INFO, "PSN V1 Config");
-            } else if (tvb_memeql(tvb, 0, "<PSN_config_ACK>", 16) == 0) {
+            } else if (tvb_strneql(tvb, 0, "<PSN_config_ACK>", 16) == 0) {
                 proto_item_append_text(ti, ", V1 Config Ack Packet");
                 col_set_str(pinfo->cinfo, COL_INFO, "PSN V1 Config Ack");
             } else {

@@ -743,8 +743,8 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 		case DATA_TYPE_STRING:
 		case DATA_TYPE_CORELNK:
 		{
-			const uint8_t *strval;
-			proto_tree_add_item_ret_string(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_UTF_8, pinfo->pool, &strval);
+			const char *strval;
+			proto_tree_add_item_ret_string(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_UTF_8, pinfo->pool, (const uint8_t**)&strval);
 			proto_item_append_text(tlv_tree, ": %s", format_text(pinfo->pool, strval, strlen(strval)));
 			break;
 		}
@@ -806,7 +806,7 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 		}
 		}
 	} else {
-		uint8_t *str = tvb_get_string_enc(pinfo->pool, tvb, valueOffset, element->length_of_value, ENC_UTF_8);
+		const char *str = (char*)tvb_get_string_enc(pinfo->pool, tvb, valueOffset, element->length_of_value, ENC_UTF_8);
 		if (isprint_utf8_string(str, element->length_of_value)) {
 			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_string, tvb, valueOffset, element->length_of_value, ENC_UTF_8);
 		} else {

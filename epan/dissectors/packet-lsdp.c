@@ -162,7 +162,7 @@ dissect_lsdp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     int offset_s1, offset_s2;
     proto_item *msg_item, *rec_item, *txt_item;
     proto_tree *msg_tree, *rec_tree, *txt_tree;
-    const uint8_t *key, *val;
+    const char *key, *val;
 
     msg_len = tvb_get_uint8(tvb, offset);
     msg_type = tvb_get_uint8(tvb, offset+1);
@@ -250,13 +250,13 @@ dissect_lsdp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
                     proto_tree_add_item_ret_uint(txt_tree, hf_lsdp_announce_record_txt_key_length, tvb, offset, 1, ENC_BIG_ENDIAN, &k_len);
                     offset += 1;
 
-                    proto_tree_add_item_ret_string(txt_tree, hf_lsdp_announce_record_txt_key, tvb, offset, k_len, ENC_UTF_8, pinfo->pool, &key);
+                    proto_tree_add_item_ret_string(txt_tree, hf_lsdp_announce_record_txt_key, tvb, offset, k_len, ENC_UTF_8, pinfo->pool, (const uint8_t**)&key);
                     offset += k_len;
 
                     proto_tree_add_item_ret_uint(txt_tree, hf_lsdp_announce_record_txt_value_length, tvb, offset, 1, ENC_BIG_ENDIAN, &v_len);
                     offset += 1;
 
-                    proto_tree_add_item_ret_string(txt_tree, hf_lsdp_announce_record_txt_value, tvb, offset, v_len, ENC_UTF_8, pinfo->pool, &val);
+                    proto_tree_add_item_ret_string(txt_tree, hf_lsdp_announce_record_txt_value, tvb, offset, v_len, ENC_UTF_8, pinfo->pool, (const uint8_t**)&val);
                     offset += v_len;
 
                     proto_item_append_text(txt_item, " (%s: %s)", key, val);
@@ -320,7 +320,7 @@ dissect_lsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if(
         tvb_reported_length(tvb) < LSDP_HEADER_LEN ||                   // Header must be available
         tvb_get_uint8(tvb, 0) != LSDP_HEADER_LEN ||                     // Header length must be fixed
-        tvb_memeql(tvb, 1, LSDP_MAGIC, strlen(LSDP_MAGIC)) != 0 ||      // Magic Word must match
+        tvb_strneql(tvb, 1, LSDP_MAGIC, strlen(LSDP_MAGIC)) != 0 ||      // Magic Word must match
         tvb_get_uint8(tvb, 5) != LSDP_HEADER_VER                        // We only support version 1
     )
         return 0;

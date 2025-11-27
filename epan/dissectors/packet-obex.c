@@ -1800,15 +1800,15 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree_add_item(hdr_tree, hf_name, tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
                     if (!pinfo->fd->visited && obex_last_opcode_data) {
                         if (obex_last_opcode_data->code == OBEX_CODE_VALS_SET_PATH)
-                            obex_last_opcode_data->data.set_data.name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
+                            obex_last_opcode_data->data.set_data.name = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
                         else if (obex_last_opcode_data->code == OBEX_CODE_VALS_GET || obex_last_opcode_data->code == OBEX_CODE_VALS_PUT)
-                            obex_last_opcode_data->data.get_put.name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
+                            obex_last_opcode_data->data.get_put.name = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
                     }
                     break;
                 default:
                     proto_tree_add_item(hdr_tree, hf_hdr_val_unicode, tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
                 }
-                str = tvb_get_string_enc(pinfo->pool, tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
+                str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
                 proto_item_append_text(hdr_tree, ": \"%s\"", str);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", str);
@@ -1925,7 +1925,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree_add_item(hdr_tree, hf_type, tvb, offset, value_length, ENC_ASCII);
                     proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(pinfo->pool, tvb, offset, value_length, ENC_ASCII));
                     if (!pinfo->fd->visited && obex_last_opcode_data && (obex_last_opcode_data->code == OBEX_CODE_VALS_GET || obex_last_opcode_data->code == OBEX_CODE_VALS_PUT)) {
-                        obex_last_opcode_data->data.get_put.type = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_ASCII | ENC_NA);
+                        obex_last_opcode_data->data.get_put.type = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_ASCII | ENC_NA);
                     }
                     if (p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_MEDIA_TYPE) == NULL) {
                         uint8_t *value_data;
@@ -1954,7 +1954,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     if (value_length > 0 && obex_last_opcode_data &&
                             (obex_last_opcode_data->code == OBEX_CODE_VALS_GET || obex_last_opcode_data->code == OBEX_CODE_VALS_PUT) &&
                             p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_MEDIA_TYPE) == NULL) {
-                        uint8_t *value_data;
+                        char *value_data;
 
                         value_data = obex_last_opcode_data->data.get_put.type;
 

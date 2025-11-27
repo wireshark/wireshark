@@ -104,9 +104,9 @@ static ws_mempbrk_pattern pbrk_whitespace;
 
 static unsigned get_hex_uint(tvbuff_t *tvb, int offset, int *next_offset);
 static bool skip_space(tvbuff_t *tvb, int offset, int *next_offset);
-static const uint8_t* get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset,
+static const char* get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset,
     int *next_offset, unsigned *len);
-static const uint8_t* get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset,
+static const char* get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset,
     int *next_offset, unsigned *len);
 
 /**********************************************************************/
@@ -120,7 +120,7 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     int           offset = 0;
     int           next_offset;
     unsigned      len;
-    const uint8_t *str;
+    const char   *str;
     cups_ptype_t  ptype;
     unsigned int  state;
 
@@ -250,11 +250,11 @@ skip_space(tvbuff_t *tvb, int offset, int *next_offset)
     return true;
 }
 
-static const uint8_t*
+static const char*
 get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *next_offset, unsigned *len)
 {
     int c;
-    const uint8_t* s = NULL;
+    const char* s = NULL;
     unsigned l = 0;
     int o;
 
@@ -264,7 +264,7 @@ get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *next_
         if (o != -1) {
             offset++;
             l = o - offset;
-            s = tvb_get_string_enc(scope, tvb, offset, l, ENC_UTF_8);
+            s = (char *)tvb_get_string_enc(scope, tvb, offset, l, ENC_UTF_8);
             offset = o + 1;
         }
     }
@@ -275,17 +275,17 @@ get_quoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *next_
     return s;
 }
 
-static const uint8_t*
+static const char*
 get_unquoted_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *next_offset, unsigned *len)
 {
-    const uint8_t* s = NULL;
+    const char* s = NULL;
     unsigned l = 0;
     int o;
 
     o = tvb_ws_mempbrk_pattern_uint8(tvb, offset, -1, &pbrk_whitespace, NULL);
     if (o != -1) {
         l = o - offset;
-        s = tvb_get_string_enc(scope, tvb, offset, l, ENC_UTF_8);
+        s = (char*)tvb_get_string_enc(scope, tvb, offset, l, ENC_UTF_8);
         offset = o;
     }
 

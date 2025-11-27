@@ -3763,7 +3763,7 @@ static int vvalue_tvb_lpstr(tvbuff_t *tvb, packet_info* pinfo, int offset, void 
 	int len;
 
 	str->len = tvb_get_letohl(tvb, offset);
-	str->str = tvb_get_stringz_enc(pinfo->pool, tvb, offset + 4, &len,
+	str->str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset + 4, &len,
 								   ENC_ASCII|ENC_LITTLE_ENDIAN);
 	/* XXX test str->len == len */
 	return 4 + len;
@@ -3777,10 +3777,10 @@ static int vvalue_tvb_lpwstr_len(tvbuff_t *tvb, packet_info* pinfo, int offset, 
 
 	if (length == 0) {
 		/* we don't know the length */
-		ptr = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len,
+		ptr = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len,
 								  ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	} else {
-		ptr =  tvb_get_string_enc(pinfo->pool, tvb, offset, length,
+		ptr = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length,
 								  ENC_UTF_16|ENC_LITTLE_ENDIAN);
 		len = length;
 	}
@@ -4168,7 +4168,7 @@ static int parse_CDbColId(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_t
 	if (eKind == DBKIND_GUID_NAME) {
 		char *name;
 		int len = ulId;
-		name = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2);
+		name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_LITTLE_ENDIAN | ENC_UCS_2);
 		proto_item_append_text(tree_item, " \"%s\"", name);
 		proto_tree_add_string_format_value(tree, hf_mswsp_cdbcolid_vstring, tvb, offset, len, name, "\"%s\"", name);
 		offset += len;

@@ -450,8 +450,7 @@ static int dissect_session_desc(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 static int dissect_packed_player(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset)
 {
-    uint32_t sn_len, ln_len, sd_len, pd_len, num_players, i;
-    int size;
+    uint32_t sn_len, ln_len, sd_len, pd_len, num_players, i, size;
     static int * const flags[] = {
         &hf_dplay_pp_flag_sending,
         &hf_dplay_pp_flag_in_group,
@@ -495,7 +494,7 @@ static int dissect_packed_player(proto_tree *tree, packet_info* pinfo, tvbuff_t 
     }
 
     /* Size seems to miss the unknown empty dword */
-    if (size + 4 > offset) {
+    if ((uint32_t)(offset - 4) < size) {
         proto_tree_add_item(tree, hf_dplay_pp_parent_id, tvb, offset, 4, ENC_NA); offset += 4;
     }
 
@@ -850,8 +849,7 @@ static int dissect_type1a_message(proto_tree *tree, packet_info* pinfo, tvbuff_t
 static int dissect_type29_message(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset)
 {
     uint32_t password_offset = tvb_get_letohl(tvb, offset + 24);
-    int player_count, group_count, shortcut_count;
-    int i;
+    uint32_t player_count, group_count, shortcut_count, i;
 
     proto_tree_add_item_ret_uint(tree, hf_dplay_type_29_player_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &player_count); offset += 4;
     proto_tree_add_item_ret_uint(tree, hf_dplay_type_29_group_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &group_count); offset += 4;
