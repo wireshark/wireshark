@@ -56,7 +56,7 @@ void proto_register_tcpcl(void);
 void proto_reg_handoff_tcpcl(void);
 
 /// Contact header magic bytes
-static const char magic[] = {'d', 't', 'n', '!'};
+static const uint8_t magic[] = {'d', 't', 'n', '!'};
 /// Minimum size of contact header for any version
 static const unsigned minimum_chdr_size = 6;
 

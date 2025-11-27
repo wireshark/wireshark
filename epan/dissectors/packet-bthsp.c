@@ -138,7 +138,7 @@ static uint32_t get_uint_parameter(wmem_allocator_t* scope, uint8_t *parameter_s
     uint32_t     value;
     char *val;
 
-    val = (uint8_t *) wmem_alloc(scope, parameter_length + 1);
+    val = (char *) wmem_alloc(scope, parameter_length + 1);
     memcpy(val, parameter_stream, parameter_length);
     val[parameter_length] = '\0';
     value = (uint32_t) g_ascii_strtoull(val, NULL, 10);

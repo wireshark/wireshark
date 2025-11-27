@@ -176,7 +176,7 @@ static int
 dissect_btsmp_auth_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     uint8_t value;
-    const uint8_t *ph;
+    const char *ph;
 
     col_append_str(pinfo->cinfo, COL_INFO, "AuthReq: ");
     proto_tree_add_bitmask(tree, tvb, offset, hf_btsmp_authreq, ett_btsmp_auth_req, hfx_btsmp_authreq, ENC_LITTLE_ENDIAN);

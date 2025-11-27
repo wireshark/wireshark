@@ -2891,13 +2891,13 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
      */
     tvb_ensure_bytes_exist(tvb, offset, buffer_len);
     if (size_is == sizeof(uint16_t)) {
-        s = tvb_get_string_enc(pinfo->pool, tvb, offset, buffer_len,
+        s = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, buffer_len,
                                ENC_UTF_16|DREP_ENC_INTEGER(drep));
     } else {
         /*
          * XXX - what if size_is is neither 1 nor 2?
          */
-        s = tvb_get_string_enc(pinfo->pool, tvb, offset, buffer_len,
+        s = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, buffer_len,
                                DREP_ENC_CHAR(drep));
     }
     if (tree && buffer_len)

@@ -2236,7 +2236,7 @@ static void listOfString8(tvbuff_t *tvb, packet_info* pinfo, int *offsetp, proto
 
       while(length--) {
             unsigned l = tvb_get_uint8(tvb, *offsetp);
-            s = tvb_get_string_enc(pinfo->pool, tvb, *offsetp + 1, l, ENC_ASCII);
+            s = (char*)tvb_get_string_enc(pinfo->pool, tvb, *offsetp + 1, l, ENC_ASCII);
             proto_tree_add_string_format(tt, hf_item, tvb, *offsetp, l + 1, s, "\"%s\"", s);
             *offsetp += l + 1;
       }
@@ -2329,7 +2329,7 @@ static void listOfTextItem(tvbuff_t *tvb, packet_info* pinfo, int *offsetp, prot
                         }
                         *offsetp += l*2 + 2;
                   } else {
-                        s = tvb_get_string_enc(pinfo->pool, tvb, *offsetp + 2, l, ENC_ASCII);
+                        s = (char*)tvb_get_string_enc(pinfo->pool, tvb, *offsetp + 2, l, ENC_ASCII);
                         tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, *offsetp, l + 2,
                                                          "textitem (string): delta = %d, \"%s\"",
                                                          delta, s);
@@ -3584,7 +3584,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
                   query_ext_offset += 2;
                   /* Some unused bytes */
                   query_ext_offset += 2;
-                  name = tvb_get_string_enc(wmem_file_scope(), tvb, query_ext_offset, v16, ENC_ASCII);
+                  name = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, query_ext_offset, v16, ENC_ASCII);
 
                   /* store string of extension, opcode will be set at reply */
                   i = 0;

@@ -104,7 +104,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	name_len = tvb_get_letohl(tvb, offset);
 	offset += 4;
 
-	name = tvb_get_string_enc(pinfo->pool, tvb, offset, name_len, ENC_ASCII | ENC_NA);
+	name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, name_len, ENC_ASCII | ENC_NA);
 	proto_item_append_text(ti, ": %s", name);
 	proto_item_append_text(par_ti, "%s, ", name);
 	offset += WS_ROUNDUP_4(name_len);
@@ -160,7 +160,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 			val_len = tvb_get_letohl(tvb, offset);
 			offset += 4;
 
-			val = tvb_get_string_enc(pinfo->pool, tvb, offset, val_len, ENC_ASCII | ENC_NA);
+			val = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, val_len, ENC_ASCII | ENC_NA);
 
 			proto_item_append_text(ti, ", Type: string, Value: \"%s\"", val);
 			offset += WS_ROUNDUP_4(val_len);
@@ -312,7 +312,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 				val_len = tvb_get_letohl(tvb, offset);
 				offset += 4;
 
-				val = tvb_get_string_enc(pinfo->pool, tvb, offset, val_len, ENC_ASCII | ENC_NA);
+				val = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, val_len, ENC_ASCII | ENC_NA);
 
 				proto_item_append_text(ti, "\"%s\", ", val);
 				proto_tree_add_string(yami_param, hf_yami_param_value_str, tvb, val_offset, offset - val_offset, val);

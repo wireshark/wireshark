@@ -804,7 +804,7 @@ dissect_diameter_3gpp_codec_data(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
     if (linelen < 1) {
         return tvb_reported_length(tvb);
     }
-    str = tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII | ENC_NA);
+    str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII | ENC_NA);
     proto_tree_add_string_format(tree, hf_diameter_3gpp_codec_data_dir, tvb, offset, linelen, str, "%s", str);
     if (next_offset > length) {
         return tvb_reported_length(tvb);
@@ -818,7 +818,7 @@ dissect_diameter_3gpp_codec_data(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
     if (linelen < 1) {
         return tvb_reported_length(tvb);
     }
-    str = tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII | ENC_NA);
+    str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII | ENC_NA);
     proto_tree_add_string_format(tree, hf_diameter_3gpp_codec_sdp_type, tvb, offset, linelen, str, "%s", str);
     if (next_offset >= length) {
         return tvb_reported_length(tvb);

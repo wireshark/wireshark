@@ -503,8 +503,8 @@ decode_xmcp_attr_value (proto_tree *attr_tree, uint16_t attr_type,
     it = proto_tree_add_item(attr_tree, hf_xmcp_attr_realm, tvb, offset,
                         attr_length, ENC_ASCII);
     {
-      uint8_t *realm;
-      realm = tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII);
+      char *realm;
+      realm = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, attr_length, ENC_ASCII);
       proto_item_append_text(attr_tree, ": %s", realm);
       /* In XMCP the REALM string should always be "SAF" including the quotes */
       if (attr_length != 5 || strncmp(realm, "\"SAF\"", attr_length)) {
@@ -744,7 +744,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, uint16_t attr_type,
                         attr_length, ENC_NA);
     if (attr_length > 0) {
       tvbuff_t *next_tvb;
-      uint8_t *test_string, *tok;
+      char *test_string, *tok;
 
       next_tvb = tvb_new_subset_length(tvb, offset, attr_length);
       /*
@@ -753,7 +753,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, uint16_t attr_type,
        * a '<'), try XML.
        * Otherwise, try plain-text.
        */
-      test_string = tvb_get_string_enc(pinfo->pool, next_tvb, 0, (attr_length < 32 ?
+      test_string = (char*)tvb_get_string_enc(pinfo->pool, next_tvb, 0, (attr_length < 32 ?
                                                            attr_length : 32), ENC_ASCII);
       tok = strtok(test_string, " \t\r\n");
       if (tok && tok[0] == '<') {

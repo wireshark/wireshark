@@ -259,7 +259,7 @@ static int display_address(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_
         char* str;
 
         len = tvb_get_uint8(tvb, offset);
-        str = tvb_get_string_enc(pinfo->pool, tvb, offset+1, len, ENC_ASCII);
+        str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+1, len, ENC_ASCII);
         proto_tree_add_string(tree, hf_socks_remote_name, tvb, offset, len+1, str);
         offset += (len+1);
         }
@@ -577,12 +577,12 @@ client_display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             /* process user name */
             len = tvb_get_uint8(tvb, offset);
-            str = tvb_get_string_enc(pinfo->pool, tvb, offset+1, len, ENC_ASCII);
+            str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+1, len, ENC_ASCII);
             proto_tree_add_string(tree, hf_socks_username, tvb, offset, len+1, str);
             offset += (len+1);
 
             len = tvb_get_uint8(tvb, offset);
-            str = tvb_get_string_enc(pinfo->pool, tvb, offset+1, len, ENC_ASCII);
+            str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+1, len, ENC_ASCII);
             proto_tree_add_string(tree, hf_socks_password, tvb, offset, len+1, str);
             /* offset += (len+1); */
             break;

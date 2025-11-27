@@ -274,7 +274,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     col_clear(pinfo->cinfo, COL_INFO);
 
     if ((tvb_reported_length(tvb) < ZABBIX_HDR_MIN_LEN) ||
-        (tvb_memeql(tvb, offset, ZABBIX_HDR_SIGNATURE, 4) == -1)) {
+        (tvb_strneql(tvb, offset, ZABBIX_HDR_SIGNATURE, 4) != 0)) {
         /* Encrypted or not Zabbix at all */
         return 0;
     }
@@ -367,7 +367,7 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
      * Note that json_str is modified when using json_get_xxx() functions below!
      * So don't use it to anything else (make a wmem_strdup() if needed, see below)
      */
-    json_str = tvb_get_string_enc(pinfo->pool, next_tvb, offset, (int)datalen, ENC_UTF_8);
+    json_str = (char*)tvb_get_string_enc(pinfo->pool, next_tvb, offset, (int)datalen, ENC_UTF_8);
     /* First check if this is a pre-7.0 passive agent.
      * Note that even pre-7.0 passive agent *responses* can be JSON, so don't just check
      * for JSON validation but check the conversation data!
@@ -1093,7 +1093,7 @@ dissect_zabbix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         /* Not enough data */
         return 0;
     }
-    if (tvb_memeql(tvb, 0, ZABBIX_HDR_SIGNATURE, 4)) {
+    if (tvb_strneql(tvb, 0, ZABBIX_HDR_SIGNATURE, 4) != 0) {
         /* Encrypted or not Zabbix at all */
         return 0;
     }

@@ -1289,7 +1289,7 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 			void *callback_args)
 {
 	int options = GPOINTER_TO_INT(callback_args);
-	char *s;
+	const char *s;
 
 	/* Align start_offset on 4-byte boundary. */
 
@@ -1308,7 +1308,7 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	 * some way we can get that string, rather than duplicating the
 	 * efforts of that routine?
 	 */
-	s = tvb_get_string_enc(pinfo->pool,
+	s = (char*)tvb_get_string_enc(pinfo->pool,
 		tvb, start_offset + 12, end_offset - start_offset - 12,
 		ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
@@ -1321,7 +1321,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 			void *callback_args)
 {
 	int options = GPOINTER_TO_INT(callback_args);
-	uint8_t *s;
+	const char *s;
 
 	/* Align start_offset on 4-byte boundary. */
 
@@ -1340,7 +1340,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	 * some way we can get that string, rather than duplicating the
 	 * efforts of that routine?
 	 */
-	s = tvb_get_string_enc(pinfo->pool,
+	s = (char*)tvb_get_string_enc(pinfo->pool,
 		tvb, start_offset + 12, (end_offset - start_offset - 12), ENC_ASCII);
 
 	cb_str_postprocess_options(pinfo, item, di, options, s);
