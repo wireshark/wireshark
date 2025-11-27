@@ -582,17 +582,17 @@ static void
 dissect_saprfc_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *item_value_tree, uint32_t offset, uint8_t item_id1, uint8_t item_id2, uint16_t item_length){
 
 	if (item_id1==0x01 && item_id2==0x02){
-		int8_t *value_str = tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
+		const char *value_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, item_length, "Function Name: %s", value_str);
 		proto_item_append_text(item, ", Function Name=%s", value_str);
 
 	} else if (item_id1==0x02 && item_id2==0x01){
-		int8_t *value_str = tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
+		const char *value_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, item_length, "Import Parameter Name: %s", value_str);
 		proto_item_append_text(item, ", Import Parameter Name=%s", value_str);
 
 	} else if (item_id1==0x02 && item_id2==0x05){
-		int8_t *value_str = tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
+		const char *value_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, item_length, "Export Parameter Name: %s", value_str);
 		proto_item_append_text(item, ", Export Parameter Name=%s", value_str);
 
@@ -600,7 +600,7 @@ dissect_saprfc_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_t
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, item_length, "Type Structure A");
 
 	} else if (item_id1==0x03 && item_id2==0x01){
-		int8_t *value_str = tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
+		const char *value_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, item_length, ENC_ASCII);
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, item_length, "Table Name: %s", value_str);
 		proto_item_append_text(item, ", Table Name=%s", value_str);
 
@@ -640,7 +640,7 @@ dissect_saprfc_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_t
 		proto_item_append_text(item, ", Table Content End");
 
 	} else if (item_id1==0x01 && item_id2==0x36){
-		int8_t *value_str;
+		const char *value_str;
 		uint8_t value_uint8;
 		uint32_t value_uint32;
 

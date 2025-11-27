@@ -819,7 +819,7 @@ dissect_hl7_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
         /* process the field (the 1st one generate a node in the tree view) */
         if (field_num == 1) {
             char *segment_type_id = NULL;
-            segment_type_id = tvb_get_string_enc(pinfo->pool,
+            segment_type_id = (char*)tvb_get_string_enc(pinfo->pool,
                                                  tvb, offset, 3, ENC_ASCII);
             ti = proto_tree_add_item(tree, hf_hl7_segment,
                                      tvb, offset, segment_len_crlf,
@@ -833,7 +833,7 @@ dissect_hl7_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
                                     segment_len_crlf, ENC_ASCII);
             }
         }
-        field_str = tvb_get_string_enc(pinfo->pool,
+        field_str = (char*)tvb_get_string_enc(pinfo->pool,
                                        tvb, offset, field_len, ENC_ASCII);
         ti = proto_tree_add_item(segment_tree, hf_hl7_field,
                                  tvb, offset, field_len, ENC_ASCII);
@@ -872,11 +872,11 @@ dissect_hl7_message(tvbuff_t *tvb, unsigned tvb_offset, int len,
     /* enrich info column */
     if (event_present(&msh)) {
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s (%s)",
-                            get_ascii_string(pinfo->pool, msh.message_type, 3),
-                            get_ascii_string(pinfo->pool, msh.trigger_event, 3));
+                            get_ascii_string(pinfo->pool, (uint8_t*)msh.message_type, 3),
+                            get_ascii_string(pinfo->pool, (uint8_t*)msh.trigger_event, 3));
     } else {
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-                            get_ascii_string(pinfo->pool, msh.message_type, 3));
+                           (char*)get_ascii_string(pinfo->pool, (uint8_t*)msh.message_type, 3));
     }
     /* set a fence so that subsequent col_clear calls will
      * not wipe out col information regarding this PDU */

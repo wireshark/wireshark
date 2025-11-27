@@ -144,9 +144,9 @@ static int ett_ancp_oam_timeout;
 static int proto_ancp;
 
 /* ANCP stats - Tap interface */
-static const uint8_t *st_str_packets        = "Total Packets";
-static const uint8_t *st_str_packet_types   = "ANCP Packet Types";
-static const uint8_t *st_str_adj_pack_types = "ANCP Adjacency Packet Types";
+static const char *st_str_packets        = "Total Packets";
+static const char *st_str_packet_types   = "ANCP Packet Types";
+static const char *st_str_adj_pack_types = "ANCP Adjacency Packet Types";
 
 static int st_node_packets = -1;
 static int st_node_packet_types = -1;

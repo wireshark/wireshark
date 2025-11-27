@@ -176,7 +176,7 @@ static int hf_fldb_volid_high;
 static int hf_fldb_volid_low;
 static int hf_fldb_voltype;
 static uint32_t st;
-static const uint8_t *st_str;
+static const char *st_str;
 
 #define AFS_FLAG_RETURNTOKEN         0x00001
 #define AFS_FLAG_TOKENJUMPQUEUE      0x00002

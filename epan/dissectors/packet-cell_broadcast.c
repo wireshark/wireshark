@@ -234,14 +234,14 @@ unsigned dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, unsigne
 tvbuff_t * dissect_cbs_data(uint8_t sms_encoding, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned offset )
 {
    tvbuff_t * tvb_out = NULL;
-   int length = tvb_reported_length(tvb) - offset;
-   char *text;
+   int length = tvb_reported_length_remaining(tvb, offset);
+   const char *text;
 
    switch(sms_encoding){
    case SMS_ENCODING_7BIT:
    case SMS_ENCODING_7BIT_LANG:
       text = tvb_get_ts_23_038_7bits_string_packed(pinfo->pool, tvb, offset<<3, (length*8)/7);
-      tvb_out = tvb_new_child_real_data(tvb, text, (unsigned)strlen(text), (unsigned)strlen(text));
+      tvb_out = tvb_new_child_real_data(tvb, (const uint8_t*)text, (unsigned)strlen(text), (unsigned)strlen(text));
       add_new_data_source(pinfo, tvb_out, "unpacked 7 bit data");
       break;
 
@@ -249,15 +249,15 @@ tvbuff_t * dissect_cbs_data(uint8_t sms_encoding, tvbuff_t *tvb, proto_tree *tre
       /*
        * XXX - encoding is "user-defined".  Have a preference?
        */
-      text = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII|ENC_NA);
-      tvb_out = tvb_new_child_real_data(tvb, text, (unsigned)strlen(text), (unsigned)strlen(text));
+      text = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII|ENC_NA);
+      tvb_out = tvb_new_child_real_data(tvb, (const uint8_t*)text, (unsigned)strlen(text), (unsigned)strlen(text));
       add_new_data_source(pinfo, tvb_out, "8 bit data");
       break;
 
    case SMS_ENCODING_UCS2:
    case SMS_ENCODING_UCS2_LANG:
-      text = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_UCS_2|ENC_BIG_ENDIAN);
-      tvb_out = tvb_new_child_real_data(tvb, text, (unsigned)strlen(text), (unsigned)strlen(text));
+      text = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_UCS_2|ENC_BIG_ENDIAN);
+      tvb_out = tvb_new_child_real_data(tvb, (const uint8_t*)text, (unsigned)strlen(text), (unsigned)strlen(text));
       add_new_data_source(pinfo, tvb_out, "UCS-2 data");
       break;
 
@@ -368,7 +368,7 @@ int dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, proto
    proto_item    *cbs_item;
    proto_tree    *cbs_tree, *cbs_subtree;
    unsigned      msg_len;
-   uint8_t       *msg;
+   const char   *msg;
    tvbuff_t * cbs_msg_tvb = NULL;
 
    len = tvb_reported_length(tvb);
@@ -386,7 +386,7 @@ int dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, proto
    msg_len = tvb_reported_length(cbs_msg_tvb);
    cbs_subtree = proto_tree_add_subtree_format(cbs_tree, tvb, offset, -1,
                     ett_cbs_msg, NULL, "Cell Broadcast Message Contents (length: %d)", msg_len);
-   msg = tvb_get_string_enc(pinfo->pool, cbs_msg_tvb, 0, msg_len, ENC_UTF_8|ENC_NA);
+   msg = (char*)tvb_get_string_enc(pinfo->pool, cbs_msg_tvb, 0, msg_len, ENC_UTF_8|ENC_NA);
    proto_tree_add_string_format(cbs_subtree, hf_gsm_cbs_message_content, cbs_msg_tvb, 0, -1, msg, "%s", msg);
    return tvb_captured_length(tvb);
 }

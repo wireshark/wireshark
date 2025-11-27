@@ -95,8 +95,8 @@ static int fix_next_header(tvbuff_t *tvb, packet_info* pinfo, int offset)
 {
     /* try to resync to the next start */
     unsigned      min_len = tvb_captured_length_remaining(tvb, offset);
-    const uint8_t *data    = tvb_get_string_enc(pinfo->pool, tvb, offset, min_len, ENC_ASCII);
-    const uint8_t *start   = data;
+    const char *data    = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, min_len, ENC_ASCII);
+    const char *start   = data;
 
     while ((start = strstr(start, "\0018"))) {
         min_len = (unsigned) (start +1 -data);
@@ -169,7 +169,7 @@ static int fix_header_len(tvbuff_t *tvb, packet_info* pinfo, int offset)
         return fix_next_header(tvb, pinfo, offset);
     }
 
-    if (!ws_strtoi32(tvb_get_string_enc(pinfo->pool, tvb, tag->value_offset,
+    if (!ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool, tvb, tag->value_offset,
             tag->value_len, ENC_ASCII), NULL, &value))
         return fix_next_header(tvb, pinfo, base_offset +MARKER_LEN)  +MARKER_LEN;
     /* Fix version, msg type, length and checksum aren't in body length.
@@ -206,9 +206,9 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     int            pdu_len;
     int            offset = 0;
     int            field_offset, ctrla_offset;
-    int            tag_value;
+    uint32_t       tag_value;
     char          *value;
-    uint32_t       ivalue;
+    int32_t        ivalue;
     bool           ivalue_valid;
     proto_item*    pi;
     fix_parameter *tag;
@@ -267,7 +267,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             continue;
         }
 
-        if (!ws_strtou32(tvb_get_string_enc(pinfo->pool, tvb, field_offset, tag->tag_len, ENC_ASCII),
+        if (!ws_strtou32((char*)tvb_get_string_enc(pinfo->pool, tvb, field_offset, tag->tag_len, ENC_ASCII),
                 NULL, &tag_value)) {
             proto_tree_add_expert(fix_tree, pinfo, &ei_fix_tag_invalid, tvb, field_offset, tag->tag_len);
             break;
@@ -290,7 +290,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         /* fix_fields array is sorted by tag_value */
         field = bsearch(&tag_value, fix_fields, array_length(fix_fields), sizeof *fix_fields, fix_field_tag_compar);
 
-        value = tvb_get_string_enc(pinfo->pool, tvb, tag->value_offset, tag->value_len, ENC_ASCII);
+        value = (char*)tvb_get_string_enc(pinfo->pool, tvb, tag->value_offset, tag->value_len, ENC_ASCII);
         ivalue_valid = ws_strtoi32(value, NULL, &ivalue);
         if (field) {
             int hf = fix_hf[field - fix_fields];

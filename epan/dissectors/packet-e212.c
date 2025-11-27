@@ -3778,15 +3778,15 @@ dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     char   *mcc_str, *mnc_str;
     bool        long_mnc = false;
 
-    ws_strtou16(tvb_get_string_enc(pinfo->pool, tvb, offset, 3, ENC_UTF_8),
+    ws_strtou16((char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 3, ENC_UTF_8),
         NULL, &mcc);
-    ws_strtou16(tvb_get_string_enc(pinfo->pool, tvb, offset + 3, 2, ENC_UTF_8),
+    ws_strtou16((char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 3, 2, ENC_UTF_8),
         NULL, &mnc);
 
     /* Try to match the MCC and 2 digits MNC with an entry in our list of operators */
     if (!try_val_to_str_ext(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext)) {
         if (tvb_reported_length_remaining(tvb, offset + 3) > 2) {
-            ws_strtou16(tvb_get_string_enc(pinfo->pool, tvb, offset + 3, 3, ENC_UTF_8),
+            ws_strtou16((char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 3, 3, ENC_UTF_8),
                 NULL, &mnc);
             long_mnc = true;
         }
@@ -3851,7 +3851,7 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 {
     proto_item *item;
     proto_tree *subtree;
-    const uint8_t *imsi_str;
+    const char *imsi_str;
     uint8_t   oct;
 
     /* Fetch the BCD encoded digits from tvb indicated half byte, formating the digits according to
@@ -3865,16 +3865,16 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
          * The format is specified in Figure 10.5.4/3GPP TS 24.008 Mobile Identity information element
          */
         if (oct & 0x08) {
-            item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN | ENC_BCD_SKIP_FIRST, pinfo->pool, &imsi_str);
+            item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN | ENC_BCD_SKIP_FIRST, pinfo->pool, (const uint8_t**)&imsi_str);
         } else {
             /* See tvb_get_bcd_string(...) documentation.
              *     Note that if both skip_first and odd are true, then both the first and last semi-octet are skipped,
              *     i.e. an even number of nibbles are considered.
              */
-            item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN | ENC_BCD_SKIP_FIRST | ENC_BCD_ODD_NUM_DIG, pinfo->pool, &imsi_str);
+            item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN | ENC_BCD_SKIP_FIRST | ENC_BCD_ODD_NUM_DIG, pinfo->pool, (const uint8_t**)&imsi_str);
         }
     } else {
-        item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN, pinfo->pool, &imsi_str);
+        item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_LITTLE_ENDIAN, pinfo->pool, (const uint8_t**)&imsi_str);
     }
     if (!is_imsi_string_valid(imsi_str)) {
         expert_add_info(pinfo, item, &ei_E212_imsi_malformed);
@@ -3900,7 +3900,7 @@ dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     const char *imsi_str;
 
     /* Fetch the UTF8-encoded IMSI */
-    imsi_str = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_UTF_8);
+    imsi_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_UTF_8);
     item = proto_tree_add_string(tree, hf_E212_imsi, tvb, offset, length, imsi_str);
     if (!is_imsi_string_valid(imsi_str)) {
         expert_add_info(pinfo, item, &ei_E212_imsi_malformed);

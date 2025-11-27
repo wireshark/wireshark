@@ -870,7 +870,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 	}
 
 	if (string_data) {
-		string_buffer = tvb_get_string_enc(pinfo->pool, tvb, data_offset, string_length_copy, ENC_ASCII);
+		string_buffer = (char*)tvb_get_string_enc(pinfo->pool, tvb, data_offset, string_length_copy, ENC_ASCII);
 	} else {
 		string_buffer = (char *) tvb_memcpy(tvb,
 				wmem_alloc(pinfo->pool, string_length_copy+1), data_offset, string_length_copy);
@@ -885,7 +885,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 				size_t string_buffer_size = 0;
 				char *string_buffer_temp;
 
-				formatted = format_text(pinfo->pool, (uint8_t *)string_buffer,
+				formatted = format_text(pinfo->pool, string_buffer,
 						(int)strlen(string_buffer));
 
 				string_buffer_size = strlen(formatted) + 12 + 1;
@@ -909,7 +909,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 			}
 		} else {
 			if (string_data) {
-				string_buffer_print = format_text(pinfo->pool, (uint8_t *) string_buffer,
+				string_buffer_print = format_text(pinfo->pool, string_buffer,
 								 (int)strlen(string_buffer));
 			} else {
 				string_buffer_print="<DATA>";
@@ -2317,7 +2317,7 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 	offset += 4;
 
 	/* Get pointer to server config data */
-	ptr = tvb_get_ptr(tvb, offset, total_config_bytes);
+	ptr = (const char*)tvb_get_ptr(tvb, offset, total_config_bytes);
 
 	if (!ptr)
 	{
@@ -2339,7 +2339,8 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 
 	for (i = 0; i < total_lines; i++)
 	{
-		uint8_t entry[256], *pentry = entry, *tmp_entry = NULL;
+		uint8_t entry[256], *pentry = entry;
+		char *tmp_entry = NULL;
 		uint32_t entry_length = 0, tmp_entry_length = 0;
 		uint32_t bufsiz = sizeof(entry);
 
@@ -2373,7 +2374,7 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 
 		*pentry= '\0';
 
-		tmp_entry = get_ascii_string(pinfo->pool, entry, entry_length);
+		tmp_entry = (char*)get_ascii_string(pinfo->pool, entry, entry_length);
 		tmp_entry_length = (uint32_t)strlen(tmp_entry);
 
 		/* Remove all whitespace from front of entry */

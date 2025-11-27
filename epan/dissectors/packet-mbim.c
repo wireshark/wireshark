@@ -3463,8 +3463,8 @@ mbim_dissect_tcs(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int* offse
     proto_tree* subtree;
     int base_offset = *offset;
     int tc_pos = 1;
-    int tc_type;
-    int tc_value_length;
+    uint32_t tc_type;
+    uint32_t tc_value_length;
     while (*offset - base_offset < tcs_buffer_length) {
         subtree = proto_tree_add_subtree_format(tree, tvb, *offset, 0, ett_mbim_pair_list, NULL, "Traffic component #%u", tc_pos);
         proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_type, tvb, *offset, 1, ENC_NA, &tc_type);
@@ -3551,7 +3551,7 @@ mbim_dissect_tcs(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int* offse
             case URSP_TC_TYPE_CONNECTION_CAPABILITY:
                 proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &tc_value_length);
                 *offset += 1;
-                for (int i = 0; i < tc_value_length; i++) {
+                for (unsigned i = 0; i < tc_value_length; i++) {
                     proto_tree_add_bitmask(subtree, tvb, *offset, hf_mbim_ms_ursp_tc_capability, ett_mbim_bitmap,
                         ursp_tc_connection_capability_flags_fields, ENC_LITTLE_ENDIAN);
                     *offset += 1;
@@ -3594,7 +3594,7 @@ mbim_dissect_tps(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset
     proto_tree* subtree;
     int base_offset = offset;
     int tp_pos = 1;
-    int tp_length;
+    uint32_t tp_length;
     while (offset - base_offset < tp_buffer_length) {
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Traffic parameter #%u", tp_pos);
         proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_length, tvb, offset, 2, ENC_BIG_ENDIAN, &tp_length);

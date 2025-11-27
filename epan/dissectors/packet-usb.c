@@ -4723,8 +4723,8 @@ usb_set_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, uint16_t bus_i
     proto_item     *sub_item;
     usb_address_t  *src_addr = wmem_new0(pinfo->pool, usb_address_t),
                    *dst_addr = wmem_new0(pinfo->pool, usb_address_t);
-    uint8_t        *str_src_addr;
-    uint8_t        *str_dst_addr;
+    const char     *str_src_addr;
+    const char     *str_dst_addr;
 
     if (req) {
         /* request */
@@ -4965,7 +4965,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
     proto_item *tii;
     uint32_t    i;
     unsigned    data_base;
-    uint32_t    iso_status;
+    int32_t     iso_status;
     uint32_t    iso_off = 0;
     uint32_t    iso_len = 0;
 
@@ -5004,7 +5004,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
         iso_desc_tree = proto_item_add_subtree(iso_desc_ti, ett_usb_isodesc);
 
         proto_tree_add_item_ret_int(iso_desc_tree, hf_usb_iso_status, tvb, offset, 4, ENC_HOST_ENDIAN, &iso_status);
-        proto_item_append_text(iso_desc_ti, " [%s]", val_to_str_ext(pinfo->pool, iso_status, &linux_negative_errno_vals_ext, "Error %d"));
+        proto_item_append_text(iso_desc_ti, " [%s]", val_to_str_ext(pinfo->pool, (uint32_t)iso_status, &linux_negative_errno_vals_ext, "Error %d"));
         offset += 4;
 
         proto_tree_add_item_ret_uint(iso_desc_tree, hf_usb_iso_off, tvb, offset, 4, ENC_HOST_ENDIAN, &iso_off);

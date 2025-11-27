@@ -3629,7 +3629,7 @@ int
 dissect_ber_GeneralizedTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id)
 {
     nstime_t      ts;
-    const uint8_t *tmpstr;
+    const char   *tmpstr;
     int8_t        ber_class;
     bool      pc;
     int32_t       tag;
@@ -3715,7 +3715,7 @@ dissect_ber_GeneralizedTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tre
         return end_offset;
     }
 
-    tmpstr = tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len, ENC_ASCII);
+    tmpstr = (char*)tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len, ENC_ASCII);
     if (!iso8601_to_nstime(&ts, tmpstr, ISO8601_DATETIME_BASIC)) {
         cause = proto_tree_add_expert_format(
             tree, actx->pinfo, &ei_ber_invalid_format_generalized_time,
@@ -3746,7 +3746,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
 {
     wmem_strbuf_t *outstrbuf;
     char         *outstr;
-    const uint8_t *instr;
+    const char   *instr;
     int8_t        ber_class;
     bool      pc;
     int32_t       tag;
@@ -3797,7 +3797,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
         goto malformed;
     }
 
-    instr = tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len, ENC_ASCII);
+    instr = (char*)tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len, ENC_ASCII);
 
     /* YYMMDDhhmm */
     for (i=0; i<10; i++) {

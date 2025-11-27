@@ -157,7 +157,7 @@ typedef struct lapd_byte_state {
 	char		full_byte;		/* part of a full byte */
 	char		bit_offset;		/* number of bits already got in the full byte */
 	int		ones;			/* number of consecutive ones since the last zero */
-	char            data[MAX_LAPD_PACKET_LEN];
+	uint8_t         data[MAX_LAPD_PACKET_LEN];
 	int             data_len;
 } lapd_byte_state_t;
 
@@ -168,7 +168,7 @@ typedef struct lapd_ppi {
 
 /* Fill values in lapd_byte_state struct */
 static void
-fill_lapd_byte_state(lapd_byte_state_t *ptr, enum lapd_bitstream_states state, char full_byte, char bit_offset, int ones, char *data, int data_len)
+fill_lapd_byte_state(lapd_byte_state_t *ptr, enum lapd_bitstream_states state, char full_byte, char bit_offset, int ones, const uint8_t *data, int data_len)
 {
 	ptr->state = state;
 	ptr->full_byte = full_byte;
@@ -193,7 +193,7 @@ static void
 dissect_lapd_full(tvbuff_t*, packet_info*, proto_tree*, uint32_t);
 
 /* got new LAPD frame byte */
-static void new_byte(char full_byte, char data[], int *data_len) {
+static void new_byte(char full_byte, uint8_t data[], int *data_len) {
 	if (*data_len < MAX_LAPD_PACKET_LEN) {
 		data[*data_len] = full_byte;
 		(*data_len)++;

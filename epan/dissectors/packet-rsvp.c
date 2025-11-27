@@ -4681,7 +4681,7 @@ dissect_glabel_lambda(proto_tree *ti, proto_tree *rsvp_object_tree,
         0.0f;
         freq = 193.1f + (n * cs_thz);
         proto_tree_add_item(wavelength_tree, hf_rsvp_wavelength_cs1, tvb, offset, 1, ENC_NA);
-        proto_tree_add_uint_format_value(wavelength_tree, hf_rsvp_wavelength_n, tvb, offset+2, 2, n, "%d", n);
+        proto_tree_add_uint(wavelength_tree, hf_rsvp_wavelength_n, tvb, offset+2, 2, n);
         proto_tree_add_float_format_value(wavelength_tree, hf_rsvp_wavelength_freq, tvb, offset, 4, freq, "%.2fTHz", freq);
         proto_item_append_text(ti, ": Wavelength: grid=DWDM, channel spacing=%s, central frequency=%d, freq=%.2fTHz",
                                val_to_str_const(cs, grid1_cs_vals, "Unknown"), n, freq);
@@ -6375,7 +6375,7 @@ dissect_rsvp_call_id(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
                      int rsvp_class _U_, int c_type)
 {
     int           type    = 0;
-    const uint8_t *str;
+    const char   *str;
     int           offset2 = offset + 4;
     int           offset3, offset4, len;
     proto_tree   *ti2 = NULL, *hidden_item;
@@ -6409,10 +6409,10 @@ dissect_rsvp_call_id(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
             len = obj_length - 28;
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_ctype_call_id, tvb, offset+3, 1, ENC_BIG_ENDIAN);
             ti2 = proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_address_type, tvb, offset2, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item_ret_string(rsvp_object_tree, hf_rsvp_call_id_international_segment, tvb, offset2 + 1, 3, ENC_NA|ENC_ASCII, pinfo->pool, &str);
+            proto_tree_add_item_ret_string(rsvp_object_tree, hf_rsvp_call_id_international_segment, tvb, offset2 + 1, 3, ENC_NA|ENC_ASCII, pinfo->pool, (const uint8_t**)&str);
             proto_item_append_text(ti, "Globally-Unique. Addr Type: %s. Intl Segment: %s. ",
                                    val_to_str(pinfo->pool, type, address_type_vals, "Unknown (%u)"), str);
-            proto_tree_add_item_ret_string(rsvp_object_tree, hf_rsvp_call_id_national_segment, tvb, offset2 + 4, 12, ENC_NA|ENC_ASCII, pinfo->pool, &str);
+            proto_tree_add_item_ret_string(rsvp_object_tree, hf_rsvp_call_id_national_segment, tvb, offset2 + 4, 12, ENC_NA|ENC_ASCII, pinfo->pool, (const uint8_t**)&str);
             proto_item_append_text(ti, "Natl Segment: %s. ", str);
         }
 

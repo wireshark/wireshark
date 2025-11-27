@@ -230,7 +230,7 @@ id3v2_dissect_textz_item(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *tre
 
 	encoding = id3v2_decode_encoding(id3_encoding);
 
-	text_value = tvb_get_stringz_enc(scope, tvb, *offset, &text_length, encoding);
+	text_value = (char*)tvb_get_stringz_enc(scope, tvb, *offset, &text_length, encoding);
 	proto_tree_add_item(tree, hf, tvb, *offset, text_length, encoding);
 	*offset += text_length;
 
@@ -245,7 +245,7 @@ id3v2_dissect_text_item(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *tree
 
 	encoding = id3v2_decode_encoding(id3_encoding);
 
-	text_value = tvb_get_string_enc(scope, tvb, *offset, (end - *offset), encoding);
+	text_value = (char*)tvb_get_string_enc(scope, tvb, *offset, (end - *offset), encoding);
 	proto_tree_add_item(tree, hf, tvb, *offset, (end - *offset), encoding);
 
 	return text_value;
@@ -326,7 +326,7 @@ dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
 	uint32_t size;
 	char *frame_id;
 
-	frame_id = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ISO_8859_1);
+	frame_id = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ISO_8859_1);
 
 	if (strlen(frame_id) == 0) {
 		proto_tree_add_item(tree, hf_id3v2_padding, tvb, offset, -1, ENC_NA);
@@ -367,7 +367,7 @@ dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
 		unsigned text_length;
 		char *text_value;
 
-		text_value = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &text_length, ENC_UTF_8);
+		text_value = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &text_length, ENC_UTF_8);
 		proto_tree_add_item(frame_tree, hf_id3v2_frame_ufi_owner, tvb, offset, text_length, ENC_ISO_8859_1);
 		offset += text_length;
 		proto_item_append_text(frame_item, " (Owner: %s)", text_value);

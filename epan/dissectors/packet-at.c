@@ -2444,7 +2444,7 @@ dissect_at_command_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_item      *data_part_item;
     proto_item      *data_part_tree;
     proto_item      *pitem;
-    char            *data_stream;
+    uint8_t         *data_stream;
     int              data_part_index;
     int              length;
     int              data_part_length = 0;

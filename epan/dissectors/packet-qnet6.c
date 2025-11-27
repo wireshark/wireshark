@@ -1474,7 +1474,7 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * p
   uint32_t      total_len, off, len, rlen;
   int           lr_start, i, hf_index_off = -1, hf_index_len = -1, hf_index = -1;
   uint8_t       type;
-  uint8_t const *p, *name[QNET6_LR_PAIRS];
+  char const *p, *name[QNET6_LR_PAIRS];
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "QNET_LR");
 
@@ -1581,7 +1581,7 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * p
            */
           if (i != 2 && i != 5)
             {
-            name[i] = tvb_get_string_enc(pinfo->pool,
+            name[i] = (char*)tvb_get_string_enc(pinfo->pool,
                                          tvb,
                                          addr_data_offset,
                                          len,
@@ -2811,7 +2811,7 @@ dissect_qnet6_kif_msgsend_msg_iomsg(tvbuff_t * tvb, packet_info * pinfo _U_, pro
  * events returned };
  *
  */
-static const uint8_t *qnet6_kif_msg_io_notify_event_str[] = {
+static const char *qnet6_kif_msg_io_notify_event_str[] = {
   "read ", "write ", "rdband "
 };
 
@@ -2825,7 +2825,7 @@ dissect_qnet6_kif_msgsend_msg_notify(tvbuff_t * tvb, packet_info * pinfo _U_, pr
   nstime_t    nt;
   uint64_t    timo;
   uint32_t    nfds, i, j, n, m;
-  uint8_t     sevent[20], srevent[20]; /* enough to fit "read,write,rdband" */
+  char        sevent[20], srevent[20]; /* enough to fit "read,write,rdband" */
   static int * const notify_flags_fields[] = {
     &hf_qnet6_kif_msg_io_notify_flags_28,
     &hf_qnet6_kif_msg_io_notify_flags_29,
