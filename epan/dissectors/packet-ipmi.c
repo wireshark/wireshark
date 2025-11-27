@@ -129,8 +129,8 @@ static bool dissect_bus_commands;
 static bool fru_langcode_is_english = true;
 static unsigned response_after_req = 5000;
 static unsigned response_before_req;
-static unsigned message_format = MSGFMT_GUESS;
-static unsigned selected_oem = IPMI_OEM_NONE;
+static int message_format = MSGFMT_GUESS;
+static int selected_oem = IPMI_OEM_NONE;
 
 static int hf_ipmi_command_data;
 static int hf_ipmi_session_handle;
@@ -1158,7 +1158,7 @@ ipmi_getnetfn(uint32_t netfn, const uint8_t *sig)
 
 	inr = &ipmi_cmd_tab[netfn >> 1];
 	for (inh = inr->list; inh; inh = inh->next) {
-		if ((inh->oem_selector == selected_oem || inh->oem_selector == IPMI_OEM_NONE)
+		if ((inh->oem_selector == (unsigned)selected_oem || inh->oem_selector == IPMI_OEM_NONE)
 				&& (!inr->siglen || !memcmp(sig, inh->sig, inr->siglen))) {
 			return inh;
 		}

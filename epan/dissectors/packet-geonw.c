@@ -321,8 +321,8 @@ static int
 dissect_btpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     heur_dtbl_entry_t *hdtbl_entry;
-    int low_port, high_port;
-    int dst_port, src_port;
+    uint32_t low_port, high_port;
+    uint32_t dst_port, src_port;
     proto_item *hidden_item;
     struct btpaheader *btpah;
 

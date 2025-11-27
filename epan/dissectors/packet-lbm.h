@@ -333,7 +333,7 @@ bool lbmc_test_lbmc_header(tvbuff_t * tvb, int offset);
 int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const char * tag_name, uint64_t channel);
 int lbmc_get_minimum_length(void);
 uint16_t lbmc_get_message_length(tvbuff_t * tvb, int offset);
-bool lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, int * length);
+bool lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, uint32_t* length);
 int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, uint64_t channel);
 int lbmpdm_get_minimum_length(void);
 int lbmr_dissect_umq_qmgmt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);

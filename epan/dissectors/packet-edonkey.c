@@ -666,11 +666,11 @@ static int lookup_str_index(char* str, int length, const value_string *vs)
 
 static uint8_t edonkey_metatag_name_get_type(tvbuff_t *tvb, packet_info* pinfo, int start, int length, uint8_t special_tagtype)
 {
-    uint8_t *tag_name;
+    char *tag_name;
 
     if (try_val_to_str(special_tagtype, edonkey_special_tags) == NULL) {
         int idx;
-        tag_name = tvb_get_string_enc(pinfo->pool, tvb, start, length, ENC_ASCII|ENC_NA);
+        tag_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, start, length, ENC_ASCII|ENC_NA);
         idx = lookup_str_index(tag_name, length, edonkey_special_tags);
         if (idx < 0)
             return EDONKEY_STAG_UNKNOWN;
@@ -980,7 +980,7 @@ static int dissect_kademlia_tagname(tvbuff_t *tvb, packet_info *pinfo,
     hidden_item = proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
     proto_item_set_hidden(hidden_item);
 
-    tagname = tvb_get_string_enc(pinfo->pool, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
+    tagname = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
 
     tag_full_name = "UnknownTagName";
 

@@ -1588,7 +1588,7 @@ static const value_string ul_retx_grant_vals[] =
 
 /* If this PDU has been NACK'd (by HARQ) more than a certain number of times,
    we trigger an expert warning. */
-static int global_mac_lte_retx_counter_trigger = 3;
+static unsigned global_mac_lte_retx_counter_trigger = 3;
 
 /* By default try to decode transparent data (BCH, PCH and CCCH) data using LTE RRC dissector */
 static bool global_mac_lte_attempt_rrc_decode = true;
@@ -1612,7 +1612,7 @@ enum lcid_drb_source {
 static int global_mac_lte_lcid_drb_source = (int)FromStaticTable;
 
 /* Threshold for warning in expert info about high BSR values */
-static int global_mac_lte_bsr_warn_threshold = 50; /* default is 19325 -> 22624 */
+static unsigned global_mac_lte_bsr_warn_threshold = 50; /* default is 19325 -> 22624 */
 
 /* Whether or not to track SRs and related frames */
 static bool global_mac_lte_track_sr = true;
@@ -6257,7 +6257,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
                         offset++;
 
-                        if ((int)buffer_size >= global_mac_lte_bsr_warn_threshold) {
+                        if (buffer_size >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG %u exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
@@ -6319,7 +6319,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             proto_item_set_generated(bsr_median_ti);
                         }
 
-                        if ((int)buffer_size[0] >= global_mac_lte_bsr_warn_threshold) {
+                        if (buffer_size[0] >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG 0 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
@@ -6339,7 +6339,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
 
                         offset++;
-                        if ((int)buffer_size[1] >= global_mac_lte_bsr_warn_threshold) {
+                        if (buffer_size[1] >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG 1 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
@@ -6359,7 +6359,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
 
                         offset++;
-                        if ((int)buffer_size[2] >= global_mac_lte_bsr_warn_threshold) {
+                        if (buffer_size[2] >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG 2 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
@@ -6379,7 +6379,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
 
                         offset++;
-                        if ((int)buffer_size[3] >= global_mac_lte_bsr_warn_threshold) {
+                        if (buffer_size[3] >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG 3 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,

@@ -111,7 +111,7 @@ static int get_tag(const char *frame, const char *token, tvbuff_t *tvb,
         proto_tree *maintree, int start_offset, packet_info *pinfo) {
     char *p = g_strstr_len(frame + start_offset, -1, token);
     int offset = (int)(p - frame);
-    uint8_t *src_addr = wmem_strdup(pinfo->pool, token);
+    uint8_t *src_addr = (uint8_t*)wmem_strdup(pinfo->pool, token);
     int tok_len = (int)strlen(token);
 
     proto_tree_add_string(maintree, hf_logcat_text_tag, tvb, offset, tok_len,
@@ -184,7 +184,7 @@ static int dissect_logcat_text(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
         const dissect_info_t *dinfo) {
     char **tokens;
     unsigned i;
-    char *frame = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb),
+    char *frame = (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb),
             ENC_UTF_8);
     proto_item *mainitem = proto_tree_add_item(tree, proto_logcat_text, tvb, 0, -1, ENC_NA);
     proto_tree *maintree = proto_item_add_subtree(mainitem, ett_logcat);

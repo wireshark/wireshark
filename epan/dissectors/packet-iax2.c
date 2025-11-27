@@ -1502,7 +1502,7 @@ static uint32_t dissect_ies(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
           } else {
             /* we don't understand this ie: add a generic one */
             uint32_t      value;
-            const uint8_t *ptr;
+            const char *ptr;
             const char   *ie_name = val_to_str_ext_const(ies_type, &iax_ies_type_ext, "Unknown");
 
             switch (ies_len) {
@@ -1531,7 +1531,7 @@ static uint32_t dissect_ies(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
                 break;
 
               default:
-                ptr = tvb_get_string_enc(pinfo->pool, tvb, offset + 2, ies_len, ENC_ASCII);
+                ptr = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 2, ies_len, ENC_ASCII);
                 ie_item =
                   proto_tree_add_string_format(ies_tree, hf_IAX_IE_UNKNOWN_BYTES,
                                                tvb, offset+2, ies_len, ptr,
@@ -1553,7 +1553,7 @@ static uint32_t dissect_ies(tvbuff_t *tvb, packet_info *pinfo, uint32_t offset,
           proto_item_set_text(ti, "Information Element: %s",
                               ie_finfo->rep->representation);
         else {
-          uint8_t *ie_val = (uint8_t *)wmem_alloc(pinfo->pool, ITEM_LABEL_LENGTH);
+          char *ie_val = (char *)wmem_alloc(pinfo->pool, ITEM_LABEL_LENGTH);
           proto_item_fill_label(ie_finfo, ie_val, NULL);
           proto_item_set_text(ti, "Information Element: %s",
                               ie_val);

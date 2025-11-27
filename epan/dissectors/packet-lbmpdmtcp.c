@@ -238,14 +238,13 @@ static unsigned get_lbmpdm_tcp_pdu_length(packet_info * pinfo _U_, tvbuff_t * tv
                                        int offset, void *data _U_)
 {
     int encoding;
-    int packet_len = 0;
-    packet_len = 0;
+    uint32_t packet_len = 0;
 
     if (!lbmpdm_verify_payload(tvb, offset, &encoding, &packet_len))
     {
         packet_len = 0;
     }
-    return (packet_len);
+    return packet_len;
 }
 
 static int dissect_lbmpdm_tcp_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * dissector_data _U_)
@@ -318,7 +317,7 @@ static int dissect_lbmpdm_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
 static bool test_lbmpdm_tcp_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data _U_)
 {
     int encoding = 0;
-    int packet_len = 0;
+    uint32_t packet_len = 0;
 
     /* Must be a TCP packet. */
     if (pinfo->ptype != PT_TCP)

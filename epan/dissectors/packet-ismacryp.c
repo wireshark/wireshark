@@ -37,7 +37,7 @@ typedef struct Toffset_struct
 
 } offset_struct;
 
-static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned ismacryp_version);
+static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int ismacryp_version);
 static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, packet_info *pinfo, proto_tree *tree, unsigned set_version );
 static void add_bits(offset_struct* poffset, int len_bits);
 
@@ -79,8 +79,8 @@ static unsigned pref_cts_delta_length         = DEFAULT_CTS_DELTA_LENGTH;       
 static unsigned pref_dts_delta_length         = DEFAULT_DTS_DELTA_LENGTH;          /* default DTS delta  length */
 static bool     pref_random_access_indication = DEFAULT_RANDOM_ACCESS_INDICATION;  /* default random access indication */
 static unsigned pref_stream_state_indication  = DEFAULT_STREAM_STATE_INDICATION;   /* default stream state indication */
-static unsigned version_type                  = V11;                               /* default to ISMACryp 1.1 */
-static unsigned mode                          = AVC_VIDEO_MODE;                    /* default codec mode */
+static int version_type                       = V11;                               /* default to ISMACryp 1.1 */
+static int mode                               = AVC_VIDEO_MODE;                    /* default codec mode */
 static bool     selective_encryption          = DEFAULT_SELECTIVE_ENCRYPTION;      /* default selective encryption flag */
 static bool     slice_indication              = DEFAULT_SLICE_INDICATION;          /* default slice indication */
 static bool     padding_indication            = DEFAULT_PADDING_INDICATION;        /* default padding indication */
@@ -236,7 +236,7 @@ static int dissect_ismacryp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return tvb_captured_length(tvb);
 }
 
-static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned ismacryp_version)
+static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int ismacryp_version)
 {
 	unsigned set_version;           /* ISMACryp version used during dissection */
 	proto_item *ismacryp_item;

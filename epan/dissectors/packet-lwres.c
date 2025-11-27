@@ -270,7 +270,7 @@ static void dissect_getnamebyaddr_response(tvbuff_t* tvb, packet_info *pinfo, pr
         for(i=0; i<naliases; i++)
         {
             aliaslen = tvb_get_ntohs(tvb, offset);
-            aliasname = tvb_get_string_enc(pinfo->pool, tvb, offset + 2, aliaslen, ENC_ASCII);
+            aliasname = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 2, aliaslen, ENC_ASCII);
 
             alias_tree = proto_tree_add_subtree_format(nba_resp_tree, tvb, offset, 2 + aliaslen,
                                 ett_adn_alias, NULL, "Alias %s",aliasname);
@@ -388,7 +388,7 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, packet_info *pinfo, p
         for(i=0; i<naliases; i++)
         {
             aliaslen = tvb_get_ntohs(tvb, offset);
-            aliasname = tvb_get_string_enc(pinfo->pool, tvb, offset + 2, aliaslen, ENC_ASCII);
+            aliasname = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 2, aliaslen, ENC_ASCII);
 
             alias_tree = proto_tree_add_subtree_format(adn_resp_tree, tvb, offset, 2 + aliaslen,
                                                         ett_adn_alias, NULL, "Alias %s",aliasname);

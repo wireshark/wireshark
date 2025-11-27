@@ -1521,7 +1521,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x78:	/* NMEA sentence / IMS Status-Code */
 			if (ims_event) {
-				uint8_t *status_code = tvb_get_string_enc(pinfo->pool, tvb, pos, len, ENC_ASCII);
+				char *status_code = (char*)tvb_get_string_enc(pinfo->pool, tvb, pos, len, ENC_ASCII);
 				proto_tree_add_string_format_value(elem_tree, hf_ctlv_ims_status_code, tvb, pos, len,
 					status_code, "%s (%s)", status_code, str_to_str_wmem(pinfo->pool, status_code, ims_status_code, "Unknown"));
 			}

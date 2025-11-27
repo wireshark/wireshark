@@ -985,7 +985,7 @@ static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo,
                     if (string_field_name && (string_name_len > 0))
                     {
                         field->field_string_name_len = string_name_len;
-                        field->field_string_name = tvb_get_string_enc(wmem_file_scope(), tvb, string_name_ofs, string_name_len, ENC_ASCII);
+                        field->field_string_name = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, string_name_ofs, string_name_len, ENC_ASCII);
                     }
                     else
                     {
@@ -1145,7 +1145,7 @@ static bool check_lbmpdm_encoding(tvbuff_t * tvb, int offset, int * encoding)
     return (result);
 }
 
-bool lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, int * length)
+bool lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, uint32_t* length)
 {
     uint8_t next_header;
     uint32_t len = 0;
@@ -1174,7 +1174,7 @@ bool lbmpdm_verify_payload(tvbuff_t * tvb, int offset, int * encoding, int * len
     {
         return false;
     }
-    *length = (int)len;
+    *length = len;
     return true;
 }
 

@@ -2694,8 +2694,8 @@ esp_export_dsb(capture_file *cf)
   dsb = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(block);
 
   dsb->secrets_type = SECRETS_TYPE_ESP;
-  dsb->secrets_data = wmem_strbuf_finalize(secrets);
-  dsb->secrets_len = (uint32_t)strlen(dsb->secrets_data);
+  dsb->secrets_data = (uint8_t*)wmem_strbuf_finalize(secrets);
+  dsb->secrets_len = (uint32_t)strlen((char*)dsb->secrets_data);
 
   wtap_file_add_decryption_secrets(cf->provider.wth, block);
   cf->unsaved_changes = TRUE;

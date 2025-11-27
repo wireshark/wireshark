@@ -127,7 +127,7 @@ dissect_string_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, pr
 {
 	proto_item	*string_item;
 	proto_tree	*string_tree;
-	const uint8_t	*string_value;
+	const char	*string_value;
 
 	string_item = proto_tree_add_protocol_format(tree, hf_fdp_string,
 		tvb, offset, length, "%s", type_string);
@@ -139,7 +139,7 @@ dissect_string_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, pr
 	length -= 4;
 
 	proto_tree_add_item(string_tree, hf_fdp_string_data, tvb, offset, length, ENC_NA);
-	proto_tree_add_item_ret_string(string_tree, hf_fdp_string_text, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, &string_value);
+	proto_tree_add_item_ret_string(string_tree, hf_fdp_string_text, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, (const uint8_t**)&string_value);
 	proto_item_append_text(string_item, ": \"%s\"",
 		format_text(pinfo->pool, string_value, strlen(string_value)));
 

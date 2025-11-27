@@ -430,7 +430,7 @@ dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 {
 	proto_item	*display_item;
 	proto_tree	*display_tree;
-	const uint8_t	*display_name;
+	const char	*display_name;
 
 	display_item = proto_tree_add_item(tree, hf_edp_display,
 		tvb, offset, length, ENC_BIG_ENDIAN);
@@ -442,9 +442,9 @@ dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 	length -= 4;
 
 	proto_tree_add_item_ret_string(display_tree, hf_edp_display_string, tvb, offset, length,
-		ENC_ASCII, pinfo->pool, &display_name);
+		ENC_ASCII, pinfo->pool, (const uint8_t**)&display_name);
 	proto_item_append_text(display_item, ": \"%s\"",
-		format_text(pinfo->pool, display_name, strlen((const char *)display_name)));
+		format_text(pinfo->pool, display_name, strlen(display_name)));
 }
 
 static int
@@ -550,7 +550,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	proto_item	*vlan_item;
 	proto_tree	*vlan_tree;
 	uint16_t		vlan_id;
-	const uint8_t	*vlan_name;
+	const char	*vlan_name;
 
 	vlan_item = proto_tree_add_item(tree, hf_edp_vlan, tvb,
 		offset, length, ENC_BIG_ENDIAN);
@@ -621,9 +621,9 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	length -= 4;
 
 	proto_tree_add_item_ret_string(vlan_tree, hf_edp_vlan_name, tvb, offset, length,
-		ENC_ASCII, pinfo->pool, &vlan_name);
+		ENC_ASCII, pinfo->pool, (const uint8_t**)&vlan_name);
 	proto_item_append_text(vlan_item, ", Name \"%s\"",
-		format_text(pinfo->pool, vlan_name, strlen((const char *)vlan_name)));
+		format_text(pinfo->pool, vlan_name, strlen(vlan_name)));
 	offset += length;
 
 

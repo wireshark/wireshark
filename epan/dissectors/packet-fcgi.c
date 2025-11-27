@@ -113,11 +113,11 @@ dissect_nv_pairs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fcgi_tree, int o
          offset += 4;
       }
 
-      name = tvb_get_string_enc(pinfo->pool, tvb, offset, namelen, ENC_ASCII);
+      name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, namelen, ENC_ASCII);
       offset += namelen;
 
       if (valuelen > 0) {
-         value = tvb_get_string_enc(pinfo->pool, tvb, offset, valuelen, ENC_ASCII);
+         value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, valuelen, ENC_ASCII);
          offset += valuelen;
 
          proto_tree_add_string_format(fcgi_tree, hf_fcgi_nv_name, tvb, start_offset, offset - start_offset,

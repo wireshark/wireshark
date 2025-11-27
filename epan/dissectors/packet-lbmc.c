@@ -11611,7 +11611,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                         if (lbmc_dissect_lbmpdm)
                         {
                             int encoding;
-                            int pdmlen;
+                            uint32_t pdmlen;
 
                             dissector_found = (bool)lbmpdm_verify_payload(data_tvb, 0, &encoding, &pdmlen);
                         }

@@ -2200,7 +2200,7 @@ dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     /* check and get (and store) version */
     if(puflags & PUFLAGS_VRSN){
-        gquic_info->version_valid = ws_strtou8(tvb_get_string_enc(pinfo->pool, tvb,
+        gquic_info->version_valid = ws_strtou8((char*)tvb_get_string_enc(pinfo->pool, tvb,
             offset + 1 + len_cid + 1, 3, ENC_ASCII), NULL, &gquic_info->version);
         if (!gquic_info->version_valid)
             expert_add_info(pinfo, gquic_tree, &ei_gquic_version_invalid);
@@ -2350,7 +2350,7 @@ dissect_gquic_q046(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if((first_byte & PUFLAGS_MPTH) && (first_byte & PUFLAGS_RSV)) {
         /* Long Header. We handle only Q046 */
 
-	gquic_info->version_valid = ws_strtou8(tvb_get_string_enc(pinfo->pool, tvb,
+	gquic_info->version_valid = ws_strtou8((char*)tvb_get_string_enc(pinfo->pool, tvb,
             offset + 2, 3, ENC_ASCII), NULL, &gquic_info->version);
         if (!gquic_info->version_valid) {
             expert_add_info(pinfo, gquic_tree, &ei_gquic_version_invalid);
