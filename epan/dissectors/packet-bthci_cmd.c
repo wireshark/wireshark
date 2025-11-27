@@ -4228,7 +4228,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
         case 0x0013: /* Change Local Name */
             proto_tree_add_item(tree, hf_bthci_cmd_device_name, tvb, offset, 248, ENC_UTF_8);
             if (!pinfo->fd->visited && bthci_cmd_data) {
-                bthci_cmd_data->data.name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, 248, ENC_UTF_8);
+                bthci_cmd_data->data.name = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset, 248, ENC_UTF_8);
             }
             offset += 248;
             break;
@@ -11269,7 +11269,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     int64_t      end_offset;
     bool         has_bd_addr = false;
     uint8_t      bd_addr[6];
-    uint8_t     *name = NULL;
+    char        *name = NULL;
     bluetooth_uuid_t uuid;
     uint32_t     interval, num_bis;
 
@@ -11360,7 +11360,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_name, tvb, offset, length, ENC_UTF_8);
             proto_item_append_text(entry_item, ": %s", tvb_format_text(pinfo->pool, tvb, offset, length));
             if (!name || type == 0x09)
-                name = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_UTF_8);
+                name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_UTF_8);
             offset += length;
 
             break;

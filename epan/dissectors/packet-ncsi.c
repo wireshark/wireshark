@@ -567,7 +567,7 @@ ncsi_bcd_dig_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset)
     }
 
     digit_str[str_offset] = '\0';
-    return get_utf_8_string(scope, digit_str, (int)strlen(digit_str));
+    return (const char*)get_utf_8_string(scope, (uint8_t*)digit_str, (int)strlen(digit_str));
 
 }
 
@@ -973,7 +973,7 @@ dissect_ncsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ver_str = ncsi_bcd_dig_to_str(pinfo->pool, tvb, 20);
             proto_tree_add_string(ncsi_ver_tree, hf_ncsi_ver, tvb, 20, 8, ver_str);
 
-            fw_name = tvb_get_string_enc(pinfo->pool, tvb, 28, 12, ENC_ASCII);
+            fw_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, 28, 12, ENC_ASCII);
             proto_tree_add_string(ncsi_ver_tree, hf_ncsi_fw_name, tvb, 28, 12, fw_name);
             proto_tree_add_string(ncsi_ver_tree, hf_ncsi_fw_ver, tvb, 40, 4, ncsi_fw_version(pinfo->pool, tvb, 40));
 

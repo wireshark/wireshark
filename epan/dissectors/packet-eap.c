@@ -915,7 +915,7 @@ dissect_eap_identity_3gpp(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   unsigned    mcc_mnc = 0;
   proto_tree* eap_identity_tree = NULL;
   uint32_t    eap_identity_prefix = 0;
-  uint8_t*    identity = NULL;
+  const char* identity = NULL;
   char**      tokens = NULL;
   char**      realm_tokens = NULL;
   unsigned    ntokens = 0;
@@ -941,7 +941,7 @@ dissect_eap_identity_3gpp(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
     if (size < 2 || tvb_ascii_isprint(tvb, offset + 1, size - 1) == false) {
       goto end;
     }
-    identity = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, size - 1, ENC_ASCII);
+    identity = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 1, size - 1, ENC_ASCII);
     /* Encrypted IMSIs must be delimited twice:
      * (1) Once to tokenize the 3GPP realm from the Certificate Serial Number
      *     using the ',' character
@@ -1016,7 +1016,7 @@ dissect_eap_identity_3gpp(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
       goto end;
     }
     /* All other identities may be delimited with the '@' character */
-    identity = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
+    identity = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
     tokens = g_strsplit_set(identity, "@", -1);
 
     ntokens = g_strv_length(tokens);
@@ -2314,6 +2314,11 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 break;
               case EAP_TYPE_TEAP:
                 if (outer_tlvs) {	/* https://www.rfc-editor.org/rfc/rfc7170.html#section-4.1 */
+                  /* XXX - These calculations shouldn't use tvb and size (which
+                   * is based off the length of the EAP packet), but should use
+                   * next_tvb in case this was fragmented. Fix that when fixing
+                   * the sign of outer_tlvs_length.
+                   */
                   tvbuff_t *teap_tvb = tvb_new_subset_length(tvb, offset + size - outer_tlvs_length, outer_tlvs_length);
                   call_dissector(teap_handle, teap_tvb, pinfo, eap_tree);
                   if (size == outer_tlvs_length) goto skip_tls_dissector;

@@ -4974,7 +4974,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         return old_offset + offset;
 
     if (p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID) == NULL) {
-        uint8_t *value_data;
+        char *value_data;
 
         value_data = wmem_strdup(wmem_file_scope(), print_numeric_bluetooth_uuid(pinfo->pool, &uuid));
 
@@ -5399,7 +5399,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         break;
     case 0x2906: /* Valid Range */ {
         bluetooth_uuid_t     characteristic_uuid;
-        uint8_t             *characteristic_dissector_name;
+        const char          *characteristic_dissector_name;
         dissector_handle_t   characteristic_dissector;
 
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))

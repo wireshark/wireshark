@@ -3569,7 +3569,7 @@ uint32_t get_CDR_string(wmem_allocator_t* scope, tvbuff_t *tvb, const char **seq
     /* XXX - add expert_add_info_format note */
     slength = (uint32_t)reported_length;
   }
-  *seq = tvb_get_string_enc(scope, tvb, *offset, slength, ENC_ISO_8859_1);
+  *seq = (char*)tvb_get_string_enc(scope, tvb, *offset, slength, ENC_ISO_8859_1);
   *offset += slength;
 
   return slength;               /* return length */
@@ -4302,10 +4302,8 @@ dissect_reply_body (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (sequence_length != 0 && sequence_length < ITEM_LABEL_LENGTH)
     {
-      header->exception_id = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &sequence_length, ENC_ASCII);
-
-      proto_tree_add_string(tree, hf_giop_exception_id, tvb, offset,
-                            sequence_length, header->exception_id);
+      proto_tree_add_item_ret_string(tree, hf_giop_exception_id, tvb, offset,
+                            (int)sequence_length, ENC_ASCII, pinfo->pool, (const uint8_t**)&header->exception_id);
       offset += sequence_length;
     }
 

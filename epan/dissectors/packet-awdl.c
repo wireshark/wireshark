@@ -1171,7 +1171,7 @@ add_awdl_dns_name(proto_tree *tree, int hfindex_regular, int hfindex_compressed,
                   tvbuff_t *tvb, int offset, int len, wmem_allocator_t *scope, const char **name) {
   int start_offset = offset;
   uint8_t component_len;
-  const unsigned char *component;
+  const char *component;
   wmem_strbuf_t *strbuf;
 
   strbuf = wmem_strbuf_new_sized(scope, MAX_DNAME_LEN);
@@ -1191,8 +1191,8 @@ add_awdl_dns_name(proto_tree *tree, int hfindex_regular, int hfindex_compressed,
       offset += 2;
     } else {
       /* regular label */
-      unsigned label_len;
-      proto_tree_add_item_ret_string_and_length(tree, hfindex_regular, tvb, offset, 1, ENC_ASCII, scope, &component, &label_len);
+      int label_len;
+      proto_tree_add_item_ret_string_and_length(tree, hfindex_regular, tvb, offset, 1, ENC_ASCII, scope, (const uint8_t**)&component, &label_len);
       offset += label_len;
     }
     if (component) {

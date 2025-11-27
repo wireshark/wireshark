@@ -847,7 +847,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 
         /* Show rule string itself. Add it as a separate data source so can read it all */
         if (rule_string_length > 60) {
-            tvbuff_t *rule_string_tvb = tvb_new_child_real_data(tvb, rule->rule_string,
+            tvbuff_t *rule_string_tvb = tvb_new_child_real_data(tvb, (uint8_t*)rule->rule_string,
                                                                 (unsigned)rule_string_length,
                                                                 (unsigned)rule_string_length);
             add_new_data_source(pinfo, rule_string_tvb, "Rule String");

@@ -60,9 +60,9 @@ static expert_field ei_bthcrp_unexpected_data;
 static dissector_handle_t bthcrp_handle;
 
 static int      force_client     = FORCE_CLIENT_DEFAULT;
-static int      psm_control;
-static int      psm_data_stream;
-static int      psm_notification;
+static unsigned psm_control;
+static unsigned psm_data_stream;
+static unsigned psm_notification;
 
 static const value_string control_pdu_id_vals[] = {
     { 0x0001,   "CR_DataChannelCreditGrant" },

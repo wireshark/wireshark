@@ -6242,7 +6242,7 @@ static const char *
 dissect_radius_qos_umts(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo)
 {
     decode_qos_umts(tvb, 0, pinfo, tree, "UMTS GTP QoS Profile", 3);
-    return tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
+    return (const char*)tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
 }
 
 static void
@@ -9555,7 +9555,7 @@ static int
 decode_gtp_ext_node_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     uint16_t    length;
-    uint32_t    item_len;
+    int         item_len;
     proto_tree *ext_tree;
 
     length = tvb_get_ntohs(tvb, offset + 1);

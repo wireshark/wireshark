@@ -109,7 +109,7 @@ bencoded_string_length(packet_info *pinfo, tvbuff_t *tvb, unsigned *offset_ptr, 
   while (tvb_get_uint8(tvb, offset) != ':' && --remaining)
     ++offset;
 
-  if (remaining && ws_strtou32(tvb_get_string_enc(pinfo->pool, tvb, start, offset-start, ENC_ASCII),
+  if (remaining && ws_strtou32((char*)tvb_get_string_enc(pinfo->pool, tvb, start, offset-start, ENC_ASCII),
       NULL, length)) {
     ++offset; /* skip the ':' */
     *offset_ptr = offset;
@@ -141,7 +141,7 @@ dissect_bencoded_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
   else if (tohex)
     *result = tvb_bytes_to_str(pinfo->pool, tvb, offset, string_len);
   else
-    *result = tvb_get_string_enc(pinfo->pool, tvb, offset, string_len, ENC_ASCII);
+    *result = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, string_len, ENC_ASCII);
 
   proto_tree_add_string_format(tree, hf_bencoded_string, tvb, offset, string_len, *result, "%s: %s", label, *result);
   offset += string_len;
@@ -176,7 +176,7 @@ dissect_bencoded_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
 
   proto_tree_add_item(tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII);
 
-  *result = tvb_get_string_enc(pinfo->pool, tvb, start_offset, offset - start_offset, ENC_ASCII);
+  *result = (char*)tvb_get_string_enc(pinfo->pool, tvb, start_offset, offset - start_offset, ENC_ASCII);
   proto_tree_add_string_format(tree, hf_bencoded_int, tvb, start_offset, offset - start_offset, *result,
     "%s: %s", label, *result);
 

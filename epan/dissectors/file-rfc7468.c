@@ -201,7 +201,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     /*
      * Extract the label, and put it in that subtree.
      */
-    label = wmem_strndup(pinfo->pool, labelp, labellen);
+    label = wmem_strndup(pinfo->pool, (const char*)labelp, labellen);
     proto_tree_add_item(preeb_tree, hf_rfc7468_preeb_label, tvb,
                         offset + (int)preeb_prefix_len, labellen,  ENC_ASCII);
 
@@ -304,7 +304,8 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         /*
          * Now decode into it.
          */
-        unsigned decodesize = (unsigned)g_base64_decode_step(line, linelen,
+        unsigned decodesize = (unsigned)g_base64_decode_step((const char*)line,
+                                                       linelen,
                                                        &databuf[datasize],
                                                        &base64_state,
                                                        &base64_save);

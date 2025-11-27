@@ -1616,13 +1616,13 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
       if (!PINFO_FD_VISITED(pinfo) && channel) {
         channel->value = -1; /* unset */
-        channel->strptr = tvb_get_string_enc(wmem_file_scope(), tvb, offset, 8, ENC_ASCII);
+        channel->strptr = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset, 8, ENC_ASCII);
         channel->channelType = find_known_channel_by_name(channel->strptr);
         channel->chunks_cs = wmem_multimap_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         channel->chunks_sc = wmem_multimap_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
       }
 
-      char *channelName = tvb_get_string_enc(pinfo->pool, tvb, offset, 8, ENC_ASCII);
+      char *channelName = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 8, ENC_ASCII);
 
       proto_tree *channel_tree = proto_tree_add_subtree_format(next_tree, tvb, offset, 12, ett_rdp_channelDef, NULL, "channel %s", channelName);
       if (channel)
@@ -3230,7 +3230,7 @@ dissect_rdp_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
   proto_item *item;
   proto_tree *tree;
   int linelen, next_offset;
-  const uint8_t *stringval;
+  const char *stringval;
   const char *sep = "";
 
   /*
@@ -3263,7 +3263,7 @@ dissect_rdp_cr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
     linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, true);
     proto_tree_add_item_ret_string(tree, hf_rdp_rt_cookie, tvb, offset,
                                    linelen, ENC_ASCII|ENC_NA,
-                                   pinfo->pool, &stringval);
+                                   pinfo->pool, (const uint8_t**)&stringval);
     offset = (linelen == -1) ? (int)tvb_captured_length(tvb) : next_offset;
     col_append_str(pinfo->cinfo, COL_INFO, format_text(pinfo->pool, stringval, strlen(stringval)));
     sep = ", ";

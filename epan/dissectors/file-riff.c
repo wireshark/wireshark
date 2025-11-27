@@ -55,8 +55,8 @@ dissect_riff(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data
     proto_item *ti;
 
     uint32_t chunk_size;
-    const uint8_t* file_type;
-    const uint8_t* chunk_id;
+    const char* file_type;
+    const char* chunk_id;
 
     // Reject if we don't have enough room for the heuristics
     if (tvb_captured_length(tvb) < strlen(RIFF_MAGIC)) {
@@ -74,7 +74,7 @@ dissect_riff(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data
     offset += 4;
     proto_tree_add_item_ret_uint(riff_tree, hf_riff_file_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &chunk_size);
     offset += 4;
-    proto_tree_add_item_ret_string(riff_tree, hf_riff_file_type, tvb, offset, 4, ENC_ASCII, pinfo->pool, &file_type);
+    proto_tree_add_item_ret_string(riff_tree, hf_riff_file_type, tvb, offset, 4, ENC_ASCII, pinfo->pool, (const uint8_t**)&file_type);
     offset += 4;
     chunk_tvb = tvb_new_subset_length(tvb, offset, chunk_size);
 
@@ -86,7 +86,7 @@ dissect_riff(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data
         while (tvb_reported_length_remaining(tvb, offset)) {
             ti = proto_tree_add_item(riff_tree, hf_riff_chunk, tvb, offset, 8, ENC_NA);
             chunk_tree = proto_item_add_subtree(ti, ett_riff_chunk);
-            proto_tree_add_item_ret_string(chunk_tree, hf_riff_chunk_id, tvb, offset, 4, ENC_ASCII, pinfo->pool, &chunk_id);
+            proto_tree_add_item_ret_string(chunk_tree, hf_riff_chunk_id, tvb, offset, 4, ENC_ASCII, pinfo->pool, (const uint8_t**)&chunk_id);
             proto_item_prepend_text(ti, "%s ", chunk_id);
             offset += 4;
             proto_tree_add_item_ret_uint(chunk_tree, hf_riff_chunk_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &chunk_size);

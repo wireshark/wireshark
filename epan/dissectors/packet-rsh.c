@@ -224,13 +224,13 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     if(hash_info->state == WAIT_FOR_STDERR_PORT
             && tvb_reported_length_remaining(tvb, offset)){
-        field_stringz = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
+        field_stringz = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
 
         /* Check if this looks like the stderr_port field.
          * It is optional, so it may only be 1 character long
          * (the NULL)
          */
-        if(length == 1 || (isdigit_string(field_stringz)
+        if(length == 1 || (isdigit_string((const uint8_t*)field_stringz)
                     && length <= RSH_STDERR_PORT_LEN)){
             proto_tree_add_string(rsh_tree, hf_rsh_stderr_port, tvb, offset, length, (char*)field_stringz);
             /* Next field we need */

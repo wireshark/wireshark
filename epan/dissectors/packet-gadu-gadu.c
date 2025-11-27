@@ -733,7 +733,7 @@ dissect_gadu_gadu_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			name_size = tvb_get_letohl(tvb, offset);
 			offset += 4;
 
-			name = tvb_get_string_enc(pinfo->pool, tvb, offset, name_size, ENC_ASCII | ENC_NA);
+			name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, name_size, ENC_ASCII | ENC_NA);
 			proto_tree_add_string(tree, hf_gadu_gadu_userdata_attr_name, tvb, offset - 4, 4 + name_size, name);
 			offset += name_size;
 	/* type */
@@ -743,7 +743,7 @@ dissect_gadu_gadu_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			val_size = tvb_get_letohl(tvb, offset);
 			offset += 4;
 
-			val = tvb_get_string_enc(pinfo->pool, tvb, offset, val_size, ENC_ASCII | ENC_NA);
+			val = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, val_size, ENC_ASCII | ENC_NA);
 			proto_tree_add_string(tree, hf_gadu_gadu_userdata_attr_value, tvb, offset - 4, 4 + val_size, val);
 			offset += val_size;
 		}
@@ -1152,7 +1152,7 @@ dissect_gadu_gadu_notify105_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	uin_len = tvb_get_uint8(tvb, offset);
 	offset += 1;
-	uin = tvb_get_string_enc(pinfo->pool, tvb, offset, uin_len, ENC_ASCII | ENC_NA);
+	uin = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, uin_len, ENC_ASCII | ENC_NA);
 	proto_tree_add_string(tree, hf_gadu_gadu_contact_uin_str, tvb, offset - 1, 1 + uin_len, uin);
 	offset += uin_len;
 	if (puin)

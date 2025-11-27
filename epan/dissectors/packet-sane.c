@@ -345,7 +345,7 @@ tvb_read_sane_string(tvb_sane_reader *r, wmem_allocator_t *alloc, char **dest) {
     }
 
     if (dest) {
-        *dest = tvb_get_string_enc(alloc, r->tvb, r->offset, str_len, ENC_ASCII | ENC_NA);
+        *dest = (char*)tvb_get_string_enc(alloc, r->tvb, r->offset, str_len, ENC_ASCII | ENC_NA);
     }
 
     r->offset += str_len;

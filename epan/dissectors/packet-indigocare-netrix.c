@@ -182,7 +182,7 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 
 	/* Read header */
 	header_offset = tvb_find_uint8(tvb, current_offset, -1, INDIGOCARE_NETRIX_STX);
-	if(!ws_strtoi32(tvb_get_string_enc(pinfo->pool, tvb, current_offset, header_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &header)) {
+	if(!ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset, header_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &header)) {
 		/* Warn about invalid header? */
 		return 0;
 	}
@@ -239,7 +239,7 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 			} else {
 				proto_tree_add_expert_format(netrix_tree, pinfo, &ei_netrix_unexpected_header, tvb, current_offset, header_offset -  current_offset, "Unexpected header %d", header);
 				ett = ett_netrix_unknown;
-				header_item = proto_tree_add_uint_format_value(netrix_tree, hf_netrix_header_type, tvb, current_offset, header_offset - current_offset, header, "%d", header);
+				header_item = proto_tree_add_uint(netrix_tree, hf_netrix_header_type, tvb, current_offset, header_offset - current_offset, header);
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s:", val_to_str(pinfo->pool, header, netrix_headertypenames, "Unknown (%d)"));
 			}
 		break;
@@ -251,12 +251,12 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 	while (tvb_get_uint8(tvb, current_offset) != INDIGOCARE_NETRIX_ETX) {
 		identifier_start = current_offset;
 		identifier_offset = tvb_find_uint8(tvb, current_offset, -1, INDIGOCARE_NETRIX_US);
-		ws_strtoi32(tvb_get_string_enc(pinfo->pool, tvb, current_offset, identifier_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &record_identifier);
+		ws_strtoi32((char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset, identifier_offset - current_offset, ENC_ASCII|ENC_NA), NULL, &record_identifier);
 		current_offset = identifier_offset + 1;
 
 		data_start = current_offset;
 		data_offset = tvb_find_uint8(tvb, current_offset, -1, INDIGOCARE_NETRIX_RS);
-		record_data = tvb_get_string_enc(pinfo->pool, tvb, current_offset, data_offset - current_offset, ENC_ASCII|ENC_NA);
+		record_data = (char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset, data_offset - current_offset, ENC_ASCII|ENC_NA);
 
 		current_offset = data_offset + 1;
 
@@ -287,7 +287,7 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 				switch (record_identifier) {
 					case INDIGOCARE_NETRIX_GROUP_GROUPNUMBER:
 						ws_strtoi32(record_data, NULL, &group_number);
-						proto_tree_add_uint_format_value(netrix_header_tree, hf_netrix_groupcall_groupnumber_type, tvb, identifier_start, data_offset - identifier_start, group_number, "%d", group_number);
+						proto_tree_add_uint(netrix_header_tree, hf_netrix_groupcall_groupnumber_type, tvb, identifier_start, data_offset - identifier_start, group_number);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Groupnumber=%d", group_number);
 					break;
 					case INDIGOCARE_NETRIX_GROUP_TYPE:
@@ -321,7 +321,7 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 				switch (record_identifier) {
 					case INDIGOCARE_NETRIX_PROFILE_PROFILENUMBER:
 						ws_strtoi32(record_data, NULL, &profile_number);
-						proto_tree_add_uint_format_value(netrix_header_tree, hf_netrix_profilecall_groupnumber_type, tvb, identifier_start, data_offset - identifier_start, profile_number, "%d", profile_number);
+						proto_tree_add_uint(netrix_header_tree, hf_netrix_profilecall_groupnumber_type, tvb, identifier_start, data_offset - identifier_start, profile_number);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Profilenumber=%d", profile_number);
 					break;
 					case INDIGOCARE_NETRIX_PROFILE_TYPE:

@@ -2728,14 +2728,14 @@ decode_pfcp_network_instance(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         name_len = tvb_get_uint8(tvb, offset);
         if (name_len < 0x41) {
             /* APN */
-            uint8_t *apn = NULL;
+            char *apn = NULL;
 
             name_len = tvb_get_uint8(tvb, offset);
 
             if (name_len < 0x20) {
-                apn = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_APN_STR);
+                apn = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_APN_STR);
             } else {
-                apn = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
+                apn = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
             }
             proto_tree_add_string(tree, hf_pfcp_network_instance, tvb, offset, length, apn);
             proto_item_append_text(item, "%s", apn);
@@ -4091,7 +4091,7 @@ static int
 decode_pfcp_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, int offset, uint16_t length)
 {
     int name_len;
-    uint8_t *fqdn = NULL;
+    char *fqdn = NULL;
 
     /* FQDN, the Node ID value encoding shall be identical to the encoding of a FQDN
     * within a DNS message of section 3.1 of IETF RFC 1035 [27] but excluding the trailing zero byte.
@@ -4101,11 +4101,11 @@ decode_pfcp_fqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
         name_len = tvb_get_uint8(tvb, offset);
         /* NOTE 1: The FQDN field in the IE is not encoded as a dotted string as commonly used in DNS master zone files. */
         if (name_len < 0x40) {
-            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, length - 1, ENC_APN_STR);
+            fqdn = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length - 1, ENC_APN_STR);
         }
         /* In case the FQDN field is incorrectly in dotted string form.*/
         else {
-            fqdn = tvb_get_string_enc(pinfo->pool, tvb, offset, length - 1, ENC_ASCII);
+            fqdn = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length - 1, ENC_ASCII);
             proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_encoding_error, tvb, offset, length - 1);
         }
         proto_tree_add_string(tree, hf_pfcp_node_id_fqdn, tvb, offset, length - 1, fqdn);

@@ -465,7 +465,7 @@ dissect_bittorrent_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             for ( i=0 ; amp_messages[i].name ; i++ ) {
                if (strlen(amp_messages[i].name)==typelen &&
-                   tvb_memeql(tvb, offset + BITTORRENT_HEADER_LENGTH + 4,
+                   tvb_strneql(tvb, offset + BITTORRENT_HEADER_LENGTH + 4,
                               amp_messages[i].name, (int)strlen(amp_messages[i].name))==0) {
 
                   prio = tvb_get_uint8(tvb, offset + BITTORRENT_HEADER_LENGTH + 4 + typelen);
@@ -646,10 +646,10 @@ dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       for(i = 0; peer_id[i].name != NULL; ++i)
       {
          if(tvb_memeql(tvb, offset, (const uint8_t*)peer_id[i].id, (int)strlen(peer_id[i].id)) == 0) {
-            version = tvb_get_string_enc(pinfo->pool, tvb, offset + (int)strlen(peer_id[i].id),
+            version = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + (int)strlen(peer_id[i].id),
                                      peer_id[i].ver_len, ENC_ASCII);
             proto_tree_add_string_format(tree, hf_bittorrent_version, tvb, offset, 20, version, "Client is %s v%s",
-                                peer_id[i].name, format_text(pinfo->pool, (unsigned char*)version, peer_id[i].ver_len));
+                                peer_id[i].name, format_text(pinfo->pool, version, peer_id[i].ver_len));
             break;
          }
       }
