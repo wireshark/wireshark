@@ -65,7 +65,7 @@ static expert_field ei_irc_request_command;
 static expert_field ei_irc_tag_data_invalid;
 
 /* This must be a null-terminated string */
-static const uint8_t TAG_DELIMITER[] = {0x01, 0x00};
+static const char TAG_DELIMITER[] = "\x01";
 /* patterns used for tvb_ws_mempbrk_pattern_uint8 */
 static ws_mempbrk_pattern pbrk_tag_delimiter;
 
@@ -97,7 +97,7 @@ dissect_irc_ctcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 }
 
 static void
-dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int datalen, packet_info *pinfo, const uint8_t* command)
+dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int datalen, packet_info *pinfo, const char* command)
 {
     unsigned char found_start_needle = 0,
            found_end_needle   = 0;
@@ -142,7 +142,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
                   eoc_offset                  = -1,
                   eocp_offset,
                   tag_start_offset, tag_end_offset;
-    const uint8_t *str_command;
+    const char   *str_command;
     unsigned char found_tag_needle            = 0;
     bool          first_command_param         = true;
 
@@ -196,7 +196,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
         return;
     }
 
-    proto_tree_add_item_ret_string(request_tree, hf_irc_request_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA, pinfo->pool, &str_command);
+    proto_tree_add_item_ret_string(request_tree, hf_irc_request_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA, pinfo->pool, (const uint8_t**)&str_command);
     col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", str_command);
 
     /* Warn if there is a "numeric" command */
@@ -305,7 +305,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
                   eoc_offset                   = -1,
                   eocp_offset,
                   tag_start_offset, tag_end_offset;
-    const uint8_t* str_command;
+    const char*   str_command;
     uint16_t      num_command;
     unsigned char found_tag_needle             = 0;
     bool          first_command_param          = true;
@@ -362,7 +362,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
         return;
     }
 
-    proto_tree_add_item_ret_string(response_tree, hf_irc_response_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA, pinfo->pool, &str_command);
+    proto_tree_add_item_ret_string(response_tree, hf_irc_response_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA, pinfo->pool, (const uint8_t**)&str_command);
     col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", str_command);
 
     /* if response command is numeric, allow it to be filtered as an integer */

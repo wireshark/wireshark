@@ -20,7 +20,8 @@
 #include <epan/conversation.h>
 #include <wsutil/utf8_entities.h>
 
-#define OTP_IDENTIFIER "OTP-E1.59\x00\x00\x00"
+#define OTP_IDENTIFIER ((uint8_t*)"OTP-E1.59\x00\x00\x00")
+#define OTP_IDENTIFIER_LEN (sizeof OTP_IDENTIFIER - 1)
 
 /* constants */
 #define OTP_MESSAGE_TRANSFORM     0x0001
@@ -622,7 +623,7 @@ int dissect_otp_advertisement_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tre
     proto_tree_add_item(advert_tree, hf_otp_advert_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    const uint8_t* mod_str = val_to_str_const(vector, otp_advertisement_type_names, "Unknown Advertisement");
+    const char* mod_str = val_to_str_const(vector, otp_advertisement_type_names, "Unknown Advertisement");
     proto_item_append_text(tree, ", %s", mod_str);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", mod_str);
 
@@ -656,7 +657,7 @@ dissect_otp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
     }
 
     /* Check magic */
-    if (tvb_memeql(tvb, 0, OTP_IDENTIFIER, 12) != 0) {
+    if (tvb_memeql(tvb, 0, OTP_IDENTIFIER, OTP_IDENTIFIER_LEN) != 0) {
         return 0;
     }
 
@@ -734,7 +735,7 @@ dissect_otp_heur(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
     }
 
     /* Check magic */
-    if (tvb_memeql(tvb, 0, OTP_IDENTIFIER, 12) != 0) {
+    if (tvb_memeql(tvb, 0, OTP_IDENTIFIER, OTP_IDENTIFIER_LEN) != 0) {
         return false;
     }
 

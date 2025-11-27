@@ -409,7 +409,7 @@ get_json_string(wmem_allocator_t *scope, tvbparse_elem_t *tok, bool remove_quote
 	char *string;
 	size_t length;
 
-	string = tvb_get_string_enc(scope, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
+	string = (char*)tvb_get_string_enc(scope, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
 
 	if (unescape_strings) {
 		string = json_string_unescape(scope, string, &length);
@@ -1097,7 +1097,7 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 
 		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
 
-		char *val_str = tvb_get_string_enc(data->pinfo->pool, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
+		char *val_str = (char*)tvb_get_string_enc(data->pinfo->pool, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
 
 		if (JSON_INSIDE_ARRAY(idx)) {
 			proto_tree_add_none_format(tree_compact, hf_json_array_item_compact, tok->tvb, tok->offset, tok->len, "%d: %s", idx, val_str);
@@ -1111,7 +1111,7 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 	if (json_raw) {
 		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
 		proto_item* ti_raw;
-		char* val_str = tvb_get_string_enc(data->pinfo->pool, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
+		char* val_str = (char*)tvb_get_string_enc(data->pinfo->pool, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
 
 		if (data->prev_item_raw && data->prev_item_type_raw == JSON_MARK_TYPE_VALUE) {
 			proto_item_append_text(data->prev_item_raw, ","); /* this value is an element of an array */

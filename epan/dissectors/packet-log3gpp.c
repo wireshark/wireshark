@@ -315,7 +315,7 @@ lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, uint16_t length, packet
     par_opt_field = strtok(NULL, " ");
     if (par_opt_field)
     {
-        ws_strtoi16(par_opt_field, NULL, &p_mac_lte_info->rnti);
+        ws_strtou16(par_opt_field, NULL, &p_mac_lte_info->rnti);
     }
     else
     {
@@ -334,7 +334,7 @@ lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, uint16_t length, packet
         par_opt_field = strtok(NULL, " ");
         if (par_opt_field != NULL)
         {
-            ws_strtoi16(par_opt_field, NULL, &p_mac_lte_info->subframeNumber);
+            ws_strtou16(par_opt_field, NULL, &p_mac_lte_info->subframeNumber);
         }
     }
     p_mac_lte_info->direction = (direction == UPLINK) ? DIRECTION_UPLINK : DIRECTION_DOWNLINK;
@@ -648,7 +648,7 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
         if (!is_hex_data)
         {
             col_add_str(pinfo->cinfo, COL_INFO,
-                tvb_get_string_enc(pinfo->pool, tvb, offset, tvb_reported_length(tvb) - offset, ENC_UTF_8 | ENC_NA));
+                (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_UTF_8 | ENC_NA));
         }
         else
         {

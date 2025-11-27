@@ -6555,7 +6555,7 @@ dissect_amqp_1_0_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     col_clear(pinfo->cinfo, COL_INFO);
 
     /*  Heuristic - protocol initialisation frame starts with 'AMQP' followed by 0x0  */
-    if (tvb_memeql(tvb, 0, "AMQP", 4) == 0) {
+    if (tvb_memeql(tvb, 0, (const uint8_t*)"AMQP", 4) == 0) {
         uint8_t        proto_major;
         uint8_t        proto_minor;
         uint8_t        proto_revision;
@@ -8833,7 +8833,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
             tvb, offset + 1, tvb_get_uint8(tvb, offset), ENC_ASCII);
 
         eh_ptr->encoding = ascii_strdown_inplace(
-            tvb_get_string_enc(wmem_file_scope(), tvb, offset + 1, tvb_get_uint8(tvb, offset), ENC_ASCII));
+            (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset + 1, tvb_get_uint8(tvb, offset), ENC_ASCII));
 
         offset += 1 + tvb_get_uint8(tvb, offset);
     }
@@ -10630,7 +10630,7 @@ format_amqp_1_0_char(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigne
                      const char **value)
 {
     /* one UTF-32BE encoded Unicode character */
-    *value = tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_UCS_4 | ENC_BIG_ENDIAN);
+    *value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_UCS_4 | ENC_BIG_ENDIAN);
     return 4;
 }
 
@@ -10691,7 +10691,7 @@ format_amqp_1_0_str(tvbuff_t *tvb, packet_info* pinfo,
         return length;
     }
     offset += length;
-    *value = tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_UTF_8|ENC_NA);
+    *value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_UTF_8|ENC_NA);
     /* offset += string_length; */
     return (string_length + length);
 }
@@ -10711,7 +10711,7 @@ format_amqp_1_0_symbol(tvbuff_t *tvb, packet_info* pinfo,
         return length;
     }
     offset += length;
-    *value = tvb_get_string_enc(pinfo->pool, tvb, offset, symbol_length, ENC_ASCII|ENC_NA);
+    *value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, symbol_length, ENC_ASCII|ENC_NA);
     /* offset += symbol_length; */
     return (symbol_length + length);
 }
@@ -10856,7 +10856,7 @@ format_amqp_0_10_str(tvbuff_t *tvb, packet_info* pinfo,
         return length;
     }
     offset += length;
-    *value = tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_UTF_8|ENC_NA);
+    *value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_UTF_8|ENC_NA);
     /* offset += string_length; */
     return (string_length + length);
 }

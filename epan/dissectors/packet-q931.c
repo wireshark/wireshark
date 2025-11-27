@@ -2161,7 +2161,7 @@ dissect_q931_number_ie(packet_info *pinfo, tvbuff_t *tvb, int offset, int len,
     if ( number_plan == 1 ) {
         if ( e164_info.e164_number_type != NONE ){
 
-            e164_info.E164_number_str = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII|ENC_NA);
+            e164_info.E164_number_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII|ENC_NA);
             e164_info.E164_number_length = len;
             dissect_e164_number(tvb, tree, offset, len, e164_info);
         }
@@ -2169,9 +2169,9 @@ dissect_q931_number_ie(packet_info *pinfo, tvbuff_t *tvb, int offset, int len,
 
     /* Collect q931_packet_info */
     if ( e164_info.e164_number_type == CALLING_PARTY_NUMBER && q931_pi)
-        q931_pi->calling_number = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII|ENC_NA);
+        q931_pi->calling_number = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII|ENC_NA);
     if ( e164_info.e164_number_type == CALLED_PARTY_NUMBER && q931_pi)
-        q931_pi->called_number = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII|ENC_NA);
+        q931_pi->called_number = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII|ENC_NA);
 }
 
 /*

@@ -508,7 +508,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
         }else if (!strncmp(command, "AT*CTRL", 7))
         {
-            const uint8_t* CTRL_mode_str;
+            const char* CTRL_mode_str;
 
             /** Parse according to the CTRL layout: */
             sub_tree = proto_item_add_subtree(sub_item, ett_ar_drone_CTRL);
@@ -530,7 +530,7 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 expert_add_info(pinfo, sub_item, &ei_ar_drone_NO_COMMA);
                 return offset;
             }
-            ti = proto_tree_add_item_ret_string(sub_tree, hf_ar_drone_CTRL_mode, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, &CTRL_mode_str);
+            ti = proto_tree_add_item_ret_string(sub_tree, hf_ar_drone_CTRL_mode, tvb, offset, length, ENC_ASCII|ENC_NA, pinfo->pool, (const uint8_t**)&CTRL_mode_str);
             proto_item_append_text(ti, "%s", str_to_str_wmem(pinfo->pool, CTRL_mode_str, CTRL_mode_vs, " (Unknown Mode)"));
             offset += (length + 1);
 

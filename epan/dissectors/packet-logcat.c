@@ -92,7 +92,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     uint16_t     check_length;
     uint32_t     string_length;
     int          logger_version;
-    uint8_t     *log;
+    const char  *log;
     char        *c;
     tvbuff_t    *next_tvb;
 
@@ -153,7 +153,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     check_length += string_length;
 
     string_length = length - string_length - 1;
-    log = tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_UTF_8);
+    log = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_UTF_8);
 
     /* New line characters convert to spaces to ensure column Info display one line */
     if (pref_one_line_info_column) {

@@ -4185,7 +4185,7 @@ static void rtps_util_dissect_parameter_header(tvbuff_t * tvb, int * offset,
  * @brief Dissect a crypto algorithm bitmask. If the length is 0, a default
  * value is used.
  */
-static proto_item *dissect_crypto_algo_bitmask(proto_tree *parent_tree, tvbuff_t *tvb, unsigned *offset,
+static proto_item *dissect_crypto_algo_bitmask(proto_tree *parent_tree, tvbuff_t *tvb, int *offset,
         uint32_t *algo_length, const int hf_hdr, const int ett, int * const *fields,
         const unsigned encoding, const char *algo_name, const int algo_default_value, const char *algo_default_value_string)
 {
@@ -4703,7 +4703,7 @@ static int dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, packet_info *p
             offset += 4;
             //proto_item_append_text(tree, "(String length: %u)", string_size);
             if (show) {
-                string_value = tvb_get_string_enc(pinfo->pool, tvb, offset, string_size, ENC_ASCII);
+                string_value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, string_size, ENC_ASCII);
                 proto_tree_add_string_format(tree, hf_rtps_dissection_string, tvb, offset, string_size,
                   string_value, "%s: %s", name, string_value);
             }
@@ -5626,7 +5626,7 @@ static void rtps_util_add_ipv4_address_t(proto_tree *tree, packet_info *pinfo, t
  *
  */
 static void rtps_util_add_locator_udp_v4(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-                                  int offset, const uint8_t *label, const unsigned encoding) {
+                                  int offset, const char *label, const unsigned encoding) {
 
   proto_item *ti;
   proto_tree *locator_tree;
@@ -6443,7 +6443,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
         /* Get structure name length */
         struct_name_len = tvb_get_uint32(tvb, offset, encoding);
         offset += 4;
-        struct_name = tvb_get_string_enc(pinfo->pool, tvb, offset, struct_name_len, ENC_ASCII);
+        struct_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, struct_name_len, ENC_ASCII);
         offset = check_offset_addition(offset, struct_name_len, tree, NULL, tvb);
 
         /* - - - - - - -      Default index      - - - - - - - */
@@ -6819,12 +6819,12 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
      * - A4: 4: the alias typecode
      */
         uint32_t alias_name_length;
-        uint8_t *alias_name;
+        char *alias_name;
 
         LONG_ALIGN(offset);
         alias_name_length = tvb_get_uint32(tvb, offset, encoding);
         offset += 4;
-        alias_name = tvb_get_string_enc(pinfo->pool, tvb, offset, alias_name_length, ENC_ASCII);
+        alias_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, alias_name_length, ENC_ASCII);
         offset = check_offset_addition(offset, alias_name_length, tree, NULL, tvb);
         (void) g_strlcpy(type_name, alias_name, sizeof(type_name));
         break;
@@ -6846,7 +6846,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
         /* Not fully dissected for now */
         /* Pad-align */
         uint32_t value_name_len;
-        int8_t *value_name;
+        char *value_name;
         const char *type_id_name = "valuetype";
         LONG_ALIGN(offset);
 
@@ -6855,7 +6855,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
         offset += 4;
 
         /* value name */
-        value_name = tvb_get_string_enc(pinfo->pool, tvb, offset, value_name_len, ENC_ASCII);
+        value_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, value_name_len, ENC_ASCII);
         offset = check_offset_addition(offset, value_name_len, tree, NULL, tvb);
 
         if (tk_id == RTI_CDR_TK_VALUE_PARAM) {
@@ -7023,7 +7023,7 @@ static int rtps_util_add_type_library_type(proto_tree *tree, packet_info* pinfo,
   rtps_util_add_string(tree, tvb, offset_tmp, hf_rtps_type_object_type_property_name,
           encoding);
   long_number = tvb_get_uint32(tvb, offset_tmp, encoding);
-  name = tvb_get_string_enc(pinfo->pool, tvb, offset_tmp + 4, long_number, ENC_ASCII);
+  name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset_tmp + 4, long_number, ENC_ASCII);
   if (info)
     (void) g_strlcpy(info->member_name, name, sizeof(info->member_name));
 
@@ -7072,7 +7072,7 @@ static void rtps_util_add_type_element_enumeration(proto_tree *tree, packet_info
     uint32_t size, value;
     enum_size = offset_tmp;
     size = tvb_get_uint32(tvb, offset_tmp + 4, encoding);
-    name = tvb_get_string_enc(pinfo->pool, tvb, offset_tmp + 8, size, ENC_ASCII);
+    name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset_tmp + 8, size, ENC_ASCII);
     value = tvb_get_uint32(tvb, offset_tmp, encoding);
     enumerated_constant = proto_tree_add_subtree_format(tree, tvb, offset_tmp, 0,
           ett_rtps_type_enum_constant, NULL, "%s (%u)", name, value);
@@ -9644,11 +9644,11 @@ static int rtps_util_add_bitmap(proto_tree *tree,
                         const unsigned encoding,
                         const char *label,
                         bool show_analysis) {
-  int32_t num_bits;
+  uint32_t num_bits;
   uint32_t data;
   wmem_strbuf_t *temp_buff = wmem_strbuf_create(pinfo->pool);
   wmem_strbuf_t *analysis_buff = wmem_strbuf_create(pinfo->pool);
-  int i, j, idx;
+  unsigned i, j, idx;
   char *last_one;
   proto_item *ti = NULL, *ti_tree = NULL;
   proto_tree *bitmap_tree;
@@ -9669,20 +9669,20 @@ static int rtps_util_add_bitmap(proto_tree *tree,
   offset += 4;
   /* bitmap base 0 means that this is a preemptive ACKNACK */
   if (first_seq_number == 0 && show_analysis) {
-    ti = proto_tree_add_uint_format(bitmap_tree, hf_rtps_acknack_analysis, tvb, 0, 0,
-        1, "Acknack Analysis: Preemptive ACKNACK");
+    ti = proto_tree_add_uint_format_value(bitmap_tree, hf_rtps_acknack_analysis, tvb, 0, 0,
+        1, "Preemptive ACKNACK");
     proto_item_set_generated(ti);
   }
 
   if (first_seq_number > 0 && num_bits == 0 && show_analysis) {
-    ti = proto_tree_add_uint_format(bitmap_tree, hf_rtps_acknack_analysis, tvb, 0, 0,
-            2, "Acknack Analysis: Expecting sample %" PRIu64, first_seq_number);
+    ti = proto_tree_add_uint_format_value(bitmap_tree, hf_rtps_acknack_analysis, tvb, 0, 0,
+            2, "Expecting sample %" PRIu64, first_seq_number);
     proto_item_set_generated(ti);
   }
 
   if (num_bits > 0 && show_analysis) {
-    ti = proto_tree_add_uint_format(bitmap_tree, hf_rtps_acknack_analysis, tvb, 0, 0,
-            3, "Acknack Analysis: Lost samples");
+    ti = proto_tree_add_uint_format_value(bitmap_tree, hf_rtps_acknack_analysis, tvb, 0, 0,
+            3, "Lost samples");
     proto_item_set_generated(ti);
   }
 
@@ -10232,7 +10232,7 @@ static int rtps_util_add_rti_topic_query_service_request(proto_tree * tree, pack
       char * retVal;
       LONG_ALIGN_ZERO(tmp_offset, alignment_zero);
       string_size = tvb_get_uint32(tvb, tmp_offset, encoding);
-      retVal = tvb_get_string_enc(pinfo->pool, tvb, tmp_offset+4, string_size, ENC_ASCII);
+      retVal = (char*)tvb_get_string_enc(pinfo->pool, tvb, tmp_offset+4, string_size, ENC_ASCII);
 
       proto_tree_add_string_format(topic_query_filter_params_tree,
             hf_rtps_topic_query_selection_filter_parameter, tvb,

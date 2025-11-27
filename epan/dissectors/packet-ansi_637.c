@@ -416,8 +416,8 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offse
         offset = 0;
         bit = 0;
 
-        ustr = tvb_get_ascii_7bits_string(pinfo->pool, tvb_out, (offset << 3) + bit, num_fields);
-        IA5_7BIT_decode(ansi_637_bigbuf, ustr, num_fields);
+        ustr = (uint8_t*)tvb_get_ascii_7bits_string(pinfo->pool, tvb_out, (offset << 3) + bit, num_fields);
+        IA5_7BIT_decode((uint8_t*)ansi_637_bigbuf, ustr, num_fields);
 
         proto_tree_add_string(tree, hf_index, tvb_out, 0,
             required_octs, ansi_637_bigbuf);
@@ -1357,7 +1357,7 @@ tele_param_cb_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
         proto_tree_add_string_format(tree, hf_ansi_637_tele_cb_num_number, tvb, offset, num_fields,
             (char *) poctets,
             "Number: %s",
-            (char *) format_text(pinfo->pool, poctets, num_fields));
+            (char *) format_text(pinfo->pool, (char*)poctets, num_fields));
     }
     else
     {
