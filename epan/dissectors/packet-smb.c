@@ -8520,7 +8520,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	uint16_t      bc;
 	uint16_t      andxoffset = 0, pwlen = 0;
 	int           an_len;
-	const uint8_t *an;
+	const char   *an;
 
 	DISSECTOR_ASSERT(si);
 
@@ -8591,7 +8591,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	an_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(an_len);
 	proto_tree_add_item_ret_string(tree, hf_smb_service, tvb,
-		offset, an_len, ENC_ASCII|ENC_NA, pinfo->pool, &an);
+		offset, an_len, ENC_ASCII|ENC_NA, pinfo->pool, (const uint8_t**)&an);
 	COUNT_BYTES(an_len);
 
 	END_OF_SMB
@@ -8614,7 +8614,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	uint16_t      andxoffset     = 0;
 	uint16_t      bc;
 	int           an_len;
-	const uint8_t *an;
+	const char   *an;
 
 	DISSECTOR_ASSERT(si);
 
@@ -8697,7 +8697,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	an_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(an_len);
 	proto_tree_add_item_ret_string(tree, hf_smb_service, tvb,
-		offset, an_len, ENC_ASCII|ENC_NA, pinfo->pool, &an);
+		offset, an_len, ENC_ASCII|ENC_NA, pinfo->pool, (const uint8_t**)&an);
 	COUNT_BYTES(an_len);
 
 	/* Now when we know the service type, store it so that we know it for later commands down
@@ -9462,7 +9462,8 @@ static int
 dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, uint16_t bc, smb_nt_transact_info_t *nti, smb_info_t *si, int subcmd, uint32_t *sd_len, uint32_t *ea_len)
 {
 	proto_tree *tree;
-	uint32_t    fn_len, create_flags, access_mask, share_access, create_options;
+	uint32_t    create_flags, access_mask, share_access, create_options;
+	int         fn_len;
 	const char *fn;
 
 	DISSECTOR_ASSERT(si);
@@ -10069,7 +10070,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 				int len, uint16_t bc, smb_info_t *si)
 {
 	proto_tree             *tree     = NULL;
-	uint32_t                fn_len;
+	int                     fn_len;
 	const char             *fn;
 	smb_nt_transact_info_t *nti;
 	uint16_t                fid;
@@ -13476,7 +13477,7 @@ static int
 dissect_qfi_SMB_FILE_ALL_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, uint16_t *bcp, bool *trunc, smb_info_t *si)
 {
-	uint32_t    fn_len;
+	int    fn_len;
 	const char *fn;
 
 	DISSECTOR_ASSERT(si);

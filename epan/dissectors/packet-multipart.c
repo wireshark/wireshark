@@ -151,10 +151,10 @@ typedef struct {
 
 
 static int
-find_first_boundary(tvbuff_t *tvb, int start, const uint8_t *boundary,
+find_first_boundary(tvbuff_t *tvb, int start, const char *boundary,
         int boundary_len, int *boundary_line_len, bool *last_boundary);
 static int
-find_next_boundary(tvbuff_t *tvb, int start, const uint8_t *boundary,
+find_next_boundary(tvbuff_t *tvb, int start, const char *boundary,
         int boundary_len, int *boundary_line_len, bool *last_boundary);
 static int
 process_preamble(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
@@ -176,7 +176,7 @@ base64_decode(packet_info *pinfo, tvbuff_t *b64_tvb, char *name)
 {
     char *data;
     tvbuff_t *tvb;
-    data = tvb_get_string_enc(pinfo->pool, b64_tvb, 0, tvb_reported_length(b64_tvb), ENC_ASCII);
+    data = (char*)tvb_get_string_enc(pinfo->pool, b64_tvb, 0, tvb_reported_length(b64_tvb), ENC_ASCII);
 
     tvb = base64_to_tvb(b64_tvb, data);
     add_new_data_source(pinfo, tvb, name);
@@ -371,20 +371,19 @@ get_multipart_info(packet_info *pinfo, media_content_info_t *content_info)
  * Set last_boundary to true if we've seen the last-boundary delimiter.
  */
 static int
-find_first_boundary(tvbuff_t *tvb, int start, const uint8_t *boundary,
+find_first_boundary(tvbuff_t *tvb, int start, const char *boundary,
         int boundary_len, int *boundary_line_len, bool *last_boundary)
 {
     int offset = start, next_offset, line_len, boundary_start;
 
     while (tvb_offset_exists(tvb, offset + 2 + boundary_len)) {
         boundary_start = offset;
-        if (((tvb_strneql(tvb, offset, (const uint8_t *)"--", 2) == 0)
+        if (((tvb_strneql(tvb, offset, "--", 2) == 0)
                     && (tvb_strneql(tvb, offset + 2, boundary,  boundary_len) == 0)))
         {
             /* Boundary string; now check if last */
             if ((tvb_reported_length_remaining(tvb, offset + 2 + boundary_len + 2) >= 0)
-                    && (tvb_strneql(tvb, offset + 2 + boundary_len,
-                            (const uint8_t *)"--", 2) == 0)) {
+                    && (tvb_strneql(tvb, offset + 2 + boundary_len, "--", 2) == 0)) {
                 *last_boundary = true;
             } else {
                 *last_boundary = false;
@@ -417,7 +416,7 @@ find_first_boundary(tvbuff_t *tvb, int start, const uint8_t *boundary,
  * Set last_boundary to true if we've seen the last-boundary delimiter.
  */
 static int
-find_next_boundary(tvbuff_t *tvb, int start, const uint8_t *boundary,
+find_next_boundary(tvbuff_t *tvb, int start, const char *boundary,
         int boundary_len, int *boundary_line_len, bool *last_boundary)
 {
     int offset = start, next_offset, line_len, boundary_start;
@@ -428,13 +427,12 @@ find_next_boundary(tvbuff_t *tvb, int start, const uint8_t *boundary,
             return -1;
         }
         boundary_start = offset + line_len;
-        if (((tvb_strneql(tvb, next_offset, (const uint8_t *)"--", 2) == 0)
+        if (((tvb_strneql(tvb, next_offset, "--", 2) == 0)
                     && (tvb_strneql(tvb, next_offset + 2, boundary, boundary_len) == 0)))
         {
             /* Boundary string; now check if last */
             if ((tvb_reported_length_remaining(tvb, next_offset + 2 + boundary_len + 2) >= 0)
-                    && (tvb_strneql(tvb, next_offset + 2 + boundary_len,
-                            (const uint8_t *)"--", 2) == 0)) {
+                    && (tvb_strneql(tvb, next_offset + 2 + boundary_len, "--", 2) == 0)) {
                 *last_boundary = true;
             } else {
                 *last_boundary = false;
@@ -448,10 +446,9 @@ find_next_boundary(tvbuff_t *tvb, int start, const uint8_t *boundary,
             }
             return boundary_start;
         /* check if last before CRLF; some ignore the standard, so there is no CRLF before the boundary */
-        } else if ((tvb_strneql(tvb, boundary_start - 2, (const uint8_t *)"--", 2) == 0)
+        } else if ((tvb_strneql(tvb, boundary_start - 2, "--", 2) == 0)
                     && (tvb_strneql(tvb, boundary_start - (2 + boundary_len), boundary, boundary_len) == 0)
-                    && (tvb_strneql(tvb, boundary_start - (2 + boundary_len + 2),
-                            (const uint8_t *)"--", 2) == 0)) {
+                    && (tvb_strneql(tvb, boundary_start - (2 + boundary_len + 2), "--", 2) == 0)) {
             boundary_start -= 2 + boundary_len + 2;
             *boundary_line_len = next_offset - boundary_start;
             *last_boundary = true;
@@ -475,7 +472,7 @@ process_preamble(proto_tree *tree, tvbuff_t *tvb, multipart_info_t *m_info,
 {
     int boundary_start, boundary_line_len;
 
-    const uint8_t *boundary = (uint8_t *)m_info->boundary;
+    const char *boundary = m_info->boundary;
     int boundary_len = m_info->boundary_length;
 
     boundary_start = find_first_boundary(tvb, 0, boundary, boundary_len,
@@ -545,7 +542,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
     bool last_field = false;
     bool is_raw_data = false;
 
-    const uint8_t *boundary = (uint8_t *)m_info->boundary;
+    const char *boundary = m_info->boundary;
     int boundary_len = m_info->boundary_length;
 
     ti = proto_tree_add_item(tree, hf_multipart_part, tvb, start, 0, ENC_ASCII);
@@ -593,7 +590,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
             next_offset = boundary_start;
         }
 
-        hdr_str = tvb_get_string_enc(pinfo->pool, tvb, offset, next_offset - offset, ENC_ASCII);
+        hdr_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, next_offset - offset, ENC_ASCII);
 
         colon_offset = 0;
         header_str = unfold_and_compact_mime_header(pinfo->pool, hdr_str, &colon_offset);

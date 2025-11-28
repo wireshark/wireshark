@@ -195,7 +195,7 @@ typedef struct _mqtt_message_decode_t {
 } mqtt_message_decode_t;
 
 typedef struct _mqtt_properties_t {
-  const uint8_t *content_type;
+  const char   *content_type;
   uint32_t      topic_alias;
 } mqtt_properties_t;
 
@@ -686,7 +686,7 @@ UAT_CSTRING_CB_DEF(message_decode, topic_pattern, mqtt_message_decode_t)
 UAT_VS_DEF(message_decode, msg_decoding, mqtt_message_decode_t, unsigned, MSG_DECODING_NONE, "none")
 UAT_DISSECTOR_DEF(message_decode, payload_proto, payload_proto, payload_proto_name, mqtt_message_decode_t)
 
-static bool mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, packet_info *pinfo, const uint8_t *topic_str, tvbuff_t *msg_tvb)
+static bool mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, packet_info *pinfo, const char *topic_str, tvbuff_t *msg_tvb)
 {
   mqtt_message_decode_t *message_decode_entry = NULL;
   size_t topic_str_len = strlen(topic_str);
@@ -878,7 +878,7 @@ static unsigned dissect_mqtt_properties(tvbuff_t *tvb, packet_info *pinfo, proto
       case PROP_CONTENT_TYPE:
       {
         int length;
-        proto_tree_add_item_ret_string_and_length(mqtt_prop_tree, hf_mqtt_prop_content_type, tvb, offset, 2, ENC_UTF_8, pinfo->pool, &mqtt_properties->content_type, &length);
+        proto_tree_add_item_ret_string_and_length(mqtt_prop_tree, hf_mqtt_prop_content_type, tvb, offset, 2, ENC_UTF_8, pinfo->pool, (const uint8_t**)&mqtt_properties->content_type, &length);
         offset += length;
         break;
       }
@@ -915,7 +915,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   uint8_t mqtt_fixed_hdr;
   uint8_t mqtt_msg_type;
   proto_item *ti;
-  const uint8_t *topic_str = "";
+  const char *topic_str = "";
   proto_item *mqtt_ti;
   proto_tree *mqtt_tree;
   uint64_t    mqtt_con_flags;
@@ -1160,7 +1160,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       {
         /* 'topic_regex' requires topic_str to be valid UTF-8. */
         proto_tree_add_item_ret_string(mqtt_tree, hf_mqtt_topic, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA,
-                                       pinfo->pool, &topic_str);
+                                       pinfo->pool, (const uint8_t**)&topic_str);
         offset += mqtt_str_len;
       }
 
@@ -1180,12 +1180,12 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         {
           if (!pinfo->fd->visited && mqtt_str_len > 0)
           {
-            uint8_t *topic = wmem_strdup(wmem_file_scope(), topic_str);
+            char *topic = wmem_strdup(wmem_file_scope(), topic_str);
             wmem_map_insert(mqtt->topic_alias_map, GUINT_TO_POINTER(mqtt_properties.topic_alias), topic);
           }
           else
           {
-            uint8_t *topic = (uint8_t *)wmem_map_lookup(mqtt->topic_alias_map, GUINT_TO_POINTER(mqtt_properties.topic_alias));
+            char *topic = (char *)wmem_map_lookup(mqtt->topic_alias_map, GUINT_TO_POINTER(mqtt_properties.topic_alias));
             if (topic != NULL)
             {
               topic_str = topic;
@@ -1265,7 +1265,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         if (mqtt_str_len > 0)
         {
           proto_tree_add_item_ret_string(mqtt_tree, hf_mqtt_topic, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA,
-                                         wmem_epan_scope(), &topic_str);
+                                         wmem_epan_scope(), (const uint8_t**)&topic_str);
           offset += mqtt_str_len;
         }
         else

@@ -744,7 +744,7 @@ rtmpt_get_amf_param(wmem_allocator_t* allocator, tvbuff_t *tvb, int offset, prot
                 if (!prop && iObjType == AMF0_STRING && remain >= 3) {
                         iStringLength = tvb_get_ntohs(tvb, offset+1);
                         if (remain >= iStringLength+3) {
-                                return tvb_get_string_enc(allocator, tvb, offset+3, iStringLength, ENC_ASCII);
+                                return (char*)tvb_get_string_enc(allocator, tvb, offset+3, iStringLength, ENC_ASCII);
                         }
                 }
 
@@ -765,7 +765,7 @@ rtmpt_get_amf_param(wmem_allocator_t* allocator, tvbuff_t *tvb, int offset, prot
                                         if (remain < 2+iPropLength+3+iStringLength)
                                                 break;
 
-                                        return tvb_get_string_enc(allocator, tvb, offset+2+iPropLength+3, iStringLength, ENC_ASCII);
+                                        return (char*)tvb_get_string_enc(allocator, tvb, offset+2+iPropLength+3, iStringLength, ENC_ASCII);
                                 }
 
                                 itemlen = rtmpt_get_amf_length(tvb, offset+2+iPropLength, pi);
@@ -871,7 +871,7 @@ rtmpt_get_packet_desc(wmem_allocator_t* allocator, tvbuff_t *tvb, uint32_t offse
                         slen = tvb_get_ntohs(tvb, offset+1+soff);
                 }
                 if (slen > 0) {
-                        sFunc = tvb_get_string_enc(allocator, tvb, offset+3+soff, slen, ENC_ASCII);
+                        sFunc = (char*)tvb_get_string_enc(allocator, tvb, offset+3+soff, slen, ENC_ASCII);
                         ws_debug("got function call '%s'", sFunc);
 
                         if (strcmp(sFunc, "connect") == 0) {
@@ -983,7 +983,7 @@ dissect_amf0_property_list(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
                     tvb_get_uint8(tvb, offset + 2) == AMF0_END_OF_OBJECT)
                         break;
                 count++;
-                iStringValue = tvb_get_string_enc(pinfo->pool, tvb, offset + 2, iStringLength, ENC_ASCII);
+                iStringValue = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 2, iStringLength, ENC_ASCII);
                 prop_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
                                               ett_amf_property, &prop_ti, "Property '%s'",
                                               iStringValue);
@@ -1096,7 +1096,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                 iStringLength = tvb_get_ntohs(tvb, iValueOffset);
                 proto_tree_add_uint(val_tree, hf_amf_stringlength, tvb, iValueOffset, 2, iStringLength);
                 iValueOffset += 2;
-                iStringValue = tvb_get_string_enc(pinfo->pool, tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
+                iStringValue = (char*)tvb_get_string_enc(pinfo->pool, tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
                 if (iStringLength != 0)
                         proto_tree_add_string(val_tree, hf_amf_string, tvb, iValueOffset, iStringLength, iStringValue);
                 iValueOffset += iStringLength;
@@ -1170,7 +1170,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                 iStringLength = tvb_get_ntohl(tvb, iValueOffset);
                 proto_tree_add_uint(val_tree, hf_amf_stringlength, tvb, iValueOffset, 2, iStringLength);
                 iValueOffset += 4;
-                iStringValue = tvb_get_string_enc(pinfo->pool, tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
+                iStringValue = (char*)tvb_get_string_enc(pinfo->pool, tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
                 if (iStringLength != 0)
                         proto_tree_add_string(val_tree, (iObjType == AMF0_XML) ? hf_amf_xml_doc : hf_amf_longstring, tvb, iValueOffset, iStringLength, iStringValue);
                 iValueOffset += iStringLength;
@@ -1185,7 +1185,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                 iStringLength = tvb_get_ntohs(tvb, iValueOffset);
                 proto_tree_add_uint(val_tree, hf_amf_stringlength, tvb, iValueOffset, 2, iStringLength);
                 iValueOffset += 2;
-                iStringValue = tvb_get_string_enc(pinfo->pool, tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
+                iStringValue = (char*)tvb_get_string_enc(pinfo->pool, tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
                 proto_tree_add_string(val_tree, hf_amf_string, tvb, iValueOffset, iStringLength, iStringValue);
                 iValueOffset += iStringLength;
                 iValueOffset = dissect_amf0_property_list(tvb, pinfo, iValueOffset, val_tree, &count, amf3_encoding);
@@ -1354,7 +1354,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                         iStringLength = iIntegerValue >> 1;
                         proto_tree_add_uint(val_tree, hf_amf_stringlength, tvb, iValueOffset, iValueLength, iStringLength);
                         iValueOffset += iValueLength;
-                        iStringValue = tvb_get_string_enc(pinfo->pool, tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
+                        iStringValue = (char*)tvb_get_string_enc(pinfo->pool, tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
                         if (iStringLength != 0)
                                 proto_tree_add_string(val_tree, hf_amf_string, tvb, iValueOffset, iStringLength, iStringValue);
                         iValueOffset += iStringLength;
@@ -1432,7 +1432,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                                                 iValueOffset += iValueLength;
                                                 break;
                                         }
-                                        iStringValue = tvb_get_string_enc(pinfo->pool, tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
+                                        iStringValue = (char*)tvb_get_string_enc(pinfo->pool, tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
                                         subval_tree = proto_tree_add_subtree(val_tree, tvb, iValueOffset, iStringLength,
                                                                     ett_amf_array_element, &subval_ti, iStringValue);
                                         proto_tree_add_uint(subval_tree, hf_amf_stringlength, tvb, iValueOffset, iValueLength, iStringLength);
@@ -1497,7 +1497,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                                         if (iIntegerValue & 0x00000001) {
                                                 /* the upper 28 bits of the integer value is a string length */
                                                 iStringLength = iIntegerValue >> 1;
-                                                iStringValue = tvb_get_string_enc(pinfo->pool, tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
+                                                iStringValue = (char*)tvb_get_string_enc(pinfo->pool, tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
                                                 traits_tree = proto_tree_add_subtree_format(val_tree, tvb, iValueOffset, -1,
                                                             ett_amf_traits, &traits_ti, "Traits for class %s (%u member names)", iStringValue, iTraitCount);
                                                 name_tree = proto_tree_add_subtree_format(traits_tree, tvb,
@@ -1521,7 +1521,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                                                 if (iIntegerValue & 0x00000001) {
                                                         /* the upper 28 bits of the integer value is a string length */
                                                         iStringLength = iIntegerValue >> 1;
-                                                        iStringValue = tvb_get_string_enc(pinfo->pool, tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
+                                                        iStringValue = (char*)tvb_get_string_enc(pinfo->pool, tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
                                                         member_tree = proto_tree_add_subtree_format(traits_tree, tvb, iValueOffset, iValueLength+iStringLength,
                                                                                             ett_amf_trait_member, NULL, "Member '%s'", iStringValue);
                                                         proto_tree_add_uint(member_tree, hf_amf_membernamelength, tvb, iValueOffset, iValueLength, iStringLength);
@@ -1549,7 +1549,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                                                                         iValueOffset += iValueLength;
                                                                         break;
                                                                 }
-                                                                iStringValue = tvb_get_string_enc(pinfo->pool, tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
+                                                                iStringValue = (char*)tvb_get_string_enc(pinfo->pool, tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
                                                                 subval_tree = proto_tree_add_subtree_format(traits_tree, tvb, iValueOffset, -1,
                                                                             ett_amf_array_element, &subval_ti, "%s:", iStringValue);
                                                                 name_tree = proto_tree_add_subtree_format(subval_tree, tvb,

@@ -485,14 +485,14 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		 * not walk off the end looking for more. */
 		while (tvb_offset_exists(tvb, offset)) {
 			int next_offset;
-			const uint8_t *line;
+			const char *line;
 			int linelen;
 			unsigned digest_type_len = 0;
 
 			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
 
 			/* Include new-line in line */
-			line = tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
+			line = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
 
 			line_tree = proto_tree_add_subtree(ldss_tree, tvb, offset, linelen,
 							 ett_ldss_transfer_req, NULL,
@@ -552,7 +552,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 					digest_bytes = g_byte_array_new();
 					hex_str_to_bytes(
-							tvb_get_ptr(tvb, offset+digest_type_len, linelen-digest_type_len),
+							(const char*)tvb_get_ptr(tvb, offset+digest_type_len, linelen-digest_type_len),
 							digest_bytes, false);
 
 					if(digest_bytes->len >= DIGEST_LEN)

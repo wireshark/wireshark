@@ -385,14 +385,14 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (try_bom == 0xFEFF) {
         /* UTF-16BE */
         const uint8_t *data_str = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), ENC_UTF_16|ENC_BIG_ENDIAN);
-        size_t l = strlen(data_str);
+        size_t l = strlen((const char*)data_str);
         decoded = tvb_new_child_real_data(tvb, data_str, (unsigned)l, (int)l);
         add_new_data_source(pinfo, decoded, "Decoded UTF-16BE text");
     }
     else if(try_bom == 0xFFFE) {
         /* UTF-16LE (or possibly UTF-32LE, but Wireshark doesn't support UTF-32) */
         const uint8_t *data_str = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), ENC_UTF_16|ENC_LITTLE_ENDIAN);
-        size_t l = strlen(data_str);
+        size_t l = strlen((const char*)data_str);
         decoded = tvb_new_child_real_data(tvb, data_str, (unsigned)l, (int)l);
         add_new_data_source(pinfo, decoded, "Decoded UTF-16LE text");
     }
@@ -404,7 +404,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         /* Encoding string with encoding, either with or without BOM */
         const uint8_t *data_str = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), encoding);
-        size_t l = strlen(data_str);
+        size_t l = strlen((const char*)data_str);
         decoded = tvb_new_child_real_data(tvb, data_str, (unsigned)l, (int)l);
         add_new_data_source(pinfo, decoded, wmem_strdup_printf(pinfo->pool, "Decoded %s text", encoding_name));
     }
@@ -468,7 +468,7 @@ static bool dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
 
         data_str    = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), enc);
-        l           = strlen(data_str);
+        l           = strlen((const char*)data_str);
         unicode_tvb = tvb_new_child_real_data(tvb, data_str, (unsigned)l, (int)l);
         if (tvbparse_peek(tvbparse_init(pinfo->pool, unicode_tvb, 0, -1, NULL, want_ignore), want_heur)) {
             add_new_data_source(pinfo, unicode_tvb, "UTF8");
@@ -603,7 +603,7 @@ static void before_xmpli(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     proto_item      *pi;
     proto_tree      *pt;
     tvbparse_elem_t *name_tok      = tok->sub->next;
-    char            *name          = tvb_get_string_enc(current_frame->pinfo->pool, name_tok->tvb, name_tok->offset, name_tok->len, ENC_ASCII);
+    char            *name          = (char*)tvb_get_string_enc(current_frame->pinfo->pool, name_tok->tvb, name_tok->offset, name_tok->len, ENC_ASCII);
     xml_ns_t        *ns            = (xml_ns_t *)wmem_map_lookup(xmpli_names, name);
     xml_frame_t     *new_frame;
 
@@ -691,7 +691,7 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
         }
 
     } else {
-        name = tvb_get_string_enc(current_frame->pinfo->pool, name_tok->tvb, name_tok->offset, name_tok->len, ENC_ASCII);
+        name = (char*)tvb_get_string_enc(current_frame->pinfo->pool, name_tok->tvb, name_tok->offset, name_tok->len, ENC_ASCII);
         name_orig_case = wmem_strdup(current_frame->pinfo->pool, name);
         ascii_strdown_inplace(name);
 
@@ -991,7 +991,7 @@ static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     proto_item      *pi;
     xml_frame_t     *new_frame;
 
-    name           = tvb_get_string_enc(current_frame->pinfo->pool, tok->sub->tvb, tok->sub->offset, tok->sub->len, ENC_ASCII);
+    name           = (char*)tvb_get_string_enc(current_frame->pinfo->pool, tok->sub->tvb, tok->sub->offset, tok->sub->len, ENC_ASCII);
     name_orig_case = wmem_strdup(current_frame->pinfo->pool, name);
     ascii_strdown_inplace(name);
 
@@ -1637,7 +1637,7 @@ static dtd_build_data_t* g_build_data;
 
 static void dtd_pi_cb(void* ctx _U_, const xmlChar* target, const xmlChar* data)
 {
-    if (strcmp(target, "wireshark-protocol") == 0) {
+    if (xmlStrcmp(target, (const xmlChar*)"wireshark-protocol") == 0) {
 
         xmlDocPtr fake_doc;
         char* fake_element;
@@ -1655,29 +1655,29 @@ static void dtd_pi_cb(void* ctx _U_, const xmlChar* target, const xmlChar* data)
                 {
                     if (xmlStrcmp(attr->name, (const xmlChar*)"proto_name") == 0) {
                         value = xmlNodeListGetString(fake_doc, attr->children, 1);
-                        char* lower_proto = g_ascii_strdown(value, -1);
+                        char* lower_proto = g_ascii_strdown((const char*)value, -1);
                         g_build_data->proto_name = wmem_strdup(wmem_epan_scope(), lower_proto);
                         g_free(lower_proto);
                         xmlFree(value);
                     }
                     if (xmlStrcmp(attr->name, (const xmlChar*)"root") == 0) {
                         value = xmlNodeListGetString(fake_doc, attr->children, 1);
-                        g_build_data->proto_root = g_ascii_strdown(value, -1);
+                        g_build_data->proto_root = g_ascii_strdown((const char*)value, -1);
                         xmlFree(value);
                     }
                     else if (xmlStrcmp(attr->name, (const xmlChar*)"media") == 0) {
                         value = xmlNodeListGetString(fake_doc, attr->children, 1);
-                        g_build_data->media_type = wmem_strdup(wmem_epan_scope(), value);
+                        g_build_data->media_type = wmem_strdup(wmem_epan_scope(), (const char*)value);
                         xmlFree(value);
                     }
                     else if (xmlStrcmp(attr->name, (const xmlChar*)"description") == 0) {
                         value = xmlNodeListGetString(fake_doc, attr->children, 1);
-                        g_build_data->description = wmem_strdup(wmem_epan_scope(), value);
+                        g_build_data->description = wmem_strdup(wmem_epan_scope(), (const char*)value);
                         xmlFree(value);
                     }
                     else if (xmlStrcmp(attr->name, (const xmlChar*)"hierarchy") == 0) {
                         value = xmlNodeListGetString(fake_doc, attr->children, 1);
-                        g_build_data->recursion = (g_ascii_strcasecmp(value, "yes") == 0) ? true : false;
+                        g_build_data->recursion = (g_ascii_strcasecmp((const char*)value, "yes") == 0) ? true : false;
                         xmlFree(value);
                     }
                 }
@@ -1724,7 +1724,7 @@ static void dtd_elementDecl_cb(void* ctx _U_, const xmlChar* name, int type, xml
     if (type == XML_ELEMENT_TYPE_MIXED) {
         /* The first child is always "#PCDATA", which we don't care about
          * as we always create a .cdata field regardless. */
-        ws_assert(len && (xmlStrcmp("#PCDATA", children[0]) == 0));
+        ws_assert(len && (xmlStrcmp((const xmlChar*)"#PCDATA", children[0]) == 0));
         i = 1;
     }
     for (; i < len; ++i) {

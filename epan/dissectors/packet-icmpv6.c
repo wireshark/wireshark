@@ -2828,12 +2828,12 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                 int opt_start = opt_offset;
                 int opt_end = opt_offset + opt_len - 2;
                 uint32_t lifetime;
-                int adn_len = 0;
+                uint32_t adn_len = 0;
                 int adn_parsed_len;
-                const unsigned char *adn;
-                int addrs_len = 0;
-                int svc_params_len = 0;
-                int i;
+                const char *adn;
+                uint32_t addrs_len = 0;
+                uint32_t svc_params_len = 0;
+                uint32_t i;
                 tvbuff_t *next_tvb;
 	              proto_tree *dnr_addrs_tree;
                 int padding_len;
@@ -2855,12 +2855,12 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                 proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_dnr_auth_domain_name_len, tvb, opt_offset, 2, ENC_BIG_ENDIAN, &adn_len);
                 opt_offset += 2;
 
-                if (opt_offset + adn_len > opt_end) {
+                if ((unsigned)opt_offset + adn_len > (unsigned)opt_end) {
                     expert_add_info_format(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "DNR: truncated option (ADN too long)");
                     break;
                 }
 
-                get_dns_name(pinfo->pool, tvb, opt_offset, adn_len, opt_offset, (const char **)&adn, &adn_parsed_len);
+                get_dns_name(pinfo->pool, tvb, opt_offset, adn_len, opt_offset, &adn, &adn_parsed_len);
                 proto_tree_add_string(icmp6opt_tree, hf_icmpv6_opt_dnr_auth_domain_name, tvb, opt_offset, adn_len, format_text(pinfo->pool, adn, adn_parsed_len));
                 opt_offset += adn_len;
 
@@ -2885,7 +2885,7 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                 proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_dnr_addrs_len, tvb, opt_offset, 2, ENC_BIG_ENDIAN, &addrs_len);
                 opt_offset += 2;
 
-                if (opt_offset + addrs_len > opt_end) {
+                if ((unsigned)opt_offset + addrs_len > (unsigned)opt_end) {
                     expert_add_info_format(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "DNR: truncated option (addrs_len too long)");
                     break;
                 }
@@ -2911,7 +2911,7 @@ static int dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                 proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_dnr_svc_params_len, tvb, opt_offset, 2, ENC_BIG_ENDIAN, &svc_params_len);
                 opt_offset += 2;
 
-                if (opt_offset + svc_params_len > opt_end) {
+                if ((unsigned)opt_offset + svc_params_len > (unsigned)opt_end) {
                     expert_add_info_format(pinfo, ti_opt_len, &ei_icmpv6_invalid_option_length, "DNR: truncated option (svc_params_len too long)");
                     break;
                 }

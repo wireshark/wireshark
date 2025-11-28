@@ -326,7 +326,7 @@ static const fragment_items quic_crypto_fragment_items = {
 */
 
 typedef struct quic_decrypt_result {
-    const unsigned char   *error;      /**< Error message or NULL for success. */
+    const char     *error;      /**< Error message or NULL for success. */
     const uint8_t  *data;       /**< Decrypted result on success (file-scoped). */
     unsigned        data_len;   /**< Size of decrypted data. */
 } quic_decrypt_result_t;
@@ -2782,7 +2782,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             int32_t len_sequence;
             int32_t len_retire_prior_to;
             uint64_t seq_num = 0, path_id = 0;
-            int32_t nci_length;
+            uint32_t nci_length;
             int32_t lenvar = 0;
             bool valid_cid = false;
 
@@ -3099,7 +3099,7 @@ quic_decrypt_message(quic_pp_cipher *pp_cipher, tvbuff_t *head, unsigned header_
     uint8_t        *buffer;
     uint8_t         atag[16];
     unsigned        buffer_length;
-    const unsigned char  **error = &result->error;
+    const char    **error = &result->error;
     quic_datagram *dgram_info;
 
     dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, pinfo->curr_proto_layer_num);
@@ -3231,7 +3231,7 @@ quic_derive_initial_secrets(wmem_allocator_t* allocator, const quic_cid_t *cid,
         0x7f, 0xf5, 0x79, 0xe5, 0xac, 0xd0, 0x72, 0x91, 0x55, 0x80,
         0x30, 0x4c, 0x43, 0xa2, 0x36, 0x7c, 0x60, 0x48, 0x83, 0x10
     };
-    static const int8_t hanshake_salt_draft_t51[20] = {
+    static const uint8_t hanshake_salt_draft_t51[20] = {
         0x7a, 0x4e, 0xde, 0xf4, 0xe7, 0xcc, 0xee, 0x5f, 0xa4, 0x50,
         0x6c, 0x19, 0x12, 0x4f, 0xc8, 0xcc, 0xda, 0x6e, 0x03, 0x3d
     };
@@ -3410,7 +3410,7 @@ quic_create_initial_decoders(wmem_allocator_t* allocator, const quic_cid_t *cid,
 }
 
 static bool
-quic_create_0rtt_decoder(unsigned i, char *early_data_secret, unsigned early_data_secret_len,
+quic_create_0rtt_decoder(unsigned i, uint8_t *early_data_secret, unsigned early_data_secret_len,
                          quic_ciphers *ciphers, int *cipher_algo, uint32_t version)
 {
     static const uint16_t tls13_ciphers[] = {
@@ -3449,7 +3449,7 @@ quic_create_decoders(packet_info *pinfo, quic_info_data_t *quic_info, quic_ciphe
     }
 
     unsigned hash_len = gcry_md_get_algo_dlen(quic_info->hash_algo);
-    char *secret = (char *)wmem_alloc0(pinfo->pool, hash_len);
+    uint8_t *secret = (uint8_t *)wmem_alloc0(pinfo->pool, hash_len);
 
     if (!tls13_get_quic_secret(pinfo, from_server, type, hash_len, hash_len, secret)) {
         *error = "Secrets are not available";
@@ -3471,7 +3471,7 @@ static bool
 quic_get_traffic_secret(packet_info *pinfo, int hash_algo, quic_pp_state_t *pp_state, bool from_client)
 {
     unsigned hash_len = gcry_md_get_algo_dlen(hash_algo);
-    char *secret = (char *)wmem_alloc0(pinfo->pool, hash_len);
+    uint8_t *secret = (uint8_t *)wmem_alloc0(pinfo->pool, hash_len);
     if (!tls13_get_quic_secret(pinfo, !from_client, TLS_SECRET_APP, hash_len, hash_len, secret)) {
         return false;
     }
@@ -4172,7 +4172,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 #define DIGEST_MIN_SIZE 32  /* SHA256 */
 #define DIGEST_MAX_SIZE 48  /* SHA384 */
         const char *error = NULL;
-        char early_data_secret[DIGEST_MAX_SIZE];
+        uint8_t early_data_secret[DIGEST_MAX_SIZE];
         unsigned early_data_secret_len = 0;
         if (long_packet_type == QUIC_LPT_INITIAL && !from_server &&
             quic_connection_equal(&dcid, &conn->client_dcid_initial)) {

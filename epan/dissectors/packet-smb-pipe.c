@@ -311,11 +311,11 @@ add_string_param_update_parent(tvbuff_t *tvb, int offset, int count, packet_info
     proto_tree *tree, int convert _U_, int hf_index, smb_info_t *smb_info _U_)
 {
 	proto_item *ti, *parent_ti;
-	const uint8_t *str;
+	const char *str;
 
 	DISSECTOR_ASSERT(hf_index > 0);
 	ti = proto_tree_add_item_ret_string(tree, hf_index, tvb, offset,
-	    count, ENC_ASCII|ENC_NA, pinfo->pool, &str);
+	    count, ENC_ASCII|ENC_NA, pinfo->pool, (const uint8_t**)&str);
 	    /* XXX - code page? */
 	parent_ti = proto_item_get_parent(ti);
 	proto_item_append_text(parent_ti, ": %s",
@@ -1593,8 +1593,8 @@ find_lanman(int lanman_num)
 	return &lmd[i];
 }
 
-static const unsigned char *
-get_count(const unsigned char *desc, int *countp)
+static const char *
+get_count(const char *desc, int *countp)
 {
 	int count = 0;
 	unsigned char c;
@@ -1615,7 +1615,7 @@ get_count(const unsigned char *desc, int *countp)
 
 static int
 dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, const unsigned char *desc, const item_t *items,
+    proto_tree *tree, const char *desc, const item_t *items,
     bool *has_data_p, smb_info_t *smb_info)
 {
 	unsigned c;
@@ -1823,7 +1823,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, const unsigned char *desc, const item_t *items,
+    proto_tree *tree, const char *desc, const item_t *items,
     bool *has_data_p, bool *has_ent_count_p, uint16_t *ent_count_p, smb_info_t *smb_info)
 {
 	unsigned c;
@@ -1957,7 +1957,7 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
-    packet_info *pinfo, proto_tree *tree, const unsigned char *desc,
+    packet_info *pinfo, proto_tree *tree, const char *desc,
     const item_t *items, uint16_t *aux_count_p, smb_info_t *smb_info)
 {
 	unsigned c;
@@ -2598,7 +2598,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	const struct lanman_desc *lanman;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	unsigned descriptor_len;
+	int descriptor_len;
 	const char *param_descrip, *data_descrip, *aux_data_descrip = NULL;
 	bool has_data;
 	bool has_ent_count;
@@ -2656,7 +2656,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		}
 
 		/* parameter descriptor */
-		param_descrip = tvb_get_stringz_enc(pinfo->pool, p_tvb, offset, &descriptor_len, ENC_ASCII);
+		param_descrip = (char*)tvb_get_stringz_enc(pinfo->pool, p_tvb, offset, &descriptor_len, ENC_ASCII);
 		proto_tree_add_string(tree, hf_param_desc, p_tvb, offset, descriptor_len, param_descrip);
 		if (!pinfo->fd->visited) {
 			/*
@@ -2668,7 +2668,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		offset += descriptor_len;
 
 		/* return descriptor */
-		data_descrip = tvb_get_stringz_enc(pinfo->pool, p_tvb, offset, &descriptor_len, ENC_ASCII);
+		data_descrip = (char*)tvb_get_stringz_enc(pinfo->pool, p_tvb, offset, &descriptor_len, ENC_ASCII);
 		proto_tree_add_string(tree, hf_return_desc, p_tvb, offset, descriptor_len, data_descrip);
 		if (!pinfo->fd->visited) {
 			/*
@@ -2692,7 +2692,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			 * There are more parameters left, so the next
 			 * item is the auxiliary data descriptor.
 			 */
-			aux_data_descrip = tvb_get_stringz_enc(pinfo->pool, p_tvb, offset, &descriptor_len, ENC_ASCII);
+			aux_data_descrip = (char*)tvb_get_stringz_enc(pinfo->pool, p_tvb, offset, &descriptor_len, ENC_ASCII);
 			proto_tree_add_string(tree, hf_aux_data_desc, p_tvb, offset, descriptor_len, aux_data_descrip);
 			if (!pinfo->fd->visited) {
 				/*

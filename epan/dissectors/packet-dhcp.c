@@ -2680,7 +2680,7 @@ dissect_dhcpopt_client_full_domain_name(tvbuff_t *tvb, packet_info *pinfo, proto
 	};
 	uint8_t fqdn_flags;
 	int offset = 0, length = tvb_reported_length(tvb);
-	const unsigned char	*dns_name;
+	const char	*dns_name;
 	int		dns_name_len;
 
 	if (length < 3) {
@@ -2699,7 +2699,7 @@ dissect_dhcpopt_client_full_domain_name(tvbuff_t *tvb, packet_info *pinfo, proto
 
 	if (length > 3) {
 		if (fqdn_flags & F_FQDN_E) {
-			get_dns_name(pinfo->pool, tvb, offset+3, length-3, offset+3, (const char **)&dns_name, &dns_name_len);
+			get_dns_name(pinfo->pool, tvb, offset+3, length-3, offset+3, &dns_name, &dns_name_len);
 			proto_tree_add_string(tree, hf_dhcp_fqdn_name,
 				tvb, offset+3, length-3, format_text(pinfo->pool, dns_name, dns_name_len));
 		} else {
@@ -3007,7 +3007,7 @@ dissect_dhcpopt_dhcp_domain_search(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	int length = tvb_reported_length(tvb);
 	int offset = 0;
 	char		*name_out;
-	const unsigned char	*dns_name;
+	const char	*dns_name;
 	int		dns_name_len;
 
 	/* Domain Names - Implementation And Specification (RFC 1035) */
@@ -3018,7 +3018,7 @@ dissect_dhcpopt_dhcp_domain_search(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
 		consumedx = get_dns_name(pinfo->pool, tvb, offset,
-			length, 0, (const char **)&dns_name, &dns_name_len);
+			length, 0, &dns_name, &dns_name_len);
 		name_out = format_text(pinfo->pool, dns_name, dns_name_len);
 		proto_tree_add_string(tree, hf_dhcp_option_dhcp_dns_domain_search_list_fqdn, tvb, offset, consumedx, name_out);
 		offset += consumedx;
@@ -3032,7 +3032,7 @@ dissect_dhcpopt_sip_servers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	int length = tvb_reported_length(tvb);
 	int offset = 0;
-	const unsigned char	*dns_name;
+	const char	*dns_name;
 	int		dns_name_len;
 	char		*name_out;
 
@@ -3054,7 +3054,7 @@ dissect_dhcpopt_sip_servers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		while (tvb_reported_length_remaining(tvb, offset) > 0) {
 			/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
 			consumedx = get_dns_name(pinfo->pool, tvb, offset, length,
-				1 /* ignore enc */, (const char **)&dns_name, &dns_name_len);
+				1 /* ignore enc */, &dns_name, &dns_name_len);
 			name_out = format_text(pinfo->pool, dns_name, dns_name_len);
 
 			proto_tree_add_string(tree, hf_dhcp_option_sip_server_name, tvb, offset, consumedx, name_out);
@@ -3277,7 +3277,7 @@ static int
 dissect_dhcpopt_rdnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
-	const unsigned char *dns_name;
+	const char *dns_name;
 	int dns_name_len;
 
 	if (tvb_reported_length(tvb) < 10) {
@@ -3292,7 +3292,7 @@ dissect_dhcpopt_rdnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 	proto_tree_add_item(tree, hf_dhcp_option_rdnss_sec_dns_server, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	get_dns_name(pinfo->pool, tvb, offset, tvb_reported_length_remaining(tvb,offset), offset, (const char **)&dns_name, &dns_name_len);
+	get_dns_name(pinfo->pool, tvb, offset, tvb_reported_length_remaining(tvb,offset), offset, &dns_name, &dns_name_len);
 	proto_tree_add_string(tree, hf_dhcp_option_rdnss_domain, tvb, offset,
 			tvb_reported_length_remaining(tvb,offset), format_text(pinfo->pool, dns_name, dns_name_len));
 
@@ -3319,7 +3319,7 @@ dissect_dhcpopt_dnr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	int instance_len;
 	int adn_len;
 	int adn_parsed_len;
-	const unsigned char *adn;
+	const char *adn;
 	int addrs_len;
 	proto_item *dnr_instance_ti;
 	proto_tree *dnr_instance_tree;
@@ -3369,7 +3369,7 @@ dissect_dhcpopt_dnr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 		}
 
 		get_dns_name(pinfo->pool, tvb, offset + instance_offset, adn_len,
-				offset + instance_offset, (const char **)&adn, &adn_parsed_len);
+				offset + instance_offset, &adn, &adn_parsed_len);
 		proto_tree_add_string(dnr_instance_tree, hf_dhcp_dnr_auth_domain_name, tvb, offset + instance_offset,
 				adn_len, format_text(pinfo->pool, adn, adn_parsed_len));
 
@@ -5983,12 +5983,12 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 	int		   subopt_off, max_len;
 	unsigned	       tlv_len, i, mib_val;
 	uint8_t	       flow_val_str[5];
-	uint8_t       *asc_val;
+	const char    *asc_val;
 	proto_item    *ti, *mib_ti;
 	proto_tree    *subtree, *subtree2;
 
-	asc_val = tvb_get_string_enc(pinfo->pool, tvb, off, 2, ENC_ASCII);
-	if (sscanf((char*)asc_val, "%x", &tlv_len) != 1 || tlv_len > 0xff) {
+	asc_val = (char*)tvb_get_string_enc(pinfo->pool, tvb, off, 2, ENC_ASCII);
+	if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len > 0xff) {
 		proto_tree_add_expert_format(v_tree, pinfo, &ei_dhcp_bad_length, tvb, off, len - off,
 			"Bogus length: %s",
 			format_text_string(pinfo->pool, asc_val));
@@ -6002,8 +6002,8 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 			raw_val = tvb_get_ntohs (tvb, off);
 
 			/* Length */
-			asc_val = tvb_get_string_enc(pinfo->pool, tvb, off + 2, 2, ENC_ASCII);
-			if (sscanf((char*)asc_val, "%x", &tlv_len) != 1
+			asc_val = (char*)tvb_get_string_enc(pinfo->pool, tvb, off + 2, 2, ENC_ASCII);
+			if (sscanf(asc_val, "%x", &tlv_len) != 1
 			    || tlv_len < 1 || tlv_len > UINT16_MAX) {
 				proto_tree_add_expert_format(v_tree, pinfo, &ei_dhcp_bad_length, tvb, off, len - off,
 					"Bogus length: %s",
@@ -6129,7 +6129,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 				while (subopt_off < max_len) {
 					raw_val = tvb_get_ntohs(tvb, subopt_off);
 					if (raw_val != 0x3032) { /* We only know how to handle a length of 2 */
-						asc_val = tvb_get_string_enc(pinfo->pool, tvb, subopt_off, 2, ENC_ASCII);
+						asc_val = (char*)tvb_get_string_enc(pinfo->pool, tvb, subopt_off, 2, ENC_ASCII);
 						proto_tree_add_expert_format(subtree, pinfo, &ei_dhcp_bad_length, tvb, subopt_off, 2,
 							"Bogus length: %s",
 							format_text_string(pinfo->pool, asc_val));
@@ -6138,7 +6138,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 
 					subopt_off += 2;
 					raw_val = tvb_get_ntohs(tvb, subopt_off);
-					asc_val = tvb_get_string_enc(pinfo->pool, tvb, subopt_off, 2, ENC_ASCII);
+					asc_val = (char*)tvb_get_string_enc(pinfo->pool, tvb, subopt_off, 2, ENC_ASCII);
 					subtree2 = proto_tree_add_subtree_format(subtree, tvb, subopt_off, 2,
 						ett_dhcp_option, &mib_ti, "%s (%s)",
 						val_to_str_const(raw_val, pkt_mdc_mib_orgs, "Unknown"),
@@ -6149,8 +6149,8 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 					proto_item_append_text(ti, "%s", val_to_str_const(raw_val, pkt_mdc_mib_orgs, "Unknown"));
 
 					subopt_off += 2;
-					asc_val = tvb_get_string_enc(pinfo->pool, tvb, subopt_off, 2, ENC_ASCII);
-					if (sscanf((char*)asc_val, "%x", &mib_val) != 1) {
+					asc_val = (char*)tvb_get_string_enc(pinfo->pool, tvb, subopt_off, 2, ENC_ASCII);
+					if (sscanf(asc_val, "%x", &mib_val) != 1) {
 						proto_tree_add_expert_format(v_tree, pinfo, &ei_dhcp_bad_bitfield, tvb, subopt_off, 2,
 							"Bogus bitfield: %s", format_text_string(pinfo->pool, asc_val));
 						return;
@@ -6529,8 +6529,7 @@ dissect_docsis_cm_cap(packet_info *pinfo, proto_tree *v_tree, tvbuff_t *tvb, int
 		off += DOCSIS_CM_CAP_TLV_OFF;
 		tvb_memcpy (tvb, asc_val, off, 2);
 		tlv_len = (uint8_t)strtoul((char*)asc_val, NULL, 16);
-		proto_tree_add_uint_format_value(v_tree, hf_dhcp_docsis_cm_cap_len, tvb, off+2, 2,
-						 tlv_len, "%d", tlv_len);
+		proto_tree_add_uint(v_tree, hf_dhcp_docsis_cm_cap_len, tvb, off+2, 2, tlv_len);
 	}
 
 	off+=2;
@@ -7064,7 +7063,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	proto_tree   *pkt_s_tree;
 	proto_item   *vti;
 	int	      max_timer_val = 255;
-	const unsigned char *dns_name;
+	const char *dns_name;
 	int	     dns_name_len;
 
 	subopt = tvb_get_uint8(tvb, suboptoff);
@@ -7166,7 +7165,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 		break;
 
 	case PKT_CCC_KRB_REALM: /* String values */
-		get_dns_name(pinfo->pool, tvb, suboptoff, subopt_len, suboptoff, (const char **)&dns_name, &dns_name_len);
+		get_dns_name(pinfo->pool, tvb, suboptoff, subopt_len, suboptoff, &dns_name, &dns_name_len);
 		proto_item_append_text(vti, "%s (%u byte%s)", format_text(pinfo->pool, dns_name, dns_name_len),
 				       subopt_len, plurality(subopt_len, "", "s") );
 		suboptoff += subopt_len;

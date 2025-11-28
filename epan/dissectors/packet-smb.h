@@ -202,9 +202,9 @@ typedef struct {
 	/* Unification of fid variable type (was int) */
 	uint16_t	 fid;
 	uint16_t	 lanman_cmd;
-	unsigned char	*param_descrip; /* Keep these descriptors around */
-	unsigned char	*data_descrip;
-	unsigned char	*aux_data_descrip;
+	const char	*param_descrip; /* Keep these descriptors around */
+	const char	*data_descrip;
+	const char	*aux_data_descrip;
 	int	 info_level;
 } smb_transact_info_t;
 
