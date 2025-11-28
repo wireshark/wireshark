@@ -495,7 +495,7 @@ Windows Arm64 Package:
     - cd build
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --version-file=wireshark_version.txt ..
-    - cmake -G "Visual Studio 17 2022" -A arm64 -DENABLE_WERROR=ON -DENABLE_LTO=off -DENABLE_SIGNED_NSIS=on ..
+    - cmake -G "Visual Studio 17 2022" -A arm64 -DENABLE_WERROR=ON -DENABLE_LTO=off -DENABLE_SIGNED_NSIS=on -DQT_HOST_PATH="C:\Qt\$($env:WINDOWS_QT6_LTS_VERSION)\msvc2019_64" ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
