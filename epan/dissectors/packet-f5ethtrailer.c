@@ -1053,7 +1053,7 @@ static f5eth_set_col_info_func f5eth_set_info_col = f5eth_set_info_col_slot;
  *                   after the function returns.)
  */
 static void
-f5eth_process_f5info(const uint8_t *platform)
+f5eth_process_f5info(const char *platform)
 {
     /** Always display slot information when there is no platform information in the header or
      *  if there was no regex specified in the preference.  But use the in/out only
@@ -1978,7 +1978,7 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
              * active */
             if (have_tap_listener(tap_f5ethtrailer)
                 && tvb_get_uint8(tvb, offset + (F5_LOWV94_LEN - 16)) != 0) {
-                tdata->virtual_name = tvb_get_string_enc(pinfo->pool, tvb,
+                tdata->virtual_name = (char*)tvb_get_string_enc(pinfo->pool, tvb,
                     offset + (F5_LOWV94_LEN - 16), 16, ENC_ASCII);
             }
         } else {
@@ -1988,7 +1988,7 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
              * active */
             if (have_tap_listener(tap_f5ethtrailer)
                 && tvb_get_uint8(tvb, offset + (F5_LOWV10_LEN - 16)) != 0) {
-                tdata->virtual_name = tvb_get_string_enc(pinfo->pool, tvb,
+                tdata->virtual_name = (char*)tvb_get_string_enc(pinfo->pool, tvb,
                     offset + (F5_LOWV10_LEN - 16), 16, ENC_ASCII);
             }
         }
@@ -2007,7 +2007,7 @@ dissect_low_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
         /* Analysis doesn't care about the virtual name, only populate if there is a tap active
          */
         if (vipnamelen > 0 && have_tap_listener(tap_f5ethtrailer)) {
-            tdata->virtual_name = tvb_get_string_enc(pinfo->pool, tvb,
+            tdata->virtual_name = (char*)tvb_get_string_enc(pinfo->pool, tvb,
                 offset + F5_LOWV1_LENMIN, vipnamelen, ENC_ASCII);
         }
         break;
@@ -4072,7 +4072,7 @@ proto_register_f5ethtrailer(void)
         "In/out only removes slot/tmm information.  Brief shortens the string"
         " to >S/T (for in) or <S/T (for out).  See \"Brief in/out characters\""
         " below.",
-        (unsigned *)&pref_info_type, f5eth_display_strings, true);
+        (int *)&pref_info_type, f5eth_display_strings, true);
 
     prefs_register_string_preference(f5ethtrailer_module, "brief_inout_chars",
         "Brief in/out characters",
@@ -4318,7 +4318,7 @@ static bool
 dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     unsigned offset = 0;
-    const uint8_t *object;
+    const char *object;
     const char *platform = NULL;
     const char *platform_name = NULL;
     int objlen;
@@ -4343,7 +4343,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     tap_data->magic = F5FILEINFO_TAP_MAGIC;
 
     while (tvb_captured_length_remaining(tvb, offset)) {
-        object = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &objlen, ENC_ASCII);
+        object = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &objlen, ENC_ASCII);
 
         if (objlen <= 0 || object == NULL)
             break;
@@ -4353,7 +4353,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             col_add_str(pinfo->cinfo, COL_INFO, &object[5]);
         } else if (strncmp(object, "VER: ", 5) == 0) {
             unsigned i;
-            const uint8_t *c;
+            const char *c;
 
             proto_tree_add_string(tree, hf_fi_version, tvb, offset + 5, objlen - 5, &object[5]);
             for (c = object; *c && (*c < '0' || *c > '9'); c++);

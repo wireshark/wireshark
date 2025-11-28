@@ -1097,7 +1097,7 @@ dissect_kafka_regular_array(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 {
     int32_t count;
 
-    count = (int32_t) tvb_get_ntohl(tvb, offset);
+    count = tvb_get_ntohil(tvb, offset);
     offset += 4;
 
     if (count < -1) { // -1 means null array
@@ -1123,7 +1123,7 @@ dissect_kafka_compact_array(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         int(*func)(tvbuff_t*, packet_info*, proto_tree*, int, kafka_api_version_t),
                         int *p_count)
 {
-    int64_t count;
+    uint64_t count;
     int32_t len;
 
     len = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &count, ENC_VARINT_PROTOBUF);
@@ -1131,7 +1131,7 @@ dissect_kafka_compact_array(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_kafka_bad_varint);
         return tvb_captured_length(tvb);
     }
-    if(count > 0x7ffffffL) {
+    if(count > (uint64_t)INT64_MAX) {
         expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_kafka_bad_array_length);
         return offset + len;
     }
@@ -1177,7 +1177,7 @@ dissect_kafka_varint(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *
     unsigned len;
     proto_item *pi;
 
-    len = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &value, ENC_VARINT_ZIGZAG);
+    len = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, (uint64_t*)&value, ENC_VARINT_ZIGZAG);
     pi = proto_tree_add_int64(tree, hf_item, tvb, offset, len, value);
 
     if (len == 0) {
@@ -1217,11 +1217,11 @@ dissect_kafka_varuint(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info 
  * The function wraps the tvb_get_string_enc that if given string is NULL, which is represented as negative length,
  * a substitute string is returned instead of failing.
  */
-static int8_t*
+static char*
 kafka_tvb_get_string(wmem_allocator_t *pool, tvbuff_t *tvb, int offset, int length)
 {
     if (length>=0) {
-        return tvb_get_string_enc(pool, tvb, offset, length, ENC_UTF_8);
+        return (char*)tvb_get_string_enc(pool, tvb, offset, length, ENC_UTF_8);
     } else {
         return "[ Null ]";
     }
@@ -1458,7 +1458,7 @@ dissect_kafka_offset_delta(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     unsigned   len;
     proto_item *pi;
 
-    len = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &val, ENC_VARINT_ZIGZAG);
+    len = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, (uint64_t*)&val, ENC_VARINT_ZIGZAG);
 
     pi = proto_tree_add_int64(tree, hf_item, tvb, offset, len, base_offset+val);
     if (len == 0) {
@@ -1558,7 +1558,7 @@ dissect_kafka_string_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
     if (p_display_string != NULL)
         *p_display_string = "<INVALID>";
-    len = tvb_get_varint(tvb, offset, 5, &val, ENC_VARINT_ZIGZAG);
+    len = tvb_get_varint(tvb, offset, 5, (uint64_t*)&val, ENC_VARINT_ZIGZAG);
 
     if (len == 0) {
         pi = proto_tree_add_string_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<INVALID>");
@@ -1616,7 +1616,7 @@ dissect_kafka_bytes_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     *p_invalid = false;
 
-    len = tvb_get_varint(tvb, offset, 5, &val, ENC_VARINT_ZIGZAG);
+    len = tvb_get_varint(tvb, offset, 5, (uint64_t*)&val, ENC_VARINT_ZIGZAG);
 
     if (len == 0) {
         pi = proto_tree_add_bytes_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<INVALID>");
@@ -1692,7 +1692,7 @@ dissect_kafka_record_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_record_headers, &record_headers_ti, "Headers");
 
-    len = tvb_get_varint(tvb, offset, 5, &count, ENC_VARINT_ZIGZAG);
+    len = tvb_get_varint(tvb, offset, 5, (uint64_t*)&count, ENC_VARINT_ZIGZAG);
     if (len == 0) {
         expert_add_info(pinfo, record_headers_ti, &ei_kafka_bad_varint);
         return tvb_captured_length(tvb);
@@ -2383,7 +2383,7 @@ static int
 dissect_kafka_tagged_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                                kafka_api_version_t api_version _U_)
 {
-    int64_t count;
+    uint64_t count;
     unsigned len;
     proto_item *subti;
     proto_tree *subtree;

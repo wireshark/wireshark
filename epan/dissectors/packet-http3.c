@@ -1009,7 +1009,7 @@ http3_get_header_value(packet_info *pinfo, const char* name, bool the_other_dire
             in = (http3_header_field_t *)wmem_array_index(header_data->header_fields, i);
             name_len = pntohu32(in->decoded.bytes);
             if (strlen(name) == name_len && strncmp(in->decoded.bytes + 4, name, name_len) == 0) {
-                return get_ascii_string(pinfo->pool,
+                return (const char*)get_ascii_string(pinfo->pool,
                     in->decoded.bytes + 4 + name_len + 4,
                     pntohu32(in->decoded.bytes + 4 + name_len));
             }
@@ -1233,9 +1233,9 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
         proto_item              *header;
         proto_tree              *header_tree;
         uint32_t                header_name_length;
-        const uint8_t           *header_name;
+        const char             *header_name;
         uint32_t                header_value_length;
-        const uint8_t           *header_value;
+        const char             *header_value;
 
         in = (http3_header_field_t *)wmem_array_index(header_data->header_fields, i);
 
@@ -1252,7 +1252,7 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 
         /* Add header name. */
         proto_tree_add_item_ret_string(header_tree, hf_http3_header_name, header_tvb, hoffset, header_name_length,
-                                       ENC_ASCII | ENC_NA, pinfo->pool, &header_name);
+                                       ENC_ASCII | ENC_NA, pinfo->pool, (const uint8_t**)&header_name);
         hoffset += header_name_length;
 
         /* header value length */
@@ -1262,7 +1262,7 @@ dissect_http3_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 
         /* Add header value. */
         proto_tree_add_item_ret_string(header_tree, hf_http3_header_value, header_tvb, hoffset, header_value_length,
-                                       ENC_ASCII | ENC_NA, pinfo->pool, &header_value);
+                                       ENC_ASCII | ENC_NA, pinfo->pool, (const uint8_t**)&header_value);
 
         ti_named_field = try_add_named_header_field(header_tree, header_tvb, hoffset, header_value_length, header_name,
                                                     header_value);

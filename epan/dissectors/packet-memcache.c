@@ -603,7 +603,7 @@ get_payload_length (tvbuff_t *tvb, packet_info *pinfo, const int token_number, i
 {
   const unsigned char *next_token;
   const unsigned char *line, *lineend;
-  unsigned char       *bytes_val;
+  const char          *bytes_val;
   int           tokenlen, i = 0, linelen;
   int           next_offset;
 
@@ -632,7 +632,7 @@ get_payload_length (tvbuff_t *tvb, packet_info *pinfo, const int token_number, i
     return false;
   }
 
-  bytes_val = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII);
+  bytes_val = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII);
   if (bytes_val) {
     if (sscanf (bytes_val, "%u", bytes) == 1) {
       *content_length_found = true;

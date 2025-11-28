@@ -2192,7 +2192,7 @@ ddictionary_populate_application(void* data, void* user_data)
 	value_string item;
 
 	item.value = a->code;
-	item.strptr = wmem_strdup(wmem_epan_scope(), a->name);
+	item.strptr = wmem_strdup(wmem_epan_scope(), (const char*)a->name);
 	if (!a->name) {
 		report_failure("Diameter Dictionary: Invalid Application (empty name): id=%d\n", a->code);
 		return;
@@ -2313,7 +2313,7 @@ ddictionary_populate_command(void* data, void* user_data)
 		value_string item;
 
 		item.value = c->code;
-		item.strptr = wmem_strdup(wmem_epan_scope(), c->name);
+		item.strptr = wmem_strdup(wmem_epan_scope(), (const char*)c->name);
 
 		g_array_append_val(pop_data->cmds, item);
 	}
@@ -2479,7 +2479,7 @@ ddictionary_populate_enum(void* data, void* user_data)
 	ddict_avp_enum_t* e = (ddict_avp_enum_t*)data;
 	wmem_array_t* arr = (wmem_array_t*)user_data;
 
-	value_string item = { e->code, wmem_strdup(wmem_epan_scope(), e->name) };
+	value_string item = { e->code, wmem_strdup(wmem_epan_scope(), (const char*)e->name) };
 	wmem_array_append_one(arr, item);
 }
 
@@ -2505,7 +2505,7 @@ ddictionary_populate_avp(void* data, void* user_data)
 		value_string vndvs;
 
 		vndvs.value = a->code;
-		vndvs.strptr = wmem_strdup(wmem_epan_scope(), a->name);
+		vndvs.strptr = wmem_strdup(wmem_epan_scope(), (const char*)a->name);
 
 		wmem_array_append_one(vnd->vs_avps, vndvs);
 	}
@@ -2532,7 +2532,7 @@ ddictionary_populate_avp(void* data, void* user_data)
 			static avp_type_t proto_type = { "proto", proto_avp, FT_UINT32, BASE_HEX, build_proto_avp };
 			type = &proto_type;
 
-			avp_data = wmem_strdup(wmem_epan_scope(), x->value);
+			avp_data = wmem_strdup(wmem_epan_scope(), (const char*)x->value);
 			break;
 		}
 	}
@@ -2543,7 +2543,7 @@ ddictionary_populate_avp(void* data, void* user_data)
 	if (type == NULL)
 		type = &basic_types[0];
 
-	char* avp_name = wmem_strdup(wmem_epan_scope(), a->name);
+	char* avp_name = wmem_strdup(wmem_epan_scope(), (const char*)a->name);
 	avp_constructor_data_t avp_constructor = { type, a->code, vnd, avp_name, vs, avp_data, pop_data->hf_array, pop_data->ett_array };
 	diam_avp_t* avp = type->build(&avp_constructor);
 	if (avp != NULL) {
@@ -2608,7 +2608,7 @@ ddictionary_process_command(xmlNodePtr command, GSList** commands)
 	element->vendor = xmlGetProp(command, (const xmlChar*)"vendor-id");
 	xmlChar* code = xmlGetProp(command, (const xmlChar*)"code");
 	if (code != NULL) {
-		ws_strtou32(code, NULL, &element->code);
+		ws_strtou32((const char*)code, NULL, &element->code);
 		xmlFree(code);
 	}
 
@@ -2627,7 +2627,7 @@ ddictionary_process_avp(xmlNodePtr avp, GSList** avps)
 	element->vendor = xmlGetProp(avp, (const xmlChar*)"vendor-id");
 	xmlChar* code = xmlGetProp(avp, (const xmlChar*)"code");
 	if (code != NULL) {
-		ws_strtou32(code, NULL, &element->code);
+		ws_strtou32((const char*)code, NULL, &element->code);
 		xmlFree(code);
 	}
 
@@ -2648,11 +2648,11 @@ ddictionary_process_avp(xmlNodePtr avp, GSList** avps)
 				if (code[0] == '-') {
 					//Enumerated values can be 32-bit integers, but treat them as unsigned
 					int32_t tmp;
-					ws_strtoi32(code, NULL, &tmp);
+					ws_strtoi32((const char*)code, NULL, &tmp);
 					avp_enum->code = (unsigned)tmp;
 				}
 				else {
-					ws_strtou32(code, NULL, &avp_enum->code);
+					ws_strtou32((const char*)code, NULL, &avp_enum->code);
 				}
 				xmlFree(code);
 			}
@@ -2660,7 +2660,7 @@ ddictionary_process_avp(xmlNodePtr avp, GSList** avps)
 		}
 		else if (xmlStrcmp(current_node->name, (const xmlChar*)"grouped") == 0) {
 			//All AVPs under the grouped element are considered Grouped type
-			element->type = xmlStrdup("Grouped");
+			element->type = xmlStrdup((const xmlChar*)"Grouped");
 
 			for (xmlNodePtr group_children = current_node->children; group_children != NULL; group_children = group_children->next) {
 				if (group_children->type != XML_ELEMENT_NODE)
@@ -2778,14 +2778,14 @@ ddictionary_process_file(const char* dir, const char* filename, ddict_t* dict)
 				key_start += strlen("key=\"");
 				char* key_end = strchr(key_start, '"');
 				if (key_end) {
-					element->key = xmlStrndup(key_start, (int)(key_end - key_start));
+					element->key = xmlStrndup((const xmlChar*)key_start, (int)(key_end - key_start));
 				}
 			}
 			if (value_start) {
 				value_start += strlen("key=\"");
 				char* value_end = strchr(value_start, '"');
 				if (value_end) {
-					element->value = xmlStrndup(value_start, (int)(value_end - value_start));
+					element->value = xmlStrndup((const xmlChar*)value_start, (int)(value_end - value_start));
 				}
 			}
 
@@ -2826,7 +2826,7 @@ ddictionary_process_file(const char* dir, const char* filename, ddict_t* dict)
 				element->name = xmlGetProp(current_node, (const xmlChar*)"name");
 				xmlChar* id = xmlGetProp(current_node, (const xmlChar*)"id");
 				if (id != NULL) {
-					ws_strtou32(id, NULL, &element->code);
+					ws_strtou32((const char*)id, NULL, &element->code);
 					xmlFree(id);
 				}
 
@@ -2852,7 +2852,7 @@ ddictionary_process_file(const char* dir, const char* filename, ddict_t* dict)
 				element->name = xmlGetProp(current_node, (const xmlChar*)"vendor-id");
 				element->desc = xmlGetProp(current_node, (const xmlChar*)"name");
 				if (code != NULL) {
-					ws_strtou32(code, NULL, &element->code);
+					ws_strtou32((const char*)code, NULL, &element->code);
 					xmlFree(code);
 				}
 

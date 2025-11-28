@@ -6328,7 +6328,7 @@ static const char *rtps_util_typecode_id_to_string(uint32_t typecode_id) {
 // NOLINTNEXTLINE(misc-no-recursion)
 static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, const unsigned encoding,
                         int      indent_level, int is_pointer, uint16_t bitfield, int is_key, const int offset_begin,
-                        char    *name,
+                        const char *name,
                         int      seq_max_len,   /* -1 = not a sequence field */
                         uint32_t *arr_dimension, /* if !NULL: array of 10 int */
                         int      ndds_40_hack) {
@@ -6423,7 +6423,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
      */
     case RTI_CDR_TK_UNION: {
         uint32_t    struct_name_len;
-        uint8_t     *struct_name;
+        char       *struct_name;
         const char *discriminator_name;                    /* for unions */
         char       *discriminator_enum_name = NULL;        /* for unions with enum discriminator */
         /*uint32_t defaultIdx;*/ /* Currently is ignored */
@@ -6465,7 +6465,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
           /* Enums has also a name that we should print */
           LONG_ALIGN(offset);
           discriminator_enum_name_length = tvb_get_uint32(tvb, offset, encoding);
-          discriminator_enum_name = tvb_get_string_enc(pinfo->pool, tvb, offset+4, discriminator_enum_name_length, ENC_ASCII);
+          discriminator_enum_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+4, discriminator_enum_name_length, ENC_ASCII);
         }
         offset = disc_offset_begin + disc_size;
 #if 0
@@ -6613,7 +6613,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
      * ->    A4 = 4 bytes alignment, A2 = 2 bytes alignment     <-
      * -> ----------------------------------------------------- <-
      */
-        int8_t *struct_name;
+        const char *struct_name;
         uint32_t struct_name_len, num_members;
         uint32_t next_offset;
         const char *typecode_name;
@@ -6626,7 +6626,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
         offset += 4;
 
         /* struct name */
-        struct_name = tvb_get_string_enc(pinfo->pool, tvb, offset, struct_name_len, ENC_ASCII);
+        struct_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, struct_name_len, ENC_ASCII);
         offset = check_offset_addition(offset, struct_name_len, tree, NULL, tvb);
 
 
@@ -6672,7 +6672,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
 
         next_offset = offset;
         for (i = 0; i < num_members; ++i) {
-          uint8_t *member_name;
+          const char *member_name;
           uint32_t member_name_len;
           uint16_t member_length;
           uint32_t field_offset_begin;
@@ -6693,7 +6693,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
           offset += 4;
 
           /* Name */
-          member_name = tvb_get_string_enc(pinfo->pool, tvb, offset, member_name_len, ENC_ASCII);
+          member_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, member_name_len, ENC_ASCII);
           offset += member_name_len;
 
           if (tk_id == RTI_CDR_TK_ENUM) {
@@ -7197,7 +7197,7 @@ static int rtps_util_add_type_member(proto_tree* tree, packet_info* pinfo,
           offset, -1, tree, &member_type_id);
   rtps_util_add_string(member_property, tvb, offset_tmp, hf_rtps_type_object_name, encoding);
   long_number = tvb_get_uint32(tvb, offset_tmp, encoding);
-  name = tvb_get_string_enc(pinfo->pool, tvb, offset_tmp+4, long_number, ENC_ASCII);
+  name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset_tmp+4, long_number, ENC_ASCII);
   proto_item_append_text(tree, " %s (ID: %d)", name, member_id);
   if (member_object) {
     member_object->member_id = member_id;
@@ -7402,7 +7402,7 @@ static void rtps_util_add_type_element_module(proto_tree *tree, packet_info * pi
   uint32_t long_number;
   char * name = NULL;
   long_number = tvb_get_uint32(tvb, offset, encoding);
-  name = tvb_get_string_enc(pinfo->pool, tvb, offset+4, long_number, ENC_ASCII);
+  name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+4, long_number, ENC_ASCII);
   proto_item_set_text(tree, "module %s", name);
   offset = rtps_util_add_string(tree, tvb, offset, hf_rtps_type_object_element_module_name, encoding);
   rtps_util_add_type_library(tree, pinfo, tvb, offset, encoding, -1);
@@ -10257,7 +10257,7 @@ static int rtps_util_add_rti_topic_query_service_request(proto_tree * tree, pack
 
   LONG_ALIGN_ZERO(offset, alignment_zero);
   topic_name_len = tvb_get_uint32(tvb, offset, encoding);
-  topic_name = tvb_get_string_enc(pinfo->pool, tvb, offset + 4, topic_name_len, ENC_ASCII);
+  topic_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 4, topic_name_len, ENC_ASCII);
   proto_tree_add_string(topic_query_tree, hf_rtps_topic_query_topic_name, tvb, offset, topic_name_len + 4, topic_name);
   if (topic_name != NULL) {
     submessage_col_info* current_submessage_col_info = NULL;
@@ -11996,7 +11996,7 @@ static bool dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, packe
       ENSURE_LENGTH(4);
       {
         uint32_t temp_offset, prop_size;
-        const uint8_t *propName, *propValue;
+        const char *propName, *propValue;
         proto_item *list_item, *item;
         proto_tree *property_list_tree, *property_tree;
         uint32_t seq_size = tvb_get_uint32(tvb, offset, encoding);
@@ -12009,7 +12009,7 @@ static bool dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, packe
           temp_offset = offset+4;
           while(seq_size-- > 0) {
             prop_size = tvb_get_uint32(tvb, temp_offset, encoding);
-            propName = tvb_get_string_enc(pinfo->pool, tvb, temp_offset+4, prop_size, ENC_ASCII);
+            propName = (char*)tvb_get_string_enc(pinfo->pool, tvb, temp_offset+4, prop_size, ENC_ASCII);
 
             /* NDDS align strings at 4-bytes word. */
             str_length = (4 + ((prop_size + 3) & 0xfffffffc));
@@ -12018,7 +12018,7 @@ static bool dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, packe
             temp_offset += str_length;
 
             prop_size = tvb_get_uint32(tvb, temp_offset, encoding);
-            propValue = tvb_get_string_enc(pinfo->pool, tvb, temp_offset+4, prop_size, ENC_ASCII);
+            propValue = (char*)tvb_get_string_enc(pinfo->pool, tvb, temp_offset+4, prop_size, ENC_ASCII);
 
             /* NDDS align strings at 4-bytes word. */
             str_length = (4 + ((prop_size + 3) & 0xfffffffc));

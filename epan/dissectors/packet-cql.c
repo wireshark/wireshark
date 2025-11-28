@@ -1122,7 +1122,7 @@ static int parse_result_schema_change(proto_tree* subtree, packet_info *pinfo, t
 			int offset)
 {
 	uint32_t short_bytes_length = 0;
-	const uint8_t* string_event_type_target = NULL;
+	const char* string_event_type_target = NULL;
 
 	proto_tree_add_item_ret_uint(subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
 	offset += 2;
@@ -1130,7 +1130,7 @@ static int parse_result_schema_change(proto_tree* subtree, packet_info *pinfo, t
 	offset += short_bytes_length;
 	proto_tree_add_item_ret_uint(subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
 	offset += 2;
-	proto_tree_add_item_ret_string(subtree, hf_cql_event_schema_change_type_target, tvb, offset, short_bytes_length, ENC_UTF_8, pinfo->pool, &string_event_type_target);
+	proto_tree_add_item_ret_string(subtree, hf_cql_event_schema_change_type_target, tvb, offset, short_bytes_length, ENC_UTF_8, pinfo->pool, (const uint8_t**)&string_event_type_target);
 	offset += short_bytes_length;
 	/* all targets have the keyspace as the first parameter*/
 	proto_tree_add_item_ret_uint(subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
@@ -1155,7 +1155,7 @@ static int parse_result_schema_change(proto_tree* subtree, packet_info *pinfo, t
 static int parse_row(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t* tvb,
 			int offset_metadata, int offset, const int result_rows_columns_count, const uint32_t flags)
 {
-	int string_length;
+	uint32_t string_length;
 	int shadow_offset;
 	proto_item *item;
 	int j;
@@ -1382,10 +1382,10 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 	int32_t stream = 0;
 	uint32_t batch_size = 0;
 	uint32_t batch_query_type = 0;
-	uint32_t result_kind = 0;
+	int32_t result_kind = 0;
 	uint32_t result_rows_flags = 0;
 	int32_t result_rows_columns_count = 0;
-	int32_t result_prepared_flags = 0;
+	uint32_t result_prepared_flags = 0;
 	int32_t result_prepared_pk_count = 0;
 	int64_t j = 0;
 	int64_t k = 0;
@@ -1430,7 +1430,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 		NULL
 	};
 
-	const uint8_t* string_event_type = NULL;
+	const char* string_event_type = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CQL");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -1535,16 +1535,22 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 			/* Set ret == 0 to make it fail in case decompression is skipped
 			 * due to orig_size being too big
 			 */
+			// XXX - Add a tvb_lz4 API (with max size) and use it. (#16134)
 			uint32_t ret = 0, orig_size = tvb_get_ntohl(raw_tvb, offset);
 			unsigned char *decompressed_buffer = NULL;
 			offset += 4;
 
 			/* if the decompressed size is reasonably small try to decompress data */
 			if (orig_size <= MAX_UNCOMPRESSED_SIZE) {
+
+				int compr_size = tvb_captured_length_remaining(raw_tvb, offset);
+				// The LZ4 API expects const char*
+				const void* compr_ptr = tvb_get_ptr(raw_tvb, offset, compr_size);
+
 				decompressed_buffer = (unsigned char*)wmem_alloc(pinfo->pool, orig_size);
-				ret = LZ4_decompress_safe(tvb_get_ptr(raw_tvb, offset, -1),
-							  decompressed_buffer,
-							  tvb_captured_length_remaining(raw_tvb, offset),
+				ret = LZ4_decompress_safe(compr_ptr,
+							  (char*)decompressed_buffer,
+							  compr_size,
 							  orig_size);
 			}
 			/* Decompression attempt failed: rewind offset */
@@ -1567,19 +1573,21 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 			size_t orig_size = 0;
 			snappy_status ret;
 
+			// XXX - Add a maximum size parameter to the tvb_snappy API and use it.
+			int compr_size = tvb_captured_length_remaining(raw_tvb, offset);
+			// The snappy API expects const char*
+			const void* compr_ptr = tvb_get_ptr(raw_tvb, offset, compr_size);
+
 			/* get the raw data length */
-			ret = snappy_uncompressed_length(tvb_get_ptr(raw_tvb, offset, -1),
-							 tvb_captured_length_remaining(raw_tvb, offset),
-							 &orig_size);
+			ret = snappy_uncompressed_length(compr_ptr, (size_t)compr_size, &orig_size);
 			/* if we get the length and it's reasonably short to allocate a buffer for it
 			 * proceed to try decompressing the data
 			 */
 			if (ret == SNAPPY_OK && orig_size <= MAX_UNCOMPRESSED_SIZE) {
 				decompressed_buffer = (unsigned char*)wmem_alloc(pinfo->pool, orig_size);
 
-				ret = snappy_uncompress(tvb_get_ptr(raw_tvb, offset, -1),
-							tvb_captured_length_remaining(raw_tvb, offset),
-							decompressed_buffer,
+				ret = snappy_uncompress(compr_ptr, (size_t)compr_size,
+							(char*)decompressed_buffer,
 							&orig_size);
 			} else {
 				/* else mark the input as invalid in order to skip the rest of the
@@ -2038,7 +2046,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
 				offset += 2;
 
-				proto_tree_add_item_ret_string(cql_subtree, hf_cql_event_type, tvb, offset, short_bytes_length, ENC_UTF_8, pinfo->pool, &string_event_type);
+				proto_tree_add_item_ret_string(cql_subtree, hf_cql_event_type, tvb, offset, short_bytes_length, ENC_UTF_8, pinfo->pool, (const uint8_t**)&string_event_type);
 				offset += short_bytes_length;
 				proto_item_append_text(cql_subtree, " (type: %s)", string_event_type);
 

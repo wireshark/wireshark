@@ -495,7 +495,7 @@ coap_opt_check(packet_info *pinfo, proto_tree *subtree, unsigned opt_num, int op
 static void
 dissect_coap_opt_hex_string(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *subtree, int offset, int opt_length, int hf)
 {
-	const uint8_t *str;
+	const char *str;
 
 	if (opt_length == 0)
 		str = nullstr;
@@ -526,9 +526,9 @@ dissect_coap_opt_uint(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree,
 static void
 dissect_coap_opt_uri_host(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, coap_info *coinfo, int hf)
 {
-	const uint8_t *str;
+	const char *str;
 
-	proto_tree_add_item_ret_string(subtree, hf, tvb, offset, opt_length, ENC_ASCII, pinfo->pool, &str);
+	proto_tree_add_item_ret_string(subtree, hf, tvb, offset, opt_length, ENC_ASCII, pinfo->pool, (const uint8_t**)&str);
 
 	/* add info to the head of the packet detail */
 	proto_item_append_text(head_item, ": %s", format_text_string(pinfo->pool, str));
@@ -547,14 +547,14 @@ dissect_coap_opt_uri_host(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_it
 static void
 dissect_coap_opt_uri_path(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, coap_info *coinfo, int hf)
 {
-	const uint8_t *str = NULL;
+	const char *str = NULL;
 
 	wmem_strbuf_append_c(coinfo->uri_path_strbuf, '/');
 
 	if (opt_length == 0) {
 		str = nullstr;
 	} else {
-		str = tvb_get_string_enc(pinfo->pool, tvb, offset, opt_length, ENC_ASCII);
+		str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, opt_length, ENC_ASCII);
 		wmem_strbuf_append(coinfo->uri_path_strbuf, str);
 	}
 
@@ -567,7 +567,7 @@ dissect_coap_opt_uri_path(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_it
 static void
 dissect_coap_opt_uri_query(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, coap_info *coinfo, int hf)
 {
-	const uint8_t *str = NULL;
+	const char *str = NULL;
 
 	wmem_strbuf_append_c(coinfo->uri_query_strbuf,
 			     (wmem_strbuf_get_len(coinfo->uri_query_strbuf) == 0) ? '?' : '&');
@@ -575,7 +575,7 @@ dissect_coap_opt_uri_query(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_i
 	if (opt_length == 0) {
 		str = nullstr;
 	} else {
-		str = tvb_get_string_enc(pinfo->pool, tvb, offset, opt_length, ENC_ASCII);
+		str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, opt_length, ENC_ASCII);
 		wmem_strbuf_append(coinfo->uri_query_strbuf, str);
 	}
 
@@ -588,12 +588,12 @@ dissect_coap_opt_uri_query(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_i
 static void
 dissect_coap_opt_location_path(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, int hf)
 {
-	const uint8_t *str = NULL;
+	const char *str = NULL;
 
 	if (opt_length == 0) {
 		str = nullstr;
 	} else {
-		str = tvb_get_string_enc(pinfo->pool, tvb, offset, opt_length, ENC_ASCII);
+		str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, opt_length, ENC_ASCII);
 	}
 
 	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
@@ -605,12 +605,12 @@ dissect_coap_opt_location_path(tvbuff_t *tvb, packet_info *pinfo, proto_item *he
 static void
 dissect_coap_opt_location_query(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, int hf)
 {
-	const uint8_t *str = NULL;
+	const char *str = NULL;
 
 	if (opt_length == 0) {
 		str = nullstr;
 	} else {
-		str = tvb_get_string_enc(pinfo->pool, tvb, offset, opt_length, ENC_ASCII);
+		str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, opt_length, ENC_ASCII);
 	}
 
 	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
@@ -720,12 +720,12 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 static void
 dissect_coap_opt_proxy_uri(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, int hf)
 {
-	const uint8_t *str = NULL;
+	const char *str = NULL;
 
 	if (opt_length == 0) {
 		str = nullstr;
 	} else {
-		str = tvb_get_string_enc(pinfo->pool, tvb, offset, opt_length, ENC_ASCII);
+		str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, opt_length, ENC_ASCII);
 	}
 
 	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
@@ -737,12 +737,12 @@ dissect_coap_opt_proxy_uri(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_i
 static void
 dissect_coap_opt_proxy_scheme(tvbuff_t *tvb, packet_info *pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, int hf)
 {
-	const uint8_t *str = NULL;
+	const char *str = NULL;
 
 	if (opt_length == 0) {
 		str = nullstr;
 	} else {
-		str = tvb_get_string_enc(pinfo->pool, tvb, offset, opt_length, ENC_ASCII);
+		str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, opt_length, ENC_ASCII);
 	}
 
 	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_ASCII);
@@ -771,7 +771,7 @@ dissect_coap_opt_ctype(tvbuff_t *tvb, packet_info* pinfo, proto_item *head_item,
 static void
 dissect_coap_opt_accept(tvbuff_t *tvb, packet_info* pinfo, proto_item *head_item, proto_tree *subtree, int offset, int opt_length, int hf)
 {
-	const uint8_t *str = NULL;
+	const char *str = NULL;
 
 	if (opt_length == 0) {
 		str = nullstr;

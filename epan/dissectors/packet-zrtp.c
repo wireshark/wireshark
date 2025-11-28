@@ -317,7 +317,7 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_item    *ti;
   int            linelen;
   int            checksum_offset;
-  unsigned char  message_type[9];
+  const char    *message_type;
   unsigned int   prime_offset = 0;
   unsigned int   msg_offset   = 12;
   uint32_t       calc_crc;
@@ -349,9 +349,7 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   proto_tree_add_item(zrtp_msg_tree, hf_zrtp_msg_length, tvb, msg_offset+2, 2, ENC_BIG_ENDIAN);
 
-  tvb_memcpy(tvb, (void *)message_type, msg_offset+4, 8);
-  message_type[8] = '\0';
-  proto_tree_add_item(zrtp_msg_tree, hf_zrtp_msg_type, tvb, msg_offset+4, 8, ENC_ASCII);
+  proto_tree_add_item_ret_string(zrtp_msg_tree, hf_zrtp_msg_type, tvb, msg_offset+4, 8, ENC_ASCII, pinfo->pool, (const uint8_t**)&message_type);
 
   linelen = tvb_reported_length_remaining(tvb, msg_offset+12);
 
