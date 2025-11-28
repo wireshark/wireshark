@@ -464,7 +464,7 @@ static int dissect_nats_pub(tvbuff_t* tvb, int offset, int next_offset,
     static const size_t TOKEN_OP = 0;
     static const size_t TOKEN_SUBJECT = 1;
 
-    nats_request_token_t tokens[4] = {};
+    nats_request_token_t tokens[4] = {0};
 
     size_t token_reply_to = 0;
     size_t token_total_bytes = 0;
@@ -500,7 +500,7 @@ static int dissect_nats_hpub(tvbuff_t* tvb, int offset, int next_offset,
     static const size_t TOKEN_OP = 0;
     static const size_t TOKEN_SUBJECT = 1;
 
-    nats_request_token_t tokens[5] = {};
+    nats_request_token_t tokens[5] = {0};
 
     size_t token_reply_to = 0;
     size_t token_header_bytes = 0;
@@ -541,7 +541,7 @@ static int dissect_nats_msg(tvbuff_t* tvb, int offset, int next_offset,
     static const size_t TOKEN_SUBJECT = 1;
     static const size_t TOKEN_SID = 2;
 
-    nats_request_token_t tokens[5] = {};
+    nats_request_token_t tokens[5] = {0};
 
     size_t token_reply_to = 0;
     size_t token_total_bytes = 0;
@@ -578,7 +578,7 @@ static int dissect_nats_hmsg(tvbuff_t* tvb, int offset, int next_offset,
     static const size_t TOKEN_SUBJECT = 1;
     static const size_t TOKEN_SID = 2;
 
-    nats_request_token_t tokens[6] = {};
+    nats_request_token_t tokens[6] = {0};
 
     size_t token_reply_to = 0;
     size_t token_header_bytes = 0;
@@ -621,7 +621,7 @@ static int dissect_nats_sub(tvbuff_t* tvb, int offset, int next_offset,
 
     proto_tree* pdu_tree = NULL;
 
-    nats_request_token_t tokens[4] = {};
+    nats_request_token_t tokens[4] = {0};
 
     size_t token_queue_group = 0;
     size_t token_sid = 0;
@@ -679,7 +679,7 @@ static int dissect_nats_unsub(tvbuff_t* tvb, int offset, int next_offset,
 
     proto_tree* pdu_tree = NULL;
 
-    nats_request_token_t tokens[3] = {};
+    nats_request_token_t tokens[3] = {0};
 
     bool has_max_msgs = false;
 
@@ -721,7 +721,7 @@ static int dissect_nats_ping_pong(tvbuff_t* tvb, int offset, int next_offset,
 
     proto_tree* pdu_tree = NULL;
 
-    nats_request_token_t tokens[1] = {};
+    nats_request_token_t tokens[1] = {0};
 
     size_t num_tokens =
         nats_parse_tokens(tvb, offset, next_offset, pinfo, tokens, array_length(tokens));
