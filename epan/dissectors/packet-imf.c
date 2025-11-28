@@ -596,15 +596,15 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
       proto_tree_add_item(tree, hf_imf_siolabel_bgcolor, tvb, value_offset, value_length, ENC_ASCII);
 
     } else if (tvb_strneql(tvb, item_offset, "type", 4) == 0) {
-      type = tvb_get_string_enc(pinfo->pool, tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
+      type = (char*)tvb_get_string_enc(pinfo->pool, tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
       proto_tree_add_item(tree, hf_imf_siolabel_type, tvb, value_offset, value_length, ENC_ASCII);
 
     } else if (tvb_strneql(tvb, item_offset, "label", 5) == 0) {
-      char *label = tvb_get_string_enc(pinfo->pool, tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
+      char *label = (char*)tvb_get_string_enc(pinfo->pool, tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
       wmem_strbuf_append(label_string, label);
 
       if (tvb_get_uint8(tvb, item_offset + 5) == '*') { /* continuations */
-        int num = (int)strtol(tvb_get_string_enc(pinfo->pool, tvb, item_offset + 6, value_offset - item_offset + 6, ENC_ASCII), NULL, 10);
+        int num = (int)strtol((char*)tvb_get_string_enc(pinfo->pool, tvb, item_offset + 6, value_offset - item_offset + 6, ENC_ASCII), NULL, 10);
         proto_tree_add_string_format(tree, hf_imf_siolabel_label, tvb, value_offset, value_length,
                                      label, "Label[%d]: \"%s\"", num, label);
       } else {
@@ -636,7 +636,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
 
 static void
 dissect_imf_content_type(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_item *item,
-                         const uint8_t **type, const uint8_t **parameters)
+                         const char **type, const char **parameters)
 {
   int first_colon;
   int end_offset;
@@ -659,14 +659,14 @@ dissect_imf_content_type(tvbuff_t *tvb, packet_info *pinfo, int offset, int leng
     ct_tree = proto_item_add_subtree(item, ett_imf_content_type);
 
     len = first_colon - offset;
-    proto_tree_add_item_ret_string(ct_tree, hf_imf_content_type_type, tvb, offset, len, ENC_ASCII|ENC_NA, pinfo->pool, type);
+    proto_tree_add_item_ret_string(ct_tree, hf_imf_content_type_type, tvb, offset, len, ENC_ASCII|ENC_NA, pinfo->pool, (const uint8_t**)type);
     end_offset = imf_find_field_end (tvb, first_colon + 1, offset + length, NULL);
     if (end_offset == -1) {
        /* No end found */
        return;
     }
     len = end_offset - (first_colon + 1) - 2;  /* Do not include the last CRLF */
-    proto_tree_add_item_ret_string(ct_tree, hf_imf_content_type_parameters, tvb, first_colon + 1, len, ENC_ASCII|ENC_NA, pinfo->pool, parameters);
+    proto_tree_add_item_ret_string(ct_tree, hf_imf_content_type_parameters, tvb, first_colon + 1, len, ENC_ASCII|ENC_NA, pinfo->pool, (const uint8_t**)parameters);
   }
 }
 
@@ -727,16 +727,16 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item  *item;
   proto_tree  *unknown_tree, *text_tree;
-  const uint8_t *content_type_str = NULL;
+  const char *content_type_str = NULL;
   char  *content_encoding_str = NULL;
-  const uint8_t *parameters = NULL;
+  const char *parameters = NULL;
   int   hf_id;
   int   start_offset = 0;
   int   value_offset = 0;
   int   unknown_offset = 0;
   int   end_offset = 0;
   int    max_length;
-  uint8_t *key;
+  char *key;
   bool last_field = false;
   tvbuff_t *next_tvb;
   struct imf_field *f_info;
@@ -776,7 +776,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       /* XXX: flag an error */
       break;
     } else {
-      key = tvb_get_string_enc(pinfo->pool, tvb, start_offset, end_offset - start_offset, ENC_ASCII);
+      key = (char*)tvb_get_string_enc(pinfo->pool, tvb, start_offset, end_offset - start_offset, ENC_ASCII);
 
       /* convert to lower case */
       ascii_strdown_inplace (key);
@@ -843,9 +843,9 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* if sender or subject, store for sending to the tap */
         if (eo_info && have_tap_listener(imf_eo_tap)) {
           if (*f_info->hf_id == hf_imf_from) {
-            eo_info->sender_data = tvb_get_string_enc(pinfo->pool, tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII|ENC_NA);
+            eo_info->sender_data = (char*)tvb_get_string_enc(pinfo->pool, tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII|ENC_NA);
           } else if(*f_info->hf_id == hf_imf_subject) {
-            eo_info->subject_data = tvb_get_string_enc(pinfo->pool, tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII|ENC_NA);
+            eo_info->subject_data = (char*)tvb_get_string_enc(pinfo->pool, tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII|ENC_NA);
           }
         }
       }
@@ -857,7 +857,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                  &content_type_str, &parameters);
 
       } else if (hf_id == hf_imf_content_transfer_encoding) {
-        content_encoding_str = tvb_get_string_enc (pinfo->pool, tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII);
+        content_encoding_str = (char*)tvb_get_string_enc (pinfo->pool, tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII);
       } else if(f_info->subdissector) {
 
         /* we have a subdissector */
@@ -888,7 +888,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     col_set_fence(pinfo->cinfo, COL_INFO);
 
     if(content_encoding_str && !g_ascii_strncasecmp(content_encoding_str, "base64", 6)) {
-      char *string_data = tvb_get_string_enc(pinfo->pool, tvb, end_offset, tvb_reported_length(tvb) - end_offset, ENC_ASCII);
+      char *string_data = (char*)tvb_get_string_enc(pinfo->pool, tvb, end_offset, tvb_reported_length(tvb) - end_offset, ENC_ASCII);
       next_tvb = base64_to_tvb(tvb, string_data);
       add_new_data_source(pinfo, next_tvb, content_encoding_str);
     } else {

@@ -1671,8 +1671,8 @@ dissect_rtcp_rtpfb_transport_cc_fci( tvbuff_t *tvb, int offset, packet_info *pin
     proto_tree_add_item_ret_uint( fci_tree, hf_rtcp_rtpfb_transport_cc_fci_pkt_stats_cnt, tvb, offset, 2, ENC_BIG_ENDIAN, &pkt_count );
     offset += 2;
 
-    delta_array   = wmem_alloc0_array( pinfo->pool, int8_t, pkt_count );
-    pkt_seq_array = wmem_alloc0_array( pinfo->pool, int16_t, pkt_count );
+    delta_array   = wmem_alloc0_array( pinfo->pool, uint8_t, pkt_count );
+    pkt_seq_array = wmem_alloc0_array( pinfo->pool, uint16_t, pkt_count );
 
     /* reference time */
     proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_transport_cc_fci_ref_time, tvb, offset, 3, ENC_BIG_ENDIAN );
@@ -3385,7 +3385,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
                   proto_item *subtype_item, unsigned rtcp_subtype, uint32_t app_length )
 {
 
-    const uint8_t* ascii_name;
+    const char* ascii_name;
     bool is_ascii;
 
     /* XXX If more application types are to be dissected it may be useful to use a table like in packet-sip.c */
@@ -3395,7 +3395,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
     /* Application Name (ASCII) */
     is_ascii = tvb_ascii_isprint(tvb, offset, 4);
     if (is_ascii) {
-        proto_tree_add_item_ret_string(tree, hf_rtcp_name_ascii, tvb, offset, 4, ENC_ASCII | ENC_NA, pinfo->pool, &ascii_name);
+        proto_tree_add_item_ret_string(tree, hf_rtcp_name_ascii, tvb, offset, 4, ENC_ASCII | ENC_NA, pinfo->pool, (const uint8_t**)&ascii_name);
     } else {
         proto_tree_add_expert(tree, pinfo, &ei_rtcp_appl_not_ascii, tvb, offset, 4);
     }

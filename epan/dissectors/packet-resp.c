@@ -54,7 +54,7 @@ static int hf_resp_array_length;
 static int hf_resp_fragment;
 
 static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int array_depth, int64_t expected_elements);
-static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, const uint8_t *bulk_string_as_str);
+static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, const char *bulk_string_as_str);
 void proto_reg_handoff_resp(void);
 void proto_register_resp(void);
 
@@ -63,9 +63,9 @@ static bool prefs_try_json_on_string = TRUE;
 static dissector_handle_t json_handle;
 
 static int dissect_resp_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth) {
-    uint8_t *string_value;
+    const char *string_value;
 
-    string_value = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
+    string_value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                       string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
     proto_tree_add_string(tree, hf_resp_string, tvb, offset, string_length + CRLF_LENGTH, string_value);
 
@@ -78,9 +78,9 @@ static int dissect_resp_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static int dissect_resp_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length) {
-    uint8_t *error_value;
+    const char *error_value;
 
-    error_value = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
+    error_value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                      string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
     proto_tree_add_string(tree, hf_resp_error, tvb, offset, string_length + CRLF_LENGTH, error_value);
     col_append_fstr(pinfo->cinfo, COL_INFO, " Error: %s", error_value);
@@ -88,14 +88,14 @@ static int dissect_resp_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int bulk_string_string_length, int array_depth) {
-    uint8_t *bulk_string_length_as_str;
+    const char *bulk_string_length_as_str;
     int bulk_string_length;
     int bulk_string_captured_length;
     int bulk_string_captured_length_with_crlf;
     proto_item *resp_string_item;
     proto_tree *resp_string_tree;
 
-    bulk_string_length_as_str = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
+    bulk_string_length_as_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                                    bulk_string_string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
     bulk_string_length = (int)g_ascii_strtoll(bulk_string_length_as_str, NULL, 10);
     /* Negative string lengths */
@@ -147,7 +147,7 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
 
     /* Enhance display */
-    uint8_t *bulk_string_as_str = tvb_get_string_enc(pinfo->pool, tvb, offset, bulk_string_captured_length, ENC_NA);
+    const char *bulk_string_as_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, bulk_string_captured_length, ENC_NA);
     if (g_str_is_ascii(bulk_string_as_str)) {
         proto_item_append_text(resp_string_item, ": %s", bulk_string_as_str);
         resp_bulk_string_enhance_display(pinfo, tvb, resp_string_tree, array_depth, bulk_string_length, bulk_string_as_str);
@@ -159,7 +159,7 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return bulk_string_string_length + CRLF_LENGTH + bulk_string_captured_length_with_crlf;
 }
 
-static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, const uint8_t *bulk_string_as_str) {
+static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, const char *bulk_string_as_str) {
     /* Request commands are arrays */
     if (RESP_REQUEST(pinfo) && array_depth == 1) {
         if (bulk_string_length < BULK_STRING_MAX_DISPLAY) {
@@ -176,7 +176,7 @@ static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, 
              (bulk_string_as_str[0] == '[' && bulk_string_as_str[bulk_string_length-1] == ']'))) {
 
             /* Create TVB just with string */
-            tvbuff_t *json_tvb = tvb_new_child_real_data(tvb, bulk_string_as_str, bulk_string_length, bulk_string_length);
+            tvbuff_t *json_tvb = tvb_new_child_real_data(tvb, (const uint8_t*)bulk_string_as_str, bulk_string_length, bulk_string_length);
             add_new_data_source(pinfo, json_tvb, "JSON string");
 
             /* Call JSON dissector on this TVB */
@@ -201,9 +201,9 @@ static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, 
 }
 
 static int dissect_resp_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int bulk_string_string_length, int array_depth) {
-    uint8_t *integer_as_string;
+    const char *integer_as_string;
     int64_t integer;
-    integer_as_string = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
+    integer_as_string = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                                    bulk_string_string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
     integer = g_ascii_strtoll(integer_as_string, NULL, 10);
     proto_tree_add_int64(tree, hf_resp_integer, tvb, offset, bulk_string_string_length + CRLF_LENGTH, integer);
@@ -216,7 +216,7 @@ static int dissect_resp_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 // NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_resp_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int string_length, int array_depth) {
-    uint8_t *array_length_as_string = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
+    const char *array_length_as_string = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                                         string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
     int64_t array_length = g_ascii_strtoll(array_length_as_string, NULL, 10);
 

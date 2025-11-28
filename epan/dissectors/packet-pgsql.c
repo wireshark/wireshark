@@ -357,13 +357,12 @@ get_tuple_data_length(tvbuff_t *tvb, int start)
 static int
 dissect_tuple_data(tvbuff_t *tvb, int n, proto_tree *tree)
 {
-    int number_columns;
+    uint32_t number_columns;
 
-    number_columns = tvb_get_uint16(tvb, n, ENC_BIG_ENDIAN);
     proto_tree_add_item_ret_uint(tree, hf_logical_number_columns, tvb, n, 2, ENC_BIG_ENDIAN, &number_columns);
     n += 2;
 
-    for (int i = 0; i < number_columns; i++) {
+    for (unsigned i = 0; i < number_columns; i++) {
         unsigned char tuple_type;
         int shrub_start = 0;
         const char *typestr;
@@ -381,7 +380,7 @@ dissect_tuple_data(tvbuff_t *tvb, int n, proto_tree *tree)
 
             column_length = tvb_get_ntohl(tvb, n);
             /* Shrub's size includes tuple_type (1 byte) + column_length (4 bytes) of column length */
-            shrub = proto_tree_add_subtree_format(tree, tvb, shrub_start, 5 + column_length, ett_values, NULL, "Column %d", i);
+            shrub = proto_tree_add_subtree_format(tree, tvb, shrub_start, 5 + column_length, ett_values, NULL, "Column %u", i);
             /* Now that the shrub is created, add the typestr. n was already incremented */
             proto_tree_add_string(shrub, hf_tuple_type, tvb, shrub_start, 1, typestr);
 
@@ -484,8 +483,9 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
 {
     proto_tree *shrub;
     proto_item *ti;
-    int siz, i, content_length, leftover;
-    char *s;
+    int siz, content_length, leftover;
+    uint32_t i;
+    const char *s;
 
     unsigned char message_type = tvb_get_uint8(tvb, n);
     const char *logical_message_name = try_val_to_str(message_type, logical_message_types);
@@ -560,16 +560,16 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
         }
         proto_tree_add_item(shrub, hf_relation_oid, tvb, n, 4, ENC_BIG_ENDIAN);
         n += 4;
-        s = tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
+        s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
         proto_tree_add_string(shrub, hf_namespace, tvb, n, siz, s);
         n += siz;
-        s = tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
+        s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
         proto_tree_add_string(shrub, hf_relation_name, tvb, n, siz, s);
         n += siz;
         proto_tree_add_item(shrub, hf_logical_replica_identity, tvb, n, 1, ENC_BIG_ENDIAN);
         n += 1;
         i = tvb_get_ntohs(tvb, n);
-        shrub = proto_tree_add_subtree_format(shrub, tvb, n, 2, ett_values, NULL, "Columns: %d", i);
+        shrub = proto_tree_add_subtree_format(shrub, tvb, n, 2, ett_values, NULL, "Columns: %u", i);
         n += 2;
         while (i-- > 0) {
             proto_tree *twig;
@@ -595,10 +595,10 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
         }
         proto_tree_add_item(shrub, hf_typeoid, tvb, n, 4, ENC_BIG_ENDIAN);
         n += 4;
-        s = tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
+        s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
         proto_tree_add_string(shrub, hf_namespace, tvb, n, siz, s);
         n += siz;
-        s = tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
+        s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
         proto_tree_add_string(shrub, hf_custom_type_name, tvb, n, siz, s);
         break;
 
@@ -619,8 +619,7 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
             proto_tree_add_item(shrub, hf_xid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
         }
-        i = tvb_get_ntohl(tvb, n);
-        proto_tree_add_item(shrub, hf_logical_column_oid, tvb, n, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(shrub, hf_logical_column_oid, tvb, n, 4, ENC_BIG_ENDIAN, &i);
         n += 4;
         n = dissect_old_tuple_data(tvb, n, shrub);
         dissect_new_tuple_data(tvb, n, shrub);
@@ -632,8 +631,7 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
             proto_tree_add_item(shrub, hf_xid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
         }
-        i = tvb_get_ntohl(tvb, n);
-        proto_tree_add_item(shrub, hf_logical_column_oid, tvb, n, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(shrub, hf_logical_column_oid, tvb, n, 4, ENC_BIG_ENDIAN, &i);
         n += 4;
         dissect_old_tuple_data(tvb, n, shrub);
         break;
@@ -644,7 +642,6 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
             proto_tree_add_item(shrub, hf_xid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
         }
-        i = tvb_get_ntohl(tvb, n);
         proto_tree_add_item_ret_uint(shrub, hf_logical_relation_number, tvb, n, 4, ENC_BIG_ENDIAN, &i);
         n += 4;
         proto_tree_add_item(shrub, hf_logical_truncate_flags, tvb, n, 1, ENC_BIG_ENDIAN);
@@ -1025,7 +1022,7 @@ static void dissect_pgsql_fe_msg(unsigned char type, unsigned length, tvbuff_t *
             i = hf_statement;
 
         n += 1;
-        s = tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
+        s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
         proto_tree_add_string(tree, i, tvb, n, siz, s);
         break;
 
@@ -1176,10 +1173,10 @@ static void dissect_pgsql_be_msg(unsigned char type, unsigned length, tvbuff_t *
 
     /* Parameter status */
     case 'S':
-        s = tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
+        s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
         proto_tree_add_string(tree, hf_parameter_name, tvb, n, siz, s);
         n += siz;
-        t = tvb_get_stringz_enc(pinfo->pool, tvb, n, &i, ENC_ASCII);
+        t = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &i, ENC_ASCII);
         proto_tree_add_string(tree, hf_parameter_value, tvb, n, i, t);
         break;
 
@@ -1258,7 +1255,7 @@ static void dissect_pgsql_be_msg(unsigned char type, unsigned length, tvbuff_t *
             if (c == '\0')
                 break;
             --length;
-            s = tvb_get_stringz_enc(pinfo->pool, tvb, n+1, &siz, ENC_ASCII);
+            s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n+1, &siz, ENC_ASCII);
             i = hf_text;
             switch (c) {
             case 'S': i = hf_severity;          break;

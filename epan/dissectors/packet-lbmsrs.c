@@ -1457,7 +1457,7 @@ static unsigned dissect_lbmsrs_sir_ser(tvbuff_t * tvb, packet_info * pinfo, prot
         return (offset - start_offset);
     }
     int len;
-    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
+    char* name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(sir_tree, hf_lbmsrs_sir_topic, tvb, offset, topic_len, ENC_ASCII);
     offset += topic_len;
 
@@ -1700,7 +1700,7 @@ static unsigned dissect_lbmsrs_sdr(tvbuff_t * tvb, packet_info * pinfo, proto_tr
         return (offset - start_offset);
     }
     int len;
-    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
+    char* name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(sdr_tree, hf_lbmsrs_sdr_topic, tvb, offset, topic_len, ENC_ASCII);
     offset += topic_len;
 
@@ -1752,7 +1752,7 @@ static unsigned dissect_lbmsrs_rir(tvbuff_t * tvb, packet_info * pinfo, proto_tr
         return (offset - start_offset);
     }
     int len;
-    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
+    char* name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(rir_tree, hf_lbmsrs_rir_topic, tvb, offset, topic_len, ENC_ASCII);
     offset += topic_len;
 
@@ -1858,7 +1858,7 @@ static unsigned dissect_lbmsrs_rer(tvbuff_t * tvb, packet_info * pinfo, proto_tr
         return (offset - start_offset);
     }
     int len;
-    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
+    char* name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(rer_tree, hf_lbmsrs_rer_topic, tvb, offset, topic_len, ENC_ASCII);
     offset += topic_len;
 
@@ -1965,7 +1965,7 @@ static unsigned dissect_lbmsrs_rdr(tvbuff_t * tvb, packet_info * pinfo, proto_tr
         return (offset - start_offset);
     }
     int len;
-    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
+    char* name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(rdr_tree, hf_lbmsrs_rdr_topic, tvb, offset, topic_len, ENC_ASCII);
     offset += topic_len;
 
@@ -2072,7 +2072,7 @@ static unsigned dissect_lbmsrs_wir(tvbuff_t * tvb, packet_info * pinfo, proto_tr
         return (offset - start_offset);
     }
     int len;
-    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
+    char* name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(wir_tree, hf_lbmsrs_wir_pattern, tvb, offset, pattern_len, ENC_ASCII);
     offset += pattern_len;
 
@@ -2179,7 +2179,7 @@ static unsigned dissect_lbmsrs_wdr(tvbuff_t * tvb, packet_info * pinfo, proto_tr
         return (offset - start_offset);
     }
     int len;
-    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
+    char* name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(wdr_tree, hf_lbmsrs_wdr_pattern, tvb, offset, pattern_len, ENC_ASCII);
     offset += pattern_len;
 
@@ -2286,7 +2286,7 @@ static unsigned dissect_lbmsrs_wer(tvbuff_t * tvb, packet_info * pinfo, proto_tr
         return (offset - start_offset);
     }
     int len;
-    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
+    char* name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(wer_tree, hf_lbmsrs_wer_pattern, tvb, offset, pattern_len, ENC_ASCII);
     offset += pattern_len;
 
@@ -2393,7 +2393,7 @@ static unsigned dissect_lbmsrs_sli(tvbuff_t * tvb, packet_info * pinfo,  proto_t
         return (offset - start_offset);
     }
     int len;
-    char* name = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
+    char* name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII);
     proto_tree_add_item(sli_tree, hf_lbmsrs_sli_topic, tvb, offset, topic_len, ENC_ASCII);
     offset += topic_len;
 

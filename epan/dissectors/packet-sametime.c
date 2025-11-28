@@ -76,10 +76,10 @@ static int ett_sametime_options;
 
 /*statistics*/
 static int sametime_tap;
-static const uint8_t* st_str_packet = "Sametime Message Count";
-static const uint8_t* st_str_message_type = "Message Type";
-static const uint8_t* st_str_send_type = "Send Type";
-static const uint8_t* st_str_user_status = "User Status";
+static const char* st_str_packet = "Sametime Message Count";
+static const char* st_str_message_type = "Message Type";
+static const char* st_str_send_type = "Send Type";
+static const char* st_str_user_status = "User Status";
 static int st_node_packet = -1;
 static int st_node_message_type = -1;
 static int st_node_send_type = -1;

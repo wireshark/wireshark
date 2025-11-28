@@ -2490,7 +2490,7 @@ dissect_si_string(tvbuff_t *tvb, int offset, int str_len,
 {
     unsigned        enc_len;
     dvb_encoding_e  encoding;
-    uint8_t        *si_str = NULL;
+    const char     *si_str = NULL;
 
     if (!title)  /* we always have a title for our strings */
         return;
@@ -2504,7 +2504,7 @@ dissect_si_string(tvbuff_t *tvb, int offset, int str_len,
     offset += enc_len;
     str_len -= enc_len;
 
-    si_str = tvb_get_string_enc(pinfo->pool,
+    si_str = (char*)tvb_get_string_enc(pinfo->pool,
             tvb, offset, str_len, dvb_enc_to_item_enc(encoding));
     if (!si_str)
         return;
@@ -3272,7 +3272,7 @@ dissect_dvbci_payload_hlc(uint32_t tag, int len_field _U_,
         tvbuff_t *tvb, int offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree)
 {
-  uint8_t *str;
+  const char *str;
 
   if (tag==T_HOST_COUNTRY) {
       proto_tree_add_item(tree, hf_dvbci_host_country,
@@ -3286,7 +3286,7 @@ dissect_dvbci_payload_hlc(uint32_t tag, int len_field _U_,
   }
 
   /* both apdus' body is only a country code, this can be shared */
-  str = tvb_get_string_enc(pinfo->pool, tvb, offset,
+  str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset,
               tvb_reported_length_remaining(tvb, offset),
               ENC_ISO_8859_1|ENC_NA);
   if (str)
@@ -3629,7 +3629,7 @@ dissect_dvbci_ami_file_req(tvbuff_t *tvb, int offset,
         packet_info *pinfo, proto_tree *tree)
 {
     uint8_t req_type;
-    const uint8_t *req_str;
+    const char *req_str;
 
     req_type = tvb_get_uint8(tvb, offset);
     proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3647,7 +3647,7 @@ dissect_dvbci_ami_file_req(tvbuff_t *tvb, int offset,
     if (req_type==REQ_TYPE_FILE || req_type==REQ_TYPE_FILE_HASH) {
         proto_tree_add_item_ret_string(tree, hf_dvbci_file_name,
                 tvb, offset, tvb_reported_length_remaining(tvb, offset),
-                ENC_ASCII, pinfo->pool, &req_str);
+                ENC_ASCII, pinfo->pool, (const uint8_t**)&req_str);
         col_append_sep_str(pinfo->cinfo, COL_INFO, " ", req_str);
     }
     else if (req_type==REQ_TYPE_DATA) {
@@ -3664,7 +3664,7 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, int offset,
     uint8_t     req_type;
     bool        req_ok = false, file_ok;
     uint8_t     file_name_len;
-    uint8_t    *file_name_str;
+    const char *file_name_str;
     uint32_t    file_data_len;
     proto_tree *req_tree;
 
@@ -3686,15 +3686,14 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, int offset,
         proto_tree_add_item(tree, hf_dvbci_file_name_len,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        file_name_str = tvb_get_string_enc(pinfo->pool,
+        file_name_str = (char*)tvb_get_string_enc(pinfo->pool,
                 tvb, offset, file_name_len, ENC_ASCII);
         if (!file_name_str)
             return;
         col_append_sep_str(pinfo->cinfo, COL_INFO, " ",
                 file_name_str);
-        proto_tree_add_string_format_value(tree, hf_dvbci_file_name,
-                tvb, offset, file_name_len, file_name_str,
-                "%s", file_name_str);
+        proto_tree_add_string(tree, hf_dvbci_file_name,
+                tvb, offset, file_name_len, file_name_str);
         offset += file_name_len;
         file_data_len = tvb_get_ntohl(tvb, offset);
         proto_tree_add_item(tree, hf_dvbci_file_data_len,

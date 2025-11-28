@@ -6782,14 +6782,11 @@ dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
     NULL
   };
 
-  gen_name = (char *)wmem_alloc(pinfo->pool, MAXGNAME + 1);
-  gen_name[0] = '\0';
   gen_name_length = tvb_reported_length(parameter_tvb) - 1;
 
   proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators, ENC_NA);
 
-  gen_name = tvb_get_string_enc(pinfo->pool, parameter_tvb, 1, gen_name_length, ENC_ASCII);
-  gen_name[gen_name_length] = '\0';
+  gen_name = (char*)tvb_get_string_enc(pinfo->pool, parameter_tvb, 1, gen_name_length, ENC_ASCII);
   proto_tree_add_string(parameter_tree, hf_isup_generic_name_ia5, parameter_tvb, 1, gen_name_length, gen_name);
   proto_item_append_text(parameter_item, " : %s", gen_name);
 

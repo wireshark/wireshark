@@ -237,7 +237,7 @@ static const value_string slsk_attr_type[] = {
   { 0, NULL }
 };
 
-static const char* connection_type(char con_type[]) {
+static const char* connection_type(const char con_type[]) {
   if (strlen(con_type) != 1) return "Unknown";
   if (con_type[0] == 'D') return "Distributed Search";
   if (con_type[0] == 'P') return "Peer Connection";    /* "File Search Result / User Info Request / Get Shared File List" */
@@ -332,7 +332,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   int offset = 0, i, j;
   uint32_t msg_len, msg_code;
-  uint8_t *str;
+  const char *str;
   int str_len, start_offset, start_offset2;
 
   int comprlen = 0, uncomprlen = 0, uncompr_tvb_offset = 0;
@@ -851,7 +851,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_username, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
           len = tvb_get_letohl(tvb, offset);
-          str = tvb_get_string_enc(pinfo->pool, tvb, offset+4, len, ENC_ASCII);
+          str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+4, len, ENC_ASCII);
           proto_tree_add_string_format_value(slsk_tree, hf_slsk_connection_type, tvb, offset, 4+len, str,
             "%s (Char: %s)", connection_type(str),
             format_text(pinfo->pool, str, len));
@@ -867,7 +867,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item_ret_length(slsk_tree, hf_slsk_username, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
           offset += str_len;
           len = tvb_get_letohl(tvb, offset);
-          str = tvb_get_string_enc(pinfo->pool, tvb, offset+4, len, ENC_ASCII);
+          str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+4, len, ENC_ASCII);
           proto_tree_add_string_format_value(slsk_tree, hf_slsk_connection_type, tvb, offset, 4+len, str,
             "%s (Char: %s)", connection_type(str),
             format_text(pinfo->pool, str, len));
@@ -1050,7 +1050,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
               uncompr_tvb_offset = 0;
               if (check_slsk_format(uncompr_tvb, pinfo, uncompr_tvb_offset, "isi*")) {
-                uint32_t len;
+                int len;
 
                 proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_token, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                 uncompr_tvb_offset += 4;
@@ -2004,7 +2004,7 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item_ret_length(slsk_tree, hf_slsk_username, tvb, offset, 4, ENC_ASCII|ENC_LITTLE_ENDIAN, &str_len);
             offset += str_len;
             len = tvb_get_letohl(tvb, offset);
-            str = tvb_get_string_enc(pinfo->pool, tvb, offset+4, len, ENC_ASCII);
+            str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+4, len, ENC_ASCII);
             proto_tree_add_string_format_value(slsk_tree, hf_slsk_connection_type, tvb, offset, 4+len, str,
               "%s (Char: %s)", connection_type(str),
               format_text(pinfo->pool, str, len));

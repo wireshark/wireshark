@@ -2099,7 +2099,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_fw_info_fw_crc, tvb, offset+8, 4, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_MFG_INFO) {
                                 char *serial_num;
-                                serial_num = tvb_get_string_enc(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
+                                serial_num = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
                                 proto_tree_add_string(dpoe_opcode_response_tree, hf_oam_dpoe_mfg_info_serial_number, tvb, offset, variable_length, serial_num);
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_mfg_info_vendor_specific, tvb, offset+32, variable_length-32, ENC_NA);
                             } else if (leaf_branch == DPOE_LB_DATE_OF_MANUFACTURE) {
@@ -2170,29 +2170,29 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_frame_rate_maximum, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                             } else if (leaf_branch == DPOE_LB_MFG_ORG_NAME) {
                                 char *mfg_org_name;
-                                mfg_org_name = tvb_get_string_enc(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
+                                mfg_org_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
                                 proto_tree_add_string(dpoe_opcode_response_tree, hf_oam_dpoe_mfg_org_name, tvb, offset, variable_length, mfg_org_name);
                             } else if (leaf_branch == DPOE_LB_TIME_VARYING_CONTROLS) {
                                 char *access_start;
-                                access_start = tvb_get_string_enc(pinfo->pool, tvb, offset, 13, ENC_ASCII);
+                                access_start = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 13, ENC_ASCII);
                                 proto_tree_add_string(dpoe_opcode_response_tree, hf_oam_dpoe_tvc_code_access_start, tvb, offset, 13, access_start);
-                                access_start = tvb_get_string_enc(pinfo->pool, tvb, offset+13, 13, ENC_ASCII);
+                                access_start = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+13, 13, ENC_ASCII);
                                 proto_tree_add_string(dpoe_opcode_response_tree, hf_oam_dpoe_tvc_cvc_access_start, tvb, offset+13, 13, access_start);
                             } else if (leaf_branch == DPOE_LB_VENDOR_NAME) {
                                 char *vendor_name;
-                                vendor_name = tvb_get_string_enc(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
+                                vendor_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
                                 proto_tree_add_string(dpoe_opcode_response_tree, hf_oam_dpoe_vendor_name, tvb, offset, variable_length, vendor_name);
                             } else if (leaf_branch == DPOE_LB_MODEL_NUMBER) {
                                 char *model_number;
-                                model_number = tvb_get_string_enc(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
+                                model_number = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
                                 proto_tree_add_string(dpoe_opcode_response_tree, hf_oam_dpoe_model_number, tvb, offset, variable_length, model_number);
                             } else if (leaf_branch == DPOE_LB_HW_VERSION) {
                                 char *hw_version;
-                                hw_version = tvb_get_string_enc(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
+                                hw_version = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
                                 proto_tree_add_string(dpoe_opcode_response_tree, hf_oam_dpoe_hw_version, tvb, offset, variable_length, hw_version);
                             } else if (leaf_branch == DPOE_LB_SW_BUNDLE) {
                                 char *sw_bundle;
-                                sw_bundle = tvb_get_stringzpad(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
+                                sw_bundle = (char*)tvb_get_stringzpad(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
                                 proto_tree_add_string(dpoe_opcode_response_tree, hf_oam_dpoe_sw_bundle, tvb, offset, variable_length, sw_bundle);
                             } else if (leaf_branch == DPOE_LB_REP_THRESH) {
                                 uint8_t nqs;
@@ -2357,7 +2357,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                 /* fall-through for unmatched: */
                             } else if (leaf_branch == DPOE_LB_FW_FILENAME) {
                                 char *fw_filename;
-                                fw_filename = tvb_get_stringzpad(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
+                                fw_filename = (char*)tvb_get_stringzpad(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
                                 proto_tree_add_string(dpoe_opcode_response_tree, hf_oam_dpoe_fw_filename, tvb, offset, variable_length, fw_filename);
                             } else if (leaf_branch == DPOE_LB_1904_1_ONU_PORT_CONFIG) {
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_onu_port_config_llid_count, tvb, offset, 1, ENC_BIG_ENDIAN);

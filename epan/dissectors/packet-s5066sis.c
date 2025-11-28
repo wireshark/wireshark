@@ -979,7 +979,7 @@ dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	proto_item *ti_pdu = NULL;
 	tvbuff_t *next_tvb;
 	int reported_length = 0;
-	int client_app_id = 0;
+	unsigned client_app_id = 0;
 	proto_tree *s5066_tree = NULL;
 	proto_tree *s5066_tree_pdu = NULL;
 
