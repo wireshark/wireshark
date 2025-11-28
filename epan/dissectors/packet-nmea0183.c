@@ -1300,7 +1300,7 @@ dissect_nmea0183_field_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf, const char *suffix, const string_string *str_str)
 {
-    const uint8_t* field_str = NULL;
+    const char* field_str = NULL;
 
     if (offset > (int)tvb_captured_length(tvb))
     {
@@ -1310,7 +1310,7 @@ dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
     proto_item *ti = NULL;
     int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
-    ti = proto_tree_add_item_ret_string(tree, hf, tvb, offset, end_of_field_offset - offset,  ENC_ASCII, pinfo->pool, &field_str);
+    ti = proto_tree_add_item_ret_string(tree, hf, tvb, offset, end_of_field_offset - offset,  ENC_ASCII, pinfo->pool, (const uint8_t**)&field_str);
     if (end_of_field_offset - offset == 0)
     {
         proto_item_append_text(ti, "[empty]");
@@ -1470,10 +1470,10 @@ dissect_nmea0183_field_gps_quality(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     proto_item *ti = NULL;
     int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
-    const uint8_t *quality = NULL;
+    const char *quality = NULL;
     ti = proto_tree_add_item_ret_string(tree, hf,
                                         tvb, offset, end_of_field_offset - offset, ENC_ASCII,
-                                        pinfo->pool, &quality);
+                                        pinfo->pool, (const uint8_t**)&quality);
     if (end_of_field_offset - offset == 0)
     {
         proto_item_append_text(ti, "[missing]");
@@ -1491,7 +1491,7 @@ dissect_nmea0183_field_gps_quality(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     added to the field. An empty field is allowed. Returns length including separator */
 static int
 dissect_nmea0183_field_fixed_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf,
-                                  const uint8_t *expected_text, expert_field *invalid_ei)
+                                  const char *expected_text, expert_field *invalid_ei)
 {
     if (offset > (int)tvb_captured_length(tvb))
     {
@@ -1500,11 +1500,11 @@ dissect_nmea0183_field_fixed_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     proto_item *ti = NULL;
-    const uint8_t *text = NULL;
+    const char *text = NULL;
     int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
     ti = proto_tree_add_item_ret_string(tree, hf,
                                         tvb, offset, end_of_field_offset - offset, ENC_ASCII,
-                                        pinfo->pool, &text);
+                                        pinfo->pool, (const uint8_t**)&text);
     if (end_of_field_offset - offset == 0)
     {
         proto_item_append_text(ti, "[empty]");
@@ -1528,10 +1528,10 @@ dissect_nmea0183_field_faa_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     proto_item *ti = NULL;
     int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
-    const uint8_t *mode = NULL;
+    const char *mode = NULL;
     ti = proto_tree_add_item_ret_string(tree, hf,
                                         tvb, offset, end_of_field_offset - offset, ENC_ASCII,
-                                        pinfo->pool, &mode);
+                                        pinfo->pool, (const uint8_t**)&mode);
     if (end_of_field_offset - offset == 0)
     {
         proto_item_append_text(ti, "[empty]");
@@ -1555,10 +1555,10 @@ dissect_nmea0183_field_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     proto_item *ti = NULL;
     int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
-    const uint8_t *mode = NULL;
+    const char *mode = NULL;
     ti = proto_tree_add_item_ret_string(tree, hf,
                                         tvb, offset, end_of_field_offset - offset, ENC_ASCII,
-                                        pinfo->pool, &mode);
+                                        pinfo->pool, (const uint8_t**)mode);
     if (end_of_field_offset - offset == 0)
     {
         proto_item_append_text(ti, "[empty]");
@@ -2014,9 +2014,9 @@ dissect_nmea0183_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
     proto_item* ti;
     int offset = 0,start_offset;
     int start_checksum_offset = 0;
-    const uint8_t* talker_id = NULL;
-    const uint8_t* sentence_id = NULL;
-    const uint8_t* checksum = NULL;
+    const char* talker_id = NULL;
+    const char* sentence_id = NULL;
+    const char* checksum = NULL;
     uint8_t start_delimiter;
 
     /* Start delimiter */
@@ -2031,7 +2031,7 @@ dissect_nmea0183_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
     /* Talker id */
     ti = proto_tree_add_item_ret_string(tree, hf_nmea0183_talker_id,
                                         tvb, offset, 2, ENC_ASCII,
-                                        pinfo->pool, &talker_id);
+                                        pinfo->pool, (const uint8_t**)&talker_id);
 
     proto_item_append_text(ti, " (%s)", str_to_str_wmem(pinfo->pool, talker_id, known_talker_ids, "Unknown talker ID"));
 
@@ -2042,7 +2042,7 @@ dissect_nmea0183_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
     /* Sentence id */
     ti = proto_tree_add_item_ret_string(tree, hf_nmea0183_sentence_id,
                                         tvb, offset, 3, ENC_ASCII,
-                                        pinfo->pool, &sentence_id);
+                                        pinfo->pool, (const uint8_t**)&sentence_id);
 
     proto_item_append_text(ti, " (%s)", str_to_str_wmem(pinfo->pool, sentence_id, known_sentence_ids, "Unknown sentence ID"));
 
@@ -2122,7 +2122,7 @@ dissect_nmea0183_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
     offset += 1;
     ti = proto_tree_add_item_ret_string(tree, hf_nmea0183_checksum,
                                         tvb, offset, 2, ENC_ASCII,
-                                        pinfo->pool, &checksum);
+                                        pinfo->pool, (const uint8_t**)&checksum);
 
     uint8_t received_checksum = (uint8_t)strtol(checksum, NULL, 16);
     uint8_t calculated_checksum;
@@ -2192,7 +2192,7 @@ dissect_nmea0183(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
 
 
     /* UdPbC\<tag block 1>,<tagblock2>, … <tagblock n>*<tagblocks CS>\<NMEA message>*/
-    if (tvb_memeql(tvb, 0, UDPBC, sizeof(UDPBC)) == 0) {
+    if (tvb_strneql(tvb, 0, UDPBC, strlen(UDPBC)) == 0) {
         proto_tree_add_item(nmea0183_tree, hf_nmea0183_sentence_prefix, tvb, offset, 6, ENC_ASCII);
         offset += 6;
         while (offset < (int)tvb_reported_length(tvb)) {
@@ -2238,11 +2238,11 @@ static bool dissect_nmea0183_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         return false;
     }
     /* See if we have a UDP brodcast message */
-    if (tvb_memeql(tvb, 0, UDPBC, sizeof(UDPBC)) == 0) {
+    if (tvb_strneql(tvb, 0, UDPBC, strlen(UDPBC)) == 0) {
         return (dissect_nmea0183(tvb, pinfo, tree, data) != 0);
     }
     /* Grab the first byte and check the first character */
-    sent_type = tvb_get_string_enc(pinfo->pool, tvb, 0, 1, ENC_ASCII);
+    sent_type = (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, 1, ENC_ASCII);
 
     /* Sentence type character ('!' or '$') */
     if( (sent_type[0] != '!') && (sent_type[0] != '$') ){
@@ -2254,12 +2254,12 @@ static bool dissect_nmea0183_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     //TODO: Implement encapsulation and proprietary message parsing
 
     /* Do a lookup for the 2-byte TALKER field */
-    t_val = tvb_get_string_enc(pinfo->pool, tvb, 1, 2, ENC_ASCII);
+    t_val = (char*)tvb_get_string_enc(pinfo->pool, tvb, 1, 2, ENC_ASCII);
     talker = try_str_to_str(t_val, known_talker_ids);
 
     /* Do a lookup for the 3-byte manufacturer if the 2nd byte in the PDU is 'P' */
-    p_val = tvb_get_string_enc(pinfo->pool, tvb, 1, 1, ENC_ASCII);
-    m_val = tvb_get_string_enc(pinfo->pool, tvb, 2, 3, ENC_ASCII);
+    p_val = (char*)tvb_get_string_enc(pinfo->pool, tvb, 1, 1, ENC_ASCII);
+    m_val = (char*)tvb_get_string_enc(pinfo->pool, tvb, 2, 3, ENC_ASCII);
     manuf = try_str_to_str(m_val, manufacturer_vals);
 
     /* If one of the two conditions are true then try to dissect NMEA 0183 */

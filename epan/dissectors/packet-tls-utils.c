@@ -7805,7 +7805,7 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_tree *alpn_tree;
     proto_item *ti;
     uint32_t    next_offset, alpn_length, name_length;
-    uint8_t    *proto_name = NULL, *client_proto_name = NULL;
+    const char *proto_name = NULL, *client_proto_name = NULL;
 
     /* ProtocolName protocol_name_list<2..2^16-1> */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &alpn_length,
@@ -7846,10 +7846,10 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         if (hnd_type == SSL_HND_SERVER_HELLO || hnd_type == SSL_HND_ENCRYPTED_EXTENSIONS) {
             /* '\0'-terminated string for dissector table match and prefix
              * comparison purposes. */
-            proto_name = tvb_get_string_enc(pinfo->pool, tvb, offset,
+            proto_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset,
                                             name_length, ENC_ASCII);
         } else if (hnd_type == SSL_HND_CLIENT_HELLO) {
-            client_proto_name = tvb_get_string_enc(pinfo->pool, tvb, offset,
+            client_proto_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset,
                                                    name_length, ENC_ASCII);
         }
         offset += name_length;
@@ -8509,7 +8509,7 @@ ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     while (offset < next_offset) {
         uint32_t name_type;
-        const uint8_t *server_name = NULL;
+        const char *server_name = NULL;
         proto_tree_add_item_ret_uint(server_name_tree, hf->hf.hs_ext_server_name_type,
                                      tvb, offset, 1, ENC_NA, &name_type);
         offset++;
@@ -8523,7 +8523,7 @@ ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
         proto_tree_add_item_ret_string(server_name_tree, hf->hf.hs_ext_server_name,
                                        tvb, offset, server_name_length, ENC_ASCII|ENC_NA,
-                                       pinfo->pool, &server_name);
+                                       pinfo->pool, (const uint8_t**)&server_name);
         offset += server_name_length;
         // Each type must only occur once, so we don't check for duplicates.
         if (name_type == 0) {
@@ -8789,14 +8789,15 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
         proto_tree *parameter_tree;
         uint32_t parameter_end_offset;
         uint64_t value;
-        uint32_t len = 0, i;
+        uint32_t i;
+        int len = 0;
 
         parameter_tree = proto_tree_add_subtree(tree, tvb, offset, 2, hf->ett.hs_ext_quictp_parameter,
                                                 NULL, "Parameter");
         /* TransportParameter ID and Length. */
         if (use_varint_encoding) {
             uint64_t parameter_length64;
-            uint32_t type_len = 0;
+            int type_len = 0;
 
             proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_type,
                                            tvb, offset, -1, ENC_VARINT_QUIC, &parameter_type, &type_len);
@@ -9977,7 +9978,7 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
             uint8_t suite_id[HPKE_SUIT_ID_LEN];
             hpke_suite_id(kem_id, kdf_id, aead_id, suite_id);
             GByteArray *info = g_byte_array_new();
-            g_byte_array_append(info, "tls ech", 8);
+            g_byte_array_append(info, (const uint8_t*)"tls ech", 8);
             g_byte_array_append(info, ech_config->data, ech_config->data_len);
             uint8_t key[AEAD_MAX_KEY_LENGTH];
             uint8_t base_nonce[HPKE_AEAD_NONCE_LENGTH];

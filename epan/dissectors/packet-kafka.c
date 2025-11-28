@@ -1716,7 +1716,7 @@ dissect_kafka_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
     proto_item *record_ti;
     proto_tree *subtree;
 
-    int64_t    size;
+    uint64_t   size;
     unsigned   len;
 
     int offset, end_offset;
@@ -1726,7 +1726,7 @@ dissect_kafka_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_record, &record_ti, "Record");
 
-    len = tvb_get_varint(tvb, offset, 5, &size, ENC_VARINT_ZIGZAG);
+    len = tvb_get_varint(tvb, offset, 5, (int64_t*)&size, ENC_VARINT_ZIGZAG);
     if (len == 0) {
         expert_add_info(pinfo, record_ti, &ei_kafka_bad_varint);
         return tvb_captured_length(tvb);

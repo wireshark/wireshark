@@ -412,7 +412,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *mrcpv2_tree;
     int next_offset, linelen;
     int tvb_len;
-    int pdu_size;
+    uint32_t pdu_size;
     int offset;
     int value_offset;
     int str_len;
@@ -421,7 +421,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     LINE_TYPE line_type = UNKNOWN_LINE;
     HEADER_TYPE header_type;
     int colon_offset;
-    int content_length;
+    uint32_t content_length;
     proto_item *line_item = NULL;
     proto_item *request_line_item = NULL;
     proto_item *response_line_item = NULL;
@@ -431,11 +431,11 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     int sp_start;
     int sp_end;
-    uint8_t *field1;
-    uint8_t *field2;
-    uint8_t *field3;
-    uint8_t *field4;
-    uint8_t *field5 = NULL;
+    const char *field1;
+    const char *field2;
+    const char *field3;
+    const char *field4;
+    const char *field5 = NULL;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MRCPv2");
@@ -459,35 +459,35 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     sp_end = tvb_find_uint8(tvb, 0, linelen, ' ');
     if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
         return -1;
-    field1 = tvb_get_string_enc(pinfo->pool, tvb, 0, sp_end, ENC_ASCII);
+    field1 = (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, sp_end, ENC_ASCII);
     sp_start = sp_end + 1;
 
     /* length */
     sp_end = tvb_find_uint8(tvb, sp_start, linelen - sp_start, ' ');
     if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
         return -1;
-    field2 = tvb_get_string_enc(pinfo->pool, tvb, sp_start, sp_end - sp_start, ENC_ASCII);
+    field2 = (char*)tvb_get_string_enc(pinfo->pool, tvb, sp_start, sp_end - sp_start, ENC_ASCII);
     sp_start = sp_end + 1;
 
     /* method, request ID or event */
     sp_end = tvb_find_uint8(tvb, sp_start, linelen - sp_start, ' ');
     if ((sp_end == -1) || (sp_end > tvb_len) || (sp_end > linelen))
         return -1;
-    field3 = tvb_get_string_enc(pinfo->pool, tvb, sp_start, sp_end - sp_start, ENC_ASCII);
+    field3 = (char*)tvb_get_string_enc(pinfo->pool, tvb, sp_start, sp_end - sp_start, ENC_ASCII);
     sp_start = sp_end + 1;
 
     /* request ID or status code */
     sp_end = tvb_find_uint8(tvb, sp_start, linelen - sp_start, ' ');
     if (sp_end == -1)
     {
-        field4 = tvb_get_string_enc(pinfo->pool, tvb, sp_start, linelen - sp_start, ENC_ASCII);
+        field4 = (char*)tvb_get_string_enc(pinfo->pool, tvb, sp_start, linelen - sp_start, ENC_ASCII);
         line_type = REQUEST_LINE; /* only request line has 4 parameters */
     }
     else
     {
         if ((sp_end > tvb_len) || (sp_end > linelen))
             return -1;
-        field4 = tvb_get_string_enc(pinfo->pool, tvb, sp_start, sp_end - sp_start, ENC_ASCII);
+        field4 = (char*)tvb_get_string_enc(pinfo->pool, tvb, sp_start, sp_end - sp_start, ENC_ASCII);
 
         if (g_ascii_isdigit(field3[0])) /* request ID is number, so it has to be response */
             line_type = RESPONSE_LINE;
@@ -498,11 +498,11 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         sp_end = linelen;
         if ((sp_end > tvb_len) || (sp_end > linelen))
             return -1;
-        field5 = tvb_get_string_enc(pinfo->pool, tvb, sp_start, sp_end - sp_start, ENC_ASCII);
+        field5 = (char*)tvb_get_string_enc(pinfo->pool, tvb, sp_start, sp_end - sp_start, ENC_ASCII);
     }
 
     /* check pdu size */
-    if (!ws_strtou32(field2, NULL, &pdu_size) || pdu_size > tvb_len)
+    if (!ws_strtou32(field2, NULL, &pdu_size) || pdu_size > (unsigned)tvb_len)
         return -1;
 
     /* process MRCP header line */
@@ -626,10 +626,10 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Unknown_Header, tvb, offset, linelen, ENC_UTF_8);
                 continue;
             }
-            header_name = tvb_get_string_enc(pinfo->pool, tvb, offset, colon_offset - offset, ENC_ASCII);
+            header_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, colon_offset - offset, ENC_ASCII);
             ascii_strdown_inplace(header_name);
             value_offset = tvb_skip_wsp(tvb, colon_offset + 1, offset + linelen - (colon_offset + 1));
-            header_value = tvb_get_string_enc(pinfo->pool, tvb, value_offset, offset + linelen - value_offset, ENC_ASCII);
+            header_value = (char*)tvb_get_string_enc(pinfo->pool, tvb, value_offset, offset + linelen - value_offset, ENC_ASCII);
 
             /* find out header type */
             header_type = (HEADER_TYPE)str_to_val(header_name, header_type_vals, UNKNOWN);
@@ -947,8 +947,8 @@ get_mrcpv2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 {
     int len_start;
     int len_end;
-    uint8_t *msg_len;
-    unsigned num_msg_len = 0;
+    const char *msg_len;
+    uint32_t num_msg_len = 0;
 
     /* first string is version */
     len_start = tvb_find_uint8(tvb, offset, MRCPV2_MIN_PDU_LEN, ' ');
@@ -959,9 +959,9 @@ get_mrcpv2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
     /* second string is message length */
     len_end = tvb_find_uint8(tvb, len_start, MRCPV2_MIN_PDU_LEN - len_start, ' ');
     if (len_end == -1)
-        msg_len = tvb_get_string_enc(pinfo->pool, tvb, len_start, MRCPV2_MIN_PDU_LEN - len_start, ENC_ASCII);
+        msg_len = (char*)tvb_get_string_enc(pinfo->pool, tvb, len_start, MRCPV2_MIN_PDU_LEN - len_start, ENC_ASCII);
     else
-        msg_len = tvb_get_string_enc(pinfo->pool, tvb, len_start, len_end - len_start, ENC_ASCII);
+        msg_len = (char*)tvb_get_string_enc(pinfo->pool, tvb, len_start, len_end - len_start, ENC_ASCII);
 
     ws_strtou32(msg_len, NULL, &num_msg_len);
     return num_msg_len;
@@ -978,13 +978,13 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 {
     int len;
     int value_size;
-    uint8_t *version;
-    uint8_t *major;
-    uint8_t *minor;
+    const char *version;
+    const char *major;
+    const char *minor;
     int slash_offset;
     int dot_offset;
     int sp_offset;
-    int value;
+    uint32_t value;
 
     len = tvb_captured_length(tvb);
     if (len < MRCPV2_MIN_LENGTH) /* too short, can't conclude if it's mrcp */
@@ -994,7 +994,7 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     slash_offset = tvb_find_uint8(tvb, 0, MRCPV2_MIN_LENGTH, '/');
     if (slash_offset != 4)
         return 0;
-    version = tvb_get_string_enc(pinfo->pool, tvb, 0, slash_offset, ENC_ASCII);
+    version = (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, slash_offset, ENC_ASCII);
     if (strcmp(version, "MRCP") != 0)
         return 0;
 
@@ -1005,7 +1005,7 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     value_size = dot_offset - slash_offset - 1;
     if ((value_size != 1) && (value_size != 2))
         return 0;
-    major = tvb_get_string_enc(pinfo->pool, tvb, slash_offset + 1, value_size, ENC_ASCII);
+    major = (char*)tvb_get_string_enc(pinfo->pool, tvb, slash_offset + 1, value_size, ENC_ASCII);
     if (!ws_strtou32(major, NULL, &value) || value != 2)
         return 0;
 
@@ -1013,12 +1013,12 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     sp_offset = tvb_find_uint8(tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - dot_offset - 1, ' ');
     if (sp_offset == -1)
     {
-        minor = tvb_get_string_enc(pinfo->pool, tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - dot_offset - 1, ENC_ASCII);
+        minor = (char*)tvb_get_string_enc(pinfo->pool, tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - dot_offset - 1, ENC_ASCII);
         len = MRCPV2_MIN_LENGTH;
     }
     else
     {
-        minor = tvb_get_string_enc(pinfo->pool, tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - sp_offset - 1, ENC_ASCII);
+        minor = (char*)tvb_get_string_enc(pinfo->pool, tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - sp_offset - 1, ENC_ASCII);
         len = sp_offset;
     }
     if (!ws_strtou32(minor, NULL, &value) || value != 0)

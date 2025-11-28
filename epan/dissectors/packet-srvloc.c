@@ -532,14 +532,14 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
                 break;
             }
             /* Parse the attribute name */
-            tmp = tvb_get_string_enc(pinfo->pool, tvb, offset, length-offset, ENC_UCS_2|ENC_BIG_ENDIAN);
+            tmp = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length-offset, ENC_UCS_2|ENC_BIG_ENDIAN);
             type_len = (int)strcspn(tmp, "=");
-            attr_type = tvb_get_string_enc(pinfo->pool, tvb, offset, type_len*2, ENC_UCS_2|ENC_BIG_ENDIAN);
+            attr_type = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, type_len*2, ENC_UCS_2|ENC_BIG_ENDIAN);
             proto_tree_add_string(tree, hf, tvb, offset, type_len*2, attr_type);
             offset += (type_len*2)+2;
             if (strcmp(attr_type, "svcname-ws")==0) {
                 /* This is the attribute svcname */
-                tmp = tvb_get_string_enc(pinfo->pool, tvb, offset, length-offset, ENC_UCS_2|ENC_BIG_ENDIAN);
+                tmp = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length-offset, ENC_UCS_2|ENC_BIG_ENDIAN);
                 type_len = (int)strcspn(tmp, ")");
                 add_v1_string(tree, hf_srvloc_srvrply_svcname, tvb, offset, type_len*2, encoding);
                 offset += (type_len*2)+4;
@@ -614,7 +614,7 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
         break;
 
     case CHARSET_UTF_8:
-        type_len = (int)strcspn(tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII), "=");
+        type_len = (int)strcspn((char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII), "=");
         attr_type = unicode_to_bytes(pinfo->pool, tvb, offset+1, type_len-1, false);
         proto_tree_add_string(tree, hf, tvb, offset+1, type_len-1, attr_type);
         i=1;
