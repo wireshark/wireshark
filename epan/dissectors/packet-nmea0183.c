@@ -18,6 +18,7 @@
  * null-terminated sentence prefix string "UdPbC"
  */
 #define UDPBC "UdPbC"
+#define NMEA0183_CRLF 0x0d0a
 
 static int hf_nmea0183_talker_id;
 static int hf_nmea0183_sentence_id;
@@ -1986,61 +1987,49 @@ dissect_nmea0183_sentence_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 //    }
 //
 //}
+static int
+dissect_nmea0183_tag_blocks(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset) {
+
+    int start_offset;
+    int end_offset;
+
+    while (tvb_get_uint8(tvb, offset) == '\\') {
+        start_offset = offset;
+        offset++;
+        end_offset = tvb_find_uint8(tvb, offset, -1, '\\');
+        if (end_offset == -1) {
+            // Add expert info
+            return tvb_captured_length(tvb);
+        }
+        proto_tree_add_item(tree, hf_nmea0183_tag_block, tvb, start_offset, (end_offset - start_offset) + 1, ENC_ASCII);
+        //proto_tree* tree = proto_item_add_subtree(ti, ett_nmea0183_tag_block);
+        offset = end_offset + 1;
+    }
+    return offset;
+}
 
 static int
-dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_nmea0183_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 {
-    int offset = 0;
-    int start_offset;
+    proto_item* ti;
+    int offset = 0,start_offset;
     int start_checksum_offset = 0;
-    const uint8_t *talker_id = NULL;
-    const uint8_t *sentence_id = NULL;
-    const uint8_t *checksum = NULL;
+    const uint8_t* talker_id = NULL;
+    const uint8_t* sentence_id = NULL;
+    const uint8_t* checksum = NULL;
     uint8_t start_delimiter;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NMEA 0183");
-    /* Clear the info column */
-    col_clear(pinfo->cinfo, COL_INFO);
-
-    proto_item *ti = proto_tree_add_item(tree, proto_nmea0183, tvb, 0, -1, ENC_NA);
-    proto_tree *nmea0183_tree = proto_item_add_subtree(ti, ett_nmea0183);
-
-    /* UdPbC\<tag block 1>,<tagblock2>, … <tagblock n>*<tagblocks CS>\<NMEA message>*/
-    if (tvb_memeql(tvb, 0, UDPBC, sizeof(UDPBC)) == 0) {
-        proto_tree_add_item(nmea0183_tree, hf_nmea0183_sentence_prefix, tvb, offset, 6, ENC_ASCII);
-        offset += 6;
-        start_offset = offset;
-        offset = tvb_find_uint8(tvb, offset, -1, '$');
-        if (offset == -1) {
-            offset = tvb_find_uint8(tvb, offset, -1, '!');
-        }if (offset == -1) {
-            offset = start_offset;
-        } else {
-            /* TAG block as defined in NMEA 0183 V.4.0. ????*/
-            /*ti = */proto_tree_add_item(nmea0183_tree, hf_nmea0183_tag_block, tvb, start_offset, offset-start_offset, ENC_ASCII);
-            //proto_tree* nmea0183_tree = proto_item_add_subtree(ti, ett_nmea0183_tag_block);
-            ///* look for "\" */
-            //start_delimiter = tvb_get_uint8(tvb, start_offset);
-            //if (start_delimiter == '\\') {
-            //    start_offset++;
-            //    int end_offset = tvb_find_uint8(tvb, start_offset, -1, '\\');
-            //    if (end_offset != -1) {
-            //        tvbuff_t* new_tvb = tvb_new_subset_length(tvb, start_offset, end_offset - start_offset);
-            //        dissect_nmea0183_tag_block(new_tvb, pinfo, nmea0183_tree);
-            //    }
-            //}
-        }
-    }
     /* Start delimiter */
     start_delimiter = tvb_get_uint8(tvb, offset);
     if ((start_delimiter != '$') && (start_delimiter != '!'))
     {
-        expert_add_info(pinfo, nmea0183_tree, &ei_nmea0183_invalid_first_character);
+        expert_add_info(pinfo, tree, &ei_nmea0183_invalid_first_character);
     }
+
     offset += 1;
     start_offset = offset;
     /* Talker id */
-    ti = proto_tree_add_item_ret_string(nmea0183_tree, hf_nmea0183_talker_id,
+    ti = proto_tree_add_item_ret_string(tree, hf_nmea0183_talker_id,
                                         tvb, offset, 2, ENC_ASCII,
                                         pinfo->pool, &talker_id);
 
@@ -2051,7 +2040,7 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset += 2;
 
     /* Sentence id */
-    ti = proto_tree_add_item_ret_string(nmea0183_tree, hf_nmea0183_sentence_id,
+    ti = proto_tree_add_item_ret_string(tree, hf_nmea0183_sentence_id,
                                         tvb, offset, 3, ENC_ASCII,
                                         pinfo->pool, &sentence_id);
 
@@ -2065,7 +2054,7 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     start_checksum_offset = tvb_find_uint8(tvb, offset, -1, '*');
     if (start_checksum_offset == -1)
     {
-        expert_add_info(pinfo, nmea0183_tree, &ei_nmea0183_missing_checksum_character);
+        expert_add_info(pinfo, tree, &ei_nmea0183_missing_checksum_character);
         return tvb_captured_length(tvb);
     }
 
@@ -2074,64 +2063,64 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     tvbuff_t *data_tvb = tvb_new_subset_length(tvb, offset, start_checksum_offset - offset);
     if (g_ascii_strcasecmp(sentence_id, "ALR") == 0)
     {
-        offset += dissect_nmea0183_sentence_alr(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_alr(data_tvb, pinfo, tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "DPT") == 0)
     {
-        offset += dissect_nmea0183_sentence_dpt(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_dpt(data_tvb, pinfo, tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "GGA") == 0)
     {
-        offset += dissect_nmea0183_sentence_gga(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_gga(data_tvb, pinfo, tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "GLL") == 0)
     {
-        offset += dissect_nmea0183_sentence_gll(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_gll(data_tvb, pinfo, tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "GST") == 0)
     {
-        offset += dissect_nmea0183_sentence_gst(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_gst(data_tvb, pinfo, tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "HDT") == 0)
     {
-        offset += dissect_nmea0183_sentence_hdt(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_hdt(data_tvb, pinfo, tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "ROT") == 0)
     {
-        offset += dissect_nmea0183_sentence_rot(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_rot(data_tvb, pinfo, tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "TXT") == 0)
     {
-        offset += dissect_nmea0183_sentence_txt(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_txt(data_tvb, pinfo, tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "VBW") == 0)
     {
-        offset += dissect_nmea0183_sentence_vbw(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_vbw(data_tvb, pinfo, tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "VHW") == 0)
     {
-        offset += dissect_nmea0183_sentence_vhw(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_vhw(data_tvb, pinfo, tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "VLW") == 0)
     {
-        offset += dissect_nmea0183_sentence_vlw(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_vlw(data_tvb, pinfo, tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "VTG") == 0)
     {
-        offset += dissect_nmea0183_sentence_vtg(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_vtg(data_tvb, pinfo, tree);
     }
     else if (g_ascii_strcasecmp(sentence_id, "ZDA") == 0)
     {
-        offset += dissect_nmea0183_sentence_zda(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_zda(data_tvb, pinfo, tree);
     }
     else
     {
-        offset += dissect_nmea0183_sentence_unknown(data_tvb, pinfo, nmea0183_tree);
+        offset += dissect_nmea0183_sentence_unknown(data_tvb, pinfo, tree);
     }
 
     /* Checksum */
     offset += 1;
-    ti = proto_tree_add_item_ret_string(nmea0183_tree, hf_nmea0183_checksum,
+    ti = proto_tree_add_item_ret_string(tree, hf_nmea0183_checksum,
                                         tvb, offset, 2, ENC_ASCII,
                                         pinfo->pool, &checksum);
 
@@ -2165,17 +2154,72 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         tvb_get_uint8(tvb, offset) != '\r' ||
         tvb_get_uint8(tvb, offset + 1) != '\n')
     {
-        expert_add_info(pinfo, nmea0183_tree, &ei_nmea0183_invalid_end_of_line);
+        expert_add_info(pinfo, tree, &ei_nmea0183_invalid_end_of_line);
     }
     offset += 2;
 
     /* Check sentence length */
     if (offset > 82)
     {
-        expert_add_info(pinfo, nmea0183_tree, &ei_nmea0183_sentence_too_long);
+        expert_add_info(pinfo, tree, &ei_nmea0183_sentence_too_long);
     }
 
     return tvb_captured_length(tvb);
+}
+
+static int
+dissect_nmea0183(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+{
+    proto_item* ti;
+    proto_tree* nmea0183_tree;
+    int offset = 0;
+    int end_offset;
+    bool first_msg = true;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NMEA 0183");
+    /* Clear the info column */
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    /* Find end of nmea message */
+    end_offset = tvb_find_uint16(tvb, 0, -1, NMEA0183_CRLF);
+    if (end_offset == -1) {
+        end_offset = tvb_reported_length(tvb);
+    }
+    /* Add CRLF */
+    end_offset += 2;
+    ti = proto_tree_add_item(tree, proto_nmea0183, tvb, 0, end_offset, ENC_NA);
+    nmea0183_tree = proto_item_add_subtree(ti, ett_nmea0183);
+
+
+    /* UdPbC\<tag block 1>,<tagblock2>, … <tagblock n>*<tagblocks CS>\<NMEA message>*/
+    if (tvb_memeql(tvb, 0, UDPBC, sizeof(UDPBC)) == 0) {
+        proto_tree_add_item(nmea0183_tree, hf_nmea0183_sentence_prefix, tvb, offset, 6, ENC_ASCII);
+        offset += 6;
+        while (offset < (int)tvb_reported_length(tvb)) {
+            if (first_msg != true) {
+                end_offset = tvb_find_uint16(tvb, offset, -1, NMEA0183_CRLF);
+                if (end_offset == -1) {
+                    end_offset = tvb_reported_length(tvb);
+                }
+                /* Add CRLF */
+                end_offset += 2;
+
+                ti = proto_tree_add_item(tree, proto_nmea0183, tvb, offset, end_offset, ENC_NA);
+                nmea0183_tree = proto_item_add_subtree(ti, ett_nmea0183);
+            }
+            offset = dissect_nmea0183_tag_blocks(tvb, pinfo, nmea0183_tree, offset);
+            tvbuff_t* msg_tvb = tvb_new_subset_length(tvb, offset, end_offset - offset);
+            dissect_nmea0183_msg(msg_tvb, pinfo, nmea0183_tree);
+            offset += (end_offset - offset);
+            first_msg = false;
+        }
+        return offset;
+    }
+
+    tvbuff_t *msg_tvb = tvb_new_subset_length(tvb, offset, end_offset - offset);
+    offset = dissect_nmea0183_msg(msg_tvb, pinfo, nmea0183_tree);
+
+    return offset;
 }
 
 /* Try to detect NMEA 0183 heuristically */
@@ -2195,7 +2239,7 @@ static bool dissect_nmea0183_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
     /* See if we have a UDP brodcast message */
     if (tvb_memeql(tvb, 0, UDPBC, sizeof(UDPBC)) == 0) {
-        return true;
+        return (dissect_nmea0183(tvb, pinfo, tree, data) != 0);
     }
     /* Grab the first byte and check the first character */
     sent_type = tvb_get_string_enc(pinfo->pool, tvb, 0, 1, ENC_ASCII);
