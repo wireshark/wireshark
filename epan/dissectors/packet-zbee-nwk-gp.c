@@ -689,7 +689,7 @@ static void uat_key_record_post_update_cb(void) {
  *@param nonce nonce buffer.
 */
 static void
-zbee_gp_make_nonce(zbee_nwk_green_power_packet *packet, char *nonce)
+zbee_gp_make_nonce(zbee_nwk_green_power_packet *packet, uint8_t *nonce)
 {
     memset(nonce, 0, ZBEE_SEC_CONST_NONCE_LEN);
 
@@ -732,7 +732,7 @@ zbee_gp_make_nonce(zbee_nwk_green_power_packet *packet, char *nonce)
  *@param key key.
 */
 static bool
-zbee_gp_decrypt_payload(zbee_nwk_green_power_packet *packet, const char *enc_buffer, const char offset, uint8_t
+zbee_gp_decrypt_payload(zbee_nwk_green_power_packet *packet, const uint8_t *enc_buffer, const unsigned offset, uint8_t
     *dec_buffer, unsigned payload_len, unsigned mic_len, uint8_t *key)
 {
     uint8_t *key_buffer = key;

@@ -66,7 +66,7 @@ extern void     zbee_security_register  (module_t *module, int proto);
 
 /* Security Dissector Routine. */
 extern tvbuff_t *dissect_zbee_secure(tvbuff_t *, packet_info *, proto_tree *, unsigned);
-extern bool zbee_sec_ccm_decrypt(const char *, const char *, const char *, const char *, char *, unsigned, unsigned, unsigned);
+extern bool zbee_sec_ccm_decrypt(const uint8_t *, const uint8_t *, const uint8_t *, const uint8_t *, uint8_t *, unsigned, unsigned, unsigned);
 
 /* nwk key ring update */
 extern void zbee_sec_add_key_to_keyring(packet_info *, const uint8_t *);

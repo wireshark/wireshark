@@ -8034,7 +8034,7 @@ dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static void
 dissect_zcl_msg_display(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    unsigned   msg_len;
+    int msg_len;
 
     static int * const message_ctrl_flags[] = {
         &hf_zbee_zcl_msg_ctrl_tx,
@@ -8147,7 +8147,7 @@ dissect_zcl_msg_get_cancel(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 static void
 dissect_zcl_msg_confirm(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    unsigned   msg_len;
+    int msg_len;
 
     /* Message ID */
     proto_tree_add_item(tree, hf_zbee_zcl_msg_message_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
