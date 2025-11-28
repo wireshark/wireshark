@@ -197,14 +197,14 @@ static const true_false_string tfs_scaling = {
     UTF8_MICRO_SIGN "m",
 };
 
-const unit_name_string units_microdegree = { " " UTF8_MICRO_SIGN UTF8_DEGREE_SIGN, NULL };
-const unit_name_string units_millidegree_sec = { " m" UTF8_DEGREE_SIGN "/s", NULL };
-const unit_name_string units_millidegree_sec_squared = { " m" UTF8_DEGREE_SIGN "/s" UTF8_SUPERSCRIPT_TWO, NULL };
+static const unit_name_string units_microdegree = { " " UTF8_MICRO_SIGN UTF8_DEGREE_SIGN, NULL };
+static const unit_name_string units_millidegree_sec = { " m" UTF8_DEGREE_SIGN "/s", NULL };
+static const unit_name_string units_millidegree_sec_squared = { " m" UTF8_DEGREE_SIGN "/s" UTF8_SUPERSCRIPT_TWO, NULL };
 
-const unit_name_string units_millimeters_space = { " mm", NULL };
-const unit_name_string units_micrometers = { " " UTF8_MICRO_SIGN "m", NULL };
-const unit_name_string units_micrometer_sec = { " " UTF8_MICRO_SIGN "m/s", NULL };
-const unit_name_string units_micrometer_sec_squared = { " " UTF8_MICRO_SIGN "m/s" UTF8_SUPERSCRIPT_TWO, NULL };
+static const unit_name_string units_millimeters_space = { " mm", NULL };
+static const unit_name_string units_micrometers = { " " UTF8_MICRO_SIGN "m", NULL };
+static const unit_name_string units_micrometer_sec = { " " UTF8_MICRO_SIGN "m/s", NULL };
+static const unit_name_string units_micrometer_sec_squared = { " " UTF8_MICRO_SIGN "m/s" UTF8_SUPERSCRIPT_TWO, NULL };
 
 static const value_string otp_message_type_names[] = {
     { OTP_MESSAGE_TRANSFORM,     "Transform Message" },
@@ -277,7 +277,7 @@ static int* const otp_module_options[] = {
 /******************************************************************************/
 /* Dissect protocol                                                           */
 
-proto_tree* dissect_otp_pdu_start(tvbuff_t* tvb, proto_tree* tree, proto_item** out_item, int* offset, int* pdu_end, uint32_t* vector, uint32_t* length, int hf_pdu, int ett_pdu, int hf_pdu_vector, int hf_pdu_length) {
+static proto_tree* dissect_otp_pdu_start(tvbuff_t* tvb, proto_tree* tree, proto_item** out_item, int* offset, int* pdu_end, uint32_t* vector, uint32_t* length, int hf_pdu, int ett_pdu, int hf_pdu_vector, int hf_pdu_length) {
     *out_item = proto_tree_add_item(tree, hf_pdu, tvb, *offset, -1, ENC_NA);
     proto_tree* pdu_tree = proto_item_add_subtree(*out_item, ett_pdu);
 
@@ -293,7 +293,7 @@ proto_tree* dissect_otp_pdu_start(tvbuff_t* tvb, proto_tree* tree, proto_item** 
     return pdu_tree;
 }
 
-int dissect_otp_module_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
+static int dissect_otp_module_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
     int pdu_end;
     uint32_t manf_id, length;
     proto_item* module_item;
@@ -403,7 +403,7 @@ int dissect_otp_module_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree
     return offset;
 }
 
-int dissect_otp_point_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
+static int dissect_otp_point_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
     int pdu_end;
     uint32_t vector, length;
     proto_item* point_item;
@@ -445,7 +445,7 @@ int dissect_otp_point_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
     return pdu_end;
 }
 
-int dissect_otp_transform_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
+static int dissect_otp_transform_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
     int pdu_end;
     uint32_t vector, length;
     proto_item* trans_item;
@@ -484,7 +484,7 @@ int dissect_otp_transform_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
     return pdu_end;
 }
 
-int dissect_otp_advertisement_module_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
+static int dissect_otp_advertisement_module_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
     int pdu_end;
     uint32_t vector, length;
     proto_item* advert_item;
@@ -525,7 +525,7 @@ int dissect_otp_advertisement_module_layer(tvbuff_t* tvb, packet_info* pinfo, pr
         expert_add_info(pinfo, advert_tree, &ei_otp_pdu_len);
     return pdu_end;
 }
-int dissect_otp_advertisement_name_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
+static int dissect_otp_advertisement_name_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
     int pdu_end;
     uint32_t vector, length;
     proto_item* advert_item;
@@ -576,7 +576,7 @@ int dissect_otp_advertisement_name_layer(tvbuff_t* tvb, packet_info* pinfo, prot
         expert_add_info(pinfo, advert_tree, &ei_otp_pdu_len);
     return pdu_end;
 }
-int dissect_otp_advertisement_system_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
+static int dissect_otp_advertisement_system_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
     int pdu_end;
     uint32_t vector, length;
     proto_item* advert_item;
@@ -613,7 +613,7 @@ int dissect_otp_advertisement_system_layer(tvbuff_t* tvb, packet_info* pinfo, pr
     return pdu_end;
 }
 
-int dissect_otp_advertisement_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
+static int dissect_otp_advertisement_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset) {
     int pdu_end;
     uint32_t vector, length;
     proto_item* advert_item;
