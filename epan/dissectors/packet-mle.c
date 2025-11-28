@@ -550,7 +550,7 @@ dissect_mle_decrypt(tvbuff_t * tvb,
 
     /* Decrypt the ciphertext, and place the plaintext in a new tvb. */
     if (IEEE802154_IS_ENCRYPTED(packet->security_level) && captured_len) {
-        char *text;
+        uint8_t *text;
 
         /*
          * Make a copy of the ciphertext in heap memory.
@@ -558,7 +558,7 @@ dissect_mle_decrypt(tvbuff_t * tvb,
          * We will decrypt the message in-place and then use the buffer as the
          * real data for the new tvb.
          */
-        text = (char *)tvb_memdup(pinfo->pool, tvb, offset, captured_len);
+        text = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, captured_len);
 
         /* Perform CTR-mode transformation. Try both the likely key and the alternate key */
         if (!ccm_ctr_encrypt(decrypt_info->key, tmp, decrypt_info->rx_mic, text, captured_len)) {

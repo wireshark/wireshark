@@ -417,7 +417,7 @@ static tvbuff_t *dissect_ieee802154_decrypt(tvbuff_t *, unsigned, packet_info *,
 
 static unsigned ieee802154_set_mac_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key);
 static unsigned ieee802154_set_trel_key(ieee802154_packet* packet, unsigned char* key, unsigned char* alt_key, ieee802154_key_t* uat_key);
-static void tsch_ccm_init_nonce(uint64_t addr, uint64_t asn, char* generic_nonce);
+static void tsch_ccm_init_nonce(uint64_t addr, uint64_t asn, uint8_t* generic_nonce);
 
 /* Initialize Protocol and Registered fields */
 static int proto_ieee802154_nonask_phy;
@@ -5306,8 +5306,8 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
     int                 captured_len;
     int                 reported_len;
     ieee802154_hints_t *ieee_hints;
-    char               *generic_nonce_ptr = NULL;
-    char                generic_nonce[13];
+    uint8_t            *generic_nonce_ptr = NULL;
+    uint8_t             generic_nonce[13];
 
     ieee_hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
 
@@ -5467,7 +5467,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
          * decryption phase.
          */
         memset(dec_mic, 0, sizeof(dec_mic));
-        if (!ccm_cbc_mac(decrypt_info->key, tmp, (const char *)tvb_memdup(pinfo->pool, tvb, 0, l_a), l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
+        if (!ccm_cbc_mac(decrypt_info->key, tmp, tvb_memdup(pinfo->pool, tvb, 0, l_a), l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
             *decrypt_info->status = DECRYPT_PACKET_MIC_CHECK_FAILED;
         }
         /* Compare the received MIC with the one we generated. */
@@ -5493,7 +5493,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
  * @param generic_nonce 13-byte nonce to be set by non 802.15.4 calls. If set addr, frame_counter and level are ignored.
  */
 void
-ccm_init_block(char *block, bool adata, int M, uint64_t addr, uint32_t frame_counter, uint8_t level, int ctr_val, const char *generic_nonce)
+ccm_init_block(uint8_t *block, bool adata, int M, uint64_t addr, uint32_t frame_counter, uint8_t level, int ctr_val, const uint8_t *generic_nonce)
 {
     int                 i = 0;
 
@@ -5535,7 +5535,7 @@ ccm_init_block(char *block, bool adata, int M, uint64_t addr, uint32_t frame_cou
  * @param generic_nonce 13-byte nonce to returned by this function.
  */
 static void
-tsch_ccm_init_nonce(uint64_t addr, uint64_t asn, char* generic_nonce)
+tsch_ccm_init_nonce(uint64_t addr, uint64_t asn, uint8_t* generic_nonce)
 {
     int i = 0;
 
@@ -5566,7 +5566,7 @@ tsch_ccm_init_nonce(uint64_t addr, uint64_t asn, char* generic_nonce)
  * @return true on SUCCESS, false on error.
  */
 bool
-ccm_ctr_encrypt(const char *key, const char *iv, char *mic, char *data, int length)
+ccm_ctr_encrypt(const uint8_t *key, const uint8_t *iv, uint8_t *mic, uint8_t *data, int length)
 {
     gcry_cipher_hd_t    cipher_hd;
 
@@ -5613,7 +5613,7 @@ ccm_ctr_encrypt(const char *key, const char *iv, char *mic, char *data, int leng
  * @return  true on SUCCESS, false on error.
  */
 bool
-ccm_cbc_mac(const char *key, const char *iv, const char *a, int a_len, const char *m, int m_len, char *mic)
+ccm_cbc_mac(const uint8_t *key, const uint8_t *iv, const uint8_t *a, int a_len, const uint8_t *m, int m_len, uint8_t *mic)
 {
     gcry_cipher_hd_t cipher_hd;
     unsigned         i = 0;
