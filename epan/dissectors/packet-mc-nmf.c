@@ -129,36 +129,27 @@ static int ett_mc_nmf_rec;
 #define MC_NMF_MIN_LENGTH 1
 
 static bool get_size_length(tvbuff_t *tvb, int *offset, unsigned *len_length, packet_info *pinfo, uint32_t *out_size) {
-    uint8_t   lbyte;
     uint64_t  size = 0;
-    unsigned  shiftcount = 0;
 
-    lbyte = tvb_get_uint8(tvb, *offset);
-    *offset += 1;
-    *len_length += 1;
-    size = ( lbyte & 0x7F);
-    while ( lbyte & 0x80 ) {
-        lbyte = tvb_get_uint8(tvb, *offset);
-        *offset += 1;
+    *len_length = tvb_get_varint(tvb, *offset, 5, &size, ENC_VARINT_PROTOBUF);
+    if (*len_length == 0) {
         /* Guard against the pathological case of a sequence of 0x80
-         * bytes (which add nothing to size).
+         * bytes.
          */
-        if (*len_length >= 5) {
-            expert_add_info(pinfo, NULL, &ei_mc_nmf_size_too_big);
-            return false;
-        }
-        shiftcount = 7 * *len_length;
-        size = ((lbyte & UINT64_C(0x7F)) << shiftcount) | (size);
-        *len_length += 1;
-        /*
-         * Check if size if is too big to prevent against overflow.
-         * According to spec an implementation SHOULD support record sizes as
-         * large as 0xffffffff octets (encoded size requires five octets).
-         */
-        if (size > 0xffffffff) {
-            expert_add_info(pinfo, NULL, &ei_mc_nmf_size_too_big);
-            return false;
-        }
+        expert_add_info(pinfo, NULL, &ei_mc_nmf_size_too_big);
+        *len_length = 5;
+        *offset += *len_length;
+        return false;
+    }
+    *offset += *len_length;
+    /*
+     * Check if size if is too big to prevent against overflow.
+     * According to spec an implementation SHOULD support record sizes as
+     * large as 0xffffffff octets (encoded size requires five octets).
+     */
+    if (size > UINT32_MAX) {
+        expert_add_info(pinfo, NULL, &ei_mc_nmf_size_too_big);
+        return false;
     }
     *out_size = (uint32_t)size;
     return true;
@@ -169,11 +160,11 @@ dissect_mc_nmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 {
     proto_item     *ti, *rti, *dti;
     proto_tree     *mc_nmf_tree, *rec_tree, *data_tree;
-    unsigned       offset = 0;
+    int            offset = 0;
     uint32_t       record_type;
     uint8_t        *upgrade_protocol;
     unsigned       len_length;
-    int32_t        size;
+    uint32_t       size;
     uint8_t        search_terminator;
     conversation_t *conversation;
     tvbuff_t       *nt_tvb;
@@ -217,7 +208,7 @@ dissect_mc_nmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             return offset + tvb_reported_length(nt_tvb);
     }
 
-    while (tvb_reported_length(tvb) > offset)
+    while (tvb_reported_length(tvb) > (unsigned)offset)
     {
         rti = proto_tree_add_item_ret_uint(mc_nmf_tree, hf_mc_nmf_record_type, tvb,
                 offset, 1, ENC_BIG_ENDIAN, &record_type);
