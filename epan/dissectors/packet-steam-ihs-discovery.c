@@ -161,19 +161,14 @@ static const char* protobuf_get_wiretype_name(uint8_t wire_type) {
     return protobuf_wiretype_name_unknown;
 }
 
-static int64_t
+static uint64_t
 get_varint64(tvbuff_t *tvb, int offset, int bytes_left, int* len)
 {
-    uint8_t b;
-    int64_t result = 0;
-    *len = 0;
-    while ((*len) < bytes_left) {
-        b = tvb_get_uint8(tvb, offset+(*len));
-        result |= ((int64_t)b & 0x7f) << ((*len)*7);
-        (*len)++;
-        if ((b & 0x80) == 0) {
-            break;
-        }
+    uint64_t result = 0;
+    *len = tvb_get_varint(tvb, offset, bytes_left, &result, ENC_VARINT_PROTOBUF);
+    if (*len == 0) {
+        // Failure.
+        *len = bytes_left;
     }
     return result;
 }
@@ -492,7 +487,7 @@ steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_desc_t pb2 = { tvb, 0, 0 };
     protobuf_tag_t tag = { 0, 0, 0 };
-    uint8_t *hostname;
+    const char *hostname;
     nstime_t timestamp;
     proto_tree *user_tree;
     proto_item *user_it;
@@ -521,7 +516,7 @@ steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_item(tree, hf_steam_ihs_discovery_body_status_hostname, pb.tvb,
                         pb.offset+len, (int)value, ENC_UTF_8);
-                hostname = tvb_get_string_enc(pinfo->pool, pb.tvb, pb.offset+len, (int)value, ENC_UTF_8);
+                hostname = (char*)tvb_get_string_enc(pinfo->pool, pb.tvb, pb.offset+len, (int)value, ENC_UTF_8);
                 if(hostname && strlen(hostname)) {
                     col_add_fstr(pinfo->cinfo, COL_INFO, "%s from %s", hf_steam_ihs_discovery_header_msgtype_strings[STEAMDISCOVER_MSGTYPE_CLIENTBROADCASTMSGSTATUS].strptr, hostname);
                 }
@@ -642,11 +637,11 @@ static void
 steamdiscover_dissect_body_authrequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                        int offset, int bytes_left)
 {
-    unsigned len;
+    int len;
     int64_t value;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_tag_t tag = { 0, 0, 0 };
-    uint8_t* devicename;
+    const char* devicename;
     while (protobuf_iter_next(&pb, &tag)) {
         switch(tag.field_number) {
             case STEAMDISCOVER_FN_AUTHREQUEST_DEVICETOKEN:
@@ -661,7 +656,7 @@ steamdiscover_dissect_body_authrequest(tvbuff_t *tvb, packet_info *pinfo, proto_
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_item(tree, hf_steam_ihs_discovery_body_authrequest_devicename, pb.tvb,
                         pb.offset+len, (int)value, ENC_UTF_8);
-                devicename = tvb_get_string_enc(pinfo->pool, pb.tvb, pb.offset+len, (int)value, ENC_UTF_8);
+                devicename = (char*)tvb_get_string_enc(pinfo->pool, pb.tvb, pb.offset+len, (int)value, ENC_UTF_8);
                 if (devicename && strlen(devicename)) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", devicename);
                 }
@@ -825,8 +820,8 @@ static void
 steamdiscover_dissect_body_streamingcancelrequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                   int offset, int bytes_left)
 {
-    unsigned len;
-    int64_t value;
+    int len;
+    uint64_t value;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_tag_t tag = { 0, 0, 0 };
     while (protobuf_iter_next(&pb, &tag)) {
@@ -875,8 +870,8 @@ static void
 steamdiscover_dissect_body_streamingresponse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                   int offset, int bytes_left)
 {
-    unsigned len;
-    int64_t value;
+    int len;
+    uint64_t value;
     protobuf_desc_t pb = { tvb, offset, bytes_left };
     protobuf_tag_t tag = { 0, 0, 0 };
     while (protobuf_iter_next(&pb, &tag)) {
