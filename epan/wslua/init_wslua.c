@@ -295,7 +295,6 @@ static void lua_resetthread_cb(void *user_data) {
     //
     //    https://lists.wireshark.org/archives/wireshark-dev/202511/msg00031.html
     //
-    //
     // Lua 5.4.6 revers that change, and introdues lua_closethread(..., NULL)
     // to replacelua_resetthread(), but it's not yet mandatory to use
     // lua_closethread() (maybe in 5.5?)

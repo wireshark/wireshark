@@ -259,7 +259,6 @@ IF(Lua_FOUND)
   #
   #   https://lists.wireshark.org/archives/wireshark-dev/202511/msg00031.html
   #
-  #
   # So we do it the hard way, by checking whether a program that
   # calls the one-argument version compiles.
   #
