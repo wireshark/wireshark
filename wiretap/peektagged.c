@@ -74,9 +74,9 @@ void register_peektagged(void);
  * by the raw packet data.
  */
 typedef struct peektagged_section_header {
-        int8_t  section_id[4];          /* string identifying the section */
-        uint32_t section_len;            /* little-endian section length */
-        uint32_t section_const;          /* little-endian 0x00000200 */
+        char     section_id[4];         /* string identifying the section */
+        uint32_t section_len;           /* little-endian section length */
+        uint32_t section_const;         /* little-endian 0x00000200 */
 } peektagged_section_header_t;
 
 /* Size of the "header" sections */
@@ -249,25 +249,24 @@ peektagged_get_media_info(xmlDocPtr doc, uint32_t *mediaType, uint32_t* mediaSub
 }
 
 static bool
-peektagged_skip_cpid(wtap* wth, peektagged_section_header_t* ap_hdr, int* err, char** err_info)
+peektagged_skip_section(wtap* wth, peektagged_section_header_t* ap_hdr, int* err, char** err_info)
 {
     uint32_t length;
 
     /*
-     * If we see an "cpid" section, which appears to be optional, skip over it.
+     * Skip over a section.
      */
-    if (memcmp(ap_hdr->section_id, "cpid", sizeof(ap_hdr->section_id)) == 0) {
-        length = GUINT32_TO_LE(ap_hdr->section_len);
-        if ((length >= MAX_SECTION_SIZE) || (GUINT32_TO_LE(ap_hdr->section_const) != SECTION_CONST_VALUE))
-            return false;
+    length = GUINT32_TO_LE(ap_hdr->section_len);
+    if ((length >= MAX_SECTION_SIZE) || (GUINT32_TO_LE(ap_hdr->section_const) != SECTION_CONST_VALUE))
+        return false;
 
-        if (!wtap_read_bytes(wth->fh, NULL, (int)length, err, err_info)) {
-            return false;
-        }
-
-        if (!wtap_read_bytes(wth->fh, ap_hdr, (int)sizeof(*ap_hdr), err, err_info))
-            return false;
+    /* This assumes that MAX_SECTION_SIZE < INT_MAX, which it currently is */
+    if (!wtap_read_bytes(wth->fh, NULL, (int)length, err, err_info)) {
+        return false;
     }
+
+    if (!wtap_read_bytes(wth->fh, ap_hdr, (int)sizeof(*ap_hdr), err, err_info))
+        return false;
 
     return true;
 }
@@ -868,7 +867,7 @@ wtap_open_return_val peektagged_open(wtap* wth, int* err, char** err_info)
      * If we see an "cpid" section, which appears to be optional, skip over it.
      */
     if (memcmp(ap_hdr.section_id, "cpid", sizeof(ap_hdr.section_id)) == 0) {
-        if (!peektagged_skip_cpid(wth, &ap_hdr, err, err_info)) {
+        if (!peektagged_skip_section(wth, &ap_hdr, err, err_info)) {
             if (*err && *err != WTAP_ERR_SHORT_READ)
                 return WTAP_OPEN_ERROR;
             return WTAP_OPEN_NOT_MINE;
@@ -929,7 +928,7 @@ wtap_open_return_val peektagged_open(wtap* wth, int* err, char** err_info)
      * If we see an "cpid" section, which appears to be optional, skip over it.
      */
     if (memcmp(ap_hdr.section_id, "cpid", sizeof(ap_hdr.section_id)) == 0) {
-        if (!peektagged_skip_cpid(wth, &ap_hdr, err, err_info)) {
+        if (!peektagged_skip_section(wth, &ap_hdr, err, err_info)) {
             if (*err && *err != WTAP_ERR_SHORT_READ)
                 return WTAP_OPEN_ERROR;
             return WTAP_OPEN_NOT_MINE;
