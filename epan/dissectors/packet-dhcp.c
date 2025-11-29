@@ -3315,17 +3315,16 @@ dissect_dhcpopt_dnr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	int offset = 0;
 	int offset_end = tvb_captured_length(tvb);
 	int instance_id = 0;
-	int instance_offset = 0;
-	int instance_len;
-	int adn_len;
+	uint32_t instance_offset = 0;
+	uint32_t instance_len;
+	uint32_t adn_len;
 	int adn_parsed_len;
 	const char *adn;
-	int addrs_len;
+	uint32_t addrs_len;
 	proto_item *dnr_instance_ti;
 	proto_tree *dnr_instance_tree;
 	proto_item *dnr_instance_addrs_ti;
 	proto_tree *dnr_instance_addrs_tree;
-	int i;
 	tvbuff_t *next_tvb;
 
 	if (offset + 2 >= offset_end) {
@@ -3349,13 +3348,13 @@ dissect_dhcpopt_dnr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 			break;
 		}
 
-		if (offset + instance_len > offset_end) {
+		if (offset + (int)instance_len > offset_end) {
 			expert_add_info_format(pinfo, dnr_instance_tree, &ei_dhcp_bad_length, "DNR: truncated option (instance length %d larger than option)", instance_len);
 			break;
 		}
 
 		proto_item_append_text(dnr_instance_ti, " %d", instance_id);
-		proto_item_set_len(dnr_instance_ti, instance_len + 2);
+		proto_item_set_len(dnr_instance_ti, (int)instance_len + 2);
 
 		proto_tree_add_item(dnr_instance_tree, hf_dhcp_dnr_svcpriority, tvb, offset + instance_offset, 2, ENC_BIG_ENDIAN);
 		instance_offset += 2;
@@ -3397,7 +3396,7 @@ dissect_dhcpopt_dnr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
 		proto_item_append_text(dnr_instance_addrs_ti, ":");
 
-		for (i = 0; i < addrs_len; i += 4) {
+		for (uint32_t i = 0; i < addrs_len; i += 4) {
 			proto_tree_add_item(dnr_instance_addrs_tree, hf_dhcp_dnr_addrs_ip, tvb, offset + instance_offset + i, 4, ENC_NA);
 			proto_item_append_text(dnr_instance_addrs_ti, "%c%s", (i == 0 ? ' ' : ','), tvb_ip_to_str(pinfo->pool, tvb, offset + instance_offset + i));
 		}

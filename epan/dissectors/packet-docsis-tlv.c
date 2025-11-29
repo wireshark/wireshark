@@ -4097,7 +4097,7 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
               {
                 proto_tree_add_item_ret_uint (tcc_tree,
                                      hf_docsis_tlv_tcc_us_ch_id, tvb, pos,
-                                     length, ENC_BIG_ENDIAN, &channel_id);
+                                     length, ENC_BIG_ENDIAN, (uint32_t*)&channel_id);
                 /* Only perform reassembly on UCD if TLV is reassembled. fragment_end_seq_next added for the rare cases where UCD end is 254 long. */
                 if(!pinfo->fragmented && *previous_channel_id != -1) {
                   fragment_end_seq_next(&ucd_reassembly_table, pinfo, *previous_channel_id, NULL);

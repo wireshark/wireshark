@@ -410,7 +410,7 @@ dissect_netmon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 	header_tree = proto_item_add_subtree(ti, ett_netmon_header);
 
 	if (pinfo->pseudo_header->netmon.title != NULL) {
-		ti = proto_tree_add_string(header_tree, hf_netmon_header_title_comment, tvb, 0, 0, pinfo->pseudo_header->netmon.title);
+		ti = proto_tree_add_string(header_tree, hf_netmon_header_title_comment, tvb, 0, 0, (char*)pinfo->pseudo_header->netmon.title);
 		proto_item_set_generated(ti);
 	}
 
@@ -420,7 +420,7 @@ dissect_netmon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 		 */
 
 		/* Ensure string termination */
-		comment = wmem_strndup(pinfo->pool, pinfo->pseudo_header->netmon.description, pinfo->pseudo_header->netmon.descLength);
+		comment = wmem_strndup(pinfo->pool, (char*)pinfo->pseudo_header->netmon.description, pinfo->pseudo_header->netmon.descLength);
 
 		ti = proto_tree_add_string(header_tree, hf_netmon_header_description_comment, tvb, 0, 0, comment);
 		proto_item_set_generated(ti);

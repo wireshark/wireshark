@@ -171,7 +171,8 @@ void dissect_per_not_decoded_yet(proto_tree* tree, packet_info* pinfo, tvbuff_t 
 static uint32_t
 dissect_per_open_type_internal(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, void* type_cb, asn1_cb_variant variant)
 {
-	int type_length, start_offset, end_offset, fragmented_length = 0, pdu_length, pdu_offset;
+	uint32_t type_length;
+	int type_bit_length, start_offset, end_offset, fragmented_length = 0, pdu_length, pdu_offset;
 	tvbuff_t *val_tvb = NULL, *pdu_tvb = NULL, *fragment_tvb = NULL;
 	header_field_info *hfi;
 	proto_tree *subtree = tree;
@@ -182,21 +183,27 @@ dissect_per_open_type_internal(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx,
 
 	start_offset = offset;
 	do {
+		pdu_offset = offset;
 		offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &type_length, &is_fragmented);
+		if (ckd_mul(&type_bit_length, type_length, 8)) {
+			actx->created_item = proto_tree_add_expert_format(tree, actx->pinfo, &ei_per_open_type_len, tvb, pdu_offset >> 3,
+				BLEN((unsigned)pdu_offset, offset), "Open type length(%u) too large, would overflow number of bits", type_length);
+			THROW(ReportedBoundsError);
+		}
 		if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
 		if (is_fragmented) {
-			fragment_tvb = tvb_new_octet_aligned(tvb, offset, 8*type_length);
+			fragment_tvb = tvb_new_octet_aligned(tvb, offset, type_bit_length);
 			if (fragmented_length == 0) {
 				pdu_tvb = tvb_new_composite();
 			}
 			tvb_composite_append(pdu_tvb, fragment_tvb);
-			offset += 8*type_length;
+			offset += type_bit_length;
 			fragmented_length += type_length;
 		}
 	} while (is_fragmented);
 	if (fragmented_length) {
 		if (type_length) {
-			tvb_composite_append(pdu_tvb, tvb_new_octet_aligned(tvb, offset, 8*type_length));
+			tvb_composite_append(pdu_tvb, tvb_new_octet_aligned(tvb, offset, type_bit_length));
 			fragmented_length += type_length;
 		}
 		tvb_composite_finalize(pdu_tvb);
@@ -208,7 +215,7 @@ dissect_per_open_type_internal(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx,
 		pdu_offset = offset;
 		pdu_length = type_length;
 	}
-	end_offset = offset + type_length * 8;
+	end_offset = offset + type_bit_length;
 
 	if (variant==CB_NEW_DISSECTOR) {
 		if (fragmented_length) {

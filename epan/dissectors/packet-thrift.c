@@ -163,6 +163,7 @@ static int hf_thrift_i8;
 static int hf_thrift_i16;
 static int hf_thrift_i32;
 static int hf_thrift_i64;
+static int hf_thrift_u64;
 static int hf_thrift_uuid;
 static int hf_thrift_binary;
 static int hf_thrift_string;
@@ -590,7 +591,7 @@ dissect_thrift_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         delta = (dfid_type >> TCP_THRIFT_NIBBLE_SHIFT) & TCP_THRIFT_NIBBLE_MASK;
         if (delta == TCP_THRIFT_DELTA_NOT_SET) {
             header->fid_offset = *offset;
-            header->fid_length = thrift_get_varint_enc(tvb, pinfo, NULL, *offset, TCP_THRIFT_MAX_I16_LEN, &fid, ENC_VARINT_ZIGZAG);
+            header->fid_length = thrift_get_varint_enc(tvb, pinfo, NULL, *offset, TCP_THRIFT_MAX_I16_LEN, (uint64_t*)&fid, ENC_VARINT_ZIGZAG);
             switch (header->fid_length) {
             case THRIFT_REQUEST_REASSEMBLY:
                 /* Will always return after setting the expert parts. */
@@ -723,7 +724,7 @@ dissect_thrift_varint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *
 {
     int64_t varint;
     proto_item *pi;
-    int length = thrift_get_varint_enc(tvb, pinfo, tree, *offset, max_length, &varint, ENC_VARINT_ZIGZAG);
+    int length = thrift_get_varint_enc(tvb, pinfo, tree, *offset, max_length, (uint64_t*)&varint, ENC_VARINT_ZIGZAG);
     switch (length) {
     case THRIFT_REQUEST_REASSEMBLY:
         /* Will always return after setting the expert parts. */
@@ -1370,7 +1371,7 @@ dissect_thrift_raw_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     proto_tree *header_tree = NULL;
     proto_item *len_item = NULL;
     int32_t str_len, len_len;
-    int64_t varint;
+    uint64_t varint;
 
     /* Dissect field header if necessary. */
     if (is_field) {
@@ -1391,8 +1392,8 @@ dissect_thrift_raw_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
             default:
                 break;
         }
-        if ((int64_t)INT32_MIN > varint || varint > (int64_t)INT32_MAX) {
-            len_item = proto_tree_add_int64(header_tree, hf_thrift_i64, tvb, offset, len_len, varint);
+        if (varint > (uint64_t)INT32_MAX) {
+            len_item = proto_tree_add_uint64(header_tree, hf_thrift_u64, tvb, offset, len_len, varint);
             expert_add_info(pinfo, len_item, &ei_thrift_varint_too_large);
             return THRIFT_REQUEST_REASSEMBLY;
         }
@@ -2169,7 +2170,7 @@ dissect_thrift_binary_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree *sub_tree;
     proto_item *container_pi, *len_pi, *vtype_pi;
     proto_item *ktype_pi = NULL; // Avoid a false positive warning.
-    int32_t ktype, vtype;
+    uint32_t ktype, vtype;
     int32_t container_len, i;
     int ett = 0;
     int hf_container = 0;
@@ -2438,7 +2439,7 @@ dissect_thrift_compact_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
      */
     int32_t str_len;
     proto_item *pi;
-    int64_t varint;
+    uint64_t varint;
 
     if (header_tree == NULL) {
         header_tree = tree;
@@ -2460,8 +2461,8 @@ dissect_thrift_compact_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (header_tree != tree) {
         proto_item_set_end(proto_tree_get_parent(header_tree), tvb, *offset);
     }
-    if ((int64_t)INT32_MIN > varint || varint > (int64_t)INT32_MAX) {
-        pi = proto_tree_add_int64(header_tree, hf_thrift_i64, tvb, *offset, len_len, varint);
+    if (varint > (uint64_t)INT32_MAX) {
+        pi = proto_tree_add_uint64(header_tree, hf_thrift_u64, tvb, *offset, len_len, varint);
         expert_add_info(pinfo, pi, &ei_thrift_varint_too_large);
         return THRIFT_REQUEST_REASSEMBLY;
     }
@@ -2955,7 +2956,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     uint16_t version;
     int32_t str_len, seq_id;
     int64_t varint;
-    uint8_t *method_str;
+    const char *method_str;
     int remaining;
     tvbuff_t *msg_tvb;
     int len, tframe_length = 0;
@@ -3009,7 +3010,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         mtype = (tvb_get_ntohs(tvb, offset) & THRIFT_COMPACT_MESSAGE_MASK) >> THRIFT_COMPACT_MESSAGE_SHIFT;
         offset += TCP_THRIFT_VERSION_LEN;
         /* Pass sequence id */
-        seqid_len = thrift_get_varint_enc(tvb, pinfo, tree, offset, TCP_THRIFT_MAX_I32_LEN, &varint, ENC_VARINT_ZIGZAG);
+        seqid_len = thrift_get_varint_enc(tvb, pinfo, tree, offset, TCP_THRIFT_MAX_I32_LEN, (uint64_t*)&varint, ENC_VARINT_ZIGZAG);
         /* We use the same reassembly/error convention. */
         if (seqid_len <= 0) {
             return seqid_len;
@@ -3021,7 +3022,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         }
         seq_id = (int32_t)varint;
         /* Read length of method name */
-        str_len_len = thrift_get_varint_enc(tvb, pinfo, tree, offset, TCP_THRIFT_MAX_I32_LEN, &varint, ENC_VARINT_PROTOBUF);
+        str_len_len = thrift_get_varint_enc(tvb, pinfo, tree, offset, TCP_THRIFT_MAX_I32_LEN, (uint64_t*)&varint, ENC_VARINT_PROTOBUF);
         if (str_len_len <= 0) {
             return str_len_len;
         }
@@ -3039,7 +3040,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         if (tvb_reported_length_remaining(tvb, offset) < str_len) {
             goto add_expert_and_reassemble;
         }
-        method_str = tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8);
+        method_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len;
     } else if (thrift_opt->tprotocol & PROTO_THRIFT_STRICT) {
         if (remaining < TBP_THRIFT_STRICT_MIN_MESSAGE_LEN) {
@@ -3056,7 +3057,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             goto add_expert_and_reassemble;
         }
         offset += TBP_THRIFT_VERSION_LEN + TBP_THRIFT_LENGTH_LEN;
-        method_str = tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8);
+        method_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len;
 
         seq_id = tvb_get_ntohil(tvb, offset);
@@ -3075,7 +3076,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             goto add_expert_and_reassemble;
         }
         offset += TBP_THRIFT_LENGTH_LEN;
-        method_str = tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8);
+        method_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len;
         mtype = tvb_get_uint8(tvb, offset + TBP_THRIFT_LENGTH_LEN + str_len) & THRIFT_BINARY_MESSAGE_MASK;
         offset += TBP_THRIFT_TYPE_LEN;
@@ -3805,6 +3806,11 @@ proto_register_thrift(void)
             { "Integer64", "thrift.i64",
                 FT_INT64, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
+        },
+        { &hf_thrift_u64,
+            { "Unsigned64", "thrift.u64",
+                FT_UINT64, BASE_DEC, NULL, 0x0,
+                "Usually an unsigned varint", HFILL }
         },
         { &hf_thrift_double,
             { "Double", "thrift.double",

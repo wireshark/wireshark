@@ -845,9 +845,8 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
    * Otherwise, just call it a continuation.
    */
   if (is_request_or_reply) {
-    line = tvb_get_ptr (tvb, offset, first_linelen);
     col_add_fstr (pinfo->cinfo, COL_INFO, "%s ",
-                 format_text(pinfo->pool, line, first_linelen));
+                 tvb_format_text(pinfo->pool, tvb, offset, first_linelen));
   } else {
     col_set_str (pinfo->cinfo, COL_INFO, "MEMCACHE Continuation");
   }
@@ -1051,12 +1050,12 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
     lineend = line + linelen;
 
     tokenlen = get_token_len (line, lineend, &next_token);
-    if ((tokenlen == 4) && strncmp (line, "STAT", tokenlen) == 0) {
+    if ((tokenlen == 4) && strncmp ((char*)line, "STAT", tokenlen) == 0) {
       proto_tree_add_item (tree, hf_command, tvb, offset, tokenlen, ENC_ASCII);
       offset += (int) (next_token - line);
       line = next_token;
       occurrences = find_stat_colon (line, lineend, &first_colon, &last_colon);
-    } else if ((tokenlen == 3) && strncmp (line, "END", tokenlen) == 0) {
+    } else if ((tokenlen == 3) && strncmp ((char*)line, "END", tokenlen) == 0) {
       /* done. reached an end of response. */
       offset += (int) (next_token - line);
       return offset;
@@ -1172,9 +1171,9 @@ get_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
       return -1;
     }
 
-    if ((tokenlen == 5) && strncmp (line, "VALUE", tokenlen) == 0) {
+    if ((tokenlen == 5) && strncmp ((char*)line, "VALUE", tokenlen) == 0) {
       /* proceed */
-    } else if ((tokenlen == 3) && strncmp (line, "END", tokenlen) == 0) {
+    } else if ((tokenlen == 3) && strncmp ((char*)line, "END", tokenlen) == 0) {
       /* done. reached an end of response. */
       offset += (int) (next_token - line);
       return offset;
@@ -1274,7 +1273,7 @@ memcache_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (tokenlen == 0) {
       return -1;
     }
-    if ((tokenlen == 7) && strncmp (line, "VERSION", tokenlen) == 0) {
+    if ((tokenlen == 7) && strncmp ((char*)line, "VERSION", tokenlen) == 0) {
       offset += (int) (next_token - line);
       line = next_token;
     } else {
@@ -1319,13 +1318,13 @@ memcache_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
    * prepend, flush_all, verbosity, delete and to an extent
    * incr, decr and stat commands.
    */
-  if ((tokenlen == 6 && strncmp (line, "STORED", tokenlen) == 0) ||
-      (tokenlen == 10 && strncmp (line, "NOT_STORED", tokenlen) == 0) ||
-      (tokenlen == 6 && strncmp (line, "EXISTS", tokenlen) == 0) ||
-      (tokenlen == 9 && strncmp (line, "NOT_FOUND", tokenlen) == 0) ||
-      (tokenlen == 7 && strncmp (line, "DELETED", tokenlen) == 0) ||
-      (tokenlen == 2 && strncmp (line, "OK", tokenlen) == 0) ||
-      (tokenlen == 3 && strncmp (line, "END", tokenlen) == 0))
+  if ((tokenlen == 6 && strncmp ((char*)line, "STORED", tokenlen) == 0) ||
+      (tokenlen == 10 && strncmp((char*)line, "NOT_STORED", tokenlen) == 0) ||
+      (tokenlen == 6 && strncmp ((char*)line, "EXISTS", tokenlen) == 0) ||
+      (tokenlen == 9 && strncmp ((char*)line, "NOT_FOUND", tokenlen) == 0) ||
+      (tokenlen == 7 && strncmp ((char*)line, "DELETED", tokenlen) == 0) ||
+      (tokenlen == 2 && strncmp ((char*)line, "OK", tokenlen) == 0) ||
+      (tokenlen == 3 && strncmp ((char*)line, "END", tokenlen) == 0))
   {
     proto_tree_add_item (tree, hf_response, tvb, offset, tokenlen, ENC_ASCII);
     offset += (int) (next_token - line);
@@ -1451,7 +1450,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
     tokenlen = get_token_len (line, lineend, &next_token);
     if (tokenlen != 0) {
-      if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
+      if (tokenlen == 7 && strncmp ((char*)line, "noreply", 7) == 0) {
         proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII);
       }
       offset += (int) (next_token - line);
@@ -1490,7 +1489,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tokenlen == 0) {
       return offset; /* reached CRLF */
     }
-    if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
+    if (tokenlen == 7 && strncmp ((char*)line, "noreply", 7) == 0) {
       proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII);
       offset += (int) (next_token - line);
       line = next_token;
@@ -1525,7 +1524,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       return offset; /* neither expiration nor noreply; CRLF */
     }
     if (tokenlen <= 10) {
-      if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
+      if (tokenlen == 7 && strncmp ((char*)line, "noreply", 7) == 0) {
         /* noreply */
         proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII);
       } else {
@@ -1596,7 +1595,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       return offset; /* neither expiration nor noreply; CRLF */
     }
     if (tokenlen <= 10) {
-      if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
+      if (tokenlen == 7 && strncmp ((char*)line, "noreply", 7) == 0) {
         /* noreply */
         proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII);
       } else {
@@ -1618,7 +1617,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tokenlen == 0) {
       return offset;
     }
-    if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
+    if (tokenlen == 7 && strncmp ((char*)line, "noreply", 7) == 0) {
       /* noreply */
       proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII);
       offset += (int) (next_token - line);

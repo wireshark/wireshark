@@ -4745,6 +4745,7 @@ dissect_tds_col_name_token(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, 
         proto_item *col_item;
         proto_tree *col_tree;
         const uint8_t *colname;
+        int str_len;
 
         if (col >= TDS_MAX_COLUMNS) {
             nl_data->num_cols = TDS_MAX_COLUMNS;
@@ -4759,20 +4760,20 @@ dissect_tds_col_name_token(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, 
         }
         proto_tree_add_item_ret_string_and_length(col_tree, hf_tds_colname_name,
             tvb, cur, 1, tds_get_char_encoding(tds_info)|ENC_NA,
-            pinfo->pool, &colname, &len);
+            pinfo->pool, &colname, &str_len);
 
         nl_data->columns[col]->name = (const char*)colname;
 
-        if (len > 1) {
+        if (str_len > 1) {
             proto_item_set_text(col_item, "Column %d (%s)", col + 1, colname);
         }
         else {
             proto_item_set_text(col_item, "Column %d", col + 1);
         }
-        proto_item_set_len(col_item, len);
+        proto_item_set_len(col_item, str_len);
 
         col++;
-        cur += len;
+        cur += str_len;
     }
 
     nl_data->num_cols = col;
@@ -5222,7 +5223,7 @@ dissect_tds_control_token(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, u
         if (!(nl_data->columns[col])) {
             nl_data->columns[col] = wmem_new0(pinfo->pool, struct _tds_col);
         }
-        proto_tree_add_item_ret_length(tree, hf_tds_control_fmt, tvb, cur, 1, ENC_NA, &len);
+        proto_tree_add_item_ret_length(tree, hf_tds_control_fmt, tvb, cur, 1, ENC_NA, (int*)&len);
 
         cur += len;
         col += 1;
@@ -5501,7 +5502,7 @@ dissect_tds_sspi_token(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto
 {
     unsigned cur = offset, len_field_val;
     int encoding = tds_little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
-    uint8_t ber_class;
+    int8_t ber_class;
     bool pc;
     int32_t tag;
 
@@ -6593,7 +6594,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_in
             data_type = dissect_tds_type_info(tvb, &offset, pinfo, sub_tree, &plp, false);
             if (data_type == TDS_DATA_TYPE_INVALID)
                 break;
-            dissect_tds_type_varbyte(tvb, &offset, pinfo, sub_tree, hf_tds_rpc_parameter_value, tds_info,
+            dissect_tds_type_varbyte(tvb, (unsigned*)&offset, pinfo, sub_tree, hf_tds_rpc_parameter_value, tds_info,
                                      data_type, 0, plp, true, -1, NULL); /* TODO: Precision needs setting? */
             proto_item_set_end(param_item, tvb, offset);
         }
