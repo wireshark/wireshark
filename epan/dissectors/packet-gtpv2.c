@@ -1540,7 +1540,7 @@ typedef struct gtpv2_msg_hash_entry {
     uint32_t req_frame;      /*frame with request */
     nstime_t req_time;      /*req time */
     uint32_t rep_frame;      /*frame with reply */
-    int seq_nr;            /*sequence number*/
+    unsigned seq_nr;            /*sequence number*/
     unsigned msgtype;          /*messagetype*/
     uint32_t conv_id;      /*IP conversation ID, for handling deinterlacing*/
 } gtpv2_msg_hash_t;
@@ -9162,7 +9162,7 @@ static const gtpv2_ie_t gtpv2_ies[] = {
 };
 
 static gtpv2_msg_hash_t *
-gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int seq_nr, unsigned msgtype, gtpv2_conv_info_t *gtpv2_info, uint8_t last_cause)
+gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsigned seq_nr, unsigned msgtype, gtpv2_conv_info_t *gtpv2_info, uint8_t last_cause)
 {
     gtpv2_msg_hash_t   gcr, *gcrp = NULL;
     conversation_t *conv;
@@ -9603,7 +9603,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     int         offset = 0;
     uint16_t    msg_length;
     tvbuff_t   *msg_tvb;
-    int         seq_no = 0;
+    uint32_t    seq_no = 0;
     conversation_t  *conversation;
     gtpv2_conv_info_t *gtpv2_info;
     session_args_t  *args = NULL;

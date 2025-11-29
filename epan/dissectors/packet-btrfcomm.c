@@ -837,7 +837,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
         if (service_info && service_info->uuid.size != 0 &&
                 p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID) == NULL) {
-            uint8_t *value_data;
+            char *value_data;
 
             value_data = wmem_strdup(wmem_file_scope(), print_numeric_bluetooth_uuid(pinfo->pool, &service_info->uuid));
 

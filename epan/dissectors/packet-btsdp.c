@@ -3162,7 +3162,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x352:
                     proto_tree_add_item(next_tree, hf_bpp_character_repertoires_support, tvb, offset, size, ENC_NA);
-                    new_str = tvb_bytes_to_str(pinfo->pool, tvb, offset, size);
+                    new_str = (const uint8_t*)tvb_bytes_to_str(pinfo->pool, tvb, offset, size);
                     wmem_strbuf_append(info_buf, (const char*)new_str);
                     break;
                 case 0x354:

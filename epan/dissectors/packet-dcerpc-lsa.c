@@ -2015,7 +2015,7 @@ static int
 lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, uint8_t *drep _U_)
 {
 	tvbuff_t *next_tvb;
-	int reported_len;
+	uint32_t reported_len;
 	dissector_handle_t efsblob_handle;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */

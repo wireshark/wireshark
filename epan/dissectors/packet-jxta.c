@@ -628,9 +628,9 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         processed = dissect_jxta_welcome(tvb, pinfo, jxta_tree, welcome_addr, initiator);
     } else {
         /* Somewhere in the middle of a JXTA stream connection */
-        int64_t content_length = INT64_C(-1);
+        uint64_t content_length = UINT64_MAX;
         char *content_type = NULL;
-        int headers_len = dissect_jxta_message_framing(tvb, pinfo, NULL, (uint64_t*) &content_length, &content_type);
+        int headers_len = dissect_jxta_message_framing(tvb, pinfo, NULL, &content_length, &content_type);
 
         if ((0 == headers_len) || (NULL == content_type) || (content_length <= 0) || (content_length > UINT_MAX)) {
             /** Buffer did not begin with valid framing headers */

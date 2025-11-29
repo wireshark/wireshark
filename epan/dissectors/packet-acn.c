@@ -6338,7 +6338,7 @@ dissect_acn_llrp_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 /******************************************************************************/
 /* Dissect Broker Client Entry PDU                                            */
 static uint32_t
-dissect_broker_client_entry_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t offset, acn_pdu_offsets *last_pdu_offsets)
+dissect_broker_client_entry_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
   uint8_t          pdu_flags;
   uint32_t         pdu_start;
@@ -6394,7 +6394,7 @@ dissect_broker_client_entry_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
     data_offset += 16;
     break;
   case RDMNET_CLIENT_PROTOCOL_EPT:
-    while (offset + 36 < pdu_end) {
+    while ((unsigned)offset + 36 < pdu_end) {
       /* protocol vector (manufacturer id + protocol id) */
       ti2 = proto_tree_add_item(pdu_tree, hf_rdmnet_broker_client_ept_protocol_vector, tvb, data_offset, 4, ENC_NA);
       pdu_tree2 = proto_item_add_subtree(ti2, ett_rdmnet_broker_client_entry_manufacturer_protocol_ids);

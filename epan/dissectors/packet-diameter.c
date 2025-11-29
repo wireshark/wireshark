@@ -1472,7 +1472,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
 	uint32_t version;
 	uint64_t flags_bits;
-	int packet_len;
+	uint32_t packet_len;
 	proto_item *pi, *cmd_item, *app_item, *version_item;
 	proto_tree *diam_tree;
 	diam_ctx_t *c = wmem_new0(pinfo->pool, diam_ctx_t);
@@ -1637,7 +1637,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	offset = 20;
 
 	/* Dissect AVPs until the end of the packet is reached */
-	while (offset < packet_len) {
+	while (offset < (int)packet_len) {
 		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf, false);
 	}
 

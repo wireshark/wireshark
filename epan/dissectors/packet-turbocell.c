@@ -94,8 +94,8 @@ dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     tvbuff_t   *next_tvb;
     int i=0;
     uint8_t packet_type;
-    uint8_t * str_name;
-    unsigned str_len;
+    char* str_name;
+    int str_len;
     int remaining_length;
 
     packet_type = tvb_get_uint8(tvb, 0);
@@ -153,7 +153,7 @@ dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
             name_item = proto_tree_add_item(turbocell_tree, hf_turbocell_name, tvb, 0x14, 30, ENC_ASCII);
             network_tree = proto_item_add_subtree(name_item, ett_network);
 
-            str_name=tvb_get_stringz_enc(pinfo->pool, tvb, 0x14, &str_len, ENC_ASCII);
+            str_name = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, 0x14, &str_len, ENC_ASCII);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Network=\"%s\"", format_text(pinfo->pool, str_name, str_len-1));
 
             while(tvb_get_uint8(tvb, 0x34 + 8*i)==0x00 && (tvb_reported_length_remaining(tvb,0x34 + 8*i) > 6) && (i<32)) {

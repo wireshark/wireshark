@@ -76,7 +76,7 @@ static int ett_navitrol;
 static expert_field ei_navitrol_message_id;
 
 /* Preference for endianness */
-static unsigned navitrol_endian = ENC_LITTLE_ENDIAN;
+static int navitrol_endian = ENC_LITTLE_ENDIAN;
 
 static const enum_val_t navitrol_endian_vals[] = {
 	{ "little_endian", "Little Endian",	ENC_LITTLE_ENDIAN},

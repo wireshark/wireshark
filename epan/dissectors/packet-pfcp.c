@@ -2271,7 +2271,7 @@ typedef struct pfcp_msg_hash_entry {
     uint32_t req_frame;     /* frame with request */
     nstime_t req_time;      /* req time */
     uint32_t rep_frame;     /* frame with reply */
-    int seq_nr;            /* sequence number */
+    unsigned seq_nr;        /* sequence number */
     unsigned msgtype;       /* messagetype */
 } pfcp_msg_hash_t;
 
@@ -10310,7 +10310,7 @@ dissect_pfcp_ue_level_measurements_configuration(tvbuff_t *tvb, packet_info *pin
 }
 
 static pfcp_msg_hash_t *
-pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int seq_nr, unsigned msgtype, pfcp_conv_info_t *pfcp_info, uint8_t last_cause)
+pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsigned seq_nr, unsigned msgtype, pfcp_conv_info_t *pfcp_info, uint8_t last_cause)
 {
     pfcp_msg_hash_t   pcr, *pcrp = NULL;
     uint32_t session;
@@ -11349,7 +11349,7 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     uint8_t              message_type, cause_aux;
     uint32_t             length;
     uint32_t             length_total;
-    int                  seq_no = 0;
+    uint32_t             seq_no = 0;
     conversation_t      *conversation;
     pfcp_conv_info_t    *pfcp_info;
     pfcp_session_args_t *args = NULL;

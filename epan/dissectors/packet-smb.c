@@ -13448,7 +13448,7 @@ int
 dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int offset, uint16_t *bcp, bool *trunc, bool unicode)
 {
-	int         fn_len;
+	unsigned    fn_len;
 	const char *fn;
 
 	/* file name len */
@@ -13457,7 +13457,7 @@ dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	COUNT_BYTES_SUBR(4);
 
 	/* file name */
-	fn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, unicode, &fn_len, true, true, bcp);
+	fn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, unicode, (int*)&fn_len, true, true, bcp);
 
 	CHECK_STRING_SUBR(fn);
 

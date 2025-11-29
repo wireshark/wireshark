@@ -172,7 +172,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         pid = tvb_get_ntohs(tvb, offset);
 
         if (p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID ) == NULL) {
-            uint8_t *value_data;
+            char *value_data;
             bluetooth_uuid_t  uuid;
 
             uuid.size = 2;
