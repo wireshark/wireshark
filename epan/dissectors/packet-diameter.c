@@ -1447,9 +1447,7 @@ grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 	int offset = 0;
 	int len = tvb_reported_length(tvb);
 	proto_item *pi = proto_tree_add_item(c->tree, a->hf_value, tvb , 0 , -1, ENC_BIG_ENDIAN);
-	proto_tree *pt = c->tree;
-
-	c->tree = proto_item_add_subtree(pi,a->ett);
+	proto_item_set_generated(pi);
 
 	/* Set the flag that we are dissecting a grouped AVP */
 	diam_sub_dis_inf->dis_gouped = true;
@@ -1462,8 +1460,6 @@ grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 	diam_sub_dis_inf->dis_gouped = false;
 	diam_sub_dis_inf->group_avp_code = 0;
 	diam_sub_dis_inf->avp_str = NULL;
-
-	c->tree = pt;
 
 	return NULL;
 }
