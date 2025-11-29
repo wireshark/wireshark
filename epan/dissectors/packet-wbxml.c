@@ -7049,7 +7049,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 	uint32_t     tvb_len = tvb_reported_length (tvb);
 	uint32_t     off     = offset;
 	uint32_t     len;
-	unsigned     str_len;
+	int          str_len;
 	uint32_t     ent;
 	uint32_t     idx;
 	uint8_t      peek;
@@ -7097,11 +7097,11 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 			}
 			break;
 		case 0x03: /* STR_I */
-			str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, off+1, &len, encoding);
-			proto_tree_add_string_format(tree, hf_wbxml_str_i, tvb, off, 1+len, str,
+			str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, off+1, &str_len, encoding);
+			proto_tree_add_string_format(tree, hf_wbxml_str_i, tvb, off, 1+str_len, str,
 					     "  %3d |  Attr | A %3d    | STR_I (Inline string)           |     %s\'%s\'",
 					     recursion_level, *codepage_attr, Indent (recursion_level), str);
-			off += 1+len;
+			off += 1+str_len;
 			break;
 		case 0x04: /* LITERAL */
 			/* ALWAYS means the start of a new attribute,
@@ -7124,12 +7124,12 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 		case 0x41: /* EXT_I_1 */
 		case 0x42: /* EXT_I_2 */
 			/* Extension tokens */
-			str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, off+1, &len, encoding);
-			proto_tree_add_string_format(tree, hf_wbxml_ext_i, tvb, off, 1+len, str,
+			str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, off+1, &str_len, encoding);
+			proto_tree_add_string_format(tree, hf_wbxml_ext_i, tvb, off, 1+str_len, str,
 					     "  %3d |  Attr | A %3d    | EXT_I_%1x    (Extension Token)    |     %s(%s: \'%s\')",
 					     recursion_level, *codepage_attr, peek & 0x0f, Indent (recursion_level),
 					     ((map != NULL) ? map_token (map->global, 0, peek) : "Inline string extension"), str);
-			off += 1+len;
+			off += 1+str_len;
 			break;
 			/* 0x43 impossible in ATTR state */
 			/* 0x44 impossible in ATTR state */
@@ -7315,7 +7315,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, ui
 	uint32_t     tvb_len  = tvb_reported_length (tvb);
 	uint32_t     off      = offset;
 	uint32_t     len;
-	unsigned     str_len;
+	int          str_len;
 	uint32_t     ent;
 	uint32_t     idx;
 	uint8_t      peek;
@@ -7376,25 +7376,25 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, ui
 			off += 1+len;
 			break;
 		case 0x03: /* STR_I */
-			str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, off+1, &len, encoding);
-			proto_tree_add_string_format(tree, hf_wbxml_str_i, tvb, off, 1+len, str,
+			str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, off+1, &str_len, encoding);
+			proto_tree_add_string_format(tree, hf_wbxml_str_i, tvb, off, 1+str_len, str,
 					     "  %3d | Tag   | T %3d    | STR_I (Inline string)           | %s\'%s\'",
 					     recursion_level, *codepage_stag, Indent(recursion_level),
 					     str);
-			off += 1+len;
+			off += 1+str_len;
 			break;
 		case 0x40: /* EXT_I_0 */
 		case 0x41: /* EXT_I_1 */
 		case 0x42: /* EXT_I_2 */
 			/* Extension tokens */
-			str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, off+1, &len, encoding);
-			proto_tree_add_string_format(tree, hf_wbxml_ext_i, tvb, off, 1+len, str,
+			str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, off+1, &str_len, encoding);
+			proto_tree_add_string_format(tree, hf_wbxml_ext_i, tvb, off, 1+str_len, str,
 					     "  %3d | Tag   | T %3d    | EXT_I_%1x    (Extension Token)    | %s(%s: \'%s\')",
 					     recursion_level, *codepage_stag,
 					     peek & 0x0f, Indent (recursion_level),
 					     ((map != NULL) ? map_token (map->global, 0, peek) : "Inline string extension"),
 					     str);
-			off += 1+len;
+			off += 1+str_len;
 			break;
 		case 0x43: /* PI */
 			proto_tree_add_none_format(tree, hf_wbxml_pi_xml, tvb, off, 1,
@@ -7697,6 +7697,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	uint8_t               version;
 	unsigned              offset          = 0;
 	uint32_t              len;
+	int                   str_len;
 	uint32_t              charset         = 0;
 	uint32_t              charset_len     = 0;
 	unsigned              encoding;
@@ -7795,7 +7796,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Read length of Public ID from string table */
 		summary = wmem_strdup_printf(pinfo->pool, "%s, Public ID: \"%s\"",
 					  val_to_str_ext(pinfo->pool, version, &vals_wbxml_versions_ext, "(unknown 0x%x)"),
-					  tvb_get_stringz_enc(pinfo->pool, tvb, str_tbl + publicid_index, &len, encoding));
+					  tvb_get_stringz_enc(pinfo->pool, tvb, str_tbl + publicid_index, &str_len, encoding));
 	}
 
 	/* Add summary to INFO column if it is enabled */

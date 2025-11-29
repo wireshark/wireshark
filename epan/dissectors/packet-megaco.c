@@ -642,8 +642,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     /* Quick fix for MEGACO packet with Authentication Header,
      * marked as "AU" or "Authentication".
      */
-    if ((g_ascii_strncasecmp(word, "Authentication", 14) == 0) ||
-        (g_ascii_strncasecmp(word, "AU", 2) == 0)) {
+    if ((tvb_strncaseeql(tvb, tvb_offset, "Authentication", 14) == 0) ||
+        (tvb_strncaseeql(tvb, tvb_offset, "AU", 2) == 0)) {
         int counter;
         uint8_t next;
 
@@ -663,7 +663,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     short_form = (tvb_get_uint8(tvb, tvb_offset ) == '!');
 
-    if (g_ascii_strncasecmp(word, "MEGACO", 6) != 0 && !short_form){
+    if (tvb_strncaseeql(tvb, tvb_offset, "MEGACO", 6) != 0 && !short_form){
         int8_t ber_class;
         bool pc;
         int32_t tag;
@@ -709,7 +709,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     }
 
     megaco_tree_add_string(megaco_tree, hf_megaco_start, tvb, 0, tvb_previous_offset+1,
-                    tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_previous_offset, ENC_UTF_8|ENC_NA));
+                    (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_previous_offset, ENC_UTF_8|ENC_NA));
 
     /* skip / */
     tvb_previous_offset++;
@@ -723,7 +723,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     }
 
     megaco_tree_add_string(megaco_tree, hf_megaco_version, tvb, tvb_previous_offset, tvb_current_offset - tvb_previous_offset,
-                    tvb_get_string_enc(pinfo->pool, tvb, tvb_previous_offset, tvb_current_offset - tvb_previous_offset, ENC_UTF_8|ENC_NA));
+                    (char*)tvb_get_string_enc(pinfo->pool, tvb, tvb_previous_offset, tvb_current_offset - tvb_previous_offset, ENC_UTF_8|ENC_NA));
 
     tvb_previous_offset = tvb_current_offset;
     tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_previous_offset);
@@ -759,7 +759,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     * or to the next character after white space SEP
     */
     megaco_tree_add_string(megaco_tree, hf_megaco_mId, tvb, tvb_previous_offset, tvb_current_offset - tvb_previous_offset,
-                    tvb_get_string_enc(pinfo->pool, tvb, tvb_previous_offset, tvb_current_offset - tvb_previous_offset, ENC_UTF_8|ENC_NA));
+                    (char*)tvb_get_string_enc(pinfo->pool, tvb, tvb_previous_offset, tvb_current_offset - tvb_previous_offset, ENC_UTF_8|ENC_NA));
 
     col_clear(pinfo->cinfo, COL_INFO);
     do{
@@ -1487,7 +1487,7 @@ nextcontext:
                         TermID[0] = 'e';
 
                         term->buffer = get_utf_8_string(pinfo->pool, TermID, bytelen);
-                        term->len = (int)strlen(term->buffer);
+                        term->len = (int)strlen((char*)term->buffer);
                         term->str = (const char *)term->buffer;
 
                         gcp_cmd_add_term(msg, trx, cmd, term, wild_term, pinfo, keep_persistent_data);
@@ -1514,7 +1514,7 @@ nextcontext:
                         wild_term = GCP_WILDCARD_CHOOSE;
 
                         term->len = 1;
-                        term->buffer = (term->str = "$");
+                        term->buffer = (const uint8_t*)(term->str = "$");
 
                         gcp_cmd_add_term(msg, trx, cmd, term, wild_term, pinfo, keep_persistent_data);
 
@@ -2539,7 +2539,7 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_
                 break;
 
             tvb_get_raw_bytes_as_stringz(tvb,tvb_current_offset,4,ServiceChangeReason_str);
-            reason_valid = ws_strtoi32(ServiceChangeReason_str, NULL, &reason);
+            reason_valid = ws_strtoi32((char*)ServiceChangeReason_str, NULL, &reason);
             proto_item_append_text(item,"[ %s ]", val_to_str(pinfo->pool, reason, MEGACO_ServiceChangeReasons_vals,"Unknown (%u)"));
             if (!reason_valid)
                 expert_add_info(pinfo, item, &ei_megaco_reason_invalid);
@@ -2998,7 +2998,7 @@ dissect_megaco_errordescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_tree *me
 
     /* Get the error code */
     tvb_get_raw_bytes_as_stringz(tvb,tvb_current_offset,4,error);
-    error_code_valid = ws_strtoi32(error, NULL, &error_code);
+    error_code_valid = ws_strtoi32((char*)error, NULL, &error_code);
     item = proto_tree_add_uint(error_tree, hf_megaco_error_code, tvb, tvb_current_offset, 3, error_code);
     if (!error_code_valid)
         expert_add_info(pinfo, item, &ei_megaco_error_code_invalid);
@@ -3357,7 +3357,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
         case MEGACO_DS_DSCP:
             tvb_get_raw_bytes_as_stringz(tvb,tvb_current_offset,3,code_str);
             item = proto_tree_add_uint(megaco_LocalControl_tree, hf_megaco_ds_dscp, tvb,
-                tvb_help_offset, 1, (uint32_t) strtoul(code_str,NULL,16));
+                tvb_help_offset, 1, (uint32_t) strtoul((char*)code_str,NULL,16));
             proto_item_set_len(item, tvb_offset-tvb_help_offset);
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;

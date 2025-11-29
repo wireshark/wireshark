@@ -29,6 +29,7 @@
 #include "packet-tcp.h"
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <epan/iana_charsets.h>
 #include <wsutil/array.h>
 
 void proto_register_srvloc(void);
@@ -316,44 +317,6 @@ static const value_string srvloc_errs_v2[] = {
     { 0, NULL }
 };
 
-/*
- * Character encodings.
- * This is a small subset of what's in
- *
- *      http://www.iana.org/assignments/character-sets
- *
- * XXX - we should do something useful with this, i.e. properly
- * handle strings based on the character set they're in.
- *
- * XXX - what does "properly handle strings" mean?  How do we know
- * what character set the terminal can handle (for tty-based code)
- * or the GUI can handle (for GUI code)?
- *
- * XXX - the Wireshark core really should be what does all the
- * character set handling for strings, and it should be stuck with
- * the task of figuring out how to properly handle them.
- */
-#define CHARSET_ASCII           3
-#define CHARSET_ISO_10646_UTF_1 27
-#define CHARSET_ISO_646_BASIC   28
-#define CHARSET_ISO_646_IRV     30
-#define CHARSET_ISO_8859_1      4
-#define CHARSET_ISO_10646_UCS_2 1000    /* a/k/a Unicode */
-#define CHARSET_UTF_7           1012
-#define CHARSET_UTF_8           106
-
-static const value_string charsets[] = {
-        { CHARSET_ASCII,           "US-ASCII" },
-        { CHARSET_ISO_10646_UTF_1, "ISO 10646 UTF-1" },
-        { CHARSET_ISO_646_BASIC,   "ISO 646 basic:1983" },
-        { CHARSET_ISO_646_IRV,     "ISO 646 IRV:1983" },
-        { CHARSET_ISO_8859_1,      "ISO 8859-1" },
-        { CHARSET_ISO_10646_UCS_2, "Unicode" },
-        { CHARSET_UTF_7,           "UTF-7" },
-        { CHARSET_UTF_8,           "UTF-8" },
-        { 0, NULL }
-};
-
 static int
 dissect_authblk(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
@@ -400,7 +363,7 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
 {
         switch (encoding) {
 
-        case CHARSET_ISO_10646_UCS_2:
+        case IANA_CS_ISO_10646_UCS_2:
                 proto_tree_add_item(tree, hf, tvb, offset, length, ENC_UCS_2|ENC_BIG_ENDIAN);
                 break;
 
@@ -428,7 +391,7 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
  *
  * XXX - this is also used with CHARSET_UTF_8.  Is that a cut-and-pasteo?
  */
-static const uint8_t*
+static const char*
 unicode_to_bytes(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length, bool endianness)
 {
     const uint8_t *ascii_text = tvb_get_string_enc(scope, tvb, offset, length, ENC_ASCII);
@@ -475,7 +438,7 @@ unicode_to_bytes(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length,
     }
 
     byte_array[j]=0;
-    return byte_array;
+    return (const char*)byte_array;
 }
 
 /*
@@ -516,15 +479,31 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
     const char *attr_type;
     int     i, svc, type_len, foffset=offset;
     uint32_t prot;
-    const uint8_t *byte_value;
+    const char *byte_value;
     proto_tree  *srvloc_tree;
     proto_item  *ti;
     char *tmp;
 
+    /*
+     * <attr-list> ::= <attribute> | <attribute>, <attr-list>
+     * <attribute> ::= (<attr-tag>=<attr-val-list>) | <keyword>
+     * <attr-val-list> ::= <attr-val> | <attr-val>, <attr-val-list>
+     */
+
+    /* To deal with a text-based protocol in an arbitrary, possibly variable
+     * length encoding, possibly the correct way is to retrieve the string,
+     * add it as a new data source if necessary, and parse it there. Otherwise
+     * it's difficult to match up offsets in the frame with offsets of string
+     * locations.
+     *
+     * This whole routine seems very broken, but then again this protocol
+     * is quite obsolete.
+     */
     switch (encoding) {
 
-    case CHARSET_ISO_10646_UCS_2:
+    case IANA_CS_ISO_10646_UCS_2:
         while (offset+2<length) {
+            /* Skip the '(' (two bytes in UCS-2) */
             offset += 2;
             /* If the length passed is longer than the actual payload then this must be an incomplete packet. */
             if (tvb_reported_length_remaining(tvb, 4)<length) {
@@ -613,7 +592,7 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
         }
         break;
 
-    case CHARSET_UTF_8:
+    case IANA_CS_UTF_8:
         type_len = (int)strcspn((char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII), "=");
         attr_type = unicode_to_bytes(pinfo->pool, tvb, offset+1, type_len-1, false);
         proto_tree_add_string(tree, hf, tvb, offset+1, type_len-1, attr_type);
@@ -685,7 +664,7 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
 static void
 attr_list2(packet_info *pinfo, proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length, uint16_t encoding _U_)
 {
-    uint8_t     *start;
+    char        *start;
     uint8_t      c;
     uint32_t     x;
     uint32_t     cnt;
@@ -697,12 +676,11 @@ attr_list2(packet_info *pinfo, proto_tree *tree, int hf, tvbuff_t *tvb, int offs
      */
 
     /* create a sub tree for attributes */
-    /* XXX - is this always ASCII, or what? */
-    ti = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_ASCII|ENC_NA);
+    ti = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_UTF_8|ENC_NA);
     attr_tree = proto_item_add_subtree(ti, ett_srvloc_attr);
 
     /* this will ensure there is a terminating null */
-    start = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII);
+    start = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_UTF_8);
 
     cnt = 0;
     x = 0;
@@ -1125,7 +1103,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_attrlistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                attr_list2(pinfo, srvloc_tree, hf_srvloc_srvreg_attrlist, tvb, offset, length, CHARSET_UTF_8);
+                attr_list2(pinfo, srvloc_tree, hf_srvloc_srvreg_attrlist, tvb, offset, length, IANA_CS_UTF_8);
                 offset += length;
             }
             count = tvb_get_uint8(tvb, offset);
@@ -1213,7 +1191,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrlistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                attr_list2(pinfo, srvloc_tree, hf_srvloc_attrrply_attrlist, tvb, offset, length, CHARSET_UTF_8);
+                attr_list2(pinfo, srvloc_tree, hf_srvloc_attrrply_attrlist, tvb, offset, length, IANA_CS_UTF_8);
                 offset += length;
             }
             count = tvb_get_uint8(tvb, offset);
@@ -1836,7 +1814,7 @@ proto_register_srvloc(void)
       { &hf_srvloc_item, { "Item", "srvloc.item", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_srvloc_dialect, { "Dialect", "srvloc.dialect", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_srvloc_language, { "Language", "srvloc.language", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_srvloc_encoding, { "Encoding", "srvloc.encoding", FT_UINT16, BASE_DEC, VALS(charsets), 0x0, NULL, HFILL }},
+      { &hf_srvloc_encoding, { "Encoding", "srvloc.encoding", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mibenum_vals_character_sets_ext, 0x0, NULL, HFILL }},
       { &hf_srvloc_transaction_id, { "Transaction ID", "srvloc.transaction_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_srvloc_service_type_count, { "Service Type Count", "srvloc.service_type_count", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };

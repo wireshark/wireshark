@@ -123,7 +123,7 @@ typedef struct {
     uint64_t transactionID;
     uint16_t attributeID;
     uint32_t attributeModifier;
-    char data[MAD_DATA_SIZE];
+    uint8_t data[MAD_DATA_SIZE];
 } MAD_Data;
 
 typedef enum {

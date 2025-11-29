@@ -51,36 +51,36 @@ static dissector_handle_t collectd_handle;
 #define COL_DATA_KEY 1
 
 typedef struct value_data_s {
-	const uint8_t *host;
+	const char *host;
 	int host_off;
 	int host_len;
 	uint64_t time_value;
 	int time_off;
 	uint64_t interval;
 	int interval_off;
-	const uint8_t *plugin;
+	const char *plugin;
 	int plugin_off;
 	int plugin_len;
-	const uint8_t *plugin_instance;
+	const char *plugin_instance;
 	int plugin_instance_off;
 	int plugin_instance_len;
-	const uint8_t *type;
+	const char *type;
 	int type_off;
 	int type_len;
-	const uint8_t *type_instance;
+	const char *type_instance;
 	int type_instance_off;
 	int type_instance_len;
 } value_data_t;
 
 typedef struct notify_data_s {
-	const uint8_t *host;
+	const char *host;
 	int host_off;
 	int host_len;
 	uint64_t time_value;
 	int time_off;
 	uint64_t severity;
 	int severity_off;
-	const uint8_t *message;
+	const char *message;
 	int message_off;
 	int message_len;
 } notify_data_t;
@@ -109,7 +109,7 @@ typedef struct column_data_s {
 	unsigned pkt_unknown;
 	unsigned pkt_errors;
 
-	const uint8_t *pkt_host;
+	const char *pkt_host;
 } column_data_t;
 
 static const value_string part_names[] = {
@@ -503,7 +503,7 @@ collectd_proto_tree_add_assembled_notification (tvbuff_t *tvb,
 static int
 dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, int type_hf,
 			 int offset, int *ret_offset, int *ret_length,
-			 const uint8_t **ret_string, proto_tree *tree_root,
+			 const char **ret_string, proto_tree *tree_root,
 			 proto_item **ret_item)
 {
 	proto_tree *pt;
@@ -541,7 +541,7 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, int type_hf,
 
 	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2, length);
-	proto_tree_add_item_ret_string (pt, type_hf, tvb, *ret_offset, *ret_length, ENC_ASCII, pinfo->pool, ret_string);
+	proto_tree_add_item_ret_string (pt, type_hf, tvb, *ret_offset, *ret_length, ENC_ASCII, pinfo->pool, (const uint8_t**)ret_string);
 
 	proto_item_append_text(pt, "\"%s\"", *ret_string);
 
@@ -887,7 +887,7 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 	int type;
 	int length;
 	int size;
-	const uint8_t *username;
+	const char *username;
 
 	size = tvb_reported_length_remaining (tvb, offset);
 	if (size < 4)
@@ -943,7 +943,7 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 	//
 	// XXX - Are we sure this string is ASCII? Probably UTF-8 these days.
 	// The same goes for all the other strings in the protocol.
-	username = tvb_get_string_enc(pinfo->pool, tvb, offset + 36, length - 36, ENC_ASCII);
+	username = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 36, length - 36, ENC_ASCII);
 	uint8_t *hash = NULL;
 	gcry_md_hd_t *md_hd = collectd_get_md(username);
 	if (md_hd) {
@@ -980,7 +980,7 @@ dissect_collectd_encrypted(tvbuff_t *tvb, packet_info *pinfo,
 	int length;
 	int size;
 	int username_length;
-	const uint8_t *username;
+	const char *username;
 
 	size = tvb_reported_length_remaining (tvb, offset);
 	if (size < 4)
@@ -1051,7 +1051,7 @@ dissect_collectd_encrypted(tvbuff_t *tvb, packet_info *pinfo,
 	offset += 2;
 	proto_tree_add_uint(pt, hf_collectd_data_username_len, tvb, offset, 2, username_length);
 	offset += 2;
-	proto_tree_add_item_ret_string(pt, hf_collectd_data_username, tvb, offset, username_length, ENC_ASCII, pinfo->pool, &username);
+	proto_tree_add_item_ret_string(pt, hf_collectd_data_username, tvb, offset, username_length, ENC_ASCII, pinfo->pool, (const uint8_t**)&username);
 	offset += username_length;
 
 	proto_tree_add_item(pt, hf_collectd_data_initvec, tvb,
