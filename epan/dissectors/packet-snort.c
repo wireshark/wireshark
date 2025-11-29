@@ -316,7 +316,7 @@ static bool look_for_pcre(content_t *content, tvbuff_t *tvb, unsigned start_offs
     }
 
     /* Create regex */
-    regex = g_regex_new(content->translated_str,
+    regex = g_regex_new((char*)content->translated_str,
                         regex_compile_flags,
                         (GRegexMatchFlags)0, NULL);
 
@@ -358,14 +358,14 @@ static bool look_for_content(content_t *content, tvbuff_t *tvb, unsigned start_o
     for (unsigned m=start_offset; m <= (tvb_len-converted_content_length); m++) {
         const uint8_t *ptr = tvb_get_ptr(tvb, m, converted_content_length);
         if (content->nocase) {
-            if (content_compare_case_insensitive(ptr, content->translated_str, content->translated_length)) {
+            if (content_compare_case_insensitive(ptr, (char*)content->translated_str, content->translated_length)) {
                 *match_offset = m;
                 *match_length = content->translated_length;
                 return true;
             }
         }
         else {
-            if (content_compare_case_sensitive(ptr, content->translated_str, content->translated_length)) {
+            if (content_compare_case_sensitive(ptr, (char*)content->translated_str, content->translated_length)) {
                 *match_offset = m;
                 *match_length = content->translated_length;
                 return true;

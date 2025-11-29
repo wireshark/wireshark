@@ -41,7 +41,7 @@ static const uint8_t CHUNKED_END[] = { 0x30, 0x0d, 0x0a, 0x0d, 0x0a };
 
 void proto_register_ippusb(void);
 void proto_reg_handoff_ippusb(void);
-static int is_http_header(unsigned first_linelen, const unsigned char *first_line);
+static int is_http_header(unsigned first_linelen, const char *first_line);
 
 static dissector_handle_t ippusb_handle;
 
@@ -232,7 +232,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
      * anyway so that it gets dissected as Continuation Data? (We wouldn't want
      * to do that in a heuristic dissector.)
      */
-    if (is_http_header(first_linelen, first_line) && last == TAG_END_OF_ATTRIBUTES) {
+    if (is_http_header(first_linelen, (char*)first_line) && last == TAG_END_OF_ATTRIBUTES) {
         /* An individual ippusb packet with http header */
 
         proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, ENC_NA);
@@ -255,7 +255,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             ti = proto_tree_add_item(tree, proto_ippusb, tvb, offset, -1, ENC_NA);
             ippusb_tree = proto_item_add_subtree(ti, ett_ippusb);
 
-            if (is_http_header(first_linelen, first_line)) {
+            if (is_http_header(first_linelen, (char*)first_line)) {
                 /* The start of a new packet that will need to be reassembled */
 
                 new_msp = pdu_store(pinfo, ippusbd->multisegment_pdus, pinfo->num, true);
@@ -276,8 +276,8 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     previous_msp->running_size = previous_msp->running_size + captured_length;
 
                     /* This packet has an HTTP header but is not an ipp packet */
-                    if ((first_linelen >= strlen("Content-Type: ") && strncmp(first_line, "Content-Type: ", strlen("Content-Type: ")) == 0) &&
-                        (first_linelen < strlen("Content-Type: application/ipp") || strncmp(first_line, "Content-Type: application/ipp", strlen("Content-Type: application/ipp")) != 0)) {
+                    if ((first_linelen >= strlen("Content-Type: ") && strncmp((char*)first_line, "Content-Type: ", strlen("Content-Type: ")) == 0) &&
+                        (first_linelen < strlen("Content-Type: application/ipp") || strncmp((char*)first_line, "Content-Type: application/ipp", strlen("Content-Type: application/ipp")) != 0)) {
                         previous_msp->is_ipp = false;
                     }
 
@@ -385,7 +385,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 }
 
 static int
-is_http_header(unsigned first_linelen, const unsigned char *first_line) {
+is_http_header(unsigned first_linelen, const char *first_line) {
     if ((first_linelen >= strlen("HTTP/") && strncmp(first_line, "HTTP/", strlen("HTTP/")) == 0) ||
         (first_linelen >= strlen("POST /ipp") && strncmp(first_line, "POST /ipp", strlen("POST /ipp")) == 0) ||
         (first_linelen >= strlen("POST / HTTP") && strncmp(first_line, "POST / HTTP", strlen("POST / HTTP")) == 0)) {

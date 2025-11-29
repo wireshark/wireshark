@@ -41,7 +41,7 @@ static int ett_icap;
 static dissector_handle_t http_handle;
 
 #define TCP_PORT_ICAP           1344
-static int is_icap_message(const unsigned char *data, int linelen, icap_type_t *type);
+static int is_icap_message(const char *data, int linelen, icap_type_t *type);
 static int
 dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -73,9 +73,9 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, false);
     line = tvb_get_ptr(tvb, offset, linelen);
     icap_type = ICAP_OTHER; /* type not known yet */
-    if (is_icap_message(line, linelen, &icap_type))
+    if (is_icap_message((char*)line, linelen, &icap_type))
         col_add_str(pinfo->cinfo, COL_INFO,
-            format_text(pinfo->pool, line, linelen));
+            format_text(pinfo->pool, (char*)line, linelen));
     else
         col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 
@@ -107,7 +107,7 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         /*
          * find header format
          */
-        if (is_icap_message(line, linelen, &icap_type)) {
+        if (is_icap_message((char*)line, linelen, &icap_type)) {
             goto is_icap_header;
         }
 
@@ -239,7 +239,7 @@ is_icap_header:
 
 
 static int
-is_icap_message(const unsigned char *data, int linelen, icap_type_t *type)
+is_icap_message(const char *data, int linelen, icap_type_t *type)
 {
 #define ICAP_COMPARE(string, length, msgtype) {     \
     if (strncmp(data, string, length) == 0) {   \

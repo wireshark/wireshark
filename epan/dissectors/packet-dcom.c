@@ -1383,7 +1383,7 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 		case(WIRESHARK_VT_CY):
 				offset = dissect_dcom_I8(tvb, offset, pinfo, NULL, di, drep,
-						0, &cyData);
+						0, (uint64_t*)&cyData);
 				proto_tree_add_int64_format(sub_tree, hf_dcom_vt_cy, tvb, offset - 8,
 						8, cyData, "%s: %" PRId64 ".%.04" PRId64,
 						proto_registrar_get_name(hf_dcom_vt_cy),

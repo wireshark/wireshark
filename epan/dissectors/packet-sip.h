@@ -14,7 +14,7 @@
 
 typedef struct _sip_info_value_t
 {
-    const uint8_t   *request_method;
+    const char *request_method;
     unsigned  response_code;
     bool      resend;
     uint32_t  setup_time;

@@ -176,7 +176,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     is_continuation = false;
   } else {
     is_request = false;
-    is_continuation = response_is_continuation(line);
+    is_continuation = response_is_continuation((const char*)line);
   }
 
   /*
@@ -192,7 +192,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   }
   else
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "C" : "S",
-                   format_text(pinfo->pool, line, linelen));
+                   format_text(pinfo->pool, (char*)line, linelen));
 
   ti = proto_tree_add_item(tree, proto_pop, tvb, offset, -1, ENC_NA);
   pop_tree = proto_item_add_subtree(ti, ett_pop);
@@ -283,20 +283,20 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (!PINFO_FD_VISITED(pinfo)) {
       if (is_request) {
         /* see if this is RETR or TOP command */
-        if (g_ascii_strncasecmp(line, "RETR", 4) == 0 ||
-           g_ascii_strncasecmp(line, "TOP", 3) == 0)
+        if (g_ascii_strncasecmp((char*)line, "RETR", 4) == 0 ||
+           g_ascii_strncasecmp((char*)line, "TOP", 3) == 0)
           /* the next response will tell us how many bytes */
           data_val->msg_request = true;
 
-        if (g_ascii_strncasecmp(line, "STLS", 4) == 0) {
+        if (g_ascii_strncasecmp((char*)line, "STLS", 4) == 0) {
           data_val->stls_request = true;
         }
 
-        if (g_ascii_strncasecmp(line, "USER", 4) == 0) {
+        if (g_ascii_strncasecmp((char*)line, "USER", 4) == 0) {
           pop_arg_type = pop_arg_type_username;
         }
 
-        if (g_ascii_strncasecmp(line, "PASS", 4) == 0) {
+        if (g_ascii_strncasecmp((char*)line, "PASS", 4) == 0) {
           pop_arg_type = pop_arg_type_password;
         }
 
@@ -310,11 +310,11 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (data_val->msg_request) {
           /* this is a response to a RETR or TOP command */
 
-          if (g_ascii_strncasecmp(line, "+OK ", 4) == 0 && linelen > 4) {
+          if (g_ascii_strncasecmp((char*)line, "+OK ", 4) == 0 && linelen > 4) {
             /* the message will be sent - work out how many bytes */
             data_val->msg_read_len = 0;
             data_val->msg_tot_len = 0;
-            if (sscanf(line, "%*s %u %*s", &data_val->msg_tot_len) != 1) {
+            if (sscanf((char*)line, "%*s %u %*s", &data_val->msg_tot_len) != 1) {
               expert_add_info(pinfo, ti, &ei_pop_resp_tot_len_invalid);
               /* store expect info presence to add it to the tree during subsequent pass */
               frame_data_p = wmem_new0(wmem_file_scope(), struct pop_proto_data);
@@ -326,7 +326,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
 
         if (data_val->stls_request) {
-          if (g_ascii_strncasecmp(line, "+OK ", 4) == 0) {
+          if (g_ascii_strncasecmp((char*)line, "+OK ", 4) == 0) {
               /* This is the last non-TLS frame. */
               ssl_starttls_ack(tls_handle, pinfo, pop_handle);
           }

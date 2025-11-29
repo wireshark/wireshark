@@ -38,7 +38,7 @@ static expert_field ei_time_invalid;
 
 #define TCP_PORT_KISMET	2501 /* Not IANA registered */
 
-static bool response_is_continuation(const unsigned char * data);
+static bool response_is_continuation(const char * data);
 void proto_reg_handoff_kismet(void);
 void proto_register_kismet(void);
 
@@ -102,7 +102,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 		is_continuation = false;
 	} else {
 		is_request = false;
-		is_continuation = response_is_continuation (line);
+		is_continuation = response_is_continuation((char*)line);
 	}
 
 	/*
@@ -116,7 +116,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 	else
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
 				is_request ? "Request" : "Response",
-				format_text(pinfo->pool, line, linelen));
+				format_text(pinfo->pool, (char*)line, linelen));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_kismet, tvb, offset, -1, ENC_NA);
@@ -156,8 +156,8 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 					next_offset - offset - 1));
 			tokenlen = get_token_len(line, line + linelen, &next_token);
 			if (tokenlen != 0) {
-				uint8_t *reqresp;
-				reqresp = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII);
+				char *reqresp;
+				reqresp = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII);
 				if (is_request) {
 					/*
 					 * No request dissection
@@ -173,42 +173,42 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 						proto_tree_add_string(reqresp_tree, hf_kismet_version, tvb, offset,
-							tokenlen, format_text(pinfo->pool, line, tokenlen));
+							tokenlen, format_text(pinfo->pool, (char*)line, tokenlen));
 
 						offset += (int) (next_token - line);
 						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 						proto_tree_add_string(reqresp_tree, hf_kismet_start_time, tvb, offset,
-							tokenlen, format_text(pinfo->pool, line, tokenlen));
+							tokenlen, format_text(pinfo->pool, (char*)line, tokenlen));
 
 						offset += (int) (next_token - line);
 						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 						proto_tree_add_string(reqresp_tree, hf_kismet_server_name, tvb, offset,
-							tokenlen, format_text(pinfo->pool, line + 1, tokenlen - 2));
+							tokenlen, format_text(pinfo->pool, (char*)line + 1, tokenlen - 2));
 
 						offset += (int) (next_token - line);
 						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 						proto_tree_add_string(reqresp_tree, hf_kismet_build_revision, tvb, offset,
-							tokenlen, format_text(pinfo->pool, line, tokenlen));
+							tokenlen, format_text(pinfo->pool, (char*)line, tokenlen));
 
 						offset += (int) (next_token - line);
 						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 						proto_tree_add_string(reqresp_tree, hf_kismet_unknown_field, tvb, offset,
-							tokenlen, format_text(pinfo->pool, line, tokenlen));
+							tokenlen, format_text(pinfo->pool, (char*)line, tokenlen));
 
 						offset += (int) (next_token - line);
 						linelen -= (int) (next_token - line);
 						line = next_token;
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 						proto_tree_add_string(reqresp_tree, hf_kismet_extended_version_string, tvb, offset,
-							tokenlen, format_text(pinfo->pool, line, tokenlen));
+							tokenlen, format_text(pinfo->pool, (char*)line, tokenlen));
 					}
 					/*
 					 * *TIME: {Time}
@@ -226,7 +226,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 						tokenlen = get_token_len(line, line + linelen, &next_token);
 
 						/* Convert form ascii to nstime */
-						if (ws_strtou64(format_text(pinfo->pool, line, tokenlen), NULL, (uint64_t*)&t.secs)) {
+						if (ws_strtou64(format_text(pinfo->pool, (char*)line, tokenlen), NULL, (uint64_t*)&t.secs)) {
 
 							/*
 							 * Format ascii representation of time
@@ -252,7 +252,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 }
 
 static bool
-response_is_continuation(const unsigned char * data)
+response_is_continuation(const char * data)
 {
 	if (!strncmp(data, "*", 1))
 		return false;

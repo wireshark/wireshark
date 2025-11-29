@@ -177,7 +177,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		 * indicating that replacement characters had to be used,
 		 * and that the string was not the expected encoding.
 		 */
-		key_decoded = get_utf_8_string(pinfo->pool, key, (int)strlen(key));
+		key_decoded = (char*)get_utf_8_string(pinfo->pool, (uint8_t*)key, (int)strlen(key));
 		proto_tree_add_string(sub, hf_form_key, tvb, offset, next_offset - offset, key_decoded);
 		proto_item_append_text(sub, ": \"%s\"", format_text(pinfo->pool, key, strlen(key)));
 
@@ -186,7 +186,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		next_offset = get_form_key_value(pinfo->pool, sequence_tvb, &value, offset, &pbrk_value);
 		if (next_offset == -1)
 			break;
-		value_decoded = get_utf_8_string(pinfo->pool, value, (int)strlen(value));
+		value_decoded = (char*)get_utf_8_string(pinfo->pool, (uint8_t*)value, (int)strlen(value));
 		proto_tree_add_string(sub, hf_form_value, tvb, offset, next_offset - offset, value_decoded);
 		proto_item_append_text(sub, " = \"%s\"", format_text(pinfo->pool, value, strlen(value)));
 		/* Move past the '&' */

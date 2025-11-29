@@ -5275,7 +5275,7 @@ dissect_hid_variable(tvbuff_t* tvb, packet_info _U_* pinfo, proto_tree* tree, hi
         proto_item *ti =
             proto_tree_add_uint_bits_format_value(tree, hf_usb_hid_localitem_usage, tvb, bit_offset, field->report_size,
                                                   usage, ENC_LITTLE_ENDIAN, "%s", get_usage_page_item_string(pinfo->pool, USAGE_PAGE(usage), USAGE_ID(usage)));
-        if (0 == hid_unpack_logical(tvb, bit_offset, field->report_size, field->logical_min, &val))
+        if (0 == hid_unpack_logical(tvb, bit_offset, field->report_size, field->logical_min, (int32_t*)&val))
             proto_item_append_text(ti, ": %d", val);
     }
 }
@@ -5308,7 +5308,7 @@ dissect_hid_field(tvbuff_t *tvb, packet_info _U_ *pinfo, proto_tree *tree, hid_f
         for(unsigned int j = 0; j < field->report_count; j++) {
             uint32_t val = 0;
             bool in_range;
-            if (hid_unpack_logical(tvb, bit_offset, field->report_size, field->logical_min, &val)) {
+            if (hid_unpack_logical(tvb, bit_offset, field->report_size, field->logical_min, (int32_t*)&val)) {
                 in_range = false;
             } else {
                 in_range = hid_get_usage_from_array(field, val, &val);

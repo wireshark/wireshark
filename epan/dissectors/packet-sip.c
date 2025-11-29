@@ -2912,7 +2912,7 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, int s
         if (equals_offset != -1) {
             /* Extract the parameter name */
             GByteArray *uuid = g_byte_array_sized_new(16);
-            uint8_t *param_name = tvb_get_string_enc(pinfo->pool, tvb, current_offset,
+            char *param_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset,
                                                     tvb_skip_wsp_return(tvb, equals_offset - 1) - current_offset,
                                                     ENC_UTF_8|ENC_NA);
 
@@ -3372,7 +3372,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 {
     int orig_offset, body_offset;
     int next_offset, linelen;
-    int content_length, datalen, reported_datalen;
+    int datalen, reported_datalen;
+    uint32_t content_length;
+    bool content_length_valid;
     line_type_t line_type;
     tvbuff_t *next_tvb;
     bool is_known_request;
@@ -3578,7 +3580,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
      * Do this now so we can add the msg_hdr FT_STRING item with the correct
      * length.
      */
-    content_length = -1;
     while (remaining_length > 0) {
         int line_end_offset;
         unsigned char c;
@@ -3625,7 +3626,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
      * we just do this to find the blank line separating the
      * headers from the message body.
      */
-    content_length = -1;
+    content_length_valid = false;
     while (remaining_length > 0) {
         int line_end_offset;
         int colon_offset;
@@ -4270,7 +4271,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     case POS_CONTENT_LENGTH :
                     {
                         char *value = (char*)tvb_get_string_enc(pinfo->pool, tvb, value_offset, value_len, ENC_UTF_8|ENC_NA);
-                        bool content_length_valid = ws_strtou32(value, NULL, &content_length);
+                        content_length_valid = ws_strtou32(value, NULL, &content_length);
 
                         sip_element_item = proto_tree_add_uint(hdr_tree,
                                                hf_header_array[hf_index], tvb,
@@ -4658,10 +4659,10 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
     datalen = tvb_captured_length_remaining(tvb, offset);
     reported_datalen = tvb_reported_length_remaining(tvb, offset);
-    if (content_length != -1) {
-        if (datalen > content_length)
+    if (content_length_valid) {
+        if ((unsigned)datalen > content_length)
             datalen = content_length;
-        if (reported_datalen > content_length)
+        if ((unsigned)reported_datalen > content_length)
             reported_datalen = content_length;
     }
 
@@ -4980,7 +4981,7 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
         pinfo->pool, &value);
 
     /* Copy request method for telling tap */
-    stat_info->request_method = value;
+    stat_info->request_method = (char*)value;
 
     if (tree) {
         /* build Request-URI tree*/
@@ -5172,7 +5173,7 @@ static bool sip_is_known_request(tvbuff_t *tvb, packet_info* pinfo, int meth_off
     unsigned i;
     char *meth_name;
 
-    meth_name = tvb_get_string_enc(pinfo->pool, tvb, meth_offset, meth_len, ENC_UTF_8|ENC_NA);
+    meth_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, meth_offset, meth_len, ENC_UTF_8|ENC_NA);
 
     for (i = 1; i < array_length(sip_methods); i++) {
         if (meth_len == strlen(sip_methods[i]) &&

@@ -411,7 +411,7 @@ dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 {
     uint32_t snonce;
     unsigned string_len;
-    const uint8_t *timestr;
+    const char *timestr;
     char *display;
     int yy, mm, dd, hh, _mm, ss;
 
@@ -427,7 +427,7 @@ dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 
     /* Timestamp: YYMMDDhhmmssZ */
     /* They really came up with a two-digit year in late 1990s! =8o */
-    timestr=display=tvb_get_string_enc(pinfo->pool, tvb, offset, 13, ENC_ASCII);
+    timestr=display=(char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 13, ENC_ASCII);
     if (sscanf(timestr, "%2d%2d%2d%2d%2d%2dZ", &yy, &mm, &dd, &hh, &_mm, &ss) == 6) {
         display = wmem_strdup_printf(pinfo->pool, "%02d-%02d-%02d %02d:%02d:%02d",
                                             yy, mm, dd, hh, _mm, ss);
