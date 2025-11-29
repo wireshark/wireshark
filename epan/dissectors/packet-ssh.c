@@ -205,7 +205,7 @@ struct ssh_flow_data {
 #define SERVER_PEER_DATA 1
     struct ssh_peer_data peer_data[2];
 
-    char            *session_id;
+    const uint8_t   *session_id;
     unsigned        session_id_length;
     ssh_bignum      *kex_e;
     ssh_bignum      *kex_f;
@@ -928,15 +928,15 @@ static bool ssh_read_f(tvbuff_t *tvb, int offset,
 static ssh_bignum * ssh_read_mpint(tvbuff_t *tvb, int offset);
 static void ssh_keylog_hash_write_secret(struct ssh_flow_data *global_data, wmem_allocator_t* tmp_allocator);
 static ssh_bignum *ssh_kex_shared_secret(int kex_type, ssh_bignum *pub, ssh_bignum *priv, ssh_bignum *modulo);
-static void ssh_hash_buffer_put_string(wmem_array_t *buffer, const char *string,
+static void ssh_hash_buffer_put_string(wmem_array_t *buffer, const uint8_t *string,
         unsigned len);
 static void ssh_hash_buffer_put_uint32(wmem_array_t *buffer, unsigned val);
-static char *ssh_string(wmem_allocator_t* allocator, const char *string, unsigned len);
+static char *ssh_string(wmem_allocator_t* allocator, const uint8_t *string, unsigned len);
 static void ssh_derive_symmetric_keys(ssh_bignum *shared_secret,
-        char *exchange_hash, unsigned hash_length,
+        uint8_t *exchange_hash, unsigned hash_length,
         struct ssh_flow_data *global_data);
 static void ssh_derive_symmetric_key(ssh_bignum *shared_secret,
-        char *exchange_hash, unsigned hash_length, char id,
+        const uint8_t *exchange_hash, unsigned hash_length, char id,
         ssh_bignum *result_key, struct ssh_flow_data *global_data, unsigned we_need);
 
 static void ssh_choose_enc_mac(struct ssh_flow_data *global_data);
@@ -978,7 +978,7 @@ static int ssh_dissect_public_key_signature(tvbuff_t *packet_tvb, packet_info *p
 
 static void create_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, uint32_t sender_channel);
 static ssh_channel_info_t* get_channel_info_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel);
-static void set_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, const uint8_t* subsystem_name);
+static void set_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, const char* subsystem_name);
 
 #define SSH_DEBUG_USE_STDERR "-"
 
@@ -1449,7 +1449,7 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *
     ti = proto_tree_add_uint(tree, hf_ssh_hostkey_length, tvb, last_offset, 4, key_len);
 
     // server host key (K_S / Q)
-    char *data = (char *)tvb_memdup(pinfo->pool, tvb, last_offset + 4, key_len);
+    uint8_t *data = (uint8_t *)tvb_memdup(pinfo->pool, tvb, last_offset + 4, key_len);
     if (global_data) {
         // Reset array while REKEY: sanitize server host key blob
         global_data->kex_server_host_key_blob = wmem_array_new(wmem_file_scope(), 1);
@@ -1501,7 +1501,7 @@ ssh_tree_add_hostsignature(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
     int offset0 = offset;
     int remaining_len;
     unsigned sig_len, type_len;
-    uint8_t* sig_type;
+    const char* sig_type;
     char *tree_title;
 
     last_offset = offset;
@@ -1512,7 +1512,7 @@ ssh_tree_add_hostsignature(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
     /* Read the signature type before creating the tree so we can append it as info. */
     type_len = tvb_get_ntohl(tvb, offset);
     offset += 4;
-    sig_type = tvb_get_string_enc(pinfo->pool, tvb, offset, type_len, ENC_ASCII|ENC_NA);
+    sig_type = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, type_len, ENC_ASCII|ENC_NA);
 
     tree_title = wmem_strdup_printf(pinfo->pool, "%s (type: %s)", tree_name, sig_type);
     tree = proto_tree_add_subtree(parent_tree, tvb, last_offset, sig_len + 4, ett_idx, NULL,
@@ -2292,7 +2292,7 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
     // V_C / V_S (client and server identification strings) RFC4253 4.2
     // format: SSH-protoversion-softwareversion SP comments [CR LF not incl.]
     if (!PINFO_FD_VISITED(pinfo)) {
-        char *data = (char *)tvb_memdup(pinfo->pool, tvb, offset, protolen);
+        uint8_t *data = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, protolen);
         if(!is_response){
             ssh_hash_buffer_put_string(global_data->kex_client_version, data, protolen);
         }else{
@@ -2568,7 +2568,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
     // I_C / I_S (client and server SSH_MSG_KEXINIT payload) RFC4253 4.2
     if (!PINFO_FD_VISITED(pinfo)) {
-        char *data = (char *)wmem_alloc(pinfo->pool, payload_length + 1);
+        uint8_t *data = (uint8_t *)wmem_alloc(pinfo->pool, payload_length + 1);
         tvb_memcpy(tvb, data + 1, start_offset, payload_length);
         data[0] = SSH_MSG_KEXINIT;
         if(is_response){
@@ -3015,7 +3015,7 @@ ssh_keylog_hash_write_secret(struct ssh_flow_data *global_data, wmem_allocator_t
         // Pad with 0x00 if MSB is set, to comply with mpint format (RFC 4251)
         if (secret->data[0] & 0x80) {         // Stored in Big endian
             length = secret->length + 1;
-            char *tmp = (char *)wmem_alloc0(tmp_allocator, length);
+            uint8_t *tmp = (uint8_t *)wmem_alloc0(tmp_allocator, length);
             memcpy(tmp + 1, secret->data, secret->length);
             tmp[0] = 0;
             secret->data = tmp;
@@ -3111,7 +3111,7 @@ ssh_keylog_hash_write_secret(struct ssh_flow_data *global_data, wmem_allocator_t
         ws_debug("kex_hash_type type %d not supported", kex_hash_type);
         return;
     }
-    char *exchange_hash = (char *)wmem_alloc0(wmem_file_scope(), hash_len);
+    uint8_t *exchange_hash = (uint8_t *)wmem_alloc0(wmem_file_scope(), hash_len);
     gcry_md_write(hd, wmem_array_get_raw(kex_hash_buffer), wmem_array_get_count(kex_hash_buffer));
     memcpy(exchange_hash, gcry_md_read(hd, 0), hash_len);
     gcry_md_close(hd);
@@ -3319,7 +3319,7 @@ ssh_kex_shared_secret(int kex_type, ssh_bignum *pub, ssh_bignum *priv, ssh_bignu
 }
 
 static char *
-ssh_string(wmem_allocator_t* allocator, const char *string, unsigned length)
+ssh_string(wmem_allocator_t* allocator, const uint8_t *string, unsigned length)
 {
     char *ssh_string = (char *)wmem_alloc(allocator, length + 4);
     ssh_string[0] = (length >> 24) & 0xff;
@@ -3331,7 +3331,7 @@ ssh_string(wmem_allocator_t* allocator, const char *string, unsigned length)
 }
 
 static void
-ssh_hash_buffer_put_string(wmem_array_t *buffer, const char *string,
+ssh_hash_buffer_put_string(wmem_array_t *buffer, const uint8_t *string,
         unsigned length)
 {
     if (!buffer) {
@@ -3354,7 +3354,7 @@ ssh_hash_buffer_put_uint32(wmem_array_t *buffer, unsigned val)
     wmem_array_append(buffer, buf, 4);
 }
 
-static void ssh_derive_symmetric_keys(ssh_bignum *secret, char *exchange_hash,
+static void ssh_derive_symmetric_keys(ssh_bignum *secret, uint8_t *exchange_hash,
         unsigned hash_length, struct ssh_flow_data *global_data)
 {
     if (!global_data->session_id) {
@@ -3403,7 +3403,7 @@ static void ssh_derive_symmetric_keys(ssh_bignum *secret, char *exchange_hash,
     }
 }
 
-static void ssh_derive_symmetric_key(ssh_bignum *secret, char *exchange_hash,
+static void ssh_derive_symmetric_key(ssh_bignum *secret, const uint8_t *exchange_hash,
         unsigned hash_length, char id, ssh_bignum *result_key,
         struct ssh_flow_data *global_data, unsigned we_need)
 {
@@ -3571,8 +3571,8 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
             return;
         }
 
-        char k1[32];
-        char k2[32];
+        uint8_t k1[32];
+        uint8_t k2[32];
         if(key->data){
             memcpy(k1, key->data, 32);
             memcpy(k2, key->data + 32, 32);
@@ -3608,7 +3608,7 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
             ws_debug("ssh: can't open aes%d cipher handle", iKeyLen*8);
             return;
         }
-        char k1[32], iv1[16];
+        uint8_t k1[32], iv1[16];
         if(key->data){
             memcpy(k1, key->data, iKeyLen);
         }else{
@@ -3647,7 +3647,7 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
             ws_debug("ssh: can't open aes%d cipher handle", iKeyLen*8);
             return;
         }
-        char k1[32], iv1[16];
+        uint8_t k1[32], iv1[16];
         if(key->data){
             memcpy(k1, key->data, iKeyLen);
         }else{
@@ -3687,7 +3687,7 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
             return;
         }
 
-        char k1[32], iv2[12];
+        uint8_t k1[32], iv2[12];
         if(key->data){
             memcpy(k1, key->data, iKeyLen);
         }else{
@@ -3862,7 +3862,8 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 
     gcry_error_t err;
     unsigned message_length = 0, seqnr;
-    char *plain = NULL, *mac;
+    uint8_t *plain = NULL;
+    const uint8_t *mac;
     unsigned mac_len, data_len = 0;
     uint8_t calc_mac[DIGEST_MAX_SIZE];
     memset(calc_mac, 0, DIGEST_MAX_SIZE);
@@ -3901,7 +3902,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
             return tvb_captured_length(tvb);
         }
 
-        const char *ctext = (const char *)tvb_get_ptr(tvb, offset, 4);
+        const uint8_t *ctext = tvb_get_ptr(tvb, offset, 4);
         uint8_t plain_length_buf[4];
 
         if (!ssh_decrypt_chacha20(peer_data->cipher_2, seqnr, 0, ctext, 4,
@@ -3937,10 +3938,9 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
             peer_data->sequence_number++;
         }
 
-        plain = (char *)wmem_alloc0(pinfo->pool, message_length+4);
+        plain = (uint8_t *)wmem_alloc0(pinfo->pool, message_length+4);
         memcpy(plain, plain_length_buf, 4);
-        const char *ctext2 = (const char *)tvb_get_ptr(tvb, offset+4,
-                message_length);
+        const uint8_t *ctext2 = tvb_get_ptr(tvb, offset+4, message_length);
 
         /* XXX - "Once the entire packet has been received, the MAC MUST be
          * checked before decryption," but we decrypt first.
@@ -3952,8 +3952,8 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
             return tvb_captured_length(tvb);
         }
 
-        mac = (char *)tvb_get_ptr(tvb, offset + 4 + message_length, mac_len);
-        char poly_key[32], iv[16];
+        mac = tvb_get_ptr(tvb, offset + 4 + message_length, mac_len);
+        uint8_t poly_key[32], iv[16];
 
         memset(poly_key, 0, 32);
         memset(iv, 0, 8);
@@ -4039,7 +4039,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 
         const char *ctext = (const char *)tvb_get_ptr(tvb, offset + 4,
                 message_length);
-        plain = (char *)wmem_alloc(pinfo->pool, message_length+4);
+        plain = (uint8_t *)wmem_alloc(pinfo->pool, message_length+4);
         phtonu32(plain, message_length);
 
         if ((err = gcry_cipher_authenticate(peer_data->cipher, plain, 4))) {
@@ -4154,7 +4154,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
             }
         }
         peer_data->plain0_valid = false;
-        plain = (char *)wmem_alloc(pinfo->pool, message_length+4);
+        plain = (uint8_t *)wmem_alloc(pinfo->pool, message_length+4);
         memcpy(plain, peer_data->plain0, 16);
 
         if (message_length - 12 > 0) {
@@ -4211,7 +4211,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (mac_len && data_len) {
-        mac = (char *)tvb_get_ptr(tvb, offset + data_len, mac_len);
+        mac = tvb_get_ptr(tvb, offset + data_len, mac_len);
         if (!memcmp(mac, calc_mac, mac_len)){
             ws_noisy("MAC OK");
         }else{
@@ -4284,7 +4284,7 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
     int dissected_len = 0;
     tvbuff_t* payload_tvb;
 
-    char* plaintext = message->plain_data;
+    const uint8_t* plaintext = message->plain_data;
     unsigned plaintext_len = message->data_len;
 
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Encrypted packet (plaintext_len=%d)", plaintext_len);
@@ -4670,8 +4670,8 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                 offset += slen;
                 proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_userauth_method_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                 offset += 4;
-                const uint8_t* key_type;
-                proto_tree_add_item_ret_string(msg_type_tree, hf_ssh_userauth_method_name, packet_tvb, offset, slen, ENC_ASCII, pinfo->pool, &key_type);
+                const char* key_type;
+                proto_tree_add_item_ret_string(msg_type_tree, hf_ssh_userauth_method_name, packet_tvb, offset, slen, ENC_ASCII, pinfo->pool, (const uint8_t**)&key_type);
                 offset += slen;
                 if (0 == strcmp(key_type, "none")) {
                 }else if (0 == strcmp(key_type, "publickey") || 0 == strcmp(key_type, "publickey-hostbound-v00@openssh.com")) {
@@ -5512,11 +5512,12 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
     } else if (msg_code == SSH_MSG_CHANNEL_REQUEST) {
         proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &recipient_channel);
         offset += 4;
-        const uint8_t* request_name;
+        const char* request_name;
         uint32_t slen;
+        int item_len;
         proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_channel_request_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
         offset += 4;
-        proto_tree_add_item_ret_string(msg_type_tree, hf_ssh_channel_request_name, packet_tvb, offset, slen, ENC_UTF_8, pinfo->pool, &request_name);
+        proto_tree_add_item_ret_string(msg_type_tree, hf_ssh_channel_request_name, packet_tvb, offset, slen, ENC_UTF_8, pinfo->pool, (const uint8_t**)&request_name);
         offset += slen;
         proto_tree_add_item(msg_type_tree, hf_ssh_channel_request_want_reply, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -5533,8 +5534,8 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         if (0 == strcmp(request_name, "subsystem")) {
             proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_subsystem_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
             offset += 4;
-            const uint8_t* subsystem_name;
-            proto_tree_add_item_ret_string(msg_type_tree, hf_ssh_subsystem_name, packet_tvb, offset, slen, ENC_UTF_8, pinfo->pool, &subsystem_name);
+            const char* subsystem_name;
+            proto_tree_add_item_ret_string(msg_type_tree, hf_ssh_subsystem_name, packet_tvb, offset, slen, ENC_UTF_8, pinfo->pool, (const uint8_t**)&subsystem_name);
             set_subdissector_for_channel(peer_data, recipient_channel, subsystem_name);
             offset += slen;
         } else if (0 == strcmp(request_name, "env")) {
@@ -5548,13 +5549,13 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
              *
              * These will probably be ASCII-compatible.
              */
-            proto_tree_add_item_ret_length(msg_type_tree, hf_ssh_env_name, packet_tvb, offset, 4, ENC_BIG_ENDIAN | ENC_UTF_8, &slen);
-            offset += slen;
-            proto_tree_add_item_ret_length(msg_type_tree, hf_ssh_env_value, packet_tvb, offset, 4, ENC_BIG_ENDIAN | ENC_UTF_8, &slen);
-            offset += slen;
+            proto_tree_add_item_ret_length(msg_type_tree, hf_ssh_env_name, packet_tvb, offset, 4, ENC_BIG_ENDIAN | ENC_UTF_8, &item_len);
+            offset += item_len;
+            proto_tree_add_item_ret_length(msg_type_tree, hf_ssh_env_value, packet_tvb, offset, 4, ENC_BIG_ENDIAN | ENC_UTF_8, &item_len);
+            offset += item_len;
         } else if (0 == strcmp(request_name, "exec")) {
-            proto_tree_add_item_ret_length(msg_type_tree, hf_ssh_exec_cmd, packet_tvb, offset, 4, ENC_BIG_ENDIAN | ENC_UTF_8, &slen);
-            offset += slen;
+            proto_tree_add_item_ret_length(msg_type_tree, hf_ssh_exec_cmd, packet_tvb, offset, 4, ENC_BIG_ENDIAN | ENC_UTF_8, &item_len);
+            offset += item_len;
             set_subdissector_for_channel(peer_data, recipient_channel, "exec");
         } else if (0 == strcmp(request_name, "exit-status")) {
             proto_tree_add_item(msg_type_tree, hf_ssh_exit_status, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5562,8 +5563,8 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         } else if (0 == strcmp(request_name, "shell")) {
             set_subdissector_for_channel(peer_data, recipient_channel, "shell");
         } else if (0 == strcmp(request_name, "pty-req")) {
-            proto_tree_add_item_ret_length(msg_type_tree, hf_ssh_pty_term, packet_tvb, offset, 4, ENC_BIG_ENDIAN | ENC_UTF_8, &slen);
-            offset += slen;
+            proto_tree_add_item_ret_length(msg_type_tree, hf_ssh_pty_term, packet_tvb, offset, 4, ENC_BIG_ENDIAN | ENC_UTF_8, &item_len);
+            offset += item_len;
             proto_tree_add_item(msg_type_tree, hf_ssh_pty_term_width_char, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             proto_tree_add_item(msg_type_tree, hf_ssh_pty_term_height_row, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5672,7 +5673,7 @@ get_channel_info_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient
 }
 
 static void
-set_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, const uint8_t* subsystem_name)
+set_subdissector_for_channel(struct ssh_peer_data *peer_data, uint32_t recipient_channel, const char* subsystem_name)
 {
     dissector_handle_t handle = NULL;
     if (0 == strcmp(subsystem_name, "sftp")) {
@@ -5732,12 +5733,12 @@ ssh_dissect_connection_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
 {
         (void)pinfo;
         if(msg_code==SSH_MSG_GLOBAL_REQUEST){
-                uint8_t* request_name;
+                const char* request_name;
                 unsigned   slen;
                 slen = tvb_get_ntohl(packet_tvb, offset) ;
                 proto_tree_add_item(msg_type_tree, hf_ssh_global_request_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                request_name = tvb_get_string_enc(pinfo->pool, packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
+                request_name = (char*)tvb_get_string_enc(pinfo->pool, packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
                 proto_tree_add_item(msg_type_tree, hf_ssh_global_request_name, packet_tvb, offset, slen, ENC_ASCII);
                 offset += slen;
                 proto_tree_add_item(msg_type_tree, hf_ssh_global_request_want_reply, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5786,7 +5787,7 @@ static int
 ssh_dissect_public_key_blob(tvbuff_t *tvb, packet_info *pinfo, proto_item *tree)
 {
     uint32_t slen;
-    const uint8_t* key_type;
+    const char* key_type;
 
     int offset = 0;
     proto_tree *blob_tree = NULL;
@@ -5796,7 +5797,7 @@ ssh_dissect_public_key_blob(tvbuff_t *tvb, packet_info *pinfo, proto_item *tree)
     blob_tree = proto_item_add_subtree(blob_item, ett_userauth_pk_blob);
     proto_tree_add_item_ret_uint(blob_tree, hf_ssh_pk_blob_name_length, tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
     offset += 4;
-    proto_tree_add_item_ret_string(blob_tree, hf_ssh_pk_blob_name, tvb, offset, slen, ENC_ASCII, pinfo->pool, &key_type);
+    proto_tree_add_item_ret_string(blob_tree, hf_ssh_pk_blob_name, tvb, offset, slen, ENC_ASCII, pinfo->pool, (const uint8_t**)&key_type);
     proto_item_append_text(blob_item, " (type: %s)", key_type);
     offset += slen;
 
