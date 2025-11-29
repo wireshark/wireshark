@@ -3574,7 +3574,7 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
     proto_tree_add_string_format(tree, hf_ansi_a_clg_party_ascii_num, tvb, curr_offset, len - (curr_offset - offset),
         (char *) poctets,
         "Digits: %s",
-        (char *) format_text(pinfo->pool, poctets, len - (curr_offset - offset)));
+        (char *) format_text(pinfo->pool, (char*)poctets, len - (curr_offset - offset)));
 
     proto_item_append_text(data_p->elem_item, " - (%s)", poctets);
 
@@ -5620,7 +5620,7 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
                 proto_tree_add_string_format(subtree, hf_ansi_a_cld_party_ascii_num, tvb, curr_offset, oct_len,
                     (char *) poctets,
                     "Digits: %s",
-                    (char *) format_text(pinfo->pool, poctets, oct_len));
+                    (char *) format_text(pinfo->pool, (char*)poctets, oct_len));
 
                 curr_offset += oct_len;
                 break;
@@ -6087,7 +6087,7 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
     proto_tree_add_string_format(tree, hf_ansi_a_cld_party_ascii_num, tvb, curr_offset, len - (curr_offset - offset),
         (char *) poctets,
         "Digits: %s",
-        (char *) format_text(pinfo->pool, poctets, len - (curr_offset - offset)));
+        (char *) format_text(pinfo->pool, (char*)poctets, len - (curr_offset - offset)));
 
     proto_item_append_text(data_p->elem_item, " - (%s)", poctets);
 
@@ -6437,9 +6437,9 @@ elem_cct_group(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t off
 
     oct = tvb_get_uint8(tvb, curr_offset);
 
-    proto_tree_add_uint_format(tree, hf_ansi_a_cct_group_count, tvb, curr_offset, 1,
+    proto_tree_add_uint_format_value(tree, hf_ansi_a_cct_group_count, tvb, curr_offset, 1,
         oct,
-        "Count: %u circuit%s",
+        "%u circuit%s",
         oct,
         plurality(oct, "", "s"));
 
@@ -10439,9 +10439,9 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool fr
         }
 
         oct_1_item =
-            proto_tree_add_uint_format(dtap_tree, hf_ansi_a_protocol_disc, tvb, 0, 1,
+            proto_tree_add_uint_format_value(dtap_tree, hf_ansi_a_protocol_disc, tvb, 0, 1,
                 (oct_1 & 0x0f),
-                "Protocol Discriminator: %s",
+                "%s",
                 str);
 
         oct_1_tree = proto_item_add_subtree(oct_1_item, ett_dtap_oct_1);

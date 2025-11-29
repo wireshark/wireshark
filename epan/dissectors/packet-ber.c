@@ -1097,14 +1097,14 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
         }
         if (decode_unexpected) {
             int ber_offset;
-            int32_t ber_len;
+            uint32_t ber_len;
 
             if (item) {
                 next_tree = proto_item_add_subtree(item, ett_ber_unknown);
             }
             ber_offset = get_ber_identifier(next_tvb, 0, NULL, NULL, NULL);
             ber_offset = get_ber_length(next_tvb, ber_offset, &ber_len, NULL);
-            if ((ber_len + ber_offset) == length_remaining) {
+            if ((ber_len + ber_offset) == (unsigned)length_remaining) {
                 /* Decoded an ASN.1 tag with a length indicating this
                  * could be BER encoded data.  Try dissecting as unknown BER.
                  */
@@ -3793,7 +3793,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
 
     if ((len < 10) || (len > 19)) {
         error_str = wmem_strdup_printf(actx->pinfo->pool, "BER Error: UTCTime invalid length: %u", len);
-        instr = tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len > 19 ? 19 : len, ENC_ASCII);
+        instr = (char*)tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len > 19 ? 19 : len, ENC_ASCII);
         goto malformed;
     }
 
@@ -3911,7 +3911,7 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
     int32_t     tag;
     int         identifier_offset;
     int         identifier_len;
-    int         len;
+    uint32_t    len;
     uint8_t     pad = 0;
     int         end_offset;
     int         hoffset;
@@ -4013,7 +4013,7 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
                 uint8_t *bitstring = (uint8_t *)tvb_memdup(actx->pinfo->pool, tvb, offset, len);
                 const int named_bits_bytelen = (num_named_bits + 7) / 8;
                 if (show_internal_ber_fields) {
-                    if (len < named_bits_bytelen) {
+                    if (len < (unsigned)named_bits_bytelen) {
                         unsigned zero_bits_omitted = num_named_bits - ((len * 8) - pad);
                         proto_item_append_text(item, " [%u zero bits not encoded, but displayed]", zero_bits_omitted);
                     }
@@ -4021,7 +4021,7 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
                 if (ett_id > 0) {
                     tree = proto_item_add_subtree(item, ett_id);
                 }
-                for (int i = 0; i < named_bits_bytelen; i++) {
+                for (unsigned i = 0; (int)i < named_bits_bytelen; i++) {
                     // Process 8 bits at a time instead of 64, each field masks a
                     // single byte.
                     const int bit_offset = 8 * i;
@@ -4036,7 +4036,7 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
                     // If less data is available than the number of named bits, then
                     // the trailing (right) bits are assumed to be 0.
                     uint64_t value = 0;
-                    if (i < len) {
+                    if ((unsigned)i < len) {
                         value = bitstring[i];
                         if (num_named_bits - bit_offset > 7) {
                             bitstring[i] = 0;
@@ -4052,7 +4052,7 @@ dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tre
                 }
                 // If more data is available than the number of named bits, then
                 // either the spec was updated or the packet is malformed.
-                for (int i = 0; i < len; i++) {
+                for (size_t i = 0; i < len; i++) {
                     if (bitstring[i]) {
                         expert_add_info_format(actx->pinfo, item, &ei_ber_bits_unknown, "Unknown bit(s): 0x%s",
                              bytes_to_str(actx->pinfo->pool, bitstring, len));
@@ -4109,7 +4109,7 @@ dissect_ber_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tr
 static int
 dissect_ber_INTEGER(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &actx->external.indirect_reference);
+                                  (uint32_t*)&actx->external.indirect_reference);
   actx->external.indirect_ref_present = true;
 
   return offset;

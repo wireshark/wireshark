@@ -362,7 +362,7 @@ static int dissect_nano_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *na
 
     header_tree = proto_tree_add_subtree(nano_tree, tvb, offset, NANO_HEADER_LENGTH, ett_nano_header, NULL, "Nano Protocol Header");
 
-    nano_magic_number = tvb_get_string_enc(pinfo->pool, tvb, offset, 2, ENC_ASCII);
+    nano_magic_number = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 2, ENC_ASCII);
     proto_tree_add_string_format_value(header_tree, hf_nano_magic_number, tvb, 0,
             2, nano_magic_number, "%s (%s)", str_to_str_wmem(pinfo->pool, nano_magic_number, nano_magic_numbers, "Unknown"), nano_magic_number);
     offset += 2;
@@ -564,7 +564,8 @@ static int dissect_nano_bulk_pull_blocks(tvbuff_t *tvb, proto_tree *nano_tree, i
 // dissect a single nano bootstrap message (client)
 static int dissect_nano_tcp_client_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
-    int offset, nano_packet_type, nano_block_type;
+    int offset;
+    uint32_t nano_packet_type, nano_block_type;
     uint64_t extensions;
     struct nano_session_state *session_state;
 
@@ -680,7 +681,7 @@ static int dissect_nano_frontier(tvbuff_t *tvb, proto_tree *nano_tree, int offse
 // dissect a single nano bootstrap message (server)
 static int dissect_nano_tcp_server_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
 {
-    int nano_block_type;
+    uint32_t nano_block_type;
     struct nano_session_state *session_state;
 
     session_state = (struct nano_session_state *)data;

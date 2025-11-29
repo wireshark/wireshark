@@ -3412,9 +3412,9 @@ add_session_tracker_entry_to_tree(tvbuff_t *tvb, packet_info *pinfo, proto_item 
 
 		proto_tree_add_item_ret_string(session_track_tree, hf_mysql_session_track_sysvar_value, tvb, offset, (int)lenstr, ENC_ASCII, pinfo->pool, &sysvar_value);
 		if (charset_client) {
-			mysql_set_encoding_client(pinfo, conn_data, charset_to_encoding(sysvar_value));
+			mysql_set_encoding_client(pinfo, conn_data, charset_to_encoding((char*)sysvar_value));
 		} else if (charset_results) {
-			mysql_set_encoding_results(pinfo, conn_data, charset_to_encoding(sysvar_value));
+			mysql_set_encoding_results(pinfo, conn_data, charset_to_encoding((char*)sysvar_value));
 		}
 		offset += (int)lenstr;
 		break;
@@ -3885,10 +3885,9 @@ mysql_dissect_binary_row_packet(tvbuff_t *tvb, packet_info *pinfo, proto_item *p
 		int nfields = my_frame_data->field_metas.count;
 		int null_len = (nfields + 9) / 8;
 
-		char *null_buffer;
-		null_buffer = (uint8_t *)wmem_alloc(pinfo->pool, (size_t)null_len + 1);
-		tvb_get_raw_bytes_as_string(tvb, offset, null_buffer, (size_t)null_len + 1);
-		proto_tree_add_bytes_with_length(tree, hf_mysql_null_buffer, tvb, offset, null_len, null_buffer, null_len);
+		uint8_t *null_buffer;
+		null_buffer = tvb_memdup(pinfo->pool, tvb, offset, null_len);
+		proto_tree_add_bytes(tree, hf_mysql_null_buffer, tvb, offset, null_len, null_buffer);
 		offset += null_len;
 
 		for (fieldpos = 0; fieldpos < nfields; fieldpos++) {
@@ -4388,7 +4387,7 @@ mysql_dissect_auth_switch_response(tvbuff_t *tvb, packet_info *pinfo, int offset
 	proto_tree_add_item(tree, hf_mysql_auth_switch_response_data, tvb, offset, lenstr, ENC_NA);
 	offset += lenstr;
 
-	if (g_strcmp0(conn_data->auth_method,"caching_sha2_password") == 0) {
+	if (g_strcmp0((char*)conn_data->auth_method,"caching_sha2_password") == 0) {
 		mysql_set_conn_state(pinfo, conn_data, AUTH_SHA2);
 	}
 

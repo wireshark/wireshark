@@ -1794,8 +1794,8 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree      *parameters_item = NULL;
     proto_item      *parameters_tree = NULL;
     uint8_t         *col_str = NULL;
-    uint8_t         *at_stream;
-    uint8_t         *at_command = NULL;
+    char            *at_stream;
+    char            *at_command = NULL;
     int              i_char = 0;
     unsigned         i_char_fix = 0;
     int              length;
@@ -1821,8 +1821,8 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         col_str[length] = '\0';
     }
 
-    at_stream = (uint8_t *) wmem_alloc(pinfo->pool, length + 1);
-    tvb_memcpy(tvb, at_stream, offset, length);
+    at_stream = (char *) wmem_alloc(pinfo->pool, length + 1);
+    tvb_memcpy(tvb, (uint8_t*)at_stream, offset, length);
     at_stream[length] = '\0';
 
     while (at_stream[i_char]) {
@@ -1834,7 +1834,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         i_char += 1;
     }
 
-    if (!command_number) col_append_str(pinfo->cinfo, COL_INFO, col_str);
+    if (!command_number) col_append_str(pinfo->cinfo, COL_INFO, (const char*)col_str);
 
     if (role == ROLE_HS) {
         if (command_number) {
@@ -2014,7 +2014,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (type == TYPE_ACTION || type == TYPE_RESPONSE) {
                     if (i_at_cmd && (i_at_cmd->dissect_parameter != NULL &&
                             !i_at_cmd->dissect_parameter(tvb, pinfo, parameters_tree, offset, role,
-                            type, &at_command[i_char], parameter_number, parameter_length, &data) )) {
+                            type, (uint8_t*)&at_command[i_char], parameter_number, parameter_length, &data) )) {
                         pitem = proto_tree_add_item(parameters_tree,
                                 hf_unknown_parameter, tvb, offset,
                                 parameter_length, ENC_ASCII);

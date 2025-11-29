@@ -402,7 +402,7 @@ get_nbns_name(tvbuff_t *tvb, wmem_allocator_t* allocator, int offset, int nbns_d
     }
 
     /* This one is; make its name printable. */
-    name_type = process_netbios_name(nbname, name_ret, name_ret_len);
+    name_type = process_netbios_name((const uint8_t*)nbname, name_ret, name_ret_len);
     pname_ret += MIN(strlen(name_ret), (size_t) name_ret_len);
     snprintf(pname_ret, name_ret_len-(pname_ret-name_ret), "<%02x>", name_type);
     if (cname == '.') {
@@ -413,7 +413,7 @@ get_nbns_name(tvbuff_t *tvb, wmem_allocator_t* allocator, int offset, int nbns_d
          * ASCII before appending it to our NBName, so we have a valid
          * UTF-8 string.
          */
-        const char* scope_id = get_ascii_string(allocator, pname, (int)strlen(pname));
+        const char* scope_id = (char*)get_ascii_string(allocator, (const uint8_t*)pname, (int)strlen(pname));
         int bytes_attempted = (int)g_strlcat(name_ret, scope_id, name_ret_len);
         if (bytes_attempted >= name_ret_len) {
             ws_utf8_truncate(name_ret, name_ret_len - 1);
@@ -632,13 +632,13 @@ dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data
     proto_tree *rr_tree = NULL;
     char       *name_str;
     unsigned    num_names;
-    char       *nbname;
+    uint8_t    *nbname;
 
     cur_offset = offset;
 
     name     = (char *)wmem_alloc(pinfo->pool, MAX_NAME_LEN);
     name_str = (char *)wmem_alloc(pinfo->pool, MAX_NAME_LEN);
-    nbname   = (char *)wmem_alloc(pinfo->pool, 16+4+1); /* 4 for [<last char>] */
+    nbname   = (uint8_t *)wmem_alloc(pinfo->pool, 16+4+1); /* 4 for [<last char>] */
 
     name_len = MAX_NAME_LEN;
     len      = get_nbns_name_type_class(tvb, pinfo->pool, offset, nbns_data_offset, name,
@@ -736,7 +736,7 @@ dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data
                 goto out;
             }
             if (rr_tree) {
-                tvb_memcpy(tvb, (uint8_t *)nbname, cur_offset,
+                tvb_memcpy(tvb, nbname, cur_offset,
                            NETBIOS_NAME_LEN);
                 name_type = process_netbios_name(nbname,
                                                  name_str, name_len);

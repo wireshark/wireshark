@@ -99,7 +99,7 @@ WS_DLL_PUBLIC uint32_t dissect_oer_octet_string(tvbuff_t *tvb, uint32_t offset, 
 //WS_DLL_PUBLIC uint32_t dissect_oer_octet_string_containing_pdu_new(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, bool has_extension, dissector_t type_cb);
 
 WS_DLL_PUBLIC uint32_t
-dissect_oer_bit_string(tvbuff_t *tvb, uint32_t offset _U_, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_, int min_len _U_, int max_len _U_, bool has_extension _U_, int * const *named_bits _U_, int num_named_bits _U_, tvbuff_t **value_tvb _U_, int *len _U_);
+dissect_oer_bit_string(tvbuff_t *tvb, uint32_t offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, bool has_extension, int * const *named_bits, int num_named_bits, tvbuff_t **value_tvb, int *len);
 //WS_DLL_PUBLIC uint32_t dissect_oer_bit_string_containing_pdu_new(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, bool has_extension, dissector_t type_cb);
 
 //WS_DLL_PUBLIC uint32_t dissect_oer_restricted_character_string(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len,  bool has_extension, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb);

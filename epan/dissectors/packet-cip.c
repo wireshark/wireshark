@@ -4885,12 +4885,12 @@ static int
 dissect_cia(tvbuff_t *tvb, int offset, unsigned char segment_type,
             bool generate, bool packed, packet_info *pinfo, proto_item *epath_item,
             proto_tree *path_tree, proto_item *path_item, proto_item ** ret_item,
-            const char* segment_name, const value_string* vals, int* value,
+            const char* segment_name, const value_string* vals, uint32_t* value,
             int hf8, int hf16, int hf32)
 {
    unsigned char logical_format;
    int segment_len;
-   int temp_data;
+   uint32_t temp_data;
    int value_offset;
    wmem_strbuf_t *strbuf;
    bool extended_logical = false;
@@ -8614,7 +8614,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             p_remove_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
             p_add_proto_data(wmem_file_scope(), pinfo, proto_cip, 0, pembedded_req_info );
 
-            proto_item_set_generated(proto_tree_add_uint_format( item_tree, hf_cip_cm_sc, tvb, 0, 0, SC_CM_UNCON_SEND|CIP_SC_RESPONSE_MASK, "Service: Unconnected Send (Response)" ));
+            proto_item_set_generated(proto_tree_add_uint_format_value( item_tree, hf_cip_cm_sc, tvb, 0, 0, SC_CM_UNCON_SEND|CIP_SC_RESPONSE_MASK, "Unconnected Send (Response)" ));
             next_tvb = tvb_new_subset_length(tvb, offset, item_length);
 
             display_previous_request_path(pembedded_req_info, item_tree, tvb, pinfo, NULL, false);

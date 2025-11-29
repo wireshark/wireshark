@@ -1486,7 +1486,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * Put the first line from the buffer into the summary
 			 * (but leave out the line terminator).
 			 */
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", format_text(pinfo->pool, firstline, first_linelen));
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", format_text(pinfo->pool, (char*)firstline, first_linelen));
 		}
 
 		/*
@@ -2663,7 +2663,7 @@ basic_request_dissector(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
 	tokenlen = get_token_len(line, lineend, &next_token);
 
 	/* Save the request URI for various later uses */
-	request_uri = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII);
+	request_uri = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_ASCII);
 
 	if (request_uri == NULL && curr)
 	       request_uri = curr->request_uri;
@@ -3581,7 +3581,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			hf_index = hf_http_unknown_header;
 		}
 		it = proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_NA|ENC_ASCII);
-		proto_item_set_text(it, "%s", format_text(pinfo->pool, line, len));
+		proto_item_set_text(it, "%s", format_text(pinfo->pool, (char*)line, len));
 		expert_add_info(pinfo, it, &ei_http_bad_header_name);
 		return false;
 	}
@@ -3590,7 +3590,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	 * Make a null-terminated, all-lower-case version of the header
 	 * name.
 	 */
-	header_name = wmem_ascii_strdown(pinfo->pool, &line[0], header_len);
+	header_name = wmem_ascii_strdown(pinfo->pool, (const char*)&line[0], header_len);
 
 	hf_index = find_header_hf_value(tvb, offset, header_len);
 
@@ -3633,10 +3633,10 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	 * has value_bytes_len bytes in it.
 	 */
 	value_bytes_len = line_end_offset - value_offset;
-	value_bytes = (char *)wmem_alloc(PINFO_FD_VISITED(pinfo) ? pinfo->pool : header_value_map_allocator, value_bytes_len+1);
+	value_bytes = (uint8_t *)wmem_alloc(PINFO_FD_VISITED(pinfo) ? pinfo->pool : header_value_map_allocator, value_bytes_len+1);
 	memcpy(value_bytes, &line[value_offset - offset], value_bytes_len);
 	value_bytes[value_bytes_len] = '\0';
-	value = tvb_get_string_enc(pinfo->pool, tvb, value_offset, value_bytes_len, ENC_ASCII);
+	value = (char*)tvb_get_string_enc(pinfo->pool, tvb, value_offset, value_bytes_len, ENC_ASCII);
 	/* The length of the value might change after UTF-8 sanitization */
 	value_len = (int)strlen(value);
 
@@ -3662,9 +3662,9 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						tvb, offset, len,
 						ENC_NA|ENC_ASCII);
 					proto_item_set_text(it, "%s",
-							format_text(pinfo->pool, line, len));
+							format_text(pinfo->pool, (char*)line, len));
 				} else {
-					char* str = format_text(pinfo->pool, line, len);
+					char* str = format_text(pinfo->pool, (char*)line, len);
 					proto_tree_add_string_format(tree, hf_http_unknown_header, tvb, offset,
 						len, str, "%s", str);
 				}
@@ -3672,7 +3672,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			} else {
 				proto_tree_add_string_format(tree,
 					*hf_id, tvb, offset, len, value,
-					"%s", format_text(pinfo->pool, line, len));
+					"%s", format_text(pinfo->pool, (char*)line, len));
 				if (http_type == MEDIA_CONTAINER_HTTP_REQUEST ||
 					http_type == MEDIA_CONTAINER_HTTP_RESPONSE) {
 					it = proto_tree_add_item(tree,
@@ -3682,7 +3682,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						tvb, offset, len,
 						ENC_NA|ENC_ASCII);
 					proto_item_set_text(it, "%s",
-							format_text(pinfo->pool, line, len));
+							format_text(pinfo->pool, (char*)line, len));
 					proto_item_set_hidden(it);
 				}
 			}
@@ -3724,7 +3724,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				hdr_item = proto_tree_add_string_format(tree,
 				    *headers[hf_index].hf, tvb, offset, len,
 				    value,
-				    "%s", format_text(pinfo->pool, line, len));
+				    "%s", format_text(pinfo->pool, (char*)line, len));
 				if (http_type == MEDIA_CONTAINER_HTTP_REQUEST ||
 					http_type == MEDIA_CONTAINER_HTTP_RESPONSE) {
 					it = proto_tree_add_item(tree,
@@ -3734,7 +3734,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						tvb, offset, len,
 						ENC_NA|ENC_ASCII);
 					proto_item_set_text(it, "%s",
-							format_text(pinfo->pool, line, len));
+							format_text(pinfo->pool, (char*)line, len));
 					proto_item_set_hidden(it);
 				}
 			}
@@ -4232,7 +4232,7 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, char *
 	};
 	const char **header;
 	size_t hdrlen;
-	const uint8_t *decoded_value;
+	const char *decoded_value;
 	proto_tree *hdr_tree;
 	tvbuff_t *auth_tvb;
 
@@ -4255,7 +4255,7 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, char *
 			 * XXX: Perhaps the field should be a FT_BYTES with
 			 * BASE_SHOW_UTF_8_PRINTABLE?
 			 */
-			proto_tree_add_item_ret_string(hdr_tree, hf_http_basic, auth_tvb, 0, tvb_reported_length(auth_tvb), ENC_UTF_8, pinfo->pool, &decoded_value);
+			proto_tree_add_item_ret_string(hdr_tree, hf_http_basic, auth_tvb, 0, tvb_reported_length(auth_tvb), ENC_UTF_8, pinfo->pool, (const uint8_t**)&decoded_value);
 			tap_credential_t* auth = basic_auth_credentials(pinfo->pool, decoded_value);
 			if (auth) {
 				auth->num = auth->username_num = pinfo->num;
@@ -4412,7 +4412,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, 
 
 				tap_credential_t* auth = wmem_new0(pinfo->pool, tap_credential_t);
 
-				auth->username = wmem_strdup(pinfo->pool, user);
+				auth->username = wmem_strdup(pinfo->pool, (char*)user);
 				auth->proto = "HTTP CitrixAGBasic auth";
 				auth->num = auth->username_num = pinfo->num;
 				auth->password_hf_id = hf_http_citrix_passwd;

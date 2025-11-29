@@ -2286,7 +2286,7 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset
 {
     uint32_t    curr_offset, ia5_string_len, i;
     uint8_t     type_of_sub_addr, afi, dig1, dig2, oct;
-    char       *ia5_string;
+    uint8_t    *ia5_string;
     bool        invalid_ia5_char;
     proto_item *item;
 
@@ -2328,7 +2328,7 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset
 
             }
 
-            IA5_7BIT_decode(*extracted_address, ia5_string, ia5_string_len);
+            IA5_7BIT_decode((uint8_t*)*extracted_address, ia5_string, ia5_string_len);
 
             item = proto_tree_add_string(tree, hf_gsm_a_dtap_subaddress, tvb, curr_offset, len - (curr_offset - offset), *extracted_address);
 

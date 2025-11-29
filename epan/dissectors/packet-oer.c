@@ -202,13 +202,13 @@ uint32_t dissect_oer_boolean(tvbuff_t* tvb, uint32_t offset, asn1_ctx_t* actx, p
 /* 10 Encoding of integer values */
 
 uint32_t
-dissect_oer_constrained_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int64_t min, int64_t max, uint32_t *value, bool has_extension _U_)
+dissect_oer_constrained_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int64_t min, int64_t max, uint32_t *value, bool has_extension)
 {
     DEBUG_ENTRY("dissect_oer_constrained_integer");
     uint32_t val = 0;
 
     if (has_extension) {
-        return dissect_oer_integer(tvb, offset, actx, tree, hf_index, value);
+        return dissect_oer_integer(tvb, offset, actx, tree, hf_index, (int32_t*)value);
     }
 
     if (min >= 0) {
@@ -238,19 +238,19 @@ dissect_oer_constrained_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx
             /* 10.4 a a) If the lower bound is greater than or equal to -2^7 (-128) and the upper bound is less than or equal to 2^7-1 (127),
              * then every value of the integer type shall be encoded as a fixed-size signed number in a one-octet word;
              */
-            proto_tree_add_item_ret_int(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN, &val);
+            proto_tree_add_item_ret_int(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN, (int32_t*)&val);
             offset++;
         } else if ((min >= -32768) && (max <= 32767)) {
             /* if the lower bound is greater than or equal to -2^15 (-32768) and the upper bound is less than or equal to 2^15-1 (32767),
              * then every value of the integer type shall be encoded as a fixed-size signed number in a two octet word;
              */
-            proto_tree_add_item_ret_int(tree, hf_index, tvb, offset, 2, ENC_BIG_ENDIAN, &val);
+            proto_tree_add_item_ret_int(tree, hf_index, tvb, offset, 2, ENC_BIG_ENDIAN, (int32_t*)&val);
             offset += 2;
         } else if ((min >= -2147483648LL) && (max <= 2147483647)) {
             /* if the lower bound is greater than or equal to -2^31 (-2147483648) and the upper bound is less than or equal to 2^31-1 (2147483647),
              * then every value of the integer type shall be encoded as a fixed-size signed number in a four-octet word
              */
-            proto_tree_add_item_ret_int(tree, hf_index, tvb, offset, 4, ENC_BIG_ENDIAN, &val);
+            proto_tree_add_item_ret_int(tree, hf_index, tvb, offset, 4, ENC_BIG_ENDIAN, (int32_t*)&val);
             offset += 4;
         } else {
             /* To large not handlet yet*/
@@ -268,12 +268,12 @@ dissect_oer_constrained_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx
 }
 
 uint32_t
-dissect_oer_constrained_integer_64b(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int64_t min, uint64_t max, uint64_t *value, bool has_extension _U_)
+dissect_oer_constrained_integer_64b(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int64_t min, uint64_t max, uint64_t *value, bool has_extension)
 {
     uint64_t val = 0;
 
     if (has_extension) {
-        return dissect_oer_integer_64b(tvb, offset, actx, tree, hf_index, value);
+        return dissect_oer_integer_64b(tvb, offset, actx, tree, hf_index, (int64_t*)value);
     }
 
     if (min >= 0) {
@@ -308,25 +308,25 @@ dissect_oer_constrained_integer_64b(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *
             /* 10.4 a a) If the lower bound is greater than or equal to -2^7 (-128) and the upper bound is less than or equal to 2^7-1 (127),
              * then every value of the integer type shall be encoded as a fixed-size signed number in a one-octet word;
              */
-            proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN, &val);
+            proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN, (int64_t*)&val);
             offset++;
         } else if ((min >= -32768) && (max <= 32767)) {
             /* if the lower bound is greater than or equal to -2^15 (-32768) and the upper bound is less than or equal to 2^15-1 (32767),
              * then every value of the integer type shall be encoded as a fixed-size signed number in a two octet word;
              */
-            proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, 2, ENC_BIG_ENDIAN, &val);
+            proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, 2, ENC_BIG_ENDIAN, (int64_t*)&val);
             offset += 2;
         } else if ((min >= -2147483648LL) && (max <= 2147483647)) {
             /* if the lower bound is greater than or equal to -2^31 (-2147483648) and the upper bound is less than or equal to 2^31-1 (2147483647),
              * then every value of the integer type shall be encoded as a fixed-size signed number in a four-octet word
              */
-            proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, 4, ENC_BIG_ENDIAN, &val);
+            proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, 4, ENC_BIG_ENDIAN, (int64_t*)&val);
             offset += 4;
         } else if (max <= INT64_C(9223372036854775807)) {
             /* if the lower bound is greater than or equal to –2^63 (–9223372036854775808) and the upper bound is less than or equal to 2^63 – 1 (9223372036854775807),
              * then every value of the integer type shall be encoded as a fixed-size signed number in an eight-octet words
              */
-            proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, 8, ENC_BIG_ENDIAN, &val);
+            proto_tree_add_item_ret_int64(tree, hf_index, tvb, offset, 8, ENC_BIG_ENDIAN, (int64_t*)&val);
             offset += 8;
         } else {
             /* To large not handlet yet*/
@@ -507,9 +507,9 @@ dissect_oer_enumerated(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_t
 }
 
 static uint32_t
-dissect_oer_bit_string_unconstr(tvbuff_t *tvb, uint32_t offset _U_, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_, int min_len _U_, int max_len _U_, bool has_extension _U_, int * const *named_bits _U_, int num_named_bits _U_, tvbuff_t **value_tvb _U_, uint8_t * const values, int values_size, int *len _U_)
+dissect_oer_bit_string_unconstr(tvbuff_t *tvb, uint32_t offset _U_, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_, int min_len _U_, int max_len _U_, bool has_extension _U_, int * const *named_bits _U_, int num_named_bits _U_, tvbuff_t **value_tvb _U_, uint8_t * const values, unsigned values_size, int *len)
 {
-    int length;
+    uint32_t length;
     uint8_t unused_bit_count = 0;
 
     offset = dissect_oer_length_determinant(tvb, offset, actx, tree, -1 /*Don't show length value as internal field*/, &length);
@@ -529,7 +529,7 @@ dissect_oer_bit_string_unconstr(tvbuff_t *tvb, uint32_t offset _U_, asn1_ctx_t *
         if (length > values_size) {
             dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "too many bitstring elements");
         }
-        for (int i = 0; i < length; i++) {
+        for (size_t i = 0; i < length; i++) {
             uint8_t value = tvb_get_uint8(tvb, offset);
             if (i + 1 == length) {
                 /* unused bits of the last octet shall be set to zeros */
@@ -685,7 +685,7 @@ dissect_oer_bit_string_unconstr_with_display(tvbuff_t *tvb, uint32_t offset, asn
  *  If the lower and upper bounds of the effective size constraint are identical, 13.2 applies, otherwise 13.3 applies.
  */
 uint32_t
-dissect_oer_bit_string(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, bool has_extension, int * const *named_bits, int num_named_bits, tvbuff_t **value_tvb, int *len _U_)
+dissect_oer_bit_string(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, bool has_extension, int * const *named_bits, int num_named_bits, tvbuff_t **value_tvb, int *len)
 {
     tvbuff_t *out_tvb = NULL;
     header_field_info *hfi = (hf_index <= 0) ? NULL : proto_registrar_get_nth(hf_index);
@@ -706,6 +706,7 @@ dissect_oer_bit_string(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_t
     }
 
     if(has_extension || (min_len != max_len)) {
+        uint32_t length;
         offset = dissect_oer_bit_string_unconstr_with_display(tvb,
                                                               offset,
                                                               actx,
@@ -715,7 +716,10 @@ dissect_oer_bit_string(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_t
                                                               named_bits,
                                                               num_named_bits,
                                                               value_tvb,
-                                                              len);
+                                                              &length);
+        if(NULL != len) {
+            *len = length;
+        }
     } else {
         uint32_t byte_len = (min_len + 7) / 8;
         out_tvb = dissect_oer_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, min_len, named_bits, num_named_bits);
@@ -1186,7 +1190,8 @@ dissect_oer_UTF8String(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_t
 static uint32_t
 dissect_oer_open_type_internal(tvbuff_t* tvb, uint32_t offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, void* type_cb, asn1_cb_variant variant)
 {
-    int type_length, start_offset;
+    int start_offset;
+    uint32_t type_length;
     tvbuff_t* val_tvb = NULL;
     proto_tree* subtree = tree;
 
