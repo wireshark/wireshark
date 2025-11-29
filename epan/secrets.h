@@ -188,7 +188,7 @@ GHashTable *privkey_hash_table_new(void);
  * error code otherwise.
  */
 WS_DLL_PUBLIC int
-secrets_rsa_decrypt(const cert_key_id_t *key_id, const uint8_t *encr, int encr_len, uint8_t **out, int *out_len);
+secrets_rsa_decrypt(const cert_key_id_t *key_id, const uint8_t *encr, unsigned encr_len, uint8_t **out, unsigned *out_len);
 #endif  /* HAVE_LIBGNUTLS */
 
 #ifdef __cplusplus

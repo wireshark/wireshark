@@ -1661,7 +1661,7 @@ proto_register_rpcap (void)
                                   "Default link-layer type",
                                   "Default link-layer type to use if an Open Reply packet"
                                   " has not been captured.",
-                                  10, &global_linktype);
+                                  10, (unsigned*)&global_linktype);
 }
 
 void

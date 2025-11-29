@@ -392,7 +392,7 @@ static bool sml_reassemble = true;
 static bool sml_crc_enabled;
 
 /*get number of length octets and calculate how many data octets, it's like BER but not the same! */
-static void get_length(tvbuff_t *tvb, unsigned *offset, unsigned *data, unsigned *length){
+static void get_length(tvbuff_t *tvb, const unsigned *offset, unsigned *data, unsigned *length){
 	unsigned check = 0;
 	unsigned temp_offset = 0;
 
@@ -2360,7 +2360,7 @@ static bool decode_AttentionRes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 }
 
 /*dissect SML-File*/
-static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, int *offset, proto_tree *sml_tree){
+static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset, proto_tree *sml_tree){
 	proto_item *file = NULL;
 	proto_item *mainlist;
 	proto_item *sublist;

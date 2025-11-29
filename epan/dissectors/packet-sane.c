@@ -338,7 +338,7 @@ tvb_read_sane_word(tvb_sane_reader *r, uint32_t *dest) {
 static int
 tvb_read_sane_string(tvb_sane_reader *r, wmem_allocator_t *alloc, char **dest) {
     int str_len;
-    WORD_OR_RETURN(r, &str_len);
+    WORD_OR_RETURN(r, (uint32_t*)&str_len);
 
     if (tvb_captured_length_remaining(r->tvb, r->offset) < str_len) {
         return 0;
@@ -414,7 +414,7 @@ dissect_sane_word(tvb_sane_reader *r, proto_tree *tree, int hfindex, int *word) 
                         ENC_BIG_ENDIAN);
     // safe to ignore the return value here, we're guaranteed to have enough bytes to
     // read a word.
-    (void)tvb_read_sane_word(r, word);
+    (void)tvb_read_sane_word(r, (uint32_t*)word);
     return item;
 }
 
@@ -520,7 +520,7 @@ static int
 dissect_sane_request(tvb_sane_reader *r, packet_info *pinfo, proto_tree *tree) {
     unsigned opcode = SANE_NET_UNKNOWN;
     char* str_opcode;
-    dissect_sane_word(r, tree, hf_sane_opcode, &opcode);
+    dissect_sane_word(r, tree, hf_sane_opcode, (int*)&opcode);
     str_opcode = val_to_str(pinfo->pool, opcode, opcode_vals, "Unknown opcode (%u)");
     proto_item_append_text(tree, ": %s request", str_opcode);
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s request", str_opcode);

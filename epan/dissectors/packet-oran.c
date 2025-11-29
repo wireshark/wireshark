@@ -2748,8 +2748,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 2;
 
                 /* freqOffset */
-                int32_t freqOffset;          /* Yes, this is signed, so the implicit cast is intentional. */
-                proto_item *freq_offset_item = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_freqOffset, tvb, offset, 3, ENC_BIG_ENDIAN, &freqOffset);
+                int32_t freqOffset;          /* Yes, this is signed, so the cast is intentional. */
+                proto_item *freq_offset_item = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_freqOffset, tvb, offset, 3, ENC_BIG_ENDIAN, (uint32_t*)&freqOffset);
                 freqOffset |= 0xff000000;   /* Must sign-extend */
                 proto_item_set_text(freq_offset_item, "Frequency offset: %d \u0394f", freqOffset);
                 offset += 3;
@@ -5333,7 +5333,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     PROTO_ITEM_SET_HIDDEN(plane_ti);
 
     /* Set up structures needed to add the protocol subtree and manage it */
-    unsigned offset = 0;
+    int offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "O-RAN-FH-C");
     col_set_str(pinfo->cinfo, COL_INFO, "C-Plane");
@@ -5538,7 +5538,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Section-type-specific fields following common header (white entries in Section Type diagrams) */
     unsigned bit_width = 0;
-    int      comp_meth = 0;
+    unsigned comp_meth = 0;
     proto_item *comp_meth_ti;
     unsigned ci_comp_method = 0;
     uint8_t  ci_comp_opt = 0;
@@ -6544,7 +6544,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         val_to_str_const(direction, data_direction_vals, "Unknown"), frameId, subframeId, slotId, symbolId);
 
     unsigned sample_bit_width;
-    int compression;
+    unsigned compression;
     int includeUdCompHeader;
 
     /* Also look up C-PLANE state (sent in opposite direction) so may check current compression settings */
