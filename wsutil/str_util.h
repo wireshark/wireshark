@@ -199,7 +199,7 @@ bool isprint_utf8_string(const char *str, const unsigned length);
  * @return       true if the entire string is digits, otherwise false
  */
 WS_DLL_PUBLIC
-bool isdigit_string(const unsigned char *str);
+bool isdigit_string(const char *str);
 
 /** Finds the first occurrence of string 'needle' in string 'haystack'.
  *  The matching is done ignoring the case of ASCII characters in a

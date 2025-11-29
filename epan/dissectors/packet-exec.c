@@ -90,7 +90,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_tree *exec_tree=NULL;
 
 	/* Variables for extracting and displaying data from the packet */
-	unsigned char *field_stringz; /* Temporary storage for each field we extract */
+	const char *field_stringz; /* Temporary storage for each field we extract */
 
 	int length;
 	unsigned offset = 0;
@@ -211,7 +211,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 	if(hash_info->state == WAIT_FOR_STDERR_PORT
 	&& tvb_reported_length_remaining(tvb, offset)){
-		field_stringz = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
+		field_stringz = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
 
 		/* Check if this looks like the stderr_port field.
 		 * It is optional, so it may only be 1 character long
@@ -219,7 +219,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		 */
 		if(length == 1 || (isdigit_string(field_stringz)
 		&& length <= EXEC_STDERR_PORT_LEN)){
-			proto_tree_add_string(exec_tree, hf_exec_stderr_port, tvb, offset, length, (char*)field_stringz);
+			proto_tree_add_string(exec_tree, hf_exec_stderr_port, tvb, offset, length, field_stringz);
 			 /* Next field we need */
 			hash_info->state = WAIT_FOR_USERNAME;
 		} else {
@@ -234,18 +234,18 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 	if(hash_info->state == WAIT_FOR_USERNAME
 	&& tvb_reported_length_remaining(tvb, offset)){
-		field_stringz = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
+		field_stringz = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
 
 		/* Check if this looks like the username field */
 		if(length != 1 && length <= EXEC_USERNAME_LEN
 		&& isprint_string(field_stringz)){
-			proto_tree_add_string(exec_tree, hf_exec_username, tvb, offset, length, (char*)field_stringz);
+			proto_tree_add_string(exec_tree, hf_exec_username, tvb, offset, length, field_stringz);
 
 			/* Store the username so we can display it in the
 			 * info column of the entire conversation
 			 */
 			if(!hash_info->username){
-				hash_info->username=wmem_strdup(wmem_file_scope(), (char*)field_stringz);
+				hash_info->username=wmem_strdup(wmem_file_scope(), field_stringz);
 			}
 
 			 /* Next field we need */
@@ -262,12 +262,12 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 	if(hash_info->state == WAIT_FOR_PASSWORD
 	&& tvb_reported_length_remaining(tvb, offset)){
-		field_stringz = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
+		field_stringz = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
 
 		/* Check if this looks like the password field */
 		if(length != 1 && length <= EXEC_PASSWORD_LEN
 		&& isprint_string(field_stringz)){
-			proto_tree_add_string(exec_tree, hf_exec_password, tvb, offset, length, (char*)field_stringz);
+			proto_tree_add_string(exec_tree, hf_exec_password, tvb, offset, length, field_stringz);
 		}
 
 		/* Used if the next field is in the same packet */
@@ -279,18 +279,18 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 	if(hash_info->state == WAIT_FOR_COMMAND
 	&& tvb_reported_length_remaining(tvb, offset)){
-		field_stringz = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
+		field_stringz = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
 
 		/* Check if this looks like the command field */
 		if(length != 1 && length <= EXEC_COMMAND_LEN
 		&& isprint_string(field_stringz)){
-			proto_tree_add_string(exec_tree, hf_exec_command, tvb, offset, length, (char*)field_stringz);
+			proto_tree_add_string(exec_tree, hf_exec_command, tvb, offset, length, field_stringz);
 
 			/* Store the command so we can display it in the
 			 * info column of the entire conversation
 			 */
 			if(!hash_info->command){
-				hash_info->command=wmem_strdup(wmem_file_scope(), (char*)field_stringz);
+				hash_info->command=wmem_strdup(wmem_file_scope(), field_stringz);
 			}
 
 		} else {

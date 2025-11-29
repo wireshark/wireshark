@@ -230,7 +230,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * It is optional, so it may only be 1 character long
          * (the NULL)
          */
-        if(length == 1 || (isdigit_string((const uint8_t*)field_stringz)
+        if(length == 1 || (isdigit_string(field_stringz)
                     && length <= RSH_STDERR_PORT_LEN)){
             proto_tree_add_string(rsh_tree, hf_rsh_stderr_port, tvb, offset, length, (char*)field_stringz);
             /* Next field we need */

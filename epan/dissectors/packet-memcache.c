@@ -1034,7 +1034,7 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
   const unsigned char *next_token;
   const unsigned char *line, *lineend;
   uint32_t      slabclass;
-  unsigned char response_chars[21];
+  char          response_chars[21];
 
   while (tvb_offset_exists (tvb, offset)) {
     /* Find the end of the line. */

@@ -340,7 +340,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree	*cl_tree;
 	proto_tree	*text_tree = NULL;
 	proto_item	*pi = NULL;
-	uint8_t		*text;
+	const char	*text;
 	int		len;
 	int		offset;
 	uint32_t		marker;
@@ -357,7 +357,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	/* all the rest of the packet is just text */
 	offset = 4;
 
-	text = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII|ENC_NA);
+	text = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII|ENC_NA);
 	/* actually, we should look for a eol char and stop already there */
 
 	if (cl_tree) {

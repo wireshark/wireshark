@@ -547,7 +547,7 @@ static void read_knx_keyring_xml_backbone_element(xmlNodePtr backbone, uint8_t p
       xmlChar* str_address = xmlNodeListGetString(backbone->doc, attr->children, 1);
       if (str_address != NULL)
       {
-        read_ip_addr(multicast_address, str_address);
+        read_ip_addr(multicast_address, (const char*)str_address);
         address_valid = true;
         xmlFree(str_address);
       }
@@ -559,7 +559,7 @@ static void read_knx_keyring_xml_backbone_element(xmlNodePtr backbone, uint8_t p
         xmlChar* str_key = xmlNodeListGetString(backbone->doc, attr->children, 1);
         if (str_key != NULL)
         {
-          add_mca_key(multicast_address, str_key, password_hash, created_hash, f2);
+          add_mca_key(multicast_address, (const char*)str_key, password_hash, created_hash, f2);
           xmlFree(str_key);
         }
       }
@@ -581,7 +581,7 @@ static void read_knx_keyring_xml_group_element(xmlNodePtr group, uint8_t passwor
         xmlChar* str_address = xmlNodeListGetString(group->doc, attr->children, 1);
         if (str_address != NULL)
         {
-          addr = read_ga(str_address);
+          addr = read_ga((const char*)str_address);
           address_valid = true;
           xmlFree(str_address);
         }
@@ -591,7 +591,7 @@ static void read_knx_keyring_xml_group_element(xmlNodePtr group, uint8_t passwor
         if (address_valid)
         {
           xmlChar* str_key = xmlNodeListGetString(group->doc, attr->children, 1);
-          add_ga_key(addr, str_key, password_hash, created_hash, f2);
+          add_ga_key(addr, (const char*)str_key, password_hash, created_hash, f2);
           xmlFree(str_key);
           }
         }
@@ -604,7 +604,7 @@ static void read_knx_keyring_xml_group_element(xmlNodePtr group, uint8_t passwor
             {
               // Add senders given by space separated list of KNX IAs
               static const char delim[] = " ,";
-              const char* token = strtok(str_senders, delim);
+              const char* token = strtok((char*)str_senders, delim);
               while (token)
               {
                 add_ga_sender(addr, token, f2);
@@ -631,7 +631,7 @@ static void read_knx_keyring_xml_device_element(xmlNodePtr device, uint8_t passw
       xmlChar* str_address = xmlNodeListGetString(device->doc, attr->children, 1);
       if (str_address != NULL)
       {
-        addr = read_ia(str_address);
+        addr = read_ia((const char*)str_address);
         address_valid = true;
         xmlFree(str_address);
       }
@@ -643,7 +643,7 @@ static void read_knx_keyring_xml_device_element(xmlNodePtr device, uint8_t passw
         xmlChar* str_key = xmlNodeListGetString(device->doc, attr->children, 1);
         if (str_key != NULL)
         {
-          add_ia_key(addr, str_key, password_hash, created_hash, f2);
+          add_ia_key(addr, (const char*)str_key, password_hash, created_hash, f2);
           xmlFree(str_key);
         }
       }
@@ -655,7 +655,7 @@ static void read_knx_keyring_xml_device_element(xmlNodePtr device, uint8_t passw
         xmlChar* str_seq = xmlNodeListGetString(device->doc, attr->children, 1);
         if (str_seq != NULL)
         {
-          add_ia_seq(addr, str_seq, f2);
+          add_ia_seq(addr, (const char*)str_seq, f2);
           xmlFree(str_seq);
         }
       }
@@ -732,7 +732,7 @@ void read_knx_keyring_xml_file(const char* key_file, const char* password, const
       xmlChar* str_created = xmlNodeListGetString(key_ring->doc, attr->children, 1);
       if (str_created != NULL)
        {
-         make_created_hash(created_hash, str_created);
+         make_created_hash(created_hash, (const char*)str_created);
          xmlFree(str_created);
        }
     }

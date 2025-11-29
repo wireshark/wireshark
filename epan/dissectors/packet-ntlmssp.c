@@ -1152,7 +1152,7 @@ dissect_ntlmssp_string (tvbuff_t *tvb, wmem_allocator_t* allocator, int offset,
                         proto_tree *ntlmssp_tree,
                         bool unicode_strings,
                         int string_hf, int *start, int *end,
-                        const uint8_t **stringp)
+                        const char **stringp)
 {
   proto_tree *tree          = NULL;
   proto_item *tf            = NULL;
@@ -1183,7 +1183,7 @@ dissect_ntlmssp_string (tvbuff_t *tvb, wmem_allocator_t* allocator, int offset,
   tf = proto_tree_add_item_ret_string(ntlmssp_tree, string_hf, tvb,
                            string_offset, string_length,
                            unicode_strings ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_ASCII|ENC_NA,
-                           allocator, stringp);
+                           allocator, (const uint8_t**)stringp);
   tree = proto_item_add_subtree(tf, ett_ntlmssp_string);
   proto_tree_add_uint(tree, hf_ntlmssp_string_len,
                       tvb, offset, 2, string_length);

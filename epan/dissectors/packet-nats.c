@@ -80,7 +80,7 @@ typedef struct _nats_request_token
 {
     int offset;
     int length;
-    const uint8_t* value;
+    const char* value;
 } nats_request_token_t;
 
 /** Context for the dissector search in the table */
@@ -169,7 +169,7 @@ static size_t nats_parse_tokens(tvbuff_t* tvb, int offset, int last_offset, pack
         tokens[i].offset = current_offset;
         tokens[i].length = token_length;
 
-        tokens[i].value = tvb_get_string_enc(
+        tokens[i].value = (char*)tvb_get_string_enc(
             pinfo->pool, tvb, current_offset, token_length, ENC_UTF_8);
 
         current_offset += token_length;

@@ -1763,7 +1763,7 @@ smb2_add_session_info(proto_tree *ses_tree, proto_item *ses_item, tvbuff_t *tvb,
 }
 
 static void smb2_key_derivation(const uint8_t *KI, uint32_t KI_len,
-			 const uint8_t *Label, uint32_t Label_len,
+			 const char *Label, uint32_t Label_len,
 			 const uint8_t *Context, uint32_t Context_len,
 			 uint8_t *KO, uint32_t KO_len)
 {
@@ -2022,7 +2022,7 @@ dissect_smb2_olb_length_offset(tvbuff_t *tvb, int offset, offset_length_buffer_t
 
 #define OLB_TYPE_UNICODE_STRING		0x01
 #define OLB_TYPE_ASCII_STRING		0x02
-static const uint8_t *
+static const char *
 dissect_smb2_olb_off_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, offset_length_buffer_t *olb, int base, int type)
 {
 	int           len, off;
@@ -2088,10 +2088,10 @@ dissect_smb2_olb_off_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 		break;
 	}
 
-	return name;
+	return (const char*)name;
 }
 
-static const uint8_t *
+static const char*
 dissect_smb2_olb_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, offset_length_buffer_t *olb, int type)
 {
 	return dissect_smb2_olb_off_string(pinfo, parent_tree, tvb, olb, 0, type);
@@ -3955,19 +3955,19 @@ static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_inf
 			smb2_key_derivation(ses->session_key,
 					    NTLMSSP_KEY_LEN,
 					    "SMB2AESCCM", 11,
-					    "ServerIn ", 10,
+					    (const uint8_t*)"ServerIn ", 10,
 					    ses->server_decryption_key16, 16);
 		if (!has_client_key)
 			smb2_key_derivation(ses->session_key,
 					    NTLMSSP_KEY_LEN,
 					    "SMB2AESCCM", 11,
-					    "ServerOut", 10,
+					    (const uint8_t*)"ServerOut", 10,
 					    ses->client_decryption_key16, 16);
 		if (!has_signkey)
 			smb2_key_derivation(ses->session_key,
 					    NTLMSSP_KEY_LEN,
 					    "SMB2AESCMAC", 12,
-					    "SmbSign", 8,
+					    (const uint8_t*)"SmbSign", 8,
 					    ses->signing_key, 16);
 	} else if (conv->dialect >= SMB2_DIALECT_311) {
 		if (!has_server_key) {
@@ -4474,7 +4474,7 @@ static int
 dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	offset_length_buffer_t olb;
-	const uint8_t *buf;
+	const char *buf;
 	uint16_t      flags;
 	proto_item *item = NULL;
 	static int * const connect_flags[] = {
@@ -4889,7 +4889,7 @@ static int
 dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t olb;
-	const uint8_t *buf;
+	const char *buf;
 	uint8_t     il;
 	static int * const f_fields[] = {
 		&hf_smb2_find_flags_restart_scans,
@@ -5619,7 +5619,7 @@ static void dissect_smb2_posix_directory_info(tvbuff_t *tvb, packet_info *pinfo 
 	while (tvb_reported_length_remaining(tvb, offset) > 4) {
 		int old_offset = offset;
 		int next_offset;
-		int file_name_len;
+		uint32_t file_name_len;
 
 		if (parent_tree) {
 			item = proto_tree_add_item(parent_tree, hf_smb2_posix_info, tvb, offset, -1, ENC_NA);
@@ -9115,7 +9115,7 @@ dissect_smb2_FSCTL_DUPLICATE_EXTENTS_TO_FILE(tvbuff_t *tvb, packet_info *pinfo, 
 static void
 dissect_smb2_FSCTL_DFS_GET_REFERRALS_EX(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset _U_, gboolean data_in)
 {
-	int16_t bc;
+	uint16_t bc;
 	int32_t name_len;
 	int32_t data_len;
 	bool is_sitename = FALSE;
@@ -10598,7 +10598,7 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 {
 	offset_length_buffer_t  tag_olb;
 	offset_length_buffer_t  data_olb;
-	const uint8_t *tag;
+	const char *tag;
 	uint16_t    chain_offset;
 	int         offset      = 0;
 	int         len         = -1;
@@ -10679,7 +10679,7 @@ static int
 dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t	 f_olb, e_olb;
-	const uint8_t		*fname;
+	const char		*fname;
 	proto_item		*item;
 	proto_tree		*tag_tree = NULL;
 	proto_item		*tag_item = NULL;

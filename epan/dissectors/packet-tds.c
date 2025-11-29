@@ -5093,15 +5093,15 @@ dissect_tds_rowfmt2_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
         if (catalognamelen > 1) {
             name = wmem_strjoin(pinfo->pool, ".",
-                       catalogname, schemaname, tablename, (const char*)colname, NULL);
+                       (const char*)catalogname, schemaname, tablename, (const char*)colname, NULL);
         }
         else if (schemanamelen > 1) {
             name = wmem_strjoin(pinfo->pool, ".",
-                       schemaname, tablename, (const char*)colname, NULL);
+                       (const char*)schemaname, tablename, (const char*)colname, NULL);
         }
         else if (tablenamelen > 1) {
             name = wmem_strjoin(pinfo->pool, ".",
-                       tablename, (const char*)colname, NULL);
+                       (const char*)tablename, (const char*)colname, NULL);
         }
         else {
             name = (const char*)colname;

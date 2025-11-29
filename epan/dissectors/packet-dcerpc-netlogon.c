@@ -743,7 +743,7 @@ struct LOGON_INFO_STATE;
 struct LOGON_INFO_STATE_CB {
     struct LOGON_INFO_STATE *state;
     ntlmssp_blob     *response;
-    const uint8_t    **name_ptr;
+    const char       **name_ptr;
     int              name_levels;
 };
 
@@ -764,10 +764,10 @@ static void dissect_LOGON_INFO_STATE_finish(struct LOGON_INFO_STATE *state)
         state->lm_response.length >= 24)
     {
         if (state->ntlmssph.domain_name == NULL) {
-                state->ntlmssph.domain_name = (const uint8_t *)"";
+                state->ntlmssph.domain_name = "";
         }
         if (state->ntlmssph.host_name == NULL) {
-                state->ntlmssph.host_name = (const uint8_t *)"";
+                state->ntlmssph.host_name = "";
         }
 
         ntlmssp_create_session_key(state->pinfo,
@@ -1154,7 +1154,7 @@ static void cb_wstr_LOGON_IDENTITY_INFO(packet_info *pinfo, proto_tree *tree,
                         GINT_TO_POINTER(cb_ref->name_levels));
 
     if (*cb_ref->name_ptr == NULL) {
-        *cb_ref->name_ptr = (const uint8_t *)dcv->private_data;
+        *cb_ref->name_ptr = (const char *)dcv->private_data;
     }
 
     dissect_LOGON_INFO_STATE_finish(state);

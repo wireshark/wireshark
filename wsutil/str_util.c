@@ -327,7 +327,7 @@ isprint_utf8_string(const char *str, const unsigned length)
 
 /* Check if an entire string is digits. */
 bool
-isdigit_string(const unsigned char *str)
+isdigit_string(const char *str)
 {
     unsigned pos;
 
