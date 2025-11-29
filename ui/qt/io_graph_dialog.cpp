@@ -14,6 +14,7 @@
 #include "file.h"
 #include "locale.h"
 
+#include <epan/uat-int.h>
 #include <epan/stat_tap_ui.h>
 
 #include <wsutil/utf8_entities.h>

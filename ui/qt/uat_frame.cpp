@@ -10,6 +10,7 @@
 #include "config.h"
 
 #include <epan/filter_expressions.h>
+#include <epan/uat-int.h>
 
 #include "uat_frame.h"
 #include <ui_uat_frame.h>

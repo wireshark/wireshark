@@ -13,6 +13,7 @@
 #include "uat_model.h"
 #include "ui/qt/io_graph_dialog.h"
 #include <epan/to_str.h>
+#include <epan/uat-int.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <wsutil/application_flavor.h>
 #include <QFont>

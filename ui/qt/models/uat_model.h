@@ -19,7 +19,7 @@
 #include <QAbstractItemModel>
 #include <QList>
 #include <QMap>
-#include <epan/uat-int.h>
+#include <epan/uat.h>
 
 class UatModel : public QAbstractTableModel
 {
@@ -80,7 +80,7 @@ private:
     void loadUat(uat_t * uat = 0);
     bool moveRowPrivate(int src_row, int dst_row);
 
-    epan_uat *uat_;
+    uat_t *uat_;
     bool applying_;
     QVector<bool> dirty_records;
     QVector<QMap<int, QString> > record_errors;

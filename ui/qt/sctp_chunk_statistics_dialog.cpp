@@ -12,6 +12,9 @@
 #include <ui_sctp_chunk_statistics_dialog.h>
 #include "uat_dialog.h"
 
+#include <epan/prefs-int.h>
+#include <epan/uat-int.h>
+
 #include <wsutil/strtoi.h>
 #include <wsutil/wslog.h>
 #include <wsutil/application_flavor.h>

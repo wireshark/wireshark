@@ -423,6 +423,11 @@ ModulePreferencesScrollArea::~ModulePreferencesScrollArea()
     delete ui;
 }
 
+const QString ModulePreferencesScrollArea::name() const
+{
+    return QString(module_->name);
+}
+
 void ModulePreferencesScrollArea::showEvent(QShowEvent *)
 {
     updateWidgets();

@@ -16,6 +16,7 @@
 #include <ui/qt/main_application.h>
 
 #include <epan/filter_expressions.h>
+#include <epan/uat-int.h>
 #include <ui/preference_utils.h>
 #include <wsutil/application_flavor.h>
 

@@ -13,7 +13,6 @@
 #include <config.h>
 
 #include <epan/prefs.h>
-#include <epan/prefs-int.h>
 
 #include <QScrollArea>
 
@@ -28,7 +27,7 @@ class ModulePreferencesScrollArea : public QScrollArea
 public:
     explicit ModulePreferencesScrollArea(module_t *module, QWidget *parent = 0);
     ~ModulePreferencesScrollArea();
-    const QString name() const { return QString(module_->name); }
+    const QString name() const;
 
 protected:
     void showEvent(QShowEvent *);

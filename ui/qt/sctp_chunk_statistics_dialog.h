@@ -18,8 +18,7 @@
 #include "epan/packet.h"
 #include <wsutil/value_string.h>
 #include <epan/prefs.h>
-#include <epan/uat-int.h>
-#include <epan/prefs-int.h>
+#include <epan/uat.h>
 #include <wsutil/filesystem.h>
 #include "wireshark_application.h"
 

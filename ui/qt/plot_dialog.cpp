@@ -14,6 +14,8 @@
 #include "plot_dialog.h"
 #include <ui_plot_dialog.h>
 
+#include <epan/uat-int.h>
+
 #include <wsutil/application_flavor.h>
 #include <wsutil/report_message.h>
 #include <ui/preference_utils.h>

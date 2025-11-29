@@ -15,7 +15,7 @@
 
 #include <epan/epan_dissect.h>
 #include <epan/prefs.h>
-#include <epan/uat-int.h>
+#include <epan/uat.h>
 
 #include <wsutil/str_util.h>
 
