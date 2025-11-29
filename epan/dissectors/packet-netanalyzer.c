@@ -319,8 +319,6 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else
     {
-      unsigned char *szTemp;
-
       /* check consistency */
       if ( (tvb_get_uint8(tvb, 10) == 0x00) &&
            (tvb_get_uint8(tvb, 11) == 0x02) &&
@@ -332,8 +330,7 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            (tvb_get_uint8(tvb, 17) == 0xff) &&
            (tvb_get_uint8(tvb, INFO_TYPE_OFFSET) == 0x00) )
       {
-#define MAX_BUFFER 255
-        szTemp=(unsigned char *)wmem_alloc(wmem_epan_scope(), MAX_BUFFER);
+        char *szTemp;
 
         /* everything ok */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
@@ -351,8 +348,7 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_item (netanalyzer_header_tree, hf_netanalyzer_gpio_edge, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         gpio_edge = (tvb_get_uint8(tvb, offset) & 0x01);
 
-        snprintf(szTemp, MAX_BUFFER,
-                   "GPIO event on GPIO %d (%sing edge)", gpio_num, (gpio_edge == 0x00) ? "ris" : "fall");
+        szTemp = wmem_strdup_printf(pinfo->pool, "GPIO event on GPIO %d (%sing edge)", gpio_num, (gpio_edge == 0x00) ? "ris" : "fall");
 
         col_add_str(pinfo->cinfo, COL_INFO, szTemp);
         proto_item_append_text(ti, " %s", szTemp);

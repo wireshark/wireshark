@@ -228,7 +228,7 @@ static dissector_table_t   dtls_associations;
 static dissector_handle_t  dtls_handle;
 static StringInfo          dtls_compressed_data;
 static StringInfo          dtls_decrypted_data;
-static int                 dtls_decrypted_data_avail;
+static unsigned            dtls_decrypted_data_avail;
 
 static ssl_common_options_t dtls_options;
 static const char *dtls_debug_file_name;

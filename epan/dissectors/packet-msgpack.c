@@ -382,7 +382,7 @@ static void dissect_msgpack_bin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 	lvalue = (char*)tvb_bytes_to_str(pinfo->pool, tvb, *offset + 1 + lensize, len);
 	label = (data ? (char*)data : "MsgPack Bytes");
 
-	ti = proto_tree_add_bytes_format(tree, hf_msgpack_bin, tvb, *offset, 1 + lensize + len, lvalue, "%s: %s", label, lvalue);
+	ti = proto_tree_add_bytes_format(tree, hf_msgpack_bin, tvb, *offset, 1 + lensize + len, NULL, "%s: %s", label, lvalue);
 	subtree = proto_item_add_subtree(ti, ett_msgpack_bin);
 	proto_tree_add_item(subtree, hf_msgpack_type, tvb, *offset, 1, ENC_NA);
 

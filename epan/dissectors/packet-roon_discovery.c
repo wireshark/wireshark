@@ -243,7 +243,7 @@ dissect_roon_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return 0;
 
     // Must start with SOOD
-    char *marker = tvb_get_string_enc(pinfo->pool, tvb, 0, 4, ENC_ASCII);
+    const char *marker = (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, 4, ENC_ASCII);
     if (strcmp(ROON_DISCOVERY_ID, marker) != 0)
         return 0;
 
@@ -282,12 +282,12 @@ dissect_roon_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         key_len = tvb_get_uint8(tvb, i);
         offset = i + 1;
-        key = tvb_get_string_enc(pinfo->pool, tvb, offset, key_len, ENC_ASCII);
+        key = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, key_len, ENC_ASCII);
 
         offset += key_len + 1;
         value_len = tvb_get_uint8(tvb, offset);
         offset += 1;
-        value = tvb_get_string_enc(pinfo->pool, tvb, offset, value_len, ENC_ASCII);
+        value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, value_len, ENC_ASCII);
 
         next = key_len + value_len + 3;
 

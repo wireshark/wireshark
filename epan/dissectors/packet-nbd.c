@@ -816,7 +816,7 @@ dissect_nbd_opt_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	uint32_t opt, data_len, name_len, info_num;
 	nbd_conv_info_t *nbd_info;
 	nbd_option_t *nbd_opt;
-	const uint8_t *export_name;
+	const char *export_name;
 
 	item = proto_tree_add_item(parent_tree, proto_nbd, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_nbd);
@@ -852,7 +852,7 @@ dissect_nbd_opt_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	if (data_len) {
 		switch (opt) {
 		case NBD_OPT_EXPORT_NAME:
-			proto_tree_add_item_ret_string(tree, hf_nbd_export_name, tvb, offset, data_len, ENC_UTF_8, pinfo->pool, &export_name);
+			proto_tree_add_item_ret_string(tree, hf_nbd_export_name, tvb, offset, data_len, ENC_UTF_8, pinfo->pool, (const uint8_t**)&export_name);
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ":", export_name);
 			break;
 		case NBD_OPT_INFO:
@@ -876,9 +876,10 @@ dissect_nbd_opt_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			offset += name_len;
 			proto_tree_add_item_ret_uint(tree, hf_nbd_query_num, tvb, offset, 4, ENC_BIG_ENDIAN, &info_num);
 			offset += 4;
+			int query_len;
 			for (unsigned i = 0; i < info_num; ++i) {
-				proto_tree_add_item_ret_length(tree, hf_nbd_query, tvb, offset, 2, ENC_BIG_ENDIAN, &name_len);
-				offset += name_len;
+				proto_tree_add_item_ret_length(tree, hf_nbd_query, tvb, offset, 2, ENC_BIG_ENDIAN, &query_len);
+				offset += query_len;
 			}
 			break;
 		default:

@@ -1791,7 +1791,8 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
  @param length length of data in tvb
- @param start_ptr pointer to the data to display
+ @param start_ptr pointer to the data to display (can be NULL, in which
+        case length bytes are retrieved from the tvb starting at offset)
  @param format printf like format string
  @param ... printf like parameters
  @return the newly created item */
@@ -1807,7 +1808,8 @@ proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @param tvb the tv buffer of the current data
  @param start start of data in tvb
  @param length length of data in tvb
- @param start_ptr pointer to the data to display
+ @param start_ptr pointer to the data to display (can be NULL, in which
+        case length bytes are retrieved from the tvb starting at offset)
  @param format printf like format string
  @param ... printf like parameters
  @return the newly created item */

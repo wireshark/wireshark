@@ -226,13 +226,13 @@ id3v2_dissect_textz_item(wmem_allocator_t *scope, tvbuff_t *tvb, proto_tree *tre
 {
 	unsigned encoding;
 	char *text_value;
-	unsigned text_length;
+	int text_length;
 
 	encoding = id3v2_decode_encoding(id3_encoding);
 
 	text_value = (char*)tvb_get_stringz_enc(scope, tvb, *offset, &text_length, encoding);
 	proto_tree_add_item(tree, hf, tvb, *offset, text_length, encoding);
-	*offset += text_length;
+	*offset += (unsigned)text_length;
 
 	return text_value;
 }
@@ -364,7 +364,7 @@ dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
 		if (!strcmp(frame_id, "TPE1"))
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Artist: %s, ", tv);
 	} else if (!strcmp(frame_id, "UFID")) {
-		unsigned text_length;
+		int text_length;
 		char *text_value;
 
 		text_value = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &text_length, ENC_UTF_8);
@@ -372,7 +372,7 @@ dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
 		offset += text_length;
 		proto_item_append_text(frame_item, " (Owner: %s)", text_value);
 
-		DISSECTOR_ASSERT(size >= text_length);
+		DISSECTOR_ASSERT(size >= (unsigned)text_length);
 		proto_tree_add_item(frame_tree, hf_id3v2_frame_ufi_id, tvb, offset, size-text_length, ENC_NA);
 		offset += (size-text_length);
 	} else if (!strcmp(frame_id, "APIC")) {

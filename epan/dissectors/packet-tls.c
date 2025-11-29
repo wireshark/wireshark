@@ -260,7 +260,7 @@ static dissector_handle_t  tls_handle;
 static dissector_handle_t  tls13_handshake_handle;
 static StringInfo          ssl_compressed_data;
 static StringInfo          ssl_decrypted_data;
-static int                 ssl_decrypted_data_avail;
+static unsigned            ssl_decrypted_data_avail;
 static FILE               *ssl_keylog_file;
 static ssl_common_options_t ssl_options;
 
@@ -4517,7 +4517,7 @@ tls13_exporter_common(int algo, const StringInfo *secret, const char *label, uin
      */
     gcry_error_t    err;
     gcry_md_hd_t    hd;
-    const char     *hash_value;
+    const uint8_t  *hash_value;
     StringInfo      derived_secret = { NULL, 0 };
     // QUIC -09 currently uses draft 23, so no need to support older TLS drafts
     const char *label_prefix = "tls13 ";
