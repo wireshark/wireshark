@@ -319,7 +319,7 @@ static void
 mka_derive_kek(void * k) {
   mka_ckn_info_t *rec = (mka_ckn_info_t *)k;
 
-  uint8_t *label = "IEEE8021 KEK";
+  uint8_t *label = (uint8_t*)"IEEE8021 KEK";
   rec->key.kek_len = mka_derive_key(label, rec->key.kek, rec);
 }
 
@@ -327,7 +327,7 @@ static void
 mka_derive_ick(void * k) {
   mka_ckn_info_t *rec = (mka_ckn_info_t *)k;
 
-  uint8_t *label = "IEEE8021 ICK";
+  uint8_t *label = (uint8_t*)"IEEE8021 ICK";
   rec->key.kek_len = mka_derive_key(label, rec->key.kek, rec);
 }
 

@@ -2401,7 +2401,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, unsi
     proto_tree *field_table_tree, *field_item_tree;
     proto_item *field_item;
     unsigned    namelen, vallen;
-    const uint8_t *name;
+    const char *name;
     int         field_start;
 
     field_table_tree = proto_item_add_subtree(item, ett_amqp);
@@ -2416,7 +2416,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, unsi
         if (length < namelen)
             goto too_short;
         field_item_tree = proto_item_add_subtree(field_item, ett_amqp_0_9_field);
-        proto_tree_add_item_ret_string(field_item_tree, hf_amqp_field_name, tvb, offset, namelen, ENC_UTF_8, pinfo->pool, &name);
+        proto_tree_add_item_ret_string(field_item_tree, hf_amqp_field_name, tvb, offset, namelen, ENC_UTF_8, pinfo->pool, (const uint8_t**)&name);
         proto_item_set_text(field_item, "%s", name);
         offset += namelen;
         length -= namelen;
@@ -2569,7 +2569,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, unsi
     case 'S': /* long string, UTF-8 encoded */
         if (length < 4)
             return 0; /* too short */
-        ti = proto_tree_add_item_ret_length(field_tree, hf_amqp_field_string, tvb, offset, 4, ENC_BIG_ENDIAN|ENC_UTF_8, &vallen);
+        ti = proto_tree_add_item_ret_length(field_tree, hf_amqp_field_string, tvb, offset, 4, ENC_BIG_ENDIAN|ENC_UTF_8, (int*)&vallen);
         offset += vallen;
         break;
     case 'T': /* timestamp (u64) */
@@ -2662,7 +2662,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, unsi
         if (length < 4)
             return 0; /* too short */
         ti = proto_tree_add_item_ret_length(field_tree, hf_amqp_field_byte_array, tvb,
-                                 offset, 4, ENC_NA, &vallen);
+                                 offset, 4, ENC_NA, (int*)&vallen);
         offset += vallen;
         break;
     default:

@@ -124,7 +124,7 @@ typedef struct _psk_info {
 
 typedef struct _psk_config {
   psk_info_t keydata;
-  unsigned char *name;
+  char *name;
 } psk_config_t;
 
 static psk_config_t *psk_config_data = NULL;

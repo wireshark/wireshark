@@ -1913,7 +1913,7 @@ dissect_conn_desc(tvbuff_t *tvb, int offset, conversation_t *conv,
     proto_tree *conn_desc_tree = NULL;
     uint32_t    tag;
     int         offset_start, offset_body;
-    int         len_field;
+    uint32_t    len_field;
     uint8_t     conn_desc_type;
     uint8_t     ip_ver, ip_proto;
     uint16_t    port;
@@ -2653,7 +2653,7 @@ dissect_dvbci_text(const char *title, tvbuff_t *tvb, int offset,
     proto_tree *text_tree;
     uint32_t    tag;
     int         offset_start;
-    int         len_field;
+    uint32_t    len_field;
 
     offset_start = offset;
 

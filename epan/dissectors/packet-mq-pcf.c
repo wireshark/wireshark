@@ -98,12 +98,12 @@ static GHashTable* MQCFINT_Parse_table;
 * to get val_to_str value from the value of a parameter on a more
 * easier way than using switch cases.
 */
-const uint8_t *dissect_mqpcf_parm_getintval(unsigned uPrm, unsigned uVal)
+const char *dissect_mqpcf_parm_getintval(unsigned uPrm, unsigned uVal)
 {
     const value_string* pVs = (const value_string*)g_hash_table_lookup(MQCFINT_Parse_table, GUINT_TO_POINTER(uPrm));
     if (pVs)
     {
-        return (const uint8_t *)try_val_to_str(uVal, pVs);
+        return try_val_to_str(uVal, pVs);
     }
     return NULL;
 }
@@ -112,7 +112,7 @@ static void dissect_mqpcf_parm_int(tvbuff_t *tvb, proto_tree *tree, unsigned off
                                    unsigned uVal, int hfindex, unsigned iCnt, unsigned iMaxCnt,
                                    unsigned iDigit, bool bParse)
 {
-    const uint8_t *pVal = NULL;
+    const char *pVal = NULL;
 
     if (bParse)
         pVal = dissect_mqpcf_parm_getintval(uPrm, uVal);
@@ -263,7 +263,7 @@ uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tr
                 break;
             case MQ_MQCFT_INTEGER:
             {
-                const uint8_t *pVal = NULL;
+                const char *pVal = NULL;
                 uVal = tvb_get_uint32(tvb, offset + uLenF, bLittleEndian);
                 if (bParse)
                 {
@@ -306,7 +306,7 @@ uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tr
                 if (*sStr)
                     strip_trailing_blanks(sStr, uSLn);
                 if (*sStr)
-                    sStr = (uint8_t*)format_text_chr(pinfo->pool, sStr, strlen((const char *)sStr), '.');
+                    sStr = (uint8_t*)format_text_chr(pinfo->pool, (const char*)sStr, strlen((const char *)sStr), '.');
 
                 tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, NULL, "%s: %s", strPrm, sStr);
 
@@ -379,7 +379,7 @@ uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tr
                     if (*sStr)
                         strip_trailing_blanks(sStr, uSLn);
                     if (*sStr)
-                        sStr = (uint8_t*)format_text_chr(pinfo->pool, sStr, strlen((const char *)sStr), '.');
+                        sStr = (uint8_t*)format_text_chr(pinfo->pool, (const char*)sStr, strlen((const char *)sStr), '.');
 
                     proto_tree_add_string_format(tree, hf_mq_pcf_stringlist, tvb, offset, uSLn, (const char *)sStr,
                                                  "%s[%*d]: %s", hfinfo->name, uDigit, u2 + 1, sStr);
@@ -421,8 +421,8 @@ uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tr
                 uSLn = tvb_get_uint32(tvb, offset + uLenF, bLittleEndian);
                 if (uSLn)
                 {
-                    uint8_t *sStrA = (uint8_t *)format_text_chr(pinfo->pool, tvb_get_string_enc(pinfo->pool, tvb, offset + uLenF + 4, uSLn, ENC_ASCII), uSLn, '.');
-                    uint8_t *sStrE = (uint8_t *)format_text_chr(pinfo->pool, tvb_get_string_enc(pinfo->pool, tvb, offset + uLenF + 4, uSLn, ENC_EBCDIC), uSLn, '.');
+                    uint8_t *sStrA = (uint8_t *)format_text_chr(pinfo->pool, (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + uLenF + 4, uSLn, ENC_ASCII), uSLn, '.');
+                    uint8_t *sStrE = (uint8_t *)format_text_chr(pinfo->pool, (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + uLenF + 4, uSLn, ENC_EBCDIC), uSLn, '.');
                     if (uSLn > 35)
                     {
                         tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, NULL,
@@ -478,7 +478,7 @@ uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tr
                 uCCS = tvb_get_uint32(tvb, offset + uLenF + 4, bLittleEndian);
                 uSLn = tvb_get_uint32(tvb, offset + uLenF + 8, bLittleEndian);
                 sStr = (uint8_t *)format_text_chr(pinfo->pool,
-                                                 tvb_get_string_enc(pinfo->pool, tvb, offset + uLenF + 12, uSLn, IS_EBCDIC(uCCS) ? ENC_EBCDIC : ENC_ASCII),
+                                                 (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + uLenF + 12, uSLn, IS_EBCDIC(uCCS) ? ENC_EBCDIC : ENC_ASCII),
                                                  uSLn, '.');
                 strip_trailing_blanks(sStr, uSLn);
 
@@ -502,8 +502,8 @@ uint32_t dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tr
                 uSLn = tvb_get_uint32(tvb, offset + uLenF + 4, bLittleEndian);
                 if (uSLn)
                 {
-                    uint8_t *sStrA = (uint8_t *)format_text_chr(pinfo->pool, tvb_get_string_enc(pinfo->pool, tvb, offset + uLenF + 8, uSLn, ENC_ASCII), uSLn, '.');
-                    uint8_t *sStrE = (uint8_t *)format_text_chr(pinfo->pool, tvb_get_string_enc(pinfo->pool, tvb, offset + uLenF + 8, uSLn, ENC_EBCDIC), uSLn, '.');
+                    uint8_t *sStrA = (uint8_t *)format_text_chr(pinfo->pool, (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + uLenF + 8, uSLn, ENC_ASCII), uSLn, '.');
+                    uint8_t *sStrE = (uint8_t *)format_text_chr(pinfo->pool, (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + uLenF + 8, uSLn, ENC_EBCDIC), uSLn, '.');
                     tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, NULL, "%s: %s A(%s) E(%s)",
                                                          strPrm, val_to_str(pinfo->pool, uOpe, mq_MQCFOP_vals, "       Unknown (0x%02x)") + 7, sStrA, sStrE);
                 }

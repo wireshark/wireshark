@@ -2640,13 +2640,13 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                 iEnc = p_mq_parm->mq_str_enc;
             }
 
-            sApplicationName = tvb_get_string_enc(pinfo->pool, tvb, offset + 48, 28, iEnc);
+            sApplicationName = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + 48, 28, iEnc);
             sApplicationName = format_text_chr(pinfo->pool, sApplicationName, strlen(sApplicationName), '.');
             if (strip_trailing_blanks((uint8_t*)sApplicationName, (uint32_t)strlen(sApplicationName)) > 0)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, " App=%s", sApplicationName);
             }
-            sQMgr = tvb_get_string_enc(pinfo->pool, tvb, offset, 48, iEnc);
+            sQMgr = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 48, iEnc);
             sQMgr = format_text_chr(pinfo->pool, sQMgr, strlen(sQMgr), '.');
             if (strip_trailing_blanks((uint8_t*)sQMgr, (uint32_t)strlen(sQMgr)) > 0)
             {
@@ -2763,7 +2763,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 
         if (!ckd_mul(&iSizeINQSelectors, uNbSelectors, 4) && tvb_reported_length_remaining(INQ_tvb, iOffsetINQ) >= iSizeINQSelectors)
         {
-            const uint8_t* _pVal;
+            const char* _pVal;
             uint32_t _lSel;
             wmem_array_t *iSelArray = wmem_array_new(pinfo->pool, sizeof(uint32_t));
             for (unsigned uSelector = 0; uSelector < uNbSelectors; uSelector++)
@@ -3216,7 +3216,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             }
             if (iVersion >= 1)
             {
-                unsigned iDistributionListSize2;
+                int iDistributionListSize2;
                 iSize = dissect_mq_od(tvb, pinfo, mqroot_tree, offset + iPos, p_mq_parm, &iDistributionListSize2);
             }
             offset += iPos + iSize;
@@ -3627,7 +3627,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                                     if (*sStr)
                                         strip_trailing_blanks(sStr, iLenStr);
                                     if (*sStr)
-                                        sStr = (uint8_t*)format_text_chr(pinfo->pool, sStr, strlen((const char*)sStr), '.');
+                                        sStr = (uint8_t*)format_text_chr(pinfo->pool, (const char*)sStr, strlen((const char*)sStr), '.');
 
                                     rfh_tree = proto_tree_add_subtree_format(mq_tree, tvb, iPos, iLenStr + 4, ett_mq_rfh_ValueName, NULL, "NameValue: %s", sStr);
 
@@ -3796,7 +3796,7 @@ static int reassemble_mq(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, vo
         fragment_head* fd_head;
         uint32_t iConnectionId = ((pinfo->srcport << 16) + pinfo->destport);
         bool reassembly_error = false;
-        uint8_t* pTmp = "Full";
+        const char* pTmp = "Full";
         if (bSeg1st && !bSegLst)
             pTmp = "First ";
         if (!bSeg1st && bSegLst)
@@ -3877,7 +3877,7 @@ static int reassemble_mq(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, vo
             uint32_t _iLen;
             if (iOpcd == MQ_TST_MQPUT1 || iOpcd == MQ_TST_MQPUT1_REPLY)
             {
-                unsigned iDistributionListSize2;
+                int iDistributionListSize2;
                 _iLen = dissect_mq_od(tvb, NULL, NULL, iNxtP, &mq_parm, &iDistributionListSize2);
                 iNxtP += _iLen;
                 mq_parm.mq_MsgActLen -= _iLen;
