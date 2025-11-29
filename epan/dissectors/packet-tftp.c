@@ -55,7 +55,7 @@ void proto_register_tftp(void);
 /* Things we may want to remember for a whole conversation */
 typedef struct _tftp_conv_info_t {
   uint16_t     blocksize;
-  const uint8_t *source_file, *destination_file;
+  const char  *source_file, *destination_file;
   uint32_t     request_frame;
   bool         tsize_requested;
   bool         dynamic_windowing_active;
@@ -437,7 +437,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
   case TFTP_RRQ:
     i1 = tvb_strsize(tvb, offset);
     proto_tree_add_item_ret_string(tftp_tree, hf_tftp_source_file,
-                        tvb, offset, i1, ENC_ASCII|ENC_NA, wmem_file_scope(), &tftp_info->source_file);
+                        tvb, offset, i1, ENC_ASCII|ENC_NA, wmem_file_scope(), (const uint8_t**)&tftp_info->source_file);
 
     /* we either have a source file name (for read requests) or a
        destination file name (for write requests)
@@ -466,7 +466,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
   case TFTP_WRQ:
     i1 = tvb_strsize(tvb, offset);
     proto_tree_add_item_ret_string(tftp_tree, hf_tftp_destination_file,
-                        tvb, offset, i1, ENC_ASCII|ENC_NA, wmem_file_scope(), &tftp_info->destination_file);
+                        tvb, offset, i1, ENC_ASCII|ENC_NA, wmem_file_scope(), (const uint8_t**)&tftp_info->destination_file);
 
     tftp_info->source_file = NULL; /* see above */
     tftp_info->request_frame = pinfo->num;

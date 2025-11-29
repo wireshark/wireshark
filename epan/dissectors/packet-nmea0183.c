@@ -1558,7 +1558,7 @@ dissect_nmea0183_field_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     const char *mode = NULL;
     ti = proto_tree_add_item_ret_string(tree, hf,
                                         tvb, offset, end_of_field_offset - offset, ENC_ASCII,
-                                        pinfo->pool, (const uint8_t**)mode);
+                                        pinfo->pool, (const uint8_t**)&mode);
     if (end_of_field_offset - offset == 0)
     {
         proto_item_append_text(ti, "[empty]");

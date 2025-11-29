@@ -725,10 +725,10 @@ static int procmon_read_registry_data(proto_tree* tree, packet_info* pinfo, tvbu
     {
         int str_length;
         int start_offset = offset;
-        uint8_t* substring;
+        const char* substring;
         wmem_strbuf_t* full_string = wmem_strbuf_new(pinfo->pool, "");
 
-        while (((substring = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &str_length, ENC_UTF_16 | ENC_LITTLE_ENDIAN)) != NULL) && (strlen(substring) > 0))
+        while (((substring = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &str_length, ENC_UTF_16 | ENC_LITTLE_ENDIAN)) != NULL) && (strlen(substring) > 0))
         {
             wmem_strbuf_append_printf(full_string, " %s", substring);
             offset += str_length;
@@ -2421,7 +2421,7 @@ static bool dissect_procmon_network_event(tvbuff_t* tvb, packet_info* pinfo, pro
     int offset = 0;
     uint16_t flags;
     int detail_length, detail_offset;
-    uint8_t* detail_substring;
+    const char* detail_substring;
     wmem_strbuf_t* details = wmem_strbuf_new(pinfo->pool, "");
     static int* const network_flags_vals[] = {
             &hf_procmon_network_flags_is_src_ipv4,
@@ -2470,7 +2470,7 @@ static bool dissect_procmon_network_event(tvbuff_t* tvb, packet_info* pinfo, pro
     proto_tree_add_item(network_event_tree, hf_procmon_network_dest_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     detail_offset = offset;
-    while (((detail_substring = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &detail_length, ENC_UTF_16 | ENC_LITTLE_ENDIAN)) != NULL) && (strlen(detail_substring) > 0))
+    while (((detail_substring = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &detail_length, ENC_UTF_16 | ENC_LITTLE_ENDIAN)) != NULL) && (strlen(detail_substring) > 0))
     {
         wmem_strbuf_append_printf(details, " %s", detail_substring);
         offset += detail_length;

@@ -20,8 +20,8 @@
 #include <epan/conversation.h>
 #include <wsutil/utf8_entities.h>
 
-#define OTP_IDENTIFIER ((uint8_t*)"OTP-E1.59\x00\x00\x00")
-#define OTP_IDENTIFIER_LEN (sizeof OTP_IDENTIFIER - 1)
+#define OTP_IDENTIFIER ((const uint8_t*)"OTP-E1.59\x00\x00\x00")
+#define OTP_IDENTIFIER_LEN (12)
 
 /* constants */
 #define OTP_MESSAGE_TRANSFORM     0x0001
