@@ -7312,8 +7312,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Search vendor name using a case-insensitive regular expression.</source>
-        <oldsource>Search vendor name using a case-insentitive regular expression.</oldsource>
-        <translation type="unfinished">Поиск названия поставщика с помощью регулярного выражения, не зависящего от регистра.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Vendor Name</source>

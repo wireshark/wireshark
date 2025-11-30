@@ -5462,7 +5462,11 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0FBB,   "Rollease Acmeda, Inc." },
     { 0x0FBC,   "ATANS TECHNOLOGY INC." },
     { 0x0FBD,   "Locus Robotics Corp." },
-    { 0x0FBE,   "Locus TaigaIoT" },
+    { 0x0FBE,   "TaigaIoT" },
+    { 0x0FBF,   "Tridentify AB" },
+    { 0x0FC0,   "Littlebird Connected Care, Inc." },
+    { 0x0FC1,   "Air Automotive tracking Inc." },
+    { 0x0FC2,   "ISSPRO, INC" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };

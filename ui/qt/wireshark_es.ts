@@ -7224,7 +7224,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Search vendor name using a case-insensitive regular expression.</source>
-        <oldsource>Search vendor name using a case-insentitive regular expression.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

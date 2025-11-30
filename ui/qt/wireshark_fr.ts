@@ -7289,8 +7289,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Search vendor name using a case-insensitive regular expression.</source>
-        <oldsource>Search vendor name using a case-insentitive regular expression.</oldsource>
-        <translation type="unfinished">Recherche du nom du vendeur à l&apos;aide d&apos;une expression régulière insensible à la casse.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Vendor Name</source>

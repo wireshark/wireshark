@@ -7268,8 +7268,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Search vendor name using a case-insensitive regular expression.</source>
-        <oldsource>Search vendor name using a case-insentitive regular expression.</oldsource>
-        <translation type="unfinished">Cari nama vendor memakai ekspresi reguler tanpa membedakan besar kecil huruf.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Vendor Name</source>

@@ -7313,8 +7313,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Search vendor name using a case-insensitive regular expression.</source>
-        <oldsource>Search vendor name using a case-insentitive regular expression.</oldsource>
-        <translation type="unfinished">Cuardaigh ainm an díoltóra ag baint úsáide as slonn ionadaíochta cás-insentidive.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Vendor Name</source>
