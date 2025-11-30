@@ -83,8 +83,8 @@ generate_key_or_iv(packet_info *pinfo, unsigned int id, tvbuff_t *salt_tvb, unsi
   gcry_md_hd_t md;
   gcry_mpi_t num_b1 = NULL;
   size_t pwlen;
-  char hash[20], buf_b[64], buf_i[128], *p;
-  char *salt_p;
+  uint8_t hash[20], buf_b[64], buf_i[128], *p;
+  uint8_t *salt_p;
   int salt_size;
   size_t cur_keylen;
   size_t n;
@@ -93,7 +93,7 @@ generate_key_or_iv(packet_info *pinfo, unsigned int id, tvbuff_t *salt_tvb, unsi
   cur_keylen = 0;
 
   salt_size = tvb_captured_length(salt_tvb);
-  salt_p = (char *)tvb_memdup(pinfo->pool, salt_tvb, 0, salt_size);
+  salt_p = (uint8_t *)tvb_memdup(pinfo->pool, salt_tvb, 0, salt_size);
 
   if (pw == NULL)
     pwlen = 0;

@@ -921,7 +921,7 @@ save_encryption_key(tvbuff_t *tvb _U_, int offset _U_, int length _U_,
 			   private_data->key_tvb,
 			   private_data->key.keytype,
 			   private_data->key.keylength,
-			   private_data->key.keyvalue,
+			   (const char*)private_data->key.keyvalue,
 			   origin,
 			   NULL,
 			   NULL);
@@ -1632,7 +1632,7 @@ decrypt_krb5_data_private(proto_tree *tree _U_, packet_info *pinfo,
 	struct decrypt_krb5_data_state state;
 	krb5_error_code ret;
 	int length = tvb_captured_length(cryptotvb);
-	const uint8_t *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
+	const uint8_t *cryptotext;
 
 	/* don't do anything if we are not attempting to decrypt data */
 	if(!krb_decrypt || length < 1){
@@ -1644,9 +1644,11 @@ decrypt_krb5_data_private(proto_tree *tree _U_, packet_info *pinfo,
 		return NULL;
 	}
 
+	cryptotext = tvb_get_ptr(cryptotvb, 0, length);
+
 	memset(&state, 0, sizeof(state));
 	state.input.length = length;
-	state.input.data = (uint8_t *)cryptotext;
+	state.input.data = (char *)cryptotext;
 	state.output.data = (char *)wmem_alloc(pinfo->pool, length);
 	state.output.length = length;
 
@@ -1775,35 +1777,35 @@ decrypt_krb5_krb_cfx_dce_cb(const krb5_keyblock *key,
 		   state->checksum_len);
 
 	iov[0].flags = KRB5_CRYPTO_TYPE_HEADER;
-	iov[0].data.data = state->checksum + k5_headerofs;
+	iov[0].data.data = (char*)state->checksum + k5_headerofs;
 	iov[0].data.length = k5_headerlen;
 
 	if (state->gssapi_header_ptr != NULL) {
 		iov[1].flags = KRB5_CRYPTO_TYPE_SIGN_ONLY;
-		iov[1].data.data = (uint8_t *)(uintptr_t)state->gssapi_header_ptr;
+		iov[1].data.data = (char *)(uintptr_t)state->gssapi_header_ptr;
 		iov[1].data.length = state->gssapi_header_len;
 	} else {
 		iov[1].flags = KRB5_CRYPTO_TYPE_EMPTY;
 	}
 
 	iov[2].flags = KRB5_CRYPTO_TYPE_DATA;
-	iov[2].data.data = state->gssapi_payload;
+	iov[2].data.data = (char*)state->gssapi_payload;
 	iov[2].data.length = state->gssapi_payload_len;
 
 	if (state->gssapi_trailer_ptr != NULL) {
 		iov[3].flags = KRB5_CRYPTO_TYPE_SIGN_ONLY;
-		iov[3].data.data = (uint8_t *)(uintptr_t)state->gssapi_trailer_ptr;
+		iov[3].data.data = (char *)(uintptr_t)state->gssapi_trailer_ptr;
 		iov[3].data.length = state->gssapi_trailer_len;
 	} else {
 		iov[3].flags = KRB5_CRYPTO_TYPE_EMPTY;
 	}
 
 	iov[4].flags = KRB5_CRYPTO_TYPE_DATA;
-	iov[4].data.data = state->checksum;
+	iov[4].data.data = (char*)state->checksum;
 	iov[4].data.length = checksum_crypt_len;
 
 	iov[5].flags = KRB5_CRYPTO_TYPE_TRAILER;
-	iov[5].data.data = state->checksum + k5_trailerofs;
+	iov[5].data.data = (char*)state->checksum + k5_trailerofs;
 	iov[5].data.length = k5_trailerlen;
 
 	return krb5_c_decrypt_iov(keytab_krb5_ctx,
@@ -4306,19 +4308,19 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 		enc_key_t *ek = private_data->current_ticket_key;
 
 		if (samaccountname_offset != 0 && samaccountname_len != 0) {
-			ek->pac_names.account_name = tvb_get_string_enc(wmem_epan_scope(),
+			ek->pac_names.account_name = (char*)tvb_get_string_enc(wmem_epan_scope(),
 									tvb,
 									samaccountname_offset,
 									samaccountname_len,
 									ENC_UTF_16|ENC_LITTLE_ENDIAN);
 		} else {
-			ek->pac_names.account_name = tvb_get_string_enc(wmem_epan_scope(),
+			ek->pac_names.account_name = (char*)tvb_get_string_enc(wmem_epan_scope(),
 									tvb,
 									upn_offset,
 									upn_len,
 									ENC_UTF_16|ENC_LITTLE_ENDIAN);
 		}
-		ek->pac_names.account_domain = tvb_get_string_enc(wmem_epan_scope(),
+		ek->pac_names.account_domain = (char*)tvb_get_string_enc(wmem_epan_scope(),
 								  tvb,
 								  dns_offset,
 								  dns_len,

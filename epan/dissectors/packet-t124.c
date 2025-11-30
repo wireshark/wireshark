@@ -540,7 +540,7 @@ static int
 dissect_t124_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
     tvbuff_t *next_tvb = NULL;
     tvbuff_t *t124NSIdentifier = (tvbuff_t*)actx->private_data;
-    uint8_t  *ns = NULL;
+    const char *ns = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &next_tvb);
@@ -548,7 +548,7 @@ dissect_t124_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 	if(next_tvb && t124NSIdentifier) {
 
-	ns = tvb_get_string_enc(actx->pinfo->pool, t124NSIdentifier, 0, tvb_reported_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
+	ns = (char*)tvb_get_string_enc(actx->pinfo->pool, t124NSIdentifier, 0, tvb_reported_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
 	if(ns != NULL) {
 		dissector_try_string_with_data(t124_ns_dissector_table, ns, next_tvb, actx->pinfo, top_tree, false, NULL);
 	}

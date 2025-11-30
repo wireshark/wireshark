@@ -388,8 +388,8 @@ update_saved_invokedata(packet_info *pinfo, struct ansi_tcap_private_t *p_privat
     struct ansi_map_invokedata_t *ansi_map_saved_invokedata;
     address* src = &(pinfo->src);
     address* dst = &(pinfo->dst);
-    uint8_t *src_str;
-    uint8_t *dst_str;
+    const char *src_str;
+    const char *dst_str;
     const char *buf = NULL;
 
     src_str = address_to_str(pinfo->pool, src);
@@ -4294,8 +4294,8 @@ find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tc
     struct ansi_map_invokedata_t *ansi_map_saved_invokedata;
     address* src = &(actx->pinfo->src);
     address* dst = &(actx->pinfo->dst);
-    uint8_t *src_str;
-    uint8_t *dst_str;
+    const char *src_str;
+    const char *dst_str;
     char *buf;
 
     buf=(char *)wmem_alloc(actx->pinfo->pool, 1024);

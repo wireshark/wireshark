@@ -2380,7 +2380,7 @@ dissect_kpm_v2_T_ranFunction_ShortName(tvbuff_t *tvb _U_, int offset _U_, asn1_c
   if (!actx->pinfo->fd->visited) {
     /* N.B. too early to work out exact dissector, as don't have OID yet */
     e2ap_store_ran_function_mapping(actx->pinfo, tree, value_tvb,
-                                    tvb_get_string_enc(actx->pinfo->pool, value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
+                                    (char*)tvb_get_string_enc(actx->pinfo->pool, value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
   }
 
 
@@ -2398,7 +2398,7 @@ dissect_kpm_v2_T_ranFunction_E2SM_OID(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                           &parameter_tvb);
 
   e2ap_update_ran_function_mapping(actx->pinfo, tree, parameter_tvb,
-                                   tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
+                                   (char*)tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
 				   tvb_captured_length(parameter_tvb), ENC_ASCII));
 
 

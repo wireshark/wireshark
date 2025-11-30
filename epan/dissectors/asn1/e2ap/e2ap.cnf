@@ -311,7 +311,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
   if (!actx->pinfo->fd->visited) {
     /* N.B. too early to work out exact dissector, as don't have OID yet */
     e2ap_store_ran_function_mapping(actx->pinfo, tree, value_tvb,
-                                    tvb_get_string_enc(actx->pinfo->pool, value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
+                                    (char*)tvb_get_string_enc(actx->pinfo->pool, value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
   }
 
 #.FN_BODY RANfunctionOID  VAL_PTR = &parameter_tvb
@@ -319,7 +319,7 @@ E2SM-NI-CallProcessID-Format2/callProcess-ID callProcess-ID-format2
   %(DEFAULT_BODY)s
   /* Now complete mapping with OID string */
   e2ap_update_ran_function_mapping(actx->pinfo, tree, parameter_tvb,
-                                   tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
+                                   (char*)tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
                                    tvb_captured_length(parameter_tvb), ENC_ASCII));
 
 

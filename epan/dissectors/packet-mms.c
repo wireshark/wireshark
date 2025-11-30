@@ -1320,7 +1320,7 @@ private_data_add_moreCinfo_id(asn1_ctx_t* actx, tvbuff_t* tvb)
 {
     mms_private_data_t* private_data = (mms_private_data_t*)mms_get_private_data(actx);
     (void)g_strlcat(private_data->moreCinfo, " ", BUFFER_SIZE_MORE);
-    (void)g_strlcat(private_data->moreCinfo, tvb_get_string_enc(actx->pinfo->pool, tvb,
+    (void)g_strlcat(private_data->moreCinfo, (char*)tvb_get_string_enc(actx->pinfo->pool, tvb,
         0, tvb_reported_length(tvb), ENC_ASCII | ENC_NA), BUFFER_SIZE_MORE);
 }
 
@@ -1515,7 +1515,7 @@ dissect_mms_Identifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
                 (hf_index ==hf_mms_listOfIdentifier_item))) {
             private_data_add_moreCinfo_id(actx,parameter_tvb);
             if((mms_priv->mms_trans_p)&&(parameter_tvb)){
-                mms_priv->itemid_str = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_ASCII|ENC_NA);
+                mms_priv->itemid_str = (char*)tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_ASCII|ENC_NA);
                 if(g_str_has_suffix(mms_priv->itemid_str,"$ctlModel")){
                     mms_priv->mms_trans_p->itemid = IEC61850_ITEM_ID_CTLMODEL;
                 }else  if(g_str_has_suffix(mms_priv->itemid_str,"$q")){
@@ -1542,7 +1542,7 @@ dissect_mms_Identifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
         }
 
         if ((mms_priv) && (hf_index == hf_mms_vmd_specific)){
-            const char *vmd_specific_str = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_ASCII|ENC_NA);
+            const char *vmd_specific_str = (char*)tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length(parameter_tvb), ENC_ASCII|ENC_NA);
             if (strcmp(vmd_specific_str, "RPT") == 0) {
                     mms_priv->vmd_specific = IEC61850_8_1_RPT;
             }

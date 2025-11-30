@@ -11900,7 +11900,7 @@ static int dissect_qsig_mid_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 typedef struct _qsig_op_t {
-  int32_t opcode;
+  uint32_t opcode;
   dissector_t arg_pdu;
   dissector_t res_pdu;
 } qsig_op_t;
@@ -12117,7 +12117,7 @@ static const qsig_op_t qsig_op_tab[] = {
 };
 
 typedef struct _qsig_err_t {
-  int32_t errcode;
+  uint32_t errcode;
   dissector_t err_pdu;
 } qsig_err_t;
 
@@ -12306,7 +12306,7 @@ static const qsig_err_t qsig_err_tab[] = {
   /* unspecified              */ { 1008, dissect_qsig_mid_Extension_PDU },
 };
 
-static const qsig_op_t *get_op(int32_t opcode) {
+static const qsig_op_t *get_op(uint32_t opcode) {
   int i;
 
   /* search from the end to get the last occurrence if the operation is redefined in some newer specification */
@@ -12316,13 +12316,13 @@ static const qsig_op_t *get_op(int32_t opcode) {
   return NULL;
 }
 
-static int32_t get_service(int32_t opcode) {
-  if ((opcode < 0) || (opcode >= (int)array_length(op2srv_tab)))
+static int32_t get_service(uint32_t opcode) {
+  if (opcode >= (int)array_length(op2srv_tab))
     return NO_SRV;
   return op2srv_tab[opcode];
 }
 
-static const qsig_err_t *get_err(int32_t errcode) {
+static const qsig_err_t *get_err(uint32_t errcode) {
   int i;
 
   /* search from the end to get the last occurrence if the operation is redefined in some newer specification */
@@ -12337,7 +12337,7 @@ static int
 dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   int offset = 0;
   rose_ctx_t *rctx;
-  int32_t opcode = 0, service, oid_num;
+  uint32_t opcode = 0, service, oid_num;
   const qsig_op_t *op_ptr = NULL;
   const char *p, *oid;
   proto_item *ti, *ti_tmp;
@@ -12401,7 +12401,7 @@ static int
 dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   int offset = 0;
   rose_ctx_t *rctx;
-  int32_t opcode, service;
+  uint32_t opcode, service;
   const qsig_op_t *op_ptr;
   const char *p;
   proto_item *ti, *ti_tmp;
@@ -12455,7 +12455,7 @@ static int
 dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
   int offset = 0;
   rose_ctx_t *rctx;
-  int32_t errcode;
+  uint32_t errcode;
   const qsig_err_t *err_ptr;
   const char *p;
   proto_item *ti;

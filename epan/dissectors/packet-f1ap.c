@@ -5090,8 +5090,8 @@ enum{
 
 static void set_stats_message_type(packet_info *pinfo, int type);
 
-static const uint8_t *st_str_packets        = "Total Packets";
-static const uint8_t *st_str_packet_types   = "F1AP Packet Types";
+static const char *st_str_packets        = "Total Packets";
+static const char *st_str_packet_types   = "F1AP Packet Types";
 
 static int st_node_packets = -1;
 static int st_node_packet_types = -1;

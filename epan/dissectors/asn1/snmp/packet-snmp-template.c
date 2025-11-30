@@ -946,7 +946,7 @@ show_oid_index:
 								switch(k->key_type) {
 									case OID_KEY_TYPE_STRING:
 									case OID_KEY_TYPE_IMPLIED_STRING:
-										proto_tree_add_string(pt_name,k->hfid,tvb,name_offset,buf_len, buf);
+										proto_tree_add_string(pt_name,k->hfid,tvb,name_offset,buf_len, (char*)buf);
 										break;
 									case OID_KEY_TYPE_BYTES:
 									case OID_KEY_TYPE_NSAP:

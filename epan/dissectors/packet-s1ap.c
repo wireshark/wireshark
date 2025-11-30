@@ -2184,7 +2184,8 @@ void
 dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree, packet_info *pinfo, uint8_t dcs, int hf_nb_pages, int hf_decoded_page)
 {
   uint32_t offset;
-  uint8_t nb_of_pages, length, *str;
+  uint8_t nb_of_pages, length;
+  const char *str;
   proto_item *ti;
   tvbuff_t *cb_data_page_tvb, *cb_data_tvb;
   int i;
@@ -2201,7 +2202,7 @@ dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree,
     cb_data_page_tvb = tvb_new_subset_length(warning_msg_tvb, offset, length);
     cb_data_tvb = dissect_cbs_data(dcs, cb_data_page_tvb, tree, pinfo, 0);
     if (cb_data_tvb) {
-      str = tvb_get_string_enc(pinfo->pool, cb_data_tvb, 0, tvb_reported_length(cb_data_tvb), ENC_UTF_8|ENC_NA);
+      str = (char*)tvb_get_string_enc(pinfo->pool, cb_data_tvb, 0, tvb_reported_length(cb_data_tvb), ENC_UTF_8|ENC_NA);
       proto_tree_add_string_format(tree, hf_decoded_page, warning_msg_tvb, offset, 83,
                                    str, "Decoded Page %u: %s", i+1, str);
     }

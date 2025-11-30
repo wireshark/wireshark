@@ -1271,7 +1271,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
                *fields_tree;
     marc_directory_entry *marc_directory;
     unsigned len = tvb_reported_length(tvb);
-    const uint8_t *marc_value_str;
+    const char *marc_value_str;
     unsigned record_length = 0,
           data_offset = 0,
           length_of_field_size,
@@ -1297,7 +1297,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     marc_value_str = NULL;
     item = proto_tree_add_item_ret_string(leader_tree,
                       hf_marc_leader_length, tvb, offset, 5, ENC_ASCII|ENC_NA,
-                      pinfo->pool,&marc_value_str);
+                      pinfo->pool,(const uint8_t**)&marc_value_str);
     offset += 5;
 
     if (marc_value_str) {
@@ -1366,7 +1366,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
 
     item = proto_tree_add_item_ret_string(leader_tree, hf_marc_leader_data_offset,
                tvb, offset, 5, ENC_ASCII|ENC_NA,
-               pinfo->pool,&marc_value_str);
+               pinfo->pool,(const uint8_t**)&marc_value_str);
     offset += 5;
     if (marc_value_str) {
         if (isdigit_string(marc_value_str)) {
@@ -1467,7 +1467,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
         marc_value_str = NULL;
         item = proto_tree_add_item_ret_string(directory_entry_tree, hf_marc_directory_entry_tag,
                    tvb, offset, 3, ENC_ASCII,
-                   pinfo->pool, &marc_value_str);
+                   pinfo->pool, (const uint8_t**)&marc_value_str);
         offset += 3;
         if (marc_value_str) {
             if (isdigit_string(marc_value_str)) {
@@ -1484,7 +1484,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
         length_item = proto_tree_add_item_ret_string(directory_entry_tree,
             hf_marc_directory_entry_length,
             tvb, offset, length_of_field_size, ENC_ASCII,
-            pinfo->pool, &marc_value_str);
+            pinfo->pool, (const uint8_t**)&marc_value_str);
         offset += length_of_field_size;
         if (marc_value_str) {
             if (isdigit_string(marc_value_str)) {
@@ -1500,7 +1500,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
         marc_value_str = NULL;
         item = proto_tree_add_item_ret_string(directory_entry_tree, hf_marc_directory_entry_starting_position,
             tvb, offset, starting_character_position_size, ENC_ASCII,
-            pinfo->pool, &marc_value_str);
+            pinfo->pool, (const uint8_t**)&marc_value_str);
         offset += starting_character_position_size;
         if (marc_value_str) {
             if (isdigit_string(marc_value_str)) {

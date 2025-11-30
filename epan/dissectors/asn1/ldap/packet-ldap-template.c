@@ -724,7 +724,7 @@ dissect_ldap_AssertionValue(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_c
 
   /* convert the string into a printable string */
   if(is_ascii){
-    ldapvalue_string= tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len, ENC_UTF_8|ENC_NA);
+    ldapvalue_string= (char*)tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len, ENC_UTF_8|ENC_NA);
   } else {
     ldapvalue_string= tvb_bytes_to_str_punct(actx->pinfo->pool, tvb, offset, len, ':');
   }
@@ -1298,11 +1298,11 @@ int dissect_mscldap_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, i
 {
   int compr_len;
   const char *name;
-  unsigned name_len;
+  int name_len;
 
   /* The name data MUST start at offset 0 of the tvb */
   compr_len = get_dns_name(scope, tvb, offset, max_len, 0, &name, &name_len);
-  *str = get_utf_8_string(scope, name, name_len);
+  *str = (char*)get_utf_8_string(scope, (const uint8_t*)name, name_len);
   return offset + compr_len;
 }
 
@@ -1661,7 +1661,7 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
    *       proto_tree_add_oid() instead.
    */
 
-  oid=tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
+  oid=(char*)tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
   if(!oid){
     return tvb_captured_length(tvb);
   }

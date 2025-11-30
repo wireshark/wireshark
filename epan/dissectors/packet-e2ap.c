@@ -1644,8 +1644,8 @@ enum {
 
 static void set_stats_message_type(packet_info *pinfo, int type);
 
-static const uint8_t * const st_str_packets      = "Total Packets";
-static const uint8_t * const st_str_packet_types = "E2AP Packet Types";
+static const char * const st_str_packets      = "Total Packets";
+static const char * const st_str_packet_types = "E2AP Packet Types";
 
 static int st_node_packets = -1;
 static int st_node_packet_types = -1;
@@ -3532,7 +3532,7 @@ dissect_e2ap_RANfunctionOID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   /* Now complete mapping with OID string */
   e2ap_update_ran_function_mapping(actx->pinfo, tree, parameter_tvb,
-                                   tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
+                                   (char*)tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
                                    tvb_captured_length(parameter_tvb), ENC_ASCII));
 
 
@@ -6215,7 +6215,7 @@ dissect_e2ap_T_ranFunction_ShortName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
   if (!actx->pinfo->fd->visited) {
     /* N.B. too early to work out exact dissector, as don't have OID yet */
     e2ap_store_ran_function_mapping(actx->pinfo, tree, value_tvb,
-                                    tvb_get_string_enc(actx->pinfo->pool, value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
+                                    (char*)tvb_get_string_enc(actx->pinfo->pool, value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
   }
 
 

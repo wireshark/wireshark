@@ -923,7 +923,7 @@ dissect_ldap_AssertionValue(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_c
 
   /* convert the string into a printable string */
   if(is_ascii){
-    ldapvalue_string= tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len, ENC_UTF_8|ENC_NA);
+    ldapvalue_string= (char*)tvb_get_string_enc(actx->pinfo->pool, tvb, offset, len, ENC_UTF_8|ENC_NA);
   } else {
     ldapvalue_string= tvb_bytes_to_str_punct(actx->pinfo->pool, tvb, offset, len, ':');
   }
@@ -1159,7 +1159,7 @@ dissect_ldap_LDAPString(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
   ldap_do_protocolop(actx->pinfo);
 
   if(parameter_tvb)
-    ldapstring = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb, 0), ENC_UTF_8|ENC_NA);
+    ldapstring = (char*)tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb, 0), ENC_UTF_8|ENC_NA);
 
   if(hf_index == hf_ldap_baseObject) {
     /* this is search - put it on the scanline */
@@ -1290,7 +1290,7 @@ char *mechanism = NULL;
    * different type and/or mechanism.
    */
   if(!actx->pinfo->fd->visited) {
-    mechanism = tvb_get_string_enc(wmem_file_scope(), parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
+    mechanism = (char*)tvb_get_string_enc(wmem_file_scope(), parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
     ldap_info->first_auth_frame = 0; /* not known until we see the bind reply */
     /*
      * If the mechanism in this request is an empty string (which is
@@ -2300,7 +2300,7 @@ dissect_ldap_AttributeValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
     if(tvb_ascii_isprint(next_tvb, 0, tvb_reported_length(next_tvb))) {
-      string = tvb_get_string_enc(actx->pinfo->pool, next_tvb, 0, tvb_reported_length_remaining(next_tvb, 0), ENC_UTF_8|ENC_NA);
+      string = (char*)tvb_get_string_enc(actx->pinfo->pool, next_tvb, 0, tvb_reported_length_remaining(next_tvb, 0), ENC_UTF_8|ENC_NA);
       proto_item_set_text(actx->created_item, "AttributeValue: %s", string);
     }
   }
@@ -2796,7 +2796,7 @@ dissect_ldap_LDAPOID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
   if (!parameter_tvb)
     return offset;
 
-  object_identifier_id = tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
+  object_identifier_id = (char*)tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
   name = oid_resolved_from_string(actx->pinfo->pool, object_identifier_id);
 
   if(name){
@@ -4100,11 +4100,11 @@ int dissect_mscldap_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, i
 {
   int compr_len;
   const char *name;
-  unsigned name_len;
+  int name_len;
 
   /* The name data MUST start at offset 0 of the tvb */
   compr_len = get_dns_name(scope, tvb, offset, max_len, 0, &name, &name_len);
-  *str = get_utf_8_string(scope, name, name_len);
+  *str = (char*)get_utf_8_string(scope, (const uint8_t*)name, name_len);
   return offset + compr_len;
 }
 
@@ -4463,7 +4463,7 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
    *       proto_tree_add_oid() instead.
    */
 
-  oid=tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
+  oid=(char*)tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
   if(!oid){
     return tvb_captured_length(tvb);
   }

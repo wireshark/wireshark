@@ -56,7 +56,7 @@ Dci-11/freqDomainResources freqDomainResourcesBits
   if (!actx->pinfo->fd->visited) {
     /* N.B. too early to work out exact dissector, as don't have OID yet */
     e2ap_store_ran_function_mapping(actx->pinfo, tree, value_tvb,
-                                    tvb_get_string_enc(actx->pinfo->pool, value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
+                                    (char*)tvb_get_string_enc(actx->pinfo->pool, value_tvb, 0, tvb_captured_length(value_tvb), ENC_ASCII));
   }
 
 
@@ -64,7 +64,7 @@ Dci-11/freqDomainResources freqDomainResourcesBits
   tvbuff_t *parameter_tvb;
   %(DEFAULT_BODY)s
   e2ap_update_ran_function_mapping(actx->pinfo, tree, parameter_tvb,
-                                   tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
+                                   (char*)tvb_get_string_enc(actx->pinfo->pool, parameter_tvb, 0,
 				   tvb_captured_length(parameter_tvb), ENC_ASCII));
 
 

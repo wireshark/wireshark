@@ -143,13 +143,13 @@ ConferenceInviteResponse/userData userData-set-of
 #.FN_BODY UserData/_item/value VAL_PTR = &next_tvb
     tvbuff_t *next_tvb = NULL;
     tvbuff_t *t124NSIdentifier = (tvbuff_t*)actx->private_data;
-    uint8_t  *ns = NULL;
+    const char *ns = NULL;
 
 %(DEFAULT_BODY)s
 
 	if(next_tvb && t124NSIdentifier) {
 
-	ns = tvb_get_string_enc(actx->pinfo->pool, t124NSIdentifier, 0, tvb_reported_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
+	ns = (char*)tvb_get_string_enc(actx->pinfo->pool, t124NSIdentifier, 0, tvb_reported_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
 	if(ns != NULL) {
 		dissector_try_string_with_data(t124_ns_dissector_table, ns, next_tvb, actx->pinfo, top_tree, false, NULL);
 	}
