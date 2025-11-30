@@ -189,6 +189,7 @@ static expert_field ei_eap_identity_nonascii;
 static expert_field ei_eap_identity_invalid;
 static expert_field ei_eap_retransmission;
 static expert_field ei_eap_bad_length;
+static expert_field ei_eap_tls_fragment_missing;
 
 static dissector_table_t eap_expanded_type_dissector_table;
 
@@ -615,6 +616,8 @@ static const value_string eap_msauth_tlv_crypto_subtype_vals[] = {
 
 typedef struct {
   int     eap_tls_seq;
+  uint32_t eap_tls_len;
+  uint32_t outer_tlvs_length;
   uint32_t eap_reass_cookie;
   int     leap_state;
   int16_t last_eap_id_req;  /* Last ID of the request from the authenticator. */
@@ -623,6 +626,8 @@ typedef struct {
 
 typedef struct {
   int     info;  /* interpretation depends on EAP message type */
+  uint32_t eap_tls_len; /* total Message Length; present only on the first fragment */
+  uint32_t outer_tlvs_length; /* TEAP; present only on the first fragment */
 } frame_state_t;
 
 /*
@@ -2040,9 +2045,10 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       {
         bool more_fragments;
         bool has_length;
+        uint32_t eap_tls_len;
         bool is_start;
         bool outer_tlvs = false;
-        int outer_tlvs_length = 0;
+        uint32_t outer_tlvs_length = 0;
         int      eap_tls_seq      = -1;
         uint32_t eap_reass_cookie =  0;
         bool needs_reassembly =  false;
@@ -2075,7 +2081,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         /* Length field, 4 bytes, OPTIONAL. */
         if (has_length) {
-          proto_tree_add_item(eap_tree, hf_eap_tls_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+          proto_tree_add_item_ret_uint(eap_tree, hf_eap_tls_len, tvb, offset, 4, ENC_BIG_ENDIAN, &eap_tls_len);
           size   -= 4;
           offset += 4;
         }
@@ -2188,6 +2194,9 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
                 eap_reass_cookie = conversation_state->eap_reass_cookie;
                 eap_tls_seq = conversation_state->eap_tls_seq;
+                eap_tls_len = conversation_state->eap_tls_len;
+                outer_tlvs_length = conversation_state->outer_tlvs_length;
+                outer_tlvs = outer_tlvs_length > 0;
               } else if (more_fragments && has_length) {
                 /*
                  * This message has the Fragment flag set, so it requires
@@ -2204,6 +2213,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                  */
                 needs_reassembly = true;
                 conversation_state->eap_reass_cookie = pinfo->num;
+                conversation_state->eap_tls_len = eap_tls_len;
+                conversation_state->outer_tlvs_length = outer_tlvs_length;
 
                 /*
                  * Start the reassembly sequence number at 0.
@@ -2221,6 +2232,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                  */
                 packet_state = wmem_new(wmem_file_scope(), frame_state_t);
                 packet_state->info = eap_reass_cookie;
+                packet_state->eap_tls_len = eap_tls_len;
+                packet_state->outer_tlvs_length = outer_tlvs_length;
                 p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | tls_group, packet_state);
               }
             }
@@ -2246,7 +2259,13 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
              * have to worry about this at all.
              */
             needs_reassembly = true;
+            /* Retrieve information only sent in the first fragment. */
             eap_reass_cookie = packet_state->info;
+            eap_tls_len = packet_state->eap_tls_len;
+            if (packet_state->outer_tlvs_length) {
+              outer_tlvs = true;
+              outer_tlvs_length = packet_state->outer_tlvs_length;
+            }
             eap_tls_seq = 0;
           }
 
@@ -2284,6 +2303,13 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 show_fragment_seq_tree(fd_head, &eap_tls_frag_items,
                   eap_tree, pinfo, next_tvb, &frag_tree_item);
 
+                if (tvb_reported_length(next_tvb) != eap_tls_len) {
+                  expert_add_info(pinfo, frag_tree_item, &ei_eap_tls_fragment_missing);
+                  /* We know there's missing data in the middle. Since we got
+                   * the first fragment, it might still be ok to call the TLS
+                   * dissector.
+                   */
+                  }
                 /*
                  * We're finished reassembling this frame.
                  * Reinitialize the reassembly state.
@@ -2314,15 +2340,18 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 break;
               case EAP_TYPE_TEAP:
                 if (outer_tlvs) {	/* https://www.rfc-editor.org/rfc/rfc7170.html#section-4.1 */
-                  /* XXX - These calculations shouldn't use tvb and size (which
-                   * is based off the length of the EAP packet), but should use
-                   * next_tvb in case this was fragmented. Fix that when fixing
-                   * the sign of outer_tlvs_length.
-                   */
-                  tvbuff_t *teap_tvb = tvb_new_subset_length(tvb, offset + size - outer_tlvs_length, outer_tlvs_length);
+                  tvbuff_t *teap_tvb;
+                  if (outer_tlvs_length > tvb_reported_length(next_tvb)) {
+                    /* This is bogus. Either we missed some fragment (and the
+                     * outer TLVs were split across fragments), or some length
+                     * values were bogus. */
+                    teap_tvb = next_tvb;
+                  } else {
+                    teap_tvb = tvb_new_subset_length(next_tvb, tvb_reported_length(next_tvb) - outer_tlvs_length, outer_tlvs_length);
+                  }
                   call_dissector(teap_handle, teap_tvb, pinfo, eap_tree);
-                  if (size == outer_tlvs_length) goto skip_tls_dissector;
-                  next_tvb = tvb_new_subset_length(next_tvb, 0, size - outer_tlvs_length);
+                  if (tvb_reported_length(next_tvb) <= outer_tlvs_length) goto skip_tls_dissector;
+                  next_tvb = tvb_new_subset_length(next_tvb, 0, tvb_reported_length_remaining(next_tvb, outer_tlvs_length));
                 }
                 tls_set_appdata_dissector(tls_handle, pinfo, teap_handle);
                 break;
@@ -3383,6 +3412,7 @@ proto_register_eap(void)
      { &ei_eap_identity_invalid, { "eap.identity.invalid", PI_PROTOCOL, PI_WARN, "Invalid identity code", EXPFILL }},
      { &ei_eap_retransmission, { "eap.retransmission", PI_SEQUENCE, PI_NOTE, "This packet is a retransmission", EXPFILL }},
      { &ei_eap_bad_length, { "eap.bad_length", PI_PROTOCOL, PI_WARN, "Bad length (too small or too large)", EXPFILL }},
+     { &ei_eap_tls_fragment_missing, { "eap.tls.fragment.missing", PI_REASSEMBLE, PI_ERROR, "Fragment missing", EXPFILL }},
   };
 
   expert_module_t* expert_eap;
