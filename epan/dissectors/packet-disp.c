@@ -817,14 +817,16 @@ static const ber_choice_t CoordinateShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_CoordinateShadowUpdateResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  uint32_t update;
+  int32_t update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  CoordinateShadowUpdateResult_choice, hf_index, ett_disp_CoordinateShadowUpdateResult,
                                  &update);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, update, disp_CoordinateShadowUpdateResult_vals, "unknown(%d)"));
+  if (update >= 0) {
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, CoordinateShadowUpdateResult_choice[update].value, disp_CoordinateShadowUpdateResult_vals, "unknown(%d)"));
+  }
 
 
   return offset;
@@ -938,14 +940,16 @@ static const ber_choice_t RequestShadowUpdateResult_choice[] = {
 
 static int
 dissect_disp_RequestShadowUpdateResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  uint32_t update;
+  int32_t update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  RequestShadowUpdateResult_choice, hf_index, ett_disp_RequestShadowUpdateResult,
                                  &update);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, update, disp_RequestShadowUpdateResult_vals, "unknown(%d)"));
+  if (update >= 0) {
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, RequestShadowUpdateResult_choice[update].value, disp_RequestShadowUpdateResult_vals, "unknown(%d)"));
+  }
 
 
   return offset;
@@ -1248,14 +1252,16 @@ static const ber_choice_t RefreshInformation_choice[] = {
 
 static int
 dissect_disp_RefreshInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  uint32_t update;
+  int32_t update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  RefreshInformation_choice, hf_index, ett_disp_RefreshInformation,
                                  &update);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, update, disp_RefreshInformation_vals, "unknown(%d)"));
+  if (update >= 0) {
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, RefreshInformation_choice[update].value, disp_RefreshInformation_vals, "unknown(%d)"));
+  }
 
 
   return offset;
@@ -1326,14 +1332,16 @@ static const ber_choice_t UpdateShadowResult_choice[] = {
 
 static int
 dissect_disp_UpdateShadowResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  uint32_t update;
+  int32_t update;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  UpdateShadowResult_choice, hf_index, ett_disp_UpdateShadowResult,
                                  &update);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, update, disp_UpdateShadowResult_vals, "unknown(%d)"));
+  if (update >= 0) {
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, UpdateShadowResult_choice[update].value, disp_UpdateShadowResult_vals, "unknown(%d)"));
+  }
 
 
   return offset;

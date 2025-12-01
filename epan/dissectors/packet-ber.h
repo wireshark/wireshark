@@ -24,7 +24,6 @@
 
 typedef int (*ber_callback)(bool imp_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 typedef int (*ber_type_fn)(bool, tvbuff_t*, int, asn1_ctx_t *actx, proto_tree*, int);
-/* To be removed when the transition to the "New" type is complete */
 
 #define BER_CLASS_UNI	0
 #define BER_CLASS_APP	1
@@ -134,10 +133,37 @@ typedef struct _ber_choice_t {
 } ber_choice_t;
 
 /*
- * This function dissects a BER choice
+ * @brief Dissects a BER choice
+ *
+ * @attention
+ * The return value of branch_taken (which can be mapped to a variable via
+ * VAL_PTR in a conformance file) is not (necessarily) the tag number, but
+ * the ordinal number of the alternative chosen. These can be different,
+ * particularly when automatic tagging is not in effect (and the tags do not
+ * begin at 0 and increment by 1.)
+ *
+ * This is *not* the same usage as dissect_per_choice and dissect_oer_choice,
+ * which return the tag value in their VAL_PTR.
+ *
+ * @note
+ * The return value of branch_taken can be -1 if no alternative was selected.
+ * This is not necessarily an error if the choice was OPTIONAL. (The function
+ * does not have a way to distinguish between a CHOICE which is OPTIONAL and
+ * one which is not, and does not add an expert info for non optional choices
+ * which are missing, but rather treats them as optional.)
+ *
+ * The safest and correct way to obtain the tag number and identifier chosen is
+ * in a manner thus:
+ * ```c
+ * if (branch_taken >= 0) {
+ *   uint32_t tag = ChoiceType_choice[branch_taken].value;
+ *   char* identifier = val_to_str_const(tag, proto_ChoiceType_vals, "Unknown");
+ * }
+ * ```
+ * Using the branch_taken as the value will happen to work with some choice
+ * types but is deprecated.
  */
 WS_DLL_PUBLIC int dissect_ber_choice(asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice_t *ch, int hf_id, int ett_id, int *branch_taken);
-/* To be removed when the transition to the "New" type is complete */
 
 /*
  * This function dissects a BER strings

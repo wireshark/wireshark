@@ -52,11 +52,13 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 	VAL_PTR = &update
 
 #.FN_BODY RefreshInformation
-  uint32_t update;
+  int32_t update;
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(actx->pinfo->pool, update, disp_RefreshInformation_vals, "unknown(%%d)"));
+  if (update >= 0) {
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(actx->pinfo->pool, RefreshInformation_choice[update].value, disp_RefreshInformation_vals, "unknown(%%d)"));
+  }
 
 #.END
 
@@ -72,31 +74,37 @@ ModificationParameter	S dop.oid	"modify.roleb.2.5.19.1"
 	VAL_PTR = &update
 
 #.FN_BODY CoordinateShadowUpdateResult
-  uint32_t update;
+  int32_t update;
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(actx->pinfo->pool, update, disp_CoordinateShadowUpdateResult_vals, "unknown(%%d)"));
+  if (update >= 0) {
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(actx->pinfo->pool, CoordinateShadowUpdateResult_choice[update].value, disp_CoordinateShadowUpdateResult_vals, "unknown(%%d)"));
+  }
 
 #.FN_PARS RequestShadowUpdateResult
 	VAL_PTR = &update
 
 #.FN_BODY RequestShadowUpdateResult
-  uint32_t update;
+  int32_t update;
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(actx->pinfo->pool, update, disp_RequestShadowUpdateResult_vals, "unknown(%%d)"));
+  if (update >= 0) {
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(actx->pinfo->pool, RequestShadowUpdateResult_choice[update].value, disp_RequestShadowUpdateResult_vals, "unknown(%%d)"));
+  }
 
 #.FN_PARS UpdateShadowResult
 	VAL_PTR = &update
 
 #.FN_BODY UpdateShadowResult
-  uint32_t update;
+  int32_t update;
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(actx->pinfo->pool, update, disp_UpdateShadowResult_vals, "unknown(%%d)"));
+  if (update >= 0) {
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(actx->pinfo->pool, UpdateShadowResult_choice[update].value, disp_UpdateShadowResult_vals, "unknown(%%d)"));
+  }
 
 #.FN_PARS ShadowProblem
 	VAL_PTR = &problem
