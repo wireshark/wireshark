@@ -60,12 +60,6 @@ static gpa_expertinfo_t gpa_expertinfo;
 
 /* Hash table of abbreviations and IDs */
 static GHashTable *gpa_name_map;
-static expert_field_info *same_name_expinfo;
-
-static void save_same_name_expinfo(void *data)
-{
-	same_name_expinfo = (expert_field_info*)data;
-}
 
 /* Deregistered expert infos */
 static GPtrArray *deregistered_expertinfos;
@@ -271,7 +265,7 @@ expert_init(void)
 	gpa_expertinfo.len           = 0;
 	gpa_expertinfo.allocated_len = 0;
 	gpa_expertinfo.ei            = NULL;
-	gpa_name_map                 = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, save_same_name_expinfo);
+	gpa_name_map                 = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
 	uat_saved_fields             = g_array_new(false, false, sizeof(expert_field_info*));
 	deregistered_expertinfos     = g_ptr_array_new();
 }
@@ -341,11 +335,10 @@ void
 expert_deregister_expertinfo (const char *abbrev)
 {
 	expert_field_info *expinfo = (expert_field_info*)g_hash_table_lookup(gpa_name_map, abbrev);
-	while (expinfo) {
+	if (expinfo) {
 		g_ptr_array_add(deregistered_expertinfos, gpa_expertinfo.ei[expinfo->id]);
 		g_hash_table_steal(gpa_name_map, abbrev);
 		expinfo->hf_info.hfinfo.blurb = NULL;
-		expinfo = expinfo->same_name_next;
 	}
 }
 
@@ -427,10 +420,7 @@ expert_register_field_init(expert_field_info *expinfo, expert_module_t *module)
 	expinfo->orig_severity = expinfo->severity;
 
 	/* save field name for lookup */
-	g_hash_table_replace(gpa_name_map, (void *)expinfo->name, expinfo);
-	if (same_name_expinfo) {
-		expinfo->same_name_next = same_name_expinfo;
-	}
+	g_hash_table_insert(gpa_name_map, (void *) (expinfo->name), expinfo);
 
 	return expinfo->id;
 }
