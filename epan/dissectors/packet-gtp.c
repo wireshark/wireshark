@@ -13203,7 +13203,7 @@ proto_register_gtp(void)
         { &ei_gtp_hdr_length_bad, { "gtp.length.invalid", PI_MALFORMED, PI_ERROR, "Bad length value", EXPFILL }},
         { &ei_gtp_ext_length_mal, { "gtp.ext_length.invalid", PI_MALFORMED, PI_ERROR, "Malformed length", EXPFILL }},
         { &ei_gtp_ext_hdr_pdcpsn, { "gtp.ext_hdr.pdcp_sn.non_zero", PI_PROTOCOL, PI_NOTE, "3GPP TS 29.281 v9.0.0: When used between two eNBs at the X2 interface in E-UTRAN, bit 8 of octet 2 is spare. The meaning of the spare bits shall be set to zero.", EXPFILL }},
-        { &ei_gtp_ext_length_warn, { "gtp.ext_length.invalid", PI_PROTOCOL, PI_WARN, "Length warning", EXPFILL }},
+        { &ei_gtp_ext_length_warn, { "gtp.ext_length.invalid_warn", PI_PROTOCOL, PI_WARN, "Length warning", EXPFILL }},
         { &ei_gtp_undecoded, { "gtp.undecoded", PI_UNDECODED, PI_WARN, "Data not decoded yet", EXPFILL }},
         { &ei_gtp_message_not_found, { "gtp.message_not_found", PI_PROTOCOL, PI_WARN, "Message not found", EXPFILL }},
         { &ei_gtp_field_not_present, { "gtp.field_not_present", PI_PROTOCOL, PI_WARN, "Field not present", EXPFILL }},
