@@ -458,10 +458,9 @@ static expert_field ei_message_sic_illegal;
 static expert_field ei_envelope_version_value;
 static expert_field ei_message_compr;
 static expert_field ei_ack_reason;
-static expert_field ei_addr_dir_rec_no_generated;
+static expert_field ei_addr_ext_rec_no_generated;
 static expert_field ei_checksum_bad;
 static expert_field ei_message_body_uncompress;
-static expert_field ei_addr_ext_rec_no_generated;
 static expert_field ei_envelope_msg_id;
 static expert_field ei_7bit_string_unused_bits;
 static expert_field ei_analysis_ack_missing;
@@ -2395,7 +2394,7 @@ static int dissect_dmp_direct_encoding (tvbuff_t *tvb, packet_info *pinfo,
                                    "Recipient Number: %d", rec_no);
   if (rec_no > 32767) {
     proto_item_append_text (en, " (maximum 32767)");
-    expert_add_info(pinfo, en, &ei_addr_dir_rec_no_generated);
+    expert_add_info(pinfo, en, &ei_addr_ext_rec_no_generated);
   }
   proto_item_set_generated (en);
 
@@ -4853,9 +4852,6 @@ void proto_register_dmp (void)
     { &ei_analysis_ack_dup_no,
       { "dmp.analysis.dup_ack_no.expert", PI_SEQUENCE, PI_NOTE,
         "Dup ACK #", EXPFILL } },
-    { &ei_addr_dir_rec_no_generated,
-      { "dmp.rec_no.expert", PI_MALFORMED, PI_WARN,
-        "Recipient number too big", EXPFILL } },
     { &ei_addr_ext_rec_no_generated,
       { "dmp.rec_no.expert", PI_MALFORMED, PI_WARN,
         "Recipient number too big", EXPFILL } },

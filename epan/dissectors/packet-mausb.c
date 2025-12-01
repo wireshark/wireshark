@@ -2222,7 +2222,7 @@ proto_register_mausb(void)
               "Undefined management packet type", EXPFILL }
         },
         { &ei_mgmt_type_spec_len_long,
-            { "mausb.ei.type_spec.len", PI_PROTOCOL, PI_WARN,
+            { "mausb.ei.type_spec.len_long", PI_PROTOCOL, PI_WARN,
               "Data exists after type-specific management packet field", EXPFILL }
         },
         { &ei_mgmt_type_spec_len_short,

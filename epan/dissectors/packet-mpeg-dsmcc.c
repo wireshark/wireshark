@@ -3268,7 +3268,7 @@ proto_register_dsmcc(void)
     static ei_register_info ei[] = {
         { &ei_dsmcc_invalid_value, { "mpeg_dsmcc.invalid_value", PI_PROTOCOL, PI_WARN,
                     "Invalid value", EXPFILL }},
-        { &ei_dsmcc_crc_invalid, { "mpeg_sect.crc.invalid", PI_CHECKSUM, PI_WARN,
+        { &ei_dsmcc_crc_invalid, { "mpeg_dsmcc.crc.invalid", PI_CHECKSUM, PI_WARN,
                     "Invalid CRC", EXPFILL }},
     };
 

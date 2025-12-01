@@ -9792,7 +9792,7 @@ register_type_length_mismatch(void)
 {
 	static ei_register_info ei[] = {
 		{ &ei_type_length_mismatch_error, { "_ws.type_length.mismatch", PI_MALFORMED, PI_ERROR, "Trying to fetch X with length Y", EXPFILL }},
-		{ &ei_type_length_mismatch_warn, { "_ws.type_length.mismatch", PI_MALFORMED, PI_WARN, "Trying to fetch X with length Y", EXPFILL }},
+		{ &ei_type_length_mismatch_warn, { "_ws.type_length.mismatch_warn", PI_MALFORMED, PI_WARN, "Trying to fetch X with length Y", EXPFILL }},
 	};
 
 	expert_module_t* expert_type_length_mismatch;
