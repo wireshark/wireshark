@@ -1776,8 +1776,15 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
         mediaParm = find_megaco_mediaParm_names(tvb, tvb_current_offset, tokenlen);
 
         tvb_LBRKT = tvb_find_uint8(tvb, tvb_next_offset , tvb_last_RBRKT, '{');
-        tvb_next_offset = tvb_find_uint8(tvb, tvb_current_offset+1 , tvb_last_RBRKT, '}');
-        tvb_RBRKT = tvb_next_offset;
+        if (tvb_LBRKT == -1) {
+            // Not found, use the end offset.
+            tvb_LBRKT = tvb_last_RBRKT;
+        }
+        tvb_RBRKT = tvb_find_uint8(tvb, tvb_current_offset+1 , tvb_last_RBRKT, '}');
+        if (tvb_RBRKT == -1) {
+            // Not found, use the end offset.
+            tvb_RBRKT = tvb_last_RBRKT;
+        }
 
         switch ( mediaParm ){
         case MEGACO_LOCAL_TOKEN:
