@@ -1133,7 +1133,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
               spd_frame_data->pdu_type = SMTP_PDU_CMD;
               session_state->smtp_state = SMTP_STATE_READING_DATA;
               session_state->data_seen = true;
-            } else if (g_ascii_strncasecmp(line, "BDAT", 4) == 0) {
+            } else if ((linelen > 5) && (g_ascii_strncasecmp(line, "BDAT", 4) == 0)) {
               /*
                * BDAT command.
                * This is a command, but everything that comes after it,
