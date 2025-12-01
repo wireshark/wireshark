@@ -632,7 +632,7 @@ static int ett_isis_lsp_clv_avaya_ip_grt_mc;
 static expert_field ei_isis_lsp_short_pdu;
 static expert_field ei_isis_lsp_long_pdu;
 static expert_field ei_isis_lsp_bad_checksum;
-static expert_field ei_isis_lsp_subtlv;
+static expert_field ei_isis_lsp_unknown_subtlv;
 static expert_field ei_isis_lsp_authentication;
 static expert_field ei_isis_lsp_short_clv;
 static expert_field ei_isis_lsp_long_clv;
@@ -640,7 +640,6 @@ static expert_field ei_isis_lsp_length_clv;
 static expert_field ei_isis_lsp_clv_mt;
 static expert_field ei_isis_lsp_clv_unknown;
 static expert_field ei_isis_lsp_malformed_subtlv;
-static expert_field ei_isis_lsp_unknown_subtlv;
 static expert_field ei_isis_lsp_reserved_not_zero;
 static expert_field ei_isis_lsp_length_invalid;
 
@@ -1748,7 +1747,7 @@ dissect_lsp_sr_sid_label_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             proto_tree_add_item(subtree, hf_isis_lsp_clv_sr_cap_label, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
             break;
     default:
-            proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_subtlv, tvb, offset, tlv_len,
+            proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_unknown_subtlv, tvb, offset, tlv_len,
                                          "SID/Label SubTlv - Bad length: Type: %d, Length: %d", ISIS_SR_SID_LABEL, tlv_len);
             break;
     }
@@ -1811,7 +1810,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         if (tlv_type == ISIS_SR_SID_LABEL) {
             dissect_lsp_sr_sid_label_clv(tvb, pinfo, rt_tree, offset+6, tlv_len);
         } else
-            proto_tree_add_expert_format(rt_tree, pinfo, &ei_isis_lsp_subtlv, tvb, offset+4, tlv_len+2,
+            proto_tree_add_expert_format(rt_tree, pinfo, &ei_isis_lsp_unknown_subtlv, tvb, offset+4, tlv_len+2,
                                          "Unknown SubTlv: Type: %d, Length: %d", tlv_type, tlv_len);
 
         return 0;
@@ -1982,7 +1981,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
             if (tlv_type == ISIS_SR_SID_LABEL) {
                 dissect_lsp_sr_sid_label_clv(tvb, pinfo, rt_tree, local_offset+5, tlv_len);
             } else {
-                proto_tree_add_expert_format(rt_tree, pinfo, &ei_isis_lsp_subtlv, tvb, local_offset+3, tlv_len+2,
+                proto_tree_add_expert_format(rt_tree, pinfo, &ei_isis_lsp_unknown_subtlv, tvb, local_offset+3, tlv_len+2,
                                              "Unknown Sub-TLV: Type: %d, Length: %d", tlv_type, tlv_len);
             }
             i += (5 + tlv_len);
@@ -2119,7 +2118,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 
         if (dissect_isis_trill_clv(tvb, pinfo, tree, offset, subtype, subtlvlen)==-1) {
 
-            proto_tree_add_expert_format( tree, pinfo, &ei_isis_lsp_subtlv, tvb, offset-2, subtlvlen+2,
+            proto_tree_add_expert_format( tree, pinfo, &ei_isis_lsp_unknown_subtlv, tvb, offset-2, subtlvlen+2,
                                       "Unknown SubTlv: Type: %d, Length: %d", subtype, subtlvlen);
         }
         length -= subtlvlen;
@@ -2816,7 +2815,7 @@ dissect_isis_lsp_clv_mt_cap(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
                 dissect_isis_lsp_clv_mt_cap_spbv_mac_address(tvb, pinfo, tree, offset, subtype, subtlvlen);
             }
             else if (dissect_isis_trill_clv(tvb, pinfo, tree, offset, subtype, subtlvlen)==-1) {
-                proto_tree_add_expert_format( tree, pinfo, &ei_isis_lsp_subtlv, tvb, offset-2, subtlvlen+2,
+                proto_tree_add_expert_format( tree, pinfo, &ei_isis_lsp_unknown_subtlv, tvb, offset-2, subtlvlen+2,
                                       "Unknown SubTlv: Type: %d, Length: %d", subtype, subtlvlen);
             }
             length -= subtlvlen;
@@ -3854,7 +3853,7 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
                                                           local_offset, ssclv_code, ssclv_len);
                         break;
                     default:
-                        proto_tree_add_expert_format(subsubtree, pinfo, &ei_isis_lsp_subtlv, tvb,
+                        proto_tree_add_expert_format(subsubtree, pinfo, &ei_isis_lsp_unknown_subtlv, tvb,
                                                      local_offset, ssclv_len,
                                                      "Unknown Sub-Sub-TLV: Type: %u, Length: %u",
                                                      ssclv_code, ssclv_len);
@@ -3903,7 +3902,7 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
                                                           local_offset, ssclv_code, ssclv_len);
                         break;
                     default:
-                        proto_tree_add_expert_format(subsubtree, pinfo, &ei_isis_lsp_subtlv, tvb,
+                        proto_tree_add_expert_format(subsubtree, pinfo, &ei_isis_lsp_unknown_subtlv, tvb,
                                                      local_offset, ssclv_len,
                                                      "Unknown Sub-Sub-TLV: Type: %u, Length: %u",
                                                      ssclv_code, ssclv_len);
@@ -4325,7 +4324,7 @@ dissect_lsp_srv6_locator_subclv(tvbuff_t *tvb, packet_info *pinfo,
                                                   offset, ssclv_code, ssclv_len);
                 break;
             default:
-                proto_tree_add_expert_format(subsubtree, pinfo, &ei_isis_lsp_subtlv, tvb,
+                proto_tree_add_expert_format(subsubtree, pinfo, &ei_isis_lsp_unknown_subtlv, tvb,
                                              offset, ssclv_len,
                                              "Unknown Sub-Sub-TLV: Type: %u, Length: %u",
                                              ssclv_code, ssclv_len);
@@ -4336,7 +4335,7 @@ dissect_lsp_srv6_locator_subclv(tvbuff_t *tvb, packet_info *pinfo,
         }
         break;
     default:
-        proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_subtlv, tvb,
+        proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_unknown_subtlv, tvb,
                                      offset, clv_len,
                                      "Unknown Sub-TLV: Type: %u, Length: %u", clv_code, clv_len);
         break;
@@ -7345,7 +7344,7 @@ proto_register_isis_lsp(void)
         { &ei_isis_lsp_short_pdu, { "isis.lsp.short_pdu", PI_MALFORMED, PI_ERROR, "PDU length less than header length", EXPFILL }},
         { &ei_isis_lsp_long_pdu, { "isis.lsp.long_pdu", PI_MALFORMED, PI_ERROR, "PDU length greater than packet length", EXPFILL }},
         { &ei_isis_lsp_bad_checksum, { "isis.lsp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
-        { &ei_isis_lsp_subtlv, { "isis.lsp.subtlv.unknown", PI_PROTOCOL, PI_WARN, "Unknown SubTLV", EXPFILL }},
+        { &ei_isis_lsp_unknown_subtlv, { "isis.lsp.subtlv.unknown", PI_PROTOCOL, PI_WARN, "Unknown SubTLV", EXPFILL }},
         { &ei_isis_lsp_authentication, { "isis.lsp.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
         { &ei_isis_lsp_short_clv, { "isis.lsp.short_clv", PI_MALFORMED, PI_ERROR, "Short CLV", EXPFILL }},
         { &ei_isis_lsp_long_clv, { "isis.lsp.long_clv", PI_MALFORMED, PI_ERROR, "Long CLV", EXPFILL }},
@@ -7353,7 +7352,6 @@ proto_register_isis_lsp(void)
         { &ei_isis_lsp_clv_mt, { "isis.lsp.clv_mt.malformed", PI_MALFORMED, PI_ERROR, "malformed MT-ID", EXPFILL }},
         { &ei_isis_lsp_clv_unknown, { "isis.lsp.clv.unknown", PI_UNDECODED, PI_NOTE, "Unknown option", EXPFILL }},
         { &ei_isis_lsp_malformed_subtlv, { "isis.lsp.subtlv.malformed", PI_MALFORMED, PI_ERROR, "malformed SubTLV", EXPFILL }},
-        { &ei_isis_lsp_unknown_subtlv, { "isis.lsp.subtlv.unknown", PI_UNDECODED, PI_NOTE, "Unknown SubTLV", EXPFILL }},
         { &ei_isis_lsp_reserved_not_zero, { "isis.lsp.reserved_not_zero", PI_PROTOCOL, PI_WARN, "Reserve bit not 0", EXPFILL }},
         { &ei_isis_lsp_length_invalid, { "isis.lsp.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
     };

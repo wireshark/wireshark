@@ -10890,7 +10890,7 @@ void proto_register_mac_lte(void)
         { &ei_mac_lte_mch_header_only_truncated, { "mac-lte.mch.header-only-truncated", PI_SEQUENCE, PI_NOTE, "MAC MCH PDU SDUs have been omitted", EXPFILL }},
         { &ei_mac_lte_slsch_header_only_truncated, { "mac-lte.slsch.header-only-truncated", PI_SEQUENCE, PI_NOTE, "MAC PDU SDUs have been omitted", EXPFILL }},
         { &ei_mac_lte_context_length, { "mac-lte.length.invalid", PI_MALFORMED, PI_ERROR, "MAC PDU is longer than reported length", EXPFILL }},
-        { &ei_mac_lte_rach_preamble_sent_warn, { "mac-lte.rach-preamble-sent", PI_SEQUENCE, PI_WARN, "RACH Preamble sent_warn", EXPFILL }},
+        { &ei_mac_lte_rach_preamble_sent_warn, { "mac-lte.rach-preamble-sent-warn", PI_SEQUENCE, PI_WARN, "RACH Preamble sent_warn", EXPFILL }},
         { &ei_mac_lte_rach_preamble_sent_note, { "mac-lte.rach-preamble-sent", PI_SEQUENCE, PI_NOTE, "RACH Preamble sent", EXPFILL }},
         { &ei_mac_lte_oob_send_sr, { "mac-lte.sr-req", PI_SEQUENCE, PI_NOTE, "Scheduling Request sent", EXPFILL }},
         { &ei_mac_lte_oob_sr_failure, { "mac-lte.sr-failure", PI_SEQUENCE, PI_ERROR, "Scheduling Request failed", EXPFILL }},

@@ -1373,9 +1373,9 @@ class ExpertEntries:
 
         # Not sure if anyone ever filters on these, but check if are unique
         if entry.filter in self.filters:
-            print('Warning:', self.filename, 'Expert filter', '"' + entry.filter + '"',
+            print('Error:', self.filename, 'Expert filter', '"' + entry.filter + '"',
                   'has already been seen (now in', entry.name, '- previously in', self.filter_reverselookup[entry.filter], ')')
-            warnings_found += 1
+            errors_found += 1
         self.filters.add(entry.filter)
         self.filter_reverselookup[entry.filter] = entry.name
 
