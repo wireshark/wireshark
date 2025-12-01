@@ -7597,7 +7597,7 @@ proto_register_ptp(void) {
         { &ei_ptp_v2_period_invalid,    { "ptp.v2.period.invalid", PI_PROTOCOL, PI_WARN, "Period invalid", EXPFILL }},
         { &ei_ptp_v2_as_tlv_in_non_as,  { "ptp.v2.as_tlv_in_non_as", PI_PROTOCOL, PI_WARN, "TLV defined for 802.1AS but this is PTPv2", EXPFILL }},
         { &ei_ptp_v2_mm_protAddrLen,    { "ptp.v2.mm.even.address.leng", PI_PROTOCOL, PI_WARN, "Protocol Address length is odd", EXPFILL }},
-        { &ei_ptp_v2_mmGrandTblPad,     { "ptp.v2.mm.tlv.wrong.len", PI_PROTOCOL, PI_WARN, "Grandmaster cluster table should not have a pad", EXPFILL }},
+        { &ei_ptp_v2_mmGrandTblPad,     { "ptp.v2.mm.tlv.grand_wrong.len", PI_PROTOCOL, PI_WARN, "Grandmaster cluster table should not have a pad", EXPFILL }},
         { &ei_ptp_v2_mmUnuTblPad,       { "ptp.v2.mm.tlv.wrong.len", PI_PROTOCOL, PI_WARN, "Unicast master table lacks pad", EXPFILL }},
     };
 

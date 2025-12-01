@@ -933,9 +933,9 @@ void proto_register_osmo_trx(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	static ei_register_info ei_otrxd[] = {
-		{ &ei_otrxd_injected_msg, { "osmo_trx.ei.injected_msg",
+		{ &ei_otrxd_injected_msg, { "osmo_trxd.ei.injected_msg",
 		  PI_COMMENTS_GROUP, PI_COMMENT, "Injected message", EXPFILL } },
-		{ &ei_otrxd_unknown_dir, { "osmo_trx.ei.unknown_dir",
+		{ &ei_otrxd_unknown_dir, { "osmo_trxd.ei.unknown_dir",
 		  PI_UNDECODED, PI_ERROR, "Unknown direction", EXPFILL } },
 		{ &ei_otrxd_unknown_pdu_ver, { "osmo_trxd.ei.unknown_pdu_ver",
 		  PI_PROTOCOL, PI_ERROR, "Unknown PDU version", EXPFILL } },
@@ -944,9 +944,9 @@ void proto_register_osmo_trx(void)
 	};
 
 	static ei_register_info ei_otrxc[] = {
-		{ &ei_otrxc_injected_msg, { "osmo_trx.ei.injected_msg",
+		{ &ei_otrxc_injected_msg, { "osmo_trxc.ei.injected_msg",
 		  PI_COMMENTS_GROUP, PI_COMMENT, "Injected message", EXPFILL } },
-		{ &ei_otrxc_unknown_dir, { "osmo_trx.ei.unknown_dir",
+		{ &ei_otrxc_unknown_dir, { "osmo_trxc.ei.unknown_dir",
 		  PI_ASSUMPTION, PI_WARN, "Unknown direction", EXPFILL } },
 		{ &ei_otrxc_bad_delimiter, { "osmo_trxc.ei.bad_delimiter",
 		  PI_PROTOCOL, PI_WARN, "Invalid delimiter", EXPFILL } },

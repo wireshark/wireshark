@@ -2249,7 +2249,7 @@ void wimax_proto_register_mac_header_generic(void)
 		};
 
 	static ei_register_info ei[] = {
-		{ &ei_mac_crc_malformed, { "wmx.genericCrc.missing", PI_MALFORMED, PI_ERROR, "CRC missing - the frame is too short", EXPFILL }},
+		{ &ei_mac_crc_malformed, { "wmx.genericCrc.missing_mal", PI_MALFORMED, PI_ERROR, "CRC missing - the frame is too short", EXPFILL }},
 		{ &ei_mac_crc_missing, { "wmx.genericCrc.missing", PI_PROTOCOL, PI_NOTE, "CRC is not included in this frame!", EXPFILL }},
 		{ &ei_mac_header_generic_crc, { "wmx.genericCrc.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
 	};

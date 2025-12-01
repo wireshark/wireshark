@@ -1900,7 +1900,7 @@ proto_register_pw_atm_ata(void)
 	};
 	static ei_register_info ei[] = {
 		{ &ei_pw_packet_size_too_small, { "pw.packet_size_too_small", PI_MALFORMED, PI_ERROR, "PW packet size too small", EXPFILL }},
-		{ &ei_pw_payload_size_invalid_error, { "pw.payload.size_invalid", PI_MALFORMED, PI_ERROR, "PW payload size invalid", EXPFILL }},
+		{ &ei_pw_payload_size_invalid_error, { "pw.payload.size_invalid_err", PI_MALFORMED, PI_ERROR, "PW payload size invalid", EXPFILL }},
 		{ &ei_cell_broken, { "atm.cell_broken", PI_MALFORMED, PI_ERROR, "PW ATM cell is broken", EXPFILL }},
 		{ &ei_pw_payload_size_invalid_note, { "pw.payload.size_invalid", PI_MALFORMED, PI_NOTE, "PW payload size invalid", EXPFILL }},
 		{ &ei_cw_bits03, { "pw.cw.bits03.not_zero", PI_MALFORMED, PI_ERROR, "Bits 0..3 of Control Word must be 0", EXPFILL }},
