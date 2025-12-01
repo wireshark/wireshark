@@ -806,6 +806,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-babel.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bacapp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bacnet.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-bacnet-data.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-banana.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bat.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-batadv.c
