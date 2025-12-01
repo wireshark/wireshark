@@ -439,10 +439,25 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (data_len < 4) {
             /*
-             * The length includes the TPKT header, so this is bogus.
-             * Report this as a bounds error.
+             * The length includes the TPKT header, so this can't be a valid
+             * TPKT header. We only checked one byte above, so we might be in
+             * the middle of TPKT data. Call it continuation as above.
              */
-            show_reported_bounds_error(tvb, pinfo, tree);
+            if (dissector_try_heuristic(tpkt_heur_subdissector_list, tvb,
+                                        pinfo, proto_tree_get_root(tree),
+                                        &hdtbl_entry, NULL)) {
+                return;
+            }
+
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
+            col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+            if (tree) {
+                ti = proto_tree_add_item(tree, proto_tpkt, tvb,
+                    offset, -1, ENC_NA);
+                tpkt_tree = proto_item_add_subtree(ti, ett_tpkt);
+
+                proto_tree_add_item(tpkt_tree, hf_tpkt_continuation_data, tvb, offset, -1, ENC_NA);
+            }
             return;
         }
 
