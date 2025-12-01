@@ -864,6 +864,11 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
     }
 
     if (container->compression_method == BLF_COMPRESSION_NONE) {
+        if (data_length != container->real_length) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = ws_strdup("blf_pull_logcontainer_into_memory: uncompressed data has wrong length");
+            return false;
+        }
         unsigned char* buf = g_try_malloc((size_t)container->real_length);
         if (buf == NULL) {
             *err = WTAP_ERR_INTERNAL;
