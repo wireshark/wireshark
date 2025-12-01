@@ -18,6 +18,9 @@
  * null-terminated sentence prefix string "UdPbC"
  */
 #define UDPBC "UdPbC"
+#define RRUDP "RrUdP"
+#define RAUDP "RaUdp"
+#define RPUDP "RpUdP"
 #define NMEA0183_CRLF 0x0d0a
 
 static int hf_nmea0183_talker_id;
@@ -149,6 +152,23 @@ static int hf_nmea0183_zda_local_zone_minute;
 
 static int hf_nmea0183_sentence_prefix;
 static int hf_nmea0183_tag_block;
+static int hf_nmea0183_bin_version;
+static int hf_nmea0183_bin_srcid;
+static int hf_nmea0183_bin_dstid;
+static int hf_nmea0183_bin_mtype;
+static int hf_nmea0183_bin_blockid;
+static int hf_nmea0183_bin_seqnum;
+static int hf_nmea0183_bin_max_seqnum;
+static int hf_nmea0183_bin_data;
+static int hf_nmea0183_bin_file_descriptor;
+static int hf_nmea0183_bin_file_descriptor_len;
+static int hf_nmea0183_bin_file_length;
+static int hf_nmea0183_bin_stat_of_acquisition;
+static int hf_nmea0183_bin_device;
+static int hf_nmea0183_bin_channel;
+static int hf_nmea0183_bin_type_len;
+static int hf_nmea0183_bin_data_type;
+static int hf_nmea0183_bin_status_and_info;
 
 static int ett_nmea0183;
 static int ett_nmea0183_checksum;
@@ -163,6 +183,7 @@ static int ett_nmea0183_gll_latitude;
 static int ett_nmea0183_gll_longitude;
 static int ett_nmea0183_gst_time;
 static int ett_nmea0183_tag_block;
+static int ett_nmea0183_fd;
 
 static expert_field ei_nmea0183_invalid_first_character;
 static expert_field ei_nmea0183_missing_checksum_character;
@@ -190,6 +211,7 @@ static expert_field ei_nmea0183_vtg_ground_speed_knot_unit_incorrect;
 static expert_field ei_nmea0183_vtg_ground_speed_kilometer_unit_incorrect;
 
 static int proto_nmea0183;
+static int proto_nmea0183_bin;
 
 static dissector_handle_t nmea0183_handle;
 
@@ -2167,11 +2189,80 @@ dissect_nmea0183_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
     return tvb_captured_length(tvb);
 }
 
+static const value_string nmea0183_bin_mtype_vals[] = {
+        { 1, "Data"},
+        { 2, "Query"},
+        { 3, "Ack"},
+        { 0, NULL },
+};
+
 static int
-dissect_nmea0183(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+dissect_nmea0183_bin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
     proto_item* ti;
-    proto_tree* nmea0183_tree;
+    proto_tree* nmea0183_tree, *fd_tree;
+    uint32_t mtype, seqnum, file_descriptor_len, type_len;
+
+    int offset = 0;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NMEA 0183 Binary");
+    /* Clear the info column */
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    ti = proto_tree_add_item(tree, proto_nmea0183_bin, tvb, 0, -1, ENC_NA);
+    nmea0183_tree = proto_item_add_subtree(ti, ett_nmea0183);
+
+    proto_tree_add_item(nmea0183_tree, hf_nmea0183_sentence_prefix, tvb, offset, 6, ENC_ASCII);
+    offset += 6;
+    proto_tree_add_item(nmea0183_tree, hf_nmea0183_bin_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
+    proto_tree_add_item(nmea0183_tree, hf_nmea0183_bin_srcid, tvb, offset, 6, ENC_ASCII);
+    offset += 6;
+    proto_tree_add_item(nmea0183_tree, hf_nmea0183_bin_dstid, tvb, offset, 6, ENC_ASCII);
+    offset += 6;
+    proto_tree_add_item_ret_uint(nmea0183_tree, hf_nmea0183_bin_mtype, tvb, offset, 2, ENC_BIG_ENDIAN, &mtype);
+    offset += 2;
+    proto_tree_add_item(nmea0183_tree, hf_nmea0183_bin_blockid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(nmea0183_tree, hf_nmea0183_bin_seqnum, tvb, offset, 4, ENC_BIG_ENDIAN, &seqnum);
+    offset += 4;
+    proto_tree_add_item(nmea0183_tree, hf_nmea0183_bin_max_seqnum, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    if (offset < (int)tvb_reported_length(tvb)) {
+        if ((mtype == 1) && (seqnum == 1)) {
+            /* binary file descriptor*/
+            ti = proto_tree_add_item(nmea0183_tree, hf_nmea0183_bin_file_descriptor, tvb, offset, -1, ENC_ASCII);
+            fd_tree = proto_item_add_subtree(ti, ett_nmea0183_fd);
+            proto_tree_add_item_ret_uint(fd_tree, hf_nmea0183_bin_file_descriptor_len, tvb, offset, 4, ENC_BIG_ENDIAN, &file_descriptor_len);
+            proto_item_set_len(ti, file_descriptor_len);
+            offset += 4;
+            proto_tree_add_item(fd_tree, hf_nmea0183_bin_file_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(fd_tree, hf_nmea0183_bin_stat_of_acquisition, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(fd_tree, hf_nmea0183_bin_device, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(fd_tree, hf_nmea0183_bin_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item_ret_uint(fd_tree, hf_nmea0183_bin_type_len, tvb, offset, 1, ENC_BIG_ENDIAN, &type_len);
+            offset++;
+            proto_tree_add_item(fd_tree, hf_nmea0183_bin_data_type, tvb, offset, type_len, ENC_ASCII);
+            offset += type_len;
+            proto_tree_add_item(fd_tree, hf_nmea0183_bin_status_and_info, tvb, offset, file_descriptor_len - type_len - 13, ENC_ASCII);
+            offset += file_descriptor_len - type_len - 13;
+        }
+        proto_tree_add_item(nmea0183_tree, hf_nmea0183_bin_data, tvb, offset, -1, ENC_NA);
+    }
+
+
+    return tvb_reported_length(tvb);
+}
+
+static int
+dissect_nmea0183(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+{
+    proto_item* ti;
+    proto_tree* nmea0183_tree = NULL;
     int offset = 0;
     int end_offset;
     bool first_msg = true;
@@ -2187,12 +2278,14 @@ dissect_nmea0183(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
     }
     /* Add CRLF */
     end_offset += 2;
-    ti = proto_tree_add_item(tree, proto_nmea0183, tvb, 0, end_offset, ENC_NA);
-    nmea0183_tree = proto_item_add_subtree(ti, ett_nmea0183);
 
 
     /* UdPbC\<tag block 1>,<tagblock2>, … <tagblock n>*<tagblocks CS>\<NMEA message>*/
     if (tvb_strneql(tvb, 0, UDPBC, strlen(UDPBC)) == 0) {
+        if (first_msg == true) {
+            ti = proto_tree_add_item(tree, proto_nmea0183, tvb, 0, end_offset, ENC_NA);
+            nmea0183_tree = proto_item_add_subtree(ti, ett_nmea0183);
+        }
         proto_tree_add_item(nmea0183_tree, hf_nmea0183_sentence_prefix, tvb, offset, 6, ENC_ASCII);
         offset += 6;
         while (offset < (int)tvb_reported_length(tvb)) {
@@ -2214,7 +2307,22 @@ dissect_nmea0183(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
             first_msg = false;
         }
         return offset;
+    } else if (tvb_strneql(tvb, 0, RRUDP, strlen(RRUDP)) == 0) {
+        /* Binary nmea0183 */
+        offset = dissect_nmea0183_bin(tvb, pinfo, tree, data);
+        return offset;
+    } else if (tvb_strneql(tvb, 0, RAUDP, strlen(RAUDP)) == 0) {
+        /* Binary nmea0183 */
+        offset = dissect_nmea0183_bin(tvb, pinfo, tree, data);
+        return offset;
+    } else if (tvb_strneql(tvb, 0, RPUDP, strlen(RPUDP)) == 0) {
+        /* Binary nmea0183 */
+        offset = dissect_nmea0183_bin(tvb, pinfo, tree, data);
+        return offset;
     }
+
+    ti = proto_tree_add_item(tree, proto_nmea0183, tvb, 0, end_offset, ENC_NA);
+    nmea0183_tree = proto_item_add_subtree(ti, ett_nmea0183);
 
     tvbuff_t *msg_tvb = tvb_new_subset_length(tvb, offset, end_offset - offset);
     offset = dissect_nmea0183_msg(msg_tvb, pinfo, nmea0183_tree);
@@ -2223,7 +2331,7 @@ dissect_nmea0183(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
 }
 
 /* Try to detect NMEA 0183 heuristically */
-static bool dissect_nmea0183_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static bool dissect_nmea0183_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     char *sent_type;
     const char *talker, *t_val, *p_val, *m_val, *manuf;
@@ -2240,6 +2348,15 @@ static bool dissect_nmea0183_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     /* See if we have a UDP brodcast message */
     if (tvb_strneql(tvb, 0, UDPBC, strlen(UDPBC)) == 0) {
         return (dissect_nmea0183(tvb, pinfo, tree, data) != 0);
+    }
+    if (tvb_strneql(tvb, 0, RRUDP, strlen(RRUDP)) == 0) {
+        return (dissect_nmea0183_bin(tvb, pinfo, tree, data) != 0);
+    }
+    if (tvb_strneql(tvb, 0, RAUDP, strlen(RAUDP)) == 0) {
+        return (dissect_nmea0183_bin(tvb, pinfo, tree, data) != 0);
+    }
+    if (tvb_strneql(tvb, 0, RPUDP, strlen(RPUDP)) == 0) {
+        return (dissect_nmea0183_bin(tvb, pinfo, tree, data) != 0);
     }
     /* Grab the first byte and check the first character */
     sent_type = (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, 1, ENC_ASCII);
@@ -2858,8 +2975,92 @@ void proto_register_nmea0183(void)
          { "Tag block", "nmea0183.tag_block",
           FT_STRING, BASE_NONE,
           NULL, 0x0,
-          NULL, HFILL }
-    },
+          NULL, HFILL }},
+        { &hf_nmea0183_bin_version,
+         { "Version", "nmea0183.bin.version",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_nmea0183_bin_srcid,
+         { "Source Id", "nmea0183.bin.src_id",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_nmea0183_bin_dstid,
+         { "Destination Id", "nmea0183.bin.dst_id",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_mtype,
+         { "Mtype", "nmea0183.bin.mtype",
+          FT_UINT16, BASE_DEC,
+          VALS(nmea0183_bin_mtype_vals), 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_blockid,
+         { "Blockid", "nmea0183.bin.blockid",
+          FT_UINT32, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_seqnum,
+         { "Sequence number", "nmea0183.bin.seqnum",
+          FT_UINT32, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_max_seqnum,
+         { "Max Sequence number", "nmea0183.bin.maxseqnum",
+          FT_UINT32, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_data,
+         { "Data", "nmea0183.bin.data",
+          FT_BYTES, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_file_descriptor,
+         { "File descriptor", "nmea0183.bin.file_descriptor",
+          FT_BYTES, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_file_descriptor_len,
+         { "File descriptor length", "nmea0183.bin.fd_len",
+          FT_UINT32, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_file_length,
+         { "File length", "nmea0183.bin.file_len",
+          FT_UINT32, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_stat_of_acquisition,
+         { "Status of acquisition", "nmea0183.bin.stat_of_acquisition",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_device,
+         { "Device", "nmea0183.bin.device",
+          FT_UINT8, BASE_HEX,
+          NULL, 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_channel,
+         { "Channel", "nmea0183.bin.channel",
+          FT_UINT8, BASE_HEX,
+          NULL, 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_type_len,
+         { "Type length", "nmea0183.bin.type_len",
+          FT_UINT8, BASE_DEC,
+          NULL, 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_data_type,
+         { "Data type", "nmea0183.bin.data_type",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL } },
+        { &hf_nmea0183_bin_status_and_info,
+         { "Status and information text", "nmea0183.bin.status_and_info",
+          FT_STRING, BASE_NONE,
+          NULL, 0x0,
+          NULL, HFILL } },
 };
 
     /* Setup protocol subtree array */
@@ -2876,7 +3077,8 @@ void proto_register_nmea0183(void)
         &ett_nmea0183_gll_latitude,
         &ett_nmea0183_gll_longitude,
         &ett_nmea0183_gst_time,
-        &ett_nmea0183_tag_block
+        &ett_nmea0183_tag_block,
+        &ett_nmea0183_fd
     };
 
     static ei_register_info ei[] = {
@@ -2954,6 +3156,7 @@ void proto_register_nmea0183(void)
           "Incorrect speed unit (should be 'K')", EXPFILL}}};
 
     proto_nmea0183 = proto_register_protocol("NMEA 0183 protocol", "NMEA 0183", "nmea0183");
+    proto_nmea0183_bin = proto_register_protocol("NMEA 0183 binary protocol", "NMEA 0183 BIN", "nmea0183_bin");
 
     proto_register_field_array(proto_nmea0183, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
