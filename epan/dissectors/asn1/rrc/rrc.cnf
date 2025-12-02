@@ -1603,9 +1603,9 @@ uint32_t scrambling_code;
 private_data_set_scrambling_code(actx,scrambling_code);
 
 #.FN_BODY RRC-StateIndicator VAL_PTR = &state_dec
-int32_t state_dec = -1;
+uint32_t state_dec = -1;
 %(DEFAULT_BODY)s
-if(state_dec >= 0 && state_dec <= 3) {
+if(state_dec <= 3) {
   state_dec++; /* Encoded values are 0-based, Values in the enum are 1-based*/
   private_data_set_rrc_state_indicator(actx,(enum rrc_ue_state)state_dec);
 }
@@ -1807,7 +1807,7 @@ private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
 
 #.FN_BODY CipheringAlgorithm VAL_PTR = &ciphering_algo
   rrc_ciphering_info *ciphering_info;
-  int32_t ciphering_algo;
+  uint32_t ciphering_algo;
 
 %(DEFAULT_BODY)s
 
@@ -1815,11 +1815,11 @@ private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
   if (ciphering_info == NULL) {
     return offset;
   }
-  ciphering_info->ciphering_algorithm = ciphering_algo;
+  ciphering_info->ciphering_algorithm = (int32_t)ciphering_algo;
 
 #.FN_BODY CipheringAlgorithm-r7 VAL_PTR = &ciphering_algo
   rrc_ciphering_info *ciphering_info;
-  int32_t ciphering_algo;
+  uint32_t ciphering_algo;
 
 %(DEFAULT_BODY)s
 
@@ -1827,11 +1827,11 @@ private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
   if (ciphering_info == NULL) {
     return offset;
   }
-  ciphering_info->ciphering_algorithm = ciphering_algo;
+  ciphering_info->ciphering_algorithm = (int32_t)ciphering_algo;
 
 #.FN_BODY IntegrityProtectionAlgorithm VAL_PTR = &integrity_algo
   rrc_ciphering_info *ciphering_info;
-  int32_t integrity_algo;
+  uint32_t integrity_algo;
 
 %(DEFAULT_BODY)s
 
@@ -1839,11 +1839,11 @@ private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
   if (ciphering_info == NULL) {
     return offset;
   }
-  ciphering_info->integrity_algorithm = integrity_algo;
+  ciphering_info->integrity_algorithm = (int32_t)integrity_algo;
 
 #.FN_BODY IntegrityProtectionAlgorithm-r7 VAL_PTR = &integrity_algo
   rrc_ciphering_info *ciphering_info;
-  int32_t integrity_algo;
+  uint32_t integrity_algo;
 
 %(DEFAULT_BODY)s
 
@@ -1851,7 +1851,7 @@ private_data_set_rlc_ciphering_sqn(actx, rlc_ciphering_sqn);
   if (ciphering_info == NULL) {
     return offset;
   }
-  ciphering_info->integrity_algorithm = integrity_algo;
+  ciphering_info->integrity_algorithm = (int32_t)integrity_algo;
 
 #.FN_BODY DL-DCCH-MessageType VAL_PTR = &msg_type
 %(DEFAULT_BODY)s
