@@ -243,6 +243,13 @@ static int hf_huawei_smpp_operation_result;
 static int hf_huawei_smpp_notify_mode;
 static int hf_huawei_smpp_delivery_result;
 
+/*
+ * Request/response tracking
+ */
+static int hf_smpp_response_in;
+static int hf_smpp_request_in;
+static int hf_smpp_response_time;
+
 static expert_field ei_smpp_message_payload_duplicate;
 static expert_field ei_smpp_date_time_decoding_failed;
 
@@ -1054,6 +1061,34 @@ static int * const submit_msg_fields[] = {
     &hf_smpp_esm_submit_features,
     NULL
 };
+
+/* Structures for request/response tracking */
+typedef struct _smpp_session_t {
+        wmem_multimap_t *rr_map;    /* Multimap to track request/response pairs
+                                       as sequence numbers _might_ be reused
+                                       according to SMPP 5.0 section 2.6.2 */
+} smpp_session_t;
+
+/*
+ * A data structure to track a SMPP request/response pair.
+ * Note: The protocol spec doesn't use the term "transaction", but we are using
+ * it here anyway...
+ */
+typedef struct _smpp_txn_t {
+        uint32_t req_frame;       /* Frame number in which request was seen */
+        uint32_t res_frame;       /* Frame number in which response was seen */
+        nstime_t req_time;        /* Time when request was seen */
+        nstime_t res_time;        /* Time when response was seen */
+} smpp_txn_t;
+
+/* The same sequence number might be used in either direction in the same
+ * session. So, we need to track the sequence numbers by direction.
+ */
+typedef struct _smpp_txn_key_t {
+        address src_addr;
+        address dst_addr;
+        unsigned sequence_number;
+} smpp_txn_key_t;
 
 static dissector_handle_t gsm_sms_handle;
 
@@ -2453,6 +2488,59 @@ export_smpp_pdu(packet_info *pinfo, tvbuff_t *tvb)
     tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
 }
 
+static unsigned
+smpp_txn_key_hash(const void *k)
+{
+    const smpp_txn_key_t *key = (const smpp_txn_key_t *)k;
+    unsigned hash_val = 0;
+
+    hash_val = add_address_to_hash(hash_val, &key->src_addr);
+    hash_val = add_address_to_hash(hash_val, &key->dst_addr);
+    hash_val ^= key->sequence_number * 2654435761u;
+    return hash_val;
+}
+
+static gboolean
+smpp_txn_key_equal(const void *a, const void *b)
+{
+    const smpp_txn_key_t *key_a = (const smpp_txn_key_t *)a;
+    const smpp_txn_key_t *key_b = (const smpp_txn_key_t *)b;
+
+    return addresses_equal(&key_a->src_addr, &key_b->src_addr) &&
+           addresses_equal(&key_a->dst_addr, &key_b->dst_addr) &&
+           key_a->sequence_number == key_b->sequence_number;
+}
+
+static smpp_txn_key_t*
+get_smpp_txn_key(packet_info *pinfo, unsigned command_id, unsigned sequence_number, wmem_allocator_t *wma)
+{
+    smpp_txn_key_t *txn_key = wmem_new(wma, smpp_txn_key_t);
+    txn_key->sequence_number = sequence_number;
+    if (command_id & SMPP_COMMAND_ID_RESPONSE_MASK) {
+        /* PDU is a response; key direction reversed */
+        copy_address_wmem(wma, &txn_key->src_addr, &pinfo->dst);
+        copy_address_wmem(wma, &txn_key->dst_addr, &pinfo->src);
+        return txn_key;
+    } else {
+        copy_address_wmem(wma, &txn_key->src_addr, &pinfo->src);
+        copy_address_wmem(wma, &txn_key->dst_addr, &pinfo->dst);
+        return txn_key;
+    }
+}
+
+static smpp_session_t*
+find_or_create_smpp_session(packet_info *pinfo)
+{
+    conversation_t *conversation = find_or_create_conversation(pinfo);
+    smpp_session_t *smpp_session = conversation_get_proto_data(conversation, proto_smpp);
+    if (!smpp_session) {
+        smpp_session = wmem_new(wmem_file_scope(), smpp_session_t);
+        smpp_session->rr_map = wmem_multimap_new(wmem_file_scope(), smpp_txn_key_hash, smpp_txn_key_equal);
+        conversation_add_proto_data(conversation, proto_smpp, smpp_session);
+    }
+    return smpp_session;
+}
+
 /* Dissect a single SMPP PDU contained within "tvb". */
 static int
 dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -2468,6 +2556,12 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item     *ti;
     proto_tree     *smpp_tree;
+
+    /* Request/response tracking */
+    smpp_session_t *smpp_session = NULL;
+    smpp_txn_t     *smpp_txn = NULL;
+    smpp_txn_key_t *txn_key = NULL;
+    nstime_t       ns;
 
     /*
      * Safety: don't even try to dissect the PDU
@@ -2488,6 +2582,30 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
     offset += 4;
     sequence_number = tvb_get_ntohl(tvb, offset);
+
+    /* Request/response tracking */
+    smpp_session = find_or_create_smpp_session(pinfo);
+    if (!PINFO_FD_VISITED(pinfo)) {
+        if ((command_id & SMPP_COMMAND_ID_RESPONSE_MASK) == 0) {
+            /* This is a request. We assume that it will always be seen before the response. */
+            txn_key = get_smpp_txn_key(pinfo, command_id, sequence_number, wmem_file_scope());
+            smpp_txn = wmem_new(wmem_file_scope(), smpp_txn_t);
+            wmem_multimap_insert32(smpp_session->rr_map, txn_key, pinfo->num, smpp_txn);
+            smpp_txn->req_frame = pinfo->num;
+            smpp_txn->req_time = pinfo->fd->abs_ts;
+        } else {
+            /* This is a response. */
+            txn_key = get_smpp_txn_key(pinfo, command_id, sequence_number, pinfo->pool);
+            smpp_txn = (smpp_txn_t *)wmem_multimap_lookup32_le(smpp_session->rr_map, txn_key, pinfo->num);
+            if (smpp_txn) {
+                smpp_txn->res_frame = pinfo->num;
+                smpp_txn->res_time = pinfo->fd->abs_ts;
+            }
+        }
+    } else {
+        txn_key = get_smpp_txn_key(pinfo, command_id, sequence_number, pinfo->pool);
+        smpp_txn = (smpp_txn_t *)wmem_multimap_lookup32_le(smpp_session->rr_map, txn_key, pinfo->num);
+    }
 
     if (have_tap_listener(exported_pdu_tap)){
         export_smpp_pdu(pinfo,tvb);
@@ -2551,6 +2669,26 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
     proto_tree_add_uint(smpp_tree, hf_smpp_sequence_number, tvb, 12, 4, sequence_number);
     proto_item_append_text(smpp_tree, ", Seq: %u, Len: %u", sequence_number, command_length);
+
+    /* Set the conversation related fields */
+    if (smpp_txn) {
+        if (command_id & SMPP_COMMAND_ID_RESPONSE_MASK) {
+            /* Fill info about request frame and response time, but only if both req/res seen */
+            if (smpp_txn->req_frame > 0 && smpp_txn->res_frame > 0) {
+                ti =  proto_tree_add_uint(smpp_tree, hf_smpp_request_in, tvb, 0, 0, smpp_txn->req_frame);
+                proto_item_set_generated(ti);
+
+                nstime_delta(&ns, &smpp_txn->res_time, &smpp_txn->req_time);
+                ti = proto_tree_add_time(smpp_tree, hf_smpp_response_time, tvb, 0, 0, &ns);
+                proto_item_set_generated(ti);
+            }
+        } else {
+            if (smpp_txn->res_frame > 0) {
+                ti =  proto_tree_add_uint(smpp_tree, hf_smpp_response_in, tvb, 0, 0, smpp_txn->res_frame);
+                proto_item_set_generated(ti);
+            }
+        }
+    }
 
     if (command_length <= tvb_reported_length(tvb))
     {
@@ -3788,6 +3926,23 @@ proto_register_smpp(void)
                 {       "SMPP+: Delivery result of SMS", "smpp.delivery_result",
                         FT_UINT32, BASE_DEC, VALS(vals_delivery_result), 0x00,
                         "SMPP+: Indicates the Delivery result of SMS", HFILL
+                }
+        },
+        /* Conversation tracking */
+        {       &hf_smpp_response_in,
+                {       "Response In", "smpp.response_in",
+                        FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+                        "The response to this SMPP request is in this frame", HFILL
+                }
+        },
+        {       &hf_smpp_request_in,
+                {       "Request In", "smpp.request_in", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+                        "This request corresponding to this SMPP response in this frame", HFILL
+                }
+        },
+        {       &hf_smpp_response_time,
+                {       "Response Time", "smpp.response_time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+                        "The time between the request and the response", HFILL
                 }
         }
     };
