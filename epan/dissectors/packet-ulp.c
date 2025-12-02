@@ -7754,14 +7754,16 @@ static const per_choice_t UlpMessage_choice[] = {
 static int
 dissect_ulp_UlpMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-uint32_t UlpMessage;
+  int32_t UlpMessage;
 
     offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_ulp_UlpMessage, UlpMessage_choice,
                                  &UlpMessage);
 
 
-  col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
+  if (UlpMessage != -1) {
+    col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str_const((uint32_t)UlpMessage,ulp_UlpMessage_vals,"Unknown"));
+  }
 
 
   return offset;

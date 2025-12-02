@@ -90,6 +90,32 @@ WS_DLL_PUBLIC uint32_t dissect_per_constrained_integer_64b(tvbuff_t *tvb, uint32
 
 WS_DLL_PUBLIC uint32_t dissect_per_real(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, double *value);
 
+/*
+ * @brief Dissects a PER choice
+ *
+ * @attention
+ * The return value of value (which can be mapped to a variable via VAL_PTR
+ * in a conformance file) is the tag number. Tag numbers are non-negative
+ * integers (X.680 8.2), but here value can be -1 if no alternative was
+ * selected. This is not necessarily an error if the choice was OPTIONAL.
+ * (The function does not have a way to distinguish between a CHOICE which
+ * is OPTIONAL and one which is not, and so treats all as optional.)
+ *
+ * This is *not* the same usage as dissect_ber_choice, which returns the
+ * ordinal number of the branch taken.
+ *
+ * @note
+ * Since the value can be -1 to indicate that the CHOICE was not present,
+ * it is safest to check that it is not so:
+ * ```c
+ * if (value != -1) {
+ *   char* identifier = val_to_str_const(value, proto_ChoiceType_vals, "Unknown");
+ * }
+ * ```
+ * It is possible, albeit unlikely, that a ChoiceType may have a tag number
+ * greater than INT32_MAX. If the ChoiceType has a tag number of UINT32_MAX
+ * then the value is ambiguous.
+ */
 WS_DLL_PUBLIC uint32_t dissect_per_choice(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int ett_index, const per_choice_t *choice, int *value);
 
 WS_DLL_PUBLIC uint32_t dissect_per_sequence(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, int ett_index, const per_sequence_t *sequence);

@@ -53,11 +53,13 @@ CellGlobalIdEUTRA/cellIdentity ABBREV=cellglobalideutra.cellIdentity
 
 #.FN_BODY IlpMessage  VAL_PTR = &IlpMessage
 
-uint32_t IlpMessage;
+  int32_t IlpMessage;
 
   %(DEFAULT_BODY)s
 
-  col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ", val_to_str_const(IlpMessage,ilp_IlpMessage_vals,"Unknown"));
+  if (IlpMessage != -1) {
+    col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ", val_to_str_const((uint32_t)IlpMessage,ilp_IlpMessage_vals,"Unknown"));
+  }
 
 #.END
 

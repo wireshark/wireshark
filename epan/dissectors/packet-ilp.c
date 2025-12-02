@@ -4625,14 +4625,16 @@ static const per_choice_t IlpMessage_choice[] = {
 static int
 dissect_ilp_IlpMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-uint32_t IlpMessage;
+  int32_t IlpMessage;
 
     offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_ilp_IlpMessage, IlpMessage_choice,
                                  &IlpMessage);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(IlpMessage,ilp_IlpMessage_vals,"Unknown"));
+  if (IlpMessage != -1) {
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str_const((uint32_t)IlpMessage,ilp_IlpMessage_vals,"Unknown"));
+  }
 
 
   return offset;

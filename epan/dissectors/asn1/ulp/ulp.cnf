@@ -57,11 +57,13 @@ ThirdPartyID/min min_bit_string
 
 #.FN_BODY UlpMessage  VAL_PTR = &UlpMessage
 
-uint32_t UlpMessage;
+  int32_t UlpMessage;
 
   %(DEFAULT_BODY)s
 
-  col_prepend_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ", val_to_str_const(UlpMessage,ulp_UlpMessage_vals,"Unknown"));
+  if (UlpMessage != -1) {
+    col_prepend_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ", val_to_str_const((uint32_t)UlpMessage,ulp_UlpMessage_vals,"Unknown"));
+  }
 
 #.END
 

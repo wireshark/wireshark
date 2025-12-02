@@ -2268,11 +2268,13 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UN
   }
 
 #.FN_BODY RLC-Config VAL_PTR=&value
-  uint32_t value;
+  int32_t value;
   nr_drb_mac_rlc_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
 %(DEFAULT_BODY)s
-  mapping->rlcMode = (value==0) ? RLC_AM_MODE : RLC_UM_MODE;
-  mapping->rlcMode_present = true;
+  if (value != -1) {
+    mapping->rlcMode = (value==0) ? RLC_AM_MODE : RLC_UM_MODE;
+    mapping->rlcMode_present = true;
+  }
 
 #.FN_BODY LogicalChannelIdentity VAL_PTR=&value
   uint32_t value;
