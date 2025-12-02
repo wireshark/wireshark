@@ -86,16 +86,16 @@ WS_DLL_PUBLIC int dissect_ber_length(packet_info *pinfo, proto_tree *tree, tvbuf
 
 WS_DLL_PUBLIC int dissect_ber_tagged_type(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id, int8_t tag_cls, int32_t tag_tag, bool tag_impl, ber_type_fn type);
 
-extern int dissect_ber_constrained_octet_string(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int32_t min_len, int32_t max_len, int hf_id, tvbuff_t **out_tvb);
+WS_DLL_PUBLIC int dissect_ber_constrained_octet_string(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int32_t min_len, int32_t max_len, int hf_id, tvbuff_t **out_tvb);
 WS_DLL_PUBLIC int dissect_ber_octet_string(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id, tvbuff_t **out_tvb);
 WS_DLL_PUBLIC int dissect_ber_octet_string_with_encoding(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id, tvbuff_t **out_tvb, unsigned encoding);
 extern int dissect_ber_octet_string_wcb(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id, ber_callback func);
 
 WS_DLL_PUBLIC int dissect_ber_integer64(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id, int64_t *value);
-extern int dissect_ber_constrained_integer64(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int64_t min_len, int64_t max_len, int hf_id, int64_t *value);
+WS_DLL_PUBLIC int dissect_ber_constrained_integer64(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int64_t min_len, int64_t max_len, int hf_id, int64_t *value);
 
 WS_DLL_PUBLIC int dissect_ber_integer(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id, uint32_t *value);
-extern int dissect_ber_constrained_integer(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int32_t min_len, int32_t max_len, int hf_id, uint32_t *value);
+WS_DLL_PUBLIC int dissect_ber_constrained_integer(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int32_t min_len, int32_t max_len, int hf_id, uint32_t *value);
 
 WS_DLL_PUBLIC int dissect_ber_null(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id);
 
@@ -168,7 +168,7 @@ WS_DLL_PUBLIC int dissect_ber_choice(asn1_ctx_t *actx, proto_tree *parent_tree, 
 /*
  * This function dissects a BER strings
  */
-extern int dissect_ber_constrained_restricted_string(bool implicit_tag, int32_t type,  asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int32_t min_len, int32_t max_len, int hf_id, tvbuff_t **out_tvb);
+WS_DLL_PUBLIC int dissect_ber_constrained_restricted_string(bool implicit_tag, int32_t type,  asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int32_t min_len, int32_t max_len, int hf_id, tvbuff_t **out_tvb);
 WS_DLL_PUBLIC int dissect_ber_restricted_string(bool implicit_tag, int32_t type, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id, tvbuff_t **out_tvb);
 extern int dissect_ber_GeneralString(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id, char *name_string, unsigned name_len);
 
@@ -185,17 +185,17 @@ WS_DLL_PUBLIC int dissect_ber_relative_oid_str(bool implicit_tag, asn1_ctx_t *ac
 
 /* this function dissects a BER sequence of
  */
-extern int dissect_ber_constrained_sequence_of(bool implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int32_t min_len, int32_t max_len, const ber_sequence_t *seq, int hf_id, int ett_id);
+WS_DLL_PUBLIC int dissect_ber_constrained_sequence_of(bool implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int32_t min_len, int32_t max_len, const ber_sequence_t *seq, int hf_id, int ett_id);
 WS_DLL_PUBLIC int dissect_ber_sequence_of(bool implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, int hf_id, int ett_id);
 
-extern int dissect_ber_constrained_set_of(bool implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int32_t min_len, int32_t max_len, const ber_sequence_t *seq, int hf_id, int ett_id);
+WS_DLL_PUBLIC int dissect_ber_constrained_set_of(bool implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int32_t min_len, int32_t max_len, const ber_sequence_t *seq, int hf_id, int ett_id);
 WS_DLL_PUBLIC int dissect_ber_set_of(bool implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, int hf_id, int ett_id);
 
 WS_DLL_PUBLIC int dissect_ber_GeneralizedTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id);
 
 WS_DLL_PUBLIC int dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id, char **datestrptr, uint32_t *tvblen);
 
-extern int dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int32_t min_len, int32_t max_len, int * const *named_bits, int num_named_bits, int hf_id, int ett_id, tvbuff_t **out_tvb);
+WS_DLL_PUBLIC int dissect_ber_constrained_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int32_t min_len, int32_t max_len, int * const *named_bits, int num_named_bits, int hf_id, int ett_id, tvbuff_t **out_tvb);
 WS_DLL_PUBLIC int dissect_ber_bitstring(bool implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int * const *named_bits, int num_named_bits, int hf_id, int ett_id, tvbuff_t **out_tvb);
 
 WS_DLL_PUBLIC
