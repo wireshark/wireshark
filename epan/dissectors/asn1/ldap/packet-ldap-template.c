@@ -755,7 +755,7 @@ static int Filter_length;
 static int Filter_elements;
 
 /* Global variables */
-static int MessageID =-1;
+static unsigned MessageID;
 static int ProtocolOp = -1;
 static int result;
 static proto_item *ldm_tree; /* item to add text to */

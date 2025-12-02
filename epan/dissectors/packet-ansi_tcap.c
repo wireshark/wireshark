@@ -1198,7 +1198,7 @@ dissect_ansi_tcap_T_national(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
  uint8_t specifier;
 
     offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
-                                                            -32768, 32767U, hf_index, &ansi_tcap_private.d.OperationCode_national);
+                                                            -32768, 32767U, hf_index, (uint32_t*)&ansi_tcap_private.d.OperationCode_national);
 
   /* mask off the H bit */
   ansi_tcap_private.d.OperationCode_national = (ansi_tcap_private.d.OperationCode_national&0x7fff);

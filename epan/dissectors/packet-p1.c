@@ -1436,12 +1436,11 @@ static const value_string p1_MTABindError_vals[] = {
 
 static int
 dissect_p1_MTABindError(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int error = -1;
+  uint32_t error = 0;
     offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_integer_options, hf_index, &error);
 
-  if((error != -1))
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, error, p1_MTABindError_vals, "error(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, error, p1_MTABindError_vals, "error(%d)"));
 
 
   return offset;

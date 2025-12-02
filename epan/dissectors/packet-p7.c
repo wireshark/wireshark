@@ -39,7 +39,7 @@
 void proto_register_p7(void);
 void proto_reg_handoff_p7(void);
 
-static int seqno;
+static uint32_t seqno;
 
 /* Initialize the protocol and registered fields */
 static int proto_p7;
@@ -1276,7 +1276,7 @@ static int
 dissect_p7_T_from_number(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_p7_SequenceNumber(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " from %d", seqno);
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " from %u", seqno);
 
   return offset;
 }
@@ -1287,7 +1287,7 @@ static int
 dissect_p7_T_to_number(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_p7_SequenceNumber(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " to %d", seqno);
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " to %u", seqno);
 
   return offset;
 }
@@ -1815,13 +1815,13 @@ dissect_p7_SummarizeArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_p7_T_count(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	int count = 0;
+	uint32_t count = 0;
 
 	  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_messages, hf_index, &count);
 
 
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (count=%d)", count);
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (count=%u)", count);
 
 
   return offset;

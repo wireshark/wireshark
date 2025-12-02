@@ -160,12 +160,11 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
   %(DEFAULT_BODY)s
 
 #.FN_BODY ABRT-source  VAL_PTR=&source
-  int source = -1;
+  uint32_t source;
 
   %(DEFAULT_BODY)s
 
-  if(source != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, source, acse_ABRT_source_vals, "source(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, source, acse_ABRT_source_vals, "source(%%u)"));
 
 #.FIELD_ATTR
 Association-data/_item NAME = "Association-data"

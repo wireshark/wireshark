@@ -392,19 +392,19 @@ RTSE-apdus	B	"2.6.0.2.10"	"id-as-ms-rtse"
 	col_append_str(actx->pinfo->cinfo, COL_INFO, ")");
 
 #.FN_FTR	NumberRange/from
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " from %d", seqno);
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " from %u", seqno);
 
 #.FN_FTR	NumberRange/to
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " to %d", seqno);
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " to %u", seqno);
 
 #.FN_PARS	SummarizeResult/count	VAL_PTR = &count
 
 #.FN_BODY	SummarizeResult/count
-	int count = 0;
+	uint32_t count = 0;
 
 	%(DEFAULT_BODY)s
 
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (count=%%d)", count);
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (count=%%u)", count);
 
 #.FN_BODY	MSMessageSubmissionArgument
 	p1_initialize_content_globals (actx, tree, true);

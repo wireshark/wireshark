@@ -27,7 +27,7 @@ OperationCode/private    VAL_PTR = &ansi_tcap_private.d.OperationCode_private
   ansi_tcap_private.d.OperationCode_item = actx->created_item;
 #.END
 
-#.FN_BODY OperationCode/national VAL_PTR = &ansi_tcap_private.d.OperationCode_national
+#.FN_BODY OperationCode/national VAL_PTR = (uint32_t*)&ansi_tcap_private.d.OperationCode_national
  proto_tree *subtree;
  proto_item *spcifier_item;
  int start_offset = offset;

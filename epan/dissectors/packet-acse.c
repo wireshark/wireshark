@@ -1279,14 +1279,13 @@ static const value_string acse_ABRT_source_vals[] = {
 
 static int
 dissect_acse_ABRT_source(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int source = -1;
+  uint32_t source;
 
     offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, 1U, hf_index, &source);
 
 
-  if(source != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, source, acse_ABRT_source_vals, "source(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, source, acse_ABRT_source_vals, "source(%u)"));
 
 
   return offset;
