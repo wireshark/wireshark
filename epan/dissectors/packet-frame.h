@@ -18,6 +18,7 @@
 
 /*
  * Structure passed to custom binary option dissectors.
+ * PUBLIC_HEADER: This should be in the "install" target.
  */
 struct custom_binary_opt_data {
 	wtap_optval_t *optval;

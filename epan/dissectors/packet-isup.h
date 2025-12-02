@@ -182,7 +182,7 @@ void dissect_isup_generic_digits_parameter(tvbuff_t *parameter_tvb, proto_tree *
 
 extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int len);
 
-/* Used by custom dissector */
+/* PUBLIC_HEADER: This is used by custom dissectors and should be in the "install" target */
 void dissect_japan_isup_additonal_user_cat(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item);
 
 #endif  /* PACKET_ISUP_H */

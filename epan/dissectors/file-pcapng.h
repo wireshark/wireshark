@@ -51,7 +51,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
 
 
 
-/* Used by custom dissector */
+/* PUBLIC_HEADER: This is used by custom dissectors and should be in the "install" target */
 
 /* File info */
 struct info {

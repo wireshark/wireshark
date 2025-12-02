@@ -936,6 +936,10 @@ Clang + Code Checks:
     - ninja corba-dissectors
     - git diff --exit-code ${CI_COMMIT_SHA} ..
     - printf "\e[0Ksection_end:%s:corba_section\r\e[0K" "$( date +%s)"
+    - printf "\e[0Ksection_start:%s:public_header_section[collapsed=false]\r\e[0KGenerating public dissector header list" "$( date +%s)"
+    - ../tools/generate-dissector-lists.py
+    - git diff --exit-code ${CI_COMMIT_SHA} ..
+    - printf "\e[0Ksection_end:%s:public_header_section\r\e[0K" "$( date +%s)"
     - mkdir ../html
     - script --command ninja --flush --quiet --return ../tmp_clang_report.txt
     - ansi2txt < ../tmp_clang_report.txt > ../clang_report.txt

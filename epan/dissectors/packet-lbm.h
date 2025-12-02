@@ -213,6 +213,7 @@ typedef struct
     } stream_info;
 } lbm_uim_stream_endpoint_t;
 
+/* PUBLIC_HEADER: These appear to be used by custom dissectors and should be in the "install" target */
 typedef struct
 {
     uint64_t channel;
