@@ -370,7 +370,8 @@ static const value_string rrc_ims_info_atgw_trans_det_cont_type[] = {
   {2, "ATGW-not-available"},
   {0, NULL}
 };
-static int flowd,type;
+static uint32_t flowd;
+static int type;
 
 /*Stores how many channels we have detected for a HS-DSCH MAC-flow*/
 #define    RRC_MAX_NUM_HSDHSCH_MACDFLOW 8

@@ -216,7 +216,7 @@ typedef struct nbap_private_data_t
   uint32_t ul_scrambling_code;
   uint32_t com_context_id;
   int num_dch_in_flow;
-  int hrnti;
+  unsigned hrnti;
   uint32_t protocol_ie_id;
   uint32_t dd_mode;
   uint32_t transaction_id;

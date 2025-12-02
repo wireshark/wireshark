@@ -2486,7 +2486,7 @@ nbap_get_private_data(actx->pinfo)->crnc_context_present = true;
   }
 
 #.FN_BODY HSDSCH-RNTI   VAL_PTR = &hrnti
-  int hrnti;
+  unsigned hrnti;
 umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
 fp_hsdsch_channel_info_t* fp_hsdsch_channel_info = NULL;
 address     null_addr;

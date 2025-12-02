@@ -6588,7 +6588,7 @@ typedef struct nbap_private_data_t
   uint32_t ul_scrambling_code;
   uint32_t com_context_id;
   int num_dch_in_flow;
-  int hrnti;
+  unsigned hrnti;
   uint32_t protocol_ie_id;
   uint32_t dd_mode;
   uint32_t transaction_id;
@@ -10389,7 +10389,7 @@ dissect_nbap_AvailabilityStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_nbap_HSDSCH_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int hrnti;
+  unsigned hrnti;
 umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
 fp_hsdsch_channel_info_t* fp_hsdsch_channel_info = NULL;
 address     null_addr;

@@ -197,7 +197,7 @@ ProtocolIE-Field/value ie_field_value
   proto_item_append_text(actx->created_item, " (%.1f m)", 10 * (pow(1.1, (double)uncertainty_code) - 1));
 
 #.FN_BODY DegreesLatitude  VAL_PTR = &degrees
-  int32_t degrees;
+  uint32_t degrees;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 8388607U, &degrees, false);
@@ -208,7 +208,7 @@ ProtocolIE-Field/value ie_field_value
   int32_t degrees;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            -8388608, 8388607U, &degrees, false);
+                                                            -8388608, 8388607U, (uint32_t*)&degrees, false);
 
   proto_item_append_text(actx->created_item, " (%.5f degrees)", (((double)degrees/16777215) * 360));
 

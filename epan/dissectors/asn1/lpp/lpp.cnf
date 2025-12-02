@@ -132,7 +132,7 @@ UTC-ModelSet4/utcDN uTC-ModelSet4_utcDN
 ScheduledLocationTimeSupport-r17/utcTime-r17 utcTime-r17-enum
 ScheduledLocationTimeSupportPerMode-r17/utcTime-r17 utcTime-r17-PositioningModes
 # Does not work -- changed in asn1 code
-#CommonIEsProvideCapabilities/remoteUE-Indication-r18 remoteUE-Indication-r18-boolean 
+#CommonIEsProvideCapabilities/remoteUE-Indication-r18 remoteUE-Indication-r18-boolean
 
 
 #.FIELD_ATTR
@@ -856,7 +856,7 @@ NavModelCNAV-KeplerianSet/cnavDeltaNo DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_cn
 #.TYPE_ATTR
 NavModelCNAV-KeplerianSet/cnavDeltaNoDot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_cnavDeltaNoDot_fmt)
 
-#.FN_BODY NavModelCNAV-KeplerianSet/cnavMo VAL_PTR=&cnavMo
+#.FN_BODY NavModelCNAV-KeplerianSet/cnavMo VAL_PTR=(uint64_t*)&cnavMo
   int64_t cnavMo;
   int curr_offset = offset;
 %(DEFAULT_BODY)s
@@ -878,7 +878,7 @@ NavModelCNAV-KeplerianSet/cnavDeltaNoDot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp
                                                           cnavE, "%g (%"PRIu64")",
                                                           (double)cnavE*pow(2, -34), cnavE);
 
-#.FN_BODY NavModelCNAV-KeplerianSet/cnavOmega VAL_PTR=&cnavOmega
+#.FN_BODY NavModelCNAV-KeplerianSet/cnavOmega VAL_PTR=(uint64_t*)&cnavOmega
   int64_t cnavOmega;
   int curr_offset = offset;
 %(DEFAULT_BODY)s
@@ -889,7 +889,7 @@ NavModelCNAV-KeplerianSet/cnavDeltaNoDot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp
                                                          cnavOmega, "%g semi-circles (%"PRId64")",
                                                          (double)cnavOmega*pow(2, -32), cnavOmega);
 
-#.FN_BODY NavModelCNAV-KeplerianSet/cnavOMEGA0 VAL_PTR=&cnavOMEGA0
+#.FN_BODY NavModelCNAV-KeplerianSet/cnavOMEGA0 VAL_PTR=(uint64_t*)&cnavOMEGA0
   int64_t cnavOMEGA0;
   int curr_offset = offset;
 %(DEFAULT_BODY)s
@@ -903,7 +903,7 @@ NavModelCNAV-KeplerianSet/cnavDeltaNoDot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp
 #.TYPE_ATTR
 NavModelCNAV-KeplerianSet/cnavDeltaOmegaDot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_cnavDeltaOmegaDot_IoDot_fmt)
 
-#.FN_BODY NavModelCNAV-KeplerianSet/cnavIo VAL_PTR=&cnavIo
+#.FN_BODY NavModelCNAV-KeplerianSet/cnavIo VAL_PTR=(uint64_t*)&cnavIo
   int64_t cnavIo;
   int curr_offset = offset;
 %(DEFAULT_BODY)s

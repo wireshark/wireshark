@@ -168,7 +168,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 #.FN_BODY AE-qualifier-form2
     packet_info * pinfo = actx->pinfo;
     atn_conversation_t *atn_cv = NULL;
-    uint32_t ae_qualifier = 0;
+    int32_t ae_qualifier = 0;
 
     /* dissect  ae-qualifier */
     offset = dissect_per_integer(

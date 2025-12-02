@@ -23374,7 +23374,7 @@ dissect_lpp_T_cnavMo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   int64_t cnavMo;
   int curr_offset = offset;
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            INT64_C(-4294967296), 4294967295U, &cnavMo, false);
+                                                            INT64_C(-4294967296), 4294967295U, (uint64_t*)&cnavMo, false);
 
 
 
@@ -23412,7 +23412,7 @@ dissect_lpp_T_cnavOmega(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   int64_t cnavOmega;
   int curr_offset = offset;
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            INT64_C(-4294967296), 4294967295U, &cnavOmega, false);
+                                                            INT64_C(-4294967296), 4294967295U, (uint64_t*)&cnavOmega, false);
 
 
 
@@ -23431,7 +23431,7 @@ dissect_lpp_T_cnavOMEGA0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   int64_t cnavOMEGA0;
   int curr_offset = offset;
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            INT64_C(-4294967296), 4294967295U, &cnavOMEGA0, false);
+                                                            INT64_C(-4294967296), 4294967295U, (uint64_t*)&cnavOMEGA0, false);
 
 
 
@@ -23450,7 +23450,7 @@ dissect_lpp_T_cnavIo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   int64_t cnavIo;
   int curr_offset = offset;
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            INT64_C(-4294967296), 4294967295U, &cnavIo, false);
+                                                            INT64_C(-4294967296), 4294967295U, (uint64_t*)&cnavIo, false);
 
 
 
