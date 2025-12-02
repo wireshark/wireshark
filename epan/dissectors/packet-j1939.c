@@ -149,6 +149,182 @@ static const value_string j1939_address_vals[] = {
 
 static value_string_ext j1939_address_vals_ext = VALUE_STRING_EXT_INIT(j1939_address_vals);
 
+static const value_string j1939_pgn_vals[] = {
+    { 59392,"ISO acknowledgment"},
+
+    { 59904,"ISO request"},
+
+    { 60160,"ISO transport protocol: Data transfer"},
+
+    { 60416,"ISO transport protocol: Connection management"},
+
+    { 60928,"ISO address claimed"},
+
+    { 65240,"Commanded address"},
+
+    { 65341,"Autopilot Angle"},
+
+    { 126208,"Request group function"},
+
+    { 126464,"Transmit/Receive PGN List"},
+
+    { 126992,"System Time"},
+    { 126993,"Heartbeat."},
+
+    { 126996,"Product information"},
+
+    { 126998,"Configuration information"},
+
+    { 127233,"Man Overboard Notification(MOB)"},
+    { 127237,"Heading/track control"},
+
+    { 127245,"Rudder"},
+
+    { 127250,"Vessel heading"},
+    { 127251,"Rate of Turn"},
+    { 127252,"Heave"},
+    { 127257,"Attitude"},
+    { 127258,"Magnetic variance"},
+
+    { 127488,"Engine parameters: Rapid update"},
+    { 127489,"Engine parameters: Dynamic"},
+
+    { 127493,"Transmission parameters: Dynamic"},
+    { 127497,"Trip Fuel Consumption, Engine"},
+
+    { 127501,"Binary Status Report"},
+    { 127503,"AC Input Status"},
+    { 127505,"Fluid level"},
+    { 127506,"DC Detailed Status"},
+    { 127507,"Charger Status- DEPRECATED"},
+    { 127508,"Battery status"},
+    { 127509,"Inverter Status"},
+    { 127510,"Charger Configuration Status"},
+    { 127511,"Inverter Configuration Status"},
+    { 127512,"AGS Configuration Status"},
+    { 127513,"Battery Configuration Status"},
+    { 127514,"AGS Status"},
+
+    { 127744,"AC Power/Current Phase"},
+    { 127750,"Converter Status"},
+
+    { 128000,"Nautical Leeway Angle PGN:"},
+
+    { 128259,"Speed: Water referenced"},
+
+    { 128267,"Water depth"},
+
+    { 128275,"Distance Log"},
+
+    { 128520,"Tracked Target Data"},
+
+    { 128776,"Windlass Control Status PGN:"},
+    { 128777,"Anchor Windlass Operating Status PGN:"},
+    { 128778,"Anchor Windlass Monitoring Status PGN:"},
+
+    { 129025,"Position, Rapid Update"},
+    { 129026,"COG and SOG: Rapid update"},
+    { 129027,"Position Delta, High Precision Rapid Update"},
+    { 129028,"Altitude Delta, High Precision Rapid Update"},
+    { 129029,"GNSS position data"},
+
+    { 129033,"Local Time Offset"},
+    { 129038,"AIS Class A Position Report"},
+    { 129039,"AIS Class B Position Report"},
+    { 129040,"AIS Class B Extended Position Report"},
+    { 129041,"AIS Aids to Navigation (AtoN) Report"},
+
+    { 129044,"Datum" },
+    { 129045,"User Datum Settings" },
+
+    { 129283,"Cross track error"},
+    { 129284,"Navigation data"},
+    { 129285,"Navigation - Route/WP information"},
+
+    { 129291,"Set & Drift, Rapid Update"},
+
+    { 129301,"Time to/from Mark"},
+    { 129302,"Bearing and Distance between two Marks"},
+
+    { 129538,"GNSS Control Status"},
+    { 129539,"GNSS DOPs"},
+    { 129540,"GNSS satellites in view"},
+    { 129541,"GPS Almanac Data"},
+    { 129542,"GNSS Pseudorange Noise Statistics"},
+
+    { 129545,"GNSS RAIM Output" },
+    { 129546,"GNSS RAIM Settings" },
+    { 129547,"GNSS Pseudorange Error Statistics" },
+    { 129549,"DGNSS Corrections" },
+    { 129550,"GNSS Differential Correction Receiver Interface" },
+
+    { 129792,"AIS DGNSS Broadcast Binary Message" },
+    { 129793,"AIS UTC and Date Report" },
+    { 129794,"AIS Class A Static and Voyage Related Data" },
+    { 129795,"AIS Addressed Binary Message" },
+    { 129796,"AIS Acknowledge" },
+    { 129797,"AIS Binary Broadcast Message" },
+    { 129798,"AIS SAR Aircraft Position Report" },
+    { 129799,"Radio Frequency/Mode/Power" },
+    { 129800,"AIS UTC/Date Inquiry" },
+    { 129801,"AIS Addressed Safety Related Message" },
+    { 129802,"AIS Safety Related Broadcast Message"},
+    { 129803,"AIS Interrogation" },
+    { 129804,"AIS Assignment Mode Command" },
+    { 129805,"AIS Data Link Management Message" },
+    { 129806,"AIS Channel Management" },
+    { 129807,"AIS Class B Group Assignment" },
+    { 129808,"DSC Call Information" },
+    { 129809,"AIS Class B /""CS/"" Static Data Report, Part A"},
+    { 129810,"AIS Class B /""CS/"" Static Data Report, Part B"},
+
+    { 130052,"Loran-C TD Data" },
+    { 130053,"Loran-C Range Data" },
+    { 130054,"Loran-C Signal Data" },
+
+    { 130060,"Label"},
+
+    { 130064,"Route and WP Service - Database List" },
+    { 130065,"Route and WP Service - Route List" },
+    { 130066,"Route and WP Service - Route/WP-List Attributes" },
+    { 130067,"Route and WP Service - Route - WP Name & Position" },
+    { 130068,"Route and WP Service - Route - WP Name" },
+    { 130069,"Route and WP Service - XTE Limit & Navigation Method" },
+    { 130070,"Route and WP Service - WP Comment" },
+    { 130071,"Route and WP Service - Route Comment" },
+    { 130072,"Route and WP Service - Database Comment" },
+    { 130073,"Route and WP Service - Radius of Turn" },
+    { 130074,"Route and WP Service - WP List - WP Name & Position"},
+
+    { 130306,"Wind data"},
+
+    { 130310,"Environmental parameters (obsolete)"},
+    { 130311,"Environmental parameters (obsolete)"},
+    { 130312,"Temperature (obsolete)"},
+    { 130313,"Humidity"},
+    { 130314,"Actual Pressure"},
+    { 130315,"Set Pressure"},
+    { 130316,"Temperature, Extended Range"},
+
+    { 130320,"Tide Station Data" },
+    { 130321,"Salinity Station Data" },
+    { 130322,"Current Station Data" },
+    { 130323,"Meteorological Station Data"},
+    { 130324,"Moored Buoy Station Data" },
+
+
+    { 130576,"Small Craft Status"},
+    { 130577,"Direction Data"},
+    { 130578,"Vessel Speed Components" },
+
+    { 130823,"Maretron Temperature High Range" },
+    { 130824,"Maretron Annunciator" },
+    { 130840,"User Group Configuration" },
+    { 130847,"Node Statistics" },
+    {0, NULL }
+};
+
+
 static void
 j1939_fmt_address(char *result, uint32_t addr )
 {
@@ -240,6 +416,8 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         /* For now just include raw bytes */
         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, 0, data_length, ' '));
     }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+        val_to_str_const(pgn, j1939_pgn_vals, " "));
 
     msg_tree = proto_tree_add_subtree(j1939_tree, tvb, 0, tvb_reported_length(tvb), ett_j1939_message, NULL, "Message");
 
@@ -293,7 +471,7 @@ void proto_register_j1939(void)
         },
         { &hf_j1939_pgn,
             {"PGN", "j1939.pgn",
-            FT_UINT32, BASE_DEC, NULL, 0x03FFFFFF, NULL, HFILL }
+            FT_UINT32, BASE_DEC, VALS(j1939_pgn_vals), 0x03FFFFFF, NULL, HFILL}
         },
         { &hf_j1939_extended_data_page,
             {"Extended Data Page", "j1939.ex_data_page",
