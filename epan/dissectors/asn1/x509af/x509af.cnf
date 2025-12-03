@@ -72,7 +72,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   x509af_eo_t *eo_info = NULL;
   if (have_tap_listener(x509af_eo_tap)) {
     eo_info = wmem_new0(actx->pinfo->pool, x509af_eo_t);
-    p_add_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, 0, eo_info);
+    p_add_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, X509AF_EO_INFO_KEY, eo_info);
   }
 
   %(DEFAULT_BODY)s
@@ -212,7 +212,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 
   str = x509if_get_last_dn();
   proto_item_append_text(proto_item_get_parent(tree), " (%%s)", str?str:"");
-  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, 0);
+  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, X509AF_EO_INFO_KEY);
   if (eo_info) {
     eo_info->subjectname = str;
   }
@@ -229,7 +229,7 @@ Time/utcTime TYPE = FT_ABSOLUTE_TIME DISPLAY = ABSOLUTE_TIME_UTC
 #.FN_BODY CertificateSerialNumber FN_VARIANT = 64
   int start_offset = offset;
 %(DEFAULT_BODY)s
-  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, 0);
+  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, X509AF_EO_INFO_KEY);
   if (eo_info) {
     uint32_t len;
     start_offset = get_ber_identifier(tvb, start_offset, NULL, NULL, NULL);

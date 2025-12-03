@@ -62,6 +62,10 @@ static const char *algorithm_id;
 static void
 x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
 
+/* proto_data keys */
+#define X509AF_EO_INFO_KEY      0
+#define X509AF_PRIVATE_DATA_KEY 1
+
 typedef struct _x509af_eo_t {
   const char *subjectname;
   char *serialnum;
@@ -83,12 +87,12 @@ typedef struct _x509af_private_data_t {
 static x509af_private_data_t *
 x509af_get_private_data(packet_info *pinfo)
 {
-  x509af_private_data_t *x509af_data = (x509af_private_data_t*)p_get_proto_data(pinfo->pool, pinfo, proto_x509af, 0);
+  x509af_private_data_t *x509af_data = (x509af_private_data_t*)p_get_proto_data(pinfo->pool, pinfo, proto_x509af, X509AF_PRIVATE_DATA_KEY);
   if (!x509af_data) {
     x509af_data = wmem_new0(pinfo->pool, x509af_private_data_t);
     nstime_set_unset(&x509af_data->not_before);
     nstime_set_unset(&x509af_data->not_after);
-    p_add_proto_data(pinfo->pool, pinfo, proto_x509af, 0, x509af_data);
+    p_add_proto_data(pinfo->pool, pinfo, proto_x509af, X509AF_PRIVATE_DATA_KEY, x509af_data);
   }
   return x509af_data;
 }

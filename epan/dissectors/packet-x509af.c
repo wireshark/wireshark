@@ -173,6 +173,10 @@ static const char *algorithm_id;
 static void
 x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
 
+/* proto_data keys */
+#define X509AF_EO_INFO_KEY      0
+#define X509AF_PRIVATE_DATA_KEY 1
+
 typedef struct _x509af_eo_t {
   const char *subjectname;
   char *serialnum;
@@ -194,12 +198,12 @@ typedef struct _x509af_private_data_t {
 static x509af_private_data_t *
 x509af_get_private_data(packet_info *pinfo)
 {
-  x509af_private_data_t *x509af_data = (x509af_private_data_t*)p_get_proto_data(pinfo->pool, pinfo, proto_x509af, 0);
+  x509af_private_data_t *x509af_data = (x509af_private_data_t*)p_get_proto_data(pinfo->pool, pinfo, proto_x509af, X509AF_PRIVATE_DATA_KEY);
   if (!x509af_data) {
     x509af_data = wmem_new0(pinfo->pool, x509af_private_data_t);
     nstime_set_unset(&x509af_data->not_before);
     nstime_set_unset(&x509af_data->not_after);
-    p_add_proto_data(pinfo->pool, pinfo, proto_x509af, 0, x509af_data);
+    p_add_proto_data(pinfo->pool, pinfo, proto_x509af, X509AF_PRIVATE_DATA_KEY, x509af_data);
   }
   return x509af_data;
 }
@@ -229,7 +233,7 @@ dissect_x509af_CertificateSerialNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_,
   offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
-  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, 0);
+  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, X509AF_EO_INFO_KEY);
   if (eo_info) {
     uint32_t len;
     start_offset = get_ber_identifier(tvb, start_offset, NULL, NULL, NULL);
@@ -429,7 +433,7 @@ dissect_x509af_SubjectName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   str = x509if_get_last_dn();
   proto_item_append_text(proto_item_get_parent(tree), " (%s)", str?str:"");
-  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, 0);
+  x509af_eo_t *eo_info = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, X509AF_EO_INFO_KEY);
   if (eo_info) {
     eo_info->subjectname = str;
   }
@@ -606,7 +610,7 @@ dissect_x509af_Certificate(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   x509af_eo_t *eo_info = NULL;
   if (have_tap_listener(x509af_eo_tap)) {
     eo_info = wmem_new0(actx->pinfo->pool, x509af_eo_t);
-    p_add_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, 0, eo_info);
+    p_add_proto_data(actx->pinfo->pool, actx->pinfo, proto_x509af, X509AF_EO_INFO_KEY, eo_info);
   }
 
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
