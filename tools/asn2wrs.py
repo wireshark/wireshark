@@ -8289,7 +8289,7 @@ def eth_usage():
     -k            : Keep intermediate files though single file output is used
     -L            : Suppress #line directive from .cnf file
     -D dir        : Directory for input_file(s) (default: '.')
-    -C            : Do not add check for SIZE constraints
+    -N            : No check for SIZE constraints
     -r prefix     : Remove the prefix from type names
 
     input_file(s) : Input ASN.1 file(s)
@@ -8358,7 +8358,7 @@ def asn2wrs_main():
     global quiet
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:qFTo:O:c:I:eESs:kLCr:")
+        opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:qFTo:O:c:I:eESs:kLCNr:")
     except getopt.GetoptError:
         eth_usage()
         sys.exit(2)
@@ -8400,12 +8400,14 @@ def asn2wrs_main():
             ectx.justexpcnf = True
         if o in ("-D",):
             ectx.srcdir = relpath(a)
-        if o in ("-C",):
+        if o in ("-N",):
             ectx.constraints_check = False
         if o in ("-L",):
             ectx.conform.suppress_line = True
         if o in ("-q",):
             quiet = True
+        if o in ("-C",):
+            warnings.warn("Command line option -C is obsolete and can be removed")
         if o in ("-X",):
             warnings.warn("Command line option -X is obsolete and can be removed")
         if o in ("-T",):
@@ -8418,7 +8420,7 @@ def asn2wrs_main():
         ectx.conform.read(conf_to_read)
 
     for o, a in opts:
-        if o in ("-h", "-?", "-c", "-I", "-E", "-D", "-C", "-q", "-X", "-T"):
+        if o in ("-h", "-?", "-c", "-I", "-E", "-D", "-N", "-L", "-q", "-C", "-X", "-T"):
             pass  # already processed
         else:
             par = []
