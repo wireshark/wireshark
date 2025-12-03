@@ -78,9 +78,6 @@ const funnel_ops_t* funnel_get_funnel_ops(void) { return ops;  }
 static void free_funnel_menu(gpointer data, gpointer user_data _U_) {
     funnel_menu_t* m = (funnel_menu_t*)data;
     g_free(m->name);
-    if (m->callback_data_free) {
-        m->callback_data_free(m->callback_data);
-    }
     g_free(m);
 }
 
@@ -93,6 +90,9 @@ static void funnel_remove_menu (GSList** menu_list, funnel_menu_t *menu)
         funnel_menu_t* m = (funnel_menu_t*)current->data;
         if (m->callback == menu->callback)
         {
+            if (m->callback_data_free) {
+                m->callback_data_free(m->callback_data);
+            }
             free_funnel_menu(m, NULL);
             *menu_list = g_slist_remove(*menu_list, current->data);
         }
