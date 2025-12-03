@@ -26,11 +26,13 @@
  * Definition of a UAT string container structure.
  *
  * "field_data" is the pointer array to the fields values
+ * "field_data_length" is the length of the data in that field
  * "uat_filename" is the file name of currently ussed uat
  */
 
 typedef struct {
-    char *field_data[MAXIMUM_ALLOWED_UAT_FIELD_COUNT];
+    uint8_t *field_data[MAXIMUM_ALLOWED_UAT_FIELD_COUNT];
+    unsigned field_data_length[MAXIMUM_ALLOWED_UAT_FIELD_COUNT];
     char *uat_filename;
 } uat_container_t;
 
@@ -69,7 +71,7 @@ static bool uat_update_cb(void *r, char **err)
     lua_newtable(L);
     for (int i = 0; i < MAXIMUM_ALLOWED_UAT_FIELD_COUNT; i++) {
         lua_pushinteger(L, i);
-        lua_pushstring(L, record->field_data[i]);
+        lua_pushlstring(L, (char*)record->field_data[i], record->field_data_length[i]);
         lua_settable(L, -3);
     }
     /* second parameter uat filename */
@@ -105,8 +107,7 @@ static void txtmod_string_set_cb(
     const uint8_t * index = (const uint8_t *)u1;
     char * uat_file_name = (char *)u2;
     uat_container_t * record = (uat_container_t*)rec;
-    unsigned field_data_length;
-    char* new_val = uat_unesc(buf,len,&field_data_length);
+    uint8_t* new_val = uat_unesc(buf,len,&record->field_data_length[*index]);
     g_free((record->field_data[*index]));
     record->field_data[*index] = new_val;
     record->uat_filename = uat_file_name;
@@ -122,7 +123,7 @@ const void* UNUSED_PARAMETER(u2))
     const uint8_t * index = (const uint8_t *)u1;
     uat_container_t * record = (uat_container_t*)rec;
     if (record->field_data[*index]) {
-        *out_ptr = uat_esc(record->field_data[*index], (unsigned)strlen(record->field_data[*index]));
+        *out_ptr = uat_esc(record->field_data[*index], (unsigned)record->field_data_length[*index]);
         *out_len = (unsigned)strlen(*out_ptr);
     } else {
         *out_ptr = g_strdup("");
@@ -490,8 +491,8 @@ WSLUA_CONSTRUCTOR Pref_uat(lua_State* L) {
         return result, errstring
     end
 
-    -- Reading existent uat: 
-    
+    -- Reading existent uat:
+
     proto_foo.prefs.preference_existent_uat_name = Pref.uat("Protobuf Search Paths")
     for i, row in ipairs(proto_foo.prefs.preference_existent_uat_name) do
         local row_str = ""

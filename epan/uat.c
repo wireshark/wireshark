@@ -958,9 +958,9 @@ char* uat_unbinstring(const char* si, unsigned in_len, unsigned* len_p) {
     return (char*)buf;
 }
 
-char* uat_unesc(const char* si, unsigned in_len, unsigned* len_p) {
-    char* buf = (char *)g_malloc0(in_len+1);
-    char* p = buf;
+uint8_t* uat_unesc(const char* si, unsigned in_len, unsigned* len_p) {
+    uint8_t* buf = (uint8_t *)g_malloc0(in_len+1);
+    uint8_t* p = buf;
     unsigned len = 0;
     const char* s;
     const char* in_end = si+in_len;
@@ -1041,11 +1041,11 @@ char* uat_unesc(const char* si, unsigned in_len, unsigned* len_p) {
 }
 
 char* uat_undquote(const char* si, unsigned in_len, unsigned* len_p) {
-    return uat_unesc(si+1,in_len-2,len_p);
+    return (char*)uat_unesc(si+1,in_len-2,len_p);
 }
 
 
-char* uat_esc(const char* buf, unsigned len) {
+char* uat_esc(const uint8_t* buf, unsigned len) {
     const uint8_t* end = ((const uint8_t*)buf)+len;
     char* out = (char *)g_malloc0((4*len)+1);
     const uint8_t* b;
