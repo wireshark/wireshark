@@ -1801,6 +1801,33 @@ dissect_apdu_le(proto_tree *tree, tvbuff_t *tvb, int offset, bool extended_len, 
 	}
 }
 
+static void
+dissect_storage_data_command(tvbuff_t *tvb, int offset, int length, packet_info *pinfo,
+			     proto_tree *tree, proto_tree *sim_tree, gsm_sim_transaction_t *gsm_sim_trans)
+{
+	bool last_block = gsm_sim_trans->cmd_p1 & 0x80; /* Block chaining bit */
+	uint32_t frag_number = gsm_sim_trans->cmd_p2;   /* Block number */
+	tvbuff_t *subtvb;
+
+	if (frag_number == 0 && last_block) {
+		/* No reassembly needed. */
+		subtvb = tvb_new_subset_length(tvb, offset, length);
+	} else {
+		fragment_head *frag_msg;
+
+		/* The APDU reassembly is using the first command frame number as id. */
+		frag_msg = fragment_add_seq_check(&gsm_sim_reassembly_table, tvb, offset, pinfo,
+						  gsm_sim_trans->related_trans->cmd_frame, NULL,
+						  frag_number, length, !last_block);
+		subtvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled APDU",
+						  frag_msg, &gsm_sim_frag_items, NULL, sim_tree);
+	}
+
+	if (subtvb && ((gsm_sim_trans->cmd_p1 & 0x78) == 0x10) && is_sgp32_request(subtvb)) {
+		dissect_sgp32_request(subtvb, pinfo, tree, NULL);
+	}
+}
+
 static tvbuff_t *
 gsm_sim_apdu_reassemble(tvbuff_t *tvb, int offset, packet_info *pinfo, gsm_sim_transaction_t *gsm_sim_trans,
 			proto_tree *sim_tree, uint8_t *apdu_ins, uint8_t *apdu_p1, uint8_t *apdu_p2)
@@ -1820,9 +1847,9 @@ gsm_sim_apdu_reassemble(tvbuff_t *tvb, int offset, packet_info *pinfo, gsm_sim_t
 	if (sw1 == 0x61 || gsm_sim_trans->cmd_ins == 0xC0) {
 		fragment_head *frag_msg;
 
-		/* The APDU reassembly is using the command frame number as id. */
+		/* The APDU reassembly is using the command frame number + 1 as id. */
 		frag_msg = fragment_add_seq_next(&gsm_sim_reassembly_table, tvb, offset, pinfo,
-						 gsm_sim_trans->related_trans->cmd_frame, NULL,
+						 gsm_sim_trans->related_trans->cmd_frame + 1, NULL,
 						 apdu_len, sw1 == 0x61);
 		subtvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled APDU",
 						  frag_msg, &gsm_sim_frag_items, NULL, sim_tree);
@@ -1844,7 +1871,8 @@ gsm_sim_apdu_reassemble(tvbuff_t *tvb, int offset, packet_info *pinfo, gsm_sim_t
 
 static int
 dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended_len,
-		 tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, proto_tree *sim_tree)
+		 tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, proto_tree *sim_tree,
+		 gsm_sim_transaction_t *gsm_sim_trans)
 {
 	uint16_t g16;
 	tvbuff_t *subtvb;
@@ -2146,11 +2174,8 @@ dissect_gsm_apdu(uint8_t ins, uint8_t p1, uint8_t p2, uint16_t p3, bool extended
 		break;
 	case 0xE2: /* STORE DATA */
 		dissect_apdu_lc(sim_tree, tvb, offset+P3_OFFS, extended_len);
-		subtvb = tvb_new_subset_length(tvb, offset+data_offs, p3);
-		if (((p1 & 0x78) == 0x10) && is_sgp32_request(subtvb)) {
-			dissect_sgp32_request(subtvb, pinfo, tree, NULL);
-		}
 		proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset+data_offs, p3, ENC_NA);
+		dissect_storage_data_command(tvb, offset+data_offs, p3, pinfo, tree, sim_tree, gsm_sim_trans);
 		offset += data_offs + p3;
 		if (tvb_reported_length_remaining(tvb, offset)) {
 			dissect_apdu_le(sim_tree, tvb, offset, extended_len, false);
@@ -2338,6 +2363,7 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	wmem_tree_key_t key[4];
 	uint32_t interface_id = 0;
 	uint32_t layer_num = pinfo->curr_layer_num;
+	uint32_t frame_num = pinfo->num;
 
 	/* Structure of command APDU: CLA INS P1 P2 [Lc] [Data] [Le]
 	 *
@@ -2386,7 +2412,7 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	key[1].length = 1;
 	key[1].key = &layer_num;
 	key[2].length = 1;
-	key[2].key = &pinfo->num;
+	key[2].key = &frame_num;
 	key[3].length = 0;
 	key[3].key = NULL;
 
@@ -2404,6 +2430,16 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		gsm_sim_trans->related_trans = gsm_sim_trans; /* Default to self */
 
 		wmem_tree_insert32_array(transactions, key, gsm_sim_trans);
+
+		if (gsm_sim_trans->cmd_ins == 0xE2 && p2 != 0) { /* STORE DATA */
+			/* Make a reference to the first APDU this STORE DATA is related to */
+			gsm_sim_transaction_t *prev_trans;
+			frame_num = gsm_sim_trans->cmd_frame - 1;
+			prev_trans = (gsm_sim_transaction_t *)wmem_tree_lookup32_array_le(transactions, key);
+			if (prev_trans) {
+				gsm_sim_trans->related_trans = prev_trans->related_trans;
+			}
+		}
 	}
 
 	ti = proto_tree_add_item(tree, proto_gsm_sim, tvb, 0, -1, ENC_NA);
@@ -2429,7 +2465,7 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 				val_to_str(pinfo->pool, cla>>4, apdu_cla_coding_vals, "%01x"));
 	}
 
-	rc = dissect_gsm_apdu(ins, p1, p2, p3, extended_len, next_tvb, offset, pinfo, tree, sim_tree);
+	rc = dissect_gsm_apdu(ins, p1, p2, p3, extended_len, next_tvb, offset, pinfo, tree, sim_tree, gsm_sim_trans);
 
 	if (rc == -1) {
 		/* default dissector */
