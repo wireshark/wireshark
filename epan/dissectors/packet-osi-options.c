@@ -22,6 +22,8 @@
 #include "packet-osi.h"
 #include "packet-osi-options.h"
 
+extern void proto_register_osi_options(void);
+
 #define OSI_OPT_SECURITY                0xc5
 #define OSI_OPT_QOS_MAINTANANCE         0xc3
 #define OSI_OPT_PRIORITY                0xcd

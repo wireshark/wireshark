@@ -194,8 +194,6 @@ struct tcaphash_context_t * tcapsrt_call_matching(tvbuff_t *tvb,
 extern int tcap_standard;
 
 extern const value_string tcap_component_type_str[];
-void proto_reg_handoff_tcap(void);
-void proto_register_tcap(void);
 
 extern dissector_handle_t get_itu_tcap_subdissector(uint32_t ssn);
 dissector_handle_t get_ansi_tcap_subdissector(uint32_t ssn);

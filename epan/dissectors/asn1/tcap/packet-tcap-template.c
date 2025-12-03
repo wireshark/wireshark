@@ -32,6 +32,9 @@
 #define PSNAME "TCAP"
 #define PFNAME "tcap"
 
+void proto_reg_handoff_tcap(void);
+void proto_register_tcap(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_tcap;
 static int hf_tcap_tag;

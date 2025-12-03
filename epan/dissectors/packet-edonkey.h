@@ -18,8 +18,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-void proto_register_edonkey(void);
-
 #define EDONKEY_MAX_SNAP_SIZE   1500
 #define EDONKEY_TCP_HEADER_LENGTH  5
 #define EDONKEY_UDP_HEADER_LENGTH  2

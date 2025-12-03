@@ -30,6 +30,7 @@
 #include "packet-tcp.h"
 
 void proto_reg_handoff_edonkey(void);
+void proto_register_edonkey(void);
 
 static dissector_handle_t edonkey_tcp_handle;
 static dissector_handle_t edonkey_udp_handle;
@@ -3373,28 +3374,28 @@ void proto_register_edonkey(void) {
         { &hf_edonkey_unparsed_data_length,
             { "eDonkey unparsed data length", "edonkey.unparsed",
                 FT_UINT32, BASE_DEC_HEX, NULL, 0, "eDonkey trailing or unparsed data length", HFILL } },
-        { &hf_edonkey_hard_limit_files, 
-            { "Hard limit on number of files", "edonkey.hard_limit_files", 
+        { &hf_edonkey_hard_limit_files,
+            { "Hard limit on number of files", "edonkey.hard_limit_files",
                 FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_edonkey_soft_limit_files, 
-            { "Soft limit on number of files", "edonkey.soft_limit_files", 
+        { &hf_edonkey_soft_limit_files,
+            { "Soft limit on number of files", "edonkey.soft_limit_files",
                 FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_edonkey_number_of_lowid_users, 
-            { "Number of LowID Users", "edonkey.number_of_lowid_users", 
+        { &hf_edonkey_number_of_lowid_users,
+            { "Number of LowID Users", "edonkey.number_of_lowid_users",
                 FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_edonkey_udp_flags, 
-            { "Server UDP Support Flags", "edonkey.udp_flags", 
+        { &hf_edonkey_udp_flags,
+            { "Server UDP Support Flags", "edonkey.udp_flags",
                 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_edonkey_tcp_obfuscation_port, 
-            { "TCP Obfuscation Port", "edonkey.tcp_obfuscation_port", 
+        { &hf_edonkey_tcp_obfuscation_port,
+            { "TCP Obfuscation Port", "edonkey.tcp_obfuscation_port",
                 FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_edonkey_udp_obfuscation_port, 
-            { "UDP Obfuscation Port", "edonkey.udp_obfuscation_port", 
+        { &hf_edonkey_udp_obfuscation_port,
+            { "UDP Obfuscation Port", "edonkey.udp_obfuscation_port",
                 FT_UINT16, BASE_PT_UDP, NULL, 0x0, NULL, HFILL }},
-        { &hf_edonkey_server_udp_key, 
-            { "Server UDP Key", "edonkey.server_udp_key", 
+        { &hf_edonkey_server_udp_key,
+            { "Server UDP Key", "edonkey.server_udp_key",
                 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      
+
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_edonkey_list_size, { "List Size", "edonkey.list_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_edonkey_meta_tag_value_revision, { "Meta Tag Value", "edonkey.meta_tag_value.revision", FT_UINT32, BASE_CUSTOM, CF_FUNC(edonkey_fmt_revision), 0x0, NULL, HFILL }},

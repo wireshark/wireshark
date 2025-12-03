@@ -30,7 +30,4 @@ int dissect_p22_NonReceiptReasonField(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 int dissect_p22_DiscardReasonField(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_p22_ReceiptTimeField(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
-void proto_reg_handoff_p22(void);
-void proto_register_p22(void);
-
 #endif  /* PACKET_P22_H */

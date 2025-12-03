@@ -33,6 +33,9 @@
 #define PSNAME "P22"
 #define PFNAME "p22"
 
+void proto_reg_handoff_p22(void);
+void proto_register_p22(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_p22;
 

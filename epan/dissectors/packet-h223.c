@@ -25,10 +25,12 @@
 
 #include "packet-h245.h"
 #include "packet-iax2.h"
-#include "packet-h223.h"
 #include "packet-iax2.h"
 
 /* #define DEBUG_H223 */
+
+void proto_register_h223 (void);
+void proto_reg_handoff_h223(void);
 
 /* debug the mux-pdu defragmentation code. warning: verbose output! */
 /* #define DEBUG_H223_FRAGMENTATION */

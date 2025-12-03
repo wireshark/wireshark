@@ -326,7 +326,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-cms.h
 	packet-coap.h
 	packet-cose.h
-	packet-credssp.h
 	packet-crmf.h
 	packet-csn1.h
 	packet-dap.h
@@ -408,7 +407,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-gtp.h
 	packet-gtpv2.h
 	packet-HI2Operations.h
-	packet-h223.h
 	packet-h225.h
 	packet-h235.h
 	packet-h245.h
@@ -675,7 +673,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-xmpp-other.h
 	packet-xmpp-utils.h
 	packet-xnap.h
-	packet-gdt.h
 	packet-ypbind.h
 	packet-yppasswd.h
 	packet-ypserv.h

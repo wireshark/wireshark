@@ -21,11 +21,14 @@
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
 #include "packet-ntlmssp.h"
-#include "packet-credssp.h"
+#include "packet-credssp-val.h"
 
 #define PNAME  "Credential Security Support Provider"
 #define PSNAME "CredSSP"
 #define PFNAME "credssp"
+
+void proto_reg_handoff_credssp(void);
+void proto_register_credssp(void);
 
 #define TS_PASSWORD_CREDS   1
 #define TS_SMARTCARD_CREDS  2

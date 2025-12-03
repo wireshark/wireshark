@@ -19,7 +19,4 @@ const char* p1_get_last_oraddress(asn1_ctx_t* actx);
 int dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data);
 #include "packet-p1-exp.h"
 
-void proto_reg_handoff_p1(void);
-void proto_register_p1(void);
-
 #endif  /* PACKET_P1_H */

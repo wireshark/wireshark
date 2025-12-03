@@ -36,6 +36,9 @@
 #define PSNAME "P1"
 #define PFNAME "p1"
 
+void proto_reg_handoff_p1(void);
+void proto_register_p1(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_p1;
 static int proto_p3;
