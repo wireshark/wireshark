@@ -36,7 +36,7 @@ ReturnResult/result/result  resultArgument
 
 #.FN_PARS
 Code         VAL_PTR = &%(ACTX)s->rose_ctx->d.code
-Code/local   VAL_PTR = &%(ACTX)s->rose_ctx->d.code_local
+Code/local   VAL_PTR = (uint32_t*)&%(ACTX)s->rose_ctx->d.code_local
 Code/global  FN_VARIANT = _str  VAL_PTR = &%(ACTX)s->rose_ctx->d.code_global
 #.FN_FTR Code
   actx->rose_ctx->d.code_item = actx->created_item;

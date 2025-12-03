@@ -405,6 +405,7 @@ ldap_conv_info_t *ldap_info;
 #.FN_BODY LDAPResult/resultCode VAL_PTR = &result
 
   const char *valstr;
+  unsigned result;
 
 %(DEFAULT_BODY)s
 
@@ -421,6 +422,7 @@ ldap_conv_info_t *ldap_info;
 #.FN_BODY BindResponse/_untag/resultCode  VAL_PTR = &result
 
   const char *valstr;
+  unsigned result;
 
 %(DEFAULT_BODY)s
 
@@ -758,7 +760,7 @@ ldap_conv_info_t *ldap_info;
   bool pc;
   int32_t tag;
   uint32_t len;
-  int32_t val;
+  uint32_t val;
 
   int otheroffset = offset;
   if(!implicit_tag){

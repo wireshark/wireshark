@@ -128,15 +128,14 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
   %(DEFAULT_BODY)s
 
 #.FN_PARS Release-request-reason
-  VAL_PTR=&reason
+  VAL_PTR=(uint32_t*)&reason
 
 #.FN_BODY Release-request-reason
-  int reason = -1;
+  int32_t reason;
 
   %(DEFAULT_BODY)s
 
-  if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, reason, acse_Release_request_reason_vals, "reason(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, reason, acse_Release_request_reason_vals, "reason(%%d)"));
 
 #.FN_BODY RLRE-apdu
   col_append_str(actx->pinfo->cinfo, COL_INFO, "Release-Response");
@@ -144,15 +143,14 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
   %(DEFAULT_BODY)s
 
 #.FN_PARS Release-response-reason
-  VAL_PTR=&reason
+  VAL_PTR=(uint32_t*)&reason
 
 #.FN_BODY Release-response-reason
-  int reason = -1;
+  int32_t reason;
 
   %(DEFAULT_BODY)s
 
-  if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, reason, acse_Release_response_reason_vals, "reason(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, reason, acse_Release_response_reason_vals, "reason(%%d)"));
 
 #.FN_BODY ABRT-apdu
   col_append_str(actx->pinfo->cinfo, COL_INFO, "Abort");

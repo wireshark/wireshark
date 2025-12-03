@@ -90,7 +90,7 @@ static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 static int
 dissect_q932_ros_T_local(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &actx->rose_ctx->d.code_local);
+                                                (uint32_t*)&actx->rose_ctx->d.code_local);
 
   return offset;
 }

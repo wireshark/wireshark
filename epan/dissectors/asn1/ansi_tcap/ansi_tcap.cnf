@@ -22,7 +22,7 @@ ErrorCode/private ABBREV=ec_private
 
 #.FN_PARS
 OperationCode            VAL_PTR = &ansi_tcap_private.d.OperationCode
-OperationCode/private    VAL_PTR = &ansi_tcap_private.d.OperationCode_private
+OperationCode/private    VAL_PTR = (uint32_t*)&ansi_tcap_private.d.OperationCode_private
 #.FN_FTR OperationCode
   ansi_tcap_private.d.OperationCode_item = actx->created_item;
 #.END

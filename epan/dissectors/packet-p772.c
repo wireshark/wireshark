@@ -605,12 +605,11 @@ static const value_string p772_PrimaryPrecedence_vals[] = {
 
 static int
 dissect_p772_PrimaryPrecedence(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int precedence = -1;
+  int32_t precedence;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &precedence);
+                                                (uint32_t*)&precedence);
 
-  if(precedence != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (primary=%s)", val_to_str(actx->pinfo->pool, precedence, p772_PrimaryPrecedence_vals, "precedence(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (primary=%s)", val_to_str(actx->pinfo->pool, precedence, p772_PrimaryPrecedence_vals, "precedence(%d)"));
 
 
   return offset;
@@ -633,12 +632,11 @@ static const value_string p772_CopyPrecedence_vals[] = {
 
 static int
 dissect_p772_CopyPrecedence(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int precedence = -1;
+  int32_t precedence;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &precedence);
+                                                (uint32_t*)&precedence);
 
-  if(precedence != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (copy=%s)", val_to_str(actx->pinfo->pool, precedence, p772_CopyPrecedence_vals, "precedence(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (copy=%s)", val_to_str(actx->pinfo->pool, precedence, p772_CopyPrecedence_vals, "precedence(%d)"));
 
   return offset;
 }

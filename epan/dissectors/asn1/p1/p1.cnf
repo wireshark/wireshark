@@ -598,7 +598,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	}
 
 #.FN_PARS ExtensionAttributeType
-	VAL_PTR = &actx->external.indirect_reference
+	VAL_PTR = (uint32_t*)&actx->external.indirect_reference
 
 #.FN_BODY ExtensionAttribute/extension-attribute-value
 
@@ -631,7 +631,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	%(DEFAULT_BODY)s
 
-#.FN_PARS StandardExtension VAL_PTR = &actx->external.indirect_reference
+#.FN_PARS StandardExtension VAL_PTR = (uint32_t*)&actx->external.indirect_reference
 
 #.FN_BODY StandardExtension
 	actx->external.indirect_ref_present = true;
@@ -1161,7 +1161,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	VAL_PTR = &action
 
 #.FN_BODY RoutingAction
-	int action = 0;
+	uint32_t action = 0;
 
 	%(DEFAULT_BODY)s
 
@@ -1196,7 +1196,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
   }
 
 #.FN_PARS TokenDataType
-	VAL_PTR = &actx->external.indirect_reference
+	VAL_PTR = (uint32_t*)&actx->external.indirect_reference
 
 #.FN_BODY TokenData/value
 

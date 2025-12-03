@@ -1170,14 +1170,13 @@ static const value_string acse_Release_request_reason_vals[] = {
 
 static int
 dissect_acse_Release_request_reason(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int reason = -1;
+  int32_t reason;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &reason);
+                                                (uint32_t*)&reason);
 
 
-  if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, reason, acse_Release_request_reason_vals, "reason(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, reason, acse_Release_request_reason_vals, "reason(%d)"));
 
 
   return offset;
@@ -1225,14 +1224,13 @@ static const value_string acse_Release_response_reason_vals[] = {
 
 static int
 dissect_acse_Release_response_reason(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int reason = -1;
+  int32_t reason;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &reason);
+                                                (uint32_t*)&reason);
 
 
-  if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, reason, acse_Release_response_reason_vals, "reason(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, reason, acse_Release_response_reason_vals, "reason(%d)"));
 
 
   return offset;

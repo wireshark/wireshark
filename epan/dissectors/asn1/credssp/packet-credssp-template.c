@@ -34,8 +34,8 @@ void proto_register_credssp(void);
 #define TS_SMARTCARD_CREDS  2
 #define TS_REMOTEGUARD_CREDS  6
 
-static int creds_type;
-static int credssp_ver;
+static uint32_t creds_type;
+static uint32_t credssp_ver;
 
 static char kerberos_pname[] = "K\0e\0r\0b\0e\0r\0o\0s";
 static char ntlm_pname[] = "N\0T\0L\0M";
@@ -88,8 +88,8 @@ dissect_credssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CredSSP");
   	col_clear(pinfo->cinfo, COL_INFO);
 
-	creds_type = -1;
-	credssp_ver = -1;
+	creds_type = 0;
+	credssp_ver = 0;
 
 	return dissect_TSRequest_PDU(tvb, pinfo, tree, data);
 }

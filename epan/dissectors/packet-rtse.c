@@ -469,14 +469,13 @@ static const value_string rtse_RefuseReason_vals[] = {
 
 static int
 dissect_rtse_RefuseReason(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int reason = -1;
+  int32_t reason;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &reason);
+                                                (uint32_t*)&reason);
 
 
-  if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, reason, rtse_RefuseReason_vals, "reason(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, reason, rtse_RefuseReason_vals, "reason(%d)"));
 
 
   return offset;
@@ -539,16 +538,15 @@ dissect_rtse_RTORJapdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_rtse_RTTPapdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int priority = -1;
+  int32_t priority;
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "Turn-Please");
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &priority);
+                                                (uint32_t*)&priority);
 
 
-  if(priority != -1)
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%d)", priority);
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%d)", priority);
 
 
   return offset;
@@ -595,14 +593,13 @@ static const value_string rtse_AbortReason_vals[] = {
 
 static int
 dissect_rtse_AbortReason(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int reason = -1;
+  int32_t reason = -1;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &reason);
+                                                (uint32_t*)&reason);
 
 
-  if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, reason, rtse_AbortReason_vals, "reason(%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%s)", val_to_str(actx->pinfo->pool, reason, rtse_AbortReason_vals, "reason(%d)"));
 
 
   return offset;

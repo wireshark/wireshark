@@ -177,10 +177,10 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
   }
 
 #.FN_HDR AttributeElement/attributeType
-  int att_type=0;
+  int32_t att_type=0;
   packet_info *pinfo = actx->pinfo;
   z3950_atinfo_t *atinfo_data;
-#.FN_PARS AttributeElement/attributeType VAL_PTR=&att_type
+#.FN_PARS AttributeElement/attributeType VAL_PTR=(uint32_t*)&att_type
 #.FN_FTR AttributeElement/attributeType
   atinfo_data = (z3950_atinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_ATINFO_KEY);
   if (atinfo_data && atinfo_data->atsetidx == Z3950_ATSET_BIB1) {
@@ -189,11 +189,11 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
     atinfo_data->attype = att_type;
   }
 #.FN_HDR AttributeElement/attributeValue/numeric
-  int att_value=0;
+  int32_t att_value=0;
   packet_info *pinfo = actx->pinfo;
   z3950_atinfo_t *atinfo_data;
   const value_string *att_value_string = NULL;
-#.FN_PARS AttributeElement/attributeValue/numeric VAL_PTR=&att_value
+#.FN_PARS AttributeElement/attributeValue/numeric VAL_PTR=(uint32_t*)&att_value
 #.FN_FTR AttributeElement/attributeValue/numeric
   atinfo_data = (z3950_atinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_ATINFO_KEY);
   if (atinfo_data && atinfo_data->atsetidx == Z3950_ATSET_BIB1) {
@@ -253,10 +253,10 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
   }
 
 #.FN_HDR DefaultDiagFormat/condition
-  int diag_condition=0;
+  int32_t diag_condition=0;
   packet_info *pinfo = actx->pinfo;
   z3950_diaginfo_t *diaginfo_data;
-#.FN_PARS DefaultDiagFormat/condition VAL_PTR=&diag_condition
+#.FN_PARS DefaultDiagFormat/condition VAL_PTR=(uint32_t*)&diag_condition
 #.FN_FTR DefaultDiagFormat/condition
   diaginfo_data = (z3950_diaginfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_DIAGSET_KEY);
   if (diaginfo_data && diaginfo_data->diagsetidx == Z3950_DIAGSET_BIB1) {

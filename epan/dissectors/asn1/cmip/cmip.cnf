@@ -267,7 +267,7 @@ RejectProblem
   %(DEFAULT_BODY)s
   actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? true : false;
 
-#.FN_BODY AttributeId/localForm  VAL_PTR = &actx->external.indirect_reference
+#.FN_BODY AttributeId/localForm  VAL_PTR = (uint32_t*)&actx->external.indirect_reference
   %(DEFAULT_BODY)s
   actx->external.indirect_ref_present = true;
 

@@ -956,7 +956,6 @@ static int Filter_elements;
 /* Global variables */
 static unsigned MessageID;
 static int ProtocolOp = -1;
-static int result;
 static proto_item *ldm_tree; /* item to add text to */
 
 static void ldap_do_protocolop(packet_info *pinfo)
@@ -1526,6 +1525,7 @@ static int
 dissect_ldap_BindResponse_resultCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
   const char *valstr;
+  unsigned result;
 
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &result);
@@ -2428,6 +2428,7 @@ static int
 dissect_ldap_T_resultCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
   const char *valstr;
+  unsigned result;
 
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &result);
@@ -3320,7 +3321,7 @@ dissect_ldap_DirSyncFlags(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
   bool pc;
   int32_t tag;
   uint32_t len;
-  int32_t val;
+  uint32_t val;
 
   int otheroffset = offset;
   if(!implicit_tag){
@@ -3836,7 +3837,6 @@ ldap_frame_end(void)
   Filter_elements = 0;
   Filter_length = 0;
   do_protocolop = false;
-  result = 0;
 
 /* seems to be ok, but reset just in case */
   matching_rule_string = NULL;

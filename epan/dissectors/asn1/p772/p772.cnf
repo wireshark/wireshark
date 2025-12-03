@@ -101,17 +101,15 @@ InformationObject	 	B "2.6.1.4.17.1.3.26.0.4406.0.4.1" 	"id-et-content-p772"
   offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 
 #.FN_PARS PrimaryPrecedence
-  VAL_PTR=&precedence
+  VAL_PTR=(uint32_t*)&precedence
 #.FN_BODY PrimaryPrecedence
-  int precedence = -1;
+  int32_t precedence;
   %(DEFAULT_BODY)s
-  if(precedence != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (primary=%%s)", val_to_str(actx->pinfo->pool, precedence, p772_PrimaryPrecedence_vals, "precedence(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (primary=%%s)", val_to_str(actx->pinfo->pool, precedence, p772_PrimaryPrecedence_vals, "precedence(%%d)"));
 
 #.FN_PARS CopyPrecedence
-  VAL_PTR=&precedence
+  VAL_PTR=(uint32_t*)&precedence
 #.FN_BODY CopyPrecedence
-  int precedence = -1;
+  int32_t precedence;
   %(DEFAULT_BODY)s
-  if(precedence != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (copy=%%s)", val_to_str(actx->pinfo->pool, precedence, p772_CopyPrecedence_vals, "precedence(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (copy=%%s)", val_to_str(actx->pinfo->pool, precedence, p772_CopyPrecedence_vals, "precedence(%%d)"));

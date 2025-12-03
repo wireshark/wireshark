@@ -138,15 +138,14 @@ CallingSSuserReference/t61String DISPLAY = BASE_NONE
   if(open_request && string)
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(actx->pinfo->pool, string, 0, tvb_reported_length(string)));
 
-#.FN_BODY RTTPapdu  VAL_PTR=&priority
-  int priority = -1;
+#.FN_BODY RTTPapdu  VAL_PTR=(uint32_t*)&priority
+  int32_t priority;
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "Turn-Please");
 
   %(DEFAULT_BODY)s
 
-  if(priority != -1)
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%d)", priority);
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%d)", priority);
 
 #.FN_BODY RTORJapdu
   col_append_str(actx->pinfo->cinfo, COL_INFO, "Refuse");
@@ -154,15 +153,14 @@ CallingSSuserReference/t61String DISPLAY = BASE_NONE
   %(DEFAULT_BODY)s
 
 #.FN_PARS RefuseReason
-  VAL_PTR=&reason
+  VAL_PTR=(uint32_t*)&reason
 
 #.FN_BODY RefuseReason
-  int reason = -1;
+  int32_t reason;
 
   %(DEFAULT_BODY)s
 
-  if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, reason, rtse_RefuseReason_vals, "reason(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, reason, rtse_RefuseReason_vals, "reason(%%d)"));
 
 #.FN_BODY RTABapdu
   col_append_str(actx->pinfo->cinfo, COL_INFO, "Abort");
@@ -170,15 +168,14 @@ CallingSSuserReference/t61String DISPLAY = BASE_NONE
   %(DEFAULT_BODY)s
 
 #.FN_PARS AbortReason
-  VAL_PTR=&reason
+  VAL_PTR=(uint32_t*)&reason
 
 #.FN_BODY AbortReason
-  int reason = -1;
+  int32_t reason = -1;
 
   %(DEFAULT_BODY)s
 
-  if(reason != -1)
-   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, reason, rtse_AbortReason_vals, "reason(%%d)"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(actx->pinfo->pool, reason, rtse_AbortReason_vals, "reason(%%d)"));
 
 #.TYPE_ATTR
 AdditionalReferenceInformation DISPLAY = BASE_NONE

@@ -2155,7 +2155,7 @@ static const value_string p1_ExtensionAttributeType_vals[] = {
 static int
 dissect_p1_ExtensionAttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &actx->external.indirect_reference);
+                                                (uint32_t*)&actx->external.indirect_reference);
 
   return offset;
 }
@@ -2798,7 +2798,7 @@ static const value_string p1_RoutingAction_vals[] = {
 
 static int
 dissect_p1_RoutingAction(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	int action = 0;
+	uint32_t action = 0;
 
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &action);
@@ -2972,7 +2972,7 @@ dissect_p1_StandardExtension(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 	actx->external.indirect_ref_present = true;
 	actx->external.direct_ref_present = false;
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &actx->external.indirect_reference);
+                                                (uint32_t*)&actx->external.indirect_reference);
 
 
 
@@ -7076,7 +7076,7 @@ static const value_string p1_TokenDataType_vals[] = {
 static int
 dissect_p1_TokenDataType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &actx->external.indirect_reference);
+                                                (uint32_t*)&actx->external.indirect_reference);
 
   return offset;
 }

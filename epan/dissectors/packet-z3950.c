@@ -2527,11 +2527,11 @@ dissect_z3950_AttributeSetId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_z3950_T_attributeElement_attributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int att_type=0;
+  int32_t att_type=0;
   packet_info *pinfo = actx->pinfo;
   z3950_atinfo_t *atinfo_data;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &att_type);
+                                                (uint32_t*)&att_type);
 
   atinfo_data = (z3950_atinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_ATINFO_KEY);
   if (atinfo_data && atinfo_data->atsetidx == Z3950_ATSET_BIB1) {
@@ -2546,12 +2546,12 @@ dissect_z3950_T_attributeElement_attributeType(bool implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_z3950_T_attributeValue_numeric(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int att_value=0;
+  int32_t att_value=0;
   packet_info *pinfo = actx->pinfo;
   z3950_atinfo_t *atinfo_data;
   const value_string *att_value_string = NULL;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &att_value);
+                                                (uint32_t*)&att_value);
 
   atinfo_data = (z3950_atinfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_ATINFO_KEY);
   if (atinfo_data && atinfo_data->atsetidx == Z3950_ATSET_BIB1) {
@@ -3200,11 +3200,11 @@ dissect_z3950_T_diagnosticSetId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_z3950_T_condition(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  int diag_condition=0;
+  int32_t diag_condition=0;
   packet_info *pinfo = actx->pinfo;
   z3950_diaginfo_t *diaginfo_data;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &diag_condition);
+                                                (uint32_t*)&diag_condition);
 
   diaginfo_data = (z3950_diaginfo_t *)p_get_proto_data(pinfo->pool, pinfo, proto_z3950, Z3950_DIAGSET_KEY);
   if (diaginfo_data && diaginfo_data->diagsetidx == Z3950_DIAGSET_BIB1) {

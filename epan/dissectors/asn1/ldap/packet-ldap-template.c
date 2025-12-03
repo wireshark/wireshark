@@ -757,7 +757,6 @@ static int Filter_elements;
 /* Global variables */
 static unsigned MessageID;
 static int ProtocolOp = -1;
-static int result;
 static proto_item *ldm_tree; /* item to add text to */
 
 static void ldap_do_protocolop(packet_info *pinfo)
@@ -1034,7 +1033,6 @@ ldap_frame_end(void)
   Filter_elements = 0;
   Filter_length = 0;
   do_protocolop = false;
-  result = 0;
 
 /* seems to be ok, but reset just in case */
   matching_rule_string = NULL;
