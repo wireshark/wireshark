@@ -56,9 +56,11 @@ static int ett_decrypted_pbe;
 
 static expert_field ei_pkcs12_octet_string_expected;
 
+/* We might want to make this a preference */
+#define MAX_ITER_COUNT 10000000U
 
 static const char *object_identifier_id;
-static int iteration_count;
+static unsigned iteration_count;
 static tvbuff_t *salt;
 static const char *password;
 static bool try_null_password;
@@ -314,6 +316,32 @@ int PBE_decrypt_data(dissector_t dissector, const char *description, tvbuff_t *e
 		proto_item_append_text(item, " [Insufficient parameters]");
 		return false;
 	}
+
+        /* Put some kind of sanity check limit on the iteration_count to avoid
+         * taking forever repeatedly hashing. RFC 8018 says:
+         * "This document follows the recommendations made in FIPS
+         * Special Publication 800-132 [NISTSP132], which says
+         *
+         *    The iteration count shall be selected as large as possible, as
+         *    long as the time required to generate the key using the entered
+         *    password is acceptable for the users. [...] A minimum iteration
+         *    count of 1,000 is recommended.  For especially critical keys, or
+         *    for very powerful systems or systems where user-perceived
+         *    performance is not critical, an iteration count of 10,000,000 may
+         *    be appropriate."
+         * https://datatracker.ietf.org/doc/html/rfc8018#section-4.2
+         *
+         * (Note NIST announced a decision to revise SP 800-132 in May 2023:
+         * https://csrc.nist.gov/News/2023/decision-to-revise-nist-sp-800-132
+         * although as of Dec 2025 has not published a draft.)
+         *
+         * Presumably "user-perceived performance is not critical" does not
+         * apply to us, although there may be "especially critical keys."
+         */
+        if (iteration_count > MAX_ITER_COUNT) {
+		proto_item_append_text(item, " [Iteration count exceeds max (%u > %u)]", iteration_count, MAX_ITER_COUNT);
+		return false;
+        }
 
 	/* allocate buffers */
 	key = (char *)wmem_alloc(pinfo->pool, keylen);
