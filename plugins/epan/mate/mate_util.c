@@ -1492,7 +1492,7 @@ extern LoAL* loal_from_file(char* filename) {
 	char c;
 	int i = 0;
 	uint32_t linenum = 1;
-	char *linenum_buf;
+	GString *linenum_buf;
 	char *name;
 	char *value;
 	char op = '?';
@@ -1508,7 +1508,7 @@ extern LoAL* loal_from_file(char* filename) {
 		MY_IGNORE
 	} state;
 
-	linenum_buf = (char*)g_malloc(MAX_ITEM_LEN);
+	linenum_buf = g_string_new(NULL);
 	name = (char*)g_malloc(MAX_ITEM_LEN);
 	value = (char*)g_malloc(MAX_ITEM_LEN);
 #ifndef _WIN32
@@ -1565,8 +1565,9 @@ extern LoAL* loal_from_file(char* filename) {
 							i = 0;
 							name[i++] = c;
 							name[i] = '\0';
-							snprintf(linenum_buf,MAX_ITEM_LEN,"%s:%u",filename,linenum);
-							curr = new_avpl(linenum_buf);
+							g_string_append_printf(linenum_buf, "%s:%u", filename, linenum);
+							curr = new_avpl(linenum_buf->str);
+							g_string_set_size(linenum_buf, 0);
 							continue;
 						case '#':
 							state = MY_IGNORE;
@@ -1669,7 +1670,7 @@ extern LoAL* loal_from_file(char* filename) {
 			delete_avpl(curr,true);
 		}
 
-		g_free(linenum_buf);
+		g_string_free(linenum_buf, true);
 		g_free(name);
 		g_free(value);
 
@@ -1681,7 +1682,7 @@ extern LoAL* loal_from_file(char* filename) {
 	}
 
 error:
-	g_free(linenum_buf);
+	g_string_free(linenum_buf, true);
 	g_free(name);
 	g_free(value);
 
