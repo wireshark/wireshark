@@ -72,9 +72,10 @@ The following bugs have been fixed:
 // Bugs with the {notable} attribute show up in the "What's Changed" box on the download page.
 //* Wireshark contains traces of nuts. What kind of nuts? The kind you're allergic to. wsbuglink:5000[] {notable}
 
-* ws_base32_decode should be named \*_encode ? wsbuglink:20754[].
+* ws_base32_decode should be named *_encode ? wsbuglink:20754[].
 * Omnipeek files not working in 4.6.1. wsbuglink:20876[].
 * Stack buffer overflow in wiretap/ber.c (ber_open) wsbuglink:20878[].
+* Plugins incompatibility between 4.6.0 & 4.6.1. wsbuglink:20881[]. {notable}
 * Fuzz job crash: fuzz-2025-11-30-12266121180.pcap. wsbuglink:20883[].
 
 // == Known Bugs
