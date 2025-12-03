@@ -496,6 +496,7 @@ static int hf_mms_data_bit_string;                /* T_data_bit_string */
 static int hf_mms_integer_01;                     /* T_integer */
 static int hf_mms_unsigned_01;                    /* T_unsigned */
 static int hf_mms_floating_point;                 /* FloatingPoint */
+static int hf_mms_real;                           /* REAL */
 static int hf_mms_data_octet_string;              /* T_data_octet_string */
 static int hf_mms_data_visible_string;            /* T_data_visible_string */
 static int hf_mms_data_binary_time;               /* T_data_binary_time */
@@ -2619,6 +2620,16 @@ dissect_mms_FloatingPoint(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static int
+dissect_mms_REAL(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_real(implicit_tag, actx, tree, tvb, offset, hf_index,
+                               NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_mms_T_data_octet_string(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
     mms_actx_private_data_t *mms_priv = (mms_actx_private_data_t *)actx->private_data;
     if((mms_priv)&& (mms_priv->mms_trans_p)){
@@ -2853,6 +2864,7 @@ static const value_string mms_Data_vals[] = {
   {   5, "integer" },
   {   6, "unsigned" },
   {   7, "floating-point" },
+  {   8, "real" },
   {   9, "octet-string" },
   {  10, "visible-string" },
   {  12, "binary-time" },
@@ -2872,6 +2884,7 @@ static const ber_choice_t Data_choice[] = {
   {   5, &hf_mms_integer_01      , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_mms_T_integer },
   {   6, &hf_mms_unsigned_01     , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_mms_T_unsigned },
   {   7, &hf_mms_floating_point  , BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_mms_FloatingPoint },
+  {   8, &hf_mms_real            , BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mms_REAL },
   {   9, &hf_mms_data_octet_string, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_mms_T_data_octet_string },
   {  10, &hf_mms_data_visible_string, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_mms_T_data_visible_string },
   {  12, &hf_mms_data_binary_time, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_mms_T_data_binary_time },
@@ -10315,6 +10328,10 @@ void proto_register_mms(void) {
       { "floating-point", "mms.floating_point",
         FT_BYTES, BASE_NONE, NULL, 0,
         "FloatingPoint", HFILL }},
+    { &hf_mms_real,
+      { "real", "mms.real",
+        FT_DOUBLE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_mms_data_octet_string,
       { "octet-string", "mms.data.octet-string",
         FT_BYTES, BASE_NONE, NULL, 0,
