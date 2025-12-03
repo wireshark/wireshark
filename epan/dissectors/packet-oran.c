@@ -3025,8 +3025,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
         proto_item_append_text(extlen_ti, " (%u bytes)", extlen*4);
         offset += extlen_len;
         if (extlen == 0) {
-            expert_add_info_format(pinfo, extlen_ti, &ei_oran_extlen_zero,
-                                   "extlen value of 0 is reserved");
+            expert_add_info(pinfo, extlen_ti, &ei_oran_extlen_zero);
             /* Break out to avoid infinitely looping! */
             break;
         }
@@ -3429,8 +3428,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 rbg_size_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_rbgSize, tvb, offset, 1, ENC_BIG_ENDIAN, &rbgSize);
                 if (rbgSize == 0) {
                     /* N.B. this is only true if "se6-rb-bit-supported" is set... */
-                    expert_add_info_format(pinfo, rbg_size_ti, &ei_oran_rbg_size_reserved,
-                                           "rbgSize value of 0 is reserved");
+                    expert_add_info(pinfo, rbg_size_ti, &ei_oran_rbg_size_reserved);
                 }
                 /* rbgMask (28 bits) */
                 uint32_t rbgMask;
@@ -3724,8 +3722,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset++;
                 /* value zero is reserved.. */
                 if (numBundPrb == 0) {
-                    expert_add_info_format(pinfo, num_bund_prb_ti, &ei_oran_reserved_numBundPrb,
-                                           "Reserved value 0 for numBundPrb seen - not valid");
+                    expert_add_info(pinfo, num_bund_prb_ti, &ei_oran_reserved_numBundPrb);
                 }
 
                 uint32_t num_bundles;
@@ -5772,8 +5769,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
         proto_item *no_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_number_of_st4_cmds,
                                                          tvb, offset, 1, ENC_NA, &no_st4_cmds);
         if (no_st4_cmds == 0) {
-            expert_add_info_format(pinfo, no_ti, &ei_oran_st4_no_cmds,
-                                   "Not valid for ST4 to carry no commands");
+            expert_add_info(pinfo, no_ti, &ei_oran_st4_no_cmds);
         }
         offset += 1;
 
@@ -9862,16 +9858,16 @@ proto_register_oran(void)
     static ei_register_info ei[] = {
         { &ei_oran_unsupported_bfw_compression_method, { "oran_fh_cus.unsupported_bfw_compression_method", PI_UNDECODED, PI_WARN, "Unsupported BFW Compression Method", EXPFILL }},
         { &ei_oran_invalid_sample_bit_width, { "oran_fh_cus.invalid_sample_bit_width", PI_UNDECODED, PI_ERROR, "Unsupported sample bit width", EXPFILL }},
-        { &ei_oran_reserved_numBundPrb, { "oran_fh_cus.reserved_numBundPrb", PI_MALFORMED, PI_ERROR, "Reserved value of numBundPrb", EXPFILL }},
+        { &ei_oran_reserved_numBundPrb, { "oran_fh_cus.reserved_numBundPrb", PI_MALFORMED, PI_ERROR, "Reserved value 0 for numBundPrb seen - not valid", EXPFILL }},
         { &ei_oran_extlen_wrong, { "oran_fh_cus.extlen_wrong", PI_MALFORMED, PI_ERROR, "extlen doesn't match number of dissected bytes", EXPFILL }},
         { &ei_oran_invalid_eaxc_bit_width, { "oran_fh_cus.invalid_eaxc_bit_width", PI_UNDECODED, PI_ERROR, "Inconsistent eAxC bit width", EXPFILL }},
-        { &ei_oran_extlen_zero, { "oran_fh_cus.extlen_zero", PI_MALFORMED, PI_ERROR, "extlen - zero is reserved value", EXPFILL }},
-        { &ei_oran_rbg_size_reserved, { "oran_fh_cus.rbg_size_reserved", PI_MALFORMED, PI_ERROR, "rbgSize - zero is reserved value", EXPFILL }},
+        { &ei_oran_extlen_zero, { "oran_fh_cus.extlen_zero", PI_MALFORMED, PI_ERROR, "extlen value of 0 is reserved", EXPFILL }},
+        { &ei_oran_rbg_size_reserved, { "oran_fh_cus.rbg_size_reserved", PI_MALFORMED, PI_ERROR, "rbgSize value of 0 is reserved", EXPFILL }},
         { &ei_oran_frame_length, { "oran_fh_cus.frame_length", PI_MALFORMED, PI_ERROR, "there should be 0-3 bytes remaining after PDU in frame", EXPFILL }},
         { &ei_oran_numprbc_ext21_zero, { "oran_fh_cus.numprbc_ext21_zero", PI_MALFORMED, PI_ERROR, "numPrbc shall not be set to 0 when ciPrbGroupSize is configured", EXPFILL }},
         { &ei_oran_ci_prb_group_size_reserved, { "oran_fh_cus.ci_prb_group_size_reserved", PI_MALFORMED, PI_WARN, "ciPrbGroupSize should be 2-254", EXPFILL }},
         { &ei_oran_st8_nackid, { "oran_fh_cus.st8_nackid", PI_SEQUENCE, PI_WARN, "operation for this ackId failed", EXPFILL }},
-        { &ei_oran_st4_no_cmds, { "oran_fh_cus.st4_nackid", PI_MALFORMED, PI_ERROR, "Not valid to have no commands in ST4", EXPFILL }},
+        { &ei_oran_st4_no_cmds, { "oran_fh_cus.st4_nackid", PI_MALFORMED, PI_ERROR, "Not valid for ST4 to carry no commands", EXPFILL }},
         { &ei_oran_st4_zero_len_cmd, { "oran_fh_cus.st4_zero_len_cmd", PI_MALFORMED, PI_WARN, "ST4 cmd with length 0 is reserved", EXPFILL }},
         { &ei_oran_st4_wrong_len_cmd, { "oran_fh_cus.st4_wrong_len_cmd", PI_MALFORMED, PI_ERROR, "ST4 cmd with length not matching contents", EXPFILL }},
         { &ei_oran_st4_unknown_cmd, { "oran_fh_cus.st4_unknown_cmd", PI_MALFORMED, PI_ERROR, "ST4 cmd with unknown command code", EXPFILL }},

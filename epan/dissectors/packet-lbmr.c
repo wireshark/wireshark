@@ -3709,7 +3709,7 @@ static int dissect_lbmr_tir_options(tvbuff_t * tvb, int offset, packet_info * pi
             {
                 proto_tree_add_item(opt_tree, hf_lbmr_topt_unknown_data, tvb, curr_offset + L_LBMR_TOPIC_OPT_T, ((int) opt_len) - L_LBMR_TOPIC_OPT_T, ENC_NA);
             }
-            expert_add_info_format(pinfo, ei_item, &ei_lbmr_analysis_zero_len_option, "Zero-length LBMR option");
+            expert_add_info(pinfo, ei_item, &ei_lbmr_analysis_zero_len_option);
             return (len);
         }
         switch (opt_type)

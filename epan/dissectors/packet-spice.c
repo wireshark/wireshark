@@ -1474,8 +1474,7 @@ dissect_Mask(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t offse
     offset += 1;
     point_item = dissect_POINT32(tvb, Mask_tree, offset);
     offset += (int)sizeof(point32_t);
-    bitmap = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(Mask_tree, hf_ref_image, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(Mask_tree, hf_ref_image, tvb, offset, 4, ENC_LITTLE_ENDIAN, &bitmap);
     offset += 4;
 
     if (bitmap != 0) {

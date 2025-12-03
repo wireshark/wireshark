@@ -7400,7 +7400,7 @@ dissect_dhcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		secs = tvb_get_letohs(tvb, 8);
 		if (secs > 0 && secs <= 0xff) {
 			ti = proto_tree_add_uint(bp_tree, hf_dhcp_secs, tvb, 8, 2, secs);
-			expert_add_info_format(pinfo, ti, &ei_dhcp_secs_le, "Seconds elapsed appears to be encoded as little-endian");
+			expert_add_info(pinfo, ti, &ei_dhcp_secs_le);
 		} else {
 			proto_tree_add_item(bp_tree, hf_dhcp_secs, tvb,
 					8, 2, ENC_BIG_ENDIAN);

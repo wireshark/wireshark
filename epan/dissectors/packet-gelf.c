@@ -114,8 +114,7 @@ dissect_gelf_simple_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uin
             add_new_data_source(pinfo, next_tvb, "compressed data");
             call_dissector(json_handle, next_tvb, pinfo, tree);
         } else {
-            expert_add_info_format(pinfo, pdu_item, &ei_gelf_broken_compression,
-                                   "Can't uncompress message");
+            expert_add_info(pinfo, pdu_item, &ei_gelf_broken_compression);
         }
         return len;
     } else if (header == HEADER_UNCOMPRESSED) {
@@ -386,7 +385,7 @@ proto_register_gelf(void)
         },
         { &ei_gelf_broken_compression,
             {
-                "gelf.broken_compression", PI_MALFORMED, PI_ERROR, "Can't unpack message", EXPFILL
+                "gelf.broken_compression", PI_MALFORMED, PI_ERROR, "Can't uncompress message", EXPFILL
             }
         }
     };

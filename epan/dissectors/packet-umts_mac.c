@@ -430,7 +430,7 @@ static int dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             break;
         default:
             proto_item_append_text(ti, " (Unknown RACH TCTF)");
-            expert_add_info_format(pinfo, NULL, &ei_mac_rach_tctf_unknown, "Unknown RACH TCTF");
+            expert_add_info(pinfo, NULL, &ei_mac_rach_tctf_unknown);
     }
     return tvb_captured_length(tvb);
 }

@@ -1204,8 +1204,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 
 			/* Expert info.  TODO: add to _icmp_transaction_t type and sequence number
 			   so can report here (and in taps) */
-			expert_add_info_format(pinfo, it, &ei_icmp_resp_not_found,
-					       "No response seen to ICMP request");
+			expert_add_info(pinfo, it, &ei_icmp_resp_not_found);
 		}
 
 		return NULL;
@@ -2454,7 +2453,7 @@ void proto_register_icmp(void)
 	static ei_register_info ei[] = {
 		{ &ei_icmp_type_error, { "icmp.type.error", PI_RESPONSE_CODE, PI_NOTE, "Type indicates an error", EXPFILL }},
 		{ &ei_icmp_type_deprecated, { "icmp.type.deprecated", PI_DEPRECATED, PI_NOTE, "Type is deprecated", EXPFILL }},
-		{ &ei_icmp_resp_not_found, { "icmp.resp_not_found", PI_SEQUENCE, PI_WARN, "Response not found", EXPFILL }},
+		{ &ei_icmp_resp_not_found, { "icmp.resp_not_found", PI_SEQUENCE, PI_WARN, "No response seen to ICMP request", EXPFILL }},
 		{ &ei_icmp_checksum, { "icmp.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
 		{ &ei_icmp_ext_checksum, { "icmp.ext.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
 	};

@@ -11817,8 +11817,7 @@ dissect_anqp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, bo
   proto_item_append_text(tree, ": ANQP ");
   proto_item_append_text(tree, request ? "Request" : "Response");
   if (tvb_reported_length_remaining(tvb, offset) < 4) {
-    expert_add_info_format(pinfo, tree, &ei_ieee80211_not_enough_room_for_anqp_header,
-                           "Not enough room for ANQP header");
+    expert_add_info(pinfo, tree, &ei_ieee80211_not_enough_room_for_anqp_header);
     return;
   }
   col_append_fstr(pinfo->cinfo, COL_INFO, ", ANQP %s",

@@ -316,8 +316,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 			}
 			else
 			{
-				expert_add_info_format(pinfo, item, &ei_payload_size_invalid_undecoded,
-					"CESoPSN payload: omitted to conserve bandwidth");
+				expert_add_info(pinfo, item, &ei_payload_size_invalid_undecoded);
 			}
 		}
 		else

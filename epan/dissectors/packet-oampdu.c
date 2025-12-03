@@ -1727,7 +1727,7 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
                     if (raw_octet < 2)
                     {
-                        expert_add_info_format(pinfo, event_item, &ei_oampdu_event_length_bad, "Event length should be at least 2");
+                        expert_add_info(pinfo, event_item, &ei_oampdu_event_length_bad);
                     }
                     else
                     {
@@ -2245,7 +2245,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
                                         if (pir_mvl > 0) {
                                             proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_user_port_object_clause_mv, tvb, offset+7, pir_mvl, ENC_NA);
-                                        } else expert_add_info_format(pinfo, event_item, &ei_oampdu_mvl_length_zero, "Match Value Field Length is Zero, Match Value Field not Decoded");
+                                        } else expert_add_info(pinfo, event_item, &ei_oampdu_mvl_length_zero);
 
                                         break;
                                         /* Result */

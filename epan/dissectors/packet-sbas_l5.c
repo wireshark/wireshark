@@ -105,8 +105,7 @@ static int dissect_sbas_l5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             preamble != SBAS_L5_PREAMBLE_4 &&
             preamble != SBAS_L5_PREAMBLE_5 &&
             preamble != SBAS_L5_PREAMBLE_6) {
-        expert_add_info_format(pinfo, pi_preamble, &ei_sbas_l5_preamble,
-                "Erroneous preamble");
+        expert_add_info(pinfo, pi_preamble, &ei_sbas_l5_preamble);
     }
 
     // message type
@@ -218,7 +217,7 @@ void proto_register_sbas_l5(void) {
     expert_module_t *expert_sbas_l5;
 
     static ei_register_info ei[] = {
-        {&ei_sbas_l5_preamble,          {"sbas_l5.illegal_preamble",          PI_PROTOCOL, PI_WARN, "Illegal preamble", EXPFILL}},
+        {&ei_sbas_l5_preamble,          {"sbas_l5.illegal_preamble",          PI_PROTOCOL, PI_WARN, "Erroneous preamble", EXPFILL}},
         {&ei_sbas_l5_mt0,               {"sbas_l5.mt0",                       PI_PROTOCOL, PI_WARN, "MT is 0", EXPFILL}},
         {&ei_sbas_l5_crc,               {"sbas_l5.crc",                       PI_CHECKSUM, PI_WARN, "CRC", EXPFILL}},
     };

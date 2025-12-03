@@ -1188,8 +1188,7 @@ static int dissect_sbas_l1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     if (preamble != SBAS_L1_PREAMBLE_1 &&
             preamble != SBAS_L1_PREAMBLE_2 &&
             preamble != SBAS_L1_PREAMBLE_3) {
-        expert_add_info_format(pinfo, pi_preamble, &ei_sbas_l1_preamble,
-                "Erroneous preamble");
+        expert_add_info(pinfo, pi_preamble, &ei_sbas_l1_preamble);
     }
 
     // message type
@@ -2782,7 +2781,7 @@ void proto_register_sbas_l1(void) {
     expert_module_t *expert_sbas_l1;
 
     static ei_register_info ei[] = {
-        {&ei_sbas_l1_preamble,          {"sbas_l1.illegal_preamble",          PI_PROTOCOL, PI_WARN, "Illegal preamble", EXPFILL}},
+        {&ei_sbas_l1_preamble,          {"sbas_l1.illegal_preamble",          PI_PROTOCOL, PI_WARN, "Erroneous preamble", EXPFILL}},
         {&ei_sbas_l1_mt0,               {"sbas_l1.mt0",                       PI_PROTOCOL, PI_WARN, "MT is 0", EXPFILL}},
         {&ei_sbas_l1_crc,               {"sbas_l1.crc",                       PI_CHECKSUM, PI_WARN, "CRC", EXPFILL}},
         {&ei_sbas_l1_mt26_igp_band_id,  {"sbas_l1.mt26.illegal_igp_band_id",  PI_PROTOCOL, PI_WARN, "Illegal IGP Band Identifier", EXPFILL}},

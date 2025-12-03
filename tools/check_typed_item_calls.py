@@ -1279,8 +1279,14 @@ def findDefinedTrees(filename, contents, declared):
 
 
 def checkExpertCalls(filename, expertEntries):
+        global errors_found
+
+
         with open(filename, 'r', encoding="utf8") as f:
             contents = f.read()
+
+            expert_add_info_re = re.compile(r'expert_add_info\s*\(([a-zA-Z_0-9]*)\s*,\s*([a-zA-Z_0-9]*)\s*,\s*(&[a-zA-Z_0-9]*)')
+            expert_add_info_format_re = re.compile(r'expert_add_info_format\s*\(([a-zA-Z_0-9]*)\s*,\s*([a-zA-Z_0-9]*)\s*,\s*(&[a-zA-Z_0-9]*)\s*,\s*\"(.*?)\"')
 
             # Remove comments so as not to trip up RE.
             contents = removeComments(contents)
@@ -1289,11 +1295,55 @@ def checkExpertCalls(filename, expertEntries):
             # expert_add_info(NULL, tree, &ei_oran_invalid_eaxc_bit_width);
             # OR
             # expert_add_info_format(pinfo, ti_data_length, &ei_data_length, "Data Length %d is too small, should be %d", data_length, payload_size - ECPRI_MSG_TYPE_4_PAYLOAD_MIN_LENGTH);
-            matches = re.finditer(r'expert_add_info(?:_format|)\s*\(([a-zA-Z_0-9]*)\s*,\s*([a-zA-Z_0-9]*)\s*,\s*(&[a-zA-Z_0-9]*)',
-                                  contents, re.MULTILINE | re.DOTALL)
+
+            #########################################################
+            # First pass through just to get number of calls
+            matches = expert_add_info_re.finditer(contents, re.MULTILINE | re.DOTALL)
             for m in matches:
+                # Lose '&'
+                item = m.group(3)[1:]
+                expertEntries.AddCall(item)
+
+            matches = expert_add_info_format_re.finditer(contents, re.MULTILINE | re.DOTALL)
+            for m in matches:
+                # Lose '&'
+                item = m.group(3)[1:]
+                expertEntries.AddCall(item)
+
+
+            #########################################################
+            # Second pass, look at in more details
+            matches = expert_add_info_re.finditer(contents, re.MULTILINE | re.DOTALL)
+            for m in matches:
+                # Lose '&'
                 item = m.group(3)[1:]
                 expertEntries.VerifyCall(item)
+
+            matches = expert_add_info_format_re.finditer(contents, re.MULTILINE | re.DOTALL)
+            for m in matches:
+                # Lose '&'
+                item = m.group(3)[1:]
+                format_string = m.group(4)
+                if '%' not in format_string:
+                    default_string = expertEntries.GetDefaultStringForItem(item)
+                    # The problem is that this is the number of calls *so far*...
+                    number_of_calls = expertEntries.NumberOfCalls(item)
+                    exact_match = (format_string == default_string)
+
+                    # Exact match is bad if there is only 1 call to it...
+                    if number_of_calls == 1 and exact_match:
+                        print('Error:', filename, 'calling expert_add_info_format() for', item, '- no format specifiers in',
+                              '"' + format_string + '" - which exactly matches expert item default! (only call)')
+                        if not isGeneratedFile(filename):
+                            errors_found += 1
+                    else:
+                        # There may be good reasons for this - they could be specializations..
+                        print('Note:', filename, 'calling expert_add_info_format() for', item, '- no format specifiers in',
+                              '"' + format_string + '" - default is ' +
+                              ('"' + default_string + '"') if default_string is not None else '<??>',
+                              '- total calls', number_of_calls, '(EXACT MATCH)' if exact_match else '')
+                expertEntries.VerifyCall(item)
+
 
 
 # These are the valid values from expert.h
@@ -1315,6 +1365,7 @@ class ExpertEntry:
         self.group = group
         self.severity = severity
         self.summary = summary
+        self.calls = 0
 
         global errors_found, warnings_found
 
@@ -1360,14 +1411,13 @@ class ExpertEntries:
     def AddEntry(self, entry):
         self.entries.append(entry)
 
-        global errors_found, warnings_found
+        global errors_found
 
         # If summaries are not unique, can't tell apart from expert window (need to look into frame to see details)
         # TODO: summary strings will never be seen if all calls to that item use expert_add_info_format()
         if (entry.summary, entry.severity) in self.summaries:
-            print('Warning:', self.filename, 'Expert summary', '"' + entry.summary + '"',
+            print('Note:', self.filename, 'Expert summary', '"' + entry.summary + '"',
                   'has already been seen (now in', entry.name, '- previously in', self.summary_reverselookup[entry.summary], ')')
-            warnings_found += 1
         self.summaries.add((entry.summary, entry.severity))
         self.summary_reverselookup[entry.summary] = entry.name
 
@@ -1379,11 +1429,18 @@ class ExpertEntries:
         self.filters.add(entry.filter)
         self.filter_reverselookup[entry.filter] = entry.name
 
+    def AddCall(self, item):
+        for entry in self.entries:
+            if entry.name == item:
+                # Found
+                entry.calls += 1
+                return
+
     def VerifyCall(self, item):
         # TODO: ignore if wasn't declared in self.filename?
         for entry in self.entries:
             if entry.name == item:
-                # Found,
+                # Found
                 return
 
         # None matched...
@@ -1391,6 +1448,19 @@ class ExpertEntries:
             global warnings_found
             print('Warning:', self.filename, 'Expert info added with', '"' + item + '"', 'was not registered (in this file)?')
             warnings_found += 1
+
+    def NumberOfCalls(self, item):
+        for entry in self.entries:
+            if entry.name == item:
+                return entry.calls
+        return 0
+
+    def GetDefaultStringForItem(self, item):
+        for entry in self.entries:
+            if entry.name == item:
+                # Found,
+                return entry.summary
+
 
 
 # The relevant parts of an hf item.  Used as value in dict where hf variable name is key.

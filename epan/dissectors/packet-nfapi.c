@@ -7739,7 +7739,7 @@ static void dissect_tlv_list(ptvcursor_t* ptvc, packet_info* pinfo, int len)
 					if (ptvcursor_current_offset(sub_ptvc) != tlv_len)
 					{
 						// error in the tlv length
-						expert_add_info_format(pinfo, tlv_length_item, &ei_invalid_tlv_length, "TLV length does not match decoded length");
+						expert_add_info(pinfo, tlv_length_item, &ei_invalid_tlv_length);
 					}
 
 					ptvcursor_free(sub_ptvc);
@@ -11319,7 +11319,7 @@ void proto_register_nfapi(void)
 	static ei_register_info ei[] =
 	{
 		{ &ei_invalid_range, { "nfapi.invalid.range", PI_PROTOCOL, PI_WARN, "Invalid range", EXPFILL } },
-		{ &ei_invalid_tlv_length, { "nfapi.invalid.tlv.length", PI_PROTOCOL, PI_ERROR, "Invalid TLV length", EXPFILL } },
+		{ &ei_invalid_tlv_length, { "nfapi.invalid.tlv.length", PI_PROTOCOL, PI_ERROR, "TLV length does not match decoded length", EXPFILL } },
 	};
 
 	expert_module_t* expert_nfapi;

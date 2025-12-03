@@ -238,8 +238,7 @@ dissect_pcomtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     hf_pcomtcp_reserved_item = proto_tree_add_item(pcomtcp_tree, hf_pcomtcp_reserved, tvb,
             offset, 1, ENC_NA);
     if(tvb_get_uint8(tvb, offset) !=0){
-            expert_add_info_format(pinfo, hf_pcomtcp_reserved_item,
-                    &ei_pcomtcp_reserved_bad_value,"Isn't 0");
+            expert_add_info(pinfo, hf_pcomtcp_reserved_item, &ei_pcomtcp_reserved_bad_value);
     }
     offset += 1;
     proto_tree_add_item(pcomtcp_tree, hf_pcomtcp_length, tvb,
@@ -395,8 +394,7 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset, tvb_reported_length(tvb)-offset-3, ENC_ASCII);
         offset += (tvb_reported_length(tvb)-offset-3); //-3 from checksum and etx
         if(cc_len <= 0){
-            expert_add_info_format(pinfo, hf_pcomascii_command_item,
-                    &ei_pcomascii_command_unsupported, "Unsupported Command");
+            expert_add_info(pinfo, hf_pcomascii_command_item, &ei_pcomascii_command_unsupported);
         }
     }
 
@@ -439,8 +437,7 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         hf_pcombinary_reserved1_item = proto_tree_add_item(pcombinary_tree,
                 hf_pcombinary_reserved1, tvb, offset, 1, ENC_NA);
         if(tvb_get_uint8(tvb, offset) !=254){
-            expert_add_info_format(pinfo, hf_pcombinary_reserved1_item,
-                    &ei_pcombinary_reserved1_bad_value,"Isn't 0xfe");
+            expert_add_info(pinfo, hf_pcombinary_reserved1_item, &ei_pcombinary_reserved1_bad_value);
         }
         offset += 1;
         proto_tree_add_item(pcombinary_tree, hf_pcombinary_id, tvb,
@@ -457,14 +454,12 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     hf_pcombinary_reserved2_item = proto_tree_add_item(pcombinary_tree,
             hf_pcombinary_reserved2, tvb, offset, 1, ENC_NA);
     if( tvb_get_uint8(tvb, offset) !=1)
-        expert_add_info_format(pinfo, hf_pcombinary_reserved2_item,
-                &ei_pcombinary_reserved2_bad_value,"Isn't 1");
+        expert_add_info(pinfo, hf_pcombinary_reserved2_item, &ei_pcombinary_reserved2_bad_value);
     offset += 1;
     hf_pcombinary_reserved3_item = proto_tree_add_item(pcombinary_tree,
             hf_pcombinary_reserved3, tvb, offset, 3, ENC_LITTLE_ENDIAN);
     if( tvb_get_letoh24(tvb,offset) != 0)
-        expert_add_info_format(pinfo, hf_pcombinary_reserved3_item,
-                &ei_pcombinary_reserved3_bad_value,"Isn't 0");
+        expert_add_info(pinfo, hf_pcombinary_reserved3_item, &ei_pcombinary_reserved3_bad_value);
     offset += 3;
 
     command = tvb_get_uint8(tvb, offset);
@@ -480,15 +475,13 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }else{
         hf_pcombinary_command_item = proto_tree_add_item(pcombinary_tree, hf_pcombinary_command, tvb,
                 offset, 1, ENC_NA);
-        expert_add_info_format(pinfo, hf_pcombinary_command_item,
-                &ei_pcombinary_command_unsupported,"Unsupported Command");}
+        expert_add_info(pinfo, hf_pcombinary_command_item, &ei_pcombinary_command_unsupported);}
     offset += 1;
 
     hf_pcombinary_reserved4_item = proto_tree_add_item(pcombinary_tree,
             hf_pcombinary_reserved4, tvb, offset, 1, ENC_NA);
     if( tvb_get_uint8(tvb, offset) !=0)
-        expert_add_info_format(pinfo, hf_pcombinary_reserved4_item,
-                &ei_pcombinary_reserved4_bad_value,"Isn't 0");
+        expert_add_info(pinfo, hf_pcombinary_reserved4_item, &ei_pcombinary_reserved4_bad_value);
     offset += 1;
     proto_tree_add_item(pcombinary_tree, hf_pcombinary_command_specific, tvb,
             offset, 6, ENC_NA);

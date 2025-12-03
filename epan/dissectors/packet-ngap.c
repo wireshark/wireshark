@@ -31387,9 +31387,7 @@ found:
         ngap_item = proto_tree_add_item(tree, proto_ngap, tvb, 0, -1, ENC_NA);
         ngap_tree = proto_item_add_subtree(ngap_item, ett_ngap);
         if (ngap_disable_nrppa_encapsulation && subdissector == nrppa_handle) {
-          expert_add_info_format(pinfo, ngap_item,
-                                 &ei_ngap_disable_nrppa_encapsulation,
-                                 "Encapsulation of NRPPa in NGAP is disabled");
+          expert_add_info(pinfo, ngap_item, &ei_ngap_disable_nrppa_encapsulation);
         }
     } else {
         ngap_tree = tree;

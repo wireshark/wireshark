@@ -11638,7 +11638,7 @@ example 2
                     continue;
                 }
                 if (((entryflag & BGP_ORF_ACTION) >> 6) > BGP_ORF_REMOVEALL) {
-                    expert_add_info_format(pinfo, ti1, &ei_bgp_route_refresh_orf_action_invalid, "Invalid ORF action");
+                    expert_add_info(pinfo, ti1, &ei_bgp_route_refresh_orf_action_invalid);
                     p++;
                     continue;
                 }
@@ -14617,7 +14617,7 @@ proto_register_bgp(void)
         { &ei_bgp_route_refresh_orf_type_unknown, { "bgp.route_refresh.orf.type.unknown", PI_UNDECODED, PI_WARN, "unknown ORF type", EXPFILL }},
         { &ei_bgp_route_refresh_orf_type_unsupported, { "bgp.route_refresh.orf.type.unsupported", PI_UNDECODED, PI_WARN, "ORF type: decoding not supported", EXPFILL }},
         { &ei_bgp_route_refresh_orf_type_unregistered, { "bgp.route_refresh.orf.type.unregistered", PI_MALFORMED, PI_ERROR, "ORF type: unregistered/non-IANA value", EXPFILL }},
-        { &ei_bgp_route_refresh_orf_action_invalid, { "bgp.route_refresh.orf.action.invalid", PI_MALFORMED, PI_ERROR, "ORF action: invalid value", EXPFILL }},
+        { &ei_bgp_route_refresh_orf_action_invalid, { "bgp.route_refresh.orf.action.invalid", PI_MALFORMED, PI_ERROR, "Invalid ORF action", EXPFILL }},
         { &ei_bgp_length_invalid, { "bgp.length.invalid", PI_MALFORMED, PI_ERROR, "Length is invalid", EXPFILL }},
         { &ei_bgp_prefix_length_invalid, { "bgp.prefix_length.invalid", PI_MALFORMED, PI_ERROR, "Prefix length is invalid", EXPFILL }},
         { &ei_bgp_afi_type_not_supported, { "bgp.afi_type_not_supported", PI_PROTOCOL, PI_ERROR, "AFI Type not supported", EXPFILL }},

@@ -629,7 +629,7 @@ dissect_tiff_single_urational(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_item_set_generated(approx_item);
     }
     else {
-        expert_add_info_format(pinfo, denom_ti, &ei_tiff_zero_denom, "Denominator is zero");
+        expert_add_info(pinfo, denom_ti, &ei_tiff_zero_denom);
     }
 }
 
@@ -1130,7 +1130,7 @@ proto_register_tiff(void)
         },
         { &ei_tiff_zero_denom,
             { "tiff.zero_denom", PI_PROTOCOL, PI_WARN,
-            "Zero denominator", EXPFILL }
+            "Denominator is zero", EXPFILL }
         },
 
     };

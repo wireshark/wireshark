@@ -579,9 +579,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                 break;
         }
         if (tlv_len != 0) {
-                expert_add_info_format(pinfo, length_item,
-                    &ei_msdp_tlv_len_too_long,
-                    "TLV length too long");
+                expert_add_info(pinfo, length_item, &ei_msdp_tlv_len_too_long);
                 proto_tree_add_item(tree, hf_msdp_trailing_junk, tvb, *offset, tlv_len, ENC_NA);
                 *offset += tlv_len;
         }

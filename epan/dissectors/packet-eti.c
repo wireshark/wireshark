@@ -11741,7 +11741,7 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                     else {
                         proto_item *e = proto_tree_add_string(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, "NO_VALUE ('0x00...')");
                         if (!usages[uidx])
-                            expert_add_info_format(pinfo, e, &ei_eti_missing, "required value is missing");
+                            expert_add_info(pinfo, e, &ei_eti_missing);
                     }
                 }
                 off += fields[fidx].size;
@@ -11808,11 +11808,11 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                             if (x == UINT8_MAX) {
                                 proto_item *e = proto_tree_add_uint_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0xff)");
                                 if (!usages[uidx])
-                                    expert_add_info_format(pinfo, e, &ei_eti_missing, "required value is missing");
+                                    expert_add_info(pinfo, e, &ei_eti_missing);
                             } else {
                                 proto_item *e = proto_tree_add_uint_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "%" PRIu8, x);
                                 if (usages[uidx] == 2)
-                                    expert_add_info_format(pinfo, e, &ei_eti_overused, "unused value is set");
+                                    expert_add_info(pinfo, e, &ei_eti_overused);
                             }
                         }
                         break;
@@ -11822,11 +11822,11 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                             if (x == UINT16_MAX) {
                                 proto_item *e = proto_tree_add_uint_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0xffff)");
                                 if (!usages[uidx])
-                                    expert_add_info_format(pinfo, e, &ei_eti_missing, "required value is missing");
+                                    expert_add_info(pinfo, e, &ei_eti_missing);
                             } else {
                                 proto_item *e = proto_tree_add_uint_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "%" PRIu16, x);
                                 if (usages[uidx] == 2)
-                                    expert_add_info_format(pinfo, e, &ei_eti_overused, "unused value is set");
+                                    expert_add_info(pinfo, e, &ei_eti_overused);
                             }
                         }
                         break;
@@ -11836,11 +11836,11 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                             if (x == UINT32_MAX) {
                                 proto_item *e = proto_tree_add_uint_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0xffffffff)");
                                 if (!usages[uidx])
-                                    expert_add_info_format(pinfo, e, &ei_eti_missing, "required value is missing");
+                                    expert_add_info(pinfo, e, &ei_eti_missing);
                             } else {
                                 proto_item *e = proto_tree_add_uint_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "%" PRIu32, x);
                                 if (usages[uidx] == 2)
-                                    expert_add_info_format(pinfo, e, &ei_eti_overused, "unused value is set");
+                                    expert_add_info(pinfo, e, &ei_eti_overused);
                             }
                         }
                         break;
@@ -11850,11 +11850,11 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                             if (x == UINT64_MAX) {
                                 proto_item *e = proto_tree_add_uint64_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0xffffffffffffffff)");
                                 if (!usages[uidx])
-                                    expert_add_info_format(pinfo, e, &ei_eti_missing, "required value is missing");
+                                    expert_add_info(pinfo, e, &ei_eti_missing);
                             } else {
                                 proto_item *e = proto_tree_add_uint64_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "%" PRIu64, x);
                                 if (usages[uidx] == 2)
-                                    expert_add_info_format(pinfo, e, &ei_eti_overused, "unused value is set");
+                                    expert_add_info(pinfo, e, &ei_eti_overused);
                             }
                         }
                         break;
@@ -11871,11 +11871,11 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                             if (x == INT8_MIN) {
                                 proto_item *e = proto_tree_add_int_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0x80)");
                                 if (!usages[uidx])
-                                    expert_add_info_format(pinfo, e, &ei_eti_missing, "required value is missing");
+                                    expert_add_info(pinfo, e, &ei_eti_missing);
                             } else {
                                 proto_item *e = proto_tree_add_int_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "%" PRIi8, x);
                                 if (usages[uidx] == 2)
-                                    expert_add_info_format(pinfo, e, &ei_eti_overused, "unused value is set");
+                                    expert_add_info(pinfo, e, &ei_eti_overused);
                             }
                         }
                         break;
@@ -11885,11 +11885,11 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                             if (x == INT16_MIN) {
                                 proto_item *e = proto_tree_add_int_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0x8000)");
                                 if (!usages[uidx])
-                                    expert_add_info_format(pinfo, e, &ei_eti_missing, "required value is missing");
+                                    expert_add_info(pinfo, e, &ei_eti_missing);
                             } else {
                                 proto_item *e = proto_tree_add_int_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "%" PRIi16, x);
                                 if (usages[uidx] == 2)
-                                    expert_add_info_format(pinfo, e, &ei_eti_overused, "unused value is set");
+                                    expert_add_info(pinfo, e, &ei_eti_overused);
                             }
                         }
                         break;
@@ -11899,11 +11899,11 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                             if (x == INT32_MIN) {
                                 proto_item *e = proto_tree_add_int_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0x80000000)");
                                 if (!usages[uidx])
-                                    expert_add_info_format(pinfo, e, &ei_eti_missing, "required value is missing");
+                                    expert_add_info(pinfo, e, &ei_eti_missing);
                             } else {
                                 proto_item *e = proto_tree_add_int_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "%" PRIi32, x);
                                 if (usages[uidx] == 2)
-                                    expert_add_info_format(pinfo, e, &ei_eti_overused, "unused value is set");
+                                    expert_add_info(pinfo, e, &ei_eti_overused);
                             }
                         }
                         break;
@@ -11913,11 +11913,11 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                             if (x == INT64_MIN) {
                                 proto_item *e = proto_tree_add_int64_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0x8000000000000000)");
                                 if (!usages[uidx])
-                                    expert_add_info_format(pinfo, e, &ei_eti_missing, "required value is missing");
+                                    expert_add_info(pinfo, e, &ei_eti_missing);
                             } else {
                                 proto_item *e = proto_tree_add_int64_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "%" PRIi64, x);
                                 if (usages[uidx] == 2)
-                                    expert_add_info_format(pinfo, e, &ei_eti_overused, "unused value is set");
+                                    expert_add_info(pinfo, e, &ei_eti_overused);
                             }
                         }
                         break;
@@ -11942,7 +11942,7 @@ dissect_eti_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                     if (x == INT64_MIN) {
                         proto_item *e = proto_tree_add_int64_format_value(t, hf_eti[fields[fidx].field_handle_idx], tvb, off, fields[fidx].size, x, "NO_VALUE (0x8000000000000000)");
                         if (!usages[uidx])
-                            expert_add_info_format(pinfo, e, &ei_eti_missing, "required value is missing");
+                            expert_add_info(pinfo, e, &ei_eti_missing);
                     } else {
                         unsigned slack = fields[fidx].counter_off + 1;
                         if (x < 0)
@@ -14253,11 +14253,11 @@ proto_register_eti(void)
         },
         {
             &ei_eti_missing,
-            { "eti.missing", PI_PROTOCOL, PI_WARN, "A required value is missing", EXPFILL }
+            { "eti.missing", PI_PROTOCOL, PI_WARN, "required value is missing", EXPFILL }
         },
         {
             &ei_eti_overused,
-            { "eti.overused", PI_PROTOCOL, PI_WARN, "An unused value is set", EXPFILL }
+            { "eti.overused", PI_PROTOCOL, PI_WARN, "unused value is set", EXPFILL }
         }
     };
     proto_eti = proto_register_protocol("Enhanced Trading Interface 10.0",
