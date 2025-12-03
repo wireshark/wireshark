@@ -17,6 +17,10 @@
 
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* only in fd_head: packet is defragmented */
 #define FD_DEFRAGMENTED		0x0001
 
@@ -1167,5 +1171,9 @@ WS_DLL_PUBLIC int
 additional_bytes_expected_to_complete_reassembly(streaming_reassembly_info_t* reassembly_info);
 
 /* ========================================================================= */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

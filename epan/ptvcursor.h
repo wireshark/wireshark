@@ -16,6 +16,10 @@
 #include <epan/packet.h>
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SUBTREE_UNDEFINED_LENGTH -1
 
 typedef struct ptvcursor ptvcursor_t;
@@ -129,5 +133,9 @@ ptvcursor_add_text_with_subtree(ptvcursor_t* ptvc, int length,
 WS_DLL_PUBLIC
 proto_tree*
 ptvcursor_set_subtree(ptvcursor_t* ptvc, proto_item* it, int ett_subtree);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __PTVCURSOR_H__ */
