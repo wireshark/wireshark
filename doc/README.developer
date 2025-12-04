@@ -700,6 +700,15 @@ particular, be very careful when using int8_t, uint8_t, int16_t, or uint16_t
 variables as loop indices; you almost always want to use an "int"/"gint"
 or "unsigned"/"guint" as the loop index rather than a shorter type.
 
+If you want to check if there is reported length left in the buffer and
+how much, call tvb_reported_length_remaining(tvb, offset) with the current
+offset each time. That function, like other API functions, checks for overflow
+and will return 0 if offset is greater than the reported length in the buffer.
+Retrieving the reported length early on, e.g. at the beginning of a function,
+and decrementing it in parallel with incrementing the offset can overflow,
+leading to serious issues. The overhead of an extra function call is worth
+having one fewer thing to check for overflow yourself.
+
 If you are fetching a length field from the buffer, corresponding to the
 length of a portion of the packet, and subtracting from that length a
 value corresponding to the length of, for example, a header in the
