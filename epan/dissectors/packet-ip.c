@@ -1026,15 +1026,8 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
         unsigned bit_spot = 0;
         unsigned byte_spot = 0;
         unsigned char bitmask;
-        char *cat_str;
-        char *cat_str_tmp = (char *)wmem_alloc(pinfo->pool, USHRT_MAX_STRLEN);
-        size_t cat_str_len;
+        wmem_strbuf_t* cat_str_buf = wmem_strbuf_new(pinfo->pool, "");
         const uint8_t *val_ptr = tvb_get_ptr(tvb, offset, taglen - 4);
-
-        /* this is just a guess regarding string size, but we grow it below
-         * if needed */
-        cat_str_len = 256;
-        cat_str = (char *)wmem_alloc0(pinfo->pool, cat_str_len);
 
         /* we checked the length above so the highest category value
          * possible here is 240 */
@@ -1043,21 +1036,10 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
           bit_spot = 0;
           while (bit_spot < 8) {
             if (val_ptr[byte_spot] & bitmask) {
-              snprintf(cat_str_tmp, USHRT_MAX_STRLEN, "%u",
-                         byte_spot * 8 + bit_spot);
-              if (cat_str_len < (strlen(cat_str) + 2 + USHRT_MAX_STRLEN)) {
-                char *cat_str_new;
+              if (wmem_strbuf_get_len(cat_str_buf) > 0)
+                wmem_strbuf_append_c(cat_str_buf, ',');
 
-                while (cat_str_len < (strlen(cat_str) + 2 + USHRT_MAX_STRLEN))
-                  cat_str_len += cat_str_len;
-                cat_str_new = (char *)wmem_alloc(pinfo->pool, cat_str_len);
-                (void) g_strlcpy(cat_str_new, cat_str, cat_str_len);
-                cat_str_new[cat_str_len - 1] = '\0';
-                cat_str = cat_str_new;
-              }
-              if (cat_str[0] != '\0')
-                (void) g_strlcat(cat_str, ",", cat_str_len);
-              (void) g_strlcat(cat_str, cat_str_tmp, cat_str_len);
+              wmem_strbuf_append_printf(cat_str_buf, "%u", byte_spot * 8 + bit_spot);
             }
             bit_spot++;
             bitmask >>= 1;
@@ -1065,8 +1047,8 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
           byte_spot++;
         }
 
-        if (cat_str)
-          proto_tree_add_string(field_tree, hf_ip_cipso_categories, tvb, offset, taglen - 4, cat_str);
+        if (wmem_strbuf_get_len(cat_str_buf) > 0)
+          proto_tree_add_string(field_tree, hf_ip_cipso_categories, tvb, offset, taglen - 4, wmem_strbuf_get_str(cat_str_buf));
         else
           proto_tree_add_string(field_tree, hf_ip_cipso_categories, tvb, offset, taglen - 4, "ERROR PARSING CATEGORIES");
         offset += taglen - 4;
@@ -1089,19 +1071,17 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
 
       if (taglen > 4) {
         int offset_max_cat = offset + taglen - 4;
-        char *cat_str = (char *)wmem_alloc0(pinfo->pool, USHRT_MAX_STRLEN * 15);
-        char *cat_str_tmp = (char *)wmem_alloc(pinfo->pool, USHRT_MAX_STRLEN);
+        wmem_strbuf_t* cat_str_buf = wmem_strbuf_new(pinfo->pool, "");
 
         while ((offset + 2) <= offset_max_cat) {
-          snprintf(cat_str_tmp, USHRT_MAX_STRLEN, "%u",
-                     tvb_get_ntohs(tvb, offset));
+          if (wmem_strbuf_get_len(cat_str_buf) > 0)
+            wmem_strbuf_append_c(cat_str_buf, ',');
+
+          wmem_strbuf_append_printf(cat_str_buf, "%u", tvb_get_ntohs(tvb, offset));
           offset += 2;
-          if (cat_str[0] != '\0')
-            (void) g_strlcat(cat_str, ",", USHRT_MAX_STRLEN * 15);
-          (void) g_strlcat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 15);
         }
 
-        proto_tree_add_string(field_tree, hf_ip_cipso_categories, tvb, offset - taglen + 4, taglen - 4, cat_str);
+        proto_tree_add_string(field_tree, hf_ip_cipso_categories, tvb, offset - taglen + 4, taglen - 4, wmem_strbuf_get_str(cat_str_buf));
       }
       break;
     case 5:
@@ -1122,8 +1102,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
       if (taglen > 4) {
         uint16_t cat_low, cat_high;
         int offset_max_cat = offset + taglen - 4;
-        char *cat_str = (char *)wmem_alloc0(pinfo->pool, USHRT_MAX_STRLEN * 16);
-        char *cat_str_tmp = (char *)wmem_alloc(pinfo->pool, USHRT_MAX_STRLEN * 2);
+        wmem_strbuf_t* cat_str_buf = wmem_strbuf_new(pinfo->pool, "");
 
         while ((offset + 2) <= offset_max_cat) {
           cat_high = tvb_get_ntohs(tvb, offset);
@@ -1134,18 +1113,16 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
             cat_low = 0;
             offset += 2;
           }
-          if (cat_low != cat_high)
-            snprintf(cat_str_tmp, USHRT_MAX_STRLEN * 2, "%u-%u",
-                       cat_high, cat_low);
-          else
-            snprintf(cat_str_tmp, USHRT_MAX_STRLEN * 2, "%u", cat_high);
+          if (wmem_strbuf_get_len(cat_str_buf) > 0)
+            wmem_strbuf_append_c(cat_str_buf, ',');
 
-          if (cat_str[0] != '\0')
-            (void) g_strlcat(cat_str, ",", USHRT_MAX_STRLEN * 16);
-          (void) g_strlcat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 16);
+          if (cat_low != cat_high)
+            wmem_strbuf_append_printf(cat_str_buf, "%u-%u", cat_high, cat_low);
+          else
+            wmem_strbuf_append_printf(cat_str_buf, "%u", cat_high);
         }
 
-        proto_tree_add_string(field_tree, hf_ip_cipso_categories, tvb, offset - taglen + 4, taglen - 4, cat_str);
+        proto_tree_add_string(field_tree, hf_ip_cipso_categories, tvb, offset - taglen + 4, taglen - 4, wmem_strbuf_get_str(cat_str_buf));
       }
       break;
     case 6:
