@@ -397,14 +397,18 @@ dissect_cbor_byte_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 		break;
 	}
 
-	if (length > INT32_MAX || *offset + (int)length < *offset) {
+	if (length > INT32_MAX) {
 		expert_add_info_format(pinfo, subtree, &ei_cbor_too_long_length,
 			"the length (%" PRIu64 ") of the byte string too long", length);
 		return false;
 	}
 
 	proto_item *item_data = proto_tree_add_item(subtree, hf_cbor_type_byte_string, tvb, *offset, (int)length, ENC_NA);
-	*offset += (int)length;
+	if (ckd_add(offset, *offset, length)) {
+		expert_add_info_format(pinfo, subtree, &ei_cbor_too_long_length,
+			"the length (%" PRIu64 ") of the byte string too long", length);
+		return false;
+	}
 
 	proto_item_append_text(item, ": (%" PRIu64 " byte%s)", length, plurality(length, "", "s"));
 	proto_item_set_end(item, tvb, *offset);
