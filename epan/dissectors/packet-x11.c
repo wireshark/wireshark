@@ -5137,7 +5137,13 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
             /*
              * Skip the X11 message.
              */
-            offset += plen;
+            if (ckd_add(&offset, offset, plen)) {
+                  /*
+                   * Make sure we don't overflow. (Depending on the opcode, we
+                   * might not have tried to dissect a plen's worth of bytes.)
+                   */
+                  break;
+            }
 
             sep = ",";
       }
@@ -5339,7 +5345,13 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                   }
             }
 
-            offset += plen;
+            if (ckd_add(&offset, offset, plen)) {
+                  /*
+                   * Make sure we don't overflow. (Depending on the opcode, we
+                   * might not have tried to dissect a plen's worth of bytes.)
+                   */
+                  break;
+            }
       }
 
       return;
