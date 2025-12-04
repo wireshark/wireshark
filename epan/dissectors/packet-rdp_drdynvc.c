@@ -16,6 +16,7 @@
 #include <epan/proto_data.h>
 #include <epan/conversation.h>
 #include <epan/crc32-tvb.h>
+#include <epan/tvbuff_rdp.h>
 #include "packet-rdp.h"
 #include "packet-rdpudp.h"
 
@@ -141,6 +142,8 @@ typedef struct {
 
 	drdynvc_pending_packet_t pending_cs;
 	drdynvc_pending_packet_t pending_sc;
+	zgfx_context_t *zgfx_cs;
+	zgfx_context_t *zgfx_sc;
 } drdynvc_channel_def_t;
 
 typedef struct _drdynvc_conv_info_t {
@@ -420,6 +423,8 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					channel->createConfirmFrameId = 0;
 					drdynvc_pending_packet_init(&channel->pending_cs, pinfo->num);
 					drdynvc_pending_packet_init(&channel->pending_sc, pinfo->num);
+					channel->zgfx_cs = zgfx_context_new(wmem_file_scope());
+					channel->zgfx_sc = zgfx_context_new(wmem_file_scope());
 
 					wmem_multimap_insert32(info->channels, &channel->channelId, pinfo->num, channel);
 #if 0
@@ -485,8 +490,9 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			}
 			break;
 		}
-		case DRDYNVC_DATA_FIRST_PDU: {
-			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Data first");
+		case DRDYNVC_DATA_FIRST_PDU:
+		case DRDYNVC_DATA_FIRST_COMPRESSED_PDU: {
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", (cmdId == DRDYNVC_DATA_FIRST_PDU) ? "Data first" : "Data compressed first");
 
 			if (channel) {
 				drdynvc_pdu_info_t *pduInfo = NULL;
@@ -505,6 +511,16 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 				);
 
 				if (!PINFO_FD_VISITED(pinfo)) {
+					tvbuff_t *input = tvb;
+					int offset2 = offset;
+
+					if (cmdId == DRDYNVC_DATA_FIRST_COMPRESSED_PDU) {
+						zgfx_context_t *compressor = isServerTarget ? channel->zgfx_cs : channel->zgfx_sc;
+						input = rdp8_decompress(compressor, wmem_file_scope(), tvb, offset);
+						offset2 = 0;
+						add_new_data_source(pinfo, input, "decompressed dynvc");
+					}
+
 					if (!isSinglePacket) {
 						if (pendingPacket->chunks)
 							wmem_destroy_array(pendingPacket->chunks);
@@ -515,7 +531,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 						pduInfo->startReassemblyFrame = pinfo->num;
 						pduInfo->progressStart = 0;
 						pduInfo->progressEnd = fullPduLen;
-						pduInfo->tvb = NULL;
+						pduInfo->tvb = (cmdId == DRDYNVC_DATA_FIRST_COMPRESSED_PDU) ? input : NULL;
 
 						wmem_tree_insert32(drdynvcPinfo->pdus, key, pduInfo);
 						wmem_array_append(pendingPacket->chunks, &pduInfo, 1);
@@ -524,7 +540,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 						pendingPacket->pendingLen = fullPduLen - payloadLen;
 						pendingPacket->startFrame = pinfo->num;
 						pendingPacket->currentPacket = wmem_array_sized_new(wmem_file_scope(), 1, fullPduLen);
-						wmem_array_append(pendingPacket->currentPacket, tvb_get_ptr(tvb, offset, payloadLen), payloadLen);
+						wmem_array_append(pendingPacket->currentPacket, tvb_get_ptr(input, offset2, payloadLen), payloadLen);
 					} else {
 						if (pendingPacket->pendingLen || pendingPacket->chunks)
 							printf("(%d) looks like we have a non completed packet...\n", pinfo->num);
@@ -573,8 +589,9 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			proto_tree_add_item(tree, hf_rdp_drdynvc_data, tvb, offset, -1, ENC_NA);
 			break;
 		}
-		case DRDYNVC_DATA_PDU: {
-			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Data");
+		case DRDYNVC_DATA_PDU:
+		case DRDYNVC_DATA_COMPRESSED_PDU: {
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", (cmdId == DRDYNVC_DATA_PDU) ? "Data" : "Data compressed");
 
 			if (channel) {
 				tvbuff_t *targetTvb = NULL;
@@ -590,6 +607,16 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 				if (!PINFO_FD_VISITED(pinfo)) {
 					drdynvc_pending_packet_t *pendingPacket = isServerTarget ? &channel->pending_cs : &channel->pending_sc;
+
+					tvbuff_t *input = tvb;
+					int offset2 = offset;
+
+					if (cmdId == DRDYNVC_DATA_COMPRESSED_PDU) {
+						zgfx_context_t *compressor = isServerTarget ? channel->zgfx_cs : channel->zgfx_sc;
+						input = rdp8_decompress(compressor, wmem_file_scope(), tvb, offset);
+						offset2 = 0;
+						add_new_data_source(pinfo, input, "decompressed dynvc");
+					}
 
 					pduInfo = wmem_alloc(wmem_file_scope(), sizeof(*pduInfo));
 					wmem_tree_insert32(drdynvcPinfo->pdus, key, pduInfo);
@@ -611,7 +638,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 						wmem_array_append(pendingPacket->chunks, &pduInfo, 1);
 
 						pendingPacket->pendingLen -= payloadLen;
-						wmem_array_append(pendingPacket->currentPacket, tvb_get_ptr(tvb, offset, payloadLen), payloadLen);
+						wmem_array_append(pendingPacket->currentPacket, tvb_get_ptr(input, offset2, payloadLen), payloadLen);
 
 						if (!pendingPacket->pendingLen) {
 							/* last packet of the reassembly */
@@ -634,7 +661,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 						pduInfo->progressStart = 0;
 						pduInfo->progressEnd = payloadLen;
 						pduInfo->packetLen = payloadLen;
-						pduInfo->tvb = NULL;
+						pduInfo->tvb = (input == tvb) ? NULL : input;
 						pduInfo->startReassemblyFrame = pduInfo->endReassemblyFrame = pinfo->num;
 					}
 				} else {
@@ -649,7 +676,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 					if (pduInfo->tvb) {
 						targetTvb = pduInfo->tvb;
-						add_new_data_source(pinfo, targetTvb, "Reassembled DRDYNVC");
+						add_new_data_source(pinfo, targetTvb, "Reassembled/decompressed DRDYNVC");
 					} else {
 						targetTvb = tvb_new_subset_remaining(tvb, offset);
 					}
@@ -693,12 +720,6 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			proto_tree_add_item(tree, hf_rdp_drdynvc_data, tvb, offset, -1, ENC_NA);
 			return tvb_reported_length(tvb);
 		}
-		case DRDYNVC_DATA_FIRST_COMPRESSED_PDU:
-			col_set_str(pinfo->cinfo, COL_INFO, "Data compressed first");
-			break;
-		case DRDYNVC_DATA_COMPRESSED_PDU:
-			col_set_str(pinfo->cinfo, COL_INFO, "Data compressed");
-			break;
 		case DRDYNVC_SOFT_SYNC_REQUEST_PDU: {
 			uint32_t ntunnels;
 			uint32_t flags;
