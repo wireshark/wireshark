@@ -8213,6 +8213,12 @@ static int hf_ieee80211_tag_channel_usage_mode;
 
 static int hf_ieee80211_ff_count;
 
+static int hf_ieee80211_tag_dms_id;
+static int hf_ieee80211_tag_dms_length;
+static int hf_ieee80211_tag_dms_req_type;
+static int hf_ieee80211_tag_dms_resp_type;
+static int hf_ieee80211_tag_dms_last_seq_control;
+
 /* ************************************************************************* */
 /*                              RFC 8110 fields                              */
 /* ************************************************************************* */
@@ -37305,6 +37311,110 @@ ieee80211_tag_channel_usage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   return tvb_captured_length(tvb);
 }
 
+static const range_string dms_req_type[] = {
+  { 0, 0, "Add" },
+  { 1, 1, "Remove" },
+  { 2, 2, "Change" },
+  { 3, 255, "Reserved" },
+  { 0, 0, NULL }
+};
+
+static int
+ieee80211_tag_dms_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+
+  if (tag_len < 3)
+  {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be at least 3", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_dms_id, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_dms_length, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_dms_req_type, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  /* There will be at least one tclass element ... */
+  while ((tvb_captured_length_remaining(tvb, offset) > 0) &&
+         tvb_get_uint8(tvb, offset) == TAG_TCLAS) {
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  }
+  /* There could be a TCLAS PROCESS element ... */
+  if ((tvb_captured_length_remaining(tvb, offset) > 0) &&
+      tvb_get_uint8(tvb, offset) == TAG_TCLAS_PROCESS) {
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  }
+  /* There could be a TSPEC element ... */
+  if ((tvb_captured_length_remaining(tvb, offset) > 0) &&
+      tvb_get_uint8(tvb, offset) == TAG_TSPEC) {
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  }
+  /* Subelements? */
+
+  return tvb_captured_length(tvb);
+}
+
+static const range_string dms_resp_type[] = {
+  { 0, 0, "Accept" },
+  { 1, 1, "Denied" },
+  { 2, 2, "Terminate" },
+  { 3, 3, "GCR Advertise" },
+  { 4, 255, "Reserved" },
+  { 0, 0, NULL }
+};
+
+static int
+ieee80211_tag_dms_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+
+  if (tag_len < 5)
+  {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be at least 5", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_dms_id, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_dms_length, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_dms_resp_type, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_dms_last_seq_control, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  /* There will be at least one tclass element ... */
+  while ((tvb_captured_length_remaining(tvb, offset) > 0) &&
+         tvb_get_uint8(tvb, offset) == TAG_TCLAS) {
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  }
+  /* There could be a TCLAS PROCESS element ... */
+  if ((tvb_captured_length_remaining(tvb, offset) > 0) &&
+      tvb_get_uint8(tvb, offset) == TAG_TCLAS_PROCESS) {
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  }
+  /* There could be a TSPEC element ... */
+  if ((tvb_captured_length_remaining(tvb, offset) > 0) &&
+      tvb_get_uint8(tvb, offset) == TAG_TSPEC) {
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  }
+  /* Subelements? */
+
+  return tvb_captured_length(tvb);
+}
+
 static void
 ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *tree, int tagged_parameters_len, int ftype,
@@ -61251,6 +61361,30 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ff_count,
      {"Count", "wlan.fixed.count",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_dms_id,
+     {"DMS ID", "wlan.dms.id",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_dms_length,
+     {"DMS Length", "wlan.dms.length",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_dms_req_type,
+     {"Request Type", "wlan.dms.request_type",
+      FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
+      RVALS(dms_req_type), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_dms_resp_type,
+     {"Response Type", "wlan.dms.response_type",
+      FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
+      RVALS(dms_resp_type), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_dms_last_seq_control,
+     {"Last Sequence Control", "wlan.dms.last_sequence_control",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -62592,6 +62726,8 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_TWT, create_dissector_handle(ieee80211_tag_twt, -1));
   dissector_add_uint("wlan.tag.number", TAG_RSNX, create_dissector_handle(ieee80211_tag_rsnx, -1));
   dissector_add_uint("wlan.tag.number", TAG_CHANNEL_USAGE, create_dissector_handle(ieee80211_tag_channel_usage, -1));
+  dissector_add_uint("wlan.tag.number", TAG_DMS_REQUEST, create_dissector_handle(ieee80211_tag_dms_request, -1));
+  dissector_add_uint("wlan.tag.number", TAG_DMS_RESPONSE, create_dissector_handle(ieee80211_tag_dms_response, -1));
 
   /* Vendor specific actions */
   dissector_add_uint("wlan.action.vendor_specific", OUI_MARVELL, create_dissector_handle(dissect_vendor_action_marvell, -1));
