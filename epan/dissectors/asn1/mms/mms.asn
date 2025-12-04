@@ -77,7 +77,7 @@ Unconfirmed-PDU ::= SEQUENCE
 	}
 
 
-Confirmed-ResponsePDU ::= SEQUENCE 
+Confirmed-ResponsePDU ::= SEQUENCE
 	{
 	invokeID			Unsigned32,
 	confirmedServiceResponse	ConfirmedServiceResponse,
@@ -85,7 +85,7 @@ Confirmed-ResponsePDU ::= SEQUENCE
 	}
 
 
-Confirmed-ErrorPDU ::= SEQUENCE 
+Confirmed-ErrorPDU ::= SEQUENCE
 	{
 	invokeID 			[0]	IMPLICIT Unsigned32,
 	modifierPosition		[1]	IMPLICIT Unsigned32 OPTIONAL,
@@ -93,7 +93,7 @@ Confirmed-ErrorPDU ::= SEQUENCE
 	}
 
 
-UnconfirmedService ::= CHOICE 
+UnconfirmedService ::= CHOICE
 	{
 	informationReport		[0]	IMPLICIT InformationReport,
 	unsolicitedStatus		[1]	IMPLICIT UnsolicitedStatus,
@@ -110,7 +110,7 @@ Modifier ::= CHOICE
 	}
 
 
-ConfirmedServiceRequest  ::= CHOICE 
+ConfirmedServiceRequest  ::= CHOICE
 	{
 	status					[0] IMPLICIT Status-Request,
 	getNameList				[1] IMPLICIT GetNameList-Request,
@@ -305,7 +305,7 @@ Unsigned16 ::= INTEGER
 Unsigned32 ::= INTEGER
 
 
-ObjectName ::= CHOICE 
+ObjectName ::= CHOICE
 	{
 	vmd-specific		[0] IMPLICIT Identifier,
 	domain-specific		[1] IMPLICIT SEQUENCE
@@ -385,11 +385,11 @@ ParameterSupportOptions ::= BIT STRING {
 	}
 
 
-ServiceSupportOptions ::= BIT STRING 
+ServiceSupportOptions ::= BIT STRING
 	{
 	status					(0),
-	getNameList				(1), 	
-	identify				(2), 		
+	getNameList				(1),
+	identify				(2),
 	rename					(3),
 	read					(4),
 	write					(5),
@@ -397,11 +397,11 @@ ServiceSupportOptions ::= BIT STRING
 	defineNamedVariable			(7),
 	defineScatteredAccess			(8),
 	getScatteredAccessAttributes		(9),
-	deleteVariableAccess			(10),	
+	deleteVariableAccess			(10),
 	defineNamedVariableList			(11),
 	getNamedVariableListAttributes		(12),
 	deleteNamedVariableList			(13),
-	defineNamedType				(14),	
+	defineNamedType				(14),
 	getNamedTypeAttributes			(15),
 	deleteNamedType				(16),
 	input					(17),
@@ -496,17 +496,17 @@ Cancel-ErrorPDU ::= SEQUENCE
 
 ------------------------------ Service-Error --------------------------------
 
-ServiceError ::= SEQUENCE 
-	{	
+ServiceError ::= SEQUENCE
+	{
 	errorClass	[0] CHOICE
-		{ 
-		vmd-state 	[0] IMPLICIT INTEGER  	
-			{	
-			other 					(0),		       
-			vmd-state-conflict 			(1),	
-			vmd-operational-problem 		(2), 
+		{
+		vmd-state 	[0] IMPLICIT INTEGER
+			{
+			other 					(0),
+			vmd-state-conflict 			(1),
+			vmd-operational-problem 		(2),
 			domain-transfer-problem 		(3),
-			state-machine-id-invalid 		(4)	
+			state-machine-id-invalid 		(4)
                   	},
 		application-reference 	[1] IMPLICIT INTEGER
 		       	{
@@ -536,7 +536,7 @@ ServiceError ::= SEQUENCE
 			capability-unknown			(5)
 		       	},
 		service 			[4] IMPLICIT INTEGER
-			{	
+			{
 			other 					(0),
 			primitives-out-of-sequence		(1),
 			object-sate-conflict			(2),
@@ -545,14 +545,14 @@ ServiceError ::= SEQUENCE
 			object-constraint-conflict		(5)
 		      	},
 		service-preempt 		[5] IMPLICIT INTEGER
-		      	{	
+		      	{
 			other					(0),
 			timeout					(1),
 			deadlock				(2),
 			cancel					(3)
 		      	},
 		time-resolution 		[6] IMPLICIT INTEGER
-		      	{	
+		      	{
 			other					(0),
 			unsupportable-time-resolution 		(1)
 		      	},
@@ -680,9 +680,9 @@ ServiceError ::= SEQUENCE
 RejectPDU ::= SEQUENCE
 	{
 	originalInvokeID		[0] IMPLICIT Unsigned32 OPTIONAL,
-	rejectReason 			    CHOICE 
+	rejectReason 			    CHOICE
 		{
-		confirmed-requestPDU		[1] IMPLICIT INTEGER 
+		confirmed-requestPDU		[1] IMPLICIT INTEGER
 			{
 			other					(0),
 			unrecognized-service			(1),
@@ -695,32 +695,32 @@ RejectPDU ::= SEQUENCE
 			value-out-of-range			(9)
 			},
 
-		confirmed-responsePDU		[2] IMPLICIT INTEGER 
+		confirmed-responsePDU		[2] IMPLICIT INTEGER
 			{
 			other					(0),
 			unrecognized-service			(1),
 			invalid-invokeID			(2),
 			invalid-result				(3),
 			max-recursion-exceeded			(5),
-			value-out-of-range			(6) 	
+			value-out-of-range			(6)
 			},
-		
-		confirmed-errorPDU		[3] IMPLICIT INTEGER 
+
+		confirmed-errorPDU		[3] IMPLICIT INTEGER
 			{
 			other					(0),
 			unrecognized-service			(1),
 			invalid-invokeID			(2),
 			invalid-serviceError			(3),
-			value-out-of-range			(4) 	 
-			} ,		
-			
+			value-out-of-range			(4)
+			} ,
+
 		unconfirmedPDU			[4] IMPLICIT INTEGER
 			{
 			other					(0),
 			unrecognized-service			(1),
 			invalid-argument			(2),
 			max-recursion-exceeded			(3),
-			value-out-of-range			(4) 	
+			value-out-of-range			(4)
 			},
 
 		pdu-error			[5] IMPLICIT INTEGER
@@ -733,13 +733,13 @@ RejectPDU ::= SEQUENCE
 		cancel-requestPDU		[6] IMPLICIT INTEGER
 			{
 			other					(0),
-			invalid-invokeID			(1)	
+			invalid-invokeID			(1)
 			},
 
 		cancel-responsePDU	        [7] IMPLICIT INTEGER
 			{
 			other					(0),
-			invalid-invokeID			(1)	
+			invalid-invokeID			(1)
 			},
 
 		cancel-errorPDU			[8] IMPLICIT INTEGER
@@ -747,26 +747,26 @@ RejectPDU ::= SEQUENCE
 			other					(0),
 			invalid-invokeID			(1),
 			invalid-serviceError			(2),
-			value-out-of-range			(3) 	
+			value-out-of-range			(3)
 			},
 
 		conclude-requestPDU		[9] IMPLICIT INTEGER
 			{
 			other					(0),
-			invalid-argument			(1)	
+			invalid-argument			(1)
 			},
 
 		conclude-responsePDU	        [10] IMPLICIT INTEGER
 			{
 			other					(0),
-			invalid-result				(1)	
+			invalid-result				(1)
 			},
 
 		conclude-errorPDU		[11] IMPLICIT INTEGER
 			{
 			other					(0),
 			invalid-serviceError			(1),
-			value-out-of-range			(2) 	
+			value-out-of-range			(2)
 			}
 		}
 	}
@@ -853,7 +853,7 @@ Identify-Response ::= SEQUENCE {
 
 ---------------------------------- RENAME --------------------------------
 
-Rename-Request ::= SEQUENCE 
+Rename-Request ::= SEQUENCE
 	{
 	extendedObjectClass	[0] CHOICE {
 	objectClass			[0] IMPLICIT INTEGER
@@ -925,8 +925,8 @@ TerminateDownloadSequence-Request ::= SEQUENCE
 	domainName	[0] IMPLICIT Identifier,
 	discard		[1] IMPLICIT ServiceError OPTIONAL
 	}
-	
-TerminateDownloadSequence-Response ::= NULL 
+
+TerminateDownloadSequence-Response ::= NULL
 
 -- INITIATE UPLOAD
 
@@ -1004,11 +1004,11 @@ StoreDomainContent-Response ::= NULL
 
 -- DELETE DOMAIN
 
-DeleteDomain-Request ::= Identifier	-- Domain Name 
+DeleteDomain-Request ::= Identifier	-- Domain Name
 
 DeleteDomain-Response ::= NULL
 
--- GET DOMAIN ATTRIBUTES 
+-- GET DOMAIN ATTRIBUTES
 
 GetDomainAttributes-Request ::= Identifier	-- Domain Name
 
@@ -1067,7 +1067,7 @@ DeleteProgramInvocation-Response ::= NULL
 
 -- START
 
-Start-Request ::= SEQUENCE	
+Start-Request ::= SEQUENCE
 	{
 	programInvocationName 	[0] IMPLICIT Identifier,
 	executionArgument	CHOICE {
@@ -1082,7 +1082,7 @@ Start-Error ::= ProgramInvocationState
 
 -- STOP
 
-Stop-Request ::= SEQUENCE 
+Stop-Request ::= SEQUENCE
 	{
 	programInvocationName	[0] IMPLICIT Identifier
 	}
@@ -1108,7 +1108,7 @@ Resume-Error ::= ProgramInvocationState
 
 -- RESET
 
-Reset-Request ::= SEQUENCE 
+Reset-Request ::= SEQUENCE
 	{
 	programInvocationName	[0] IMPLICIT Identifier
 	}
@@ -1133,7 +1133,7 @@ GetProgramInvocationAttributes-Request ::= Identifier	-- Program Invocation Name
 GetProgramInvocationAttributes-Response ::= SEQUENCE
 	{
 	state			[0] IMPLICIT ProgramInvocationState,
-	listOfDomainNames	[1] IMPLICIT SEQUENCE OF Identifier,			
+	listOfDomainNames	[1] IMPLICIT SEQUENCE OF Identifier,
 	mmsDeletable		[2] IMPLICIT BOOLEAN,
 	reusable		[3] IMPLICIT BOOLEAN,
 	monitor			[4] IMPLICIT BOOLEAN,
@@ -1163,7 +1163,7 @@ ProgramInvocationState ::= INTEGER
 -- *********************************** VARIABLES ****************************************
 
 
-TypeSpecification ::= CHOICE 
+TypeSpecification ::= CHOICE
 	{
 	typeName		[0] ObjectName,
 	array			[1] IMPLICIT SEQUENCE
@@ -1181,7 +1181,7 @@ TypeSpecification ::= CHOICE
 			componentType		[1] TypeSpecification
 			}
 		},
-	
+
 	-- Simple Type
 	boolean			[3] IMPLICIT NULL,
 	bit-string		[4] IMPLICIT Integer32,
@@ -1198,22 +1198,22 @@ TypeSpecification ::= CHOICE
 AlternateAccess ::= SEQUENCE OF CHOICE
 	{
 	unnamed	AlternateAccessSelection,
-	named		[5] IMPLICIT SEQUENCE 
+	named		[5] IMPLICIT SEQUENCE
 		{
 		componentName	[0] IMPLICIT Identifier,
 		accesst		AlternateAccessSelection
 		}
 	}
 
-AlternateAccessSelection ::= CHOICE 
+AlternateAccessSelection ::= CHOICE
     {
-    selectAlternateAccess    [0] IMPLICIT SEQUENCE 
+    selectAlternateAccess    [0] IMPLICIT SEQUENCE
        {
-       accessSelection CHOICE 
+       accessSelection CHOICE
           {
           component    [0] IMPLICIT Identifier,
           index        [1] IMPLICIT Unsigned32,
-          indexRange   [2] IMPLICIT SEQUENCE 
+          indexRange   [2] IMPLICIT SEQUENCE
              {
              lowIndex            [0] IMPLICIT Unsigned32,
              numberOfElements    [1] IMPLICIT Unsigned32},
@@ -1221,11 +1221,11 @@ AlternateAccessSelection ::= CHOICE
              },
           alternateAccess  AlternateAccess
           },
-    selectAccess CHOICE 
+    selectAccess CHOICE
        {
        component    [1] IMPLICIT Identifier,
        index        [2] IMPLICIT Unsigned32,
-       indexRange   [3] IMPLICIT SEQUENCE 
+       indexRange   [3] IMPLICIT SEQUENCE
           {
           lowIndex          [0] IMPLICIT Unsigned32,
           nmberOfElements  [1] IMPLICIT Unsigned32
@@ -1340,7 +1340,7 @@ DeleteVariableAccess-Request ::= SEQUENCE
 		specific		(0),
 		aa-specific		(1),
 		domain			(2),
-		vmd			(3) 
+		vmd			(3)
 		} DEFAULT specific,
 	listOfName		[1] IMPLICIT SEQUENCE OF ObjectName OPTIONAL,
 	domainName		[2] IMPLICIT Identifier OPTIONAL
@@ -1378,7 +1378,7 @@ GetNamedVariableListAttributes-Request ::= ObjectName	-- VariableListName
 GetNamedVariableListAttributes-Response ::= SEQUENCE
 	{
 	mmsDeletable		[0] IMPLICIT BOOLEAN,
-	listOfVariable		[1] IMPLICIT SEQUENCE OF SEQUENCE 
+	listOfVariable		[1] IMPLICIT SEQUENCE OF SEQUENCE
 		{
 		variableSpecification 		VariableSpecification,
 		alternateAccess			[5] IMPLICIT AlternateAccess OPTIONAL
@@ -1394,7 +1394,7 @@ DeleteNamedVariableList-Request ::= SEQUENCE
 		specific			(0),
 		aa-specific			(1),
 		domain				(2),
-		vmd				(3) 
+		vmd				(3)
 		} DEFAULT specific,
 	listOfVariableListName	[1] IMPLICIT SEQUENCE OF ObjectName OPTIONAL,
 	domainName			[2] IMPLICIT Identifier OPTIONAL
@@ -1412,7 +1412,7 @@ DeleteNamedVariableList-Error ::= Unsigned32	--	number Deleted
 
 -- DEFINE NAMED TYPE
 
-DefineNamedType-Request ::= SEQUENCE 
+DefineNamedType-Request ::= SEQUENCE
 	{
 	typeName		ObjectName,
 	typeSpecification	TypeSpecification
@@ -1430,7 +1430,7 @@ GetNamedTypeAttributes-Response ::= SEQUENCE
 	{
 	mmsDeletable		[0] IMPLICIT BOOLEAN,
 	typeSpecification	TypeSpecification
-	} 
+	}
 
 -- DELETE NAMED TYPE
 
@@ -1441,7 +1441,7 @@ DeleteNamedType-Request ::= SEQUENCE
 		specific		(0),
 		aa-specific		(1),
 		domain			(2),
-		vmd			(3) 
+		vmd			(3)
 		} DEFAULT specific,
 	listOfTypeName		[1] IMPLICIT SEQUENCE OF ObjectName OPTIONAL,
 	domainName		[2] IMPLICIT Identifier OPTIONAL
@@ -1457,7 +1457,7 @@ DeleteNamedType-Error ::= Unsigned32	--	number Deleted
 
 -- SUPPORT DEFINITIONS
 
-AccessResult ::= CHOICE 
+AccessResult ::= CHOICE
     {
     failure  [0] IMPLICIT DataAccessError,
     success  Data
@@ -1501,10 +1501,10 @@ Data ::= CHOICE
     objId               [15] IMPLICIT OBJECT IDENTIFIER,
   ...,
     mMSString           [16] IMPLICIT MMSString,
-    utc-time            [17] IMPLICIT UtcTime				-- added by IEC61850 8.1 G3	
+    utc-time            [17] IMPLICIT UtcTime				-- added by IEC61850 8.1 G3
     }
 
-UtcTime ::= OCTET STRING    		                        -- added by IEC61850 8.1 G3	
+UtcTime ::= OCTET STRING    		                        -- added by IEC61850 8.1 G3
 
 FloatingPoint ::= OCTET STRING
 
@@ -1520,7 +1520,7 @@ VariableAccessSpecification ::= CHOICE
 	}
 
 
-ScatteredAccessDescription ::= SEQUENCE OF SEQUENCE 
+ScatteredAccessDescription ::= SEQUENCE OF SEQUENCE
 	{
 	componentName		[0] IMPLICIT Identifier OPTIONAL,
 	variableSpecification	[1] VariableSpecification,
@@ -1564,7 +1564,7 @@ TakeControl-Request ::= SEQUENCE
 	}
 
 TakeControl-Response ::= CHOICE
-	{	
+	{
 	noResult		[0] IMPLICIT NULL,
 	namedToken		[1] IMPLICIT Identifier
 	}
@@ -1665,7 +1665,7 @@ AttachToSemaphore ::= SEQUENCE
 
 
 SemaphoreEntry ::= SEQUENCE
-	{	
+	{
 	entryId				[0] IMPLICIT OCTET STRING,
 	entryClass			[1] IMPLICIT INTEGER
 		{
@@ -1851,7 +1851,7 @@ DeleteEventEnrollment-Response ::= Unsigned32	-- candidates not deleted
 
 GetEventEnrollmentAttributes-Request ::= SEQUENCE
 	{
-	scopeOfRequest		[0] IMPLICIT INTEGER 
+	scopeOfRequest		[0] IMPLICIT INTEGER
 		{
 		specific	(0),
 		client		(1),
@@ -1938,16 +1938,16 @@ GetAlarmSummary-Request ::= SEQUENCE
 	{
 	enrollmentsOnly			[0] IMPLICIT BOOLEAN DEFAULT TRUE,
 	activeAlarmsOnly		[1] IMPLICIT BOOLEAN DEFAULT TRUE,
-	acknowledgmentFilter		[2] IMPLICIT INTEGER 
+	acknowledgmentFilter		[2] IMPLICIT INTEGER
 		{
 		not-acked			(0),
 		acked				(1),
-		all				(2) 
+		all				(2)
 		} DEFAULT not-acked,
 	severityFilter			[3] IMPLICIT SEQUENCE
 		{
 		mostSevere			[0] IMPLICIT Unsigned8,
-		leastSevere			[1] IMPLICIT Unsigned8 
+		leastSevere			[1] IMPLICIT Unsigned8
 		} OPTIONAL,
 	continueAfter			[5] ObjectName OPTIONAL
 	}
@@ -1980,16 +1980,16 @@ GetAlarmEnrollmentSummary-Request ::= SEQUENCE
 	{
 	enrollmentsOnly			[0] IMPLICIT BOOLEAN DEFAULT TRUE,
 	activeAlarmsOnly		[1] IMPLICIT BOOLEAN DEFAULT TRUE,
-	acknowledgmentFilter		[2] IMPLICIT INTEGER 
+	acknowledgmentFilter		[2] IMPLICIT INTEGER
 		{
 		not-acked			(0),
 		acked				(1),
-		all				(2) 
+		all				(2)
 		} DEFAULT not-acked,
 	severityFilter			[3] IMPLICIT SEQUENCE
 		{
 		mostSevere			[0] IMPLICIT Unsigned8,
-		leastSevere			[1] IMPLICIT Unsigned8 
+		leastSevere			[1] IMPLICIT Unsigned8
 		} OPTIONAL,
 	continueAfter			[5] ObjectName OPTIONAL
 	}
@@ -2187,7 +2187,7 @@ ReportJournalStatus-Response ::= SEQUENCE
 	{
 	currentEntries		[0] IMPLICIT Unsigned32,
 	mmsDeletable		[1] IMPLICIT  BOOLEAN
-	}	
+	}
 
 -- CREATE JOURNAL
 
