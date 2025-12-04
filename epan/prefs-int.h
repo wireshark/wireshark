@@ -228,7 +228,7 @@ WS_DLL_PUBLIC color_t* prefs_get_color_value(pref_t *pref, pref_source_t source)
 WS_DLL_PUBLIC unsigned int prefs_set_custom_value(pref_t *pref, const char *value, pref_source_t source);
 
 WS_DLL_PUBLIC unsigned int prefs_set_string_value(pref_t *pref, const char* value, pref_source_t source);
-WS_DLL_PUBLIC char* prefs_get_string_value(pref_t *pref, pref_source_t source);
+WS_DLL_PUBLIC const char *prefs_get_string_value(pref_t *pref, pref_source_t source);
 
 WS_DLL_PUBLIC struct epan_uat* prefs_get_uat_value(pref_t *pref);
 
@@ -239,7 +239,7 @@ WS_DLL_PUBLIC bool prefs_add_decode_as_value(pref_t *pref, unsigned value, bool 
 WS_DLL_PUBLIC bool prefs_remove_decode_as_value(pref_t *pref, unsigned value, bool set_default);
 
 WS_DLL_PUBLIC unsigned int prefs_set_password_value(pref_t *pref, const char* value, pref_source_t source);
-WS_DLL_PUBLIC char* prefs_get_password_value(pref_t *pref, pref_source_t source);
+WS_DLL_PUBLIC const char *prefs_get_password_value(pref_t *pref, pref_source_t source);
 
 WS_DLL_PUBLIC bool prefs_add_list_value(pref_t *pref, void *value, pref_source_t source);
 WS_DLL_PUBLIC GList* prefs_get_list_value(pref_t *pref, pref_source_t source);

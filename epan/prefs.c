@@ -1466,7 +1466,7 @@ prefs_set_string_value(pref_t *pref, const char* value, pref_source_t source)
     return changed;
 }
 
-char* prefs_get_string_value(pref_t *pref, pref_source_t source)
+const char *prefs_get_string_value(pref_t *pref, pref_source_t source)
 {
     switch (source)
     {
@@ -5060,7 +5060,7 @@ unsigned prefs_get_uint_value(pref_t *pref, pref_source_t source)
     return 0;
 }
 
-char* prefs_get_password_value(pref_t *pref, pref_source_t source)
+const char *prefs_get_password_value(pref_t *pref, pref_source_t source)
 {
     return prefs_get_string_value(pref, source);
 }
