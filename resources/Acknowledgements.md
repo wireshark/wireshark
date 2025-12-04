@@ -18,7 +18,7 @@ Some icons made by [Freepik](https://www.freepik.com) from <https://www.flaticon
 
 Insecure.Com LLC ("The Nmap Project") has granted the Wireshark Foundation permission to distribute [Npcap](https://npcap.com) with our Windows installers.
 
-We use the overflow-safe math functions from the [portable snippets](https://github.com/nemequ/portable-snippets) repository.
+We use the [jtckdint](https://github.com/jart/jtckdint) implementation of C23 checked arithmetic written by Justine Tunney <jtunney[AT]gmail.com>.
 
 We use the [Lrexlib](https://github.com/rrthomas/lrexlib) Lua library, specifically the PCRE2 flavour, to provide a regular expression API for Lua.
 
