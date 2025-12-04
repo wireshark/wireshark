@@ -1365,7 +1365,7 @@ dissect_ipreach_subclv(tvbuff_t *tvb, packet_info *pinfo,  proto_tree *tree, pro
  *
  *   The extended IP reachability TLV is an extended version
  *   of the IP reachability TLVs (codes 128 and 130). It encodes
- *   the metric as a 32-bit unsigned interger and allows to add
+ *   the metric as a 32-bit unsigned integer and allows to add
  *   sub-CLV(s).
  *
  *   CALLED BY TLV 235 DISSECTOR

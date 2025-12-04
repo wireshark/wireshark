@@ -3411,7 +3411,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	/* Loosen the heuristic a bit to handle the case where data has intentionally
 	 * been added after the snmp PDU ( UDP case) (#3684)
 	 * If this is fragmented or carried in ICMP, we don't expect the tvb to
-	 * have the full legnth, so don't check.
+	 * have the full length, so don't check.
 	 */
 	if (!pinfo->fragmented && !pinfo->flags.in_error_pkt) {
 	    if ( pinfo->ptype == PT_UDP ) {

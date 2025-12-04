@@ -72,13 +72,13 @@ typedef int (*ber_type_fn)(bool, tvbuff_t*, int, asn1_ctx_t *actx, proto_tree*, 
  */
 
 
-/* this function dissects the identifier octer of the BER TLV.
+/* this function dissects the identifier octet of the BER TLV.
  * We only handle TAGs (and LENGTHs) that fit inside 32 bit integers.
  */
 WS_DLL_PUBLIC int get_ber_identifier(tvbuff_t *tvb, int offset, int8_t *ber_class, bool *pc, int32_t *tag);
 WS_DLL_PUBLIC int dissect_ber_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, int8_t *ber_class, bool *pc, int32_t *tag);
 WS_DLL_PUBLIC int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
-/* this function dissects the identifier octer of the BER TLV.
+/* this function dissects the identifier octet of the BER TLV.
  * We only handle (TAGs and) LENGTHs that fit inside 32 bit integers.
  */
 WS_DLL_PUBLIC int get_ber_length(tvbuff_t *tvb, int offset, uint32_t *length, bool *ind);

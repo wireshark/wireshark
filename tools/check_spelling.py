@@ -11,12 +11,15 @@ import re
 import argparse
 import signal
 import glob
+import io
 
 from spellchecker import SpellChecker
 from collections import Counter
 from html.parser import HTMLParser
 import urllib.request
 from check_common import bcolors, getFilesFromOpen, getFilesFromCommits, isGeneratedFile, removeComments
+
+import concurrent.futures
 
 # Looks for spelling errors among strings found in source or documentation files.
 # N.B.,
@@ -160,6 +163,8 @@ class File:
 
     # Check the spelling of all the words we have found
     def spellCheck(self):
+        output = io.StringIO()
+        local_missing_words = []
 
         num_values = len(self.values)
         for value_index, v in enumerate(self.values):
@@ -212,24 +217,26 @@ class File:
                 if self.numberPlusUnits(word):
                     continue
 
-                global missing_words
-
                 # Is it a known bad (wikipedia) word?
                 if word in wiki_db:
                     print(bcolors.BOLD,
                           self.file, value_index, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
                           "(wikipedia-flags => " + wiki_db[word] + ")",
-                          '-> ', '?')
-                    missing_words.append(word)
+                          '-> ', '?', file=output)
+                    local_missing_words.append(word)
 
                 elif len(word) > 4 and spell.unknown([word]) and not self.checkMultiWords(word) and not self.wordBeforeId(word):
                     # Highlight words that appeared in Wikipedia list.
                     print(self.file, value_index, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
-                          '-> ', '?')
+                          '-> ', '?', file=output)
 
                     # TODO: this can be interesting, but takes too long!
                     # bcolors.OKGREEN + spell.correction(word) + bcolors.ENDC
-                    missing_words.append(word)
+                    local_missing_words.append(word)
+
+        contents = output.getvalue()
+        output.close()
+        return (contents, local_missing_words)
 
 
 def removeWhitespaceControl(code_string):
@@ -334,7 +341,7 @@ def findStrings(filename, check_comments=False):
                 # Add to dict.
                 spell.word_frequency.load_words([protocol])
                 spell.known([protocol])
-                print('Protocol is: ' + bcolors.BOLD + protocol + bcolors.ENDC)
+                #print('Protocol is: ' + bcolors.BOLD + protocol + bcolors.ENDC)
 
             # Code so only checking strings.
             matches = re.finditer(r'\"([^\"]*)\"', contents)
@@ -351,6 +358,9 @@ def findStrings(filename, check_comments=False):
 def isAppropriateFile(filename):
     file, extension = os.path.splitext(filename)
     if 'CMake' in filename:
+        return False
+    if filename == os.path.join('epan', 'manuf-data.c') or \
+       filename == os.path.join('epan', 'dissectors', 'packet-ncsi-data.c'):
         return False
     # TODO: add , '.lua' ?
     return extension in {'.adoc', '.c', '.h', '.cpp', '.pod', '.txt'} or file.endswith('README')
@@ -381,10 +391,11 @@ def checkFile(filename, check_comments=False):
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
         print(filename, 'does not exist!')
-        return
+        return '', []
 
     file = findStrings(filename, check_comments)
-    file.spellCheck()
+    output, local_missing_words = file.spellCheck()
+    return output, local_missing_words
 
 
 #################################################################
@@ -486,6 +497,7 @@ if args.file:
             files.append(f)
 if args.commits:
     files = getFilesFromCommits(args.commits, onlyDissectors=False)
+    files = [f for f in files if isAppropriateFile(f) and not isGeneratedFile(f)]
 if args.open:
     # Unstaged changes.
     files = getFilesFromOpen(onlyDissectors=False)
@@ -531,12 +543,17 @@ else:
 
 
 # Now check the chosen files.
-for f in files:
-    # Check this file.
-    checkFile(f, check_comments=args.comments)
-    # But get out if control-C has been pressed.
-    if should_exit:
-        exit(1)
+with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
+    future_to_file_output = {executor.submit(checkFile, file, args.comments): file for file in files}
+    for future in concurrent.futures.as_completed(future_to_file_output):
+        # Result is ready, get output and list of missing words
+        output, local_missing_words = future.result()
+        # Show output now, and append missing words
+        print(output)
+        missing_words += local_missing_words
+
+        if should_exit:
+            exit(1)
 
 
 # Show the most commonly not-recognised words.

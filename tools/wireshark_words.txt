@@ -1989,8 +1989,10 @@ ntohs
 ntpserver
 ntstatus
 nttime
+ntver
 ntwkconn
 nullptr
+numerus
 numitems
 nvgre
 nvmeof
@@ -2922,6 +2924,7 @@ subcarriers
 subchan
 subchannel
 subchannelization
+subclv
 subcode
 subdevice
 subdir
@@ -3449,6 +3452,7 @@ virtex
 virtio
 virtualization
 virtualized
+vlanid
 vlans
 vldbentry
 vmods
