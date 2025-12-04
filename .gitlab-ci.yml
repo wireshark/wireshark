@@ -594,6 +594,7 @@ macOS Intel Package:
     - wireshark-macos-intel-package
   retry: 1
   script:
+    - sudo --non-interactive sntp -s -S time.apple.com || true
     - export CMAKE_PREFIX_PATH=/usr/local/Qt-$MACOS_QT6_LTS_VERSION
     # Not needed for Falco libs 0.19?
     - export CXXFLAGS="-isystem /usr/local/include/falcosecurity"
