@@ -217,7 +217,7 @@ dissect_alp_mpegts(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
         offset++;
     }
 
-    while (dnp--) {
+    while (dnp != 0) {
         unsigned char *ts_frame = (unsigned char*)wmem_alloc(pinfo->pool, 188);
 
         ts_frame[0] = 0x47;
@@ -229,6 +229,7 @@ dissect_alp_mpegts(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
         tvbuff_t *ts_frame_tvb = tvb_new_child_real_data(tvb, ts_frame, 188, 188);
         call_dissector(ts_handle, ts_frame_tvb, pinfo, tree);
+        dnp--;
     }
 
     unsigned char *ts_frame = (unsigned char*)wmem_alloc(pinfo->pool, 188);
