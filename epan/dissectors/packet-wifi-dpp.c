@@ -280,9 +280,8 @@ dissect_wifi_dpp_attributes(packet_info *pinfo _U_, proto_tree *tree,
   uint16_t attribute_id;
   uint16_t attribute_len;
   unsigned attributes_len = 0;
-  unsigned remaining_len = tvb_reported_length_remaining(tvb, offset);
 
-  while (remaining_len) {
+  while (tvb_reported_length_remaining(tvb, offset)) {
     attribute_id = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
     attribute_len = tvb_get_uint16(tvb, offset + 2, ENC_LITTLE_ENDIAN);
     attr = proto_tree_add_subtree_format(tree, tvb, offset,
@@ -406,8 +405,6 @@ dissect_wifi_dpp_attributes(packet_info *pinfo _U_, proto_tree *tree,
 
     offset += attribute_len;
     attributes_len += attribute_len + 4;
-    remaining_len -= (attribute_len + 4);
-
   }
 
   return attributes_len; // We return the attribute length plus hdr!
@@ -454,7 +451,6 @@ dissect_wifi_dpp_public_action(tvbuff_t *tvb, packet_info *pinfo,
                   val_to_str(pinfo->pool, subtype, dpp_public_action_subtypes,
                              "Unknown (%u)"));
 
-  remaining_len = tvb_reported_length_remaining(tvb, offset);
 
   dpp_item = proto_tree_add_item(tree, proto_wifi_dpp, tvb, offset, -1, ENC_NA);
   dpp_tree = proto_item_add_subtree(dpp_item, ett_wifi_dpp_pa);
@@ -464,12 +460,11 @@ dissect_wifi_dpp_public_action(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item(dpp_tree, hf_wifi_dpp_crypto_suite, tvb, offset, 1,
                       ENC_LITTLE_ENDIAN);
   offset++;
-  remaining_len--;
 
   proto_tree_add_item(dpp_tree, hf_wifi_dpp_public_action_subtype, tvb, offset,
                       1, ENC_LITTLE_ENDIAN);
   offset++;  /* Skip the OUI Subtype/DPP Request type */
-  remaining_len--;
+  remaining_len = tvb_reported_length_remaining(tvb, offset);
   if (remaining_len) {
     attr_tree = proto_tree_add_subtree_format(dpp_tree, tvb, offset,
                        remaining_len,
