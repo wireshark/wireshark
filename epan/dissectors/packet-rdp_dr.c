@@ -726,7 +726,7 @@ dissect_rdpdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U_, vo
 				proto_tree_add_item(tree, hf_rdpdr_io_request_control_padding, tvb, offset, 20, ENC_NA);
 				offset += 20;
 
-				if (!PINFO_FD_VISITED(pinfo))
+				if (!PINFO_FD_VISITED(pinfo) && ioReq)
 					ioReq->ioControlCode = ioControlCode;
 
 				if (device && device->deviceType == RDPDR_DTYP_SMARTCARD)
