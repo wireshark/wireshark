@@ -3018,7 +3018,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL } },
         { &hf_nmea0183_bin_file_descriptor,
          { "File descriptor", "nmea0183.bin.file_descriptor",
-          FT_BYTES, BASE_NONE,
+          FT_STRING, BASE_NONE,
           NULL, 0x0,
           NULL, HFILL } },
         { &hf_nmea0183_bin_file_descriptor_len,
