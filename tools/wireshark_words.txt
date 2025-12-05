@@ -1844,6 +1844,7 @@ musim
 mutex
 muting
 muxed
+mvfst
 myanmar
 mycapture
 mycaptures

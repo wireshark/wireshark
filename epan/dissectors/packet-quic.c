@@ -2159,7 +2159,7 @@ process_quic_crypto(tvbuff_t *tvb, int offset, int length, packet_info *pinfo,
  * QUIC is responsible for buffering handshake bytes that arrive out of order or
  * for encryption levels that are not yet ready."
  *
- * XXX: We are only buffering bytes that arive out of order within an encryption
+ * XXX: We are only buffering bytes that arrive out of order within an encryption
  * level. Buffering for encryption levels that are not yet ready requires
  * determining that they are not ready (and they may never be ready from our
  * perspective if we don't have the keys.)
@@ -2991,7 +2991,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             offset += (uint32_t)length;
 
             if (frame_type == FT_OBSERVED_ADDRESS_IPV4 ) {
-                proto_tree_add_item(ft_tree, hf_quic_oa_ipv4, tvb, offset, 4, ENC_NA);
+                proto_tree_add_item(ft_tree, hf_quic_oa_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(ti_ft, " IPv4=%s", tvb_ip_to_str(pinfo->pool, tvb, offset));
                 offset += 4;
             } else {
@@ -3563,7 +3563,7 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, bool fr
                connection where the handshake is not present.
                Note that even if we have a basic logic to detect unencrypted padding (via
                check_dcid_on_coalesced_packet()), there is not a proper way to detect it
-               other than checking if the decryption successed
+               other than checking if the decryption succeeded
             */
             *error = "Missing TLS handshake, unsupported ciphers or padding";
             return NULL;
@@ -4187,7 +4187,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
             quic_create_initial_decoders(pinfo->pool, &dcid, &error, conn);
         } else if (long_packet_type == QUIC_LPT_INITIAL && from_server &&
                    version != conn->version) {
-            /* Compatibile Version Negotiation: the server (probably) updated the connection version.
+            /* Compatible Version Negotiation: the server (probably) updated the connection version.
                We need to restart the ciphers since HP depends on version.
                If/when updating the ciphers is a bit tricky during Compatible Version Negotiation.
                TODO: do we really need to restart all the initial ciphers?
@@ -4840,8 +4840,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (!check_dcid_on_coalesced_packet(tvb, dgram_info, offset, &first_packet_dcid)) {
             /* Coalesced packet with unexpected CID; it probably is some kind
                of unencrypted padding data added after the valid QUIC payload */
-            expert_add_info_format(pinfo, quic_tree, &ei_quic_coalesced_padding_data,
-                                   "(Random) padding data appended to the datagram");
+            expert_add_info(pinfo, quic_tree, &ei_quic_coalesced_padding_data);
             break;
         }
 
@@ -5937,7 +5936,7 @@ proto_register_quic(void)
         },
         { &ei_quic_coalesced_padding_data,
           { "quic.coalesced_padding_data", PI_PROTOCOL, PI_NOTE,
-            "Coalesced Padding Data", EXPFILL }
+            "(Random) padding data appended to the datagram", EXPFILL }
         },
         { &ei_quic_retransmission,
           { "quic.retransmission", PI_SEQUENCE, PI_NOTE,
