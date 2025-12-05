@@ -337,11 +337,12 @@
     </widget>
     <widget class="QMenu" name="menuInternals">
      <property name="title">
-      <string>Internals</string>
-     </property>
-     <addaction name="actionViewInternalsConversationHashTables"/>
-     <addaction name="actionViewInternalsDissectorTables"/>
-     <addaction name="actionViewInternalsSupportedProtocols"/>
+     <string>Internals</string>
+    </property>
+    <addaction name="actionViewInternalsConversationHashTables"/>
+    <addaction name="actionViewInternalsDissectorTables"/>
+    <addaction name="actionViewInternalsSupportedProtocols"/>
+    <addaction name="actionViewInternalsKeyboardShortcuts"/>
     </widget>
     <widget class="QMenu" name="menuAdditionalToolbars">
      <property name="title">
@@ -1968,6 +1969,14 @@
    </property>
    <property name="toolTip">
     <string>Show the currently supported protocols and display filter fields</string>
+   </property>
+  </action>
+  <action name="actionViewInternalsKeyboardShortcuts">
+   <property name="text">
+    <string>&amp;Keyboard Shortcuts</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the current keyboard shortcuts</string>
    </property>
   </action>
   <action name="actionViewColoringRules">

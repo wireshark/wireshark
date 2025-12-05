@@ -129,6 +129,7 @@ DIAG_ON(frame-larger-than=)
 #include "show_packet_bytes_dialog.h"
 #include "stats_tree_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
+#include "keyboard_shortcuts_dialog.h"
 #include "supported_protocols_dialog.h"
 #include "tap_parameter_dialog.h"
 #include "time_shift_dialog.h"
@@ -2347,6 +2348,11 @@ void StratosharkMainWindow::connectViewMenuActions()
     connect(main_ui_->actionViewInternalsSupportedProtocols, &QAction::triggered, this, [this]() {
         SupportedProtocolsDialog *supported_protocols_dlg = new SupportedProtocolsDialog(this);
         supported_protocols_dlg->show();
+    });
+
+    connect(main_ui_->actionViewInternalsKeyboardShortcuts, &QAction::triggered, this, [this]() {
+        KeyboardShortcutsDialog *keyboard_shortcuts_dlg = new KeyboardShortcutsDialog(this);
+        keyboard_shortcuts_dlg->show();
     });
 
     connect(main_ui_->actionViewShowPacketInNewWindow, &QAction::triggered, this,

@@ -159,6 +159,7 @@ DIAG_ON(frame-larger-than=)
 #include "stats_tree_dialog.h"
 #include "strip_headers_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
+#include "keyboard_shortcuts_dialog.h"
 #include "supported_protocols_dialog.h"
 #include "tap_parameter_dialog.h"
 #include "tcp_stream_dialog.h"
@@ -2669,6 +2670,11 @@ void WiresharkMainWindow::connectViewMenuActions()
     connect(main_ui_->actionViewInternalsSupportedProtocols, &QAction::triggered, this, [this]() {
         SupportedProtocolsDialog *supported_protocols_dlg = new SupportedProtocolsDialog(this);
         supported_protocols_dlg->show();
+    });
+
+    connect(main_ui_->actionViewInternalsKeyboardShortcuts, &QAction::triggered, this, [this]() {
+        KeyboardShortcutsDialog *keyboard_shortcuts_dlg = new KeyboardShortcutsDialog(this);
+        keyboard_shortcuts_dlg->show();
     });
 
     connect(main_ui_->actionViewShowPacketInNewWindow, &QAction::triggered, this,

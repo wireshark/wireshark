@@ -50,7 +50,6 @@
 #include <ui/qt/models/url_link_delegate.h>
 
 #include <QFontMetrics>
-#include <QKeySequence>
 #include <QTextStream>
 #include <QUrl>
 #include <QRegularExpression>
@@ -168,46 +167,6 @@ QStringList PluginListModel::typeNames() const
 QStringList PluginListModel::headerColumns() const
 {
     return QStringList() << tr("Name") << tr("Version") << tr("Type") << tr("Path");
-}
-
-ShortcutListModel::ShortcutListModel(QObject * parent):
-        AStringListListModel(parent)
-{
-    QMap<QString, QPair<QString, QString> > shortcuts; // name -> (shortcut, description)
-    foreach (const QWidget *child, mainApp->mainWindow()->findChildren<QWidget *>()) {
-        // Recent items look funny here.
-        if (child->objectName().compare("menuOpenRecentCaptureFile") == 0) continue;
-        foreach (const QAction *action, child->actions()) {
-
-            if (!action->shortcut().isEmpty()) {
-                QString name = action->text();
-                name.replace('&', "");
-                shortcuts[name] = QPair<QString, QString>(action->shortcut().toString(QKeySequence::NativeText), action->toolTip());
-            }
-        }
-    }
-
-    QStringList names = shortcuts.keys();
-    names.sort();
-    foreach (const QString &name, names) {
-        QStringList row;
-        row << shortcuts[name].first << name << shortcuts[name].second;
-        appendRow(row);
-        if (shortcuts[name].first == QKeySequence(Qt::CTRL | Qt::Key_Up).toString(QKeySequence::NativeText)) {
-            appendRow(QStringList() << "F7" << name << shortcuts[name].second);
-        }
-        if (shortcuts[name].first == QKeySequence(Qt::CTRL | Qt::Key_Down).toString(QKeySequence::NativeText)) {
-            appendRow(QStringList() << "F8" << name << shortcuts[name].second);
-        }
-    }
-
-    /* Hard coded keyPressEvent() */
-    appendRow(QStringList() << QKeySequence(Qt::CTRL | Qt::Key_Slash).toString(QKeySequence::NativeText) << tr("Display Filter Input") << tr("Jump to display filter input box"));
-}
-
-QStringList ShortcutListModel::headerColumns() const
-{
-    return QStringList() << tr("Shortcut") << tr("Name") << tr("Description");
 }
 
 FolderListModel::FolderListModel(QObject * parent):
@@ -377,22 +336,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
         ui->label_no_plugins->show();
     }
 
-    /* Shortcuts */
-    ShortcutListModel * shortcutModel = new ShortcutListModel(this);
-    AStringListListSortFilterProxyModel * shortcutProxyModel = new AStringListListSortFilterProxyModel(this);
-    shortcutProxyModel->setSourceModel(shortcutModel);
-    shortcutProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    shortcutProxyModel->setColumnToFilter(0);
-    shortcutProxyModel->setColumnToFilter(1);
-    shortcutProxyModel->setColumnToFilter(2);
-    ui->tblShortcuts->setModel(shortcutProxyModel);
-    ui->tblShortcuts->setRootIsDecorated(false);
-    ui->tblShortcuts->setContextMenuPolicy(Qt::CustomContextMenu);
-    ui->tblShortcuts->setSortingEnabled(true);
-    ui->tblShortcuts->sortByColumn(1, Qt::AscendingOrder);
-    connect(ui->tblShortcuts, &QTreeView::customContextMenuRequested, this, &AboutDialog::handleCopyMenu);
-    connect(ui->searchShortcuts, &QLineEdit::textChanged, shortcutProxyModel, &AStringListListSortFilterProxyModel::setFilter);
-
     /* Acknowledgements */
     f_acknowledgements.setFileName(":/about/Acknowledgements.md");
 
@@ -486,12 +429,6 @@ void AboutDialog::showEvent(QShowEvent * event)
     for (int col = 0; model && col < model->columnCount() - 1; col++) {
         ui->tblPlugins->resizeColumnToContents(col);
     }
-
-    // Contents + 2 em-widths
-    ui->tblShortcuts->resizeColumnToContents(0);
-    ui->tblShortcuts->setColumnWidth(0, ui->tblShortcuts->columnWidth(0) + (one_em * 2));
-    ui->tblShortcuts->setColumnWidth(1, one_em * 12);
-    ui->tblShortcuts->resizeColumnToContents(2);
 
     QDialog::showEvent(event);
 }

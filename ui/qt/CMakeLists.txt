@@ -201,6 +201,7 @@ set(WIRESHARK_QT_HEADERS
 	interface_frame.h
 	interface_toolbar_reader.h
 	interface_toolbar.h
+	keyboard_shortcuts_dialog.h
 	io_console_dialog.h
 	io_graph.h
 	io_graph_action.h
@@ -470,6 +471,7 @@ set(WIRESHARK_QT_SRC
 	interface_frame.cpp
 	interface_toolbar_reader.cpp
 	interface_toolbar.cpp
+	keyboard_shortcuts_dialog.cpp
 	io_console_dialog.cpp
 	io_graph_action.cpp
 	layout_preferences_frame.cpp
@@ -631,6 +633,7 @@ set(WIRESHARK_QT_UI
 	import_text_dialog.ui
 	interface_frame.ui
 	interface_toolbar.ui
+	keyboard_shortcuts_dialog.ui
 	io_console_dialog.ui
 	io_graph_dialog.ui
 	layout_preferences_frame.ui

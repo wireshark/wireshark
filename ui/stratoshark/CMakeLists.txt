@@ -228,6 +228,7 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/show_packet_bytes_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/simple_statistics_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/stats_tree_dialog.h
+	${CMAKE_SOURCE_DIR}/ui/qt/keyboard_shortcuts_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/supported_protocols_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/tabnav_tree_widget.h
 	${CMAKE_SOURCE_DIR}/ui/qt/tap_parameter_dialog.h
@@ -468,6 +469,7 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/show_packet_bytes_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/simple_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/simple_statistics_dialog.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/keyboard_shortcuts_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/supported_protocols_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/tabnav_tree_widget.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/tap_parameter_dialog.cpp
@@ -561,6 +563,7 @@ set(WIRESHARK_QT_UI
 	${CMAKE_SOURCE_DIR}/ui/qt/import_text_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_frame.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_toolbar.ui
+	${CMAKE_SOURCE_DIR}/ui/qt/keyboard_shortcuts_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/io_console_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/io_graph_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/layout_preferences_frame.ui

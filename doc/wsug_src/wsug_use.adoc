@@ -108,7 +108,7 @@ a capture file. See <<ChUseTabGo>> for additional navigation keystrokes.
 |kbd:[Return] or kbd:[Enter] |In the packet detail, toggles the selected tree item.
 |===
 
-menu:Help[About Wireshark,Keyboard Shortcuts] will show a list of all shortcuts
+menu:View[Internals,Keyboard Shortcuts] will show a list of all shortcuts
 in the main window. Additionally, typing anywhere in the main window will start
 filling in a display filter.
 
