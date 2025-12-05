@@ -1106,7 +1106,9 @@ void proto_pre_init(void);
 
 /** Sets up memory used by proto routines. Called at program startup */
 void proto_init(GSList *register_all_plugin_protocols_list,
-    GSList *register_all_plugin_handoffs_list, register_cb cb, void *client_data);
+    GSList *register_all_plugin_handoffs_list,
+    register_entity_func register_func, register_entity_func handoff_func,
+    register_cb cb, void *client_data);
 
 /** Frees memory used by proto routines. Called at program shutdown */
 extern void proto_cleanup(void);

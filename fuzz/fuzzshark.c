@@ -150,9 +150,9 @@ fuzz_init(int argc, char **argv)
 		LONGOPT_WSLOG
 		{0, 0, 0, 0 }
 	};
-        const struct file_extension_info* file_extensions;
-        unsigned num_extensions;
-        epan_app_data_t app_data;
+	const struct file_extension_info* file_extensions;
+	unsigned num_extensions;
+	epan_app_data_t app_data;
 
 	const char *fuzz_target =
 #if defined(FUZZ_DISSECTOR_TARGET)
@@ -172,8 +172,8 @@ fuzz_init(int argc, char **argv)
 #if !defined(FUZZ_DISSECTOR_TABLE) && !defined(FUZZ_DISSECTOR_TARGET)
 	const char *fuzz_table = getenv("FUZZSHARK_TABLE");
 
-        /* Future proof by zeroing out all data */
-        memset(&app_data, 0, sizeof(app_data));
+	/* Future proof by zeroing out all data */
+	memset(&app_data, 0, sizeof(app_data));
 
 	/*
 	 * Set the pogram name.
@@ -274,17 +274,19 @@ fuzz_init(int argc, char **argv)
 	 * dissection-time handlers for file-type-dependent blocks can
 	 * register using the file type/subtype value for the file type.
 	 */
-        application_file_extensions(&file_extensions, &num_extensions);
-        wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
+	application_file_extensions(&file_extensions, &num_extensions);
+	wtap_init(true, application_configuration_environment_prefix(), file_extensions, num_extensions);
 
 	/* Register all dissectors; we must do this before checking for the
 	   "-G" flag, as the "-G" flag dumps information registered by the
 	   dissectors, and we must do it before we read the preferences, in
 	   case any dissectors register preferences. */
-        app_data.env_var_prefix = application_configuration_environment_prefix();
-        app_data.col_fmt = application_columns();
-        app_data.num_cols = application_num_columns();
-        app_data.supports_packets = application_flavor_is_wireshark();
+	app_data.env_var_prefix = application_configuration_environment_prefix();
+	app_data.col_fmt = application_columns();
+	app_data.num_cols = application_num_columns();
+	app_data.register_func = register_all_protocols;
+	app_data.handoff_func = register_all_protocol_handoffs;
+	app_data.supports_packets = application_flavor_is_wireshark();
 	if (!epan_init(NULL, NULL, false, &app_data))
 	{
 		ret = EPAN_INIT_FAIL;

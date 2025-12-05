@@ -369,7 +369,8 @@ epan_init(register_cb cb, void *client_data, bool load_plugins, epan_app_data_t*
 		stats_tree_init();
 		stat_tap_init();
 		g_slist_foreach(epan_plugins, epan_plugin_init, NULL);
-		proto_init(epan_plugin_register_all_procotols, epan_plugin_register_all_handoffs, cb, client_data);
+		proto_init(epan_plugin_register_all_procotols, epan_plugin_register_all_handoffs,
+			(app_data != NULL) ? app_data->register_func : NULL, (app_data != NULL) ? app_data->handoff_func : NULL, cb, client_data);
 		g_slist_foreach(epan_plugins, epan_plugin_register_all_tap_listeners, NULL);
 		packet_cache_proto_handles();
 		dfilter_init(epan_env_prefix_cache);

@@ -198,6 +198,8 @@ typedef struct {
 	const char** col_fmt;			/**< Array of columns and their formats */
 	int num_cols;				/**< Number of columns in the list above */
 	bool supports_packets;			/**< true if packet dissection is supported; false otherwise (i.e. events).  This should be TEMPORARY */
+	register_entity_func register_func;	/**< Callback to register entities for the dissection engine */
+	register_entity_func handoff_func;	/**< Callback to handoff function for entities in the dissection engine */
 	struct _tap_reg const* tap_reg_listeners;	/**< List of tap registration routines to register built-in tap listeners */
 } epan_app_data_t;
 

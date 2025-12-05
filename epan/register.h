@@ -12,6 +12,12 @@
 #ifndef __REGISTER_H__
 #define __REGISTER_H__
 
+#include "ws_symbol_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 typedef enum {
     RA_NONE,              /* For initialization */
     RA_DISSECTORS,        /* Initializing dissectors */
@@ -31,6 +37,39 @@ typedef enum {
 #define RA_BASE_COUNT (RA_INTERFACES - 3) // RA_EXTCAP, RA_LUA_PLUGINS, RA_LUA_DEREGISTER
 
 typedef void (*register_cb)(register_action_e action, const char *message, void *client_data);
+typedef void (*register_entity_func)(register_cb cb, void* client_data);
+
+
+/** Call each dissector's protocol registration routine.
+ *
+ * Each routine is called in alphabetical order from a worker thread.
+ * Registration routines might call any number of routines which are not
+ * thread safe, such as wmem_alloc. Callbacks should handle themselves
+ * accordingly.
+ *
+ * @param cb Callback routine which is called for each protocol.
+ * Messages have the format "proto_register_XXX".
+ * @param client_data Data pointer for the callback.
+ */
+WS_DLL_PUBLIC
+void register_all_protocols(register_cb cb, void* client_data);
+
+/** Call each dissector's protocol handoff routine.
+ *
+ * Each routine is called from a worker thread. Registration routines
+ * might call any number of routines which are not thread safe, such as
+ * wmem_alloc. Callbacks should handle themselves accordingly.
+ *
+ * @param cb Callback routine which is called for each protocol.
+ * Messages have the format "proto_reg_handoff_XXX".
+ * @param client_data Data pointer for the callback.
+ */
+WS_DLL_PUBLIC
+void register_all_protocol_handoffs(register_cb cb, void* client_data);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __REGISTER_H__ */
 
