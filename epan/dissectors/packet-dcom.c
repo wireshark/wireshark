@@ -1204,11 +1204,12 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, sub_tree, di, drep, &u32Pointer);
 
 	u32BoundElements = 0;
-	while(u32Dims--) {
+	while(u32Dims != 0) {
 		offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, di, drep,
 							hf_dcom_sa_bound_elements, &u32BoundElements);
 		offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, di, drep,
 							hf_dcom_sa_low_bound, &u32LowBound);
+		u32Dims--;
 	}
 
 	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, sub_tree, di, drep, &u32ArraySize);

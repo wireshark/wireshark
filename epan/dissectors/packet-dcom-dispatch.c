@@ -228,10 +228,11 @@ dissect_IDispatch_GetIDsOfNames_resp(tvbuff_t *tvb, int offset,
                                             &u32ArraySize);
 
     u32Tmp = u32ArraySize;
-    while (u32Tmp--) {
+    while (u32Tmp != 0) {
         offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
                                     hf_dispatch_id, &u32DispId);
         col_append_fstr(pinfo->cinfo, COL_INFO, " ID=0x%x", u32DispId);
+        u32Tmp--;
     }
 
     /* HRESULT of call */

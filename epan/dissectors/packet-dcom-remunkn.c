@@ -101,7 +101,7 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
         call = NULL;
     }
 
-    for (u32ItemIdx = 0; u32ArraySize--; u32ItemIdx++) {
+    for (u32ItemIdx = 0; u32ArraySize != 0; u32ItemIdx++, u32ArraySize--) {
         offset = dissect_dcom_append_UUID(tvb, offset,  pinfo, tree, di, drep,
                                           hf_dcom_iid, u32ItemIdx+1, &iid);
         if(call != NULL) {
@@ -140,7 +140,7 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
                                             &u32ArraySize);
 
     u32ItemIdx = 1;
-    while (u32ArraySize--) {
+    while (u32ArraySize != 0) {
         /* add subtree */
         sub_item = proto_tree_add_item(tree, hf_remunk_qiresult, tvb, offset, 0, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_remunk_rqi_result);
@@ -183,6 +183,7 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
                         val_to_str(pinfo->pool, u32HResult, dcom_hresult_vals, "Unknown (0x%08x)"),
                         u32ItemIdx);
         u32ItemIdx++;
+        u32ArraySize--;
     }
 
     /* HRESULT of call */
@@ -230,7 +231,7 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
 
 
     u32ItemIdx = 1;
-    while (u32IntRefs--) {
+    while (u32IntRefs != 0) {
         /* add subtree */
         sub_item = proto_tree_add_item(tree, hf_remunk_reminterfaceref, tvb, offset, 0, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_remunk_reminterfaceref);
@@ -264,6 +265,7 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
         col_append_fstr(pinfo->cinfo, COL_INFO, pszFormat, u32PublicRefs, u32PrivateRefs);
 
         u32ItemIdx++;
+        u32IntRefs--;
     }
 
     return offset;

@@ -133,9 +133,10 @@ dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
         offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
                             &u32ArraySize);
 
-        while (u16DelFromSet--) {
+        while (u16DelFromSet != 0) {
             offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
                             hf_oxid_oid, NULL);
+            u16DelFromSet--;
         }
     }
 
@@ -183,9 +184,10 @@ dissect_oxid_resolve_oxid2_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
                         &u32ArraySize);
 
-    while (u32ArraySize--) {
+    while (u32ArraySize != 0) {
         offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, di, drep,
                             hf_oxid_protseqs, &u16ProtSeqs);
+        u32ArraySize--;
     }
 
     return offset;
