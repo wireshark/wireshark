@@ -209,6 +209,7 @@ const char*
 ftype_pretty_name(ftenum_t ftype);
 
 /* Returns length of field in packet, or 0 if not determinable/defined. */
+WS_DLL_PUBLIC
 int
 ftype_wire_size(ftenum_t ftype);
 

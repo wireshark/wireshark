@@ -347,7 +347,7 @@ WS_DLL_PUBLIC void tvb_composite_append(tvbuff_t *tvb, tvbuff_t *member);
  * @param tvb     The composite tvbuff to which a member will be prepended.
  * @param member  The tvbuff member to prepend.
  */
-extern void tvb_composite_prepend(tvbuff_t *tvb, tvbuff_t *member);
+WS_DLL_PUBLIC void tvb_composite_prepend(tvbuff_t *tvb, tvbuff_t *member);
 
 /**
  * @brief Create an empty composite tvbuff.
@@ -1901,7 +1901,7 @@ WS_DLL_PUBLIC void tvb_get_ipv6(tvbuff_t *tvb, const int offset, ws_in6_addr *ad
  * @param prefix_len the length of the prefix (in bits)
  * @return the length (in bytes) of the address on success, or -1 on failure
  */
-extern int tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset,
+WS_DLL_PUBLIC int tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset,
     ws_in4_addr *addr, uint32_t prefix_len);
 
 /**
@@ -1917,7 +1917,7 @@ extern int tvb_get_ipv4_addr_with_prefix_len(tvbuff_t *tvb, int offset,
  *
  * @return The length (in bytes) of the address on success, or -1 on failure.
  */
-extern int tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset,
+WS_DLL_PUBLIC int tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset,
     ws_in6_addr *addr, uint32_t prefix_len);
 
 /**
@@ -2436,7 +2436,7 @@ WS_DLL_PUBLIC char *tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *t
  *
  * @see tvb_format_text
  */
-extern char *tvb_format_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
+WS_DLL_PUBLIC char *tvb_format_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
     const int size);
 
 /**
@@ -2457,7 +2457,7 @@ extern char *tvb_format_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const
  * @see tvb_format_text_wsp
  * @see tvb_format_stringzpad
  */
-extern char *tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const int offset,
+WS_DLL_PUBLIC char *tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const int offset,
     const int size);
 
 /**
@@ -2873,7 +2873,7 @@ WS_DLL_PUBLIC int tvb_skip_wsp_return(tvbuff_t *tvb, const int offset);
  *
  * @return The offset of the first non-matching byte, or the end of the scan range.
  */
-int tvb_skip_uint8(tvbuff_t *tvb, int offset, const int maxlength, const uint8_t ch);
+WS_DLL_PUBLIC int tvb_skip_uint8(tvbuff_t *tvb, int offset, const int maxlength, const uint8_t ch);
 
 /**
  * @brief Deprecated accessor for skipping consecutive bytes in a tvbuff.
@@ -3553,7 +3553,7 @@ WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_zstd(tvbuff_t *parent,
  *
  * @return A new tvbuff_t containing the decoded binary data, or NULL on failure.
  */
-extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
+WS_DLL_PUBLIC tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
 
 /**
  * @brief Decode a base64-encoded string from a tvbuff region and attach the result to a parent tvbuff.
@@ -3573,7 +3573,7 @@ extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
  *
  * @see base64_to_tvb
  */
-extern tvbuff_t* base64_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length);
+WS_DLL_PUBLIC tvbuff_t* base64_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length);
 
 /**
  * @brief Decode a base64url-encoded string from a tvbuff region and attach the result to a parent tvbuff.
@@ -3594,7 +3594,7 @@ extern tvbuff_t* base64_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length)
  *
  * @see base64_tvb_to_new_tvb
  */
-extern tvbuff_t* base64uri_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length);
+WS_DLL_PUBLIC tvbuff_t* base64uri_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length);
 
 /* From tvbuff_hpackhuff.c */
 

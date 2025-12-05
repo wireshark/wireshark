@@ -98,15 +98,15 @@
 #define NSAP_IDI_ITU_T_IND_DEC_GROUP       0xE2 /* ITU-T IND, decimal */
 #define NSAP_IDI_ITU_T_IND_BIN_GROUP       0xE3 /* ITU-T IND, binary */
 
-char*     print_nsap_net ( wmem_allocator_t *, tvbuff_t *, const int, int );
-char*     print_area     ( wmem_allocator_t *, tvbuff_t *, const int, int );
+WS_DLL_PUBLIC char* print_nsap_net ( wmem_allocator_t *, tvbuff_t *, const int, int );
+WS_DLL_PUBLIC char* print_area     ( wmem_allocator_t *, tvbuff_t *, const int, int );
 char*     print_system_id(wmem_allocator_t *, const uint8_t *, int );
-char*     tvb_print_system_id( wmem_allocator_t *, tvbuff_t *, const int, int );
+WS_DLL_PUBLIC char* tvb_print_system_id( wmem_allocator_t *, tvbuff_t *, const int, int );
 void       print_system_id_buf( const uint8_t *, int, char *, int);
-char*     print_address_prefix( wmem_allocator_t *, tvbuff_t *, const int, int );
+WS_DLL_PUBLIC char* print_address_prefix( wmem_allocator_t *, tvbuff_t *, const int, int );
 
-int        get_osi_address_type(void);
-void       register_osi_address_type(void);
+WS_DLL_PUBLIC int get_osi_address_type(void);
+WS_DLL_PUBLIC void register_osi_address_type(void);
 
 #endif /* __OSI_UTILS_H__ */
 

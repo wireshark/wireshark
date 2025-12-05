@@ -337,6 +337,7 @@ bool uat_load(uat_t* uat_in, const char *filename, const char* app_env_var_prefi
  *
  * @return true on success, false on failure.
  */
+WS_DLL_PUBLIC
 bool uat_load_str(uat_t* uat_in, const char* entry, char** err);
 
 /** Given a UAT name or filename, find its pointer.
@@ -371,6 +372,7 @@ void uat_set_default_values(uat_t *uat_in, const char *default_values[]);
  */
 WS_DLL_PUBLIC
 bool uat_fld_chk_str(void*, const char*, unsigned, const void*, const void*, char** err);
+WS_DLL_PUBLIC
 bool uat_fld_chk_oid(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
 bool uat_fld_chk_proto(void*, const char*, unsigned, const void*, const void*, char** err);

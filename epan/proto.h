@@ -1240,7 +1240,7 @@ WS_DLL_PUBLIC char *proto_item_get_display_repr(wmem_allocator_t *scope, proto_i
 
 /** Creates a new proto_tree root.
  @return the new tree root */
-extern proto_tree* proto_tree_create_root(struct _packet_info *pinfo);
+WS_DLL_PUBLIC proto_tree* proto_tree_create_root(packet_info* pinfo);
 
 void proto_tree_reset(proto_tree *tree);
 
@@ -1688,11 +1688,11 @@ proto_tree_add_subtree_format(proto_tree *tree, tvbuff_t *tvb, int start, int le
     proto_item **tree_item, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a text-only node to a proto_tree with tvb_format_text() string. */
-proto_item *
+WS_DLL_PUBLIC proto_item *
 proto_tree_add_format_text(proto_tree *tree, tvbuff_t *tvb, int start, int length);
 
 /** Add a text-only node to a proto_tree with tvb_format_text_wsp() string. */
-proto_item *
+WS_DLL_PUBLIC proto_item *
 proto_tree_add_format_wsp_text(proto_tree *tree, tvbuff_t *tvb, int start, int length);
 
 /** Add a FT_NONE field to a proto_tree.
@@ -2787,7 +2787,7 @@ WS_DLL_PUBLIC bool proto_registrar_is_protocol(const int n);
 /** Get length of registered field according to field type.
  @param n item # n (0-indexed)
  @return 0 means undeterminable at registration time, -1 means unknown field */
-extern int proto_registrar_get_length(const int n);
+WS_DLL_PUBLIC int proto_registrar_get_length(const int n);
 
 
 /** Routines to use to iterate over the protocols and their fields;
@@ -3366,7 +3366,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
  @param bit_offset of the first crumb in tvb expressed in bits
  @param crumb_spec pointer to crumb_spec array
  @param crumb_index into the crumb_spec array for this crumb */
-void
+WS_DLL_PUBLIC void
 proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
     const unsigned bit_offset, const crumb_spec_t *crumb_spec, uint16_t crumb_index);
 
@@ -3433,7 +3433,7 @@ proto_tree_add_uint64_bits_format_value(proto_tree *tree, const int hf_index, tv
  @param format printf like format string
  @param ... printf like parameters
  @return the newly created item */
-proto_item *
+WS_DLL_PUBLIC proto_item *
 proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
     const unsigned bit_offset, const int no_of_bits, uint64_t value, const unsigned encoding,
     const char *format, ...)
@@ -3452,7 +3452,7 @@ proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index, t
  @param format printf like format string
  @param ... printf like parameters
  @return the newly created item */
-proto_item *
+WS_DLL_PUBLIC proto_item *
 proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
     const unsigned bit_offset, const int no_of_bits, int32_t value, const unsigned encoding,
     const char *format, ...)
@@ -3471,7 +3471,7 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index, tvbuf
  @param format printf like format string
  @param ... printf like parameters
  @return the newly created item */
-proto_item *
+WS_DLL_PUBLIC proto_item *
 proto_tree_add_int64_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
     const unsigned bit_offset, const int no_of_bits, int64_t value, const unsigned encoding,
     const char *format, ...)
@@ -3490,7 +3490,7 @@ proto_tree_add_int64_bits_format_value(proto_tree *tree, const int hf_index, tvb
  @param format printf like format string
  @param ... printf like parameters
  @return the newly created item */
-proto_item *
+WS_DLL_PUBLIC proto_item *
 proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
     const unsigned bit_offset, const int no_of_bits, float value, const unsigned encoding,
     const char *format, ...)

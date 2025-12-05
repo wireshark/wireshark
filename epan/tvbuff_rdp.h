@@ -19,9 +19,9 @@
 
 typedef struct _zgfx_context_t zgfx_context_t;
 
-zgfx_context_t *zgfx_context_new(wmem_allocator_t *allocator);
+WS_DLL_PUBLIC zgfx_context_t *zgfx_context_new(wmem_allocator_t *allocator);
 
-tvbuff_t *rdp8_decompress(zgfx_context_t *zgfx, wmem_allocator_t *allocator, tvbuff_t *tvb, unsigned offset);
+WS_DLL_PUBLIC tvbuff_t *rdp8_decompress(zgfx_context_t *zgfx, wmem_allocator_t *allocator, tvbuff_t *tvb, unsigned offset);
 
 
 #endif /* __TVBUFF_RDP_H__ */

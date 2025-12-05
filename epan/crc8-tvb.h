@@ -34,6 +34,6 @@
 #define __CRC8_TVB_H__
 
 extern bool check_fcs(tvbuff_t *p, uint8_t len, uint8_t offset, uint8_t received_fcs);
-extern uint8_t get_crc8_ieee8023_epon(tvbuff_t *p, uint8_t len, uint8_t offset);
+WS_DLL_PUBLIC uint8_t get_crc8_ieee8023_epon(tvbuff_t *p, uint8_t len, uint8_t offset);
 
 #endif /* __CRC8_TVB_H__ */

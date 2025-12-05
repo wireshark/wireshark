@@ -179,7 +179,7 @@ WS_DLL_PUBLIC char *tcp_port_to_display(wmem_allocator_t *allocator, unsigned po
  * @param port      DCCP port number to resolve.
  * @return          Allocated string containing the port name or numeric value.
  */
-extern char *dccp_port_to_display(wmem_allocator_t *allocator, unsigned port);
+WS_DLL_PUBLIC char *dccp_port_to_display(wmem_allocator_t *allocator, unsigned port);
 
 /**
  * @brief Resolve an SCTP port number to its display name.
@@ -420,7 +420,7 @@ WS_DLL_PUBLIC const char *get_ether_name(const uint8_t *addr);
  * @return Hostname if in the ss7pcs file or '\0' on the first call or the
  * unresolved Point Code in the subsequent calls.
  */
-const char *get_hostname_ss7pc(const uint8_t ni, const uint32_t pc);
+WS_DLL_PUBLIC const char *get_hostname_ss7pc(const uint8_t ni, const uint32_t pc);
 
 /**
  * @brief Initializes unresolved SS7 Point Code entries in the hashtable.
@@ -431,7 +431,7 @@ const char *get_hostname_ss7pc(const uint8_t ni, const uint32_t pc);
  * @param ni Network Indicator.
  * @param pc Point Code.
  */
-void fill_unresolved_ss7pc(const char * pc_addr, const uint8_t ni, const uint32_t pc);
+WS_DLL_PUBLIC void fill_unresolved_ss7pc(const char * pc_addr, const uint8_t ni, const uint32_t pc);
 
 /**
  * @brief Resolves an Ethernet address from a tvbuff.
@@ -458,7 +458,7 @@ WS_DLL_PUBLIC const char *tvb_get_ether_name(tvbuff_t *tvb, int offset);
  * @param addr Pointer to the 6-byte Ethernet address.
  * @return Resolved name or NULL.
  */
-const char *get_ether_name_if_known(const uint8_t *addr);
+WS_DLL_PUBLIC const char *get_ether_name_if_known(const uint8_t *addr);
 
 /**
  * @brief Resolves a 3-octet OUI to a short vendor name.
@@ -507,7 +507,7 @@ WS_DLL_PUBLIC const char *get_manuf_name_if_known(const uint8_t *addr, size_t si
  * @param oid 24-bit OUI or CID.
  * @return Full vendor name or NULL.
  */
-extern const char *uint_get_manuf_name_if_known(const uint32_t oid);
+WS_DLL_PUBLIC const char *uint_get_manuf_name_if_known(const uint32_t oid);
 
 /**
  * @brief Resolves a 3-octet OUI from a tvbuff to a short vendor name.
@@ -570,7 +570,7 @@ extern const char *get_eui64_name(const uint8_t *addr);
  * @param addr EUI-64 address as uint64_t.
  * @return Allocated display string.
  */
-extern char *eui64_to_display(wmem_allocator_t *allocator, const uint64_t addr);
+WS_DLL_PUBLIC char *eui64_to_display(wmem_allocator_t *allocator, const uint64_t addr);
 
 /**
  * @brief Resolves an IPX network number to a name.
@@ -584,7 +584,7 @@ extern char *eui64_to_display(wmem_allocator_t *allocator, const uint64_t addr);
  * @param addr IPX network number.
  * @return Allocated name or hex string.
  */
-extern char *get_ipxnet_name(wmem_allocator_t *allocator, const uint32_t addr);
+WS_DLL_PUBLIC char *get_ipxnet_name(wmem_allocator_t *allocator, const uint32_t addr);
 
 /**
  * @brief Resolves a VLAN ID to a name.
@@ -598,7 +598,7 @@ extern char *get_ipxnet_name(wmem_allocator_t *allocator, const uint32_t addr);
  * @param id VLAN identifier.
  * @return Allocated name or ID string.
  */
-extern char *get_vlan_name(wmem_allocator_t *allocator, const uint16_t id);
+WS_DLL_PUBLIC char *get_vlan_name(wmem_allocator_t *allocator, const uint16_t id);
 
 /**
  * @brief Gets the status code for a resolved Ethernet entry.
@@ -740,7 +740,7 @@ WS_DLL_PUBLIC addrinfo_lists_t *get_addrinfo_list(void);
  * @param ip IPv4 address in host byte order.
  * @param eth Pointer to a 6-byte Ethernet address.
  */
-extern void add_ether_byip(const unsigned ip, const uint8_t *eth);
+WS_DLL_PUBLIC void add_ether_byip(const unsigned ip, const uint8_t *eth);
 
 /**
  * @brief Resolves a hostname or IPv4 string to a numeric IPv4 address.

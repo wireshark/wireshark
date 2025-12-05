@@ -44,7 +44,7 @@ int none_addr_to_str(const address* addr, char *buf, int buf_len);
 int none_addr_str_len(const address* addr);
 int none_addr_len(void);
 
-int ether_to_str(const address* addr, char *buf, int buf_len);
+WS_DLL_PUBLIC int ether_to_str(const address* addr, char *buf, int buf_len);
 int ether_str_len(const address* addr);
 int ether_len(void);
 const char* ether_name_resolution_str(const address* addr);

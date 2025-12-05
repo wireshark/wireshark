@@ -169,18 +169,18 @@ typedef struct _rose_ctx_t {
 } rose_ctx_t;
 
 WS_DLL_PUBLIC void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, bool aligned, packet_info *pinfo);
-extern bool asn1_ctx_check_signature(asn1_ctx_t *actx);
-extern void asn1_ctx_clean_external(asn1_ctx_t *actx);
+WS_DLL_PUBLIC bool asn1_ctx_check_signature(asn1_ctx_t *actx);
+WS_DLL_PUBLIC void asn1_ctx_clean_external(asn1_ctx_t *actx);
 extern void asn1_ctx_clean_epdv(asn1_ctx_t *actx);
 
-extern void asn1_stack_frame_push(asn1_ctx_t *actx, const char *name);
-extern void asn1_stack_frame_pop(asn1_ctx_t *actx, const char *name);
-extern void asn1_stack_frame_check(asn1_ctx_t *actx, const char *name, const asn1_par_def_t *par_def);
+WS_DLL_PUBLIC void asn1_stack_frame_push(asn1_ctx_t *actx, const char *name);
+WS_DLL_PUBLIC void asn1_stack_frame_pop(asn1_ctx_t *actx, const char *name);
+WS_DLL_PUBLIC void asn1_stack_frame_check(asn1_ctx_t *actx, const char *name, const asn1_par_def_t *par_def);
 
-extern void asn1_param_push_boolean(asn1_ctx_t *actx, bool value);
-extern void asn1_param_push_integer(asn1_ctx_t *actx, int32_t value);
+WS_DLL_PUBLIC void asn1_param_push_boolean(asn1_ctx_t *actx, bool value);
+WS_DLL_PUBLIC void asn1_param_push_integer(asn1_ctx_t *actx, int32_t value);
 extern bool asn1_param_get_boolean(asn1_ctx_t *actx, const char *name);
-extern int32_t asn1_param_get_integer(asn1_ctx_t *actx, const char *name);
+WS_DLL_PUBLIC int32_t asn1_param_get_integer(asn1_ctx_t *actx, const char *name);
 
 WS_DLL_PUBLIC void rose_ctx_init(rose_ctx_t *rctx);
 extern bool rose_ctx_check_signature(rose_ctx_t *rctx);
@@ -189,7 +189,7 @@ WS_DLL_PUBLIC void rose_ctx_clean_data(rose_ctx_t *rctx);
 WS_DLL_PUBLIC asn1_ctx_t *get_asn1_ctx(void *ptr);
 WS_DLL_PUBLIC rose_ctx_t *get_rose_ctx(void *ptr);
 
-extern double asn1_get_real(const uint8_t *real_ptr, int len);
+WS_DLL_PUBLIC double asn1_get_real(const uint8_t *real_ptr, int len);
 
 /* flags */
 #define ASN1_EXT_ROOT 0x01

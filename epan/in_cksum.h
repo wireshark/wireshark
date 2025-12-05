@@ -37,6 +37,6 @@ WS_DLL_PUBLIC int in_cksum_ret_partial(const vec_t *vec, int veclen, uint16_t *p
 
 WS_DLL_PUBLIC int in_cksum(const vec_t *vec, int veclen);
 
-uint16_t in_cksum_shouldbe(uint16_t sum, uint16_t computed_sum);
+WS_DLL_PUBLIC uint16_t in_cksum_shouldbe(uint16_t sum, uint16_t computed_sum);
 
 #endif /* __IN_CKSUM_H__ */

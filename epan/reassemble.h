@@ -457,7 +457,7 @@ fragment_set_tot_len(reassembly_table *table, const packet_info *pinfo,
  * If the fragments were previously reassembled, then this state will be
  * cleared, allowing new fragments to extend the reassembled result again.
  */
-void
+WS_DLL_PUBLIC void
 fragment_reset_tot_len(reassembly_table *table, const packet_info *pinfo,
 		       const uint32_t id, const void *data, const uint32_t tot_len);
 
@@ -471,7 +471,7 @@ fragment_reset_tot_len(reassembly_table *table, const packet_info *pinfo,
  * Used for continuous streams like TCP, where the length of a segment cannot
  * be determined without first reassembling and handing to a subdissector.
  */
-void
+WS_DLL_PUBLIC void
 fragment_truncate(reassembly_table *table, const packet_info *pinfo,
 		       const uint32_t id, const void *data, const uint32_t tot_len);
 

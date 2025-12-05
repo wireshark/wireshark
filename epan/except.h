@@ -92,7 +92,7 @@ struct except_stacknode {
 };
 
 /* private functions made external so they can be used in macros */
-extern void except_setup_clean(struct except_stacknode *,
+WS_DLL_PUBLIC void except_setup_clean(struct except_stacknode *,
         struct except_cleanup *, void (*)(void *), void *);
 WS_DLL_PUBLIC void except_setup_try(struct except_stacknode *,
         struct except_catch *, const except_id_t [], size_t);

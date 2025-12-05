@@ -33,6 +33,7 @@ extern "C" {
  * @param eol A pointer that will receive the EOL location
  * @return A pointer to the EOL character(s) in "*eol".
  */
+WS_DLL_PUBLIC
 const unsigned char *find_line_end(const unsigned char *data, const unsigned char *dataend,
     const unsigned char **eol);
 

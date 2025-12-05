@@ -69,13 +69,13 @@ typedef struct _enc_key_t {
     struct _enc_key_t* src2;
 } enc_key_t;
 
-extern const enc_key_t* keytab_get_enc_key_list(void);
-extern void keytab_set_enc_key_list(enc_key_t* list);
-extern const wmem_map_t* keytab_get_file_longterm_keys(void);
-extern wmem_map_t* keytab_get_file_all_keys(void);
-extern wmem_map_t* keytab_get_file_session_keys(void);
+WS_DLL_PUBLIC const enc_key_t* keytab_get_enc_key_list(void);
+WS_DLL_PUBLIC void keytab_set_enc_key_list(enc_key_t* list);
+WS_DLL_PUBLIC const wmem_map_t* keytab_get_file_longterm_keys(void);
+WS_DLL_PUBLIC wmem_map_t* keytab_get_file_all_keys(void);
+WS_DLL_PUBLIC wmem_map_t* keytab_get_file_session_keys(void);
 
-extern void keytab_file_key_map_insert(wmem_map_t* key_map, enc_key_t* new_key);
+WS_DLL_PUBLIC void keytab_file_key_map_insert(wmem_map_t* key_map, enc_key_t* new_key);
 
 #endif /* defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS) */
 

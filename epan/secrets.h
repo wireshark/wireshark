@@ -173,7 +173,8 @@ WS_DLL_PUBLIC bool
 secrets_verify_key(const char *uri, const char *password, bool *need_password, char **error);
 
 /** Returns a new hash table, mapping cert_key_id_t -> gnutls_privkey_t. */
-GHashTable *privkey_hash_table_new(void);
+WS_DLL_PUBLIC GHashTable*
+privkey_hash_table_new(void);
 
 /**
  * Tries to decrypt the given buffer using a private key identified by key_id.
