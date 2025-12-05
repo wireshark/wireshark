@@ -828,7 +828,6 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
     Pinfo pinfo = checkPinfo(L,WSLUA_ARG_DissectorTable_try_PINFO);
     TreeItem ti = checkTreeItem(L,WSLUA_ARG_DissectorTable_try_TREE);
     ftenum_t type;
-    bool handled = false;
     const char *volatile error = NULL;
     int len = 0;
 
@@ -842,9 +841,6 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
             const char* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_try_PATTERN);
 
             len = dissector_try_string_with_data(dt->table,pattern,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree, true, NULL);
-            if (len > 0) {
-                handled = true;
-            }
         } else if ( type == FT_GUID ) {
             const char* guid_str = luaL_checkstring(L,WSLUA_ARG_DissectorTable_try_PATTERN);
             fvalue_t* fval = fvalue_from_literal(type, guid_str, 0, NULL);
@@ -852,27 +848,14 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
             guid_key gk = {*guid, 0};
 
             len = dissector_try_guid_with_data(dt->table, &gk,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree, true, NULL);
-            if (len > 0) {
-                handled = true;
-            }
         } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
             uint32_t port = wslua_checkuint32(L, WSLUA_ARG_DissectorTable_try_PATTERN);
 
             len = dissector_try_uint(dt->table,port,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
-            if (len > 0) {
-                handled = true;
-            }
         } else if ( type == FT_NONE ) {
             len = dissector_try_payload_with_data(dt->table,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree, true, NULL);
-            if (len > 0) {
-                handled = true;
-            }
         } else {
             error = "No such type of dissector table";
-        }
-
-        if (!handled) {
-            len = call_data_dissector(tvb->ws_tvb, pinfo->ws_pinfo, ti->tree);
         }
         /* XXX Are we sure about this??? is this the right/only thing to catch */
     } CATCH_NONFATAL_ERRORS {
