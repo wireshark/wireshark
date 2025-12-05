@@ -82,6 +82,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	802_11-utils.h
 	adler32.h
 	array.h
+	base32.h
 	bits_count_ones.h
 	bits_ctz.h
 	bitswap.h
@@ -157,6 +158,7 @@ set(WSUTIL_PUBLIC_HEADERS
 set(WSUTIL_COMMON_FILES
 	802_11-utils.c
 	adler32.c
+	base32.c
 	bitswap.c
 	buffer.c
 	clopts_common.c
