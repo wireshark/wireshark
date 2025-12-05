@@ -4750,25 +4750,6 @@ dissect_homeplug_av_gp_cm_atten_char_ind(ptvcursor_t *cursor, packet_info *pinfo
 
     avg = 0.0f;
 
-    if (!ptvcursor_tree(cursor)) {
-        ptvcursor_advance(cursor, 1);
-        sectype = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-        ptvcursor_advance(cursor, 1);
-        if (sectype != HOMEPLUG_AV_GP_SECURITY_TYPE_PUBLIC_KEY) {
-            ptvcursor_advance(cursor, 6+8+17+17+1);
-            numgroups = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-            ptvcursor_advance(cursor, 1);
-            for (Counter_groups = 0; Counter_groups < numgroups; ++Counter_groups) {
-                val = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-                avg += val;
-                ptvcursor_advance(cursor,1);
-            }
-            avg /= numgroups;
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (Groups = %d, Avg. Attenuation = %.2f dB)", numgroups, avg);
-        }
-        return;
-    }
-
     ptvcursor_add(cursor, hf_homeplug_av_gp_cm_atten_char_apptype, 1, ENC_NA);
     sectype = tvb_get_uint8(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor));
 
@@ -4798,8 +4779,11 @@ dissect_homeplug_av_gp_cm_atten_char_ind(ptvcursor_t *cursor, packet_info *pinfo
                                             ptvcursor_tvbuff(cursor),
                                             ptvcursor_current_offset(cursor), 1, val,
                                             HOMEPLUG_AV_GP_CM_ATTEN_CHAR_AAG_FORMAT, Counter_groups + 1, val );
+                avg += val;
                 ptvcursor_advance(cursor, 1);
             }
+            avg /= numgroups;
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (Groups = %d, Avg. Attenuation = %.2f dB)", numgroups, avg);
         }
         ptvcursor_pop_subtree(cursor);
     }
