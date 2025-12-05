@@ -55,7 +55,7 @@
 
 	<!-- Sparkle settings https://sparkle-project.org/documentation/customization/ -->
 	<key>SUFeedURL</key>
-	<string>https://www.wireshark.org/update/0/Stratoshark/@STRATOSHARK_MAJOR_VERSION@.@STRATOSHARK_MINOR_VERSION@.@STRATOSHARK_PATCH_VERSION@/macOS/x86-64/en-US/stable.xml</string>
+	<string>https://www.wireshark.org/update/0/Stratoshark/@STRATOSHARK_MAJOR_VERSION@.@STRATOSHARK_MINOR_VERSION@.@PROJECT_PATCH_VERSION@/macOS/x86-64/en-US/stable.xml</string>
 	<key>SUEnableAutomaticChecks</key>
 	<false/>
 	<key>SUPublicEDKey</key>
