@@ -1,0 +1,46 @@
+/** @file
+ * Base-32 conversion
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+#ifndef __BASE32_H__
+#define __BASE32_H__
+
+#include <wireshark.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+/** Returned by base32_decode() if the input is not valid base32. */
+#define Base32_BAD_INPUT -1
+#define Base32_TOO_BIG -2
+
+/* Always return -1. The functionality has been removed due to a possible licensing
+ * issue, but the symbol is kept to not break the ABI. */
+WS_DLL_PUBLIC
+int ws_base32_decode(uint8_t* output, const uint32_t outputLength,
+						const uint8_t* in, const uint32_t inputLength);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __BASE32_H__ */
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
