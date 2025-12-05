@@ -590,7 +590,11 @@ def dependency_compute(items, dependency, map_fn = lambda t: t, ignore_fn = lamb
 
 # Given a filename, return a relative path from the current directory
 def relpath(filename):
-    return os.path.relpath(filename)
+    try:
+        minimal_path = os.path.relpath(filename)
+    except ValueError:
+        minimal_path = os.path.normpath(filename)
+    return minimal_path
 
 # Given a filename, return a relative path from epan/dissectors
 def rel_dissector_path(filename):
