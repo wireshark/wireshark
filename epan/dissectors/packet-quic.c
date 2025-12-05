@@ -3928,6 +3928,12 @@ quic_find_stateless_reset_token(packet_info *pinfo, tvbuff_t *tvb, bool *from_se
      * connections on the 5-tuple (as when a nonzero Connection ID is
      * used there can be more than one.)
      */
+
+    /* Make sure there is a last 16 bytes present to check. */
+    int reported_len = (int)tvb_reported_length(tvb);
+    if (reported_len < 16 || (reported_len != (int)tvb_captured_length(tvb))) {
+        return NULL;
+    }
     quic_info_data_t* conn = quic_connection_from_conv(pinfo);
     const quic_cid_item_t *cids;
 
@@ -3942,7 +3948,7 @@ quic_find_stateless_reset_token(packet_info *pinfo, tvbuff_t *tvb, bool *from_se
              * so we ideally should track when they are retired.
              */
             if (cid->reset_token_set &&
-                    !tvb_memeql(tvb, -16, cid->reset_token, 16) ) {
+                    !tvb_memeql(tvb, reported_len - 16, cid->reset_token, 16) ) {
                 *from_server = conn_from_server;
                 return conn;
             }
@@ -4792,7 +4798,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         quic_extract_header(tvb, &long_packet_type, &version, &dcid, &scid);
         conn = quic_connection_find(pinfo, long_packet_type, &dcid, &from_server);
-        if (!conn && tvb_bytes_exist(tvb, -16, 16) && (conn = quic_find_stateless_reset_token(pinfo, tvb, &from_server))) {
+        if (!conn && (conn = quic_find_stateless_reset_token(pinfo, tvb, &from_server))) {
             dgram_info->stateless_reset = true;
         } else {
             quic_connection_create_or_update(&conn, pinfo, long_packet_type, version, &scid, &dcid, from_server);
