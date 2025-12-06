@@ -1914,6 +1914,21 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-zvt.c
 )
 
+set(EVENT_FILES
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-procmon.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-sysdig-event.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-systemd-journal.c
+)
+
+set(EVENT_DISSECTOR_SRC
+	${CMAKE_CURRENT_SOURCE_DIR}/file-file.c
+	${CMAKE_CURRENT_SOURCE_DIR}/file-pcapng.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-frame.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-data.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-json.c
+	${EVENT_FILES}
+)
+
 set(DISSECTOR_SUPPORT_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/errno.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-nt.c
@@ -1942,6 +1957,11 @@ set(ALL_DISSECTOR_SRC
 	${CORBA_IDL_DISSECTOR_SRC}
 )
 
+set(ALL_EVENT_DISSECTOR_SRC
+	${EVENT_DISSECTOR_SRC}
+	${CUSTOM_EVENT_DISSECTOR_SRC}
+)
+
 #
 # We pass the arguments to make-regs.py in a file to avoid limitations
 # with the number of arguments handled by main().
@@ -1958,8 +1978,21 @@ add_custom_command(
 	COMMENT "Making dissectors.c"
 )
 
+file(GENERATE
+	OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/event-dissectors.in.txt"
+	CONTENT "$<JOIN:${ALL_EVENT_DISSECTOR_SRC},\n>\n"
+)
+add_custom_command(
+	OUTPUT event-dissectors.c
+	COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-regs.py event_dissectors event-dissectors.c @event-dissectors.in.txt
+	DEPENDS ${CMAKE_SOURCE_DIR}/tools/make-regs.py ${ALL_EVENT_DISSECTOR_SRC}
+		"${CMAKE_CURRENT_BINARY_DIR}/event-dissectors.in.txt"
+	COMMENT "Making event-dissectors.c"
+)
+
 set(DISSECTOR_REG_SRC
 	dissectors.c
+	event-dissectors.c
 )
 
 source_group(dissector-registration FILES ${DISSECTOR_REG_SRC})
@@ -1987,6 +2020,7 @@ set(CLEAN_FILES
 	${DISSECTOR_SUPPORT_SRC}
 	${DISSECTOR_REG_SRC}
 	${DISSECTOR_LEX}
+	${EVENT_FILES}
 )
 
 set_source_files_properties(
@@ -2002,6 +2036,7 @@ add_library(dissectors OBJECT
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
 	${DISSECTOR_LEX}
+	${EVENT_FILES}
 )
 
 target_include_directories(dissectors
@@ -2048,6 +2083,7 @@ if(NOT WIN32) # We're well past Windows' command line length limits
 		${ALL_DISSECTOR_SRC}
 		${DISSECTOR_SUPPORT_SRC}
 		${DISSECTOR_HEADERS}
+		${ALL_EVENT_DISSECTOR_SRC}
 	)
 endif()
 

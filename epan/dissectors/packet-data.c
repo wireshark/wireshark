@@ -215,8 +215,11 @@ void
 proto_reg_handoff_data(void)
 {
 	dissector_add_string("media_type", "application/octet-stream", data_handle);
-	ssl_dissector_add(0, data_handle);
-	dtls_dissector_add(0, data_handle);
+	if (epan_supports_packets())
+	{
+		ssl_dissector_add(0, data_handle);
+		dtls_dissector_add(0, data_handle);
+	}
 
 	dissector_all_tables_foreach_table(add_foreach_decode_as, (void *)data_handle, NULL);
 }

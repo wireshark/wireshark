@@ -736,8 +736,8 @@ int main(int argc, char *qt_argv[])
     app_data.env_var_prefix = application_configuration_environment_prefix();
     app_data.col_fmt = application_columns();
     app_data.num_cols = application_num_columns();
-    app_data.register_func = register_all_protocols;
-    app_data.handoff_func = register_all_protocol_handoffs;
+    app_data.register_func = register_all_event_dissectors;
+    app_data.handoff_func = register_all_event_dissectors_handoffs;
     app_data.tap_reg_listeners = tap_reg_listener;
     app_data.supports_packets = application_flavor_is_wireshark();
     if (!epan_init(splash_update, NULL, true, &app_data)) {

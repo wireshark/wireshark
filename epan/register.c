@@ -16,6 +16,7 @@
 #include <epan/exceptions.h>
 
 #include "epan/dissectors/dissectors.h"
+#include "epan/dissectors/event-dissectors.h"
 
 static const char *cur_cb_name;
 // We could use g_atomic_pointer_set/get instead of a mutex, but that causes
@@ -61,21 +62,22 @@ register_all_protocols_worker(void *arg _U_)
     return (void *) error_message;
 }
 
-void
-register_all_protocols(register_cb cb, void *cb_data)
+static void
+common_register_all_entities(dissector_reg_t const reg_proto[], unsigned long proto_count, GThreadFunc worker_func, register_cb cb, void* cb_data)
 {
     bool called_back = false;
     if (!cb) {
-        for (unsigned long i = 0; i < dissector_reg_proto_count; i++) {
-            dissector_reg_proto[i].cb_func();
+        for (unsigned long i = 0; i < proto_count; i++) {
+            reg_proto[i].cb_func();
         }
-    } else {
-        const char *error_message; /* XXX - This isn't const, and should be freed. */
-        const char *cb_name;
-        GThread *rapw_thread;
+    }
+    else {
+        const char* error_message; /* XXX - This isn't const, and should be freed. */
+        const char* cb_name;
+        GThread* rapw_thread;
 
         register_cb_done_q = g_async_queue_new();
-        rapw_thread = g_thread_new("register_all_protocols_worker", &register_all_protocols_worker, NULL);
+        rapw_thread = g_thread_new("register_all_protocols_worker", worker_func, NULL);
         while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
             g_mutex_lock(&cur_cb_name_mtx);
             cb_name = cur_cb_name;
@@ -85,13 +87,19 @@ register_all_protocols(register_cb cb, void *cb_data)
                 called_back = true;
             }
         }
-        error_message = (const char *) g_thread_join(rapw_thread);
+        error_message = (const char*)g_thread_join(rapw_thread);
         if (error_message != NULL)
             THROW_MESSAGE(DissectorError, error_message);
         if (!called_back) {
             cb(RA_REGISTER, "finished", cb_data);
         }
     }
+}
+
+void
+register_all_protocols(register_cb cb, void *cb_data)
+{
+    common_register_all_entities(dissector_reg_proto, dissector_reg_proto_count, &register_all_protocols_worker, cb, cb_data);
 }
 
 static void *
@@ -123,23 +131,24 @@ register_all_protocol_handoffs_worker(void *arg _U_)
     return (void *) error_message;
 }
 
-void
-register_all_protocol_handoffs(register_cb cb, void *cb_data)
+static void
+common_register_all_handoffs(dissector_reg_t const reg_handoff[], unsigned long handoff_count, GThreadFunc worker_func, register_cb cb, void *cb_data)
 {
     if (!cb) {
-        for (unsigned long i = 0; i < dissector_reg_handoff_count; i++) {
-            dissector_reg_handoff[i].cb_func();
+        for (unsigned long i = 0; i < handoff_count; i++) {
+            reg_handoff[i].cb_func();
         }
-    } else {
+    }
+    else {
         bool called_back = false;
-        const char *error_message; /* XXX - This isn't const, and should be freed */
-        const char *cb_name;
-        GThread *raphw_thread;
+        const char* error_message; /* XXX - This isn't const, and should be freed */
+        const char* cb_name;
+        GThread* raphw_thread;
         if (register_cb_done_q == NULL) {
             register_cb_done_q = g_async_queue_new();
         }
         set_cb_name(NULL);
-        raphw_thread = g_thread_new("register_all_protocol_handoffs_worker", &register_all_protocol_handoffs_worker, NULL);
+        raphw_thread = g_thread_new("register_all_protocol_handoffs_worker", worker_func, NULL);
         while (!g_async_queue_timeout_pop(register_cb_done_q, CB_WAIT_TIME)) {
             g_mutex_lock(&cur_cb_name_mtx);
             cb_name = cur_cb_name;
@@ -149,7 +158,7 @@ register_all_protocol_handoffs(register_cb cb, void *cb_data)
                 called_back = true;
             }
         }
-        error_message = (const char *) g_thread_join(raphw_thread);
+        error_message = (const char*)g_thread_join(raphw_thread);
         if (error_message != NULL)
             THROW_MESSAGE(DissectorError, error_message);
         if (!called_back) {
@@ -161,9 +170,83 @@ register_all_protocol_handoffs(register_cb cb, void *cb_data)
     }
 }
 
+void
+register_all_protocol_handoffs(register_cb cb, void *cb_data)
+{
+    common_register_all_handoffs(dissector_reg_handoff, dissector_reg_handoff_count, &register_all_protocol_handoffs_worker, cb, cb_data);
+}
+
 unsigned long register_count(void)
 {
     return dissector_reg_proto_count + dissector_reg_handoff_count;
+}
+
+static void*
+register_all_events_worker(void* arg _U_)
+{
+    void* volatile error_message = NULL;
+
+    TRY{
+        for (unsigned long i = 0; i < event_dissector_reg_proto_count; i++) {
+            set_cb_name(event_dissector_reg_proto[i].cb_name);
+            event_dissector_reg_proto[i].cb_func();
+        }
+    }
+        CATCH(DissectorError) {
+        /*
+         * This is probably a dissector, or something it calls,
+         * calling REPORT_DISSECTOR_ERROR() in a registration
+         * routine or something else outside the normal dissection
+         * code path.
+         *
+         * The message gets freed by ENDTRY, so we must make a copy
+         * of it.
+         */
+        error_message = g_strdup(GET_MESSAGE);
+    }
+    ENDTRY;
+
+    g_async_queue_push(register_cb_done_q, GINT_TO_POINTER(true));
+    return (void*)error_message;
+}
+
+static void*
+register_all_event_handoffs_worker(void* arg _U_)
+{
+    void* volatile error_message = NULL;
+
+    TRY{
+        for (unsigned long i = 0; i < event_dissector_reg_handoff_count; i++) {
+            set_cb_name(event_dissector_reg_handoff[i].cb_name);
+            event_dissector_reg_handoff[i].cb_func();
+        }
+    }
+        CATCH(DissectorError) {
+        /*
+         * This is probably a dissector, or something it calls,
+         * calling REPORT_DISSECTOR_ERROR() in a registration
+         * routine or something else outside the normal dissection
+         * code path.
+         *
+         * The message gets freed by ENDTRY, so we must make a copy
+         * of it.
+         */
+        error_message = g_strdup(GET_MESSAGE);
+    }
+    ENDTRY;
+
+    g_async_queue_push(register_cb_done_q, GINT_TO_POINTER(true));
+    return (void*)error_message;
+}
+
+void register_all_event_dissectors(register_cb cb, void* cb_data)
+{
+    common_register_all_entities(event_dissector_reg_proto, event_dissector_reg_proto_count, &register_all_events_worker, cb, cb_data);
+}
+
+void register_all_event_dissectors_handoffs(register_cb cb, void* cb_data)
+{
+    common_register_all_handoffs(event_dissector_reg_handoff, event_dissector_reg_handoff_count, &register_all_event_handoffs_worker, cb, cb_data);
 }
 
 /*
