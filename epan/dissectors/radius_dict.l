@@ -366,12 +366,12 @@ static void add_value(Radius_scanner_state_t* state, const char* attrib_name, co
 <VALUE_W_NAME>0x[0-9a-f]+			{ add_value(yyextra, yyextra->attr_name,yyextra->value_repr, (uint32_t) strtoul(yytext,NULL,16));  g_free(yyextra->attr_name); g_free(yyextra->value_repr); BEGIN WS_OUT;}
 
 <INCLUDE>[^[:blank:]\n]+   {
+	yyextra->include_stack[yyextra->include_stack_ptr++] = YY_CURRENT_BUFFER;
+
 	if ( yyextra->include_stack_ptr >= MAX_INCLUDE_DEPTH ) {
 		g_string_append_printf(yyextra->error, "$INCLUDE files nested too deeply\n");
 		yyterminate();
 	}
-
-	yyextra->include_stack[yyextra->include_stack_ptr++] = YY_CURRENT_BUFFER;
 
 	if (g_path_is_absolute(yytext)) {
 		yyextra->fullpaths[yyextra->include_stack_ptr] = ws_strdup(yytext);
