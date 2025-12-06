@@ -553,6 +553,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
     if (!wtap_read_bytes_or_eof(wth->fh, process_indices, sizeof(uint32_t) * num_processes, err, err_info))
     {
         file_info_cleanup(file_info);
+        g_free(process_indices);
         ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
         if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
         {
@@ -585,6 +586,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
     if (!wtap_read_bytes_or_eof(wth->fh, proc_offsets, sizeof(uint32_t) * num_processes, err, err_info))
     {
         file_info_cleanup(file_info);
+        g_free(proc_offsets);
         ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
         if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
         {
@@ -655,7 +657,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
             file_info_cleanup(file_info);
             g_free(proc_offsets);
             ws_debug("Failed to locate number of modules %u", idx);
-            return false;
+            return WTAP_OPEN_NOT_MINE;
         }
         uint32_t num_modules;
         if (!wtap_read_bytes_or_eof(wth->fh, &num_modules, sizeof(num_modules), err, err_info))
@@ -733,6 +735,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
             cur_process->modules = NULL;
         }
     }
+    g_free(proc_offsets);
 
     if (file_seek(wth->fh, header->start_events_offset, SEEK_SET, err) == -1)
     {
