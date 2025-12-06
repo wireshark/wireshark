@@ -34,6 +34,9 @@
 /* From IEEE 802.11 2016 Chapter 12.5.3.3.3 and 12.5.5.3.3 Construct AAD */
 void dot11decrypt_construct_aad(
     PDOT11DECRYPT_MAC_FRAME wh,
+    const uint8_t *A1,
+    const uint8_t *A2,
+    const uint8_t *A3,
     uint8_t *aad,
     size_t *aad_len)
 {
@@ -59,9 +62,9 @@ void dot11decrypt_construct_aad(
     } else {
         aad[1] = (uint8_t)((wh->fc[1] & FC1_AAD_MASK) | 0x40);
     }
-    memcpy(aad + 2, (uint8_t *)wh->addr1, DOT11DECRYPT_MAC_LEN);
-    memcpy(aad + 8, (uint8_t *)wh->addr2, DOT11DECRYPT_MAC_LEN);
-    memcpy(aad + 14, (uint8_t *)wh->addr3, DOT11DECRYPT_MAC_LEN);
+    memcpy(aad + 2, A1, DOT11DECRYPT_MAC_LEN);
+    memcpy(aad + 8, A2, DOT11DECRYPT_MAC_LEN);
+    memcpy(aad + 14, A3, DOT11DECRYPT_MAC_LEN);
     aad[20] = (uint8_t)(wh->seq[0] & DOT11DECRYPT_SEQ_FRAG_MASK);
     aad[21] = 0; /* all bits masked */
 

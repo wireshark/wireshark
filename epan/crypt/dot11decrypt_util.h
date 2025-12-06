@@ -14,8 +14,51 @@
 
 void dot11decrypt_construct_aad(
     PDOT11DECRYPT_MAC_FRAME wh,
+    const uint8_t *A1,
+    const uint8_t *A2,
+    const uint8_t *A3,
     uint8_t *aad,
     size_t *aad_len);
+
+/*
+ * Reference: IEEE 802.11-2024 12.5.4.3.3 Construct AAD,
+ * IEEE 802.11be-2024 12.5.2.3.3 Construct AAD, 12.5.2.3.4 Construct CCM nonce,
+ * 12.5.4.3.4 Construct GCM nonce.
+ */
+static inline void dot11decrypt_get_nonce_aad_addrs(
+    PDOT11DECRYPT_MAC_FRAME wh,
+    const uint8_t *ap_mld_mac,
+    const uint8_t *sta_mld_mac,
+    const uint8_t **A1,
+    const uint8_t **A2,
+    const uint8_t **A3
+)
+{
+    *A1 = wh->addr1;
+    *A2 = wh->addr2;
+    *A3 = wh->addr3;
+
+    if (ap_mld_mac && !(wh->addr1[0] & 1) &&
+        DOT11DECRYPT_TYPE(wh->fc[0]) == DOT11DECRYPT_TYPE_DATA) {
+        uint8_t ds = wh->fc[1] & DOT11DECRYPT_FC1_DIR_MASK;
+        if (ds == IEEE80211_FC1_DIR_TODS) {
+            *A1 = ap_mld_mac;
+            *A2 = sta_mld_mac;
+        } else if (ds == IEEE80211_FC1_DIR_FROMDS) {
+            *A1 = sta_mld_mac;
+            *A2 = ap_mld_mac;
+        }
+        // TODO 4 addr support
+
+        if (DOT11DECRYPT_IS_QOS_DATA(wh)) {
+            PDOT11DECRYPT_MAC_FRAME_QOS qwh = (PDOT11DECRYPT_MAC_FRAME_QOS)wh;
+            // The MPDU is an A-MSDU.
+            // A3 is BSSID and shall be set to MLD MAC of the AP MLD when building AAD.
+            if (qwh->qos[0] & 0x80)
+                *A3 = ap_mld_mac;
+        }
+    }
+}
 
 bool
 dot11decrypt_prf(const uint8_t *key, size_t key_len,

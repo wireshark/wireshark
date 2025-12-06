@@ -116,7 +116,10 @@ typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
 		int tmp_group_cipher; /* Keep between HS msg 2 and 3 */
 		int pmk_len;
 		unsigned char ptk[DOT11DECRYPT_WPA_PTK_MAX_LEN]; /* session key used in decryption algorithm */
-	    int ptk_len;
+		int ptk_len;
+		bool mld;
+		uint8_t ap_mld_mac[DOT11DECRYPT_MAC_LEN];
+		uint8_t sta_mld_mac[DOT11DECRYPT_MAC_LEN];
 	} wpa;
 
 

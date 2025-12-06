@@ -74,6 +74,9 @@
 typedef struct {
     GByteArray *key;
     GByteArray *ssid;
+    bool        tk_mld;
+    uint8_t     ap_mld_mac[6];
+    uint8_t     sta_mld_mac[6];
     unsigned    bits;
     unsigned    type;
 } decryption_key_t;
@@ -150,6 +153,9 @@ typedef struct _DOT11DECRYPT_KEY_ITEM {
 	struct DOT11DECRYPT_KEY_ITEMDATA_TK {
 		uint8_t Tk[DOT11DECRYPT_TK_MAX_LEN];
 		uint8_t Len;
+		bool mld;
+		uint8_t ap_mld_mac[6];
+		uint8_t sta_mld_mac[6];
 	} Tk;
 
 	struct DOT11DECRYPT_KEY_ITEMDATA_MSK {

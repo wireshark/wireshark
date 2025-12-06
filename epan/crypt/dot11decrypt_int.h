@@ -103,6 +103,9 @@
 
 /* Note: copied from net80211/ieee80211.h					*/
 #define DOT11DECRYPT_FC1_DIR_MASK                  0x03
+#define IEEE80211_FC1_DIR_NODS                     0x00    /* STA->STA */
+#define IEEE80211_FC1_DIR_TODS                     0x01    /* STA->AP  */
+#define IEEE80211_FC1_DIR_FROMDS                   0x02    /* AP ->STA */
 #define DOT11DECRYPT_FC1_DIR_DSTODS                0x03    /* AP ->AP  */
 #define DOT11DECRYPT_FC0_SUBTYPE_QOS               0x80
 #define DOT11DECRYPT_FC0_TYPE_DATA                 0x08
@@ -199,7 +202,9 @@ int Dot11DecryptCcmpDecrypt(
 	int len,
 	uint8_t *TK1,
 	int tk_len,
-	int mic_len);
+	int mic_len,
+	const uint8_t *ap_mld_mac,
+	const uint8_t *sta_mld_mac);
 
 /*
  * Decrypt GCMP encrypted MPDU.
@@ -214,7 +219,9 @@ int Dot11DecryptGcmpDecrypt(
 	int mac_header_len,
 	int len,
 	uint8_t *TK1,
-	int tk_len);
+	int tk_len,
+	const uint8_t *ap_mld_mac,
+	const uint8_t *sta_mld_mac);
 
 /*
  * Decrypt TKIP encrypted MPDU.

@@ -42965,6 +42965,11 @@ set_dot11decrypt_keys(void)
 
         memcpy(key.Tk.Tk, dk->key->data, dk->key->len);
         key.Tk.Len = dk->key->len;
+        key.Tk.mld = dk->tk_mld;
+        if (dk->tk_mld) {
+          memcpy(key.Tk.ap_mld_mac, dk->ap_mld_mac, 6);
+          memcpy(key.Tk.sta_mld_mac, dk->sta_mld_mac, 6);
+        }
         keys->Keys[keys->nKeys] = key;
         keys->nKeys += 1;
       }
@@ -61649,7 +61654,7 @@ proto_register_ieee80211(void)
                         "wep:<wep hexadecimal key>\n"
                         "wpa-pwd:<passphrase>[:<ssid>]\n"
                         "wpa-psk:<wpa hexadecimal key>\n"
-                        "tk:<hexadecimal key>\n"
+                        "tk:<hexadecimal key>[:<AP-MLD-MAC>:<STA-MLD-MAC>]\n"
                         "msk:<hexadecimal key>\n"),
       UAT_END_FIELDS
     };

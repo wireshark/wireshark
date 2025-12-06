@@ -371,6 +371,19 @@ class TestDecrypt80211UserTk:
         assert grep_output(stdout, 'DHCP Request')        # Verifies TK decryption
         assert grep_output(stdout, r'Echo \(ping\) request') # Verifies TK decryption
 
+    def test_80211_wpa_mlo_ccmp(self, cmd_tshark, capture_file, features, test_env_80211_user_tk):
+        '''IEEE 802.11 decode unicast CCMP-128 in MLO using user TK'''
+        # Included in git sources test/captures/wpa-mlo-ccmp.pcapng.gz
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa-mlo-ccmp.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == 0e4dd207a9cefdf129eb9e17547080ec',
+                ), encoding='utf-8', env=test_env_80211_user_tk)
+        assert grep_output(stdout, 'ARP.*is at')         # Verifies STA->AP MSDU decryption
+        assert count_output(stdout, '5201 → 55014') == 2 # Verifies AP->STA MSDU & A-MSDU decryption
+        assert grep_output(stdout, '5201 → 51678')       # Verifies MSDU on the other link decryption
+        assert grep_output(stdout, 'Deauthentication')   # Verifies MMPDU decryption
+
 
 class TestDecryptDTLS:
     def test_dtls_rsa(self, cmd_tshark, capture_file, features, test_env):

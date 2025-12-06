@@ -37,12 +37,12 @@
 /* From IEEE 802.11 2016 Chapter 12.5.5.3.4 Construct GCM nonce */
 static void
 gcmp_construct_nonce(
-	PDOT11DECRYPT_MAC_FRAME wh,
+	const uint8_t *A2,
 	uint64_t pn,
 	uint8_t nonce[12])
 {
 	/* Nonce: A2 | PN */
-	DOT11DECRYPT_ADDR_COPY(nonce, wh->addr2);
+	DOT11DECRYPT_ADDR_COPY(nonce, A2);
 	nonce[6] = (uint8_t)(pn >> 40);
 	nonce[7] = (uint8_t)(pn >> 32);
 	nonce[8] = (uint8_t)(pn >> 24);
@@ -56,7 +56,9 @@ int Dot11DecryptGcmpDecrypt(
 	int mac_header_len,
 	int len,
 	uint8_t *TK1,
-	int tk_len)
+	int tk_len,
+	const uint8_t *ap_mld_mac,
+	const uint8_t *sta_mld_mac)
 {
 	PDOT11DECRYPT_MAC_FRAME wh;
 	uint8_t aad[30];
@@ -67,6 +69,7 @@ int Dot11DecryptGcmpDecrypt(
 	gcry_cipher_hd_t handle;
 	uint64_t pn;
 	uint8_t *ivp = m + z;
+	const uint8_t *A1, *A2, *A3;
 
 	wh = (PDOT11DECRYPT_MAC_FRAME )m;
 	data_len = len - (z + DOT11DECRYPT_GCMP_HEADER + DOT11DECRYPT_GCMP_TRAILER);
@@ -74,9 +77,10 @@ int Dot11DecryptGcmpDecrypt(
 		return -1;
 	}
 
+	dot11decrypt_get_nonce_aad_addrs(wh, ap_mld_mac, sta_mld_mac, &A1, &A2, &A3);
 	pn = READ_6(ivp[0], ivp[1], ivp[4], ivp[5], ivp[6], ivp[7]);
-	gcmp_construct_nonce(wh, pn, nonce);
-	dot11decrypt_construct_aad(wh, aad, &aad_len);
+	gcmp_construct_nonce(A2, pn, nonce);
+	dot11decrypt_construct_aad(wh, A1, A2, A3, aad, &aad_len);
 
 	if (gcry_cipher_open(&handle, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_GCM, 0)) {
 		return 1;

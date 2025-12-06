@@ -901,7 +901,9 @@ Dot11DecryptUsingUserTk(
             case 128 / 8:
                 ciphers_to_try[0] = 4; /* CCMP-128 */
                 ciphers_to_try[1] = 8; /* GCMP-128 */
-                ciphers_to_try[2] = 2; /* TKIP */
+                /* MLO does not allow TKIP */
+                if (!key->Tk.mld)
+                    ciphers_to_try[2] = 2; /* TKIP */
                 break;
             default:
                 continue;
@@ -920,6 +922,11 @@ Dot11DecryptUsingUserTk(
                 sa->wpa.akm = 2;
                 memcpy(DOT11DECRYPT_GET_TK(sa->wpa.ptk, sa->wpa.akm, sa->wpa.pmk_len * 8),
                        key->Tk.Tk, key->Tk.Len);
+                sa->wpa.mld = key->Tk.mld;
+                if (key->Tk.mld) {
+                    memcpy(sa->wpa.ap_mld_mac, key->Tk.ap_mld_mac, DOT11DECRYPT_MAC_LEN);
+                    memcpy(sa->wpa.sta_mld_mac, key->Tk.sta_mld_mac, DOT11DECRYPT_MAC_LEN);
+                }
             }
             sa->wpa.ptk_len = Dot11DecryptGetPtkLen(sa->wpa.akm, sa->wpa.cipher, sa->wpa.pmk_len * 8) / 8;
             ret = Dot11DecryptRsnaMng(decrypt_data, mac_header_len, decrypt_len, used_key, sa);
@@ -1214,6 +1221,7 @@ Dot11DecryptRsnaMng(
 
     /* start of loop added by GCS */
     for(/* sa */; sa != NULL ;sa=sa->next) {
+       const uint8_t *ap_mld_mac = NULL, *sta_mld_mac = NULL;
 
        if (sa->validKey==false) {
            ws_noisy("Key not yet valid");
@@ -1223,6 +1231,10 @@ Dot11DecryptRsnaMng(
        /* copy the encrypted data into a temp buffer */
        memcpy(try_data, decrypt_data, *decrypt_len);
 
+       if (sa->wpa.mld) {
+           ap_mld_mac = sa->wpa.ap_mld_mac;
+           sta_mld_mac = sa->wpa.sta_mld_mac;
+       }
        /* Select decryption method based on EAPOL Key Descriptor Version and negotiated AKM
         * with selected cipher suite. Refer to IEEE 802.11-2020:
         * 12.7.2 EAPOL-Key frames
@@ -1261,7 +1273,8 @@ Dot11DecryptRsnaMng(
 
            ret = Dot11DecryptGcmpDecrypt(try_data, mac_header_len, (int)*decrypt_len,
                                          DOT11DECRYPT_GET_TK(sa->wpa.ptk, sa->wpa.akm, sa->wpa.pmk_len * 8),
-                                         Dot11DecryptGetTkLen(sa->wpa.cipher) / 8);
+                                         Dot11DecryptGetTkLen(sa->wpa.cipher) / 8,
+                                         ap_mld_mac, sta_mld_mac);
            if (ret) {
                if (ret < 0) {
                    ws_debug("Invalid decryption length");
@@ -1283,7 +1296,7 @@ Dot11DecryptRsnaMng(
            ret = Dot11DecryptCcmpDecrypt(try_data, mac_header_len, (int)*decrypt_len,
                                          DOT11DECRYPT_GET_TK(sa->wpa.ptk, sa->wpa.akm, sa->wpa.pmk_len * 8),
                                          Dot11DecryptGetTkLen(sa->wpa.cipher) / 8,
-                                         trailer);
+                                         trailer, ap_mld_mac, sta_mld_mac);
            if (ret) {
                if (ret < 0) {
                    ws_debug("Invalid decryption length");
@@ -2786,7 +2799,7 @@ parse_key_string(char* input_string, uint8_t key_type, char** error)
         if (key_ba->len > 0 && key_ba->len <= DOT11DECRYPT_WEP_KEY_MAXLEN) {
             /* Key is correct! It was probably an 'old style' WEP key */
             /* Create the decryption_key_t structure, fill it and return it*/
-            dk = g_new(decryption_key_t, 1);
+            dk = g_new0(decryption_key_t, 1);
 
             dk->type = DOT11DECRYPT_KEY_TYPE_WEP;
             dk->key  = key_ba;
@@ -2887,7 +2900,7 @@ parse_key_string(char* input_string, uint8_t key_type, char** error)
         }
 
         /* Key was correct!!! Create the new decryption_key_t ... */
-        dk = g_new(decryption_key_t, 1);
+        dk = g_new0(decryption_key_t, 1);
 
         dk->type = DOT11DECRYPT_KEY_TYPE_WPA_PWD;
         dk->key  = key_ba;
@@ -2922,7 +2935,7 @@ parse_key_string(char* input_string, uint8_t key_type, char** error)
         }
 
         /* Key was correct!!! Create the new decryption_key_t ... */
-        dk = g_new(decryption_key_t, 1);
+        dk = g_new0(decryption_key_t, 1);
 
         dk->type = DOT11DECRYPT_KEY_TYPE_WPA_PSK;
         dk->key  = key_ba;
@@ -2933,6 +2946,17 @@ parse_key_string(char* input_string, uint8_t key_type, char** error)
 
     case DOT11DECRYPT_KEY_TYPE_TK:
         {
+            tokens = g_strsplit(input_string,":", 3);
+            n = g_strv_length(tokens);
+            if (!(n == 1 || n == 3))
+            {
+                /* Free the array of strings */
+                if (error) {
+                    *error = g_strdup("TK must be in TK[:AP MLD MAC:STA MLD MAC] format");
+                }
+                g_strfreev(tokens);
+                return NULL;
+            }
             /* From IEEE 802.11-2024 Table 12-8 Cipher suite key lengths */
             static const uint8_t allowed_key_lengths[] = {
 // TBD          40 / 8,  /* WEP-40 */
@@ -2943,11 +2967,12 @@ parse_key_string(char* input_string, uint8_t key_type, char** error)
             bool key_length_ok = false;
 
             key_ba = g_byte_array_new();
-            if (!hex_str_to_bytes(input_string, key_ba, false)) {
+            if (!hex_str_to_bytes(tokens[0], key_ba, false)) {
                 if (error) {
                     *error = g_strdup("Temporal Key must be a hexadecimal string");
                 }
                 g_byte_array_free(key_ba, true);
+                g_strfreev(tokens);
                 return NULL;
             }
 
@@ -2969,14 +2994,40 @@ parse_key_string(char* input_string, uint8_t key_type, char** error)
                     *error = g_string_free(err_string, FALSE);
                 }
                 g_byte_array_free(key_ba, true);
+                g_strfreev(tokens);
                 return NULL;
             }
-            dk = g_new(decryption_key_t, 1);
+            dk = g_new0(decryption_key_t, 1);
+
+            if (n == 3) {
+                dk->tk_mld = true;
+                GByteArray *mac = g_byte_array_new();
+                for (size_t i = 1; i <= 2; ++i) {
+                    if (!hex_str_to_bytes(tokens[i], mac, false) || mac->len != 6) {
+                        if (error) {
+                            *error = g_strdup("MAC must be a 6 bytes hexadecimal string");
+                        }
+                        g_byte_array_free(mac, true);
+                        g_free(dk);
+                        g_byte_array_free(key_ba, true);
+                        g_strfreev(tokens);
+                        return NULL;
+                    }
+                    if (i == 1)
+                        memcpy(dk->ap_mld_mac, mac->data, 6);
+                    else
+                        memcpy(dk->sta_mld_mac, mac->data, 6);
+                }
+                g_byte_array_free(mac, true);
+            }
+
             dk->type = DOT11DECRYPT_KEY_TYPE_TK;
             dk->key  = key_ba;
             dk->bits = (unsigned) dk->key->len * 8;
             dk->ssid = NULL;
 
+            /* Free the array of strings */
+            g_strfreev(tokens);
             return dk;
         }
     case DOT11DECRYPT_KEY_TYPE_MSK:
@@ -2999,7 +3050,7 @@ parse_key_string(char* input_string, uint8_t key_type, char** error)
                 g_byte_array_free(key_ba, true);
                 return NULL;
             }
-            dk = g_new(decryption_key_t, 1);
+            dk = g_new0(decryption_key_t, 1);
             dk->type = DOT11DECRYPT_KEY_TYPE_MSK;
             dk->key  = key_ba;
             dk->bits = (unsigned)dk->key->len * 8;
