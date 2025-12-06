@@ -10,6 +10,8 @@ import re
 import subprocess
 import argparse
 import signal
+import concurrent.futures
+import io
 from check_common import findDissectorFilesInFolder, getFilesFromOpen, getFilesFromCommits, isGeneratedFile
 
 # Look for dissector symbols that could/should be static.
@@ -39,7 +41,8 @@ class CalledSymbols:
     def __init__(self):
         self.referred = set()
 
-    def addCalls(self, file):
+    def getCalls(self, file):
+        referred = set()
         if should_exit:
             exit(1)
 
@@ -57,7 +60,7 @@ class CalledSymbols:
                 object_file = os.path.join(build_folder, os.path.dirname(file), 'CMakeFiles', last_dir + '.dir', os.path.basename(file) + '.o')
         if not os.path.exists(object_file):
             # Not built for whatever reason..
-            return
+            return referred
 
         # Run command to check symbols.
         command = ['nm', object_file]
@@ -76,10 +79,14 @@ class CalledSymbols:
 
                 # Only interested in undefined/external references to symbols.
                 if letter == 'U':
-                    self.referred.add(function_name)
+                    referred.add(function_name)
+        return referred
+
+    def addCalls(self, calls):
+        self.referred.update(calls)
 
 
-# header-file -> contents for files that will be checked often.
+# header-file -> contents for files that will be checked often, so only read once.
 common_mismatched_header_contents = {}
 common_mismatched_headers = [os.path.join('epan', 'dissectors', 'packet-ncp-int.h'),
                              os.path.join('epan', 'dissectors', 'packet-mq.h'),
@@ -102,7 +109,7 @@ class DefinedSymbols:
         self.header_file_contents = None
         self.from_generated_file = isGeneratedFile(file)
 
-        # Make sure that file is built.
+        # Make sure that file is built by looking for object file
         if self.filename.startswith('epan'):
             object_file = os.path.join(build_folder, 'epan', 'dissectors', 'CMakeFiles', 'dissectors.dir', os.path.basename(file) + '.o')
         elif self.filename.startswith('plugins'):
@@ -165,24 +172,21 @@ class DefinedSymbols:
         return False
 
     def checkIfSymbolsAreCalled(self, called_symbols):
-        global issues_found
+        output = io.StringIO()
         for f in self.global_symbols:
             if f not in called_symbols:
                 mentioned_in_header = self.mentionedInHeaders(f)
                 fun = self.global_symbols[f]
                 print(self.filename, '' if not self.from_generated_file else '(GENERATED)',
                       '(' + fun + ')',
-                      'is not referred to so could be static?', '(declared in header but not referred to)' if mentioned_in_header else '')
-                issues_found += 1
+                      'is not referred to so could be static?', '(declared in header but not referred to)' if mentioned_in_header else '',
+                      file=output)
+        contents = output.getvalue()
+        output.close()
+        return contents
 
 
 # Helper functions.
-
-def isDissectorFile(filename):
-    # Ignoring usb.c & errno.c
-    p = re.compile(r'(packet|file)-.*\.c')
-    return p.match(filename)
-
 
 def findFilesInFolder(folder):
     # Look at files in sorted order, to give some idea of how far through is.
@@ -264,25 +268,37 @@ if not os.path.isdir(build_folder):
 
 # Get the set of called functions and referred-to data.
 called = CalledSymbols()
-for d in findDissectorFilesInFolder(os.path.join('epan', 'dissectors'), include_generated=True):
-    called.addCalls(d)
-called.addCalls(os.path.join('epan', 'dissectors', 'dissectors.c'))
-# Also check calls from GUI code
-for d in findFilesInFolder('ui'):
-    called.addCalls(d)
-for d in findFilesInFolder(os.path.join('ui', 'qt')):
-    called.addCalls(d)
-# These are from tshark..
-for d in findFilesInFolder(os.path.join('ui', 'cli')):
-    called.addCalls(d)
 
+call_files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'), include_generated=True)
+call_files.append(os.path.join('epan', 'dissectors', 'dissectors.c'))
+call_files += findFilesInFolder(os.path.join('ui', 'qt'))
+call_files += findFilesInFolder(os.path.join('ui', 'cli'))
+
+def getCalls(file):
+    return called.getCalls(file)
+
+
+# Gather a list of undefined/external references.
+with concurrent.futures.ProcessPoolExecutor() as executor:
+    future_to_file_referred = {executor.submit(getCalls, file): file for file in call_files}
+    for future in concurrent.futures.as_completed(future_to_file_referred):
+        referred = future.result()
+        called.addCalls(referred)
 
 # Now check identified dissector files.
-for f in files:
-    if should_exit:
-        exit(1)
-    # Are these symbols called - or could they be deleted or static????
-    DefinedSymbols(f).checkIfSymbolsAreCalled(called.referred)
+def checkIfSymbolsAreCalled(file):
+    return DefinedSymbols(file).checkIfSymbolsAreCalled(called.referred)
+
+with concurrent.futures.ProcessPoolExecutor() as executor:
+    future_to_file_output = {executor.submit(checkIfSymbolsAreCalled, file): file for file in files}
+    for future in concurrent.futures.as_completed(future_to_file_output):
+        if should_exit:
+            exit(1)
+
+        output = future.result()
+        if len(output):
+            print(output)
+        issues_found += len(output.splitlines())
 
 # Show summary.
 print(issues_found, 'issues found')
