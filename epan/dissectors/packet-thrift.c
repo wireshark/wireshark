@@ -497,8 +497,8 @@ thrift_get_varint_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     if (readable <= 0) {
         return THRIFT_REQUEST_REASSEMBLY;
     }
-    if (readable > TCP_THRIFT_MAX_I64_LEN) {
-        readable = TCP_THRIFT_MAX_I64_LEN;
+    if (readable > max_length) {
+        readable = max_length;
     }
     length = tvb_get_varint(tvb, offset, readable, value, encoding);
     if (length == 0) {
