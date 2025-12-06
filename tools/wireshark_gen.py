@@ -619,10 +619,9 @@ class wireshark_gen_C:
         if self.isItemVarType(attr_type):
             self.st.out(self.template_proto_item)
 
-        if len(self.fn_hash[sname]) > 0:
-            self.st.out(self.template_helper_function_vars_start)
-            self.dumpCvars(sname)
-            self.st.out(self.template_helper_function_vars_end_item)
+        self.st.out(self.template_helper_function_vars_start)
+        self.dumpCvars(sname)
+        self.st.out(self.template_helper_function_vars_end_item)
 
         self.getCDR(attr_type, sname + "_" + decl.identifier())
 
@@ -675,13 +674,12 @@ class wireshark_gen_C:
         if need_item:
             self.st.out(self.template_proto_item)
 
-        if len(self.fn_hash[sname]) > 0:
-            self.st.out(self.template_helper_function_vars_start)
-            self.dumpCvars(sname)
-            if need_item:
-                self.st.out(self.template_helper_function_vars_end_item)
-            else:
-                self.st.out(self.template_helper_function_vars_end)
+        self.st.out(self.template_helper_function_vars_start)
+        self.dumpCvars(sname)
+        if need_item:
+            self.st.out(self.template_helper_function_vars_end_item)
+        else:
+            self.st.out(self.template_helper_function_vars_end)
 
         for m in ex.members():
             if self.DEBUG:
@@ -754,10 +752,9 @@ class wireshark_gen_C:
         self.st.out(self.template_helper_function_start, sname=sname)
         self.st.inc_indent()
 
-        if len(self.fn_hash[sname]) > 0:
-            self.st.out(self.template_helper_function_vars_start)
-            self.dumpCvars(sname)
-            self.st.out(self.template_helper_function_vars_end_item)
+        self.st.out(self.template_helper_function_vars_start)
+        self.dumpCvars(sname)
+        self.st.out(self.template_helper_function_vars_end_item)
 
         self.st.out(self.template_helper_switch_msgtype_start)
 
@@ -1400,10 +1397,9 @@ class wireshark_gen_C:
             self.st.out(self.template_union_helper_function_start, sname=sname, unname=un.repoId())
         self.st.inc_indent()
 
-        if len(self.fn_hash[sname]) > 0:
-            self.st.out(self.template_helper_function_vars_start)
-            self.dumpCvars(sname)
-            self.st.out(self.template_helper_function_vars_end_item)
+        self.st.out(self.template_helper_function_vars_start)
+        self.dumpCvars(sname)
+        self.st.out(self.template_helper_function_vars_end_item)
 
         st = un.switchType().unalias()  # may be typedef switch type, so find real type
 
@@ -1595,10 +1591,9 @@ class wireshark_gen_C:
         self.st.out(self.template_struct_helper_function_start, sname=sname, stname=st.repoId())
         self.st.inc_indent()
 
-        if len(self.fn_hash[sname]) > 0:
-            self.st.out(self.template_helper_function_vars_start)
-            self.dumpCvars(sname)
-            self.st.out(self.template_helper_function_vars_end_item)
+        self.st.out(self.template_helper_function_vars_start)
+        self.dumpCvars(sname)
+        self.st.out(self.template_helper_function_vars_end_item)
 
         for m in st.members():
             for decl in m.declarators():
@@ -1873,7 +1868,8 @@ class wireshark_gen_C:
  * @repoid@
  */"""
     template_helper_function_vars_start = """\
-/* Operation specific Variable declarations Begin */"""
+/* Operation specific Variable declarations Begin */
+_U_ int old_offset;"""
 
     template_helper_function_vars_end = """\
 /* Operation specific Variable declarations End */
@@ -2102,40 +2098,51 @@ break;"""
     # Templates for get_CDR_xxx accessors
 
     template_get_CDR_ulong = """\
-proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-4, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
+old_offset = *offset;
+proto_tree_add_uint(tree, hf_@hfname@, tvb, old_offset, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_short = """\
-proto_tree_add_int(tree, hf_@hfname@, tvb, *offset-2, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
+old_offset = *offset;
+proto_tree_add_int(tree, hf_@hfname@, tvb, old_offset, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_void = """\
 /* Function returns void */
 """
     template_get_CDR_long = """\
-proto_tree_add_int(tree, hf_@hfname@, tvb, *offset-4, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
+old_offset = *offset;
+proto_tree_add_int(tree, hf_@hfname@, tvb, old_offset, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_ushort = """\
-proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-2, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
+old_offset = *offset;
+proto_tree_add_uint(tree, hf_@hfname@, tvb, old_offset, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_float = """\
-proto_tree_add_float(tree, hf_@hfname@, tvb, *offset-4, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
+old_offset = *offset;
+proto_tree_add_float(tree, hf_@hfname@, tvb, old_offset, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_double = """\
-proto_tree_add_double(tree, hf_@hfname@, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
+old_offset = *offset;
+proto_tree_add_double(tree, hf_@hfname@, tvb, old_offset, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_longlong = """\
-proto_tree_add_int64(tree, hf_@hfname@, tvb, *offset-8, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
+old_offset = *offset;
+proto_tree_add_int64(tree, hf_@hfname@, tvb, old_offset, 8, get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_ulonglong = """\
-proto_tree_add_uint64(tree, hf_@hfname@, tvb, *offset-8, 8, get_CDR_ulong_long(tvb,offset,stream_is_big_endian, boundary));
+old_offset = *offset;
+proto_tree_add_uint64(tree, hf_@hfname@, tvb, old_offset, 8, get_CDR_ulong_long(tvb,offset,stream_is_big_endian, boundary));
 """
     template_get_CDR_boolean = """\
-proto_tree_add_boolean(tree, hf_@hfname@, tvb, *offset-1, 1, get_CDR_boolean(tvb,offset));
+old_offset = *offset;
+proto_tree_add_boolean(tree, hf_@hfname@, tvb, old_offset, 1, get_CDR_boolean(tvb,offset));
 """
     template_get_CDR_char = """\
-proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-1, 1, get_CDR_char(tvb,offset));
+old_offset = *offset;
+proto_tree_add_uint(tree, hf_@hfname@, tvb, old_offset, 1, get_CDR_char(tvb,offset));
 """
     template_get_CDR_octet = """\
-proto_tree_add_uint(tree, hf_@hfname@, tvb, *offset-1, 1, get_CDR_octet(tvb,offset));
+old_offset = *offset;
+proto_tree_add_uint(tree, hf_@hfname@, tvb, old_offset, 1, get_CDR_octet(tvb,offset));
 """
     template_get_CDR_any = """\
 get_CDR_any(tvb, pinfo, tree, item, offset, stream_is_big_endian, boundary, header);
