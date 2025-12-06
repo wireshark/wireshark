@@ -94,6 +94,8 @@ static bool spdu_deserializer_hide_raw_values           = true;
 static expert_field ei_spdu_payload_truncated;
 static expert_field ei_spdu_config_error;
 static expert_field ei_spdu_unaligned_data;
+static expert_field ei_spdu_payload_disabled;
+static expert_field ei_spdu_payload_not_configured;
 
 /*** Data Structure for UAT based config ***/
 static GHashTable *data_spdu_messages;
@@ -2403,17 +2405,17 @@ dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, u
     int bits_parsed = 0;
     int multiplexer = -1;
 
-    proto_item *ti = proto_tree_add_item(root_tree, proto_signal_pdu, tvb, offset, -1, ENC_NA);
-    proto_tree *tree = proto_item_add_subtree(ti, ett_spdu_payload);
+    proto_item *pdu_item = proto_tree_add_item(root_tree, proto_signal_pdu, tvb, offset, -1, ENC_NA);
+    proto_tree *tree = proto_item_add_subtree(pdu_item, ett_spdu_payload);
 
     char *name = get_message_name(id);
     if (name != NULL) {
-        proto_item_append_text(ti, ": %s", name);
+        proto_item_append_text(pdu_item, ": %s", name);
         if (update_column) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " (PDU: %s)", name);
             col_set_str(pinfo->cinfo, COL_PROTOCOL, SPDU_NAME);
         }
-        ti = proto_tree_add_string(tree, hf_pdu_name, tvb, offset, -1, name);
+        proto_item* ti = proto_tree_add_string(tree, hf_pdu_name, tvb, offset, -1, name);
         proto_item_set_generated(ti);
         proto_item_set_hidden(ti);
     }
@@ -2426,13 +2428,13 @@ dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, u
     }
 
     if (!spdu_deserializer_activated) {
-        proto_tree_add_text_internal(tree, tvb, 0, tvb_captured_length(tvb), "Dissection of payload is disabled. It can be enabled via protocol preferences.");
+        expert_add_info(pinfo, pdu_item, &ei_spdu_payload_disabled);
         return tvb_captured_length(tvb);
     }
 
     if (tvb_captured_length(tvb) > 0 && paramlist == NULL) {
         /* we only receive a tvb with nothing behind us */
-        proto_tree_add_text_internal(tree, tvb, 0, tvb_captured_length(tvb), "Payload of PDU is not configured. See protocol preferences.");
+        expert_add_info(pinfo, pdu_item, &ei_spdu_payload_not_configured);
         return call_data_dissector(tvb, pinfo, tree);
     }
 
@@ -2784,6 +2786,10 @@ proto_register_signal_pdu(void) {
           PI_MALFORMED, PI_ERROR, "Signal PDU: Config Error (missing filter, filter duplicate, ...)!", EXPFILL} },
         { &ei_spdu_unaligned_data, {"signal_pdu.payload.unaligned_data",
           PI_MALFORMED, PI_ERROR, "Signal PDU: Unaligned data! Strings etc. need to be aligned to bytes!", EXPFILL} },
+        { &ei_spdu_payload_disabled, {"signal_pdu.payload.disabled",
+          PI_PROTOCOL, PI_WARN, "Dissection of payload is disabled. It can be enabled via protocol preferences.", EXPFILL} },
+        { &ei_spdu_payload_not_configured, {"signal_pdu.payload.not_configured",
+          PI_PROTOCOL, PI_WARN, "Payload of PDU is not configured. See protocol preferences.", EXPFILL} },
     };
 
     /* Register ETTs */

@@ -1636,7 +1636,7 @@ proto_tree_add_item_ret_time_string(proto_tree *tree, int hfindex,
 	const int start, int length, const unsigned encoding,
 	wmem_allocator_t *scope, char **retval);
 
-/** (INTERNAL USE ONLY) Add a text-only node to a proto_tree.
+/** (INTERNAL USE ONLY - DO NOT USE IN DISSECTORS!) Add a text-only node to a proto_tree.
  @param tree the tree to append this item to
  @param tvb the tv buffer of the current data
  @param start start of data in tvb

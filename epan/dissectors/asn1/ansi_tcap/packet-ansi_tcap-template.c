@@ -165,6 +165,7 @@ static int ett_dtid;
 static int ett_ansi_tcap_stat;
 
 static expert_field ei_ansi_tcap_dissector_not_implemented;
+static expert_field ei_ansi_tcap_no_parameters;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static bool tcap_subdissector_used=false;
@@ -1053,7 +1054,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
         }
         if(ansi_tcap_private.d.OperationCode == 0){
                 /* national */
-                proto_item          *item2=NULL;
+                proto_item          *item2;
                 proto_tree          *tree2=NULL;
                 uint8_t family = (ansi_tcap_private.d.OperationCode_national & 0x7f00)>>8;
                 uint8_t specifier = (uint8_t)(ansi_tcap_private.d.OperationCode_national & 0xff);
@@ -1062,8 +1063,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                                         "Dissector for ANSI TCAP NATIONAL code:0x%x(Family %u, Specifier %u) \n"
                                         "not implemented. Contact Wireshark developers if you want this supported(Spec required)",
                                         ansi_tcap_private.d.OperationCode_national, family, specifier);
-                        item2 = proto_tree_add_text_internal(tree, tvb, 0, 1, "Parameters");
-                        tree2 = proto_item_add_subtree(item2, ett_tcap);
+                        tree2 = proto_tree_add_subtree(tree, tvb, 0, 1, ett_tcap, &item2, "Parameters");
                         int offset_parameter = 0;
                         proto_tree_add_item(tree2, hf_ansi_tcap_parameter_set_start, tvb, 0, 1, ENC_BIG_ENDIAN);
 
@@ -1078,7 +1078,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                                 offset_parameter +=1;
                             }
                         }else{
-                            proto_tree_add_text_internal(tree2, tvb, 0, 1, "No parameters exists");
+                            expert_add_info(actx->pinfo, item2, &ei_ansi_tcap_no_parameters);
                         }
 
                         return false;
@@ -1818,6 +1818,7 @@ proto_register_ansi_tcap(void)
 
     static ei_register_info ei[] = {
         { &ei_ansi_tcap_dissector_not_implemented, { "ansi_tcap.dissector_not_implemented", PI_UNDECODED, PI_WARN, "Dissector not implemented", EXPFILL }},
+        { &ei_ansi_tcap_no_parameters, { "ansi_tcap.no_parameters", PI_PROTOCOL, PI_NOTE, "No parameters exist", EXPFILL }},
     };
 
     expert_module_t* expert_ansi_tcap;

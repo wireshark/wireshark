@@ -659,8 +659,6 @@ dissect_spnego_T_target_realm(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
   if (ber_class == BER_CLASS_UNI && pc == false && tag == BER_UNI_TAG_OCTETSTRING) {
-     proto_tree_add_text_internal(tree, tvb, offset, 1,
-                                  "target-realm encoded as OCTET STRING: MIT Kerberos?");
      offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_OCTETSTRING,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);

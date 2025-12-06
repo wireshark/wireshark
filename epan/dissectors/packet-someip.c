@@ -294,6 +294,7 @@ static expert_field ei_someip_payload_config_error;
 static expert_field ei_someip_payload_alignment_error;
 static expert_field ei_someip_payload_static_array_min_not_max;
 static expert_field ei_someip_payload_dyn_array_not_within_limit;
+static expert_field ei_someip_payload_disabled;
 
 /*** Data Structure for mapping IDs to Names (Services, Methods, ...) ***/
 static GHashTable *data_someip_services;
@@ -4115,8 +4116,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 if (someip_deserializer_activated) {
                     dissect_someip_payload(subtvb, pinfo, ti, (uint16_t)someip_serviceid, (uint16_t)someip_methodid, (uint8_t)version, (uint8_t)(~SOMEIP_MSGTYPE_TP_MASK)&msgtype);
                 } else {
-                    proto_tree *payload_dissection_disabled_info_sub_tree = proto_item_add_subtree(ti, ett_someip_payload);
-                    proto_tree_add_text_internal(payload_dissection_disabled_info_sub_tree, subtvb, 0, tvb_length, "Dissection of payload is disabled. It can be enabled via protocol preferences.");
+                    expert_add_info(pinfo, ti, &ei_someip_payload_disabled);
                 }
             }
         }
@@ -4617,6 +4617,8 @@ proto_register_someip(void) {
           PI_MALFORMED, PI_ERROR, "SOME/IP Payload: Static array with min!=max!", EXPFILL} },
         { &ei_someip_payload_dyn_array_not_within_limit, {"someip.payload.expert_dyn_array_not_within_limit",
           PI_MALFORMED, PI_WARN, "SOME/IP Payload: Dynamic array does not stay between Min and Max values!", EXPFILL} },
+        { &ei_someip_payload_disabled, {"someip.payload.disabled",
+          PI_PROTOCOL, PI_WARN, "Dissection of payload is disabled. It can be enabled via protocol preferences.", EXPFILL} },
     };
 
     /* Register Protocol, Handles, Fields, ETTs, Expert Info, Dissector Table, Taps */

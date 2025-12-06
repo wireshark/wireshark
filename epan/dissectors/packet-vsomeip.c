@@ -34,8 +34,6 @@
 #define VSOMEIP_NAME_LONG                       "vSomeIP"
 #define VSOMEIP_NAME_FILTER                     "vsomeip"
 
-#define VSOMEIP_NOT_IMPLEMENTED_STRING          "Not implemented yet. Please consider creating a ticket and attaching an example trace."
-
 #define VSOMEIP_MESSAGE_SIZE_WITH_OFFSET         13
 #define VSOMEIP_SIZE_OFFSET                      9
 #define VSOMEIP_MESSAGE_MIN_SIZE                 17
@@ -126,6 +124,7 @@ static int ett_vsomeip_config_entry;
 
 /* expert info items */
 static expert_field ei_vsomeip_unknown_version;
+static expert_field ei_vsomeip_not_implemented;
 
 /* value strings */
 #define VSOMEIP_ASSIGN_CLIENT                   0x00
@@ -793,44 +792,14 @@ dissect_vsomeip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree_root
     /* yes, fall through */
     case VSOMEIP_UPDATE_SECURITY_POLICY:
     case VSOMEIP_UPDATE_SECURITY_POLICY_INT:
-        /* TODO ! */
-
-        proto_tree_add_text_internal(tree, tvb, offset, size, VSOMEIP_NOT_IMPLEMENTED_STRING);
-        col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
-        break;
-
     case VSOMEIP_UPDATE_SECURITY_POLICY_RESPONSE:
-        /* TODO ! */
-
-        proto_tree_add_text_internal(tree, tvb, offset, size, VSOMEIP_NOT_IMPLEMENTED_STRING);
-        col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
-        break;
-
     case VSOMEIP_REMOVE_SECURITY_POLICY:
-        /* TODO ! */
-
-        proto_tree_add_text_internal(tree, tvb, offset, size, VSOMEIP_NOT_IMPLEMENTED_STRING);
-        col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
-        break;
-
     case VSOMEIP_REMOVE_SECURITY_POLICY_RESPONSE:
-        /* TODO ! */
-
-        proto_tree_add_text_internal(tree, tvb, offset, size, VSOMEIP_NOT_IMPLEMENTED_STRING);
-        col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
-        break;
-
     case VSOMEIP_UPDATE_SECURITY_CREDENTIALS:
-        /* TODO ! */
-
-        proto_tree_add_text_internal(tree, tvb, offset, size, VSOMEIP_NOT_IMPLEMENTED_STRING);
-        col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
-        break;
-
     case VSOMEIP_DISTRIBUTE_SECURITY_POLICIES:
         /* TODO ! */
 
-        proto_tree_add_text_internal(tree, tvb, offset, size, VSOMEIP_NOT_IMPLEMENTED_STRING);
+        proto_tree_add_expert(tree, pinfo, &ei_vsomeip_not_implemented, tvb, offset, size);
         col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
         break;
 
@@ -1007,6 +976,7 @@ proto_register_vsomeip(void) {
 
     static ei_register_info ei[] = {
         { &ei_vsomeip_unknown_version,{ "vsomeip.unknown_protocol_version", PI_PROTOCOL, PI_WARN, "vSomeIP Unknown Protocol Version!", EXPFILL } },
+        { &ei_vsomeip_not_implemented,{ "vsomeip.not_implemented", PI_UNDECODED, PI_WARN, "Not implemented yet. Please consider creating a ticket and attaching an example trace.", EXPFILL } },
     };
 
     /* Register Protocol, Handles, Fields, ETTs, Expert Info */

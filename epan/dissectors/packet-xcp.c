@@ -34,6 +34,7 @@
 #include <epan/proto_data.h>
 #include <epan/uat.h>
 #include <epan/tfs.h>
+#include <epan/expert.h>
 
 #include "packet-udp.h"
 #include "packet-tcp.h"
@@ -46,8 +47,6 @@
 #define DATAFILE_XCP_MEMORY_ADDRESSES       "XCP_Addresses"
 #define DATAFILE_XCP_ETH_MAPPING            "XCP_Mapping_UDP_TCP"
 #define DATAFILE_XCP_CAN_MAPPING            "XCP_Mapping_CAN"
-
-#define NOT_IMPLEMENTED_STRING              "Not implemented yet. Please consider creating a ticket and attaching an example trace."
 
 #define XCP_TYPE_UNKNOWN                    0
 #define XCP_TYPE_CAN                        1
@@ -965,6 +964,9 @@ static int ett_xcp_clear_program_range_fct;
 static int ett_xcp_set_daq_packed_mode_timestamp_mode;
 static int ett_xcp_element;
 
+/* expert info items */
+static expert_field ei_xcp_not_implemented;
+
 void proto_register_xcp(void);
 void proto_reg_handoff_xcp(void);
 
@@ -1692,7 +1694,7 @@ dissect_transport_layer_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         default:
-            proto_tree_add_text_internal(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), NOT_IMPLEMENTED_STRING);
+            proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
             col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
             break;
         }
@@ -1733,7 +1735,7 @@ dissect_transport_layer_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
 
             default:
-                proto_tree_add_text_internal(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), NOT_IMPLEMENTED_STRING);
+                proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
                 col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
                 break;
             }
@@ -1755,14 +1757,14 @@ dissect_sw_debug_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
         offset += 1;
 
         /* TODO */
-        proto_tree_add_text_internal(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), NOT_IMPLEMENTED_STRING);
+        proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
         col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
         offset += tvb_captured_length_remaining(tvb, offset);
 
     } else {
 
         /* TODO */
-        proto_tree_add_text_internal(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), NOT_IMPLEMENTED_STRING);
+        proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
         col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
         offset += tvb_captured_length_remaining(tvb, offset);
     }
@@ -1813,7 +1815,7 @@ dissect_pod_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
             break;
 
         default:
-            proto_tree_add_text_internal(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), NOT_IMPLEMENTED_STRING);
+            proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
             col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
             offset += tvb_captured_length_remaining(tvb, offset);
         }
@@ -1845,7 +1847,7 @@ dissect_pod_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
         //    break;
 
         default:
-            proto_tree_add_text_internal(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), NOT_IMPLEMENTED_STRING);
+            proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
             col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
             offset += tvb_captured_length_remaining(tvb, offset);
         }
@@ -2726,13 +2728,13 @@ dissect_xcp_m2s(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
             break;
 
         default:
-            proto_tree_add_text_internal(xcp_tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), NOT_IMPLEMENTED_STRING);
+            proto_tree_add_expert(xcp_tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
             col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
         }
         break;
 
     default:
-        proto_tree_add_text_internal(xcp_tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), NOT_IMPLEMENTED_STRING);
+        proto_tree_add_expert(xcp_tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
         col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
     }
 
@@ -3215,7 +3217,7 @@ dissect_xcp_s2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
              * Maybe the standard means TIME_CORRELATION_PROPERTIES???
              */
             if (stream->timestamp_extended) {
-                proto_tree_add_text_internal(tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), NOT_IMPLEMENTED_STRING);
+                proto_tree_add_expert(tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
                 /* TODO */
             } else {
                 proto_tree_add_item(xcp_tree, hf_xcp_payload_timestamp_legacy, tvb, offset, 4, stream->endianess);
@@ -3491,14 +3493,14 @@ dissect_xcp_s2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
                 break;
 
             default:
-                proto_tree_add_text_internal(xcp_tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), NOT_IMPLEMENTED_STRING);
+                proto_tree_add_expert(xcp_tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
                 col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
             }
 
             break;
 
         default:
-            proto_tree_add_text_internal(xcp_tree, tvb, offset, tvb_captured_length_remaining(tvb, offset), NOT_IMPLEMENTED_STRING);
+            proto_tree_add_expert(xcp_tree, pinfo, &ei_xcp_not_implemented, tvb, offset, -1);
             col_append_str(pinfo->cinfo, COL_INFO, "   *** NOT IMPLEMENTED YET ***");
         }
     } else if (stream->pid_map != NULL && wmem_map_contains(stream->pid_map, GUINT_TO_POINTER(pid))) {
@@ -3831,6 +3833,7 @@ check_config(void) {
 void
 proto_register_xcp(void) {
     module_t *xcp_module = NULL;
+    expert_module_t* expert_module_xcp;
 
     /* UATs */
     uat_t *xcp_addresses_uat;
@@ -4148,6 +4151,10 @@ proto_register_xcp(void) {
         &ett_xcp_element,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_xcp_not_implemented,{ "xcp.not_implemented", PI_UNDECODED, PI_WARN, "Not implemented yet. Please consider creating a ticket and attaching an example trace.", EXPFILL } },
+    };
+
     proto_xcp = proto_register_protocol(XCP_LONG_NAME, XCP_NAME, XCP_FILTER_NAME);
 
     xcp_handle_udp = register_dissector("xcp_udp", dissect_xcp_udp, proto_xcp);
@@ -4155,6 +4162,9 @@ proto_register_xcp(void) {
 
     proto_register_field_array(proto_xcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_module_xcp = expert_register_protocol(proto_xcp);
+    expert_register_field_array(expert_module_xcp, ei, array_length(ei));
+
     xcp_module = prefs_register_protocol(proto_xcp, &check_config);
 
     prefs_register_uint_preference(xcp_module, "address_granularity_default", "Address Granularity Default Value (0, 1, 2, 4)",
