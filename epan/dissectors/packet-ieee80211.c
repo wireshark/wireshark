@@ -41776,12 +41776,21 @@ dissect_ieee80211_unknown_pv(tvbuff_t *tvb, packet_info *pinfo _U_,
                                       "IEEE 802.11 Unknown Protocol Version:"
                                       "%d", pv);
   hdr_tree = proto_item_add_subtree(ti, ett_80211);
-  proto_tree_add_item(hdr_tree, hf_ieee80211_fc_proto_version, tvb, offset, 1, ENC_NA);
-  if (phdr->fcs_len == 4)
-    len -= 4;
-  len -= 2;  /* We have already dealt with two bytes */
+  /* The FCF is two bytes in known versions. The first 2 bits are the
+   * protocol version. Let's use the PV1 version so that, among other
+   * things, it will highlight the entire putative FCF and throw an
+   * exception if we have fewer than two octets. */
+  proto_tree_add_item(hdr_tree, hf_ieee80211_fc_pv1_proto_version, tvb, offset, 2, ENC_NA);
+  len -= 2;  /* We have already dealt with two bytes (FCF) */
+  if (phdr->fcs_len == 4) {
+    /* This is claimed to have an FCS. Is there enough reported room for it? */
+    if (len >= 4) {
+      len -= 4;
+    }
+  }
   next_tvb = tvb_new_subset_length(tvb, 2, len);
   call_data_dissector(next_tvb, pinfo, hdr_tree);
+  /* Below should throw an exception if we didn't have room for the FCS. */
   proto_tree_add_checksum(hdr_tree, tvb, len + 2, hf_ieee80211_fcs, hf_ieee80211_fcs_status, &ei_ieee80211_fcs, pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 
   return tvb_captured_length(tvb);
