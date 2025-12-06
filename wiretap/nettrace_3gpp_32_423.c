@@ -691,7 +691,7 @@ nettrace_close(wtap *wth)
 wtap_open_return_val
 nettrace_3gpp_32_423_file_open(wtap *wth, int *err _U_, char **err_info _U_)
 {
-	nstime_t start_time;
+	nstime_t start_time = NSTIME_INIT_UNSET;
 	nettrace_3gpp_32_423_file_info_t *file_info;
 	xmlDocPtr doc;
 	xmlNodePtr root_element = NULL;
