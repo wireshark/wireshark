@@ -44,6 +44,7 @@ from __future__ import print_function
 
 import sys
 from os import path
+import contextlib
 
 from omniidl import idlast, idltype, output
 
@@ -209,11 +210,6 @@ def run(tree, args):
     DEBUG = "debug" in args
     AGGRESSIVE = "aggressive" in args
 
-    st = output.Stream(sys.stdout, 4)  # set indent for stream
-    ev = WiresharkVisitor(st, DEBUG)  # create visitor object
-
-    ev.visitAST(tree)  # go find some operations
-
     # Grab name of main IDL file being compiled.
     #
     # Assumption: Name is of the form   abcdefg.xyz  (eg: CosNaming.idl)
@@ -222,29 +218,44 @@ def run(tree, args):
     nl = fname.split(".")[0]  # split name of main IDL file using "." as separator
                                       # and grab first field (eg: CosNaming)
 
-    if DEBUG:
-        for i in ev.oplist:
-            print("XXX - Operation node ", i, " repoId() = ", i.repoId())
-        for i in ev.atlist:
-            print("XXX - Attribute node ", i, " identifiers() = ", i.identifiers())
-        for i in ev.enlist:
-            print("XXX - Enum node ", i, " repoId() = ", i.repoId())
-        for i in ev.stlist:
-            print("XXX - Struct node ", i, " repoId() = ", i.repoId())
-        for i in ev.unlist:
-            print("XXX - Union node ", i, " repoId() = ", i.repoId())
+    # See if args includes a path to write the output file to. If so,
+    # then write to packet-{nl}.c in that path. If not, write to stdout.
+    outfname = None
+    for arg in args:
+        if arg.startswith("path="):
+            _ , outpath = arg.split("=", 2)
+            outfname = path.join(outpath, f"packet-{nl}.c")
 
-    # create a C generator object
-    # and generate some C code
+    with contextlib.ExitStack() as stack:
+        outf = stack.enter_context(open(outfname, 'w')) if outfname else sys.stdout
+        st = output.Stream(outf, 4)  # set indent for stream
+        ev = WiresharkVisitor(st, DEBUG)  # create visitor object
 
-    eg = wireshark_gen_C(ev.st,
-                         nl.upper(),
-                         nl.lower(),
-                         nl.capitalize() + " Dissector Using GIOP API",
-                         debug=DEBUG,
-                         aggressive=AGGRESSIVE)
+        ev.visitAST(tree)  # go find some operations
 
-    eg.genCode(ev.oplist, ev.atlist, ev.enlist, ev.stlist, ev.unlist)  # pass them onto the C generator
+        if DEBUG:
+            for i in ev.oplist:
+                print("XXX - Operation node ", i, " repoId() = ", i.repoId())
+            for i in ev.atlist:
+                print("XXX - Attribute node ", i, " identifiers() = ", i.identifiers())
+            for i in ev.enlist:
+                print("XXX - Enum node ", i, " repoId() = ", i.repoId())
+            for i in ev.stlist:
+                print("XXX - Struct node ", i, " repoId() = ", i.repoId())
+            for i in ev.unlist:
+                print("XXX - Union node ", i, " repoId() = ", i.repoId())
+
+        # create a C generator object
+        # and generate some C code
+
+        eg = wireshark_gen_C(ev.st,
+                             nl.upper(),
+                             nl.lower(),
+                             nl.capitalize() + " Dissector Using GIOP API",
+                             debug=DEBUG,
+                             aggressive=AGGRESSIVE)
+
+        eg.genCode(ev.oplist, ev.atlist, ev.enlist, ev.stlist, ev.unlist)  # pass them onto the C generator
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
