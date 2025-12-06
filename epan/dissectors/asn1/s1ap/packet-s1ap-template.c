@@ -26,6 +26,7 @@
 #include <epan/show_exception.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/addr_resolv.h>
 #include <wsutil/array.h>
 
 #include "packet-per.h"
@@ -126,6 +127,7 @@ static int hf_s1ap_rAT_RestrictionInformation_NR_LEO;
 static int hf_s1ap_rAT_RestrictionInformation_NR_MEO;
 static int hf_s1ap_rAT_RestrictionInformation_NR_GEO;
 static int hf_s1ap_rAT_RestrictionInformation_NR_OTHERSAT;
+static int hf_s1ap_tAC_Name;
 #include "packet-s1ap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -755,6 +757,10 @@ void proto_register_s1ap(void) {
     { &hf_s1ap_rAT_RestrictionInformation_NR_OTHERSAT,
       { "NR-OTHERSAT", "s1ap.rAT_RestrictionInformation.NR_OTHERSAT",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x01,
+        NULL, HFILL }},
+    { &hf_s1ap_tAC_Name,
+      { "TAC Name", "s1ap.tAC_name",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 #include "packet-s1ap-hfarr.c"
   };

@@ -459,6 +459,7 @@ static int hf_gtpv2_sai_sac;
 static int hf_gtpv2_rai_lac;
 static int hf_gtpv2_rai_rac;
 static int hf_gtpv2_tai_tac;
+static int hf_gtpv2_tai_tac_name;
 static int hf_gtpv2_5gs_tai_tac;
 static int hf_gtpv2_ecgi_eci;
 static int hf_gtpv2_ncgi_nrci;
@@ -3270,6 +3271,8 @@ dissect_gtpv2_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offs
     char       *str = NULL;
     char       *mcc_mnc_str;
     uint32_t    tac;
+    const char *tac_name_str = NULL;
+    proto_item *item;
 
     mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, E212_TAI, true);
     *offset += 3;
@@ -3277,7 +3280,11 @@ dissect_gtpv2_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offs
         proto_tree_add_item_ret_uint(tree, hf_gtpv2_5gs_tai_tac, tvb, *offset, 3, ENC_BIG_ENDIAN, &tac);
         *offset += 3;
     } else {
-        proto_tree_add_item_ret_uint(tree, hf_gtpv2_tai_tac, tvb, *offset, 2, ENC_BIG_ENDIAN, &tac);
+        item = proto_tree_add_item_ret_uint(tree, hf_gtpv2_tai_tac, tvb, *offset, 2, ENC_BIG_ENDIAN, &tac);
+        if (gbl_resolv_flags.tac_name && (tac_name_str = tac_name_lookup(tac)) != NULL) {
+            item = proto_tree_add_string(tree, hf_gtpv2_tai_tac_name, tvb, *offset, 2, tac_name_str);
+            proto_item_set_generated(item);
+        }
         *offset += 2;
     }
     str = wmem_strdup_printf(pinfo->pool, "%s, TAC 0x%x",
@@ -11071,6 +11078,11 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_tai_tac,
           {"Tracking Area Code", "gtpv2.tai_tac",
            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_tai_tac_name,
+          {"Tracking Area Name", "gtpv2.tai_tac_name",
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_gtpv2_5gs_tai_tac,

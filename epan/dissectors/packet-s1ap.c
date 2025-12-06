@@ -31,6 +31,7 @@
 #include <epan/show_exception.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/addr_resolv.h>
 #include <wsutil/array.h>
 
 #include "packet-per.h"
@@ -641,6 +642,7 @@ static int hf_s1ap_rAT_RestrictionInformation_NR_LEO;
 static int hf_s1ap_rAT_RestrictionInformation_NR_MEO;
 static int hf_s1ap_rAT_RestrictionInformation_NR_GEO;
 static int hf_s1ap_rAT_RestrictionInformation_NR_OTHERSAT;
+static int hf_s1ap_tAC_Name;
 static int hf_s1ap_Additional_GUTI_PDU;           /* Additional_GUTI */
 static int hf_s1ap_AdditionalRRMPriorityIndex_PDU;  /* AdditionalRRMPriorityIndex */
 static int hf_s1ap_AerialUEsubscriptionInformation_PDU;  /* AerialUEsubscriptionInformation */
@@ -3206,6 +3208,9 @@ static unsigned
 dissect_s1ap_TAC(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  uint16_t    tac = 0;
+  const char *tac_name_str = NULL;
+  proto_item *item;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        2, 2, false, &parameter_tvb);
 
@@ -3213,8 +3218,15 @@ dissect_s1ap_TAC(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, p
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
     if (s1ap_data->supported_ta) {
       s1ap_data->supported_ta->tac = tvb_get_ntohs(parameter_tvb, 0);
+      tac = s1ap_data->supported_ta->tac;
     } else if (s1ap_data->tai) {
       s1ap_data->tai->tac = tvb_get_ntohs(parameter_tvb, 0);
+      tac = s1ap_data->tai->tac;
+    }
+
+    if (gbl_resolv_flags.tac_name && tac && (tac_name_str = tac_name_lookup(tac)) != NULL) {
+      item = proto_tree_add_string(tree, hf_s1ap_tAC_Name, parameter_tvb, 0, 2, tac_name_str);
+      proto_item_set_generated(item);
     }
   }
 
@@ -19235,6 +19247,10 @@ void proto_register_s1ap(void) {
     { &hf_s1ap_rAT_RestrictionInformation_NR_OTHERSAT,
       { "NR-OTHERSAT", "s1ap.rAT_RestrictionInformation.NR_OTHERSAT",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x01,
+        NULL, HFILL }},
+    { &hf_s1ap_tAC_Name,
+      { "TAC Name", "s1ap.tAC_name",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_s1ap_Additional_GUTI_PDU,
       { "Additional-GUTI", "s1ap.Additional_GUTI_element",

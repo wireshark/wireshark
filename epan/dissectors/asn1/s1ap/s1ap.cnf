@@ -1368,13 +1368,23 @@ TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
 #.FN_BODY TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  uint16_t    tac = 0;
+  const char *tac_name_str = NULL;
+  proto_item *item;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
     if (s1ap_data->supported_ta) {
       s1ap_data->supported_ta->tac = tvb_get_ntohs(parameter_tvb, 0);
+      tac = s1ap_data->supported_ta->tac;
     } else if (s1ap_data->tai) {
       s1ap_data->tai->tac = tvb_get_ntohs(parameter_tvb, 0);
+      tac = s1ap_data->tai->tac;
+    }
+
+    if (gbl_resolv_flags.tac_name && tac && (tac_name_str = tac_name_lookup(tac)) != NULL) {
+      item = proto_tree_add_string(tree, hf_s1ap_tAC_Name, parameter_tvb, 0, 2, tac_name_str);
+      proto_item_set_generated(item);
     }
   }
 

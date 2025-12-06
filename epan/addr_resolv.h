@@ -59,6 +59,7 @@ typedef struct _e_addr_resolve {
   bool vlan_name;                         /**< Whether to resolve VLAN IDs to names */
   bool ss7pc_name;                        /**< Whether to resolve SS7 Point Codes to names */
   bool maxmind_geoip;                     /**< Whether to lookup geolocation information with mmdbresolve */
+  bool tac_name;                          /**< Whether to resolve TAC to names */
 } e_addr_resolve;
 
 #define ADDR_RESOLV_MACADDR(at) \
@@ -974,6 +975,24 @@ unsigned ipv6_oat_hash(const void *key);
  */
 WS_DLL_LOCAL
 gboolean ipv6_equal(const void *v1, const void *v2);
+
+/**
+ * @brief Resolve an TAC to its area name.
+ *
+ * Returns a string containing the host name associated with the given IPv4
+ * address, or a numeric string in the format `"%d.%d.%d.%d"` if no name is found.
+ * The returned string is managed internally and must not be freed by the caller.
+ * It will be released when address hashtables are cleared (e.g., due to preference
+ * changes or redissection).
+ *
+ * @note This function may increase persistent memory usage even when host name
+ *       resolution is disabled. It may be deprecated in favor of `get_hostname_wmem()`
+ *       for better memory management.
+ *
+ * @param addr IPv4 address in host byte order.
+ * @return     Constant string containing the resolved host name or numeric address.
+ */
+WS_DLL_PUBLIC const char *tac_name_lookup(const unsigned addr);
 
 #ifdef __cplusplus
 }

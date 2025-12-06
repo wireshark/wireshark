@@ -107,6 +107,7 @@
 #define ENAME_VLANS     "vlans"
 #define ENAME_SS7PCS    "ss7pcs"
 #define ENAME_ENTERPRISES "enterprises"
+#define ENAME_TACS      "tacs"
 
 #define HASHETHSIZE      2048
 #define HASHHOSTSIZE     2048
@@ -217,6 +218,7 @@ static wmem_map_t *ipv6_hash_table;
 // Maps unsigned -> hashvlan_t*
 static wmem_map_t *vlan_hash_table;
 static wmem_map_t *ss7pc_hash_table;
+static wmem_map_t *tac_hash_table;
 
 // Maps IP address -> manually set hostname.
 static wmem_map_t *manually_resolved_ipv4_list;
@@ -316,6 +318,7 @@ e_addr_resolve gbl_resolv_flags = {
     false,  /* vlan_name */
     false,  /* ss7 point code names */
     true,   /* maxmind_geoip */
+    false,  /* tac_name */
 };
 
 /* XXX - ares_init_options(3) says:
@@ -3335,6 +3338,72 @@ ss7pc_name_lookup_init(const char* app_env_var_prefix)
 
 /* SS7PC Name Resolution End*/
 
+/* TACS */
+static bool
+read_tacs_file(const char *tacspath)
+{
+    FILE *hf;
+    char line[MAX_LINELEN];
+    char *cp;
+    uint16_t id;
+    wmem_strbuf_t *tac_name = NULL;
+
+    /*
+    *  File format is TAC(decimal)<tab/space>TACName (no spaces)
+    */
+    if ((hf = ws_fopen(tacspath, "r")) == NULL)
+        return false;
+
+    while (fgetline(line, sizeof(line), hf) >= 0) {
+        if ((cp = strchr(line, '#')))
+            *cp = '\0';
+
+        if ((cp = strtok(line, " \t")) == NULL)
+            continue;
+
+        if (sscanf(cp, "%" SCNu16, &id) != 1) {
+            continue;
+        }
+
+        if ((cp = strtok(NULL, " \t\n")) == NULL)
+            continue; /* no TAC name */
+
+        if (!wmem_map_lookup(tac_hash_table, GUINT_TO_POINTER(id))) {
+            tac_name = wmem_strbuf_new(addr_resolv_scope, cp);
+            wmem_map_insert(tac_hash_table, GUINT_TO_POINTER(id), (void *)wmem_strbuf_get_str(tac_name));
+        }
+    }
+
+    fclose(hf);
+    return true;
+}
+
+static void
+initialize_tacs(const char* app_env_var_prefix)
+{
+    char *tacspath;
+    ws_assert(tac_hash_table == NULL);
+    tac_hash_table = wmem_map_new(addr_resolv_scope, g_direct_hash, g_direct_equal);
+
+    tacspath = get_persconffile_path(ENAME_TACS, true, app_env_var_prefix);
+    if (!read_tacs_file(tacspath) && errno != ENOENT) {
+        report_open_failure(tacspath, errno, false);
+    }
+    g_free(tacspath);
+}
+
+static void
+tac_name_lookup_cleanup(void)
+{
+    tac_hash_table = NULL;
+}
+
+const char *
+tac_name_lookup(const unsigned id)
+{
+    return (const char *)wmem_map_lookup(tac_hash_table, GUINT_TO_POINTER(id));
+}
+/* TAC END */
 
 /*
  *  External Functions
@@ -3440,6 +3509,13 @@ addr_resolve_pref_init(module_t *nameres)
             " One line per Point Code, e.g.: 2-1234 MyPointCode1",
             &gbl_resolv_flags.ss7pc_name);
 
+    prefs_register_bool_preference(nameres, "tac_name",
+            "Resolve TAC",
+            "Resolve TAC to area names from the preferences \"tac\" file."
+            " Format of the file is: \"TAC(decimail)<Tab/space>Name\"."
+            " One line per TAC, e.g.: 30123 City1",
+            &gbl_resolv_flags.tac_name);
+
 }
 
 void addr_resolve_pref_apply(void)
@@ -3459,6 +3535,7 @@ disable_name_resolution(void) {
     gbl_resolv_flags.vlan_name                          = false;
     gbl_resolv_flags.ss7pc_name                         = false;
     gbl_resolv_flags.maxmind_geoip                      = false;
+    gbl_resolv_flags.tac_name                           = false;
 }
 
 bool
@@ -4246,6 +4323,7 @@ addr_resolv_init(const char* app_env_var_prefix)
     initialize_vlans(app_env_var_prefix);
     initialize_enterprises(app_env_var_prefix);
     host_name_lookup_init(app_env_var_prefix);
+    initialize_tacs(app_env_var_prefix);
 }
 
 /* Clean up all the address resolution subsystems in this file */
@@ -4258,6 +4336,7 @@ addr_resolv_cleanup(void)
     ipx_name_lookup_cleanup();
     enterprises_cleanup();
     host_name_lookup_cleanup();
+    tac_name_lookup_cleanup();
 
     wmem_destroy_allocator(addr_resolv_scope);
     addr_resolv_scope = NULL;
