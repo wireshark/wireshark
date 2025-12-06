@@ -2514,7 +2514,7 @@ smpp_txn_key_equal(const void *a, const void *b)
 static smpp_txn_key_t*
 get_smpp_txn_key(packet_info *pinfo, unsigned command_id, unsigned sequence_number, wmem_allocator_t *wma)
 {
-    smpp_txn_key_t *txn_key = wmem_new(wma, smpp_txn_key_t);
+    smpp_txn_key_t *txn_key = wmem_new0(wma, smpp_txn_key_t);
     txn_key->sequence_number = sequence_number;
     if (command_id & SMPP_COMMAND_ID_RESPONSE_MASK) {
         /* PDU is a response; key direction reversed */
@@ -2534,7 +2534,7 @@ find_or_create_smpp_session(packet_info *pinfo)
     conversation_t *conversation = find_or_create_conversation(pinfo);
     smpp_session_t *smpp_session = conversation_get_proto_data(conversation, proto_smpp);
     if (!smpp_session) {
-        smpp_session = wmem_new(wmem_file_scope(), smpp_session_t);
+        smpp_session = wmem_new0(wmem_file_scope(), smpp_session_t);
         smpp_session->rr_map = wmem_multimap_new(wmem_file_scope(), smpp_txn_key_hash, smpp_txn_key_equal);
         conversation_add_proto_data(conversation, proto_smpp, smpp_session);
     }
@@ -2589,7 +2589,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         if ((command_id & SMPP_COMMAND_ID_RESPONSE_MASK) == 0) {
             /* This is a request. We assume that it will always be seen before the response. */
             txn_key = get_smpp_txn_key(pinfo, command_id, sequence_number, wmem_file_scope());
-            smpp_txn = wmem_new(wmem_file_scope(), smpp_txn_t);
+            smpp_txn = wmem_new0(wmem_file_scope(), smpp_txn_t);
             wmem_multimap_insert32(smpp_session->rr_map, txn_key, pinfo->num, smpp_txn);
             smpp_txn->req_frame = pinfo->num;
             smpp_txn->req_time = pinfo->fd->abs_ts;
