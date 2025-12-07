@@ -387,6 +387,22 @@ static GHashTable* diameterstat_cmd_str_hash;
 #define DIAMETER_NUM_PROCEDURES     1
 
 static void
+add_group_str(packet_info *pinfo, diam_sub_dis_t *diam_sub_dis_inf, const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	if (diam_sub_dis_inf->group_avp_str) {
+		wmem_strbuf_append(diam_sub_dis_inf->group_avp_str, ", ");
+	} else {
+		diam_sub_dis_inf->group_avp_str = wmem_strbuf_new(pinfo->pool, "");
+	}
+	wmem_strbuf_append_vprintf(diam_sub_dis_inf->group_avp_str, fmt, ap);
+
+	va_end(ap);
+}
+
+static void
 diameterstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
 	srt_stat_table *diameter_srt_table;
@@ -481,6 +497,16 @@ dissect_diameter_eap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	col_set_writable(pinfo->cinfo, COL_PROTOCOL, save_writable);
 	return tvb_reported_length(tvb);
+}
+
+static int
+dissect_diameter_3gpp_crbn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data)
+{
+	int length = tvb_reported_length(tvb);
+	diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
+
+	add_group_str(pinfo, diam_sub_dis_inf, "CRBN=%s", tvb_get_string_enc(pinfo->pool, tvb, 0, length, ENC_UTF_8|ENC_BIG_ENDIAN));
+	return length;
 }
 
 /* https://www.3gpp2.org/Public_html/X/VSA-VSE.cfm */
@@ -684,6 +710,7 @@ dissect_diameter_result_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 {
 	proto_item *pi;
 	diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
+	uint32_t result_code;
 
 	if (!diam_sub_dis_inf->dis_gouped) {
 		// Do not check length. This is done in function "unsigned32_avp"
@@ -697,10 +724,36 @@ dissect_diameter_result_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		// Do not check length. This is done in function "unsigned32_avp"
 		pi = proto_tree_add_item(tree, hf_diameter_result_code_mscc_level, tvb, 0, 4, ENC_BIG_ENDIAN);
 		proto_item_set_generated(pi);
+
+		result_code = tvb_get_uint32(tvb, 0, ENC_BIG_ENDIAN);
+		add_group_str(pinfo, diam_sub_dis_inf, "RC=%d", result_code);
+
 		return 4;
 	}
 
 	return 0;
+}
+
+/* AVP Code: 421 CC-Total-Octets */
+static int
+dissect_diameter_cc_total_octets(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data)
+{
+	uint64_t total_octets = tvb_get_uint64(tvb, 0, ENC_BIG_ENDIAN);
+	diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
+	add_group_str(pinfo, diam_sub_dis_inf, "Total-Octets=%d", total_octets);
+
+	return 16;
+}
+
+/* AVP Code: 432 Rating-Group */
+static int
+dissect_diameter_rating_group(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data)
+{
+	uint32_t rg = tvb_get_uint32(tvb, 0, ENC_BIG_ENDIAN);
+	diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
+	add_group_str(pinfo, diam_sub_dis_inf, "RG=%d", rg);
+
+	return 4;
 }
 
 /* AVP Code: 443 Subscription-Id */
@@ -731,19 +784,21 @@ dissect_diameter_subscription_id_data(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	uint32_t str_len;
 	diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
 	uint32_t subscription_id_type = diam_sub_dis_inf->subscription_id_type;
-	const char *imsi = NULL;
+	const char *id_data = NULL;
 
 	switch (subscription_id_type) {
 	case SUBSCRIPTION_ID_TYPE_IMSI:
 		str_len = tvb_reported_length(tvb);
-		imsi = dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
+		id_data = dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, str_len);
 		if (gbl_diameter_session_imsi && !diam_sub_dis_inf->imsi) {
-			diam_sub_dis_inf->imsi = imsi;
+			diam_sub_dis_inf->imsi = id_data;
 		}
+		add_group_str(pinfo, diam_sub_dis_inf, "IMSI=%s", id_data);
 		return str_len;
 	case SUBSCRIPTION_ID_TYPE_E164:
 		str_len = tvb_reported_length(tvb);
-		dissect_e164_msisdn(tvb, pinfo, tree, 0, str_len, E164_ENC_UTF8);
+		id_data = dissect_e164_msisdn(tvb, pinfo, tree, 0, str_len, E164_ENC_UTF8);
+		add_group_str(pinfo, diam_sub_dis_inf, "MSISDN=%s", id_data);
 		return str_len;
 	}
 
@@ -1446,12 +1501,18 @@ grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 {
 	int offset = 0;
 	int len = tvb_reported_length(tvb);
+	wmem_strbuf_t *group_avp_str = NULL;
+	const char *group_avp_str_char = NULL;
 	proto_item *pi = proto_tree_add_item(c->tree, a->hf_value, tvb , 0 , -1, ENC_BIG_ENDIAN);
 	proto_item_set_generated(pi);
 
 	/* Set the flag that we are dissecting a grouped AVP */
 	diam_sub_dis_inf->dis_gouped = true;
 	diam_sub_dis_inf->group_avp_code = a->code;
+
+	group_avp_str = diam_sub_dis_inf->group_avp_str;
+	diam_sub_dis_inf->group_avp_str = NULL;
+
 	while (offset < len) {
 		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf, false);
 	}
@@ -1461,7 +1522,12 @@ grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 	diam_sub_dis_inf->group_avp_code = 0;
 	diam_sub_dis_inf->avp_str = NULL;
 
-	return NULL;
+	if (diam_sub_dis_inf->group_avp_str) {
+		group_avp_str_char = wmem_strbuf_get_str(diam_sub_dis_inf->group_avp_str);
+	}
+	diam_sub_dis_inf->group_avp_str = group_avp_str;
+
+	return group_avp_str_char;
 }
 
 static int * const diameter_flags_fields[] = {
@@ -3336,6 +3402,12 @@ proto_reg_handoff_diameter(void)
 	/* AVP Code: 268 Result-Code */
 	dissector_add_uint("diameter.base", 268, create_dissector_handle(dissect_diameter_result_code, proto_diameter));
 
+	/* AVP Code: 421 CC-Total-Octets */
+	dissector_add_uint("diameter.base", 421, create_dissector_handle(dissect_diameter_cc_total_octets, proto_diameter));
+
+	/* AVP Code: 432 Rating-Groupd */
+	dissector_add_uint("diameter.base", 432, create_dissector_handle(dissect_diameter_rating_group, proto_diameter));
+
 	/* AVP Code: 443 Subscription-Id */
 	dissector_add_uint("diameter.base", 443, create_dissector_handle(dissect_diameter_subscription_id, proto_diameter));
 
@@ -3361,6 +3433,9 @@ proto_reg_handoff_diameter(void)
 
 	/* Register dissector for Experimental result code, with 3GPP2's vendor Id */
 	dissector_add_uint("diameter.vnd_exp_res", VENDOR_THE3GPP2, create_dissector_handle(dissect_diameter_3gpp2_exp_res, proto_diameter));
+
+	/* AVP Code: 1004 Charging-Rule-Base-Name */
+	dissector_add_uint("diameter.3gpp", 1004, create_dissector_handle(dissect_diameter_3gpp_crbn, proto_diameter));
 
 	dissector_add_uint_range_with_preference("tcp.port", DEFAULT_DIAMETER_PORT_RANGE, diameter_tcp_handle);
 	dissector_add_uint_range_with_preference("udp.port", "", diameter_udp_handle);
