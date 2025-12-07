@@ -4363,7 +4363,8 @@ dissect_reply_body (tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     if (!exres && !strcmp(giop_op_is_a, entry->operation)) {
-      proto_tree_add_boolean(tree, hf_giop_type_id_match, tvb, offset - 1, 1,
+      int old_offset = offset;
+      proto_tree_add_boolean(tree, hf_giop_type_id_match, tvb, old_offset, 1,
                           get_CDR_boolean(tvb, &offset));
     }
 
