@@ -65,11 +65,11 @@
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation>Dreceres de teclat</translation>
+        <translation type="vanished">Dreceres de teclat</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation>Cerca dreceres</translation>
+        <translation type="vanished">Cerca dreceres</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
@@ -992,7 +992,7 @@
     </message>
     <message>
         <source>Log start</source>
-        <translation>Inici del registre</translation>
+        <translation type="vanished">Inici del registre</translation>
     </message>
     <message>
         <source>First packet</source>
@@ -1000,7 +1000,7 @@
     </message>
     <message>
         <source>First event</source>
-        <translation>Primer esdeveniment</translation>
+        <translation type="vanished">Primer esdeveniment</translation>
     </message>
     <message>
         <source>Last packet</source>
@@ -1008,7 +1008,7 @@
     </message>
     <message>
         <source>Last event</source>
-        <translation>Últim esdeveniment</translation>
+        <translation type="vanished">Últim esdeveniment</translation>
     </message>
     <message>
         <source>Capture end</source>
@@ -1016,7 +1016,7 @@
     </message>
     <message>
         <source>Log end</source>
-        <translation>Fi del registre</translation>
+        <translation type="vanished">Fi del registre</translation>
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
@@ -1067,7 +1067,7 @@
     </message>
     <message>
         <source>Dropped events</source>
-        <translation>Esdeveniments descartats</translation>
+        <translation type="vanished">Esdeveniments descartats</translation>
     </message>
     <message>
         <source>Capture filter</source>
@@ -1083,7 +1083,7 @@
     </message>
     <message>
         <source>Event size limit (snaplen)</source>
-        <translation>Límit de la mida d&apos;esdeveniment (snaplen)</translation>
+        <translation type="vanished">Límit de la mida d&apos;esdeveniment (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1139,7 +1139,7 @@
     </message>
     <message>
         <source>Events</source>
-        <translation>Esdeveniments</translation>
+        <translation type="vanished">Esdeveniments</translation>
     </message>
     <message>
         <source>Time span, s</source>
@@ -1155,7 +1155,7 @@
     </message>
     <message>
         <source>Average event size, B</source>
-        <translation>Mida de l&apos;esdeveniment de mitjana, B</translation>
+        <translation type="vanished">Mida de l&apos;esdeveniment de mitjana, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1175,7 +1175,7 @@
     </message>
     <message>
         <source>Event Comments</source>
-        <translation>Comentaris de l&apos;esdeveniment</translation>
+        <translation type="vanished">Comentaris de l&apos;esdeveniment</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1193,7 +1193,7 @@
         <source>Created by Stratoshark %1
 
 </source>
-        <translation>Creat amb el Stratoshark %1
+        <translation type="vanished">Creat amb el Stratoshark %1
 
 </translation>
     </message>
@@ -5548,6 +5548,40 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Event JSON</source>
         <translation>Esdeveniment JSON</translation>
+    </message>
+</context>
+<context>
+    <name>KeyboardShortcutsDialog</name>
+    <message>
+        <source>Keyboard Shortcuts</source>
+        <translation type="unfinished">Dreceres de teclat</translation>
+    </message>
+    <message>
+        <source>Search Shortcuts</source>
+        <translation type="unfinished">Cerca dreceres</translation>
+    </message>
+    <message>
+        <source>Print Shortcutlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Copia</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Copia la fila</numerusform>
+            <numerusform>Copia les files</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%1 %2</source>
+        <translation type="unfinished">%1 %2</translation>
     </message>
 </context>
 <context>
@@ -15739,6 +15773,14 @@ a:hover {
     <message>
         <source>&amp;Supported Protocols</source>
         <translation>Protocols &amp;suportats</translation>
+    </message>
+    <message>
+        <source>&amp;Keyboard Shortcuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the current keyboard shortcuts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MAP Summary</source>

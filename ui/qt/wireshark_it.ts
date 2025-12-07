@@ -65,11 +65,11 @@
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation>Scorciatoie da tastiera</translation>
+        <translation type="vanished">Scorciatoie da tastiera</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation>Scorciatoie di ricerca</translation>
+        <translation type="vanished">Scorciatoie di ricerca</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
@@ -992,7 +992,7 @@
     </message>
     <message>
         <source>Log start</source>
-        <translation>Inizio log</translation>
+        <translation type="vanished">Inizio log</translation>
     </message>
     <message>
         <source>First packet</source>
@@ -1000,7 +1000,7 @@
     </message>
     <message>
         <source>First event</source>
-        <translation>Primo evento</translation>
+        <translation type="vanished">Primo evento</translation>
     </message>
     <message>
         <source>Last packet</source>
@@ -1008,7 +1008,7 @@
     </message>
     <message>
         <source>Last event</source>
-        <translation>Ultimo evento</translation>
+        <translation type="vanished">Ultimo evento</translation>
     </message>
     <message>
         <source>Capture end</source>
@@ -1016,7 +1016,7 @@
     </message>
     <message>
         <source>Log end</source>
-        <translation>Fine log</translation>
+        <translation type="vanished">Fine log</translation>
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
@@ -1067,7 +1067,7 @@
     </message>
     <message>
         <source>Dropped events</source>
-        <translation>Eventi scartati</translation>
+        <translation type="vanished">Eventi scartati</translation>
     </message>
     <message>
         <source>Capture filter</source>
@@ -1083,7 +1083,7 @@
     </message>
     <message>
         <source>Event size limit (snaplen)</source>
-        <translation>Limite dimensione degli eventi (snaplen)</translation>
+        <translation type="vanished">Limite dimensione degli eventi (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1139,7 +1139,7 @@
     </message>
     <message>
         <source>Events</source>
-        <translation>Eventi</translation>
+        <translation type="vanished">Eventi</translation>
     </message>
     <message>
         <source>Time span, s</source>
@@ -1155,7 +1155,7 @@
     </message>
     <message>
         <source>Average event size, B</source>
-        <translation>Dimensione media degli eventi, B</translation>
+        <translation type="vanished">Dimensione media degli eventi, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1175,7 +1175,7 @@
     </message>
     <message>
         <source>Event Comments</source>
-        <translation>Commenti evento</translation>
+        <translation type="vanished">Commenti evento</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1193,7 +1193,7 @@
         <source>Created by Stratoshark %1
 
 </source>
-        <translation>Creato da Stratoshark %1
+        <translation type="vanished">Creato da Stratoshark %1
 
 </translation>
     </message>
@@ -5549,6 +5549,40 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Event JSON</source>
         <translation>JSON evento</translation>
+    </message>
+</context>
+<context>
+    <name>KeyboardShortcutsDialog</name>
+    <message>
+        <source>Keyboard Shortcuts</source>
+        <translation type="unfinished">Scorciatoie da tastiera</translation>
+    </message>
+    <message>
+        <source>Search Shortcuts</source>
+        <translation type="unfinished">Scorciatoie di ricerca</translation>
+    </message>
+    <message>
+        <source>Print Shortcutlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Copia</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Copia riga</numerusform>
+            <numerusform>Copia righe</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%1 %2</source>
+        <translation type="unfinished">%1 %2</translation>
     </message>
 </context>
 <context>
@@ -15739,6 +15773,14 @@ a:hover {
     <message>
         <source>&amp;Supported Protocols</source>
         <translation>Protocolli &amp;supportati</translation>
+    </message>
+    <message>
+        <source>&amp;Keyboard Shortcuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the current keyboard shortcuts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MAP Summary</source>

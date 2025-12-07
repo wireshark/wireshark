@@ -65,11 +65,11 @@
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation>Комбинации клавиш</translation>
+        <translation type="vanished">Комбинации клавиш</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation>Поиск по комбинациям клавиш</translation>
+        <translation type="vanished">Поиск по комбинациям клавиш</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
@@ -999,16 +999,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Log start</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>First packet</source>
         <translation>Первый пакет</translation>
     </message>
     <message>
         <source>First event</source>
-        <translation>Первое событие</translation>
+        <translation type="vanished">Первое событие</translation>
     </message>
     <message>
         <source>Last packet</source>
@@ -1016,14 +1012,10 @@
     </message>
     <message>
         <source>Last event</source>
-        <translation>Последнее событие</translation>
+        <translation type="vanished">Последнее событие</translation>
     </message>
     <message>
         <source>Capture end</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Log end</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -1076,7 +1068,7 @@
     </message>
     <message>
         <source>Dropped events</source>
-        <translation>Отмененные события</translation>
+        <translation type="vanished">Отмененные события</translation>
     </message>
     <message>
         <source>Capture filter</source>
@@ -1092,7 +1084,7 @@
     </message>
     <message>
         <source>Event size limit (snaplen)</source>
-        <translation>Ограничение размера события ( оснастка)</translation>
+        <translation type="vanished">Ограничение размера события ( оснастка)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1148,7 +1140,7 @@
     </message>
     <message>
         <source>Events</source>
-        <translation>События</translation>
+        <translation type="vanished">События</translation>
     </message>
     <message>
         <source>Time span, s</source>
@@ -1164,7 +1156,7 @@
     </message>
     <message>
         <source>Average event size, B</source>
-        <translation>Средний размер события, B</translation>
+        <translation type="vanished">Средний размер события, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1184,7 +1176,7 @@
     </message>
     <message>
         <source>Event Comments</source>
-        <translation>Комментарии к событию</translation>
+        <translation type="vanished">Комментарии к событию</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1202,7 +1194,7 @@
         <source>Created by Stratoshark %1
 
 </source>
-        <translation>Создано Stratoshark %1
+        <translation type="vanished">Создано Stratoshark %1
 
 </translation>
     </message>
@@ -5565,6 +5557,41 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Event JSON</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KeyboardShortcutsDialog</name>
+    <message>
+        <source>Keyboard Shortcuts</source>
+        <translation type="unfinished">Комбинации клавиш</translation>
+    </message>
+    <message>
+        <source>Search Shortcuts</source>
+        <translation type="unfinished">Поиск по комбинациям клавиш</translation>
+    </message>
+    <message>
+        <source>Print Shortcutlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Копировать</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Копировать Строку</numerusform>
+            <numerusform>Копировать Строки</numerusform>
+            <numerusform>Копировать Строки</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%1 %2</source>
+        <translation type="unfinished">%1 %2</translation>
     </message>
 </context>
 <context>
@@ -15706,6 +15733,14 @@ a:hover {
     <message>
         <source>&amp;Supported Protocols</source>
         <translation>&amp;Поддерживаемые протоколы</translation>
+    </message>
+    <message>
+        <source>&amp;Keyboard Shortcuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the current keyboard shortcuts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MAP Summary</source>

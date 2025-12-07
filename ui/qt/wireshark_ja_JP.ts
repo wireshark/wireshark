@@ -65,11 +65,11 @@
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation>キーボードショートカット</translation>
+        <translation type="vanished">キーボードショートカット</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation>ショートカットを検索</translation>
+        <translation type="vanished">ショートカットを検索</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
@@ -984,7 +984,7 @@
     </message>
     <message>
         <source>Log start</source>
-        <translation>ログ開始</translation>
+        <translation type="vanished">ログ開始</translation>
     </message>
     <message>
         <source>First packet</source>
@@ -992,7 +992,7 @@
     </message>
     <message>
         <source>First event</source>
-        <translation>最初のイベント</translation>
+        <translation type="vanished">最初のイベント</translation>
     </message>
     <message>
         <source>Last packet</source>
@@ -1000,7 +1000,7 @@
     </message>
     <message>
         <source>Last event</source>
-        <translation>最後のイベント</translation>
+        <translation type="vanished">最後のイベント</translation>
     </message>
     <message>
         <source>Capture end</source>
@@ -1008,7 +1008,7 @@
     </message>
     <message>
         <source>Log end</source>
-        <translation>ログ停止</translation>
+        <translation type="vanished">ログ停止</translation>
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
@@ -1058,7 +1058,7 @@
     </message>
     <message>
         <source>Dropped events</source>
-        <translation>欠落したイベント</translation>
+        <translation type="vanished">欠落したイベント</translation>
     </message>
     <message>
         <source>Capture filter</source>
@@ -1074,7 +1074,7 @@
     </message>
     <message>
         <source>Event size limit (snaplen)</source>
-        <translation>イベントサイズ制限(snaplen)</translation>
+        <translation type="vanished">イベントサイズ制限(snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1130,7 +1130,7 @@
     </message>
     <message>
         <source>Events</source>
-        <translation>イベント</translation>
+        <translation type="vanished">イベント</translation>
     </message>
     <message>
         <source>Time span, s</source>
@@ -1146,7 +1146,7 @@
     </message>
     <message>
         <source>Average event size, B</source>
-        <translation>平均イベントサイズ,バイト</translation>
+        <translation type="vanished">平均イベントサイズ,バイト</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1166,7 +1166,7 @@
     </message>
     <message>
         <source>Event Comments</source>
-        <translation>イベント コメント</translation>
+        <translation type="vanished">イベント コメント</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1184,7 +1184,7 @@
         <source>Created by Stratoshark %1
 
 </source>
-        <translation>Stratoshark %1 により作成
+        <translation type="vanished">Stratoshark %1 により作成
 
 </translation>
     </message>
@@ -5530,6 +5530,39 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Event JSON</source>
         <translation>JSONイベント</translation>
+    </message>
+</context>
+<context>
+    <name>KeyboardShortcutsDialog</name>
+    <message>
+        <source>Keyboard Shortcuts</source>
+        <translation type="unfinished">キーボードショートカット</translation>
+    </message>
+    <message>
+        <source>Search Shortcuts</source>
+        <translation type="unfinished">ショートカットを検索</translation>
+    </message>
+    <message>
+        <source>Print Shortcutlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">コピー</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>行をコピー</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%1 %2</source>
+        <translation type="unfinished">%1 %2</translation>
     </message>
 </context>
 <context>
@@ -15700,6 +15733,14 @@ a:hover {
     <message>
         <source>&amp;Supported Protocols</source>
         <translation>サポートされているプロトコル(&amp;S)</translation>
+    </message>
+    <message>
+        <source>&amp;Keyboard Shortcuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the current keyboard shortcuts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MAP Summary</source>

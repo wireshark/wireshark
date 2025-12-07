@@ -65,11 +65,11 @@
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation>Комбінації Клавіш</translation>
+        <translation type="vanished">Комбінації Клавіш</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation>Шукати Комбінації Клавіш</translation>
+        <translation type="vanished">Шукати Комбінації Клавіш</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
@@ -973,31 +973,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Log start</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>First packet</source>
         <translation>Перший пакет</translation>
-    </message>
-    <message>
-        <source>First event</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Last packet</source>
         <translation>Останній пакет</translation>
     </message>
     <message>
-        <source>Last event</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Capture end</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Log end</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -1049,10 +1033,6 @@
         <translation>Відкинуті пакети</translation>
     </message>
     <message>
-        <source>Dropped events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Capture filter</source>
         <translation>Фільтр захоплення</translation>
     </message>
@@ -1062,10 +1042,6 @@
     </message>
     <message>
         <source>Packet size limit (snaplen)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event size limit (snaplen)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1121,10 +1097,6 @@
         <translation>Пакетів</translation>
     </message>
     <message>
-        <source>Events</source>
-        <translation type="unfinished">Події</translation>
-    </message>
-    <message>
         <source>Time span, s</source>
         <translation>Проміжок часу, с</translation>
     </message>
@@ -1135,10 +1107,6 @@
     <message>
         <source>Average packet size, B</source>
         <translation>Середній розмір пакету, Б</translation>
-    </message>
-    <message>
-        <source>Average event size, B</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1157,10 +1125,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Event Comments</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;p&gt;Frame %1: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -1171,12 +1135,6 @@
         <translation>Створено Wireshark&apos;ом %1
 
 </translation>
-    </message>
-    <message>
-        <source>Created by Stratoshark %1
-
-</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5504,6 +5462,41 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>JsonDataSourceView</name>
     <message>
         <source>Event JSON</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KeyboardShortcutsDialog</name>
+    <message>
+        <source>Keyboard Shortcuts</source>
+        <translation type="unfinished">Комбінації Клавіш</translation>
+    </message>
+    <message>
+        <source>Search Shortcuts</source>
+        <translation type="unfinished">Шукати Комбінації Клавіш</translation>
+    </message>
+    <message>
+        <source>Print Shortcutlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Скопіювати</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Скопіювати Рядок</numerusform>
+            <numerusform>Скопіювати Рядки</numerusform>
+            <numerusform>Скопіювати Рядки</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%1 %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -15530,6 +15523,14 @@ a:hover {
     </message>
     <message>
         <source>&amp;Supported Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Keyboard Shortcuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the current keyboard shortcuts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -65,11 +65,11 @@
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation>키보드 단축키</translation>
+        <translation type="vanished">키보드 단축키</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation>단축키 검색</translation>
+        <translation type="vanished">단축키 검색</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
@@ -983,16 +983,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Log start</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>First packet</source>
         <translation>처음 패킷</translation>
     </message>
     <message>
         <source>First event</source>
-        <translation>첫 이벤트</translation>
+        <translation type="vanished">첫 이벤트</translation>
     </message>
     <message>
         <source>Last packet</source>
@@ -1000,14 +996,10 @@
     </message>
     <message>
         <source>Last event</source>
-        <translation>마지막 이벤트</translation>
+        <translation type="vanished">마지막 이벤트</translation>
     </message>
     <message>
         <source>Capture end</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Log end</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -1058,7 +1050,7 @@
     </message>
     <message>
         <source>Dropped events</source>
-        <translation>누락된 이벤트</translation>
+        <translation type="vanished">누락된 이벤트</translation>
     </message>
     <message>
         <source>Capture filter</source>
@@ -1074,7 +1066,7 @@
     </message>
     <message>
         <source>Event size limit (snaplen)</source>
-        <translation>이벤트 크기 제한(snaplen)</translation>
+        <translation type="vanished">이벤트 크기 제한(snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1130,7 +1122,7 @@
     </message>
     <message>
         <source>Events</source>
-        <translation>이벤트</translation>
+        <translation type="vanished">이벤트</translation>
     </message>
     <message>
         <source>Time span, s</source>
@@ -1146,7 +1138,7 @@
     </message>
     <message>
         <source>Average event size, B</source>
-        <translation>평균 이벤트 크기, 바이트</translation>
+        <translation type="vanished">평균 이벤트 크기, 바이트</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1166,7 +1158,7 @@
     </message>
     <message>
         <source>Event Comments</source>
-        <translation>이벤트 주석</translation>
+        <translation type="vanished">이벤트 주석</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1184,7 +1176,7 @@
         <source>Created by Stratoshark %1
 
 </source>
-        <translation>Stratoshark %1에서 생성됨
+        <translation type="vanished">Stratoshark %1에서 생성됨
 
 </translation>
     </message>
@@ -5531,6 +5523,39 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Event JSON</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KeyboardShortcutsDialog</name>
+    <message>
+        <source>Keyboard Shortcuts</source>
+        <translation type="unfinished">키보드 단축키</translation>
+    </message>
+    <message>
+        <source>Search Shortcuts</source>
+        <translation type="unfinished">단축키 검색</translation>
+    </message>
+    <message>
+        <source>Print Shortcutlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">복사</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>행 복사</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%1 %2</source>
+        <translation type="unfinished">%1 %2</translation>
     </message>
 </context>
 <context>
@@ -15631,6 +15656,14 @@ a:hover {
     <message>
         <source>&amp;Supported Protocols</source>
         <translation>지원하는 프로토콜(&amp;S)</translation>
+    </message>
+    <message>
+        <source>&amp;Keyboard Shortcuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the current keyboard shortcuts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MAP Summary</source>

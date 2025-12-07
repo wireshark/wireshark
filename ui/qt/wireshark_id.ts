@@ -65,11 +65,11 @@
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation>Pintasan Papan Ketik</translation>
+        <translation type="vanished">Pintasan Papan Ketik</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation>Cari Pintasan</translation>
+        <translation type="vanished">Cari Pintasan</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
@@ -984,7 +984,7 @@
     </message>
     <message>
         <source>Log start</source>
-        <translation>Awal log</translation>
+        <translation type="vanished">Awal log</translation>
     </message>
     <message>
         <source>First packet</source>
@@ -992,7 +992,7 @@
     </message>
     <message>
         <source>First event</source>
-        <translation>Kejadian pertama</translation>
+        <translation type="vanished">Kejadian pertama</translation>
     </message>
     <message>
         <source>Last packet</source>
@@ -1000,7 +1000,7 @@
     </message>
     <message>
         <source>Last event</source>
-        <translation>Kejadian terakhir</translation>
+        <translation type="vanished">Kejadian terakhir</translation>
     </message>
     <message>
         <source>Capture end</source>
@@ -1008,7 +1008,7 @@
     </message>
     <message>
         <source>Log end</source>
-        <translation>Akhir log</translation>
+        <translation type="vanished">Akhir log</translation>
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
@@ -1058,7 +1058,7 @@
     </message>
     <message>
         <source>Dropped events</source>
-        <translation>Kejadian yang dijatuhkan</translation>
+        <translation type="vanished">Kejadian yang dijatuhkan</translation>
     </message>
     <message>
         <source>Capture filter</source>
@@ -1074,7 +1074,7 @@
     </message>
     <message>
         <source>Event size limit (snaplen)</source>
-        <translation>Batas ukuran kejadian (snaplen)</translation>
+        <translation type="vanished">Batas ukuran kejadian (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1130,7 +1130,7 @@
     </message>
     <message>
         <source>Events</source>
-        <translation>Kejadian</translation>
+        <translation type="vanished">Kejadian</translation>
     </message>
     <message>
         <source>Time span, s</source>
@@ -1146,7 +1146,7 @@
     </message>
     <message>
         <source>Average event size, B</source>
-        <translation>Rata-rata ukuran kejadian, B</translation>
+        <translation type="vanished">Rata-rata ukuran kejadian, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1166,7 +1166,7 @@
     </message>
     <message>
         <source>Event Comments</source>
-        <translation>Komentar Kejadian</translation>
+        <translation type="vanished">Komentar Kejadian</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1184,7 +1184,7 @@
         <source>Created by Stratoshark %1
 
 </source>
-        <translation>Dibuat oleh Stratoshark %1
+        <translation type="vanished">Dibuat oleh Stratoshark %1
 
 </translation>
     </message>
@@ -5531,6 +5531,39 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <message>
         <source>Event JSON</source>
         <translation>JSON Kejadian</translation>
+    </message>
+</context>
+<context>
+    <name>KeyboardShortcutsDialog</name>
+    <message>
+        <source>Keyboard Shortcuts</source>
+        <translation type="unfinished">Pintasan Papan Ketik</translation>
+    </message>
+    <message>
+        <source>Search Shortcuts</source>
+        <translation type="unfinished">Cari Pintasan</translation>
+    </message>
+    <message>
+        <source>Print Shortcutlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Salin</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Salin Baris</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%1 %2</source>
+        <translation type="unfinished">%1 %2</translation>
     </message>
 </context>
 <context>
@@ -15697,6 +15730,14 @@ a:hover {
     <message>
         <source>&amp;Supported Protocols</source>
         <translation>Protokol yang Did&amp;ukung</translation>
+    </message>
+    <message>
+        <source>&amp;Keyboard Shortcuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the current keyboard shortcuts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MAP Summary</source>

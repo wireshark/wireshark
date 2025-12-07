@@ -65,11 +65,11 @@
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation>快捷键</translation>
+        <translation type="vanished">快捷键</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation>搜索快捷方式</translation>
+        <translation type="vanished">搜索快捷方式</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
@@ -983,31 +983,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Log start</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>First packet</source>
         <translation>第一个分组</translation>
-    </message>
-    <message>
-        <source>First event</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Last packet</source>
         <translation>最后分组</translation>
     </message>
     <message>
-        <source>Last event</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Capture end</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Log end</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -1057,10 +1041,6 @@
         <translation>丢弃分组</translation>
     </message>
     <message>
-        <source>Dropped events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Capture filter</source>
         <translation>捕获过滤器</translation>
     </message>
@@ -1070,10 +1050,6 @@
     </message>
     <message>
         <source>Packet size limit (snaplen)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Event size limit (snaplen)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1129,10 +1105,6 @@
         <translation>分组</translation>
     </message>
     <message>
-        <source>Events</source>
-        <translation type="unfinished">事件</translation>
-    </message>
-    <message>
         <source>Time span, s</source>
         <translation>时间跨度,s</translation>
     </message>
@@ -1143,10 +1115,6 @@
     <message>
         <source>Average packet size, B</source>
         <translation>平均分组大小,B</translation>
-    </message>
-    <message>
-        <source>Average event size, B</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1165,10 +1133,6 @@
         <translation>分组注释</translation>
     </message>
     <message>
-        <source>Event Comments</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;帧 %1: </translation>
     </message>
@@ -1177,12 +1141,6 @@
 
 </source>
         <translation>通过 Wireshark 创建 %1</translation>
-    </message>
-    <message>
-        <source>Created by Stratoshark %1
-
-</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5524,6 +5482,39 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>JsonDataSourceView</name>
     <message>
         <source>Event JSON</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KeyboardShortcutsDialog</name>
+    <message>
+        <source>Keyboard Shortcuts</source>
+        <translation type="unfinished">快捷键</translation>
+    </message>
+    <message>
+        <source>Search Shortcuts</source>
+        <translation type="unfinished">搜索快捷方式</translation>
+    </message>
+    <message>
+        <source>Print Shortcutlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">复制</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>复制行</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%1 %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -15569,6 +15560,14 @@ a:hover {
     </message>
     <message>
         <source>&amp;Supported Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Keyboard Shortcuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the current keyboard shortcuts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

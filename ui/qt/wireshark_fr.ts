@@ -65,11 +65,11 @@
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation>Raccourcis clavier</translation>
+        <translation type="vanished">Raccourcis clavier</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation>Raccourcis de recherche</translation>
+        <translation type="vanished">Raccourcis de recherche</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
@@ -991,16 +991,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Log start</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>First packet</source>
         <translation>Premier paquet</translation>
     </message>
     <message>
         <source>First event</source>
-        <translation>Premier événement</translation>
+        <translation type="vanished">Premier événement</translation>
     </message>
     <message>
         <source>Last packet</source>
@@ -1008,14 +1004,10 @@
     </message>
     <message>
         <source>Last event</source>
-        <translation>Dernier événement</translation>
+        <translation type="vanished">Dernier événement</translation>
     </message>
     <message>
         <source>Capture end</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Log end</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -1067,7 +1059,7 @@
     </message>
     <message>
         <source>Dropped events</source>
-        <translation>Événements perdus</translation>
+        <translation type="vanished">Événements perdus</translation>
     </message>
     <message>
         <source>Capture filter</source>
@@ -1083,7 +1075,7 @@
     </message>
     <message>
         <source>Event size limit (snaplen)</source>
-        <translation>Limite de la taille de l&apos;événement (snaplen)</translation>
+        <translation type="vanished">Limite de la taille de l&apos;événement (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1139,7 +1131,7 @@
     </message>
     <message>
         <source>Events</source>
-        <translation>Événements</translation>
+        <translation type="vanished">Événements</translation>
     </message>
     <message>
         <source>Time span, s</source>
@@ -1155,7 +1147,7 @@
     </message>
     <message>
         <source>Average event size, B</source>
-        <translation>Taille moyenne des événements, O</translation>
+        <translation type="vanished">Taille moyenne des événements, O</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1175,7 +1167,7 @@
     </message>
     <message>
         <source>Event Comments</source>
-        <translation>Commentaires de l&apos;événement</translation>
+        <translation type="vanished">Commentaires de l&apos;événement</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1193,7 +1185,7 @@
         <source>Created by Stratoshark %1
 
 </source>
-        <translation>Créé par Stratoshark %1
+        <translation type="vanished">Créé par Stratoshark %1
 
 </translation>
     </message>
@@ -5548,6 +5540,40 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Event JSON</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>KeyboardShortcutsDialog</name>
+    <message>
+        <source>Keyboard Shortcuts</source>
+        <translation type="unfinished">Raccourcis clavier</translation>
+    </message>
+    <message>
+        <source>Search Shortcuts</source>
+        <translation type="unfinished">Raccourcis de recherche</translation>
+    </message>
+    <message>
+        <source>Print Shortcutlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Copier la ligne</numerusform>
+            <numerusform>Copier les lignes</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%1 %2</source>
+        <translation type="unfinished">%1 %2</translation>
     </message>
 </context>
 <context>
@@ -15666,6 +15692,14 @@ a:hover {
     <message>
         <source>&amp;Supported Protocols</source>
         <translation>&amp;Protocoles pris en charge</translation>
+    </message>
+    <message>
+        <source>&amp;Keyboard Shortcuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the current keyboard shortcuts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MAP Summary</source>

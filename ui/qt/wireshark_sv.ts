@@ -65,11 +65,11 @@
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation>Tangentbordsgenvägar</translation>
+        <translation type="vanished">Tangentbordsgenvägar</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation>Sök efter genvägar</translation>
+        <translation type="vanished">Sök efter genvägar</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
@@ -991,16 +991,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Log start</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>First packet</source>
         <translation>Första paket</translation>
     </message>
     <message>
         <source>First event</source>
-        <translation>Första händelse</translation>
+        <translation type="vanished">Första händelse</translation>
     </message>
     <message>
         <source>Last packet</source>
@@ -1008,14 +1004,10 @@
     </message>
     <message>
         <source>Last event</source>
-        <translation>Sista händelse</translation>
+        <translation type="vanished">Sista händelse</translation>
     </message>
     <message>
         <source>Capture end</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Log end</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -1067,7 +1059,7 @@
     </message>
     <message>
         <source>Dropped events</source>
-        <translation>Släppta händelser</translation>
+        <translation type="vanished">Släppta händelser</translation>
     </message>
     <message>
         <source>Capture filter</source>
@@ -1083,7 +1075,7 @@
     </message>
     <message>
         <source>Event size limit (snaplen)</source>
-        <translation>Storleksgräns på händelse (snaplen)</translation>
+        <translation type="vanished">Storleksgräns på händelse (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1139,7 +1131,7 @@
     </message>
     <message>
         <source>Events</source>
-        <translation>Händelser</translation>
+        <translation type="vanished">Händelser</translation>
     </message>
     <message>
         <source>Time span, s</source>
@@ -1155,7 +1147,7 @@
     </message>
     <message>
         <source>Average event size, B</source>
-        <translation>Genomsnittlig händelsestorlek, B</translation>
+        <translation type="vanished">Genomsnittlig händelsestorlek, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1175,7 +1167,7 @@
     </message>
     <message>
         <source>Event Comments</source>
-        <translation>Händelsekommentarer</translation>
+        <translation type="vanished">Händelsekommentarer</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
@@ -1193,7 +1185,7 @@
         <source>Created by Stratoshark %1
 
 </source>
-        <translation>Skapad av Stratoshark %1
+        <translation type="vanished">Skapad av Stratoshark %1
 
 </translation>
     </message>
@@ -5548,6 +5540,40 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Event JSON</source>
         <translation>Händelse-JSON</translation>
+    </message>
+</context>
+<context>
+    <name>KeyboardShortcutsDialog</name>
+    <message>
+        <source>Keyboard Shortcuts</source>
+        <translation type="unfinished">Tangentbordsgenvägar</translation>
+    </message>
+    <message>
+        <source>Search Shortcuts</source>
+        <translation type="unfinished">Sök efter genvägar</translation>
+    </message>
+    <message>
+        <source>Print Shortcutlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Kopiera</translation>
+    </message>
+    <message numerus="yes">
+        <source>Copy Row(s)</source>
+        <translation type="unfinished">
+            <numerusform>Kopiera rad</numerusform>
+            <numerusform>Kopiera rader</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>%1 %2</source>
+        <translation type="unfinished">%1 %2</translation>
     </message>
 </context>
 <context>
@@ -15698,6 +15724,14 @@ a:hover {
     <message>
         <source>&amp;Supported Protocols</source>
         <translation>Protokoll som &amp;stödjs</translation>
+    </message>
+    <message>
+        <source>&amp;Keyboard Shortcuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the current keyboard shortcuts</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>MAP Summary</source>
