@@ -70,7 +70,8 @@ OverlayScrollBar::OverlayScrollBar(Qt::Orientation orientation, QWidget *parent)
     packet_count_(-1),
     start_pos_(-1),
     end_pos_(-1),
-    positions_(QList<int>())
+    positions_(QList<int>()),
+    row_height_(devicePixelRatio())
 {
     style_ = new OsbProxyStyle();
     setStyle(style_);
