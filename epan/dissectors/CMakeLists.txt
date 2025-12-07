@@ -1537,6 +1537,8 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-meta.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-metamako.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mgcp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-midi.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-midi-sysex_digitech.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-midi-sysex-id.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mih.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mikey.c
@@ -1996,8 +1998,6 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-synergy.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-synphasor.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sysdig-event.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-sysex.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-sysex_digitech.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-syslog.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-systemd-journal.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-t30.c

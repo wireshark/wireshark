@@ -1,4 +1,4 @@
-/* packet-sysex.c
+/* packet-midi.c
  *
  * MIDI SysEx dissector
  * Tomasz Mon 2012

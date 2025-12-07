@@ -1,4 +1,4 @@
-/* packet-sysex-digitech.c
+/* packet-midi-sysex_digitech.c
  *
  * MIDI SysEx dissector for Digitech devices (DOD Electronics Corp.)
  * Tomasz Mon 2012
