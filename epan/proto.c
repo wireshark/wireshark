@@ -11482,6 +11482,34 @@ proto_registrar_get_length(const int n)
 	return ftype_wire_size(hfinfo->type);
 }
 
+size_t
+proto_registrar_get_count(struct proto_registrar_stats *stats)
+{
+	header_field_info *hfinfo;
+
+	// Index zero is not used. We have to skip it.
+	size_t total_count = gpa_hfinfo.len - 1;
+	if (stats == NULL) {
+		return total_count;
+	}
+	for (uint32_t id = 1; id < gpa_hfinfo.len; id++) {
+		if (gpa_hfinfo.hfi[id] == NULL) {
+			stats->deregistered_count++;
+			continue; /* This is a deregistered protocol or header field */
+		}
+
+		PROTO_REGISTRAR_GET_NTH(id, hfinfo);
+
+		if (proto_registrar_is_protocol(id))
+			stats->protocol_count++;
+
+		if (hfinfo->same_name_prev_id != -1)
+			stats->same_name_count++;
+	}
+
+	return total_count;
+}
+
 /* Looks for a protocol or a field in a proto_tree. Returns true if
  * it exists anywhere, or false if it exists nowhere. */
 bool
@@ -11807,7 +11835,7 @@ proto_registrar_dump_values(void)
 	const unit_name_string	*units;
 
 	len = gpa_hfinfo.len;
-	for (i = 0; i < len ; i++) {
+	for (i = 1; i < len ; i++) {
 		if (gpa_hfinfo.hfi[i] == NULL)
 			continue; /* This is a deregistered protocol or field */
 
@@ -12013,33 +12041,15 @@ proto_registrar_dump_values(void)
 bool
 proto_registrar_dump_fieldcount(void)
 {
-	uint32_t			i;
-	header_field_info	*hfinfo;
-	uint32_t			deregistered_count = 0;
-	uint32_t			same_name_count = 0;
-	uint32_t			protocol_count = 0;
+	struct proto_registrar_stats stats;
+	size_t total_count = proto_registrar_get_count(&stats);
 
-	for (i = 0; i < gpa_hfinfo.len; i++) {
-		if (gpa_hfinfo.hfi[i] == NULL) {
-			deregistered_count++;
-			continue; /* This is a deregistered protocol or header field */
-		}
-
-		PROTO_REGISTRAR_GET_NTH(i, hfinfo);
-
-		if (proto_registrar_is_protocol(i))
-			protocol_count++;
-
-		if (hfinfo->same_name_prev_id != -1)
-			same_name_count++;
-	}
-
-	printf("There are %u header fields registered, of which:\n"
-		"\t%u are deregistered\n"
-		"\t%u are protocols\n"
-		"\t%u have the same name as another field\n\n",
-		gpa_hfinfo.len, deregistered_count, protocol_count,
-		same_name_count);
+	printf("There are %zu header fields registered, of which:\n"
+		"\t%zu are deregistered\n"
+		"\t%zu are protocols\n"
+		"\t%zu have the same name as another field\n\n",
+		total_count, stats.deregistered_count, stats.protocol_count,
+		stats.same_name_count);
 
 	printf("%d fields were pre-allocated.\n%s", PROTO_PRE_ALLOC_HF_FIELDS_MEM,
 		(gpa_hfinfo.allocated_len > PROTO_PRE_ALLOC_HF_FIELDS_MEM) ?
@@ -12178,7 +12188,7 @@ proto_registrar_dump_elastic(const char* filter)
 	json_dumper_set_member_name(&dumper, "properties");
 	json_dumper_begin_object(&dumper); // 5.properties
 
-	for (i = 0; i < gpa_hfinfo.len; i++) {
+	for (i = 1; i < gpa_hfinfo.len; i++) {
 		if (gpa_hfinfo.hfi[i] == NULL)
 			continue; /* This is a deregistered protocol or header field */
 
@@ -12300,7 +12310,7 @@ proto_registrar_dump_fields(void)
 	char		   width[5];
 
 	len = gpa_hfinfo.len;
-	for (i = 0; i < len ; i++) {
+	for (i = 1; i < len ; i++) {
 		if (gpa_hfinfo.hfi[i] == NULL)
 			continue; /* This is a deregistered protocol or header field */
 
@@ -12410,7 +12420,7 @@ proto_registrar_dump_field_completions(const char *prefix)
 
 	prefix_len = strlen(prefix);
 	len = gpa_hfinfo.len;
-	for (i = 0; i < len ; i++) {
+	for (i = 1; i < len ; i++) {
 		if (gpa_hfinfo.hfi[i] == NULL)
 			continue; /* This is a deregistered protocol or header field */
 

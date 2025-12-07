@@ -2789,6 +2789,16 @@ WS_DLL_PUBLIC bool proto_registrar_is_protocol(const int n);
  @return 0 means undeterminable at registration time, -1 means unknown field */
 WS_DLL_PUBLIC int proto_registrar_get_length(const int n);
 
+struct proto_registrar_stats {
+    size_t protocol_count;
+    size_t deregistered_count;
+    size_t same_name_count;
+};
+
+/** Get protocol and field registration counts.
+ @param stats structure to fill in
+ @return Count of all registered fields. */
+WS_DLL_PUBLIC size_t proto_registrar_get_count(struct proto_registrar_stats *stats);
 
 /** Routines to use to iterate over the protocols and their fields;
  * they return the item number of the protocol in question or the
