@@ -939,17 +939,17 @@ arcfour_mic_key(const uint8_t *key_data, size_t key_size, int key_type,
     uint8_t L40[14] = "fortybits";
     memcpy(L40 + 10, T, sizeof(T));
     if (ws_hmac_buffer(GCRY_MD_MD5, k5_data, L40, 14, key_data, key_size)) {
-      return 0;
+      return -1;
     }
     memset(&k5_data[7], 0xAB, 9);
   } else {
     if (ws_hmac_buffer(GCRY_MD_MD5, k5_data, T, 4, key_data, key_size)) {
-      return 0;
+      return -1;
     }
   }
 
   if (ws_hmac_buffer(GCRY_MD_MD5, key6_data, cksum_data, cksum_size, k5_data, HASH_MD5_LENGTH)) {
-    return 0;
+    return -1;
   }
   return 0;
 }
@@ -990,11 +990,11 @@ arcfour_mic_cksum(uint8_t *key_data, int key_length,
 
   rc4_usage=usage2arcfour(usage);
   if (ws_hmac_buffer(GCRY_MD_MD5, ksign_c, signature, sizeof(signature), key_data, key_length)) {
-    return 0;
+    return -1;
   }
 
   if (gcry_md_open(&md5_handle, GCRY_MD_MD5, 0)) {
-    return 0;
+    return -1;
   }
   t[0] = (rc4_usage >>  0) & 0xFF;
   t[1] = (rc4_usage >>  8) & 0xFF;
@@ -1008,7 +1008,7 @@ arcfour_mic_cksum(uint8_t *key_data, int key_length,
   gcry_md_close(md5_handle);
 
   if (ws_hmac_buffer(GCRY_MD_MD5, cksum, digest, HASH_MD5_LENGTH, ksign_c, HASH_MD5_LENGTH)) {
-    return 0;
+    return -1;
   }
 
   memcpy(sgn_cksum, cksum, 8);
