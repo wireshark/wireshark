@@ -2485,7 +2485,7 @@ dissect_http3_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     ti = proto_tree_add_item_ret_varint(datragram_tree, hf_http3_datagram_quarter_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &request_stream_id, &lenvar);
     stream_id_tree = proto_item_add_subtree(ti, ett_http3_datagram_stream_id);
 
-    if (request_stream_id > (2ULL >> 60) - 1) {
+    if (request_stream_id > ((1ULL << 60) - 1)) {
         proto_tree_add_expert_format(stream_id_tree, pinfo, &ei_http3_datagram_invalid_stream_id, tvb, offset, lenvar,
                                              "Quarter Stream ID is too big");
         return tvb_captured_length(tvb);
