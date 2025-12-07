@@ -3927,7 +3927,7 @@ TimeOffsetUTC-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
     dissect_lpp_Ellipsoid_Point_PDU(ellipsoid_point_tvb, actx->pinfo, tree, NULL);
   }
 
-#.FN_BODY RACH-ReportNR-r18 VAL_PTR = &ra_reportlist_tvb
+#.FN_BODY RACH-ReportNR-r18/rach-ReportListNR-r18 VAL_PTR = &ra_reportlist_tvb
   tvbuff_t *ra_reportlist_tvb = NULL;
 %(DEFAULT_BODY)s
   if (ra_reportlist_tvb) {
