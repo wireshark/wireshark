@@ -158,27 +158,39 @@ static enum_val_t* get_enum(lua_State *L, int idx)
 
         luaL_checktype(L, -1, LUA_TTABLE);
         lua_pushnil(L);
-        lua_next(L, -2);
+        if (! lua_next(L, -2)) {
+            luaL_argerror(L,idx,"An enum table entry must have a first value, the name");
+            g_array_free(es,true);
+            return NULL;
+        }
         if (! lua_isstring(L,-1)) {
-            luaL_argerror(L,idx,"First value of an enum table must be string");
+            luaL_argerror(L,idx,"The first value of an enum table entry, the name, must be a string");
             g_array_free(es,true);
             return NULL;
         }
         str1 = lua_tostring(L, -1);
 
         lua_pop(L, 1);
-        lua_next(L, -2);
+        if (! lua_next(L, -2)) {
+            luaL_argerror(L,idx,"An enum table entry must have a second value, the description");
+            g_array_free(es,true);
+            return NULL;
+        }
         if (! lua_isstring(L,-1)) {
-            luaL_argerror(L,idx,"Second value of an enum table must be string");
+            luaL_argerror(L,idx,"The second value of an enum table entry, the description, must be a string");
             g_array_free(es,true);
             return NULL;
         }
         str2 = lua_tostring(L, -1);
 
         lua_pop(L, 1);
-        lua_next(L, -2);
+        if (! lua_next(L, -2)) {
+            luaL_argerror(L,idx,"An enum table entry must be have a third value, the value");
+            g_array_free(es,true);
+            return NULL;
+        }
         if (! lua_isnumber(L,-1)) {
-            luaL_argerror(L,idx,"Third value of an enum table must be an integer");
+            luaL_argerror(L,idx,"The third value of an enum table entry, the value, must be an integer");
             g_array_free(es,true);
             return NULL;
         }
@@ -217,18 +229,26 @@ static uat_field_t* get_uat_flds_array(lua_State *L, int idx, char * uat_filenam
         /* field title */
         luaL_checktype(L, -1, LUA_TTABLE);
         lua_pushnil(L);
-        lua_next(L, -2);
+        if (! lua_next(L, -2)) {
+            luaL_argerror(L,idx,"A UAT table config must have a first value, the title");
+            g_array_free(fs,true);
+            return NULL;
+        }
         if (! lua_isstring(L,-1)) {
-            luaL_argerror(L,idx,"First value of an UAT table config must be string");
+            luaL_argerror(L,idx,"The first value of a UAT table config, the title, must be a string");
             g_array_free(fs,true);
             return NULL;
         }
         str1 = lua_tostring(L, -1);
         /* field description */
         lua_pop(L, 1);
-        lua_next(L, -2);
+        if (! lua_next(L, -2)) {
+            luaL_argerror(L,idx,"A UAT table config must have a second value, the description");
+            g_array_free(fs,true);
+            return NULL;
+        }
         if (! lua_isstring(L,-1)) {
-            luaL_argerror(L,idx,"Second value of an UAT table config must be string");
+            luaL_argerror(L,idx,"The second value of a UAT table config, the description, must be a string");
             g_array_free(fs,true);
             return NULL;
         }
