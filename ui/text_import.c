@@ -1191,7 +1191,7 @@ _parse_time(const unsigned char* start_field, const unsigned char* end_field, co
         *nsec = (unsigned)nsec_buf;
     }
 
-    ws_noisy("parsed time %s Format(%s), time(%u), subsecs(%u)\n", field, _format, (uint32_t)*sec, (uint32_t)*nsec);
+    ws_noisy("parsed time %s Format(%s), time(%ju), subsecs(%u)\n", field, _format, (uintmax_t)*sec, (uint32_t)*nsec);
 
     return true;
 }
@@ -1264,7 +1264,7 @@ parse_preamble (void)
         char *c;
         while ((c = strchr((const char*)packet_preamble, '\r')) != NULL) *c=' ';
         ws_noisy("[[parse_preamble: \"%s\"]]", packet_preamble);
-        ws_noisy("Format(%s), time(%u), subsecs(%u)", info_p->timestamp_format, (uint32_t)ts_sec, ts_nsec);
+        ws_noisy("Format(%s), time(%ju), subsecs(%u)", info_p->timestamp_format, (uintmax_t)ts_sec, ts_nsec);
     }
 
     if (!got_time) {
