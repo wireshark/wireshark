@@ -34,6 +34,7 @@
 #include <epan/expert.h>
 
 #include "packet-tcp.h"
+#include "packet-dmx-manfid.h"
 
 /* Forward declarations */
 void proto_register_acn(void);
@@ -501,6 +502,8 @@ static int ett_rdmnet_ept_data_pdu;
 static int ett_rdmnet_ept_data_vector_pdu;
 static int ett_rdmnet_ept_status_pdu;
 
+static int ett_rdmnet_uid;
+
 static expert_field ei_acn_dmx_discovery_outofseq;
 
 /*  Register fields */
@@ -697,17 +700,25 @@ static int hf_rdmnet_llrp_probe_request_filter;
 static int hf_rdmnet_llrp_probe_request_filter_client_tcp_inactive;
 static int hf_rdmnet_llrp_probe_request_filter_brokers_only;
 static int hf_rdmnet_llrp_probe_request_known_uid;
+static int hf_rdmnet_llrp_probe_request_known_uid_manf;
+static int hf_rdmnet_llrp_probe_request_known_uid_dev;
 
 static int hf_rdmnet_llrp_probe_reply_vector;
 static int hf_rdmnet_llrp_probe_reply_uid;
+static int hf_rdmnet_llrp_probe_reply_uid_manf;
+static int hf_rdmnet_llrp_probe_reply_uid_dev;
 static int hf_rdmnet_llrp_probe_reply_hardware_address;
 static int hf_rdmnet_llrp_probe_reply_component_type;
 static int hf_rdmnet_llrp_rdm_command_start_code;
 
 static int hf_rdmnet_rpt_vector;
 static int hf_rdmnet_rpt_source_uid;
+static int hf_rdmnet_rpt_source_uid_manf;
+static int hf_rdmnet_rpt_source_uid_dev;
 static int hf_rdmnet_rpt_source_endpoint_id;
 static int hf_rdmnet_rpt_destination_uid;
+static int hf_rdmnet_rpt_destination_uid_manf;
+static int hf_rdmnet_rpt_destination_uid_dev;
 static int hf_rdmnet_rpt_destination_endpoint_id;
 static int hf_rdmnet_rpt_sequence_number;
 static int hf_rdmnet_rpt_reserved;
@@ -728,6 +739,8 @@ static int hf_rdmnet_broker_vector;
 static int hf_rdmnet_broker_client_protocol_vector;
 static int hf_rdmnet_broker_client_protocol_cid;
 static int hf_rdmnet_broker_client_rpt_client_uid;
+static int hf_rdmnet_broker_client_rpt_client_uid_manf;
+static int hf_rdmnet_broker_client_rpt_client_uid_dev;
 static int hf_rdmnet_broker_client_rpt_client_type;
 static int hf_rdmnet_broker_client_rpt_binding_cid;
 static int hf_rdmnet_broker_client_ept_protocol_vector;
@@ -742,7 +755,11 @@ static int hf_rdmnet_broker_connect_connection_flags_incremental_updates;
 static int hf_rdmnet_broker_connect_reply_connection_code;
 static int hf_rdmnet_broker_connect_reply_e133_version;
 static int hf_rdmnet_broker_connect_reply_broker_uid;
+static int hf_rdmnet_broker_connect_reply_broker_uid_manf;
+static int hf_rdmnet_broker_connect_reply_broker_uid_dev;
 static int hf_rdmnet_broker_connect_reply_client_uid;
+static int hf_rdmnet_broker_connect_reply_client_uid_manf;
+static int hf_rdmnet_broker_connect_reply_client_uid_dev;
 static int hf_rdmnet_broker_client_entry_update_connection_flags;
 static int hf_rdmnet_broker_client_entry_update_connection_flags_incremental_updates;
 static int hf_rdmnet_broker_redirect_ipv4_address;
@@ -6089,6 +6106,24 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 
 /******************************************************************************/
+/* Add tree for RDM UID                                                       */
+static uint32_t
+rdmnet_add_uid(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_uid, int hf_uid_manf, int hf_uid_dev)
+{
+  proto_item *ti;
+  proto_tree *uid_tree;
+
+  ti = proto_tree_add_item(tree, hf_uid, tvb, offset, 6, ENC_NA);
+  uid_tree = proto_item_add_subtree(ti, ett_rdmnet_uid);
+  proto_tree_add_item(uid_tree, hf_uid_manf, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  proto_tree_add_item(uid_tree, hf_uid_dev, tvb, offset, 4, ENC_BIG_ENDIAN);
+  offset += 4;
+
+  return offset;
+}
+
+/******************************************************************************/
 /* Dissect LLRP Probe Request PDU                                             */
 static uint32_t
 dissect_llrp_probe_request_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
@@ -6143,8 +6178,8 @@ dissect_llrp_probe_request_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, acn_
   /* known uids */
   end_offset = pdu_start + pdu_length;
   while (data_offset + 6 <= end_offset) {
-    proto_tree_add_item(pdu_tree, hf_rdmnet_llrp_probe_request_known_uid, tvb, data_offset, 6, ENC_NA);
-    data_offset += 6;
+    data_offset = rdmnet_add_uid(tvb, pdu_tree, data_offset, hf_rdmnet_llrp_probe_request_known_uid,
+      hf_rdmnet_llrp_probe_request_known_uid_manf, hf_rdmnet_llrp_probe_request_known_uid_dev);
   }
 
   return pdu_start + pdu_length;
@@ -6184,8 +6219,8 @@ dissect_llrp_probe_reply_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pd
   /* offset should now be pointing to data (if one exists) */
 
   /* uid */
-  proto_tree_add_item(pdu_tree, hf_rdmnet_llrp_probe_reply_uid, tvb, data_offset, 6, ENC_NA);
-  data_offset += 6;
+  data_offset = rdmnet_add_uid(tvb, pdu_tree, data_offset, hf_rdmnet_llrp_probe_reply_uid,
+    hf_rdmnet_llrp_probe_reply_uid_manf, hf_rdmnet_llrp_probe_reply_uid_dev);
 
   /* hardware address */
   proto_tree_add_item(pdu_tree, hf_rdmnet_llrp_probe_reply_hardware_address, tvb, data_offset, 6, ENC_NA);
@@ -6382,8 +6417,8 @@ dissect_broker_client_entry_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
   switch (vector) {
   case RDMNET_CLIENT_PROTOCOL_RPT:
     /* client uid */
-    proto_tree_add_item(pdu_tree, hf_rdmnet_broker_client_rpt_client_uid, tvb, data_offset, 6, ENC_NA);
-    data_offset += 6;
+    data_offset = rdmnet_add_uid(tvb, pdu_tree, data_offset, hf_rdmnet_broker_client_rpt_client_uid,
+      hf_rdmnet_broker_client_rpt_client_uid_manf, hf_rdmnet_broker_client_rpt_client_uid_dev);
 
     /* client type */
     proto_tree_add_item(pdu_tree, hf_rdmnet_broker_client_rpt_client_type, tvb, data_offset, 1, ENC_BIG_ENDIAN);
@@ -6463,11 +6498,12 @@ dissect_broker_connect_reply(tvbuff_t *tvb, proto_tree *tree, int offset)
   offset += 2;
 
   /* broker uid */
-  proto_tree_add_item(tree, hf_rdmnet_broker_connect_reply_broker_uid, tvb, offset, 6, ENC_NA);
-  offset += 6;
+  offset = rdmnet_add_uid(tvb, tree, offset, hf_rdmnet_broker_connect_reply_broker_uid,
+    hf_rdmnet_broker_connect_reply_broker_uid_manf, hf_rdmnet_broker_connect_reply_broker_uid_dev);
 
   /* client uid */
-  proto_tree_add_item(tree, hf_rdmnet_broker_connect_reply_client_uid, tvb, offset, 6, ENC_NA);
+  offset = rdmnet_add_uid(tvb, tree, offset, hf_rdmnet_broker_connect_reply_client_uid,
+    hf_rdmnet_broker_connect_reply_client_uid_manf, hf_rdmnet_broker_connect_reply_client_uid_dev);
 
   return 0;
 }
@@ -6992,16 +7028,16 @@ dissect_acn_rpt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   data_offset += 3;
 
   /* source uid (6 bytes) */
-  proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_source_uid, tvb, data_offset, 6, ENC_NA);
-  data_offset += 6;
+  data_offset = rdmnet_add_uid(tvb, pdu_tree, data_offset, hf_rdmnet_rpt_source_uid,
+    hf_rdmnet_rpt_source_uid_manf, hf_rdmnet_rpt_source_uid_dev);
 
   /* source endpoint id (2 bytes) */
   proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_source_endpoint_id, tvb, data_offset, 2, ENC_BIG_ENDIAN);
   data_offset += 2;
 
   /* destination uid (6 bytes) */
-  proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_destination_uid, tvb, data_offset, 6, ENC_NA);
-  data_offset += 6;
+  data_offset = rdmnet_add_uid(tvb, pdu_tree, data_offset, hf_rdmnet_rpt_destination_uid,
+    hf_rdmnet_rpt_destination_uid_manf, hf_rdmnet_rpt_destination_uid_dev);
 
   /* destination endpoint id (2 bytes) */
   proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_destination_endpoint_id, tvb, data_offset, 2, ENC_BIG_ENDIAN);
@@ -8461,6 +8497,16 @@ proto_register_acn(void)
         FT_BYTES, SEP_SPACE, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_rdmnet_llrp_probe_request_known_uid_manf,
+      { "Manufacturer ID", "rdmnet.llrp.probe_request.known_uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_rdmnet_llrp_probe_request_known_uid_dev,
+      { "Device ID", "rdmnet.llrp.probe_request.known_uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     /* LLRP Probe Reply Vector */
     { &hf_rdmnet_llrp_probe_reply_vector,
       { "LLRP Vector", "rdmnet.llrp.probe_reply_vector",
@@ -8471,6 +8517,16 @@ proto_register_acn(void)
     { &hf_rdmnet_llrp_probe_reply_uid,
       { "UID", "rdmnet.llrp.probe_reply.uid",
         FT_BYTES, SEP_SPACE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_rdmnet_llrp_probe_reply_uid_manf,
+      { "Manufacturer ID", "rdmnet.llrp.probe_reply.uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_rdmnet_llrp_probe_reply_uid_dev,
+      { "Device ID", "rdmnet.llrp.probe_reply.uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     /* LLRP Probe Reply Hardware Address */
@@ -8503,6 +8559,16 @@ proto_register_acn(void)
         FT_BYTES, SEP_SPACE, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_rdmnet_rpt_source_uid_manf,
+      { "Manufacturer ID", "rdmnet.rpt.source_uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_rdmnet_rpt_source_uid_dev,
+      { "Device ID", "rdmnet.rpt.source_uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     /* RPT Source Endpoint ID */
     { &hf_rdmnet_rpt_source_endpoint_id,
       { "Source Endpoint ID", "rdmnet.rpt.source_endpoint_id",
@@ -8513,6 +8579,16 @@ proto_register_acn(void)
     { &hf_rdmnet_rpt_destination_uid,
       { "Destination UID", "rdmnet.rpt.destination_uid",
         FT_BYTES, SEP_SPACE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_rdmnet_rpt_destination_uid_manf,
+      { "Manufacturer ID", "rdmnet.rpt.destination_uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_rdmnet_rpt_destination_uid_dev,
+      { "Device ID", "rdmnet.rpt.destination_uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     /* RPT Destination Endpoint ID */
@@ -8629,6 +8705,16 @@ proto_register_acn(void)
         FT_BYTES, SEP_SPACE, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_rdmnet_broker_client_rpt_client_uid_manf,
+      { "Manufacturer ID", "rdmnet.broker_client_rpt_client_uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_rdmnet_broker_client_rpt_client_uid_dev,
+      { "Device ID", "rdmnet.broker_client_rpt_client_uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     /* Broker Client RPT Client Type */
     { &hf_rdmnet_broker_client_rpt_client_type,
       { "RPT client type", "rdmnet.broker_client_rpt_client_type",
@@ -8650,7 +8736,7 @@ proto_register_acn(void)
     /* Broker Client EPT Manufacturer ID */
     { &hf_rdmnet_broker_client_ept_protocol_manufacturer_id,
       { "Manufacturer ID", "rdmnet.broker_client_ept_manufacturer_id",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
         NULL, HFILL }
     },
     /* Broker Client EPT Protocol ID */
@@ -8712,10 +8798,30 @@ proto_register_acn(void)
         FT_BYTES, SEP_SPACE, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_rdmnet_broker_connect_reply_broker_uid_manf,
+      { "Manufacturer ID", "rdmnet.broker.connect_reply.broker_uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_rdmnet_broker_connect_reply_broker_uid_dev,
+      { "Device ID", "rdmnet.broker.connect_reply.broker_uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     /* Broker Connect Reply Client UID */
     { &hf_rdmnet_broker_connect_reply_client_uid,
       { "Client UID", "rdmnet.broker.connect_reply.client_uid",
         FT_BYTES, SEP_SPACE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_rdmnet_broker_connect_reply_client_uid_manf,
+      { "Manufacturer ID", "rdmnet.broker.connect_reply.client_uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_rdmnet_broker_connect_reply_client_uid_dev,
+      { "Device ID", "rdmnet.broker.connect_reply.client_uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     /* Broker Client Entry Update Connection Flags */
@@ -8822,7 +8928,7 @@ proto_register_acn(void)
     /* EPT Data Vector Manufacturer ID */
     { &hf_rdmnet_ept_data_vector_manufacturer_id,
       { "Manufac. ID", "rdmnet.ept.data.vector.manufacturer_id",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
         "Manufacturer id", HFILL }
     },
     /* EPT Data Vector Protocol ID */
@@ -8922,7 +9028,8 @@ proto_register_acn(void)
     &ett_rdmnet_ept_base_pdu,
     &ett_rdmnet_ept_data_pdu,
     &ett_rdmnet_ept_data_vector_pdu,
-    &ett_rdmnet_ept_status_pdu
+    &ett_rdmnet_ept_status_pdu,
+    &ett_rdmnet_uid
   };
 
   static ei_register_info ei[] = {

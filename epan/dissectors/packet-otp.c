@@ -19,6 +19,7 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <wsutil/utf8_entities.h>
+#include "packet-dmx-manfid.h"
 
 #define OTP_IDENTIFIER ((const uint8_t*)"OTP-E1.59\x00\x00\x00")
 #define OTP_IDENTIFIER_LEN (12)
@@ -1086,8 +1087,8 @@ proto_register_otp(void) {
         },
         { &hf_otp_module_manf_id,
             { "Manufacturer ID", "otp.transform.module.manfid",
-            FT_UINT16, BASE_HEX,
-            NULL, 0x0,
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+            &dmx_esta_manfid_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_otp_module_length,

@@ -28,6 +28,8 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+#include "packet-dmx-manfid.h"
+
 #define DMX_SC_DMX	0x00
 #define DMX_SC_TEXT	0x17
 #define DMX_SC_TEST	0x55
@@ -526,27 +528,27 @@ proto_register_dmx_sip(void)
 
 		{ &hf_dmx_sip_orig_dev_id,
 			{ "1st Device's ID", "dmx_sip.orig_dev_id",
-				FT_UINT16, BASE_HEX, NULL, 0x0,
+				FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_dmx_sip_sec_dev_id,
 			{ "2nd Device's ID", "dmx_sip.sec_dev_id",
-				FT_UINT16, BASE_HEX, NULL, 0x0,
+				FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_dmx_sip_third_dev_id,
 			{ "3rd Device's ID", "dmx_sip.third_dev_id",
-				FT_UINT16, BASE_HEX, NULL, 0x0,
+				FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_dmx_sip_fourth_dev_id,
 			{ "4th Device's ID", "dmx_sip.fourth_dev_id",
-				FT_UINT16, BASE_HEX, NULL, 0x0,
+				FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_dmx_sip_fifth_dev_id,
 			{ "5th Device's ID", "dmx_sip.fifth_dev_id",
-				FT_UINT16, BASE_HEX, NULL, 0x0,
+				FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_dmx_sip_reserved,

@@ -34,6 +34,7 @@
 #include <epan/expert.h>
 #include "packet-rdm.h"
 #include "packet-arp.h"
+#include "packet-dmx-manfid.h"
 
 void proto_register_rdm(void);
 void proto_reg_handoff_rdm(void);
@@ -1020,7 +1021,11 @@ static int proto_rdm;
 static int hf_rdm_sub_start_code;
 static int hf_rdm_message_length;
 static int hf_rdm_dest_uid;
+static int hf_rdm_dest_uid_manf;
+static int hf_rdm_dest_uid_dev;
 static int hf_rdm_src_uid;
+static int hf_rdm_src_uid_manf;
+static int hf_rdm_src_uid_dev;
 static int hf_rdm_transaction_number;
 static int hf_rdm_port_id;
 static int hf_rdm_response_type;
@@ -1086,9 +1091,15 @@ static int hf_rdm_pd_disc_unique_branch_lb_uid;
 static int hf_rdm_pd_disc_unique_branch_ub_uid;
 static int hf_rdm_pd_disc_mute_control_field;
 static int hf_rdm_pd_disc_mute_binding_uid;
+static int hf_rdm_pd_disc_mute_binding_uid_manf;
+static int hf_rdm_pd_disc_mute_binding_uid_dev;
 static int hf_rdm_pd_disc_unmute_control_field;
 static int hf_rdm_pd_disc_unmute_binding_uid;
+static int hf_rdm_pd_disc_unmute_binding_uid_manf;
+static int hf_rdm_pd_disc_unmute_binding_uid_dev;
 static int hf_rdm_pd_proxied_devices_uid;
+static int hf_rdm_pd_proxied_devices_uid_manf;
+static int hf_rdm_pd_proxied_devices_uid_dev;
 static int hf_rdm_pd_proxied_device_count;
 static int hf_rdm_pd_proxied_device_list_change;
 static int hf_rdm_pd_real_time_clock_year;
@@ -1154,8 +1165,12 @@ static int hf_rdm_pd_background_queued_status_policy_description_policy;
 static int hf_rdm_pd_background_queued_status_policy_description_description;
 static int hf_rdm_pd_binding_control_fields_endpoint_id;
 static int hf_rdm_pd_binding_control_fields_uid;
+static int hf_rdm_pd_binding_control_fields_uid_manf;
+static int hf_rdm_pd_binding_control_fields_uid_dev;
 static int hf_rdm_pd_binding_control_fields_control_field;
 static int hf_rdm_pd_binding_control_fields_binding_uid;
+static int hf_rdm_pd_binding_control_fields_binding_uid_manf;
+static int hf_rdm_pd_binding_control_fields_binding_uid_dev;
 static int hf_rem_pd_broker_status_set_allowed;
 static int hf_rem_pd_broker_status_state;
 static int hf_rdm_pd_burn_in;
@@ -1217,6 +1232,8 @@ static int hf_rdm_pd_endpoint_responder_list_change_change_number;
 static int hf_rdm_pd_endpoint_responders_endpoint_id;
 static int hf_rdm_pd_endpoint_responders_change_number;
 static int hf_rdm_pd_endpoint_responders_uid;
+static int hf_rdm_pd_endpoint_responders_uid_manf;
+static int hf_rdm_pd_endpoint_responders_uid_dev;
 static int hf_rdm_pd_endpoint_timing_endpoint_id;
 static int hf_rdm_pd_endpoint_timing_setting;
 static int hf_rdm_pd_endpoint_timing_number_of_settings;
@@ -1306,6 +1323,7 @@ static int hf_rdm_pd_zeroconf_mode_enabled;
 static int hf_rdm_pd_rec_value_support;
 
 static int ett_rdm;
+static int ett_rdm_uid;
 
 static expert_field ei_rdm_checksum;
 
@@ -1823,6 +1841,17 @@ rdm_proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsi
   *offset_ptr += len;
 }
 
+static void
+rdm_proto_tree_add_uid_item(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned *offset_ptr, int hfindex_manf, int hfindex_dev)
+{
+  unsigned offset = *offset_ptr;
+  proto_item* uid_item = proto_tree_add_item(tree, hfindex, tvb, offset, 6, ENC_NA);
+  proto_tree* uid_tree = proto_item_add_subtree(uid_item, ett_rdm_uid);
+  proto_tree_add_item(uid_tree, hfindex_manf, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(uid_tree, hfindex_dev, tvb, offset+2, 4, ENC_BIG_ENDIAN);
+  *offset_ptr += 6;
+}
+
 static unsigned
 dissect_rdm_pd_queued_message(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint8_t cc, uint8_t len _U_)
 {
@@ -2034,7 +2063,8 @@ dissect_rdm_pd_disc_mute(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint8
   case RDM_CC_DISCOVERY_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_disc_mute_control_field, tvb, &offset, 2);
     if (len > 2) {
-      rdm_proto_tree_add_bytes_item(tree, hf_rdm_pd_disc_mute_binding_uid, tvb, &offset, 6);
+      rdm_proto_tree_add_uid_item(tree, hf_rdm_pd_disc_mute_binding_uid, tvb, &offset,
+        hf_rdm_pd_disc_mute_binding_uid_manf, hf_rdm_pd_disc_mute_binding_uid_dev);
     }
     break;
   }
@@ -2049,7 +2079,8 @@ dissect_rdm_pd_disc_un_mute(tvbuff_t *tvb, unsigned offset, proto_tree *tree, ui
   case RDM_CC_DISCOVERY_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_disc_unmute_control_field, tvb, &offset, 2);
     if (len > 2) {
-      rdm_proto_tree_add_bytes_item(tree, hf_rdm_pd_disc_unmute_binding_uid, tvb, &offset, 6);
+      rdm_proto_tree_add_uid_item(tree, hf_rdm_pd_disc_unmute_binding_uid, tvb, &offset,
+        hf_rdm_pd_disc_unmute_binding_uid_manf, hf_rdm_pd_disc_unmute_binding_uid_dev);
     }
     break;
   }
@@ -2063,7 +2094,8 @@ dissect_rdm_pd_proxied_devices(tvbuff_t *tvb, unsigned offset, proto_tree *tree,
   switch(cc) {
   case RDM_CC_GET_COMMAND_RESPONSE:
     while (len >= 6) {
-      rdm_proto_tree_add_bytes_item(tree, hf_rdm_pd_proxied_devices_uid, tvb, &offset, 6);
+      rdm_proto_tree_add_uid_item(tree, hf_rdm_pd_proxied_devices_uid, tvb, &offset,
+        hf_rdm_pd_proxied_devices_uid_manf, hf_rdm_pd_proxied_devices_uid_dev);
       len -= 6;
     }
     break;
@@ -3415,13 +3447,16 @@ dissect_rdm_pd_binding_control_fields(tvbuff_t *tvb, unsigned offset, proto_tree
   switch(cc) {
   case RDM_CC_GET_COMMAND:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_binding_control_fields_endpoint_id, tvb, &offset, 2);
-    rdm_proto_tree_add_bytes_item(tree, hf_rdm_pd_binding_control_fields_uid, tvb, &offset, 6);
+    rdm_proto_tree_add_uid_item(tree, hf_rdm_pd_binding_control_fields_uid, tvb, &offset,
+      hf_rdm_pd_binding_control_fields_uid_manf, hf_rdm_pd_binding_control_fields_uid_dev);
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_binding_control_fields_endpoint_id, tvb, &offset, 2);
-    rdm_proto_tree_add_bytes_item(tree, hf_rdm_pd_binding_control_fields_uid, tvb, &offset, 6);
+    rdm_proto_tree_add_uid_item(tree, hf_rdm_pd_binding_control_fields_uid, tvb, &offset,
+      hf_rdm_pd_binding_control_fields_uid_manf, hf_rdm_pd_binding_control_fields_uid_dev);
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_binding_control_fields_control_field, tvb, &offset, 2);
-    rdm_proto_tree_add_bytes_item(tree, hf_rdm_pd_binding_control_fields_binding_uid, tvb, &offset, 6);
+    rdm_proto_tree_add_uid_item(tree, hf_rdm_pd_binding_control_fields_binding_uid, tvb, &offset,
+      hf_rdm_pd_binding_control_fields_binding_uid_manf, hf_rdm_pd_binding_control_fields_binding_uid_dev);
     break;
   }
 
@@ -3492,7 +3527,8 @@ dissect_rdm_pd_endpoint_responders(tvbuff_t *tvb, unsigned offset, proto_tree *t
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_endpoint_responders_change_number, tvb, &offset, 4);
     len -= 6;
     while (len >= 6) {
-      rdm_proto_tree_add_bytes_item(tree, hf_rdm_pd_endpoint_responders_uid, tvb, &offset, 6);
+      rdm_proto_tree_add_uid_item(tree, hf_rdm_pd_endpoint_responders_uid, tvb, &offset,
+        hf_rdm_pd_endpoint_responders_uid_manf, hf_rdm_pd_endpoint_responders_uid_dev);
       len -= 6;
     }
     break;
@@ -5141,6 +5177,8 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     uint16_t  device_manufacturer_id;
     uint32_t  destination_device_id;
     uint32_t  source_device_id;
+    proto_item* uid_item;
+    proto_tree* uid_tree;
     unsigned  message_length, offset = 0;
 
     proto_tree *ti = proto_tree_add_item(tree, proto_rdm, tvb,
@@ -5160,16 +5198,26 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     destination_device_id = tvb_get_ntohl(tvb, offset + 2);
     proto_item_append_text(ti, ", Dst UID: %04x:%08x",
         destination_manufacturer_id, destination_device_id);
-    proto_tree_add_item(rdm_tree, hf_rdm_dest_uid, tvb,
+    uid_item = proto_tree_add_item(rdm_tree, hf_rdm_dest_uid, tvb,
         offset, 6, ENC_NA);
+    uid_tree = proto_item_add_subtree(uid_item, ett_rdm_uid);
+    proto_tree_add_item(uid_tree, hf_rdm_dest_uid_manf, tvb,
+        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(uid_tree, hf_rdm_dest_uid_dev, tvb,
+        offset+2, 4, ENC_BIG_ENDIAN);
     offset += 6;
 
     source_manufacturer_id = tvb_get_ntohs(tvb, offset);
     source_device_id = tvb_get_ntohl(tvb, offset + 2);
     proto_item_append_text(ti, ", Src UID: %04x:%08x",
         source_manufacturer_id, source_device_id);
-    proto_tree_add_item(rdm_tree, hf_rdm_src_uid, tvb,
+    uid_item = proto_tree_add_item(rdm_tree, hf_rdm_src_uid, tvb,
         offset, 6, ENC_NA);
+    uid_tree = proto_item_add_subtree(uid_item, ett_rdm_uid);
+    proto_tree_add_item(uid_tree, hf_rdm_src_uid_manf, tvb,
+        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(uid_tree, hf_rdm_src_uid_dev, tvb,
+        offset+2, 4, ENC_BIG_ENDIAN);
     offset += 6;
 
     proto_tree_add_item(rdm_tree, hf_rdm_transaction_number, tvb,
@@ -5218,9 +5266,29 @@ proto_register_rdm(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_rdm_dest_uid_manf,
+      { "Manufacturer ID", "rdm.dst.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_dest_uid_dev,
+      { "Device ID", "rdm.dst.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
     { &hf_rdm_src_uid,
       { "Source UID", "rdm.src",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_src_uid_manf,
+      { "Manufacturer ID", "rdm.src.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_src_uid_dev,
+      { "Device ID", "rdm.src.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_rdm_transaction_number,
@@ -5489,6 +5557,16 @@ proto_register_rdm(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_rdm_pd_disc_mute_binding_uid_manf,
+      { "Manufacturer ID", "rdm.pd.disc_mute.binding_uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_disc_mute_binding_uid_dev,
+      { "Device ID", "rdm.pd.disc_mute.binding_uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
     { &hf_rdm_pd_disc_unmute_control_field,
       { "Control Field", "rdm.pd.disc_unmute.control_field",
         FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -5499,9 +5577,29 @@ proto_register_rdm(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_rdm_pd_disc_unmute_binding_uid_manf,
+      { "Manufacturer ID", "rdm.pd.disc_unmute.binding_uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_disc_unmute_binding_uid_dev,
+      { "Device ID", "rdm.pd.disc_unmute.binding_uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
     { &hf_rdm_pd_proxied_devices_uid,
       { "UID", "rdm.pd.proxied_devices.uid",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_proxied_devices_uid_manf,
+      { "Manufacturer ID", "rdm.pd.proxied_devices.uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_proxied_devices_uid_dev,
+      { "Device ID", "rdm.pd.proxied_devices.uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_rdm_pd_proxied_device_count,
@@ -5834,6 +5932,16 @@ proto_register_rdm(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_rdm_pd_binding_control_fields_uid_manf,
+      { "Manufacturer ID", "rdm.pd.binding_control_fields.uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_binding_control_fields_uid_dev,
+      { "Device ID", "rdm.pd.binding_control_fields.uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
     { &hf_rdm_pd_binding_control_fields_control_field,
       { "Control Field", "rdm.pd.binding_control_fields.control_field",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -5842,6 +5950,16 @@ proto_register_rdm(void)
     { &hf_rdm_pd_binding_control_fields_binding_uid,
       { "Binding UID", "rdm.pd.binding_control_fields.binding_uid",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_binding_control_fields_binding_uid_manf,
+      { "Manufacturer ID", "rdm.pd.binding_control_fields.binding_uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_binding_control_fields_binding_uid_dev,
+      { "Device ID", "rdm.pd.binding_control_fields.binding_uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_rem_pd_broker_status_set_allowed,
@@ -6147,6 +6265,16 @@ proto_register_rdm(void)
     { &hf_rdm_pd_endpoint_responders_uid,
       { "UID", "rdm.pd.endpoint_responders.uid",
         FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_endpoint_responders_uid_manf,
+      { "Manufacturer ID", "rdm.pd.endpoint_responders.uid.manf",
+        FT_UINT16, BASE_HEX|BASE_EXT_STRING, &dmx_esta_manfid_vals_ext, 0x0,
+        NULL, HFILL }},
+
+    { &hf_rdm_pd_endpoint_responders_uid_dev,
+      { "Device ID", "rdm.pd.endpoint_responders.uid.dev",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_rdm_pd_endpoint_timing_endpoint_id,
@@ -7102,6 +7230,7 @@ proto_register_rdm(void)
 
   static int *ett[] = {
     &ett_rdm,
+    &ett_rdm_uid,
     &ett_etc_sequence_config_steps,
     &ett_etc_sequence_config_times
   };
