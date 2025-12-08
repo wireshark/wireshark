@@ -2513,7 +2513,7 @@ static bool dissect_procmon_network_event(tvbuff_t* tvb, packet_info* pinfo, pro
     return false;
 }
 
-procmon_process_t *get_procmon_process(packet_info *pinfo, uint32_t process_index)
+static procmon_process_t *get_procmon_process(packet_info *pinfo, uint32_t process_index)
 {
     if (process_index > pinfo->pseudo_header->procmon.process_index_map_size)
     {

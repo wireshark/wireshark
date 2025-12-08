@@ -297,7 +297,7 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
 
         output = future.result()
         if len(output):
-            print(output)
+            print(output[:-1])
         issues_found += len(output.splitlines())
 
 # Show summary.
