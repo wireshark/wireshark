@@ -878,6 +878,7 @@ decode_ex_UCO_ProcessingFault(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
     proto_item *item = wmem_new0(pinfo->pool, proto_item);
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -896,6 +897,7 @@ decode_ex_UCO_SystemFault(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
     proto_item *item = wmem_new0(pinfo->pool, proto_item);
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -914,6 +916,7 @@ decode_ex_UCO_InvalidInputParameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     proto_item *item = wmem_new0(pinfo->pool, proto_item);
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_UCO_InvalidInputParameter_badInputParameters;
     uint32_t  i_UCO_InvalidInputParameter_badInputParameters;
@@ -928,14 +931,14 @@ decode_ex_UCO_InvalidInputParameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     proto_tree_add_uint(tree, hf_UCO_InvalidInputParameter_badInputParameters_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_InvalidInputParameter_badInputParameters);
 
     {
-        proto_tree *tree_bak_N1ZNV6gZkPqB = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_InvalidInputParameter_badInputParameters");
         for (i_UCO_InvalidInputParameter_badInputParameters=0; i_UCO_InvalidInputParameter_badInputParameters < u_octet4_loop_UCO_InvalidInputParameter_badInputParameters; i_UCO_InvalidInputParameter_badInputParameters++) {
 
             giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_InvalidInputParameter_badInputParameters);
 
         }
-        tree = tree_bak_N1ZNV6gZkPqB;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -984,6 +987,7 @@ static void
 decode_GIAS_UpdateByQueryRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -1021,6 +1025,7 @@ static void
 decode_GIAS_CreateAssociationRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -1058,6 +1063,7 @@ static void
 decode_GIAS_GetRelatedFilesRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     uint32_t  u_octet4_loop_GIAS_GetRelatedFilesRequest_complete_locations;
@@ -1077,14 +1083,14 @@ decode_GIAS_GetRelatedFilesRequest_complete(tvbuff_t *tvb _U_, packet_info *pinf
             proto_tree_add_uint(tree, hf_GIAS_GetRelatedFilesRequest_complete_locations_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_GetRelatedFilesRequest_complete_locations);
 
             {
-                proto_tree *tree_bak_0ivuR0P4501D = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_GetRelatedFilesRequest_complete_locations");
                 for (i_GIAS_GetRelatedFilesRequest_complete_locations=0; i_GIAS_GetRelatedFilesRequest_complete_locations < u_octet4_loop_GIAS_GetRelatedFilesRequest_complete_locations; i_GIAS_GetRelatedFilesRequest_complete_locations++) {
 
                     giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_GetRelatedFilesRequest_complete_locations);
 
                 }
-                tree = tree_bak_0ivuR0P4501D;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -1111,6 +1117,7 @@ static void
 decode_GIAS_IngestRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -1148,6 +1155,7 @@ static void
 decode_GIAS_GetParametersRequest_complete_StringDAG(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -1190,6 +1198,7 @@ static void
 decode_GIAS_GetParametersRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -1232,6 +1241,7 @@ static void
 decode_GIAS_HitCountRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -1272,6 +1282,7 @@ static void
 decode_GIAS_SetAvailabilityRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -1309,6 +1320,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_complete_XML_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -1348,6 +1360,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     uint32_t  u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results;
@@ -1367,7 +1380,7 @@ decode_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results(tvbuff_t *tvb 
             proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results);
 
             {
-                proto_tree *tree_bak_UPeuy0x3sjgq = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results");
                 for (i_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results=0; i_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results < u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results; i_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results_results++) {
 
@@ -1377,7 +1390,7 @@ decode_GIAS_SubmitStandingQueryRequest_complete_stringDAG_results(tvbuff_t *tvb 
                     decode_UCO_StringDAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "UCO_StringDAG"  */
                 }
-                tree = tree_bak_UPeuy0x3sjgq;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -1404,6 +1417,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_complete_DAG_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     uint32_t  u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results;
@@ -1423,7 +1437,7 @@ decode_GIAS_SubmitStandingQueryRequest_complete_DAG_results(tvbuff_t *tvb _U_, p
             proto_tree_add_uint(tree, hf_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results);
 
             {
-                proto_tree *tree_bak_nqxUcad80tuJ = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_SubmitStandingQueryRequest_complete_DAG_results_results");
                 for (i_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results=0; i_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results < u_octet4_loop_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results; i_GIAS_SubmitStandingQueryRequest_complete_DAG_results_results++) {
 
@@ -1433,7 +1447,7 @@ decode_GIAS_SubmitStandingQueryRequest_complete_DAG_results(tvbuff_t *tvb _U_, p
                     decode_UCO_DAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "UCO_DAG"  */
                 }
-                tree = tree_bak_nqxUcad80tuJ;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -1460,6 +1474,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_get_time_next_execution(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -1498,6 +1513,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_get_time_last_executed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -1536,6 +1552,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_resume(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -1571,6 +1588,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_pause(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -1606,6 +1624,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_clear_before(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -1646,6 +1665,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_clear_intervals(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -1684,6 +1704,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_clear_all(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -1719,6 +1740,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_get_number_of_intervals(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -1755,6 +1777,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_get_number_of_hits_in_interval(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -1794,6 +1817,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_get_number_of_hits(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -1830,6 +1854,7 @@ static void
 decode_GIAS_SubmitStandingQueryRequest_set_number_of_hits(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -1868,6 +1893,7 @@ static void
 decode_GIAS_SubmitQueryRequest_complete_XML_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -1907,6 +1933,7 @@ static void
 decode_GIAS_SubmitQueryRequest_complete_stringDAG_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     uint32_t  u_octet4_loop_GIAS_SubmitQueryRequest_complete_stringDAG_results_results;
@@ -1926,7 +1953,7 @@ decode_GIAS_SubmitQueryRequest_complete_stringDAG_results(tvbuff_t *tvb _U_, pac
             proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_complete_stringDAG_results_results_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitQueryRequest_complete_stringDAG_results_results);
 
             {
-                proto_tree *tree_bak_PnmQv6Z5E9Jk = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_SubmitQueryRequest_complete_stringDAG_results_results");
                 for (i_GIAS_SubmitQueryRequest_complete_stringDAG_results_results=0; i_GIAS_SubmitQueryRequest_complete_stringDAG_results_results < u_octet4_loop_GIAS_SubmitQueryRequest_complete_stringDAG_results_results; i_GIAS_SubmitQueryRequest_complete_stringDAG_results_results++) {
 
@@ -1936,7 +1963,7 @@ decode_GIAS_SubmitQueryRequest_complete_stringDAG_results(tvbuff_t *tvb _U_, pac
                     decode_UCO_StringDAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "UCO_StringDAG"  */
                 }
-                tree = tree_bak_PnmQv6Z5E9Jk;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -1963,6 +1990,7 @@ static void
 decode_GIAS_SubmitQueryRequest_complete_DAG_results(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     uint32_t  u_octet4_loop_GIAS_SubmitQueryRequest_complete_DAG_results_results;
@@ -1982,7 +2010,7 @@ decode_GIAS_SubmitQueryRequest_complete_DAG_results(tvbuff_t *tvb _U_, packet_in
             proto_tree_add_uint(tree, hf_GIAS_SubmitQueryRequest_complete_DAG_results_results_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitQueryRequest_complete_DAG_results_results);
 
             {
-                proto_tree *tree_bak_LUNPsEihd5Kj = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_SubmitQueryRequest_complete_DAG_results_results");
                 for (i_GIAS_SubmitQueryRequest_complete_DAG_results_results=0; i_GIAS_SubmitQueryRequest_complete_DAG_results_results < u_octet4_loop_GIAS_SubmitQueryRequest_complete_DAG_results_results; i_GIAS_SubmitQueryRequest_complete_DAG_results_results++) {
 
@@ -1992,7 +2020,7 @@ decode_GIAS_SubmitQueryRequest_complete_DAG_results(tvbuff_t *tvb _U_, packet_in
                     decode_UCO_DAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "UCO_DAG"  */
                 }
-                tree = tree_bak_LUNPsEihd5Kj;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -2019,6 +2047,7 @@ static void
 decode_GIAS_SubmitQueryRequest_set_number_of_hits(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -2057,6 +2086,7 @@ static void
 decode_GIAS_UpdateRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -2094,6 +2124,7 @@ static void
 decode_GIAS_CreateMetaDataRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -2133,6 +2164,7 @@ static void
 decode_GIAS_CreateRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     uint32_t  u_octet4_loop_GIAS_CreateRequest_complete_new_products;
@@ -2152,14 +2184,14 @@ decode_GIAS_CreateRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
             proto_tree_add_uint(tree, hf_GIAS_CreateRequest_complete_new_products_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreateRequest_complete_new_products);
 
             {
-                proto_tree *tree_bak_yoGW8lxYHefR = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreateRequest_complete_new_products");
                 for (i_GIAS_CreateRequest_complete_new_products=0; i_GIAS_CreateRequest_complete_new_products < u_octet4_loop_GIAS_CreateRequest_complete_new_products; i_GIAS_CreateRequest_complete_new_products++) {
 
                     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
                 }
-                tree = tree_bak_yoGW8lxYHefR;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -2186,6 +2218,7 @@ static void
 decode_GIAS_SubmitQueryOrderRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -2228,6 +2261,7 @@ static void
 decode_GIAS_SubmitQueryOrderRequest_complete_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     uint32_t  u_octet4_loop_GIAS_SubmitQueryOrderRequest_complete_list_prods;
@@ -2247,7 +2281,7 @@ decode_GIAS_SubmitQueryOrderRequest_complete_list(tvbuff_t *tvb _U_, packet_info
             proto_tree_add_uint(tree, hf_GIAS_SubmitQueryOrderRequest_complete_list_prods_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_SubmitQueryOrderRequest_complete_list_prods);
 
             {
-                proto_tree *tree_bak_O15PXqZ4P6TQ = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_SubmitQueryOrderRequest_complete_list_prods");
                 for (i_GIAS_SubmitQueryOrderRequest_complete_list_prods=0; i_GIAS_SubmitQueryOrderRequest_complete_list_prods < u_octet4_loop_GIAS_SubmitQueryOrderRequest_complete_list_prods; i_GIAS_SubmitQueryOrderRequest_complete_list_prods++) {
 
@@ -2257,7 +2291,7 @@ decode_GIAS_SubmitQueryOrderRequest_complete_list(tvbuff_t *tvb _U_, packet_info
                     decode_GIAS_DeliveryManifest_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "GIAS_DeliveryManifest"  */
                 }
-                tree = tree_bak_O15PXqZ4P6TQ;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -2284,6 +2318,7 @@ static void
 decode_GIAS_SubmitQueryOrderRequest_resume(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -2319,6 +2354,7 @@ static void
 decode_GIAS_SubmitQueryOrderRequest_pause(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -2354,6 +2390,7 @@ static void
 decode_GIAS_OrderRequest_complete(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -2396,6 +2433,7 @@ static void
 decode_GIAS_Request_get_request_manager(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -2431,6 +2469,7 @@ static void
 decode_GIAS_Request_free_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -2468,6 +2507,7 @@ static void
 decode_GIAS_Request_register_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -2505,6 +2545,7 @@ static void
 decode_GIAS_Request_cancel(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -2540,6 +2581,7 @@ static void
 decode_GIAS_Request_get_remaining_delay(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -2578,6 +2620,7 @@ static void
 decode_GIAS_Request_get_status(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -2616,6 +2659,7 @@ static void
 decode_GIAS_Request_set_user_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -2653,6 +2697,7 @@ static void
 decode_GIAS_Request_get_request_description(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -2691,6 +2736,7 @@ static void
 decode_GIAS_IngestMgr_bulk_push(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_IngestMgr_bulk_push_property_list;
     uint32_t  i_GIAS_IngestMgr_bulk_push_property_list;
@@ -2712,7 +2758,7 @@ decode_GIAS_IngestMgr_bulk_push(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
         proto_tree_add_uint(tree, hf_GIAS_IngestMgr_bulk_push_property_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_IngestMgr_bulk_push_property_list);
 
         {
-            proto_tree *tree_bak_FJSkMPv28Lxh = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_IngestMgr_bulk_push_property_list");
             for (i_GIAS_IngestMgr_bulk_push_property_list=0; i_GIAS_IngestMgr_bulk_push_property_list < u_octet4_loop_GIAS_IngestMgr_bulk_push_property_list; i_GIAS_IngestMgr_bulk_push_property_list++) {
 
@@ -2722,7 +2768,7 @@ decode_GIAS_IngestMgr_bulk_push(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_FJSkMPv28Lxh;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -2755,6 +2801,7 @@ static void
 decode_GIAS_IngestMgr_bulk_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_IngestMgr_bulk_pull_property_list;
     uint32_t  i_GIAS_IngestMgr_bulk_pull_property_list;
@@ -2771,7 +2818,7 @@ decode_GIAS_IngestMgr_bulk_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
         proto_tree_add_uint(tree, hf_GIAS_IngestMgr_bulk_pull_property_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_IngestMgr_bulk_pull_property_list);
 
         {
-            proto_tree *tree_bak_mCtpuVKiq4yR = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_IngestMgr_bulk_pull_property_list");
             for (i_GIAS_IngestMgr_bulk_pull_property_list=0; i_GIAS_IngestMgr_bulk_pull_property_list < u_octet4_loop_GIAS_IngestMgr_bulk_pull_property_list; i_GIAS_IngestMgr_bulk_pull_property_list++) {
 
@@ -2781,7 +2828,7 @@ decode_GIAS_IngestMgr_bulk_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_mCtpuVKiq4yR;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -2814,6 +2861,7 @@ static void
 decode_GIAS_ProductMgr_get_related_files(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_ProductMgr_get_related_files_products;
     uint32_t  i_GIAS_ProductMgr_get_related_files_products;
@@ -2827,14 +2875,14 @@ decode_GIAS_ProductMgr_get_related_files(tvbuff_t *tvb _U_, packet_info *pinfo _
         proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_related_files_products_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_related_files_products);
 
         {
-            proto_tree *tree_bak_ORnzq2WNHt0M = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductMgr_get_related_files_products");
             for (i_GIAS_ProductMgr_get_related_files_products=0; i_GIAS_ProductMgr_get_related_files_products < u_octet4_loop_GIAS_ProductMgr_get_related_files_products; i_GIAS_ProductMgr_get_related_files_products++) {
 
                 get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
             }
-            tree = tree_bak_ORnzq2WNHt0M;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         { /*  Begin struct "UCO_FileLocation"  */
@@ -2848,7 +2896,7 @@ decode_GIAS_ProductMgr_get_related_files(tvbuff_t *tvb _U_, packet_info *pinfo _
         proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_related_files_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_related_files_properties);
 
         {
-            proto_tree *tree_bak_AOtRQC9Dl28y = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductMgr_get_related_files_properties");
             for (i_GIAS_ProductMgr_get_related_files_properties=0; i_GIAS_ProductMgr_get_related_files_properties < u_octet4_loop_GIAS_ProductMgr_get_related_files_properties; i_GIAS_ProductMgr_get_related_files_properties++) {
 
@@ -2858,7 +2906,7 @@ decode_GIAS_ProductMgr_get_related_files(tvbuff_t *tvb _U_, packet_info *pinfo _
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_AOtRQC9Dl28y;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -2891,6 +2939,7 @@ static void
 decode_GIAS_ProductMgr_get_related_file_types(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_ProductMgr_get_related_file_types_return;
     uint32_t  i_GIAS_ProductMgr_get_related_file_types_return;
@@ -2908,14 +2957,14 @@ decode_GIAS_ProductMgr_get_related_file_types(tvbuff_t *tvb _U_, packet_info *pi
             proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_related_file_types_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_related_file_types_return);
 
             {
-                proto_tree *tree_bak_80N6RiZaRRLw = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductMgr_get_related_file_types_return");
                 for (i_GIAS_ProductMgr_get_related_file_types_return=0; i_GIAS_ProductMgr_get_related_file_types_return < u_octet4_loop_GIAS_ProductMgr_get_related_file_types_return; i_GIAS_ProductMgr_get_related_file_types_return++) {
 
                     giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ProductMgr_get_related_file_types_return);
 
                 }
-                tree = tree_bak_80N6RiZaRRLw;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -2942,6 +2991,7 @@ static void
 decode_GIAS_ProductMgr_get_parameters(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_ProductMgr_get_parameters_desired_parameters;
     uint32_t  i_GIAS_ProductMgr_get_parameters_desired_parameters;
@@ -2957,21 +3007,21 @@ decode_GIAS_ProductMgr_get_parameters(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
         proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_parameters_desired_parameters_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_parameters_desired_parameters);
 
         {
-            proto_tree *tree_bak_IJt28JBP4uAl = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductMgr_get_parameters_desired_parameters");
             for (i_GIAS_ProductMgr_get_parameters_desired_parameters=0; i_GIAS_ProductMgr_get_parameters_desired_parameters < u_octet4_loop_GIAS_ProductMgr_get_parameters_desired_parameters; i_GIAS_ProductMgr_get_parameters_desired_parameters++) {
 
                 giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ProductMgr_get_parameters_desired_parameters);
 
             }
-            tree = tree_bak_IJt28JBP4uAl;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         u_octet4_loop_GIAS_ProductMgr_get_parameters_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_ProductMgr_get_parameters_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductMgr_get_parameters_properties);
 
         {
-            proto_tree *tree_bak_1bpzew7LNAxa = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductMgr_get_parameters_properties");
             for (i_GIAS_ProductMgr_get_parameters_properties=0; i_GIAS_ProductMgr_get_parameters_properties < u_octet4_loop_GIAS_ProductMgr_get_parameters_properties; i_GIAS_ProductMgr_get_parameters_properties++) {
 
@@ -2981,7 +3031,7 @@ decode_GIAS_ProductMgr_get_parameters(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_1bpzew7LNAxa;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -3014,6 +3064,7 @@ static void
 decode_GIAS_StandingQueryMgr_submit_standing_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_result_attributes;
     uint32_t  i_GIAS_StandingQueryMgr_submit_standing_query_result_attributes;
@@ -3034,21 +3085,21 @@ decode_GIAS_StandingQueryMgr_submit_standing_query(tvbuff_t *tvb _U_, packet_inf
         proto_tree_add_uint(tree, hf_GIAS_StandingQueryMgr_submit_standing_query_result_attributes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_result_attributes);
 
         {
-            proto_tree *tree_bak_8QxBZq5Wtm1K = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_StandingQueryMgr_submit_standing_query_result_attributes");
             for (i_GIAS_StandingQueryMgr_submit_standing_query_result_attributes=0; i_GIAS_StandingQueryMgr_submit_standing_query_result_attributes < u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_result_attributes; i_GIAS_StandingQueryMgr_submit_standing_query_result_attributes++) {
 
                 giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_StandingQueryMgr_submit_standing_query_result_attributes);
 
             }
-            tree = tree_bak_8QxBZq5Wtm1K;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes);
 
         {
-            proto_tree *tree_bak_9LY54bvCVkz9 = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_StandingQueryMgr_submit_standing_query_sort_attributes");
             for (i_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes=0; i_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes < u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes; i_GIAS_StandingQueryMgr_submit_standing_query_sort_attributes++) {
 
@@ -3058,7 +3109,7 @@ decode_GIAS_StandingQueryMgr_submit_standing_query(tvbuff_t *tvb _U_, packet_inf
                 decode_GIAS_SortAttribute_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "GIAS_SortAttribute"  */
             }
-            tree = tree_bak_9LY54bvCVkz9;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         { /*  Begin struct "GIAS_QueryLifeSpan"  */
@@ -3070,7 +3121,7 @@ decode_GIAS_StandingQueryMgr_submit_standing_query(tvbuff_t *tvb _U_, packet_inf
         proto_tree_add_uint(tree, hf_GIAS_StandingQueryMgr_submit_standing_query_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_properties);
 
         {
-            proto_tree *tree_bak_HxF089Byfbpw = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_StandingQueryMgr_submit_standing_query_properties");
             for (i_GIAS_StandingQueryMgr_submit_standing_query_properties=0; i_GIAS_StandingQueryMgr_submit_standing_query_properties < u_octet4_loop_GIAS_StandingQueryMgr_submit_standing_query_properties; i_GIAS_StandingQueryMgr_submit_standing_query_properties++) {
 
@@ -3080,7 +3131,7 @@ decode_GIAS_StandingQueryMgr_submit_standing_query(tvbuff_t *tvb _U_, packet_inf
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_HxF089Byfbpw;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -3113,6 +3164,7 @@ static void
 decode_GIAS_StandingQueryMgr_get_event_descriptions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_StandingQueryMgr_get_event_descriptions_return;
     uint32_t  i_GIAS_StandingQueryMgr_get_event_descriptions_return;
@@ -3128,7 +3180,7 @@ decode_GIAS_StandingQueryMgr_get_event_descriptions(tvbuff_t *tvb _U_, packet_in
             proto_tree_add_uint(tree, hf_GIAS_StandingQueryMgr_get_event_descriptions_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_StandingQueryMgr_get_event_descriptions_return);
 
             {
-                proto_tree *tree_bak_aidypX4kSvWC = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_StandingQueryMgr_get_event_descriptions_return");
                 for (i_GIAS_StandingQueryMgr_get_event_descriptions_return=0; i_GIAS_StandingQueryMgr_get_event_descriptions_return < u_octet4_loop_GIAS_StandingQueryMgr_get_event_descriptions_return; i_GIAS_StandingQueryMgr_get_event_descriptions_return++) {
 
@@ -3138,7 +3190,7 @@ decode_GIAS_StandingQueryMgr_get_event_descriptions(tvbuff_t *tvb _U_, packet_in
                     decode_GIAS_Event_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "GIAS_Event"  */
                 }
-                tree = tree_bak_aidypX4kSvWC;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -3165,6 +3217,7 @@ static void
 decode_GIAS_CatalogMgr_hit_count(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_CatalogMgr_hit_count_properties;
     uint32_t  i_GIAS_CatalogMgr_hit_count_properties;
@@ -3181,7 +3234,7 @@ decode_GIAS_CatalogMgr_hit_count(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
         proto_tree_add_uint(tree, hf_GIAS_CatalogMgr_hit_count_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CatalogMgr_hit_count_properties);
 
         {
-            proto_tree *tree_bak_jlqLPI5utPoJ = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CatalogMgr_hit_count_properties");
             for (i_GIAS_CatalogMgr_hit_count_properties=0; i_GIAS_CatalogMgr_hit_count_properties < u_octet4_loop_GIAS_CatalogMgr_hit_count_properties; i_GIAS_CatalogMgr_hit_count_properties++) {
 
@@ -3191,7 +3244,7 @@ decode_GIAS_CatalogMgr_hit_count(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_jlqLPI5utPoJ;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -3224,6 +3277,7 @@ static void
 decode_GIAS_CatalogMgr_submit_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_CatalogMgr_submit_query_result_attributes;
     uint32_t  i_GIAS_CatalogMgr_submit_query_result_attributes;
@@ -3244,21 +3298,21 @@ decode_GIAS_CatalogMgr_submit_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
         proto_tree_add_uint(tree, hf_GIAS_CatalogMgr_submit_query_result_attributes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CatalogMgr_submit_query_result_attributes);
 
         {
-            proto_tree *tree_bak_PEO7kVZ8kGyg = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CatalogMgr_submit_query_result_attributes");
             for (i_GIAS_CatalogMgr_submit_query_result_attributes=0; i_GIAS_CatalogMgr_submit_query_result_attributes < u_octet4_loop_GIAS_CatalogMgr_submit_query_result_attributes; i_GIAS_CatalogMgr_submit_query_result_attributes++) {
 
                 giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_CatalogMgr_submit_query_result_attributes);
 
             }
-            tree = tree_bak_PEO7kVZ8kGyg;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         u_octet4_loop_GIAS_CatalogMgr_submit_query_sort_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_CatalogMgr_submit_query_sort_attributes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CatalogMgr_submit_query_sort_attributes);
 
         {
-            proto_tree *tree_bak_9kkKTflRjQrs = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CatalogMgr_submit_query_sort_attributes");
             for (i_GIAS_CatalogMgr_submit_query_sort_attributes=0; i_GIAS_CatalogMgr_submit_query_sort_attributes < u_octet4_loop_GIAS_CatalogMgr_submit_query_sort_attributes; i_GIAS_CatalogMgr_submit_query_sort_attributes++) {
 
@@ -3268,14 +3322,14 @@ decode_GIAS_CatalogMgr_submit_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
                 decode_GIAS_SortAttribute_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "GIAS_SortAttribute"  */
             }
-            tree = tree_bak_9kkKTflRjQrs;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         u_octet4_loop_GIAS_CatalogMgr_submit_query_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_CatalogMgr_submit_query_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CatalogMgr_submit_query_properties);
 
         {
-            proto_tree *tree_bak_my2atmucWHcm = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CatalogMgr_submit_query_properties");
             for (i_GIAS_CatalogMgr_submit_query_properties=0; i_GIAS_CatalogMgr_submit_query_properties < u_octet4_loop_GIAS_CatalogMgr_submit_query_properties; i_GIAS_CatalogMgr_submit_query_properties++) {
 
@@ -3285,7 +3339,7 @@ decode_GIAS_CatalogMgr_submit_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_my2atmucWHcm;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -3318,6 +3372,7 @@ static void
 decode_GIAS_UpdateMgr_delete_product(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -3355,6 +3410,7 @@ static void
 decode_GIAS_UpdateMgr_release_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -3392,6 +3448,7 @@ static void
 decode_GIAS_UpdateMgr_update_by_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_UpdateMgr_update_by_query_properties;
     uint32_t  i_GIAS_UpdateMgr_update_by_query_properties;
@@ -3413,7 +3470,7 @@ decode_GIAS_UpdateMgr_update_by_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
         proto_tree_add_uint(tree, hf_GIAS_UpdateMgr_update_by_query_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_UpdateMgr_update_by_query_properties);
 
         {
-            proto_tree *tree_bak_gsNl3W1x1c3p = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_UpdateMgr_update_by_query_properties");
             for (i_GIAS_UpdateMgr_update_by_query_properties=0; i_GIAS_UpdateMgr_update_by_query_properties < u_octet4_loop_GIAS_UpdateMgr_update_by_query_properties; i_GIAS_UpdateMgr_update_by_query_properties++) {
 
@@ -3423,7 +3480,7 @@ decode_GIAS_UpdateMgr_update_by_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_gsNl3W1x1c3p;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -3456,6 +3513,7 @@ static void
 decode_GIAS_UpdateMgr_update(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_UpdateMgr_update_changes;
     uint32_t  i_GIAS_UpdateMgr_update_changes;
@@ -3473,7 +3531,7 @@ decode_GIAS_UpdateMgr_update(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
         proto_tree_add_uint(tree, hf_GIAS_UpdateMgr_update_changes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_UpdateMgr_update_changes);
 
         {
-            proto_tree *tree_bak_ZhRWNaTBOtBh = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_UpdateMgr_update_changes");
             for (i_GIAS_UpdateMgr_update_changes=0; i_GIAS_UpdateMgr_update_changes < u_octet4_loop_GIAS_UpdateMgr_update_changes; i_GIAS_UpdateMgr_update_changes++) {
 
@@ -3483,14 +3541,14 @@ decode_GIAS_UpdateMgr_update(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
                 decode_UCO_UpdateDAG_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_UpdateDAG"  */
             }
-            tree = tree_bak_ZhRWNaTBOtBh;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         u_octet4_loop_GIAS_UpdateMgr_update_relfiles = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_UpdateMgr_update_relfiles_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_UpdateMgr_update_relfiles);
 
         {
-            proto_tree *tree_bak_M051LZoSDN07 = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_UpdateMgr_update_relfiles");
             for (i_GIAS_UpdateMgr_update_relfiles=0; i_GIAS_UpdateMgr_update_relfiles < u_octet4_loop_GIAS_UpdateMgr_update_relfiles; i_GIAS_UpdateMgr_update_relfiles++) {
 
@@ -3500,14 +3558,14 @@ decode_GIAS_UpdateMgr_update(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
                 decode_GIAS_RelatedFile_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "GIAS_RelatedFile"  */
             }
-            tree = tree_bak_M051LZoSDN07;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         u_octet4_loop_GIAS_UpdateMgr_update_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_UpdateMgr_update_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_UpdateMgr_update_properties);
 
         {
-            proto_tree *tree_bak_73h4VXkm4vcd = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_UpdateMgr_update_properties");
             for (i_GIAS_UpdateMgr_update_properties=0; i_GIAS_UpdateMgr_update_properties < u_octet4_loop_GIAS_UpdateMgr_update_properties; i_GIAS_UpdateMgr_update_properties++) {
 
@@ -3517,7 +3575,7 @@ decode_GIAS_UpdateMgr_update(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_73h4VXkm4vcd;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -3550,6 +3608,7 @@ static void
 decode_GIAS_UpdateMgr_set_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -3587,6 +3646,7 @@ static void
 decode_GIAS_CreationMgr_create_association(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_CreationMgr_create_association_view_b_objects;
     uint32_t  i_GIAS_CreationMgr_create_association_view_b_objects;
@@ -3604,21 +3664,21 @@ decode_GIAS_CreationMgr_create_association(tvbuff_t *tvb _U_, packet_info *pinfo
         proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_association_view_b_objects_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_association_view_b_objects);
 
         {
-            proto_tree *tree_bak_dnfZE37Jb6ZB = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_association_view_b_objects");
             for (i_GIAS_CreationMgr_create_association_view_b_objects=0; i_GIAS_CreationMgr_create_association_view_b_objects < u_octet4_loop_GIAS_CreationMgr_create_association_view_b_objects; i_GIAS_CreationMgr_create_association_view_b_objects++) {
 
                 get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
             }
-            tree = tree_bak_dnfZE37Jb6ZB;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         u_octet4_loop_GIAS_CreationMgr_create_association_assoc_info = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_association_assoc_info_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_association_assoc_info);
 
         {
-            proto_tree *tree_bak_6KTDKidj66gI = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_association_assoc_info");
             for (i_GIAS_CreationMgr_create_association_assoc_info=0; i_GIAS_CreationMgr_create_association_assoc_info < u_octet4_loop_GIAS_CreationMgr_create_association_assoc_info; i_GIAS_CreationMgr_create_association_assoc_info++) {
 
@@ -3628,7 +3688,7 @@ decode_GIAS_CreationMgr_create_association(tvbuff_t *tvb _U_, packet_info *pinfo
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_6KTDKidj66gI;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -3661,6 +3721,7 @@ static void
 decode_GIAS_CreationMgr_create_metadata(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_CreationMgr_create_metadata_related_files;
     uint32_t  i_GIAS_CreationMgr_create_metadata_related_files;
@@ -3681,7 +3742,7 @@ decode_GIAS_CreationMgr_create_metadata(tvbuff_t *tvb _U_, packet_info *pinfo _U
         proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_metadata_related_files_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_metadata_related_files);
 
         {
-            proto_tree *tree_bak_0gnDPmwIaPEw = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_metadata_related_files");
             for (i_GIAS_CreationMgr_create_metadata_related_files=0; i_GIAS_CreationMgr_create_metadata_related_files < u_octet4_loop_GIAS_CreationMgr_create_metadata_related_files; i_GIAS_CreationMgr_create_metadata_related_files++) {
 
@@ -3691,14 +3752,14 @@ decode_GIAS_CreationMgr_create_metadata(tvbuff_t *tvb _U_, packet_info *pinfo _U
                 decode_GIAS_RelatedFile_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "GIAS_RelatedFile"  */
             }
-            tree = tree_bak_0gnDPmwIaPEw;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         u_octet4_loop_GIAS_CreationMgr_create_metadata_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_metadata_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_metadata_properties);
 
         {
-            proto_tree *tree_bak_M4aJ5XDbSB1O = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_metadata_properties");
             for (i_GIAS_CreationMgr_create_metadata_properties=0; i_GIAS_CreationMgr_create_metadata_properties < u_octet4_loop_GIAS_CreationMgr_create_metadata_properties; i_GIAS_CreationMgr_create_metadata_properties++) {
 
@@ -3708,7 +3769,7 @@ decode_GIAS_CreationMgr_create_metadata(tvbuff_t *tvb _U_, packet_info *pinfo _U
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_M4aJ5XDbSB1O;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -3741,6 +3802,7 @@ static void
 decode_GIAS_CreationMgr_create(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_CreationMgr_create_new_product;
     uint32_t  i_GIAS_CreationMgr_create_new_product;
@@ -3756,7 +3818,7 @@ decode_GIAS_CreationMgr_create(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
         proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_new_product_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_new_product);
 
         {
-            proto_tree *tree_bak_X9iK5QvRiNkm = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_new_product");
             for (i_GIAS_CreationMgr_create_new_product=0; i_GIAS_CreationMgr_create_new_product < u_octet4_loop_GIAS_CreationMgr_create_new_product; i_GIAS_CreationMgr_create_new_product++) {
 
@@ -3766,14 +3828,14 @@ decode_GIAS_CreationMgr_create(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
                 decode_UCO_FileLocation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_FileLocation"  */
             }
-            tree = tree_bak_X9iK5QvRiNkm;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         u_octet4_loop_GIAS_CreationMgr_create_related_files = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_related_files_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_related_files);
 
         {
-            proto_tree *tree_bak_1Csc0LaeG6qF = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_related_files");
             for (i_GIAS_CreationMgr_create_related_files=0; i_GIAS_CreationMgr_create_related_files < u_octet4_loop_GIAS_CreationMgr_create_related_files; i_GIAS_CreationMgr_create_related_files++) {
 
@@ -3783,7 +3845,7 @@ decode_GIAS_CreationMgr_create(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
                 decode_GIAS_RelatedFile_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "GIAS_RelatedFile"  */
             }
-            tree = tree_bak_1Csc0LaeG6qF;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         { /*  Begin struct "UCO_DAG"  */
@@ -3795,7 +3857,7 @@ decode_GIAS_CreationMgr_create(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
         proto_tree_add_uint(tree, hf_GIAS_CreationMgr_create_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_CreationMgr_create_properties);
 
         {
-            proto_tree *tree_bak_6PYXdJmDqfXN = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_CreationMgr_create_properties");
             for (i_GIAS_CreationMgr_create_properties=0; i_GIAS_CreationMgr_create_properties < u_octet4_loop_GIAS_CreationMgr_create_properties; i_GIAS_CreationMgr_create_properties++) {
 
@@ -3805,7 +3867,7 @@ decode_GIAS_CreationMgr_create(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_6PYXdJmDqfXN;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -3838,6 +3900,7 @@ static void
 decode_GIAS_DataModelMgr_get_max_vertices(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_max_vertices_properties;
     uint32_t  i_GIAS_DataModelMgr_get_max_vertices_properties;
@@ -3849,7 +3912,7 @@ decode_GIAS_DataModelMgr_get_max_vertices(tvbuff_t *tvb _U_, packet_info *pinfo 
         proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_max_vertices_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_max_vertices_properties);
 
         {
-            proto_tree *tree_bak_2LCI9oTPq8il = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_max_vertices_properties");
             for (i_GIAS_DataModelMgr_get_max_vertices_properties=0; i_GIAS_DataModelMgr_get_max_vertices_properties < u_octet4_loop_GIAS_DataModelMgr_get_max_vertices_properties; i_GIAS_DataModelMgr_get_max_vertices_properties++) {
 
@@ -3859,7 +3922,7 @@ decode_GIAS_DataModelMgr_get_max_vertices(tvbuff_t *tvb _U_, packet_info *pinfo 
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_2LCI9oTPq8il;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -3893,6 +3956,7 @@ static void
 decode_GIAS_DataModelMgr_get_associations(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_associations_properties;
     uint32_t  i_GIAS_DataModelMgr_get_associations_properties;
@@ -3906,7 +3970,7 @@ decode_GIAS_DataModelMgr_get_associations(tvbuff_t *tvb _U_, packet_info *pinfo 
         proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_associations_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_associations_properties);
 
         {
-            proto_tree *tree_bak_kBQ81rfQCIuq = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_associations_properties");
             for (i_GIAS_DataModelMgr_get_associations_properties=0; i_GIAS_DataModelMgr_get_associations_properties < u_octet4_loop_GIAS_DataModelMgr_get_associations_properties; i_GIAS_DataModelMgr_get_associations_properties++) {
 
@@ -3916,7 +3980,7 @@ decode_GIAS_DataModelMgr_get_associations(tvbuff_t *tvb _U_, packet_info *pinfo 
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_kBQ81rfQCIuq;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -3927,7 +3991,7 @@ decode_GIAS_DataModelMgr_get_associations(tvbuff_t *tvb _U_, packet_info *pinfo 
             proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_associations_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_associations_return);
 
             {
-                proto_tree *tree_bak_NAZcHvktJ7YD = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_associations_return");
                 for (i_GIAS_DataModelMgr_get_associations_return=0; i_GIAS_DataModelMgr_get_associations_return < u_octet4_loop_GIAS_DataModelMgr_get_associations_return; i_GIAS_DataModelMgr_get_associations_return++) {
 
@@ -3937,7 +4001,7 @@ decode_GIAS_DataModelMgr_get_associations(tvbuff_t *tvb _U_, packet_info *pinfo 
                     decode_GIAS_Association_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "GIAS_Association"  */
                 }
-                tree = tree_bak_NAZcHvktJ7YD;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -3964,6 +4028,7 @@ static void
 decode_GIAS_DataModelMgr_get_entity_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_properties;
     uint32_t  i_GIAS_DataModelMgr_get_entity_attributes_properties;
@@ -3979,7 +4044,7 @@ decode_GIAS_DataModelMgr_get_entity_attributes(tvbuff_t *tvb _U_, packet_info *p
         proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_entity_attributes_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_properties);
 
         {
-            proto_tree *tree_bak_uxuTl74T3wtL = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_entity_attributes_properties");
             for (i_GIAS_DataModelMgr_get_entity_attributes_properties=0; i_GIAS_DataModelMgr_get_entity_attributes_properties < u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_properties; i_GIAS_DataModelMgr_get_entity_attributes_properties++) {
 
@@ -3989,7 +4054,7 @@ decode_GIAS_DataModelMgr_get_entity_attributes(tvbuff_t *tvb _U_, packet_info *p
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_uxuTl74T3wtL;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -4000,7 +4065,7 @@ decode_GIAS_DataModelMgr_get_entity_attributes(tvbuff_t *tvb _U_, packet_info *p
             proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_entity_attributes_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_return);
 
             {
-                proto_tree *tree_bak_w932As1fwCzv = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_entity_attributes_return");
                 for (i_GIAS_DataModelMgr_get_entity_attributes_return=0; i_GIAS_DataModelMgr_get_entity_attributes_return < u_octet4_loop_GIAS_DataModelMgr_get_entity_attributes_return; i_GIAS_DataModelMgr_get_entity_attributes_return++) {
 
@@ -4010,7 +4075,7 @@ decode_GIAS_DataModelMgr_get_entity_attributes(tvbuff_t *tvb _U_, packet_info *p
                     decode_GIAS_AttributeInformation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "GIAS_AttributeInformation"  */
                 }
-                tree = tree_bak_w932As1fwCzv;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -4037,6 +4102,7 @@ static void
 decode_GIAS_DataModelMgr_get_entities(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_entities_properties;
     uint32_t  i_GIAS_DataModelMgr_get_entities_properties;
@@ -4050,7 +4116,7 @@ decode_GIAS_DataModelMgr_get_entities(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
         proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_entities_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_entities_properties);
 
         {
-            proto_tree *tree_bak_5ORPZW9d6BDy = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_entities_properties");
             for (i_GIAS_DataModelMgr_get_entities_properties=0; i_GIAS_DataModelMgr_get_entities_properties < u_octet4_loop_GIAS_DataModelMgr_get_entities_properties; i_GIAS_DataModelMgr_get_entities_properties++) {
 
@@ -4060,7 +4126,7 @@ decode_GIAS_DataModelMgr_get_entities(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_5ORPZW9d6BDy;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -4096,6 +4162,7 @@ static void
 decode_GIAS_DataModelMgr_get_queryable_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_properties;
     uint32_t  i_GIAS_DataModelMgr_get_queryable_attributes_properties;
@@ -4111,7 +4178,7 @@ decode_GIAS_DataModelMgr_get_queryable_attributes(tvbuff_t *tvb _U_, packet_info
         proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_queryable_attributes_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_properties);
 
         {
-            proto_tree *tree_bak_GSCPnCyym8uI = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_queryable_attributes_properties");
             for (i_GIAS_DataModelMgr_get_queryable_attributes_properties=0; i_GIAS_DataModelMgr_get_queryable_attributes_properties < u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_properties; i_GIAS_DataModelMgr_get_queryable_attributes_properties++) {
 
@@ -4121,7 +4188,7 @@ decode_GIAS_DataModelMgr_get_queryable_attributes(tvbuff_t *tvb _U_, packet_info
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_GSCPnCyym8uI;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -4132,7 +4199,7 @@ decode_GIAS_DataModelMgr_get_queryable_attributes(tvbuff_t *tvb _U_, packet_info
             proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_queryable_attributes_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_return);
 
             {
-                proto_tree *tree_bak_UDYUEsDvpovL = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_queryable_attributes_return");
                 for (i_GIAS_DataModelMgr_get_queryable_attributes_return=0; i_GIAS_DataModelMgr_get_queryable_attributes_return < u_octet4_loop_GIAS_DataModelMgr_get_queryable_attributes_return; i_GIAS_DataModelMgr_get_queryable_attributes_return++) {
 
@@ -4142,7 +4209,7 @@ decode_GIAS_DataModelMgr_get_queryable_attributes(tvbuff_t *tvb _U_, packet_info
                     decode_GIAS_AttributeInformation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "GIAS_AttributeInformation"  */
                 }
-                tree = tree_bak_UDYUEsDvpovL;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -4169,6 +4236,7 @@ static void
 decode_GIAS_DataModelMgr_get_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_attributes_properties;
     uint32_t  i_GIAS_DataModelMgr_get_attributes_properties;
@@ -4184,7 +4252,7 @@ decode_GIAS_DataModelMgr_get_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U
         proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_attributes_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_attributes_properties);
 
         {
-            proto_tree *tree_bak_LyxtdB6SVwcF = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_attributes_properties");
             for (i_GIAS_DataModelMgr_get_attributes_properties=0; i_GIAS_DataModelMgr_get_attributes_properties < u_octet4_loop_GIAS_DataModelMgr_get_attributes_properties; i_GIAS_DataModelMgr_get_attributes_properties++) {
 
@@ -4194,7 +4262,7 @@ decode_GIAS_DataModelMgr_get_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_LyxtdB6SVwcF;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -4205,7 +4273,7 @@ decode_GIAS_DataModelMgr_get_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U
             proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_attributes_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_attributes_return);
 
             {
-                proto_tree *tree_bak_NVcxpWRhpvT4 = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_attributes_return");
                 for (i_GIAS_DataModelMgr_get_attributes_return=0; i_GIAS_DataModelMgr_get_attributes_return < u_octet4_loop_GIAS_DataModelMgr_get_attributes_return; i_GIAS_DataModelMgr_get_attributes_return++) {
 
@@ -4215,7 +4283,7 @@ decode_GIAS_DataModelMgr_get_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U
                     decode_GIAS_AttributeInformation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "GIAS_AttributeInformation"  */
                 }
-                tree = tree_bak_NVcxpWRhpvT4;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -4242,6 +4310,7 @@ static void
 decode_GIAS_DataModelMgr_get_view_names(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_view_names_properties;
     uint32_t  i_GIAS_DataModelMgr_get_view_names_properties;
@@ -4255,7 +4324,7 @@ decode_GIAS_DataModelMgr_get_view_names(tvbuff_t *tvb _U_, packet_info *pinfo _U
         proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_view_names_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_view_names_properties);
 
         {
-            proto_tree *tree_bak_1k2BP6mclloB = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_view_names_properties");
             for (i_GIAS_DataModelMgr_get_view_names_properties=0; i_GIAS_DataModelMgr_get_view_names_properties < u_octet4_loop_GIAS_DataModelMgr_get_view_names_properties; i_GIAS_DataModelMgr_get_view_names_properties++) {
 
@@ -4265,7 +4334,7 @@ decode_GIAS_DataModelMgr_get_view_names(tvbuff_t *tvb _U_, packet_info *pinfo _U
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_1k2BP6mclloB;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -4276,7 +4345,7 @@ decode_GIAS_DataModelMgr_get_view_names(tvbuff_t *tvb _U_, packet_info *pinfo _U
             proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_view_names_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_view_names_return);
 
             {
-                proto_tree *tree_bak_zotmpPKXpZuB = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_view_names_return");
                 for (i_GIAS_DataModelMgr_get_view_names_return=0; i_GIAS_DataModelMgr_get_view_names_return < u_octet4_loop_GIAS_DataModelMgr_get_view_names_return; i_GIAS_DataModelMgr_get_view_names_return++) {
 
@@ -4286,7 +4355,7 @@ decode_GIAS_DataModelMgr_get_view_names(tvbuff_t *tvb _U_, packet_info *pinfo _U
                     decode_GIAS_View_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "GIAS_View"  */
                 }
-                tree = tree_bak_zotmpPKXpZuB;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -4313,6 +4382,7 @@ static void
 decode_GIAS_DataModelMgr_get_logical_attribute_name(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_logical_attribute_name_properties;
@@ -4330,7 +4400,7 @@ decode_GIAS_DataModelMgr_get_logical_attribute_name(tvbuff_t *tvb _U_, packet_in
         proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_logical_attribute_name_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_logical_attribute_name_properties);
 
         {
-            proto_tree *tree_bak_vWBRrRWoqO2y = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_logical_attribute_name_properties");
             for (i_GIAS_DataModelMgr_get_logical_attribute_name_properties=0; i_GIAS_DataModelMgr_get_logical_attribute_name_properties < u_octet4_loop_GIAS_DataModelMgr_get_logical_attribute_name_properties; i_GIAS_DataModelMgr_get_logical_attribute_name_properties++) {
 
@@ -4340,7 +4410,7 @@ decode_GIAS_DataModelMgr_get_logical_attribute_name(tvbuff_t *tvb _U_, packet_in
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_vWBRrRWoqO2y;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -4373,6 +4443,7 @@ static void
 decode_GIAS_DataModelMgr_get_logical_aliases(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_properties;
     uint32_t  i_GIAS_DataModelMgr_get_logical_aliases_properties;
@@ -4388,7 +4459,7 @@ decode_GIAS_DataModelMgr_get_logical_aliases(tvbuff_t *tvb _U_, packet_info *pin
         proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_logical_aliases_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_properties);
 
         {
-            proto_tree *tree_bak_c0sE2gMCTlN2 = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_logical_aliases_properties");
             for (i_GIAS_DataModelMgr_get_logical_aliases_properties=0; i_GIAS_DataModelMgr_get_logical_aliases_properties < u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_properties; i_GIAS_DataModelMgr_get_logical_aliases_properties++) {
 
@@ -4398,7 +4469,7 @@ decode_GIAS_DataModelMgr_get_logical_aliases(tvbuff_t *tvb _U_, packet_info *pin
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_c0sE2gMCTlN2;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -4409,7 +4480,7 @@ decode_GIAS_DataModelMgr_get_logical_aliases(tvbuff_t *tvb _U_, packet_info *pin
             proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_logical_aliases_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_return);
 
             {
-                proto_tree *tree_bak_ykTEjlxbf4Rj = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_logical_aliases_return");
                 for (i_GIAS_DataModelMgr_get_logical_aliases_return=0; i_GIAS_DataModelMgr_get_logical_aliases_return < u_octet4_loop_GIAS_DataModelMgr_get_logical_aliases_return; i_GIAS_DataModelMgr_get_logical_aliases_return++) {
 
@@ -4419,7 +4490,7 @@ decode_GIAS_DataModelMgr_get_logical_aliases(tvbuff_t *tvb _U_, packet_info *pin
                     decode_UCO_NameName_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "UCO_NameName"  */
                 }
-                tree = tree_bak_ykTEjlxbf4Rj;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -4446,6 +4517,7 @@ static void
 decode_GIAS_DataModelMgr_get_alias_categories(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_properties;
     uint32_t  i_GIAS_DataModelMgr_get_alias_categories_properties;
@@ -4459,7 +4531,7 @@ decode_GIAS_DataModelMgr_get_alias_categories(tvbuff_t *tvb _U_, packet_info *pi
         proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_alias_categories_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_properties);
 
         {
-            proto_tree *tree_bak_Qsrtr2w6A8SL = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_alias_categories_properties");
             for (i_GIAS_DataModelMgr_get_alias_categories_properties=0; i_GIAS_DataModelMgr_get_alias_categories_properties < u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_properties; i_GIAS_DataModelMgr_get_alias_categories_properties++) {
 
@@ -4469,7 +4541,7 @@ decode_GIAS_DataModelMgr_get_alias_categories(tvbuff_t *tvb _U_, packet_info *pi
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_Qsrtr2w6A8SL;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -4480,14 +4552,14 @@ decode_GIAS_DataModelMgr_get_alias_categories(tvbuff_t *tvb _U_, packet_info *pi
             proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_alias_categories_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_return);
 
             {
-                proto_tree *tree_bak_FI58GveoK3xH = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_alias_categories_return");
                 for (i_GIAS_DataModelMgr_get_alias_categories_return=0; i_GIAS_DataModelMgr_get_alias_categories_return < u_octet4_loop_GIAS_DataModelMgr_get_alias_categories_return; i_GIAS_DataModelMgr_get_alias_categories_return++) {
 
                     giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_DataModelMgr_get_alias_categories_return);
 
                 }
-                tree = tree_bak_FI58GveoK3xH;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -4514,6 +4586,7 @@ static void
 decode_GIAS_DataModelMgr_get_data_model_date(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_DataModelMgr_get_data_model_date_properties;
     uint32_t  i_GIAS_DataModelMgr_get_data_model_date_properties;
@@ -4525,7 +4598,7 @@ decode_GIAS_DataModelMgr_get_data_model_date(tvbuff_t *tvb _U_, packet_info *pin
         proto_tree_add_uint(tree, hf_GIAS_DataModelMgr_get_data_model_date_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DataModelMgr_get_data_model_date_properties);
 
         {
-            proto_tree *tree_bak_Plnpv16OUnV7 = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DataModelMgr_get_data_model_date_properties");
             for (i_GIAS_DataModelMgr_get_data_model_date_properties=0; i_GIAS_DataModelMgr_get_data_model_date_properties < u_octet4_loop_GIAS_DataModelMgr_get_data_model_date_properties; i_GIAS_DataModelMgr_get_data_model_date_properties++) {
 
@@ -4535,7 +4608,7 @@ decode_GIAS_DataModelMgr_get_data_model_date(tvbuff_t *tvb _U_, packet_info *pin
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_Plnpv16OUnV7;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -4571,6 +4644,7 @@ static void
 decode_GIAS_OrderMgr_order(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_OrderMgr_order_properties;
     uint32_t  i_GIAS_OrderMgr_order_properties;
@@ -4587,7 +4661,7 @@ decode_GIAS_OrderMgr_order(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
         proto_tree_add_uint(tree, hf_GIAS_OrderMgr_order_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderMgr_order_properties);
 
         {
-            proto_tree *tree_bak_7teK9EDtTdc4 = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_OrderMgr_order_properties");
             for (i_GIAS_OrderMgr_order_properties=0; i_GIAS_OrderMgr_order_properties < u_octet4_loop_GIAS_OrderMgr_order_properties; i_GIAS_OrderMgr_order_properties++) {
 
@@ -4597,7 +4671,7 @@ decode_GIAS_OrderMgr_order(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_7teK9EDtTdc4;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -4630,6 +4704,7 @@ static void
 decode_GIAS_OrderMgr_validate_order(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_OrderMgr_validate_order_properties;
     uint32_t  i_GIAS_OrderMgr_validate_order_properties;
@@ -4646,7 +4721,7 @@ decode_GIAS_OrderMgr_validate_order(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
         proto_tree_add_uint(tree, hf_GIAS_OrderMgr_validate_order_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderMgr_validate_order_properties);
 
         {
-            proto_tree *tree_bak_U8pGiqeJLXUN = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_OrderMgr_validate_order_properties");
             for (i_GIAS_OrderMgr_validate_order_properties=0; i_GIAS_OrderMgr_validate_order_properties < u_octet4_loop_GIAS_OrderMgr_validate_order_properties; i_GIAS_OrderMgr_validate_order_properties++) {
 
@@ -4656,7 +4731,7 @@ decode_GIAS_OrderMgr_validate_order(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_U8pGiqeJLXUN;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -4692,6 +4767,7 @@ static void
 decode_GIAS_OrderMgr_get_package_specifications(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_OrderMgr_get_package_specifications_return;
     uint32_t  i_GIAS_OrderMgr_get_package_specifications_return;
@@ -4707,14 +4783,14 @@ decode_GIAS_OrderMgr_get_package_specifications(tvbuff_t *tvb _U_, packet_info *
             proto_tree_add_uint(tree, hf_GIAS_OrderMgr_get_package_specifications_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderMgr_get_package_specifications_return);
 
             {
-                proto_tree *tree_bak_XTPaV18r1T67 = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_OrderMgr_get_package_specifications_return");
                 for (i_GIAS_OrderMgr_get_package_specifications_return=0; i_GIAS_OrderMgr_get_package_specifications_return < u_octet4_loop_GIAS_OrderMgr_get_package_specifications_return; i_GIAS_OrderMgr_get_package_specifications_return++) {
 
                     giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_OrderMgr_get_package_specifications_return);
 
                 }
-                tree = tree_bak_XTPaV18r1T67;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -4741,6 +4817,7 @@ static void
 decode_GIAS_QueryOrderMgr_submit_query_order(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     uint32_t  u_octet4_loop_GIAS_QueryOrderMgr_submit_query_order_properties;
@@ -4771,7 +4848,7 @@ decode_GIAS_QueryOrderMgr_submit_query_order(tvbuff_t *tvb _U_, packet_info *pin
         proto_tree_add_uint(tree, hf_GIAS_QueryOrderMgr_submit_query_order_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_QueryOrderMgr_submit_query_order_properties);
 
         {
-            proto_tree *tree_bak_xYneQxapAXBd = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_QueryOrderMgr_submit_query_order_properties");
             for (i_GIAS_QueryOrderMgr_submit_query_order_properties=0; i_GIAS_QueryOrderMgr_submit_query_order_properties < u_octet4_loop_GIAS_QueryOrderMgr_submit_query_order_properties; i_GIAS_QueryOrderMgr_submit_query_order_properties++) {
 
@@ -4781,7 +4858,7 @@ decode_GIAS_QueryOrderMgr_submit_query_order(tvbuff_t *tvb _U_, packet_info *pin
                 decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_NameValue"  */
             }
-            tree = tree_bak_xYneQxapAXBd;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -4814,6 +4891,7 @@ static void
 decode_GIAS_QueryOrderMgr_get_event_descriptions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_QueryOrderMgr_get_event_descriptions_return;
     uint32_t  i_GIAS_QueryOrderMgr_get_event_descriptions_return;
@@ -4829,7 +4907,7 @@ decode_GIAS_QueryOrderMgr_get_event_descriptions(tvbuff_t *tvb _U_, packet_info 
             proto_tree_add_uint(tree, hf_GIAS_QueryOrderMgr_get_event_descriptions_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_QueryOrderMgr_get_event_descriptions_return);
 
             {
-                proto_tree *tree_bak_I1alpBvMF91O = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_QueryOrderMgr_get_event_descriptions_return");
                 for (i_GIAS_QueryOrderMgr_get_event_descriptions_return=0; i_GIAS_QueryOrderMgr_get_event_descriptions_return < u_octet4_loop_GIAS_QueryOrderMgr_get_event_descriptions_return; i_GIAS_QueryOrderMgr_get_event_descriptions_return++) {
 
@@ -4839,7 +4917,7 @@ decode_GIAS_QueryOrderMgr_get_event_descriptions(tvbuff_t *tvb _U_, packet_info 
                     decode_GIAS_Event_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "GIAS_Event"  */
                 }
-                tree = tree_bak_I1alpBvMF91O;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -4866,6 +4944,7 @@ static void
 decode_GIAS_AccessManager_set_availability(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_AccessManager_set_availability_products;
     uint32_t  i_GIAS_AccessManager_set_availability_products;
@@ -4878,14 +4957,14 @@ decode_GIAS_AccessManager_set_availability(tvbuff_t *tvb _U_, packet_info *pinfo
         proto_tree_add_uint(tree, hf_GIAS_AccessManager_set_availability_products_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_AccessManager_set_availability_products);
 
         {
-            proto_tree *tree_bak_9JenOcW8NJra = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_AccessManager_set_availability_products");
             for (i_GIAS_AccessManager_set_availability_products=0; i_GIAS_AccessManager_set_availability_products < u_octet4_loop_GIAS_AccessManager_set_availability_products; i_GIAS_AccessManager_set_availability_products++) {
 
                 get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
             }
-            tree = tree_bak_9JenOcW8NJra;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -4926,6 +5005,7 @@ static void
 decode_GIAS_AccessManager_get_number_of_priorities(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -4962,6 +5042,7 @@ static void
 decode_GIAS_AccessManager_query_availability_delay(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -5006,6 +5087,7 @@ static void
 decode_GIAS_AccessManager_is_available(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -5046,6 +5128,7 @@ static void
 decode_GIAS_AccessManager_get_use_modes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_AccessManager_get_use_modes_return;
     uint32_t  i_GIAS_AccessManager_get_use_modes_return;
@@ -5061,14 +5144,14 @@ decode_GIAS_AccessManager_get_use_modes(tvbuff_t *tvb _U_, packet_info *pinfo _U
             proto_tree_add_uint(tree, hf_GIAS_AccessManager_get_use_modes_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_AccessManager_get_use_modes_return);
 
             {
-                proto_tree *tree_bak_x1wpe5zEJWmj = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_AccessManager_get_use_modes_return");
                 for (i_GIAS_AccessManager_get_use_modes_return=0; i_GIAS_AccessManager_get_use_modes_return < u_octet4_loop_GIAS_AccessManager_get_use_modes_return; i_GIAS_AccessManager_get_use_modes_return++) {
 
                     giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_AccessManager_get_use_modes_return);
 
                 }
-                tree = tree_bak_x1wpe5zEJWmj;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -5095,6 +5178,7 @@ static void
 decode_GIAS_RequestManager_delete_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -5132,6 +5216,7 @@ static void
 decode_GIAS_RequestManager_set_timeout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -5172,6 +5257,7 @@ static void
 decode_GIAS_RequestManager_get_timeout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -5210,6 +5296,7 @@ static void
 decode_GIAS_RequestManager_set_default_timeout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -5248,6 +5335,7 @@ static void
 decode_GIAS_RequestManager_get_default_timeout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -5284,6 +5372,7 @@ static void
 decode_GIAS_RequestManager_get_active_requests(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_RequestManager_get_active_requests_return;
     uint32_t  i_GIAS_RequestManager_get_active_requests_return;
@@ -5299,14 +5388,14 @@ decode_GIAS_RequestManager_get_active_requests(tvbuff_t *tvb _U_, packet_info *p
             proto_tree_add_uint(tree, hf_GIAS_RequestManager_get_active_requests_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_RequestManager_get_active_requests_return);
 
             {
-                proto_tree *tree_bak_3djvk7Ab9s1I = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_RequestManager_get_active_requests_return");
                 for (i_GIAS_RequestManager_get_active_requests_return=0; i_GIAS_RequestManager_get_active_requests_return < u_octet4_loop_GIAS_RequestManager_get_active_requests_return; i_GIAS_RequestManager_get_active_requests_return++) {
 
                     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
                 }
-                tree = tree_bak_3djvk7Ab9s1I;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -5333,6 +5422,7 @@ static void
 decode_GIAS_LibraryManager_get_libraries(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_LibraryManager_get_libraries_return;
     uint32_t  i_GIAS_LibraryManager_get_libraries_return;
@@ -5348,14 +5438,14 @@ decode_GIAS_LibraryManager_get_libraries(tvbuff_t *tvb _U_, packet_info *pinfo _
             proto_tree_add_uint(tree, hf_GIAS_LibraryManager_get_libraries_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_LibraryManager_get_libraries_return);
 
             {
-                proto_tree *tree_bak_S0VMbsiaMbjL = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_LibraryManager_get_libraries_return");
                 for (i_GIAS_LibraryManager_get_libraries_return=0; i_GIAS_LibraryManager_get_libraries_return < u_octet4_loop_GIAS_LibraryManager_get_libraries_return; i_GIAS_LibraryManager_get_libraries_return++) {
 
                     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
                 }
-                tree = tree_bak_S0VMbsiaMbjL;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -5382,6 +5472,7 @@ static void
 decode_GIAS_LibraryManager_get_property_values(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_LibraryManager_get_property_values_desired_properties;
     uint32_t  i_GIAS_LibraryManager_get_property_values_desired_properties;
@@ -5395,14 +5486,14 @@ decode_GIAS_LibraryManager_get_property_values(tvbuff_t *tvb _U_, packet_info *p
         proto_tree_add_uint(tree, hf_GIAS_LibraryManager_get_property_values_desired_properties_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_LibraryManager_get_property_values_desired_properties);
 
         {
-            proto_tree *tree_bak_ZLwK6jXb5gNI = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_LibraryManager_get_property_values_desired_properties");
             for (i_GIAS_LibraryManager_get_property_values_desired_properties=0; i_GIAS_LibraryManager_get_property_values_desired_properties < u_octet4_loop_GIAS_LibraryManager_get_property_values_desired_properties; i_GIAS_LibraryManager_get_property_values_desired_properties++) {
 
                 giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LibraryManager_get_property_values_desired_properties);
 
             }
-            tree = tree_bak_ZLwK6jXb5gNI;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         break;
@@ -5413,7 +5504,7 @@ decode_GIAS_LibraryManager_get_property_values(tvbuff_t *tvb _U_, packet_info *p
             proto_tree_add_uint(tree, hf_GIAS_LibraryManager_get_property_values_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_LibraryManager_get_property_values_return);
 
             {
-                proto_tree *tree_bak_W6lCjF97TdDw = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_LibraryManager_get_property_values_return");
                 for (i_GIAS_LibraryManager_get_property_values_return=0; i_GIAS_LibraryManager_get_property_values_return < u_octet4_loop_GIAS_LibraryManager_get_property_values_return; i_GIAS_LibraryManager_get_property_values_return++) {
 
@@ -5423,7 +5514,7 @@ decode_GIAS_LibraryManager_get_property_values(tvbuff_t *tvb _U_, packet_info *p
                     decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "UCO_NameValue"  */
                 }
-                tree = tree_bak_W6lCjF97TdDw;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -5450,6 +5541,7 @@ static void
 decode_GIAS_LibraryManager_get_property_names(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_LibraryManager_get_property_names_return;
     uint32_t  i_GIAS_LibraryManager_get_property_names_return;
@@ -5465,14 +5557,14 @@ decode_GIAS_LibraryManager_get_property_names(tvbuff_t *tvb _U_, packet_info *pi
             proto_tree_add_uint(tree, hf_GIAS_LibraryManager_get_property_names_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_LibraryManager_get_property_names_return);
 
             {
-                proto_tree *tree_bak_eAX3oGGkwDi3 = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_LibraryManager_get_property_names_return");
                 for (i_GIAS_LibraryManager_get_property_names_return=0; i_GIAS_LibraryManager_get_property_names_return < u_octet4_loop_GIAS_LibraryManager_get_property_names_return; i_GIAS_LibraryManager_get_property_names_return++) {
 
                     giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_LibraryManager_get_property_names_return);
 
                 }
-                tree = tree_bak_eAX3oGGkwDi3;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -5499,6 +5591,7 @@ static void
 decode_GIAS_Library_get_other_libraries(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_Library_get_other_libraries_return;
     uint32_t  i_GIAS_Library_get_other_libraries_return;
@@ -5519,7 +5612,7 @@ decode_GIAS_Library_get_other_libraries(tvbuff_t *tvb _U_, packet_info *pinfo _U
             proto_tree_add_uint(tree, hf_GIAS_Library_get_other_libraries_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Library_get_other_libraries_return);
 
             {
-                proto_tree *tree_bak_9pAwfqa51iCq = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Library_get_other_libraries_return");
                 for (i_GIAS_Library_get_other_libraries_return=0; i_GIAS_Library_get_other_libraries_return < u_octet4_loop_GIAS_Library_get_other_libraries_return; i_GIAS_Library_get_other_libraries_return++) {
 
@@ -5529,7 +5622,7 @@ decode_GIAS_Library_get_other_libraries(tvbuff_t *tvb _U_, packet_info *pinfo _U
                     decode_GIAS_LibraryDescription_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                     } /*  End struct "GIAS_LibraryDescription"  */
                 }
-                tree = tree_bak_9pAwfqa51iCq;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -5556,6 +5649,7 @@ static void
 decode_GIAS_Library_get_library_description(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -5594,6 +5688,7 @@ static void
 decode_GIAS_Library_get_manager(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -5636,6 +5731,7 @@ static void
 decode_GIAS_Library_get_manager_types(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_Library_get_manager_types_return;
     uint32_t  i_GIAS_Library_get_manager_types_return;
@@ -5651,14 +5747,14 @@ decode_GIAS_Library_get_manager_types(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
             proto_tree_add_uint(tree, hf_GIAS_Library_get_manager_types_return_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Library_get_manager_types_return);
 
             {
-                proto_tree *tree_bak_CM1L3dc9tszj = tree;
+                wmem_stack_push(tree_stack, tree);
                 tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Library_get_manager_types_return");
                 for (i_GIAS_Library_get_manager_types_return=0; i_GIAS_Library_get_manager_types_return < u_octet4_loop_GIAS_Library_get_manager_types_return; i_GIAS_Library_get_manager_types_return++) {
 
                     giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Library_get_manager_types_return);
 
                 }
-                tree = tree_bak_CM1L3dc9tszj;
+                tree = (proto_tree*)wmem_stack_pop(tree_stack);
             }
 
             break;
@@ -5685,6 +5781,7 @@ static void
 decode_CB_Callback_release(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -5720,6 +5817,7 @@ static void
 decode_CB_Callback_notify(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -5763,6 +5861,7 @@ decode_GIAS_DeliveryManifest_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_DeliveryManifest_elements;
     uint32_t  i_GIAS_DeliveryManifest_elements;
@@ -5774,7 +5873,7 @@ decode_GIAS_DeliveryManifest_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
     proto_tree_add_uint(tree, hf_GIAS_DeliveryManifest_elements_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_DeliveryManifest_elements);
 
     {
-        proto_tree *tree_bak_oOEqbO3wmu3T = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_DeliveryManifest_elements");
         for (i_GIAS_DeliveryManifest_elements=0; i_GIAS_DeliveryManifest_elements < u_octet4_loop_GIAS_DeliveryManifest_elements; i_GIAS_DeliveryManifest_elements++) {
 
@@ -5784,7 +5883,7 @@ decode_GIAS_DeliveryManifest_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
             decode_GIAS_PackageElement_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "GIAS_PackageElement"  */
         }
-        tree = tree_bak_oOEqbO3wmu3T;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -5795,6 +5894,7 @@ decode_GIAS_PackageElement_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_PackageElement_files;
     uint32_t  i_GIAS_PackageElement_files;
@@ -5806,14 +5906,14 @@ decode_GIAS_PackageElement_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
     proto_tree_add_uint(tree, hf_GIAS_PackageElement_files_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_PackageElement_files);
 
     {
-        proto_tree *tree_bak_rEzIoUY0VIxy = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_PackageElement_files");
         for (i_GIAS_PackageElement_files=0; i_GIAS_PackageElement_files < u_octet4_loop_GIAS_PackageElement_files; i_GIAS_PackageElement_files++) {
 
             giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_PackageElement_files);
 
         }
-        tree = tree_bak_rEzIoUY0VIxy;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -5824,6 +5924,7 @@ decode_GIAS_AccessCriteria_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -5841,6 +5942,7 @@ decode_GIAS_QueryOrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_QueryOrderContents_del_list;
     uint32_t  i_GIAS_QueryOrderContents_del_list;
@@ -5872,7 +5974,7 @@ decode_GIAS_QueryOrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
     proto_tree_add_uint(tree, hf_GIAS_QueryOrderContents_del_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_QueryOrderContents_del_list);
 
     {
-        proto_tree *tree_bak_ltUj6I7VM9rj = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_QueryOrderContents_del_list");
         for (i_GIAS_QueryOrderContents_del_list=0; i_GIAS_QueryOrderContents_del_list < u_octet4_loop_GIAS_QueryOrderContents_del_list; i_GIAS_QueryOrderContents_del_list++) {
 
@@ -5882,7 +5984,7 @@ decode_GIAS_QueryOrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
             decode_GIAS_DeliveryDetails_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "GIAS_DeliveryDetails"  */
         }
-        tree = tree_bak_ltUj6I7VM9rj;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -5893,6 +5995,7 @@ decode_GIAS_OrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_OrderContents_prod_list;
     uint32_t  i_GIAS_OrderContents_prod_list;
@@ -5926,7 +6029,7 @@ decode_GIAS_OrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
     proto_tree_add_uint(tree, hf_GIAS_OrderContents_prod_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderContents_prod_list);
 
     {
-        proto_tree *tree_bak_aNc2XMUkDtXR = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_OrderContents_prod_list");
         for (i_GIAS_OrderContents_prod_list=0; i_GIAS_OrderContents_prod_list < u_octet4_loop_GIAS_OrderContents_prod_list; i_GIAS_OrderContents_prod_list++) {
 
@@ -5936,14 +6039,14 @@ decode_GIAS_OrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
             decode_GIAS_ProductDetails_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "GIAS_ProductDetails"  */
         }
-        tree = tree_bak_aNc2XMUkDtXR;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
     u_octet4_loop_GIAS_OrderContents_del_list = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_GIAS_OrderContents_del_list_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_OrderContents_del_list);
 
     {
-        proto_tree *tree_bak_zqleipqHZ6ZW = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_OrderContents_del_list");
         for (i_GIAS_OrderContents_del_list=0; i_GIAS_OrderContents_del_list < u_octet4_loop_GIAS_OrderContents_del_list; i_GIAS_OrderContents_del_list++) {
 
@@ -5953,7 +6056,7 @@ decode_GIAS_OrderContents_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
             decode_GIAS_DeliveryDetails_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "GIAS_DeliveryDetails"  */
         }
-        tree = tree_bak_zqleipqHZ6ZW;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -5964,6 +6067,7 @@ decode_GIAS_DeliveryDetails_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -5985,6 +6089,7 @@ decode_GIAS_ProductDetails_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_ProductDetails_mTypes;
     uint32_t  i_GIAS_ProductDetails_mTypes;
@@ -5996,7 +6101,7 @@ decode_GIAS_ProductDetails_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
     proto_tree_add_uint(tree, hf_GIAS_ProductDetails_mTypes_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductDetails_mTypes);
 
     {
-        proto_tree *tree_bak_KOd6BPWCTh4U = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductDetails_mTypes");
         for (i_GIAS_ProductDetails_mTypes=0; i_GIAS_ProductDetails_mTypes < u_octet4_loop_GIAS_ProductDetails_mTypes; i_GIAS_ProductDetails_mTypes++) {
 
@@ -6006,21 +6111,21 @@ decode_GIAS_ProductDetails_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
             decode_GIAS_MediaType_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "GIAS_MediaType"  */
         }
-        tree = tree_bak_KOd6BPWCTh4U;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
     u_octet4_loop_GIAS_ProductDetails_benums = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_GIAS_ProductDetails_benums_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ProductDetails_benums);
 
     {
-        proto_tree *tree_bak_WuZrYlilhAvL = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ProductDetails_benums");
         for (i_GIAS_ProductDetails_benums=0; i_GIAS_ProductDetails_benums < u_octet4_loop_GIAS_ProductDetails_benums; i_GIAS_ProductDetails_benums++) {
 
             giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_ProductDetails_benums);
 
         }
-        tree = tree_bak_WuZrYlilhAvL;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
     { /*  Begin struct "GIAS_AlterationSpec"  */
@@ -6040,6 +6145,7 @@ decode_GIAS_DelayEstimate_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6057,6 +6163,7 @@ decode_GIAS_SortAttribute_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -6074,6 +6181,7 @@ decode_GIAS_QueryLifeSpan_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_QueryLifeSpan_frequency;
     uint32_t  i_GIAS_QueryLifeSpan_frequency;
@@ -6095,7 +6203,7 @@ decode_GIAS_QueryLifeSpan_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
     proto_tree_add_uint(tree, hf_GIAS_QueryLifeSpan_frequency_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_QueryLifeSpan_frequency);
 
     {
-        proto_tree *tree_bak_Se3ePv2eW52c = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_QueryLifeSpan_frequency");
         for (i_GIAS_QueryLifeSpan_frequency=0; i_GIAS_QueryLifeSpan_frequency < u_octet4_loop_GIAS_QueryLifeSpan_frequency; i_GIAS_QueryLifeSpan_frequency++) {
 
@@ -6106,7 +6214,7 @@ decode_GIAS_QueryLifeSpan_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 
             } /*  End union "GIAS_LifeEvent"  */
         }
-        tree = tree_bak_Se3ePv2eW52c;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -6117,6 +6225,7 @@ decode_GIAS_DayEventTime_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -6137,6 +6246,7 @@ decode_GIAS_Event_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -6156,6 +6266,7 @@ decode_GIAS_Query_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6171,6 +6282,7 @@ decode_GIAS_LibraryDescription_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6188,6 +6300,7 @@ decode_GIAS_Association_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     uint32_t  u_octet4_loop_GIAS_Association_attribute_info;
@@ -6209,7 +6322,7 @@ decode_GIAS_Association_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
     proto_tree_add_uint(tree, hf_GIAS_Association_attribute_info_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Association_attribute_info);
 
     {
-        proto_tree *tree_bak_5J9223q2nffr = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Association_attribute_info");
         for (i_GIAS_Association_attribute_info=0; i_GIAS_Association_attribute_info < u_octet4_loop_GIAS_Association_attribute_info; i_GIAS_Association_attribute_info++) {
 
@@ -6219,7 +6332,7 @@ decode_GIAS_Association_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
             decode_GIAS_AttributeInformation_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "GIAS_AttributeInformation"  */
         }
-        tree = tree_bak_5J9223q2nffr;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -6230,6 +6343,7 @@ decode_GIAS_AttributeInformation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -6268,6 +6382,7 @@ decode_GIAS_FloatingPointRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6285,6 +6400,7 @@ decode_GIAS_IntegerRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6302,6 +6418,7 @@ decode_GIAS_DateRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6323,6 +6440,7 @@ decode_GIAS_View_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree 
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_View_sub_views;
     uint32_t  i_GIAS_View_sub_views;
@@ -6337,14 +6455,14 @@ decode_GIAS_View_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree 
     proto_tree_add_uint(tree, hf_GIAS_View_sub_views_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_View_sub_views);
 
     {
-        proto_tree *tree_bak_gHnKjTeQeDUO = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_View_sub_views");
         for (i_GIAS_View_sub_views=0; i_GIAS_View_sub_views < u_octet4_loop_GIAS_View_sub_views; i_GIAS_View_sub_views++) {
 
             giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_View_sub_views);
 
         }
-        tree = tree_bak_gHnKjTeQeDUO;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -6355,6 +6473,7 @@ decode_GIAS_RelatedFile_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6373,6 +6492,7 @@ decode_GIAS_ValidationResults_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6392,6 +6512,7 @@ decode_GIAS_PhysicalDelivery_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6405,6 +6526,7 @@ decode_GIAS_MediaType_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6421,6 +6543,7 @@ decode_GIAS_TailoringSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_TailoringSpec_specs;
     uint32_t  i_GIAS_TailoringSpec_specs;
@@ -6430,7 +6553,7 @@ decode_GIAS_TailoringSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
     proto_tree_add_uint(tree, hf_GIAS_TailoringSpec_specs_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_TailoringSpec_specs);
 
     {
-        proto_tree *tree_bak_jTsiHsKVgbcL = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_TailoringSpec_specs");
         for (i_GIAS_TailoringSpec_specs=0; i_GIAS_TailoringSpec_specs < u_octet4_loop_GIAS_TailoringSpec_specs; i_GIAS_TailoringSpec_specs++) {
 
@@ -6440,7 +6563,7 @@ decode_GIAS_TailoringSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
             decode_UCO_NameName_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "UCO_NameName"  */
         }
-        tree = tree_bak_jTsiHsKVgbcL;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -6451,6 +6574,7 @@ decode_GIAS_PackagingSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6466,6 +6590,7 @@ decode_GIAS_AlterationSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -6490,6 +6615,7 @@ decode_GIAS_ImageSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_GIAS_ImageSpec_rrds;
     uint32_t  i_GIAS_ImageSpec_rrds;
@@ -6511,7 +6637,7 @@ decode_GIAS_ImageSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
     proto_tree_add_uint(tree, hf_GIAS_ImageSpec_rrds_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_ImageSpec_rrds);
 
     {
-        proto_tree *tree_bak_HhSZh8VntgQ3 = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_ImageSpec_rrds");
         for (i_GIAS_ImageSpec_rrds=0; i_GIAS_ImageSpec_rrds < u_octet4_loop_GIAS_ImageSpec_rrds; i_GIAS_ImageSpec_rrds++) {
 
@@ -6519,7 +6645,7 @@ decode_GIAS_ImageSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
             proto_tree_add_int(tree, hf_GIAS_ImageSpec_rrds, tvb, old_offset, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
         }
-        tree = tree_bak_HhSZh8VntgQ3;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
     { /*  Begin struct "UCO_Rectangle"  */
@@ -6541,6 +6667,7 @@ decode_UCO_exception_details_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6559,6 +6686,7 @@ decode_UCO_EntityGraph_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_UCO_EntityGraph_nodes;
     uint32_t  i_UCO_EntityGraph_nodes;
@@ -6570,7 +6698,7 @@ decode_UCO_EntityGraph_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
     proto_tree_add_uint(tree, hf_UCO_EntityGraph_nodes_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_EntityGraph_nodes);
 
     {
-        proto_tree *tree_bak_h7nrnHMGf4Mb = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_EntityGraph_nodes");
         for (i_UCO_EntityGraph_nodes=0; i_UCO_EntityGraph_nodes < u_octet4_loop_UCO_EntityGraph_nodes; i_UCO_EntityGraph_nodes++) {
 
@@ -6580,14 +6708,14 @@ decode_UCO_EntityGraph_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
             decode_UCO_EntityNode_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "UCO_EntityNode"  */
         }
-        tree = tree_bak_h7nrnHMGf4Mb;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
     u_octet4_loop_UCO_EntityGraph_relationship = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_UCO_EntityGraph_relationship_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_EntityGraph_relationship);
 
     {
-        proto_tree *tree_bak_j3glBfNc4OIF = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_EntityGraph_relationship");
         for (i_UCO_EntityGraph_relationship=0; i_UCO_EntityGraph_relationship < u_octet4_loop_UCO_EntityGraph_relationship; i_UCO_EntityGraph_relationship++) {
 
@@ -6597,7 +6725,7 @@ decode_UCO_EntityGraph_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
             decode_UCO_EntityRelationship_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "UCO_EntityRelationship"  */
         }
-        tree = tree_bak_j3glBfNc4OIF;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -6608,6 +6736,7 @@ decode_UCO_EntityRelationship_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -6632,6 +6761,7 @@ decode_UCO_EntityNode_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6648,6 +6778,7 @@ decode_UCO_Status_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -6668,6 +6799,7 @@ decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_UCO_CompressedImage_data;
     const uint8_t * binary_seq_UCO_CompressedImage_data;
@@ -6702,6 +6834,7 @@ decode_UCO_SimpleCImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6737,6 +6870,7 @@ decode_UCO_SimpleGSImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6760,6 +6894,7 @@ decode_UCO_Rectangle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6781,6 +6916,7 @@ decode_UCO_Ellipse_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6810,6 +6946,7 @@ decode_UCO_Circle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6831,6 +6968,7 @@ decode_UCO_LinearDimension_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6847,6 +6985,7 @@ decode_UCO_Coordinate3d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6867,6 +7006,7 @@ decode_UCO_Coordinate2d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -6884,6 +7024,7 @@ decode_UCO_RequestDescription_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_UCO_RequestDescription_request_details;
     uint32_t  i_UCO_RequestDescription_request_details;
@@ -6899,7 +7040,7 @@ decode_UCO_RequestDescription_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
     proto_tree_add_uint(tree, hf_UCO_RequestDescription_request_details_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_RequestDescription_request_details);
 
     {
-        proto_tree *tree_bak_anPooihAGlf4 = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_RequestDescription_request_details");
         for (i_UCO_RequestDescription_request_details=0; i_UCO_RequestDescription_request_details < u_octet4_loop_UCO_RequestDescription_request_details; i_UCO_RequestDescription_request_details++) {
 
@@ -6909,7 +7050,7 @@ decode_UCO_RequestDescription_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
             decode_UCO_NameValue_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "UCO_NameValue"  */
         }
-        tree = tree_bak_anPooihAGlf4;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -6920,6 +7061,7 @@ decode_UCO_UpdateDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_UCO_UpdateDAG_changes;
     uint32_t  i_UCO_UpdateDAG_changes;
@@ -6934,7 +7076,7 @@ decode_UCO_UpdateDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
     proto_tree_add_uint(tree, hf_UCO_UpdateDAG_changes_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_UpdateDAG_changes);
 
     {
-        proto_tree *tree_bak_6np3h4MeIacP = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_UpdateDAG_changes");
         for (i_UCO_UpdateDAG_changes=0; i_UCO_UpdateDAG_changes < u_octet4_loop_UCO_UpdateDAG_changes; i_UCO_UpdateDAG_changes++) {
 
@@ -6944,7 +7086,7 @@ decode_UCO_UpdateDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
             decode_UCO_Change_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "UCO_Change"  */
         }
-        tree = tree_bak_6np3h4MeIacP;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -6955,6 +7097,7 @@ decode_UCO_Change_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -6973,6 +7116,7 @@ decode_UCO_StringDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_UCO_StringDAG_nodes;
     uint32_t  i_UCO_StringDAG_nodes;
@@ -6986,7 +7130,7 @@ decode_UCO_StringDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
     proto_tree_add_uint(tree, hf_UCO_StringDAG_nodes_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_StringDAG_nodes);
 
     {
-        proto_tree *tree_bak_StfmSHTrMGQ1 = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_StringDAG_nodes");
         for (i_UCO_StringDAG_nodes=0; i_UCO_StringDAG_nodes < u_octet4_loop_UCO_StringDAG_nodes; i_UCO_StringDAG_nodes++) {
 
@@ -6996,14 +7140,14 @@ decode_UCO_StringDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
             decode_UCO_StringNode_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "UCO_StringNode"  */
         }
-        tree = tree_bak_StfmSHTrMGQ1;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
     u_octet4_loop_UCO_StringDAG_edges = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_UCO_StringDAG_edges_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_StringDAG_edges);
 
     {
-        proto_tree *tree_bak_6cOw6QE7qFVz = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_StringDAG_edges");
         for (i_UCO_StringDAG_edges=0; i_UCO_StringDAG_edges < u_octet4_loop_UCO_StringDAG_edges; i_UCO_StringDAG_edges++) {
 
@@ -7013,7 +7157,7 @@ decode_UCO_StringDAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
             decode_UCO_Edge_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "UCO_Edge"  */
         }
-        tree = tree_bak_6cOw6QE7qFVz;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -7024,6 +7168,7 @@ decode_UCO_StringNode_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -7046,6 +7191,7 @@ decode_UCO_DAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_UCO_DAG_nodes;
     uint32_t  i_UCO_DAG_nodes;
@@ -7057,7 +7203,7 @@ decode_UCO_DAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
     proto_tree_add_uint(tree, hf_UCO_DAG_nodes_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_DAG_nodes);
 
     {
-        proto_tree *tree_bak_QUfJiUJ3Uv3z = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_DAG_nodes");
         for (i_UCO_DAG_nodes=0; i_UCO_DAG_nodes < u_octet4_loop_UCO_DAG_nodes; i_UCO_DAG_nodes++) {
 
@@ -7067,14 +7213,14 @@ decode_UCO_DAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
             decode_UCO_Node_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "UCO_Node"  */
         }
-        tree = tree_bak_QUfJiUJ3Uv3z;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
     u_octet4_loop_UCO_DAG_edges = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_UCO_DAG_edges_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_DAG_edges);
 
     {
-        proto_tree *tree_bak_UydXckjSbZN4 = tree;
+        wmem_stack_push(tree_stack, tree);
         tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_DAG_edges");
         for (i_UCO_DAG_edges=0; i_UCO_DAG_edges < u_octet4_loop_UCO_DAG_edges; i_UCO_DAG_edges++) {
 
@@ -7084,7 +7230,7 @@ decode_UCO_DAG_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
             decode_UCO_Edge_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
             } /*  End struct "UCO_Edge"  */
         }
-        tree = tree_bak_UydXckjSbZN4;
+        tree = (proto_tree*)wmem_stack_pop(tree_stack);
     }
 
 }
@@ -7095,6 +7241,7 @@ decode_UCO_Edge_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -7114,6 +7261,7 @@ decode_UCO_Node_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -7136,6 +7284,7 @@ decode_UCO_AbsTime_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -7157,6 +7306,7 @@ decode_UCO_Time_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -7177,6 +7327,7 @@ decode_UCO_Date_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -7197,6 +7348,7 @@ decode_UCO_DirectAccessLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     /* Operation specific Variable declarations End */
@@ -7217,6 +7369,7 @@ decode_UCO_FileLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -7238,6 +7391,7 @@ decode_UCO_Ratio_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree 
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -7255,6 +7409,7 @@ decode_UCO_NameValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -7270,6 +7425,7 @@ decode_UCO_NameName_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tr
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -7286,6 +7442,7 @@ decode_GIAS_LifeEvent_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
     proto_item* item = NULL;
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     int32_t   disc_s_LifeEvent;
@@ -7350,6 +7507,7 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
     proto_item* item = NULL;
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     int32_t   disc_s_Domain;
@@ -7415,7 +7573,7 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
         proto_tree_add_uint(tree, hf_GIAS_Domain_is_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Domain_is);
 
         {
-            proto_tree *tree_bak_QNoWRshvZfBb = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Domain_is");
             for (i_GIAS_Domain_is=0; i_GIAS_Domain_is < u_octet4_loop_GIAS_Domain_is; i_GIAS_Domain_is++) {
 
@@ -7425,7 +7583,7 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
                 decode_GIAS_IntegerRange_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "GIAS_IntegerRange"  */
             }
-            tree = tree_bak_QNoWRshvZfBb;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -7447,7 +7605,7 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
         proto_tree_add_uint(tree, hf_GIAS_Domain_fps_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Domain_fps);
 
         {
-            proto_tree *tree_bak_J94o2klvcVhm = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Domain_fps");
             for (i_GIAS_Domain_fps=0; i_GIAS_Domain_fps < u_octet4_loop_GIAS_Domain_fps; i_GIAS_Domain_fps++) {
 
@@ -7457,7 +7615,7 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
                 decode_GIAS_FloatingPointRange_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "GIAS_FloatingPointRange"  */
             }
-            tree = tree_bak_J94o2klvcVhm;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -7469,14 +7627,14 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
         proto_tree_add_uint(tree, hf_GIAS_Domain_l_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Domain_l);
 
         {
-            proto_tree *tree_bak_QDTxXYONRoyB = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Domain_l");
             for (i_GIAS_Domain_l=0; i_GIAS_Domain_l < u_octet4_loop_GIAS_Domain_l; i_GIAS_Domain_l++) {
 
                 giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Domain_l);
 
             }
-            tree = tree_bak_QDTxXYONRoyB;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -7488,14 +7646,14 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
         proto_tree_add_uint(tree, hf_GIAS_Domain_ol_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Domain_ol);
 
         {
-            proto_tree *tree_bak_57UcIidZkqNx = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Domain_ol");
             for (i_GIAS_Domain_ol=0; i_GIAS_Domain_ol < u_octet4_loop_GIAS_Domain_ol; i_GIAS_Domain_ol++) {
 
                 giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_GIAS_Domain_ol);
 
             }
-            tree = tree_bak_57UcIidZkqNx;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -7537,7 +7695,7 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
         proto_tree_add_uint(tree, hf_GIAS_Domain_gs_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Domain_gs);
 
         {
-            proto_tree *tree_bak_yugNddgOwRox = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence GIAS_Domain_gs");
             for (i_GIAS_Domain_gs=0; i_GIAS_Domain_gs < u_octet4_loop_GIAS_Domain_gs; i_GIAS_Domain_gs++) {
 
@@ -7547,7 +7705,7 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
                 decode_UCO_Rectangle_st(tvb, pinfo, struct_tree, item, offset, header, operation, stream_is_big_endian);
                 } /*  End struct "UCO_Rectangle"  */
             }
-            tree = tree_bak_yugNddgOwRox;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -7587,6 +7745,7 @@ decode_GIAS_Destination_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
     proto_item* item = NULL;
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     int32_t   disc_s_Destination;
@@ -7640,6 +7799,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
 {
 
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4;
     int32_t   disc_s_Buffer;
@@ -7698,7 +7858,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
         proto_tree_add_uint(tree, hf_UCO_Buffer_char_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_char_buffer);
 
         {
-            proto_tree *tree_bak_68XdVpu2DBkh = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_char_buffer");
             for (i_UCO_Buffer_char_buffer=0; i_UCO_Buffer_char_buffer < u_octet4_loop_UCO_Buffer_char_buffer; i_UCO_Buffer_char_buffer++) {
 
@@ -7706,7 +7866,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
                 proto_tree_add_uint(tree, hf_UCO_Buffer_char_buffer, tvb, old_offset, 1, get_CDR_char(tvb,offset));
 
             }
-            tree = tree_bak_68XdVpu2DBkh;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -7718,7 +7878,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
         proto_tree_add_uint(tree, hf_UCO_Buffer_ushort_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_ushort_buffer);
 
         {
-            proto_tree *tree_bak_hYe00O8wC2Ql = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_ushort_buffer");
             for (i_UCO_Buffer_ushort_buffer=0; i_UCO_Buffer_ushort_buffer < u_octet4_loop_UCO_Buffer_ushort_buffer; i_UCO_Buffer_ushort_buffer++) {
 
@@ -7726,7 +7886,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
                 proto_tree_add_uint(tree, hf_UCO_Buffer_ushort_buffer, tvb, old_offset, 2, get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
 
             }
-            tree = tree_bak_hYe00O8wC2Ql;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -7738,7 +7898,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
         proto_tree_add_uint(tree, hf_UCO_Buffer_short_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_short_buffer);
 
         {
-            proto_tree *tree_bak_7LQ80b8ZlSSQ = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_short_buffer");
             for (i_UCO_Buffer_short_buffer=0; i_UCO_Buffer_short_buffer < u_octet4_loop_UCO_Buffer_short_buffer; i_UCO_Buffer_short_buffer++) {
 
@@ -7746,7 +7906,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
                 proto_tree_add_int(tree, hf_UCO_Buffer_short_buffer, tvb, old_offset, 2, get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 
             }
-            tree = tree_bak_7LQ80b8ZlSSQ;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -7758,7 +7918,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
         proto_tree_add_uint(tree, hf_UCO_Buffer_ulong_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_ulong_buffer);
 
         {
-            proto_tree *tree_bak_uQo0eqJ1xJks = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_ulong_buffer");
             for (i_UCO_Buffer_ulong_buffer=0; i_UCO_Buffer_ulong_buffer < u_octet4_loop_UCO_Buffer_ulong_buffer; i_UCO_Buffer_ulong_buffer++) {
 
@@ -7766,7 +7926,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
                 proto_tree_add_uint(tree, hf_UCO_Buffer_ulong_buffer, tvb, old_offset, 4, get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 
             }
-            tree = tree_bak_uQo0eqJ1xJks;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -7778,7 +7938,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
         proto_tree_add_uint(tree, hf_UCO_Buffer_long_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_long_buffer);
 
         {
-            proto_tree *tree_bak_5eodgz7V0k4n = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_long_buffer");
             for (i_UCO_Buffer_long_buffer=0; i_UCO_Buffer_long_buffer < u_octet4_loop_UCO_Buffer_long_buffer; i_UCO_Buffer_long_buffer++) {
 
@@ -7786,7 +7946,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
                 proto_tree_add_int(tree, hf_UCO_Buffer_long_buffer, tvb, old_offset, 4, get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 
             }
-            tree = tree_bak_5eodgz7V0k4n;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -7798,7 +7958,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
         proto_tree_add_uint(tree, hf_UCO_Buffer_float_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_float_buffer);
 
         {
-            proto_tree *tree_bak_qlj33ChCHxqo = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_float_buffer");
             for (i_UCO_Buffer_float_buffer=0; i_UCO_Buffer_float_buffer < u_octet4_loop_UCO_Buffer_float_buffer; i_UCO_Buffer_float_buffer++) {
 
@@ -7806,7 +7966,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
                 proto_tree_add_float(tree, hf_UCO_Buffer_float_buffer, tvb, old_offset, 4, get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
 
             }
-            tree = tree_bak_qlj33ChCHxqo;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         return;     /* End Compare for this discriminant type */
@@ -7818,7 +7978,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
         proto_tree_add_uint(tree, hf_UCO_Buffer_double_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_double_buffer);
 
         {
-            proto_tree *tree_bak_qTNhJrelOZ1e = tree;
+            wmem_stack_push(tree_stack, tree);
             tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence UCO_Buffer_double_buffer");
             for (i_UCO_Buffer_double_buffer=0; i_UCO_Buffer_double_buffer < u_octet4_loop_UCO_Buffer_double_buffer; i_UCO_Buffer_double_buffer++) {
 
@@ -7826,7 +7986,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
                 proto_tree_add_double(tree, hf_UCO_Buffer_double_buffer, tvb, old_offset, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 
             }
-            tree = tree_bak_qTNhJrelOZ1e;
+            tree = (proto_tree*)wmem_stack_pop(tree_stack);
         }
 
         return;     /* End Compare for this discriminant type */

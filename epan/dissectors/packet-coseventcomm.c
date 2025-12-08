@@ -100,6 +100,7 @@ static void
 decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -135,6 +136,7 @@ static void
 decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -170,6 +172,7 @@ static void
 decode_CosEventComm_PullSupplier_try_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -208,6 +211,7 @@ static void
 decode_CosEventComm_PullSupplier_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -243,6 +247,7 @@ static void
 decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -278,6 +283,7 @@ static void
 decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
@@ -313,6 +319,7 @@ static void
 decode_CosEventComm_PushConsumer_push(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header, const char *operation _U_, bool stream_is_big_endian _U_)
 {
     /* Operation specific Variable declarations Begin */
+    _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     /* Operation specific Variable declarations End */
 
