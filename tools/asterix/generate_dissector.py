@@ -52,6 +52,7 @@ field_array = []
 expansion_variable_index = 0
 expansion_variables = []
 repetitive_function_counter = 0
+uaps_selection_settings = ""
 
 def reverse_lookup(d, val):
     for a, b in d.items():
@@ -168,7 +169,7 @@ def get_variation_function(variation):
             return t
     return None
 
-def parse_group(db, group, var_name, bits_offset, sub_tree_name = "sub_tree", add_sub_tree = True, variable_counter = None, datafield_name = None):
+def parse_group(db, group, var_name, bits_offset, sub_tree_name = "sub_tree", add_sub_tree = True, variable_counter = None, data_field_name = None):
     items = ""
     initial_offset = bits_offset
     bits = bits_offset
@@ -197,15 +198,15 @@ def parse_group(db, group, var_name, bits_offset, sub_tree_name = "sub_tree", ad
                 if item_nonspare[1] != "":
                     description += " : " + item_nonspare[1]
                 rule_content = reverse_lookup(db.ruleContent, variation[1][2])
-                name = add_field_array(db, description, datafield_name, rule_content[1], size = int(math.ceil(variation[1][1] / 8)))
+                name = add_field_array(db, description, data_field_name, rule_content[1], size = int(math.ceil(variation[1][1] / 8)))
                 if add_sub_tree:
                     items += data_field_add_element(db, variation, group_name, name, False, bits_offset)
                 else:
                     items += data_field_add_element(db, variation, sub_tree_name, name, False, bits_offset)
                 bits_offset += variation[1][1]
             elif variation[0] == "Group":
-                var_name_tree = add_field_array(db, item_nonspare[0] + " : " + item_nonspare[1], datafield_name)
-                res = parse_group(db, variation[1], var_name_tree, bits_offset, group_name, variable_counter = group_counter + 1, datafield_name = datafield_name)
+                var_name_tree = add_field_array(db, item_nonspare[0] + " : " + item_nonspare[1], data_field_name)
+                res = parse_group(db, variation[1], var_name_tree, bits_offset, group_name, variable_counter = group_counter + 1, data_field_name = data_field_name)
                 items += res[0]
                 bits_offset = res[1]
                 group_counter = res[2]
@@ -367,14 +368,14 @@ def generate_re_data_field_function(db, cat, ed_major, ed_minor, data_field, dat
         ret += '  offset+=asterix_parse_re_field (tvb, offset, sub_tree, ' + str(fspec_len) + ', '+ cat + ');\n'
     ret += '  return offset - offset_start;\n'
     ret += "}\n"
-    return [ret, var_name]
+    return [ret, var_name, function_name]
 
-def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, data_field_index, uap_index, variation = None, name_suffix = None, nonspare = None):
+def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, uap_index, variation = None, name_suffix = None, nonspare = None):
     global repetitive_function_counter
     data_field_size = 0
     pre_code = ""
     ret = "static int "
-    function_name = "dissect_cat_" + cat + "_ed_major_" + ed_major + "_ed_minor_" + ed_minor + "_datafield_" + str(data_field_index)
+    function_name = "dissect_cat_" + cat + "_ed_major_" + ed_major + "_ed_minor_" + ed_minor + "_datafield_" + str(data_field)
     if name_suffix is not None:
         function_name += name_suffix
     ret += function_name
@@ -388,22 +389,20 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
         rule_variation = reverse_lookup(db.ruleVariation, nonspare[2])
         variation = reverse_lookup(db.variation, rule_variation[1])
     uap_index += 1
-    data_filefield_name = 'cat_' + cat + '_datafield_' + data_field
-    var_name = data_field_add_field_array(db, nonspare, variation, data_filefield_name)
+    data_field_name = 'cat_' + cat + '_datafield_' + data_field
+    var_name = data_field_add_field_array(db, nonspare, variation, data_field_name)
     ret += " //" + str(data_field) + " " + str(var_name) + "\n"
     ret += "{\n"
     existing_function = get_variation_function(variation)
     if existing_function is not None:
-        ret += '  return ' + existing_function[1] + '(tvb, offset, tree, expand_var);\n'
-        ret += '}\n'
-        return [ret, var_name]
+        return ["", var_name, existing_function[1]]
     if variation[0] == "Element":
         ret += data_field_add_element(db, variation, None, "expand_var", True, None)
         data_field_size = int(variation[1][1] / 8)
         if data_field_size == 0:
             data_field_size = 1
     elif variation[0] == "Group":
-        parse_result = parse_group(db, variation[1], var_name, 0, "tree", datafield_name = data_filefield_name)
+        parse_result = parse_group(db, variation[1], var_name, 0, "tree", data_field_name = data_field_name)
         ret += parse_result[0]
         bits_offset = parse_result[1]
         if (bits_offset % 8) != 0:
@@ -413,13 +412,13 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
         variant = reverse_lookup(db.variation, variation[1][1])
         existing_function = get_variation_function(variant)
         if existing_function is None:
-            data_field = generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, data_field_index, uap_index, variant, "_rep" + str(repetitive_function_counter), nonspare)
+            data_field = generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, uap_index, variant, "_rep" + str(repetitive_function_counter), nonspare)
             fun_name = data_field[2]
             fun_var_name = data_field[1]
             pre_code += data_field[0]
         else:
             fun_name = existing_function[1]
-            fun_var_name = data_field_add_field_array(db, nonspare, variant, data_filefield_name)
+            fun_var_name = data_field_add_field_array(db, nonspare, variant, data_field_name)
         ret += '  int fun_len;\n'
         ret += '  unsigned offset_start = offset;\n'
         ret += '  proto_item *item = proto_tree_add_item (tree, expand_var, tvb, offset, 0, ENC_NA);\n'
@@ -471,7 +470,7 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
                         bytes_size = int(bits_size / 8)
                         if bytes_size == 0:
                             bytes_size = 1
-                        bit_name = data_filefield_name
+                        bit_name = data_field_name
                         content_table_id = reverse_lookup(db.ruleContent, content2[1][2])[1]
                         description = ""
                         if extended_item_nonspare[1] != "":
@@ -480,7 +479,7 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
                         ret += data_field_add_element(db, content2, sub_tree_name, name, False, bits_offset)
                         bits_offset += bits_size
                     elif content2[0] == 'Group':
-                        parse_result = parse_group(db, content2[1], var_name, bits_offset, sub_tree_name, False, datafield_name = data_filefield_name)
+                        parse_result = parse_group(db, content2[1], var_name, bits_offset, sub_tree_name, False, data_field_name = data_field_name)
                         ret += parse_result[0]
                         bits_offset = parse_result[1]
                         continue
@@ -491,7 +490,7 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
                     ret += "  check_spare_bits (tvb, (offset * 8) + " + str(bits_offset) + ", " + str(extended_item[1]) + ", " + spare_item_name + ");\n"
                     bits_offset += extended_item[1]
             else: #last extended item
-                bit_name = add_field_array(db, "FX", data_filefield_name, field_type="FT_UINT8", field_format="BASE_DEC")
+                bit_name = add_field_array(db, "FX", data_field_name, field_type="FT_UINT8", field_format="BASE_DEC")
                 ret += '  proto_tree_add_bits_item(' + sub_tree_name + ', ' + bit_name + ', tvb, (offset * 8) + ' + str(bits_offset) + ', 1, ENC_BIG_ENDIAN);\n'
                 bits_offset += 1
                 bytes_length = int(bits_offset / 8)
@@ -551,14 +550,14 @@ def generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, da
                 compound_variation = reverse_lookup(db.variation, rule_variation[1])
                 existing_function = get_variation_function(compound_variation)
                 if existing_function is None:
-                    existing_function = generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, data_field_index, uap_index, compound_variation, "_" + str(item) + "_compound_" + str(item), nonspare)
+                    existing_function = generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, uap_index, compound_variation, "_" + str(item) + "_compound_" + str(item), nonspare)
                     pre_code += existing_function[0]
                     fun_var_name = existing_function[1]
                     fun_name = existing_function[2]
                 else:
                     fun_name = existing_function[1]
-                    data_filefield_name = 'cat_' + cat + '_datafield_' + data_field
-                    fun_var_name = data_field_add_field_array(db, nonspare, compound_variation, data_filefield_name)
+                    data_field_name = 'cat_' + cat + '_datafield_' + data_field
+                    fun_var_name = data_field_add_field_array(db, nonspare, compound_variation, data_field_name)
                 compound += '  if (asterix_field_exists (tvb, offset_start, ' + str(bit_index) + '))\n'
                 compound += '  {\n'
                 compound += '    int fun_len = ' + fun_name + '(tvb, offset, asterix_packet_tree, ' + fun_var_name + ');\n'
@@ -598,16 +597,21 @@ def generate_uap(db, cat, uap, ed_major, ed_minor):
     uap_index = 0
     table_name = "cat_" + cat  + "_ed_major_" + ed_major + "_ed_minor_" + ed_minor + "_" + uap[0].lower() + "_table"
     table_name_expand = "static int* " + table_name + "_expand[] = {\n"
+    data_field_functions = []
     for data_field in uap[1]:
-        if data_field == "RE":
+        if data_field is None:
+            data_field_functions.append(None)
+            table_name_expand += '  NULL,\n'
+        elif data_field == "RE":
             fspec_len = get_fs_len(db, cat)
             data_field_function = generate_re_data_field_function(db, cat, ed_major, ed_minor, data_field, uap_index, fspec_len, name_suffix="_" + uap[0].lower())
+            data_field_functions.append([data_field_function[2], data_field])
+            ret += data_field_function[0]
+            table_name_expand += '  &' + data_field_function[1] + ", //" + data_field + "\n"
         else:
-            data_field_function = generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, uap_index, uap_index, name_suffix="_" + uap[0].lower())
-        ret += data_field_function[0]
-        if data_field_function[1] is None:
-            table_name_expand += '  NULL,\n'
-        else:
+            data_field_function = generate_uap_data_field_function(db, cat, ed_major, ed_minor, data_field, uap_index, name_suffix="_" + uap[0].lower())
+            data_field_functions.append([data_field_function[2], data_field])
+            ret += data_field_function[0]
             table_name_expand += '  &' + data_field_function[1] + ", //" + data_field + "\n"
         uap_index = uap_index + 1
     table_name_expand = table_name_expand[:-2]
@@ -616,9 +620,9 @@ def generate_uap(db, cat, uap, ed_major, ed_minor):
 
     ret += "static const ttt " + table_name + "[] = {\n"
     index = 0
-    for item in uap[1]:
+    for item in data_field_functions:
         if item is not None:
-            ret += "  &dissect_cat_" + cat + "_ed_major_" + ed_major + "_ed_minor_" + ed_minor + "_datafield_" + str(index) + "_" + uap[0].lower() + ", //" + item + "\n"
+            ret += "  &" + item[0] + ", //" + item[1] + "\n"
         else:
             ret += "  NULL,\n"
         index = index + 1
@@ -646,7 +650,7 @@ def generate_table_entry_index(cat, ed_major, ed_minor, enum_index_start, enum_i
     index_table += "    }\n"
     return index_table
 
-def generate_expanstion_entry(cat, ed_major, ed_minor, asterix):
+def generate_expansion_entry(cat, ed_major, ed_minor, asterix):
     expansion_table = "    if (ed == value_" + cat + "_" + ed_major + "_" + ed_minor + "_re)\n"
     expansion_table += "    {\n"
     expansion_table += "      table->table_size = " + str(len(asterix[1][3])) + ";\n"
@@ -655,6 +659,30 @@ def generate_expanstion_entry(cat, ed_major, ed_minor, asterix):
     expansion_table += "      return;\n"
     expansion_table += "    }\n"
     return expansion_table
+
+def generate_uaps_selection(cat, uaps, ed_major, ed_minor, uap_table_start_index):
+    desc = "int_" + cat + "_" + ed_major + "_" + ed_minor
+    enum = "enum uap_" + desc + "_e {\n"
+    enum += "  uap_" + desc + "_probe= -1,\n"
+    default_name = 'uap_' + desc + '_probe'
+    enum_type_name = default_name + "_enum_vals"
+    uaps_selection = "static const enum_val_t " + enum_type_name + "[] = {\n"
+    uaps_selection += '  {"probe", "probe", ' + default_name + '},\n'
+    for uap in uaps[1]:
+        enum_value_name = "uap_" + desc + "_" + uap[0]
+        enum += "  " + enum_value_name + ' = ' + str(uap_table_start_index) + ",\n"
+        uaps_selection += '  {"' + uap[0] + '", "' + uap[0] + '", ' + enum_value_name + '},\n'
+        uap_table_start_index += 1
+    uaps_selection += "  {NULL, NULL, 0}\n"
+    uaps_selection += "};\n"
+    default_var_name = "uap_" + desc + "_default"
+    uaps_selection += "static int " + default_var_name + " = " + "uap_" + desc + "_probe;\n\n"
+    cat_major_minor_str = cat + "_" + ed_major + "_" + ed_minor
+    uaps_selection_table = "  {" + cat + ", value_" + cat + "_" + ed_major + "_" + ed_minor + ", " + '"' + cat_major_minor_str + '"' + ", " + '" Interpret edition_' + ed_major + "_" + ed_minor + ' as "' + ", &" + default_var_name + ", " + enum_type_name + "},\n"
+    enum = enum[:-2]
+    enum += "\n};\n"
+
+    return enum + uaps_selection, uaps_selection_table
 
 def generate_uaps(db):
     ret = ""
@@ -676,13 +704,13 @@ def generate_uaps(db):
             index = 0
             for i in asterix[1][3]:
                 non_spare = reverse_lookup(db.nonspare, i)
-                data_field = generate_uap_data_field_function(db, cat, ed_major, ed_minor, str(i), index, 0, nonspare=non_spare, name_suffix="_re")
+                data_field = generate_uap_data_field_function(db, cat, ed_major, ed_minor, str(i), 0, nonspare=non_spare, name_suffix="_re")
                 ret += data_field[0]
                 if data_field[1] is None:
                     table_name_expand += '  NULL,\n'
                 else:
                     table_name_expand += '  &' + data_field[1] + ',\n'
-                table_name += "  &dissect_cat_" + cat + "_ed_major_" + ed_major + "_ed_minor_" + ed_minor + "_datafield_" + str(index) + "_re,\n"
+                table_name += "  &" + data_field[2] + ",\n"
                 index = index + 1
 
             table_name_expand = table_name_expand[:-2]
@@ -702,6 +730,10 @@ def generate_uaps(db):
 
     last_cat = None
     last_cat_expansion = None
+
+    interpretation_properties = ""
+    interpretation_table = "static dialog_int_struct interpretation_properties[] = {\n"
+
     for asterix in db.asterix:
         cat = str(asterix[1][0])
         ed_major = str(asterix[1][1][0])
@@ -710,6 +742,9 @@ def generate_uaps(db):
         if asterix[0] == 'AsterixBasic':
             enum_index_start = enum_index_end
             if uap[0] == "Uaps":
+                uaps_selection_result = generate_uaps_selection(cat, uap, ed_major, ed_minor, enum_index_start)
+                interpretation_properties += uaps_selection_result[0]
+                interpretation_table += uaps_selection_result[1]
                 for u in uap[1]:
                     enum = "uap_" + cat + "_" + ed_major + "_" + ed_minor + "_" + u[0].lower()
                     uaps_enums += "  " + enum + ",\n"
@@ -741,8 +776,12 @@ def generate_uaps(db):
                 if last_cat_expansion is not None:
                     expansion_table += "    break;\n"
                 expansion_table += "  case " + cat + ":\n"
-            expansion_table += generate_expanstion_entry(cat, ed_major, ed_minor, asterix)
+            expansion_table += generate_expansion_entry(cat, ed_major, ed_minor, asterix)
             last_cat_expansion = cat
+
+    interpretation_table = interpretation_table[:-2]
+    interpretation_table += "\n};\n"
+
     expansion_table += "  break;\n"
     expansion_table += "  default:\n"
     expansion_table += "    table->table_size = 0;\n"
@@ -766,6 +805,8 @@ def generate_uaps(db):
     uaps_table += "}\n"
     uaps_enums = uaps_enums[:-2]
     uaps_enums += "\n} uaps_enums;\n"
+    ret += interpretation_properties
+    ret += interpretation_table
     ret += uaps_enums
     ret += uaps_table
     ret += uap_table
@@ -819,7 +860,7 @@ def generate_dissector_properties_code(cat):
         re = "_re"
         basic = "false"
     enum_name = "value_cat_" + str(cat[0]) + re
-    ed_enum = "static enum " + enum_name + "_e {\n"
+    ed_enum = "enum " + enum_name + "_e {\n"
     enums_name = "cat_" + str(cat[0]) + "_enum_vals" + re
     cat_enum = "static const enum_val_t " + enums_name + "[] = {\n"
     index = 0
@@ -832,10 +873,10 @@ def generate_dissector_properties_code(cat):
         last_ed = value_name
     cat_enum += "  {NULL, NULL, 0}\n};\n\n"
     ed_enum = ed_enum[:-2]
-    ed_enum += "\n} " + enum_name + ";\n"
+    ed_enum += "\n};\n"
     latest_ed = last_ed + "_default"
     defaults = "static int " + latest_ed + " = " + last_ed + ";\n"
-    dialog_table = '  { ' + str(cat[0]) + ', (int*)&' + enum_name + ', &' + latest_ed + ', ' + enums_name + ', "cat_' + str(cat[0]) + re + '", ' + basic + ' },\n'
+    dialog_table = '  { ' + str(cat[0]) + ', &' + latest_ed + ', ' + enums_name + ', "cat_' + str(cat[0]) + re + '", "Category ' + str(cat[0]) +'", ' + basic + ' },\n'
 
     ret += ed_enum
     ret += cat_enum
@@ -843,6 +884,7 @@ def generate_dissector_properties_code(cat):
     return ret, dialog_table
 
 def generate_dissector_properties(db):
+    ret = ""
     category_list = []
     expansion_list = []
     for asterix in db.asterix:
@@ -862,7 +904,6 @@ def generate_dissector_properties(db):
             else:
                 expansion[1].append((ed_major, ed_minor))
 
-    ret = ""
     dialog_table = "static dialog_cat_struct asterix_properties[] = {\n"
     for cat in category_list:
         cat_code = generate_dissector_properties_code(cat)

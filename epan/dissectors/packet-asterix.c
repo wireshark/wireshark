@@ -274,7 +274,7 @@ static unsigned asterix_parse_re_field (tvbuff_t *tvb, unsigned offset, proto_tr
         dialog_cat_struct prop_cat = asterix_properties[i];
         if (prop_cat.cat == cat && !prop_cat.cat_basic)
         {
-            ed = *prop_cat.cat_default_value;
+            ed = *prop_cat.edition_default_value;
         }
     }
 
@@ -507,8 +507,17 @@ static void dissect_asterix_records (tvbuff_t *tvb, packet_info *pinfo, int offs
         dialog_cat_struct prop_cat = asterix_properties[i];
         if (prop_cat.cat == cat && prop_cat.cat_basic)
         {
-            ed = *prop_cat.cat_default_value;
+            ed = *prop_cat.edition_default_value;
             break;
+        }
+    }
+    // get uap selection
+    int uap = -1;
+    for (unsigned i = 0; i < sizeof(interpretation_properties) / sizeof(interpretation_properties[0]); i++)
+    {
+        if (interpretation_properties[i].cat == cat && interpretation_properties[i].ed == ed)
+        {
+            uap = *interpretation_properties[i].int_default_value;
         }
     }
 
@@ -518,6 +527,13 @@ static void dissect_asterix_records (tvbuff_t *tvb, packet_info *pinfo, int offs
 
     uap_table_indexes indexes;
     get_uap_tables(cat, ed, &indexes);
+
+    if (uap >= 0)
+    {
+        // specific uap selected in settings, disable probing
+        indexes.start_index = uap;
+        indexes.end_index = uap;
+    }
 
     // if category unknown both start_index and end_index are 0
     if ((indexes.end_index - indexes.start_index) > 0)
@@ -707,7 +723,16 @@ void proto_register_asterix (void)
     for (unsigned i = 0; i < sizeof(asterix_properties) / sizeof(asterix_properties[0]); i++)
     {
         dialog_cat_struct cat = asterix_properties[i];
-        prefs_register_enum_preference(asterix_module, cat.cat_name, cat.cat_name, NULL, cat.cat_default_value, cat.cat_enums, FALSE);
+        prefs_register_enum_preference(asterix_module, cat.edition_name, cat.edition_desc, NULL, cat.edition_default_value, cat.edition_enums, FALSE);
+
+        for (unsigned j = 0; j < sizeof(interpretation_properties) / sizeof(interpretation_properties)[0]; j++)
+        {
+            if (interpretation_properties[j].cat == cat.cat)
+            {
+                dialog_int_struct int_prop = interpretation_properties[j];
+                prefs_register_enum_preference(asterix_module, int_prop.edition_name, int_prop.edition_desc, NULL, int_prop.int_default_value, int_prop.int_enums, FALSE);
+            }
+        }
     }
 
     prefs_register_enum_preference(asterix_module, "interpretations_depth", "Interpretations depth",

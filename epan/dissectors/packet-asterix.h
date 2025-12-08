@@ -21,12 +21,21 @@ module_t *asterix_module;
 expert_module_t* expert_asterix;
 typedef struct {
     unsigned cat;
-    int *cat_enum; //!< Pointer to the enum (unused)
-    int *cat_default_value; //!< Pointer to pref variable holding enum value
-    const enum_val_t *cat_enums;
-    const char *cat_name;
+    int *edition_default_value;
+    const enum_val_t *edition_enums;
+    const char *edition_name;
+    const char *edition_desc;
     bool cat_basic;
 } dialog_cat_struct;
+
+typedef struct {
+    unsigned cat;
+    unsigned ed;
+    const char *edition_name;
+    const char *edition_desc;
+    int *int_default_value;
+    const enum_val_t *int_enums;
+} dialog_int_struct;
 
 typedef int (*ttt)(tvbuff_t *, unsigned, proto_tree *, int);
 typedef struct {
