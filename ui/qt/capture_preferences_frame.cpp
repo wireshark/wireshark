@@ -209,6 +209,11 @@ void CapturePreferencesFrame::on_aggreagationEditButton_clicked()
     if (!uat_pb) return;
     module_t* module = prefs_find_module("capture");
     pref_t* pref = prefs_find_preference(module, "aggregation_fields");
+    if (!pref) {
+        ws_log(LOG_DOMAIN_QTUI, LOG_LEVEL_WARNING, "Can't find capture.aggregation_fields preference");
+        return;
+    }
+
     UatDialog* uat_dlg = new UatDialog(this, prefs_get_uat_value(pref));
     uat_dlg->setWindowModality(Qt::ApplicationModal);
     uat_dlg->setAttribute(Qt::WA_DeleteOnClose);
