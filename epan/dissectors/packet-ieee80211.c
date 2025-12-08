@@ -827,6 +827,7 @@ static const value_string wfa_qos_subtype_vals[] = {
 
 static const value_string wfa_action_subtype_vals[] = {
   { WFA_SUBTYPE_ACTION_QOS_MGMT, "QoS Management" },
+  { WFA_SUBTYPE_ACTION_CAPABILITIES, "Wi-Fi Alliance Capabilities" },
   { 0, NULL }
 };
 
@@ -847,6 +848,7 @@ const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_OWE_TRANSITION_MODE, "OWE Transition Mode" },
   { WFA_SUBTYPE_TRANSITION_DISABLE_KDE, "Transition Disable KDE" },
   { WFA_SUBTYPE_QOS_MGMT, "QoS Management" },
+  { WFA_SUBTYPE_WFA_CAPA, "Wi-Fi Alliance Capabilities" },
   { WFA_SUBTYPE_RSN_OVERRIDE, "RSN Element Override" },
   { WFA_SUBTYPE_RSN_OVERRIDE_2, "RSN Element Override 2" },
   { WFA_SUBTYPE_RSNX_OVERRIDE, "RSN Extension Element Override" },
@@ -7810,6 +7812,35 @@ static int hf_ieee80211_qos_mgmt_dscp_pol_dscp;
 static int hf_ieee80211_qos_mgmt_domain_name;
 static int hf_ieee80211_qos_mgmt_unknown_attr;
 
+static int hf_ieee80211_wfa_capa_tag_data;
+static int hf_ieee80211_wfa_capa_tag_len;
+static int hf_ieee80211_wfa_capa_tag_capabilities;
+static int hf_ieee80211_wfa_capa_mgmt_dscp_policy;
+static int hf_ieee80211_wfa_capa_mgmt_unsol_dscp_policy;
+static int hf_ieee80211_wfa_capa_mgmt_scs_traffic_desc;
+static int hf_ieee80211_wfa_capa_5g_wifi_qos_mapping;
+static int hf_ieee80211_wfa_capa_data_plane_stat_report;
+static int hf_ieee80211_wfa_capa_radio_counters_stat_support;
+static int hf_ieee80211_wfa_capa_control_plane_stat_report;
+static int hf_ieee80211_wfa_capa_unsolicited_report_support;
+static int hf_ieee80211_wfa_capa_attr_id;
+static int hf_ieee80211_wfa_capa_attr_len;
+static int hf_ieee80211_wfa_capa_attr_field;
+static int hf_ieee80211_wfa_capa_attr_supp_gene_length;
+static int hf_ieee80211_wfa_capa_attr_supp_generations;
+static int hf_ieee80211_wfa_capa_attr_supp_generations_b0;
+static int hf_ieee80211_wfa_capa_attr_supp_generations_b1;
+static int hf_ieee80211_wfa_capa_attr_supp_generations_b2;
+static int hf_ieee80211_wfa_capa_attr_supp_generations_b3;
+static int hf_ieee80211_wfa_capa_attr_supp_generations_reserved;
+static int hf_ieee80211_wfa_capa_attr_cert_gene_length;
+static int hf_ieee80211_wfa_capa_attr_cert_generations;
+static int hf_ieee80211_wfa_capa_attr_cert_generations_b0;
+static int hf_ieee80211_wfa_capa_attr_cert_generations_b1;
+static int hf_ieee80211_wfa_capa_attr_cert_generations_b2;
+static int hf_ieee80211_wfa_capa_attr_cert_generations_b3;
+static int hf_ieee80211_wfa_capa_attr_cert_generations_reserved;
+
 static int hf_ieee80211_ext_tag;
 static int hf_ieee80211_ext_tag_number;
 static int hf_ieee80211_ext_tag_length;
@@ -8649,6 +8680,11 @@ static int ett_qos_mgmt_unknown_attribute;
 static int ett_dscp_policy_status_list;
 static int ett_pol_rqst_cont_tree;
 static int ett_pol_resp_cont_tree;
+
+static int ett_wfa_capa;
+static int ett_wfa_capa_attributes;
+static int ett_wfa_capa_supp_gene;
+static int ett_wfa_capa_cert_gene;
 
 static expert_field ei_ieee80211_bad_length;
 static expert_field ei_ieee80211_inv_val;
@@ -20104,6 +20140,124 @@ dissect_qos_mgmt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
                           offset, attr_len, ENC_NA);
       offset += attr_len;
       break;
+    }
+  }
+
+  return offset;
+}
+
+static int * const wfa_capa_fields[] = {
+  &hf_ieee80211_wfa_capa_mgmt_dscp_policy,
+  &hf_ieee80211_wfa_capa_mgmt_unsol_dscp_policy,
+  &hf_ieee80211_wfa_capa_mgmt_scs_traffic_desc,
+  &hf_ieee80211_wfa_capa_5g_wifi_qos_mapping,
+  &hf_ieee80211_wfa_capa_data_plane_stat_report,
+  &hf_ieee80211_wfa_capa_radio_counters_stat_support,
+  &hf_ieee80211_wfa_capa_control_plane_stat_report,
+  &hf_ieee80211_wfa_capa_unsolicited_report_support,
+  NULL
+};
+
+static int * const wfa_capa_supp_gene[] = {
+  &hf_ieee80211_wfa_capa_attr_supp_generations_b0,
+  &hf_ieee80211_wfa_capa_attr_supp_generations_b1,
+  &hf_ieee80211_wfa_capa_attr_supp_generations_b2,
+  &hf_ieee80211_wfa_capa_attr_supp_generations_b3,
+  &hf_ieee80211_wfa_capa_attr_supp_generations_reserved,
+  NULL
+};
+
+static int * const wfa_capa_cert_gene[] = {
+  &hf_ieee80211_wfa_capa_attr_cert_generations_b0,
+  &hf_ieee80211_wfa_capa_attr_cert_generations_b1,
+  &hf_ieee80211_wfa_capa_attr_cert_generations_b2,
+  &hf_ieee80211_wfa_capa_attr_cert_generations_b3,
+  &hf_ieee80211_wfa_capa_attr_cert_generations_reserved,
+  NULL
+};
+
+static const range_string wfa_capa_attr_id[] = {
+  { 0, 0, "Reserved" },
+  { 1, 1, "Generational Capabilities Indication attribute" },
+  { 2, 220, "Reserved" },
+  { 221, 221, "Vendor Specific attribute" },
+  { 222, 225, "Reserved" },
+  { 0, 0, NULL }
+};
+
+static int
+dissect_wfa_capa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  uint32_t attr_id = 0, attr_len = 0;
+  unsigned offset = 0, tag_len = tvb_captured_length_remaining(tvb, offset);
+  proto_tree *attr_tree = NULL;
+  uint32_t capa_len = 0;
+
+  if (tag_len < 2) {
+    proto_item *tag_data;
+
+    tag_data = proto_tree_add_item(tree, hf_ieee80211_wfa_capa_tag_data, tvb,
+                                   offset, tag_len, ENC_NA);
+    expert_add_info_format(pinfo, tag_data, &ei_ieee80211_tag_length,
+                           "WFA Capabilities length %u too short, must be >= 2", tag_len);
+
+    return tag_len;
+  }
+
+  /* There is at least two bytes, a length and the capabilities. */
+  /* Capa length can be 0 */
+  proto_tree_add_item_ret_uint(tree, hf_ieee80211_wfa_capa_tag_len, tvb, offset,
+                               1, ENC_NA, &capa_len);
+  offset += 1;
+
+  if (capa_len > 0) {
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee80211_wfa_capa_tag_capabilities,
+                           ett_wfa_capa, wfa_capa_fields,
+                           ENC_NA);
+    offset += capa_len;
+  }
+
+  if (tag_len > offset)
+    attr_tree = proto_tree_add_subtree(tree, tvb, offset, tag_len - offset,
+                                       ett_wfa_capa_attributes, NULL,
+                                       "Attributes");
+  /* Deal with the attributes */
+  while (tag_len > offset) {
+    proto_tree_add_item_ret_uint(attr_tree, hf_ieee80211_wfa_capa_attr_id, tvb,
+                                 offset, 1, ENC_NA, &attr_id);
+    offset += 1;
+
+    proto_tree_add_item_ret_uint(attr_tree, hf_ieee80211_wfa_capa_attr_len, tvb,
+                                 offset, 1, ENC_NA, &attr_len);
+    offset += 1;
+
+    if (attr_id == 1) {/* Generational Capa indication */
+      proto_tree_add_item(attr_tree, hf_ieee80211_wfa_capa_attr_supp_gene_length,
+                          tvb, offset, 1, ENC_NA);
+      offset += 1;
+
+      proto_tree_add_bitmask_with_flags(attr_tree, tvb, offset,
+                                        hf_ieee80211_wfa_capa_attr_supp_generations,
+                                        ett_wfa_capa_supp_gene, wfa_capa_supp_gene,
+                                        ENC_NA, BMT_NO_APPEND);
+      offset += 1;
+
+      if (attr_len > 2) {
+        proto_tree_add_item(attr_tree, hf_ieee80211_wfa_capa_attr_cert_gene_length,
+                            tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_bitmask_with_flags(attr_tree, tvb, offset,
+                                          hf_ieee80211_wfa_capa_attr_cert_generations,
+                                          ett_wfa_capa_cert_gene, wfa_capa_cert_gene,
+                                          ENC_NA, BMT_NO_APPEND);
+        offset += 1;
+      }
+    } else {
+      proto_tree_add_item(attr_tree, hf_ieee80211_wfa_capa_attr_field, tvb,
+                          offset, attr_len, ENC_NA);
+      offset += attr_len;
     }
   }
 
@@ -58164,6 +58318,127 @@ proto_register_ieee80211(void)
      {"Unknown attribute", "wlan.qos_mgmt.ie.unknown_attribute",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+    {&hf_ieee80211_wfa_capa_tag_data,
+     {"WFA Capabilities Data", "wlan.wfa_capa.ie.data",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_tag_len,
+     {"Capabilities Length", "wlan.wfa_capa.ie.capabilities_length",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_tag_capabilities,
+     {"Capabilities", "wlan.wfa_capa.ie.capabilities",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_mgmt_dscp_policy,
+     {"QoS Management DSCP Policy",
+      "wlan.wfa_capa.ie.capabilities.b0",
+      FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_mgmt_unsol_dscp_policy,
+     {"QoS Management Unsolicited DSCP Policy At Association",
+      "wlan.wfa_capa.ie.capabilities.b1",
+      FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_mgmt_scs_traffic_desc,
+     {"QoS Management SCS Traffic Description",
+      "wlan.wfa_capa.ie.capabilities.b2",
+      FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_5g_wifi_qos_mapping,
+     {"5G QoS to Wi-Fi QoS Mapping",
+      "wlan.wfa_capa.ie.capabilities.b3",
+      FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_data_plane_stat_report,
+     {"Data Plane Statistics Reporting Support",
+      "wlan.wfa_capa.ie.capabilities.b4",
+      FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_radio_counters_stat_support,
+     {"Radio Counters Statistics Support",
+      "wlan.wfa_capa.ie.capabilities.b5",
+      FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_control_plane_stat_report,
+     {"Control Plane Statistics Reporting Support",
+      "wlan.wfa_capa.ie.capabilities.b6",
+      FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_unsolicited_report_support,
+     {"Unsolicited Report Support",
+      "wlan.wfa_capa.ie.capabilities.b7",
+      FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_id,
+     {"Attribute ID", "wlan.wfa_capa.ie.attribute_id",
+      FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(wfa_capa_attr_id),
+      0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_len,
+     {"Attribute Length", "wlan.wfa_capa.ie.attribute_length",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_field,
+     {"Attribute Body Field", "wlan.wfa_capa.ie.attribute_body_field",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_supp_gene_length,
+     {"Supported Generations Length", "wlan.wfa_capa.ie.supported_generations_length",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_supp_generations,
+     {"Supported Generations", "wlan.wfa_capa.ie.supported_generations",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_supp_generations_b0,
+     {"Wi-Fi 4 Supported", "wlan.wfa_capa.ie.supported_generations.b0",
+      FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_supp_generations_b1,
+     {"Wi-Fi 5 Supported", "wlan.wfa_capa.ie.supported_generations.b1",
+      FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_supp_generations_b2,
+     {"Wi-Fi 6 Supported", "wlan.wfa_capa.ie.supported_generations.b2",
+      FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_supp_generations_b3,
+     {"Wi-Fi 7 Supported", "wlan.wfa_capa.ie.supported_generations.b3",
+      FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_supp_generations_reserved,
+     {"Reserved", "wlan.wfa_capa.ie.supported_generations.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_cert_gene_length,
+     {"Certified Generations Length", "wlan.wfa_capa.ie.certified_generations_length",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_cert_generations,
+     {"Certified Generations", "wlan.wfa_capa.ie.certified_generations",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_cert_generations_b0,
+     {"Wi-Fi CERTIFIED n", "wlan.wfa_capa.ie.certified_generations.b0",
+      FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_cert_generations_b1,
+     {"Wi-Fi CERTIFIED ac", "wlan.wfa_capa.ie.certified_generations.b1",
+      FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_cert_generations_b2,
+     {"Wi-Fi CERTIFIED 6", "wlan.wfa_capa.ie.certified_generations.b2",
+      FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_cert_generations_b3,
+     {"Wi-Fi CERTIFIED 7", "wlan.wfa_capa.ie.certified_generations.b3",
+      FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_wfa_capa_attr_cert_generations_reserved,
+     {"Reserved", "wlan.wfa_capa.ie.certified_generations.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
+
     {&hf_ieee80211_ext_tag,
      {"Ext Tag", "wlan.ext_tag",
       FT_NONE, BASE_NONE, NULL, 0,
@@ -61961,6 +62236,11 @@ proto_register_ieee80211(void)
     &ett_nonap_sta_regulatory_conn,
 
     &ett_chan_usage,
+
+    &ett_wfa_capa,
+    &ett_wfa_capa_attributes,
+    &ett_wfa_capa_supp_gene,
+    &ett_wfa_capa_cert_gene,
   };
 
   static ei_register_info ei[] = {
@@ -62744,6 +63024,7 @@ proto_reg_handoff_ieee80211(void)
 
   /* Protected action WFA ... */
   dissector_add_uint("wlan.action.wifi_alliance.subtype", WFA_SUBTYPE_ACTION_QOS_MGMT, create_dissector_handle(dissect_vendor_action_wfa_qos_mgmt, -1));
+  dissector_add_uint("wlan.action.wifi_alliance.subtype", WFA_SUBTYPE_ACTION_CAPABILITIES, create_dissector_handle(dissect_wfa_capa, -1));
 
   dissector_add_uint("wlan.anqp.vendor_specific", OUI_WFA, create_dissector_handle(dissect_vendor_wifi_alliance_anqp, -1));
   dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_ANQP_SUBTYPE_HS20, create_dissector_handle(dissect_hs20_anqp, -1));
@@ -62759,6 +63040,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_WNM_SUBTYPE_NON_PREF_CHAN_REPORT, create_dissector_handle(dissect_wfa_wnm_non_pref_chan, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_WNM_SUBTYPE_CELL_DATA_CAPABILITIES, create_dissector_handle(dissect_wfa_wnm_cell_cap, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_QOS_MGMT, create_dissector_handle(dissect_qos_mgmt, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_WFA_CAPA, create_dissector_handle(dissect_wfa_capa, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_RSN_OVERRIDE, create_dissector_handle(dissect_wfa_rsn_override, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_RSN_OVERRIDE_2, create_dissector_handle(dissect_wfa_rsn_override_2, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_RSNX_OVERRIDE, create_dissector_handle(dissect_wfa_rsnx_override, -1));

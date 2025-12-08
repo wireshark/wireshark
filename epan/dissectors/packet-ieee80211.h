@@ -346,10 +346,11 @@ typedef struct anqp_info_dissector_data {
 #define WFA_SUBTYPE_WIFI_60G                   23
 #define WFA_SUBTYPE_NAN_ACTION                 24
 #define WFA_SUBTYPE_DPP                        26
-#define WFA_SUBTYPE_IEEE1905_MULTI_AP          27 /* ox1B */
+#define WFA_SUBTYPE_IEEE1905_MULTI_AP          27 /* 0x1B */
 #define WFA_SUBTYPE_OWE_TRANSITION_MODE        28
 #define WFA_SUBTYPE_TRANSITION_DISABLE_KDE     32
 #define WFA_SUBTYPE_QOS_MGMT                   34 /* 0x22 */
+#define WFA_SUBTYPE_WFA_CAPA                   35 /* 0x23 */
 #define WFA_SUBTYPE_RSN_OVERRIDE               41 /* 0x29 */
 #define WFA_SUBTYPE_RSN_OVERRIDE_2             42 /* 0x2A */
 #define WFA_SUBTYPE_RSNX_OVERRIDE              43 /* 0x2B */
@@ -358,6 +359,7 @@ typedef struct anqp_info_dissector_data {
 
 /* WFA Public Action Types */
 #define WFA_SUBTYPE_ACTION_QOS_MGMT          0x1A
+#define WFA_SUBTYPE_ACTION_CAPABILITIES      0x1B
 
 /* WFA vendor specific ANQP subtypes */
 #define WFA_ANQP_SUBTYPE_HS20                  17
