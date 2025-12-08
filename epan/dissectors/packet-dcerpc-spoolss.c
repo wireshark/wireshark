@@ -21,6 +21,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <epan/exceptions.h>
 
 #include <wsutil/ws_roundup.h>
 
@@ -2306,6 +2307,12 @@ dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, NULL, di, drep, hf_offset,
 		&devmode_offset);
 
+	// This is the offset *after* the uint32 containing the DeviceMode
+	// size, so it cannot be less than 4.
+	if (devmode_offset < 4) {
+		THROW(ReportedBoundsError);
+	}
+
 	dissect_DEVMODE(tvb, devmode_offset - 4, pinfo, tree, di, drep);
 
 	offset = dissect_spoolss_relstr(
@@ -4459,6 +4466,12 @@ dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, NULL, di, drep, hf_offset,
 		&devmode_offset);
+
+	// This is the offset *after* the uint32 containing the DeviceMode
+	// size, so it cannot be less than 4.
+	if (devmode_offset < 4) {
+		THROW(ReportedBoundsError);
+	}
 
 	dissect_DEVMODE(
 		tvb, devmode_offset - 4 + struct_start, pinfo, subtree, di, drep);
