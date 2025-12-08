@@ -14,17 +14,17 @@
 #include <epan/expert.h>
 #include <packet-midi-sysex-id.h>
 
-void proto_register_sysex(void);
-void proto_reg_handoff_sysex(void);
+void proto_register_midi_sysex(void);
+void proto_reg_handoff_midi_sysex(void);
 
 /* protocols and header fields */
-static int proto_sysex;
+static int proto_midi_sysex;
 static int hf_sysex_message_start;
 static int hf_sysex_manufacturer_id;
 static int hf_sysex_three_byte_manufacturer_id;
 static int hf_sysex_message_eox;
 
-static int ett_sysex;
+static int ett_midi_sysex;
 
 static dissector_table_t sysex_manufacturer_dissector_table;
 
@@ -36,7 +36,7 @@ static expert_field ei_sysex_undecoded;
 
 /* dissector for System Exclusive MIDI data */
 static int
-dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
+dissect_midi_sysex_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
     uint8_t sysex_helper;
     int data_len;
@@ -48,13 +48,13 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
     uint8_t manufacturer_id;
     uint32_t three_byte_manufacturer_id = 0xFFFFFF;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SYSEX");
-    col_set_str(pinfo->cinfo, COL_INFO, "MIDI System Exclusive Command");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIDI SysEx");
+    col_set_str(pinfo->cinfo, COL_INFO, "MIDI System Exclusive Message");
 
     data_len = tvb_reported_length(tvb);
 
-    ti = proto_tree_add_protocol_format(parent_tree, proto_sysex, tvb, 0, -1, "MIDI System Exclusive Command");
-    tree = proto_item_add_subtree(ti, ett_sysex);
+    ti = proto_tree_add_protocol_format(parent_tree, proto_midi_sysex, tvb, 0, -1, "MIDI System Exclusive Message");
+    tree = proto_item_add_subtree(ti, ett_midi_sysex);
 
     /* Check start byte (System Exclusive - 0xF0) */
     sysex_helper = tvb_get_uint8(tvb, 0);
@@ -106,51 +106,51 @@ dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 }
 
 void
-proto_register_sysex(void)
+proto_register_midi_sysex(void)
 {
     static hf_register_info hf[] = {
         { &hf_sysex_message_start,
-            { "SysEx message start", "sysex.start", FT_UINT8, BASE_HEX,
+            { "MIDI SysEx message start", "midi.sysex.start", FT_UINT8, BASE_HEX,
               NULL, 0, "System Exclusive Message start (0xF0)", HFILL }},
         { &hf_sysex_manufacturer_id,
-            { "Manufacturer ID", "sysex.manufacturer_id", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+            { "MIDI SysEx Manufacturer ID", "midi.sysex.manufacturer_id", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
               &midi_sysex_id_vals_ext, 0, NULL, HFILL }},
         { &hf_sysex_three_byte_manufacturer_id,
-            { "Manufacturer ID", "sysex.manufacturer_id", FT_UINT24, BASE_HEX|BASE_EXT_STRING,
+            { "MIDI SysEx Manufacturer ID", "midi.sysex.manufacturer_id", FT_UINT24, BASE_HEX|BASE_EXT_STRING,
               &midi_sysex_extended_id_vals_ext, 0, NULL, HFILL }},
         { &hf_sysex_message_eox,
-            { "EOX", "sysex.eox", FT_UINT8, BASE_HEX,
+            { "EOX", "midi.sysex.eox", FT_UINT8, BASE_HEX,
               NULL, 0, "System Exclusive Message end (0xF7)", HFILL}},
     };
 
     static int *ett[] = {
-        &ett_sysex
+        &ett_midi_sysex
     };
 
     static ei_register_info ei[] = {
-        { &ei_sysex_message_start_byte, { "sysex.message_start_byte", PI_PROTOCOL, PI_WARN, "SYSEX Error: Wrong start byte", EXPFILL }},
-        { &ei_sysex_message_end_byte, { "sysex.message_end_byte", PI_PROTOCOL, PI_WARN, "SYSEX Error: Wrong end byte", EXPFILL }},
-        { &ei_sysex_undecoded, { "sysex.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
+        { &ei_sysex_message_start_byte, { "midi.sysex.message_start_byte", PI_PROTOCOL, PI_WARN, "Wrong SysEx start byte", EXPFILL }},
+        { &ei_sysex_message_end_byte, { "midi.sysex.message_end_byte", PI_PROTOCOL, PI_WARN, "Wrong SysEx end byte", EXPFILL }},
+        { &ei_sysex_undecoded, { "midi.sysex.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
     };
 
-    expert_module_t* expert_sysex;
+    expert_module_t* expert_midi_sysex;
 
-    proto_sysex = proto_register_protocol("MIDI System Exclusive", "SYSEX", "sysex");
-    proto_register_field_array(proto_sysex, hf, array_length(hf));
+    proto_midi_sysex = proto_register_protocol("MIDI System Exclusive", "MIDI SysEx", "midi_sysex");
+    proto_register_field_array(proto_midi_sysex, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    expert_sysex = expert_register_protocol(proto_sysex);
-    expert_register_field_array(expert_sysex, ei, array_length(ei));
+    expert_midi_sysex = expert_register_protocol(proto_midi_sysex);
+    expert_register_field_array(expert_midi_sysex, ei, array_length(ei));
 
-    sysex_manufacturer_dissector_table = register_dissector_table("sysex.manufacturer",
-        "SysEx manufacturer", proto_sysex, FT_UINT24, BASE_HEX);
+    sysex_manufacturer_dissector_table = register_dissector_table("midi.sysex.manufacturer",
+        "MIDI SysEx manufacturer", proto_midi_sysex, FT_UINT24, BASE_HEX);
 
-    register_dissector("sysex", dissect_sysex_command, proto_sysex);
+    register_dissector("midi_sysex", dissect_midi_sysex_message, proto_midi_sysex);
 }
 
 void
-proto_reg_handoff_sysex(void)
+proto_reg_handoff_midi_sysex(void)
 {
-    sysex_digitech_handle = find_dissector_add_dependency("sysex_digitech", proto_sysex);
+    sysex_digitech_handle = find_dissector_add_dependency("midi_sysex_digitech", proto_midi_sysex);
 }
 
 /*

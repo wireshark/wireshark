@@ -428,7 +428,7 @@ static int ett_wvalue;
 static int ett_windex;
 static int ett_parameter_block;
 
-static dissector_handle_t sysex_handle;
+static dissector_handle_t midi_sysex_handle;
 static dissector_handle_t usb_audio_bulk_handle;
 static dissector_handle_t usb_audio_descr_handle;
 static dissector_handle_t usb_audio_control_handle;
@@ -1051,7 +1051,7 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
 
             if (new_tvb)
             {
-                call_dissector(sysex_handle, new_tvb, pinfo, parent_tree);
+                call_dissector(midi_sysex_handle, new_tvb, pinfo, parent_tree);
             }
         }
     }
@@ -4104,7 +4104,7 @@ proto_reg_handoff_usb_audio(void)
     dissector_add_uint("usb.bulk", IF_CLASS_AUDIO, usb_audio_bulk_handle);
     dissector_add_uint("usb.control", IF_CLASS_AUDIO, usb_audio_control_handle);
 
-    sysex_handle = find_dissector_add_dependency("sysex", proto_usb_audio);
+    midi_sysex_handle = find_dissector_add_dependency("midi_sysex", proto_usb_audio);
 }
 /*
  * Editor modelines

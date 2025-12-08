@@ -16,10 +16,10 @@
 
 #include <packet-midi-sysex-id.h>
 
-void proto_register_sysex_digitech(void);
+void proto_register_midi_sysex_digitech(void);
 
 /* protocols and header fields */
-static int proto_sysex_digitech;
+static int proto_midi_sysex_digitech;
 static int hf_digitech_device_id;
 static int hf_digitech_family_id;
 static int hf_digitech_rp_product_id;
@@ -77,7 +77,7 @@ static int hf_digitech_nack_request_proc_id;
 static int hf_digitech_checksum;
 static int hf_digitech_checksum_status;
 
-static int ett_sysex_digitech;
+static int ett_midi_sysex_digitech;
 
 static expert_field ei_digitech_checksum_bad;
 static expert_field ei_digitech_undecoded;
@@ -86,7 +86,7 @@ typedef struct _digitech_conv_data_t {
     int protocol_version;
 } digitech_conv_data_t;
 
-static dissector_handle_t sysex_digitech_handle;
+static dissector_handle_t midi_sysex_digitech_handle;
 
 #define DIGITECH_FAMILY_X_FLOOR  0x5C
 #define DIGITECH_FAMILY_JAMMAN   0x5D
@@ -939,7 +939,7 @@ dissect_digitech_procedure(uint8_t procedure, const int offset,
     digitech_conv_data_t *conv_data;
 
     conversation = find_or_create_conversation(pinfo);
-    conv_data = (digitech_conv_data_t *)conversation_get_proto_data(conversation, proto_sysex_digitech);
+    conv_data = (digitech_conv_data_t *)conversation_get_proto_data(conversation, proto_midi_sysex_digitech);
 
     if (conv_data == NULL)
     {
@@ -1083,7 +1083,7 @@ dissect_digitech_procedure(uint8_t procedure, const int offset,
 }
 
 static int
-dissect_sysex_digitech_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
+dissect_midi_sysex_digitech_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
     int offset = 0;
     uint8_t procedure_id;
@@ -1097,8 +1097,8 @@ dissect_sysex_digitech_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "X MIDI");
     col_set_str(pinfo->cinfo, COL_INFO, "DigiTech X MIDI SysEx");
 
-    ti = proto_tree_add_protocol_format(parent_tree, proto_sysex_digitech, tvb, 0, -1, "DigiTech X MIDI SysEx");
-    tree = proto_item_add_subtree(ti, ett_sysex_digitech);
+    ti = proto_tree_add_protocol_format(parent_tree, proto_midi_sysex_digitech, tvb, 0, -1, "DigiTech X MIDI SysEx");
+    tree = proto_item_add_subtree(ti, ett_midi_sysex_digitech);
 
     proto_tree_add_item(tree, hf_digitech_device_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -1136,192 +1136,192 @@ dissect_sysex_digitech_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 }
 
 void
-proto_register_sysex_digitech(void)
+proto_register_midi_sysex_digitech(void)
 {
     static hf_register_info hf[] = {
         /* DigiTech manufacturer-specific fields */
         { &hf_digitech_device_id,
-            { "Device ID", "sysex_digitech.device_id", FT_UINT8, BASE_HEX,
+            { "Device ID", "midi.sysex.digitech.device_id", FT_UINT8, BASE_HEX,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_family_id,
-            { "Family ID", "sysex_digitech.family_id", FT_UINT8, BASE_HEX,
+            { "Family ID", "midi.sysex.digitech.family_id", FT_UINT8, BASE_HEX,
               VALS(digitech_family_id), 0, NULL, HFILL }},
         { &hf_digitech_unknown_product_id,
-            { "Product ID", "sysex_digitech.product_id", FT_UINT8, BASE_HEX,
+            { "Product ID", "midi.sysex.digitech.product_id", FT_UINT8, BASE_HEX,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_rp_product_id,
-            { "Product ID", "sysex_digitech.product_id", FT_UINT8, BASE_HEX,
+            { "Product ID", "midi.sysex.digitech.product_id", FT_UINT8, BASE_HEX,
               VALS(digitech_rp_product_id), 0, NULL, HFILL }},
         { &hf_digitech_procedure_id,
-            { "Procedure ID", "sysex_digitech.procedure_id", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+            { "Procedure ID", "midi.sysex.digitech.procedure_id", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
               &digitech_procedures_ext, 0, NULL, HFILL }},
 
         { &hf_digitech_desired_device_id,
-            { "Desired Device ID", "sysex_digitech.desired_device_id", FT_UINT8, BASE_HEX,
+            { "Desired Device ID", "midi.sysex.digitech.desired_device_id", FT_UINT8, BASE_HEX,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_desired_family_id,
-            { "Desired Family ID", "sysex_digitech.desired_family_id", FT_UINT8, BASE_HEX,
+            { "Desired Family ID", "midi.sysex.digitech.desired_family_id", FT_UINT8, BASE_HEX,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_desired_product_id,
-            { "Desired Product ID", "sysex_digitech.desired_product_id", FT_UINT8, BASE_HEX,
+            { "Desired Product ID", "midi.sysex.digitech.desired_product_id", FT_UINT8, BASE_HEX,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_received_device_id,
-            { "Device ID", "sysex_digitech.received_device_id", FT_UINT8, BASE_HEX,
+            { "Device ID", "midi.sysex.digitech.received_device_id", FT_UINT8, BASE_HEX,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_os_mode,
-            { "OS Mode", "sysex_digitech.os_mode", FT_UINT8, BASE_HEX,
+            { "OS Mode", "midi.sysex.digitech.os_mode", FT_UINT8, BASE_HEX,
               VALS(digitech_os_modes), 0, "DigiTech OS Mode", HFILL }},
 
         { &hf_digitech_preset_bank,
-            { "Preset Bank", "sysex_digitech.preset_bank", FT_UINT8, BASE_HEX,
+            { "Preset Bank", "midi.sysex.digitech.preset_bank", FT_UINT8, BASE_HEX,
               VALS(digitech_preset_banks), 0, NULL, HFILL }},
         { &hf_digitech_preset_index,
-            { "Preset Index", "sysex_digitech.preset_index", FT_UINT8, BASE_HEX,
+            { "Preset Index", "midi.sysex.digitech.preset_index", FT_UINT8, BASE_HEX,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_preset_count,
-            { "Preset Count", "sysex_digitech.preset_count", FT_UINT8, BASE_DEC,
+            { "Preset Count", "midi.sysex.digitech.preset_count", FT_UINT8, BASE_DEC,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_preset_name,
-            { "Preset Name", "sysex_digitech.preset_name", FT_STRING, BASE_NONE,
+            { "Preset Name", "midi.sysex.digitech.preset_name", FT_STRING, BASE_NONE,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_preset_modified,
-            { "Preset Modified", "sysex_digitech.preset_modified", FT_BOOLEAN, BASE_NONE,
+            { "Preset Modified", "midi.sysex.digitech.preset_modified", FT_BOOLEAN, BASE_NONE,
               TFS(&tfs_yes_no), 0, "Modified flag (0 = unmodified)", HFILL }},
 
         { &hf_digitech_message_count,
-            { "Messages to follow", "sysex_digitech.message_count", FT_UINT8, BASE_DEC,
+            { "Messages to follow", "midi.sysex.digitech.message_count", FT_UINT8, BASE_DEC,
               NULL, 0, "Number of messages to follow", HFILL }},
 
         { &hf_digitech_parameter_count,
-            { "Parameter Count", "sysex_digitech.parameter_count", FT_UINT16, BASE_DEC,
+            { "Parameter Count", "midi.sysex.digitech.parameter_count", FT_UINT16, BASE_DEC,
               NULL, 0, NULL, HFILL }},
 
         { &hf_digitech_parameter_id,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_global,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_global), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_pickup,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_pickup), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_wah,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_wah), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_compressor,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_compressor), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_gnx3k_whammy,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
               &digitech_parameter_ids_gnx3k_whammy_ext, 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_distortion,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
               &digitech_parameter_ids_distortion_ext, 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_amp_channel,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_amp_channel), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_amp,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
               &digitech_parameter_ids_amp_ext, 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_amp_cabinet,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_amp_cabinet), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_amp_b,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_amp_b), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_amp_cabinet_b,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_amp_cabinet_b), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_noisegate,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_noisegate), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_volume_pre_fx,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_volume_pre_fx), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_chorusfx,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
               &digitech_parameter_ids_chorusfx_ext, 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_delay,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
               &digitech_parameter_ids_delay_ext, 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_reverb,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_reverb), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_volume_post_fx,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_volume_post_fx), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_preset,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_preset), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_wah_min_max,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_wah_min_max), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_equalizer,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_equalizer), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_equalizer_b,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_equalizer_b), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_amp_loop,
-            { "Parameter ID", "sysex_digitech.parameter_id", FT_UINT16, BASE_DEC,
+            { "Parameter ID", "midi.sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_amp_loop), 0, NULL, HFILL }},
 
 
         { &hf_digitech_parameter_position,
-            { "Parameter position", "sysex_digitech.parameter_position", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+            { "Parameter position", "midi.sysex.digitech.parameter_position", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
               &digitech_parameter_positions_ext, 0, NULL, HFILL }},
         { &hf_digitech_parameter_data,
-            { "Parameter data", "sysex_digitech.parameter_data", FT_UINT8, BASE_DEC,
+            { "Parameter data", "midi.sysex.digitech.parameter_data", FT_UINT8, BASE_DEC,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_parameter_data_count,
-            { "Parameter value count", "sysex_digitech.parameter_value_count", FT_UINT8, BASE_DEC,
+            { "Parameter value count", "midi.sysex.digitech.parameter_value_count", FT_UINT8, BASE_DEC,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_parameter_data_two_byte_count,
-            { "Parameter data count", "sysex_digitech.parameter_data_count", FT_UINT24, BASE_DEC,
+            { "Parameter data count", "midi.sysex.digitech.parameter_data_count", FT_UINT24, BASE_DEC,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_parameter_multibyte_data,
-            { "Parameter data", "sysex_digitech.parameter_multibyte_data", FT_BYTES, BASE_NONE,
+            { "Parameter data", "midi.sysex.digitech.parameter_multibyte_data", FT_BYTES, BASE_NONE,
               NULL, 0, NULL, HFILL }},
 
         { &hf_digitech_ack_request_proc_id,
-            { "Requesting Procedure ID", "sysex_digitech.ack.procedure_id", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+            { "Requesting Procedure ID", "midi.sysex.digitech.ack.procedure_id", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
               &digitech_procedures_ext, 0, "Procedure ID of the request being ACKed", HFILL }},
         { &hf_digitech_nack_request_proc_id,
-            { "Requesting Procedure ID", "sysex_digitech.ack.procedure_id", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+            { "Requesting Procedure ID", "midi.sysex.digitech.ack.procedure_id", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
               &digitech_procedures_ext, 0, "Procedure ID of the request being NACKed", HFILL }},
 
         { &hf_digitech_checksum,
-            { "Checksum", "sysex_digitech.checksum", FT_UINT8, BASE_HEX,
+            { "Checksum", "midi.sysex.digitech.checksum", FT_UINT8, BASE_HEX,
               NULL, 0, NULL, HFILL }},
         { &hf_digitech_checksum_status,
-            { "Checksum Status", "sysex_digitech.checksum.status", FT_UINT8, BASE_NONE,
+            { "Checksum Status", "midi.sysex.digitech.checksum.status", FT_UINT8, BASE_NONE,
               VALS(proto_checksum_vals), 0, NULL, HFILL }},
     };
 
     static int *ett[] = {
-        &ett_sysex_digitech
+        &ett_midi_sysex_digitech
     };
 
     static ei_register_info ei[] = {
-        { &ei_digitech_checksum_bad, { "sysex_digitech.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
-        { &ei_digitech_undecoded, { "sysex_digitech.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
+        { &ei_digitech_checksum_bad, { "midi.sysex.digitech.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
+        { &ei_digitech_undecoded, { "midi.sysex.digitech.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
     };
 
-    expert_module_t* expert_sysex_digitech;
+    expert_module_t* expert_midi_sysex_digitech;
 
-    proto_sysex_digitech = proto_register_protocol("MIDI System Exclusive DigiTech", "SYSEX DigiTech", "sysex_digitech");
-    proto_register_field_array(proto_sysex_digitech, hf, array_length(hf));
+    proto_midi_sysex_digitech = proto_register_protocol("MIDI System Exclusive DigiTech", "SysEx DigiTech", "midi.sysex.digitech");
+    proto_register_field_array(proto_midi_sysex_digitech, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    expert_sysex_digitech = expert_register_protocol(proto_sysex_digitech);
-    expert_register_field_array(expert_sysex_digitech, ei, array_length(ei));
+    expert_midi_sysex_digitech = expert_register_protocol(proto_midi_sysex_digitech);
+    expert_register_field_array(expert_midi_sysex_digitech, ei, array_length(ei));
 
-    sysex_digitech_handle = register_dissector("sysex_digitech", dissect_sysex_digitech_command, proto_sysex_digitech);
+    midi_sysex_digitech_handle = register_dissector("midi_sysex_digitech", dissect_midi_sysex_digitech_command, proto_midi_sysex_digitech);
 }
 
 void
-proto_reg_handoff_sysex_digitech(void)
+proto_reg_handoff_midi_sysex_digitech(void)
 {
-    dissector_add_uint("sysex.manufacturer", MIDI_SYSEX_ID_DOD_ELECTRONICS_CORP, sysex_digitech_handle);
+    dissector_add_uint("midi.sysex.manufacturer", MIDI_SYSEX_ID_DOD_ELECTRONICS_CORP, midi_sysex_digitech_handle);
 }
 
 /*
