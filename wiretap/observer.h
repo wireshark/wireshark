@@ -105,8 +105,6 @@ typedef struct tlv_header
 /*                                          0x0106 */
 
 typedef struct tlv_time_info {
-    uint16_t type;
-    uint16_t length;
     uint32_t time_format;
 } tlv_time_info;
 
