@@ -1805,19 +1805,31 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
         comment = NULL;
         callsinfo = NULL;
-        list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+        /* Start with the most recent calls and search backwards. */
+        list = g_queue_peek_tail_link(tapinfo->callsinfos);
         while (list)
         {
             tmp_listinfo=(voip_calls_info_t *)list->data;
             if ( tmp_listinfo->protocol == VOIP_AC_ISDN ) {
                 tmp_actrace_isdn_info = (actrace_isdn_calls_info_t *)tmp_listinfo->prot_info;
-                /* TODO: Also check the IP of the Blade, and if the call is complete (no active) */
+                /* TODO: Also check the IP of the Blade */
                 if ( (tmp_actrace_isdn_info->crv == tapinfo->q931_crv) && (tmp_actrace_isdn_info->trunk == tapinfo->actrace_trunk) ) {
-                    callsinfo = (voip_calls_info_t*)(list->data);
+                    /* If the most recent call with this CRV is active,
+                     * or this is a call ending, use that call. Else,
+                     * this is a new call. */
+                    if ((tmp_listinfo->call_state != VOIP_COMPLETED &&
+                         tmp_listinfo->call_state != VOIP_CANCELLED &&
+                         tmp_listinfo->call_state != VOIP_REJECTED) ||
+                        (pi->message_type == Q931_DISCONNECT ||
+                         pi->message_type == Q931_RELEASE ||
+                         pi->message_type == Q931_RELEASE_COMPLETE)) {
+
+                        callsinfo = (voip_calls_info_t*)(list->data);
+                    }
                     break;
                 }
             }
-            list = g_list_next (list);
+            list = list->prev;
         }
 
         set_address(&pstn_add, AT_STRINGZ, 5, g_strdup("PSTN"));
