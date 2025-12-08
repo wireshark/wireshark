@@ -165,7 +165,6 @@ dissect_nmf_record(tvbuff_t *tvb, packet_info *pinfo,
 	uint32_t size = 0;
 	const uint8_t *str = NULL;
 	tvbuff_t *payload_tvb = NULL;
-	tvbuff_t *xml_tvb = NULL;
 
 	record_item = proto_tree_add_item(tree, hf_nmf_record, tvb, offset, -1, ENC_NA);
 	proto_item_append_text(record_item, ", start_offset=0x%x, ", (unsigned)offset);
@@ -234,6 +233,7 @@ dissect_nmf_record(tvbuff_t *tvb, packet_info *pinfo,
 				       size, plurality(size, "", "s"));
 		proto_tree_add_format_text(record_tree, payload_tvb, 0, size);
 #if 0
+		tvbuff_t *xml_tvb = NULL;
 		if (0) {
 			/* TODO:
 			 *
@@ -249,11 +249,11 @@ dissect_nmf_record(tvbuff_t *tvb, packet_info *pinfo,
 				xml_tvb = NULL;
 			}
 		}
-#endif
 		if (xml_tvb != NULL) {
 			call_dissector_with_data(xml_handle, xml_tvb, pinfo,
 					         record_tree, NULL);
 		}
+#endif
 		break;
 	case NMF_END_RECORD:
 		/* TODO */
