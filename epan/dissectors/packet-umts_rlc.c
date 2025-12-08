@@ -254,10 +254,10 @@ struct rlc_channel {
 
 /* used for duplicate detection */
 struct rlc_seq {
-    uint32_t frame_num;
     nstime_t arrival;
+    uint32_t frame_num;
     uint16_t seq;
-    uint16_t oc;        /* overflow counter, this is not used? */
+    /* uint16_t oc; */     /* overflow counter, this is not used? */
 };
 
 struct rlc_seqlist {
@@ -1312,9 +1312,9 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, uint16_t seq,
     }
     if(is_unseen) {
         /* Add to list for the first time this frame is checked */
+        seq_item.arrival = pinfo->abs_ts; /* Initialize first to please Coverity */
         seq_new = wmem_new0(wmem_file_scope(), struct rlc_seq);
         *seq_new = seq_item;
-        seq_new->arrival = pinfo->abs_ts;
         list->list = g_list_append(list->list, seq_new); /* insert in order of arrival */
     }
     return is_duplicate;
