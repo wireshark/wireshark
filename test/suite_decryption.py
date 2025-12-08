@@ -281,61 +281,61 @@ class TestDecrypt80211:
         assert count_output(stdout, r'ICMP.*Echo \(ping\)') == 4
 
 class TestDecrypt80211UserTk:
-    def test_80211_user_tk_tkip(self, cmd_tshark, capture_file, test_env):
+    def test_80211_user_tk_tkip(self, cmd_tshark, capture_file, test_env_80211_user_tk):
         '''IEEE 802.11 decode TKIP using user TK'''
         # Included in git sources test/captures/wpa1-gtk-rekey.pcapng.gz
         stdout = subprocess.check_output((cmd_tshark,
                 '-o', 'wlan.enable_decryption: TRUE',
                 '-r', capture_file('wpa1-gtk-rekey.pcapng.gz'),
                 '-Y', 'wlan.analysis.tk == "d0e57d224c1bb8806089d8c23154074c" || wlan.analysis.gtk == "6eaf63f4ad7997ced353723de3029f4d" || wlan.analysis.gtk == "fb42811bcb59b7845376246454fbdab7"',
-                ), encoding='utf-8', env=test_env)
+                ), encoding='utf-8', env=test_env_80211_user_tk)
         assert grep_output(stdout, 'DHCP Discover')
         assert count_output(stdout, 'ICMP.*Echo .ping') == 8
 
-    def test_80211_user_tk_ccmp(self, cmd_tshark, capture_file, features, test_env):
+    def test_80211_user_tk_ccmp(self, cmd_tshark, capture_file, features, test_env_80211_user_tk):
         '''IEEE 802.11 decode CCMP-128 using user TK'''
         # Included in git sources test/captures/wpa2-psk-mfp.pcapng.gz
         stdout = subprocess.check_output((cmd_tshark,
                 '-o', 'wlan.enable_decryption: TRUE',
                 '-r', capture_file('wpa2-psk-mfp.pcapng.gz'),
                 '-Y', 'wlan.analysis.tk == 4e30e8c019bea43ea5262b10853b818d || wlan.analysis.gtk == 70cdbf2e5bc0ca22e53930818a5d80e4',
-                ), encoding='utf-8', env=test_env)
+                ), encoding='utf-8', env=test_env_80211_user_tk)
         assert grep_output(stdout, 'Who has 192.168.5.5')   # Verifies GTK decryption
         assert grep_output(stdout, 'DHCP Request')          # Verifies TK decryption
         assert grep_output(stdout, r'Echo \(ping\) request') # Verifies TK decryption
 
-    def test_80211_user_tk_ccmp_256(self, cmd_tshark, capture_file, features, test_env):
+    def test_80211_user_tk_ccmp_256(self, cmd_tshark, capture_file, features, test_env_80211_user_tk):
         '''IEEE 802.11 decode CCMP-256 using user TK'''
         # Included in git sources test/captures/wpa-ccmp-256.pcapng.gz
         stdout = subprocess.check_output((cmd_tshark,
                 '-o', 'wlan.enable_decryption: TRUE',
                 '-r', capture_file('wpa-ccmp-256.pcapng.gz'),
                 '-Y', 'wlan.analysis.tk == 4e6abbcf9dc0943936700b6825952218f58a47dfdf51dbb8ce9b02fd7d2d9e40 || wlan.analysis.gtk == 502085ca205e668f7e7c61cdf4f731336bb31e4f5b28ec91860174192e9b2190',
-                ), encoding='utf-8', env=test_env)
+                ), encoding='utf-8', env=test_env_80211_user_tk)
         assert grep_output(stdout, 'Who has 192.168.5.5') # Verifies GTK decryption
         assert grep_output(stdout, 'DHCP Request')        # Verifies TK decryption
         assert grep_output(stdout, r'Echo \(ping\) request') # Verifies TK decryption
 
-    def test_80211_user_tk_gcmp(self, cmd_tshark, capture_file, features, test_env):
+    def test_80211_user_tk_gcmp(self, cmd_tshark, capture_file, features, test_env_80211_user_tk):
         '''IEEE 802.11 decode GCMP using user TK'''
         # Included in git sources test/captures/wpa-gcmp.pcapng.gz
         stdout = subprocess.check_output((cmd_tshark,
                 '-o', 'wlan.enable_decryption: TRUE',
                 '-r', capture_file('wpa-gcmp.pcapng.gz'),
                 '-Y', 'wlan.analysis.tk == 755a9c1c9e605d5ff62849e4a17a935c || wlan.analysis.gtk == 7ff30f7a8dd67950eaaf2f20a869a62d',
-                ), encoding='utf-8', env=test_env)
+                ), encoding='utf-8', env=test_env_80211_user_tk)
         assert grep_output(stdout, 'Who has 192.168.5.5') # Verifies GTK decryption
         assert grep_output(stdout, 'DHCP Request')        # Verifies TK decryption
         assert grep_output(stdout, r'Echo \(ping\) request') # Verifies TK decryption
 
-    def test_80211_wpa_gcmp_256(self, cmd_tshark, capture_file, features, test_env):
+    def test_80211_wpa_gcmp_256(self, cmd_tshark, capture_file, features, test_env_80211_user_tk):
         '''IEEE 802.11 decode GCMP-256 using user TK'''
         # Included in git sources test/captures/wpa-gcmp-256.pcapng.gz
         stdout = subprocess.check_output((cmd_tshark,
                 '-o', 'wlan.enable_decryption: TRUE',
                 '-r', capture_file('wpa-gcmp-256.pcapng.gz'),
                 '-Y', 'wlan.analysis.tk == b3dc2ff2d88d0d34c1ddc421cea17f304af3c46acbbe7b6d808b6ebf1b98ec38 || wlan.analysis.gtk == a745ee2313f86515a155c4cb044bc148ae234b9c72707f772b69c2fede3e4016',
-                ), encoding='utf-8', env=test_env)
+                ), encoding='utf-8', env=test_env_80211_user_tk)
         assert grep_output(stdout, 'Who has 192.168.5.5') # Verifies GTK decryption
         assert grep_output(stdout, 'DHCP Request')        # Verifies TK decryption
         assert grep_output(stdout, r'Echo \(ping\) request') # Verifies TK decryption
