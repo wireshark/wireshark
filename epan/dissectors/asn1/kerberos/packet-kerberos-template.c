@@ -4062,7 +4062,7 @@ dissect_krb5_PAC_DREP(proto_tree *parent_tree, tvbuff_t *tvb, int offset, uint8_
 
 /* This might be some sort of header that MIDL generates when creating
  * marshalling/unmarshalling code for blobs that are not to be transported
- * ontop of DCERPC and where the DREP fields specifying things such as
+ * on top of DCERPC and where the DREP fields specifying things such as
  * endianness and similar are not available.
  */
 static int
@@ -4072,7 +4072,7 @@ dissect_krb5_PAC_NDRHEADERBLOB(proto_tree *parent_tree, tvbuff_t *tvb, int offse
 
 	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 16, ett_krb_pac_midl_blob, NULL, "MES header");
 
-	/* modified DREP field that is used for stuff that is transported ontop
+	/* modified DREP field that is used for stuff that is transported on top
 	   of non dcerpc
 	*/
 	proto_tree_add_item(tree, hf_krb_midl_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);

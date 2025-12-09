@@ -6078,7 +6078,7 @@ dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 {
   uint64_t    qword;
 
-  /* check if we atleast have the 8 byte header */
+  /* check if we at least have the 8 byte header */
   if (tvb_captured_length(tvb) < 8)
     return false;
 

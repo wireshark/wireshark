@@ -233,7 +233,7 @@ static dissector_handle_t cldap_handle;
 static void prefs_register_ldap(void); /* forward declaration for use in preferences registration */
 
 
-/* different types of rpc calls ontop of ms cldap */
+/* different types of rpc calls on top of ms cldap */
 #define MSCLDAP_RPC_NETLOGON  1
 
 /* Message type Choice values */

@@ -1868,7 +1868,7 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset,
 
 /* This might be some sort of header that MIDL generates when creating
  * marshalling/unmarshalling code for blobs that are not to be transported
- * ontop of DCERPC and where the DREP fields specifying things such as
+ * on top of DCERPC and where the DREP fields specifying things such as
  * endianness and similar are not available.
  */
 int
@@ -1879,7 +1879,7 @@ nt_dissect_MIDL_NDRHEADERBLOB(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 
 	tree=proto_tree_add_subtree(parent_tree, tvb, offset, 16, ett_nt_MIDL_BLOB, NULL, "MES header");
 
-	/* modified DREP field that is used for stuff that is transported ontop
+	/* modified DREP field that is used for stuff that is transported on top
 	 * of non dcerpc
 	 */
 	proto_tree_add_item(tree, hf_nt_midl_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);

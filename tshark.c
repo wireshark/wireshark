@@ -2914,7 +2914,7 @@ main(int argc, char *argv[])
 
     if (opt_print_timers) {
         if (cf_name == NULL) {
-            /* We're doind a live capture. That isn't currently supported
+            /* We're doing a live capture. That isn't currently supported
              * with timers. */
             ws_message("Ignoring option --print-timers because we are doing a live capture");
         }

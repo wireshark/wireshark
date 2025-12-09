@@ -181,7 +181,7 @@ typedef enum
   CMDMFG_TESTWDT,               /* 25 - Test watchdog */
   CMDMFG_QUERYCKSUM,            /* 26 - Query NVRAM checksum value */
   CMDMFG_VALIDATECHECKSUMS,     /* 27 - Validate checksums */
-  CMDMFG_REBUILDLRUCACHE,       /* 28 - Rebuild LRC cache */
+  CMDMFG_REBUILDLRUCACHE,       /* 28 - Rebuild LRU cache */
   CMDMFG_TZUPDATE,              /* 29 - Send TZCHANGE to tod.c */
   CMDMFG_TESTPRESERVE,          /* 30 - Test preserve save/restore code */
   CMDMFG_MORTISESTATELOGDUMP,   /* 31 - Dump the mortise state log */
@@ -1866,7 +1866,7 @@ mortiseEvent_e;
  */
 static const value_string r3_accessmodenames [] =
 {
-  { ACCESSMODE_NONE,            "ACCESMODE_NONE" },
+  { ACCESSMODE_NONE,            "ACCESSMODE_NONE" },
   { ACCESSMODE_PRIMARYONLY,     "ACCESSMODE_PRIMARYONLY" },
   { ACCESSMODE_PRIMARYORAUX,    "ACCESSMODE_PRIMARYORAUX" },
   { ACCESSMODE_PRIMARYANDAUX,   "ACCESSMODE_PRIMARYANDAUX" },
@@ -2269,8 +2269,8 @@ static value_string_ext r3_dispositionnames_ext = VALUE_STRING_EXT_INIT(r3_dispo
 
 static const value_string r3_deleteusersnames [] =
 {
-  { DELETEUSERS_ALL,    "DELETEUSER_ALL" },
-  { DELETEUSERS_CACHED, "DELETEUSER_CACHED" },
+  { DELETEUSERS_ALL,    "DELETEUSERS_ALL" },
+  { DELETEUSERS_CACHED, "DELETEUSERS_CACHED" },
   { 0,                  NULL }
 };
 static value_string_ext r3_deleteusersnames_ext = VALUE_STRING_EXT_INIT(r3_deleteusersnames);

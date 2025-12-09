@@ -1671,7 +1671,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
          * somewhere in the middle of a segment.
          */
         if(!pinfo->fd->visited){
-            /* 'Only' SMB is transported ontop of this  so make sure
+            /* 'Only' SMB is transported on top of this, so make sure
              * there is an SMB header there ...
              */
             if( ((int)plen>tvb_reported_length_remaining(tvb, offset))

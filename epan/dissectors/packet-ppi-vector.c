@@ -934,7 +934,7 @@ dissect_ppi_vector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
     /* initialize remaining length */
     length_remaining = length;
-    /* minimum length check, should atleast be a fixed-size geotagging-base header*/
+    /* minimum length check, should at least be a fixed-size geotagging-base header*/
     if (length_remaining < PPI_GEOBASE_MIN_HEADER_LEN) {
         /*
          * Base-geotag-header (Radiotap lookalike) is shorter than the fixed-length portion

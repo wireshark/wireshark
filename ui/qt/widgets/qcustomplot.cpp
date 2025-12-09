@@ -12199,7 +12199,7 @@ void QCPItemAnchor::removeChildY(QCPItemPosition *pos)
   A QCPItemPosition may have a parent QCPItemAnchor, see \ref setParentAnchor. This way you can tie
   multiple items together. If the QCPItemPosition has a parent, its coordinates (\ref setCoords)
   are considered to be absolute pixels in the reference frame of the parent anchor, where (0, 0)
-  means directly ontop of the parent anchor. For example, You could attach the \a start position of
+  means directly on top of the parent anchor. For example, You could attach the \a start position of
   a QCPItemLine to the \a bottom anchor of a QCPItemText to make the starting point of the line
   always be centered under the text label, no matter where the text is moved to. For more advanced
   plots, it is possible to assign different parent anchors per X/Y coordinate of the position, see

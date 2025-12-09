@@ -164,7 +164,7 @@ static expert_field ei_osd2_query_values_equal;
 #define PAGE_NUMBER_ROOT            0x90000000
 
 
-/* There will be one such structure create for each conversation ontop of which
+/* There will be one such structure created for each conversation on top of which
  * there is an OSD session
  */
 typedef struct _scsi_osd_conv_info_t {

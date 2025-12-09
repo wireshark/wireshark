@@ -1715,7 +1715,7 @@ static bool is_get_device_descriptor(uint8_t setup[8])
            (setup[2] == 0x00) && /* Descriptor Index */
            (setup[3] == 0x01) && /* DEVICE descriptor */
            (lang_id == 0x00) && /* no language specified */
-           (length >= 8); /* atleast 8 bytes needed to get bMaxPacketSize0 */
+           (length >= 8); /* at least 8 bytes needed to get bMaxPacketSize0 */
 }
 
 static bool is_set_address(uint8_t setup[8])

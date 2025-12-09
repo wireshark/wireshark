@@ -400,11 +400,11 @@ tvb_new_octet_aligned(tvbuff_t *tvb, uint32_t bit_offset, int32_t no_of_bits)
 
 	DISSECTOR_ASSERT(datalen>0);
 
-	/* if at least one trailing byte is available, we must use the content
-	* of that byte for the last shift (i.e. tvb_get_ptr() must use datalen + 1
-	* if non extra byte is available, the last shifted byte requires
-	* special treatment
-	*/
+	/* If at least one trailing byte is available, we must use the content
+	 * of that byte for the last shift (i.e. tvb_get_ptr() must use datalen + 1).
+	 * If no extra byte is available, the last shifted byte requires
+	 * special treatment.
+	 */
 	if (_tvb_captured_length_remaining(tvb, byte_offset) > datalen) {
 		data = ensure_contiguous(tvb, byte_offset, datalen + 1); /* tvb_get_ptr */
 

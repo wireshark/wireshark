@@ -3083,7 +3083,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 
 	/* can_desegment is set to 2 by anyone which offers this api/service.
 	   then every time a subdissector is called it is decremented by one.
-	   thus only the subdissector immediately ontop of whoever offers this
+	   thus only the subdissector immediately on top of whoever offers this
 	   service can use it.
 	   We save the current value of "can_desegment" for the
 	   benefit of TCP proxying dissectors such as SOCKS, so they
@@ -3736,7 +3736,7 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 
 	/* can_desegment is set to 2 by anyone which offers this api/service.
 	   then every time a subdissector is called it is decremented by one.
-	   thus only the subdissector immediately ontop of whoever offers this
+	   thus only the subdissector immediately on top of whoever offers this
 	   service can use it.
 	   We save the current value of "can_desegment" for the
 	   benefit of TCP proxying dissectors such as SOCKS, so they
