@@ -202,6 +202,9 @@ class CompError(Exception):
         return self.msg
     __str__ = __repr__
 
+class PedanticWarning(UserWarning):
+    "A warning we ignore when quiet (-q)"
+    pass
 
 states = (
   ('braceignore','exclusive'),
@@ -2334,9 +2337,24 @@ class EthCnf:
 
     def add_item(self, table, key, fn, lineno, **kw):
         if self.tblcfg[table]['chk_dup'] and key in self.table[table]:
-            warnings.warn_explicit("Duplicated %s for %s. Previous one is at %s:%d" %
-                                   (table, key, self.table[table][key]['fn'], self.table[table][key]['lineno']),
-                                   UserWarning, fn, lineno)
+            # A duplicate declaration that is identical (except for the
+            # location where it is declared) is harmless; e.g., a module
+            # given its protocol name with .MODULE in its own cnf file
+            # and also in another cnf file with .MODULE_IMPORT.
+            # Redundant directives could be removed, but we don't need
+            # to warn in quiet mode.
+            filtered_kw = {k: v for k, v in self.table[table][key].items() if k not in ('fn', 'lineno', 'used')}
+            if filtered_kw != kw:
+                warning_type = UserWarning
+                clause = " with different parameters!"
+            else:
+                warning_type = PedanticWarning
+                clause = "."
+            warnings.warn_explicit("Duplicated %s for %s%s Previous one is at %s:%d" %
+                                   (table, key, clause,
+                                    self.table[table][key]['fn'],
+                                    self.table[table][key]['lineno']),
+                                    warning_type, fn, lineno)
             return
         self.table[table][key] = {'fn' : fn, 'lineno' : lineno, 'used' : False}
         self.table[table][key].update(kw)
@@ -8419,6 +8437,8 @@ def asn2wrs_main():
 
     if not quiet:
         print("ASN.1 to Wireshark dissector compiler")
+    else:
+        warnings.filterwarnings("ignore", category=PedanticWarning)
 
     if conf_to_read:
         ectx.conform.read(conf_to_read)
