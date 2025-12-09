@@ -40,4 +40,8 @@ set( EXTRA_CNF
 	"${CMAKE_CURRENT_BINARY_DIR}/../x509if/x509if-exp.cnf"
 )
 
+set( EXPORT_DEPENDS
+	"${CMAKE_CURRENT_BINARY_DIR}/../x509if/x509if-exp.cnf"
+)
+
 ASN2WRS()
