@@ -176,7 +176,7 @@ ORName
 #.CLASS EXTENSION
 &id			TypeReference ExtensionType
 &Type
-&absent			_VariableTypeValueSetFieldSpec
+&absent			_VariableTypeValueFieldSpec
 &recommended		TypeReference Criticality
 #.END
 
