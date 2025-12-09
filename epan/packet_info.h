@@ -172,6 +172,7 @@ typedef struct _packet_info {
                                                             subscribing to an error packet follow-up.
                                                             Typically transport protocols such as UDP or TCP
                                                             are likely to be followed up by ICMP. */
+  const char *user_name;                               /**< Text user name */
 } packet_info;
 
 /** @} */

@@ -83,6 +83,7 @@ col_format_to_string(const int fmt) {
     "%YDOYut",                                  /* 45) COL_UTC_YDOY_TIME */
     "%Aut",                                     /* 46) COL_UTC_TIME */
     "%t",                                       /* 47) COL_CLS_TIME */
+    "%U",                                       /* 48) COL_USER_NAME */
   };
 
  /* Note the formats in migrated_columns[] below have been used in deprecated
@@ -154,6 +155,7 @@ col_format_desc(const int fmt_num) {
     { COL_UTC_YMD_TIME, "UTC date, as YYYY-MM-DD, and time" },
     { COL_UTC_YDOY_TIME, "UTC date, as YYYY/DOY, and time" },
     { COL_UTC_TIME, "UTC time" },
+    { COL_USER_NAME, "User name" },
 
     { 0, NULL }
   };
@@ -226,6 +228,7 @@ col_format_abbrev(const int fmt_num) {
     { COL_UTC_YMD_TIME, COLUMN_FIELD_FILTER"utc_ymc_time" },
     { COL_UTC_YDOY_TIME, COLUMN_FIELD_FILTER"utc_ydoy_time" },
     { COL_UTC_TIME, COLUMN_FIELD_FILTER"utc_time" },
+    { COL_USER_NAME, COLUMN_FIELD_FILTER"user_name" },
 
     { 0, NULL }
   };
@@ -241,7 +244,6 @@ struct deprecated_columns {
 };
 
 static struct deprecated_columns migrated_columns[] = {
-    { /* COL_COS_VALUE */ "%U", "vlan.priority" },
     { /* COL_CIRCUIT_ID */ "%c", "iax2.call" },
     { /* COL_BSSGP_TLLI */ "%l", "bssgp.tlli" },
     { /* COL_HPUX_SUBSYS */ "%H", "nettl.subsys" },
@@ -855,6 +857,8 @@ get_column_longest_string(const int format)
       return "ERROR";
     case COL_FREQ_CHAN:
       return "9999 MHz [A 999]";
+    case COL_USER_NAME:
+      return "example_user";
     case COL_CUSTOM:
       return "0000000000";  /* not the longest, but the longest is too long */
     default: /* COL_INFO */

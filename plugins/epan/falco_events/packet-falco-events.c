@@ -272,6 +272,25 @@ is_source_address_field(enum ftenum ftype, const char *abbrev) {
     return false;
 }
 
+// Returns true if the field is a text username.
+static bool
+is_plugin_user_name_field(const char *abbrev) {
+    const char *user_name_fields[] = {
+        "ct.user",
+        // "ct.request.username",  // Does this make more sense than ct.user?
+        "ka.user.name",
+        "gcp.user",
+        "okta.target.user.name",
+        "github.user",
+    };
+    for (size_t idx = 0; idx < array_length(user_name_fields); idx++) {
+        if (strcmp(abbrev, user_name_fields[idx]) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static bool
 is_filter_valid(packet_info *pinfo, void *cfi_ptr)
 {
@@ -1451,6 +1470,10 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
                 proto_item_set_hidden(ti);
             }
 
+            if (strcmp(hfinfo->abbrev, "user.name") == 0) {
+                pinfo->user_name = wmem_strdup(pinfo->pool, res_str);
+            }
+
             if (hfinfo->id == field_hf_id_proc_name) {
                 proc_name = res_str;
             } else if (hfinfo->id == field_hf_id_fd_name) {
@@ -1488,14 +1511,14 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
                         ws_in4_addr v4_addr;
                         memcpy(&v4_addr, sinsp_fields[sf_idx].res.bytes, 4);
                         proto_tree_add_ipv4(parent_tree, bi->hf_v4_ids[addr_fld_idx], tvb, 0, 0, v4_addr);
-                        set_address(&pinfo->net_src, AT_IPv4, sizeof(ws_in4_addr), &v4_addr);
+                        alloc_address_wmem(pinfo->pool, &pinfo->net_src, AT_IPv4, sizeof(ws_in4_addr), &v4_addr);
                         copy_address_shallow(&pinfo->src, &pinfo->net_src);
                         lookup = maxmind_db_lookup_ipv4(&v4_addr);
                     } else if (sinsp_fields[sf_idx].res_len == 16) {
                         ws_in6_addr v6_addr;
                         memcpy(&v6_addr, sinsp_fields[sf_idx].res.bytes, 16);
                         proto_tree_add_ipv6(parent_tree, bi->hf_v6_ids[addr_fld_idx], tvb, 0, 0, &v6_addr);
-                        set_address(&pinfo->net_src, AT_IPv6, sizeof(ws_in6_addr), &v6_addr);
+                        alloc_address_wmem(pinfo->pool, &pinfo->net_src, AT_IPv6, sizeof(ws_in6_addr), &v6_addr);
                         copy_address_shallow(&pinfo->src, &pinfo->net_src);
                         lookup = maxmind_db_lookup_ipv6(&v6_addr);
                     } else {
@@ -1712,6 +1735,8 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
                     cur_conv_els[1].type = CE_ADDRESS;
                     copy_address(&cur_conv_els[1].addr_val, &pinfo->net_src);
                 }
+            } else if (is_plugin_user_name_field(hfinfo->abbrev)) {
+                pinfo->user_name = wmem_strdup(pinfo->pool, sfe->res.str);
             } else {
                 if (cur_conv_filter) {
                     wmem_strbuf_append_printf(cur_conv_filter->strbuf, "\"%s\"", sfe->res.str);

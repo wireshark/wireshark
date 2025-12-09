@@ -21,6 +21,7 @@
 
 // To do:
 // - Add a preference for the maximum number of modules to display?
+// - Add a field that indicates whether or not the event writes data?
 
 #define PNAME  "MS Procmon Event"
 #define PSNAME "MS Procmon"
@@ -2589,6 +2590,7 @@ dissect_procmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         proto_tree_add_string(header_tree, hf_procmon_process_description, tvb, offset, 4, proc->description);
         proto_tree_add_boolean(header_tree, hf_procmon_process_is_virtualized, tvb, offset, 4, proc->is_virtualized);
         proto_tree_add_boolean(header_tree, hf_procmon_process_is_64_bit, tvb, offset, 4, proc->is_64_bit);
+        pinfo->user_name = proc->user_name;
         col_clear(pinfo->cinfo, COL_INFO);
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", proc->process_name);
         col_set_fence(pinfo->cinfo, COL_INFO);

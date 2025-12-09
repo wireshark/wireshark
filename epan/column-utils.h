@@ -108,7 +108,8 @@ enum {
   COL_UTC_YDOY_TIME,  /**< 45) UTC date, as YYYY/DOY, and time */
   COL_UTC_TIME,       /**< 46) UTC time */
   COL_CLS_TIME,       /**< 47) Command line-specified time (default relative) */
-  NUM_COL_FMTS        /**< 48) Should always be last */
+  COL_USER_NAME,      /**< 48) User name */
+  NUM_COL_FMTS        /**< 49) Should always be last */
 };
 
 /** Are the columns writable?

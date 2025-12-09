@@ -2115,6 +2115,15 @@ col_fill_in(packet_info *pinfo, const bool fill_col_exprs, const bool fill_fd_co
         col_set_port(pinfo, i, false, false, fill_col_exprs);
         break;
 
+      case COL_USER_NAME:
+        if (pinfo->user_name) {
+          (void) g_strlcpy(col_item->col_buf, pinfo->user_name, COL_MAX_LEN);
+        } else {
+          col_item->col_buf[0] = '\0';
+        }
+        col_item->col_data = col_item->col_buf;
+        break;
+
       case COL_CUSTOM:
         /* Formatting handled by col_custom_set_edt() / col_custom_get_filter() */
         break;
