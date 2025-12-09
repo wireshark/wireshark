@@ -6,9 +6,12 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import os
+import sys
 import re
 import argparse
 import signal
+import concurrent.futures
+import io
 from check_common import isGeneratedFile, findDissectorFilesInFolder, getFilesFromCommits, getFilesFromOpen, removeComments
 
 # This utility scans for tfs items, and works out if standard ones
@@ -33,57 +36,53 @@ signal.signal(signal.SIGINT, signal_handler)
 
 # Keep track of custom entries that might appear in multiple dissectors,
 # so we can consider adding them to tfs.c
+# (true_val, false_val) -> list of filenames
 custom_tfs_entries = {}
-
-
-def AddCustomEntry(true_val, false_val, file):
-    global custom_tfs_entries
-    if (true_val, false_val) in custom_tfs_entries:
-        custom_tfs_entries[(true_val, false_val)].append(file)
-    else:
-        custom_tfs_entries[(true_val, false_val)] = [file]
 
 
 # Individual parsed TFS entry
 class TFS:
-    def __init__(self, file, name, true_val, false_val):
+    def __init__(self, file, output, name, true_val, false_val):
         self.file = file
         self.name = name
         self.true_val = true_val
         self.false_val = false_val
 
-        global warnings_found
+        self.warnings = 0
 
         # Should not be empty
         if not len(true_val) or not len(false_val):
-            print('Warning:', file, name, 'has an empty field', self)
-            warnings_found += 1
+            print('Warning:', file, name, 'has an empty field', self, file=output)
+            self.warnings += 1
         # else:
             # Strange if one begins with capital but other doesn't?
             # if true_val[0].isalpha() and false_val[0].isalpha():
             #    if true_val[0].isupper() != false_val[0].isupper():
-            #        print(file, name, 'one starts lowercase and the other upper', self)
+            #        print(file, name, 'one starts lowercase and the other upper', self, file=output)
 
         # Leading or trailing space should not be needed.
         if true_val.startswith(' ') or true_val.endswith(' '):
-            print('Note: ' + self.file + ' ' + self.name + ' - true val begins or ends with space \"' + self.true_val + '\"')
+            print('Note: ' + self.file + ' ' + self.name + ' - true val begins or ends with space \"' + self.true_val + '\"',
+                  file=output)
         if false_val.startswith(' ') or false_val.endswith(' '):
-            print('Note: ' + self.file + ' ' + self.name + ' - false val begins or ends with space \"' + self.false_val + '\"')
+            print('Note: ' + self.file + ' ' + self.name + ' - false val begins or ends with space \"' + self.false_val + '\"',
+                  file=output)
 
         # Should really not be identical...
         if true_val.lower() == false_val.lower():
-            print('Warning:', file, name, 'true and false strings are the same', self)
-            warnings_found += 1
+            print('Warning:', file, name, 'true and false strings are the same', self,
+                  file=output)
+            self.warnings += 1
 
         # Shouldn't both be negation (with exception..)
         if (file != os.path.join('epan', 'dissectors', 'packet-smb.c') and 'not ' in true_val.lower() and 'not' in false_val.lower()):
-            print('Warning:', file, name, self, 'both strings contain not')
-            warnings_found += 1
+            print('Warning:', file, name, self, 'both strings contain not', file=output)
+            self.warnings += 1
 
         # Not expecting full-stops inside strings..
         if '.' in true_val or '.' in false_val:
-            print('Warning:', file, name, 'Period found in string', self)
-            warnings_found += 1
+            print('Warning:', file, name, 'Period found in string', self, file=output)
+            self.warnings += 1
 
     def __str__(self):
         return '{' + '"' + self.true_val + '", "' + self.false_val + '"}'
@@ -228,8 +227,9 @@ class Item:
 
 
 # Look for true_false_string items in a dissector file.
-def findTFS(filename):
+def findTFS(filename, output=sys.stdout):
     tfs_found = {}
+    warnings = 0
 
     with open(filename, 'r', encoding="utf8", errors="ignore") as f:
         contents = f.read()
@@ -244,9 +244,10 @@ def findTFS(filename):
             true_val = m.group(2)
             false_val = m.group(3)
             # Store this entry.
-            tfs_found[name] = TFS(filename, name, true_val, false_val)
+            tfs_found[name] = TFS(filename, output, name, true_val, false_val)
+            warnings += tfs_found[name].warnings
 
-    return tfs_found
+    return warnings, tfs_found
 
 
 # Look for value_string entries in a dissector file.
@@ -314,22 +315,22 @@ def find_macros(filename):
 warnings_found = 0
 errors_found = 0
 
-# name -> count
-common_usage = {}
-
 
 # Check the given dissector file.
 def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=False, count_common_usage=False):
-    global warnings_found
-    global errors_found
+    warnings = 0
+    errors = 0
+    output = io.StringIO()
+    common_usage = {}
+    custom_entries = set()
 
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
-        print(filename, 'does not exist!')
-        return
+        print(filename, 'does not exist!', file=output)
+        return warnings, errors, ''
 
     # Find items.
-    file_tfs = findTFS(filename)
+    warnings, file_tfs = findTFS(filename, output)
 
     # See if any of these items already existed in tfs.c
     for f in file_tfs:
@@ -358,15 +359,17 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                 if found:
                     print("Error:" if exact_case else "Warning: ", filename, f,
                           "- could have used", c, 'from tfs.c instead: ', common_tfs[c],
-                          '' if exact_case else '  (capitalisation differs)')
+                          '' if exact_case else '  (capitalisation differs)',
+                          file=output)
                     if exact_case:
-                        errors_found += 1
+                        errors += 1
                     else:
-                        warnings_found += 1
+                        warnings += 1
                     break
         if not found:
             if look_for_common:
-                AddCustomEntry(file_tfs[f].true_val, file_tfs[f].false_val, filename)
+                vals = (file_tfs[f].true_val, file_tfs[f].false_val)
+                custom_entries.add(vals)
 
     if check_value_strings:
         # Get macros
@@ -418,7 +421,7 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                                               ' - "FT_BOOLEAN,', str(items[i].get_field_width_in_bits()) + ', TFS(&' + c + '),"',
                                               '' if exact_case else '  (capitalisation differs)')
                                         if exact_case:
-                                            warnings_found += 1
+                                            warnings += 1
 
     if count_common_usage:
         # Look for TFS(&<name>) in dissector
@@ -431,6 +434,11 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                         common_usage[c] = 1
                     else:
                         common_usage[c] += 1
+
+    contents = output.getvalue()
+    output.close()
+    return warnings, errors, contents, common_usage, custom_entries
+
 
 
 #################################################################
@@ -447,7 +455,6 @@ parser.add_argument('--open', action='store_true',
                     help='check open files')
 parser.add_argument('--check-value-strings', action='store_true',
                     help='check whether value_strings could have been tfs?')
-
 parser.add_argument('--common', action='store_true',
                     help='check for potential new entries for tfs.c')
 parser.add_argument('--common-usage', action='store_true',
@@ -492,34 +499,67 @@ else:
 
 
 # Get standard/ shared ones.
-common_tfs_entries = findTFS(os.path.join('epan', 'tfs.c'))
+_, common_tfs_entries = findTFS(os.path.join('epan', 'tfs.c'))
+
+# Global data for these optional checks.
+all_common_usage = {}
+all_custom_entries = {}
+
 
 # Now check the files to see if they could have used shared ones instead.
 # Look at files in sorted order, to give some idea of how far through we are.
-for f in sorted(files):
-    if should_exit:
-        exit(1)
-    if not isGeneratedFile(f):
-        checkFile(f, common_tfs_entries, look_for_common=args.common,
-                  check_value_strings=args.check_value_strings,
-                  count_common_usage=args.common_usage)
+with concurrent.futures.ProcessPoolExecutor() as executor:
+    future_to_file_output = {executor.submit(checkFile, file,
+                                             common_tfs_entries, args.common,
+                                             args.check_value_strings,
+                                             args.common_usage): file for file in sorted(files) if not isGeneratedFile(file)}
+    for future in concurrent.futures.as_completed(future_to_file_output):
+        if should_exit:
+            exit(1)
+        # Unpack result
+        warnings, errors, output, common_usage, custom_entries = future.result()
+        if len(output):
+            print(output[:-1])
+
+        # Add to issue counts
+        warnings_found += warnings
+        errors_found += errors
+
+        # Update common usage stats
+        if args.common_usage:
+            for name, count in common_usage.items():
+                if name not in all_common_usage:
+                    all_common_usage[name] = count
+                else:
+                    all_common_usage[name] += count
+
+        # Update 'common' custom counts
+        if args.common:
+            for entry in custom_entries:
+                if entry not in all_custom_entries:
+                    all_custom_entries[entry] = [future_to_file_output[future]]
+                else:
+                    all_custom_entries[entry].append(future_to_file_output[future])
+
+
+
 
 # Report on commonly-defined values.
 if args.common:
     # Looking for items that could potentially be moved to tfs.c
-    for c in custom_tfs_entries:
+    for c in all_custom_entries:
         # Only want to see items that have 3 or more occurrences.
         # Even then, probably only want to consider ones that sound generic.
-        if len(custom_tfs_entries[c]) > 2:
-            print(c, 'appears', len(custom_tfs_entries[c]), 'times, in: ', custom_tfs_entries[c])
+        if len(all_custom_entries[c]) > 2:
+            print(c, 'appears', len(all_custom_entries[c]), 'times, in: ', all_custom_entries[c])
 
 # Show how often 'common' entries are used
 if args.common_usage:
     actual_usage = []
 
     for c in common_tfs_entries:
-        if c in common_usage:
-            actual_usage.append((c, common_usage[c]))
+        if c in all_common_usage:
+            actual_usage.append((c, all_common_usage[c]))
         else:
             actual_usage.append((c, 0))
 
