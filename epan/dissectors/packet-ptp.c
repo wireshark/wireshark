@@ -18,6 +18,7 @@
  *                 Aurel Hess <hesu@zhaw.ch>
  * Copyright 2025, Alex Gebhard <alexander.gebhard@marquette.edu>
  * Copyright 2025, Prashant Tripathi <prashant.tripathi@selinc.com>
+ * Copyright 2025, Martin Mayer <martin.mayer@m2-it-solutions.de>
  *
  * Revisions:
  * - Markus Seehofer 09.08.2005 <mseehofe@nt.hirschmann.de>
@@ -60,6 +61,8 @@
  *   - Add missing PTPv2 Management TLVs dissection
  * - Prashant Tripathi 23-10-2025 <prashant_tripathi@selinc.com>
  *   - Fix the parsing of organizationSubType field in C37_238 2017 TLV
+ * - Martin Mayer 06.12.2025 <martin.mayer@m2-it-solutions.de>
+ *   - NTP-over-PTP
 
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -921,6 +924,13 @@ static int ett_ptp_time2;
 /* Subtypes for ITU-T organization ID */
 #define PTP_V2_INTERFACE_RATE_TLV                                    0x000002
 
+/* Subtypes for OUI_IANA organization ID
+ * Ref. https://www.iana.org/assignments/ethernet-numbers/ethernet-numbers.xhtml#iana-ptp-tlv-subtypes
+ */
+#define PTP_V2_OE_ORG_IANA_SUBTYPE_RES1_TLV                          0x000000
+#define PTP_V2_OE_ORG_IANA_SUBTYPE_NTP_MSG_TLV                       0x000001
+#define PTP_V2_OE_ORG_IANA_SUBTYPE_RES2_TLV                          0xFFFFFF
+
 /* MESSAGE ID for the PTP_V2_OE_ORG_CERN_SUBTYPE_WR_TLV */
 #define PTP_V2_OE_ORG_CERN_WRMESSAGEID_NULL_WR_TLV                     0x0000
 #define PTP_V2_OE_ORG_CERN_WRMESSAGEID_SLAVE_PRESENT                   0x1000
@@ -1347,6 +1357,13 @@ static const value_string ptp_v2_org_smpte_subtype_masterlockingstatus_vals[] = 
     {0,  NULL}
 };
 
+static const value_string ptp_v2_org_iana_subtype_vals[] = {
+    {PTP_V2_OE_ORG_IANA_SUBTYPE_RES1_TLV,    "Reserved"},
+    {PTP_V2_OE_ORG_IANA_SUBTYPE_NTP_MSG_TLV, "Network Time Protocol Message"},
+    {PTP_V2_OE_ORG_IANA_SUBTYPE_RES2_TLV,    "Reserved"},
+    {0,                                      NULL}
+};
+
 /**********************************************************/
 /* MajorSdoId values for the PTPv2          */
 /**********************************************************/
@@ -1445,6 +1462,9 @@ static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_reserved;
 /* Additional Fields for IEEE_C37_238-2017 TLV (OE TLV subtype) */
 static int hf_ptp_v2_oe_tlv_subtype_c372382017tlv_reserved;
 static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_totaltimeinaccuracy;
+
+/* Fields for IANA TLV (OE TLV subtype) */
+static int hf_ptp_tlv_oe_organizationsubtype_iana;
 
 /* Fields for SMPTE TLV (OE TLV subtype) */
 static int hf_ptp_v2_oe_tlv_smpte_subtype;
@@ -1857,6 +1877,7 @@ static unsigned ptp_analysis_max_consecutive_delta = 10;
 
 /* Allow to register TLV subdissectors */
 static dissector_table_t ptpv2_tlv_org_id_subdissector_table;
+static dissector_table_t ptpv2_tlv_org_iana_dissector_table;
 
 typedef struct ptp_frame_info_sync {
     uint32_t sync_frame_num;
@@ -2019,6 +2040,35 @@ create_frame_info(packet_info *pinfo, uint8_t ptp_major, uint8_t ptp_minor, uint
     ret->prev = get_frame_info_and_opt_create(pinfo, ptp_major, ptp_minor, majorsdoid, minorsdoid, messagetype, domain, clockidentity, portid, seqid_prev, false, (double)ptp_analysis_max_consecutive_delta);
 
     return ret;
+}
+
+static int
+dissect_ntp_msg_tlv(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti_root, proto_tree *tree, proto_tree *ptp_tlv_tree, uint16_t remaining_tlv_length) {
+
+    int offset_start = offset;
+
+    /* dataField contains two zero octets for 32-bit alignment followed by the NTP message.
+     * Move offset only by these two octets and pass the remaining octets to subdissector (NTP).
+     */
+    proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_oe_tlv_datafield, tvb, offset, remaining_tlv_length, ENC_NA);
+    offset += 2;
+
+    /* Let dissectors register to subtype, usually NTP */
+    dissector_handle_t handle = dissector_get_uint_handle(ptpv2_tlv_org_iana_dissector_table, PTP_V2_OE_ORG_IANA_SUBTYPE_NTP_MSG_TLV);
+    if (handle != NULL) {
+        tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, remaining_tlv_length - 2);
+        offset += call_dissector_only(handle, sub_tvb, pinfo, tree, NULL);
+    }
+
+    /* Usually this TLV does only contain NTP data. If there are no subsequent TLVs,
+     * set the PTP packet length to the current offset, as NTP will be displayed as the next protocol in the tree.
+     * If the data wasn't dissected by a subdissector, just show the dataField as full part of the PTP packet.
+     */
+    if(tvb_reported_length_remaining(tvb, offset) == 0) {
+        proto_item_set_len(ti_root, offset_start + 2);
+    }
+
+    return offset - offset_start;
 }
 
 
@@ -2850,7 +2900,7 @@ dissect_ptp_v2_tlv_org_fields(tvbuff_t *tvb, int offset_orig, proto_tree *ptp_tl
 }
 
 static int
-dissect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti_root, proto_tree *ptp_tree, uint8_t ptp_v2_messageid, uint16_t ptp_v2_flags, bool is_802_1as) {
+dissect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *ti_root, proto_tree *tree, proto_tree *ptp_tree, uint8_t ptp_v2_messageid, uint16_t ptp_v2_flags, bool is_802_1as) {
     int offset_orig = offset;
     proto_item *ti;
     proto_item *ti_tlv = ti_root;
@@ -3846,6 +3896,18 @@ dissect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *t
                 break;
             }
 
+            case OUI_IANA: {
+                switch (subtype) {
+                case PTP_V2_OE_ORG_IANA_SUBTYPE_NTP_MSG_TLV: {
+                    proto_tree *ptp_tlv_tree = proto_tree_add_subtree(ptp_tree, tvb, offset, tlv_length + PTP_V2_TLV_HEADER_LENGTH, ett_ptp_v2_tlv, &ti_tlv, "IANA PTP TLV");
+                    offset += dissect_ptp_v2_tlv_org_fields(tvb, offset, ptp_tlv_tree, hf_ptp_tlv_oe_organizationsubtype_iana);
+                    offset += dissect_ntp_msg_tlv(tvb, offset, pinfo, ti_root, tree, ptp_tlv_tree, tlv_length + 4 - (offset - offset_loopstart));
+                    break;
+                }
+                }
+                break;
+            }
+
             case OUI_CERN: {
                 switch (subtype) {
                 case PTP_V2_OE_ORG_CERN_SUBTYPE_WR_TLV: {
@@ -4038,6 +4100,17 @@ dissect_ptp_v2_tlvs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_item *t
             uint32_t subtype = tvb_get_ntoh24(tvb, offset + PTP_V2_TLV_ORGANIZATIONSUBTYPE_OFFSET);
 
             switch (org_id) {
+            case OUI_IANA:
+                switch (subtype) {
+                case PTP_V2_OE_ORG_IANA_SUBTYPE_NTP_MSG_TLV: {
+                    proto_tree *ptp_tlv_tree = proto_tree_add_subtree(ptp_tree, tvb, offset, tlv_length + PTP_V2_TLV_HEADER_LENGTH, ett_ptp_v2_tlv, &ti_tlv, "IANA PTP TLV");
+                    offset += dissect_ptp_v2_tlv_org_fields(tvb, offset, ptp_tlv_tree, hf_ptp_tlv_oe_organizationsubtype_iana);
+                    offset += dissect_ntp_msg_tlv(tvb, offset, pinfo, ti_root, tree, ptp_tlv_tree, tlv_length + 4 - (offset - offset_loopstart));
+                    break;
+                }
+                }
+            break;
+
             case OUI_IEEE_802_1:
                 switch (subtype) {
                 case PTP_AS_SIG_TLV_TYPE_GPTPCAPABLE_ORG_SUB_TYPE: {
@@ -4610,7 +4683,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
             proto_tree_add_item(ptp_tree, hf_ptp_v2_an_timesource, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ti_root, ptp_tree, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ti_root, tree, ptp_tree, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
             break;
         }
 
@@ -4628,7 +4701,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
                 offset += 4;
             }
 
-            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ti_root, ptp_tree, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ti_root, tree, ptp_tree, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
             if (ptp_analyze_messages) {
                 if (PTP_FRAME_INFO_SYNC_COMPLETE(frame_info)) {
@@ -4674,7 +4747,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
             proto_tree_add_item(ptp_tree, hf_ptp_v2_sdr_origintimestamp_nanoseconds, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
-            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ti_root, ptp_tree, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ti_root, tree, ptp_tree, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
             break;
         }
@@ -4692,7 +4765,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
             proto_item_set_generated(ti_tstamp);
             offset += 10;
 
-            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
             if (ptp_analyze_messages) {
                 if (frame_info != NULL) {
@@ -4739,7 +4812,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
             proto_tree_add_item(ptp_tree, hf_ptp_v2_dr_requestingsourceportid, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
             break;
         }
@@ -4759,7 +4832,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
             proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrq_reserved, tvb, offset, 10, ENC_NA);
             offset += 10;
 
-            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
             if (ptp_analyze_messages) {
                 if (frame_info != NULL) {
@@ -4796,7 +4869,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
             proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrs_requestingsourceportid, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
             if (ptp_analyze_messages) {
                 if (frame_info != NULL) {
@@ -4837,7 +4910,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
             proto_tree_add_item(ptp_tree, hf_ptp_v2_pdfu_requestingsourceportid, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
             if (ptp_analyze_messages) {
                 if (frame_info != NULL) {
@@ -4879,7 +4952,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
             proto_tree_add_item(ptp_tree, hf_ptp_v2_sig_targetportid, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
-            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
             break;
         }
@@ -4904,7 +4977,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool ptpv2_o
             proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_reserved2, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
+            dissect_ptp_v2_tlvs(tvb, offset, pinfo, ptp_tree, tree, ti_root, ptp_v2_messageid, ptp_v2_flags, is_802_1as);
 
             break;
         } /* case Management Message */
@@ -5983,6 +6056,11 @@ proto_register_ptp(void) {
         { &hf_ptp_v2_oe_tlv_ieee_c37_238_2017_organizationsubtype,
           { "organizationSubType", "ptp.v2.tlv.oe.organizationSubType",
             FT_UINT24, BASE_HEX, VALS(ptp_v2_org_ieee_c37_238_2017_subtype_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_tlv_oe_organizationsubtype_iana,
+          { "organizationSubType", "ptp.v2.tlv.oe.organizationSubType",
+            FT_UINT24, BASE_HEX, VALS(ptp_v2_org_iana_subtype_vals), 0x00,
             NULL, HFILL }
         },
 
@@ -7615,6 +7693,7 @@ proto_register_ptp(void) {
     ptp_clocks = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_int64_hash, g_int64_equal);
 
     ptpv2_tlv_org_id_subdissector_table = register_dissector_table("ptp.v2.tlv.oe.organizationId", "PTPv2 TLV Organization ID", proto_ptp, FT_UINT24, BASE_HEX);
+    ptpv2_tlv_org_iana_dissector_table = register_dissector_table("ptp.v2.tlv.oe.iana.organizationSubType", "PTPv2 IANA TLV Organization Sub Type", proto_ptp, FT_UINT24, BASE_HEX);
 
 }
 
