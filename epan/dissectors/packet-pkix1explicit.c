@@ -3,10 +3,8 @@
 /* packet-pkix1explicit.c                                                     */
 /* asn2wrs.py -b -q -L -p pkix1explicit -c ./pkix1explicit.cnf -s ./packet-pkix1explicit-template -D . -O ../.. PKIX1EXPLICIT93.asn IPAddrAndASCertExtn.asn */
 
-#define BER_UNI_TAG_TeletexString	    20  /* workaround bug in asn2wrs */
-
 /* packet-pkix1explicit.c
- * Routines for PKIX1Explitic packet dissection
+ * Routines for PKIX1Explicit packet dissection
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
