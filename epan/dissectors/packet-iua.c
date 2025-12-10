@@ -386,12 +386,11 @@ static const value_string status_type_id_ig_values[] = {
 static void
 dissect_status_type_identification_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  uint16_t status_type, status_id;
+  uint32_t status_type, status_id;
 
-  status_type = tvb_get_ntohs(parameter_tvb, STATUS_TYPE_OFFSET);
   status_id   = tvb_get_ntohs(parameter_tvb, STATUS_IDENT_OFFSET);
 
-  proto_tree_add_item(parameter_tree, hf_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(parameter_tree, hf_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN, &status_type);
   proto_tree_add_uint_format_value(parameter_tree, hf_status_id,  parameter_tvb, STATUS_IDENT_OFFSET, STATUS_IDENT_LENGTH,
                              status_id, "%u (%s)", status_id,
                              val_to_str_const(status_type * 256 * 256 + status_id, support_IG?status_type_id_ig_values:status_type_id_values, "unknown"));
