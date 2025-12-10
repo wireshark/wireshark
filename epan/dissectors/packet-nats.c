@@ -30,6 +30,8 @@ static int proto_nats;
 static dissector_handle_t handle_nats;
 static dissector_table_t subject_table;
 
+static dissector_handle_t json_handle;
+
 static int hf_nats_op;
 static int hf_nats_subject;
 static int hf_nats_reply_to;
@@ -737,8 +739,8 @@ static int dissect_nats_ping_pong(tvbuff_t* tvb, int offset, int next_offset,
     return next_offset - offset;
 }
 
-static int dissect_nats_info_connect(tvbuff_t* tvb, int offset, int next_offset,
-                                     proto_tree* tree)
+static int dissect_nats_info_connect(tvbuff_t* tvb, packet_info* pinfo, int offset,
+                                     int next_offset, proto_tree* tree)
 {
     proto_tree* pdu_tree = NULL;
 
@@ -755,8 +757,13 @@ static int dissect_nats_info_connect(tvbuff_t* tvb, int offset, int next_offset,
     proto_tree_add_item(pdu_tree, hf_nats_op, tvb, op_offset, op_length,
                         ENC_ASCII);
 
-    proto_tree_add_item(pdu_tree, hf_nats_features, tvb, features_offset,
-                        features_length, ENC_NA);
+    proto_item *features_item = proto_tree_add_item(pdu_tree, hf_nats_features, tvb,
+                        features_offset, features_length, ENC_NA);
+    proto_tree *features_tree = proto_item_add_subtree(features_item, ett_nats);
+
+    tvbuff_t *json_tvb = tvb_new_subset_length(tvb, features_offset, features_length);
+
+    call_dissector(json_handle, json_tvb, pinfo, features_tree);
 
     return next_offset - offset;
 }
@@ -811,7 +818,7 @@ static int dissect_nats(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
             }
             else if (tvb_strncaseeql(tvb, line_offset, "INFO", 4) == 0)
             {
-                result = dissect_nats_info_connect(tvb, line_offset, next_offset, tree);
+                result = dissect_nats_info_connect(tvb, pinfo, line_offset, next_offset, tree);
             }
             break;
         case 5:
@@ -823,7 +830,7 @@ static int dissect_nats(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
         case 7:
             if (tvb_strncaseeql(tvb, line_offset, "CONNECT", 7) == 0)
             {
-                result = dissect_nats_info_connect(tvb, line_offset, next_offset, tree);
+                result = dissect_nats_info_connect(tvb, pinfo, line_offset, next_offset, tree);
             }
             break;
         default:
@@ -987,6 +994,8 @@ void proto_register_nats(void)
 
     proto_nats = proto_register_protocol("NATS", "NATS", "nats");
     handle_nats = create_dissector_handle(dissect_nats, proto_nats);
+
+    json_handle = find_dissector("json");
 
     proto_register_field_array(proto_nats, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
