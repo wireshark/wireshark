@@ -432,7 +432,7 @@ dissect_cbor_text_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 {
 	const uint8_t *value = NULL;
 	uint64_t length = 0;
-	int      eof_type;
+	int      eof_type, new_offset;
 	proto_tree *subtree;
 	proto_item *item;
 
@@ -508,14 +508,14 @@ dissect_cbor_text_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 		break;
 	}
 
-	if (length > INT32_MAX || *offset + (int)length < *offset) {
+	if (ckd_add(&new_offset, *offset, length)) {
 		expert_add_info_format(pinfo, subtree, &ei_cbor_too_long_length,
 			"the length (%" PRIu64 ") of the text string too long", length);
 		return false;
 	}
 
 	proto_tree_add_item_ret_string(subtree, hf_cbor_type_text_string, tvb, *offset, (int)length, ENC_BIG_ENDIAN|ENC_UTF_8, pinfo->pool, &value);
-	*offset += (int)length;
+	*offset = new_offset;
 
 	proto_item_append_text(item, ": %s", value);
 	proto_item_set_end(item, tvb, *offset);
