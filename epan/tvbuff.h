@@ -444,7 +444,7 @@ WS_DLL_PUBLIC bool tvb_bytes_exist(const tvbuff_t *tvb, const int offset,
  * @see tvb_ensure_bytes_exist()
  */
 WS_DLL_PUBLIC void tvb_ensure_bytes_exist64(const tvbuff_t *tvb,
-    const int offset, const uint64_t length);
+    const unsigned offset, const uint64_t length);
 
 /**
  * @brief Checks that the bytes referred to by 'offset' and 'length' actually exist in the buffer.
@@ -458,7 +458,7 @@ WS_DLL_PUBLIC void tvb_ensure_bytes_exist64(const tvbuff_t *tvb,
  * @see tvb_ensure_bytes_exist64()
  */
 WS_DLL_PUBLIC void tvb_ensure_bytes_exist(const tvbuff_t *tvb,
-    const int offset, const int length);
+    const unsigned offset, const int length);
 
 /**
  * @brief Checks (without throwing an exception) whether the offset exists in the buffer.

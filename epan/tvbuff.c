@@ -635,7 +635,7 @@ tvb_bytes_exist(const tvbuff_t *tvb, const int offset, const int length)
  * integer, are available starting from offset (pos/neg). Throws an
  * exception if they aren't. */
 void
-tvb_ensure_bytes_exist64(const tvbuff_t *tvb, const int offset, const uint64_t length)
+tvb_ensure_bytes_exist64(const tvbuff_t *tvb, const unsigned offset, const uint64_t length)
 {
 	/*
 	 * Make sure the value fits in a signed integer; if not, assume
@@ -652,9 +652,10 @@ tvb_ensure_bytes_exist64(const tvbuff_t *tvb, const int offset, const uint64_t l
 /* Validates that 'length' bytes are available starting from
  * offset (pos/neg). Throws an exception if they aren't. */
 void
-tvb_ensure_bytes_exist(const tvbuff_t *tvb, const int offset, const int length)
+tvb_ensure_bytes_exist(const tvbuff_t *tvb, const unsigned offset, const int length)
 {
-	unsigned real_offset, end_offset;
+	unsigned end_offset;
+	int exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -672,56 +673,19 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const int offset, const int length)
 		THROW(ReportedBoundsError);
 	}
 
-	/* XXX: Below this point could be replaced with a call to
-	 * check_offset_length with no functional change, however this is a
-	 * *very* hot path and check_offset_length is not well-optimized for
-	 * this case (mostly because that function handles length -1 meaning
-	 * "until the end of the buffer?"), so we eat some code duplication
-	 * for a lot of speedup.
-	 *
-	 * XXX - Could it be replaced with a call just to compute_offset?
-	 */
-
-	if (offset >= 0) {
-		/* Positive offset - relative to the beginning of the packet. */
-		if (G_LIKELY((unsigned) offset <= tvb->length)) {
-			real_offset = offset;
-		} else if ((unsigned) offset <= tvb->contained_length) {
-			THROW(BoundsError);
-		} else if (tvb->flags & TVBUFF_FRAGMENT) {
-			THROW(FragmentBoundsError);
-		} else if ((unsigned) offset <= tvb->reported_length) {
-			THROW(ContainedBoundsError);
-		} else {
-			THROW(ReportedBoundsError);
-		}
-	}
-	else {
-		/* Negative offset - relative to the end of the packet. */
-		/* Prevent UB on 2's complement platforms. */
-		unsigned abs_offset = ((unsigned)-(offset + 1)) + 1;
-		if (G_LIKELY(abs_offset <= tvb->length)) {
-			real_offset = tvb->length - abs_offset;
-		} else if (abs_offset <= tvb->contained_length) {
-			THROW(BoundsError);
-		} else if (tvb->flags & TVBUFF_FRAGMENT) {
-			THROW(FragmentBoundsError);
-		} else if (abs_offset <= tvb->reported_length) {
-			THROW(ContainedBoundsError);
-		} else {
-			THROW(ReportedBoundsError);
-		}
-	}
+	exception = validate_offset(tvb, offset);
+	if (exception)
+		THROW(exception);
 
 	/*
 	 * Compute the offset of the first byte past the length.
 	 */
-	end_offset = real_offset + length;
+	end_offset = offset + length;
 
 	/*
 	 * Check for an overflow
 	 */
-	if (end_offset < real_offset)
+	if (end_offset < offset)
 		THROW(BoundsError);
 
 	if (G_LIKELY(end_offset <= tvb->length))
@@ -2949,7 +2913,7 @@ tvb_get_raw_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, con
 	if (abs_length < 0)
 		abs_length = tvb->length - offset;
 
-	tvb_ensure_bytes_exist(tvb, offset, abs_length);
+	tvb_ensure_bytes_exist(tvb, (unsigned)offset, abs_length);
 	strbuf = (uint8_t *)wmem_alloc(scope, abs_length + 1);
 	tvb_memcpy(tvb, strbuf, offset, abs_length);
 	strbuf[abs_length] = '\0';
