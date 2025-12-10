@@ -101,6 +101,7 @@ static int ett_tpncp;
 static int ett_tpncp_body;
 
 static bool global_tpncp_load_db;
+static const char *tpncp_dat_path = NULL;
 
 static dissector_handle_t tpncp_handle;
 static dissector_handle_t tpncp_tcp_handle;
@@ -924,25 +925,26 @@ init_tpncp_data_fields_info(tpncp_data_field_info ***data_fields_info, unsigned 
 /*---------------------------------------------------------------------------*/
 
 static FILE *
-open_tpncp_dat(const char *base_dir, const char *subdir)
+open_tpncp_dat(void)
 {
-    char tpncp_dat_file_path[MAX_TPNCP_DB_ENTRY_LEN];
-    snprintf(tpncp_dat_file_path, MAX_TPNCP_DB_ENTRY_LEN,
-             "%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "tpncp.dat",
-             base_dir, subdir);
-    return ws_fopen(tpncp_dat_file_path, "r");
+    char *path_buf = NULL;
+    const char *tpncp_dat_file_path = tpncp_dat_path;
+    FILE *res;
+    if (!*tpncp_dat_file_path) {
+        tpncp_dat_file_path = path_buf = g_build_path(
+            G_DIR_SEPARATOR_S, get_datafile_dir(epan_get_environment_prefix()), "tpncp", "tpncp.dat", NULL);
+    }
+    res = ws_fopen(tpncp_dat_file_path, "r");
+    g_free(path_buf);
+    return res;
 }
 
 static int
 init_tpncp_db(void)
 {
-    FILE *file;
-    const char *env_prefix = epan_get_environment_prefix();
-
     /* Open file with TPNCP data. */
-    if ((file = open_tpncp_dat(get_plugins_pers_dir_with_version(env_prefix), "epan")) == NULL &&
-        (file = open_tpncp_dat(get_plugins_dir_with_version(env_prefix), "epan")) == NULL &&
-        (file = open_tpncp_dat(get_datafile_dir(env_prefix), "tpncp")) == NULL) {
+    FILE *file = open_tpncp_dat();
+    if (!file) {
         return (-1);
     }
     fill_tpncp_id_vals(&tpncp_events_id_vals, file);
@@ -975,14 +977,16 @@ proto_reg_handoff_tpncp(void)
         dissector_add_uint("acdr.tls_application", TLS_APP_TPNCP, tpncp_handle);
         initialized = true;
     }
+
+    if (!global_tpncp_load_db)
+        return;
+
     /*  If we weren't able to load the database (and thus the hf_ entries)
      *  do not attach to any ports (if we did then we'd get a "dissector bug"
      *  assertions every time a packet is handed to us and we tried to use the
      *  hf_ entry).
-     */
-    if (!global_tpncp_load_db)
-        return;
 
+     */
     if (hf_allocated == 0 && init_tpncp_db() == -1) {
         report_failure("tpncp: Could not load tpncp.dat file, tpncp dissector will not work");
         return;
@@ -1055,6 +1059,11 @@ proto_register_tpncp(void)
                                    " disables the protocol; Wireshark has to be restarted for the"
                                    " setting to take effect.",
                                    &global_tpncp_load_db);
+    prefs_register_filename_preference(tpncp_module, "dat_file",
+                                   "TPNCP data file (tpncp.dat)",
+                                   "Path to tpncp.dat. If empty, the file shipped with Wireshark will be used.\n"
+                                   "Changing the path requires a Wireshark restart to take effect.",
+                                   &tpncp_dat_path, false);
 }
 
 /*
