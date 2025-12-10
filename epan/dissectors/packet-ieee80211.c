@@ -37508,7 +37508,7 @@ ieee80211_tag_dms_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   /* There could be a TSPEC element ... */
   if ((tvb_captured_length_remaining(tvb, offset) > 0) &&
       tvb_get_uint8(tvb, offset) == TAG_TSPEC) {
-    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+    /*offset += */add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
   }
   /* Subelements? */
 
@@ -37562,7 +37562,7 @@ ieee80211_tag_dms_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   /* There could be a TSPEC element ... */
   if ((tvb_captured_length_remaining(tvb, offset) > 0) &&
       tvb_get_uint8(tvb, offset) == TAG_TSPEC) {
-    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+    /*offset += */add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
   }
   /* Subelements? */
 
