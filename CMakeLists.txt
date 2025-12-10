@@ -1587,16 +1587,18 @@ if(GNUTLS_FOUND)
 	# Calculating public keys from PKCS #11 private keys requires GnuTLS
 	# 3.4.0 or greater.
 	#
-	# Check that the support is present in case GnuTLS was compiled
-	# --without-p11-kit as macos-setup.sh did until December 2020.
-	cmake_push_check_state()
-	if(WIN32 AND NOT MINGW)
-		set(CMAKE_REQUIRED_DEFINITIONS -Dssize_t=int)
-	endif()
-	set(CMAKE_REQUIRED_INCLUDES ${GNUTLS_INCLUDE_DIRS})
-	set(CMAKE_REQUIRED_LIBRARIES ${GNUTLS_LIBRARIES})
-	check_symbol_exists(gnutls_pkcs11_obj_list_import_url4 gnutls/pkcs11.h HAVE_GNUTLS_PKCS11)
-	cmake_pop_check_state()
+	if (ENABLE_PKCS11)
+		# Check that the support is present in case GnuTLS was compiled
+		# --without-p11-kit as macos-setup.sh did until December 2020.
+		cmake_push_check_state()
+		if(WIN32 AND NOT MINGW)
+			set(CMAKE_REQUIRED_DEFINITIONS -Dssize_t=int)
+		endif()
+		set(CMAKE_REQUIRED_INCLUDES ${GNUTLS_INCLUDE_DIRS})
+		set(CMAKE_REQUIRED_LIBRARIES ${GNUTLS_LIBRARIES})
+		check_symbol_exists(gnutls_pkcs11_obj_list_import_url4 gnutls/pkcs11.h HAVE_GNUTLS_PKCS11)
+		cmake_pop_check_state()
+	endif (ENABLE_PKCS11)
 endif()
 
 if (QT_FOUND)
