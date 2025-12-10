@@ -1820,6 +1820,7 @@ smb_get_unicode_or_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, int *off
 	const char *string;
 	int          string_len = 0;
 	int          copylen;
+	const uint8_t *bytes;
 
 	if (*bcp == 0) {
 		/* Not enough data in buffer */
@@ -1862,6 +1863,13 @@ smb_get_unicode_or_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, int *off
                  */
 		if(exactlen){
 			copylen = *len;
+
+			/* Fixed strings should be null termined. */
+			if (copylen > 0) {
+				bytes = tvb_get_ptr(tvb, *offsetp, copylen);
+				if (bytes[copylen-1] == '\0')
+					copylen--;
+			}
 
 			if (copylen < 0) {
 				/* This probably means it's a very large unsigned number; just set
