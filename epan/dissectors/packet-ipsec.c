@@ -1330,9 +1330,12 @@ esp_null_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *esp_tree)
     /* Make sure the packet is not truncated before the fields
      * we need to read to determine the encapsulated protocol.
      */
-    if (tvb_bytes_exist(tvb, -(esp_icv_len + 2), 2))
+    if (esp_packet_len >= (esp_icv_len + 2))
     {
       offset = esp_packet_len - (esp_icv_len + 2);
+      if (!tvb_bytes_exist(tvb, offset, 2)) {
+        continue;
+      }
       esp_pad_len = tvb_get_uint8(tvb, offset);
       encapsulated_protocol = tvb_get_uint8(tvb, offset + 1);
       dissector_handle = dissector_get_uint_handle(ip_dissector_table, encapsulated_protocol);
