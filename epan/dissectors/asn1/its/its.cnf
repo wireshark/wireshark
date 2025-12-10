@@ -34,7 +34,6 @@ StatusResponseCode
 CurrentVehicleConfiguration
 TpgLocation
 CS5
-DSRCmsgID
 VehicleLengthV2
 TrailerPresenceInformation
 CartesianAngularAccelerationComponent
