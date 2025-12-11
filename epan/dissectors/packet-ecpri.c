@@ -461,7 +461,7 @@ typedef struct {
 static dissector_handle_t oran_fh_handle;
 
 /**************************************************************************************************/
-/* Implementation of the functions                                                                */
+/* Main dissection function                                                                       */
 /**************************************************************************************************/
 static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -568,12 +568,15 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         proto_tree_add_item_ret_uint(header_tree, hf_common_header_ecpri_message_type, tvb, offset, 1, ENC_NA, &msg_type);
         /* Append Message Type into info column & header item */
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "Message Type: %s", try_rval_to_str(msg_type, ecpri_msg_types));
-        proto_item_append_text(header_item, "   MessageType: %s", try_rval_to_str(msg_type, ecpri_msg_types));
         offset += 1;
 
         /* eCPRI Payload Size */
         ti_payload_size = proto_tree_add_item(header_tree, hf_common_header_ecpri_payload_size, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+
+        /* Summaries (type and payload length) for protocol and header roots */
+        proto_item_append_text(ecpri_item,  "   MessageType: %s  PayloadSize: %u)", try_rval_to_str(msg_type, ecpri_msg_types), payload_size);
+        proto_item_append_text(header_item, "   MessageType: %s  PayloadSize: %u)", try_rval_to_str(msg_type, ecpri_msg_types), payload_size);
 
         /* Note if C is set (i.e. further messages to follow after this one) */
         if (concatenation_bit) {
