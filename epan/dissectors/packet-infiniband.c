@@ -2748,7 +2748,8 @@ static void update_sport(packet_info *pinfo)
 }
 
 static bool parse_PAYLOAD_do_rc_send_reassembling(packet_info *pinfo,
-                                                  struct infinibandinfo *info)
+                                                  struct infinibandinfo *info,
+                                                  heur_dtbl_entry_t **_hdtbl_entry)
 {
     conversation_t *conversation = NULL;
     conversation_infiniband_data *proto_data = NULL;
@@ -2781,13 +2782,15 @@ static bool parse_PAYLOAD_do_rc_send_reassembling(packet_info *pinfo,
         return false;
     }
 
+    if (proto_data->do_rc_send_reassembling) {
+        *_hdtbl_entry = proto_data->rc_hdtbl_entry;
+    }
     return proto_data->do_rc_send_reassembling;
-
-    return true;
 }
 
 static tvbuff_t *parse_PAYLOAD_reassemble_tvb(packet_info *pinfo,
                                               struct infinibandinfo *info,
+                                              heur_dtbl_entry_t *rc_hdtbl_entry,
                                               tvbuff_t *tvb,
                                               proto_tree *top_tree)
 {
@@ -2823,11 +2826,13 @@ static tvbuff_t *parse_PAYLOAD_reassemble_tvb(packet_info *pinfo,
          * for this conversation
          */
         proto_data = wmem_new0(wmem_file_scope(), conversation_infiniband_data);
-        proto_data->do_rc_send_reassembling = true;
         conversation_add_proto_data(conversation,
                                     proto_infiniband,
                                     proto_data);
     }
+
+    proto_data->do_rc_send_reassembling = true;
+    proto_data->rc_hdtbl_entry = rc_hdtbl_entry;
 
     fd_head = (fragment_head *)p_get_proto_data(wmem_file_scope(),
                                                 pinfo,
@@ -2896,7 +2901,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
     uint8_t             management_class;
     tvbuff_t *volatile  next_tvb;
     int                 reported_length;
-    heur_dtbl_entry_t  *hdtbl_entry;
+    heur_dtbl_entry_t  *hdtbl_entry = NULL;
     bool                dissector_found = false;
 
     if (!tvb_bytes_exist(tvb, *offset, length)) /* previously consumed bytes + offset was all the data - none or corrupt payload */
@@ -2996,13 +3001,13 @@ static void parse_PAYLOAD(proto_tree *parentTree,
             reported_length -= crclen;
         next_tvb = tvb_new_subset_length(tvb, local_offset, reported_length);
 
-        info->do_rc_send_reassembling = parse_PAYLOAD_do_rc_send_reassembling(pinfo, info);
+        info->do_rc_send_reassembling = parse_PAYLOAD_do_rc_send_reassembling(pinfo, info, &hdtbl_entry);
 
 reassemble:
 
         if (info->do_rc_send_reassembling) {
             allow_reassembling = false;
-            next_tvb = parse_PAYLOAD_reassemble_tvb(pinfo, info, next_tvb, top_tree);
+            next_tvb = parse_PAYLOAD_reassemble_tvb(pinfo, info, hdtbl_entry, next_tvb, top_tree);
             if (next_tvb == NULL) {
                 /*
                  * we need more data...
@@ -3011,7 +3016,11 @@ reassemble:
             }
         }
 
-        if (try_heuristic_first)
+        if (hdtbl_entry) {
+            call_heur_dissector_direct(hdtbl_entry, next_tvb, pinfo, top_tree, info);
+            dissector_found = true;
+        }
+        else if (try_heuristic_first)
         {
             if (dissector_try_heuristic(heur_dissectors_payload, next_tvb, pinfo, top_tree, &hdtbl_entry, info))
                 dissector_found = true;

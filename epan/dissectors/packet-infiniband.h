@@ -21,6 +21,7 @@ typedef struct {
     uint64_t service_id;         /* service id specified when the (RC) channel was set-up */
     bool client_to_server;  /* message direction */
     bool do_rc_send_reassembling; /* the subdissector requested RC Send reassembling */
+    heur_dtbl_entry_t *rc_hdtbl_entry;
     uint32_t src_qp;             /* originator src qp as this is not present in RC packets */
 
     /* store mad data so that it can be parsed for private data by ULP */
