@@ -6451,7 +6451,7 @@ dissect_broker_client_entry_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
 /******************************************************************************/
 /* Dissect Broker Connect                                                     */
 static uint32_t
-dissect_broker_connect(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets, uint32_t pdu_end)
+dissect_broker_connect(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
   uint8_t          connection_flags;
   proto_item      *pi;
@@ -6480,7 +6480,7 @@ dissect_broker_connect(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int 
   /* client_entry_pdu */
   dissect_broker_client_entry_pdu(tvb, pinfo, tree, offset, last_pdu_offsets);
 
-  return pdu_end;
+  return 0;
 }
 
 
@@ -6502,7 +6502,7 @@ dissect_broker_connect_reply(tvbuff_t *tvb, proto_tree *tree, int offset)
     hf_rdmnet_broker_connect_reply_broker_uid_manf, hf_rdmnet_broker_connect_reply_broker_uid_dev);
 
   /* client uid */
-  offset = rdmnet_add_uid(tvb, tree, offset, hf_rdmnet_broker_connect_reply_client_uid,
+  rdmnet_add_uid(tvb, tree, offset, hf_rdmnet_broker_connect_reply_client_uid,
     hf_rdmnet_broker_connect_reply_client_uid_manf, hf_rdmnet_broker_connect_reply_client_uid_dev);
 
   return 0;
@@ -6512,7 +6512,7 @@ dissect_broker_connect_reply(tvbuff_t *tvb, proto_tree *tree, int offset)
 /******************************************************************************/
 /* Dissect Broker Client Entry Update                                         */
 static uint32_t
-dissect_broker_client_entry_update(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets, uint32_t pdu_end)
+dissect_broker_client_entry_update(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
   uint8_t          connection_flags;
 
@@ -6530,7 +6530,7 @@ dissect_broker_client_entry_update(tvbuff_t *tvb, packet_info* pinfo, proto_tree
   /* client_entry_pdu */
   dissect_broker_client_entry_pdu(tvb, pinfo, tree, offset, last_pdu_offsets);
 
-  return pdu_end;
+  return 0;
 }
 
 
@@ -6696,13 +6696,13 @@ dissect_acn_broker_base_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
     }
     break;
   case RDMNET_BROKER_VECTOR_CONNECT:
-    dissect_broker_connect(tvb, pinfo, pdu_tree, data_offset, &pdu_offsets, pdu_end);
+    dissect_broker_connect(tvb, pinfo, pdu_tree, data_offset, &pdu_offsets);
     break;
   case RDMNET_BROKER_VECTOR_CONNECT_REPLY:
     dissect_broker_connect_reply(tvb, pdu_tree, data_offset);
     break;
   case RDMNET_BROKER_VECTOR_CLIENT_ENTRY_UPDATE:
-    dissect_broker_client_entry_update(tvb, pinfo, pdu_tree, data_offset, &pdu_offsets, pdu_end);
+    dissect_broker_client_entry_update(tvb, pinfo, pdu_tree, data_offset, &pdu_offsets);
     break;
   case RDMNET_BROKER_VECTOR_REDIRECT_V4:
     dissect_broker_redirect_v4(tvb, pdu_tree, data_offset);
