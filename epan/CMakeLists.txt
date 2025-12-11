@@ -36,7 +36,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	addr_resolv.h
 	address.h
 	address_types.h
-	afn.h
 	aftypes.h
 	arptypes.h
 	asn1.h
@@ -145,7 +144,6 @@ set(LIBWIRESHARK_HEADER_FILES
 set(LIBWIRESHARK_NONGENERATED_FILES
 	addr_resolv.c
 	address_types.c
-	afn.c
 	aftypes.c
 	asn1.c
 	capture_dissectors.c

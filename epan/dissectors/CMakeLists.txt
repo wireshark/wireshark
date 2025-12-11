@@ -303,6 +303,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-h248.h
 	packet-http.h
 	packet-http2.h
+	packet-iana-data.h
 	packet-ieee1609dot2.h
 	packet-ieee80211-radiotap-defs.h
 	packet-ieee80211-radiotap-iter.h
@@ -1001,6 +1002,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-http-urlencoded.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hyperscsi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-i2c.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-iana-data.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iana-oui.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iapp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iax2.c

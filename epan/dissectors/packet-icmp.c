@@ -33,11 +33,11 @@
 #include <epan/ipproto.h>
 #include <epan/capture_dissectors.h>
 #include <epan/proto_data.h>
-#include <epan/afn.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include <wsutil/pint.h>
 
+#include "packet-iana-data.h"
 #include "packet-ip.h"
 #include "packet-icmp.h"
 
@@ -938,14 +938,14 @@ dissect_interface_identification_object(tvbuff_t * tvb, packet_info* pinfo, int 
 			proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_reserved, tvb, offset, 1, ENC_NA);
 			offset += 1;
 			switch(afi){
-				case AFNUM_INET: /* IPv4 */
+				case AFNUM_IP: /* IPv4 */
 					while(addr_length >= 4 && tvb_reported_length_remaining(tvb, offset) >= 4) {
 						proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
 						offset += 4;
 						addr_length -= 4;
 					}
 					break;
-				case AFNUM_INET6: /* IPv6 */
+				case AFNUM_IP6: /* IPv6 */
 					while(addr_length >= 16 && tvb_reported_length_remaining(tvb, offset) >= 16) {
 						proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_ipv6, tvb, offset, 16, ENC_NA);
 						offset += 16;

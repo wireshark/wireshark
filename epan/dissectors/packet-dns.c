@@ -68,10 +68,10 @@
 #include <epan/prefs-int.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
-#include <epan/afn.h>
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
 #include <epan/tfs.h>
+#include "packet-iana-data.h"
 #include "packet-tls.h"
 #include "packet-dtls.h"
 #include "packet-http2.h"
@@ -3564,14 +3564,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             tvb_memcpy(tvb, ip_addr.bytes, cur_offset, addr_len);
             switch (family) {
 
-              case AFNUM_INET:
+              case AFNUM_IP:
               {
                 proto_tree_add_ipv4(rropt_tree, hf_dns_opt_client_addr4, tvb,
                                     cur_offset, addr_len, ip_addr.addr);
               }
               break;
 
-              case AFNUM_INET6:
+              case AFNUM_IP6:
               {
                 proto_tree_add_ipv6(rropt_tree, hf_dns_opt_client_addr6, tvb,
                                     cur_offset, addr_len, (ws_in6_addr *)&ip_addr);
@@ -3722,13 +3722,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         cur_offset += 1;
         rr_len     -= 1;
 
-        if (afamily == AFNUM_INET && afdpart_len <= 4) {
+        if (afamily == AFNUM_IP && afdpart_len <= 4) {
           ws_in4_addr *addr4_copy;
 
           addr4_copy = (ws_in4_addr *)wmem_alloc0(pinfo->pool, 4);
           tvb_memcpy(tvb, (void *)addr4_copy, cur_offset, afdpart_len);
           proto_tree_add_ipv4(rr_tree, hf_dns_apl_afdpart_ipv4, tvb, cur_offset, afdpart_len, *addr4_copy);
-        } else if (afamily == AFNUM_INET6 && afdpart_len <= 16) {
+        } else if (afamily == AFNUM_IP6 && afdpart_len <= 16) {
           ws_in6_addr *addr6_copy;
 
           addr6_copy = (ws_in6_addr *)wmem_alloc0(pinfo->pool, 16);

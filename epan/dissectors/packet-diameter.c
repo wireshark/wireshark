@@ -48,7 +48,6 @@
 #include <epan/show_exception.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
-#include <epan/afn.h>
 #include <epan/tfs.h>
 
 #include <wsutil/filesystem.h>
@@ -59,6 +58,7 @@
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <wsutil/strtoi.h>
+#include "packet-iana-data.h"
 #include "packet-tcp.h"
 #include "packet-diameter.h"
 #include "packet-tls.h"
@@ -1122,16 +1122,16 @@ address_rfc_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *dia
 	len = len-2;
 
 	proto_tree_add_item_ret_uint(pt, t->hf_address_type, tvb, 0, 2, ENC_NA, &addr_type);
-	/* See afn.h and https://www.iana.org/assignments/address-family-numbers/address-family-numbers.xhtml */
+	/* See packet-iana-data.h and https://www.iana.org/assignments/address-family-numbers/address-family-numbers.xhtml */
 	switch (addr_type ) {
-		case AFNUM_INET:
+		case AFNUM_IP:
 			if (len != 4) {
 				proto_tree_add_expert_format(pt, c->pinfo, &ei_diameter_avp_len, tvb, 2, len, "Wrong length for IPv4 Address: %d instead of 4", len);
 				return "[Malformed]";
 			}
 			pi = proto_tree_add_item(pt,t->hf_ipv4,tvb,2,4,ENC_BIG_ENDIAN);
 			break;
-		case AFNUM_INET6:
+		case AFNUM_IP6:
 			if (len != 16) {
 				proto_tree_add_expert_format(pt, c->pinfo, &ei_diameter_avp_len, tvb, 2, len, "Wrong length for IPv6 Address: %d instead of 16", len);
 				return "[Malformed]";

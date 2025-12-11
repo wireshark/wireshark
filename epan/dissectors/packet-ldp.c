@@ -31,12 +31,12 @@
 #include <epan/exceptions.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
-#include <epan/afn.h>
 #include <epan/expert.h>
 #include <epan/show_exception.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 
+#include "packet-iana-data.h"
 #include "packet-diffserv-mpls-common.h"
 #include "packet-ldp.h"
 
@@ -1160,11 +1160,11 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *
 
             implemented=1;
             switch(family) {
-            case AFNUM_INET: /*IPv4*/
+            case AFNUM_IP: /*IPv4*/
                 addr_size=4;
                 addr_type = AT_IPv4;
                 break;
-            case AFNUM_INET6: /*IPv6*/
+            case AFNUM_IP6: /*IPv6*/
                 addr_size=16;
                 addr_type = AT_IPv6;
                 break;
@@ -1236,11 +1236,11 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *
 
             implemented=1;
             switch(family) {
-            case AFNUM_INET: /*IPv4*/
+            case AFNUM_IP: /*IPv4*/
                 addr_size=4;
                 addr_type = AT_IPv4;
                 break;
-            case AFNUM_INET6: /*IPv6*/
+            case AFNUM_IP6: /*IPv6*/
                 addr_size=16;
                 addr_type = AT_IPv6;
                 break;
@@ -1665,11 +1665,11 @@ dissect_tlv_address_list(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, pro
     proto_tree_add_item(tree, hf_ldp_tlv_addrl_addr_family, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
     switch(family) {
-    case AFNUM_INET: /*IPv4*/
+    case AFNUM_IP: /*IPv4*/
         addr_size=4;
         addr_type = AT_IPv4;
         break;
-    case AFNUM_INET6: /*IPv6*/
+    case AFNUM_IP6: /*IPv6*/
         addr_size=16;
         addr_type = AT_IPv6;
         break;

@@ -26,8 +26,8 @@
 #include <epan/expert.h>
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
-#include <epan/afn.h>
 #include <epan/in_cksum.h>
+#include "packet-iana-data.h"
 #include "packet-iana-oui.h"
 #include "packet-llc.h"
 #include "packet-gre.h"
@@ -538,14 +538,14 @@ static void dissect_cie_list(tvbuff_t    *tvb,
         if (cli_addr_len) {
             switch (hdr->ar_afn) {
 
-            case AFNUM_INET:
+            case AFNUM_IP:
                 if (cli_addr_len == 4)
                     proto_tree_add_item(cie_tree, hf_nhrp_client_nbma_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
                 else {
                     proto_tree_add_item(cie_tree, hf_nhrp_client_nbma_address_bytes, tvb, offset, cli_addr_len, ENC_NA);
                 }
                 break;
-            case AFNUM_INET6:
+            case AFNUM_IP6:
                 if (cli_addr_len == 16)
                     proto_tree_add_item(cie_tree, hf_nhrp_client_nbma_addr_v6, tvb, offset, 16, ENC_NA);
                 else {
@@ -712,7 +712,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
     if (shl) {
         switch (hdr->ar_afn) {
 
-        case AFNUM_INET:
+        case AFNUM_IP:
             if (shl == 4)
                 proto_tree_add_item(nhrp_tree, hf_nhrp_src_nbma_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
             else {
@@ -720,7 +720,7 @@ static void dissect_nhrp_mand(tvbuff_t    *tvb,
             }
             break;
 
-        case AFNUM_INET6:
+        case AFNUM_IP6:
             if (shl == 16)
                 proto_tree_add_item(nhrp_tree, hf_nhrp_src_nbma_addr_v6, tvb, offset, 16, ENC_NA);
             else {

@@ -13,7 +13,6 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/oids.h>
-#include <epan/afn.h>
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
@@ -21,6 +20,7 @@
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 #include "packet-x509ce.h"
+#include "packet-iana-data.h"
 
 /* from packet-tls-utils.h */
 extern const value_string tls_hello_extension_types[];

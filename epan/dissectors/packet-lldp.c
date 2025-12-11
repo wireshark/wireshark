@@ -32,7 +32,6 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
-#include <epan/afn.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
@@ -42,6 +41,7 @@
 #include <wsutil/array.h>
 #include <epan/oui.h>
 
+#include "packet-iana-data.h"
 #include "packet-enip.h"
 
 #define DEFAULT_COLUMN_INFO            1
@@ -1820,7 +1820,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uin
 
 		/* Check for IPv4 or IPv6 */
 		switch(addr_family){
-		case AFNUM_INET:
+		case AFNUM_IP:
 			if (dataLen == 6){
 				strPtr = tvb_ip_to_str(pinfo->pool, tvb, offset);
 			}else{
@@ -1832,7 +1832,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uin
 			proto_tree_add_item(chassis_tree, hf_chassis_id_ip4, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 			break;
-		case AFNUM_INET6:
+		case AFNUM_IP6:
 			if  (dataLen == 18){
 				strPtr = tvb_ip6_to_str(pinfo->pool, tvb, offset);
 			}else{
@@ -1993,7 +1993,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 
 		/* Check for IPv4 or IPv6 */
 		switch(addr_family){
-		case AFNUM_INET:
+		case AFNUM_IP:
 			if (dataLen == 6){
 				strPtr = tvb_ip_to_str(pinfo->pool, tvb, offset);
 			}else{
@@ -2005,7 +2005,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			proto_tree_add_item(port_tree, hf_port_id_ip4, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 			break;
-		case AFNUM_INET6:
+		case AFNUM_IP6:
 			if  (dataLen == 18){
 				strPtr = tvb_ip6_to_str(pinfo->pool, tvb, offset);
 			}else{
