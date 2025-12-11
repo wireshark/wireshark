@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/crc16-tvb.h>
 
 void proto_register_srp(void);
@@ -29,12 +30,14 @@ static int proto_ccsrl;
 static int hf_srp_header;
 static int hf_srp_seqno;
 static int hf_srp_crc;
-static int hf_srp_crc_bad;
+static int hf_srp_crc_status;
 static int hf_ccsrl_ls;
 
 /* These are the ids of the subtrees that we may be creating */
 static int ett_srp;
 static int ett_ccsrl;
+
+static expert_field ei_srp_crc_bad;
 
 static dissector_handle_t ccsrl_handle;
 static dissector_handle_t h245dg_handle;
@@ -110,7 +113,6 @@ static int dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 {
     proto_item *srp_item = NULL;
     proto_tree *srp_tree = NULL;
-    proto_item *hidden_item;
 
     uint8_t header = tvb_get_uint8(tvb,0);
 
@@ -140,29 +142,13 @@ static int dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             break;
     }
 
-    if( srp_tree ) {
-        uint16_t crc, calc_crc;
-        unsigned crc_offset = tvb_reported_length(tvb)-2;
-        crc = tvb_get_letohs(tvb,-2);
+    uint16_t calc_crc;
+    unsigned crc_offset = tvb_reported_length(tvb)-2;
 
-        /* crc includes the header */
-        calc_crc = crc16_ccitt_tvb(tvb,crc_offset);
+    /* crc includes the header */
+    calc_crc = crc16_ccitt_tvb(tvb,crc_offset);
 
-        if( crc == calc_crc ) {
-            proto_tree_add_uint_format_value(srp_tree, hf_srp_crc, tvb,
-                                       crc_offset, 2, crc,
-                                       "0x%04x (correct)", crc);
-        } else {
-            hidden_item = proto_tree_add_boolean(srp_tree, hf_srp_crc_bad, tvb,
-                                          crc_offset, 2, true);
-            proto_item_set_hidden(hidden_item);
-            proto_tree_add_uint_format_value(srp_tree, hf_srp_crc, tvb,
-                                       crc_offset, 2, crc,
-                                       "0x%04x (incorrect, should be 0x%04x)",
-                                       crc,
-                                       calc_crc);
-        }
-    }
+    proto_tree_add_checksum(srp_tree, tvb, crc_offset, hf_srp_crc, hf_srp_crc_status, &ei_srp_crc_bad, pinfo, calc_crc, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
     return tvb_captured_length(tvb);
 }
@@ -197,19 +183,27 @@ void proto_register_srp (void)
         {&hf_srp_crc,
          { "CRC", "srp.crc", FT_UINT16, BASE_HEX, NULL, 0x0,
            NULL, HFILL }},
-        { &hf_srp_crc_bad,
-          { "Bad CRC","srp.crc_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }},
+        { &hf_srp_crc_status,
+         { "CRC Status","srp.crc.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+           NULL, HFILL }},
     };
 
     static int *ett[] = {
         &ett_srp,
     };
 
+    expert_module_t* expert_srp;
+
+    static ei_register_info ei[] = {
+        { &ei_srp_crc_bad, { "srp.crc_bad", PI_CHECKSUM, PI_ERROR, "Bad CRC", EXPFILL }},
+    };
+
     proto_srp = proto_register_protocol ("H.324/SRP", "SRP", "srp");
     proto_register_field_array (proto_srp, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
     register_dissector("srp", dissect_srp, proto_srp);
+    expert_srp = expert_register_protocol(proto_srp);
+    expert_register_field_array(expert_srp, ei, array_length(ei));
 
     /* register our init routine to be called at the start of a capture,
        to clear out our hash tables etc */
