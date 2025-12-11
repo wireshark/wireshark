@@ -766,7 +766,14 @@ else() # ! MSVC
 		list(APPEND WIRESHARK_COMMON_FLAGS -Qunused-arguments)
 	endif()
 
-	if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+	# Set _FORTIFY_SOURCE to the highest level we can. Since we prepend our
+	# options, allowing users to override our options, check to see if
+	# -D_FORTIFY_SOURCE is already set to avoid a redefinition warning.
+	#
+	# Note the distribution might use a GCC spec file or Clang configuration
+	# file, which takes place before our options, so we have to undefine it
+	# first too.
+	if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT "${CMAKE_C_FLAGS}" MATCHES "-D_FORTIFY_SOURCE")
 		# _FORTIFY_SOURCE requires -O1 or higher, and the Debug
 		# build type has no optimization
 		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0") OR
@@ -776,8 +783,13 @@ else() # ! MSVC
 			# with it will give a warning that it has the same effect as
 			# -D_FORTIFY_SOURCE=2
 			list(APPEND WIRESHARK_COMMON_FLAGS
-			-U_FORTIFY_SOURCE	# Run-time buffer overflow detection. For dist like Ubuntu, U_FORTIFY_SOURCE must be input before D_FORTIFY_SOURCE
+			-U_FORTIFY_SOURCE	# For dist like Ubuntu, U_FORTIFY_SOURCE must be input before D_FORTIFY_SOURCE
 			-D_FORTIFY_SOURCE=3				# Fortify sources with compile- and run-time checks for unsafe libc usage and buffer overflows. Requires -O1 or higher
+			)
+		elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+			list(APPEND WIRESHARK_COMMON_FLAGS
+			-U_FORTIFY_SOURCE	# For dist like Ubuntu, U_FORTIFY_SOURCE must be input before D_FORTIFY_SOURCE
+			-D_FORTIFY_SOURCE=2				# Fortify sources with compile- and run-time checks for unsafe libc usage and buffer overflows. Requires -O1 or higher
 			)
 		endif()
 	endif()
