@@ -1,0 +1,4 @@
+# "Procmon" profile settings file for Stratoshark 4.7.0. Edit with care.
+
+# Automatically switch to this profile if this display filter matches.
+auto_switch_filter: procmon

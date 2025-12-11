@@ -1,0 +1,11 @@
+# This file was created by Stratoshark. Edit with care.
+@Registry Writes@procmon.registry.operation_type in {4,8,16}@[13364,32896,4112][65535,65535,65535]
+@Registry Reads@procmon.registry.operation_type in {3,5,6,7}@[20560,41377,10537][65535,65535,65535]
+@Unsuccessful Result@procmon.event_result != 0@[56797,28270,24158][0,0,0]
+@Socket Operations@procmon.network.operation_type in {4,5,6,7}@[20303,26214,51143][65535,65535,65535]
+@Net Writes@procmon.network.operation_type in {2,8,9}@[24672,53713,51657][0,0,0]
+@Net Reads@procmon.network.operation_type == 3@[29812,64764,62451][0,0,0]
+@File Opens@procmon.filesystem.operation_type in {19,20,21,39}@[31611,24415,13621][65535,65535,65535]
+@File Writes@procmon.filesystem.operation_type in {3,24}@[60138,48059,37522][0,0,0]
+@File Reads@procmon.filesystem.operation_type in {5,23}@[61423,53970,40349][0,0,0]
+@FD Closes@procmon.filesystem.operation_type == 38@[27499,27499,27499][65535,65535,65535]

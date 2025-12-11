@@ -1,0 +1,22 @@
+# Configuration file for Stratoshark.
+#
+# Packet list hidden columns
+# List all column indices (1-indexed) to hide in the packet list.
+gui.column.hide: 6,10
+
+# Packet list column format
+# Each pair of strings consists of a column title and its format
+gui.column.format:
+	"No.", "%m",
+	"Time", "%t",
+	"Process Name", "%Cus:procmon.process.name:0:U",
+	"Session Number", "%Cus:procmon.process.session_number:0:U",
+	"Process ID", "%Cus:procmon.process.id:0:U",
+	"Thread ID", "%Cus:procmon.thread_id:0:U",
+	"Architecture", "%Cus:procmon.process.is_64_bit:0:R",
+	"Operation", "%Cus:procmon.filesystem.operation_type||procmon.registry.operation_type||procmon.network.operation_type||procmon.process.operation_type||procmon.profiling.operation_type:0:R",
+	"Path", "%Cus:procmon.filesystem.path||procmon.registry.key:0:U",
+	"User Name", "%Cus:procmon.process.user_name:0:U",
+	"Result", "%Cus:procmon.event_result:0:R",
+	"Detail", "%i",
+	"Image Path", "%Cus:procmon.process.image_path:0:U"

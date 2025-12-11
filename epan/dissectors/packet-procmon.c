@@ -352,6 +352,19 @@ static const value_string process_operation_vals[] = {
         { 0, NULL }
 };
 
+static const true_false_string process_architecture_tfs = { "64-bit", "32-bit" };
+
+// https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-
+static const value_string system_error_code_vals[] = {
+        { 0x0, "SUCCESS" },
+        { 0x2, "FILE_NOT_FOUND" },
+        { 0x3, "PATH_NOT_FOUND" },
+        { 0x4, "TOO_MANY_OPEN_FILES" },
+        { 0x5, "ACCESS_DENIED" },
+        { 0x6, "INVALID_HANDLE" },
+        { 0, NULL }
+};
+
 
 static bool dissect_procmon_process_event(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint32_t operation, tvbuff_t* extra_details_tvb _U_)
 {
@@ -2800,7 +2813,7 @@ proto_register_procmon(void)
         },
         { &hf_procmon_process_is_64_bit,
           { "Process Is 64-bit", "procmon.process.is_64_bit",
-            FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }
+            FT_BOOLEAN, BASE_NONE, TFS(&process_architecture_tfs), 0, NULL, HFILL }
         },
         { &hf_procmon_module_base_address,
           { "Module Base Address", "procmon.module.base_address",
@@ -2852,7 +2865,7 @@ proto_register_procmon(void)
         },
         { &hf_procmon_event_result,
           { "Event Result", "procmon.event_result",
-            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+            FT_UINT32, BASE_DEC_HEX, VALS(system_error_code_vals), 0, NULL, HFILL }
         },
         { &hf_procmon_stack_trace_depth,
           { "Stack Trace Depth", "procmon.stack_trace_depth",

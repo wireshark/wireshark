@@ -21,7 +21,12 @@
 
 // To do:
 // - Figure out module timestamps
-// - Read hosts and ports information
+// - Read the hosts array and pass the entries to wtap_dump_set_addrinfo_list,
+//   similar to the pcapng parser. The diffculty here is that host entries store
+//   their address in a 16-byte blob with no indication as to whether or not it's
+//   an IPv4 or an IPv6 address; v4 address are just stored in the first 4 bytes.
+// - Read the ports array? Is there any advantage to doing that vs our built in
+//   port number resolution?
 
 #pragma pack(push,1)
 typedef struct procmon_header_s {
