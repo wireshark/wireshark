@@ -16,6 +16,8 @@ import os
 import re
 import argparse
 import signal
+import io
+import concurrent.futures
 from check_common import findDissectorFilesInFolder, getFilesFromCommits, getFilesFromOpen, isDissectorFile, isGeneratedFile, removeComments
 
 
@@ -36,12 +38,14 @@ errors_found = 0
 
 # Check the given dissector file.
 def checkFile(filename, generated):
-    global warnings_found
-    global errors_found
+
+    output = io.StringIO()
+    warnings = 0
+    errors = 0
 
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
-        print(filename, 'does not exist!')
+        print(filename, 'does not exist!', file=output)
         return
 
     with open(filename, 'r', encoding="utf8") as f:
@@ -66,27 +70,35 @@ def checkFile(filename, generated):
                     # This is an error as format specifier would show in app
                     print('Error:', filename, "  ", m.group(0),
                           '   - should not have specifiers in unknown string',
-                          '(GENERATED)' if generated else '')
-                    errors_found += 1
+                          '(GENERATED)' if generated else '',
+                    file=output)
+                    errors += 1
             else:
                 # These ones need to have a specifier, and it should be suitable for an int
                 count = format_string.count('%')
                 if count == 0:
                     print('Warning:', filename, "  ", m.group(0),
                           '   - should have suitable format specifier in unknown string (or use _const()?)',
-                          '(GENERATED)' if generated else '')
-                    warnings_found += 1
+                          '(GENERATED)' if generated else '',
+                          file=output)
+                    warnings += 1
                 elif count > 1:
                     print('Warning:', filename, "  ", m.group(0),
                           '   - has more than one specifier?',
-                          '(GENERATED)' if generated else '')
+                          '(GENERATED)' if generated else '',
+                          file=output)
                 # TODO: check allowed specifiers (d, u, x, ?) and modifiers (0-9*) in re ?
                 if '%s' in format_string:
                     # This is an error as this likely causes a crash
                     print('Error:', filename, "  ", m.group(0),
                           '    - inappropriate format specifier in unknown string',
-                          '(GENERATED)' if generated else '')
-                    errors_found += 1
+                          '(GENERATED)' if generated else '',
+                          file=output)
+                    errors += 1
+
+    contents = output.getvalue()
+    output.close()
+    return warnings, errors, contents
 
 
 #################################################################
@@ -101,8 +113,6 @@ parser.add_argument('--commits', action='store',
                     help='last N commits to check')
 parser.add_argument('--open', action='store_true',
                     help='check open files')
-parser.add_argument('--generated', action='store_true',
-                    help='check generated files')
 
 args = parser.parse_args()
 
@@ -142,12 +152,18 @@ else:
 
 
 # Now check the chosen files
-for f in files:
-    if should_exit:
-        exit(1)
-    generated = isGeneratedFile(f)
-    if args.generated or not generated:
-        checkFile(f, generated)
+with concurrent.futures.ProcessPoolExecutor() as executor:
+    future_to_file_output = {executor.submit(checkFile, file,
+                             isGeneratedFile(file)): file for file in files}
+    for future in concurrent.futures.as_completed(future_to_file_output):
+        if should_exit:
+            exit(1)
+        # File is done - show any output and update warning, error counts
+        warnings, errors, output = future.result()
+        if len(output):
+            print(output)
+        warnings_found += warnings
+        errors_found += errors
 
 
 # Show summary.
