@@ -197,6 +197,7 @@ static bool procmon_read_event(FILE_T fh, wtap_rec* rec, procmon_file_info_t* fi
     ws_buffer_append(&wblock.rec->data, (const uint8_t*)&event_header, sizeof event_header);
 
     wblock.rec->presence_flags |= WTAP_HAS_TS;
+    filetime_to_nstime(&wblock.rec->ts, GUINT64_FROM_LE(event_header.timestamp));
 
     /* Read stack trace data */
     uint32_t sizeof_stacktrace = event_header.stack_trace_depth * (file_info->header.system_bitness ? 8 : 4);
