@@ -27974,6 +27974,20 @@ dissect_ht_control(packet_info* pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
   /* offset += 2; */
 }
 
+static int
+dissect_mesh_control(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int meshoff)
+{
+  proto_item *msh_fields;
+  proto_tree *msh_tree;
+  int meshctl_len;
+
+  msh_fields = proto_tree_add_item(tree, hf_ieee80211_mesh_control_field, tvb, meshoff, 6, ENC_NA);
+  msh_tree = proto_item_add_subtree(msh_fields, ett_msh_control);
+  meshctl_len = add_ff_mesh_control(msh_tree, tvb, pinfo, meshoff);
+  proto_item_set_len(msh_fields, meshctl_len);
+  return meshctl_len;
+}
+
 #define IEEE80211_COMMON_OPT_BROKEN_FC         0x00000001
 #define IEEE80211_COMMON_OPT_IS_CENTRINO       0x00000002
 #define IEEE80211_COMMON_OPT_NORMAL_QOS        0x00000004
@@ -40464,12 +40478,28 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      *
      * Assume minimal length, and then correct if wrong.
      */
-    if (tvb_bytes_exist(tvb, hdr_len, 1)) {
-      meshoff = hdr_len;
+    if ((option_flags & IEEE80211_COMMON_OPT_NORMAL_QOS) && DATA_FRAME_IS_QOS(frame_type_subtype)) {
+      if (!phdr->no_a_msdus && !DATA_FRAME_IS_NULL(frame_type_subtype)) {
+        is_amsdu = QOS_AMSDU_PRESENT(qos_control);
+      }
+    }
+    meshoff = hdr_len;
+    if (is_amsdu) {
+      /*
+       * IEEE 802.11-2020 9.2.4.7.3
+       * When the frame body contains an A-MSDU, then the Mesh Control field
+       * is located in the A-MSDU subframe header as shown in Figure 9-70.
+       * [I.e., after the source and destination address and length octets.]
+       *
+       * Use the Mesh Control field of the first subframe for our heuristics.
+       */
+      meshoff += 14;
+    }
+    if (tvb_bytes_exist(tvb, meshoff, 1)) {
       mesh_flags = tvb_get_uint8(tvb, meshoff);
       meshctl_len = find_mesh_control_length(mesh_flags);
       /* ... and try to read two bytes of next header */
-      if (tvb_bytes_exist(tvb, hdr_len, meshctl_len + 2)) {
+      if (tvb_bytes_exist(tvb, meshoff, meshctl_len + 2)) {
         uint16_t next_header = tvb_get_letohs(tvb, meshoff + meshctl_len);
         if (!has_mesh_control_local(fcf, mesh_flags, next_header)) {
           meshctl_len = 0;
@@ -40490,7 +40520,9 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
       }
     }
-    hdr_len += meshctl_len;
+    if (!is_amsdu) {
+      hdr_len += meshctl_len;
+    }
   }
 
   /* Create the protocol tree */
@@ -41216,13 +41248,8 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       } /* end of qos control field */
 
-      if (meshctl_len != 0) {
-        proto_item *msh_fields;
-        proto_tree *msh_tree;
-
-        msh_fields = proto_tree_add_item(hdr_tree, hf_ieee80211_mesh_control_field, tvb, meshoff, meshctl_len, ENC_NA);
-        msh_tree = proto_item_add_subtree(msh_fields, ett_msh_control);
-        add_ff_mesh_control(msh_tree, tvb, pinfo, meshoff);
+      if (meshctl_len != 0 && !is_amsdu) {
+        dissect_mesh_control(hdr_tree, tvb, pinfo, meshoff);
       }
 
       /*
@@ -41720,6 +41747,13 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(subframe_tree, hf_ieee80211_amsdu_length, next_tvb, msdu_offset+12, 2, ENC_BIG_ENDIAN);
 
           msdu_offset += 14;
+          if (meshctl_len != 0) {
+            meshctl_len = dissect_mesh_control(subframe_tree, next_tvb, pinfo, msdu_offset);
+            msdu_offset += meshctl_len;
+            if (ckd_sub(&msdu_length, msdu_length, meshctl_len)) {
+              THROW(ReportedBoundsError);
+            }
+          }
           msdu_tvb = tvb_new_subset_length(next_tvb, msdu_offset, msdu_length);
           call_dissector(llc_handle, msdu_tvb, pinfo, subframe_tree);
           if (!last_subframe) {
