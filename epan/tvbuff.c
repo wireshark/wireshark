@@ -608,12 +608,11 @@ tvb_ensure_captured_length_remaining(const tvbuff_t *tvb, const unsigned offset)
 }
 
 /* Validates that 'length' bytes are available starting from
- * offset (pos/neg). Does not throw an exception. */
+ * offset. Does not throw an exception. */
 bool
-tvb_bytes_exist(const tvbuff_t *tvb, const int offset, const int length)
+tvb_bytes_exist(const tvbuff_t *tvb, const unsigned offset, const int length)
 {
-	unsigned abs_offset = 0, abs_length;
-	int   exception;
+	unsigned end_offset;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -624,8 +623,18 @@ tvb_bytes_exist(const tvbuff_t *tvb, const int offset, const int length)
 	if (length < 0)
 		return false;
 
-	exception = check_offset_length_no_exception(tvb, offset, length, &abs_offset, &abs_length);
-	if (exception)
+	/*
+	 * Compute the offset of the first byte past the length.
+	 * Make sure it doesn't overflow.
+	 */
+	if (ckd_add(&end_offset, offset, length))
+		return false;
+
+	/*
+	 * Check that bytes exist up to right before that offset. (As length is
+	 * positive and there was no overflow we don't need to check offset.)
+	 */
+	if (end_offset > tvb->length)
 		return false;
 
 	return true;
@@ -701,21 +710,14 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const unsigned offset, const int len
 }
 
 bool
-tvb_offset_exists(const tvbuff_t *tvb, const int offset)
+tvb_offset_exists(const tvbuff_t *tvb, const unsigned offset)
 {
-	unsigned abs_offset = 0;
-	int   exception;
-
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset(tvb, offset, &abs_offset);
-	if (exception)
-		return false;
-
-	/* compute_offset only throws an exception on >, not >= because of the
-	 * comment above check_offset_length_no_exception, but here we want the
-	 * opposite behaviour so we check ourselves... */
-	return abs_offset < tvb->length;
+	/* We don't care why the offset doesn't exist, and unlike some
+	 * other functions we don't accept an offset one past the end,
+	 * so we check ourselves... */
+	return offset < tvb->length;
 }
 
 unsigned
