@@ -1627,7 +1627,7 @@ dissect_nmea0183_sentence_alr(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
     /* Alarm’s acknowledge state, A= acknowledged, V= unacknowledged*/
     offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_alr_alarm_ack_st, NULL, alarm_ack_state_str);
     /* c--c Alarm’s description text*/
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_alr_alarm_desc_txt, NULL, NULL);
+    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_alr_alarm_desc_txt, NULL, NULL);
 
     return tvb_captured_length(tvb);
 }
@@ -1803,7 +1803,7 @@ dissect_nmea0183_sentence_txt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
     /* Text identifier */
     offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_txt_id, NULL, NULL);
     /* Text message */
-    offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_txt_msg, NULL, NULL);
+    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_txt_msg, NULL, NULL);
 
     return tvb_captured_length(tvb);
 }

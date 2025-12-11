@@ -614,7 +614,6 @@ dissect_nmea2000_126996(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
         offset += 1;
         /* Load Equivalency 8 bits unsigned NUMBER */
         proto_tree_add_item(nmea2000_tree, hf_nmea2000_load_eq, msg_tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        offset += 1;
     }
 
     return tvb_captured_length(tvb);
