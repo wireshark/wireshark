@@ -19,7 +19,6 @@
 #include <epan/capture_dissectors.h>
 #include <epan/addr_resolv.h>
 #include <epan/maxmind_db.h>
-#include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/ip_opts.h>
 #include <epan/prefs.h>
@@ -37,6 +36,7 @@
 #include <wiretap/erf_record.h>
 #include <wsutil/str_util.h>
 
+#include "packet-iana-data.h"
 #include "packet-ip.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"
@@ -1954,6 +1954,10 @@ get_ip_conversation_data(conversation_t *conv, packet_info *pinfo)
   return ipd;
 }
 
+const char* ipprotostr(const int proto) {
+  return val_to_str_ext_const(proto, &ipproto_val_ext, "Unknown");
+}
+
 static int
 dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
@@ -2295,7 +2299,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   } else if (iph->ip_ttl < 5 && !in4_addr_is_multicast(dst32) &&
         /* At least BGP should appear here as well */
         iph->ip_proto != IP_PROTO_PIM &&
-        iph->ip_proto != IP_PROTO_OSPF) {
+        iph->ip_proto != IP_PROTO_OSPFIGP) {
     expert_add_info_format(pinfo, ttl_item, &ei_ip_ttl_too_small, "\"Time To Live\" only %u", iph->ip_ttl);
   }
 
@@ -3222,7 +3226,7 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("gre.proto", ETHERTYPE_IP, ip_handle);
   dissector_add_uint("gre.proto", GRE_WCCP, ip_handle);
   dissector_add_uint("llc.dsap", SAP_IP, ip_handle);
-  dissector_add_uint("ip.proto", IP_PROTO_IPIP, ip_handle);
+  dissector_add_uint("ip.proto", IP_PROTO_IPV4, ip_handle);
   dissector_add_uint("null.type", BSD_AF_INET, ip_handle);
   dissector_add_uint("chdlc.protocol", ETHERTYPE_IP, ip_handle);
   dissector_add_uint("osinl.excl", NLPID_IP, ip_handle);

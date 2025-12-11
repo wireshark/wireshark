@@ -190,7 +190,6 @@ Notes:
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/epan_dissect.h>
-#include <epan/ipproto.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
 #include <epan/proto.h>
@@ -198,6 +197,7 @@ Notes:
 #include <epan/conversation_filter.h>
 #include <epan/tfs.h>
 
+#include "packet-iana-data.h"
 #include "packet-ip.h"
 #include "packet-tcp.h"
 #include <epan/to_str.h>

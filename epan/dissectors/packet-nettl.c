@@ -16,8 +16,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 #include <wiretap/nettl.h>
+#include "packet-iana-data.h"
+
 
 void proto_register_nettl(void);
 void proto_reg_handoff_nettl(void);
@@ -242,7 +243,7 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             break;
         case WTAP_ENCAP_NETTL_RAW_ICMPV6:
             if (!dissector_try_uint(ip_proto_dissector_table,
-                                    IP_PROTO_ICMPV6, tvb, pinfo, tree))
+                                    IP_PROTO_IPV6_ICMP, tvb, pinfo, tree))
                 call_data_dissector(tvb, pinfo, tree);
             break;
         case WTAP_ENCAP_NETTL_X25:

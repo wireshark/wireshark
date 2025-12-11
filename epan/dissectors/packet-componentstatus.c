@@ -17,11 +17,11 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-sctp.h"
+#include "packet-iana-data.h"
 
 
 void proto_register_componentstatusprotocol(void);

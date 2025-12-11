@@ -101,7 +101,6 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/ipproto.h>
 #include <epan/etypes.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
@@ -111,6 +110,7 @@
 #include "packet-e212.h"
 #include "packet-ppp.h"
 #include "packet-e164.h"
+#include "packet-iana-data.h"
 
 void proto_register_gsm_a_gm(void);
 void proto_reg_handoff_gsm_a_gm(void);

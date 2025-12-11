@@ -43,7 +43,6 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/etypes.h>
-#include <epan/ipproto.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
 
@@ -52,6 +51,7 @@
 #include <wsutil/ws_padding_to.h>
 
 #include "packet-sflow.h"
+#include "packet-iana-data.h"
 
 #define SFLOW_UDP_PORTS "6343"
 

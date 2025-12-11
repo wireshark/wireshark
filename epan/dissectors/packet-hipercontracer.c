@@ -16,7 +16,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 #include <epan/stat_tap_ui.h>
 #include "packet-sctp.h"
 

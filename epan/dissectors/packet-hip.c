@@ -25,8 +25,9 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
-#include <epan/ipproto.h>
 #include <epan/in_cksum.h>
+#include "packet-iana-data.h"
+
 
 void proto_register_hip(void);
 void proto_reg_handoff_hip(void);

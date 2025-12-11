@@ -22,9 +22,9 @@ Specs:
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/ipproto.h>
 #include <epan/expert.h>
 #include "packet-ip.h"
+#include "packet-iana-data.h"
 
 void proto_reg_handoff_tapa(void);
 void proto_register_tapa(void);
@@ -467,7 +467,7 @@ static bool
 dissect_tapa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *iph)
 {
 	/* The TAPA protocol also uses IP protocol number 4 but it isn't really IPIP */
-	if ((ws_ip_protocol(iph) == IP_PROTO_IPIP) && ((tvb_get_uint8(tvb, 0) & 0xF0) != 0x40) &&
+	if ((ws_ip_protocol(iph) == IP_PROTO_IPV4) && ((tvb_get_uint8(tvb, 0) & 0xF0) != 0x40) &&
 	    (tvb_get_ntohs(tvb, 2)) < 20) {
 		dissect_tapa_static(tvb, pinfo, tree, iph);
 		return true;

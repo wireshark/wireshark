@@ -62,7 +62,6 @@
 #include <epan/packet.h>
 #include <epan/tfs.h>
 #include <epan/capture_dissectors.h>
-#include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
@@ -72,6 +71,7 @@
 #include <wsutil/ws_padding_to.h>
 
 #include "packet-rsvp.h"
+#include "packet-iana-data.h"
 
 void proto_register_ospf(void);
 void proto_reg_handoff_ospf(void);
@@ -1608,7 +1608,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             SET_CKSUM_VEC_PTR(cksum_vec[0], (const uint8_t *)pinfo->src.data, pinfo->src.len);
             SET_CKSUM_VEC_PTR(cksum_vec[1], (const uint8_t *)pinfo->dst.data, pinfo->dst.len);
             phdr[0] = g_htonl(ospflen);
-            phdr[1] = g_htonl(IP_PROTO_OSPF);
+            phdr[1] = g_htonl(IP_PROTO_OSPFIGP);
             SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)&phdr, 8);
             SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, reported_length);
             cksum_vec_len = 4;
@@ -5812,8 +5812,8 @@ proto_register_ospf(void)
 void
 proto_reg_handoff_ospf(void)
 {
-    dissector_add_uint("ip.proto", IP_PROTO_OSPF, ospf_handle);
-    capture_dissector_add_uint("ip.proto", IP_PROTO_OSPF, ospf_cap_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_OSPFIGP, ospf_handle);
+    capture_dissector_add_uint("ip.proto", IP_PROTO_OSPFIGP, ospf_cap_handle);
 }
 
 /*

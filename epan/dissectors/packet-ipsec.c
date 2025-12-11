@@ -62,7 +62,6 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/ipproto.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
@@ -80,6 +79,7 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 
 #include "packet-ipsec.h"
 #include "packet-ip.h"
+#include "packet-iana-data.h"
 
 void proto_register_ipsec(void);
 void proto_reg_handoff_ipsec(void);

@@ -21,12 +21,13 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
-#include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
 #include <epan/etypes.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include "packet-iana-data.h"
+#include "packet-ip.h"
 #include "packet-6lowpan.h"
 #include "packet-btl2cap.h"
 #include "packet-ipv6.h"
@@ -1044,7 +1045,7 @@ lowpan_reassemble_ipv6(tvbuff_t *tvb, packet_info *pinfo, struct ws_ip6_hdr *ipv
  *      lowpan_parse_nhc_proto
  *  DESCRIPTION
  *      Parses the start of an 6LoWPAN NHC header to determine the
- *      next header protocol identifier. Will return IP_PROTO_NONE
+ *      next header protocol identifier. Will return IP_PROTO_IPV6_NONXT
  *      if no valid protocol could be determined.
  *  PARAMETERS
  *      tvb             ; packet buffer.
@@ -1057,27 +1058,27 @@ static uint8_t
 lowpan_parse_nhc_proto(tvbuff_t *tvb, int offset)
 {
     /* Ensure that at least one byte exists. */
-    if (!tvb_bytes_exist(tvb, offset, 1)) return IP_PROTO_NONE;
+    if (!tvb_bytes_exist(tvb, offset, 1)) return IP_PROTO_IPV6_NONXT;
 
     /* Check for IPv6 extension headers. */
     if (tvb_get_bits8(tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_BITS) == LOWPAN_NHC_PATTERN_EXT) {
         uint8_t     eid = (tvb_get_uint8(tvb, offset) & LOWPAN_NHC_EXT_EID) >> LOWPAN_NHC_EXT_EID_OFFSET;
         switch (eid) {
             case LOWPAN_NHC_EID_HOP_BY_HOP:
-                return IP_PROTO_HOPOPTS;
+                return IP_PROTO_HOPOPT;
             case LOWPAN_NHC_EID_ROUTING:
-                return IP_PROTO_ROUTING;
+                return IP_PROTO_IPV6_ROUTE;
             case LOWPAN_NHC_EID_FRAGMENT:
-                return IP_PROTO_FRAGMENT;
+                return IP_PROTO_IPV6_FRAG;
             case LOWPAN_NHC_EID_DEST_OPTIONS:
-                return IP_PROTO_DSTOPTS;
+                return IP_PROTO_IPV6_OPTS;
             case LOWPAN_NHC_EID_MOBILITY:
-                return IP_PROTO_MIPV6;
+                return IP_PROTO_MOBILITY_HEADER;
             case LOWPAN_NHC_EID_IPV6:
                 return IP_PROTO_IPV6;
             default:
                 /* Unknown protocol type. */
-                return IP_PROTO_NONE;
+                return IP_PROTO_IPV6_NONXT;
         };
     }
     /* Check for compressed UDP headers. */
@@ -1085,7 +1086,7 @@ lowpan_parse_nhc_proto(tvbuff_t *tvb, int offset)
         return IP_PROTO_UDP;
     }
     /* Unknown header type. */
-    return IP_PROTO_NONE;
+    return IP_PROTO_IPV6_NONXT;
 } /* lowpan_parse_nhc_proto */
 
 /*FUNCTION:------------------------------------------------------
@@ -1716,7 +1717,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int dgr
         ipv6.ip6h_nxt = IP_PROTO_UDP;
     }
     else if (next_header == LOWPAN_HC1_NEXT_ICMP) {
-        ipv6.ip6h_nxt = IP_PROTO_ICMPV6;
+        ipv6.ip6h_nxt = IP_PROTO_IPV6_ICMP;
     }
     else if (next_header == LOWPAN_HC1_NEXT_TCP) {
         ipv6.ip6h_nxt = IP_PROTO_TCP;
@@ -2381,7 +2382,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
             offset += 1;
         }
 
-        if (ext_proto == IP_PROTO_FRAGMENT) {
+        if (ext_proto == IP_PROTO_IPV6_FRAG) {
             /* Fragment header has a reserved byte in place of the Length field. */
             ext_hlen = 1;
             length = (uint8_t)sizeof(struct ws_ip6_frag);
@@ -2432,7 +2433,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
             return nhdr;
         }
 
-        if (ext_proto == IP_PROTO_FRAGMENT) {
+        if (ext_proto == IP_PROTO_IPV6_FRAG) {
             /* Display the extension header using the data dissector. */
             call_data_dissector(tvb_new_subset_length(tvb, offset+1, ext_len-1), pinfo, nhc_tree);
         } else {
@@ -2448,7 +2449,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         if (length > ext_hlen + ext_len) {
             uint8_t padding = length - (ext_hlen + ext_len);
             uint8_t *pad_ptr = LOWPAN_NHDR_DATA(nhdr) + ext_hlen + ext_len;
-            if (ext_proto != IP_PROTO_HOPOPTS && ext_proto != IP_PROTO_DSTOPTS) {
+            if (ext_proto != IP_PROTO_HOPOPT && ext_proto != IP_PROTO_IPV6_OPTS) {
                 expert_add_info(pinfo, ti_ext_len, &ei_6lowpan_bad_ext_header_length);
             }
             if (padding == 1) {
@@ -2469,7 +2470,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
             nhdr->next = dissect_6lowpan_iphc_nhc(tvb, pinfo, tree, offset, dgram_size - nhdr->reported, siid, diid);
             decrement_dissection_depth(pinfo);
         }
-        else if (ipv6_ext.ip6e_nxt != IP_PROTO_NONE) {
+        else if (ipv6_ext.ip6e_nxt != IP_PROTO_IPV6_NONXT) {
             /* Create another next header structure for the remaining payload. */
             length = tvb_captured_length_remaining(tvb, offset);
             nhdr->next = (struct lowpan_nhdr *)wmem_alloc(pinfo->pool, sizeof(struct lowpan_nhdr) + length);

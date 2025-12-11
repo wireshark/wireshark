@@ -12,7 +12,6 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/ipproto.h>
 #include <epan/unit_strings.h>
 
 #include <wsutil/array.h>
@@ -21,6 +20,7 @@
 #include "packet-netmon.h"
 #include "packet-windows-common.h"
 #include "packet-ipv6.h"
+#include "packet-ip.h"
 
 void proto_register_message_analyzer(void);
 void proto_reg_handoff_message_analyzer(void);

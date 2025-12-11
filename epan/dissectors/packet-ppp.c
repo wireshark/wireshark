@@ -28,7 +28,6 @@
 #include "packet-ip.h"
 #include <epan/crc16-tvb.h>
 #include <epan/crc32-tvb.h>
-#include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include <epan/reassemble.h>
 #include "packet-sll.h"
@@ -36,6 +35,7 @@
 #include "packet-sflow.h"
 #include "packet-l2tp.h"
 #include "packet-osi.h"
+#include "packet-iana-data.h"
 
 void proto_register_ppp_raw_hdlc(void);
 void proto_reg_handoff_ppp_raw_hdlc(void);

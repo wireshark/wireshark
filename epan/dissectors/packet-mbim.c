@@ -43,7 +43,6 @@
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
-#include <epan/ipproto.h>
 #include <epan/conversation.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
@@ -53,6 +52,8 @@
 #include "packet-gsm_map.h"
 #include "packet-usb.h"
 #include "packet-mbim.h"
+#include "packet-iana-data.h"
+
 
 void proto_register_mbim(void);
 void proto_reg_handoff_mbim(void);

@@ -17,7 +17,7 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
-#include <epan/ipproto.h>
+#include "packet-iana-data.h"
 
 void proto_register_openflow_v4(void);
 void proto_reg_handoff_openflow_v4(void);

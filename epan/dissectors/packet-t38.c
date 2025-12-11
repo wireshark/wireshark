@@ -44,11 +44,11 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include <epan/ipproto.h>
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 #include <wsutil/array.h>
 
+#include "packet-iana-data.h"
 #include "packet-t38.h"
 #include "packet-per.h"
 #include "packet-tpkt.h"

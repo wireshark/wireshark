@@ -26,7 +26,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/proto.h>
-#include <epan/ipproto.h>
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include <epan/to_str.h>
@@ -37,6 +36,7 @@
 
 #include "packet-tcp.h"
 #include "packet-udp.h"
+#include "packet-iana-data.h"
 #include "packet-knxip.h"
 #include "packet-knxip_decrypt.h"
 

@@ -13,11 +13,11 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-wccp.h"
+#include "packet-iana-data.h"
 
 void proto_register_wccp(void);
 void proto_reg_handoff_wccp(void);

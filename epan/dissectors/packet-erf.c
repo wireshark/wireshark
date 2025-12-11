@@ -13,7 +13,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/ipproto.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
 #include <wsutil/str_util.h>
@@ -22,6 +21,7 @@
 
 #include "packet-erf.h"
 #include "packet-ptp.h"
+#include "packet-iana-data.h"
 
 /*
 */

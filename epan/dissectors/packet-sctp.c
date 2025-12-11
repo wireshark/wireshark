@@ -48,7 +48,6 @@
 #include <epan/prefs.h>
 #include <epan/exceptions.h>
 #include <epan/exported_pdu.h>
-#include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include <epan/uat.h>
 #include <epan/expert.h>
@@ -66,6 +65,7 @@
 #include <wsutil/ws_roundup.h>
 
 #include "packet-sctp.h"
+#include "packet-iana-data.h"
 
  /*
   * Based on https://www.iana.org/assignments/sctp-parameters/sctp-parameters.xhtml

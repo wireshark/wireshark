@@ -16,7 +16,6 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
@@ -24,6 +23,7 @@
 #include "packet-eigrp.h"
 #include "packet-ipx.h"
 #include "packet-atalk.h"
+#include "packet-iana-data.h"
 
 /*
  * Originally Cisco proprietary; now the subject of RFC 7868.

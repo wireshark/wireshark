@@ -17,13 +17,13 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/aftypes.h>
-#include <epan/ipproto.h>
 #include "packet-osi.h"
 #include "packet-ppp.h"
 #include "packet-tpkt.h"
 #include "packet-juniper.h"
 #include "packet-llc.h"
 #include "packet-chdlc.h"
+#include "packet-iana-data.h"
 
 void proto_reg_handoff_osi(void);
 void proto_register_osi(void);
@@ -504,7 +504,7 @@ proto_reg_handoff_osi(void)
   dissector_add_uint("chdlc.protocol", CHDLCTYPE_OSI, osi_handle);
   dissector_add_uint("null.type", BSD_AF_ISO, osi_handle);
   dissector_add_uint("gre.proto", SAP_OSINL5, osi_handle);
-  dissector_add_uint("ip.proto", IP_PROTO_ISOIP, osi_handle); /* ISO network layer PDUs [RFC 1070] */
+  dissector_add_uint("ip.proto", IP_PROTO_ISO_IP, osi_handle); /* ISO network layer PDUs [RFC 1070] */
 
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_ISO, osi_juniper_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_CLNP, osi_juniper_handle);

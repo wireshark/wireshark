@@ -41,7 +41,6 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 
-#include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h>
@@ -56,6 +55,7 @@
 #include "packet-e212.h"
 #include "packet-gsm_a_common.h"
 #include "packet-ip.h"
+#include "packet-iana-data.h"
 
 void proto_register_mip6(void);
 void proto_reg_handoff_mip6(void);
@@ -5198,8 +5198,20 @@ proto_register_mip6(void)
 void
 proto_reg_handoff_mip6(void)
 {
+    /*
+     * The current Protocol Numbers list says that the IP protocol number for
+     * mobility headers is 135; it cites draft-ietf-mobileip-ipv6-24, but
+     * that draft doesn't actually give a number.
+     *
+     * It appears that 62 used to be used, even though that's assigned to
+     * a protocol called CFTP; however, the only reference for CFTP is a
+     * Network Message from BBN back in 1982, so, for now, we support 62,
+     * as well as 135, as a protocol number for mobility headers.
+     */
+#define IP_PROTO_MIPV6_OLD      62      /* Mobile IPv6  */
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6_OLD, mip6_handle);
-    dissector_add_uint("ip.proto", IP_PROTO_MIPV6, mip6_handle);
+
+    dissector_add_uint("ip.proto", IP_PROTO_MOBILITY_HEADER, mip6_handle);
 
     /* Add support for PMIPv6 control messages over IPV4 */
     dissector_add_uint_with_preference("udp.port", UDP_PORT_PMIP6_CNTL, mip6_handle);

@@ -95,7 +95,6 @@
 #include <epan/to_str.h>
 #include <epan/in_cksum.h>
 #include <epan/etypes.h>
-#include <epan/ipproto.h>
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
 #include <epan/tap.h>
@@ -111,6 +110,7 @@
 #include "packet-ip.h"
 #include "packet-diffserv-mpls-common.h"
 #include "packet-osi.h"
+#include "packet-iana-data.h"
 
 /* RSVP over UDP encapsulation */
 #define UDP_PORT_PRSVP 3455
@@ -1810,7 +1810,7 @@ static const value_string proto_vals[] = {
     { IP_PROTO_IGMP, "IGMP"},
     { IP_PROTO_TCP,  "TCP" },
     { IP_PROTO_UDP,  "UDP" },
-    { IP_PROTO_OSPF, "OSPF"},
+    { IP_PROTO_OSPFIGP, "OSPF"},
     { 0,             NULL  }
 };
 
@@ -10454,7 +10454,7 @@ void
 proto_reg_handoff_rsvp(void)
 {
     dissector_add_uint("ip.proto", IP_PROTO_RSVP, rsvp_handle);
-    dissector_add_uint("ip.proto", IP_PROTO_RSVPE2EI, rsvpe2ei_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_RSVP_E2E_IGNORE, rsvpe2ei_handle);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_PRSVP, rsvp_handle);
 }
 

@@ -74,7 +74,6 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/proto_data.h>
-#include <epan/ipproto.h>
 #include <epan/tfs.h>
 #include <wsutil/str_util.h>
 #include "packet-iana-data.h"

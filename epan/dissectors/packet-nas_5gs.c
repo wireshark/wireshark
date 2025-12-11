@@ -17,7 +17,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
-#include <epan/ipproto.h>
 #include <epan/etypes.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
@@ -32,6 +31,7 @@
 
 #include "packet-gsm_a_common.h"
 #include "packet-media-type.h"
+#include "packet-iana-data.h"
 #include "packet-tcp.h"
 
 void proto_register_nas_5gs(void);

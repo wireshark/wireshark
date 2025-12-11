@@ -15,12 +15,12 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
-#include <epan/ipproto.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-juniper.h"
 #include "packet-osi.h"
 #include "packet-ppp.h"
+#include "packet-iana-data.h"
 
 
 void proto_register_juniper(void);

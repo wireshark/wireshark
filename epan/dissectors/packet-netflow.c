@@ -129,7 +129,6 @@
 #include <wireshark.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/ipproto.h>
 #include <epan/sminmpec.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
@@ -141,6 +140,7 @@
 
 #include <wsutil/array.h>
 #include <wsutil/str_util.h>
+#include "packet-iana-data.h"
 #include "packet-tcp.h"
 #include "packet-udp.h"
 #include "packet-ntp.h"

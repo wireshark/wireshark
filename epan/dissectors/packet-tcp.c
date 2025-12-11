@@ -14,7 +14,6 @@
 #include <epan/capture_dissectors.h>
 #include <epan/exceptions.h>
 #include <epan/addr_resolv.h>
-#include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/ip_opts.h>
 #include <epan/follow.h>
@@ -39,6 +38,8 @@
 #include <wsutil/ws_assert.h>
 
 #include "packet-tcp.h"
+#include "packet-iana-data.h"
+
 
 void proto_register_tcp(void);
 void proto_reg_handoff_tcp(void);

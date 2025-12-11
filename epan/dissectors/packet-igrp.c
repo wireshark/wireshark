@@ -20,9 +20,10 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
-#include <epan/ipproto.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include "packet-iana-data.h"
+
 
 void proto_register_igrp(void);
 void proto_reg_handoff_igrp(void);
@@ -247,7 +248,7 @@ void proto_register_igrp(void)
 void
 proto_reg_handoff_igrp(void)
 {
-  dissector_add_uint("ip.proto", IP_PROTO_IGRP, igrp_handle);
+  dissector_add_uint("ip.proto", IP_PROTO_IGP, igrp_handle);
 }
 
 /*    IGRP Packet structure:

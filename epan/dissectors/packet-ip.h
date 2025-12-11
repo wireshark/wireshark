@@ -118,6 +118,8 @@ ipv6_pinfo_t *p_ipv6_pinfo_add_len(packet_info *pinfo, int exthdr_len);
 
 void ipv6_dissect_next(unsigned nxt, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ws_ip6 *iph);
 
+WS_DLL_PUBLIC const char* ipprotostr(const int proto);
+
 static inline int
 ws_ip_protocol(void *iph)
 {

@@ -21,10 +21,11 @@
 #include <epan/conversation.h>
 #include <epan/to_str.h>
 #include <epan/aftypes.h>
-#include <epan/ipproto.h>
 #include <epan/tfs.h>
 
 #include <wsutil/ws_padding_to.h>
+
+#include "packet-iana-data.h"
 
 void proto_register_dtpt(void);
 

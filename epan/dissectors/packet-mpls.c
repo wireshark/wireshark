@@ -43,7 +43,6 @@
 
 #include <epan/etypes.h>
 #include <epan/prefs.h>
-#include <epan/ipproto.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
 
@@ -56,6 +55,8 @@
 #include "packet-l2tp.h"
 #include "packet-vxlan.h"
 #include "packet-nsh.h"
+#include "packet-iana-data.h"
+
 
 void proto_register_mpls(void);
 void proto_reg_handoff_mpls(void);

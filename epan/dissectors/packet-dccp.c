@@ -47,7 +47,6 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include <epan/prefs.h>
 #include <epan/follow.h>
@@ -61,6 +60,7 @@
 #include <wsutil/str_util.h>
 
 #include "packet-dccp.h"
+#include "packet-iana-data.h"
 
 /*
  * Some definitions and the dissect_options() logic have been taken

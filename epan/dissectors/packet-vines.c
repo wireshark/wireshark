@@ -73,13 +73,13 @@
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
 #include <epan/etypes.h>
-#include <epan/ipproto.h>
 #include <epan/to_str.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-ppp.h"
 #include "packet-llc.h"
 #include "packet-arcnet.h"
+#include "packet-iana-data.h"
 
 
 void proto_register_vines_frp(void);

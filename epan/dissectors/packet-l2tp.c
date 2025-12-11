@@ -47,7 +47,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
@@ -60,6 +59,7 @@
 #include <wsutil/wsgcrypt.h>
 
 #include "packet-l2tp.h"
+#include "packet-iana-data.h"
 
 void proto_register_l2tp(void);
 void proto_reg_handoff_l2tp(void);

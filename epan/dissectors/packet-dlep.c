@@ -22,7 +22,6 @@
 #include <epan/ftypes/ftypes.h> /* for fieldtype lengths */
 #include <epan/exceptions.h>
 #include <epan/expert.h>
-#include <epan/ipproto.h>       /* for IP_PROTO_TCP and IP_PROTO_UDP */
 #include <epan/packet.h>
 #include <epan/packet_info.h>   /* for struct packet_info */
 #include <epan/prefs.h>
@@ -32,6 +31,7 @@
 #include <wsutil/array.h>
 
 #include "packet-tcp.h"
+#include "packet-iana-data.h"
 
 /* Section 13: DLEP Data Items */
 

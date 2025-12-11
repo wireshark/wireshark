@@ -23,8 +23,8 @@
 #include "file_wrappers.h"
 
 /* Grab constants for generating supporting layers */
-#include <epan/ipproto.h>
 #include <epan/dissectors/packet-tcp.h>
+#include <epan/dissectors/packet-iana-data.h>
 
 #include <wsutil/wsjson.h>
 

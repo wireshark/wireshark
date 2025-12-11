@@ -16,7 +16,6 @@
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
 #include <epan/addr_resolv.h>
-#include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include <epan/prefs.h>
 #include <epan/follow.h>
@@ -34,6 +33,7 @@
 #include <epan/conversation_filter.h>
 #include <epan/exported_pdu.h>
 #include <epan/decode_as.h>
+#include "packet-iana-data.h"
 
 void proto_register_udp(void);
 void proto_reg_handoff_udp(void);

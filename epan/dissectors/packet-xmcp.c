@@ -19,7 +19,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
@@ -28,6 +27,7 @@
 #include <wsutil/ws_padding_to.h>
 
 #include "packet-tcp.h"
+#include "packet-iana-data.h"
 
 void proto_register_xmcp(void);
 

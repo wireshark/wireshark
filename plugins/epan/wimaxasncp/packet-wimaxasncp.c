@@ -23,9 +23,9 @@
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h>
-#include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-eap.h>
+#include <epan/dissectors/packet-ip.h>
 
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>

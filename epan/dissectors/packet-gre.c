@@ -17,10 +17,10 @@
 #include <epan/etypes.h>
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
-#include <epan/ipproto.h>
 #include "packet-gre.h"
 #include "packet-wccp.h"
 #include "packet-llc.h"
+#include "packet-iana-data.h"
 
 
 #include <epan/decode_as.h>

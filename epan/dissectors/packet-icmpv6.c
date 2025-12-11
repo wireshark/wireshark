@@ -27,7 +27,6 @@
 
 #include <epan/packet.h>
 #include <epan/in_cksum.h>
-#include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/sequence_analysis.h>
@@ -48,6 +47,7 @@
 #include "packet-ieee802154.h"
 #include "packet-6lowpan.h"
 #include "packet-ip.h"
+#include "packet-iana-data.h"
 
 void proto_register_icmpv6(void);
 void proto_reg_handoff_icmpv6(void);
@@ -4578,7 +4578,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         SET_CKSUM_VEC_PTR(cksum_vec[0], (const uint8_t *)pinfo->src.data, pinfo->src.len);
         SET_CKSUM_VEC_PTR(cksum_vec[1], (const uint8_t *)pinfo->dst.data, pinfo->dst.len);
         phdr[0] = g_htonl(reported_length);
-        phdr[1] = g_htonl(IP_PROTO_ICMPV6);
+        phdr[1] = g_htonl(IP_PROTO_IPV6_ICMP);
         SET_CKSUM_VEC_PTR(cksum_vec[2], (const uint8_t *)&phdr, 8);
         SET_CKSUM_VEC_TVB(cksum_vec[3], tvb, 0, reported_length);
 
@@ -6836,9 +6836,9 @@ proto_reg_handoff_icmpv6(void)
 {
     capture_dissector_handle_t icmpv6_cap_handle;
 
-    dissector_add_uint("ip.proto", IP_PROTO_ICMPV6, icmpv6_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_IPV6_ICMP, icmpv6_handle);
     icmpv6_cap_handle = create_capture_dissector_handle(capture_icmpv6, proto_icmpv6);
-    capture_dissector_add_uint("ip.proto", IP_PROTO_ICMPV6, icmpv6_cap_handle);
+    capture_dissector_add_uint("ip.proto", IP_PROTO_IPV6_ICMP, icmpv6_cap_handle);
 
     /*
      * Get a handle for the IPv6 dissector.

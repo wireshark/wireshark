@@ -70,6 +70,156 @@ extern "C" {
 
 WS_DLL_PUBLIC const value_string afn_vals[];
 
+/*
+ * IP protocol numbers.
+ * http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xml
+ */
+#define IP_PROTO_HOPOPT                                   0         /* IPv6 Hop-by-Hop Option */
+#define IP_PROTO_ICMP                                     1         /* Internet Control Message */
+#define IP_PROTO_IGMP                                     2         /* Internet Group Management */
+#define IP_PROTO_GGP                                      3         /* Gateway-to-Gateway */
+#define IP_PROTO_IPV4                                     4         /* IPv4 encapsulation */
+#define IP_PROTO_ST                                       5         /* Stream */
+#define IP_PROTO_TCP                                      6         /* Transmission Control */
+#define IP_PROTO_CBT                                      7         /* CBT */
+#define IP_PROTO_EGP                                      8         /* Exterior Gateway Protocol */
+#define IP_PROTO_IGP                                      9         /* any private interior gateway             (used by Cisco for their IGRP) */
+#define IP_PROTO_BBN_RCC_MON                              10        /* BBN RCC Monitoring */
+#define IP_PROTO_NVP_II                                   11        /* Network Voice Protocol */
+#define IP_PROTO_PUP                                      12        /* PUP */
+#define IP_PROTO_ARGUS_DEPRECATED                         13        /* ARGUS */
+#define IP_PROTO_EMCON                                    14        /* EMCON */
+#define IP_PROTO_XNET                                     15        /* Cross Net Debugger */
+#define IP_PROTO_CHAOS                                    16        /* Chaos */
+#define IP_PROTO_UDP                                      17        /* User Datagram */
+#define IP_PROTO_MUX                                      18        /* Multiplexing */
+#define IP_PROTO_DCN_MEAS                                 19        /* DCN Measurement Subsystems */
+#define IP_PROTO_HMP                                      20        /* Host Monitoring */
+#define IP_PROTO_PRM                                      21        /* Packet Radio Measurement */
+#define IP_PROTO_XNS_IDP                                  22        /* XEROX NS IDP */
+#define IP_PROTO_TRUNK_1                                  23        /* Trunk-1 */
+#define IP_PROTO_TRUNK_2                                  24        /* Trunk-2 */
+#define IP_PROTO_LEAF_1                                   25        /* Leaf-1 */
+#define IP_PROTO_LEAF_2                                   26        /* Leaf-2 */
+#define IP_PROTO_RDP                                      27        /* Reliable Data Protocol */
+#define IP_PROTO_IRTP                                     28        /* Internet Reliable Transaction */
+#define IP_PROTO_ISO_TP4                                  29        /* ISO Transport Protocol Class 4 */
+#define IP_PROTO_NETBLT                                   30        /* Bulk Data Transfer Protocol */
+#define IP_PROTO_MFE_NSP                                  31        /* MFE Network Services Protocol */
+#define IP_PROTO_MERIT_INP                                32        /* MERIT Internodal Protocol */
+#define IP_PROTO_DCCP                                     33        /* Datagram Congestion Control Protocol */
+#define IP_PROTO_3PC                                      34        /* Third Party Connect Protocol */
+#define IP_PROTO_IDPR                                     35        /* Inter-Domain Policy Routing Protocol */
+#define IP_PROTO_XTP                                      36        /* XTP */
+#define IP_PROTO_DDP                                      37        /* Datagram Delivery Protocol */
+#define IP_PROTO_IDPR_CMTP                                38        /* IDPR Control Message Transport Proto */
+#define IP_PROTO_TP                                       39        /* TP++ Transport Protocol */
+#define IP_PROTO_IL                                       40        /* IL Transport Protocol */
+#define IP_PROTO_IPV6                                     41        /* IPv6 encapsulation */
+#define IP_PROTO_SDRP                                     42        /* Source Demand Routing Protocol */
+#define IP_PROTO_IPV6_ROUTE                               43        /* Routing Header for IPv6 */
+#define IP_PROTO_IPV6_FRAG                                44        /* Fragment Header for IPv6 */
+#define IP_PROTO_IDRP                                     45        /* Inter-Domain Routing Protocol */
+#define IP_PROTO_RSVP                                     46        /* Reservation Protocol */
+#define IP_PROTO_GRE                                      47        /* Generic Routing Encapsulation */
+#define IP_PROTO_DSR                                      48        /* Dynamic Source Routing Protocol */
+#define IP_PROTO_BNA                                      49        /* BNA */
+#define IP_PROTO_ESP                                      50        /* Encap Security Payload */
+#define IP_PROTO_AH                                       51        /* Authentication Header */
+#define IP_PROTO_I_NLSP                                   52        /* Integrated Net Layer Security  TUBA */
+#define IP_PROTO_SWIPE_DEPRECATED                         53        /* IP with Encryption */
+#define IP_PROTO_NARP                                     54        /* NBMA Address Resolution Protocol */
+#define IP_PROTO_MIN_IPV4                                 55        /* Minimal IPv4 Encapsulation */
+#define IP_PROTO_TLSP                                     56        /* Transport Layer Security Protocol        using Kryptonet key management */
+#define IP_PROTO_SKIP                                     57        /* SKIP */
+#define IP_PROTO_IPV6_ICMP                                58        /* ICMP for IPv6 */
+#define IP_PROTO_IPV6_NONXT                               59        /* No Next Header for IPv6 */
+#define IP_PROTO_IPV6_OPTS                                60        /* Destination Options for IPv6 */
+#define IP_PROTO_CFTP                                     62        /* CFTP */
+#define IP_PROTO_SAT_EXPAK                                64        /* SATNET and Backroom EXPAK */
+#define IP_PROTO_KRYPTOLAN                                65        /* Kryptolan */
+#define IP_PROTO_RVD                                      66        /* MIT Remote Virtual Disk Protocol */
+#define IP_PROTO_IPPC                                     67        /* Internet Pluribus Packet Core */
+#define IP_PROTO_SAT_MON                                  69        /* SATNET Monitoring */
+#define IP_PROTO_VISA                                     70        /* VISA Protocol */
+#define IP_PROTO_IPCV                                     71        /* Internet Packet Core Utility */
+#define IP_PROTO_CPNX                                     72        /* Computer Protocol Network Executive */
+#define IP_PROTO_CPHB                                     73        /* Computer Protocol Heart Beat */
+#define IP_PROTO_WSN                                      74        /* Wang Span Network */
+#define IP_PROTO_PVP                                      75        /* Packet Video Protocol */
+#define IP_PROTO_BR_SAT_MON                               76        /* Backroom SATNET Monitoring */
+#define IP_PROTO_SUN_ND                                   77        /* SUN ND PROTOCOL-Temporary */
+#define IP_PROTO_WB_MON                                   78        /* WIDEBAND Monitoring */
+#define IP_PROTO_WB_EXPAK                                 79        /* WIDEBAND EXPAK */
+#define IP_PROTO_ISO_IP                                   80        /* ISO Internet Protocol */
+#define IP_PROTO_VMTP                                     81        /* VMTP */
+#define IP_PROTO_SECURE_VMTP                              82        /* SECURE-VMTP */
+#define IP_PROTO_VINES                                    83        /* VINES */
+#define IP_PROTO_IPTM                                     84        /* Internet Protocol Traffic Manager */
+#define IP_PROTO_NSFNET_IGP                               85        /* NSFNET-IGP */
+#define IP_PROTO_DGP                                      86        /* Dissimilar Gateway Protocol */
+#define IP_PROTO_TCF                                      87        /* TCF */
+#define IP_PROTO_EIGRP                                    88        /* EIGRP */
+#define IP_PROTO_OSPFIGP                                  89        /* OSPFIGP */
+#define IP_PROTO_SPRITE_RPC                               90        /* Sprite RPC Protocol */
+#define IP_PROTO_LARP                                     91        /* Locus Address Resolution Protocol */
+#define IP_PROTO_MTP                                      92        /* Multicast Transport Protocol */
+#define IP_PROTO_AX25                                     93        /* AX.25 Frames */
+#define IP_PROTO_IPIP                                     94        /* IP-within-IP Encapsulation Protocol */
+#define IP_PROTO_MICP_DEPRECATED                          95        /* Mobile Internetworking Control Pro. */
+#define IP_PROTO_SCC_SP                                   96        /* Semaphore Communications Sec. Pro. */
+#define IP_PROTO_ETHERIP                                  97        /* Ethernet-within-IP Encapsulation */
+#define IP_PROTO_ENCAP                                    98        /* Encapsulation Header */
+#define IP_PROTO_GMTP                                     100       /* GMTP */
+#define IP_PROTO_IFMP                                     101       /* Ipsilon Flow Management Protocol */
+#define IP_PROTO_PNNI                                     102       /* PNNI over IP */
+#define IP_PROTO_PIM                                      103       /* Protocol Independent Multicast */
+#define IP_PROTO_ARIS                                     104       /* ARIS */
+#define IP_PROTO_SCPS                                     105       /* SCPS */
+#define IP_PROTO_QNX                                      106       /* QNX */
+#define IP_PROTO_A_N                                      107       /* Active Networks */
+#define IP_PROTO_IPCOMP                                   108       /* IP Payload Compression Protocol */
+#define IP_PROTO_SNP                                      109       /* Sitara Networks Protocol */
+#define IP_PROTO_COMPAQ_PEER                              110       /* Compaq Peer Protocol */
+#define IP_PROTO_IPX_IN_IP                                111       /* IPX in IP */
+#define IP_PROTO_VRRP                                     112       /* Virtual Router Redundancy Protocol */
+#define IP_PROTO_PGM                                      113       /* PGM Reliable Transport Protocol */
+#define IP_PROTO_L2TP                                     115       /* Layer Two Tunneling Protocol */
+#define IP_PROTO_DDX                                      116       /* D-II Data Exchange (DDX) */
+#define IP_PROTO_IATP                                     117       /* Interactive Agent Transfer Protocol */
+#define IP_PROTO_STP                                      118       /* Schedule Transfer Protocol */
+#define IP_PROTO_SRP                                      119       /* SpectraLink Radio Protocol */
+#define IP_PROTO_UTI                                      120       /* UTI */
+#define IP_PROTO_SMP                                      121       /* Simple Message Protocol */
+#define IP_PROTO_SM_DEPRECATED                            122       /* Simple Multicast Protocol */
+#define IP_PROTO_PTP                                      123       /* Performance Transparency Protocol */
+#define IP_PROTO_ISIS_OVER_IPV4                           124
+#define IP_PROTO_FIRE                                     125
+#define IP_PROTO_CRTP                                     126       /* Combat Radio Transport Protocol */
+#define IP_PROTO_CRUDP                                    127       /* Combat Radio User Datagram */
+#define IP_PROTO_SSCOPMCE                                 128
+#define IP_PROTO_IPLT                                     129
+#define IP_PROTO_SPS                                      130       /* Secure Packet Shield */
+#define IP_PROTO_PIPE                                     131       /* Private IP Encapsulation within IP */
+#define IP_PROTO_SCTP                                     132       /* Stream Control Transmission Protocol */
+#define IP_PROTO_FC                                       133       /* Fibre Channel */
+#define IP_PROTO_RSVP_E2E_IGNORE                          134
+#define IP_PROTO_MOBILITY_HEADER                          135
+#define IP_PROTO_UDPLITE                                  136
+#define IP_PROTO_MPLS_IN_IP                               137
+#define IP_PROTO_MANET                                    138       /* MANET Protocols */
+#define IP_PROTO_HIP                                      139       /* Host Identity Protocol */
+#define IP_PROTO_SHIM6                                    140       /* Shim6 Protocol */
+#define IP_PROTO_WESP                                     141       /* Wrapped Encapsulating Security Payload */
+#define IP_PROTO_ROHC                                     142       /* Robust Header Compression */
+#define IP_PROTO_ETHERNET                                 143       /* Ethernet */
+#define IP_PROTO_AGGFRAG                                  144       /* AGGFRAG encapsulation payload for ESP */
+#define IP_PROTO_NSH                                      145       /* Network Service Header */
+#define IP_PROTO_HOMA                                     146       /* Homa */
+#define IP_PROTO_BIT_EMU                                  147       /* Bit-stream Emulation */
+#define IP_PROTO_RESERVED                                 255
+
+WS_DLL_PUBLIC value_string_ext ipproto_val_ext;
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

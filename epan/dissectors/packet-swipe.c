@@ -15,7 +15,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
+#include "packet-iana-data.h"
 
 void proto_register_swipe(void);
 void proto_reg_handoff_swipe(void);
@@ -116,7 +116,7 @@ proto_register_swipe(void)
 void
 proto_reg_handoff_swipe(void)
 {
-    dissector_add_uint("ip.proto", IP_PROTO_SWIPE, swipe_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_SWIPE_DEPRECATED, swipe_handle);
 
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_swipe );
 }

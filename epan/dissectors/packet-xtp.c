@@ -15,10 +15,10 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
+#include "packet-iana-data.h"
 
 #define XTP_VERSION_4	0x001
 

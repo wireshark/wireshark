@@ -18,7 +18,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/in_cksum.h>
-#include <epan/ipproto.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tfs.h>
@@ -27,6 +26,7 @@
 #include <wsutil/array.h>
 
 #include "packet-ip.h"
+#include "packet-iana-data.h"
 
 static bool pref_reassemble = true;
 static bool pref_check_checksum;

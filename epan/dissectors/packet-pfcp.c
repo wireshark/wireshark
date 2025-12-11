@@ -23,7 +23,6 @@
 #include <epan/conversation.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
-#include <epan/ipproto.h>
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h> /* Needed for BASE_ENTERPRISES */
 #include <epan/tap.h>
@@ -36,6 +35,7 @@
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-ip.h"
+#include "packet-iana-data.h"
 
 void proto_register_pfcp(void);
 void proto_reg_handoff_pfcp(void);

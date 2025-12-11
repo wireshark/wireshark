@@ -27,11 +27,11 @@
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 #include <epan/tfs.h>
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>
 #include "packet-ppp.h"
+#include "packet-iana-data.h"
 
 
 /* Store the last connection number we've seen.

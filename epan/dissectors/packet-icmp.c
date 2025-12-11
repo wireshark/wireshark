@@ -30,7 +30,6 @@
 #include <epan/to_str.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
-#include <epan/ipproto.h>
 #include <epan/capture_dissectors.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>

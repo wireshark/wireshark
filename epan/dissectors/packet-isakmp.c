@@ -36,7 +36,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 #include <epan/asn1.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
@@ -50,6 +49,7 @@
 #include "packet-gsm_a_common.h"
 #include "packet-isakmp.h"
 #include "packet-ber.h"
+#include "packet-iana-data.h"
 
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/array.h>

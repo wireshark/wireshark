@@ -25,7 +25,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
-#include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include "packet-iana-data.h"
 #include "packet-iana-oui.h"

@@ -18,7 +18,6 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
-#include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
@@ -27,6 +26,7 @@
 #include <wsutil/str_util.h>
 #include "packet-frame.h"
 #include "packet-osi.h"
+#include "packet-iana-data.h"
 
 void proto_register_cotp(void);
 void proto_register_cltp(void);

@@ -24,10 +24,10 @@
 #include <epan/tfs.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/ipproto.h>
 
 #include "packet-mpls.h"
 #include "packet-rtp.h"
+#include "packet-iana-data.h"
 
 void proto_register_ple(void);
 void proto_reg_handoff_ple(void);

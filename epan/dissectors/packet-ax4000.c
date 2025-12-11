@@ -12,7 +12,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 
 void proto_register_ax4000(void);
 void proto_reg_handoff_ax4000(void);
@@ -134,6 +133,8 @@ proto_register_ax4000(void)
 void
 proto_reg_handoff_ax4000(void)
 {
+#define IP_PROTO_AX4000         173     /* AX/4000 Testblock - non IANA */
+
 	dissector_add_uint("ip.proto", IP_PROTO_AX4000, ax4000_handle);
 	dissector_add_uint_with_preference("tcp.port", AX4000_TCP_PORT, ax4000_handle);
 	dissector_add_uint_with_preference("udp.port", AX4000_UDP_PORT, ax4000_handle);
