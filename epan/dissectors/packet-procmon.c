@@ -2474,7 +2474,7 @@ static bool dissect_procmon_network_event(tvbuff_t* tvb, packet_info* pinfo, pro
     offset += 4;
     if (flags & NETWORK_FLAG_IS_SRC_IPv4_MASK)
     {
-        proto_tree_add_item(network_event_tree, hf_procmon_network_src_ipv4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(network_event_tree, hf_procmon_network_src_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         proto_tree_add_item(network_event_tree, hf_procmon_network_padding, tvb, offset, 12, ENC_NA);
         offset += 12;
@@ -2486,7 +2486,7 @@ static bool dissect_procmon_network_event(tvbuff_t* tvb, packet_info* pinfo, pro
     }
     if (flags & NETWORK_FLAG_IS_DEST_IPv4_MASK)
     {
-        proto_tree_add_item(network_event_tree, hf_procmon_network_dest_ipv4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(network_event_tree, hf_procmon_network_dest_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         proto_tree_add_item(network_event_tree, hf_procmon_network_padding, tvb, offset, 12, ENC_NA);
         offset += 12;
