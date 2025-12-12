@@ -739,6 +739,7 @@
         ["WTAP_ENCAP_COSINE"] = 34,
         ["WTAP_ENCAP_DBUS"] = 146,
         ["WTAP_ENCAP_DECT_NR"] = 225,
+        ["WTAP_ENCAP_DECT_NR_TAP"] = 229,
         ["WTAP_ENCAP_DOCSIS"] = 33,
         ["WTAP_ENCAP_DOCSIS31_XRA31"] = 199,
         ["WTAP_ENCAP_DPAUXMON"] = 200,

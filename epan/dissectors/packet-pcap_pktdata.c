@@ -263,6 +263,7 @@ const value_string link_type_vals[] = {
     { 299,  "FIRA_UCI" },
     { 300,  "MDB" },
     { 301,  "DECT_NR" },
+    { 304,  "DECT_NR_TAP" },
     { 0, NULL }
 };
 

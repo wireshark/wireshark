@@ -517,6 +517,9 @@ static const struct {
 	/* DECT_NR (DECT-2020 New Radio (NR) MAC layer) */
 	{ 301,		WTAP_ENCAP_DECT_NR },
 
+	/* DECT_NR TAP (DECT-2020 New Radio (NR) TAP header) */
+	{ 304,		WTAP_ENCAP_DECT_NR_TAP },
+
 	/*
 	 * To repeat:
 	 *

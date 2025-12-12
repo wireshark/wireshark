@@ -1348,6 +1348,9 @@ static const struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_ZWAVE_TAP */
 	{ "zwave-tap", "Z-Wave Wireless with TAP pseudo-header" },
+
+	/* WTAP_ENCAP_DECT_NR_TAP */
+	{ "dect_nr_tap", "DECT-2020 New Radio (NR) TAP header" },
 };
 
 static int wtap_num_encap_types = array_length(encap_table_base);
