@@ -225,6 +225,23 @@ validate_offset(const tvbuff_t *tvb, const unsigned abs_offset)
 }
 
 static inline int
+validate_offset_and_remaining(const tvbuff_t *tvb, const unsigned offset, unsigned *rem_len)
+{
+	int exception;
+
+	exception = validate_offset(tvb, offset);
+	if (!exception)
+		*rem_len = tvb->length - offset;
+
+	return exception;
+}
+
+/*
+ * The same as validate_offset except this accepts negative offsets, meaning
+ * relative to the end of (captured) length. (That it's captured, not reported,
+ * length is one reason to deprecate signed offsets, #20103.)
+ */
+static inline int
 compute_offset(const tvbuff_t *tvb, const int offset, unsigned *offset_ptr)
 {
 	if (offset >= 0) {
@@ -560,14 +577,14 @@ _tvb_captured_length_remaining(const tvbuff_t *tvb, const int offset)
 }
 
 int
-tvb_captured_length_remaining(const tvbuff_t *tvb, const int offset)
+tvb_captured_length_remaining(const tvbuff_t *tvb, const unsigned offset)
 {
-	unsigned abs_offset = 0, rem_length;
+	unsigned rem_length;
 	int   exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
+	exception = validate_offset_and_remaining(tvb, offset, &rem_length);
 	if (exception)
 		return 0;
 
@@ -729,19 +746,18 @@ tvb_reported_length(const tvbuff_t *tvb)
 }
 
 int
-tvb_reported_length_remaining(const tvbuff_t *tvb, const int offset)
+tvb_reported_length_remaining(const tvbuff_t *tvb, const unsigned offset)
 {
-	unsigned abs_offset = 0;
 	int   exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset(tvb, offset, &abs_offset);
+	exception = validate_offset(tvb, offset);
 	if (exception)
 		return 0;
 
-	if (tvb->reported_length >= abs_offset)
-		return tvb->reported_length - abs_offset;
+	if (tvb->reported_length >= offset)
+		return tvb->reported_length - offset;
 	else
 		return 0;
 }
@@ -4074,7 +4090,7 @@ tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const int offset, char *buffer, size_
 
 	DISSECTOR_ASSERT(bufsize - 1 < INT_MAX);
 
-	len = tvb_captured_length_remaining(tvb, offset);
+	len = _tvb_captured_length_remaining(tvb, offset);
 	if (len <= 0) {
 		buffer[0] = '\0';
 		return 0;
