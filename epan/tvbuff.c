@@ -394,6 +394,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, uint32_t bit_offset, int32_t no_of_bits)
 	const uint8_t *data;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
+	DISSECTOR_ASSERT_CMPINT(no_of_bits, >=, -1);
 
 	byte_offset = bit_offset >> 3;
 	left = bit_offset % 8; /* for left-shifting */
@@ -411,11 +412,11 @@ tvb_new_octet_aligned(tvbuff_t *tvb, uint32_t bit_offset, int32_t no_of_bits)
 	}
 
 	/* already aligned -> shortcut */
-	if ((left == 0) && (remaining_bits == 0)) {
+	if (((left == 0) && (remaining_bits == 0)) || datalen == 0) {
 		return tvb_new_subset_length_caplen(tvb, byte_offset, datalen, datalen);
 	}
 
-	DISSECTOR_ASSERT(datalen>0);
+	ws_assert(datalen > 0);
 
 	/* If at least one trailing byte is available, we must use the content
 	 * of that byte for the last shift (i.e. tvb_get_ptr() must use datalen + 1).
@@ -460,6 +461,7 @@ tvb_new_octet_right_aligned(tvbuff_t *tvb, uint32_t bit_offset, int32_t no_of_bi
 	const uint8_t *data;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
+	DISSECTOR_ASSERT_CMPINT(no_of_bits, >=, -1);
 
 	byte_offset = bit_offset / 8;
 	/* right shift to put bits in place and discard least significant bits */
@@ -479,11 +481,11 @@ tvb_new_octet_right_aligned(tvbuff_t *tvb, uint32_t bit_offset, int32_t no_of_bi
 	}
 
 	/* already aligned -> shortcut */
-	if ((right == 0) && (remaining_bits == 0)) {
+	if (((right == 0) && (remaining_bits == 0)) || dst_len == 0) {
 		return tvb_new_subset_length_caplen(tvb, byte_offset, dst_len, dst_len);
 	}
 
-	DISSECTOR_ASSERT(dst_len>0);
+	ws_assert(dst_len > 0);
 
 	if (_tvb_captured_length_remaining(tvb, byte_offset) > dst_len) {
 		/* last octet will get data from trailing octet */
