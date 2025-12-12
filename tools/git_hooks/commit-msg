@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Validate the commit message.
+
+msgfile="$1"
+topdir="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+# Warn (do not block) if the AI-Assisted trailer is missing.
+if [ -f "$msgfile" ] && ! grep -qi '^AI-Assisted:' "$msgfile"; then
+    echo "WARNING: Commit message is missing the 'AI-Assisted: yes|no [tool(s)]' trailer." >&2
+fi
+
+"$topdir/tools/validate-commit.py" --commitmsg "$msgfile"

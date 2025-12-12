@@ -1032,6 +1032,34 @@ macOS Build:
     - job: "Commit Check"
       optional: true
 
+AI Trailer Reminder:
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
+  stage: analysis
+  needs: []
+  allow_failure: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+  script:
+    - |
+      range="$CI_COMMIT_SHA"
+      zero="0000000000000000000000000000000000000000"
+      if [ -n "$CI_COMMIT_BEFORE_SHA" ] && [ "$CI_COMMIT_BEFORE_SHA" != "$zero" ]; then
+        range="${CI_COMMIT_BEFORE_SHA}..${CI_COMMIT_SHA}"
+      fi
+      missing=0
+      for c in $(git rev-list --no-merges $range); do
+        if ! git log -1 --format=%B "$c" | grep -qi '^AI-Assisted:'; then
+          echo "WARNING: Commit $c is missing the 'AI-Assisted: yes|no [tool(s)]' trailer."
+          missing=1
+        fi
+      done
+      if [ $missing -eq 1 ]; then
+        echo "Reminder: please add the AI-Assisted trailer to commit messages (warning only)."
+      else
+        echo "All checked commits include the AI-Assisted trailer."
+      fi
+
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
 # and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481
 Coverity GCC Scan:

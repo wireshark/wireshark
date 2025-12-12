@@ -2,6 +2,10 @@
 
 (Summarize the bug encountered concisely)
 
+## AI assistance
+
+(If AI tools helped find or draft this report, mention which one and confirm the steps were verified by you. Human verification is required for effective triage.)
+
 ## Sample capture file
 
 (For non-trivial issues a capture file is essential to reproduce and fix the bug.

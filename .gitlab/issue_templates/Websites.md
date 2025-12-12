@@ -2,6 +2,10 @@
 
 (Summarize the issue concisely)
 
+## AI assistance
+
+(If AI tools were used to draft this report, please note that and ensure the issue was verified by you.)
+
 
 ## Affected website
 

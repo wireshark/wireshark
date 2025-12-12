@@ -171,3 +171,34 @@ vgcore.*
 test/*.log
 *.code-workspace
 __pycache__/
+
+
+# LLM / AI Agent control & context files
+Claude.md
+Agents.md
+Agent.md
+AI.md
+LLM.md
+SYSTEM.md
+PROMPT.md
+
+# Variationen / Konventionen
+*.agent.md
+*.llm.md
+*.prompt.md
+*.system.md
+*.ai.md
+
+# Tool-spezifisch
+.openai/
+.anthropic/
+.claude/
+.cursor/
+.copilot/
+.aider*
+
+# Session- / Kontext-Dumps
+*.context
+*.conversation
+*.chat
+*.trace

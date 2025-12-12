@@ -2,6 +2,10 @@
 
 (Description including problem, use cases, benefits, and/or goals)
 
+## AI assistance
+
+(If AI tools helped shape this request, please note that and confirm you’ve reviewed the proposal yourself.)
+
 ## Sample capture file
 
 (For non-trivial enhancements attaching a sample capture that can be used

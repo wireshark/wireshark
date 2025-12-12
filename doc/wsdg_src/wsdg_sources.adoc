@@ -918,6 +918,10 @@ Keep in mind that the commit's diffs will show precisely _what_ was changed.  Th
 You can also reference and close issues in a commit message by prefixing the issue number with a https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically[number sign].
 For example, “closes #5” will close issue number 5.
 
+We also ask contributors to disclose whether AI tools were used when authoring the change.
+Add a trailer such as `AI-Assisted: yes (Claude)` or `AI-Assisted: no` to commit messages and mention the same in merge requests.
+This notice is adapted with thanks from the Seerr project’s AI usage statement (https://github.com/seerr-team/seerr/blob/develop/CONTRIBUTING.md).
+
 Putting all that together, we get the following example:
 
 [source]
@@ -952,18 +956,16 @@ Others are split across multiple source files and are often more suitable to be 
 In your local repository directory, there will be a __.git/hooks/__ directory, with sample git hooks for running automatic actions before and after git commands.
 You can also optionally install other hooks that you find useful.
 
-In particular, the _pre-commit_ hook will run every time you commit a change and can be used to automatically check for various errors in your code.
-The sample git pre-commit hook simply detects whitespace errors such as mixed tabs and spaces.
-To install it just remove the .sample suffix from the existing _pre-commit.sample_ file.
+Enable the shipped Wireshark hooks without copying them by running `git config core.hooksPath tools/git_hooks`.
+This uses the dedicated `tools/git_hooks/` directory, so other scripts in `tools/` remain untouched.
+Set the commit template with `git config commit.template .gitmessage` to include the AI-Assisted trailer automatically.
 
-Wireshark provides a custom pre-commit hook which does additional Wireshark-specific API and formatting checks, but it might return false positives.
-If you want to install it, copy the pre-commit file from the tools directory (`cp ./tools/pre-commit .git/hooks/`) and make sure it is executable or it will not be run.
+The Wireshark pre-commit hook (in `tools/git_hooks/`) runs Wireshark-specific API and formatting checks and might return false positives.
+The commit-msg hook warns if the AI-Assisted trailer is missing.
+The wrappers in `tools/` remain for compatibility; if you prefer the classic layout you can still copy or symlink from `tools/git_hooks/` into `.git/hooks/`.
 
 If the pre-commit hook is preventing you from committing what you believe is a valid change, you can run `git commit --no-verify` to skip running the hooks.
 Warning: using --no-verify avoids the commit-msg hook, and thus if you have setup this hook it will not run.
-
-Additionally, if your system supports symbolic links, as all UNIX-like platforms do, you can use them instead of copying files.
-Running `ln -s ../../tools/pre-commit .git/hooks` creates a symbolic link that will make the hook to be up-to-date with the current master.
 
 .Choose a compatible license.
 Wireshark is released under the {spdx-license-url}GPL-2.0-or-later.html[GPL version 2 or later], and it is strongly recommended that incoming code use that license.

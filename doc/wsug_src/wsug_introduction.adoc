@@ -509,6 +509,11 @@ download link. For bugs and feature requests, you can create an issue on
 link:{wireshark-bugs-url}[GitLab Issues] and upload the file there.
 ====
 
+==== AI-assisted reports
+
+If you use AI tools to help find or draft a bug report, please mention that and make sure you have personally verified the steps and details before submitting.
+Purely AI-generated reports are not supported and might be closed; a quick human check keeps triage efficient for everyone.
+
 ==== Reporting Crashes on UNIX/Linux platforms
 
 When reporting crashes with Wireshark it is helpful if you supply the traceback
