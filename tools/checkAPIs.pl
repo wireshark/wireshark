@@ -150,7 +150,8 @@ my %APIs = (
                 'gnutls_init',
                 # Misc
                 'tmpnam',       # use mkstemp
-                '_snwprintf'    # use StringCchPrintf
+                '_snwprintf',   # use StringCchPrintf
+                'system'
                 ] },
 
         ### Soft-Deprecated functions that should not be used in new code but
