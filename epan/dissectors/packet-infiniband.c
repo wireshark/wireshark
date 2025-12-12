@@ -2806,13 +2806,13 @@ static tvbuff_t *parse_PAYLOAD_reassemble_tvb(packet_info *pinfo,
     case RC_SEND_MIDDLE:
         more_frags = true;
         break;
-    case RC_SEND_ONLY:
-    case RC_SEND_ONLY_IMM:
-    case RC_SEND_ONLY_INVAL:
     case RC_SEND_LAST:
     case RC_SEND_LAST_IMM:
     case RC_SEND_LAST_INVAL:
         break;
+    case RC_SEND_ONLY:
+    case RC_SEND_ONLY_IMM:
+    case RC_SEND_ONLY_INVAL:
     default:
         /* not a fragmented RC Send */
         return tvb;
@@ -2841,7 +2841,6 @@ static tvbuff_t *parse_PAYLOAD_reassemble_tvb(packet_info *pinfo,
     if (fd_head == NULL) {
             fd_head_not_cached = true;
 
-            pinfo->fd->visited = 0;
             fd_head = fragment_add_seq_next(&infiniband_rc_send_reassembly_table,
                                             tvb, 0, pinfo,
                                             conversation->conv_index,
@@ -2849,7 +2848,7 @@ static tvbuff_t *parse_PAYLOAD_reassemble_tvb(packet_info *pinfo,
                                             more_frags);
     }
 
-    if (fd_head == NULL) {
+    if (more_frags && fd_head == NULL) {
             /*
              * We really want the fd_head and pass it to
              * process_reassembled_data()
@@ -3049,7 +3048,7 @@ reassemble:
             call_data_dissector(next_tvb, pinfo, top_tree);
         }
 
-        if (allow_reassembling && info->do_rc_send_reassembling) {
+        if (dissector_found && allow_reassembling && info->do_rc_send_reassembling) {
                 goto reassemble;
         }
 

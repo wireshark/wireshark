@@ -525,7 +525,6 @@ dissect_smb_direct_infiniband(tvbuff_t *tvb, packet_info *pinfo,
 		 * for this conversation
 		 */
 		info->do_rc_send_reassembling = smb_direct_infiniband_reassemble;
-		return 0;
 	}
 
 	dissect_smb_direct(tvb, pinfo, parent_tree, hdr_type);
