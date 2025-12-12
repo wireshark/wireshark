@@ -11,8 +11,7 @@ import subprocess
 import argparse
 import signal
 import concurrent.futures
-import io
-from check_common import findDissectorFilesInFolder, getFilesFromOpen, getFilesFromCommits, isGeneratedFile
+from check_common import findDissectorFilesInFolder, getFilesFromOpen, getFilesFromCommits, isGeneratedFile, Result
 
 # Look for dissector symbols that could/should be static.
 # This will not run on Windows, unless/until we check the platform
@@ -103,8 +102,9 @@ for h in common_mismatched_headers:
 
 # Record which symbols are defined in a single dissector file.
 class DefinedSymbols:
-    def __init__(self, file):
+    def __init__(self, file, result):
         self.filename = file
+        self.result = result
         self.global_symbols = {}       # map from defined symbol -> whole output-line
         self.header_file_contents = None
         self.from_generated_file = isGeneratedFile(file)
@@ -172,18 +172,13 @@ class DefinedSymbols:
         return False
 
     def checkIfSymbolsAreCalled(self, called_symbols):
-        output = io.StringIO()
         for f in self.global_symbols:
             if f not in called_symbols:
                 mentioned_in_header = self.mentionedInHeaders(f)
                 fun = self.global_symbols[f]
-                print(self.filename, '' if not self.from_generated_file else '(GENERATED)',
-                      '(' + fun + ')',
-                      'is not referred to so could be static?', '(declared in header but not referred to)' if mentioned_in_header else '',
-                      file=output)
-        contents = output.getvalue()
-        output.close()
-        return contents
+                self.result.note(self.filename, '' if not self.from_generated_file else '(GENERATED)',
+                                 '(' + fun + ')',
+                                 'is not referred to so could be static?', '(declared in header but not referred to)' if mentioned_in_header else '')
 
 
 # Helper functions.
@@ -287,7 +282,9 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
 
 # Now check identified dissector files.
 def checkIfSymbolsAreCalled(file):
-    return DefinedSymbols(file).checkIfSymbolsAreCalled(called.referred)
+    result = Result()
+    DefinedSymbols(file, result).checkIfSymbolsAreCalled(called.referred)
+    return result
 
 with concurrent.futures.ProcessPoolExecutor() as executor:
     future_to_file_output = {executor.submit(checkIfSymbolsAreCalled, file): file for file in files}
@@ -295,10 +292,12 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
         if should_exit:
             exit(1)
 
-        output = future.result()
+        result = future.result()
+        output = result.out.getvalue()
         if len(output):
             print(output[:-1])
-        issues_found += len(output.splitlines())
+
+        issues_found += result.notes
 
 # Show summary.
 print(issues_found, 'issues found')

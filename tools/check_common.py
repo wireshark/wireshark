@@ -7,7 +7,7 @@
 import os
 import re
 import subprocess
-
+import io
 
 # For text colouring/highlighting.
 class bcolors:
@@ -148,3 +148,27 @@ def getFilesFromOpen(onlyDissectors=True):
     if onlyDissectors:
         files = list(filter(lambda f: isDissectorFile(f), files))
     return files
+
+
+# A type to return from future executions.
+class Result:
+    def __init__(self):
+        self.out = io.StringIO()
+        self.warnings = 0
+        self.errors = 0
+        self.notes = 0
+
+    def warn(self, *args):
+        print('Warning: ' + " ".join(map(str, args)), file=self.out)
+        self.warnings += 1
+
+    def error(self, *args):
+        print('Error: ' + " ".join(map(str, args)), file=self.out)
+        self.warnings += 1
+
+    def note(self, *args):
+        print('Note: ' + " ".join(map(str, args)), file=self.out)
+        self.notes += 1
+
+    def __str__(self):
+        return f'warn={self.warnings}, errors={self.errors}'

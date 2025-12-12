@@ -16,9 +16,8 @@ import os
 import re
 import argparse
 import signal
-import io
 import concurrent.futures
-from check_common import findDissectorFilesInFolder, getFilesFromCommits, getFilesFromOpen, isDissectorFile, isGeneratedFile, removeComments
+from check_common import findDissectorFilesInFolder, getFilesFromCommits, getFilesFromOpen, isDissectorFile, isGeneratedFile, removeComments, Result
 
 
 # Try to exit soon after Ctrl-C is pressed.
@@ -38,14 +37,11 @@ errors_found = 0
 
 # Check the given dissector file.
 def checkFile(filename, generated):
-
-    output = io.StringIO()
-    warnings = 0
-    errors = 0
+    result = Result()
 
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
-        print(filename, 'does not exist!', file=output)
+        result.note(filename, 'does not exist!')
         return
 
     with open(filename, 'r', encoding="utf8") as f:
@@ -68,37 +64,28 @@ def checkFile(filename, generated):
                 # TODO: I suppose it could be escaped, but haven't seen this...
                 if '%' in format_string:
                     # This is an error as format specifier would show in app
-                    print('Error:', filename, "  ", m.group(0),
-                          '   - should not have specifiers in unknown string',
-                          '(GENERATED)' if generated else '',
-                    file=output)
-                    errors += 1
+                    result.error(filename, "  ", m.group(0),
+                                 '   - should not have specifiers in unknown string',
+                                 '(GENERATED)' if generated else '')
             else:
                 # These ones need to have a specifier, and it should be suitable for an int
                 count = format_string.count('%')
                 if count == 0:
-                    print('Warning:', filename, "  ", m.group(0),
-                          '   - should have suitable format specifier in unknown string (or use _const()?)',
-                          '(GENERATED)' if generated else '',
-                          file=output)
-                    warnings += 1
+                    result.warn(filename, "  ", m.group(0),
+                                '   - should have suitable format specifier in unknown string (or use _const()?)',
+                                '(GENERATED)' if generated else '')
                 elif count > 1:
-                    print('Warning:', filename, "  ", m.group(0),
-                          '   - has more than one specifier?',
-                          '(GENERATED)' if generated else '',
-                          file=output)
+                    result.warn(filename, "  ", m.group(0),
+                                '   - has more than one specifier?',
+                                '(GENERATED)' if generated else '')
                 # TODO: check allowed specifiers (d, u, x, ?) and modifiers (0-9*) in re ?
                 if '%s' in format_string:
                     # This is an error as this likely causes a crash
-                    print('Error:', filename, "  ", m.group(0),
-                          '    - inappropriate format specifier in unknown string',
-                          '(GENERATED)' if generated else '',
-                          file=output)
-                    errors += 1
+                    result.error(filename, "  ", m.group(0),
+                                 '    - inappropriate format specifier in unknown string',
+                                 '(GENERATED)' if generated else '')
 
-    contents = output.getvalue()
-    output.close()
-    return warnings, errors, contents
+    return result
 
 
 #################################################################
@@ -159,11 +146,13 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
         if should_exit:
             exit(1)
         # File is done - show any output and update warning, error counts
-        warnings, errors, output = future.result()
+        result = future.result()
+        output = result.out.getvalue()
         if len(output):
             print(output)
-        warnings_found += warnings
-        errors_found += errors
+
+        warnings_found += result.warnings
+        errors_found += result.errors
 
 
 # Show summary.

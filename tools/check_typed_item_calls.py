@@ -10,7 +10,8 @@ import re
 import argparse
 import signal
 from pathlib import Path
-from check_common import getFilesFromOpen, findDissectorFilesInFolder, getFilesFromCommits, removeComments, isGeneratedFile
+import concurrent.futures
+from check_common import getFilesFromOpen, findDissectorFilesInFolder, getFilesFromCommits, removeComments, isGeneratedFile, Result
 
 
 # This utility scans the dissector code for various issues.
@@ -39,11 +40,6 @@ def name_has_one_of(name, substring_list):
         if word in name_lower:
             return True
     return False
-
-
-# TODO: show in red and automatically inc errors_found
-def show_error(**kwargs):
-    print(kwargs)
 
 
 # An individual call to an API we are interested in.
@@ -225,7 +221,7 @@ class EncodingCheckerBasic:
         self.allow_multiple = allow_multiple
         self.encodings_seen = 0
 
-    def check(self, encoding, call, api_check, item):
+    def check(self, encoding, call, api_check, item, result):
         type = self.type
 
         # Doesn't even really have an encoding type..
@@ -234,11 +230,9 @@ class EncodingCheckerBasic:
 
         # Are more encodings allowed?
         if not self.allow_multiple and self.encodings_seen >= 1:
-            global errors_found
-            print('Error:', api_check.file + ':' + str(call.line_number),
+            result.error(api_check.file + ':' + str(call.line_number),
                   api_check.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' with encoding', encoding, 'but only one encoding flag allowed for type')
             # TODO: enable once error count is zero..
-            # errors_found += 1
 
         # Is this encoding allowed for this type?
         if encoding not in self.allowed_encodings:
@@ -246,11 +240,9 @@ class EncodingCheckerBasic:
             if encoding == 'ENC_NA' and 'FT_UINT' in item.item_type and call.length == 1:
                 return
 
-            global warnings_found
-            print('Warning:', api_check.file + ':' + str(call.line_number),
-                  api_check.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' - with bad encoding - ' + '"' + encoding + '"', '-',
-                  compatible_encoding_args[type], 'allowed')
-            warnings_found += 1
+            result.warn(api_check.file + ':' + str(call.line_number),
+                        api_check.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' - with bad encoding - ' + '"' + encoding + '"', '-',
+                        compatible_encoding_args[type], 'allowed')
         self.encodings_seen += 1
 
 
@@ -265,7 +257,7 @@ def create_enc_checker(type):
         return None
 
 
-def check_call_enc_matches_item(items_defined, call, api_check):
+def check_call_enc_matches_item(items_defined, call, api_check, result):
     if call.enc is None:
         return
 
@@ -287,10 +279,11 @@ def check_call_enc_matches_item(items_defined, call, api_check):
             for enc in encs:
                 if enc.startswith('ENC_'):
                     if type != 'FT_BOOLEAN' or item.get_field_width_in_bits() > 8:
-                        checker.check(enc, call, api_check, item)
+                        checker.check(enc, call, api_check, item, result)
 
 
 # A check for a particular API function.
+# N.B., not appropriate to pass result in here, as outlive any given file check..
 class APICheck:
     def __init__(self, fun_name, allowed_types, positive_length=False):
         self.fun_name = fun_name
@@ -316,7 +309,7 @@ class APICheck:
         if 'proto_tree_add_bits_' in fun_name:
             self.mask_allowed = False
 
-    def find_calls(self, file, contents, lines, macros):
+    def find_calls(self, file, contents, lines, macros, result=None):
         self.file = file
         self.calls = []
 
@@ -382,10 +375,9 @@ class APICheck:
 
         return True
 
-    def check_against_items(self, items_defined, items_declared, items_declared_extern, check_missing_items=False,
-                            field_arrays=None):
-        global errors_found
-        global warnings_found
+    def check_against_items(self, items_defined, items_declared, items_declared_extern,
+                            result,
+                            check_missing_items=False, field_arrays=None):
 
         for call in self.calls:
 
@@ -395,33 +387,29 @@ class APICheck:
                     if item_lengths[items_defined[call.hf_name].item_type] < call.length:
                         # Don't warn if adding value - value is unlikely to just be bytes value
                         if '_add_uint' not in self.fun_name:
-                            print('Warning:', self.file + ':' + str(call.line_number),
-                                  self.fun_name + ' called for', call.hf_name, ' - ',
-                                  'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
-                            warnings_found += 1
+                            result.warn(self.file + ':' + str(call.line_number),
+                                        self.fun_name + ' called for', call.hf_name, ' - ',
+                                        'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
 
             # Needs a +ve length
             if self.positive_length and call.length is not None:
                 if call.length != -1 and call.length <= 0:
-                    print('Error: ' + self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
-                          self.file + ':' + str(call.line_number) +
-                          ' with length ' + str(call.length) + ' - must be > 0 or -1')
-                    errors_found += 1
+                    result.error(self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
+                                 self.file + ':' + str(call.line_number) +
+                                 ' with length ' + str(call.length) + ' - must be > 0 or -1')
 
             if call.hf_name in items_defined:
                 # Is type allowed?
                 if items_defined[call.hf_name].item_type not in self.allowed_types:
-                    print('Error: ' + self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
-                          self.file + ':' + str(call.line_number) +
-                          ' with type ' + items_defined[call.hf_name].item_type)
-                    print('    (allowed types are', self.allowed_types, ')\n')
-                    errors_found += 1
+                    result.error(self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
+                                 self.file + ':' + str(call.line_number) +
+                                 ' with type ' + items_defined[call.hf_name].item_type,
+                                 '    (allowed types are', self.allowed_types, ')\n')
                 # No mask allowed
                 if not self.mask_allowed and items_defined[call.hf_name].mask_value != 0:
-                    print('Error: ' + self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
-                          self.file + ':' + str(call.line_number) +
-                          ' with mask ' + items_defined[call.hf_name].mask + '    (must be zero!)\n')
-                    errors_found += 1
+                    result.error(self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
+                                 self.file + ':' + str(call.line_number) +
+                                 ' with mask ' + items_defined[call.hf_name].mask + '    (must be zero!)\n')
 
             if 'add_bitmask' in self.fun_name and call.hf_name in items_defined and field_arrays:
                 if call.fields in field_arrays:
@@ -430,20 +418,18 @@ class APICheck:
                         # TODO: only really a problem if bit is set in array but not in top-level item?
                         if not self.does_mask_cover_value(items_defined[call.hf_name].mask_value,
                                                           field_arrays[call.fields][1]):
-                            print('Warning:', self.file, call.hf_name, call.fields, "masks don't match. root=",
-                                  items_defined[call.hf_name].mask,
-                                  "array has", hex(field_arrays[call.fields][1]))
-                            warnings_found += 1
+                            result.warn(self.file, call.hf_name, call.fields, "masks don't match. root=",
+                                        items_defined[call.hf_name].mask,
+                                        "array has", hex(field_arrays[call.fields][1]))
 
             if check_missing_items:
                 if call.hf_name in items_declared and call.hf_name not in items_defined and call.hf_name not in items_declared_extern:
                     # not in common_hf_var_names:
-                    print('Warning:', self.file + ':' + str(call.line_number),
-                          self.fun_name + ' called for "' + call.hf_name + '"', ' - but no item found')
-                    warnings_found += 1
+                    result.warn(self.file + ':' + str(call.line_number),
+                                self.fun_name + ' called for "' + call.hf_name + '"', ' - but no item found')
 
             # Checking that encoding arg is compatible with item type
-            check_call_enc_matches_item(items_defined, call, self)
+            check_call_enc_matches_item(items_defined, call, self, result)
 
 
 # Specialization of APICheck for add_item() calls
@@ -465,7 +451,7 @@ class ProtoTreeAddItemCheck(APICheck):
             self.fun_name = 'ptvcursor_add'
             self.p = re.compile('[^\n]*' + self.fun_name + r'\s*\([^,.]+?,\s*([^,.]+?),\s*([^,.]+?),\s*([a-zA-Z0-9_\-\>]+)')
 
-    def find_calls(self, file, contents, lines, macros):
+    def find_calls(self, file, contents, lines, macros, result):
         self.file = file
         self.calls = []
 
@@ -519,21 +505,18 @@ class ProtoTreeAddItemCheck(APICheck):
                                        'my_frame_data->encoding_client', 'my_frame_data->encoding_results',
                                        'seq_info->txt_enc'
                                       }:
-                            global warnings_found
 
-                            print('Warning:', self.file + ':' + str(line_number),
-                                  self.fun_name + ' called for "' + hf_name + '"',  'check last/enc param:', enc, '?')
-                            warnings_found += 1
+                            result.warn(self.file + ':' + str(line_number),
+                                        self.fun_name + ' called for "' + hf_name + '"',  'check last/enc param:', enc, '?')
                     self.calls.append(Call(self.fun_name, hf_name, macros, line_number=line_number, offset=m.group(2), length=m.group(3), fields=None, enc=enc))
 
     def check_against_items(self, items_defined, items_declared, items_declared_extern,
+                            result,
                             check_missing_items=False, field_arrays=None):
         # For now, only complaining if length if call is longer than the item type implies.
         #
         # Could also be bugs where the length is always less than the type allows.
         # Would involve keeping track (in the item) of whether any call had used the full length.
-
-        global warnings_found
 
         for call in self.calls:
             if call.hf_name in items_defined:
@@ -542,10 +525,9 @@ class ProtoTreeAddItemCheck(APICheck):
                         # On balance, it is not worth complaining about these - the value is unlikely to be
                         # just the value found in these bytes..
                         if '_add_uint' not in self.fun_name:
-                            print('Warning:', self.file + ':' + str(call.line_number),
-                                  self.fun_name + ' called for', call.hf_name, ' - ',
-                                  'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
-                            warnings_found += 1
+                            result.warn(self.file + ':' + str(call.line_number),
+                                        self.fun_name + ' called for', call.hf_name, ' - ',
+                                        'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
 
                     # If have mask and length is too short, that is likely to be a problem.
                     # N.B. shouldn't be from width of field, but how many bytes a mask spans (e.g., 0x0ff0 spans 2 bytes)
@@ -553,21 +535,19 @@ class ProtoTreeAddItemCheck(APICheck):
                             items_defined[call.hf_name].mask_value != 0 and
                             int((items_defined[call.hf_name].mask_width + 7) / 8) > call.length):
 
-                        print('Warning:', self.file + ':' + str(call.line_number),
-                              self.fun_name + ' called for', call.hf_name, ' - ',
-                              'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length,
-                              'and mask is', hex(items_defined[call.hf_name].mask_value))
-                        warnings_found += 1
+                        result.warn(self.file + ':' + str(call.line_number),
+                                    self.fun_name + ' called for', call.hf_name, ' - ',
+                                    'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length,
+                                    'and mask is', hex(items_defined[call.hf_name].mask_value))
 
                 # Checking that encoding arg is compatible with item type
-                check_call_enc_matches_item(items_defined, call, self)
+                check_call_enc_matches_item(items_defined, call, self, result)
 
             elif check_missing_items:
                 if call.hf_name in items_declared and call.hf_name not in items_declared_extern:
                     # not in common_hf_var_names:
-                    print('Warning:', self.file + ':' + str(call.line_number),
-                          self.fun_name + ' called for "' + call.hf_name + '"', ' - but no item found')
-                    warnings_found += 1
+                    result.warn(self.file + ':' + str(call.line_number),
+                                self.fun_name + ' called for "' + call.hf_name + '"', ' - but no item found')
 
 
 class TVBGetBits:
@@ -577,7 +557,7 @@ class TVBGetBits:
         self.calls = []
         pass
 
-    def find_calls(self, file, contents, lines, macros):
+    def find_calls(self, file, contents, lines, macros, result):
         self.file = file
         self.calls = []
         matches = re.finditer(self.name + r'\([a-zA-Z0-9_]+\s*,\s*(.*?)\s*,\s*([0-9a-zA-Z_]+)', contents)
@@ -591,18 +571,16 @@ class TVBGetBits:
 
             if length > self.maxlen:
                 # Error if some bits would get chopped off.
-                global errors_found
-                print('Error: ' + file + ' ' + m.group(0) + '...  has length of ' + m.group(2) + ', which is > API limit of ' + str(self.maxlen))
-                errors_found += 1
+                result.error(file + ' ' + m.group(0) + '...  has length of ' + m.group(2) + ', which is > API limit of ' + str(self.maxlen))
             elif self.maxlen > 8 and length <= self.maxlen/2:
-                print('Note: ' + file + ' ' + m.group(0) + '...  has length of ' + m.group(2) + ', could have used smaller version of function?')
+                result.note(file + ' ' + m.group(0) + '...  has length of ' + m.group(2) + ', could have used smaller version of function?')
 
         return []
 
     def calls(self):
         return []
 
-    def check_against_items(self, items_defined, items_declared, items_declared_extern,
+    def check_against_items(self, items_defined, items_declared, items_declared_extern, result,
                             check_missing_items=False, field_arrays=None):
         pass
 
@@ -824,7 +802,7 @@ def is_ignored_consecutive_filter(filter):
 
 
 class ValueString:
-    def __init__(self, file, name, vals, macros, ext, do_extra_checks=False):
+    def __init__(self, file, name, vals, macros, result, ext, do_extra_checks=False):
         self.file = file
         self.name = name
         self.ext = ext
@@ -838,8 +816,6 @@ class ValueString:
         self.out_of_order = False
         previous_value = -99999
         previous_label = ''
-
-        global warnings_found
 
         # Now parse out each entry in the value_string
         matches = re.finditer(r'\{\s*([0-9_A-Za-z]*)\s*,\s*(".*?")\s*}\s*,', self.raw_vals)
@@ -868,23 +844,21 @@ class ValueString:
             # Are the entries not in strict ascending order?
             if do_extra_checks and not self.out_of_order:
                 if value <= previous_value:
-                    print('Warning:', self.file, ': value_string', self.name, 'not in ascending order - label',
+                    result.warn(self.file, ': value_string', self.name, 'not in ascending order - label',
                           label, 'with value', value, 'comes after', previous_label, 'with value', previous_value)
-                    warnings_found += 1
                     self.out_of_order = True
                 previous_value = value
                 previous_label = label
 
             # Check for value conflict before inserting
             if do_extra_checks and value in self.parsed_vals and label == self.parsed_vals[value]:
-                print('Warning:', self.file, ': value_string', self.name, '- value ', value, 'repeated with same string - ', label)
-                warnings_found += 1
+                result.warn(self.file, ': value_string', self.name, '- value ', value, 'repeated with same string - ', label)
 
             # Same value, different label
             if value in self.parsed_vals and label != self.parsed_vals[value]:
-                print('Warning:', self.file, ': value_string', self.name, '- value ', value, 'repeated with different values - was',
+
+                result.warn(self.file, ': value_string', self.name, '- value ', value, 'repeated with different values - was',
                       self.parsed_vals[value], 'now', label)
-                warnings_found += 1
             else:
                 # Add into table, while checking for repeated label
                 self.parsed_vals[value] = label
@@ -906,9 +880,8 @@ class ValueString:
 
                     if not excepted and len(label) > 2:
                         previous_values = [str(v) for v in self.parsed_vals if self.parsed_vals[v] == label]
-                        print('Warning:', self.file, ': value_string', self.name, '- label', label, 'repeated, value now', value,
+                        result.warn(self.file, ': value_string', self.name, '- label', label, 'repeated, value now', value,
                               'previously', ','.join(previous_values[:-1]))
-                        warnings_found += 1
                 else:
                     self.seen_labels.add(label)
 
@@ -917,25 +890,21 @@ class ValueString:
                 if value < self.min_value:
                     self.min_value = value
 
-    def extraChecks(self):
-        global warnings_found
-
+    def extraChecks(self, result):
         # Look for one value missing in range (quite common...)
         num_items = len(self.parsed_vals)
         span = self.max_value - self.min_value + 1
         if num_items > 4 and span > num_items and (span-num_items <= 1):
             for val in range(self.min_value, self.max_value):
                 if val not in self.parsed_vals:
-                    print('Warning:', self.file, ': value_string', self.name, '- value', val, 'missing?', '(', num_items, 'entries )',
-                          'USED AS EXT!' if self.name in self.ext else '')
-                    global warnings_found
-                    warnings_found += 1
+                    result.warn(self.file, ': value_string', self.name, '- value', val, 'missing?', '(', num_items, 'entries )',
+                                'USED AS EXT!' if self.name in self.ext else '')
 
         # N.B., arbitrary threshold for suggesting value_string_ext
         ext_threshold = 64
         if not self.out_of_order and span >= ext_threshold and span == len(self.parsed_vals) and self.name not in self.ext:
             #print(self.ext)
-            print('Note:', self.file, ': value_string', self.name, 'has', span, 'consecutive entries - possible candidate for value_string_ext?')
+            result.note(self.file, ': value_string', self.name, 'has', span, 'consecutive entries - possible candidate for value_string_ext?')
 
         # Do most of the labels match the number?
         matching_label_entries = set()
@@ -952,7 +921,7 @@ class ValueString:
             last_val = list(self.parsed_vals)[-1]
             if first_val not in matching_label_entries or last_val not in matching_label_entries:
                 return
-            print('Warning:', self.file, ': value_string', self.name, 'Labels match value except for 1!', matching_label_entries, num_items, self)
+            result.warn(self.file, ': value_string', self.name, 'Labels match value except for 1!', matching_label_entries, num_items, self)
 
         # Do all labels start with lower-or-upper char?
         startLower, startUpper = 0, 0
@@ -971,7 +940,7 @@ class ValueString:
                 if startLower > startUpper:
                     standouts += [self.parsed_vals[val] for val in self.parsed_vals if self.parsed_vals[val][1].isupper()]
 
-                print('Note:', self.file, ': value_string', self.name, 'mix of upper', startUpper, 'and lower', startLower, standouts)
+                result.note(self.file, ': value_string', self.name, 'mix of upper', startUpper, 'and lower', startLower, standouts)
 
     def __str__(self):
         return self.name + '= { ' + self.raw_vals + ' }'
@@ -991,7 +960,7 @@ class RangeStringEntry:
 
 
 class RangeString:
-    def __init__(self, file, name, vals, macros, do_extra_checks=False):
+    def __init__(self, file, name, vals, macros, result, do_extra_checks=False):
         self.file = file
         self.name = name
         self.raw_vals = vals
@@ -1039,7 +1008,6 @@ class RangeString:
                 return
 
             # Now check what we've found.
-            global warnings_found
 
             if min < self.min_value:
                 self.min_value = min
@@ -1052,27 +1020,22 @@ class RangeString:
             # This value should not be entirely hidden by earlier entries
             for prev in self.parsed_vals:
                 if prev.hides(min, max):
-                    print('Warning:', self.file, ': range_string label', label, 'hidden by', prev)
-                    warnings_found += 1
+                    result.warn(self.file, ': range_string label', label, 'hidden by', prev)
 
             # Min should not be > max
             if min > max:
-                print('Warning:', self.file, ': range_string', self.name, 'entry', label, 'min', min, '>', max)
-                warnings_found += 1
+                result.warn(self.file, ': range_string', self.name, 'entry', label, 'min', min, '>', max)
 
             # Check label.
             if label[1:-1].startswith(' ') or label[1:-1].endswith(' '):
-                print('Warning:', self.file, ': range_string', self.name, 'entry', label, 'starts or ends with space')
-                warnings_found += 1
+                result.warn(self.file, ': range_string', self.name, 'entry', label, 'starts or ends with space')
 
             # OK, add this entry
             self.parsed_vals.append(RangeStringEntry(min, max, label))
 
         # TODO: mark as not valid if not all pairs were successfully parsed?
 
-    def extraChecks(self):
-        global warnings_found
-
+    def extraChecks(self, result):
         # if in all cases min==max, suggest value_string instead?
         could_use_value_string = True
         for val in self.parsed_vals:
@@ -1097,26 +1060,23 @@ class RangeString:
                     covered = True
                     break
             if not covered:
-                print('Warning:', self.file, ': range_string', self.name, 'value', str(n) + '-?', '(' + str(hex(n)) + '-?)', 'not covered by any entries')
-                warnings_found += 1
+                result.warn(self.file, ': range_string', self.name, 'value', str(n) + '-?', '(' + str(hex(n)) + '-?)', 'not covered by any entries')
 
         if could_use_value_string:
-            print('Warning:', self.file, ': range_string', self.name, 'could be value_string instead!')
-            warnings_found += 1
+            result.warn(self.file, ': range_string', self.name, 'could be value_string instead!')
 
         # TODO: can multiple values be coalesced into fewer?
         # TODO: Partial overlapping?
 
 
 class StringString:
-    def __init__(self, file, name, vals, macros, do_extra_checks=False):
+    def __init__(self, file, name, vals, macros, result, do_extra_checks=False):
         self.file = file
         self.name = name
         self.raw_vals = vals
         self.parsed_vals = {}
 
         terminated = False
-        global errors_found
 
         # Now parse out each entry in the string_string
         matches = re.finditer(r'\{\s*(["0-9_A-Za-z\s\-]*?)\s*,\s*(["0-9_A-Za-z\s\-]*)\s*', self.raw_vals)
@@ -1124,9 +1084,8 @@ class StringString:
             key = m.group(1).strip()
             value = m.group(2).strip()
             if key in self.parsed_vals:
-                print('Error:', self.file, ': string_string', self.name, 'entry', key, 'has been added twice (values',
-                      self.parsed_vals[key], 'and now', value, ')')
-                errors_found += 1
+                result.error(self.file, ': string_string', self.name, 'entry', key, 'has been added twice (values',
+                             self.parsed_vals[key], 'and now', value, ')')
 
             else:
                 self.parsed_vals[key] = value
@@ -1135,16 +1094,15 @@ class StringString:
                     terminated = True
 
         if not terminated:
-            print('Error:', self.file, ': string_string', self.name, "is not terminated with { NULL, NULL }")
-            errors_found += 1
+            result.error(self.file, ': string_string', self.name, "is not terminated with { NULL, NULL }")
 
-    def extraChecks(self):
+    def extraChecks(self, result):
         pass
         # TODO: ?
 
 
 # Look for value_string entries in a dissector file.  Return a dict name -> ValueString
-def findValueStrings(filename, contents, macros, do_extra_checks=False):
+def findValueStrings(filename, contents, macros, result, do_extra_checks=False):
     vals_found = {}
 
     # Find value_strings that are used as ext
@@ -1164,13 +1122,13 @@ def findValueStrings(filename, contents, macros, do_extra_checks=False):
     for m in matches:
         name = m.group(1)
         vals = m.group(2)
-        vals_found[name] = ValueString(filename, name, vals, macros, ext, do_extra_checks)
+        vals_found[name] = ValueString(filename, name, vals, macros, result, ext, do_extra_checks)
 
     return vals_found
 
 
 # Look for range_string entries in a dissector file.  Return a dict name -> RangeString
-def findRangeStrings(filename, contents, macros, do_extra_checks=False):
+def findRangeStrings(filename, contents, macros, result, do_extra_checks=False):
     vals_found = {}
 
     # static const range_string symbol_table_shndx_rvals[] = {
@@ -1183,13 +1141,13 @@ def findRangeStrings(filename, contents, macros, do_extra_checks=False):
     for m in matches:
         name = m.group(1)
         vals = m.group(2)
-        vals_found[name] = RangeString(filename, name, vals, macros, do_extra_checks)
+        vals_found[name] = RangeString(filename, name, vals, macros, result, do_extra_checks)
 
     return vals_found
 
 
 # Look for string_string entries in a dissector file.  Return a dict name -> StringString
-def findStringStrings(filename, contents, macros, do_extra_checks=False):
+def findStringStrings(filename, contents, macros, result, do_extra_checks=False):
     vals_found = {}
 
     # static const string_string ice_candidate_types[] = {
@@ -1202,20 +1160,20 @@ def findStringStrings(filename, contents, macros, do_extra_checks=False):
     for m in matches:
         name = m.group(1)
         vals = m.group(2)
-        vals_found[name] = StringString(filename, name, vals, macros, do_extra_checks)
+        vals_found[name] = StringString(filename, name, vals, macros, do_extra_checks, result)
 
     return vals_found
 
 
 # Look for expert entries in a dissector file.  Return ExpertEntries object
-def findExpertItems(filename, contents, macros):
+def findExpertItems(filename, contents, macros, result):
     # Look for array of definitions. Looks something like this
     # static ei_register_info ei[] = {
     #    { &ei_oran_unsupported_bfw_compression_method, { "oran_fh_cus.unsupported_bfw_compression_method", PI_UNDECODED, PI_WARN, "Unsupported BFW Compression Method", EXPFILL }},
     #    { &ei_oran_invalid_sample_bit_width, { "oran_fh_cus.invalid_sample_bit_width", PI_UNDECODED, PI_ERROR, "Unsupported sample bit width", EXPFILL }},
     # };
 
-    expertEntries = ExpertEntries(filename)
+    expertEntries = ExpertEntries(filename, result)
 
     definition_matches = re.finditer(r'static ei_register_info\s*([a-zA-Z0-9_]*)\s*\[\]\s*=\s*\{(.*?)\};',
                                      contents, re.MULTILINE | re.DOTALL)
@@ -1278,10 +1236,7 @@ def findDefinedTrees(filename, contents, declared):
     return trees
 
 
-def checkExpertCalls(filename, expertEntries):
-        global errors_found
-
-
+def checkExpertCalls(filename, expertEntries, result):
         with open(filename, 'r', encoding="utf8") as f:
             contents = f.read()
 
@@ -1332,16 +1287,16 @@ def checkExpertCalls(filename, expertEntries):
 
                     # Exact match is bad if there is only 1 call to it...
                     if number_of_calls == 1 and exact_match:
-                        print('Error:', filename, 'calling expert_add_info_format() for', item, '- no format specifiers in',
-                              '"' + format_string + '" - which exactly matches expert item default! (only call)')
-                        if not isGeneratedFile(filename):
-                            errors_found += 1
+                        result.error(filename, 'calling expert_add_info_format() for', item, '- no format specifiers in',
+                                     '"' + format_string + '" - which exactly matches expert item default! (only call)')
+                        #if not isGeneratedFile(filename):
+                        #    errors += 1
                     else:
                         # There may be good reasons for this - they could be specializations..
-                        print('Note:', filename, 'calling expert_add_info_format() for', item, '- no format specifiers in',
-                              '"' + format_string + '" - default is ' +
-                              ('"' + default_string + '"') if default_string is not None else '<??>',
-                              '- total calls', number_of_calls, '(EXACT MATCH)' if exact_match else '')
+                        result.note(filename, 'calling expert_add_info_format() for', item, '- no format specifiers in',
+                                    '"' + format_string + '" - default is ' +
+                                    ('"' + default_string + '"') if default_string is not None else '<??>',
+                                    '- total calls', number_of_calls, '(EXACT MATCH)' if exact_match else '')
                 expertEntries.VerifyCall(item)
 
 
@@ -1367,41 +1322,34 @@ class ExpertEntry:
         self.summary = summary
         self.calls = 0
 
-        global errors_found, warnings_found
-
         # Remove any line breaks
         summary = re.sub(re.compile(r'\"\s*\n\s*\"'), '', summary)
 
         # Some immediate checks (already covered by other scripts)
         if group not in valid_groups:
-            print('Error:', filename, name, 'Expert group', group, 'is not in', valid_groups)
-            errors_found += 1
+            result.error(filename, name, 'Expert group', group, 'is not in', valid_groups)
 
         if severity not in valid_levels:
-            print('Error:', filename, name, 'Expert severity', severity, 'is not in', valid_levels)
-            errors_found += 1
+            result.error(filename, name, 'Expert severity', severity, 'is not in', valid_levels)
 
         # Checks on the summary field
         if summary.startswith(' '):
-            print('Warning:', filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'starts with space')
-            warnings_found += 1
+            result.warn(filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'starts with space')
         if summary.endswith(' '):
-            print('Warning:', filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'ends with space')
-            warnings_found += 1
+            result.warn(filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'ends with space')
         if '  ' in summary:
-            print('Warning:', filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'has a double space')
-            warnings_found += 1
+            result.warn(filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'has a double space')
 
         # The summary field is shown in the expert window without substituting args..
         if '%' in summary:
-            print('Warning:', filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'has format specifiers in it?')
-            warnings_found += 1
+            result.warn(filename, 'Expert info summary', '"' + summary + '"', 'for', name, 'has format specifiers in it?')
 
 
 # Collection of entries for this dissector
 class ExpertEntries:
-    def __init__(self, filename):
+    def __init__(self, filename, result):
         self.filename = filename
+        self.result = result
         self.entries = []
         self.summaries = set()  # key is (name, severity)
         self.summary_reverselookup = {}  # summary -> item-name
@@ -1411,21 +1359,18 @@ class ExpertEntries:
     def AddEntry(self, entry):
         self.entries.append(entry)
 
-        global errors_found
-
         # If summaries are not unique, can't tell apart from expert window (need to look into frame to see details)
         # TODO: summary strings will never be seen if all calls to that item use expert_add_info_format()
         if (entry.summary, entry.severity) in self.summaries:
-            print('Note:', self.filename, 'Expert summary', '"' + entry.summary + '"',
-                  'has already been seen (now in', entry.name, '- previously in', self.summary_reverselookup[entry.summary], ')')
+            self.result.note(self.filename, 'Expert summary', '"' + entry.summary + '"',
+                             'has already been seen (now in', entry.name, '- previously in', self.summary_reverselookup[entry.summary], ')')
         self.summaries.add((entry.summary, entry.severity))
         self.summary_reverselookup[entry.summary] = entry.name
 
         # Not sure if anyone ever filters on these, but check if are unique
         if entry.filter in self.filters:
-            print('Error:', self.filename, 'Expert filter', '"' + entry.filter + '"',
-                  'has already been seen (now in', entry.name, '- previously in', self.filter_reverselookup[entry.filter], ')')
-            errors_found += 1
+            self.result.error(self.filename, 'Expert filter', '"' + entry.filter + '"',
+                              'has already been seen (now in', entry.name, '- previously in', self.filter_reverselookup[entry.filter], ')')
         self.filters.add(entry.filter)
         self.filter_reverselookup[entry.filter] = entry.name
 
@@ -1445,9 +1390,7 @@ class ExpertEntries:
 
         # None matched...
         if item not in ['hf', 'dissect_hf']:
-            global warnings_found
-            print('Warning:', self.filename, 'Expert info added with', '"' + item + '"', 'was not registered (in this file)?')
-            warnings_found += 1
+            self.result.warn(self.filename, 'Expert info added with', '"' + item + '"', 'was not registered (in this file)?')
 
     def NumberOfCalls(self, item):
         for entry in self.entries:
@@ -1470,7 +1413,7 @@ class Item:
     previousItems = []
 
     def __init__(self, filename, hf, filter, label, item_type, display, strings, macros,
-                 value_strings, range_strings,
+                 result, value_strings, range_strings,
                  mask=None, check_mask=False, mask_exact_width=False, check_label=False,
                  check_consecutive=False, blurb=''):
         self.filename = filename
@@ -1482,22 +1425,19 @@ class Item:
         self.mask_value_invalid = False
         self.strings = strings
         self.mask_exact_width = mask_exact_width
-
-        global warnings_found, errors_found
+        self.result = result
 
         if blurb == '0':
-            print('Error:', filename, hf, ': - filter "' + filter +
-                  '" has blurb of 0 - if no string, please set NULL instead')
-            errors_found += 1
+            result.error(filename, hf, ': - filter "' + filter +
+                         '" has blurb of 0 - if no string, please set NULL instead')
 
         if check_consecutive:
             for previous_index, previous_item in enumerate(Item.previousItems):
                 if previous_item.filter == filter:
                     if label != previous_item.label:
                         if not is_ignored_consecutive_filter(self.filter):
-                            print('Warning:', filename, hf, ': - filter "' + filter +
-                                  '" appears ' + str(previous_index+1) + ' items before - labels are "' + previous_item.label + '" and "' + label + '"')
-                            warnings_found += 1
+                            result.warn('Warning:', filename, hf, ': - filter "' + filter +
+                                        '" appears ' + str(previous_index+1) + ' items before - labels are "' + previous_item.label + '" and "' + label + '"')
 
             # Add this one to front of (short) previous list
             Item.previousItems = [self] + Item.previousItems
@@ -1529,13 +1469,11 @@ class Item:
 
         # N.B. these checks are already done by checkApis.pl
         if 'RVALS' in strings and 'BASE_RANGE_STRING' not in display:
-            print('Warning: ' + filename, hf, 'filter "' + filter + ' strings has RVALS but display lacks BASE_RANGE_STRING')
-            warnings_found += 1
+            result.warn(filename, hf, 'filter "' + filter + ' strings has RVALS but display lacks BASE_RANGE_STRING')
 
         # For RVALS, is BASE_RANGE_STRING also set (checked by checkApis.pl)?
         if 'VALS_EXT_PTR' in strings and 'BASE_EXT_STRING' not in display:
-            print('Warning: ' + filename, hf, 'filter "' + filter + ' strings has VALS_EXT_PTR but display lacks BASE_EXT_STRING')
-            warnings_found += 1
+            result.warn(filename, hf, 'filter "' + filter + ' strings has VALS_EXT_PTR but display lacks BASE_EXT_STRING')
 
         # For VALS, lookup the corresponding ValueString and try to check range.
         vs_re = re.compile(r'VALS\(([a-zA-Z0-9_]*)\)')
@@ -1559,17 +1497,14 @@ class Item:
         # if (' frame' in self.label.lower() or 'frame ' in self.label.lower()) and 'frames' not in self.label.lower() and
         #    ('in' in self.label.lower() or 'for' in self.label.lower()) and
         #    self.item_type == 'FT_UINT32' and self.mask_value == 0x0):
-        #    print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter + '", label "' + label + '"', 'item type is', self.item_type, '- could be FT_FRANENUM?')
-        #    warnings_found += 1
+        #    result.warn(self.filename, self.hf, 'filter "' + self.filter + '", label "' + label + '"', 'item type is', self.item_type, '- could be FT_FRANENUM?')
 
         if item_type == 'FT_IPv4':
             if label.endswith('6') or filter.endswith('6'):
-                print('Warning: ' + filename, hf, 'filter ' + filter + 'label "' + label + '" but is a v4 field')
-                warnings_found += 1
+                result.warn(filename, hf, 'filter ' + filter + 'label "' + label + '" but is a v4 field')
         if item_type == 'FT_IPv6':
             if label.endswith('4') or filter.endswith('4'):
-                print('Warning: ' + filename, hf, 'filter ' + filter + 'label "' + label + '" but is a v6 field')
-                warnings_found += 1
+                result.warn(filename, hf, 'filter ' + filter + 'label "' + label + '" but is a v6 field')
 
         # Could/should this entry use one of the port type display types?
         if False:
@@ -1578,44 +1513,38 @@ class Item:
                 # TODO: use re to avoid matching 'transport' ?
                 if 'port' in desc.lower():
                     if 'udp' in desc or 'tcp' in desc or 'sctp' in desc:
-                        print('Warning: ' + filename, hf, 'filter "' + filter + '" label "' + label + '" field might be a transport port - should use e.g., BASE_PT_UDP as display??')
-                        print(self)
-                        warnings_found += 1
+                        result.warn(filename, hf, 'filter "' + filter + '" label "' + label + '" field might be a transport port - should use e.g., BASE_PT_UDP as display??')
+                        # print(self)
 
     def __str__(self):
         return 'Item ({0} {1} "{2}" "{3}" type={4}:{5} {6} mask={7})'.format(self.filename, self.hf, self.label, self.filter, self.item_type, self.display, self.strings, self.mask)
 
     def check_label(self, label, label_name):
-        global warnings_found
 
         # TODO: this is masking a bug where the re for the item can't cope with macro for containing ',' for mask arg..
         if label.count('"') == 1:
             return
 
         if label.startswith(' ') or label.endswith(' '):
-            print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter, label_name,  '"' + label + '" begins or ends with a space')
-            warnings_found += 1
+            self.result.warn(self.filename, self.hf, 'filter "' + self.filter, label_name,  '"' + label + '" begins or ends with a space')
 
         if (label.count('(') != label.count(')') or
            label.count('[') != label.count(']') or
            label.count('{') != label.count('}')):
             # Ignore if includes quotes, as may be unbalanced.
             if "'" not in label:
-                print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter + '"', label_name, '"' + label + '"', 'has unbalanced parens/braces/brackets')
-                warnings_found += 1
+                self.result.warn(self.filename, self.hf, 'filter "' + self.filter + '"', label_name, '"' + label + '"', 'has unbalanced parens/braces/brackets')
         if self.item_type != 'FT_NONE' and label.endswith(':'):
-            print('Warning: ' + self.filename, self.hf, 'filter "' + self.filter + '"', label_name, '"' + label + '"', 'with type', self.item_type, 'ends with an unnecessary colon')
-            warnings_found += 1
+            self.result.warn(self.filename, self.hf, 'filter "' + self.filter + '"', label_name, '"' + label + '"', 'with type', self.item_type, 'ends with an unnecessary colon')
 
     def check_blurb_vs_label(self):
-        global warnings_found
         if self.blurb == "NULL":
             return
 
         # Is the label longer than the blurb?
         # Generated dissectors tend to write the type into the blurb field...
         # if len(self.label) > len(self.blurb):
-        #    print('Warning:', self.filename, self.hf, 'label="' + self.label + '" blurb="' + self.blurb + '"', "- label longer than blurb!!!")
+        #    self.warn(self.filename, self.hf, 'label="' + self.label + '" blurb="' + self.blurb + '"', "- label longer than blurb!!!")
 
         # Is the blurb just the label in a different order?
         label_words = self.label.lower().split(' ')
@@ -1625,13 +1554,11 @@ class Item:
 
         # Subset - often happens when part specific to that field is dropped
         if set(label_words) > set(blurb_words):
-            print('Warning:', self.filename, self.hf, 'label="' + self.label + '" blurb="' + self.blurb + '"', "- words in blurb are subset of label words")
-            warnings_found += 1
+            self.result.warn(self.filename, self.hf, 'label="' + self.label + '" blurb="' + self.blurb + '"', "- words in blurb are subset of label words")
 
         # Just a re-ordering (but may also contain capitalization changes.)
         if blurb_words == label_words:
-            print('Warning:', self.filename, self.hf, 'label="' + self.label + '" blurb="' + self.blurb + '"', "- blurb words are label words (re-ordered?)")
-            warnings_found += 1
+            self.result.warn(self.filename, self.hf, 'label="' + self.label + '" blurb="' + self.blurb + '"', "- blurb words are label words (re-ordered?)")
 
         # TODO: could have item know protocol name(s) from file this item was found in, and complain if blurb is just prot-name + label ?
 
@@ -1714,11 +1641,9 @@ class Item:
 
         item_max = (2 ** self.mask_width)
         if vs_max > item_max:
-            global warnings_found
-            print('Warning:', self.filename, self.hf, 'filter=', self.filter,
-                  self.strings, "has max value", vs_max, '(' + hex(vs_max) + ')', "which doesn't fit into", self.mask_width, 'bits',
-                  '( mask is', hex(self.mask_value), ')')
-            warnings_found += 1
+            self.result.warn(self.filename, self.hf, 'filter=', self.filter,
+                             self.strings, "has max value", vs_max, '(' + hex(vs_max) + ')', "which doesn't fit into", self.mask_width, 'bits',
+                             '( mask is', hex(self.mask_value), ')')
 
     def check_range_string_range(self, rs_min, rs_max):
         item_width = self.get_field_width_in_bits()
@@ -1729,11 +1654,9 @@ class Item:
 
         item_max = (2 ** self.mask_width)
         if rs_max > item_max:
-            global warnings_found
-            print('Warning:', self.filename, self.hf, 'filter=', self.filter,
-                  self.strings, "has values", rs_min, rs_max, '(' + hex(rs_max) + ')', "which doesn't fit into", self.mask_width, 'bits',
-                  '( mask is', hex(self.mask_value), ')')
-            warnings_found += 1
+            self.result.warn(self.filename, self.hf, 'filter=', self.filter,
+                             self.strings, "has values", rs_min, rs_max, '(' + hex(rs_max) + ')', "which doesn't fit into", self.mask_width, 'bits',
+                             '( mask is', hex(self.mask_value), ')')
 
     # Return true if bit position n is set in value.
     def check_bit(self, value, n):
@@ -1772,7 +1695,7 @@ class Item:
         # Look up the field width
         field_width = 0
         if self.item_type not in field_widths:
-            print('unexpected item_type is ', self.item_type)
+            # print('unexpected item_type is ', self.item_type)
             field_width = 64
         else:
             field_width = self.get_field_width_in_bits()
@@ -1781,10 +1704,8 @@ class Item:
         mask_width = n-1-mask_start
         if field_width is not None and (mask_width > field_width):
             # N.B. No call, so no line number.
-            print(self.filename + ':', self.hf, 'filter=', self.filter, self.item_type, 'so field_width=', field_width,
-                  'but mask is', mask, 'which is', mask_width, 'bits wide!')
-            global warnings_found
-            warnings_found += 1
+            self.result.warn(self.filename + ':', self.hf, 'filter=', self.filter, self.item_type, 'so field_width=', field_width,
+                             'but mask is', mask, 'which is', mask_width, 'bits wide!')
         # Now, any more zero set bits are an error!
         if self.filter in known_non_contiguous_fields or self.filter.startswith('rtpmidi'):
             # Don't report if we know this one is Ok.
@@ -1792,9 +1713,8 @@ class Item:
             return
         while n <= 63:
             if self.check_bit(self.mask_value, n):
-                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask with non-contiguous bits',
-                      mask, '(', hex(self.mask_value), ')')
-                warnings_found += 1
+                self.result.warn(self.filename, self.hf, 'filter=', self.filter, ' - mask with non-contiguous bits',
+                                 mask, '(', hex(self.mask_value), ')')
                 return
             n += 1
 
@@ -1820,15 +1740,12 @@ class Item:
 
     def check_num_digits(self, mask):
         if mask.startswith('0x') and len(mask) > 3:
-            global warnings_found
-            global errors_found
 
             width_in_bits = self.get_field_width_in_bits()
             # Warn if odd number of digits.  TODO: only if >= 5?
             if len(mask) % 2 and self.item_type != 'FT_BOOLEAN':
-                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask has odd number of digits', mask,
-                      'expected max for', self.item_type, 'is', int(width_in_bits/4))
-                warnings_found += 1
+                self.result.warn(self.filename, self.hf, 'filter=', self.filter, ' - mask has odd number of digits', mask,
+                                 'expected max for', self.item_type, 'is', int(width_in_bits/4))
 
             if self.item_type in field_widths:
                 # Longer than it should be?
@@ -1838,36 +1755,30 @@ class Item:
                     extra_digits = mask[2:2+(len(mask)-2 - int(width_in_bits/4))]
                     # Its definitely an error if any of these are non-zero, as they won't have any effect!
                     if extra_digits != '0'*len(extra_digits):
-                        print('Error:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len is", len(mask)-2,
-                              "but type", self.item_type, " indicates max of", int(width_in_bits/4),
-                              "and extra digits are non-zero (" + extra_digits + ")")
-                        errors_found += 1
+                        self.result.error(self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len is", len(mask)-2,
+                                          "but type", self.item_type, " indicates max of", int(width_in_bits/4),
+                                          "and extra digits are non-zero (" + extra_digits + ")")
                     else:
                         # Has extra leading zeros, still confusing, so warn.
-                        print('Warning:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
-                              "but type", self.item_type, " indicates max of", int(width_in_bits/4))
-                        warnings_found += 1
+                        self.result.warn(self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
+                                         "but type", self.item_type, " indicates max of", int(width_in_bits/4))
 
                 # Strict/fussy check - expecting mask length to match field width exactly!
                 # Currently only doing for FT_BOOLEAN, and don't expect to be in full for 64-bit fields!
                 if self.mask_exact_width:
                     ideal_mask_width = int(width_in_bits/4)
                     if self.item_type == 'FT_BOOLEAN' and ideal_mask_width < 16 and len(mask)-2 != ideal_mask_width:
-                        print('Warning:', self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
-                              "but type", self.item_type, "|", self.display,  " indicates should be", int(width_in_bits/4))
-                        warnings_found += 1
+                        self.result.warn(self.filename, self.hf, 'filter=', self.filter, 'mask', self.mask, "with len", len(mask)-2,
+                                         "but type", self.item_type, "|", self.display,  " indicates should be", int(width_in_bits/4))
 
             else:
                 # This type shouldn't have a mask set at all.
-                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - item has type', self.item_type, 'but mask set:', mask)
-                warnings_found += 1
+                self.result.warn(self.filename, self.hf, 'filter=', self.filter, ' - item has type', self.item_type, 'but mask set:', mask)
 
     def check_digits_all_zeros(self, mask):
         if mask.startswith('0x') and len(mask) > 3:
             if mask[2:] == '0'*(len(mask)-2):
-                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - item mask has all zeros - this is confusing! :', '"' + mask + '"')
-                global warnings_found
-                warnings_found += 1
+                self.result.warn(self.filename, self.hf, 'filter=', self.filter, ' - item mask has all zeros - this is confusing! :', '"' + mask + '"')
 
     # A mask where all bits are set should instead be 0.
     # Exceptions might be where:
@@ -1895,7 +1806,7 @@ class Item:
 
                 # No point in setting all bits if only want decimal number..
                 if self.display == "BASE_DEC":
-                    print('Note:', self.filename, self.hf, 'filter=', self.filter, " - mask is all set - if only want value (rather than bits), set 0 instead? :", '"' + mask + '"')
+                    self.result.note(self.filename, self.hf, 'filter=', self.filter, " - mask is all set - if only want value (rather than bits), set 0 instead? :", '"' + mask + '"')
 
     # An item that appears in a bitmask set, needs to have a non-zero mask.
     def check_mask_if_in_field_array(self, mask, field_arrays):
@@ -1910,13 +1821,10 @@ class Item:
         if found:
             # It needs to have a non-zero mask.
             if self.mask_read and self.mask_value == 0:
-                print('Error:', self.filename, self.hf, 'is in fields array', arr, 'but has a zero mask - this is not allowed')
-                global errors_found
-                errors_found += 1
+                self.result.error(self.filename, self.hf, 'is in fields array', arr, 'but has a zero mask - this is not allowed')
 
     # Return True if appears to be a match
     def check_label_vs_filter(self, reportError=True, reportNumericalMismatch=True):
-        global warnings_found
 
         last_filter = self.filter.split('.')[-1]
         last_filter_orig = last_filter
@@ -1947,8 +1855,8 @@ class Item:
         filter_numbers = [int(n) for n in re.findall(r'\d+', last_filter_orig)]
         if len(label_numbers) == len(filter_numbers) and label_numbers != filter_numbers:
             if reportNumericalMismatch:
-                print('Note:', self.filename, self.hf, 'label="' + self.label + '" has different **numbers** from  filter="' + self.filter + '"')
-                print(label_numbers, filter_numbers)
+                self.result.note(self.filename, self.hf, 'label="' + self.label + '" has different **numbers** from  filter="' + self.filter + '"',
+                                 label_numbers, filter_numbers)
             return False
 
         # If they match after trimming number from filter, they should match.
@@ -1958,32 +1866,25 @@ class Item:
         # Are they just different?
         if last_filter.lower() not in label.lower():
             if reportError:
-                print('Warning:', self.filename, self.hf, 'label="' + self.label + '" does not seem to match filter="' + self.filter + '"')
-                warnings_found += 1
+                self.result.warn(self.filename, self.hf, 'label="' + self.label + '" does not seem to match filter="' + self.filter + '"')
             return False
 
         return True
 
     def check_boolean_length(self):
-        global errors_found
         # If mask is 0, display must be BASE_NONE.
         if self.item_type == 'FT_BOOLEAN' and self.mask_read and self.mask_value == 0 and self.display.find('BASE_NONE') == -1:
-            print('Error:', self.filename, self.hf, 'type is FT_BOOLEAN, no mask set (', self.mask, ') - display should be BASE_NONE, is instead', self.display)
-            errors_found += 1
+            self.result.error(self.filename, self.hf, 'type is FT_BOOLEAN, no mask set (', self.mask, ') - display should be BASE_NONE, is instead', self.display)
         # TODO: check for length > 64?
 
     def check_string_display(self):
-        global warnings_found
         if self.item_type in {'FT_STRING', 'FT_STRINGZ', 'FT_UINT_STRING'}:
             if 'BASE_NONE' not in self.display and 'BASE_STR_WSP' not in self.display:
-                print('Warning:', self.filename, self.hf, 'type is', self.item_type, 'display must be BASE_NONE or BASE_STR_WSP, is instead', self.display)
-                warnings_found += 1
+                self.result.warn(self.filename, self.hf, 'type is', self.item_type, 'display must be BASE_NONE or BASE_STR_WSP, is instead', self.display)
 
     def check_ipv4_display(self):
-        global errors_found
         if self.item_type == 'FT_IPv4' and self.display not in {'BASE_NETMASK', 'BASE_NONE'}:
-            print('Error:', self.filename, self.hf, 'type is FT_IPv4, should be BASE_NETMASK or BASE_NONE, is instead', self.display)
-            errors_found += 1
+            self.result.error(self.filename, self.hf, 'type is FT_IPv4, should be BASE_NETMASK or BASE_NONE, is instead', self.display)
 
 
 class CombinedCallsCheck:
@@ -2022,10 +1923,8 @@ class CombinedCallsCheck:
                             break
                     # Also more compelling if check for and scope changes { } in lines in-between?
                     if not scope_different:
-                        print('Warning:', f + ':' + str(call.line_number),
-                              call.hf_name + ' called consecutively at line', call.line_number, '- previous at', prev.line_number)
-                        global warnings_found
-                        warnings_found += 1
+                        self.result.warn(f + ':' + str(call.line_number),
+                                         call.hf_name + ' called consecutively at line', call.line_number, '- previous at', prev.line_number)
             prev = call
 
 
@@ -2159,7 +2058,7 @@ def find_macros(filename, contents):
 
 
 # Look for hf items (i.e. full item to be registered) in a dissector file.
-def find_items(filename, contents, macros, value_strings, range_strings,
+def find_items(filename, contents, macros, result, value_strings, range_strings,
                check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False):
     is_generated = isGeneratedFile(filename)
     items = {}
@@ -2179,6 +2078,7 @@ def find_items(filename, contents, macros, value_strings, range_strings,
                          display=m.group(5),
                          strings=m.group(6),
                          macros=macros,
+                         result=result,
                          value_strings=value_strings,
                          range_strings=range_strings,
                          mask=m.group(7),
@@ -2194,9 +2094,8 @@ def find_items(filename, contents, macros, value_strings, range_strings,
 # TODO: some dissectors have similar-looking hf arrays for other reasons, so need to cross-reference with
 # the 6th arg of ..add_bitmask_..() calls...
 # TODO: return items (rather than local checks) from here so can be checked against list of calls for given filename
-def find_field_arrays(filename, contents, all_fields, all_hf):
+def find_field_arrays(filename, contents, all_fields, all_hf, result):
     field_entries = {}
-    global warnings_found
 
     # Find definition of hf array
     matches = re.finditer(r'static\s*g?int\s*\*\s*const\s+([a-zA-Z0-9_]*)\s*\[\]\s*\=\s*\{([a-zA-Z0-9,_\&\s]*)\}', contents)
@@ -2216,16 +2115,14 @@ def find_field_arrays(filename, contents, all_fields, all_hf):
         if fields[0].startswith('ett_'):
             continue
         if 'NULL' not in fields[-1] and fields[-1] != '0':
-            print('Warning:', filename, name, 'is not NULL-terminated - {', ', '.join(fields), '}')
-            warnings_found += 1
+            result.warn(filename, name, 'is not NULL-terminated - {', ', '.join(fields), '}')
             continue
 
         # Do any hf items reappear?
         seen_fields = set()
         for f in fields:
             if f in seen_fields:
-                print(filename, name, f, 'already added!')
-                warnings_found += 1
+                result.warn(filename, name, f, 'already added!')
             seen_fields.add(f)
 
         # Check for duplicated flags among entries..
@@ -2235,8 +2132,7 @@ def find_field_arrays(filename, contents, all_fields, all_hf):
                 # Don't use invalid mask.
                 new_mask = all_hf[f].mask_value if not all_hf[f].mask_value_invalid else 0
                 if new_mask & combined_mask:
-                    print('Warning:', filename, name, 'has overlapping mask - {', ', '.join(fields), '} combined currently', hex(combined_mask), f, 'adds', hex(new_mask))
-                    warnings_found += 1
+                    result.warn(filename, name, 'has overlapping mask - {', ', '.join(fields), '} combined currently', hex(combined_mask), f, 'adds', hex(new_mask))
                 combined_mask |= new_mask
 
         # Make sure all entries have the same width
@@ -2246,7 +2142,7 @@ def find_field_arrays(filename, contents, all_fields, all_hf):
                 new_field_width = all_hf[f].get_field_width_in_bits()
                 if set_field_width is not None and new_field_width != set_field_width:
                     # Its not uncommon for fields to be used in multiple sets, some of which can be different widths..
-                    print('Note:', filename, name, 'set items not all same width - {', ', '.join(fields), '} seen', set_field_width, 'now', new_field_width)
+                    result.note(filename, name, 'set items not all same width - {', ', '.join(fields), '} seen', set_field_width, 'now', new_field_width)
                 set_field_width = new_field_width
 
         # Add entry to table
@@ -2280,10 +2176,13 @@ def find_item_extern_declarations(filename, lines):
 def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=False, check_consecutive=False,
               check_missing_items=False, check_bitmask_fields=False, label_vs_filter=False, extra_value_string_checks=False,
               check_expert_items=False, check_subtrees=False):
+
+    result = Result()
+
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
-        print(filename, 'does not exist!')
-        return
+        result.note(filename, 'does not exist!')
+        return result
 
     # Get file contents with and without comments, and pass into functions below
     with open(filename, 'r', encoding="utf8") as f:
@@ -2296,30 +2195,30 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     macros = find_macros(filename, contents_no_comments)
 
     # Find (and sanity-check) value_strings
-    value_strings = findValueStrings(filename, contents_no_comments, macros, do_extra_checks=extra_value_string_checks)
+    value_strings = findValueStrings(filename, contents_no_comments, macros, result, do_extra_checks=extra_value_string_checks)
     if extra_value_string_checks:
         for name in value_strings:
-            value_strings[name].extraChecks()
+            value_strings[name].extraChecks(result)
 
     # Find (and sanity-check) range_strings
-    range_strings = findRangeStrings(filename, contents_no_comments, macros, do_extra_checks=extra_value_string_checks)
+    range_strings = findRangeStrings(filename, contents_no_comments, macros, result, do_extra_checks=extra_value_string_checks)
     if extra_value_string_checks:
         for name in range_strings:
-            range_strings[name].extraChecks()
+            range_strings[name].extraChecks(result)
 
     # Find (and sanity-check) string_strings
-    string_strings = findStringStrings(filename, contents_no_comments, macros, do_extra_checks=extra_value_string_checks)
+    string_strings = findStringStrings(filename, contents_no_comments, macros, result, do_extra_checks=extra_value_string_checks)
     if extra_value_string_checks:
         for name in string_strings:
-            string_strings[name].extraChecks()
+            string_strings[name].extraChecks(result)
 
     # Find expert items
     if check_expert_items:
-        expert_items = findExpertItems(filename, contents_no_comments, macros)
-        checkExpertCalls(filename, expert_items)
+        expert_items = findExpertItems(filename, contents_no_comments, macros, result)
+        checkExpertCalls(filename, expert_items, result)
 
     # Find important parts of items.
-    items_defined = find_items(filename, contents_no_comments, macros, value_strings, range_strings,
+    items_defined = find_items(filename, contents_no_comments, macros, result, value_strings, range_strings,
                                check_mask, mask_exact_width, check_label, check_consecutive)
     items_extern_declared = {}
 
@@ -2329,9 +2228,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         ett_defined = findDefinedTrees(filename, contents_no_comments, ett_declared)
         for d in ett_declared:
             if d not in ett_defined:
-                global warnings_found
-                print('Warning:', filename, 'subtree identifier', d, 'is declared but not found in an array for registering')
-                warnings_found += 1
+                result.warn(filename, 'subtree identifier', d, 'is declared but not found in an array for registering')
 
     items_declared = {}
     if check_missing_items:
@@ -2342,7 +2239,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
 
     # Get 'fields' out of calls
     for c in apiChecks:
-        c.find_calls(filename, contents, lines, macros)
+        c.find_calls(filename, contents, lines, macros, result)
         for call in c.calls:
             # From _add_bitmask() calls
             if call.fields:
@@ -2351,7 +2248,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     # Checking for lists of fields for add_bitmask calls
     field_arrays = {}
     if check_bitmask_fields:
-        field_arrays = find_field_arrays(filename, contents_no_comments, fields, items_defined)
+        field_arrays = find_field_arrays(filename, contents_no_comments, fields, items_defined, result)
 
     if check_mask and check_bitmask_fields:
         for i in items_defined:
@@ -2361,7 +2258,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
 
     # Now actually check the calls
     for c in apiChecks:
-        c.check_against_items(items_defined, items_declared, items_extern_declared, check_missing_items, field_arrays)
+        c.check_against_items(items_defined, items_declared, items_extern_declared, result, check_missing_items, field_arrays)
 
     if label_vs_filter:
         matches = 0
@@ -2372,7 +2269,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         # Only checking if almost every field does match.
         checking = len(items_defined) and matches < len(items_defined) and ((matches / len(items_defined)) > 0.93)
         if checking:
-            print(filename, ':', matches, 'label-vs-filter matches out of', len(items_defined), 'so reporting mismatches')
+            result.note(filename, ':', matches, 'label-vs-filter matches out of', len(items_defined), 'so reporting mismatches')
             for hf in items_defined:
                 items_defined[hf].check_label_vs_filter(reportError=True, reportNumericalMismatch=False)
 
@@ -2380,6 +2277,8 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         items_defined[hf].check_boolean_length()
         items_defined[hf].check_string_display()
         items_defined[hf].check_ipv4_display()
+
+    return result
 
 
 #################################################################
@@ -2480,22 +2379,25 @@ else:
     print('All dissector modules\n')
 
 
-# Now check the files.
-for f in files:
-    if should_exit:
-        exit(1)
-    checkFile(f, check_mask=args.mask, mask_exact_width=args.mask_exact_width, check_label=args.label,
-              check_consecutive=args.consecutive, check_missing_items=args.missing_items,
-              check_bitmask_fields=args.check_bitmask_fields, label_vs_filter=args.label_vs_filter,
-              extra_value_string_checks=args.extra_value_string_checks,
-              check_expert_items=args.check_expert_items, check_subtrees=args.check_subtrees)
+# Now check the chosen files
+with concurrent.futures.ProcessPoolExecutor() as executor:
+    future_to_file_output = {executor.submit(checkFile, file,
+                                             check_mask=args.mask, mask_exact_width=args.mask_exact_width, check_label=args.label,
+                                             check_consecutive=args.consecutive, check_missing_items=args.missing_items,
+                                             check_bitmask_fields=args.check_bitmask_fields, label_vs_filter=args.label_vs_filter,
+                                             extra_value_string_checks=args.extra_value_string_checks,
+                                             check_expert_items=args.check_expert_items, check_subtrees=args.check_subtrees): file for file in files}
+    for future in concurrent.futures.as_completed(future_to_file_output):
+        if should_exit:
+            exit(1)
+        # File is done - show any output and update warning, error counts
+        result = future.result()
+        output = result.out.getvalue()
+        if len(output):
+            print(output)
 
-    # Do checks against all calls.
-    if args.consecutive:
-        combined_calls = CombinedCallsCheck(f, apiChecks)
-        # This hasn't really found any issues, but shows lots of false positives (and are difficult to investigate)
-        # combined_calls.check_consecutive_item_calls()
-
+        warnings_found += result.warnings
+        errors_found += result.errors
 
 # Show summary.
 print(warnings_found, 'warnings')

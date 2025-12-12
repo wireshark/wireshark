@@ -9,13 +9,11 @@
 # to check that most appropriate API is being used
 
 import os
-import sys
 import re
 import argparse
 import signal
-import io
 import concurrent.futures
-from check_common import removeComments, getFilesFromCommits, getFilesFromOpen, findDissectorFilesInFolder, isGeneratedFile
+from check_common import removeComments, getFilesFromCommits, getFilesFromOpen, findDissectorFilesInFolder, isGeneratedFile, Result
 
 # Try to exit soon after Ctrl-C is pressed.
 should_exit = False
@@ -33,45 +31,37 @@ errors_found = 0
 
 
 class ColCall:
-    def __init__(self, file, line_number, name, last_args, generated, verbose, output=sys.stdout):
+    def __init__(self, file, line_number, name, last_args, generated, verbose):
         self.filename = file
         self.line_number = line_number
         self.name = name
         self.last_args = last_args
         self.generated = generated
         self.verbose = verbose
-        self.output = output
 
     def issue_prefix(self):
         generated = '(GENERATED) ' if self.generated else ''
         return self.filename + ':' + generated + str(self.line_number) + ' : called ' + self.name + ' with ' + self.last_args
 
-    def check(self):
-        warnings = 0
-        errors = 0
-
+    def check(self, result):
         self.last_args = self.last_args.replace('\\\"', "'")
         self.last_args = self.last_args.strip()
 
         # Empty string never a good idea
         if self.last_args == r'""':
             if 'append' not in self.name:
-                print('Warning:', self.issue_prefix(), '- if want to clear column, use col_clear() instead',
-                      file=self.output)
-                warnings += 1
+                result.warn(self.issue_prefix(), '- if want to clear column, use col_clear() instead')
             else:
                 # TODO: pointless if appending, but unlikely to see
                 pass
 
         # This is never a good idea..
         if self.last_args.startswith(r'"%s"'):
-            print('Warning:', self.issue_prefix(), " - don't need fstr API?", file=self.output)
-            warnings += 1
+            result.warn(self.issue_prefix(), " - don't need fstr API?")
 
         # Unlikely, but did someone accidentally include a specifier but call str() function with no args?
         if self.last_args.startswith('"') and "%" in self.last_args and 'fstr' not in self.name:
-            print('Warning:', self.issue_prefix(), " - meant to call fstr version of function?", file=self.output)
-            warnings += 1
+            result.warn(self.issue_prefix(), " - meant to call fstr version of function?")
 
         ternary_re = re.compile(r'.*\s*\?\s*.*\".*\"\s*:\s*.*\".*\"')
 
@@ -80,33 +70,30 @@ class ColCall:
         if self.name == 'col_set_str':
             # Literal strings are safe, as well as some other patterns..
             if self.last_args.startswith('"'):
-                return warnings, errors
+                return
             elif self.last_args.startswith('val_to_str_const') or self.last_args.startswith('val_to_str_ext_const'):
-                return warnings, errors
+                return
             # TODO: substitute macros to avoid some special cases..
             elif self.last_args.upper() == self.last_args:
-                return warnings, errors
+                return
             # Ternary test with both outcomes being literal strings?
             elif ternary_re.match(self.last_args):
-                return warnings, errors
+                return
             else:
                 if self.verbose:
                     # Not easy/possible to judge lifetime of string..
-                    print('Note:', self.issue_prefix(), '- is this persistent enough??', file=self.output)
+                    result.note(self.issue_prefix(), '- is this persistent enough??')
 
         if self.name == 'col_add_str':
             # If literal string, could have used col_set_str instead?
             self.last_args = self.last_args.replace('\\\"', "'")
             self.last_args = self.last_args.strip()
             if self.last_args.startswith('"'):
-                print('Warning:', self.issue_prefix(), '- could call col_set_str() instead', file=self.output)
-                warnings += 1
+                result.warn(self.issue_prefix(), '- could call col_set_str() instead')
             elif self.last_args.startswith('val_to_str_const'):
-                print('Warning:', self.issue_prefix(), '- const so could use col_set_str() instead', file=self.output)
-                warnings += 1
+                result.warn(self.issue_prefix(), '- const so could use col_set_str() instead')
             elif self.last_args.startswith('val_to_str_ext_const'):
-                print('Warning:', self.issue_prefix(), '- const so could use col_set_str() instead', file=self.output)
-                warnings += 1
+                result.warn(self.issue_prefix(), '- const so could use col_set_str() instead')
 
         if self.name == 'col_append_str':
             pass
@@ -118,23 +105,17 @@ class ColCall:
                 # Should contain at least one format specifier!
                 format_string = m.group(1)
                 if '%' not in format_string:
-                    print('Warning:', self.issue_prefix(), 'with no format specifiers  - "' + format_string + '" - use _str() version instead',
-                          file=self.output)
-                    warnings += 1
-
-        return warnings, errors
+                    result.warn(self.issue_prefix(), 'with no format specifiers  - "' + format_string + '" - use _str() version instead')
 
 
 # Check the given dissector file.
 def checkFile(filename, generated, verbose=False):
-    output = io.StringIO()
-    warnings = 0
-    errors = 0
+    result = Result()
 
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
-        print(filename, 'does not exist!', file=output)
-        return warnings, errors
+        result.note(filename, 'does not exist!')
+        return result
 
     with open(filename, 'r', encoding="utf8") as f:
         full_contents = f.read()
@@ -170,18 +151,13 @@ def checkFile(filename, generated, verbose=False):
             args_m = re.match(r'(.*?),\s*(.*?),\s*(.*)', args)
             if args_m:
                 col_calls.append(ColCall(filename, line_number, m.group(1), last_args=args_m.group(3),
-                                         generated=generated, verbose=verbose,
-                                         output=output))
+                                         generated=generated, verbose=verbose))
 
         # Check them all
         for call in col_calls:
-            out = call.check()
-            warnings += out[0]
-            errors += out[1]
+            call.check(result)
 
-    contents = output.getvalue()
-    output.close()
-    return warnings, errors, contents
+    return result
 
 
 
@@ -247,12 +223,13 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
         if should_exit:
             exit(1)
         # File is done - show any output and update warning, error counts
-        warnings, errors, output = future.result()
+        result = future.result()
+        output = result.out.getvalue()
         if len(output):
-            print(output)
-        warnings_found += warnings
-        errors_found += errors
+            print(output[:-1])
 
+        warnings_found += result.warnings
+        errors_found += result.errors
 
 # Show summary.
 print(warnings_found, 'warnings found')
