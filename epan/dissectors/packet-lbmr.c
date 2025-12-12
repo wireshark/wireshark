@@ -5152,20 +5152,20 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     total_len_dissected = 0;
     packet_tvb = tvb;
 
-    if ((ver_type & LBMR_HDR_TYPE_OPTS_MASK) != 0)
+    unsigned packet_len = tvb_reported_length(tvb);
+    /* The length option is at the end. Trim the options off if possible. */
+    if (((ver_type & LBMR_HDR_TYPE_OPTS_MASK) != 0) && packet_len > L_LBMR_LBMR_OPT_LEN_T && tvb_bytes_exist(tvb, 0, packet_len))
     {
         uint8_t opt_type;
         uint8_t opt_len;
 
-        opt_type = tvb_get_uint8(tvb, -L_LBMR_LBMR_OPT_LEN_T + O_LBMR_LBMR_OPT_LEN_T_TYPE);
-        opt_len = tvb_get_uint8(tvb, -L_LBMR_LBMR_OPT_LEN_T + O_LBMR_LBMR_OPT_LEN_T_LEN);
+        opt_type = tvb_get_uint8(tvb, packet_len - L_LBMR_LBMR_OPT_LEN_T + O_LBMR_LBMR_OPT_LEN_T_TYPE);
+        opt_len = tvb_get_uint8(tvb, packet_len - L_LBMR_LBMR_OPT_LEN_T + O_LBMR_LBMR_OPT_LEN_T_LEN);
         if ((opt_type == LBMR_LBMR_OPT_LEN_TYPE) && (((int)opt_len) == L_LBMR_LBMR_OPT_LEN_T))
         {
-            int opt_total_len = 0;
-            int packet_len;
+            unsigned opt_total_len = 0;
 
-            packet_len = tvb_reported_length_remaining(tvb, 0);
-            opt_total_len = tvb_get_ntohis(tvb, -L_LBMR_LBMR_OPT_LEN_T + O_LBMR_LBMR_OPT_LEN_T_TOTAL_LEN);
+            opt_total_len = tvb_get_ntohs(tvb, packet_len - L_LBMR_LBMR_OPT_LEN_T + O_LBMR_LBMR_OPT_LEN_T_TOTAL_LEN);
             if (packet_len > opt_total_len)
             {
                 int tvb_len = packet_len - opt_total_len;
