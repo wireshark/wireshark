@@ -152,35 +152,26 @@ tvb_new_with_subset(tvbuff_t *backing, const unsigned reported_length,
 }
 
 tvbuff_t *
-tvb_new_subset_length_caplen(tvbuff_t *backing, const int backing_offset, const int backing_length, const int reported_length)
+tvb_new_subset_length_caplen(tvbuff_t *backing, const unsigned backing_offset, const unsigned backing_length, const unsigned reported_length)
 {
 	tvbuff_t *tvb;
-	unsigned	  subset_tvb_offset;
 	unsigned	  subset_tvb_length;
-	unsigned	  actual_reported_length;
 
 	DISSECTOR_ASSERT(backing && backing->initialized);
 
-	THROW_ON(reported_length < -1, ReportedBoundsError);
+	tvb_validate_offset_length(backing, backing_offset, backing_length);
 
-	tvb_check_offset_length(backing, backing_offset, backing_length,
-			        &subset_tvb_offset,
-			        &subset_tvb_length);
-
-	if (reported_length == -1)
-		actual_reported_length = backing->reported_length - subset_tvb_offset;
-	else
-		actual_reported_length = (unsigned)reported_length;
+	subset_tvb_length = backing_length;
 
 	/*
 	 * Cut the captured length short, so it doesn't go past the subset's
 	 * reported length.
 	 */
-	if (subset_tvb_length > actual_reported_length)
-		subset_tvb_length = actual_reported_length;
+	if (subset_tvb_length > reported_length)
+		subset_tvb_length = reported_length;
 
-	tvb = tvb_new_with_subset(backing, actual_reported_length,
-	    subset_tvb_offset, subset_tvb_length);
+	tvb = tvb_new_with_subset(backing, reported_length,
+	    backing_offset, subset_tvb_length);
 
 	tvb_add_to_chain(backing, tvb);
 
@@ -188,48 +179,23 @@ tvb_new_subset_length_caplen(tvbuff_t *backing, const int backing_offset, const 
 }
 
 tvbuff_t *
-tvb_new_subset_length(tvbuff_t *backing, const int backing_offset, const int reported_length)
+tvb_new_subset_length(tvbuff_t *backing, const unsigned backing_offset, const unsigned reported_length)
 {
-	int	  captured_length;
-	int	  actual_reported_length;
 	tvbuff_t *tvb;
-	unsigned	  subset_tvb_offset;
 	unsigned	  subset_tvb_length;
 
 	DISSECTOR_ASSERT(backing && backing->initialized);
 
-	THROW_ON(reported_length < -1, ReportedBoundsError);
-
-	if (reported_length == -1)
-		actual_reported_length = backing->reported_length;
-	else
-		actual_reported_length = reported_length;
-
+	tvb_validate_offset_and_remaining(backing, backing_offset, &subset_tvb_length);
 	/*
 	 * Cut the captured length short, so it doesn't go past the subset's
 	 * reported length.
 	 */
-	captured_length = tvb_captured_length_remaining(backing, backing_offset);
-	THROW_ON(captured_length < 0, BoundsError);
-	if (captured_length > actual_reported_length)
-		captured_length = actual_reported_length;
+	if (subset_tvb_length > reported_length)
+		subset_tvb_length = reported_length;
 
-	tvb_check_offset_length(backing, backing_offset, captured_length,
-			        &subset_tvb_offset,
-			        &subset_tvb_length);
-
-	/*
-         * If the requested reported length is "to the end of the buffer",
-         * subtract the offset from the total length. We do this now, because
-         * the user might have passed in a negative offset.
-         */
-	if (reported_length == -1) {
-		THROW_ON(backing->reported_length < subset_tvb_offset, ReportedBoundsError);
-		actual_reported_length -= subset_tvb_offset;
-	}
-
-	tvb = tvb_new_with_subset(backing, (unsigned)actual_reported_length,
-	    subset_tvb_offset, subset_tvb_length);
+	tvb = tvb_new_with_subset(backing, reported_length,
+	    backing_offset, subset_tvb_length);
 
 	tvb_add_to_chain(backing, tvb);
 
@@ -237,22 +203,21 @@ tvb_new_subset_length(tvbuff_t *backing, const int backing_offset, const int rep
 }
 
 tvbuff_t *
-tvb_new_subset_remaining(tvbuff_t *backing, const int backing_offset)
+tvb_new_subset_remaining(tvbuff_t *backing, const unsigned backing_offset)
 {
 	tvbuff_t *tvb;
-	unsigned	  subset_tvb_offset;
 	unsigned	  subset_tvb_length;
 	unsigned	  reported_length;
 
-	tvb_check_offset_length(backing, backing_offset, -1 /* backing_length */,
-			        &subset_tvb_offset,
-			        &subset_tvb_length);
+	DISSECTOR_ASSERT(backing && backing->initialized);
 
-	THROW_ON(backing->reported_length < subset_tvb_offset, ReportedBoundsError);
-	reported_length = backing->reported_length - subset_tvb_offset;
+	tvb_validate_offset_and_remaining(backing, backing_offset, &subset_tvb_length);
+
+	THROW_ON(backing->reported_length < backing_offset, ReportedBoundsError);
+	reported_length = backing->reported_length - backing_offset;
 
 	tvb = tvb_new_with_subset(backing, reported_length,
-	    subset_tvb_offset, subset_tvb_length);
+	    backing_offset, subset_tvb_length);
 
 	tvb_add_to_chain(backing, tvb);
 

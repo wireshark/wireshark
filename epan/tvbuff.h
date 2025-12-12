@@ -265,37 +265,32 @@ WS_DLL_PUBLIC tvbuff_t *tvb_new_real_data(const uint8_t *data,
  * @ref tvb_new_subset_remaining() instead.
  *
  * @param backing The backing tvbuff onto which the new tvbuff is a view
- * @param backing_offset If positive, is the offset from the beginning of
- * the backing tvbuff at which the new tvbuff's data begins, and, if
- * negative, is the offset from the end of the backing tvbuff at which
- * the new tvbuff's data begins.
+ * @param backing_offset The offset from the beginning of the backing tvbuff
+ * at which the new tvbuff's data begins.
  * @param backing_length The length of the data to include in the new
- * tvbuff, starting with the byte at 'backing_offset'; if -1, it
- * means "to the end of the backing tvbuff".  It can be 0, although
- * the usefulness of the buffer would be rather limited.  The length
- * actually included will be no more than the reported length.
- * @param reported_length The reported length of the new tvbuff; if -1, it
- * means "the reported length to the end of the backing tvbuff".  It can
+ * tvbuff, starting with the byte at 'backing_offset'. It can be 0, although
+ * the usefulness of the buffer would be rather limited. The length actually
+ * included will be no more than the reported length.
+ * @param reported_length The reported length of the new tvbuff. It can
  * be 0, although the usefulness of the buffer would be rather limited.
  *
  * @return A tvbuff that is a subset of the backing tvbuff beginning at
  * backing_offset (which is offset 0 in the subset) and with the given
  * reported_length, with captured length no more than backing_length.
  *
- * @note In most cases use tvb_new_subset_length() (or equivalently, pass -1
- * as 'backing_length') or tvb_new_subset_remaining() instead.  Use this when
- * the backing tvbuff includes bytes at the end that must not be included in
- * the subset regardless of the reported length, such as an FCS or padding.
- * In such cases it may still be simpler to call tvb_new_subset_length()
- * twice, once to remove the trailing bytes and once to select the chosen
- * payload bytes.
+ * @note In most cases use tvb_new_subset_length() or tvb_new_subset_remaining()
+ * instead.  Use this when the backing tvbuff includes bytes at the end that
+ * must not be included in the subset regardless of the reported length, such
+ * as an FCS or padding. In such cases it may still be simpler to call
+ * tvb_new_subset_length() twice, once to remove the trailing bytes and once
+ * to select the chosen payload bytes.
  *
  * @warning Will throw BoundsError if 'backing_offset'/'length'
  * is beyond the bounds of the backing tvbuff.
  * Can throw ReportedBoundsError. */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_length_caplen(tvbuff_t *backing,
-    const int backing_offset, const int backing_length,
-    const int reported_length);
+    const unsigned backing_offset, const unsigned backing_length,
+    const unsigned reported_length);
 
 /**
  * @brief Create a subset tvbuff with captured length fitting within backing and reported lengths.
@@ -312,10 +307,11 @@ WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_length_caplen(tvbuff_t *backing,
  * @return A pointer to the newly created subset tvbuff.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_length(tvbuff_t *backing,
-    const int backing_offset, const int reported_length);
+    const unsigned backing_offset, const unsigned reported_length);
 
 /**
- * @brief Similar to @ref tvb_new_subset_length_caplen() but with backing_length and reported_length set to -1.
+ * @brief Create a subset tvbuff containing all the data starting at an offset
+ * into a backing tvbuff.
  *
  * Can throw ReportedBoundsError.
  *
@@ -325,7 +321,7 @@ WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_length(tvbuff_t *backing,
  * @return A pointer to the newly created subset tvbuff.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_subset_remaining(tvbuff_t *backing,
-    const int backing_offset);
+    const unsigned backing_offset);
 
 /**
  * @brief Append to the list of tvbuffs that make up this composite tvbuff.

@@ -287,6 +287,29 @@ validate_offset_length(const tvbuff_t *tvb,
 		THROW(exception);
 }
 
+/* Internal function so that other translation units can use
+ * validate_offset_length. */
+void
+tvb_validate_offset_length(const tvbuff_t *tvb,
+			   const unsigned offset, const unsigned length)
+{
+	validate_offset_length(tvb, offset, length);
+}
+
+/* Internal function so that other translation units can use
+ * validate_offset_and_remaining. This throws the exception
+ * from validate_offset_and_remaining. */
+void
+tvb_validate_offset_and_remaining(const tvbuff_t *tvb,
+				  const unsigned offset, unsigned *rem_len)
+{
+	int exception;
+
+	exception = validate_offset_and_remaining(tvb, offset, rem_len);
+	if (exception)
+		THROW(exception);
+}
+
 /*
  * The same as validate_offset except this accepts negative offsets, meaning
  * relative to the end of (captured) length. (That it's captured, not reported,

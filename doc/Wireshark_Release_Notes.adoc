@@ -92,7 +92,15 @@ Too many protocol updates have been made to list them all here.
 
 //_Non-empty section placeholder._
 
-// === Major API Changes
+=== Major API Changes
+
+The tvb new_subset and tvb length_remaining routines now take unsigned offset
+and length arguments. Negative offsets, indicating an offset relative to the
+end of the _captured_ length of the buffer (not reported) are no longer
+permitted, nor is a length of -1 meaning "to the end of the buffer." For
+the latter, use tvb_new_subset_remaining instead. Internally, tvbuffer lengths
+have long been unsigned; this change should simplify dealing with 32-bit
+unsigned length fields and checking for offsets overflowing.
 
 === Plugin Development Changes
 

@@ -2288,8 +2288,9 @@ contains the payload portion of the protocol (that is, the bytes
 that are relevant to the next dissector).
 
 To create a new TVBUFF_SUBSET that begins at a specified offset in a
-parent tvbuff, and runs to the end of the parent tvbuff, the routine
-tvbuff_new_subset_remaining() is used:
+parent tvbuff, and runs to the end of the parent tvbuff (i.e., when
+the current protocol doesn't specify the size of the payload), the
+routine tvbuff_new_subset_remaining() is used:
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
@@ -2336,13 +2337,10 @@ Where:
     offset is the byte offset of 'tvb' at which the new tvbuff
     should start. The first byte is the byte at offset 0.
 
-    length is the number of bytes in the new TVBUFF_SUBSET. A length
-    argument of -1 says to use as many bytes as are available in
-    'tvb'.
+    length is the number of bytes in the new TVBUFF_SUBSET.
 
     reported_length is the number of bytes that the current protocol
-    says should be in the payload. A reported_length of -1 says that
-    the protocol doesn't say anything about the size of its payload.
+    says should be in the payload.
 
 To call a dissector you need to get the handle of the dissector using
 find_dissector(), passing it the string name of the dissector. The setting
