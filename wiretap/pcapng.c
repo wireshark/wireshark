@@ -25,8 +25,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include <jtckdint.h>
-
 #include <wsutil/application_flavor.h>
 #include <wsutil/wslog.h>
 #include <wsutil/strtoi.h>

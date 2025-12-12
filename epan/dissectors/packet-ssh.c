@@ -42,7 +42,6 @@
 // Define this to get hex dumps more similar to what you get in openssh. If not defined, dumps look more like what you get with other dissectors.
 #define OPENSSH_STYLE
 
-#include <jtckdint.h>
 #include <errno.h>
 
 #include <epan/packet.h>

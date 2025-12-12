@@ -9,7 +9,6 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include "jtckdint.h"
 #include "ftypes-int.h"
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
