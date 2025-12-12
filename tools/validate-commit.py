@@ -233,7 +233,7 @@ def main():
                 with open(args.commitmsg) as f:
                     return 0 if verify_body(f.read()) else 1
             except Exception:
-                print("Couldn't verify body of message from file '", + args.commitmsg + "'")
+                print("Couldn't verify body of message from file '" + args.commitmsg + "'")
                 return 1
 
 

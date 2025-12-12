@@ -16,7 +16,6 @@ if [ "$configured_hookdir" != "$hookdir" ]; then
     echo "Run tools/setup-dev.sh (Linux/macOS) or tools/setup-dev.ps1 (Windows) to update your repo."
 fi
 
-exec "$hookdir/commit-msg" "$@"
 exec "$hookdir/commit-codecheck" "$@"
 
 #
