@@ -1,3 +1,33 @@
 #!/bin/sh
-# Wrapper to run the actual hook from tools/git_hooks.
-exec "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"/tools/git_hooks/pre-commit "$@"
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Compatibility shim for older setups that copied or linked tools/pre-commit.
+# Preferred setup: run tools/setup-dev.sh (or tools/setup-dev.ps1 on Windows)
+# to configure core.hooksPath=tools/git_hooks and commit.template=.gitmessage.
+
+set -e
+
+topdir="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+hookdir="$topdir/tools/git_hooks"
+configured_hookdir="$(git config --get core.hooksPath || true)"
+
+if [ "$configured_hookdir" != "$hookdir" ]; then
+    echo "NOTICE: Wireshark hooks moved to tools/git_hooks."
+    echo "Run tools/setup-dev.sh (Linux/macOS) or tools/setup-dev.ps1 (Windows) to update your repo."
+fi
+
+exec "$hookdir/commit-msg" "$@"
+exec "$hookdir/commit-codecheck" "$@"
+
+#
+#  Editor modelines
+#
+#  Local Variables:
+#  c-basic-offset: 4
+#  tab-width: 8
+#  indent-tabs-mode: nil
+#  End:
+#
+#  ex: set shiftwidth=4 tabstop=8 expandtab:
+#  :indentSize=4:tabSize=8:noTabs=true:
+#

@@ -7,7 +7,20 @@ topdir="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
 # Warn (do not block) if the AI-Assisted trailer is missing.
 if [ -f "$msgfile" ] && ! grep -qi '^AI-Assisted:' "$msgfile"; then
-    echo "WARNING: Commit message is missing the 'AI-Assisted: yes|no [tool(s)]' trailer." >&2
+    echo "Warning: Commit message is missing the 'AI-Assisted: yes|no [tool(s)]' trailer." >&2
 fi
 
 "$topdir/tools/validate-commit.py" --commitmsg "$msgfile"
+
+#
+#  Editor modelines
+#
+#  Local Variables:
+#  c-basic-offset: 4
+#  tab-width: 8
+#  indent-tabs-mode: nil
+#  End:
+#
+#  ex: set shiftwidth=4 tabstop=8 expandtab:
+#  :indentSize=4:tabSize=8:noTabs=true:
+#

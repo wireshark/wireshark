@@ -1,0 +1,137 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# Code-quality checks before commit.
+# Setup: run tools/setup-dev.sh to configure hooks and the commit template.
+#
+# Bypass: use --no-verify for a single commit; that skips ChangeID checks, fix
+# with git review -i (avoid -i during normal operation).
+#
+# Manual: invoke with a commit ID, e.g. `tools/pre-commit HEAD~`; relative paths
+# work if you start inside the tree.
+#
+# Ref: http://mark-story.com/posts/view/using-git-commit-hooks-to-prevent-stupid-mistakes
+
+COMMIT_IDS=HEAD
+[ $# -gt 0 ] && COMMIT_IDS="$*"
+
+UNAME=$(uname -a)
+
+case "$UNAME" in
+    *\ Msys)
+        pyvar="pythonw.exe"
+        ;;
+    *)
+        pyvar="python3"
+        ;;
+esac
+
+PYBIN="${WS_GITHOOK_PYTHON:-$pyvar}"
+
+# Establish absolute tools directory
+TOPDIR="$(git rev-parse --show-toplevel)"
+TOOLS_DIR="${TOPDIR}/tools"
+
+# Path to hook script in the .git directory
+hook_script=${GIT_DIR:-.git}/hooks/pre-commit
+
+# Always start in the root directory of the source tree, this allows for
+# invocations via relative paths (such as ../tools/pre-commit):
+if ! cd "$TOPDIR"; then
+    echo "Can't change to the top-level source directory."
+    exit 1
+fi
+
+# If invoked as a hook and .git/hooks/pre-commit differs from the compatibility
+# wrapper, remind the user to switch to the maintained hooks path.
+if [ -z "$1" ] && [ -f "$hook_script" ]; then
+    if ! cmp -s "$hook_script" "$TOOLS_DIR/pre-commit"; then
+        echo "Pre-commit hook in .git/hooks is outdated."
+        echo "Run tools/setup-dev.sh (Linux/macOS) or tools/setup-dev.ps1 (Windows) to use tools/git_hooks."
+    fi
+fi
+
+have_diameter_files="False"
+bad_alloc_patterns="${TOOLS_DIR}/detect_bad_alloc_patterns.py"
+bad_proto_tree_add="${TOOLS_DIR}/detect_bad_proto_tree_add.py"
+exit_status=0
+
+for COMMIT_ID in $COMMIT_IDS; do
+    COMMIT_FILES=$(git diff-index --cached --name-status "$COMMIT_ID" | grep -v "^D" | cut -f2 | grep "\\.[ch]$")
+    if git diff-index --cached --name-status "$COMMIT_ID" | grep -v "^D" | cut -f2 | grep -q diameter/; then
+        have_diameter_files="True"
+    fi
+
+    # Path to filter script in the tools directory
+    filter_script="${TOOLS_DIR}/pre-commit-ignore.py"
+    filter_conf="${TOOLS_DIR}/pre-commit-ignore.conf"
+
+    if [ -f "$filter_script" ] && [ -f "$filter_conf" ]; then
+        CHECK_FILES=$(printf '%s\n' "$COMMIT_FILES" | "$PYBIN" "$filter_script" "$filter_conf") || continue
+    else
+        CHECK_FILES="$COMMIT_FILES"
+    fi
+
+    echo "$COMMIT_FILES" | "$PYBIN" "$bad_alloc_patterns"
+    echo "$COMMIT_FILES" | "$PYBIN" "$bad_proto_tree_add"
+
+    # On windows python will output \r\n line endings - we don't want that.
+    #
+    # Do not use sed, as not all versions of sed support \r as meaning CR
+    # in a regexp - the only version that does so might be GNU sed; the
+    # GNU sed documentation says that only \n and \\ can be used in a
+    # portable script.
+    #
+    # The Single UNIX Specification says that tr supports \r; most if not
+    # all modern UN*Xes should support it.
+    CHECK_FILES=$(echo "$CHECK_FILES" | tr -d '\r')
+
+    for FILE in $CHECK_FILES; do
+        # Skip some special cases
+        FILE_BASENAME="$( basename "$FILE" )"
+        # This should only be done on code that's part of one or more
+        # Wireshark programs; idl2wrs.c is a developer tool, not a
+        # Wireshark program, so these tests don't apply.
+        if test "$FILE_BASENAME" = "idl2wrs.c"; then
+            continue
+        fi
+        if test "$FILE_BASENAME" = "wmem_test.c"; then
+            continue
+        fi
+
+        # Check if checkhf is good
+        "$TOOLS_DIR/checkhf.pl" "$FILE"            || exit_status=1
+
+        # Check if checkAPIs is good
+        "$TOOLS_DIR/checkAPIs.pl" -p "$FILE"       || exit_status=1
+
+        # Check if fix-encoding-args is good
+        "$TOOLS_DIR/fix-encoding-args.pl" "$FILE"  || exit_status=1
+
+        # Check if checkfiltername is good
+        "$TOOLS_DIR/checkfiltername.pl" "$FILE"    || exit_status=1
+
+        # If there are whitespace errors, print the offending file names and fail. (from git pre-commit.sample)
+        git diff-index --check --cached "$COMMIT_ID" "$FILE" || exit_status=1
+
+    done
+done
+
+if [ "$have_diameter_files" = "True" ]; then
+    "$TOOLS_DIR/validate-diameter-xml.sh" > /dev/null || exit_status=1
+fi
+
+exit $exit_status
+
+#
+#  Editor modelines
+#
+#  Local Variables:
+#  c-basic-offset: 4
+#  tab-width: 8
+#  indent-tabs-mode: nil
+#  End:
+#
+#  ex: set shiftwidth=4 tabstop=8 expandtab:
+#  :indentSize=4:tabSize=8:noTabs=true:
+#

@@ -4,6 +4,15 @@
 
 == Setup and Build Instructions
 
+[#ChSetupAuto]
+=== Automatic development setup (tools/setup-dev)
+
+If you want a guided setup for dependencies and git hooks, run the helper scripts in the source tree root:
+
+* Linux: `tools/setup-dev.sh` configures the commit template and hooks, then offers to run the distro-specific install script (Debian-based by default; Alpine, Arch, and RPM-based distros are auto-detected when possible).
+* macOS: `tools/setup-dev.sh` configures hooks and asks whether to run the Homebrew setup (`tools/macos-setup-brew.sh`, default) or the non-Homebrew script (`tools/macos-setup.sh`).
+* Windows / MSYS2 / MinGW: use `tools/setup-dev.ps1` (PowerShell) to configure hooks; follow <<ChSetupWindows>> for platform setup details.
+
 [#ChSetupUNIX]
 
 === UN*X

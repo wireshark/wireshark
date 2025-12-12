@@ -1042,13 +1042,31 @@ AI Trailer Reminder:
     - if: '$CI_PIPELINE_SOURCE == "push"'
   script:
     - |
-      range="$CI_COMMIT_SHA"
       zero="0000000000000000000000000000000000000000"
-      if [ -n "$CI_COMMIT_BEFORE_SHA" ] && [ "$CI_COMMIT_BEFORE_SHA" != "$zero" ]; then
-        range="${CI_COMMIT_BEFORE_SHA}..${CI_COMMIT_SHA}"
+      if [ "$CI_PIPELINE_SOURCE" = "merge_request_event" ]; then
+        git fetch origin "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" --depth 200 || true
+        base="${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_MERGE_REQUEST_TARGET_BRANCH_SHA}"
+        head="${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA:-$CI_COMMIT_SHA}"
+        if [ -n "$base" ] && [ "$base" != "$zero" ]; then
+          range="${base}..${head}"
+        else
+          range="$head"
+        fi
+      else
+        git fetch origin "$CI_COMMIT_REF_NAME" --depth 200 || true
+        if [ -n "$CI_COMMIT_BEFORE_SHA" ] && [ "$CI_COMMIT_BEFORE_SHA" != "$zero" ]; then
+          range="${CI_COMMIT_BEFORE_SHA}..${CI_COMMIT_SHA}"
+        else
+          range="$CI_COMMIT_SHA"
+        fi
+      fi
+      commits=$(git rev-list --no-merges "$range" || true)
+      if [ -z "$commits" ]; then
+        echo "No commits found for range '$range'; skipping AI trailer check."
+        exit 0
       fi
       missing=0
-      for c in $(git rev-list --no-merges $range); do
+      for c in $commits; do
         if ! git log -1 --format=%B "$c" | grep -qi '^AI-Assisted:'; then
           echo "WARNING: Commit $c is missing the 'AI-Assisted: yes|no [tool(s)]' trailer."
           missing=1
