@@ -1881,10 +1881,7 @@ static unsigned dissect_wimaxasncp_tlvs(
                 tvbuff_t *tlv_tvb;
 
                 /* N.B.  Not padding out tvb length */
-                tlv_tvb = tvb_new_subset_length_caplen(
-                    tvb, offset,
-                    MIN(length, tvb_captured_length_remaining(tvb, offset)),
-                    length);
+                tlv_tvb = tvb_new_subset_length(tvb, offset, length);
 
                 increment_dissection_depth(pinfo);
                 dissect_wimaxasncp_tlvs(tlv_tvb, pinfo, tlv_tree);
@@ -1902,10 +1899,7 @@ static unsigned dissect_wimaxasncp_tlvs(
 
             tvb_ensure_bytes_exist(tvb, offset, length + pad);
 
-            tlv_tvb = tvb_new_subset_length_caplen(
-                tvb, offset,
-                MIN(length, tvb_captured_length_remaining(tvb, offset)),
-                length);
+            tlv_tvb = tvb_new_subset_length(tvb, offset, length);
 
             wimaxasncp_dissect_tlv_value(
                 tlv_tvb, pinfo, tlv_tree, tlv_item, tlv_info);
@@ -2287,9 +2281,7 @@ dissect_wimaxasncp(
      * ------------------------------------------------------------------------
      */
 
-    subtree_tvb = tvb_new_subset_length_caplen(
-        tvb, offset,
-        MIN((int)length, tvb_captured_length_remaining(tvb, offset)),
+    subtree_tvb = tvb_new_subset_length(tvb, offset,
         length - WIMAXASNCP_HEADER_LENGTH_END);
 
     offset += dissect_wimaxasncp_backend(
