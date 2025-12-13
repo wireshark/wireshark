@@ -3392,8 +3392,6 @@ typedef struct {
   rtps_encryption_algorithm_t algorithm;
   uint8_t init_vector[RTPS_SECURITY_INIT_VECTOR_LEN];
   uint8_t *additional_authenticated_data;
-  /* True if using Header Extension. */
-  bool additional_authenticated_data_allocated;
   size_t aad_length;
   uint32_t psk_index;
 } rtps_current_packet_decryption_info_t;
@@ -3627,12 +3625,9 @@ static void rtps_current_packet_decryption_info_reset(
   info->transformation_key = 0;
   info->algorithm = CRYPTO_ALGORITHM_NONE;
   memset(info->init_vector, 0, RTPS_SECURITY_INIT_VECTOR_LEN);
-  if (info->additional_authenticated_data_allocated
-      && info->additional_authenticated_data != NULL) {
-    g_free(info->additional_authenticated_data);
-  }
+  /* additional_authenticated_data was either pinfo->pool allocated or
+   * a direct pointer via tvb_get_ptr (slightly unsafe). */
   info->additional_authenticated_data = NULL;
-  info->additional_authenticated_data_allocated = false;
   info->aad_length = 0;
   info->psk_index = 0;
   return;
@@ -14202,7 +14197,6 @@ static void dissect_HEADER_EXTENSION(tvbuff_t* tvb, packet_info* pinfo, int offs
      * Let's update the additional authenticated data, so that it includes the
      * Header Extension.
      */
-    const uint8_t *additional_authenticated_data;
     rtps_tvb_field *rtps_root = (rtps_tvb_field*)
         p_get_proto_data(
             pinfo->pool,
@@ -14219,15 +14213,11 @@ static void dissect_HEADER_EXTENSION(tvbuff_t* tvb, packet_info* pinfo, int offs
           + 4 /* header extension submessage id, flags, octetsToNextHeader */
           + header_extension_length;
 
-      additional_authenticated_data = tvb_get_ptr(
+      /* Do a copy of the bytes, so that we can later zero the necessary parts. */
+      decryption_info->additional_authenticated_data = tvb_memdup(
+          pinfo->pool,
           rtps_root->tvb,
           rtps_root->tvb_offset,
-          (int) decryption_info->aad_length);
-
-      /* Do a copy of the bytes, so that we can later zero the necessary parts. */
-      decryption_info->additional_authenticated_data_allocated = true;
-      decryption_info->additional_authenticated_data = g_memdup2(
-          additional_authenticated_data,
           decryption_info->aad_length);
     }
   }
@@ -17812,7 +17802,6 @@ static bool dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       if (decryption_info == NULL) {
         return false;
       }
-      decryption_info->additional_authenticated_data_allocated = false;
 
       rtps_current_packet_decryption_info_reset(decryption_info);
       decryption_info->guid_prefix.host_id = guid.host_id;
