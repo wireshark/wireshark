@@ -36,8 +36,6 @@ You'll find additional information in the following README files:
 - doc/README.vagrant        - how to create a development VM using vagrant
 - doc/README.wslua          - working with LUA
 - doc/README.xml-output     - how to work with the PDML exported output
-- wiretap/README.developer  - how to add additional capture file types to
-                              Wiretap
 
 0.2. Dissector related README files.
 
