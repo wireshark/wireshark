@@ -259,9 +259,11 @@ typedef struct {
     /// Raw bytes of CRC field
     tvbuff_t *crc_field;
 
-    /// Type-specific data, unencoded
+    /// Length of BTSD clamped to INT_MAX
+    int btsd_len;
+    /// BTSD content bytes, which is only valid during dissection
     tvbuff_t *data;
-    /// Type-specific data tree
+    /// Type-specific data tree, which is only valid during dissection
     proto_tree *tree_data;
 
     security_mark_t sec;
@@ -320,6 +322,9 @@ typedef struct {
     uint8_t layer_num;
     /// Timestamp on the frame (end time if reassembled)
     nstime_t frame_time;
+
+    /// Total PDU length clamped to INT_MAX
+    int pdu_len;
     /// Bundle identity derived from #primary data
     bp_bundle_ident_t *ident;
     /// Required primary block
@@ -334,9 +339,9 @@ typedef struct {
     wmem_map_t *block_types;
 
     /// Payload BTSD start offset in bundle TVB
-    unsigned *pyld_start;
-    /// Payload BTSD length
-    unsigned *pyld_len;
+    int *pyld_start;
+    /// Payload BTSD length clamped to INT_MAX
+    int *pyld_len;
 } bp_bundle_t;
 
 /** Construct a new object on the file allocator.

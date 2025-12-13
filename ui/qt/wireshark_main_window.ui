@@ -553,6 +553,7 @@
       <string>&amp;DTN</string>
      </property>
      <addaction name="actionStatisticsLTP"/>
+     <addaction name="actionStatisticsBPv7"/>
     </widget>
     <addaction name="actionStatisticsCaptureFileProperties"/>
     <addaction name="actionStatisticsResolvedAddresses"/>
@@ -1978,6 +1979,14 @@
    </property>
    <property name="toolTip">
     <string>LTP segment and block statistics</string>
+   </property>
+  </action>
+  <action name="actionStatisticsBPv7">
+   <property name="text">
+    <string>&amp;BPv7</string>
+   </property>
+   <property name="toolTip">
+    <string>BPv7 PDU and block statistics</string>
    </property>
   </action>
   <action name="actionTelephonyISUPMessages">

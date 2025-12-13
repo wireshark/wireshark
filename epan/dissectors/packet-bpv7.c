@@ -30,6 +30,7 @@
 #include <epan/proto_data.h>
 #include <epan/conversation_table.h>
 #include <epan/conversation_filter.h>
+#include <epan/stats_tree.h>
 #include <epan/ftypes/ftypes.h>
 #include <epan/unit_strings.h>
 #include <epan/tfs.h>
@@ -1386,6 +1387,7 @@ static int dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 
     chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
+    block->btsd_len = (chunk->head_value < INT_MAX) ? (int)(chunk->head_value) : INT_MAX;
     tvbuff_t *tvb_data = wscbor_require_bstr(wmem_file_scope(), chunk);
     field_ix++;
     block->data = tvb_data;
@@ -1692,6 +1694,8 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         proto_item_set_len(item_block, offset - block_start);
         block_ix++;
     }
+    // all done with PDU
+    bundle->pdu_len = offset;
 
     { // Extract primary block info first
         const bp_block_primary_t *primary = bundle->primary;
@@ -1747,9 +1751,9 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             }
 
             if (block->data) {
-                bundle->pyld_start = wmem_new(wmem_file_scope(), unsigned);
+                bundle->pyld_start = wmem_new(wmem_file_scope(), int);
                 *(bundle->pyld_start) = tvb_raw_offset(block->data) - tvb_raw_offset(tvb);
-                bundle->pyld_len = wmem_new(wmem_file_scope(), unsigned);
+                bundle->pyld_len = wmem_new(wmem_file_scope(), int);
                 *(bundle->pyld_len) = tvb_reported_length(block->data);
             }
         }
@@ -2441,6 +2445,49 @@ static char * bp_build_filter(packet_info *pinfo, void *user_data _U_) {
     );
 }
 
+static const char* st_str_bp = "Bundle";
+static const char* st_str_pdu = "PDU Length";
+static const char* st_str_blks = "Extension Block Count";
+static const char* st_str_btsd = "BTSD Length (by Block Type)";
+static int st_node_bp = -1;
+static int st_node_btsd = -1;
+
+static void
+bpv7_stats_tree_init(stats_tree *st)
+{
+    st_node_bp = stats_tree_create_node(st, st_str_bp, 0, STAT_DT_INT, false);
+    stats_tree_create_node(st, st_str_pdu, st_node_bp, STAT_DT_INT, false);
+    stats_tree_create_node(st, st_str_blks, st_node_bp, STAT_DT_INT, false);
+
+    st_node_btsd = stats_tree_create_pivot(st, st_str_btsd, 0);
+}
+
+static tap_packet_status
+bpv7_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p, tap_flags_t flags _U_)
+{
+    const bp_bundle_t *bundle = (const bp_bundle_t *)p;
+
+    tick_stat_node(st, st_str_bp, 0, false);
+    avg_stat_node_add_value_int(st, st_str_pdu, st_node_bp, false, bundle->pdu_len);
+    avg_stat_node_add_value_int(st, st_str_blks, st_node_bp, false, wmem_list_count(bundle->blocks));
+
+    // parent count of all bundles, not all blocks
+    tick_stat_node(st, st_str_btsd, 0, true);
+
+    for (wmem_list_frame_t *it = wmem_list_head(bundle->blocks); it;
+            it = wmem_list_frame_next(it)) {
+        const bp_block_canonical_t *block = wmem_list_frame_data(it);
+
+        const char *blk_type = "invalid";
+        if (block->type_code) {
+            blk_type = wmem_strdup_printf(pinfo->pool, "%" PRIu64, *(block->type_code));
+        }
+        avg_stat_node_add_value_int(st, blk_type, st_node_btsd, false, block->btsd_len);
+    }
+
+    return TAP_PACKET_REDRAW;
+}
+
 /// Overall registration of the protocol
 void proto_register_bpv7(void) {
     proto_bp = proto_register_protocol("DTN Bundle Protocol Version 7", "BPv7", "bpv7");
@@ -2538,6 +2585,8 @@ void proto_reg_handoff_bpv7(void) {
 
     handle_cbor = find_dissector("cbor");
     handle_cborseq = find_dissector("cborseq");
+
+    stats_tree_register("bpv7", "bpv7", "DTN" STATS_TREE_MENU_SEPARATOR "BPv7", 0, bpv7_stats_tree_packet, bpv7_stats_tree_init, NULL);
 
     /* Packaged extensions */
     {

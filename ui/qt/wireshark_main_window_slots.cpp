@@ -3637,6 +3637,7 @@ void WiresharkMainWindow::connectStatisticsMenuActions()
     connect(main_ui_->actionStatisticsSOMEIPSDentries, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("someipsd_entries"); });
 
     connect(main_ui_->actionStatisticsLTP, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("ltp"); });
+    connect(main_ui_->actionStatisticsBPv7, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("bpv7"); });
 }
 
 void WiresharkMainWindow::openTcpStreamDialog(int graph_type)
