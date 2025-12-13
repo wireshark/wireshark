@@ -1792,8 +1792,8 @@ get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb, packet_info *pinfo)
 	given_username_len = tvb_captured_length(user_tvb);
 	given_engine_len = tvb_captured_length(engine_tvb);
 	if (! ( given_engine_len && given_username_len ) ) return NULL;
-	given_username = (uint8_t*)tvb_memdup(pinfo->pool,user_tvb,0,-1);
-	given_engine = (uint8_t*)tvb_memdup(pinfo->pool,engine_tvb,0,-1);
+	given_username = (uint8_t*)tvb_memdup(pinfo->pool, user_tvb, 0, given_username_len);
+	given_engine = (uint8_t*)tvb_memdup(pinfo->pool, engine_tvb, 0, given_engine_len);
 
 	for (a = localized_ues; a; a = a->next) {
 		if ( localized_match(a, given_username, given_username_len, given_engine, given_engine_len) ) {
@@ -1917,7 +1917,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p, tvbuff_t* encryptedData, packet_info *pi
 		return NULL;
 	}
 
-	cryptgrm = (uint8_t*)tvb_memdup(pinfo->pool,encryptedData,0,-1);
+	cryptgrm = (uint8_t*)tvb_memdup(pinfo->pool, encryptedData, 0, cryptgrm_len);
 
 	cleartext = (uint8_t*)wmem_alloc(pinfo->pool, cryptgrm_len);
 
@@ -1982,7 +1982,7 @@ snmp_usm_priv_aes_common(snmp_usm_params_t* p, tvbuff_t* encryptedData, packet_i
 		*error = "Not enough data remaining";
 		return NULL;
 	}
-	cryptgrm = (uint8_t*)tvb_memdup(pinfo->pool,encryptedData,0,-1);
+	cryptgrm = (uint8_t*)tvb_memdup(pinfo->pool, encryptedData, 0, cryptgrm_len);
 
 	cleartext = (uint8_t*)wmem_alloc(pinfo->pool, cryptgrm_len);
 
