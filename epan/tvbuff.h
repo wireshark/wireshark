@@ -2118,7 +2118,7 @@ uint32_t tvb_get_bits(tvbuff_t *tvb, const unsigned bit_offset,
  *
  * @see tvb_get_ptr
  */
-WS_DLL_PUBLIC void *tvb_memcpy(tvbuff_t *tvb, void *target, const int offset,
+WS_DLL_PUBLIC void *tvb_memcpy(tvbuff_t *tvb, void *target, const unsigned offset,
     size_t length);
 
 /**
@@ -2142,7 +2142,7 @@ WS_DLL_PUBLIC void *tvb_memcpy(tvbuff_t *tvb, void *target, const int offset,
  * @return Pointer to the newly allocated buffer containing the copied data.
  */
 WS_DLL_PUBLIC void *tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb,
-    const int offset, size_t length);
+    const unsigned offset, size_t length);
 
 /**
  * @brief Returns a raw pointer to tvbuff data. Use with extreme caution.
