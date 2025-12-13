@@ -11,6 +11,8 @@
 #ifndef __PACKET_SCSI_MMC_H_
 #define __PACKET_SCSI_MMC_H_
 
+#include <epan/dissectors/packet-scsi.h>
+
 extern int hf_scsi_mmc_opcode;
 extern const scsi_cdb_table_t scsi_mmc_table[256];
 

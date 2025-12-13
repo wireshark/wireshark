@@ -12,6 +12,7 @@
 #ifndef __PACKET_DCERPC_NT_H
 #define __PACKET_DCERPC_NT_H
 
+#include <epan/dissectors/packet-dcerpc.h>
 #include "ws_symbol_export.h"
 
 /*

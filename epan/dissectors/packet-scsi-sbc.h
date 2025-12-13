@@ -15,6 +15,8 @@
 #ifndef __PACKET_SCSI_SBC_H_
 #define __PACKET_SCSI_SBC_H_
 
+#include <epan/dissectors/packet-scsi.h>
+
 #include "ws_symbol_export.h"
 
 /* SBC Commands */

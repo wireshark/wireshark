@@ -10,6 +10,9 @@
  *
  */
 
+#ifndef __PACKET_MAC_3GPP_COMMON_H__
+#define __PACKET_MAC_3GPP_COMMON_H__
+
 #include "ws_symbol_export.h"
 
 
@@ -47,6 +50,8 @@ typedef struct mac_3gpp_tap_info {
     uint16_t padding_bytes;
     uint16_t raw_length;
 } mac_3gpp_tap_info;
+
+#endif /* __PACKET_MAC_3GPP_COMMON_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

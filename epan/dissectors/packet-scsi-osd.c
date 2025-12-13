@@ -19,8 +19,8 @@
 #include <epan/expert.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
-#include "packet-scsi.h"
-#include "packet-scsi-osd.h"
+#include <epan/dissectors/packet-scsi.h>
+#include <epan/dissectors/packet-scsi-osd.h>
 
 void proto_register_scsi_osd(void);
 

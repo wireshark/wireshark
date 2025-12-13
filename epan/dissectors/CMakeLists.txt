@@ -346,6 +346,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-scsi-sbc.h
 	packet-scsi-smc.h
 	packet-scsi-ssc.h
+	packet-scsi.h
 	packet-sctp.h
 	packet-sdp.h
 	packet-smb-sidsnooping.h

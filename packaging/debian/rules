@@ -91,8 +91,9 @@ HEADER_CHECK_FLAGS = $(shell pkg-config --cflags glib-2.0) \
 
 override_dh_install:
 	dh_install
-	# check that all headers can be preprocessed
-	find debian/*-dev/usr/include -type f | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -E - $(HEADER_CHECK_FLAGS) -o /dev/null
+	# check that all headers can be compiled
+	find debian/*-dev/usr/include -type f | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c -S - $(HEADER_CHECK_FLAGS) -o /dev/null
+	find debian/*-dev/usr/include -type f | sed 's|.*/include/wireshark/|#include <|;s|$$|>|' | $(CC) -x c++ -S - $(HEADER_CHECK_FLAGS) -o /dev/null
 	# check than #include-ing the most widely used headers compiles
 	$(CC) -c debian/headers-check.c $(HEADER_CHECK_FLAGS) -o /dev/null
 
