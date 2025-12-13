@@ -479,6 +479,8 @@ static int dissect_nats_pub(tvbuff_t* tvb, int offset, int next_offset,
     if (num_tokens < 3)
         return 0;
 
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PUB");
+
     if (num_tokens == 4)
     {
         has_reply_to = true;
@@ -515,6 +517,8 @@ static int dissect_nats_hpub(tvbuff_t* tvb, int offset, int next_offset,
 
     if (num_tokens < 4)
         return 0;
+
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "HPUB");
 
     if (num_tokens == 5)
     {
@@ -556,6 +560,8 @@ static int dissect_nats_msg(tvbuff_t* tvb, int offset, int next_offset,
     if (num_tokens < 4)
         return 0;
 
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "MSG");
+
     if (num_tokens == 5)
     {
         has_reply_to = true;
@@ -593,6 +599,8 @@ static int dissect_nats_hmsg(tvbuff_t* tvb, int offset, int next_offset,
 
     if (num_tokens < 5)
         return 0;
+
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "HMSG");
 
     if (num_tokens == 6)
     {
@@ -635,6 +643,8 @@ static int dissect_nats_sub(tvbuff_t* tvb, int offset, int next_offset,
 
     if (num_tokens < 3)
         return 0;
+
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SUB");
 
     if (num_tokens == 4)
     {
@@ -691,6 +701,8 @@ static int dissect_nats_unsub(tvbuff_t* tvb, int offset, int next_offset,
     if (num_tokens < 2)
         return 0;
 
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "UNSUB");
+
     if (num_tokens == 3)
     {
         has_max_msgs = true;
@@ -715,7 +727,7 @@ static int dissect_nats_unsub(tvbuff_t* tvb, int offset, int next_offset,
     return next_offset - offset;
 }
 
-static int dissect_nats_ping_pong(tvbuff_t* tvb, int offset, int next_offset,
+static int dissect_nats_ping(tvbuff_t* tvb, int offset, int next_offset,
                                   packet_info* pinfo,
                                   proto_tree* tree)
 {
@@ -731,6 +743,8 @@ static int dissect_nats_ping_pong(tvbuff_t* tvb, int offset, int next_offset,
     if (num_tokens < 1)
         return 0;
 
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PING");
+
     pdu_tree = nats_get_or_create_proto_tree(tvb, offset, next_offset - offset, tree);
 
     proto_tree_add_string(pdu_tree, hf_nats_op, tvb, tokens[TOKEN_OP].offset,
@@ -739,8 +753,34 @@ static int dissect_nats_ping_pong(tvbuff_t* tvb, int offset, int next_offset,
     return next_offset - offset;
 }
 
-static int dissect_nats_info_connect(tvbuff_t* tvb, packet_info* pinfo, int offset,
-                                     int next_offset, proto_tree* tree)
+static int dissect_nats_pong(tvbuff_t* tvb, int offset, int next_offset,
+                                  packet_info* pinfo,
+                                  proto_tree* tree)
+{
+    static const size_t TOKEN_OP = 0;
+
+    proto_tree* pdu_tree = NULL;
+
+    nats_request_token_t tokens[1] = {0};
+
+    size_t num_tokens =
+        nats_parse_tokens(tvb, offset, next_offset, pinfo, tokens, array_length(tokens));
+
+    if (num_tokens < 1)
+        return 0;
+
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PONG");
+
+    pdu_tree = nats_get_or_create_proto_tree(tvb, offset, next_offset - offset, tree);
+
+    proto_tree_add_string(pdu_tree, hf_nats_op, tvb, tokens[TOKEN_OP].offset,
+                          tokens[TOKEN_OP].length, tokens[TOKEN_OP].value);
+
+    return next_offset - offset;
+}
+
+static int dissect_nats_info(tvbuff_t* tvb, int offset, int next_offset,
+                                     packet_info* pinfo, proto_tree* tree)
 {
     proto_tree* pdu_tree = NULL;
 
@@ -752,6 +792,39 @@ static int dissect_nats_info_connect(tvbuff_t* tvb, packet_info* pinfo, int offs
                                        next_offset - op_offset - op_length);
 
     int features_length = next_offset - features_offset - EOL_LEN;
+
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "INFO");
+
+    pdu_tree = nats_get_or_create_proto_tree(tvb, offset, next_offset - offset, tree);
+    proto_tree_add_item(pdu_tree, hf_nats_op, tvb, op_offset, op_length,
+                        ENC_ASCII);
+
+    proto_item *features_item = proto_tree_add_item(pdu_tree, hf_nats_features, tvb,
+                        features_offset, features_length, ENC_NA);
+    proto_tree *features_tree = proto_item_add_subtree(features_item, ett_nats);
+
+    tvbuff_t *json_tvb = tvb_new_subset_length(tvb, features_offset, features_length);
+
+    call_dissector(json_handle, json_tvb, pinfo, features_tree);
+
+    return next_offset - offset;
+}
+
+static int dissect_nats_connect(tvbuff_t* tvb, int offset, int next_offset,
+                                     packet_info* pinfo, proto_tree* tree)
+{
+    proto_tree* pdu_tree = NULL;
+
+    int op_offset = offset;
+    int op_length =
+        tvb_get_token_len(tvb, offset, next_offset - offset, NULL, false);
+
+    int features_offset = tvb_skip_wsp(tvb, op_offset + op_length,
+                                       next_offset - op_offset - op_length);
+
+    int features_length = next_offset - features_offset - EOL_LEN;
+
+    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CONNECT");
 
     pdu_tree = nats_get_or_create_proto_tree(tvb, offset, next_offset - offset, tree);
     proto_tree_add_item(pdu_tree, hf_nats_op, tvb, op_offset, op_length,
@@ -775,6 +848,9 @@ static int dissect_nats(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
 
     int line_offset = 0;
     int next_offset = 0;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NATS");
+    col_clear(pinfo->cinfo, COL_INFO);
 
     while (tvb_find_line_end(tvb, line_offset, -1, &next_offset, true) != -1)
     {
@@ -810,15 +886,15 @@ static int dissect_nats(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
             }
             else if (tvb_strncaseeql(tvb, line_offset, "PING", 4) == 0)
             {
-                result = dissect_nats_ping_pong(tvb, line_offset, next_offset, pinfo, tree);
+                result = dissect_nats_ping(tvb, line_offset, next_offset, pinfo, tree);
             }
             else if (tvb_strncaseeql(tvb, line_offset, "PONG", 4) == 0)
             {
-                result = dissect_nats_ping_pong(tvb, line_offset, next_offset, pinfo, tree);
+                result = dissect_nats_pong(tvb, line_offset, next_offset, pinfo, tree);
             }
             else if (tvb_strncaseeql(tvb, line_offset, "INFO", 4) == 0)
             {
-                result = dissect_nats_info_connect(tvb, pinfo, line_offset, next_offset, tree);
+                result = dissect_nats_info(tvb, line_offset, next_offset, pinfo, tree);
             }
             break;
         case 5:
@@ -830,7 +906,7 @@ static int dissect_nats(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
         case 7:
             if (tvb_strncaseeql(tvb, line_offset, "CONNECT", 7) == 0)
             {
-                result = dissect_nats_info_connect(tvb, pinfo, line_offset, next_offset, tree);
+                result = dissect_nats_connect(tvb, line_offset, next_offset, pinfo, tree);
             }
             break;
         default:
@@ -844,8 +920,6 @@ static int dissect_nats(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
         else
         {
             line_offset += result;
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "NATS");
-            col_set_str(pinfo->cinfo, COL_INFO, "NATS Data" UTF8_HORIZONTAL_ELLIPSIS);
         }
 
         offset = line_offset;
