@@ -44,11 +44,14 @@ static constexpr spx_uint32_t default_visual_sample_rate_ = 1000;
 RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_id_t *id, bool stereo_required) :
     QObject(parent)
     , first_packet_(true)
+    , temp_file_(nullptr)
     , decoders_hash_(rtp_decoder_hash_table_new())
     , global_start_rel_time_(0.0)
     , start_abs_offset_(0.0)
     , start_rel_time_(0.0)
     , stop_rel_time_(0.0)
+    , prepend_samples_(0)
+    , audio_routing_(AUDIO_MUTED, channel_mono)
     , stereo_required_(stereo_required)
     , first_sample_rate_(0)
     , audio_out_rate_(0)
@@ -863,7 +866,7 @@ void RtpAudioStream::stopPlaying()
             // handled by Qt correctly
             outputStateChanged(QAudio::StoppedState);
         } else {
-            audio_output_->stop();
+            audio_output_->reset();
         }
     }
 }
