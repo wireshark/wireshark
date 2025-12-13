@@ -4,7 +4,7 @@
 * This file is auto generated, do not edit!
 * See tools/asterix/README.md for details.
 *
-* Data source: ['https://zoranbosnjak.github.io/asterix-specs', 'git revision: 8bd2e9cf340d2c1da679409c01a066d788f66174']
+* Data source: ['https://zoranbosnjak.github.io/asterix-specs', 'git revision: 788dc3d773252d90a66ead4789e7708fdb762746']
 *
 * Generated definitions for ASTERIX dissector
 *
@@ -6453,8 +6453,8 @@ static const value_string value_map_368[] = {
 };
 static const value_string value_map_369[] = {
   { 0, "Unknown" },
-  { 1, "Differencial Correction" },
-  { 2, "NO Differencial Correction" },
+  { 1, "Differential Correction" },
+  { 2, "NO Differential Correction" },
   { 3, "Invalid" },
   { 0, NULL }
 };
@@ -10857,7 +10857,7 @@ static hf_register_info hf[] = {
 { &expand_var_1628, { "090 : Figure of Merit", "asterix.cat_21_datafield_090_label", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1629, { "AC : ACAS Capabilities", "asterix.cat_21_datafield_090_AC", FT_UINT8, BASE_DEC, VALS(value_map_367), 0x0, NULL, HFILL } },
 { &expand_var_1630, { "MN : Multiple Navigation Aids", "asterix.cat_21_datafield_090_MN", FT_UINT8, BASE_DEC, VALS(value_map_368), 0x0, NULL, HFILL } },
-{ &expand_var_1631, { "DC : Differencial Correction", "asterix.cat_21_datafield_090_DC", FT_UINT8, BASE_DEC, VALS(value_map_369), 0x0, NULL, HFILL } },
+{ &expand_var_1631, { "DC : Differential Correction", "asterix.cat_21_datafield_090_DC", FT_UINT8, BASE_DEC, VALS(value_map_369), 0x0, NULL, HFILL } },
 { &expand_var_1632, { "PA : Position Accuracy []", "asterix.cat_21_datafield_090_PA", FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1633, { "210 : Link Technology Indicator", "asterix.cat_21_datafield_210_label", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 { &expand_var_1634, { "DTI : Cockpit Display of Traffic Information", "asterix.cat_21_datafield_210_DTI", FT_UINT8, BASE_DEC, VALS(value_map_391), 0x0, NULL, HFILL } },
@@ -12351,7 +12351,7 @@ static hf_register_info hf[] = {
 { &expand_var_3122, { "EP : ACASXV Element Populated Bit", "asterix.cat_48_datafield_020_EP", FT_UINT8, BASE_DEC, VALS(value_map_600), 0x0, NULL, HFILL } },
 { &expand_var_3123, { "VAL : ACAS Extended Version Value", "asterix.cat_48_datafield_020_VAL", FT_UINT8, BASE_DEC, VALS(value_map_601), 0x0, NULL, HFILL } },
 { &expand_var_3124, { "EP : POXPR Element Populated Bit", "asterix.cat_48_datafield_020_EP", FT_UINT8, BASE_DEC, VALS(value_map_602), 0x0, NULL, HFILL } },
-{ &expand_var_3125, { "VAL : PO Transpomder Capability", "asterix.cat_48_datafield_020_VAL", FT_UINT8, BASE_DEC, VALS(value_map_603), 0x0, NULL, HFILL } },
+{ &expand_var_3125, { "VAL : PO Transponder Capability", "asterix.cat_48_datafield_020_VAL", FT_UINT8, BASE_DEC, VALS(value_map_603), 0x0, NULL, HFILL } },
 { &expand_var_3126, { "FX", "asterix.cat_48_datafield_020_FX", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 { &expand_var_3127, { "EP : POACT Element Populated Bit", "asterix.cat_48_datafield_020_EP", FT_UINT8, BASE_DEC, VALS(value_map_604), 0x0, NULL, HFILL } },
 { &expand_var_3128, { "VAL : POACT Active for Current Plot", "asterix.cat_48_datafield_020_VAL", FT_UINT8, BASE_DEC, VALS(value_map_605), 0x0, NULL, HFILL } },
