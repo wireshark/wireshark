@@ -302,7 +302,7 @@ test(tvbuff_t *tvb, const char* name,
 	}
 
 	/* One big memdup */
-	ptr = (uint8_t*)tvb_memdup(NULL, tvb, 0, -1);
+	ptr = (uint8_t*)tvb_memdup(NULL, tvb, 0, length);
 	if ((length != 0 && memcmp(ptr, expected_data, length) != 0) ||
 	    (length == 0 && ptr != NULL)) {
 		printf("12: Failed TVB=%s Offset=0 Length=-1 "

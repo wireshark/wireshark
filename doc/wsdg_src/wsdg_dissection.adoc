@@ -849,9 +849,9 @@ effect.
         uint16_t orig_size = tvb_get_ntohs(tvb, offset);
         unsigned char *decompressed_buffer = (unsigned char*)wmem_alloc(pinfo->pool, orig_size);
         offset += 2;
-        decompress_packet(tvb_memdup(pinfo->pool, tvb, offset, -1),
-                tvb_captured_length_remaining(tvb, offset),
-                decompressed_buffer, orig_size);
+        unsigned compr_size = tvb_captured_length_remaining(tvb, offset);
+        decompress_packet(tvb_memdup(pinfo->pool, tvb, offset, compr_size),
+                compr_size, decompressed_buffer, orig_size);
         /* Now re-setup the tvb buffer to have the new data */
         next_tvb = tvb_new_child_real_data(tvb, decompressed_buffer, orig_size, orig_size);
         add_new_data_source(pinfo, next_tvb, "Decompressed Data");
@@ -870,10 +870,13 @@ work it out for you, in which case the logic would be different.
 
 So armed with the size, a buffer is allocated to receive the uncompressed data
 using `wmem_alloc()` in `pinfo->pool` memory, and the packet is decompressed into
-it. The `tvb_memdup()` function is useful to get a copy of the raw data of
-the packet from the offset onwards. In this case the decompression routine also
-needs to know the length, which is given by the
-`tvb_captured_length_remaining()` function.
+it. The `tvb_memdup()` function gets a copy of the raw data of the packet from
+the offset onwards. The length of the array of bytes has to be specified to
+`tvb_memdup()` and the decompression function; in this case we want the rest of
+the bytes present in tvbuffer, which is given by the `tvb_captured_length_remaining()`
+function. (Using `tvb_reported_length_remaining()` would throw an exception
+on a truncated packet. Sometimes that is desired, but here we assume the
+decompression function can partially decompress truncated data.)
 
 Next we build a new tvb buffer from this data, using the
 `tvb_new_child_real_data()` call. This data is a child of our original data, so
