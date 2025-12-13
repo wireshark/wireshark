@@ -626,7 +626,7 @@ static int UL_HARQ_Chase_Sub_Burst_IE(proto_tree *uiuc_tree, int offset, int len
 #if 0
     if (include_cor2_changes)
     {
-		calculated_crc = wimax_mac_calc_crc16((uint8_t *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		bit += 16;
@@ -667,7 +667,7 @@ static int UL_HARQ_IR_CTC_Sub_Burst_IE(proto_tree *uiuc_tree, int offset, int le
     if (include_cor2_changes)
     {
 		/* CRC-16 is always appended */
-		calculated_crc = wimax_mac_calc_crc16((uint8_t *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 		bit += 16;
@@ -709,7 +709,7 @@ static int UL_HARQ_IR_CC_Sub_Burst_IE(proto_tree *uiuc_tree, int offset, int len
     if (include_cor2_changes)
     {
 		/* CRC-16 is always appended */
-		calculated_crc = wimax_mac_calc_crc16((uint8_t *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
@@ -762,7 +762,7 @@ static int MIMO_UL_Chase_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, int offset, in
     if (include_cor2_changes)
     {
 		/* CRC-16 is always appended */
-		calculated_crc = wimax_mac_calc_crc16((uint8_t *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
@@ -815,7 +815,7 @@ static int MIMO_UL_IR_HARQ__Sub_Burst_IE(proto_tree *uiuc_tree, int offset, int 
     if (include_cor2_changes)
     {
 		/* CRC-16 is always appended */
-		calculated_crc = wimax_mac_calc_crc16((uint8_t *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
@@ -869,7 +869,7 @@ static int MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(proto_tree *uiuc_tree, int offse
     if (include_cor2_changes)
     {
 		/* CRC-16 is always appended */
-		calculated_crc = wimax_mac_calc_crc16((uint8_t *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
@@ -915,7 +915,7 @@ static int MIMO_UL_STC_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, int offset, int 
     if (include_cor2_changes)
     {
 		/* CRC-16 is always appended */
-		calculated_crc = wimax_mac_calc_crc16((uint8_t *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 		proto_tree_add_checksum(tree, tvb, BITHI(bit,16), hf_ulmap_crc16, hf_ulmap_crc16_status, &ei_ulmap_crc16, pinfo, calculated_crc,
 									ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
