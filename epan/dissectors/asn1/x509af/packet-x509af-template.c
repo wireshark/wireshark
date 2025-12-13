@@ -141,6 +141,9 @@ x509af_export_publickey(tvbuff_t *tvb _U_, asn1_ctx_t *actx _U_, int offset _U_,
 #if defined(HAVE_LIBGNUTLS)
   gnutls_datum_t *subjectPublicKeyInfo = (gnutls_datum_t *)actx->private_data;
   if (subjectPublicKeyInfo) {
+    /* This is only passed to ssh_find_private_key_by_pubkey, which uses it
+     * with gnutls_pubkey_import, which treats the data as const, so this
+     * cast is acceptable. */
     subjectPublicKeyInfo->data = (unsigned char *) tvb_get_ptr(tvb, offset, len);
     subjectPublicKeyInfo->size = len;
     actx->private_data = NULL;

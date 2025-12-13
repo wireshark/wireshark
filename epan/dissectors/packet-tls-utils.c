@@ -5963,7 +5963,7 @@ skip_mac:
 /* RSA private key file processing {{{ */
 static void
 ssl_find_private_key_by_pubkey(SslDecryptSession *ssl,
-                               gnutls_datum_t *subjectPublicKeyInfo)
+                               const gnutls_datum_t *subjectPublicKeyInfo)
 {
     gnutls_pubkey_t pubkey = NULL;
     cert_key_id_t key_id;
