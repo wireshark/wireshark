@@ -300,7 +300,7 @@ class TestWslua:
         '''wslua globals'''
         check_lua_script('verify_globals.lua', empty_pcap, True,
             '-X', 'lua_script1:' + os.path.join(dirs.lua_dir, ''),
-            '-X', 'lua_script1:' + os.path.join(dirs.lua_dir, 'globals_4.4.txt'),
+            '-X', 'lua_script1:' + os.path.join(dirs.lua_dir, 'globals_5.0.txt'),
         )
 
     def test_wslua_struct(self, check_lua_script):
@@ -368,7 +368,7 @@ class TestWsluaLocale:
         check_lua_script_locale('verify_globals.lua', empty_pcap, True,
             'de_DE.utf-8',
             '-X', 'lua_script2:' + os.path.join(dirs.lua_dir, ''),
-            '-X', 'lua_script2:' + os.path.join(dirs.lua_dir, 'globals_4.4.txt'),
+            '-X', 'lua_script2:' + os.path.join(dirs.lua_dir, 'globals_5.0.txt'),
         )
 
     def test_wslua_util_locale(self, check_lua_script_locale):
