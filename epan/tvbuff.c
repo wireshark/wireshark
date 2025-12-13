@@ -964,10 +964,6 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const int offset, size_t length)
  * "tvb_ensure_bytes_exist()" and then allocates a buffer and copies
  * data to it.
  *
- * "composite_get_ptr()" depends on -1 not being
- * an error; does anything else depend on this routine treating -1 as
- * meaning "to the end of the buffer"?
- *
  * If scope is NULL, memory is allocated with g_malloc() and user must
  * explicitly free it with g_free().
  * If scope is not NULL, memory is allocated with the corresponding pool
