@@ -461,6 +461,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
             g_free(*err_info);
             *err_info = NULL;
         }
+        g_free(str_offsets);
         return WTAP_OPEN_NOT_MINE;
     }
 #if G_BYTE_ORDER == G_BIG_ENDIAN

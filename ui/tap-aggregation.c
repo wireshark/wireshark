@@ -146,6 +146,7 @@ bool register_tap_listener_aggregation(void) {
             g_free(field);
         }
     }
+    g_free(filter);
     return true;
 }
 

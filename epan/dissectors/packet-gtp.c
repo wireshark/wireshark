@@ -2686,6 +2686,7 @@ get_gtp_session_frame(address ip, uint32_t teid, uint32_t convid, uint32_t *fram
                     }
 
                     /* very unlikely, but keep it safe */
+                    wmem_destroy_list(frame_map_keys);
                     return 0;
                 }
             }
