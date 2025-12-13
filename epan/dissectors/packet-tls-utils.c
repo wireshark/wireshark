@@ -3427,7 +3427,7 @@ ssl_md_init(SSL_MD* md, int algo)
     return 0;
 }
 static inline void
-ssl_md_update(SSL_MD* md, unsigned char* data, int len)
+ssl_md_update(SSL_MD* md, const unsigned char* data, int len)
 {
     gcry_md_write(*(md), data, len);
 }
@@ -11036,9 +11036,9 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                 tvb_memcpy(tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len, initial_offset - 4,
                            4 + offset_end - initial_offset);
                 if (is_hrr)
-                    ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, initial_offset-4, 38), 38);
+                    ssl_md_update(&mc, tvb_get_ptr(tvb, initial_offset-4, 38), 38);
                 else
-                    ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, initial_offset-4, 30), 30);
+                    ssl_md_update(&mc, tvb_get_ptr(tvb, initial_offset-4, 30), 30);
             } else {
                 uint8_t prefix[4] = {SSL_HND_SERVER_HELLO, 0x00, 0x00, 0x00};
                 prefix[2] = ((offset - initial_offset) >> 8);
@@ -11048,39 +11048,39 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                            offset_end - initial_offset);
                 ssl_md_update(&mc, prefix, 4);
                 if (is_hrr)
-                    ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, initial_offset, 34), 34);
+                    ssl_md_update(&mc, tvb_get_ptr(tvb, initial_offset, 34), 34);
                 else
-                    ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, initial_offset, 26), 26);
+                    ssl_md_update(&mc, tvb_get_ptr(tvb, initial_offset, 26), 26);
             }
             ssl->ech_transcript.data_len += 4 + offset_end - initial_offset;
             uint8_t zeros[8] = { 0 };
             uint32_t confirmation_offset = initial_offset + 26;
             if (is_hrr) {
                 uint32_t hrr_offset = initial_offset + 34;
-                ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, hrr_offset,
+                ssl_md_update(&mc, tvb_get_ptr(tvb, hrr_offset,
                                              tvb_get_uint8(tvb, hrr_offset) + 1), tvb_get_uint8(tvb, hrr_offset) + 1);
                 hrr_offset += tvb_get_uint8(tvb, hrr_offset) + 1;
-                ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, hrr_offset, 3), 3);
+                ssl_md_update(&mc, tvb_get_ptr(tvb, hrr_offset, 3), 3);
                 hrr_offset += 3;
                 uint16_t extensions_end = hrr_offset + tvb_get_ntohs(tvb, hrr_offset) + 2;
-                ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, hrr_offset, 2), 2);
+                ssl_md_update(&mc, tvb_get_ptr(tvb, hrr_offset, 2), 2);
                 hrr_offset += 2;
                 while (extensions_end - hrr_offset >= 4) {
                     if (tvb_get_ntohs(tvb, hrr_offset) == SSL_HND_HELLO_EXT_ENCRYPTED_CLIENT_HELLO &&
                         tvb_get_ntohs(tvb, hrr_offset + 2) == 8) {
                         confirmation_offset = hrr_offset + 4;
-                        ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, hrr_offset, 4), 4);
+                        ssl_md_update(&mc, tvb_get_ptr(tvb, hrr_offset, 4), 4);
                         ssl_md_update(&mc, zeros, 8);
                         hrr_offset += 12;
                     } else {
-                        ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, hrr_offset, tvb_get_ntohs(tvb, hrr_offset + 2) + 4),
+                        ssl_md_update(&mc, tvb_get_ptr(tvb, hrr_offset, tvb_get_ntohs(tvb, hrr_offset + 2) + 4),
                             tvb_get_ntohs(tvb, hrr_offset + 2) + 4);
                         hrr_offset += tvb_get_ntohs(tvb, hrr_offset + 2) + 4;
                     }
                 }
             } else {
                 ssl_md_update(&mc, zeros, 8);
-                ssl_md_update(&mc, (unsigned char *)tvb_get_ptr(tvb, initial_offset + 34, offset - initial_offset - 34),
+                ssl_md_update(&mc, tvb_get_ptr(tvb, initial_offset + 34, offset - initial_offset - 34),
                               offset - initial_offset - 34);
             }
             ssl_md_final(&mc, transcript_hash, &len);
