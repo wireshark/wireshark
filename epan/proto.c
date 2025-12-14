@@ -4509,14 +4509,15 @@ validate_proto_tree_add_bytes_ftype(const enum ftenum type)
  */
 proto_item *
 proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-			   const int start, int length, const unsigned encoding,
-			   GByteArray *retval, int *endoff, int *err)
+			  const unsigned start, unsigned length,
+			  const unsigned encoding,
+			  GByteArray *retval, unsigned *endoff, int *err)
 {
 	field_info	  *new_fi;
 	GByteArray	  *bytes = retval;
 	GByteArray	  *created_bytes = NULL;
-	bool	   failed = false;
-	uint32_t		   n = 0;
+	bool		   failed = false;
+	uint32_t	   n = 0;
 	header_field_info *hfinfo;
 	bool	   generate = (bytes || tree) ? true : false;
 
@@ -4527,7 +4528,9 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	DISSECTOR_ASSERT_HINT(validate_proto_tree_add_bytes_ftype(hfinfo->type),
 		"Called proto_tree_add_bytes_item but not a bytes-based FT_XXX type");
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
+	if (length == 0) {
+		return NULL;
+	}
 
 	if (encoding & ENC_STR_NUM) {
 		REPORT_DISSECTOR_BUG("Decoding number strings for byte arrays is not supported");
@@ -4648,8 +4651,9 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-			   const int start, int length, const unsigned encoding,
-			   nstime_t *retval, int *endoff, int *err)
+			   const unsigned start, const unsigned length,
+			   const unsigned encoding,
+			   nstime_t *retval, unsigned *endoff, int *err)
 {
 	field_info	  *new_fi;
 	nstime_t	   time_stamp;
@@ -4660,13 +4664,12 @@ proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
-		{
-			if(retval)
-			{
-				nstime_set_zero(retval);
-			}
-		} );
+	if (length == 0) {
+		if(retval) {
+			nstime_set_zero(retval);
+		}
+		return NULL;
+	}
 
 	nstime_set_zero(&time_stamp);
 

@@ -77,7 +77,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
 {
     int err = 0;
     proto_item *volatile item = NULL;
-    int endoff = 0;
+    unsigned endoff = 0;
 
     switch(type) {
         /* these all generate ByteArrays */

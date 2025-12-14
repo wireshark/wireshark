@@ -1782,8 +1782,8 @@ proto_tree_add_bytes_with_length(proto_tree *tree, int hfindex, tvbuff_t *tvb, i
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const int start, int length, const unsigned encoding,
-    GByteArray *retval, int *endoff, int *err);
+    const unsigned start, unsigned length, const unsigned encoding,
+    GByteArray *retval, unsigned *endoff, int *err);
 
 /** Add a formatted FT_BYTES to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -1863,8 +1863,8 @@ proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, int start,
  */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    const int start, int length, const unsigned encoding,
-    nstime_t *retval, int *endoff, int *err);
+    const unsigned start, const unsigned length, const unsigned encoding,
+    nstime_t *retval, unsigned *endoff, int *err);
 
 
 /** Add a formatted FT_ABSOLUTE_TIME or FT_RELATIVE_TIME to a proto_tree, with

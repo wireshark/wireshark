@@ -840,17 +840,15 @@ ucp_handle_IRAstring(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int fi
     GByteArray    *bytes;
     wmem_strbuf_t *strbuf;
     char          *strval = NULL;
-    int           idx, len;
-    int           tmpoff;
+    unsigned      idx, len;
+    unsigned      tmpoff;
 
-    idx = tvb_find_uint8(tvb, *offset, -1, '/');
-    if (idx == -1) {
+    if (!tvb_find_uint8_remaining(tvb, *offset, '/', &idx)) {
         /* Force the appropriate exception to be thrown. */
-        len = tvb_captured_length_remaining(tvb, *offset);
-        tvb_ensure_bytes_exist(tvb, *offset, len + 1);
-    } else {
-        len = idx - *offset;
+        tvb_ensure_bytes_exist(tvb, *offset, idx);
     }
+
+    len = idx - *offset;
     bytes = g_byte_array_sized_new(len);
     if (tvb_get_string_bytes(tvb, *offset, len, ENC_ASCII|ENC_STR_HEX|ENC_SEP_NONE, bytes, &tmpoff)) {
         strval = (char*)get_ts_23_038_7bits_string_unpacked(pinfo->pool, bytes->data, bytes->len);
@@ -876,8 +874,7 @@ ucp_handle_IRAstring(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int fi
                               len, wmem_strbuf_finalize(strbuf));
     }
     *offset += len;
-    if (idx != -1)
-        *offset += 1;   /* skip terminating '/' */
+    *offset += 1;   /* skip terminating '/' */
 }
 
 static unsigned
@@ -1060,21 +1057,19 @@ ucp_handle_alphanum_OAdC(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, in
     proto_item    *ti = NULL;
     GByteArray    *bytes;
     char          *strval = NULL;
-    int           idx, len;
-    int           tmpoff;
+    unsigned      idx, len;
+    unsigned      tmpoff;
 
     idx = tvb_find_uint8(tvb, *offset, -1, '/');
-    if (idx == -1) {
+    if (!tvb_find_uint8_remaining(tvb, *offset, '/', &idx)) {
         /* Force the appropriate exception to be thrown. */
-        len = tvb_captured_length_remaining(tvb, *offset);
-        tvb_ensure_bytes_exist(tvb, *offset, len + 1);
-    } else {
-        len = idx - *offset;
+        tvb_ensure_bytes_exist(tvb, *offset, idx);
     }
 
+    len = idx - *offset;
+
     if (len == 0) {
-        if (idx != -1)
-            *offset += 1;   /* skip terminating '/' */
+        *offset += 1;   /* skip terminating '/' */
         return ti;
     }
 
@@ -1102,8 +1097,7 @@ ucp_handle_alphanum_OAdC(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, in
         expert_add_info(pinfo, ti, &ei_ucp_hexstring_invalid);
     }
     *offset += len;
-    if (idx != -1)
-        *offset += 1;   /* skip terminating '/' */
+    *offset += 1;   /* skip terminating '/' */
 
     return ti;
 }

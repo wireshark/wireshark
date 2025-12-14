@@ -1794,11 +1794,11 @@ WS_DLL_PUBLIC double tvb_get_ieee_double(tvbuff_t *tvb, const unsigned offset, c
  * @brief Fetch a time value from an ASCII-style string in the tvbuff.
  *
  * @param tvb        The tvbuff_t to read from.
- * @param[in] offset The beginning offset in the tvb (cannot be negative)
+ * @param[in] offset The beginning offset in the tvb.
  * @param[in] length The field's length in the tvb (or -1 for remaining)
  * @param[in] encoding The ENC_* that defines the format (e.g., ENC_ISO_8601_DATE_TIME)
  * @param[in,out] ns The pre-allocated nstime_t that will be set to the decoded value
- * @param[out] endoff if not NULL, should point to a int that this
+ * @param[out] endoff if not NULL, should point to an unsigned int that this
  *     routine will then set to be the offset to the character after
  *     the last character used in the conversion. This is useful because
  *     they may not consume the whole section.
@@ -1819,8 +1819,8 @@ WS_DLL_PUBLIC double tvb_get_ieee_double(tvbuff_t *tvb, const unsigned offset, c
  * for purely multi-byte encodings such as ENC_UTF_16, ENC_UCS_*, etc.
  */
 WS_DLL_PUBLIC
-nstime_t* tvb_get_string_time(tvbuff_t *tvb, const int offset, const int length,
-                              const unsigned encoding, nstime_t* ns, int *endoff);
+nstime_t* tvb_get_string_time(tvbuff_t *tvb, const unsigned offset, const unsigned length,
+                              const unsigned encoding, nstime_t* ns, unsigned *endoff);
 
 /**
  * @brief Parse a case-insensitive hex string with optional separators into a byte array.
@@ -1834,7 +1834,7 @@ nstime_t* tvb_get_string_time(tvbuff_t *tvb, const int offset, const int length,
  * or NULL on error.
  *
  * @param tvb       The tvbuff_t to read from.
- * @param offset    The beginning offset in the tvbuff (must be non-negative).
+ * @param offset    The beginning offset in the tvbuff.
  * @param length    The length of the field to parse, or -1 to use the remaining buffer.
  * @param encoding  The ENC_* constant defining the format and separator rules.
  * @param bytes     A pre-allocated GByteArray to receive the parsed bytes.
@@ -1844,8 +1844,8 @@ nstime_t* tvb_get_string_time(tvbuff_t *tvb, const int offset, const int length,
  * @return The same GByteArray pointer passed in, or NULL on failure.
  */
 WS_DLL_PUBLIC
-GByteArray* tvb_get_string_bytes(tvbuff_t *tvb, const int offset, const int length,
-                                 const unsigned encoding, GByteArray* bytes, int *endoff);
+GByteArray* tvb_get_string_bytes(tvbuff_t *tvb, const unsigned offset, const unsigned length,
+                                 const unsigned encoding, GByteArray* bytes, unsigned *endoff);
 
 /**
  * @brief Retrieve an IPv4 address from a tvbuff in network byte order.

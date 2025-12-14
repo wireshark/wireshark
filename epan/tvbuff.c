@@ -62,7 +62,7 @@ static inline const uint8_t*
 ensure_contiguous_unsigned(tvbuff_t *tvb, const unsigned offset, const unsigned length);
 
 static inline uint8_t *
-tvb_get_raw_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, const int length);
+tvb_get_raw_string(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, const unsigned length);
 
 tvbuff_t *
 tvb_new(const struct tvb_ops *ops)
@@ -1921,8 +1921,8 @@ validate_single_byte_ascii_encoding(const unsigned encoding)
 }
 
 GByteArray*
-tvb_get_string_bytes(tvbuff_t *tvb, const int offset, const int length,
-		     const unsigned encoding, GByteArray *bytes, int *endoff)
+tvb_get_string_bytes(tvbuff_t *tvb, const unsigned offset, const unsigned length,
+		     const unsigned encoding, GByteArray *bytes, unsigned *endoff)
 {
 	char *ptr;
 	const char *begin;
@@ -1941,7 +1941,7 @@ tvb_get_string_bytes(tvbuff_t *tvb, const int offset, const int length,
 	if (*begin && bytes) {
 		if (hex_str_to_bytes_encoding(begin, bytes, &end, encoding, false)) {
 			if (bytes->len > 0) {
-				if (endoff) *endoff = offset + (int)(end - ptr);
+				if (endoff) *endoff = offset + (unsigned)(end - ptr);
 				retval = bytes;
 			}
 		}
@@ -1973,8 +1973,8 @@ parse_month_name(const char *name, int *tm_mon)
 
 /* support hex-encoded time values? */
 nstime_t*
-tvb_get_string_time(tvbuff_t *tvb, const int offset, const int length,
-		    const unsigned encoding, nstime_t *ns, int *endoff)
+tvb_get_string_time(tvbuff_t *tvb, const unsigned offset, const unsigned length,
+		    const unsigned encoding, nstime_t *ns, unsigned *endoff)
 {
 	char *begin;
 	const char *ptr;
@@ -2212,7 +2212,7 @@ tvb_get_string_time(tvbuff_t *tvb, const int offset, const int length,
 	}
 
 	if (endoff)
-	    *endoff = (int)(offset + (end - begin));
+	    *endoff = (unsigned)(offset + (end - begin));
 	wmem_free(NULL, begin);
 	return ns;
 
@@ -3190,26 +3190,16 @@ tvb_get_utf_8_string(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offs
  * raw string, and return a pointer to that string, allocated using the
  * wmem scope. This means a null is appended at the end, but no replacement
  * checking is done otherwise, unlike tvb_get_utf_8_string().
- *
- * Also, this one allows a length of -1 to mean get all, but does not
- * allow a negative offset.
  */
 static inline uint8_t *
-tvb_get_raw_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, const int length)
+tvb_get_raw_string(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, const unsigned length)
 {
 	uint8_t *strbuf;
-	int     abs_length = length;
 
-	DISSECTOR_ASSERT(offset     >=  0);
-	DISSECTOR_ASSERT(abs_length >= -1);
-
-	if (abs_length < 0)
-		abs_length = tvb->length - offset;
-
-	tvb_ensure_bytes_exist(tvb, (unsigned)offset, abs_length);
-	strbuf = (uint8_t *)wmem_alloc(scope, abs_length + 1);
-	tvb_memcpy(tvb, strbuf, offset, abs_length);
-	strbuf[abs_length] = '\0';
+	tvb_ensure_bytes_exist(tvb, offset, length);
+	strbuf = (uint8_t *)wmem_alloc(scope, length + 1);
+	tvb_memcpy(tvb, strbuf, offset, length);
+	strbuf[length] = '\0';
 	return strbuf;
 }
 

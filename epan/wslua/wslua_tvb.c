@@ -927,7 +927,7 @@ WSLUA_METHOD TvbRange_nstime(lua_State* L) {
         lua_pushinteger(L, tvbr->len);
     }
     else {
-        int endoff = 0;
+        unsigned endoff = 0;
         nstime_t *retval = tvb_get_string_time(tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len,
                                                encoding, nstime, &endoff);
         if (!retval || endoff == 0) {
@@ -1203,7 +1203,7 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
         WSLUA_OPTARG_ERROR(TvbRange_nstime, ENCODING, "invalid encoding value");
     }
     else {
-        int endoff = 0;
+        unsigned endoff = 0;
         GByteArray* retval;
 
         ba = g_byte_array_new();
