@@ -43,8 +43,12 @@ static int hf_nats_total_bytes;
 static int hf_nats_header_bytes;
 static int hf_nats_body_bytes;
 static int hf_nats_headers;
-static int hf_nats_headers_version;
-static int hf_nats_headers_header;
+static int hf_nats_header_version;
+static int hf_nats_header_version_major;
+static int hf_nats_header_version_minor;
+static int hf_nats_header;
+static int hf_nats_header_name;
+static int hf_nats_header_value;
 static int hf_nats_features;
 static int hf_nats_err_msg;
 static int hf_nats_req_latency;
@@ -188,6 +192,54 @@ static size_t nats_parse_tokens(tvbuff_t* tvb, int offset, int last_offset, pack
     return max_tokens;
 }
 
+static void dissect_nats_header_version(tvbuff_t* tvb, int offset, int end_offset,
+                                        packet_info* pinfo, proto_tree* header_tree)
+{
+    proto_item *header_version = proto_tree_add_item(header_tree, hf_nats_header_version, tvb,
+                                                     offset, end_offset, ENC_ASCII);
+    proto_tree *header_version_tree = proto_item_add_subtree(header_version, ett_nats_headers);
+
+    /* The header version has the format NATS/X.x where
+     *     X: major version
+     *     x: minor version
+     *
+     * We are searching for the slash and dot character to find those values.
+     *
+     * https://github.com/nats-io/nats-architecture-and-design/blob/main/adr/ADR-4.md#version-header
+     */
+
+    int slash_offset = tvb_find_uint8(tvb, offset, end_offset - offset, '/');
+    if (slash_offset == -1)
+        return;
+
+    int dot_offset = tvb_find_uint8(tvb, slash_offset, end_offset - slash_offset, '.');
+    if (dot_offset == -1)
+        return;
+
+    const int major_offset = slash_offset + 1;
+    const int minor_offset = dot_offset + 1;
+
+    const int major_length = dot_offset - slash_offset - 1;
+    const int minor_length = end_offset - dot_offset - 1;
+
+    char *major_string = (char*)tvb_get_string_enc(pinfo->pool, tvb, major_offset, major_length, ENC_ASCII);
+    char *minor_string = (char*)tvb_get_string_enc(pinfo->pool, tvb, minor_offset, minor_length, ENC_ASCII);
+
+    uint8_t major_number = 0;
+    uint8_t minor_number = 0;
+
+    if (!ws_strtou8(major_string, NULL, &major_number))
+        return;
+
+    if (!ws_strtou8(minor_string, NULL, &minor_number))
+        return;
+
+    proto_tree_add_uint(header_version_tree, hf_nats_header_version_major, tvb,
+                        major_offset, major_length, major_number);
+    proto_tree_add_uint(header_version_tree, hf_nats_header_version_minor, tvb,
+                        minor_offset, minor_length, minor_number);
+}
+
 static void dissect_nats_headers(tvbuff_t* tvb, int offset, int end_offset,
                                  packet_info* pinfo,
                                  proto_tree* tree, nats_data_t* nats_data)
@@ -203,8 +255,7 @@ static void dissect_nats_headers(tvbuff_t* tvb, int offset, int end_offset,
                              end_offset - offset, ENC_NA);
     header_tree = proto_item_add_subtree(ti, ett_nats_headers);
 
-    proto_tree_add_item(header_tree, hf_nats_headers_version, tvb, offset,
-                        next_offset - offset - EOL_LEN, ENC_ASCII);
+    dissect_nats_header_version(tvb, offset, next_offset - EOL_LEN, pinfo, header_tree);
 
     len -= next_offset - offset;
     offset = next_offset;
@@ -232,10 +283,16 @@ static void dissect_nats_headers(tvbuff_t* tvb, int offset, int end_offset,
             {
                 wmem_list_append(list, (void *) header_value);
             }
-        }
 
-        proto_tree_add_item(header_tree, hf_nats_headers_header, tvb, offset,
-                            next_offset - offset - EOL_LEN, ENC_UTF_8);
+            proto_item *header_item = proto_tree_add_item(header_tree, hf_nats_header, tvb,
+                                                          offset, next_offset - offset - EOL_LEN, ENC_UTF_8);
+            proto_tree *header_item_tree = proto_item_add_subtree(header_item, ett_nats_headers);
+
+            proto_tree_add_item(header_item_tree, hf_nats_header_name, tvb,
+                                offset, colon_offset - offset, ENC_ASCII);
+            proto_tree_add_item(header_item_tree, hf_nats_header_value, tvb,
+                                value_offset, next_offset - value_offset - EOL_LEN, ENC_ASCII);
+        }
 
         len -= next_offset - offset;
         offset = next_offset;
@@ -1094,17 +1151,45 @@ void proto_register_nats(void)
             }
         },
         {
-            &hf_nats_headers_version,
+            &hf_nats_header_version,
             {
-                "Headers Version", "nats.headers.version", FT_STRING, BASE_NONE, NULL, 0x0,
+                "Version", "nats.header.version", FT_STRING, BASE_NONE, NULL, 0x0,
+                "Header Version", HFILL
+            }
+        },
+        {
+            &hf_nats_header_version_major,
+            {
+                "Major Version", "nats.header.version.major", FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Header Major Version", HFILL
+            }
+        },
+        {
+            &hf_nats_header_version_minor,
+            {
+                "Minor Version", "nats.header.version.minor", FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Header Minor Version", HFILL
+            }
+        },
+        {
+            &hf_nats_header,
+            {
+                "Header", "nats.header", FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL
             }
         },
         {
-            &hf_nats_headers_header,
+            &hf_nats_header_name,
             {
-                "Header", "nats.headers.header", FT_STRING, BASE_NONE, NULL, 0x0,
-                NULL, HFILL
+                "Name", "nats.header.name", FT_STRING, BASE_NONE, NULL, 0x0,
+                "Header Name", HFILL
+            }
+        },
+        {
+            &hf_nats_header_value,
+            {
+                "Value", "nats.header.value", FT_STRING, BASE_NONE, NULL, 0x0,
+                "Header Value", HFILL
             }
         },
         {
