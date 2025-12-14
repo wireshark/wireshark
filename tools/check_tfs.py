@@ -6,13 +6,11 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import os
-import sys
 import re
 import argparse
 import signal
 import concurrent.futures
-import io
-from check_common import isGeneratedFile, findDissectorFilesInFolder, getFilesFromCommits, getFilesFromOpen, removeComments
+from check_common import isGeneratedFile, findDissectorFilesInFolder, getFilesFromCommits, getFilesFromOpen, removeComments, Result
 
 # This utility scans for tfs items, and works out if standard ones
 # could have been used instead (from epan/tfs.c)
@@ -42,47 +40,38 @@ custom_tfs_entries = {}
 
 # Individual parsed TFS entry
 class TFS:
-    def __init__(self, file, output, name, true_val, false_val):
+    def __init__(self, file, name, true_val, false_val, result):
         self.file = file
         self.name = name
         self.true_val = true_val
         self.false_val = false_val
 
-        self.warnings = 0
-
         # Should not be empty
         if not len(true_val) or not len(false_val):
-            print('Warning:', file, name, 'has an empty field', self, file=output)
-            self.warnings += 1
+            result.warn(file, name, 'has an empty field', self)
         # else:
             # Strange if one begins with capital but other doesn't?
             # if true_val[0].isalpha() and false_val[0].isalpha():
             #    if true_val[0].isupper() != false_val[0].isupper():
-            #        print(file, name, 'one starts lowercase and the other upper', self, file=output)
+            #        result.note(file, name, 'one starts lowercase and the other upper', self)
 
         # Leading or trailing space should not be needed.
         if true_val.startswith(' ') or true_val.endswith(' '):
-            print('Note: ' + self.file + ' ' + self.name + ' - true val begins or ends with space \"' + self.true_val + '\"',
-                  file=output)
+            result.note(self.file + ' ' + self.name + ' - true val begins or ends with space \"' + self.true_val + '\"')
         if false_val.startswith(' ') or false_val.endswith(' '):
-            print('Note: ' + self.file + ' ' + self.name + ' - false val begins or ends with space \"' + self.false_val + '\"',
-                  file=output)
+            result.note(self.file + ' ' + self.name + ' - false val begins or ends with space \"' + self.false_val + '\"')
 
         # Should really not be identical...
         if true_val.lower() == false_val.lower():
-            print('Warning:', file, name, 'true and false strings are the same', self,
-                  file=output)
-            self.warnings += 1
+            result.warn(file, name, 'true and false strings are the same', self)
 
         # Shouldn't both be negation (with exception..)
         if (file != os.path.join('epan', 'dissectors', 'packet-smb.c') and 'not ' in true_val.lower() and 'not' in false_val.lower()):
-            print('Warning:', file, name, self, 'both strings contain not', file=output)
-            self.warnings += 1
+            result.warn(file, name, self, 'both strings contain not')
 
         # Not expecting full-stops inside strings..
         if '.' in true_val or '.' in false_val:
-            print('Warning:', file, name, 'Period found in string', self, file=output)
-            self.warnings += 1
+            result.warn(file, name, 'Period found in string', self)
 
     def __str__(self):
         return '{' + '"' + self.true_val + '", "' + self.false_val + '"}'
@@ -227,9 +216,8 @@ class Item:
 
 
 # Look for true_false_string items in a dissector file.
-def findTFS(filename, output=sys.stdout):
+def findTFS(filename, result):
     tfs_found = {}
-    warnings = 0
 
     with open(filename, 'r', encoding="utf8", errors="ignore") as f:
         contents = f.read()
@@ -244,10 +232,9 @@ def findTFS(filename, output=sys.stdout):
             true_val = m.group(2)
             false_val = m.group(3)
             # Store this entry.
-            tfs_found[name] = TFS(filename, output, name, true_val, false_val)
-            warnings += tfs_found[name].warnings
+            tfs_found[name] = TFS(filename, name, true_val, false_val, result)
 
-    return warnings, tfs_found
+        return tfs_found
 
 
 # Look for value_string entries in a dissector file.
@@ -318,19 +305,15 @@ errors_found = 0
 
 # Check the given dissector file.
 def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=False, count_common_usage=False):
-    warnings = 0
-    errors = 0
-    output = io.StringIO()
-    common_usage = {}
-    custom_entries = set()
+    result = Result()
 
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
-        print(filename, 'does not exist!', file=output)
-        return warnings, errors, ''
+        print(filename, 'does not exist!')
+        return result
 
     # Find items.
-    warnings, file_tfs = findTFS(filename, output)
+    file_tfs = findTFS(filename, result)
 
     # See if any of these items already existed in tfs.c
     for f in file_tfs:
@@ -357,19 +340,15 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                     found = True
 
                 if found:
-                    print("Error:" if exact_case else "Warning: ", filename, f,
-                          "- could have used", c, 'from tfs.c instead: ', common_tfs[c],
-                          '' if exact_case else '  (capitalisation differs)',
-                          file=output)
                     if exact_case:
-                        errors += 1
+                        result.error(filename, f, "- could have used", c, 'from tfs.c instead: ', common_tfs[c])
                     else:
-                        warnings += 1
+                        result.warn(filename, f, "- could have used", c, 'from tfs.c instead: ', common_tfs[c], '  (capitalisation differs)')
                     break
         if not found:
             if look_for_common:
                 vals = (file_tfs[f].true_val, file_tfs[f].false_val)
-                custom_entries.add(vals)
+                result.custom_entries.add(vals)
 
     if check_value_strings:
         # Get macros
@@ -416,12 +395,13 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
                             for i in items:
                                 if re.match(r'VALS\(\s*'+v+r'\s*\)', items[i].strings):
                                     if items[i].bits_set == 1:
-                                        print("Warn:" if exact_case else "Note:", filename, 'value_string', "'"+v+"'",
-                                              '- could have used tfs.c entry instead: for', i,
-                                              ' - "FT_BOOLEAN,', str(items[i].get_field_width_in_bits()) + ', TFS(&' + c + '),"',
-                                              '' if exact_case else '  (capitalisation differs)')
                                         if exact_case:
-                                            warnings += 1
+                                            result.warn(filename, 'value_string', "'"+v+"'", '- could have used tfs.c entry instead: for', i,
+                                                        ' - "FT_BOOLEAN,', str(items[i].get_field_width_in_bits()) + ', TFS(&' + c + '),"')
+                                        else:
+                                            result.note(filename, 'value_string', "'"+v+"'", '- could have used tfs.c entry instead: for', i,
+                                                        ' - "FT_BOOLEAN,', str(items[i].get_field_width_in_bits()) + ', TFS(&' + c + '),"',
+                                                        '  (capitalisation differs)')
 
     if count_common_usage:
         # Look for TFS(&<name>) in dissector
@@ -430,15 +410,12 @@ def checkFile(filename, common_tfs, look_for_common=False, check_value_strings=F
             for c in common_tfs:
                 m = re.search(r'TFS\(\s*\&' + c + r'\s*\)', contents)
                 if m:
-                    if c not in common_usage:
-                        common_usage[c] = 1
+                    if c not in result.common_usage:
+                        result.common_usage[c] = 1
                     else:
-                        common_usage[c] += 1
+                        result.common_usage[c] += 1
 
-    contents = output.getvalue()
-    output.close()
-    return warnings, errors, contents, common_usage, custom_entries
-
+    return result
 
 
 #################################################################
@@ -499,7 +476,8 @@ else:
 
 
 # Get standard/ shared ones.
-_, common_tfs_entries = findTFS(os.path.join('epan', 'tfs.c'))
+common_result = Result()
+common_tfs_entries = findTFS(os.path.join('epan', 'tfs.c'), common_result)
 
 # Global data for these optional checks.
 all_common_usage = {}
@@ -517,17 +495,18 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
         if should_exit:
             exit(1)
         # Unpack result
-        warnings, errors, output, common_usage, custom_entries = future.result()
+        result = future.result()
+        output = result.out.getvalue()
         if len(output):
             print(output[:-1])
 
         # Add to issue counts
-        warnings_found += warnings
-        errors_found += errors
+        warnings_found += result.warnings
+        errors_found += result.errors
 
         # Update common usage stats
         if args.common_usage:
-            for name, count in common_usage.items():
+            for name, count in result.common_usage.items():
                 if name not in all_common_usage:
                     all_common_usage[name] = count
                 else:
@@ -535,13 +514,11 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
 
         # Update 'common' custom counts
         if args.common:
-            for entry in custom_entries:
+            for entry in result.custom_entries:
                 if entry not in all_custom_entries:
                     all_custom_entries[entry] = [future_to_file_output[future]]
                 else:
                     all_custom_entries[entry].append(future_to_file_output[future])
-
-
 
 
 # Report on commonly-defined values.

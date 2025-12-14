@@ -11,14 +11,13 @@ import re
 import argparse
 import signal
 import glob
-import io
 
 from spellchecker import SpellChecker
 from collections import Counter
 from html.parser import HTMLParser
 import urllib.request
 import concurrent.futures
-from check_common import bcolors, getFilesFromOpen, getFilesFromCommits, isGeneratedFile, removeComments
+from check_common import bcolors, getFilesFromOpen, getFilesFromCommits, isGeneratedFile, removeComments, Result
 
 # Looks for spelling errors among strings found in source or documentation files.
 # N.B.,
@@ -161,10 +160,7 @@ class File:
         return False
 
     # Check the spelling of all the words we have found
-    def spellCheck(self):
-        output = io.StringIO()
-        local_missing_words = []
-
+    def spellCheck(self, result):
         num_values = len(self.values)
         for value_index, v in enumerate(self.values):
             if should_exit:
@@ -218,24 +214,20 @@ class File:
 
                 # Is it a known bad (wikipedia) word?
                 if word in wiki_db:
-                    print(bcolors.BOLD,
-                          self.file, value_index, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
-                          "(wikipedia-flags => " + wiki_db[word] + ")",
-                          '-> ', '?', file=output)
-                    local_missing_words.append(word)
+                    result.issue(bcolors.BOLD,
+                                 self.file, value_index, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
+                                 "(wikipedia-flags => " + wiki_db[word] + ")",
+                                 '-> ', '?')
+                    result.local_missing_words.append(word)
 
                 elif len(word) > 4 and spell.unknown([word]) and not self.checkMultiWords(word) and not self.wordBeforeId(word):
                     # Highlight words that appeared in Wikipedia list.
-                    print(self.file, value_index, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
-                          '-> ', '?', file=output)
+                    result.issue(self.file, value_index, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
+                                 '-> ', '?')
 
                     # TODO: this can be interesting, but takes too long!
                     # bcolors.OKGREEN + spell.correction(word) + bcolors.ENDC
-                    local_missing_words.append(word)
-
-        contents = output.getvalue()
-        output.close()
-        return (contents, local_missing_words)
+                    result.local_missing_words.append(word)
 
 
 def removeWhitespaceControl(code_string):
@@ -340,7 +332,7 @@ def findStrings(filename, check_comments=False):
                 # Add to dict.
                 spell.word_frequency.load_words([protocol])
                 spell.known([protocol])
-                #print('Protocol is: ' + bcolors.BOLD + protocol + bcolors.ENDC)
+                # print('Protocol is: ' + bcolors.BOLD + protocol + bcolors.ENDC)
 
             # Code so only checking strings.
             matches = re.finditer(r'\"([^\"]*)\"', contents)
@@ -387,14 +379,16 @@ def findFilesInFolder(folder, recursive=True):
 
 # Check the given file.
 def checkFile(filename, check_comments=False):
+    result = Result()
+
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
         print(filename, 'does not exist!')
-        return '', []
+        return result
 
     file = findStrings(filename, check_comments)
-    output, local_missing_words = file.spellCheck()
-    return output, local_missing_words
+    file.spellCheck(result)
+    return result
 
 
 #################################################################
@@ -523,11 +517,14 @@ if args.folder:
 
 # By default, scan dissector files.
 if not args.file and not args.open and not args.commits and not args.glob and not args.folder:
-    # By default, scan dissectors directory
-    folder = os.path.join('epan', 'dissectors')
-    # Find files from folder.
-    print('Looking for files in', folder)
-    files = findFilesInFolder(folder, not args.no_recurse)
+    # By default, scan dissector directories
+    folders = [ os.path.join('epan', 'dissectors'), os.path.join('plugins', 'epan') ]
+
+    for folder in folders:
+        # Find files from folder.
+        print('Looking for files in', folder)
+        files += findFilesInFolder(folder)
+
 
 
 # If scanning a subset of files, list them here.
@@ -546,10 +543,12 @@ with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
     future_to_file_output = {executor.submit(checkFile, file, args.comments): file for file in files}
     for future in concurrent.futures.as_completed(future_to_file_output):
         # Result is ready, get output and list of missing words
-        output, local_missing_words = future.result()
+        result = future.result()
+        output = result.out.getvalue()
         # Show output now, and append missing words
-        print(output)
-        missing_words += local_missing_words
+        if len(result.local_missing_words):
+            print(output)
+            missing_words += result.local_missing_words
 
         if should_exit:
             exit(1)

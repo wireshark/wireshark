@@ -9,6 +9,7 @@ import re
 import subprocess
 import io
 
+
 # For text colouring/highlighting.
 class bcolors:
     HEADER = '\033[95m'
@@ -157,6 +158,10 @@ class Result:
         self.warnings = 0
         self.errors = 0
         self.notes = 0
+        # check_tfs specific
+        self.common_usage = {}
+        self.custom_entries = set()
+        self.local_missing_words = []
 
     def warn(self, *args):
         print('Warning: ' + " ".join(map(str, args)), file=self.out)
@@ -168,6 +173,11 @@ class Result:
 
     def note(self, *args):
         print('Note: ' + " ".join(map(str, args)), file=self.out)
+        self.notes += 1
+
+    def issue(self, *args):
+        print(" ".join(map(str, args)), file=self.out)
+        # Just use notes..
         self.notes += 1
 
     def __str__(self):

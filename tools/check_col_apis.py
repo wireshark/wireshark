@@ -160,7 +160,6 @@ def checkFile(filename, generated, verbose=False):
     return result
 
 
-
 #################################################################
 # Main logic.
 

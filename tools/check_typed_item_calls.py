@@ -231,7 +231,7 @@ class EncodingCheckerBasic:
         # Are more encodings allowed?
         if not self.allow_multiple and self.encodings_seen >= 1:
             result.error(api_check.file + ':' + str(call.line_number),
-                  api_check.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' with encoding', encoding, 'but only one encoding flag allowed for type')
+                         api_check.fun_name + ' called for ' + type + ' field "' + call.hf_name + '"', ' with encoding', encoding, 'but only one encoding flag allowed for type')
             # TODO: enable once error count is zero..
 
         # Is this encoding allowed for this type?
@@ -504,7 +504,7 @@ class ProtoTreeAddItemCheck(APICheck):
                                        'xl_encoding',
                                        'my_frame_data->encoding_client', 'my_frame_data->encoding_results',
                                        'seq_info->txt_enc'
-                                      }:
+                                       }:
 
                             result.warn(self.file + ':' + str(line_number),
                                         self.fun_name + ' called for "' + hf_name + '"',  'check last/enc param:', enc, '?')
@@ -621,7 +621,7 @@ known_non_contiguous_fields = {'wlan.fixed.capabilities.cfpoll.sta',
                                'ttl.trace_data.entry.status_info.can_flags',
                                'ttl.trace_data.entry.status_info.fr_flags',
                                'ttl.trace_data.entry.status_info.fr_pulse_flags'
-                              }
+                               }
 ##################################################################################################
 
 
@@ -845,7 +845,7 @@ class ValueString:
             if do_extra_checks and not self.out_of_order:
                 if value <= previous_value:
                     result.warn(self.file, ': value_string', self.name, 'not in ascending order - label',
-                          label, 'with value', value, 'comes after', previous_label, 'with value', previous_value)
+                                label, 'with value', value, 'comes after', previous_label, 'with value', previous_value)
                     self.out_of_order = True
                 previous_value = value
                 previous_label = label
@@ -858,7 +858,7 @@ class ValueString:
             if value in self.parsed_vals and label != self.parsed_vals[value]:
 
                 result.warn(self.file, ': value_string', self.name, '- value ', value, 'repeated with different values - was',
-                      self.parsed_vals[value], 'now', label)
+                            self.parsed_vals[value], 'now', label)
             else:
                 # Add into table, while checking for repeated label
                 self.parsed_vals[value] = label
@@ -881,7 +881,7 @@ class ValueString:
                     if not excepted and len(label) > 2:
                         previous_values = [str(v) for v in self.parsed_vals if self.parsed_vals[v] == label]
                         result.warn(self.file, ': value_string', self.name, '- label', label, 'repeated, value now', value,
-                              'previously', ','.join(previous_values[:-1]))
+                                    'previously', ','.join(previous_values[:-1]))
                 else:
                     self.seen_labels.add(label)
 
@@ -903,7 +903,7 @@ class ValueString:
         # N.B., arbitrary threshold for suggesting value_string_ext
         ext_threshold = 64
         if not self.out_of_order and span >= ext_threshold and span == len(self.parsed_vals) and self.name not in self.ext:
-            #print(self.ext)
+            # print(self.ext)
             result.note(self.file, ': value_string', self.name, 'has', span, 'consecutive entries - possible candidate for value_string_ext?')
 
         # Do most of the labels match the number?
@@ -1265,7 +1265,6 @@ def checkExpertCalls(filename, expertEntries, result):
                 item = m.group(3)[1:]
                 expertEntries.AddCall(item)
 
-
             #########################################################
             # Second pass, look at in more details
             matches = expert_add_info_re.finditer(contents, re.MULTILINE | re.DOTALL)
@@ -1289,7 +1288,7 @@ def checkExpertCalls(filename, expertEntries, result):
                     if number_of_calls == 1 and exact_match:
                         result.error(filename, 'calling expert_add_info_format() for', item, '- no format specifiers in',
                                      '"' + format_string + '" - which exactly matches expert item default! (only call)')
-                        #if not isGeneratedFile(filename):
+                        # if not isGeneratedFile(filename):
                         #    errors += 1
                     else:
                         # There may be good reasons for this - they could be specializations..
@@ -1298,7 +1297,6 @@ def checkExpertCalls(filename, expertEntries, result):
                                     ('"' + default_string + '"') if default_string is not None else '<??>',
                                     '- total calls', number_of_calls, '(EXACT MATCH)' if exact_match else '')
                 expertEntries.VerifyCall(item)
-
 
 
 # These are the valid values from expert.h
@@ -1403,7 +1401,6 @@ class ExpertEntries:
             if entry.name == item:
                 # Found,
                 return entry.summary
-
 
 
 # The relevant parts of an hf item.  Used as value in dict where hf variable name is key.

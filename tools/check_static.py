@@ -269,6 +269,7 @@ call_files.append(os.path.join('epan', 'dissectors', 'dissectors.c'))
 call_files += findFilesInFolder(os.path.join('ui', 'qt'))
 call_files += findFilesInFolder(os.path.join('ui', 'cli'))
 
+
 def getCalls(file):
     return called.getCalls(file)
 
@@ -279,6 +280,7 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
     for future in concurrent.futures.as_completed(future_to_file_referred):
         referred = future.result()
         called.addCalls(referred)
+
 
 # Now check identified dissector files.
 def checkIfSymbolsAreCalled(file):
