@@ -322,6 +322,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-mbim.h
 	packet-mp2t.h
 	packet-mtp3.h
+	packet-nats.h
 	packet-ncp-int.h
 	packet-ntlmssp.h
 	packet-oer.h

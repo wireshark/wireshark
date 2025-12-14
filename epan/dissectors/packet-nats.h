@@ -17,6 +17,7 @@
 
 #include <wsutil/wmem/wmem_map.h>
 
+// PUBLIC_HEADER: This is used for a custom dissector for NATS
 typedef struct nats_data
 {
     const char* subject;
