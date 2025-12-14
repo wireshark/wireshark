@@ -111,6 +111,10 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
 
     connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(helpButton()));
 
+    // XXX - This shouldn't be created if finfo->length == 0 (see
+    // wireshark_main_window_slots and have_packet_bytes), but it might
+    // make sense and simplify some calculations to store the length /
+    // byte location past the end
     setStartAndEnd(0, tvb_reported_length(tvb_) - 1);
     updateFieldBytes(true);
 }
@@ -587,13 +591,13 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
     switch (recent.gui_show_bytes_decode) {
 
     case DecodeAsNone:
-        bytes = tvb_get_ptr(tvb_, start_, -1);
+        bytes = tvb_get_ptr(tvb_, start_, length);
         field_bytes_ = QByteArray((const char *)bytes, length);
         break;
 
     case DecodeAsBASE64:
     {
-        bytes = tvb_get_ptr(tvb_, start_, -1);
+        bytes = tvb_get_ptr(tvb_, start_, length);
         QByteArray ba = QByteArray::fromRawData((const char *)bytes, length);
         if (ba.contains('-') || ba.contains('_')) {
             field_bytes_ = QByteArray::fromBase64(ba, QByteArray::Base64UrlEncoding);
@@ -619,9 +623,9 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
 
         for (auto &tvb_uncompress : tvb_uncompress_list) {
             uncompr_tvb = tvb_uncompress.function(tvb_, start_, length);
-            if (uncompr_tvb && tvb_reported_length(uncompr_tvb) > 0) {
-                bytes = tvb_get_ptr(uncompr_tvb, 0, -1);
-                field_bytes_ = QByteArray((const char *)bytes, tvb_reported_length(uncompr_tvb));
+            if (uncompr_tvb && tvb_captured_length(uncompr_tvb) > 0) {
+                bytes = tvb_get_ptr(uncompr_tvb, 0, tvb_captured_length(uncompr_tvb));
+                field_bytes_ = QByteArray((const char *)bytes, tvb_captured_length(uncompr_tvb));
                 decode_as_name_ = tr("compressed %1").arg(tvb_uncompress.name);
                 tvb_free(uncompr_tvb);
                 break;
@@ -634,13 +638,13 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
     }
 
     case DecodeAsHexDigits:
-        bytes = tvb_get_ptr(tvb_, start_, -1);
+        bytes = tvb_get_ptr(tvb_, start_, length);
         field_bytes_ = QByteArray::fromHex(QByteArray::fromRawData((const char *)bytes, length));
         break;
 
     case DecodeAsPercentEncoding:
     {
-        bytes = tvb_get_ptr(tvb_, start_, -1);
+        bytes = tvb_get_ptr(tvb_, start_, length);
 #if GLIB_CHECK_VERSION(2, 66, 0)
         GBytes *ba = g_uri_unescape_bytes((const char*)bytes, length, NULL, NULL);
         if (ba != NULL) {
@@ -659,12 +663,12 @@ void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
     }
 
     case DecodeAsQuotedPrintable:
-        bytes = tvb_get_ptr(tvb_, start_, -1);
+        bytes = tvb_get_ptr(tvb_, start_, length);
         field_bytes_ = decodeQuotedPrintable(bytes, length);
         break;
 
     case DecodeAsROT13:
-        bytes = tvb_get_ptr(tvb_, start_, -1);
+        bytes = tvb_get_ptr(tvb_, start_, length);
         field_bytes_ = QByteArray((const char *)bytes, length);
         rot13(field_bytes_);
         break;

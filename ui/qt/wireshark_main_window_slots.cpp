@@ -1949,8 +1949,7 @@ void WiresharkMainWindow::exportPacketBytes()
     if (file_name.length() > 0) {
         const uint8_t *data_p;
 
-        data_p = tvb_get_ptr(capture_file_.capFile()->finfo_selected->ds_tvb, 0, -1) +
-                capture_file_.capFile()->finfo_selected->start;
+        data_p = tvb_get_ptr(capture_file_.capFile()->finfo_selected->ds_tvb, capture_file_.capFile()->finfo_selected->start, capture_file_.capFile()->finfo_selected->length);
         write_file_binary_mode(qUtf8Printable(file_name), data_p, capture_file_.capFile()->finfo_selected->length);
 
         /* Save the directory name for future file dialogs. */
