@@ -237,8 +237,14 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const int offset, int comprlen)
 			strm->avail_in  = comprlen;
 
 			ZLIB_PREFIX(inflateEnd)(strm);
-			ZLIB_PREFIX(inflateInit2)(strm, wbits);
+			err = ZLIB_PREFIX(inflateInit2)(strm, wbits);
 			inits_done++;
+			if (err != Z_OK) {
+				g_free(strm);
+				wmem_free(NULL, compr);
+				g_free(strmbuf);
+				return NULL;
+			}
 		} else if (err == Z_DATA_ERROR && uncompr == NULL &&
 			inits_done <= 3) {
 
