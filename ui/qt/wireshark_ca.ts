@@ -64,14 +64,6 @@
         <translation>Filtra per tipus:</translation>
     </message>
     <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="vanished">Dreceres de teclat</translation>
-    </message>
-    <message>
-        <source>Search Shortcuts</source>
-        <translation type="vanished">Cerca dreceres</translation>
-    </message>
-    <message>
         <source>Acknowledgments</source>
         <translation>Reconeixements</translation>
     </message>
@@ -991,32 +983,16 @@
         <translation>Inici de la captura</translation>
     </message>
     <message>
-        <source>Log start</source>
-        <translation type="vanished">Inici del registre</translation>
-    </message>
-    <message>
         <source>First packet</source>
         <translation>Primer paquet</translation>
-    </message>
-    <message>
-        <source>First event</source>
-        <translation type="vanished">Primer esdeveniment</translation>
     </message>
     <message>
         <source>Last packet</source>
         <translation>Últim paquet</translation>
     </message>
     <message>
-        <source>Last event</source>
-        <translation type="vanished">Últim esdeveniment</translation>
-    </message>
-    <message>
         <source>Capture end</source>
         <translation>Fi de la captura</translation>
-    </message>
-    <message>
-        <source>Log end</source>
-        <translation type="vanished">Fi del registre</translation>
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
@@ -1066,10 +1042,6 @@
         <translation>Paquets descartats</translation>
     </message>
     <message>
-        <source>Dropped events</source>
-        <translation type="vanished">Esdeveniments descartats</translation>
-    </message>
-    <message>
         <source>Capture filter</source>
         <translation>Filtre de captura</translation>
     </message>
@@ -1080,10 +1052,6 @@
     <message>
         <source>Packet size limit (snaplen)</source>
         <translation>Límit de la mida de paquet (snaplen)</translation>
-    </message>
-    <message>
-        <source>Event size limit (snaplen)</source>
-        <translation type="vanished">Límit de la mida d&apos;esdeveniment (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1138,10 +1106,6 @@
         <translation>Paquets</translation>
     </message>
     <message>
-        <source>Events</source>
-        <translation type="vanished">Esdeveniments</translation>
-    </message>
-    <message>
         <source>Time span, s</source>
         <translation>Interval de temps, s</translation>
     </message>
@@ -1152,10 +1116,6 @@
     <message>
         <source>Average packet size, B</source>
         <translation>Mida del paquet de mitjana, B</translation>
-    </message>
-    <message>
-        <source>Average event size, B</source>
-        <translation type="vanished">Mida de l&apos;esdeveniment de mitjana, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1174,10 +1134,6 @@
         <translation>Comentaris del paquet</translation>
     </message>
     <message>
-        <source>Event Comments</source>
-        <translation type="vanished">Comentaris de l&apos;esdeveniment</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;Trama %1: </translation>
     </message>
@@ -1186,14 +1142,6 @@
 
 </source>
         <translation>Creat amb el Wireshark %1
-
-</translation>
-    </message>
-    <message>
-        <source>Created by Stratoshark %1
-
-</source>
-        <translation type="vanished">Creat amb el Stratoshark %1
 
 </translation>
     </message>
@@ -5554,11 +5502,11 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished">Dreceres de teclat</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished">Cerca dreceres</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>

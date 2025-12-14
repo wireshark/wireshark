@@ -64,14 +64,6 @@
         <translation>Filtrera efter typ:</translation>
     </message>
     <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="vanished">Tangentbordsgenvägar</translation>
-    </message>
-    <message>
-        <source>Search Shortcuts</source>
-        <translation type="vanished">Sök efter genvägar</translation>
-    </message>
-    <message>
         <source>Acknowledgments</source>
         <translation>Tack</translation>
     </message>
@@ -995,16 +987,8 @@
         <translation>Första paket</translation>
     </message>
     <message>
-        <source>First event</source>
-        <translation type="vanished">Första händelse</translation>
-    </message>
-    <message>
         <source>Last packet</source>
         <translation>Sista paket</translation>
-    </message>
-    <message>
-        <source>Last event</source>
-        <translation type="vanished">Sista händelse</translation>
     </message>
     <message>
         <source>Capture end</source>
@@ -1058,10 +1042,6 @@
         <translation>Släppta paket</translation>
     </message>
     <message>
-        <source>Dropped events</source>
-        <translation type="vanished">Släppta händelser</translation>
-    </message>
-    <message>
         <source>Capture filter</source>
         <translation>Fångstfilter</translation>
     </message>
@@ -1072,10 +1052,6 @@
     <message>
         <source>Packet size limit (snaplen)</source>
         <translation>Storleksgräns på paket (snaplen)</translation>
-    </message>
-    <message>
-        <source>Event size limit (snaplen)</source>
-        <translation type="vanished">Storleksgräns på händelse (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1130,10 +1106,6 @@
         <translation>Paket</translation>
     </message>
     <message>
-        <source>Events</source>
-        <translation type="vanished">Händelser</translation>
-    </message>
-    <message>
         <source>Time span, s</source>
         <translation>Tidsintervall, s</translation>
     </message>
@@ -1144,10 +1116,6 @@
     <message>
         <source>Average packet size, B</source>
         <translation>Genomsnittlig paketstorlek, B</translation>
-    </message>
-    <message>
-        <source>Average event size, B</source>
-        <translation type="vanished">Genomsnittlig händelsestorlek, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1166,10 +1134,6 @@
         <translation>Paketkommentarer</translation>
     </message>
     <message>
-        <source>Event Comments</source>
-        <translation type="vanished">Händelsekommentarer</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;Ram %1:</translation>
     </message>
@@ -1178,14 +1142,6 @@
 
 </source>
         <translation>Skapad av Wireshark %1
-
-</translation>
-    </message>
-    <message>
-        <source>Created by Stratoshark %1
-
-</source>
-        <translation type="vanished">Skapad av Stratoshark %1
 
 </translation>
     </message>
@@ -5546,11 +5502,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished">Tangentbordsgenvägar</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished">Sök efter genvägar</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>

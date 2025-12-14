@@ -64,14 +64,6 @@
         <translation>Фільтр за типом:</translation>
     </message>
     <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="vanished">Комбінації Клавіш</translation>
-    </message>
-    <message>
-        <source>Search Shortcuts</source>
-        <translation type="vanished">Шукати Комбінації Клавіш</translation>
-    </message>
-    <message>
         <source>Acknowledgments</source>
         <translation>Подяки</translation>
     </message>
@@ -5469,11 +5461,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished">Комбінації Клавіш</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished">Шукати Комбінації Клавіш</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>

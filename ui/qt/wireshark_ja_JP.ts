@@ -64,14 +64,6 @@
         <translation>種類でフィルタ:</translation>
     </message>
     <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="vanished">キーボードショートカット</translation>
-    </message>
-    <message>
-        <source>Search Shortcuts</source>
-        <translation type="vanished">ショートカットを検索</translation>
-    </message>
-    <message>
         <source>Acknowledgments</source>
         <translation>確認</translation>
     </message>
@@ -983,32 +975,16 @@
         <translation>キャプチャ開始</translation>
     </message>
     <message>
-        <source>Log start</source>
-        <translation type="vanished">ログ開始</translation>
-    </message>
-    <message>
         <source>First packet</source>
         <translation>最初のパケット</translation>
-    </message>
-    <message>
-        <source>First event</source>
-        <translation type="vanished">最初のイベント</translation>
     </message>
     <message>
         <source>Last packet</source>
         <translation>最後のパケット</translation>
     </message>
     <message>
-        <source>Last event</source>
-        <translation type="vanished">最後のイベント</translation>
-    </message>
-    <message>
         <source>Capture end</source>
         <translation>キャプチャ停止</translation>
-    </message>
-    <message>
-        <source>Log end</source>
-        <translation type="vanished">ログ停止</translation>
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
@@ -1057,10 +1033,6 @@
         <translation>欠落したパケット</translation>
     </message>
     <message>
-        <source>Dropped events</source>
-        <translation type="vanished">欠落したイベント</translation>
-    </message>
-    <message>
         <source>Capture filter</source>
         <translation>キャプチャフィルタ</translation>
     </message>
@@ -1071,10 +1043,6 @@
     <message>
         <source>Packet size limit (snaplen)</source>
         <translation>パケットサイズ制限(snaplen)</translation>
-    </message>
-    <message>
-        <source>Event size limit (snaplen)</source>
-        <translation type="vanished">イベントサイズ制限(snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1129,10 +1097,6 @@
         <translation>パケット数</translation>
     </message>
     <message>
-        <source>Events</source>
-        <translation type="vanished">イベント</translation>
-    </message>
-    <message>
         <source>Time span, s</source>
         <translation>時間間隔,秒</translation>
     </message>
@@ -1143,10 +1107,6 @@
     <message>
         <source>Average packet size, B</source>
         <translation>平均パケットサイズ,バイト</translation>
-    </message>
-    <message>
-        <source>Average event size, B</source>
-        <translation type="vanished">平均イベントサイズ,バイト</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1165,10 +1125,6 @@
         <translation>パケットコメント</translation>
     </message>
     <message>
-        <source>Event Comments</source>
-        <translation type="vanished">イベント コメント</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;フレーム %1: </translation>
     </message>
@@ -1177,14 +1133,6 @@
 
 </source>
         <translation>Wireshark %1 によって作成されました
-
-</translation>
-    </message>
-    <message>
-        <source>Created by Stratoshark %1
-
-</source>
-        <translation type="vanished">Stratoshark %1 により作成
 
 </translation>
     </message>
@@ -5536,33 +5484,33 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished">キーボードショートカット</translation>
+        <translation>キーボードショートカット</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished">ショートカットを検索</translation>
+        <translation>ショートカットを検索</translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>
-        <translation type="unfinished"></translation>
+        <translation>ショートカット一覧を印刷</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>閉じる</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">コピー</translation>
+        <translation>コピー</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>行をコピー</numerusform>
         </translation>
     </message>
     <message>
         <source>%1 %2</source>
-        <translation type="unfinished">%1 %2</translation>
+        <translation>%1 %2</translation>
     </message>
 </context>
 <context>
@@ -7300,7 +7248,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Search vendor name using a case-insensitive regular expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>大文字小文字を区別しない正規表現を用いてベンダ名を検索します</translation>
     </message>
     <message>
         <source>Vendor Name</source>
@@ -15736,11 +15684,11 @@ a:hover {
     </message>
     <message>
         <source>&amp;Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;キーボードショートカット</translation>
     </message>
     <message>
         <source>Show the current keyboard shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>現在のキーボードショートカットを表示します</translation>
     </message>
     <message>
         <source>MAP Summary</source>

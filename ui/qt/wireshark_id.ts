@@ -64,14 +64,6 @@
         <translation>Saring menurut tipe:</translation>
     </message>
     <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="vanished">Pintasan Papan Ketik</translation>
-    </message>
-    <message>
-        <source>Search Shortcuts</source>
-        <translation type="vanished">Cari Pintasan</translation>
-    </message>
-    <message>
         <source>Acknowledgments</source>
         <translation>Penghargaan</translation>
     </message>
@@ -983,32 +975,16 @@
         <translation>Awal tangkap</translation>
     </message>
     <message>
-        <source>Log start</source>
-        <translation type="vanished">Awal log</translation>
-    </message>
-    <message>
         <source>First packet</source>
         <translation>Paket pertama</translation>
-    </message>
-    <message>
-        <source>First event</source>
-        <translation type="vanished">Kejadian pertama</translation>
     </message>
     <message>
         <source>Last packet</source>
         <translation>Paket terakhir</translation>
     </message>
     <message>
-        <source>Last event</source>
-        <translation type="vanished">Kejadian terakhir</translation>
-    </message>
-    <message>
         <source>Capture end</source>
         <translation>Akhir tangkap</translation>
-    </message>
-    <message>
-        <source>Log end</source>
-        <translation type="vanished">Akhir log</translation>
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
@@ -1057,10 +1033,6 @@
         <translation>Paket yang dijatuhkan</translation>
     </message>
     <message>
-        <source>Dropped events</source>
-        <translation type="vanished">Kejadian yang dijatuhkan</translation>
-    </message>
-    <message>
         <source>Capture filter</source>
         <translation>Filter tangkap</translation>
     </message>
@@ -1071,10 +1043,6 @@
     <message>
         <source>Packet size limit (snaplen)</source>
         <translation>Batas ukuran paket (snaplen)</translation>
-    </message>
-    <message>
-        <source>Event size limit (snaplen)</source>
-        <translation type="vanished">Batas ukuran kejadian (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1129,10 +1097,6 @@
         <translation>Paket</translation>
     </message>
     <message>
-        <source>Events</source>
-        <translation type="vanished">Kejadian</translation>
-    </message>
-    <message>
         <source>Time span, s</source>
         <translation>Rentang waktu, d</translation>
     </message>
@@ -1143,10 +1107,6 @@
     <message>
         <source>Average packet size, B</source>
         <translation>Rata-rata ukuran paket, B</translation>
-    </message>
-    <message>
-        <source>Average event size, B</source>
-        <translation type="vanished">Rata-rata ukuran kejadian, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1165,10 +1125,6 @@
         <translation>Komentar Paket</translation>
     </message>
     <message>
-        <source>Event Comments</source>
-        <translation type="vanished">Komentar Kejadian</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;Frame %1: </translation>
     </message>
@@ -1177,14 +1133,6 @@
 
 </source>
         <translation>Dibuat oleh Wireshark %1
-
-</translation>
-    </message>
-    <message>
-        <source>Created by Stratoshark %1
-
-</source>
-        <translation type="vanished">Dibuat oleh Stratoshark %1
 
 </translation>
     </message>
@@ -5537,11 +5485,11 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished">Pintasan Papan Ketik</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished">Cari Pintasan</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>

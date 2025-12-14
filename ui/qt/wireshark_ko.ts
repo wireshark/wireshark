@@ -64,14 +64,6 @@
         <translation>유형별 필터:</translation>
     </message>
     <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="vanished">키보드 단축키</translation>
-    </message>
-    <message>
-        <source>Search Shortcuts</source>
-        <translation type="vanished">단축키 검색</translation>
-    </message>
-    <message>
         <source>Acknowledgments</source>
         <translation>감사 표시</translation>
     </message>
@@ -987,16 +979,8 @@
         <translation>처음 패킷</translation>
     </message>
     <message>
-        <source>First event</source>
-        <translation type="vanished">첫 이벤트</translation>
-    </message>
-    <message>
         <source>Last packet</source>
         <translation>마지막 패킷</translation>
-    </message>
-    <message>
-        <source>Last event</source>
-        <translation type="vanished">마지막 이벤트</translation>
     </message>
     <message>
         <source>Capture end</source>
@@ -1049,10 +1033,6 @@
         <translation>누락된 패킷</translation>
     </message>
     <message>
-        <source>Dropped events</source>
-        <translation type="vanished">누락된 이벤트</translation>
-    </message>
-    <message>
         <source>Capture filter</source>
         <translation>캡처 필터</translation>
     </message>
@@ -1063,10 +1043,6 @@
     <message>
         <source>Packet size limit (snaplen)</source>
         <translation>패킷 크기 제한(snaplen)</translation>
-    </message>
-    <message>
-        <source>Event size limit (snaplen)</source>
-        <translation type="vanished">이벤트 크기 제한(snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1121,10 +1097,6 @@
         <translation>패킷 수</translation>
     </message>
     <message>
-        <source>Events</source>
-        <translation type="vanished">이벤트</translation>
-    </message>
-    <message>
         <source>Time span, s</source>
         <translation>시간 간격, 초</translation>
     </message>
@@ -1135,10 +1107,6 @@
     <message>
         <source>Average packet size, B</source>
         <translation>평균 패킷 크기, 바이트</translation>
-    </message>
-    <message>
-        <source>Average event size, B</source>
-        <translation type="vanished">평균 이벤트 크기, 바이트</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1157,10 +1125,6 @@
         <translation>패킷 주석</translation>
     </message>
     <message>
-        <source>Event Comments</source>
-        <translation type="vanished">이벤트 주석</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;프레임 %1: </translation>
     </message>
@@ -1169,14 +1133,6 @@
 
 </source>
         <translation>Wireshark %1에서 생성됨
-
-</translation>
-    </message>
-    <message>
-        <source>Created by Stratoshark %1
-
-</source>
-        <translation type="vanished">Stratoshark %1에서 생성됨
 
 </translation>
     </message>
@@ -5529,11 +5485,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished">키보드 단축키</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished">단축키 검색</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>

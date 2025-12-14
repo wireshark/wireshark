@@ -64,14 +64,6 @@
         <translation>Filtro per tipo:</translation>
     </message>
     <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="vanished">Scorciatoie da tastiera</translation>
-    </message>
-    <message>
-        <source>Search Shortcuts</source>
-        <translation type="vanished">Scorciatoie di ricerca</translation>
-    </message>
-    <message>
         <source>Acknowledgments</source>
         <translation>Riconoscimenti</translation>
     </message>
@@ -991,32 +983,16 @@
         <translation>Inizio della cattura</translation>
     </message>
     <message>
-        <source>Log start</source>
-        <translation type="vanished">Inizio log</translation>
-    </message>
-    <message>
         <source>First packet</source>
         <translation>Primo pacchetto</translation>
-    </message>
-    <message>
-        <source>First event</source>
-        <translation type="vanished">Primo evento</translation>
     </message>
     <message>
         <source>Last packet</source>
         <translation>Ultimo pacchetto</translation>
     </message>
     <message>
-        <source>Last event</source>
-        <translation type="vanished">Ultimo evento</translation>
-    </message>
-    <message>
         <source>Capture end</source>
         <translation>Fine della cattura</translation>
-    </message>
-    <message>
-        <source>Log end</source>
-        <translation type="vanished">Fine log</translation>
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
@@ -1066,10 +1042,6 @@
         <translation>Pacchetti persi</translation>
     </message>
     <message>
-        <source>Dropped events</source>
-        <translation type="vanished">Eventi scartati</translation>
-    </message>
-    <message>
         <source>Capture filter</source>
         <translation>Filtro di cattura</translation>
     </message>
@@ -1080,10 +1052,6 @@
     <message>
         <source>Packet size limit (snaplen)</source>
         <translation>Dimensione limite del pacchetto (snaplen)</translation>
-    </message>
-    <message>
-        <source>Event size limit (snaplen)</source>
-        <translation type="vanished">Limite dimensione degli eventi (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1138,10 +1106,6 @@
         <translation>Pacchetti</translation>
     </message>
     <message>
-        <source>Events</source>
-        <translation type="vanished">Eventi</translation>
-    </message>
-    <message>
         <source>Time span, s</source>
         <translation>Tempo, s</translation>
     </message>
@@ -1152,10 +1116,6 @@
     <message>
         <source>Average packet size, B</source>
         <translation>Dimensione media dei pacchetti, B</translation>
-    </message>
-    <message>
-        <source>Average event size, B</source>
-        <translation type="vanished">Dimensione media degli eventi, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1174,10 +1134,6 @@
         <translation>Commenti pacchetto</translation>
     </message>
     <message>
-        <source>Event Comments</source>
-        <translation type="vanished">Commenti evento</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;Frame %1: </translation>
     </message>
@@ -1186,14 +1142,6 @@
 
 </source>
         <translation>Creato da Wireshark %1
-
-</translation>
-    </message>
-    <message>
-        <source>Created by Stratoshark %1
-
-</source>
-        <translation type="vanished">Creato da Stratoshark %1
 
 </translation>
     </message>
@@ -5555,34 +5503,34 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished">Scorciatoie da tastiera</translation>
+        <translation>Scorciatoie da tastiera</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished">Scorciatoie di ricerca</translation>
+        <translation>Scorciatoie di ricerca</translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Stampa elenco scorciatoie</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiudi</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Copia</translation>
+        <translation>Copia</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Copia riga</numerusform>
             <numerusform>Copia righe</numerusform>
         </translation>
     </message>
     <message>
         <source>%1 %2</source>
-        <translation type="unfinished">%1 %2</translation>
+        <translation>%1 %2</translation>
     </message>
 </context>
 <context>
@@ -15776,11 +15724,11 @@ a:hover {
     </message>
     <message>
         <source>&amp;Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>S&amp;corciatoie da tastiera</translation>
     </message>
     <message>
         <source>Show the current keyboard shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra le scorciatoie da tastiera attuali</translation>
     </message>
     <message>
         <source>MAP Summary</source>

@@ -81,7 +81,7 @@ BACnetVendorIdentifiers[] = {
     {   67, "Regulator Australia PTY Ltd." },
     {   68, "Touch-Plate Lighting Controls" },
     {   69, "Amann GmbH" },
-    {   70, "RLE Technologies" },
+    {   70, "Parameter LLC" },
     {   71, "Cardkey Systems" },
     {   72, "SECOM Co., Ltd." },
     {   73, "ABB Gebäudetechnik AG Bereich NetServ" },
@@ -1590,6 +1590,14 @@ BACnetVendorIdentifiers[] = {
     { 1579, "System Mart Ltd." },
     { 1580, "Spot7 GmbH" },
     { 1581, "Intempco Controls Ltd." },
+    { 1582, "Rosemont Engineering, Inc." },
+    { 1583, "Miniveil Industries Ltd." },
+    { 1584, "Profcon AB" },
+    { 1585, "KE Automasjon AS" },
+    { 1586, "Nordomatic Property Technologies AB" },
+    { 1587, "Runwise" },
+    { 1588, "Karel Čavojsky" },
+    { 1589, "ABB LV Installation Materials Co., Ltd. Beijing" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

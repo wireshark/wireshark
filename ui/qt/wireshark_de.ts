@@ -64,14 +64,6 @@
         <translation>Nach Typ filtern:</translation>
     </message>
     <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="vanished">Tastaturkürzel</translation>
-    </message>
-    <message>
-        <source>Search Shortcuts</source>
-        <translation type="vanished">Tastaturkürzel suchen</translation>
-    </message>
-    <message>
         <source>Acknowledgments</source>
         <translation>Bestätigungen</translation>
     </message>
@@ -995,16 +987,8 @@
         <translation>Erstes Paket</translation>
     </message>
     <message>
-        <source>First event</source>
-        <translation type="vanished">Erstes Ereignis</translation>
-    </message>
-    <message>
         <source>Last packet</source>
         <translation>Letztes Paket</translation>
-    </message>
-    <message>
-        <source>Last event</source>
-        <translation type="vanished">Letztes Ereignis</translation>
     </message>
     <message>
         <source>Capture end</source>
@@ -1058,10 +1042,6 @@
         <translation>Verworfene Pakete</translation>
     </message>
     <message>
-        <source>Dropped events</source>
-        <translation type="vanished">Verworfene Ereignisse</translation>
-    </message>
-    <message>
         <source>Capture filter</source>
         <translation>Mitschnittfilter</translation>
     </message>
@@ -1072,10 +1052,6 @@
     <message>
         <source>Packet size limit (snaplen)</source>
         <translation>Paketgrößenlimit (snaplen)</translation>
-    </message>
-    <message>
-        <source>Event size limit (snaplen)</source>
-        <translation type="vanished">Max. Ereignisgröße (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1130,10 +1106,6 @@
         <translation>Pakete</translation>
     </message>
     <message>
-        <source>Events</source>
-        <translation type="vanished">Ereignisse</translation>
-    </message>
-    <message>
         <source>Time span, s</source>
         <translation>Zeitspanne, s</translation>
     </message>
@@ -1144,10 +1116,6 @@
     <message>
         <source>Average packet size, B</source>
         <translation>Durchschnittliche Paketgröße, B</translation>
-    </message>
-    <message>
-        <source>Average event size, B</source>
-        <translation type="vanished">Durchschnittliche Ereignisgröße, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1166,10 +1134,6 @@
         <translation>Paketkommentar</translation>
     </message>
     <message>
-        <source>Event Comments</source>
-        <translation type="vanished">Ereigniskommentare</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;Frame %1:</translation>
     </message>
@@ -1178,14 +1142,6 @@
 
 </source>
         <translation>Erstellt von Wireshark %1
-
-</translation>
-    </message>
-    <message>
-        <source>Created by Stratoshark %1
-
-</source>
-        <translation type="vanished">Erstellt von Stratoshark %1
 
 </translation>
     </message>
@@ -5546,11 +5502,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished">Tastaturkürzel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished">Tastaturkürzel suchen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>

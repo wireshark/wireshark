@@ -64,14 +64,6 @@
         <translation>Filtruj po typie:</translation>
     </message>
     <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="vanished">Skróty klawiaturowe</translation>
-    </message>
-    <message>
-        <source>Search Shortcuts</source>
-        <translation type="vanished">Szukaj skrótów</translation>
-    </message>
-    <message>
         <source>Acknowledgments</source>
         <translation>Podziękowania</translation>
     </message>
@@ -1003,16 +995,8 @@
         <translation>Pierwszy pakiet</translation>
     </message>
     <message>
-        <source>First event</source>
-        <translation type="vanished">Pierwsze zdarzenie</translation>
-    </message>
-    <message>
         <source>Last packet</source>
         <translation>Ostatni pakiet</translation>
-    </message>
-    <message>
-        <source>Last event</source>
-        <translation type="vanished">Ostatnie zdarzenie</translation>
     </message>
     <message>
         <source>Capture end</source>
@@ -1065,10 +1049,6 @@
     <message>
         <source>Dropped packets</source>
         <translation>Porzucone pakiety</translation>
-    </message>
-    <message>
-        <source>Dropped events</source>
-        <translation type="vanished">Porzucone zdarzenia</translation>
     </message>
     <message>
         <source>Capture filter</source>
@@ -1135,10 +1115,6 @@
         <translation>Pakiety</translation>
     </message>
     <message>
-        <source>Events</source>
-        <translation type="vanished">Zdarzenia</translation>
-    </message>
-    <message>
         <source>Time span, s</source>
         <translation>Okres czasu, s</translation>
     </message>
@@ -1149,10 +1125,6 @@
     <message>
         <source>Average packet size, B</source>
         <translation>Średni rozmiar pakietu, B</translation>
-    </message>
-    <message>
-        <source>Average event size, B</source>
-        <translation type="vanished">Średni rozmiar zdarzenia, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1171,10 +1143,6 @@
         <translation>Komentarze pakietu</translation>
     </message>
     <message>
-        <source>Event Comments</source>
-        <translation type="vanished">Komentarze dotyczące zdarzenia</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;Ramka %1: </translation>
     </message>
@@ -1183,14 +1151,6 @@
 
 </source>
         <translation>Stworzony dzięki Wiresharkowi %1</translation>
-    </message>
-    <message>
-        <source>Created by Stratoshark %1
-
-</source>
-        <translation type="vanished">Utworzono przez Stratoshark %1
-
-</translation>
     </message>
 </context>
 <context>
@@ -5549,11 +5509,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished">Skróty klawiaturowe</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished">Szukaj skrótów</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>

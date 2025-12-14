@@ -64,14 +64,6 @@
         <translation>Scag de réir cineáil:</translation>
     </message>
     <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="vanished">Aicearraí Méarchláir</translation>
-    </message>
-    <message>
-        <source>Search Shortcuts</source>
-        <translation type="vanished">Cuardaigh Aicearraí</translation>
-    </message>
-    <message>
         <source>Acknowledgments</source>
         <translation>Admhálacha</translation>
     </message>
@@ -999,32 +991,16 @@
         <translation>Tús gabhála</translation>
     </message>
     <message>
-        <source>Log start</source>
-        <translation type="vanished">Tús logála</translation>
-    </message>
-    <message>
         <source>First packet</source>
         <translation>An chéad phacáiste</translation>
-    </message>
-    <message>
-        <source>First event</source>
-        <translation type="vanished">An chéad imeacht</translation>
     </message>
     <message>
         <source>Last packet</source>
         <translation>Pacáiste deireanach</translation>
     </message>
     <message>
-        <source>Last event</source>
-        <translation type="vanished">Imeacht deireanach</translation>
-    </message>
-    <message>
         <source>Capture end</source>
         <translation>Deireadh gabhála</translation>
-    </message>
-    <message>
-        <source>Log end</source>
-        <translation type="vanished">Deireadh loga</translation>
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
@@ -1075,10 +1051,6 @@
         <translation>Paicéid tite</translation>
     </message>
     <message>
-        <source>Dropped events</source>
-        <translation type="vanished">Imeachtaí tite</translation>
-    </message>
-    <message>
         <source>Capture filter</source>
         <translation>Scagaire gabhála</translation>
     </message>
@@ -1089,10 +1061,6 @@
     <message>
         <source>Packet size limit (snaplen)</source>
         <translation>Teorainn mhéid an phaicéid (snaplen)</translation>
-    </message>
-    <message>
-        <source>Event size limit (snaplen)</source>
-        <translation type="vanished">Teorainn mhéid an teagmhais (snaplen)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1147,10 +1115,6 @@
         <translation>Paicéid</translation>
     </message>
     <message>
-        <source>Events</source>
-        <translation type="vanished">Imeachtaí</translation>
-    </message>
-    <message>
         <source>Time span, s</source>
         <translation>Réise ama, s</translation>
     </message>
@@ -1161,10 +1125,6 @@
     <message>
         <source>Average packet size, B</source>
         <translation>Meánmhéid an phaicéid, B</translation>
-    </message>
-    <message>
-        <source>Average event size, B</source>
-        <translation type="vanished">Meánmhéid an imeachta, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1183,10 +1143,6 @@
         <translation>Tuairimí Paicéad</translation>
     </message>
     <message>
-        <source>Event Comments</source>
-        <translation type="vanished">Tuairimí an Imeachta</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;Fráma %1: </translation>
     </message>
@@ -1195,14 +1151,6 @@
 
 </source>
         <translation>Cruthaithe ag Wireshark %1
-
-</translation>
-    </message>
-    <message>
-        <source>Created by Stratoshark %1
-
-</source>
-        <translation type="vanished">Cruthaithe ag Stratoshark %1
 
 </translation>
     </message>
@@ -5572,11 +5520,11 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished">Aicearraí Méarchláir</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished">Cuardaigh Aicearraí</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>

@@ -64,14 +64,6 @@
         <translation>Фильтр по типу:</translation>
     </message>
     <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="vanished">Комбинации клавиш</translation>
-    </message>
-    <message>
-        <source>Search Shortcuts</source>
-        <translation type="vanished">Поиск по комбинациям клавиш</translation>
-    </message>
-    <message>
         <source>Acknowledgments</source>
         <translation>Благодарности</translation>
     </message>
@@ -1003,16 +995,8 @@
         <translation>Первый пакет</translation>
     </message>
     <message>
-        <source>First event</source>
-        <translation type="vanished">Первое событие</translation>
-    </message>
-    <message>
         <source>Last packet</source>
         <translation>Последний пакет</translation>
-    </message>
-    <message>
-        <source>Last event</source>
-        <translation type="vanished">Последнее событие</translation>
     </message>
     <message>
         <source>Capture end</source>
@@ -1067,10 +1051,6 @@
         <translation>Потерянные пакеты</translation>
     </message>
     <message>
-        <source>Dropped events</source>
-        <translation type="vanished">Отмененные события</translation>
-    </message>
-    <message>
         <source>Capture filter</source>
         <translation>Фильтр захвата</translation>
     </message>
@@ -1081,10 +1061,6 @@
     <message>
         <source>Packet size limit (snaplen)</source>
         <translation>Ограничение на размер пакета (snaplen)</translation>
-    </message>
-    <message>
-        <source>Event size limit (snaplen)</source>
-        <translation type="vanished">Ограничение размера события ( оснастка)</translation>
     </message>
     <message>
         <source>none</source>
@@ -1139,10 +1115,6 @@
         <translation>Пакеты</translation>
     </message>
     <message>
-        <source>Events</source>
-        <translation type="vanished">События</translation>
-    </message>
-    <message>
         <source>Time span, s</source>
         <translation>Временной промежуток, с</translation>
     </message>
@@ -1153,10 +1125,6 @@
     <message>
         <source>Average packet size, B</source>
         <translation>Средний размер пакета, Б</translation>
-    </message>
-    <message>
-        <source>Average event size, B</source>
-        <translation type="vanished">Средний размер события, B</translation>
     </message>
     <message>
         <source>Bytes</source>
@@ -1175,10 +1143,6 @@
         <translation>Комментарии к пакету</translation>
     </message>
     <message>
-        <source>Event Comments</source>
-        <translation type="vanished">Комментарии к событию</translation>
-    </message>
-    <message>
         <source>&lt;p&gt;Frame %1: </source>
         <translation>&lt;p&gt;Кадр %1: </translation>
     </message>
@@ -1187,14 +1151,6 @@
 
 </source>
         <translation>Создано в Wireshark %1
-
-</translation>
-    </message>
-    <message>
-        <source>Created by Stratoshark %1
-
-</source>
-        <translation type="vanished">Создано Stratoshark %1
 
 </translation>
     </message>
@@ -5563,11 +5519,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished">Комбинации клавиш</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished">Поиск по комбинациям клавиш</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>

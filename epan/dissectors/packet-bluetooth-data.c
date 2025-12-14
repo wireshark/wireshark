@@ -880,6 +880,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C2F,   "Cooking Zone Perceived Power" },
     { 0x2C30,   "Kitchen Appliance Airflow" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC46,   "Xiaomi" },
     { 0xFC47,   "Shanghai Ingeek Technology Co., Ltd." },
     { 0xFC48,   "Michelin" },
     { 0xFC49,   "Golioth, Inc." },
@@ -5104,7 +5105,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0E59,   "Loewe Technology GmbH" },
     { 0x0E5A,   "OmniWave Microelectronics Shanghai Co., Ltd" },
     { 0x0E5B,   "Wuhu Hongjing Electronic Co.,Ltd" },
-    { 0x0E5C,   "Amimon Ltd." },
+    { 0x0E5C,   "Rocoto Ltd" },
     { 0x0E5D,   "L.T.H. Electronics Limited" },
     { 0x0E5E,   "SHAPER TOOLS, INC." },
     { 0x0E5F,   "Ruptela" },
@@ -5473,6 +5474,12 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0FCC,   "Neurotherapeutics Ltd" },
     { 0x0FCD,   "Wimate Technology Solutions Pvt Ltd" },
     { 0x0FCE,   "NOJA Power" },
+    { 0x0FCF,   "Nestlab AS" },
+    { 0x0FD0,   "Stark Future SL" },
+    { 0x0FD1,   "Auranova LLC" },
+    { 0x0FD2,   "Domteknika S.A" },
+    { 0x0FD3,   "YDIIT Co., Ltd" },
+    { 0x0FD4,   "QRITAGYA LLP" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6232,6 +6239,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c2f,   "Bluetooth GATT Attribute Cooking Zone Perceived Power (UUID 0x2c2f)", "BT GATT Cooking Zone Perceived Power (UUID 0x2c2f)", "btgatt.uuid0x2c2f" },
     { 0x2c30,   "Bluetooth GATT Attribute Kitchen Appliance Airflow (UUID 0x2c30)", "BT GATT Kitchen Appliance Airflow (UUID 0x2c30)", "btgatt.uuid0x2c30" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc46,   "Bluetooth GATT Attribute Xiaomi (UUID 0xfc46)", "BT GATT Xiaomi (UUID 0xfc46)", "btgatt.uuid0xfc46" },
     { 0xfc47,   "Bluetooth GATT Attribute Shanghai Ingeek Technology Co., Ltd. (UUID 0xfc47)", "BT GATT Shanghai Ingeek Technology Co., Ltd. (UUID 0xfc47)", "btgatt.uuid0xfc47" },
     { 0xfc48,   "Bluetooth GATT Attribute Michelin (UUID 0xfc48)", "BT GATT Michelin (UUID 0xfc48)", "btgatt.uuid0xfc48" },
     { 0xfc49,   "Bluetooth GATT Attribute Golioth, Inc. (UUID 0xfc49)", "BT GATT Golioth, Inc. (UUID 0xfc49)", "btgatt.uuid0xfc49" },

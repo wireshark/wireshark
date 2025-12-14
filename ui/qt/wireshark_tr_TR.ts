@@ -64,14 +64,6 @@
         <translation>Türe göre filtrele:</translation>
     </message>
     <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="vanished">Klavye Kısayolları</translation>
-    </message>
-    <message>
-        <source>Search Shortcuts</source>
-        <translation type="vanished">Arama Kısayolları</translation>
-    </message>
-    <message>
         <source>Acknowledgments</source>
         <translation>Teşekkürler</translation>
     </message>
@@ -5493,11 +5485,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished">Klavye Kısayolları</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished">Arama Kısayolları</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Print Shortcutlist</source>
