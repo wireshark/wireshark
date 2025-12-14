@@ -391,6 +391,7 @@ wtap_open_return_val procmon_open(wtap *wth, int *err _U_, char **err_info _U_)
     // identical to the file positions we end up with if we just read sequentially.
     if (file_seek(wth->fh, header->event_offsets_array_offset, SEEK_SET, err) == -1)
     {
+        file_info_cleanup(file_info);
         ws_debug("Failed to locate event offsets data");
         return WTAP_OPEN_NOT_MINE;
     }
