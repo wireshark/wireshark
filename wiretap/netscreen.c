@@ -307,7 +307,7 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, char *line,
 		   &sec, &dsec, cap_int, direction, &pkt_len, cap_src, cap_dst) < 5) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("netscreen: Can't parse packet-header");
-		return -1;
+		return false;
 	}
 	if (pkt_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
