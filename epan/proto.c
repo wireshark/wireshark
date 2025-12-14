@@ -493,7 +493,7 @@ static GHashTable* proto_names;
 static GHashTable* proto_short_names;
 static GHashTable* proto_filter_names;
 
-static const char *reserved_filter_names[] = {
+static const char * const reserved_filter_names[] = {
 	/* Display filter keywords. */
 	"eq",
 	"ne",
@@ -581,7 +581,7 @@ void proto_pre_init(void)
 	proto_filter_names = g_hash_table_new(wmem_str_hash, g_str_equal);
 
 	proto_reserved_filter_names = g_hash_table_new(wmem_str_hash, g_str_equal);
-	for (const char** ptr = reserved_filter_names; *ptr != NULL; ptr++) {
+	for (const char* const * ptr = reserved_filter_names; *ptr != NULL; ptr++) {
 		/* GHashTable has no key destructor so the cast is safe. */
 		g_hash_table_add(proto_reserved_filter_names, *(char**)ptr);
 	}

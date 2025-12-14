@@ -5375,7 +5375,7 @@ deprecated_heur_dissector_pref(char *pref_name, const char *value)
         bool      more_dissectors; /* For multiple dissectors controlled by the same preference */
     };
 
-    struct heur_pref_name heur_prefs[] = {
+    static const struct heur_pref_name heur_prefs[] = {
         {"acn.heuristic_acn", "acn_udp", 0},
         {"bfcp.enable", "bfcp_tcp", 1},
         {"bfcp.enable", "bfcp_udp", 0},
@@ -5495,7 +5495,7 @@ deprecated_port_pref(char *pref_name, const char *value)
      * XXX:  Most of these were changed pre-2.0. Can we end support
      * for migrating legacy preferences at some point?
      */
-    struct port_pref_name port_prefs[] = {
+    static const struct port_pref_name port_prefs[] = {
         /* TCP */
         {"cmp.tcp_alternate_port", "cmp", "tcp.port", 10},
         {"h248.tcp_port", "h248", "tcp.port", 10},
@@ -5562,7 +5562,7 @@ deprecated_port_pref(char *pref_name, const char *value)
         {"ranap.sccp_ssn", "ranap", "sccp.ssn", 10},
     };
 
-    struct port_pref_name port_range_prefs[] = {
+    static const struct port_pref_name port_range_prefs[] = {
         /* TCP */
         {"couchbase.tcp.ports", "couchbase", "tcp.port", 10},
         {"gsm_ipa.tcp_ports", "gsm_ipa", "tcp.port", 10},
@@ -5625,7 +5625,7 @@ deprecated_port_pref(char *pref_name, const char *value)
        TCP port preference even though they were never
        directly on TCP.  Convert them to use Decode As
        with the TPKT dissector handle */
-    struct port_pref_name tpkt_subdissector_port_prefs[] = {
+    static const struct port_pref_name tpkt_subdissector_port_prefs[] = {
         {"dap.tcp.port", "dap", "tcp.port", 10},
         {"disp.tcp.port", "disp", "tcp.port", 10},
         {"dop.tcp.port", "dop", "tcp.port", 10},
@@ -5640,7 +5640,7 @@ deprecated_port_pref(char *pref_name, const char *value)
        range value) but the name of the preference conflicts
        with the generated preference name from the dissector table.
        Don't allow the obsolete preference through to be handled */
-    struct obsolete_pref_name obsolete_prefs[] = {
+    static const struct obsolete_pref_name obsolete_prefs[] = {
         {"diameter.tcp.port"},
         {"kafka.tcp.port"},
         {"mrcpv2.tcp.port"},

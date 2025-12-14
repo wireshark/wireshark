@@ -243,7 +243,7 @@ struct deprecated_columns {
     const char *col_expr;
 };
 
-static struct deprecated_columns migrated_columns[] = {
+static const struct deprecated_columns migrated_columns[] = {
     { /* COL_CIRCUIT_ID */ "%c", "iax2.call" },
     { /* COL_BSSGP_TLLI */ "%l", "bssgp.tlli" },
     { /* COL_HPUX_SUBSYS */ "%H", "nettl.subsys" },
@@ -536,7 +536,7 @@ get_column_format_matches(bool *fmt_list, const int format) {
  * Strings for YYYY-MM-DD HH:MM:SS.SSSS dates and times.
  * (Yes, we know, this has a Y10K problem.)
  */
-static const char *ts_ymd[NUM_WS_TSPREC_VALS] = {
+static const char * const ts_ymd[NUM_WS_TSPREC_VALS] = {
     "0000-00-00 00:00:00",
     "0000-00-00 00:00:00.0",
     "0000-00-00 00:00:00.00",
@@ -549,7 +549,7 @@ static const char *ts_ymd[NUM_WS_TSPREC_VALS] = {
     "0000-00-00 00:00:00.000000000",
 };
 
-static const char *ts_ymd_utc[NUM_WS_TSPREC_VALS] = {
+static const char * const ts_ymd_utc[NUM_WS_TSPREC_VALS] = {
     "0000-00-00 00:00:00Z",
     "0000-00-00 00:00:00.0Z",
     "0000-00-00 00:00:00.00Z",
@@ -566,7 +566,7 @@ static const char *ts_ymd_utc[NUM_WS_TSPREC_VALS] = {
  * Strings for YYYY/DOY HH:MM:SS.SSSS dates and times.
  * (Yes, we know, this also has a Y10K problem.)
  */
-static const char *ts_ydoy[NUM_WS_TSPREC_VALS] = {
+static const char * const ts_ydoy[NUM_WS_TSPREC_VALS] = {
     "0000/000 00:00:00",
     "0000/000 00:00:00.0",
     "0000/000 00:00:00.00",
@@ -579,7 +579,7 @@ static const char *ts_ydoy[NUM_WS_TSPREC_VALS] = {
     "0000/000 00:00:00.000000000",
 };
 
-static const char *ts_ydoy_utc[NUM_WS_TSPREC_VALS] = {
+static const char * const ts_ydoy_utc[NUM_WS_TSPREC_VALS] = {
     "0000/000 00:00:00Z",
     "0000/000 00:00:00.0Z",
     "0000/000 00:00:00.00Z",
@@ -595,7 +595,7 @@ static const char *ts_ydoy_utc[NUM_WS_TSPREC_VALS] = {
 /*
  * Strings for HH:MM:SS.SSSS absolute times without dates.
  */
-static const char *ts_abstime[NUM_WS_TSPREC_VALS] = {
+static const char * const ts_abstime[NUM_WS_TSPREC_VALS] = {
     "00:00:00",
     "00:00:00.0",
     "00:00:00.00",
@@ -608,7 +608,7 @@ static const char *ts_abstime[NUM_WS_TSPREC_VALS] = {
     "00:00:00.000000000",
 };
 
-static const char *ts_abstime_utc[NUM_WS_TSPREC_VALS] = {
+static const char * const ts_abstime_utc[NUM_WS_TSPREC_VALS] = {
     "00:00:00Z",
     "00:00:00.0Z",
     "00:00:00.00Z",
@@ -625,7 +625,7 @@ static const char *ts_abstime_utc[NUM_WS_TSPREC_VALS] = {
  * Strings for SSSS.S relative and delta times.
  * (Yes, this has s 10,000-seconds problem.)
  */
-static const char *ts_rel_delta_time[NUM_WS_TSPREC_VALS] = {
+static const char * const ts_rel_delta_time[NUM_WS_TSPREC_VALS] = {
     "0000",
     "0000.0",
     "0000.00",
@@ -641,7 +641,7 @@ static const char *ts_rel_delta_time[NUM_WS_TSPREC_VALS] = {
 /*
  * Strings for UN*X/POSIX Epoch times.
  */
-static const char *ts_epoch_time[NUM_WS_TSPREC_VALS] = {
+static const char * const ts_epoch_time[NUM_WS_TSPREC_VALS] = {
     "0000000000000000000",
     "0000000000000000000.0",
     "0000000000000000000.00",

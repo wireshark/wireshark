@@ -100,7 +100,7 @@ enum {
 };
 
 /* Names for conversation_element_type values. */
-static const char *type_names[] = {
+static const char * const type_names[] = {
     "endpoint",
     "address",
     "port",
@@ -2143,7 +2143,7 @@ find_conversation(const uint32_t frame_num, const address *addr_a, const address
          */
         if (ctype != CONVERSATION_IBQP)
         {
-    
+
             /*
              * Well, that didn't find anything.
              * If search address and port B were specified, try looking for a

@@ -705,7 +705,7 @@ convert_string_case(const char *string, bool case_insensitive)
 
 #define GN_CHAR_ALPHABET_SIZE 128
 
-static gunichar IA5_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
+static const gunichar IA5_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
 
     /*ITU-T recommendation T.50 specifies International Reference Alphabet 5 (IA5) */
 

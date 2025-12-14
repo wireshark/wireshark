@@ -1632,7 +1632,7 @@ static const wvec32 c1_vec2 = {
     0, 0xe0, 0, 0, 0, 0xe8, 0, 0, 0, 0xec, 0, 0, 0, 0, 0x1f9, 0xf2,
     0, 0, 0, 0, 0, 0xf9, 0, 0x1e81, 0, 0x1ef3, 0, 0, 0, 0, 0, 0};
 
-static const wvec32 *c1_grave[] = {
+static const wvec32 * const c1_grave[] = {
     NULL, NULL, &c1_vec1, &c1_vec2, NULL, NULL, NULL, NULL
 };
 
@@ -1654,7 +1654,7 @@ static const wvec32 c2_vec3 = {
     0, 0x1fc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0x1fd, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-static const wvec32 *c2_acute[] = {
+static const wvec32 * const c2_acute[] = {
     NULL, NULL, &c2_vec1, &c2_vec2, NULL, NULL, NULL, &c2_vec3
 };
 
@@ -1671,7 +1671,7 @@ static const wvec32 c3_vec2 = {
     0x125, 0xee, 0x135, 0, 0, 0, 0, 0xf4,
     0, 0, 0, 0x15d, 0, 0xfb, 0, 0x175,
     0, 0x177, 0x1e91, 0, 0, 0, 0, 0};
-static const wvec32 *c3_circumflex[] = {
+static const wvec32 * const c3_circumflex[] = {
     NULL, NULL, &c3_vec1, &c3_vec2, NULL, NULL, NULL, NULL
 };
 
@@ -1684,7 +1684,7 @@ static const wvec32 c4_vec2 = {
     /* Lower case */
     0, 0xe3, 0, 0, 0, 0x1ebd, 0, 0, 0, 0x129, 0, 0, 0, 0, 0xf1, 0xf5,
     0, 0, 0, 0, 0, 0x169, 0x1e7d, 0, 0, 0x1ef9, 0, 0, 0, 0, 0, 0};
-static const wvec32 *c4_tilde[] = {
+static const wvec32 * const c4_tilde[] = {
     NULL, NULL, &c4_vec1, &c4_vec2, NULL, NULL, NULL, NULL
 };
 
@@ -1701,7 +1701,7 @@ static const wvec32 c5_vec3 = {
     /* (AE and ae) */
     0, 0x1e2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0x1e3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-static const wvec32 *c5_macron[] = {
+static const wvec32 * const c5_macron[] = {
     NULL, NULL, &c5_vec1, &c5_vec2, NULL, NULL, NULL, &c5_vec3
 };
 
@@ -1714,7 +1714,7 @@ static const wvec32 c6_vec2 = {
     /* Lower case */
     0, 0x103, 0, 0, 0, 0x115, 0, 0x11f, 0, 0x12d, 0, 0, 0, 0, 0, 0x14f,
     0, 0, 0, 0, 0, 0x16d, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-static const wvec32 *c6_breve[] = {
+static const wvec32 * const c6_breve[] = {
     NULL, NULL, &c6_vec1, &c6_vec2, NULL, NULL, NULL, NULL
 };
 
@@ -1731,7 +1731,7 @@ static const wvec32 c7_vec2 = {
     0x1e23, 0, 0, 0, 0, 0x1e41, 0x1e45, 0x22f,
     0x1e57, 0, 0x1e59, 0x1e61, 0x1e6b, 0, 0, 0x1e87,
     0x1e8b, 0x1e8f, 0x17c, 0, 0, 0, 0, 0};
-static const wvec32 *c7_dotabove[] = {
+static const wvec32 * const c7_dotabove[] = {
     NULL, NULL, &c7_vec1, &c7_vec2, NULL, NULL, NULL, NULL
 };
 
@@ -1744,7 +1744,7 @@ static const wvec32 c8_vec2 = {
     /* Lower case */
     0, 0xe4, 0, 0, 0, 0xeb, 0, 0, 0x1e27, 0xef, 0, 0, 0, 0, 0, 0xf6,
     0, 0, 0, 0, 0x1e97, 0xfc, 0, 0x1e85, 0x1e8d, 0xff, 0, 0, 0, 0, 0, 0};
-static const wvec32 *c8_diaeresis[] = {
+static const wvec32 * const c8_diaeresis[] = {
     NULL, NULL, &c8_vec1, &c8_vec2, NULL, NULL, NULL, NULL
 };
 
@@ -1757,7 +1757,7 @@ static const wvec32 ca_vec2 = {
     /* Lower case */
     0, 0xe5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0x16f, 0, 0x1e98, 0, 0x1e99, 0, 0, 0, 0, 0, 0};
-static const wvec32 *ca_ringabove[] = {
+static const wvec32 * const ca_ringabove[] = {
     NULL, NULL, &ca_vec1, &ca_vec2, NULL, NULL, NULL, NULL
 };
 
@@ -1772,7 +1772,7 @@ static const wvec32 cb_vec2 = {
     0, 0, 0, 0xe7, 0x1e11, 0x229, 0, 0x123,
     0x1e29, 0, 0, 0x137, 0x13c, 0, 0x146, 0,
     0, 0, 0x157, 0x15f, 0x163, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-static const wvec32 *cb_cedilla[] = {
+static const wvec32 * const cb_cedilla[] = {
     NULL, NULL, &cb_vec1, &cb_vec2, NULL, NULL, NULL, NULL
 };
 
@@ -1785,7 +1785,7 @@ static const wvec32 cd_vec2 = {
     /* Lower case */
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x151,
     0, 0, 0, 0, 0, 0x171, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-static const wvec32 *cd_doubleacute[] = {
+static const wvec32 * const cd_doubleacute[] = {
     NULL, NULL, &cd_vec1, &cd_vec2, NULL, NULL, NULL, NULL
 };
 
@@ -1798,7 +1798,7 @@ static const wvec32 ce_vec2 = {
     /* Lower case */
     0, 0x105, 0, 0, 0, 0x119, 0, 0, 0, 0x12f, 0, 0, 0, 0, 0, 0x1eb,
     0, 0, 0, 0, 0, 0x173, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-static const wvec32 *ce_ogonek[] = {
+static const wvec32 * const ce_ogonek[] = {
     NULL, NULL, &ce_vec1, &ce_vec2, NULL, NULL, NULL, NULL
 };
 
@@ -1815,11 +1815,11 @@ static const wvec32 cf_vec2 = {
     0x21f, 0x1d0, 0x1f0, 0x1e9, 0x13e, 0, 0x148, 0x1d2,
     0, 0, 0x159, 0x161, 0x165, 0x1d4, 0, 0,
     0, 0, 0x17e, 0, 0, 0, 0, 0};
-static const wvec32 *cf_caron[] = {
+static const wvec32 * const cf_caron[] = {
     NULL, NULL, &cf_vec1, &cf_vec2, NULL, NULL, NULL, NULL
 };
 
-static const wvec32 **cx_tab[] = {
+static const wvec32 * const * const cx_tab[] = {
     NULL, c1_grave, c2_acute, c3_circumflex, c4_tilde, c5_macron,
     c6_breve, c7_dotabove, c8_diaeresis, NULL, ca_ringabove,
     cb_cedilla, NULL, cd_doubleacute, ce_ogonek, cf_caron };
