@@ -376,12 +376,14 @@ public:
     void addStations() {
         foreach (QTreeWidgetItem *cur_ti, stations_) {
             WlanStationTreeWidgetItem *cur_ws_ti = dynamic_cast<WlanStationTreeWidgetItem *>(cur_ti);
-            cur_ws_ti->draw(&addr_, packets() - beaconPackets());
-            for (int col = 0; col < treeWidget()->columnCount(); col++) {
-            // int QTreeWidgetItem::textAlignment(int column) const
-            // Returns the text alignment for the label in the given column.
-            // Note: This function returns an int for historical reasons. It will be corrected to return Qt::Alignment in Qt 7.
-                cur_ws_ti->setTextAlignment(col, static_cast<Qt::Alignment>(treeWidget()->headerItem()->textAlignment(col)));
+            if (cur_ws_ti != nullptr) {
+                cur_ws_ti->draw(&addr_, packets() - beaconPackets());
+                for (int col = 0; col < treeWidget()->columnCount(); col++) {
+                // int QTreeWidgetItem::textAlignment(int column) const
+                // Returns the text alignment for the label in the given column.
+                // Note: This function returns an int for historical reasons. It will be corrected to return Qt::Alignment in Qt 7.
+                    cur_ws_ti->setTextAlignment(col, static_cast<Qt::Alignment>(treeWidget()->headerItem()->textAlignment(col)));
+                }
             }
         }
 
