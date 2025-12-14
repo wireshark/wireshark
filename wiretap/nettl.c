@@ -232,12 +232,6 @@ wtap_open_return_val nettl_open(wtap *wth, int *err, char **err_info)
 
     /* This is an nettl file */
     wth->file_type_subtype = nettl_file_type_subtype;
-    nettl = g_new(nettl_t,1);
-    wth->priv = (void *)nettl;
-    if (file_hdr.os_vers[2] == '1' && file_hdr.os_vers[3] == '1')
-        nettl->is_hpux_11 = true;
-    else
-        nettl->is_hpux_11 = false;
     wth->subtype_read = nettl_read;
     wth->subtype_seek_read = nettl_seek_read;
     wth->snapshot_length = 0;   /* not available */
@@ -288,6 +282,12 @@ wtap_open_return_val nettl_open(wtap *wth, int *err, char **err_info)
         return WTAP_OPEN_ERROR;
     }
     wth->file_tsprec = WTAP_TSPREC_USEC;
+    nettl = g_new(nettl_t,1);
+    wth->priv = (void *)nettl;
+    if (file_hdr.os_vers[2] == '1' && file_hdr.os_vers[3] == '1')
+        nettl->is_hpux_11 = true;
+    else
+        nettl->is_hpux_11 = false;
 
     return WTAP_OPEN_MINE;
 }
