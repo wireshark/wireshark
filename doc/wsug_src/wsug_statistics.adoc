@@ -169,13 +169,13 @@ The total number of PDUs of this protocol.
 
 Packets usually contain multiple protocols. As a result, more than one protocol
 will be counted for each packet. Example: In the screenshot 100% of packets
-are IP and 99.3% are TCP (which is together much more than 100%).
+are IP and 93.3% are TCP (which is together much more than 100%).
 
 Protocol layers can consist of packets that won’t contain any higher layer
 protocol, so the sum of all higher layer packets may not sum to the protocol's
 packet count. This can be caused by segments and fragments reassembled in other
 frames, TCP protocol overhead, and other undissected data. Example: In the
-screenshot 99.3% of the packets are TCP but the sum of the subprotocols
+screenshot 93.3% of the packets are TCP but the sum of the subprotocols
 (TLS, HTTP, Git, etc.) is much less.
 
 A single packet can contain the same protocol more than once. In this case, the
