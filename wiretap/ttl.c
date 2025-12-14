@@ -2323,6 +2323,7 @@ ttl_xml_node_get_number(xmlNodePtr node, xmlXPathContextPtr ctx, double *ret) {
         }
     }
 
+    xmlXPathFreeObject(result);
     return false;
 }
 
@@ -2341,11 +2342,13 @@ ttl_xml_node_get_string(xmlNodePtr node, xmlXPathContextPtr ctx, const char* nam
     g_free(str);
     if (result && result->type == XPATH_NODESET && !xmlXPathNodeSetIsEmpty(result->nodesetval)) {
         str = (char*)xmlXPathCastToString(result);
+        xmlXPathFreeObject(result);
         *ret = ws_strdup(str);
         xmlFree(str);
         return true;
     }
 
+    xmlXPathFreeObject(result);
     return false;
 }
 
