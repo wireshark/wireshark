@@ -10021,7 +10021,7 @@ mark_truncated(char *label_str, size_t name_pos, const size_t size, size_t *valu
 	 * name_pos==0 means that we have only data or only a field_name
 	 */
 
-	ws_assert(size > trunc_len);
+	ws_abort_if_fail(size > trunc_len);
 
 	if (name_pos >= size - trunc_len) {
 		/* No room for trunc_str after the field_name, put it first. */
