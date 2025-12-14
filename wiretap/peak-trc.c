@@ -161,8 +161,6 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, ch
                 return WTAP_OPEN_NOT_MINE;
 
             /* Valid PEAK file */
-            GString* regex_str = g_string_new(NULL);
-
             *offset = seek_off;
 
             /* Save off the data found in the header */
@@ -212,6 +210,7 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, ch
                     break;
                 }
 
+                GString* regex_str = g_string_new(NULL);
                 for (int column_index = 0; column_index < Col_Invalid; column_index++)
                 {
                     for (int col_type = Col_BusNumber; col_type < Col_Invalid; col_type++)
@@ -566,6 +565,7 @@ static bool peak_trc_read_packet_v2(wtap* wth, peak_trc_state_t* state, wtap_can
                             peak_msg->data.data[byte_i] = (uint8_t)g_ascii_strtoull(bytes[byte_i], NULL, 16);
                             byte_i++;
                         }
+                        g_strfreev(bytes);
                     }
                     break;
                 }
