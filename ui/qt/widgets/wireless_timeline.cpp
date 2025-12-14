@@ -76,8 +76,9 @@ static void reset_rgb(float rgb[TIMELINE_HEIGHT][3])
 
 static void render_pixels(QPainter &p, int x, int width, float rgb[TIMELINE_HEIGHT][3], float ratio)
 {
-    int previous = 0, i;
+    int previous, i;
     for (i = 1; i <= TIMELINE_HEIGHT; i++) {
+        previous = i - 1;
         if (i != TIMELINE_HEIGHT &&
                 rgb[previous][0] == rgb[i][0] &&
                 rgb[previous][1] == rgb[i][1] &&
@@ -86,7 +87,6 @@ static void render_pixels(QPainter &p, int x, int width, float rgb[TIMELINE_HEIG
         if (rgb[previous][0] != 1.0 || rgb[previous][1] != 1.0 || rgb[previous][2] != 1.0) {
           p.fillRect(QRectF(x/ratio, previous, width/ratio, i-previous), pcolor(rgb[previous][0],rgb[previous][1],rgb[previous][2]));
         }
-        previous = i;
     }
     reset_rgb(rgb);
 }
