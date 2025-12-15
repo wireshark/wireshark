@@ -457,11 +457,12 @@ static const range_string cid_rvals[] = {
     { 0x0002, 0x0002,  "Connectionless Channel" },
     { 0x0003, 0x0003,  "AMP Manager Protocol" },
     { 0x0004, 0x0004,  "Attribute Protocol" },
-    { 0x0005, 0x0005,  "Low Energy L2CAP Signaling Channel" },
+    { 0x0005, 0x0005,  "L2CAP LE Signaling Channel" },
     { 0x0006, 0x0006,  "Security Manager Protocol" },
-    { 0x0007, 0x003E,  "Reserved" },
+    { 0x0007, 0x0007,  "BR/EDR Security Manager Protocol" },
+    { 0x0008, 0x003E,  "Reserved" },
     { 0x003F, 0x003F,  "AMP Test Manager" },
-    { 0x0040, 0xFFFF,  "Dynamically Allocated Channel" },
+    { 0x0040, 0xFFFF,  "Dynamically Allocated" },
     { 0, 0, NULL }
 };
 
@@ -3050,7 +3051,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
 
             case 0x16: /* LE Flow Control Credit */
-                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
                 proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_credits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
