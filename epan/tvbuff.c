@@ -58,6 +58,9 @@ _tvb_captured_length_remaining(const tvbuff_t *tvb, const int offset);
 static inline const uint8_t*
 ensure_contiguous(tvbuff_t *tvb, const int offset, const int length);
 
+static inline const uint8_t*
+ensure_contiguous_unsigned(tvbuff_t *tvb, const unsigned offset, const unsigned length);
+
 static inline uint8_t *
 tvb_get_raw_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, const int length);
 
@@ -880,6 +883,54 @@ unsigned
 tvb_offset_from_real_beginning(const tvbuff_t *tvb)
 {
 	return tvb_offset_from_real_beginning_counter(tvb, 0);
+}
+
+static inline const uint8_t*
+ensure_contiguous_unsigned_no_exception(tvbuff_t *tvb, const unsigned offset, const unsigned length, int *pexception)
+{
+	int   exception;
+
+	exception = validate_offset_length_no_exception(tvb, offset, length);
+	if (exception) {
+		if (pexception)
+			*pexception = exception;
+		return NULL;
+	}
+
+	/*
+	 * Special case: if the caller (e.g. tvb_get_ptr) requested no data,
+	 * then it is acceptable to have an empty tvb (!tvb->real_data).
+	 */
+	if (length == 0) {
+		return NULL;
+	}
+
+	/*
+	 * We know that all the data is present in the tvbuff, so
+	 * no exceptions should be thrown.
+	 */
+	if (tvb->real_data)
+		return tvb->real_data + offset;
+
+	if (tvb->ops->tvb_get_ptr)
+		return tvb->ops->tvb_get_ptr(tvb, offset, length);
+
+	DISSECTOR_ASSERT_NOT_REACHED();
+	return NULL;
+}
+
+static inline const uint8_t*
+ensure_contiguous_unsigned(tvbuff_t *tvb, const unsigned offset, const unsigned length)
+{
+	int           exception = 0;
+	const uint8_t *p;
+
+	p = ensure_contiguous_unsigned_no_exception(tvb, offset, length, &exception);
+	if (p == NULL && length != 0) {
+		DISSECTOR_ASSERT(exception > 0);
+		THROW(exception);
+	}
+	return p;
 }
 
 static inline const uint8_t*
@@ -2487,7 +2538,7 @@ tvb_find_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8
 	const uint8_t *ptr;
 	const uint8_t *result;
 
-	ptr = ensure_contiguous(tvb, abs_offset, limit); /* tvb_get_ptr() */
+	ptr = ensure_contiguous_unsigned(tvb, abs_offset, limit); /* tvb_get_ptr() */
 	if (!ptr)
 		return -1;
 
@@ -2540,7 +2591,7 @@ tvb_find_uint8(tvbuff_t *tvb, const int offset, const int maxlength, const uint8
 	if (tvb->ops->tvb_find_uint8)
 		return tvb->ops->tvb_find_uint8(tvb, abs_offset, limit, needle);
 
-	return tvb_find_uint8_generic(tvb, offset, limit, needle);
+	return tvb_find_uint8_generic(tvb, abs_offset, limit, needle);
 }
 
 /* Same as tvb_find_uint8() with 16bit needle. */
@@ -2606,7 +2657,7 @@ tvb_ws_mempbrk_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit,
 	const uint8_t *ptr;
 	const uint8_t *result;
 
-	ptr = ensure_contiguous(tvb, abs_offset, limit); /* tvb_get_ptr */
+	ptr = ensure_contiguous_unsigned(tvb, abs_offset, limit); /* tvb_get_ptr */
 	if (!ptr)
 		return -1;
 
