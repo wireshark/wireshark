@@ -600,23 +600,24 @@ void wslua_register_class(lua_State *L, const wslua_class *cls_def)
 #ifdef WSLUA_WITH_INTROSPECTION
     /* XXX remove these? It looks like an internal implementation detail that is
      * no longer needed but is added here to pass the wslua tests (API check) */
-    lua_getmetatable(L, -1);                /* Stack = { table, CLASSMT } */
-    luaL_getmetatable(L, cls_def->name);    /* Stack = { table, CLASSMT, MT } */
+    if (lua_getmetatable(L, -1)) {              /* Stack = { table, CLASSMT } */
+        luaL_getmetatable(L, cls_def->name);    /* Stack = { table, CLASSMT, MT } */
 
-    lua_rawgetfield(L, -1, "__getters");    /* __getters from instance MT */
-    lua_pushstring(L, "getter");
-    lua_rawsetfield(L, -2, WSLUA_TYPEOF_FIELD);
-    lua_rawsetfield(L, -3, "__getters");    /* Set property on class MT */
+        lua_rawgetfield(L, -1, "__getters");    /* __getters from instance MT */
+        lua_pushstring(L, "getter");
+        lua_rawsetfield(L, -2, WSLUA_TYPEOF_FIELD);
+        lua_rawsetfield(L, -3, "__getters");    /* Set property on class MT */
 
-    lua_rawgetfield(L, -1, "__setters");    /* setters from instance MT */
-    lua_pushstring(L, "setter");
-    lua_rawsetfield(L, -2, WSLUA_TYPEOF_FIELD);
-    lua_rawsetfield(L, -3, "__setters");    /* Set property on class MT */
-    lua_pop(L, 1);                          /* Stack = { table, CLASSMT } */
+        lua_rawgetfield(L, -1, "__setters");    /* setters from instance MT */
+        lua_pushstring(L, "setter");
+        lua_rawsetfield(L, -2, WSLUA_TYPEOF_FIELD);
+        lua_rawsetfield(L, -3, "__setters");    /* Set property on class MT */
+        lua_pop(L, 1);                          /* Stack = { table, CLASSMT } */
 
-    lua_pushvalue(L, -2);
-    lua_rawsetfield(L, -2, "__methods");    /* CLASSMT.__methods = Class */
-    lua_pop(L, 1);                          /* Stack = { table } */
+        lua_pushvalue(L, -2);
+        lua_rawsetfield(L, -2, "__methods");    /* CLASSMT.__methods = Class */
+        lua_pop(L, 1);                          /* Stack = { table } */
+    }
 #endif
 
     /* Set the class methods table as global name. STACK = { } */
