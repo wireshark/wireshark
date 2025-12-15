@@ -41,9 +41,22 @@ struct knx_keyring_ia_seqs* knx_keyring_ia_seqs;
 static void encrypt_block( const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t plain[ KNX_KEY_LENGTH ], uint8_t p_crypt[ KNX_KEY_LENGTH ] )
 {
   gcry_cipher_hd_t cryptor = NULL;
-  gcry_cipher_open( &cryptor, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC, 0 );
-  gcry_cipher_setkey( cryptor, key, KNX_KEY_LENGTH );
-  gcry_cipher_encrypt( cryptor, p_crypt, KNX_KEY_LENGTH, plain, KNX_KEY_LENGTH );
+  gcry_error_t err;
+  err = gcry_cipher_open( &cryptor, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC, 0 );
+  if (err != 0) {
+    ws_debug("failed to open AES128 cipher handle: %s/%s", gcry_strsource(err), gcry_strerror(err));
+    return;
+  }
+  err = gcry_cipher_setkey( cryptor, key, KNX_KEY_LENGTH );
+  if (err != 0) {
+    ws_debug("failed to set AES128 cipher key: %s/%s", gcry_strsource(err), gcry_strerror(err));
+    gcry_cipher_close( cryptor );
+    return;
+  }
+  err = gcry_cipher_encrypt( cryptor, p_crypt, KNX_KEY_LENGTH, plain, KNX_KEY_LENGTH );
+  if (err != 0) {
+    ws_debug("failed to encrypt AES128: %s/%s", gcry_strsource(err), gcry_strerror(err));
+  }
   gcry_cipher_close( cryptor );
 }
 
