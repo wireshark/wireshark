@@ -147,6 +147,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     seq_origin_zero_(true),
     si_units_(true),
     legend_visible_(true),
+    get_stream_count_(nullptr),
     title_(nullptr),
     base_graph_(nullptr),
     tput_graph_(nullptr),

@@ -36,6 +36,7 @@ Q_DECLARE_METATYPE(splitter_layout_e)
 PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) :
     WiresharkDialog(parent, cf),
     ui(new Ui::PacketDialog),
+    pref_packet_dialog_layout_(nullptr),
     proto_tree_(NULL),
     data_source_tab_(NULL)
 {

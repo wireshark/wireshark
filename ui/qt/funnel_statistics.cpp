@@ -78,6 +78,7 @@ FunnelAction::FunnelAction(QString title, funnel_menu_callback callback, void *c
         callback_(callback),
         callback_data_(callback_data),
         retap_(retap),
+        packetCallback_(nullptr),
         packetData_(NULL)
 {
     // Use "&&" to get a real ampersand in the menu item.
@@ -91,6 +92,7 @@ FunnelAction::FunnelAction(QString title, funnel_menu_callback callback, void *c
 FunnelAction::FunnelAction(QString title, funnel_packet_menu_callback callback, void *callback_data, bool retap, const char *packet_required_fields, QObject *parent = nullptr) :
         QAction(parent),
         title_(title),
+        callback_(nullptr),
         callback_data_(callback_data),
         retap_(retap),
         packetCallback_(callback),

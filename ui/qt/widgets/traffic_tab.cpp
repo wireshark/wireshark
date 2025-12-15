@@ -67,7 +67,9 @@ int TabData::protoId() const
 
 
 TrafficTab::TrafficTab(QWidget * parent) :
-    DetachableTabWidget(parent)
+    DetachableTabWidget(parent),
+    _recentList(nullptr),
+    _recentColumnList(nullptr)
 {
     _createModel = nullptr;
     _createDelegate = nullptr;
