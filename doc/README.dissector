@@ -535,12 +535,12 @@ A pointer to the packet scope allocated string will be returned.
 Note: a tvbuff content of 0xf is considered a 'filler' and will end the conversion.
 
 Copying memory:
-void *tvb_memcpy(tvbuff_t *tvb, void *target, const int offset, size_t length);
+void *tvb_memcpy(tvbuff_t *tvb, void *target, const unsigned offset, size_t length);
 
 Copies into the specified target the specified length's worth of data
 from the specified tvbuff, starting at the specified offset.
 
-void *tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, size_t length);
+void *tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, size_t length);
 
 Returns a buffer containing a copy of the given TVB bytes. The buffer is
 allocated in the given wmem scope (see README.wmem for more information).

@@ -2800,11 +2800,11 @@ tvb_strnlen(tvbuff_t *tvb, const int offset, const unsigned maxlength)
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 int
-tvb_strneql(tvbuff_t *tvb, const int offset, const char *str, const size_t size)
+tvb_strneql(tvbuff_t *tvb, const unsigned offset, const char *str, const size_t size)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous_no_exception(tvb, offset, (int)size, NULL);
+	ptr = ensure_contiguous_unsigned_no_exception(tvb, offset, (unsigned)size, NULL);
 
 	if (ptr) {
 		int cmp = strncmp((const char *)ptr, str, size);
@@ -2827,11 +2827,11 @@ tvb_strneql(tvbuff_t *tvb, const int offset, const char *str, const size_t size)
  * 0 if it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 int
-tvb_strncaseeql(tvbuff_t *tvb, const int offset, const char *str, const size_t size)
+tvb_strncaseeql(tvbuff_t *tvb, const unsigned offset, const char *str, const size_t size)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous_no_exception(tvb, offset, (int)size, NULL);
+	ptr = ensure_contiguous_unsigned_no_exception(tvb, offset, (unsigned)size, NULL);
 
 	if (ptr) {
 		int cmp = g_ascii_strncasecmp((const char *)ptr, str, size);
@@ -2855,11 +2855,11 @@ tvb_strncaseeql(tvbuff_t *tvb, const int offset, const char *str, const size_t s
  * and -1 for error. This function does not throw an exception.
  */
 int
-tvb_memeql(tvbuff_t *tvb, const int offset, const uint8_t *str, size_t size)
+tvb_memeql(tvbuff_t *tvb, const unsigned offset, const uint8_t *str, size_t size)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous_no_exception(tvb, offset, (int) size, NULL);
+	ptr = ensure_contiguous_unsigned_no_exception(tvb, offset, (unsigned)size, NULL);
 
 	if (ptr) {
 		int cmp = memcmp(ptr, str, size);

@@ -2943,7 +2943,7 @@ WS_DLL_PUBLIC int tvb_get_token_len(tvbuff_t *tvb, const int offset, int len, in
  *
  * @return 0 if the tvbuff substring matches `str`, -1 otherwise.
  */
-WS_DLL_PUBLIC int tvb_strneql(tvbuff_t *tvb, const int offset,
+WS_DLL_PUBLIC int tvb_strneql(tvbuff_t *tvb, const unsigned offset,
     const char *str, const size_t size);
 
 /**
@@ -2966,7 +2966,7 @@ WS_DLL_PUBLIC int tvb_strneql(tvbuff_t *tvb, const int offset,
  *
  * @see tvb_strneql
  */
-WS_DLL_PUBLIC int tvb_strncaseeql(tvbuff_t *tvb, const int offset,
+WS_DLL_PUBLIC int tvb_strncaseeql(tvbuff_t *tvb, const unsigned offset,
     const char *str, const size_t size);
 
 /**
@@ -2986,7 +2986,7 @@ WS_DLL_PUBLIC int tvb_strncaseeql(tvbuff_t *tvb, const int offset,
  *
  * @return 0 if the tvbuff bytes match `str`, -1 otherwise.
  */
-WS_DLL_PUBLIC int tvb_memeql(tvbuff_t *tvb, const int offset,
+WS_DLL_PUBLIC int tvb_memeql(tvbuff_t *tvb, const unsigned offset,
     const uint8_t *str, size_t size);
 
 /**
