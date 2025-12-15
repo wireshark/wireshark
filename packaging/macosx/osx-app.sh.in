@@ -671,7 +671,7 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 		codesign_file "$library"
 	done
 
-	plugin_list=$( find "$bundle/Contents/PlugIns" -type f -name "*.dylib" -o -name "*.so" )
+	plugin_list=$( find "$bundle/Contents/PlugIns" -type f -name "*.dylib" -o -name "*.so" -o -name "*.so.disabled" )
 	echo "Signing plugins"
 	for plugin in $plugin_list ; do
 		codesign_file "$plugin"

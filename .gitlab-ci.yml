@@ -677,6 +677,8 @@ macOS Universal Package:
     - for exe in $( find run/{Wire,Strato}shark.app/Contents/MacOS -type f ) ; do
         lipo "$exe" -verify_arch arm64 x86_64 ;
       done
+    # Temporary hack to work around loading Go plugins on x86_64
+    - for falco_plugin in gcpaudit k8saudit ; do mv run/Stratoshark.app/Contents/PlugIns/stratoshark/falco/lib${falco_plugin}.so run/Stratoshark.app/Contents/PlugIns/stratoshark/falco/lib${falco_plugin}.so.disabled ; done
     - codesign-prep
     - security find-identity -v -s "$CODE_SIGN_IDENTITY"
     - ninja wireshark_dmg

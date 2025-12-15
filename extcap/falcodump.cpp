@@ -40,6 +40,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/json_dumper.h>
+#include <wsutil/plugins.h>
 #include <wsutil/privileges.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/wsjson.h>
@@ -283,7 +284,6 @@ static void print_cloudtrail_aws_region_config(int arg_num, const char *display,
     }
 }
 
-
 // Load our plugins. This should match the behavior of the Falco Events dissector.
 static void load_plugins(sinsp &inspector) {
     WS_DIR *dir;
@@ -299,6 +299,9 @@ static void load_plugins(sinsp &inspector) {
         char *plugin_path = plugin_paths[idx];
         if ((dir = ws_dir_open(plugin_path, 0, NULL)) != NULL) {
             while ((file = ws_dir_read_name(dir)) != NULL) {
+                if (!is_plugin_filename(file)) {
+                    continue;
+                }
                 char *libname = g_build_filename(plugin_path, ws_dir_get_name(file), NULL);
                 try {
                     auto plugin = inspector.register_plugin(libname);

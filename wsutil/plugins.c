@@ -127,6 +127,12 @@ pass_plugin_version_compatibility(GModule *handle, const char *name)
 #define MODULE_SUFFIX ".so"
 #endif
 
+bool
+is_plugin_filename(const char *filename) {
+    // Should this be case-insensitive, at least on Windows?
+    return g_str_has_suffix(filename, MODULE_SUFFIX);
+}
+
 static void
 scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e type, bool append_type)
 {
@@ -155,7 +161,7 @@ scan_plugins_dir(GHashTable *plugins_module, const char *dirpath, plugin_type_e 
 
     while ((name = g_dir_read_name(dir)) != NULL) {
         /* Skip anything but files with .dll or .so. */
-        if (!g_str_has_suffix(name, MODULE_SUFFIX))
+        if (!is_plugin_filename(name))
             continue;
 
         /*

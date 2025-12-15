@@ -58,6 +58,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/inet_addr.h>
+#include <wsutil/plugins.h>
 #include <wsutil/report_message.h>
 #include <wsutil/strtoi.h>
 
@@ -1935,6 +1936,9 @@ proto_register_falcoplugin(void)
 
     if ((dir = ws_dir_open(spdname, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
+            if (!is_plugin_filename(file)) {
+                continue;
+            }
             filename = g_build_filename(spdname, ws_dir_get_name(file), NULL);
             import_plugin(filename);
             g_free(filename);
@@ -1944,6 +1948,9 @@ proto_register_falcoplugin(void)
 
     if (!files_identical(ppdname, spdname) && (dir = ws_dir_open(ppdname, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
+            if (!is_plugin_filename(file)) {
+                continue;
+            }
             filename = g_build_filename(ppdname, ws_dir_get_name(file), NULL);
             import_plugin(filename);
             g_free(filename);
