@@ -162,18 +162,17 @@ def check_capture_stdin(cmd_capinfos, result_file):
             '-a', 'duration:{}'.format(capture_duration),
             shell=True
         )
-        is_gui = type(cmd) is not str and '-k' in cmd[0]
+        is_gui = type(cmd) is not str and '-k' in cmd[1:]
         if is_gui:
             capture_cmd += ' --log-level=info'
         if sysconfig.get_platform().startswith('mingw'):
             pytest.skip('FIXME Pipes are broken with the MSYS2 shell')
         pipe_proc = subprocesstest.check_run(slow_dhcp_cmd + ' | ' + capture_cmd, shell=True, capture_output=True, env=env)
         if is_gui:
-            # Wireshark uses stdout and not stderr for diagnostic messages
-            # XXX: Confirm this
+            # N.B. console_file() in wsutil/wslog.c determines stderr vs stdout
             assert grep_output(pipe_proc.stdout, 'Wireshark is up and ready to go'), 'No startup message.'
-            assert grep_output(pipe_proc.stdout, 'Capture started'), 'No capture start message.'
-            assert grep_output(pipe_proc.stdout, 'Capture stopped'), 'No capture stop message.'
+            assert grep_output(pipe_proc.stderr, 'Capture started'), 'No capture start message.'
+            assert grep_output(pipe_proc.stderr, 'Capture stopped'), 'No capture stop message.'
         assert os.path.isfile(testout_file)
         check_packet_count(cmd_capinfos, 8, testout_file)
     return check_capture_stdin_real
