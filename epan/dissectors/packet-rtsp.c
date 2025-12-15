@@ -1565,7 +1565,7 @@ process_rtsp_request(tvbuff_t *tvb, int linelen, packet_info *pinfo, proto_tree 
                           token_len, rtsp_methods[ii]);
 
     /* token_len does not include the terminator. */
-    linelen -= token_len + 1;
+    // linelen -= token_len + 1;
 
     /* URL */
     /* next_offset is after the first space after the method name.
@@ -1593,7 +1593,7 @@ process_rtsp_reply(tvbuff_t *tvb, int linelen, packet_info *pinfo _U_, proto_tre
     /* status code */
 
     /* Skip protocol/version */
-    token_len = tvb_get_token_len(tvb, offset, linelen, &next_offset, false);
+    /*token_len =*/ tvb_get_token_len(tvb, offset, linelen, &next_offset, false);
     /* Skip spaces */
     offset = tvb_skip_wsp(tvb, next_offset, tvb_reported_length_remaining(tvb, next_offset));
 
