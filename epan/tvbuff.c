@@ -4428,10 +4428,6 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const int offset, int len, int *next_o
 		compiled = true;
 	}
 
-	/*
-	 * XXX - what if "len" is still -1, meaning "offset is past the
-	 * end of the tvbuff"?
-	 */
 	eob_offset = offset + len;
 
 	cur_offset = offset;
