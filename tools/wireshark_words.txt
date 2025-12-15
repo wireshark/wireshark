@@ -183,6 +183,7 @@ athens
 atheros
 atime
 atlantic
+atlist
 atmsnoop
 atomically
 atsss
@@ -555,6 +556,7 @@ coord3d
 coords
 coprocessor
 copycss
+copydoc
 copyfile
 corba
 corbin
@@ -713,6 +715,7 @@ demultiplexed
 demultiplexer
 demultiplexers
 demultiplexing
+denmv
 denom
 denso
 deobfuscated
@@ -777,6 +780,7 @@ dhaka
 dhchap
 dhcpv
 diagdata
+diags
 dialed
 dialling
 dialup
@@ -1005,6 +1009,8 @@ eutra
 eutran
 eventlog
 evolutions
+evrsn
+evrsr
 exclusions
 executables
 exegin
@@ -1306,6 +1312,7 @@ ideographic
 idiographic
 idl2deb
 idl2wrs
+idlast
 idlfile
 idltype
 iec60870
@@ -1338,6 +1345,7 @@ implementers
 implementor
 inactivated
 inband
+inbetween
 incits
 incompatibilities
 inconsistently
@@ -1347,6 +1355,7 @@ indenting
 indirection
 indosat
 infile
+infiles
 infini
 infiniband
 infix
@@ -1539,6 +1548,7 @@ lcgid
 lcids
 lcsap
 ldflags
+ldict
 leasequery
 legitimisation
 lempar
@@ -2073,6 +2083,7 @@ opflags
 oplist
 oplock
 opmode
+opnode
 opnum
 opreply
 optarg
@@ -2319,6 +2330,7 @@ pscell
 psecs
 pseudowire
 psfch
+pslice
 psname
 psnip
 pssch
@@ -3085,6 +3097,7 @@ timetag
 timeutc
 timezone
 tipcv
+tistpg
 titlebar
 tlvlen
 tlvtype
@@ -3142,6 +3155,7 @@ tsnnme
 tspace
 tspec
 tsprec
+tsresol
 tstamp
 ttltrig
 tuesday

@@ -10279,8 +10279,7 @@ dissect_advertisement_protocol_common(packet_info *pinfo, proto_tree *tree,
   }
 
   if (left) {
-    expert_add_info_format(pinfo, item, &ei_ieee80211_extra_data,
-                           "Unexpected extra data in the end");
+    expert_add_info(pinfo, item, &ei_ieee80211_extra_data);
   }
 
   return 2 + tag_len;
@@ -22012,6 +22011,7 @@ dissect_vendor_ie_sgdsn(proto_item *item _U_, proto_tree *ietree,
         }
         break;
       default:
+        /* TODO: use/define a more appropriate ei item for this? */
         expert_add_info_format(pinfo, tree, &ei_ieee80211_extra_data, "Unknown type");
         break;
       }

@@ -1292,10 +1292,12 @@ def checkExpertCalls(filename, expertEntries, result):
                         #    errors += 1
                     else:
                         # There may be good reasons for this - they could be specializations..
-                        result.note(filename, 'calling expert_add_info_format() for', item, '- no format specifiers in',
-                                    '"' + format_string + '" - default is ' +
-                                    ('"' + default_string + '"') if default_string is not None else '<??>',
-                                    '- total calls', number_of_calls, '(EXACT MATCH)' if exact_match else '')
+                        # TODO: noteworthy if all usages had same string?
+                        # result.note(filename, 'calling expert_add_info_format() for', item, '- no format specifiers in',
+                        #            '"' + format_string + '" - default is ' +
+                        #            ('"' + default_string + '"') if default_string is not None else '<??>',
+                        #            '- total calls', number_of_calls, '(EXACT MATCH)' if exact_match else '')
+                        pass
                 expertEntries.VerifyCall(item)
 
 

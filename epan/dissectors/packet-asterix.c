@@ -213,7 +213,7 @@ static void check_spare_bits (tvbuff_t *tvb, unsigned bit_offset, unsigned bit_s
     uint64_t bits = tvb_get_bits64(tvb, bit_offset, bit_size, ENC_BIG_ENDIAN);
     if (bits != 0)
     {
-        expert_add_info_format(NULL, item, &hf_asterix_spare_error, "Spare bit error");
+        expert_add_info(NULL, item, &hf_asterix_spare_error);
     }
 }
 
@@ -232,7 +232,7 @@ static bool asterix_fspec_check (unsigned fspec_len, unsigned list_length, proto
         fspec_expected_len++;
     }
     if (fspec_len > fspec_expected_len) {
-        expert_add_info_format(NULL, ti, &hf_asterix_fspec_error, "FSPEC error");
+        expert_add_info(NULL, ti, &hf_asterix_fspec_error);
         return false;
     }
     return true;
@@ -301,7 +301,7 @@ static bool check_fspec_validity (tvbuff_t *tvb, unsigned offset, table_params *
     while (fs_index < MAX_FSPEC_BIT_LENGTH && i < table->table_size) {
         if (((fs_index + 1) % 8) == 0) {
             if (!asterix_field_exists(tvb, offset, fs_index)) {
-                // FSPEC end, all fields may not have been present, but thats ok
+                // FSPEC end, all fields may not have been present, but that's ok
                 return true;
             }
             fs_index++;

@@ -780,7 +780,7 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, int new_status)
     if (! prof)
         return QModelIndex();
 
-    /* only new and copied stati can be set */
+    /* only new and copied static can be set */
     if (new_status != PROF_STAT_NEW && new_status != PROF_STAT_COPY)
         new_status = PROF_STAT_COPY;
 

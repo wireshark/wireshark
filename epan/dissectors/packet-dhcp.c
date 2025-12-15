@@ -3397,7 +3397,7 @@ dissect_dhcpopt_dnr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 		proto_item_append_text(dnr_instance_addrs_ti, ":");
 
 		for (uint32_t i = 0; i < addrs_len; i += 4) {
-			proto_tree_add_item(dnr_instance_addrs_tree, hf_dhcp_dnr_addrs_ip, tvb, offset + instance_offset + i, 4, ENC_NA);
+			proto_tree_add_item(dnr_instance_addrs_tree, hf_dhcp_dnr_addrs_ip, tvb, offset + instance_offset + i, 4, ENC_BIG_ENDIAN);
 			proto_item_append_text(dnr_instance_addrs_ti, "%c%s", (i == 0 ? ' ' : ','), tvb_ip_to_str(pinfo->pool, tvb, offset + instance_offset + i));
 		}
 

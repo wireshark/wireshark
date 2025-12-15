@@ -1,5 +1,5 @@
 /* tap-stats_tree.c
- * tshark's tap implememntation of stats_tree
+ * tshark's tap implementation of stats_tree
  * 2005, Luis E. G. Ontanon
  *
  * Wireshark - Network traffic analyzer

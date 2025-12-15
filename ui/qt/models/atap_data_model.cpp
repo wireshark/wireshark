@@ -470,7 +470,7 @@ QVariant EndpointDataModel::data(const QModelIndex &idx, int role) const
             QString rounded = QString::number(percent, 'f', 2);
             /* Qt guarantees that this roundtrip conversion compares equally,
              * so filtering with equality will work as expected.
-             * Perhaps the UNFORMATTED_DISPLAYDATA role shoud be split
+             * Perhaps the UNFORMATTED_DISPLAYDATA role should be split
              * into one used for raw data export, and one used for comparisons.
              */
             return role == Qt::DisplayRole ? rounded + "%" : QVariant(rounded.toDouble());
@@ -775,7 +775,7 @@ QVariant ConversationDataModel::data(const QModelIndex &idx, int role) const
             QString rounded = QString::number(percent, 'f', 2);
             /* Qt guarantees that this roundtrip conversion compares equally,
              * so filtering with equality will work as expected.
-             * XXX: Perhaps the UNFORMATTED_DISPLAYDATA role shoud be split
+             * XXX: Perhaps the UNFORMATTED_DISPLAYDATA role should be split
              * into one used for raw data export and comparisons with each
              * other, and another for comparing with filters?
              */

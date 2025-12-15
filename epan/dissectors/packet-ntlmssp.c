@@ -356,7 +356,7 @@ ntlmssp_sessions_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t eve
 
 /*
   Perform a DES encryption with a 16-byte key and 8-byte data item.
-  It's in fact 3 susbsequent call to crypt_des_ecb with a 7-byte key.
+  It's in fact 3 subsequent call to crypt_des_ecb with a 7-byte key.
   Missing bytes for the key are replaced by 0;
   Returns output in response, which is expected to be 24 bytes.
   Returns true on success, false on failure (unlikely).

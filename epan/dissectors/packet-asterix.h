@@ -65,6 +65,7 @@ static void print_icao_string (tvbuff_t *tvb, unsigned offset, unsigned bit_offs
 static void check_spare_bits (tvbuff_t *tvb, unsigned bit_offset, unsigned bit_size, proto_item *item);
 
 static expert_field ei_asterix_overflow;
+/* TODO: these should have an 'ei_' prefix, but usage is inside generated_dissector python module? */
 static expert_field hf_asterix_spare_error;
 static expert_field hf_asterix_fx_error;
 static expert_field hf_asterix_fspec_error;

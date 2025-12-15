@@ -1864,7 +1864,7 @@ smb_get_unicode_or_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, int *off
 		if(exactlen){
 			copylen = *len;
 
-			/* Fixed strings should be null termined. */
+			/* Fixed strings should be null terminated. */
 			if (copylen > 0) {
 				bytes = tvb_get_ptr(tvb, *offsetp, copylen);
 				if (bytes[copylen-1] == '\0')

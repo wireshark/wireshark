@@ -12,7 +12,7 @@
  * This TAP enables extraction of most important diameter fields in text format.
  * - much more performance than -T text and -T pdml
  * - more powerful than -T field and -z proto,colinfo
- * - exacltly one text line per diameter message
+ * - exactly one text line per diameter message
  * - multiple diameter messages in one frame supported
  *   E.g. one device watchdog answer and two credit control answers
  *        in one TCP packet produces 3 text lines.
@@ -147,7 +147,7 @@ diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const
 		return ret;
 
 	/* Several diameter messages within one frame are possible.                    *
-	 * Check if we processing the message in same frame like befor or in new frame.*/
+	 * Check if we processing the message in same frame like before or in new frame.*/
 	ds = (diameteravp_t *)pds;
 	if (pinfo->num > ds->frame) {
 		ds->frame = pinfo->num;

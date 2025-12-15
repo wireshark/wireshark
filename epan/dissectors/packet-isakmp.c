@@ -1691,7 +1691,7 @@ static const range_string vs_v2_cfgattr[] = {
   { 25,25,       "INTERNAL_DNS_DOMAIN" },
   { 26,26,       "INTERNAL_DNSSEC_TA" },
   { 27,27,       "ENCDNS_IP4" },
-  { 28,20,       "ENCDNS_IP6" },
+  { 28,28,       "ENCDNS_IP6" },
   { 29,29,       "ENCDNS_DIGEST_INFO" },
   { 30,16383,    "RESERVED TO IANA"},
   { 16384,21513, "PRIVATE USE"},
