@@ -5218,6 +5218,15 @@ save_record(capture_file *cf, frame_data *fdata, wtap_rec *rec, void *argsp)
     new_rec.block  = pkt_block;
     new_rec.block_was_modified = fdata->has_modified_block ? true : false;
 
+    /* XXX - For some types of capture files (e.g., Netscaler before v2.3),
+     * time stamps are supplied in the wtap_rec when reading sequentially,
+     * and not available on a seek read. For that reason, the time stamp is
+     * also stored in frame_data. (See epan/packet.c dissect_record() )
+     * if (fdata->has_ts && !(new_rec.presence_flags & WTAP_HAS_TS)),
+     * we should copy the time stamp from the frame data to the wtap record
+     * and set the presence flag, so that time stamps aren't lost.
+     */
+
     if (!nstime_is_zero(&fdata->shift_offset)) {
         if (new_rec.presence_flags & WTAP_HAS_TS) {
             nstime_add(&new_rec.ts, &fdata->shift_offset);

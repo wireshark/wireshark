@@ -3893,6 +3893,9 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
             /* Either there's no read filtering or this packet passed the
                filter, so, if we're writing to a capture file, write
                this packet out. */
+            /* XXX - With certain file types, time stamps are only available
+             * from a sequential wtap_read but not wtap_seek_read, in which
+             * case we could copy them from fdata when saving. */
             write_framenum++;
             if (pdh != NULL) {
                 ws_debug("tshark: writing packet #%d to outfile packet #%d", framenum, write_framenum);

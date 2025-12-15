@@ -2249,7 +2249,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
     {
         uint16_t val16;
         uint32_t reltime;
-        uint64_t abstime;
+        uint32_t abstime;
         nspr_abstime_v10_t abs10;
 
         /* populate the record */
@@ -2276,7 +2276,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
         (nstrace->version == NSTRACE_3_0) ||
         (nstrace->version == NSTRACE_3_5))    {
         uint32_t reltime;
-        uint64_t abstime;
+        uint32_t abstime;
         nspr_abstime_v20_t abs20;
 
         abs20.abs_RecordType = NSPR_ABSTIME_V20;
@@ -2287,7 +2287,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
 
         memset(abs20.abs_RelTime, 0, sizeof abs20.abs_RelTime);
         abstime = GUINT32_TO_LE((uint32_t)rec->ts.secs - (uint32_t)(nsg_creltime/1000000000));
-        memcpy(abs20.abs_RelTime, &abstime, sizeof abs20.abs_RelTime);
+        memcpy(abs20.abs_Time, &abstime, sizeof abs20.abs_Time);
 
         /* Write the record into the file */
         if (!wtap_dump_file_write(wdh, &abs20, nspr_abstime_v20_s, err))
