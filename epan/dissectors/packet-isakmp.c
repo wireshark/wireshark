@@ -378,6 +378,7 @@ static int hf_isakmp_cfg_attr_xauth_domain;
 static int hf_isakmp_cfg_attr_xauth_status;
 static int hf_isakmp_cfg_attr_xauth_next_pin;
 static int hf_isakmp_cfg_attr_xauth_answer;
+static int hf_isakmp_cfg_attr_fortinet_dns_suffix;
 static int hf_isakmp_cfg_attr_unity_banner;
 static int hf_isakmp_cfg_attr_unity_save_passwd;
 static int hf_isakmp_cfg_attr_unity_split_exclude;
@@ -567,6 +568,8 @@ static const fragment_items isakmp_frag_items = {
 #define XAUTH_STATUS                    16527
 #define XAUTH_NEXT_PIN                  16528
 #define XAUTH_ANSWER                    16529
+/* Fortinet Configuration Attribute */
+#define FORTINET_DNS_SUFFIX             21516
 /* unity (CISCO) configuration attributes */
 #define UNITY_BANNER                    28672
 #define UNITY_SAVE_PASSWD               28673
@@ -1677,7 +1680,6 @@ static const range_string vs_v2_cfgattr[] = {
   { 20,20,       "P_CSCF_IP4_ADDRESS" },        /* 3GPP IMS Option for IKEv2 https://datatracker.ietf.org/doc/draft-gundavelli-ipsecme-3gpp-ims-options/ */
   { 21,21,       "P_CSCF_IP6_ADDRESS" },
   { 22,22,       "FTT_KAT" },
-  { 22,22,       "FTT_KAT" },
   { 23,23,       "EXTERNAL_SOURCE_IP4_NAT_INFO" },
   { 24,24,       "TIMEOUT_PERIOD_FOR_LIVENESS_CHECK" },
   { 25,25,       "INTERNAL_DNS_DOMAIN" },
@@ -1686,7 +1688,9 @@ static const range_string vs_v2_cfgattr[] = {
   { 28,20,       "ENCDNS_IP6" },
   { 29,29,       "ENCDNS_DIGEST_INFO" },
   { 30,16383,    "RESERVED TO IANA"},
-  { 16384,28671, "PRIVATE USE"},
+  { 16384,21515, "PRIVATE USE"},
+  { 21516,21516, "FORTINET_DNS_SUFFIX" },
+  { 21517,28671, "PRIVATE USE"},
   { 28672,28672, "UNITY_BANNER" }, /* Fortinet use UNITY for IKEv2 too...*/
   { 28673,28673, "UNITY_SAVE_PASSWD" }, /* Fortinet use UNITY for IKEv2 too...*/
   { 28674,28677, "PRIVATE USE"},
@@ -5526,6 +5530,11 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       proto_item_append_text(attr_item, ": %s", str);
       break;
 
+    case FORTINET_DNS_SUFFIX: /* 21516 */
+      proto_tree_add_item_ret_string(attr_tree, hf_isakmp_cfg_attr_fortinet_dns_suffix, tvb, offset, value_len, ENC_ASCII|ENC_NA, pinfo->pool, &str);
+      proto_item_append_text(attr_item, ": %s", str);
+      break;
+
     case UNITY_BANNER: /* 28672 */
       proto_tree_add_item_ret_string(attr_tree, hf_isakmp_cfg_attr_unity_banner, tvb, offset, value_len, ENC_ASCII|ENC_NA, pinfo->pool, &str);
       proto_item_append_text(attr_item, ": %s", str);
@@ -7834,6 +7843,10 @@ proto_register_isakmp(void)
       { "XAUTH ANSWER", "isakmp.cfg.attr.xauth.answer",
         FT_STRING, BASE_NONE, NULL, 0x00,
         "A variable length ASCII string used to send input to the edge device", HFILL }},
+    { &hf_isakmp_cfg_attr_fortinet_dns_suffix,
+      { "FORTINET DNS SUFFIX", "isakmp.cfg.attr.fortinet.dns_suffix",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
     { &hf_isakmp_cfg_attr_unity_banner,
       { "UNITY BANNER", "isakmp.cfg.attr.unity.banner",
         FT_STRING, BASE_NONE, NULL, 0x00,
