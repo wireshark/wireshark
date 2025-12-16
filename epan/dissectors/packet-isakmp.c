@@ -378,6 +378,8 @@ static int hf_isakmp_cfg_attr_xauth_domain;
 static int hf_isakmp_cfg_attr_xauth_status;
 static int hf_isakmp_cfg_attr_xauth_next_pin;
 static int hf_isakmp_cfg_attr_xauth_answer;
+static int hf_isakmp_cfg_attr_fortinet_auto_negotiate;
+static int hf_isakmp_cfg_attr_fortinet_keep_alive;
 static int hf_isakmp_cfg_attr_fortinet_dns_suffix;
 static int hf_isakmp_cfg_attr_unity_banner;
 static int hf_isakmp_cfg_attr_unity_save_passwd;
@@ -569,6 +571,8 @@ static const fragment_items isakmp_frag_items = {
 #define XAUTH_NEXT_PIN                  16528
 #define XAUTH_ANSWER                    16529
 /* Fortinet Configuration Attribute */
+#define FORTINET_AUTO_NEGOTIATE         21514
+#define FORTINET_KEEP_ALIVE             21515
 #define FORTINET_DNS_SUFFIX             21516
 /* unity (CISCO) configuration attributes */
 #define UNITY_BANNER                    28672
@@ -1688,7 +1692,9 @@ static const range_string vs_v2_cfgattr[] = {
   { 28,20,       "ENCDNS_IP6" },
   { 29,29,       "ENCDNS_DIGEST_INFO" },
   { 30,16383,    "RESERVED TO IANA"},
-  { 16384,21515, "PRIVATE USE"},
+  { 16384,21513, "PRIVATE USE"},
+  { 21514,21514, "FORTINET_AUTO_NEGOTIATE" },
+  { 21515,21515, "FORTINET_KEEP_ALIVE" },
   { 21516,21516, "FORTINET_DNS_SUFFIX" },
   { 21517,28671, "PRIVATE USE"},
   { 28672,28672, "UNITY_BANNER" }, /* Fortinet use UNITY for IKEv2 too...*/
@@ -5530,6 +5536,12 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       proto_item_append_text(attr_item, ": %s", str);
       break;
 
+    case FORTINET_AUTO_NEGOTIATE: /* 21514 */
+      proto_tree_add_item(attr_tree, hf_isakmp_cfg_attr_fortinet_auto_negotiate, tvb, offset, 2, ENC_BIG_ENDIAN);
+      break;
+    case FORTINET_KEEP_ALIVE: /* 21515 */
+      proto_tree_add_item(attr_tree, hf_isakmp_cfg_attr_fortinet_keep_alive, tvb, offset, 2, ENC_BIG_ENDIAN);
+      break;
     case FORTINET_DNS_SUFFIX: /* 21516 */
       proto_tree_add_item_ret_string(attr_tree, hf_isakmp_cfg_attr_fortinet_dns_suffix, tvb, offset, value_len, ENC_ASCII|ENC_NA, pinfo->pool, &str);
       proto_item_append_text(attr_item, ": %s", str);
@@ -7843,6 +7855,14 @@ proto_register_isakmp(void)
       { "XAUTH ANSWER", "isakmp.cfg.attr.xauth.answer",
         FT_STRING, BASE_NONE, NULL, 0x00,
         "A variable length ASCII string used to send input to the edge device", HFILL }},
+    { &hf_isakmp_cfg_attr_fortinet_auto_negotiate,
+      { "FORTINET AUTO NEGOTIATE", "isakmp.cfg.attr.fortinet.auto_negotiate",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
+    { &hf_isakmp_cfg_attr_fortinet_keep_alive,
+      { "FORTINET KEEP ALIVE", "isakmp.cfg.attr.fortinet.keep_alive",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }},
     { &hf_isakmp_cfg_attr_fortinet_dns_suffix,
       { "FORTINET DNS SUFFIX", "isakmp.cfg.attr.fortinet.dns_suffix",
         FT_STRING, BASE_NONE, NULL, 0x00,
