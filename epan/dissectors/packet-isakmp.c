@@ -368,6 +368,7 @@ static int hf_isakmp_cfg_attr_internal_ip6_prefix_ip;
 static int hf_isakmp_cfg_attr_internal_ip6_prefix_length;
 static int hf_isakmp_cfg_attr_p_cscf_ip4_address;
 static int hf_isakmp_cfg_attr_p_cscf_ip6_address;
+static int hf_isakmp_cfg_attr_internal_dns_domain;
 static int hf_isakmp_cfg_attr_xauth_type;
 static int hf_isakmp_cfg_attr_xauth_user_name;
 static int hf_isakmp_cfg_attr_xauth_user_password;
@@ -552,6 +553,7 @@ static const fragment_items isakmp_frag_items = {
 #define INTERNAL_IP6_PREFIX             18
 #define P_CSCF_IP4_ADDRESS              20
 #define P_CSCF_IP6_ADDRESS              21
+#define INTERNAL_DNS_DOMAIN             25
 /* checkpoint configuration attributes */
 #define CHKPT_DEF_DOMAIN                16387
 #define CHKPT_MAC_ADDRESS               16388
@@ -5495,6 +5497,10 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         }
       }
       break;
+    case INTERNAL_DNS_DOMAIN: /* 25 */
+      proto_tree_add_item_ret_string(attr_tree, hf_isakmp_cfg_attr_internal_dns_domain, tvb, offset, value_len, ENC_ASCII|ENC_NA, pinfo->pool, &str);
+      proto_item_append_text(attr_item, ": %s", str);
+      break;
     case XAUTH_TYPE: /* 16520 */
       proto_tree_add_item(attr_tree, hf_isakmp_cfg_attr_xauth_type, tvb, offset, value_len, ENC_BIG_ENDIAN);
       proto_item_append_text(attr_item, ": %s", rval_to_str_wmem(pinfo->pool, tvb_get_ntohs(tvb, offset), cfgattr_xauth_type, "Unknown %d"));
@@ -7814,6 +7820,10 @@ proto_register_isakmp(void)
       { "P_CSCF_IP6_ADDRESS (IP)", "isakmp.cfg.attr.p_cscf_ip6_address",
         FT_IPv6, BASE_NONE, NULL, 0x00,
         "An IPv6 address of the P-CSCF server", HFILL }},
+    { &hf_isakmp_cfg_attr_internal_dns_domain,
+      { "INTERNAL_DNS_DOMAIN", "isakmp.cfg.attr.internal_dns_domain",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }},
 
     { &hf_isakmp_cfg_attr_xauth_type,
       { "XAUTH TYPE", "isakmp.cfg.attr.xauth.type",
