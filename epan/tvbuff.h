@@ -2396,8 +2396,8 @@ WS_DLL_PUBLIC int tvb_strnlen(tvbuff_t *tvb, const int offset,
  *
  * @return A pointer to the formatted string.
  */
-WS_DLL_PUBLIC char *tvb_format_text(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
-    const int size);
+WS_DLL_PUBLIC char *tvb_format_text(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset,
+    const unsigned size);
 
 /**
  * @brief Format tvbuff data as printable text, omitting C-style escapes.
@@ -2416,8 +2416,8 @@ WS_DLL_PUBLIC char *tvb_format_text(wmem_allocator_t *scope, tvbuff_t *tvb, cons
  *
  * @see tvb_format_text
  */
-WS_DLL_PUBLIC char *tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const int offset,
-    const int size);
+WS_DLL_PUBLIC char *tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const unsigned offset,
+    const unsigned size);
 
 /**
  * @brief Format a null-padded string from a tvbuff as printable text.
@@ -2436,8 +2436,8 @@ WS_DLL_PUBLIC char *tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *t
  *
  * @see tvb_format_text
  */
-WS_DLL_PUBLIC char *tvb_format_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
-    const int size);
+WS_DLL_PUBLIC char *tvb_format_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset,
+    const unsigned size);
 
 /**
  * @brief Format a null-padded string from a tvbuff as printable text, preserving whitespace.
@@ -2457,8 +2457,8 @@ WS_DLL_PUBLIC char *tvb_format_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb
  * @see tvb_format_text_wsp
  * @see tvb_format_stringzpad
  */
-WS_DLL_PUBLIC char *tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const int offset,
-    const int size);
+WS_DLL_PUBLIC char *tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const unsigned offset,
+    const unsigned size);
 
 /**
  * @brief Extract and convert a string from a tvbuff to UTF-8 using the specified encoding.
