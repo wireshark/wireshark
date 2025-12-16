@@ -7752,9 +7752,8 @@ dissect_tcpopt_rvbd_probe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_type2, tvb,
                             offset + PROBE_VERSION_TYPE_OFFSET, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_uint_format_value(
-            field_tree, hf_tcp_option_rvbd_probe_version2, tvb,
-            offset + PROBE_VERSION_TYPE_OFFSET, 1, ver, "%u", ver);
+        proto_tree_add_uint(field_tree, hf_tcp_option_rvbd_probe_version2, tvb,
+            offset + PROBE_VERSION_TYPE_OFFSET, 1, ver);
         /* Use version1 for filtering purposes because version2 packet
            value is 0, but filtering is usually done for value 2 */
         ver_pi = proto_tree_add_uint(field_tree, hf_tcp_option_rvbd_probe_version1, tvb,
@@ -9085,8 +9084,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         // This should be consistent with ip.hdr_len.
         proto_tree_add_uint_bits_format_value(tcp_tree, hf_tcp_hdr_len, tvb, (offset + 12) << 3, 4, tcph->th_hlen,
             ENC_BIG_ENDIAN, "%u bytes (%u)", tcph->th_hlen, tcph->th_hlen>>2);
-        tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, tvb, offset + 12, 2,
-                                        tcph->th_flags, "Flags: 0x%03x (%s)", tcph->th_flags, flags_str);
+        tf = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_flags, tvb, offset + 12, 2,
+                                        tcph->th_flags, "0x%03x (%s)", tcph->th_flags, flags_str);
         field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_res, tvb, offset + 12, 1, tcph->th_flags);
         if (tcph->th_use_ace) {
@@ -9245,7 +9244,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
             default:
                 /* Scaling from signalled value */
-                scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, 1<<tcpd->fwd->win_scale, "%d", 1<<tcpd->fwd->win_scale);
+                scaled_pi = proto_tree_add_int(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, 1<<tcpd->fwd->win_scale);
                 proto_item_set_generated(scaled_pi);
             }
         }

@@ -130,7 +130,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         proto_tree_add_item(vrrp_tree, hf_vrrp_virt_rtr_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_uint_format(vrrp_tree, hf_vrrp_prio, tvb, offset, 1, priority, "Priority: %u (%s)",
+        proto_tree_add_uint_format_value(vrrp_tree, hf_vrrp_prio, tvb, offset, 1, priority, "%u (%s)",
                                    priority,
                                    val_to_str_const(priority, vrrp_prio_vals, "Non-default backup priority"));
         offset += 1;

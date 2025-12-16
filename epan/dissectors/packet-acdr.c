@@ -979,7 +979,7 @@ add_cid(proto_tree *tree, tvbuff_t *tvb, int offset, int cid_byte_length, int hf
     }
     if (cid_byte_length == 2 && cid == 0xFFFF)
         cid = -1;
-    proto_tree_add_int_format_value(tree, hf, tvb, offset, cid_byte_length, cid, "%d", cid);
+    proto_tree_add_int(tree, hf, tvb, offset, cid_byte_length, cid);
     return cid;
 }
 

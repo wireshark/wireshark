@@ -3394,7 +3394,7 @@ dissect_rsvp_error_value(proto_tree *ti, packet_info* pinfo, tvbuff_t *tvb,
                             val_to_str_ext(pinfo->pool, error_val, rsvp_error_vals_ext_p, "Unknown (%d)"), error_val);
         break;
     default:
-        proto_tree_add_uint_format_value(ti, hf_rsvp_error_value, tvb, offset, 2, error_val, "%u", error_val);
+        proto_tree_add_uint(ti, hf_rsvp_error_value, tvb, offset, 2, error_val);
         break;
     }
     return error_val;

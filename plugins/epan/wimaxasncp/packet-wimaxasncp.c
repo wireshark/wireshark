@@ -1844,10 +1844,10 @@ static unsigned dissect_wimaxasncp_tlvs(
                 tlv_item, ett_wimaxasncp_tlv);
 
             /* Type (expert item if unknown) */
-            type_item = proto_tree_add_uint_format(
+            type_item = proto_tree_add_uint_format_value(
                 tlv_tree, hf_wimaxasncp_tlv_type,
                 tvb, offset, 2, type,
-                "Type: %s (%u)", tlv_info->name, type);
+                "%s (%u)", tlv_info->name, type);
 
             if (tlv_info->decoder == WIMAXASNCP_TLV_UNKNOWN)
             {
