@@ -12041,7 +12041,7 @@ proto_registrar_dump_values(void)
 bool
 proto_registrar_dump_fieldcount(void)
 {
-	struct proto_registrar_stats stats;
+	struct proto_registrar_stats stats = {0, 0, 0};
 	size_t total_count = proto_registrar_get_count(&stats);
 
 	printf("There are %zu header fields registered, of which:\n"
