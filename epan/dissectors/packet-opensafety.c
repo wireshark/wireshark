@@ -928,8 +928,8 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 static void dissect_opensafety_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_tvb, proto_tree *ssdo_payload, uint8_t sacmd )
 {
     unsigned    dataLength   = 0, ctr = 0, n = 0, nCRCs = 0;
-    uint8_t     ssdoSubIndex = 0;
-    uint16_t    ssdoIndex    = 0, dispSSDOIndex = 0;
+    uint32_t    ssdoSubIndex = 0;
+    uint32_t    ssdoIndex    = 0, dispSSDOIndex = 0;
     uint32_t    sodLength    = 0, entry = 0;
     proto_item *item;
     proto_tree *sod_tree, *ext_tree;
@@ -1020,7 +1020,7 @@ static void dissect_opensafety_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_
 
                 item = proto_tree_add_uint_format_value(ssdo_payload, hf_oss_ssdo_sod_index, new_tvb,
                                                         ctr, 2,  ssdoIndex, "0x%04X (%s)", ssdoIndex,
-                                                        val_to_str_ext_const( ((uint32_t) (dispSSDOIndex << 16) ),
+                                                        val_to_str_ext_const( dispSSDOIndex << 16,
                                                                               &opensafety_sod_idx_names_ext, "Unknown") );
                 if ( ssdoIndex != dispSSDOIndex )
                     proto_item_set_generated ( item );
@@ -1034,7 +1034,7 @@ static void dissect_opensafety_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_
                 {
                     proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, ctr + 2, 1,
                                                      ssdoSubIndex, "0x%02X (%s)", ssdoSubIndex,
-                                                     val_to_str_ext_const(((uint32_t) (ssdoIndex << 16) + ssdoSubIndex),
+                                                     val_to_str_ext_const((ssdoIndex << 16) + ssdoSubIndex,
                                                                           &opensafety_sod_idx_names_ext, "Unknown") );
                 }
                 else
@@ -1214,8 +1214,8 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         if ( packet->payload.ssdo->sacmd.initiate )
         {
             /* Use the lower 4 bits from the preload as size */
-            proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_preload_queue, message_tvb, packet->frame.subframe2 + 4, 1,
-                    preload & 0x0F, "%d", preload & 0x0F );
+            proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_preload_queue, message_tvb, packet->frame.subframe2 + 4, 1,
+                    preload & 0x0F);
         }
         else
         {
