@@ -427,7 +427,7 @@ if_addr_copy(const if_addr_t *addr)
 static void*
 if_addr_copy_cb(const void *data, void *user_data _U_)
 {
-	return if_addr_copy((if_addr_t*)data);
+	return if_addr_copy((const if_addr_t*)data);
 }
 
 void
@@ -450,7 +450,7 @@ if_info_free(if_info_t *if_info)
 static void*
 copy_linktype_cb(const void *data, void *user_data _U_)
 {
-	data_link_info_t *linktype_info = (data_link_info_t *)data;
+	const data_link_info_t *linktype_info = (const data_link_info_t *)data;
 
 	data_link_info_t *ret = g_new(data_link_info_t, 1);
 	ret->dlt = linktype_info->dlt;
@@ -462,7 +462,7 @@ copy_linktype_cb(const void *data, void *user_data _U_)
 static void*
 copy_timestamp_cb(const void *data, void *user_data _U_)
 {
-	timestamp_info_t *timestamp_info = (timestamp_info_t *)data;
+	const timestamp_info_t *timestamp_info = (const timestamp_info_t *)data;
 
 	timestamp_info_t *ret = g_new(timestamp_info_t, 1);
 	ret->name = g_strdup(timestamp_info->name);
