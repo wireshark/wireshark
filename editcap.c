@@ -1162,8 +1162,8 @@ validate_secrets_file(const char *filename, uint32_t secrets_type, const char *d
 static int
 framenum_compare(const void *a, const void *b, void *user_data _U_)
 {
-    uint64_t *frame_a = (uint64_t*)a;
-    uint64_t *frame_b = (uint64_t*)b;
+    const uint64_t *frame_a = (const uint64_t*)a;
+    const uint64_t *frame_b = (const uint64_t*)b;
     if (*frame_a < *frame_b)
         return -1;
 
@@ -2591,8 +2591,7 @@ main(int argc, char *argv[])
                         }
                     }
 
-                    /* The comment is not modified by dumper, cast away. */
-                    wtap_block_add_string_option(read_rec.block, OPT_COMMENT, (char *)comment, strlen((char *)comment));
+                    wtap_block_add_string_option(read_rec.block, OPT_COMMENT, comment, strlen(comment));
                     read_rec.block_was_modified = true;
                 } else {
                     read_rec.block_was_modified = false;
