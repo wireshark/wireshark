@@ -1583,7 +1583,9 @@ static const range_string notifmsg_v2_3gpp_type[] = {
   { 61473,61473,      "Auto-Discovery Receiver (Fortinet)" },
   { 61474,61519,      "Private Use - STATUS TYPES" },
   { 61520,61520,      "Network Overlay ID (Fortinet)" },
-  { 61521,65535,      "Private Use - STATUS TYPES" },
+  { 61521,61695,      "Private Use - STATUS TYPES" },
+  { 61696,61696,      "FORTICLIENT_CONNECT" },
+  { 61697,65535,      "Private Use - STATUS TYPES" },
   { 0,0,        NULL },
 };
 
