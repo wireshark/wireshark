@@ -906,6 +906,7 @@ static int process_buffer_response_ios(ssh_channel channel, uint8_t* packet, ws_
 	time_t pkt_time = 0;
 	uint32_t pkt_usec = 0;
 	uint32_t len = 0;
+	uint64_t bytes_written = 0;
 
 	/* Process response */
 	do {
@@ -920,7 +921,6 @@ static int process_buffer_response_ios(ssh_channel channel, uint8_t* packet, ws_
 					ws_debug("Read packet %d\n", read_packets);
 					if (read_packets > *processed_packets) {
 						int err;
-						uint64_t bytes_written;
 
 						ws_debug("Exporting packet %d\n", *processed_packets);
 						/*  dump the packet to the pcap file */
@@ -1026,6 +1026,7 @@ static int process_buffer_response_ios_xe_16(ssh_channel channel, uint8_t* packe
 	int loop_end = 0;
 	unsigned packet_size = 0;
 	uint32_t len = 0;
+	uint64_t bytes_written = 0;
 
 	/* Process response */
 	do {
@@ -1040,7 +1041,6 @@ static int process_buffer_response_ios_xe_16(ssh_channel channel, uint8_t* packe
 					if (read_packets > *processed_packets) {
 						int err;
 						int64_t cur_time = g_get_real_time();
-						uint64_t bytes_written = 0;
 
 						ws_debug("Exporting packet %d\n", *processed_packets);
 						/*  dump the packet to the pcap file */
@@ -1088,6 +1088,7 @@ static int process_buffer_response_ios_xe_17(ssh_channel channel, uint8_t* packe
 	int loop_end = 0;
 	unsigned packet_size = 0;
 	uint32_t len = 0;
+	uint64_t bytes_written = 0;
 
 	/* Process response */
 	do {
@@ -1114,7 +1115,6 @@ static int process_buffer_response_ios_xe_17(ssh_channel channel, uint8_t* packe
 					if (read_packets > *processed_packets) {
 						int err;
 						int64_t cur_time = g_get_real_time();
-						uint64_t bytes_written;
 
 						ws_debug("Exporting packet %d\n", *processed_packets);
 						/*  dump the packet to the pcap file */
@@ -1243,6 +1243,7 @@ static int process_buffer_response_asa(ssh_channel channel, uint8_t* packet, ws_
 	int status = CISCODUMP_PARSER_STARTING;
 	int loop_end = 0;
 	unsigned packet_size = 0;
+	uint64_t bytes_written = 0;
 
 	do {
 		time_t pkt_time = 0;
@@ -1265,7 +1266,6 @@ static int process_buffer_response_asa(ssh_channel channel, uint8_t* packet, ws_
 					if (status == CISCODUMP_PARSER_END_PACKET) {
 						ws_debug("Read packet %d\n", read_packets);
 						int err;
-						uint64_t bytes_written;
 
 						ws_debug("Exporting packet %d\n", *processed_packets);
 						/*  dump the packet to the pcap file */
