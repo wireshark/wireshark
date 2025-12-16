@@ -143,10 +143,10 @@ typedef struct {
 } smb_transact2_info_t;
 
 typedef struct {
-    unsigned frame_num;
-    unsigned command_count;
-    gboolean multi_cmds;
-    unsigned cmd_index;
+    uint32_t        frame_num;
+    unsigned        command_count;
+    bool            multi_cmds;
+    unsigned        cmd_index;
 } multi_cmds_t;
 
 /*
@@ -299,9 +299,11 @@ typedef struct _smb_locking_saved_info_t {
 
 /* fsi used for tracking fid/tid to filename/sharename openedframe closedframe */
 typedef struct _smb_fid_saved_info_t {
-	char	*filename;
+	char		*filename;
 	uint32_t	 create_flags;
-	uint32_t	 access_mask;
+	uint32_t	 desired_access;
+	uint32_t	 maximal_access;
+	uint32_t	 granted_access;
 	uint32_t	 file_attributes;
 	uint32_t	 share_access;
 	uint32_t	 create_options;
@@ -312,11 +314,11 @@ struct _smb_fid_into_t {
         uint16_t	tid,fid;
         /* The end_of_file will store the last registered offset or
            the reported end_of_file from the SMB protocol */
-        int64_t	end_of_file;
+        int64_t		end_of_file;
         /* These two were int */
 	unsigned	opened_in;
 	unsigned	closed_in;
-	int	type;
+	int		type;
 	smb_fid_saved_info_t *fsi;
 };
 
@@ -333,8 +335,8 @@ typedef struct _smb_tid_into_t {
  * Dissect an smb FID
  */
 extern smb_fid_info_t *dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int len, uint16_t fid, bool is_created, bool is_closed, bool is_generated, bool is_displayed, smb_info_t* si);
-
+	int offset, int len, uint16_t fid, bool is_created, bool is_closed, bool is_generated,
+	bool is_displayed, smb_info_t* si);
 /*
  * Dissect named pipe state information.
  */
@@ -349,7 +351,9 @@ extern int dissect_nt_create_options(tvbuff_t *tvb, proto_tree *parent_tree, int
 
 extern int dissect_nt_share_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
 
-extern int dissect_smb_access_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset);
+extern int dissect_smb_access_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset, bool is_dir, int mask_type);
+extern int dissect_smb_access_mask_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int len,
+	uint32_t mask, bool is_dir, int mask_type);
 
 extern const value_string oa_open_vals[];
 extern const value_string impersonation_level_vals[];

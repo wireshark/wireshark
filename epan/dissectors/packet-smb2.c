@@ -1302,6 +1302,10 @@ static const value_string file_full_ea_information_flags[] = {
 	{ 0, NULL }
 };
 
+#define SMB2_ACCESS_DESIRED 1
+#define SMB2_ACCESS_MAXIMAL 2
+#define SMB2_ACCESS_GRANTED 4
+
 static int dissect_windows_sockaddr_storage(tvbuff_t *, packet_info *, proto_tree *, int, int);
 static void dissect_smb2_error_data(tvbuff_t *, packet_info *, proto_tree *, int, int, smb2_info_t *);
 static unsigned smb2_eo_files_hash(const void *k);
@@ -2826,11 +2830,12 @@ dissect_fscc_file_attr(tvbuff_t* tvb, proto_tree* parent_tree, int offset, uint3
  * SMB_FILE_ALL_INFO in SMB
  */
 static int
-dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int         length;
+	bool        is_dir = false;
 	static int * const mode_fields[] = {
 		&hf_smb2_mode_file_write_through,
 		&hf_smb2_mode_file_sequential_only,
@@ -2889,8 +2894,8 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 	proto_tree_add_item(tree, hf_smb2_is_directory, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	/* padding */
 	offset += 2;
+	/* padding */
 
 	/* file id */
 	proto_tree_add_item(tree, hf_smb2_file_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -2901,7 +2906,9 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 	offset += 4;
 
 	/* access mask */
-	offset = dissect_smb_access_mask(tvb, tree, offset);
+	if (si->file)
+		is_dir = si->file->is_dir;
+	offset = dissect_smb_access_mask(tvb, tree, offset, is_dir, (si->flags & 1));
 
 	/* Position Information */
 	proto_tree_add_item(tree, hf_smb2_position_information, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -3136,10 +3143,11 @@ dissect_smb2_file_position_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 }
 
 static int
-dissect_smb2_file_access_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_file_access_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	bool        is_dir = false;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_smb2_file_access_info, tvb, offset, -1, ENC_NA);
@@ -3147,7 +3155,9 @@ dissect_smb2_file_access_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	}
 
 	/* access mask */
-	offset = dissect_smb_access_mask(tvb, tree, offset);
+	if (si->file)
+		is_dir = si->file->is_dir;
+	offset = dissect_smb_access_mask(tvb, tree, offset, is_dir, (si->flags & 1));
 
 	return offset;
 }
@@ -4522,10 +4532,11 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	return offset;
 }
 static int
-dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	uint8_t share_type;
 	bool continue_dissection;
+	bool is_dir = false;
 
 	switch (si->status) {
 	/* buffer code */
@@ -4573,8 +4584,10 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* share capabilities */
 	offset = dissect_smb2_share_caps(tree, tvb, offset);
 
-	/* this is some sort of access mask */
-	offset = dissect_smb_access_mask(tvb, tree, offset);
+	/* access mask used for granted access rights. */
+	if (si->file)
+		is_dir = si->file->is_dir;
+	offset = dissect_smb_access_mask(tvb, tree, offset, is_dir, SMB2_ACCESS_DESIRED);
 
 	return offset;
 }
@@ -7657,6 +7670,9 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	uint32_t channel;
 	uint32_t length;
 	uint64_t off;
+	uint32_t desired_access;
+	uint32_t granted_access;
+	bool     is_dir;
 	static int * const f_fields[] = {
 		&hf_smb2_write_flags_write_through,
 		&hf_smb2_write_flags_write_unbuffered,
@@ -7711,6 +7727,18 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		item = proto_tree_add_uint_format(which_tree, hf_smb2_file_id_hash, tvb, 0, 0,
 				si->saved->fid_hash, "File Id Hash: 0x%04x", si->saved->fid_hash);
 		proto_item_set_generated(item);
+	}
+
+	/* Desired and granted access */
+	if (si->file) {
+		desired_access = si->file->desired_access;
+		is_dir = si->file->is_dir;
+		granted_access = si->file->granted_access;
+		if (granted_access) {
+			dissect_smb_access_mask_bits(tvb, which_tree, 0, 0, granted_access, is_dir, SMB2_ACCESS_GRANTED);
+		} else {
+			dissect_smb_access_mask_bits(tvb, which_tree, 0, 0, desired_access, is_dir, SMB2_ACCESS_DESIRED);
+		}
 	}
 
 	/* channel */
@@ -7780,6 +7808,9 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	proto_item *tag_item = NULL;
 	proto_item *item = NULL;
 	proto_tree *which_tree = NULL;
+	uint32_t desired_access;
+	uint32_t granted_access;
+	bool     is_dir;
 
 
 	switch (si->status) {
@@ -7851,8 +7882,19 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 				proto_item_set_generated(item);
 			}
 		}
-	}
 
+		/* Desired and granted access */
+		if (si->file) {
+			desired_access = si->file->desired_access;
+			is_dir = si->file->is_dir;
+			granted_access = si->file->granted_access;
+			if (granted_access) {
+				dissect_smb_access_mask_bits(tvb, which_tree, 0, 0, granted_access, is_dir, SMB2_ACCESS_GRANTED);
+			} else {
+				dissect_smb_access_mask_bits(tvb, which_tree, 0, 0, desired_access, is_dir, SMB2_ACCESS_DESIRED);
+			}
+		}
+	}
 	return offset;
 }
 
@@ -9499,7 +9541,9 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree *fid_tree = NULL;
 	proto_tree *which_tree = NULL;
 	e_guid_t   tag_guid;
-
+	uint32_t   desired_access;
+	uint32_t   granted_access;
+	bool	   is_dir;
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
@@ -9555,6 +9599,18 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 		item = proto_tree_add_uint_format(which_tree, hf_smb2_file_id_hash, tvb, 0, 0,
 				si->saved->fid_hash, "File Id Hash: 0x%04x", si->saved->fid_hash);
 		proto_item_set_generated(item);
+	}
+
+	/* Desired and granted access */
+	if (si->file) {
+		desired_access = si->file->desired_access;
+		is_dir = si->file->is_dir;
+		granted_access = si->file->granted_access;
+		if (granted_access) {
+			dissect_smb_access_mask_bits(tvb, which_tree, 0, 0, granted_access, is_dir, SMB2_ACCESS_GRANTED);
+		} else {
+			dissect_smb_access_mask_bits(tvb, which_tree, 0, 0, desired_access, is_dir, SMB2_ACCESS_DESIRED);
+		}
 	}
 
 	/* minimum count */
@@ -9620,6 +9676,9 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset_length_buffer_t olb;
 	uint32_t data_tvb_len;
 	bool continue_dissection;
+	bool is_dir;
+	uint32_t desired_access;
+	uint32_t granted_access;
 	proto_item *item = NULL;
 	proto_item *tag_item = NULL;
 	proto_tree *tag_tree = NULL;
@@ -9682,6 +9741,17 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 				item = proto_tree_add_uint(which_tree, hf_frame_handle_closed, tvb, 0, 0,
 					si->saved->frame_end);
 				proto_item_set_generated(item);
+			}
+		}
+		/* Desired and granted access */
+		if (si->file) {
+			desired_access = si->file->desired_access;
+			is_dir = si->file->is_dir;
+			granted_access = si->file->granted_access;
+			if (granted_access) {
+				dissect_smb_access_mask_bits(tvb, which_tree, 0, 0, granted_access, is_dir, SMB2_ACCESS_GRANTED);
+			} else {
+				dissect_smb_access_mask_bits(tvb, which_tree, 0, 0, desired_access, is_dir, SMB2_ACCESS_DESIRED);
 			}
 		}
 	}
@@ -9999,12 +10069,15 @@ dissect_smb2_MxAc_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 static void
-dissect_smb2_MxAc_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+dissect_smb2_MxAc_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si)
 {
 	int         offset   = 0;
 	proto_item *item = NULL;
 	proto_tree *sub_tree;
-
+	bool        is_dir = false;
+	uint32_t    desired_access;
+	uint32_t    granted_access;
+	uint32_t    maximal_access;
 	item = proto_tree_get_parent(tree);
 
 	if (tvb_reported_length(tvb) == 0) {
@@ -10018,7 +10091,16 @@ dissect_smb2_MxAc_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	proto_tree_add_item(sub_tree, hf_smb2_mxac_status, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	dissect_smb_access_mask(tvb, sub_tree, offset);
+	maximal_access = tvb_get_letohl(tvb, offset);
+	is_dir = si->file->is_dir;
+	dissect_smb_access_mask_bits(tvb, tree, offset, 4, maximal_access, is_dir, SMB2_ACCESS_MAXIMAL);
+
+	if (si->file) {
+		desired_access = si->file->desired_access;
+		granted_access = desired_access & maximal_access;
+		dissect_smb_access_mask_bits(tvb, tree, 0, 0, granted_access, is_dir, SMB2_ACCESS_GRANTED);
+		si->file->granted_access = granted_access;
+	}
 }
 
 /*
@@ -10683,6 +10765,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item		*item;
 	proto_tree		*tag_tree = NULL;
 	proto_item		*tag_item = NULL;
+	bool			 is_dir = false;
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
@@ -10705,16 +10788,22 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 8, ENC_NA);
 	offset += 8;
 
-	/* access mask */
-	offset = dissect_smb_access_mask(tvb, tree, offset);
+	/* desired access mask */
+	if (si->file) {
+		si->file->desired_access = tvb_get_letohl(tvb, offset);
+
+		/* Detect if this is a directory by the create options and attributes.
+		 */
+		if ((tvb_get_letohl(tvb, offset+16) & 1) || (tvb_get_letohl(tvb, offset+4) & 10)) {
+			si->file->is_dir = TRUE;
+			is_dir = TRUE;
+		} else {
+			si->file->is_dir = FALSE;
+		}
+	}
+	offset = dissect_smb_access_mask(tvb, tree, offset, is_dir, 1);
 
 	/* File Attributes */
-	if (si->file) {
-		if (tvb_get_letohl(tvb, offset) & 0x10)
-			si->file->is_dir = TRUE;
-		else
-			si->file->is_dir = FALSE;
-	}
 	offset = dissect_fscc_file_attr(tvb, tree, offset, NULL);
 
 	/* share access */
@@ -10818,6 +10907,9 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		NULL
 	};
 	bool continue_dissection;
+	uint32_t desired_access;
+	uint32_t granted_access;
+	gboolean is_dir;
 	proto_item *item = NULL;
 	proto_tree *tag_tree = NULL;
 	proto_tree *which_tree = tree;
@@ -10888,6 +10980,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* Display the GUID subtree */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_OPEN);
 
+	/* filename */
 	if (si->saved && si->saved->hnd_item && si->file && si->file->name) {
 		tag_tree = proto_item_add_subtree(si->saved->hnd_item, ett_smb2_fid_str);
 		if (strcmp(si->file->name, "") == 0)
@@ -10905,6 +10998,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s", si->file->name);
 	}
 
+	/* File ID Hash */
 	if (si->saved) {
 		item = proto_tree_add_uint_format(which_tree, hf_smb2_file_id_hash, tvb, 0, 0,
 			si->saved->fid_hash, "File Id Hash: 0x%04x", si->saved->fid_hash);
@@ -10916,6 +11010,18 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 	if (si->file)
 		si->file->frame_beg  = pinfo->fd->num;
+
+	/* Desired and granted access */
+	if (si->file) {
+		desired_access = si->file->desired_access;
+		granted_access = si->file->granted_access;
+		is_dir = si->file->is_dir;
+		if (granted_access) {
+			dissect_smb_access_mask_bits(tvb, which_tree, 0, 0, granted_access, is_dir, SMB2_ACCESS_GRANTED);
+		} else {
+			dissect_smb_access_mask_bits(tvb, which_tree, 0, 0, desired_access, is_dir, SMB2_ACCESS_DESIRED);
+		}
+	}
 
 	/* We save this after dissect_smb2_fid just because it would be
 	possible to have this response without having the matching request.

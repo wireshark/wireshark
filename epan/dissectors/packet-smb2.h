@@ -52,6 +52,8 @@ typedef struct _smb2_fid_info_t {
 	char *name;
 	gboolean is_dir;
 	gboolean delete_on_close;
+	uint32_t desired_access;
+	uint32_t granted_access;
 } smb2_fid_info_t;
 
 typedef enum {
@@ -216,7 +218,7 @@ typedef struct _smb2_info_t {
 	smb2_tid_info_t		*tree;
 	smb2_sesid_info_t	*session;
 	smb2_fid_info_t		*file;
-	proto_tree *top_tree;
+	proto_tree		*top_tree;
 } smb2_info_t;
 
 /* for transform content information */
