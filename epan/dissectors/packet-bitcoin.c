@@ -1253,9 +1253,9 @@ dissect_bitcoin_msg_reject(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
   create_string_tree(tree, hf_msg_reject_reason, tvb, &offset);
 
-  if ((tvb_reported_length(tvb) - offset) > 0)
+  if (tvb_reported_length_remaining(tvb, offset) > 0)
   {
-    proto_tree_add_item(tree, hf_msg_reject_data,  tvb, offset, tvb_reported_length(tvb) - offset, ENC_NA);
+    proto_tree_add_item(tree, hf_msg_reject_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
   }
 
   return offset;
