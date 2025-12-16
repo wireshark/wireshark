@@ -3585,10 +3585,10 @@ btmesh_deobfuscate(tvbuff_t *tvb, packet_info *pinfo, int offset _U_, uat_btmesh
     }
 
     memset(in, 0x00, 5);
-    memcpy((uint8_t *)&in + 5, net_key_set->ivindex, 4);
+    memcpy(&in[5], net_key_set->ivindex, 4);
 
     /* Privacy random */
-    tvb_memcpy(tvb, (uint8_t *)&in + 9, 7, 7);
+    tvb_memcpy(tvb, &in[9], 7, 7);
 
     if (gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
         return NULL;
@@ -3600,7 +3600,7 @@ btmesh_deobfuscate(tvbuff_t *tvb, packet_info *pinfo, int offset _U_, uat_btmesh
     }
 
     /* Decrypt */
-    if (gcry_cipher_encrypt(cipher_hd, &pecb, 16, &in, 16)) {
+    if (gcry_cipher_encrypt(cipher_hd, pecb, 16, in, 16)) {
         gcry_cipher_close(cipher_hd);
         return NULL;
     }
