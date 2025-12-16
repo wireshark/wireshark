@@ -155,6 +155,21 @@ static int hf_isakmp_notify_data_dpd_are_you_there;
 static int hf_isakmp_notify_data_dpd_are_you_there_ack;
 static int hf_isakmp_notify_data_unity_load_balance;
 static int hf_isakmp_notify_data_fortinet_network_overlay_id;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_item;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_type;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_value;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_ver;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_fctver;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_uid;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_ip;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_mac;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_host;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_user;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_osver;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_reg_status;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_emssn;
+static int hf_isakmp_notify_data_fortinet_forticlient_connect_emsid;
 static int hf_isakmp_notify_data_accepted_dh_group;
 static int hf_isakmp_notify_data_ipcomp_cpi;
 static int hf_isakmp_notify_data_ipcomp_transform_id;
@@ -449,6 +464,7 @@ static int ett_isakmp_id;
 static int ett_isakmp_notify_data;
 static int ett_isakmp_notify_data_3gpp_emergency_call_numbers_main;
 static int ett_isakmp_notify_data_3gpp_emergency_call_numbers_element;
+static int ett_isakmp_notify_fortinet_forticlient_connnect;
 static int ett_isakmp_ts;
 static int ett_isakmp_kd;
 /* For decrypted IKEv2 Encrypted payload*/
@@ -5176,6 +5192,105 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
       case 61520: /* Network Overlay ID (Fortinet) */
         proto_tree_add_item(tree, hf_isakmp_notify_data_fortinet_network_overlay_id, tvb, offset, length, ENC_BIG_ENDIAN);
         break;
+      case 61696: /* FORTICLIENT_CONNECT (Fortinet) */ {
+        proto_item *item_tree;
+        proto_tree *forticlient_connnect_tree;
+        proto_tree_add_item(tree, hf_isakmp_notify_data_fortinet_forticlient_connect, tvb, offset, length, ENC_ASCII);
+        while (offset < offset_end) {
+
+          int line_len = tvb_find_uint8(tvb, offset, offset_end-offset, '\n');
+          if (line_len == -1) {
+              break;
+          } else {
+              line_len = line_len - offset;
+          }
+
+          gchar *line = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, line_len, ENC_ASCII);
+
+          /* Parse KEY=VALUE */
+          gchar **tokens = g_strsplit(line, "=", 2);
+
+          item_tree = proto_tree_add_string(tree,
+                                            hf_isakmp_notify_data_fortinet_forticlient_connect_item,
+                                            tvb, offset, line_len,
+                                            line);
+          forticlient_connnect_tree = proto_item_add_subtree(item_tree, ett_isakmp_notify_fortinet_forticlient_connnect);
+          if (tokens[0] && tokens[1]) {
+              int type_len = (int)strlen(tokens[0]);
+              int type_value = (int)strlen(tokens[1]);
+              proto_tree_add_string(forticlient_connnect_tree,
+                                      hf_isakmp_notify_data_fortinet_forticlient_connect_type,
+                                      tvb, offset, type_len,
+                                      tokens[0]);
+              proto_tree_add_string(forticlient_connnect_tree,
+                                      hf_isakmp_notify_data_fortinet_forticlient_connect_value,
+                                      tvb, offset+type_len+1, type_value,
+                                      tokens[1]);
+              if (strcmp(tokens[0], "VER") == 0) {
+                  proto_tree_add_string(forticlient_connnect_tree,
+                                        hf_isakmp_notify_data_fortinet_forticlient_connect_ver,
+                                        tvb, offset+type_len+1, type_value,
+                                        tokens[1]);
+
+              } else if (strcmp(tokens[0], "FCTVER") == 0) {
+                  proto_tree_add_string(forticlient_connnect_tree,
+                                        hf_isakmp_notify_data_fortinet_forticlient_connect_fctver,
+                                        tvb, offset+type_len+1, type_value,
+                                        tokens[1]);
+              } else if (strcmp(tokens[0], "UID") == 0) {
+                  proto_tree_add_string(forticlient_connnect_tree,
+                                        hf_isakmp_notify_data_fortinet_forticlient_connect_uid,
+                                        tvb, offset+type_len+1, type_value,
+                                        tokens[1]);
+              } else if (strcmp(tokens[0], "IP") == 0) {
+                  proto_tree_add_string(forticlient_connnect_tree,
+                                        hf_isakmp_notify_data_fortinet_forticlient_connect_ip,
+                                        tvb, offset+type_len+1, type_value,
+                                        tokens[1]);
+              } else if (strcmp(tokens[0], "MAC") == 0) {
+                  proto_tree_add_string(forticlient_connnect_tree,
+                                        hf_isakmp_notify_data_fortinet_forticlient_connect_mac,
+                                        tvb, offset+type_len+1, type_value,
+                                        tokens[1]);
+              } else if (strcmp(tokens[0], "HOST") == 0) {
+                  proto_tree_add_string(forticlient_connnect_tree,
+                                        hf_isakmp_notify_data_fortinet_forticlient_connect_host,
+                                        tvb, offset+type_len+1, type_value,
+                                        tokens[1]);
+              } else if (strcmp(tokens[0], "USER") == 0) {
+                  proto_tree_add_string(forticlient_connnect_tree,
+                                        hf_isakmp_notify_data_fortinet_forticlient_connect_user,
+                                        tvb, offset+type_len+1, type_value,
+                                        tokens[1]);
+              } else if (strcmp(tokens[0], "OSVER") == 0) {
+                  proto_tree_add_string(forticlient_connnect_tree,
+                                        hf_isakmp_notify_data_fortinet_forticlient_connect_osver,
+                                        tvb, offset+type_len+1, type_value,
+                                        tokens[1]);
+              } else if (strcmp(tokens[0], "REG_STATUS") == 0) {
+                  proto_tree_add_string(forticlient_connnect_tree,
+                                        hf_isakmp_notify_data_fortinet_forticlient_connect_reg_status,
+                                        tvb, offset+type_len+1, type_value,
+                                        tokens[1]);
+              } else if (strcmp(tokens[0], "EMSSN") == 0) {
+                  proto_tree_add_string(forticlient_connnect_tree,
+                                        hf_isakmp_notify_data_fortinet_forticlient_connect_emssn,
+                                        tvb, offset+type_len+1, type_value,
+                                        tokens[1]);
+              } else if (strcmp(tokens[0], "EMSID") == 0) {
+                  proto_tree_add_string(forticlient_connnect_tree,
+                                        hf_isakmp_notify_data_fortinet_forticlient_connect_emsid,
+                                        tvb, offset+type_len+1, type_value,
+                                        tokens[1]);
+              }
+          }
+
+          g_strfreev(tokens);
+
+          offset += line_len + 1; /* +1 pour le LF */
+          }
+        }
+        break;
       default:
         /* No Default Action */
         break;
@@ -6933,6 +7048,66 @@ proto_register_isakmp(void)
       { "Network Overlay ID", "isakmp.notify.data.fortinet.network_overlay_id",
         FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect,
+      { "Forticlient connect", "isakmp.notify.data.fortinet.forticlient_connect",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_item,
+      { "Config", "isakmp.notify.data.fortinet.forticlient_connect.item",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_type,
+      { "Type", "isakmp.notify.data.fortinet.forticlient_connect.type",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_value,
+      { "Value", "isakmp.notify.data.fortinet.forticlient_connect.value",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_ver,
+      { "Ver", "isakmp.notify.data.fortinet.forticlient_connect.ver",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_fctver,
+      { "FCTVER", "isakmp.notify.data.fortinet.forticlient_connect.fctver",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_uid,
+      { "UID", "isakmp.notify.data.fortinet.forticlient_connect.uid",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_ip,
+      { "IP", "isakmp.notify.data.fortinet.forticlient_connect.ip",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_mac,
+      { "MAC", "isakmp.notify.data.fortinet.forticlient_connect.mac",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_host,
+      { "Host", "isakmp.notify.data.fortinet.forticlient_connect.host",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_user,
+      { "User", "isakmp.notify.data.fortinet.forticlient_connect.user",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_osver,
+      { "OSVER", "isakmp.notify.data.fortinet.forticlient_connect.osver",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_reg_status,
+      { "REG STATUS", "isakmp.notify.data.fortinet.forticlient_connect.reg_status",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_emssn,
+      { "EMS SN", "isakmp.notify.data.fortinet.forticlient_connect.emssn",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_notify_data_fortinet_forticlient_connect_emsid,
+      { "EMS ID", "isakmp.notify.data.fortinet.forticlient_connect.emsid",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_isakmp_notify_data_accepted_dh_group,
       { "Accepted DH group number", "isakmp.notify.data.accepted_dh_group",
         FT_UINT16, BASE_DEC, VALS(dh_group), 0x0,
@@ -8157,6 +8332,7 @@ proto_register_isakmp(void)
     &ett_isakmp_notify_data,
     &ett_isakmp_notify_data_3gpp_emergency_call_numbers_main,
     &ett_isakmp_notify_data_3gpp_emergency_call_numbers_element,
+    &ett_isakmp_notify_fortinet_forticlient_connnect,
     &ett_isakmp_ts,
     &ett_isakmp_kd,
     &ett_isakmp_decrypted_data,
