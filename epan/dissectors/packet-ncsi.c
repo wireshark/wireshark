@@ -567,7 +567,7 @@ ncsi_bcd_dig_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset)
     }
 
     digit_str[str_offset] = '\0';
-    return (const char*)get_utf_8_string(scope, (uint8_t*)digit_str, (int)strlen(digit_str));
+    return (const char*)get_utf_8_string(scope, (uint8_t*)digit_str, strlen(digit_str));
 
 }
 

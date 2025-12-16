@@ -80,7 +80,7 @@
  * REPLACEMENT CHARACTER.
  */
 uint8_t *
-get_ascii_string(wmem_allocator_t *scope, const uint8_t *ptr, int length)
+get_ascii_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length)
 {
     wmem_strbuf_t *str;
     const uint8_t *prev = ptr;
@@ -111,7 +111,7 @@ get_ascii_string(wmem_allocator_t *scope, const uint8_t *ptr, int length)
 }
 
 uint8_t *
-get_utf_8_string(wmem_allocator_t *scope, const uint8_t *ptr, int length)
+get_utf_8_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length)
 {
     return ws_utf8_make_valid(scope, ptr, length);
 }
@@ -149,7 +149,7 @@ const gunichar2 charset_table_iso_646_basic[0x80] = {
  * allocated using the wmem scope.
  */
 uint8_t *
-get_iso_646_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, const gunichar2 table[0x80])
+get_iso_646_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, const gunichar2 table[0x80])
 {
     wmem_strbuf_t *str;
 
@@ -175,7 +175,7 @@ get_iso_646_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, cons
  * return a pointer to a UTF-8 string, allocated using the wmem scope.
  */
 uint8_t *
-get_8859_1_string(wmem_allocator_t *scope, const uint8_t *ptr, int length)
+get_8859_1_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length)
 {
     wmem_strbuf_t *str;
 
@@ -675,7 +675,7 @@ const gunichar2 charset_table_cp866[0x80] = {
  * return a pointer to a UTF-8 string, allocated using the wmem scope.
  */
 uint8_t *
-get_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, const gunichar2 table[0x80])
+get_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, const gunichar2 table[0x80])
 {
     wmem_strbuf_t *str;
 
@@ -708,10 +708,10 @@ get_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, con
  * Specify length in bytes.
  */
 uint8_t *
-get_ucs_2_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsigned encoding)
+get_ucs_2_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, unsigned encoding)
 {
     gunichar2      uchar;
-    int            i = 0;       /* Byte counter for string */
+    size_t         i = 0;       /* Byte counter for string */
     wmem_strbuf_t *strbuf;
 
     strbuf = wmem_strbuf_new_sized(scope, length+1);
@@ -760,12 +760,12 @@ get_ucs_2_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsign
  * Specify length in bytes.
  */
 uint8_t *
-get_utf_16_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsigned encoding)
+get_utf_16_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, unsigned encoding)
 {
     wmem_strbuf_t *strbuf;
     gunichar2      uchar2, lead_surrogate;
     gunichar       uchar;
-    int            i = 0;       /* Byte counter for string */
+    size_t         i = 0;       /* Byte counter for string */
 
     strbuf = wmem_strbuf_new_sized(scope, length+1);
 
@@ -860,10 +860,10 @@ get_utf_16_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsig
  * Specify length in bytes
  */
 uint8_t *
-get_ucs_4_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsigned encoding)
+get_ucs_4_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, unsigned encoding)
 {
     gunichar       uchar;
-    int            i = 0;       /* Byte counter for string */
+    size_t         i = 0;       /* Byte counter for string */
     wmem_strbuf_t *strbuf;
 
     strbuf = wmem_strbuf_new_sized(scope, length+1);
@@ -1002,10 +1002,10 @@ handle_ts_23_038_char(wmem_strbuf_t *strbuf, uint8_t code_point,
 
 uint8_t *
 get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope, const uint8_t *ptr,
-                                  const int bit_offset, int no_of_chars)
+                                  const size_t bit_offset, size_t no_of_chars)
 {
     wmem_strbuf_t *strbuf;
-    int            char_count;                  /* character counter for string */
+    size_t         char_count;                  /* character counter for string */
     uint8_t        in_byte, out_byte, rest = 0x00;
     const uint8_t *start_ptr = ptr;
     bool           saw_escape = false;
@@ -1074,10 +1074,10 @@ get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope, const uint8_t *ptr,
 
 uint8_t *
 get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *scope, const uint8_t *ptr,
-                           int length)
+                           size_t length)
 {
     wmem_strbuf_t *strbuf;
-    int            i;       /* Byte counter for string */
+    size_t         i;       /* Byte counter for string */
     bool           saw_escape = false;
 
     strbuf = wmem_strbuf_new_sized(scope, length+1);
@@ -1093,13 +1093,13 @@ get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *scope, const uint8_t *ptr,
  */
 uint8_t *
 get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope, const uint8_t *ptr,
-                                   int length)
+                                   size_t length)
 {
     uint8_t        string_type;
     uint8_t        string_len;
     gunichar2      ucs2_base;
     wmem_strbuf_t *strbuf;
-    unsigned       i;       /* Byte counter for string */
+    size_t         i;       /* Byte counter for string */
     bool           saw_escape = false;
 
     /*
@@ -1220,10 +1220,10 @@ get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope, const uint8_t *ptr,
 
 uint8_t *
 get_ascii_7bits_string(wmem_allocator_t *scope, const uint8_t *ptr,
-                       const int bit_offset, int no_of_chars)
+                       const size_t bit_offset, size_t no_of_chars)
 {
     wmem_strbuf_t *strbuf;
-    int            char_count;                  /* character counter for string */
+    size_t         char_count;                  /* character counter for string */
     uint8_t        in_byte, out_byte, rest = 0x00;
     const uint8_t *start_ptr = ptr;
     int            bits;
@@ -1409,7 +1409,7 @@ const gunichar2 charset_table_ebcdic_cp500[256] = {
  * pointer to a UTF-8 string, allocated using the wmem scope.
  */
 uint8_t *
-get_nonascii_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, const gunichar2 table[256])
+get_nonascii_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, const gunichar2 table[256])
 {
     wmem_strbuf_t *str;
 
@@ -1436,7 +1436,7 @@ get_nonascii_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, int le
  * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
  */
 static uint8_t *
-get_string_enc_iconv(wmem_allocator_t *scope, const uint8_t *ptr, int length, const char *encoding)
+get_string_enc_iconv(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, const char *encoding)
 {
     GIConv cd;
     size_t inbytes, outbytes;
@@ -1532,7 +1532,7 @@ get_string_enc_iconv(wmem_allocator_t *scope, const uint8_t *ptr, int length, co
  * As expected, this will also decode GBK and GB2312 strings.
  */
 uint8_t *
-get_gb18030_string(wmem_allocator_t *scope, const uint8_t *ptr, int length)
+get_gb18030_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length)
 {
     /* iconv/libiconv support is guaranteed with GLib. Support this
      * via iconv, at least for now. */
@@ -1564,7 +1564,7 @@ get_gb18030_string(wmem_allocator_t *scope, const uint8_t *ptr, int length)
  * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
  */
 uint8_t *
-get_euc_kr_string(wmem_allocator_t *scope, const uint8_t *ptr, int length)
+get_euc_kr_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length)
 {
     /* iconv/libiconv support is guaranteed with GLib. Support this
      * via iconv, at least for now. */
@@ -1825,9 +1825,9 @@ static const wvec32 * const * const cx_tab[] = {
     cb_cedilla, NULL, cd_doubleacute, ce_ogonek, cf_caron };
 
 uint8_t *
-get_t61_string(wmem_allocator_t *scope, const uint8_t *ptr, int length)
+get_t61_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length)
 {
-    int            i;
+    size_t         i;
     const uint8_t *c;
     wmem_strbuf_t *strbuf;
 
@@ -1887,9 +1887,9 @@ static const gunichar2 dect_standard_8bits_code_table[] = {
 };
 
 uint8_t *
-get_dect_standard_8bits_string(wmem_allocator_t *scope, const uint8_t *ptr, int length)
+get_dect_standard_8bits_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length)
 {
-    int            position;
+    size_t         position;
     const uint8_t *current_byte_ptr;
     wmem_strbuf_t *strbuf;
 

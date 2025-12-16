@@ -413,7 +413,7 @@ get_nbns_name(tvbuff_t *tvb, wmem_allocator_t* allocator, int offset, int nbns_d
          * ASCII before appending it to our NBName, so we have a valid
          * UTF-8 string.
          */
-        const char* scope_id = (char*)get_ascii_string(allocator, (const uint8_t*)pname, (int)strlen(pname));
+        const char* scope_id = (char*)get_ascii_string(allocator, (const uint8_t*)pname, strlen(pname));
         int bytes_attempted = (int)g_strlcat(name_ret, scope_id, name_ret_len);
         if (bytes_attempted >= name_ret_len) {
             ws_utf8_truncate(name_ret, name_ret_len - 1);

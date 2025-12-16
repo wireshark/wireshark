@@ -510,7 +510,7 @@ t30_get_string_numbers(wmem_allocator_t *pool, tvbuff_t *tvb, int offset, int le
     buf[LENGTH_T30_NUM] = '\0';
 
     char *s = g_strstrip(buf);
-    return (char*)get_utf_8_string(pool, (uint8_t*)s, (int)strlen(s));
+    return (char*)get_utf_8_string(pool, (uint8_t*)s, strlen(s));
 
 }
 

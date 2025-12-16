@@ -75,7 +75,7 @@ extern const gunichar2 charset_table_ebcdic_cp500[256];
  * REPLACEMENT CHARACTER.
  */
 WS_DLL_PUBLIC uint8_t *
-get_ascii_string(wmem_allocator_t *scope, const uint8_t *ptr, int length);
+get_ascii_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length);
 
 /*
  * Given a wmem scope, a pointer, and a length, treat the string of bytes
@@ -86,7 +86,7 @@ get_ascii_string(wmem_allocator_t *scope, const uint8_t *ptr, int length);
  * Standard and specified by W3C/WHATWG.
  */
 WS_DLL_PUBLIC uint8_t *
-get_utf_8_string(wmem_allocator_t *scope, const uint8_t *ptr, int length);
+get_utf_8_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length);
 
 /*
  * Given a wmem scope, a pointer, a length, and a translation table,
@@ -99,7 +99,7 @@ get_utf_8_string(wmem_allocator_t *scope, const uint8_t *ptr, int length);
  * allocated using the wmem scope.
  */
 WS_DLL_PUBLIC uint8_t *
-get_iso_646_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, const gunichar2 table[0x80]);
+get_iso_646_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, const gunichar2 table[0x80]);
 
 /*
  * Given a wmem scope, a pointer, and a length, treat the string of bytes
@@ -107,7 +107,7 @@ get_iso_646_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, cons
  * return a pointer to a UTF-8 string, allocated using the wmem scope.
  */
 WS_DLL_PUBLIC uint8_t *
-get_8859_1_string(wmem_allocator_t *scope, const uint8_t *ptr, int length);
+get_8859_1_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length);
 
 /*
  * Given a wmem scope, a pointer, a length, and a translation table with
@@ -119,7 +119,7 @@ get_8859_1_string(wmem_allocator_t *scope, const uint8_t *ptr, int length);
  * return a pointer to a UTF-8 string, allocated using the wmem scope.
  */
 WS_DLL_PUBLIC uint8_t *
-get_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, const gunichar2 table[0x80]);
+get_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, const gunichar2 table[0x80]);
 
 /*
  * Given a wmem scope, a pointer, and a length, treat the string of bytes
@@ -134,7 +134,7 @@ get_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, con
  * Specify length in bytes.
  */
 WS_DLL_PUBLIC uint8_t *
-get_ucs_2_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsigned encoding);
+get_ucs_2_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, unsigned encoding);
 
 /*
  * Given a wmem scope, a pointer, and a length, treat the string of bytes
@@ -149,7 +149,7 @@ get_ucs_2_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsign
  * Specify length in bytes.
  */
 WS_DLL_PUBLIC uint8_t *
-get_utf_16_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsigned encoding);
+get_utf_16_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, unsigned encoding);
 
 /*
  * Given a wmem scope, a pointer, and a length, treat the string of bytes
@@ -162,23 +162,23 @@ get_utf_16_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsig
  * Specify length in bytes.
  */
 WS_DLL_PUBLIC uint8_t *
-get_ucs_4_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, unsigned encoding);
+get_ucs_4_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, unsigned encoding);
 
 WS_DLL_PUBLIC uint8_t *
 get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope, const uint8_t *ptr,
-        const int bit_offset, int no_of_chars);
+        const size_t bit_offset, size_t no_of_chars);
 
 WS_DLL_PUBLIC uint8_t *
 get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *scope, const uint8_t *ptr,
-        int length);
+        size_t length);
 
 WS_DLL_PUBLIC uint8_t *
 get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope, const uint8_t *ptr,
-        int length);
+        size_t length);
 
 WS_DLL_PUBLIC uint8_t *
 get_ascii_7bits_string(wmem_allocator_t *scope, const uint8_t *ptr,
-        const int bit_offset, int no_of_chars);
+        const size_t bit_offset, size_t no_of_chars);
 
 /*
  * Given a wmem scope, a pointer, a length, and a translation table with
@@ -189,7 +189,7 @@ get_ascii_7bits_string(wmem_allocator_t *scope, const uint8_t *ptr,
  * pointer to a UTF-8 string, allocated using the wmem scope.
  */
 WS_DLL_PUBLIC uint8_t *
-get_nonascii_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, int length, const gunichar2 table[256]);
+get_nonascii_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, const gunichar2 table[256]);
 
 /*
  * Given a wmem scope, a pointer, and a length, treat the bytes referred to
@@ -202,7 +202,7 @@ get_nonascii_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, int le
  * As expected, this will also decode GBK and GB2312 strings.
  */
 WS_DLL_PUBLIC uint8_t *
-get_gb18030_string(wmem_allocator_t *scope, const uint8_t *ptr, int length);
+get_gb18030_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length);
 
 /*
  * Given a wmem scope, a pointer, and a length, treat the bytes referred to
@@ -213,13 +213,13 @@ get_gb18030_string(wmem_allocator_t *scope, const uint8_t *ptr, int length);
  * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
  */
 WS_DLL_PUBLIC uint8_t *
-get_euc_kr_string(wmem_allocator_t *scope, const uint8_t *ptr, int length);
+get_euc_kr_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length);
 
 WS_DLL_PUBLIC uint8_t *
-get_t61_string(wmem_allocator_t *scope, const uint8_t *ptr, int length);
+get_t61_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length);
 
 WS_DLL_PUBLIC uint8_t *
-get_dect_standard_8bits_string(wmem_allocator_t *scope, const uint8_t *ptr, int length);
+get_dect_standard_8bits_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
