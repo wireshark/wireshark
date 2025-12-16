@@ -1266,7 +1266,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mqtt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mqtt-sn.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mrcpv2.c
-	${CMAKE_CURRENT_SOURCE_DIR}/packet-mrdisc.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-mrd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mrp-mmrp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mrp-msrp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mrp-mvrp.c

@@ -19,7 +19,7 @@
 	RFC3376	Version 3
 
 	Size in bytes for each packet
-	type	RFC988	RFC1054	RFC2236 RFC3376  DVMRP  MRDISC  MSNIP  IGAP  RGMP
+	type	RFC988	RFC1054	RFC2236 RFC3376  DVMRP  MRD    MSNIP  IGAP  RGMP
 	        v0      v1      v2      v3       v1/v3
 	0x01      20
 	0x02      20
@@ -35,17 +35,20 @@
 	0x16                      8
 	0x17                      8
 	0x22                            >=8
-	0x23                                                    >=8b
-	0x24                                            >=8a    8b
-	0x25                                            4a      >=8b
+	0x23                                                   >=8b
+	0x24                                            >=8a   8b
+	0x25                                            4a     >=8b
 	0x26                                            4a
-	0x40                                                           ??c
-	0x41                                                           ??c
-	0x42                                                           ??c
-	0xfc                                                                  8
-	0xfd                                                                  8
-	0xfe                                                                  8
-	0xff                                                                  8
+	0x30                                            8a
+	0x31                                            4a
+	0x32                                            4a
+	0x40                                                          ??c
+	0x41                                                          ??c
+	0x42                                                          ??c
+	0xfc                                                                 8
+	0xfd                                                                 8
+	0xfe                                                                 8
+	0xff                                                                 8
 
    * Differs in second byte of protocol. Always 0 in V1
 
@@ -68,11 +71,16 @@
 	IGMP header.
 	If header[6]==0xff and header[7]==0x03 we have version 3.
 
-   a MRDISC Protocol  see packet-mrdisc.c
+   a MRD Protocol  see packet-mrd.c
 
-	MRDISC : IGMP Multicast Router DISCovery
+	MRD: IGMP Multicast Router Discovery
+	RFC 4296 (https://datatracker.ietf.org/doc/html/rfc4286)
+	0x30, 0x31, 0x32 are IANA assigned
 	draft-ietf-idmr-igmp-mrdisc-06.txt
-	TTL == 1 and IP.DST==224.0.0.2 for all packets
+	used 0x24, 0x25, 0x26 (note conflict with MSNIP)
+	TTL == 1 and IP.DST==224.0.0.2 for 0x31, 0x24, 0x25, 0x26
+	TTL == 1 and IP.DST==224.0.0.106 for 0x30, 0x32
+	(draft 08-10 used IP.DST==224.0.0.1 for 0x30, 0x32)
 
    b MSNIP Protocol  see packet-msnip.c
 
@@ -1095,6 +1103,8 @@ proto_register_igmp(void)
 	expert_igmp = expert_register_protocol(proto_igmp);
 	expert_register_field_array(expert_igmp, ei, array_length(ei));
 
+	/* XXX - Due to conflict between some Internet-Drafts, perhaps this
+	 * table should support Decode As? */
 	subdissector_table = register_dissector_table("igmp.type", "IGMP commands", proto_igmp, FT_UINT32, BASE_HEX);
 
 	igmp_handle = register_dissector("igmp", dissect_igmp, proto_igmp);
