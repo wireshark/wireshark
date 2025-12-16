@@ -2179,6 +2179,11 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
     }
 
     tvb_LBRKT = tvb_find_uint8(tvb, tvb_previous_offset, tvb_signals_end_offset, '{');
+    if (tvb_LBRKT == -1) {
+      // This should not happen, because we should at least find the '{' found
+      // above at tvb_current_offset. DISSECTOR_ASSERT?
+      return;
+    }
     tokenlen =  (tvb_LBRKT+1) - tvb_signals_start_offset;
 
     megaco_signalsdescriptor_ti = proto_tree_add_item(megaco_tree_command_line,hf_megaco_signal_descriptor,tvb,tvb_previous_offset,tokenlen, ENC_NA);
