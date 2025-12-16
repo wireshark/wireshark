@@ -38,26 +38,29 @@ struct knx_keyring_ia_keys* knx_keyring_ia_keys;
 struct knx_keyring_ia_seqs* knx_keyring_ia_seqs;
 
 // Encrypt 16-byte block via AES
-static void encrypt_block( const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t plain[ KNX_KEY_LENGTH ], uint8_t p_crypt[ KNX_KEY_LENGTH ] )
+static bool encrypt_block( const uint8_t key[ KNX_KEY_LENGTH ], const uint8_t plain[ KNX_KEY_LENGTH ], uint8_t p_crypt[ KNX_KEY_LENGTH ] )
 {
   gcry_cipher_hd_t cryptor = NULL;
   gcry_error_t err;
   err = gcry_cipher_open( &cryptor, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC, 0 );
   if (err != 0) {
     ws_debug("failed to open AES128 cipher handle: %s/%s", gcry_strsource(err), gcry_strerror(err));
-    return;
+    return false;
   }
   err = gcry_cipher_setkey( cryptor, key, KNX_KEY_LENGTH );
   if (err != 0) {
     ws_debug("failed to set AES128 cipher key: %s/%s", gcry_strsource(err), gcry_strerror(err));
     gcry_cipher_close( cryptor );
-    return;
+    return false;
   }
   err = gcry_cipher_encrypt( cryptor, p_crypt, KNX_KEY_LENGTH, plain, KNX_KEY_LENGTH );
   if (err != 0) {
     ws_debug("failed to encrypt AES128: %s/%s", gcry_strsource(err), gcry_strerror(err));
+    gcry_cipher_close( cryptor );
+    return false;
   }
   gcry_cipher_close( cryptor );
+  return true;
 }
 
 // Create B_0 for CBC-MAC
@@ -85,7 +88,10 @@ void knx_ccm_calc_cbc_mac(uint8_t p_mac[ KNX_KEY_LENGTH ], const uint8_t key[ KN
 
   // Add B_0
   memcpy( plain, b_0, KNX_KEY_LENGTH );
-  encrypt_block( key, plain, p_mac );
+  if (!encrypt_block( key, plain, p_mac )) {
+    memset(p_mac, 0, KNX_KEY_LENGTH);
+    return;
+  }
 
   // Add a_length
   plain[ 0 ] = (uint8_t) ((a_length >> 8) ^ p_mac[ 0 ]);
@@ -115,7 +121,10 @@ void knx_ccm_calc_cbc_mac(uint8_t p_mac[ KNX_KEY_LENGTH ], const uint8_t key[ KN
       ++b_pos;
     }
 
-    encrypt_block( key, plain, p_mac );
+    if (!encrypt_block( key, plain, p_mac )) {
+      memset(p_mac, 0, KNX_KEY_LENGTH);
+      return;
+    }
 
     b_pos = 0;
   }
@@ -152,7 +161,9 @@ uint8_t* knx_ccm_encrypt(wmem_allocator_t* scope, uint8_t* p_result, const uint8
 
     // Encrypt ctr_0 for mac
     memcpy( ctr, ctr_0, KNX_KEY_LENGTH );
-    encrypt_block( key, ctr, mask_0 );
+    if (!encrypt_block( key, ctr, mask_0 )) {
+      return NULL;
+    }
 
     // Encrypt p_bytes with rest of S_0, only if mac_length < 16.
     b_pos = s0_bytes_used_for_mac;
@@ -167,7 +178,9 @@ uint8_t* knx_ccm_encrypt(wmem_allocator_t* scope, uint8_t* p_result, const uint8
     {
       // Increment and encrypt ctr
       ++ctr[ KNX_KEY_LENGTH - 1 ];
-      encrypt_block( key, ctr, mask );
+      if (!encrypt_block( key, ctr, mask )) {
+        return NULL;
+      }
 
       // Encrypt input block via encrypted ctr
       b_pos = 0;
