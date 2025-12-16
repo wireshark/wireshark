@@ -10049,6 +10049,9 @@ mark_truncated(char *label_str, size_t name_pos, const size_t size, size_t *valu
 	 */
 	last_char = g_utf8_prev_char(label_str + size);
 	*last_char = '\0';
+	/* This is unnecessary (above always terminates), but try to
+	 * convince Coverity to avoid dozens of false positives. */
+	label_str[size - 1] = '\0';
 
 	if (value_pos && *value_pos > 0) {
 		if (name_pos == 0) {
