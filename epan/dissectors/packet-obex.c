@@ -1220,14 +1220,14 @@ dissect_obex_application_parameter_bt_bpp(tvbuff_t *tvb, packet_info *pinfo, pro
 static int
 dissect_obex_application_parameter_bt_bip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item  *item;
-    proto_item  *parameter_item;
-    proto_tree  *parameter_tree;
-    uint8_t      parameter_id;
-    int          offset = 0;
-    int          parameters_length;
-    int          parameter_length;
-    static int   required_length_map[] = {0, 2, 2, 1, 4, 4, 4, 1, 1, 16, 1};
+    proto_item      *item;
+    proto_item      *parameter_item;
+    proto_tree      *parameter_tree;
+    uint8_t          parameter_id;
+    int              offset = 0;
+    int              parameters_length;
+    int              parameter_length;
+    static const int required_length_map[] = {0, 2, 2, 1, 4, 4, 4, 1, 1, 16, 1};
 
     parameters_length = tvb_reported_length(tvb);
 
@@ -1297,14 +1297,14 @@ dissect_obex_application_parameter_bt_bip(tvbuff_t *tvb, packet_info *pinfo, pro
 static int
 dissect_obex_application_parameter_bt_pbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item  *item;
-    proto_item  *parameter_item;
-    proto_tree  *parameter_tree;
-    uint8_t      parameter_id;
-    int          offset = 0;
-    int          parameters_length;
-    int          parameter_length;
-    static int   required_length_map[] = {0, 1, -1, 1, 2, 2, 8, 1, 2, 1, 16, 16, 8, 16, 1, 1};
+    proto_item      *item;
+    proto_item      *parameter_item;
+    proto_tree      *parameter_tree;
+    uint8_t          parameter_id;
+    int              offset = 0;
+    int              parameters_length;
+    int              parameter_length;
+    static const int required_length_map[] = {0, 1, -1, 1, 2, 2, 8, 1, 2, 1, 16, 16, 8, 16, 1, 1};
 
     parameters_length = tvb_reported_length(tvb);
 
@@ -1395,14 +1395,14 @@ dissect_obex_application_parameter_bt_pbap(tvbuff_t *tvb, packet_info *pinfo, pr
 static int
 dissect_obex_application_parameter_bt_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item  *item;
-    proto_item  *parameter_item;
-    proto_tree  *parameter_tree;
-    uint8_t      parameter_id;
-    int          offset = 0;
-    int          parameters_length;
-    int          parameter_length;
-    static int   required_length_map[] = {0, 2, 2, 1, -1, -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 4, 2, 2, 1, 1, 1, 1, 1, 1, -1};
+    proto_item      *item;
+    proto_item      *parameter_item;
+    proto_tree      *parameter_tree;
+    uint8_t          parameter_id;
+    int              offset = 0;
+    int              parameters_length;
+    int              parameter_length;
+    static const int required_length_map[] = {0, 2, 2, 1, -1, -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 4, 2, 2, 1, 1, 1, 1, 1, 1, -1};
 
     parameters_length = tvb_reported_length(tvb);
 
@@ -1553,14 +1553,14 @@ dissect_obex_application_parameter_bt_map(tvbuff_t *tvb, packet_info *pinfo, pro
 static int
 dissect_obex_application_parameter_bt_gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item  *item;
-    proto_item  *parameter_item;
-    proto_tree  *parameter_tree;
-    uint8_t      parameter_id;
-    int          offset = 0;
-    int          parameters_length;
-    int          parameter_length;
-    static int   required_length_map[] = {2, 2, 1, 1, 0, 2};
+    proto_item      *item;
+    proto_item      *parameter_item;
+    proto_tree      *parameter_tree;
+    uint8_t          parameter_id;
+    int              offset = 0;
+    int              parameters_length;
+    int              parameter_length;
+    static const int required_length_map[] = {2, 2, 1, 1, 0, 2};
 
     parameters_length = tvb_reported_length(tvb);
 
@@ -1617,15 +1617,15 @@ dissect_obex_application_parameter_bt_gpp(tvbuff_t *tvb, packet_info *pinfo, pro
 static int
 dissect_obex_application_parameter_bt_ctn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item  *item;
-    proto_item  *parameter_item;
-    proto_tree  *parameter_tree;
-    uint8_t      parameter_id;
-    int          offset = 0;
-    int          parameters_length;
-    int          parameter_length;
-    static int   required_length_map[] = {0, 1, 1, 1, -1, -1, 4, 1, 1, 4, -1, -1, 1, 1, -1};
-    static int   required_length_map_gpp[] = {2, 2, 1, 1, -1, 2};
+    proto_item      *item;
+    proto_item      *parameter_item;
+    proto_tree      *parameter_tree;
+    uint8_t          parameter_id;
+    int              offset = 0;
+    int              parameters_length;
+    int              parameter_length;
+    static const int required_length_map[] = {0, 1, 1, 1, -1, -1, 4, 1, 1, 4, -1, -1, 1, 1, -1};
+    static const int required_length_map_gpp[] = {2, 2, 1, 1, -1, 2};
 
     parameters_length = tvb_reported_length(tvb);
 

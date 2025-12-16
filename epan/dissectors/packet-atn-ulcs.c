@@ -1524,7 +1524,7 @@ static const value_string atn_ulcs_ABRT_diagnostic_vals[] = {
   { 0, NULL }
 };
 
-static uint32_t ABRT_diagnostic_value_map[6+0] = {1, 2, 3, 4, 5, 6};
+static const uint32_t ABRT_diagnostic_value_map[6+0] = {1, 2, 3, 4, 5, 6};
 
 static int
 dissect_atn_ulcs_ABRT_diagnostic(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {

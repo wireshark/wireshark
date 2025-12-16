@@ -4773,7 +4773,7 @@ typedef struct attribute_val_array {
       to switch to a more efficient implementation (eg: hash table).
 */
 
-static attribute_val_array_t all_attribute_vals[] = {
+static const attribute_val_array_t all_attribute_vals[] = {
    {array_length(cip_attribute_vals), cip_attribute_vals},
    {array_length(enip_attribute_vals), enip_attribute_vals},
    {array_length(cip_safety_attribute_vals), cip_safety_attribute_vals},
@@ -4783,7 +4783,7 @@ static attribute_val_array_t all_attribute_vals[] = {
 const attribute_info_t* cip_get_attribute(unsigned class_id, unsigned instance, unsigned attribute)
 {
    size_t i, j;
-   attribute_val_array_t* att_array;
+   const attribute_val_array_t* att_array;
    const attribute_info_t* pattr;
 
    static const attribute_info_t class_attribute_vals[] = {
@@ -7186,7 +7186,7 @@ cip_gaa_equal(const void *v, const void *w)
 static void build_get_attr_all_table(void)
 {
    size_t i, j;
-   attribute_val_array_t* att_array;
+   const attribute_val_array_t* att_array;
    const attribute_info_t* pattr;
    cip_gaa_key_t key;
    cip_gaa_key_t* new_key;

@@ -1102,7 +1102,7 @@ static const value_string buffer_size_vals[] =
 };
 static value_string_ext buffer_size_vals_ext = VALUE_STRING_EXT_INIT(buffer_size_vals);
 
-static uint32_t buffer_size_median[64] = {
+static const uint32_t buffer_size_median[64] = {
     0,  /* BS = 0 */
     5,  /* 0 < BS <= 10 */
     11, /* 10 < BS <= 12 */
@@ -1239,7 +1239,7 @@ static const value_string ext_buffer_size_vals[] =
 };
 static value_string_ext ext_buffer_size_vals_ext = VALUE_STRING_EXT_INIT(ext_buffer_size_vals);
 
-static uint32_t ext_buffer_size_median[64] = {
+static const uint32_t ext_buffer_size_median[64] = {
     0,  /* BS = 0 */
     5,  /* 0 < BS <= 10 */
     12, /* 10 < BS <= 13 */
@@ -6214,7 +6214,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         uint32_t buffer_size;
                         int hfindex;
                         value_string_ext *p_vs_ext;
-                        uint32_t *p_buffer_size_median;
+                        const uint32_t *p_buffer_size_median;
 
                         if (!PINFO_FD_VISITED(pinfo)) {
                             get_mac_lte_ue_ext_bsr_sizes(p_mac_lte_info);
@@ -6280,7 +6280,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         uint32_t    buffer_size[4];
                         int hfindex[4];
                         value_string_ext *p_vs_ext;
-                        uint32_t *p_buffer_size_median;
+                        const uint32_t *p_buffer_size_median;
 
                         if (!PINFO_FD_VISITED(pinfo)) {
                             get_mac_lte_ue_ext_bsr_sizes(p_mac_lte_info);

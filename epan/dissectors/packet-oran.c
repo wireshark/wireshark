@@ -1040,7 +1040,7 @@ typedef struct {
 } AllowedCTs_t;
 
 
-static AllowedCTs_t ext_cts[HIGHEST_EXTTYPE] = {
+static const AllowedCTs_t ext_cts[HIGHEST_EXTTYPE] = {
     /* ST0    ST1    ST3    ST5    ST6   ST10    ST11 */
     { false, true,  true,  false, false, false, false},   // SE 1      (1,3)
     { false, true,  true,  false, false, false, false},   // SE 2      (1,3)

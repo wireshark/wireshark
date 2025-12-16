@@ -5120,7 +5120,7 @@ class EnumeratedType (Type):
         map_table = self.get_vals_etc(ectx)[3]
         if map_table is None:
             return ''
-        table = "static uint32_t %(TABLE)s[%(ROOT_NUM)s+%(EXT_NUM)s] = {"
+        table = "static const uint32_t %(TABLE)s[%(ROOT_NUM)s+%(EXT_NUM)s] = {"
         table += ", ".join([str(v) for v in map_table])
         table += "};\n"
         return table

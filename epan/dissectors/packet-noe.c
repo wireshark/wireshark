@@ -560,7 +560,7 @@ static value_string_ext val_str_event_ext = VALUE_STRING_EXT_INIT(val_str_event)
 #define C_INVALID       255
 #define E_INVALID       255
 
-static unsigned utf8_properties[] = {
+static const unsigned utf8_properties[] = {
     ((OPCODE_C_security          << 8) | OPCODE_P_B_login        ),
     ((OPCODE_C_security          << 8) | OPCODE_P_A_pem_data     ),
     ((OPCODE_C_security          << 8) | OPCODE_P_A_serial_number),
@@ -612,7 +612,7 @@ static unsigned utf8_properties[] = {
 #define N_UTF8_PROPERTIES array_length(utf8_properties)
 #define UTF8_PROPERTY_SIZE (sizeof utf8_properties[0])
 
-static unsigned bool_properties[] = {
+static const unsigned bool_properties[] = {
     ((OPCODE_C_terminal          << 8) | OPCODE_P_B_negative_ack     ),
     ((OPCODE_C_terminal          << 8) | OPCODE_P_B_CS_idle_state    ),
     ((OPCODE_C_terminal          << 8) | OPCODE_P_B_PS_idle_state    ),

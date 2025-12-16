@@ -156,48 +156,48 @@ void proto_register_opa_9b(void);
  * dictate the header sequence following in the packet. These arrays tell the
  * dissector which headers must be decoded for the given OpCode.
  */
-static uint32_t opCode_RDETH_DETH_ATOMICETH[] = {
+static const uint32_t opCode_RDETH_DETH_ATOMICETH[] = {
     RD_CMP_SWAP,
     RD_FETCH_ADD
 };
-static uint32_t opCode_IETH_PAYLD[] = {
+static const uint32_t opCode_IETH_PAYLD[] = {
     RC_SEND_LAST_INVAL,
     RC_SEND_ONLY_INVAL
 };
-static uint32_t opCode_ATOMICETH[] = {
+static const uint32_t opCode_ATOMICETH[] = {
     RC_CMP_SWAP,
     RC_FETCH_ADD
 };
-static uint32_t opCode_RDETH_DETH_RETH_PAYLD[] = {
+static const uint32_t opCode_RDETH_DETH_RETH_PAYLD[] = {
     RD_RDMA_WRITE_FIRST,
     RD_RDMA_WRITE_ONLY
 };
-static uint32_t opCode_RETH_IMMDT_PAYLD[] = {
+static const uint32_t opCode_RETH_IMMDT_PAYLD[] = {
     RC_RDMA_WRITE_ONLY_IMM,
     UC_RDMA_WRITE_ONLY_IMM
 };
-static uint32_t opCode_RDETH_DETH_IMMDT_PAYLD[] = {
+static const uint32_t opCode_RDETH_DETH_IMMDT_PAYLD[] = {
     RD_SEND_LAST_IMM,
     RD_SEND_ONLY_IMM,
     RD_RDMA_WRITE_LAST_IMM
 };
-static uint32_t opCode_RDETH_AETH_PAYLD[] = {
+static const uint32_t opCode_RDETH_AETH_PAYLD[] = {
     RD_RDMA_READ_RESPONSE_FIRST,
     RD_RDMA_READ_RESPONSE_LAST,
     RD_RDMA_READ_RESPONSE_ONLY
 };
-static uint32_t opCode_AETH_PAYLD[] = {
+static const uint32_t opCode_AETH_PAYLD[] = {
     RC_RDMA_READ_RESPONSE_FIRST,
     RC_RDMA_READ_RESPONSE_LAST,
     RC_RDMA_READ_RESPONSE_ONLY
 };
-static uint32_t opCode_RETH_PAYLD[] = {
+static const uint32_t opCode_RETH_PAYLD[] = {
     RC_RDMA_WRITE_FIRST,
     RC_RDMA_WRITE_ONLY,
     UC_RDMA_WRITE_FIRST,
     UC_RDMA_WRITE_ONLY
 };
-static uint32_t opCode_RDETH_DETH_PAYLD[] = {
+static const uint32_t opCode_RDETH_DETH_PAYLD[] = {
     RD_SEND_FIRST,
     RD_SEND_MIDDLE,
     RD_SEND_LAST,
@@ -205,7 +205,7 @@ static uint32_t opCode_RDETH_DETH_PAYLD[] = {
     RD_RDMA_WRITE_MIDDLE,
     RD_RDMA_WRITE_LAST
 };
-static uint32_t opCode_IMMDT_PAYLD[] = {
+static const uint32_t opCode_IMMDT_PAYLD[] = {
     RC_SEND_LAST_IMM,
     RC_SEND_ONLY_IMM,
     RC_RDMA_WRITE_LAST_IMM,
@@ -213,7 +213,7 @@ static uint32_t opCode_IMMDT_PAYLD[] = {
     UC_SEND_ONLY_IMM,
     UC_RDMA_WRITE_LAST_IMM
 };
-static uint32_t opCode_PAYLD[] = {
+static const uint32_t opCode_PAYLD[] = {
     RC_SEND_FIRST,
     RC_SEND_MIDDLE,
     RC_SEND_LAST,
@@ -228,7 +228,7 @@ static uint32_t opCode_PAYLD[] = {
     UC_RDMA_WRITE_MIDDLE,
     UC_RDMA_WRITE_LAST
 };
-static uint32_t opCode_PSM[] = {
+static const uint32_t opCode_PSM[] = {
     PSM_RESERVED,
     PSM_TINY,
     PSM_SHORT,
@@ -257,7 +257,7 @@ static uint32_t opCode_PSM[] = {
     PSM_AM_REQUEST,
     PSM_AM_REPLY
 };
-static unsigned opCode_TIDRDMA[] = {
+static const uint32_t opCode_TIDRDMA[] = {
     TID_RDMA_WRITE_REQUEST,
     TID_RDMA_WRITE_RESPONSE,
     TID_RDMA_WRITE_DATA,
@@ -677,7 +677,7 @@ static void parse_opa_bth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     *offset = local_offset;
 }
-static bool contains(uint32_t OpCode, uint32_t *Codes, int32_t length)
+static bool contains(uint32_t OpCode, uint32_t const *Codes, int32_t length)
 {
     int32_t i;
     for (i = 0; i < length; i++) {

@@ -18083,7 +18083,7 @@ proto_register_btgatt(void)
 void
 proto_reg_handoff_btgatt(void)
 {
-    const struct uuid_dissectors_t {
+    static const struct uuid_dissectors_t {
         const char * const uuid;
               char * const short_name;
               bool long_attr;

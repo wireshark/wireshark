@@ -1706,7 +1706,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 
 /* 13 Encoding the enumerated type */
 uint32_t
-dissect_per_enumerated(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, uint32_t root_num, uint32_t *value, bool has_extension, uint32_t ext_num, uint32_t *value_map)
+dissect_per_enumerated(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, uint32_t root_num, uint32_t *value, bool has_extension, uint32_t ext_num, const uint32_t *value_map)
 {
 
 	proto_item *it=NULL;

@@ -208,7 +208,7 @@ static void dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, prot
 static void dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo);
 static void dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo);
 
-static struct imf_field imf_fields[] = {
+static const struct imf_field imf_fields[] = {
   {"unknown-extension",                   &hf_imf_extension_type, NO_SUBDISSECTION, false}, /* unknown extension */
   {"date",                                &hf_imf_date, NO_SUBDISSECTION, false}, /* date-time */
   {"from",                                &hf_imf_from, dissect_imf_mailbox_list , true}, /* mailbox_list */
@@ -739,7 +739,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   char *key;
   bool last_field = false;
   tvbuff_t *next_tvb;
-  struct imf_field *f_info;
+  const struct imf_field *f_info;
   imf_eo_t *eo_info = NULL;
 
   if (have_tap_listener(imf_eo_tap)) {
@@ -782,11 +782,11 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       ascii_strdown_inplace (key);
 
       /* look up the key in built-in fields */
-      f_info = (struct imf_field *)wmem_map_lookup(imf_field_table, key);
+      f_info = (const struct imf_field *)wmem_map_lookup(imf_field_table, key);
 
       if(f_info == NULL && custom_field_table) {
         /* look up the key in custom fields */
-        f_info = (struct imf_field *)g_hash_table_lookup(custom_field_table, key);
+        f_info = (const struct imf_field *)g_hash_table_lookup(custom_field_table, key);
       }
 
       if(f_info == NULL) {
@@ -1352,7 +1352,7 @@ proto_register_imf(void)
 
   module_t *imf_module;
   expert_module_t* expert_imf;
-  struct imf_field *f;
+  const struct imf_field *f;
 
   proto_imf = proto_register_protocol(PNAME, PSNAME, PFNAME);
 

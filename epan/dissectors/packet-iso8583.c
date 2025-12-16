@@ -1017,7 +1017,7 @@ proto_register_iso8583(void)
 
   static hf_register_info hf_data[128];
 
-  static const char *hf_data_blurb[128] = {
+  static const char * const hf_data_blurb[128] = {
     /* Bit 1 */
     "Second Bit map present",
     /* Bit 2 */

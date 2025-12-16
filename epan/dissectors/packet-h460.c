@@ -1423,7 +1423,7 @@ static const value_string h460_14_MlppReason_vals[] = {
   { 0, NULL }
 };
 
-static uint32_t h460_14_MlppReason_value_map[3+0] = {8, 9, 46};
+static const uint32_t h460_14_MlppReason_value_map[3+0] = {8, 9, 46};
 
 static int
 dissect_h460_14_MlppReason(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {

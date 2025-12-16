@@ -14684,7 +14684,7 @@ static const value_string gdd_Pictogram_trafficSign_vals[] = {
   { 0, NULL }
 };
 
-static uint32_t gdd_Pictogram_trafficSign_value_map[3+0] = {11, 12, 13};
+static const uint32_t gdd_Pictogram_trafficSign_value_map[3+0] = {11, 12, 13};
 
 static int
 dissect_gdd_Pictogram_trafficSign(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -14700,7 +14700,7 @@ static const value_string gdd_Pictogram_publicFacilitySign_vals[] = {
   { 0, NULL }
 };
 
-static uint32_t gdd_Pictogram_publicFacilitySign_value_map[1+0] = {21};
+static const uint32_t gdd_Pictogram_publicFacilitySign_value_map[1+0] = {21};
 
 static int
 dissect_gdd_Pictogram_publicFacilitySign(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -14717,7 +14717,7 @@ static const value_string gdd_Pictogram_conditionsSign_vals[] = {
   { 0, NULL }
 };
 
-static uint32_t gdd_Pictogram_conditionsSign_value_map[2+0] = {31, 32};
+static const uint32_t gdd_Pictogram_conditionsSign_value_map[2+0] = {31, 32};
 
 static int
 dissect_gdd_Pictogram_conditionsSign(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {

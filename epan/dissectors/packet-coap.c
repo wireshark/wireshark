@@ -269,7 +269,7 @@ static const value_string vals_opt_type[] = {
 	{ 0, NULL },
 };
 
-static struct coap_option_range_t {
+static const struct coap_option_range_t {
 	unsigned type;
 	int min;
 	int max;

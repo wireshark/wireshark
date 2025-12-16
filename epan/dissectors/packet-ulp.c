@@ -6561,7 +6561,7 @@ static const value_string ulp_StatusCode_vals[] = {
   { 0, NULL }
 };
 
-static uint32_t StatusCode_value_map[20+6] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 100, 101, 18, 19, 20, 21, 102, 103};
+static const uint32_t StatusCode_value_map[20+6] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 100, 101, 18, 19, 20, 21, 102, 103};
 
 static int
 dissect_ulp_StatusCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -7362,7 +7362,7 @@ static const value_string ulp_RepModee_vals[] = {
   { 0, NULL }
 };
 
-static uint32_t RepModee_value_map[3+0] = {1, 2, 3};
+static const uint32_t RepModee_value_map[3+0] = {1, 2, 3};
 
 static int
 dissect_ulp_RepModee(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -7621,7 +7621,7 @@ static const value_string ulp_ResultCode_vals[] = {
   { 0, NULL }
 };
 
-static uint32_t ResultCode_value_map[7+0] = {1, 2, 3, 4, 5, 6, 7};
+static const uint32_t ResultCode_value_map[7+0] = {1, 2, 3, 4, 5, 6, 7};
 
 static int
 dissect_ulp_ResultCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {

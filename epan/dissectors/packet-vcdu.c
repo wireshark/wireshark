@@ -207,7 +207,7 @@ smex_time_to_string (wmem_allocator_t *pool, int pb5_days_since_midnight_9_10_oc
     static int utcdiff = 0;
     nstime_t t;
 
-    static int Days[2][13] =
+    static const int Days[2][13] =
         {
             { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
             { 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }

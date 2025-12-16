@@ -9903,7 +9903,7 @@ typedef struct _nfs4_operation_summary {
   the most significant operation(s).
  */
 
-static int nfs4_operation_tiers[] = {
+static const int nfs4_operation_tiers[] = {
 		 1 /* 0 */ ,
 		 1 /* 1 */ ,
 		 1 /* 2 */ ,

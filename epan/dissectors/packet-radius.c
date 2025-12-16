@@ -2643,7 +2643,7 @@ _radius_load_dictionary(char* dir)
 static void
 register_radius_fields(const char *unused _U_)
 {
-	hf_register_info base_hf[] = {
+	static const hf_register_info base_hf[] = {
 		{ &hf_radius_req,
 		{ "Request", "radius.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"true if RADIUS request", HFILL }},

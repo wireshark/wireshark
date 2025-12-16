@@ -301,7 +301,7 @@ static const value_string mpeg_pes_T_frame_rate_vals[] = {
   { 0, NULL }
 };
 
-static uint32_t T_frame_rate_value_map[9+0] = {0, 23976, 24000, 25000, 29970, 30000, 50000, 59940, 60000};
+static const uint32_t T_frame_rate_value_map[9+0] = {0, 23976, 24000, 25000, 29970, 30000, 50000, 59940, 60000};
 
 static int
 dissect_mpeg_pes_T_frame_rate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
