@@ -186,7 +186,7 @@ static const struct num_handles tpm_handles_map[] = {
 	{ 0x14b, 2, { &hf_tpmi_dh_object, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0 }}, /* CC_Duplicate */
 	{ 0x14c, 2, { &hf_tpmi_rh_endorsement, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0 }}, /* CC_GetTime */
 	{ 0x14d, 3, { &hf_tpmi_rh_endorsement, &hf_tpmi_dh_object, &hf_tpmi_sh_auth_session }, 0, { 0, 0, 0 }}, /* CC_GetSessionAuditDigest */
-	{ 0x14e, 1, { &hf_tpmi_rh_nv_index, 0, 0 }, 0, { 0, 0, 0 }}, /* CC_NV_Read */
+	{ 0x14e, 2, { &hf_tpmi_rh_nv_auth, &hf_tpmi_rh_nv_index, 0 }, 0, { 0, 0, 0 }}, /* CC_NV_Read */
 	{ 0x14f, 2, { &hf_tpmi_rh_nv_auth, &hf_tpmi_rh_nv_index, 0 }, 0, { 0, 0, 0 }}, /* CC_NV_ReadLock */
 	{ 0x150, 2, { &hf_tpmi_dh_object, &hf_tpmi_dh_object, 0 }, 0, { 0, 0, 0 }}, /* CC_ObjectChangeAuth */
 	{ 0x151, 2, { &hf_tpmi_dh_entity, &hf_tpmi_sh_auth_session, 0 }, 0, { 0, 0, 0 }}, /* CC_PolicySecret */
