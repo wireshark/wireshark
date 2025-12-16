@@ -35,6 +35,7 @@ void proto_reg_handoff_ixiatrailer(void);
 #define IXIATRAILER_FTYPE_TIMESTAMP_GPS        5
 #define IXIATRAILER_FTYPE_TIMESTAMP_1588       6 /* PTP */
 #define IXIATRAILER_FTYPE_TIMESTAMP_HOLDOVER   7
+#define IXIATRAILER_FTYPE_TIMESTAMP_LEARNED    8
 
 static const value_string ixiatrailer_ftype_timestamp[] = {
   { IXIATRAILER_FTYPE_TIMESTAMP_LOCAL,      "Local" },
@@ -42,6 +43,7 @@ static const value_string ixiatrailer_ftype_timestamp[] = {
   { IXIATRAILER_FTYPE_TIMESTAMP_GPS,        "GPS" },
   { IXIATRAILER_FTYPE_TIMESTAMP_1588,       "PTP" },
   { IXIATRAILER_FTYPE_TIMESTAMP_HOLDOVER,   "Holdover" },
+  { IXIATRAILER_FTYPE_TIMESTAMP_LEARNED,    "LEARNED" },
   { 0,                                      NULL }
 };
 
@@ -182,6 +184,7 @@ dissect_ixiatrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
       case IXIATRAILER_FTYPE_TIMESTAMP_GPS:
       case IXIATRAILER_FTYPE_TIMESTAMP_1588:
       case IXIATRAILER_FTYPE_TIMESTAMP_HOLDOVER:
+      case IXIATRAILER_FTYPE_TIMESTAMP_LEARNED:
         if (field_length != 8) {
           expert_add_info_format(pinfo, ti, &ei_ixiatrailer_field_length_invalid, "Field length %u invalid", field_length);
           break;
