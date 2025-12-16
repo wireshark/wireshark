@@ -432,13 +432,16 @@ gadu_gadu_status_has_descr(int status)
 static int
 gadu_gadu_strsize(tvbuff_t *tvb, const int abs_offset)
 {
-	int nul_offset;
+	int len;
 
-	nul_offset = tvb_find_uint8(tvb, abs_offset, -1, 0);
-	if (nul_offset == -1)
-		nul_offset = tvb_captured_length(tvb) - 1;
+	len = tvb_strnlen(tvb, abs_offset, -1);
+	if (len == -1) {
+		len = tvb_captured_length(tvb);
+	} else {
+		len++; // Include the NUL
+	}
 
-	return (nul_offset - abs_offset) + 1;
+	return len;
 }
 
 static int
