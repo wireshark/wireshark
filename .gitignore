@@ -182,14 +182,14 @@ LLM.md
 SYSTEM.md
 PROMPT.md
 
-# Variationen / Konventionen
+# Variations & Conventions
 *.agent.md
 *.llm.md
 *.prompt.md
 *.system.md
 *.ai.md
 
-# Tool-spezifisch
+# Tool-specific
 .openai/
 .anthropic/
 .claude/
@@ -197,7 +197,7 @@ PROMPT.md
 .copilot/
 .aider*
 
-# Session- / Kontext-Dumps
+# Session- / Context-Dumps
 *.context
 *.conversation
 *.chat
