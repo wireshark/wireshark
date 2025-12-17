@@ -511,6 +511,7 @@ WS_DLL_PUBLIC uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info
 #define ELEM_OPT_TLV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
     if ((signed)curr_len <= 0) return; \
+    /* coverity[overrun-call:FALSE] */ \
     if ((consumed = elem_tlv(tvb, tree, pinfo, (uint8_t) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
@@ -521,6 +522,7 @@ WS_DLL_PUBLIC uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info
 #define ELEM_OPT_TELV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
     if ((signed)curr_len <= 0) return; \
+    /* coverity[overrun-call:FALSE] */ \
     if ((consumed = elem_telv(tvb, tree, pinfo, (uint8_t) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, curr_len, EOT_elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
@@ -541,6 +543,7 @@ WS_DLL_PUBLIC uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info
 #define ELEM_MAND_TV(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition, ei_mandatory) \
 {\
     if (((signed)curr_len > 0) && \
+        /* coverity[overrun-call:FALSE] */ \
         ((consumed = elem_tv(tvb, tree, pinfo, (uint8_t) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, EMT_elem_name_addition)) > 0)) \
     { \
         curr_offset += consumed; \
@@ -562,6 +565,7 @@ WS_DLL_PUBLIC uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info
 #define ELEM_OPT_TV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
     if ((signed)curr_len <= 0) return; \
+    /* coverity[overrun-call:FALSE] */ \
     if ((consumed = elem_tv(tvb, tree, pinfo, (uint8_t) EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
@@ -572,6 +576,7 @@ WS_DLL_PUBLIC uint16_t elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info
 #define ELEM_OPT_TV_SHORT(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
     if ((signed)curr_len <= 0) return; \
+    /* coverity[overrun-call:FALSE] */ \
     if ((consumed = elem_tv_short(tvb, tree, pinfo, EOT_iei, EOT_pdu_type, EOT_elem_idx, curr_offset, EOT_elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
