@@ -1848,6 +1848,14 @@ get_stringz_value(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb,
 	if (length < -1) {
 		report_type_length_mismatch(tree, "a string", length, true);
 	}
+
+	/* XXX - Ideally, every "null-terminated string which fits into a
+	 * known length" should be either FT_STRINGZPAD or FT_STRINGZTRUNC
+	 * as appropriate, not a FT_STRINGZ. If so, then we could always call
+	 * tvb_get_stringz_enc here. Failing that, we could treat length 0
+	 * as unknown length as well (since there is a trailing '\0', the real
+	 * length is never zero), allowing switching to unsigned lengths.
+	 */
 	if (length == -1) {
 		/* This can throw an exception */
 		value = tvb_get_stringz_enc(scope, tvb, start, &length, encoding);
@@ -5415,6 +5423,11 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, int start,
 	 * we can have an empty string right after the end of the
 	 * packet.  (This handles URL-encoded forms where the last field
 	 * has no value so the form ends right after the =.)
+	 *
+	 * XXX - length zero makes sense for FT_STRING, and more or less
+	 * for FT_STRINGZTRUNC, and FT_STRINGZPAD, but doesn't make sense
+	 * for FT_STRINGZ (except that a number of fields that should be
+	 * one of the others are actually registered as FT_STRINGZ.)
 	 */
 	if (item_length != 0)
 		test_length(hfinfo, tvb, start, item_length, ENC_NA);

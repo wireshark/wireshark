@@ -202,12 +202,12 @@ proto_register_http_urlencoded(void)
 	static hf_register_info hf[] = {
 		{ &hf_form_key,
 			{ "Key", "urlencoded-form.key",
-			  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+			  FT_STRING, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{ &hf_form_value,
 			{ "Value", "urlencoded-form.value",
-			  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+			  FT_STRING, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
 		},
 	};
