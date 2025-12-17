@@ -612,6 +612,7 @@ static const value_string rtcp_mcpc_field_id_vals[] = {
     { 6,  "Reason Code" },
     { 7,  "Reason Cause" },
     { 8,  "Invited MCPTT User Identity" },
+    { 192, "PCK_I_MESSAGE" },
     { 0,  NULL }
 };
 
