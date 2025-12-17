@@ -41,6 +41,10 @@ enum {
 
 /* Global stats */
 uint32_t largest_ul_delay_in_us = 0;
+uint32_t ul_configured_max = 0;
+uint32_t ul_within_configured_max = 0;
+uint32_t ul_above_configured_max = 0;
+
 /* Assuming that it is unlikely we have > 255 radio frames.. */
 int      first_radio_frame = -1;
 int      last_radio_frame = -1;
@@ -125,6 +129,13 @@ oran_stat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     /* Update global stats */
     if (si->ul_delay_in_us > largest_ul_delay_in_us) {
         largest_ul_delay_in_us = si->ul_delay_in_us;
+    }
+    ul_configured_max = si->ul_delay_in_us;
+    if (si->ul_delay_in_us > si->ul_delay_configured_max) {
+        ul_above_configured_max++;
+    }
+    else if (si->ul_delay_in_us > 0) {
+        ul_within_configured_max++;
     }
 
     if (first_radio_frame == -1) {
@@ -249,7 +260,7 @@ oran_stat_draw(void *phs)
         printf("%s  ", flow_titles[i]);
     }
     /* Divider before rows */
-    printf("\n============================================================================================================================================================================================\n");
+    printf("\n===========================================================================================================================================================================================\n");
 
     /* Write a row for each flow */
     for (tmp = hs->flow_list; tmp; tmp=tmp->next) {
@@ -320,9 +331,14 @@ oran_stat_draw(void *phs)
     }
 
     /* Now show global stats */
-    printf("\n Largest UL delay    First radio frame    Last radio frame\n");
-    printf("=============================================================\n");
-    printf("%17u %20u %19u\n", largest_ul_delay_in_us, first_radio_frame, last_radio_frame);
+    printf("\n First radio frame    Last radio frame\n");
+    printf("=======================================\n");
+    printf("%18u %19u\n", first_radio_frame, last_radio_frame);
+
+    printf("\n Configured Max UL delay    UL Frames within limit    UL frames after limit    Largest UL delay\n");
+    printf("================================================================================================\n");
+    printf("%24u %25u %24u %19u\n", ul_configured_max, ul_within_configured_max, ul_above_configured_max, largest_ul_delay_in_us);
+
 }
 
 /* Create a new ORAN stats struct */

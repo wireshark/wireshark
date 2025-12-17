@@ -6658,6 +6658,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     }
 
                     tap_info->ul_delay_in_us = total_gap;
+                    tap_info->ul_delay_configured_max = us_allowed_for_ul_in_symbol;
                 }
             }
         }
@@ -7439,7 +7440,6 @@ proto_register_oran(void)
             NULL, 0x0,
             "Number of contiguous PRBs per data section description", HFILL}
         },
-
         /* Section 7.5.3.7 */
         { &hf_oran_numSymbol,
           { "Number of Symbols", "oran_fh_cus.numSymbol",
@@ -7447,7 +7447,6 @@ proto_register_oran(void)
             NULL, 0x0f,
             "Defines number of symbols to which the section control is applicable", HFILL}
         },
-
         /* Section 7.5.3.8 */
         { &hf_oran_ef,
           { "Extension Flag", "oran_fh_cus.ef",
@@ -7455,7 +7454,6 @@ proto_register_oran(void)
             NULL, 0x80,
             "Indicates if more section extensions follow", HFILL}
         },
-
         /* Section 7.5.3.9 */
         { &hf_oran_beamId,
           { "Beam ID", "oran_fh_cus.beamId",
@@ -7528,7 +7526,6 @@ proto_register_oran(void)
             NULL, 0x7fff,
             "logical identifier for set of channel info", HFILL}
         },
-
         /* Section 7.5.3.11 */
         { &hf_oran_freqOffset,
           { "Frequency Offset", "oran_fh_cus.freqOffset",
@@ -7544,7 +7541,6 @@ proto_register_oran(void)
             NULL, 0x0,
             "Signed value to support MMSE operation within O-RU", HFILL}
         },
-
         /* Section 7.5.3.14 */
         { &hf_oran_laaMsgType,
           { "LAA Message Type", "oran_fh_cus.laaMsgType",
@@ -7552,7 +7548,6 @@ proto_register_oran(void)
             RVALS(laaMsgTypes), 0xf0,
             NULL, HFILL}
         },
-
         /* Section 7.5.3.15 */
         { &hf_oran_laaMsgLen,
           { "LAA Message Length", "oran_fh_cus.laaMsgLen",
@@ -7560,7 +7555,6 @@ proto_register_oran(void)
             NULL, 0x0f,
             "number of 32-bit words in the LAA section", HFILL}
         },
-
         /* Section 7.5.3.16 */
         { &hf_oran_lbtHandle,
           { "LBT Handle", "oran_fh_cus.lbtHandle",
@@ -7568,7 +7562,6 @@ proto_register_oran(void)
             NULL, 0x0,
             "label to identify transaction", HFILL}
          },
-
         /* Section 7.5.3.17 */
         { &hf_oran_lbtDeferFactor,
           { "Defer Factor", "oran_fh_cus.lbtDeferFactor",
@@ -7576,7 +7569,6 @@ proto_register_oran(void)
             NULL, 0x07,
             "Defer factor in sensing slots as described in 3GPP TS 36.213 Section 15.1.1", HFILL}
         },
-
         /* Section 7.5.3.18 */
         { &hf_oran_lbtBackoffCounter,
           { "Backoff Counter", "oran_fh_cus.lbtBackoffCounter",
@@ -7584,7 +7576,6 @@ proto_register_oran(void)
             NULL, 0xffc0,
             "LBT backoff counter in sensing slots as described in 3GPP TS 36.213 Section 15.1.1", HFILL}
         },
-
         /* Section 7.5.3.19 */
         { &hf_oran_lbtOffset,
           { "LBT Offset", "oran_fh_cus.lbtOffset",
@@ -7592,7 +7583,6 @@ proto_register_oran(void)
             NULL, 0xffc0,
             "LBT start time in microseconds from the beginning of the subframe scheduled by this message", HFILL}
         },
-
         /* Section 7.5.3.20 */
         { &hf_oran_MCOT,
           { "Maximum Channel Occupancy Time", "oran_fh_cus.MCOT",
@@ -7600,7 +7590,6 @@ proto_register_oran(void)
             NULL, 0x3c,
             "LTE TXOP duration in subframes as described in 3GPP TS 36.213 Section 15.1.1", HFILL}
         },
-
         /* Section 7.5.3.21 */
         { &hf_oran_lbtMode,
           { "LBT Mode", "oran_fh_cus.lbtMode",
@@ -7608,7 +7597,6 @@ proto_register_oran(void)
             VALS(lbtMode_vals), 0x0,
             NULL, HFILL}
         },
-
         /* Section 7.5.3.22 */
         { &hf_oran_lbtPdschRes,
           { "lbtPdschRes", "oran_fh_cus.lbtPdschRes",
@@ -7616,7 +7604,6 @@ proto_register_oran(void)
             VALS(lbtPdschRes_vals), 0xc0,
             "LBT result of SFN/SF", HFILL}
         },
-
         /* Section 7.5.3.23 */
         { &hf_oran_sfStatus,
           { "sfStatus", "oran_fh_cus.sfStatus",
@@ -7624,15 +7611,13 @@ proto_register_oran(void)
             TFS(&tfs_sfStatus), 0x10,
             "Indicates whether the subframe was dropped or transmitted", HFILL}
         },
-
-        /* Section 7.5.3.22 */
+        /* Section 7.5.3.24 */
         { &hf_oran_lbtDrsRes,
           { "lbtDrsRes", "oran_fh_cus.lbtDrsRes",
             FT_BOOLEAN, 8,
             TFS(&tfs_fail_success), 0x80,
             "Indicates whether the subframe was dropped or transmitted", HFILL}
         },
-
         /* Section 7.5.3.25 */
         { &hf_oran_initialPartialSF,
           { "Initial partial SF", "oran_fh_cus.initialPartialSF",
@@ -7640,7 +7625,6 @@ proto_register_oran(void)
             TFS(&tfs_partial_full_sf), 0x40,
             "Indicates whether the initial SF in the LBT process is full or partial", HFILL}
         },
-
         /* Section 7.5.3.26. */
         { &hf_oran_lbtBufErr,
           { "lbtBufErr", "oran_fh_cus.lbtBufErr",
@@ -7648,7 +7632,6 @@ proto_register_oran(void)
             TFS(&tfs_lbtBufErr), 0x80,
             "LBT buffer error", HFILL}
         },
-
         /* Section 7.5.3.27 */
         { &hf_oran_sfnSfEnd,
           { "SFN/SF End", "oran_fh_cus.sfnSfEnd",
@@ -7656,7 +7639,6 @@ proto_register_oran(void)
             NULL, 0x0fff,
             "SFN/SF by which the DRS window must end", HFILL}
         },
-
         /* Section 7.5.3.28 */
         { &hf_oran_lbtCWConfig_H,
           { "lbtCWConfig_H", "oran_fh_cus.lbtCWConfig_H",
@@ -7664,7 +7646,6 @@ proto_register_oran(void)
             NULL, 0x0,
             "HARQ parameters for congestion window management", HFILL}
         },
-
         /* Section 7.5.3.29 */
         { &hf_oran_lbtCWConfig_T,
           { "lbtCWConfig_T", "oran_fh_cus.lbtCWConfig_T",
@@ -7672,7 +7653,6 @@ proto_register_oran(void)
             NULL, 0x0,
             "TB parameters for congestion window management", HFILL}
         },
-
         /* Section 7.5.3.30 */
         { &hf_oran_lbtTrafficClass,
           { "lbtTrafficClass", "oran_fh_cus.lbtTrafficClass",
@@ -7680,7 +7660,6 @@ proto_register_oran(void)
             VALS(lbtTrafficClass_vals), 0x38,
             "Traffic class priority for congestion window management", HFILL}
         },
-
         /* Section 7.5.3.31 */
         { &hf_oran_lbtCWR_Rst,
           { "lbtCWR_Rst", "oran_fh_cus.lbtCWR_Rst",
@@ -7696,7 +7675,6 @@ proto_register_oran(void)
             NULL, 0x0,
             NULL, HFILL}
         },
-
         { &hf_oran_reserved_1bit,
           { "reserved", "oran_fh_cus.reserved",
             FT_UINT8, BASE_HEX,
@@ -7812,20 +7790,19 @@ proto_register_oran(void)
             NULL, HFILL}
         },
 
-
-        /* 7.7.11.10 */
-        { &hf_oran_bundle_offset,
-          { "BundleOffset", "oran_fh_cus.bundleOffset",
-            FT_UINT8, BASE_DEC,
-            NULL, 0x3f,
-            "offset between start of first PRB bundle and startPrbc", HFILL}
-        },
         /* 7.7.11.9 */
         { &hf_oran_cont_ind,
           { "contInd", "oran_fh_cus.contInd",
             FT_BOOLEAN, 8,
             TFS(&continuity_indication_tfs), 0x80,
             "PRB region continuity flag", HFILL}
+        },
+        /* 7.7.11.10 */
+        { &hf_oran_bundle_offset,
+          { "BundleOffset", "oran_fh_cus.bundleOffset",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x3f,
+            "offset between start of first PRB bundle and startPrbc", HFILL}
         },
 
         /* 7.7.1.2 bfwCompHdr (beamforming weight compression header) */
@@ -7999,61 +7976,61 @@ proto_register_oran(void)
             NULL, HFILL}
         },
         { &hf_oran_symbol_mask_s9,
-          { "symbol 9", "oran_fh_cus.symbolMask.symbol-9",
+          { "symbol  9", "oran_fh_cus.symbolMask.symbol-9",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0200,
             NULL, HFILL}
         },
         { &hf_oran_symbol_mask_s8,
-          { "symbol 8", "oran_fh_cus.symbolMask.symbol-8",
+          { "symbol  8", "oran_fh_cus.symbolMask.symbol-8",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0100,
             NULL, HFILL}
         },
         { &hf_oran_symbol_mask_s7,
-          { "symbol 7", "oran_fh_cus.symbolMask.symbol-7",
+          { "symbol  7", "oran_fh_cus.symbolMask.symbol-7",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0080,
             NULL, HFILL}
         },
         { &hf_oran_symbol_mask_s6,
-          { "symbol 6", "oran_fh_cus.symbolMask.symbol-6",
+          { "symbol  6", "oran_fh_cus.symbolMask.symbol-6",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0040,
             NULL, HFILL}
         },
         { &hf_oran_symbol_mask_s5,
-          { "symbol 5", "oran_fh_cus.symbolMask.symbol-5",
+          { "symbol  5", "oran_fh_cus.symbolMask.symbol-5",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0020,
             NULL, HFILL}
         },
         { &hf_oran_symbol_mask_s4,
-          { "symbol 4", "oran_fh_cus.symbolMask.symbol-4",
+          { "symbol  4", "oran_fh_cus.symbolMask.symbol-4",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0010,
             NULL, HFILL}
         },
         { &hf_oran_symbol_mask_s3,
-          { "symbol 3", "oran_fh_cus.symbolMask.symbol-3",
+          { "symbol  3", "oran_fh_cus.symbolMask.symbol-3",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0008,
             NULL, HFILL}
         },
         { &hf_oran_symbol_mask_s2,
-          { "symbol 2", "oran_fh_cus.symbolMask.symbol-2",
+          { "symbol  2", "oran_fh_cus.symbolMask.symbol-2",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0004,
             NULL, HFILL}
         },
         { &hf_oran_symbol_mask_s1,
-          { "symbol 1", "oran_fh_cus.symbolMask.symbol-1",
+          { "symbol  1", "oran_fh_cus.symbolMask.symbol-1",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0002,
             NULL, HFILL}
         },
         { &hf_oran_symbol_mask_s0,
-          { "symbol 0", "oran_fh_cus.symbolMask.symbol-0",
+          { "symbol  0", "oran_fh_cus.symbolMask.symbol-0",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0001,
             NULL, HFILL}
@@ -9397,61 +9374,61 @@ proto_register_oran(void)
             NULL, HFILL}
         },
         { &hf_oran_dmrs_symbol_mask_s9,
-          { "symbol 9", "oran_fh_cus.dmrsSymbolMask.symbol-9",
+          { "symbol  9", "oran_fh_cus.dmrsSymbolMask.symbol-9",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0200,
             NULL, HFILL}
         },
         { &hf_oran_dmrs_symbol_mask_s8,
-          { "symbol 8", "oran_fh_cus.dmrsSymbolMask.symbol-8",
+          { "symbol  8", "oran_fh_cus.dmrsSymbolMask.symbol-8",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0100,
             NULL, HFILL}
         },
         { &hf_oran_dmrs_symbol_mask_s7,
-          { "symbol 7", "oran_fh_cus.dmrsSymbolMask.symbol-7",
+          { "symbol  7", "oran_fh_cus.dmrsSymbolMask.symbol-7",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0080,
             NULL, HFILL}
         },
         { &hf_oran_dmrs_symbol_mask_s6,
-          { "symbol 6", "oran_fh_cus.dmrsSymbolMask.symbol-6",
+          { "symbol  6", "oran_fh_cus.dmrsSymbolMask.symbol-6",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0040,
             NULL, HFILL}
         },
         { &hf_oran_dmrs_symbol_mask_s5,
-          { "symbol 5", "oran_fh_cus.dmrsSymbolMask.symbol-5",
+          { "symbol  5", "oran_fh_cus.dmrsSymbolMask.symbol-5",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0020,
             NULL, HFILL}
         },
         { &hf_oran_dmrs_symbol_mask_s4,
-          { "symbol 4", "oran_fh_cus.dmrsSymbolMask.symbol-4",
+          { "symbol  4", "oran_fh_cus.dmrsSymbolMask.symbol-4",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0010,
             NULL, HFILL}
         },
         { &hf_oran_dmrs_symbol_mask_s3,
-          { "symbol 3", "oran_fh_cus.dmrsSymbolMask.symbol-3",
+          { "symbol  3", "oran_fh_cus.dmrsSymbolMask.symbol-3",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0008,
             NULL, HFILL}
         },
         { &hf_oran_dmrs_symbol_mask_s2,
-          { "symbol 2", "oran_fh_cus.dmrsSymbolMask.symbol-2",
+          { "symbol  2", "oran_fh_cus.dmrsSymbolMask.symbol-2",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0004,
             NULL, HFILL}
         },
         { &hf_oran_dmrs_symbol_mask_s1,
-          { "symbol 1", "oran_fh_cus.dmrsSymbolMask.symbol-1",
+          { "symbol  1", "oran_fh_cus.dmrsSymbolMask.symbol-1",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0002,
             NULL, HFILL}
         },
         { &hf_oran_dmrs_symbol_mask_s0,
-          { "symbol 0", "oran_fh_cus.dmrsSymbolMask.symbol-0",
+          { "symbol  0", "oran_fh_cus.dmrsSymbolMask.symbol-0",
             FT_BOOLEAN, 16,
             TFS(&tfs_present_not_present), 0x0001,
             NULL, HFILL}
