@@ -130,7 +130,6 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_item	*text_item = NULL;
 	proto_tree	*text_tree = NULL;
 	const char	*text;
-	int		len;
 	int		offset;
 	uint32_t		marker;
 	int		command;
@@ -157,13 +156,9 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 	 * XXX - are non-ASCII characters supported and, if so, what
 	 * encoding is used for them?
 	 */
-	text = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII|ENC_NA);
-	if (cl_tree) {
-		text_item = proto_tree_add_string(cl_tree,
-				hf_quake3_connectionless_text,
-				tvb, offset, len, text);
-		text_tree = proto_item_add_subtree(text_item, ett_quake3_connectionless_text);
-	}
+	text_item = proto_tree_add_item_ret_string(cl_tree, hf_quake3_connectionless_text,
+			tvb, offset, -1, ENC_ASCII, pinfo->pool, (const uint8_t**)&text);
+	text_tree = proto_item_add_subtree(text_item, ett_quake3_connectionless_text);
 
 	command = COMMAND_UNKNOWN;
 	command_len = 0;
@@ -498,7 +493,7 @@ proto_register_quake3(void)
 			NULL, HFILL }},
 		{ &hf_quake3_connectionless_text,
 			{ "Text", "quake3.connectionless.text",
-			FT_STRING, BASE_NONE, NULL, 0x0,
+			FT_STRINGZ, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_quake3_connectionless_command,
 			{ "Command", "quake3.connectionless.command",

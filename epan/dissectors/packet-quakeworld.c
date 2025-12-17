@@ -357,15 +357,11 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	/* all the rest of the packet is just text */
 	offset = 4;
 
-	text = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_ASCII|ENC_NA);
 	/* actually, we should look for a eol char and stop already there */
-
-	if (cl_tree) {
-		proto_item *text_item;
-		text_item = proto_tree_add_string(cl_tree, hf_quakeworld_connectionless_text,
-						  tvb, offset, len, text);
-		text_tree = proto_item_add_subtree(text_item, ett_quakeworld_connectionless_text);
-	}
+	proto_item *text_item;
+	text_item = proto_tree_add_item_ret_string_and_length(cl_tree, hf_quakeworld_connectionless_text,
+					  tvb, offset, -1, ENC_ASCII, pinfo->pool, (const uint8_t**)&text, &len);
+	text_tree = proto_item_add_subtree(text_item, ett_quakeworld_connectionless_text);
 
 	if (direction == DIR_C2S) {
 		/* client to server commands */
@@ -725,7 +721,7 @@ proto_register_quakeworld(void)
 			NULL, HFILL }},
 		{ &hf_quakeworld_connectionless_text,
 			{ "Text", "quakeworld.connectionless.text",
-			FT_STRING, BASE_NONE, NULL, 0x0,
+			FT_STRINGZ, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_quakeworld_connectionless_command,
 			{ "Command", "quakeworld.connectionless.command",

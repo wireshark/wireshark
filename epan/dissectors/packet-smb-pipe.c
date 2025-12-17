@@ -2656,8 +2656,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		}
 
 		/* parameter descriptor */
-		param_descrip = (char*)tvb_get_stringz_enc(pinfo->pool, p_tvb, offset, &descriptor_len, ENC_ASCII);
-		proto_tree_add_string(tree, hf_param_desc, p_tvb, offset, descriptor_len, param_descrip);
+		proto_tree_add_item_ret_string_and_length(tree, hf_param_desc, p_tvb, offset, -1, ENC_ASCII, pinfo->pool, (const uint8_t**)&param_descrip, &descriptor_len);
 		if (!pinfo->fd->visited) {
 			/*
 			 * Save the parameter descriptor for future use.
@@ -2668,8 +2667,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		offset += descriptor_len;
 
 		/* return descriptor */
-		data_descrip = (char*)tvb_get_stringz_enc(pinfo->pool, p_tvb, offset, &descriptor_len, ENC_ASCII);
-		proto_tree_add_string(tree, hf_return_desc, p_tvb, offset, descriptor_len, data_descrip);
+		proto_tree_add_item_ret_string_and_length(tree, hf_return_desc, p_tvb, offset, -1, ENC_ASCII, pinfo->pool, (const uint8_t**)&data_descrip, &descriptor_len);
 		if (!pinfo->fd->visited) {
 			/*
 			 * Save the return descriptor for future use.
@@ -2692,8 +2690,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			 * There are more parameters left, so the next
 			 * item is the auxiliary data descriptor.
 			 */
-			aux_data_descrip = (char*)tvb_get_stringz_enc(pinfo->pool, p_tvb, offset, &descriptor_len, ENC_ASCII);
-			proto_tree_add_string(tree, hf_aux_data_desc, p_tvb, offset, descriptor_len, aux_data_descrip);
+			proto_tree_add_item_ret_string_and_length(tree, hf_aux_data_desc, p_tvb, offset, -1, ENC_ASCII, pinfo->pool, (const uint8_t**)&aux_data_descrip, &descriptor_len);
 			if (!pinfo->fd->visited) {
 				/*
 				 * Save the auxiliary data descriptor for
@@ -2862,15 +2859,15 @@ proto_register_pipe_lanman(void)
 			&commands_ext, 0, "LANMAN Function Code/Command", HFILL }},
 
 		{ &hf_param_desc,
-			{ "Parameter Descriptor", "lanman.param_desc", FT_STRING, BASE_NONE,
+			{ "Parameter Descriptor", "lanman.param_desc", FT_STRINGZ, BASE_NONE,
 			NULL, 0, "LANMAN Parameter Descriptor", HFILL }},
 
 		{ &hf_return_desc,
-			{ "Return Descriptor", "lanman.ret_desc", FT_STRING, BASE_NONE,
+			{ "Return Descriptor", "lanman.ret_desc", FT_STRINGZ, BASE_NONE,
 			NULL, 0, "LANMAN Return Descriptor", HFILL }},
 
 		{ &hf_aux_data_desc,
-			{ "Auxiliary Data Descriptor", "lanman.aux_data_desc", FT_STRING, BASE_NONE,
+			{ "Auxiliary Data Descriptor", "lanman.aux_data_desc", FT_STRINGZ, BASE_NONE,
 			NULL, 0, "LANMAN Auxiliary Data Descriptor", HFILL }},
 
 		{ &hf_detail_level,

@@ -1420,7 +1420,7 @@ parameter_value_q (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_
 #define wkh_2_TextualValueInv                   /* Parse Textual Value */ \
         /* END */ \
     } else if ((val_id == 0) || (val_id >= 0x20)) { /* Textual value */ \
-        /*val_str = (char *)*/tvb_get_stringz_enc(pinfo->pool, tvb, val_start, (int *)&val_len, ENC_ASCII); \
+        val_len = tvb_strsize(tvb, val_start); \
         offset = val_start + val_len; \
         /* Textual value processing starts HERE \
          * \

@@ -485,7 +485,6 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
     proto_item *ti;
     int siz, content_length, leftover;
     uint32_t i;
-    const char *s;
 
     unsigned char message_type = tvb_get_uint8(tvb, n);
     const char *logical_message_name = try_val_to_str(message_type, logical_message_types);
@@ -560,11 +559,9 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
         }
         proto_tree_add_item(shrub, hf_relation_oid, tvb, n, 4, ENC_BIG_ENDIAN);
         n += 4;
-        s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
-        proto_tree_add_string(shrub, hf_namespace, tvb, n, siz, s);
+        proto_tree_add_item_ret_length(shrub, hf_namespace, tvb, n, -1, ENC_ASCII, &siz);
         n += siz;
-        s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
-        proto_tree_add_string(shrub, hf_relation_name, tvb, n, siz, s);
+        proto_tree_add_item_ret_length(shrub, hf_relation_name, tvb, n, -1, ENC_ASCII, &siz);
         n += siz;
         proto_tree_add_item(shrub, hf_logical_replica_identity, tvb, n, 1, ENC_BIG_ENDIAN);
         n += 1;
@@ -595,11 +592,9 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
         }
         proto_tree_add_item(shrub, hf_typeoid, tvb, n, 4, ENC_BIG_ENDIAN);
         n += 4;
-        s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
-        proto_tree_add_string(shrub, hf_namespace, tvb, n, siz, s);
+        proto_tree_add_item_ret_length(shrub, hf_namespace, tvb, n, -1, ENC_ASCII, &siz);
         n += siz;
-        s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
-        proto_tree_add_string(shrub, hf_custom_type_name, tvb, n, siz, s);
+        proto_tree_add_item(shrub, hf_custom_type_name, tvb, n, -1, ENC_ASCII);
         break;
 
     /* Insert */
@@ -876,7 +871,6 @@ static void dissect_pgsql_fe_msg(unsigned char type, unsigned length, tvbuff_t *
 {
     unsigned char c;
     int i, siz;
-    char *s;
     proto_tree *shrub;
     int32_t data_length;
     pgsql_auth_state_t   state;
@@ -1022,8 +1016,7 @@ static void dissect_pgsql_fe_msg(unsigned char type, unsigned length, tvbuff_t *
             i = hf_statement;
 
         n += 1;
-        s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
-        proto_tree_add_string(tree, i, tvb, n, siz, s);
+        proto_tree_add_item(tree, i, tvb, n, -1, ENC_ASCII);
         break;
 
     /* Messages without a type identifier */
@@ -1121,7 +1114,6 @@ static void dissect_pgsql_be_msg(unsigned char type, unsigned length, tvbuff_t *
 {
     unsigned char c;
     int i, siz;
-    char *s, *t;
     int32_t num_nonsupported_options;
     proto_item *ti;
     proto_tree *shrub;
@@ -1173,11 +1165,9 @@ static void dissect_pgsql_be_msg(unsigned char type, unsigned length, tvbuff_t *
 
     /* Parameter status */
     case 'S':
-        s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &siz, ENC_ASCII);
-        proto_tree_add_string(tree, hf_parameter_name, tvb, n, siz, s);
+        proto_tree_add_item_ret_length(tree, hf_parameter_name, tvb, n, -1, ENC_ASCII, &siz);
         n += siz;
-        t = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n, &i, ENC_ASCII);
-        proto_tree_add_string(tree, hf_parameter_value, tvb, n, i, t);
+        proto_tree_add_item(tree, hf_parameter_value, tvb, n, -1, ENC_ASCII);
         break;
 
     /* Parameter description */
@@ -1255,7 +1245,6 @@ static void dissect_pgsql_be_msg(unsigned char type, unsigned length, tvbuff_t *
             if (c == '\0')
                 break;
             --length;
-            s = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, n+1, &siz, ENC_ASCII);
             i = hf_text;
             switch (c) {
             case 'S': i = hf_severity;          break;
@@ -1276,7 +1265,7 @@ static void dissect_pgsql_be_msg(unsigned char type, unsigned length, tvbuff_t *
             case 'L': i = hf_line;              break;
             case 'R': i = hf_routine;           break;
             }
-            proto_tree_add_string(tree, i, tvb, n, siz+1, s);
+            proto_tree_add_item_ret_length(tree, i, tvb, n, -1, ENC_ASCII, &siz);
             length -= siz+1;
             n += siz+1;
         }
@@ -1943,15 +1932,15 @@ proto_register_pgsql(void)
             "Xid of the subtransaction.", HFILL }
         },
         { &hf_custom_type_name,
-          { "Type name", "pgsql.custom_type_name", FT_STRING, BASE_NONE, NULL, 0,
+          { "Type name", "pgsql.custom_type_name", FT_STRINGZ, BASE_NONE, NULL, 0,
             "Name of the data type.", HFILL }
         },
         { &hf_namespace,
-          { "Namespace", "pgsql.namespace", FT_STRING, BASE_NONE, NULL, 0,
+          { "Namespace", "pgsql.namespace", FT_STRINGZ, BASE_NONE, NULL, 0,
             "Namespace (empty string for pg_catalog).", HFILL }
         },
         { &hf_relation_name,
-          { "Relation name", "pgsql.relation", FT_STRING, BASE_NONE, NULL, 0,
+          { "Relation name", "pgsql.relation", FT_STRINGZ, BASE_NONE, NULL, 0,
             "Relation name.", HFILL }
         },
         { &hf_tuple_type,

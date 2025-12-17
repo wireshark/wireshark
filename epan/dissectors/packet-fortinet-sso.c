@@ -71,8 +71,7 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree_add_item_ret_uint(fsso_tree, hf_fsso_payload_length, tvb, offset, 2, ENC_BIG_ENDIAN, &payload_length);
     offset += 2;
 
-    string = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &string_length, ENC_ASCII);
-    proto_tree_add_item(fsso_tree, hf_fsso_string, tvb, offset, string_length, ENC_ASCII);
+    proto_tree_add_item_ret_string_and_length(fsso_tree, hf_fsso_string, tvb, offset, -1, ENC_ASCII, pinfo->pool, (const uint8_t**)&string, &string_length);
     col_set_str(pinfo->cinfo, COL_INFO, string);
 
     if(client_ip == 0xFFFFFFFF) { //if client_ip equal 255.255.255.255 (0xFFFFFFFF) is KeepAlive packet
@@ -214,7 +213,7 @@ proto_register_fortinet_sso(void)
         NULL, HFILL}},
 
         { &hf_fsso_string,
-        { "String", "fortinet_sso.string", FT_STRING, BASE_NONE, NULL, 0x0,
+        { "String", "fortinet_sso.string", FT_STRINGZ, BASE_NONE, NULL, 0x0,
         NULL, HFILL}},
 
         { &hf_fsso_user,
