@@ -2956,11 +2956,11 @@ tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const unsi
  * REPLACEMENT CHARACTER.
  */
 static uint8_t *
-tvb_get_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length)
+tvb_get_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned length)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return get_ascii_string(scope, ptr, length);
 }
 
@@ -2978,11 +2978,11 @@ tvb_get_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int len
  * REPLACEMENT CHARACTER.
  */
 static uint8_t *
-tvb_get_iso_646_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length, const gunichar2 table[0x80])
+tvb_get_iso_646_string(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned length, const gunichar2 table[0x80])
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return get_iso_646_string(scope, ptr, length, table);
 }
 
@@ -3002,11 +3002,11 @@ tvb_get_iso_646_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int l
  * be added later.
  */
 static uint8_t *
-tvb_get_utf_8_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, const int length)
+tvb_get_utf_8_string(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, const unsigned length)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return get_utf_8_string(scope, ptr, length);
 }
 
@@ -3046,11 +3046,11 @@ tvb_get_raw_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, con
  * using the wmem scope.
  */
 static uint8_t *
-tvb_get_string_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length)
+tvb_get_string_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned length)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return get_8859_1_string(scope, ptr, length);
 }
 
@@ -3065,11 +3065,11 @@ tvb_get_string_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int le
  * wmem scope.
  */
 static uint8_t *
-tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length, const gunichar2 table[0x80])
+tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned length, const gunichar2 table[0x80])
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return get_unichar2_string(scope, ptr, length, table);
 }
 
@@ -3081,7 +3081,8 @@ tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int 
  * Multilingual Plane (plane 0) of Unicode, and return a pointer to a
  * UTF-8 string, allocated with the wmem scope.
  *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN,
+ * optionally with ENC_BOM.
  *
  * Specify length in bytes.
  *
@@ -3091,11 +3092,11 @@ tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int 
  * REPLACEMENT CHARACTER at the end.
  */
 static uint8_t *
-tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int length, const unsigned encoding)
+tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned length, const unsigned encoding)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return get_ucs_2_string(scope, ptr, length, encoding);
 }
 
@@ -3106,7 +3107,8 @@ tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, i
  * the byte order in question, and return a pointer to a UTF-8 string,
  * allocated with the wmem scope.
  *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN,
+ * optionally with ENC_BOM.
  *
  * Specify length in bytes.
  *
@@ -3116,11 +3118,11 @@ tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, i
  * REPLACEMENT CHARACTER at the end.
  */
 static uint8_t *
-tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int length, const unsigned encoding)
+tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned length, const unsigned encoding)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return get_utf_16_string(scope, ptr, length, encoding);
 }
 
@@ -3131,7 +3133,8 @@ tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, 
  * the byte order in question, and return a pointer to a UTF-8 string,
  * allocated with the wmem scope.
  *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN,
+ * optionally with ENC_BOM.
  *
  * Specify length in bytes
  *
@@ -3142,63 +3145,63 @@ tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, 
  * REPLACEMENT CHARACTER at the end.
  */
 static char *
-tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int length, const unsigned encoding)
+tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned length, const unsigned encoding)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return (char*)get_ucs_4_string(scope, ptr, length, encoding);
 }
 
 char *
 tvb_get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope, tvbuff_t *tvb,
-	const int bit_offset, int no_of_chars)
+	const unsigned bit_offset, unsigned no_of_chars)
 {
-	int            in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
-	int            length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
+	unsigned       in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
+	unsigned       length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
 	const uint8_t *ptr;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	ptr = ensure_contiguous(tvb, in_offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, in_offset, length);
 	return (char*)get_ts_23_038_7bits_string_packed(scope, ptr, bit_offset, no_of_chars);
 }
 
 char *
 tvb_get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *scope, tvbuff_t *tvb,
-	const int offset, int length)
+	const unsigned offset, unsigned length)
 {
 	const uint8_t *ptr;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return (char*)get_ts_23_038_7bits_string_unpacked(scope, ptr, length);
 }
 
 char *
 tvb_get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope, tvbuff_t *tvb,
-	const int offset, int length)
+	const unsigned offset, unsigned length)
 {
 	const uint8_t *ptr;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return (char*)get_etsi_ts_102_221_annex_a_string(scope, ptr, length);
 }
 
 char *
 tvb_get_ascii_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
-	const int bit_offset, int no_of_chars)
+	const unsigned bit_offset, unsigned no_of_chars)
 {
-	int            in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
-	int            length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
+	unsigned       in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
+	unsigned       length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
 	const uint8_t *ptr;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	ptr = ensure_contiguous(tvb, in_offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, in_offset, length);
 	return (char*)get_ascii_7bits_string(scope, ptr, bit_offset, no_of_chars);
 }
 
@@ -3211,11 +3214,11 @@ tvb_get_ascii_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
  * return a pointer to a UTF-8 string, allocated with the wmem scope.
  */
 static uint8_t *
-tvb_get_nonascii_unichar2_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length, const gunichar2 table[256])
+tvb_get_nonascii_unichar2_string(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned length, const gunichar2 table[256])
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return get_nonascii_unichar2_string(scope, ptr, length, table);
 }
 
@@ -3230,11 +3233,11 @@ tvb_get_nonascii_unichar2_string(wmem_allocator_t *scope, tvbuff_t *tvb, int off
  * As expected, this will also decode GBK and GB2312 strings.
  */
 static uint8_t *
-tvb_get_gb18030_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length)
+tvb_get_gb18030_string(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned length)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return get_gb18030_string(scope, ptr, length);
 }
 
@@ -3247,20 +3250,20 @@ tvb_get_gb18030_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int l
  * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
  */
 static uint8_t *
-tvb_get_euc_kr_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length)
+tvb_get_euc_kr_string(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned length)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return get_euc_kr_string(scope, ptr, length);
 }
 
 static uint8_t *
-tvb_get_t61_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length)
+tvb_get_t61_string(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned length)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return get_t61_string(scope, ptr, length);
 }
 
@@ -3296,8 +3299,8 @@ static const dgt_set_t Dgt_dect_standard_4bits_tbcd = {
 };
 
 static uint8_t *
-tvb_get_apn_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
-			     int length)
+tvb_get_apn_string(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset,
+			     unsigned length)
 {
 	wmem_strbuf_t *str;
 
@@ -3323,7 +3326,7 @@ tvb_get_apn_string(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
 	if (length > 0) {
 		const uint8_t *ptr;
 
-		ptr = ensure_contiguous(tvb, offset, length);
+		ptr = ensure_contiguous_unsigned(tvb, offset, length);
 
 		for (;;) {
 			unsigned label_len;
@@ -3363,11 +3366,11 @@ end:
 }
 
 static uint8_t *
-tvb_get_dect_standard_8bits_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int length)
+tvb_get_dect_standard_8bits_string(wmem_allocator_t *scope, tvbuff_t *tvb, unsigned offset, unsigned length)
 {
 	const uint8_t *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous_unsigned(tvb, offset, length);
 	return get_dect_standard_8bits_string(scope, ptr, length);
 }
 
@@ -3379,18 +3382,13 @@ tvb_get_dect_standard_8bits_string(wmem_allocator_t *scope, tvbuff_t *tvb, int o
  * return a pointer to the string.
  */
 uint8_t *
-tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
-			     const int length, const unsigned encoding)
+tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset,
+			     const unsigned length, const unsigned encoding)
 {
 	uint8_t *strptr;
 	bool odd, skip_first;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
-
-	/* make sure length = -1 fails */
-	if (length < 0) {
-		THROW(ReportedBoundsError);
-	}
 
 	switch (encoding & ENC_CHARENCODING_MASK) {
 
@@ -3526,16 +3524,16 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
 
 	case ENC_3GPP_TS_23_038_7BITS_PACKED:
 		{
-			int bit_offset  = offset << 3;
-			int no_of_chars = (length << 3) / 7;
+			unsigned bit_offset  = offset << 3;
+			unsigned no_of_chars = (length << 3) / 7;
 			strptr = (uint8_t*)tvb_get_ts_23_038_7bits_string_packed(scope, tvb, bit_offset, no_of_chars);
 		}
 		break;
 
 	case ENC_ASCII_7BITS:
 		{
-			int bit_offset  = offset << 3;
-			int no_of_chars = (length << 3) / 7;
+			unsigned bit_offset  = offset << 3;
+			unsigned no_of_chars = (length << 3) / 7;
 			strptr = (uint8_t*)tvb_get_ascii_7bits_string(scope, tvb, bit_offset, no_of_chars);
 		}
 		break;
@@ -3645,8 +3643,8 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
  * involve null termination, that might change.
  */
 uint8_t *
-tvb_get_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset,
-		   const int length, const unsigned encoding)
+tvb_get_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset,
+		   const unsigned length, const unsigned encoding)
 {
 	return tvb_get_string_enc(scope, tvb, offset, length, encoding);
 }

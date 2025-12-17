@@ -2482,7 +2482,7 @@ WS_DLL_PUBLIC char *tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuf
  * @return A pointer to the UTF-8 encoded string, including a trailing NUL.
  */
 WS_DLL_PUBLIC uint8_t *tvb_get_string_enc(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const int offset, const int length, const unsigned encoding);
+    tvbuff_t *tvb, const unsigned offset, const unsigned length, const unsigned encoding);
 
 /**
  * @brief Extract and convert a 3GPP TS 23.038 7-bit packed string from a tvbuff to UTF-8.
@@ -2508,7 +2508,7 @@ WS_DLL_PUBLIC uint8_t *tvb_get_string_enc(wmem_allocator_t *scope,
  * @return A pointer to the UTF-8 encoded string with a trailing '\0'.
  */
 WS_DLL_PUBLIC char *tvb_get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const int bit_offset, int no_of_chars);
+    tvbuff_t *tvb, const unsigned bit_offset, unsigned no_of_chars);
 
 /**
  * @brief Extract and convert a 3GPP TS 23.038 7-bit unpacked string from a tvbuff to UTF-8.
@@ -2534,7 +2534,7 @@ WS_DLL_PUBLIC char *tvb_get_ts_23_038_7bits_string_packed(wmem_allocator_t *scop
  * @return A pointer to the UTF-8 encoded string with a trailing '\0'.
  */
 WS_DLL_PUBLIC char *tvb_get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const int offset, int length);
+    tvbuff_t *tvb, const unsigned offset, unsigned length);
 
 /**
  * @brief Extract and convert a string encoded per ETSI TS 102 221 Annex A from a tvbuff to UTF-8.
@@ -2560,7 +2560,7 @@ WS_DLL_PUBLIC char *tvb_get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *sc
  * @return A pointer to the UTF-8 encoded string including the trailing NUL.
  */
 WS_DLL_PUBLIC char *tvb_get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const int offset, int length);
+    tvbuff_t *tvb, const unsigned offset, unsigned length);
 
 /**
  * @brief Extract and convert an ASCII 7-bit encoded string from a tvbuff to UTF-8.
@@ -2586,7 +2586,7 @@ WS_DLL_PUBLIC char *tvb_get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *sco
  * @return A pointer to the UTF-8 encoded string including the trailing NUL.
  */
 WS_DLL_PUBLIC char *tvb_get_ascii_7bits_string(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const int bit_offset, int no_of_chars);
+    tvbuff_t *tvb, const unsigned bit_offset, unsigned no_of_chars);
 
 /**
  * @brief Extract and convert a null-padded string from a tvbuff to UTF-8.
@@ -2613,7 +2613,7 @@ WS_DLL_PUBLIC char *tvb_get_ascii_7bits_string(wmem_allocator_t *scope,
  * @return A pointer to the UTF-8 encoded string, null-terminated.
  */
 WS_DLL_PUBLIC uint8_t *tvb_get_stringzpad(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const int offset, const int length, const unsigned encoding);
+    tvbuff_t *tvb, const unsigned offset, const unsigned length, const unsigned encoding);
 
 /**
  * @brief Extract and convert a null-terminated string from a tvbuff to UTF-8 using the specified encoding.
