@@ -173,7 +173,6 @@ static int ett_sabp_e212;
 static int ett_sabp_cbs_data_coding;
 static int ett_sabp_bcast_msg;
 static int ett_sabp_cbs_serial_number;
-static int ett_sabp_cbs_new_serial_number;
 static int ett_sabp_cbs_page;
 static int ett_sabp_cbs_page_content;
 
@@ -761,16 +760,7 @@ dissect_sabp_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_sabp_New_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
- tvbuff_t *parameter_tvb=NULL;
- proto_tree *subtree;
-
   offset = dissect_sabp_Serial_Number(tvb, offset, actx, tree, hf_index);
-
-	if (!parameter_tvb)
-		return offset;
-	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_cbs_new_serial_number);
-        dissect_cbs_serial_number(parameter_tvb, subtree, 0);
-
 
   return offset;
 }
@@ -2157,7 +2147,6 @@ void proto_register_sabp(void) {
     &ett_sabp_cbs_data_coding,
     &ett_sabp_bcast_msg,
     &ett_sabp_cbs_serial_number,
-    &ett_sabp_cbs_new_serial_number,
     &ett_sabp_cbs_page,
     &ett_sabp_cbs_page_content,
     &ett_sabp_ProtocolIE_Container,

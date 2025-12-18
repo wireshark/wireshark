@@ -50,7 +50,6 @@ static int ett_sabp_e212;
 static int ett_sabp_cbs_data_coding;
 static int ett_sabp_bcast_msg;
 static int ett_sabp_cbs_serial_number;
-static int ett_sabp_cbs_new_serial_number;
 static int ett_sabp_cbs_page;
 static int ett_sabp_cbs_page_content;
 
@@ -247,7 +246,6 @@ void proto_register_sabp(void) {
     &ett_sabp_cbs_data_coding,
     &ett_sabp_bcast_msg,
     &ett_sabp_cbs_serial_number,
-    &ett_sabp_cbs_new_serial_number,
     &ett_sabp_cbs_page,
     &ett_sabp_cbs_page_content,
 #include "packet-sabp-ettarr.c"
