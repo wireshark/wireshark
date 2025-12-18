@@ -1803,6 +1803,7 @@ mqrccf
 mqsecsw
 mqsysp
 mrcpv
+mrdisc
 mrpic
 msbuild
 mscldap
@@ -2123,6 +2124,7 @@ overlay2mask
 overnet
 overridable
 p2pstar
+p4rpc
 p8118e
 p8118z
 pacch

@@ -620,7 +620,8 @@ known_non_contiguous_fields = {'wlan.fixed.capabilities.cfpoll.sta',
                                'oran_fh_cus.sReSMask',
                                'ttl.trace_data.entry.status_info.can_flags',
                                'ttl.trace_data.entry.status_info.fr_flags',
-                               'ttl.trace_data.entry.status_info.fr_pulse_flags'
+                               'ttl.trace_data.entry.status_info.fr_pulse_flags',
+                               'gsm_sim.select.return_data'     #  ETSI TS 102 221 Table 11.2: Coding of P2
                                }
 ##################################################################################################
 
@@ -1181,11 +1182,11 @@ def findExpertItems(filename, contents, macros, result):
         entries = d.group(2)
 
         # Now separate out each entry
-        matches = re.finditer(r'\{\s*&([a-zA-Z0-9_]*)\s*\,\s*\{\s*\"(.*?)\"\s*\,\s*([A-Z_]*)\,\s*([A-Z_]*)\,\s*\"(.*?)\"\s*\,\s*EXPFILL\s*\}\s*\}',
+        matches = re.finditer(r'\{\s*&([a-zA-Z0-9_]*)\s*\,\s*\{\s*\"(.*?)\"\s*\,\s*([A-Z_]*)\,\s*([A-Z_]*)\,\s*\"(.*?)\".*?\,\s*EXPFILL\s*\}\s*\}',
                               entries, re.MULTILINE | re.DOTALL)
         for match in matches:
             expertEntry = ExpertEntry(filename, name=match.group(1), filter=match.group(2), group=match.group(3),
-                                      severity=match.group(4), summary=match.group(5))
+                                      severity=match.group(4), summary=match.group(5), result=result)
             expertEntries.AddEntry(expertEntry)
 
     return expertEntries
@@ -1314,7 +1315,7 @@ valid_levels = set(['PI_COMMENT', 'PI_CHAT', 'PI_NOTE',
 
 # An individual entry
 class ExpertEntry:
-    def __init__(self, filename, name, filter, group, severity, summary):
+    def __init__(self, filename, name, filter, group, severity, summary, result):
         self.name = name
         self.filter = filter
         self.group = group
