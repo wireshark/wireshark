@@ -12,6 +12,8 @@
 #ifndef __AFN_H__
 #define __AFN_H__
 
+#include <wsutil/value_string.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

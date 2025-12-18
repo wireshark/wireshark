@@ -11,6 +11,7 @@
 #ifndef __PACKET_DCOM_H
 #define __PACKET_DCOM_H
 
+#include <epan/dissectors/packet-dcerpc.h>
 #include "ws_symbol_export.h"
 
 WS_DLL_PUBLIC const value_string dcom_hresult_vals[];

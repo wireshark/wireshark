@@ -12,6 +12,7 @@
 #ifndef __PACKET_PER_H__
 #define __PACKET_PER_H__
 
+#include <epan/asn1.h>
 #include "ws_symbol_export.h"
 
 typedef int (*per_type_fn)(tvbuff_t*, int, asn1_ctx_t*, proto_tree*, int);
