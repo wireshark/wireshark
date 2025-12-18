@@ -37,7 +37,7 @@ void proto_reg_handoff_ftam(void);
 static int proto_ftam;
 
 /* Declare the function to avoid a compiler warning */
-static int dissect_ftam_OR_Set(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
+static unsigned dissect_ftam_OR_Set(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
 static int hf_ftam_unstructured_text;              /* ISO FTAM unstructured text */
 static int hf_ftam_unstructured_binary;            /* ISO FTAM unstructured binary */

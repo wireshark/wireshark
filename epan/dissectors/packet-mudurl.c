@@ -43,8 +43,8 @@ static int hf_mudurl_MUDURLSyntax_PDU;            /* MUDURLSyntax */
 
 
 
-static int
-dissect_mudurl_MUDURLSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_mudurl_MUDURLSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -55,7 +55,7 @@ dissect_mudurl_MUDURLSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 /*--- PDUs ---*/
 
 static int dissect_MUDURLSyntax_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_mudurl_MUDURLSyntax(false, tvb, offset, &asn1_ctx, tree, hf_mudurl_MUDURLSyntax_PDU);

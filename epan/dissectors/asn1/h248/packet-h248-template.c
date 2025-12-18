@@ -845,14 +845,14 @@ static dissector_handle_t h248_term_handle;
 static dissector_handle_t h248_tpkt_handle;
 
 /* Forward declarations */
-static int dissect_h248_ServiceChangeReasonStr(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static unsigned dissect_h248_ServiceChangeReasonStr(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 /* h248v1 support */
-static int dissect_h248_AuditReplyV1(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static unsigned dissect_h248_AuditReplyV1(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
-static int dissect_h248_EventParameterV1(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
-static int dissect_h248_SigParameterV1(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
-static int dissect_h248_SigParamValueV1(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static unsigned dissect_h248_EventParameterV1(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static unsigned dissect_h248_SigParameterV1(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static unsigned dissect_h248_SigParamValueV1(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 #if 0
 static const value_string context_id_type[] = {
@@ -1749,7 +1749,7 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
 
 static uint32_t packageandid;
 
-static int dissect_h248_PkgdName(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+static unsigned dissect_h248_PkgdName(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
     tvbuff_t *new_tvb = NULL;
     proto_tree *package_tree=NULL;
     uint16_t name_major, name_minor;
@@ -1796,7 +1796,7 @@ static int dissect_h248_PkgdName(bool implicit_tag, tvbuff_t *tvb, int offset, a
     return offset;
 }
 
-static int dissect_h248_EventName(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+static unsigned dissect_h248_EventName(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
     tvbuff_t *new_tvb;
     proto_tree *package_tree=NULL;
     uint16_t name_major, name_minor;
@@ -1861,7 +1861,7 @@ static int dissect_h248_EventName(bool implicit_tag, tvbuff_t *tvb, int offset, 
 
 
 
-static int dissect_h248_SignalName(bool implicit_tag , tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+static unsigned dissect_h248_SignalName(bool implicit_tag , tvbuff_t *tvb, unsigned offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
     tvbuff_t *new_tvb;
     proto_tree *package_tree=NULL;
     uint16_t name_major, name_minor;
@@ -1924,7 +1924,7 @@ static int dissect_h248_SignalName(bool implicit_tag , tvbuff_t *tvb, int offset
     return offset;
 }
 
-static int dissect_h248_PropertyID(bool implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
+static unsigned dissect_h248_PropertyID(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
 
     int8_t ber_class;
     bool pc, ind;
@@ -1971,7 +1971,7 @@ static int dissect_h248_PropertyID(bool implicit_tag _U_, tvbuff_t *tvb, int off
 
 
 
-static int dissect_h248_SigParameterName(bool implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
+static unsigned dissect_h248_SigParameterName(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
     tvbuff_t *next_tvb;
     uint32_t param_id = 0xffffffff;
     const h248_pkg_param_t* sigpar;
@@ -2011,7 +2011,7 @@ static int dissect_h248_SigParameterName(bool implicit_tag _U_, tvbuff_t *tvb, i
     return offset;
 }
 
-static int dissect_h248_SigParamValue(bool implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
+static unsigned dissect_h248_SigParamValue(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
     int end_offset;
     int8_t ber_class;
     bool pc, ind;
@@ -2039,12 +2039,12 @@ static int dissect_h248_SigParamValue(bool implicit_tag _U_, tvbuff_t *tvb, int 
     return end_offset;
 }
 
-static int dissect_h248_SigParamValueV1(bool implicit_tag _U_, tvbuff_t *tvb, int offset _U_,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
+static unsigned dissect_h248_SigParamValueV1(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
     return dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 }
 
 
-static int dissect_h248_EventParameterName(bool implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
+static unsigned dissect_h248_EventParameterName(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
     tvbuff_t *next_tvb;
     uint32_t param_id = 0xffffffff;
     const h248_pkg_param_t* evtpar;
@@ -2090,9 +2090,9 @@ static int dissect_h248_EventParameterName(bool implicit_tag _U_, tvbuff_t *tvb,
     return offset;
 }
 
-static int dissect_h248_EventParamValue(bool implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
+static unsigned dissect_h248_EventParamValue(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
     tvbuff_t *next_tvb;
-    int end_offset;
+    unsigned end_offset;
     int8_t ber_class;
     bool pc, ind;
     int32_t tag;
@@ -2118,16 +2118,16 @@ static int dissect_h248_EventParamValue(bool implicit_tag _U_, tvbuff_t *tvb, in
     return end_offset;
 }
 
-static int dissect_h248_EventParamValueV1(bool implicit_tag _U_, tvbuff_t *tvb, int offset _U_,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
+static unsigned dissect_h248_EventParamValueV1(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset _U_,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
     return dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &tvb);
 }
 
 
-static int dissect_h248_MtpAddress(bool implicit_tag, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+static unsigned dissect_h248_MtpAddress(bool implicit_tag, tvbuff_t *tvb, unsigned offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
     tvbuff_t *new_tvb;
     proto_tree *mtp_tree=NULL;
     uint32_t val;
-    int i, len, old_offset;
+    unsigned i, len, old_offset;
 
     old_offset=offset;
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);

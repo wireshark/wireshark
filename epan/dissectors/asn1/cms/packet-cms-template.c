@@ -46,7 +46,7 @@ static int ett_cms;
 
 static dissector_handle_t cms_handle;
 
-static int dissect_cms_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
+static unsigned dissect_cms_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
 
 struct cms_private_data {
   const char *object_identifier_id;

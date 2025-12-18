@@ -20,7 +20,7 @@
 /*#include "packet-ocsp-exp.h"*/
 
 extern int proto_ocsp;
-int dissect_ocsp_OCSPResponse(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+unsigned dissect_ocsp_OCSPResponse(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 #endif  /* PACKET_OCSP_H */
 

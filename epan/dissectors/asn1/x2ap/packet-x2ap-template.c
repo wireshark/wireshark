@@ -195,9 +195,9 @@ static int ett_x2ap_PSCellListContainer;
 #include "packet-x2ap-ett.c"
 
 /* Forward declarations */
-static int dissect_x2ap_Registration_Request_ENDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-static int dissect_x2ap_ReportCharacteristics_ENDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-static int dissect_x2ap_ReportingPeriodicity_ENDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_x2ap_Registration_Request_ENDC(tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_x2ap_ReportCharacteristics_ENDC(tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_x2ap_ReportingPeriodicity_ENDC(tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 typedef enum {
   RRC_CONTAINER_TYPE_UNKNOWN,

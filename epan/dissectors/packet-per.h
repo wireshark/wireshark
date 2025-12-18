@@ -15,7 +15,7 @@
 #include <epan/asn1.h>
 #include "ws_symbol_export.h"
 
-typedef int (*per_type_fn)(tvbuff_t*, int, asn1_ctx_t*, proto_tree*, int);
+typedef unsigned (*per_type_fn)(tvbuff_t*, uint32_t offset, asn1_ctx_t*, proto_tree*, int);
 
 /* in all functions here, offset is uint32_t and is
    byteposition<<3 + bitposition
@@ -143,7 +143,7 @@ extern bool get_size_constraint_from_stack(asn1_ctx_t *actx, const char *name, i
 
 extern uint32_t dissect_per_length_determinant(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, uint32_t *length, bool *is_fragmented);
 
-WS_DLL_PUBLIC int call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, asn1_ctx_t *actx, int hf_index);
+WS_DLL_PUBLIC unsigned call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, asn1_ctx_t *actx, int hf_index);
 WS_DLL_PUBLIC void add_per_encoded_label(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree);
 
 /* PUBLIC_HEADER: This is used by custom dissectors and should be in the "install" target */

@@ -45,8 +45,8 @@ static int ett_wlancertextn_SSIDList;
 
 
 
-static int
-dissect_wlancertextn_SSID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_wlancertextn_SSID(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
                                                    1, 32, hf_index, NULL);
 
@@ -58,8 +58,8 @@ static const ber_sequence_t SSIDList_sequence_of[1] = {
   { &hf_wlancertextn_SSIDList_item, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_wlancertextn_SSID },
 };
 
-static int
-dissect_wlancertextn_SSIDList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_wlancertextn_SSIDList(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                                   1, NO_BOUND, SSIDList_sequence_of, hf_index, ett_wlancertextn_SSIDList);
 
@@ -69,7 +69,7 @@ dissect_wlancertextn_SSIDList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 /*--- PDUs ---*/
 
 static int dissect_SSIDList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_wlancertextn_SSIDList(false, tvb, offset, &asn1_ctx, tree, hf_wlancertextn_SSIDList_PDU);

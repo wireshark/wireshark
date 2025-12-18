@@ -637,8 +637,8 @@ static char *ldapvalue_string;
 /* if the octet string contain all printable ASCII characters, then
  * display it as a string, othervise just display it in hex.
  */
-static int
-dissect_ldap_AssertionValue(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index)
+static unsigned
+dissect_ldap_AssertionValue(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index)
 {
   int8_t ber_class;
   bool pc, ind, is_ascii;

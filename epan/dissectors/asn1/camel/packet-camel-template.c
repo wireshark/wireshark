@@ -108,14 +108,14 @@ static int hf_camel_timeandtimezone_tz;
 static struct camelsrt_info_t * gp_camelsrt_info;
 
 /* Forward declarations */
-static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx);
-static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx);
-static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx);
-static int dissect_camel_CAMEL_AChBillingChargingCharacteristics(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-static int dissect_camel_CAMEL_AChBillingChargingCharacteristicsV2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-static int dissect_camel_CAMEL_CallResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-static int dissect_camel_EstablishTemporaryConnectionArgV2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-static int dissect_camel_SpecializedResourceReportArgV23(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned offset,asn1_ctx_t *actx);
+static unsigned dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, unsigned offset,asn1_ctx_t *actx);
+static unsigned dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, unsigned offset,asn1_ctx_t *actx);
+static unsigned dissect_camel_CAMEL_AChBillingChargingCharacteristics(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_camel_CAMEL_AChBillingChargingCharacteristicsV2(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_camel_CAMEL_CallResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_camel_EstablishTemporaryConnectionArgV2(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_camel_SpecializedResourceReportArgV23(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
 /* Initialize the subtree pointers */
@@ -402,7 +402,7 @@ dissect_RP_cause_ie(tvbuff_t *tvb, uint32_t offset, _U_ unsigned len,
   return curr_offset - offset;
 }
 
-static int dissect_camel_InitialDPArgExtensionV2(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_camel_InitialDPArgExtensionV2(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 #include "packet-camel-fn.c"
 

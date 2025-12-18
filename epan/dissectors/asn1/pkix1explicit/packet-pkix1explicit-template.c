@@ -45,39 +45,39 @@ static int ett_pkix1explicit_addressFamily;
 /* Initialize the subtree pointers */
 #include "packet-pkix1explicit-ett.c"
 
-int
-dissect_pkix1explicit_Certificate(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+unsigned
+dissect_pkix1explicit_Certificate(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_x509af_Certificate(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-int
-dissect_pkix1explicit_CertificateList(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+unsigned
+dissect_pkix1explicit_CertificateList(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_x509af_CertificateList(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-int
-dissect_pkix1explicit_GeneralName(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+unsigned
+dissect_pkix1explicit_GeneralName(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_x509ce_GeneralName(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-int
-dissect_pkix1explicit_Name(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+unsigned
+dissect_pkix1explicit_Name(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_x509if_Name(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-int
-dissect_pkix1explicit_AlgorithmIdentifier(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+unsigned
+dissect_pkix1explicit_AlgorithmIdentifier(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
 
-int
-dissect_pkix1explicit_SubjectPublicKeyInfo(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+unsigned
+dissect_pkix1explicit_SubjectPublicKeyInfo(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_x509af_SubjectPublicKeyInfo(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;

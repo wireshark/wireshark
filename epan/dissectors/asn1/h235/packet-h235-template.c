@@ -43,8 +43,8 @@ static int proto_h235;
 #include "packet-h235-ett.c"
 
 
-static int
-dissect_xxx_ToBeSigned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
+static unsigned
+dissect_xxx_ToBeSigned(tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
   dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "ToBeSigned");
   return offset;
 }

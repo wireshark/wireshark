@@ -651,8 +651,8 @@ dissect_snmp_variable_date_and_time(proto_tree *tree, packet_info *pinfo, int hf
 
  */
 
-static int
-dissect_snmp_VarBind(bool implicit_tag _U_, tvbuff_t *tvb, int offset,
+static unsigned
+dissect_snmp_VarBind(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset,
 		     asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
 {
 	int seq_offset, name_offset, value_offset, value_start;

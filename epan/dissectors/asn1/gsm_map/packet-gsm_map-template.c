@@ -230,9 +230,9 @@ static uint8_t gsm_map_pdu_size;
 static uint8_t sms_encoding;
 
 /* Forward declarations */
-static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
-static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
-static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
+static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx);
+static unsigned dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx);
+static unsigned dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx);
 static const char* gsm_map_opr_code(uint32_t val, proto_item *item);
 
 typedef struct {
@@ -1128,9 +1128,9 @@ const char* gsm_map_opr_code(uint32_t val, proto_item *item) {
 }
 
 /* Prototype for a decoding function */
-typedef int (* dissect_function_t)( bool,
+typedef unsigned (* dissect_function_t)( bool,
                                     tvbuff_t *,
-                                    int ,
+                                    unsigned offset,
                                     asn1_ctx_t *,
                                     proto_tree *,
                                     int);
@@ -1153,8 +1153,8 @@ typedef int (* dissect_function_t)( bool,
  * The analyze of the first ASN1 tag, indicate what kind of decoding should be used,
  * if the decoding function is provided (so not a NULL function)
  */
-static int dissect_mc_message(tvbuff_t *tvb,
-                              int offset,
+static unsigned dissect_mc_message(tvbuff_t *tvb,
+                              unsigned offset,
                               asn1_ctx_t *actx,
                               proto_tree *tree,
                               bool implicit_param _U_, dissect_function_t parameter, int hf_index_param _U_,
@@ -1195,7 +1195,7 @@ static int dissect_mc_message(tvbuff_t *tvb,
   return offset;
 }
 
-static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
+static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx) {
 
   switch(opcode){
   case  2: /*updateLocation*/
@@ -1571,7 +1571,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 }
 
 
-static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
+static unsigned dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx) {
 
   switch(opcode){
   case  2: /*updateLocation*/
@@ -1887,7 +1887,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 
 
 
-static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
+static unsigned dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx) {
 
   switch(errorCode){
   case 1: /* UnknownSubscriberParam */

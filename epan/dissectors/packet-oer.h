@@ -13,7 +13,7 @@
 
 #include "ws_symbol_export.h"
 
-typedef int (*oer_type_fn)(tvbuff_t*, int, asn1_ctx_t*, proto_tree*, int);
+typedef unsigned (*oer_type_fn)(tvbuff_t*, unsigned, asn1_ctx_t*, proto_tree*, int);
 
 
 /* value for value and size constraints */

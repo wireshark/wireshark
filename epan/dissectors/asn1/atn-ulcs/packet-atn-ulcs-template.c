@@ -131,24 +131,24 @@ static wmem_tree_t *atn_conversation_tree;
 static proto_tree *root_tree;
 
 /* forward declarations for functions generated from asn1 */
-static int dissect_atn_ulcs_T_externalt_encoding_single_asn1_type(
+static unsigned dissect_atn_ulcs_T_externalt_encoding_single_asn1_type(
     tvbuff_t *tvb _U_,
-    int offset _U_,
+    uint32_t offset _U_,
     asn1_ctx_t *actx _U_,
     proto_tree *tree _U_,
     int hf_index
     _U_);
 
-static int dissect_atn_ulcs_T_externalt_encoding_octet_aligned(
+static unsigned dissect_atn_ulcs_T_externalt_encoding_octet_aligned(
     tvbuff_t *tvb _U_,
-    int offset _U_,
+    uint32_t offset _U_,
     asn1_ctx_t *actx _U_,
     proto_tree *tree _U_,
     int hf_index _U_);
 
-static int dissect_atn_ulcs_T_externalt_encoding_arbitrary(
+static unsigned dissect_atn_ulcs_T_externalt_encoding_arbitrary(
     tvbuff_t *tvb _U_,
-    int offset _U_,
+    uint32_t offset _U_,
     asn1_ctx_t *actx _U_,
     proto_tree *tree _U_,
     int hf_index _U_);

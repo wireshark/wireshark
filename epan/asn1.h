@@ -91,10 +91,10 @@ typedef struct _asn1_ctx_t {
     tvbuff_t *arbitrary;
     union {
       struct {
-        int (*ber_callback)(bool imp_tag, tvbuff_t *tvb, int offset, struct _asn1_ctx_t* ,proto_tree *tree, int hf_index );
+        unsigned (*ber_callback)(bool imp_tag, tvbuff_t *tvb, unsigned offset, struct _asn1_ctx_t* ,proto_tree *tree, int hf_index );
       } ber;
       struct {
-        int (*type_cb)(tvbuff_t*, int, struct _asn1_ctx_t*, proto_tree*, int);
+        unsigned (*type_cb)(tvbuff_t*, uint32_t, struct _asn1_ctx_t*, proto_tree*, int);
       } per;
     } u;
   } external;

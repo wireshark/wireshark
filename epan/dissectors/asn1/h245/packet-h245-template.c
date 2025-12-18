@@ -381,7 +381,7 @@ static int ett_h245_returnedFunction;
 #include "packet-h245-ett.c"
 
 /* Forward declarations */
-static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static void reset_h245_pi(void *dummy _U_)
 {
 	h245_pi = NULL; /* Make sure we don't leave pinfo->pool memory lying around */

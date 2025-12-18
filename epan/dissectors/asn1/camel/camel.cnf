@@ -110,7 +110,7 @@ static const value_string camel_err_code_string_vals[] = {
 # in file packet-camel-table2.c which is included in the template file
 #
 #.TABLE2_HDR
-static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
+static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx) {
 
   switch(opcode){
 #.TABLE2_BODY OPERATION.&ArgumentType
@@ -128,7 +128,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 }
 #.END
 #.TABLE2_HDR
-static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
+static unsigned dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, unsigned offset,asn1_ctx_t *actx) {
 
   switch(opcode){
 #.TABLE2_BODY OPERATION.&ResultType
@@ -144,7 +144,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 #.END
 #.TABLE2_HDR
-static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
+static unsigned dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, unsigned offset,asn1_ctx_t *actx) {
 
   switch(errorCode) {
 #.TABLE2_BODY ERROR.&ParameterType

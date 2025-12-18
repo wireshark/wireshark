@@ -270,7 +270,7 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
     } else {
       if (nas_5gs_handle) {
         proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NAS_PDU);
-        volatile int saved_offset = offset;
+        volatile uint32_t saved_offset = offset;
         TRY {
           call_dissector(nas_5gs_handle, parameter_tvb, actx->pinfo, subtree);
         }
@@ -837,6 +837,7 @@ RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=U
   if (parameter_tvb) {
     proto_tree *subtree;
     volatile dissector_handle_t handle;
+    volatile uint32_t saved_offset = offset;
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UERadioCapability);
     if (ngap_data->procedure_code == id_UERadioCapability_EUTRA_Format) {
       handle = lte_rrc_ue_radio_access_cap_info_handle;
@@ -855,6 +856,7 @@ RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=U
       }
       ENDTRY;
     }
+    offset = saved_offset;
   }
 
 #.FN_BODY TimeStamp VAL_PTR = &timestamp_tvb
@@ -1076,7 +1078,7 @@ BluetoothName TYPE=FT_STRING DISPLAY = BASE_NONE
 %(DEFAULT_BODY)s
   if (cov_enh_level_tvb && ngap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_CoverageEnhancementLevel);
-    volatile int saved_offset = offset;
+    volatile uint32_t saved_offset = offset;
     if ((ngap_is_nbiot_ue(actx->pinfo) && (ngap_dissect_lte_container_as == NGAP_LTE_CONTAINER_AUTOMATIC)) ||
         (ngap_dissect_lte_container_as == NGAP_LTE_CONTAINER_NBIOT)) {
       TRY {

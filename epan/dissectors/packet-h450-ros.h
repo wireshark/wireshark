@@ -18,7 +18,7 @@
 #define PACKET_H450_ROS_H
 
 extern const value_string h450_ros_ROS_vals[];
-int dissect_h450_ros_ROS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+unsigned dissect_h450_ros_ROS(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 #endif  /* PACKET_H450_ROS_H */
 

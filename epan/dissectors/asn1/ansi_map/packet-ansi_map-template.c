@@ -542,9 +542,9 @@ const value_string ansi_map_opr_code_strings[] = {
 };
 static value_string_ext ansi_map_opr_code_strings_ext = VALUE_STRING_EXT_INIT(ansi_map_opr_code_strings);
 
-static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
-static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx);
-static int dissect_ansi_map_SystemMyTypeCode(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
+static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx);
+static unsigned dissect_returnData(proto_tree *tree, tvbuff_t *tvb, unsigned offset,  asn1_ctx_t *actx);
+static unsigned dissect_ansi_map_SystemMyTypeCode(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
 /* Type of Digits (octet 1, bits A-H) */
 static const value_string ansi_map_type_of_digits_vals[] = {
@@ -3639,7 +3639,7 @@ dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 
-static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
+static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx) {
     static bool                   opCodeKnown = true;
     static ansi_map_tap_rec_t     tap_rec[16];
     static ansi_map_tap_rec_t     *tap_p;
@@ -4018,7 +4018,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     return offset;
 }
 
-static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
+static unsigned dissect_returnData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx) {
     static bool                   opCodeKnown = true;
     static ansi_map_tap_rec_t     tap_rec[16];
     static ansi_map_tap_rec_t     *tap_p;

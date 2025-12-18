@@ -67,14 +67,14 @@ typedef struct {
 	RcgPackageType lastPackage;
 } RcgContext;
 
-static int
-dissect_rdpear_ber_VERSION(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
+static unsigned
+dissect_rdpear_ber_VERSION(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 	return offset;
 }
 
-static int
-dissect_rdpear_ber_packageName(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
+static unsigned
+dissect_rdpear_ber_packageName(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
 	RcgContext *rcg = (RcgContext*)actx->private_data;
 
 	tvbuff_t *packageName = NULL;
@@ -139,8 +139,8 @@ dissect_rdpear_packagePayload(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 }
 
 
-static int
-dissect_rdpear_ber_packetBuffer(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
+static unsigned
+dissect_rdpear_ber_packetBuffer(bool implicit_tag, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
 	RcgContext *rcg = (RcgContext*)actx->private_data;
 	tvbuff_t *packageData = NULL;
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &packageData);
@@ -158,7 +158,7 @@ static const ber_sequence_t TSRemoteGuardInnerPacket_sequence[] = {
 };
 
 
-static int dissect_rcg_payload(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+static unsigned dissect_rcg_payload(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, unsigned offset)
 {
 	RcgContext rcg = { RCG_PACKAGE_UNKNOWN };
 	asn1_ctx_t asn1_ctx;

@@ -642,13 +642,13 @@ static const value_string p7_err_code_string_vals[] = {
 
 /* Filter -> Filter/and -> Filter */
 /* Filter -> Filter */
-static int dissect_p7_Filter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_p7_Filter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
 
 
-static int
-dissect_p7_AttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
   return offset;
@@ -656,8 +656,8 @@ dissect_p7_AttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 
-static int
-dissect_p7_AttributeItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AttributeItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
 		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -670,8 +670,8 @@ static const ber_sequence_t AttributeValues_sequence_of[1] = {
   { &hf_p7_attribute_values_item, BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_p7_AttributeItem },
 };
 
-static int
-dissect_p7_AttributeValues(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AttributeValues(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                                   1, ub_attribute_values, AttributeValues_sequence_of, hf_index, ett_p7_AttributeValues);
 
@@ -685,8 +685,8 @@ static const ber_sequence_t Attribute_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_Attribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_Attribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Attribute_sequence, hf_index, ett_p7_Attribute);
 
@@ -695,8 +695,8 @@ dissect_p7_Attribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 
-static int
-dissect_p7_AutoActionType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AutoActionType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
   return offset;
@@ -704,8 +704,8 @@ dissect_p7_AutoActionType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 
-static int
-dissect_p7_INTEGER_1_ub_per_auto_action(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_INTEGER_1_ub_per_auto_action(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             1U, ub_per_auto_action, hf_index, NULL);
 
@@ -714,8 +714,8 @@ dissect_p7_INTEGER_1_ub_per_auto_action(bool implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 
-static int
-dissect_p7_T_registration_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_registration_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
 		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -732,8 +732,8 @@ static const ber_sequence_t AutoActionRegistration_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_AutoActionRegistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AutoActionRegistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AutoActionRegistration_sequence, hf_index, ett_p7_AutoActionRegistration);
 
@@ -742,8 +742,8 @@ dissect_p7_AutoActionRegistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 
-static int
-dissect_p7_T_error_code(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_error_code(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	/* XXX: Is this really the best way to do this? */
 	offset = dissect_ros_Code(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -753,8 +753,8 @@ dissect_p7_T_error_code(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 
 
-static int
-dissect_p7_T_error_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_error_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
 		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -769,8 +769,8 @@ static const ber_sequence_t AutoActionError_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_AutoActionError(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AutoActionError(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               AutoActionError_set, hf_index, ett_p7_AutoActionError);
 
@@ -779,8 +779,8 @@ dissect_p7_AutoActionError(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 
-static int
-dissect_p7_MSExtensionItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MSExtensionItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_external_type(implicit_tag, tree, tvb, offset, actx, hf_index, NULL);
 
   return offset;
@@ -791,8 +791,8 @@ static const ber_sequence_t MSExtensions_sequence_of[1] = {
   { &hf_p7_MSExtensions_item, BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, BER_FLAGS_NOOWNTAG, dissect_p7_MSExtensionItem },
 };
 
-static int
-dissect_p7_MSExtensions(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MSExtensions(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                                   1, ub_extensions, MSExtensions_sequence_of, hf_index, ett_p7_MSExtensions);
 
@@ -813,8 +813,8 @@ static const value_string p7_EntryClass_vals[] = {
 };
 
 
-static int
-dissect_p7_EntryClass(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_EntryClass(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_entry_classes, hf_index, NULL);
 
@@ -834,8 +834,8 @@ static const value_string p7_EntryType_vals[] = {
 };
 
 
-static int
-dissect_p7_EntryType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_EntryType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -844,8 +844,8 @@ dissect_p7_EntryType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 
-int
-dissect_p7_SequenceNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+unsigned
+dissect_p7_SequenceNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_messages, hf_index, &seqno);
 
@@ -861,8 +861,8 @@ static const value_string p7_RetrievalStatus_vals[] = {
 };
 
 
-static int
-dissect_p7_RetrievalStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_RetrievalStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -871,8 +871,8 @@ dissect_p7_RetrievalStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 
-static int
-dissect_p7_GroupNamePart(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_GroupNamePart(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_GeneralString,
                                                         actx, tree, tvb, offset,
                                                         1, ub_group_part_length, hf_index, NULL);
@@ -885,8 +885,8 @@ static const ber_sequence_t MessageGroupName_sequence_of[1] = {
   { &hf_p7_MessageGroupName_item, BER_CLASS_UNI, BER_UNI_TAG_GeneralString, BER_FLAGS_NOOWNTAG, dissect_p7_GroupNamePart },
 };
 
-static int
-dissect_p7_MessageGroupName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MessageGroupName(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                                   1, ub_group_depth, MessageGroupName_sequence_of, hf_index, ett_p7_MessageGroupName);
 
@@ -895,8 +895,8 @@ dissect_p7_MessageGroupName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 
-static int
-dissect_p7_T_initiator_name(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_initiator_name(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	const char *ora = NULL;
 
 	  offset = dissect_p1_ORAddressAndOrDirectoryName(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -912,8 +912,8 @@ dissect_p7_T_initiator_name(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 
-static int
-dissect_p7_OBJECT_IDENTIFIER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_OBJECT_IDENTIFIER(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -924,8 +924,8 @@ static const ber_sequence_t T_allowed_content_types_set_of[1] = {
   { &hf_p7_allowed_content_types_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_p7_OBJECT_IDENTIFIER },
 };
 
-static int
-dissect_p7_T_allowed_content_types(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_allowed_content_types(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_content_types, T_allowed_content_types_set_of, hf_index, ett_p7_T_allowed_content_types);
 
@@ -934,8 +934,8 @@ dissect_p7_T_allowed_content_types(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 
-static int
-dissect_p7_MS_EIT(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MS_EIT(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -946,8 +946,8 @@ static const ber_sequence_t MS_EITs_set_of[1] = {
   { &hf_p7_MS_EITs_item     , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_p7_MS_EIT },
 };
 
-static int
-dissect_p7_MS_EITs(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MS_EITs(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_encoded_information_types, MS_EITs_set_of, hf_index, ett_p7_MS_EITs);
 
@@ -956,8 +956,8 @@ dissect_p7_MS_EITs(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
 
 
 
-static int
-dissect_p7_INTEGER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_INTEGER(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -972,8 +972,8 @@ static const ber_sequence_t Restrictions_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_Restrictions(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_Restrictions(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               Restrictions_set, hf_index, ett_p7_Restrictions);
 
@@ -982,8 +982,8 @@ dissect_p7_Restrictions(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 
 
-static int
-dissect_p7_BOOLEAN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_BOOLEAN(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -991,8 +991,8 @@ dissect_p7_BOOLEAN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
 
 
 
-static int
-dissect_p7_RegistrationIdentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_RegistrationIdentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                                         actx, tree, tvb, offset,
                                                         1, ub_ua_registration_identifier_length, hf_index, NULL);
@@ -1012,8 +1012,8 @@ static const ber_sequence_t MSBindArgument_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_MSBindArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MSBindArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               MSBindArgument_set, hf_index, ett_p7_MSBindArgument);
 
@@ -1025,8 +1025,8 @@ static const ber_sequence_t SET_SIZE_1_ub_auto_actions_OF_AutoActionType_set_of[
   { &hf_p7_available_auto_actions_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_p7_AutoActionType },
 };
 
-static int
-dissect_p7_SET_SIZE_1_ub_auto_actions_OF_AutoActionType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_1_ub_auto_actions_OF_AutoActionType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_auto_actions, SET_SIZE_1_ub_auto_actions_OF_AutoActionType_set_of, hf_index, ett_p7_SET_SIZE_1_ub_auto_actions_OF_AutoActionType);
 
@@ -1038,8 +1038,8 @@ static const ber_sequence_t SET_SIZE_1_ub_attributes_supported_OF_AttributeType_
   { &hf_p7_available_attribute_types_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_p7_AttributeType },
 };
 
-static int
-dissect_p7_SET_SIZE_1_ub_attributes_supported_OF_AttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_1_ub_attributes_supported_OF_AttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_attributes_supported, SET_SIZE_1_ub_attributes_supported_OF_AttributeType_set_of, hf_index, ett_p7_SET_SIZE_1_ub_attributes_supported_OF_AttributeType);
 
@@ -1051,8 +1051,8 @@ static const ber_sequence_t T_content_types_supported_set_of[1] = {
   { &hf_p7_content_types_supported_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_p7_OBJECT_IDENTIFIER },
 };
 
-static int
-dissect_p7_T_content_types_supported(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_content_types_supported(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_content_types, T_content_types_supported_set_of, hf_index, ett_p7_T_content_types_supported);
 
@@ -1064,8 +1064,8 @@ static const ber_sequence_t SET_SIZE_1_ub_entry_classes_OF_EntryClass_set_of[1] 
   { &hf_p7_entry_classes_supported_item, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_p7_EntryClass },
 };
 
-static int
-dissect_p7_SET_SIZE_1_ub_entry_classes_OF_EntryClass(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_1_ub_entry_classes_OF_EntryClass(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_entry_classes, SET_SIZE_1_ub_entry_classes_OF_EntryClass_set_of, hf_index, ett_p7_SET_SIZE_1_ub_entry_classes_OF_EntryClass);
 
@@ -1077,8 +1077,8 @@ static const ber_sequence_t T_matching_rules_supported_set_of[1] = {
   { &hf_p7_matching_rules_supported_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_p7_OBJECT_IDENTIFIER },
 };
 
-static int
-dissect_p7_T_matching_rules_supported(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_matching_rules_supported(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_matching_rules, T_matching_rules_supported_set_of, hf_index, ett_p7_T_matching_rules_supported);
 
@@ -1087,8 +1087,8 @@ dissect_p7_T_matching_rules_supported(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 
-static int
-dissect_p7_INTEGER_1_ub_group_depth(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_INTEGER_1_ub_group_depth(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             1U, ub_group_depth, hf_index, NULL);
 
@@ -1097,8 +1097,8 @@ dissect_p7_INTEGER_1_ub_group_depth(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 
-static int
-dissect_p7_NULL(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_NULL(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
@@ -1117,8 +1117,8 @@ static const ber_choice_t AutoActionErrorIndication_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_AutoActionErrorIndication(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AutoActionErrorIndication(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  AutoActionErrorIndication_choice, hf_index, ett_p7_AutoActionErrorIndication,
                                  NULL);
@@ -1131,8 +1131,8 @@ static const ber_sequence_t T_unsupported_extensions_set_of[1] = {
   { &hf_p7_unsupported_extensions_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_p7_OBJECT_IDENTIFIER },
 };
 
-static int
-dissect_p7_T_unsupported_extensions(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_unsupported_extensions(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_extensions, T_unsupported_extensions_set_of, hf_index, ett_p7_T_unsupported_extensions);
 
@@ -1141,8 +1141,8 @@ dissect_p7_T_unsupported_extensions(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 
-static int
-dissect_p7_GeneralString_SIZE_1_ub_service_information_length(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_GeneralString_SIZE_1_ub_service_information_length(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_GeneralString,
                                                         actx, tree, tvb, offset,
                                                         1, ub_service_information_length, hf_index, NULL);
@@ -1168,8 +1168,8 @@ static const ber_sequence_t MSBindResult_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_MSBindResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MSBindResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               MSBindResult_set, hf_index, ett_p7_MSBindResult);
 
@@ -1181,8 +1181,8 @@ static const ber_sequence_t ChangeCredentialsAlgorithms_set_of[1] = {
   { &hf_p7_ChangeCredentialsAlgorithms_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_p7_OBJECT_IDENTIFIER },
 };
 
-static int
-dissect_p7_ChangeCredentialsAlgorithms(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_ChangeCredentialsAlgorithms(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  ChangeCredentialsAlgorithms_set_of, hf_index, ett_p7_ChangeCredentialsAlgorithms);
 
@@ -1200,8 +1200,8 @@ static const value_string p7_BindProblem_vals[] = {
 };
 
 
-static int
-dissect_p7_BindProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_BindProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -1210,8 +1210,8 @@ dissect_p7_BindProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 
-static int
-dissect_p7_GeneralString_SIZE_1_ub_supplementary_info_length(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_GeneralString_SIZE_1_ub_supplementary_info_length(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_GeneralString,
                                                         actx, tree, tvb, offset,
                                                         1, ub_supplementary_info_length, hf_index, NULL);
@@ -1224,8 +1224,8 @@ static const ber_sequence_t T_bind_extension_errors_set_of[1] = {
   { &hf_p7_bind_extension_errors_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_p7_OBJECT_IDENTIFIER },
 };
 
-static int
-dissect_p7_T_bind_extension_errors(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_bind_extension_errors(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_extensions, T_bind_extension_errors_set_of, hf_index, ett_p7_T_bind_extension_errors);
 
@@ -1240,8 +1240,8 @@ static const ber_sequence_t T_qualified_error_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_T_qualified_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_qualified_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               T_qualified_error_set, hf_index, ett_p7_T_qualified_error);
 
@@ -1261,8 +1261,8 @@ static const ber_choice_t PAR_ms_bind_error_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_PAR_ms_bind_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_PAR_ms_bind_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  PAR_ms_bind_error_choice, hf_index, ett_p7_PAR_ms_bind_error,
                                  NULL);
@@ -1272,8 +1272,8 @@ dissect_p7_PAR_ms_bind_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 
-static int
-dissect_p7_T_from_number(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_from_number(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_p7_SequenceNumber(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " from %u", seqno);
@@ -1283,8 +1283,8 @@ dissect_p7_T_from_number(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 
-static int
-dissect_p7_T_to_number(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_to_number(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_p7_SequenceNumber(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " to %u", seqno);
@@ -1299,8 +1299,8 @@ static const ber_sequence_t NumberRange_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_NumberRange(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_NumberRange(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	col_append_str(actx->pinfo->cinfo, COL_INFO, " (range=");
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NumberRange_sequence, hf_index, ett_p7_NumberRange);
@@ -1313,8 +1313,8 @@ dissect_p7_NumberRange(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 
-static int
-dissect_p7_CreationTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_CreationTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, NULL, NULL);
 
   return offset;
@@ -1327,8 +1327,8 @@ static const ber_sequence_t TimeRange_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_TimeRange(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_TimeRange(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TimeRange_sequence, hf_index, ett_p7_TimeRange);
 
@@ -1348,8 +1348,8 @@ static const ber_choice_t Range_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_Range(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_Range(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Range_choice, hf_index, ett_p7_Range,
                                  NULL);
@@ -1359,8 +1359,8 @@ dissect_p7_Range(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 
 
-static int
-dissect_p7_T_attribute_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_attribute_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
 		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -1375,8 +1375,8 @@ static const ber_sequence_t AttributeValueAssertion_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_AttributeValueAssertion(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AttributeValueAssertion(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AttributeValueAssertion_sequence, hf_index, ett_p7_AttributeValueAssertion);
 
@@ -1385,8 +1385,8 @@ dissect_p7_AttributeValueAssertion(bool implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 
-static int
-dissect_p7_T_initial(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_initial(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
 		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -1396,8 +1396,8 @@ dissect_p7_T_initial(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 
-static int
-dissect_p7_T_any(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_any(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
 		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -1407,8 +1407,8 @@ dissect_p7_T_any(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 
 
-static int
-dissect_p7_T_final(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_final(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
 		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -1431,8 +1431,8 @@ static const ber_choice_t T_strings_item_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_T_strings_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_strings_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_strings_item_choice, hf_index, ett_p7_T_strings_item,
                                  NULL);
@@ -1445,8 +1445,8 @@ static const ber_sequence_t T_strings_sequence_of[1] = {
   { &hf_p7_strings_item     , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_p7_T_strings_item },
 };
 
-static int
-dissect_p7_T_strings(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_strings(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       T_strings_sequence_of, hf_index, ett_p7_T_strings);
 
@@ -1460,8 +1460,8 @@ static const ber_sequence_t T_substrings_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_T_substrings(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_substrings(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    T_substrings_sequence, hf_index, ett_p7_T_substrings);
 
@@ -1470,8 +1470,8 @@ dissect_p7_T_substrings(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 
 
-static int
-dissect_p7_T_match_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_match_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
 		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -1487,8 +1487,8 @@ static const ber_sequence_t MatchingRuleAssertion_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_MatchingRuleAssertion(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MatchingRuleAssertion(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MatchingRuleAssertion_sequence, hf_index, ett_p7_MatchingRuleAssertion);
 
@@ -1518,8 +1518,8 @@ static const ber_choice_t FilterItem_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_FilterItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_FilterItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  FilterItem_choice, hf_index, ett_p7_FilterItem,
                                  NULL);
@@ -1532,8 +1532,8 @@ static const ber_sequence_t SET_OF_Filter_set_of[1] = {
   { &hf_p7_and_item         , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_p7_Filter },
 };
 
-static int
-dissect_p7_SET_OF_Filter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_OF_Filter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_Filter_set_of, hf_index, ett_p7_SET_OF_Filter);
 
@@ -1557,8 +1557,8 @@ static const ber_choice_t Filter_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_Filter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_Filter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // Filter -> Filter/and -> Filter
   actx->pinfo->dissection_depth += 2;
   increment_dissection_depth(actx->pinfo);
@@ -1573,8 +1573,8 @@ dissect_p7_Filter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1
 
 
 
-static int
-dissect_p7_INTEGER_1_ub_messages(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_INTEGER_1_ub_messages(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             1U, ub_messages, hf_index, NULL);
 
@@ -1589,8 +1589,8 @@ static int * const OverrideRestrictions_bits[] = {
   NULL
 };
 
-static int
-dissect_p7_OverrideRestrictions(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_OverrideRestrictions(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
                                                 1, ub_ua_restrictions, OverrideRestrictions_bits, 3, hf_index, ett_p7_OverrideRestrictions,
                                                 NULL);
@@ -1608,8 +1608,8 @@ static const ber_sequence_t Selector_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_Selector(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_Selector(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               Selector_set, hf_index, ett_p7_Selector);
 
@@ -1618,8 +1618,8 @@ dissect_p7_Selector(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 
 
 
-static int
-dissect_p7_INTEGER_1_ub_attribute_values(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_INTEGER_1_ub_attribute_values(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             1U, ub_attribute_values, hf_index, NULL);
 
@@ -1628,8 +1628,8 @@ dissect_p7_INTEGER_1_ub_attribute_values(bool implicit_tag _U_, tvbuff_t *tvb _U
 
 
 
-static int
-dissect_p7_INTEGER_0_ub_attribute_values(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_INTEGER_0_ub_attribute_values(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_attribute_values, hf_index, NULL);
 
@@ -1644,8 +1644,8 @@ static const ber_sequence_t AttributeSelection_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_AttributeSelection(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AttributeSelection(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               AttributeSelection_set, hf_index, ett_p7_AttributeSelection);
 
@@ -1657,8 +1657,8 @@ static const ber_sequence_t EntryInformationSelection_set_of[1] = {
   { &hf_p7_EntryInformationSelection_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_AttributeSelection },
 };
 
-static int
-dissect_p7_EntryInformationSelection(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_EntryInformationSelection(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              0, ub_per_entry, EntryInformationSelection_set_of, hf_index, ett_p7_EntryInformationSelection);
 
@@ -1670,8 +1670,8 @@ static const ber_sequence_t SET_SIZE_1_ub_per_entry_OF_Attribute_set_of[1] = {
   { &hf_p7_attributes_item  , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_p7_Attribute },
 };
 
-static int
-dissect_p7_SET_SIZE_1_ub_per_entry_OF_Attribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_1_ub_per_entry_OF_Attribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_per_entry, SET_SIZE_1_ub_per_entry_OF_Attribute_set_of, hf_index, ett_p7_SET_SIZE_1_ub_per_entry_OF_Attribute);
 
@@ -1685,8 +1685,8 @@ static const ber_sequence_t AttributeValueCount_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_AttributeValueCount(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AttributeValueCount(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AttributeValueCount_sequence, hf_index, ett_p7_AttributeValueCount);
 
@@ -1698,8 +1698,8 @@ static const ber_sequence_t SET_SIZE_1_ub_per_entry_OF_AttributeValueCount_set_o
   { &hf_p7_value_count_exceeded_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_p7_AttributeValueCount },
 };
 
-static int
-dissect_p7_SET_SIZE_1_ub_per_entry_OF_AttributeValueCount(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_1_ub_per_entry_OF_AttributeValueCount(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_per_entry, SET_SIZE_1_ub_per_entry_OF_AttributeValueCount_set_of, hf_index, ett_p7_SET_SIZE_1_ub_per_entry_OF_AttributeValueCount);
 
@@ -1714,8 +1714,8 @@ static const ber_sequence_t EntryInformation_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_EntryInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_EntryInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	p1_initialize_content_globals (actx, NULL, false);
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EntryInformation_sequence, hf_index, ett_p7_EntryInformation);
@@ -1731,8 +1731,8 @@ static const ber_sequence_t SET_SIZE_1_ub_message_groups_OF_MessageGroupName_set
   { &hf_p7_add_message_group_names_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_p7_MessageGroupName },
 };
 
-static int
-dissect_p7_SET_SIZE_1_ub_message_groups_OF_MessageGroupName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_1_ub_message_groups_OF_MessageGroupName(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_message_groups, SET_SIZE_1_ub_message_groups_OF_MessageGroupName_set_of, hf_index, ett_p7_SET_SIZE_1_ub_message_groups_OF_MessageGroupName);
 
@@ -1748,8 +1748,8 @@ static const ber_sequence_t MSSubmissionOptions_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_MSSubmissionOptions(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MSSubmissionOptions(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               MSSubmissionOptions_set, hf_index, ett_p7_MSSubmissionOptions);
 
@@ -1758,8 +1758,8 @@ dissect_p7_MSSubmissionOptions(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 
-static int
-dissect_p7_OriginatorToken(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_OriginatorToken(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_p1_MessageToken(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -1773,8 +1773,8 @@ static const ber_sequence_t CommonSubmissionResults_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_CommonSubmissionResults(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_CommonSubmissionResults(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               CommonSubmissionResults_set, hf_index, ett_p7_CommonSubmissionResults);
 
@@ -1786,8 +1786,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_ub_summaries_OF_AttributeType_sequen
   { &hf_p7_summary_requests_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_p7_AttributeType },
 };
 
-static int
-dissect_p7_SEQUENCE_SIZE_1_ub_summaries_OF_AttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SEQUENCE_SIZE_1_ub_summaries_OF_AttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                                   1, ub_summaries, SEQUENCE_SIZE_1_ub_summaries_OF_AttributeType_sequence_of, hf_index, ett_p7_SEQUENCE_SIZE_1_ub_summaries_OF_AttributeType);
 
@@ -1803,8 +1803,8 @@ static const ber_sequence_t SummarizeArgument_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_SummarizeArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SummarizeArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               SummarizeArgument_set, hf_index, ett_p7_SummarizeArgument);
 
@@ -1813,8 +1813,8 @@ dissect_p7_SummarizeArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 
-static int
-dissect_p7_T_count(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_count(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	uint32_t count = 0;
 
 	  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
@@ -1834,8 +1834,8 @@ static const ber_sequence_t Span_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_Span(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_Span(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Span_sequence, hf_index, ett_p7_Span);
 
@@ -1844,8 +1844,8 @@ dissect_p7_Span(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 
-static int
-dissect_p7_SummaryPresentItemValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SummaryPresentItemValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
 		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -1861,8 +1861,8 @@ static const ber_sequence_t T_summary_present_item_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_T_summary_present_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_summary_present_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    T_summary_present_item_sequence, hf_index, ett_p7_T_summary_present_item);
 
@@ -1874,8 +1874,8 @@ static const ber_sequence_t T_summary_present_set_of[1] = {
   { &hf_p7_summary_present_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_p7_T_summary_present_item },
 };
 
-static int
-dissect_p7_T_summary_present(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_summary_present(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_attribute_values, T_summary_present_set_of, hf_index, ett_p7_T_summary_present);
 
@@ -1889,8 +1889,8 @@ static const ber_sequence_t Summary_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_Summary(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_Summary(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               Summary_set, hf_index, ett_p7_Summary);
 
@@ -1902,8 +1902,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_ub_summaries_OF_Summary_sequence_of[
   { &hf_p7_summaries_item   , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_Summary },
 };
 
-static int
-dissect_p7_SEQUENCE_SIZE_1_ub_summaries_OF_Summary(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SEQUENCE_SIZE_1_ub_summaries_OF_Summary(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                                   1, ub_summaries, SEQUENCE_SIZE_1_ub_summaries_OF_Summary_sequence_of, hf_index, ett_p7_SEQUENCE_SIZE_1_ub_summaries_OF_Summary);
 
@@ -1920,8 +1920,8 @@ static const ber_sequence_t SummarizeResult_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_SummarizeResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SummarizeResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               SummarizeResult_set, hf_index, ett_p7_SummarizeResult);
 
@@ -1937,8 +1937,8 @@ static const ber_sequence_t ListArgument_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_ListArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_ListArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               ListArgument_set, hf_index, ett_p7_ListArgument);
 
@@ -1950,8 +1950,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_ub_messages_OF_EntryInformation_sequ
   { &hf_p7_requested_item   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_p7_EntryInformation },
 };
 
-static int
-dissect_p7_SEQUENCE_SIZE_1_ub_messages_OF_EntryInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SEQUENCE_SIZE_1_ub_messages_OF_EntryInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                                   1, ub_messages, SEQUENCE_SIZE_1_ub_messages_OF_EntryInformation_sequence_of, hf_index, ett_p7_SEQUENCE_SIZE_1_ub_messages_OF_EntryInformation);
 
@@ -1966,8 +1966,8 @@ static const ber_sequence_t ListResult_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_ListResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_ListResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               ListResult_set, hf_index, ett_p7_ListResult);
 
@@ -1987,8 +1987,8 @@ static const ber_choice_t T_item_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_T_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_item_choice, hf_index, ett_p7_T_item,
                                  NULL);
@@ -2005,8 +2005,8 @@ static const ber_sequence_t FetchArgument_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_FetchArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_FetchArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               FetchArgument_set, hf_index, ett_p7_FetchArgument);
 
@@ -2018,8 +2018,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_ub_messages_OF_SequenceNumber_sequen
   { &hf_p7_list_item        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_p7_SequenceNumber },
 };
 
-static int
-dissect_p7_SEQUENCE_SIZE_1_ub_messages_OF_SequenceNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SEQUENCE_SIZE_1_ub_messages_OF_SequenceNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                                   1, ub_messages, SEQUENCE_SIZE_1_ub_messages_OF_SequenceNumber_sequence_of, hf_index, ett_p7_SEQUENCE_SIZE_1_ub_messages_OF_SequenceNumber);
 
@@ -2035,8 +2035,8 @@ static const ber_sequence_t FetchResult_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_FetchResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_FetchResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               FetchResult_set, hf_index, ett_p7_FetchResult);
 
@@ -2048,8 +2048,8 @@ static const ber_sequence_t SET_SIZE_1_ub_messages_OF_SequenceNumber_set_of[1] =
   { &hf_p7_sequence_numbers_item, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_p7_SequenceNumber },
 };
 
-static int
-dissect_p7_SET_SIZE_1_ub_messages_OF_SequenceNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_1_ub_messages_OF_SequenceNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_messages, SET_SIZE_1_ub_messages_OF_SequenceNumber_set_of, hf_index, ett_p7_SET_SIZE_1_ub_messages_OF_SequenceNumber);
 
@@ -2069,8 +2069,8 @@ static const ber_choice_t T_items_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_T_items(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_items(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_items_choice, hf_index, ett_p7_T_items,
                                  NULL);
@@ -2086,8 +2086,8 @@ static const ber_sequence_t DeleteArgument_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_DeleteArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_DeleteArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               DeleteArgument_set, hf_index, ett_p7_DeleteArgument);
 
@@ -2101,8 +2101,8 @@ static const ber_sequence_t T_delete_result_94_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_T_delete_result_94(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_delete_result_94(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               T_delete_result_94_set, hf_index, ett_p7_T_delete_result_94);
 
@@ -2122,8 +2122,8 @@ static const ber_choice_t DeleteResult_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_DeleteResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_DeleteResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  DeleteResult_choice, hf_index, ett_p7_DeleteResult,
                                  NULL);
@@ -2136,8 +2136,8 @@ static const ber_sequence_t SET_SIZE_1_ub_auto_registrations_OF_AutoActionRegist
   { &hf_p7_auto_action_registrations_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_p7_AutoActionRegistration },
 };
 
-static int
-dissect_p7_SET_SIZE_1_ub_auto_registrations_OF_AutoActionRegistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_1_ub_auto_registrations_OF_AutoActionRegistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_auto_registrations, SET_SIZE_1_ub_auto_registrations_OF_AutoActionRegistration_set_of, hf_index, ett_p7_SET_SIZE_1_ub_auto_registrations_OF_AutoActionRegistration);
 
@@ -2151,8 +2151,8 @@ static const ber_sequence_t AutoActionDeregistration_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_AutoActionDeregistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AutoActionDeregistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AutoActionDeregistration_sequence, hf_index, ett_p7_AutoActionDeregistration);
 
@@ -2164,8 +2164,8 @@ static const ber_sequence_t SET_SIZE_1_ub_auto_registrations_OF_AutoActionDeregi
   { &hf_p7_auto_action_deregistrations_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_p7_AutoActionDeregistration },
 };
 
-static int
-dissect_p7_SET_SIZE_1_ub_auto_registrations_OF_AutoActionDeregistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_1_ub_auto_registrations_OF_AutoActionDeregistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_auto_registrations, SET_SIZE_1_ub_auto_registrations_OF_AutoActionDeregistration_set_of, hf_index, ett_p7_SET_SIZE_1_ub_auto_registrations_OF_AutoActionDeregistration);
 
@@ -2177,8 +2177,8 @@ static const ber_sequence_t SET_SIZE_0_ub_default_registrations_OF_AttributeType
   { &hf_p7_list_attribute_defaults_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_p7_AttributeType },
 };
 
-static int
-dissect_p7_SET_SIZE_0_ub_default_registrations_OF_AttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_0_ub_default_registrations_OF_AttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              0, ub_default_registrations, SET_SIZE_0_ub_default_registrations_OF_AttributeType_set_of, hf_index, ett_p7_SET_SIZE_0_ub_default_registrations_OF_AttributeType);
 
@@ -2192,8 +2192,8 @@ static const ber_sequence_t T_change_credentials_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_T_change_credentials(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_change_credentials(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    T_change_credentials_sequence, hf_index, ett_p7_T_change_credentials);
 
@@ -2205,8 +2205,8 @@ static const ber_sequence_t SET_SIZE_1_ub_labels_and_redirections_OF_SecurityLab
   { &hf_p7_user_security_labels_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p1_SecurityLabel },
 };
 
-static int
-dissect_p7_SET_SIZE_1_ub_labels_and_redirections_OF_SecurityLabel(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_1_ub_labels_and_redirections_OF_SecurityLabel(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_labels_and_redirections, SET_SIZE_1_ub_labels_and_redirections_OF_SecurityLabel_set_of, hf_index, ett_p7_SET_SIZE_1_ub_labels_and_redirections_OF_SecurityLabel);
 
@@ -2223,8 +2223,8 @@ static const ber_sequence_t UARegistration_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_UARegistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_UARegistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               UARegistration_set, hf_index, ett_p7_UARegistration);
 
@@ -2236,8 +2236,8 @@ static const ber_sequence_t SET_SIZE_1_ub_ua_registrations_OF_UARegistration_set
   { &hf_p7_ua_registrations_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_UARegistration },
 };
 
-static int
-dissect_p7_SET_SIZE_1_ub_ua_registrations_OF_UARegistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_1_ub_ua_registrations_OF_UARegistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_ua_registrations, SET_SIZE_1_ub_ua_registrations_OF_UARegistration_set_of, hf_index, ett_p7_SET_SIZE_1_ub_ua_registrations_OF_UARegistration);
 
@@ -2246,8 +2246,8 @@ dissect_p7_SET_SIZE_1_ub_ua_registrations_OF_UARegistration(bool implicit_tag _U
 
 
 
-static int
-dissect_p7_GeneralString_SIZE_1_ub_group_descriptor_length(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_GeneralString_SIZE_1_ub_group_descriptor_length(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_GeneralString,
                                                         actx, tree, tvb, offset,
                                                         1, ub_group_descriptor_length, hf_index, NULL);
@@ -2262,8 +2262,8 @@ static const ber_sequence_t MessageGroupNameAndDescriptor_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_MessageGroupNameAndDescriptor(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MessageGroupNameAndDescriptor(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               MessageGroupNameAndDescriptor_set, hf_index, ett_p7_MessageGroupNameAndDescriptor);
 
@@ -2285,8 +2285,8 @@ static const ber_choice_t MessageGroupRegistrations_item_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_MessageGroupRegistrations_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MessageGroupRegistrations_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  MessageGroupRegistrations_item_choice, hf_index, ett_p7_MessageGroupRegistrations_item,
                                  NULL);
@@ -2299,8 +2299,8 @@ static const ber_sequence_t MessageGroupRegistrations_sequence_of[1] = {
   { &hf_p7_MessageGroupRegistrations_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_p7_MessageGroupRegistrations_item },
 };
 
-static int
-dissect_p7_MessageGroupRegistrations(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MessageGroupRegistrations(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                                   1, ub_default_registrations, MessageGroupRegistrations_sequence_of, hf_index, ett_p7_MessageGroupRegistrations);
 
@@ -2318,8 +2318,8 @@ static int * const T_registrations_bits[] = {
   NULL
 };
 
-static int
-dissect_p7_T_registrations(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_registrations(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     T_registrations_bits, 6, hf_index, ett_p7_T_registrations,
                                     NULL);
@@ -2329,8 +2329,8 @@ dissect_p7_T_registrations(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 
-static int
-dissect_p7_T_extended_registrations_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_extended_registrations_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	/* XXX: Is this really the best way to do this? */
 	offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
@@ -2343,8 +2343,8 @@ static const ber_sequence_t T_extended_registrations_set_of[1] = {
   { &hf_p7_extended_registrations_item, BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_p7_T_extended_registrations_item },
 };
 
-static int
-dissect_p7_T_extended_registrations(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_extended_registrations(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  T_extended_registrations_set_of, hf_index, ett_p7_T_extended_registrations);
 
@@ -2359,8 +2359,8 @@ static const ber_sequence_t MessageGroupsRestriction_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_MessageGroupsRestriction(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MessageGroupsRestriction(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               MessageGroupsRestriction_set, hf_index, ett_p7_MessageGroupsRestriction);
 
@@ -2375,8 +2375,8 @@ static const ber_sequence_t RegistrationTypes_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_RegistrationTypes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_RegistrationTypes(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               RegistrationTypes_set, hf_index, ett_p7_RegistrationTypes);
 
@@ -2399,8 +2399,8 @@ static const ber_sequence_t Register_MSArgument_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_Register_MSArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_Register_MSArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               Register_MSArgument_set, hf_index, ett_p7_Register_MSArgument);
 
@@ -2409,8 +2409,8 @@ dissect_p7_Register_MSArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 
-static int
-dissect_p7_BIT_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_BIT_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, 0, hf_index, -1,
                                     NULL);
@@ -2426,8 +2426,8 @@ static const ber_sequence_t ProtectedChangeCredentials_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_ProtectedChangeCredentials(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_ProtectedChangeCredentials(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ProtectedChangeCredentials_sequence, hf_index, ett_p7_ProtectedChangeCredentials);
 
@@ -2439,8 +2439,8 @@ static const ber_sequence_t SET_SIZE_1_ub_default_registrations_OF_AttributeType
   { &hf_p7_registered_list_attribute_defaults_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_p7_AttributeType },
 };
 
-static int
-dissect_p7_SET_SIZE_1_ub_default_registrations_OF_AttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_1_ub_default_registrations_OF_AttributeType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_default_registrations, SET_SIZE_1_ub_default_registrations_OF_AttributeType_set_of, hf_index, ett_p7_SET_SIZE_1_ub_default_registrations_OF_AttributeType);
 
@@ -2452,8 +2452,8 @@ static const ber_sequence_t SET_SIZE_1_ub_message_groups_OF_MessageGroupNameAndD
   { &hf_p7_registered_message_group_registrations_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_MessageGroupNameAndDescriptor },
 };
 
-static int
-dissect_p7_SET_SIZE_1_ub_message_groups_OF_MessageGroupNameAndDescriptor(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_SIZE_1_ub_message_groups_OF_MessageGroupNameAndDescriptor(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_message_groups, SET_SIZE_1_ub_message_groups_OF_MessageGroupNameAndDescriptor_set_of, hf_index, ett_p7_SET_SIZE_1_ub_message_groups_OF_MessageGroupNameAndDescriptor);
 
@@ -2472,8 +2472,8 @@ static const ber_sequence_t T_registered_information_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_T_registered_information(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_registered_information(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               T_registered_information_set, hf_index, ett_p7_T_registered_information);
 
@@ -2493,8 +2493,8 @@ static const ber_choice_t Register_MSResult_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_Register_MSResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_Register_MSResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Register_MSResult_choice, hf_index, ett_p7_Register_MSResult,
                                  NULL);
@@ -2504,8 +2504,8 @@ dissect_p7_Register_MSResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 
-static int
-dissect_p7_INTEGER_1_ub_auto_actions(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_INTEGER_1_ub_auto_actions(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             1U, ub_auto_actions, hf_index, NULL);
 
@@ -2519,8 +2519,8 @@ static const ber_sequence_t AlertArgument_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_AlertArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AlertArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               AlertArgument_set, hf_index, ett_p7_AlertArgument);
 
@@ -2529,8 +2529,8 @@ dissect_p7_AlertArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 
-static int
-dissect_p7_AlertResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AlertResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
@@ -2549,8 +2549,8 @@ static const ber_choice_t T_entries_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_T_entries(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_entries(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_entries_choice, hf_index, ett_p7_T_entries,
                                  NULL);
@@ -2560,8 +2560,8 @@ dissect_p7_T_entries(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 
-static int
-dissect_p7_OrderedAttributeValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_OrderedAttributeValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
 		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -2576,8 +2576,8 @@ static const ber_sequence_t OrderedAttributeItem_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_OrderedAttributeItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_OrderedAttributeItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    OrderedAttributeItem_sequence, hf_index, ett_p7_OrderedAttributeItem);
 
@@ -2589,8 +2589,8 @@ static const ber_sequence_t OrderedAttributeValues_sequence_of[1] = {
   { &hf_p7_ordered_attribute_values_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_p7_OrderedAttributeItem },
 };
 
-static int
-dissect_p7_OrderedAttributeValues(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_OrderedAttributeValues(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                                   1, ub_attribute_values, OrderedAttributeValues_sequence_of, hf_index, ett_p7_OrderedAttributeValues);
 
@@ -2604,8 +2604,8 @@ static const ber_sequence_t OrderedAttribute_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_OrderedAttribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_OrderedAttribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    OrderedAttribute_sequence, hf_index, ett_p7_OrderedAttribute);
 
@@ -2629,8 +2629,8 @@ static const ber_choice_t T_modification_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_T_modification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_modification(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_modification_choice, hf_index, ett_p7_T_modification,
                                  NULL);
@@ -2645,8 +2645,8 @@ static const ber_sequence_t EntryModification_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_EntryModification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_EntryModification(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	p1_initialize_content_globals (actx, NULL, false);
 	  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               EntryModification_set, hf_index, ett_p7_EntryModification);
@@ -2661,8 +2661,8 @@ static const ber_sequence_t SEQUENCE_SIZE_1_ub_modifications_OF_EntryModificatio
   { &hf_p7_modifications_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_EntryModification },
 };
 
-static int
-dissect_p7_SEQUENCE_SIZE_1_ub_modifications_OF_EntryModification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SEQUENCE_SIZE_1_ub_modifications_OF_EntryModification(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                                   1, ub_modifications, SEQUENCE_SIZE_1_ub_modifications_OF_EntryModification_sequence_of, hf_index, ett_p7_SEQUENCE_SIZE_1_ub_modifications_OF_EntryModification);
 
@@ -2678,8 +2678,8 @@ static const ber_sequence_t ModifyArgument_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_ModifyArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_ModifyArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               ModifyArgument_set, hf_index, ett_p7_ModifyArgument);
 
@@ -2693,8 +2693,8 @@ static const ber_sequence_t ModifyResult_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_ModifyResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_ModifyResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               ModifyResult_set, hf_index, ett_p7_ModifyResult);
 
@@ -2709,8 +2709,8 @@ static const ber_sequence_t MSMessageSubmissionArgument_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_MSMessageSubmissionArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MSMessageSubmissionArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	p1_initialize_content_globals (actx, tree, true);
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MSMessageSubmissionArgument_sequence, hf_index, ett_p7_MSMessageSubmissionArgument);
@@ -2726,8 +2726,8 @@ static const ber_sequence_t SET_OF_ExtensionField_set_of[1] = {
   { &hf_p7_extensions_item  , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_p1_ExtensionField },
 };
 
-static int
-dissect_p7_SET_OF_ExtensionField(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SET_OF_ExtensionField(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_ExtensionField_set_of, hf_index, ett_p7_SET_OF_ExtensionField);
 
@@ -2744,8 +2744,8 @@ static const ber_sequence_t T_mts_result_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_T_mts_result(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_mts_result(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               T_mts_result_set, hf_index, ett_p7_T_mts_result);
 
@@ -2765,8 +2765,8 @@ static const ber_choice_t MSMessageSubmissionResult_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_MSMessageSubmissionResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MSMessageSubmissionResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  MSMessageSubmissionResult_choice, hf_index, ett_p7_MSMessageSubmissionResult,
                                  NULL);
@@ -2779,8 +2779,8 @@ static const ber_sequence_t SEQUENCE_OF_PerRecipientProbeSubmissionFields_sequen
   { &hf_p7_per_recipient_fields_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p1_PerRecipientProbeSubmissionFields },
 };
 
-static int
-dissect_p7_SEQUENCE_OF_PerRecipientProbeSubmissionFields(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SEQUENCE_OF_PerRecipientProbeSubmissionFields(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_PerRecipientProbeSubmissionFields_sequence_of, hf_index, ett_p7_SEQUENCE_OF_PerRecipientProbeSubmissionFields);
 
@@ -2801,8 +2801,8 @@ static const ber_sequence_t MSProbeSubmissionArgument_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_MSProbeSubmissionArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MSProbeSubmissionArgument(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               MSProbeSubmissionArgument_set, hf_index, ett_p7_MSProbeSubmissionArgument);
 
@@ -2819,8 +2819,8 @@ static const ber_sequence_t MSProbeSubmissionResult_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_MSProbeSubmissionResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MSProbeSubmissionResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               MSProbeSubmissionResult_set, hf_index, ett_p7_MSProbeSubmissionResult);
 
@@ -2840,8 +2840,8 @@ static const value_string p7_AttributeProblem_vals[] = {
 };
 
 
-static int
-dissect_p7_AttributeProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AttributeProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_error_reasons, hf_index, NULL);
 
@@ -2850,8 +2850,8 @@ dissect_p7_AttributeProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 
-static int
-dissect_p7_T_attr_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_attr_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(actx->external.direct_reference)
 		call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -2868,8 +2868,8 @@ static const ber_sequence_t AttributeProblemItem_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_AttributeProblemItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AttributeProblemItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               AttributeProblemItem_set, hf_index, ett_p7_AttributeProblemItem);
 
@@ -2881,8 +2881,8 @@ static const ber_sequence_t AttributeProblems_set_of[1] = {
   { &hf_p7_attribute_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_AttributeProblemItem },
 };
 
-static int
-dissect_p7_AttributeProblems(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AttributeProblems(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_per_entry, AttributeProblems_set_of, hf_index, ett_p7_AttributeProblems);
 
@@ -2895,8 +2895,8 @@ static const ber_sequence_t PAR_attribute_error_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_PAR_attribute_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_PAR_attribute_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               PAR_attribute_error_set, hf_index, ett_p7_PAR_attribute_error);
 
@@ -2912,8 +2912,8 @@ static const value_string p7_AutoActionRequestProblem_vals[] = {
 };
 
 
-static int
-dissect_p7_AutoActionRequestProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AutoActionRequestProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_error_reasons, hf_index, NULL);
 
@@ -2927,8 +2927,8 @@ static const ber_sequence_t AutoActionRequestProblemItem_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_AutoActionRequestProblemItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AutoActionRequestProblemItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               AutoActionRequestProblemItem_set, hf_index, ett_p7_AutoActionRequestProblemItem);
 
@@ -2940,8 +2940,8 @@ static const ber_sequence_t AutoActionRequestProblems_set_of[1] = {
   { &hf_p7_auto_action_request_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_AutoActionRequestProblemItem },
 };
 
-static int
-dissect_p7_AutoActionRequestProblems(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AutoActionRequestProblems(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_auto_registrations, AutoActionRequestProblems_set_of, hf_index, ett_p7_AutoActionRequestProblems);
 
@@ -2954,8 +2954,8 @@ static const ber_sequence_t PAR_auto_action_request_error_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_PAR_auto_action_request_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_PAR_auto_action_request_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               PAR_auto_action_request_error_set, hf_index, ett_p7_PAR_auto_action_request_error);
 
@@ -2973,8 +2973,8 @@ static const value_string p7_DeleteProblem_vals[] = {
 };
 
 
-static int
-dissect_p7_DeleteProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_DeleteProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_error_reasons, hf_index, NULL);
 
@@ -2988,8 +2988,8 @@ static const ber_sequence_t DeleteProblemItem_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_DeleteProblemItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_DeleteProblemItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               DeleteProblemItem_set, hf_index, ett_p7_DeleteProblemItem);
 
@@ -3001,8 +3001,8 @@ static const ber_sequence_t DeleteProblems_set_of[1] = {
   { &hf_p7_delete_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_DeleteProblemItem },
 };
 
-static int
-dissect_p7_DeleteProblems(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_DeleteProblems(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_messages, DeleteProblems_set_of, hf_index, ett_p7_DeleteProblems);
 
@@ -3016,8 +3016,8 @@ static const ber_sequence_t PAR_delete_error_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_PAR_delete_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_PAR_delete_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               PAR_delete_error_set, hf_index, ett_p7_PAR_delete_error);
 
@@ -3033,8 +3033,8 @@ static const value_string p7_FetchRestrictionProblem_vals[] = {
 };
 
 
-static int
-dissect_p7_FetchRestrictionProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_FetchRestrictionProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_error_reasons, hf_index, NULL);
 
@@ -3056,8 +3056,8 @@ static const ber_choice_t T_restriction_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_T_restriction(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_restriction(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_restriction_choice, hf_index, ett_p7_T_restriction,
                                  NULL);
@@ -3072,8 +3072,8 @@ static const ber_sequence_t FetchRestrictionProblemItem_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_FetchRestrictionProblemItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_FetchRestrictionProblemItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               FetchRestrictionProblemItem_set, hf_index, ett_p7_FetchRestrictionProblemItem);
 
@@ -3085,8 +3085,8 @@ static const ber_sequence_t FetchRestrictionProblems_set_of[1] = {
   { &hf_p7_fetch_restriction_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_FetchRestrictionProblemItem },
 };
 
-static int
-dissect_p7_FetchRestrictionProblems(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_FetchRestrictionProblems(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_default_registrations, FetchRestrictionProblems_set_of, hf_index, ett_p7_FetchRestrictionProblems);
 
@@ -3099,8 +3099,8 @@ static const ber_sequence_t PAR_fetch_restriction_error_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_PAR_fetch_restriction_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_PAR_fetch_restriction_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               PAR_fetch_restriction_error_set, hf_index, ett_p7_PAR_fetch_restriction_error);
 
@@ -3109,8 +3109,8 @@ dissect_p7_PAR_fetch_restriction_error(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 
-static int
-dissect_p7_PAR_invalid_parameters_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_PAR_invalid_parameters_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
@@ -3123,8 +3123,8 @@ static const value_string p7_RangeProblem_vals[] = {
 };
 
 
-static int
-dissect_p7_RangeProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_RangeProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_error_reasons, hf_index, NULL);
 
@@ -3137,8 +3137,8 @@ static const ber_sequence_t PAR_range_error_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_PAR_range_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_PAR_range_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               PAR_range_error_set, hf_index, ett_p7_PAR_range_error);
 
@@ -3152,8 +3152,8 @@ static const value_string p7_SequenceNumberProblem_vals[] = {
 };
 
 
-static int
-dissect_p7_SequenceNumberProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SequenceNumberProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_error_reasons, hf_index, NULL);
 
@@ -3167,8 +3167,8 @@ static const ber_sequence_t SequenceNumberProblemItem_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_SequenceNumberProblemItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SequenceNumberProblemItem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               SequenceNumberProblemItem_set, hf_index, ett_p7_SequenceNumberProblemItem);
 
@@ -3180,8 +3180,8 @@ static const ber_sequence_t SequenceNumberProblems_set_of[1] = {
   { &hf_p7_sequence_number_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_SequenceNumberProblemItem },
 };
 
-static int
-dissect_p7_SequenceNumberProblems(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SequenceNumberProblems(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_set_of(implicit_tag, actx, tree, tvb, offset,
                                              1, ub_messages, SequenceNumberProblems_set_of, hf_index, ett_p7_SequenceNumberProblems);
 
@@ -3194,8 +3194,8 @@ static const ber_sequence_t PAR_sequence_number_error_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_PAR_sequence_number_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_PAR_sequence_number_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               PAR_sequence_number_error_set, hf_index, ett_p7_PAR_sequence_number_error);
 
@@ -3211,8 +3211,8 @@ static const value_string p7_ServiceProblem_vals[] = {
 };
 
 
-static int
-dissect_p7_ServiceProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_ServiceProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_error_reasons, hf_index, NULL);
 
@@ -3226,8 +3226,8 @@ static const ber_sequence_t ServiceErrorParameter_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_ServiceErrorParameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_ServiceErrorParameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               ServiceErrorParameter_set, hf_index, ett_p7_ServiceErrorParameter);
 
@@ -3247,8 +3247,8 @@ static const value_string p7_MessageGroupProblem_vals[] = {
 };
 
 
-static int
-dissect_p7_MessageGroupProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MessageGroupProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_error_reasons, hf_index, NULL);
 
@@ -3262,8 +3262,8 @@ static const ber_sequence_t MessageGroupErrorParameter_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_MessageGroupErrorParameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MessageGroupErrorParameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               MessageGroupErrorParameter_set, hf_index, ett_p7_MessageGroupErrorParameter);
 
@@ -3283,8 +3283,8 @@ static const ber_choice_t MSExtensionErrorParameter_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_MSExtensionErrorParameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_MSExtensionErrorParameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  MSExtensionErrorParameter_choice, hf_index, ett_p7_MSExtensionErrorParameter,
                                  NULL);
@@ -3301,8 +3301,8 @@ static const value_string p7_RegistrationProblem_vals[] = {
 };
 
 
-static int
-dissect_p7_RegistrationProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_RegistrationProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3316,8 +3316,8 @@ static const ber_sequence_t PAR_register_ms_error_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_PAR_register_ms_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_PAR_register_ms_error(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               PAR_register_ms_error_set, hf_index, ett_p7_PAR_register_ms_error);
 
@@ -3335,8 +3335,8 @@ static const value_string p7_ModifyProblem_vals[] = {
 };
 
 
-static int
-dissect_p7_ModifyProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_ModifyProblem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             0U, ub_error_reasons, hf_index, NULL);
 
@@ -3352,8 +3352,8 @@ static const ber_sequence_t ModifyErrorParameter_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_ModifyErrorParameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_ModifyErrorParameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               ModifyErrorParameter_set, hf_index, ett_p7_ModifyErrorParameter);
 
@@ -3368,8 +3368,8 @@ static int * const T_entry_class_problem_bits[] = {
   NULL
 };
 
-static int
-dissect_p7_T_entry_class_problem(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_entry_class_problem(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     T_entry_class_problem_bits, 3, hf_index, ett_p7_T_entry_class_problem,
                                     NULL);
@@ -3384,8 +3384,8 @@ static const ber_sequence_t EntryClassErrorParameter_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_EntryClassErrorParameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_EntryClassErrorParameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               EntryClassErrorParameter_set, hf_index, ett_p7_EntryClassErrorParameter);
 
@@ -3394,8 +3394,8 @@ dissect_p7_EntryClassErrorParameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 
-static int
-dissect_p7_INTEGER_1_ub_recipients(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_INTEGER_1_ub_recipients(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             1U, ub_recipients, hf_index, NULL);
 
@@ -3409,8 +3409,8 @@ static const ber_sequence_t PerRecipientReport_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_PerRecipientReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_PerRecipientReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PerRecipientReport_sequence, hf_index, ett_p7_PerRecipientReport);
 
@@ -3422,8 +3422,8 @@ static const ber_sequence_t SEQUENCE_OF_PerRecipientReport_sequence_of[1] = {
   { &hf_p7_location_item    , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_p7_PerRecipientReport },
 };
 
-static int
-dissect_p7_SEQUENCE_OF_PerRecipientReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SEQUENCE_OF_PerRecipientReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_PerRecipientReport_sequence_of, hf_index, ett_p7_SEQUENCE_OF_PerRecipientReport);
 
@@ -3443,8 +3443,8 @@ static const ber_choice_t ReportLocation_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_ReportLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_ReportLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ReportLocation_choice, hf_index, ett_p7_ReportLocation,
                                  NULL);
@@ -3466,8 +3466,8 @@ static const value_string p7_ReportSummary_vals[] = {
 };
 
 
-static int
-dissect_p7_ReportSummary(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_ReportSummary(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3476,8 +3476,8 @@ dissect_p7_ReportSummary(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 
-static int
-dissect_p7_DeferredDeliveryCancellationTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_DeferredDeliveryCancellationTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, NULL, NULL);
 
   return offset;
@@ -3485,8 +3485,8 @@ dissect_p7_DeferredDeliveryCancellationTime(bool implicit_tag _U_, tvbuff_t *tvb
 
 
 
-static int
-dissect_p7_DeletionTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_DeletionTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, NULL, NULL);
 
   return offset;
@@ -3525,8 +3525,8 @@ static const ber_choice_t SubmissionError_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_SubmissionError(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SubmissionError(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  SubmissionError_choice, hf_index, ett_p7_SubmissionError,
                                  NULL);
@@ -3549,8 +3549,8 @@ const value_string p7_SignatureStatus_vals[] = {
 };
 
 
-int
-dissect_p7_SignatureStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+unsigned
+dissect_p7_SignatureStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -3568,8 +3568,8 @@ static const ber_sequence_t SignatureVerificationStatus_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_SignatureVerificationStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_SignatureVerificationStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               SignatureVerificationStatus_set, hf_index, ett_p7_SignatureVerificationStatus);
 
@@ -3578,8 +3578,8 @@ dissect_p7_SignatureVerificationStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 
-static int
-dissect_p7_StoragePeriod(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_StoragePeriod(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -3588,8 +3588,8 @@ dissect_p7_StoragePeriod(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 
-static int
-dissect_p7_StorageTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_StorageTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, NULL, NULL);
 
   return offset;
@@ -3597,8 +3597,8 @@ dissect_p7_StorageTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 
-static int
-dissect_p7_RTTPapdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_RTTPapdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -3607,8 +3607,8 @@ dissect_p7_RTTPapdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 
 
 
-static int
-dissect_p7_RTTRapdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_RTTRapdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -3629,8 +3629,8 @@ static const value_string p7_AbortReason_vals[] = {
 };
 
 
-static int
-dissect_p7_AbortReason(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_AbortReason(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -3639,8 +3639,8 @@ dissect_p7_AbortReason(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 
-static int
-dissect_p7_T_userdataAB(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_T_userdataAB(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 
 
@@ -3655,8 +3655,8 @@ static const ber_sequence_t RTABapdu_set[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_RTABapdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_RTABapdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               RTABapdu_set, hf_index, ett_p7_RTABapdu);
 
@@ -3684,8 +3684,8 @@ static const ber_choice_t RTSE_apdus_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static int
-dissect_p7_RTSE_apdus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_p7_RTSE_apdus(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  RTSE_apdus_choice, hf_index, ett_p7_RTSE_apdus,
                                  NULL);
@@ -3696,385 +3696,385 @@ dissect_p7_RTSE_apdus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 /*--- PDUs ---*/
 
 static int dissect_AutoActionType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_AutoActionType(false, tvb, offset, &asn1_ctx, tree, hf_p7_AutoActionType_PDU);
   return offset;
 }
 static int dissect_AutoActionError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_AutoActionError(false, tvb, offset, &asn1_ctx, tree, hf_p7_AutoActionError_PDU);
   return offset;
 }
 static int dissect_EntryType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_EntryType(false, tvb, offset, &asn1_ctx, tree, hf_p7_EntryType_PDU);
   return offset;
 }
 static int dissect_SequenceNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_SequenceNumber(false, tvb, offset, &asn1_ctx, tree, hf_p7_SequenceNumber_PDU);
   return offset;
 }
 static int dissect_RetrievalStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_RetrievalStatus(false, tvb, offset, &asn1_ctx, tree, hf_p7_RetrievalStatus_PDU);
   return offset;
 }
 static int dissect_MessageGroupName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_MessageGroupName(false, tvb, offset, &asn1_ctx, tree, hf_p7_MessageGroupName_PDU);
   return offset;
 }
 static int dissect_MSBindArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_MSBindArgument(false, tvb, offset, &asn1_ctx, tree, hf_p7_MSBindArgument_PDU);
   return offset;
 }
 static int dissect_MSBindResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_MSBindResult(false, tvb, offset, &asn1_ctx, tree, hf_p7_MSBindResult_PDU);
   return offset;
 }
 static int dissect_MS_EIT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_MS_EIT(false, tvb, offset, &asn1_ctx, tree, hf_p7_MS_EIT_PDU);
   return offset;
 }
 static int dissect_ChangeCredentialsAlgorithms_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_ChangeCredentialsAlgorithms(false, tvb, offset, &asn1_ctx, tree, hf_p7_ChangeCredentialsAlgorithms_PDU);
   return offset;
 }
 static int dissect_PAR_ms_bind_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_PAR_ms_bind_error(false, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_ms_bind_error_PDU);
   return offset;
 }
 static int dissect_CreationTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_CreationTime(false, tvb, offset, &asn1_ctx, tree, hf_p7_CreationTime_PDU);
   return offset;
 }
 static int dissect_OriginatorToken_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_OriginatorToken(false, tvb, offset, &asn1_ctx, tree, hf_p7_OriginatorToken_PDU);
   return offset;
 }
 static int dissect_SummarizeArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_SummarizeArgument(false, tvb, offset, &asn1_ctx, tree, hf_p7_SummarizeArgument_PDU);
   return offset;
 }
 static int dissect_SummarizeResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_SummarizeResult(false, tvb, offset, &asn1_ctx, tree, hf_p7_SummarizeResult_PDU);
   return offset;
 }
 static int dissect_ListArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_ListArgument(false, tvb, offset, &asn1_ctx, tree, hf_p7_ListArgument_PDU);
   return offset;
 }
 static int dissect_ListResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_ListResult(false, tvb, offset, &asn1_ctx, tree, hf_p7_ListResult_PDU);
   return offset;
 }
 static int dissect_FetchArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_FetchArgument(false, tvb, offset, &asn1_ctx, tree, hf_p7_FetchArgument_PDU);
   return offset;
 }
 static int dissect_FetchResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_FetchResult(false, tvb, offset, &asn1_ctx, tree, hf_p7_FetchResult_PDU);
   return offset;
 }
 static int dissect_DeleteArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_DeleteArgument(false, tvb, offset, &asn1_ctx, tree, hf_p7_DeleteArgument_PDU);
   return offset;
 }
 static int dissect_DeleteResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_DeleteResult(false, tvb, offset, &asn1_ctx, tree, hf_p7_DeleteResult_PDU);
   return offset;
 }
 static int dissect_Register_MSArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_Register_MSArgument(false, tvb, offset, &asn1_ctx, tree, hf_p7_Register_MSArgument_PDU);
   return offset;
 }
 static int dissect_Register_MSResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_Register_MSResult(false, tvb, offset, &asn1_ctx, tree, hf_p7_Register_MSResult_PDU);
   return offset;
 }
 static int dissect_ProtectedChangeCredentials_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_ProtectedChangeCredentials(false, tvb, offset, &asn1_ctx, tree, hf_p7_ProtectedChangeCredentials_PDU);
   return offset;
 }
 static int dissect_AlertArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_AlertArgument(false, tvb, offset, &asn1_ctx, tree, hf_p7_AlertArgument_PDU);
   return offset;
 }
 static int dissect_AlertResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_AlertResult(false, tvb, offset, &asn1_ctx, tree, hf_p7_AlertResult_PDU);
   return offset;
 }
 static int dissect_ModifyArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_ModifyArgument(false, tvb, offset, &asn1_ctx, tree, hf_p7_ModifyArgument_PDU);
   return offset;
 }
 static int dissect_ModifyResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_ModifyResult(false, tvb, offset, &asn1_ctx, tree, hf_p7_ModifyResult_PDU);
   return offset;
 }
 static int dissect_MSMessageSubmissionArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_MSMessageSubmissionArgument(false, tvb, offset, &asn1_ctx, tree, hf_p7_MSMessageSubmissionArgument_PDU);
   return offset;
 }
 static int dissect_MSMessageSubmissionResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_MSMessageSubmissionResult(false, tvb, offset, &asn1_ctx, tree, hf_p7_MSMessageSubmissionResult_PDU);
   return offset;
 }
 static int dissect_MSProbeSubmissionArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_MSProbeSubmissionArgument(false, tvb, offset, &asn1_ctx, tree, hf_p7_MSProbeSubmissionArgument_PDU);
   return offset;
 }
 static int dissect_MSProbeSubmissionResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_MSProbeSubmissionResult(false, tvb, offset, &asn1_ctx, tree, hf_p7_MSProbeSubmissionResult_PDU);
   return offset;
 }
 static int dissect_PAR_attribute_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_PAR_attribute_error(false, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_attribute_error_PDU);
   return offset;
 }
 static int dissect_PAR_auto_action_request_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_PAR_auto_action_request_error(false, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_auto_action_request_error_PDU);
   return offset;
 }
 static int dissect_PAR_delete_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_PAR_delete_error(false, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_delete_error_PDU);
   return offset;
 }
 static int dissect_PAR_fetch_restriction_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_PAR_fetch_restriction_error(false, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_fetch_restriction_error_PDU);
   return offset;
 }
 static int dissect_PAR_invalid_parameters_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_PAR_invalid_parameters_error(false, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_invalid_parameters_error_PDU);
   return offset;
 }
 static int dissect_PAR_range_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_PAR_range_error(false, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_range_error_PDU);
   return offset;
 }
 static int dissect_PAR_sequence_number_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_PAR_sequence_number_error(false, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_sequence_number_error_PDU);
   return offset;
 }
 static int dissect_ServiceErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_ServiceErrorParameter(false, tvb, offset, &asn1_ctx, tree, hf_p7_ServiceErrorParameter_PDU);
   return offset;
 }
 static int dissect_MessageGroupErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_MessageGroupErrorParameter(false, tvb, offset, &asn1_ctx, tree, hf_p7_MessageGroupErrorParameter_PDU);
   return offset;
 }
 static int dissect_MSExtensionErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_MSExtensionErrorParameter(false, tvb, offset, &asn1_ctx, tree, hf_p7_MSExtensionErrorParameter_PDU);
   return offset;
 }
 static int dissect_PAR_register_ms_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_PAR_register_ms_error(false, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_register_ms_error_PDU);
   return offset;
 }
 static int dissect_ModifyErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_ModifyErrorParameter(false, tvb, offset, &asn1_ctx, tree, hf_p7_ModifyErrorParameter_PDU);
   return offset;
 }
 static int dissect_EntryClassErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_EntryClassErrorParameter(false, tvb, offset, &asn1_ctx, tree, hf_p7_EntryClassErrorParameter_PDU);
   return offset;
 }
 static int dissect_ReportLocation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_ReportLocation(false, tvb, offset, &asn1_ctx, tree, hf_p7_ReportLocation_PDU);
   return offset;
 }
 static int dissect_PerRecipientReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_PerRecipientReport(false, tvb, offset, &asn1_ctx, tree, hf_p7_PerRecipientReport_PDU);
   return offset;
 }
 static int dissect_ReportSummary_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_ReportSummary(false, tvb, offset, &asn1_ctx, tree, hf_p7_ReportSummary_PDU);
   return offset;
 }
 static int dissect_DeferredDeliveryCancellationTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_DeferredDeliveryCancellationTime(false, tvb, offset, &asn1_ctx, tree, hf_p7_DeferredDeliveryCancellationTime_PDU);
   return offset;
 }
 static int dissect_DeletionTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_DeletionTime(false, tvb, offset, &asn1_ctx, tree, hf_p7_DeletionTime_PDU);
   return offset;
 }
 static int dissect_SubmissionError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_SubmissionError(false, tvb, offset, &asn1_ctx, tree, hf_p7_SubmissionError_PDU);
   return offset;
 }
 static int dissect_SignatureVerificationStatus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_SignatureVerificationStatus(false, tvb, offset, &asn1_ctx, tree, hf_p7_SignatureVerificationStatus_PDU);
   return offset;
 }
 static int dissect_StoragePeriod_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_StoragePeriod(false, tvb, offset, &asn1_ctx, tree, hf_p7_StoragePeriod_PDU);
   return offset;
 }
 static int dissect_StorageTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_StorageTime(false, tvb, offset, &asn1_ctx, tree, hf_p7_StorageTime_PDU);
   return offset;
 }
 static int dissect_RTSE_apdus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
+  unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
   offset = dissect_p7_RTSE_apdus(false, tvb, offset, &asn1_ctx, tree, hf_p7_RTSE_apdus_PDU);

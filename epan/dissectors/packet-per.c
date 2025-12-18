@@ -2645,8 +2645,8 @@ bool get_size_constraint_from_stack(asn1_ctx_t *actx, const char *name, int *pmi
 */
 /* NOTE: This sequence type differs from that in ITU-T Rec. X.680 | ISO/IEC 8824-1 for historical reasons. */
 
-static int
-dissect_per_T_direct_reference(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
+static unsigned
+dissect_per_T_direct_reference(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
 
 	DISSECTOR_ASSERT(actx);
 	offset = dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &actx->external.direct_reference);
@@ -2657,8 +2657,8 @@ dissect_per_T_direct_reference(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, prot
 
 
 
-static int
-dissect_per_T_indirect_reference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_per_T_indirect_reference(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &actx->external.indirect_reference);
 
 	actx->external.indirect_ref_present = true;
@@ -2667,8 +2667,8 @@ dissect_per_T_indirect_reference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 
 
-static int
-dissect_per_T_data_value_descriptor(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
+static unsigned
+dissect_per_T_data_value_descriptor(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
 	offset = dissect_per_object_descriptor(tvb, offset, actx, tree, hf_index, &actx->external.data_value_descriptor);
 
 	actx->external.data_value_descr_present = true;
@@ -2677,8 +2677,8 @@ dissect_per_T_data_value_descriptor(tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
 
 
 
-static int
-dissect_per_T_single_ASN1_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_per_T_single_ASN1_type(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	offset = dissect_per_open_type(tvb, offset, actx, tree, actx->external.hf_index, actx->external.u.per.type_cb);
 
 	return offset;
@@ -2686,8 +2686,8 @@ dissect_per_T_single_ASN1_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 
-static int
-dissect_per_T_octet_aligned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
+static unsigned
+dissect_per_T_octet_aligned(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
 	offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
 					  NO_BOUND, NO_BOUND, false, &actx->external.octet_aligned);
 
@@ -2703,8 +2703,8 @@ dissect_per_T_octet_aligned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_t
 
 
 
-static int
-dissect_per_T_arbitrary(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
+static unsigned
+dissect_per_T_arbitrary(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
 	offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
 					NO_BOUND, NO_BOUND, false, NULL, 0, &actx->external.arbitrary, NULL);
 
@@ -2733,8 +2733,8 @@ static const per_choice_t External_encoding_choice[] = {
 	{ 0, NULL, 0, NULL }
 };
 
-static int
-dissect_per_External_encoding(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
+static unsigned
+dissect_per_External_encoding(tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
 	// This assertion is used to remove clang's warning.
 	DISSECTOR_ASSERT(actx);
 	offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -2753,8 +2753,8 @@ static const per_sequence_t External_sequence[] = {
 	{ NULL, 0, 0, NULL }
 };
 
-static int
-dissect_per_External(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+static unsigned
+dissect_per_External(tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
 				      ett_per_External, External_sequence);
 
@@ -2777,8 +2777,8 @@ dissect_per_external_type(tvbuff_t *tvb _U_, uint32_t offset, asn1_ctx_t *actx, 
  * Offset is in bits.
  */
 
-int
-call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, asn1_ctx_t *actx, int hf_index)
+unsigned
+call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, asn1_ctx_t *actx, int hf_index)
 {
 	uint32_t type_length, end_offset, start_offset;
 	tvbuff_t *val_tvb = NULL;

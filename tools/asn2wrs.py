@@ -1535,11 +1535,11 @@ class EthCtx:
         out = ""
         if (not self.eth_type[tname]['export'] & EF_TYPE):
             out += 'static '
-        out += "int "
+        out += "unsigned "
         if (self.Ber()):
-            out += "dissect_%s_%s(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
+            out += "dissect_%s_%s(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
         elif (self.Per() or self.Oer()):
-            out += "dissect_%s_%s(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
+            out += "dissect_%s_%s(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
         out += ";\n"
         return out
 
@@ -1574,11 +1574,11 @@ class EthCtx:
         out = '\n'
         if (not self.eth_type[tname]['export'] & EF_TYPE):
             out += 'static '
-        out += "int\n"
+        out += "unsigned\n"
         if (self.Ber()):
-            out += "dissect_%s_%s(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
+            out += "dissect_%s_%s(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
         elif (self.Per() or self.Oer()):
-            out += "dissect_%s_%s(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
+            out += "dissect_%s_%s(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
         #if self.conform.get_fn_presence(tname):
         #  out += self.conform.get_fn_text(tname, 'FN_HDR')
         #el
@@ -1869,7 +1869,7 @@ class EthCtx:
             out += 'dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {\n'
             out += self.output_proto_root()
 
-            out += '  int offset = 0;\n'
+            out += '  unsigned offset = 0;\n'
             off_par = 'offset'
             ret_par = 'offset'
             if (self.Per()):

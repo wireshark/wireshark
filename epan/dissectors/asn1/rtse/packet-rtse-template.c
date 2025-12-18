@@ -151,8 +151,8 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
     return offset;
 }
 
-static int
-call_rtse_external_type_callback(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
+static unsigned
+call_rtse_external_type_callback(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
 {
     const char    *oid = NULL;
 

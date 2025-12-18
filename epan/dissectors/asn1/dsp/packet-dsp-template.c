@@ -61,12 +61,12 @@ static dissector_handle_t dsp_handle;
 static int
 dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-	int offset = 0;
-	int old_offset;
+	unsigned offset = 0;
+	unsigned old_offset;
 	proto_item *item;
 	proto_tree *tree;
 	struct SESSION_DATA_STRUCTURE* session;
-	int (*dsp_dissector)(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) = NULL;
+	unsigned (*dsp_dissector)(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) = NULL;
 	const char *dsp_op_name;
 	asn1_ctx_t asn1_ctx;
 
