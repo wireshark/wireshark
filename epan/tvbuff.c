@@ -469,7 +469,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, uint32_t bit_offset, int32_t no_of_bits)
 		return tvb_new_subset_length_caplen(tvb, byte_offset, datalen, datalen);
 	}
 
-	ws_assert(datalen > 0);
+	DISSECTOR_ASSERT(datalen > 0);
 
 	/* If at least one trailing byte is available, we must use the content
 	 * of that byte for the last shift (i.e. tvb_get_ptr() must use datalen + 1).
@@ -538,7 +538,7 @@ tvb_new_octet_right_aligned(tvbuff_t *tvb, uint32_t bit_offset, int32_t no_of_bi
 		return tvb_new_subset_length_caplen(tvb, byte_offset, dst_len, dst_len);
 	}
 
-	ws_assert(dst_len > 0);
+	DISSECTOR_ASSERT(dst_len > 0);
 
 	if (_tvb_captured_length_remaining(tvb, byte_offset) > dst_len) {
 		/* last octet will get data from trailing octet */
