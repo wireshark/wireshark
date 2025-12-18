@@ -290,6 +290,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-f5ethtrailer.h
 	packet-fc.h
 	packet-frame.h
+	packet-geneve.h
 	packet-giop.h
 	packet-gsm_a_common.h
 	packet-gsm_map.h
