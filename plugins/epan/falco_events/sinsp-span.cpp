@@ -999,7 +999,7 @@ bool get_extracted_syscall_source_fields(sinsp_span_t *sinsp_span, uint32_t fram
 // The code below, falcosecurity/libs, and falcosecurity/plugins need to be in alignment.
 // The Makefile in /plugins defines FALCOSECURITY_LIBS_REVISION and uses that version of
 // plugin_info.h. We need to build against a compatible revision of /libs.
-bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, plugin_field_extract_t *sinsp_fields, uint32_t sinsp_field_len)
+bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, const uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, plugin_field_extract_t *sinsp_fields, uint32_t sinsp_field_len)
 {
     if (!ssi->source) {
         return false;

@@ -132,7 +132,7 @@ bool evt_creates_fd(void* sinsp_evt_info);
 // These roughly match common_plugin_info
 char *create_sinsp_plugin_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_source_info_t **ssi_ptr);
 size_t get_sinsp_source_nfields(sinsp_source_info_t *ssi);
-bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, plugin_field_extract_t *sinsp_fields, uint32_t sinsp_field_len);
+bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint32_t event_num, const uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, plugin_field_extract_t *sinsp_fields, uint32_t sinsp_field_len);
 
 
 #ifdef __cplusplus
