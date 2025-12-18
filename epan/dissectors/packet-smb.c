@@ -1803,7 +1803,7 @@ unicode_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *us_lenp,
 				return (char*)tvb_get_string_enc(scope, tvb, offset, bc - 1, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 			}
 		}
-		return (char*)tvb_get_stringz_enc(scope, tvb, offset, us_lenp, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		return (char*)tvb_get_stringz_enc(scope, tvb, offset, (unsigned*)us_lenp, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -1880,7 +1880,7 @@ smb_get_unicode_or_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, int *off
 
 			return (char*)tvb_get_string_enc(scope, tvb, *offsetp, copylen, ENC_ASCII);
 		} else {
-			return (char*)tvb_get_stringz_enc(scope, tvb, *offsetp, len, ENC_ASCII);
+			return (char*)tvb_get_stringz_enc(scope, tvb, *offsetp, (unsigned*)len, ENC_ASCII);
 		}
 	}
 
@@ -2859,7 +2859,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	}
 
 	while (bc) {
-		int len;
+		unsigned len;
 		const char *str;
 		proto_item *dit = NULL;
 		proto_tree *dtr = NULL;
@@ -12100,7 +12100,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		COUNT_BYTES_TRANS(4);
 
 		/* file name */
-		fn = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &fn_len, (si->unicode ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_ASCII|ENC_NA));
+		fn = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, (unsigned*)&fn_len, (si->unicode ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_ASCII|ENC_NA));
 
 		CHECK_STRING_TRANS(fn);
 		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,

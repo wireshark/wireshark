@@ -7049,7 +7049,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb, packet_info
 	uint32_t     tvb_len = tvb_reported_length (tvb);
 	uint32_t     off     = offset;
 	uint32_t     len;
-	int          str_len;
+	unsigned     str_len;
 	uint32_t     ent;
 	uint32_t     idx;
 	uint8_t      peek;
@@ -7315,7 +7315,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, ui
 	uint32_t     tvb_len  = tvb_reported_length (tvb);
 	uint32_t     off      = offset;
 	uint32_t     len;
-	int          str_len;
+	unsigned     str_len;
 	uint32_t     ent;
 	uint32_t     idx;
 	uint8_t      peek;
@@ -7697,7 +7697,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	uint8_t               version;
 	unsigned              offset          = 0;
 	uint32_t              len;
-	int                   str_len;
+	unsigned              str_len;
 	uint32_t              charset         = 0;
 	uint32_t              charset_len     = 0;
 	unsigned              encoding;

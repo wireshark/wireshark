@@ -473,7 +473,8 @@ gluster_rpc_dissect_dict(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, in
 {
 	char *key, *value;
 	const char *name;
-	int roundup, value_len, key_len;
+	int roundup, value_len;
+	unsigned key_len;
 	uint32_t i, items, len;
 	int start_offset, start_offset2;
 

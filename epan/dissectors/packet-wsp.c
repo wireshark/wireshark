@@ -1317,7 +1317,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *p
  * get_text_string() macro now returns wmem_alloc'd memory. */
 #define get_text_string(str,tvb,start,len,ok) \
     if (is_text_string(tvb_get_uint8(tvb,start))) { \
-        str = (char *)tvb_get_stringz_enc(pinfo->pool, tvb,start,(int *)&len,ENC_ASCII); \
+        str = (char *)tvb_get_stringz_enc(pinfo->pool, tvb,start,&len,ENC_ASCII); \
         ok = true; \
     } else { len = 0; str = NULL; ok = false; }
 #define get_token_text(str,tvb,start,len,ok) \
@@ -1411,7 +1411,7 @@ parameter_value_q (proto_tree *tree, packet_info *pinfo, proto_item *ti, tvbuff_
 #define wkh_2_TextualValue                  /* Parse Textual Value */ \
         /* END */ \
     } else if ((val_id == 0) || (val_id >= 0x20)) { /* Textual value */ \
-        val_str = (char *)tvb_get_stringz_enc(pinfo->pool, tvb, val_start, (int *)&val_len, ENC_ASCII); \
+        val_str = (char *)tvb_get_stringz_enc(pinfo->pool, tvb, val_start, &val_len, ENC_ASCII); \
         offset = val_start + val_len; \
         /* Textual value processing starts HERE \
          * \
@@ -1522,7 +1522,7 @@ wkh_content_type_header(proto_tree *tree, tvbuff_t *tvb, uint32_t hdr_start, pac
         off = val_start + val_len_len;
         peek = tvb_get_uint8(tvb, off);
         if (is_text_string(peek)) {
-            val_str = (char *)tvb_get_stringz_enc(pinfo->pool, tvb, off, (int*)&len, ENC_ASCII);
+            val_str = (char *)tvb_get_stringz_enc(pinfo->pool, tvb, off, &len, ENC_ASCII);
             off += len; /* off now points to 1st byte after string */
             ti = proto_tree_add_string (header_tree, hf, tvb, hdr_start, offset - hdr_start, val_str);
         } else if (is_integer_value(peek)) {
@@ -4363,8 +4363,9 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
     int32_t     tvb_len                  = tvb_reported_length(tvb);
     int32_t     offset                   = 0;
     int32_t     save_offset;
-    int32_t     hdr_len, hdr_start;
-    int32_t     val_len, val_start;
+    int32_t     hdr_start;
+    int32_t     val_start;
+    unsigned    hdr_len, val_len;
     char       *hdr_str, *val_str;
     proto_tree *wsp_headers;
     proto_item *ti, *hidden_item;
@@ -4413,12 +4414,12 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
             offset += 2;
         } else if (hdr_id >= 0x20) { /* Textual header */
             /* Header name MUST be NUL-ended string ==> tvb_get_stringz_enc() */
-            hdr_str = (char *)tvb_get_stringz_enc(pinfo->pool, tvb, hdr_start, (int *)&hdr_len, ENC_ASCII);
+            hdr_str = (char *)tvb_get_stringz_enc(pinfo->pool, tvb, hdr_start, &hdr_len, ENC_ASCII);
             val_start = hdr_start + hdr_len;
             val_id = tvb_get_uint8(tvb, val_start);
             /* Call header value dissector for given header */
             if (val_id >= 0x20 && val_id <=0x7E) { /* OK! */
-                val_str = (char *)tvb_get_stringz_enc(pinfo->pool, tvb, val_start, (int *)&val_len, ENC_ASCII);
+                val_str = (char *)tvb_get_stringz_enc(pinfo->pool, tvb, val_start, &val_len, ENC_ASCII);
                 offset = val_start + val_len;
                 proto_tree_add_string_format(wsp_headers, hf_wsp_header_text_value, tvb, hdr_start, offset-hdr_start,
                                     val_str, "%s: %s", hdr_str, val_str);
@@ -5194,7 +5195,7 @@ add_capabilities (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, uint8_t p
         peek = tvb_get_uint8(tvb, offset);
         if (is_token_text(peek)) { /* Literal capability name */
             /* 1. Get the string from the tvb */
-            capaName = (char *)tvb_get_stringz_enc(pinfo->pool, tvb, capaStart, (int *)&len, ENC_ASCII);
+            capaName = (char *)tvb_get_stringz_enc(pinfo->pool, tvb, capaStart, &len, ENC_ASCII);
 
             /* 2. Look up the string capability name */
             if (g_ascii_strcasecmp(capaName, "client-sdu-size") == 0) {

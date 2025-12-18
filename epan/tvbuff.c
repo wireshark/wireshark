@@ -2721,15 +2721,14 @@ tvb_ws_mempbrk_pattern_uint8(tvbuff_t *tvb, const int offset, const int maxlengt
  * If the NUL isn't found, it throws the appropriate exception.
  */
 unsigned
-tvb_strsize(tvbuff_t *tvb, const int offset)
+tvb_strsize(tvbuff_t *tvb, const unsigned offset)
 {
-	unsigned abs_offset = 0, junk_length;
 	int   nul_offset;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
-	nul_offset = tvb_find_uint8(tvb, abs_offset, -1, 0);
+	validate_offset(tvb, offset);
+	nul_offset = tvb_find_uint8(tvb, offset, -1, 0);
 	if (nul_offset == -1) {
 		/*
 		 * OK, we hit the end of the tvbuff, so we should throw
@@ -2745,26 +2744,30 @@ tvb_strsize(tvbuff_t *tvb, const int offset)
 			THROW(ReportedBoundsError);
 		}
 	}
-	return (nul_offset - abs_offset) + 1;
+	return (nul_offset - offset) + 1;
 }
 
 /* UTF-16/UCS-2 version of tvb_strsize */
 /* Returns number of bytes including the (two-bytes) null terminator */
 unsigned
-tvb_unicode_strsize(tvbuff_t *tvb, const int offset)
+tvb_unicode_strsize(tvbuff_t *tvb, const unsigned offset)
 {
-	unsigned  i = 0;
+	unsigned  cur_offset = offset;
 	gunichar2 uchar;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
+	/* Note: don't use tvb_find_uint16 because it must be aligned */
 	do {
 		/* Endianness doesn't matter when looking for null */
-		uchar = tvb_get_ntohs(tvb, offset + i);
-		i += 2;
+		uchar = tvb_get_ntohs(tvb, cur_offset);
+		/* Make sure we don't overflow */
+		if (ckd_add(&cur_offset, cur_offset, 2)) {
+			THROW(ReportedBoundsError);
+		}
 	} while(uchar != 0);
 
-	return i;
+	return cur_offset - offset;
 }
 
 /* Find length of string by looking for end of string ('\0'), up to
@@ -2781,6 +2784,8 @@ tvb_strnlen(tvbuff_t *tvb, const int offset, const unsigned maxlength)
 
 	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
 
+	/* TODO - this and tvb_find_uint8 need variants that return a bool
+	 * and set an unsigned offset to the value if true. */
 	result_offset = tvb_find_uint8(tvb, abs_offset, maxlength, 0);
 
 	if (result_offset == -1) {
@@ -3659,70 +3664,65 @@ tvb_get_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset
  * encodings).
  */
 static uint8_t *
-tvb_get_ascii_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *lengthp)
+tvb_get_ascii_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp)
 {
-	unsigned	       size;
+	unsigned       size;
 	const uint8_t *ptr;
 
 	size = tvb_strsize(tvb, offset);
-	ptr  = ensure_contiguous(tvb, offset, size);
-	/* XXX, conversion between signed/unsigned integer */
+	ptr  = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return get_ascii_string(scope, ptr, size);
 }
 
 static uint8_t *
-tvb_get_iso_646_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *lengthp, const gunichar2 table[0x80])
+tvb_get_iso_646_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp, const gunichar2 table[0x80])
 {
-	unsigned	       size;
+	unsigned       size;
 	const uint8_t *ptr;
 
 	size = tvb_strsize(tvb, offset);
-	ptr  = ensure_contiguous(tvb, offset, size);
-	/* XXX, conversion between signed/unsigned integer */
+	ptr  = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return get_iso_646_string(scope, ptr, size, table);
 }
 
 static uint8_t *
-tvb_get_utf_8_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int *lengthp)
+tvb_get_utf_8_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp)
 {
 	unsigned   size;
 	const uint8_t *ptr;
 
 	size   = tvb_strsize(tvb, offset);
-	ptr = ensure_contiguous(tvb, offset, size);
-	/* XXX, conversion between signed/unsigned integer */
+	ptr = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return get_utf_8_string(scope, ptr, size);
 }
 
 static uint8_t *
-tvb_get_stringz_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *lengthp)
+tvb_get_stringz_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp)
 {
 	unsigned size;
 	const uint8_t *ptr;
 
 	size = tvb_strsize(tvb, offset);
-	ptr = ensure_contiguous(tvb, offset, size);
-	/* XXX, conversion between signed/unsigned integer */
+	ptr = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return get_8859_1_string(scope, ptr, size);
 }
 
 static uint8_t *
-tvb_get_stringz_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *lengthp, const gunichar2 table[0x80])
+tvb_get_stringz_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp, const gunichar2 table[0x80])
 {
 	unsigned size;
 	const uint8_t *ptr;
 
 	size = tvb_strsize(tvb, offset);
-	ptr = ensure_contiguous(tvb, offset, size);
-	/* XXX, conversion between signed/unsigned integer */
+	ptr = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return get_unichar2_string(scope, ptr, size, table);
@@ -3738,143 +3738,141 @@ tvb_get_stringz_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int
  *
  * As long as we aren't using composite TVBs, this saves the cycles used
  * (often unnecessarily) in allocating a buffer and copying the string into
- * it.  (If we do start using composite TVBs, we may want to replace this
- * function with the _ephemeral version.)
+ * it. OTOH, the string returned isn't valid UTF-8, so it shouldn't be
+ * added to the tree, the columns, etc., just used with various other
+ * functions that operate on strings that don't have a tvb_ equivalent.
+ * That's hard to enforce, which is why this is deprecated.
  */
 const uint8_t *
-tvb_get_const_stringz(tvbuff_t *tvb, const int offset, int *lengthp)
+tvb_get_const_stringz(tvbuff_t *tvb, const unsigned offset, unsigned *lengthp)
 {
 	unsigned      size;
 	const uint8_t *strptr;
 
 	size   = tvb_strsize(tvb, offset);
-	strptr = ensure_contiguous(tvb, offset, size);
+	strptr = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return strptr;
 }
 
 static char *
-tvb_get_ucs_2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int *lengthp, const unsigned encoding)
+tvb_get_ucs_2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp, const unsigned encoding)
 {
-	int            size;    /* Number of bytes in string */
+	unsigned       size;    /* Number of bytes in string */
 	const uint8_t *ptr;
 
 	size = tvb_unicode_strsize(tvb, offset);
-	ptr = ensure_contiguous(tvb, offset, size);
-	/* XXX, conversion between signed/unsigned integer */
+	ptr = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return (char*)get_ucs_2_string(scope, ptr, size, encoding);
 }
 
 static char *
-tvb_get_utf_16_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int *lengthp, const unsigned encoding)
+tvb_get_utf_16_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp, const unsigned encoding)
 {
-	int            size;
+	unsigned       size;
 	const uint8_t *ptr;
 
 	size = tvb_unicode_strsize(tvb, offset);
-	ptr = ensure_contiguous(tvb, offset, size);
-	/* XXX, conversion between signed/unsigned integer */
+	ptr = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return (char*)get_utf_16_string(scope, ptr, size, encoding);
 }
 
 static char *
-tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int *lengthp, const unsigned encoding)
+tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp, const unsigned encoding)
 {
-	int            size;
+	unsigned       end_offset, size;
 	gunichar       uchar;
 	const uint8_t *ptr;
 
-	size = 0;
+	end_offset = offset;
 	do {
 		/* Endianness doesn't matter when looking for null */
-		uchar = tvb_get_ntohl(tvb, offset + size);
-		size += 4;
+		uchar = tvb_get_ntohl(tvb, end_offset);
+		/* Make sure we don't overflow */
+		if (ckd_add(&end_offset, end_offset, 4)) {
+			THROW(ReportedBoundsError);
+		}
 	} while(uchar != 0);
+	size = end_offset - offset;
 
-	ptr = ensure_contiguous(tvb, offset, size);
-	/* XXX, conversion between signed/unsigned integer */
+	ptr = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return (char*)get_ucs_4_string(scope, ptr, size, encoding);
 }
 
 static uint8_t *
-tvb_get_nonascii_unichar2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *lengthp, const gunichar2 table[256])
+tvb_get_nonascii_unichar2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp, const gunichar2 table[256])
 {
-	unsigned	       size;
+	unsigned       size;
 	const uint8_t *ptr;
 
 	size = tvb_strsize(tvb, offset);
-	ptr  = ensure_contiguous(tvb, offset, size);
-	/* XXX, conversion between signed/unsigned integer */
+	ptr  = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return get_nonascii_unichar2_string(scope, ptr, size, table);
 }
 
 static uint8_t *
-tvb_get_t61_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *lengthp)
+tvb_get_t61_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp)
 {
-	unsigned	       size;
+	unsigned       size;
 	const uint8_t *ptr;
 
 	size = tvb_strsize(tvb, offset);
-	ptr  = ensure_contiguous(tvb, offset, size);
-	/* XXX, conversion between signed/unsigned integer */
+	ptr  = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return get_t61_string(scope, ptr, size);
 }
 
 static uint8_t *
-tvb_get_gb18030_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *lengthp)
+tvb_get_gb18030_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp)
 {
 	unsigned       size;
 	const uint8_t *ptr;
 
 	size = tvb_strsize(tvb, offset);
-	ptr  = ensure_contiguous(tvb, offset, size);
-	/* XXX, conversion between signed/unsigned integer */
+	ptr  = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return get_gb18030_string(scope, ptr, size);
 }
 
 static uint8_t *
-tvb_get_euc_kr_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int   *lengthp)
+tvb_get_euc_kr_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp)
 {
 	unsigned       size;
 	const uint8_t *ptr;
 
 	size = tvb_strsize(tvb, offset);
-	ptr  = ensure_contiguous(tvb, offset, size);
-	/* XXX, conversion between signed/unsigned integer */
+	ptr  = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return get_euc_kr_string(scope, ptr, size);
 }
 
 static uint8_t *
-tvb_get_dect_standard_8bits_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int *lengthp)
+tvb_get_dect_standard_8bits_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp)
 {
-	unsigned	       size;
+	unsigned       size;
 	const uint8_t *ptr;
 
 	size = tvb_strsize(tvb, offset);
-	ptr  = ensure_contiguous(tvb, offset, size);
-	/* XXX, conversion between signed/unsigned integer */
+	ptr  = ensure_contiguous_unsigned(tvb, offset, size);
 	if (lengthp)
 		*lengthp = size;
 	return get_dect_standard_8bits_string(scope, ptr, size);
 }
 
 uint8_t *
-tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, int *lengthp, const unsigned encoding)
+tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const unsigned offset, unsigned *lengthp, const unsigned encoding)
 {
 	uint8_t *strptr;
 
@@ -3897,12 +3895,6 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const int offset, in
 		break;
 
 	case ENC_UTF_8:
-		/*
-		 * XXX - should map all invalid UTF-8 sequences
-		 * to a "substitute" UTF-8 character.
-		 * XXX - should map code points > 10FFFF to REPLACEMENT
-		 * CHARACTERs.
-		 */
 		strptr = tvb_get_utf_8_stringz(scope, tvb, offset, lengthp);
 		break;
 

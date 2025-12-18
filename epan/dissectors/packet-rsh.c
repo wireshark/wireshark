@@ -99,7 +99,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /* Variables for extracting and displaying data from the packet */
     const char *field_stringz; /* Temporary storage for each field we extract */
 
-    int length;
+    unsigned length;
     unsigned offset = 0;
     conversation_t *conversation;
     rsh_hash_entry_t *hash_info;

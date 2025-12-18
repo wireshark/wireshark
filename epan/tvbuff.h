@@ -2239,6 +2239,10 @@ static inline int tvb_find_guint8(tvbuff_t* tvb, const int offset,
  * tvbuff boundary. In such cases, -1 is returned if the boundary is reached
  * before finding the needle.
  *
+ * @note This searches for the value on any byte alignment, not 2-byte alignment,
+ * and is thus unsuited, e.g., for searching for a UCS-2 or UTF-16 character
+ * without additional verification and possible follow-up searches.
+ *
  * @param tvb         The tvbuff_t to search.
  * @param offset      The offset in the tvbuff to begin searching.
  * @param maxlength   The maximum number of bytes to search, or -1 to search to the end.
@@ -2343,8 +2347,10 @@ static inline int tvb_ws_mempbrk_pattern_guint8(tvbuff_t* tvb, const int offset,
  * @param offset  The offset in the tvbuff to begin searching.
  *
  * @return The size of the string, including the terminating NUL.
+ *
+ * @see tvb_strnlen
  */
-WS_DLL_PUBLIC unsigned tvb_strsize(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC unsigned tvb_strsize(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Determine the size of a UCS-2 or UTF-16 NUL-terminated string in a tvbuff.
@@ -2360,7 +2366,7 @@ WS_DLL_PUBLIC unsigned tvb_strsize(tvbuff_t *tvb, const int offset);
  *
  * @return The size of the string, including the terminating 16-bit NUL.
  */
-WS_DLL_PUBLIC unsigned tvb_unicode_strsize(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC unsigned tvb_unicode_strsize(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Find the length of a NUL-terminated string in a tvbuff, up to a maximum limit.
@@ -2376,6 +2382,8 @@ WS_DLL_PUBLIC unsigned tvb_unicode_strsize(tvbuff_t *tvb, const int offset);
  * @param maxlength   The maximum number of characters to search, or -1 to search to the end.
  *
  * @return The length of the string (excluding the NUL), or -1 if EOS is not found.
+ *
+ * @see tvb_strsize
  */
 WS_DLL_PUBLIC int tvb_strnlen(tvbuff_t *tvb, const int offset,
     const unsigned maxlength);
@@ -2634,13 +2642,13 @@ WS_DLL_PUBLIC uint8_t *tvb_get_stringzpad(wmem_allocator_t *scope,
  * @param scope     The memory allocator scope for the result, or NULL.
  * @param tvb       The tvbuff_t to read from.
  * @param offset    The byte offset in the tvbuff where the string begins.
- * @param lengthp   Pointer to an int to receive the string length, or NULL.
+ * @param lengthp   Pointer to an unsigned to receive the string length, or NULL.
  * @param encoding  The ENC_* constant specifying the string encoding.
  *
  * @return A pointer to the UTF-8 encoded string including the trailing NUL.
  */
 WS_DLL_PUBLIC uint8_t *tvb_get_stringz_enc(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const int offset, int *lengthp, const unsigned encoding);
+    tvbuff_t *tvb, const unsigned offset, unsigned *lengthp, const unsigned encoding);
 
 /**
  * @brief Deprecated function to retrieve a raw, unmodifiable null-terminated string from a tvbuff.
@@ -2666,7 +2674,7 @@ WS_DLL_PUBLIC uint8_t *tvb_get_stringz_enc(wmem_allocator_t *scope,
  *
  * @param tvb      The tvbuff_t to read from.
  * @param offset   The offset in the tvbuff where the string begins.
- * @param lengthp  Pointer to an int to receive the string length including NUL.
+ * @param lengthp  Pointer to an unsigned to receive the string length (can be NULL.)
  *
  * @return A pointer to the constant, raw string data.
  *
@@ -2675,7 +2683,7 @@ WS_DLL_PUBLIC uint8_t *tvb_get_stringz_enc(wmem_allocator_t *scope,
 WS_DLL_PUBLIC
 WS_DEPRECATED_X("Use APIs that return a valid UTF-8 string instead")
 const uint8_t *tvb_get_const_stringz(tvbuff_t *tvb,
-    const int offset, int *lengthp);
+    const unsigned offset, unsigned *lengthp);
 
 /**
  * @brief Copy up to a specified number of bytes from a tvbuff into a buffer as a NUL-terminated string.

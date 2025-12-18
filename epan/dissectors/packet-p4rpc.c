@@ -264,7 +264,7 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
     {
         // the offset to the start of the name of the parameter
         uint32_t name_offset = offset;
-        int32_t name_len;
+        uint32_t name_len;
 
         // get the param name
         const uint8_t *varname = tvb_get_stringz_enc( pinfo->pool, tvb, offset, &name_len, ENC_UTF_8 );

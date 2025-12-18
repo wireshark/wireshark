@@ -1223,7 +1223,7 @@ dissect_eh_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *segment_tree,
                                 tvb, offset, 1, machine_encoding);
             offset += 1;
 
-            augmentation_string = (const char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &size, ENC_ASCII);
+            augmentation_string = (const char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, (unsigned*)&size, ENC_ASCII);
             proto_tree_add_item(entry_tree, hf_elf_eh_frame_augmentation_string,
                                 tvb, offset, size, machine_encoding);
             offset += size;

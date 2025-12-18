@@ -396,11 +396,11 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
     int          rem;
     int          end = offset + len;
     const char *path;
-    int          path_len;
+    unsigned     path_len;
     int          path_offset;
     const char *format;
     int          format_offset;
-    int          format_len;
+    unsigned     format_len;
     const char *ptr;
 
     /* peek/read path */

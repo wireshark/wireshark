@@ -4256,7 +4256,7 @@ static void add_string_field( proto_tree * p_tree, packet_info* pinfo, tvbuff_t 
                                 int hf_num )
 {
     char *field_stringz;
-    int len;
+    unsigned len;
 
     if (max_str_len == 0)
     {
@@ -4272,7 +4272,7 @@ static void add_string_field( proto_tree * p_tree, packet_info* pinfo, tvbuff_t 
     }
     else
     {
-        if ( len > (int)max_str_len )
+        if ( len > max_str_len )
         {
             ws_utf8_truncate(field_stringz, max_str_len - 1);
         }
@@ -4442,7 +4442,7 @@ static int dissect_c15ch_clli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item * ti = NULL;
     proto_tree * c15ch_clli_tree = NULL;
 
-    int clli_siz;
+    unsigned clli_siz;
     unsigned char * clli_string;
     clli_string = tvb_get_stringz_enc(pinfo->pool, tvb, 0, &clli_siz, ENC_ASCII );
     if ( (clli_siz > 1) && (clli_siz <= 25 ) )
@@ -4851,7 +4851,7 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     char * equipname_string;
     wmem_strbuf_t * desc_string = wmem_strbuf_create(pinfo->pool);
     int str_start;
-    int site_str_len, subsite_str_len, equipname_str_len;
+    unsigned site_str_len, subsite_str_len, equipname_str_len;
     uint32_t gwtype_val;
     uint32_t frame_val, shelf_val, lsg_val, unit_val;
     uint32_t key_val;
@@ -7800,7 +7800,7 @@ static int dissect_c15ch_c15_sip_reg_subs_report(tvbuff_t *tvb, packet_info *pin
     int length = 0;
     char * report_type;
     int str_start;
-    int report_type_str_len;
+    unsigned report_type_str_len;
 
     length = tvb_reported_length(tvb);
 

@@ -748,7 +748,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	const uint8_t *host_name;
 	uint8_t os_major_ver, os_minor_ver;
 	const char *windows_version;
-	int namelen;
+	unsigned namelen;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BROWSER");
 	col_clear(pinfo->cinfo, COL_INFO);

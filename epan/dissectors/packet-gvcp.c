@@ -2124,7 +2124,7 @@ static void dissect_discovery_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb,
 	int offset;
 	const uint8_t* string_manufacturer_name = NULL;
 	const uint8_t* string_serial_number = NULL;
-	int string_length = 0;
+	unsigned string_length = 0;
 	proto_tree *tree = NULL;
 
 	offset = startoffset;

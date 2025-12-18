@@ -768,7 +768,7 @@ static int procmon_read_registry_data(proto_tree* tree, packet_info* pinfo, tvbu
         break;
     case PROCMON_REGISTRY_VALUE_REG_TYPE_MULTI_SZ:
     {
-        int str_length;
+        unsigned str_length;
         int start_offset = offset;
         const char* substring;
         wmem_strbuf_t* full_string = wmem_strbuf_new(pinfo->pool, "");
@@ -2465,7 +2465,8 @@ static bool dissect_procmon_network_event(tvbuff_t* tvb, packet_info* pinfo, pro
     proto_tree* network_event_tree;
     int offset = 0;
     uint16_t flags;
-    int detail_length, detail_offset;
+    int detail_offset;
+    unsigned detail_length;
     const char* detail_substring;
     wmem_strbuf_t* details = wmem_strbuf_new(pinfo->pool, "");
     static int* const network_flags_vals[] = {

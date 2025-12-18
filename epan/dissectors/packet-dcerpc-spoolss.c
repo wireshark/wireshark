@@ -523,7 +523,7 @@ dissect_spoolss_string_parm_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, dcerpc_info *di, uint8_t *drep)
 {
 	uint32_t buffer_len;
-	int len;
+	unsigned len;
 	char *s;
 	proto_item *item = NULL;
 

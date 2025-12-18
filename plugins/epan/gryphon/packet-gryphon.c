@@ -1229,7 +1229,7 @@ static int
 cmd_ioctl_details(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt, uint32_t ui_command, int msglen)
 {
     char *string;
-    int length;
+    unsigned length;
     int16_t us_stream;
     int16_t us_value;
     proto_tree  *tree;
@@ -2431,7 +2431,7 @@ static int
 cmd_ldf_get_frame_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt)
 {
     char *string;
-    int length;
+    unsigned length;
     uint8_t id;
     string = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
     if(length > 1) {
@@ -2609,7 +2609,7 @@ cmd_ldf_emulate_nodes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
     int i;
     unsigned int xchannel;
     char *string;
-    int length;
+    unsigned length;
     proto_tree  *tree2;
 
     nnodes = tvb_get_uint8(tvb, offset);
@@ -2950,7 +2950,7 @@ static int
 cmd_start(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt)
 {
     char      *string;
-    int       length;
+    unsigned  length;
     int       msglen;
     int       hdr_stuff = offset;
 

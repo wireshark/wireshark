@@ -1117,7 +1117,7 @@ WSLUA_METHOD TvbRange_strsize(lua_State* L) {
 
 static int TvbRange_ustringz_any(lua_State* L, bool little_endian) {
     /* Obtain a zero terminated string from a TvbRange */
-    int count;
+    unsigned count;
     TvbRange tvbr = checkTvbRange(L,1);
     int offset;
     gunichar2 uchar;

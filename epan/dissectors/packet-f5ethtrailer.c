@@ -4321,7 +4321,7 @@ dissect_f5fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     const char *object;
     const char *platform = NULL;
     const char *platform_name = NULL;
-    int objlen;
+    unsigned objlen;
     struct f5fileinfo_tap_data *tap_data;
 
     /* Must be the first packet */

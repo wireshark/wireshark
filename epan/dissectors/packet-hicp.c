@@ -88,7 +88,7 @@ dissect_hicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree* hicp_tree;
 
     unsigned offset = 0;
-    int lengthp = 0;
+    unsigned lengthp = 0;
     double ext_value = 0;
 
     const char* parameters_ptr = NULL;

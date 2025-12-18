@@ -3760,7 +3760,7 @@ static int vvalue_tvb_blob(tvbuff_t *tvb, packet_info* pinfo, int offset, void *
 static int vvalue_tvb_lpstr(tvbuff_t *tvb, packet_info* pinfo, int offset, void *val)
 {
 	struct data_str *str = (struct data_str*)val;
-	int len;
+	unsigned len;
 
 	str->len = tvb_get_letohl(tvb, offset);
 	str->str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset + 4, &len,
@@ -3777,7 +3777,7 @@ static int vvalue_tvb_lpwstr_len(tvbuff_t *tvb, packet_info* pinfo, int offset, 
 
 	if (length == 0) {
 		/* we don't know the length */
-		ptr = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len,
+		ptr = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, (unsigned*)&len,
 								  ENC_UTF_16|ENC_LITTLE_ENDIAN);
 	} else {
 		ptr = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, length,

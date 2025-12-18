@@ -1858,7 +1858,7 @@ get_stringz_value(wmem_allocator_t *scope, proto_tree *tree, tvbuff_t *tvb,
 	 */
 	if (length == -1) {
 		/* This can throw an exception */
-		value = tvb_get_stringz_enc(scope, tvb, start, &length, encoding);
+		value = tvb_get_stringz_enc(scope, tvb, start, (unsigned*)&length, encoding);
 	} else {
 		/* In this case, length signifies the length of the string.
 		 *
@@ -6857,8 +6857,9 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const int start,
 		}
 		if (length == -1) {
 			/* This can throw an exception */
-			/* XXX - do this without fetching the string? */
-			wmem_free(NULL, tvb_get_stringz_enc(NULL, tvb, start, &length, encoding));
+			/* XXX - do this without fetching the string? Depends on
+			 * encoding, so we probably need a new function. */
+			wmem_free(NULL, tvb_get_stringz_enc(NULL, tvb, start, (unsigned*)&length, encoding));
 		}
 		item_length = length;
 		break;

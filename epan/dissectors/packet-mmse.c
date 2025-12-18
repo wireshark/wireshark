@@ -453,7 +453,7 @@ static const value_string vals_reply_charging[] = {
 static unsigned
 get_text_string(tvbuff_t *tvb, unsigned offset, wmem_allocator_t *pool, const char **strval)
 {
-    int     len;
+    unsigned len;
 
     DebugLog(("get_text_string(tvb = %p, offset = %u, **strval) - start\n",
                 tvb, offset));
@@ -469,7 +469,7 @@ get_text_string(tvbuff_t *tvb, unsigned offset, wmem_allocator_t *pool, const ch
         *strval = (const char *)tvb_get_stringz_enc(pool, tvb, offset, &len, ENC_ASCII);
     }
     DebugLog((" [3] Return(len) == %u\n", len));
-    return (unsigned)len;
+    return len;
 }
 
 /*!

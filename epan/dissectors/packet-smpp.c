@@ -1257,7 +1257,7 @@ smpp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 static const char *
 smpp_handle_string_return(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int field, int *offset)
 {
-    int          len;
+    unsigned     len;
     const char* str = (const char *)tvb_get_stringz_enc(pinfo->pool, tvb, *offset, &len, ENC_ASCII);
 
     if (len > 0)
@@ -1288,7 +1288,7 @@ smpp_handle_time(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_item *ti;
     char     *strval;
-    int       len;
+    unsigned  len;
     nstime_t  tmptime = NSTIME_INIT_ZERO;
     bool relative;
 

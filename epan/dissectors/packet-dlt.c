@@ -727,7 +727,7 @@ dissect_dlt_verbose_parameter_string(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     uint16_t    str_len = 0;
     uint8_t    *buf = NULL;
     uint32_t    offset_orig = offset;
-    int         tmp_length = 0;
+    unsigned    tmp_length = 0;
     tvbuff_t   *subtvb = NULL;
 
     uint8_t *vari_name_string = NULL;

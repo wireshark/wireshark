@@ -4549,7 +4549,7 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int
 dissect_query_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, afp_request_val *request_val)
 {
-	int len;
+	unsigned len;
 	tvbuff_t *spotlight_tvb;
 
 	PAD(1);
@@ -4764,7 +4764,7 @@ dissect_reply_afp_get_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 static int
 dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, afp_request_val *request_val)
 {
-	int len;
+	unsigned len;
 	tvbuff_t *spotlight_tvb;
 
 	switch (request_val->spotlight_req_command) {
