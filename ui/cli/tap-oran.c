@@ -130,7 +130,7 @@ oran_stat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     if (si->ul_delay_in_us > largest_ul_delay_in_us) {
         largest_ul_delay_in_us = si->ul_delay_in_us;
     }
-    ul_configured_max = si->ul_delay_in_us;
+    ul_configured_max = si->ul_delay_configured_max;
     if (si->ul_delay_in_us > si->ul_delay_configured_max) {
         ul_above_configured_max++;
     }
