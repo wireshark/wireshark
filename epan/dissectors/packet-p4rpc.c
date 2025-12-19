@@ -96,10 +96,6 @@
 # define VERSION        "1.0.5"
 #endif
 
-WS_DLL_PUBLIC_DEF const char plugin_version[] = VERSION;
-WS_DLL_PUBLIC_DEF const int plugin_want_major = WIRESHARK_VERSION_MAJOR;
-WS_DLL_PUBLIC_DEF const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
-
 /*
  * holds the total number of messages and pdus
  * in a reassembled packet
