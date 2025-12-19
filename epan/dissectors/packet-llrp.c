@@ -1458,7 +1458,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static unsigned dissect_llrp_utf8_parameter(tvbuff_t * const tvb, packet_info *pinfo,
         proto_tree * const tree, const unsigned hfindex, const unsigned offset)
 {
-    int len;
+    unsigned len;
 
     len = tvb_get_ntohs(tvb, offset);
     if(tvb_reported_length_remaining(tvb, offset) < len) {
@@ -1511,7 +1511,7 @@ static unsigned dissect_llrp_item_array(tvbuff_t * const tvb, packet_info *pinfo
     proto_tree_add_item(tree, hfindex_number, tvb,
             offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    if(tvb_reported_length_remaining(tvb, offset) < ((int)(num*item_size))) {
+    if(tvb_reported_length_remaining(tvb, offset) < (num*item_size)) {
         expert_add_info_format(pinfo, tree, &ei_llrp_invalid_length,
                 "Array longer than message");
         return offset + tvb_reported_length_remaining(tvb, offset);

@@ -905,7 +905,7 @@ dissect_mongo_op_msg(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_t
 
   offset += 4;
 
-  while (tvb_reported_length_remaining(tvb, offset) > (checksum_present ? 4 : 0)){
+  while (tvb_reported_length_remaining(tvb, offset) > (checksum_present ? 4U : 0U)){
     offset += dissect_op_msg_section(tvb, pinfo, offset, tree, command_name);
   }
 

@@ -392,11 +392,11 @@ dissect_lfbselecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 }
 
 static void
-dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     proto_tree *meta_data_tree, *meta_data_ilv_tree, *redirect_data_tree;
-    int         start_offset;
-    int         length_meta, length_ilv, length_redirect;
+    unsigned    start_offset;
+    unsigned    length_meta, length_ilv, length_redirect;
     proto_item *ti;
     address     src_addr, src_net_addr;
     address     dst_addr, dst_net_addr;
@@ -480,7 +480,7 @@ dissect_forces(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t off
     proto_item *ti, *tlv_item;
     proto_tree *forces_tree, *forces_flags_tree;
     proto_tree *forces_main_header_tree, *forces_tlv_tree, *tlv_tree;
-    int         length_count;
+    unsigned    length_count;
 
     uint8_t     message_type;
     uint16_t    tlv_type;

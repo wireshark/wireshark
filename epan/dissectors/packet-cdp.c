@@ -283,10 +283,10 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_tree *cdp_tree;
     int         offset   = 0;
     uint16_t    type;
-    uint16_t    length, data_length;
+    uint32_t    length, data_length;
     proto_item *tlvi;
     proto_tree *tlv_tree;
-    int         real_length;
+    unsigned    real_length;
     uint32_t    naddresses;
     uint32_t    power_avail_len, power_avail;
     uint32_t    power_req_len, power_req;

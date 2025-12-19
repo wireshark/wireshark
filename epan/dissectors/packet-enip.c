@@ -3278,7 +3278,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
       // Check if the declared item length is more bytes than we have available. But, don't exit early
       //    so maybe it will be more obvious where the problem is.
-      if ((int)item_length > tvb_reported_length_remaining(tvb, offset))
+      if (item_length > tvb_reported_length_remaining(tvb, offset))
       {
           expert_add_info_format(pinfo, type_item, &ei_mal_cpf_item_length_mismatch,
               "%s: Item Length %d, Remaining Data Length: %d",

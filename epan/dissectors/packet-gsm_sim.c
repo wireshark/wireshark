@@ -3044,7 +3044,7 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 				proto_tree_add_item(sim_tree, hf_apdu_p3, tvb, offset,
 						    extended_len ? 3 : 1, ENC_BIG_ENDIAN);
 				offset += (extended_len ? 3 : 1);
-			} else if (tvb_reported_length_remaining(tvb, offset) <= (extended_len ? 3 : 1)) {
+			} else if (tvb_reported_length_remaining(tvb, offset) <= (extended_len ? 3U : 1U)) {
 				/* Case 2 / 2E */
 				dissect_apdu_le(sim_tree, tvb, offset, extended_len, true);
 				offset += (extended_len ? 3 : 1);

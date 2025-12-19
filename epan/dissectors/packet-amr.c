@@ -339,8 +339,8 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode
     int         ft;
     int         bit_offset = 0;
     int         bitcount;       /*bitcounter, MSB = bit 0, over bytes*/
-    int         bits_used_for_frames = 0;
-    int         bytes_needed_for_frames;
+    unsigned    bits_used_for_frames = 0;
+    unsigned    bytes_needed_for_frames;
     uint8_t     f_bit;
 
     /* Chapter 4.3 */
@@ -433,8 +433,8 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
     uint8_t     octet;
     int         ft;
     int         ft_payload_bits = 0;
-    int         bits_used_for_frames = 0;
-    int         bytes_needed_for_frames = 0;
+    unsigned    bits_used_for_frames = 0;
+    unsigned    bytes_needed_for_frames = 0;
     proto_tree *toc_tree;
 
     octet = tvb_get_uint8(tvb,offset);

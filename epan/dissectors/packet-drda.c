@@ -2470,7 +2470,7 @@ dissect_drda_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     unsigned offset = 0;
 
     uint16_t iParameterCP;
-    int iLengthParam;
+    unsigned iLengthParam;
 
     /* All objects in DDM are modeled as either scalars or collections.
      * A collection has the length before each element.
@@ -2529,7 +2529,7 @@ dissect_drda_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     uint16_t iParameterCP;
     uint8_t dsstyp;
     bool is_server = false;
-    int iLengthParam;
+    unsigned iLengthParam;
 
     static int * const format_flags[] = {
         &hf_drda_ddm_fmt_reserved,

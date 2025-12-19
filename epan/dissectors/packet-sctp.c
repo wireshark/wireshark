@@ -428,9 +428,9 @@ static const value_string chunk_type_values[] = {
   { 0,                               NULL } };
 
 
-#define CHUNK_TYPE_LENGTH             1
-#define CHUNK_FLAGS_LENGTH            1
-#define CHUNK_LENGTH_LENGTH           2
+#define CHUNK_TYPE_LENGTH             1U
+#define CHUNK_FLAGS_LENGTH            1U
+#define CHUNK_LENGTH_LENGTH           2U
 #define CHUNK_HEADER_LENGTH           (CHUNK_TYPE_LENGTH + \
                                        CHUNK_FLAGS_LENGTH + \
                                        CHUNK_LENGTH_LENGTH)
@@ -3503,8 +3503,8 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   proto_item *tsn_item = NULL;
   bool call_subdissector = false;
   bool is_retransmission;
-  uint16_t header_length;
-  uint16_t payload_offset;
+  uint32_t header_length;
+  uint32_t payload_offset;
 
   static int* const chunk_flags[] = {
     &hf_data_chunk_i_bit,

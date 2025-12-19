@@ -132,7 +132,7 @@ struct _command_data {
     /* true if response_in_packet has been set (response packet is known) */
     bool               is_response_set;
     uint8_t            cmd;
-    int32_t            response_length;
+    uint32_t           response_length;
     uint32_t           command_in_packet;
     uint32_t           response_in_packet;
 
@@ -419,7 +419,7 @@ insert_command_data_pointer(wmem_tree_t *command_tree, packet_info *pinfo, ftdi_
 
 static void
 record_command_data(command_data_t **cmd_data, packet_info *pinfo, ftdi_mpsse_info_t *mpsse_info, uint8_t cmd,
-                    int32_t response_length, bool preliminary)
+                    uint32_t response_length, bool preliminary)
 {
     command_data_t *data = *cmd_data;
 
@@ -1146,7 +1146,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
         }
         else
         {
-            int dissected;
+            unsigned dissected;
 
             dissected = dissect_non_data_shifting_command_response(tvb, pinfo, tree, offset, cmd_data);
             offset += dissected;

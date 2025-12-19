@@ -120,7 +120,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned      context_id;
     unsigned      notification_register;
     unsigned      number;
-    int           parameter_length;
+    unsigned      parameter_length;
 
     pitem = proto_tree_add_item(tree, hf_bthcrp_control_pdu_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     control_pdu_id = tvb_get_ntohs(tvb, offset);

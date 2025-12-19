@@ -603,13 +603,13 @@ try_get_quic_varint(tvbuff_t *tvb, int offset, uint64_t *value, int *lenvar)
     if (tvb_reported_length_remaining(tvb, offset) == 0) {
         return false;
     }
-    int len = 1 << (tvb_get_uint8(tvb, offset) >> 6);
+    unsigned len = 1 << (tvb_get_uint8(tvb, offset) >> 6);
     if (tvb_reported_length_remaining(tvb, offset) < len) {
         return false;
     }
     *lenvar = len;
     if (value) {
-        int n = (int)tvb_get_varint(tvb, offset, -1, value, ENC_VARINT_QUIC);
+        unsigned n = tvb_get_varint(tvb, offset, -1, value, ENC_VARINT_QUIC);
         DISSECTOR_ASSERT_CMPINT(n, ==, len);
     }
     return true;

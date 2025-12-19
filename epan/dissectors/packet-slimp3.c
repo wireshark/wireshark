@@ -237,8 +237,8 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     const char *opcode_str;
     proto_tree *slimp3_tree;
     proto_item *ti;
-    int         i1;
-    int         offset = 0;
+    unsigned    i1;
+    unsigned    offset = 0;
     uint16_t    opcode;
     unsigned char      lcd_char;
     char        lcd_str[MAX_LCD_STR_LEN + 1];

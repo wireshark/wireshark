@@ -1465,7 +1465,7 @@ static unsigned get_v4_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset
             offset += 2 + 8 + 8;
             uint16_t nodeid_len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
             offset += 2;
-            if (tvb_reported_length_remaining(tvb, offset) < nodeid_len + 4) {
+            if (tvb_reported_length_remaining(tvb, offset) < nodeid_len + 4U) {
                 return 0;
             }
             offset += nodeid_len;

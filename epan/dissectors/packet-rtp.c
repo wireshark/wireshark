@@ -1353,7 +1353,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     uint8_t      octet1, octet2;
     unsigned int version, payload_type;
     unsigned int offset = 0;
-    int          padding_count;
+    unsigned     padding_count;
 
     if (tvb_captured_length_remaining(tvb, offset) < 2) {
         return false;

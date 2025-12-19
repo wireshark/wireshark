@@ -1067,7 +1067,7 @@ raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rak
      */
     if (! *has_multiple_messages) {
         *has_multiple_messages =
-            tvb_reported_length_remaining(tvb, offset) > (int)payload_octets
+            tvb_reported_length_remaining(tvb, offset) > payload_octets
             ? true : false;
     }
 

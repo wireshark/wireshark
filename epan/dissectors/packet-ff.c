@@ -11095,7 +11095,7 @@ dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     while (tvb_reported_length_remaining(tvb, offset) > FDA_MSG_HDR_LENGTH)
     {
         tvbuff_t *pdu_tvb;
-        int length;
+        unsigned length;
 
         /* Make sure at least the header is there */
         if (tvb_captured_length_remaining(tvb, offset) < FDA_MSG_HDR_LENGTH)

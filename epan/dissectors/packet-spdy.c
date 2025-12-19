@@ -1224,8 +1224,8 @@ static int dissect_spdy_header_payload(
     proto_item *header;
     int header_name_offset;
     int header_value_offset;
-    int header_name_length;
-    int header_value_length;
+    unsigned header_name_length;
+    unsigned header_value_length;
 
     /* Get header name details. */
     if (tvb_reported_length_remaining(header_tvb, hdr_offset) < 4) {

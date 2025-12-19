@@ -128,7 +128,8 @@ static int
 dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	uint32_t offset = 0, err_val = 0;
-	int data_offset = 0, data_length = 0;
+	const char *data_length_str;
+	unsigned data_offset = 0, data_length = 0;
 	char *sapigs_info_function = NULL, *illbeback_type = NULL, *is_table = NULL;
 	proto_item *ti = NULL, *sapigs_tables = NULL;
 	proto_tree *sapigs_tree = NULL, *sapigs_tables_tree = NULL;
@@ -200,8 +201,8 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				proto_tree_add_item(sapigs_tree, hf_sapigs_data, tvb, offset, -1, ENC_NA);
 			} else {
 				/* we receive sized data */
-				ws_strtoi((char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 5, ENC_ASCII), NULL, &data_length);
-				proto_tree_add_item(sapigs_tree, hf_sapigs_data_size, tvb, offset, 5, ENC_ASCII);
+				proto_tree_add_item_ret_string(sapigs_tree, hf_sapigs_data_size, tvb, offset, 5, ENC_ASCII, pinfo->pool, (const uint8_t**)&data_length_str);
+				ws_strtou((char *)data_length_str, NULL, &data_length);
 				offset += 5;
 				/* Data */
 				if ((data_length > 0) && (tvb_reported_length_remaining(tvb, offset) >= data_length)) {
@@ -221,12 +222,12 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			proto_tree_add_item(sapigs_tree, hf_sapigs_codepage, tvb, offset, 4, ENC_ASCII);
 			offset += 4;
 			/* Data offset */
-			ws_strtoi((char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 16, ENC_ASCII), NULL, &data_offset);
-			proto_tree_add_item(sapigs_tree, hf_sapigs_offset_data, tvb, offset, 16, ENC_ASCII);
+			proto_tree_add_item_ret_string(sapigs_tree, hf_sapigs_offset_data, tvb, offset, 16, ENC_ASCII, pinfo->pool, (const uint8_t**)&data_length_str);
+			ws_strtou(data_length_str, NULL, &data_offset);
 			offset += 16;
 			/* Data length */
-			ws_strtoi((char *)tvb_get_string_enc(pinfo->pool, tvb, offset, 16, ENC_ASCII), NULL, &data_length);
-			proto_tree_add_item(sapigs_tree, hf_sapigs_data_size, tvb, offset, 16, ENC_ASCII);
+			proto_tree_add_item_ret_string(sapigs_tree, hf_sapigs_data_size, tvb, offset, 5, ENC_ASCII, pinfo->pool, (const uint8_t**)&data_length_str);
+			ws_strtou((char *)data_length_str, NULL, &data_length);
 			offset += 16;
 			data_offset += offset;
 			/* Definition tables */

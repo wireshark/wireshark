@@ -1013,7 +1013,7 @@ dissect_etw_ndis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		proto_tree_add_item_ret_uint(etw_tree, hf_etw_ndis_oob_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
 		offset += 4;
 
-		if ((int)length == tvb_reported_length_remaining(tvb, offset))
+		if (length == tvb_reported_length_remaining(tvb, offset))
 		{
 			oob_tree = proto_tree_add_subtree(etw_tree, tvb, offset, length, ett_etw_ndis_oob_data, NULL, "OOB Data");
 

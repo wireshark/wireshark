@@ -176,7 +176,7 @@ dissect_exeh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	switch (etype) {
 	case 0x8100: /* VLAN/VMAN Tag */
 		ti = proto_tree_add_item_ret_int(exeh_tree, hf_exeh_etypelen, tvb, offset+2, 2, ENC_BIG_ENDIAN, &databytes);
-		if (tvb_reported_length_remaining(tvb, offset) != databytes)
+		if ((int)tvb_reported_length_remaining(tvb, offset) != databytes)
 			expert_add_info(pinfo, ti, &ei_exeh_unexpected_value);
 		break;
 	default:

@@ -823,7 +823,7 @@ tvb_reported_length(const tvbuff_t *tvb)
 	return tvb->reported_length;
 }
 
-int
+unsigned
 tvb_reported_length_remaining(const tvbuff_t *tvb, const unsigned offset)
 {
 	int   exception;

@@ -93,7 +93,7 @@ dissect_bier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data
         return 0;
     }
 
-    int bitstring_length = 1 << (bsl + 2);
+    unsigned bitstring_length = 1 << (bsl + 2);
 
     if (tvb_reported_length_remaining(tvb, 8) < bitstring_length) {
         return 0;

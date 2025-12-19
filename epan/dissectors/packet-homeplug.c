@@ -1276,7 +1276,7 @@ static void dissect_homeplug_mme(ptvcursor_t * cursor, packet_info * pinfo)
 #define TVB_LEN_GREATEST  1
 #define TVB_LEN_UNDEF     0
 #define TVB_LEN_SHORTEST -1
-static int check_tvb_length(ptvcursor_t *cursor, const int length)
+static int check_tvb_length(ptvcursor_t *cursor, const unsigned length)
 {
   if (!cursor)
     return TVB_LEN_UNDEF;

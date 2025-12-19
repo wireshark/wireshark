@@ -883,7 +883,7 @@ parse_arg(tvbuff_t      *tvb,
           uint8_t       *signature_length,
           int            field_starting_offset)
 {
-    int length;
+    unsigned length;
     int padding_start;
     int saved_offset = offset;
 
@@ -900,7 +900,7 @@ parse_arg(tvbuff_t      *tvb,
             const uint8_t *sig_saved;
             int           starting_offset;
             int           number_of_items      = 0;
-            int           packet_length        = (int)tvb_reported_length(tvb);
+            unsigned      packet_length        = tvb_reported_length(tvb);
 
             if(*signature == NULL || *signature_length < 1) {
                 col_set_str(pinfo->cinfo, COL_INFO, "BAD DATA: An array argument needs a signature.");
@@ -915,12 +915,12 @@ parse_arg(tvbuff_t      *tvb,
             add_padding_item(padding_start, offset, tvb, field_tree);
 
             /* This is the length of the entire array in bytes but does not include the length field. */
-            length = (int)tvb_get_uint32(tvb, offset, encoding);
+            length = tvb_get_uint32(tvb, offset, encoding);
 
             padding_start = offset + 4;
             starting_offset = pad_according_to_type(padding_start, field_starting_offset, packet_length, *sig_saved); /* Advance to the data elements. */
 
-            if(length < 0 || length > MAX_ARRAY_LEN || starting_offset + length > packet_length) {
+            if(length > MAX_ARRAY_LEN || starting_offset + length > packet_length) {
                 col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Array length (in bytes) is %d. Remaining packet length is %d.",
                     length, tvb_reported_length_remaining(tvb, starting_offset));
                 return tvb_reported_length(tvb);
@@ -940,7 +940,7 @@ parse_arg(tvbuff_t      *tvb,
 
                 increment_dissection_depth(pinfo);
 
-                while((offset - starting_offset) < length) {
+                while((unsigned)(offset - starting_offset) < length) {
                     const uint8_t *sig_pointer;
                     uint8_t       remaining_sig_length;
 
@@ -1053,7 +1053,7 @@ parse_arg(tvbuff_t      *tvb,
 
         /* The + 4 is for the length specifier. Object paths may be of "any length"
            according to D-Bus spec. But there are practical limits. */
-        if(length < 0 || length > MAX_ARRAY_LEN || length + 4 > tvb_reported_length_remaining(tvb, offset)) {
+        if(length > MAX_ARRAY_LEN || length + 4 > tvb_reported_length_remaining(tvb, offset)) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Object path length is %d. Only %d bytes left in packet.",
                 length, tvb_reported_length_remaining(tvb, offset + 4));
             return tvb_reported_length(tvb);
@@ -1086,9 +1086,9 @@ parse_arg(tvbuff_t      *tvb,
         proto_tree_add_item(field_tree, hf_alljoyn_string_size_32bit, tvb, offset, 4, encoding);
 
         /* Get the length so we can display the string. */
-        length = (int)tvb_get_uint32(tvb, offset, encoding);
+        length = tvb_get_uint32(tvb, offset, encoding);
 
-        if(length < 0 || length > tvb_reported_length_remaining(tvb, offset)) {
+        if(length > tvb_reported_length_remaining(tvb, offset)) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: String length is %d. Remaining packet length is %d.",
                 length, (int)tvb_reported_length_remaining(tvb, offset));
             return tvb_reported_length(tvb);

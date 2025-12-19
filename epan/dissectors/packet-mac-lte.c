@@ -1795,7 +1795,7 @@ typedef struct LastFrameData {
     uint32_t framenum;
     bool ndi;
     nstime_t received_time;
-    int      length;
+    unsigned length;
     uint8_t  data[MAX_EXPECTED_PDU_LENGTH];
 } LastFrameData;
 
@@ -3765,7 +3765,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 
 /* For DL frames, look for previous Tx. Add link back if found */
-static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, int length,
+static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, unsigned length,
                                       proto_tree *tree, mac_lte_info *p_mac_lte_info)
 {
     DLHARQResult *result = NULL;
@@ -6422,7 +6422,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
             data_length = (pdu_lengths[n] == -1) ?
                             tvb_reported_length_remaining(tvb, offset) :
-                            pdu_lengths[n];
+                            (unsigned)pdu_lengths[n];
             if ((lcids[n] >= 3) && (lcids[n] <= 10)) {
                 tap_info->sdus_for_lcid[lcids[n]]++;
                 tap_info->bytes_for_lcid[lcids[n]] += data_length;
@@ -6460,7 +6460,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Work out length */
         data_length = (pdu_lengths[n] == -1) ?
                             tvb_reported_length_remaining(tvb, offset) :
-                            pdu_lengths[n];
+                            (unsigned)pdu_lengths[n];
 
         if ((lcids[n] == 0) && /* CCCH */
             (p_mac_lte_info->direction == DIRECTION_UPLINK) &&
@@ -7125,7 +7125,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         /* Work out length */
         data_length = (pdu_lengths[n] == -1) ?
                             tvb_reported_length_remaining(tvb, offset) :
-                            pdu_lengths[n];
+                            (unsigned)pdu_lengths[n];
 
         if ((lcids[n] == 0) && global_mac_lte_attempt_mcch_decode) {
             /* Call RLC dissector */
@@ -7493,7 +7493,7 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Work out length */
         data_length = (pdu_lengths[n] == -1) ?
                             tvb_reported_length_remaining(tvb, offset) :
-                            pdu_lengths[n];
+                            (unsigned)pdu_lengths[n];
 
         /* Dissect SDU as raw bytes */
         sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_slsch_sdu, tvb, offset, pdu_lengths[n],

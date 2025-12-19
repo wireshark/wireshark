@@ -244,8 +244,8 @@ test_mndp(tvbuff_t *tvb)
 	 * lengths are reasonable.
 	 * Any of these could be used to strengthen the heuristic further.
 	 */
-	int offset = 0;
-	int type, length;
+	unsigned offset = 0;
+	unsigned type, length;
 	/* Minimum of 8 bytes, 4 Bytes header + 1 TLV-header */
 	if ( tvb_captured_length(tvb) < 8) {
 		return false;

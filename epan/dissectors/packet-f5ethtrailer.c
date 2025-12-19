@@ -2252,7 +2252,7 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
     proto_item *pi;
     int o;
-    int rstcauselen    = 0;
+    unsigned rstcauselen    = 0;
     int badrstcauselen = 0;
     unsigned rstcausever  = 0xff;
     int len;
@@ -2482,7 +2482,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     if (ver < 4) {        /* Low noise versions 2 and 3 */
         /* VIP Name */
-        int viplen = tvb_get_uint8(tvb, offset);
+        unsigned viplen = tvb_get_uint8(tvb, offset);
         /* Make sure VIP Name Length does not extend past the TVB */
         if (tvb_reported_length_remaining(tvb, offset) < viplen) {
             pi = proto_tree_add_item(tree, hf_vip, tvb, offset, 0, ENC_ASCII);
@@ -2519,7 +2519,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
          * <type><len><string><type><len><string>
          */
 
-        int data_len = tvb_get_int8(tvb, offset);
+        unsigned data_len = tvb_get_uint8(tvb, offset);
         pi = proto_tree_add_item(tree, hf_data, tvb, offset, 1, ENC_NA);
         proto_item_set_text(pi, "Associated config object names");
         ti = proto_item_add_subtree(pi, ett_f5ethtrailer_obj_names);
@@ -2534,7 +2534,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         /* Begin parsing the data field and adding items for the strings contained */
         tvbuff_t *data_tvb = tvb_new_subset_length(tvb, offset, data_len);
-        int data_off = 0;
+        unsigned data_off = 0;
 
         while (data_off < data_len) {
             int field_name_len_idx;
@@ -2699,7 +2699,7 @@ dissect_dpt_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
     while (tvb_reported_length_remaining(tvb, o) >= F5_DPT_V1_TLV_HDR_LEN) {
         tvbuff_t *tvb_dpt_tlv;
-        int tvb_dpt_tlv_len;
+        unsigned tvb_dpt_tlv_len;
         int provider_id;
 
         tvb_dpt_tlv_len = tvb_get_ntohs(tvb, o + F5_DPT_V1_TLV_LENGTH_OFF);

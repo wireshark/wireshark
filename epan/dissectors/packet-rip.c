@@ -100,7 +100,7 @@ static void dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, uint8_t version
     proto_tree *tree);
 static void dissect_ip_rip_vektor(tvbuff_t *tvb, packet_info *pinfo, int offset, uint8_t version,
     proto_tree *tree);
-static int dissect_rip_authentication(tvbuff_t *tvb, packet_info* pinfo, int offset,
+static unsigned dissect_rip_authentication(tvbuff_t *tvb, packet_info* pinfo, int offset,
     proto_tree *tree);
 
 static int
@@ -112,7 +112,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     uint8_t     command;
     uint8_t     version;
     uint16_t    family;
-    int         trailer_len = 0;
+    unsigned    trailer_len = 0;
     bool        is_md5_auth = false;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RIP");
@@ -227,7 +227,7 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, packet_info *pinfo, int offset, uint8_t ver
                         offset+16, 4, metric);
 }
 
-static int
+static unsigned
 dissect_rip_authentication(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree)
 {
     proto_tree *rip_authentication_tree;

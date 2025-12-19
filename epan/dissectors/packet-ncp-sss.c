@@ -375,13 +375,12 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, uint32_t foffset)
 /* Find the delimiter, '*'.
  * Returns the number of bytes from foffset to the delimiter or 0 if not
  * found within 256 bytes from foffset */
-static int
-find_delimiter(tvbuff_t *tvb, int foffset)
+static unsigned
+find_delimiter(tvbuff_t *tvb, unsigned foffset)
 {
-    int offset;
+    unsigned offset;
 
-    offset = tvb_find_uint8(tvb, foffset, 256, '*');
-    if (offset >= foffset) {
+    if (tvb_find_uint8_length(tvb, foffset, 256, '*', &offset)) {
         return offset - foffset;
     }
     return 0;
@@ -589,7 +588,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, uint8
     uint32_t            msg_length=0;
     uint32_t            return_code=0;
     uint32_t            number_of_items=0;
-    int32_t             length_of_string=0;
+    uint32_t            length_of_string=0;
     uint32_t            i = 0;
     const char          *str;
 

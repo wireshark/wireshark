@@ -1323,7 +1323,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	uint8_t           code;
 	uint8_t           code_class;
 	uint32_t          mid = 0;
-	int               coap_length;
+	unsigned          coap_length;
 	char             *coap_token_str;
 	coap_info        *coinfo;
 	conversation_t   *conversation;
@@ -1572,7 +1572,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* dissect the payload after info column updates below */
 	tvbuff_t *payload_tvb = NULL;
-	if (coap_length > offset) {
+	if ((int)coap_length > offset) {
 		if (coinfo->block_number == DEFAULT_COAP_BLOCK_NUMBER) {
 			payload_tvb = tvb_new_subset_remaining(tvb, offset);
 		} else {

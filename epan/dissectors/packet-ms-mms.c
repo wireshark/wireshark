@@ -349,7 +349,7 @@ static int dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     uint32_t    sequence_number;
     uint16_t    command_id;
     uint16_t    command_dir;
-    int32_t     length_of_command;
+    uint32_t    length_of_command;
     uint32_t    length_remaining;
 
     /******************************/

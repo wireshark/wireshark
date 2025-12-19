@@ -2958,7 +2958,7 @@ dissect_dhcpopt_civic_location(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			if (calength == 0)
 				continue;
 
-			if (tvb_reported_length_remaining(tvb, offset) >= (int)calength)
+			if (tvb_reported_length_remaining(tvb, offset) >= calength)
 			{
 				proto_tree_add_item(tree, hf_dhcp_option_civic_location_ca_value, tvb, offset, calength, ENC_ASCII);
 				offset += calength;
@@ -3105,8 +3105,8 @@ dissect_dhcpopt_sip_servers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_dhcpopt_classless_static_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	int offset = 0;
-	int i, mask_width, significant_octets;
+	unsigned offset = 0;
+	unsigned i, mask_width, significant_octets;
 	proto_item* route_item;
 
 	/* minimum length is 5 bytes */
@@ -3231,7 +3231,7 @@ dissect_dhcpopt_vi_vendor_class(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		offset += 1;
 
 		s_end = offset + option_data_len;
-		if ( tvb_reported_length_remaining(tvb, offset) < (int)option_data_len) {
+		if ( tvb_reported_length_remaining(tvb, offset) < option_data_len) {
 			break;
 		}
 
@@ -5348,7 +5348,7 @@ dissect_dhcpopt_vi_vendor_specific_info(tvbuff_t *tvb, packet_info *pinfo, proto
 		offset += 1;
 
 		s_end = offset + option_data_len;
-		if ( tvb_reported_length_remaining(tvb, offset) < (int)option_data_len ) {
+		if ( tvb_reported_length_remaining(tvb, offset) < option_data_len ) {
 			expert_add_info_format(pinfo, vti, &ei_dhcp_option125_enterprise_malformed, "no room left in option for enterprise %u data", enterprise);
 			break;
 		}

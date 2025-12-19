@@ -3119,7 +3119,7 @@ static uint32_t
 dissect_twobyte_length_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
-  int length = 0;
+  unsigned length = 0;
 
   length = tvb_get_ntohs(tvb, offset);
   proto_tree_add_item(tn5250_tree, hf_tn5250_length_twobyte, tvb, offset, 2,

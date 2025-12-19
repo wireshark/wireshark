@@ -487,7 +487,7 @@ WS_DLL_PUBLIC unsigned tvb_reported_length(const tvbuff_t *tvb);
  *
  * @return The number of bytes remaining to the end of the buffer from the given offset.
  */
-WS_DLL_PUBLIC int tvb_reported_length_remaining(const tvbuff_t *tvb,
+WS_DLL_PUBLIC unsigned tvb_reported_length_remaining(const tvbuff_t *tvb,
     const unsigned offset);
 
 /**

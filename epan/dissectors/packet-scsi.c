@@ -6339,7 +6339,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* If we don't have the entire PDU there is no point in even trying
      * reassembly
      */
-    if (tvb_captured_length_remaining(tvb, offset) != (unsigned)tvb_reported_length_remaining(tvb, offset)) {
+    if (tvb_captured_length_remaining(tvb, offset) != tvb_reported_length_remaining(tvb, offset)) {
         if (relative_offset) {
             call_data_dissector(tvb, pinfo, scsi_tree);
             goto end_of_payload;
@@ -6365,14 +6365,14 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* If this PDU already contains all the expected data we don't have to do
      * reassembly.
      */
-    if ( (!relative_offset) && ((uint32_t)tvb_reported_length_remaining(tvb, offset) == expected_length) ) {
+    if ( (!relative_offset) && (tvb_reported_length_remaining(tvb, offset) == expected_length) ) {
         goto dissect_the_payload;
     }
 
 
     /* Start reassembly */
 
-    if (tvb_reported_length_remaining(tvb, offset) < 0) {
+    if (tvb_reported_length_remaining(tvb, offset) == 0) {
         goto end_of_payload;
     }
     if ((tvb_reported_length_remaining(tvb,offset) + relative_offset) != expected_length) {

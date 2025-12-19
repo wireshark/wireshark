@@ -19,7 +19,7 @@
 #include "packet-tcp.h"
 
 #define TCP_PORT_XOT 1998
-#define XOT_HEADER_LENGTH 4
+#define XOT_HEADER_LENGTH 4U
 #define XOT_VERSION 0
 #define XOT_PVC_SETUP 0xF5
 
@@ -98,7 +98,7 @@ static unsigned get_xot_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                              int offset, void *data _U_)
 {
    uint16_t plen;
-   int remain = tvb_captured_length_remaining(tvb, offset);
+   unsigned remain = tvb_captured_length_remaining(tvb, offset);
    if ( remain < XOT_HEADER_LENGTH){
       /* We did not get the data we asked for, use up what we can */
       return remain;
@@ -116,7 +116,7 @@ static unsigned get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb,
 {
    int offset_before = offset; /* offset where we start this test */
    int offset_next = offset + XOT_HEADER_LENGTH + X25_MIN_HEADER_LENGTH;
-   int tvb_len;
+   unsigned tvb_len;
 
    while ((tvb_len = tvb_captured_length_remaining(tvb, offset)) > 0){
       uint16_t plen = 0;

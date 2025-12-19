@@ -11888,7 +11888,7 @@ static unsigned
 dissect_gas_initial_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
                             unsigned type, unsigned subtype)
 {
-  uint16_t    req_len;
+  unsigned    req_len;
   int         start = offset;
   proto_item *item;
   proto_tree *query;
@@ -11933,7 +11933,7 @@ static unsigned
 dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
                              unsigned type, unsigned subtype)
 {
-  uint16_t    resp_len;
+  unsigned    resp_len;
   int         start = offset;
   proto_item *item;
   proto_tree *query;
@@ -12013,7 +12013,7 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
                               unsigned type, unsigned subtype _U_, uint8_t frag, bool more,
                               uint8_t dialog_token)
 {
-  uint16_t    resp_len;
+  unsigned    resp_len;
   int         start = offset;
   proto_item *item;
   proto_tree *query;
@@ -38263,7 +38263,7 @@ dissect_ieee80211_block_ack_details(tvbuff_t *tvb, packet_info *pinfo _U_,
     break;
 
   case MULTI_STA_BLOCK_ACK:
-    while (tvb_reported_length_remaining(tvb, offset) > (has_fcs ? 4 : 0)) {
+    while (tvb_reported_length_remaining(tvb, offset) > (has_fcs ? 4U : 0U)) {
         int start = offset;
         proto_item *msta_ti = NULL;
         aid_tid = tvb_get_letohs(tvb, offset);
@@ -42597,7 +42597,7 @@ discover_key_mic_len1(tvbuff_t *tvb, packet_info *pinfo, unsigned offset)
   /*
    * Do the next two bytes give us the length of the remainder?
    */
-  if (tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) + 2 ==
+  if (tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) + 2U ==
       tvb_reported_length_remaining(tvb, offset)) {
     conversation_data->discovered_key_mic_len = mic_len;
   }
@@ -42640,7 +42640,7 @@ discover_key_mic_len2(tvbuff_t *tvb, packet_info *pinfo, unsigned offset)
    * have been truncated beyond the key data length field.
    */
   if (tvb_captured_length_remaining(tvb, offset) >= 2 &&
-      tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) + 2 ==
+      tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) + 2U ==
         tvb_reported_length_remaining(tvb, offset)) {
     conversation_data->discovered_key_mic_len = mic_len;
   }

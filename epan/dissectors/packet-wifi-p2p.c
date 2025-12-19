@@ -1222,7 +1222,7 @@ dissect_wifi_p2p_anqp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
                              offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
-  while (tvb_reported_length_remaining(tvb, offset) >= (anqp_data->request ? 4 : 5)) {
+  while (tvb_reported_length_remaining(tvb, offset) >= (anqp_data->request ? 4U : 5U)) {
     uint16_t len;
     proto_tree *tlv;
     uint8_t type, id, sd_proto;

@@ -1674,7 +1674,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             /* 'Only' SMB is transported on top of this, so make sure
              * there is an SMB header there ...
              */
-            if( ((int)plen>tvb_reported_length_remaining(tvb, offset))
+            if( (plen>tvb_reported_length_remaining(tvb, offset))
                 &&(tvb_captured_length_remaining(tvb, offset) >= 8)
                 &&(tvb_get_uint8(tvb,offset+5) == 'S')
                 &&(tvb_get_uint8(tvb,offset+6) == 'M')

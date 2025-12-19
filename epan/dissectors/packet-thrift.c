@@ -96,27 +96,27 @@ static unsigned nested_type_depth = 25;
 static dissector_table_t thrift_method_name_dissector_table;
 
 /* TBinaryProtocol elements length. */
-static const int TBP_THRIFT_TYPE_LEN = 1;
-static const int TBP_THRIFT_FID_LEN = 2;
-static const int TBP_THRIFT_BOOL_LEN = 1;
-static const int TBP_THRIFT_I8_LEN = 1;
-static const int TBP_THRIFT_DOUBLE_LEN = 8;
-static const int TBP_THRIFT_I16_LEN = 2;
-static const int TBP_THRIFT_I32_LEN = 4;
-static const int TBP_THRIFT_I64_LEN = 8;
-static const int TBP_THRIFT_UUID_LEN = 16;
-static const int TBP_THRIFT_MTYPE_OFFSET = 3;
-static const int TBP_THRIFT_MTYPE_LEN = 1;
+static const unsigned TBP_THRIFT_TYPE_LEN = 1;
+static const unsigned TBP_THRIFT_FID_LEN = 2;
+static const unsigned TBP_THRIFT_BOOL_LEN = 1;
+static const unsigned TBP_THRIFT_I8_LEN = 1;
+static const unsigned TBP_THRIFT_DOUBLE_LEN = 8;
+static const unsigned TBP_THRIFT_I16_LEN = 2;
+static const unsigned TBP_THRIFT_I32_LEN = 4;
+static const unsigned TBP_THRIFT_I64_LEN = 8;
+static const unsigned TBP_THRIFT_UUID_LEN = 16;
+static const unsigned TBP_THRIFT_MTYPE_OFFSET = 3;
+static const unsigned TBP_THRIFT_MTYPE_LEN = 1;
 static const unsigned TBP_THRIFT_VERSION_LEN = 4; /* (Version + method type) is explicitly passed as an int32 in libthrift */
-static const int TBP_THRIFT_LENGTH_LEN = 4;
-static const int TBP_THRIFT_SEQ_ID_LEN = 4;
-static const int TBP_THRIFT_STRICT_HEADER_LEN = 8; /* (Protocol id + Version + Method type) + Name length = (4) + 4. */
+static const unsigned TBP_THRIFT_LENGTH_LEN = 4;
+static const unsigned TBP_THRIFT_SEQ_ID_LEN = 4;
+static const unsigned TBP_THRIFT_STRICT_HEADER_LEN = 8; /* (Protocol id + Version + Method type) + Name length = (4) + 4. */
                                     /* Old encoding: Name length [ + Name] + Message type      + Sequence Identifier   + T_STOP */
 static const unsigned TBP_THRIFT_MIN_MESSAGE_LEN = 10; /* TBP_THRIFT_LENGTH_LEN + TBP_THRIFT_I8_LEN + TBP_THRIFT_SEQ_ID_LEN + TBP_THRIFT_TYPE_LEN; */
 static const unsigned TBP_THRIFT_STRICT_MIN_MESSAGE_LEN = 13; /* TBP_THRIFT_STRICT_HEADER_LEN       + TBP_THRIFT_SEQ_ID_LEN + TBP_THRIFT_TYPE_LEN; */
-static const int TBP_THRIFT_BINARY_LEN = 4; /* Length (even with empty content). */
-static const int TBP_THRIFT_STRUCT_LEN = 1; /* Empty struct still contains T_STOP. */
-static const int TBP_THRIFT_LINEAR_LEN = 5; /* Elements type + number of elements for list & set. */
+static const unsigned TBP_THRIFT_BINARY_LEN = 4; /* Length (even with empty content). */
+static const unsigned TBP_THRIFT_STRUCT_LEN = 1; /* Empty struct still contains T_STOP. */
+static const unsigned TBP_THRIFT_LINEAR_LEN = 5; /* Elements type + number of elements for list & set. */
 
 /* TCompactProtocol elements length when different from TBinaryProtocol.
  * Are identical:
@@ -127,21 +127,21 @@ static const int TBP_THRIFT_LINEAR_LEN = 5; /* Elements type + number of element
  */
 static const int TCP_THRIFT_DELTA_NOT_SET;
 static const int TCP_THRIFT_LENGTH_LARGER = 0xf;
-static const int TCP_THRIFT_MAP_TYPES_LEN = 1;      /* High nibble = key type, low nibble = value type. */
-static const int TCP_THRIFT_NIBBLE_SHIFT = 4;
-static const int TCP_THRIFT_VERSION_LEN = 2;     /* Protocol id + (Method type + Version) */
-static const int TCP_THRIFT_MIN_VARINT_LEN = 1;
+static const unsigned TCP_THRIFT_MAP_TYPES_LEN = 1;      /* High nibble = key type, low nibble = value type. */
+static const unsigned TCP_THRIFT_NIBBLE_SHIFT = 4;
+static const unsigned TCP_THRIFT_VERSION_LEN = 2;     /* Protocol id + (Method type + Version) */
+static const unsigned TCP_THRIFT_MIN_VARINT_LEN = 1;
 /* Those cannot be define as static const int since they are used within a switch. */
 /* Maximum length in bytes for 16, 32, and 64 bits integers encoded as varint. */
 #define TCP_THRIFT_MAX_I16_LEN (3)
 #define TCP_THRIFT_MAX_I32_LEN (5)
 #define TCP_THRIFT_MAX_I64_LEN (10)
-static const int TCP_THRIFT_STRUCT_LEN = 1; /* Empty struct still contains T_STOP. */
+static const unsigned TCP_THRIFT_STRUCT_LEN = 1; /* Empty struct still contains T_STOP. */
 static const unsigned TCP_THRIFT_MIN_MESSAGE_LEN = 5; /* Protocol id + (Method type + Version) + Name length [+ Name] + Sequence Identifier + T_STOP */
 
 static const uint32_t TCP_THRIFT_NIBBLE_MASK = 0xf;
 
-static const int OCTETS_TO_BITS_SHIFT = 3;   /* 8 bits per octets = 3 shifts left. */
+static const unsigned OCTETS_TO_BITS_SHIFT = 3;   /* 8 bits per octets = 3 shifts left. */
 static const int DISABLE_SUBTREE = -1;
 
 static int proto_thrift;
@@ -720,7 +720,7 @@ dissect_thrift_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * @return                  See "GENERIC DISSECTION PARAMETERS DOCUMENTATION".
  */
 static int
-dissect_thrift_varint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, int max_length, int hf_id, dissector_t raw_dissector)
+dissect_thrift_varint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, unsigned max_length, int hf_id, dissector_t raw_dissector)
 {
     int64_t varint;
     proto_item *pi;
@@ -809,7 +809,7 @@ dissect_thrift_varint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *
 static int
 dissect_thrift_string_as_preferred(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, unsigned str_len)
 {
-    ABORT_ON_INCOMPLETE_PDU((int)str_len); /* Thrift assumes there will never be binary/string >= 2GiB */
+    ABORT_ON_INCOMPLETE_PDU(str_len); /* Thrift assumes there will never be binary/string >= 2GiB */
 
     if (tree) {
         switch (binary_decode) {
@@ -1423,7 +1423,7 @@ dissect_thrift_raw_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     }
 
     /* Dissect data */
-    if (tvb_reported_length_remaining(tvb, offset) < str_len) {
+    if (tvb_reported_length_remaining(tvb, offset) < (unsigned)str_len) {
         return THRIFT_REQUEST_REASSEMBLY;
     }
 
@@ -2177,7 +2177,7 @@ dissect_thrift_binary_linear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     int hf_container = 0;
     int hf_num_item = 0;
     int hf_vtype = hf_thrift_type;
-    int min_len = TBP_THRIFT_LINEAR_LEN;
+    unsigned min_len = TBP_THRIFT_LINEAR_LEN;
     unsigned nested_count = p_get_proto_depth(pinfo, proto_thrift);
 
     /* Set the different hf_id & ett depending on effective type. */
@@ -3038,7 +3038,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         }
         offset += str_len_len;
         /* Set method name */
-        if (tvb_reported_length_remaining(tvb, offset) < str_len) {
+        if (tvb_reported_length_remaining(tvb, offset) < (unsigned)str_len) {
             goto add_expert_and_reassemble;
         }
         method_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8);
@@ -3277,7 +3277,7 @@ dissect_thrift_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, thrift_
     int32_t offset = 0;
     int32_t hdr_offset = 0;
     int32_t last_pdu_start_offset = 0;
-    int32_t remaining = tvb_reported_length_remaining(tvb, offset);
+    uint32_t remaining = tvb_reported_length_remaining(tvb, offset);
 
     DISSECTOR_ASSERT(thrift_opt);
     DISSECTOR_ASSERT(thrift_opt->canary == THRIFT_OPTION_DATA_CANARY);
@@ -3338,7 +3338,7 @@ dissect_thrift_framed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 {
     int32_t offset = 0;
     int32_t frame_len = 0;
-    int32_t reported = tvb_reported_length_remaining(tvb, offset);
+    uint32_t reported = tvb_reported_length_remaining(tvb, offset);
     thrift_option_data_t *thrift_opt = (thrift_option_data_t *)data;
 
     DISSECTOR_ASSERT(thrift_opt);

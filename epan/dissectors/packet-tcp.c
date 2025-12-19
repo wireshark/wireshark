@@ -4659,7 +4659,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
     bool must_desegment;
     bool called_dissector;
     bool has_gap;
-    int another_pdu_follows;
+    unsigned another_pdu_follows;
     int deseg_offset;
     uint32_t deseg_seq;
     int nbytes;

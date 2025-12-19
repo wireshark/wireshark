@@ -69,7 +69,7 @@ static int dissect_cip_stringi(packet_info* pinfo, proto_tree* tree, proto_item*
 
 typedef struct mr_mult_req_info {
    uint8_t service;
-   int num_services;
+   unsigned num_services;
    cip_req_info_t *requests;
 } mr_mult_req_info_t;
 
@@ -5199,7 +5199,7 @@ static int dissect_segment_network_extended(packet_info *pinfo, proto_item *epat
       /* The first word of the data is the extended segment subtype, so
          don't include that in the displayed data block. */
       int net_seg_data_offset;
-      int net_seg_data_len;
+      unsigned net_seg_data_len;
       net_seg_data_offset = offset + 4;
       net_seg_data_len = (data_words - 1) * 2;
 
@@ -5211,7 +5211,7 @@ static int dissect_segment_network_extended(packet_info *pinfo, proto_item *epat
 
       uint16_t net_seg_subtype = tvb_get_letohs(tvb, offset + 2);
 
-      int data_len_parsed = 0;
+      unsigned data_len_parsed = 0;
       switch (net_seg_subtype)
       {
       case CI_CONCURRENT_EXTENDED_NETWORK_SEG:
@@ -5227,7 +5227,7 @@ static int dissect_segment_network_extended(packet_info *pinfo, proto_item *epat
       }
       }
 
-      if (net_seg_data_len - data_len_parsed > 0)
+      if (net_seg_data_len > data_len_parsed)
       {
          proto_tree_add_item(net_tree, hf_cip_data, tvb, net_seg_data_offset + data_len_parsed, net_seg_data_len - data_len_parsed, ENC_NA);
       }
@@ -6971,8 +6971,8 @@ dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 int dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item, int offset, bool request)
 {
    proto_tree *mult_serv_tree, *offset_tree;
-   int i, num_services, serv_offset, prev_offset = 0;
-   int parsed_len;
+   unsigned i, num_services, serv_offset, prev_offset = 0;
+   unsigned parsed_len;
    cip_req_info_t *cip_req_info, *mr_single_req_info;
    mr_mult_req_info_t *mr_mult_req_info = NULL;
 

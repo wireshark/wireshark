@@ -1942,7 +1942,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 
         if (tp->id <= RTMPT_ID_MAX) {
                 if (tp->fmt < 3
-                    && tvb_reported_length_remaining(tvb, offset) >= tp->bhlen+3
+                    && tvb_reported_length_remaining(tvb, offset) >= tp->bhlen+3U
                     && tvb_get_ntoh24(tvb, offset+tp->bhlen) == 0xffffff) {
                         haveETS = true;
                 }

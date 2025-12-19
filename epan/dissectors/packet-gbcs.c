@@ -578,7 +578,7 @@ static void dissect_gbcs_gbz_component(tvbuff_t *tvb, packet_info *pinfo, proto_
     proto_tree_add_item_ret_uint(component_tree, hf_gbcs_gbz_extended_header_length, tvb, *offset, 2, ENC_BIG_ENDIAN, &component_len);
     *offset += 2;
 
-    if ((int)component_len > tvb_reported_length_remaining(tvb, *offset)) {
+    if (component_len > tvb_reported_length_remaining(tvb, *offset)) {
         expert_add_info(pinfo, tree, &ei_gbcs_gbz_invalid_length);
     }
 

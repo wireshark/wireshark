@@ -5312,7 +5312,7 @@ dissect_dns_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
    * - Assume a common QTYPE and QCLASS (IN/CH).
    * - Potentially implement heuristics for TCP by checking the length prefix?
    */
-  int               offset = 0;
+  unsigned          offset = 0;
   uint16_t          flags, quest, ans, auth, add;
   /*
    * max_ans=10 was sufficient for recognizing the majority of DNS messages from
@@ -5349,7 +5349,7 @@ dissect_dns_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return false;
 
   /* Do we even have enough space left? */
-  if ( (quest * 6 + (ans + auth + add) * 11) > tvb_reported_length_remaining(tvb, offset + DNS_HDRLEN))
+  if ( (quest * 6U + (ans + auth + add) * 11U) > tvb_reported_length_remaining(tvb, offset + DNS_HDRLEN))
     return false;
 
   dissect_dns(tvb, pinfo, tree, NULL);

@@ -509,7 +509,7 @@ find_wccp_address_table(tvbuff_t *tvb, int offset,
     type = tvb_get_ntohs(tvb, offset);
     item_length = tvb_get_ntohs(tvb, offset+2);
 
-    if ((item_length + 4) > tvb_reported_length_remaining(tvb, offset)) {
+    if ((item_length + 4U) > tvb_reported_length_remaining(tvb, offset)) {
       /* We've run out of packet data without finding an address table,
          so there's no address table in the packet. */
       return;

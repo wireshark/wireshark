@@ -142,7 +142,7 @@ static int fix_header_len(tvbuff_t *tvb, packet_info* pinfo, int offset)
 {
     int            base_offset, ctrla_offset;
     int32_t        value;
-    int            size;
+    unsigned       size;
     fix_parameter *tag;
 
     base_offset = offset;

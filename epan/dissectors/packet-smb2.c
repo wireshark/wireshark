@@ -2029,7 +2029,7 @@ dissect_smb2_olb_length_offset(tvbuff_t *tvb, int offset, offset_length_buffer_t
 static const char *
 dissect_smb2_olb_off_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, offset_length_buffer_t *olb, int base, int type)
 {
-	int           len, off;
+	unsigned      len, off;
 	proto_item   *item = NULL;
 	proto_tree   *tree = NULL;
 	const uint8_t *name = NULL;
@@ -2039,11 +2039,11 @@ dissect_smb2_olb_off_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 	len = olb->len;
 	off = olb->off;
 
-
 	/* sanity check */
 	tvb_ensure_bytes_exist(tvb, off, len);
-	if (((off+len)<off)
-	|| ((off+len)>(off+tvb_reported_length_remaining(tvb, off)))) {
+	/* tvb_ensure_bytes_exist checks for overflow - we could catch
+	 * the exception if we want this Expert Info instead. */
+	if (len > tvb_reported_length_remaining(tvb, off)) {
 		proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, off, -1,
 				    "Invalid offset/length. Malformed packet");
 
@@ -2106,7 +2106,7 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 			offset_length_buffer_t *olb, smb2_info_t *si,
 			void (*dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si))
 {
-	int         len, off;
+	unsigned    len, off;
 	proto_item *sub_item = NULL;
 	proto_tree *sub_tree = NULL;
 	tvbuff_t   *sub_tvb  = NULL;
@@ -2118,8 +2118,9 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 
 	/* sanity check */
 	tvb_ensure_bytes_exist(tvb, off, len);
-	if (((off+len)<off)
-	    || ((off+len)>(off+tvb_reported_length_remaining(tvb, off)))) {
+	/* tvb_ensure_bytes_exist checks for overflow - we could catch
+	 * the exception if we want this Expert Info instead. */
+	if (len > tvb_reported_length_remaining(tvb, off)) {
 		proto_tree_add_expert_format(parent_tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
 				    "Invalid offset/length. Malformed packet");
 

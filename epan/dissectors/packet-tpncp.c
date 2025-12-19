@@ -130,7 +130,7 @@ static void
 dissect_tpncp_data(unsigned data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree *ltree,
                    int *offset, tpncp_data_field_info **data_fields_info, int ver, unsigned encoding)
 {
-    int g_str_len;
+    unsigned g_str_len;
     tpncp_data_field_info *field = NULL;
     int bitindex = encoding == ENC_LITTLE_ENDIAN ? 7 : 0;
     enum AddressFamily address_family = TPNCP_IPV4;

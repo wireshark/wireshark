@@ -6958,7 +6958,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 /* TODO: report if less than a viable section in frame? */
                 /* Check that there is this much length left in the frame */
-                if ((int)ud_comp_len > tvb_reported_length_remaining(tvb, section_start_offset)) {
+                if (ud_comp_len > tvb_reported_length_remaining(tvb, section_start_offset)) {
                     expert_add_info_format(pinfo, ud_comp_len_ti, &ei_oran_ud_comp_len_wrong_size,
                                            "udCompLen indicates %u bytes in section, but only %u are left in frame",
                                            ud_comp_len, tvb_reported_length_remaining(tvb, section_start_offset));

@@ -506,7 +506,7 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
             /* Skip the '(' (two bytes in UCS-2) */
             offset += 2;
             /* If the length passed is longer than the actual payload then this must be an incomplete packet. */
-            if (tvb_reported_length_remaining(tvb, 4)<length) {
+            if (tvb_reported_length_remaining(tvb, 4)<(unsigned)length) {
                 proto_tree_add_expert(tree, pinfo, &ei_srvloc_malformed, tvb, offset, -1);
                 break;
             }

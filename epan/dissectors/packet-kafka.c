@@ -1066,8 +1066,13 @@ dissect_kafka_array_elements(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
     int i;
     int next_offset;
 
+    if (count < 0) {
+        // count -1 means a NULL array
+        return offset;
+    }
+
     // sanity check - we expect at least 1 byte per array item
-    if (tvb_reported_length_remaining(tvb, offset) < count) {
+    if (tvb_reported_length_remaining(tvb, offset) < (unsigned)count) {
         expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_kafka_bad_array_length);
         return offset;
     }

@@ -3896,7 +3896,7 @@ static int dissect_mac_mux_msg_ie(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += sublen;
 	} else if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		/* Unknown message */
-		int length = (ctx->ie_length_present ? (int)ctx->ie_length : tvb_reported_length_remaining(tvb, offset));
+		unsigned length = (ctx->ie_length_present ? ctx->ie_length : tvb_reported_length_remaining(tvb, offset));
 		proto_item *item = proto_tree_add_item(parent_tree, hf_dect_nr_undecoded, tvb, offset, length, ENC_NA);
 		expert_add_info(pinfo, item, &ei_dect_nr_undecoded);
 		offset += length;

@@ -4170,7 +4170,7 @@ set_tds_version_from_prog_version(packet_info *pinfo, tds_conv_info_t *tds_info,
 static int detect_tls(tvbuff_t *tvb)
 {
     uint8_t tls_type, tls_maj_ver, tls_min_ver;
-    int offset = 0, tls_len;
+    unsigned offset = 0, tls_len;
 
     tls_type = tvb_get_uint8(tvb, offset);
     tls_maj_ver = tvb_get_uint8(tvb, offset + 1);
@@ -5313,7 +5313,7 @@ static bool
 dissect_tds_prelogin_response(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     uint8_t token = 0;
-    int tokenoffset, tokenlen, cur = offset;
+    unsigned tokenoffset, tokenlen, cur = offset;
     bool valid = false;
 
     /*

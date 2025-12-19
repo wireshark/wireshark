@@ -399,7 +399,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             uint8_t      c2 = '\0';
             uint16_t     payload_length;
             uint16_t     try_header_size;
-            int          logcat_length = 0;
+            unsigned     logcat_length = 0;
             fragment_t  *fragment;
 
             DISSECTOR_ASSERT_HINT(adb_service_data->session_key_length + 1 <= array_length(key), "Tree session key is too small");

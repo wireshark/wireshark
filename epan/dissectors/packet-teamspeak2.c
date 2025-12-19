@@ -591,7 +591,7 @@ static void ts2_parse_loginpart2(tvbuff_t *tvb, proto_tree *ts2_tree)
 /* Parses a ts2 channel list (TS2T_CHANNELLIST) and adds it to the tree */
 static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
-    int32_t offset;
+    uint32_t offset;
     int string_len;
     proto_tree    *subtree;
     proto_item    *item;
@@ -646,7 +646,7 @@ static void ts2_add_statusflags(tvbuff_t *tvb, proto_tree *ts2_tree, uint32_t of
 /* Parses a ts2 player list (TS2T_PLAYERLIST) and adds it to the tree */
 static void ts2_parse_playerlist(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
-    int32_t offset;
+    uint32_t offset;
     int32_t number_of_players;
     int32_t x;
     offset=0;

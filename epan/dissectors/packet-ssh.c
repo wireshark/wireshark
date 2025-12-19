@@ -4826,7 +4826,7 @@ ssh_proto_tree_add_segment_data(
         NULL,
         "%sSSH segment data (%u %s)",
         prefix != NULL ? prefix : "",
-        length == -1 ? tvb_reported_length_remaining(tvb, offset) : length,
+        length,
         plurality(length, "byte", "bytes"));
 }
 
@@ -4837,7 +4837,7 @@ desegment_ssh(tvbuff_t *tvb, packet_info *pinfo, uint32_t seq,
     fragment_head *ipfd_head;
     bool           must_desegment;
     bool           called_dissector;
-    int            another_pdu_follows;
+    unsigned       another_pdu_follows;
     bool           another_segment_in_frame = false;
     int            deseg_offset, offset = 0;
     uint32_t       deseg_seq;

@@ -1401,7 +1401,7 @@ static uint32_t
 dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, unsigned offset, uint32_t tag_number){
     uint32_t tag_offset_start = offset + tag_number*4*2;
     uint32_t tag_offset = 0, total_tag_len = 0;
-    int32_t tag_len;
+    uint32_t tag_len;
 
     while(tag_number){
         proto_tree *tag_tree, *ti_len, *ti_tag, *ti_type;
