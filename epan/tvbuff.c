@@ -52,8 +52,8 @@ _tvb_get_bits64(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bits);
 static uint64_t
 _tvb_get_bits64_le(tvbuff_t *tvb, unsigned bit_offset, const int total_no_of_bits);
 
-static inline int
-_tvb_captured_length_remaining(const tvbuff_t *tvb, const int offset);
+static inline unsigned
+_tvb_captured_length_remaining(const tvbuff_t *tvb, const unsigned offset);
 
 static inline const uint8_t*
 ensure_contiguous(tvbuff_t *tvb, const int offset, const int length);
@@ -437,39 +437,38 @@ static const unsigned char left_aligned_bitmask[] = {
 	0xfe
 };
 
+/* tvb_new_octet_aligned used to support -1 no_of_bits as meaning "to the
+ * end of the buffer." Nothing every used it. It could be supported with
+ * a _remaining() function if necessary. Note that the previous implementation
+ * didn't properly keep the extra reported length if the reported length
+ * was greater than the captured length.
+ */
+
 tvbuff_t *
-tvb_new_octet_aligned(tvbuff_t *tvb, uint32_t bit_offset, int32_t no_of_bits)
+tvb_new_octet_aligned(tvbuff_t *tvb, uint32_t bit_offset, uint32_t no_of_bits)
 {
 	tvbuff_t     *sub_tvb = NULL;
 	uint32_t      byte_offset;
-	int32_t       datalen, i;
+	uint32_t      datalen, i;
 	uint8_t       left, right, remaining_bits, *buf;
 	const uint8_t *data;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
-	DISSECTOR_ASSERT_CMPINT(no_of_bits, >=, -1);
 
 	byte_offset = bit_offset >> 3;
 	left = bit_offset % 8; /* for left-shifting */
 	right = 8 - left; /* for right-shifting */
 
-	if (no_of_bits == -1) {
-		datalen = _tvb_captured_length_remaining(tvb, byte_offset);
-		remaining_bits = 0;
-	} else {
-		datalen = no_of_bits >> 3;
-		remaining_bits = no_of_bits % 8;
-		if (remaining_bits) {
-			datalen++;
-		}
+	datalen = no_of_bits >> 3;
+	remaining_bits = no_of_bits % 8;
+	if (remaining_bits) {
+		datalen++;
 	}
 
 	/* already aligned -> shortcut */
 	if (((left == 0) && (remaining_bits == 0)) || datalen == 0) {
 		return tvb_new_subset_length_caplen(tvb, byte_offset, datalen, datalen);
 	}
-
-	DISSECTOR_ASSERT(datalen > 0);
 
 	/* If at least one trailing byte is available, we must use the content
 	 * of that byte for the last shift (i.e. tvb_get_ptr() must use datalen + 1).
@@ -505,16 +504,15 @@ tvb_new_octet_aligned(tvbuff_t *tvb, uint32_t bit_offset, int32_t no_of_bits)
 }
 
 tvbuff_t *
-tvb_new_octet_right_aligned(tvbuff_t *tvb, uint32_t bit_offset, int32_t no_of_bits)
+tvb_new_octet_right_aligned(tvbuff_t *tvb, uint32_t bit_offset, uint32_t no_of_bits)
 {
 	tvbuff_t     *sub_tvb = NULL;
 	uint32_t      byte_offset;
-	int           src_len, dst_len, i;
+	unsigned      src_len, dst_len, i;
 	uint8_t       left, right, remaining_bits, *buf;
 	const uint8_t *data;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
-	DISSECTOR_ASSERT_CMPINT(no_of_bits, >=, -1);
 
 	byte_offset = bit_offset / 8;
 	/* right shift to put bits in place and discard least significant bits */
@@ -522,23 +520,16 @@ tvb_new_octet_right_aligned(tvbuff_t *tvb, uint32_t bit_offset, int32_t no_of_bi
 	/* left shift to get most significant bits from next octet */
 	left = 8 - right;
 
-	if (no_of_bits == -1) {
-		dst_len = _tvb_captured_length_remaining(tvb, byte_offset);
-		remaining_bits = 0;
-	} else {
-		dst_len = no_of_bits / 8;
-		remaining_bits = no_of_bits % 8;
-		if (remaining_bits) {
-			dst_len++;
-		}
+	dst_len = no_of_bits / 8;
+	remaining_bits = no_of_bits % 8;
+	if (remaining_bits) {
+		dst_len++;
 	}
 
 	/* already aligned -> shortcut */
 	if (((right == 0) && (remaining_bits == 0)) || dst_len == 0) {
 		return tvb_new_subset_length_caplen(tvb, byte_offset, dst_len, dst_len);
 	}
-
-	DISSECTOR_ASSERT(dst_len > 0);
 
 	if (_tvb_captured_length_remaining(tvb, byte_offset) > dst_len) {
 		/* last octet will get data from trailing octet */
@@ -618,13 +609,13 @@ tvb_captured_length(const tvbuff_t *tvb)
 }
 
 /* For tvbuff internal use */
-static inline int
-_tvb_captured_length_remaining(const tvbuff_t *tvb, const int offset)
+static inline unsigned
+_tvb_captured_length_remaining(const tvbuff_t *tvb, const unsigned offset)
 {
-	unsigned abs_offset = 0, rem_length;
+	unsigned rem_length;
 	int   exception;
 
-	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
+	exception = validate_offset_and_remaining(tvb, offset, &rem_length);
 	if (exception)
 		return 0;
 
@@ -2557,16 +2548,15 @@ tvb_find_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
 int
-tvb_find_uint8(tvbuff_t *tvb, const int offset, const int maxlength, const uint8_t needle)
+tvb_find_uint8(tvbuff_t *tvb, const unsigned offset, const int maxlength, const uint8_t needle)
 {
 	const uint8_t *result;
-	unsigned	      abs_offset = 0;
-	unsigned	      limit = 0;
+	unsigned      limit = 0;
 	int           exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &limit);
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
 	if (exception)
 		THROW(exception);
 
@@ -2579,7 +2569,7 @@ tvb_find_uint8(tvbuff_t *tvb, const int offset, const int maxlength, const uint8
 
 	/* If we have real data, perform our search now. */
 	if (tvb->real_data) {
-		result = (const uint8_t *)memchr(tvb->real_data + abs_offset, needle, limit);
+		result = (const uint8_t *)memchr(tvb->real_data + offset, needle, limit);
 		if (result == NULL) {
 			return -1;
 		}
@@ -2589,9 +2579,9 @@ tvb_find_uint8(tvbuff_t *tvb, const int offset, const int maxlength, const uint8
 	}
 
 	if (tvb->ops->tvb_find_uint8)
-		return tvb->ops->tvb_find_uint8(tvb, abs_offset, limit, needle);
+		return tvb->ops->tvb_find_uint8(tvb, offset, limit, needle);
 
-	return tvb_find_uint8_generic(tvb, abs_offset, limit, needle);
+	return tvb_find_uint8_generic(tvb, offset, limit, needle);
 }
 
 /* Same as tvb_find_uint8() with 16bit needle. */
@@ -2677,17 +2667,16 @@ tvb_ws_mempbrk_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit,
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
 int
-tvb_ws_mempbrk_pattern_uint8(tvbuff_t *tvb, const int offset, const int maxlength,
+tvb_ws_mempbrk_pattern_uint8(tvbuff_t *tvb, const unsigned offset, const int maxlength,
 			const ws_mempbrk_pattern* pattern, unsigned char *found_needle)
 {
 	const uint8_t *result;
-	unsigned	      abs_offset = 0;
-	unsigned	      limit = 0;
+	unsigned      limit = 0;
 	int           exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &limit);
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
 	if (exception)
 		THROW(exception);
 
@@ -2700,7 +2689,7 @@ tvb_ws_mempbrk_pattern_uint8(tvbuff_t *tvb, const int offset, const int maxlengt
 
 	/* If we have real data, perform our search now. */
 	if (tvb->real_data) {
-		result = ws_mempbrk_exec(tvb->real_data + abs_offset, limit, pattern, found_needle);
+		result = ws_mempbrk_exec(tvb->real_data + offset, limit, pattern, found_needle);
 		if (result == NULL) {
 			return -1;
 		}
@@ -2710,9 +2699,9 @@ tvb_ws_mempbrk_pattern_uint8(tvbuff_t *tvb, const int offset, const int maxlengt
 	}
 
 	if (tvb->ops->tvb_ws_mempbrk_pattern_uint8)
-		return tvb->ops->tvb_ws_mempbrk_pattern_uint8(tvb, abs_offset, limit, pattern, found_needle);
+		return tvb->ops->tvb_ws_mempbrk_pattern_uint8(tvb, offset, limit, pattern, found_needle);
 
-	return tvb_ws_mempbrk_uint8_generic(tvb, abs_offset, limit, pattern, found_needle);
+	return tvb_ws_mempbrk_uint8_generic(tvb, offset, limit, pattern, found_needle);
 }
 
 /* Find size of stringz (NUL-terminated string) by looking for terminating
@@ -4169,25 +4158,26 @@ tvb_get_raw_bytes_as_stringz(tvbuff_t *tvb, const int offset, const unsigned buf
  * as 1) are available in the tvbuff and 2) will fit in the buffer, leaving
  * room for a terminating NUL.
  */
-int
-tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const int offset, char *buffer, size_t bufsize)
+unsigned
+tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const unsigned offset, char *buffer, size_t bufsize)
 {
-	int      len = 0;
+	unsigned len = 0;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	/* There must be room for the string and the terminating NUL. */
 	DISSECTOR_ASSERT(bufsize > 0);
 
-	DISSECTOR_ASSERT(bufsize - 1 < INT_MAX);
+	/* bufsize is size_t, but tvbuffers only have up to unsigned bytes */
+	DISSECTOR_ASSERT(bufsize - 1 < UINT_MAX);
 
 	len = _tvb_captured_length_remaining(tvb, offset);
-	if (len <= 0) {
+	if (len == 0) {
 		buffer[0] = '\0';
 		return 0;
 	}
-	if (len > (int)(bufsize - 1))
-		len = (int)(bufsize - 1);
+	if (len > (bufsize - 1))
+		len = (unsigned)(bufsize - 1);
 
 	/* Copy the string to buffer */
 	tvb_memcpy(tvb, buffer, offset, len);
@@ -4264,7 +4254,7 @@ static ws_mempbrk_pattern pbrk_crlf;
  * we don't find a line terminator.  (It's not set if we return -1.)
  */
 int
-tvb_find_line_end(tvbuff_t *tvb, const int offset, int len, int *next_offset, const bool desegment)
+tvb_find_line_end(tvbuff_t *tvb, const unsigned offset, int len, int *next_offset, const bool desegment)
 {
 	int    eob_offset;
 	int    eol_offset;
@@ -4387,7 +4377,7 @@ static ws_mempbrk_pattern pbrk_crlf_dquote;
  * we don't find a line terminator.
  */
 int
-tvb_find_line_end_unquoted(tvbuff_t *tvb, const int offset, int len, int *next_offset)
+tvb_find_line_end_unquoted(tvbuff_t *tvb, const unsigned offset, int len, int *next_offset)
 {
 	int      cur_offset, char_offset;
 	bool     is_quoted;
@@ -4604,7 +4594,7 @@ tvb_skip_uint8(tvbuff_t *tvb, int offset, const int maxlength, const uint8_t ch)
 
 static ws_mempbrk_pattern pbrk_whitespace;
 
-int tvb_get_token_len(tvbuff_t *tvb, const int offset, int len, int *next_offset, const bool desegment)
+int tvb_get_token_len(tvbuff_t *tvb, const unsigned offset, int len, int *next_offset, const bool desegment)
 {
 	int    eob_offset;
 	int    eot_offset;
