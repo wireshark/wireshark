@@ -2872,7 +2872,7 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const c
  */
 bool
 try_conversation_dissector_strat(packet_info *pinfo, const conversation_type ctype,
-        tvbuff_t *tvb, proto_tree *tree, void* data, const unsigned options)
+        tvbuff_t *tvb, proto_tree *tree, void* data, const unsigned options, const bool direction)
 {
     conversation_t *conversation;
     bool dissector_success;
@@ -2883,14 +2883,14 @@ try_conversation_dissector_strat(packet_info *pinfo, const conversation_type cty
     DISSECTOR_ASSERT_HINT((options == 0) || (options & NO_MASK_B), "Use NO_ADDR_B and/or NO_PORT_B as option");
 
     /* Try each mode based on option flags */
-    conversation = find_conversation_strat(pinfo, ctype, 0, false);
+    conversation = find_conversation_strat(pinfo, ctype, 0, direction);
     if (conversation != NULL) {
         if (try_conversation_call_dissector_helper(conversation, &dissector_success, tvb, pinfo, tree, data))
             return dissector_success;
     }
 
     if (options & NO_ADDR_B) {
-        conversation = find_conversation_strat(pinfo, ctype, NO_ADDR_B, false);
+        conversation = find_conversation_strat(pinfo, ctype, NO_ADDR_B, direction);
         if (conversation != NULL) {
             if (try_conversation_call_dissector_helper(conversation, &dissector_success, tvb, pinfo, tree, data))
                 return dissector_success;
@@ -2898,7 +2898,7 @@ try_conversation_dissector_strat(packet_info *pinfo, const conversation_type cty
     }
 
     if (options & NO_PORT_B) {
-        conversation = find_conversation_strat(pinfo, ctype, NO_PORT_B, false);
+        conversation = find_conversation_strat(pinfo, ctype, NO_PORT_B, direction);
         if (conversation != NULL) {
             if (try_conversation_call_dissector_helper(conversation, &dissector_success, tvb, pinfo, tree, data)) {
                 return dissector_success;
@@ -2908,7 +2908,7 @@ try_conversation_dissector_strat(packet_info *pinfo, const conversation_type cty
     }
 
     if (options & (NO_ADDR_B|NO_PORT_B)) {
-        conversation = find_conversation_strat(pinfo, ctype, NO_ADDR_B|NO_PORT_B, false);
+        conversation = find_conversation_strat(pinfo, ctype, NO_ADDR_B|NO_PORT_B, direction);
         if (conversation != NULL) {
             if (try_conversation_call_dissector_helper(conversation, &dissector_success, tvb, pinfo, tree, data)) {
                 return dissector_success;

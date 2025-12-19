@@ -591,10 +591,11 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
     }
 
-    /* determine if this packet is part of a conversation and call dissector */
-    /* for the conversation if available */
+    /* Determine if this packet is part of a conversation and call dissector
+     * for the conversation if available.
+     * This search is done on the 'other' direction */
     if (try_conversation_dissector_strat(pinfo, CONVERSATION_UDP,
-             next_tvb, tree, NULL, NO_ADDR_B|NO_PORT_B)) {
+             next_tvb, tree, NULL, NO_ADDR_B|NO_PORT_B, true)) {
         handle_export_pdu_conversation(pinfo, next_tvb, uh_dport, uh_sport);
         return;
     }
@@ -1231,26 +1232,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ip_proto)
      */
     conv = find_conversation_strat(pinfo, CONVERSATION_UDP, NO_GREEDY, false);
     if(!conv) {
-
-        /* For new conversations, check first if there is already a conversation that
-         * was created with a flag (e.g., NO_ADDR_B or NO_PORT_B) and that could match.
-         * Create this conversation, then apply the dissector if any.
-         */
-        conversation_t *masked_conv = NULL;
-
-        masked_conv = find_conversation_strat(pinfo, CONVERSATION_UDP, 0, false);
-
         conv=conversation_new_strat(pinfo, CONVERSATION_UDP, 0);
-        if(masked_conv) {
-            // apply the higher protocol dissector
-            dissector_handle_t l7_handle = conversation_get_dissector(masked_conv, pinfo->num);
-            if(l7_handle) {
-                conversation_set_dissector(conv, l7_handle);
-
-                // XXX - A related frame indication might be nice to have in some cases
-            }
-        }
-
     }
     else {
         /* Explicitly and immediately move forward the conversation last_frame */

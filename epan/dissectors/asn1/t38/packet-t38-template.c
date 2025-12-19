@@ -214,14 +214,15 @@ void t38_add_address(packet_info *pinfo,
          * Check if the ip address and port combination is not
          * already registered as a conversation.
          */
-        p_conversation = find_conversation( setup_frame_number, addr, &null_addr, CONVERSATION_UDP, port, other_port,
+        p_conversation = find_conversation_strat_xtd(pinfo, setup_frame_number, addr, &null_addr, CONVERSATION_UDP, port, other_port,
                                 NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
+
 
         /*
          * If not, create a new conversation.
          */
         if ( !p_conversation || p_conversation->setup_frame != setup_frame_number) {
-                p_conversation = conversation_new( setup_frame_number, addr, &null_addr, CONVERSATION_UDP,
+                p_conversation = conversation_new_strat_xtd(pinfo, setup_frame_number, addr, &null_addr, CONVERSATION_UDP,
                                            (uint32_t)port, (uint32_t)other_port,
                                                                    NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
         }
@@ -413,13 +414,13 @@ init_t38_info_conv(packet_info *pinfo)
 
 
 	/* find the conversation used for Reassemble and Setup Info */
-	p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+	p_conv = find_conversation_strat_xtd(pinfo, pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                                    conversation_pt_to_conversation_type(pinfo->ptype),
                                    pinfo->destport, pinfo->srcport, NO_ADDR_B | NO_PORT_B);
 
 	/* create a conv if it doesn't exist */
 	if (!p_conv) {
-		p_conv = conversation_new(pinfo->num, &pinfo->net_src, &pinfo->net_dst,
+		p_conv = conversation_new_strat_xtd(pinfo, pinfo->num, &pinfo->net_src, &pinfo->net_dst,
 			      conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, NO_ADDR2 | NO_PORT2);
 
 		/* Set dissector */

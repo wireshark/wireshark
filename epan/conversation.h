@@ -577,7 +577,7 @@ WS_DLL_PUBLIC bool try_conversation_dissector(const address *addr_a, const addre
     proto_tree *tree, void* data, const unsigned options);
 
 WS_DLL_PUBLIC bool try_conversation_dissector_strat(packet_info *pinfo, const conversation_type ctype,
-    tvbuff_t *tvb, proto_tree *tree, void* data, const unsigned options);
+    tvbuff_t *tvb, proto_tree *tree, void* data, const unsigned options, const bool direction);
 
 WS_DLL_PUBLIC bool try_conversation_dissector_by_id(const conversation_type ctype, const uint32_t id, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree, void* data);
