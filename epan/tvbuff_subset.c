@@ -58,22 +58,23 @@ subset_get_ptr(tvbuff_t *tvb, unsigned abs_offset, unsigned abs_length)
 	return tvb_get_ptr(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, abs_length);
 }
 
-static int
-subset_find_uint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle)
+static bool
+subset_find_uint8(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle, unsigned *found_offset)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
-	int result;
+	bool result;
 
-	result = tvb_find_uint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, needle);
-	if (result == -1)
-		return result;
+	result = tvb_find_uint8_length(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, needle, found_offset);
 
 	/*
 	 * Make the result relative to the beginning of the tvbuff we
 	 * were handed, *not* relative to the beginning of its parent
 	 * tvbuff.
 	 */
-	return result - subset_tvb->subset.offset;
+	if (found_offset) {
+		*found_offset -= subset_tvb->subset.offset;
+	}
+	return result;
 }
 
 static int
@@ -109,8 +110,8 @@ static const struct tvb_ops tvb_subset_ops = {
 	subset_offset,        /* offset */
 	subset_get_ptr,       /* get_ptr */
 	subset_memcpy,        /* memcpy */
-	subset_find_uint8,   /* find_uint8 */
-	subset_pbrk_uint8,   /* pbrk_uint8 */
+	subset_find_uint8,    /* find_uint8 */
+	subset_pbrk_uint8,    /* pbrk_uint8 */
 	subset_clone,         /* clone */
 };
 

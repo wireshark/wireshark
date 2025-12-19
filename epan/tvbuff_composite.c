@@ -212,6 +212,8 @@ static const struct tvb_ops tvb_composite_ops = {
 	composite_offset,     /* offset */
 	composite_get_ptr,    /* get_ptr */
 	composite_memcpy,     /* memcpy */
+	/* XXX - The generic find routines work, but specialized ones
+	 * might be able to avoid some memcpys */
 	NULL,                 /* find_uint8 XXX */
 	NULL,                 /* pbrk_uint8 XXX */
 	NULL,                 /* clone */

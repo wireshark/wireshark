@@ -28,7 +28,7 @@ bool failed;
 typedef struct {
 	struct {
 		uint8_t needle;
-		int offset;
+		unsigned offset;
 	} g8;
 	struct {
 		bool test;
@@ -49,7 +49,7 @@ test_searches(tvbuff_t *tvb, int offset, search_test_params *sp)
 	volatile bool ex_thrown = false;
 
 	TRY {
-		sp->g8.offset = tvb_find_uint8(tvb, offset, -1, sp->g8.needle);
+		tvb_find_uint8_remaining(tvb, offset, sp->g8.needle, &sp->g8.offset);
 		if (sp->g16.test) {
 			sp->g16.offset = tvb_find_uint16(tvb, offset, -1, sp->g16.needle);
 		}
@@ -349,7 +349,7 @@ test(tvbuff_t *tvb, const char* name,
 			failed = true;
 			return false;
 		}
-		if ((unsigned)sp.g8.offset != i) {
+		if (sp.g8.offset != i) {
 			printf("13: Failed TVB=%s Wrong offset for uint8_t:%02x,"
 					" got %d, expected %d\n",
 					name, sp.g8.needle, sp.g8.offset, i);

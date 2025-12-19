@@ -2546,21 +2546,28 @@ tvb_get_bits(tvbuff_t *tvb, const unsigned bit_offset, const int no_of_bits, con
 	return (uint32_t)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 }
 
-static int
-tvb_find_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle)
+static unsigned
+tvb_find_uint8_generic(tvbuff_t *tvb, unsigned abs_offset, unsigned limit, uint8_t needle, unsigned *end_offset)
 {
 	const uint8_t *ptr;
 	const uint8_t *result;
 
+	if (end_offset) {
+		*end_offset = abs_offset + limit;
+	}
+
 	ptr = ensure_contiguous_unsigned(tvb, abs_offset, limit); /* tvb_get_ptr() */
 	if (!ptr)
-		return -1;
+		return false;
 
 	result = (const uint8_t *) memchr(ptr, needle, limit);
 	if (!result)
-		return -1;
+		return false;
 
-	return (int) ((result - ptr) + abs_offset);
+	if (end_offset) {
+		*end_offset = (unsigned)((result - ptr) + abs_offset);
+	}
+	return true;
 }
 
 /* Find first occurrence of needle in tvbuff, starting at offset. Searches
@@ -2574,7 +2581,7 @@ int
 tvb_find_uint8(tvbuff_t *tvb, const unsigned offset, const int maxlength, const uint8_t needle)
 {
 	const uint8_t *result;
-	unsigned      limit = 0;
+	unsigned      limit = 0, end_offset;
 	int           exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
@@ -2601,10 +2608,79 @@ tvb_find_uint8(tvbuff_t *tvb, const unsigned offset, const int maxlength, const 
 		}
 	}
 
-	if (tvb->ops->tvb_find_uint8)
-		return tvb->ops->tvb_find_uint8(tvb, offset, limit, needle);
+	if (tvb->ops->tvb_find_uint8) {
+		if (!tvb->ops->tvb_find_uint8(tvb, offset, limit, needle, &end_offset)) {
+			return -1;
+		}
+	} else if (!tvb_find_uint8_generic(tvb, offset, limit, needle, &end_offset)) {
+		return -1;
+	}
+	return (int)end_offset;
+}
 
-	return tvb_find_uint8_generic(tvb, offset, limit, needle);
+static bool
+_tvb_find_uint8_length(tvbuff_t *tvb, const unsigned offset, const unsigned limit, const uint8_t needle, unsigned *end_offset)
+{
+	const uint8_t *result;
+
+	/* If we have real data, perform our search now. */
+	if (tvb->real_data) {
+		result = (const uint8_t *)memchr(tvb->real_data + offset, needle, limit);
+		if (result == NULL) {
+			if (end_offset) {
+				*end_offset = offset + limit;
+			}
+			return false;
+		}
+		else {
+			if (end_offset) {
+				*end_offset = (unsigned)(result - tvb->real_data);
+			}
+			return true;
+		}
+	}
+
+	if (tvb->ops->tvb_find_uint8)
+		return tvb->ops->tvb_find_uint8(tvb, offset, limit, needle, end_offset);
+
+	return tvb_find_uint8_generic(tvb, offset, limit, needle, end_offset);
+}
+
+bool
+tvb_find_uint8_length(tvbuff_t *tvb, const unsigned offset, const unsigned maxlength, const uint8_t needle, unsigned *end_offset)
+{
+	unsigned      limit = 0;
+	int           exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	/* Only search to end of tvbuff, w/o throwing exception. */
+	if (limit > maxlength) {
+		/* Maximum length doesn't go past end of tvbuff; search
+		   to that value. */
+		limit = maxlength;
+	}
+
+	return _tvb_find_uint8_length(tvb, offset, limit, needle, end_offset);
+}
+
+bool
+tvb_find_uint8_remaining(tvbuff_t *tvb, const unsigned offset, const uint8_t needle, unsigned *end_offset)
+{
+	unsigned      limit = 0;
+	int           exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = validate_offset_and_remaining(tvb, offset, &limit);
+	if (exception)
+		THROW(exception);
+
+	return _tvb_find_uint8_length(tvb, offset, limit, needle, end_offset);
 }
 
 /* Same as tvb_find_uint8() with 16bit needle. */
@@ -2735,13 +2811,12 @@ tvb_ws_mempbrk_pattern_uint8(tvbuff_t *tvb, const unsigned offset, const int max
 unsigned
 tvb_strsize(tvbuff_t *tvb, const unsigned offset)
 {
-	int   nul_offset;
+	unsigned nul_offset;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	validate_offset(tvb, offset);
-	nul_offset = tvb_find_uint8(tvb, offset, -1, 0);
-	if (nul_offset == -1) {
+	if (!tvb_find_uint8_remaining(tvb, offset, 0, &nul_offset)) {
 		/*
 		 * OK, we hit the end of the tvbuff, so we should throw
 		 * an exception.
@@ -2787,24 +2862,19 @@ tvb_unicode_strsize(tvbuff_t *tvb, const unsigned offset)
  * of tvbuff.
  * Returns -1 if 'maxlength' reached before finding EOS. */
 int
-tvb_strnlen(tvbuff_t *tvb, const int offset, const unsigned maxlength)
+tvb_strnlen(tvbuff_t *tvb, const unsigned offset, const unsigned maxlength)
 {
-	int   result_offset;
-	unsigned abs_offset = 0, junk_length;
+	unsigned result_offset;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
-
-	/* TODO - this and tvb_find_uint8 need variants that return a bool
-	 * and set an unsigned offset to the value if true. */
-	result_offset = tvb_find_uint8(tvb, abs_offset, maxlength, 0);
-
-	if (result_offset == -1) {
+	/* TODO - this needs a variant that returns a bool
+	 * and sets a unsigned offset to the value if true. */
+	if (!tvb_find_uint8_length(tvb, offset, maxlength, 0, &result_offset)) {
 		return -1;
 	}
 	else {
-		return result_offset - abs_offset;
+		return (int)(result_offset - offset);
 	}
 }
 

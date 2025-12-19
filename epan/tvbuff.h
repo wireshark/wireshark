@@ -2182,6 +2182,54 @@ WS_DLL_PUBLIC const uint8_t *tvb_get_ptr(tvbuff_t *tvb, const int offset,
  * @brief Find the first occurrence of a byte value in a tvbuff.
  *
  * Searches for the first occurrence of `needle` in the given tvbuff_t,
+ * starting at `offset` and searching the remaining captured bytes.
+ *
+ * This function will throw an exception if the start offset is outside
+ * the tvbuff captured bytes, but will not throw an exception if the needle
+ * is not found.
+ *
+ * @param tvb          The tvbuff_t to search.
+ * @param offset       The offset in the tvbuff to begin searching.
+ * @param needle       The byte value to search for.
+ * @param found_offset The offset of the needle, if found. Otherwise, the offset
+ * just past the last byte searched.
+ *
+ * @return true if the needle is found, false otherwise
+ *
+ * @see tvb_find_uint8_length
+ */
+WS_DLL_PUBLIC bool tvb_find_uint8_remaining(tvbuff_t *tvb, const unsigned offset,
+    const uint8_t needle, unsigned *found_offset);
+
+/**
+ * @brief Find the first occurrence of a byte value in a tvbuff up to a limit.
+ *
+ * Searches for the first occurrence of `needle` in the given tvbuff_t,
+ * starting at `offset` and scanning up to `maxlength` bytes.
+ *
+ * This function will only search up to the bytes actually contained in the
+ * tvbuff, and will not throw an exception for going past the captured or
+ * reported length, even if even if `maxlength` exceeds those. (It will throw
+ * an exception if the start offset is outside the tvbuff captured bytes.)
+ *
+ * @param tvb          The tvbuff_t to search.
+ * @param offset       The offset in the tvbuff to begin searching.
+ * @param maxlength    The maximum number of bytes to search.
+ * @param needle       The byte value to search for.
+ * @param found_offset The offset of the needle, if found. Otherwise, the offset
+ * just past the last byte searched.
+ *
+ * @return true if the needle is found, false otherwise
+ *
+ * @see tvb_find_uint8_remaining
+ */
+WS_DLL_PUBLIC bool tvb_find_uint8_length(tvbuff_t *tvb, const unsigned offset,
+    const unsigned maxlength, const uint8_t needle, unsigned *found_offset);
+
+/**
+ * @brief Find the first occurrence of a byte value in a tvbuff.
+ *
+ * Searches for the first occurrence of `needle` in the given tvbuff_t,
  * starting at `offset` and scanning up to `maxlength` bytes. If `maxlength` is -1,
  * the search continues to the end of the tvbuff.
  *
@@ -2381,7 +2429,7 @@ WS_DLL_PUBLIC unsigned tvb_unicode_strsize(tvbuff_t *tvb, const unsigned offset)
  *
  * @see tvb_strsize
  */
-WS_DLL_PUBLIC int tvb_strnlen(tvbuff_t *tvb, const int offset,
+WS_DLL_PUBLIC int tvb_strnlen(tvbuff_t *tvb, const unsigned offset,
     const unsigned maxlength);
 
 /**
