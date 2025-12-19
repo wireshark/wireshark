@@ -605,6 +605,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-sm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-ttag.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cisco-wids.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-citp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cl3.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cl3dcw.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-classicstun.c
