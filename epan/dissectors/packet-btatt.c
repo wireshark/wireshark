@@ -2135,6 +2135,7 @@ static expert_field ei_btatt_bad_data;
 static expert_field ei_btatt_unexpected_data;
 static expert_field ei_btatt_undecoded;
 static expert_field ei_btatt_invalid_length;
+static expert_field ei_btatt_incomplete_transaction;
 
 static wmem_tree_t *mtus;
 static wmem_tree_t *requests;
@@ -4157,6 +4158,24 @@ static void *btatt_handle_value(packet_info *pinfo)
     return NULL;
 }
 
+/*! Returns True if the opcode represents the start of an ATT transaction i.e. a Request or Indication.
+    False otherwise. */
+static bool is_request(uint8_t opcode)
+{
+    return (opcode == ATT_OPCODE_EXCHANGE_MTU_REQUEST ||
+            opcode == ATT_OPCODE_FIND_INFORMATION_REQUEST ||
+            opcode == ATT_OPCODE_FIND_BY_TYPE_VALUE_REQUEST ||
+            opcode == ATT_OPCODE_READ_REQUEST ||
+            opcode == ATT_OPCODE_READ_BLOB_REQUEST ||
+            opcode == ATT_OPCODE_READ_BY_TYPE_REQUEST ||
+            opcode == ATT_OPCODE_READ_MULTIPLE_REQUEST ||
+            opcode == ATT_OPCODE_READ_BY_GROUP_TYPE_REQUEST ||
+            opcode == ATT_OPCODE_WRITE_REQUEST ||
+            opcode == ATT_OPCODE_WRITE_PREPARE_REQUEST ||
+            opcode == ATT_OPCODE_WRITE_EXECUTE_REQUEST ||
+            opcode == ATT_OPCODE_HANDLE_VALUE_INDICATION);
+}
+
 static bool is_readable_request(uint8_t opcode)
 {
     return (opcode == ATT_OPCODE_READ_REQUEST ||
@@ -4218,7 +4237,7 @@ get_request(tvbuff_t *tvb, int offset, packet_info *pinfo, uint8_t opcode,
         btl2cap_data_t *l2cap_data)
 {
     request_data_t  *request_data;
-    wmem_tree_key_t  key[7];
+    wmem_tree_key_t  key[6];
     wmem_tree_t     *sub_wmemtree;
     uint32_t         frame_number, curr_layer_num, direction, cid, chandle;
 
@@ -4231,9 +4250,7 @@ get_request(tvbuff_t *tvb, int offset, packet_info *pinfo, uint8_t opcode,
     /* For dynamic channels, use the channel's local CID. For fixed channels, use the CID from the PDU. */
     cid = (l2cap_data->cid == BTL2CAP_FIXED_CID_ATT) ? l2cap_data->cid : l2cap_data->local_cid;
 
-    // Request is always in opposite direction from response
-    direction = pinfo->p2p_dir == P2P_DIR_SENT ? P2P_DIR_RECV : P2P_DIR_SENT;
-
+    /* First, obtain a list of all ATT "requests" made on the current bearer */
     key[0].length = 1;
     key[0].key    = &l2cap_data->interface_id;
     key[1].length = 1;
@@ -4244,102 +4261,78 @@ get_request(tvbuff_t *tvb, int offset, packet_info *pinfo, uint8_t opcode,
     key[3].key    = &cid;
     key[4].length = 1;
     key[4].key    = &curr_layer_num;
-    key[5].length = 1;
-    key[5].key    = &direction;
-    key[6].length = 0;
-    key[6].key    = NULL;
-
-    frame_number = pinfo->num;
+    key[5].length = 0;
+    key[5].key    = NULL;
 
     sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(requests, key);
-    request_data = (sub_wmemtree) ? (request_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
-    if (request_data && request_data->request_in_frame == pinfo->num)
+    if (!sub_wmemtree) {
+        return NULL;
+    }
+
+    /* Determine if the current packet is a "request" or a "response" */
+    if (is_request(opcode))
+    {
+        /* It's a request, so search the list for an exact match. */
+        direction = pinfo->p2p_dir;
+        frame_number = pinfo->num;
+
+        key[0].length = 1;
+        key[0].key    = &direction;
+        key[1].length = 1;
+        key[1].key    = &frame_number;
+        key[2].length = 0;
+        key[2].key    = NULL;
+
+        request_data = (request_data_t *) wmem_tree_lookup32_array(sub_wmemtree, key);
         return request_data;
+    }
+    else
+    {
+        /* Assume it's a response. To find the corresponding request,
+           search backwards starting from the previous packet.
 
-    if (request_data) do {
-        frame_number = request_data->request_in_frame - 1;
+           Said request will naturally be in the opposite direction as this response. */
+        direction = pinfo->p2p_dir == P2P_DIR_SENT ? P2P_DIR_RECV : P2P_DIR_SENT;
+        frame_number = pinfo->num - 1;
 
-        if (request_data->request_in_frame == pinfo->num)
-            break;
+        key[0].length = 1;
+        key[0].key    = &direction;
+        key[1].length = 0;
+        key[1].key    = NULL;
 
-      switch (opcode) {
-      case 0x01: /* Error Response */
-          if (tvb_captured_length_remaining(tvb, offset) < 1)
-              return NULL;
-          opcode = tvb_get_uint8(tvb, 1) + 1;
-          /* FALL THROUGH */
-      case 0x03: /* Exchange MTU Response */
-      case 0x05: /* Find Information Response */
-      case 0x07: /* Find By Type Value Response */
-      case 0x09: /* Read By Type Response */
-      case 0x0b: /* Read Response */
-      case 0x0d: /* Read Blob Response */
-      case 0x0f: /* Read Multiple Response */
-      case 0x11: /* Read By Group Type Response */
-      case 0x13: /* Write Response */
-      case 0x17: /* Prepare Write Response */
-      case 0x19: /* Execute Write Response */
-      case 0x21: /* Read Multiple Variable Response */
-      case 0x1E: /* Handle Value Confirmation */
-          if (request_data->opcode == opcode - 1)
-              return request_data;
+        sub_wmemtree = (wmem_tree_t *) wmem_tree_lookup32_array(sub_wmemtree, key);
 
-          break;
-      }
-    } while(0);
+        /* This yields the last request that travelled over this bearer [in the given direction above] */
+        request_data = (sub_wmemtree) ? (request_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
 
-    request_data = (sub_wmemtree) ? (request_data_t *) wmem_tree_lookup32_le(sub_wmemtree, frame_number) : NULL;
+        switch (opcode) {
+            case ATT_OPCODE_ERROR_RESPONSE:
+                if (tvb_captured_length_remaining(tvb, offset) < 1)
+                    return NULL;
+                opcode = tvb_get_uint8(tvb, 1) + 1;
+                /* FALL THROUGH */
+            case ATT_OPCODE_EXCHANGE_MTU_RESPONSE:
+            case ATT_OPCODE_FIND_INFORMATION_RESPONSE:
+            case ATT_OPCODE_FIND_BY_TYPE_VALUE_RESPONSE:
+            case ATT_OPCODE_READ_BY_TYPE_RESPONSE:
+            case ATT_OPCODE_READ_RESPONSE:
+            case ATT_OPCODE_READ_BLOB_RESPONSE:
+            case ATT_OPCODE_READ_MULTIPLE_RESPONSE:
+            case ATT_OPCODE_READ_BY_GROUP_TYPE_RESPONSE:
+            case ATT_OPCODE_WRITE_RESPONSE:
+            case ATT_OPCODE_WRITE_PREPARE_RESPONSE:
+            case ATT_OPCODE_WRITE_EXECUTE_RESPONSE:
+            case ATT_OPCODE_READ_MULTIPLE_VARIABLE_RESPONSE:
+            case ATT_OPCODE_HANDLE_VALUE_CONFIRMATION:
+                /* Confirm that the request and response are a matching pair */
+                if (request_data && request_data->opcode == opcode - 1)
+                    return request_data;
 
-    if (!request_data)
-        return NULL;
+                break;
 
-    if (request_data->request_in_frame == pinfo->num)
-        return request_data;
-
-    switch (opcode) {
-    case 0x01: /* Error Response */
-        if (tvb_captured_length_remaining(tvb, offset) < 1)
-            return NULL;
-        opcode = tvb_get_uint8(tvb, 1) + 1;
-        /* FALL THROUGH */
-    case 0x03: /* Exchange MTU Response */
-    case 0x05: /* Find Information Response */
-    case 0x07: /* Find By Type Value Response */
-    case 0x09: /* Read By Type Response */
-    case 0x0b: /* Read Response */
-    case 0x0d: /* Read Blob Response */
-    case 0x0f: /* Read Multiple Response */
-    case 0x11: /* Read By Group Type Response */
-    case 0x13: /* Write Response */
-    case 0x17: /* Prepare Write Response */
-    case 0x19: /* Execute Write Response */
-    case 0x21: /* Read Multiple Variable Response */
-    case 0x1E: /* Handle Value Confirmation */
-        if (request_data->opcode == opcode -1)
-            return request_data;
-
-        break;
-    case 0x1B: /* Handle Value Notification */
-    case 0x52: /* Write Command */
-    case 0xD2: /* Signed Write Command */
-        /* There is no response for them */
-        return NULL;
-    case 0x02: /* Exchange MTU Request */
-    case 0x04: /* Find Information Request */
-    case 0x06: /* Find By Type Value Request */
-    case 0x08: /* Read By Type Request */
-    case 0x0a: /* Read Request */
-    case 0x0c: /* Read Blob Request */
-    case 0x0e: /* Read Multiple Request */
-    case 0x10: /* Read By Group Type Request */
-    case 0x12: /* Write Request */
-    case 0x16: /* Prepare Write Request */
-    case 0x18: /* Execute Write Request */
-    case 0x1D: /* Handle Value Indication */
-    case 0x20: /* Read Multiple Variable Request */
-        /* This should never happen */
-    default:
-        return NULL;
+            default:
+                break;
+        }
     }
 
     return NULL;
@@ -11673,7 +11666,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
     }
 
-    if (request_data && request_data->opcode == (opcode - 1)) {
+    if (request_data) {
         if (request_data->request_in_frame > 0  && request_data->request_in_frame != pinfo->num) {
             sub_item = proto_tree_add_uint(main_tree, hf_request_in_frame, tvb, 0, 0, request_data->request_in_frame);
             proto_item_set_generated(sub_item);
@@ -11684,6 +11677,11 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (request_data->response_in_frame > 0 && request_data->response_in_frame != pinfo->num) {
             sub_item = proto_tree_add_uint(main_tree, hf_response_in_frame, tvb, 0, 0, request_data->response_in_frame);
             proto_item_set_generated(sub_item);
+        }
+        else if (request_data->response_in_frame == 0 && request_data->request_in_frame == pinfo->num)
+        {
+            /* So far, no response has been seen for this request. */
+            expert_add_info(pinfo, main_item, &ei_btatt_incomplete_transaction);
         }
     }
 
@@ -17589,6 +17587,7 @@ proto_register_btatt(void)
         { &ei_btatt_bad_data,               { "btatt.bad_data",                       PI_PROTOCOL,  PI_WARN, "Bad Data", EXPFILL }},
         { &ei_btatt_unexpected_data,        { "btatt.unexpected_data",                PI_PROTOCOL,  PI_WARN, "Unexpected Data", EXPFILL }},
         { &ei_btatt_undecoded,              { "btatt.undecoded",                      PI_UNDECODED, PI_NOTE, "Undecoded", EXPFILL }},
+        { &ei_btatt_incomplete_transaction, { "btatt.incomplete_transaction",         PI_SEQUENCE,  PI_WARN, "Incomplete ATT transaction", EXPFILL }},
     };
 
     static build_valid_func btatt_handle_da_build_value[1] = {btatt_handle_value};
