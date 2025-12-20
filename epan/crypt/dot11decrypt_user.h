@@ -143,7 +143,6 @@ typedef struct _DOT11DECRYPT_KEY_ITEM {
 			uint8_t PtkLen;
 			uint8_t Akm;
 			uint8_t Cipher;
-			uint16_t DhGroup;
 		} Wpa;
 
 	} KeyData;
