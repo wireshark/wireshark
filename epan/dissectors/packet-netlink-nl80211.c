@@ -4242,11 +4242,17 @@ static int hf_nl80211_ifname;
 static int hf_nl80211_mac;
 static int hf_nl80211_alpha2;
 static int hf_nl80211_dbm;
+static int hf_nl80211_software_iftypes;
+static int hf_nl80211_bss_param;
+static int hf_nl80211_supported_commands;
 static int hf_nl80211_mlo_links;
 
 static int ett_nl80211;
 static int ett_nl80211_frame;
 static int ett_nl80211_tag;
+static int ett_nl80211_software_iftypes;
+static int ett_nl80211_bss_param;
+static int ett_nl80211_supported_commands;
 static int ett_nl80211_mlo_links;
 
 static int
@@ -4524,12 +4530,20 @@ dissect_nl80211_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_
         { WS_NL80211_ATTR_NAN_FUNC, &hf_nl80211_nan_func_attributes, &ett_nl80211_nan_func_attributes, NULL },
         { WS_NL80211_ATTR_NAN_MATCH, &hf_nl80211_nan_match_attributes, &ett_nl80211_nan_match_attributes, NULL },
         { WS_NL80211_ATTR_TXQ_STATS, &hf_nl80211_txq_stats, &ett_nl80211_txq_stats, NULL },
+        { WS_NL80211_ATTR_SOFTWARE_IFTYPES, &hf_nl80211_software_iftypes, &ett_nl80211_software_iftypes, NULL },
+        { WS_NL80211_ATTR_BSS_PARAM, &hf_nl80211_bss_param, &ett_nl80211_bss_param, NULL },
+        { WS_NL80211_ATTR_NAN_CAPABILITIES, &hf_nl80211_nan_capabilities, &ett_nl80211_nan_capabilities, NULL },
+        /* Contain nested nl80211_commands */
+        { WS_NL80211_ATTR_SUPPORTED_COMMANDS, &hf_nl80211_supported_commands, &ett_nl80211_supported_commands, NULL },
         { 0, NULL, NULL, NULL }
     };
     static const struct attr_lookup nested_arr[] = {
+        /* Contain nested arrays of other nl80211 enums */
         { WS_NL80211_ATTR_WIPHY_TXQ_PARAMS, &hf_nl80211_txq_attr, &ett_nl80211_txq_attr, NULL },
         { WS_NL80211_ATTR_WIPHY_BANDS, &hf_nl80211_band_attr, &ett_nl80211_band_attr, dissect_nl80211_band_attr },
         { WS_NL80211_ATTR_REG_RULES, &hf_nl80211_reg_rule_attr, &ett_nl80211_reg_rule_attr, NULL },
+        { WS_NL80211_ATTR_WIPHY_RADIOS, &hf_nl80211_wiphy_radio_attrs, &ett_nl80211_wiphy_radio_attrs, NULL },
+        /* Contain nested arrays of nl80211_attrs */
         { WS_NL80211_ATTR_MLO_LINKS, &hf_nl80211_mlo_links, &ett_nl80211_mlo_links, NULL },
         { 0, NULL, NULL, NULL }
     };
@@ -4692,6 +4706,24 @@ proto_register_netlink_nl80211(void)
             { "dBm", "nl80211.dbm",
               FT_INT32, BASE_DEC, NULL, 0x00,
               NULL, HFILL }
+        },
+        { &hf_nl80211_software_iftypes,
+            { "Attribute Type", "nl80211.software_iftypes",
+              FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+              VALS_EXT_PTR(&ws_nl80211_iftype_vals_ext), 0x00,
+              NULL, HFILL },
+        },
+        { &hf_nl80211_bss_param,
+            { "Attribute Type", "nl80211.bss_param",
+              FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+              VALS_EXT_PTR(&ws_nl80211_attrs_vals_ext), 0x00,
+              NULL, HFILL },
+        },
+        { &hf_nl80211_supported_commands,
+            { "Attribute Type", "nl80211.supported_commands",
+              FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+              VALS_EXT_PTR(&ws_nl80211_commands_vals_ext), 0x00,
+              NULL, HFILL },
         },
         { &hf_nl80211_mlo_links,
             { "Attribute Type", "nl80211.mlo_links",
