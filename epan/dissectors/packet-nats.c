@@ -758,6 +758,7 @@ static int dissect_nats_unsub(tvbuff_t* tvb, int offset, int next_offset,
     nats_request_token_t tokens[3] = {0};
 
     bool has_max_msgs = false;
+    uint64_t max_msgs = 0;
 
     size_t num_tokens =
         nats_parse_tokens(tvb, offset, next_offset, pinfo, tokens, array_length(tokens));
@@ -785,9 +786,11 @@ static int dissect_nats_unsub(tvbuff_t* tvb, int offset, int next_offset,
 
     if (has_max_msgs)
     {
-        proto_tree_add_string(
-            pdu_tree, hf_nats_max_msgs, tvb, tokens[TOKEN_MAX_MSGS].offset,
-            tokens[TOKEN_MAX_MSGS].length, tokens[TOKEN_MAX_MSGS].value);
+        if (!ws_strtou64(tokens[TOKEN_MAX_MSGS].value, NULL, &max_msgs))
+            return 0;
+
+        proto_tree_add_uint64(pdu_tree, hf_nats_max_msgs, tvb, tokens[TOKEN_MAX_MSGS].offset,
+                              tokens[TOKEN_MAX_MSGS].length, max_msgs);
     }
 
     return next_offset - offset;
@@ -1118,7 +1121,7 @@ void proto_register_nats(void)
         {
             &hf_nats_max_msgs,
             {
-                "Max Messages", "nats.subscription.max_msgs", FT_STRING, BASE_NONE,
+                "Max Messages", "nats.subscription.max_msgs", FT_UINT64, BASE_DEC,
                 NULL, 0x0, "NATS message count after which subscription is automatically unsubscribed", HFILL
             }
         },
