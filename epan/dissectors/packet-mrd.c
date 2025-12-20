@@ -228,7 +228,7 @@ dissect_mrd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	/* type of command */
 	item = proto_tree_add_uint(tree, hf_type, tvb, offset, 1, type);
 	offset += 1;
-	if (!in4_addr_is_local_network_control_block(pntohu32(pinfo->dst.data))) {
+	if ((pinfo->dst.type == AT_IPv4) && !in4_addr_is_local_network_control_block(pntohu32(pinfo->dst.data))) {
 		proto_tree_add_expert(tree, pinfo, &ei_mrd_dest_not_local, tvb, 0, 0);
 	}
 
