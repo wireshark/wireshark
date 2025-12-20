@@ -21958,7 +21958,7 @@ void QCPGraph::getOptimizedScatterData(QVector<QCPGraphData> *scatterData, QCPGr
     {
       // determine value pixel span and add as many points in interval to maintain certain vertical data density (this is specific to scatter plot):
       //   [ However, make sure that the span is at least 1 pixel ]
-      double valuePixelSpan = qAbs(valueAxis->coordToPixel(minValue)-valueAxis->coordToPixel(maxValue));
+      double valuePixelSpan = qMax(1.0, qAbs(valueAxis->coordToPixel(minValue)-valueAxis->coordToPixel(maxValue)));
       double pointsToAdd = valuePixelSpan/4.0; // add approximately one data point for every 4 value pixels
       int dataModulo = qMax(1, qRound(intervalDataCount/pointsToAdd));
       QCPGraphDataContainer::const_iterator intervalIt = currentIntervalStart;
