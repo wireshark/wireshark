@@ -54,7 +54,8 @@ struct sack_chunk_header {
     uint32_t a_rwnd;
     uint16_t nr_of_gaps;
     uint16_t nr_of_dups;
-    struct gaps gaps[1];
+    struct gaps gaps[1]; /**< A Flexible Array Member (standard C, not standard C++) */
+    /* Another unnamed FAM of uint32_t for the TSN duplicates follows the first one */
 };
 
 struct nr_sack_chunk_header {
@@ -67,7 +68,7 @@ struct nr_sack_chunk_header {
     uint16_t nr_of_nr_gaps;
     uint16_t nr_of_dups;
     uint16_t reserved;
-    struct gaps gaps[1];
+    struct gaps gaps[1]; /**< A Flexible Array Member (standard C, not standard C++) */
 };
 
 
