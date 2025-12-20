@@ -115,6 +115,16 @@ class TestDecrypt80211:
         assert grep_output(stdout, 'Who has 192.168.5.18')
         assert grep_output(stdout, 'DHCP ACK')
 
+    def test_80211_wpa3_sae_ext_key(self, cmd_tshark, capture_file, test_env):
+        '''IEEE 802.11 decode WPA3 SAE-EXT-KEY(AKM 24)'''
+        # Included in git sources test/captures/wpa3-sae-ext-key-group21.pcapng.gz
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa3-sae-ext-key-group21.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == f0d79982c2a678693b44bbfde2eee36b76d9ac7bcb270b55d4858a70a18ef3a0 || wlan.analysis.gtk == 1fe4c4d597575ec77be57abb49616fcd32e422662af3d45c72c88cbd650cb4e5',
+                ), encoding='utf-8', env=test_env)
+        assert count_output(stdout, 'MDNS') == 2
+
     def test_80211_owe(self, cmd_tshark, capture_file, test_env):
         '''IEEE 802.11 decode OWE'''
         # Included in git sources test/captures/owe.pcapng.gz
@@ -125,6 +135,16 @@ class TestDecrypt80211:
                 ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'Who has 192.168.5.2')
         assert grep_output(stdout, 'DHCP ACK')
+
+    def test_80211_owe_3_dh_groups(self, cmd_tshark, capture_file, test_env):
+        '''IEEE 802.11 decode OWE with 3 different DH groups'''
+        # Included in git sources test/captures/owe-3-dh-groups.pcapng.gz
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('owe-3-dh-groups.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == 6523749ac51e4c11cdf9e53f1e8ba7c3 || wlan.analysis.tk == b1883005f85f80d7e8bbbd0b6cb906fc || wlan.analysis.tk == 7cd42e3f1934e3e69a0c852add028c21',
+                ), encoding='utf-8', env=test_env)
+        assert count_output(stdout, 'ICMP.*Echo') == 3
 
     def test_80211_wpa3_suite_b_192(self, cmd_tshark, capture_file, test_env):
         '''IEEE 802.11 decode WPA3 Suite B 192-bit'''
@@ -279,6 +299,17 @@ class TestDecrypt80211:
         assert count_output(stdout, 'ARP.*Who has') == 4
         assert count_output(stdout, 'ARP.*is at') == 2
         assert count_output(stdout, r'ICMP.*Echo \(ping\)') == 4
+
+    def test_80211_wpa3_ft_sae_ext_key_group20(self, cmd_tshark, capture_file, test_env):
+        '''IEEE 802.11 decode WPA3 FT-SAE-EXT-KEY(AKM 25) with ECP group 20'''
+        # Included in git sources test/captures/wpa3-ft-sae-ext-key-group20.pcapng.gz
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa3-ft-sae-ext-key-group20.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == f6477a5a12c6be6fd59832069d25c075 || wlan.analysis.gtk == 7dc25192472b459870454a0459900b07 || wlan.analysis.tk == c437fa5c5fdd099e22a504e1718b8f5d || wlan.analysis.gtk == 2c5eea124efc9b8afd468956349fac2f',
+                ), encoding='utf-8', env=test_env)
+        assert count_output(stdout, 'ICMP') == 4
 
 class TestDecrypt80211UserTk:
     def test_80211_user_tk_tkip(self, cmd_tshark, capture_file, test_env_80211_user_tk):

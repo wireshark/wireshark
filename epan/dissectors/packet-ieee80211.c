@@ -22457,6 +22457,7 @@ static bool is_ft_akm_suite(uint32_t akm_suite)
     case AKMS_FT_IEEE802_1X_SHA384:
     case AKMS_FT_FILS_SHA256:
     case AKMS_FT_FILS_SHA384:
+    case AKMS_FT_SAE_GROUP_DEPEND:
       return true;
     default:
       return false;
@@ -23480,7 +23481,7 @@ static bool determine_nonce_is_set(tvbuff_t *tvb) {
 }
 
 static uint16_t determine_mic_len(packet_info *pinfo, bool assoc_frame,
-                                 bool *defaulted) {
+                                 bool *defaulted, bool *group_depend) {
   uint16_t eapol_key_mic_len = 16; /* Default MIC length */
   conversation_t *conversation = find_wlan_conversation_pinfo(pinfo);
   ieee80211_conversation_data_t *conversation_data = NULL;
@@ -23508,9 +23509,11 @@ static uint16_t determine_mic_len(packet_info *pinfo, bool assoc_frame,
     /* 3rd - Use AKMS negotiated during association to determine MIC length */
     if (conversation_data->last_akm_suite == AKMS_OWE) {
       /* For OWE the length of MIC depends on the selected group */
+      *group_depend = true;
       eapol_key_mic_len = get_mic_len_owe(conversation_data->owe_group);
     } else if (conversation_data->last_akm_suite == AKMS_SAE_GROUP_DEPEND ||
                conversation_data->last_akm_suite == AKMS_FT_SAE_GROUP_DEPEND) {
+      *group_depend = true;
       *defaulted = true;
     }
     else {
@@ -23521,9 +23524,11 @@ static uint16_t determine_mic_len(packet_info *pinfo, bool assoc_frame,
     /* 3rd - Use AKMS from current packet to determine MIC length */
     if (packet_data->last_akm_suite == AKMS_OWE) {
       /* For OWE the length of MIC depends on the selected group */
+      *group_depend = true;
       eapol_key_mic_len = get_mic_len_owe(packet_data->owe_group);
     } else if (packet_data->last_akm_suite == AKMS_SAE_GROUP_DEPEND ||
                packet_data->last_akm_suite == AKMS_FT_SAE_GROUP_DEPEND) {
+      *group_depend = true;
       *defaulted = true;
     }
     else {
@@ -23545,20 +23550,31 @@ dissect_fast_bss_transition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   bool assoc_frame = field_data->sanity_check != NULL;
   int offset = 0;
+  uint64_t mic_control;
   if (tag_len < 82) {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
                           "FTIE content length must be at least 82 bytes");
     return 1;
   }
 
-  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_ft_mic_control,
+  proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_ieee80211_tag_ft_mic_control,
                                     ett_tag_ft_mic_control_tree,
                                     ieee80211_tag_ft_mic_control_fields,
-                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND, &mic_control);
   offset += 2;
 
-  bool defaulted_mic_len = false;
-  int mic_len = determine_mic_len(pinfo, assoc_frame, &defaulted_mic_len);
+  bool defaulted_mic_len = false, group_depended_mic_len = false;
+  int mic_len = determine_mic_len(pinfo, assoc_frame, &defaulted_mic_len, &group_depended_mic_len);
+  if (group_depended_mic_len) {
+    /* IEEE 802.11-2024 9.4.2.46 FTE, Table 9-220 MIC Length subfield values */
+    uint8_t mic_len_field = (mic_control & 0x0e) >> 1; /* B1 to B3 */
+    if (mic_len_field == 0)
+        mic_len = 16;
+    else if (mic_len_field == 1)
+      mic_len = 24;
+    else if (mic_len_field == 2)
+      mic_len = 32;
+  }
   save_proto_data(tvb, pinfo, offset, mic_len, FTE_MIC_KEY);
   save_proto_data_value(pinfo, mic_len, FTE_MIC_LEN_KEY);
   proto_tree_add_item(tree, hf_ieee80211_tag_ft_mic,
@@ -42579,8 +42595,8 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   };
   uint16_t eapol_data_offset = 76;  /* 92 - 16 */
   bool has_nonce = determine_nonce_is_set(tvb);
-  bool defaulted_mic_len = false;
-  uint16_t eapol_key_mic_len = determine_mic_len(pinfo, false, &defaulted_mic_len);
+  bool defaulted_mic_len = false, group_depended_mic_len = false;
+  uint16_t eapol_key_mic_len = determine_mic_len(pinfo, false, &defaulted_mic_len, &group_depended_mic_len);
   save_proto_data_value(pinfo, eapol_key_mic_len, MIC_LEN_KEY);
   eapol_data_offset += eapol_key_mic_len;
   DOT11DECRYPT_HS_MSG_TYPE msg_type = DOT11DECRYPT_HS_MSG_TYPE_INVALID;
@@ -42614,7 +42630,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       if (defaulted_mic_len) {
         discover_key_mic_len1(tvb, pinfo, 76);
         /* Must reset the MIC len */
-        eapol_key_mic_len = determine_mic_len(pinfo, false, &defaulted_mic_len);
+        eapol_key_mic_len = determine_mic_len(pinfo, false, &defaulted_mic_len, &group_depended_mic_len);
         save_proto_data_value(pinfo, eapol_key_mic_len, MIC_LEN_KEY);
         eapol_data_offset = 76 + eapol_key_mic_len;
         eapol_data_len = tvb_get_ntohs(tvb, offset + eapol_data_offset);
@@ -42631,7 +42647,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       /* Get correct MIC LEN if there is no M1 and M2 */
       if (defaulted_mic_len) {
         discover_key_mic_len2(tvb, pinfo, 76);
-        eapol_key_mic_len = determine_mic_len(pinfo, false, &defaulted_mic_len);
+        eapol_key_mic_len = determine_mic_len(pinfo, false, &defaulted_mic_len, &group_depended_mic_len);
         save_proto_data_value(pinfo, eapol_key_mic_len, MIC_LEN_KEY);
         eapol_data_offset = 76 + eapol_key_mic_len;
         eapol_data_len = tvb_get_ntohs(tvb, offset + eapol_data_offset);
@@ -42660,7 +42676,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
         if (defaulted_mic_len) {
           discover_key_mic_len2(tvb, pinfo, 76);
-          eapol_key_mic_len = determine_mic_len(pinfo, false, &defaulted_mic_len);
+          eapol_key_mic_len = determine_mic_len(pinfo, false, &defaulted_mic_len, &group_depended_mic_len);
           save_proto_data_value(pinfo, eapol_key_mic_len, MIC_LEN_KEY);
           eapol_data_offset = 76 + eapol_key_mic_len;
           eapol_data_len = tvb_get_ntohs(tvb, offset + eapol_data_offset);

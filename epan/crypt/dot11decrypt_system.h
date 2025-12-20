@@ -28,8 +28,8 @@
 
 /*	Decryption algorithms fields size definition (bytes)		*/
 #define	DOT11DECRYPT_WPA_NONCE_LEN		         32
-#define	DOT11DECRYPT_WPA_PTK_MAX_LEN			 88	/* TKIP 48, CCMP 64, GCMP-256 88 bytes */
-#define	DOT11DECRYPT_WPA_MICKEY_MAX_LEN			 24
+#define	DOT11DECRYPT_WPA_PTK_MAX_LEN			 96	/* TKIP 48, AKM 18/24/25 96 */
+#define	DOT11DECRYPT_WPA_MICKEY_MAX_LEN			 32
 
 #define	DOT11DECRYPT_WEP_128_KEY_LEN	         16	/* 128 bits	*/
 
@@ -114,6 +114,7 @@ typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
 		int akm;
 		int cipher;
 		int tmp_group_cipher; /* Keep between HS msg 2 and 3 */
+		int pmk_len;
 		unsigned char ptk[DOT11DECRYPT_WPA_PTK_MAX_LEN]; /* session key used in decryption algorithm */
 	    int ptk_len;
 	} wpa;

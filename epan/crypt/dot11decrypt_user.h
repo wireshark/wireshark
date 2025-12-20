@@ -50,7 +50,7 @@
 #define	DOT11DECRYPT_WPA_PASSPHRASE_MAX_LEN	63	/* null-terminated string, the actual length of the storage is 64	*/
 #define	DOT11DECRYPT_WPA_SSID_MIN_LEN			0
 #define	DOT11DECRYPT_WPA_SSID_MAX_LEN			32
-#define	DOT11DECRYPT_WPA_PMK_MAX_LEN				48
+#define	DOT11DECRYPT_WPA_PMK_MAX_LEN				64
 #define	DOT11DECRYPT_WPA_PWD_PSK_LEN				32
 #define	DOT11DECRYPT_TK_MAX_LEN					32
 #define DOT11DECRYPT_MSK_MIN_LEN				64
