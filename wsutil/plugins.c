@@ -26,6 +26,10 @@
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 
+#ifdef HAVE_VALGRIND_H
+#include <valgrind/valgrind.h>
+#endif
+
 typedef struct _plugin {
     GModule        *handle;       /* handle returned by g_module_open */
     char           *name;         /* plugin name */
@@ -229,9 +233,11 @@ DIAG_ON_PEDANTIC
         ws_info("Registered plugin: %s (%s)", new_plug->name, plugin_file);
         g_free(plugin_file);
 #if defined (ENABLE_ASAN) || defined (ENABLE_LSAN)
-        // XXX - Look for valgrind.h so we can also check RUNNING_ON_VALGRIND?
-        // https://valgrind.org/docs/manual/manual-core-adv.html
         g_module_make_resident(handle);
+#elif defined(HAVE_VALGRIND_H)
+        // https://valgrind.org/docs/manual/manual-core-adv.html
+        if (RUNNING_ON_VALGRIND)
+            g_module_make_resident(handle);
 #endif
     }
     ws_dir_close(dir);

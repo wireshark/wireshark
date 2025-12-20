@@ -321,6 +321,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
 
+/* Define to 1 if you have the <valgrind/valgrind.h> header file. */
+#cmakedefine HAVE_VALGRIND_H 1
+
 /* Define if we have QtMultimedia */
 #cmakedefine QT_MULTIMEDIA_LIB 1
 

@@ -28,6 +28,8 @@ check_include_file("sys/utsname.h"          HAVE_SYS_UTSNAME_H)
 check_include_file("sys/wait.h"             HAVE_SYS_WAIT_H)
 check_include_file("unistd.h"               HAVE_UNISTD_H)
 
+check_include_file("valgrind/valgrind.h"    HAVE_VALGRIND_H)
+
 # Check that the C compiler works on a trivial program.
 # Do this early on before more specific tests so we can give
 # an appropriate error message.
