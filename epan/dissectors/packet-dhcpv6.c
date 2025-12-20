@@ -2766,7 +2766,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             proto_item *fi = NULL;
             proto_tree *flags_tree = NULL;
             char       *flags_str= NULL, *suffix;
-            bool        is_client;
+            bool        is_client = false;
             proto_item *exi;
             proto_tree *ex_subtree;
 
@@ -2775,16 +2775,24 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
              * [RFC 4704 Section 5.]
              * Servers MUST only include a OPTION_CLIENT_FQDN in ADVERTISE and REPLY messages.
              * [RFC 4704 Section 6.]
+             * The ADDR-REG-INFORM message ... MAY include other options, such as the Client FQDN option [RFC4704].
+             * [RFC 9686 §4.2]
              */
-            if (msgtype == SOLICIT || msgtype == REQUEST || msgtype == RENEW || msgtype == REBIND)
+            switch (msgtype) {
+            case SOLICIT:
+            case REQUEST:
+            case RENEW:
+            case REBIND:
+            case ADDR_REG_INFORM:
                 is_client = true;
-            else if (msgtype == ADVERTISE || msgtype == REPLY)
-                is_client = false;
-            else {
+                break;
+            case ADVERTISE:
+            case REPLY:
+                break;
+            default:
                 exi = proto_tree_add_uint_format(subtree, hf_clientfqdn_bad_msgtype, tvb, off-4, 1,
                         msgtype,
-                        "Only the following message types are permitted to use OPTION_CLIENT_FQDN:\n"
-                        "SOLICIT, REQUEST, RENEW, REBIND, ADVERTISE, and REPLY");
+                        "OPTION_CLIENT_FQDN not permitted in this message type.");
                 ex_subtree = proto_item_add_subtree(exi, ett_clientfqdn_expert);
                 proto_tree_add_expert(ex_subtree, pinfo, &ei_dhcpv6_clientfqdn_bad_msgtype, tvb, off-4, 1);
                 break;
@@ -2838,7 +2846,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                     "0x%02x  %s%s", flags, flags_str, suffix);
             flags_tree = proto_item_add_subtree(fi, ett_clientfqdn_flags);
 
-        if (is_client) {
+            if (is_client) {
                 proto_tree_add_item(flags_tree, hf_clientfqdn_client_n, tvb, off, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(flags_tree, hf_clientfqdn_client_s, tvb, off, 1, ENC_BIG_ENDIAN);
             }
@@ -4112,8 +4120,8 @@ proto_register_dhcpv6(void)
         { &ei_dhcpv6_invalid_time_value, { "dhcpv6.invalid_time_value", PI_PROTOCOL, PI_WARN, "Invalid time value", EXPFILL }},
         { &ei_dhcpv6_invalid_type, { "dhcpv6.invalid_type", PI_PROTOCOL, PI_WARN, "Invalid type", EXPFILL }},
         { &ei_dhcpv6_error_hopcount, { "dhcpv6.error_hopcount", PI_PROTOCOL, PI_WARN, "Detected error on hop-count", EXPFILL }},
-        { &ei_dhcpv6_clientfqdn_bad_msgtype, { "dhcpv6.bad_msgtype", PI_PROTOCOL, PI_ERROR,
-                                    "This message type is not permitted to use OPTION_CLIENT_FQDN", EXPFILL }},
+        { &ei_dhcpv6_clientfqdn_bad_msgtype, { "dhcpv6.bad_msgtype", PI_PROTOCOL, PI_WARN,
+                  "WARNING: This message type is not permitted to use OPTION_CLIENT_FQDN", EXPFILL }},
         { &ei_dhcpv6_s_bit_should_be_zero, { "dhcpv6.s_bit_should_be_zero", PI_PROTOCOL, PI_ERROR,
                                     "ERROR: When the N-bit is set, the S-bit must be reset", EXPFILL }},
         { &ei_dhcpv6_dnr_adn_only_mode, { "dhcpv6.expert.dnr_adn_only_mode", PI_COMMENTS_GROUP, PI_CHAT,
