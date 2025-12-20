@@ -576,7 +576,8 @@ void RtpAnalysisDialog::on_actionGoToPacket_triggered()
     QTreeWidgetItem *ti = cur_tree->selectedItems()[0];
     if (ti->type() != rtp_analysis_type_) return;
 
-    RtpAnalysisTreeWidgetItem *ra_ti = dynamic_cast<RtpAnalysisTreeWidgetItem *>((RtpAnalysisTreeWidgetItem *)ti);
+    RtpAnalysisTreeWidgetItem *ra_ti = dynamic_cast<RtpAnalysisTreeWidgetItem *>(ti);
+    if (ra_ti == nullptr) return;
     emit goToPacket(ra_ti->frameNum());
 }
 
@@ -598,7 +599,8 @@ void RtpAnalysisDialog::on_actionNextProblem_triggered()
     QTreeWidgetItem *test_ti = cur_tree->itemBelow(sel_ti);
     if (!test_ti) test_ti = cur_tree->topLevelItem(0);
     while (test_ti != sel_ti) {
-        RtpAnalysisTreeWidgetItem *ra_ti = dynamic_cast<RtpAnalysisTreeWidgetItem *>((RtpAnalysisTreeWidgetItem *)test_ti);
+        RtpAnalysisTreeWidgetItem *ra_ti = dynamic_cast<RtpAnalysisTreeWidgetItem *>(test_ti);
+        if (ra_ti == nullptr) continue;
         if (!ra_ti->frameStatus()) {
             cur_tree->setCurrentItem(ra_ti);
             break;
@@ -878,7 +880,8 @@ void RtpAnalysisDialog::saveCsvData(QFile *save_file, QTreeWidget *tree)
     for (int row = 0; row < tree->topLevelItemCount(); row++) {
         QTreeWidgetItem *ti = tree->topLevelItem(row);
         if (ti->type() != rtp_analysis_type_) continue;
-        RtpAnalysisTreeWidgetItem *ra_ti = dynamic_cast<RtpAnalysisTreeWidgetItem *>((RtpAnalysisTreeWidgetItem *)ti);
+        RtpAnalysisTreeWidgetItem *ra_ti = dynamic_cast<RtpAnalysisTreeWidgetItem *>(ti);
+        if (ra_ti == nullptr) continue;
         QStringList values;
         foreach (QVariant v, ra_ti->rowData()) {
             if (!v.isValid()) {

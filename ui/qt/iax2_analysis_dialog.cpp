@@ -458,7 +458,8 @@ void Iax2AnalysisDialog::on_actionGoToPacket_triggered()
     QTreeWidgetItem *ti = cur_tree->selectedItems()[0];
     if (ti->type() != iax2_analysis_type_) return;
 
-    Iax2AnalysisTreeWidgetItem *ra_ti = dynamic_cast<Iax2AnalysisTreeWidgetItem *>((Iax2AnalysisTreeWidgetItem *)ti);
+    Iax2AnalysisTreeWidgetItem *ra_ti = dynamic_cast<Iax2AnalysisTreeWidgetItem *>(ti);
+    if (ra_ti == nullptr) return;
     emit goToPacket(ra_ti->frameNum());
 }
 
@@ -477,7 +478,8 @@ void Iax2AnalysisDialog::on_actionNextProblem_triggered()
     QTreeWidgetItem *test_ti = cur_tree->itemBelow(sel_ti);
     while (test_ti != sel_ti) {
         if (!test_ti) test_ti = cur_tree->topLevelItem(0);
-        Iax2AnalysisTreeWidgetItem *ra_ti = dynamic_cast<Iax2AnalysisTreeWidgetItem *>((Iax2AnalysisTreeWidgetItem *)test_ti);
+        Iax2AnalysisTreeWidgetItem *ra_ti = dynamic_cast<Iax2AnalysisTreeWidgetItem *>(test_ti);
+        if (ra_ti == nullptr) continue;
         if (!ra_ti->frameStatus()) {
             cur_tree->setCurrentItem(ra_ti);
             break;
@@ -1161,7 +1163,8 @@ void Iax2AnalysisDialog::saveCsv(Iax2AnalysisDialog::StreamDirection direction)
         for (int row = 0; row < ui->forwardTreeWidget->topLevelItemCount(); row++) {
             QTreeWidgetItem *ti = ui->forwardTreeWidget->topLevelItem(row);
             if (ti->type() != iax2_analysis_type_) continue;
-            Iax2AnalysisTreeWidgetItem *ra_ti = dynamic_cast<Iax2AnalysisTreeWidgetItem *>((Iax2AnalysisTreeWidgetItem *)ti);
+            Iax2AnalysisTreeWidgetItem *ra_ti = dynamic_cast<Iax2AnalysisTreeWidgetItem *>(ti);
+            if (ra_ti == nullptr) continue;
             QStringList values;
             foreach (QVariant v, ra_ti->rowData()) {
                 if (!v.isValid()) {
@@ -1185,7 +1188,7 @@ void Iax2AnalysisDialog::saveCsv(Iax2AnalysisDialog::StreamDirection direction)
         for (int row = 0; row < ui->reverseTreeWidget->topLevelItemCount(); row++) {
             QTreeWidgetItem *ti = ui->reverseTreeWidget->topLevelItem(row);
             if (ti->type() != iax2_analysis_type_) continue;
-            Iax2AnalysisTreeWidgetItem *ra_ti = dynamic_cast<Iax2AnalysisTreeWidgetItem *>((Iax2AnalysisTreeWidgetItem *)ti);
+            Iax2AnalysisTreeWidgetItem *ra_ti = dynamic_cast<Iax2AnalysisTreeWidgetItem *>(ti);
             QStringList values;
             foreach (QVariant v, ra_ti->rowData()) {
                 if (!v.isValid()) {
