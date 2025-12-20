@@ -993,7 +993,20 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 	offset += 1;
 
 	/* Length */
-	proto_tree_add_item(avp_tree,hf_diameter_avp_len,tvb,offset,3,ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(avp_tree,hf_diameter_avp_len,tvb,offset,3,ENC_BIG_ENDIAN);
+	if (len < (vendor_flag ? 12U : 8U)) {
+		/*
+		 * "[I]ncluding the AVP Code field, AVP Length field, AVP Flags
+		 * field, Vendor-ID field (if present), and the AVP Data field.
+		 * If a message is received with an invalid attribute length,
+		 * the message MUST be rejected" - RFC 6733, 4.1 AVP Header
+		 */
+		expert_add_info_format(c->pinfo, pi, &ei_diameter_invalid_avp_len,
+			"Invalid AVP length %u < %u",
+			len, 8 + (vendor_flag?4:0));
+		// Throw(ReportedBoundsError)?
+		return tvb_reported_length(tvb);
+	}
 	offset += 3;
 
 	/* Vendor flag */
