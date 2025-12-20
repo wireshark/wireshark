@@ -2176,7 +2176,11 @@ dissecting_body:
 		 * which, if no content length was specified,
 		 * is -1, i.e. "to the end of the frame.
 		 */
-		next_tvb = tvb_new_subset_length(tvb, offset, reported_datalen);
+		if (reported_datalen == -1) {
+			next_tvb = tvb_new_subset_remaining(tvb, offset);
+		} else {
+			next_tvb = tvb_new_subset_length(tvb, offset, reported_datalen);
+		}
 
 		/*
 		 * Handle *transfer* encodings.

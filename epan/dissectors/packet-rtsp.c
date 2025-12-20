@@ -1476,8 +1476,11 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * which, if no content length was specified,
          * is -1, i.e. "to the end of the frame.
          */
-        new_tvb = tvb_new_subset_length_caplen(tvb, offset, datalen,
-                reported_datalen);
+        if (reported_datalen == -1) {
+            new_tvb = tvb_new_subset_remaining(tvb, offset);
+        } else {
+            new_tvb = tvb_new_subset_length(tvb, offset, reported_datalen);
+        }
 
         /*
          * Check if next line is RTSP message - pipelining

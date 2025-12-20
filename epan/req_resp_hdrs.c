@@ -124,13 +124,15 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			    next_offset);
 
 			/*
-			 * Request one more byte if we cannot find a
-			 * header (i.e. a line end).
+			 * Request one more byte if we cannot find a header
+			 * (i.e. a line end). If the buffer is truncated, we
+			 * cannot desegment and will just take the whole buffer
+			 * if we don't find a line end.
 			 */
 			linelen = tvb_find_line_end(tvb, next_offset,
-			    length_remaining, &next_offset, true);
-			if (linelen == -1 &&
-			    length_remaining >= reported_length_remaining) {
+			    length_remaining, &next_offset,
+			    length_remaining >= reported_length_remaining);
+			if (linelen == -1) {
 				/*
 				 * Not enough data; ask for one more
 				 * byte.
@@ -292,11 +294,10 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				    next_offset);
 
 				linelen = tvb_find_line_end(tvb, next_offset,
-						length_remaining, &chunk_offset, true);
+				    length_remaining, &chunk_offset,
+				    length_remaining >= reported_length_remaining);
 
-				if (linelen == -1 &&
-				    length_remaining >=
-				    reported_length_remaining) {
+				if (linelen == -1) {
 					 pinfo->desegment_offset = offset;
 					 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 					 return false;
@@ -342,11 +343,10 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					 * trailing CRLF.
 					 */
 					linelen = tvb_find_line_end(tvb,
-					    chunk_offset, length_remaining, &chunk_offset, true);
+					    chunk_offset, length_remaining, &chunk_offset,
+					    length_remaining >= reported_length_remaining);
 
-					if (linelen == -1 &&
-					    length_remaining >=
-					    reported_length_remaining) {
+					if (linelen == -1) {
 						pinfo->desegment_offset = offset;
 						pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 						return false;
