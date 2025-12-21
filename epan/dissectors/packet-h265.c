@@ -1874,9 +1874,9 @@ dissect_h265_slice_segment_header(proto_tree *tree, tvbuff_t *tvb, packet_info *
 	unsigned MinCbLog2SizeY = log2_min_luma_coding_block_size_minus3 + 3;
 	unsigned CtbLog2SizeY = MinCbLog2SizeY + log2_diff_max_min_luma_coding_block_size;
 	unsigned CtbSizeY = 1 << CtbLog2SizeY;
-	double PicWidthInCtbsY = ceil(pic_width_in_luma_samples / CtbSizeY);
-        double PicHeightInCtbsY = ceil(pic_height_in_luma_samples / CtbSizeY);
-        double PicSizeInCtbsY = PicWidthInCtbsY * PicHeightInCtbsY;
+	double PicWidthInCtbsY = ceil((double)pic_width_in_luma_samples / CtbSizeY);
+	double PicHeightInCtbsY = ceil((double)pic_height_in_luma_samples / CtbSizeY);
+	double PicSizeInCtbsY = PicWidthInCtbsY * PicHeightInCtbsY;
 	unsigned nBits = (unsigned)(ceil(log2(PicSizeInCtbsY)));
 	unsigned i;
 
