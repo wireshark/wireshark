@@ -1611,7 +1611,6 @@ dissect_ntlmv2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 static int
 dissect_ntlmssp_negotiate (tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *ntlmssp_tree, ntlmssp_header_t *ntlmssph _U_)
 {
-  bool    unicode_strings = false;
   uint32_t negotiate_flags;
   int     data_start;
   int     data_end;
@@ -1623,19 +1622,26 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, packet_info* pinfo, int offset, proto_
   proto_tree_add_bitmask(ntlmssp_tree, tvb, offset, hf_ntlmssp_negotiate_flags, ett_ntlmssp_negotiate_flags, ntlmssp_negotiate_flags, ENC_LITTLE_ENDIAN);
   offset += 4;
 
-  if (negotiate_flags & NTLMSSP_NEGOTIATE_UNICODE)
-    unicode_strings = true;
-
+  /* MS-NLMP 2.2.1.1: DomainName MUST be encoded using the OEM character set.
+   * WorkstationName MUST be encoded using the OEM character set.
+   * The Davenport document ("The Type 1 Message") agrees, noting that these
+   * "are always in OEM format, even if Unicode is supported by the client."
+   *
+   * Presumably this is because this is the initial message, so while the
+   * client is offering Unicode support, it has not been negotiated yet.
+   * Note the flags are known as NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED
+   * and NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED.
+   */
   /*
    * XXX - the davenport document says that these might not be
    * sent at all, presumably meaning the length of the message
    * isn't enough to contain them.
    */
-  offset = dissect_ntlmssp_string(tvb, pinfo->pool, offset, ntlmssp_tree, unicode_strings,
+  offset = dissect_ntlmssp_string(tvb, pinfo->pool, offset, ntlmssp_tree, false,
                                   hf_ntlmssp_negotiate_domain,
                                   &data_start, &data_end, NULL);
 
-  offset = dissect_ntlmssp_string(tvb, pinfo->pool, offset, ntlmssp_tree, unicode_strings,
+  offset = dissect_ntlmssp_string(tvb, pinfo->pool, offset, ntlmssp_tree, false,
                                   hf_ntlmssp_negotiate_workstation,
                                   &item_start, &item_end, NULL);
   data_start = MIN(data_start, item_start);
