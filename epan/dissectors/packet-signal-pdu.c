@@ -2158,7 +2158,7 @@ dissect_shifted_and_shortened_uint(tvbuff_t *tvb, int offset, int offset_bits, i
 }
 
 static int
-dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int offset_bits, spdu_signal_item_t *item, int *multiplexer) {
+dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int offset_bits, spdu_signal_item_t *item, int *multiplexer) {
     DISSECTOR_ASSERT(item != NULL);
     DISSECTOR_ASSERT(item->hf_id_effective != NULL);
 
@@ -2169,11 +2169,11 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int         hf_id_effective = 0;
     int         hf_id_raw = 0;
 
-    int offset_end = (int)((8 * offset + offset_bits + item->bitlength_encoded_type) / 8);
-    int offset_end_bits = (int)((8 * offset + offset_bits + item->bitlength_encoded_type) % 8);
+    unsigned offset_end = ((8 * offset + offset_bits + item->bitlength_encoded_type) / 8);
+    unsigned offset_end_bits = ((8 * offset + offset_bits + item->bitlength_encoded_type) % 8);
 
     int string_length = 0;
-    int signal_length = offset_end - offset;
+    unsigned signal_length = offset_end - offset;
     if (offset_end_bits != 0) {
         signal_length++;
     }
@@ -2400,8 +2400,8 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, uint32_t id, bool update_column) {
-    int offset = 0;
-    int offset_bits = 0;
+    unsigned offset = 0;
+    unsigned offset_bits = 0;
     int bits_parsed = 0;
     int multiplexer = -1;
 
@@ -2442,7 +2442,7 @@ dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, u
         return tvb_captured_length(tvb);
     }
 
-    int length = tvb_captured_length_remaining(tvb, 0);
+    unsigned length = tvb_captured_length_remaining(tvb, 0);
 
     for (unsigned i = 0; i < paramlist->num_of_items; i++) {
         if (!paramlist->items[i].sig_val_names_valid) {

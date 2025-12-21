@@ -270,7 +270,7 @@ add_price(proto_tree *tree, int hf_int, int hf_double, tvbuff_t *tvb, int offset
 static bool
 ob_is_u_outbound(tvbuff_t *tvb)
 {
-    const int mlen = tvb_reported_length(tvb);
+    const unsigned mlen = tvb_reported_length(tvb);
     if (mlen >= 145) return true;  /* Order Replaced (outbound) */
     if (mlen == 122) return false; /* Replace Order (inbound)   */
     if (tvb_captured_length_remaining(tvb, 1) >= 8) {
@@ -281,9 +281,8 @@ ob_is_u_outbound(tvbuff_t *tvb)
 }
 
 static const char*
-ob_get_ascii_token(tvbuff_t *tvb, int offset, int len, wmem_allocator_t *scope)
+ob_get_ascii_token(tvbuff_t *tvb, unsigned offset, unsigned len, wmem_allocator_t *scope)
 {
-    if (offset < 0 || len <= 0) return NULL;
     if (tvb_captured_length_remaining(tvb, offset) < len) return NULL;
     return (const char*)tvb_get_string_enc(scope, tvb, offset, len, ENC_ASCII);
 }

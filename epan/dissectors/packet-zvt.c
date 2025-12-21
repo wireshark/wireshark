@@ -1085,7 +1085,7 @@ dissect_zvt_apdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 
     /* ZVT_APDU_MIN_LEN already includes one length byte */
     if (tvb_captured_length_remaining(tvb, offset) <
-            ZVT_APDU_MIN_LEN + (len_bytes-1) + len) {
+            (unsigned)(ZVT_APDU_MIN_LEN + (len_bytes-1) + len)) {
         return -1;
     }
 

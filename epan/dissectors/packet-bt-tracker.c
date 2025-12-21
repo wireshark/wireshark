@@ -222,7 +222,7 @@ static int
 dissect_bt_tracker_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, unsigned msg_type)
 {
   unsigned node_index = 0;
-  int stride_length;
+  unsigned stride_length;
   proto_item *ti;
   proto_tree *sub_tree;
   bool is_ipv6;

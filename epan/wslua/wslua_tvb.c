@@ -1230,8 +1230,8 @@ WSLUA_METHOD TvbRange_bitfield(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_bitfield_LENGTH 3 /* The length in bits of the field. Defaults to 1. */
 
     TvbRange tvbr = checkTvbRange(L,1);
-    int pos = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_bitfield_POSITION,0);
-    int len = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_bitfield_LENGTH,1);
+    unsigned pos = (unsigned)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_bitfield_POSITION,0);
+    unsigned len = (unsigned)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_bitfield_LENGTH,1);
 
     if (!(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1283,7 +1283,7 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
         WSLUA_OPTARG_ERROR(TvbRange_range,OFFSET,"offset before start of TvbRange");
         return 0;
     }
-    if (offset > tvbr->len) {
+    if ((unsigned)offset > tvbr->len) {
         WSLUA_OPTARG_ERROR(TvbRange_range,OFFSET,"offset beyond end of TvbRange");
         return 0;
     }
@@ -1294,7 +1294,7 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
     if (len < 0) {
         luaL_error(L,"out of bounds");
         return 0;
-    } else if ( (len + offset) > tvbr->len) {
+    } else if ( (unsigned)(len + offset) > tvbr->len) {
         luaL_error(L,"Range is out of bounds");
         return 0;
     }
@@ -1660,7 +1660,7 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
         WSLUA_OPTARG_ERROR(TvbRange_raw,OFFSET,"offset before start of TvbRange");
         return 0;
     }
-    if (offset > tvbr->len) {
+    if ((unsigned)offset > tvbr->len) {
         WSLUA_OPTARG_ERROR(TvbRange_raw,OFFSET,"offset beyond end of TvbRange");
         return 0;
     }
@@ -1671,7 +1671,7 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
     if (len < 0) {
         luaL_error(L,"out of bounds");
         return false;
-    } else if ( (len + offset) > tvbr->len) {
+    } else if ( (unsigned)(len + offset) > tvbr->len) {
         luaL_error(L,"Range is out of bounds");
         return false;
     }
@@ -1693,7 +1693,7 @@ WSLUA_METAMETHOD TvbRange__eq(lua_State* L) {
     {
         const char* lp = (const char*)tvb_get_ptr(tvb_l->tvb->ws_tvb, tvb_l->offset, tvb_l->len);
         const char* rp = (const char*)tvb_get_ptr(tvb_r->tvb->ws_tvb, tvb_r->offset, tvb_r->len);
-        int i = 0;
+        unsigned i = 0;
 
         for (; i < tvb_r->len; ++i) {
             if (lp[i] != rp[i]) {

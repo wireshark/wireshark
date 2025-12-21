@@ -1818,7 +1818,7 @@ static unsigned dissect_wimaxasncp_tlvs(
             proto_item *type_item;
 
             int tree_length = MIN(
-                (int)(4 + length + pad), tvb_captured_length_remaining(tvb, offset));
+                (4 + length + pad), tvb_captured_length_remaining(tvb, offset));
 
             tlv_item = proto_tree_add_item(
                 tree, tlv_info->hf_root,

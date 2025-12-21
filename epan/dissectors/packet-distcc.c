@@ -51,7 +51,7 @@ extern void proto_reg_handoff_distcc(void);
 static dissector_handle_t distcc_handle;
 
 #define CHECK_PDU_LEN(x) \
-    if(parameter>(unsigned)tvb_captured_length_remaining(tvb, offset) || parameter < 1){\
+    if(parameter>tvb_captured_length_remaining(tvb, offset) || parameter < 1){\
         len=tvb_captured_length_remaining(tvb, offset);\
         col_append_str(pinfo->cinfo, COL_INFO, "[Short" x " PDU]");\
     } \
@@ -61,8 +61,8 @@ static dissector_handle_t distcc_handle;
 #define DESEGMENT_TCP(x) \
     if(distcc_desegment && pinfo->can_desegment){\
         /* only attempt reassembly if we have the full segment */\
-        if(tvb_captured_length_remaining(tvb, offset)==tvb_reported_length_remaining(tvb, offset)){\
-            if(parameter>(unsigned)tvb_captured_length_remaining(tvb, offset)){\
+        if(tvb_captured_length_remaining(tvb, offset)==(unsigned)tvb_reported_length_remaining(tvb, offset)){\
+            if(parameter>tvb_captured_length_remaining(tvb, offset)){\
                 proto_tree_add_expert_format(tree, pinfo, &ei_distcc_short_pdu, tvb, offset-12, -1, "[Short " x " PDU]");\
                 pinfo->desegment_offset=offset-12;\
                 pinfo->desegment_len=parameter-tvb_captured_length_remaining(tvb, offset);\

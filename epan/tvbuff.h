@@ -388,7 +388,7 @@ WS_DLL_PUBLIC unsigned tvb_captured_length(const tvbuff_t *tvb);
  *
  * @return The number of bytes remaining to the end of the buffer from the given offset.
  */
-WS_DLL_PUBLIC int tvb_captured_length_remaining(const tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC unsigned tvb_captured_length_remaining(const tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Same as @ref tvb_captured_length_remaining, but throws an exception if the offset is out of bounds.

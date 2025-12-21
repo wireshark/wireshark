@@ -6339,7 +6339,7 @@ dissect_scsi_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* If we don't have the entire PDU there is no point in even trying
      * reassembly
      */
-    if (tvb_captured_length_remaining(tvb, offset) != tvb_reported_length_remaining(tvb, offset)) {
+    if (tvb_captured_length_remaining(tvb, offset) != (unsigned)tvb_reported_length_remaining(tvb, offset)) {
         if (relative_offset) {
             call_data_dissector(tvb, pinfo, scsi_tree);
             goto end_of_payload;

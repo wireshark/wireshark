@@ -12012,7 +12012,7 @@ decrypt_smb_payload(packet_info *pinfo,
 	uint8_t *key32 = NULL;
 	uint8_t *keys32[2];
 	bool ok;
-	int aad_size;
+	unsigned aad_size;
 	int alg;
 
 	/* AAD is the rest of transform header after the ProtocolID and Signature */

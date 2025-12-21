@@ -892,14 +892,12 @@ tvbparse_t* tvbparse_init(wmem_allocator_t *scope,
 }
 
 bool tvbparse_reset(tvbparse_t* tt,
-                        const int offset,
-                        int len) {
+                        const unsigned offset,
+                        unsigned len) {
 
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_TT) ws_warning("tvbparse_init: offset=%i len=%i",offset,len);
 #endif
-
-    len = (len == -1) ? (int) tvb_captured_length(tt->tvb) : len;
 
     if( tvb_captured_length_remaining(tt->tvb, offset) >= len) {
         tt->offset = offset;

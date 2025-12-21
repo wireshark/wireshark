@@ -3759,7 +3759,7 @@ dissect_rdp_rdstls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U
 
 			unsigned tmpStringLength = tvb_get_uint16(tvb, tmpOffset, ENC_LITTLE_ENDIAN);
 			tmpOffset += 2;
-			if(tvb_captured_length_remaining(tvb, tmpOffset) < (int)tmpStringLength)
+			if(tvb_captured_length_remaining(tvb, tmpOffset) < tmpStringLength)
 				return false;
 
 			pdu_length += 2 + tmpStringLength;

@@ -390,7 +390,7 @@ static expert_field ei_dlt_buffer_too_short;
 static expert_field ei_dlt_parsing_error;
 
 static void
-expert_dlt_unsupported_parameter(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
+expert_dlt_unsupported_parameter(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, unsigned length) {
     if (tvb!=NULL) {
         proto_tree_add_expert(tree, pinfo, &ei_dlt_unsupported_datatype, tvb, offset, length);
     }
@@ -398,7 +398,7 @@ expert_dlt_unsupported_parameter(proto_tree *tree, packet_info *pinfo, tvbuff_t 
 }
 
 static void
-expert_dlt_unsupported_length_datatype(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
+expert_dlt_unsupported_length_datatype(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, unsigned length) {
     if (tvb != NULL) {
         proto_tree_add_expert(tree, pinfo, &ei_dlt_unsupported_length_datatype, tvb, offset, length);
     }
@@ -406,7 +406,7 @@ expert_dlt_unsupported_length_datatype(proto_tree *tree, packet_info *pinfo, tvb
 }
 
 static void
-expert_dlt_unsupported_string_coding(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
+expert_dlt_unsupported_string_coding(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, unsigned length) {
     if (tvb != NULL) {
         proto_tree_add_expert(tree, pinfo, &ei_dlt_unsupported_string_coding, tvb, offset, length);
     }
@@ -414,7 +414,7 @@ expert_dlt_unsupported_string_coding(proto_tree *tree, packet_info *pinfo, tvbuf
 }
 
 static void
-expert_dlt_unsupported_non_verbose_msg_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
+expert_dlt_unsupported_non_verbose_msg_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, unsigned length) {
     if (tvb != NULL) {
         proto_tree_add_expert(tree, pinfo, &ei_dlt_unsupported_non_verbose_msg_type, tvb, offset, length);
     }
@@ -422,7 +422,7 @@ expert_dlt_unsupported_non_verbose_msg_type(proto_tree *tree, packet_info *pinfo
 }
 
 static void
-expert_dlt_buffer_too_short(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
+expert_dlt_buffer_too_short(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, unsigned length) {
     if (tvb != NULL) {
         proto_tree_add_expert(tree, pinfo, &ei_dlt_buffer_too_short, tvb, offset, length);
     }
@@ -430,7 +430,7 @@ expert_dlt_buffer_too_short(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 }
 
 static void
-expert_dlt_parsing_error(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
+expert_dlt_parsing_error(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, unsigned length) {
     if (tvb != NULL) {
         proto_tree_add_expert(tree, pinfo, &ei_dlt_parsing_error, tvb, offset, length);
     }
@@ -466,8 +466,8 @@ dlt_ecu_id_to_int32(const char *ecu_id) {
  **********************************/
 
 static void
-sanitize_buffer(uint8_t *buf, int length, uint32_t str_encoding) {
-    int i = 0;
+sanitize_buffer(uint8_t *buf, unsigned length, uint32_t str_encoding) {
+    unsigned i = 0;
 
     for (i=0; i<length; i++) {
         /* UTF-8 uses the ASCII chars. So between 0x00 and 0x7f, we can treat it as ASCII. :) */
@@ -500,7 +500,7 @@ dissector_dlt_verbose_variable_info(tvbuff_t *tvb, packet_info* pinfo, uint32_t 
 }
 
 static uint32_t
-dissect_dlt_verbose_parameter_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, const unsigned encoding, uint32_t type_info _U_, int length) {
+dissect_dlt_verbose_parameter_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, const unsigned encoding, uint32_t type_info _U_, unsigned length) {
     uint8_t *vari_name_string = NULL;
     uint8_t *vari_unit_string = NULL;
     if ((type_info & DLT_MSG_VERB_PARAM_VARI) == DLT_MSG_VERB_PARAM_VARI) {
@@ -536,7 +536,7 @@ dissect_dlt_verbose_parameter_bool(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static uint32_t
-dissect_dlt_verbose_parameter_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, const unsigned encoding, uint32_t type_info _U_, int length) {
+dissect_dlt_verbose_parameter_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, const unsigned encoding, uint32_t type_info _U_, unsigned length) {
     uint8_t *vari_name_string = NULL;
     uint8_t *vari_unit_string = NULL;
     if ((type_info & DLT_MSG_VERB_PARAM_VARI) == DLT_MSG_VERB_PARAM_VARI) {
@@ -585,7 +585,7 @@ dissect_dlt_verbose_parameter_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 static uint32_t
-dissect_dlt_verbose_parameter_uint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, const unsigned encoding, uint32_t type_info _U_, int length) {
+dissect_dlt_verbose_parameter_uint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, const unsigned encoding, uint32_t type_info _U_, unsigned length) {
     uint8_t *vari_name_string = NULL;
     uint8_t *vari_unit_string = NULL;
     if ((type_info & DLT_MSG_VERB_PARAM_VARI) == DLT_MSG_VERB_PARAM_VARI) {
@@ -635,7 +635,7 @@ dissect_dlt_verbose_parameter_uint(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static uint32_t
-dissect_dlt_verbose_parameter_float(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, const unsigned encoding, uint32_t type_info _U_, int length) {
+dissect_dlt_verbose_parameter_float(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, const unsigned encoding, uint32_t type_info _U_, unsigned length) {
     uint8_t *vari_name_string = NULL;
     uint8_t *vari_unit_string = NULL;
     if ((type_info & DLT_MSG_VERB_PARAM_VARI) == DLT_MSG_VERB_PARAM_VARI) {
@@ -677,7 +677,7 @@ dissect_dlt_verbose_parameter_float(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 static uint32_t
-dissect_dlt_verbose_parameter_raw_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, const unsigned encoding, uint32_t type_info _U_, int length _U_) {
+dissect_dlt_verbose_parameter_raw_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, const unsigned encoding, uint32_t type_info _U_, unsigned length _U_) {
     uint16_t    len = 0;
     uint8_t    *buf = NULL;
     uint32_t    i = 0;
@@ -723,7 +723,7 @@ dissect_dlt_verbose_parameter_raw_data(tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 static uint32_t
-dissect_dlt_verbose_parameter_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, const unsigned encoding, uint32_t type_info _U_, int length _U_) {
+dissect_dlt_verbose_parameter_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, const unsigned encoding, uint32_t type_info _U_, unsigned length _U_) {
     uint16_t    str_len = 0;
     uint8_t    *buf = NULL;
     uint32_t    offset_orig = offset;
@@ -790,7 +790,7 @@ static uint32_t
 dissect_dlt_verbose_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, const unsigned encoding) {
     uint32_t    type_info = 0;
     uint8_t     length_field = 0;
-    int         length = 0;
+    unsigned    length = 0;
     uint32_t    offset_orig = offset;
 
     /* we need at least the uint32 type info to decide on how much more bytes we need */

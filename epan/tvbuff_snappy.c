@@ -32,7 +32,7 @@ tvb_uncompress_snappy(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
     snappy_status ret;
     const void *compr_ptr;
 
-    if (tvb == NULL || comprlen <= 0 || comprlen > (unsigned)tvb_captured_length_remaining(tvb, offset)) {
+    if (tvb == NULL || comprlen <= 0 || comprlen > tvb_captured_length_remaining(tvb, offset)) {
         return NULL;
     }
 

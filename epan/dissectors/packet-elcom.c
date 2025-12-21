@@ -174,7 +174,7 @@ dissect_lower_address(wmem_allocator_t *scope, proto_item *ti_arg, int ett_arg,
          * ELCOM-90 TRA3825.02 User Element conventions, p. 5-2 and Appendix G
          */
         len1 = tvb_get_uint8(tvb, offset);
-        if (tvb_captured_length_remaining(tvb, offset+len1+1) <= 0)
+        if (tvb_captured_length_remaining(tvb, offset+len1+1) == 0)
                 return offset;
         len2 = tvb_get_uint8(tvb, offset+len1+1);
         if (tvb_reported_length_remaining(tvb, offset+len1+len2+2) <= 0)
@@ -427,7 +427,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
                         /* starting after elcom_len and elcom_msg_type,
                            initiator + responder + userdata fields must be there */
-                        if (tvb_captured_length_remaining(tvb, 3+TOTAL_LEN+TOTAL_LEN+3) < 0) return 2;
+                        if (tvb_captured_length_remaining(tvb, 3+TOTAL_LEN+TOTAL_LEN+3) == 0) return 2;
                         /* check also that those field lengths are valid */
                         if (tvb_get_uint8(tvb, 3)  != LOWADR_LEN) return 2;
                         if (tvb_get_uint8(tvb, 3+1+LOWADR_LEN) != SUFFIX_LEN) return 2;

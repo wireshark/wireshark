@@ -753,7 +753,7 @@ static mate_pdu* new_pdu(const mate_cfg_pdu* cfg, uint32_t framenum, field_info*
 	unsigned i,j;
 	unsigned min_dist;
 	field_info* range_fi;
-	uint32_t last_start;
+	unsigned last_start;
 	uint32_t first_end;
 	uint32_t curr_end;
 	int hfid;

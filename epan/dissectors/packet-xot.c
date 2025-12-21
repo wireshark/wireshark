@@ -268,10 +268,10 @@ static int dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 static int dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-   int offset = 0;
-   int len = get_xot_pdu_len_mult(pinfo, tvb, offset, NULL);
+   unsigned offset = 0;
+   unsigned len = get_xot_pdu_len_mult(pinfo, tvb, offset, NULL);
    tvbuff_t   *next_tvb;
-   int offset_max = offset+MIN(len,tvb_captured_length_remaining(tvb, offset));
+   unsigned offset_max = offset+MIN(len,tvb_captured_length_remaining(tvb, offset));
    proto_item *ti;
    proto_tree *xot_tree;
 

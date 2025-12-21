@@ -1276,7 +1276,7 @@ dissect_cql5_comp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
 	} else {
 #ifdef HAVE_LZ4
 		if (uncomp_length <= MAX_UNCOMPRESSED_SIZE && length > 0) {
-			if (tvb_captured_length_remaining(tvb, payload_offset) >= (int)length) {
+			if (tvb_captured_length_remaining(tvb, payload_offset) >= length) {
 				unsigned char *decompressed_buffer = (unsigned char*)wmem_alloc(pinfo->pool, uncomp_length);
 				int ret = LZ4_decompress_safe(
 					(const char*)tvb_get_ptr(tvb, payload_offset, length),

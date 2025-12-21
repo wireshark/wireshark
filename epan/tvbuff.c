@@ -652,8 +652,8 @@ _tvb_captured_length_remaining(const tvbuff_t *tvb, const unsigned offset)
 	return rem_length;
 }
 
-int
-tvb_captured_length_remaining(const tvbuff_t *tvb, const int offset)
+unsigned
+tvb_captured_length_remaining(const tvbuff_t *tvb, const unsigned offset)
 {
 	unsigned rem_length;
 	int   exception;

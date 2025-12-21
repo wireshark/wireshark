@@ -1317,11 +1317,11 @@ dissect_ttl_block(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offse
 
 static int
 dissect_ttl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
-    int             offset = 0;
+    unsigned        offset = 0;
     proto_tree     *ttl_tree, *header_subtree, *logfile_info_subtree, *configuration_subtree, *trace_data_subtree;
     proto_item*     ti;
     uint32_t        format_version, header_length, block_size;
-    int             logfile_info_length, xml_length, remaining;
+    unsigned        logfile_info_length, xml_length, remaining;
 
     if (tvb_captured_length(tvb) < sizeof(ttl_fileheader_t) || tvb_memeql(tvb, 0, ttl_magic, TTL_MAGIC_SIZE) != 0) {
         return 0;
@@ -1352,7 +1352,7 @@ dissect_ttl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
         expert_add_info(pinfo, ti, &ei_ttl_header_size_implausible);
     }
     else {
-        logfile_info_length = MIN(MIN(tvb_captured_length_remaining(tvb, offset), (int)header_length - offset), TTL_LOGFILE_INFO_SIZE);
+        logfile_info_length = MIN(MIN(tvb_captured_length_remaining(tvb, offset), header_length - offset), TTL_LOGFILE_INFO_SIZE);
         ti = proto_tree_add_item(header_subtree, hf_ttl_header_logfile_info, tvb, offset, logfile_info_length, ENC_NA);
         logfile_info_subtree = proto_item_add_subtree(ti, ett_ttl_header_logfile_info);
 
@@ -1363,8 +1363,8 @@ dissect_ttl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
         offset += dissect_ttl_logfile_information(tvb, pinfo, logfile_info_subtree, offset);
 
-        if (format_version >= 10 && (int)header_length > offset) {
-            xml_length = MIN(tvb_captured_length_remaining(tvb, offset), (int)header_length - offset);
+        if (format_version >= 10 && header_length > offset) {
+            xml_length = MIN(tvb_captured_length_remaining(tvb, offset), header_length - offset);
             ti = proto_tree_add_item(header_subtree, hf_ttl_header_configuration, tvb, offset, xml_length, ENC_NA);
 
             if (xml_handle) {
@@ -1374,14 +1374,14 @@ dissect_ttl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             }
         }
 
-        offset = (int)header_length;
+        offset = header_length;
 
         ti = proto_tree_add_item(ttl_tree, hf_ttl_trace_data, tvb, offset, -1, ENC_NA);
         trace_data_subtree = proto_item_add_subtree(ti, ett_ttl_trace_data);
 
         if (block_size != 0) {
             while ((remaining = tvb_captured_length_remaining(tvb, offset)) > 0) {
-                dissect_ttl_block(tvb, pinfo, trace_data_subtree, offset, MIN((int)block_size, remaining));
+                dissect_ttl_block(tvb, pinfo, trace_data_subtree, offset, MIN(block_size, remaining));
                 offset += block_size;
             }
         }

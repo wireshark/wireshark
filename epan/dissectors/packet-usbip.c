@@ -746,7 +746,7 @@ get_usbip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
             if (num_of_devs == 0)
                 return expected_size;
 
-            if (tvb_captured_length_remaining(tvb, offset) < (int) (0x138 * num_of_devs))
+            if (tvb_captured_length_remaining(tvb, offset) < (0x138 * num_of_devs))
                 return 0;
 
             for (i = 0; i < num_of_devs; i++) {

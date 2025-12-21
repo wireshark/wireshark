@@ -658,8 +658,8 @@ get_pdu_transport_mapping(uint32_t pdu_transport_id) {
 
 static int
 dissect_ipdum_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, uint32_t id) {
-    int offset = 0;
-    int length = tvb_captured_length_remaining(tvb, 0);
+    unsigned offset = 0;
+    unsigned length = tvb_captured_length_remaining(tvb, 0);
 
     proto_item *ti = proto_tree_add_item(root_tree, proto_ipdu_multiplexer, tvb, offset, -1, ENC_NA);
     proto_tree *tree = proto_item_add_subtree(ti, ett_ipdum);
@@ -684,13 +684,13 @@ dissect_ipdum_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, 
             }
 
             if (update_bit_ok) {
-                int start_byte = config->items[i].start_pos / 8;
-                int end_byte = (config->items[i].start_pos + config->items[i].bit_length) / 8;
+                unsigned start_byte = config->items[i].start_pos / 8;
+                unsigned end_byte = (config->items[i].start_pos + config->items[i].bit_length) / 8;
                 if ((config->items[i].start_pos + config->items[i].bit_length) % 8 != 0) {
                     end_byte++;
                 }
 
-                int pdu_len = end_byte - start_byte;
+                unsigned pdu_len = end_byte - start_byte;
                 if (pdu_len > tvb_captured_length_remaining(tvb, offset + start_byte)) {
                     pdu_len = tvb_captured_length_remaining(tvb, offset + start_byte);
                 }

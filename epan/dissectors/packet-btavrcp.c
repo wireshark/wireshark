@@ -1009,7 +1009,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned         event_id;
     unsigned         packet_type;
     unsigned         parameter_length;
-    int              length;
+    unsigned         length;
     wmem_tree_key_t  key[7];
     uint32_t         k_op;
     uint32_t         frame_number;

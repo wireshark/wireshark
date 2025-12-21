@@ -1219,10 +1219,10 @@ dissect_client_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, int 
 }
 
 static int
-dissect_game_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, bool is_xtea_encrypted, bool first_fragment)
+dissect_game_packet(struct tibia_convo *convo, tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, bool is_xtea_encrypted, bool first_fragment)
 {
     proto_item *ti = NULL;
-    int len = tvb_captured_length_remaining(tvb, offset);
+    unsigned len = tvb_captured_length_remaining(tvb, offset);
 
     if (show_acc_info) {
         if (convo->has.session_key) {
@@ -1255,7 +1255,7 @@ dissect_game_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, packet
                 proto_item_set_generated(ti);
             }
 
-            int end = offset + len;
+            unsigned end = offset + len;
 
             if (len % 8 != 0)
                 return -1;

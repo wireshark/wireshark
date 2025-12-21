@@ -3435,7 +3435,7 @@ proto_tree_add_debug_text(tree, "SQ OF dissect_ber_sq_of(%s) entered\n", name);
      * dissecting a single item.
      */
     /* XXX Do we really need to count them at all ?  ronnie */
-    if (tvb_captured_length_remaining(tvb, offset) == tvb_reported_length_remaining(tvb, offset)) {
+    if (tvb_captured_length_remaining(tvb, offset) == (unsigned)tvb_reported_length_remaining(tvb, offset)) {
         have_cnt = true;
         while (offset < end_offset) {
             uint32_t len;

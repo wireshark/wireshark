@@ -1909,7 +1909,7 @@ static bool dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
        - tag for data
        - at least one byte of PDCP PDU payload.
       However, let attempted dissection show if there are any tags at all. */
-    int min_length = (int)(strlen(PDCP_NR_START_STRING) + 3); /* signature */
+    unsigned min_length = (unsigned)(strlen(PDCP_NR_START_STRING) + 3); /* signature */
 
     if (tvb_captured_length_remaining(tvb, offset) < min_length) {
         return false;

@@ -253,7 +253,7 @@ post_update_pdu_transport_ext_cfg_cb(void) {
 }
 
 static void
-lookup_extended_config(packet_info *pinfo _U_, int *size_of_id, int *size_of_len, uint32_t *default_id) {
+lookup_extended_config(packet_info *pinfo _U_, unsigned *size_of_id, unsigned *size_of_len, uint32_t *default_id) {
     /* Set backward compatible defaults, in case we find no entry */
     *size_of_id = 4;
     *size_of_len = 4;
@@ -314,8 +314,8 @@ dissect_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     proto_item *ti_top = proto_tree_add_item(tree, proto_pdu_transport, tvb, 0, -1, ENC_NA);
     proto_tree *pdu_transport_tree = proto_item_add_subtree(ti_top, ett_pdu_transport);
 
-    int size_of_id_field;
-    int size_of_len_field;
+    unsigned size_of_id_field;
+    unsigned size_of_len_field;
     uint32_t default_id;
 
     lookup_extended_config(pinfo, &size_of_id_field, &size_of_len_field, &default_id);

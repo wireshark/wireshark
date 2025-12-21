@@ -425,7 +425,7 @@ tvbparse_t* tvbparse_init(wmem_allocator_t *scope,
 
 /* reset the parser */
 WS_DLL_PUBLIC
-bool tvbparse_reset(tvbparse_t* tt, const int offset, int len);
+bool tvbparse_reset(tvbparse_t* tt, const unsigned offset, unsigned len);
 
 WS_DLL_PUBLIC
 unsigned tvbparse_curr_offset(tvbparse_t* tt);

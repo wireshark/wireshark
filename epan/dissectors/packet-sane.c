@@ -312,8 +312,8 @@ typedef struct {
 
 typedef struct {
     tvbuff_t *tvb;
-    int offset;
-    int bytes_read;
+    unsigned offset;
+    unsigned bytes_read;
 } tvb_sane_reader;
 
 
@@ -337,7 +337,7 @@ tvb_read_sane_word(tvb_sane_reader *r, uint32_t *dest) {
 
 static int
 tvb_read_sane_string(tvb_sane_reader *r, wmem_allocator_t *alloc, char **dest) {
-    int str_len;
+    unsigned str_len;
     WORD_OR_RETURN(r, (uint32_t*)&str_len);
 
     if (tvb_captured_length_remaining(r->tvb, r->offset) < str_len) {
@@ -356,8 +356,8 @@ tvb_read_sane_string(tvb_sane_reader *r, wmem_allocator_t *alloc, char **dest) {
 #define STRING_OR_RETURN(r) \
     do { if (tvb_read_sane_string((r), NULL, NULL) == 0) { return 0; } } while(0)
 
-static int
-tvb_skip_bytes(tvb_sane_reader *r, int len) {
+static unsigned
+tvb_skip_bytes(tvb_sane_reader *r, unsigned len) {
     if (tvb_captured_length_remaining(r->tvb, r->offset) < len) {
         return 0;
     }

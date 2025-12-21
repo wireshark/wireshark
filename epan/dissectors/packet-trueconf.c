@@ -62,12 +62,12 @@ get_trueconf_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *da
     if (magic_off < 0)
         return 0;
 
-    int headers = 2 + 3 + 1 + 2 + 1 + 1 + 1 + 1;
+    unsigned headers = 2 + 3 + 1 + 2 + 1 + 1 + 1 + 1;
     if (tvb_captured_length_remaining(tvb, magic_off) < TRUECONF_MAGIC_LEN + headers)
         return 0;
 
     unsigned pos = magic_off + TRUECONF_MAGIC_LEN + headers;
-    int name_len = tvb_get_uint8(tvb, pos - 1);
+    unsigned name_len = tvb_get_uint8(tvb, pos - 1);
     unsigned caplen = tvb_captured_length(tvb);
     if (name_len > 0 && caplen - pos == 0 )  // if the name length is not 0 and the name is missing,
         return caplen; // it means that there will be no new data
@@ -77,15 +77,15 @@ get_trueconf_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *da
     if (pos + 2 > caplen)
         return 0; //  token_len
 
-    int token_len = tvb_get_ntohs(tvb, pos);
+    unsigned token_len = tvb_get_ntohs(tvb, pos);
     pos += 2 + token_len;
     if (pos + 2 + 4 + 4 + 16 > caplen)
         return 0; // msg_type + len_a + len_b + seed16
 
-    int len_a = tvb_get_letohl(tvb, pos + 2);
-    int len_b = tvb_get_letohl(tvb, pos + 6);
-    int payload_len = len_a < len_b ? len_a : len_b;
-    int full_len = pos + 2 + 4 + 4 + 16 + payload_len - magic_off - headers;
+    unsigned len_a = tvb_get_letohl(tvb, pos + 2);
+    unsigned len_b = tvb_get_letohl(tvb, pos + 6);
+    unsigned payload_len = len_a < len_b ? len_a : len_b;
+    unsigned full_len = pos + 2 + 4 + 4 + 16 + payload_len - magic_off - headers;
     return full_len;
 }
 

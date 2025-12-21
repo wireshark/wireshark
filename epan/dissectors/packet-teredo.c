@@ -248,7 +248,7 @@ dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
 	if (val == 1) /* possible auth header */
 	{
-		uint8_t idlen, aulen;
+		unsigned idlen, aulen;
 
 		offset += 2;
 

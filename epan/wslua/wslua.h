@@ -138,8 +138,8 @@ struct _wslua_pinfo {
 
 struct _wslua_tvbrange {
     struct _wslua_tvb* tvb;
-    int offset;
-    int len;
+    unsigned offset;
+    unsigned len;
 };
 
 struct _wslua_tw {

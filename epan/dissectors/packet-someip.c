@@ -3108,14 +3108,14 @@ dissect_someip_payload_add_wtlv_if_needed(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static int
-dissect_someip_payload_base_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint8_t data_type, uint32_t id, char *name, int *hf_id_ptr, int wtlv_offset) {
+dissect_someip_payload_base_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, uint8_t data_type, uint32_t id, char *name, int *hf_id_ptr, int wtlv_offset) {
     someip_parameter_base_type_list_t  *base_type = NULL;
     someip_parameter_enum_t            *enum_config = NULL;
 
     uint32_t    basetype_id = 0;
     uint32_t    enum_id = 0;
 
-    int         param_length = -1;
+    unsigned    param_length = 0;
 
     proto_item *ti = NULL;
 
@@ -3156,7 +3156,7 @@ dissect_someip_payload_base_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     }
 
     big_endian = base_type->big_endian;
-    param_length = (int)((base_type->bitlength_base_type) / 8);
+    param_length = ((base_type->bitlength_base_type) / 8);
 
     if (param_length > tvb_captured_length_remaining(tvb, 0) - offset) {
         return 0;
@@ -3242,7 +3242,7 @@ dissect_someip_payload_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             length_of_length = config->length_of_length;
         }
 
-        if (tvb_captured_length_remaining(tvb, offset) < (int)(length_of_length >> 3)) {
+        if (tvb_captured_length_remaining(tvb, offset) < (length_of_length >> 3)) {
             expert_someip_payload_malformed(tree, pinfo, tvb, offset, 0);
             return 0;
         }
@@ -3347,7 +3347,7 @@ dissect_someip_payload_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         length_of_length = config->length_of_length;
     }
 
-    if (tvb_captured_length_remaining(tvb, 0) < (int)(length_of_length >> 3)) {
+    if (tvb_captured_length_remaining(tvb, 0) < (length_of_length >> 3)) {
         expert_someip_payload_malformed(tree, pinfo, tvb, offset, 0);
         return 0;
     };
@@ -3441,7 +3441,7 @@ dissect_someip_payload_array_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     int         count = 0;
 
     if (length != -1) {
-        if (length <= tvb_captured_length_remaining(tvb, offset)) {
+        if (length <= (int)tvb_captured_length_remaining(tvb, offset)) {
             subtvb = tvb_new_subset_length(tvb, offset, length);
             /* created subtvb. so we set offset=0 */
             offset = 0;
@@ -3481,23 +3481,23 @@ dissect_someip_payload_array_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_someip_payload_array_dim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset_orig, int length, int lower_limit, int upper_limit, someip_parameter_array_t *config, unsigned current_dim, char *name, uint32_t length_of_length) {
+dissect_someip_payload_array_dim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset_orig, int length, unsigned lower_limit, unsigned upper_limit, someip_parameter_array_t *config, unsigned current_dim, char *name, uint32_t length_of_length) {
     proto_item *ti = NULL;
     proto_tree *subtree = NULL;
-    int         sub_length = 0;
-    int         sub_lower_limit = 0;
-    int         sub_upper_limit = 0;
-    int         i = 0;
+    int    sub_length = 0;
+    int    sub_lower_limit = 0;
+    int    sub_upper_limit = 0;
+    unsigned i = 0;
 
-    int         sub_offset = 0;
-    int         offset = offset_orig;
+    unsigned      sub_offset = 0;
+    unsigned      offset = offset_orig;
 
     if (config->num_of_dims == current_dim + 1) {
         /* only payload left. :) */
         offset += dissect_someip_payload_array_payload(tvb, pinfo, tree, offset, length, lower_limit, upper_limit, config);
     } else {
         if (length != -1) {
-            while (offset < offset_orig + (int)length) {
+            while (offset < offset_orig + length) {
                 sub_offset = offset;
 
                 ti = proto_tree_add_string_format(tree, hf_payload_str_array, tvb, sub_offset, 0, name, "subarray (dim: %d, limit %d-%d)", current_dim + 1, sub_lower_limit, sub_upper_limit);
@@ -3505,8 +3505,8 @@ dissect_someip_payload_array_dim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
                 offset += dissect_someip_payload_array_dim_length(tvb, pinfo, subtree, offset, &sub_length, &sub_lower_limit, &sub_upper_limit, config, current_dim + 1, length_of_length);
 
-                if (tvb_captured_length_remaining(tvb, offset) < (int)sub_length) {
-                    expert_someip_payload_truncated(subtree, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+                if (tvb_captured_length_remaining(tvb, offset) < (unsigned)sub_length) {
+                    expert_someip_payload_truncated(subtree, pinfo, tvb, offset, (int)tvb_captured_length_remaining(tvb, offset));
                     return 0;
                 }
 

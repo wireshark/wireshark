@@ -107,13 +107,13 @@ static const int TBP_THRIFT_I64_LEN = 8;
 static const int TBP_THRIFT_UUID_LEN = 16;
 static const int TBP_THRIFT_MTYPE_OFFSET = 3;
 static const int TBP_THRIFT_MTYPE_LEN = 1;
-static const int TBP_THRIFT_VERSION_LEN = 4; /* (Version + method type) is explicitly passed as an int32 in libthrift */
+static const unsigned TBP_THRIFT_VERSION_LEN = 4; /* (Version + method type) is explicitly passed as an int32 in libthrift */
 static const int TBP_THRIFT_LENGTH_LEN = 4;
 static const int TBP_THRIFT_SEQ_ID_LEN = 4;
 static const int TBP_THRIFT_STRICT_HEADER_LEN = 8; /* (Protocol id + Version + Method type) + Name length = (4) + 4. */
                                     /* Old encoding: Name length [ + Name] + Message type      + Sequence Identifier   + T_STOP */
-static const int TBP_THRIFT_MIN_MESSAGE_LEN = 10; /* TBP_THRIFT_LENGTH_LEN + TBP_THRIFT_I8_LEN + TBP_THRIFT_SEQ_ID_LEN + TBP_THRIFT_TYPE_LEN; */
-static const int TBP_THRIFT_STRICT_MIN_MESSAGE_LEN = 13; /* TBP_THRIFT_STRICT_HEADER_LEN       + TBP_THRIFT_SEQ_ID_LEN + TBP_THRIFT_TYPE_LEN; */
+static const unsigned TBP_THRIFT_MIN_MESSAGE_LEN = 10; /* TBP_THRIFT_LENGTH_LEN + TBP_THRIFT_I8_LEN + TBP_THRIFT_SEQ_ID_LEN + TBP_THRIFT_TYPE_LEN; */
+static const unsigned TBP_THRIFT_STRICT_MIN_MESSAGE_LEN = 13; /* TBP_THRIFT_STRICT_HEADER_LEN       + TBP_THRIFT_SEQ_ID_LEN + TBP_THRIFT_TYPE_LEN; */
 static const int TBP_THRIFT_BINARY_LEN = 4; /* Length (even with empty content). */
 static const int TBP_THRIFT_STRUCT_LEN = 1; /* Empty struct still contains T_STOP. */
 static const int TBP_THRIFT_LINEAR_LEN = 5; /* Elements type + number of elements for list & set. */
@@ -137,7 +137,7 @@ static const int TCP_THRIFT_MIN_VARINT_LEN = 1;
 #define TCP_THRIFT_MAX_I32_LEN (5)
 #define TCP_THRIFT_MAX_I64_LEN (10)
 static const int TCP_THRIFT_STRUCT_LEN = 1; /* Empty struct still contains T_STOP. */
-static const int TCP_THRIFT_MIN_MESSAGE_LEN = 5; /* Protocol id + (Method type + Version) + Name length [+ Name] + Sequence Identifier + T_STOP */
+static const unsigned TCP_THRIFT_MIN_MESSAGE_LEN = 5; /* Protocol id + (Method type + Version) + Name length [+ Name] + Sequence Identifier + T_STOP */
 
 static const uint32_t TCP_THRIFT_NIBBLE_MASK = 0xf;
 
@@ -391,14 +391,14 @@ is_thrift_compact_version(uint16_t header, bool ignore_msg_type)
  * - Heuristic for method name must check for captured length.
  * - Check UTF-8 vs. binary before adding to tree must check for reported length.
  */
-static int
-thrift_binary_utf8_isprint(tvbuff_t *tvb, int offset, int max_len, bool accept_crlf)
+static unsigned
+thrift_binary_utf8_isprint(tvbuff_t *tvb, unsigned offset, unsigned max_len, bool accept_crlf)
 {
-    int check_len = tvb_reported_length_remaining(tvb, offset);
-    int pos, remaining = 0; /* position in tvb, remaining bytes for multi-byte characters. */
+    unsigned check_len = tvb_reported_length_remaining(tvb, offset);
+    unsigned pos, remaining = 0; /* position in tvb, remaining bytes for multi-byte characters. */
     uint8_t min_next = 0x80, max_next = 0xBF;
     bool ended = false;
-    int printable_len = 0; /* In case the string ends with several NUL bytes. */
+    unsigned printable_len = 0; /* In case the string ends with several NUL bytes. */
     if (max_len < check_len) {
         check_len = max_len;
     }
@@ -807,9 +807,9 @@ dissect_thrift_varint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *
  * This function only dissects the data, not the field header nor the length.
  */
 static int
-dissect_thrift_string_as_preferred(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, int str_len)
+dissect_thrift_string_as_preferred(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, thrift_option_data_t *thrift_opt, unsigned str_len)
 {
-    ABORT_ON_INCOMPLETE_PDU(str_len); /* Thrift assumes there will never be binary/string >= 2GiB */
+    ABORT_ON_INCOMPLETE_PDU((int)str_len); /* Thrift assumes there will never be binary/string >= 2GiB */
 
     if (tree) {
         switch (binary_decode) {
@@ -2957,7 +2957,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     int32_t str_len, seq_id;
     int64_t varint;
     const char *method_str;
-    int remaining;
+    unsigned remaining;
     tvbuff_t *msg_tvb;
     int len, tframe_length = 0;
     bool is_framed, is_compact, request_reasm;
@@ -2996,7 +2996,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     /* We should be called only when the entire frame is ready
      * so we don't need to verify if we have enough data.
      * If not framed, anything remaining is obviously greater than 0. */
-    DISSECTOR_ASSERT(remaining >= tframe_length);
+    DISSECTOR_ASSERT(remaining >= (unsigned)tframe_length);
 
     /****************************************************************/
     /* Decode the header depending on compact, strict (new) or old. */
@@ -3366,7 +3366,7 @@ dissect_thrift_framed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 static int
 dissect_thrift_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    int32_t str_len, length = tvb_reported_length(tvb);
+    unsigned str_len, length = tvb_reported_length(tvb);
     thrift_option_data_t thrift_opt;
     memset(&thrift_opt, 0, sizeof(thrift_option_data_t));
     thrift_opt.nested_type_depth = nested_type_depth;
@@ -3398,7 +3398,7 @@ dissect_thrift_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
          * Option 2 = framed strict binary
          * Option 3 = framed old binary
          * Option 4 = framed compact or anything  not handled. */
-        int remaining = tvb_reported_length_remaining(tvb, TBP_THRIFT_LENGTH_LEN); /* Remaining after initial 4 bytes of "length" */
+        unsigned remaining = tvb_reported_length_remaining(tvb, TBP_THRIFT_LENGTH_LEN); /* Remaining after initial 4 bytes of "length" */
         /* Old header. */
         str_len = tvb_get_ntohil(tvb, 0);
 
@@ -3489,10 +3489,10 @@ reassemble_pdu:
 static bool
 test_thrift_strict(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, thrift_option_data_t *thrift_opt)
 {
-    int tframe_length = 0;
-    int offset = 0;
+    unsigned tframe_length = 0;
+    unsigned offset = 0;
     unsigned length = tvb_captured_length(tvb);
-    int32_t str_len;
+    unsigned str_len;
 
     /* This heuristic only detects strict binary protocol, possibly framed.
      * Detection of old binary protocol is tricky due to the lack of fixed data.
@@ -3572,11 +3572,11 @@ test_thrift_strict(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, 
 static bool
 test_thrift_compact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, thrift_option_data_t *thrift_opt)
 {
-    int tframe_length = 0;
-    int offset = 0;
+    unsigned tframe_length = 0;
+    unsigned offset = 0;
     unsigned length = tvb_captured_length(tvb);
-    int len_len;
-    int32_t str_len = 0;
+    unsigned len_len;
+    unsigned str_len = 0;
     uint64_t seq_id;
 
     /* This heuristic detects compact protocol, possibly framed.
@@ -3592,7 +3592,7 @@ test_thrift_compact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
      * 6. First field type (1 byte, content not verified). */
 
     /* Enough data for elements 2 to 6? */
-    if (length < (unsigned)TCP_THRIFT_MIN_MESSAGE_LEN) {
+    if (length < TCP_THRIFT_MIN_MESSAGE_LEN) {
         return false;
     }
 
@@ -3605,7 +3605,7 @@ test_thrift_compact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
             return false;
         }
         offset = TBP_THRIFT_LENGTH_LEN; /* Compact header starts after frame length. */
-        if (length < (unsigned)(offset + TCP_THRIFT_MIN_MESSAGE_LEN)) {
+        if (length < (offset + TCP_THRIFT_MIN_MESSAGE_LEN)) {
             return false;
         }
     }
@@ -3635,7 +3635,7 @@ test_thrift_compact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
     offset += len_len;
 
     /* 4. Get method name length and check against what we have. */
-    if ((unsigned)offset >= length) return false;
+    if (offset >= length) return false;
     str_len = tvb_get_uint8(tvb, offset);
     // MSb = 1 means the method length is greater than 127 bytes long.
     if ((str_len & 0x80) != 0) {

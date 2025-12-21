@@ -821,7 +821,7 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
        whatever is left of our current tvb.
     */
     if(!gssapi_encrypt->gssapi_encrypted_tvb){
-      int len;
+      unsigned len;
       len=tvb_reported_length_remaining(tvb,offset);
       if(len>tvb_captured_length_remaining(tvb, offset)){
         /* no point in trying to decrypt,
@@ -1068,7 +1068,7 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo,
        whatever is left of our current tvb.
     */
     if(!gssapi_encrypt->gssapi_encrypted_tvb){
-      int len;
+      unsigned len;
       len=tvb_reported_length_remaining(tvb,offset);
       if(len>tvb_captured_length_remaining(tvb, offset)){
         /* no point in trying to decrypt,

@@ -1678,7 +1678,7 @@ dissect_tecmp_status_config_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, p
         proto_tree_add_item_ret_uint(tree, hf_tecmp_payload_status_cfg_vendor_technica_segment_length, tvb, offset + 12, 2, ENC_BIG_ENDIAN, &data_length);
 
         offset += 14;
-        if (tvb_captured_length_remaining(tvb, offset) >= (int)data_length) {
+        if (tvb_captured_length_remaining(tvb, offset) >= data_length) {
             proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_segment_data, tvb, offset, data_length, ENC_NA);
         } else {
             proto_tree_add_item(tree, hf_tecmp_payload_status_cfg_vendor_technica_segment_data, tvb, offset,
@@ -2367,9 +2367,9 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 lin_set_source_and_destination_columns(pinfo, &lin_info);
 
-                if (length2 > 0 && tvb_captured_length_remaining(sub_tvb, offset2) < (int)(length2 + 1)) {
+                if (length2 > 0 && tvb_captured_length_remaining(sub_tvb, offset2) < (length2 + 1)) {
                     expert_add_info(pinfo, ti, &ei_tecmp_payload_length_mismatch);
-                    length2 = MAX(0, MIN((int)length2, tvb_captured_length_remaining(sub_tvb, offset2) - 1));
+                    length2 = MAX(0, MIN(length2, tvb_captured_length_remaining(sub_tvb, offset2) - 1));
                 }
 
                 if (length2 > 0) {
@@ -2378,7 +2378,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 
                     dissect_lin_message(payload_tvb, pinfo, tree, &lin_info);
-                    offset2 += (int)length2;
+                    offset2 += length2;
                     proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_checksum_8bit, sub_tvb, offset2, 1, ENC_NA);
                 }
 
@@ -2398,9 +2398,9 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                   &length2);
                 offset2 += 5;
 
-                if (tvb_captured_length_remaining(sub_tvb, offset2) < (int)length2) {
+                if (tvb_captured_length_remaining(sub_tvb, offset2) < length2) {
                     expert_add_info(pinfo, ti, &ei_tecmp_payload_length_mismatch);
-                    length2 = MAX(0, MIN((int)length2, tvb_captured_length_remaining(sub_tvb, offset2)));
+                    length2 = MAX(0, MIN(length2, tvb_captured_length_remaining(sub_tvb, offset2)));
                 }
 
                 if (length2 > 0) {
@@ -2459,9 +2459,9 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 flexray_set_source_and_destination_columns(pinfo, &fr_info);
 
-                if (tvb_captured_length_remaining(sub_tvb, offset2) < (int)length2) {
+                if (tvb_captured_length_remaining(sub_tvb, offset2) < length2) {
                     expert_add_info(pinfo, ti, &ei_tecmp_payload_length_mismatch);
-                    length2 = MAX(0, MIN((int)length2, tvb_captured_length_remaining(sub_tvb, offset2)));
+                    length2 = MAX(0, MIN(length2, tvb_captured_length_remaining(sub_tvb, offset2)));
                 }
 
                 if (length2 > 0) {

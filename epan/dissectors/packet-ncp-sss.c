@@ -528,7 +528,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
                 if (tvb_reported_length_remaining(tvb, foffset) > 4) {
                     msg_length = tvb_get_letohl(tvb, foffset);
                     foffset += 4;
-                    if (tvb_captured_length_remaining(tvb, foffset) < (int) msg_length) {
+                    if (tvb_captured_length_remaining(tvb, foffset) < msg_length) {
                         proto_tree_add_item(atree, hf_sss_enc_data, tvb, foffset, -1, ENC_NA);
                     } else {
                         proto_tree_add_item(atree, hf_sss_enc_data, tvb, foffset, msg_length, ENC_NA);
