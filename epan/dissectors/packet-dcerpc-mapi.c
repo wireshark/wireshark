@@ -8141,11 +8141,12 @@ mapi_dissect_struct_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	int start_offset = offset;
+	int start_offset;
 	tvbuff_t	*decrypted_tvb;
 	uint32_t		size;
 	uint16_t		pdu_len;
 	ALIGN_TO_5_BYTES;
+	start_offset = offset;
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, start_offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_mapi_mapi_response);
