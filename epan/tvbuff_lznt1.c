@@ -21,9 +21,9 @@
 #define MAX_INPUT_SIZE (16*1024*1024) /* 16MB */
 
 static bool
-uncompress_chunk(tvbuff_t *tvb, int offset, int in_size, wmem_array_t *obuf)
+uncompress_chunk(tvbuff_t *tvb, int offset, unsigned in_size, wmem_array_t *obuf)
 {
-	int in_off = 0, out_off = 0, out_start = 0;
+	unsigned in_off = 0, out_off = 0, out_start = 0;
 	uint8_t flags;
 	unsigned i, j, val, pos;
 
@@ -44,18 +44,27 @@ uncompress_chunk(tvbuff_t *tvb, int offset, int in_size, wmem_array_t *obuf)
 
 				f = tvb_get_letohs(tvb, offset+in_off);
 				in_off += 2;
-				pos = out_off-1;
-				while (pos >= 0x10) {
-					l_mask >>= 1;
-					o_shift -= 1;
-					pos >>= 1;
-				}
+                                /* Let M be the largest value in [4...12] such
+                                 * that 2^{M-1} < U, or 4 if there is no such.
+                                 * Equivalently, we can repeatedly divide U by
+                                 * 2, but we need to subtract 1 first and test
+                                 * vs a weak inequality in order to account for
+                                 * truncation. (But don't overflow at U == 0.)
+                                 */
+                                if (out_off > 0) {
+                                    pos = out_off-1;
+                                    while (pos >= 0x10) {
+                                            l_mask >>= 1;
+                                            o_shift -= 1;
+                                            pos >>= 1;
+                                    }
+                                }
 
 				match_len = (f & l_mask) + 3;
 				match_off = (f >> o_shift) + 1;
 				for (j = 0; j < match_len; j++) {
 					uint8_t byte;
-					if (match_off > (unsigned)out_off)
+					if (match_off > out_off)
 						return false;
 					if (wmem_array_try_index(obuf, out_start+out_off-match_off, &byte))
 						return false;
