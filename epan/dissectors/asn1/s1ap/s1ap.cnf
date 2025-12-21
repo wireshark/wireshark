@@ -411,7 +411,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   _offset = offset;
    TRY {
 
-  offset = dissect_per_sequence(tvb, _offset, actx, tree, hf_index,
+  _offset = dissect_per_sequence(tvb, _offset, actx, tree, hf_index,
                                    ett_s1ap_SourceeNB_ToTargeteNB_TransparentContainer, SourceeNB_ToTargeteNB_TransparentContainer_sequence);
   } CATCH_ALL {
     show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);

@@ -10827,7 +10827,7 @@ dissect_s1ap_SourceeNB_ToTargeteNB_TransparentContainer(tvbuff_t *tvb _U_, uint3
   _offset = offset;
    TRY {
 
-  offset = dissect_per_sequence(tvb, _offset, actx, tree, hf_index,
+  _offset = dissect_per_sequence(tvb, _offset, actx, tree, hf_index,
                                    ett_s1ap_SourceeNB_ToTargeteNB_TransparentContainer, SourceeNB_ToTargeteNB_TransparentContainer_sequence);
   } CATCH_ALL {
     show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
