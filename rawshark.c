@@ -587,15 +587,38 @@ main(int argc, char *argv[])
                 break;
 #if !defined(_WIN32) && defined(RLIMIT_AS)
             case 'm':
-                if (!get_uint32(ws_optarg, "memory limit", (uint32_t*)(&limit.rlim_cur)) ||
-                    !get_uint32(ws_optarg, "memory limit", (uint32_t*)(&limit.rlim_max)) ||
-                    (setrlimit(RLIMIT_AS, &limit) != 0)) {
+            {
+                /* POSIX says that rlim_t shall be defined through typedef to
+                 * be an unsigned integer type. On many 32-bit platforms rlim_t
+                 * as defined by sys/resource.h is 64-bit anyway in order to
+                 * provide large file support. (Exactly how that is translated
+                 * to system calls varies.)
+                 */
+                if (sizeof(rlim_t) < 8) {
+                    uint32_t memory_limit;
+                    if (!get_nonzero_uint32(ws_optarg, "memory limit", &memory_limit)) {
+                        ret = WS_EXIT_INVALID_OPTION;
+                        goto clean_exit;
+                    }
+                    limit.rlim_cur = memory_limit;
+                    limit.rlim_max = memory_limit;
+                } else {
+                    uint64_t memory_limit;
+                    if (!get_nonzero_uint64(ws_optarg, "memory limit", &memory_limit)) {
+                        ret = WS_EXIT_INVALID_OPTION;
+                        goto clean_exit;
+                    }
+                    limit.rlim_cur = memory_limit;
+                    limit.rlim_max = memory_limit;
+                }
+                if ((setrlimit(RLIMIT_AS, &limit) != 0)) {
                     cmdarg_err("setrlimit(RLIMIT_AS) failed: %s",
                                g_strerror(errno));
                     ret = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
                 break;
+            }
 #endif
             case 'o':        /* Override preference from command line */
             {
