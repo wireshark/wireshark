@@ -687,6 +687,25 @@ else() # ! MSVC
 			set(MIN_MACOS_VERSION ${CMAKE_OSX_DEPLOYMENT_TARGET})
 		endif()
 		find_program(ICONUTIL_EXECUTABLE iconutil)
+		find_program(ACTOOL_EXECUTABLE actool)
+		execute_process(
+			COMMAND ${ACTOOL_EXECUTABLE} --version
+			COMMAND xmllint --xpath "//dict/key[text()=\"short-bundle-version\"]/following-sibling::string/text()" -
+			OUTPUT_VARIABLE _actool_version
+		)
+		set(WIRESHARK_INFO_PLIST_ICONS "\
+	<key>CFBundleIconFile</key>
+	<string>Wireshark.icns</string>")
+		if(_actool_version VERSION_GREATER_EQUAL "26.0")
+			message(STATUS "Enabling Liquid Glass icon support")
+			set(HAVE_LIQUID_GLASS_ICONS True)
+			set(WIRESHARK_INFO_PLIST_ICONS "\
+	<key>CFBundleIconFile</key>
+	<string>Wireshark</string>
+	<key>CFBundleIconName</key>
+	<string>Wireshark</string>")
+		endif()
+		unset(_actool_version)
 	endif()
 
 	#
@@ -2852,9 +2871,49 @@ if(ENABLE_APPLICATION_BUNDLE)
 
 	# Wireshark.app/Contents/Resources
 	set(WIRESHARK_BUNDLE_RESOURCE_FILES
-		${CMAKE_SOURCE_DIR}/packaging/macosx/Wireshark.icns
 		${CMAKE_SOURCE_DIR}/packaging/macosx/Wiresharkdoc.icns
 	)
+
+	if(HAVE_LIQUID_GLASS_ICONS)
+		# Compile our Liquid Glass icons to an asset catalog
+		# https://successfulsoftware.net/2025/09/26/updating-application-icons-for-macos-26-tahoe-and-liquid-glass/
+		# https://www.hendrik-erz.de/post/supporting-liquid-glass-icons-in-apps-without-xcode
+		#
+		# You can verify the name(s) with
+		# xcrun --sdk macosx assetutil --info resources/wireshark/Assets.car > /tmp/icon.json
+		# jq '.[] | select(.AssetType="Icon Image") | .Name' < /tmp/icon.json
+		#
+		# On Xcode 15.2 on macOS 14.2.1 the command below returns 0, but does not generate Assets.car.
+		# On Xcode 26.2 on macOS 15.7.3 the command below returns 0 and generates Assets.car along with a bunch of
+		#   dyld[16760]: symbol '_kFigCaptionRegionDisplayAlign_Before' missing from root that overrides /System/Library/Frameworks/CoreMedia.framework/Versions/A/CoreMedia. Use of that symbol in /System/Library/PrivateFrameworks/AVFCore.framework/Versions/A/AVFCore is being set to 0xBAD4007.
+		# warnings. The icon assets otherwise seem to work OK.
+		# On Xcode 26.2 on macOS 26.2 the command below returns 0 and generates Assets.car with no warnings.
+		add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/resources/wireshark/Assets.car
+			COMMAND ${ACTOOL_EXECUTABLE}
+				${CMAKE_SOURCE_DIR}/resources/icons/Wireshark.icon
+				${CMAKE_SOURCE_DIR}/resources/icons/WiresharkCapture.icon
+				--output-format human-readable-text
+				--compile ${CMAKE_BINARY_DIR}/resources/wireshark
+				--output-partial-info-plist ${CMAKE_BINARY_DIR}/resources/wireshark/icon_info.plist --notices --warnings --errors
+				--app-icon Wireshark
+				--alternate-app-icon WiresharkCapture
+				--skip-app-store-deployment
+				--development-region en
+				--platform macosx
+				--minimum-deployment-target ${MIN_MACOS_VERSION}
+				--target-device mac
+				--enable-on-demand-resources NO
+				# --print-contents
+		)
+		list(APPEND WIRESHARK_BUNDLE_RESOURCE_FILES
+			${CMAKE_BINARY_DIR}/resources/wireshark/Assets.car
+		)
+	else()
+		list(APPEND WIRESHARK_BUNDLE_RESOURCE_FILES
+			${CMAKE_SOURCE_DIR}/packaging/macosx/Wireshark.icns
+		)
+	endif()
+
 	set_source_files_properties(${WIRESHARK_BUNDLE_RESOURCE_FILES} PROPERTIES
 		MACOSX_PACKAGE_LOCATION Resources
 	)

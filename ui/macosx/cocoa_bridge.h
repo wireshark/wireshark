@@ -23,6 +23,7 @@ public:
 
     static void showInFinder(char const *file_path);
 
+    static void setCaptureIcon(bool capture_in_progress);
 };
 
 #endif // COCOABRIDGE_H

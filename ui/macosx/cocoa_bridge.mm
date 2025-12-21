@@ -40,3 +40,19 @@ void CocoaBridge::showInFinder(char const *file_path)
 
     [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[url]];
 }
+
+void CocoaBridge::setCaptureIcon(bool capture_in_progress)
+{
+    if (!capture_in_progress) {
+        // Reset to default application icon
+        [[NSApplication sharedApplication] setApplicationIconImage:nil];
+        return;
+    }
+
+    NSImage *iconImage = [NSImage imageNamed:@"WiresharkCapture"];
+
+    if (iconImage != nil) {
+        // XXX How do we apply the current LG icon style?
+        [[NSApplication sharedApplication] setApplicationIconImage:iconImage];
+    }
+}
