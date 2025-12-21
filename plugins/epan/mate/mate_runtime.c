@@ -753,11 +753,11 @@ static mate_pdu* new_pdu(const mate_cfg_pdu* cfg, uint32_t framenum, field_info*
 	mate_range* proto_range;
 	tmp_pdu_data data;
 	unsigned i,j;
-	int min_dist;
+	unsigned min_dist;
 	field_info* range_fi;
-	int32_t last_start;
-	int32_t first_end;
-	int32_t curr_end;
+	uint32_t last_start;
+	uint32_t first_end;
+	uint32_t curr_end;
 	int hfid;
 
 	dbg_print (dbg_pdu,1,dbg_facility,"new_pdu: type=%s framenum=%i",cfg->name,framenum);

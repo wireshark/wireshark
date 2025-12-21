@@ -31,7 +31,7 @@
 #define TVB_Z_MAX_BUFSIZ 1048576 * 10
 
 tvbuff_t *
-tvb_uncompress_zlib(tvbuff_t *tvb, const int offset, int comprlen)
+tvb_uncompress_zlib(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 {
 	int        err;
 	unsigned   bytes_out      = 0;
@@ -305,14 +305,14 @@ tvb_uncompress_zlib(tvbuff_t *tvb, const int offset, int comprlen)
 }
 #else /* USE_ZLIB_OR_ZLIBNG */
 tvbuff_t *
-tvb_uncompress_zlib(tvbuff_t *tvb _U_, const int offset _U_, int comprlen _U_)
+tvb_uncompress_zlib(tvbuff_t *tvb _U_, const unsigned offset _U_, unsigned comprlen _U_)
 {
 	return NULL;
 }
 #endif /* USE_ZLIB_OR_ZLIBNG */
 
 tvbuff_t *
-tvb_child_uncompress_zlib(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comprlen)
+tvb_child_uncompress_zlib(tvbuff_t *parent, tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 {
 	tvbuff_t *new_tvb = tvb_uncompress_zlib(tvb, offset, comprlen);
 	if (new_tvb)
@@ -321,13 +321,13 @@ tvb_child_uncompress_zlib(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int
 }
 
 tvbuff_t *
-tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
+tvb_uncompress(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 {
 	return tvb_uncompress_zlib(tvb, offset, comprlen);
 }
 
 tvbuff_t *
-tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comprlen)
+tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 {
 	return tvb_child_uncompress_zlib(parent, tvb, offset, comprlen);
 }

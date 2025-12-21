@@ -115,7 +115,7 @@ do_uncompress(tvbuff_t *tvb, int offset, int in_size, wmem_array_t *obuf)
 }
 
 tvbuff_t *
-tvb_uncompress_lznt1(tvbuff_t *tvb, const int offset, int in_size)
+tvb_uncompress_lznt1(tvbuff_t *tvb, const unsigned offset, unsigned in_size)
 {
 	volatile bool ok = false;
 	wmem_allocator_t *pool;
@@ -154,7 +154,7 @@ tvb_uncompress_lznt1(tvbuff_t *tvb, const int offset, int in_size)
 }
 
 tvbuff_t *
-tvb_child_uncompress_lznt1(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int in_size)
+tvb_child_uncompress_lznt1(tvbuff_t *parent, tvbuff_t *tvb, const unsigned offset, unsigned in_size)
 {
 	tvbuff_t *new_tvb = tvb_uncompress_lznt1(tvb, offset, in_size);
 	if (new_tvb)

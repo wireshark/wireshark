@@ -25,7 +25,7 @@
 
 #define MAX_LOOP_ITERATIONS 100
 
-tvbuff_t *tvb_uncompress_zstd(tvbuff_t *tvb, const int offset, int comprlen)
+tvbuff_t *tvb_uncompress_zstd(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 {
 #ifndef HAVE_ZSTD
     // Cast to void to silence unused warnings.
@@ -98,7 +98,7 @@ end:
 #endif /* HAVE_ZSTD */
 }
 
-tvbuff_t *tvb_child_uncompress_zstd(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comprlen)
+tvbuff_t *tvb_child_uncompress_zstd(tvbuff_t *parent, tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 {
     tvbuff_t *uncompressed = tvb_uncompress_zstd(tvb, offset, comprlen);
     if (!uncompressed)

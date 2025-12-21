@@ -7987,7 +7987,7 @@ proto_item_set_len(proto_item *pi, const int length)
  * of that tvbuff.
  */
 void
-proto_item_set_end(proto_item *pi, tvbuff_t *tvb, int end)
+proto_item_set_end(proto_item *pi, tvbuff_t *tvb, unsigned end)
 {
 	field_info *fi;
 	int length;
@@ -8014,7 +8014,10 @@ proto_item_get_len(const proto_item *pi)
 	if (!pi)
 		return -1;
 	fi = PITEM_FINFO(pi);
-	return fi ? fi->length : -1;
+	if (fi) {
+		return fi->length;
+	}
+	return -1;
 }
 
 void
@@ -11729,7 +11732,7 @@ proto_find_field_from_offset(proto_tree *tree, unsigned offset, tvbuff_t *tvb)
 }
 
 typedef struct {
-	int length;
+	unsigned length;
 	char *buf;
 } decoded_data_t;
 
@@ -11738,7 +11741,7 @@ check_for_undecoded(proto_node *node, void * data)
 {
 	field_info *fi = PNODE_FINFO(node);
 	decoded_data_t* decoded = (decoded_data_t*)data;
-	int i;
+	unsigned i;
 	unsigned byte;
 	unsigned bit;
 

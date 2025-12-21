@@ -358,8 +358,8 @@ static bool do_uncompress(struct input *input,
 
 tvbuff_t *
 tvb_uncompress_lz77huff(tvbuff_t *tvb,
-			const int offset,
-			int input_size)
+			const unsigned offset,
+			unsigned input_size)
 {
 	volatile bool ok;
 	wmem_allocator_t *pool;
@@ -403,7 +403,7 @@ tvb_uncompress_lz77huff(tvbuff_t *tvb,
 }
 
 tvbuff_t *
-tvb_child_uncompress_lz77huff(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int in_size)
+tvb_child_uncompress_lz77huff(tvbuff_t *parent, tvbuff_t *tvb, const unsigned offset, unsigned in_size)
 {
 	tvbuff_t *new_tvb = tvb_uncompress_lz77huff(tvb, offset, in_size);
 	if (new_tvb)

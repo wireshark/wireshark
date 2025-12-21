@@ -32,7 +32,7 @@ class ShowPacketBytesTextEdit;
 
 struct uncompress_list_t {
     QString name;
-    tvbuff_t *(*function)(tvbuff_t *, int, int);
+    tvbuff_t *(*function)(tvbuff_t *, unsigned, unsigned);
 };
 
 class ShowPacketBytesDialog : public WiresharkDialog

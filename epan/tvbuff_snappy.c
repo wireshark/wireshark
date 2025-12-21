@@ -24,7 +24,7 @@
  */
 
 tvbuff_t *
-tvb_uncompress_snappy(tvbuff_t *tvb, const int offset, int comprlen)
+tvb_uncompress_snappy(tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 {
     tvbuff_t *uncompr_tvb = NULL;
     unsigned char *decompressed_buffer = NULL;
@@ -32,7 +32,7 @@ tvb_uncompress_snappy(tvbuff_t *tvb, const int offset, int comprlen)
     snappy_status ret;
     const void *compr_ptr;
 
-    if (tvb == NULL || comprlen <= 0 || comprlen > tvb_captured_length_remaining(tvb, offset)) {
+    if (tvb == NULL || comprlen <= 0 || comprlen > (unsigned)tvb_captured_length_remaining(tvb, offset)) {
         return NULL;
     }
 
@@ -56,14 +56,14 @@ tvb_uncompress_snappy(tvbuff_t *tvb, const int offset, int comprlen)
 }
 #else
 tvbuff_t *
-tvb_uncompress_snappy(tvbuff_t *tvb _U_, const int offset _U_, int comprlen _U_)
+tvb_uncompress_snappy(tvbuff_t *tvb _U_, const unsigned offset _U_, unsigned comprlen _U_)
 {
     return NULL;
 }
 #endif
 
 tvbuff_t *
-tvb_child_uncompress_snappy(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comprlen)
+tvb_child_uncompress_snappy(tvbuff_t *parent, tvbuff_t *tvb, const unsigned offset, unsigned comprlen)
 {
     tvbuff_t *new_tvb = tvb_uncompress_snappy(tvb, offset, comprlen);
     if (new_tvb)

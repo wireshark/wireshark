@@ -1816,13 +1816,13 @@ print_escaped_csv(FILE *fh, const char *unescaped_string, char delimiter, char q
 static void
 pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi)
 {
-    int           i;
+    unsigned       i;
     const uint8_t *pd;
 
     if (!fi->ds_tvb)
         return;
 
-    if (fi->length > tvb_captured_length_remaining(fi->ds_tvb, fi->start)) {
+    if (fi->length > (unsigned)tvb_captured_length_remaining(fi->ds_tvb, fi->start)) {
         fprintf(pdata->fh, "field length invalid!");
         return;
     }
@@ -1899,7 +1899,7 @@ json_write_field_hex_value(write_json_data *pdata, field_info *fi)
         return;
     }
 
-    if (fi->length > tvb_captured_length_remaining(fi->ds_tvb, fi->start)) {
+    if (fi->length > (unsigned)tvb_captured_length_remaining(fi->ds_tvb, fi->start)) {
         json_dumper_value_string(pdata->dumper, "field length invalid!");
         return;
     }
@@ -1908,7 +1908,7 @@ json_write_field_hex_value(write_json_data *pdata, field_info *fi)
     pd = get_field_data(pdata->src_list, fi);
 
     if (pd) {
-        int i;
+        unsigned i;
         char* str = (char*)g_malloc(fi->length*2 + 1);    /* no need to zero */
         static const char hex[] = "0123456789abcdef";
         /* Print a simple hex dump */
@@ -2730,7 +2730,7 @@ get_field_hex_value(GSList *src_list, field_info *fi)
     if (!fi->ds_tvb)
         return NULL;
 
-    if (fi->length > tvb_captured_length_remaining(fi->ds_tvb, fi->start)) {
+    if (fi->length > (unsigned)tvb_captured_length_remaining(fi->ds_tvb, fi->start)) {
         return g_strdup("field length invalid!");
     }
 
@@ -2738,10 +2738,10 @@ get_field_hex_value(GSList *src_list, field_info *fi)
     pd = get_field_data(src_list, fi);
 
     if (pd) {
-        int        i;
+        unsigned   i;
         char      *buffer;
         char      *p;
-        int        len;
+        unsigned   len;
         const int  chars_per_byte = 2;
 
         len    = chars_per_byte * fi->length;

@@ -4254,7 +4254,7 @@ sharkd_session_process_frame_cb_tree(const char *key, epan_dissect_t *edt, proto
             }
         }
 
-        if (finfo->start >= 0 && finfo->length > 0)
+        if (finfo->length > 0)
             sharkd_json_value_anyf("h", "[%d,%d]", finfo->start, finfo->length);
 
         if (finfo->appendix_start >= 0 && finfo->appendix_length > 0)

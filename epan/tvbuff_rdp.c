@@ -74,9 +74,9 @@ bitstream_getbits(bitstream_t *b, uint8_t nbits, bool *ok) {
 }
 
 static bool
-bitstream_copyraw(bitstream_t *b, uint8_t *dest, int nbytes)
+bitstream_copyraw(bitstream_t *b, uint8_t *dest, unsigned nbytes)
 {
-	if (tvb_captured_length_remaining(b->input, b->offset) < nbytes)
+	if ((unsigned)tvb_captured_length_remaining(b->input, b->offset) < nbytes)
 		return false;
 
 	tvb_memcpy(b->input, dest, b->offset, nbytes);
