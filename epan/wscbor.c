@@ -653,41 +653,24 @@ proto_item * proto_tree_add_cbor_int64(proto_tree *tree, int hfindex, packet_inf
     return item;
 }
 
-proto_item * proto_tree_add_cbor_bitmask(proto_tree *tree, int hfindex, const int ett, int *const *fields, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk, const uint64_t *value) {
-    const header_field_info *field = proto_registrar_get_nth(hfindex);
-    int flagsize = 0;
-    switch (field->type) {
-        case FT_UINT8:
-            flagsize = 1;
-            break;
-        case FT_UINT16:
-            flagsize = 2;
-            break;
-        case FT_UINT32:
-            flagsize = 4;
-            break;
-        case FT_UINT64:
-            flagsize = 8;
-            break;
-        default:
-            fprintf(stderr, "Unhandled bitmask size: %d", field->type);
-            return NULL;
-    }
+proto_item * proto_tree_add_cbor_bitmask(proto_tree *tree, int hfindex, const int ett,
+                                        int *const *fields, packet_info *pinfo,
+                                        tvbuff_t *tvb, const wscbor_chunk_t *chunk,
+                                        const uint64_t *value)
+{
+    const uint64_t v = value ? *value : 0;
 
-    // Fake TVB data for these functions
-    uint8_t *flags = (uint8_t *) wmem_alloc0(pinfo->pool, flagsize);
-    { // Inject big-endian value directly
-        uint64_t buf = (value ? *value : 0);
-        for (int ix = flagsize - 1; ix >= 0; --ix) {
-            flags[ix] = buf & 0xFF;
-            buf >>= 8;
+    proto_item *ti = proto_tree_add_uint64(tree, hfindex, tvb, chunk->start, chunk->head_length, v);
+    proto_tree *sub = proto_item_add_subtree(ti, ett);
+
+    if (fields) {
+        for (int i = 0; fields[i] != NULL; i++) {
+            proto_tree_add_boolean(sub, *fields[i], tvb, chunk->start, chunk->head_length, v);
         }
     }
-    tvbuff_t *tvb_flags = tvb_new_child_real_data(tvb, flags, flagsize, flagsize);
 
-    proto_item *item = proto_tree_add_bitmask_value(tree, tvb_flags, 0, hfindex, ett, fields, value ? *value : 0);
-    wscbor_chunk_mark_errors(pinfo, item, chunk);
-    return item;
+    wscbor_chunk_mark_errors(pinfo, ti, chunk);
+    return ti;
 }
 
 proto_item * proto_tree_add_cbor_tstr(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk) {
