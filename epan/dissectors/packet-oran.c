@@ -13,8 +13,7 @@
  /*
   * Dissector for the O-RAN Fronthaul CUS protocol specification.
   * See https://specifications.o-ran.org/specifications, WG4, Fronthaul Interfaces Workgroup
-  * The current implementation is based on the ORAN-WG4.CUS.0-v17.01 specification.
-  *   - haven't spotted any differences in v18.00
+  * The current implementation is based on the ORAN-WG4.CUS.0-v19.00 specification.
   * Note that other eCPRI message types are handled in packet-ecpri.c
   */
 
@@ -38,13 +37,10 @@
  * fiddly to get the preferences into a good state to decode a given capture..
  * TODO:
  * - for U-Plane, track back to last C-Plane frame for that eAxC
- *     - use udCompHdr values from C-Plane if not overridden by U-Plane?
  *     N.B. this matching is tricky see 7.8.1 Coupling of C-Plane and U-Plane
- * - Radio transport layer (eCPRI) fragmentation / reassembly
  * - Detect/indicate signs of application layer fragmentation?
  * - Not handling M-plane setting for "little endian byte order" as applied to IQ samples and beam weights
  * - for section extensions, check more constraints (which other extension types appear with them, order)
- * - when some section extensions are present, some section header fields are effectively ignored - flag any remaining ("ignored, "shall")?
  * - re-order items (decl and hf definitions) to match spec order?
  * - track energy-saving status, and identify TRX or ASM commands as 'Sleep extension'
  */
@@ -66,7 +62,6 @@ static int hf_oran_sequence_id;
 static int hf_oran_e_bit;
 static int hf_oran_subsequence_id;
 static int hf_oran_previous_frame;
-
 
 static int hf_oran_data_direction;
 static int hf_oran_payload_version;
@@ -497,6 +492,12 @@ static int hf_oran_sinr_prb;
 static int hf_oran_oru_control_sinr_slot_mask_id;
 static int hf_oran_pos_meas;
 
+static int hf_oran_ue_radial_speed;
+static int hf_oran_ue_az_aoa;
+static int hf_oran_ue_ze_aoa;
+static int hf_oran_ue_pos_toa_offset;
+
+
 /* Computed fields */
 static int hf_oran_c_eAxC_ID;
 static int hf_oran_refa;
@@ -581,7 +582,7 @@ static void *oran_temporary_key(const packet_info *pinfo _U_, const uint32_t id 
 }
 
 static void *oran_persistent_key(const packet_info *pinfo _U_, const uint32_t id _U_,
-                                     const void *data)
+                                 const void *data)
 {
     return (void *)data;
 }
@@ -680,7 +681,7 @@ static expert_field ei_oran_ul_uplane_symbol_too_long;
 static expert_field ei_oran_reserved_not_zero;
 
 
-/* These are the message types handled by this dissector */
+/* These are the message types handled by this dissector.  Others have handling in packet-ecpri.c */
 #define ECPRI_MT_IQ_DATA            0
 #define ECPRI_MT_RT_CTRL_DATA       2
 
@@ -715,8 +716,8 @@ static int pref_iqCompressionSINR = COMP_BLOCK_FP;
 
 
 /* Is udCompHeader present (both directions) */
-static int pref_includeUdCompHeaderUplink = 2;     /* start heuristic */
-static int pref_includeUdCompHeaderDownlink = 2;   /* start heuristic */
+static int pref_includeUdCompHeaderUplink = 2;     /* start using heuristic */
+static int pref_includeUdCompHeaderDownlink = 2;   /* start using heuristic */
 
 /* Are we ignoring UL C-Plane udCompHdr? */
 static bool pref_override_ul_compression = false;
@@ -755,6 +756,7 @@ static const enum_val_t dl_compression_options[] = {
     { NULL, NULL, 0 }
 };
 
+/* No Modulation compression in UL.. */
 static const enum_val_t ul_compression_options[] = {
     { "COMP_NONE",                             "No Compression",                                                           COMP_NONE },
     { "COMP_BLOCK_FP",                         "Block Floating Point Compression",                                         COMP_BLOCK_FP },
@@ -957,7 +959,9 @@ static const value_string meas_type_id_vals[] = {
     { 3,  "UE frequency offset" },
     { 4,  "Interference plus Noise for allocated PRBs" },
     { 5,  "Interference plus Noise for unallocated PRBs" },
-    { 6,  "DMRS SNR per antenna" },
+    { 6,  "DMRS-SNR per antenna" },
+    { 7,  "UE positioning measurement report" },
+    { 8,  "UE radial speed measurement report" },
     { 0, NULL}
 };
 
@@ -4938,6 +4942,100 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         offset += 2;
                     }
                     break;
+                case 7:
+                {
+                    /* UE positioning measurement report */
+                    float start_value;
+
+                    /* ueAzAoa (16 bits) */
+                    uint32_t ue_az_aoa;
+                    proto_item *ue_az_aoa_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_ue_az_aoa, tvb, offset, 2, ENC_BIG_ENDIAN, &ue_az_aoa);
+                    if (ue_az_aoa <= 0xE0F) {
+                        if (ue_az_aoa >= 0x0708) {
+                            start_value = (ue_az_aoa-0x0708) * (float)0.1;
+                            proto_item_append_text(ue_az_aoa_ti, " (%.1f <= val < %.1f degrees)", start_value, start_value + (float)0.1);
+                        }
+                        else {
+                            start_value = 180 + (ue_az_aoa * (float)0.1);
+                            proto_item_append_text(ue_az_aoa_ti, " (%.1f <= val < %.1f degrees)", start_value, start_value + (float)0.1);
+                        }
+                    }
+                    else if (ue_az_aoa == 0xffff) {
+                        proto_item_append_text(ue_az_aoa_ti, " (invalid measurement result)");
+                    }
+                    else {
+                        proto_item_append_text(ue_az_aoa_ti, " (reserved)");
+                    }
+                    offset += 2;
+
+                    /* Reserved (16 bits) */
+                    add_reserved_field(mr_tree, hf_oran_reserved_16bits, tvb, offset, 2);
+                    offset += 2;
+
+                    /* ueZeAoa (16 bits) */
+                    uint32_t ue_ze_aoa;
+                    proto_item *ue_ze_aoa_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_ue_ze_aoa, tvb, offset, 2, ENC_BIG_ENDIAN, &ue_ze_aoa);
+                    if (ue_ze_aoa <= 0x707) {
+                        start_value = ue_ze_aoa * (float)0.1;
+                        proto_item_append_text(ue_ze_aoa_ti, " (%.1f <= val < %.1f degrees)", start_value, start_value + (float)0.1);
+                    }
+                    else if (ue_az_aoa == 0xffff) {
+                        proto_item_append_text(ue_ze_aoa_ti, " (invalid measurement result)");
+                    }
+                    else {
+                        proto_item_append_text(ue_ze_aoa_ti, " (reserved)");
+                    }
+                    offset += 2;
+
+                    /* Reserved (16 bits) */
+                    add_reserved_field(mr_tree, hf_oran_reserved_16bits, tvb, offset, 2);
+                    offset += 2;
+
+                    /* uePosToaOffset (16 bits) */
+                    uint32_t ue_pos_toa_offset;
+                    proto_item *ue_pos_toa_offset_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_ue_pos_toa_offset, tvb, offset, 2, ENC_BIG_ENDIAN, &ue_pos_toa_offset);
+                    if (ue_pos_toa_offset == 0) {
+                        proto_item_append_text(ue_pos_toa_offset_ti, " (no UE ToA offset, 0 symbols)");
+                    }
+                    else if (ue_pos_toa_offset <= 0x7fff) {
+                        proto_item_append_text(ue_pos_toa_offset_ti, " (+ve UE ToA offset)");
+                    }
+                    else if (ue_pos_toa_offset == 0x8000) {
+                        proto_item_append_text(ue_pos_toa_offset_ti, " (invalid measurement result)");
+                    }
+                    else {
+                        proto_item_append_text(ue_pos_toa_offset_ti, " (-ve UE ToA offset)");
+                    }
+                    offset += 2;
+
+                    /* Reserved (16 bits) */
+                    add_reserved_field(mr_tree, hf_oran_reserved_16bits, tvb, offset, 2);
+                    offset += 2;
+                    break;
+                }
+                case 8:
+                {
+                    /* UE radial speed measurement report */
+
+                    /* ueRadialSpeed (16 bits) */
+                    uint32_t radial_speed;
+                    proto_item *radial_speed_ti = proto_tree_add_item_ret_uint(mr_tree, hf_oran_ue_radial_speed, tvb, offset, 2, ENC_BIG_ENDIAN, &radial_speed);
+                    if (radial_speed <= 10000) {
+                        proto_item_append_text(radial_speed_ti, " (%.1f km/h)", radial_speed * (float)0.1);
+                    }
+                    else if (radial_speed == 0x8000) {
+                        proto_item_append_text(radial_speed_ti, " (invalid measurement result)");
+                    }
+                    else {
+                        proto_item_append_text(radial_speed_ti, " (reserved value)");
+                    }
+                    offset += 2;
+
+                    /* Reserved (16 bits) */
+                    add_reserved_field(mr_tree, hf_oran_reserved_16bits, tvb, offset, 2);
+                    offset += 2;
+                    break;
+                }
 
                 default:
                     /* Anything else is not expected */
@@ -9705,6 +9803,40 @@ proto_register_oran(void)
             "Positioning measurement report request",
             HFILL}
         },
+
+        /* 7.5.3.69 */
+        { &hf_oran_ue_radial_speed,
+          {"ueRadialSpeed", "oran_fh_cus.ueRadialSpeed",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "UE radial speed",
+            HFILL}
+        },
+        /* 7.5.3.70 */
+        { &hf_oran_ue_az_aoa,
+          {"ueAzAoa", "oran_fh_cus.ueAzAoa",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "UE azimuth angle of arrival",
+            HFILL}
+        },
+        /* 7.5.3.71 */
+        { &hf_oran_ue_ze_aoa,
+          {"ueZeAoa", "oran_fh_cus.ueZeAoa",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "UE zenith angle of arrival",
+            HFILL}
+        },
+        /* 7.5.3.72 */
+        { &hf_oran_ue_pos_toa_offset,
+          {"uePosToaOffset", "oran_fh_cus.uePosToaOffset",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x0,
+            "UE positioning time of arrival offset",
+            HFILL}
+        },
+
 
         { &hf_oran_c_section_common,
           { "Common Section", "oran_fh_cus.c-plane.section.common",
