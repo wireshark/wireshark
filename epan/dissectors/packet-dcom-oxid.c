@@ -121,9 +121,10 @@ dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
         offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
                             &u32ArraySize);
 
-        while (u16AddToSet--) {
+        while (u16AddToSet) {
             offset = dissect_dcom_ID(tvb, offset, pinfo, tree, di, drep,
                             hf_oxid_oid, NULL);
+            u16AddToSet--;
         }
     }
 

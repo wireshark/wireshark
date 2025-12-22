@@ -87,12 +87,10 @@ dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
 	if (u32Pointer) {
 		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
 							&u32ArraySize);
-		u32ItemIdx = 1;
-		while (u32Interfaces--) {
+		for (u32ItemIdx = 1; u32ItemIdx <= u32Interfaces; u32ItemIdx++) {
 			offset = dissect_dcom_append_UUID(tvb, offset, pinfo, tree, di, drep,
 							  hf_dcom_iid, u32ItemIdx, &iid);
 
-			u32ItemIdx++;
 		}
 	}
 
@@ -101,11 +99,9 @@ dissect_remact_remote_activation_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
 						&u32ArraySize);
-	u32ItemIdx = 1;
-	while (u32ArraySize--) {
+	for (u32ItemIdx = 1; u32ItemIdx <= u32ArraySize; u32ItemIdx++) {
 		offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, di, drep,
 					   hf_remact_protseqs, &u16ProtSeqs);
-		u32ItemIdx++;
 	}
 
 	return offset;

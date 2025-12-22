@@ -1221,7 +1221,7 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		sacb(tvb, offset, pinfo, tree, di, drep, u32VarType, u32ArraySize);
 	}
 
-	while(u32ArraySize--) {
+	while(u32ArraySize) {
 		switch(u32VarType) {
 			case(WIRESHARK_VT_ERROR):
 				offset = dissect_dcom_HRESULT(tvb, offset, pinfo, sub_tree, di, drep,
@@ -1263,6 +1263,7 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				u32VariableOffset = dissect_dcom_tobedone_data(tvb, u32VariableOffset, pinfo, sub_tree, drep,
 								10000);
 		}
+		u32ArraySize--;
 	}
 
 	/* update subtree header */
