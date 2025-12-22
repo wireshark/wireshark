@@ -1055,7 +1055,7 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
         break;
 
     default:
-        if (tvb_find_uint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
+        if (!tvb_find_uint8_remaining(tvbr->tvb->ws_tvb, tvbr->offset, 0, NULL)) {
             luaL_error(L,"out of bounds");
             return 0;
         }
@@ -1103,7 +1103,7 @@ WSLUA_METHOD TvbRange_strsize(lua_State* L) {
         break;
 
     default:
-        if (tvb_find_uint8 (tvbr->tvb->ws_tvb, tvbr->offset, -1, 0) == -1) {
+        if (!tvb_find_uint8_remaining(tvbr->tvb->ws_tvb, tvbr->offset, 0, NULL)) {
             luaL_error(L,"out of bounds");
             return 0;
         }

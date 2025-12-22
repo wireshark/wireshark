@@ -2191,7 +2191,7 @@ WS_DLL_PUBLIC const uint8_t *tvb_get_ptr(tvbuff_t *tvb, const int offset,
  * @param offset       The offset in the tvbuff to begin searching.
  * @param needle       The byte value to search for.
  * @param found_offset The offset of the needle, if found. Otherwise, the offset
- * just past the last byte searched.
+ * just past the last byte searched. (The pointer can be NULL.)
  *
  * @return true if the needle is found, false otherwise
  *
@@ -2216,7 +2216,7 @@ WS_DLL_PUBLIC bool tvb_find_uint8_remaining(tvbuff_t *tvb, const unsigned offset
  * @param maxlength    The maximum number of bytes to search.
  * @param needle       The byte value to search for.
  * @param found_offset The offset of the needle, if found. Otherwise, the offset
- * just past the last byte searched.
+ * just past the last byte searched. (The pointer can be NULL.)
  *
  * @return true if the needle is found, false otherwise
  *
