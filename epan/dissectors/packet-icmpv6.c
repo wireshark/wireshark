@@ -95,6 +95,8 @@ void proto_reg_handoff_icmpv6(void);
 static int proto_icmpv6;
 static int hf_icmpv6_type;
 static int hf_icmpv6_code;
+static int hf_icmpv6_mcast_ra_ad_interval;
+static int hf_icmpv6_mcast_ra_reserved;
 static int hf_icmpv6_checksum;
 static int hf_icmpv6_checksum_status;
 static int hf_icmpv6_reserved;
@@ -4504,8 +4506,19 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, icmp6_type, icmpv6_type_val, "Unknown (%d)"));
 
-    if (tree)
-        code_item = proto_tree_add_item(icmp6_tree, hf_icmpv6_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+    switch (icmp6_type) {
+        case ICMP6_MCAST_ROUTER_ADVERT:
+            // Code field is reused for Advertisement Interval
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_mcast_ra_ad_interval, tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
+        case ICMP6_MCAST_ROUTER_SOLICIT:
+        case ICMP6_MCAST_ROUTER_TERM:
+            // Code field is reserved
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_mcast_ra_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
+        default:
+            code_item = proto_tree_add_item(icmp6_tree, hf_icmpv6_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
 
     icmp6_code = tvb_get_uint8(tvb, offset);
     offset += 1;
@@ -4540,8 +4553,10 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
     }
 
-    if (code_name)
+    if (code_item && code_name) {
+        proto_item_append_text(code_item, " (%s)", code_name);
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", code_name);
+    }
 
     /* RFC 4380
      * 2.7.   Teredo UDP Port
@@ -4550,9 +4565,6 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");
         col_set_str(pinfo->cinfo, COL_INFO, "Direct IPv6 Connectivity Test");
     }
-
-    if (code_name)
-        proto_item_append_text(code_item, " (%s)", code_name);
 
     cksum = tvb_get_ntohs(tvb, offset);
     length = tvb_captured_length(tvb);
@@ -5253,6 +5265,12 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_code,
           { "Code", "icmpv6.code", FT_UINT8, BASE_DEC, NULL, 0x0,
             "Depends on the message type.  It is used to create an additional level of message granularity", HFILL }},
+        { &hf_icmpv6_mcast_ra_ad_interval,
+          { "Ad. Interval", "icmpv6.mcast_ra.adv_int", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
+            "Advertisement Interval of MRD Advertisement Packet", HFILL }},
+        { &hf_icmpv6_mcast_ra_reserved,
+          { "Reserved", "icmpv6.mcast_ra.reserved", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
         { &hf_icmpv6_checksum,
           { "Checksum", "icmpv6.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
             "Used to detect data corruption in the ICMPv6 message and parts of the IPv6 header", HFILL }},
