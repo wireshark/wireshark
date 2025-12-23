@@ -32,6 +32,7 @@
 
 #include <ws_symbol_export.h>
 #include <wsutil/plugins.h>
+#include <wsutil/str_util.h>
 #include <epan/proto.h>
 
 // for prefs
@@ -153,6 +154,7 @@ static p4prefs_t p4prefs = {
 static int proto_p4rpc;         // main tree proto
 static int ett_p4rpc;           // first registered subtree proto
 static int ett_argtree;         // second registered subtree proto
+static int ett_haverec;         // third registered subtree proto
 
 // header indices
 static int hf_p4rpc_checksum_len;
@@ -163,6 +165,11 @@ static int hf_p4rpc_varbytes;
 static int hf_p4rpc_varname;
 static int hf_p4rpc_varvallen;
 static int hf_p4rpc_varval;
+static int hf_p4rpc_have_client_path;
+static int hf_p4rpc_have_depot_path;
+static int hf_p4rpc_have_file_rev;
+static int hf_p4rpc_have_file_type;
+static int hf_p4rpc_have_file_datetime;
 static int hf_p4rpc_func; // func value
 static int hf_p4rpc_handle; // handle value
 static int hf_p4rpc_action; // action value
@@ -273,6 +280,7 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
         offset += sizeof(uint32_t);
 
         // get the param value
+        uint32_t val_offset = offset; // the offset to the start of the value
         uint8_t *varval = tvb_get_string_enc( pinfo->pool, tvb, offset, vallen, ENC_UTF_8 );
         int32_t tot_var_len = name_len + vallen + sizeof(uint32_t);
 
@@ -280,12 +288,13 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
         uint32_t nul_offset = offset + vallen;
         uint8_t zero = tvb_get_uint8( tvb, nul_offset );
 
-#define ARGBUF_SZ       64
+#define ARGBUF_SZ       128
         // make our "var=val" string
         char *argbuf = wmem_alloc( pinfo->pool, ARGBUF_SZ );
-        snprintf( argbuf, ARGBUF_SZ-1, "%s = {%s}",
+        snprintf( argbuf, ARGBUF_SZ-2, "%s = {%s",
             (*varname ? varname : (const uint8_t *)"<none>"), varval );
-            uint32_t val_offset = offset; // the offset to the start of the value
+        ws_utf8_truncate( argbuf, ARGBUF_SZ-1 ); // ensure no partial char at the end
+        g_strlcat( argbuf, "}", ARGBUF_SZ ); // close our bracket
 
         // used to check if a value length goes past the end of the message
         uint32_t bytes_left = msg_len - (offset - msg_start) + MSG_HEADER_LEN;
@@ -305,7 +314,62 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
             proto_tree_add_item( arg_tree, hf_p4rpc_varvallen, tvb, vallen_offset, sizeof(uint32_t), ENC_LITTLE_ENDIAN );
 
             // add the param value to our sub-subtree
-            proto_tree_add_item( arg_tree, hf_p4rpc_varval, tvb, val_offset, vallen, ENC_NA );
+            proto_item *vv_rec = proto_tree_add_item( arg_tree, hf_p4rpc_varval, tvb, val_offset, vallen, ENC_NA );
+
+            /*
+             * Special handling for the "haveRec" parameter
+             * because it's a compound structure.
+             */
+            if( strcmp((char *)varname, "haveRec") == 0 ) {
+                uint32_t cur_offset = val_offset;
+
+                /*
+                 * Format of the haveRec field:
+                 *
+                 * struct haveRec {
+                 *     char clientPath[];
+                 *     char depotPath[];
+                 *     uint32_t rev;
+                 *     uint32_t type;
+                 *     uint32_t date; // sometimes a uint64_t
+                 * };
+                 */
+
+                // add a new item item to our sub-subtree and attach a new "value" sub-subtree to it
+                proto_item *have_tree = proto_item_add_subtree( vv_rec, ett_haverec );
+
+                // add the client path to our sub-sub-subtree
+                uint32_t client_len;
+                tvb_get_stringz_enc( pinfo->pool, tvb, cur_offset, &client_len, ENC_UTF_8 );
+                proto_tree_add_item( have_tree, hf_p4rpc_have_client_path, tvb, cur_offset, client_len, ENC_UTF_8 );
+                cur_offset += client_len;
+
+                // add the depot path to our sub-sub-subtree
+                uint32_t depot_len;
+                tvb_get_stringz_enc( pinfo->pool, tvb, cur_offset, &depot_len, ENC_UTF_8 );
+                proto_tree_add_item( have_tree, hf_p4rpc_have_depot_path, tvb, cur_offset, depot_len, ENC_UTF_8 );
+                cur_offset += depot_len;
+
+                // add the file rev number to our sub-sub-subtree
+                proto_tree_add_item( have_tree, hf_p4rpc_have_file_rev, tvb, cur_offset, sizeof(uint32_t), ENC_LITTLE_ENDIAN );
+                cur_offset += sizeof(uint32_t);
+
+                // add the file type to our sub-sub-subtree
+                proto_tree_add_item( have_tree, hf_p4rpc_have_file_type, tvb, cur_offset, sizeof(uint32_t), ENC_LITTLE_ENDIAN );
+                cur_offset += sizeof(uint32_t);
+
+                /*
+                 * Add the file datetime to our sub-sub-subtree.
+                 * If there are 8 bytes remaining before the NUL terminator
+                 * then all 8 are the 64-bit datetime.
+                 * Otherwise the next 4 bytes are the 32-bit datetime.
+                 */
+                uint32_t datetime_len = (cur_offset + sizeof(uint64_t) < nul_offset )
+                                      ? sizeof(uint64_t)
+                                      : sizeof(uint32_t);
+                proto_tree_add_item( have_tree, hf_p4rpc_have_file_datetime,
+                    tvb, cur_offset, datetime_len, ENC_LITTLE_ENDIAN );
+            }
 
             // decode the nul terminator
             proto_item *nul_item =
@@ -651,7 +715,7 @@ p4rpc_setup_ports( bool isInit )
     {
         /*
          * We don't delete the heuristic dissector during initialization
-         * because none couldn't have been registered already.
+         * because none could have been registered already.
          *
          * After initialization it's still possible that no heuristic
          * dissector has registered.
@@ -947,6 +1011,75 @@ proto_register_p4rpc(void)
         },
     };
 
+    // haveRec subtree
+    static hf_register_info hr[] = {
+        {
+            &hf_p4rpc_have_client_path,
+            {
+                "client path",
+                "p4rpc.have.client.path",
+                FT_STRINGZ,
+                BASE_NONE,
+                NULL,
+                0x0,
+                "Value of this parameter",
+                HFILL
+            }
+        },
+        {
+            &hf_p4rpc_have_depot_path,
+            {
+                "depot path",
+                "p4rpc.have.depot.path",
+                FT_STRINGZ,
+                BASE_NONE,
+                NULL,
+                0x0,
+                "Value of this parameter",
+                HFILL
+            }
+        },
+        {
+            &hf_p4rpc_have_file_rev,
+            {
+                "file rev",
+                "p4rpc.have.file.rev",
+                FT_INT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "Value of this parameter",
+                HFILL
+            }
+        },
+        {
+            &hf_p4rpc_have_file_type,
+            {
+                "file type",
+                "p4rpc.have.file.type",
+                FT_INT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "Value of this parameter",
+                HFILL
+            }
+        },
+        {
+            &hf_p4rpc_have_file_datetime,
+            {
+                "file datetime",
+                "p4rpc.have.file.datetime",
+                FT_ABSOLUTE_TIME,
+                ABSOLUTE_TIME_LOCAL,
+                NULL,
+                0x0,
+                "Value of this parameter",
+                HFILL
+            }
+        }
+    };
+
     /*
      * Register our expert info variables
      * (message warnings, errors, corruption, etc)
@@ -1016,6 +1149,11 @@ proto_register_p4rpc(void)
         &ett_argtree
     };
 
+    // Setup protocol subtree haveRec value array
+    static int *ett_haverec_value[] = {
+        &ett_haverec
+    };
+
     // Finally, register our protocol
     proto_p4rpc = proto_register_protocol (
         "P4RPC (Perforce Protocol)", // protocol long name
@@ -1030,6 +1168,10 @@ proto_register_p4rpc(void)
     // register more variables
     proto_register_field_array( proto_p4rpc, nv, array_length(nv) );
     proto_register_subtree_array( ett_name_value, array_length(ett_name_value) );
+
+    // register haverec variables
+    proto_register_field_array( proto_p4rpc, hr, array_length(hr) );
+    proto_register_subtree_array( ett_haverec_value, array_length(ett_haverec_value) );
 
     // register expert variables
     expert_p4rpc = expert_register_protocol( proto_p4rpc );
