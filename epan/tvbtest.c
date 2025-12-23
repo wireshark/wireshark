@@ -260,7 +260,7 @@ test(tvbuff_t *tvb, const char* name,
 	if (length >= 4) {
 		ex_thrown = false;
 		TRY {
-			val32 = tvb_get_ntohl(tvb, -4);
+			val32 = tvb_get_ntohl(tvb, length-4);
 		}
 		CATCH_ALL {
 			ex_thrown = true;
@@ -269,7 +269,7 @@ test(tvbuff_t *tvb, const char* name,
 
 		if (ex_thrown) {
 			printf("09: Failed TVB=%s Exception when retrieving "
-					"uint32_t from offset 0\n", name);
+					"uint32_t from offset %u (length - 4)\n", name, length-4);
 			failed = true;
 			return false;
 		}

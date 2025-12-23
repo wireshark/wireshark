@@ -260,6 +260,13 @@ validate_offset_length_no_exception(const tvbuff_t *tvb,
 	int   exception;
 
 	/* Compute the offset */
+	/* Since offset is unsigned, the only effect of validation is to throw
+	 * a possibly different exception if offset is outside the captured
+	 * bytes. E.g., offset could be outside the captured bytes but in the
+	 * reported length, but end_offset outside the reported length.
+	 * XXX - Which *is* the proper exception? Compare fast_ensure_contiguous
+	 * which only throws the exception related to the end offset.
+	 */
 	exception = validate_offset(tvb, offset);
 	if (exception)
 		return exception;
@@ -997,24 +1004,25 @@ ensure_contiguous(tvbuff_t *tvb, const int offset, const int length)
 }
 
 static inline const uint8_t*
-fast_ensure_contiguous(tvbuff_t *tvb, const int offset, const unsigned length)
+fast_ensure_contiguous(tvbuff_t *tvb, const unsigned offset, const unsigned length)
 {
 	unsigned end_offset;
-	unsigned u_offset;
 
+	/* Since offset is unsigned, we have to check for overflow. */
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
-	/* We don't check for overflow in this fast path so we only handle simple types */
-	DISSECTOR_ASSERT(length <= 8);
 
-	if (offset < 0 || !tvb->real_data) {
-		return ensure_contiguous(tvb, offset, length);
+	if (!tvb->real_data) {
+	       return ensure_contiguous_unsigned(tvb, offset, length);
 	}
 
-	u_offset = offset;
-	end_offset = u_offset + length;
+	/* XXX - Is this really faster now (other than the slight difference
+	 * in behavior from only throwing the exception related to the end
+	 * offset?) */
+	if (ckd_add(&end_offset, offset, length))
+		THROW(BoundsError);
 
 	if (G_LIKELY(end_offset <= tvb->length)) {
-		return tvb->real_data + u_offset;
+		return tvb->real_data + offset;
 	} else if (end_offset <= tvb->contained_length) {
 		THROW(BoundsError);
 	} else if (tvb->flags & TVBUFF_FRAGMENT) {
@@ -1127,7 +1135,7 @@ tvb_get_ptr(tvbuff_t *tvb, const int offset, const int length)
 
 /* ---------------- */
 uint8_t
-tvb_get_uint8(tvbuff_t *tvb, const int offset)
+tvb_get_uint8(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1136,7 +1144,7 @@ tvb_get_uint8(tvbuff_t *tvb, const int offset)
 }
 
 int8_t
-tvb_get_int8(tvbuff_t *tvb, const int offset)
+tvb_get_int8(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1145,7 +1153,7 @@ tvb_get_int8(tvbuff_t *tvb, const int offset)
 }
 
 uint16_t
-tvb_get_ntohs(tvbuff_t *tvb, const int offset)
+tvb_get_ntohs(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1154,7 +1162,7 @@ tvb_get_ntohs(tvbuff_t *tvb, const int offset)
 }
 
 int16_t
-tvb_get_ntohis(tvbuff_t *tvb, const int offset)
+tvb_get_ntohis(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1163,7 +1171,7 @@ tvb_get_ntohis(tvbuff_t *tvb, const int offset)
 }
 
 uint32_t
-tvb_get_ntoh24(tvbuff_t *tvb, const int offset)
+tvb_get_ntoh24(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1172,7 +1180,7 @@ tvb_get_ntoh24(tvbuff_t *tvb, const int offset)
 }
 
 int32_t
-tvb_get_ntohi24(tvbuff_t *tvb, const int offset)
+tvb_get_ntohi24(tvbuff_t *tvb, const unsigned offset)
 {
 	uint32_t ret;
 
@@ -1182,7 +1190,7 @@ tvb_get_ntohi24(tvbuff_t *tvb, const int offset)
 }
 
 uint32_t
-tvb_get_ntohl(tvbuff_t *tvb, const int offset)
+tvb_get_ntohl(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1191,7 +1199,7 @@ tvb_get_ntohl(tvbuff_t *tvb, const int offset)
 }
 
 int32_t
-tvb_get_ntohil(tvbuff_t *tvb, const int offset)
+tvb_get_ntohil(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1200,7 +1208,7 @@ tvb_get_ntohil(tvbuff_t *tvb, const int offset)
 }
 
 uint64_t
-tvb_get_ntoh40(tvbuff_t *tvb, const int offset)
+tvb_get_ntoh40(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1209,7 +1217,7 @@ tvb_get_ntoh40(tvbuff_t *tvb, const int offset)
 }
 
 int64_t
-tvb_get_ntohi40(tvbuff_t *tvb, const int offset)
+tvb_get_ntohi40(tvbuff_t *tvb, const unsigned offset)
 {
 	uint64_t ret;
 
@@ -1219,7 +1227,7 @@ tvb_get_ntohi40(tvbuff_t *tvb, const int offset)
 }
 
 uint64_t
-tvb_get_ntoh48(tvbuff_t *tvb, const int offset)
+tvb_get_ntoh48(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1228,7 +1236,7 @@ tvb_get_ntoh48(tvbuff_t *tvb, const int offset)
 }
 
 int64_t
-tvb_get_ntohi48(tvbuff_t *tvb, const int offset)
+tvb_get_ntohi48(tvbuff_t *tvb, const unsigned offset)
 {
 	uint64_t ret;
 
@@ -1238,7 +1246,7 @@ tvb_get_ntohi48(tvbuff_t *tvb, const int offset)
 }
 
 uint64_t
-tvb_get_ntoh56(tvbuff_t *tvb, const int offset)
+tvb_get_ntoh56(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1247,7 +1255,7 @@ tvb_get_ntoh56(tvbuff_t *tvb, const int offset)
 }
 
 int64_t
-tvb_get_ntohi56(tvbuff_t *tvb, const int offset)
+tvb_get_ntohi56(tvbuff_t *tvb, const unsigned offset)
 {
 	uint64_t ret;
 
@@ -1257,7 +1265,7 @@ tvb_get_ntohi56(tvbuff_t *tvb, const int offset)
 }
 
 uint64_t
-tvb_get_ntoh64(tvbuff_t *tvb, const int offset)
+tvb_get_ntoh64(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1266,7 +1274,7 @@ tvb_get_ntoh64(tvbuff_t *tvb, const int offset)
 }
 
 int64_t
-tvb_get_ntohi64(tvbuff_t *tvb, const int offset)
+tvb_get_ntohi64(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1275,7 +1283,7 @@ tvb_get_ntohi64(tvbuff_t *tvb, const int offset)
 }
 
 uint16_t
-tvb_get_uint16(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint16(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohs(tvb, offset);
 	} else {
@@ -1284,7 +1292,7 @@ tvb_get_uint16(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 int16_t
-tvb_get_int16(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int16(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohis(tvb, offset);
 	} else {
@@ -1293,7 +1301,7 @@ tvb_get_int16(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 uint32_t
-tvb_get_uint24(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint24(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letoh24(tvb, offset);
 	} else {
@@ -1302,7 +1310,7 @@ tvb_get_uint24(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 int32_t
-tvb_get_int24(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int24(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohi24(tvb, offset);
 	} else {
@@ -1311,7 +1319,7 @@ tvb_get_int24(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 uint32_t
-tvb_get_uint32(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint32(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohl(tvb, offset);
 	} else {
@@ -1320,7 +1328,7 @@ tvb_get_uint32(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 int32_t
-tvb_get_int32(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int32(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohil(tvb, offset);
 	} else {
@@ -1329,7 +1337,7 @@ tvb_get_int32(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 uint64_t
-tvb_get_uint40(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint40(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letoh40(tvb, offset);
 	} else {
@@ -1338,7 +1346,7 @@ tvb_get_uint40(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 int64_t
-tvb_get_int40(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int40(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohi40(tvb, offset);
 	} else {
@@ -1347,7 +1355,7 @@ tvb_get_int40(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 uint64_t
-tvb_get_uint48(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint48(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letoh48(tvb, offset);
 	} else {
@@ -1356,7 +1364,7 @@ tvb_get_uint48(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 int64_t
-tvb_get_int48(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int48(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohi48(tvb, offset);
 	} else {
@@ -1365,7 +1373,7 @@ tvb_get_int48(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 uint64_t
-tvb_get_uint56(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint56(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letoh56(tvb, offset);
 	} else {
@@ -1374,7 +1382,7 @@ tvb_get_uint56(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 int64_t
-tvb_get_int56(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int56(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohi56(tvb, offset);
 	} else {
@@ -1383,7 +1391,7 @@ tvb_get_int56(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 uint64_t
-tvb_get_uint64(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_uint64(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letoh64(tvb, offset);
 	} else {
@@ -1392,7 +1400,7 @@ tvb_get_uint64(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 uint64_t
-tvb_get_uint64_with_length(tvbuff_t *tvb, const int offset, unsigned length, const unsigned encoding)
+tvb_get_uint64_with_length(tvbuff_t *tvb, const unsigned offset, unsigned length, const unsigned encoding)
 {
 	uint64_t value;
 
@@ -1450,7 +1458,7 @@ tvb_get_uint64_with_length(tvbuff_t *tvb, const int offset, unsigned length, con
 }
 
 int64_t
-tvb_get_int64(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_int64(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohi64(tvb, offset);
 	} else {
@@ -1459,7 +1467,7 @@ tvb_get_int64(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 float
-tvb_get_ieee_float(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_ieee_float(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohieee_float(tvb, offset);
 	} else {
@@ -1468,7 +1476,7 @@ tvb_get_ieee_float(tvbuff_t *tvb, const int offset, const unsigned encoding) {
 }
 
 double
-tvb_get_ieee_double(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+tvb_get_ieee_double(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
 	if (encoding & ENC_LITTLE_ENDIAN) {
 		return tvb_get_letohieee_double(tvb, offset);
 	} else {
@@ -1631,7 +1639,7 @@ get_ieee_double(const uint64_t w)
  * "float" format?
  */
 float
-tvb_get_ntohieee_float(tvbuff_t *tvb, const int offset)
+tvb_get_ntohieee_float(tvbuff_t *tvb, const unsigned offset)
 {
 #if defined(vax)
 	return get_ieee_float(tvb_get_ntohl(tvb, offset));
@@ -1651,7 +1659,7 @@ tvb_get_ntohieee_float(tvbuff_t *tvb, const int offset)
  * big-endian form, and returns a "double".
  */
 double
-tvb_get_ntohieee_double(tvbuff_t *tvb, const int offset)
+tvb_get_ntohieee_double(tvbuff_t *tvb, const unsigned offset)
 {
 #if defined(vax)
 	union {
@@ -1680,7 +1688,7 @@ tvb_get_ntohieee_double(tvbuff_t *tvb, const int offset)
 }
 
 uint16_t
-tvb_get_letohs(tvbuff_t *tvb, const int offset)
+tvb_get_letohs(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1689,7 +1697,7 @@ tvb_get_letohs(tvbuff_t *tvb, const int offset)
 }
 
 int16_t
-tvb_get_letohis(tvbuff_t *tvb, const int offset)
+tvb_get_letohis(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1698,7 +1706,7 @@ tvb_get_letohis(tvbuff_t *tvb, const int offset)
 }
 
 uint32_t
-tvb_get_letoh24(tvbuff_t *tvb, const int offset)
+tvb_get_letoh24(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1707,7 +1715,7 @@ tvb_get_letoh24(tvbuff_t *tvb, const int offset)
 }
 
 int32_t
-tvb_get_letohi24(tvbuff_t *tvb, const int offset)
+tvb_get_letohi24(tvbuff_t *tvb, const unsigned offset)
 {
 	uint32_t ret;
 
@@ -1717,7 +1725,7 @@ tvb_get_letohi24(tvbuff_t *tvb, const int offset)
 }
 
 uint32_t
-tvb_get_letohl(tvbuff_t *tvb, const int offset)
+tvb_get_letohl(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1726,7 +1734,7 @@ tvb_get_letohl(tvbuff_t *tvb, const int offset)
 }
 
 int32_t
-tvb_get_letohil(tvbuff_t *tvb, const int offset)
+tvb_get_letohil(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1735,7 +1743,7 @@ tvb_get_letohil(tvbuff_t *tvb, const int offset)
 }
 
 uint64_t
-tvb_get_letoh40(tvbuff_t *tvb, const int offset)
+tvb_get_letoh40(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1744,7 +1752,7 @@ tvb_get_letoh40(tvbuff_t *tvb, const int offset)
 }
 
 int64_t
-tvb_get_letohi40(tvbuff_t *tvb, const int offset)
+tvb_get_letohi40(tvbuff_t *tvb, const unsigned offset)
 {
 	uint64_t ret;
 
@@ -1754,7 +1762,7 @@ tvb_get_letohi40(tvbuff_t *tvb, const int offset)
 }
 
 uint64_t
-tvb_get_letoh48(tvbuff_t *tvb, const int offset)
+tvb_get_letoh48(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1763,7 +1771,7 @@ tvb_get_letoh48(tvbuff_t *tvb, const int offset)
 }
 
 int64_t
-tvb_get_letohi48(tvbuff_t *tvb, const int offset)
+tvb_get_letohi48(tvbuff_t *tvb, const unsigned offset)
 {
 	uint64_t ret;
 
@@ -1773,7 +1781,7 @@ tvb_get_letohi48(tvbuff_t *tvb, const int offset)
 }
 
 uint64_t
-tvb_get_letoh56(tvbuff_t *tvb, const int offset)
+tvb_get_letoh56(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1782,7 +1790,7 @@ tvb_get_letoh56(tvbuff_t *tvb, const int offset)
 }
 
 int64_t
-tvb_get_letohi56(tvbuff_t *tvb, const int offset)
+tvb_get_letohi56(tvbuff_t *tvb, const unsigned offset)
 {
 	uint64_t ret;
 
@@ -1792,7 +1800,7 @@ tvb_get_letohi56(tvbuff_t *tvb, const int offset)
 }
 
 uint64_t
-tvb_get_letoh64(tvbuff_t *tvb, const int offset)
+tvb_get_letoh64(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1801,7 +1809,7 @@ tvb_get_letoh64(tvbuff_t *tvb, const int offset)
 }
 
 int64_t
-tvb_get_letohi64(tvbuff_t *tvb, const int offset)
+tvb_get_letohi64(tvbuff_t *tvb, const unsigned offset)
 {
 	const uint8_t *ptr;
 
@@ -1818,7 +1826,7 @@ tvb_get_letohi64(tvbuff_t *tvb, const int offset)
  * "float" format?
  */
 float
-tvb_get_letohieee_float(tvbuff_t *tvb, const int offset)
+tvb_get_letohieee_float(tvbuff_t *tvb, const unsigned offset)
 {
 #if defined(vax)
 	return get_ieee_float(tvb_get_letohl(tvb, offset));
@@ -1838,7 +1846,7 @@ tvb_get_letohieee_float(tvbuff_t *tvb, const int offset)
  * little-endian form, and returns a "double".
  */
 double
-tvb_get_letohieee_double(tvbuff_t *tvb, const int offset)
+tvb_get_letohieee_double(tvbuff_t *tvb, const unsigned offset)
 {
 #if defined(vax)
 	union {

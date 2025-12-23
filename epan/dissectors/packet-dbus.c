@@ -1421,23 +1421,23 @@ dissect_dbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 static unsigned
 get_dbus_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                      int offset, void *data _U_) {
-	uint32_t (*get_uint32)(tvbuff_t *, const int);
 
+	unsigned encoding;
 	uint32_t len_body, len_hdr;
 
 	switch (tvb_get_uint8(tvb, offset)) {
 		case 'l':
-			get_uint32 = tvb_get_letohl;
+			encoding = ENC_LITTLE_ENDIAN;
 			break;
 		case 'B':
 		default:
-			get_uint32 = tvb_get_ntohl;
+			encoding = ENC_BIG_ENDIAN;
 			break;
 	}
 
-	len_hdr = DBUS_HEADER_LEN + get_uint32(tvb, offset + 12);
+	len_hdr = DBUS_HEADER_LEN + tvb_get_uint32(tvb, offset + 12, encoding);
 	len_hdr = WS_ROUNDUP_8(len_hdr);
-	len_body = get_uint32(tvb, offset + 4);
+	len_body = tvb_get_uint32(tvb, offset + 4, encoding);
 
 	return len_hdr + len_body;
 }

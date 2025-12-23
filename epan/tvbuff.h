@@ -598,7 +598,7 @@ WS_DLL_PUBLIC struct tvbuff *tvb_get_ds_tvb(tvbuff_t *tvb);
  *
  * @return The 8-bit unsigned value at the given offset.
  */
-WS_DLL_PUBLIC uint8_t tvb_get_uint8(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint8_t tvb_get_uint8(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Deprecated accessor for an 8-bit unsigned value from a tvbuff.
@@ -614,7 +614,7 @@ WS_DLL_PUBLIC uint8_t tvb_get_uint8(tvbuff_t *tvb, const int offset);
  * @deprecated Use @ref tvb_get_uint8 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_uint8 instead")
-static inline uint8_t tvb_get_guint8(tvbuff_t *tvb, const int offset) {
+static inline uint8_t tvb_get_guint8(tvbuff_t *tvb, const unsigned offset) {
     return tvb_get_uint8(tvb, offset);
 }
 
@@ -629,7 +629,7 @@ static inline uint8_t tvb_get_guint8(tvbuff_t *tvb, const int offset) {
  *
  * @return The 8-bit signed value at the given offset.
  */
-WS_DLL_PUBLIC int8_t tvb_get_int8(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int8_t tvb_get_int8(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Deprecated accessor for an 8-bit signed value from a tvbuff.
@@ -645,7 +645,7 @@ WS_DLL_PUBLIC int8_t tvb_get_int8(tvbuff_t *tvb, const int offset);
  * @deprecated Use @ref tvb_get_int8 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_int8 instead")
-static inline int8_t tvb_get_gint8(tvbuff_t *tvb, const int offset) { return tvb_get_int8(tvb, offset); }
+static inline int8_t tvb_get_gint8(tvbuff_t *tvb, const unsigned offset) { return tvb_get_int8(tvb, offset); }
 
 /**
  * @brief Retrieve a 16-bit unsigned value in network byte order.
@@ -663,7 +663,7 @@ static inline int8_t tvb_get_gint8(tvbuff_t *tvb, const int offset) { return tvb
  *
  * @see tvb_get_ntohis
  */
-WS_DLL_PUBLIC uint16_t tvb_get_ntohs(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint16_t tvb_get_ntohs(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 16-bit signed value in network byte order.
@@ -681,7 +681,7 @@ WS_DLL_PUBLIC uint16_t tvb_get_ntohs(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntohs
  */
-WS_DLL_PUBLIC int16_t tvb_get_ntohis(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int16_t tvb_get_ntohis(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 24-bit unsigned value in network byte order.
@@ -699,7 +699,7 @@ WS_DLL_PUBLIC int16_t tvb_get_ntohis(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntohi24
  */
-WS_DLL_PUBLIC uint32_t tvb_get_ntoh24(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint32_t tvb_get_ntoh24(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 24-bit signed value in network byte order.
@@ -717,7 +717,7 @@ WS_DLL_PUBLIC uint32_t tvb_get_ntoh24(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntoh24
  */
-WS_DLL_PUBLIC int32_t tvb_get_ntohi24(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int32_t tvb_get_ntohi24(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 32-bit unsigned value in network byte order.
@@ -735,7 +735,7 @@ WS_DLL_PUBLIC int32_t tvb_get_ntohi24(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntohil
  */
-WS_DLL_PUBLIC uint32_t tvb_get_ntohl(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint32_t tvb_get_ntohl(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 32-bit signed value in network byte order.
@@ -753,7 +753,7 @@ WS_DLL_PUBLIC uint32_t tvb_get_ntohl(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntohl
  */
-WS_DLL_PUBLIC int32_t tvb_get_ntohil(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int32_t tvb_get_ntohil(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 40-bit unsigned value in network byte order.
@@ -771,7 +771,7 @@ WS_DLL_PUBLIC int32_t tvb_get_ntohil(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntohi40
  */
-WS_DLL_PUBLIC uint64_t tvb_get_ntoh40(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_ntoh40(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 40-bit signed value in network byte order.
@@ -789,7 +789,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_ntoh40(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntoh40
  */
-WS_DLL_PUBLIC int64_t tvb_get_ntohi40(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_ntohi40(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 48-bit unsigned value in network byte order.
@@ -807,7 +807,7 @@ WS_DLL_PUBLIC int64_t tvb_get_ntohi40(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntohi48
  */
-WS_DLL_PUBLIC uint64_t tvb_get_ntoh48(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_ntoh48(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 48-bit signed value in network byte order.
@@ -825,7 +825,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_ntoh48(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntoh48
  */
-WS_DLL_PUBLIC int64_t tvb_get_ntohi48(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_ntohi48(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 56-bit unsigned value in network byte order.
@@ -843,7 +843,7 @@ WS_DLL_PUBLIC int64_t tvb_get_ntohi48(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntohi56
  */
-WS_DLL_PUBLIC uint64_t tvb_get_ntoh56(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_ntoh56(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 56-bit signed value in network byte order.
@@ -861,7 +861,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_ntoh56(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntoh56
  */
-WS_DLL_PUBLIC int64_t tvb_get_ntohi56(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_ntohi56(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 64-bit unsigned value in network byte order.
@@ -879,7 +879,7 @@ WS_DLL_PUBLIC int64_t tvb_get_ntohi56(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntohi64
  */
-WS_DLL_PUBLIC uint64_t tvb_get_ntoh64(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_ntoh64(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 64-bit signed value in network byte order.
@@ -897,7 +897,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_ntoh64(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntoh64
  */
-WS_DLL_PUBLIC int64_t tvb_get_ntohi64(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_ntohi64(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 32-bit IEEE float in network byte order.
@@ -915,7 +915,7 @@ WS_DLL_PUBLIC int64_t tvb_get_ntohi64(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_ntohieee_double
  */
-WS_DLL_PUBLIC float tvb_get_ntohieee_float(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC float tvb_get_ntohieee_float(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 64-bit IEEE double in network byte order.
@@ -934,7 +934,7 @@ WS_DLL_PUBLIC float tvb_get_ntohieee_float(tvbuff_t *tvb, const int offset);
  * @see tvb_get_ntohieee_float
  */
 WS_DLL_PUBLIC double tvb_get_ntohieee_double(tvbuff_t *tvb,
-    const int offset);
+    const unsigned offset);
 
 /**
  * @brief Retrieve a 16-bit unsigned value in little-endian byte order.
@@ -952,7 +952,7 @@ WS_DLL_PUBLIC double tvb_get_ntohieee_double(tvbuff_t *tvb,
  *
  * @see tvb_get_letohis
  */
-WS_DLL_PUBLIC uint16_t tvb_get_letohs(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint16_t tvb_get_letohs(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 16-bit signed value in little-endian byte order.
@@ -970,7 +970,7 @@ WS_DLL_PUBLIC uint16_t tvb_get_letohs(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letohs
  */
-WS_DLL_PUBLIC int16_t tvb_get_letohis(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int16_t tvb_get_letohis(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 24-bit unsigned value in little-endian byte order.
@@ -988,7 +988,7 @@ WS_DLL_PUBLIC int16_t tvb_get_letohis(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letohi24
  */
-WS_DLL_PUBLIC uint32_t tvb_get_letoh24(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint32_t tvb_get_letoh24(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 24-bit signed value in little-endian byte order.
@@ -1006,7 +1006,7 @@ WS_DLL_PUBLIC uint32_t tvb_get_letoh24(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letoh24
  */
-WS_DLL_PUBLIC int32_t tvb_get_letohi24(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int32_t tvb_get_letohi24(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 32-bit unsigned value in little-endian byte order.
@@ -1024,7 +1024,7 @@ WS_DLL_PUBLIC int32_t tvb_get_letohi24(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letohil
  */
-WS_DLL_PUBLIC uint32_t tvb_get_letohl(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint32_t tvb_get_letohl(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 32-bit signed value in little-endian byte order.
@@ -1042,7 +1042,7 @@ WS_DLL_PUBLIC uint32_t tvb_get_letohl(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letohl
  */
-WS_DLL_PUBLIC int32_t tvb_get_letohil(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int32_t tvb_get_letohil(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 40-bit unsigned value in little-endian byte order.
@@ -1060,7 +1060,7 @@ WS_DLL_PUBLIC int32_t tvb_get_letohil(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letohi40
  */
-WS_DLL_PUBLIC uint64_t tvb_get_letoh40(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_letoh40(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 40-bit signed value in little-endian byte order.
@@ -1078,7 +1078,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_letoh40(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letoh40
  */
-WS_DLL_PUBLIC int64_t tvb_get_letohi40(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_letohi40(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 48-bit unsigned value in little-endian byte order.
@@ -1096,7 +1096,7 @@ WS_DLL_PUBLIC int64_t tvb_get_letohi40(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letohi48
  */
-WS_DLL_PUBLIC uint64_t tvb_get_letoh48(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_letoh48(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 48-bit signed value in little-endian byte order.
@@ -1114,7 +1114,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_letoh48(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letoh48
  */
-WS_DLL_PUBLIC int64_t tvb_get_letohi48(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_letohi48(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 56-bit unsigned value in little-endian byte order.
@@ -1132,7 +1132,7 @@ WS_DLL_PUBLIC int64_t tvb_get_letohi48(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letohi56
  */
-WS_DLL_PUBLIC uint64_t tvb_get_letoh56(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_letoh56(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 56-bit signed value in little-endian byte order.
@@ -1150,7 +1150,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_letoh56(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letoh56
  */
-WS_DLL_PUBLIC int64_t tvb_get_letohi56(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_letohi56(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 64-bit unsigned value in little-endian byte order.
@@ -1168,7 +1168,7 @@ WS_DLL_PUBLIC int64_t tvb_get_letohi56(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letohi64
  */
-WS_DLL_PUBLIC uint64_t tvb_get_letoh64(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC uint64_t tvb_get_letoh64(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 64-bit signed value in little-endian byte order.
@@ -1186,7 +1186,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_letoh64(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letoh64
  */
-WS_DLL_PUBLIC int64_t tvb_get_letohi64(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC int64_t tvb_get_letohi64(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 32-bit IEEE float in little-endian byte order.
@@ -1204,7 +1204,7 @@ WS_DLL_PUBLIC int64_t tvb_get_letohi64(tvbuff_t *tvb, const int offset);
  *
  * @see tvb_get_letohieee_double
  */
-WS_DLL_PUBLIC float tvb_get_letohieee_float(tvbuff_t *tvb, const int offset);
+WS_DLL_PUBLIC float tvb_get_letohieee_float(tvbuff_t *tvb, const unsigned offset);
 
 /**
  * @brief Retrieve a 64-bit IEEE double in little-endian byte order.
@@ -1223,7 +1223,7 @@ WS_DLL_PUBLIC float tvb_get_letohieee_float(tvbuff_t *tvb, const int offset);
  * @see tvb_get_letohieee_float
  */
 WS_DLL_PUBLIC double tvb_get_letohieee_double(tvbuff_t *tvb,
-    const int offset);
+    const unsigned offset);
 
 /**
  * @brief Retrieve a 16-bit unsigned value from a tvbuff using the specified encoding.
@@ -1240,7 +1240,7 @@ WS_DLL_PUBLIC double tvb_get_letohieee_double(tvbuff_t *tvb,
  *
  * @return The 16-bit unsigned value in host byte order.
  */
-WS_DLL_PUBLIC uint16_t tvb_get_uint16(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC uint16_t tvb_get_uint16(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 16-bit unsigned value from a tvbuff.
@@ -1257,7 +1257,7 @@ WS_DLL_PUBLIC uint16_t tvb_get_uint16(tvbuff_t *tvb, const int offset, const uns
  * @deprecated Use @ref tvb_get_uint16 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_uint16 instead")
-static inline uint16_t tvb_get_guint16(tvbuff_t *tvb, const int offset, const unsigned encoding) {
+static inline uint16_t tvb_get_guint16(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {
     return tvb_get_uint16(tvb, offset, encoding);
 }
 
@@ -1276,7 +1276,7 @@ static inline uint16_t tvb_get_guint16(tvbuff_t *tvb, const int offset, const un
  *
  * @return The 16-bit signed value in host byte order.
  */
-WS_DLL_PUBLIC int16_t tvb_get_int16(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int16_t tvb_get_int16(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 16-bit signed value from a tvbuff.
@@ -1293,7 +1293,7 @@ WS_DLL_PUBLIC int16_t tvb_get_int16(tvbuff_t *tvb, const int offset, const unsig
  * @deprecated Use @ref tvb_get_int16 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_int16 instead")
-static inline int16_t tvb_get_gint16(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int16(tvb, offset, encoding); }
+static inline int16_t tvb_get_gint16(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int16(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 24-bit unsigned value from a tvbuff using the specified encoding.
@@ -1310,7 +1310,7 @@ static inline int16_t tvb_get_gint16(tvbuff_t *tvb, const int offset, const unsi
  *
  * @return The 24-bit unsigned value in host byte order.
  */
-WS_DLL_PUBLIC uint32_t tvb_get_uint24(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC uint32_t tvb_get_uint24(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 24-bit unsigned value from a tvbuff.
@@ -1327,7 +1327,7 @@ WS_DLL_PUBLIC uint32_t tvb_get_uint24(tvbuff_t *tvb, const int offset, const uns
  * @deprecated Use @ref tvb_get_uint24 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_uint24 instead")
-static inline uint32_t tvb_get_guint24(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_uint24(tvb, offset, encoding); }
+static inline uint32_t tvb_get_guint24(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_uint24(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 24-bit signed value from a tvbuff using the specified encoding.
@@ -1344,7 +1344,7 @@ static inline uint32_t tvb_get_guint24(tvbuff_t *tvb, const int offset, const un
  *
  * @return The 24-bit signed value in host byte order.
  */
-WS_DLL_PUBLIC int32_t tvb_get_int24(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int32_t tvb_get_int24(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 24-bit signed value from a tvbuff.
@@ -1361,7 +1361,7 @@ WS_DLL_PUBLIC int32_t tvb_get_int24(tvbuff_t *tvb, const int offset, const unsig
  * @deprecated Use @ref tvb_get_int24 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_int24 instead")
-static inline int32_t tvb_get_gint24(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int24(tvb, offset, encoding); }
+static inline int32_t tvb_get_gint24(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int24(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 32-bit unsigned value from a tvbuff using the specified encoding.
@@ -1378,7 +1378,7 @@ static inline int32_t tvb_get_gint24(tvbuff_t *tvb, const int offset, const unsi
  *
  * @return The 32-bit unsigned value in host byte order.
  */
-WS_DLL_PUBLIC uint32_t tvb_get_uint32(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC uint32_t tvb_get_uint32(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 32-bit unsigned value from a tvbuff.
@@ -1395,7 +1395,7 @@ WS_DLL_PUBLIC uint32_t tvb_get_uint32(tvbuff_t *tvb, const int offset, const uns
  * @deprecated Use @ref tvb_get_uint32 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_uint32 instead")
-static inline uint32_t tvb_get_guint32(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_uint32(tvb, offset, encoding); }
+static inline uint32_t tvb_get_guint32(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_uint32(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 32-bit signed value from a tvbuff using the specified encoding.
@@ -1412,7 +1412,7 @@ static inline uint32_t tvb_get_guint32(tvbuff_t *tvb, const int offset, const un
  *
  * @return The 32-bit signed value in host byte order.
  */
-WS_DLL_PUBLIC int32_t tvb_get_int32(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int32_t tvb_get_int32(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 32-bit signed value from a tvbuff.
@@ -1429,7 +1429,7 @@ WS_DLL_PUBLIC int32_t tvb_get_int32(tvbuff_t *tvb, const int offset, const unsig
  * @deprecated Use @ref tvb_get_int32 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_int32 instead")
-static inline int32_t tvb_get_gint32(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int32(tvb, offset, encoding); }
+static inline int32_t tvb_get_gint32(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int32(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 40-bit unsigned value from a tvbuff using the specified encoding.
@@ -1446,7 +1446,7 @@ static inline int32_t tvb_get_gint32(tvbuff_t *tvb, const int offset, const unsi
  *
  * @return The 40-bit unsigned value in host byte order.
  */
-WS_DLL_PUBLIC uint64_t tvb_get_uint40(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC uint64_t tvb_get_uint40(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 40-bit unsigned value from a tvbuff.
@@ -1463,7 +1463,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_uint40(tvbuff_t *tvb, const int offset, const uns
  * @deprecated Use @ref tvb_get_uint40 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_uint40 instead")
-static inline uint64_t tvb_get_guint40(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_uint40(tvb, offset, encoding); }
+static inline uint64_t tvb_get_guint40(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_uint40(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 40-bit signed value from a tvbuff using the specified encoding.
@@ -1480,7 +1480,7 @@ static inline uint64_t tvb_get_guint40(tvbuff_t *tvb, const int offset, const un
  *
  * @return The 40-bit signed value in host byte order.
  */
-WS_DLL_PUBLIC int64_t tvb_get_int40(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int64_t tvb_get_int40(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 40-bit signed value from a tvbuff.
@@ -1497,7 +1497,7 @@ WS_DLL_PUBLIC int64_t tvb_get_int40(tvbuff_t *tvb, const int offset, const unsig
  * @deprecated Use @ref tvb_get_int40 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_int40 instead")
-static inline int64_t tvb_get_gint40(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int40(tvb, offset, encoding); }
+static inline int64_t tvb_get_gint40(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int40(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 48-bit unsigned value from a tvbuff using the specified encoding.
@@ -1514,7 +1514,7 @@ static inline int64_t tvb_get_gint40(tvbuff_t *tvb, const int offset, const unsi
  *
  * @return The 48-bit unsigned value in host byte order.
  */
-WS_DLL_PUBLIC uint64_t tvb_get_uint48(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC uint64_t tvb_get_uint48(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 48-bit unsigned value from a tvbuff.
@@ -1531,7 +1531,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_uint48(tvbuff_t *tvb, const int offset, const uns
  * @deprecated Use @ref tvb_get_uint48 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_uint48 instead")
-static inline uint64_t tvb_get_guint48(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_uint48(tvb, offset, encoding); }
+static inline uint64_t tvb_get_guint48(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_uint48(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 48-bit signed value from a tvbuff using the specified encoding.
@@ -1548,7 +1548,7 @@ static inline uint64_t tvb_get_guint48(tvbuff_t *tvb, const int offset, const un
  *
  * @return The 48-bit signed value in host byte order.
  */
-WS_DLL_PUBLIC int64_t tvb_get_int48(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int64_t tvb_get_int48(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 48-bit signed value from a tvbuff.
@@ -1565,7 +1565,7 @@ WS_DLL_PUBLIC int64_t tvb_get_int48(tvbuff_t *tvb, const int offset, const unsig
  * @deprecated Use @ref tvb_get_int48 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_int48 instead")
-static inline int64_t tvb_get_gint48(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int48(tvb, offset, encoding); }
+static inline int64_t tvb_get_gint48(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int48(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 56-bit unsigned value from a tvbuff using the specified encoding.
@@ -1582,7 +1582,7 @@ static inline int64_t tvb_get_gint48(tvbuff_t *tvb, const int offset, const unsi
  *
  * @return The 56-bit unsigned value in host byte order.
  */
-WS_DLL_PUBLIC uint64_t tvb_get_uint56(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC uint64_t tvb_get_uint56(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 56-bit unsigned value from a tvbuff.
@@ -1599,7 +1599,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_uint56(tvbuff_t *tvb, const int offset, const uns
  * @deprecated Use @ref tvb_get_uint56 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_uint56 instead")
-static inline uint64_t tvb_get_guint56(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_uint56(tvb, offset, encoding); }
+static inline uint64_t tvb_get_guint56(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_uint56(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 56-bit signed value from a tvbuff using the specified encoding.
@@ -1616,7 +1616,7 @@ static inline uint64_t tvb_get_guint56(tvbuff_t *tvb, const int offset, const un
  *
  * @return The 56-bit signed value in host byte order.
  */
-WS_DLL_PUBLIC int64_t tvb_get_int56(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int64_t tvb_get_int56(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 56-bit signed value from a tvbuff.
@@ -1633,7 +1633,7 @@ WS_DLL_PUBLIC int64_t tvb_get_int56(tvbuff_t *tvb, const int offset, const unsig
  * @deprecated Use @ref tvb_get_int56 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_int56 instead")
-static inline int64_t tvb_get_gint56(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int56(tvb, offset, encoding); }
+static inline int64_t tvb_get_gint56(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int56(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 64-bit unsigned value from a tvbuff using the specified encoding.
@@ -1652,7 +1652,7 @@ static inline int64_t tvb_get_gint56(tvbuff_t *tvb, const int offset, const unsi
  *
  * @see tvb_get_uint64_with_length
  */
-WS_DLL_PUBLIC uint64_t tvb_get_uint64(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC uint64_t tvb_get_uint64(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Retrieve a variable-length unsigned value (up to 64 bits) from a tvbuff using the specified encoding.
@@ -1672,7 +1672,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_uint64(tvbuff_t *tvb, const int offset, const uns
  *
  * @see tvb_get_uint64
  */
-WS_DLL_PUBLIC uint64_t tvb_get_uint64_with_length(tvbuff_t *tvb, const int offset, unsigned length, const unsigned encoding);
+WS_DLL_PUBLIC uint64_t tvb_get_uint64_with_length(tvbuff_t *tvb, const unsigned offset, unsigned length, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 64-bit unsigned value from a tvbuff.
@@ -1689,7 +1689,7 @@ WS_DLL_PUBLIC uint64_t tvb_get_uint64_with_length(tvbuff_t *tvb, const int offse
  * @deprecated Use @ref tvb_get_uint64 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_uint64 instead")
-static inline uint64_t tvb_get_guint64(tvbuff_t *tvb, const int offset, const unsigned encoding) {return tvb_get_uint64(tvb, offset, encoding); }
+static inline uint64_t tvb_get_guint64(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) {return tvb_get_uint64(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 64-bit signed value from a tvbuff using the specified encoding.
@@ -1706,7 +1706,7 @@ static inline uint64_t tvb_get_guint64(tvbuff_t *tvb, const int offset, const un
  *
  * @return The 64-bit signed value in host byte order.
  */
-WS_DLL_PUBLIC int64_t tvb_get_int64(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC int64_t tvb_get_int64(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Deprecated accessor for a 64-bit signed value from a tvbuff.
@@ -1723,7 +1723,7 @@ WS_DLL_PUBLIC int64_t tvb_get_int64(tvbuff_t *tvb, const int offset, const unsig
  * @deprecated Use @ref tvb_get_int64 instead.
  */
 WS_DEPRECATED_X("Use tvb_get_int64 instead")
-static inline int64_t tvb_get_gint64(tvbuff_t *tvb, const int offset, const unsigned encoding) { return tvb_get_int64(tvb, offset, encoding); }
+static inline int64_t tvb_get_gint64(tvbuff_t *tvb, const unsigned offset, const unsigned encoding) { return tvb_get_int64(tvb, offset, encoding); }
 
 /**
  * @brief Retrieve a 32-bit IEEE float from a tvbuff using the specified encoding.
@@ -1742,7 +1742,7 @@ static inline int64_t tvb_get_gint64(tvbuff_t *tvb, const int offset, const unsi
  *
  * @see tvb_get_ieee_double
  */
-WS_DLL_PUBLIC float tvb_get_ieee_float(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC float tvb_get_ieee_float(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @brief Retrieve a 64-bit IEEE double from a tvbuff using the specified encoding.
@@ -1761,7 +1761,7 @@ WS_DLL_PUBLIC float tvb_get_ieee_float(tvbuff_t *tvb, const int offset, const un
  *
  * @see tvb_get_ieee_float
  */
-WS_DLL_PUBLIC double tvb_get_ieee_double(tvbuff_t *tvb, const int offset, const unsigned encoding);
+WS_DLL_PUBLIC double tvb_get_ieee_double(tvbuff_t *tvb, const unsigned offset, const unsigned encoding);
 
 /**
  * @def tvb_get_h_uint16
